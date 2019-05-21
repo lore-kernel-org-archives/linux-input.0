@@ -1,64 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH v2 0/4] Input: mpr121-polled: Add polled driver for
- MPR121
-Date: Mon, 20 May 2019 22:37:05 -0700
-Message-ID: <20190521053705.GI183429@dtor-ws>
-References: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
+From: Anson Huang <anson.huang@nxp.com>
+Subject: RE: [RESEND] input: keyboard: imx: make sure keyboard can always wake
+ up system
+Date: Tue, 21 May 2019 06:36:17 +0000
+Message-ID: <DB3PR0402MB3916ED371BF79D823FBC5171F5070@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
+ <20190521053047.GG183429@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
+In-Reply-To: <20190521053047.GG183429@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Michal =?utf-8?B?Vm9rw6HEjQ==?= <michal.vokac@ysoft.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Michal,
-
-On Fri, May 17, 2019 at 03:12:49PM +0200, Michal Vokáč wrote:
-> Hi,
-> 
-> I have to deal with a situation where we have a custom i.MX6 based
-> platform in production that uses the MPR121 touchkey controller.
-> Unfortunately the chip is connected using only the I2C interface.
-> The interrupt line is not used. Back in 2015 (Linux v3.14), my
-> colleague modded the existing mpr121_touchkey.c driver to use polling
-> instead of interrupt.
-> 
-> For quite some time yet I am in a process of updating the product from
-> the ancient Freescale v3.14 kernel to the latest mainline and pushing
-> any needed changes upstream. The DT files for our imx6dl-yapp4 platform
-> already made it into v5.1-rc.
-> 
-> I rebased and updated our mpr121 patch to the latest mainline.
-> It is created as a separate driver, similarly to gpio_keys_polled.
-> 
-> The I2C device is quite susceptible to ESD. An ESD test quite often
-> causes reset of the chip or some register randomly changes its value.
-> The [PATCH 3/4] adds a write-through register cache. With the cache
-> this state can be detected and the device can be re-initialied.
-> 
-> The main question is: Is there any chance that such a polled driver
-> could be accepted? Is it correct to implement it as a separate driver
-> or should it be done as an option in the existing driver? I can not
-> really imagine how I would do that though..
-> 
-> There are also certain worries that the MPR121 chip may no longer be
-> available in nonspecifically distant future. In case of EOL I will need
-> to add a polled driver for an other touchkey chip. May it be already
-> in mainline or a completely new one.
-
-I think that my addition of input_polled_dev was ultimately a wrong
-thing to do. I am looking into enabling polling mode for regular input
-devices as we then can enable polling mode in existing drivers.
-
-As far as gpio-keys vs gpio-key-polled, I feel that the capabilities of
-polling driver is sufficiently different from interrupt-driven one, so
-we will likely keep them separate.
-
-Thanks.
-
--- 
-Dmitry
+SGksIERtaXRyeQ0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGRtaXRy
+eS50b3Jva2hvdkBnbWFpbC5jb20gW21haWx0bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0K
+PiBTZW50OiBUdWVzZGF5LCBNYXkgMjEsIDIwMTkgMTozMSBQTQ0KPiBUbzogQW5zb24gSHVhbmcg
+PGFuc29uLmh1YW5nQG54cC5jb20+DQo+IENjOiBzaGF3bmd1b0BrZXJuZWwub3JnOyBzLmhhdWVy
+QHBlbmd1dHJvbml4LmRlOw0KPiBrZXJuZWxAcGVuZ3V0cm9uaXguZGU7IGZlc3RldmFtQGdtYWls
+LmNvbTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOw0KPiBsaW51eC1hcm0ta2VybmVsQGxp
+c3RzLmluZnJhZGVhZC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGRsLWxpbnV4
+LQ0KPiBpbXggPGxpbnV4LWlteEBueHAuY29tPg0KPiBTdWJqZWN0OiBSZTogW1JFU0VORF0gaW5w
+dXQ6IGtleWJvYXJkOiBpbXg6IG1ha2Ugc3VyZSBrZXlib2FyZCBjYW4gYWx3YXlzDQo+IHdha2Ug
+dXAgc3lzdGVtDQo+IA0KPiBIaSBBbnNvbiwNCj4gT24gVGh1LCBBcHIgMDQsIDIwMTkgYXQgMDE6
+NDA6MTZBTSArMDAwMCwgQW5zb24gSHVhbmcgd3JvdGU6DQo+ID4gVGhlcmUgYXJlIHNldmVyYWwg
+c2NlbmFyaW9zIHRoYXQga2V5Ym9hcmQgY2FuIE5PVCB3YWtlIHVwIHN5c3RlbSBmcm9tDQo+ID4g
+c3VzcGVuZCwgZS5nLiwgaWYgYSBrZXlib2FyZCBpcyBkZXByZXNzZWQgYmV0d2VlbiBzeXN0ZW0g
+ZGV2aWNlDQo+ID4gc3VzcGVuZCBwaGFzZSBhbmQgZGV2aWNlIG5vaXJxIHN1c3BlbmQgcGhhc2Us
+IHRoZSBrZXlib2FyZCBJU1Igd2lsbCBiZQ0KPiA+IGNhbGxlZCBhbmQgYm90aCBrZXlib2FyZCBk
+ZXByZXNzIGFuZCByZWxlYXNlIGludGVycnVwdHMgd2lsbCBiZQ0KPiA+IGRpc2FibGVkLCB0aGVu
+IGtleWJvYXJkIHdpbGwgbm8gbG9uZ2VyIGJlIGFibGUgdG8gd2FrZSB1cCBzeXN0ZW0uDQo+ID4g
+QW5vdGhlciBzY2VuYXJpbyB3b3VsZCBiZSwgaWYgYSBrZXlib2FyZCBpcyBrZXB0IGRlcHJlc3Nl
+ZCwgYW5kIHRoZW4NCj4gPiBzeXN0ZW0gZ29lcyBpbnRvIHN1c3BlbmQsIHRoZSBleHBlY3RlZCBi
+ZWhhdmlvciB3b3VsZCBiZSB3aGVuIGtleWJvYXJkDQo+ID4gaXMgcmVsZWFzZWQsIHN5c3RlbSB3
+aWxsIGJlIHdha2VkIHVwLCBidXQgY3VycmVudCBpbXBsZW1lbnRhdGlvbiBjYW4NCj4gPiBOT1Qg
+YWNoaWV2ZSB0aGF0LCBiZWNhdXNlIGJvdGggZGVwcmVzcyBhbmQgcmVsZWFzZSBpbnRlcnJ1cHRz
+IGFyZQ0KPiA+IGRpc2FibGVkIGluIElTUiwgYW5kIHRoZSBldmVudCBjaGVjayBpcyBzdGlsbCBp
+biBwcm9ncmVzcy4NCj4gPg0KPiA+IFRvIGZpeCB0aGVzZSBpc3N1ZXMsIG5lZWQgdG8gbWFrZSBz
+dXJlIGtleWJvYXJkJ3MgZGVwcmVzcyBvciByZWxlYXNlDQo+ID4gaW50ZXJydXB0IGlzIGVuYWJs
+ZWQgYWZ0ZXIgbm9pcnEgZGV2aWNlIHN1c3BlbmQgcGhhc2UsIHRoaXMgcGF0Y2gNCj4gPiBtb3Zl
+cyB0aGUgc3VzcGVuZC9yZXN1bWUgY2FsbGJhY2sgdG8gbm9pcnEgc3VzcGVuZC9yZXN1bWUgcGhh
+c2UsIGFuZA0KPiA+IGVuYWJsZSB0aGUgY29ycmVzcG9uZGluZyBpbnRlcnJ1cHQgYWNjb3JkaW5n
+IHRvIGN1cnJlbnQga2V5Ym9hcmQgc3RhdHVzLg0KPiANCj4gSSBiZWxpZXZlIGl0IGlzIHBvc3Np
+YmxlIGZvciBJUlEgdG8gYmUgZGlzYWJsZWQgYW5kIHN0aWxsICBiZWluZyBlbmFibGVkIGFzDQo+
+IHdha2V1cCBzb3VyY2UuIFdoYXQgaGFwcGVucyBpZiB5b3UgY2FsbCBkaXNhYmxlX2lycSgpIGJl
+Zm9yZSBkaXNhYmxpbmcgdGhlDQo+IGNsb2NrPw0KDQpEb2luZyBiZWxvdyBkb2VzIE5PVCBmaXgg
+dGhlIHNjZW5hcmlvL2lzc3VlIDEwMCUsIGlmIHRoZSBrZXlwYWQncyBJUlEgYXJyaXZlZCBkdXJp
+bmcgc3VzcGVuZA0KcGhhc2UgYnV0IGJlZm9yZSBkaXNhYmxpbmcgaXRzIElSUSBpbiBpdHMgc3Vz
+cGVuZCBjYWxsYmFjaywgdGhlbiBpc3N1ZSBpcyBzdGlsbCB0aGVyZSwgYXMgdGhlIGlzc3VlIGlz
+DQp0aGF0IHdoZW4gc3lzdGVtIHN1c3BlbmQsIGtleXBhZCdzIGlycSBhcnJpdmVkIGR1cmluZyBz
+dXNwZW5kIGFuZCBub2lycSBzdXNwZW5kIHBoYXNlLCB0aGVuDQprZXlwYWQncyBoYXJkd2FyZSBp
+bnRlcnJ1cHQgZGV0ZWN0aW9uIHdpbGwgYmUgZGlzYWJsZWQgaW4gdGhlIElTUiBoYW5kbGVyLCBh
+bmQgdGhlIHRpbWVyIGV2ZW50DQpzZXR1cCBieSBJU1IgaGFuZGxlciBpcyBOT1QgZmlyZWQsIGlt
+eF9rZXlwYWRfY2hlY2tfZm9yX2V2ZW50cygpIGlzIE5PVCBleGVjdXRlZCBhbmQgaGFyZHdhcmUN
+CmtleXBhZCdzIGRlcHJlc3MvcmVsZWFzZSBpbnRlcnJ1cHQgaXMgTk9UIHJlLWVuYWJsZWQgeWV0
+LCBzbyBpdCBjYW4gTk9UIHdha2UgdXAgc3lzdGVtIGFueW1vcmUuLi4NCg0KU28gSSB0aGluayB0
+aGUgc29saWQgZml4IGlzIHRvIG1ha2Ugc3VyZSBrZXlwYWQgY2FuIGdlbmVyYXRlIElSUSAoZWl0
+aGVyIGRlcHJlc3Mgb3IgcmVsZWFzZSkgYXQgYW55IHRpbWUNCmR1cmluZyBzeXN0ZW0gc3VzcGVu
+ZCBmbG93Lg0KDQorKysgYi9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2lteF9rZXlwYWQuYw0KQEAg
+LTUzMyw2ICs1MzMsOCBAQCBzdGF0aWMgaW50IF9fbWF5YmVfdW51c2VkIGlteF9rYmRfc3VzcGVu
+ZChzdHJ1Y3QgZGV2aWNlICpkZXYpDQogICAgICAgIC8qIGlteCBrYmQgY2FuIHdha2UgdXAgc3lz
+dGVtIGV2ZW4gY2xvY2sgaXMgZGlzYWJsZWQgKi8NCiAgICAgICAgbXV0ZXhfbG9jaygmaW5wdXRf
+ZGV2LT5tdXRleCk7DQoNCisgICAgICAgZGlzYWJsZV9pcnEoa2JkLT5pcnEpOw0KKw0KICAgICAg
+ICBpZiAoaW5wdXRfZGV2LT51c2VycykNCiAgICAgICAgICAgICAgICBjbGtfZGlzYWJsZV91bnBy
+ZXBhcmUoa2JkLT5jbGspOw0KDQoNCkBAIC01NjIsNiArNTY5LDggQEAgc3RhdGljIGludCBfX21h
+eWJlX3VudXNlZCBpbXhfa2JkX3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpDQogICAgICAgICAg
+ICAgICAgICAgICAgICBnb3RvIGVycl9jbGs7DQogICAgICAgIH0NCg0KKyAgICAgICBlbmFibGVf
+aXJxKGtiZC0+aXJxKTsNCisNCiBlcnJfY2xrOg0KDQpBbnNvbi4NCg0KPiANCj4gVGhhbmtzLg0K
+PiANCj4gLS0NCj4gRG1pdHJ5DQo=

@@ -1,73 +1,60 @@
-From: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>
-Subject: [PATCH] input: alps-fix the issue the special alps trackpoint do not work.
-Date: Mon, 20 May 2019 07:01:49 -0400
-Message-ID: <20190520110149.27107-1-sliuuxiaonxiao@gmail.com>
+From: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
+Subject: =?gb2312?B?tPC4tDogW1BBVENIXSBpbnB1dDogYWxwcy1maXggdGhlIGlzc3VlIHRoZSBz?=
+ =?gb2312?Q?pecial_alps_trackpoint_do_not_work.?=
+Date: Tue, 21 May 2019 01:07:01 +0000
+Message-ID: <OSBPR01MB485510A2A32CD9D2CE5EF7A1DA070@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+References: <20190520110149.27107-1-sliuuxiaonxiao@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190520110149.27107-1-sliuuxiaonxiao@gmail.com>
+Content-Language: zh-CN
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hui.wang@canonical.com, xiaojian.cao@cn.alps.com, zhangfp1@lenovo.com, xiaoxiao.liu-1@cn.alps.com, XiaoXiao Liu <sliuuxiaonxiao@gmail.com>
+To: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "pali.rohar@gmail.com" <pali.rohar@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hui.wang@canonical.com" <hui.wang@canonical.com>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>
 List-Id: linux-input@vger.kernel.org
 
-when the alps trackpoint is detected and using the alps_v8_protocol_data
-procotol, the alps driver will not report the input data.
-
-solution: use standard mouse driver instead of alps driver when the specail
-trackpoint was detected.
-
-Signed-off-by: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>
----
- drivers/input/mouse/alps.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 0a6f7ca883e7..516ae1d0eb17 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -24,7 +24,7 @@
- 
- #include "psmouse.h"
- #include "alps.h"
--
-+#include "trackpoint.h"
- /*
-  * Definitions for ALPS version 3 and 4 command mode protocol
-  */
-@@ -2864,6 +2864,22 @@ static const struct alps_protocol_info *alps_match_table(unsigned char *e7,
- 	return NULL;
- }
- 
-+int alps_check_is_trackpoint(struct psmouse *psmouse)
-+{
-+	u8 param[2] = { 0 };
-+	int error;
-+
-+	error = ps2_command(&psmouse->ps2dev,
-+			    param, MAKE_PS2_CMD(0, 2, TP_READ_ID));
-+	if (error)
-+		return error;
-+
-+	if (param[0] == TP_VARIANT_ALPS)
-+		return 0;
-+	psmouse_warn(psmouse, "It is not alps trackpoint.\n");
-+	return -ENODEV;
-+}
-+
- static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
- {
- 	const struct alps_protocol_info *protocol;
-@@ -2912,6 +2928,11 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
- 			protocol = &alps_v3_protocol_data;
- 		} else if (e7[0] == 0x73 && e7[1] == 0x03 &&
- 			   (e7[2] == 0x14 || e7[2] == 0x28)) {
-+				if (alps_check_is_trackpoint(psmouse) == 0) {
-+					psmouse_warn(psmouse,
-+					"It is alps trackpoint, use the standard mouse driver.\n");
-+					return -EINVAL;
-+				}
- 			protocol = &alps_v8_protocol_data;
- 		} else if (e7[0] == 0x73 && e7[1] == 0x03 && e7[2] == 0xc8) {
- 			protocol = &alps_v9_protocol_data;
--- 
-2.20.1
+QWRkIFBhbGkgUm9oqKJyLg0KDQotLS0tLdPKvP7Urbz+LS0tLS0NCreivP7IyzogWGlhb1hpYW8g
+TGl1IDxzbGl1dXhpYW9ueGlhb0BnbWFpbC5jb20+IA0Kt6LLzcqxvOQ6IE1vbmRheSwgTWF5IDIw
+LCAyMDE5IDc6MDIgUE0NCsrVvP7IyzogZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbQ0Ks63LzTog
+bGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3Jn
+OyBodWkud2FuZ0BjYW5vbmljYWwuY29tOyCy3CCV1L2oIFhpYW9qaWFuIENhbyA8eGlhb2ppYW4u
+Y2FvQGNuLmFscHMuY29tPjsgemhhbmdmcDFAbGVub3ZvLmNvbTsghKIgldSV1CBYaWFveGlhbyBM
+aXUgPHhpYW94aWFvLmxpdS0xQGNuLmFscHMuY29tPjsgWGlhb1hpYW8gTGl1IDxzbGl1dXhpYW9u
+eGlhb0BnbWFpbC5jb20+DQrW98ziOiBbUEFUQ0hdIGlucHV0OiBhbHBzLWZpeCB0aGUgaXNzdWUg
+dGhlIHNwZWNpYWwgYWxwcyB0cmFja3BvaW50IGRvIG5vdCB3b3JrLg0KDQp3aGVuIHRoZSBhbHBz
+IHRyYWNrcG9pbnQgaXMgZGV0ZWN0ZWQgYW5kIHVzaW5nIHRoZSBhbHBzX3Y4X3Byb3RvY29sX2Rh
+dGEgcHJvY290b2wsIHRoZSBhbHBzIGRyaXZlciB3aWxsIG5vdCByZXBvcnQgdGhlIGlucHV0IGRh
+dGEuDQoNCnNvbHV0aW9uOiB1c2Ugc3RhbmRhcmQgbW91c2UgZHJpdmVyIGluc3RlYWQgb2YgYWxw
+cyBkcml2ZXIgd2hlbiB0aGUgc3BlY2FpbCB0cmFja3BvaW50IHdhcyBkZXRlY3RlZC4NCg0KU2ln
+bmVkLW9mZi1ieTogWGlhb1hpYW8gTGl1IDxzbGl1dXhpYW9ueGlhb0BnbWFpbC5jb20+DQotLS0N
+CiBkcml2ZXJzL2lucHV0L21vdXNlL2FscHMuYyB8IDIzICsrKysrKysrKysrKysrKysrKysrKyst
+DQogMSBmaWxlIGNoYW5nZWQsIDIyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCg0KZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvbW91c2UvYWxwcy5jIGIvZHJpdmVycy9pbnB1dC9tb3Vz
+ZS9hbHBzLmMgaW5kZXggMGE2ZjdjYTg4M2U3Li41MTZhZTFkMGViMTcgMTAwNjQ0DQotLS0gYS9k
+cml2ZXJzL2lucHV0L21vdXNlL2FscHMuYw0KKysrIGIvZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBz
+LmMNCkBAIC0yNCw3ICsyNCw3IEBADQogDQogI2luY2x1ZGUgInBzbW91c2UuaCINCiAjaW5jbHVk
+ZSAiYWxwcy5oIg0KLQ0KKyNpbmNsdWRlICJ0cmFja3BvaW50LmgiDQogLyoNCiAgKiBEZWZpbml0
+aW9ucyBmb3IgQUxQUyB2ZXJzaW9uIDMgYW5kIDQgY29tbWFuZCBtb2RlIHByb3RvY29sDQogICov
+DQpAQCAtMjg2NCw2ICsyODY0LDIyIEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgYWxwc19wcm90b2Nv
+bF9pbmZvICphbHBzX21hdGNoX3RhYmxlKHVuc2lnbmVkIGNoYXIgKmU3LA0KIAlyZXR1cm4gTlVM
+TDsNCiB9DQogDQoraW50IGFscHNfY2hlY2tfaXNfdHJhY2twb2ludChzdHJ1Y3QgcHNtb3VzZSAq
+cHNtb3VzZSkgew0KKwl1OCBwYXJhbVsyXSA9IHsgMCB9Ow0KKwlpbnQgZXJyb3I7DQorDQorCWVy
+cm9yID0gcHMyX2NvbW1hbmQoJnBzbW91c2UtPnBzMmRldiwNCisJCQkgICAgcGFyYW0sIE1BS0Vf
+UFMyX0NNRCgwLCAyLCBUUF9SRUFEX0lEKSk7DQorCWlmIChlcnJvcikNCisJCXJldHVybiBlcnJv
+cjsNCisNCisJaWYgKHBhcmFtWzBdID09IFRQX1ZBUklBTlRfQUxQUykNCisJCXJldHVybiAwOw0K
+Kwlwc21vdXNlX3dhcm4ocHNtb3VzZSwgIkl0IGlzIG5vdCBhbHBzIHRyYWNrcG9pbnQuXG4iKTsN
+CisJcmV0dXJuIC1FTk9ERVY7DQorfQ0KKw0KIHN0YXRpYyBpbnQgYWxwc19pZGVudGlmeShzdHJ1
+Y3QgcHNtb3VzZSAqcHNtb3VzZSwgc3RydWN0IGFscHNfZGF0YSAqcHJpdikgIHsNCiAJY29uc3Qg
+c3RydWN0IGFscHNfcHJvdG9jb2xfaW5mbyAqcHJvdG9jb2w7IEBAIC0yOTEyLDYgKzI5MjgsMTEg
+QEAgc3RhdGljIGludCBhbHBzX2lkZW50aWZ5KHN0cnVjdCBwc21vdXNlICpwc21vdXNlLCBzdHJ1
+Y3QgYWxwc19kYXRhICpwcml2KQ0KIAkJCXByb3RvY29sID0gJmFscHNfdjNfcHJvdG9jb2xfZGF0
+YTsNCiAJCX0gZWxzZSBpZiAoZTdbMF0gPT0gMHg3MyAmJiBlN1sxXSA9PSAweDAzICYmDQogCQkJ
+ICAgKGU3WzJdID09IDB4MTQgfHwgZTdbMl0gPT0gMHgyOCkpIHsNCisJCQkJaWYgKGFscHNfY2hl
+Y2tfaXNfdHJhY2twb2ludChwc21vdXNlKSA9PSAwKSB7DQorCQkJCQlwc21vdXNlX3dhcm4ocHNt
+b3VzZSwNCisJCQkJCSJJdCBpcyBhbHBzIHRyYWNrcG9pbnQsIHVzZSB0aGUgc3RhbmRhcmQgbW91
+c2UgZHJpdmVyLlxuIik7DQorCQkJCQlyZXR1cm4gLUVJTlZBTDsNCisJCQkJfQ0KIAkJCXByb3Rv
+Y29sID0gJmFscHNfdjhfcHJvdG9jb2xfZGF0YTsNCiAJCX0gZWxzZSBpZiAoZTdbMF0gPT0gMHg3
+MyAmJiBlN1sxXSA9PSAweDAzICYmIGU3WzJdID09IDB4YzgpIHsNCiAJCQlwcm90b2NvbCA9ICZh
+bHBzX3Y5X3Byb3RvY29sX2RhdGE7DQotLQ0KMi4yMC4xDQoNCg==

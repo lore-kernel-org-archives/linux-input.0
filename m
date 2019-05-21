@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 07/10] Input: elan_i2c - handle physical middle button
-Date: Tue, 21 May 2019 15:27:09 +0200
-Message-ID: <20190521132712.2818-8-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 04/10] dt-bindings: add more optional properties for elan_i2c touchpads
+Date: Tue, 21 May 2019 15:27:06 +0200
+Message-ID: <20190521132712.2818-5-benjamin.tissoires@redhat.com>
 References: <20190521132712.2818-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,69 +12,47 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, R
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Some models have a middle button, we should export it as well.
+Some new touchpads IC are connected through PS/2 and I2C. On some of these
+new IC, the I2C part doesn't have all of the information available.
+We need to be able to forward the touchpad parameters from PS/2 and
+thus, we need those new optional properties.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 --
 
-new in v2
-
-Is it really worth having a separate property, or should we just expose a
-middle button whatsoever?
+changes in v2:
+- Use of generic touchscreen properties for min/max and resolutions
+- add elan,middle-button
+- add elan,*_traces
 ---
- drivers/input/mouse/elan_i2c_core.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/input/elan_i2c.txt | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 53cac610ba33..7ff044c6cd11 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -99,6 +99,7 @@ struct elan_tp_data {
- 	u8			max_baseline;
- 	bool			baseline_ready;
- 	u8			clickpad;
-+	bool			middle_button;
- };
- 
- static int elan_get_fwinfo(u16 ic_type, u16 *validpage_count,
-@@ -420,6 +421,9 @@ static int elan_query_device_parameters(struct elan_tp_data *data)
- 	if (device_property_read_bool(&client->dev, "elan,clickpad"))
- 		data->clickpad = 1;
- 
-+	if (device_property_read_bool(&client->dev, "elan,middle-button"))
-+		data->middle_button = true;
+diff --git a/Documentation/devicetree/bindings/input/elan_i2c.txt b/Documentation/devicetree/bindings/input/elan_i2c.txt
+index 797607460735..9963247706f2 100644
+--- a/Documentation/devicetree/bindings/input/elan_i2c.txt
++++ b/Documentation/devicetree/bindings/input/elan_i2c.txt
+@@ -13,9 +13,20 @@ Optional properties:
+   pinctrl binding [1]).
+ - vcc-supply: a phandle for the regulator supplying 3.3V power.
+ - elan,trackpoint: touchpad can support a trackpoint (boolean)
++- elan,clickpad: touchpad is a clickpad (the entire surface is a button)
++- elan,middle-button: touchpad has a physical middle button
++- elan,x_traces: number of antennas on the x axis
++- elan,y_traces: number of antennas on the y axis
++- some generic touchscreen properties [2]:
++  * touchscreen-size-x
++  * touchscreen-size-y
++  * touchscreen-x-mm
++  * touchscreen-y-mm
 +
- 	return 0;
- }
  
-@@ -958,8 +962,9 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
- 			finger_data += ETP_FINGER_DATA_LEN;
- 	}
+ [0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+ [1]: Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
++[2]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
  
--	input_report_key(input, BTN_LEFT, tp_info & 0x01);
--	input_report_key(input, BTN_RIGHT, tp_info & 0x02);
-+	input_report_key(input, BTN_LEFT,   tp_info & BIT(0));
-+	input_report_key(input, BTN_MIDDLE, tp_info & BIT(2));
-+	input_report_key(input, BTN_RIGHT,  tp_info & BIT(1));
- 	input_report_abs(input, ABS_DISTANCE, hover_event != 0);
- 	input_mt_report_pointer_emulation(input, true);
- 	input_sync(input);
-@@ -1091,10 +1096,13 @@ static int elan_setup_input_device(struct elan_tp_data *data)
- 
- 	__set_bit(EV_ABS, input->evbit);
- 	__set_bit(INPUT_PROP_POINTER, input->propbit);
--	if (data->clickpad)
-+	if (data->clickpad) {
- 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
--	else
-+	} else {
- 		__set_bit(BTN_RIGHT, input->keybit);
-+		if (data->middle_button)
-+			__set_bit(BTN_MIDDLE, input->keybit);
-+	}
- 	__set_bit(BTN_LEFT, input->keybit);
- 
- 	/* Set up ST parameters */
+ Example:
+ 	&i2c1 {
 -- 
 2.21.0

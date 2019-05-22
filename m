@@ -1,54 +1,49 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: =?utf-8?B?562U5aSNOiDnrZTlpI06IOetlA==?=
- =?utf-8?B?5aSNOiBbUEFUQ0hdIGlucHV0?= =?utf-8?Q?=3A?= alps-fix the issue the
- special alps trackpoint do not work.
-Date: Wed, 22 May 2019 09:40:30 +0200
-Message-ID: <20190522074030.64sy7xt3wnomtxjb@pali>
-References: <20190520110149.27107-1-sliuuxiaonxiao@gmail.com>
- <OSBPR01MB485510A2A32CD9D2CE5EF7A1DA070@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <345b62e1-407e-7a03-9b03-486bbf5a0a8e@canonical.com>
- <20190521094622.syeub6tcqhbyc7sg@pali>
- <OSBPR01MB4855D744473149D037612506DA000@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <20190522063546.kb74mxeprkauicul@pali>
- <OSBPR01MB48550B43F78BBFBDC20D414DDA000@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] input: silead: Add MSSL0017 to acpi_device_id.
+Date: Wed, 22 May 2019 12:12:47 +0200
+Message-ID: <6c18472f-bedd-6e6d-121c-8a311495c3c3@redhat.com>
+References: <20190522045455.15769-1-danct12@disroot.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <OSBPR01MB48550B43F78BBFBDC20D414DDA000@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+In-Reply-To: <20190522045455.15769-1-danct12@disroot.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>, Peter Hutterer <peter.hutterer@who-t.net>, dmitry.torokhov@gmail.com
-Cc: Hui Wang <hui.wang@canonical.com>, XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>
+To: Danct12 <danct12@disroot.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wednesday 22 May 2019 07:30:43 Xiaoxiao Liu wrote:
-> Hi Pali,
+Hi,
+
+On 22-05-19 06:54, Danct12 wrote:
+> On Chuwi Hi10 Plus, the Silead device id is MSSL0017.
 > 
-> Ok, and cannot you set ALPS_DUALPOINT flag based on that
-> alps_check_is_trackpoint() result and then update
-> alps_process_packet_ss4_v3() code to supports also
-> V8 trackpoint packets?
-> --> Yes, we can do like so, when we use the v8 method to process the trackpoint , the mouse speed is not ideal.
->       Then we choose the standard mouse driver.
+> Signed-off-by: Danct12 <danct12@disroot.org>
 
-Mouse speed is something which is configurable. Have you configured it
-somehow? Also there is libinput project should handle these settings
-more properly.
+Patch looks good to me:
 
-Adding Peter Hutterer, maintainer of libinput to loop. I think he could
-help with this problem.
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-I do not think it is a good idea to force back to generic PS/2 mouse
-driver for touchpads and trackpoints. Native drivers for touchpads and
-trackpoints supports multitouch, absolute reporting and lot of other
-things... Also calculation of mouse speed from absolute positions on
-touchpads can be more easily fixed as from emulated relative movements.
+Regards,
 
-Dmitry, what is your opinion about this problem? What should psmouse.ko
-do in this situation? Disallow usage of absolute mode and force bare
-PS/2 relative mode?
+Hans
 
--- 
-Pali Rohár
-pali.rohar@gmail.com
+
+> ---
+>   drivers/input/touchscreen/silead.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+> index 09241d4cdebc..06f0eb04a8fd 100644
+> --- a/drivers/input/touchscreen/silead.c
+> +++ b/drivers/input/touchscreen/silead.c
+> @@ -617,6 +617,7 @@ static const struct acpi_device_id silead_ts_acpi_match[] = {
+>   	{ "MSSL1680", 0 },
+>   	{ "MSSL0001", 0 },
+>   	{ "MSSL0002", 0 },
+> +	{ "MSSL0017", 0 },
+>   	{ }
+>   };
+>   MODULE_DEVICE_TABLE(acpi, silead_ts_acpi_match);
+> 

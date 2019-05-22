@@ -1,141 +1,61 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH v4 1/2] HID: quirks: Refactor ELAN 400 and 401 handling
-Date: Tue, 21 May 2019 09:43:24 -0700
-Message-ID: <20190521164324.GA2085@tuxbook-pro>
-References: <20190423160543.9922-1-jeffrey.l.hugo@gmail.com>
- <20190423160605.9970-1-jeffrey.l.hugo@gmail.com>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Subject: [PATCH] Input: uinput - add compat ioctl number translation for UI_*_FF_UPLOAD
+Date: Tue, 21 May 2019 18:39:22 -0700
+Message-ID: <20190522013922.25538-1-andrew.smirnov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190423160605.9970-1-jeffrey.l.hugo@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Cc: dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, agross@kernel.org, david.brown@linaro.org, hdegoede@redhat.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, stable@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue 23 Apr 09:06 PDT 2019, Jeffrey Hugo wrote:
+In the case of compat syscall ioctl numbers for UI_BEGIN_FF_UPLOAD and
+UI_END_FF_UPLOAD need to be adjusted before being passed on
+uinput_ioctl_handler() since code built with -m32 will be passing
+slightly different values. Extend the code already covering
+UI_SET_PHYS to cover UI_BEGIN_FF_UPLOAD and UI_END_FF_UPLOAD as well.
 
-> There needs to be coordination between hid-quirks and the elan_i2c driver
-> about which devices are handled by what drivers.  Currently, both use
-> whitelists, which results in valid devices being unhandled by default,
-> when they should not be rejected by hid-quirks.  This is quickly becoming
-> an issue.
-> 
-> Since elan_i2c has a maintained whitelist of what devices it will handle,
-> use that to implement a blacklist in hid-quirks so that only the devices
-> that need to be handled by elan_i2c get rejected by hid-quirks, and
-> everything else is handled by default.  The downside is the whitelist and
-> blacklist need to be kept in sync.
-> 
+Reported-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/input/misc/uinput.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-
-Jiri, the two patches in this series doesn't have a build time
-dependency, so if you take this one through your tree I'll take 2/2
-through arm-soc.
-
-Regards,
-Bjorn
-
-> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-> ---
->  drivers/hid/hid-quirks.c            | 64 ++++++++++++++++++++++++-----
->  drivers/input/mouse/elan_i2c_core.c |  4 ++
->  2 files changed, 58 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> index 77ffba48cc73..656485e08eb7 100644
-> --- a/drivers/hid/hid-quirks.c
-> +++ b/drivers/hid/hid-quirks.c
-> @@ -987,17 +987,61 @@ bool hid_ignore(struct hid_device *hdev)
->  		break;
->  	case USB_VENDOR_ID_ELAN:
->  		/*
-> -		 * Many Elan devices have a product id of 0x0401 and are handled
-> -		 * by the elan_i2c input driver. But the ACPI HID ELAN0800 dev
-> -		 * is not (and cannot be) handled by that driver ->
-> -		 * Ignore all 0x0401 devs except for the ELAN0800 dev.
-> +		 * Blacklist of everything that gets handled by the elan_i2c
-> +		 * input driver.  This should be kept in sync with the whitelist
-> +		 * that exists in that driver.  This avoids disabling valid
-> +		 * touchpads and other ELAN devices.
->  		 */
-> -		if (hdev->product == 0x0401 &&
-> -		    strncmp(hdev->name, "ELAN0800", 8) != 0)
-> -			return true;
-> -		/* Same with product id 0x0400 */
-> -		if (hdev->product == 0x0400 &&
-> -		    strncmp(hdev->name, "QTEC0001", 8) != 0)
-> +		if ((hdev->product == 0x0401 || hdev->product == 0x0400) &&
-> +		   (strncmp(hdev->name, "ELAN0000", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0100", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0600", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0601", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0602", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0603", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0604", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0605", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0606", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0607", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0608", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0609", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN060B", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN060C", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN060F", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0610", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0611", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0612", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0613", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0614", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0615", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0616", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0617", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0618", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0619", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN061A", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN061B", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN061C", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN061D", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN061E", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN061F", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0620", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0621", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0622", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0623", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0624", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0625", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0626", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0627", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0628", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0629", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN062A", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN062B", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN062C", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN062D", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0631", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN0632", 8) == 0 ||
-> +		    strncmp(hdev->name, "ELAN1000", 8) == 0 ||
-> +		    strncmp(hdev->name, "elan,ekth3000", 13) == 0))
->  			return true;
->  		break;
->  	}
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index f9525d6f0bfe..3ded19528cd4 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -1332,6 +1332,10 @@ static const struct i2c_device_id elan_id[] = {
->  };
->  MODULE_DEVICE_TABLE(i2c, elan_id);
->  
-> +/*
-> + * when these whtielists get updated, the corresponding blacklist in hid-quirks
-> + * needs to be updated to match.
-> + */
->  #ifdef CONFIG_ACPI
->  static const struct acpi_device_id elan_acpi_id[] = {
->  	{ "ELAN0000", 0 },
-> -- 
-> 2.17.1
-> 
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 1a6762fc38f9..1116d4cd5695 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -1051,13 +1051,24 @@ static long uinput_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 
+ #ifdef CONFIG_COMPAT
+ 
+-#define UI_SET_PHYS_COMPAT	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
++#define UI_SET_PHYS_COMPAT		_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
++#define UI_BEGIN_FF_UPLOAD_COMPAT	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload_compat)
++#define UI_END_FF_UPLOAD_COMPAT		_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload_compat)
+ 
+ static long uinput_compat_ioctl(struct file *file,
+ 				unsigned int cmd, unsigned long arg)
+ {
+-	if (cmd == UI_SET_PHYS_COMPAT)
++	switch (cmd) {
++	case UI_SET_PHYS_COMPAT:
+ 		cmd = UI_SET_PHYS;
++		break;
++	case UI_BEGIN_FF_UPLOAD_COMPAT:
++		cmd = UI_BEGIN_FF_UPLOAD;
++		break;
++	case UI_END_FF_UPLOAD_COMPAT:
++		cmd = UI_END_FF_UPLOAD;
++		break;
++	}
+ 
+ 	return uinput_ioctl_handler(file, cmd, arg, compat_ptr(arg));
+ }
+-- 
+2.21.0

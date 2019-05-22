@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 054/167] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
-Date: Wed, 22 May 2019 15:26:49 -0400
-Message-ID: <20190522192842.25858-54-sashal@kernel.org>
-References: <20190522192842.25858-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 080/244] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
+Date: Wed, 22 May 2019 15:23:46 -0400
+Message-ID: <20190522192630.24917-80-sashal@kernel.org>
+References: <20190522192630.24917-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190522192842.25858-1-sashal@kernel.org>
+In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -43,7 +43,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index b83d4173fc7f5..d209b12057d59 100644
+index 8425d3548a414..edf224ad13369 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
 @@ -725,13 +725,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,

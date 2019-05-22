@@ -1,12 +1,13 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: logitech-dj: make const array template static
-Date: Wed, 22 May 2019 13:19:18 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1905221319120.1962@cbobk.fhfr.pm>
-References: <20190510131039.4675-1-colin.king@canonical.com>
+Subject: Re: [PATCH] HID: logitech-hidpp: HID: make const array consumer_rdesc_start
+ static
+Date: Wed, 22 May 2019 13:19:30 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1905221319220.1962@cbobk.fhfr.pm>
+References: <20190510131722.5023-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190510131039.4675-1-colin.king@canonical.com>
+In-Reply-To: <20190510131722.5023-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Colin King <colin.king@canonical.com>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -16,49 +17,39 @@ On Fri, 10 May 2019, Colin King wrote:
 
 > From: Colin Ian King <colin.king@canonical.com>
 > 
-> Don't populate the array template  on the stack but instead make it
-> static. Makes the object code smaller by 10 bytes. Also reformat
-> the declaration.
+> Don't populate the array consumer_rdesc_start on the stack but instead
+> make it static. Makes the object code smaller by 88 bytes.
 > 
 > Before:
 >    text	   data	    bss	    dec	    hex	filename
->   29376	   9360	    128	  38864	   97d0	drivers/hid/hid-logitech-dj.o
+>   59155	   9840	    448	  69443	  10f43	drivers/hid/hid-logitech-hidpp.o
 > 
 > After:
 >    text	   data	    bss	    dec	    hex	filename
->   29270	   9456	    128	  38854	   97c6	drivers/hid/hid-logitech-dj.o
+>   59003	   9904	    448	  69355	  10eeb	drivers/hid/hid-logitech-hidpp.o
 > 
 > (gcc version 8.3.0, amd64)
 > 
 > Signed-off-by: Colin Ian King <colin.king@canonical.com>
 > ---
->  drivers/hid/hid-logitech-dj.c | 14 ++++++++------
->  1 file changed, 8 insertions(+), 6 deletions(-)
+>  drivers/hid/hid-logitech-hidpp.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> index b1e894618eed..72d0ab05401f 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -1111,12 +1111,14 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
->  
->  static int logi_dj_recv_query_hidpp_devices(struct dj_receiver_dev *djrcv_dev)
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 72fc9c0566db..df960491e473 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -2862,7 +2862,7 @@ static u8 *hidpp10_consumer_keys_report_fixup(struct hidpp_device *hidpp,
+>  					      u8 *_rdesc, unsigned int *rsize)
 >  {
-> -	const u8 template[] = {REPORT_ID_HIDPP_SHORT,
-> -			       HIDPP_RECEIVER_INDEX,
-> -			       HIDPP_SET_REGISTER,
-> -			       HIDPP_REG_CONNECTION_STATE,
-> -			       HIDPP_FAKE_DEVICE_ARRIVAL,
-> -			       0x00, 0x00};
-> +	static const u8 template[] = {
-> +		REPORT_ID_HIDPP_SHORT,
-> +		HIDPP_RECEIVER_INDEX,
-> +		HIDPP_SET_REGISTER,
-> +		HIDPP_REG_CONNECTION_STATE,
-> +		HIDPP_FAKE_DEVICE_ARRIVAL,
-> +		0x00, 0x00
-> +	};
+>  	/* Note 0 terminated so we can use strnstr to search for this. */
+> -	const char consumer_rdesc_start[] = {
+> +	static const char consumer_rdesc_start[] = {
+>  		0x05, 0x0C,	/* USAGE_PAGE (Consumer Devices)       */
+>  		0x09, 0x01,	/* USAGE (Consumer Control)            */
+>  		0xA1, 0x01,	/* COLLECTION (Application)            */
 
-Applied.
+Applied, thanks Colin.
 
 -- 
 Jiri Kosina

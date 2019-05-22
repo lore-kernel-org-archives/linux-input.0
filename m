@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 27/92] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
-Date: Wed, 22 May 2019 15:30:22 -0400
-Message-ID: <20190522193127.27079-27-sashal@kernel.org>
-References: <20190522193127.27079-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 037/114] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
+Date: Wed, 22 May 2019 15:29:00 -0400
+Message-ID: <20190522193017.26567-37-sashal@kernel.org>
+References: <20190522193017.26567-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190522193127.27079-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190522193017.26567-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -43,10 +43,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 5fd97860aec4d..3666e5064d0d3 100644
+index 3198faf5cff4d..38d9deb03d16c 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -414,13 +414,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
+@@ -449,13 +449,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
  
  static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
  {
@@ -65,7 +65,7 @@ index 5fd97860aec4d..3666e5064d0d3 100644
  
  	if (ret == HIDPP_ERROR_INVALID_SUBID) {
  		hidpp->protocol_major = 1;
-@@ -440,8 +443,14 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
+@@ -475,8 +478,14 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
  	if (ret)
  		return ret;
  

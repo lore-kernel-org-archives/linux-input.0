@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 080/244] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
-Date: Wed, 22 May 2019 15:23:46 -0400
-Message-ID: <20190522192630.24917-80-sashal@kernel.org>
-References: <20190522192630.24917-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 099/317] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
+Date: Wed, 22 May 2019 15:20:00 -0400
+Message-ID: <20190522192338.23715-99-sashal@kernel.org>
+References: <20190522192338.23715-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190522192630.24917-1-sashal@kernel.org>
+In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -43,10 +43,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 8425d3548a414..edf224ad13369 100644
+index 199cc256e9d9d..ffd30c7492df8 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -725,13 +725,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
+@@ -836,13 +836,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
  
  static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
  {
@@ -65,7 +65,7 @@ index 8425d3548a414..edf224ad13369 100644
  
  	if (ret == HIDPP_ERROR_INVALID_SUBID) {
  		hidpp->protocol_major = 1;
-@@ -751,8 +754,14 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
+@@ -862,8 +865,14 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
  	if (ret)
  		return ret;
  

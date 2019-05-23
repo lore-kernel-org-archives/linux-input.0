@@ -1,72 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: uinput - add compat ioctl number translation for
- UI_*_FF_UPLOAD
-Date: Thu, 23 May 2019 12:59:12 -0700
-Message-ID: <20190523195912.GB176265@dtor-ws>
-References: <20190522013922.25538-1-andrew.smirnov@gmail.com>
+Subject: Re: [PATCH 2/2] input: keyboard: mtk-pmic-keys: add MT6392 support
+Date: Thu, 23 May 2019 15:55:36 -0700
+Message-ID: <20190523225536.GE176265@dtor-ws>
+References: <20190513142120.6527-1-fparent@baylibre.com>
+ <20190513142120.6527-2-fparent@baylibre.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190522013922.25538-1-andrew.smirnov@gmail.com>
+In-Reply-To: <20190513142120.6527-2-fparent@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: linux-input@vger.kernel.org, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, stable@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Fabien Parent <fparent@baylibre.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, matthias.bgg@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 21, 2019 at 06:39:22PM -0700, Andrey Smirnov wrote:
-> In the case of compat syscall ioctl numbers for UI_BEGIN_FF_UPLOAD and
-> UI_END_FF_UPLOAD need to be adjusted before being passed on
-> uinput_ioctl_handler() since code built with -m32 will be passing
-> slightly different values. Extend the code already covering
-> UI_SET_PHYS to cover UI_BEGIN_FF_UPLOAD and UI_END_FF_UPLOAD as well.
+On Mon, May 13, 2019 at 04:21:20PM +0200, Fabien Parent wrote:
+> Add support for MT6392 PMIC's keys.
 > 
-> Reported-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Fabien Parent <fparent@baylibre.com>
 
-Applied, thank you.
+Apparently this depends on not-yet merged MT6392 support in MFD, so
+please merge through MFD tree with the rest of it.
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 > ---
->  drivers/input/misc/uinput.c | 15 +++++++++++++--
->  1 file changed, 13 insertions(+), 2 deletions(-)
+>  drivers/input/keyboard/mtk-pmic-keys.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
 > 
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> index 1a6762fc38f9..1116d4cd5695 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -1051,13 +1051,24 @@ static long uinput_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+> index 8e6ebab05ab4..aaf68cbf7e5b 100644
+> --- a/drivers/input/keyboard/mtk-pmic-keys.c
+> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+> @@ -18,6 +18,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/kernel.h>
+>  #include <linux/mfd/mt6323/registers.h>
+> +#include <linux/mfd/mt6392/registers.h>
+>  #include <linux/mfd/mt6397/core.h>
+>  #include <linux/mfd/mt6397/registers.h>
+>  #include <linux/module.h>
+> @@ -83,6 +84,16 @@ static const struct mtk_pmic_regs mt6323_regs = {
+>  	.pmic_rst_reg = MT6323_TOP_RST_MISC,
+>  };
 >  
->  #ifdef CONFIG_COMPAT
->  
-> -#define UI_SET_PHYS_COMPAT	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
-> +#define UI_SET_PHYS_COMPAT		_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
-> +#define UI_BEGIN_FF_UPLOAD_COMPAT	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload_compat)
-> +#define UI_END_FF_UPLOAD_COMPAT		_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload_compat)
->  
->  static long uinput_compat_ioctl(struct file *file,
->  				unsigned int cmd, unsigned long arg)
->  {
-> -	if (cmd == UI_SET_PHYS_COMPAT)
-> +	switch (cmd) {
-> +	case UI_SET_PHYS_COMPAT:
->  		cmd = UI_SET_PHYS;
-> +		break;
-> +	case UI_BEGIN_FF_UPLOAD_COMPAT:
-> +		cmd = UI_BEGIN_FF_UPLOAD;
-> +		break;
-> +	case UI_END_FF_UPLOAD_COMPAT:
-> +		cmd = UI_END_FF_UPLOAD;
-> +		break;
-> +	}
->  
->  	return uinput_ioctl_handler(file, cmd, arg, compat_ptr(arg));
->  }
+> +static const struct mtk_pmic_regs mt6392_regs = {
+> +	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
+> +		MTK_PMIC_KEYS_REGS(MT6392_CHRSTATUS,
+> +		0x2, MT6392_INT_MISC_CON, 0x10),
+> +	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
+> +		MTK_PMIC_KEYS_REGS(MT6392_CHRSTATUS,
+> +		0x4, MT6392_INT_MISC_CON, 0x8),
+> +	.pmic_rst_reg = MT6392_TOP_RST_MISC,
+> +};
+> +
+>  struct mtk_pmic_keys_info {
+>  	struct mtk_pmic_keys *keys;
+>  	const struct mtk_pmic_keys_regs *regs;
+> @@ -238,6 +249,9 @@ static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
+>  	}, {
+>  		.compatible = "mediatek,mt6323-keys",
+>  		.data = &mt6323_regs,
+> +	}, {
+> +		.compatible = "mediatek,mt6392-keys",
+> +		.data = &mt6392_regs,
+>  	}, {
+>  		/* sentinel */
+>  	}
 > -- 
-> 2.21.0
+> 2.20.1
 > 
 
 -- 

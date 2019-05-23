@@ -1,33 +1,63 @@
 From: Daniel Smith <danct12@disroot.org>
-Subject: [PATCH] input: silead: Add MSSL0017 to acpi_device_id.
-Date: Fri, 24 May 2019 02:06:59 +0700
-Message-ID: <20190523190659.3117-1-danct12@disroot.org>
+Subject: [PATCH] platform/x86: touchscreen_dmi: Add info for the CHUWI Hi10 Plus tablet.
+Date: Fri, 24 May 2019 02:09:13 +0700
+Message-ID: <20190523190913.5801-1-danct12@disroot.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Daniel Smith <danct12@disroot.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Daniel Smith <danct12@disroot.org>, Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Chuwi Hi10 Plus, the Silead device id is MSSL0017.
+Added touch screen info for CHUWI Hi10 Plus tablet.
 
 Signed-off-by: Daniel Smith <danct12@disroot.org>
 ---
- drivers/input/touchscreen/silead.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index 09241d4cdebc..06f0eb04a8fd 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -617,6 +617,7 @@ static const struct acpi_device_id silead_ts_acpi_match[] = {
- 	{ "MSSL1680", 0 },
- 	{ "MSSL0001", 0 },
- 	{ "MSSL0002", 0 },
-+	{ "MSSL0017", 0 },
- 	{ }
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index bd0856d2e825..1dbb53c3f1e7 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -91,6 +91,22 @@ static const struct ts_dmi_data chuwi_hi10_air_data = {
+ 	.properties	= chuwi_hi10_air_props,
  };
- MODULE_DEVICE_TABLE(acpi, silead_ts_acpi_match);
+ 
++static const struct property_entry chuwi_hi10_plus_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 0),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1914),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1283),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10plus.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	{ }
++};
++
++static const struct ts_dmi_data chuwi_hi10_plus_data = {
++	.acpi_name      = "MSSL0017:00",
++	.properties     = chuwi_hi10_plus_props,
++};
++
+ static const struct property_entry chuwi_vi8_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
+@@ -605,6 +621,15 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
+ 		},
+ 	},
++	{
++		/* Chuwi Hi10 Plus (CWI527) */
++		.driver_data = (void *)&chuwi_hi10_plus_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Hi10 plus tablet"),
++			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++		},
++	},
+ 	{
+ 		/* Chuwi Vi8 (CWI506) */
+ 		.driver_data = (void *)&chuwi_vi8_data,
 -- 
 2.21.0

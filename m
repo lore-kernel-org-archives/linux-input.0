@@ -1,86 +1,50 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 099/317] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
-Date: Wed, 22 May 2019 15:20:00 -0400
-Message-ID: <20190522192338.23715-99-sashal@kernel.org>
-References: <20190522192338.23715-1-sashal@kernel.org>
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: Re: [PATCH 2/2] Input: synaptics - remove X240 from the topbuttonpad
+ list
+Date: Thu, 23 May 2019 13:02:09 +0800
+Message-ID: <cdcc48a7-bd52-5ea4-6712-7f77604fe549@canonical.com>
+References: <20190519072711.2592-1-aaron.ma@canonical.com>
+ <20190519072711.2592-2-aaron.ma@canonical.com>
+ <20190521050850.GC183429@dtor-ws>
+ <CAO-hwJLXB8Qec9Yhz0y6WgvEpE6KHk_53g4VtPGj9mfvMzk4dg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
+In-Reply-To: <CAO-hwJLXB8Qec9Yhz0y6WgvEpE6KHk_53g4VtPGj9mfvMzk4dg@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Christopher Heiny <Cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 096377525cdb8251e4656085efc988bdf733fb4c ]
 
-According to the logitech_hidpp_2.0_specification_draft_2012-06-04.pdf doc:
-https://lekensteyn.nl/files/logitech/logitech_hidpp_2.0_specification_draft_2012-06-04.pdf
+On 5/21/19 2:49 PM, Benjamin Tissoires wrote:
+> A quick google image search showed that the X240 had 2 versions: one
+> with the top software buttons, one without.
+> 
+> And this definitively rings a bell. I am sure we asked Lenovo and
+> Synaptics to change the PnPID when they would do such a change, but
+> they "forgot" during the *40 series refresh.
+> We have code in place to fix the reported ranges of the coordinates,
+> and we had to check against the board id (see min_max_pnpid_table[] in
+> synaptics.c).
+> Unfortunately, X240 (LEN0035) is not part of this table, so I don't
+> know which refresh of the board ID has implemented the non top
+> software buttons.
 
-We should use a register-access-protocol request using the short input /
-output report ids. This is necessary because 27MHz HID++ receivers have
-a max-packetsize on their HIP++ endpoint of 8, so they cannot support
-long reports. Using a feature-access-protocol request (which is always
-long or very-long) with these will cause a timeout error, followed by
-the hidpp driver treating the device as not being HID++ capable.
+After double confirm from Lenovo, looks like they mixed up with
+touchpads on X240/X240s.
 
-This commit fixes this by switching to using a rap request to get the
-protocol version.
+For now only one user reported this LEN0035 doesn't work on SMBus mode.
+module parameter can be a workaround.
+Maybe some touchpads with software top buttons are working well on
+SMBus. Let's keep eyes on this issue for now.
 
-Besides being tested with a (046d:c517) 27MHz receiver with various
-27MHz keyboards and mice, this has also been tested to not cause
-regressions on a non-unifying dual-HID++ nano receiver (046d:c534) with
-k270 and m185 HID++-2.0 devices connected and on a unifying/dj receiver
-(046d:c52b) with a HID++-2.0 Logitech Rechargeable Touchpad T650.
+Regards,
+Aaron
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-logitech-hidpp.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 199cc256e9d9d..ffd30c7492df8 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -836,13 +836,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
- 
- static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- {
-+	const u8 ping_byte = 0x5a;
-+	u8 ping_data[3] = { 0, 0, ping_byte };
- 	struct hidpp_report response;
- 	int ret;
- 
--	ret = hidpp_send_fap_command_sync(hidpp,
-+	ret = hidpp_send_rap_command_sync(hidpp,
-+			REPORT_ID_HIDPP_SHORT,
- 			HIDPP_PAGE_ROOT_IDX,
- 			CMD_ROOT_GET_PROTOCOL_VERSION,
--			NULL, 0, &response);
-+			ping_data, sizeof(ping_data), &response);
- 
- 	if (ret == HIDPP_ERROR_INVALID_SUBID) {
- 		hidpp->protocol_major = 1;
-@@ -862,8 +865,14 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- 	if (ret)
- 		return ret;
- 
--	hidpp->protocol_major = response.fap.params[0];
--	hidpp->protocol_minor = response.fap.params[1];
-+	if (response.rap.params[2] != ping_byte) {
-+		hid_err(hidpp->hid_dev, "%s: ping mismatch 0x%02x != 0x%02x\n",
-+			__func__, response.rap.params[2], ping_byte);
-+		return -EPROTO;
-+	}
-+
-+	hidpp->protocol_major = response.rap.params[0];
-+	hidpp->protocol_minor = response.rap.params[1];
- 
- 	return ret;
- }
--- 
-2.20.1
+> 
+> Cheers,
+> Benjamin

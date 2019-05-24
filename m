@@ -1,103 +1,41 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: =?utf-8?B?562U5aSNOiDnrZTlpI06IOetlA==?=
- =?utf-8?B?5aSNOiBbUEFUQ0hdIGlucHV0?= =?utf-8?Q?=3A?= alps-fix the issue the
- special alps trackpoint do not work.
-Date: Fri, 24 May 2019 20:58:22 +1000
-Message-ID: <20190524105822.GA3358@jelly>
-References: <OSBPR01MB48550B43F78BBFBDC20D414DDA000@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <20190522074030.64sy7xt3wnomtxjb@pali>
- <20190523060154.GA10526@jelly>
- <38ec4a40-d51a-aeb1-a5e8-dbaed1142298@canonical.com>
- <20190524053648.GA16379@jelly>
- <d1fd207d-68e1-0b57-f0dc-c254bfc9352c@canonical.com>
- <20190524072648.6zqgz7rpwpcv22pb@pali>
- <d0b659bf-e6ed-bbbb-a3ab-17daf525a577@canonical.com>
- <20190524093729.GB1119@jelly>
- <f0c2dff9-519e-d54d-4cd0-2be666656dc2@canonical.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 0/8] Fix Elan I2C touchpads in latest generation from Lenovo
+Date: Fri, 24 May 2019 15:50:38 +0200
+Message-ID: <20190524135046.17710-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <f0c2dff9-519e-d54d-4cd0-2be666656dc2@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hui Wang <hui.wang@canonical.com>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>, dmitry.torokhov@gmail.com, XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, Rob Herring <robh+dt@kernel.org>, Aaron Ma <aaron.ma@canonical.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, May 24, 2019 at 06:43:58PM +0800, Hui Wang wrote:
-> 
-> On 2019/5/24 下午5:37, Peter Hutterer wrote:
-> > On Fri, May 24, 2019 at 03:37:57PM +0800, Hui Wang wrote:
-> > > On 2019/5/24 下午3:26, Pali Rohár wrote:
-> > > > On Friday 24 May 2019 13:50:53 Hui Wang wrote:
-> > > > > On 2019/5/24 下午1:36, Peter Hutterer wrote:
-> > > > > > On Fri, May 24, 2019 at 01:25:52PM +0800, Hui Wang wrote:
-> > > > > > > On 2019/5/23 下午2:01, Peter Hutterer wrote:
-> > > > > > > > On Wed, May 22, 2019 at 09:40:30AM +0200, Pali Rohár wrote:
-> > > > > > > > > On Wednesday 22 May 2019 07:30:43 Xiaoxiao Liu wrote:
-> > > > > > > > > > Hi Pali,
-> > > > > > > > > > 
-> > > > > > > > > > Ok, and cannot you set ALPS_DUALPOINT flag based on that
-> > > > > > > > > > alps_check_is_trackpoint() result and then update
-> > > > > > > > > > alps_process_packet_ss4_v3() code to supports also
-> > > > > > > > > > V8 trackpoint packets?
-> > > > > > > > > > --> Yes, we can do like so, when we use the v8 method to process the trackpoint , the mouse speed is not ideal.
-> > > > > > > > > >           Then we choose the standard mouse driver.
-> > > > > > > > > Mouse speed is something which is configurable. Have you configured it
-> > > > > > > > > somehow? Also there is libinput project should handle these settings
-> > > > > > > > > more properly.
-> > > > > > > > > 
-> > > > > > > > > Adding Peter Hutterer, maintainer of libinput to loop. I think he could
-> > > > > > > > > help with this problem.
-> > > > > > > > libinput has a quirk for a magic multiplier on trackpoints. it was the only
-> > > > > > > > solution I found that came close to "working" given that every device seems
-> > > > > > > > to provide some other random magic data. Doc for it is here:
-> > > > > > > > https://wayland.freedesktop.org/libinput/doc/latest/trackpoint-configuration.html
-> > > > > > > Hello Peter Hutterer,
-> > > > > > > 
-> > > > > > > To adjust the trackpoint speed from userspace:
-> > > > > > > 
-> > > > > > > If the libinput version is lower than 1.9.0, we could set
-> > > > > > > POINTINGSTICK_CONST_ACCEL=0.25
-> > > > > > > 
-> > > > > > > If the libinput version is higher than 1.12.0, we could set
-> > > > > > > AttrTrackpointMultiplier=0.25
-> > > > > > > 
-> > > > > > > But if we use libinput-1.10.0,  how could we adjust the speed?
-> > > > > > The LIBINPUT_ATTR_TRACKPOINT_RANGE property, which didn't end up working
-> > > > > > well (hence why it got replaced again). See the docs here though:
-> > > > > > https://wayland.freedesktop.org/libinput/doc/1.10.0/trackpoints.html
-> > > > > > 
-> > > > > > Cheers,
-> > > > > >       Peter
-> > > > > OK, got it, Thanks.
-> > > > Is not here some database where for input device name / id is specified
-> > > > that property? So users do not have to invent what is correct value for
-> > > > their hardware?
-> > > Since the libinput version in the ubuntu 18.04 is 1.10,  I tried to set
-> > > LIBINPUT_ATTR_TRACKPOINT_RANGE with different values (from 25, 20, 10, 5) in
-> > > the udev hwdb database, I checked it with "udevadm info /dev/input/eventX"
-> > > to confirm the value is set to LIBINPUT_ATTR_TRACKPOINT_RANGE successfully,
-> > > but looks like the cursor speed doesn't change at all. So for ubuntu 18.04,
-> > > looks like we have to adjust the speed in the kernel driver.
-> > I don't think it's a good idea to make the kernel driver behaviour based on
-> > an EOL libinput version just because one version of ubuntu ships with that.
-> > 18.10 and 19.04 both ship with libinput 1.12.
-> > 
-> > It'd be better to make sure it works well with a *current* version and then
-> > patch libinput on 18.04 where needed.
-> 
-> OK, that is sth we need to do.  But anyway it is a bit risky to backport
-> that much code and the whole folder of quirks to libinput 1.10.4,  we need
-> to do lots of test to make sure there is no regression on other machines.
-> 
-> Probably we only need to keep the quirks/30-vendor-alps.quirks to 1.10.4 and
-> drop other quirks, that will be better for our testing effort.
+Here comes the v3.
 
-might be worth looking at what is in 1.10.7, e.g.  a3b3e85c0e looks like it
-may be of interest. That one suggests the range on some ALPS devices is over
-100, so testing with 5-25 may really not have had any effect.
+Very few changes from v2:
+- dropped the last 2 patches where I tried to be smart, and it turns out
+  that it was not very a good idea
+- also removed the only other blacklisted model, as it has been tested with
+  the v2 and it is also now working properly
 
 Cheers,
-   Peter       
+Benjamin
+
+Benjamin Tissoires (8):
+  Input: elantech - query the min/max information beforehand too
+  Input: elantech - add helper function elantech_is_buttonpad()
+  Input: elantech - detect middle button based on firmware version
+  dt-bindings: add more optional properties for elan_i2c touchpads
+  Input: elan_i2c - do not query the info if they are provided
+  Input: elantech/SMBus - export all capabilities from the PS/2 node
+  Input: elan_i2c - handle physical middle button
+  Input: elantech: remove P52 and P72 from SMBus blacklist
+
+ .../devicetree/bindings/input/elan_i2c.txt    |  11 +
+ drivers/input/mouse/elan_i2c_core.c           |  72 +++-
+ drivers/input/mouse/elantech.c                | 320 ++++++++++--------
+ drivers/input/mouse/elantech.h                |   8 +
+ 4 files changed, 246 insertions(+), 165 deletions(-)
+
+-- 
+2.21.0

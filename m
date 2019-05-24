@@ -1,46 +1,78 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 8/8] Input: elantech: remove P52 and P72 from SMBus blacklist
-Date: Fri, 24 May 2019 15:50:46 +0200
-Message-ID: <20190524135046.17710-9-benjamin.tissoires@redhat.com>
-References: <20190524135046.17710-1-benjamin.tissoires@redhat.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add info for the CHUWI
+ Hi10 Plus tablet.
+Date: Fri, 24 May 2019 19:49:12 +0300
+Message-ID: <CAHp75Vdh=ny16mEnDw0pMfUzyOcrA97AnXKfyW+BcEcZ-W1ryQ@mail.gmail.com>
+References: <20190523190913.5801-1-danct12@disroot.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190524135046.17710-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <20190523190913.5801-1-danct12@disroot.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, Rob Herring <robh+dt@kernel.org>, Aaron Ma <aaron.ma@canonical.com>, Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Daniel Smith <danct12@disroot.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Both now works correctly over SMBus. Let's use this driver so we can
-update all five fingers every 8ms.
+On Thu, May 23, 2019 at 10:12 PM Daniel Smith <danct12@disroot.org> wrote:
+>
+> Added touch screen info for CHUWI Hi10 Plus tablet.
+>
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Pushed to my review and testing queue, thanks!
 
---
+> Signed-off-by: Daniel Smith <danct12@disroot.org>
+> ---
+>  drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>
+> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+> index bd0856d2e825..1dbb53c3f1e7 100644
+> --- a/drivers/platform/x86/touchscreen_dmi.c
+> +++ b/drivers/platform/x86/touchscreen_dmi.c
+> @@ -91,6 +91,22 @@ static const struct ts_dmi_data chuwi_hi10_air_data = {
+>         .properties     = chuwi_hi10_air_props,
+>  };
+>
+> +static const struct property_entry chuwi_hi10_plus_props[] = {
+> +       PROPERTY_ENTRY_U32("touchscreen-min-x", 0),
+> +       PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
+> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 1914),
+> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 1283),
+> +       PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10plus.fw"),
+> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
+> +       { }
+> +};
+> +
+> +static const struct ts_dmi_data chuwi_hi10_plus_data = {
+> +       .acpi_name      = "MSSL0017:00",
+> +       .properties     = chuwi_hi10_plus_props,
+> +};
+> +
+>  static const struct property_entry chuwi_vi8_props[] = {
+>         PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
+>         PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
+> @@ -605,6 +621,15 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+>                         DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
+>                 },
+>         },
+> +       {
+> +               /* Chuwi Hi10 Plus (CWI527) */
+> +               .driver_data = (void *)&chuwi_hi10_plus_data,
+> +               .matches = {
+> +                       DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
+> +                       DMI_MATCH(DMI_PRODUCT_NAME, "Hi10 plus tablet"),
+> +                       DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+> +               },
+> +       },
+>         {
+>                 /* Chuwi Vi8 (CWI506) */
+>                 .driver_data = (void *)&chuwi_vi8_data,
+> --
+> 2.21.0
+>
 
-changes in v3:
-- added the P72 too
 
-new in v2
----
- drivers/input/mouse/elantech.c | 4 ----
- 1 file changed, 4 deletions(-)
-
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index ca10fd97d9d5..ea1ee0f44a65 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1779,10 +1779,6 @@ static const char * const i2c_blacklist_pnp_ids[] = {
- 	 * These are known to not be working properly as bits are missing
- 	 * in elan_i2c.
- 	 */
--	"LEN2131", /* ThinkPad P52 w/ NFC */
--	"LEN2132", /* ThinkPad P52 */
--	"LEN2133", /* ThinkPad P72 w/ NFC */
--	"LEN2134", /* ThinkPad P72 */
- 	NULL
- };
- 
 -- 
-2.21.0
+With Best Regards,
+Andy Shevchenko

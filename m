@@ -1,78 +1,67 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add info for the CHUWI
- Hi10 Plus tablet.
-Date: Fri, 24 May 2019 19:49:12 +0300
-Message-ID: <CAHp75Vdh=ny16mEnDw0pMfUzyOcrA97AnXKfyW+BcEcZ-W1ryQ@mail.gmail.com>
-References: <20190523190913.5801-1-danct12@disroot.org>
+From: bgoswami@codeaurora.org
+Subject: [PATCH 2/3] input: Add SW_UNSUPPORT_INSERT define
+Date: Fri, 24 May 2019 13:40:38 -0700
+Message-ID: <1558730438-16524-1-git-send-email-bgoswami@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190523190913.5801-1-danct12@disroot.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Smith <danct12@disroot.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+List-Unsubscribe: <https://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <https://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: "Alsa-devel" <alsa-devel-bounces@alsa-project.org>
+To: dmitry.torokhov@gmail.com
+Cc: alsa-devel@alsa-project.org, Banajit Goswami <bgoswami@codeaurora.org>, plai@codeaurora.org, tiwai@suse.com, broonie@kernel.org, srinivas.kandagatla@linaro.org, linux-input@vger.kernel.org, Gopikrishnaiah Anandan <agopik@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, May 23, 2019 at 10:12 PM Daniel Smith <danct12@disroot.org> wrote:
->
-> Added touch screen info for CHUWI Hi10 Plus tablet.
->
+From: Banajit Goswami <bgoswami@codeaurora.org>
 
-Pushed to my review and testing queue, thanks!
+Some devices may not support specific type of input devices. For example,
+when a headset or extension cable with GND/MIC swap is plugged into a
+headset jack that does not support the headset/cable, it needs to be
+reported with a corresponding input event. Also, increase the max values
+for INPUT_DEVICE_ID_SW_MAX and SW_MAX, to accommodate future extension of
+the number of event.
 
-> Signed-off-by: Daniel Smith <danct12@disroot.org>
-> ---
->  drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
->
-> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-> index bd0856d2e825..1dbb53c3f1e7 100644
-> --- a/drivers/platform/x86/touchscreen_dmi.c
-> +++ b/drivers/platform/x86/touchscreen_dmi.c
-> @@ -91,6 +91,22 @@ static const struct ts_dmi_data chuwi_hi10_air_data = {
->         .properties     = chuwi_hi10_air_props,
->  };
->
-> +static const struct property_entry chuwi_hi10_plus_props[] = {
-> +       PROPERTY_ENTRY_U32("touchscreen-min-x", 0),
-> +       PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
-> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 1914),
-> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 1283),
-> +       PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10plus.fw"),
-> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
-> +       { }
-> +};
-> +
-> +static const struct ts_dmi_data chuwi_hi10_plus_data = {
-> +       .acpi_name      = "MSSL0017:00",
-> +       .properties     = chuwi_hi10_plus_props,
-> +};
-> +
->  static const struct property_entry chuwi_vi8_props[] = {
->         PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
->         PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
-> @@ -605,6 +621,15 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
->                         DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
->                 },
->         },
-> +       {
-> +               /* Chuwi Hi10 Plus (CWI527) */
-> +               .driver_data = (void *)&chuwi_hi10_plus_data,
-> +               .matches = {
-> +                       DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
-> +                       DMI_MATCH(DMI_PRODUCT_NAME, "Hi10 plus tablet"),
-> +                       DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-> +               },
-> +       },
->         {
->                 /* Chuwi Vi8 (CWI506) */
->                 .driver_data = (void *)&chuwi_vi8_data,
-> --
-> 2.21.0
->
+Signed-off-by: Gopikrishnaiah Anandan <agopik@codeaurora.org>
+Signed-off-by: Banajit Goswami <bgoswami@codeaurora.org>
+---
+ include/linux/mod_devicetable.h        | 2 +-
+ include/uapi/linux/input-event-codes.h | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 448621c..7586099 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -299,7 +299,7 @@ struct pcmcia_device_id {
+ #define INPUT_DEVICE_ID_LED_MAX		0x0f
+ #define INPUT_DEVICE_ID_SND_MAX		0x07
+ #define INPUT_DEVICE_ID_FF_MAX		0x7f
+-#define INPUT_DEVICE_ID_SW_MAX		0x0f
++#define INPUT_DEVICE_ID_SW_MAX		0x1f
+ #define INPUT_DEVICE_ID_PROP_MAX	0x1f
+ 
+ #define INPUT_DEVICE_ID_MATCH_BUS	1
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 85387c7..960fa86 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -808,7 +808,8 @@
+ #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+ #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+ #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+-#define SW_MAX			0x0f
++#define SW_UNSUPPORT_INSERT	0x10  /* set = unsupported device inserted */
++#define SW_MAX			0x1f
+ #define SW_CNT			(SW_MAX+1)
+ 
+ /*
 -- 
-With Best Regards,
-Andy Shevchenko
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project

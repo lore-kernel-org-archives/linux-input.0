@@ -1,71 +1,87 @@
-From: =?big5?B?ufmxUrph?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH v2 09/10] Input: elan_i2c - correct the width/size base value
-Date: Fri, 24 May 2019 11:13:10 +0800
-Message-ID: <003d01d511de$9da229c0$d8e67d40$@emc.com.tw>
-References: <20190521132712.2818-1-benjamin.tissoires@redhat.com> <20190521132712.2818-10-benjamin.tissoires@redhat.com>
+From: Hui Wang <hui.wang@canonical.com>
+Subject: =?UTF-8?B?UmU6IOetlOWkjTog562U5aSNOiDnrZTlpI06IFtQQVRDSF0gaW5wdXQ6?=
+ =?UTF-8?Q?_alps-fix_the_issue_the_special_alps_trackpoint_do_not_work=2e?=
+Date: Fri, 24 May 2019 13:25:52 +0800
+Message-ID: <38ec4a40-d51a-aeb1-a5e8-dbaed1142298@canonical.com>
+References: <20190520110149.27107-1-sliuuxiaonxiao@gmail.com>
+ <OSBPR01MB485510A2A32CD9D2CE5EF7A1DA070@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <345b62e1-407e-7a03-9b03-486bbf5a0a8e@canonical.com>
+ <20190521094622.syeub6tcqhbyc7sg@pali>
+ <OSBPR01MB4855D744473149D037612506DA000@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <20190522063546.kb74mxeprkauicul@pali>
+ <OSBPR01MB48550B43F78BBFBDC20D414DDA000@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <20190522074030.64sy7xt3wnomtxjb@pali> <20190523060154.GA10526@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="big5"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190521132712.2818-10-benjamin.tissoires@redhat.com>
-Content-Language: zh-tw
+In-Reply-To: <20190523060154.GA10526@jelly>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: 'Benjamin Tissoires' <benjamin.tissoires@redhat.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Rob Herring' <robh+dt@kernel.org>, 'Aaron Ma' <aaron.ma@canonical.com>, 'Hans de Goede' <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>, =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>
+Cc: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>, dmitry.torokhov@gmail.com, XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin,
 
-Thanks so much for all you do for Elan touchpad.
+On 2019/5/23 下午2:01, Peter Hutterer wrote:
+> On Wed, May 22, 2019 at 09:40:30AM +0200, Pali Rohár wrote:
+>> On Wednesday 22 May 2019 07:30:43 Xiaoxiao Liu wrote:
+>>> Hi Pali,
+>>>
+>>> Ok, and cannot you set ALPS_DUALPOINT flag based on that
+>>> alps_check_is_trackpoint() result and then update
+>>> alps_process_packet_ss4_v3() code to supports also
+>>> V8 trackpoint packets?
+>>> --> Yes, we can do like so, when we use the v8 method to process the trackpoint , the mouse speed is not ideal.
+>>>        Then we choose the standard mouse driver.
+>> Mouse speed is something which is configurable. Have you configured it
+>> somehow? Also there is libinput project should handle these settings
+>> more properly.
+>>
+>> Adding Peter Hutterer, maintainer of libinput to loop. I think he could
+>> help with this problem.
+> libinput has a quirk for a magic multiplier on trackpoints. it was the only
+> solution I found that came close to "working" given that every device seems
+> to provide some other random magic data. Doc for it is here:
+> https://wayland.freedesktop.org/libinput/doc/latest/trackpoint-configuration.html
 
-For the width_*, I have a question for it.
-Our antenna sensors fully occupied the whole touchpad PCB.
+Hello Peter Hutterer,
 
-The Gap between 2 sensors are 7.5 mil (0.19mm).
-That's why we did not minus one trace.
+To adjust the trackpoint speed from userspace:
+
+If the libinput version is lower than 1.9.0, we could set 
+POINTINGSTICK_CONST_ACCEL=0.25
+
+If the libinput version is higher than 1.12.0, we could set 
+AttrTrackpointMultiplier=0.25
+
+But if we use libinput-1.10.0,  how could we adjust the speed?
+
+Many thanks in advance.
+
+Hui.
 
 
-Thanks
-KT
------Original Message-----
-From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com] 
-Sent: Tuesday, May 21, 2019 9:27 PM
-To: Dmitry Torokhov; KT Liao; Rob Herring; Aaron Ma; Hans de Goede
-Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org;
-devicetree@vger.kernel.org; Benjamin Tissoires
-Subject: [PATCH v2 09/10] Input: elan_i2c - correct the width/size base
-value
-
-*_traces are the number of antennas. width_* is thus the space between 2
-antennas. Which means, we should subtract 1 to the number of antennas to
-divide the touchpad by the number of holes between each antenna.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
---
-
-new in v2
----
- drivers/input/mouse/elan_i2c_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/mouse/elan_i2c_core.c
-b/drivers/input/mouse/elan_i2c_core.c
-index 6f4feedb7765..3375eaa9a72e 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -398,8 +398,8 @@ static int elan_query_device_parameters(struct
-elan_tp_data *data)
- 		if (error)
- 			return error;
- 	}
--	data->width_x = data->max_x / x_traces;
--	data->width_y = data->max_y / y_traces;
-+	data->width_x = data->max_x / (x_traces - 1);
-+	data->width_y = data->max_y / (y_traces - 1);
- 
- 	if (device_property_read_u32(&client->dev,
- 				     "touchscreen-x-mm", &x_mm) ||
---
-2.21.0
+>
+> There are also different speeds depending on which xorg driver you'd use (or
+> libinput/Wayland), so a "mouse speed is not ideal" is almost a guarantee,
+> given a large enough variety of setups :) That's why we have the speed
+> toggle, but I'm happy to hear any suggestions on how to make the trackpoint
+> more useful (in libinput anyway).
+>
+>> I do not think it is a good idea to force back to generic PS/2 mouse
+>> driver for touchpads and trackpoints. Native drivers for touchpads and
+>> trackpoints supports multitouch, absolute reporting and lot of other
+>> things... Also calculation of mouse speed from absolute positions on
+>> touchpads can be more easily fixed as from emulated relative movements.
+> Yeah, agree. Using PS/2 mouse drivers means you lose *all* the extra
+> features touchpads have like palm detection, tapping, scrolling, gestures,
+> etc.
+>
+> Cheers,
+>     Peter
+>
+>> Dmitry, what is your opinion about this problem? What should psmouse.ko
+>> do in this situation? Disallow usage of absolute mode and force bare
+>> PS/2 relative mode?
+>

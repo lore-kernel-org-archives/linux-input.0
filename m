@@ -1,36 +1,51 @@
 From: YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH -next] HID: logitech-dj: fix return value of logi_dj_recv_query_hidpp_devices
-Date: Sat, 25 May 2019 22:09:08 +0800
-Message-ID: <20190525140908.2804-1-yuehaibing@huawei.com>
+Subject: [PATCH -next] Input: synaptics-rmi4 - Remove set but not used variable 'sensor_flags'
+Date: Sat, 25 May 2019 22:11:19 +0800
+Message-ID: <20190525141119.11852-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
+To: dmitry.torokhov@gmail.com, cheiny@synaptics.com, nick@shmanahar.org
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>
 List-Id: linux-input@vger.kernel.org
 
-We should return 'retval' as the correct return value
-instead of always zero.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Fixes: 74808f9115ce ("HID: logitech-dj: add support for non unifying receivers")
+drivers/input/rmi4/rmi_f12.c: In function rmi_f12_read_sensor_tuning:
+drivers/input/rmi4/rmi_f12.c:76:6: warning: variable sensor_flags set but not used [-Wunused-but-set-variable]
+
+It's not used since introduction in
+commit b43d2c1e9353 ("Input: synaptics-rmi4 - add support for F12")
+
 Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 ---
- drivers/hid/hid-logitech-dj.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/rmi4/rmi_f12.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 41baa4dbbfcc..7f8db602eec0 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -1133,7 +1133,7 @@ static int logi_dj_recv_query_hidpp_devices(struct dj_receiver_dev *djrcv_dev)
- 				    HID_REQ_SET_REPORT);
+diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+index 5c7f48915779..72b5498e1a9f 100644
+--- a/drivers/input/rmi4/rmi_f12.c
++++ b/drivers/input/rmi4/rmi_f12.c
+@@ -73,7 +73,6 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+ 	int pitch_y = 0;
+ 	int rx_receivers = 0;
+ 	int tx_receivers = 0;
+-	int sensor_flags = 0;
  
- 	kfree(hidpp_report);
--	return 0;
-+	return retval;
- }
+ 	item = rmi_get_register_desc_item(&f12->control_reg_desc, 8);
+ 	if (!item) {
+@@ -129,10 +128,8 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
+ 		offset += 2;
+ 	}
  
- static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
+-	if (rmi_register_desc_has_subpacket(item, 4)) {
+-		sensor_flags = buf[offset];
++	if (rmi_register_desc_has_subpacket(item, 4))
+ 		offset += 1;
+-	}
+ 
+ 	sensor->x_mm = (pitch_x * rx_receivers) >> 12;
+ 	sensor->y_mm = (pitch_y * tx_receivers) >> 12;
 -- 
 2.17.1

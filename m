@@ -1,76 +1,86 @@
-From: "Togorean, Bogdan" <Bogdan.Togorean@analog.com>
-Subject: Re: [PATCH RESEND] input: adp5589: Add gpio_set_multiple interface
-Date: Mon, 27 May 2019 08:40:48 +0000
-Message-ID: <8c1a16638b0ca97dcfd97b5473215a9eecbca7a0.camel@analog.com>
-References: <20190415122525.2576-1-bogdan.togorean@analog.com>
-         <20190521083821.26540-1-bogdan.togorean@analog.com>
-         <20190523071820.GA121292@dtor-ws>
+From: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>
+Subject: [PATCH] input: alps-fix the issue alps cs19 trackstick do not work.
+Date: Mon, 27 May 2019 05:44:22 -0400
+Message-ID: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190523071820.GA121292@dtor-ws>
-Content-Language: en-US
-Content-ID: <2CAECFF4E14DF646822FAC05EAF64317@analog.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Hennerich, Michael" <Michael.Hennerich@analog.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "gustavo@embeddedor.com" <gustavo@embeddedor.com>
+To: dmitry.torokhov@gmail.com, pali.rohar@gmail.com
+Cc: peter.hutterer@who-t.net, hui.wang@canonical.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, xiaojian.cao@cn.alps.com, zhangfp1@lenovo.com, xiaoxiao.liu-1@cn.alps.com, XiaoXiao Liu <sliuuxiaonxiao@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-SGkgRG1pdHJ5LA0KDQpUaGFuayB5b3UgZm9yIHlvdXIgcmV2aWV3DQoNCk9uIFRodSwgMjAxOS0w
-NS0yMyBhdCAwMDoxOCAtMDcwMCwgRG1pdHJ5IFRvcm9raG92IHdyb3RlOg0KPiBbRXh0ZXJuYWxd
-DQo+IA0KPiANCj4gSGkgQm9nZGFuLA0KPiANCj4gT24gVHVlLCBNYXkgMjEsIDIwMTkgYXQgMTE6
-Mzg6MjJBTSArMDMwMCwgQm9nZGFuIFRvZ29yZWFuIHdyb3RlOg0KPiA+IFRoaXMgcGF0Y2ggaW1w
-bGVtZW50cyB0aGUgZ3Bpb19zZXRfbXVsdGlwbGUgaW50ZXJmYWNlIGZvciBBRFA1NTh4DQo+ID4g
-Y2hpcC4NCj4gPiANCj4gPiBTaWduZWQtb2ZmLWJ5OiBCb2dkYW4gVG9nb3JlYW4gPGJvZ2Rhbi50
-b2dvcmVhbkBhbmFsb2cuY29tPg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJzL2lucHV0L2tleWJvYXJk
-L2FkcDU1ODkta2V5cy5jIHwgMjUNCj4gPiArKysrKysrKysrKysrKysrKysrKysrKysrDQo+ID4g
-IDEgZmlsZSBjaGFuZ2VkLCAyNSBpbnNlcnRpb25zKCspDQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvYWRwNTU4OS1rZXlzLmMNCj4gPiBiL2RyaXZlcnMvaW5w
-dXQva2V5Ym9hcmQvYWRwNTU4OS1rZXlzLmMNCj4gPiBpbmRleCAyODM1ZmJhNzFjMzMuLjE0Mzg3
-MWJkNjBlZiAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2FkcDU1ODkt
-a2V5cy5jDQo+ID4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9hZHA1NTg5LWtleXMuYw0K
-PiA+IEBAIC00MTYsNiArNDE2LDMwIEBAIHN0YXRpYyB2b2lkIGFkcDU1ODlfZ3Bpb19zZXRfdmFs
-dWUoc3RydWN0DQo+ID4gZ3Bpb19jaGlwICpjaGlwLA0KPiA+ICAgICAgIG11dGV4X3VubG9jaygm
-a3BhZC0+Z3Bpb19sb2NrKTsNCj4gPiAgfQ0KPiA+IA0KPiA+ICtzdGF0aWMgdm9pZCBhZHA1NTg5
-X2dwaW9fc2V0X211bHRpcGxlKHN0cnVjdCBncGlvX2NoaXAgKmNoaXAsDQo+ID4gKyAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgdW5zaWduZWQgbG9uZyAqbWFzaywgdW5zaWduZWQN
-Cj4gPiBsb25nICpiaXRzKQ0KPiA+ICt7DQo+ID4gKyAgICAgc3RydWN0IGFkcDU1ODlfa3BhZCAq
-a3BhZCA9IGNvbnRhaW5lcl9vZihjaGlwLCBzdHJ1Y3QNCj4gPiBhZHA1NTg5X2twYWQsIGdjKTsN
-Cj4gPiArICAgICB1OCBiYW5rLCByZWdfbWFzaywgcmVnX2JpdHM7DQo+ID4gKw0KPiA+ICsgICAg
-IG11dGV4X2xvY2soJmtwYWQtPmdwaW9fbG9jayk7DQo+ID4gKw0KPiA+ICsgICAgIGZvciAoYmFu
-ayA9IDA7IGJhbmsgPD0ga3BhZC0+dmFyLT5iYW5rKGtwYWQtPnZhci0+bWF4Z3Bpbyk7DQo+ID4g
-YmFuaysrKSB7DQo+ID4gKyAgICAgICAgICAgICBpZiAoYmFuayA+IGtwYWQtPnZhci0+YmFuayhn
-ZXRfYml0bWFza19vcmRlcigqbWFzaykgLQ0KPiA+IDEpKQ0KPiA+ICsgICAgICAgICAgICAgICAg
-ICAgICBicmVhazsNCj4gDQo+IEkgd29uZGVyIGlmIHdlIHNob3VsZCBoYXZlOg0KPiANCj4gICAg
-ICAgICBsYXN0X2dwaW8gPSBtaW4oa3BhZC0+dmFyLT5tYXhncGlvLCBnZXRfYml0bWFza19vcmRl
-cigqbWFzaykNCj4gLSAxKTsNCj4gICAgICAgICBsYXN0X2JhbmsgPSBrcGFkLT52YXItPmJhbmso
-bGFzdF9iYW5rKTsNCj4gICAgICAgICBmb3IgKGJhbmsgPSAwOyBiYW5rIDw9IGxhc3RfYmFuazsg
-YmFuaysrKSB7DQo+ICAgICAgICAgICAgICAgICAuLi4NCj4gICAgICAgICB9DQpJIGFncmVlIHRo
-aXMgY2FuIGJlIG1hZGUgbW9yZSBjbGVhciBpbiB0aGUgd2F5IHlvdSBwcm9wb3NlZC4NCj4gDQo+
-ID4gKyAgICAgICAgICAgICByZWdfbWFzayA9IG1hc2tbYmFuayAvIHNpemVvZigqbWFzayldID4+
-DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICgoYmFuayAlIHNpemVvZigqbWFzaykpICog
-QklUU19QRVJfQllURSk7DQo+ID4gKyAgICAgICAgICAgICByZWdfYml0cyA9IGJpdHNbYmFuayAv
-IHNpemVvZigqYml0cyldID4+DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICgoYmFuayAl
-IHNpemVvZigqYml0cykpICogQklUU19QRVJfQllURSk7DQo+IA0KPiBUaGlzIHMgcmVhbGx5IGhh
-cmQgdG8gcGFyc2UuIFdlIGtub3cgdGhhdCAiYmFuayIgaXMgYSBieXRlLCBhbmQgbWFzaw0KPiBp
-cw0KPiBsb25nLCB3ZSBkbyBub3QgaGF2ZSB0byBiZSB0aGlzIHJvdW5kYWJvdXQgaXQuDQpIZXJl
-IG1haW4gcmVhc29ucyBmb3IgZG9pbmcgdGhpcyBjb21wbGV4aXR5IHdlcmUgdG8gc3VwcG9ydCA2
-NGJpdC8zMmJpdA0KYXJjaGl0ZWN0dXJlcyAoZGlmZmVyZXQgbG9uZyBzaXplKSBhbmQgdG8gYXZv
-aWQgdXNlIG9mIG1hZ2ljIHZhbHVlcw0KKEJJVFNfUEVSX0JZVEUpDQo+IA0KPiA+ICsgICAgICAg
-ICAgICAga3BhZC0+ZGF0X291dFtiYW5rXSAmPSB+cmVnX21hc2s7DQo+ID4gKyAgICAgICAgICAg
-ICBrcGFkLT5kYXRfb3V0W2JhbmtdIHw9IHJlZ19iaXRzICYgcmVnX21hc2s7DQo+ID4gKyAgICAg
-ICAgICAgICBhZHA1NTg5X3dyaXRlKGtwYWQtPmNsaWVudCwga3BhZC0+dmFyLQ0KPiA+ID5yZWco
-QURQNTU4OV9HUE9fREFUQV9PVVRfQSkgKyBiYW5rLA0KPiA+ICsgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBrcGFkLT5kYXRfb3V0W2JhbmtdKTsNCj4gPiArICAgICB9DQo+IA0KPiBIb3dldmVy
-IHRoZSBiaWdnZXN0IGlzc3VlIGlzIHRoYXQgdGhpcyBpbXBsZW1lbnRhdGlvbiBzZWVtcyB0byBp
-Z25vcmUNCj4gdGhlIGtwYWQtPmdwaW9tYXAgdGhhdCB0cmFuc2xhdGVzIEdQSU8gbnVtYmVycyBh
-cyBzZWVuIGJ5IGdwaW9saWIgdG8NCj4gR1BJTyBudW1iZXJzIHVzZWQgYnkgdGhlIGNoaXAuIFlv
-dSBuZWVkIHRvIHJlc2h1ZmZsZSB0aGUgbWFzayBhbmQNCj4gYml0cywNCj4gYW5kIG9ubHkgdGhl
-biBkbyB0aGUgd3JpdGVzLg0KPiANCj4gR2l2ZW4gdGhlIGNvbXBsZXhpdGllcywgZG9lcyBzZXRf
-bXVsdGlwbGUgcmVhbGx5IHNhdmUgYW55dGhpbmc/DQo+IA0KV2UgaGF2ZSBhIGNyaXRpY2FsIGFw
-cGxpY2F0aW9uIHdoZXJlIHdlIG5lZWQgdG8gc2V0IG11bHRpcGxlIEdQSU9zIHRoYXQNCmFyZSBv
-biB0aGUgc2FtZSBiYW5rIHNpbXVsdGFuZW91c2x5LiBObyBkZWxheSBhY2NlcHRlZC4gU28gdGhp
-cyB3YXMgdGhlDQp1c2VjYXNlIHdoaWNoIGxlZCB0byBpbXBsZW1lbnRhdGlvbiBvZiBzZXRfbXVs
-dGlwbGVfaW50ZXJmYWNlIGZvciB0aGlzDQpjaGlwLg0KPiBUaGFua3MuDQo+IA0KPiAtLQ0KPiBE
-bWl0cnkNClRoYW5rIHlvdSwNCkJvZ2Rhbg0KDQo=
+The alps devices which detected to use the ALPS_PROTO_V8 procotol contains
+ALPS touchpad and ALPS trackstick.The ALPS_PROTO_V8 procotol do not
+support the trackstick device process by default.
+
+When the trackstick was detected to use ALPS_PROTO_V8 procotol,
+the v8 process_packet method alps_process_packet_ss4_v2 will reject to
+report the data when the device using ALPS_PROTO_V8 procotol is not set
+the ALPS_DUALPOINT flag.
+
+The alps cs19 trackstick is detected to use the ALPS_PROTO_V8 procotol
+but without ALPS_DUALPOINT flag, the alps driver will not report the
+input data. so the trackstick will not work.
+
+solution: when the alps cs19 device detected, set the device
+ALPS_DUALPOINT flag,then the input data will be processed.
+
+Signed-off-by: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>
+---
+ drivers/input/mouse/alps.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 0a6f7ca883e7..a54677cf7474 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -24,7 +24,7 @@
+ 
+ #include "psmouse.h"
+ #include "alps.h"
+-
++#include "trackpoint.h"
+ /*
+  * Definitions for ALPS version 3 and 4 command mode protocol
+  */
+@@ -220,6 +220,23 @@ static bool alps_is_valid_first_byte(struct alps_data *priv,
+ 	return (data & priv->mask0) == priv->byte0;
+ }
+ 
++static int alps_check_cs19_trackstick(struct psmouse *psmouse)
++{
++	u8 param[2] = { 0 };
++	int error;
++
++	error = ps2_command(&psmouse->ps2dev,
++			    param, MAKE_PS2_CMD(0, 2, TP_READ_ID));
++	if (error)
++		return error;
++
++	if (param[0] == TP_VARIANT_ALPS && param[1] & 0x20) {
++		psmouse_warn(psmouse, "It is alps cs19 trackstick");
++		return 0;
++	}
++	return -1;
++}
++
+ static void alps_report_buttons(struct input_dev *dev1, struct input_dev *dev2,
+ 				int left, int right, int middle)
+ {
+@@ -2568,8 +2585,12 @@ static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
+ 			alps_exit_command_mode(psmouse);
+ 			ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE);
+ 
+-			if (reg_val == 0x0C || reg_val == 0x1D)
++			if (reg_val == 0x0C || reg_val == 0x1D) {
++				is_dual = true;
++			} else if (alps_check_cs19_trackstick(psmouse) == 0) {
++				//For support Thinkpad CS19 TrackStick
+ 				is_dual = true;
++			}
+ 		}
+ 	}
+ 
+-- 
+2.20.1

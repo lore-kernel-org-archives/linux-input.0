@@ -1,112 +1,141 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] input: alps-fix the issue alps cs19 trackstick do not
- work.
-Date: Mon, 27 May 2019 12:09:13 +0200
-Message-ID: <20190527100913.sgxrjrmphsjfmcdb@pali>
-References: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
+From: syzbot <syzbot+933daad9be4e67ba91a9@syzkaller.appspotmail.com>
+Subject: INFO: trying to register non-static key in usbtouch_reset_resume
+Date: Mon, 27 May 2019 04:38:05 -0700
+Message-ID: <0000000000005463aa0589dcfb85@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>
-Cc: dmitry.torokhov@gmail.com, peter.hutterer@who-t.net, hui.wang@canonical.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, xiaojian.cao@cn.alps.com, zhangfp1@lenovo.com, xiaoxiao.liu-1@cn.alps.com
+To: andreyknvl@google.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, rydberg@bitmath.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-Hi!
+Hello,
 
-On Monday 27 May 2019 05:44:22 XiaoXiao Liu wrote:
-> The alps devices which detected to use the ALPS_PROTO_V8 procotol contains
-> ALPS touchpad and ALPS trackstick.The ALPS_PROTO_V8 procotol do not
-> support the trackstick device process by default.
+syzbot found the following crash on:
 
-Normally PS/2 device handled by alps.c is touchpad and in some cases
-touchpad sends also trackstick data in that one PS/2 channel.
+HEAD commit:    43151d6c usb-fuzzer: main usb gadget fuzzer driver
+git tree:       https://github.com/google/kasan.git usb-fuzzer
+console output: https://syzkaller.appspot.com/x/log.txt?x=14a2b45ca00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=95aff7278e7ff25e
+dashboard link: https://syzkaller.appspot.com/bug?extid=933daad9be4e67ba91a9
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1776669aa00000
 
-Does it mean that your device (reported to kernel) sends only trackstick
-packets and not touchpad?
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+933daad9be4e67ba91a9@syzkaller.appspotmail.com
 
-> When the trackstick was detected to use ALPS_PROTO_V8 procotol,
-> the v8 process_packet method alps_process_packet_ss4_v2 will reject to
-> report the data when the device using ALPS_PROTO_V8 procotol is not set
-> the ALPS_DUALPOINT flag.
-> 
-> The alps cs19 trackstick is detected to use the ALPS_PROTO_V8 procotol
-> but without ALPS_DUALPOINT flag, the alps driver will not report the
-> input data. so the trackstick will not work.
-> 
-> solution: when the alps cs19 device detected, set the device
-> ALPS_DUALPOINT flag,then the input data will be processed.
-> 
-> Signed-off-by: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>
-> ---
->  drivers/input/mouse/alps.c | 25 +++++++++++++++++++++++--
->  1 file changed, 23 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 0a6f7ca883e7..a54677cf7474 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -24,7 +24,7 @@
->  
->  #include "psmouse.h"
->  #include "alps.h"
-> -
-> +#include "trackpoint.h"
->  /*
->   * Definitions for ALPS version 3 and 4 command mode protocol
->   */
-> @@ -220,6 +220,23 @@ static bool alps_is_valid_first_byte(struct alps_data *priv,
->  	return (data & priv->mask0) == priv->byte0;
->  }
->  
-> +static int alps_check_cs19_trackstick(struct psmouse *psmouse)
-> +{
-> +	u8 param[2] = { 0 };
-> +	int error;
-> +
-> +	error = ps2_command(&psmouse->ps2dev,
-> +			    param, MAKE_PS2_CMD(0, 2, TP_READ_ID));
-> +	if (error)
-> +		return error;
-> +
-> +	if (param[0] == TP_VARIANT_ALPS && param[1] & 0x20) {
+usb 1-1: config 0 descriptor??
+usb 1-1: string descriptor 0 read error: -71
+hub 1-1:0.189: ignoring external hub
+input: USB Touchscreen 08f2:007f as  
+/devices/platform/dummy_hcd.0/usb1/1-1/1-1:0.189/input/input6
+usb 1-1: reset high-speed USB device number 3 using dummy_hcd
+usb 1-1: Using ep0 maxpacket: 8
+INFO: trying to register non-static key.
+the code is fine but needs lockdep annotation.
+turning off the locking correctness validator.
+CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.1.0-rc3+ #8
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  assign_lock_key kernel/locking/lockdep.c:786 [inline]
+  register_lock_class+0x11ae/0x1240 kernel/locking/lockdep.c:1095
+  __lock_acquire+0xfb/0x37c0 kernel/locking/lockdep.c:3582
+  lock_acquire+0x100/0x2b0 kernel/locking/lockdep.c:4211
+  __mutex_lock_common kernel/locking/mutex.c:925 [inline]
+  __mutex_lock+0xf9/0x12b0 kernel/locking/mutex.c:1072
+  usbtouch_reset_resume+0xb3/0x170  
+drivers/input/touchscreen/usbtouchscreen.c:1624
+  usb_resume_interface drivers/usb/core/driver.c:1242 [inline]
+  usb_resume_interface.isra.0+0x187/0x3a0 drivers/usb/core/driver.c:1210
+  usb_resume_both+0x23d/0x780 drivers/usb/core/driver.c:1412
+  __rpm_callback+0x287/0x3c0 drivers/base/power/runtime.c:357
+  rpm_callback+0x18f/0x230 drivers/base/power/runtime.c:487
+  rpm_resume+0x10c2/0x1840 drivers/base/power/runtime.c:851
+  __pm_runtime_resume+0x103/0x180 drivers/base/power/runtime.c:1078
+  pm_runtime_get_sync include/linux/pm_runtime.h:227 [inline]
+  usb_autoresume_device+0x1e/0x60 drivers/usb/core/driver.c:1599
+  usb_remote_wakeup+0x7b/0xb0 drivers/usb/core/hub.c:3600
+  hub_port_connect_change drivers/usb/core/hub.c:5190 [inline]
+  port_event drivers/usb/core/hub.c:5350 [inline]
+  hub_event+0x23c9/0x35a0 drivers/usb/core/hub.c:5432
+  process_one_work+0x90a/0x1580 kernel/workqueue.c:2269
+  process_scheduled_works kernel/workqueue.c:2331 [inline]
+  worker_thread+0x7ab/0xe20 kernel/workqueue.c:2417
+  kthread+0x30e/0x420 kernel/kthread.c:253
+  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
+dummy_hcd dummy_hcd.0: port status 0x00010100 has changes
+usb 1-1: USB disconnect, device number 3
+usb usb1: dummy_bus_suspend
+usb usb1: dummy_bus_resume
+dummy_hcd dummy_hcd.0: port status 0x00010101 has changes
+dummy_hcd dummy_hcd.0: port status 0x00100503 has changes
+usb 1-1: new high-speed USB device number 4 using dummy_hcd
+dummy_hcd dummy_hcd.0: port status 0x00100503 has changes
+usb 1-1: Using ep0 maxpacket: 8
+usb 1-1: config 0 has an invalid interface number: 189 but max is 0
+usb 1-1: config 0 has an invalid descriptor of length 0, skipping remainder  
+of the config
+usb 1-1: config 0 has no interface number 0
+usb 1-1: config 0 interface 189 altsetting 0 endpoint 0x82 has an invalid  
+bInterval 0, changing to 7
+usb 1-1: New USB device found, idVendor=08f2, idProduct=007f,  
+bcdDevice=97.17
+usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+usb 1-1: config 0 descriptor??
+usb 1-1: string descriptor 0 read error: -71
+hub 1-1:0.189: ignoring external hub
+input: USB Touchscreen 08f2:007f as  
+/devices/platform/dummy_hcd.0/usb1/1-1/1-1:0.189/input/input7
+dummy_hcd dummy_hcd.0: port status 0x00010101 has changes
+dummy_hcd dummy_hcd.0: port status 0x00010101 has changes
+dummy_hcd dummy_hcd.0: port status 0x00100503 has changes
+usb 1-1: reset high-speed USB device number 4 using dummy_hcd
+dummy_hcd dummy_hcd.0: port status 0x00100503 has changes
+usb 1-1: Using ep0 maxpacket: 8
+usb usb1: dummy_bus_suspend
+usb usb1: dummy_bus_resume
+dummy_hcd dummy_hcd.0: port status 0x00010100 has changes
+usb 1-1: USB disconnect, device number 6
+usb usb1: dummy_bus_suspend
+usb usb1: dummy_bus_resume
+dummy_hcd dummy_hcd.0: port status 0x00010101 has changes
+dummy_hcd dummy_hcd.0: port status 0x00100503 has changes
+usb 1-1: new high-speed USB device number 7 using dummy_hcd
+dummy_hcd dummy_hcd.0: port status 0x00100503 has changes
+usb 1-1: Using ep0 maxpacket: 8
+usb 1-1: config 0 has an invalid interface number: 189 but max is 0
+usb 1-1: config 0 has an invalid descriptor of length 0, skipping remainder  
+of the config
+usb 1-1: config 0 has no interface number 0
+usb 1-1: config 0 interface 189 altsetting 0 endpoint 0x82 has an invalid  
+bInterval 0, changing to 7
+usb 1-1: New USB device found, idVendor=08f2, idProduct=007f,  
+bcdDevice=97.17
+usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+usb 1-1: config 0 descriptor??
+usb 1-1: string descriptor 0 read error: -71
+hub 1-1:0.189: ignoring external hub
+input: USB Touchscreen 08f2:007f as  
+/devices/platform/dummy_hcd.0/usb1/1-1/1-1:0.189/input/input10
+dummy_hcd dummy_hcd.0: port status 0x00010101 has changes
+dummy_hcd dummy_hcd.0: port status 0x00010101 has changes
+dummy_hcd dummy_hcd.0: port status 0x00100503 has changes
+usb 1-1: reset high-speed USB device number 7 using dummy_hcd
+dummy_hcd dummy_hcd.0: port status 0x00100503 has changes
+usb 1-1: Using ep0 maxpacket: 8
+usb usb1: dummy_bus_suspend
 
-I guess that you want parenthesis around (param[1] & 0x20). And also
-describe what that 0x20 constant means.
 
-> +		psmouse_warn(psmouse, "It is alps cs19 trackstick");
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-It is not a warning.
-
-> +		return 0;
-> +	}
-> +	return -1;
-> +}
-> +
->  static void alps_report_buttons(struct input_dev *dev1, struct input_dev *dev2,
->  				int left, int right, int middle)
->  {
-> @@ -2568,8 +2585,12 @@ static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
->  			alps_exit_command_mode(psmouse);
->  			ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE);
->  
-> -			if (reg_val == 0x0C || reg_val == 0x1D)
-> +			if (reg_val == 0x0C || reg_val == 0x1D) {
-
-Hm... why your device does not match these constants?
-
-> +				is_dual = true;
-> +			} else if (alps_check_cs19_trackstick(psmouse) == 0) {
-> +				//For support Thinkpad CS19 TrackStick
->  				is_dual = true;
-> +			}
->  		}
->  	}
->  
-
--- 
-Pali Rohár
-pali.rohar@gmail.com
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches

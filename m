@@ -1,41 +1,31 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] Input: qt1050 - remove unnecessary comparison of unsigned
- integer with < 0
-Date: Mon, 27 May 2019 09:10:33 -0500
-Message-ID: <20190527141033.GA19251@embeddedor>
+From: Tord Johan Espe <tordjohanespe@gmail.com>
+Subject: Feature request for `hid-magicmouse`
+Date: Mon, 27 May 2019 20:50:21 +0200
+Message-ID: <CA+pK8W-OWvsdcBhJr8Prdz3Sb1AbrF6==XsT4jo0TjwAUHTouw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-There is no need to compare button.num with < 0 because such comparison
-of an unsigned value is always false.
+Hi,
 
-Fix this by removing such comparison.
+This is the first time I have submitted any requests to the Linux
+development community, so please excuse me if I'm doing it wrong, but
+after reading the docs, it seemed like the correct way to do this was
+to identify the people involved with the module and send an email.
 
-Addresses-Coverity-ID: 1445492 ("Unsigned compared against 0")
-Fixes: cbebf5addec1 ("Input: qt1050 - add Microchip AT42QT1050 support")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/input/keyboard/qt1050.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+My feature request is that I think the scrolling implementation in
+`hid-magicmouse.c` should take the number of currently active touches
+into consideration when deciding scroll speed.
 
-diff --git a/drivers/input/keyboard/qt1050.c b/drivers/input/keyboard/qt1050.c
-index 403060d05c3b..a9ac99f62e39 100644
---- a/drivers/input/keyboard/qt1050.c
-+++ b/drivers/input/keyboard/qt1050.c
-@@ -368,7 +368,7 @@ static int qt1050_parse_fw(struct qt1050_priv *ts)
- 			dev_err(dev, "Button without pad number\n");
- 			goto err;
- 		}
--		if (button.num < 0 || button.num > QT1050_MAX_KEYS - 1)
-+		if (button.num > QT1050_MAX_KEYS - 1)
- 			goto err;
- 
- 		ts->reg_keys |= BIT(button.num);
--- 
-2.21.0
+When using the Apple Magic Mouse in MacOS, scrolling is automatically
+slowed down when two fingers are touching the mouse simultaneously.
+This is extremely helpful for preventing unwanted scrolling when e.g.
+clicking and selecting text, which is, at least for me, really
+important for the overall experience. I would love it if the same
+behavior could be implemented in the Linux driver.
+
+Best regards,
+Tord Johan Espe

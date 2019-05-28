@@ -1,47 +1,62 @@
-From: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
-Subject: =?utf-8?B?562U5aSNOiDnrZTlpI06IFtQQVRDSF0gaW5wdXQ6IGFscHMtZml4IHRoZSBp?=
- =?utf-8?Q?ssue_alps_cs19_trackstick_do_not_work.?=
-Date: Tue, 28 May 2019 07:55:12 +0000
-Message-ID: <OSBPR01MB48556FD88D7F7D5F91CB5579DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
-References: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
- <20190527100913.sgxrjrmphsjfmcdb@pali>
- <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <20190528071824.jimhixhtsynzwixe@pali>
+From: Pedro Vanzella <pedro@pedrovanzella.com>
+Subject: [PATCH] HID: hid-logitech-hidpp: detect wireless lightspeed devices
+Date: Tue, 28 May 2019 12:29:24 -0400
+Message-ID: <20190528162924.32754-1-pedro@pedrovanzella.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190528071824.jimhixhtsynzwixe@pali>
-Content-Language: zh-CN
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
-Cc: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hui.wang@canonical.com" <hui.wang@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>
+To: linux-input@vger.kernel.org
+Cc: Pedro Vanzella <pedro@pedrovanzella.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-QWRkIEthd2FzZS1zYW4uDQoNCi0tLS0t6YKu5Lu25Y6f5Lu2LS0tLS0NCuWPkeS7tuS6ujogUGFs
-aSBSb2jDoXIgPHBhbGkucm9oYXJAZ21haWwuY29tPiANCuWPkemAgeaXtumXtDogVHVlc2RheSwg
-TWF5IDI4LCAyMDE5IDM6MTggUE0NCuaUtuS7tuS6ujog5YqJIOabieabiSBYaWFveGlhbyBMaXUg
-PHhpYW94aWFvLmxpdS0xQGNuLmFscHMuY29tPg0K5oqE6YCBOiBYaWFvWGlhbyBMaXUgPHNsaXV1
-eGlhb254aWFvQGdtYWlsLmNvbT47IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207IHBldGVyLmh1
-dHRlcmVyQHdoby10Lm5ldDsgaHVpLndhbmdAY2Fub25pY2FsLmNvbTsgbGludXgtaW5wdXRAdmdl
-ci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyDmm7kg5puJ5bu6IFhp
-YW9qaWFuIENhbyA8eGlhb2ppYW4uY2FvQGNuLmFscHMuY29tPjsgemhhbmdmcDFAbGVub3ZvLmNv
-bTsg5paJ6JekIOebtOaouSBOYW9raSBTYWl0byA8bmFva2kuc2FpdG9AYWxwc2FscGluZS5jb20+
-DQrkuLvpopg6IFJlOiDnrZTlpI06IFtQQVRDSF0gaW5wdXQ6IGFscHMtZml4IHRoZSBpc3N1ZSBh
-bHBzIGNzMTkgdHJhY2tzdGljayBkbyBub3Qgd29yay4NCg0KT24gVHVlc2RheSAyOCBNYXkgMjAx
-OSAwMTozNzoxNCBYaWFveGlhbyBMaXUgd3JvdGU6DQo+IEFkZCBTYWl0by1zYW4uDQo+IA0KPiBI
-aSBIdWksDQo+IERvZXMgaXQgbWVhbiB0aGF0IHlvdXIgZGV2aWNlIChyZXBvcnRlZCB0byBrZXJu
-ZWwpIHNlbmRzIG9ubHkgdHJhY2tzdGljayBwYWNrZXRzIGFuZCBub3QgdG91Y2hwYWQ/DQo+ICAg
-IAktPiBZZXMuDQoNCk9rLCBJIHRoaW5rIHRoaXMgYW5zd2VycyBhbGwgcXVlc3Rpb25zLg0KDQpT
-byB5b3VyIHBhdGNoIGlzIG5vdCBjb3JyZWN0IGFzIGl0IHJlZ2lzdGVycyAiZmFrZSIgdG91Y2hw
-YWQgZGV2aWNlIGV2ZW4gdGhlcmUgaXMgbm8gdG91Y2hwYWQgYXQgYWxsLg0KDQpZb3Ugc2hvdWxk
-IGZpeCB5b3VyIHBhdGNoIHRvIG5vdCByZWdpc3RlciB0b3VjaHBhZCBpbnB1dCBkZXZpY2UsIGlu
-IHlvdXIgY2FzZSBpdCBzaG91bGQgcmVnaXN0ZXIgb25seSB0cmFja3N0aWNrIGRldmljZS4gSSBz
-dWdnZXN0IHRvIGFkZCBzb21lIGZsYWcgd2hpY2ggd291bGQgaW5kaWNhdGUgc3VjaCBkZXZpY2Ug
-KGUuZy4gQUxQU19PTkxZX1RSQUNLU1RJQ0spLg0KDQpBbHNvIGN1cnJlbnRseSBrZXJuZWwgZXhw
-b3J0cyBmb2xsb3dpbmcgbmFtZXMgd2hlbiBkZXZpY2UgaGFzIGJvdGggdHJhY2tzdGljayBhbmQg
-dG91Y2hwYWQ6ICJEdWFsUG9pbnQgU3RpY2siIGFuZCAiRHVhbFBvaW50IFRvdWNoUGFkIi4NCkFu
-ZCBpdCBleHBvcnRzIG5hbWUgIkdsaWRlUG9pbnQiIGZvciB0b3VjaHBhZC1vbmx5IGRldmljZS4g
-U28gdG8gYmUgY29uc2lzdGVudCB5b3UgbmVlZCB0byBhbHNvIG1vZGlmeSB0aGlzIGNvZGUgZm9y
-IHRyYWNrc3RpY2stb25seSBkZXZpY2UuDQoNCi0tDQpQYWxpIFJvaMOhcg0KcGFsaS5yb2hhckBn
-bWFpbC5jb20NCg==
+Send a low device index when the device is connected via the lightspeed
+receiver so that the receiver will pass the message along to the device
+instead of responding. If we don't do that, we end up thinking it's a
+hidpp10 device and miss out on all new features available to newer devices.
+
+This will enable correct detection of the following models:
+G603, GPro, G305, G613, G900 and G903, and possibly others.
+
+Signed-off-by: Pedro Vanzella <pedro@pedrovanzella.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 72fc9c0566db..621fce141d9f 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -62,6 +62,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ #define HIDPP_QUIRK_CLASS_K400			BIT(2)
+ #define HIDPP_QUIRK_CLASS_G920			BIT(3)
+ #define HIDPP_QUIRK_CLASS_K750			BIT(4)
++#define HIDPP_QUIRK_CLASS_LIGHTSPEED		BIT(5)
+ 
+ /* bits 2..20 are reserved for classes */
+ /* #define HIDPP_QUIRK_CONNECT_EVENTS		BIT(21) disabled */
+@@ -236,7 +237,11 @@ static int __hidpp_send_report(struct hid_device *hdev,
+ 	 * set the device_index as the receiver, it will be overwritten by
+ 	 * hid_hw_request if needed
+ 	 */
+-	hidpp_report->device_index = 0xff;
++	if (hidpp->quirks & HIDPP_QUIRK_CLASS_LIGHTSPEED) {
++		hidpp_report->device_index = 0x01;
++	} else {
++		hidpp_report->device_index = 0xff;
++	}
+ 
+ 	if (hidpp->quirks & HIDPP_QUIRK_FORCE_OUTPUT_REPORTS) {
+ 		ret = hid_hw_output_report(hdev, (u8 *)hidpp_report, fields_count);
+@@ -3753,6 +3758,9 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC06B) },
+ 	{ /* Logitech G900 Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC081) },
++	{ /* Logitech Gaming Mice over Lightspeed Receiver */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC539),
++	  .driver_data = HIDPP_QUIRK_CLASS_LIGHTSPEED },
+ 	{ /* Logitech G920 Wheel over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL),
+ 		.driver_data = HIDPP_QUIRK_CLASS_G920 | HIDPP_QUIRK_FORCE_OUTPUT_REPORTS},
+-- 
+2.21.0

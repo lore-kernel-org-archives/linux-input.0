@@ -1,53 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 0/8] Fix Elan I2C touchpads in latest generation from
- Lenovo
-Date: Mon, 27 May 2019 18:46:26 -0700
-Message-ID: <20190528014626.GB193221@dtor-ws>
-References: <20190524135046.17710-1-benjamin.tissoires@redhat.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: =?utf-8?B?562U5aSNOiBbUEFUQ0g=?= =?utf-8?Q?=5D?= input: alps-fix
+ the issue alps cs19 trackstick do not work.
+Date: Tue, 28 May 2019 09:18:24 +0200
+Message-ID: <20190528071824.jimhixhtsynzwixe@pali>
+References: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
+ <20190527100913.sgxrjrmphsjfmcdb@pali>
+ <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190524135046.17710-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: KT Liao <kt.liao@emc.com.tw>, Rob Herring <robh+dt@kernel.org>, Aaron Ma <aaron.ma@canonical.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
+Cc: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hui.wang@canonical.com" <hui.wang@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, May 24, 2019 at 03:50:38PM +0200, Benjamin Tissoires wrote:
-> Here comes the v3.
+On Tuesday 28 May 2019 01:37:14 Xiaoxiao Liu wrote:
+> Add Saito-san.
 > 
-> Very few changes from v2:
-> - dropped the last 2 patches where I tried to be smart, and it turns out
->   that it was not very a good idea
-> - also removed the only other blacklisted model, as it has been tested with
->   the v2 and it is also now working properly
+> Hi Hui,
+> Does it mean that your device (reported to kernel) sends only trackstick packets and not touchpad?
+>    	-> Yes.
 
-Applied the lot, thank you.
+Ok, I think this answers all questions.
 
-> 
-> Cheers,
-> Benjamin
-> 
-> Benjamin Tissoires (8):
->   Input: elantech - query the min/max information beforehand too
->   Input: elantech - add helper function elantech_is_buttonpad()
->   Input: elantech - detect middle button based on firmware version
->   dt-bindings: add more optional properties for elan_i2c touchpads
->   Input: elan_i2c - do not query the info if they are provided
->   Input: elantech/SMBus - export all capabilities from the PS/2 node
->   Input: elan_i2c - handle physical middle button
->   Input: elantech: remove P52 and P72 from SMBus blacklist
-> 
->  .../devicetree/bindings/input/elan_i2c.txt    |  11 +
->  drivers/input/mouse/elan_i2c_core.c           |  72 +++-
->  drivers/input/mouse/elantech.c                | 320 ++++++++++--------
->  drivers/input/mouse/elantech.h                |   8 +
->  4 files changed, 246 insertions(+), 165 deletions(-)
-> 
-> -- 
-> 2.21.0
-> 
+So your patch is not correct as it registers "fake" touchpad device even
+there is no touchpad at all.
+
+You should fix your patch to not register touchpad input device, in your
+case it should register only trackstick device. I suggest to add some
+flag which would indicate such device (e.g. ALPS_ONLY_TRACKSTICK).
+
+Also currently kernel exports following names when device has both
+trackstick and touchpad: "DualPoint Stick" and "DualPoint TouchPad".
+And it exports name "GlidePoint" for touchpad-only device. So to be
+consistent you need to also modify this code for trackstick-only device.
 
 -- 
-Dmitry
+Pali Rohár
+pali.rohar@gmail.com

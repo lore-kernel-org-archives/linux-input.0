@@ -1,43 +1,47 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: =?utf-8?B?562U5aSNOiBbUEFUQ0g=?= =?utf-8?Q?=5D?= input: alps-fix
- the issue alps cs19 trackstick do not work.
-Date: Tue, 28 May 2019 09:18:24 +0200
-Message-ID: <20190528071824.jimhixhtsynzwixe@pali>
+From: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
+Subject: =?utf-8?B?562U5aSNOiDnrZTlpI06IFtQQVRDSF0gaW5wdXQ6IGFscHMtZml4IHRoZSBp?=
+ =?utf-8?Q?ssue_alps_cs19_trackstick_do_not_work.?=
+Date: Tue, 28 May 2019 07:55:12 +0000
+Message-ID: <OSBPR01MB48556FD88D7F7D5F91CB5579DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
 References: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
  <20190527100913.sgxrjrmphsjfmcdb@pali>
  <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <20190528071824.jimhixhtsynzwixe@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+In-Reply-To: <20190528071824.jimhixhtsynzwixe@pali>
+Content-Language: zh-CN
 Sender: linux-kernel-owner@vger.kernel.org
-To: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
-Cc: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hui.wang@canonical.com" <hui.wang@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>
+To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
+Cc: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hui.wang@canonical.com" <hui.wang@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tuesday 28 May 2019 01:37:14 Xiaoxiao Liu wrote:
-> Add Saito-san.
-> 
-> Hi Hui,
-> Does it mean that your device (reported to kernel) sends only trackstick packets and not touchpad?
->    	-> Yes.
-
-Ok, I think this answers all questions.
-
-So your patch is not correct as it registers "fake" touchpad device even
-there is no touchpad at all.
-
-You should fix your patch to not register touchpad input device, in your
-case it should register only trackstick device. I suggest to add some
-flag which would indicate such device (e.g. ALPS_ONLY_TRACKSTICK).
-
-Also currently kernel exports following names when device has both
-trackstick and touchpad: "DualPoint Stick" and "DualPoint TouchPad".
-And it exports name "GlidePoint" for touchpad-only device. So to be
-consistent you need to also modify this code for trackstick-only device.
-
--- 
-Pali Rohár
-pali.rohar@gmail.com
+QWRkIEthd2FzZS1zYW4uDQoNCi0tLS0t6YKu5Lu25Y6f5Lu2LS0tLS0NCuWPkeS7tuS6ujogUGFs
+aSBSb2jDoXIgPHBhbGkucm9oYXJAZ21haWwuY29tPiANCuWPkemAgeaXtumXtDogVHVlc2RheSwg
+TWF5IDI4LCAyMDE5IDM6MTggUE0NCuaUtuS7tuS6ujog5YqJIOabieabiSBYaWFveGlhbyBMaXUg
+PHhpYW94aWFvLmxpdS0xQGNuLmFscHMuY29tPg0K5oqE6YCBOiBYaWFvWGlhbyBMaXUgPHNsaXV1
+eGlhb254aWFvQGdtYWlsLmNvbT47IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207IHBldGVyLmh1
+dHRlcmVyQHdoby10Lm5ldDsgaHVpLndhbmdAY2Fub25pY2FsLmNvbTsgbGludXgtaW5wdXRAdmdl
+ci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyDmm7kg5puJ5bu6IFhp
+YW9qaWFuIENhbyA8eGlhb2ppYW4uY2FvQGNuLmFscHMuY29tPjsgemhhbmdmcDFAbGVub3ZvLmNv
+bTsg5paJ6JekIOebtOaouSBOYW9raSBTYWl0byA8bmFva2kuc2FpdG9AYWxwc2FscGluZS5jb20+
+DQrkuLvpopg6IFJlOiDnrZTlpI06IFtQQVRDSF0gaW5wdXQ6IGFscHMtZml4IHRoZSBpc3N1ZSBh
+bHBzIGNzMTkgdHJhY2tzdGljayBkbyBub3Qgd29yay4NCg0KT24gVHVlc2RheSAyOCBNYXkgMjAx
+OSAwMTozNzoxNCBYaWFveGlhbyBMaXUgd3JvdGU6DQo+IEFkZCBTYWl0by1zYW4uDQo+IA0KPiBI
+aSBIdWksDQo+IERvZXMgaXQgbWVhbiB0aGF0IHlvdXIgZGV2aWNlIChyZXBvcnRlZCB0byBrZXJu
+ZWwpIHNlbmRzIG9ubHkgdHJhY2tzdGljayBwYWNrZXRzIGFuZCBub3QgdG91Y2hwYWQ/DQo+ICAg
+IAktPiBZZXMuDQoNCk9rLCBJIHRoaW5rIHRoaXMgYW5zd2VycyBhbGwgcXVlc3Rpb25zLg0KDQpT
+byB5b3VyIHBhdGNoIGlzIG5vdCBjb3JyZWN0IGFzIGl0IHJlZ2lzdGVycyAiZmFrZSIgdG91Y2hw
+YWQgZGV2aWNlIGV2ZW4gdGhlcmUgaXMgbm8gdG91Y2hwYWQgYXQgYWxsLg0KDQpZb3Ugc2hvdWxk
+IGZpeCB5b3VyIHBhdGNoIHRvIG5vdCByZWdpc3RlciB0b3VjaHBhZCBpbnB1dCBkZXZpY2UsIGlu
+IHlvdXIgY2FzZSBpdCBzaG91bGQgcmVnaXN0ZXIgb25seSB0cmFja3N0aWNrIGRldmljZS4gSSBz
+dWdnZXN0IHRvIGFkZCBzb21lIGZsYWcgd2hpY2ggd291bGQgaW5kaWNhdGUgc3VjaCBkZXZpY2Ug
+KGUuZy4gQUxQU19PTkxZX1RSQUNLU1RJQ0spLg0KDQpBbHNvIGN1cnJlbnRseSBrZXJuZWwgZXhw
+b3J0cyBmb2xsb3dpbmcgbmFtZXMgd2hlbiBkZXZpY2UgaGFzIGJvdGggdHJhY2tzdGljayBhbmQg
+dG91Y2hwYWQ6ICJEdWFsUG9pbnQgU3RpY2siIGFuZCAiRHVhbFBvaW50IFRvdWNoUGFkIi4NCkFu
+ZCBpdCBleHBvcnRzIG5hbWUgIkdsaWRlUG9pbnQiIGZvciB0b3VjaHBhZC1vbmx5IGRldmljZS4g
+U28gdG8gYmUgY29uc2lzdGVudCB5b3UgbmVlZCB0byBhbHNvIG1vZGlmeSB0aGlzIGNvZGUgZm9y
+IHRyYWNrc3RpY2stb25seSBkZXZpY2UuDQoNCi0tDQpQYWxpIFJvaMOhcg0KcGFsaS5yb2hhckBn
+bWFpbC5jb20NCg==

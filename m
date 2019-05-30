@@ -1,33 +1,38 @@
-From: Dave Hansen <dave.hansen@intel.com>
-Subject: Re: hid-related 5.2-rc1 boot hang
-Date: Thu, 30 May 2019 09:56:24 -0700
-Message-ID: <a349dfac-be58-93bd-e44c-080ed935ab06@intel.com>
-References: <2c1684f6-9def-93dc-54ab-888142fd5e71@intel.com>
- <nycvar.YFH.7.76.1905281913140.1962@cbobk.fhfr.pm>
- <CAO-hwJJzNAuFbdMVFZ4+h7J=bh6QHr_MioyK2yTV=M5R6CTm=A@mail.gmail.com>
- <8a17e6e2-b468-28fd-5b40-0c258ca7efa9@intel.com>
- <4689a737-6c40-b4ae-cc38-5df60318adce@redhat.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH] drivers: hid: Add a module description line to the hid_hyperv driver
+Date: Thu, 30 May 2019 13:37:20 -0400
+Message-ID: <20190530173720.17994-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4689a737-6c40-b4ae-cc38-5df60318adce@redhat.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 5/29/19 2:17 AM, Hans de Goede wrote:
-...
-> Dave, can you try building your initrd without the hid-logitech-dj module
-> included in the initrd?
+From: Joseph Salisbury <Joseph.Salisbury@microsoft.com>
 
-I did this on a vanilla 5.2-rc2 kernel (without the reverts) and still
-experienced the boot hang while the device was inserted.
+This patch only adds a MODULE_DESCRIPTION statement to the driver.
+This change is only cosmetic, so there should be no runtime impact.
 
-> Also can you check if your modprobe is provided by module-init-tools
-> or by kmod ?
+Signed-off-by: Joseph Salisbury <joseph.salisbury@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-hyperv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-$ dpkg -S `which modprobe`
-kmod: /sbin/modprobe
+diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+index 704049e62d58a..d3311d714d359 100644
+--- a/drivers/hid/hid-hyperv.c
++++ b/drivers/hid/hid-hyperv.c
+@@ -614,5 +614,7 @@ static void __exit mousevsc_exit(void)
+ }
+ 
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Microsoft Hyper-V Synthetic HID Driver");
++
+ module_init(mousevsc_init);
+ module_exit(mousevsc_exit);
+-- 
+2.20.1

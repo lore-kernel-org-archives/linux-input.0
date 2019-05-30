@@ -1,48 +1,33 @@
-From: Andrej Shadura <andrew.shadura@collabora.co.uk>
-Subject: Re: [PATCH] [trivial] HID: Typo s/to back 0/back to 0/
-Date: Thu, 30 May 2019 11:00:38 +0200
-Message-ID: <7c4d1462-4cf0-7d2a-177b-4d47698fd9cb@collabora.co.uk>
-References: <20190527122532.6084-1-geert+renesas@glider.be>
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: hid-related 5.2-rc1 boot hang
+Date: Thu, 30 May 2019 09:56:24 -0700
+Message-ID: <a349dfac-be58-93bd-e44c-080ed935ab06@intel.com>
+References: <2c1684f6-9def-93dc-54ab-888142fd5e71@intel.com>
+ <nycvar.YFH.7.76.1905281913140.1962@cbobk.fhfr.pm>
+ <CAO-hwJJzNAuFbdMVFZ4+h7J=bh6QHr_MioyK2yTV=M5R6CTm=A@mail.gmail.com>
+ <8a17e6e2-b468-28fd-5b40-0c258ca7efa9@intel.com>
+ <4689a737-6c40-b4ae-cc38-5df60318adce@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190527122532.6084-1-geert+renesas@glider.be>
-Content-Language: en-GB
+In-Reply-To: <4689a737-6c40-b4ae-cc38-5df60318adce@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On 27/05/2019 14:25, Geert Uytterhoeven wrote:
-> Fix a silly word ordering typo.
-> 
-> Fixes: 42337b9d4d958daa ("HID: add driver for U2F Zero built-in LED and RNG")
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> ---
->  drivers/hid/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index c3c390ca369022f0..735223f90035b2bf 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -1028,7 +1028,7 @@ config HID_U2FZERO
->  
->  	  U2F Zero only supports blinking its LED, so this driver doesn't
->  	  allow setting the brightness to anything but 1, which will
-> -	  trigger a single blink and immediately reset to back 0.
-> +	  trigger a single blink and immediately reset back to 0.
->  
->  config HID_WACOM
->  	tristate "Wacom Intuos/Graphire tablet support (USB)"
+On 5/29/19 2:17 AM, Hans de Goede wrote:
+...
+> Dave, can you try building your initrd without the hid-logitech-dj module
+> included in the initrd?
 
-That was a silly typo indeed :D
+I did this on a vanilla 5.2-rc2 kernel (without the reverts) and still
+experienced the boot hang while the device was inserted.
 
-Not sure this is needed, but just in case:
+> Also can you check if your modprobe is provided by module-init-tools
+> or by kmod ?
 
-Acked-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
-
--- 
-Cheers,
-  Andrej
+$ dpkg -S `which modprobe`
+kmod: /sbin/modprobe

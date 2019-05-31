@@ -1,38 +1,41 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH] drivers: input: serio: Add a module desription to the hyperv_keyboard driver
-Date: Thu, 30 May 2019 13:46:45 -0400
-Message-ID: <20190530174645.18147-1-sashal@kernel.org>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: hid-related 5.2-rc1 boot hang
+Date: Sat, 1 Jun 2019 00:15:48 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1906010014150.1962@cbobk.fhfr.pm>
+References: <2c1684f6-9def-93dc-54ab-888142fd5e71@intel.com> <nycvar.YFH.7.76.1905281913140.1962@cbobk.fhfr.pm> <CAO-hwJJzNAuFbdMVFZ4+h7J=bh6QHr_MioyK2yTV=M5R6CTm=A@mail.gmail.com> <8a17e6e2-b468-28fd-5b40-0c258ca7efa9@intel.com> <4689a737-6c40-b4ae-cc38-5df60318adce@redhat.com>
+ <a349dfac-be58-93bd-e44c-080ed935ab06@intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <a349dfac-be58-93bd-e44c-080ed935ab06@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Joseph Salisbury <Joseph.Salisbury@microsoft.com>
+On Thu, 30 May 2019, Dave Hansen wrote:
 
-This patch only adds a MODULE_DESCRIPTION statement to the driver.
-This change is only cosmetic, so there should be no runtime impact.
+> On 5/29/19 2:17 AM, Hans de Goede wrote:
+> ...
+> > Dave, can you try building your initrd without the hid-logitech-dj module
+> > included in the initrd?
+> 
+> I did this on a vanilla 5.2-rc2 kernel (without the reverts) and still
+> experienced the boot hang while the device was inserted.
+> 
+> > Also can you check if your modprobe is provided by module-init-tools
+> > or by kmod ?
+> 
+> $ dpkg -S `which modprobe`
+> kmod: /sbin/modprobe
 
-Signed-off-by: Joseph Salisbury <joseph.salisbury@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/input/serio/hyperv-keyboard.c | 2 ++
- 1 file changed, 2 insertions(+)
+Benjamin, Hans, are you looking into this?
 
-diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
-index a8b9be3e28db7..7935e52b54358 100644
---- a/drivers/input/serio/hyperv-keyboard.c
-+++ b/drivers/input/serio/hyperv-keyboard.c
-@@ -440,5 +440,7 @@ static void __exit hv_kbd_exit(void)
- }
- 
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Microsoft Hyper-V Synthetic Keyboard Driver");
-+
- module_init(hv_kbd_init);
- module_exit(hv_kbd_exit);
+If not, I think we should start reverting (at least the request_module() 
+changes, not sure about the rest of logitech issues yet) next week.
+
+Thanks,
+
 -- 
-2.20.1
+Jiri Kosina
+SUSE Labs

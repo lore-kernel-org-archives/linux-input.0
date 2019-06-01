@@ -1,51 +1,54 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH] drivers: hid: Add a module description line to the
- hid_hyperv driver
-Date: Sat, 1 Jun 2019 14:30:56 -0400
-Message-ID: <20190601183056.GO12898@sasha-vm>
-References: <20190530173720.17994-1-sashal@kernel.org>
- <nycvar.YFH.7.76.1906010018310.1962@cbobk.fhfr.pm>
+From: Maximilian Luz <luzmaximilian@gmail.com>
+Subject: Re: [RFC 0/2] Support for buttons on newer MS Surface devices
+Date: Sat, 1 Jun 2019 21:07:19 +0200
+Message-ID: <a0f93af3-c587-40d5-2a85-fdc0f9e6b79f@gmail.com>
+References: <20190516142523.117978-1-luzmaximilian@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.1906010018310.1962@cbobk.fhfr.pm>
+In-Reply-To: <20190516142523.117978-1-luzmaximilian@gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Joseph Salisbury <Joseph.Salisbury@microsoft.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jun 01, 2019 at 12:19:11AM +0200, Jiri Kosina wrote:
->On Thu, 30 May 2019, Sasha Levin wrote:
->
->> From: Joseph Salisbury <Joseph.Salisbury@microsoft.com>
->>
->> This patch only adds a MODULE_DESCRIPTION statement to the driver.
->> This change is only cosmetic, so there should be no runtime impact.
->>
->> Signed-off-by: Joseph Salisbury <joseph.salisbury@microsoft.com>
->> Reviewed-by: Michael Kelley <mikelley@microsoft.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  drivers/hid/hid-hyperv.c | 2 ++
->>  1 file changed, 2 insertions(+)
->>
->> diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
->> index 704049e62d58a..d3311d714d359 100644
->> --- a/drivers/hid/hid-hyperv.c
->> +++ b/drivers/hid/hid-hyperv.c
->> @@ -614,5 +614,7 @@ static void __exit mousevsc_exit(void)
->>  }
->>
->>  MODULE_LICENSE("GPL");
->> +MODULE_DESCRIPTION("Microsoft Hyper-V Synthetic HID Driver");
->> +
->
->Is there a reason why you didn't CC Joseph on this submission?
+Hi,
 
-Hm, no, I just went with my usual get_maintainers.pl + whomever git
-adds. Sorry Joe!
+any comments on this?
 
---
-Thanks,
-Sasha
+I should also mention that this has been tested via
+https://github.com/jakeday/linux-surface.
+
+Maximilian
+
+
+On 5/16/19 4:25 PM, Maximilian Luz wrote:
+> This series adds suport for power and volume buttons on 5th and 6th
+> generation Microsoft Surface devices. Specifically, it adds support for
+> the power-button on the Surface Laptop 1 and Laptop 2, as well as
+> support for power- and (on-device) volume-buttons on the Surface Pro 5
+> (2017), Pro 6, and Book 2.
+> 
+> These devices use the same MSHW0040 device as on the Surface Pro 4,
+> however, whereas the Pro 4 uses an ACPI notify handler, the newer
+> devices use GPIO interrupts to signal these events.
+> 
+> The first patch of this series ensures that the surfacepro3_button
+> driver, used for MSHW0040 on the Pro 4, does not probe for the newer
+> devices. The second patch adapts soc_button_array to implement the
+> actual button support.
+> 
+> I think the changes to soc_button_array in the second patch warrant a
+> thorough review. I've tried to make things a bit more generic to be able
+> to integrate arbitrary ACPI GPIO power-/volume-button devices more
+> easily, I'm not sure if there may be reasons against this.
+> 
+> Maximilian Luz (2):
+>    platform: Fix device check for surfacepro3_button
+>    input: soc_button_array for newer surface devices
+> 
+>   drivers/input/misc/soc_button_array.c     | 134 ++++++++++++++++++++--
+>   drivers/platform/x86/surfacepro3_button.c |  38 ++++++
+>   2 files changed, 160 insertions(+), 12 deletions(-)
+> 

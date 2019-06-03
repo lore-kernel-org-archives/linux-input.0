@@ -1,54 +1,71 @@
-From: Maximilian Luz <luzmaximilian@gmail.com>
-Subject: Re: [RFC 0/2] Support for buttons on newer MS Surface devices
-Date: Sat, 1 Jun 2019 21:07:19 +0200
-Message-ID: <a0f93af3-c587-40d5-2a85-fdc0f9e6b79f@gmail.com>
-References: <20190516142523.117978-1-luzmaximilian@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: hid-related 5.2-rc1 boot hang
+Date: Mon, 3 Jun 2019 11:11:50 +0200
+Message-ID: <e158d983-1e7e-4c49-aaab-ff2092d36438@redhat.com>
+References: <2c1684f6-9def-93dc-54ab-888142fd5e71@intel.com>
+ <nycvar.YFH.7.76.1905281913140.1962@cbobk.fhfr.pm>
+ <CAO-hwJJzNAuFbdMVFZ4+h7J=bh6QHr_MioyK2yTV=M5R6CTm=A@mail.gmail.com>
+ <8a17e6e2-b468-28fd-5b40-0c258ca7efa9@intel.com>
+ <4689a737-6c40-b4ae-cc38-5df60318adce@redhat.com>
+ <a349dfac-be58-93bd-e44c-080ed935ab06@intel.com>
+ <nycvar.YFH.7.76.1906010014150.1962@cbobk.fhfr.pm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190516142523.117978-1-luzmaximilian@gmail.com>
+In-Reply-To: <nycvar.YFH.7.76.1906010014150.1962@cbobk.fhfr.pm>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
+To: Jiri Kosina <jikos@kernel.org>, Dave Hansen <dave.hansen@intel.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
 Hi,
 
-any comments on this?
+On 01-06-19 00:15, Jiri Kosina wrote:
+> On Thu, 30 May 2019, Dave Hansen wrote:
+> 
+>> On 5/29/19 2:17 AM, Hans de Goede wrote:
+>> ...
+>>> Dave, can you try building your initrd without the hid-logitech-dj module
+>>> included in the initrd?
+>>
+>> I did this on a vanilla 5.2-rc2 kernel (without the reverts) and still
+>> experienced the boot hang while the device was inserted.
+>>
+>>> Also can you check if your modprobe is provided by module-init-tools
+>>> or by kmod ?
+>>
+>> $ dpkg -S `which modprobe`
+>> kmod: /sbin/modprobe
+> 
+> Benjamin, Hans, are you looking into this?
 
-I should also mention that this has been tested via
-https://github.com/jakeday/linux-surface.
+Not really, I cannot reproduce the request_module problem. I was hoping some
+of the info from Dave would help to pinpoint it, but it does not :|
 
-Maximilian
+> If not, I think we should start reverting (at least the request_module()
+> changes
 
+I agree we need to do something about the request_module changes.
 
-On 5/16/19 4:25 PM, Maximilian Luz wrote:
-> This series adds suport for power and volume buttons on 5th and 6th
-> generation Microsoft Surface devices. Specifically, it adds support for
-> the power-button on the Surface Laptop 1 and Laptop 2, as well as
-> support for power- and (on-device) volume-buttons on the Surface Pro 5
-> (2017), Pro 6, and Book 2.
-> 
-> These devices use the same MSHW0040 device as on the Surface Pro 4,
-> however, whereas the Pro 4 uses an ACPI notify handler, the newer
-> devices use GPIO interrupts to signal these events.
-> 
-> The first patch of this series ensures that the surfacepro3_button
-> driver, used for MSHW0040 on the Pro 4, does not probe for the newer
-> devices. The second patch adapts soc_button_array to implement the
-> actual button support.
-> 
-> I think the changes to soc_button_array in the second patch warrant a
-> thorough review. I've tried to make things a bit more generic to be able
-> to integrate arbitrary ACPI GPIO power-/volume-button devices more
-> easily, I'm not sure if there may be reasons against this.
-> 
-> Maximilian Luz (2):
->    platform: Fix device check for surfacepro3_button
->    input: soc_button_array for newer surface devices
-> 
->   drivers/input/misc/soc_button_array.c     | 134 ++++++++++++++++++++--
->   drivers/platform/x86/surfacepro3_button.c |  38 ++++++
->   2 files changed, 160 insertions(+), 12 deletions(-)
-> 
+I myself was thinking about somehow making them conditional, e.g. we
+could add a (temporary) module option defaulting to false for this
+while we investigate further.
+
+I'm afraid that if we just revert we will never find the root cause and then
+we will be stuck with the suboptimal behavior of first the generic hid driver
+binding followed by a unbind + bind of the new driver shortly afterwards,
+which also leads to a ton of udev events being fired to userspace (well I
+guess this does make for a good stress test of the userspace hotplug code).
+
+> not sure about the rest of logitech issues yet) next week.
+
+The main problem seems to be the request_module patches. Although I also
+have 2 reports of problems with hid-logitech-dj driving the 0xc52f product-id,
+so we may need to drop that product-id from hid-logitech-dj, I'm working on
+that one...
+
+Regards,
+
+Hans

@@ -1,49 +1,35 @@
-From: Luca Weiss <luca@z3ntu.xyz>
-Subject: [PATCH v2 2/2] arm64: dts: allwinner: a64: Add lradc node
-Date: Tue,  4 Jun 2019 19:21:54 +0200
-Message-ID: <20190604172154.25472-2-luca@z3ntu.xyz>
-References: <20190604172154.25472-1-luca@z3ntu.xyz>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: hid-related 5.2-rc1 boot hang
+Date: Tue, 4 Jun 2019 23:08:11 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1906042307260.27227@cbobk.fhfr.pm>
+References: <2c1684f6-9def-93dc-54ab-888142fd5e71@intel.com> <nycvar.YFH.7.76.1905281913140.1962@cbobk.fhfr.pm> <CAO-hwJJzNAuFbdMVFZ4+h7J=bh6QHr_MioyK2yTV=M5R6CTm=A@mail.gmail.com> <8a17e6e2-b468-28fd-5b40-0c258ca7efa9@intel.com> <4689a737-6c40-b4ae-cc38-5df60318adce@redhat.com>
+ <a349dfac-be58-93bd-e44c-080ed935ab06@intel.com> <nycvar.YFH.7.76.1906010014150.1962@cbobk.fhfr.pm> <e158d983-1e7e-4c49-aaab-ff2092d36438@redhat.com> <5471f010-cb42-c548-37e2-2b9c9eba1184@redhat.com> <CAO-hwJKRRpsShw6B-YLmsEnjQ+iYtz+VmZK+VSRcDmiBwnS+oA@mail.gmail.com>
+ <e431dafc-0fb4-4be3-ac29-dcf125929090@redhat.com> <CAO-hwJ+5UYJMnuCS0UL4g45Xc181LraAzc-CMuYB2rcqKGe_Sw@mail.gmail.com> <4548d196-b75f-c4d0-8f3c-3e734b9a758c@redhat.com> <c05929f4-00b6-e098-cd69-cd6539ccd3f1@redhat.com>
+ <CAO-hwJJWWRf8cCLCB3JdfFGCGPnp9ar9HC_QAg7crJ0y+pA-hg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190604172154.25472-1-luca@z3ntu.xyz>
+In-Reply-To: <CAO-hwJJWWRf8cCLCB3JdfFGCGPnp9ar9HC_QAg7crJ0y+pA-hg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: Luca Weiss <luca@z3ntu.xyz>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, "open list:SUN4I LOW RES ADC ATTACHED
-        TABLET KEYS DRIVER" <linux-input@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED
-        DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, "moderated list:ARM/Allwinner
-        sunXi SoC support" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>, ~martijnbraam/pmos-upstream@lists.sr.ht
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Dave Hansen <dave.hansen@intel.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Add a node describing the KEYADC on the A64.
+On Tue, 4 Jun 2019, Benjamin Tissoires wrote:
 
-Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
----
-Changes since v1:
- - Use a a64 compatible with a fallback to the a83t one (the A64 also
-   uses a 3/4 voltage divider, as is the case with the A83T)
- - Correct the reg property (size 0x100 => 0x400)
+> > Which should fix this. It is quite simple and safe, so if we get testing
+> > feedback relatively soon, we could go with the fix instead of dropping the
+> > product-id, your call.
+> 
+> I should receive the M280 tomorrow, hopefully with the C52F. If the
+> receiver is correct and the tests are successful, I'd prefer to take
+> this one over the revert :)
 
- arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Agreed at this release phase. And if it doesn't work, immediate revert for 
+now and proper fix for 5.3-rc1.
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-index 8c5b521e6389..ba0ab1045e00 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-@@ -730,6 +730,14 @@
- 			status = "disabled";
- 		};
- 
-+		lradc: lradc@1c21800 {
-+			compatible = "allwinner,sun50i-a64-lradc",
-+				     "allwinner,sun8i-a83t-r-lradc";
-+			reg = <0x01c21800 0x400>;
-+			interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
-+			status = "disabled";
-+		};
-+
- 		i2s0: i2s@1c22000 {
- 			#sound-dai-cells = <0>;
- 			compatible = "allwinner,sun50i-a64-i2s",
+Thanks,
+
 -- 
-2.21.0
+Jiri Kosina
+SUSE Labs

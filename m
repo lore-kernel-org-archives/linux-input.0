@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/4] Revert "HID: Increase maximum report size allowed by hid_field_extract()"
-Date: Wed,  5 Jun 2019 14:44:05 +0200
-Message-ID: <20190605124408.8637-2-benjamin.tissoires@redhat.com>
+Subject: [PATCH 3/4] Revert "HID: core: Call request_module before doing device_add"
+Date: Wed,  5 Jun 2019 14:44:07 +0200
+Message-ID: <20190605124408.8637-4-benjamin.tissoires@redhat.com>
 References: <20190605124408.8637-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,43 +9,40 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190605124408.8637-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Dave Hansen <dave.hansen@intel.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-This reverts commit 94a9992f7dbdfb28976b565af220e0c4a117144a.
+This reverts commit a025a18fecd4429f4ca66b1746001263c052ecbb.
 
-The commit allows for more than 32 bits in hid_field_extract(),
-but the return value is a 32 bits int.
-So basically what this commit is doing is just silencing those
-legitimate errors.
+This patch and 4ceabaf79 are giving extended timeouts
+on boot for at least Ubuntu and OpenSuse.
 
-Revert to a previous situation in the hope that a proper
-fix will be impletemented.
+Revert them until we get a better fix.
 
-Fixes: 94a9992f7dbd ("HID: Increase maximum report size allowed by hid_field_extract()")
-Cc: stable@vger.kernel.org # v5.1
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=203741
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-core.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 08d310723e96..205d6b82a706 100644
+index fd9e7a4c107d..210b81a56e1a 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1311,10 +1311,10 @@ static u32 __extract(u8 *report, unsigned offset, int n)
- u32 hid_field_extract(const struct hid_device *hid, u8 *report,
- 			unsigned offset, unsigned n)
- {
--	if (n > 256) {
--		hid_warn(hid, "hid_field_extract() called with n (%d) > 256! (%s)\n",
-+	if (n > 32) {
-+		hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
- 			 n, current->comm);
--		n = 256;
-+		n = 32;
- 	}
+@@ -2361,14 +2361,6 @@ int hid_add_device(struct hid_device *hdev)
+ 	dev_set_name(&hdev->dev, "%04X:%04X:%04X.%04X", hdev->bus,
+ 		     hdev->vendor, hdev->product, atomic_inc_return(&id));
  
- 	return __extract(report, offset, n);
+-	/*
+-	 * Try loading the module for the device before the add, so that we do
+-	 * not first have hid-generic binding only to have it replaced
+-	 * immediately afterwards with a specialized driver.
+-	 */
+-	request_module("hid:b%04Xg%04Xv%08Xp%08X",
+-		       hdev->bus, hdev->group, hdev->vendor, hdev->product);
+-
+ 	hid_debug_register(hdev, dev_name(&hdev->dev));
+ 	ret = device_add(&hdev->dev);
+ 	if (!ret)
 -- 
 2.19.2

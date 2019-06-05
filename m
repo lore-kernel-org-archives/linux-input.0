@@ -1,45 +1,51 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 0/4] few reverts and fixes for 5.2
-Date: Wed,  5 Jun 2019 14:44:04 +0200
-Message-ID: <20190605124408.8637-1-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/4] Revert "HID: Increase maximum report size allowed by hid_field_extract()"
+Date: Wed,  5 Jun 2019 14:44:05 +0200
+Message-ID: <20190605124408.8637-2-benjamin.tissoires@redhat.com>
+References: <20190605124408.8637-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190605124408.8637-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Dave Hansen <dave.hansen@intel.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This has been already publicly discussed here, so I am just posting
-for completeness.
+This reverts commit 94a9992f7dbdfb28976b565af220e0c4a117144a.
 
-patch 1:
-request to revert it:
-https://patchwork.kernel.org/patch/10844177/#22651385
+The commit allows for more than 32 bits in hid_field_extract(),
+but the return value is a 32 bits int.
+So basically what this commit is doing is just silencing those
+legitimate errors.
 
-patch 2&3:
-related thread:
-https://lkml.org/lkml/2019/5/28/778
+Revert to a previous situation in the hope that a proper
+fix will be impletemented.
 
-patch 4:
-bug link: https://bugzilla.kernel.org/show_bug.cgi?id=203619
-and related thread: https://lkml.org/lkml/2019/5/28/778
+Fixes: 94a9992f7dbd ("HID: Increase maximum report size allowed by hid_field_extract()")
+Cc: stable@vger.kernel.org # v5.1
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Cheers,
-Benjamin
-
-Benjamin Tissoires (3):
-  Revert "HID: Increase maximum report size allowed by
-    hid_field_extract()"
-  Revert "HID: core: Do not call request_module() in async context"
-  Revert "HID: core: Call request_module before doing device_add"
-
-Hans de Goede (1):
-  HID: logitech-dj: Fix 064d:c52f receiver support
-
- drivers/hid/hid-core.c        | 16 +++----------
- drivers/hid/hid-logitech-dj.c | 42 ++++++++++++++++++++++-------------
- 2 files changed, 30 insertions(+), 28 deletions(-)
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 08d310723e96..205d6b82a706 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1311,10 +1311,10 @@ static u32 __extract(u8 *report, unsigned offset, int n)
+ u32 hid_field_extract(const struct hid_device *hid, u8 *report,
+ 			unsigned offset, unsigned n)
+ {
+-	if (n > 256) {
+-		hid_warn(hid, "hid_field_extract() called with n (%d) > 256! (%s)\n",
++	if (n > 32) {
++		hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
+ 			 n, current->comm);
+-		n = 256;
++		n = 32;
+ 	}
+ 
+ 	return __extract(report, offset, n);
 -- 
 2.19.2

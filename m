@@ -1,52 +1,41 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 0/4] few reverts and fixes for 5.2
-Date: Wed, 5 Jun 2019 15:07:50 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1906051507060.27227@cbobk.fhfr.pm>
-References: <20190605124408.8637-1-benjamin.tissoires@redhat.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [PATCH] Input: alps: Drop unlikely before IS_ERR(_OR_NULL)
+Date: Wed, 5 Jun 2019 22:24:28 +0800
+Message-ID: <20190605142428.84784-5-wangkefeng.wang@huawei.com>
+References: <20190605142428.84784-1-wangkefeng.wang@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190605124408.8637-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <20190605142428.84784-1-wangkefeng.wang@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Dave Hansen <dave.hansen@intel.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 5 Jun 2019, Benjamin Tissoires wrote:
+IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag,
+so no need to do that again from its callers. Drop it.
 
-> This has been already publicly discussed here, so I am just posting
-> for completeness.
-> 
-> patch 1:
-> request to revert it:
-> https://patchwork.kernel.org/patch/10844177/#22651385
-> 
-> patch 2&3:
-> related thread:
-> https://lkml.org/lkml/2019/5/28/778
-> 
-> patch 4:
-> bug link: https://bugzilla.kernel.org/show_bug.cgi?id=203619
-> and related thread: https://lkml.org/lkml/2019/5/28/778
-> 
-> Cheers,
-> Benjamin
-> 
-> Benjamin Tissoires (3):
->   Revert "HID: Increase maximum report size allowed by
->     hid_field_extract()"
->   Revert "HID: core: Do not call request_module() in async context"
->   Revert "HID: core: Call request_module before doing device_add"
-> 
-> Hans de Goede (1):
->   HID: logitech-dj: Fix 064d:c52f receiver support
+Cc: "Pali Rohár" <pali.rohar@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ drivers/input/mouse/alps.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-For the set:
-
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-
-Thanks,
-
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 0a6f7ca883e7..791ef0f826c5 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1478,7 +1478,7 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
+ 		/* On V2 devices the DualPoint Stick reports bare packets */
+ 		dev = priv->dev2;
+ 		dev2 = psmouse->dev;
+-	} else if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
++	} else if (IS_ERR_OR_NULL(priv->dev3)) {
+ 		/* Register dev3 mouse if we received PS/2 packet first time */
+ 		if (!IS_ERR(priv->dev3))
+ 			psmouse_queue_work(psmouse, &priv->dev3_register_work,
 -- 
-Jiri Kosina
-SUSE Labs
+2.20.1

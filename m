@@ -1,52 +1,52 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/4] Revert "HID: core: Do not call request_module() in async context"
-Date: Wed,  5 Jun 2019 14:44:06 +0200
-Message-ID: <20190605124408.8637-3-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 0/4] few reverts and fixes for 5.2
+Date: Wed, 5 Jun 2019 15:07:50 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1906051507060.27227@cbobk.fhfr.pm>
 References: <20190605124408.8637-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190605124408.8637-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Dave Hansen <dave.hansen@intel.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Dave Hansen <dave.hansen@intel.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This reverts commit 4ceabaf7909d109db6afbffc4ed182741fc32043.
+On Wed, 5 Jun 2019, Benjamin Tissoires wrote:
 
-This patch and a025a18fe are giving extended timeouts
-on boot for at least Ubuntu and OpenSuse.
+> This has been already publicly discussed here, so I am just posting
+> for completeness.
+> 
+> patch 1:
+> request to revert it:
+> https://patchwork.kernel.org/patch/10844177/#22651385
+> 
+> patch 2&3:
+> related thread:
+> https://lkml.org/lkml/2019/5/28/778
+> 
+> patch 4:
+> bug link: https://bugzilla.kernel.org/show_bug.cgi?id=203619
+> and related thread: https://lkml.org/lkml/2019/5/28/778
+> 
+> Cheers,
+> Benjamin
+> 
+> Benjamin Tissoires (3):
+>   Revert "HID: Increase maximum report size allowed by
+>     hid_field_extract()"
+>   Revert "HID: core: Do not call request_module() in async context"
+>   Revert "HID: core: Call request_module before doing device_add"
+> 
+> Hans de Goede (1):
+>   HID: logitech-dj: Fix 064d:c52f receiver support
 
-Revert them until we get a better fix.
+For the set:
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-core.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+Acked-by: Jiri Kosina <jkosina@suse.cz>
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 205d6b82a706..fd9e7a4c107d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -27,7 +27,6 @@
- #include <linux/vmalloc.h>
- #include <linux/sched.h>
- #include <linux/semaphore.h>
--#include <linux/async.h>
- 
- #include <linux/hid.h>
- #include <linux/hiddev.h>
-@@ -2367,9 +2366,8 @@ int hid_add_device(struct hid_device *hdev)
- 	 * not first have hid-generic binding only to have it replaced
- 	 * immediately afterwards with a specialized driver.
- 	 */
--	if (!current_is_async())
--		request_module("hid:b%04Xg%04Xv%08Xp%08X", hdev->bus,
--			       hdev->group, hdev->vendor, hdev->product);
-+	request_module("hid:b%04Xg%04Xv%08Xp%08X",
-+		       hdev->bus, hdev->group, hdev->vendor, hdev->product);
- 
- 	hid_debug_register(hdev, dev_name(&hdev->dev));
- 	ret = device_add(&hdev->dev);
+Thanks,
+
 -- 
-2.19.2
+Jiri Kosina
+SUSE Labs

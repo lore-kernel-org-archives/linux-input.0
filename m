@@ -1,74 +1,46 @@
-From: Pedro Vanzella <pedro@pedrovanzella.com>
-Subject: [PATCH 2/2] HID: hid-logitech-hidpp: subscribe to battery voltage change events
-Date: Tue,  4 Jun 2019 19:28:27 -0400
-Message-ID: <20190604232827.26008-2-pedro@pedrovanzella.com>
-References: <20190604232827.26008-1-pedro@pedrovanzella.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 06/10] mfd / platform: cros_ec: Reorganize platform and
+ mfd includes
+Date: Wed, 5 Jun 2019 11:02:20 +0100
+Message-ID: <20190605100220.GN2456@sirena.org.uk>
+References: <20190604152019.16100-1-enric.balletbo@collabora.com>
+ <20190604152019.16100-7-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="RnxXMyWEPIZsopkG"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190604232827.26008-1-pedro@pedrovanzella.com>
+Content-Disposition: inline
+In-Reply-To: <20190604152019.16100-7-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Pedro Vanzella <pedro@pedrovanzella.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org, gwendal@chromium.org, Guenter Roeck <groeck@chromium.org>, Benson Leung <bleung@chromium.org>, Lee Jones <lee.jones@linaro.org>, kernel@collabora.com, dtor@chromium.org, Mauro Carvalho Chehab <mchehab@kernel.org>, alsa-devel@alsa-project.org, Alessandro Zummo <a.zummo@towertech.it>, linux-iio@vger.kernel.org, Fabien Lahoudere <fabien.lahoudere@collabora.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>, Brian Norris <briannorris@chromium.org>, Chanwoo Choi <cw00.choi@samsung.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Sebastian Reichel <sre@kernel.org>, Rushikesh
 List-Id: linux-input@vger.kernel.org
 
-Same as with the other ways of reporting battery status,
-fetch the battery voltage on raw hidpp events.
 
-Signed-off-by: Pedro Vanzella <pedro@pedrovanzella.com>
----
- drivers/hid/hid-logitech-hidpp.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+--RnxXMyWEPIZsopkG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index e68ea44b0d24..1eee206a0aed 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1313,6 +1313,35 @@ static int hidpp20_query_battery_voltage_info(struct hidpp_device *hidpp)
- 	return 0;
- }
- 
-+static int hidpp20_battery_voltage_event(struct hidpp_device *hidpp,
-+					 u8 *data, int size)
-+{
-+	struct hidpp_report *report = (struct hidpp_report *)data;
-+	int status, voltage;
-+	bool changed;
-+
-+	if (report->fap.feature_index != hidpp->battery.voltage_feature_index ||
-+	    report->fap.funcindex_clientid !=
-+		    EVENT_BATTERY_LEVEL_STATUS_BROADCAST)
-+		return 0;
-+
-+	status = hidpp20_battery_map_status_voltage(report->fap.params,
-+						    &voltage);
-+
-+	hidpp->battery.online = status != POWER_SUPPLY_STATUS_NOT_CHARGING;
-+
-+	changed = voltage != hidpp->battery.voltage ||
-+		  status != hidpp->battery.status;
-+
-+	if (changed) {
-+		hidpp->battery.voltage = voltage;
-+		hidpp->battery.status = status;
-+		if (hidpp->battery.ps)
-+			power_supply_changed(hidpp->battery.ps);
-+	}
-+	return 0;
-+}
-+
- static enum power_supply_property hidpp_battery_props[] = {
- 	POWER_SUPPLY_PROP_ONLINE,
- 	POWER_SUPPLY_PROP_STATUS,
-@@ -3181,6 +3210,9 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
- 		ret = hidpp_solar_battery_event(hidpp, data, size);
- 		if (ret != 0)
- 			return ret;
-+		ret = hidpp20_battery_voltage_event(hidpp, data, size);
-+		if (ret != 0)
-+			return ret;
- 	}
- 
- 	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP10_BATTERY) {
--- 
-2.21.0
+On Tue, Jun 04, 2019 at 05:20:15PM +0200, Enric Balletbo i Serra wrote:
+> There is a bit of mess between cros-ec mfd includes and platform
+> includes. For example, we have a linux/mfd/cros_ec.h include that
+> exports the interface implemented in platform/chrome/cros_ec_proto.c. Or
+
+Acked-by: Mark Brown <broonie@kernel.org>
+
+--RnxXMyWEPIZsopkG
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlz3kysACgkQJNaLcl1U
+h9BVMAf+I/I3bNW13EZ789wBAFxmn5KXFbH0t6CdJDgbILW9HMsGSKGbJXJRTRDG
+GGeIfMEYK0lv5boeQbArMfoX/kkuVYHVj/71aQVsgC53JIBFFxHS2zEfzrFzgN+R
+sNsvROQYmO1T5gOySrMN+AsqPwnu3CR2LgMPRqsvguCPduIfXzEM3afJQuRh2lAW
+a5Im4U6GQX5cez1MGDHB3/Mk8fH194coSUTUtH134gpeA5LWemALrlDCRsfdSbw2
+G2oeM++LQIDx2VcKfRKWfqvKhC1Ajp5FdiZw6Z7lo6+BXFHKSVupSjKAhtIdT4gj
+RVhPy7IzR78PM8sLvDnqD6CyTHtuXQ==
+=7p/R
+-----END PGP SIGNATURE-----
+
+--RnxXMyWEPIZsopkG--

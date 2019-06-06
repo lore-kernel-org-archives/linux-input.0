@@ -1,63 +1,118 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] Input: alps: Drop unlikely before IS_ERR(_OR_NULL)
-Date: Wed, 05 Jun 2019 19:28:53 -0700
-Message-ID: <a1908a998b6d1d1e4cdd097a50b9c9ac9b00caae.camel@perches.com>
-References: <20190605142428.84784-1-wangkefeng.wang@huawei.com>
-         <20190605142428.84784-5-wangkefeng.wang@huawei.com>
-         <20190605144240.pfrvlgxsdpacpwxf@pali>
-         <36eac452-5477-3670-7980-765d0879ead4@huawei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [UPDATE][PATCH v4] HID: intel-ish-hid: fix wrong driver_data usage
+Date: Wed,  5 Jun 2019 21:52:27 -0700
+Message-ID: <20190606045227.7515-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <36eac452-5477-3670-7980-765d0879ead4@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kefeng Wang <wangkefeng.wang@huawei.com>, Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: benjamin.tissoires@redhat.com, jikos@kernel.org
+Cc: even.xu@intel.com, hyungwoo.yang@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, srinivas.pandruvada@linux.intel.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2019-06-06 at 09:08 +0800, Kefeng Wang wrote:
-> On 2019/6/5 22:42, Pali Rohár wrote:
-> > On Wednesday 05 June 2019 22:24:28 Kefeng Wang wrote:
-> > > IS_ERR(_OR_NULL) already contain an 'unlikely' compiler flag,
-> > > so no need to do that again from its callers. Drop it.
-> > Hi! I already reviewed this patch and rejected it, see:
-> > https://patchwork.kernel.org/patch/10817475/
-> OK, please ignore it.
+From: Hyungwoo Yang <hyungwoo.yang@intel.com>
 
-I think the stated reason of better readability isn't
-particularly sensible as the object code produced is
-actually slightly larger.
+Currently, in suspend() and resume(), ishtp client drivers are using
+driver_data to get "struct ishtp_cl_device" object which is set by
+bus driver. It's wrong since the driver_data should not be owned bus.
+driver_data should be owned by the corresponding ishtp client driver.
+Due to this, some ishtp client driver like cros_ec_ishtp which uses
+its driver_data to transfer its data to its child doesn't work correctly.
 
-x86-64 defconfig (gcc 8.3.0)
+So this patch removes setting driver_data in bus drier and instead of
+using driver_data to get "struct ishtp_cl_device", since "struct device"
+is embedded in "struct ishtp_cl_device", we introduce a helper function
+that returns "struct ishtp_cl_device" from "struct device".
 
-$ size drivers/input/mouse/alps.o*
-   text	   data	    bss	    dec	    hex	filename
-  29416	     56	      0	  29472	   7320	drivers/input/mouse/alps.o.new
-  29432	     56	      0	  29488	   7330	drivers/input/mouse/alps.o.old
+Signed-off-by: Hyungwoo Yang <hyungwoo.yang@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+For 5.3
 
-Also if this unlikely is _really_ useful, perhaps the
-!IS_ERR immediately after could also use likely as the
-test seems only done for an OOM condition.
+v4- Updated
+Added version history for tracking by Srinivas Pandruvada
 
-> > > Cc: "Pali Rohár" <pali.rohar@gmail.com>
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > Cc: linux-input@vger.kernel.org
-> > > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> > > ---
-> > >  drivers/input/mouse/alps.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> > > index 0a6f7ca883e7..791ef0f826c5 100644
-> > > --- a/drivers/input/mouse/alps.c
-> > > +++ b/drivers/input/mouse/alps.c
-> > > @@ -1478,7 +1478,7 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
-> > >  		/* On V2 devices the DualPoint Stick reports bare packets */
-> > >  		dev = priv->dev2;
-> > >  		dev2 = psmouse->dev;
-> > > -	} else if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
-> > > +	} else if (IS_ERR_OR_NULL(priv->dev3)) {
-> > >  		/* Register dev3 mouse if we received PS/2 packet first time */
-> > >  		if (!IS_ERR(priv->dev3))
-> > >  			psmouse_queue_work(psmouse, &priv->dev3_register_work,
+v4
+- Cleaned up submission by removing linux-next merge commit from the
+  series.
+
+v3
+-Remove cros-ec dependency of the patch which is not in the mainline.
+
+v2
+-Make patch so that it can be applied to mainline kernel.
+-Updated description to add why this patch is required?
+
+
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c |  4 ++--
+ drivers/hid/intel-ish-hid/ishtp/bus.c        | 15 ++++++++++++++-
+ include/linux/intel-ish-client-if.h          |  1 +
+ 3 files changed, 17 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+index 56777a43e69c..19102a3be4ca 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+@@ -899,7 +899,7 @@ static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
+  */
+ static int hid_ishtp_cl_suspend(struct device *device)
+ {
+-	struct ishtp_cl_device *cl_device = dev_get_drvdata(device);
++	struct ishtp_cl_device *cl_device = ishtp_dev_to_cl_device(device);
+ 	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+ 	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 
+@@ -920,7 +920,7 @@ static int hid_ishtp_cl_suspend(struct device *device)
+  */
+ static int hid_ishtp_cl_resume(struct device *device)
+ {
+-	struct ishtp_cl_device *cl_device = dev_get_drvdata(device);
++	struct ishtp_cl_device *cl_device = ishtp_dev_to_cl_device(device);
+ 	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+ 	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index fb8ca12955b4..4b4a6047dc72 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -479,7 +479,6 @@ static struct ishtp_cl_device *ishtp_bus_add_device(struct ishtp_device *dev,
+ 	}
+ 
+ 	ishtp_device_ready = true;
+-	dev_set_drvdata(&device->dev, device);
+ 
+ 	return device;
+ }
+@@ -647,6 +646,20 @@ void *ishtp_get_drvdata(struct ishtp_cl_device *cl_device)
+ }
+ EXPORT_SYMBOL(ishtp_get_drvdata);
+ 
++/**
++ * ishtp_dev_to_cl_device() - get ishtp_cl_device instance from device instance
++ * @device: device instance
++ *
++ * Get ish_cl_device instance which embeds device instance in it.
++ *
++ * Return: pointer to ishtp_cl_device instance
++ */
++struct ishtp_cl_device *ishtp_dev_to_cl_device(struct device *device)
++{
++	return to_ishtp_cl_device(device);
++}
++EXPORT_SYMBOL(ishtp_dev_to_cl_device);
++
+ /**
+  * ishtp_bus_new_client() - Create a new client
+  * @dev:	ISHTP device instance
+diff --git a/include/linux/intel-ish-client-if.h b/include/linux/intel-ish-client-if.h
+index 16255c2ca2f4..0d6b4bc191c5 100644
+--- a/include/linux/intel-ish-client-if.h
++++ b/include/linux/intel-ish-client-if.h
+@@ -103,6 +103,7 @@ void ishtp_put_device(struct ishtp_cl_device *cl_dev);
+ void ishtp_get_device(struct ishtp_cl_device *cl_dev);
+ void ishtp_set_drvdata(struct ishtp_cl_device *cl_device, void *data);
+ void *ishtp_get_drvdata(struct ishtp_cl_device *cl_device);
++struct ishtp_cl_device *ishtp_dev_to_cl_device(struct device *dev);
+ int ishtp_register_event_cb(struct ishtp_cl_device *device,
+ 				void (*read_cb)(struct ishtp_cl_device *));
+ struct	ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
+-- 
+2.17.2

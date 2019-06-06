@@ -1,118 +1,46 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [UPDATE][PATCH v4] HID: intel-ish-hid: fix wrong driver_data usage
-Date: Wed,  5 Jun 2019 21:52:27 -0700
-Message-ID: <20190606045227.7515-1-srinivas.pandruvada@linux.intel.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 1/2] HID: quirks: Refactor ELAN 400 and 401 handling
+Date: Thu, 6 Jun 2019 06:20:28 +0100
+Message-ID: <20190606052028.GY4797@dell>
+References: <20190423160543.9922-1-jeffrey.l.hugo@gmail.com>
+ <20190423160605.9970-1-jeffrey.l.hugo@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190423160605.9970-1-jeffrey.l.hugo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: benjamin.tissoires@redhat.com, jikos@kernel.org
-Cc: even.xu@intel.com, hyungwoo.yang@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, srinivas.pandruvada@linux.intel.com
+To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Cc: dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, bjorn.andersson@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, agross@kernel.org, david.brown@linaro.org, hdegoede@redhat.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Hyungwoo Yang <hyungwoo.yang@intel.com>
+On Tue, 23 Apr 2019, Jeffrey Hugo wrote:
 
-Currently, in suspend() and resume(), ishtp client drivers are using
-driver_data to get "struct ishtp_cl_device" object which is set by
-bus driver. It's wrong since the driver_data should not be owned bus.
-driver_data should be owned by the corresponding ishtp client driver.
-Due to this, some ishtp client driver like cros_ec_ishtp which uses
-its driver_data to transfer its data to its child doesn't work correctly.
+> There needs to be coordination between hid-quirks and the elan_i2c driver
+> about which devices are handled by what drivers.  Currently, both use
+> whitelists, which results in valid devices being unhandled by default,
+> when they should not be rejected by hid-quirks.  This is quickly becoming
+> an issue.
+> 
+> Since elan_i2c has a maintained whitelist of what devices it will handle,
+> use that to implement a blacklist in hid-quirks so that only the devices
+> that need to be handled by elan_i2c get rejected by hid-quirks, and
+> everything else is handled by default.  The downside is the whitelist and
+> blacklist need to be kept in sync.
+> 
+> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> ---
+>  drivers/hid/hid-quirks.c            | 64 ++++++++++++++++++++++++-----
+>  drivers/input/mouse/elan_i2c_core.c |  4 ++
+>  2 files changed, 58 insertions(+), 10 deletions(-)
 
-So this patch removes setting driver_data in bus drier and instead of
-using driver_data to get "struct ishtp_cl_device", since "struct device"
-is embedded in "struct ishtp_cl_device", we introduce a helper function
-that returns "struct ishtp_cl_device" from "struct device".
+Reviewed-by: Lee Jones <lee.jones@linaro.org>
+Tested-by: Lee Jones <lee.jones@linaro.org>
 
-Signed-off-by: Hyungwoo Yang <hyungwoo.yang@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
-For 5.3
-
-v4- Updated
-Added version history for tracking by Srinivas Pandruvada
-
-v4
-- Cleaned up submission by removing linux-next merge commit from the
-  series.
-
-v3
--Remove cros-ec dependency of the patch which is not in the mainline.
-
-v2
--Make patch so that it can be applied to mainline kernel.
--Updated description to add why this patch is required?
-
-
- drivers/hid/intel-ish-hid/ishtp-hid-client.c |  4 ++--
- drivers/hid/intel-ish-hid/ishtp/bus.c        | 15 ++++++++++++++-
- include/linux/intel-ish-client-if.h          |  1 +
- 3 files changed, 17 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 56777a43e69c..19102a3be4ca 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -899,7 +899,7 @@ static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
-  */
- static int hid_ishtp_cl_suspend(struct device *device)
- {
--	struct ishtp_cl_device *cl_device = dev_get_drvdata(device);
-+	struct ishtp_cl_device *cl_device = ishtp_dev_to_cl_device(device);
- 	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
- 	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
- 
-@@ -920,7 +920,7 @@ static int hid_ishtp_cl_suspend(struct device *device)
-  */
- static int hid_ishtp_cl_resume(struct device *device)
- {
--	struct ishtp_cl_device *cl_device = dev_get_drvdata(device);
-+	struct ishtp_cl_device *cl_device = ishtp_dev_to_cl_device(device);
- 	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
- 	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
- 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index fb8ca12955b4..4b4a6047dc72 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -479,7 +479,6 @@ static struct ishtp_cl_device *ishtp_bus_add_device(struct ishtp_device *dev,
- 	}
- 
- 	ishtp_device_ready = true;
--	dev_set_drvdata(&device->dev, device);
- 
- 	return device;
- }
-@@ -647,6 +646,20 @@ void *ishtp_get_drvdata(struct ishtp_cl_device *cl_device)
- }
- EXPORT_SYMBOL(ishtp_get_drvdata);
- 
-+/**
-+ * ishtp_dev_to_cl_device() - get ishtp_cl_device instance from device instance
-+ * @device: device instance
-+ *
-+ * Get ish_cl_device instance which embeds device instance in it.
-+ *
-+ * Return: pointer to ishtp_cl_device instance
-+ */
-+struct ishtp_cl_device *ishtp_dev_to_cl_device(struct device *device)
-+{
-+	return to_ishtp_cl_device(device);
-+}
-+EXPORT_SYMBOL(ishtp_dev_to_cl_device);
-+
- /**
-  * ishtp_bus_new_client() - Create a new client
-  * @dev:	ISHTP device instance
-diff --git a/include/linux/intel-ish-client-if.h b/include/linux/intel-ish-client-if.h
-index 16255c2ca2f4..0d6b4bc191c5 100644
---- a/include/linux/intel-ish-client-if.h
-+++ b/include/linux/intel-ish-client-if.h
-@@ -103,6 +103,7 @@ void ishtp_put_device(struct ishtp_cl_device *cl_dev);
- void ishtp_get_device(struct ishtp_cl_device *cl_dev);
- void ishtp_set_drvdata(struct ishtp_cl_device *cl_device, void *data);
- void *ishtp_get_drvdata(struct ishtp_cl_device *cl_device);
-+struct ishtp_cl_device *ishtp_dev_to_cl_device(struct device *dev);
- int ishtp_register_event_cb(struct ishtp_cl_device *device,
- 				void (*read_cb)(struct ishtp_cl_device *));
- struct	ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
 -- 
-2.17.2
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

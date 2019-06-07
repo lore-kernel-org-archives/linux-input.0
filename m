@@ -1,52 +1,34 @@
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH] input: keyboard: gpio-keys-polled: use input name from pdata if available
-Date: Fri,  7 Jun 2019 00:43:09 +0200
-Message-ID: <1559860989-7723-2-git-send-email-info@metux.net>
-References: <1559860989-7723-1-git-send-email-info@metux.net>
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
+Date: Fri, 7 Jun 2019 15:48:32 +0800
+Message-ID: <f8742060-77b8-c782-8321-23e889c30172@canonical.com>
+References: <20190220164200.31044-1-aaron.ma@canonical.com>
+ <17cd420ea32a9787c56ba25e36e7661541c2f65f.camel@synaptics.com>
+ <a0f21198-5715-8858-8368-51e43092181e@canonical.com>
+ <acd07f4d-1602-46c5-c486-c917f1868b59@canonical.com>
+ <f4f7265d9ad06726bb2ef12ab6b7529d2fb06165.camel@synaptics.com>
+ <9321df87-5bc5-0c75-2815-f8602ecf9d86@canonical.com>
+ <2995b27a-9ec8-eebe-78b6-2d3bf5098af8@canonical.com>
+ <580b73847333fa1866caaccc959bf8735b4f7524.camel@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1559860989-7723-1-git-send-email-info@metux.net>
+In-Reply-To: <580b73847333fa1866caaccc959bf8735b4f7524.camel@synaptics.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Christopher Heiny <Cheiny@synaptics.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Instead of hardcoding the input name to the driver name
-('gpio-keys-polled'), allow the passing a name via platform data
-('name' field was already present), but default to old behaviour
-in case of NULL.
+Hi Dmitry:
 
-Even though the general tendency is moving from pdata structs,
-towards oftree/acpi/fwnode, pdata structs still have their valid
-use cases, when the mentioned mechanisms aren't available or don't
-provide the necessary data and so driver setup still needs to be
-done explicitly.
+Will you apply them?
 
-An example use case is keys+led support for the APUv2/3 boards.
-Here a board specific platform driver probes the board and then
-instantiates the individual devices using classic pdata.
+Thanks,
+Aaron
 
-The gpio-keys-polled currently lacks support for specifying
-input device name, which is fixed by this patch.
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
----
- drivers/input/keyboard/gpio_keys_polled.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index edc7262..3312186 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -272,7 +272,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	input = poll_dev->input;
- 
--	input->name = pdev->name;
-+	input->name = (pdata->name ? pdata->name : pdev->name);
- 	input->phys = DRV_NAME"/input0";
- 
- 	input->id.bustype = BUS_HOST;
--- 
-1.9.1
+On 6/4/19 1:19 PM, Christopher Heiny wrote:
+> Given that, I'm willing to accept the patch as is.
+> 
+> 					Cheers,
+> 						Chris

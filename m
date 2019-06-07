@@ -1,34 +1,224 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
-Date: Fri, 7 Jun 2019 15:48:32 +0800
-Message-ID: <f8742060-77b8-c782-8321-23e889c30172@canonical.com>
-References: <20190220164200.31044-1-aaron.ma@canonical.com>
- <17cd420ea32a9787c56ba25e36e7661541c2f65f.camel@synaptics.com>
- <a0f21198-5715-8858-8368-51e43092181e@canonical.com>
- <acd07f4d-1602-46c5-c486-c917f1868b59@canonical.com>
- <f4f7265d9ad06726bb2ef12ab6b7529d2fb06165.camel@synaptics.com>
- <9321df87-5bc5-0c75-2815-f8602ecf9d86@canonical.com>
- <2995b27a-9ec8-eebe-78b6-2d3bf5098af8@canonical.com>
- <580b73847333fa1866caaccc959bf8735b4f7524.camel@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH] input: keyboard: gpio_keys_polled: use gpio lookup table
+Date: Fri,  7 Jun 2019 16:39:34 +0200
+Message-ID: <1559918374-7749-1-git-send-email-info@metux.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <580b73847333fa1866caaccc959bf8735b4f7524.camel@synaptics.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christopher Heiny <Cheiny@synaptics.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry:
+From: Enrico Weigelt <info@metux.net>
 
-Will you apply them?
+Support the recently introduced gpio lookup tables for
+attaching to gpio lines. So, harcoded gpio numbers aren't
+needed anymore.
 
-Thanks,
-Aaron
+changes v3:
+    * fix printf string in gpio_keys_polled_get_gpiod()
+    * fix unused variable 'error' in gpio_keys_polled_get_gpiod()
+    * fix uninitialized variable in gpio_keys_polled_get_gpiod_fwnode()
 
-On 6/4/19 1:19 PM, Christopher Heiny wrote:
-> Given that, I'm willing to accept the patch as is.
-> 
-> 					Cheers,
-> 						Chris
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Enrico Weigelt <info@metux.net>
+---
+ drivers/input/keyboard/gpio_keys_polled.c | 166 +++++++++++++++++++++---------
+ 1 file changed, 118 insertions(+), 48 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index edc7262..683ab84 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -24,6 +24,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio/consumer.h>
++#include <linux/gpio/machine.h>
+ #include <linux/gpio_keys.h>
+ #include <linux/property.h>
+ 
+@@ -227,6 +228,118 @@ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
+ };
+ MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
+ 
++static struct gpio_desc *gpio_keys_polled_get_gpiod_fwnode(
++	struct device *dev,
++	int idx,
++	const char *desc)
++{
++	struct gpio_desc *gpiod;
++	struct fwnode_handle *child;
++	int x = idx;
++
++	/* get the idx'th child node */
++	child = device_get_next_child_node(dev, NULL);
++	while (child && x) {
++		child = device_get_next_child_node(dev, child);
++		x--;
++	}
++
++	if (!child) {
++		dev_err(dev, "missing oftree child node #%d\n", idx);
++		return ERR_PTR(-EINVAL);
++	}
++
++	gpiod = devm_fwnode_get_gpiod_from_child(dev,
++						 NULL,
++						 child,
++						 GPIOD_IN,
++						 desc);
++	if (IS_ERR(gpiod)) {
++		if (PTR_ERR(gpiod) != -EPROBE_DEFER)
++			dev_err(dev,
++				"failed to get gpio: %ld\n",
++				PTR_ERR(gpiod));
++		fwnode_handle_put(child);
++		return gpiod;
++	}
++
++	return gpiod;
++}
++
++static struct gpio_desc *gpio_keys_polled_get_gpiod_legacy(
++	struct device *dev,
++	int idx,
++	const struct gpio_keys_button *button)
++{
++	/*
++	 * Legacy GPIO number so request the GPIO here and
++	 * convert it to descriptor.
++	 */
++	unsigned int flags = GPIOF_IN;
++	struct gpio_desc *gpiod;
++	int error;
++
++	dev_info(dev, "hardcoded gpio IDs are deprecated.\n");
++
++	if (button->active_low)
++		flags |= GPIOF_ACTIVE_LOW;
++
++	error = devm_gpio_request_one(dev, button->gpio,
++			flags, button->desc ? : DRV_NAME);
++	if (error) {
++		dev_err(dev,
++			"unable to claim gpio %u, err=%d\n",
++			button->gpio, error);
++		return ERR_PTR(error);
++	}
++
++	gpiod = gpio_to_desc(button->gpio);
++	if (!gpiod) {
++		dev_err(dev,
++			"unable to convert gpio %u to descriptor\n",
++			button->gpio);
++		return ERR_PTR(-EINVAL);
++	}
++
++	return gpiod;
++}
++
++static struct gpio_desc *gpio_keys_polled_get_gpiod(
++	struct device *dev,
++	int idx,
++	const struct gpio_keys_button *button)
++{
++	struct gpio_desc *gpiod = NULL;
++
++	/* No legacy static platform data - use oftree */
++	if (!dev_get_platdata(dev)) {
++		return gpio_keys_polled_get_gpiod_fwnode(
++			dev, idx, button->desc);
++	}
++
++	gpiod = devm_gpiod_get_index(dev, NULL, idx, GPIOF_IN);
++
++	if (!IS_ERR(gpiod)) {
++		dev_info(dev, "picked gpiod idx %d from gpio table\n", idx);
++		gpiod_set_consumer_name(gpiod, button->desc ? : DRV_NAME);
++		return gpiod;
++	}
++
++	if (PTR_ERR(gpiod) != -ENOENT) {
++		dev_err(dev, "failed fetching gpiod #%d: %ld\n",
++			idx, PTR_ERR(gpiod));
++		return gpiod;
++	}
++
++	/* Use legacy gpio id, if defined */
++	if (gpio_is_valid(button->gpio)) {
++		return gpio_keys_polled_get_gpiod_legacy(
++			dev, idx, button);
++	}
++
++	return ERR_PTR(-ENOENT);
++}
++
+ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -291,57 +404,14 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 		if (button->wakeup) {
+ 			dev_err(dev, DRV_NAME " does not support wakeup\n");
+-			fwnode_handle_put(child);
+ 			return -EINVAL;
+ 		}
+ 
+-		if (!dev_get_platdata(dev)) {
+-			/* No legacy static platform data */
+-			child = device_get_next_child_node(dev, child);
+-			if (!child) {
+-				dev_err(dev, "missing child device node\n");
+-				return -EINVAL;
+-			}
+-
+-			bdata->gpiod = devm_fwnode_get_gpiod_from_child(dev,
+-								NULL, child,
+-								GPIOD_IN,
+-								button->desc);
+-			if (IS_ERR(bdata->gpiod)) {
+-				error = PTR_ERR(bdata->gpiod);
+-				if (error != -EPROBE_DEFER)
+-					dev_err(dev,
+-						"failed to get gpio: %d\n",
+-						error);
+-				fwnode_handle_put(child);
+-				return error;
+-			}
+-		} else if (gpio_is_valid(button->gpio)) {
+-			/*
+-			 * Legacy GPIO number so request the GPIO here and
+-			 * convert it to descriptor.
+-			 */
+-			unsigned flags = GPIOF_IN;
+-
+-			if (button->active_low)
+-				flags |= GPIOF_ACTIVE_LOW;
+-
+-			error = devm_gpio_request_one(dev, button->gpio,
+-					flags, button->desc ? : DRV_NAME);
+-			if (error) {
+-				dev_err(dev,
+-					"unable to claim gpio %u, err=%d\n",
+-					button->gpio, error);
+-				return error;
+-			}
+-
+-			bdata->gpiod = gpio_to_desc(button->gpio);
+-			if (!bdata->gpiod) {
+-				dev_err(dev,
+-					"unable to convert gpio %u to descriptor\n",
+-					button->gpio);
+-				return -EINVAL;
+-			}
++		bdata->gpiod = gpio_keys_polled_get_gpiod(dev, i, button);
++
++		if (IS_ERR(bdata->gpiod)) {
++			dev_err(dev, "failed to fetch gpiod #%d\n", i);
++			return PTR_ERR(bdata->gpiod);
+ 		}
+ 
+ 		bdata->last_state = -1;
+-- 
+1.9.1

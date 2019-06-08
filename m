@@ -1,224 +1,101 @@
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH] input: keyboard: gpio_keys_polled: use gpio lookup table
-Date: Fri,  7 Jun 2019 16:39:34 +0200
-Message-ID: <1559918374-7749-1-git-send-email-info@metux.net>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [Letux-kernel] [RFC v2] iio: input-bridge: optionally bridge
+ iio acceleometers to create a /dev/input interface
+Date: Sat, 8 Jun 2019 11:52:07 +0100
+Message-ID: <20190608115207.22a6fa9a@archlinux>
+References: <195994ebff28de22eae872df134d086c761b83b8.1554026986.git.hns@goldelico.com>
+        <20190407133037.0ad98897@archlinux>
+        <CD44AFA0-6676-4842-9C80-61BB363DD556@goldelico.com>
+        <20190414124029.1f1f6084@archlinux>
+        <CD6219BE-61FF-4C38-9532-054C60A77F89@goldelico.com>
+        <20190422152014.7c6637ab@archlinux>
+        <CA9A9410-C393-49B9-81FA-D9BC55F04468@goldelico.com>
+        <D4F87479-4FF7-4DBC-81D5-1BA836D2C889@goldelico.com>
+        <20190511120536.647c8676@archlinux>
+        <CCD87A8D-FF65-4681-964B-22870716D655@goldelico.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CCD87A8D-FF65-4681-964B-22870716D655@goldelico.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Piel <eric.piel@tremplin-utc.net>, linux-iio <linux-iio@vger.kernel.org>, kernel@pyra-handheld.com, lkml <linux-kernel@vger.kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Discussions about the Letux Kernel <letux-kernel@openphoenux.org>, Bastien Nocera <hadess@hadess.net>
 List-Id: linux-input@vger.kernel.org
 
-From: Enrico Weigelt <info@metux.net>
+On Mon, 3 Jun 2019 09:30:40 +0200
+H. Nikolaus Schaller <hns@goldelico.com> wrote:
 
-Support the recently introduced gpio lookup tables for
-attaching to gpio lines. So, harcoded gpio numbers aren't
-needed anymore.
+> Hi Jonathan,
+> sorry again for the long delay. I just now found a little time to summarize and try to
+> get the discussion boiled down to the key difference.
+> 
+> > Am 11.05.2019 um 13:05 schrieb Jonathan Cameron <jic23@kernel.org>:
+> > 
+> > On Thu, 9 May 2019 19:02:49 +0200
+> > "H. Nikolaus Schaller" <hns@goldelico.com> wrote:
+> >   
+> >> 
+> >> If you close the lid, the display is turned upside down and y and z axes reverse sign.
+> >> 
+> >> So there remains only the issue that user-space must know which sensor device file is which sensor
+> >> and can do the calculation of the lid angle. This is possible because the iio accelerometer name
+> >> is available through the input event ioctls.
+> >> 
+> >> In summary this case also does not need policy or configuration. Just user space using the information
+> >> that is already presented.  
+> > 
+> > I disagree with that last statement.  If there is a lid angle sensor, policy is
+> > needed to know which of your associated orientation is the base one and which
+> > device indicates the lid angle.  
+> 
+> > 
+> > Actually most of the time what you will do is pick one 'correct' sensor under
+> > some configuration of the device and use that.  That is policy.  Yes, you could
+> > bake the policy in to device tree, but then you can also bake in the association
+> > between the underlying IIO sensor and any virtual input sensor.  
+> 
+> Ah, maybe I did not understand what you mean by policy here.
+> 
+> Indeed, choosing the right sensor is always something which is application specific
+> and something user-space must obviously dictate. And we agree this should *not* be
+> in device tree (or user-space scanning device tree) because that describes hardware
+> and not user-space interaction.
+> 
+> But I still do not think that this requires a new mechanism where user-space
+> *tells* the kernel which sensor to use and present as which device.
+> 
+> Equally well, the kernel can present all sensors it knows about and a set of properties
+> that allow the user-space to simply choose the right one ("apply policy"). Properties
+> could be file name (e.g. provided by udev), device name, label (provided by DT) or similar.
+> 
+> If it were absolutely necessary to tell the kernel to map iio devices to something before
+> use, I think Bastien would not have been able to implement his library. He also has to
+> choose the right sensors. This seems to work and not need a new mechanism.
+> 
+> > 
+> > Anyhow, we still disagree on whether any such virtual input interface
+> > should be a userspace policy decision.  So far I haven't seen any compelling
+> > argument why it shouldn't be and the flexibility such a policy based interface
+> > provides is its major advantage.  
+> 
+> I still think it is not needed because kernel already provides necessary information
+> to user-space to make policy decisions (by ignore unwanted interfaces) without needing
+> a new interface where the user-space tells the kernel to activate some interfaces.
+> 
+> So the key difference is about the question if user-space needs to tell the kernel first
+> that it wants to see a specific interface or just makes use of it if present.
 
-changes v3:
-    * fix printf string in gpio_keys_polled_get_gpiod()
-    * fix unused variable 'error' in gpio_keys_polled_get_gpiod()
-    * fix uninitialized variable in gpio_keys_polled_get_gpiod_fwnode()
+Absolutely. Good summary, but I don't think either of us is going
+to persuade the other.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Enrico Weigelt <info@metux.net>
----
- drivers/input/keyboard/gpio_keys_polled.c | 166 +++++++++++++++++++++---------
- 1 file changed, 118 insertions(+), 48 deletions(-)
+I've started work on my proposal but things have been 'interesting' in the
+last few weeks so it may be a little while yet before I have anything
+to share.
 
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index edc7262..683ab84 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -24,6 +24,7 @@
- #include <linux/platform_device.h>
- #include <linux/gpio.h>
- #include <linux/gpio/consumer.h>
-+#include <linux/gpio/machine.h>
- #include <linux/gpio_keys.h>
- #include <linux/property.h>
- 
-@@ -227,6 +228,118 @@ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
- };
- MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
- 
-+static struct gpio_desc *gpio_keys_polled_get_gpiod_fwnode(
-+	struct device *dev,
-+	int idx,
-+	const char *desc)
-+{
-+	struct gpio_desc *gpiod;
-+	struct fwnode_handle *child;
-+	int x = idx;
-+
-+	/* get the idx'th child node */
-+	child = device_get_next_child_node(dev, NULL);
-+	while (child && x) {
-+		child = device_get_next_child_node(dev, child);
-+		x--;
-+	}
-+
-+	if (!child) {
-+		dev_err(dev, "missing oftree child node #%d\n", idx);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	gpiod = devm_fwnode_get_gpiod_from_child(dev,
-+						 NULL,
-+						 child,
-+						 GPIOD_IN,
-+						 desc);
-+	if (IS_ERR(gpiod)) {
-+		if (PTR_ERR(gpiod) != -EPROBE_DEFER)
-+			dev_err(dev,
-+				"failed to get gpio: %ld\n",
-+				PTR_ERR(gpiod));
-+		fwnode_handle_put(child);
-+		return gpiod;
-+	}
-+
-+	return gpiod;
-+}
-+
-+static struct gpio_desc *gpio_keys_polled_get_gpiod_legacy(
-+	struct device *dev,
-+	int idx,
-+	const struct gpio_keys_button *button)
-+{
-+	/*
-+	 * Legacy GPIO number so request the GPIO here and
-+	 * convert it to descriptor.
-+	 */
-+	unsigned int flags = GPIOF_IN;
-+	struct gpio_desc *gpiod;
-+	int error;
-+
-+	dev_info(dev, "hardcoded gpio IDs are deprecated.\n");
-+
-+	if (button->active_low)
-+		flags |= GPIOF_ACTIVE_LOW;
-+
-+	error = devm_gpio_request_one(dev, button->gpio,
-+			flags, button->desc ? : DRV_NAME);
-+	if (error) {
-+		dev_err(dev,
-+			"unable to claim gpio %u, err=%d\n",
-+			button->gpio, error);
-+		return ERR_PTR(error);
-+	}
-+
-+	gpiod = gpio_to_desc(button->gpio);
-+	if (!gpiod) {
-+		dev_err(dev,
-+			"unable to convert gpio %u to descriptor\n",
-+			button->gpio);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	return gpiod;
-+}
-+
-+static struct gpio_desc *gpio_keys_polled_get_gpiod(
-+	struct device *dev,
-+	int idx,
-+	const struct gpio_keys_button *button)
-+{
-+	struct gpio_desc *gpiod = NULL;
-+
-+	/* No legacy static platform data - use oftree */
-+	if (!dev_get_platdata(dev)) {
-+		return gpio_keys_polled_get_gpiod_fwnode(
-+			dev, idx, button->desc);
-+	}
-+
-+	gpiod = devm_gpiod_get_index(dev, NULL, idx, GPIOF_IN);
-+
-+	if (!IS_ERR(gpiod)) {
-+		dev_info(dev, "picked gpiod idx %d from gpio table\n", idx);
-+		gpiod_set_consumer_name(gpiod, button->desc ? : DRV_NAME);
-+		return gpiod;
-+	}
-+
-+	if (PTR_ERR(gpiod) != -ENOENT) {
-+		dev_err(dev, "failed fetching gpiod #%d: %ld\n",
-+			idx, PTR_ERR(gpiod));
-+		return gpiod;
-+	}
-+
-+	/* Use legacy gpio id, if defined */
-+	if (gpio_is_valid(button->gpio)) {
-+		return gpio_keys_polled_get_gpiod_legacy(
-+			dev, idx, button);
-+	}
-+
-+	return ERR_PTR(-ENOENT);
-+}
-+
- static int gpio_keys_polled_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -291,57 +404,14 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 		if (button->wakeup) {
- 			dev_err(dev, DRV_NAME " does not support wakeup\n");
--			fwnode_handle_put(child);
- 			return -EINVAL;
- 		}
- 
--		if (!dev_get_platdata(dev)) {
--			/* No legacy static platform data */
--			child = device_get_next_child_node(dev, child);
--			if (!child) {
--				dev_err(dev, "missing child device node\n");
--				return -EINVAL;
--			}
--
--			bdata->gpiod = devm_fwnode_get_gpiod_from_child(dev,
--								NULL, child,
--								GPIOD_IN,
--								button->desc);
--			if (IS_ERR(bdata->gpiod)) {
--				error = PTR_ERR(bdata->gpiod);
--				if (error != -EPROBE_DEFER)
--					dev_err(dev,
--						"failed to get gpio: %d\n",
--						error);
--				fwnode_handle_put(child);
--				return error;
--			}
--		} else if (gpio_is_valid(button->gpio)) {
--			/*
--			 * Legacy GPIO number so request the GPIO here and
--			 * convert it to descriptor.
--			 */
--			unsigned flags = GPIOF_IN;
--
--			if (button->active_low)
--				flags |= GPIOF_ACTIVE_LOW;
--
--			error = devm_gpio_request_one(dev, button->gpio,
--					flags, button->desc ? : DRV_NAME);
--			if (error) {
--				dev_err(dev,
--					"unable to claim gpio %u, err=%d\n",
--					button->gpio, error);
--				return error;
--			}
--
--			bdata->gpiod = gpio_to_desc(button->gpio);
--			if (!bdata->gpiod) {
--				dev_err(dev,
--					"unable to convert gpio %u to descriptor\n",
--					button->gpio);
--				return -EINVAL;
--			}
-+		bdata->gpiod = gpio_keys_polled_get_gpiod(dev, i, button);
-+
-+		if (IS_ERR(bdata->gpiod)) {
-+			dev_err(dev, "failed to fetch gpiod #%d\n", i);
-+			return PTR_ERR(bdata->gpiod);
- 		}
- 
- 		bdata->last_state = -1;
--- 
-1.9.1
+Jonathan
+
+> 
+> BR and thanks,
+> Nikolaus
+> 

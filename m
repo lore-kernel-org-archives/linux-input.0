@@ -1,62 +1,95 @@
-From: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
-Subject: =?utf-8?B?562U5aSNOiDnrZTlpI06IFtQQVRDSF0gaW5wdXQ6IGFscHMtZml4IHRoZSBp?=
- =?utf-8?Q?ssue_alps_cs19_trackstick_do_not_work.?=
-Date: Mon, 10 Jun 2019 09:20:28 +0000
-Message-ID: <OSBPR01MB4855707AC8ABB7CFBE5BBBD5DA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
-References: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
- <20190527100913.sgxrjrmphsjfmcdb@pali>
- <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <20190528071824.jimhixhtsynzwixe@pali>
- <OSBPR01MB48556FD88D7F7D5F91CB5579DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+From: Alexandre Mergnat <amergnat@baylibre.com>
+Subject: [PATCH v3 0/3] Add PAT9125 optical tracker driver
+Date: Mon, 10 Jun 2019 11:29:42 +0200
+Message-ID: <20190610092945.6330-1-amergnat@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <OSBPR01MB48556FD88D7F7D5F91CB5579DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
-Content-Language: zh-CN
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
-Cc: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hui.wang@canonical.com" <hui.wang@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>
+To: robh+dt@kernel.org, mark.rutland@arm.com, jic23@kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, baylibre-upstreaming@groups.io, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Alexandre Mergnat <amergnat@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-SGkgUGFsaSwNCg0KV2UgcmVnaXN0ZXIgb3VyIENTMTkgZGV2aWNlIGFzIEFMUFNfT05MWV9UUkFD
-S1NUSUNLIGRldmljZS4NCkFuZCBsZXQgdGhlIFY4IHByb3RvY29sIGZ1bmN0aW9uIHN1cHBvcnQg
-dGhlIHByb2Nlc3Mgb2YgQUxQU19PTkxZX1RSQUNLU1RJQ0sgZGV2aWNlLiANCg0KSSB3YW50IHRv
-IGNvbmZpcm0gaWYgdGhpcyBzb2x1dGlvbiBPSz8NCg0KWGlhb3hpYW8uTGl1DQotLS0tLemCruS7
-tuWOn+S7ti0tLS0tDQrlj5Hku7bkuro6IOWKiSDmm4nmm4kgWGlhb3hpYW8gTGl1IA0K5Y+R6YCB
-5pe26Ze0OiBUdWVzZGF5LCBNYXkgMjgsIDIwMTkgMzo1NSBQTQ0K5pS25Lu25Lq6OiBQYWxpIFJv
-aMOhciA8cGFsaS5yb2hhckBnbWFpbC5jb20+DQrmioTpgIE6IFhpYW9YaWFvIExpdSA8c2xpdXV4
-aWFvbnhpYW9AZ21haWwuY29tPjsgZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbTsgcGV0ZXIuaHV0
-dGVyZXJAd2hvLXQubmV0OyBodWkud2FuZ0BjYW5vbmljYWwuY29tOyBsaW51eC1pbnB1dEB2Z2Vy
-Lmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IOabuSDmm4nlu7ogWGlh
-b2ppYW4gQ2FvIDx4aWFvamlhbi5jYW9AY24uYWxwcy5jb20+OyB6aGFuZ2ZwMUBsZW5vdm8uY29t
-OyDmlonol6Qg55u05qi5IE5hb2tpIFNhaXRvIDxuYW9raS5zYWl0b0BhbHBzYWxwaW5lLmNvbT47
-IOW3neeArCDoi7HlpKsgSGlkZW8gS2F3YXNlIDxoaWRlby5rYXdhc2VAYWxwc2FscGluZS5jb20+
-DQrkuLvpopg6IOetlOWkjTog562U5aSNOiBbUEFUQ0hdIGlucHV0OiBhbHBzLWZpeCB0aGUgaXNz
-dWUgYWxwcyBjczE5IHRyYWNrc3RpY2sgZG8gbm90IHdvcmsuDQoNCkFkZCBLYXdhc2Utc2FuLg0K
-DQotLS0tLemCruS7tuWOn+S7ti0tLS0tDQrlj5Hku7bkuro6IFBhbGkgUm9ow6FyIDxwYWxpLnJv
-aGFyQGdtYWlsLmNvbT4gDQrlj5HpgIHml7bpl7Q6IFR1ZXNkYXksIE1heSAyOCwgMjAxOSAzOjE4
-IFBNDQrmlLbku7bkuro6IOWKiSDmm4nmm4kgWGlhb3hpYW8gTGl1IDx4aWFveGlhby5saXUtMUBj
-bi5hbHBzLmNvbT4NCuaKhOmAgTogWGlhb1hpYW8gTGl1IDxzbGl1dXhpYW9ueGlhb0BnbWFpbC5j
-b20+OyBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyBwZXRlci5odXR0ZXJlckB3aG8tdC5uZXQ7
-IGh1aS53YW5nQGNhbm9uaWNhbC5jb207IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGlu
-dXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsg5pu5IOabieW7uiBYaWFvamlhbiBDYW8gPHhpYW9q
-aWFuLmNhb0Bjbi5hbHBzLmNvbT47IHpoYW5nZnAxQGxlbm92by5jb207IOaWieiXpCDnm7TmqLkg
-TmFva2kgU2FpdG8gPG5hb2tpLnNhaXRvQGFscHNhbHBpbmUuY29tPg0K5Li76aKYOiBSZTog562U
-5aSNOiBbUEFUQ0hdIGlucHV0OiBhbHBzLWZpeCB0aGUgaXNzdWUgYWxwcyBjczE5IHRyYWNrc3Rp
-Y2sgZG8gbm90IHdvcmsuDQoNCk9uIFR1ZXNkYXkgMjggTWF5IDIwMTkgMDE6Mzc6MTQgWGlhb3hp
-YW8gTGl1IHdyb3RlOg0KPiBBZGQgU2FpdG8tc2FuLg0KPiANCj4gSGkgSHVpLA0KPiBEb2VzIGl0
-IG1lYW4gdGhhdCB5b3VyIGRldmljZSAocmVwb3J0ZWQgdG8ga2VybmVsKSBzZW5kcyBvbmx5IHRy
-YWNrc3RpY2sgcGFja2V0cyBhbmQgbm90IHRvdWNocGFkPw0KPiAgICAJLT4gWWVzLg0KDQpPaywg
-SSB0aGluayB0aGlzIGFuc3dlcnMgYWxsIHF1ZXN0aW9ucy4NCg0KU28geW91ciBwYXRjaCBpcyBu
-b3QgY29ycmVjdCBhcyBpdCByZWdpc3RlcnMgImZha2UiIHRvdWNocGFkIGRldmljZSBldmVuIHRo
-ZXJlIGlzIG5vIHRvdWNocGFkIGF0IGFsbC4NCg0KWW91IHNob3VsZCBmaXggeW91ciBwYXRjaCB0
-byBub3QgcmVnaXN0ZXIgdG91Y2hwYWQgaW5wdXQgZGV2aWNlLCBpbiB5b3VyIGNhc2UgaXQgc2hv
-dWxkIHJlZ2lzdGVyIG9ubHkgdHJhY2tzdGljayBkZXZpY2UuIEkgc3VnZ2VzdCB0byBhZGQgc29t
-ZSBmbGFnIHdoaWNoIHdvdWxkIGluZGljYXRlIHN1Y2ggZGV2aWNlIChlLmcuIEFMUFNfT05MWV9U
-UkFDS1NUSUNLKS4NCg0KQWxzbyBjdXJyZW50bHkga2VybmVsIGV4cG9ydHMgZm9sbG93aW5nIG5h
-bWVzIHdoZW4gZGV2aWNlIGhhcyBib3RoIHRyYWNrc3RpY2sgYW5kIHRvdWNocGFkOiAiRHVhbFBv
-aW50IFN0aWNrIiBhbmQgIkR1YWxQb2ludCBUb3VjaFBhZCIuDQpBbmQgaXQgZXhwb3J0cyBuYW1l
-ICJHbGlkZVBvaW50IiBmb3IgdG91Y2hwYWQtb25seSBkZXZpY2UuIFNvIHRvIGJlIGNvbnNpc3Rl
-bnQgeW91IG5lZWQgdG8gYWxzbyBtb2RpZnkgdGhpcyBjb2RlIGZvciB0cmFja3N0aWNrLW9ubHkg
-ZGV2aWNlLg0KDQotLQ0KUGFsaSBSb2jDoXINCnBhbGkucm9oYXJAZ21haWwuY29tDQo=
+PixArt Imaging PAT9125 is a miniature low power optical navigation chip
+using LASER light source enabling digital surface tracking.
+
+This device driver use IIO API to provide punctual and/or buffered data.
+The data could be relative position or delta value, both on X and Y axis,
+depend on CPI (Counts Per Inch) resolution setting chosen.
+
+The device support configuration through module parameter interface.
+
+This patchset :
+- Update vendor prefix
+- Add the bindings for this device
+- Add the device driver
+- Add directory for optical tracker devices
+
+Change since v1:
+- Fix typo
+- Rename some defines / variables
+- Remove I2C client from driver structure
+- Change type of delta_x and delta_y from s16 to s32 to simplify signed
+  operations
+- Add module parameter for axis resolution
+- Replace "IIO_MOD_X_AND_Y" by "IIO_MOD_X" and "IIO_MOD_Y"
+- Add sign extension macro
+- Improve read value algorithm to avoid data loss
+- Implement a trigger handler function which can work with any IIO trigger,
+  independently of it own GPIO IRQ, to match with IIO requirement/behaviour
+- Replace iio push event function by iio trigger poll in GPIO IRQ handler
+- Use triggered_buffer helpers to replace kfifo use, setup buffer,
+  implement enable/disable setup buffer operations, IIO trigger allocation
+  and re-enable operations
+- Remove useless "goto"
+- Change GPIO IRQ handler from planified thread to IRQ thread
+- Change GPIO IRQ trigger from low level and one shot to falling edge
+- Add device unregister and buffer cleanup to driver remove function
+
+Change since v2:
+- Fix typo
+- Add constructor webpage and datasheet in commit message
+- Use BIT() macro for define bit mask
+- Remove shift from IIO channel spec structure
+- Replace IIO_LE by IIO_CPU from IIO channel spec structure
+- Replace memcpy() by cast (s32)
+- Rename "pat9125_trig_try_reen" to "pat9125_trig_try_reenable"
+- Add carriage return (\n) at the end of each "dev_err" function
+- Remove "iio_trigger_unregister" in case of "iio_trigger_register" fail,
+  register function already manage it
+- Remove log which print device name in case of successful initialization
+- Fix enabled IRQ flag warning during nested IRQ thread
+- Improve retry algo now based on status register
+- Remove "ts", "motion_detected" and "buffer_mode" from pat9125_data
+  structure
+- Rename all "ot" directories to "position"
+- Polling sample through IIO_CHAN_INFO_RAW now return position value
+  (relative to the position at initialization time) instead of delta
+  position
+- Clean iio_buffer_setup_ops structure by removing NULL pointer.
+- Use devm_iio_ function for all init functions and then delete
+  "pat9125_remove"
+- Move device_register at the end of probe function
+- Replace MODULE_PARM_DESC by IIO_SCALE to set axis resolution (CPI)
+
+Alexandre Mergnat (3):
+  dt-bindings: Add pixart vendor
+  dt-bindings: iio: position: Add docs pat9125
+  iio: Add PAT9125 optical tracker sensor
+
+ .../bindings/iio/position/pat9125.txt         |  18 +
+ .../devicetree/bindings/vendor-prefixes.yaml  |   2 +
+ drivers/iio/Kconfig                           |   1 +
+ drivers/iio/Makefile                          |   1 +
+ drivers/iio/position/Kconfig                  |  18 +
+ drivers/iio/position/Makefile                 |   6 +
+ drivers/iio/position/pat9125.c                | 499 ++++++++++++++++++
+ 7 files changed, 545 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/iio/position/pat9125.txt
+ create mode 100644 drivers/iio/position/Kconfig
+ create mode 100644 drivers/iio/position/Makefile
+ create mode 100644 drivers/iio/position/pat9125.c
+
+-- 
+2.17.1

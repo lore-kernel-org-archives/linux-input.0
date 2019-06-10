@@ -1,75 +1,42 @@
-From: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
-Subject: =?utf-8?B?562U5aSNOiDnrZTlpI06IFtQQVRDSF0gaW5wdXQ6IGFscHMtZml4IHRoZSBp?=
- =?utf-8?Q?ssue_alps_cs19_trackstick_do_not_work.?=
-Date: Mon, 10 Jun 2019 10:03:51 +0000
-Message-ID: <OSBPR01MB4855A2A30A4F5E6BDCFE715FDA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: =?utf-8?B?562U5aSNOiDnrZTlpI06IFtQQVRD?= =?utf-8?Q?H?=
+ =?utf-8?Q?=5D?= input: alps-fix the issue alps cs19 trackstick do not work.
+Date: Mon, 10 Jun 2019 12:43:10 +0200
+Message-ID: <20190610104310.qa5snt7jpcljodfv@pali>
 References: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
  <20190527100913.sgxrjrmphsjfmcdb@pali>
  <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
  <20190528071824.jimhixhtsynzwixe@pali>
  <OSBPR01MB48556FD88D7F7D5F91CB5579DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
  <OSBPR01MB4855707AC8ABB7CFBE5BBBD5DA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <OSBPR01MB4855A2A30A4F5E6BDCFE715FDA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <OSBPR01MB4855707AC8ABB7CFBE5BBBD5DA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
-Content-Language: zh-CN
+Content-Disposition: inline
+In-Reply-To: <OSBPR01MB4855A2A30A4F5E6BDCFE715FDA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
-Cc: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hui.wang@canonical.com" <hui.wang@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>Naoki Saito <naoki.saito@alpsalpine.com>
+To: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
+Cc: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hui.wang@canonical.com" <hui.wang@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>
 List-Id: linux-input@vger.kernel.org
 
-KysgU2FpdG8tc2FuLg0KDQotLS0tLemCruS7tuWOn+S7ti0tLS0tDQrlj5Hku7bkuro6IOWKiSDm
-m4nmm4kgWGlhb3hpYW8gTGl1IA0K5Y+R6YCB5pe26Ze0OiBNb25kYXksIEp1bmUgMTAsIDIwMTkg
-NToyMCBQTQ0K5pS25Lu25Lq6OiBQYWxpIFJvaMOhciA8cGFsaS5yb2hhckBnbWFpbC5jb20+DQrm
-ioTpgIE6IFhpYW9YaWFvIExpdSA8c2xpdXV4aWFvbnhpYW9AZ21haWwuY29tPjsgZG1pdHJ5LnRv
-cm9raG92QGdtYWlsLmNvbTsgcGV0ZXIuaHV0dGVyZXJAd2hvLXQubmV0OyBodWkud2FuZ0BjYW5v
-bmljYWwuY29tOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2Vy
-Lmtlcm5lbC5vcmc7IOabuSDmm4nlu7ogWGlhb2ppYW4gQ2FvIDx4aWFvamlhbi5jYW9AY24uYWxw
-cy5jb20+OyB6aGFuZ2ZwMUBsZW5vdm8uY29tOyDmlonol6Qg55u05qi5IE5hb2tpIFNhaXRvIDxu
-YW9raS5zYWl0b0BhbHBzYWxwaW5lLmNvbT47IOW3neeArCDoi7HlpKsgSGlkZW8gS2F3YXNlIDxo
-aWRlby5rYXdhc2VAYWxwc2FscGluZS5jb20+DQrkuLvpopg6IOetlOWkjTog562U5aSNOiBbUEFU
-Q0hdIGlucHV0OiBhbHBzLWZpeCB0aGUgaXNzdWUgYWxwcyBjczE5IHRyYWNrc3RpY2sgZG8gbm90
-IHdvcmsuDQoNCkhpIFBhbGksDQoNCldlIHJlZ2lzdGVyIG91ciBDUzE5IGRldmljZSBhcyBBTFBT
-X09OTFlfVFJBQ0tTVElDSyBkZXZpY2UuDQpBbmQgbGV0IHRoZSBWOCBwcm90b2NvbCBmdW5jdGlv
-biBzdXBwb3J0IHRoZSBwcm9jZXNzIG9mIEFMUFNfT05MWV9UUkFDS1NUSUNLIGRldmljZS4gDQoN
-Ckkgd2FudCB0byBjb25maXJtIGlmIHRoaXMgc29sdXRpb24gT0s/DQoNClhpYW94aWFvLkxpdQ0K
-LS0tLS3pgq7ku7bljp/ku7YtLS0tLQ0K5Y+R5Lu25Lq6OiDliokg5puJ5puJIFhpYW94aWFvIExp
-dSANCuWPkemAgeaXtumXtDogVHVlc2RheSwgTWF5IDI4LCAyMDE5IDM6NTUgUE0NCuaUtuS7tuS6
-ujogUGFsaSBSb2jDoXIgPHBhbGkucm9oYXJAZ21haWwuY29tPg0K5oqE6YCBOiBYaWFvWGlhbyBM
-aXUgPHNsaXV1eGlhb254aWFvQGdtYWlsLmNvbT47IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207
-IHBldGVyLmh1dHRlcmVyQHdoby10Lm5ldDsgaHVpLndhbmdAY2Fub25pY2FsLmNvbTsgbGludXgt
-aW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyDmm7kg
-5puJ5bu6IFhpYW9qaWFuIENhbyA8eGlhb2ppYW4uY2FvQGNuLmFscHMuY29tPjsgemhhbmdmcDFA
-bGVub3ZvLmNvbTsg5paJ6JekIOebtOaouSBOYW9raSBTYWl0byA8bmFva2kuc2FpdG9AYWxwc2Fs
-cGluZS5jb20+OyDlt53ngKwg6Iux5aSrIEhpZGVvIEthd2FzZSA8aGlkZW8ua2F3YXNlQGFscHNh
-bHBpbmUuY29tPg0K5Li76aKYOiDnrZTlpI06IOetlOWkjTogW1BBVENIXSBpbnB1dDogYWxwcy1m
-aXggdGhlIGlzc3VlIGFscHMgY3MxOSB0cmFja3N0aWNrIGRvIG5vdCB3b3JrLg0KDQpBZGQgS2F3
-YXNlLXNhbi4NCg0KLS0tLS3pgq7ku7bljp/ku7YtLS0tLQ0K5Y+R5Lu25Lq6OiBQYWxpIFJvaMOh
-ciA8cGFsaS5yb2hhckBnbWFpbC5jb20+IA0K5Y+R6YCB5pe26Ze0OiBUdWVzZGF5LCBNYXkgMjgs
-IDIwMTkgMzoxOCBQTQ0K5pS25Lu25Lq6OiDliokg5puJ5puJIFhpYW94aWFvIExpdSA8eGlhb3hp
-YW8ubGl1LTFAY24uYWxwcy5jb20+DQrmioTpgIE6IFhpYW9YaWFvIExpdSA8c2xpdXV4aWFvbnhp
-YW9AZ21haWwuY29tPjsgZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbTsgcGV0ZXIuaHV0dGVyZXJA
-d2hvLXQubmV0OyBodWkud2FuZ0BjYW5vbmljYWwuY29tOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5l
-bC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IOabuSDmm4nlu7ogWGlhb2ppYW4g
-Q2FvIDx4aWFvamlhbi5jYW9AY24uYWxwcy5jb20+OyB6aGFuZ2ZwMUBsZW5vdm8uY29tOyDmlono
-l6Qg55u05qi5IE5hb2tpIFNhaXRvIDxuYW9raS5zYWl0b0BhbHBzYWxwaW5lLmNvbT4NCuS4u+mi
-mDogUmU6IOetlOWkjTogW1BBVENIXSBpbnB1dDogYWxwcy1maXggdGhlIGlzc3VlIGFscHMgY3Mx
-OSB0cmFja3N0aWNrIGRvIG5vdCB3b3JrLg0KDQpPbiBUdWVzZGF5IDI4IE1heSAyMDE5IDAxOjM3
-OjE0IFhpYW94aWFvIExpdSB3cm90ZToNCj4gQWRkIFNhaXRvLXNhbi4NCj4gDQo+IEhpIEh1aSwN
-Cj4gRG9lcyBpdCBtZWFuIHRoYXQgeW91ciBkZXZpY2UgKHJlcG9ydGVkIHRvIGtlcm5lbCkgc2Vu
-ZHMgb25seSB0cmFja3N0aWNrIHBhY2tldHMgYW5kIG5vdCB0b3VjaHBhZD8NCj4gICAgCS0+IFll
-cy4NCg0KT2ssIEkgdGhpbmsgdGhpcyBhbnN3ZXJzIGFsbCBxdWVzdGlvbnMuDQoNClNvIHlvdXIg
-cGF0Y2ggaXMgbm90IGNvcnJlY3QgYXMgaXQgcmVnaXN0ZXJzICJmYWtlIiB0b3VjaHBhZCBkZXZp
-Y2UgZXZlbiB0aGVyZSBpcyBubyB0b3VjaHBhZCBhdCBhbGwuDQoNCllvdSBzaG91bGQgZml4IHlv
-dXIgcGF0Y2ggdG8gbm90IHJlZ2lzdGVyIHRvdWNocGFkIGlucHV0IGRldmljZSwgaW4geW91ciBj
-YXNlIGl0IHNob3VsZCByZWdpc3RlciBvbmx5IHRyYWNrc3RpY2sgZGV2aWNlLiBJIHN1Z2dlc3Qg
-dG8gYWRkIHNvbWUgZmxhZyB3aGljaCB3b3VsZCBpbmRpY2F0ZSBzdWNoIGRldmljZSAoZS5nLiBB
-TFBTX09OTFlfVFJBQ0tTVElDSykuDQoNCkFsc28gY3VycmVudGx5IGtlcm5lbCBleHBvcnRzIGZv
-bGxvd2luZyBuYW1lcyB3aGVuIGRldmljZSBoYXMgYm90aCB0cmFja3N0aWNrIGFuZCB0b3VjaHBh
-ZDogIkR1YWxQb2ludCBTdGljayIgYW5kICJEdWFsUG9pbnQgVG91Y2hQYWQiLg0KQW5kIGl0IGV4
-cG9ydHMgbmFtZSAiR2xpZGVQb2ludCIgZm9yIHRvdWNocGFkLW9ubHkgZGV2aWNlLiBTbyB0byBi
-ZSBjb25zaXN0ZW50IHlvdSBuZWVkIHRvIGFsc28gbW9kaWZ5IHRoaXMgY29kZSBmb3IgdHJhY2tz
-dGljay1vbmx5IGRldmljZS4NCg0KLS0NClBhbGkgUm9ow6FyDQpwYWxpLnJvaGFyQGdtYWlsLmNv
-bQ0K
+On Monday 10 June 2019 10:03:51 Xiaoxiao Liu wrote:
+> Hi Pali,
+
+Hi!
+
+> We register our CS19 device as ALPS_ONLY_TRACKSTICK device.
+> And let the V8 protocol function support the process of ALPS_ONLY_TRACKSTICK device. 
+> 
+> I want to confirm if this solution OK?
+
+Yes, it is fine. Just make sure that touchapad input device is not
+registered when this ALPS_ONLY_TRACKSTICK flag is set. So userspace
+would not see any fake/unavailable touchpad input device.
+
+> Xiaoxiao.Liu
+
+-- 
+Pali Rohár
+pali.rohar@gmail.com

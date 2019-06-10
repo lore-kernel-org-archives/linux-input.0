@@ -1,69 +1,86 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/3] mfd: apple-ibridge: Add Apple iBridge MFD driver.
-Date: Mon, 10 Jun 2019 06:45:48 +0100
-Message-ID: <20190610054548.GD4797@dell>
-References: <20190422031251.11968-1-ronald@innovation.ch>
- <20190422031251.11968-2-ronald@innovation.ch>
- <20190507122415.GC29524@dell>
- <20190609234951.GB16597@innovation.ch>
+From: Anson Huang <anson.huang@nxp.com>
+Subject: RE: [RESEND] input: keyboard: imx: make sure keyboard can always wake
+ up system
+Date: Mon, 10 Jun 2019 06:44:00 +0000
+Message-ID: <DB3PR0402MB39169646E73C1A78958EA325F5130@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
+ <20190521053047.GG183429@dtor-ws>
+ <DB3PR0402MB3916ED371BF79D823FBC5171F5070@DB3PR0402MB3916.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190609234951.GB16597@innovation.ch>
+In-Reply-To: <DB3PR0402MB3916ED371BF79D823FBC5171F5070@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Life is hard, and then you die" <ronald@innovation.ch>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 09 Jun 2019, Life is hard, and then you die wrote:
-
-> 
-> On Tue, May 07, 2019 at 01:24:15PM +0100, Lee Jones wrote:
-> > On Sun, 21 Apr 2019, Ronald Tschalär wrote:
-> > 
-> > > The iBridge device provides access to several devices, including:
-> > > - the Touch Bar
-> > > - the iSight webcam
-> > > - the light sensor
-> > > - the fingerprint sensor
-> > > 
-> > > This driver provides the core support for managing the iBridge device
-> > > and the access to the underlying devices. In particular, since the
-> > > functionality for the touch bar and light sensor is exposed via USB HID
-> > > interfaces, and the same HID device is used for multiple functions, this
-> > > driver provides a multiplexing layer that allows multiple HID drivers to
-> > > be registered for a given HID device. This allows the touch bar and ALS
-> > > driver to be separated out into their own modules.
-> > > 
-> > > Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
-> > > ---
-> > >  drivers/mfd/Kconfig               |  15 +
-> > >  drivers/mfd/Makefile              |   1 +
-> > >  drivers/mfd/apple-ibridge.c       | 883 ++++++++++++++++++++++++++++++
-> > 
-> > I haven't taken a thorough look through, but I can tell you that the
-> > vast majority of what you're trying to do here does not belong in
-> > MFD.  MFD drivers are used to register child devices.  Almost all
-> > functionality or 'real work' should be contained in the drivers the
-> > MFD registers, not in the MFD parent itself.  You will need to move
-> > all 'real work' out into the subordinate device drivers for
-> > acceptance.
-> 
-> Thanks for your feedback. That was/is the idea: the actual Touch Bar
-> and ALS driver code is in separate modules - what is left in the
-> appple-ibridge mfd driver is a fairly generic hid driver
-> demultiplexer. However, that could be moved out into it's own
-> helper/module.
-> 
-> Having said that, it looks like the preference is to do all of this as
-> a hid driver with virtual hid devices instead of as an mfd driver.
-
-Sounds like a better approach.
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+SGksIERtaXRyeQ0KCUFueSBmZWVkYmFjayBmb3IgdGhpcyBwYXRjaD8NCg0KVGhhbmtzLA0KQW5z
+b24NCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbnNvbiBIdWFuZw0K
+PiBTZW50OiBUdWVzZGF5LCBNYXkgMjEsIDIwMTkgMjozNiBQTQ0KPiBUbzogZG1pdHJ5LnRvcm9r
+aG92QGdtYWlsLmNvbQ0KPiBDYzogc2hhd25ndW9Aa2VybmVsLm9yZzsgcy5oYXVlckBwZW5ndXRy
+b25peC5kZTsNCj4ga2VybmVsQHBlbmd1dHJvbml4LmRlOyBmZXN0ZXZhbUBnbWFpbC5jb207IGxp
+bnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsNCj4gbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZy
+YWRlYWQub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBkbC1saW51eC0NCj4gaW14
+IDxsaW51eC1pbXhAbnhwLmNvbT4NCj4gU3ViamVjdDogUkU6IFtSRVNFTkRdIGlucHV0OiBrZXli
+b2FyZDogaW14OiBtYWtlIHN1cmUga2V5Ym9hcmQgY2FuIGFsd2F5cw0KPiB3YWtlIHVwIHN5c3Rl
+bQ0KPiANCj4gSGksIERtaXRyeQ0KPiANCj4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0K
+PiA+IEZyb206IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20gW21haWx0bzpkbWl0cnkudG9yb2to
+b3ZAZ21haWwuY29tXQ0KPiA+IFNlbnQ6IFR1ZXNkYXksIE1heSAyMSwgMjAxOSAxOjMxIFBNDQo+
+ID4gVG86IEFuc29uIEh1YW5nIDxhbnNvbi5odWFuZ0BueHAuY29tPg0KPiA+IENjOiBzaGF3bmd1
+b0BrZXJuZWwub3JnOyBzLmhhdWVyQHBlbmd1dHJvbml4LmRlOw0KPiA+IGtlcm5lbEBwZW5ndXRy
+b25peC5kZTsgZmVzdGV2YW1AZ21haWwuY29tOw0KPiA+IGxpbnV4LWlucHV0QHZnZXIua2VybmVs
+Lm9yZzsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOw0KPiA+IGxpbnV4LWtl
+cm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGRsLWxpbnV4LSBpbXggPGxpbnV4LWlteEBueHAuY29tPg0K
+PiA+IFN1YmplY3Q6IFJlOiBbUkVTRU5EXSBpbnB1dDoga2V5Ym9hcmQ6IGlteDogbWFrZSBzdXJl
+IGtleWJvYXJkIGNhbg0KPiA+IGFsd2F5cyB3YWtlIHVwIHN5c3RlbQ0KPiA+DQo+ID4gSGkgQW5z
+b24sDQo+ID4gT24gVGh1LCBBcHIgMDQsIDIwMTkgYXQgMDE6NDA6MTZBTSArMDAwMCwgQW5zb24g
+SHVhbmcgd3JvdGU6DQo+ID4gPiBUaGVyZSBhcmUgc2V2ZXJhbCBzY2VuYXJpb3MgdGhhdCBrZXli
+b2FyZCBjYW4gTk9UIHdha2UgdXAgc3lzdGVtDQo+ID4gPiBmcm9tIHN1c3BlbmQsIGUuZy4sIGlm
+IGEga2V5Ym9hcmQgaXMgZGVwcmVzc2VkIGJldHdlZW4gc3lzdGVtIGRldmljZQ0KPiA+ID4gc3Vz
+cGVuZCBwaGFzZSBhbmQgZGV2aWNlIG5vaXJxIHN1c3BlbmQgcGhhc2UsIHRoZSBrZXlib2FyZCBJ
+U1Igd2lsbA0KPiA+ID4gYmUgY2FsbGVkIGFuZCBib3RoIGtleWJvYXJkIGRlcHJlc3MgYW5kIHJl
+bGVhc2UgaW50ZXJydXB0cyB3aWxsIGJlDQo+ID4gPiBkaXNhYmxlZCwgdGhlbiBrZXlib2FyZCB3
+aWxsIG5vIGxvbmdlciBiZSBhYmxlIHRvIHdha2UgdXAgc3lzdGVtLg0KPiA+ID4gQW5vdGhlciBz
+Y2VuYXJpbyB3b3VsZCBiZSwgaWYgYSBrZXlib2FyZCBpcyBrZXB0IGRlcHJlc3NlZCwgYW5kIHRo
+ZW4NCj4gPiA+IHN5c3RlbSBnb2VzIGludG8gc3VzcGVuZCwgdGhlIGV4cGVjdGVkIGJlaGF2aW9y
+IHdvdWxkIGJlIHdoZW4NCj4gPiA+IGtleWJvYXJkIGlzIHJlbGVhc2VkLCBzeXN0ZW0gd2lsbCBi
+ZSB3YWtlZCB1cCwgYnV0IGN1cnJlbnQNCj4gPiA+IGltcGxlbWVudGF0aW9uIGNhbiBOT1QgYWNo
+aWV2ZSB0aGF0LCBiZWNhdXNlIGJvdGggZGVwcmVzcyBhbmQNCj4gPiA+IHJlbGVhc2UgaW50ZXJy
+dXB0cyBhcmUgZGlzYWJsZWQgaW4gSVNSLCBhbmQgdGhlIGV2ZW50IGNoZWNrIGlzIHN0aWxsIGlu
+DQo+IHByb2dyZXNzLg0KPiA+ID4NCj4gPiA+IFRvIGZpeCB0aGVzZSBpc3N1ZXMsIG5lZWQgdG8g
+bWFrZSBzdXJlIGtleWJvYXJkJ3MgZGVwcmVzcyBvciByZWxlYXNlDQo+ID4gPiBpbnRlcnJ1cHQg
+aXMgZW5hYmxlZCBhZnRlciBub2lycSBkZXZpY2Ugc3VzcGVuZCBwaGFzZSwgdGhpcyBwYXRjaA0K
+PiA+ID4gbW92ZXMgdGhlIHN1c3BlbmQvcmVzdW1lIGNhbGxiYWNrIHRvIG5vaXJxIHN1c3BlbmQv
+cmVzdW1lIHBoYXNlLA0KPiBhbmQNCj4gPiA+IGVuYWJsZSB0aGUgY29ycmVzcG9uZGluZyBpbnRl
+cnJ1cHQgYWNjb3JkaW5nIHRvIGN1cnJlbnQga2V5Ym9hcmQgc3RhdHVzLg0KPiA+DQo+ID4gSSBi
+ZWxpZXZlIGl0IGlzIHBvc3NpYmxlIGZvciBJUlEgdG8gYmUgZGlzYWJsZWQgYW5kIHN0aWxsICBi
+ZWluZw0KPiA+IGVuYWJsZWQgYXMgd2FrZXVwIHNvdXJjZS4gV2hhdCBoYXBwZW5zIGlmIHlvdSBj
+YWxsIGRpc2FibGVfaXJxKCkNCj4gPiBiZWZvcmUgZGlzYWJsaW5nIHRoZSBjbG9jaz8NCj4gDQo+
+IERvaW5nIGJlbG93IGRvZXMgTk9UIGZpeCB0aGUgc2NlbmFyaW8vaXNzdWUgMTAwJSwgaWYgdGhl
+IGtleXBhZCdzIElSUQ0KPiBhcnJpdmVkIGR1cmluZyBzdXNwZW5kIHBoYXNlIGJ1dCBiZWZvcmUg
+ZGlzYWJsaW5nIGl0cyBJUlEgaW4gaXRzIHN1c3BlbmQNCj4gY2FsbGJhY2ssIHRoZW4gaXNzdWUg
+aXMgc3RpbGwgdGhlcmUsIGFzIHRoZSBpc3N1ZSBpcyB0aGF0IHdoZW4gc3lzdGVtIHN1c3BlbmQs
+DQo+IGtleXBhZCdzIGlycSBhcnJpdmVkIGR1cmluZyBzdXNwZW5kIGFuZCBub2lycSBzdXNwZW5k
+IHBoYXNlLCB0aGVuIGtleXBhZCdzDQo+IGhhcmR3YXJlIGludGVycnVwdCBkZXRlY3Rpb24gd2ls
+bCBiZSBkaXNhYmxlZCBpbiB0aGUgSVNSIGhhbmRsZXIsIGFuZCB0aGUNCj4gdGltZXIgZXZlbnQg
+c2V0dXAgYnkgSVNSIGhhbmRsZXIgaXMgTk9UIGZpcmVkLA0KPiBpbXhfa2V5cGFkX2NoZWNrX2Zv
+cl9ldmVudHMoKSBpcyBOT1QgZXhlY3V0ZWQgYW5kIGhhcmR3YXJlIGtleXBhZCdzDQo+IGRlcHJl
+c3MvcmVsZWFzZSBpbnRlcnJ1cHQgaXMgTk9UIHJlLWVuYWJsZWQgeWV0LCBzbyBpdCBjYW4gTk9U
+IHdha2UgdXANCj4gc3lzdGVtIGFueW1vcmUuLi4NCj4gDQo+IFNvIEkgdGhpbmsgdGhlIHNvbGlk
+IGZpeCBpcyB0byBtYWtlIHN1cmUga2V5cGFkIGNhbiBnZW5lcmF0ZSBJUlEgKGVpdGhlcg0KPiBk
+ZXByZXNzIG9yIHJlbGVhc2UpIGF0IGFueSB0aW1lIGR1cmluZyBzeXN0ZW0gc3VzcGVuZCBmbG93
+Lg0KPiANCj4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9pbXhfa2V5cGFkLmMNCj4gQEAg
+LTUzMyw2ICs1MzMsOCBAQCBzdGF0aWMgaW50IF9fbWF5YmVfdW51c2VkIGlteF9rYmRfc3VzcGVu
+ZChzdHJ1Y3QNCj4gZGV2aWNlICpkZXYpDQo+ICAgICAgICAgLyogaW14IGtiZCBjYW4gd2FrZSB1
+cCBzeXN0ZW0gZXZlbiBjbG9jayBpcyBkaXNhYmxlZCAqLw0KPiAgICAgICAgIG11dGV4X2xvY2so
+JmlucHV0X2Rldi0+bXV0ZXgpOw0KPiANCj4gKyAgICAgICBkaXNhYmxlX2lycShrYmQtPmlycSk7
+DQo+ICsNCj4gICAgICAgICBpZiAoaW5wdXRfZGV2LT51c2VycykNCj4gICAgICAgICAgICAgICAg
+IGNsa19kaXNhYmxlX3VucHJlcGFyZShrYmQtPmNsayk7DQo+IA0KPiANCj4gQEAgLTU2Miw2ICs1
+NjksOCBAQCBzdGF0aWMgaW50IF9fbWF5YmVfdW51c2VkIGlteF9rYmRfcmVzdW1lKHN0cnVjdA0K
+PiBkZXZpY2UgKmRldikNCj4gICAgICAgICAgICAgICAgICAgICAgICAgZ290byBlcnJfY2xrOw0K
+PiAgICAgICAgIH0NCj4gDQo+ICsgICAgICAgZW5hYmxlX2lycShrYmQtPmlycSk7DQo+ICsNCj4g
+IGVycl9jbGs6DQo+IA0KPiBBbnNvbi4NCj4gDQo+ID4NCj4gPiBUaGFua3MuDQo+ID4NCj4gPiAt
+LQ0KPiA+IERtaXRyeQ0K

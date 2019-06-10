@@ -1,50 +1,45 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
-Date: Tue, 11 Jun 2019 00:55:58 +0800
-Message-ID: <7da443d0-f433-c5a5-5194-707362eb2ee5@canonical.com>
-References: <20190220164200.31044-1-aaron.ma@canonical.com>
- <20190609165551.GB90002@dtor-ws>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH] HID: input: fix a4tech horizontal wheel custom usage id
+Date: Mon, 10 Jun 2019 20:53:43 +0200
+Message-ID: <20190610185343.27614-1-nsaenzjulienne@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190609165551.GB90002@dtor-ws>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cheiny@synaptics.com, aduggan@synaptics.com, benjamin.tissoires@redhat.com
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: dmitry.torokhov@gmail.com, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Some a4tech mice use the 'GenericDesktop.00b8' usage id to inform
+whether the previous wheel report was horizontal or vertical. Before
+c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key") this
+usage id was being mapped to 'Relative.Misc'. After the patch it's
+simply ignored (usage->type == 0 & usage->code == 0). Checking the HID
+Usage Tables it turns out it's a reserved usage_id, so it makes sense to
+map it the way it was. Ultimately this makes hid-a4tech ignore the
+WHEEL/HWHEEL selection event, as it has no usage->type.
 
-On 6/10/19 12:55 AM, Dmitry Torokhov wrote:
-> Hi Aaron,
-> 
-> On Wed, Feb 20, 2019 at 05:41:59PM +0100, Aaron Ma wrote:
->> rmi4 got spam data after S3 resume on some ThinkPads.
->> Then TrackPoint lost when be detected by psmouse.
->> Clear irqs status before set irqs will make TrackPoint back.
-> Could you please give me an idea as to what this spam data is?
-> 
+The patch reverts the handling of the usage id back to it's previous
+behavior.
 
-It should be some data 0 during suspend/resume.
-Actually I don't know how these data 0 is produced.
-Not all synaptics touchpads have this issue.
+Fixes: c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+---
+ drivers/hid/hid-input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> In F03 probe we clear all pending data before enabling the function,
-
-Yes we did, but not after resume.
-
-> maybe the same needs to be done on resume, instead of changing the way
-> we handle IRQ bits?
-
-This patch is supposed to clear irq status like it in fn probe. Not
-changing IRQ bits.
-
-Thanks,
-Aaron
-
-> 
-> Thanks,
-> 
-> -- Dmitry
-> 
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 63855f275a38..6a956d5a195e 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -671,7 +671,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
+ 			switch (usage->hid & 0xf) {
+ 			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
+-			default: goto ignore;
++			default: goto unknown;
+ 			}
+ 			break;
+ 		}
+-- 
+2.21.0

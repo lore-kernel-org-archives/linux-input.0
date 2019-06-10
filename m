@@ -1,42 +1,50 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: =?utf-8?B?562U5aSNOiDnrZTlpI06IFtQQVRD?= =?utf-8?Q?H?=
- =?utf-8?Q?=5D?= input: alps-fix the issue alps cs19 trackstick do not work.
-Date: Mon, 10 Jun 2019 12:43:10 +0200
-Message-ID: <20190610104310.qa5snt7jpcljodfv@pali>
-References: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
- <20190527100913.sgxrjrmphsjfmcdb@pali>
- <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <20190528071824.jimhixhtsynzwixe@pali>
- <OSBPR01MB48556FD88D7F7D5F91CB5579DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <OSBPR01MB4855707AC8ABB7CFBE5BBBD5DA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <OSBPR01MB4855A2A30A4F5E6BDCFE715FDA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
+Date: Tue, 11 Jun 2019 00:55:58 +0800
+Message-ID: <7da443d0-f433-c5a5-5194-707362eb2ee5@canonical.com>
+References: <20190220164200.31044-1-aaron.ma@canonical.com>
+ <20190609165551.GB90002@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <OSBPR01MB4855A2A30A4F5E6BDCFE715FDA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+In-Reply-To: <20190609165551.GB90002@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
-Cc: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hui.wang@canonical.com" <hui.wang@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cheiny@synaptics.com, aduggan@synaptics.com, benjamin.tissoires@redhat.com
 List-Id: linux-input@vger.kernel.org
 
-On Monday 10 June 2019 10:03:51 Xiaoxiao Liu wrote:
-> Hi Pali,
 
-Hi!
-
-> We register our CS19 device as ALPS_ONLY_TRACKSTICK device.
-> And let the V8 protocol function support the process of ALPS_ONLY_TRACKSTICK device. 
+On 6/10/19 12:55 AM, Dmitry Torokhov wrote:
+> Hi Aaron,
 > 
-> I want to confirm if this solution OK?
+> On Wed, Feb 20, 2019 at 05:41:59PM +0100, Aaron Ma wrote:
+>> rmi4 got spam data after S3 resume on some ThinkPads.
+>> Then TrackPoint lost when be detected by psmouse.
+>> Clear irqs status before set irqs will make TrackPoint back.
+> Could you please give me an idea as to what this spam data is?
+> 
 
-Yes, it is fine. Just make sure that touchapad input device is not
-registered when this ALPS_ONLY_TRACKSTICK flag is set. So userspace
-would not see any fake/unavailable touchpad input device.
+It should be some data 0 during suspend/resume.
+Actually I don't know how these data 0 is produced.
+Not all synaptics touchpads have this issue.
 
-> Xiaoxiao.Liu
+> In F03 probe we clear all pending data before enabling the function,
 
--- 
-Pali Rohár
-pali.rohar@gmail.com
+Yes we did, but not after resume.
+
+> maybe the same needs to be done on resume, instead of changing the way
+> we handle IRQ bits?
+
+This patch is supposed to clear irq status like it in fn probe. Not
+changing IRQ bits.
+
+Thanks,
+Aaron
+
+> 
+> Thanks,
+> 
+> -- Dmitry
+> 

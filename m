@@ -1,67 +1,50 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: =?utf-8?B?562U5aSNOiDnrZTlpI06IOetlA==?=
- =?utf-8?B?5aSNOiBbUEFUQ0g=?= =?utf-8?Q?=5D?= input: alps-fix the issue alps
- cs19 trackstick do not work.
-Date: Tue, 11 Jun 2019 10:07:07 -0700
-Message-ID: <20190611170707.GA143729@dtor-ws>
-References: <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <20190528071824.jimhixhtsynzwixe@pali>
- <OSBPR01MB48556FD88D7F7D5F91CB5579DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <OSBPR01MB4855707AC8ABB7CFBE5BBBD5DA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <OSBPR01MB4855A2A30A4F5E6BDCFE715FDA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <20190610104310.qa5snt7jpcljodfv@pali>
- <OSBPR01MB485504868362073ED434F82FDAED0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <ed65f8af-fefb-3c40-e7b1-dde3605f30e3@canonical.com>
- <5587ddb9-fb5f-03db-ac11-a696c85c5f2f@canonical.com>
- <20190611072333.nd4va4q2m5epmukc@pali>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 06/10] mfd / platform: cros_ec: Reorganize platform and
+ mfd includes
+Date: Tue, 11 Jun 2019 10:10:30 -0700
+Message-ID: <20190611171030.GC143729@dtor-ws>
+References: <20190604152019.16100-1-enric.balletbo@collabora.com>
+ <20190604152019.16100-7-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190611072333.nd4va4q2m5epmukc@pali>
+In-Reply-To: <20190604152019.16100-7-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Hui Wang <hui.wang@canonical.com>, Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>, XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org, gwendal@chromium.org, Guenter Roeck <groeck@chromium.org>, Benson Leung <bleung@chromium.org>, Lee Jones <lee.jones@linaro.org>, kernel@collabora.com, dtor@chromium.org, Mauro Carvalho Chehab <mchehab@kernel.org>, alsa-devel@alsa-project.org, Alessandro Zummo <a.zummo@towertech.it>, linux-iio@vger.kernel.org, Fabien Lahoudere <fabien.lahoudere@collabora.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>, Brian Norris <briannorris@chromium.org>, Chanwoo Choi <cw00.choi@samsung.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Sebastian Reichel <sre@kernel.org>, Rushikesh
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jun 11, 2019 at 09:23:33AM +0200, Pali Rohár wrote:
-> On Tuesday 11 June 2019 12:32:33 Hui Wang wrote:
-> > On 2019/6/11 上午11:23, Hui Wang wrote:
-> > > On 2019/6/11 上午11:05, Xiaoxiao Liu wrote:
-> > > > Hi Pali,
-> > > > 
-> > > > I discussed with our FW team about this problem.
-> > > > We think the V8 method means a touchpad feature  and does not fit
-> > > > the CS19 trackpoint device.
-> > > > CS19 TrackPoint needn't  use any Absolute (Raw) mode and is usually
-> > > > use standard mouse data.
-> > > > CS19 TrackPoint device is a completely different device with
-> > > > DualPoint device of Dell/HP.
-> > > > CS19 TrackPoint device is independent  of Touchpad. (Touchpad is
-> > > > connecting by I2C, TrackPoint is directly connecting with PS2 port.)
-> > > > And it has completely another FW.
-> > > > 
-> > > > So we think it is better to use the mouse mode for CS19 trackpoint.
-> > > 
-> > > Maybe here is some mis-understanding,  the mouse mode here doesn't mean
-> > > we use psmouse-base.c for cs19 (bare ps/2 mouse), we plan to use
-> > > trackpoint.c to drive this HW, so this trackpoint has all features a
-> > > trackpoint should have.
-> > > 
-> > And I sent a patch one month ago to let the the trackpoint.c to drive this
-> > HW: https://www.spinics.net/lists/linux-input/msg61341.html, maybe that
-> > patch is reference.
+On Tue, Jun 04, 2019 at 05:20:15PM +0200, Enric Balletbo i Serra wrote:
+> There is a bit of mess between cros-ec mfd includes and platform
+> includes. For example, we have a linux/mfd/cros_ec.h include that
+> exports the interface implemented in platform/chrome/cros_ec_proto.c. Or
+> we have a linux/mfd/cros_ec_commands.h file that is non related to the
+> multifunction device (in the sense that is not exporting any function of
+> the mfd device). This causes crossed includes between mfd and
+> platform/chrome subsystems and makes the code difficult to read, apart
+> from creating 'curious' situations where a platform/chrome driver includes
+> a linux/mfd/cros_ec.h file just to get the exported functions that are
+> implemented in another platform/chrome driver.
 > 
-> So instead of creating blacklist, you should check for TP_VARIANT_ALPS
-> in alps.c and disallow its usage.
+> In order to have a better separation on what the cros-ec multifunction
+> driver does and what the cros-ec core provides move and rework the
+> affected includes doing:
 > 
-> Or maybe better, move trackpoint.c detect code before alsp.c detect code
-> in psmouse-base. And no changes in alps.c are needed.
+>  - Move cros_ec_commands.h to include/linux/platform_data/cros_ec_commands.h
+>  - Get rid of the parts that are implemented in the platform/chrome/cros_ec_proto.c
+>    driver from include/linux/mfd/cros_ec.h to a new file
+>    include/linux/platform_data/cros_ec_proto.h
+>  - Update all the drivers with the new includes, so
+>    - Drivers that only need to know about the protocol include
+>      - linux/platform_data/cros_ec_proto.h
+>      - linux/platform_data/cros_ec_commands.h
+>    - Drivers that need to know about the cros-ec mfd device also include
+>      - linux/mfd/cros_ec.h
+> 
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-I'd be very cautions of moving around the protocol detection. It is very
-fragile, so if we can detect trackpoint-only case in alps.c and skip on
-to trackpoint I would prefer it.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
 
 Thanks.
 

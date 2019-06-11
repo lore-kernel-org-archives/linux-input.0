@@ -1,44 +1,56 @@
-From: Yuehaibing <yuehaibing@huawei.com>
-Subject: Re: [PATCH -next] HID: logitech-dj: fix return value of
- logi_dj_recv_query_hidpp_devices
-Date: Tue, 11 Jun 2019 11:00:49 +0800
-Message-ID: <50800f5e-867d-ded9-235c-b9c2db1c41ef@huawei.com>
-References: <20190525140908.2804-1-yuehaibing@huawei.com>
+From: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
+Subject: =?utf-8?B?562U5aSNOiDnrZTlpI06IOetlOWkjTogW1BBVENIXSBpbnB1dDogYWxwcy1m?=
+ =?utf-8?Q?ix_the_issue_alps_cs19_trackstick_do_not_work.?=
+Date: Tue, 11 Jun 2019 03:05:16 +0000
+Message-ID: <OSBPR01MB485504868362073ED434F82FDAED0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+References: <20190527094422.7558-1-sliuuxiaonxiao@gmail.com>
+ <20190527100913.sgxrjrmphsjfmcdb@pali>
+ <OSBPR01MB4855F61AE28B883CDD87F781DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <20190528071824.jimhixhtsynzwixe@pali>
+ <OSBPR01MB48556FD88D7F7D5F91CB5579DA1E0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <OSBPR01MB4855707AC8ABB7CFBE5BBBD5DA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <OSBPR01MB4855A2A30A4F5E6BDCFE715FDA130@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <20190610104310.qa5snt7jpcljodfv@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190525140908.2804-1-yuehaibing@huawei.com>
+In-Reply-To: <20190610104310.qa5snt7jpcljodfv@pali>
+Content-Language: zh-CN
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com, hdegoede@redhat.com, jkosina@suse.czbenjamin.tissoires@redhat.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
+Cc: XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "hui.wang@canonical.com" <hui.wang@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi all,
-
-Friendly ping...
-
-On 2019/5/25 22:09, YueHaibing wrote:
-> We should return 'retval' as the correct return value
-> instead of always zero.
-> 
-> Fixes: 74808f9115ce ("HID: logitech-dj: add support for non unifying receivers")
-> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-> ---
->  drivers/hid/hid-logitech-dj.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> index 41baa4dbbfcc..7f8db602eec0 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -1133,7 +1133,7 @@ static int logi_dj_recv_query_hidpp_devices(struct dj_receiver_dev *djrcv_dev)
->  				    HID_REQ_SET_REPORT);
->  
->  	kfree(hidpp_report);
-> -	return 0;
-> +	return retval;
->  }
->  
->  static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
-> 
+SGkgUGFsaSwNCg0KSSBkaXNjdXNzZWQgd2l0aCBvdXIgRlcgdGVhbSBhYm91dCB0aGlzIHByb2Js
+ZW0uDQpXZSB0aGluayB0aGUgVjggbWV0aG9kIG1lYW5zIGEgdG91Y2hwYWQgZmVhdHVyZSAgYW5k
+IGRvZXMgbm90IGZpdCB0aGUgQ1MxOSB0cmFja3BvaW50IGRldmljZS4gDQpDUzE5IFRyYWNrUG9p
+bnQgbmVlZG4ndCAgdXNlIGFueSBBYnNvbHV0ZSAoUmF3KSBtb2RlIGFuZCBpcyB1c3VhbGx5IHVz
+ZSBzdGFuZGFyZCBtb3VzZSBkYXRhLg0KQ1MxOSBUcmFja1BvaW50IGRldmljZSBpcyBhIGNvbXBs
+ZXRlbHkgZGlmZmVyZW50IGRldmljZSB3aXRoIER1YWxQb2ludCBkZXZpY2Ugb2YgRGVsbC9IUC4N
+CkNTMTkgVHJhY2tQb2ludCBkZXZpY2UgaXMgaW5kZXBlbmRlbnQgIG9mIFRvdWNocGFkLiAoVG91
+Y2hwYWQgaXMgY29ubmVjdGluZyBieSBJMkMsIFRyYWNrUG9pbnQgaXMgZGlyZWN0bHkgY29ubmVj
+dGluZyB3aXRoIFBTMiBwb3J0LikNCkFuZCBpdCBoYXMgY29tcGxldGVseSBhbm90aGVyIEZXLiAN
+Cg0KU28gd2UgdGhpbmsgaXQgaXMgYmV0dGVyIHRvIHVzZSB0aGUgbW91c2UgbW9kZSBmb3IgQ1Mx
+OSB0cmFja3BvaW50Lg0KDQpCZXN0IFJlZ2FyZHMNClNob25hDQotLS0tLemCruS7tuWOn+S7ti0t
+LS0tDQrlj5Hku7bkuro6IFBhbGkgUm9ow6FyIDxwYWxpLnJvaGFyQGdtYWlsLmNvbT4gDQrlj5Hp
+gIHml7bpl7Q6IE1vbmRheSwgSnVuZSAxMCwgMjAxOSA2OjQzIFBNDQrmlLbku7bkuro6IOWKiSDm
+m4nmm4kgWGlhb3hpYW8gTGl1IDx4aWFveGlhby5saXUtMUBjbi5hbHBzLmNvbT4NCuaKhOmAgTog
+WGlhb1hpYW8gTGl1IDxzbGl1dXhpYW9ueGlhb0BnbWFpbC5jb20+OyBkbWl0cnkudG9yb2tob3ZA
+Z21haWwuY29tOyBwZXRlci5odXR0ZXJlckB3aG8tdC5uZXQ7IGh1aS53YW5nQGNhbm9uaWNhbC5j
+b207IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVs
+Lm9yZzsg5pu5IOabieW7uiBYaWFvamlhbiBDYW8gPHhpYW9qaWFuLmNhb0Bjbi5hbHBzLmNvbT47
+IHpoYW5nZnAxQGxlbm92by5jb207IOaWieiXpCDnm7TmqLkgTmFva2kgU2FpdG8gPG5hb2tpLnNh
+aXRvQGFscHNhbHBpbmUuY29tPjsg5bed54CsIOiLseWkqyBIaWRlbyBLYXdhc2UgPGhpZGVvLmth
+d2FzZUBhbHBzYWxwaW5lLmNvbT4NCuS4u+mimDogUmU6IOetlOWkjTog562U5aSNOiBbUEFUQ0hd
+IGlucHV0OiBhbHBzLWZpeCB0aGUgaXNzdWUgYWxwcyBjczE5IHRyYWNrc3RpY2sgZG8gbm90IHdv
+cmsuDQoNCk9uIE1vbmRheSAxMCBKdW5lIDIwMTkgMTA6MDM6NTEgWGlhb3hpYW8gTGl1IHdyb3Rl
+Og0KPiBIaSBQYWxpLA0KDQpIaSENCg0KPiBXZSByZWdpc3RlciBvdXIgQ1MxOSBkZXZpY2UgYXMg
+QUxQU19PTkxZX1RSQUNLU1RJQ0sgZGV2aWNlLg0KPiBBbmQgbGV0IHRoZSBWOCBwcm90b2NvbCBm
+dW5jdGlvbiBzdXBwb3J0IHRoZSBwcm9jZXNzIG9mIEFMUFNfT05MWV9UUkFDS1NUSUNLIGRldmlj
+ZS4gDQo+IA0KPiBJIHdhbnQgdG8gY29uZmlybSBpZiB0aGlzIHNvbHV0aW9uIE9LPw0KDQpZZXMs
+IGl0IGlzIGZpbmUuIEp1c3QgbWFrZSBzdXJlIHRoYXQgdG91Y2hhcGFkIGlucHV0IGRldmljZSBp
+cyBub3QgcmVnaXN0ZXJlZCB3aGVuIHRoaXMgQUxQU19PTkxZX1RSQUNLU1RJQ0sgZmxhZyBpcyBz
+ZXQuIFNvIHVzZXJzcGFjZSB3b3VsZCBub3Qgc2VlIGFueSBmYWtlL3VuYXZhaWxhYmxlIHRvdWNo
+cGFkIGlucHV0IGRldmljZS4NCg0KPiBYaWFveGlhby5MaXUNCg0KLS0NClBhbGkgUm9ow6FyDQpw
+YWxpLnJvaGFyQGdtYWlsLmNvbQ0K

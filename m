@@ -1,63 +1,44 @@
-From: Joao Moreno <mail@joaomoreno.com>
-Subject: [PATCH] HID: apple: Fix stuck function keys when using FN
-Date: Mon, 10 Jun 2019 23:31:06 +0200
-Message-ID: <20190610213106.19342-1-mail@joaomoreno.com>
+From: Yuehaibing <yuehaibing@huawei.com>
+Subject: Re: [PATCH -next] HID: logitech-dj: fix return value of
+ logi_dj_recv_query_hidpp_devices
+Date: Tue, 11 Jun 2019 11:00:49 +0800
+Message-ID: <50800f5e-867d-ded9-235c-b9c2db1c41ef@huawei.com>
+References: <20190525140908.2804-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190525140908.2804-1-yuehaibing@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: Joao Moreno <mail@joaomoreno.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, hdegoede@redhat.com, jkosina@suse.czbenjamin.tissoires@redhat.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This fixes an issue in which key down events for function keys would be
-repeatedly emitted even after the user has raised the physical key. For
-example, the driver fails to emit the F5 key up event when going through
-the following steps:
-- fnmode=1: hold FN, hold F5, release FN, release F5
-- fnmode=2: hold F5, hold FN, release F5, release FN
+Hi all,
 
-The repeated F5 key down events can be easily verified using xev.
+Friendly ping...
 
-Signed-off-by: Joao Moreno <mail@joaomoreno.com>
----
- drivers/hid/hid-apple.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 1cb41992aaa1..81867a6fa047 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -205,20 +205,21 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		trans = apple_find_translation (table, usage->code);
- 
- 		if (trans) {
--			if (test_bit(usage->code, asc->pressed_fn))
--				do_translate = 1;
--			else if (trans->flags & APPLE_FLAG_FKEY)
--				do_translate = (fnmode == 2 && asc->fn_on) ||
--					(fnmode == 1 && !asc->fn_on);
-+			int fn_on = value ? asc->fn_on :
-+				test_bit(usage->code, asc->pressed_fn);
-+
-+			if (!value)
-+				clear_bit(usage->code, asc->pressed_fn);
-+			else if (asc->fn_on)
-+				set_bit(usage->code, asc->pressed_fn);
-+
-+			if (trans->flags & APPLE_FLAG_FKEY)
-+				do_translate = (fnmode == 2 && fn_on) ||
-+					(fnmode == 1 && !fn_on);
- 			else
- 				do_translate = asc->fn_on;
- 
- 			if (do_translate) {
--				if (value)
--					set_bit(usage->code, asc->pressed_fn);
--				else
--					clear_bit(usage->code, asc->pressed_fn);
--
- 				input_event(input, usage->type, trans->to,
- 						value);
- 
--- 
-2.19.1
+On 2019/5/25 22:09, YueHaibing wrote:
+> We should return 'retval' as the correct return value
+> instead of always zero.
+> 
+> Fixes: 74808f9115ce ("HID: logitech-dj: add support for non unifying receivers")
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+> ---
+>  drivers/hid/hid-logitech-dj.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+> index 41baa4dbbfcc..7f8db602eec0 100644
+> --- a/drivers/hid/hid-logitech-dj.c
+> +++ b/drivers/hid/hid-logitech-dj.c
+> @@ -1133,7 +1133,7 @@ static int logi_dj_recv_query_hidpp_devices(struct dj_receiver_dev *djrcv_dev)
+>  				    HID_REQ_SET_REPORT);
+>  
+>  	kfree(hidpp_report);
+> -	return 0;
+> +	return retval;
+>  }
+>  
+>  static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
+> 

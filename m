@@ -1,61 +1,67 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH -next] HID: logitech-dj: fix return value of
- logi_dj_recv_query_hidpp_devices
-Date: Tue, 11 Jun 2019 10:39:07 +0200
-Message-ID: <c9510bce-525a-c4d4-531c-7cf55e141754@redhat.com>
-References: <20190525140908.2804-1-yuehaibing@huawei.com>
- <50800f5e-867d-ded9-235c-b9c2db1c41ef@huawei.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: input: fix a4tech horizontal wheel custom usage id
+Date: Tue, 11 Jun 2019 10:43:15 +0200
+Message-ID: <CAO-hwJJzYFQs_Jxc+3zYHzjM9G8zdTfBqdpO27hpKXRBKytvQA@mail.gmail.com>
+References: <20190610185343.27614-1-nsaenzjulienne@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <50800f5e-867d-ded9-235c-b9c2db1c41ef@huawei.com>
-Content-Language: en-US
+In-Reply-To: <20190610185343.27614-1-nsaenzjulienne@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yuehaibing <yuehaibing@huawei.com>, jikos@kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Hi Nicolas,
 
-On 11-06-19 05:00, Yuehaibing wrote:
-> Hi all,
-> 
-> Friendly ping...
-> 
-> On 2019/5/25 22:09, YueHaibing wrote:
->> We should return 'retval' as the correct return value
->> instead of always zero.
->>
->> Fixes: 74808f9115ce ("HID: logitech-dj: add support for non unifying receivers")
->> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+On Mon, Jun 10, 2019 at 8:54 PM Nicolas Saenz Julienne
+<nsaenzjulienne@suse.de> wrote:
+>
+> Some a4tech mice use the 'GenericDesktop.00b8' usage id to inform
+> whether the previous wheel report was horizontal or vertical. Before
+> c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key") this
+> usage id was being mapped to 'Relative.Misc'. After the patch it's
+> simply ignored (usage->type == 0 & usage->code == 0). Checking the HID
+> Usage Tables it turns out it's a reserved usage_id, so it makes sense to
+> map it the way it was. Ultimately this makes hid-a4tech ignore the
+> WHEEL/HWHEEL selection event, as it has no usage->type.
+>
+> The patch reverts the handling of the usage id back to it's previous
+> behavior.
 
-Patch looks good to me:
+Hmm, if A4Tech is using a reserved usage, we shouldn't fix this in
+hid-input.c but in hid-a4tech instead.
+Because you won't know when someone else in the HID consortium will
+remap this usage to some other random axis, and your mouse will be
+broken again.
 
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+How about you add a .input_mapping callback in hid-a4tech and map this
+usage there to your needs? This way you will be sure that such a
+situation will not happen again.
 
-Regards,
+Cheers,
+Benjamin
 
-Hans
-
-
-
->> ---
->>   drivers/hid/hid-logitech-dj.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
->> index 41baa4dbbfcc..7f8db602eec0 100644
->> --- a/drivers/hid/hid-logitech-dj.c
->> +++ b/drivers/hid/hid-logitech-dj.c
->> @@ -1133,7 +1133,7 @@ static int logi_dj_recv_query_hidpp_devices(struct dj_receiver_dev *djrcv_dev)
->>   				    HID_REQ_SET_REPORT);
->>   
->>   	kfree(hidpp_report);
->> -	return 0;
->> +	return retval;
->>   }
->>   
->>   static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
->>
-> 
+>
+> Fixes: c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key")
+> Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+> ---
+>  drivers/hid/hid-input.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 63855f275a38..6a956d5a195e 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -671,7 +671,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>                 if ((usage->hid & 0xf0) == 0xb0) {      /* SC - Display */
+>                         switch (usage->hid & 0xf) {
+>                         case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
+> -                       default: goto ignore;
+> +                       default: goto unknown;
+>                         }
+>                         break;
+>                 }
+> --
+> 2.21.0
+>

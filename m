@@ -1,30 +1,58 @@
-From: Maximilian Luz <luzmaximilian@gmail.com>
-Subject: Re: [RFC 0/2] Support for buttons on newer MS Surface devices
-Date: Wed, 12 Jun 2019 01:06:36 +0200
-Message-ID: <e8bb212c-9894-d244-4ee1-617df3952a53@gmail.com>
-References: <20190516142523.117978-1-luzmaximilian@gmail.com>
- <a0f93af3-c587-40d5-2a85-fdc0f9e6b79f@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5 2/3] HID: quirks: Refactor ELAN 400 and 401 handling
+Date: Tue, 11 Jun 2019 17:35:07 -0700
+Message-ID: <20190612003507.GG143729@dtor-ws>
+References: <20190606161055.47089-1-jeffrey.l.hugo@gmail.com>
+ <20190606161322.47192-1-jeffrey.l.hugo@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a0f93af3-c587-40d5-2a85-fdc0f9e6b79f@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190606161322.47192-1-jeffrey.l.hugo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
+To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, bjorn.andersson@linaro.org, lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, agross@kernel.org, david.brown@linaro.org, hdegoede@redhat.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Since there are no comments on this, should I simply submit this as patch?
-
-Maximilian
-
-
-On 6/1/19 9:07 PM, Maximilian Luz wrote:
-> Hi,
+On Thu, Jun 06, 2019 at 09:13:22AM -0700, Jeffrey Hugo wrote:
+> There needs to be coordination between hid-quirks and the elan_i2c driver
+> about which devices are handled by what drivers.  Currently, both use
+> whitelists, which results in valid devices being unhandled by default,
+> when they should not be rejected by hid-quirks.  This is quickly becoming
+> an issue.
 > 
-> any comments on this?
+> Since elan_i2c has a maintained whitelist of what devices it will handle,
+> use that to implement a blacklist in hid-quirks so that only the devices
+> that need to be handled by elan_i2c get rejected by hid-quirks, and
+> everything else is handled by default.  The downside is the whitelist and
+> blacklist need to be kept in sync.
 > 
-> I should also mention that this has been tested via
-> https://github.com/jakeday/linux-surface.
+> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> ---
+>  drivers/hid/hid-quirks.c | 78 ++++++++++++++++++++++++++++++++++------
+>  1 file changed, 67 insertions(+), 11 deletions(-)
 > 
-> Maximilian
+> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> index e5ca6fe2ca57..edebd0700e3d 100644
+> --- a/drivers/hid/hid-quirks.c
+> +++ b/drivers/hid/hid-quirks.c
+> @@ -912,8 +912,66 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+>  	{ }
+>  };
+>  
+> +/* 
+> + * List of device names that elan_i2c is handling and HID should ignore.  Must
+> + * be kept in sync with elan_i2c
+> + */
+> +static const char *hid_elan_i2c_ignore[] = {
+
+If this is a copy of elan whitelist, then, if we do not want to bother
+with sharing it in object form (as a elan-i2c-ids module), can we at
+least move it into include/linux/input/elan-i2c-ids.h and consume from
+hid-quirks.c?
+
+Thanks.
+
+-- 
+Dmitry

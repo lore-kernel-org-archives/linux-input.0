@@ -1,70 +1,64 @@
-From: Tim Schumacher <timschumi@gmx.de>
-Subject: [PATCH resend] Input: iforce - Add the Saitek R440 Force Wheel
-Date: Wed, 12 Jun 2019 16:09:03 +0200
-Message-ID: <20190612140903.20058-1-timschumi@gmx.de>
+From: Jeffrey Hugo <jhugo@codeaurora.org>
+Subject: Re: [PATCH v5 2/3] HID: quirks: Refactor ELAN 400 and 401 handling
+Date: Wed, 12 Jun 2019 08:29:43 -0600
+Message-ID: <2282f3e1-e76a-4fe7-d447-51d9a4bee2de@codeaurora.org>
+References: <20190606161055.47089-1-jeffrey.l.hugo@gmail.com>
+ <20190606161322.47192-1-jeffrey.l.hugo@gmail.com>
+ <20190612003507.GG143729@dtor-ws>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190612003507.GG143729@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, timschumi@gmx.de
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, bjorn.andersson@linaro.org, lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, agross@kernel.org, david.brown@linaro.org, hdegoede@redhat.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Tim Schumacher <timschumi@gmx.de>
-=2D--
-Please note that I do NOT own this device.
+On 6/11/2019 6:35 PM, Dmitry Torokhov wrote:
+> On Thu, Jun 06, 2019 at 09:13:22AM -0700, Jeffrey Hugo wrote:
+>> There needs to be coordination between hid-quirks and the elan_i2c driver
+>> about which devices are handled by what drivers.  Currently, both use
+>> whitelists, which results in valid devices being unhandled by default,
+>> when they should not be rejected by hid-quirks.  This is quickly becoming
+>> an issue.
+>>
+>> Since elan_i2c has a maintained whitelist of what devices it will handle,
+>> use that to implement a blacklist in hid-quirks so that only the devices
+>> that need to be handled by elan_i2c get rejected by hid-quirks, and
+>> everything else is handled by default.  The downside is the whitelist and
+>> blacklist need to be kept in sync.
+>>
+>> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+>> ---
+>>   drivers/hid/hid-quirks.c | 78 ++++++++++++++++++++++++++++++++++------
+>>   1 file changed, 67 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+>> index e5ca6fe2ca57..edebd0700e3d 100644
+>> --- a/drivers/hid/hid-quirks.c
+>> +++ b/drivers/hid/hid-quirks.c
+>> @@ -912,8 +912,66 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+>>   	{ }
+>>   };
+>>   
+>> +/*
+>> + * List of device names that elan_i2c is handling and HID should ignore.  Must
+>> + * be kept in sync with elan_i2c
+>> + */
+>> +static const char *hid_elan_i2c_ignore[] = {
+> 
+> If this is a copy of elan whitelist, then, if we do not want to bother
+> with sharing it in object form (as a elan-i2c-ids module), can we at
+> least move it into include/linux/input/elan-i2c-ids.h and consume from
+> hid-quirks.c?
 
-I'm adding this based on the fact that this is an iforce-based
-device and that the Windows driver for the R440 works for the
-Logitech WingMan Formula Force after replacing the device/vendor
-IDs (I got the vendor/device IDs from there as well).
+I can put it in a shared header file, however elan-i2c and hid-quirks
+would need to be updated in the same change to prevent a breakage, but
+that would seem to violate a concern Benjamin brought up in v4 given
+that elan-i2c is maintained in your input tree, and hid-quirks is
+maintained in his hid tree.
 
-Please don't add this patch if adding devices based on that is
-not ok.
-
-This patch is a resend of the patch I sent back in November,
-which apparently went unnoticed.
-=2D--
- drivers/input/joystick/iforce/iforce-main.c | 1 +
- drivers/input/joystick/iforce/iforce-usb.c  | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/j=
-oystick/iforce/iforce-main.c
-index 55f5b7bb4cac..e000e7d5b4c1 100644
-=2D-- a/drivers/input/joystick/iforce/iforce-main.c
-+++ b/drivers/input/joystick/iforce/iforce-main.c
-@@ -55,6 +55,7 @@ static struct iforce_device iforce_device[] =3D {
- 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_wheel,=
- abs_wheel, ff_iforce }, //?
- 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_whee=
-l, abs_wheel, ff_iforce }, //?
- 	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforc=
-e },
-+	{ 0x06a3, 0xff04, "Saitek R440 Force Wheel",			btn_wheel, abs_wheel, ff_=
-iforce }, //?
- 	{ 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",	btn_wheel, abs=
-_wheel, ff_iforce }, //?
- 	{ 0x06f8, 0x0001, "Guillemot Jet Leader Force Feedback",	btn_joystick, a=
-bs_joystick_rudder, ff_iforce },
- 	{ 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",	btn_wheel, ab=
-s_wheel, ff_iforce }, //?
-diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/jo=
-ystick/iforce/iforce-usb.c
-index f1569ae8381b..afbcd1a522d4 100644
-=2D-- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -202,6 +202,7 @@ static const struct usb_device_id iforce_usb_ids[] =3D=
- {
- 	{ USB_DEVICE(0x05ef, 0x8888) },		/* AVB Top Shot FFB Racing Wheel */
- 	{ USB_DEVICE(0x061c, 0xc0a4) },         /* ACT LABS Force RS */
- 	{ USB_DEVICE(0x061c, 0xc084) },         /* ACT LABS Force RS */
-+	{ USB_DEVICE(0x06a3, 0xff04) },		/* Saitek R440 Force Wheel */
- 	{ USB_DEVICE(0x06f8, 0x0001) },		/* Guillemot Race Leader Force Feedback=
- */
- 	{ USB_DEVICE(0x06f8, 0x0003) },		/* Guillemot Jet Leader Force Feedback =
-*/
- 	{ USB_DEVICE(0x06f8, 0x0004) },		/* Guillemot Force Feedback Racing Whee=
-l */
-=2D-
-2.22.0
+Are you ok with the elan-i2c changes going through Benjamin's hid tree?

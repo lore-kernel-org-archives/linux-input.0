@@ -1,58 +1,100 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 2/3] HID: quirks: Refactor ELAN 400 and 401 handling
-Date: Tue, 11 Jun 2019 17:35:07 -0700
-Message-ID: <20190612003507.GG143729@dtor-ws>
-References: <20190606161055.47089-1-jeffrey.l.hugo@gmail.com>
- <20190606161322.47192-1-jeffrey.l.hugo@gmail.com>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [RESEND] input: keyboard: imx: make sure keyboard can always
+ wake up system
+Date: Tue, 11 Jun 2019 17:51:20 -0700
+Message-ID: <20190612005120.GI143729@dtor-ws>
+References: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190606161322.47192-1-jeffrey.l.hugo@gmail.com>
+In-Reply-To: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, bjorn.andersson@linaro.org, lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, agross@kernel.org, david.brown@linaro.org, hdegoede@redhat.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Anson Huang <anson.huang@nxp.com>
+Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jun 06, 2019 at 09:13:22AM -0700, Jeffrey Hugo wrote:
-> There needs to be coordination between hid-quirks and the elan_i2c driver
-> about which devices are handled by what drivers.  Currently, both use
-> whitelists, which results in valid devices being unhandled by default,
-> when they should not be rejected by hid-quirks.  This is quickly becoming
-> an issue.
+On Thu, Apr 04, 2019 at 01:40:16AM +0000, Anson Huang wrote:
+> There are several scenarios that keyboard can NOT wake up system
+> from suspend, e.g., if a keyboard is depressed between system
+> device suspend phase and device noirq suspend phase, the keyboard
+> ISR will be called and both keyboard depress and release interrupts
+> will be disabled, then keyboard will no longer be able to wake up
+> system. Another scenario would be, if a keyboard is kept depressed,
+> and then system goes into suspend, the expected behavior would be
+> when keyboard is released, system will be waked up, but current
+> implementation can NOT achieve that, because both depress and release
+> interrupts are disabled in ISR, and the event check is still in
+> progress.
 > 
-> Since elan_i2c has a maintained whitelist of what devices it will handle,
-> use that to implement a blacklist in hid-quirks so that only the devices
-> that need to be handled by elan_i2c get rejected by hid-quirks, and
-> everything else is handled by default.  The downside is the whitelist and
-> blacklist need to be kept in sync.
+> To fix these issues, need to make sure keyboard's depress or release
+> interrupt is enabled after noirq device suspend phase, this patch
+> moves the suspend/resume callback to noirq suspend/resume phase, and
+> enable the corresponding interrupt according to current keyboard status.
 > 
-> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+
+Applied, thank you.
+
 > ---
->  drivers/hid/hid-quirks.c | 78 ++++++++++++++++++++++++++++++++++------
->  1 file changed, 67 insertions(+), 11 deletions(-)
+>  drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
+>  1 file changed, 14 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> index e5ca6fe2ca57..edebd0700e3d 100644
-> --- a/drivers/hid/hid-quirks.c
-> +++ b/drivers/hid/hid-quirks.c
-> @@ -912,8 +912,66 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
->  	{ }
->  };
+> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+> index cf08f4a..97500a2 100644
+> --- a/drivers/input/keyboard/imx_keypad.c
+> +++ b/drivers/input/keyboard/imx_keypad.c
+> @@ -524,11 +524,12 @@ static int imx_keypad_probe(struct platform_device *pdev)
+>  	return 0;
+>  }
 >  
-> +/* 
-> + * List of device names that elan_i2c is handling and HID should ignore.  Must
-> + * be kept in sync with elan_i2c
-> + */
-> +static const char *hid_elan_i2c_ignore[] = {
-
-If this is a copy of elan whitelist, then, if we do not want to bother
-with sharing it in object form (as a elan-i2c-ids module), can we at
-least move it into include/linux/input/elan-i2c-ids.h and consume from
-hid-quirks.c?
-
-Thanks.
+> -static int __maybe_unused imx_kbd_suspend(struct device *dev)
+> +static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
+>  {
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct imx_keypad *kbd = platform_get_drvdata(pdev);
+>  	struct input_dev *input_dev = kbd->input_dev;
+> +	unsigned short reg_val = readw(kbd->mmio_base + KPSR);
+>  
+>  	/* imx kbd can wake up system even clock is disabled */
+>  	mutex_lock(&input_dev->mutex);
+> @@ -538,13 +539,20 @@ static int __maybe_unused imx_kbd_suspend(struct device *dev)
+>  
+>  	mutex_unlock(&input_dev->mutex);
+>  
+> -	if (device_may_wakeup(&pdev->dev))
+> +	if (device_may_wakeup(&pdev->dev)) {
+> +		if (reg_val & KBD_STAT_KPKD)
+> +			reg_val |= KBD_STAT_KRIE;
+> +		if (reg_val & KBD_STAT_KPKR)
+> +			reg_val |= KBD_STAT_KDIE;
+> +		writew(reg_val, kbd->mmio_base + KPSR);
+> +
+>  		enable_irq_wake(kbd->irq);
+> +	}
+>  
+>  	return 0;
+>  }
+>  
+> -static int __maybe_unused imx_kbd_resume(struct device *dev)
+> +static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
+>  {
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct imx_keypad *kbd = platform_get_drvdata(pdev);
+> @@ -568,7 +576,9 @@ static int __maybe_unused imx_kbd_resume(struct device *dev)
+>  	return ret;
+>  }
+>  
+> -static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
+> +static const struct dev_pm_ops imx_kbd_pm_ops = {
+> +	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(imx_kbd_noirq_suspend, imx_kbd_noirq_resume)
+> +};
+>  
+>  static struct platform_driver imx_keypad_driver = {
+>  	.driver		= {
+> -- 
+> 2.7.4
+> 
 
 -- 
 Dmitry

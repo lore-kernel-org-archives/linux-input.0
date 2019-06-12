@@ -1,37 +1,70 @@
-From: Christian Oder <me@myself5.de>
-Subject: [PATCH] platform/x86: touchscreen_dmi: Update Hi10 Air filter
-Date: Wed, 12 Jun 2019 14:40:53 +0200
-Message-ID: <20190612124053.119182-1-me@myself5.de>
+From: Tim Schumacher <timschumi@gmx.de>
+Subject: [PATCH resend] Input: iforce - Add the Saitek R440 Force Wheel
+Date: Wed, 12 Jun 2019 16:09:03 +0200
+Message-ID: <20190612140903.20058-1-timschumi@gmx.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: Christian Oder <me@myself5.de>, Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, timschumi@gmx.de
 List-Id: linux-input@vger.kernel.org
 
-Turns out the Hi10 Air is built by multiple companies so using Hampoo
-as a filter is not enough to cover all variants.
+Signed-off-by: Tim Schumacher <timschumi@gmx.de>
+=2D--
+Please note that I do NOT own this device.
 
-This has been verified as working on the Hampoo and Morshow version.
+I'm adding this based on the fact that this is an iforce-based
+device and that the Windows driver for the R440 works for the
+Logitech WingMan Formula Force after replacing the device/vendor
+IDs (I got the vendor/device IDs from there as well).
 
-Signed-off-by: Christian Oder <me@myself5.de>
----
- drivers/platform/x86/touchscreen_dmi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Please don't add this patch if adding devices based on that is
+not ok.
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index b662cb2d7cd5..61e7c4987d0d 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -597,7 +597,8 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
- 		/* Chuwi Hi10 Air */
- 		.driver_data = (void *)&chuwi_hi10_air_data,
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
-+			DMI_MATCH(DMI_SYS_VENDOR, "CHUWI INNOVATION AND TECHNOLOGY(SHENZHEN)CO.LTD"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
- 			DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
- 		},
- 	},
--- 
-2.21.0
+This patch is a resend of the patch I sent back in November,
+which apparently went unnoticed.
+=2D--
+ drivers/input/joystick/iforce/iforce-main.c | 1 +
+ drivers/input/joystick/iforce/iforce-usb.c  | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/j=
+oystick/iforce/iforce-main.c
+index 55f5b7bb4cac..e000e7d5b4c1 100644
+=2D-- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -55,6 +55,7 @@ static struct iforce_device iforce_device[] =3D {
+ 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_wheel,=
+ abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_whee=
+l, abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforc=
+e },
++	{ 0x06a3, 0xff04, "Saitek R440 Force Wheel",			btn_wheel, abs_wheel, ff_=
+iforce }, //?
+ 	{ 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",	btn_wheel, abs=
+_wheel, ff_iforce }, //?
+ 	{ 0x06f8, 0x0001, "Guillemot Jet Leader Force Feedback",	btn_joystick, a=
+bs_joystick_rudder, ff_iforce },
+ 	{ 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",	btn_wheel, ab=
+s_wheel, ff_iforce }, //?
+diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/jo=
+ystick/iforce/iforce-usb.c
+index f1569ae8381b..afbcd1a522d4 100644
+=2D-- a/drivers/input/joystick/iforce/iforce-usb.c
++++ b/drivers/input/joystick/iforce/iforce-usb.c
+@@ -202,6 +202,7 @@ static const struct usb_device_id iforce_usb_ids[] =3D=
+ {
+ 	{ USB_DEVICE(0x05ef, 0x8888) },		/* AVB Top Shot FFB Racing Wheel */
+ 	{ USB_DEVICE(0x061c, 0xc0a4) },         /* ACT LABS Force RS */
+ 	{ USB_DEVICE(0x061c, 0xc084) },         /* ACT LABS Force RS */
++	{ USB_DEVICE(0x06a3, 0xff04) },		/* Saitek R440 Force Wheel */
+ 	{ USB_DEVICE(0x06f8, 0x0001) },		/* Guillemot Race Leader Force Feedback=
+ */
+ 	{ USB_DEVICE(0x06f8, 0x0003) },		/* Guillemot Jet Leader Force Feedback =
+*/
+ 	{ USB_DEVICE(0x06f8, 0x0004) },		/* Guillemot Force Feedback Racing Whee=
+l */
+=2D-
+2.22.0

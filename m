@@ -1,85 +1,75 @@
 From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Subject: [PATCH v6 2/5] HID: quirks: Refactor ELAN 400 and 401 handling
-Date: Wed, 12 Jun 2019 14:27:21 -0700
-Message-ID: <20190612212721.32195-1-jeffrey.l.hugo@gmail.com>
-References: <20190612212604.32089-1-jeffrey.l.hugo@gmail.com>
+Subject: [PATCH v6 0/5] Basic DT support for Lenovo Miix 630
+Date: Wed, 12 Jun 2019 14:26:04 -0700
+Message-ID: <20190612212604.32089-1-jeffrey.l.hugo@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190612212604.32089-1-jeffrey.l.hugo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, jikos@kernel.org
-Cc: hdegoede@redhat.com, bjorn.andersson@linaro.org, agross@kernel.org, lee.jones@linaro.org, xnox@ubuntu.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Cc: benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, jikos@kernel.org, hdegoede@redhat.com, bjorn.andersson@linaro.org, agross@kernel.org, lee.jones@linaro.org, xnox@ubuntu.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-There needs to be coordination between hid-quirks and the elan_i2c driver
-about which devices are handled by what drivers.  Currently, both use
-whitelists, which results in valid devices being unhandled by default,
-when they should not be rejected by hid-quirks.  This is quickly becoming
-an issue.
+The Lenovo Miix 630 is one of three ARM based (specifically Qualcomm
+MSM8998) laptops that comes with Windows, and seems to have a dedicated
+following of folks intrested to get Linux up and running on it.
 
-Since elan_i2c has a maintained whitelist of what devices it will handle,
-which is now in a header file that hid-quirks can access, use that to
-implement a blacklist in hid-quirks so that only the devices that need to
-be handled by elan_i2c get rejected by hid-quirks, and everything else is
-handled by default.
+This series adds support for the basic functionality this is validated
+towork using devicetree.  Although the laptops do feed ACPI to Windows,
+the existing MSM8998 support in mainline is DT based, so DT provides a
+quick path to functionality while ACPI support is investigated.
 
-Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
----
- drivers/hid/hid-quirks.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+The three devices are very similar, but do have differences in the set
+of peripherals supported, so the idea is that the vast majority of the
+support for all three can live in a common include, which should reduce
+overall duplication.  Adding support for the other two devices is tacked
+onto the end of the series.
 
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index e5ca6fe2ca57..bd81bb090222 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -16,6 +16,7 @@
- #include <linux/export.h>
- #include <linux/slab.h>
- #include <linux/mutex.h>
-+#include <linux/input/elan-i2c-ids.h>
- 
- #include "hid-ids.h"
- 
-@@ -914,6 +915,8 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
- 
- bool hid_ignore(struct hid_device *hdev)
- {
-+	int i;
-+
- 	if (hdev->quirks & HID_QUIRK_NO_IGNORE)
- 		return false;
- 	if (hdev->quirks & HID_QUIRK_IGNORE)
-@@ -978,18 +981,20 @@ bool hid_ignore(struct hid_device *hdev)
- 		break;
- 	case USB_VENDOR_ID_ELAN:
- 		/*
--		 * Many Elan devices have a product id of 0x0401 and are handled
--		 * by the elan_i2c input driver. But the ACPI HID ELAN0800 dev
--		 * is not (and cannot be) handled by that driver ->
--		 * Ignore all 0x0401 devs except for the ELAN0800 dev.
-+		 * Blacklist of everything that gets handled by the elan_i2c
-+		 * input driver.  This avoids disabling valid touchpads and
-+		 * other ELAN devices.
- 		 */
--		if (hdev->product == 0x0401 &&
--		    strncmp(hdev->name, "ELAN0800", 8) != 0)
--			return true;
--		/* Same with product id 0x0400 */
--		if (hdev->product == 0x0400 &&
--		    strncmp(hdev->name, "QTEC0001", 8) != 0)
--			return true;
-+		if ((hdev->product == 0x0401 || hdev->product == 0x0400)) {
-+			for (i = 0; strlen(elan_acpi_id[i].id); ++i)
-+				if (!strncmp(hdev->name, elan_acpi_id[i].id,
-+					     strlen(elan_acpi_id[i].id)))
-+					return true;
-+			for (i = 0; strlen(elan_of_match[i].name); ++i)
-+				if (!strncmp(hdev->name, elan_of_match[i].name,
-+					     strlen(elan_of_match[i].name)))
-+					return true;
-+		}
- 		break;
- 	}
- 
+The bleeding edge work for these laptops and work in progress can be
+found at https://github.com/aarch64-laptops/prebuilt
+
+v6:
+-Export the elan_i2c DT and ACPI ids so that hid-quirks can use them
+-Use the elan_i2c ids within hid-quirks to reduce duplication
+-Add DTs for the Asus and HP devices since the DT seems finalized, and
+folks have been asking
+
+v5:
+-Split out elan_i2c changes into their own patch
+-Use a static list of strings to match
+-Fixed typo of "whitelist"
+-Dropped incorrect thermal zones
+-Dropped tags from Bjorn and Lee since the functional should be
+identical, but the code is structured different
+
+v4:
+-Changed the hid-quirks ELAN handling around per Benjamin Tissoires
+-Dropped new DT binding
+
+v3:
+-Changed "clam" to "clamshell"
+-Defined a dt binding for the combo Elan keyboard + touchpad device
+-Adjusted the HID quirk to be correct for dt boot
+-Removed extranious comment in board dts
+-Fixed board level compatible
+
+v2:
+-Changed "cls" to "clam" since feedback indicated "cls" is too opaque,
+but
+"clamshell" is a mouthfull.  "clam" seems to be a happy medium.
+
+Jeffrey Hugo (5):
+  Input: elan_i2c: Export the device id whitelist
+  HID: quirks: Refactor ELAN 400 and 401 handling
+  arm64: dts: qcom: Add Lenovo Miix 630
+  arm64: dts: qcom: Add HP Envy x2
+  arm64: dts: qcom: Add Asus NovaGo TP370QL
+
+ arch/arm64/boot/dts/qcom/Makefile             |   1 +
+ .../boot/dts/qcom/msm8998-clamshell.dtsi      | 240 ++++++++++++++++++
+ .../boot/dts/qcom/msm8998-lenovo-miix-630.dts |  30 +++
+ drivers/hid/hid-quirks.c                      |  78 +++++-
+ drivers/input/mouse/elan_i2c_core.c           |   4 +
+ 5 files changed, 342 insertions(+), 11 deletions(-)
+ create mode 100644 arch/arm64/boot/dts/qcom/msm8998-clamshell.dtsi
+ create mode 100644 arch/arm64/boot/dts/qcom/msm8998-lenovo-miix-630.dts
+
 -- 
 2.17.1

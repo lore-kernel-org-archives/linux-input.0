@@ -1,171 +1,114 @@
-From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Subject: [PATCH v3 1/7] nvmem: core: add nvmem_device_find
-Date: Thu, 13 Jun 2019 19:06:27 +0200
-Message-ID: <20190613170636.6647-2-tbogendoerfer@suse.de>
-References: <20190613170636.6647-1-tbogendoerfer@suse.de>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20190613170636.6647-1-tbogendoerfer@suse.de>
-Sender: netdev-owner@vger.kernel.org
-To: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
+From: Jeffrey Hugo <jhugo@codeaurora.org>
+Subject: Re: Re: [PATCH v6 2/5] HID: quirks: Refactor ELAN 400 and 401
+ handling
+Date: Wed, 12 Jun 2019 16:20:42 -0600
+Message-ID: <84e7d83f-e133-0281-612a-94d8c4319040@codeaurora.org>
+References: <20190612212604.32089-1-jeffrey.l.hugo@gmail.com>
+ <20190612212721.32195-1-jeffrey.l.hugo@gmail.com>
+ <20190612214636.GA40779@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190612214636.GA40779@dtor-ws>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, hdegoede@redhat.com, bjorn.andersson@linaro.org, agross@kernel.org, lee.jones@linaro.org, xnox@ubuntu.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-nvmem_device_find provides a way to search for nvmem devices with
-the help of a match function simlair to bus_find_device.
+On 6/12/2019 3:46 PM, Dmitry Torokhov wrote:
+> On Wed, Jun 12, 2019 at 02:27:21PM -0700, Jeffrey Hugo wrote:
+>> There needs to be coordination between hid-quirks and the elan_i2c driver
+>> about which devices are handled by what drivers.  Currently, both use
+>> whitelists, which results in valid devices being unhandled by default,
+>> when they should not be rejected by hid-quirks.  This is quickly becoming
+>> an issue.
+>>
+>> Since elan_i2c has a maintained whitelist of what devices it will handle,
+>> which is now in a header file that hid-quirks can access, use that to
+>> implement a blacklist in hid-quirks so that only the devices that need to
+>> be handled by elan_i2c get rejected by hid-quirks, and everything else is
+>> handled by default.
+>>
+>> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+>> ---
+>>   drivers/hid/hid-quirks.c | 27 ++++++++++++++++-----------
+>>   1 file changed, 16 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+>> index e5ca6fe2ca57..bd81bb090222 100644
+>> --- a/drivers/hid/hid-quirks.c
+>> +++ b/drivers/hid/hid-quirks.c
+>> @@ -16,6 +16,7 @@
+>>   #include <linux/export.h>
+>>   #include <linux/slab.h>
+>>   #include <linux/mutex.h>
+>> +#include <linux/input/elan-i2c-ids.h>
+>>   
+>>   #include "hid-ids.h"
+>>   
+>> @@ -914,6 +915,8 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+>>   
+>>   bool hid_ignore(struct hid_device *hdev)
+>>   {
+>> +	int i;
+>> +
+>>   	if (hdev->quirks & HID_QUIRK_NO_IGNORE)
+>>   		return false;
+>>   	if (hdev->quirks & HID_QUIRK_IGNORE)
+>> @@ -978,18 +981,20 @@ bool hid_ignore(struct hid_device *hdev)
+>>   		break;
+>>   	case USB_VENDOR_ID_ELAN:
+>>   		/*
+>> -		 * Many Elan devices have a product id of 0x0401 and are handled
+>> -		 * by the elan_i2c input driver. But the ACPI HID ELAN0800 dev
+>> -		 * is not (and cannot be) handled by that driver ->
+>> -		 * Ignore all 0x0401 devs except for the ELAN0800 dev.
+>> +		 * Blacklist of everything that gets handled by the elan_i2c
+>> +		 * input driver.  This avoids disabling valid touchpads and
+>> +		 * other ELAN devices.
+>>   		 */
+>> -		if (hdev->product == 0x0401 &&
+>> -		    strncmp(hdev->name, "ELAN0800", 8) != 0)
+>> -			return true;
+>> -		/* Same with product id 0x0400 */
+>> -		if (hdev->product == 0x0400 &&
+>> -		    strncmp(hdev->name, "QTEC0001", 8) != 0)
+>> -			return true;
+>> +		if ((hdev->product == 0x0401 || hdev->product == 0x0400)) {
+>> +			for (i = 0; strlen(elan_acpi_id[i].id); ++i)
+>> +				if (!strncmp(hdev->name, elan_acpi_id[i].id,
+>> +					     strlen(elan_acpi_id[i].id)))
+>> +					return true;
+>> +			for (i = 0; strlen(elan_of_match[i].name); ++i)
+>> +				if (!strncmp(hdev->name, elan_of_match[i].name,
+>> +					     strlen(elan_of_match[i].name)))
+>> +					return true;
+> 
+> Do we really need to blacklist the OF case here? I thought that in ACPI
+> case we have clashes as HID gets matched by elan_i2c and CID is matched
+> by i2c-hid, but I do not believe we'll run into the same situation on OF
+> systems.
 
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
----
- drivers/nvmem/core.c           | 62 ++++++++++++++++++++++--------------------
- include/linux/nvmem-consumer.h |  9 ++++++
- 2 files changed, 41 insertions(+), 30 deletions(-)
+I think its the safer approach.
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index c7892c3da91f..29a1c937b290 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -76,36 +76,18 @@ static struct bus_type nvmem_bus_type = {
- 	.name		= "nvmem",
- };
- 
-+#if IS_ENABLED(CONFIG_OF)
- static int of_nvmem_match(struct device *dev, void *nvmem_np)
- {
- 	return dev->of_node == nvmem_np;
- }
-+#endif
- 
--static struct nvmem_device *of_nvmem_find(struct device_node *nvmem_np)
-+static int nvmem_match_name(struct device *dev, void *data)
- {
--	struct device *d;
--
--	if (!nvmem_np)
--		return NULL;
--
--	d = bus_find_device(&nvmem_bus_type, NULL, nvmem_np, of_nvmem_match);
--
--	if (!d)
--		return NULL;
-+	const char *name = data;
- 
--	return to_nvmem_device(d);
--}
--
--static struct nvmem_device *nvmem_find(const char *name)
--{
--	struct device *d;
--
--	d = bus_find_device_by_name(&nvmem_bus_type, NULL, name);
--
--	if (!d)
--		return NULL;
--
--	return to_nvmem_device(d);
-+	return sysfs_streq(name, dev_name(dev));
- }
- 
- static void nvmem_cell_drop(struct nvmem_cell *cell)
-@@ -537,13 +519,16 @@ int devm_nvmem_unregister(struct device *dev, struct nvmem_device *nvmem)
- }
- EXPORT_SYMBOL(devm_nvmem_unregister);
- 
--static struct nvmem_device *__nvmem_device_get(struct device_node *np,
--					       const char *nvmem_name)
-+static struct nvmem_device *__nvmem_device_get(void *data,
-+				int (*match)(struct device *dev, void *data))
- {
- 	struct nvmem_device *nvmem = NULL;
-+	struct device *dev;
- 
- 	mutex_lock(&nvmem_mutex);
--	nvmem = np ? of_nvmem_find(np) : nvmem_find(nvmem_name);
-+	dev = bus_find_device(&nvmem_bus_type, NULL, data, match);
-+	if (dev)
-+		nvmem = to_nvmem_device(dev);
- 	mutex_unlock(&nvmem_mutex);
- 	if (!nvmem)
- 		return ERR_PTR(-EPROBE_DEFER);
-@@ -592,7 +577,7 @@ struct nvmem_device *of_nvmem_device_get(struct device_node *np, const char *id)
- 	if (!nvmem_np)
- 		return ERR_PTR(-ENOENT);
- 
--	return __nvmem_device_get(nvmem_np, NULL);
-+	return __nvmem_device_get(nvmem_np, of_nvmem_match);
- }
- EXPORT_SYMBOL_GPL(of_nvmem_device_get);
- #endif
-@@ -618,10 +603,26 @@ struct nvmem_device *nvmem_device_get(struct device *dev, const char *dev_name)
- 
- 	}
- 
--	return __nvmem_device_get(NULL, dev_name);
-+	return __nvmem_device_get((void *)dev_name, nvmem_match_name);
- }
- EXPORT_SYMBOL_GPL(nvmem_device_get);
- 
-+/**
-+ * nvmem_device_find() - Find nvmem device with matching function
-+ *
-+ * @data: Data to pass to match function
-+ * @match: Callback function to check device
-+ *
-+ * Return: ERR_PTR() on error or a valid pointer to a struct nvmem_device
-+ * on success.
-+ */
-+struct nvmem_device *nvmem_device_find(void *data,
-+				int (*match)(struct device *dev, void *data))
-+{
-+	return __nvmem_device_get(data, match);
-+}
-+EXPORT_SYMBOL_GPL(nvmem_device_find);
-+
- static int devm_nvmem_device_match(struct device *dev, void *res, void *data)
- {
- 	struct nvmem_device **nvmem = res;
-@@ -715,7 +716,8 @@ nvmem_cell_get_from_lookup(struct device *dev, const char *con_id)
- 		if ((strcmp(lookup->dev_id, dev_id) == 0) &&
- 		    (strcmp(lookup->con_id, con_id) == 0)) {
- 			/* This is the right entry. */
--			nvmem = __nvmem_device_get(NULL, lookup->nvmem_name);
-+			nvmem = __nvmem_device_get((void *)lookup->nvmem_name,
-+						   nvmem_match_name);
- 			if (IS_ERR(nvmem)) {
- 				/* Provider may not be registered yet. */
- 				cell = ERR_CAST(nvmem);
-@@ -785,7 +787,7 @@ struct nvmem_cell *of_nvmem_cell_get(struct device_node *np, const char *id)
- 	if (!nvmem_np)
- 		return ERR_PTR(-EINVAL);
- 
--	nvmem = __nvmem_device_get(nvmem_np, NULL);
-+	nvmem = __nvmem_device_get(nvmem_np, of_nvmem_match);
- 	of_node_put(nvmem_np);
- 	if (IS_ERR(nvmem))
- 		return ERR_CAST(nvmem);
-diff --git a/include/linux/nvmem-consumer.h b/include/linux/nvmem-consumer.h
-index 8f8be5b00060..a8249b2dcaf4 100644
---- a/include/linux/nvmem-consumer.h
-+++ b/include/linux/nvmem-consumer.h
-@@ -89,6 +89,9 @@ void nvmem_del_cell_lookups(struct nvmem_cell_lookup *entries,
- int nvmem_register_notifier(struct notifier_block *nb);
- int nvmem_unregister_notifier(struct notifier_block *nb);
- 
-+struct nvmem_device *nvmem_device_find(void *data,
-+				int (*match)(struct device *dev, void *data));
-+
- #else
- 
- static inline struct nvmem_cell *nvmem_cell_get(struct device *dev,
-@@ -204,6 +207,12 @@ static inline int nvmem_unregister_notifier(struct notifier_block *nb)
- 	return -EOPNOTSUPP;
- }
- 
-+static inline struct nvmem_device *nvmem_device_find(void *data,
-+				int (*match)(struct device *dev, void *data))
-+{
-+	return NULL;
-+}
-+
- #endif /* CONFIG_NVMEM */
- 
- #if IS_ENABLED(CONFIG_NVMEM) && IS_ENABLED(CONFIG_OF)
--- 
-2.13.7
+On an OF system, such as patch 3 in the series, the "hid-over-i2c" will 
+end up running through this (kind of the whole reason why this series 
+exists).  The vendor and product ids will still match, so we'll end up 
+going through the lists to see if the hdev->name (the compatible string) 
+will match the blacklist.  "hid-over-i2c" won't match the blacklist, but 
+if there is a more specific compatible, it might.
+
+In that case, not matching OF would work, however how it could break 
+today is if both "hid-over-i2c" and "elan,ekth3000" were listed for the 
+same device, and elan_i2c was not compiled.  In that case, if we skip 
+the OF part of the black list, hid-quirks will not reject the device, 
+and you'll probably have some odd behavior instead of the obvious "the 
+device doesn't work because the correct driver isn't present" behavior.
+
+While that scenario might be far fetched since having both 
+"hid-over-i2c" and "elan,ekth3000" probably violates the OF bindings, 
+its still safer to include the OF case in the blacklist against future 
+scenarios.

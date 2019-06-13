@@ -1,50 +1,68 @@
-From: Nathan Huckleberry <nhuck@google.com>
-Subject: [PATCH] Input: atmel_mxt_ts - fix -Wunused-const-variable
-Date: Wed, 12 Jun 2019 16:58:03 -0700
-Message-ID: <20190612235803.9290-1-nhuck@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Subject: [PATCH v3 0/7] Use MFD framework for SGI IOC3 drivers
+Date: Thu, 13 Jun 2019 19:06:26 +0200
+Message-ID: <20190613170636.6647-1-tbogendoerfer@suse.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: nick@shmanahar.org, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nathan Huckleberry <nhuck@google.com>, clang-built-linux@googlegroups.com
+To: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Clang produces the following warning
+SGI IOC3 ASIC includes support for ethernet, PS2 keyboard/mouse,
+NIC (number in a can), GPIO and a byte  bus. By attaching a
+SuperIO chip to it, it also supports serial lines and a parallel
+port. The chip is used on a variety of SGI systems with different
+configurations. This patchset moves code out of the network driver,
+which doesn't belong there, into its new place a MFD driver and
+specific platform drivers for the different subfunctions.
 
-drivers/input/touchscreen/atmel_mxt_ts.c:259:42: warning: unused
-variable 'mxt_video_fops' [-Wunused-const-variable]
-static const struct v4l2_file_operations mxt_video_fops = {
+Changes in v3:
+ - use 1-wire subsystem for handling proms
+ - pci-xtalk driver uses prom information to create PCI subsystem
+   ids for use in MFD driver
+ - changed MFD driver to only use static declared mfd_cells
+ - added IP30 system board setup to MFD driver
+ - mac address is now read from ioc3-eth driver with nvmem framework 
 
-Since mxt_video_fops is only used inside an ifdef. It should
-be moved inside the ifdef.
+Changes in v2:
+ - fixed issue in ioc3kbd.c reported by Dmitry Torokhov
+ - merged IP27 RTC removal and 8250 serial driver addition into
+   main MFD patch to keep patches bisectable
 
-Cc: clang-built-linux@googlegroups.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/527
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 2 ++
- 1 file changed, 2 insertions(+)
+Thomas Bogendoerfer (7):
+  nvmem: core: add nvmem_device_find
+  MIPS: PCI: refactor ioc3 special handling
+  MIPS: PCI: use information from 1-wire PROM for IOC3 detection
+  MIPS: SGI-IP27: remove ioc3 ethernet init
+  mfd: ioc3: Add driver for SGI IOC3 chip
+  MIPS: SGI-IP27: fix readb/writeb addressing
+  Input: add IOC3 serio driver
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 19378f200c63..48411c83320b 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -256,6 +256,7 @@ enum v4l_dbg_inputs {
- 	MXT_V4L_INPUT_MAX,
- };
- 
-+#ifdef CONFIG_TOUCHSCREEN_ATMEL_MXT_T37
- static const struct v4l2_file_operations mxt_video_fops = {
- 	.owner = THIS_MODULE,
- 	.open = v4l2_fh_open,
-@@ -265,6 +266,7 @@ static const struct v4l2_file_operations mxt_video_fops = {
- 	.mmap = vb2_fop_mmap,
- 	.poll = vb2_fop_poll,
- };
-+#endif
- 
- enum mxt_suspend_mode {
- 	MXT_SUSPEND_DEEP_SLEEP	= 0,
+ arch/mips/include/asm/mach-ip27/mangle-port.h |    4 +-
+ arch/mips/include/asm/pci/bridge.h            |    1 +
+ arch/mips/include/asm/sn/ioc3.h               |  356 ++---
+ arch/mips/pci/pci-xtalk-bridge.c              |  296 ++--
+ arch/mips/sgi-ip27/ip27-console.c             |    5 +-
+ arch/mips/sgi-ip27/ip27-init.c                |   13 -
+ arch/mips/sgi-ip27/ip27-timer.c               |   20 -
+ arch/mips/sgi-ip27/ip27-xtalk.c               |   38 +-
+ drivers/input/serio/Kconfig                   |   10 +
+ drivers/input/serio/Makefile                  |    1 +
+ drivers/input/serio/ioc3kbd.c                 |  158 ++
+ drivers/mfd/Kconfig                           |   13 +
+ drivers/mfd/Makefile                          |    1 +
+ drivers/mfd/ioc3.c                            |  683 +++++++++
+ drivers/net/ethernet/sgi/Kconfig              |    4 +-
+ drivers/net/ethernet/sgi/ioc3-eth.c           | 1932 ++++++++++---------------
+ drivers/nvmem/core.c                          |   62 +-
+ drivers/rtc/rtc-m48t35.c                      |   11 +
+ drivers/tty/serial/8250/8250_ioc3.c           |   98 ++
+ drivers/tty/serial/8250/Kconfig               |   11 +
+ drivers/tty/serial/8250/Makefile              |    1 +
+ include/linux/nvmem-consumer.h                |    9 +
+ 22 files changed, 2152 insertions(+), 1575 deletions(-)
+ create mode 100644 drivers/input/serio/ioc3kbd.c
+ create mode 100644 drivers/mfd/ioc3.c
+ create mode 100644 drivers/tty/serial/8250/8250_ioc3.c
+
 -- 
-2.22.0.rc2.383.gf4fbbf30c2-goog
+2.13.7

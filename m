@@ -1,140 +1,58 @@
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@bootlin.com>
-Subject: [PATCH v1] Input: rotary-encoder - Add gpio as push button
-Date: Fri, 14 Jun 2019 15:36:51 +0200
-Message-ID: <20190614133651.28396-1-mylene.josserand@bootlin.com>
+From: Rob Clark <robdclark@gmail.com>
+Subject: Re: [PATCH v6 3/5] arm64: dts: qcom: Add Lenovo Miix 630
+Date: Fri, 14 Jun 2019 06:44:31 -0700
+Message-ID: <CAF6AEGvAkCqNXg-NwxfpYJteWs6hfBnOb0yJN6vQOnmMck-HDQ@mail.gmail.com>
+References: <20190612212604.32089-1-jeffrey.l.hugo@gmail.com> <20190612212748.32246-1-jeffrey.l.hugo@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190612212748.32246-1-jeffrey.l.hugo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, mylene.josserand@bootlin.com, thomas.petazzoni@bootlin.com
+To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, agross@kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jikos@kernel.org, Hans de Goede <hdegoede@redhat.com>, Lee Jones <lee.jones@linaro.org>, xnox@ubuntu.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Add the support of a gpio that can be defined as a push button.
-Thanks to that, it is possible to emit a keycode in case of a
-"push" event, if the rotary supports that.
+On Thu, Jun 13, 2019 at 10:17 AM Jeffrey Hugo <jeffrey.l.hugo@gmail.com> wrote:
+>
+> This adds the initial DT for the Lenovo Miix 630 laptop.  Supported
+> functionality includes USB (host), microSD-card, keyboard, and trackpad.
+>
+> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> ---
 
-The keycode to emit is defined using "linux,code" property
-(such as in gpio-keys).
+[snip]
 
-Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
----
- .../devicetree/bindings/input/rotary-encoder.txt   |  5 +++
- drivers/input/misc/rotary_encoder.c                | 50 ++++++++++++++++++++++
- 2 files changed, 55 insertions(+)
+> diff --git a/arch/arm64/boot/dts/qcom/msm8998-lenovo-miix-630.dts b/arch/arm64/boot/dts/qcom/msm8998-lenovo-miix-630.dts
+> new file mode 100644
+> index 000000000000..407c6a32911c
+> --- /dev/null
+> +++ b/arch/arm64/boot/dts/qcom/msm8998-lenovo-miix-630.dts
+> @@ -0,0 +1,30 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/* Copyright (c) 2019, Jeffrey Hugo. All rights reserved. */
+> +
+> +/dts-v1/;
+> +
+> +#include "msm8998-clamshell.dtsi"
+> +
+> +/ {
+> +       model = "Lenovo Miix 630";
+> +       compatible = "lenovo,miix-630", "qcom,msm8998";
+> +};
 
-diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-index a644408b33b8..1cfce5d0b5c4 100644
---- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-+++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-@@ -22,6 +22,9 @@ Optional properties:
- - wakeup-source: Boolean, rotary encoder can wake up the system.
- - rotary-encoder,encoding: String, the method used to encode steps.
-   Supported are "gray" (the default and more common) and "binary".
-+- push-gpio: a gpio to be used as a detection of a push from the rotary.
-+- linux,code: keycode to emit with the push-gpio of this rotary encoder.
-+  Required property in case "push-gpio"'s one is used.
- 
- Deprecated properties:
- - rotary-encoder,half-period: Makes the driver work on half-period mode.
-@@ -47,4 +50,6 @@ Example:
- 			rotary-encoder,steps = <24>;
- 			rotary-encoder,encoding = "binary";
- 			rotary-encoder,rollover;
-+			push-gpio = <&gpio 20 0>;
-+			linux-code = <28> /* KEY_ENTER */
- 		};
-diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index d748897bf5e9..556995fb7dde 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -47,8 +47,10 @@ struct rotary_encoder {
- 	unsigned int pos;
- 
- 	struct gpio_descs *gpios;
-+	struct gpio_desc *gpio_push;
- 
- 	unsigned int *irq;
-+	unsigned int code;
- 
- 	bool armed;
- 	signed char dir;	/* 1 - clockwise, -1 - CCW */
-@@ -56,6 +58,23 @@ struct rotary_encoder {
- 	unsigned int last_stable;
- };
- 
-+static irqreturn_t rotary_push_irq(int irq, void *dev_id)
-+{
-+	struct rotary_encoder *encoder = dev_id;
-+	int val;
-+
-+	mutex_lock(&encoder->access_mutex);
-+
-+	val = gpiod_get_value_cansleep(encoder->gpio_push);
-+
-+	input_report_key(encoder->input, encoder->code, val);
-+	input_sync(encoder->input);
-+
-+	mutex_unlock(&encoder->access_mutex);
-+
-+	return IRQ_HANDLED;
-+}
-+
- static unsigned int rotary_encoder_get_state(struct rotary_encoder *encoder)
- {
- 	int i;
-@@ -190,6 +209,7 @@ static int rotary_encoder_probe(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct rotary_encoder *encoder;
- 	struct input_dev *input;
-+	unsigned int irq_push;
- 	irq_handler_t handler;
- 	u32 steps_per_period;
- 	unsigned int i;
-@@ -250,6 +270,20 @@ static int rotary_encoder_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
-+	encoder->gpio_push = devm_gpiod_get_optional(dev, "push", GPIOD_IN);
-+	if (IS_ERR(encoder->gpio_push)) {
-+		dev_err(dev, "unable to get gpio-push\n");
-+		return PTR_ERR(encoder->gpio_push);
-+	}
-+
-+	if (encoder->gpio_push) {
-+		if (device_property_read_u32(dev, "linux,code",
-+					     &encoder->code)) {
-+			dev_err(dev, "gpio-push without keycode\n");
-+			return -EINVAL;
-+		}
-+	}
-+
- 	input = devm_input_allocate_device(dev);
- 	if (!input)
- 		return -ENOMEM;
-@@ -306,6 +340,22 @@ static int rotary_encoder_probe(struct platform_device *pdev)
- 		}
- 	}
- 
-+	if (encoder->gpio_push) {
-+		input_set_capability(encoder->input, EV_KEY, encoder->code);
-+
-+		irq_push = gpiod_to_irq(encoder->gpio_push);
-+		err = devm_request_threaded_irq(dev, irq_push,
-+						NULL, rotary_push_irq,
-+						IRQF_TRIGGER_RISING |
-+						IRQF_TRIGGER_FALLING |
-+						IRQF_ONESHOT,
-+						DRV_NAME, encoder);
-+		if (err) {
-+			dev_err(dev, "unable to request IRQ %d\n", irq_push);
-+			return err;
-+		}
-+	}
-+
- 	err = input_register_device(input);
- 	if (err) {
- 		dev_err(dev, "failed to register input device\n");
--- 
-2.11.0
+
+So, I'm not sure if there is some precedent for this (but maybe we
+haven't really had this problem before).. but as I mentioned on
+#arch64-laptops, I think we should put vendor/product/board-id strings
+from SMBIOS table in the dts files.  That could be used by grub to
+find the correct dtb file to load in a generic way.  (Ie, look for a
+match of all three strings, and maybe fallback to a match on just
+vendor+product??)
+
+At any rate, how the strings are used can be refined later.  But I
+think we should include the strings from the beginning for anything
+that is booting via UEFI.  It's perhaps more useful than the
+compatible string.
+
+BR,
+-R

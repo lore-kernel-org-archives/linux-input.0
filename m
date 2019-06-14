@@ -1,26 +1,25 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 2/2] dt-bindings: input: Add wakeup-source for
- atmel,maxtouch
-Date: Thu, 13 Jun 2019 16:52:29 -0600
-Message-ID: <20190613225229.GA19122@bogus>
-References: <20190517211741.8906-1-stefano.manni@gmail.com>
- <20190517211741.8906-2-stefano.manni@gmail.com>
+From: =?UTF-8?Q?Jean=2DBaptiste_Th=C3=A9ou?= <jb@essential.com>
+Subject: Regression post "HID: core: move Usage Page concatenation to Main item"
+Date: Fri, 14 Jun 2019 09:01:25 +0900
+Message-ID: <CAEXycp+Y-x7N_Yr==Xy_CT5K_a1DZYc85w1OUV+cKC5ZN+KB1g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190517211741.8906-2-stefano.manni@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: nick@shmanahar.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, Stefano Manni <stefano.manni@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, nsaenzjulienne@suse.de
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 17 May 2019 23:17:41 +0200, Stefano Manni wrote:
-> Add wakeup support to the maxtouch driver.
-> 
-> Signed-off-by: Stefano Manni <stefano.manni@gmail.com>
-> ---
->  Documentation/devicetree/bindings/input/atmel,maxtouch.txt | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
+Hi,
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+This patch (58e75155009cc800005629955d3482f36a1e0eec) is triggering a
+regression with the following descriptor (report not working as
+expected)
+
+https://partner-android.googlesource.com/platform/cts/+/refs/heads/q-fs-release/tests/tests/hardware/res/raw/asus_gamepad_register.json
+
+Didn't see anything obviously wrong with this gamepad descriptor, so
+not sure what's trigger the regression.
+
+Thanks a lot
+
+Best regards

@@ -1,38 +1,62 @@
-From: Ting Shen <phoenixshen@chromium.org>
-Subject: [PATCH] Input: cros_ec_keyb: mask out extra flags in event_type
-Date: Fri, 14 Jun 2019 14:54:38 +0800
-Message-ID: <20190614065438.142867-1-phoenixshen@chromium.org>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: Re: Regression post "HID: core: move Usage Page concatenation to
+ Main item"
+Date: Fri, 14 Jun 2019 10:29:36 +0200
+Message-ID: <4bb29ccf9848d7147cf975d8ed1f7f649ed72be0.camel@suse.de>
+References: <CAEXycp+Y-x7N_Yr==Xy_CT5K_a1DZYc85w1OUV+cKC5ZN+KB1g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-U9yRqFBIo6enOd/x5jVj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAEXycp+Y-x7N_Yr==Xy_CT5K_a1DZYc85w1OUV+cKC5ZN+KB1g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Nicolas Boichat <drinkcat@chromium.org>, Pi-Hsun Shih <pihsun@chromium.org>, Enrico Granata <egranata@chromium.org>, Ting Shen <phoenixshen@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Heiko Stuebner <heiko@sntech.de>, Guenter Roeck <groeck@chromium.org>, Brian Norris <briannorris@chromium.org>, Benson Leung <bleung@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
+To: Jean-Baptiste =?ISO-8859-1?Q?Th=E9ou?= <jb@essential.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-http://crosreview.com/1341159 added a EC_MKBP_HAS_MORE_EVENTS flag to
-the event_type field, the receiver side should mask out this extra bit when
-processing the event.
 
-Signed-off-by: Ting Shen <phoenixshen@chromium.org>
+--=-U9yRqFBIo6enOd/x5jVj
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
----
+On Fri, 2019-06-14 at 09:01 +0900, Jean-Baptiste Th=C3=A9ou wrote:
+> Hi,
+>=20
+> This patch (58e75155009cc800005629955d3482f36a1e0eec) is triggering a
+> regression with the following descriptor (report not working as
+> expected)
+>=20
+>=20
+https://partner-android.googlesource.com/platform/cts/+/refs/heads/q-fs-rel=
+ease/tests/tests/hardware/res/raw/asus_gamepad_register.json
+>=20
+> Didn't see anything obviously wrong with this gamepad descriptor, so
+> not sure what's trigger the regression.
+>=20
 
- drivers/input/keyboard/cros_ec_keyb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I'll have a look at it.
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index d5600118159835..38cb6d82d8fe67 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -237,7 +237,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 	if (queued_during_suspend && !device_may_wakeup(ckdev->dev))
- 		return NOTIFY_OK;
- 
--	switch (ckdev->ec->event_data.event_type) {
-+	switch (ckdev->ec->event_data.event_type & EC_MKBP_EVENT_TYPE_MASK) {
- 	case EC_MKBP_EVENT_KEY_MATRIX:
- 		pm_wakeup_event(ckdev->dev, 0);
- 
--- 
-2.22.0.rc2.383.gf4fbbf30c2-goog
+Do you have any more information on the regression? What exactly isn't work=
+ing?
+
+Regards,
+Nicolas
+
+
+--=-U9yRqFBIo6enOd/x5jVj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEErOkkGDHCg2EbPcGjlfZmHno8x/4FAl0DWvAACgkQlfZmHno8
+x/7FBAf+JzgyfKk2vvWqED/dX0TFOZmtkPT14VCNY/I1UISIYlrf68w0q0h5KR6d
+Dx4KWGlQ9WcoLjB2cn4qkKs3SLdCRJ/wSKoJhRvMGJQvw3xjGN+aAyk7F0/y199E
+Or65Ty5CbADBWKMyAt5yzxyn+NFNvkLkU3Au0WnUvRdBFwFVz72vqLUQd10UU6GD
+yGi2e7rRzm+PUpj5npx/Vw3K1IVl1f0Xax7JvXY237ZNaobcktWLqv57nJKWyaQ4
+hCjlChopG2mITmZFLuIXQ28qRpoAKNrzMS8hJ2knHN+CFDKzCl+gGMPkmVAmc7fl
+wxGT+xw9cNMKi0iDWY2alW1SKyESCw==
+=ZkvD
+-----END PGP SIGNATURE-----
+
+--=-U9yRqFBIo6enOd/x5jVj--

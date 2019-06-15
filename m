@@ -1,64 +1,61 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2/2] HID: wacom: Don't report anything prior to the tool
- entering range
-Date: Sat, 15 Jun 2019 17:32:46 +0200
-Message-ID: <20190615153246.GC5171@kroah.com>
-References: <CANRwn3Ru+7FGtsY=GaDa7pAJkuagdb6nFtvrFq1qhTWJR0rF9A@mail.gmail.com>
- <20190426163531.9782-1-jason.gerecke@wacom.com>
- <CANRwn3RBK41mRJKUPDDptoq_So6_7UxR0toaauZvjT5U=OaHWw@mail.gmail.com>
- <20190611192248.GB19775@kroah.com>
- <CANRwn3SNAQccFQEaw7Qg=hNojbFVkFRHLT3tzq_BtxpUNRiMUw@mail.gmail.com>
- <20190612071042.GA13698@kroah.com>
+From: Kyle Godbey <me@kyle.ee>
+Subject: [PATCH] HID: uclogic: Add support for Huion HS64 tablet
+Date: Sat, 15 Jun 2019 18:15:06 -0500
+Message-ID: <20190615231506.17443-1-me@kyle.ee>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190612071042.GA13698@kroah.com>
-Sender: stable-owner@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: "# v3.17+" <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>, Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Kyle Godbey <me@kyle.ee>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 09:10:42AM +0200, Greg KH wrote:
-> On Tue, Jun 11, 2019 at 01:45:36PM -0700, Jason Gerecke wrote:
-> > On Tue, Jun 11, 2019 at 12:22 PM Greg KH <greg@kroah.com> wrote:
-> > >
-> > > On Tue, Jun 11, 2019 at 12:02:47PM -0700, Jason Gerecke wrote:
-> > > > I haven't been keeping a close eye on this and just noticed that this
-> > > > patch set doesn't seem to have been merged into stable. There's also a
-> > > > second patch series (beginning with "[PATCH 1/3] HID: wacom: Send
-> > > > BTN_TOUCH in response to INTUOSP2_BT eraser contact") that hasn't seen
-> > > > any stable activity either.
-> > > >
-> > > > Any idea what's up?
-> > >
-> > > I don't see these in my queue at all.
-> > >
-> > > What is the git commit id of these patches in Linus's tree?
-> > >
-> > > thanks,
-> > >
-> > > greg k-h
-> > 
-> > Ah, looks like the HID tree's "for-5.2/fixes" branch hasn't been
-> > pulled yet. That could explain things.
-> > 
-> > 69dbdfffef20c715df9f381b2cee4e9e0a4efd93 HID: wacom: Sync INTUOSP2_BT
-> > touch state after each frame if necessary
-> > 6441fc781c344df61402be1fde582c4491fa35fa HID: wacom: Correct button
-> > numbering 2nd-gen Intuos Pro over Bluetooth
-> > fe7f8d73d1af19b678171170e4e5384deb57833d HID: wacom: Send BTN_TOUCH in
-> > response to INTUOSP2_BT eraser contact
-> > e92a7be7fe5b2510fa60965eaf25f9e3dc08b8cc HID: wacom: Don't report
-> > anything prior to the tool entering range
-> > 2cc08800a6b9fcda7c7afbcf2da1a6e8808da725 HID: wacom: Don't set tool
-> > type until we're in range
-> 
-> There is nothing I can do until the patches are in Linus's tree, sorry.
+Add support for Huion HS64 drawing tablet to hid-uclogic
 
-Now applied for the ones that I could, you should have some "FAILED"
-emails for the rejects that did not apply to 4.14.y
+Signed-off-by: Kyle Godbey <me@kyle.ee>
+---
+ drivers/hid/hid-ids.h            | 1 +
+ drivers/hid/hid-uclogic-core.c   | 2 ++
+ drivers/hid/hid-uclogic-params.c | 2 ++
+ 3 files changed, 5 insertions(+)
 
-thanks,
-
-greg k-h
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 84e0c78d73cd..86ed32dd18ca 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -569,6 +569,7 @@
+ 
+ #define USB_VENDOR_ID_HUION		0x256c
+ #define USB_DEVICE_ID_HUION_TABLET	0x006e
++#define USB_DEVICE_ID_HUION_HS64	0x006d
+ 
+ #define USB_VENDOR_ID_IBM					0x04b3
+ #define USB_DEVICE_ID_IBM_SCROLLPOINT_III			0x3100
+diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+index 8fe02d81265d..914fb527ae7a 100644
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -369,6 +369,8 @@ static const struct hid_device_id uclogic_devices[] = {
+ 				USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION,
+ 				USB_DEVICE_ID_HUION_TABLET) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION,
++				USB_DEVICE_ID_HUION_HS64) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
+ 				USB_DEVICE_ID_HUION_TABLET) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index 0187c9f8fc22..273d784fff66 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -977,6 +977,8 @@ int uclogic_params_init(struct uclogic_params *params,
+ 		/* FALL THROUGH */
+ 	case VID_PID(USB_VENDOR_ID_HUION,
+ 		     USB_DEVICE_ID_HUION_TABLET):
++	case VID_PID(USB_VENDOR_ID_HUION,
++		     USB_DEVICE_ID_HUION_HS64):
+ 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+ 		     USB_DEVICE_ID_HUION_TABLET):
+ 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+-- 
+2.21.0

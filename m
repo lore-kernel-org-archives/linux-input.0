@@ -1,130 +1,63 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: =?utf-8?B?562U5aSNOiDnrZTlpI06IOetlA==?=
- =?utf-8?B?5aSNOiDnrZTlpI06IFtQQVRDSA==?= =?utf-8?Q?=5D?= input: alps-fix the
- issue alps cs19 trackstick do not work.
-Date: Mon, 17 Jun 2019 09:49:02 +0200
-Message-ID: <20190617074902.bg2emodbmjkkfldd@pali>
-References: <20190610104310.qa5snt7jpcljodfv@pali>
- <OSBPR01MB485504868362073ED434F82FDAED0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
- <ed65f8af-fefb-3c40-e7b1-dde3605f30e3@canonical.com>
- <5587ddb9-fb5f-03db-ac11-a696c85c5f2f@canonical.com>
- <20190611072333.nd4va4q2m5epmukc@pali>
- <20190611170707.GA143729@dtor-ws>
- <20190611171707.tydk7rsmtzmjohky@pali>
- <20190611173228.GD143729@dtor-ws>
- <20190611173856.jjwoagud6doxvpy3@pali>
- <OSBPR01MB4855BD8471A591BD75BDECA0DAEB0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Update Hi10 Air filter
+Date: Mon, 17 Jun 2019 15:37:34 +0300
+Message-ID: <CAHp75Vdzf7bMQq2WP59Pux6QXD4GTcPLjryEecAsHJiAEewjcA@mail.gmail.com>
+References: <20190612124053.119182-1-me@myself5.de> <736848fd-1c45-0bd9-bfd1-747c716bd953@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <OSBPR01MB4855BD8471A591BD75BDECA0DAEB0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+In-Reply-To: <736848fd-1c45-0bd9-bfd1-747c716bd953@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Hui Wang <hui.wang@canonical.com>, XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Christian Oder <me@myself5.de>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Monday 17 June 2019 01:29:17 Xiaoxiao Liu wrote:
-> Hi Pali,
-> 
-> Since design architecture change of CS19, input device connection has been changed to below architecture, 
-> Touchpad has been moved to I2C connection.
-> 
->   kernel/host  <--PS/2-->  EC  <--PS/2-->  external PS/2 mouse
->            |                 |
->            |                <--PS/2-->  trackstick
->                |
->                 <--I2C-->  Touchpad
+On Wed, Jun 12, 2019 at 3:55 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Hi,
+>
+> On 12-06-19 14:40, Christian Oder wrote:
+> > Turns out the Hi10 Air is built by multiple companies so using Hampoo
+> > as a filter is not enough to cover all variants.
+> >
+> > This has been verified as working on the Hampoo and Morshow version.
+> >
+> > Signed-off-by: Christian Oder <me@myself5.de>
+>
+> Patch looks good to me:
+>
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-Hi, thank you for explanation!
+By some reason patchwork doesn't have a trace of this.
 
-So in our case, ALPS device should not be put into passthrough mode as
-there is no device after it.
+>
+> Regards,
+>
+> Hans
+>
+>
+> > ---
+> >   drivers/platform/x86/touchscreen_dmi.c | 3 ++-
+> >   1 file changed, 2 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+> > index b662cb2d7cd5..61e7c4987d0d 100644
+> > --- a/drivers/platform/x86/touchscreen_dmi.c
+> > +++ b/drivers/platform/x86/touchscreen_dmi.c
+> > @@ -597,7 +597,8 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+> >               /* Chuwi Hi10 Air */
+> >               .driver_data = (void *)&chuwi_hi10_air_data,
+> >               .matches = {
+> > -                     DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
+> > +                     DMI_MATCH(DMI_SYS_VENDOR, "CHUWI INNOVATION AND TECHNOLOGY(SHENZHEN)CO.LTD"),
+> > +                     DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+> >                       DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
+> >               },
+> >       },
+> >
 
-> In the past TrackPoint does not show in the device list because of TrackPoint was hidden device of Touchpad.
-> But from CS19, TrackPoint is directly connecting with PS2 port, 
-> 3 bytes packet does not need to take affect by other vendors Touchpad format. 
-> So alps.c is no need for CS19 device.
 
-So if trackpoint.c driver is working fine with this configuration, it is
-just needed to instruct alps.c to not take this device.
-
-> Best Regards
-> Shona
-> -----邮件原件-----
-> 发件人: Pali Rohár <pali.rohar@gmail.com> 
-> 发送时间: Wednesday, June 12, 2019 1:39 AM
-> 收件人: dmitry.torokhov@gmail.com
-> 抄送: Hui Wang <hui.wang@canonical.com>; 劉 曉曉 Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>; XiaoXiao Liu <sliuuxiaonxiao@gmail.com>; peter.hutterer@who-t.net; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; 曹 曉建 Xiaojian Cao <xiaojian.cao@cn.alps.com>; zhangfp1@lenovo.com; 斉藤 直樹 Naoki Saito <naoki.saito@alpsalpine.com>; 川瀬 英夫 Hideo Kawase <hideo.kawase@alpsalpine.com>
-> 主题: Re: 答复: 答复: 答复: [PATCH] input: alps-fix the issue alps cs19 trackstick do not work.
-> 
-> On Tuesday 11 June 2019 10:32:28 dmitry.torokhov@gmail.com wrote:
-> > On Tue, Jun 11, 2019 at 07:17:07PM +0200, Pali Rohár wrote:
-> > > On Tuesday 11 June 2019 10:07:07 dmitry.torokhov@gmail.com wrote:
-> > > > On Tue, Jun 11, 2019 at 09:23:33AM +0200, Pali Rohár wrote:
-> > > > > On Tuesday 11 June 2019 12:32:33 Hui Wang wrote:
-> > > > > > On 2019/6/11 上午11:23, Hui Wang wrote:
-> > > > > > > On 2019/6/11 上午11:05, Xiaoxiao Liu wrote:
-> > > > > > > > Hi Pali,
-> > > > > > > > 
-> > > > > > > > I discussed with our FW team about this problem.
-> > > > > > > > We think the V8 method means a touchpad feature  and does 
-> > > > > > > > not fit the CS19 trackpoint device.
-> > > > > > > > CS19 TrackPoint needn't  use any Absolute (Raw) mode and 
-> > > > > > > > is usually use standard mouse data.
-> > > > > > > > CS19 TrackPoint device is a completely different device 
-> > > > > > > > with DualPoint device of Dell/HP.
-> > > > > > > > CS19 TrackPoint device is independent  of Touchpad. 
-> > > > > > > > (Touchpad is connecting by I2C, TrackPoint is directly 
-> > > > > > > > connecting with PS2 port.) And it has completely another FW.
-> > > > > > > > 
-> > > > > > > > So we think it is better to use the mouse mode for CS19 trackpoint.
-> > > > > > > 
-> > > > > > > Maybe here is some mis-understanding,  the mouse mode here 
-> > > > > > > doesn't mean we use psmouse-base.c for cs19 (bare ps/2 
-> > > > > > > mouse), we plan to use trackpoint.c to drive this HW, so 
-> > > > > > > this trackpoint has all features a trackpoint should have.
-> > > > > > > 
-> > > > > > And I sent a patch one month ago to let the the trackpoint.c 
-> > > > > > to drive this
-> > > > > > HW: https://www.spinics.net/lists/linux-input/msg61341.html, 
-> > > > > > maybe that patch is reference.
-> > > > > 
-> > > > > So instead of creating blacklist, you should check for 
-> > > > > TP_VARIANT_ALPS in alps.c and disallow its usage.
-> > > > > 
-> > > > > Or maybe better, move trackpoint.c detect code before alsp.c 
-> > > > > detect code in psmouse-base. And no changes in alps.c are needed.
-> > > > 
-> > > > I'd be very cautions of moving around the protocol detection. It 
-> > > > is very fragile, so if we can detect trackpoint-only case in 
-> > > > alps.c and skip on to trackpoint I would prefer it.
-> > > 
-> > > The main problem is that proposed trackpoint-only check in alps.c is 
-> > > basically what trackpoint.c is doing for checking if device is 
-> > > trackpoint (via function trackpoint_start_protocol()).
-> > > 
-> > > So I'm not sure now what is the best solution...
-> > 
-> > Unfortunately currently trackpoint is being probed only after we tried 
-> > Elan, Genius, and Logitech PS2++ protocols, and I am not sure if 
-> > moving trackpoint around will disturb them or not.
-> > 
-> > I do not think there is much code duplication by pulling limited 
-> > version of trackpoint detection code into alps.c and then have it bail 
-> > out when it sees trackpoint-only device so trackpoint.c can handle it properly.
-> 
-> Ok. Seems that it is the best solution.
-> 
-> The last question is, should be use ALPS or Trackpoint protocol? Because it looks like that device can be configured to one or other.
-> 
-> What are pros and cons of these two protocols?
-> 
-> --
-> Pali Rohár
-> pali.rohar@gmail.com
 
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+With Best Regards,
+Andy Shevchenko

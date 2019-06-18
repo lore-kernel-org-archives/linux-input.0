@@ -1,49 +1,67 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: Re: [PATCH] Input: cros_ec_keyb: mask out extra flags in event_type
-Date: Tue, 18 Jun 2019 10:43:21 +0200
-Message-ID: <6a5c8385-6875-d999-a274-bbc592057934@collabora.com>
-References: <20190614065438.142867-1-phoenixshen@chromium.org>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] Input: gpio_keys - use struct_size() in devm_kzalloc()
+Date: Tue, 18 Jun 2019 10:23:25 -0500
+Message-ID: <20190618152325.GA21504@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190614065438.142867-1-phoenixshen@chromium.org>
-Content-Language: en-GB
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ting Shen <phoenixshen@chromium.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Nicolas Boichat <drinkcat@chromium.org>, Pi-Hsun Shih <pihsun@chromium.org>, Enrico Granata <egranata@chromium.org>, Heiko Stuebner <heiko@sntech.de>, Guenter Roeck <groeck@chromium.org>, Brian Norris <briannorris@chromium.org>, Benson Leung <bleung@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-input@vger.kernel.org
 
+One of the more common cases of allocation size calculations is finding
+the size of a structure that has a zero-sized array at the end, along
+with memory for some number of elements for that array. For example:
+
+struct gpio_keys_drvdata {
+	...
+        struct gpio_button_data data[0];
+};
 
 
-On 14/6/19 8:54, Ting Shen wrote:
-> http://crosreview.com/1341159 added a EC_MKBP_HAS_MORE_EVENTS flag to
-> the event_type field, the receiver side should mask out this extra bit when
-> processing the event.
-> 
-> Signed-off-by: Ting Shen <phoenixshen@chromium.org>
-> 
-> ---
-> 
->  drivers/input/keyboard/cros_ec_keyb.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index d5600118159835..38cb6d82d8fe67 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -237,7 +237,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
->  	if (queued_during_suspend && !device_may_wakeup(ckdev->dev))
->  		return NOTIFY_OK;
->  
-> -	switch (ckdev->ec->event_data.event_type) {
-> +	switch (ckdev->ec->event_data.event_type & EC_MKBP_EVENT_TYPE_MASK) {
->  	case EC_MKBP_EVENT_KEY_MATRIX:
->  		pm_wakeup_event(ckdev->dev, 0);
->  
-> 
+size = sizeof(struct gpio_keys_drvdata) + count * sizeof(struct gpio_button_data);
+instance = devm_kzalloc(dev, size, GFP_KERNEL);
 
-Applied for chrome-platform-5.3
+Instead of leaving these open-coded and prone to type mistakes, we can
+now use the new struct_size() helper:
 
-Thanks,
-~ Enric
+instance = devm_kzalloc(dev, struct_size(instance, data, count), GFP_KERNEL);
+
+Notice that, in this case, variable size is not necessary, hence it
+is removed.
+
+This code was detected with the help of Coccinelle.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/input/keyboard/gpio_keys.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 6cd199e8a370..c186c2552b04 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -774,7 +774,6 @@ static int gpio_keys_probe(struct platform_device *pdev)
+ 	struct fwnode_handle *child = NULL;
+ 	struct gpio_keys_drvdata *ddata;
+ 	struct input_dev *input;
+-	size_t size;
+ 	int i, error;
+ 	int wakeup = 0;
+ 
+@@ -784,9 +783,8 @@ static int gpio_keys_probe(struct platform_device *pdev)
+ 			return PTR_ERR(pdata);
+ 	}
+ 
+-	size = sizeof(struct gpio_keys_drvdata) +
+-			pdata->nbuttons * sizeof(struct gpio_button_data);
+-	ddata = devm_kzalloc(dev, size, GFP_KERNEL);
++	ddata = devm_kzalloc(dev, struct_size(ddata, data, pdata->nbuttons),
++			     GFP_KERNEL);
+ 	if (!ddata) {
+ 		dev_err(dev, "failed to allocate state\n");
+ 		return -ENOMEM;
+-- 
+2.21.0

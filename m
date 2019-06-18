@@ -1,87 +1,69 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: [PATCH] PM: suspend: Rename pm_suspend_via_s2idle()
-Date: Tue, 18 Jun 2019 10:18:28 +0200
-Message-ID: <7812857.KkDK7346ep@kreacher>
+From: Hui Wang <hui.wang@canonical.com>
+Subject: =?UTF-8?B?UmU6IOetlOWkjTog562U5aSNOiDnrZTlpI06IOetlOWkjTogW1BBVENI?=
+ =?UTF-8?Q?=5d_input=3a_alps-fix_the_issue_alps_cs19_trackstick_do_not_work?=
+ =?UTF-8?Q?=2e?=
+Date: Tue, 18 Jun 2019 16:19:12 +0800
+Message-ID: <953ee9de-bb94-1311-8130-cd991949a069@canonical.com>
+References: <20190610104310.qa5snt7jpcljodfv@pali>
+ <OSBPR01MB485504868362073ED434F82FDAED0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <ed65f8af-fefb-3c40-e7b1-dde3605f30e3@canonical.com>
+ <5587ddb9-fb5f-03db-ac11-a696c85c5f2f@canonical.com>
+ <20190611072333.nd4va4q2m5epmukc@pali> <20190611170707.GA143729@dtor-ws>
+ <20190611171707.tydk7rsmtzmjohky@pali> <20190611173228.GD143729@dtor-ws>
+ <20190611173856.jjwoagud6doxvpy3@pali>
+ <OSBPR01MB4855BD8471A591BD75BDECA0DAEB0@OSBPR01MB4855.jpnprd01.prod.outlook.com>
+ <20190617074902.bg2emodbmjkkfldd@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190617074902.bg2emodbmjkkfldd@pali>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linux PM <linux-pm@vger.kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, XiaoXiao Liu <sliuuxiaonxiao@gmail.com>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Xiaojian Cao <xiaojian.cao@cn.alps.com>, "zhangfp1@lenovo.com" <zhangfp1@lenovo.com>, Naoki Saito <naoki.saito@alpsalpine.com>, Hideo Kawase <hideo.kawase@alpsalpine.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-The name of pm_suspend_via_s2idle() is confusing, as it doesn't
-reflect the purpose of the function precisely enough and it is
-very similar to pm_suspend_via_firmware(), which has a different
-purpose, so rename it as pm_suspend_default_s2idle() and update
-its only caller, i8042_register_ports(), accordingly.
+On 2019/6/17 下午3:49, Pali Rohár wrote:
+> On Monday 17 June 2019 01:29:17 Xiaoxiao Liu wrote:
+>> Hi Pali,
+>>
+>> Since design architecture change of CS19, input device connection has been changed to below architecture,
+>> Touchpad has been moved to I2C connection.
+>>
+>>    kernel/host  <--PS/2-->  EC  <--PS/2-->  external PS/2 mouse
+>>             |                 |
+>>             |                <--PS/2-->  trackstick
+>>                 |
+>>                  <--I2C-->  Touchpad
+> Hi, thank you for explanation!
+>
+> So in our case, ALPS device should not be put into passthrough mode as
+> there is no device after it.
+>
+>> In the past TrackPoint does not show in the device list because of TrackPoint was hidden device of Touchpad.
+>> But from CS19, TrackPoint is directly connecting with PS2 port,
+>> 3 bytes packet does not need to take affect by other vendors Touchpad format.
+>> So alps.c is no need for CS19 device.
+> So if trackpoint.c driver is working fine with this configuration, it is
+> just needed to instruct alps.c to not take this device.
 
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
----
- drivers/input/serio/i8042.c |    2 +-
- include/linux/suspend.h     |    4 ++--
- kernel/power/suspend.c      |    6 +++---
- 3 files changed, 6 insertions(+), 6 deletions(-)
+Hello Pali,
 
-Index: linux-pm/include/linux/suspend.h
-===================================================================
---- linux-pm.orig/include/linux/suspend.h
-+++ linux-pm/include/linux/suspend.h
-@@ -282,7 +282,7 @@ static inline bool idle_should_enter_s2i
- 	return unlikely(s2idle_state == S2IDLE_STATE_ENTER);
- }
- 
--extern bool pm_suspend_via_s2idle(void);
-+extern bool pm_suspend_default_s2idle(void);
- extern void __init pm_states_init(void);
- extern void s2idle_set_ops(const struct platform_s2idle_ops *ops);
- extern void s2idle_wake(void);
-@@ -314,7 +314,7 @@ static inline void pm_set_suspend_via_fi
- static inline void pm_set_resume_via_firmware(void) {}
- static inline bool pm_suspend_via_firmware(void) { return false; }
- static inline bool pm_resume_via_firmware(void) { return false; }
--static inline bool pm_suspend_via_s2idle(void) { return false; }
-+static inline bool pm_suspend_default_s2idle(void) { return false; }
- 
- static inline void suspend_set_ops(const struct platform_suspend_ops *ops) {}
- static inline int pm_suspend(suspend_state_t state) { return -ENOSYS; }
-Index: linux-pm/kernel/power/suspend.c
-===================================================================
---- linux-pm.orig/kernel/power/suspend.c
-+++ linux-pm/kernel/power/suspend.c
-@@ -62,16 +62,16 @@ enum s2idle_states __read_mostly s2idle_
- static DEFINE_RAW_SPINLOCK(s2idle_lock);
- 
- /**
-- * pm_suspend_via_s2idle - Check if suspend-to-idle is the default suspend.
-+ * pm_suspend_default_s2idle - Check if suspend-to-idle is the default suspend.
-  *
-  * Return 'true' if suspend-to-idle has been selected as the default system
-  * suspend method.
-  */
--bool pm_suspend_via_s2idle(void)
-+bool pm_suspend_default_s2idle(void)
- {
- 	return mem_sleep_current == PM_SUSPEND_TO_IDLE;
- }
--EXPORT_SYMBOL_GPL(pm_suspend_via_s2idle);
-+EXPORT_SYMBOL_GPL(pm_suspend_default_s2idle);
- 
- void s2idle_set_ops(const struct platform_s2idle_ops *ops)
- {
-Index: linux-pm/drivers/input/serio/i8042.c
-===================================================================
---- linux-pm.orig/drivers/input/serio/i8042.c
-+++ linux-pm/drivers/input/serio/i8042.c
-@@ -1410,7 +1410,7 @@ static void __init i8042_register_ports(
- 		 * behavior on many platforms using suspend-to-RAM (ACPI S3)
- 		 * by default.
- 		 */
--		if (pm_suspend_via_s2idle() && i == I8042_KBD_PORT_NO)
-+		if (pm_suspend_default_s2idle() && i == I8042_KBD_PORT_NO)
- 			device_set_wakeup_enable(&serio->dev, true);
- 	}
- }
+When you have time, could you take a look at the patch of v4? It is 
+implemented according to our discussion.
+
+Thanks,
+
+Hui.
+
+
+>> Best Regards
+>> Shona
+>> -----邮件原件-----
+>> 发件人: Pali Rohár <pali.rohar@gmail.com>
+>> 发送时间: Wednesday, June 12, 2019 1:39 AM
+>> 收件人: dmitry.torokhov@gmail.com
+>> 抄送: Hui Wang <hui.wang@canonical.com>; 劉 曉曉 Xiaoxiao Liu <xiaoxiao.liu-1@cn.alps.com>; XiaoXiao Liu <sliuuxiaonxiao@gmail.com>; peter.hutterer@who-t.net; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; 曹 曉建 Xiaojian Cao <xiaojian.cao@cn.alps.com>; zhangfp1@lenovo.com; 斉藤 直樹 Naoki Saito <naoki.saito@alpsalpine.com>; 川瀬 英夫 Hideo Kawase <hideo.kawase@alpsalpine.com>
+>

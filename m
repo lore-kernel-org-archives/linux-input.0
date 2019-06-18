@@ -1,31 +1,87 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Update Hi10 Air filter
-Date: Mon, 17 Jun 2019 18:01:27 +0300
-Message-ID: <CAHp75VdUhZZAq3UP=AkFGbk9tgaBnfScrja8XO4v3C-DwyM3Jg@mail.gmail.com>
-References: <20190612124053.119182-1-me@myself5.de> <736848fd-1c45-0bd9-bfd1-747c716bd953@redhat.com>
- <CAHp75Vdzf7bMQq2WP59Pux6QXD4GTcPLjryEecAsHJiAEewjcA@mail.gmail.com>
- <CAHp75VeSPYakPF-xUcaVOmnMEpv-UZFSrERMSCBi53ov5oA=0g@mail.gmail.com> <2819fd39-ce88-c50f-1fbf-f527d71d63e4@redhat.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: [PATCH] PM: suspend: Rename pm_suspend_via_s2idle()
+Date: Tue, 18 Jun 2019 10:18:28 +0200
+Message-ID: <7812857.KkDK7346ep@kreacher>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2819fd39-ce88-c50f-1fbf-f527d71d63e4@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Christian Oder <me@myself5.de>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Linux PM <linux-pm@vger.kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 17, 2019 at 3:52 PM Hans de Goede <hdegoede@redhat.com> wrote:
-> On 17-06-19 14:38, Andy Shevchenko wrote:
-> > On Mon, Jun 17, 2019 at 3:37 PM Andy Shevchenko
-> > <andy.shevchenko@gmail.com> wrote:
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-> >> By some reason patchwork doesn't have a trace of this.
-> > I meant, Hans, your message, the patch itself is there.
->
-> Weird, no idea why this is happening.
+The name of pm_suspend_via_s2idle() is confusing, as it doesn't
+reflect the purpose of the function precisely enough and it is
+very similar to pm_suspend_via_firmware(), which has a different
+purpose, so rename it as pm_suspend_default_s2idle() and update
+its only caller, i8042_register_ports(), accordingly.
 
-For sake of testing, can you bounce the first message you sent here?
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
+ drivers/input/serio/i8042.c |    2 +-
+ include/linux/suspend.h     |    4 ++--
+ kernel/power/suspend.c      |    6 +++---
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
--- 
-With Best Regards,
-Andy Shevchenko
+Index: linux-pm/include/linux/suspend.h
+===================================================================
+--- linux-pm.orig/include/linux/suspend.h
++++ linux-pm/include/linux/suspend.h
+@@ -282,7 +282,7 @@ static inline bool idle_should_enter_s2i
+ 	return unlikely(s2idle_state == S2IDLE_STATE_ENTER);
+ }
+ 
+-extern bool pm_suspend_via_s2idle(void);
++extern bool pm_suspend_default_s2idle(void);
+ extern void __init pm_states_init(void);
+ extern void s2idle_set_ops(const struct platform_s2idle_ops *ops);
+ extern void s2idle_wake(void);
+@@ -314,7 +314,7 @@ static inline void pm_set_suspend_via_fi
+ static inline void pm_set_resume_via_firmware(void) {}
+ static inline bool pm_suspend_via_firmware(void) { return false; }
+ static inline bool pm_resume_via_firmware(void) { return false; }
+-static inline bool pm_suspend_via_s2idle(void) { return false; }
++static inline bool pm_suspend_default_s2idle(void) { return false; }
+ 
+ static inline void suspend_set_ops(const struct platform_suspend_ops *ops) {}
+ static inline int pm_suspend(suspend_state_t state) { return -ENOSYS; }
+Index: linux-pm/kernel/power/suspend.c
+===================================================================
+--- linux-pm.orig/kernel/power/suspend.c
++++ linux-pm/kernel/power/suspend.c
+@@ -62,16 +62,16 @@ enum s2idle_states __read_mostly s2idle_
+ static DEFINE_RAW_SPINLOCK(s2idle_lock);
+ 
+ /**
+- * pm_suspend_via_s2idle - Check if suspend-to-idle is the default suspend.
++ * pm_suspend_default_s2idle - Check if suspend-to-idle is the default suspend.
+  *
+  * Return 'true' if suspend-to-idle has been selected as the default system
+  * suspend method.
+  */
+-bool pm_suspend_via_s2idle(void)
++bool pm_suspend_default_s2idle(void)
+ {
+ 	return mem_sleep_current == PM_SUSPEND_TO_IDLE;
+ }
+-EXPORT_SYMBOL_GPL(pm_suspend_via_s2idle);
++EXPORT_SYMBOL_GPL(pm_suspend_default_s2idle);
+ 
+ void s2idle_set_ops(const struct platform_s2idle_ops *ops)
+ {
+Index: linux-pm/drivers/input/serio/i8042.c
+===================================================================
+--- linux-pm.orig/drivers/input/serio/i8042.c
++++ linux-pm/drivers/input/serio/i8042.c
+@@ -1410,7 +1410,7 @@ static void __init i8042_register_ports(
+ 		 * behavior on many platforms using suspend-to-RAM (ACPI S3)
+ 		 * by default.
+ 		 */
+-		if (pm_suspend_via_s2idle() && i == I8042_KBD_PORT_NO)
++		if (pm_suspend_default_s2idle() && i == I8042_KBD_PORT_NO)
+ 			device_set_wakeup_enable(&serio->dev, true);
+ 	}
+ }

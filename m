@@ -1,67 +1,64 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] Input: gpio_keys - use struct_size() in devm_kzalloc()
-Date: Tue, 18 Jun 2019 10:23:25 -0500
-Message-ID: <20190618152325.GA21504@embeddedor>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for v5.2-rc5
+Date: Tue, 18 Jun 2019 17:16:40 -0700
+Message-ID: <20190619001640.GA62849@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-One of the more common cases of allocation size calculations is finding
-the size of a structure that has a zero-sized array at the end, along
-with memory for some number of elements for that array. For example:
+Hi Linus,
 
-struct gpio_keys_drvdata {
-	...
-        struct gpio_button_data data[0];
-};
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. Just a few small fixups;
+switching a couple of Thinkpads to SMBus for touchpads as PS/2 emulation
+is not working well.
+
+Changelog:
+---------
+
+Aaron Ma (1):
+      Input: elantech - enable middle button support on 2 ThinkPads
+
+Alexander Mikhaylenko (1):
+      Input: synaptics - enable SMBus on ThinkPad E480 and E580
+
+Andrey Smirnov (1):
+      Input: uinput - add compat ioctl number translation for UI_*_FF_UPLOAD
+
+Anson Huang (1):
+      Input: imx_keypad - make sure keyboard can always wake up system
+
+Daniel Smith (1):
+      Input: silead - add MSSL0017 to acpi_device_id
+
+Jeff LaBundy (1):
+      Input: iqs5xx - get axis info before calling input_mt_init_slots()
+
+Ravi Chandra Sadineni (1):
+      Input: elan_i2c - increment wakeup count if wake source
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
+ drivers/input/misc/uinput.c         | 22 ++++++++++++++++++++--
+ drivers/input/mouse/elan_i2c_core.c |  2 ++
+ drivers/input/mouse/elantech.c      |  2 ++
+ drivers/input/mouse/synaptics.c     |  2 ++
+ drivers/input/touchscreen/iqs5xx.c  | 24 +++++++++++++-----------
+ drivers/input/touchscreen/silead.c  |  1 +
+ 7 files changed, 54 insertions(+), 17 deletions(-)
+
+Thanks.
 
 
-size = sizeof(struct gpio_keys_drvdata) + count * sizeof(struct gpio_button_data);
-instance = devm_kzalloc(dev, size, GFP_KERNEL);
-
-Instead of leaving these open-coded and prone to type mistakes, we can
-now use the new struct_size() helper:
-
-instance = devm_kzalloc(dev, struct_size(instance, data, count), GFP_KERNEL);
-
-Notice that, in this case, variable size is not necessary, hence it
-is removed.
-
-This code was detected with the help of Coccinelle.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/input/keyboard/gpio_keys.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 6cd199e8a370..c186c2552b04 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -774,7 +774,6 @@ static int gpio_keys_probe(struct platform_device *pdev)
- 	struct fwnode_handle *child = NULL;
- 	struct gpio_keys_drvdata *ddata;
- 	struct input_dev *input;
--	size_t size;
- 	int i, error;
- 	int wakeup = 0;
- 
-@@ -784,9 +783,8 @@ static int gpio_keys_probe(struct platform_device *pdev)
- 			return PTR_ERR(pdata);
- 	}
- 
--	size = sizeof(struct gpio_keys_drvdata) +
--			pdata->nbuttons * sizeof(struct gpio_button_data);
--	ddata = devm_kzalloc(dev, size, GFP_KERNEL);
-+	ddata = devm_kzalloc(dev, struct_size(ddata, data, pdata->nbuttons),
-+			     GFP_KERNEL);
- 	if (!ddata) {
- 		dev_err(dev, "failed to allocate state\n");
- 		return -ENOMEM;
 -- 
-2.21.0
+Dmitry

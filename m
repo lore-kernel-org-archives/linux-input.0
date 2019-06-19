@@ -1,66 +1,131 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] Input: gpio_keys_polled - use struct_size() in devm_kzalloc()
-Date: Wed, 19 Jun 2019 09:26:55 -0500
-Message-ID: <20190619142655.GA20218@embeddedor>
+From: Jeffrey Hugo <jhugo@codeaurora.org>
+Subject: Re: [PATCH v6 2/5] HID: quirks: Refactor ELAN 400 and 401 handling
+Date: Wed, 19 Jun 2019 09:39:57 -0600
+Message-ID: <e480240e-993b-5f09-f29c-7b5c57a67260@codeaurora.org>
+References: <20190612212604.32089-1-jeffrey.l.hugo@gmail.com>
+ <20190612212721.32195-1-jeffrey.l.hugo@gmail.com>
+ <20190612214636.GA40779@dtor-ws>
+ <84e7d83f-e133-0281-612a-94d8c4319040@codeaurora.org>
+ <CAO-hwJJUivfzFj-Downqt8nY3iTwF8-oq_iBqs1Dxyx92HdYPw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <CAO-hwJJUivfzFj-Downqt8nY3iTwF8-oq_iBqs1Dxyx92HdYPw@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>, Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Andy Gross <agross@kernel.org>, Lee Jones <lee.jones@linaro.org>, xnox@ubuntu.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, MSM <linux-arm-msm@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-One of the more common cases of allocation size calculations is finding
-the size of a structure that has a zero-sized array at the end, along
-with memory for some number of elements for that array. For example:
+On 6/13/2019 2:55 AM, Benjamin Tissoires wrote:
+> On Thu, Jun 13, 2019 at 12:20 AM Jeffrey Hugo <jhugo@codeaurora.org> wrote:
+>>
+>> On 6/12/2019 3:46 PM, Dmitry Torokhov wrote:
+>>> On Wed, Jun 12, 2019 at 02:27:21PM -0700, Jeffrey Hugo wrote:
+>>>> There needs to be coordination between hid-quirks and the elan_i2c driver
+>>>> about which devices are handled by what drivers.  Currently, both use
+>>>> whitelists, which results in valid devices being unhandled by default,
+>>>> when they should not be rejected by hid-quirks.  This is quickly becoming
+>>>> an issue.
+>>>>
+>>>> Since elan_i2c has a maintained whitelist of what devices it will handle,
+>>>> which is now in a header file that hid-quirks can access, use that to
+>>>> implement a blacklist in hid-quirks so that only the devices that need to
+>>>> be handled by elan_i2c get rejected by hid-quirks, and everything else is
+>>>> handled by default.
+>>>>
+>>>> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>>>> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+>>>> ---
+>>>>    drivers/hid/hid-quirks.c | 27 ++++++++++++++++-----------
+>>>>    1 file changed, 16 insertions(+), 11 deletions(-)
+>>>>
+>>>> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+>>>> index e5ca6fe2ca57..bd81bb090222 100644
+>>>> --- a/drivers/hid/hid-quirks.c
+>>>> +++ b/drivers/hid/hid-quirks.c
+>>>> @@ -16,6 +16,7 @@
+>>>>    #include <linux/export.h>
+>>>>    #include <linux/slab.h>
+>>>>    #include <linux/mutex.h>
+>>>> +#include <linux/input/elan-i2c-ids.h>
+>>>>
+>>>>    #include "hid-ids.h"
+>>>>
+>>>> @@ -914,6 +915,8 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+>>>>
+>>>>    bool hid_ignore(struct hid_device *hdev)
+>>>>    {
+>>>> +    int i;
+>>>> +
+>>>>       if (hdev->quirks & HID_QUIRK_NO_IGNORE)
+>>>>               return false;
+>>>>       if (hdev->quirks & HID_QUIRK_IGNORE)
+>>>> @@ -978,18 +981,20 @@ bool hid_ignore(struct hid_device *hdev)
+>>>>               break;
+>>>>       case USB_VENDOR_ID_ELAN:
+>>>>               /*
+>>>> -             * Many Elan devices have a product id of 0x0401 and are handled
+>>>> -             * by the elan_i2c input driver. But the ACPI HID ELAN0800 dev
+>>>> -             * is not (and cannot be) handled by that driver ->
+>>>> -             * Ignore all 0x0401 devs except for the ELAN0800 dev.
+>>>> +             * Blacklist of everything that gets handled by the elan_i2c
+>>>> +             * input driver.  This avoids disabling valid touchpads and
+>>>> +             * other ELAN devices.
+>>>>                */
+>>>> -            if (hdev->product == 0x0401 &&
+>>>> -                strncmp(hdev->name, "ELAN0800", 8) != 0)
+>>>> -                    return true;
+>>>> -            /* Same with product id 0x0400 */
+>>>> -            if (hdev->product == 0x0400 &&
+>>>> -                strncmp(hdev->name, "QTEC0001", 8) != 0)
+>>>> -                    return true;
+>>>> +            if ((hdev->product == 0x0401 || hdev->product == 0x0400)) {
+>>>> +                    for (i = 0; strlen(elan_acpi_id[i].id); ++i)
+>>>> +                            if (!strncmp(hdev->name, elan_acpi_id[i].id,
+>>>> +                                         strlen(elan_acpi_id[i].id)))
+>>>> +                                    return true;
+>>>> +                    for (i = 0; strlen(elan_of_match[i].name); ++i)
+>>>> +                            if (!strncmp(hdev->name, elan_of_match[i].name,
+>>>> +                                         strlen(elan_of_match[i].name)))
+>>>> +                                    return true;
+>>>
+>>> Do we really need to blacklist the OF case here? I thought that in ACPI
+>>> case we have clashes as HID gets matched by elan_i2c and CID is matched
+>>> by i2c-hid, but I do not believe we'll run into the same situation on OF
+>>> systems.
+>>
+>> I think its the safer approach.
+>>
+>> On an OF system, such as patch 3 in the series, the "hid-over-i2c" will
+>> end up running through this (kind of the whole reason why this series
+>> exists).  The vendor and product ids will still match, so we'll end up
+>> going through the lists to see if the hdev->name (the compatible string)
+>> will match the blacklist.  "hid-over-i2c" won't match the blacklist, but
+>> if there is a more specific compatible, it might.
+>>
+>> In that case, not matching OF would work, however how it could break
+>> today is if both "hid-over-i2c" and "elan,ekth3000" were listed for the
+>> same device, and elan_i2c was not compiled.  In that case, if we skip
+>> the OF part of the black list, hid-quirks will not reject the device,
+>> and you'll probably have some odd behavior instead of the obvious "the
+>> device doesn't work because the correct driver isn't present" behavior.
+>>
+>> While that scenario might be far fetched since having both
+>> "hid-over-i2c" and "elan,ekth3000" probably violates the OF bindings,
+>> its still safer to include the OF case in the blacklist against future
+>> scenarios.
+>>
+>>
+> 
+> Dmitry, if you are happy with Jeffrey's answer, feel free to take this
+> through your tree and add:
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> I don't expect any major conflicts given on where the code is located.
 
-struct gpio_keys_polled_dev {
-	...
-        struct gpio_keys_button_data data[0];
-};
+Ping?
 
-size = sizeof(struct gpio_keys_polled_dev) + count * sizeof(struct gpio_keys_button_data);
-instance = devm_kzalloc(dev, size, GFP_KERNEL);
-
-Instead of leaving these open-coded and prone to type mistakes, we can
-now use the new struct_size() helper:
-
-instance = devm_kzalloc(dev, struct_size(instance, data, count), GFP_KERNEL);
-
-Notice that, in this case, variable size is not necessary, hence it
-is removed.
-
-This code was detected with the help of Coccinelle.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/input/keyboard/gpio_keys_polled.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index edc7262103b9..c4087be0c2e0 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -235,7 +235,6 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 	struct gpio_keys_polled_dev *bdev;
- 	struct input_polled_dev *poll_dev;
- 	struct input_dev *input;
--	size_t size;
- 	int error;
- 	int i;
- 
-@@ -250,9 +249,8 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	size = sizeof(struct gpio_keys_polled_dev) +
--			pdata->nbuttons * sizeof(struct gpio_keys_button_data);
--	bdev = devm_kzalloc(dev, size, GFP_KERNEL);
-+	bdev = devm_kzalloc(dev, struct_size(bdev, data, pdata->nbuttons),
-+			    GFP_KERNEL);
- 	if (!bdev) {
- 		dev_err(dev, "no memory for private data\n");
- 		return -ENOMEM;
--- 
-2.21.0
+Dmitry, are you happy with things?  I would really like to see this 
+queued for 5.3, and it seems like the window to do so is rapidly closing.

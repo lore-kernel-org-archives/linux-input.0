@@ -1,37 +1,39 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH] PM: suspend: Rename pm_suspend_via_s2idle()
-Date: Wed, 19 Jun 2019 10:29:37 +0200
-Message-ID: <CAJZ5v0jANxDYpvukieee1jwjw93fg_Q=t5t=5fqKtDWqL35EoQ@mail.gmail.com>
-References: <7812857.KkDK7346ep@kreacher> <20190619001905.GA62571@dtor-ws>
+From: Ken Sloat <KSloat@aampglobal.com>
+Subject: input: Device Tree Properties for Captouch Button Device Registers
+Date: Wed, 19 Jun 2019 12:55:03 +0000
+Message-ID: <BL0PR07MB4115574AA13B8F8C2E036644ADE50@BL0PR07MB4115.namprd07.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190619001905.GA62571@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: Kasun Beddewela <KBeddewela@aampglobal.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ken Sloat <KSloat@aampglobal.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 19, 2019 at 2:19 AM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Rafael,
->
-> On Tue, Jun 18, 2019 at 10:18:28AM +0200, Rafael J. Wysocki wrote:
-> > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> >
-> > The name of pm_suspend_via_s2idle() is confusing, as it doesn't
-> > reflect the purpose of the function precisely enough and it is
-> > very similar to pm_suspend_via_firmware(), which has a different
-> > purpose, so rename it as pm_suspend_default_s2idle() and update
-> > its only caller, i8042_register_ports(), accordingly.
-> >
-> > Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->
-> I assume you'll take it through your tree...
+Hello Dmitry,
 
-I will.
+We have a new input driver we are currently working on and would like to su=
+bmit
+to the Linux kernel when we finish it. Specifically, this is a cap touch IC=
+ which
+implements potentially multiple individual proximity and cap touch buttons =
+(which
+would be reported like key events as seems to be the standard). A couple of=
+ questions:
 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+1. What is the preferred/proper method to expose the many registers that
+these devices have via device tree?
 
-Thanks!
+These devices have dozens of registers, many of which might be needed depen=
+ding
+on the individual application. It wouldn't be useful in the majority of cas=
+es to provide
+default values in the driver as the registers are custom tuned to the indiv=
+idual application.
+
+2. Where should this device live? I am guessing in input/misc?
+
+Thanks,
+Ken Sloat

@@ -1,24 +1,38 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [git pull] Input updates for v5.2-rc5
-Date: Wed, 19 Jun 2019 19:00:06 +0000
-Message-ID: <156097080658.11094.10153677521407620995.pr-tracker-bot@kernel.org>
-References: <20190619001640.GA62849@dtor-ws>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [RFC 0/2] Support for buttons on newer MS Surface devices
+Date: Thu, 20 Jun 2019 08:53:03 +0300
+Message-ID: <CAHp75Vcf79a2_3VGfju237omDjmnhCYN18u+=m_n-tjxZUxt4A@mail.gmail.com>
+References: <20190516142523.117978-1-luzmaximilian@gmail.com>
+ <a0f93af3-c587-40d5-2a85-fdc0f9e6b79f@gmail.com> <e8bb212c-9894-d244-4ee1-617df3952a53@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190619001640.GA62849@dtor-ws>
+In-Reply-To: <e8bb212c-9894-d244-4ee1-617df3952a53@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Maximilian Luz <luzmaximilian@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-The pull request you sent on Tue, 18 Jun 2019 17:16:40 -0700:
+On Wed, Jun 12, 2019 at 2:06 AM Maximilian Luz <luzmaximilian@gmail.com> wrote:
+>
+> Since there are no comments on this, should I simply submit this as patch?
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+No top post, please.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/4b6920ba26e1f24b949b9ca3bb782c7fac8be633
+And yes, submit it as a series. Also Cc to Benjamin Tissoires.
 
-Thank you!
+> On 6/1/19 9:07 PM, Maximilian Luz wrote:
+> > Hi,
+> >
+> > any comments on this?
+> >
+> > I should also mention that this has been tested via
+> > https://github.com/jakeday/linux-surface.
+> >
+> > Maximilian
+
+
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+With Best Regards,
+Andy Shevchenko

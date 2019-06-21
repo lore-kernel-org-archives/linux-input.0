@@ -1,65 +1,65 @@
-From: Ken Sloat <KSloat@aampglobal.com>
-Subject: RE: input: Device Tree Properties for Captouch Button Device
- Registers
-Date: Fri, 21 Jun 2019 14:11:33 +0000
-Message-ID: <BL0PR07MB41150BF0740C6F7E63FF4E11ADE70@BL0PR07MB4115.namprd07.prod.outlook.com>
-References: <BL0PR07MB4115574AA13B8F8C2E036644ADE50@BL0PR07MB4115.namprd07.prod.outlook.com>
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Subject: Re: [PATCH v7 1/5] Input: elan_i2c: Export the device id whitelist
+Date: Fri, 21 Jun 2019 08:34:26 -0600
+Message-ID: <CAOCk7NoKB6UtA3g-0+Yxi4Y46PDqapnOH0dHH0CupvnQ=ZSKVQ@mail.gmail.com>
+References: <20190620142801.11827-1-jeffrey.l.hugo@gmail.com>
+ <20190620143318.11880-1-jeffrey.l.hugo@gmail.com> <CAKdAkRRstvEWXtwnLCMKoW6PcCz0W3+M9iYqVFshJpw6y_=9bA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BL0PR07MB4115574AA13B8F8C2E036644ADE50@BL0PR07MB4115.namprd07.prod.outlook.com>
-Content-Language: en-US
+In-Reply-To: <CAKdAkRRstvEWXtwnLCMKoW6PcCz0W3+M9iYqVFshJpw6y_=9bA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: Kasun Beddewela <KBeddewela@aampglobal.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ken Sloat <KSloat@aampglobal.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Andy Gross <agross@kernel.org>, Lee Jones <lee.jones@linaro.org>, xnox@ubuntu.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, "open list:ARM/QUALCOMM SUPPORT" <linux-arm-msm@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-> -----Original Message-----
-> From: Ken Sloat
-> Sent: Wednesday, June 19, 2019 8:55 AM
-> To: dmitry.torokhov@gmail.com
-> Cc: Kasun Beddewela <KBeddewela@aampglobal.com>; linux-
-> input@vger.kernel.org; linux-kernel@vger.kernel.org; Ken Sloat
-> <KSloat@aampglobal.com>
-> Subject: input: Device Tree Properties for Captouch Button Device Registe=
-rs
->=20
-> Hello Dmitry,
->=20
-> We have a new input driver we are currently working on and would like to
-> submit
-> to the Linux kernel when we finish it. Specifically, this is a cap touch =
-IC which
-> implements potentially multiple individual proximity and cap touch button=
-s
-> (which
-> would be reported like key events as seems to be the standard). A couple =
-of
-> questions:
->=20
-> 1. What is the preferred/proper method to expose the many registers that
-> these devices have via device tree?
->=20
-> These devices have dozens of registers, many of which might be needed
-> depending
-> on the individual application. It wouldn't be useful in the majority of c=
-ases to
-> provide
-> default values in the driver as the registers are custom tuned to the
-> individual application.
->=20
-> 2. Where should this device live? I am guessing in input/misc?
->=20
-> Thanks,
-> Ken Sloat
+On Thu, Jun 20, 2019 at 10:34 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Jeffrey,
+>
+> On Thu, Jun 20, 2019 at 7:33 AM Jeffrey Hugo <jeffrey.l.hugo@gmail.com> wrote:
+> >  #ifdef CONFIG_OF
+> > -static const struct of_device_id elan_of_match[] = {
+> > -       { .compatible = "elan,ekth3000" },
+> > -       { /* sentinel */ }
+> > -};
+>
+> I think OF IDs should stay in this file since we agreed HID will not
+> be checking them.
 
-CC'ing people from device tree mailing list since this discussion would be =
-relevant there as well, so the more generic question would be: For any devi=
-ce which requires multiple unique register configuration values per target =
-application - what is the preferred method to expose all these via devicetr=
-ee? Maybe there are some good examples of this already somewhere in the ker=
-nel drivers?
+I thought it would be convenient to keep all the IDs in one place, but
+I'll put these back.
 
-Thanks,
-Ken Sloat
+>
+> >  MODULE_DEVICE_TABLE(of, elan_of_match);
+> >  #endif
+> >
+> > diff --git a/include/linux/input/elan-i2c-ids.h b/include/linux/input/elan-i2c-ids.h
+> > new file mode 100644
+> > index 000000000000..8130bbebbdda
+> > --- /dev/null
+> > +++ b/include/linux/input/elan-i2c-ids.h
+> > @@ -0,0 +1,68 @@
+> > +/* SPDX-License-Identifier: GPL-2.0 */
+> > +/*
+> > + * Elan I2C Touchpad devide whitelist
+>
+> s/devide/device/
+
+Doh.  Will fix.
+
+>
+> > + *
+> > + * Copyright (C) 2019 Jeffrey Hugo.  All rights reserved.
+>
+> This just moves the code around. If anything I'd say it should keep
+> the original Elan copyright.
+
+Ok.  No problem.
+
+>
+> Thanks.
+>
+> --
+> Dmitry

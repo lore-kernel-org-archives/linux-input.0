@@ -1,51 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v7 1/5] Input: elan_i2c: Export the device id whitelist
-Date: Thu, 20 Jun 2019 21:34:10 -0700
-Message-ID: <CAKdAkRRstvEWXtwnLCMKoW6PcCz0W3+M9iYqVFshJpw6y_=9bA@mail.gmail.com>
-References: <20190620142801.11827-1-jeffrey.l.hugo@gmail.com> <20190620143318.11880-1-jeffrey.l.hugo@gmail.com>
+From: Oleksandr Natalenko <oleksandr@redhat.com>
+Subject: [PATCH] hid: add another quirk for Chicony PixArt mouse
+Date: Fri, 21 Jun 2019 11:17:36 +0200
+Message-ID: <20190621091736.14503-1-oleksandr@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190620143318.11880-1-jeffrey.l.hugo@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, agross@kernel.org, Lee Jones <lee.jones@linaro.org>, xnox@ubuntu.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, "open list:ARM/QUALCOMM SUPPORT" <linux-arm-msm@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sebastian Parschauer <sparschauer@suse.de>, Dave Young <dyoung@redhat.com>, "Herton R . Krzesinski" <herton@redhat.com>, Oliver Neukum <oneukum@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Jeffrey,
+I've spotted another Chicony PixArt mouse in the wild, which requires
+HID_QUIRK_ALWAYS_POLL quirk, otherwise it disconnects each minute.
 
-On Thu, Jun 20, 2019 at 7:33 AM Jeffrey Hugo <jeffrey.l.hugo@gmail.com> wrote:
->  #ifdef CONFIG_OF
-> -static const struct of_device_id elan_of_match[] = {
-> -       { .compatible = "elan,ekth3000" },
-> -       { /* sentinel */ }
-> -};
+USB ID of this device is 0x04f2:0x0939.
 
-I think OF IDs should stay in this file since we agreed HID will not
-be checking them.
+We've introduced quirks like this for other models before, so lets add
+this mouse too.
 
->  MODULE_DEVICE_TABLE(of, elan_of_match);
->  #endif
->
-> diff --git a/include/linux/input/elan-i2c-ids.h b/include/linux/input/elan-i2c-ids.h
-> new file mode 100644
-> index 000000000000..8130bbebbdda
-> --- /dev/null
-> +++ b/include/linux/input/elan-i2c-ids.h
-> @@ -0,0 +1,68 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * Elan I2C Touchpad devide whitelist
+Link: https://github.com/sriemer/fix-linux-mouse#usb-mouse-disconnectsreconnects-every-minute-on-linux
+Signed-off-by: Oleksandr Natalenko <oleksandr@redhat.com>
+---
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-s/devide/device/
-
-> + *
-> + * Copyright (C) 2019 Jeffrey Hugo.  All rights reserved.
-
-This just moves the code around. If anything I'd say it should keep
-the original Elan copyright.
-
-Thanks.
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index eac0c54c5970..69f0553d9d95 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -269,6 +269,7 @@
+ #define USB_DEVICE_ID_CHICONY_MULTI_TOUCH	0xb19d
+ #define USB_DEVICE_ID_CHICONY_WIRELESS	0x0618
+ #define USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE	0x1053
++#define USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE2	0x0939
+ #define USB_DEVICE_ID_CHICONY_WIRELESS2	0x1123
+ #define USB_DEVICE_ID_ASUS_AK1D		0x1125
+ #define USB_DEVICE_ID_CHICONY_TOSHIBA_WT10A	0x1408
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index e5ca6fe2ca57..671a285724f9 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -42,6 +42,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE2), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD), HID_QUIRK_BADPAD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK), HID_QUIRK_NOGET },
 -- 
-Dmitry
+2.22.0

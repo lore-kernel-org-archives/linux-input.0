@@ -1,63 +1,119 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1] Input: rotary-encoder - Add gpio as push button
-Date: Sun, 23 Jun 2019 00:05:04 -0700
-Message-ID: <20190623070504.GE204275@dtor-ws>
-References: <20190614133651.28396-1-mylene.josserand@bootlin.com>
- <20190614145158.ic5n4jauzigvcpru@flea>
+From: Kirill Smelkov <kirr@nexedi.com>
+Subject: [PATCH 2/2] *: convert stream-like files -> stream_open,
+	even if they use noop_llseek
+Date: Sun, 23 Jun 2019 07:29:04 +0000
+Message-ID: <20190623072838.31234-2-kirr@nexedi.com>
+References: <20190623072838.31234-1-kirr@nexedi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190614145158.ic5n4jauzigvcpru@flea>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@bootlin.com>, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@bootlin.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <cocci-bounces@systeme.lip6.fr>
+In-Reply-To: <20190623072838.31234-1-kirr@nexedi.com>
+List-Unsubscribe: <https://systeme.lip6.fr/mailman/options/cocci>,
+ <mailto:cocci-request@systeme.lip6.fr?subject=unsubscribe>
+List-Archive: <https://systeme.lip6.fr/pipermail/cocci>
+List-Post: <mailto:cocci@systeme.lip6.fr>
+List-Help: <mailto:cocci-request@systeme.lip6.fr?subject=help>
+List-Subscribe: <https://systeme.lip6.fr/mailman/listinfo/cocci>,
+ <mailto:cocci-request@systeme.lip6.fr?subject=subscribe>
+Sender: cocci-bounces@systeme.lip6.fr
+Errors-To: cocci-bounces@systeme.lip6.fr
+To: cocci@systeme.lip6.fr, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jan Blunck <jblunck@suse.de>, Kirill Smelkov <kirr@nexedi.com>, Jonathan Cameron <jic23@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 14, 2019 at 04:51:58PM +0200, Maxime Ripard wrote:
-> Hi Mylene,
-> 
-> On Fri, Jun 14, 2019 at 03:36:51PM +0200, Mylène Josserand wrote:
-> > Add the support of a gpio that can be defined as a push button.
-> > Thanks to that, it is possible to emit a keycode in case of a
-> > "push" event, if the rotary supports that.
-> >
-> > The keycode to emit is defined using "linux,code" property
-> > (such as in gpio-keys).
-> >
-> > Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
-> > ---
-> >  .../devicetree/bindings/input/rotary-encoder.txt   |  5 +++
-> >  drivers/input/misc/rotary_encoder.c                | 50 ++++++++++++++++++++++
-> >  2 files changed, 55 insertions(+)
-> >
-> > diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> > index a644408b33b8..1cfce5d0b5c4 100644
-> > --- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> > +++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> > @@ -22,6 +22,9 @@ Optional properties:
-> >  - wakeup-source: Boolean, rotary encoder can wake up the system.
-> >  - rotary-encoder,encoding: String, the method used to encode steps.
-> >    Supported are "gray" (the default and more common) and "binary".
-> > +- push-gpio: a gpio to be used as a detection of a push from the rotary.
-> 
-> According to Documentation/devicetree/bindings/gpio/gpio.txt, GPIO
-> properties with a -gpio suffix are now deprecated in favor of the
-> -gpios suffix.
-> 
-> > +- linux,code: keycode to emit with the push-gpio of this rotary encoder.
-> > +  Required property in case "push-gpio"'s one is used.
-> 
-> I guess we should make it clear in the property name that it's the
-> keycode emitted at push. Otherwise, it will be ambiguous between the
-> rotary itself, or the button.
+This patch continues 10dce8af3422 (fs: stream_open - opener for
+stream-like files so that read and write can run simultaneously without
+deadlock) and c5bf68fe0c86 (*: convert stream-like files from
+nonseekable_open -> stream_open) and teaches steam_open.cocci to
+consider files as being stream-like not only if they have
+.llseek=no_llseek, but also if they have .llseek=noop_llseek.
 
-Also, I am pretty sure someone will come up with a switch instead of a
-button shortly after ;) so I think we should have an event type there as
-well.
+This is safe to do: the comment about noop_llseek says
 
-Thanks.
+	This is an implementation of ->llseek useable for the rare special case when
+	userspace expects the seek to succeed but the (device) file is actually not
+	able to perform the seek. In this case you use noop_llseek() instead of
+	falling back to the default implementation of ->llseek.
 
+and in general noop_llseek was massively added to drivers in 6038f373a3dc
+(llseek: automatically add .llseek fop) when changing default for NULL .llseek
+from NOP to no_llseek with the idea to avoid breaking compatibility, if
+maybe some user-space program was using lseek on a device without caring
+about the result, but caring if it was an error or not.
+
+Amended semantic patch produces two changes when applied tree-wide:
+
+        drivers/hid/hid-sensor-custom.c:690:8-24: WARNING: hid_sensor_custom_fops: .read() has stream semantic; safe to change nonseekable_open -> stream_open.
+        drivers/input/mousedev.c:564:1-17: ERROR: mousedev_fops: .read() can deadlock .write(); change nonseekable_open -> stream_open to fix.
+
+Cc: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: Jan Blunck <jblunck@suse.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Jonathan Cameron <jic23@kernel.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
+---
+ drivers/hid/hid-sensor-custom.c          | 2 +-
+ drivers/input/mousedev.c                 | 2 +-
+ scripts/coccinelle/api/stream_open.cocci | 9 ++++++++-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
+index c60f82673cf2..fb827c295842 100644
+--- a/drivers/hid/hid-sensor-custom.c
++++ b/drivers/hid/hid-sensor-custom.c
+@@ -687,7 +687,7 @@ static int hid_sensor_custom_open(struct inode *inode, struct file *file)
+ 	if (test_and_set_bit(0, &sensor_inst->misc_opened))
+ 		return -EBUSY;
+ 
+-	return nonseekable_open(inode, file);
++	return stream_open(inode, file);
+ }
+ 
+ static __poll_t hid_sensor_custom_poll(struct file *file,
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 412fa71245af..58afd5253485 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -561,7 +561,7 @@ static int mousedev_open(struct inode *inode, struct file *file)
+ 		goto err_free_client;
+ 
+ 	file->private_data = client;
+-	nonseekable_open(inode, file);
++	stream_open(inode, file);
+ 
+ 	return 0;
+ 
+diff --git a/scripts/coccinelle/api/stream_open.cocci b/scripts/coccinelle/api/stream_open.cocci
+index 12ce18fa6b74..df00d6619b06 100644
+--- a/scripts/coccinelle/api/stream_open.cocci
++++ b/scripts/coccinelle/api/stream_open.cocci
+@@ -134,6 +134,13 @@ identifier fops0.fops;
+     .llseek = no_llseek,
+   };
+ 
++@ has_noop_llseek @
++identifier fops0.fops;
++@@
++  struct file_operations fops = {
++    .llseek = noop_llseek,
++  };
++
+ @ has_mmap @
+ identifier fops0.fops;
+ identifier mmap_f;
+@@ -180,7 +187,7 @@ identifier splice_write_f;
+ //
+ // XXX for simplicity require no .{read/write}_iter and no .splice_{read/write} for now.
+ // XXX maybe_steam.fops cannot be used in other rules - it gives "bad rule maybe_stream or bad variable fops".
+-@ maybe_stream depends on (!has_llseek || has_no_llseek) && !has_mmap && !has_copy_file_range && !has_remap_file_range && !has_read_iter && !has_write_iter && !has_splice_read && !has_splice_write @
++@ maybe_stream depends on (!has_llseek || has_no_llseek || has_noop_llseek) && !has_mmap && !has_copy_file_range && !has_remap_file_range && !has_read_iter && !has_write_iter && !has_splice_read && !has_splice_write @
+ identifier fops0.fops;
+ @@
+   struct file_operations fops = {
 -- 
-Dmitry
+2.20.1

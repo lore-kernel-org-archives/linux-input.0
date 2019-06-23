@@ -1,57 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/2] Input: edt-ft5x06 - simplify event reporting code
-Date: Sat, 22 Jun 2019 23:31:53 -0700
-Message-ID: <20190623063153.261546-2-dmitry.torokhov@gmail.com>
-References: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/2] Input: edt-ft5x06 - use get_unaligned_be16()
+Date: Sat, 22 Jun 2019 23:31:52 -0700
+Message-ID: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, Benoit Parrot <bparrot@ti.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Now that input_mt_report_slot_state() returns true if slot is active we no
-longer need a temporary for the slot state.
+Instead of doing conversion by hand, let's use the proper accessors.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/edt-ft5x06.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index ec770226e119..3cc4341bbdff 100644
+index c639ebce914c..ec770226e119 100644
 --- a/drivers/input/touchscreen/edt-ft5x06.c
 +++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -229,7 +229,6 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+@@ -27,6 +27,7 @@
+ #include <linux/gpio/consumer.h>
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
++#include <asm/unaligned.h>
  
- 	for (i = 0; i < tsdata->max_support_points; i++) {
- 		u8 *buf = &rdbuf[i * tplen + offset];
--		bool down;
+ #define WORK_REGISTER_THRESHOLD		0x00
+ #define WORK_REGISTER_REPORT_RATE	0x08
+@@ -239,8 +240,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 		if (tsdata->version == EDT_M06 && type == TOUCH_EVENT_DOWN)
+ 			continue;
  
- 		type = buf[0] >> 6;
- 		/* ignore Reserved events */
-@@ -247,16 +246,12 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+-		x = ((buf[0] << 8) | buf[1]) & 0x0fff;
+-		y = ((buf[2] << 8) | buf[3]) & 0x0fff;
++		x = get_unaligned_be16(buf) & 0x0fff;
++		y = get_unaligned_be16(buf + 2) & 0x0fff;
+ 		/* The FT5x26 send the y coordinate first */
+ 		if (tsdata->version == EV_FT)
  			swap(x, y);
- 
- 		id = (buf[2] >> 4) & 0x0f;
--		down = type != TOUCH_EVENT_UP;
- 
- 		input_mt_slot(tsdata->input, id);
--		input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER, down);
--
--		if (!down)
--			continue;
--
--		touchscreen_report_pos(tsdata->input, &tsdata->prop, x, y,
--				       true);
-+		if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
-+					       type != TOUCH_EVENT_UP))
-+			touchscreen_report_pos(tsdata->input, &tsdata->prop,
-+					       x, y, true);
- 	}
- 
- 	input_mt_report_pointer_emulation(tsdata->input, true);
 -- 
 2.22.0.410.gd8fdbe21b5-goog

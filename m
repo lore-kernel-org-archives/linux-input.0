@@ -1,44 +1,77 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 1/2] Input: edt-ft5x06 - use get_unaligned_be16()
-Date: Sat, 22 Jun 2019 23:31:52 -0700
-Message-ID: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: gpio_keys_polled - use struct_size() in
+ devm_kzalloc()
+Date: Sat, 22 Jun 2019 23:33:44 -0700
+Message-ID: <20190623063344.GC204275@dtor-ws>
+References: <20190619142655.GA20218@embeddedor>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190619142655.GA20218@embeddedor>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, Benoit Parrot <bparrot@ti.com>, linux-kernel@vger.kernel.org
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Instead of doing conversion by hand, let's use the proper accessors.
+On Wed, Jun 19, 2019 at 09:26:55AM -0500, Gustavo A. R. Silva wrote:
+> One of the more common cases of allocation size calculations is finding
+> the size of a structure that has a zero-sized array at the end, along
+> with memory for some number of elements for that array. For example:
+> 
+> struct gpio_keys_polled_dev {
+> 	...
+>         struct gpio_keys_button_data data[0];
+> };
+> 
+> size = sizeof(struct gpio_keys_polled_dev) + count * sizeof(struct gpio_keys_button_data);
+> instance = devm_kzalloc(dev, size, GFP_KERNEL);
+> 
+> Instead of leaving these open-coded and prone to type mistakes, we can
+> now use the new struct_size() helper:
+> 
+> instance = devm_kzalloc(dev, struct_size(instance, data, count), GFP_KERNEL);
+> 
+> Notice that, in this case, variable size is not necessary, hence it
+> is removed.
+> 
+> This code was detected with the help of Coccinelle.
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/edt-ft5x06.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Applied, thank you.
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index c639ebce914c..ec770226e119 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -27,6 +27,7 @@
- #include <linux/gpio/consumer.h>
- #include <linux/input/mt.h>
- #include <linux/input/touchscreen.h>
-+#include <asm/unaligned.h>
- 
- #define WORK_REGISTER_THRESHOLD		0x00
- #define WORK_REGISTER_REPORT_RATE	0x08
-@@ -239,8 +240,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 		if (tsdata->version == EDT_M06 && type == TOUCH_EVENT_DOWN)
- 			continue;
- 
--		x = ((buf[0] << 8) | buf[1]) & 0x0fff;
--		y = ((buf[2] << 8) | buf[3]) & 0x0fff;
-+		x = get_unaligned_be16(buf) & 0x0fff;
-+		y = get_unaligned_be16(buf + 2) & 0x0fff;
- 		/* The FT5x26 send the y coordinate first */
- 		if (tsdata->version == EV_FT)
- 			swap(x, y);
+> ---
+>  drivers/input/keyboard/gpio_keys_polled.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+> index edc7262103b9..c4087be0c2e0 100644
+> --- a/drivers/input/keyboard/gpio_keys_polled.c
+> +++ b/drivers/input/keyboard/gpio_keys_polled.c
+> @@ -235,7 +235,6 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+>  	struct gpio_keys_polled_dev *bdev;
+>  	struct input_polled_dev *poll_dev;
+>  	struct input_dev *input;
+> -	size_t size;
+>  	int error;
+>  	int i;
+>  
+> @@ -250,9 +249,8 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	size = sizeof(struct gpio_keys_polled_dev) +
+> -			pdata->nbuttons * sizeof(struct gpio_keys_button_data);
+> -	bdev = devm_kzalloc(dev, size, GFP_KERNEL);
+> +	bdev = devm_kzalloc(dev, struct_size(bdev, data, pdata->nbuttons),
+> +			    GFP_KERNEL);
+>  	if (!bdev) {
+>  		dev_err(dev, "no memory for private data\n");
+>  		return -ENOMEM;
+> -- 
+> 2.21.0
+> 
+
 -- 
-2.22.0.410.gd8fdbe21b5-goog
+Dmitry

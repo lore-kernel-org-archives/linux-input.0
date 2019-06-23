@@ -1,64 +1,73 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: Kernel touch Kconfig consult
-Date: Sun, 23 Jun 2019 12:43:47 +0200
-Message-ID: <b1ab79bd-e72a-a782-a293-c32f1c09cce9@denx.de>
-References: <1560509239.24963.25.camel@mbjsdccf07>
- <20190623070249.GD204275@dtor-ws>
+From: Alexander Tsoy <alexander@tsoy.me>
+Subject: [PATCH] Input: joydev - extend absolute mouse detection
+Date: Mon, 24 Jun 2019 02:44:56 +0300
+Message-ID: <20190623234456.4074-1-alexander@tsoy.me>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190623070249.GD204275@dtor-ws>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "luhua.xu" <luhua.xu@mediatek.com>
-Cc: Rob Herring <robh@kernel.org>, Nick Dyer <nick.dyer@itdev.co.uk>, Richard Leitner <richard.leitner@skidata.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, weiqi.fu@mediatek.com, wsd_upstream@mediatek.com
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thomas Hellstrom <thellstrom@vmware.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 6/23/19 9:02 AM, Dmitry Torokhov wrote:
-> Hi,
-> 
-> On Fri, Jun 14, 2019 at 06:47:19AM -0400, luhua.xu wrote:
->> Hi Dmitry,Rob,Marek, Nick,Richard,Martin,
->>
->> In our  customer support experience, many smartphone have two or three
->> touch vendor mixture , and customer use one load to support all touches.
->> For easy to config touch driver  we use kernel config like this down
->> below,
->>  
->> We change the config type from 'bool' to 'string'.
->>  
->> config TOUCHSCREEN_MTK_TOUCH
->>   string "Touch IC name for Mediatek package"
->>   help
->>     Set touch IC name if you have touch panel.
->>     To compile this dirver for used touch IC.
->>  
->>
->> And we config touch driver like this：
->> CONFIG_TOUCHSCREEN_MTK_TOUCH="GT9886 GT1151 TD4320"
->>  
->> I only use one config to support  3 touches, while we have to use 3
->> config to support 3  touch drivers if we set the config as 'bool'.
->>
->> So can I use Kconfig like this?
->> I do look forward to receiving your reply at your convenience .
->>
-> 
-> I really do not see why having a sting is easier to have than 3 bools,
-> especially if they pertain to different touch controllers. You must also
-> have some custom processing of the config above as I am pretty sure our
-> standard build tools would not work for it.
+Extend event signature matching to catch more input devices emulated by
+BMC firmwares, QEMU and VMware.
 
-I might be missing something obvious, but isn't DT something you want to
-use on your ARM device to describe the hardware , instead of hard-coding
-it into the kernel configuration ?
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+---
+ drivers/input/joydev.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-I recently worked with MT6797 (the Gemini PDA SoC), and the vendorkernel
-does exactly this, it's a spectacular display of ifdeffery and Kconfig
-chaos, so I suspect this is where the idea of putting stuff into Kconfig
-comes from.
-
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index ac21c050fdb0..a2b5fbba2d3b 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -808,6 +808,7 @@ static bool joydev_dev_is_blacklisted(struct input_dev *dev)
+ static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
+ {
+ 	DECLARE_BITMAP(jd_scratch, KEY_CNT);
++	bool ev_match = false;
+ 
+ 	BUILD_BUG_ON(ABS_CNT > KEY_CNT || EV_CNT > KEY_CNT);
+ 
+@@ -826,17 +827,36 @@ static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
+ 	 * considered to be an absolute mouse if the following is
+ 	 * true:
+ 	 *
+-	 * 1) Event types are exactly EV_ABS, EV_KEY and EV_SYN.
++	 * 1) Event types are exactly
++	 *      EV_ABS, EV_KEY and EV_SYN
++	 *    or
++	 *      EV_ABS, EV_KEY, EV_SYN and EV_MSC
++	 *    or
++	 *      EV_ABS, EV_KEY, EV_SYN, EV_MSC and EV_REL.
+ 	 * 2) Absolute events are exactly ABS_X and ABS_Y.
+ 	 * 3) Keys are exactly BTN_LEFT, BTN_RIGHT and BTN_MIDDLE.
+ 	 * 4) Device is not on "Amiga" bus.
+ 	 */
+ 
+ 	bitmap_zero(jd_scratch, EV_CNT);
++	/* VMware VMMouse, HP ILO2 */
+ 	__set_bit(EV_ABS, jd_scratch);
+ 	__set_bit(EV_KEY, jd_scratch);
+ 	__set_bit(EV_SYN, jd_scratch);
+-	if (!bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
++	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
++		ev_match = true;
++
++	/* HP ILO2, AMI BMC firmware */
++	__set_bit(EV_MSC, jd_scratch);
++	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
++		ev_match = true;
++
++	/* VMware Virtual USB Mouse, QEMU USB Tablet, ATEN BMC firmware */
++	__set_bit(EV_REL, jd_scratch);
++	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
++		ev_match = true;
++
++	if (!ev_match)
+ 		return false;
+ 
+ 	bitmap_zero(jd_scratch, ABS_CNT);
 -- 
-Best regards,
-Marek Vasut
+2.21.0

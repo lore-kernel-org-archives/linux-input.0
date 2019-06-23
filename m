@@ -1,52 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Kernel touch Kconfig consult
-Date: Sun, 23 Jun 2019 00:02:49 -0700
-Message-ID: <20190623070249.GD204275@dtor-ws>
-References: <1560509239.24963.25.camel@mbjsdccf07>
+Subject: Re: [PATCH v1] Input: rotary-encoder - Add gpio as push button
+Date: Sun, 23 Jun 2019 00:05:04 -0700
+Message-ID: <20190623070504.GE204275@dtor-ws>
+References: <20190614133651.28396-1-mylene.josserand@bootlin.com>
+ <20190614145158.ic5n4jauzigvcpru@flea>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1560509239.24963.25.camel@mbjsdccf07>
+In-Reply-To: <20190614145158.ic5n4jauzigvcpru@flea>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "luhua.xu" <luhua.xu@mediatek.com>
-Cc: Rob Herring <robh@kernel.org>, Marek Vasut <marex@denx.de>, Nick Dyer <nick.dyer@itdev.co.uk>, Richard Leitner <richard.leitner@skidata.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, weiqi.fu@mediatek.com, wsd_upstream@mediatek.com
+To: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@bootlin.com>, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@bootlin.com
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Fri, Jun 14, 2019 at 04:51:58PM +0200, Maxime Ripard wrote:
+> Hi Mylene,
+> 
+> On Fri, Jun 14, 2019 at 03:36:51PM +0200, Mylène Josserand wrote:
+> > Add the support of a gpio that can be defined as a push button.
+> > Thanks to that, it is possible to emit a keycode in case of a
+> > "push" event, if the rotary supports that.
+> >
+> > The keycode to emit is defined using "linux,code" property
+> > (such as in gpio-keys).
+> >
+> > Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
+> > ---
+> >  .../devicetree/bindings/input/rotary-encoder.txt   |  5 +++
+> >  drivers/input/misc/rotary_encoder.c                | 50 ++++++++++++++++++++++
+> >  2 files changed, 55 insertions(+)
+> >
+> > diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+> > index a644408b33b8..1cfce5d0b5c4 100644
+> > --- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
+> > +++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+> > @@ -22,6 +22,9 @@ Optional properties:
+> >  - wakeup-source: Boolean, rotary encoder can wake up the system.
+> >  - rotary-encoder,encoding: String, the method used to encode steps.
+> >    Supported are "gray" (the default and more common) and "binary".
+> > +- push-gpio: a gpio to be used as a detection of a push from the rotary.
+> 
+> According to Documentation/devicetree/bindings/gpio/gpio.txt, GPIO
+> properties with a -gpio suffix are now deprecated in favor of the
+> -gpios suffix.
+> 
+> > +- linux,code: keycode to emit with the push-gpio of this rotary encoder.
+> > +  Required property in case "push-gpio"'s one is used.
+> 
+> I guess we should make it clear in the property name that it's the
+> keycode emitted at push. Otherwise, it will be ambiguous between the
+> rotary itself, or the button.
 
-On Fri, Jun 14, 2019 at 06:47:19AM -0400, luhua.xu wrote:
-> Hi Dmitry,Rob,Marek, Nick,Richard,Martin,
-> 
-> In our  customer support experience, many smartphone have two or three
-> touch vendor mixture , and customer use one load to support all touches.
-> For easy to config touch driver  we use kernel config like this down
-> below,
->  
-> We change the config type from 'bool' to 'string'.
->  
-> config TOUCHSCREEN_MTK_TOUCH
->   string "Touch IC name for Mediatek package"
->   help
->     Set touch IC name if you have touch panel.
->     To compile this dirver for used touch IC.
->  
-> 
-> And we config touch driver like thisï¼š
-> CONFIG_TOUCHSCREEN_MTK_TOUCH="GT9886 GT1151 TD4320"
->  
-> I only use one config to support  3 touches, while we have to use 3
-> config to support 3  touch drivers if we set the config as 'bool'.
-> 
-> So can I use Kconfig like this?
-> I do look forward to receiving your reply at your convenience .
-> 
-
-I really do not see why having a sting is easier to have than 3 bools,
-especially if they pertain to different touch controllers. You must also
-have some custom processing of the config above as I am pretty sure our
-standard build tools would not work for it.
+Also, I am pretty sure someone will come up with a switch instead of a
+button shortly after ;) so I think we should have an event type there as
+well.
 
 Thanks.
 

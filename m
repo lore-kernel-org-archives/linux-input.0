@@ -1,61 +1,64 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 1/2] Input: edt-ft5x06 - use get_unaligned_be16()
-Date: Sun, 23 Jun 2019 11:00:22 +0300
-Message-ID: <CAHp75VfJWGiZ2gAwAE-G+AnjrWC1mmS7uYknutNaQKW+CuCwvw@mail.gmail.com>
-References: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: Kernel touch Kconfig consult
+Date: Sun, 23 Jun 2019 12:43:47 +0200
+Message-ID: <b1ab79bd-e72a-a782-a293-c32f1c09cce9@denx.de>
+References: <1560509239.24963.25.camel@mbjsdccf07>
+ <20190623070249.GD204275@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
+In-Reply-To: <20190623070249.GD204275@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Marco Felsch <m.felsch@pengutronix.de>, Benoit Parrot <bparrot@ti.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "luhua.xu" <luhua.xu@mediatek.com>
+Cc: Rob Herring <robh@kernel.org>, Nick Dyer <nick.dyer@itdev.co.uk>, Richard Leitner <richard.leitner@skidata.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, weiqi.fu@mediatek.com, wsd_upstream@mediatek.com
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Jun 23, 2019 at 9:31 AM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Instead of doing conversion by hand, let's use the proper accessors.
->
+On 6/23/19 9:02 AM, Dmitry Torokhov wrote:
+> Hi,
+> 
+> On Fri, Jun 14, 2019 at 06:47:19AM -0400, luhua.xu wrote:
+>> Hi Dmitry,Rob,Marek, Nick,Richard,Martin,
+>>
+>> In our  customer support experience, many smartphone have two or three
+>> touch vendor mixture , and customer use one load to support all touches.
+>> For easy to config touch driver  we use kernel config like this down
+>> below,
+>>  
+>> We change the config type from 'bool' to 'string'.
+>>  
+>> config TOUCHSCREEN_MTK_TOUCH
+>>   string "Touch IC name for Mediatek package"
+>>   help
+>>     Set touch IC name if you have touch panel.
+>>     To compile this dirver for used touch IC.
+>>  
+>>
+>> And we config touch driver like this：
+>> CONFIG_TOUCHSCREEN_MTK_TOUCH="GT9886 GT1151 TD4320"
+>>  
+>> I only use one config to support  3 touches, while we have to use 3
+>> config to support 3  touch drivers if we set the config as 'bool'.
+>>
+>> So can I use Kconfig like this?
+>> I do look forward to receiving your reply at your convenience .
+>>
+> 
+> I really do not see why having a sting is easier to have than 3 bools,
+> especially if they pertain to different touch controllers. You must also
+> have some custom processing of the config above as I am pretty sure our
+> standard build tools would not work for it.
 
-The code looks fine to me,
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+I might be missing something obvious, but isn't DT something you want to
+use on your ARM device to describe the hardware , instead of hard-coding
+it into the kernel configuration ?
 
-I can test it later next week (Wednesday or so).
-
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/touchscreen/edt-ft5x06.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index c639ebce914c..ec770226e119 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -27,6 +27,7 @@
->  #include <linux/gpio/consumer.h>
->  #include <linux/input/mt.h>
->  #include <linux/input/touchscreen.h>
-> +#include <asm/unaligned.h>
->
->  #define WORK_REGISTER_THRESHOLD                0x00
->  #define WORK_REGISTER_REPORT_RATE      0x08
-> @@ -239,8 +240,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
->                 if (tsdata->version == EDT_M06 && type == TOUCH_EVENT_DOWN)
->                         continue;
->
-> -               x = ((buf[0] << 8) | buf[1]) & 0x0fff;
-> -               y = ((buf[2] << 8) | buf[3]) & 0x0fff;
-> +               x = get_unaligned_be16(buf) & 0x0fff;
-> +               y = get_unaligned_be16(buf + 2) & 0x0fff;
->                 /* The FT5x26 send the y coordinate first */
->                 if (tsdata->version == EV_FT)
->                         swap(x, y);
-> --
-> 2.22.0.410.gd8fdbe21b5-goog
->
-
+I recently worked with MT6797 (the Gemini PDA SoC), and the vendorkernel
+does exactly this, it's a spectacular display of ifdeffery and Kconfig
+chaos, so I suspect this is where the idea of putting stuff into Kconfig
+comes from.
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Best regards,
+Marek Vasut

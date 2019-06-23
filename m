@@ -1,77 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio_keys_polled - use struct_size() in
- devm_kzalloc()
-Date: Sat, 22 Jun 2019 23:33:44 -0700
-Message-ID: <20190623063344.GC204275@dtor-ws>
-References: <20190619142655.GA20218@embeddedor>
+Subject: Re: Kernel touch Kconfig consult
+Date: Sun, 23 Jun 2019 00:02:49 -0700
+Message-ID: <20190623070249.GD204275@dtor-ws>
+References: <1560509239.24963.25.camel@mbjsdccf07>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190619142655.GA20218@embeddedor>
+In-Reply-To: <1560509239.24963.25.camel@mbjsdccf07>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "luhua.xu" <luhua.xu@mediatek.com>
+Cc: Rob Herring <robh@kernel.org>, Marek Vasut <marex@denx.de>, Nick Dyer <nick.dyer@itdev.co.uk>, Richard Leitner <richard.leitner@skidata.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, weiqi.fu@mediatek.com, wsd_upstream@mediatek.com
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 19, 2019 at 09:26:55AM -0500, Gustavo A. R. Silva wrote:
-> One of the more common cases of allocation size calculations is finding
-> the size of a structure that has a zero-sized array at the end, along
-> with memory for some number of elements for that array. For example:
-> 
-> struct gpio_keys_polled_dev {
-> 	...
->         struct gpio_keys_button_data data[0];
-> };
-> 
-> size = sizeof(struct gpio_keys_polled_dev) + count * sizeof(struct gpio_keys_button_data);
-> instance = devm_kzalloc(dev, size, GFP_KERNEL);
-> 
-> Instead of leaving these open-coded and prone to type mistakes, we can
-> now use the new struct_size() helper:
-> 
-> instance = devm_kzalloc(dev, struct_size(instance, data, count), GFP_KERNEL);
-> 
-> Notice that, in this case, variable size is not necessary, hence it
-> is removed.
-> 
-> This code was detected with the help of Coccinelle.
-> 
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Hi,
 
-Applied, thank you.
+On Fri, Jun 14, 2019 at 06:47:19AM -0400, luhua.xu wrote:
+> Hi Dmitry,Rob,Marek, Nick,Richard,Martin,
+> 
+> In our  customer support experience, many smartphone have two or three
+> touch vendor mixture , and customer use one load to support all touches.
+> For easy to config touch driver  we use kernel config like this down
+> below,
+>  
+> We change the config type from 'bool' to 'string'.
+>  
+> config TOUCHSCREEN_MTK_TOUCH
+>   string "Touch IC name for Mediatek package"
+>   help
+>     Set touch IC name if you have touch panel.
+>     To compile this dirver for used touch IC.
+>  
+> 
+> And we config touch driver like this：
+> CONFIG_TOUCHSCREEN_MTK_TOUCH="GT9886 GT1151 TD4320"
+>  
+> I only use one config to support  3 touches, while we have to use 3
+> config to support 3  touch drivers if we set the config as 'bool'.
+> 
+> So can I use Kconfig like this?
+> I do look forward to receiving your reply at your convenience .
+> 
 
-> ---
->  drivers/input/keyboard/gpio_keys_polled.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-> index edc7262103b9..c4087be0c2e0 100644
-> --- a/drivers/input/keyboard/gpio_keys_polled.c
-> +++ b/drivers/input/keyboard/gpio_keys_polled.c
-> @@ -235,7 +235,6 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
->  	struct gpio_keys_polled_dev *bdev;
->  	struct input_polled_dev *poll_dev;
->  	struct input_dev *input;
-> -	size_t size;
->  	int error;
->  	int i;
->  
-> @@ -250,9 +249,8 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
->  		return -EINVAL;
->  	}
->  
-> -	size = sizeof(struct gpio_keys_polled_dev) +
-> -			pdata->nbuttons * sizeof(struct gpio_keys_button_data);
-> -	bdev = devm_kzalloc(dev, size, GFP_KERNEL);
-> +	bdev = devm_kzalloc(dev, struct_size(bdev, data, pdata->nbuttons),
-> +			    GFP_KERNEL);
->  	if (!bdev) {
->  		dev_err(dev, "no memory for private data\n");
->  		return -ENOMEM;
-> -- 
-> 2.21.0
-> 
+I really do not see why having a sting is easier to have than 3 bools,
+especially if they pertain to different touch controllers. You must also
+have some custom processing of the config above as I am pretty sure our
+standard build tools would not work for it.
+
+Thanks.
 
 -- 
 Dmitry

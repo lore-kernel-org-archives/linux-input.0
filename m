@@ -1,31 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v8 1/5] Input: elan_i2c: Export the device id whitelist
-Date: Sat, 22 Jun 2019 23:20:00 -0700
-Message-ID: <20190623062000.GB204275@dtor-ws>
-References: <20190621144854.38568-1-jeffrey.l.hugo@gmail.com>
- <20190621145042.38637-1-jeffrey.l.hugo@gmail.com>
+Subject: [PATCH 2/2] Input: edt-ft5x06 - simplify event reporting code
+Date: Sat, 22 Jun 2019 23:31:53 -0700
+Message-ID: <20190623063153.261546-2-dmitry.torokhov@gmail.com>
+References: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190621145042.38637-1-jeffrey.l.hugo@gmail.com>
+In-Reply-To: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, hdegoede@redhat.com, bjorn.andersson@linaro.org, agross@kernel.org, lee.jones@linaro.org, xnox@ubuntu.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, Benoit Parrot <bparrot@ti.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 21, 2019 at 07:50:42AM -0700, Jeffrey Hugo wrote:
-> Elan_i2c and hid-quirks work in conjunction to decide which devices each
-> driver will handle.  Elan_i2c has a whitelist of devices that should be
-> consumed by hid-quirks so that there is one master list of devices to
-> handoff between the drivers.  Put the ids in a header file so that
-> hid-quirks can consume it instead of duplicating the list.
-> 
-> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Now that input_mt_report_slot_state() returns true if slot is active we no
+longer need a temporary for the slot state.
 
-Benjamin, are you happy with this version?
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/edt-ft5x06.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index ec770226e119..3cc4341bbdff 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -229,7 +229,6 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 
+ 	for (i = 0; i < tsdata->max_support_points; i++) {
+ 		u8 *buf = &rdbuf[i * tplen + offset];
+-		bool down;
+ 
+ 		type = buf[0] >> 6;
+ 		/* ignore Reserved events */
+@@ -247,16 +246,12 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 			swap(x, y);
+ 
+ 		id = (buf[2] >> 4) & 0x0f;
+-		down = type != TOUCH_EVENT_UP;
+ 
+ 		input_mt_slot(tsdata->input, id);
+-		input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER, down);
+-
+-		if (!down)
+-			continue;
+-
+-		touchscreen_report_pos(tsdata->input, &tsdata->prop, x, y,
+-				       true);
++		if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
++					       type != TOUCH_EVENT_UP))
++			touchscreen_report_pos(tsdata->input, &tsdata->prop,
++					       x, y, true);
+ 	}
+ 
+ 	input_mt_report_pointer_emulation(tsdata->input, true);
 -- 
-Dmitry
+2.22.0.410.gd8fdbe21b5-goog

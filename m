@@ -1,73 +1,90 @@
-From: Alexander Tsoy <alexander@tsoy.me>
-Subject: [PATCH] Input: joydev - extend absolute mouse detection
-Date: Mon, 24 Jun 2019 02:44:56 +0300
-Message-ID: <20190623234456.4074-1-alexander@tsoy.me>
+From: Benoit Parrot <bparrot@ti.com>
+Subject: Re: [Patch 1/1] Input: edt-ft5x06 - disable irq handling during
+ suspend
+Date: Mon, 24 Jun 2019 07:21:20 -0500
+Message-ID: <20190624122120.hq7of57loegwudiv@ti.com>
+References: <20190621185124.28966-1-bparrot@ti.com>
+ <CAHp75VdcAfmn8u0du-Y95SjMcmuJa2402tdXCNHMcme1Y925xg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAHp75VdcAfmn8u0du-Y95SjMcmuJa2402tdXCNHMcme1Y925xg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thomas Hellstrom <thellstrom@vmware.com>, linux-kernel@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Marco Felsch <m.felsch@pengutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Extend event signature matching to catch more input devices emulated by
-BMC firmwares, QEMU and VMware.
+Andy Shevchenko <andy.shevchenko@gmail.com> wrote on Sat [2019-Jun-22 13:37:10 +0300]:
+> On Fri, Jun 21, 2019 at 9:53 PM Benoit Parrot <bparrot@ti.com> wrote:
+> >
+> > As a wakeup source when the system is in suspend there is little point
+> > trying to access a register across the i2c bus as it is probably still
+> > inactive. We need to prevent the irq handler from being called during
+> > suspend.
+> >
+> 
+> Hmm... But how OS will know what the event to handle afterwards?
+> I mean shouldn't we guarantee somehow the delivery of the event to the
+> input, in this case, subsystem followed by corresponding user space?
 
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
----
- drivers/input/joydev.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+I am not sure I understand, do you mean that you want the input wake up event
+being processed by the edt_ft50x6 driver as it happens? How can we do that
+if we can't access the device through the bus? Are we trying to capture
+specific gesture here (given that the display should be off during
+sleep/suspend)?
 
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index ac21c050fdb0..a2b5fbba2d3b 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -808,6 +808,7 @@ static bool joydev_dev_is_blacklisted(struct input_dev *dev)
- static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
- {
- 	DECLARE_BITMAP(jd_scratch, KEY_CNT);
-+	bool ev_match = false;
- 
- 	BUILD_BUG_ON(ABS_CNT > KEY_CNT || EV_CNT > KEY_CNT);
- 
-@@ -826,17 +827,36 @@ static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
- 	 * considered to be an absolute mouse if the following is
- 	 * true:
- 	 *
--	 * 1) Event types are exactly EV_ABS, EV_KEY and EV_SYN.
-+	 * 1) Event types are exactly
-+	 *      EV_ABS, EV_KEY and EV_SYN
-+	 *    or
-+	 *      EV_ABS, EV_KEY, EV_SYN and EV_MSC
-+	 *    or
-+	 *      EV_ABS, EV_KEY, EV_SYN, EV_MSC and EV_REL.
- 	 * 2) Absolute events are exactly ABS_X and ABS_Y.
- 	 * 3) Keys are exactly BTN_LEFT, BTN_RIGHT and BTN_MIDDLE.
- 	 * 4) Device is not on "Amiga" bus.
- 	 */
- 
- 	bitmap_zero(jd_scratch, EV_CNT);
-+	/* VMware VMMouse, HP ILO2 */
- 	__set_bit(EV_ABS, jd_scratch);
- 	__set_bit(EV_KEY, jd_scratch);
- 	__set_bit(EV_SYN, jd_scratch);
--	if (!bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
-+	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
-+		ev_match = true;
-+
-+	/* HP ILO2, AMI BMC firmware */
-+	__set_bit(EV_MSC, jd_scratch);
-+	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
-+		ev_match = true;
-+
-+	/* VMware Virtual USB Mouse, QEMU USB Tablet, ATEN BMC firmware */
-+	__set_bit(EV_REL, jd_scratch);
-+	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
-+		ev_match = true;
-+
-+	if (!ev_match)
- 		return false;
- 
- 	bitmap_zero(jd_scratch, ABS_CNT);
--- 
-2.21.0
+Anyhow here I am just trying to eliminate the runtime error caused by
+trying to access a resource which we know is unavailable at the time.
+What method would you suggest we use to achieve this? 
+
+Benoit
+
+> 
+> > Without this modification upon wakeup you would see the following kernel
+> > error:
+> >
+> > [ 118.733717] PM: Wakeup source GPIO0
+> > [ 118.751933] edt_ft5x06 1-0038: Unable to fetch data, error: -13
+> >
+> > Signed-off-by: Benoit Parrot <bparrot@ti.com>
+> > ---
+> >  drivers/input/touchscreen/edt-ft5x06.c | 8 ++++++--
+> >  1 file changed, 6 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> > index c639ebce914c..c885bfe783a4 100644
+> > --- a/drivers/input/touchscreen/edt-ft5x06.c
+> > +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> > @@ -1200,8 +1200,10 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+> >  {
+> >         struct i2c_client *client = to_i2c_client(dev);
+> >
+> > -       if (device_may_wakeup(dev))
+> > +       if (device_may_wakeup(dev)) {
+> >                 enable_irq_wake(client->irq);
+> > +               disable_irq(client->irq);
+> > +       }
+> >
+> >         return 0;
+> >  }
+> > @@ -1210,8 +1212,10 @@ static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
+> >  {
+> >         struct i2c_client *client = to_i2c_client(dev);
+> >
+> > -       if (device_may_wakeup(dev))
+> > +       if (device_may_wakeup(dev)) {
+> >                 disable_irq_wake(client->irq);
+> > +               enable_irq(client->irq);
+> > +       }
+> >
+> >         return 0;
+> >  }
+> > --
+> > 2.17.1
+> >
+> 
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko

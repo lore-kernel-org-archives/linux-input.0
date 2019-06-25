@@ -1,56 +1,54 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 1/2] Input: edt-ft5x06 - use get_unaligned_be16()
-Date: Tue, 25 Jun 2019 13:50:23 +0300
-Message-ID: <CAHp75VfJQp4TqfyvjGtFcnvN-md++9fQUis6a-dFKn_2OUN=0A@mail.gmail.com>
-References: <20190623063153.261546-1-dmitry.torokhov@gmail.com> <011d62995b20493f977ead43f4b494a2@AcuMS.aculab.com>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH 1/2] Input: edt-ft5x06 - use get_unaligned_be16()
+Date: Tue, 25 Jun 2019 13:00:18 +0000
+Message-ID: <23f190781ea44eda9dc77bcf5100765b@AcuMS.aculab.com>
+References: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
+ <011d62995b20493f977ead43f4b494a2@AcuMS.aculab.com>
+ <CAHp75VfJQp4TqfyvjGtFcnvN-md++9fQUis6a-dFKn_2OUN=0A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <011d62995b20493f977ead43f4b494a2@AcuMS.aculab.com>
+In-Reply-To: <CAHp75VfJQp4TqfyvjGtFcnvN-md++9fQUis6a-dFKn_2OUN=0A@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Laight <David.Laight@aculab.com>
+To: 'Andy Shevchenko' <andy.shevchenko@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Marco Felsch <m.felsch@pengutronix.de>, Benoit Parrot <bparrot@ti.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jun 25, 2019 at 11:44 AM David Laight <David.Laight@aculab.com> wrote:
->
-> From: Dmitry Torokhov
-> > Sent: 23 June 2019 07:32
-> >
-> > Instead of doing conversion by hand, let's use the proper accessors.
-> >
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/input/touchscreen/edt-ft5x06.c | 5 +++--
-> >  1 file changed, 3 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> > index c639ebce914c..ec770226e119 100644
-> > --- a/drivers/input/touchscreen/edt-ft5x06.c
-> > +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> > @@ -27,6 +27,7 @@
-> >  #include <linux/gpio/consumer.h>
-> >  #include <linux/input/mt.h>
-> >  #include <linux/input/touchscreen.h>
-> > +#include <asm/unaligned.h>
-> >
-> >  #define WORK_REGISTER_THRESHOLD              0x00
-> >  #define WORK_REGISTER_REPORT_RATE    0x08
-> > @@ -239,8 +240,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
-> >               if (tsdata->version == EDT_M06 && type == TOUCH_EVENT_DOWN)
-> >                       continue;
-> >
-> > -             x = ((buf[0] << 8) | buf[1]) & 0x0fff;
-> > -             y = ((buf[2] << 8) | buf[3]) & 0x0fff;
-> > +             x = get_unaligned_be16(buf) & 0x0fff;
-> > +             y = get_unaligned_be16(buf + 2) & 0x0fff;
->
-> You might as well delete the pointless masking with 0xff.
-
-Hmm... Does it guarantee the most significant nibble to be always 0?
-(Note 16-bit value and three f:s in the mask)
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+RnJvbTogQW5keSBTaGV2Y2hlbmtvDQo+IFNlbnQ6IDI1IEp1bmUgMjAxOSAxMTo1MA0KPiBUbzog
+RGF2aWQgTGFpZ2h0DQo+IENjOiBEbWl0cnkgVG9yb2tob3Y7IGxpbnV4LWlucHV0QHZnZXIua2Vy
+bmVsLm9yZzsgTWFyY28gRmVsc2NoOyBCZW5vaXQgUGFycm90OyBsaW51eC0NCj4ga2VybmVsQHZn
+ZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIDEvMl0gSW5wdXQ6IGVkdC1mdDV4
+MDYgLSB1c2UgZ2V0X3VuYWxpZ25lZF9iZTE2KCkNCj4gDQo+IE9uIFR1ZSwgSnVuIDI1LCAyMDE5
+IGF0IDExOjQ0IEFNIERhdmlkIExhaWdodCA8RGF2aWQuTGFpZ2h0QGFjdWxhYi5jb20+IHdyb3Rl
+Og0KPiA+DQo+ID4gRnJvbTogRG1pdHJ5IFRvcm9raG92DQo+ID4gPiBTZW50OiAyMyBKdW5lIDIw
+MTkgMDc6MzINCj4gPiA+DQo+ID4gPiBJbnN0ZWFkIG9mIGRvaW5nIGNvbnZlcnNpb24gYnkgaGFu
+ZCwgbGV0J3MgdXNlIHRoZSBwcm9wZXIgYWNjZXNzb3JzLg0KPiA+ID4NCj4gPiA+IFNpZ25lZC1v
+ZmYtYnk6IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4NCj4gPiA+
+IC0tLQ0KPiA+ID4gIGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZWR0LWZ0NXgwNi5jIHwgNSAr
+KystLQ0KPiA+ID4gIDEgZmlsZSBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25z
+KC0pDQo+ID4gPg0KPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4v
+ZWR0LWZ0NXgwNi5jIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LmMNCj4g
+PiA+IGluZGV4IGM2MzllYmNlOTE0Yy4uZWM3NzAyMjZlMTE5IDEwMDY0NA0KPiA+ID4gLS0tIGEv
+ZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LmMNCj4gPiA+ICsrKyBiL2RyaXZl
+cnMvaW5wdXQvdG91Y2hzY3JlZW4vZWR0LWZ0NXgwNi5jDQo+ID4gPiBAQCAtMjcsNiArMjcsNyBA
+QA0KPiA+ID4gICNpbmNsdWRlIDxsaW51eC9ncGlvL2NvbnN1bWVyLmg+DQo+ID4gPiAgI2luY2x1
+ZGUgPGxpbnV4L2lucHV0L210Lmg+DQo+ID4gPiAgI2luY2x1ZGUgPGxpbnV4L2lucHV0L3RvdWNo
+c2NyZWVuLmg+DQo+ID4gPiArI2luY2x1ZGUgPGFzbS91bmFsaWduZWQuaD4NCj4gPiA+DQo+ID4g
+PiAgI2RlZmluZSBXT1JLX1JFR0lTVEVSX1RIUkVTSE9MRCAgICAgICAgICAgICAgMHgwMA0KPiA+
+ID4gICNkZWZpbmUgV09SS19SRUdJU1RFUl9SRVBPUlRfUkFURSAgICAweDA4DQo+ID4gPiBAQCAt
+MjM5LDggKzI0MCw4IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCBlZHRfZnQ1eDA2X3RzX2lzcihpbnQg
+aXJxLCB2b2lkICpkZXZfaWQpDQo+ID4gPiAgICAgICAgICAgICAgIGlmICh0c2RhdGEtPnZlcnNp
+b24gPT0gRURUX00wNiAmJiB0eXBlID09IFRPVUNIX0VWRU5UX0RPV04pDQo+ID4gPiAgICAgICAg
+ICAgICAgICAgICAgICAgY29udGludWU7DQo+ID4gPg0KPiA+ID4gLSAgICAgICAgICAgICB4ID0g
+KChidWZbMF0gPDwgOCkgfCBidWZbMV0pICYgMHgwZmZmOw0KPiA+ID4gLSAgICAgICAgICAgICB5
+ID0gKChidWZbMl0gPDwgOCkgfCBidWZbM10pICYgMHgwZmZmOw0KPiA+ID4gKyAgICAgICAgICAg
+ICB4ID0gZ2V0X3VuYWxpZ25lZF9iZTE2KGJ1ZikgJiAweDBmZmY7DQo+ID4gPiArICAgICAgICAg
+ICAgIHkgPSBnZXRfdW5hbGlnbmVkX2JlMTYoYnVmICsgMikgJiAweDBmZmY7DQo+ID4NCj4gPiBZ
+b3UgbWlnaHQgYXMgd2VsbCBkZWxldGUgdGhlIHBvaW50bGVzcyBtYXNraW5nIHdpdGggMHhmZi4N
+Cj4gDQo+IEhtbS4uLiBEb2VzIGl0IGd1YXJhbnRlZSB0aGUgbW9zdCBzaWduaWZpY2FudCBuaWJi
+bGUgdG8gYmUgYWx3YXlzIDA/DQo+IChOb3RlIDE2LWJpdCB2YWx1ZSBhbmQgdGhyZWUgZjpzIGlu
+IHRoZSBtYXNrKQ0KDQpTb3JyeSwgSSBtaXNyZWFkIGl0IDotKA0KDQoJRGF2aWQNCg0KLQ0KUmVn
+aXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRv
+biBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K

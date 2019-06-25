@@ -1,78 +1,54 @@
-From: =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
-Subject: Re: [RFC PATCH v2 1/4] dt-bindings: input: Add support for the MPR121
- without interrupt line
-Date: Mon, 24 Jun 2019 14:56:35 +0200
-Message-ID: <69302603-f1a3-8955-7d90-74a290071794@ysoft.com>
-References: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
- <1558098773-47416-2-git-send-email-michal.vokac@ysoft.com>
- <20190613223945.GA938@bogus>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH 1/2] Input: edt-ft5x06 - use get_unaligned_be16()
+Date: Tue, 25 Jun 2019 08:44:29 +0000
+Message-ID: <011d62995b20493f977ead43f4b494a2@AcuMS.aculab.com>
+References: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190613223945.GA938@bogus>
+In-Reply-To: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, Benoit Parrot <bparrot@ti.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On 14. 06. 19 0:39, Rob Herring wrote:
-> On Fri, May 17, 2019 at 03:12:50PM +0200, Michal Vokáč wrote:
->> Normally, the MPR121 controller uses separate interrupt line to notify
->> the I2C host that a key was touched/released. To support platforms that
->> can not use the interrupt line, polling of the MPR121 registers can be
->> used.
+From: Dmitry Torokhov
+> Sent: 23 June 2019 07:32
 > 
-> 'separate' from what?
-
-"Separate" here is meant like "additional to the standard set of SCL
-and SDA I2C lines". Looks like inappropriately used word by
-a non-native speaker that can be omitted.
-
->> Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
->> ---
->> Changes since v1:
->> - Document the polled binding in the original file, do not create a new one.
->>    (Rob)
->>
->>   Documentation/devicetree/bindings/input/mpr121-touchkey.txt | 9 +++++++--
->>   1 file changed, 7 insertions(+), 2 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/input/mpr121-touchkey.txt b/Documentation/devicetree/bindings/input/mpr121-touchkey.txt
->> index b7c61ee5841b..97f55273d473 100644
->> --- a/Documentation/devicetree/bindings/input/mpr121-touchkey.txt
->> +++ b/Documentation/devicetree/bindings/input/mpr121-touchkey.txt
->> @@ -1,9 +1,14 @@
->> -* Freescale MPR121 Controllor
->> +* Freescale MPR121 Controller
->>   
->>   Required Properties:
->> -- compatible:		Should be "fsl,mpr121-touchkey"
->> +- compatible:		Should be one of:
->> +			- "fsl,mpr121-touchkey" - MPR121 with interrupt line
->> +			- "fsl,mpr121-touchkey-polled" - MPR121 with polling
->>   - reg:			The I2C slave address of the device.
->>   - interrupts:		The interrupt number to the cpu.
->> +			In case of "fsl,mpr121-touchkey-polled" the interrupt
->> +			line is not used and hence the interrupts property is
->> +			not required.
+> Instead of doing conversion by hand, let's use the proper accessors.
 > 
-> Absence of the interrupts property is enough to determine polled mode
-> and you don't need a separate compatible string.
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/touchscreen/edt-ft5x06.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> index c639ebce914c..ec770226e119 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/gpio/consumer.h>
+>  #include <linux/input/mt.h>
+>  #include <linux/input/touchscreen.h>
+> +#include <asm/unaligned.h>
+> 
+>  #define WORK_REGISTER_THRESHOLD		0x00
+>  #define WORK_REGISTER_REPORT_RATE	0x08
+> @@ -239,8 +240,8 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+>  		if (tsdata->version == EDT_M06 && type == TOUCH_EVENT_DOWN)
+>  			continue;
+> 
+> -		x = ((buf[0] << 8) | buf[1]) & 0x0fff;
+> -		y = ((buf[2] << 8) | buf[3]) & 0x0fff;
+> +		x = get_unaligned_be16(buf) & 0x0fff;
+> +		y = get_unaligned_be16(buf + 2) & 0x0fff;
 
-Would not this work only if the polled mode was implemented as
-part of the current driver? I raised this question in the cover letter.
-I do not really know how this should be done.
+You might as well delete the pointless masking with 0xff.
 
-So I implemented the polled mode in a new driver (taking the
-gpio-keys-polled as an example). Having separate compatible string is
-the only option I know of to match the right driver.
+	David
 
-Anyway, Dmitry already commented that his addition of input_polled_dev
-for creating polled input devices was not the best choice. He would
-rather like to implement polling mode for all regular input devices
-and that would allow to enable polling mode in existing drivers.
-
-Since I do not know how to help with that work I am stuck with the
-separate driver/compatible string solution.
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)

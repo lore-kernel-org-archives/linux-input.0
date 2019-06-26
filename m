@@ -1,49 +1,78 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 01/51] HID: i2c-hid: add iBall Aer3 to descriptor override
-Date: Tue, 25 Jun 2019 23:40:17 -0400
-Message-ID: <20190626034117.23247-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 12/51] HID: a4tech: fix horizontal scrolling
+Date: Tue, 25 Jun 2019 23:40:28 -0400
+Message-ID: <20190626034117.23247-12-sashal@kernel.org>
+References: <20190626034117.23247-1-sashal@kernel.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: =?UTF-8?q?B=C5=82a=C5=BCej=20Szczygie=C5=82?= <spaz16@wp.pl>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Błażej Szczygieł <spaz16@wp.pl>
 
-[ Upstream commit eb6964fa6509b4f1152313f1e0bb67f0c54a6046 ]
+[ Upstream commit abf82e8f7e9af40a49e3d905187c662a43c96c8f ]
 
-This device uses the SIPODEV SP1064 touchpad, which does not
-supply descriptors, so it has to be added to the override
-list.
+Since recent high resolution scrolling changes the A4Tech driver must
+check for the "REL_WHEEL_HI_RES" usage code.
 
-BugLink: https://bugs.launchpad.net/bugs/1825718
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=203369
+Fixes: 2dc702c991e3774af9d7ce410eef410ca9e2357e ("HID: input: use the Resolution Multiplier for high-resolution scrolling")
+Signed-off-by: Błażej Szczygieł <spaz16@wp.pl>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/hid-a4tech.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index fd1b6eea6d2f..75078c83be1a 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -354,6 +354,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "iBall Aer3",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "iBall"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Aer3"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{ }	/* Terminate list */
- };
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 9428ea7cdf8a..c3a6ce3613fe 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -38,8 +38,10 @@ static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ {
+ 	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
+ 
+-	if (usage->type == EV_REL && usage->code == REL_WHEEL)
++	if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
+ 		set_bit(REL_HWHEEL, *bit);
++		set_bit(REL_HWHEEL_HI_RES, *bit);
++	}
+ 
+ 	if ((a4->quirks & A4_2WHEEL_MOUSE_HACK_7) && usage->hid == 0x00090007)
+ 		return -1;
+@@ -60,7 +62,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 	input = field->hidinput->input;
+ 
+ 	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8) {
+-		if (usage->type == EV_REL && usage->code == REL_WHEEL) {
++		if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
+ 			a4->delayed_value = value;
+ 			return 1;
+ 		}
+@@ -68,6 +70,8 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 		if (usage->hid == 0x000100b8) {
+ 			input_event(input, EV_REL, value ? REL_HWHEEL :
+ 					REL_WHEEL, a4->delayed_value);
++			input_event(input, EV_REL, value ? REL_HWHEEL_HI_RES :
++					REL_WHEEL_HI_RES, a4->delayed_value * 120);
+ 			return 1;
+ 		}
+ 	}
+@@ -77,8 +81,9 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 		return 1;
+ 	}
+ 
+-	if (usage->code == REL_WHEEL && a4->hw_wheel) {
++	if (usage->code == REL_WHEEL_HI_RES && a4->hw_wheel) {
+ 		input_event(input, usage->type, REL_HWHEEL, value);
++		input_event(input, usage->type, REL_HWHEEL_HI_RES, value * 120);
+ 		return 1;
+ 	}
  
 -- 
 2.20.1

@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 19/35] Input: imx_keypad - make sure keyboard can always wake up system
-Date: Wed, 26 Jun 2019 20:39:07 -0400
-Message-ID: <20190627003925.21330-19-sashal@kernel.org>
-References: <20190627003925.21330-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 12/21] Input: imx_keypad - make sure keyboard can always wake up system
+Date: Wed, 26 Jun 2019 20:41:12 -0400
+Message-ID: <20190627004122.21671-12-sashal@kernel.org>
+References: <20190627004122.21671-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190627003925.21330-1-sashal@kernel.org>
+In-Reply-To: <20190627004122.21671-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Anson Huang <anson.huang@nxp.com>, Anson Huang <Anson.Huang@nxp.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org

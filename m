@@ -1,10 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 01/21] Input: elantech - enable middle button support on 2 ThinkPads
-Date: Wed, 26 Jun 2019 20:41:01 -0400
-Message-ID: <20190627004122.21671-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 03/60] Input: elantech - enable middle button support on 2 ThinkPads
+Date: Wed, 26 Jun 2019 20:35:18 -0400
+Message-ID: <20190627003616.20767-3-sashal@kernel.org>
+References: <20190627003616.20767-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190627003616.20767-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Aaron Ma <aaron.ma@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -24,10 +26,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 38edf8f5bf8a..15be3ee6cc50 100644
+index a7f8b1614559..530142b5a115 100644
 --- a/drivers/input/mouse/elantech.c
 +++ b/drivers/input/mouse/elantech.c
-@@ -1187,6 +1187,8 @@ static const char * const middle_button_pnp_ids[] = {
+@@ -1189,6 +1189,8 @@ static const char * const middle_button_pnp_ids[] = {
  	"LEN2132", /* ThinkPad P52 */
  	"LEN2133", /* ThinkPad P72 w/ NFC */
  	"LEN2134", /* ThinkPad P72 */

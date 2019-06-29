@@ -1,66 +1,64 @@
-From: Benoit Parrot <bparrot@ti.com>
-Subject: Re: [PATCH 2/2] Input: edt-ft5x06 - simplify event reporting code
-Date: Fri, 28 Jun 2019 12:37:02 -0500
-Message-ID: <20190628173702.6wr453fmcyfdxoid@ti.com>
-References: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
- <20190623063153.261546-2-dmitry.torokhov@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Update Hi10 Air filter
+Date: Sat, 29 Jun 2019 16:20:44 +0300
+Message-ID: <CAHp75VcxiKMWnXe_oFu-9JCfDuXa9hOUi2Qy6bNQiREH_i621Q@mail.gmail.com>
+References: <20190612124053.119182-1-me@myself5.de> <736848fd-1c45-0bd9-bfd1-747c716bd953@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190623063153.261546-2-dmitry.torokhov@gmail.com>
+In-Reply-To: <736848fd-1c45-0bd9-bfd1-747c716bd953@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, linux-kernel@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Christian Oder <me@myself5.de>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote on Sat [2019-Jun-22 23:31:53 -0700]:
-> Now that input_mt_report_slot_state() returns true if slot is active we no
-> longer need a temporary for the slot state.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Wed, Jun 12, 2019 at 3:55 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Hi,
+>
+> On 12-06-19 14:40, Christian Oder wrote:
+> > Turns out the Hi10 Air is built by multiple companies so using Hampoo
+> > as a filter is not enough to cover all variants.
+> >
+> > This has been verified as working on the Hampoo and Morshow version.
+> >
+> > Signed-off-by: Christian Oder <me@myself5.de>
+>
+> Patch looks good to me:
+>
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+>
 
-Appears to work fine in my test:
+I have pushed it, though I forget about this issue, it went without
+this tag, sorry.
 
-Tested-by: Benoit Parrot <bparrot@ti.com>
+> Regards,
+>
+> Hans
+>
+>
+> > ---
+> >   drivers/platform/x86/touchscreen_dmi.c | 3 ++-
+> >   1 file changed, 2 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+> > index b662cb2d7cd5..61e7c4987d0d 100644
+> > --- a/drivers/platform/x86/touchscreen_dmi.c
+> > +++ b/drivers/platform/x86/touchscreen_dmi.c
+> > @@ -597,7 +597,8 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+> >               /* Chuwi Hi10 Air */
+> >               .driver_data = (void *)&chuwi_hi10_air_data,
+> >               .matches = {
+> > -                     DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
+> > +                     DMI_MATCH(DMI_SYS_VENDOR, "CHUWI INNOVATION AND TECHNOLOGY(SHENZHEN)CO.LTD"),
+> > +                     DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+> >                       DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
+> >               },
+> >       },
+> >
 
-> ---
->  drivers/input/touchscreen/edt-ft5x06.c | 13 ++++---------
->  1 file changed, 4 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index ec770226e119..3cc4341bbdff 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -229,7 +229,6 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
->  
->  	for (i = 0; i < tsdata->max_support_points; i++) {
->  		u8 *buf = &rdbuf[i * tplen + offset];
-> -		bool down;
->  
->  		type = buf[0] >> 6;
->  		/* ignore Reserved events */
-> @@ -247,16 +246,12 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
->  			swap(x, y);
->  
->  		id = (buf[2] >> 4) & 0x0f;
-> -		down = type != TOUCH_EVENT_UP;
->  
->  		input_mt_slot(tsdata->input, id);
-> -		input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER, down);
-> -
-> -		if (!down)
-> -			continue;
-> -
-> -		touchscreen_report_pos(tsdata->input, &tsdata->prop, x, y,
-> -				       true);
-> +		if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
-> +					       type != TOUCH_EVENT_UP))
-> +			touchscreen_report_pos(tsdata->input, &tsdata->prop,
-> +					       x, y, true);
->  	}
->  
->  	input_mt_report_pointer_emulation(tsdata->input, true);
-> -- 
-> 2.22.0.410.gd8fdbe21b5-goog
-> 
+
+
+-- 
+With Best Regards,
+Andy Shevchenko

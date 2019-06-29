@@ -1,12 +1,12 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 0/2] Support for buttons on newer MS Surface devices
-Date: Sat, 29 Jun 2019 17:18:26 +0300
-Message-ID: <CAHp75VcSDvjnS57mS2HyEvUyBRGv68yxXt7wCbJHK3pw98UiOg@mail.gmail.com>
-References: <20190620115056.4169-1-luzmaximilian@gmail.com>
+Subject: Re: [PATCH 2/2] input: soc_button_array for newer surface devices
+Date: Sat, 29 Jun 2019 17:22:57 +0300
+Message-ID: <CAHp75VfoVO+QqTnGadfc4eNxTYL2pNkH446aPmOwOVEpqQ1RTg@mail.gmail.com>
+References: <20190620115056.4169-1-luzmaximilian@gmail.com> <20190620115056.4169-3-luzmaximilian@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190620115056.4169-1-luzmaximilian@gmail.com>
+In-Reply-To: <20190620115056.4169-3-luzmaximilian@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Maximilian Luz <luzmaximilian@gmail.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -14,39 +14,203 @@ List-Id: linux-input@vger.kernel.org
 
 On Thu, Jun 20, 2019 at 2:51 PM Maximilian Luz <luzmaximilian@gmail.com> wrote:
 >
-> This series adds suport for power and volume buttons on 5th and 6th
-> generation Microsoft Surface devices. Specifically, it adds support for
-> the power-button on the Surface Laptop 1 and Laptop 2, as well as
-> support for power- and (on-device) volume-buttons on the Surface Pro 5
-> (2017), Pro 6, and Book 2.
+> Power and volume button support for 5th and 6th genration Microsoft
+> Surface devices via soc_button_array.
 >
-> These devices use the same MSHW0040 device as on the Surface Pro 4,
-> however, whereas the Pro 4 uses an ACPI notify handler, the newer
-> devices use GPIO interrupts to signal these events.
->
-> The first patch of this series ensures that the surfacepro3_button
-> driver, used for MSHW0040 on the Pro 4, does not probe for the newer
-> devices. The second patch adapts soc_button_array to implement the
-> actual button support.
->
-> I think the changes to soc_button_array in the second patch warrant a
-> thorough review. I've tried to make things a bit more generic to be able
-> to integrate arbitrary ACPI GPIO power-/volume-button devices more
-> easily, I'm not sure if there may be reasons against this.
->
-> These patches have also been tested on various Surface devices via the
-> github.com/jakeday/linux-surface patchset.
+> Note that these devices use the same MSHW0040 device as on the Surface
+> Pro 4, however the implementation is different (GPIOs vs. ACPI
+> notifications). Thus some checking is required to ensure we only load
+> this driver on the correct devices.
 >
 
-Pushed to my review and testing queue, thanks!
+Either I need an Ack from Dmitry, or it should go via his tree.
 
-> Maximilian Luz (2):
->   platform: Fix device check for surfacepro3_button
->   input: soc_button_array for newer surface devices
+> Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+> ---
+>  drivers/input/misc/soc_button_array.c | 134 +++++++++++++++++++++++---
+>  1 file changed, 122 insertions(+), 12 deletions(-)
 >
->  drivers/input/misc/soc_button_array.c     | 134 ++++++++++++++++++++--
->  drivers/platform/x86/surfacepro3_button.c |  38 ++++++
->  2 files changed, 160 insertions(+), 12 deletions(-)
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> index 5e59f8e57f8e..157f53a2bd51 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -25,6 +25,17 @@ struct soc_button_info {
+>         bool wakeup;
+>  };
+>
+> +/**
+> + * struct soc_device_data - driver data for different device types
+> + * @button_info: specifications of buttons, if NULL specification is assumed to
+> + *               be present in _DSD
+> + * @check: device-specific check (NULL means all will be accepted)
+> + */
+> +struct soc_device_data {
+> +       struct soc_button_info *button_info;
+> +       int (*check)(struct device *dev);
+> +};
+> +
+>  /*
+>   * Some of the buttons like volume up/down are auto repeat, while others
+>   * are not. To support both, we register two platform devices, and put
+> @@ -310,6 +321,7 @@ static int soc_button_probe(struct platform_device *pdev)
+>  {
+>         struct device *dev = &pdev->dev;
+>         const struct acpi_device_id *id;
+> +       struct soc_device_data *device_data;
+>         struct soc_button_info *button_info;
+>         struct soc_button_data *priv;
+>         struct platform_device *pd;
+> @@ -320,18 +332,20 @@ static int soc_button_probe(struct platform_device *pdev)
+>         if (!id)
+>                 return -ENODEV;
+>
+> -       if (!id->driver_data) {
+> +       device_data = (struct soc_device_data *)id->driver_data;
+> +       if (device_data && device_data->check) {
+> +               error = device_data->check(dev);
+> +               if (error)
+> +                       return error;
+> +       }
+> +
+> +       if (device_data && device_data->button_info) {
+> +               button_info = (struct soc_button_info *)
+> +                               device_data->button_info;
+> +       } else {
+>                 button_info = soc_button_get_button_info(dev);
+>                 if (IS_ERR(button_info))
+>                         return PTR_ERR(button_info);
+> -       } else {
+> -               button_info = (struct soc_button_info *)id->driver_data;
+> -       }
+> -
+> -       error = gpiod_count(dev, NULL);
+> -       if (error < 0) {
+> -               dev_dbg(dev, "no GPIO attached, ignoring...\n");
+> -               return -ENODEV;
+>         }
+>
+>         priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+> @@ -357,12 +371,32 @@ static int soc_button_probe(struct platform_device *pdev)
+>         if (!priv->children[0] && !priv->children[1])
+>                 return -ENODEV;
+>
+> -       if (!id->driver_data)
+> +       if (!device_data || !device_data->button_info)
+>                 devm_kfree(dev, button_info);
+>
+>         return 0;
+>  }
+>
+> +
+> +static int soc_device_check_generic(struct device *dev)
+> +{
+> +       int gpios;
+> +
+> +       gpios = gpiod_count(dev, NULL);
+> +       if (gpios < 0) {
+> +               dev_dbg(dev, "no GPIO attached, ignoring...\n");
+> +               return -ENODEV;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +static struct soc_device_data soc_device_ACPI0011 = {
+> +       .button_info = NULL,
+> +       .check = soc_device_check_generic,
+> +};
+> +
+> +
+>  /*
+>   * Definition of buttons on the tablet. The ACPI index of each button
+>   * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
+> @@ -377,9 +411,85 @@ static struct soc_button_info soc_button_PNP0C40[] = {
+>         { }
+>  };
+>
+> +static struct soc_device_data soc_device_PNP0C40 = {
+> +       .button_info = soc_button_PNP0C40,
+> +       .check = soc_device_check_generic,
+> +};
+> +
+> +
+> +/*
+> + * Special device check for Surface Book 2 and Surface Pro (2017).
+> + * Both, the Surface Pro 4 (surfacepro3_button.c) and the above mentioned
+> + * devices use MSHW0040 for power and volume buttons, however the way they
+> + * have to be addressed differs. Make sure that we only load this drivers
+> + * for the correct devices by checking the OEM Platform Revision provided by
+> + * the _DSM method.
+> + */
+> +#define MSHW0040_DSM_REVISION          0x01
+> +#define MSHW0040_DSM_GET_OMPR          0x02    // get OEM Platform Revision
+> +static const guid_t MSHW0040_DSM_UUID =
+> +       GUID_INIT(0x6fd05c69, 0xcde3, 0x49f4, 0x95, 0xed, 0xab, 0x16, 0x65,
+> +                 0x49, 0x80, 0x35);
+> +
+> +static int soc_device_check_MSHW0040(struct device *dev)
+> +{
+> +       acpi_handle handle = ACPI_HANDLE(dev);
+> +       union acpi_object *result;
+> +       u64 oem_platform_rev = 0;
+> +       int gpios;
+> +
+> +       // get OEM platform revision
+> +       result = acpi_evaluate_dsm_typed(handle, &MSHW0040_DSM_UUID,
+> +                                        MSHW0040_DSM_REVISION,
+> +                                        MSHW0040_DSM_GET_OMPR, NULL,
+> +                                        ACPI_TYPE_INTEGER);
+> +
+> +       if (result) {
+> +               oem_platform_rev = result->integer.value;
+> +               ACPI_FREE(result);
+> +       }
+> +
+> +       if (oem_platform_rev == 0)
+> +               return -ENODEV;
+> +
+> +       dev_dbg(dev, "OEM Platform Revision %llu\n", oem_platform_rev);
+> +
+> +       /*
+> +        * We are _really_ expecting GPIOs here. If we do not get any, this
+> +        * means the GPIO driver has not been loaded yet (which can happen).
+> +        * Try again later.
+> +        */
+> +       gpios = gpiod_count(dev, NULL);
+> +       if (gpios < 0)
+> +               return -EAGAIN;
+> +
+> +       return 0;
+> +}
+> +
+> +/*
+> + * Button infos for Microsoft Surface Book 2 and Surface Pro (2017).
+> + * Obtained from DSDT/testing.
+> + */
+> +static struct soc_button_info soc_button_MSHW0040[] = {
+> +       { "power", 0, EV_KEY, KEY_POWER, false, true },
+> +       { "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false },
+> +       { "volume_down", 4, EV_KEY, KEY_VOLUMEDOWN, true, false },
+> +       { }
+> +};
+> +
+> +static struct soc_device_data soc_device_MSHW0040 = {
+> +       .button_info = soc_button_MSHW0040,
+> +       .check = soc_device_check_MSHW0040,
+> +};
+> +
+> +
+>  static const struct acpi_device_id soc_button_acpi_match[] = {
+> -       { "PNP0C40", (unsigned long)soc_button_PNP0C40 },
+> -       { "ACPI0011", 0 },
+> +       { "PNP0C40", (unsigned long)&soc_device_PNP0C40 },
+> +       { "ACPI0011", (unsigned long)&soc_device_ACPI0011 },
+> +
+> +       /* Microsoft Surface Devices (5th and 6th generation) */
+> +       { "MSHW0040", (unsigned long)&soc_device_MSHW0040 },
+> +
+>         { }
+>  };
 >
 > --
 > 2.22.0

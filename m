@@ -1,84 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: joydev - extend absolute mouse detection
-Date: Sun, 30 Jun 2019 00:32:21 -0700
-Message-ID: <20190630073221.GF91171@dtor-ws>
-References: <20190623234456.4074-1-alexander@tsoy.me>
+From: =?UTF-8?B?Sm/Do28gTW9yZW5v?= <mail@joaomoreno.com>
+Subject: Re: [PATCH] HID: apple: Fix stuck function keys when using FN
+Date: Sun, 30 Jun 2019 22:15:33 +0200
+Message-ID: <CAHxFc3QC147B6j4pBztjK7stLgCveeYhJWojai_SbKNbnpC9yw@mail.gmail.com>
+References: <20190610213106.19342-1-mail@joaomoreno.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190623234456.4074-1-alexander@tsoy.me>
+In-Reply-To: <20190610213106.19342-1-mail@joaomoreno.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexander Tsoy <alexander@tsoy.me>
-Cc: linux-input@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>, linux-kernel@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 24, 2019 at 02:44:56AM +0300, Alexander Tsoy wrote:
-> Extend event signature matching to catch more input devices emulated by
-> BMC firmwares, QEMU and VMware.
-> 
-> Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Hi Jiri & Benjamin,
 
-Applied, thank you.
+Let me know if you need something else to get this patch moving forward. This
+fixes an issue I hit daily, it would be great to get it fixed.
 
+Thanks.
+
+On Mon, 10 Jun 2019 at 23:31, Joao Moreno <mail@joaomoreno.com> wrote:
+>
+> This fixes an issue in which key down events for function keys would be
+> repeatedly emitted even after the user has raised the physical key. For
+> example, the driver fails to emit the F5 key up event when going through
+> the following steps:
+> - fnmode=1: hold FN, hold F5, release FN, release F5
+> - fnmode=2: hold F5, hold FN, release F5, release FN
+>
+> The repeated F5 key down events can be easily verified using xev.
+>
+> Signed-off-by: Joao Moreno <mail@joaomoreno.com>
 > ---
->  drivers/input/joydev.c | 24 ++++++++++++++++++++++--
->  1 file changed, 22 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> index ac21c050fdb0..a2b5fbba2d3b 100644
-> --- a/drivers/input/joydev.c
-> +++ b/drivers/input/joydev.c
-> @@ -808,6 +808,7 @@ static bool joydev_dev_is_blacklisted(struct input_dev *dev)
->  static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
->  {
->  	DECLARE_BITMAP(jd_scratch, KEY_CNT);
-> +	bool ev_match = false;
->  
->  	BUILD_BUG_ON(ABS_CNT > KEY_CNT || EV_CNT > KEY_CNT);
->  
-> @@ -826,17 +827,36 @@ static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
->  	 * considered to be an absolute mouse if the following is
->  	 * true:
->  	 *
-> -	 * 1) Event types are exactly EV_ABS, EV_KEY and EV_SYN.
-> +	 * 1) Event types are exactly
-> +	 *      EV_ABS, EV_KEY and EV_SYN
-> +	 *    or
-> +	 *      EV_ABS, EV_KEY, EV_SYN and EV_MSC
-> +	 *    or
-> +	 *      EV_ABS, EV_KEY, EV_SYN, EV_MSC and EV_REL.
->  	 * 2) Absolute events are exactly ABS_X and ABS_Y.
->  	 * 3) Keys are exactly BTN_LEFT, BTN_RIGHT and BTN_MIDDLE.
->  	 * 4) Device is not on "Amiga" bus.
->  	 */
->  
->  	bitmap_zero(jd_scratch, EV_CNT);
-> +	/* VMware VMMouse, HP ILO2 */
->  	__set_bit(EV_ABS, jd_scratch);
->  	__set_bit(EV_KEY, jd_scratch);
->  	__set_bit(EV_SYN, jd_scratch);
-> -	if (!bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
-> +	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
-> +		ev_match = true;
+>  drivers/hid/hid-apple.c | 21 +++++++++++----------
+>  1 file changed, 11 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index 1cb41992aaa1..81867a6fa047 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -205,20 +205,21 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+>                 trans = apple_find_translation (table, usage->code);
+>
+>                 if (trans) {
+> -                       if (test_bit(usage->code, asc->pressed_fn))
+> -                               do_translate = 1;
+> -                       else if (trans->flags & APPLE_FLAG_FKEY)
+> -                               do_translate = (fnmode == 2 && asc->fn_on) ||
+> -                                       (fnmode == 1 && !asc->fn_on);
+> +                       int fn_on = value ? asc->fn_on :
+> +                               test_bit(usage->code, asc->pressed_fn);
 > +
-> +	/* HP ILO2, AMI BMC firmware */
-> +	__set_bit(EV_MSC, jd_scratch);
-> +	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
-> +		ev_match = true;
+> +                       if (!value)
+> +                               clear_bit(usage->code, asc->pressed_fn);
+> +                       else if (asc->fn_on)
+> +                               set_bit(usage->code, asc->pressed_fn);
 > +
-> +	/* VMware Virtual USB Mouse, QEMU USB Tablet, ATEN BMC firmware */
-> +	__set_bit(EV_REL, jd_scratch);
-> +	if (bitmap_equal(jd_scratch, dev->evbit, EV_CNT))
-> +		ev_match = true;
-> +
-> +	if (!ev_match)
->  		return false;
->  
->  	bitmap_zero(jd_scratch, ABS_CNT);
-> -- 
-> 2.21.0
-> 
-
--- 
-Dmitry
+> +                       if (trans->flags & APPLE_FLAG_FKEY)
+> +                               do_translate = (fnmode == 2 && fn_on) ||
+> +                                       (fnmode == 1 && !fn_on);
+>                         else
+>                                 do_translate = asc->fn_on;
+>
+>                         if (do_translate) {
+> -                               if (value)
+> -                                       set_bit(usage->code, asc->pressed_fn);
+> -                               else
+> -                                       clear_bit(usage->code, asc->pressed_fn);
+> -
+>                                 input_event(input, usage->type, trans->to,
+>                                                 value);
+>
+> --
+> 2.19.1
+>

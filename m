@@ -1,46 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: edt-ft5x06 - simplify event reporting code
-Date: Sun, 30 Jun 2019 00:05:52 -0700
-Message-ID: <20190630070552.GA91171@dtor-ws>
-References: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
- <20190623063153.261546-2-dmitry.torokhov@gmail.com>
- <CAHp75VfgR4d7aOG6XPBXisrfa=30pYfCJZ1Yhh2E44bs8vWmVw@mail.gmail.com>
+Subject: Re: [PATCH v8 1/5] Input: elan_i2c: Export the device id whitelist
+Date: Sun, 30 Jun 2019 00:18:49 -0700
+Message-ID: <20190630071849.GC91171@dtor-ws>
+References: <20190621144854.38568-1-jeffrey.l.hugo@gmail.com>
+ <20190621145042.38637-1-jeffrey.l.hugo@gmail.com>
+ <20190623062000.GB204275@dtor-ws>
+ <CAOCk7Nr4+Sj9U=qAZTEhPGgZNrZ1VVvNtuUg-9vQzp15xFdCUw@mail.gmail.com>
+ <CAO-hwJLEDCbMud6dCfvXzwDfauAgfOZmQwkmELEF2e6-4Oe6=g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHp75VfgR4d7aOG6XPBXisrfa=30pYfCJZ1Yhh2E44bs8vWmVw@mail.gmail.com>
+In-Reply-To: <CAO-hwJLEDCbMud6dCfvXzwDfauAgfOZmQwkmELEF2e6-4Oe6=g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Marco Felsch <m.felsch@pengutronix.de>, Benoit Parrot <bparrot@ti.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>, Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Andy Gross <agross@kernel.org>, Lee Jones <lee.jones@linaro.org>, xnox@ubuntu.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, MSM <linux-arm-msm@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Jun 23, 2019 at 10:59:18AM +0300, Andy Shevchenko wrote:
-> On Sun, Jun 23, 2019 at 9:31 AM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
+On Thu, Jun 27, 2019 at 04:29:29PM +0200, Benjamin Tissoires wrote:
+> On Thu, Jun 27, 2019 at 4:02 PM Jeffrey Hugo <jeffrey.l.hugo@gmail.com> wrote:
 > >
-> > Now that input_mt_report_slot_state() returns true if slot is active we no
-> > longer need a temporary for the slot state.
-> 
-> 
-> > -               down = type != TOUCH_EVENT_UP;
+> > On Sun, Jun 23, 2019 at 12:20 AM Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > >
+> > > On Fri, Jun 21, 2019 at 07:50:42AM -0700, Jeffrey Hugo wrote:
+> > > > Elan_i2c and hid-quirks work in conjunction to decide which devices each
+> > > > driver will handle.  Elan_i2c has a whitelist of devices that should be
+> > > > consumed by hid-quirks so that there is one master list of devices to
+> > > > handoff between the drivers.  Put the ids in a header file so that
+> > > > hid-quirks can consume it instead of duplicating the list.
+> > > >
+> > > > Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> > >
+> > > Benjamin, are you happy with this version?
 > >
-> >                 input_mt_slot(tsdata->input, id);
-> > -               input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER, down);
+> > Benjamin, ping?
+> > Sorry to be a bother, but I'm still anxious to get this queued for 5.3.
 > 
-> > +               if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
-> > +                                              type != TOUCH_EVENT_UP))
+> Ooops, yeah, sorry I missed Dmitry's email.
 > 
-> Can't we simple do somethink like
-> -               down = type != TOUCH_EVENT_UP;
-> +               down = input_mt_report_slot_state(tsdata->input,
-> MT_TOOL_FINGER, type != TOUCH_EVENT_UP);
+> Fine by me:
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Why though? The temporary was needed so we did not have to repeat the
-expression for "contact down" condition, and now we do not need it. The
-whole change was done so that we cab remove the temporary...
-
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

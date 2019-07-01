@@ -1,33 +1,48 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v4] HID: sb0540: add support for Creative SB0540 IR
- receivers
-Date: Mon, 01 Jul 2019 12:20:27 +0200
-Message-ID: <add17925a930d995ef5e395c0b716e7b7638acba.camel@hadess.net>
-References: <20190701100819.6032-1-hadess@hadess.net>
-         <CAO-hwJJaj6f216_H=UFO0CEp+ZHRWwvhTO9FCPqdeimEwE6p0Q@mail.gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 2/2] Input: edt-ft5x06 - simplify event reporting code
+Date: Mon, 1 Jul 2019 13:41:24 +0300
+Message-ID: <CAHp75VfZn6ZuScgQtXt=5_T=LmsodG7NCCo1ABx6v9aON19c0w@mail.gmail.com>
+References: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
+ <20190623063153.261546-2-dmitry.torokhov@gmail.com> <CAHp75VfgR4d7aOG6XPBXisrfa=30pYfCJZ1Yhh2E44bs8vWmVw@mail.gmail.com>
+ <20190630070552.GA91171@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJJaj6f216_H=UFO0CEp+ZHRWwvhTO9FCPqdeimEwE6p0Q@mail.gmail.com>
+In-Reply-To: <20190630070552.GA91171@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Bastien Nocera <bnocera@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Marco Felsch <m.felsch@pengutronix.de>, Benoit Parrot <bparrot@ti.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2019-07-01 at 12:15 +0200, Benjamin Tissoires wrote:
-> 
-<snip>
-> I forgot to mention that sparse was complaining about:
-> 
-> scripts/Makefile.build:283: target 'drivers/hid/hid-creative-
-> sb0540.c'
-> doesn't match the target pattern
-> 
-> And it turns out your line should read `hid-creative-sb0540.o` not
-> `hid-creative-sb0540.c`
+On Sun, Jun 30, 2019 at 10:05 AM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> On Sun, Jun 23, 2019 at 10:59:18AM +0300, Andy Shevchenko wrote:
+> > On Sun, Jun 23, 2019 at 9:31 AM Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > >
+> > > Now that input_mt_report_slot_state() returns true if slot is active we no
+> > > longer need a temporary for the slot state.
 
-It does show that I didn't fancy making my office warmer with a full
-kernel compile, right?
+> > > -               down = type != TOUCH_EVENT_UP;
+> > >
+> > >                 input_mt_slot(tsdata->input, id);
+> > > -               input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER, down);
+> >
+> > > +               if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
+> > > +                                              type != TOUCH_EVENT_UP))
+> >
+> > Can't we simple do somethink like
+> > -               down = type != TOUCH_EVENT_UP;
+> > +               down = input_mt_report_slot_state(tsdata->input,
+> > MT_TOOL_FINGER, type != TOUCH_EVENT_UP);
+>
+> Why though? The temporary was needed so we did not have to repeat the
+> expression for "contact down" condition, and now we do not need it. The
+> whole change was done so that we cab remove the temporary...
 
-v5 sent with the fix, thanks.
+I see. Thanks for explanation.
+
+-- 
+With Best Regards,
+Andy Shevchenko

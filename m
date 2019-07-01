@@ -1,58 +1,60 @@
-From: Sebastian Parschauer <s.parschauer@gmx.de>
-Subject: [PATCH] HID: Add another Primax PIXART OEM mouse quirk
-Date: Mon,  1 Jul 2019 07:48:17 +0200
-Message-ID: <20190701054817.13991-1-s.parschauer@gmx.de>
-Content-Transfer-Encoding: quoted-printable
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>, stable@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [Patch 1/1] Input: edt-ft5x06 - disable irq handling during
+ suspend
+Date: Mon, 1 Jul 2019 00:32:33 -0700
+Message-ID: <20190701073233.GA172968@dtor-ws>
+References: <20190621185124.28966-1-bparrot@ti.com>
+ <CAHp75VdcAfmn8u0du-Y95SjMcmuJa2402tdXCNHMcme1Y925xg@mail.gmail.com>
+ <20190623055940.GA204275@dtor-ws>
+ <20190624122457.seiezk4cla2gjh5u@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190624122457.seiezk4cla2gjh5u@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benoit Parrot <bparrot@ti.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Marco Felsch <m.felsch@pengutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The PixArt OEM mice are known for disconnecting every minute in
-runlevel 1 or 3 if they are not always polled. So add quirk
-ALWAYS_POLL for this Alienware branded Primax mouse as well.
+On Mon, Jun 24, 2019 at 07:24:57AM -0500, Benoit Parrot wrote:
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote on Sat [2019-Jun-22 22:59:40 -0700]:
+> > On Sat, Jun 22, 2019 at 01:37:10PM +0300, Andy Shevchenko wrote:
+> > > On Fri, Jun 21, 2019 at 9:53 PM Benoit Parrot <bparrot@ti.com> wrote:
+> > > >
+> > > > As a wakeup source when the system is in suspend there is little point
+> > > > trying to access a register across the i2c bus as it is probably still
+> > > > inactive. We need to prevent the irq handler from being called during
+> > > > suspend.
+> > > >
+> > > 
+> > > Hmm... But how OS will know what the event to handle afterwards?
+> > > I mean shouldn't we guarantee somehow the delivery of the event to the
+> > > input, in this case, subsystem followed by corresponding user space?
+> > 
+> > If we are using level interrupts then it will work OK, however it is
+> > really easy to lose edge here, as replaying disabled edge triggered
+> > interrupts is not really reliable.
+> > 
+> > Benoit, what kind of interrupt do you use in your system?
+> 
+> Dmitry,
+> 
+> On our systems we currently used edge trigger. One example is available in
+> mainline: arch/arm/boot/dts/am437x-sk-evm.dts
+> 632:              interrupts = <31 IRQ_TYPE_EDGE_FALLING>;
 
-Daniel Schepler (@dschepler) reported and tested the quirk.
-Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
+Does your device still work if you switch to level-triggered interrupt?
 
-Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-CC: stable@vger.kernel.org
-=2D--
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+Regarding your patch I am uncomfortable with disabling interrupts if
+interrupt is edge-triggered, as replaying edge interrupts after enabling
+is not very reliable. So we should either only disable interrupt if it
+is level-triggered, or make sure we read and process data from the
+device after re-enabling interrupt to rearm it. We'll need to make sure
+suspend does not race with interrupt handler than and also make sure we
+handle case when device does not actually has data to report.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index eac0c54c5970..ea04b37cdac2 100644
-=2D-- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1238,6 +1238,7 @@
- #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
- #define USB_DEVICE_ID_PRIMAX_REZEL	0x4e72
- #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F	0x4d0f
-+#define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65	0x4d65
- #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22	0x4e22
+Thanks.
 
-
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index e5ca6fe2ca57..4aa321e35a8e 100644
-=2D-- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -129,6 +129,7 @@ static const struct hid_device_id hid_quirks[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_=
-MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4D22),=
- HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE=
-_4D0F), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE=
-_4D65), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE=
-_4E22), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS),=
- HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUC=
-H_3001), HID_QUIRK_NOGET },
-=2D-
-2.16.4
+-- 
+Dmitry

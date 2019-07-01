@@ -1,48 +1,110 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 2/2] Input: edt-ft5x06 - simplify event reporting code
-Date: Mon, 1 Jul 2019 13:41:24 +0300
-Message-ID: <CAHp75VfZn6ZuScgQtXt=5_T=LmsodG7NCCo1ABx6v9aON19c0w@mail.gmail.com>
-References: <20190623063153.261546-1-dmitry.torokhov@gmail.com>
- <20190623063153.261546-2-dmitry.torokhov@gmail.com> <CAHp75VfgR4d7aOG6XPBXisrfa=30pYfCJZ1Yhh2E44bs8vWmVw@mail.gmail.com>
- <20190630070552.GA91171@dtor-ws>
+From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: Re: [PATCH 3/3] video: fbdev: don't print error message on
+ framebuffer_alloc() failure
+Date: Mon, 1 Jul 2019 17:07:23 +0200
+Message-ID: <6e21ef05-9239-de09-4252-320b437297fa@samsung.com>
+References: <CGME20190614145128eucas1p2783e7d644ef8823d211896298e8988fc@eucas1p2.samsung.com>
+ <3da197ed-a701-2aa7-d775-2bdbe9deab4a@samsung.com>
+ <CAO-hwJJFKQEwEiDe1M6gP5D_yf0BxyzaJH-kxwxqkCVo52WK6g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190630070552.GA91171@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Marco Felsch <m.felsch@pengutronix.de>, Benoit Parrot <bparrot@ti.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <CAO-hwJJFKQEwEiDe1M6gP5D_yf0BxyzaJH-kxwxqkCVo52WK6g@mail.gmail.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-fbdev@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, =?UTF-8?Q?Bruno_Pr=c3=a9mont?= <bonbons@linux-vserver.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Jun 30, 2019 at 10:05 AM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> On Sun, Jun 23, 2019 at 10:59:18AM +0300, Andy Shevchenko wrote:
-> > On Sun, Jun 23, 2019 at 9:31 AM Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > >
-> > > Now that input_mt_report_slot_state() returns true if slot is active we no
-> > > longer need a temporary for the slot state.
-
-> > > -               down = type != TOUCH_EVENT_UP;
-> > >
-> > >                 input_mt_slot(tsdata->input, id);
-> > > -               input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER, down);
-> >
-> > > +               if (input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER,
-> > > +                                              type != TOUCH_EVENT_UP))
-> >
-> > Can't we simple do somethink like
-> > -               down = type != TOUCH_EVENT_UP;
-> > +               down = input_mt_report_slot_state(tsdata->input,
-> > MT_TOOL_FINGER, type != TOUCH_EVENT_UP);
->
-> Why though? The temporary was needed so we did not have to repeat the
-> expression for "contact down" condition, and now we do not need it. The
-> whole change was done so that we cab remove the temporary...
-
-I see. Thanks for explanation.
-
--- 
-With Best Regards,
-Andy Shevchenko
+Ck9uIDcvMS8xOSAxMDozNyBBTSwgQmVuamFtaW4gVGlzc29pcmVzIHdyb3RlOgo+IEhpIEJhcnRs
+b21pZWosCgpIaSBCZW5qYW1pbiwKCj4gT24gRnJpLCBKdW4gMTQsIDIwMTkgYXQgNDo1MiBQTSBC
+YXJ0bG9taWVqIFpvbG5pZXJraWV3aWN6Cj4gPGIuem9sbmllcmtpZUBzYW1zdW5nLmNvbT4gd3Jv
+dGU6Cj4+Cj4+IGZyYW1lYnVmZmVyX2FsbG9jKCkgY2FuIGZhaWwgb25seSBvbiBremFsbG9jKCkg
+bWVtb3J5IGFsbG9jYXRpb24KPj4gZmFpbHVyZSBhbmQgc2luY2Uga3phbGxvYygpIHdpbGwgcHJp
+bnQgZXJyb3IgbWVzc2FnZSBpbiBzdWNoIGNhc2UKPj4gd2UgY2FuIG9taXQgcHJpbnRpbmcgZXh0
+cmEgZXJyb3IgbWVzc2FnZSBpbiBkcml2ZXJzICh3aGljaCBCVFcgaXMKPj4gd2hhdCB0aGUgbWFq
+b3JpdHkgb2YgZnJhbWVidWZmZXJfYWxsb2MoKSB1c2VycyBpcyBkb2luZyBhbHJlYWR5KS4KPj4K
+Pj4gQ2M6ICJCcnVubyBQcsOpbW9udCIgPGJvbmJvbnNAbGludXgtdnNlcnZlci5vcmc+Cj4+IENj
+OiBKaXJpIEtvc2luYSA8amlrb3NAa2VybmVsLm9yZz4KPj4gQ2M6IEJlbmphbWluIFRpc3NvaXJl
+cyA8YmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IEJhcnRs
+b21pZWogWm9sbmllcmtpZXdpY3ogPGIuem9sbmllcmtpZUBzYW1zdW5nLmNvbT4KPj4gLS0tCj4+
+ICBkcml2ZXJzL2hpZC9oaWQtcGljb2xjZF9mYi5jICAgICAgICAgICAgICAgICAgIHwgICAgNCAr
+LS0tCj4+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2L2FtaWZiLmMgICAgICAgICAgICAgICAgICAgIHwg
+ICAgNCArLS0tCj4+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2L2Fya2ZiLmMgICAgICAgICAgICAgICAg
+ICAgIHwgICAgNCArLS0tCj4+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2L2F0bWVsX2xjZGZiLmMgICAg
+ICAgICAgICAgIHwgICAgNCArLS0tCj4+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2L2F0eS9hdHkxMjhm
+Yi5jICAgICAgICAgICAgIHwgICAgNSArKy0tLQo+PiAgZHJpdmVycy92aWRlby9mYmRldi9hdHkv
+YXR5ZmJfYmFzZS5jICAgICAgICAgICB8ICAgMTAgKysrKy0tLS0tLQo+PiAgZHJpdmVycy92aWRl
+by9mYmRldi9hdHkvcmFkZW9uX2Jhc2UuYyAgICAgICAgICB8ICAgIDIgLS0KPj4gIGRyaXZlcnMv
+dmlkZW8vZmJkZXYvY2hpcHNmYi5jICAgICAgICAgICAgICAgICAgfCAgICAxIC0KPj4gIGRyaXZl
+cnMvdmlkZW8vZmJkZXYvY2lycnVzZmIuYyAgICAgICAgICAgICAgICAgfCAgICA1ICstLS0tCj4+
+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2L2RhOHh4LWZiLmMgICAgICAgICAgICAgICAgIHwgICAgMSAt
+Cj4+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2L2VmaWZiLmMgICAgICAgICAgICAgICAgICAgIHwgICAg
+MSAtCj4+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2L2dydmdhLmMgICAgICAgICAgICAgICAgICAgIHwg
+ICAgNCArLS0tCj4+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2L2d4dDQ1MDAuYyAgICAgICAgICAgICAg
+ICAgIHwgICAgNSArKy0tLQo+PiAgZHJpdmVycy92aWRlby9mYmRldi9oeXBlcnZfZmIuYyAgICAg
+ICAgICAgICAgICB8ICAgIDQgKy0tLQo+PiAgZHJpdmVycy92aWRlby9mYmRldi9pNzQwZmIuYyAg
+ICAgICAgICAgICAgICAgICB8ICAgIDQgKy0tLQo+PiAgZHJpdmVycy92aWRlby9mYmRldi9pbXN0
+dGZiLmMgICAgICAgICAgICAgICAgICB8ICAgIDUgKy0tLS0KPj4gIGRyaXZlcnMvdmlkZW8vZmJk
+ZXYvaW50ZWxmYi9pbnRlbGZiZHJ2LmMgICAgICAgfCAgICA1ICsrLS0tCj4+ICBkcml2ZXJzL3Zp
+ZGVvL2ZiZGV2L2p6NDc0MF9mYi5jICAgICAgICAgICAgICAgIHwgICAgNCArLS0tCj4+ICBkcml2
+ZXJzL3ZpZGVvL2ZiZGV2L21iODYyeHgvbWI4NjJ4eGZiZHJ2LmMgICAgIHwgICAgNSArLS0tLQo+
+PiAgZHJpdmVycy92aWRlby9mYmRldi9tYngvbWJ4ZmIuYyAgICAgICAgICAgICAgICB8ICAgIDQg
+Ky0tLQo+PiAgZHJpdmVycy92aWRlby9mYmRldi9vbWFwL29tYXBmYl9tYWluLmMgICAgICAgICB8
+ICAgIDIgLS0KPj4gIGRyaXZlcnMvdmlkZW8vZmJkZXYvb21hcDIvb21hcGZiL29tYXBmYi1tYWlu
+LmMgfCAgICA2ICstLS0tLQo+PiAgZHJpdmVycy92aWRlby9mYmRldi9wbGF0aW51bWZiLmMgICAg
+ICAgICAgICAgICB8ICAgIDUgKystLS0KPj4gIGRyaXZlcnMvdmlkZW8vZmJkZXYvcG1hZy1hYS1m
+Yi5jICAgICAgICAgICAgICAgfCAgICA0ICstLS0KPj4gIGRyaXZlcnMvdmlkZW8vZmJkZXYvcG1h
+Zy1iYS1mYi5jICAgICAgICAgICAgICAgfCAgICA0ICstLS0KPj4gIGRyaXZlcnMvdmlkZW8vZmJk
+ZXYvcG1hZ2ItYi1mYi5jICAgICAgICAgICAgICAgfCAgICA0ICstLS0KPj4gIGRyaXZlcnMvdmlk
+ZW8vZmJkZXYvcHZyMmZiLmMgICAgICAgICAgICAgICAgICAgfCAgICA2ICstLS0tLQo+PiAgZHJp
+dmVycy92aWRlby9mYmRldi9yaXZhL2ZiZGV2LmMgICAgICAgICAgICAgICB8ICAgIDEgLQo+PiAg
+ZHJpdmVycy92aWRlby9mYmRldi9zM2MtZmIuYyAgICAgICAgICAgICAgICAgICB8ICAgIDQgKy0t
+LQo+PiAgZHJpdmVycy92aWRlby9mYmRldi9zM2ZiLmMgICAgICAgICAgICAgICAgICAgICB8ICAg
+IDQgKy0tLQo+PiAgZHJpdmVycy92aWRlby9mYmRldi9zaF9tb2JpbGVfbGNkY2ZiLmMgICAgICAg
+ICB8ICAgIDggKystLS0tLS0KPj4gIGRyaXZlcnMvdmlkZW8vZmJkZXYvc201MDFmYi5jICAgICAg
+ICAgICAgICAgICAgfCAgICA0ICstLS0KPj4gIGRyaXZlcnMvdmlkZW8vZmJkZXYvc203MTJmYi5j
+ICAgICAgICAgICAgICAgICAgfCAgICAxIC0KPj4gIGRyaXZlcnMvdmlkZW8vZmJkZXYvc21zY3Vm
+eC5jICAgICAgICAgICAgICAgICAgfCAgICA0ICstLS0KPj4gIGRyaXZlcnMvdmlkZW8vZmJkZXYv
+c3NkMTMwN2ZiLmMgICAgICAgICAgICAgICAgfCAgICA0ICstLS0KPj4gIGRyaXZlcnMvdmlkZW8v
+ZmJkZXYvc3VueHZyMTAwMC5jICAgICAgICAgICAgICAgfCAgICAxIC0KPj4gIGRyaXZlcnMvdmlk
+ZW8vZmJkZXYvc3VueHZyMjUwMC5jICAgICAgICAgICAgICAgfCAgICAxIC0KPj4gIGRyaXZlcnMv
+dmlkZW8vZmJkZXYvc3VueHZyNTAwLmMgICAgICAgICAgICAgICAgfCAgICAxIC0KPj4gIGRyaXZl
+cnMvdmlkZW8vZmJkZXYvdGdhZmIuYyAgICAgICAgICAgICAgICAgICAgfCAgICA0ICstLS0KPj4g
+IGRyaXZlcnMvdmlkZW8vZmJkZXYvdWRsZmIuYyAgICAgICAgICAgICAgICAgICAgfCAgICA0ICst
+LS0KPj4gIGRyaXZlcnMvdmlkZW8vZmJkZXYvdmlhL3ZpYWZiZGV2LmMgICAgICAgICAgICAgfCAg
+ICA2ICstLS0tLQo+PiAgZHJpdmVycy92aWRlby9mYmRldi92dDg2MjNmYi5jICAgICAgICAgICAg
+ICAgICB8ICAgIDQgKy0tLQo+PiAgNDIgZmlsZXMgY2hhbmdlZCwgNDAgaW5zZXJ0aW9ucygrKSwg
+MTIzIGRlbGV0aW9ucygtKQo+Pgo+PiBJbmRleDogYi9kcml2ZXJzL2hpZC9oaWQtcGljb2xjZF9m
+Yi5jCj4+ID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT0KPj4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLXBpY29sY2RfZmIuYwo+
+PiArKysgYi9kcml2ZXJzL2hpZC9oaWQtcGljb2xjZF9mYi5jCj4+IEBAIC01MjIsMTAgKzUyMiw4
+IEBAIGludCBwaWNvbGNkX2luaXRfZnJhbWVidWZmZXIoc3RydWN0IHBpY28KPj4gICAgICAgICAg
+ICAgICAgICAgICAgICAgc2l6ZW9mKHN0cnVjdCBmYl9kZWZlcnJlZF9pbykgKwo+PiAgICAgICAg
+ICAgICAgICAgICAgICAgICBzaXplb2Yoc3RydWN0IHBpY29sY2RfZmJfZGF0YSkgKwo+PiAgICAg
+ICAgICAgICAgICAgICAgICAgICBQSUNPTENERkJfU0laRSwgZGV2KTsKPj4gLSAgICAgICBpZiAo
+aW5mbyA9PSBOVUxMKSB7Cj4+IC0gICAgICAgICAgICAgICBkZXZfZXJyKGRldiwgImZhaWxlZCB0
+byBhbGxvY2F0ZSBhIGZyYW1lYnVmZmVyXG4iKTsKPj4gKyAgICAgICBpZiAoIWluZm8pCj4+ICAg
+ICAgICAgICAgICAgICBnb3RvIGVycl9ub21lbTsKPj4gLSAgICAgICB9Cj4gCj4gSXQgd291bGQg
+aGF2ZSBiZWVuIGJldHRlciB0byBzcGxpdCB0aGlzIGNoYW5nZSBhcyB0aGUgSElEIGFuZCBmYmRl
+dgo+IGFyZSBkaWZmZXJlbnQgdHJlZXMuCgpBaCwgdGhlcmUgYXJlIG5vIG1vZGlmaWNhdGlvbnMg
+dG8gZnJhbWVidWZmZXJfYWxsb2MoKSBpdHNlbGYgc28gY2hhbmdlcwphcmUgaW5kZXBlbmRlbnQu
+IEkgc2hvdWxkIGhhdmUgbm90aWNlZCB0aGF0IGVhcmxpZXIsIHNvcnJ5IGFib3V0IHRoYXQuLgoK
+PiBIb3dldmVyLCBJIGRvIG5vdCBleHBlY3QgYSBjb25mbGljdCBoZXJlICh0aGVyZSBoYXNuJ3Qg
+YmVlbiB1cGRhdGVzIG9mCj4gaGlkLXBpY29sY2RfZmIuYyBpbiBhIHdoaWxlKSwgc28gZmVlbCBm
+cmVlIHRvIHRha2UgdGhpcyBwYXRjaCB0aHJvdWdoCj4gdGhlIGZiZGV2IHRyZWUgd2l0aCBteToK
+PiBBY2tlZC1CeTogQmVuamFtaW4gVGlzc29pcmVzIDxiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0
+LmNvbT4KClRoYW5rIHlvdSEKCkJlc3QgcmVnYXJkcywKLS0KQmFydGxvbWllaiBab2xuaWVya2ll
+d2ljegpTYW1zdW5nIFImRCBJbnN0aXR1dGUgUG9sYW5kClNhbXN1bmcgRWxlY3Ryb25pY3MKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1h
+aWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMu
+ZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVs

@@ -1,43 +1,41 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v5] HID: sb0540: add support for Creative SB0540 IR receivers
-Date: Tue, 2 Jul 2019 10:44:23 +0200
-Message-ID: <CAO-hwJLmewFMcFpn4X1RhjgpuYCRnDJgL5Vu5kduy8a0LUgQjA@mail.gmail.com>
-References: <20190701102010.6611-1-hadess@hadess.net> <CAO-hwJ+hHKqZeOfpnWkU57RwzD4m6U9afG7iMND=OGZodzS1GQ@mail.gmail.com>
- <9171d69f51a6a197e0d554326fcedc39bfb3fbbc.camel@hadess.net>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 2/4] input: keyboard/mouse/touchscreen/misc: Use
+ dev_get_drvdata()
+Date: Tue, 2 Jul 2019 12:51:25 +0300
+Message-ID: <CAHp75VeUo2Au66tETo3zneBpeaVU+Y+-h5zghpo+hPuB=a6-eA@mail.gmail.com>
+References: <20190701032342.25971-1-huangfq.daxian@gmail.com>
+ <20190701075255.GD172968@dtor-ws>
+ <CABXRUiSO2Fos1V3hR5t3AviZ9Hit_y+E-Tp3PNOQj6-FKUBJBw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9171d69f51a6a197e0d554326fcedc39bfb3fbbc.camel@hadess.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Bastien Nocera <bnocera@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CABXRUiSO2Fos1V3hR5t3AviZ9Hit_y+E-Tp3PNOQj6-FKUBJBw@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Fuqian Huang <huangfq.daxian@gmail.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>, Tony Lindgren <tony@atomide.com>, Richard Fontana <rfontana@redhat.com>, Laxman Dewangan <ldewangan@nvidia.com>, Fabio Estevam <festevam@gmail.com>, Rob Herring <robh@kernel.org>, Florian Fainelli <f.fainelli@gmail.com>, Anson Huang <anson.huang@nxp.com>, Lee Jones <lee.jones@linaro.org>, Jonathan Hunter <jonathanh@nvidia.com>, Luca Weiss <luca@z3ntu.xyz>, NXP Linux Team <linux-imx@nxp.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Dan Carpenter <dan.carpenter@oracle.com>, Brian Masney <masneyb@onstation.org>, Arnd Bergmann <arnd@arndb.de>, Sascha Hauer <s.hauer@pengutronix.de>, linux-input <linux-input@vger.kernel.org>, Vladimir Zapolskiy <vz@mleia.com>, Alexios Zavras <alexios.zavras@intel.com>, linux-tegra@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Allison
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 2, 2019 at 10:39 AM Bastien Nocera <hadess@hadess.net> wrote:
+On Tue, Jul 2, 2019 at 11:20 AM Fuqian Huang <huangfq.daxian@gmail.com> wrote:
 >
-> On Tue, 2019-07-02 at 10:29 +0200, Benjamin Tissoires wrote:
-> > drivers/hid/hid-creative-sb0540.c: In function
-> > 'creative_sb0540_raw_event':
-> > drivers/hid/hid-creative-sb0540.c:157:3: error: label 'out' used but
-> > not defined
-> >   157 |   goto out;
-> >       |   ^~~~
-> >
-> > It would have been nice to at least try to compile it in a tree.
-> > You don't need to compile the whole tree: just clone it, apply your
-> > patch and then `make -j4 M=drivers/hid`
->
-> v4 _did_ build. Don't be surprised if after 4 versions on top of the
-> ones you did when the driver was out of tree, I get review fatigue, go
-> for expediency and some mistakes slip through.
+> I am not an expert on this. I just write a coccinelle script to search
+> this kind of misuse and fix it in a naive way.
+> Could you tell me about how to use the proper bus accessors? Then I
+> will fix it up and resend a v2 patch set.
 
-Right, sorry.
+First, don't top post.
+And answering to this, simple drop the patch.
+Proper bus accessors is exactly what it's used in the current code.
 
->
-> Fixed in v6.
->
 
-Thanks!
-
-Cheers,
-Benjamin
+-- 
+With Best Regards,
+Andy Shevchenko

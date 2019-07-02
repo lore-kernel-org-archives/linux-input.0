@@ -1,63 +1,68 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH v7 1/2] drm/bridge: sil_sii8620: make remote control
- optional.
-Date: Tue, 2 Jul 2019 15:50:49 +0200
-Message-ID: <2d0fe94c-a2c9-a8f6-967f-c33b53e86518@samsung.com>
-References: <20190419081926.13567-1-ronald@innovation.ch>
-        <20190419081926.13567-2-ronald@innovation.ch>
-        <CGME20190702135052eucas1p11e2621af0514505789c7947b84cf133c@eucas1p1.samsung.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 0/2] Support for buttons on newer MS Surface devices
+Date: Tue, 2 Jul 2019 20:13:27 +0300
+Message-ID: <CAHp75Ve-f-piRxwG2u2djWGt2fUKkvZSDJ+XkjGKLmMZeLEYsw@mail.gmail.com>
+References: <20190702003740.75970-1-luzmaximilian@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190419081926.13567-2-ronald@innovation.ch>
-Content-Language: en-US
+In-Reply-To: <20190702003740.75970-1-luzmaximilian@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Ronald_Tschal=c3=a4r?= <ronald@innovation.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Inki Dae <inki.dae@samsung.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+To: Maximilian Luz <luzmaximilian@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On 19.04.2019 10:19, Ronald Tschalär wrote:
-> commit d6abe6df706c (drm/bridge: sil_sii8620: do not have a dependency
-> of RC_CORE) changed the driver to select both RC_CORE and INPUT.
-> However, this causes problems with other drivers, in particular an input
-> driver that depends on MFD_INTEL_LPSS_PCI (to be added in a separate
-> commit):
-> 
->   drivers/clk/Kconfig:9:error: recursive dependency detected!
->   drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
->   drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
->   drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
->   drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
->   drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
->   drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
->   drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
->   drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
-> 
-> According to the docs and general consensus, select should only be used
-> for non user-visible symbols, but both RC_CORE and INPUT are
-> user-visible. Furthermore almost all other references to INPUT
-> throughout the kernel config are depends, not selects. For this reason
-> the first part of this change reverts commit d6abe6df706c.
-> 
-> In order to address the original reason for commit d6abe6df706c, namely
-> that not all boards use the remote controller functionality and hence
-> should not need have to deal with RC_CORE, the second part of this
-> change now makes the remote control support in the driver optional and
-> contingent on RC_CORE being defined. And with this the hard dependency
-> on INPUT also goes away as that is only needed if RC_CORE is defined
-> (which in turn already depends on INPUT).
-> 
-> CC: Inki Dae <inki.dae@samsung.com>
-> CC: Andrzej Hajda <a.hajda@samsung.com>
-> CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
-> Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+On Tue, Jul 2, 2019 at 3:38 AM Maximilian Luz <luzmaximilian@gmail.com> wrote:
+>
+> This series adds suport for power and volume buttons on 5th and 6th
+> generation Microsoft Surface devices. Specifically, it adds support for
+> the power-button on the Surface Laptop 1 and Laptop 2, as well as
+> support for power- and (on-device) volume-buttons on the Surface Pro 5
+> (2017), Pro 6, and Book 2.
+>
+> These devices use the same MSHW0040 device as on the Surface Pro 4,
+> however, whereas the Pro 4 uses an ACPI notify handler, the newer
+> devices use GPIO interrupts to signal these events.
+>
+> The first patch of this series ensures that the surfacepro3_button
+> driver, used for MSHW0040 on the Pro 4, does not probe for the newer
+> devices. The second patch adapts soc_button_array to implement the
+> actual button support.
+>
+> I think the changes to soc_button_array in the second patch warrant a
+> thorough review. I've tried to make things a bit more generic to be able
+> to integrate arbitrary ACPI GPIO power-/volume-button devices more
+> easily, I'm not sure if there may be reasons against this.
+>
+> These patches have also been tested on various Surface devices via the
+> github.com/jakeday/linux-surface patchset.
+>
+
+> Changes since v1:
+>   - [PATCH 1/2] platform: Fix device check for surfacepro3_button
+>     No changes.
+>
+>   - [PATCH 2/2] input: soc_button_array for newer surface devices
+>     Ensure the patch compiles without CONFIG_ACPI.
+
+I re-pushed to my queue, though if you are going to send a new
+version, check my repository for the titles of the patches (you need
+to use correct templates for the subsystems).
+
+>
+> Maximilian Luz (2):
+>   platform: Fix device check for surfacepro3_button
+>   input: soc_button_array for newer surface devices
+>
+>  drivers/input/misc/soc_button_array.c     | 145 ++++++++++++++++++++--
+>  drivers/platform/x86/surfacepro3_button.c |  38 ++++++
+>  2 files changed, 171 insertions(+), 12 deletions(-)
+>
+> --
+> 2.22.0
+>
 
 
-Apparently this patch was not queued to kernel yet. If there are no
-objections I will queue it via drm-misc-next tree tomorrow.
-
-Regards
-Andrzej
+-- 
+With Best Regards,
+Andy Shevchenko

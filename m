@@ -1,79 +1,33 @@
-From: "Life is hard, and then you die" <ronald@innovation.ch>
-Subject: Re: [PATCH v7 1/2] drm/bridge: sil_sii8620: make remote control
- optional.
-Date: Tue, 2 Jul 2019 23:39:56 -0700
-Message-ID: <20190703063956.GA32102@innovation.ch>
-References: <20190419081926.13567-1-ronald@innovation.ch>
- <20190419081926.13567-2-ronald@innovation.ch>
- <CGME20190702135052eucas1p11e2621af0514505789c7947b84cf133c@eucas1p1.samsung.com>
- <2d0fe94c-a2c9-a8f6-967f-c33b53e86518@samsung.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH] input: max77650-onkey: add MODULE_ALIAS()
+Date: Wed,  3 Jul 2019 10:46:42 +0200
+Message-ID: <20190703084642.9425-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <2d0fe94c-a2c9-a8f6-967f-c33b53e86518@samsung.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Federico Lorenzi <federico@travelground.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-input@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-Ck9uIFR1ZSwgSnVsIDAyLCAyMDE5IGF0IDAzOjUwOjQ5UE0gKzAyMDAsIEFuZHJ6ZWogSGFqZGEg
-d3JvdGU6Cj4gT24gMTkuMDQuMjAxOSAxMDoxOSwgUm9uYWxkIFRzY2hhbMOkciB3cm90ZToKPiA+
-IGNvbW1pdCBkNmFiZTZkZjcwNmMgKGRybS9icmlkZ2U6IHNpbF9zaWk4NjIwOiBkbyBub3QgaGF2
-ZSBhIGRlcGVuZGVuY3kKPiA+IG9mIFJDX0NPUkUpIGNoYW5nZWQgdGhlIGRyaXZlciB0byBzZWxl
-Y3QgYm90aCBSQ19DT1JFIGFuZCBJTlBVVC4KPiA+IEhvd2V2ZXIsIHRoaXMgY2F1c2VzIHByb2Js
-ZW1zIHdpdGggb3RoZXIgZHJpdmVycywgaW4gcGFydGljdWxhciBhbiBpbnB1dAo+ID4gZHJpdmVy
-IHRoYXQgZGVwZW5kcyBvbiBNRkRfSU5URUxfTFBTU19QQ0kgKHRvIGJlIGFkZGVkIGluIGEgc2Vw
-YXJhdGUKPiA+IGNvbW1pdCk6Cj4gPiAKPiA+ICAgZHJpdmVycy9jbGsvS2NvbmZpZzo5OmVycm9y
-OiByZWN1cnNpdmUgZGVwZW5kZW5jeSBkZXRlY3RlZCEKPiA+ICAgZHJpdmVycy9jbGsvS2NvbmZp
-Zzo5OiAgICAgICAgc3ltYm9sIENPTU1PTl9DTEsgaXMgc2VsZWN0ZWQgYnkgTUZEX0lOVEVMX0xQ
-U1MKPiA+ICAgZHJpdmVycy9tZmQvS2NvbmZpZzo1NjY6ICAgICAgc3ltYm9sIE1GRF9JTlRFTF9M
-UFNTIGlzIHNlbGVjdGVkIGJ5IE1GRF9JTlRFTF9MUFNTX1BDSQo+ID4gICBkcml2ZXJzL21mZC9L
-Y29uZmlnOjU4MDogICAgICBzeW1ib2wgTUZEX0lOVEVMX0xQU1NfUENJIGlzIGltcGxpZWQgYnkg
-S0VZQk9BUkRfQVBQTEVTUEkKPiA+ICAgZHJpdmVycy9pbnB1dC9rZXlib2FyZC9LY29uZmlnOjcz
-OiAgICBzeW1ib2wgS0VZQk9BUkRfQVBQTEVTUEkgZGVwZW5kcyBvbiBJTlBVVAo+ID4gICBkcml2
-ZXJzL2lucHV0L0tjb25maWc6ODogICAgICBzeW1ib2wgSU5QVVQgaXMgc2VsZWN0ZWQgYnkgRFJN
-X1NJTF9TSUk4NjIwCj4gPiAgIGRyaXZlcnMvZ3B1L2RybS9icmlkZ2UvS2NvbmZpZzo4MzogICAg
-c3ltYm9sIERSTV9TSUxfU0lJODYyMCBkZXBlbmRzIG9uIERSTV9CUklER0UKPiA+ICAgZHJpdmVy
-cy9ncHUvZHJtL2JyaWRnZS9LY29uZmlnOjE6ICAgICBzeW1ib2wgRFJNX0JSSURHRSBpcyBzZWxl
-Y3RlZCBieSBEUk1fUEwxMTEKPiA+ICAgZHJpdmVycy9ncHUvZHJtL3BsMTExL0tjb25maWc6MTog
-ICAgICBzeW1ib2wgRFJNX1BMMTExIGRlcGVuZHMgb24gQ09NTU9OX0NMSwo+ID4gCj4gPiBBY2Nv
-cmRpbmcgdG8gdGhlIGRvY3MgYW5kIGdlbmVyYWwgY29uc2Vuc3VzLCBzZWxlY3Qgc2hvdWxkIG9u
-bHkgYmUgdXNlZAo+ID4gZm9yIG5vbiB1c2VyLXZpc2libGUgc3ltYm9scywgYnV0IGJvdGggUkNf
-Q09SRSBhbmQgSU5QVVQgYXJlCj4gPiB1c2VyLXZpc2libGUuIEZ1cnRoZXJtb3JlIGFsbW9zdCBh
-bGwgb3RoZXIgcmVmZXJlbmNlcyB0byBJTlBVVAo+ID4gdGhyb3VnaG91dCB0aGUga2VybmVsIGNv
-bmZpZyBhcmUgZGVwZW5kcywgbm90IHNlbGVjdHMuIEZvciB0aGlzIHJlYXNvbgo+ID4gdGhlIGZp
-cnN0IHBhcnQgb2YgdGhpcyBjaGFuZ2UgcmV2ZXJ0cyBjb21taXQgZDZhYmU2ZGY3MDZjLgo+ID4g
-Cj4gPiBJbiBvcmRlciB0byBhZGRyZXNzIHRoZSBvcmlnaW5hbCByZWFzb24gZm9yIGNvbW1pdCBk
-NmFiZTZkZjcwNmMsIG5hbWVseQo+ID4gdGhhdCBub3QgYWxsIGJvYXJkcyB1c2UgdGhlIHJlbW90
-ZSBjb250cm9sbGVyIGZ1bmN0aW9uYWxpdHkgYW5kIGhlbmNlCj4gPiBzaG91bGQgbm90IG5lZWQg
-aGF2ZSB0byBkZWFsIHdpdGggUkNfQ09SRSwgdGhlIHNlY29uZCBwYXJ0IG9mIHRoaXMKPiA+IGNo
-YW5nZSBub3cgbWFrZXMgdGhlIHJlbW90ZSBjb250cm9sIHN1cHBvcnQgaW4gdGhlIGRyaXZlciBv
-cHRpb25hbCBhbmQKPiA+IGNvbnRpbmdlbnQgb24gUkNfQ09SRSBiZWluZyBkZWZpbmVkLiBBbmQg
-d2l0aCB0aGlzIHRoZSBoYXJkIGRlcGVuZGVuY3kKPiA+IG9uIElOUFVUIGFsc28gZ29lcyBhd2F5
-IGFzIHRoYXQgaXMgb25seSBuZWVkZWQgaWYgUkNfQ09SRSBpcyBkZWZpbmVkCj4gPiAod2hpY2gg
-aW4gdHVybiBhbHJlYWR5IGRlcGVuZHMgb24gSU5QVVQpLgo+ID4gCj4gPiBDQzogSW5raSBEYWUg
-PGlua2kuZGFlQHNhbXN1bmcuY29tPgo+ID4gQ0M6IEFuZHJ6ZWogSGFqZGEgPGEuaGFqZGFAc2Ft
-c3VuZy5jb20+Cj4gPiBDQzogTGF1cmVudCBQaW5jaGFydCA8bGF1cmVudC5waW5jaGFydEBpZGVh
-c29uYm9hcmQuY29tPgo+ID4gQ0M6IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdt
-YWlsLmNvbT4KPiA+IFNpZ25lZC1vZmYtYnk6IFJvbmFsZCBUc2NoYWzDpHIgPHJvbmFsZEBpbm5v
-dmF0aW9uLmNoPgo+ID4gUmV2aWV3ZWQtYnk6IEFuZHJ6ZWogSGFqZGEgPGEuaGFqZGFAc2Ftc3Vu
-Zy5jb20+Cj4gCj4gCj4gQXBwYXJlbnRseSB0aGlzIHBhdGNoIHdhcyBub3QgcXVldWVkIHRvIGtl
-cm5lbCB5ZXQuIElmIHRoZXJlIGFyZSBubwo+IG9iamVjdGlvbnMgSSB3aWxsIHF1ZXVlIGl0IHZp
-YSBkcm0tbWlzYy1uZXh0IHRyZWUgdG9tb3Jyb3cuCgpJZiB0aGlzIHBhdGNoIHNldCB3b24ndCBi
-ZSBxdWV1ZWQgZm9yIDUuMyB0aGVuIEkgZ3Vlc3MgdGhhdCB3b3VsZCBiZSBhCmdvb2QgaWRlYS4K
-CkJ1dCBtYXkgSSBhc2sgd2hhdCBpcyBwcmV2ZW50aW5nIHRoaXMgcGF0Y2ggc2V0IGZyb20gYmVp
-bmcgcXVldWVkIGZvcgp1cHN0cmVhbSwgc28gSSBjYW4gdHJ5IGFuZCBmaXggd2hhdGV2ZXIgdGhl
-IGlzc3VlIGlzPwoKCiAgQ2hlZXJzLAoKICBSb25hbGQKCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVs
-QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL2RyaS1kZXZlbA==
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+
+Define a MODULE_ALIAS() in the input sub-driver for max77650 so that
+the appropriate module gets loaded together with the core mfd driver.
+
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/input/misc/max77650-onkey.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/misc/max77650-onkey.c b/drivers/input/misc/max77650-onkey.c
+index fbf6caab7217..4d875f2ac13d 100644
+--- a/drivers/input/misc/max77650-onkey.c
++++ b/drivers/input/misc/max77650-onkey.c
+@@ -119,3 +119,4 @@ module_platform_driver(max77650_onkey_driver);
+ MODULE_DESCRIPTION("MAXIM 77650/77651 ONKEY driver");
+ MODULE_AUTHOR("Bartosz Golaszewski <bgolaszewski@baylibre.com>");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:max77650-onkey");
+-- 
+2.21.0

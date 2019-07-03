@@ -1,69 +1,60 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 31/39] HID: uclogic: Add support for Huion HS64 tablet
-Date: Tue,  2 Jul 2019 22:15:06 -0400
-Message-ID: <20190703021514.17727-31-sashal@kernel.org>
-References: <20190703021514.17727-1-sashal@kernel.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 2/4] input: keyboard/mouse/touchscreen/misc: Use
+ dev_get_drvdata()
+Date: Wed, 3 Jul 2019 07:17:46 +0100
+Message-ID: <20190703061746.GI4652@dell>
+References: <20190701032342.25971-1-huangfq.daxian@gmail.com>
+ <20190701075255.GD172968@dtor-ws>
+ <CABXRUiSO2Fos1V3hR5t3AviZ9Hit_y+E-Tp3PNOQj6-FKUBJBw@mail.gmail.com>
+ <CAHp75VeUo2Au66tETo3zneBpeaVU+Y+-h5zghpo+hPuB=a6-eA@mail.gmail.com>
+ <CABXRUiQ77feNzEdQ7GqNxLS9YAMybVG3eAWWSDPFdGvERaxCyg@mail.gmail.com>
+ <20190702143225.12b0fe07@karo-electronics.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190703021514.17727-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190702143225.12b0fe07@karo-electronics.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Kyle Godbey <me@kyle.ee>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
+Cc: Fuqian Huang <huangfq.daxian@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, Tony Lindgren <tony@atomide.com>, Richard Fontana <rfontana@redhat.com>, Laxman Dewangan <ldewangan@nvidia.com>, Fabio Estevam <festevam@gmail.com>, Rob Herring <robh@kernel.org>, Florian Fainelli <f.fainelli@gmail.com>, Anson Huang <anson.huang@nxp.com>, Jonathan Hunter <jonathanh@nvidia.com>, Luca Weiss <luca@z3ntu.xyz>, NXP Linux Team <linux-imx@nxp.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Dan Carpenter <dan.carpenter@oracle.com>, Brian Masney <masneyb@onstation.org>, Arnd Bergmann <arnd@arndb.de>, Sascha Hauer <s.hauer@pengutronix.de>, linux-input <linux-input@vger.kernel.org>, Vladimir
 List-Id: linux-input@vger.kernel.org
 
-From: Kyle Godbey <me@kyle.ee>
+On Tue, 02 Jul 2019, Lothar Waßmann wrote:
 
-[ Upstream commit 315ffcc9a1e054bb460f9203058b52dc26b1173d ]
+> Hi,
+> 
+> On Tue, 2 Jul 2019 19:47:16 +0800 Fuqian Huang wrote:
+> > Andy Shevchenko <andy.shevchenko@gmail.com> 於 2019年7月2日週二 下午5:51寫道：
+> > >
+> > > On Tue, Jul 2, 2019 at 11:20 AM Fuqian Huang <huangfq.daxian@gmail.com> wrote:  
+> > > >
+> > > > I am not an expert on this. I just write a coccinelle script to search
+> > > > this kind of misuse and fix it in a naive way.
+> > > > Could you tell me about how to use the proper bus accessors? Then I
+> > > > will fix it up and resend a v2 patch set.  
+> > >
+> > > First, don't top post.
+> > > And answering to this, simple drop the patch.
+> > > Proper bus accessors is exactly what it's used in the current code.  
+> > 
+> > But why not use dev_get_drvdata directly.
+> > It simplifies getting the 'driver_data' from 'struct device' directly.
+> > And the platform_device here is not required.
+> > Replace it can remove the unnecessary step back and forth. (dev -> pdev -> dev).
+> > 
+> Did you check whether the compiler generates different (better) code
+> with and without your patch? My guess is it won't.
 
-Add support for Huion HS64 drawing tablet to hid-uclogic
+I can see Fuqian's point.  If bus APIs are preferred, maybe it would
+be nicer if the function was adapted to accept a platform_device
+instead?
 
-Signed-off-by: Kyle Godbey <me@kyle.ee>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-ids.h            | 1 +
- drivers/hid/hid-uclogic-core.c   | 2 ++
- drivers/hid/hid-uclogic-params.c | 2 ++
- 3 files changed, 5 insertions(+)
+Caveat: I haven't taken the time to look into the call-site details.
+	This comment is based on just the patch alone.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b5615ffa74ba..4ea272eb34c8 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -572,6 +572,7 @@
- 
- #define USB_VENDOR_ID_HUION		0x256c
- #define USB_DEVICE_ID_HUION_TABLET	0x006e
-+#define USB_DEVICE_ID_HUION_HS64	0x006d
- 
- #define USB_VENDOR_ID_IBM					0x04b3
- #define USB_DEVICE_ID_IBM_SCROLLPOINT_III			0x3100
-diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index 8fe02d81265d..914fb527ae7a 100644
---- a/drivers/hid/hid-uclogic-core.c
-+++ b/drivers/hid/hid-uclogic-core.c
-@@ -369,6 +369,8 @@ static const struct hid_device_id uclogic_devices[] = {
- 				USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION,
- 				USB_DEVICE_ID_HUION_TABLET) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION,
-+				USB_DEVICE_ID_HUION_HS64) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
- 				USB_DEVICE_ID_HUION_TABLET) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 0187c9f8fc22..273d784fff66 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -977,6 +977,8 @@ int uclogic_params_init(struct uclogic_params *params,
- 		/* FALL THROUGH */
- 	case VID_PID(USB_VENDOR_ID_HUION,
- 		     USB_DEVICE_ID_HUION_TABLET):
-+	case VID_PID(USB_VENDOR_ID_HUION,
-+		     USB_DEVICE_ID_HUION_HS64):
- 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
- 		     USB_DEVICE_ID_HUION_TABLET):
- 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 -- 
-2.20.1
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

@@ -1,62 +1,60 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 21/26] HID: chicony: add another quirk for PixArt mouse
-Date: Tue,  2 Jul 2019 22:16:20 -0400
-Message-ID: <20190703021625.18116-21-sashal@kernel.org>
-References: <20190703021625.18116-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 32/39] HID: multitouch: Add pointstick support for ALPS Touchpad
+Date: Tue,  2 Jul 2019 22:15:07 -0400
+Message-ID: <20190703021514.17727-32-sashal@kernel.org>
+References: <20190703021514.17727-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190703021625.18116-1-sashal@kernel.org>
+In-Reply-To: <20190703021514.17727-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Oleksandr Natalenko <oleksandr@redhat.com>, Sebastian Parschauer <s.parschauer@gmx.de>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Oleksandr Natalenko <oleksandr@redhat.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit dcf768b0ac868630e7bdb6f2f1c9fe72788012fa ]
+[ Upstream commit 0a95fc733da375de0688d0f1fd3a2869a1c1d499 ]
 
-I've spotted another Chicony PixArt mouse in the wild, which requires
-HID_QUIRK_ALWAYS_POLL quirk, otherwise it disconnects each minute.
+There's a new ALPS touchpad/pointstick combo device that requires
+MT_CLS_WIN_8_DUAL to make its pointsitck work as a mouse.
 
-USB ID of this device is 0x04f2:0x0939.
+The device can be found on HP ZBook 17 G5.
 
-We've introduced quirks like this for other models before, so lets add
-this mouse too.
-
-Link: https://github.com/sriemer/fix-linux-mouse#usb-mouse-disconnectsreconnects-every-minute-on-linux
-Signed-off-by: Oleksandr Natalenko <oleksandr@redhat.com>
-Acked-by: Sebastian Parschauer <s.parschauer@gmx.de>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 4 ++++
+ 2 files changed, 5 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 97d33b8ed36c..4ff61fb43500 100644
+index 4ea272eb34c8..cd7442eb25b9 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -265,6 +265,7 @@
- #define USB_DEVICE_ID_CHICONY_MULTI_TOUCH	0xb19d
- #define USB_DEVICE_ID_CHICONY_WIRELESS	0x0618
- #define USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE	0x1053
-+#define USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE2	0x0939
- #define USB_DEVICE_ID_CHICONY_WIRELESS2	0x1123
- #define USB_DEVICE_ID_ASUS_AK1D		0x1125
- #define USB_DEVICE_ID_CHICONY_ACER_SWITCH12	0x1421
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index e24790c988c0..6046c2439700 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -45,6 +45,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE2), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK), HID_QUIRK_NOGET },
+@@ -83,6 +83,7 @@
+ #define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
+ #define HID_DEVICE_ID_ALPS_U1		0x1215
+ #define HID_DEVICE_ID_ALPS_T4_BTNLESS	0x120C
++#define HID_DEVICE_ID_ALPS_1222		0x1222
+ 
+ 
+ #define USB_VENDOR_ID_AMI		0x046b
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 1565a307170a..42bb635895cf 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1780,6 +1780,10 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+ 			USB_VENDOR_ID_ALPS_JP,
+ 			HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP) },
++	{ .driver_data = MT_CLS_WIN_8_DUAL,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_ALPS_JP,
++			HID_DEVICE_ID_ALPS_1222) },
+ 
+ 	/* Lenovo X1 TAB Gen 2 */
+ 	{ .driver_data = MT_CLS_WIN_8_DUAL,
 -- 
 2.20.1

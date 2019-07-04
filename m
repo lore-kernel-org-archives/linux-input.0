@@ -1,73 +1,63 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 11/11] input: axp20x-pek: convert platform driver to use dev_groups
-Date: Thu,  4 Jul 2019 10:46:17 +0200
-Message-ID: <20190704084617.3602-12-gregkh@linuxfoundation.org>
-References: <20190704084617.3602-1-gregkh@linuxfoundation.org>
+From: Maximilian Luz <luzmaximilian@gmail.com>
+Subject: Re: [PATCH v2 2/2] input: soc_button_array for newer surface devices
+Date: Thu, 4 Jul 2019 17:31:42 +0200
+Message-ID: <1d384979-38e8-ccb3-6462-0a8a5380f50d@gmail.com>
+References: <20190702003740.75970-1-luzmaximilian@gmail.com>
+ <20190702003740.75970-3-luzmaximilian@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190704084617.3602-1-gregkh@linuxfoundation.org>
+In-Reply-To: <20190702003740.75970-3-luzmaximilian@gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Florian Fainelli <f.fainelli@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Platform drivers now have the option to have the platform core create
-and remove any needed sysfs attribute files.  So take advantage of that
-and do not register "by hand" a sysfs group of attributes.
+On 7/2/19 2:37 AM, Maximilian Luz wrote:
+> +static int soc_device_check_MSHW0040(struct device *dev)
+> +{
+> +	acpi_handle handle = ACPI_HANDLE(dev);
+> +	union acpi_object *result;
+> +	u64 oem_platform_rev = 0;
+> +	int gpios;
+> +
+> +	// get OEM platform revision
+> +	result = acpi_evaluate_dsm_typed(handle, &MSHW0040_DSM_UUID,
+> +					 MSHW0040_DSM_REVISION,
+> +					 MSHW0040_DSM_GET_OMPR, NULL,
+> +					 ACPI_TYPE_INTEGER);
+> +
+> +	if (result) {
+> +		oem_platform_rev = result->integer.value;
+> +		ACPI_FREE(result);
+> +	}
+> +
+> +	if (oem_platform_rev == 0)
+> +		return -ENODEV;
+> +
+> +	dev_dbg(dev, "OEM Platform Revision %llu\n", oem_platform_rev);
+> +
+> +	/*
+> +	 * We are _really_ expecting GPIOs here. If we do not get any, this
+> +	 * means the GPIO driver has not been loaded yet (which can happen).
+> +	 * Try again later.
+> +	 */
+> +	gpios = gpiod_count(dev, NULL);
+> +	if (gpios < 0)
+> +		return -EAGAIN;
+> +
+> +	return 0;
+> +}
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/input/misc/axp20x-pek.c | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+Just had another look at this: Shouldn't the EAGAIN here be
+EPROBE_DEFER?
 
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index debeeaeb8812..baff6dcbe392 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -195,15 +195,12 @@ DEVICE_ATTR(startup, 0644, axp20x_show_attr_startup, axp20x_store_attr_startup);
- DEVICE_ATTR(shutdown, 0644, axp20x_show_attr_shutdown,
- 	    axp20x_store_attr_shutdown);
- 
--static struct attribute *axp20x_attributes[] = {
-+static struct attribute *axp20x_attrs[] = {
- 	&dev_attr_startup.attr,
- 	&dev_attr_shutdown.attr,
- 	NULL,
- };
--
--static const struct attribute_group axp20x_attribute_group = {
--	.attrs = axp20x_attributes,
--};
-+ATTRIBUTE_GROUPS(axp20x);
- 
- static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
- {
-@@ -356,13 +353,6 @@ static int axp20x_pek_probe(struct platform_device *pdev)
- 
- 	axp20x_pek->info = (struct axp20x_info *)match->driver_data;
- 
--	error = devm_device_add_group(&pdev->dev, &axp20x_attribute_group);
--	if (error) {
--		dev_err(&pdev->dev, "Failed to create sysfs attributes: %d\n",
--			error);
--		return error;
--	}
--
- 	platform_set_drvdata(pdev, axp20x_pek);
- 
- 	return 0;
-@@ -406,6 +396,7 @@ static const struct platform_device_id axp_pek_id_match[] = {
- MODULE_DEVICE_TABLE(platform, axp_pek_id_match);
- 
- static struct platform_driver axp20x_pek_driver = {
-+	.dev_groups	= axp20x_groups,
- 	.probe		= axp20x_pek_probe,
- 	.id_table	= axp_pek_id_match,
- 	.driver		= {
--- 
-2.22.0
+The reasoning is that we would want to defer probing of the driver if we
+can't get any GPIO pins, since we know that MSHW0040 should have some.
+It has in the past been reported that the driver didn't load properly
+(without this check), since it could happen that the GPIO subsystem
+wasn't quite ready yet when probing.
+
+Best,
+Maximilian

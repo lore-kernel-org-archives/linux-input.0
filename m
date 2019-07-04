@@ -1,33 +1,64 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH] input: max77650-onkey: add MODULE_ALIAS()
-Date: Wed,  3 Jul 2019 10:46:42 +0200
-Message-ID: <20190703084642.9425-1-brgl@bgdev.pl>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 00/11] Platform drivers,
+ provide a way to add sysfs groups easily
+Date: Thu,  4 Jul 2019 10:46:06 +0200
+Message-ID: <20190704084617.3602-1-gregkh@linuxfoundation.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-fbdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, "Rafael J. Wysocki" <rafael@kernel.org>, dri-devel@lists.freedesktop.org, platform-driver-x86@vger.kernel.org, Mans Rullgard <mans@mansr.com>, "H. Peter Anvin" <hpa@zytor.com>, Romain Izard <romain.izard.pro@gmail.com>, Richard Gong <richard.gong@linux.intel.com>, Florian Fainelli <f.fainelli@gmail.com>, x86@kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Ingo Molnar <mingo@redhat.com>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Darren Hart <dvhart@infradead.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, linux-input@vger.kernel.org, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-arm-kernel@lists.infradead.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitr>
 List-Id: linux-input@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-
-Define a MODULE_ALIAS() in the input sub-driver for max77650 so that
-the appropriate module gets loaded together with the core mfd driver.
-
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/input/misc/max77650-onkey.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/misc/max77650-onkey.c b/drivers/input/misc/max77650-onkey.c
-index fbf6caab7217..4d875f2ac13d 100644
---- a/drivers/input/misc/max77650-onkey.c
-+++ b/drivers/input/misc/max77650-onkey.c
-@@ -119,3 +119,4 @@ module_platform_driver(max77650_onkey_driver);
- MODULE_DESCRIPTION("MAXIM 77650/77651 ONKEY driver");
- MODULE_AUTHOR("Bartosz Golaszewski <bgolaszewski@baylibre.com>");
- MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:max77650-onkey");
--- 
-2.21.0
+SWYgYSBwbGF0Zm9ybSBkcml2ZXIgd2FudHMgdG8gYWRkIGEgc3lzZnMgZ3JvdXAsIGl0IGhhcyB0
+byBkbyBzbyBpbiBhCnJhY3kgd2F5LCBhZGRpbmcgaXQgYWZ0ZXIgdGhlIGRyaXZlciBpcyBib3Vu
+ZC4gIFRvIHJlc29sdmUgdGhpcyBpc3N1ZSwKaGF2ZSB0aGUgcGxhdGZvcm0gZHJpdmVyIGNvcmUg
+ZG8gdGhpcyBmb3IgdGhlIGRyaXZlciwgbWFraW5nIHRoZQppbmRpdmlkdWFsIGRyaXZlcnMgbG9n
+aWMgc21hbGxlciBhbmQgc2ltcGxlciwgYW5kIHNvbHZpbmcgdGhlIHJhY2UgYXQKdGhlIHNhbWUg
+dGltZS4KCkFsbCBvZiB0aGVzZSBwYXRjaGVzIGRlcGVuZCBvbiB0aGUgZmlyc3QgcGF0Y2guICBJ
+J2xsIHRha2UgdGhlIGZpcnN0IG9uZQp0aHJvdWdoIG15IGRyaXZlci1jb3JlIHRyZWUsIGFuZCBh
+bnkgc3Vic3lzdGVtIG1haW50YWluZXIgY2FuIGVpdGhlciBhY2sKdGhlaXIgaW5kaXZpZHVsIHBh
+dGNoIGFuZCBJIHdpbGwgYmUgZ2xhZCB0byBhbHNvIG1lcmdlIGl0LCBvciB0aGV5IGNhbgp3YWl0
+IHVudGlsIGFmdGVyIDUuMy1yYzEgd2hlbiB0aGUgY29yZSBwYXRjaCBoaXRzIExpbnVzJ3MgdHJl
+ZSBhbmQgdGhlbgp0YWtlIGl0LCBpdCdzIHVwIHRvIHRoZW0uCgpUaGFuayB0byBSaWNoYXJkIEdv
+bmcgZm9yIHRoZSBpZGVhIGFuZCB0aGUgdGVzdGluZyBvZiB0aGUgcGxhdGZvcm0KZHJpdmVyIHBh
+dGNoLgoKR3JlZyBLcm9haC1IYXJ0bWFuICgxMSk6CiAgUGxhdGZvcm06IGFkZCBhIGRldl9ncm91
+cHMgcG9pbnRlciB0byBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVyCiAgdWlvOiB1aW9fZnNsX2VsYmNf
+Z3BjbTogY29udmVydCBwbGF0Zm9ybSBkcml2ZXIgdG8gdXNlIGRldl9ncm91cHMKICBzZXJpYWw6
+IHNoLXNjaTogdXNlIGRyaXZlciBjb3JlIGZ1bmN0aW9ucywgbm90IHN5c2ZzIG9uZXMuCiAgZmly
+bXdhcmU6IGFybV9zY3BpOiBjb252ZXJ0IHBsYXRmb3JtIGRyaXZlciB0byB1c2UgZGV2X2dyb3Vw
+cwogIG9scGM6IHgwMTogY29udmVydCBwbGF0Zm9ybSBkcml2ZXIgdG8gdXNlIGRldl9ncm91cHMK
+ICBwbGF0Zm9ybTogeDg2OiBocC13bWk6IGNvbnZlcnQgcGxhdGZvcm0gZHJpdmVyIHRvIHVzZSBk
+ZXZfZ3JvdXBzCiAgdmlkZW86IGZiZGV2OiB3bTg1MDVmYjogY29udmVydCBwbGF0Zm9ybSBkcml2
+ZXIgdG8gdXNlIGRldl9ncm91cHMKICB2aWRlbzogZmJkZXY6IHcxMDBmYjogY29udmVydCBwbGF0
+Zm9ybSBkcml2ZXIgdG8gdXNlIGRldl9ncm91cHMKICB2aWRlbzogZmJkZXY6IHNtNTAxZmI6IGNv
+bnZlcnQgcGxhdGZvcm0gZHJpdmVyIHRvIHVzZSBkZXZfZ3JvdXBzCiAgaW5wdXQ6IGtleWJvYXJk
+OiBncGlvX2tleXM6IGNvbnZlcnQgcGxhdGZvcm0gZHJpdmVyIHRvIHVzZSBkZXZfZ3JvdXBzCiAg
+aW5wdXQ6IGF4cDIweC1wZWs6IGNvbnZlcnQgcGxhdGZvcm0gZHJpdmVyIHRvIHVzZSBkZXZfZ3Jv
+dXBzCgogYXJjaC94ODYvcGxhdGZvcm0vb2xwYy9vbHBjLXhvMS1zY2kuYyB8IDE3ICsrKystLS0t
+LS0KIGRyaXZlcnMvYmFzZS9wbGF0Zm9ybS5jICAgICAgICAgICAgICAgfCA0MCArKysrKysrKysr
+KysrKystLS0tLS0tLQogZHJpdmVycy9maXJtd2FyZS9hcm1fc2NwaS5jICAgICAgICAgICB8ICA1
+ICstLQogZHJpdmVycy9pbnB1dC9rZXlib2FyZC9ncGlvX2tleXMuYyAgICB8IDEzICsrLS0tLS0t
+CiBkcml2ZXJzL2lucHV0L21pc2MvYXhwMjB4LXBlay5jICAgICAgIHwgMTUgKystLS0tLS0tCiBk
+cml2ZXJzL3BsYXRmb3JtL3g4Ni9ocC13bWkuYyAgICAgICAgIHwgNDcgKysrKysrKy0tLS0tLS0t
+LS0tLS0tLS0tLS0tCiBkcml2ZXJzL3R0eS9zZXJpYWwvc2gtc2NpLmMgICAgICAgICAgIHwgMjIg
+KysrKystLS0tLS0tLQogZHJpdmVycy91aW8vdWlvX2ZzbF9lbGJjX2dwY20uYyAgICAgICB8IDIz
+ICsrKysrLS0tLS0tLS0KIGRyaXZlcnMvdmlkZW8vZmJkZXYvc201MDFmYi5jICAgICAgICAgfCAz
+NyArKysrKy0tLS0tLS0tLS0tLS0tLS0KIGRyaXZlcnMvdmlkZW8vZmJkZXYvdzEwMGZiLmMgICAg
+ICAgICAgfCAyMyArKysrKystLS0tLS0tCiBkcml2ZXJzL3ZpZGVvL2ZiZGV2L3dtODUwNWZiLmMg
+ICAgICAgIHwgMTMgKysrKy0tLS0KIGluY2x1ZGUvbGludXgvcGxhdGZvcm1fZGV2aWNlLmggICAg
+ICAgfCAgMSArCiAxMiBmaWxlcyBjaGFuZ2VkLCA5NCBpbnNlcnRpb25zKCspLCAxNjIgZGVsZXRp
+b25zKC0pCgotLSAKMi4yMi4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVz
+a3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9k
+cmktZGV2ZWw=

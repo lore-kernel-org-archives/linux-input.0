@@ -1,63 +1,74 @@
-From: Maximilian Luz <luzmaximilian@gmail.com>
-Subject: Re: [PATCH v2 2/2] input: soc_button_array for newer surface devices
-Date: Thu, 4 Jul 2019 17:31:42 +0200
-Message-ID: <1d384979-38e8-ccb3-6462-0a8a5380f50d@gmail.com>
-References: <20190702003740.75970-1-luzmaximilian@gmail.com>
- <20190702003740.75970-3-luzmaximilian@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Shreeya Patel <shreeya.patel23498@gmail.com>
+Subject: [PATCH] Documentation: input: Add HID gadget driver's docs to Input subsystem
+Date: Fri,  5 Jul 2019 00:00:48 +0530
+Message-ID: <20190704183048.32360-1-shreeya.patel23498@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190702003740.75970-3-luzmaximilian@gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: skhan@linuxfoundation.org, linux-kernel-mentees@lists.linuxfoundation.org, dmitry.torokhov@gmail.com, corbet@lwn.net, gregkh@linuxfoundation.org, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 7/2/19 2:37 AM, Maximilian Luz wrote:
-> +static int soc_device_check_MSHW0040(struct device *dev)
-> +{
-> +	acpi_handle handle = ACPI_HANDLE(dev);
-> +	union acpi_object *result;
-> +	u64 oem_platform_rev = 0;
-> +	int gpios;
-> +
-> +	// get OEM platform revision
-> +	result = acpi_evaluate_dsm_typed(handle, &MSHW0040_DSM_UUID,
-> +					 MSHW0040_DSM_REVISION,
-> +					 MSHW0040_DSM_GET_OMPR, NULL,
-> +					 ACPI_TYPE_INTEGER);
-> +
-> +	if (result) {
-> +		oem_platform_rev = result->integer.value;
-> +		ACPI_FREE(result);
-> +	}
-> +
-> +	if (oem_platform_rev == 0)
-> +		return -ENODEV;
-> +
-> +	dev_dbg(dev, "OEM Platform Revision %llu\n", oem_platform_rev);
-> +
-> +	/*
-> +	 * We are _really_ expecting GPIOs here. If we do not get any, this
-> +	 * means the GPIO driver has not been loaded yet (which can happen).
-> +	 * Try again later.
-> +	 */
-> +	gpios = gpiod_count(dev, NULL);
-> +	if (gpios < 0)
-> +		return -EAGAIN;
-> +
-> +	return 0;
-> +}
+Convert gadget_hid file to ReST format, in order to allow it to
+be parsed by Sphinx.
+Also move the file in the Input subsystem documentation so as to
+put it in the right place.
 
-Just had another look at this: Shouldn't the EAGAIN here be
-EPROBE_DEFER?
+Signed-off-by: Shreeya Patel <shreeya.patel23498@gmail.com>
+---
+ .../devices/gadget_hid.rst}                        | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+ rename Documentation/{usb/gadget_hid.txt => input/devices/gadget_hid.rst} (96%)
 
-The reasoning is that we would want to defer probing of the driver if we
-can't get any GPIO pins, since we know that MSHW0040 should have some.
-It has in the past been reported that the driver didn't load properly
-(without this check), since it could happen that the GPIO subsystem
-wasn't quite ready yet when probing.
-
-Best,
-Maximilian
+diff --git a/Documentation/usb/gadget_hid.txt b/Documentation/input/devices/gadget_hid.rst
+similarity index 96%
+rename from Documentation/usb/gadget_hid.txt
+rename to Documentation/input/devices/gadget_hid.rst
+index 098d563040cc..132a8d6719f0 100644
+--- a/Documentation/usb/gadget_hid.txt
++++ b/Documentation/input/devices/gadget_hid.rst
+@@ -1,3 +1,5 @@
++.. SPDX-License-Identifier: GPL-2.0+
++
+ ===========================
+ Linux USB HID gadget driver
+ ===========================
+@@ -8,15 +10,15 @@ Introduction
+ The HID Gadget driver provides emulation of USB Human Interface
+ Devices (HID). The basic HID handling is done in the kernel,
+ and HID reports can be sent/received through I/O on the
+-/dev/hidgX character devices.
++:file:`/dev/hidgX` character devices.
+ 
+ For more details about HID, see the developer page on
+-http://www.usb.org/developers/hidpage/
++`<http://www.usb.org/developers/hidpage/>`_
+ 
+ Configuration
+ =============
+ 
+-g_hid is a platform driver, so to use it you need to add
++*g_hid* is a platform driver, so to use it you need to add
+ struct platform_device(s) to your platform code defining the
+ HID function descriptors you want to use - E.G. something
+ like::
+@@ -89,16 +91,16 @@ Send and receive HID reports
+ ============================
+ 
+ HID reports can be sent/received using read/write on the
+-/dev/hidgX character devices. See below for an example program
++:file:`/dev/hidgX` character devices. See below for an example program
+ to do this.
+ 
+-hid_gadget_test is a small interactive program to test the HID
++*hid_gadget_test* is a small interactive program to test the HID
+ gadget driver. To use, point it at a hidg device and set the
+ device type (keyboard / mouse / joystick) - E.G.::
+ 
+ 	# hid_gadget_test /dev/hidg0 keyboard
+ 
+-You are now in the prompt of hid_gadget_test. You can type any
++You are now in the prompt of *hid_gadget_test*. You can type any
+ combination of options and values. Available options and
+ values are listed at program start. In keyboard mode you can
+ send up to six values.
+-- 
+2.17.1

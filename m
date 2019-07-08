@@ -1,7 +1,7 @@
 From: Fuqian Huang <huangfq.daxian@gmail.com>
-Subject: [PATCH 08/14] Input: elan_i2c - Replace devm_add_action() followed by failure action with devm_add_action_or_reset()
-Date: Mon,  8 Jul 2019 20:33:32 +0800
-Message-ID: <20190708123332.11989-1-huangfq.daxian@gmail.com>
+Subject: [PATCH 10/14] Input: auo-pixcir-ts - Replace devm_add_action() followed by failure action with devm_add_action_or_reset()
+Date: Mon,  8 Jul 2019 20:33:47 +0800
+Message-ID: <20190708123347.12081-1-huangfq.daxian@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Fuqian Huang <huangfq.daxian@gmail.com>
@@ -15,22 +15,22 @@ and reduce the likelyhood of bugs.
 
 Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
 ---
- drivers/input/mouse/elan_i2c_core.c | 3 +--
+ drivers/input/touchscreen/auo-pixcir-ts.c | 3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 420efaab3860..a8d4f3bd09bf 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1234,9 +1234,8 @@ static int elan_probe(struct i2c_client *client,
+diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
+index 8e48fbda487a..8e9f3b7b8180 100644
+--- a/drivers/input/touchscreen/auo-pixcir-ts.c
++++ b/drivers/input/touchscreen/auo-pixcir-ts.c
+@@ -602,9 +602,8 @@ static int auo_pixcir_probe(struct i2c_client *client,
  		return error;
  	}
  
--	error = devm_add_action(dev, elan_remove_sysfs_groups, data);
-+	error = devm_add_action_or_reset(dev, elan_remove_sysfs_groups, data);
+-	error = devm_add_action(&client->dev, auo_pixcir_reset, ts);
++	error = devm_add_action_or_reset(&client->dev, auo_pixcir_reset, ts);
  	if (error) {
--		elan_remove_sysfs_groups(data);
- 		dev_err(dev, "Failed to add sysfs cleanup action: %d\n",
+-		auo_pixcir_reset(ts);
+ 		dev_err(&client->dev, "failed to register reset action, %d\n",
  			error);
  		return error;
 -- 

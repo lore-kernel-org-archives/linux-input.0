@@ -1,8 +1,8 @@
 From: Nishka Dasgupta <nishkadg.linux@gmail.com>
-Subject: [PATCH] input: keyboard: sun4i-lradc-keys: Add of_node_put() before
+Subject: [PATCH] input: keyboard: mtk-pmic-keys: Add of_node_put() before
  return
-Date: Tue,  9 Jul 2019 23:27:07 +0530
-Message-ID: <20190709175707.14278-1-nishkadg.linux@gmail.com>
+Date: Tue,  9 Jul 2019 23:30:19 +0530
+Message-ID: <20190709180019.14339-1-nishkadg.linux@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,7 +16,7 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: hdegoede@redhat.com, dmitry.torokhov@gmail.com, maxime.ripard@bootlin.com, wens@csie.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: matthias.bgg@gmail.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 Cc: Nishka Dasgupta <nishkadg.linux@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
@@ -28,34 +28,44 @@ Issue found with Coccinelle.
 
 Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
 ---
- drivers/input/keyboard/sun4i-lradc-keys.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/keyboard/mtk-pmic-keys.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
-index 6ffdc26b9c89..4a796bed48ac 100644
---- a/drivers/input/keyboard/sun4i-lradc-keys.c
-+++ b/drivers/input/keyboard/sun4i-lradc-keys.c
-@@ -198,18 +198,21 @@ static int sun4i_lradc_load_dt_keymap(struct device *dev,
- 		error = of_property_read_u32(pp, "channel", &channel);
- 		if (error || channel != 0) {
- 			dev_err(dev, "%pOFn: Inval channel prop\n", pp);
-+			of_node_put(pp);
- 			return -EINVAL;
+diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+index 746ff06eaf8d..62391d6c7da6 100644
+--- a/drivers/input/keyboard/mtk-pmic-keys.c
++++ b/drivers/input/keyboard/mtk-pmic-keys.c
+@@ -277,8 +277,10 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
+ 
+ 		keys->keys[index].irq = platform_get_irq(pdev, index);
+-		if (keys->keys[index].irq < 0)
++		if (keys->keys[index].irq < 0) {
++			of_node_put(child);
+ 			return keys->keys[index].irq;
++		}
+ 
+ 		error = of_property_read_u32(child,
+ 			"linux,keycodes", &keys->keys[index].keycode);
+@@ -286,6 +288,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 			dev_err(keys->dev,
+ 				"failed to read key:%d linux,keycode property: %d\n",
+ 				index, error);
++			of_node_put(child);
+ 			return error;
  		}
  
- 		error = of_property_read_u32(pp, "voltage", &map->voltage);
- 		if (error) {
- 			dev_err(dev, "%pOFn: Inval voltage prop\n", pp);
-+			of_node_put(pp);
- 			return -EINVAL;
- 		}
+@@ -293,8 +296,10 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 			keys->keys[index].wakeup = true;
  
- 		error = of_property_read_u32(pp, "linux,code", &map->keycode);
- 		if (error) {
- 			dev_err(dev, "%pOFn: Inval linux,code prop\n", pp);
-+			of_node_put(pp);
- 			return -EINVAL;
- 		}
+ 		error = mtk_pmic_key_setup(keys, &keys->keys[index]);
+-		if (error)
++		if (error) {
++			of_node_put(child);
+ 			return error;
++		}
  
+ 		index++;
+ 	}
 -- 
 2.19.1

@@ -1,71 +1,53 @@
-From: Nishka Dasgupta <nishkadg.linux@gmail.com>
-Subject: [PATCH] input: keyboard: mtk-pmic-keys: Add of_node_put() before
- return
-Date: Tue,  9 Jul 2019 23:30:19 +0530
-Message-ID: <20190709180019.14339-1-nishkadg.linux@gmail.com>
+From: crag0715@gmail.com
+Subject: [PATCH] input: touchscreen: add delay time to device power on
+Date: Wed, 10 Jul 2019 10:58:59 +0800
+Message-ID: <20190710025859.6025-1-crag0715@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: matthias.bgg@gmail.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
-Cc: Nishka Dasgupta <nishkadg.linux@gmail.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: mario_limonciello@dell.com, chrome.os.engineering@dell.com, "Crag.Wang" <crag.wang@dell.com>, Sangwon Jee <jeesw@melfas.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Each iteration of for_each_child_of_node puts the previous
-node, but in the case of a return from the middle of the loop, there is
-no put, thus causing a memory leak. Hence add an of_node_put before the
-return in three places.
-Issue found with Coccinelle.
+From: "Crag.Wang" <crag.wang@dell.com>
 
-Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
+Delay time for MELFAS MIP4 controller is required at power on stage
+regardless the existence of GPIO consumer lookup from devicetree or
+ACPI device table.
+
+There is an issue if GPIO ce is undefined in the ACPI results no delay
+time for deive power on, the controller ended up in an abnormal state.
+
+TEST=echo i2c-MLFS0000:00 > /sys/bus/i2c/drivers/mip4_ts/unbind
+     verify the touch function is off
+
+     echo i2c-MLFS0000:00 > /sys/bus/i2c/drivers/mip4_ts/bind
+     verify the touch function is on
+
+Signed-off-by: Crag.Wang <crag.wang@dell.com>
 ---
- drivers/input/keyboard/mtk-pmic-keys.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/melfas_mip4.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index 746ff06eaf8d..62391d6c7da6 100644
---- a/drivers/input/keyboard/mtk-pmic-keys.c
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -277,8 +277,10 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
+diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+index 430a2bc5f7ca..8e803658fb43 100644
+--- a/drivers/input/touchscreen/melfas_mip4.c
++++ b/drivers/input/touchscreen/melfas_mip4.c
+@@ -374,12 +374,11 @@ static int mip4_query_device(struct mip4_ts *ts)
  
- 		keys->keys[index].irq = platform_get_irq(pdev, index);
--		if (keys->keys[index].irq < 0)
-+		if (keys->keys[index].irq < 0) {
-+			of_node_put(child);
- 			return keys->keys[index].irq;
-+		}
+ static int mip4_power_on(struct mip4_ts *ts)
+ {
+-	if (ts->gpio_ce) {
++	if (ts->gpio_ce)
+ 		gpiod_set_value_cansleep(ts->gpio_ce, 1);
  
- 		error = of_property_read_u32(child,
- 			"linux,keycodes", &keys->keys[index].keycode);
-@@ -286,6 +288,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 			dev_err(keys->dev,
- 				"failed to read key:%d linux,keycode property: %d\n",
- 				index, error);
-+			of_node_put(child);
- 			return error;
- 		}
+-		/* Booting delay : 200~300ms */
+-		usleep_range(200 * 1000, 300 * 1000);
+-	}
++	/* Booting delay : 200~300ms */
++	usleep_range(200 * 1000, 300 * 1000);
  
-@@ -293,8 +296,10 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 			keys->keys[index].wakeup = true;
- 
- 		error = mtk_pmic_key_setup(keys, &keys->keys[index]);
--		if (error)
-+		if (error) {
-+			of_node_put(child);
- 			return error;
-+		}
- 
- 		index++;
- 	}
+ 	return 0;
+ }
 -- 
-2.19.1
+2.20.1

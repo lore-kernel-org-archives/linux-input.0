@@ -1,7 +1,7 @@
 From: Lukasz Majewski <lukma@denx.de>
-Subject: [PATCH v2 1/3] mfd: mc13xxx: Add mc34708 adc support
-Date: Fri, 12 Jul 2019 00:23:44 +0200
-Message-ID: <20190711222346.5245-2-lukma@denx.de>
+Subject: [PATCH v2 3/3] input: touchscreen mc13xxx: Add mc34708 support
+Date: Fri, 12 Jul 2019 00:23:46 +0200
+Message-ID: <20190711222346.5245-4-lukma@denx.de>
 References: <20190711222346.5245-1-lukma@denx.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190711222346.5245-1-lukma@denx.de>
@@ -12,247 +12,168 @@ List-Id: linux-input@vger.kernel.org
 
 From: Sascha Hauer <s.hauer@pengutronix.de>
 
-The mc34708 has an improved adc. The older variants will always convert
-a fixed order of channels. The mc34708 can do up to eight conversions
-in arbitrary channel order. Currently this extended feature is not
-supported. We only support touchscreen conversions now, which will
-be sampled in a data format compatible to the older chips in order
-to keep the API between the mfd and the touchscreen driver.
+The mc34708 has a different bit to enable pen detection. This
+adds the driver data and devtype necessary to probe the device
+and to distinguish between the mc13783 and the mc34708.
 
 Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
 Signed-off-by: Lukasz Majewski <lukma@denx.de>
 
 ---
 Changes for v2:
-- Change the return code patch when the mc13xxx ADC is performing conversion
+- Change nested if statements to a single one (with cr0 > ...)
+- Replace hardcoded max resistance value (4080) with a generic driver data
+  value.
 - Introduce new include/linux/mfd/mc34708.h header file for mc34708 specific
   defines
+- Define as driver data mask and value for accessing mc13xxx registers
 
-Changes from the original patches:
-- ADC conversion functions prototypes added to fix build error
-- Adjustments to make checkpatch clean (-ENOSYS, line over 80 char)
-
-This patch applies on top of v5.2 - SHA1: 0ecfebd2b52404ae0c54a878c872bb93363ada36
+Changes from the original patch:
+- Simplify the mcXXXXX_set_pen_detection functions
+- Fix checkpatch warnings
 ---
- drivers/mfd/mc13xxx-core.c  | 102 +++++++++++++++++++++++++++++++++++++++++++-
- drivers/mfd/mc13xxx.h       |   3 ++
- include/linux/mfd/mc34708.h |  37 ++++++++++++++++
- 3 files changed, 141 insertions(+), 1 deletion(-)
- create mode 100644 include/linux/mfd/mc34708.h
+ drivers/input/touchscreen/mc13783_ts.c | 59 +++++++++++++++++++++++++++++++---
+ 1 file changed, 55 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index 1abe7432aad8..01473d6fda21 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -12,6 +12,7 @@
- #include <linux/of_device.h>
+diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
+index edd49e44e0c9..8fd3d0e47f57 100644
+--- a/drivers/input/touchscreen/mc13783_ts.c
++++ b/drivers/input/touchscreen/mc13783_ts.c
+@@ -10,6 +10,7 @@
+  */
  #include <linux/platform_device.h>
- #include <linux/mfd/core.h>
+ #include <linux/mfd/mc13783.h>
 +#include <linux/mfd/mc34708.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/input.h>
+@@ -30,6 +31,8 @@ MODULE_PARM_DESC(sample_tolerance,
+ 		"is supposed to be wrong and is discarded.  Set to 0 to "
+ 		"disable this check.");
  
- #include "mc13xxx.h"
- 
-@@ -45,6 +46,8 @@
- 
- #define MC13XXX_ADC2		45
- 
-+#define MC13XXX_ADC_WORKING		(1 << 0)
++struct mc13xxx_driver_data;
 +
- void mc13xxx_lock(struct mc13xxx *mc13xxx)
- {
- 	if (!mutex_trylock(&mc13xxx->lock)) {
-@@ -198,22 +201,30 @@ static void mc34708_print_revision(struct mc13xxx *mc13xxx, u32 revision)
- 			maskval(revision, MC34708_REVISION_FAB));
+ struct mc13783_ts_priv {
+ 	struct input_dev *idev;
+ 	struct mc13xxx *mc13xxx;
+@@ -37,6 +40,33 @@ struct mc13783_ts_priv {
+ 	unsigned int sample[4];
+ 	u8 ato;
+ 	bool atox;
++	struct mc13xxx_driver_data *drvdata;
++};
++
++enum mc13xxx_type {
++	MC13XXX_TYPE_MC13783,
++	MC13XXX_TYPE_MC34708,
++};
++
++struct mc13xxx_driver_data {
++	enum mc13xxx_type type;
++	int max_resistance;
++	u32 reg_mask;
++	u32 reg_value;
++};
++
++static struct mc13xxx_driver_data mc13783_driver_data = {
++	.type = MC13XXX_TYPE_MC13783,
++	.max_resistance = 4096,
++	.reg_mask = MC13XXX_ADC0_TSMOD_MASK,
++	.reg_value = MC13XXX_ADC0_TSMOD0,
++};
++
++static struct mc13xxx_driver_data mc34708_driver_data = {
++	.type = MC13XXX_TYPE_MC34708,
++	.max_resistance = 4080,
++	.reg_mask = MC34708_ADC0_TSMASK,
++	.reg_value = MC34708_ADC0_TSPENDETEN,
+ };
+ 
+ static irqreturn_t mc13783_ts_handler(int irq, void *data)
+@@ -93,6 +123,10 @@ static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
+ 
+ 	cr0 = (cr0 + cr1) / 2;
+ 
++	if (priv->drvdata->type == MC13XXX_TYPE_MC34708 &&
++	    cr0 > priv->drvdata->max_resistance)
++		cr0 = 0;
++
+ 	if (!cr0 || !sample_tolerance ||
+ 			(x2 - x0 < sample_tolerance &&
+ 			 y2 - y0 < sample_tolerance)) {
+@@ -102,14 +136,14 @@ static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
+ 			input_report_abs(idev, ABS_Y, y1);
+ 
+ 			dev_dbg(&idev->dev, "report (%d, %d, %d)\n",
+-					x1, y1, 0x1000 - cr0);
++				x1, y1, priv->drvdata->max_resistance - cr0);
+ 			schedule_delayed_work(&priv->work, HZ / 50);
+ 		} else {
+ 			dev_dbg(&idev->dev, "report release\n");
+ 		}
+ 
+ 		input_report_abs(idev, ABS_PRESSURE,
+-				cr0 ? 0x1000 - cr0 : cr0);
++				 cr0 ? priv->drvdata->max_resistance - cr0 : 0);
+ 		input_report_key(idev, BTN_TOUCH, cr0);
+ 		input_sync(idev);
+ 	} else {
+@@ -146,7 +180,8 @@ static int mc13783_ts_open(struct input_dev *dev)
+ 		goto out;
+ 
+ 	ret = mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
+-			MC13XXX_ADC0_TSMOD_MASK, MC13XXX_ADC0_TSMOD0);
++			      priv->drvdata->reg_mask,
++			      priv->drvdata->reg_value);
+ 	if (ret)
+ 		mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
+ out:
+@@ -160,7 +195,7 @@ static void mc13783_ts_close(struct input_dev *dev)
+ 
+ 	mc13xxx_lock(priv->mc13xxx);
+ 	mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
+-			MC13XXX_ADC0_TSMOD_MASK, 0);
++			priv->drvdata->reg_mask, 0);
+ 	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
+ 	mc13xxx_unlock(priv->mc13xxx);
+ 
+@@ -172,6 +207,7 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
+ 	struct mc13783_ts_priv *priv;
+ 	struct mc13xxx_ts_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct input_dev *idev;
++	const struct platform_device_id *id = platform_get_device_id(pdev);
+ 	int ret = -ENOMEM;
+ 
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+@@ -182,6 +218,7 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
+ 	INIT_DELAYED_WORK(&priv->work, mc13783_ts_work);
+ 	priv->mc13xxx = dev_get_drvdata(pdev->dev.parent);
+ 	priv->idev = idev;
++	priv->drvdata = (void *)id->driver_data;
+ 
+ 	if (pdata) {
+ 		priv->atox = pdata->atox;
+@@ -228,7 +265,21 @@ static int mc13783_ts_remove(struct platform_device *pdev)
+ 	return 0;
  }
  
-+static int mc13xxx_adc_conversion(struct mc13xxx *, unsigned int,
-+				  unsigned int, u8, bool, unsigned int *);
-+static int mc34708_adc_conversion(struct mc13xxx *, unsigned int,
-+				  unsigned int, u8, bool, unsigned int *);
-+
- /* These are only exported for mc13xxx-i2c and mc13xxx-spi */
- struct mc13xxx_variant mc13xxx_variant_mc13783 = {
- 	.name = "mc13783",
- 	.print_revision = mc13xxx_print_revision,
-+	.adc_do_conversion = mc13xxx_adc_conversion,
- };
- EXPORT_SYMBOL_GPL(mc13xxx_variant_mc13783);
- 
- struct mc13xxx_variant mc13xxx_variant_mc13892 = {
- 	.name = "mc13892",
- 	.print_revision = mc13xxx_print_revision,
-+	.adc_do_conversion = mc13xxx_adc_conversion,
- };
- EXPORT_SYMBOL_GPL(mc13xxx_variant_mc13892);
- 
- struct mc13xxx_variant mc13xxx_variant_mc34708 = {
- 	.name = "mc34708",
- 	.print_revision = mc34708_print_revision,
-+	.adc_do_conversion = mc34708_adc_conversion,
- };
- EXPORT_SYMBOL_GPL(mc13xxx_variant_mc34708);
- 
-@@ -249,7 +260,7 @@ static irqreturn_t mc13xxx_handler_adcdone(int irq, void *data)
- 
- #define MC13XXX_ADC_WORKING (1 << 0)
- 
--int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
-+static int mc13xxx_adc_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
- 		unsigned int channel, u8 ato, bool atox,
- 		unsigned int *sample)
- {
-@@ -358,6 +369,95 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
- 
- 	return ret;
- }
-+
-+static int mc34708_adc_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
-+		unsigned int channel, u8 ato, bool atox,
-+		unsigned int *sample)
-+{
-+	int ret, i;
-+	u32 adc0, adc3, adc1, old_adc0;
-+	struct mc13xxx_adcdone_data adcdone_data = {
-+		.mc13xxx = mc13xxx,
-+	};
-+
-+	switch (mode) {
-+	case MC13XXX_ADC_MODE_TS:
-+		adc0 = MC34708_ADC0_TSEN | MC34708_ADC0_TSSTART |
-+			MC34708_ADC0_TSSTOP(7);
-+
-+		adc1 = MC34708_ADC1_TSDLY1(0xf) |
-+			MC34708_ADC1_TSDLY2(0xf) |
-+			MC34708_ADC1_TSDLY3(0xf);
-+
-+		adc3 = MC34708_ADC3_TSSEL(0, MC34708_TS_X) |
-+			MC34708_ADC3_TSSEL(1, MC34708_TS_Y) |
-+			MC34708_ADC3_TSSEL(2, MC34708_TS_X) |
-+			MC34708_ADC3_TSSEL(3, MC34708_TS_Y) |
-+			MC34708_ADC3_TSSEL(4, MC34708_TS_X) |
-+			MC34708_ADC3_TSSEL(5, MC34708_TS_R) |
-+			MC34708_ADC3_TSSEL(6, MC34708_TS_Y) |
-+			MC34708_ADC3_TSSEL(7, MC34708_TS_R);
-+		break;
-+
-+	case MC13XXX_ADC_MODE_SINGLE_CHAN:
-+	case MC13XXX_ADC_MODE_MULT_CHAN:
-+	default:
-+		return -EINVAL;
++static const struct platform_device_id mc13xxx_ts_idtable[] = {
++	{
++		.name = "mc13783-ts",
++		.driver_data = (kernel_ulong_t)&mc13783_driver_data,
++	}, {
++		.name = "mc34708-ts",
++		.driver_data = (kernel_ulong_t)&mc34708_driver_data,
++	}, {
++		/* sentinel */
 +	}
++};
++MODULE_DEVICE_TABLE(platform, mc13xxx_ts_idtable);
 +
-+	init_completion(&adcdone_data.done);
-+
-+	mc13xxx_lock(mc13xxx);
-+
-+	if (mc13xxx->adcflags & MC13XXX_ADC_WORKING) {
-+		mc13xxx_unlock(mc13xxx);
-+		return -EBUSY;
-+	}
-+
-+	mc13xxx->adcflags |= MC13XXX_ADC_WORKING;
-+
-+	mc13xxx_reg_read(mc13xxx, MC13XXX_ADC0, &old_adc0);
-+
-+	mc13xxx_irq_request(mc13xxx, MC34708_IRQ_TSDONE,
-+			mc13xxx_handler_adcdone, __func__, &adcdone_data);
-+	mc13xxx_irq_ack(mc13xxx, MC34708_IRQ_TSDONE);
-+
-+	mc13xxx_reg_write(mc13xxx, MC34708_ADC3, adc3);
-+	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC1, adc1);
-+	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC0, adc0);
-+
-+	mc13xxx_unlock(mc13xxx);
-+
-+	ret = wait_for_completion_interruptible_timeout(&adcdone_data.done, HZ);
-+
-+	mc13xxx_lock(mc13xxx);
-+
-+	mc13xxx_irq_free(mc13xxx, MC34708_IRQ_TSDONE, &adcdone_data);
-+
-+	if (!ret) {
-+		ret = -ETIMEDOUT;
-+		goto out;
-+	}
-+
-+	for (i = 0; i < 4; i++)
-+		mc13xxx_reg_read(mc13xxx, MC34708_ADC4 + i, &sample[i]);
-+
-+out:
-+	ret = mc13xxx_reg_write(mc13xxx, MC13XXX_ADC0, old_adc0);
-+
-+	mc13xxx->adcflags &= ~MC13XXX_ADC_WORKING;
-+	mc13xxx_unlock(mc13xxx);
-+
-+	return ret;
-+}
-+
-+int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
-+		unsigned int channel, u8 ato, bool atox,
-+		unsigned int *sample)
-+{
-+	return mc13xxx->variant->adc_do_conversion(mc13xxx, mode, channel, ato,
-+			atox, sample);
-+}
- EXPORT_SYMBOL_GPL(mc13xxx_adc_do_conversion);
- 
- static int mc13xxx_add_subdevice_pdata(struct mc13xxx *mc13xxx,
-diff --git a/drivers/mfd/mc13xxx.h b/drivers/mfd/mc13xxx.h
-index ce6eec52e8eb..0a79fbb8bcb4 100644
---- a/drivers/mfd/mc13xxx.h
-+++ b/drivers/mfd/mc13xxx.h
-@@ -19,6 +19,9 @@ struct mc13xxx;
- struct mc13xxx_variant {
- 	const char *name;
- 	void (*print_revision)(struct mc13xxx *mc13xxx, u32 revision);
-+	int (*adc_do_conversion)(struct mc13xxx *mc13xxx, unsigned int mode,
-+		unsigned int channel, u8 ato, bool atox,
-+		unsigned int *sample);
- };
- 
- extern struct mc13xxx_variant
-diff --git a/include/linux/mfd/mc34708.h b/include/linux/mfd/mc34708.h
-new file mode 100644
-index 000000000000..c812104dc53d
---- /dev/null
-+++ b/include/linux/mfd/mc34708.h
-@@ -0,0 +1,37 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (C) 2019
-+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
-+ */
-+#ifndef __LINUX_MFD_MC34708_H
-+#define __LINUX_MFD_MC34708_H
-+
-+#define MC34708_ADC3			46
-+#define MC34708_ADC4			47
-+
-+#define MC34708_IRQ_TSDONE		1
-+
-+#define MC34708_ADC0_TSEN		BIT(12)
-+#define MC34708_ADC0_TSSTART		BIT(13)
-+#define MC34708_ADC0_TSCONT		BIT(14)
-+#define MC34708_ADC0_TSHOLD		BIT(15)
-+#define MC34708_ADC0_TSPENDETEN		BIT(20)
-+
-+#define MC34708_ADC0_TSMASK            (MC34708_ADC0_TSPENDETEN | \
-+					MC34708_ADC0_TSEN |       \
-+					MC34708_ADC0_TSSTART |    \
-+					MC34708_ADC0_TSCONT |     \
-+					MC34708_ADC0_TSHOLD)
-+
-+#define MC34708_ADC0_TSSTOP(x)		(((x) & 0x7) << 16)
-+
-+#define MC34708_ADC3_TSSEL(step, ch)	((ch) << (8 + 2 * (step)))
-+#define MC34708_ADC1_TSDLY1(d)		((d) << 12)
-+#define MC34708_ADC1_TSDLY2(d)		((d) << 16)
-+#define MC34708_ADC1_TSDLY3(d)		((d) << 20)
-+
-+#define MC34708_TS_X			1
-+#define MC34708_TS_Y			2
-+#define MC34708_TS_R			3
-+
-+#endif /* __LINUX_MFD_MC34708_H */
+ static struct platform_driver mc13783_ts_driver = {
++	.id_table	= mc13xxx_ts_idtable,
+ 	.remove		= mc13783_ts_remove,
+ 	.driver		= {
+ 		.name	= MC13783_TS_NAME,
 -- 
 2.11.0

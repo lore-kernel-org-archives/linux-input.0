@@ -1,82 +1,36 @@
-From: Grant Hernandez <granthernandez@google.com>
-Subject: [PATCH] Input: gtco - bounds check collection indent level
-Date: Thu, 11 Jul 2019 15:22:32 -0700
-Message-ID: <20190711222232.77701-1-granthernandez@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: linux-usb@vger.kernel.org, Grant Hernandez <granthernandez@google.com>, stable@vger.kernel.org
+From: Lukasz Majewski <lukma@denx.de>
+Subject: [PATCH v2 0/3] mfd: mc13xxx: Fixes and enhancements for NXP's mc34708
+Date: Fri, 12 Jul 2019 00:23:43 +0200
+Message-ID: <20190711222346.5245-1-lukma@denx.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Lukasz Majewski <lukma@denx.de>
 List-Id: linux-input@vger.kernel.org
 
-The GTCO tablet input driver configures itself from an HID report sent
-via USB during the initial enumeration process. Some debugging messages
-are generated during the parsing. A debugging message indentation
-counter is not bounds checked, leading to the ability for a specially
-crafted HID report to cause '-' and null bytes be written past the end
-of the indentation array. As long as the kernel has CONFIG_DYNAMIC_DEBUG
-enabled, this code will not be optimized out.  This was discovered
-during code review after a previous syzkaller bug was found in this
-driver.
+This patch set provides several enhancements to mc13xxx MFD family
+of devices by introducing mc34708 as a separate device.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Grant Hernandez <granthernandez@google.com>
----
- drivers/input/tablet/gtco.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+This IC has dedicated pen detection feature, which allows better
+touchscreen experience.
 
-diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-index 4b8b9d7aa75e..9771052ed027 100644
---- a/drivers/input/tablet/gtco.c
-+++ b/drivers/input/tablet/gtco.c
-@@ -78,6 +78,7 @@ Scott Hill shill@gtcocalcomp.com
- 
- /* Max size of a single report */
- #define REPORT_MAX_SIZE       10
-+#define MAX_COLLECTION_LEVELS  10
- 
- 
- /* Bitmask whether pen is in range */
-@@ -223,8 +224,7 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
- 	char  maintype = 'x';
- 	char  globtype[12];
- 	int   indent = 0;
--	char  indentstr[10] = "";
--
-+	char  indentstr[MAX_COLLECTION_LEVELS+1] = {0};
- 
- 	dev_dbg(ddev, "======>>>>>>PARSE<<<<<<======\n");
- 
-@@ -350,6 +350,12 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
- 			case TAG_MAIN_COL_START:
- 				maintype = 'S';
- 
-+				if (indent == MAX_COLLECTION_LEVELS) {
-+					dev_err(ddev, "Collection level %d would exceed limit of %d\n",
-+						indent+1, MAX_COLLECTION_LEVELS);
-+					break;
-+				}
-+
- 				if (data == 0) {
- 					dev_dbg(ddev, "======>>>>>> Physical\n");
- 					strcpy(globtype, "Physical");
-@@ -369,8 +375,15 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
- 				break;
- 
- 			case TAG_MAIN_COL_END:
--				dev_dbg(ddev, "<<<<<<======\n");
- 				maintype = 'E';
-+
-+				if (indent == 0) {
-+					dev_err(ddev, "Collection level already at zero\n");
-+					break;
-+				}
-+
-+				dev_dbg(ddev, "<<<<<<======\n");
-+
- 				indent--;
- 				for (x = 0; x < indent; x++)
- 					indentstr[x] = '-';
+This is the seconf version of this code (v2).
+Discussion regarding v1 can be found here:
+https://lkml.org/lkml/2018/4/12/351
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1661934.html
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1664296.html
+
+Sascha Hauer (3):
+  mfd: mc13xxx: Add mc34708 adc support
+  input: touchscreen mc13xxx: Make platform data optional
+  input: touchscreen mc13xxx: Add mc34708 support
+
+ drivers/input/touchscreen/mc13783_ts.c |  74 ++++++++++++++++++++----
+ drivers/mfd/mc13xxx-core.c             | 102 ++++++++++++++++++++++++++++++++-
+ drivers/mfd/mc13xxx.h                  |   3 +
+ include/linux/mfd/mc34708.h            |  37 ++++++++++++
+ 4 files changed, 204 insertions(+), 12 deletions(-)
+ create mode 100644 include/linux/mfd/mc34708.h
+
 -- 
-2.22.0.410.gd8fdbe21b5-goog
+2.11.0

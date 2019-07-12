@@ -1,41 +1,72 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: touchscreen: add delay time to device power on
-Date: Thu, 11 Jul 2019 23:48:58 -0700
-Message-ID: <20190712064858.GD150689@dtor-ws>
-References: <20190710025859.6025-1-crag0715@gmail.com>
- <CAP-8N0hTEXkK3iqGP=+gtuVVcqo-+KYHC_N6+8Q90ndf_UVJpA@mail.gmail.com>
+Subject: Re: [PATCH] input: keyboard: sun4i-lradc-keys: Add of_node_put()
+ before return
+Date: Thu, 11 Jul 2019 23:50:09 -0700
+Message-ID: <20190712065009.GE150689@dtor-ws>
+References: <20190709175707.14278-1-nishkadg.linux@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <CAP-8N0hTEXkK3iqGP=+gtuVVcqo-+KYHC_N6+8Q90ndf_UVJpA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Crag Wang <crag0715@gmail.com>
-Cc: yjjung@melfas.com, jsj1012@melfas.com, leesh832@lgdisplay.com, Mario Limonciello <mario_limonciello@dell.com>, chrome.os.engineering@dell.com, "Crag.Wang" <crag.wang@dell.com>, Sangwon Jee <jeesw@melfas.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20190709175707.14278-1-nishkadg.linux@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Nishka Dasgupta <nishkadg.linux@gmail.com>
+Cc: maxime.ripard@bootlin.com, hdegoede@redhat.com, wens@csie.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Crag,
-
-On Wed, Jul 10, 2019 at 04:58:40PM +0800, Crag Wang wrote:
-> Adding more
+On Tue, Jul 09, 2019 at 11:27:07PM +0530, Nishka Dasgupta wrote:
+> Each iteration of for_each_child_of_node puts the previous
+> node, but in the case of a return from the middle of the loop, there is
+> no put, thus causing a memory leak. Hence add an of_node_put before the
+> return in three places.
+> Issue found with Coccinelle.
 > 
-> On Wed, Jul 10, 2019 at 10:59 AM <crag0715@gmail.com> wrote:
-> >
-> > From: "Crag.Wang" <crag.wang@dell.com>
-> >
-> > Delay time for MELFAS MIP4 controller is required at power on stage
-> > regardless the existence of GPIO consumer lookup from devicetree or
-> > ACPI device table.
-> >
-> > There is an issue if GPIO ce is undefined in the ACPI results no delay
-> > time for deive power on, the controller ended up in an abnormal state.
-> >
+> Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
 
-If kernel does not reset the controller it should not have to wait for
-reset to complete either. Since your firmware resets the controller it
-also has to conform to the timing requirements.
+Applied, thank you.
 
-Thanks.
+> ---
+>  drivers/input/keyboard/sun4i-lradc-keys.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
+> index 6ffdc26b9c89..4a796bed48ac 100644
+> --- a/drivers/input/keyboard/sun4i-lradc-keys.c
+> +++ b/drivers/input/keyboard/sun4i-lradc-keys.c
+> @@ -198,18 +198,21 @@ static int sun4i_lradc_load_dt_keymap(struct device *dev,
+>  		error = of_property_read_u32(pp, "channel", &channel);
+>  		if (error || channel != 0) {
+>  			dev_err(dev, "%pOFn: Inval channel prop\n", pp);
+> +			of_node_put(pp);
+>  			return -EINVAL;
+>  		}
+>  
+>  		error = of_property_read_u32(pp, "voltage", &map->voltage);
+>  		if (error) {
+>  			dev_err(dev, "%pOFn: Inval voltage prop\n", pp);
+> +			of_node_put(pp);
+>  			return -EINVAL;
+>  		}
+>  
+>  		error = of_property_read_u32(pp, "linux,code", &map->keycode);
+>  		if (error) {
+>  			dev_err(dev, "%pOFn: Inval linux,code prop\n", pp);
+> +			of_node_put(pp);
+>  			return -EINVAL;
+>  		}
+>  
+> -- 
+> 2.19.1
+> 
 
 -- 
 Dmitry

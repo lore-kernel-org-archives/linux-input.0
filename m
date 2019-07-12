@@ -1,628 +1,268 @@
-From: Alexandre Mergnat <amergnat@baylibre.com>
-Subject: [PATCH v4 3/3] iio: Add PAT9125 optical tracker sensor
-Date: Fri, 12 Jul 2019 11:40:50 +0200
-Message-ID: <20190712094050.17432-4-amergnat@baylibre.com>
-References: <20190712094050.17432-1-amergnat@baylibre.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] input: API for Setting a Timestamp from a Driver
+Date: Fri, 12 Jul 2019 21:46:19 +1000
+Message-ID: <20190712114619.GA7753@jelly>
+References: <20190710230410.9386-1-atifniyaz@google.com>
+ <20190712064134.GA150689@dtor-ws>
+ <CAO-hwJK-VAGpjN03XDTmmT4fYxb1V_izfvT9Z3tKDmLJ3henGw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190712094050.17432-1-amergnat@baylibre.com>
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJK-VAGpjN03XDTmmT4fYxb1V_izfvT9Z3tKDmLJ3henGw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, mark.rutland@arm.com, jic23@kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, baylibre-upstreaming@groups.io, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Alexandre Mergnat <amergnat@baylibre.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Atif Niyaz <atifniyaz@google.com>, Atif Niyaz <atifniyaz11@gmail.com>, Siarhei Vishniakou <svv@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-This adds support for PixArt Imaging’s miniature low power optical
-navigation chip using LASER light source enabling digital surface tracking.
+On Fri, Jul 12, 2019 at 09:23:20AM +0200, Benjamin Tissoires wrote:
+> On Fri, Jul 12, 2019 at 8:41 AM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> >
+> > Hi Atif,
+> >
+> > On Wed, Jul 10, 2019 at 04:04:10PM -0700, Atif Niyaz wrote:
+> > > Currently, evdev stamps time with timestamps acquired in
+> > > evdev_events. However, this timestamping may not be accurate in terms of
+> > > measuring when the actual event happened. This API allows any 3rd party
+> > > driver to be able to call input_set_timestamp, and provide a timestamp
+> > > that can be utilized in order to provide a more accurate sense of time
+> > > for the event
+> > >
+> > > Signed-off-by: Atif Niyaz <atifniyaz@google.com>
+> >
+> > This looks OK to me. Benjamin, Peter, any concerns here?
+> >
+> 
+> No red flags from me (though Peter is the one using all of this).
+> 
+> Just curious, which drivers do you think will be using this new API?
+> I can see that we might want to use hid-multitouch for it, with the
+> Scan Time forwarded by the device, but what do you have in mind?
 
-Features and datasheet: [0]
+that'd be my question as well. I'm all for more precise evdev timestamps but
+there's some overlap with MSC_TIMESTAMP (which at least libinput isn't
+handling well right now, with the exception of some quirk detection). 
 
-This IIO driver allows to read relative position from where the system
-started on X and Y axis through two way:
-  - Punctual "read_raw" which will issue a read in the device registers to
-  get the delta between last/current read and return the addition of all
-  the deltas.
-  - Buffer read. Data can be retrieved using triggered buffer subscription
-  (i.e. iio_readdev). The buffer payload is:
-    |32 bits delta X|32 bits delta Y|timestamp|.
+but yeah, overall this is a good solution from my POV.
 
-The possible I2C addresses are 0x73, 0x75 and 0x79.
+Cheers,
+   Peter
 
-X and Y axis CPI resolution can be get/set independently through IIO_SCALE.
-The range value is 0-255 which means:
-  - 0 to ~1,275 Counts Per Inch on flat surface.
-  - 0 to ~630 Counts Per Rev on 1.0mm diameter STS shaft at 1.0mm distance.
-More details on the datasheet.
-
-The "position" directory is added to contain drivers which can provide
-position data.
-
-[0]: http://www.pixart.com/products-detail/72/PAT9125EL-TKIT___TKMT
-
-Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
----
- drivers/iio/Kconfig            |   1 +
- drivers/iio/Makefile           |   1 +
- drivers/iio/position/Kconfig   |  18 ++
- drivers/iio/position/Makefile  |   6 +
- drivers/iio/position/pat9125.c | 506 +++++++++++++++++++++++++++++++++
- 5 files changed, 532 insertions(+)
- create mode 100644 drivers/iio/position/Kconfig
- create mode 100644 drivers/iio/position/Makefile
- create mode 100644 drivers/iio/position/pat9125.c
-
-diff --git a/drivers/iio/Kconfig b/drivers/iio/Kconfig
-index 5bd51853b15e..aca6fcbceeab 100644
---- a/drivers/iio/Kconfig
-+++ b/drivers/iio/Kconfig
-@@ -85,6 +85,7 @@ source "drivers/iio/light/Kconfig"
- source "drivers/iio/magnetometer/Kconfig"
- source "drivers/iio/multiplexer/Kconfig"
- source "drivers/iio/orientation/Kconfig"
-+source "drivers/iio/position/Kconfig"
- if IIO_TRIGGER
-    source "drivers/iio/trigger/Kconfig"
- endif #IIO_TRIGGER
-diff --git a/drivers/iio/Makefile b/drivers/iio/Makefile
-index bff682ad1cfb..1712011c0f4a 100644
---- a/drivers/iio/Makefile
-+++ b/drivers/iio/Makefile
-@@ -31,6 +31,7 @@ obj-y += light/
- obj-y += magnetometer/
- obj-y += multiplexer/
- obj-y += orientation/
-+obj-y += position/
- obj-y += potentiometer/
- obj-y += potentiostat/
- obj-y += pressure/
-diff --git a/drivers/iio/position/Kconfig b/drivers/iio/position/Kconfig
-new file mode 100644
-index 000000000000..1cf28896511c
---- /dev/null
-+++ b/drivers/iio/position/Kconfig
-@@ -0,0 +1,18 @@
-+#
-+# Optical tracker sensors
-+#
-+# When adding new entries keep the list in alphabetical order
-+
-+menu "Optical tracker sensors"
-+
-+config PAT9125
-+	tristate "Optical tracker PAT9125 I2C driver"
-+	depends on I2C
-+	select IIO_BUFFER
-+	help
-+	  Say yes here to build support for PAT9125 optical tracker
-+	  sensors.
-+
-+          To compile this driver as a module, say M here: the module will
-+          be called pat9125.
-+endmenu
-diff --git a/drivers/iio/position/Makefile b/drivers/iio/position/Makefile
-new file mode 100644
-index 000000000000..cf294917ae2c
---- /dev/null
-+++ b/drivers/iio/position/Makefile
-@@ -0,0 +1,6 @@
-+#
-+# Makefile for industrial I/O Optical tracker sensor drivers
-+#
-+
-+# When adding new entries keep the list in alphabetical order
-+obj-$(CONFIG_PAT9125) += pat9125.o
-diff --git a/drivers/iio/position/pat9125.c b/drivers/iio/position/pat9125.c
-new file mode 100644
-index 000000000000..2f04777e0790
---- /dev/null
-+++ b/drivers/iio/position/pat9125.c
-@@ -0,0 +1,506 @@
-+// SPDX-License-Identifier: (GPL-2.0)
-+/*
-+ * Copyright (C) 2019 BayLibre, SAS
-+ * Author: Alexandre Mergnat <amergnat@baylibre.com>
-+ */
-+
-+#include <linux/bitops.h>
-+#include <linux/delay.h>
-+#include <linux/interrupt.h>
-+#include <linux/i2c.h>
-+#include <linux/iio/iio.h>
-+#include <linux/iio/sysfs.h>
-+#include <linux/iio/events.h>
-+#include <linux/iio/buffer.h>
-+#include <linux/iio/trigger.h>
-+#include <linux/iio/trigger_consumer.h>
-+#include <linux/iio/triggered_buffer.h>
-+#include <linux/iio/kfifo_buf.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
-+
-+/* I2C Address function to ID pin*/
-+#define PAT9125_I2C_ADDR_HI		0x73
-+#define PAT9125_I2C_ADDR_LO		0x75
-+#define PAT9125_I2C_ADDR_NC		0x79
-+
-+/* Registers */
-+#define PAT9125_PRD_ID1_REG		0x00
-+#define PAT9125_PRD_ID2_REG		0x01
-+#define PAT9125_MOTION_STATUS_REG	0x02
-+#define PAT9125_DELTA_X_LO_REG		0x03
-+#define PAT9125_DELTA_Y_LO_REG		0x04
-+#define PAT9125_OP_MODE_REG		0x05
-+#define PAT9125_CONFIG_REG		0x06
-+#define PAT9125_WRITE_PROTEC_REG	0x09
-+#define PAT9125_SLEEP1_REG		0x0A
-+#define PAT9125_SLEEP2_REG		0x0B
-+#define PAT9125_RES_X_REG		0x0D
-+#define PAT9125_RES_Y_REG		0x0E
-+#define PAT9125_DELTA_XY_HI_REG		0x12
-+#define PAT9125_SHUTER_REG		0x14
-+#define PAT9125_FRAME_AVG_REG		0x17
-+#define PAT9125_ORIENTATION_REG		0x19
-+
-+/* Bits */
-+#define PAT9125_VALID_MOTION_DATA_BIT	BIT(7)
-+#define PAT9125_RESET_BIT		BIT(7)
-+
-+/* Registers' values */
-+#define PAT9125_SENSOR_ID_VAL			0x31
-+#define PAT9125_DISABLE_WRITE_PROTECT_VAL	0x5A
-+#define PAT9125_ENABLE_WRITE_PROTECT_VAL	0x00
-+
-+/* Default Value of sampled value size */
-+#define PAT9125_SAMPLED_VAL_BIT_SIZE		12
-+
-+struct pat9125_data {
-+	struct regmap *regmap;
-+	struct iio_trigger *indio_trig;	/* Motion detection */
-+	s32 position_x;
-+	s32 position_y;
-+	bool sampling;
-+};
-+
-+static const struct iio_chan_spec pat9125_channels[] = {
-+	{
-+		.type = IIO_DISTANCE,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_X,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |
-+			BIT(IIO_CHAN_INFO_SCALE),
-+		.scan_index = 0,
-+		.scan_type = {
-+			.sign = 's',
-+			.realbits = 32,
-+			.storagebits = 32,
-+			.endianness = IIO_CPU,
-+		},
-+	},
-+	{
-+		.type = IIO_DISTANCE,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_Y,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |
-+			BIT(IIO_CHAN_INFO_SCALE),
-+		.scan_index = 1,
-+		.scan_type = {
-+			.sign = 's',
-+			.realbits = 32,
-+			.storagebits = 32,
-+			.endianness = IIO_CPU,
-+		},
-+	},
-+	IIO_CHAN_SOFT_TIMESTAMP(2),
-+};
-+
-+/**
-+ * pat9125_write_pretected_reg() - Write value in protected register.
-+ *
-+ * @regmap: Pointer to I2C register map.
-+ * @reg_addr: Register address.
-+ * @reg_value: Value to be write in register.
-+ *
-+ * A value of zero will be returned on success, a negative errno will
-+ * be returned in error cases.
-+ */
-+static int pat9125_write_pretected_reg(struct iio_dev *indio_dev,
-+	u8 reg_addr, u8 reg_value)
-+{
-+	struct pat9125_data *data = iio_priv(indio_dev);
-+	int ret;
-+
-+	ret = regmap_write(data->regmap,
-+		PAT9125_WRITE_PROTEC_REG,
-+		PAT9125_DISABLE_WRITE_PROTECT_VAL);
-+
-+	if (!ret)
-+		ret = regmap_write(data->regmap, reg_addr, reg_value);
-+
-+	/* Try to put back write protection everytime */
-+	ret |= regmap_write(data->regmap,
-+		PAT9125_WRITE_PROTEC_REG,
-+		PAT9125_ENABLE_WRITE_PROTECT_VAL);
-+
-+	return ret;
-+}
-+/**
-+ * pat9125_read_delta() - Read delta value, update delta & position data.
-+ *
-+ * @data: Driver's data structure.
-+ *
-+ * A value of zero will be returned on success, a negative errno will
-+ * be returned in error cases.
-+ */
-+static int pat9125_read_delta(struct pat9125_data *data)
-+{
-+	struct regmap *regmap = data->regmap;
-+	int status = 0;
-+	int val_x = 0;
-+	int val_y = 0;
-+	int val_high_nibbles = 0;
-+	int ret;
-+
-+	ret = regmap_read(regmap, PAT9125_MOTION_STATUS_REG, &status);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Check if motion is detected */
-+	if (status & PAT9125_VALID_MOTION_DATA_BIT) {
-+		ret = regmap_read(regmap, PAT9125_DELTA_X_LO_REG, &val_x);
-+		if (ret < 0)
-+			return ret;
-+
-+		ret = regmap_read(regmap, PAT9125_DELTA_Y_LO_REG, &val_y);
-+		if (ret < 0)
-+			return ret;
-+
-+		ret = regmap_read(regmap, PAT9125_DELTA_XY_HI_REG,
-+			&val_high_nibbles);
-+		if (ret < 0)
-+			return ret;
-+
-+		val_x |= (val_high_nibbles << 4) & 0xF00;
-+		val_y |= (val_high_nibbles << 8) & 0xF00;
-+		val_x = sign_extend32(val_x,
-+			PAT9125_SAMPLED_VAL_BIT_SIZE - 1);
-+		val_y = sign_extend32(val_y,
-+			PAT9125_SAMPLED_VAL_BIT_SIZE - 1);
-+		data->position_x += val_x;
-+		data->position_y += val_y;
-+	}
-+	return 0;
-+}
-+
-+/**
-+ * pat9125_read_raw() - Sample and return the value(s)
-+ * function to the associated channel info enum.
-+ *
-+ * @indio_dev:	Industrial I/O device.
-+ * @chan:	Specification of a single channel.
-+ * @val:	Contain the elements making up the returned value.
-+ * @val2:	Not used.
-+ * @mask:	(enum iio_chan_info_enum) Type of the info attribute.
-+ *
-+ * Zero will be returned on success, negative value otherwise.
-+ **/
-+static int pat9125_read_raw(struct iio_dev *indio_dev,
-+			    struct iio_chan_spec const *chan,
-+			    int *val, int *val2, long mask)
-+{
-+	struct pat9125_data *data = iio_priv(indio_dev);
-+	int ret;
-+
-+	switch (mask) {
-+	case IIO_CHAN_INFO_RAW:
-+		ret = pat9125_read_delta(data);
-+		if (ret)
-+			return ret;
-+		switch (chan->channel2) {
-+		case IIO_MOD_X:
-+			*val = data->position_x;
-+			return IIO_VAL_INT;
-+		case IIO_MOD_Y:
-+			*val = data->position_y;
-+			return IIO_VAL_INT;
-+		default:
-+			return -EINVAL;
-+		}
-+	case IIO_CHAN_INFO_SCALE:
-+		switch (chan->channel2) {
-+		case IIO_MOD_X:
-+			ret = regmap_read(data->regmap, PAT9125_RES_X_REG, val);
-+			if (ret)
-+				return ret;
-+			else
-+				return IIO_VAL_INT;
-+		case IIO_MOD_Y:
-+			ret = regmap_read(data->regmap, PAT9125_RES_Y_REG, val);
-+			if (ret)
-+				return ret;
-+			else
-+				return IIO_VAL_INT;
-+		default:
-+			return -EINVAL;
-+		}
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+/**
-+ * pat9125_write_raw() - Write the value(s)
-+ * function to the associated channel info enum.
-+ *
-+ * @indio_dev:	Industrial I/O device.
-+ * @chan:	Specification of a single channel.
-+ * @val:	Value write in the channel.
-+ * @val2:	Not used.
-+ * @mask:	(enum iio_chan_info_enum) Type of the info attribute.
-+ *
-+ * Zero will be returned on success, negative value otherwise.
-+ **/
-+static int pat9125_write_raw(struct iio_dev *indio_dev,
-+			     struct iio_chan_spec const *chan, int val,
-+			     int val2, long mask)
-+{
-+	int ret;
-+
-+	switch (mask) {
-+	case IIO_CHAN_INFO_SCALE:
-+		switch (chan->channel2) {
-+		case IIO_MOD_X:
-+			ret = pat9125_write_pretected_reg(indio_dev,
-+				PAT9125_RES_X_REG, val);
-+			return ret;
-+		case IIO_MOD_Y:
-+			ret = pat9125_write_pretected_reg(indio_dev,
-+				PAT9125_RES_Y_REG, val);
-+			return ret;
-+		default:
-+			return -EINVAL;
-+		}
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+static irqreturn_t pat9125_threaded_trigger_handler(int irq, void *p)
-+{
-+	struct iio_poll_func *pf = p;
-+	struct iio_dev *indio_dev = pf->indio_dev;
-+	struct pat9125_data *data = iio_priv(indio_dev);
-+	u8 buf[16]; /* Payload: Pos_X (4) | Pos_Y (4) | Timestamp (8) */
-+	int ret;
-+	s64 timestamp;
-+
-+	data->sampling = true;
-+	ret = pat9125_read_delta(data);
-+	if (ret) {
-+		dev_err(indio_dev->dev.parent, "Read delta failed %d\n", ret);
-+		return IRQ_NONE;
-+	}
-+	timestamp = iio_get_time_ns(indio_dev);
-+	*((s32 *)&buf[0]) = data->position_x;
-+	*((s32 *)&buf[sizeof(s32)]) = data->position_y;
-+	iio_push_to_buffers_with_timestamp(indio_dev, buf, timestamp);
-+	iio_trigger_notify_done(indio_dev->trig);
-+	return IRQ_HANDLED;
-+}
-+
-+/**
-+ * pat9125_threaded_event_handler() - Threaded motion detection event handler
-+ * @irq: The irq being handled.
-+ * @private: struct iio_device pointer for the device.
-+ */
-+static irqreturn_t pat9125_threaded_event_handler(int irq, void *private)
-+{
-+	struct iio_dev *indio_dev = private;
-+	struct pat9125_data *data = iio_priv(indio_dev);
-+
-+	iio_trigger_poll_chained(data->indio_trig);
-+	return IRQ_HANDLED;
-+}
-+
-+/**
-+ * pat9125_buffer_postenable() - Buffer post enable actions
-+ *
-+ * @indio_dev:	Industrial I/O device.
-+ */
-+static int pat9125_buffer_postenable(struct iio_dev *indio_dev)
-+{
-+	struct pat9125_data *data = iio_priv(indio_dev);
-+	int ret = 0;
-+
-+	ret = iio_triggered_buffer_postenable(indio_dev);
-+	if (ret)
-+		return ret;
-+
-+	/* Release interrupt pin on the device */
-+	ret = pat9125_read_delta(data);
-+
-+	/* iio_trigger_detach_poll_func isn't reachable, so use this function */
-+	if (ret)
-+		ret = iio_triggered_buffer_predisable(indio_dev);
-+
-+	return ret;
-+}
-+
-+static const struct iio_buffer_setup_ops pat9125_buffer_ops = {
-+	.postenable = pat9125_buffer_postenable,
-+};
-+
-+static const struct regmap_config pat9125_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+};
-+
-+static const struct iio_info pat9125_info = {
-+	.read_raw = pat9125_read_raw,
-+	.write_raw = pat9125_write_raw,
-+};
-+
-+/*
-+ * To detect if a new value is available, register status is checked. This
-+ * method is safer than using a flag on GPIO IRQ to track event while sampling
-+ * because falling edge is missed when device trig just after a read reg value
-+ * (that happen for fast motions or high CPI setting).
-+ *
-+ * Note: To avoid infinite loop in "iio_trigger_notify_done" when it is not in
-+ * buffer mode and kernel warning due to nested IRQ thread,
-+ * this function must return 0.
-+ */
-+static int pat9125_trig_try_reenable(struct iio_trigger *trig)
-+{
-+	struct pat9125_data *data = iio_trigger_get_drvdata(trig);
-+	struct regmap *regmap = data->regmap;
-+	int status = 0;
-+
-+	if (data->sampling) {
-+		regmap_read(regmap, PAT9125_MOTION_STATUS_REG, &status);
-+		if (status & PAT9125_VALID_MOTION_DATA_BIT) {
-+			data->sampling = false;
-+			iio_trigger_poll_chained(data->indio_trig);
-+			return 0;
-+		}
-+	}
-+	data->sampling = false;
-+	return 0;
-+}
-+
-+static const struct iio_trigger_ops pat9125_trigger_ops = {
-+	.try_reenable = pat9125_trig_try_reenable,
-+};
-+
-+static int pat9125_probe(struct i2c_client *client,
-+			 const struct i2c_device_id *id)
-+{
-+	struct pat9125_data *data;
-+	struct iio_dev *indio_dev;
-+	int ret, sensor_pid;
-+
-+	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
-+	if (!indio_dev) {
-+		dev_err(&client->dev, "IIO device allocation failed\n");
-+		return -ENOMEM;
-+	}
-+
-+	data = iio_priv(indio_dev);
-+	indio_dev->dev.parent = &client->dev;
-+	indio_dev->name = id->name;
-+	indio_dev->channels = pat9125_channels;
-+	indio_dev->num_channels = ARRAY_SIZE(pat9125_channels);
-+	indio_dev->info = &pat9125_info;
-+	indio_dev->modes = INDIO_DIRECT_MODE;
-+
-+	ret = devm_iio_triggered_buffer_setup(&client->dev, indio_dev, NULL,
-+		pat9125_threaded_trigger_handler, &pat9125_buffer_ops);
-+	if (ret) {
-+		dev_err(&client->dev, "unable to setup triggered buffer\n");
-+		return ret;
-+	}
-+
-+	data->indio_trig = devm_iio_trigger_alloc(&client->dev, "%s-dev%d",
-+		indio_dev->name, indio_dev->id);
-+	if (!data->indio_trig)
-+		return -ENOMEM;
-+	data->indio_trig->dev.parent = &client->dev;
-+	data->indio_trig->ops = &pat9125_trigger_ops;
-+	iio_trigger_set_drvdata(data->indio_trig, data);
-+	ret = devm_iio_trigger_register(&client->dev, data->indio_trig);
-+	if (ret) {
-+		dev_err(&client->dev, "unable to register trigger\n");
-+		return ret;
-+	}
-+
-+	data->regmap = devm_regmap_init_i2c(client, &pat9125_regmap_config);
-+	if (IS_ERR(data->regmap)) {
-+		dev_err(&client->dev, "regmap init failed %ld\n",
-+			PTR_ERR(data->regmap));
-+		return PTR_ERR(data->regmap);
-+	}
-+
-+	/* Check device ID */
-+	ret = regmap_read(data->regmap, PAT9125_PRD_ID1_REG, &sensor_pid);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "register 0x%x access failed %d\n",
-+			PAT9125_PRD_ID1_REG, ret);
-+		return ret;
-+	}
-+	if (sensor_pid != PAT9125_SENSOR_ID_VAL)
-+		return -ENODEV;
-+
-+	/* Switch to bank0 (Magic number)*/
-+	ret = regmap_write(data->regmap, 0x7F, 0x00);
-+	if (ret < 0) {
-+		dev_err(indio_dev->dev.parent, "register 0x%x access failed %d\n",
-+			0x7F, ret);
-+		return ret;
-+	}
-+
-+	/* Software reset */
-+	ret = regmap_write_bits(data->regmap,
-+			      PAT9125_CONFIG_REG,
-+			      PAT9125_RESET_BIT,
-+			      1);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "register 0x%x access failed %d\n",
-+			PAT9125_CONFIG_REG, ret);
-+		return ret;
-+	}
-+
-+	msleep(20);
-+
-+	/* Init GPIO IRQ */
-+	if (client->irq) {
-+		ret = devm_request_threaded_irq(&client->dev,
-+			client->irq,
-+			NULL,
-+			pat9125_threaded_event_handler,
-+			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+			"pat9125",
-+			indio_dev);
-+		if (ret) {
-+			dev_err(&client->dev, "GPIO IRQ init failed\n");
-+			return ret;
-+		}
-+	}
-+
-+	ret = devm_iio_device_register(&client->dev, indio_dev);
-+	if (ret) {
-+		dev_err(&client->dev, "IIO device register failed\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id pat9125_id[] = {
-+	{ "pat9125", 0 },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(i2c, pat9125_id);
-+
-+static const unsigned short normal_i2c[] = {
-+	PAT9125_I2C_ADDR_HI,
-+	PAT9125_I2C_ADDR_LO,
-+	PAT9125_I2C_ADDR_NC,
-+	I2C_CLIENT_END
-+};
-+
-+static struct i2c_driver pat9125_driver = {
-+	.driver = {
-+		.name = "pat9125",
-+	},
-+	.probe = pat9125_probe,
-+	.address_list = normal_i2c,
-+	.id_table = pat9125_id,
-+};
-+
-+module_i2c_driver(pat9125_driver);
-+
-+MODULE_AUTHOR("Alexandre Mergnat <amergnat@baylibre.com>");
-+MODULE_DESCRIPTION("Optical Tracking sensor");
-+MODULE_LICENSE("GPL");
--- 
-2.17.1
+> > > ---
+> > >  drivers/input/evdev.c | 42 ++++++++++++++++--------------------------
+> > >  drivers/input/input.c | 17 +++++++++++++++++
+> > >  include/linux/input.h | 38 ++++++++++++++++++++++++++++++++++++++
+> > >  3 files changed, 71 insertions(+), 26 deletions(-)
+> > >
+> > > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> > > index 867c2cfd0038..a331efa0a3f6 100644
+> > > --- a/drivers/input/evdev.c
+> > > +++ b/drivers/input/evdev.c
+> > > @@ -25,13 +25,6 @@
+> > >  #include <linux/cdev.h>
+> > >  #include "input-compat.h"
+> > >
+> > > -enum evdev_clock_type {
+> > > -     EV_CLK_REAL = 0,
+> > > -     EV_CLK_MONO,
+> > > -     EV_CLK_BOOT,
+> > > -     EV_CLK_MAX
+> > > -};
+> > > -
+> > >  struct evdev {
+> > >       int open;
+> > >       struct input_handle handle;
+> > > @@ -53,7 +46,7 @@ struct evdev_client {
+> > >       struct fasync_struct *fasync;
+> > >       struct evdev *evdev;
+> > >       struct list_head node;
+> > > -     unsigned int clk_type;
+> > > +     input_clk_t clk_type;
+> > >       bool revoked;
+> > >       unsigned long *evmasks[EV_CNT];
+> > >       unsigned int bufsize;
+> > > @@ -150,16 +143,18 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+> > >  static void __evdev_queue_syn_dropped(struct evdev_client *client)
+> > >  {
+> > >       struct input_event ev;
+> > > -     ktime_t time;
+> > >       struct timespec64 ts;
+> > > +     ktime_t *time = input_get_timestamp(client->evdev->handle.dev);
+> > >
+> > > -     time = client->clk_type == EV_CLK_REAL ?
+> > > -                     ktime_get_real() :
+> > > -                     client->clk_type == EV_CLK_MONO ?
+> > > -                             ktime_get() :
+> > > -                             ktime_get_boottime();
+> > > +     switch (client->clk_type) {
+> > > +     case INPUT_CLK_REAL:
+> > > +     case INPUT_CLK_MONO:
+> > > +             ts = ktime_to_timespec64(time[client->clk_type]);
+> > > +             break;
+> > > +     default:
+> > > +             ts = ktime_to_timespec64(time[INPUT_CLK_BOOT]);
+> >
+> > Add "break" here please.
+> >
+> > > +     }
+> > >
+> > > -     ts = ktime_to_timespec64(time);
+> > >       ev.input_event_sec = ts.tv_sec;
+> > >       ev.input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
+> > >       ev.type = EV_SYN;
+> > > @@ -185,21 +180,21 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
+> > >       spin_unlock_irqrestore(&client->buffer_lock, flags);
+> > >  }
+> > >
+> > > -static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+> > > +static int evdev_set_clk_type(struct evdev_client *client, clockid_t clkid)
+> > >  {
+> > >       unsigned long flags;
+> > > -     unsigned int clk_type;
+> > > +     input_clk_t clk_type;
+> > >
+> > >       switch (clkid) {
+> > >
+> > >       case CLOCK_REALTIME:
+> > > -             clk_type = EV_CLK_REAL;
+> > > +             clk_type = INPUT_CLK_REAL;
+> > >               break;
+> > >       case CLOCK_MONOTONIC:
+> > > -             clk_type = EV_CLK_MONO;
+> > > +             clk_type = INPUT_CLK_MONO;
+> > >               break;
+> > >       case CLOCK_BOOTTIME:
+> > > -             clk_type = EV_CLK_BOOT;
+> > > +             clk_type = INPUT_CLK_BOOT;
+> > >               break;
+> > >       default:
+> > >               return -EINVAL;
+> > > @@ -307,12 +302,7 @@ static void evdev_events(struct input_handle *handle,
+> > >  {
+> > >       struct evdev *evdev = handle->private;
+> > >       struct evdev_client *client;
+> > > -     ktime_t ev_time[EV_CLK_MAX];
+> > > -
+> > > -     ev_time[EV_CLK_MONO] = ktime_get();
+> > > -     ev_time[EV_CLK_REAL] = ktime_mono_to_real(ev_time[EV_CLK_MONO]);
+> > > -     ev_time[EV_CLK_BOOT] = ktime_mono_to_any(ev_time[EV_CLK_MONO],
+> > > -                                              TK_OFFS_BOOT);
+> > > +     ktime_t *ev_time = input_get_timestamp(handle->dev);
+> > >
+> > >       rcu_read_lock();
+> > >
+> > > diff --git a/drivers/input/input.c b/drivers/input/input.c
+> > > index 7f3c5fcb9ed6..ae8b0ee58120 100644
+> > > --- a/drivers/input/input.c
+> > > +++ b/drivers/input/input.c
+> > > @@ -1894,6 +1894,23 @@ void input_free_device(struct input_dev *dev)
+> > >  }
+> > >  EXPORT_SYMBOL(input_free_device);
+> > >
+> > > +/**
+> > > + * input_get_timestamp - get timestamp for input events
+> > > + * @dev: input device to get timestamp from
+> > > + *
+> > > + * A valid timestamp is a timestamp of non-zero value.
+> > > + */
+> > > +ktime_t *input_get_timestamp(struct input_dev *dev)
+> > > +{
+> > > +     const ktime_t invalid_timestamp = ktime_set(0, 0);
+> > > +
+> > > +     if (!ktime_compare(dev->timestamp[INPUT_CLK_MONO], ktime_zero)) {
+> >
+> > You need to replace ktime_zero with invalid_timestamp here.
+> >
+> > > +             input_set_timestamp(dev, ktime_get());
+> > > +     }
+> >
+> > No need for curly braces for 1-line body.
+> >
+> > > +     return dev->timestamp;
+> > > +}
+> > > +EXPORT_SYMBOL(input_get_timestamp);
+> > > +
+> > >  /**
+> > >   * input_set_capability - mark device as capable of a certain event
+> > >   * @dev: device that is capable of emitting or accepting event
+> > > diff --git a/include/linux/input.h b/include/linux/input.h
+> > > index 510e78558c10..3929b62ccbe5 100644
+> > > --- a/include/linux/input.h
+> > > +++ b/include/linux/input.h
+> > > @@ -33,6 +33,14 @@ struct input_value {
+> > >       __s32 value;
+> > >  };
+> > >
+> > > +enum input_clock_type {
+> > > +     INPUT_CLK_REAL = 0,
+> > > +     INPUT_CLK_MONO,
+> > > +     INPUT_CLK_BOOT,
+> > > +     INPUT_CLK_MAX
+> > > +};
+> > > +typedef enum input_clock_type input_clk_t;
+> >
+> > We typically avoid typedefs unless we really want to hide kind of data
+> > we are dealing with. Let's just use "enum input_clock_type" everywhere.
+> >
+> > > +
+> > >  /**
+> > >   * struct input_dev - represents an input device
+> > >   * @name: name of the device
+> > > @@ -114,6 +122,8 @@ struct input_value {
+> > >   * @vals: array of values queued in the current frame
+> > >   * @devres_managed: indicates that devices is managed with devres framework
+> > >   *   and needs not be explicitly unregistered or freed.
+> > > + * @timestamp: storage for a timestamp set by input_set_timestamp called
+> > > + *  by a driver
+> > >   */
+> > >  struct input_dev {
+> > >       const char *name;
+> > > @@ -184,6 +194,8 @@ struct input_dev {
+> > >       struct input_value *vals;
+> > >
+> > >       bool devres_managed;
+> > > +
+> > > +     ktime_t timestamp[INPUT_CLK_MAX];
+> > >  };
+> > >  #define to_input_dev(d) container_of(d, struct input_dev, dev)
+> > >
+> > > @@ -382,6 +394,32 @@ void input_close_device(struct input_handle *);
+> > >
+> > >  int input_flush_device(struct input_handle *handle, struct file *file);
+> > >
+> > > +/**
+> > > + * input_set_timestamp - set timestamp for input events
+> > > + * @dev: input device to set timestamp for
+> > > + * @timestamp: the time at which the event has occurred
+> > > + *   in CLOCK_MONOTONIC
+> > > + *
+> > > + * This function is intended to provide to the input system a more
+> > > + * accurate time of when an event actually occurred. The driver should
+> > > + * call this function as soon as a timestamp is acquired ensuring
+> > > + * clock conversions in input_set_timestamp are done correctly.
+> > > + *
+> > > + * The system entering a suspend between timestamp acquisition and
+> > > + * calling input_set_timestamp can result in inaccurate conversions.
+> > > + *
+> > > + */
+> > > +static inline void input_set_timestamp(struct input_dev *dev,
+> > > +     ktime_t timestamp)
+> > > +{
+> > > +     dev->timestamp[INPUT_CLK_MONO] = timestamp;
+> > > +     dev->timestamp[INPUT_CLK_REAL] = ktime_mono_to_real(timestamp);
+> > > +     dev->timestamp[INPUT_CLK_BOOT] = ktime_mono_to_any(
+> > > +             timestamp, TK_OFFS_BOOT);
+> > > +}
+> > > +
+> > > +ktime_t *input_get_timestamp(struct input_dev *dev);
+> > > +
+> > >  void input_event(struct input_dev *dev, unsigned int type, unsigned int code, int value);
+> > >  void input_inject_event(struct input_handle *handle, unsigned int type, unsigned int code, int value);
+> > >
+> > > --
+> > > 2.22.0.410.gd8fdbe21b5-goog
+> > >
+> >
+> > --
+> > Dmitry

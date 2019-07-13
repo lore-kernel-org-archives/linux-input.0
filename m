@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/2] gpiolib: add support for fetching descriptors from static properties
-Date: Sat, 13 Jul 2019 00:52:59 -0700
-Message-ID: <20190713075259.243565-3-dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/2] drivers: base: swnode: link devices to software nodes
+Date: Sat, 13 Jul 2019 00:52:58 -0700
+Message-ID: <20190713075259.243565-2-dmitry.torokhov@gmail.com>
 References: <20190713075259.243565-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,174 +12,108 @@ To: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wys
 Cc: linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Now that static device properties understand notion of child nodes, let's
-teach gpiolib to tie such children and machine GPIO descriptor tables.
-We will continue using a single table for entire device, but instead of
-using connection ID as a lookup key in the GPIO descriptor table directly,
-we will perform additional translation: fwnode_get_named_gpiod() when
-dealing with property_set-backed fwnodes will try parsing string property
-with name matching connection ID and use result of the lookup as the key in
-the table:
+It is helpful to know what device, if any, a software node is tied to, so
+let's store a pointer to the device in software node structure. Note that
+children software nodes will inherit their parent's device pointer, so we
+do not have to traverse hierarchy to see what device the [sub]tree belongs
+to.
 
-static const struct property_entry dev_child1_props[] __initconst = {
-	...
-	PROPERTY_ENTRY_STRING("gpios",		"child-1-gpios"),
-	{ }
-};
-
-static struct gpiod_lookup_table dev_gpiod_table = {
-	.dev_id = "some-device",
-	.table = {
-		...
-		GPIO_LOOKUP_IDX("B", 1, "child-1-gpios", 1, GPIO_ACTIVE_LOW),
-		...
-	},
-};
+We will be using the device pointer to locate GPIO lookup tables for
+devices with static properties.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/gpio/gpiolib.c | 108 ++++++++++++++++++++++++++++++-----------
- 1 file changed, 79 insertions(+), 29 deletions(-)
+ drivers/base/property.c  |  1 +
+ drivers/base/swnode.c    | 35 ++++++++++++++++++++++++++++++++++-
+ include/linux/property.h |  5 +++++
+ 3 files changed, 40 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index e013d417a936..b6574febe2b8 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -4307,39 +4307,44 @@ struct gpio_desc *gpiod_get_from_of_node(struct device_node *node,
- }
- EXPORT_SYMBOL(gpiod_get_from_of_node);
+diff --git a/drivers/base/property.c b/drivers/base/property.c
+index 348b37e64944..3bc93d4b35c4 100644
+--- a/drivers/base/property.c
++++ b/drivers/base/property.c
+@@ -527,6 +527,7 @@ int device_add_properties(struct device *dev,
+ 	if (IS_ERR(fwnode))
+ 		return PTR_ERR(fwnode);
  
--/**
-- * fwnode_get_named_gpiod - obtain a GPIO from firmware node
-- * @fwnode:	handle of the firmware node
-- * @propname:	name of the firmware property representing the GPIO
-- * @index:	index of the GPIO to obtain for the consumer
-- * @dflags:	GPIO initialization flags
-- * @label:	label to attach to the requested GPIO
-- *
-- * This function can be used for drivers that get their configuration
-- * from opaque firmware.
-- *
-- * The function properly finds the corresponding GPIO using whatever is the
-- * underlying firmware interface and then makes sure that the GPIO
-- * descriptor is requested before it is returned to the caller.
-- *
-- * Returns:
-- * On successful request the GPIO pin is configured in accordance with
-- * provided @dflags.
-- *
-- * In case of error an ERR_PTR() is returned.
-- */
--struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
--					 const char *propname, int index,
--					 enum gpiod_flags dflags,
--					 const char *label)
-+static struct gpio_desc *
-+software_node_get_gpiod(struct fwnode_handle *fwnode,
-+			const char *propname, int index, unsigned long *flags)
-+{
++	software_node_link_device(fwnode, dev);
+ 	set_secondary_fwnode(dev, fwnode);
+ 	return 0;
+ }
+diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
+index 7fc5a18e02ad..fd12eea539b6 100644
+--- a/drivers/base/swnode.c
++++ b/drivers/base/swnode.c
+@@ -24,6 +24,9 @@ struct software_node {
+ 
+ 	/* properties */
+ 	const struct property_entry *properties;
++
++	/* device this node is associated with */
 +	struct device *dev;
-+	const char *con_id;
-+
-+	dev = software_node_get_linked_device(fwnode);
-+	if (IS_ERR_OR_NULL(dev))
-+		return ERR_PTR(-EINVAL);
-+
-+	if (fwnode_property_read_string(fwnode, propname, &con_id)) {
+ };
+ 
+ static DEFINE_IDA(swnode_root_ids);
+@@ -607,8 +610,14 @@ fwnode_create_software_node(const struct property_entry *properties,
+ 	INIT_LIST_HEAD(&swnode->children);
+ 	swnode->parent = p;
+ 
+-	if (p)
++	if (p) {
+ 		list_add_tail(&swnode->entry, &p->children);
 +		/*
-+		 * We could not find string mapping property name to
-+		 * entry in gpio lookup table. Let's see if we are
-+		 * dealing with firmware node corresponding to the
-+		 * device (and not a child node): for such nodes we can
-+		 * try doing lookup directly with property name.
++		 * We want to maintain the same association as the parent node,
++		 * so we can easily locate corresponding device.
 +		 */
-+		if (fwnode_get_parent(fwnode))
-+			return ERR_PTR(-ENOENT);
-+
-+		con_id = propname;
++		swnode->dev = p->dev;
 +	}
-+
-+	return gpiod_find(dev, con_id, index, flags);
-+}
-+
-+static struct gpio_desc *__fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
-+						  const char *propname,
-+						  int index,
-+						  enum gpiod_flags dflags,
-+						  const char *label)
- {
- 	unsigned long lflags = GPIO_LOOKUP_FLAGS_DEFAULT;
- 	struct gpio_desc *desc = ERR_PTR(-ENODEV);
- 	int ret;
  
--	if (!fwnode)
--		return ERR_PTR(-EINVAL);
--
- 	if (is_of_node(fwnode)) {
- 		desc = gpiod_get_from_of_node(to_of_node(fwnode),
- 					      propname, index,
-@@ -4355,9 +4360,13 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
- 
- 		acpi_gpio_update_gpiod_flags(&dflags, &info);
- 		acpi_gpio_update_gpiod_lookup_flags(&lflags, &info);
-+	} else if (is_software_node(fwnode)) {
-+		desc = software_node_get_gpiod(fwnode, propname, index,
-+					       &lflags);
-+		if (IS_ERR(desc))
-+			return desc;
- 	}
- 
--	/* Currently only ACPI takes this path */
- 	ret = gpiod_request(desc, label);
- 	if (ret)
- 		return ERR_PTR(ret);
-@@ -4370,6 +4379,47 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
- 
- 	return desc;
+ 	ret = kobject_init_and_add(&swnode->kobj, &software_node_type,
+ 				   p ? &p->kobj : NULL, "node%d", swnode->id);
+@@ -639,6 +648,30 @@ void fwnode_remove_software_node(struct fwnode_handle *fwnode)
  }
-+
-+/**
-+ * fwnode_get_named_gpiod - obtain a GPIO from firmware node
-+ * @fwnode:	handle of the firmware node
-+ * @propname:	name of the firmware property representing the GPIO
-+ * @index:	index of the GPIO to obtain for the consumer
-+ * @dflags:	GPIO initialization flags
-+ * @label:	label to attach to the requested GPIO
-+ *
-+ * This function can be used for drivers that get their configuration
-+ * from opaque firmware.
-+ *
-+ * The function properly finds the corresponding GPIO using whatever is the
-+ * underlying firmware interface and then makes sure that the GPIO
-+ * descriptor is requested before it is returned to the caller.
-+ *
-+ * Returns:
-+ * On successful request the GPIO pin is configured in accordance with
-+ * provided @dflags.
-+ *
-+ * In case of error an ERR_PTR() is returned.
-+ */
-+struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
-+					 const char *propname, int index,
-+					 enum gpiod_flags dflags,
-+					 const char *label)
+ EXPORT_SYMBOL_GPL(fwnode_remove_software_node);
+ 
++int software_node_link_device(struct fwnode_handle *fwnode, struct device *dev)
 +{
-+	struct gpio_desc *desc;
++	struct software_node *swnode = to_software_node(fwnode);
 +
-+	if (!fwnode)
++	if (!swnode)
++		return -EINVAL;
++
++	swnode->dev = dev;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(software_node_link_device);
++
++struct device *
++software_node_get_linked_device(const struct fwnode_handle *fwnode)
++{
++	const struct software_node *swnode = to_software_node(fwnode);
++
++	if (!swnode)
 +		return ERR_PTR(-EINVAL);
 +
-+	desc = __fwnode_get_named_gpiod(fwnode, propname, index, dflags, label);
-+	if (IS_ERR(desc) && PTR_ERR(desc) == -ENOENT &&
-+	    !IS_ERR_OR_NULL(fwnode->secondary)) {
-+		desc = __fwnode_get_named_gpiod(fwnode->secondary,
-+						propname, index, dflags, label);
-+	}
-+
-+	return desc;
++	return swnode->dev;
 +}
- EXPORT_SYMBOL_GPL(fwnode_get_named_gpiod);
++EXPORT_SYMBOL_GPL(software_node_get_linked_device);
++
+ int software_node_notify(struct device *dev, unsigned long action)
+ {
+ 	struct fwnode_handle *fwnode = dev_fwnode(dev);
+diff --git a/include/linux/property.h b/include/linux/property.h
+index e9caa290cda5..754188cfd9db 100644
+--- a/include/linux/property.h
++++ b/include/linux/property.h
+@@ -338,4 +338,9 @@ fwnode_create_software_node(const struct property_entry *properties,
+ 			    const struct fwnode_handle *parent);
+ void fwnode_remove_software_node(struct fwnode_handle *fwnode);
  
- /**
++int software_node_link_device(struct fwnode_handle *fwnode,
++			      struct device *device);
++struct device *
++software_node_get_linked_device(const struct fwnode_handle *fwnode);
++
+ #endif /* _LINUX_PROPERTY_H_ */
 -- 
 2.22.0.510.g264f2c817a-goog

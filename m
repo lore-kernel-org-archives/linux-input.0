@@ -1,99 +1,47 @@
 From: Alexandre Mergnat <amergnat@baylibre.com>
-Subject: [PATCH v4 0/3] Add PAT9125 optical tracker driver
-Date: Sat, 13 Jul 2019 10:04:52 +0200
-Message-ID: <20190713080455.17513-1-amergnat@baylibre.com>
+Subject: [PATCH v4 2/3] dt-bindings: iio: position: Add docs pat9125
+Date: Sat, 13 Jul 2019 10:04:54 +0200
+Message-ID: <20190713080455.17513-3-amergnat@baylibre.com>
+References: <20190713080455.17513-1-amergnat@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190713080455.17513-1-amergnat@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: robh+dt@kernel.org, mark.rutland@arm.com, jic23@kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, baylibre-upstreaming@groups.io, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Alexandre Mergnat <amergnat@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-PixArt Imaging PAT9125 is a miniature low power optical navigation chip
-using LASER light source enabling digital surface tracking.
+Add documentation for the optical tracker PAT9125 and
+"position" directory for chip which can provides position data.
 
-This device driver use IIO API to provide punctual and/or buffered data.
-The data is a relative position from where start the device on X and Y
-axis, depend on CPI (Counts Per Inch) resolution setting chosen.
-
-The device support CPI configuration through IIO interface.
-
-This patchset :
-- Update vendor prefix
-- Add the bindings for this device
-- Add the device driver
-- Add directory for optical tracker devices
-
-Change since v3:
-- Replace delta value by relative position
-- Improve write protected reg function by removing print log and obvious
-  returns
-- Handle error in postenable buffer function
-
-Change since v2:
-- Fix typo
-- Add constructor webpage and datasheet in commit message
-- Use BIT() macro for define bit mask
-- Remove shift from IIO channel spec structure
-- Replace IIO_LE by IIO_CPU from IIO channel spec structure
-- Replace memcpy() by cast (s32)
-- Rename "pat9125_trig_try_reen" to "pat9125_trig_try_reenable"
-- Add carriage return (\n) at the end of each "dev_err" function
-- Remove "iio_trigger_unregister" in case of "iio_trigger_register" fail,
-  register function already manage it
-- Remove log which print device name in case of successful initialization
-- Fix enabled IRQ flag warning during nested IRQ thread
-- Improve retry algo now based on status register
-- Remove "ts", "motion_detected" and "buffer_mode" from pat9125_data
-  structure
-- Rename all "ot" directories to "position"
-- Polling sample through IIO_CHAN_INFO_RAW now return position value
-  (relative to the position at initialization time) instead of delta
-  position
-- Clean iio_buffer_setup_ops structure by removing NULL pointer.
-- Use devm_iio_ function for all init functions and then delete
-  "pat9125_remove"
-- Move device_register at the end of probe function
-- Replace MODULE_PARM_DESC by IIO_SCALE to set axis resolution (CPI)
-
-Change since v1:
-- Fix typo
-- Rename some defines / variables
-- Remove I2C client from driver structure
-- Change type of delta_x and delta_y from s16 to s32 to simplify signed
-  operations
-- Add module parameter for axis resolution
-- Replace "IIO_MOD_X_AND_Y" by "IIO_MOD_X" and "IIO_MOD_Y"
-- Add sign extension macro
-- Improve read value algorithm to avoid data loss
-- Implement a trigger handler function which can work with any IIO
-  trigger, independently of it own GPIO IRQ, to match with IIO
-  requirement/behaviour
-- Replace iio push event function by iio trigger poll in GPIO IRQ handler
-- Use triggered_buffer helpers to replace kfifo use, setup buffer,
-  implement enable/disable setup buffer operations, IIO trigger
-  allocation and re-enable operations
-- Remove useless "goto"
-- Change GPIO IRQ handler from planified thread to IRQ thread
-- Change GPIO IRQ trigger from low level and one shot to falling edge
-- Add device unregister and buffer cleanup to driver remove function
-
-Alexandre Mergnat (3):
-  dt-bindings: Add pixart vendor
-  dt-bindings: iio: position: Add docs pat9125
-  iio: Add PAT9125 optical tracker sensor
-
- .../bindings/iio/position/pat9125.txt         |  18 +
- .../devicetree/bindings/vendor-prefixes.yaml  |   2 +
- drivers/iio/Kconfig                           |   1 +
- drivers/iio/Makefile                          |   1 +
- drivers/iio/position/Kconfig                  |  18 +
- drivers/iio/position/Makefile                 |   6 +
- drivers/iio/position/pat9125.c                | 506 ++++++++++++++++++
- 7 files changed, 552 insertions(+)
+Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+---
+ .../bindings/iio/position/pat9125.txt          | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/iio/position/pat9125.txt
- create mode 100644 drivers/iio/position/Kconfig
- create mode 100644 drivers/iio/position/Makefile
- create mode 100644 drivers/iio/position/pat9125.c
 
+diff --git a/Documentation/devicetree/bindings/iio/position/pat9125.txt b/Documentation/devicetree/bindings/iio/position/pat9125.txt
+new file mode 100644
+index 000000000000..4028aeef9b42
+--- /dev/null
++++ b/Documentation/devicetree/bindings/iio/position/pat9125.txt
+@@ -0,0 +1,18 @@
++PixArt Imaging PAT9125 Optical Tracking Miniature Chip device driver
++
++Required properties:
++	- compatible: must be "pixart,pat9125"
++	- reg: i2c address where to find the device
++	- interrupts: the sole interrupt generated by the device
++
++	Refer to interrupt-controller/interrupts.txt for generic
++	interrupt client node bindings.
++
++Example:
++
++pat9125@75 {
++	compatible = "pixart,pat9125";
++	reg = <0x75>;
++	interrupt-parent = <&gpio3>;
++	interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
++};
 -- 
 2.17.1

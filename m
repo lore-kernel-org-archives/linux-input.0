@@ -1,119 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 1/2] drivers: base: swnode: link devices to software nodes
-Date: Sat, 13 Jul 2019 00:52:58 -0700
-Message-ID: <20190713075259.243565-2-dmitry.torokhov@gmail.com>
-References: <20190713075259.243565-1-dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: API for Setting a Timestamp from a Driver
+Date: Sat, 13 Jul 2019 00:59:42 -0700
+Message-ID: <20190713075942.GA243807@dtor-ws>
+References: <20190710230410.9386-1-atifniyaz@google.com>
+ <20190712064134.GA150689@dtor-ws>
+ <CAO-hwJK-VAGpjN03XDTmmT4fYxb1V_izfvT9Z3tKDmLJ3henGw@mail.gmail.com>
+ <20190712114619.GA7753@jelly>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190713075259.243565-1-dmitry.torokhov@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20190712114619.GA7753@jelly>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>
-Cc: linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Atif Niyaz <atifniyaz@google.com>, Atif Niyaz <atifniyaz11@gmail.com>, Siarhei Vishniakou <svv@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-It is helpful to know what device, if any, a software node is tied to, so
-let's store a pointer to the device in software node structure. Note that
-children software nodes will inherit their parent's device pointer, so we
-do not have to traverse hierarchy to see what device the [sub]tree belongs
-to.
+On Fri, Jul 12, 2019 at 09:46:19PM +1000, Peter Hutterer wrote:
+> On Fri, Jul 12, 2019 at 09:23:20AM +0200, Benjamin Tissoires wrote:
+> > On Fri, Jul 12, 2019 at 8:41 AM Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > >
+> > > Hi Atif,
+> > >
+> > > On Wed, Jul 10, 2019 at 04:04:10PM -0700, Atif Niyaz wrote:
+> > > > Currently, evdev stamps time with timestamps acquired in
+> > > > evdev_events. However, this timestamping may not be accurate in terms of
+> > > > measuring when the actual event happened. This API allows any 3rd party
+> > > > driver to be able to call input_set_timestamp, and provide a timestamp
+> > > > that can be utilized in order to provide a more accurate sense of time
+> > > > for the event
+> > > >
+> > > > Signed-off-by: Atif Niyaz <atifniyaz@google.com>
+> > >
+> > > This looks OK to me. Benjamin, Peter, any concerns here?
+> > >
+> > 
+> > No red flags from me (though Peter is the one using all of this).
+> > 
+> > Just curious, which drivers do you think will be using this new API?
+> > I can see that we might want to use hid-multitouch for it, with the
+> > Scan Time forwarded by the device, but what do you have in mind?
+> 
+> that'd be my question as well. I'm all for more precise evdev timestamps but
+> there's some overlap with MSC_TIMESTAMP (which at least libinput isn't
+> handling well right now, with the exception of some quirk detection). 
 
-We will be using the device pointer to locate GPIO lookup tables for
-devices with static properties.
+I expect it will be used by drivers that use threaded interrupts to mark
+the time in the hard interrupt and avoid the latency of scheduling the
+thread, slow bus communication, etc.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/base/property.c  |  1 +
- drivers/base/swnode.c    | 35 ++++++++++++++++++++++++++++++++++-
- include/linux/property.h |  5 +++++
- 3 files changed, 40 insertions(+), 1 deletion(-)
+This is not supposed to replace MSC_TIMESTAMP as MSC_TIMESTAMP carries
+timestamp acquired by the device itself.
 
-diff --git a/drivers/base/property.c b/drivers/base/property.c
-index 348b37e64944..3bc93d4b35c4 100644
---- a/drivers/base/property.c
-+++ b/drivers/base/property.c
-@@ -527,6 +527,7 @@ int device_add_properties(struct device *dev,
- 	if (IS_ERR(fwnode))
- 		return PTR_ERR(fwnode);
- 
-+	software_node_link_device(fwnode, dev);
- 	set_secondary_fwnode(dev, fwnode);
- 	return 0;
- }
-diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
-index 7fc5a18e02ad..fd12eea539b6 100644
---- a/drivers/base/swnode.c
-+++ b/drivers/base/swnode.c
-@@ -24,6 +24,9 @@ struct software_node {
- 
- 	/* properties */
- 	const struct property_entry *properties;
-+
-+	/* device this node is associated with */
-+	struct device *dev;
- };
- 
- static DEFINE_IDA(swnode_root_ids);
-@@ -607,8 +610,14 @@ fwnode_create_software_node(const struct property_entry *properties,
- 	INIT_LIST_HEAD(&swnode->children);
- 	swnode->parent = p;
- 
--	if (p)
-+	if (p) {
- 		list_add_tail(&swnode->entry, &p->children);
-+		/*
-+		 * We want to maintain the same association as the parent node,
-+		 * so we can easily locate corresponding device.
-+		 */
-+		swnode->dev = p->dev;
-+	}
- 
- 	ret = kobject_init_and_add(&swnode->kobj, &software_node_type,
- 				   p ? &p->kobj : NULL, "node%d", swnode->id);
-@@ -639,6 +648,30 @@ void fwnode_remove_software_node(struct fwnode_handle *fwnode)
- }
- EXPORT_SYMBOL_GPL(fwnode_remove_software_node);
- 
-+int software_node_link_device(struct fwnode_handle *fwnode, struct device *dev)
-+{
-+	struct software_node *swnode = to_software_node(fwnode);
-+
-+	if (!swnode)
-+		return -EINVAL;
-+
-+	swnode->dev = dev;
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(software_node_link_device);
-+
-+struct device *
-+software_node_get_linked_device(const struct fwnode_handle *fwnode)
-+{
-+	const struct software_node *swnode = to_software_node(fwnode);
-+
-+	if (!swnode)
-+		return ERR_PTR(-EINVAL);
-+
-+	return swnode->dev;
-+}
-+EXPORT_SYMBOL_GPL(software_node_get_linked_device);
-+
- int software_node_notify(struct device *dev, unsigned long action)
- {
- 	struct fwnode_handle *fwnode = dev_fwnode(dev);
-diff --git a/include/linux/property.h b/include/linux/property.h
-index e9caa290cda5..754188cfd9db 100644
---- a/include/linux/property.h
-+++ b/include/linux/property.h
-@@ -338,4 +338,9 @@ fwnode_create_software_node(const struct property_entry *properties,
- 			    const struct fwnode_handle *parent);
- void fwnode_remove_software_node(struct fwnode_handle *fwnode);
- 
-+int software_node_link_device(struct fwnode_handle *fwnode,
-+			      struct device *device);
-+struct device *
-+software_node_get_linked_device(const struct fwnode_handle *fwnode);
-+
- #endif /* _LINUX_PROPERTY_H_ */
+Thanks.
+
 -- 
-2.22.0.510.g264f2c817a-goog
+Dmitry

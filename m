@@ -1,39 +1,40 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: synaptics - enable RMI mode for HP Spectre X360
-Date: Sat, 13 Jul 2019 00:41:50 -0700
-Message-ID: <20190713074150.GA241222@dtor-ws>
+Subject: [PATCH 0/2] Make gpiolib work with static device properties
+Date: Sat, 13 Jul 2019 00:52:57 -0700
+Message-ID: <20190713075259.243565-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nate Graham <pointedstick@zoho.com>, linux-kernel@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>
+Cc: linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-The 2016 kabylake HP Spectre X360 (model number 13-w013dx) works much better
-with psmouse.synaptics_intertouch=1 kernel parameter, so let's enable RMI4
-mode automatically.
+Hi,
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204115
-Reported-by: Nate Graham <pointedstick@zoho.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/synaptics.c | 1 +
- 1 file changed, 1 insertion(+)
+These 2 patches implement GPIOs lookup for boards still using static
+properties (instead of OF or ACPI), which will allow drivers to abandon
+the custom platform data structures and switch to using generic bindings
+with gpiod_get_*() API working transparently.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 7f8f4780b511..c0e188cd3811 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -182,6 +182,7 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN2055", /* E580 */
- 	"SYN3052", /* HP EliteBook 840 G4 */
- 	"SYN3221", /* HP 15-ay000 */
-+	"SYN323d", /* HP Spectre X360 13-w013dx */
- 	NULL
- };
- 
+The 2nd patch was posted in September of 2018, before Heikki did the
+switch from psets to software_nodes; I finally rebased it.
+
+Enrico, it looks like you are working with a board that uses gpio_keys
+that still uses platform data, it would be great if you could try this
+out as I have not.
+
+Thanks!
+
+Dmitry Torokhov (2):
+  drivers: base: swnode: link devices to software nodes
+  gpiolib: add support for fetching descriptors from static properties
+
+ drivers/base/property.c  |   1 +
+ drivers/base/swnode.c    |  35 ++++++++++++-
+ drivers/gpio/gpiolib.c   | 108 ++++++++++++++++++++++++++++-----------
+ include/linux/property.h |   5 ++
+ 4 files changed, 119 insertions(+), 30 deletions(-)
 
 -- 
-Dmitry
+2.22.0.510.g264f2c817a-goog

@@ -1,32 +1,24 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 07/14] Input: cyapa - Replace devm_add_action() followed
- by failure action with devm_add_action_or_reset()
-Date: Sat, 13 Jul 2019 01:52:37 -0700
-Message-ID: <20190713085237.GC103820@dtor-ws>
-References: <20190708123323.11943-1-huangfq.daxian@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: pr-tracker-bot@kernel.org
+Subject: Re: [git pull] Input updates for v5.3-rc0
+Date: Sat, 13 Jul 2019 22:50:13 +0000
+Message-ID: <156305821313.12932.5709874322750112158.pr-tracker-bot@kernel.org>
+References: <20190712052744.GA138448@dtor-ws>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190708123323.11943-1-huangfq.daxian@gmail.com>
+In-Reply-To: <20190712052744.GA138448@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Fuqian Huang <huangfq.daxian@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 08, 2019 at 08:33:23PM +0800, Fuqian Huang wrote:
-> devm_add_action_or_reset() is introduced as a helper function which 
-> internally calls devm_add_action(). If devm_add_action() fails 
-> then it will execute the action mentioned and return the error code.
-> This reduce source code size (avoid writing the action twice) 
-> and reduce the likelyhood of bugs.
-> 
-> Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+The pull request you sent on Thu, 11 Jul 2019 22:41:58 -0700:
 
-I'll apply parts of this as the driver should use
-devm_device_add_group() for the main sysfs group.
+> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Thanks.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/073c916bc00571d8662b89a294eba265481b6fbb
+
+Thank you!
 
 -- 
-Dmitry
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker

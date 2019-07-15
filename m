@@ -1,55 +1,72 @@
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: Re: [PATCH 8/8] docs: remove extra conf.py files
-Date: Mon, 15 Jul 2019 04:57:02 -0300
-Message-ID: <20190715045702.1e2b569b@coco.lan>
-References: <cover.1563115732.git.mchehab+samsung@kernel.org>
-        <12a160afc9e70156f671010bd4ccff9311acdc5e.1563115732.git.mchehab+samsung@kernel.org>
-        <e3ff0a8a-6956-3855-07be-9c126df2da2d@darmarit.de>
+From: Lukasz Majewski <lukma@denx.de>
+Subject: Re: [PATCH v2 2/3] input: touchscreen mc13xxx: Make platform data
+ optional
+Date: Mon, 15 Jul 2019 10:43:44 +0200
+Message-ID: <20190715104344.3f17b660@jawa>
+References: <20190711222346.5245-1-lukma@denx.de>
+        <20190711222346.5245-3-lukma@denx.de>
+        <20190715071048.GB153485@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <e3ff0a8a-6956-3855-07be-9c126df2da2d@darmarit.de>
-Sender: netdev-owner@vger.kernel.org
-To: Markus Heiser <markus.heiser@darmarit.de>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/wI5fB2=GD+px5yqNSN=ssGE"; protocol="application/pgp-signature"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190715071048.GB153485@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Em Mon, 15 Jul 2019 08:16:54 +0200
-Markus Heiser <markus.heiser@darmarit.de> escreveu:
+--Sig_/wI5fB2=GD+px5yqNSN=ssGE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-> Hi Mauro,
-> 
-> sorry, I havn't tested your patch, but one question ...
-> 
-> Am 14.07.19 um 17:10 schrieb Mauro Carvalho Chehab:
-> > Now that the latex_documents are handled automatically, we can
-> > remove those extra conf.py files.  
-> 
-> We need these conf.py also for compiling books' into HTML.  For this
-> the tags.add("subproject") is needed.  Should we realy drop this feature?
-> 
-> -- Markus --
+Hi Dmitry,
 
-You're right: adding "subproject" tags is needed for html. Folding this
-to patch 7/8 makes both htmldocs and pdfdocs to work with SPHINXDIRS
-without the need of a per-subdir conf.py.
+Thank you for your reply.
 
-Regards,
-Mauro
+> On Fri, Jul 12, 2019 at 12:23:45AM +0200, Lukasz Majewski wrote:
+> > From: Sascha Hauer <s.hauer@pengutronix.de>
+> >=20
+> > The platform data once was optional, make it optional again. This
+> > is a first step towards device tree support for the mc13xxx
+> > touchscreen driver. =20
+>=20
+> I would prefer seeing it together with patches introducing device tree
+> support.
 
-diff --git a/Documentation/sphinx/load_config.py b/Documentation/sphinx/load_config.py
-index 75f527ff4c95..e4a04f367b41 100644
---- a/Documentation/sphinx/load_config.py
-+++ b/Documentation/sphinx/load_config.py
-@@ -51,3 +51,7 @@ def loadConfig(namespace):
-             execfile_(config_file, config)
-             del config['__file__']
-             namespace.update(config)
-+        else:
-+            config = namespace.copy()
-+            config['tags'].add("subproject")
-+            namespace.update(config)
+Ok, I will merge this patch to patch 3/3.
 
-Thanks,
-Mauro
+>=20
+> Thanks.
+>=20
+
+
+
+
+Best regards,
+
+Lukasz Majewski
+
+--
+
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Phone: (+49)-8142-66989-59 Fax: (+49)-8142-66989-80 Email: lukma@denx.de
+
+--Sig_/wI5fB2=GD+px5yqNSN=ssGE
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEgAyFJ+N6uu6+XupJAR8vZIA0zr0FAl0sPMAACgkQAR8vZIA0
+zr0wPAf/ROYmcmtX42lnrcD6g5DX74eTlwFhs9G7ptA2kZpJlmPGO1rodMjar2Fx
+UYwbBT5JTrcM4MoeAVTbydxTISQPJBzXOemHfUEe5F5nRbZNwTcc+W/EuRY/+Jtk
+jwMlqPiOCygNvrALj1Ekd+Tiew8S/Wo+QA/GZHU2V/B7VQs9eFA4ZgsZujBkCMaS
+ovGqRSb93fP0v7SbuskxPSkBCsd3BYCmitQQIS+z7VyS0FQOLEwV9c3GTUiJaJyd
+5zK2s56g/BUBLfvy3Wv80eORiOfbqKXQNBqUOBnIbmsZx7zzdit/ZTSaw32k7auC
+hLP3ZEI9JOMAoGWeS2IuqbA29JBxpg==
+=96sO
+-----END PGP SIGNATURE-----
+
+--Sig_/wI5fB2=GD+px5yqNSN=ssGE--

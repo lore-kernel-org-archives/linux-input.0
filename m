@@ -1,40 +1,154 @@
 From: Lukasz Majewski <lukma@denx.de>
-Subject: Re: [PATCH v2 2/3] input: touchscreen mc13xxx: Make platform data
- optional
-Date: Mon, 15 Jul 2019 10:43:44 +0200
-Message-ID: <20190715104344.3f17b660@jawa>
+Subject: Re: [PATCH v2 3/3] input: touchscreen mc13xxx: Add mc34708 support
+Date: Mon, 15 Jul 2019 11:13:38 +0200
+Message-ID: <20190715111338.3a985a4c@jawa>
 References: <20190711222346.5245-1-lukma@denx.de>
-        <20190711222346.5245-3-lukma@denx.de>
-        <20190715071048.GB153485@dtor-ws>
+        <20190711222346.5245-4-lukma@denx.de>
+        <20190715070702.GA153485@dtor-ws>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/wI5fB2=GD+px5yqNSN=ssGE"; protocol="application/pgp-signature"
+ boundary="Sig_/vvJ=aezb1tTRL8se99FcUFZ"; protocol="application/pgp-signature"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190715071048.GB153485@dtor-ws>
+In-Reply-To: <20190715070702.GA153485@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
---Sig_/wI5fB2=GD+px5yqNSN=ssGE
+--Sig_/vvJ=aezb1tTRL8se99FcUFZ
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
 Hi Dmitry,
 
-Thank you for your reply.
-
-> On Fri, Jul 12, 2019 at 12:23:45AM +0200, Lukasz Majewski wrote:
+> Hi Lukasz,
+> =20
+> On Fri, Jul 12, 2019 at 12:23:46AM +0200, Lukasz Majewski wrote:
 > > From: Sascha Hauer <s.hauer@pengutronix.de>
 > >=20
-> > The platform data once was optional, make it optional again. This
-> > is a first step towards device tree support for the mc13xxx
-> > touchscreen driver. =20
+> > The mc34708 has a different bit to enable pen detection. This
+> > adds the driver data and devtype necessary to probe the device
+> > and to distinguish between the mc13783 and the mc34708.
+> >=20
+> > Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> > Signed-off-by: Lukasz Majewski <lukma@denx.de>
+> >=20
+> > ---
+> > Changes for v2:
+> > - Change nested if statements to a single one (with cr0 > ...)
+> > - Replace hardcoded max resistance value (4080) with a generic
+> > driver data value.
+> > - Introduce new include/linux/mfd/mc34708.h header file for mc34708
+> > specific defines
+> > - Define as driver data mask and value for accessing mc13xxx
+> > registers
+> >=20
+> > Changes from the original patch:
+> > - Simplify the mcXXXXX_set_pen_detection functions
+> > - Fix checkpatch warnings
+> > ---
+> >  drivers/input/touchscreen/mc13783_ts.c | 59
+> > +++++++++++++++++++++++++++++++--- 1 file changed, 55
+> > insertions(+), 4 deletions(-)
+> >=20
+> > diff --git a/drivers/input/touchscreen/mc13783_ts.c
+> > b/drivers/input/touchscreen/mc13783_ts.c index
+> > edd49e44e0c9..8fd3d0e47f57 100644 ---
+> > a/drivers/input/touchscreen/mc13783_ts.c +++
+> > b/drivers/input/touchscreen/mc13783_ts.c @@ -10,6 +10,7 @@
+> >   */
+> >  #include <linux/platform_device.h>
+> >  #include <linux/mfd/mc13783.h>
+> > +#include <linux/mfd/mc34708.h>
+> >  #include <linux/kernel.h>
+> >  #include <linux/module.h>
+> >  #include <linux/input.h>
+> > @@ -30,6 +31,8 @@ MODULE_PARM_DESC(sample_tolerance,
+> >  		"is supposed to be wrong and is discarded.  Set to
+> > 0 to " "disable this check.");
+> > =20
+> > +struct mc13xxx_driver_data; =20
 >=20
-> I would prefer seeing it together with patches introducing device tree
-> support.
+> Why don't you define the structure here instead of sing forward
+> declaration?=20
 
-Ok, I will merge this patch to patch 3/3.
+I will define the structure here.
+
+> The structure is also commonly called as xxx_chip, so
+> struct mc13xxx_chip {
+> 	...
+> };
+
+Ok.
+
+>=20
+> > +
+> >  struct mc13783_ts_priv {
+> >  	struct input_dev *idev;
+> >  	struct mc13xxx *mc13xxx;
+> > @@ -37,6 +40,33 @@ struct mc13783_ts_priv {
+> >  	unsigned int sample[4];
+> >  	u8 ato;
+> >  	bool atox;
+> > +	struct mc13xxx_driver_data *drvdata; =20
+>=20
+> const struct mc13xxx_chip *chip;
+
+Ok. I will adjust the name.
+
+>=20
+> > +};
+> > +
+> > +enum mc13xxx_type {
+> > +	MC13XXX_TYPE_MC13783,
+> > +	MC13XXX_TYPE_MC34708,
+> > +};
+> > +
+> > +struct mc13xxx_driver_data {
+> > +	enum mc13xxx_type type;
+> > +	int max_resistance;
+> > +	u32 reg_mask;
+> > +	u32 reg_value;
+> > +};
+> > +
+> > +static struct mc13xxx_driver_data mc13783_driver_data =3D {
+> > +	.type =3D MC13XXX_TYPE_MC13783,
+> > 	.max_resistance =3D 4096,
+> > +	.reg_mask =3D MC13XXX_ADC0_TSMOD_MASK,
+> > +	.reg_value =3D MC13XXX_ADC0_TSMOD0,
+> > +};
+> > +
+> > +static struct mc13xxx_driver_data mc34708_driver_data =3D {
+> > +	.type =3D MC13XXX_TYPE_MC34708,
+> > +	.max_resistance =3D 4080,
+> > +	.reg_mask =3D MC34708_ADC0_TSMASK,
+> > +	.reg_value =3D MC34708_ADC0_TSPENDETEN,
+> >  }; =20
+>=20
+> Have these 2 closer to the ID table.
+
+I will move those two instances of struct mc13xxx_chip closer to the ID
+table.
+
+>=20
+> > =20
+> >  static irqreturn_t mc13783_ts_handler(int irq, void *data)
+> > @@ -93,6 +123,10 @@ static void mc13783_ts_report_sample(struct
+> > mc13783_ts_priv *priv)=20
+> >  	cr0 =3D (cr0 + cr1) / 2;
+> > =20
+> > +	if (priv->drvdata->type =3D=3D MC13XXX_TYPE_MC34708 &&
+> > +	    cr0 > priv->drvdata->max_resistance)
+> > +		cr0 =3D 0; =20
+>=20
+> I would like to avoid the type comparisons. Given that both cr0 and
+> cr1 can't be more than 4095 (because we limit them when parsing
+> sampling data) I think we can simply say
+>=20
+> 	if (cr0 > priv->chip->max_resistance)
+> 		cr0 =3D 0;
+
+Ok.
 
 >=20
 > Thanks.
@@ -53,20 +167,20 @@ DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 Phone: (+49)-8142-66989-59 Fax: (+49)-8142-66989-80 Email: lukma@denx.de
 
---Sig_/wI5fB2=GD+px5yqNSN=ssGE
+--Sig_/vvJ=aezb1tTRL8se99FcUFZ
 Content-Type: application/pgp-signature
 Content-Description: OpenPGP digital signature
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEgAyFJ+N6uu6+XupJAR8vZIA0zr0FAl0sPMAACgkQAR8vZIA0
-zr0wPAf/ROYmcmtX42lnrcD6g5DX74eTlwFhs9G7ptA2kZpJlmPGO1rodMjar2Fx
-UYwbBT5JTrcM4MoeAVTbydxTISQPJBzXOemHfUEe5F5nRbZNwTcc+W/EuRY/+Jtk
-jwMlqPiOCygNvrALj1Ekd+Tiew8S/Wo+QA/GZHU2V/B7VQs9eFA4ZgsZujBkCMaS
-ovGqRSb93fP0v7SbuskxPSkBCsd3BYCmitQQIS+z7VyS0FQOLEwV9c3GTUiJaJyd
-5zK2s56g/BUBLfvy3Wv80eORiOfbqKXQNBqUOBnIbmsZx7zzdit/ZTSaw32k7auC
-hLP3ZEI9JOMAoGWeS2IuqbA29JBxpg==
-=96sO
+iQEzBAEBCAAdFiEEgAyFJ+N6uu6+XupJAR8vZIA0zr0FAl0sQ8IACgkQAR8vZIA0
+zr1q6ggAgm0O7bad/curlZ5xARSCyhsO6t+yNwKyqX71v5jJsjfVTeN55P35kJ29
+zI0GbTI9Nbk95h4UjT5l+8pP9DV286AJXYKegnjs35OTPSa3LPyzmfdAcHnDo+S5
+ZuB0GCMG4V70P8NJ5/wrIMDvy0HyceuAiofYVVWEOwimM1YrP5IvuuqfdWr+6I0Y
+oTF8CzyjO7XvXEbj4ad4N/Lp96JNf7BCSA3Kw1x52BcMTORoRsUayLC38Ch0G/wb
+TFQYCKt9qZbQ42fqjYvQgtnZ9ZV55V0eBhsYUK12yINyRGLxe/qBa92A9+u8KtUW
+o2uNf3t3wTUV4BULrqh39y1smYLRRA==
+=iPcn
 -----END PGP SIGNATURE-----
 
---Sig_/wI5fB2=GD+px5yqNSN=ssGE--
+--Sig_/vvJ=aezb1tTRL8se99FcUFZ--

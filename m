@@ -1,24 +1,29 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [PULL] stream_open bits for Linux 5.3
-Date: Mon, 15 Jul 2019 00:30:02 +0000
-Message-ID: <156315060268.32091.6748401501797941411.pr-tracker-bot@kernel.org>
-References: <20190714141317.GA20277@deco.navytux.spb.ru>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190714141317.GA20277@deco.navytux.spb.ru>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kirill Smelkov <kirr@nexedi.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Julia Lawall <Julia.Lawall@lip6.fr>, Jan Blunck <jblunck@suse.de>, Arnd Bergmann <arnd@arndb.de>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, cocci@systeme.lip6.fr, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Markus Heiser <markus.heiser@darmarit.de>
+Subject: Re: [PATCH 8/8] docs: remove extra conf.py files
+Date: Mon, 15 Jul 2019 08:16:54 +0200
+Message-ID: <e3ff0a8a-6956-3855-07be-9c126df2da2d@darmarit.de>
+References: <cover.1563115732.git.mchehab+samsung@kernel.org>
+ <12a160afc9e70156f671010bd4ccff9311acdc5e.1563115732.git.mchehab+samsung@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <12a160afc9e70156f671010bd4ccff9311acdc5e.1563115732.git.mchehab+samsung@kernel.org>
+Content-Language: de-DE
+Sender: netdev-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, linux-crypto@vger.kernel.org, dri-d
 List-Id: linux-input@vger.kernel.org
 
-The pull request you sent on Sun, 14 Jul 2019 14:13:45 +0000:
+Hi Mauro,
 
-> https://lab.nexedi.com/kirr/linux.git stream_open-5.3
+sorry, I havn't tested your patch, but one question ...
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/fcd98147ac71f35b69e2f50b5fddc5524dd2dfa8
+Am 14.07.19 um 17:10 schrieb Mauro Carvalho Chehab:
+> Now that the latex_documents are handled automatically, we can
+> remove those extra conf.py files.
 
-Thank you!
+We need these conf.py also for compiling books' into HTML.  For this
+the tags.add("subproject") is needed.  Should we realy drop this feature?
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+-- Markus --

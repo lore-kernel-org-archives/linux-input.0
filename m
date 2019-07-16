@@ -1,49 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/5] Input: sun4i-ts: Use devm_platform_ioremap_resource()
-Date: Tue, 16 Jul 2019 09:34:25 +0200
-Message-ID: <20190716073425.GC1182@penguin>
-References: <1554362243-2888-1-git-send-email-mojha@codeaurora.org>
- <1554362243-2888-5-git-send-email-mojha@codeaurora.org>
+Subject: Re: [PATCH -next] keyboard: remove set but not used variables 'sts'
+Date: Tue, 16 Jul 2019 20:17:06 +0200
+Message-ID: <20190716181706.GA1140@penguin>
+References: <20190716085423.19443-1-maowenan@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1554362243-2888-5-git-send-email-mojha@codeaurora.org>
+In-Reply-To: <20190716085423.19443-1-maowenan@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mukesh Ojha <mojha@codeaurora.org>
-Cc: shawnguo@kernel.org, s.hauer@pengutronix.de, linux-imx@nxp.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Mao Wenan <maowenan@huawei.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Apr 04, 2019 at 12:47:22PM +0530, Mukesh Ojha wrote:
-> devm_platform_ioremap_resource() internally have platform_get_resource()
-> and devm_ioremap_resource() in it. So instead of calling them separately
-> use devm_platform_ioremap_resource() directly.
+On Tue, Jul 16, 2019 at 04:54:23PM +0800, Mao Wenan wrote:
+> Fixes gcc '-Wunused-but-set-variable' warning:
 > 
-> Signed-off-by: Mukesh Ojha <mojha@codeaurora.org>
+> drivers/input/keyboard/applespi.c: In function applespi_set_bl_level:
+> drivers/input/keyboard/applespi.c:902:6: warning: variable sts set but not used [-Wunused-but-set-variable]
+> 
+> Fixes: b426ac0452093d ("Input: add Apple SPI keyboard and trackpad driver")
+> 
+> Signed-off-by: Mao Wenan <maowenan@huawei.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/touchscreen/sun4i-ts.c | 3 +--
+>  drivers/input/keyboard/applespi.c | 3 +--
 >  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
-> index d2e14d9..bbb0104 100644
-> --- a/drivers/input/touchscreen/sun4i-ts.c
-> +++ b/drivers/input/touchscreen/sun4i-ts.c
-> @@ -309,8 +309,7 @@ static int sun4i_ts_probe(struct platform_device *pdev)
->  		input_set_drvdata(ts->input, ts);
+> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+> index c1a6843..548737e 100644
+> --- a/drivers/input/keyboard/applespi.c
+> +++ b/drivers/input/keyboard/applespi.c
+> @@ -899,7 +899,6 @@ static void applespi_set_bl_level(struct led_classdev *led_cdev,
+>  	struct applespi_data *applespi =
+>  		container_of(led_cdev, struct applespi_data, backlight_info);
+>  	unsigned long flags;
+> -	int sts;
+>  
+>  	spin_lock_irqsave(&applespi->cmd_msg_lock, flags);
+>  
+> @@ -916,7 +915,7 @@ static void applespi_set_bl_level(struct led_classdev *led_cdev,
+>  			 KBD_BL_LEVEL_MIN);
 >  	}
 >  
-> -	ts->base = devm_ioremap_resource(dev,
-> -			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
-> +	ts->base = devm_platform_ioremap_resource(pdev, 0);
->  	if (IS_ERR(ts->base))
->  		return PTR_ERR(ts->base);
+> -	sts = applespi_send_cmd_msg(applespi);
+> +	applespi_send_cmd_msg(applespi);
 >  
+>  	spin_unlock_irqrestore(&applespi->cmd_msg_lock, flags);
+>  }
 > -- 
-> Qualcomm India Private Limited, on behalf of Qualcomm Innovation Center,
-> Inc. is a member of the Code Aurora Forum, a Linux Foundation Collaborative Project
+> 2.7.4
 > 
 
 -- 

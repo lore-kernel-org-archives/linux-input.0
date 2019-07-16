@@ -1,58 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH -next] keyboard: remove set but not used variables 'sts'
-Date: Tue, 16 Jul 2019 20:17:06 +0200
-Message-ID: <20190716181706.GA1140@penguin>
-References: <20190716085423.19443-1-maowenan@huawei.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
+Subject: Re: [PATCH v2 2/2] input: soc_button_array for newer surface devices
+Date: Tue, 16 Jul 2019 20:19:04 +0200
+Message-ID: <92e13b01-7353-1430-fb38-b5098d509da2@gmail.com>
+References: <20190702003740.75970-1-luzmaximilian@gmail.com>
+ <20190702003740.75970-3-luzmaximilian@gmail.com>
+ <20190716072135.GA806@penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190716085423.19443-1-maowenan@huawei.com>
+In-Reply-To: <20190716072135.GA806@penguin>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mao Wenan <maowenan@huawei.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 16, 2019 at 04:54:23PM +0800, Mao Wenan wrote:
-> Fixes gcc '-Wunused-but-set-variable' warning:
-> 
-> drivers/input/keyboard/applespi.c: In function applespi_set_bl_level:
-> drivers/input/keyboard/applespi.c:902:6: warning: variable sts set but not used [-Wunused-but-set-variable]
-> 
-> Fixes: b426ac0452093d ("Input: add Apple SPI keyboard and trackpad driver")
-> 
-> Signed-off-by: Mao Wenan <maowenan@huawei.com>
 
-Applied, thank you.
+Hi,
 
-> ---
->  drivers/input/keyboard/applespi.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-> index c1a6843..548737e 100644
-> --- a/drivers/input/keyboard/applespi.c
-> +++ b/drivers/input/keyboard/applespi.c
-> @@ -899,7 +899,6 @@ static void applespi_set_bl_level(struct led_classdev *led_cdev,
->  	struct applespi_data *applespi =
->  		container_of(led_cdev, struct applespi_data, backlight_info);
->  	unsigned long flags;
-> -	int sts;
->  
->  	spin_lock_irqsave(&applespi->cmd_msg_lock, flags);
->  
-> @@ -916,7 +915,7 @@ static void applespi_set_bl_level(struct led_classdev *led_cdev,
->  			 KBD_BL_LEVEL_MIN);
->  	}
->  
-> -	sts = applespi_send_cmd_msg(applespi);
-> +	applespi_send_cmd_msg(applespi);
->  
->  	spin_unlock_irqrestore(&applespi->cmd_msg_lock, flags);
->  }
-> -- 
-> 2.7.4
-> 
+On 7/16/19 9:21 AM, Dmitry Torokhov wrote:
+> When you are saying that Pro 4 and later models use different
+> notifications, does this mean that Pro 4 does not define any GPIOs?
 
--- 
-Dmitry
+Unfortunately, at least the Surface Book (first generation, buttons are
+handled the same way as on the Pro 4) has GPIOs defined in MSHW0040, but
+they are for different use. Specifically: They can detect if the
+clipboard (screen part of the device, the device basically has two parts
+that can be separated: clipboard and base) is being removed. Relying on
+the GPIOs was my first idea too, but that has been reported to shut down
+the Book 1 when the clipboard is detached.
+
+As far as I know, the OEM platform revision check is the easiest way to
+differentiate between those devices.
+
+> I do not believe -EAGAIN has any special meaning in the driver core;
+
+I think I got the -EAGAIN from an outdated LWN article when I first
+started working on this, thanks for confirming.
+
+> also when the GPIO controller is not ready gpiod_get() will return
+> -EPROBE_DEFER, which is the prober way if signalling that some resource
+> is not yet available and probe should be retries at a later time.
+>
+> Moreover, I do not believe that gpiod_count() needs GPIO controller to
+> be ready, the count is taken from board firmware or static board file
+> definition, so if gpiod_count() returns 0 it should be clear indication
+> that the driver should not be used with the device.
+
+Thank you for this insight, I will update the patch accordingly.
+
+Maximilian

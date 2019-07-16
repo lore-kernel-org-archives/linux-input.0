@@ -1,184 +1,61 @@
-From: Lukasz Majewski <lukma@denx.de>
-Subject: [PATCH v3 3/3] input: touchscreen mc13xxx: Add mc34708 support
-Date: Wed, 17 Jul 2019 00:19:29 +0200
-Message-ID: <20190716221929.3782-4-lukma@denx.de>
-References: <20190716221929.3782-1-lukma@denx.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: i8042 - disable KBD port on Late-2016 Razer Blade
+ Stealth
+Date: Tue, 16 Jul 2019 22:28:09 +0200
+Message-ID: <20190716202809.GB584@penguin>
+References: <20190407213735.10658-1-lyude@redhat.com>
+ <20190407221034.GA162359@dtor-ws>
+ <0ac9aef48f4cf974f4f7046aad1267ab5c8fe525.camel@redhat.com>
+ <28dc38a55c45467dad6f11e9ea459172@AcuMS.aculab.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190716221929.3782-1-lukma@denx.de>
+Content-Disposition: inline
+In-Reply-To: <28dc38a55c45467dad6f11e9ea459172@AcuMS.aculab.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Lukasz Majewski <lukma@denx.de>
+To: David Laight <David.Laight@ACULAB.COM>
+Cc: 'Lyude Paul' <lyude@redhat.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, Chen-Yu Tsai <wens@csie.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+On Mon, Apr 08, 2019 at 09:55:00AM +0000, David Laight wrote:
+> From: Lyude Paul
+> > Sent: 07 April 2019 23:55
+> > On Sun, 2019-04-07 at 15:10 -0700, Dmitry Torokhov wrote:
+> > > Hi Lyude,
+> > >
+> > > On Sun, Apr 07, 2019 at 05:37:34PM -0400, Lyude Paul wrote:
+> > > > The late 2016 model of the Razer Blade Stealth has a built-in USB
+> > > > keyboard, but for some reason the BIOS exposes an i8042 controller with
+> > > > a connected KBD port. While this fake AT Keyboard device doesn't appear
+> > > > to report any events, attempting to change the state of the caps lock
+> > > > LED on it from on to off causes the entire system to hang.
+> > > >
+> > > > So, introduce a quirk table for disabling keyboard probing by default,
+> > > > i8042_dmi_nokbd_table, and add this specific model of Razer laptop to
+> > > > that table.
+> > >
+> > > What does dmesg show about i8042 for this device? Especially line "PNP:
+> > > PS/2 Controller  ..."?
+> > >
+> > 
+> > Apr 07 18:42:46 malachite kernel: i8042: PNP: No PS/2 controller found.
+> > Apr 07 18:42:46 malachite kernel: i8042: Probing ports directly.
+> > Apr 07 18:42:46 malachite kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+> > Apr 07 18:42:46 malachite kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
+> > Apr 07 18:42:46 malachite kernel: mousedev: PS/2 mouse device common for all mice
+> 
+> That is the 'default' probe of the ps/2 serial ports.
+> Looks like the BIOS is correct in not exposing the ps/2 controller.
+> Usually they just fail to expose the mouse when it needs a ps/2 splitter :-(
+> 
+> I do wonder what they've connected it to though.
+> It is extremely unlikely they've found an x86 chipset that doesn't
+> have the ps/2 serial ports at the standard io addresses.
 
-The mc34708 has a different bit to enable pen detection. This
-adds the driver data and devtype necessary to probe the device
-and to distinguish between the mc13783 and the mc34708.
+I wonder if it is time to start trusting BIOS if it was released maybe
+in Win7+ timeframe?
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Lukasz Majewski <lukma@denx.de>
+Thanks.
 
----
-Changes for v3:
-- Replace forward declaration of mc13xxx_driver_data with
-  structure definition
-- Rename mc13xxx_driver_data with mc13xxx_chip
-- Move static struct mc13xxx_chip mc13783_chip and mc34708_chip
-  closer to ID table
-- Do not check mc13xxx device type
-
-Changes for v2:
-- Change nested if statements to a single one (with cr0 > ...)
-- Replace hardcoded max resistance value (4080) with a generic driver data
-  value.
-- Introduce new include/linux/mfd/mc34708.h header file for mc34708 specific
-  defines
-- Define as driver data mask and value for accessing mc13xxx registers
-
-Changes from the original patch:
-- Simplify the mcXXXXX_set_pen_detection functions
-- Fix checkpatch warnings
----
- drivers/input/touchscreen/mc13783_ts.c | 56 +++++++++++++++++++++++++++++++---
- 1 file changed, 52 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
-index edd49e44e0c9..857c11235141 100644
---- a/drivers/input/touchscreen/mc13783_ts.c
-+++ b/drivers/input/touchscreen/mc13783_ts.c
-@@ -10,6 +10,7 @@
-  */
- #include <linux/platform_device.h>
- #include <linux/mfd/mc13783.h>
-+#include <linux/mfd/mc34708.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/input.h>
-@@ -30,6 +31,18 @@ MODULE_PARM_DESC(sample_tolerance,
- 		"is supposed to be wrong and is discarded.  Set to 0 to "
- 		"disable this check.");
- 
-+enum mc13xxx_type {
-+	MC13XXX_TYPE_MC13783,
-+	MC13XXX_TYPE_MC34708,
-+};
-+
-+struct mc13xxx_chip {
-+	enum mc13xxx_type type;
-+	int max_resistance;
-+	u32 reg_mask;
-+	u32 reg_value;
-+};
-+
- struct mc13783_ts_priv {
- 	struct input_dev *idev;
- 	struct mc13xxx *mc13xxx;
-@@ -37,6 +50,7 @@ struct mc13783_ts_priv {
- 	unsigned int sample[4];
- 	u8 ato;
- 	bool atox;
-+	const struct mc13xxx_chip *chip;
- };
- 
- static irqreturn_t mc13783_ts_handler(int irq, void *data)
-@@ -93,6 +107,9 @@ static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
- 
- 	cr0 = (cr0 + cr1) / 2;
- 
-+	if (cr0 > priv->chip->max_resistance)
-+		cr0 = 0;
-+
- 	if (!cr0 || !sample_tolerance ||
- 			(x2 - x0 < sample_tolerance &&
- 			 y2 - y0 < sample_tolerance)) {
-@@ -102,14 +119,14 @@ static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
- 			input_report_abs(idev, ABS_Y, y1);
- 
- 			dev_dbg(&idev->dev, "report (%d, %d, %d)\n",
--					x1, y1, 0x1000 - cr0);
-+				x1, y1, priv->chip->max_resistance - cr0);
- 			schedule_delayed_work(&priv->work, HZ / 50);
- 		} else {
- 			dev_dbg(&idev->dev, "report release\n");
- 		}
- 
- 		input_report_abs(idev, ABS_PRESSURE,
--				cr0 ? 0x1000 - cr0 : cr0);
-+				 cr0 ? priv->chip->max_resistance - cr0 : 0);
- 		input_report_key(idev, BTN_TOUCH, cr0);
- 		input_sync(idev);
- 	} else {
-@@ -146,7 +163,8 @@ static int mc13783_ts_open(struct input_dev *dev)
- 		goto out;
- 
- 	ret = mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
--			MC13XXX_ADC0_TSMOD_MASK, MC13XXX_ADC0_TSMOD0);
-+			      priv->chip->reg_mask,
-+			      priv->chip->reg_value);
- 	if (ret)
- 		mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
- out:
-@@ -160,7 +178,7 @@ static void mc13783_ts_close(struct input_dev *dev)
- 
- 	mc13xxx_lock(priv->mc13xxx);
- 	mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
--			MC13XXX_ADC0_TSMOD_MASK, 0);
-+			priv->chip->reg_mask, 0);
- 	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
- 	mc13xxx_unlock(priv->mc13xxx);
- 
-@@ -172,6 +190,7 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
- 	struct mc13783_ts_priv *priv;
- 	struct mc13xxx_ts_platform_data *pdata = dev_get_platdata(&pdev->dev);
- 	struct input_dev *idev;
-+	const struct platform_device_id *id = platform_get_device_id(pdev);
- 	int ret = -ENOMEM;
- 
- 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-@@ -182,6 +201,7 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
- 	INIT_DELAYED_WORK(&priv->work, mc13783_ts_work);
- 	priv->mc13xxx = dev_get_drvdata(pdev->dev.parent);
- 	priv->idev = idev;
-+	priv->chip = (void *)id->driver_data;
- 
- 	if (pdata) {
- 		priv->atox = pdata->atox;
-@@ -228,7 +248,35 @@ static int mc13783_ts_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static struct mc13xxx_chip mc13783_chip = {
-+	.type = MC13XXX_TYPE_MC13783,
-+	.max_resistance = 4096,
-+	.reg_mask = MC13XXX_ADC0_TSMOD_MASK,
-+	.reg_value = MC13XXX_ADC0_TSMOD0,
-+};
-+
-+static struct mc13xxx_chip mc34708_chip = {
-+	.type = MC13XXX_TYPE_MC34708,
-+	.max_resistance = 4080,
-+	.reg_mask = MC34708_ADC0_TSMASK,
-+	.reg_value = MC34708_ADC0_TSPENDETEN,
-+};
-+
-+static const struct platform_device_id mc13xxx_ts_idtable[] = {
-+	{
-+		.name = "mc13783-ts",
-+		.driver_data = (kernel_ulong_t)&mc13783_chip,
-+	}, {
-+		.name = "mc34708-ts",
-+		.driver_data = (kernel_ulong_t)&mc34708_chip,
-+	}, {
-+		/* sentinel */
-+	}
-+};
-+MODULE_DEVICE_TABLE(platform, mc13xxx_ts_idtable);
-+
- static struct platform_driver mc13783_ts_driver = {
-+	.id_table	= mc13xxx_ts_idtable,
- 	.remove		= mc13783_ts_remove,
- 	.driver		= {
- 		.name	= MC13783_TS_NAME,
 -- 
-2.11.0
+Dmitry

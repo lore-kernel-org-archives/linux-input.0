@@ -1,55 +1,55 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: psmouse - Fix build error of multiple definition
-Date: Tue, 16 Jul 2019 20:19:04 +0200
-Message-ID: <20190716181904.GB1140@penguin>
-References: <20190716065411.56780-1-yuehaibing@huawei.com>
+Subject: Re: [PATCH v7 2/2] Input: add Apple SPI keyboard and trackpad driver.
+Date: Tue, 16 Jul 2019 20:47:44 +0200
+Message-ID: <20190716184744.GC1140@penguin>
+References: <20190419081926.13567-1-ronald@innovation.ch>
+ <20190419081926.13567-3-ronald@innovation.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190716065411.56780-1-yuehaibing@huawei.com>
+In-Reply-To: <20190419081926.13567-3-ronald@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: YueHaibing <yuehaibing@huawei.com>
-Cc: allison@lohutok.net, tglx@linutronix.de, info@metux.net, dilinger@debian.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Andrzej Hajda <a.hajda@samsung.com>, Inki Dae <inki.dae@samsung.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 16, 2019 at 02:54:11PM +0800, YueHaibing wrote:
-> trackpoint_detect() should be static inline while
-> CONFIG_MOUSE_PS2_TRACKPOINT is not set. otherwire,we
-> got building fails:
-> 
-> drivers/input/mouse/alps.o: In function `trackpoint_detect':
-> alps.c:(.text+0x8e00): multiple definition of `trackpoint_detect'
-> drivers/input/mouse/psmouse-base.o:psmouse-base.c:(.text+0x1b50): first defined here
-> 
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Fixes: 55e3d9224b60 ("Input: psmouse - allow disabing certain protocol extensions")
-> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Hi Ronald,
 
-Applied, thank you.
+On Fri, Apr 19, 2019 at 01:19:26AM -0700, Ronald Tschalär wrote:
+> The keyboard and trackpad on recent MacBook's (since 8,1) and
+> MacBookPro's (13,* and 14,*) are attached to an SPI controller instead
+> of USB, as previously. The higher level protocol is not publicly
+> documented and hence has been reverse engineered. As a consequence there
+> are still a number of unknown fields and commands. However, the known
+> parts have been working well and received extensive testing and use.
+> 
+> In order for this driver to work, the proper SPI drivers need to be
+> loaded too; for MB8,1 these are spi_pxa2xx_platform and spi_pxa2xx_pci;
+> for all others they are spi_pxa2xx_platform and intel_lpss_pci. For this
+> reason enabling this driver in the config implies enabling the above
+> drivers.
 
-> ---
->  drivers/input/mouse/trackpoint.h | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
-> index 0afffe8..77110f3 100644
-> --- a/drivers/input/mouse/trackpoint.h
-> +++ b/drivers/input/mouse/trackpoint.h
-> @@ -158,7 +158,8 @@ struct trackpoint_data {
->  #ifdef CONFIG_MOUSE_PS2_TRACKPOINT
->  int trackpoint_detect(struct psmouse *psmouse, bool set_properties);
->  #else
-> -inline int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
-> +static inline int trackpoint_detect(struct psmouse *psmouse,
-> +				    bool set_properties)
->  {
->  	return -ENOSYS;
->  }
-> -- 
-> 2.7.4
-> 
-> 
+I applied the patch (but changed __u8 to u8 as that's preferred form for
+inside the kernel, and added error handling for input_mt_init_slots) but
+we need to do some more work on the driver.
+
+My main issue is with registering touchpad device asynchronously,
+independent from the probe() function. This means (as far as I can tell)
+that any error is not really appropriately handled (as by that time it
+is too late to signal errors from probe()) and devm functions are not
+going to be called, leaving remnants of the resources in memory on
+driver unload. It also brings in issues with suspend/resume (what
+happens if you suspend really quickly while device is not registered
+yet?), etc, etc.
+
+Can we switch to calling DEV_INFO command synchronously from probe()? If
+we are concerned about it taking relatively long time we can always
+annotate the driver as having probe_type = PROBE_PREFER_ASYNCHRONOUS so
+that other devices can be probed simultaneously with applespi.
+
+Thanks.
 
 -- 
 Dmitry

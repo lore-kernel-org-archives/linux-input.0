@@ -1,47 +1,48 @@
-From: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>
-Subject: [PATCH] hid-logitech-dj: add the Powerplay receiver
-Date: Tue, 16 Jul 2019 08:37:47 +0100
-Message-ID: <20190716073747.7616-1-lains@archlinux.org>
+From: Mao Wenan <maowenan@huawei.com>
+Subject: [PATCH -next] keyboard: remove set but not used variables 'sts'
+Date: Tue, 16 Jul 2019 16:54:23 +0800
+Message-ID: <20190716085423.19443-1-maowenan@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: nlopezcasad@logitech.com, =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Mao Wenan <maowenan@huawei.com>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Filipe Laíns <lains@archlinux.org>
----
- drivers/hid/hid-ids.h         | 1 +
- drivers/hid/hid-logitech-dj.c | 4 ++++
- 2 files changed, 5 insertions(+)
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ab9d382b067d..884356feb016 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -769,6 +769,7 @@
- #define USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2	0xc532
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_2		0xc534
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED	0xc539
-+#define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_POWERPLAY	0xc53a
- #define USB_DEVICE_ID_SPACETRAVELLER	0xc623
- #define USB_DEVICE_ID_SPACENAVIGATOR	0xc626
- #define USB_DEVICE_ID_DINOVO_DESKTOP	0xc704
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 4334acb49129..d5b47ec1510c 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -1839,6 +1839,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
- 	{ /* Logitech 27 MHz HID++ 1.0 receiver (0xc513) */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER),
- 	 .driver_data = recvr_type_27mhz},
-+	{ /* Logitech powerplay receiver (0xc53a) */
-+	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-+		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_POWERPLAY),
-+	 .driver_data = recvr_type_gaming_hidpp},
- 	{ /* Logitech 27 MHz HID++ 1.0 receiver (0xc517) */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		USB_DEVICE_ID_S510_RECEIVER_2),
+drivers/input/keyboard/applespi.c: In function applespi_set_bl_level:
+drivers/input/keyboard/applespi.c:902:6: warning: variable sts set but not used [-Wunused-but-set-variable]
+
+Fixes: b426ac0452093d ("Input: add Apple SPI keyboard and trackpad driver")
+
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+---
+ drivers/input/keyboard/applespi.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+index c1a6843..548737e 100644
+--- a/drivers/input/keyboard/applespi.c
++++ b/drivers/input/keyboard/applespi.c
+@@ -899,7 +899,6 @@ static void applespi_set_bl_level(struct led_classdev *led_cdev,
+ 	struct applespi_data *applespi =
+ 		container_of(led_cdev, struct applespi_data, backlight_info);
+ 	unsigned long flags;
+-	int sts;
+ 
+ 	spin_lock_irqsave(&applespi->cmd_msg_lock, flags);
+ 
+@@ -916,7 +915,7 @@ static void applespi_set_bl_level(struct led_classdev *led_cdev,
+ 			 KBD_BL_LEVEL_MIN);
+ 	}
+ 
+-	sts = applespi_send_cmd_msg(applespi);
++	applespi_send_cmd_msg(applespi);
+ 
+ 	spin_unlock_irqrestore(&applespi->cmd_msg_lock, flags);
+ }
 -- 
-2.22.0
+2.7.4

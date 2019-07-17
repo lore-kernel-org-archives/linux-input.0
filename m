@@ -1,30 +1,37 @@
-From: Maximilian Luz <luzmaximilian@gmail.com>
-Subject: Re: [PATCH v2 2/2] input: soc_button_array for newer surface devices
-Date: Wed, 17 Jul 2019 21:23:33 +0200
-Message-ID: <fbcb6b9d-01b4-43d3-a177-342d88120a4b@gmail.com>
-References: <20190702003740.75970-1-luzmaximilian@gmail.com>
- <20190702003740.75970-3-luzmaximilian@gmail.com>
- <20190716072135.GA806@penguin>
- <92e13b01-7353-1430-fb38-b5098d509da2@gmail.com>
- <20190716201807.GA584@penguin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Lukasz Majewski <lukma@denx.de>
+Subject: [PATCH v4 0/3] mfd: mc13xxx: Fixes and enhancements for NXP's mc34708
+Date: Thu, 18 Jul 2019 00:25:59 +0200
+Message-ID: <20190717222602.2912-1-lukma@denx.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190716201807.GA584@penguin>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Lukasz Majewski <lukma@denx.de>
 List-Id: linux-input@vger.kernel.org
 
-On 7/16/19 10:18 PM, Dmitry Torokhov wrote:
-> OK, fair enough. By the way, I see you are adding some #ifdef
-> CONFIG_ACPI and stubbing out new functions, but the driver does not
-> really work without ACPI (acpi_match_device() will fail in this case I
-> would think and that will cause probe() to abort). So maybe we just add
-> depends on ACPI to the driver's Kconfig entry?
+This patch set provides several enhancements to mc13xxx MFD family
+of devices by introducing mc34708 as a separate device.
 
-Makes sense, I can change that too.
+This IC has dedicated pen detection feature, which allows better
+touchscreen experience.
 
-Maximilian
+This is the fourth version of this code (v4).
+Discussion regarding v1 can be found here:
+https://lkml.org/lkml/2018/4/12/351
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1661934.html
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1664296.html
+
+
+Sascha Hauer (3):
+  mfd: mc13xxx: Add mc34708 adc support
+  input: touchscreen mc13xxx: Make platform data optional
+  input: touchscreen mc13xxx: Add mc34708 support
+
+ drivers/input/touchscreen/mc13783_ts.c |  63 ++++++++++++++++----
+ drivers/mfd/mc13xxx-core.c             | 102 ++++++++++++++++++++++++++++++++-
+ drivers/mfd/mc13xxx.h                  |   3 +
+ include/linux/mfd/mc34708.h            |  37 ++++++++++++
+ 4 files changed, 193 insertions(+), 12 deletions(-)
+ create mode 100644 include/linux/mfd/mc34708.h
+
+-- 
+2.11.0

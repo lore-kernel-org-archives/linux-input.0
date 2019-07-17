@@ -1,59 +1,30 @@
-From: Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-Subject: Re: [PATCH] hid-logitech-hidpp: add USB PID for some mice
-Date: Wed, 17 Jul 2019 12:32:42 +0100
-Message-ID: <d09b2d4cb888f215266404e7d012bcc75fd29c4f.camel@archlinux.org>
-References: <20190716073726.6726-1-lains@archlinux.org>
-         <nycvar.YFH.7.76.1907171330320.5899@cbobk.fhfr.pm>
+From: Maximilian Luz <luzmaximilian@gmail.com>
+Subject: Re: [PATCH v2 2/2] input: soc_button_array for newer surface devices
+Date: Wed, 17 Jul 2019 21:23:33 +0200
+Message-ID: <fbcb6b9d-01b4-43d3-a177-342d88120a4b@gmail.com>
+References: <20190702003740.75970-1-luzmaximilian@gmail.com>
+ <20190702003740.75970-3-luzmaximilian@gmail.com>
+ <20190716072135.GA806@penguin>
+ <92e13b01-7353-1430-fb38-b5098d509da2@gmail.com>
+ <20190716201807.GA584@penguin>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-xf/RDRtvN8ZxSMWqnlWM"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1907171330320.5899@cbobk.fhfr.pm>
+In-Reply-To: <20190716201807.GA584@penguin>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: nlopezcasad@logitech.com, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
+On 7/16/19 10:18 PM, Dmitry Torokhov wrote:
+> OK, fair enough. By the way, I see you are adding some #ifdef
+> CONFIG_ACPI and stubbing out new functions, but the driver does not
+> really work without ACPI (acpi_match_device() will fail in this case I
+> would think and that will cause probe() to abort). So maybe we just add
+> depends on ACPI to the driver's Kconfig entry?
 
---=-xf/RDRtvN8ZxSMWqnlWM
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Makes sense, I can change that too.
 
-On Wed, 2019-07-17 at 13:31 +0200, Jiri Kosina wrote:
-> On Tue, 16 Jul 2019, Filipe La=C3=ADns wrote:
->=20
-> > Signed-off-by: Filipe La=C3=ADns <lains@archlinux.org>
->=20
-> We generally don't accept empty changelogs for the kernel. I've added at=
-=20
-> least a few words, and comitted.
->=20
-> This applies also to your second patch to logitech-dj. Thanks,
-
-Will keep in mind. Thanks!
-
-Filipe La=C3=ADns
-3DCE 51D6 0930 EBA4 7858 BA41 46F6 33CB B0EB 4BF2
-
---=-xf/RDRtvN8ZxSMWqnlWM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl0vB00ACgkQ+JPGdIFq
-qV3xPw/9HMHwZPNPOPR7oTCuU8x3ixR5N821RwAY+bsonCj8gznTiOgXyxcQbOp6
-MG8tI5VGgZJOYV3XjqjQcbE4ht68Ers+Lq/hLElLRLxxJTPGwBZSw5GK/gEPfu+j
-Ix1I1exNa343q8gYW/usP5gmRKq9ga3B/7pLIQYDnBC4ozoI9q6fTvF4cDs7RuPq
-OnW4CDgLG+Is9UOsZPY4AGY8A4nKNpciMAHkcig3JVLe9VkecwKiTmCnVdeevKJd
-1wlgxLBMGhbkHu6ShqgVPF5qzcv/K8McueWKLHHfuuoWIqC7BwzkgVM7ojh3O9pX
-HDwHXnA2xWlaYRgfcL5R5EVpTIBkCiQcD3k2ZV8y4tJ2B0GVWfrluwVGcn+E3SWC
-FSGSh7SB6YBml3UBCQ1z+VVGCkuZXjk8ObS8oO6DR8dyslHvypMvSy0FEz0pr8FK
-VHji5gHEVxDsi1qJdtOWEG6HDFkYJfm8Jn0nYGfjHiXht5PT9YBASt+drvrPOh6Y
-cHgpSsE3ms4+DPQsavCn5SxP0GfNtrTCb8biUKR1zCdtcpr0ShpZrvziwSdc1AXn
-gVhgqu2bh2Z/M9hK/KR3llSEgU+7cDDZr1MJYEK7luRc1JsqNTQmxtmfmNY3ylOv
-Pnz6XNc2c9rEEtaXvDbWKF5r9KaEWyEAii556h1ht7erbIsuxDk=
-=r+TE
------END PGP SIGNATURE-----
-
---=-xf/RDRtvN8ZxSMWqnlWM--
+Maximilian

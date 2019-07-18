@@ -1,95 +1,42 @@
-From: "Life is hard, and then you die" <ronald@innovation.ch>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH] Input: applespi: Fix build error without CONFIG_PCI
-Date: Thu, 18 Jul 2019 04:58:27 -0700
-Message-ID: <20190718115827.GB2872@innovation.ch>
-References: <20190718020654.39860-1-yuehaibing@huawei.com>
- <CAK8P3a2H0o+_3Y_J3r=D5_hGCArTYeHPfPPjY3dJ+ArmqYrOfQ@mail.gmail.com>
+Date: Thu, 18 Jul 2019 14:34:09 +0200
+Message-ID: <CAK8P3a2Bi4xChuQH+buFtw+ODeDHPiPX=KqOuRNb9L2Koy8yYA@mail.gmail.com>
+References: <20190718020654.39860-1-yuehaibing@huawei.com> <CAK8P3a2H0o+_3Y_J3r=D5_hGCArTYeHPfPPjY3dJ+ArmqYrOfQ@mail.gmail.com>
+ <20190718115827.GB2872@innovation.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a2H0o+_3Y_J3r=D5_hGCArTYeHPfPPjY3dJ+ArmqYrOfQ@mail.gmail.com>
+In-Reply-To: <20190718115827.GB2872@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
+To: "Life is hard, and then you die" <ronald@innovation.ch>
 Cc: YueHaibing <yuehaibing@huawei.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hartley Sweeten <hsweeten@visionengravers.com>, Rob Herring <robh@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-
-  Hi Arnd,
-
-On Thu, Jul 18, 2019 at 09:15:59AM +0200, Arnd Bergmann wrote:
-> On Thu, Jul 18, 2019 at 4:07 AM YueHaibing <yuehaibing@huawei.com> wrote:
+On Thu, Jul 18, 2019 at 1:58 PM Life is hard, and then you die
+<ronald@innovation.ch> wrote:
+> On Thu, Jul 18, 2019 at 09:15:59AM +0200, Arnd Bergmann wrote:
+> > On Thu, Jul 18, 2019 at 4:07 AM YueHaibing <yuehaibing@huawei.com> wrote:
+> > Your patch correctly solves the spi_pxa2xx issue, but I'd prefer to instead
+> > drop the three 'imply' statements altogether, they seem to do more harm
+> > than good.
 > >
-> > If CONFIG_KEYBOARD_APPLESPI is set to y, but
-> > CONFIG_PCI is not set, building will fails:
-> >
-> > drivers/spi/spi-pxa2xx-pci.c: In function pxa2xx_spi_pci_probe:
-> > drivers/spi/spi-pxa2xx-pci.c:208:8: error: implicit declaration of function pcim_enable_device;
-> >  did you mean pci_enable_device? [-Werror=implicit-function-declaration]
-> >   ret = pcim_enable_device(dev);
-> >         ^~~~~~~~~~~~~~~~~~
-> >         pci_enable_device
-> > drivers/spi/spi-pxa2xx-pci.c:239:8: error: implicit declaration of function pci_alloc_irq_vectors;
-> >  did you mean pci_alloc_consistent? [-Werror=implicit-function-declaration]
-> >   ret = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
-> >         ^~~~~~~~~~~~~~~~~~~~~
-> >
-> > Make CONFIG_KEYBOARD_APPLESPI depends on CONFIG_PCI
-> > to fix this.
-> >
-> > Reported-by: Hulk Robot <hulkci@huawei.com>
-> > Fixes: b426ac045209 ("Input: add Apple SPI keyboard and trackpad driver")
-> > Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-> 
-> I found the same build bug, plus another issue:
-> 
->     arch/arm/Kconfig:1942:error: recursive dependency detected!
->     arch/arm/Kconfig:1942:  symbol XIP_KERNEL depends on KASAN
->     lib/Kconfig.kasan:15:   symbol KASAN depends on SYSFS
->     fs/sysfs/Kconfig:2:     symbol SYSFS is selected by CONFIGFS_FS
->     fs/configfs/Kconfig:2:  symbol CONFIGFS_FS is selected by USB_LIBCOMPOSITE
->     drivers/usb/gadget/Kconfig:145: symbol USB_LIBCOMPOSITE is
-> selected by USB_ZERO
->     drivers/usb/gadget/legacy/Kconfig:17:   symbol USB_ZERO is part of
-> choice <choice>
->     drivers/usb/gadget/Kconfig:486: choice <choice> contains symbol USB_G_WEBCAM
->     drivers/usb/gadget/legacy/Kconfig:479:  symbol USB_G_WEBCAM is
-> part of choice VIDEO_V4L2
->     drivers/media/v4l2-core/Kconfig:7:      symbol VIDEO_V4L2 depends on I2C
->     drivers/i2c/Kconfig:8:  symbol I2C is selected by FB_DDC
->     drivers/video/fbdev/Kconfig:63: symbol FB_DDC depends on FB
->     drivers/video/fbdev/Kconfig:12: symbol FB is selected by DRM_KMS_FB_HELPER
->     drivers/gpu/drm/Kconfig:75:     symbol DRM_KMS_FB_HELPER depends
-> on DRM_KMS_HELPER
->     drivers/gpu/drm/Kconfig:69:     symbol DRM_KMS_HELPER is selected
-> by DRM_ARMADA
->     drivers/gpu/drm/armada/Kconfig:2:       symbol DRM_ARMADA depends
-> on HAVE_CLK
->     arch/Kconfig:314:       symbol HAVE_CLK is selected by CLKDEV_LOOKUP
->     drivers/clk/Kconfig:3:  symbol CLKDEV_LOOKUP is selected by COMMON_CLK
->     drivers/clk/Kconfig:10: symbol COMMON_CLK is selected by MFD_INTEL_LPSS
->     drivers/mfd/Kconfig:600:        symbol MFD_INTEL_LPSS is selected
-> by MFD_INTEL_LPSS_PCI
->     drivers/mfd/Kconfig:614:        symbol MFD_INTEL_LPSS_PCI is
-> implied by KEYBOARD_APPLESPI
->     drivers/input/keyboard/Kconfig:74:      symbol KEYBOARD_APPLESPI
-> depends on EFI
->     arch/arm/Kconfig:2031:  symbol EFI depends on XIP_KERNEL
-> 
-> Your patch correctly solves the spi_pxa2xx issue, but I'd prefer to instead
-> drop the three 'imply' statements altogether, they seem to do more harm
-> than good.
-> 
-> (the circular dependency I saw might only happen when applying the
-> arm32 KASAN patches, but I expect to see them merged for linux-5.4)
+> > (the circular dependency I saw might only happen when applying the
+> > arm32 KASAN patches, but I expect to see them merged for linux-5.4)
+>
+> Isn't there more generally a problem here that this is selecting
+> MFD_INTEL_LPSS_PCI even though that depends on X86? I.e. are both ARM
+> and X86 selected at the same time? (sorry if I'm being naÃ¯ve, but I
+> assumed only one arch can be selected at a time)
 
-Isn't there more generally a problem here that this is selecting
-MFD_INTEL_LPSS_PCI even though that depends on X86? I.e. are both ARM
-and X86 selected at the same time? (sorry if I'm being naïve, but I
-assumed only one arch can be selected at a time)
+You can't have ARM and X86 defined at the same time, but Kconfig does
+not know that, it just sees X86 as an undefined symbol, and ARM as
+as always-enabled symbol when building for ARM.
 
+In theory, 'imply' should deal with that and have no effect when there
+are missing dependencies, but it appears that this only works for
+deciding whether to turn on MFD_INTEL_LPSS_PCI, not for figuring
+out loops in the dependency chain.
 
-  Cheers,
-
-  Ronald
+       Arnd

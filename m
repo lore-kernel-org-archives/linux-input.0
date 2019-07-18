@@ -1,42 +1,49 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] Input: applespi: Fix build error without CONFIG_PCI
-Date: Thu, 18 Jul 2019 14:34:09 +0200
-Message-ID: <CAK8P3a2Bi4xChuQH+buFtw+ODeDHPiPX=KqOuRNb9L2Koy8yYA@mail.gmail.com>
-References: <20190718020654.39860-1-yuehaibing@huawei.com> <CAK8P3a2H0o+_3Y_J3r=D5_hGCArTYeHPfPPjY3dJ+ArmqYrOfQ@mail.gmail.com>
- <20190718115827.GB2872@innovation.ch>
+From: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>
+Subject: [PATCH] hid-logitech-dj: add other Lightspeed receiver
+Date: Thu, 18 Jul 2019 15:03:57 +0100
+Message-ID: <20190718140358.9058-1-lains@archlinux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190718115827.GB2872@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Life is hard, and then you die" <ronald@innovation.ch>
-Cc: YueHaibing <yuehaibing@huawei.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hartley Sweeten <hsweeten@visionengravers.com>, Rob Herring <robh@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Cc: nlopezcasad@logitech.com, =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 18, 2019 at 1:58 PM Life is hard, and then you die
-<ronald@innovation.ch> wrote:
-> On Thu, Jul 18, 2019 at 09:15:59AM +0200, Arnd Bergmann wrote:
-> > On Thu, Jul 18, 2019 at 4:07 AM YueHaibing <yuehaibing@huawei.com> wrote:
-> > Your patch correctly solves the spi_pxa2xx issue, but I'd prefer to instead
-> > drop the three 'imply' statements altogether, they seem to do more harm
-> > than good.
-> >
-> > (the circular dependency I saw might only happen when applying the
-> > arm32 KASAN patches, but I expect to see them merged for linux-5.4)
->
-> Isn't there more generally a problem here that this is selecting
-> MFD_INTEL_LPSS_PCI even though that depends on X86? I.e. are both ARM
-> and X86 selected at the same time? (sorry if I'm being naïve, but I
-> assumed only one arch can be selected at a time)
+This receiver seems to only be used in the G305.
 
-You can't have ARM and X86 defined at the same time, but Kconfig does
-not know that, it just sees X86 as an undefined symbol, and ARM as
-as always-enabled symbol when building for ARM.
+Signed-off-by: Filipe Laíns <lains@archlinux.org>
+---
+ drivers/hid/hid-ids.h         | 1 +
+ drivers/hid/hid-logitech-dj.c | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-In theory, 'imply' should deal with that and have no effect when there
-are missing dependencies, but it appears that this only works for
-deciding whether to turn on MFD_INTEL_LPSS_PCI, not for figuring
-out loops in the dependency chain.
-
-       Arnd
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 884356feb016..e5d0fd85e61d 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -770,6 +770,7 @@
+ #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_2		0xc534
+ #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED	0xc539
+ #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_POWERPLAY	0xc53a
++#define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_2	0xc53f
+ #define USB_DEVICE_ID_SPACETRAVELLER	0xc623
+ #define USB_DEVICE_ID_SPACENAVIGATOR	0xc626
+ #define USB_DEVICE_ID_DINOVO_DESKTOP	0xc704
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index d5b47ec1510c..0139912c3f69 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -1836,6 +1836,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+ 		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED),
+ 	 .driver_data = recvr_type_gaming_hidpp},
++	{ /* Logitech lightspeed receiver (0xc53f) */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_2),
++	 .driver_data = recvr_type_gaming_hidpp},
+ 	{ /* Logitech 27 MHz HID++ 1.0 receiver (0xc513) */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER),
+ 	 .driver_data = recvr_type_27mhz},
+-- 
+2.22.0

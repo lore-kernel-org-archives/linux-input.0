@@ -1,40 +1,54 @@
-From: Hui Wang <hui.wang@canonical.com>
-Subject: [PATCH] Input: alps - Fix a mismatch between a condition check and its comment
-Date: Fri, 19 Jul 2019 17:01:35 +0800
-Message-ID: <20190719090135.17811-1-hui.wang@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: alps - Fix a mismatch between a condition check
+ and its comment
+Date: Fri, 19 Jul 2019 12:39:53 +0300
+Message-ID: <20190719093953.GA904@penguin>
+References: <20190719090135.17811-1-hui.wang@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190719090135.17811-1-hui.wang@canonical.com>
 Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, stable@vger.kernel.org
+To: Hui Wang <hui.wang@canonical.com>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In the function alps_is_cs19_trackpoint(), we check if the param[1] is
-in the 0x20~0x2f range, but the code we wrote for this checking is not
-correct:
-(param[1] & 0x20) does not mean param[1] is in the range of 0x20~0x2f,
-it also means the param[1] is in the range of 0x30~0x3f, 0x60~0x6f...
+On Fri, Jul 19, 2019 at 05:01:35PM +0800, Hui Wang wrote:
+> In the function alps_is_cs19_trackpoint(), we check if the param[1] is
+> in the 0x20~0x2f range, but the code we wrote for this checking is not
+> correct:
+> (param[1] & 0x20) does not mean param[1] is in the range of 0x20~0x2f,
+> it also means the param[1] is in the range of 0x30~0x3f, 0x60~0x6f...
+> 
+> Now fix it with a new condition checking ((param[1] & 0xf0) == 0x20).
+> 
+> Fixes: 7e4935ccc323 ("Input: alps - don't handle ALPS cs19 trackpoint-only device")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hui Wang <hui.wang@canonical.com>
 
-Now fix it with a new condition checking ((param[1] & 0xf0) == 0x20).
+Applied, thank you.
 
-Fixes: 7e4935ccc323 ("Input: alps - don't handle ALPS cs19 trackpoint-only device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
----
- drivers/input/mouse/alps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> ---
+>  drivers/input/mouse/alps.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 62ffea00902a..34700eda0429 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -2876,7 +2876,7 @@ static bool alps_is_cs19_trackpoint(struct psmouse *psmouse)
+>  	 * trackpoint-only devices have their variant_ids equal
+>  	 * TP_VARIANT_ALPS and their firmware_ids are in 0x20~0x2f range.
+>  	 */
+> -	return param[0] == TP_VARIANT_ALPS && (param[1] & 0x20);
+> +	return param[0] == TP_VARIANT_ALPS && ((param[1] & 0xf0) == 0x20);
+>  }
+>  
+>  static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+> -- 
+> 2.17.1
+> 
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 62ffea00902a..34700eda0429 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -2876,7 +2876,7 @@ static bool alps_is_cs19_trackpoint(struct psmouse *psmouse)
- 	 * trackpoint-only devices have their variant_ids equal
- 	 * TP_VARIANT_ALPS and their firmware_ids are in 0x20~0x2f range.
- 	 */
--	return param[0] == TP_VARIANT_ALPS && (param[1] & 0x20);
-+	return param[0] == TP_VARIANT_ALPS && ((param[1] & 0xf0) == 0x20);
- }
- 
- static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
 -- 
-2.17.1
+Dmitry

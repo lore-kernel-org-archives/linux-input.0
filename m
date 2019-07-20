@@ -1,46 +1,100 @@
-From: Chuhong Yuan <hslester96@gmail.com>
-Subject: [PATCH] Input: touchscreen - Use dev_get_drvdata
-Date: Fri, 19 Jul 2019 19:53:08 +0800
-Message-ID: <20190719115307.22124-1-hslester96@gmail.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
+Subject: [PATCH v3 1/2] platform/x86: surfacepro3_button: Fix device check
+Date: Sat, 20 Jul 2019 17:05:10 +0200
+Message-ID: <20190720150511.95076-2-luzmaximilian@gmail.com>
+References: <20190720150511.95076-1-luzmaximilian@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190720150511.95076-1-luzmaximilian@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Maximilian Luz <luzmaximilian@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-dev_get_drvdata is a simpler implementation comparing
-to to_platform_device + platform_get_drvdata.
-This makes the code simpler.
+Do not use the surfacepro3_button driver on newer Microsoft Surface
+models, only use it on the Surface Pro 3 and 4. Newer models (5th, 6th
+and possibly future generations) use the same device as the Surface Pro
+4 to represent their volume and power buttons (MSHW0040), but their
+actual implementation is significantly different. This patch ensures
+that the surfacepro3_button driver is only used on the Pro 3 and 4
+models, allowing a different driver to bind on other models.
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
 ---
- drivers/input/touchscreen/imx6ul_tsc.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/platform/x86/surfacepro3_button.c | 47 +++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
 
-diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchscreen/imx6ul_tsc.c
-index e04eecd65bbb..655652f449ec 100644
---- a/drivers/input/touchscreen/imx6ul_tsc.c
-+++ b/drivers/input/touchscreen/imx6ul_tsc.c
-@@ -507,8 +507,7 @@ static int imx6ul_tsc_probe(struct platform_device *pdev)
+diff --git a/drivers/platform/x86/surfacepro3_button.c b/drivers/platform/x86/surfacepro3_button.c
+index 47c6d000465a..ec515223f654 100644
+--- a/drivers/platform/x86/surfacepro3_button.c
++++ b/drivers/platform/x86/surfacepro3_button.c
+@@ -20,6 +20,12 @@
+ #define SURFACE_BUTTON_OBJ_NAME		"VGBI"
+ #define SURFACE_BUTTON_DEVICE_NAME	"Surface Pro 3/4 Buttons"
  
- static int __maybe_unused imx6ul_tsc_suspend(struct device *dev)
++#define MSHW0040_DSM_REVISION		0x01
++#define MSHW0040_DSM_GET_OMPR		0x02	// get OEM Platform Revision
++static const guid_t MSHW0040_DSM_UUID =
++	GUID_INIT(0x6fd05c69, 0xcde3, 0x49f4, 0x95, 0xed, 0xab, 0x16, 0x65,
++		  0x49, 0x80, 0x35);
++
+ #define SURFACE_BUTTON_NOTIFY_TABLET_MODE	0xc8
+ 
+ #define SURFACE_BUTTON_NOTIFY_PRESS_POWER	0xc6
+@@ -142,6 +148,44 @@ static int surface_button_resume(struct device *dev)
+ }
+ #endif
+ 
++/*
++ * Surface Pro 4 and Surface Book 2 / Surface Pro 2017 use the same device
++ * ID (MSHW0040) for the power/volume buttons. Make sure this is the right
++ * device by checking for the _DSM method and OEM Platform Revision.
++ *
++ * Returns true if the driver should bind to this device, i.e. the device is
++ * either MSWH0028 (Pro 3) or MSHW0040 on a Pro 4 or Book 1.
++ */
++static bool surface_button_check_MSHW0040(struct acpi_device *dev)
++{
++	acpi_handle handle = dev->handle;
++	union acpi_object *result;
++	u64 oem_platform_rev = 0;	// valid revisions are nonzero
++
++	// get OEM platform revision
++	result = acpi_evaluate_dsm_typed(handle, &MSHW0040_DSM_UUID,
++					 MSHW0040_DSM_REVISION,
++					 MSHW0040_DSM_GET_OMPR,
++					 NULL, ACPI_TYPE_INTEGER);
++
++	/*
++	 * If evaluating the _DSM fails, the method is not present. This means
++	 * that we have either MSHW0028 or MSHW0040 on Pro 4 or Book 1, so we
++	 * should use this driver. We use revision 0 indicating it is
++	 * unavailable.
++	 */
++
++	if (result) {
++		oem_platform_rev = result->integer.value;
++		ACPI_FREE(result);
++	}
++
++	dev_dbg(&dev->dev, "OEM Platform Revision %llu\n", oem_platform_rev);
++
++	return oem_platform_rev == 0;
++}
++
++
+ static int surface_button_add(struct acpi_device *device)
  {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct imx6ul_tsc *tsc = platform_get_drvdata(pdev);
-+	struct imx6ul_tsc *tsc = dev_get_drvdata(dev);
- 	struct input_dev *input_dev = tsc->input;
+ 	struct surface_button *button;
+@@ -154,6 +198,9 @@ static int surface_button_add(struct acpi_device *device)
+ 	    strlen(SURFACE_BUTTON_OBJ_NAME)))
+ 		return -ENODEV;
  
- 	mutex_lock(&input_dev->mutex);
-@@ -527,8 +526,7 @@ static int __maybe_unused imx6ul_tsc_suspend(struct device *dev)
- 
- static int __maybe_unused imx6ul_tsc_resume(struct device *dev)
- {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct imx6ul_tsc *tsc = platform_get_drvdata(pdev);
-+	struct imx6ul_tsc *tsc = dev_get_drvdata(dev);
- 	struct input_dev *input_dev = tsc->input;
- 	int retval = 0;
- 
++	if (!surface_button_check_MSHW0040(device))
++		return -ENODEV;
++
+ 	button = kzalloc(sizeof(struct surface_button), GFP_KERNEL);
+ 	if (!button)
+ 		return -ENOMEM;
 -- 
-2.20.1
+2.22.0

@@ -1,64 +1,100 @@
-From: =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-Subject: [PATCH 2/2] Input: applespi: fix warnings detected by sparse
-Date: Sun, 21 Jul 2019 00:06:29 -0700
-Message-ID: <20190721070629.24932-1-ronald@innovation.ch>
+From: "Life is hard, and then you die" <ronald@innovation.ch>
+Subject: Re: [PATCH] drm: bridge: DRM_SIL_SII8620 should depend on, not
+ select INPUT
+Date: Sun, 21 Jul 2019 00:22:11 -0700
+Message-ID: <20190721072211.GB7992@innovation.ch>
+References: <CGME20190701033927epcas2p2d7d0b611a0d32b7b208acc787069a83a@epcas2p2.samsung.com>
+ <8baa25c0-498b-d321-4e6a-fe987a4989ba@infradead.org>
+ <a7edece4-fec4-5811-27a9-ca6c275a4c40@samsung.com>
+ <d01a9ad5-edcd-81ec-6528-9b6a4e9a8754@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-1
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <d01a9ad5-edcd-81ec-6528-9b6a4e9a8754@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kbuild test robot <lkp@intel.com>
+To: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Randy Dunlap <rdunlap@infradead.org>, dri-devel <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, Inki Dae <inki.dae@samsung.com>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
----
- drivers/input/keyboard/applespi.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index d5defdefbc34..00cd8dccd4f5 100644
---- a/drivers/input/keyboard/applespi.c
-+++ b/drivers/input/keyboard/applespi.c
-@@ -998,10 +998,14 @@ static inline int le16_to_int(__le16 x)
- static void applespi_debug_update_dimensions(struct applespi_data *applespi,
- 					     const struct tp_finger *f)
- {
--	applespi->tp_dim_min_x = min_t(int, applespi->tp_dim_min_x, f->abs_x);
--	applespi->tp_dim_max_x = max_t(int, applespi->tp_dim_max_x, f->abs_x);
--	applespi->tp_dim_min_y = min_t(int, applespi->tp_dim_min_y, f->abs_y);
--	applespi->tp_dim_max_y = max_t(int, applespi->tp_dim_max_y, f->abs_y);
-+	applespi->tp_dim_min_x = min_t(int, applespi->tp_dim_min_x,
-+				       le16_to_int(f->abs_x));
-+	applespi->tp_dim_max_x = max_t(int, applespi->tp_dim_max_x,
-+				       le16_to_int(f->abs_x));
-+	applespi->tp_dim_min_y = min_t(int, applespi->tp_dim_min_y,
-+				       le16_to_int(f->abs_y));
-+	applespi->tp_dim_max_y = max_t(int, applespi->tp_dim_max_y,
-+				       le16_to_int(f->abs_y));
- }
- 
- static int applespi_tp_dim_open(struct inode *inode, struct file *file)
-@@ -1653,8 +1657,8 @@ static void applespi_save_bl_level(struct applespi_data *applespi,
- 	efi_attr = EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS |
- 		   EFI_VARIABLE_RUNTIME_ACCESS;
- 
--	sts = efivar_entry_set_safe(EFI_BL_LEVEL_NAME, efi_guid, efi_attr, true,
--				    efi_data_len, &efi_data);
-+	sts = efivar_entry_set_safe((efi_char16_t *)EFI_BL_LEVEL_NAME, efi_guid,
-+				    efi_attr, true, efi_data_len, &efi_data);
- 	if (sts)
- 		dev_warn(&applespi->spi->dev,
- 			 "Error saving backlight level to EFI vars: %d\n", sts);
-@@ -2027,7 +2031,7 @@ static const struct acpi_device_id applespi_acpi_match[] = {
- };
- MODULE_DEVICE_TABLE(acpi, applespi_acpi_match);
- 
--const struct dev_pm_ops applespi_pm_ops = {
-+static const struct dev_pm_ops applespi_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(applespi_suspend, applespi_resume)
- 	.poweroff_late	= applespi_poweroff_late,
- };
--- 
-2.21.0
+  Hi Andrzej,
+
+On Mon, Jul 01, 2019 at 11:26:25AM +0200, Andrzej Hajda wrote:
+> On 01.07.2019 11:23, Andrzej Hajda wrote:
+> > On 01.07.2019 05:39, Randy Dunlap wrote:
+> >> From: Randy Dunlap <rdunlap@infradead.org>
+> >>
+> >> A single driver should not enable (select) an entire subsystem,
+> >> such as INPUT, so change the 'select' to "depends on".
+> >>
+> >> Fixes: d6abe6df706c ("drm/bridge: sil_sii8620: do not have a dependency of RC_CORE")
+> >>
+> >> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> >> Cc: Inki Dae <inki.dae@samsung.com>
+> >> Cc: Andrzej Hajda <a.hajda@samsung.com>
+> >> Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+> >> Cc: dri-devel@lists.freedesktop.org
+> >> ---
+> >> Linus has written this a couple of times in the last 15 years or so,
+> >> but my search fu cannot find it.  And there are a few drivers in the
+> >> kernel tree that do this, but we shouldn't be adding more that do so.
+> >
+> > The proper solution has been already posted [1], but it has not been
+> > applied yet to input tree?
+> >
+> > Randy are there chances your patchset will appear in ML in near future,
+> > or should I merge your sii8620 patch alone?
+> 
+> 
+> Ups, I used wrong surname, I meant Ronald, added him input ML to cc.
+
+Looks like the applespi patches got merged, but they were changed at
+the last minute to remove the imply's that lead to the Kconfig
+dependency on the changes here. And I'm guessing for that reason the
+patch [1] was not sent with that pull request in the end.
+
+In short it seems to me that it would be best now if you sent a pull
+request for patch [1] and Arnd Bergmann's followup patch that was
+discussed in the last few days [2]. Sorry for all the delay.
+
+
+  Cheers,
+
+  Ronald
+
+
+> > [1]:
+> > https://lore.kernel.org/lkml/20190419081926.13567-2-ronald@innovation.ch/
+
+[2] https://lore.kernel.org/lkml/20190718134240.2265724-1-arnd@arndb.de/
+
+
+> > Regards
+> >
+> > Andrzej
+> >
+> >
+> >
+> >>  drivers/gpu/drm/bridge/Kconfig |    3 +--
+> >>  1 file changed, 1 insertion(+), 2 deletions(-)
+> >>
+> >> --- lnx-52-rc7.orig/drivers/gpu/drm/bridge/Kconfig
+> >> +++ lnx-52-rc7/drivers/gpu/drm/bridge/Kconfig
+> >> @@ -83,10 +83,9 @@ config DRM_PARADE_PS8622
+> >>  
+> >>  config DRM_SIL_SII8620
+> >>  	tristate "Silicon Image SII8620 HDMI/MHL bridge"
+> >> -	depends on OF
+> >> +	depends on OF && INPUT
+> >>  	select DRM_KMS_HELPER
+> >>  	imply EXTCON
+> >> -	select INPUT
+> >>  	select RC_CORE
+> >>  	help
+> >>  	  Silicon Image SII8620 HDMI/MHL bridge chip driver.
+> >>
+> >>
+> >>
+> >>
+> 

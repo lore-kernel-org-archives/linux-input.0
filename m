@@ -1,44 +1,52 @@
-From: Joe Perches <joe@perches.com>
+From: Joshua Clayton <stillcompiling@gmail.com>
 Subject: Re: [PATCH v2 3/3] HID: core: only warn once of oversize hid report
-Date: Mon, 22 Jul 2019 14:30:55 -0700
-Message-ID: <f686e93180d2f91c78801be124e8aac36145d9b0.camel@perches.com>
+Date: Mon, 22 Jul 2019 15:43:08 -0600
+Message-ID: <CAMB+bfJ27UGD+-aYR5EPWyY3O=FJDw7r2D6VO_tce-Z9ziYP0g@mail.gmail.com>
 References: <20190722163642.10417-2-stillcompiling@gmail.com>
-         <20190722212613.24906-1-stillcompiling@gmail.com>
-         <20190722212613.24906-3-stillcompiling@gmail.com>
+ <20190722212613.24906-1-stillcompiling@gmail.com> <20190722212613.24906-3-stillcompiling@gmail.com>
+ <f686e93180d2f91c78801be124e8aac36145d9b0.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722212613.24906-3-stillcompiling@gmail.com>
+In-Reply-To: <f686e93180d2f91c78801be124e8aac36145d9b0.camel@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: stillcompiling@gmail.com, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Joe Perches <joe@perches.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2019-07-22 at 15:26 -0600, stillcompiling@gmail.com wrote:
-> From: Joshua Clayton <stillcompiling@gmail.com>
-
-Thanks Joshua
-
-> On HP spectre x360 convertible the message:
-> hid-sensor-hub 001F:8087:0AC2.0002: hid_field_extract() called with n (192) > 32! (kworker/1:2)
-> is continually printed many times per second, crowding out all else
-> Protect dmesg by printing the warning only one time.
-[]
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-[]
-> @@ -1311,8 +1311,8 @@ u32 hid_field_extract(const struct hid_device *hid, u8 *report,
->  			unsigned offset, unsigned n)
->  {
->  	if (n > 32) {
-> -		hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
-> -			 n, current->comm);
-> +		hid_warn_once(hid, "%s() called with n (%d) > 32! (%s)\n",
-> +			      __func__ ,n , current->comm);
-
-All the other bits are fine, but this line is oddly written
-with unusual spacing around 'n'.
-
-Normally it'd be something like:
-
-		hid_warn_once(hid, "%s: called with n (%d) > 32! (%s)\n",
-			      __func__, n, current->comm);
+On Mon, Jul 22, 2019 at 3:30 PM Joe Perches <joe@perches.com> wrote:
+>
+> On Mon, 2019-07-22 at 15:26 -0600, stillcompiling@gmail.com wrote:
+> > From: Joshua Clayton <stillcompiling@gmail.com>
+>
+> Thanks Joshua
+>
+> > On HP spectre x360 convertible the message:
+> > hid-sensor-hub 001F:8087:0AC2.0002: hid_field_extract() called with n (192) > 32! (kworker/1:2)
+> > is continually printed many times per second, crowding out all else
+> > Protect dmesg by printing the warning only one time.
+> []
+> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> []
+> > @@ -1311,8 +1311,8 @@ u32 hid_field_extract(const struct hid_device *hid, u8 *report,
+> >                       unsigned offset, unsigned n)
+> >  {
+> >       if (n > 32) {
+> > -             hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
+> > -                      n, current->comm);
+> > +             hid_warn_once(hid, "%s() called with n (%d) > 32! (%s)\n",
+> > +                           __func__ ,n , current->comm);
+>
+> All the other bits are fine, but this line is oddly written
+> with unusual spacing around 'n'.
+>
+> Normally it'd be something like:
+>
+>                 hid_warn_once(hid, "%s: called with n (%d) > 32! (%s)\n",
+>                               __func__, n, current->comm);
+Gah!
+Not only that but I missed a semicolon in patch 1. Will fix, (compile)
+and send v3 pdq.
+Sorry about the extra noise.
+>
+>

@@ -1,79 +1,129 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: applespi: fix warnings detected by sparse
-Date: Sun, 21 Jul 2019 15:27:54 +0300
-Message-ID: <20190721122754.GA757@penguin>
-References: <20190721081040.26197-1-ronald@innovation.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH v3] Input: elantech: Enable SMBus on new (2018+) systems
+Date: Mon, 22 Jul 2019 15:40:55 +0800
+Message-ID: <20190722074055.22427-1-kai.heng.feng@canonical.com>
+References: <20190121070258.1844-1-kai.heng.feng@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190721081040.26197-1-ronald@innovation.ch>
+In-Reply-To: <20190121070258.1844-1-kai.heng.feng@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>
-Cc: Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kbuild test robot <lkp@intel.com>
+To: dmitry.torokhov@gmail.com
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>, Your Name <you@example.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Jul 21, 2019 at 01:10:40AM -0700, Ronald Tschalär wrote:
-> Reported-by: kbuild test robot <lkp@intel.com>
-> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+There are some new HP laptops with Elantech touchpad don't support
+multitouch.
 
-Applied, thank you.
+Currently we use ETP_NEW_IC_SMBUS_HOST_NOTIFY() to check if SMBus is
+supported, but in addition to firmware version, the bus type also
+informs us if the IC can support SMBus, so also check that.
 
-> ---
-> Changes in v2:
->   replaced min_t/max_t with plain min/max since both arguments are now
->   int's and don't need further casting
-> 
->  drivers/input/keyboard/applespi.c | 18 +++++++++++-------
->  1 file changed, 11 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-> index d5defdefbc34..cd140a92e731 100644
-> --- a/drivers/input/keyboard/applespi.c
-> +++ b/drivers/input/keyboard/applespi.c
-> @@ -998,10 +998,14 @@ static inline int le16_to_int(__le16 x)
->  static void applespi_debug_update_dimensions(struct applespi_data *applespi,
->  					     const struct tp_finger *f)
->  {
-> -	applespi->tp_dim_min_x = min_t(int, applespi->tp_dim_min_x, f->abs_x);
-> -	applespi->tp_dim_max_x = max_t(int, applespi->tp_dim_max_x, f->abs_x);
-> -	applespi->tp_dim_min_y = min_t(int, applespi->tp_dim_min_y, f->abs_y);
-> -	applespi->tp_dim_max_y = max_t(int, applespi->tp_dim_max_y, f->abs_y);
-> +	applespi->tp_dim_min_x = min(applespi->tp_dim_min_x,
-> +				     le16_to_int(f->abs_x));
-> +	applespi->tp_dim_max_x = max(applespi->tp_dim_max_x,
-> +				     le16_to_int(f->abs_x));
-> +	applespi->tp_dim_min_y = min(applespi->tp_dim_min_y,
-> +				     le16_to_int(f->abs_y));
-> +	applespi->tp_dim_max_y = max(applespi->tp_dim_max_y,
-> +				     le16_to_int(f->abs_y));
->  }
->  
->  static int applespi_tp_dim_open(struct inode *inode, struct file *file)
-> @@ -1653,8 +1657,8 @@ static void applespi_save_bl_level(struct applespi_data *applespi,
->  	efi_attr = EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS |
->  		   EFI_VARIABLE_RUNTIME_ACCESS;
->  
-> -	sts = efivar_entry_set_safe(EFI_BL_LEVEL_NAME, efi_guid, efi_attr, true,
-> -				    efi_data_len, &efi_data);
-> +	sts = efivar_entry_set_safe((efi_char16_t *)EFI_BL_LEVEL_NAME, efi_guid,
-> +				    efi_attr, true, efi_data_len, &efi_data);
->  	if (sts)
->  		dev_warn(&applespi->spi->dev,
->  			 "Error saving backlight level to EFI vars: %d\n", sts);
-> @@ -2027,7 +2031,7 @@ static const struct acpi_device_id applespi_acpi_match[] = {
->  };
->  MODULE_DEVICE_TABLE(acpi, applespi_acpi_match);
->  
-> -const struct dev_pm_ops applespi_pm_ops = {
-> +static const struct dev_pm_ops applespi_pm_ops = {
->  	SET_SYSTEM_SLEEP_PM_OPS(applespi_suspend, applespi_resume)
->  	.poweroff_late	= applespi_poweroff_late,
->  };
-> -- 
-> 2.21.0
-> 
+In case of breaking old ICs, only enables SMBus on systems manufactured
+after 2018, alongsides aforementioned checks.
 
+Lastly, consolidats all check into elantech_use_host_notify() and use it
+to determine whether to use PS/2 or SMBus.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Your Name <you@example.com>
+---
+v3:
+- Put dmi_get_bios_year() under switch.
+
+v2:
+- Wording.
+- Further restrain on older systems (< 2018).
+
+ drivers/input/mouse/elantech.c | 64 +++++++++++++++++++---------------
+ 1 file changed, 35 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 2d8434b7b623..46e70535a069 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1827,6 +1827,40 @@ static int elantech_create_smbus(struct psmouse *psmouse,
+ 				  leave_breadcrumbs);
+ }
+ 
++static bool elantech_use_host_notify(struct psmouse *psmouse,
++				     struct elantech_device_info *info)
++{
++	bool host_notify = false;
++
++	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
++		host_notify = true;
++	else {
++		switch (info->bus) {
++		case ETP_BUS_PS2_ONLY:
++			/* expected case */
++			break;
++		case ETP_BUS_SMB_ALERT_ONLY:
++			/* fall-through  */
++		case ETP_BUS_PS2_SMB_ALERT:
++			psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
++			break;
++		case ETP_BUS_SMB_HST_NTFY_ONLY:
++			/* fall-through  */
++		case ETP_BUS_PS2_SMB_HST_NTFY:
++			/* SMbus implementation is stable since 2018 */
++			if (dmi_get_bios_year() >= 2018)
++				host_notify = true;
++			break;
++		default:
++			psmouse_dbg(psmouse,
++				    "Ignoring SMBus bus provider %d.\n",
++				    info->bus);
++		}
++	}
++
++	return host_notify;
++}
++
+ /**
+  * elantech_setup_smbus - called once the PS/2 devices are enumerated
+  * and decides to instantiate a SMBus InterTouch device.
+@@ -1846,7 +1880,7 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+ 		 * i2c_blacklist_pnp_ids.
+ 		 * Old ICs are up to the user to decide.
+ 		 */
+-		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
++		if (!elantech_use_host_notify(psmouse, info) ||
+ 		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
+ 			return -ENXIO;
+ 	}
+@@ -1866,34 +1900,6 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+ 	return 0;
+ }
+ 
+-static bool elantech_use_host_notify(struct psmouse *psmouse,
+-				     struct elantech_device_info *info)
+-{
+-	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+-		return true;
+-
+-	switch (info->bus) {
+-	case ETP_BUS_PS2_ONLY:
+-		/* expected case */
+-		break;
+-	case ETP_BUS_SMB_ALERT_ONLY:
+-		/* fall-through  */
+-	case ETP_BUS_PS2_SMB_ALERT:
+-		psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
+-		break;
+-	case ETP_BUS_SMB_HST_NTFY_ONLY:
+-		/* fall-through  */
+-	case ETP_BUS_PS2_SMB_HST_NTFY:
+-		return true;
+-	default:
+-		psmouse_dbg(psmouse,
+-			    "Ignoring SMBus bus provider %d.\n",
+-			    info->bus);
+-	}
+-
+-	return false;
+-}
+-
+ int elantech_init_smbus(struct psmouse *psmouse)
+ {
+ 	struct elantech_device_info info;
 -- 
-Dmitry
+2.17.1

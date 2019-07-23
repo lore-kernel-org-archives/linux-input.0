@@ -1,333 +1,206 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH v8 3/5] arm64: dts: qcom: Add Lenovo Miix 630
-Date: Mon, 22 Jul 2019 16:34:44 -0700
-Message-ID: <20190722233444.GA7352@tuxbook-pro>
-References: <20190621144854.38568-1-jeffrey.l.hugo@gmail.com>
- <20190621145450.38741-1-jeffrey.l.hugo@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH v3] Input: elantech: Enable SMBus on new (2018+) systems
+Date: Tue, 23 Jul 2019 14:45:51 +0800
+Message-ID: <9AFB67C8-12BE-4794-BA82-BF7D1AED22E8@canonical.com>
+References: <20190121070258.1844-1-kai.heng.feng@canonical.com>
+ <20190722074055.22427-1-kai.heng.feng@canonical.com>
+ <20190722081739.GA804@penguin>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Content-Type: text/plain;
+        charset=utf-8;
+        delsp=yes;
+        format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190621145450.38741-1-jeffrey.l.hugo@gmail.com>
+In-Reply-To: <20190722081739.GA804@penguin>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Cc: agross@kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, jikos@kernel.org, hdegoede@redhat.com, lee.jones@linaro.org, xnox@ubuntu.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Your Name <you@example.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri 21 Jun 07:54 PDT 2019, Jeffrey Hugo wrote:
+Hi Dmitry,
 
-> This adds the initial DT for the Lenovo Miix 630 laptop.  Supported
-> functionality includes USB (host), microSD-card, keyboard, and trackpad.
-> 
-> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+at 16:17, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-Applied patch 3-5
+> Hi Kai-Heng,
+>
+> On Mon, Jul 22, 2019 at 03:40:55PM +0800, Kai-Heng Feng wrote:
+>> There are some new HP laptops with Elantech touchpad don't support
+>> multitouch.
+>>
+>> Currently we use ETP_NEW_IC_SMBUS_HOST_NOTIFY() to check if SMBus is
+>> supported, but in addition to firmware version, the bus type also
+>> informs us if the IC can support SMBus, so also check that.
+>>
+>> In case of breaking old ICs, only enables SMBus on systems manufactured
+>> after 2018, alongsides aforementioned checks.
+>>
+>> Lastly, consolidats all check into elantech_use_host_notify() and use it
+>> to determine whether to use PS/2 or SMBus.
+>>
+>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>> Signed-off-by: Your Name <you@example.com>
+>
+> I do not think "Your Name" should be signing DCO here :)
 
-Thanks,
-Bjorn
+Yes I don’t know how I messed that up...
 
+>
+>> +static bool elantech_use_host_notify(struct psmouse *psmouse,
+>> +				     struct elantech_device_info *info)
+>> +{
+>> +	bool host_notify = false;
+>> +
+>> +	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+>> +		host_notify = true;
+>> +	else {
+>> +		switch (info->bus) {
+>> +		case ETP_BUS_PS2_ONLY:
+>> +			/* expected case */
+>> +			break;
+>> +		case ETP_BUS_SMB_ALERT_ONLY:
+>> +			/* fall-through  */
+>> +		case ETP_BUS_PS2_SMB_ALERT:
+>> +			psmouse_dbg(psmouse, "Ignoring SMBus provider  
+>> through alert protocol.\n");
+>> +			break;
+>> +		case ETP_BUS_SMB_HST_NTFY_ONLY:
+>> +			/* fall-through  */
+>> +		case ETP_BUS_PS2_SMB_HST_NTFY:
+>> +			/* SMbus implementation is stable since 2018 */
+>> +			if (dmi_get_bios_year() >= 2018)
+>> +				host_notify = true;
+>> +			break;
+>> +		default:
+>> +			psmouse_dbg(psmouse,
+>> +				    "Ignoring SMBus bus provider %d.\n",
+>> +				    info->bus);
+>> +		}
+>> +	}
+>
+> I think this is way too verbose. How about a bit more condensed form:
+
+The one revised by you is more succinct. Please use yours instead :)
+
+Thanks!
+
+Kai-Heng
+
+>
+>
+> Input: elantech - enable SMBus on new (2018+) systems
+>
+> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>
+> There are some new HP laptops with Elantech touchpad that don't support
+> multitouch.
+>
+> Currently we use ETP_NEW_IC_SMBUS_HOST_NOTIFY() to check if SMBus is  
+> supported,
+> but in addition to firmware version, the bus type also informs us whether  
+> the IC
+> can support SMBus. To avoid breaking old ICs, we will only enable SMbus  
+> support
+> based the bus type on systems manufactured after 2018.
+>
+> Lastly, let's consolidate all checks into elantech_use_host_notify() and  
+> use it
+> to determine whether to use PS/2 or SMBus.
+>
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  arch/arm64/boot/dts/qcom/Makefile             |   1 +
->  .../boot/dts/qcom/msm8998-clamshell.dtsi      | 240 ++++++++++++++++++
->  .../boot/dts/qcom/msm8998-lenovo-miix-630.dts |  30 +++
->  3 files changed, 271 insertions(+)
->  create mode 100644 arch/arm64/boot/dts/qcom/msm8998-clamshell.dtsi
->  create mode 100644 arch/arm64/boot/dts/qcom/msm8998-lenovo-miix-630.dts
-> 
-> diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
-> index 21d548f02d39..c3e4307bcbd4 100644
-> --- a/arch/arm64/boot/dts/qcom/Makefile
-> +++ b/arch/arm64/boot/dts/qcom/Makefile
-> @@ -6,6 +6,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-mtp.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= msm8992-bullhead-rev-101.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= msm8994-angler-rev-101.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= msm8996-mtp.dtb
-> +dtb-$(CONFIG_ARCH_QCOM)	+= msm8998-lenovo-miix-630.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= msm8998-mtp.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= sdm845-mtp.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= qcs404-evb-1000.dtb
-> diff --git a/arch/arm64/boot/dts/qcom/msm8998-clamshell.dtsi b/arch/arm64/boot/dts/qcom/msm8998-clamshell.dtsi
-> new file mode 100644
-> index 000000000000..9682d4dd7496
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/msm8998-clamshell.dtsi
-> @@ -0,0 +1,240 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/* Copyright (c) 2019, Jeffrey Hugo. All rights reserved. */
+>  drivers/input/mouse/elantech.c |   54 +++++++++++++++++++---------------------
+>  1 file changed, 25 insertions(+), 29 deletions(-)
+>
+> diff --git a/drivers/input/mouse/elantech.c  
+> b/drivers/input/mouse/elantech.c
+> index 2d8434b7b623..73544776a9ed 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1827,6 +1827,30 @@ static int elantech_create_smbus(struct psmouse  
+> *psmouse,
+>  				  leave_breadcrumbs);
+>  }
+>
+> +static bool elantech_use_host_notify(struct psmouse *psmouse,
+> +				     struct elantech_device_info *info)
+> +{
+> +	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+> +		return true;
 > +
-> +/*
-> + * Common include for MSM8998 clamshell devices, ie the Lenovo Miix 630,
-> + * Asus NovaGo TP370QL, and HP Envy x2.  All three devices are basically the
-> + * same, with differences in peripherals.
-> + */
+> +	switch (info->bus) {
+> +	case ETP_BUS_PS2_ONLY:
+> +		/* expected case */
+> +		break;
+> +	case ETP_BUS_SMB_HST_NTFY_ONLY:
+> +	case ETP_BUS_PS2_SMB_HST_NTFY:
+> +		/* SMbus implementation is stable since 2018 */
+> +		if (dmi_get_bios_year() >= 2018)
+> +			return true;
+> +	default:
+> +		psmouse_dbg(psmouse,
+> +			    "Ignoring SMBus bus provider %d\n", info->bus);
+> +		break;
+> +	}
 > +
-> +#include "msm8998.dtsi"
-> +#include "pm8998.dtsi"
-> +#include "pm8005.dtsi"
+> +	return false;
+> +}
 > +
-> +/ {
-> +	chosen {
-> +	};
-> +
-> +	vph_pwr: vph-pwr-regulator {
-> +		compatible = "regulator-fixed";
-> +		regulator-name = "vph_pwr";
-> +		regulator-always-on;
-> +		regulator-boot-on;
-> +	};
-> +};
-> +
-> +&qusb2phy {
-> +	status = "okay";
-> +
-> +	vdda-pll-supply = <&vreg_l12a_1p8>;
-> +	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
-> +};
-> +
-> +&rpm_requests {
-> +	pm8998-regulators {
-> +		compatible = "qcom,rpm-pm8998-regulators";
-> +
-> +		vdd_s1-supply = <&vph_pwr>;
-> +		vdd_s2-supply = <&vph_pwr>;
-> +		vdd_s3-supply = <&vph_pwr>;
-> +		vdd_s4-supply = <&vph_pwr>;
-> +		vdd_s5-supply = <&vph_pwr>;
-> +		vdd_s6-supply = <&vph_pwr>;
-> +		vdd_s7-supply = <&vph_pwr>;
-> +		vdd_s8-supply = <&vph_pwr>;
-> +		vdd_s9-supply = <&vph_pwr>;
-> +		vdd_s10-supply = <&vph_pwr>;
-> +		vdd_s11-supply = <&vph_pwr>;
-> +		vdd_s12-supply = <&vph_pwr>;
-> +		vdd_s13-supply = <&vph_pwr>;
-> +		vdd_l1_l27-supply = <&vreg_s7a_1p025>;
-> +		vdd_l2_l8_l17-supply = <&vreg_s3a_1p35>;
-> +		vdd_l3_l11-supply = <&vreg_s7a_1p025>;
-> +		vdd_l4_l5-supply = <&vreg_s7a_1p025>;
-> +		vdd_l6-supply = <&vreg_s5a_2p04>;
-> +		vdd_l7_l12_l14_l15-supply = <&vreg_s5a_2p04>;
-> +		vdd_l9-supply = <&vph_pwr>;
-> +		vdd_l10_l23_l25-supply = <&vph_pwr>;
-> +		vdd_l13_l19_l21-supply = <&vph_pwr>;
-> +		vdd_l16_l28-supply = <&vph_pwr>;
-> +		vdd_l18_l22-supply = <&vph_pwr>;
-> +		vdd_l20_l24-supply = <&vph_pwr>;
-> +		vdd_l26-supply = <&vreg_s3a_1p35>;
-> +		vdd_lvs1_lvs2-supply = <&vreg_s4a_1p8>;
-> +
-> +		vreg_s3a_1p35: s3 {
-> +			regulator-min-microvolt = <1352000>;
-> +			regulator-max-microvolt = <1352000>;
-> +		};
-> +		vreg_s4a_1p8: s4 {
-> +			regulator-min-microvolt = <1800000>;
-> +			regulator-max-microvolt = <1800000>;
-> +			regulator-allow-set-load;
-> +		};
-> +		vreg_s5a_2p04: s5 {
-> +			regulator-min-microvolt = <1904000>;
-> +			regulator-max-microvolt = <2040000>;
-> +		};
-> +		vreg_s7a_1p025: s7 {
-> +			regulator-min-microvolt = <900000>;
-> +			regulator-max-microvolt = <1028000>;
-> +		};
-> +		vreg_l1a_0p875: l1 {
-> +			regulator-min-microvolt = <880000>;
-> +			regulator-max-microvolt = <880000>;
-> +			regulator-allow-set-load;
-> +		};
-> +		vreg_l2a_1p2: l2 {
-> +			regulator-min-microvolt = <1200000>;
-> +			regulator-max-microvolt = <1200000>;
-> +			regulator-allow-set-load;
-> +		};
-> +		vreg_l3a_1p0: l3 {
-> +			regulator-min-microvolt = <1000000>;
-> +			regulator-max-microvolt = <1000000>;
-> +		};
-> +		vreg_l5a_0p8: l5 {
-> +			regulator-min-microvolt = <800000>;
-> +			regulator-max-microvolt = <800000>;
-> +		};
-> +		vreg_l6a_1p8: l6 {
-> +			regulator-min-microvolt = <1808000>;
-> +			regulator-max-microvolt = <1808000>;
-> +		};
-> +		vreg_l7a_1p8: l7 {
-> +			regulator-min-microvolt = <1800000>;
-> +			regulator-max-microvolt = <1800000>;
-> +		};
-> +		vreg_l8a_1p2: l8 {
-> +			regulator-min-microvolt = <1200000>;
-> +			regulator-max-microvolt = <1200000>;
-> +		};
-> +		vreg_l9a_1p8: l9 {
-> +			regulator-min-microvolt = <1808000>;
-> +			regulator-max-microvolt = <2960000>;
-> +		};
-> +		vreg_l10a_1p8: l10 {
-> +			regulator-min-microvolt = <1808000>;
-> +			regulator-max-microvolt = <2960000>;
-> +		};
-> +		vreg_l11a_1p0: l11 {
-> +			regulator-min-microvolt = <1000000>;
-> +			regulator-max-microvolt = <1000000>;
-> +		};
-> +		vreg_l12a_1p8: l12 {
-> +			regulator-min-microvolt = <1800000>;
-> +			regulator-max-microvolt = <1800000>;
-> +		};
-> +		vreg_l13a_2p95: l13 {
-> +			regulator-min-microvolt = <1808000>;
-> +			regulator-max-microvolt = <2960000>;
-> +		};
-> +		vreg_l14a_1p88: l14 {
-> +			regulator-min-microvolt = <1880000>;
-> +			regulator-max-microvolt = <1880000>;
-> +		};
-> +		vreg_15a_1p8: l15 {
-> +			regulator-min-microvolt = <1800000>;
-> +			regulator-max-microvolt = <1800000>;
-> +		};
-> +		vreg_l16a_2p7: l16 {
-> +			regulator-min-microvolt = <2704000>;
-> +			regulator-max-microvolt = <2704000>;
-> +		};
-> +		vreg_l17a_1p3: l17 {
-> +			regulator-min-microvolt = <1304000>;
-> +			regulator-max-microvolt = <1304000>;
-> +		};
-> +		vreg_l18a_2p7: l18 {
-> +			regulator-min-microvolt = <2704000>;
-> +			regulator-max-microvolt = <2704000>;
-> +		};
-> +		vreg_l19a_3p0: l19 {
-> +			regulator-min-microvolt = <3008000>;
-> +			regulator-max-microvolt = <3008000>;
-> +		};
-> +		vreg_l20a_2p95: l20 {
-> +			regulator-min-microvolt = <2960000>;
-> +			regulator-max-microvolt = <2960000>;
-> +			regulator-allow-set-load;
-> +		};
-> +		vreg_l21a_2p95: l21 {
-> +			regulator-min-microvolt = <2960000>;
-> +			regulator-max-microvolt = <2960000>;
-> +			regulator-allow-set-load;
-> +			regulator-system-load = <800000>;
-> +		};
-> +		vreg_l22a_2p85: l22 {
-> +			regulator-min-microvolt = <2864000>;
-> +			regulator-max-microvolt = <2864000>;
-> +		};
-> +		vreg_l23a_3p3: l23 {
-> +			regulator-min-microvolt = <3312000>;
-> +			regulator-max-microvolt = <3312000>;
-> +		};
-> +		vreg_l24a_3p075: l24 {
-> +			regulator-min-microvolt = <3088000>;
-> +			regulator-max-microvolt = <3088000>;
-> +		};
-> +		vreg_l25a_3p3: l25 {
-> +			regulator-min-microvolt = <3104000>;
-> +			regulator-max-microvolt = <3312000>;
-> +		};
-> +		vreg_l26a_1p2: l26 {
-> +			regulator-min-microvolt = <1200000>;
-> +			regulator-max-microvolt = <1200000>;
-> +		};
-> +		vreg_l28_3p0: l28 {
-> +			regulator-min-microvolt = <3008000>;
-> +			regulator-max-microvolt = <3008000>;
-> +		};
-> +
-> +		vreg_lvs1a_1p8: lvs1 {
-> +			regulator-min-microvolt = <1800000>;
-> +			regulator-max-microvolt = <1800000>;
-> +		};
-> +
-> +		vreg_lvs2a_1p8: lvs2 {
-> +			regulator-min-microvolt = <1800000>;
-> +			regulator-max-microvolt = <1800000>;
-> +		};
-> +
-> +	};
-> +};
-> +
-> +&tlmm {
-> +	gpio-reserved-ranges = <0 4>, <81 4>;
-> +
-> +	touchpad: touchpad {
-> +		config {
-> +			pins = "gpio123";
-> +			bias-pull-up;           /* pull up */
-> +		};
-> +	};
-> +};
-> +
-> +&sdhc2 {
-> +	status = "okay";
-> +
-> +	vmmc-supply = <&vreg_l21a_2p95>;
-> +	vqmmc-supply = <&vreg_l13a_2p95>;
-> +
-> +	pinctrl-names = "default", "sleep";
-> +	pinctrl-0 = <&sdc2_clk_on  &sdc2_cmd_on  &sdc2_data_on  &sdc2_cd_on>;
-> +	pinctrl-1 = <&sdc2_clk_off &sdc2_cmd_off &sdc2_data_off &sdc2_cd_off>;
-> +};
-> +
-> +&usb3 {
-> +	status = "okay";
-> +};
-> +
-> +&usb3_dwc3 {
-> +	dr_mode = "host"; /* Force to host until we have Type-C hooked up */
-> +};
-> +
-> +&usb3phy {
-> +	status = "okay";
-> +
-> +	vdda-phy-supply = <&vreg_l1a_0p875>;
-> +	vdda-pll-supply = <&vreg_l2a_1p2>;
-> +};
-> diff --git a/arch/arm64/boot/dts/qcom/msm8998-lenovo-miix-630.dts b/arch/arm64/boot/dts/qcom/msm8998-lenovo-miix-630.dts
-> new file mode 100644
-> index 000000000000..407c6a32911c
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/msm8998-lenovo-miix-630.dts
-> @@ -0,0 +1,30 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/* Copyright (c) 2019, Jeffrey Hugo. All rights reserved. */
-> +
-> +/dts-v1/;
-> +
-> +#include "msm8998-clamshell.dtsi"
-> +
-> +/ {
-> +	model = "Lenovo Miix 630";
-> +	compatible = "lenovo,miix-630", "qcom,msm8998";
-> +};
-> +
-> +&blsp1_i2c6 {
-> +	status = "okay";
-> +
-> +	keyboard@3a {
-> +		compatible = "hid-over-i2c";
-> +		interrupt-parent = <&tlmm>;
-> +		interrupts = <0x79 IRQ_TYPE_LEVEL_LOW>;
-> +		reg = <0x3a>;
-> +		hid-descr-addr = <0x0001>;
-> +
-> +		pinctrl-names = "default";
-> +		pinctrl-0 = <&touchpad>;
-> +	};
-> +};
-> +
-> +&sdhc2 {
-> +	cd-gpios = <&tlmm 95 GPIO_ACTIVE_HIGH>;
-> +};
+>  /**
+>   * elantech_setup_smbus - called once the PS/2 devices are enumerated
+>   * and decides to instantiate a SMBus InterTouch device.
+> @@ -1846,7 +1870,7 @@ static int elantech_setup_smbus(struct psmouse  
+> *psmouse,
+>  		 * i2c_blacklist_pnp_ids.
+>  		 * Old ICs are up to the user to decide.
+>  		 */
+> -		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
+> +		if (!elantech_use_host_notify(psmouse, info) ||
+>  		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
+>  			return -ENXIO;
+>  	}
+> @@ -1866,34 +1890,6 @@ static int elantech_setup_smbus(struct psmouse  
+> *psmouse,
+>  	return 0;
+>  }
+>
+> -static bool elantech_use_host_notify(struct psmouse *psmouse,
+> -				     struct elantech_device_info *info)
+> -{
+> -	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+> -		return true;
+> -
+> -	switch (info->bus) {
+> -	case ETP_BUS_PS2_ONLY:
+> -		/* expected case */
+> -		break;
+> -	case ETP_BUS_SMB_ALERT_ONLY:
+> -		/* fall-through  */
+> -	case ETP_BUS_PS2_SMB_ALERT:
+> -		psmouse_dbg(psmouse, "Ignoring SMBus provider through alert  
+> protocol.\n");
+> -		break;
+> -	case ETP_BUS_SMB_HST_NTFY_ONLY:
+> -		/* fall-through  */
+> -	case ETP_BUS_PS2_SMB_HST_NTFY:
+> -		return true;
+> -	default:
+> -		psmouse_dbg(psmouse,
+> -			    "Ignoring SMBus bus provider %d.\n",
+> -			    info->bus);
+> -	}
+> -
+> -	return false;
+> -}
+> -
+>  int elantech_init_smbus(struct psmouse *psmouse)
+>  {
+>  	struct elantech_device_info info;
+>
+> Thanks.
+>
 > -- 
-> 2.17.1
-> 
+> Dmitry

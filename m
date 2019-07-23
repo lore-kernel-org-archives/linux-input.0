@@ -1,54 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Apple SPI keyboard needs CRC16
-Date: Tue, 23 Jul 2019 16:42:35 +0300
-Message-ID: <20190723134235.GA845@penguin>
-References: <20190723115905.2092687-1-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190723115905.2092687-1-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Aaron Armstrong Skomra <skomra@gmail.com>
+Subject: [PATCH] HID: wacom: fix bit shift for Cintiq Companion 2
+Date: Tue, 23 Jul 2019 11:09:15 -0700
+Message-ID: <1563905355-20921-1-git-send-email-aaron.skomra@wacom.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com, pinglinux@gmail.com, jason.gerecke@wacom.com
+Cc: Aaron Armstrong Skomra <aaron.skomra@wacom.com>, "# v4 . 5+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 23, 2019 at 01:58:45PM +0200, Arnd Bergmann wrote:
-> In some rare randconfig builds, CRC16 is disabled, which leads
-> to a link error:
-> 
-> drivers/input/keyboard/applespi.o: In function `applespi_send_cmd_msg':
-> applespi.c:(.text+0x449f): undefined reference to `crc16'
-> drivers/input/keyboard/applespi.o: In function `applespi_verify_crc':
-> applespi.c:(.text+0x7538): undefined reference to `crc16'
-> 
-> This symbol is meant to be selected for each user in Kconfig,
-> so do that here as well.
-> 
-> Fixes: 038b1a05eae6 ("Input: add Apple SPI keyboard and trackpad driver")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+The bit indicating BTN_6 on this device is overshifted
+by 2 bits, resulting in the incorrect button being
+reported.
 
-Applied, thank you.
+Also fix copy-paste mistake in comments.
 
-> ---
->  drivers/input/keyboard/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 8e9c3ea9d5e7..ebb19e21473e 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -76,6 +76,7 @@ config KEYBOARD_APPLESPI
->  	depends on ACPI && EFI
->  	depends on SPI
->  	depends on X86 || COMPILE_TEST
-> +	select CRC16
->  	help
->  	  Say Y here if you are running Linux on any Apple MacBook8,1 or later,
->  	  or any MacBookPro13,* or MacBookPro14,*.
-> -- 
-> 2.20.0
-> 
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Link: https://github.com/linuxwacom/xf86-input-wacom/issues/71
+Fixes: c7f0522a1ad1 ("HID: wacom: Slim down wacom_intuos_pad processing")
+Cc: <stable@vger.kernel.org> # v4.5+
+---
+ drivers/hid/wacom_wac.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 8fc36a28081b..7a8ddc999a8e 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -533,14 +533,14 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 		 */
+ 		buttons = (data[4] << 1) | (data[3] & 0x01);
+ 	} else if (features->type == CINTIQ_COMPANION_2) {
+-		/* d-pad right  -> data[4] & 0x10
+-		 * d-pad up     -> data[4] & 0x20
+-		 * d-pad left   -> data[4] & 0x40
+-		 * d-pad down   -> data[4] & 0x80
+-		 * d-pad center -> data[3] & 0x01
++		/* d-pad right  -> data[2] & 0x10
++		 * d-pad up     -> data[2] & 0x20
++		 * d-pad left   -> data[2] & 0x40
++		 * d-pad down   -> data[2] & 0x80
++		 * d-pad center -> data[1] & 0x01
+ 		 */
+ 		buttons = ((data[2] >> 4) << 7) |
+-		          ((data[1] & 0x04) << 6) |
++		          ((data[1] & 0x04) << 4) |
+ 		          ((data[2] & 0x0F) << 2) |
+ 		          (data[1] & 0x03);
+ 	} else if (features->type >= INTUOS5S && features->type <= INTUOSPL) {
 -- 
-Dmitry
+2.17.1

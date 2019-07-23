@@ -1,206 +1,35 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: Re: [PATCH v3] Input: elantech: Enable SMBus on new (2018+) systems
-Date: Tue, 23 Jul 2019 14:45:51 +0800
-Message-ID: <9AFB67C8-12BE-4794-BA82-BF7D1AED22E8@canonical.com>
-References: <20190121070258.1844-1-kai.heng.feng@canonical.com>
- <20190722074055.22427-1-kai.heng.feng@canonical.com>
- <20190722081739.GA804@penguin>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Content-Type: text/plain;
-        charset=utf-8;
-        delsp=yes;
-        format=flowed
+From: Chuhong Yuan <hslester96@gmail.com>
+Subject: [PATCH] HID: intel-ish-hid: Use dev_get_drvdata where possible
+Date: Tue, 23 Jul 2019 19:10:49 +0800
+Message-ID: <20190723111049.11067-1-hslester96@gmail.com>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722081739.GA804@penguin>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Your Name <you@example.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Instead of using to_pci_dev + pci_get_drvdata,
+use dev_get_drvdata to make code simpler.
 
-at 16:17, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+---
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-> Hi Kai-Heng,
->
-> On Mon, Jul 22, 2019 at 03:40:55PM +0800, Kai-Heng Feng wrote:
->> There are some new HP laptops with Elantech touchpad don't support
->> multitouch.
->>
->> Currently we use ETP_NEW_IC_SMBUS_HOST_NOTIFY() to check if SMBus is
->> supported, but in addition to firmware version, the bus type also
->> informs us if the IC can support SMBus, so also check that.
->>
->> In case of breaking old ICs, only enables SMBus on systems manufactured
->> after 2018, alongsides aforementioned checks.
->>
->> Lastly, consolidats all check into elantech_use_host_notify() and use it
->> to determine whether to use PS/2 or SMBus.
->>
->> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
->> Signed-off-by: Your Name <you@example.com>
->
-> I do not think "Your Name" should be signing DCO here :)
-
-Yes I don’t know how I messed that up...
-
->
->> +static bool elantech_use_host_notify(struct psmouse *psmouse,
->> +				     struct elantech_device_info *info)
->> +{
->> +	bool host_notify = false;
->> +
->> +	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
->> +		host_notify = true;
->> +	else {
->> +		switch (info->bus) {
->> +		case ETP_BUS_PS2_ONLY:
->> +			/* expected case */
->> +			break;
->> +		case ETP_BUS_SMB_ALERT_ONLY:
->> +			/* fall-through  */
->> +		case ETP_BUS_PS2_SMB_ALERT:
->> +			psmouse_dbg(psmouse, "Ignoring SMBus provider  
->> through alert protocol.\n");
->> +			break;
->> +		case ETP_BUS_SMB_HST_NTFY_ONLY:
->> +			/* fall-through  */
->> +		case ETP_BUS_PS2_SMB_HST_NTFY:
->> +			/* SMbus implementation is stable since 2018 */
->> +			if (dmi_get_bios_year() >= 2018)
->> +				host_notify = true;
->> +			break;
->> +		default:
->> +			psmouse_dbg(psmouse,
->> +				    "Ignoring SMBus bus provider %d.\n",
->> +				    info->bus);
->> +		}
->> +	}
->
-> I think this is way too verbose. How about a bit more condensed form:
-
-The one revised by you is more succinct. Please use yours instead :)
-
-Thanks!
-
-Kai-Heng
-
->
->
-> Input: elantech - enable SMBus on new (2018+) systems
->
-> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
->
-> There are some new HP laptops with Elantech touchpad that don't support
-> multitouch.
->
-> Currently we use ETP_NEW_IC_SMBUS_HOST_NOTIFY() to check if SMBus is  
-> supported,
-> but in addition to firmware version, the bus type also informs us whether  
-> the IC
-> can support SMBus. To avoid breaking old ICs, we will only enable SMbus  
-> support
-> based the bus type on systems manufactured after 2018.
->
-> Lastly, let's consolidate all checks into elantech_use_host_notify() and  
-> use it
-> to determine whether to use PS/2 or SMBus.
->
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/mouse/elantech.c |   54 +++++++++++++++++++---------------------
->  1 file changed, 25 insertions(+), 29 deletions(-)
->
-> diff --git a/drivers/input/mouse/elantech.c  
-> b/drivers/input/mouse/elantech.c
-> index 2d8434b7b623..73544776a9ed 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1827,6 +1827,30 @@ static int elantech_create_smbus(struct psmouse  
-> *psmouse,
->  				  leave_breadcrumbs);
->  }
->
-> +static bool elantech_use_host_notify(struct psmouse *psmouse,
-> +				     struct elantech_device_info *info)
-> +{
-> +	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
-> +		return true;
-> +
-> +	switch (info->bus) {
-> +	case ETP_BUS_PS2_ONLY:
-> +		/* expected case */
-> +		break;
-> +	case ETP_BUS_SMB_HST_NTFY_ONLY:
-> +	case ETP_BUS_PS2_SMB_HST_NTFY:
-> +		/* SMbus implementation is stable since 2018 */
-> +		if (dmi_get_bios_year() >= 2018)
-> +			return true;
-> +	default:
-> +		psmouse_dbg(psmouse,
-> +			    "Ignoring SMBus bus provider %d\n", info->bus);
-> +		break;
-> +	}
-> +
-> +	return false;
-> +}
-> +
->  /**
->   * elantech_setup_smbus - called once the PS/2 devices are enumerated
->   * and decides to instantiate a SMBus InterTouch device.
-> @@ -1846,7 +1870,7 @@ static int elantech_setup_smbus(struct psmouse  
-> *psmouse,
->  		 * i2c_blacklist_pnp_ids.
->  		 * Old ICs are up to the user to decide.
->  		 */
-> -		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
-> +		if (!elantech_use_host_notify(psmouse, info) ||
->  		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
->  			return -ENXIO;
->  	}
-> @@ -1866,34 +1890,6 @@ static int elantech_setup_smbus(struct psmouse  
-> *psmouse,
->  	return 0;
->  }
->
-> -static bool elantech_use_host_notify(struct psmouse *psmouse,
-> -				     struct elantech_device_info *info)
-> -{
-> -	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
-> -		return true;
-> -
-> -	switch (info->bus) {
-> -	case ETP_BUS_PS2_ONLY:
-> -		/* expected case */
-> -		break;
-> -	case ETP_BUS_SMB_ALERT_ONLY:
-> -		/* fall-through  */
-> -	case ETP_BUS_PS2_SMB_ALERT:
-> -		psmouse_dbg(psmouse, "Ignoring SMBus provider through alert  
-> protocol.\n");
-> -		break;
-> -	case ETP_BUS_SMB_HST_NTFY_ONLY:
-> -		/* fall-through  */
-> -	case ETP_BUS_PS2_SMB_HST_NTFY:
-> -		return true;
-> -	default:
-> -		psmouse_dbg(psmouse,
-> -			    "Ignoring SMBus bus provider %d.\n",
-> -			    info->bus);
-> -	}
-> -
-> -	return false;
-> -}
-> -
->  int elantech_init_smbus(struct psmouse *psmouse)
->  {
->  	struct elantech_device_info info;
->
-> Thanks.
->
-> -- 
-> Dmitry
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index aa80b4d3b740..7047c14516c9 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -204,8 +204,7 @@ static struct device __maybe_unused *ish_resume_device;
+  */
+ static void __maybe_unused ish_resume_handler(struct work_struct *work)
+ {
+-	struct pci_dev *pdev = to_pci_dev(ish_resume_device);
+-	struct ishtp_device *dev = pci_get_drvdata(pdev);
++	struct ishtp_device *dev = dev_get_drvdata(ish_resume_device);
+ 	uint32_t fwsts;
+ 	int ret;
+ 
+-- 
+2.20.1

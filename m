@@ -1,37 +1,26 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 Subject: Re: [PATCH] Input: elantech - mark expected switch fall-through
-Date: Wed, 24 Jul 2019 22:25:28 +0300
-Message-ID: <20190724192528.GA6859@penguin>
-References: <20190724175202.GA9583@embeddedor>
+Date: Wed, 24 Jul 2019 14:29:02 -0500
+Message-ID: <2fc127b8-5315-4665-2693-5d85e989033c@embeddedor.com>
+References: <20190724175202.GA9583@embeddedor> <20190724192528.GA6859@penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190724175202.GA9583@embeddedor>
+In-Reply-To: <20190724192528.GA6859@penguin>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Gustavo,
 
-On Wed, Jul 24, 2019 at 12:52:02PM -0500, Gustavo A. R. Silva wrote:
-> In preparation to enabling -Wimplicit-fallthrough, mark switch
-> cases where we are expecting to fall through.
 > 
-> This patch fixes the following warning:
+> Thank you for the patch but I already pushed out similar patch.
 > 
-> drivers/input/mouse/elantech.c: In function 'elantech_use_host_notify':
-> drivers/input/mouse/elantech.c:1843:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
->    if (dmi_get_bios_year() >= 2018)
->       ^
-> drivers/input/mouse/elantech.c:1845:2: note: here
->   default:
->   ^~~~~~~
 
-Thank you for the patch but I already pushed out similar patch.
+Great. Good to know it's already fixed. :)
 
-Thanks.
-
--- 
-Dmitry
+Thanks
+--
+Gustavo

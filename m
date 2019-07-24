@@ -1,54 +1,34 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] Input: elantech - mark expected switch fall-through
-Date: Wed, 24 Jul 2019 12:52:02 -0500
-Message-ID: <20190724175202.GA9583@embeddedor>
+From: =?UTF-8?q?Istv=C3=A1n=20V=C3=A1radi?= <ivaradi@varadiistvan.hu>
+Subject: [PATCH 1/2] HID: Add Saitek X52 to the HID IDs
+Date: Wed, 24 Jul 2019 20:08:06 +0200
+Message-ID: <20190724180806.5745-1-ivaradi@varadiistvan.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: =?UTF-8?q?Istv=C3=A1n=20V=C3=A1radi?= <ivaradi@varadiistvan.hu>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In preparation to enabling -Wimplicit-fallthrough, mark switch
-cases where we are expecting to fall through.
+The USB device ID of the Saitek X52 joystick is added as a
+define to hid-ids.h.
 
-This patch fixes the following warning:
-
-drivers/input/mouse/elantech.c: In function 'elantech_use_host_notify':
-drivers/input/mouse/elantech.c:1843:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
-   if (dmi_get_bios_year() >= 2018)
-      ^
-drivers/input/mouse/elantech.c:1845:2: note: here
-  default:
-  ^~~~~~~
-
-Warning level 3 was used: -Wimplicit-fallthrough=3
-
-This patch is part of the ongoing efforts to enable
--Wimplicit-fallthrough.
-
-Notice that -Wimplicit-fallthrough will be globally
-enabled in v5.3.
-
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: István Váradi <ivaradi@varadiistvan.hu>
 ---
- drivers/input/mouse/elantech.c | 1 +
+ drivers/hid/hid-ids.h | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 73544776a9ed..04fe43440a3c 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1842,6 +1842,7 @@ static bool elantech_use_host_notify(struct psmouse *psmouse,
- 		/* SMbus implementation is stable since 2018 */
- 		if (dmi_get_bios_year() >= 2018)
- 			return true;
-+		/* fall through */
- 	default:
- 		psmouse_dbg(psmouse,
- 			    "Ignoring SMBus bus provider %d\n", info->bus);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 0d695f8e1b2c..3a90962614ef 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -989,6 +989,7 @@
+ #define USB_DEVICE_ID_SAITEK_RAT7	0x0cd7
+ #define USB_DEVICE_ID_SAITEK_RAT9	0x0cfa
+ #define USB_DEVICE_ID_SAITEK_MMO7	0x0cd0
++#define USB_DEVICE_ID_SAITEK_X52	0x075c
+ 
+ #define USB_VENDOR_ID_SAMSUNG		0x0419
+ #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
 -- 
-2.22.0
+2.20.1

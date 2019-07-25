@@ -1,92 +1,109 @@
-From: syzbot <syzbot+6ff9bba63b987471b8be@syzkaller.appspotmail.com>
-Subject: WARNING: ODEBUG bug in __free_pages_ok
-Date: Thu, 25 Jul 2019 05:08:06 -0700
-Message-ID: <000000000000490d4c058e8047e6@google.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 1/3] mfd: mc13xxx: Add mc34708 adc support
+Date: Thu, 25 Jul 2019 13:36:41 +0100
+Message-ID: <20190725123641.GJ23883@dell>
+References: <20190717222602.2912-1-lukma@denx.de>
+ <20190717222602.2912-2-lukma@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190717222602.2912-2-lukma@denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: Lukasz Majewski <lukma@denx.de>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+On Thu, 18 Jul 2019, Lukasz Majewski wrote:
 
-syzbot found the following crash on:
+> From: Sascha Hauer <s.hauer@pengutronix.de>
+> 
+> The mc34708 has an improved adc. The older variants will always convert
+> a fixed order of channels. The mc34708 can do up to eight conversions
+> in arbitrary channel order. Currently this extended feature is not
+> supported. We only support touchscreen conversions now, which will
+> be sampled in a data format compatible to the older chips in order
+> to keep the API between the mfd and the touchscreen driver.
+> 
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> Signed-off-by: Lukasz Majewski <lukma@denx.de>
+> 
+> ---
+> Changes for v4:
+> - None
+> 
+> Changes for v3:
+> - None
+> 
+> Changes for v2:
+> - Change the return code patch when the mc13xxx ADC is performing conversion
+> - Introduce new include/linux/mfd/mc34708.h header file for mc34708 specific
+>   defines
+> 
+> Changes from the original patches:
+> - ADC conversion functions prototypes added to fix build error
+> - Adjustments to make checkpatch clean (-ENOSYS, line over 80 char)
+> 
+> This patch applies on top of v5.2 - SHA1: 0ecfebd2b52404ae0c54a878c872bb93363ada36
+> ---
+>  drivers/mfd/mc13xxx-core.c  | 102 +++++++++++++++++++++++++++++++++++++++++++-
+>  drivers/mfd/mc13xxx.h       |   3 ++
+>  include/linux/mfd/mc34708.h |  37 ++++++++++++++++
+>  3 files changed, 141 insertions(+), 1 deletion(-)
+>  create mode 100644 include/linux/mfd/mc34708.h
+> 
+> diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
+> index 1abe7432aad8..01473d6fda21 100644
+> --- a/drivers/mfd/mc13xxx-core.c
+> +++ b/drivers/mfd/mc13xxx-core.c
+> @@ -12,6 +12,7 @@
+>  #include <linux/of_device.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/mfd/core.h>
+> +#include <linux/mfd/mc34708.h>
+>  
+>  #include "mc13xxx.h"
+>  
+> @@ -45,6 +46,8 @@
+>  
+>  #define MC13XXX_ADC2		45
+>  
+> +#define MC13XXX_ADC_WORKING		(1 << 0)
 
-HEAD commit:    6a3599ce usb-fuzzer: main usb gadget fuzzer driver
-git tree:       https://github.com/google/kasan.git usb-fuzzer
-console output: https://syzkaller.appspot.com/x/log.txt?x=10d72ef0600000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=700ca426ab83faae
-dashboard link: https://syzkaller.appspot.com/bug?extid=6ff9bba63b987471b8be
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=144edb68600000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=14cd0e64600000
+BIT(0) ?
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+6ff9bba63b987471b8be@syzkaller.appspotmail.com
+>  void mc13xxx_lock(struct mc13xxx *mc13xxx)
+>  {
+>  	if (!mutex_trylock(&mc13xxx->lock)) {
+> @@ -198,22 +201,30 @@ static void mc34708_print_revision(struct mc13xxx *mc13xxx, u32 revision)
+>  			maskval(revision, MC34708_REVISION_FAB));
+>  }
+>  
+> +static int mc13xxx_adc_conversion(struct mc13xxx *, unsigned int,
+> +				  unsigned int, u8, bool, unsigned int *);
+> +static int mc34708_adc_conversion(struct mc13xxx *, unsigned int,
+> +				  unsigned int, u8, bool, unsigned int *);
+> +
+>  /* These are only exported for mc13xxx-i2c and mc13xxx-spi */
+>  struct mc13xxx_variant mc13xxx_variant_mc13783 = {
+>  	.name = "mc13783",
+>  	.print_revision = mc13xxx_print_revision,
+> +	.adc_do_conversion = mc13xxx_adc_conversion,
+>  };
+>  EXPORT_SYMBOL_GPL(mc13xxx_variant_mc13783);
 
-usb 1-1: USB disconnect, device number 2
-------------[ cut here ]------------
-ODEBUG: free active (active state 0) object type: timer_list hint:  
-hid_retry_timeout+0x0/0xd0 drivers/hid/usbhid/hid-core.c:716
-WARNING: CPU: 1 PID: 21 at lib/debugobjects.c:325  
-debug_print_object+0x160/0x250 lib/debugobjects.c:325
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 1 PID: 21 Comm: kworker/1:1 Not tainted 5.2.0-rc6+ #15
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Workqueue: usb_hub_wq hub_event
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  panic+0x292/0x6c9 kernel/panic.c:219
-  __warn.cold+0x20/0x4b kernel/panic.c:576
-  report_bug+0x262/0x2a0 lib/bug.c:186
-  fixup_bug arch/x86/kernel/traps.c:179 [inline]
-  fixup_bug arch/x86/kernel/traps.c:174 [inline]
-  do_error_trap+0x12b/0x1e0 arch/x86/kernel/traps.c:272
-  do_invalid_op+0x32/0x40 arch/x86/kernel/traps.c:291
-  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:986
-RIP: 0010:debug_print_object+0x160/0x250 lib/debugobjects.c:325
-Code: dd e0 16 ba 85 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 bf 00 00 00 48  
-8b 14 dd e0 16 ba 85 48 c7 c7 c0 0c ba 85 e8 db c7 33 ff <0f> 0b 83 05 03  
-6e 86 05 01 48 83 c4 20 5b 5d 41 5c 41 5d c3 48 89
-RSP: 0018:ffff8881d9eff710 EFLAGS: 00010086
-RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff8127ef3d RDI: ffffed103b3dfed4
-RBP: 0000000000000001 R08: ffff8881d9e36000 R09: ffffed103b663ed7
-R10: ffffed103b663ed6 R11: ffff8881db31f6b7 R12: ffffffff86b04760
-R13: ffffffff812db3c0 R14: ffffffff88f4bae8 R15: ffff8881d0e1a8c8
-  __debug_check_no_obj_freed lib/debugobjects.c:785 [inline]
-  debug_check_no_obj_freed+0x2a3/0x42e lib/debugobjects.c:817
-  free_pages_prepare mm/page_alloc.c:1140 [inline]
-  __free_pages_ok+0x215/0x1bb0 mm/page_alloc.c:1366
-  usbhid_disconnect+0x98/0xd0 drivers/hid/usbhid/hid-core.c:1414
-  usb_unbind_interface+0x1bd/0x8a0 drivers/usb/core/driver.c:423
-  __device_release_driver drivers/base/dd.c:1081 [inline]
-  device_release_driver_internal+0x404/0x4c0 drivers/base/dd.c:1112
-  bus_remove_device+0x2dc/0x4a0 drivers/base/bus.c:556
-  device_del+0x460/0xb80 drivers/base/core.c:2274
-  usb_disable_device+0x211/0x690 drivers/usb/core/message.c:1237
-  usb_disconnect+0x284/0x830 drivers/usb/core/hub.c:2199
-  hub_port_connect drivers/usb/core/hub.c:4949 [inline]
-  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
-  port_event drivers/usb/core/hub.c:5359 [inline]
-  hub_event+0x13bd/0x3550 drivers/usb/core/hub.c:5441
-  process_one_work+0x905/0x1570 kernel/workqueue.c:2269
-  worker_thread+0x96/0xe20 kernel/workqueue.c:2415
-  kthread+0x30b/0x410 kernel/kthread.c:255
-  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+I'd prefer to keep the call-back functions as close to zero as
+possible.
 
-======================================================
+It would be better to turn mc13xxx_adc_conversion() in to the catch
+function choose an execution route based on some platform matching.
 
+If you could do the same for print_revision too, that would be even
+better.
 
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

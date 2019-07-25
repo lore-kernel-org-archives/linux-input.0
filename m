@@ -1,7 +1,7 @@
-From: syzbot <syzbot+965152643a75a56737be@syzkaller.appspotmail.com>
-Subject: general protection fault in holtek_kbd_input_event
-Date: Thu, 25 Jul 2019 05:08:05 -0700
-Message-ID: <00000000000040d299058e8047c2@google.com>
+From: syzbot <syzbot+6ff9bba63b987471b8be@syzkaller.appspotmail.com>
+Subject: WARNING: ODEBUG bug in __free_pages_ok
+Date: Thu, 25 Jul 2019 05:08:06 -0700
+Message-ID: <000000000000490d4c058e8047e6@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -15,76 +15,70 @@ syzbot found the following crash on:
 
 HEAD commit:    6a3599ce usb-fuzzer: main usb gadget fuzzer driver
 git tree:       https://github.com/google/kasan.git usb-fuzzer
-console output: https://syzkaller.appspot.com/x/log.txt?x=14e6d3d0600000
+console output: https://syzkaller.appspot.com/x/log.txt?x=10d72ef0600000
 kernel config:  https://syzkaller.appspot.com/x/.config?x=700ca426ab83faae
-dashboard link: https://syzkaller.appspot.com/bug?extid=965152643a75a56737be
+dashboard link: https://syzkaller.appspot.com/bug?extid=6ff9bba63b987471b8be
 compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1663f8cc600000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=145f2978600000
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=144edb68600000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=14cd0e64600000
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+965152643a75a56737be@syzkaller.appspotmail.com
+Reported-by: syzbot+6ff9bba63b987471b8be@syzkaller.appspotmail.com
 
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN
-CPU: 0 PID: 9738 Comm: syz-executor849 Not tainted 5.2.0-rc6+ #15
+usb 1-1: USB disconnect, device number 2
+------------[ cut here ]------------
+ODEBUG: free active (active state 0) object type: timer_list hint:  
+hid_retry_timeout+0x0/0xd0 drivers/hid/usbhid/hid-core.c:716
+WARNING: CPU: 1 PID: 21 at lib/debugobjects.c:325  
+debug_print_object+0x160/0x250 lib/debugobjects.c:325
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 1 PID: 21 Comm: kworker/1:1 Not tainted 5.2.0-rc6+ #15
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
 Google 01/01/2011
-RIP: 0010:usb_get_intfdata include/linux/usb.h:265 [inline]
-RIP: 0010:holtek_kbd_input_event+0xb7/0x1a0 drivers/hid/hid-holtek-kbd.c:127
-Code: 48 8b 7b 40 31 f6 48 81 ef a0 00 00 00 e8 c1 7b ee fe 48 ba 00 00 00  
-00 00 fc ff df 48 8d b8 a8 00 00 00 48 89 f9 48 c1 e9 03 <80> 3c 11 00 0f  
-85 ab 00 00 00 48 8b 98 a8 00 00 00 48 b8 00 00 00
-RSP: 0018:ffff8881ce297af8 EFLAGS: 00010002
-RAX: 0000000000000000 RBX: ffff8881d530bbb0 RCX: 0000000000000015
-RDX: dffffc0000000000 RSI: ffffffff8345640b RDI: 00000000000000a8
-RBP: 0000000000000014 R08: ffff8881d1be1800 R09: ffffed103b646748
-R10: ffffed103b646747 R11: ffff8881db233a3b R12: 0000000000000000
-R13: 0000000000000004 R14: ffffffff8456e680 R15: 0000000000000003
-FS:  00007f9ebaadb700(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f646c43c000 CR3: 00000001ce2a8000 CR4: 00000000001406f0
+Workqueue: usb_hub_wq hub_event
 Call Trace:
-  input_handle_event+0x6a9/0x11c0 drivers/input/input.c:374
-  input_inject_event+0x270/0x304 drivers/input/input.c:462
-  evdev_do_ioctl drivers/input/evdev.c:1102 [inline]
-  evdev_ioctl_handler+0x6c4/0x19b0 drivers/input/evdev.c:1303
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0xcda/0x12e0 fs/ioctl.c:696
-  ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
-  do_syscall_64+0xb7/0x560 arch/x86/entry/common.c:301
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x44e599
-Code: e8 3c e6 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7  
-48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 cb ca fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f9ebaadace8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00000000006e0c28 RCX: 000000000044e599
-RDX: 0000000020000040 RSI: 0000000040084503 RDI: 0000000000000004
-RBP: 00000000006e0c20 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000006e0c2c
-R13: 00007ffe21581f9f R14: 00007f9ebaadb9c0 R15: 0000000000000000
-Modules linked in:
----[ end trace 48abaec9fafcd397 ]---
-RIP: 0010:usb_get_intfdata include/linux/usb.h:265 [inline]
-RIP: 0010:holtek_kbd_input_event+0xb7/0x1a0 drivers/hid/hid-holtek-kbd.c:127
-Code: 48 8b 7b 40 31 f6 48 81 ef a0 00 00 00 e8 c1 7b ee fe 48 ba 00 00 00  
-00 00 fc ff df 48 8d b8 a8 00 00 00 48 89 f9 48 c1 e9 03 <80> 3c 11 00 0f  
-85 ab 00 00 00 48 8b 98 a8 00 00 00 48 b8 00 00 00
-RSP: 0018:ffff8881ce297af8 EFLAGS: 00010002
-RAX: 0000000000000000 RBX: ffff8881d530bbb0 RCX: 0000000000000015
-RDX: dffffc0000000000 RSI: ffffffff8345640b RDI: 00000000000000a8
-RBP: 0000000000000014 R08: ffff8881d1be1800 R09: ffffed103b646748
-R10: ffffed103b646747 R11: ffff8881db233a3b R12: 0000000000000000
-R13: 0000000000000004 R14: ffffffff8456e680 R15: 0000000000000003
-FS:  00007f9ebaadb700(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f646c43c000 CR3: 00000001ce2a8000 CR4: 00000000001406f0
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  panic+0x292/0x6c9 kernel/panic.c:219
+  __warn.cold+0x20/0x4b kernel/panic.c:576
+  report_bug+0x262/0x2a0 lib/bug.c:186
+  fixup_bug arch/x86/kernel/traps.c:179 [inline]
+  fixup_bug arch/x86/kernel/traps.c:174 [inline]
+  do_error_trap+0x12b/0x1e0 arch/x86/kernel/traps.c:272
+  do_invalid_op+0x32/0x40 arch/x86/kernel/traps.c:291
+  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:986
+RIP: 0010:debug_print_object+0x160/0x250 lib/debugobjects.c:325
+Code: dd e0 16 ba 85 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 bf 00 00 00 48  
+8b 14 dd e0 16 ba 85 48 c7 c7 c0 0c ba 85 e8 db c7 33 ff <0f> 0b 83 05 03  
+6e 86 05 01 48 83 c4 20 5b 5d 41 5c 41 5d c3 48 89
+RSP: 0018:ffff8881d9eff710 EFLAGS: 00010086
+RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff8127ef3d RDI: ffffed103b3dfed4
+RBP: 0000000000000001 R08: ffff8881d9e36000 R09: ffffed103b663ed7
+R10: ffffed103b663ed6 R11: ffff8881db31f6b7 R12: ffffffff86b04760
+R13: ffffffff812db3c0 R14: ffffffff88f4bae8 R15: ffff8881d0e1a8c8
+  __debug_check_no_obj_freed lib/debugobjects.c:785 [inline]
+  debug_check_no_obj_freed+0x2a3/0x42e lib/debugobjects.c:817
+  free_pages_prepare mm/page_alloc.c:1140 [inline]
+  __free_pages_ok+0x215/0x1bb0 mm/page_alloc.c:1366
+  usbhid_disconnect+0x98/0xd0 drivers/hid/usbhid/hid-core.c:1414
+  usb_unbind_interface+0x1bd/0x8a0 drivers/usb/core/driver.c:423
+  __device_release_driver drivers/base/dd.c:1081 [inline]
+  device_release_driver_internal+0x404/0x4c0 drivers/base/dd.c:1112
+  bus_remove_device+0x2dc/0x4a0 drivers/base/bus.c:556
+  device_del+0x460/0xb80 drivers/base/core.c:2274
+  usb_disable_device+0x211/0x690 drivers/usb/core/message.c:1237
+  usb_disconnect+0x284/0x830 drivers/usb/core/hub.c:2199
+  hub_port_connect drivers/usb/core/hub.c:4949 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
+  port_event drivers/usb/core/hub.c:5359 [inline]
+  hub_event+0x13bd/0x3550 drivers/usb/core/hub.c:5441
+  process_one_work+0x905/0x1570 kernel/workqueue.c:2269
+  worker_thread+0x96/0xe20 kernel/workqueue.c:2415
+  kthread+0x30b/0x410 kernel/kthread.c:255
+  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+
+======================================================
 
 
 ---

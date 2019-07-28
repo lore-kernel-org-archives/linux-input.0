@@ -1,48 +1,39 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/2] platform/x86: surfacepro3_button: Fix device check
-Date: Sun, 28 Jul 2019 12:57:26 +0300
-Message-ID: <20190728095726.GA775@penguin>
+Subject: Re: [PATCH v3 2/2] Input: soc_button_array - Add support for newer
+ surface devices
+Date: Sun, 28 Jul 2019 13:01:38 +0300
+Message-ID: <20190728100138.GC775@penguin>
 References: <20190720150511.95076-1-luzmaximilian@gmail.com>
- <20190720150511.95076-2-luzmaximilian@gmail.com>
- <CAHp75Ve+3c-TFeN3Dh-DB75Rjft8mY2DA8vNkrFyp7JK-ZOjDA@mail.gmail.com>
- <20190727091541.GD795@penguin>
- <CAHp75VdsL+-bhAUcxLKFKLZedN3gFD3jxnhELD1RtKGSHdagjw@mail.gmail.com>
+ <20190720150511.95076-3-luzmaximilian@gmail.com>
+ <20190727091443.GC795@penguin>
+ <fb53b082-4d83-83a6-1ae6-b9fae9dc750f@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHp75VdsL+-bhAUcxLKFKLZedN3gFD3jxnhELD1RtKGSHdagjw@mail.gmail.com>
+In-Reply-To: <fb53b082-4d83-83a6-1ae6-b9fae9dc750f@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Maximilian Luz <luzmaximilian@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Maximilian Luz <luzmaximilian@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jul 27, 2019 at 03:26:41PM +0300, Andy Shevchenko wrote:
-> On Sat, Jul 27, 2019 at 12:15 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > On Thu, Jul 25, 2019 at 08:57:53PM +0300, Andy Shevchenko wrote:
-> > > On Sat, Jul 20, 2019 at 6:05 PM Maximilian Luz <luzmaximilian@gmail.com> wrote:
-> > > >
-> > > > Do not use the surfacepro3_button driver on newer Microsoft Surface
-> > > > models, only use it on the Surface Pro 3 and 4. Newer models (5th, 6th
-> > > > and possibly future generations) use the same device as the Surface Pro
-> > > > 4 to represent their volume and power buttons (MSHW0040), but their
-> > > > actual implementation is significantly different. This patch ensures
-> > > > that the surfacepro3_button driver is only used on the Pro 3 and 4
-> > > > models, allowing a different driver to bind on other models.
-> > > >
-> > >
-> > > Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> > >
-> > > assuming it will go thru Input subsystem.
-> >
-> > I can take it, but I do not think it is dependent on the other change
-> > and thus can go through platform tree as well.
+On Sat, Jul 27, 2019 at 02:01:26PM +0200, Maximilian Luz wrote:
+> On 7/27/19 11:14 AM, Dmitry Torokhov wrote:
+> > On Sat, Jul 20, 2019 at 05:05:11PM +0200, Maximilian Luz wrote:
+> > > -
+> > > -	error = gpiod_count(dev, NULL);
+> > > -	if (error < 0) {
+> > > -		dev_dbg(dev, "no GPIO attached, ignoring...\n");
+> > > -		return -ENODEV;
+> > 
+> > I do not think we need to move this into individual "check" functions.
+> > It is needed in all cases so we should keep it here.
+> > 
+> > How about version below?
 > 
-> Pkease, take it. I do not expect any changes to the driver this cycle.
+> Makes sense, looks good to me!
 
-OK, applied, thank you.
+OK, great, applied.
 
 -- 
 Dmitry

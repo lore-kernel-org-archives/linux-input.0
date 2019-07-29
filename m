@@ -1,67 +1,69 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [Regression] 5.3-rc1: hid_llogitech_dj does not work
-Date: Mon, 29 Jul 2019 17:49:43 +0200
-Message-ID: <5036172e-1fa9-d038-4473-b4f257764b78@redhat.com>
-References: <CAHk-=wjm7FQxdF=RKa8Xe23CLNNpbGDOACewgo8e-hwDJ8TyQg@mail.gmail.com>
- <2480108.bWkXKoXas6@kreacher>
- <1dddedba-ca02-1014-36e0-ba4e3631f28b@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 2/2] input: keyboard: gpio-keys-polled: skip oftree code when CONFIG_OF disabled
+Date: Mon, 29 Jul 2019 17:59:54 +0200
+Message-ID: <1564415994-22871-2-git-send-email-info@metux.net>
+References: <1564415994-22871-1-git-send-email-info@metux.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1dddedba-ca02-1014-36e0-ba4e3631f28b@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1564415994-22871-1-git-send-email-info@metux.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Linux Kernel Mailing <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Rafael,
+we don't need to build in oftree probing stuff when oftree isn't
+enabled at all.
 
-On 25-07-19 17:50, Hans de Goede wrote:
-> Hi Rafael,
-> 
-> On 25-07-19 12:07, Rafael J. Wysocki wrote:
->> Hi Hans,
->>
->> This is similar to a problem I reported some time ago:
->>
->> https://lore.kernel.org/lkml/2268131.Lc39eCoc3j@kreacher/
->>
->> and the device affected by it is the same.
->>
->> The symptom is simply that the mouse just doesn't work (no reaction).  If I do
->> "rmmod hid_llogitech_dj", it says "Killed", but the module does go away and
->> the mouse starts to work (through the generic code I suppose), but then
->> the machine hangs on attempts to suspend (nasty).
->>
->> Reverting all of the hid_llogitech_dj changes between 5.2 and 5.3-rc1:
->>
->> dbcbabf7da92 HID: logitech-dj: fix return value of logi_dj_recv_query_hidpp_devices
->> 39d21e7e0043 HID: logitech-dj: make const array template static
->> 423dfbc362b7 HID: logitech-dj: Add usb-id for the 27MHz MX3000 receiver
->>
->> helps here, but the first two don't really look like they can make any difference,
->> so I guess I'm an unlucky owner of a MX3000 that doesn't quite work as expected.
->>
->> Any help will be appreciated. :-)
-> 
-> Actually we received another bug report about this and the reporter there
-> has come up with a patch with points to
-> 
-> dbcbabf7da92 HID: logitech-dj: fix return value of logi_dj_recv_query_hidpp_devices
-> 
-> Being the culprit, can you try just reverting that one?
-> 
-> I will take a closer look at this soonish.
+changes v2: use of_match_ptr() macro instead of ifdef's
 
-Thank you for reporting this.
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+---
+ drivers/input/keyboard/gpio_keys_polled.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-After upgrading to 5.3-rc2 I can reproduce this myself and the dbcbabf7da92 commit
-indeed is the culprit. I've prepared a fix for this which I'm about to submit upstream.
-
-I've put you in the Cc of the fix.
-
-Regards,
-
-Hans
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 91754de..d8123ad 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -144,6 +144,7 @@ static void gpio_keys_polled_close(struct input_polled_dev *dev)
+ static struct gpio_keys_platform_data *
+ gpio_keys_polled_get_devtree_pdata(struct device *dev)
+ {
++#ifdef CONFIG_OF
+ 	struct gpio_keys_platform_data *pdata;
+ 	struct gpio_keys_button *button;
+ 	struct fwnode_handle *child;
+@@ -199,6 +200,9 @@ static void gpio_keys_polled_close(struct input_polled_dev *dev)
+ 	}
+ 
+ 	return pdata;
++#else /* CONFIG_OF */
++	return ERR_PTR(-ENOENT);
++#endif /* CONFIG_OF */
+ }
+ 
+ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
+@@ -221,11 +225,13 @@ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
+ 	input_set_abs_params(input, code, min, max, 0, 0);
+ }
+ 
++#ifdef CONFIG_OF
+ static const struct of_device_id gpio_keys_polled_of_match[] = {
+ 	{ .compatible = "gpio-keys-polled", },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
++#endif /* CONFIG_OF */
+ 
+ static struct gpio_desc *gpio_keys_polled_get_gpiod_fwnode(
+ 	struct device *dev,
+@@ -448,7 +454,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 	.probe	= gpio_keys_polled_probe,
+ 	.driver	= {
+ 		.name	= DRV_NAME,
+-		.of_match_table = gpio_keys_polled_of_match,
++		.of_match_table = of_match_ptr(gpio_keys_polled_of_match),
+ 	},
+ };
+ module_platform_driver(gpio_keys_polled_driver);
+-- 
+1.9.1

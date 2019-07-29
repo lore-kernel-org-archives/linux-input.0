@@ -1,69 +1,224 @@
 From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 2/2] input: keyboard: gpio-keys-polled: skip oftree code when CONFIG_OF disabled
-Date: Mon, 29 Jul 2019 17:59:54 +0200
-Message-ID: <1564415994-22871-2-git-send-email-info@metux.net>
-References: <1564415994-22871-1-git-send-email-info@metux.net>
+Subject: [PATCH 1/2] input: keyboard: gpio_keys_polled: use gpio lookup table
+Date: Mon, 29 Jul 2019 17:59:53 +0200
+Message-ID: <1564415994-22871-1-git-send-email-info@metux.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1564415994-22871-1-git-send-email-info@metux.net>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-we don't need to build in oftree probing stuff when oftree isn't
-enabled at all.
+From: Enrico Weigelt <info@metux.net>
 
-changes v2: use of_match_ptr() macro instead of ifdef's
+Support the recently introduced gpio lookup tables for
+attaching to gpio lines. So, harcoded gpio numbers aren't
+needed anymore.
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+changes v3:
+    * fix printf string in gpio_keys_polled_get_gpiod()
+    * fix unused variable 'error' in gpio_keys_polled_get_gpiod()
+    * fix uninitialized variable in gpio_keys_polled_get_gpiod_fwnode()
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Enrico Weigelt <info@metux.net>
 ---
- drivers/input/keyboard/gpio_keys_polled.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/input/keyboard/gpio_keys_polled.c | 166 +++++++++++++++++++++---------
+ 1 file changed, 118 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index 91754de..d8123ad 100644
+index 465eecf..91754de 100644
 --- a/drivers/input/keyboard/gpio_keys_polled.c
 +++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -144,6 +144,7 @@ static void gpio_keys_polled_close(struct input_polled_dev *dev)
- static struct gpio_keys_platform_data *
- gpio_keys_polled_get_devtree_pdata(struct device *dev)
- {
-+#ifdef CONFIG_OF
- 	struct gpio_keys_platform_data *pdata;
- 	struct gpio_keys_button *button;
- 	struct fwnode_handle *child;
-@@ -199,6 +200,9 @@ static void gpio_keys_polled_close(struct input_polled_dev *dev)
- 	}
+@@ -21,6 +21,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio/consumer.h>
++#include <linux/gpio/machine.h>
+ #include <linux/gpio_keys.h>
+ #include <linux/property.h>
  
- 	return pdata;
-+#else /* CONFIG_OF */
-+	return ERR_PTR(-ENOENT);
-+#endif /* CONFIG_OF */
- }
- 
- static void gpio_keys_polled_set_abs_params(struct input_dev *input,
-@@ -221,11 +225,13 @@ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
- 	input_set_abs_params(input, code, min, max, 0, 0);
- }
- 
-+#ifdef CONFIG_OF
- static const struct of_device_id gpio_keys_polled_of_match[] = {
- 	{ .compatible = "gpio-keys-polled", },
- 	{ },
+@@ -226,6 +227,118 @@ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
  };
  MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
-+#endif /* CONFIG_OF */
  
- static struct gpio_desc *gpio_keys_polled_get_gpiod_fwnode(
- 	struct device *dev,
-@@ -448,7 +454,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 	.probe	= gpio_keys_polled_probe,
- 	.driver	= {
- 		.name	= DRV_NAME,
--		.of_match_table = gpio_keys_polled_of_match,
-+		.of_match_table = of_match_ptr(gpio_keys_polled_of_match),
- 	},
- };
- module_platform_driver(gpio_keys_polled_driver);
++static struct gpio_desc *gpio_keys_polled_get_gpiod_fwnode(
++	struct device *dev,
++	int idx,
++	const char *desc)
++{
++	struct gpio_desc *gpiod;
++	struct fwnode_handle *child;
++	int x = idx;
++
++	/* get the idx'th child node */
++	child = device_get_next_child_node(dev, NULL);
++	while (child && x) {
++		child = device_get_next_child_node(dev, child);
++		x--;
++	}
++
++	if (!child) {
++		dev_err(dev, "missing oftree child node #%d\n", idx);
++		return ERR_PTR(-EINVAL);
++	}
++
++	gpiod = devm_fwnode_get_gpiod_from_child(dev,
++						 NULL,
++						 child,
++						 GPIOD_IN,
++						 desc);
++	if (IS_ERR(gpiod)) {
++		if (PTR_ERR(gpiod) != -EPROBE_DEFER)
++			dev_err(dev,
++				"failed to get gpio: %ld\n",
++				PTR_ERR(gpiod));
++		fwnode_handle_put(child);
++		return gpiod;
++	}
++
++	return gpiod;
++}
++
++static struct gpio_desc *gpio_keys_polled_get_gpiod_legacy(
++	struct device *dev,
++	int idx,
++	const struct gpio_keys_button *button)
++{
++	/*
++	 * Legacy GPIO number so request the GPIO here and
++	 * convert it to descriptor.
++	 */
++	unsigned int flags = GPIOF_IN;
++	struct gpio_desc *gpiod;
++	int error;
++
++	dev_info(dev, "hardcoded gpio IDs are deprecated.\n");
++
++	if (button->active_low)
++		flags |= GPIOF_ACTIVE_LOW;
++
++	error = devm_gpio_request_one(dev, button->gpio,
++			flags, button->desc ? : DRV_NAME);
++	if (error) {
++		dev_err(dev,
++			"unable to claim gpio %u, err=%d\n",
++			button->gpio, error);
++		return ERR_PTR(error);
++	}
++
++	gpiod = gpio_to_desc(button->gpio);
++	if (!gpiod) {
++		dev_err(dev,
++			"unable to convert gpio %u to descriptor\n",
++			button->gpio);
++		return ERR_PTR(-EINVAL);
++	}
++
++	return gpiod;
++}
++
++static struct gpio_desc *gpio_keys_polled_get_gpiod(
++	struct device *dev,
++	int idx,
++	const struct gpio_keys_button *button)
++{
++	struct gpio_desc *gpiod = NULL;
++
++	/* No legacy static platform data - use oftree */
++	if (!dev_get_platdata(dev)) {
++		return gpio_keys_polled_get_gpiod_fwnode(
++			dev, idx, button->desc);
++	}
++
++	gpiod = devm_gpiod_get_index(dev, NULL, idx, GPIOF_IN);
++
++	if (!IS_ERR(gpiod)) {
++		dev_info(dev, "picked gpiod idx %d from gpio table\n", idx);
++		gpiod_set_consumer_name(gpiod, button->desc ? : DRV_NAME);
++		return gpiod;
++	}
++
++	if (PTR_ERR(gpiod) != -ENOENT) {
++		dev_err(dev, "failed fetching gpiod #%d: %ld\n",
++			idx, PTR_ERR(gpiod));
++		return gpiod;
++	}
++
++	/* Use legacy gpio id, if defined */
++	if (gpio_is_valid(button->gpio)) {
++		return gpio_keys_polled_get_gpiod_legacy(
++			dev, idx, button);
++	}
++
++	return ERR_PTR(-ENOENT);
++}
++
+ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -288,57 +401,14 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 		if (button->wakeup) {
+ 			dev_err(dev, DRV_NAME " does not support wakeup\n");
+-			fwnode_handle_put(child);
+ 			return -EINVAL;
+ 		}
+ 
+-		if (!dev_get_platdata(dev)) {
+-			/* No legacy static platform data */
+-			child = device_get_next_child_node(dev, child);
+-			if (!child) {
+-				dev_err(dev, "missing child device node\n");
+-				return -EINVAL;
+-			}
+-
+-			bdata->gpiod = devm_fwnode_get_gpiod_from_child(dev,
+-								NULL, child,
+-								GPIOD_IN,
+-								button->desc);
+-			if (IS_ERR(bdata->gpiod)) {
+-				error = PTR_ERR(bdata->gpiod);
+-				if (error != -EPROBE_DEFER)
+-					dev_err(dev,
+-						"failed to get gpio: %d\n",
+-						error);
+-				fwnode_handle_put(child);
+-				return error;
+-			}
+-		} else if (gpio_is_valid(button->gpio)) {
+-			/*
+-			 * Legacy GPIO number so request the GPIO here and
+-			 * convert it to descriptor.
+-			 */
+-			unsigned flags = GPIOF_IN;
+-
+-			if (button->active_low)
+-				flags |= GPIOF_ACTIVE_LOW;
+-
+-			error = devm_gpio_request_one(dev, button->gpio,
+-					flags, button->desc ? : DRV_NAME);
+-			if (error) {
+-				dev_err(dev,
+-					"unable to claim gpio %u, err=%d\n",
+-					button->gpio, error);
+-				return error;
+-			}
+-
+-			bdata->gpiod = gpio_to_desc(button->gpio);
+-			if (!bdata->gpiod) {
+-				dev_err(dev,
+-					"unable to convert gpio %u to descriptor\n",
+-					button->gpio);
+-				return -EINVAL;
+-			}
++		bdata->gpiod = gpio_keys_polled_get_gpiod(dev, i, button);
++
++		if (IS_ERR(bdata->gpiod)) {
++			dev_err(dev, "failed to fetch gpiod #%d\n", i);
++			return PTR_ERR(bdata->gpiod);
+ 		}
+ 
+ 		bdata->last_state = -1;
 -- 
 1.9.1

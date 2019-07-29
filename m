@@ -1,37 +1,28 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: applespi - register touchpad device
- synchronously in probe
-Date: Mon, 29 Jul 2019 15:22:03 +0200
-Message-ID: <20190729132203.GB1201@penguin>
-References: <20190721070523.24695-1-ronald@innovation.ch>
+Subject: Re: [PATCH] Input: applespi - Fix build error
+Date: Mon, 29 Jul 2019 16:04:38 +0200
+Message-ID: <20190729140438.GA2372@penguin>
+References: <20190729031455.59400-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190721070523.24695-1-ronald@innovation.ch>
+In-Reply-To: <20190729031455.59400-1-yuehaibing@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mao Wenan <maowenan@huawei.com>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: YueHaibing <yuehaibing@huawei.com>
+Cc: ronald@innovation.ch, nikolas@gnu.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Ronald,
-
-On Sun, Jul 21, 2019 at 12:05:23AM -0700, Ronald Tschalär wrote:
-> This allows errors during registration to properly fail the probe
-> function.
+On Mon, Jul 29, 2019 at 11:14:55AM +0800, YueHaibing wrote:
+> If CONFIG_KEYBOARD_APPLESPI=y but CONFIG_LEDS_CLASS=m
+> building fails:
 > 
-> Doing this requires waiting for a response from the device inside the
-> probe function. While this generally takes about 15ms, in case of errors
-> it could be arbitrarily long, and hence a 3 second timeout is used.
+> drivers/input/keyboard/applespi.o: In function `applespi_probe':
+> applespi.c:(.text+0x1fcd): undefined reference to `devm_led_classdev_register_ext'
 > 
-> This also adds 3 second timeouts to the drain functions to avoid the
-> potential for suspend or remove hanging forever.
+> Wrap it in LEDS_CLASS macro to fix this.
 
-Question: is it possible to read command response synchronously as well?
-I.e. I was wondering if we could add 2 (or 1?) more read xfers for the
-actual result that is coming after the status response, and then we
-could use spi_sync() to send the command and read the whole thing.
+No, we should add "depends on LEDS_CLASS" to the Konfig instead.
 
 Thanks.
 

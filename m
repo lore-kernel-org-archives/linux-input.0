@@ -1,47 +1,42 @@
-From: YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH] Input: applespi - Fix build error
-Date: Mon, 29 Jul 2019 11:14:55 +0800
-Message-ID: <20190729031455.59400-1-yuehaibing@huawei.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 1/2] drivers: base: swnode: link devices to software nodes
+Date: Mon, 29 Jul 2019 11:26:28 +0200
+Message-ID: <4416208.J65fGlVMeU@kreacher>
+References: <20190713075259.243565-1-dmitry.torokhov@gmail.com> <20190713075259.243565-2-dmitry.torokhov@gmail.com> <CACRpkdZxJZyQD4WZ68hSNGXtGS23hHDv=rrnu9oFmMN0oRNb2w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdZxJZyQD4WZ68hSNGXtGS23hHDv=rrnu9oFmMN0oRNb2w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: ronald@innovation.ch, dmitry.torokhov@gmail.com, nikolas@gnu.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg KH <gregkh@linuxfoundation.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>, Linux Input <linux-input@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-If CONFIG_KEYBOARD_APPLESPI=y but CONFIG_LEDS_CLASS=m
-building fails:
+On Monday, July 29, 2019 12:11:41 AM CEST Linus Walleij wrote:
+> On Sat, Jul 13, 2019 at 9:53 AM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> 
+> > It is helpful to know what device, if any, a software node is tied to, so
+> > let's store a pointer to the device in software node structure. Note that
+> > children software nodes will inherit their parent's device pointer, so we
+> > do not have to traverse hierarchy to see what device the [sub]tree belongs
+> > to.
+> >
+> > We will be using the device pointer to locate GPIO lookup tables for
+> > devices with static properties.
+> >
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> 
+> If some device core person like Rafael and/or Greg can ACK it I can
+> apply this patch to the GPIO tree.
 
-drivers/input/keyboard/applespi.o: In function `applespi_probe':
-applespi.c:(.text+0x1fcd): undefined reference to `devm_led_classdev_register_ext'
+I don't have any concerns regarding this, so please feel free to add
 
-Wrap it in LEDS_CLASS macro to fix this.
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 038b1a05eae6 ("Input: add Apple SPI keyboard and trackpad driver")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
----
- drivers/input/keyboard/applespi.c | 2 ++
- 1 file changed, 2 insertions(+)
+to the commit when you apply it.
 
-diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index acf34a5..9c50b09 100644
---- a/drivers/input/keyboard/applespi.c
-+++ b/drivers/input/keyboard/applespi.c
-@@ -1790,11 +1790,13 @@ static int applespi_probe(struct spi_device *spi)
- 	applespi->backlight_info.default_trigger = "kbd-backlight";
- 	applespi->backlight_info.brightness_set  = applespi_set_bl_level;
- 
-+#ifdef CONFIG_LEDS_CLASS
- 	sts = devm_led_classdev_register(&spi->dev, &applespi->backlight_info);
- 	if (sts)
- 		dev_warn(&applespi->spi->dev,
- 			 "Unable to register keyboard backlight class dev (%d)\n",
- 			 sts);
-+#endif
- 
- 	/* set up debugfs entries for touchpad dimensions logging */
- 	applespi->debugfs_root = debugfs_create_dir("applespi", NULL);
--- 
-2.7.4
+Thanks!

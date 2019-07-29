@@ -1,57 +1,47 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 2/2] gpiolib: add support for fetching descriptors from
- static properties
-Date: Mon, 29 Jul 2019 00:15:07 +0200
-Message-ID: <CACRpkdYLLYbcvi89LGeTSu-qXxM=sxrwYFniJwDW1-9BtODWrw@mail.gmail.com>
-References: <20190713075259.243565-1-dmitry.torokhov@gmail.com> <20190713075259.243565-3-dmitry.torokhov@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
+Subject: [PATCH] Input: applespi - Fix build error
+Date: Mon, 29 Jul 2019 11:14:55 +0800
+Message-ID: <20190729031455.59400-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190713075259.243565-3-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>, Linux Input <linux-input@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To: ronald@innovation.ch, dmitry.torokhov@gmail.com, nikolas@gnu.org
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jul 13, 2019 at 9:53 AM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+If CONFIG_KEYBOARD_APPLESPI=y but CONFIG_LEDS_CLASS=m
+building fails:
 
-> Now that static device properties understand notion of child nodes, let's
-> teach gpiolib to tie such children and machine GPIO descriptor tables.
-> We will continue using a single table for entire device, but instead of
-> using connection ID as a lookup key in the GPIO descriptor table directly,
-> we will perform additional translation: fwnode_get_named_gpiod() when
-> dealing with property_set-backed fwnodes will try parsing string property
-> with name matching connection ID and use result of the lookup as the key in
-> the table:
->
-> static const struct property_entry dev_child1_props[] __initconst = {
->         ...
->         PROPERTY_ENTRY_STRING("gpios",          "child-1-gpios"),
->         { }
-> };
->
-> static struct gpiod_lookup_table dev_gpiod_table = {
->         .dev_id = "some-device",
->         .table = {
->                 ...
->                 GPIO_LOOKUP_IDX("B", 1, "child-1-gpios", 1, GPIO_ACTIVE_LOW),
->                 ...
->         },
-> };
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+drivers/input/keyboard/applespi.o: In function `applespi_probe':
+applespi.c:(.text+0x1fcd): undefined reference to `devm_led_classdev_register_ext'
 
-I'm pretty grateful for this since I think at one point I provoked this whole
-series. :)
+Wrap it in LEDS_CLASS macro to fix this.
 
-> +static struct gpio_desc *__fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 038b1a05eae6 ("Input: add Apple SPI keyboard and trackpad driver")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+---
+ drivers/input/keyboard/applespi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-I am allergic to __underscore_with_unclear_semantics() so I will
-change this when applying to something with meaning (I even
-like "inner_" better.)
-
-Otherwise it's good to go when I get an ACK on the first patch.
-
-Yours,
-Linus Walleij
+diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+index acf34a5..9c50b09 100644
+--- a/drivers/input/keyboard/applespi.c
++++ b/drivers/input/keyboard/applespi.c
+@@ -1790,11 +1790,13 @@ static int applespi_probe(struct spi_device *spi)
+ 	applespi->backlight_info.default_trigger = "kbd-backlight";
+ 	applespi->backlight_info.brightness_set  = applespi_set_bl_level;
+ 
++#ifdef CONFIG_LEDS_CLASS
+ 	sts = devm_led_classdev_register(&spi->dev, &applespi->backlight_info);
+ 	if (sts)
+ 		dev_warn(&applespi->spi->dev,
+ 			 "Unable to register keyboard backlight class dev (%d)\n",
+ 			 sts);
++#endif
+ 
+ 	/* set up debugfs entries for touchpad dimensions logging */
+ 	applespi->debugfs_root = debugfs_create_dir("applespi", NULL);
+-- 
+2.7.4

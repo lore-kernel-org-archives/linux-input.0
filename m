@@ -1,30 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: applespi - Fix build error
-Date: Mon, 29 Jul 2019 16:04:38 +0200
-Message-ID: <20190729140438.GA2372@penguin>
-References: <20190729031455.59400-1-yuehaibing@huawei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH] input: misc: soc_button_array: use platform_device_register_resndata()
+Date: Mon, 29 Jul 2019 16:26:12 +0200
+Message-ID: <1564410372-18506-1-git-send-email-info@metux.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190729031455.59400-1-yuehaibing@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: YueHaibing <yuehaibing@huawei.com>
-Cc: ronald@innovation.ch, nikolas@gnu.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 11:14:55AM +0800, YueHaibing wrote:
-> If CONFIG_KEYBOARD_APPLESPI=y but CONFIG_LEDS_CLASS=m
-> building fails:
-> 
-> drivers/input/keyboard/applespi.o: In function `applespi_probe':
-> applespi.c:(.text+0x1fcd): undefined reference to `devm_led_classdev_register_ext'
-> 
-> Wrap it in LEDS_CLASS macro to fix this.
+From: Enrico Weigelt <info@metux.net>
 
-No, we should add "depends on LEDS_CLASS" to the Konfig instead.
+The registration of gpio-keys device can be written much shorter
+by using the platform_device_register_resndata() helper.
 
-Thanks.
+Signed-off-by: Enrico Weigelt <info@metux.net>
+---
+ drivers/input/misc/soc_button_array.c | 24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index 5e59f8e5..f5e148b 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -110,25 +110,21 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
+ 	gpio_keys_pdata->nbuttons = n_buttons;
+ 	gpio_keys_pdata->rep = autorepeat;
+ 
+-	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
+-	if (!pd) {
+-		error = -ENOMEM;
++	pd = platform_device_register_resndata(NULL,
++		"gpio-keys",
++		PLATFORM_DEVID_AUTO,
++		NULL,
++		0,
++		gpio_keys_pdata,
++		sizeof(*gpio_keys_pdata));
++
++	if (IS_ERR(pd)) {
++		dev_err(&pdev->dev, "failed registering gpio-keys: %ld\n", PTR_ERR(pd));
+ 		goto err_free_mem;
+ 	}
+ 
+-	error = platform_device_add_data(pd, gpio_keys_pdata,
+-					 sizeof(*gpio_keys_pdata));
+-	if (error)
+-		goto err_free_pdev;
+-
+-	error = platform_device_add(pd);
+-	if (error)
+-		goto err_free_pdev;
+-
+ 	return pd;
+ 
+-err_free_pdev:
+-	platform_device_put(pd);
+ err_free_mem:
+ 	devm_kfree(&pdev->dev, gpio_keys_pdata);
+ 	return ERR_PTR(error);
 -- 
-Dmitry
+1.9.1

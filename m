@@ -1,62 +1,67 @@
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH] input: misc: soc_button_array: use platform_device_register_resndata()
-Date: Mon, 29 Jul 2019 16:26:12 +0200
-Message-ID: <1564410372-18506-1-git-send-email-info@metux.net>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [Regression] 5.3-rc1: hid_llogitech_dj does not work
+Date: Mon, 29 Jul 2019 17:49:43 +0200
+Message-ID: <5036172e-1fa9-d038-4473-b4f257764b78@redhat.com>
+References: <CAHk-=wjm7FQxdF=RKa8Xe23CLNNpbGDOACewgo8e-hwDJ8TyQg@mail.gmail.com>
+ <2480108.bWkXKoXas6@kreacher>
+ <1dddedba-ca02-1014-36e0-ba4e3631f28b@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1dddedba-ca02-1014-36e0-ba4e3631f28b@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux Kernel Mailing <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Enrico Weigelt <info@metux.net>
+Hi Rafael,
 
-The registration of gpio-keys device can be written much shorter
-by using the platform_device_register_resndata() helper.
+On 25-07-19 17:50, Hans de Goede wrote:
+> Hi Rafael,
+> 
+> On 25-07-19 12:07, Rafael J. Wysocki wrote:
+>> Hi Hans,
+>>
+>> This is similar to a problem I reported some time ago:
+>>
+>> https://lore.kernel.org/lkml/2268131.Lc39eCoc3j@kreacher/
+>>
+>> and the device affected by it is the same.
+>>
+>> The symptom is simply that the mouse just doesn't work (no reaction).  If I do
+>> "rmmod hid_llogitech_dj", it says "Killed", but the module does go away and
+>> the mouse starts to work (through the generic code I suppose), but then
+>> the machine hangs on attempts to suspend (nasty).
+>>
+>> Reverting all of the hid_llogitech_dj changes between 5.2 and 5.3-rc1:
+>>
+>> dbcbabf7da92 HID: logitech-dj: fix return value of logi_dj_recv_query_hidpp_devices
+>> 39d21e7e0043 HID: logitech-dj: make const array template static
+>> 423dfbc362b7 HID: logitech-dj: Add usb-id for the 27MHz MX3000 receiver
+>>
+>> helps here, but the first two don't really look like they can make any difference,
+>> so I guess I'm an unlucky owner of a MX3000 that doesn't quite work as expected.
+>>
+>> Any help will be appreciated. :-)
+> 
+> Actually we received another bug report about this and the reporter there
+> has come up with a patch with points to
+> 
+> dbcbabf7da92 HID: logitech-dj: fix return value of logi_dj_recv_query_hidpp_devices
+> 
+> Being the culprit, can you try just reverting that one?
+> 
+> I will take a closer look at this soonish.
 
-Signed-off-by: Enrico Weigelt <info@metux.net>
----
- drivers/input/misc/soc_button_array.c | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+Thank you for reporting this.
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 5e59f8e5..f5e148b 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -110,25 +110,21 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
- 	gpio_keys_pdata->nbuttons = n_buttons;
- 	gpio_keys_pdata->rep = autorepeat;
- 
--	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
--	if (!pd) {
--		error = -ENOMEM;
-+	pd = platform_device_register_resndata(NULL,
-+		"gpio-keys",
-+		PLATFORM_DEVID_AUTO,
-+		NULL,
-+		0,
-+		gpio_keys_pdata,
-+		sizeof(*gpio_keys_pdata));
-+
-+	if (IS_ERR(pd)) {
-+		dev_err(&pdev->dev, "failed registering gpio-keys: %ld\n", PTR_ERR(pd));
- 		goto err_free_mem;
- 	}
- 
--	error = platform_device_add_data(pd, gpio_keys_pdata,
--					 sizeof(*gpio_keys_pdata));
--	if (error)
--		goto err_free_pdev;
--
--	error = platform_device_add(pd);
--	if (error)
--		goto err_free_pdev;
--
- 	return pd;
- 
--err_free_pdev:
--	platform_device_put(pd);
- err_free_mem:
- 	devm_kfree(&pdev->dev, gpio_keys_pdata);
- 	return ERR_PTR(error);
--- 
-1.9.1
+After upgrading to 5.3-rc2 I can reproduce this myself and the dbcbabf7da92 commit
+indeed is the culprit. I've prepared a fix for this which I'm about to submit upstream.
+
+I've put you in the Cc of the fix.
+
+Regards,
+
+Hans

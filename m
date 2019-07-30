@@ -1,72 +1,45 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2] Input: applespi - register touchpad device
- synchronously in probe
-Date: Tue, 30 Jul 2019 15:39:27 +0300
-Message-ID: <20190730123927.GN23480@smile.fi.intel.com>
-References: <20190721070523.24695-1-ronald@innovation.ch>
- <20190729132203.GB1201@penguin>
- <20190730065648.GA20206@innovation.ch>
+From: YueHaibing <yuehaibing@huawei.com>
+Subject: [PATCH v2] Input: applespi - Fix build error
+Date: Tue, 30 Jul 2019 21:34:14 +0800
+Message-ID: <20190730133414.49008-1-yuehaibing@huawei.com>
+References: <20190729031455.59400-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190730065648.GA20206@innovation.ch>
+In-Reply-To: <20190729031455.59400-1-yuehaibing@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Life is hard, and then you die" <ronald@innovation.ch>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mao Wenan <maowenan@huawei.com>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: ronald@innovation.ch, dmitry.torokhov@gmail.com, nikolas@gnu.org
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 11:56:48PM -0700, Life is hard, and then you die wrote:
-> On Mon, Jul 29, 2019 at 03:22:03PM +0200, Dmitry Torokhov wrote:
-> > On Sun, Jul 21, 2019 at 12:05:23AM -0700, Ronald Tschalär wrote:
+If CONFIG_KEYBOARD_APPLESPI=y but CONFIG_LEDS_CLASS=m
+building fails:
 
-> > Question: is it possible to read command response synchronously as well?
-> > I.e. I was wondering if we could add 2 (or 1?) more read xfers for the
-> > actual result that is coming after the status response, and then we
-> > could use spi_sync() to send the command and read the whole thing.
-> 
-> Yes'ish. But you still need to wait for the GPE to know when to read
-> the response, and while you're doing so any number of keyboard and
-> trackpad events may arrive (i.e. you may need to do any number of read
-> xfers). I suppose those events could all just be discarded, though. So
-> something like this:
-> 
->     assemble-info-cmd(write_msg)
+drivers/input/keyboard/applespi.o: In function `applespi_probe':
+applespi.c:(.text+0x1fcd): undefined reference to `devm_led_classdev_register_ext'
 
->     spi_sync(write_msg)
->     
->     while (1) {
->         wait_event_timeout(wait_queue, gpe_received, timeout)
->         spi_sync(read_msg)
->         if (is-info-cmd-response(read_msg))
->             break
->     }
+Add "depends on LEDS_CLASS" to the Konfig
 
-Just a side note if you ever going to implement such loops.
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 038b1a05eae6 ("Input: add Apple SPI keyboard and trackpad driver")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+---
+v2: use 'depends on LEDS_CLASS'
+---
+ drivers/input/keyboard/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-Consider in this or similar case do {} while approach with more straight exit
-conditional.
-
-Like
-
-	assemble-info-cmd(write_msg)
-
-	do {
-		spi_sync(read_msg)
-		wait_event_timeout(wait_queue, gpe_received, timeout)
-	} while (!is-info-cmd-response(read_msg)
-
-> and also modify the gpe-handler to wake the wait_queue instead of
-> issuing an spy_async() while doing the above.
-> 
-> I guess the advantage would certainly be the need to avoid the
-> spi-flushing in case of a timeout, at the expense of some slight
-> duplication of some of the received-message handling logic (would
-> refactor make most re-usable, of course).
-> 
-> So would this be the preferred approach then?
-
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index ebb19e2..90e8a7f 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -76,6 +76,7 @@ config KEYBOARD_APPLESPI
+ 	depends on ACPI && EFI
+ 	depends on SPI
+ 	depends on X86 || COMPILE_TEST
++	depends on LEDS_CLASS
+ 	select CRC16
+ 	help
+ 	  Say Y here if you are running Linux on any Apple MacBook8,1 or later,
 -- 
-With Best Regards,
-Andy Shevchenko
+2.7.4

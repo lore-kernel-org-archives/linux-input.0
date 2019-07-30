@@ -1,92 +1,70 @@
-From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Subject: Re: [PATCH v3 5/7] mfd: ioc3: Add driver for SGI IOC3 chip
-Date: Mon, 29 Jul 2019 20:45:57 +0200
-Message-ID: <20190729204557.468db2153efefda96dd41ec0@suse.de>
-References: <20190613170636.6647-1-tbogendoerfer@suse.de>
-        <20190613170636.6647-6-tbogendoerfer@suse.de>
-        <20190725114716.GB23883@dell>
+From: "Life is hard, and then you die" <ronald@innovation.ch>
+Subject: Re: [PATCH v2] Input: applespi - register touchpad device
+ synchronously in probe
+Date: Mon, 29 Jul 2019 23:56:48 -0700
+Message-ID: <20190730065648.GA20206@innovation.ch>
+References: <20190721070523.24695-1-ronald@innovation.ch>
+ <20190729132203.GB1201@penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190725114716.GB23883@dell>
+Content-Disposition: inline
+In-Reply-To: <20190729132203.GB1201@penguin>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mao Wenan <maowenan@huawei.com>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 25 Jul 2019 12:47:16 +0100
-Lee Jones <lee.jones@linaro.org> wrote:
 
-> On Thu, 13 Jun 2019, Thomas Bogendoerfer wrote:
-> > +/*
-> > + * On IP30 the RTC (a DS1687) is behind the IOC3 on the generic
-> > + * ByteBus regions. We have to write the RTC address of interest to
-> > + * IOC3_BYTEBUS_DEV1, then read the data from IOC3_BYTEBUS_DEV2.
-> > + * rtc->regs already points to IOC3_BYTEBUS_DEV1.
-> > + */
-> > +#define IP30_RTC_ADDR(rtc) (rtc->regs)
-> > +#define IP30_RTC_DATA(rtc) ((rtc->regs) + IOC3_BYTEBUS_DEV2 - IOC3_BYTEBUS_DEV1)
-> > +
-> > +static u8 ip30_rtc_read(struct ds1685_priv *rtc, int reg)
-> > +{
-> > +	writeb((reg & 0x7f), IP30_RTC_ADDR(rtc));
-> > +	return readb(IP30_RTC_DATA(rtc));
-> > +}
-> > +
-> > +static void ip30_rtc_write(struct ds1685_priv *rtc, int reg, u8 value)
-> > +{
-> > +	writeb((reg & 0x7f), IP30_RTC_ADDR(rtc));
-> > +	writeb(value, IP30_RTC_DATA(rtc));
-> > +}
+  Hi Dmitry,
+
+On Mon, Jul 29, 2019 at 03:22:03PM +0200, Dmitry Torokhov wrote:
+> Hi Ronald,
 > 
-> Why is this not in the RTC driver?
-
-because rtc1685 is used in different systems and accessing the chip
-differs between those systems. 
-
-> > +static struct ds1685_rtc_platform_data ip30_rtc_platform_data = {
-> > +	.bcd_mode = false,
-> > +	.no_irq = false,
-> > +	.uie_unsupported = true,
-> > +	.alloc_io_resources = true,
+> On Sun, Jul 21, 2019 at 12:05:23AM -0700, Ronald Tschalär wrote:
+> > This allows errors during registration to properly fail the probe
+> > function.
+> > 
+> > Doing this requires waiting for a response from the device inside the
+> > probe function. While this generally takes about 15ms, in case of errors
+> > it could be arbitrarily long, and hence a 3 second timeout is used.
+> > 
+> > This also adds 3 second timeouts to the drain functions to avoid the
+> > potential for suspend or remove hanging forever.
 > 
-> > +	.plat_read = ip30_rtc_read,
-> > +	.plat_write = ip30_rtc_write,
-> 
-> Call-backs in a non-subsystem API is pretty ugly IMHO.
+> Question: is it possible to read command response synchronously as well?
+> I.e. I was wondering if we could add 2 (or 1?) more read xfers for the
+> actual result that is coming after the status response, and then we
+> could use spi_sync() to send the command and read the whole thing.
 
-I agree
+Yes'ish. But you still need to wait for the GPE to know when to read
+the response, and while you're doing so any number of keyboard and
+trackpad events may arrive (i.e. you may need to do any number of read
+xfers). I suppose those events could all just be discarded, though. So
+something like this:
 
-> Where are these called from?
+    assemble-info-cmd(write_msg)
+    spi_sync(write_msg)
+    
+    while (1) {
+        wait_event_timeout(wait_queue, gpe_received, timeout)
+        spi_sync(read_msg)
+        if (is-info-cmd-response(read_msg))
+            break
+    }
 
-drivers/rtc/rtc-ds1685.c
+and also modify the gpe-handler to wake the wait_queue instead of
+issuing an spy_async() while doing the above.
 
-I could do the same as done for serial8250 and add an additional .c file
-in  drivers/rtc which handles this for SGI-IP30. Alexandre would this work
-for you as well ?
+I guess the advantage would certainly be the need to avoid the
+spi-flushing in case of a timeout, at the expense of some slight
+duplication of some of the received-message handling logic (would
+refactor make most re-usable, of course).
 
-> > +#define IOC3_SID(_name, _sid, _setup) \
-> > +	{								   \
-> > +		.name = _name,						   \
-> > +		.sid = (PCI_VENDOR_ID_SGI << 16) | IOC3_SUBSYS_ ## _sid,   \
-> > +		.setup = _setup,					   \
-> > +	}
-> > +
-> > +static struct {
-> > +	const char *name;
-> > +	u32 sid;
-> > +	int (*setup)(struct ioc3_priv_data *ipd);
-> > +} ioc3_infos[] = {
-> 
-> IMHO it's neater if you separate the definition and static data part.
+So would this be the preferred approach then?
 
-I don't quite understand what you mean here. Should I move the #define at
-the beginning of the file ? Why is it neater ?
 
-Thomas.
+  Cheers,
 
--- 
-SUSE Linux GmbH
-GF: Felix Imendörffer, Mary Higgins, Sri Rasiah
-HRB 21284 (AG Nürnberg)
+  Ronald

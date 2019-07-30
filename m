@@ -1,88 +1,133 @@
-From: Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-Subject: Re: [PATCH] hid-logitech-dj: add other Lightspeed receiver
-Date: Tue, 30 Jul 2019 12:08:04 +0100
-Message-ID: <1ffa6265ec30bc0e2d720def221dc046cc17520b.camel@archlinux.org>
-References: <20190718140358.9058-1-lains@archlinux.org>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: Re: [PATCH 2/2] gpiolib: add support for fetching descriptors from
+ static properties
+Date: Tue, 30 Jul 2019 14:30:33 +0300
+Message-ID: <20190730113033.GJ28600@kuha.fi.intel.com>
+References: <20190713075259.243565-1-dmitry.torokhov@gmail.com>
+ <20190713075259.243565-3-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-dRUS50kxUdxY1qNpVTUb"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190718140358.9058-1-lains@archlinux.org>
+Content-Disposition: inline
+In-Reply-To: <20190713075259.243565-3-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-Cc: nlopezcasad@logitech.com, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
+Hi Dmitry,
 
---=-dRUS50kxUdxY1qNpVTUb
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On Sat, Jul 13, 2019 at 12:52:59AM -0700, Dmitry Torokhov wrote:
+> Now that static device properties understand notion of child nodes, let's
+> teach gpiolib to tie such children and machine GPIO descriptor tables.
+> We will continue using a single table for entire device, but instead of
+> using connection ID as a lookup key in the GPIO descriptor table directly,
+> we will perform additional translation: fwnode_get_named_gpiod() when
+> dealing with property_set-backed fwnodes will try parsing string property
+> with name matching connection ID and use result of the lookup as the key in
+> the table:
+> 
+> static const struct property_entry dev_child1_props[] __initconst = {
+> 	...
+> 	PROPERTY_ENTRY_STRING("gpios",		"child-1-gpios"),
+> 	{ }
+> };
+> 
+> static struct gpiod_lookup_table dev_gpiod_table = {
+> 	.dev_id = "some-device",
+> 	.table = {
+> 		...
+> 		GPIO_LOOKUP_IDX("B", 1, "child-1-gpios", 1, GPIO_ACTIVE_LOW),
+> 		...
+> 	},
+> };
 
-On Thu, 2019-07-18 at 15:03 +0100, Filipe La=C3=ADns wrote:
-> This receiver seems to only be used in the G305.
->=20
-> Signed-off-by: Filipe La=C3=ADns <lains@archlinux.org>
-> ---
->  drivers/hid/hid-ids.h         | 1 +
->  drivers/hid/hid-logitech-dj.c | 4 ++++
->  2 files changed, 5 insertions(+)
->=20
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 884356feb016..e5d0fd85e61d 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -770,6 +770,7 @@
->  #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_2		0xc534
->  #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED	0xc539
->  #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_POWERPLAY	0xc53a
-> +#define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_2	0xc53f
->  #define USB_DEVICE_ID_SPACETRAVELLER	0xc623
->  #define USB_DEVICE_ID_SPACENAVIGATOR	0xc626
->  #define USB_DEVICE_ID_DINOVO_DESKTOP	0xc704
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-
-> logitech-dj.c
-> index d5b47ec1510c..0139912c3f69 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -1836,6 +1836,10 @@ static const struct hid_device_id
-> logi_dj_receivers[] =3D {
->  	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
->  		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED),
->  	 .driver_data =3D recvr_type_gaming_hidpp},
-> +	{ /* Logitech lightspeed receiver (0xc53f) */
-> +	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-> +		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_2),
-> +	 .driver_data =3D recvr_type_gaming_hidpp},
->  	{ /* Logitech 27 MHz HID++ 1.0 receiver (0xc513) */
->  	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-> USB_DEVICE_ID_MX3000_RECEIVER),
->  	 .driver_data =3D recvr_type_27mhz},
+We don't need struct gpiod_lookup_table anymore. We can mimic DT with
+the software nodes now that we have those "reference properties". A
+gpio reference with the software nodes would look something like this:
 
-Please don't merge this as it introduces a regression. I will send a new re=
-vision.
+        enum {
+                GPIO_CONTROLLER,
+                MY_DEVICE
+        };
 
-Filipe La=C3=ADns
-3DCE 51D6 0930 EBA4 7858 BA41 46F6 33CB B0EB 4BF2
+        static const struct software_node nodes[];
 
---=-dRUS50kxUdxY1qNpVTUb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+        static const struct software_node_ref_args reset_gpio_ref = {
+                .node = &nodes[GPIO_CONTROLLER],
+                .nargs = 2,
+                .args = {
+                        14,                     /* line number */
+                        GPIO_ACTIVE_HIGH        /* flags */
+                }
+        };
 
------BEGIN PGP SIGNATURE-----
+        static const struct software_node_reference my_refs[] = {
+                { "reset-gpios", 1, &reset_gpio_ref }
+        };
 
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl1AJQoACgkQ+JPGdIFq
-qV3x8Q//ekkTDb7koCBceey+dLahDlF6CWC7CGKzt2wbhp55PkmpX+9E/PXnY5eD
-R8wh07Dwdmxk0rqG3t33Q/nZAt1HJRQ5UBP/cb0alWiVj3gWIteLsA4R0+tcMAko
-NQJ90SMMOYpco823IwH2zwAGLtRaJUQB7scefAxMjZidYyCa8PBkaYi80QsY5Swc
-V+0J4t9nknieMlKIZc70yzU34+r7I901Poi/GefnEHhAEGLQw93pGmq9EK64JcEV
-pKISOpS7z2UgBOTkKl6Fq6dri+0adKAgSBPWj65cmx39iBhuBkaKekbRF7jVxq4l
-SgzF/3oqkVAba7IQ4eONrUyXBnBzHkHXJDP6MkVhb0bQz+ar1/6iSIwaBLbi9SIO
-arDIc1iTg0y9Wo/C1xRHfMzGpTbVAXWVVA/qJEAhVb87Q0gfpxcK8I3J6iVZ6ys4
-qA6YaPp8oi/5XADDP7k3OsXn3rAKHj48XhGiU0vOO7bWzW0NpcgmjVRvFxLIWy1f
-p8W5kxZAGjIatI3AkobmGN3BNqcMIoUx44jKcIZd6xfxC79weGYBuBHIOYLR9nnd
-oMpoWulrDryL2g3I72ZliupieQcZ+mSY7qLH3TV842w6CTvuev5lFV90UiBvDS4X
-zuymPsXHnV/QZI3ueKqPbEjsR7mSL5TNSH0AfjxpnnLpqYagPdY=
-=dDRO
------END PGP SIGNATURE-----
+        /* Optionally, we could support gpiochip finding by name... */
+        static const struct property_entry my_props[] = {
+                PROPERTY_ENTRY_STRING("gpio-controller", "name_of_the_controller")
+        };
 
---=-dRUS50kxUdxY1qNpVTUb--
+        static const struct software_node nodes[] = {
+                [GPIO_CONTROLLER]       = { "gpio_controller" },
+                [MY_DEVICE]             = { "my_device", NULL, my_props, my_refs }
+        };
+
+        void my_init(void)
+        {
+                ...
+                ret = software_node_register_nodes(nodes);
+                ...
+        }
+
+In gpiolib we should now be able to access that reference with
+fwnode_property_get_references_args():
+
+        static int gpiochip_match_fwnode(struct gpio_chip *chip, void *fwnode)
+        {
+                /* The fwnode member needs to be added to struct gpio_chip */
+                return chip->fwnode == fwnode;
+        }
+
+        static struct gpio_desc *gpiod_find(struct device *dev,
+                                            const char *con_id,
+                                            unsigned int idx,
+                                            unsigned long flags)
+        {
+                struct fwnode_reference_args args;
+                struct gpio_chip *chip;
+                struct gpio_desc *desc;
+                const char *name;
+                int ret;
+
+                ret = fwnode_property_get_refernce_args(dev_fwnode(dev), con_id,
+                                                        NULL, idx, &args);
+                ...
+
+                /* Let's find the gpiochip */
+                chip = gpiochip_find(args.fwnode, gpiochip_match_fwnode);
+                ...
+
+                /* Or optionally with find_chip_by_name() */
+                //ret = device_property_read_string(dev, "gpio-controller", &name);
+                ...
+                //chip = find_chip_by_name(name);
+                ...
+
+                /* I'm assuming hwnum is the same as line number? */
+                desc = gpiochip_get_desc(chip, args.args[0]);
+                *flags = args.args[1];
+
+                return desc;
+        }
+
+The above is just an example, but I'm pretty sure that something like
+it (with a little bit of tuning) is all that we need.
+
+thanks,
+
+-- 
+heikki

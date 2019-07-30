@@ -1,61 +1,30 @@
-From: Oliver Neukum <oneukum@suse.com>
+From: syzbot <syzbot+199ea16c7f26418b4365@syzkaller.appspotmail.com>
 Subject: Re: WARNING in usbtouch_open
-Date: Tue, 30 Jul 2019 12:12:11 +0200
-Message-ID: <1564481531.25582.22.camel@suse.com>
-References: <000000000000394df0058ed48487@google.com>
+Date: Tue, 30 Jul 2019 03:31:00 -0700
+Message-ID: <0000000000003de05e058ee38113@google.com>
+References: <1564481531.25582.22.camel@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <000000000000394df0058ed48487@google.com>
+In-Reply-To: <1564481531.25582.22.camel@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: syzbot <syzbot+199ea16c7f26418b4365@syzkaller.appspotmail.com>, rydberg@bitmath.org, mpe@ellerman.id.au, dmitry.torokhov@gmail.com, andreyknvl@google.com, syzkaller-bugs@googlegroups.com, tglx@linutronix.de, gregkh@linuxfoundation.org, kstewart@linuxfoundation.org, allison@lohutok.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: allison@lohutok.net, andreyknvl@google.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org, kstewart@linuxfoundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, mpe@ellerman.id.au, oneukum@suse.com, rydberg@bitmath.org, syzkaller-bugs@googlegroups.com, tglx@linutronix.de
 List-Id: linux-input@vger.kernel.org
 
-Am Montag, den 29.07.2019, 09:38 -0700 schrieb syzbot:
-> Hello,
-> 
-> syzbot found the following crash on:
-> 
-> HEAD commit:    7f7867ff usb-fuzzer: main usb gadget fuzzer driver
-> git tree:       https://github.com/google/kasan.git usb-fuzzer
-> console output: https://syzkaller.appspot.com/x/log.txt?x=1503f4ec600000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=792eb47789f57810
-> dashboard link: https://syzkaller.appspot.com/bug?extid=199ea16c7f26418b4365
-> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=173e4442600000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=115482b2600000
-> 
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+199ea16c7f26418b4365@syzkaller.appspotmail.com
+Hello,
 
-#syz test: https://github.com/google/kasan.git usb-fuzzer
+syzbot has tested the proposed patch and the reproducer did not trigger  
+crash:
 
->From 29b755588bd353d0e10ae384c2c551dffa1b3e7b Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Tue, 30 Jul 2019 12:00:27 +0200
-Subject: [PATCH] usbtouchscreen: add proper initialization
+Reported-and-tested-by:  
+syzbot+199ea16c7f26418b4365@syzkaller.appspotmail.com
 
-Mutexes shall be initialized before they are used.
+Tested on:
 
-Fixes: 12e510dbc57b2 ("Input: usbtouchscreen - fix deadlock in autosuspend")
-Reported-by: syzbot+199ea16c7f26418b4365@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
----
- drivers/input/touchscreen/usbtouchscreen.c | 1 +
- 1 file changed, 1 insertion(+)
+commit:         7f7867ff usb-fuzzer: main usb gadget fuzzer driver
+git tree:       https://github.com/google/kasan.git usb-fuzzer
+kernel config:  https://syzkaller.appspot.com/x/.config?x=792eb47789f57810
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+patch:          https://syzkaller.appspot.com/x/patch.diff?x=1347ab44600000
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index a2cec6cacf57..caacf211f51b 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -1658,6 +1658,7 @@ static int usbtouch_probe(struct usb_interface *intf,
- 	input_dev = input_allocate_device();
- 	if (!usbtouch || !input_dev)
- 		goto out_free;
-+	mutex_init(&usbtouch->pm_mutex);
- 
- 	type = &usbtouch_dev_info[id->driver_info];
- 	usbtouch->type = type;
--- 
-2.16.4
+Note: testing is done by a robot and is best-effort only.

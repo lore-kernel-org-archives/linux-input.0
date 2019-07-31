@@ -1,73 +1,50 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH v2 04/10] input: axp20x-pek: convert platform driver to use dev_groups
-Date: Wed, 31 Jul 2019 14:43:43 +0200
-Message-ID: <20190731124349.4474-5-gregkh@linuxfoundation.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 00/10] drivers, provide a way to add sysfs groups
+ easily
+Date: Wed, 31 Jul 2019 06:10:45 -0700
+Message-ID: <20190731131045.GB147138@dtor-ws>
 References: <20190731124349.4474-1-gregkh@linuxfoundation.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20190731124349.4474-1-gregkh@linuxfoundation.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, Richard Gong <richard.gong@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Florian Fainelli <f.fainelli@gmail.com>, linux-input@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel@vger.kernel.org, Richard Gong <richard.gong@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Borislav Petkov <bp@alien8.de>, Darren Hart <dvhart@infradead.org>, Florian Fainelli <f.fainelli@gmail.com>, Ingo Molnar <mingo@redhat.com>, Sudeep Holla <sudeep.holla@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Tony Prisk <linux@prisktech.co.nz>, dri-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, x86@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Platform drivers now have the option to have the platform core create
-and remove any needed sysfs attribute files.  So take advantage of that
-and do not register "by hand" a sysfs group of attributes.
+On Wed, Jul 31, 2019 at 02:43:39PM +0200, Greg Kroah-Hartman wrote:
+> This patch originally started out just as a way for platform drivers to
+> easily add a sysfs group in a race-free way, but thanks to Dmitry's
+> patch, this series now is for all drivers in the kernel (hey, a unified
+> driver model works!!!)
+> 
+> I've only converted a few platform drivers here in this series to show
+> how it works, but other busses can be converted after the first patch
+> goes into the tree.
+> 
+> Here's the original 00 message, for people to get an idea of what is
+> going on here:
+> 
+> If a platform driver wants to add a sysfs group, it has to do so in a
+> racy way, adding it after the driver is bound.  To resolve this issue,
+> have the platform driver core do this for the driver, making the
+> individual drivers logic smaller and simpler, and solving the race at
+> the same time.
+> 
+> All of these patches depend on the first patch.  I'll take the first one
+> through my driver-core tree, and any subsystem maintainer can either ack
+> their individul patch and I will be glad to also merge it, or they can
+> wait until after 5.4-rc1 when the core patch hits Linus's tree and then
+> take it, it's up to them.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/input/misc/axp20x-pek.c | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+Maybe make an immutable branch off 5.2 with just patch 1/10 so that
+subsystems (and the driver core tree itself) could pull it in at their
+leisure into their "*-next" branches and did not have to wait till 5.4
+or risk merge clashes?
 
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index debeeaeb8812..235925b28772 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -195,15 +195,12 @@ DEVICE_ATTR(startup, 0644, axp20x_show_attr_startup, axp20x_store_attr_startup);
- DEVICE_ATTR(shutdown, 0644, axp20x_show_attr_shutdown,
- 	    axp20x_store_attr_shutdown);
- 
--static struct attribute *axp20x_attributes[] = {
-+static struct attribute *axp20x_attrs[] = {
- 	&dev_attr_startup.attr,
- 	&dev_attr_shutdown.attr,
- 	NULL,
- };
--
--static const struct attribute_group axp20x_attribute_group = {
--	.attrs = axp20x_attributes,
--};
-+ATTRIBUTE_GROUPS(axp20x);
- 
- static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
- {
-@@ -356,13 +353,6 @@ static int axp20x_pek_probe(struct platform_device *pdev)
- 
- 	axp20x_pek->info = (struct axp20x_info *)match->driver_data;
- 
--	error = devm_device_add_group(&pdev->dev, &axp20x_attribute_group);
--	if (error) {
--		dev_err(&pdev->dev, "Failed to create sysfs attributes: %d\n",
--			error);
--		return error;
--	}
--
- 	platform_set_drvdata(pdev, axp20x_pek);
- 
- 	return 0;
-@@ -411,6 +401,7 @@ static struct platform_driver axp20x_pek_driver = {
- 	.driver		= {
- 		.name		= "axp20x-pek",
- 		.pm		= &axp20x_pek_pm_ops,
-+		.dev_groups	= axp20x_groups,
- 	},
- };
- module_platform_driver(axp20x_pek_driver);
+Thanks.
+
 -- 
-2.22.0
+Dmitry

@@ -1,199 +1,158 @@
-From: syzbot <syzbot+62a1e04fd3ec2abf099e@syzkaller.appspotmail.com>
-Subject: KASAN: use-after-free Read in hiddev_release
-Date: Thu, 01 Aug 2019 08:28:08 -0700
-Message-ID: <00000000000091efa6058f0fe3d9@google.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC PATCH v2 0/4] Input: mpr121-polled: Add polled driver for
+ MPR121
+Date: Thu, 1 Aug 2019 16:49:54 -0700
+Message-ID: <20190801234954.GA178933@dtor-ws>
+References: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
+ <20190521053705.GI183429@dtor-ws>
+ <ef172b24-cd27-5bb0-d8b1-718f835d0647@ysoft.com>
+ <20190725085753.GA26665@penguin>
+ <ac436c3c-fa89-f777-85b2-f38adf842e10@ysoft.com>
+ <20190725144009.GA27432@penguin>
+ <dcee1139-c53f-5ea0-f387-a3aa5a9bf39f@ysoft.com>
+ <20190727073156.GA795@penguin>
+ <f06a913e-09aa-3225-a495-bb290ee2bb6f@ysoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <f06a913e-09aa-3225-a495-bb290ee2bb6f@ysoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: Michal =?utf-8?B?Vm9rw6HEjQ==?= <michal.vokac@ysoft.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+On Tue, Jul 30, 2019 at 11:25:49AM +0200, Michal Vokáč wrote:
+> On 27. 07. 19 9:31, Dmitry Torokhov wrote:
+> > On Fri, Jul 26, 2019 at 01:31:31PM +0200, Michal Vokáč wrote:
+> > > On 25. 07. 19 16:40, Dmitry Torokhov wrote:
+> > > > On Thu, Jul 25, 2019 at 02:58:02PM +0200, Michal Vokáč wrote:
+> > > > > On 25. 07. 19 10:57, Dmitry Torokhov wrote:
+> > > > > > Hi Michal,
+> > > > > > 
+> > > > > > On Tue, May 21, 2019 at 08:51:17AM +0200, Michal Vokáč wrote:
+> > > > > > > On 21. 05. 19 7:37, Dmitry Torokhov wrote:
+> > > > > > > > Hi Michal,
+> > > > > > > > 
+> > > > > > > > On Fri, May 17, 2019 at 03:12:49PM +0200, Michal Vokáč wrote:
+> > > > > > > > > Hi,
+> > > > > > > > > 
+> > > > > > > > > I have to deal with a situation where we have a custom i.MX6 based
+> > > > > > > > > platform in production that uses the MPR121 touchkey controller.
+> > > > > > > > > Unfortunately the chip is connected using only the I2C interface.
+> > > > > > > > > The interrupt line is not used. Back in 2015 (Linux v3.14), my
+> > > > > > > > > colleague modded the existing mpr121_touchkey.c driver to use polling
+> > > > > > > > > instead of interrupt.
+> > > > > > > > > 
+> > > > > > > > > For quite some time yet I am in a process of updating the product from
+> > > > > > > > > the ancient Freescale v3.14 kernel to the latest mainline and pushing
+> > > > > > > > > any needed changes upstream. The DT files for our imx6dl-yapp4 platform
+> > > > > > > > > already made it into v5.1-rc.
+> > > > > > > > > 
+> > > > > > > > > I rebased and updated our mpr121 patch to the latest mainline.
+> > > > > > > > > It is created as a separate driver, similarly to gpio_keys_polled.
+> > > > > > > > > 
+> > > > > > > > > The I2C device is quite susceptible to ESD. An ESD test quite often
+> > > > > > > > > causes reset of the chip or some register randomly changes its value.
+> > > > > > > > > The [PATCH 3/4] adds a write-through register cache. With the cache
+> > > > > > > > > this state can be detected and the device can be re-initialied.
+> > > > > > > > > 
+> > > > > > > > > The main question is: Is there any chance that such a polled driver
+> > > > > > > > > could be accepted? Is it correct to implement it as a separate driver
+> > > > > > > > > or should it be done as an option in the existing driver? I can not
+> > > > > > > > > really imagine how I would do that though..
+> > > > > > > > > 
+> > > > > > > > > There are also certain worries that the MPR121 chip may no longer be
+> > > > > > > > > available in nonspecifically distant future. In case of EOL I will need
+> > > > > > > > > to add a polled driver for an other touchkey chip. May it be already
+> > > > > > > > > in mainline or a completely new one.
+> > > > > > > > 
+> > > > > > > > I think that my addition of input_polled_dev was ultimately a wrong
+> > > > > > > > thing to do. I am looking into enabling polling mode for regular input
+> > > > > > > > devices as we then can enable polling mode in existing drivers.
+> > > > > > > 
+> > > > > > > OK, that sounds good. Especially when one needs to switch from one chip
+> > > > > > > to another that is already in tree, the need for a whole new polling
+> > > > > > > driver is eliminated.
+> > > > > > 
+> > > > > > Could you please try the patch below and see if it works for your use
+> > > > > > case? Note that I have not tried running it, but it compiles so it must
+> > > > > > be good ;)
+> > > > > 
+> > > > > Hi Dmitry,
+> > > > > Thank you very much for the patch!
+> > > > > I gave it a shot and it seems you forgot to add the input-poller.h file
+> > > > > to the patch.. it does not compile on my side :(
+> > > > 
+> > > > Oops ;) Please see the updated patch below.
+> > > 
+> > > Thank you, now it is (almost) good as you said :D
+> > > 
+> > > > > 
+> > > > > > Input: add support for polling to input devices
+> > > > > > 
+> > > > > > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > > > > 
+> > > > > > Separating "normal" and "polled" input devices was a mistake, as often we want
+> > > > > > to allow the very same device work on both interrupt-driven and polled mode,
+> > > > > > depending on the board on which the device is used.
+> > > > > > 
+> > > > > > This introduces new APIs:
+> > > > > > 
+> > > > > > - input_setup_polling
+> > > > > > - input_set_poll_interval
+> > > > > > - input_set_min_poll_interval
+> > > > > > - input_set_max_poll_interval
+> > > > > > 
+> > > > > > These new APIs allow switching an input device into polled mode with sysfs
+> > > > > > attributes matching drivers using input_polled_dev APIs that will be eventually
+> > > > > > removed.
+> > > > > 
+> > > > > After reading this I am not really sure what else needs to be done
+> > > > > to test/use the poller. I suspect I need to modify the input device
+> > > > > driver (mpr121_touchkey.c in my case) like this:
+> > > > > 
+> > > > > If the interrupt gpio is not provided in DT, the device driver probe
+> > > > > function should:
+> > > > >    - not request the threaded interrupt
+> > > > >    - call input_setup_polling and provide it with poll_fn
+> > > > >      Can the mpr_touchkey_interrupt function be used as is for this
+> > > > >      purpose? The only problem I see is it returns IRQ_HANDLED.
+> > > > 
+> > > > I'd factor out code suitable for polling from mpr_touchkey_interrupt()
+> > > > and then do
+> > > > 
+> > > > static irqreturn_t mpr_touchkey_interrupt(...)
+> > > > {
+> > > > 	mpr_touchkey_report(...);
+> > > > 	return IRQ_HANDLED;
+> > > > }
+> > > > 
+> > > 
+> > > Probably a trivial problem for experienced kernel hacker but I can not
+> > > wrap my head around this - the interrupt handler takes the mpr121
+> > > device id as an argument while the poller poll_fn takes struct input_dev.
+> > > 
+> > > I fail to figure out how to get the device id from the input device.
+> > > 
+> Thanks for the hints Dmitry. I am trying my best but still have some
+> issues with the input_set/get_drvdata.
+> 
+> The kernel Oopses on NULL pointer dereference in mpr_touchkey_report.
+> Here is the backtrace:
+> 
+> [    2.916960] 8<--- cut here ---
+> [    2.920022] Unable to handle kernel NULL pointer dereference at virtual address 000001d0
+> [    2.928138] pgd = (ptrval)
 
-syzbot found the following crash on:
+Ah, that's my fault I believe. Can you please try sticking
 
-HEAD commit:    e96407b4 usb-fuzzer: main usb gadget fuzzer driver
-git tree:       https://github.com/google/kasan.git usb-fuzzer
-console output: https://syzkaller.appspot.com/x/log.txt?x=147ac20c600000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=792eb47789f57810
-dashboard link: https://syzkaller.appspot.com/bug?extid=62a1e04fd3ec2abf099e
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+	poller->input = dev;
 
-Unfortunately, I don't have any reproducer for this crash yet.
+into input_setup_polling()?
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+62a1e04fd3ec2abf099e@syzkaller.appspotmail.com
+Thanks.
 
-==================================================================
-BUG: KASAN: use-after-free in __lock_acquire+0x302a/0x3b50  
-kernel/locking/lockdep.c:3753
-Read of size 8 at addr ffff8881cf591a08 by task syz-executor.1/26260
-
-CPU: 1 PID: 26260 Comm: syz-executor.1 Not tainted 5.3.0-rc2+ #24
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  print_address_description+0x6a/0x32c mm/kasan/report.c:351
-  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
-  kasan_report+0xe/0x12 mm/kasan/common.c:612
-  __lock_acquire+0x302a/0x3b50 kernel/locking/lockdep.c:3753
-  lock_acquire+0x127/0x320 kernel/locking/lockdep.c:4412
-  __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
-  _raw_spin_lock_irqsave+0x32/0x50 kernel/locking/spinlock.c:159
-  hiddev_release+0x82/0x520 drivers/hid/usbhid/hiddev.c:221
-  __fput+0x2d7/0x840 fs/file_table.c:280
-  task_work_run+0x13f/0x1c0 kernel/task_work.c:113
-  exit_task_work include/linux/task_work.h:22 [inline]
-  do_exit+0x8ef/0x2c50 kernel/exit.c:878
-  do_group_exit+0x125/0x340 kernel/exit.c:982
-  get_signal+0x466/0x23d0 kernel/signal.c:2728
-  do_signal+0x88/0x14e0 arch/x86/kernel/signal.c:815
-  exit_to_usermode_loop+0x1a2/0x200 arch/x86/entry/common.c:159
-  prepare_exit_to_usermode arch/x86/entry/common.c:194 [inline]
-  syscall_return_slowpath arch/x86/entry/common.c:274 [inline]
-  do_syscall_64+0x45f/0x580 arch/x86/entry/common.c:299
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x459829
-Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
-48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f75b2a6ccf8 EFLAGS: 00000246 ORIG_RAX: 00000000000000ca
-RAX: fffffffffffffe00 RBX: 000000000075c078 RCX: 0000000000459829
-RDX: 0000000000000000 RSI: 0000000000000080 RDI: 000000000075c078
-RBP: 000000000075c070 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000075c07c
-R13: 00007ffcdfe1023f R14: 00007f75b2a6d9c0 R15: 000000000075c07c
-
-Allocated by task 104:
-  save_stack+0x1b/0x80 mm/kasan/common.c:69
-  set_track mm/kasan/common.c:77 [inline]
-  __kasan_kmalloc mm/kasan/common.c:487 [inline]
-  __kasan_kmalloc.constprop.0+0xbf/0xd0 mm/kasan/common.c:460
-  kmalloc include/linux/slab.h:552 [inline]
-  kzalloc include/linux/slab.h:748 [inline]
-  hiddev_connect+0x242/0x5b0 drivers/hid/usbhid/hiddev.c:900
-  hid_connect+0x239/0xbb0 drivers/hid/hid-core.c:1882
-  hid_hw_start drivers/hid/hid-core.c:1981 [inline]
-  hid_hw_start+0xa2/0x130 drivers/hid/hid-core.c:1972
-  appleir_probe+0x13e/0x1a0 drivers/hid/hid-appleir.c:308
-  hid_device_probe+0x2be/0x3f0 drivers/hid/hid-core.c:2209
-  really_probe+0x281/0x650 drivers/base/dd.c:548
-  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
-  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
-  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
-  __device_attach+0x217/0x360 drivers/base/dd.c:882
-  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
-  device_add+0xae6/0x16f0 drivers/base/core.c:2114
-  hid_add_device+0x33c/0x990 drivers/hid/hid-core.c:2365
-  usbhid_probe+0xa81/0xfa0 drivers/hid/usbhid/hid-core.c:1386
-  usb_probe_interface+0x305/0x7a0 drivers/usb/core/driver.c:361
-  really_probe+0x281/0x650 drivers/base/dd.c:548
-  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
-  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
-  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
-  __device_attach+0x217/0x360 drivers/base/dd.c:882
-  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
-  device_add+0xae6/0x16f0 drivers/base/core.c:2114
-  usb_set_configuration+0xdf6/0x1670 drivers/usb/core/message.c:2023
-  generic_probe+0x9d/0xd5 drivers/usb/core/generic.c:210
-  usb_probe_device+0x99/0x100 drivers/usb/core/driver.c:266
-  really_probe+0x281/0x650 drivers/base/dd.c:548
-  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
-  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
-  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
-  __device_attach+0x217/0x360 drivers/base/dd.c:882
-  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
-  device_add+0xae6/0x16f0 drivers/base/core.c:2114
-  usb_new_device.cold+0x6a4/0xe79 drivers/usb/core/hub.c:2536
-  hub_port_connect drivers/usb/core/hub.c:5098 [inline]
-  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
-  port_event drivers/usb/core/hub.c:5359 [inline]
-  hub_event+0x1b5c/0x3640 drivers/usb/core/hub.c:5441
-  process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
-  worker_thread+0x96/0xe20 kernel/workqueue.c:2415
-  kthread+0x318/0x420 kernel/kthread.c:255
-  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-
-Freed by task 104:
-  save_stack+0x1b/0x80 mm/kasan/common.c:69
-  set_track mm/kasan/common.c:77 [inline]
-  __kasan_slab_free+0x130/0x180 mm/kasan/common.c:449
-  slab_free_hook mm/slub.c:1423 [inline]
-  slab_free_freelist_hook mm/slub.c:1470 [inline]
-  slab_free mm/slub.c:3012 [inline]
-  kfree+0xe4/0x2f0 mm/slub.c:3953
-  hiddev_connect.cold+0x45/0x5c drivers/hid/usbhid/hiddev.c:914
-  hid_connect+0x239/0xbb0 drivers/hid/hid-core.c:1882
-  hid_hw_start drivers/hid/hid-core.c:1981 [inline]
-  hid_hw_start+0xa2/0x130 drivers/hid/hid-core.c:1972
-  appleir_probe+0x13e/0x1a0 drivers/hid/hid-appleir.c:308
-  hid_device_probe+0x2be/0x3f0 drivers/hid/hid-core.c:2209
-  really_probe+0x281/0x650 drivers/base/dd.c:548
-  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
-  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
-  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
-  __device_attach+0x217/0x360 drivers/base/dd.c:882
-  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
-  device_add+0xae6/0x16f0 drivers/base/core.c:2114
-  hid_add_device+0x33c/0x990 drivers/hid/hid-core.c:2365
-  usbhid_probe+0xa81/0xfa0 drivers/hid/usbhid/hid-core.c:1386
-  usb_probe_interface+0x305/0x7a0 drivers/usb/core/driver.c:361
-  really_probe+0x281/0x650 drivers/base/dd.c:548
-  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
-  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
-  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
-  __device_attach+0x217/0x360 drivers/base/dd.c:882
-  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
-  device_add+0xae6/0x16f0 drivers/base/core.c:2114
-  usb_set_configuration+0xdf6/0x1670 drivers/usb/core/message.c:2023
-  generic_probe+0x9d/0xd5 drivers/usb/core/generic.c:210
-  usb_probe_device+0x99/0x100 drivers/usb/core/driver.c:266
-  really_probe+0x281/0x650 drivers/base/dd.c:548
-  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:709
-  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:816
-  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
-  __device_attach+0x217/0x360 drivers/base/dd.c:882
-  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
-  device_add+0xae6/0x16f0 drivers/base/core.c:2114
-  usb_new_device.cold+0x6a4/0xe79 drivers/usb/core/hub.c:2536
-  hub_port_connect drivers/usb/core/hub.c:5098 [inline]
-  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
-  port_event drivers/usb/core/hub.c:5359 [inline]
-  hub_event+0x1b5c/0x3640 drivers/usb/core/hub.c:5441
-  process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
-  worker_thread+0x96/0xe20 kernel/workqueue.c:2415
-  kthread+0x318/0x420 kernel/kthread.c:255
-  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-
-The buggy address belongs to the object at ffff8881cf591900
-  which belongs to the cache kmalloc-512 of size 512
-The buggy address is located 264 bytes inside of
-  512-byte region [ffff8881cf591900, ffff8881cf591b00)
-The buggy address belongs to the page:
-page:ffffea00073d6400 refcount:1 mapcount:0 mapping:ffff8881da002500  
-index:0x0 compound_mapcount: 0
-flags: 0x200000000010200(slab|head)
-raw: 0200000000010200 0000000000000000 0000000100000001 ffff8881da002500
-raw: 0000000000000000 00000000000c000c 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff8881cf591900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8881cf591980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> ffff8881cf591a00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                       ^
-  ffff8881cf591a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8881cf591b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-==================================================================
-
-
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+-- 
+Dmitry

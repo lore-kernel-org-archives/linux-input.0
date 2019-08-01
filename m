@@ -1,46 +1,57 @@
-From: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Subject: Re: [PATCH 1/2] input: keyboard: gpio_keys_polled: use gpio lookup
- table
-Date: Wed, 31 Jul 2019 19:26:51 +0200
-Message-ID: <af12954c-2f14-1655-70b1-928f4f20bfe2@metux.net>
-References: <1564415994-22871-1-git-send-email-info@metux.net>
- <20190729172607.GB755@penguin>
- <b2912c1d-a6d8-ad2a-3e37-19e4d3d1bd3b@metux.net>
- <20190729184306.GA767@penguin>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH] HID: usbhid: Use GFP_KERNEL instead of GFP_ATOMIC when applicable
+Date: Thu,  1 Aug 2019 09:47:59 +0200
+Message-ID: <20190801074759.32738-1-christophe.jaillet@wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190729184306.GA767@penguin>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 List-Id: linux-input@vger.kernel.org
 
-On 29.07.19 20:43, Dmitry Torokhov wrote:
+There is no need to use GFP_ATOMIC when calling 'usb_alloc_coherent()'
+here. These calls are done from probe functions and using GFP_KERNEL should
+be safe.
+The memory itself is used within some interrupts, but it is not a
+problem, once it has been allocated.
 
-Hi,
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+ drivers/hid/usbhid/usbkbd.c   | 4 ++--
+ drivers/hid/usbhid/usbmouse.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-> https://patchwork.kernel.org/cover/11042915/
-
-Thanks.
-
-> I tried putting you on CC list there, did you not get them?
-
-hmm, maybe it went to one of the dozens of mailboxes where I didn't
-look at careful enough ... I'm currently just sorting by mailing list,
-but don't separate out stuff that's directly addressed to me - guess
-I'll have to fix up my mail filter rules :o
-
-Regarding your patch:
-
-How should I now setup a proper swnode object and pass it to the
-driver ?
-
---mtx
-
+diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
+index d5b7a696a68c..63e8ef8beb45 100644
+--- a/drivers/hid/usbhid/usbkbd.c
++++ b/drivers/hid/usbhid/usbkbd.c
+@@ -239,11 +239,11 @@ static int usb_kbd_alloc_mem(struct usb_device *dev, struct usb_kbd *kbd)
+ 		return -1;
+ 	if (!(kbd->led = usb_alloc_urb(0, GFP_KERNEL)))
+ 		return -1;
+-	if (!(kbd->new = usb_alloc_coherent(dev, 8, GFP_ATOMIC, &kbd->new_dma)))
++	if (!(kbd->new = usb_alloc_coherent(dev, 8, GFP_KERNEL, &kbd->new_dma)))
+ 		return -1;
+ 	if (!(kbd->cr = kmalloc(sizeof(struct usb_ctrlrequest), GFP_KERNEL)))
+ 		return -1;
+-	if (!(kbd->leds = usb_alloc_coherent(dev, 1, GFP_ATOMIC, &kbd->leds_dma)))
++	if (!(kbd->leds = usb_alloc_coherent(dev, 1, GFP_KERNEL, &kbd->leds_dma)))
+ 		return -1;
+ 
+ 	return 0;
+diff --git a/drivers/hid/usbhid/usbmouse.c b/drivers/hid/usbhid/usbmouse.c
+index 073127e65ac1..c89332017d5d 100644
+--- a/drivers/hid/usbhid/usbmouse.c
++++ b/drivers/hid/usbhid/usbmouse.c
+@@ -130,7 +130,7 @@ static int usb_mouse_probe(struct usb_interface *intf, const struct usb_device_i
+ 	if (!mouse || !input_dev)
+ 		goto fail1;
+ 
+-	mouse->data = usb_alloc_coherent(dev, 8, GFP_ATOMIC, &mouse->data_dma);
++	mouse->data = usb_alloc_coherent(dev, 8, GFP_KERNEL, &mouse->data_dma);
+ 	if (!mouse->data)
+ 		goto fail1;
+ 
 -- 
-Enrico Weigelt, metux IT consult
-Free software and Linux embedded engineering
-info@metux.net -- +49-151-27565287
+2.20.1

@@ -1,186 +1,83 @@
-From: Lukasz Majewski <lukma@denx.de>
-Subject: Re: [PATCH v4 1/3] mfd: mc13xxx: Add mc34708 adc support
-Date: Fri, 2 Aug 2019 15:19:12 +0200
-Message-ID: <20190802151912.26dbb296@jawa>
-References: <20190717222602.2912-1-lukma@denx.de>
-        <20190717222602.2912-2-lukma@denx.de>
-        <20190725123641.GJ23883@dell>
-        <20190725182020.3948c8d9@jawa>
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: [PATCH] HID: sony: Fix race condition between rumble and device remove.
+Date: Fri,  2 Aug 2019 15:50:19 -0700
+Message-ID: <20190802225019.2418-1-roderick@gaikai.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/zmE80JuW0829EruyaBP_t4j"; protocol="application/pgp-signature"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190725182020.3948c8d9@jawa>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: svv@google.com, pgriffais@valvesoftware.com, Roderick Colenbrander <roderick@gaikai.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
---Sig_/zmE80JuW0829EruyaBP_t4j
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Valve reported a kernel crash on Ubuntu 18.04 when disconnecting a DS4
+gamepad while rumble is enabled. This issue is reproducible with a
+frequency of 1 in 3 times in the game Borderlands 2 when using an
+automatic weapon, which triggers many rumble operations.
 
-Hi Lee,
+We found the issue to be a race condition between sony_remove and the
+final device destruction by the HID / input system. The problem was
+that sony_remove didn't clean some of its work_item state in
+"struct sony_sc". After sony_remove work, the corresponding evdev
+node was around for sufficient time for applications to still queue
+rumble work after "sony_remove".
 
-> Hi Lee,
->=20
-> > On Thu, 18 Jul 2019, Lukasz Majewski wrote:
-> >  =20
-> > > From: Sascha Hauer <s.hauer@pengutronix.de>
-> > >=20
-> > > The mc34708 has an improved adc. The older variants will always
-> > > convert a fixed order of channels. The mc34708 can do up to eight
-> > > conversions in arbitrary channel order. Currently this extended
-> > > feature is not supported. We only support touchscreen conversions
-> > > now, which will be sampled in a data format compatible to the
-> > > older chips in order to keep the API between the mfd and the
-> > > touchscreen driver.
-> > >=20
-> > > Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-> > > Signed-off-by: Lukasz Majewski <lukma@denx.de>
-> > >=20
-> > > ---
-> > > Changes for v4:
-> > > - None
-> > >=20
-> > > Changes for v3:
-> > > - None
-> > >=20
-> > > Changes for v2:
-> > > - Change the return code patch when the mc13xxx ADC is performing
-> > > conversion
-> > > - Introduce new include/linux/mfd/mc34708.h header file for
-> > > mc34708 specific defines
-> > >=20
-> > > Changes from the original patches:
-> > > - ADC conversion functions prototypes added to fix build error
-> > > - Adjustments to make checkpatch clean (-ENOSYS, line over 80
-> > > char)
-> > >=20
-> > > This patch applies on top of v5.2 - SHA1:
-> > > 0ecfebd2b52404ae0c54a878c872bb93363ada36 ---
-> > >  drivers/mfd/mc13xxx-core.c  | 102
-> > > +++++++++++++++++++++++++++++++++++++++++++-
-> > > drivers/mfd/mc13xxx.h       |   3 ++ include/linux/mfd/mc34708.h |
-> > > 37 ++++++++++++++++ 3 files changed, 141 insertions(+), 1
-> > > deletion(-) create mode 100644 include/linux/mfd/mc34708.h
-> > >=20
-> > > diff --git a/drivers/mfd/mc13xxx-core.c
-> > > b/drivers/mfd/mc13xxx-core.c index 1abe7432aad8..01473d6fda21
-> > > 100644 --- a/drivers/mfd/mc13xxx-core.c
-> > > +++ b/drivers/mfd/mc13xxx-core.c
-> > > @@ -12,6 +12,7 @@
-> > >  #include <linux/of_device.h>
-> > >  #include <linux/platform_device.h>
-> > >  #include <linux/mfd/core.h>
-> > > +#include <linux/mfd/mc34708.h>
-> > > =20
-> > >  #include "mc13xxx.h"
-> > > =20
-> > > @@ -45,6 +46,8 @@
-> > > =20
-> > >  #define MC13XXX_ADC2		45
-> > > =20
-> > > +#define MC13XXX_ADC_WORKING		(1 << 0)   =20
-> >=20
-> > BIT(0) ? =20
->=20
-> The same convention - i.e. (1 << 0) is used in the rest of the file.
->=20
-> >  =20
-> > >  void mc13xxx_lock(struct mc13xxx *mc13xxx)
-> > >  {
-> > >  	if (!mutex_trylock(&mc13xxx->lock)) {
-> > > @@ -198,22 +201,30 @@ static void mc34708_print_revision(struct
-> > > mc13xxx *mc13xxx, u32 revision) maskval(revision,
-> > > MC34708_REVISION_FAB)); }
-> > > =20
-> > > +static int mc13xxx_adc_conversion(struct mc13xxx *, unsigned int,
-> > > +				  unsigned int, u8, bool,
-> > > unsigned int *); +static int mc34708_adc_conversion(struct
-> > > mc13xxx *, unsigned int,
-> > > +				  unsigned int, u8, bool,
-> > > unsigned int *); +
-> > >  /* These are only exported for mc13xxx-i2c and mc13xxx-spi */
-> > >  struct mc13xxx_variant mc13xxx_variant_mc13783 =3D {
-> > >  	.name =3D "mc13783",
-> > >  	.print_revision =3D mc13xxx_print_revision,
-> > > +	.adc_do_conversion =3D mc13xxx_adc_conversion,
-> > >  };
-> > >  EXPORT_SYMBOL_GPL(mc13xxx_variant_mc13783);   =20
-> >=20
-> > I'd prefer to keep the call-back functions as close to zero as
-> > possible. =20
->=20
-> If I may ask - what is wrong with having per device callback(s) ?
->=20
-> >=20
-> > It would be better to turn mc13xxx_adc_conversion() in to the catch
-> > function =20
->=20
-> Could you share any example?=20
->=20
-> > choose an execution route based on some platform matching.
-> >  =20
->=20
-> Could you help me with giving a hint of how shall I do the "platform
-> matching" in this particular driver ?=20
->=20
-> The mc13xxx driver seems rather complex with SPI and I2C support and
-> in which the subdevices are added (e.g. rtc, adc, etc).
->=20
-> This particular patch just follows current driver design and fixes its
-> usability for mc13708 drvice.
->=20
-> > If you could do the same for print_revision too, that would be even
-> > better.
-> >  =20
->=20
-> I would prefer to fix the driver (for mc13708) without the need to
-> change the working code.
->=20
+On pre-4.19 kernels the race condition caused a kernel crash due to a
+NULL-pointer dereference as "sc->output_report_dmabuf" got freed during
+sony_remove. On newer kernels this crash doesn't happen due the buffer
+now being allocated using devm_kzalloc. However we can still queue work,
+while the driver is an undefined state.
 
-Lee, would you find time to reply to this message?
+This patch fixes the described problem, by guarding the work_item
+"state_worker" with an initialized variable, which we are setting back
+to 0 on cleanup.
 
->=20
-> Best regards,
->=20
-> Lukasz Majewski
->=20
-> --
->=20
-> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-> Phone: (+49)-8142-66989-59 Fax: (+49)-8142-66989-80 Email:
-> lukma@denx.de
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+CC: stable@vger.kernel.org
+---
+ drivers/hid/hid-sony.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-
-
-
-Best regards,
-
-Lukasz Majewski
-
---
-
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-Phone: (+49)-8142-66989-59 Fax: (+49)-8142-66989-80 Email: lukma@denx.de
-
---Sig_/zmE80JuW0829EruyaBP_t4j
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEgAyFJ+N6uu6+XupJAR8vZIA0zr0FAl1EOFAACgkQAR8vZIA0
-zr1RrQgAkaqi4QhRPJw3YqkMBVlkgZlaG1nv8cETXkocLSj3pu9xyAObrunMOFDU
-p0wTmW0BiTF80P2LX4a3UIu3cINVzGIdYv1tIXj1rJLEpSirVvUa/OvbuU8GDOAB
-IV2AB9ojEBeDdgSjSdncqnFH8ZuWXB52uk5cQFATARw3uMUvi0gsNUjg+48T1Bgs
-JLh0JGEa9KZ52OOIOrFSmHGo4UOBjAUDtf3Q1yTIQ5jQKUm/dwuKdxCYLtl7dOxc
-siC5DsgauGtx+U3dPXCYahauQnjUO557c0a/uuctu+QRBkUv42kNNkud4f8GKyfP
-EZB8f6jJA5yLxXqtrNl+4AAQFkjhUQ==
-=TB5+
------END PGP SIGNATURE-----
-
---Sig_/zmE80JuW0829EruyaBP_t4j--
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 9671a4bad643..31f1023214d3 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -587,10 +587,14 @@ static void sony_set_leds(struct sony_sc *sc);
+ static inline void sony_schedule_work(struct sony_sc *sc,
+ 				      enum sony_worker which)
+ {
++	unsigned long flags;
++
+ 	switch (which) {
+ 	case SONY_WORKER_STATE:
+-		if (!sc->defer_initialization)
++		spin_lock_irqsave(&sc->lock, flags);
++		if (!sc->defer_initialization && sc->state_worker_initialized)
+ 			schedule_work(&sc->state_worker);
++		spin_unlock_irqrestore(&sc->lock, flags);
+ 		break;
+ 	case SONY_WORKER_HOTPLUG:
+ 		if (sc->hotplug_worker_initialized)
+@@ -2553,13 +2557,18 @@ static inline void sony_init_output_report(struct sony_sc *sc,
+ 
+ static inline void sony_cancel_work_sync(struct sony_sc *sc)
+ {
++	unsigned long flags;
++
+ 	if (sc->hotplug_worker_initialized)
+ 		cancel_work_sync(&sc->hotplug_worker);
+-	if (sc->state_worker_initialized)
++	if (sc->state_worker_initialized) {
++		spin_lock_irqsave(&sc->lock, flags);
++		sc->state_worker_initialized = 0;
++		spin_unlock_irqrestore(&sc->lock, flags);
+ 		cancel_work_sync(&sc->state_worker);
++	}
+ }
+ 
+-
+ static int sony_input_configured(struct hid_device *hdev,
+ 					struct hid_input *hidinput)
+ {
+-- 
+2.21.0

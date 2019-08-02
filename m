@@ -1,158 +1,100 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH v2 0/4] Input: mpr121-polled: Add polled driver for
- MPR121
-Date: Thu, 1 Aug 2019 16:49:54 -0700
-Message-ID: <20190801234954.GA178933@dtor-ws>
-References: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
- <20190521053705.GI183429@dtor-ws>
- <ef172b24-cd27-5bb0-d8b1-718f835d0647@ysoft.com>
- <20190725085753.GA26665@penguin>
- <ac436c3c-fa89-f777-85b2-f38adf842e10@ysoft.com>
- <20190725144009.GA27432@penguin>
- <dcee1139-c53f-5ea0-f387-a3aa5a9bf39f@ysoft.com>
- <20190727073156.GA795@penguin>
- <f06a913e-09aa-3225-a495-bb290ee2bb6f@ysoft.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: Re: [PATCH] HID: usbhid: Use GFP_KERNEL instead of GFP_ATOMIC when
+ applicable
+Date: Fri, 2 Aug 2019 09:51:25 +0200
+Message-ID: <36fe1980-9b92-084d-f9db-fac07e624076@wanadoo.fr>
+References: <20190801074759.32738-1-christophe.jaillet@wanadoo.fr>
+ <5D42B98B.40900@bfs.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <f06a913e-09aa-3225-a495-bb290ee2bb6f@ysoft.com>
+In-Reply-To: <5D42B98B.40900@bfs.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Michal =?utf-8?B?Vm9rw6HEjQ==?= <michal.vokac@ysoft.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>
+To: wharms@bfs.de
+Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 30, 2019 at 11:25:49AM +0200, Michal Vokáč wrote:
-> On 27. 07. 19 9:31, Dmitry Torokhov wrote:
-> > On Fri, Jul 26, 2019 at 01:31:31PM +0200, Michal Vokáč wrote:
-> > > On 25. 07. 19 16:40, Dmitry Torokhov wrote:
-> > > > On Thu, Jul 25, 2019 at 02:58:02PM +0200, Michal Vokáč wrote:
-> > > > > On 25. 07. 19 10:57, Dmitry Torokhov wrote:
-> > > > > > Hi Michal,
-> > > > > > 
-> > > > > > On Tue, May 21, 2019 at 08:51:17AM +0200, Michal Vokáč wrote:
-> > > > > > > On 21. 05. 19 7:37, Dmitry Torokhov wrote:
-> > > > > > > > Hi Michal,
-> > > > > > > > 
-> > > > > > > > On Fri, May 17, 2019 at 03:12:49PM +0200, Michal Vokáč wrote:
-> > > > > > > > > Hi,
-> > > > > > > > > 
-> > > > > > > > > I have to deal with a situation where we have a custom i.MX6 based
-> > > > > > > > > platform in production that uses the MPR121 touchkey controller.
-> > > > > > > > > Unfortunately the chip is connected using only the I2C interface.
-> > > > > > > > > The interrupt line is not used. Back in 2015 (Linux v3.14), my
-> > > > > > > > > colleague modded the existing mpr121_touchkey.c driver to use polling
-> > > > > > > > > instead of interrupt.
-> > > > > > > > > 
-> > > > > > > > > For quite some time yet I am in a process of updating the product from
-> > > > > > > > > the ancient Freescale v3.14 kernel to the latest mainline and pushing
-> > > > > > > > > any needed changes upstream. The DT files for our imx6dl-yapp4 platform
-> > > > > > > > > already made it into v5.1-rc.
-> > > > > > > > > 
-> > > > > > > > > I rebased and updated our mpr121 patch to the latest mainline.
-> > > > > > > > > It is created as a separate driver, similarly to gpio_keys_polled.
-> > > > > > > > > 
-> > > > > > > > > The I2C device is quite susceptible to ESD. An ESD test quite often
-> > > > > > > > > causes reset of the chip or some register randomly changes its value.
-> > > > > > > > > The [PATCH 3/4] adds a write-through register cache. With the cache
-> > > > > > > > > this state can be detected and the device can be re-initialied.
-> > > > > > > > > 
-> > > > > > > > > The main question is: Is there any chance that such a polled driver
-> > > > > > > > > could be accepted? Is it correct to implement it as a separate driver
-> > > > > > > > > or should it be done as an option in the existing driver? I can not
-> > > > > > > > > really imagine how I would do that though..
-> > > > > > > > > 
-> > > > > > > > > There are also certain worries that the MPR121 chip may no longer be
-> > > > > > > > > available in nonspecifically distant future. In case of EOL I will need
-> > > > > > > > > to add a polled driver for an other touchkey chip. May it be already
-> > > > > > > > > in mainline or a completely new one.
-> > > > > > > > 
-> > > > > > > > I think that my addition of input_polled_dev was ultimately a wrong
-> > > > > > > > thing to do. I am looking into enabling polling mode for regular input
-> > > > > > > > devices as we then can enable polling mode in existing drivers.
-> > > > > > > 
-> > > > > > > OK, that sounds good. Especially when one needs to switch from one chip
-> > > > > > > to another that is already in tree, the need for a whole new polling
-> > > > > > > driver is eliminated.
-> > > > > > 
-> > > > > > Could you please try the patch below and see if it works for your use
-> > > > > > case? Note that I have not tried running it, but it compiles so it must
-> > > > > > be good ;)
-> > > > > 
-> > > > > Hi Dmitry,
-> > > > > Thank you very much for the patch!
-> > > > > I gave it a shot and it seems you forgot to add the input-poller.h file
-> > > > > to the patch.. it does not compile on my side :(
-> > > > 
-> > > > Oops ;) Please see the updated patch below.
-> > > 
-> > > Thank you, now it is (almost) good as you said :D
-> > > 
-> > > > > 
-> > > > > > Input: add support for polling to input devices
-> > > > > > 
-> > > > > > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > > > 
-> > > > > > Separating "normal" and "polled" input devices was a mistake, as often we want
-> > > > > > to allow the very same device work on both interrupt-driven and polled mode,
-> > > > > > depending on the board on which the device is used.
-> > > > > > 
-> > > > > > This introduces new APIs:
-> > > > > > 
-> > > > > > - input_setup_polling
-> > > > > > - input_set_poll_interval
-> > > > > > - input_set_min_poll_interval
-> > > > > > - input_set_max_poll_interval
-> > > > > > 
-> > > > > > These new APIs allow switching an input device into polled mode with sysfs
-> > > > > > attributes matching drivers using input_polled_dev APIs that will be eventually
-> > > > > > removed.
-> > > > > 
-> > > > > After reading this I am not really sure what else needs to be done
-> > > > > to test/use the poller. I suspect I need to modify the input device
-> > > > > driver (mpr121_touchkey.c in my case) like this:
-> > > > > 
-> > > > > If the interrupt gpio is not provided in DT, the device driver probe
-> > > > > function should:
-> > > > >    - not request the threaded interrupt
-> > > > >    - call input_setup_polling and provide it with poll_fn
-> > > > >      Can the mpr_touchkey_interrupt function be used as is for this
-> > > > >      purpose? The only problem I see is it returns IRQ_HANDLED.
-> > > > 
-> > > > I'd factor out code suitable for polling from mpr_touchkey_interrupt()
-> > > > and then do
-> > > > 
-> > > > static irqreturn_t mpr_touchkey_interrupt(...)
-> > > > {
-> > > > 	mpr_touchkey_report(...);
-> > > > 	return IRQ_HANDLED;
-> > > > }
-> > > > 
-> > > 
-> > > Probably a trivial problem for experienced kernel hacker but I can not
-> > > wrap my head around this - the interrupt handler takes the mpr121
-> > > device id as an argument while the poller poll_fn takes struct input_dev.
-> > > 
-> > > I fail to figure out how to get the device id from the input device.
-> > > 
-> Thanks for the hints Dmitry. I am trying my best but still have some
-> issues with the input_set/get_drvdata.
+Hi, (and sorry if you receive this email twice. I've used a web mail 
+which sends HTML by default and it was rejected by ML)
+
+Le 01/08/2019 à 12:06, walter harms a écrit :
 > 
-> The kernel Oopses on NULL pointer dereference in mpr_touchkey_report.
-> Here is the backtrace:
 > 
-> [    2.916960] 8<--- cut here ---
-> [    2.920022] Unable to handle kernel NULL pointer dereference at virtual address 000001d0
-> [    2.928138] pgd = (ptrval)
+> Am 01.08.2019 09:47, schrieb Christophe JAILLET:
+>> There is no need to use GFP_ATOMIC when calling 'usb_alloc_coherent()'
+>> here. These calls are done from probe functions and using GFP_KERNEL should
+>> be safe.
+>> The memory itself is used within some interrupts, but it is not a
+>> problem, once it has been allocated.
+>>
+>> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+>> ---
+>>   drivers/hid/usbhid/usbkbd.c   | 4 ++--
+>>   drivers/hid/usbhid/usbmouse.c | 2 +-
+>>   2 files changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
+>> index d5b7a696a68c..63e8ef8beb45 100644
+>> --- a/drivers/hid/usbhid/usbkbd.c
+>> +++ b/drivers/hid/usbhid/usbkbd.c
+>> @@ -239,11 +239,11 @@ static int usb_kbd_alloc_mem(struct usb_device *dev, struct usb_kbd *kbd)
+>>   		return -1;
+>>   	if (!(kbd->led = usb_alloc_urb(0, GFP_KERNEL)))
+>>   		return -1;
+>> -	if (!(kbd->new = usb_alloc_coherent(dev, 8, GFP_ATOMIC, &kbd->new_dma)))
+>> +	if (!(kbd->new = usb_alloc_coherent(dev, 8, GFP_KERNEL, &kbd->new_dma)))
+>>   		return -1;
+>>   	if (!(kbd->cr = kmalloc(sizeof(struct usb_ctrlrequest), GFP_KERNEL)))
+>>   		return -1;
+>> -	if (!(kbd->leds = usb_alloc_coherent(dev, 1, GFP_ATOMIC, &kbd->leds_dma)))
+>> +	if (!(kbd->leds = usb_alloc_coherent(dev, 1, GFP_KERNEL, &kbd->leds_dma)))
+>>   		return -1;
+>>   
+> 
+> the kernel style is usually:
+>   kbd->new = usb_alloc_coherent(dev, 8, GFP_ATOMIC, &kbd->new_dma);
+>   if (!kbd->new)
+> 	return -1;
+> 
 
-Ah, that's my fault I believe. Can you please try sticking
+Searching with coccinelle with:
+*   x = usb_alloc_coherent(..., <+... GFP_KERNEL ...+>, ...);
+finds 67 files,
 
-	poller->input = dev;
+whereas:
+*   x = usb_alloc_coherent(..., <+... GFP_ATOMIC ...+>, ...);
+only finds 11 files.
 
-into input_setup_polling()?
+> 
+> in usbmouse.c this is done, any reason for the change here ?
+> 
 
-Thanks.
+No real reason in fact, just to be consistent with surrounding code.
 
--- 
-Dmitry
+Unless some allocations are done within a spin_lock/spin_unlock, using 
+both GFP_KERNEL and GFP_ATOMIC in the same function looks spurious to me.
+Either there is a bug (GFP_KERNEL should be GFP_ATOMIC), or a useless 
+constraint is given to the memory allocator.
+
+CJ
+
+> re,
+>   wh
+> 
+>>   	return 0;
+>> diff --git a/drivers/hid/usbhid/usbmouse.c b/drivers/hid/usbhid/usbmouse.c
+>> index 073127e65ac1..c89332017d5d 100644
+>> --- a/drivers/hid/usbhid/usbmouse.c
+>> +++ b/drivers/hid/usbhid/usbmouse.c
+>> @@ -130,7 +130,7 @@ static int usb_mouse_probe(struct usb_interface *intf, const struct usb_device_i
+>>   	if (!mouse || !input_dev)
+>>   		goto fail1;
+>>   
+>> -	mouse->data = usb_alloc_coherent(dev, 8, GFP_ATOMIC, &mouse->data_dma);
+>> +	mouse->data = usb_alloc_coherent(dev, 8, GFP_KERNEL, &mouse->data_dma);
+>>   	if (!mouse->data)
+>>   		goto fail1;
+>>   
+> 

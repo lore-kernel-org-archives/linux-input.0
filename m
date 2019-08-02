@@ -1,100 +1,86 @@
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: Re: [PATCH] HID: usbhid: Use GFP_KERNEL instead of GFP_ATOMIC when
- applicable
-Date: Fri, 2 Aug 2019 09:51:25 +0200
-Message-ID: <36fe1980-9b92-084d-f9db-fac07e624076@wanadoo.fr>
-References: <20190801074759.32738-1-christophe.jaillet@wanadoo.fr>
- <5D42B98B.40900@bfs.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2 00/10] drivers, provide a way to add sysfs groups easily
+Date: Fri, 2 Aug 2019 12:46:33 +0200
+Message-ID: <20190802104633.GA14823@kroah.com>
+References: <20190731124349.4474-1-gregkh@linuxfoundation.org>
+ <20190731131045.GB147138@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5D42B98B.40900@bfs.de>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: wharms@bfs.de
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20190731131045.GB147138@dtor-ws>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: x86@kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Sudeep Holla <sudeep.holla@arm.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, platform-driver-x86@vger.kernel.org, Tony Prisk <linux@prisktech.co.nz>, Andy Shevchenko <andy.shevchenko@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Darren Hart <dvhart@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Richard Gong <richard.gong@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Hi, (and sorry if you receive this email twice. I've used a web mail 
-which sends HTML by default and it was rejected by ML)
-
-Le 01/08/2019 à 12:06, walter harms a écrit :
-> 
-> 
-> Am 01.08.2019 09:47, schrieb Christophe JAILLET:
->> There is no need to use GFP_ATOMIC when calling 'usb_alloc_coherent()'
->> here. These calls are done from probe functions and using GFP_KERNEL should
->> be safe.
->> The memory itself is used within some interrupts, but it is not a
->> problem, once it has been allocated.
->>
->> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
->> ---
->>   drivers/hid/usbhid/usbkbd.c   | 4 ++--
->>   drivers/hid/usbhid/usbmouse.c | 2 +-
->>   2 files changed, 3 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
->> index d5b7a696a68c..63e8ef8beb45 100644
->> --- a/drivers/hid/usbhid/usbkbd.c
->> +++ b/drivers/hid/usbhid/usbkbd.c
->> @@ -239,11 +239,11 @@ static int usb_kbd_alloc_mem(struct usb_device *dev, struct usb_kbd *kbd)
->>   		return -1;
->>   	if (!(kbd->led = usb_alloc_urb(0, GFP_KERNEL)))
->>   		return -1;
->> -	if (!(kbd->new = usb_alloc_coherent(dev, 8, GFP_ATOMIC, &kbd->new_dma)))
->> +	if (!(kbd->new = usb_alloc_coherent(dev, 8, GFP_KERNEL, &kbd->new_dma)))
->>   		return -1;
->>   	if (!(kbd->cr = kmalloc(sizeof(struct usb_ctrlrequest), GFP_KERNEL)))
->>   		return -1;
->> -	if (!(kbd->leds = usb_alloc_coherent(dev, 1, GFP_ATOMIC, &kbd->leds_dma)))
->> +	if (!(kbd->leds = usb_alloc_coherent(dev, 1, GFP_KERNEL, &kbd->leds_dma)))
->>   		return -1;
->>   
-> 
-> the kernel style is usually:
->   kbd->new = usb_alloc_coherent(dev, 8, GFP_ATOMIC, &kbd->new_dma);
->   if (!kbd->new)
-> 	return -1;
-> 
-
-Searching with coccinelle with:
-*   x = usb_alloc_coherent(..., <+... GFP_KERNEL ...+>, ...);
-finds 67 files,
-
-whereas:
-*   x = usb_alloc_coherent(..., <+... GFP_ATOMIC ...+>, ...);
-only finds 11 files.
-
-> 
-> in usbmouse.c this is done, any reason for the change here ?
-> 
-
-No real reason in fact, just to be consistent with surrounding code.
-
-Unless some allocations are done within a spin_lock/spin_unlock, using 
-both GFP_KERNEL and GFP_ATOMIC in the same function looks spurious to me.
-Either there is a bug (GFP_KERNEL should be GFP_ATOMIC), or a useless 
-constraint is given to the memory allocator.
-
-CJ
-
-> re,
->   wh
-> 
->>   	return 0;
->> diff --git a/drivers/hid/usbhid/usbmouse.c b/drivers/hid/usbhid/usbmouse.c
->> index 073127e65ac1..c89332017d5d 100644
->> --- a/drivers/hid/usbhid/usbmouse.c
->> +++ b/drivers/hid/usbhid/usbmouse.c
->> @@ -130,7 +130,7 @@ static int usb_mouse_probe(struct usb_interface *intf, const struct usb_device_i
->>   	if (!mouse || !input_dev)
->>   		goto fail1;
->>   
->> -	mouse->data = usb_alloc_coherent(dev, 8, GFP_ATOMIC, &mouse->data_dma);
->> +	mouse->data = usb_alloc_coherent(dev, 8, GFP_KERNEL, &mouse->data_dma);
->>   	if (!mouse->data)
->>   		goto fail1;
->>   
-> 
+T24gV2VkLCBKdWwgMzEsIDIwMTkgYXQgMDY6MTA6NDVBTSAtMDcwMCwgRG1pdHJ5IFRvcm9raG92
+IHdyb3RlOgo+IE9uIFdlZCwgSnVsIDMxLCAyMDE5IGF0IDAyOjQzOjM5UE0gKzAyMDAsIEdyZWcg
+S3JvYWgtSGFydG1hbiB3cm90ZToKPiA+IFRoaXMgcGF0Y2ggb3JpZ2luYWxseSBzdGFydGVkIG91
+dCBqdXN0IGFzIGEgd2F5IGZvciBwbGF0Zm9ybSBkcml2ZXJzIHRvCj4gPiBlYXNpbHkgYWRkIGEg
+c3lzZnMgZ3JvdXAgaW4gYSByYWNlLWZyZWUgd2F5LCBidXQgdGhhbmtzIHRvIERtaXRyeSdzCj4g
+PiBwYXRjaCwgdGhpcyBzZXJpZXMgbm93IGlzIGZvciBhbGwgZHJpdmVycyBpbiB0aGUga2VybmVs
+IChoZXksIGEgdW5pZmllZAo+ID4gZHJpdmVyIG1vZGVsIHdvcmtzISEhKQo+ID4gCj4gPiBJJ3Zl
+IG9ubHkgY29udmVydGVkIGEgZmV3IHBsYXRmb3JtIGRyaXZlcnMgaGVyZSBpbiB0aGlzIHNlcmll
+cyB0byBzaG93Cj4gPiBob3cgaXQgd29ya3MsIGJ1dCBvdGhlciBidXNzZXMgY2FuIGJlIGNvbnZl
+cnRlZCBhZnRlciB0aGUgZmlyc3QgcGF0Y2gKPiA+IGdvZXMgaW50byB0aGUgdHJlZS4KPiA+IAo+
+ID4gSGVyZSdzIHRoZSBvcmlnaW5hbCAwMCBtZXNzYWdlLCBmb3IgcGVvcGxlIHRvIGdldCBhbiBp
+ZGVhIG9mIHdoYXQgaXMKPiA+IGdvaW5nIG9uIGhlcmU6Cj4gPiAKPiA+IElmIGEgcGxhdGZvcm0g
+ZHJpdmVyIHdhbnRzIHRvIGFkZCBhIHN5c2ZzIGdyb3VwLCBpdCBoYXMgdG8gZG8gc28gaW4gYQo+
+ID4gcmFjeSB3YXksIGFkZGluZyBpdCBhZnRlciB0aGUgZHJpdmVyIGlzIGJvdW5kLiAgVG8gcmVz
+b2x2ZSB0aGlzIGlzc3VlLAo+ID4gaGF2ZSB0aGUgcGxhdGZvcm0gZHJpdmVyIGNvcmUgZG8gdGhp
+cyBmb3IgdGhlIGRyaXZlciwgbWFraW5nIHRoZQo+ID4gaW5kaXZpZHVhbCBkcml2ZXJzIGxvZ2lj
+IHNtYWxsZXIgYW5kIHNpbXBsZXIsIGFuZCBzb2x2aW5nIHRoZSByYWNlIGF0Cj4gPiB0aGUgc2Ft
+ZSB0aW1lLgo+ID4gCj4gPiBBbGwgb2YgdGhlc2UgcGF0Y2hlcyBkZXBlbmQgb24gdGhlIGZpcnN0
+IHBhdGNoLiAgSSdsbCB0YWtlIHRoZSBmaXJzdCBvbmUKPiA+IHRocm91Z2ggbXkgZHJpdmVyLWNv
+cmUgdHJlZSwgYW5kIGFueSBzdWJzeXN0ZW0gbWFpbnRhaW5lciBjYW4gZWl0aGVyIGFjawo+ID4g
+dGhlaXIgaW5kaXZpZHVsIHBhdGNoIGFuZCBJIHdpbGwgYmUgZ2xhZCB0byBhbHNvIG1lcmdlIGl0
+LCBvciB0aGV5IGNhbgo+ID4gd2FpdCB1bnRpbCBhZnRlciA1LjQtcmMxIHdoZW4gdGhlIGNvcmUg
+cGF0Y2ggaGl0cyBMaW51cydzIHRyZWUgYW5kIHRoZW4KPiA+IHRha2UgaXQsIGl0J3MgdXAgdG8g
+dGhlbS4KPiAKPiBNYXliZSBtYWtlIGFuIGltbXV0YWJsZSBicmFuY2ggb2ZmIDUuMiB3aXRoIGp1
+c3QgcGF0Y2ggMS8xMCBzbyB0aGF0Cj4gc3Vic3lzdGVtcyAoYW5kIHRoZSBkcml2ZXIgY29yZSB0
+cmVlIGl0c2VsZikgY291bGQgcHVsbCBpdCBpbiBhdCB0aGVpcgo+IGxlaXN1cmUgaW50byB0aGVp
+ciAiKi1uZXh0IiBicmFuY2hlcyBhbmQgZGlkIG5vdCBoYXZlIHRvIHdhaXQgdGlsbCA1LjQKPiBv
+ciByaXNrIG1lcmdlIGNsYXNoZXM/CgpJIGhhdmUgbm93IGRvbmUgdGhpcyB3aXRoIHBhdGNoIDEv
+MTAuICBIZXJlJ3MgdGhlIHB1bGwgaW5mbyBpZiBhbnkKc3Vic3lzdGVtIG1haW50YWluZXIgd2Fu
+dHMgdG8gc3VjayB0aGlzIGludG8gdGhlaXIgdHJlZSB0byBwcm92aWRlIHRoZQphYmlsaXR5IGZv
+ciBkcml2ZXJzIHRvIGFkZC9yZW1vdmUgYXR0cmlidXRlIGdyb3VwcyBlYXNpbHkuCgpUaGlzIGlz
+IHBhcnQgb2YgbXkgZHJpdmVyLWNvcmUgdHJlZSBub3csIGFuZCB3aWxsIGdvIHRvIExpbnVzIGZv
+cgo1LjQtcmMxLCBhbG9uZyB3aXRoIGEgZmV3IHBsYXRmb3JtIGRyaXZlcnMgdGhhdCBoYXZlIGJl
+ZW4gYWNrZWQgYnkgdGhlaXIKdmFyaW91cyBzdWJzeXN0ZW0gbWFpbnRhaW5lcnMgdGhhdCBjb252
+ZXJ0IHRoZW0gdG8gdXNlIHRoaXMgbmV3CmZ1bmN0aW9uYWxpdHkuCgpJZiBhbnlvbmUgaGFzIGFu
+eSBxdWVzdGlvbnMgYWJvdXQgdGhpcywgcGxlYXNlIGxldCBtZSBrbm93LgoKdGhhbmtzLAoKZ3Jl
+ZyBrLWgKCi0tLS0tLS0tLS0tLS0tLS0tLS0KClRoZSBmb2xsb3dpbmcgY2hhbmdlcyBzaW5jZSBj
+b21taXQgNWY5ZTgzMmMxMzcwNzUwNDVkMTVjZDY4OTlhYjA1MDVjZmIyY2E0YjoKCiAgTGludXMg
+NS4zLXJjMSAoMjAxOS0wNy0yMSAxNDowNTozOCAtMDcwMCkKCmFyZSBhdmFpbGFibGUgaW4gdGhl
+IEdpdCByZXBvc2l0b3J5IGF0OgoKICBnaXQ6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4
+L2tlcm5lbC9naXQvZ3JlZ2toL2RyaXZlci1jb3JlLmdpdCB0YWdzL2Rldl9ncm91cHNfYWxsX2Ry
+aXZlcnMKCmZvciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byAyM2I2OTA0NDQyZDA4YjdkYmVk
+NzYyMmVkMzNiMjM2ZDQxYTNhYThiOgoKICBkcml2ZXIgY29yZTogYWRkIGRldl9ncm91cHMgdG8g
+YWxsIGRyaXZlcnMgKDIwMTktMDgtMDIgMTI6Mzc6NTMgKzAyMDApCgotLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCmRldl9ncm91
+cHMgYWRkZWQgdG8gc3RydWN0IGRyaXZlcgoKUGVyc2lzdGVudCB0YWcgZm9yIG90aGVycyB0byBw
+dWxsIHRoaXMgYnJhbmNoIGZyb20KClRoaXMgaXMgdGhlIGZpcnN0IHBhdGNoIGluIGEgbG9uZ2Vy
+IHNlcmllcyB0aGF0IGFkZHMgdGhlIGFiaWxpdHkgZm9yIHRoZQpkcml2ZXIgY29yZSB0byBjcmVh
+dGUgYW5kIHJlbW92ZSBhIGxpc3Qgb2YgYXR0cmlidXRlIGdyb3VwcwphdXRvbWF0aWNhbGx5IHdo
+ZW4gdGhlIGRldmljZSBpcyBib3VuZC91bmJvdW5kIGZyb20gYSBzcGVjaWZpYyBkcml2ZXIuCgpT
+ZWU6CglodHRwczovL2xvcmUua2VybmVsLm9yZy9yLzIwMTkwNzMxMTI0MzQ5LjQ0NzQtMi1ncmVn
+a2hAbGludXhmb3VuZGF0aW9uLm9yZwpmb3IgZGV0YWlscyBvbiB0aGlzIHBhdGNoLCBhbmQgZXhh
+bXBsZXMgb2YgaG93IHRvIHVzZSBpdCBpbiBvdGhlcgpkcml2ZXJzLgoKU2lnbmVkLW9mZi1ieTog
+R3JlZyBLcm9haC1IYXJ0bWFuIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4KCi0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0K
+RG1pdHJ5IFRvcm9raG92ICgxKToKICAgICAgZHJpdmVyIGNvcmU6IGFkZCBkZXZfZ3JvdXBzIHRv
+IGFsbCBkcml2ZXJzCgogZHJpdmVycy9iYXNlL2RkLmMgICAgICB8IDE0ICsrKysrKysrKysrKysr
+CiBpbmNsdWRlL2xpbnV4L2RldmljZS5oIHwgIDMgKysrCiAyIGZpbGVzIGNoYW5nZWQsIDE3IGlu
+c2VydGlvbnMoKykKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
+Cmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVs

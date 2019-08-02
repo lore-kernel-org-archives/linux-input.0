@@ -1,86 +1,178 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v2 00/10] drivers, provide a way to add sysfs groups easily
-Date: Fri, 2 Aug 2019 12:46:33 +0200
-Message-ID: <20190802104633.GA14823@kroah.com>
-References: <20190731124349.4474-1-gregkh@linuxfoundation.org>
- <20190731131045.GB147138@dtor-ws>
+From: =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
+Subject: Re: [RFC PATCH v2 0/4] Input: mpr121-polled: Add polled driver for
+ MPR121
+Date: Fri, 2 Aug 2019 14:45:03 +0200
+Message-ID: <f240ecdf-b142-02f0-2e1a-655693f4fa30@ysoft.com>
+References: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
+ <20190521053705.GI183429@dtor-ws>
+ <ef172b24-cd27-5bb0-d8b1-718f835d0647@ysoft.com>
+ <20190725085753.GA26665@penguin>
+ <ac436c3c-fa89-f777-85b2-f38adf842e10@ysoft.com>
+ <20190725144009.GA27432@penguin>
+ <dcee1139-c53f-5ea0-f387-a3aa5a9bf39f@ysoft.com>
+ <20190727073156.GA795@penguin>
+ <f06a913e-09aa-3225-a495-bb290ee2bb6f@ysoft.com>
+ <20190801234954.GA178933@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20190731131045.GB147138@dtor-ws>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190801234954.GA178933@dtor-ws>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: x86@kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Sudeep Holla <sudeep.holla@arm.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, platform-driver-x86@vger.kernel.org, Tony Prisk <linux@prisktech.co.nz>, Andy Shevchenko <andy.shevchenko@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Darren Hart <dvhart@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Richard Gong <richard.gong@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel@lists.infradead.org
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-T24gV2VkLCBKdWwgMzEsIDIwMTkgYXQgMDY6MTA6NDVBTSAtMDcwMCwgRG1pdHJ5IFRvcm9raG92
-IHdyb3RlOgo+IE9uIFdlZCwgSnVsIDMxLCAyMDE5IGF0IDAyOjQzOjM5UE0gKzAyMDAsIEdyZWcg
-S3JvYWgtSGFydG1hbiB3cm90ZToKPiA+IFRoaXMgcGF0Y2ggb3JpZ2luYWxseSBzdGFydGVkIG91
-dCBqdXN0IGFzIGEgd2F5IGZvciBwbGF0Zm9ybSBkcml2ZXJzIHRvCj4gPiBlYXNpbHkgYWRkIGEg
-c3lzZnMgZ3JvdXAgaW4gYSByYWNlLWZyZWUgd2F5LCBidXQgdGhhbmtzIHRvIERtaXRyeSdzCj4g
-PiBwYXRjaCwgdGhpcyBzZXJpZXMgbm93IGlzIGZvciBhbGwgZHJpdmVycyBpbiB0aGUga2VybmVs
-IChoZXksIGEgdW5pZmllZAo+ID4gZHJpdmVyIG1vZGVsIHdvcmtzISEhKQo+ID4gCj4gPiBJJ3Zl
-IG9ubHkgY29udmVydGVkIGEgZmV3IHBsYXRmb3JtIGRyaXZlcnMgaGVyZSBpbiB0aGlzIHNlcmll
-cyB0byBzaG93Cj4gPiBob3cgaXQgd29ya3MsIGJ1dCBvdGhlciBidXNzZXMgY2FuIGJlIGNvbnZl
-cnRlZCBhZnRlciB0aGUgZmlyc3QgcGF0Y2gKPiA+IGdvZXMgaW50byB0aGUgdHJlZS4KPiA+IAo+
-ID4gSGVyZSdzIHRoZSBvcmlnaW5hbCAwMCBtZXNzYWdlLCBmb3IgcGVvcGxlIHRvIGdldCBhbiBp
-ZGVhIG9mIHdoYXQgaXMKPiA+IGdvaW5nIG9uIGhlcmU6Cj4gPiAKPiA+IElmIGEgcGxhdGZvcm0g
-ZHJpdmVyIHdhbnRzIHRvIGFkZCBhIHN5c2ZzIGdyb3VwLCBpdCBoYXMgdG8gZG8gc28gaW4gYQo+
-ID4gcmFjeSB3YXksIGFkZGluZyBpdCBhZnRlciB0aGUgZHJpdmVyIGlzIGJvdW5kLiAgVG8gcmVz
-b2x2ZSB0aGlzIGlzc3VlLAo+ID4gaGF2ZSB0aGUgcGxhdGZvcm0gZHJpdmVyIGNvcmUgZG8gdGhp
-cyBmb3IgdGhlIGRyaXZlciwgbWFraW5nIHRoZQo+ID4gaW5kaXZpZHVhbCBkcml2ZXJzIGxvZ2lj
-IHNtYWxsZXIgYW5kIHNpbXBsZXIsIGFuZCBzb2x2aW5nIHRoZSByYWNlIGF0Cj4gPiB0aGUgc2Ft
-ZSB0aW1lLgo+ID4gCj4gPiBBbGwgb2YgdGhlc2UgcGF0Y2hlcyBkZXBlbmQgb24gdGhlIGZpcnN0
-IHBhdGNoLiAgSSdsbCB0YWtlIHRoZSBmaXJzdCBvbmUKPiA+IHRocm91Z2ggbXkgZHJpdmVyLWNv
-cmUgdHJlZSwgYW5kIGFueSBzdWJzeXN0ZW0gbWFpbnRhaW5lciBjYW4gZWl0aGVyIGFjawo+ID4g
-dGhlaXIgaW5kaXZpZHVsIHBhdGNoIGFuZCBJIHdpbGwgYmUgZ2xhZCB0byBhbHNvIG1lcmdlIGl0
-LCBvciB0aGV5IGNhbgo+ID4gd2FpdCB1bnRpbCBhZnRlciA1LjQtcmMxIHdoZW4gdGhlIGNvcmUg
-cGF0Y2ggaGl0cyBMaW51cydzIHRyZWUgYW5kIHRoZW4KPiA+IHRha2UgaXQsIGl0J3MgdXAgdG8g
-dGhlbS4KPiAKPiBNYXliZSBtYWtlIGFuIGltbXV0YWJsZSBicmFuY2ggb2ZmIDUuMiB3aXRoIGp1
-c3QgcGF0Y2ggMS8xMCBzbyB0aGF0Cj4gc3Vic3lzdGVtcyAoYW5kIHRoZSBkcml2ZXIgY29yZSB0
-cmVlIGl0c2VsZikgY291bGQgcHVsbCBpdCBpbiBhdCB0aGVpcgo+IGxlaXN1cmUgaW50byB0aGVp
-ciAiKi1uZXh0IiBicmFuY2hlcyBhbmQgZGlkIG5vdCBoYXZlIHRvIHdhaXQgdGlsbCA1LjQKPiBv
-ciByaXNrIG1lcmdlIGNsYXNoZXM/CgpJIGhhdmUgbm93IGRvbmUgdGhpcyB3aXRoIHBhdGNoIDEv
-MTAuICBIZXJlJ3MgdGhlIHB1bGwgaW5mbyBpZiBhbnkKc3Vic3lzdGVtIG1haW50YWluZXIgd2Fu
-dHMgdG8gc3VjayB0aGlzIGludG8gdGhlaXIgdHJlZSB0byBwcm92aWRlIHRoZQphYmlsaXR5IGZv
-ciBkcml2ZXJzIHRvIGFkZC9yZW1vdmUgYXR0cmlidXRlIGdyb3VwcyBlYXNpbHkuCgpUaGlzIGlz
-IHBhcnQgb2YgbXkgZHJpdmVyLWNvcmUgdHJlZSBub3csIGFuZCB3aWxsIGdvIHRvIExpbnVzIGZv
-cgo1LjQtcmMxLCBhbG9uZyB3aXRoIGEgZmV3IHBsYXRmb3JtIGRyaXZlcnMgdGhhdCBoYXZlIGJl
-ZW4gYWNrZWQgYnkgdGhlaXIKdmFyaW91cyBzdWJzeXN0ZW0gbWFpbnRhaW5lcnMgdGhhdCBjb252
-ZXJ0IHRoZW0gdG8gdXNlIHRoaXMgbmV3CmZ1bmN0aW9uYWxpdHkuCgpJZiBhbnlvbmUgaGFzIGFu
-eSBxdWVzdGlvbnMgYWJvdXQgdGhpcywgcGxlYXNlIGxldCBtZSBrbm93LgoKdGhhbmtzLAoKZ3Jl
-ZyBrLWgKCi0tLS0tLS0tLS0tLS0tLS0tLS0KClRoZSBmb2xsb3dpbmcgY2hhbmdlcyBzaW5jZSBj
-b21taXQgNWY5ZTgzMmMxMzcwNzUwNDVkMTVjZDY4OTlhYjA1MDVjZmIyY2E0YjoKCiAgTGludXMg
-NS4zLXJjMSAoMjAxOS0wNy0yMSAxNDowNTozOCAtMDcwMCkKCmFyZSBhdmFpbGFibGUgaW4gdGhl
-IEdpdCByZXBvc2l0b3J5IGF0OgoKICBnaXQ6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4
-L2tlcm5lbC9naXQvZ3JlZ2toL2RyaXZlci1jb3JlLmdpdCB0YWdzL2Rldl9ncm91cHNfYWxsX2Ry
-aXZlcnMKCmZvciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byAyM2I2OTA0NDQyZDA4YjdkYmVk
-NzYyMmVkMzNiMjM2ZDQxYTNhYThiOgoKICBkcml2ZXIgY29yZTogYWRkIGRldl9ncm91cHMgdG8g
-YWxsIGRyaXZlcnMgKDIwMTktMDgtMDIgMTI6Mzc6NTMgKzAyMDApCgotLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCmRldl9ncm91
-cHMgYWRkZWQgdG8gc3RydWN0IGRyaXZlcgoKUGVyc2lzdGVudCB0YWcgZm9yIG90aGVycyB0byBw
-dWxsIHRoaXMgYnJhbmNoIGZyb20KClRoaXMgaXMgdGhlIGZpcnN0IHBhdGNoIGluIGEgbG9uZ2Vy
-IHNlcmllcyB0aGF0IGFkZHMgdGhlIGFiaWxpdHkgZm9yIHRoZQpkcml2ZXIgY29yZSB0byBjcmVh
-dGUgYW5kIHJlbW92ZSBhIGxpc3Qgb2YgYXR0cmlidXRlIGdyb3VwcwphdXRvbWF0aWNhbGx5IHdo
-ZW4gdGhlIGRldmljZSBpcyBib3VuZC91bmJvdW5kIGZyb20gYSBzcGVjaWZpYyBkcml2ZXIuCgpT
-ZWU6CglodHRwczovL2xvcmUua2VybmVsLm9yZy9yLzIwMTkwNzMxMTI0MzQ5LjQ0NzQtMi1ncmVn
-a2hAbGludXhmb3VuZGF0aW9uLm9yZwpmb3IgZGV0YWlscyBvbiB0aGlzIHBhdGNoLCBhbmQgZXhh
-bXBsZXMgb2YgaG93IHRvIHVzZSBpdCBpbiBvdGhlcgpkcml2ZXJzLgoKU2lnbmVkLW9mZi1ieTog
-R3JlZyBLcm9haC1IYXJ0bWFuIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4KCi0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0K
-RG1pdHJ5IFRvcm9raG92ICgxKToKICAgICAgZHJpdmVyIGNvcmU6IGFkZCBkZXZfZ3JvdXBzIHRv
-IGFsbCBkcml2ZXJzCgogZHJpdmVycy9iYXNlL2RkLmMgICAgICB8IDE0ICsrKysrKysrKysrKysr
-CiBpbmNsdWRlL2xpbnV4L2RldmljZS5oIHwgIDMgKysrCiAyIGZpbGVzIGNoYW5nZWQsIDE3IGlu
-c2VydGlvbnMoKykKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
-Cmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVs
+On 02. 08. 19 1:49, Dmitry Torokhov wrote:
+> On Tue, Jul 30, 2019 at 11:25:49AM +0200, Michal Vokáč wrote:
+>> On 27. 07. 19 9:31, Dmitry Torokhov wrote:
+>>> On Fri, Jul 26, 2019 at 01:31:31PM +0200, Michal Vokáč wrote:
+>>>> On 25. 07. 19 16:40, Dmitry Torokhov wrote:
+>>>>> On Thu, Jul 25, 2019 at 02:58:02PM +0200, Michal Vokáč wrote:
+>>>>>> On 25. 07. 19 10:57, Dmitry Torokhov wrote:
+>>>>>>> Hi Michal,
+>>>>>>>
+>>>>>>> On Tue, May 21, 2019 at 08:51:17AM +0200, Michal Vokáč wrote:
+>>>>>>>> On 21. 05. 19 7:37, Dmitry Torokhov wrote:
+>>>>>>>>> Hi Michal,
+>>>>>>>>>
+>>>>>>>>> On Fri, May 17, 2019 at 03:12:49PM +0200, Michal Vokáč wrote:
+>>>>>>>>>> Hi,
+>>>>>>>>>>
+>>>>>>>>>> I have to deal with a situation where we have a custom i.MX6 based
+>>>>>>>>>> platform in production that uses the MPR121 touchkey controller.
+>>>>>>>>>> Unfortunately the chip is connected using only the I2C interface.
+>>>>>>>>>> The interrupt line is not used. Back in 2015 (Linux v3.14), my
+>>>>>>>>>> colleague modded the existing mpr121_touchkey.c driver to use polling
+>>>>>>>>>> instead of interrupt.
+>>>>>>>>>>
+>>>>>>>>>> For quite some time yet I am in a process of updating the product from
+>>>>>>>>>> the ancient Freescale v3.14 kernel to the latest mainline and pushing
+>>>>>>>>>> any needed changes upstream. The DT files for our imx6dl-yapp4 platform
+>>>>>>>>>> already made it into v5.1-rc.
+>>>>>>>>>>
+>>>>>>>>>> I rebased and updated our mpr121 patch to the latest mainline.
+>>>>>>>>>> It is created as a separate driver, similarly to gpio_keys_polled.
+>>>>>>>>>>
+>>>>>>>>>> The I2C device is quite susceptible to ESD. An ESD test quite often
+>>>>>>>>>> causes reset of the chip or some register randomly changes its value.
+>>>>>>>>>> The [PATCH 3/4] adds a write-through register cache. With the cache
+>>>>>>>>>> this state can be detected and the device can be re-initialied.
+>>>>>>>>>>
+>>>>>>>>>> The main question is: Is there any chance that such a polled driver
+>>>>>>>>>> could be accepted? Is it correct to implement it as a separate driver
+>>>>>>>>>> or should it be done as an option in the existing driver? I can not
+>>>>>>>>>> really imagine how I would do that though..
+>>>>>>>>>>
+>>>>>>>>>> There are also certain worries that the MPR121 chip may no longer be
+>>>>>>>>>> available in nonspecifically distant future. In case of EOL I will need
+>>>>>>>>>> to add a polled driver for an other touchkey chip. May it be already
+>>>>>>>>>> in mainline or a completely new one.
+>>>>>>>>>
+>>>>>>>>> I think that my addition of input_polled_dev was ultimately a wrong
+>>>>>>>>> thing to do. I am looking into enabling polling mode for regular input
+>>>>>>>>> devices as we then can enable polling mode in existing drivers.
+>>>>>>>>
+>>>>>>>> OK, that sounds good. Especially when one needs to switch from one chip
+>>>>>>>> to another that is already in tree, the need for a whole new polling
+>>>>>>>> driver is eliminated.
+>>>>>>>
+>>>>>>> Could you please try the patch below and see if it works for your use
+>>>>>>> case? Note that I have not tried running it, but it compiles so it must
+>>>>>>> be good ;)
+>>>>>>
+>>>>>> Hi Dmitry,
+>>>>>> Thank you very much for the patch!
+>>>>>> I gave it a shot and it seems you forgot to add the input-poller.h file
+>>>>>> to the patch.. it does not compile on my side :(
+>>>>>
+>>>>> Oops ;) Please see the updated patch below.
+>>>>
+>>>> Thank you, now it is (almost) good as you said :D
+>>>>
+>>>>>>
+>>>>>>> Input: add support for polling to input devices
+>>>>>>>
+>>>>>>> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>>>>>>>
+>>>>>>> Separating "normal" and "polled" input devices was a mistake, as often we want
+>>>>>>> to allow the very same device work on both interrupt-driven and polled mode,
+>>>>>>> depending on the board on which the device is used.
+>>>>>>>
+>>>>>>> This introduces new APIs:
+>>>>>>>
+>>>>>>> - input_setup_polling
+>>>>>>> - input_set_poll_interval
+>>>>>>> - input_set_min_poll_interval
+>>>>>>> - input_set_max_poll_interval
+>>>>>>>
+>>>>>>> These new APIs allow switching an input device into polled mode with sysfs
+>>>>>>> attributes matching drivers using input_polled_dev APIs that will be eventually
+>>>>>>> removed.
+>>>>>>
+>>>>>> After reading this I am not really sure what else needs to be done
+>>>>>> to test/use the poller. I suspect I need to modify the input device
+>>>>>> driver (mpr121_touchkey.c in my case) like this:
+>>>>>>
+>>>>>> If the interrupt gpio is not provided in DT, the device driver probe
+>>>>>> function should:
+>>>>>>     - not request the threaded interrupt
+>>>>>>     - call input_setup_polling and provide it with poll_fn
+>>>>>>       Can the mpr_touchkey_interrupt function be used as is for this
+>>>>>>       purpose? The only problem I see is it returns IRQ_HANDLED.
+>>>>>
+>>>>> I'd factor out code suitable for polling from mpr_touchkey_interrupt()
+>>>>> and then do
+>>>>>
+>>>>> static irqreturn_t mpr_touchkey_interrupt(...)
+>>>>> {
+>>>>> 	mpr_touchkey_report(...);
+>>>>> 	return IRQ_HANDLED;
+>>>>> }
+>>>>>
+>>>>
+>>>> Probably a trivial problem for experienced kernel hacker but I can not
+>>>> wrap my head around this - the interrupt handler takes the mpr121
+>>>> device id as an argument while the poller poll_fn takes struct input_dev.
+>>>>
+>>>> I fail to figure out how to get the device id from the input device.
+>>>>
+>> Thanks for the hints Dmitry. I am trying my best but still have some
+>> issues with the input_set/get_drvdata.
+>>
+>> The kernel Oopses on NULL pointer dereference in mpr_touchkey_report.
+>> Here is the backtrace:
+>>
+>> [    2.916960] 8<--- cut here ---
+>> [    2.920022] Unable to handle kernel NULL pointer dereference at virtual address 000001d0
+>> [    2.928138] pgd = (ptrval)
+> 
+> Ah, that's my fault I believe. Can you please try sticking
+> 
+> 	poller->input = dev;
+> 
+> into input_setup_polling()?
+> 
+Nice, that solved the problem and I confirm the poller mechanism works
+as expected. The sysfs poll/min/max interface also works just fine.
+
+Please Cc me when you submit your patch. I think you can already add
+my "Tested-by: Michal Vokáč <michal.vokac@ysoft.com>".
+
+I will send mine series when the poller is in your tree. I will include
+the proposed DT binding change, adding the "linux,poll-interrupt"
+property, though Rob did not respond to this yet.
+
+What about the min/max poll interval limits? Was your idea those should
+also be configurable from DT? Currently I defined some limits that are
+reasonable for our use case but may not be suitable for someone else.
+
+In the meantime I also need to improve reliability of the reading.
+Sometimes the keys get stuck or an electrostatic discharge causes
+reset of the chip. I will extract changes that deal with these problems
+from the RFC series and from some downstream patches and submit those
+later.
+
+Thank you!
+Michal

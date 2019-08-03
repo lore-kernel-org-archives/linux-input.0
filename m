@@ -1,83 +1,62 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH] HID: sony: Fix race condition between rumble and device remove.
-Date: Fri,  2 Aug 2019 15:50:19 -0700
-Message-ID: <20190802225019.2418-1-roderick@gaikai.com>
+From: ohaibuzzle@gmail.com
+Subject: [PATCH] platform/x86: silead_dmi: Add touchscreen platform data for the Chuwi Surbook Mini tablet
+Date: Sat,  3 Aug 2019 08:22:38 +0700
+Message-ID: <20190803012238.4099-1-ohaibuzzle@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: svv@google.com, pgriffais@valvesoftware.com, Roderick Colenbrander <roderick@gaikai.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>, stable@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: hdegoede@redhat.com
+Cc: dvhart@infradead.org, andy@infradead.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Buzzle <ohaibuzzle@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Valve reported a kernel crash on Ubuntu 18.04 when disconnecting a DS4
-gamepad while rumble is enabled. This issue is reproducible with a
-frequency of 1 in 3 times in the game Borderlands 2 when using an
-automatic weapon, which triggers many rumble operations.
+From: Buzzle <ohaibuzzle@gmail.com>
 
-We found the issue to be a race condition between sony_remove and the
-final device destruction by the HID / input system. The problem was
-that sony_remove didn't clean some of its work_item state in
-"struct sony_sc". After sony_remove work, the corresponding evdev
-node was around for sufficient time for applications to still queue
-rumble work after "sony_remove".
-
-On pre-4.19 kernels the race condition caused a kernel crash due to a
-NULL-pointer dereference as "sc->output_report_dmabuf" got freed during
-sony_remove. On newer kernels this crash doesn't happen due the buffer
-now being allocated using devm_kzalloc. However we can still queue work,
-while the driver is an undefined state.
-
-This patch fixes the described problem, by guarding the work_item
-"state_worker" with an initialized variable, which we are setting back
-to 0 on cleanup.
-
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-CC: stable@vger.kernel.org
 ---
- drivers/hid/hid-sony.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/platform/x86/touchscreen_dmi.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 9671a4bad643..31f1023214d3 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -587,10 +587,14 @@ static void sony_set_leds(struct sony_sc *sc);
- static inline void sony_schedule_work(struct sony_sc *sc,
- 				      enum sony_worker which)
- {
-+	unsigned long flags;
-+
- 	switch (which) {
- 	case SONY_WORKER_STATE:
--		if (!sc->defer_initialization)
-+		spin_lock_irqsave(&sc->lock, flags);
-+		if (!sc->defer_initialization && sc->state_worker_initialized)
- 			schedule_work(&sc->state_worker);
-+		spin_unlock_irqrestore(&sc->lock, flags);
- 		break;
- 	case SONY_WORKER_HOTPLUG:
- 		if (sc->hotplug_worker_initialized)
-@@ -2553,13 +2557,18 @@ static inline void sony_init_output_report(struct sony_sc *sc,
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 4370e4add83a..72535b0268eb 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -136,6 +136,22 @@ static const struct ts_dmi_data chuwi_vi10_data = {
+ 	.properties     = chuwi_vi10_props,
+ };
  
- static inline void sony_cancel_work_sync(struct sony_sc *sc)
- {
-+	unsigned long flags;
++static const struct property_entry chuwi_surbook_mini_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 88),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 13),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 2040),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1524),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-surbook-mini.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	{ }
++};
 +
- 	if (sc->hotplug_worker_initialized)
- 		cancel_work_sync(&sc->hotplug_worker);
--	if (sc->state_worker_initialized)
-+	if (sc->state_worker_initialized) {
-+		spin_lock_irqsave(&sc->lock, flags);
-+		sc->state_worker_initialized = 0;
-+		spin_unlock_irqrestore(&sc->lock, flags);
- 		cancel_work_sync(&sc->state_worker);
-+	}
- }
- 
--
- static int sony_input_configured(struct hid_device *hdev,
- 					struct hid_input *hidinput)
- {
++static const struct ts_dmi_data chuwi_surbook_mini_data = {
++	.acpi_name      = "MSSL1680:00",
++	.properties     = chuwi_surbook_mini_props,
++};
++
+ static const struct property_entry connect_tablet9_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 9),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 10),
+@@ -646,6 +662,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "S165"),
+ 		},
+ 	},
++	{
++		/* Chuwi Surbook Mini (CWI540) */
++		.driver_data = (void *)&chuwi_surbook_mini_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "C3W6_AP108_4G"),
++		},
++	},
+ 	{
+ 		/* Connect Tablet 9 */
+ 		.driver_data = (void *)&connect_tablet9_data,
 -- 
-2.21.0
+2.22.0

@@ -1,56 +1,30 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] Input: applespi - use struct_size() helper
-Date: Mon, 5 Aug 2019 19:06:38 -0500
-Message-ID: <20190806000638.GA4827@embeddedor>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 1/2] HID: hiddev: avoid opening a disconnected device
+Date: Tue, 6 Aug 2019 09:57:10 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1908060956460.27147@cbobk.fhfr.pm>
+References: <20190806035820.10492-1-hdanton@sina.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20190806035820.10492-1-hdanton@sina.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+To: Hillf Danton <hdanton@sina.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>
 List-Id: linux-input@vger.kernel.org
 
-One of the more common cases of allocation size calculations is finding
-the size of a structure that has a zero-sized array at the end, along
-with memory for some number of elements for that array. For example:
+On Tue, 6 Aug 2019, Hillf Danton wrote:
 
-struct touchpad_protocol {
-	...
-        struct tp_finger        fingers[0];
-};
+> In order to avoid opening a disconnected device, we need to check exist
+> again after acquiring the existance lock, and bail out if necessary.
+> 
+> Cc: Andrey Konovalov <andreyknvl@google.com>
+> Signed-off-by: Hillf Danton <hdanton@sina.com>
 
-Make use of the struct_size() helper instead of an open-coded version
-in order to avoid any potential type mistakes.
+Could you please add proper Reported-by: reference to syzbot? (in 2/2 as 
+well).
 
-So, replace the following form:
+Thanks,
 
-sizeof(*tp) + tp->number_of_fingers * sizeof(tp->fingers[0]);
-
-with:
-
-struct_size(tp, fingers, tp->number_of_fingers)
-
-This code was detected with the help of Coccinelle.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/input/keyboard/applespi.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index acf34a5ff571..584289b67fb3 100644
---- a/drivers/input/keyboard/applespi.c
-+++ b/drivers/input/keyboard/applespi.c
-@@ -1494,8 +1494,7 @@ static void applespi_got_data(struct applespi_data *applespi)
- 		size_t tp_len;
- 
- 		tp = &message->touchpad;
--		tp_len = sizeof(*tp) +
--			 tp->number_of_fingers * sizeof(tp->fingers[0]);
-+		tp_len = struct_size(tp, fingers, tp->number_of_fingers);
- 
- 		if (le16_to_cpu(message->length) + 2 != tp_len) {
- 			dev_warn_ratelimited(&applespi->spi->dev,
 -- 
-2.22.0
+Jiri Kosina
+SUSE Labs

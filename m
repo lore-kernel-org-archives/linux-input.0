@@ -1,41 +1,43 @@
-From: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH] Input: docs: fix spelling mistake "potocol" ->
- "protocol"
-Date: Tue, 6 Aug 2019 11:24:28 -0600
-Message-ID: <20190806112428.3ab5d604@lwn.net>
-References: <20190805104951.26947-1-colin.king@canonical.com>
+From: "Gerecke, Jason" <killertofu@gmail.com>
+Subject: [PATCH] HID: wacom: Correct distance scale for 2nd-gen Intuos devices
+Date: Tue,  6 Aug 2019 13:58:05 -0700
+Message-ID: <20190806205805.21168-1-jason.gerecke@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190805104951.26947-1-colin.king@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon,  5 Aug 2019 11:49:51 +0100
-Colin King <colin.king@canonical.com> wrote:
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-> There is a minor spelling mistake in the documentation, fix it.
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  Documentation/input/multi-touch-protocol.rst | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/input/multi-touch-protocol.rst b/Documentation/input/multi-touch-protocol.rst
-> index 6be70342e709..307fe22d9668 100644
-> --- a/Documentation/input/multi-touch-protocol.rst
-> +++ b/Documentation/input/multi-touch-protocol.rst
-> @@ -23,7 +23,7 @@ devices capable of tracking identifiable contacts (type B), the protocol
->  describes how to send updates for individual contacts via event slots.
->  
->  .. note::
-> -   MT potocol type A is obsolete, all kernel drivers have been
-> +   MT protocol type A is obsolete, all kernel drivers have been
->     converted to use type B.
+Distance values reported by 2nd-gen Intuos tablets are on an inveted scale
+(0 == far, 63 == near). We need to change them over to a normal scale before
+reporting to userspace or else userspace drivers and applications can get
+confused.
 
-Applied, thanks.
+Ref: https://github.com/linuxwacom/input-wacom/issues/98
+Fixes: eda01dab53 ("HID: wacom: Add four new Intuos devices")
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Cc: <stable@vger.kernel.org> # v4.4+
+---
+ drivers/hid/wacom_wac.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-jon
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 7a8ddc999a8e..879e41fbf604 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -846,6 +846,9 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
+ 		y >>= 1;
+ 		distance >>= 1;
+ 	}
++	if (features->type == INTUOSHT2) {
++		distance = features->distance_max - distance;
++	}
+ 	input_report_abs(input, ABS_X, x);
+ 	input_report_abs(input, ABS_Y, y);
+ 	input_report_abs(input, ABS_DISTANCE, distance);
+-- 
+2.22.0

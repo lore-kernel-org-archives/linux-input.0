@@ -1,66 +1,41 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: applespi - use struct_size() helper
-Date: Tue, 6 Aug 2019 09:04:00 -0700
-Message-ID: <20190806160400.GC178933@dtor-ws>
-References: <20190806000638.GA4827@embeddedor>
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH] Input: docs: fix spelling mistake "potocol" ->
+ "protocol"
+Date: Tue, 6 Aug 2019 11:24:28 -0600
+Message-ID: <20190806112428.3ab5d604@lwn.net>
+References: <20190805104951.26947-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190806000638.GA4827@embeddedor>
+In-Reply-To: <20190805104951.26947-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Aug 05, 2019 at 07:06:38PM -0500, Gustavo A. R. Silva wrote:
-> One of the more common cases of allocation size calculations is finding
-> the size of a structure that has a zero-sized array at the end, along
-> with memory for some number of elements for that array. For example:
-> 
-> struct touchpad_protocol {
-> 	...
->         struct tp_finger        fingers[0];
-> };
-> 
-> Make use of the struct_size() helper instead of an open-coded version
-> in order to avoid any potential type mistakes.
-> 
-> So, replace the following form:
-> 
-> sizeof(*tp) + tp->number_of_fingers * sizeof(tp->fingers[0]);
-> 
-> with:
-> 
-> struct_size(tp, fingers, tp->number_of_fingers)
-> 
-> This code was detected with the help of Coccinelle.
-> 
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+On Mon,  5 Aug 2019 11:49:51 +0100
+Colin King <colin.king@canonical.com> wrote:
 
-Applied, thank you.
-
+> There is a minor spelling mistake in the documentation, fix it.
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 > ---
->  drivers/input/keyboard/applespi.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  Documentation/input/multi-touch-protocol.rst | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-> index acf34a5ff571..584289b67fb3 100644
-> --- a/drivers/input/keyboard/applespi.c
-> +++ b/drivers/input/keyboard/applespi.c
-> @@ -1494,8 +1494,7 @@ static void applespi_got_data(struct applespi_data *applespi)
->  		size_t tp_len;
+> diff --git a/Documentation/input/multi-touch-protocol.rst b/Documentation/input/multi-touch-protocol.rst
+> index 6be70342e709..307fe22d9668 100644
+> --- a/Documentation/input/multi-touch-protocol.rst
+> +++ b/Documentation/input/multi-touch-protocol.rst
+> @@ -23,7 +23,7 @@ devices capable of tracking identifiable contacts (type B), the protocol
+>  describes how to send updates for individual contacts via event slots.
 >  
->  		tp = &message->touchpad;
-> -		tp_len = sizeof(*tp) +
-> -			 tp->number_of_fingers * sizeof(tp->fingers[0]);
-> +		tp_len = struct_size(tp, fingers, tp->number_of_fingers);
->  
->  		if (le16_to_cpu(message->length) + 2 != tp_len) {
->  			dev_warn_ratelimited(&applespi->spi->dev,
-> -- 
-> 2.22.0
-> 
+>  .. note::
+> -   MT potocol type A is obsolete, all kernel drivers have been
+> +   MT protocol type A is obsolete, all kernel drivers have been
+>     converted to use type B.
 
--- 
-Dmitry
+Applied, thanks.
+
+jon

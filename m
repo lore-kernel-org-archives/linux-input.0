@@ -1,41 +1,56 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: input: fix a4tech horizontal wheel custom
- usage
-Date: Mon, 5 Aug 2019 14:38:06 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1908051437490.5899@cbobk.fhfr.pm>
-References: <20190611121320.30267-1-nsaenzjulienne@suse.de> <cd69abeb3883ff7c7e2ff8dbe4db722f4e981875.camel@suse.de>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] Input: applespi - use struct_size() helper
+Date: Mon, 5 Aug 2019 19:06:38 -0500
+Message-ID: <20190806000638.GA4827@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cd69abeb3883ff7c7e2ff8dbe4db722f4e981875.camel@suse.de>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, dmitry.torokhov@gmail.com, wbauer@tmo.at, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 1 Aug 2019, Nicolas Saenz Julienne wrote:
+One of the more common cases of allocation size calculations is finding
+the size of a structure that has a zero-sized array at the end, along
+with memory for some number of elements for that array. For example:
 
-> > Some a4tech mice use the 'GenericDesktop.00b8' usage to inform whether
-> > the previous wheel report was horizontal or vertical. Before
-> > c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key") this
-> > usage was being mapped to 'Relative.Misc'. After the patch it's simply
-> > ignored (usage->type == 0 & usage->code == 0). Which ultimately makes
-> > hid-a4tech ignore the WHEEL/HWHEEL selection event, as it has no
-> > usage->type.
-> > 
-> > We shouldn't rely on a mapping for that usage as it's nonstandard and
-> > doesn't really map to an input event. So we bypass the mapping and make
-> > sure the custom event handling properly handles both reports.
-> > 
-> > Fixes: c01908a14bf73 ("HID: input: add mapping for "Toggle Display" key")
-> > Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-> > ---
-> 
-> It would be nice for this patch not to get lost. It fixes issues both repoted
-> on opensuse and fedora.
+struct touchpad_protocol {
+	...
+        struct tp_finger        fingers[0];
+};
 
-Sorry for the delay. I've now queued the patch. Thanks for fixing this,
+Make use of the struct_size() helper instead of an open-coded version
+in order to avoid any potential type mistakes.
 
+So, replace the following form:
+
+sizeof(*tp) + tp->number_of_fingers * sizeof(tp->fingers[0]);
+
+with:
+
+struct_size(tp, fingers, tp->number_of_fingers)
+
+This code was detected with the help of Coccinelle.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/input/keyboard/applespi.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+index acf34a5ff571..584289b67fb3 100644
+--- a/drivers/input/keyboard/applespi.c
++++ b/drivers/input/keyboard/applespi.c
+@@ -1494,8 +1494,7 @@ static void applespi_got_data(struct applespi_data *applespi)
+ 		size_t tp_len;
+ 
+ 		tp = &message->touchpad;
+-		tp_len = sizeof(*tp) +
+-			 tp->number_of_fingers * sizeof(tp->fingers[0]);
++		tp_len = struct_size(tp, fingers, tp->number_of_fingers);
+ 
+ 		if (le16_to_cpu(message->length) + 2 != tp_len) {
+ 			dev_warn_ratelimited(&applespi->spi->dev,
 -- 
-Jiri Kosina
-SUSE Labs
+2.22.0

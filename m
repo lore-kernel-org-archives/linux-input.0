@@ -1,44 +1,107 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: sony: Fix race condition between rumble and device
- remove.
-Date: Tue, 6 Aug 2019 12:46:47 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1908061246320.27147@cbobk.fhfr.pm>
-References: <20190802225019.2418-1-roderick@gaikai.com>
+From: syzbot <syzbot+3268ee512f866a903602@syzkaller.appspotmail.com>
+Subject: KASAN: slab-out-of-bounds Read in usbhid_close
+Date: Tue, 06 Aug 2019 06:18:08 -0700
+Message-ID: <000000000000d6225c058f72a7df@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190802225019.2418-1-roderick@gaikai.com>
-Sender: stable-owner@vger.kernel.org
-To: Roderick Colenbrander <roderick@gaikai.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, svv@google.com, pgriffais@valvesoftware.com, Roderick Colenbrander <roderick.colenbrander@sony.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 2 Aug 2019, Roderick Colenbrander wrote:
+Hello,
 
-> Valve reported a kernel crash on Ubuntu 18.04 when disconnecting a DS4
-> gamepad while rumble is enabled. This issue is reproducible with a
-> frequency of 1 in 3 times in the game Borderlands 2 when using an
-> automatic weapon, which triggers many rumble operations.
-> 
-> We found the issue to be a race condition between sony_remove and the
-> final device destruction by the HID / input system. The problem was
-> that sony_remove didn't clean some of its work_item state in
-> "struct sony_sc". After sony_remove work, the corresponding evdev
-> node was around for sufficient time for applications to still queue
-> rumble work after "sony_remove".
-> 
-> On pre-4.19 kernels the race condition caused a kernel crash due to a
-> NULL-pointer dereference as "sc->output_report_dmabuf" got freed during
-> sony_remove. On newer kernels this crash doesn't happen due the buffer
-> now being allocated using devm_kzalloc. However we can still queue work,
-> while the driver is an undefined state.
-> 
-> This patch fixes the described problem, by guarding the work_item
-> "state_worker" with an initialized variable, which we are setting back
-> to 0 on cleanup.
+syzbot found the following crash on:
 
-Applied to for-5.3/upstream-fixes. Thanks,
+HEAD commit:    e96407b4 usb-fuzzer: main usb gadget fuzzer driver
+git tree:       https://github.com/google/kasan.git usb-fuzzer
+console output: https://syzkaller.appspot.com/x/log.txt?x=117a9f42600000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=cfa2c18fb6a8068e
+dashboard link: https://syzkaller.appspot.com/bug?extid=3268ee512f866a903602
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
 
--- 
-Jiri Kosina
-SUSE Labs
+Unfortunately, I don't have any reproducer for this crash yet.
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+3268ee512f866a903602@syzkaller.appspotmail.com
+
+==================================================================
+BUG: KASAN: slab-out-of-bounds in __lock_acquire+0x302a/0x3b50  
+kernel/locking/lockdep.c:3753
+Read of size 8 at addr ffff8881ceab68a0 by task syz-executor.0/3352
+
+CPU: 1 PID: 3352 Comm: syz-executor.0 Not tainted 5.3.0-rc2+ #25
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  print_address_description+0x6a/0x32c mm/kasan/report.c:351
+  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
+  kasan_report+0xe/0x12 mm/kasan/common.c:612
+  __lock_acquire+0x302a/0x3b50 kernel/locking/lockdep.c:3753
+  lock_acquire+0x127/0x320 kernel/locking/lockdep.c:4412
+  __raw_spin_lock_irq include/linux/spinlock_api_smp.h:128 [inline]
+  _raw_spin_lock_irq+0x2d/0x40 kernel/locking/spinlock.c:167
+  spin_lock_irq include/linux/spinlock.h:363 [inline]
+  usbhid_close+0x51/0x210 drivers/hid/usbhid/hid-core.c:740
+  hid_hw_close+0xa8/0xd0 drivers/hid/hid-core.c:2046
+  drop_ref.part.0+0x32/0xe0 drivers/hid/hidraw.c:337
+  drop_ref drivers/hid/hidraw.c:360 [inline]
+  hidraw_release+0x34f/0x440 drivers/hid/hidraw.c:356
+  __fput+0x2d7/0x840 fs/file_table.c:280
+  task_work_run+0x13f/0x1c0 kernel/task_work.c:113
+  exit_task_work include/linux/task_work.h:22 [inline]
+  do_exit+0x8ef/0x2c50 kernel/exit.c:878
+  do_group_exit+0x125/0x340 kernel/exit.c:982
+  get_signal+0x466/0x23d0 kernel/signal.c:2728
+  do_signal+0x88/0x14e0 arch/x86/kernel/signal.c:815
+  exit_to_usermode_loop+0x1a2/0x200 arch/x86/entry/common.c:159
+  prepare_exit_to_usermode arch/x86/entry/common.c:194 [inline]
+  syscall_return_slowpath arch/x86/entry/common.c:274 [inline]
+  do_syscall_64+0x45f/0x580 arch/x86/entry/common.c:299
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x459829
+Code: Bad RIP value.
+RSP: 002b:00007f123439dcf8 EFLAGS: 00000246 ORIG_RAX: 00000000000000ca
+RAX: fffffffffffffe00 RBX: 000000000075bf28 RCX: 0000000000459829
+RDX: 0000000000000000 RSI: 0000000000000080 RDI: 000000000075bf28
+RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000075bf2c
+R13: 00007ffe9281699f R14: 00007f123439e9c0 R15: 000000000075bf2c
+
+Allocated by task 0:
+(stack is not available)
+
+Freed by task 0:
+(stack is not available)
+
+The buggy address belongs to the object at ffff8881ceab6880
+  which belongs to the cache shmem_inode_cache of size 1168
+The buggy address is located 32 bytes inside of
+  1168-byte region [ffff8881ceab6880, ffff8881ceab6d10)
+The buggy address belongs to the page:
+page:ffffea00073aad00 refcount:1 mapcount:0 mapping:ffff8881da115180  
+index:0x0 compound_mapcount: 0
+flags: 0x200000000010200(slab|head)
+raw: 0200000000010200 dead000000000100 dead000000000122 ffff8881da115180
+raw: 0000000000000000 00000000800c000c 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+  ffff8881ceab6780: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff8881ceab6800: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+> ffff8881ceab6880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                                ^
+  ffff8881ceab6900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff8881ceab6980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.

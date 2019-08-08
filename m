@@ -1,46 +1,125 @@
-From: "Gerecke, Jason" <killertofu@gmail.com>
-Subject: [PATCH v2] HID: wacom: Correct distance scale for 2nd-gen Intuos devices
-Date: Wed,  7 Aug 2019 14:11:55 -0700
-Message-ID: <20190807211155.4280-1-jason.gerecke@wacom.com>
-References: <20190807051839.GA26833@kroah.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190807051839.GA26833@kroah.com>
-Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Greg KH <gregkh@linuxfoundation.org>, Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
+From: Zhang Lixu <lixu.zhang@intel.com>
+Subject: [PATCH v2 1/3] HID: intel-ish-hid: ipc: set NO_D3 flag only when needed
+Date: Thu,  8 Aug 2019 18:21:11 +0800
+Message-ID: <20190808102113.27802-2-lixu.zhang@intel.com>
+References: <20190808102113.27802-1-lixu.zhang@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190808102113.27802-1-lixu.zhang@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: srinivas.pandruvada@linux.intel.com, linux-kernel@vger.kernel.org, lixu.zhang@intel.com
 List-Id: linux-input@vger.kernel.org
 
-From: Jason Gerecke <jason.gerecke@wacom.com>
+Currently, the NO_D3 flag is set in ish_probe(), and cleared in
+ish_remove(). So even if the system goes into S3, ISH is still
+in D0i3 state. It makes more sense that put ISH into D3 as system
+goes into S3 and put ISH into D0i3 as system goes into suspend-to-idle.
+I remove the NO_D3 setting in ish_probe(), so that ISH can enter
+D3 state when system enters S3. Only set N0_D3 flag when system
+enters the suspend-to-idle or platform specified, and clear it
+when system resume.
 
-Distance values reported by 2nd-gen Intuos tablets are on an inverted
-scale (0 == far, 63 == near). We need to change them over to a normal
-scale before reporting to userspace or else userspace drivers and
-applications can get confused.
+When the ISH enters D3, the FW will check the DMA bit status.
+If the DMA bit is set, the FW will reset automatically. So the
+DMA bit need be clear before putting ISH into D3 state.
 
-Ref: https://github.com/linuxwacom/input-wacom/issues/98
-Fixes: eda01dab53 ("HID: wacom: Add four new Intuos devices")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Zhang Lixu <lixu.zhang@intel.com>
 ---
-Make checkpatch happy -- *doh!*
+ drivers/hid/intel-ish-hid/ipc/hw-ish.h  |  1 +
+ drivers/hid/intel-ish-hid/ipc/ipc.c     |  2 +-
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 21 +++++++++++++++++++--
+ 3 files changed, 21 insertions(+), 3 deletions(-)
 
- drivers/hid/wacom_wac.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 7a8ddc999a8e..8e5063492242 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -846,6 +846,8 @@ static int wacom_intuos_general(struct wacom_wac *wacom)
- 		y >>= 1;
- 		distance >>= 1;
- 	}
-+	if (features->type == INTUOSHT2)
-+		distance = features->distance_max - distance;
- 	input_report_abs(input, ABS_X, x);
- 	input_report_abs(input, ABS_Y, y);
- 	input_report_abs(input, ABS_DISTANCE, distance);
+diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+index 1065692f90e2..ddd8e8e87cfa 100644
+--- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
++++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+@@ -77,5 +77,6 @@ irqreturn_t ish_irq_handler(int irq, void *dev_id);
+ struct ishtp_device *ish_dev_init(struct pci_dev *pdev);
+ int ish_hw_start(struct ishtp_device *dev);
+ void ish_device_disable(struct ishtp_device *dev);
++int ish_disable_dma(struct ishtp_device *dev);
+ 
+ #endif /* _ISHTP_HW_ISH_H_ */
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index 18fe8af89aad..8f8dfdf64833 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -672,7 +672,7 @@ irqreturn_t ish_irq_handler(int irq, void *dev_id)
+  *
+  * Return: 0 for success else error code.
+  */
+-static int ish_disable_dma(struct ishtp_device *dev)
++int ish_disable_dma(struct ishtp_device *dev)
+ {
+ 	unsigned int	dma_delay;
+ 
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index aa80b4d3b740..89b14d2edd0b 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -14,6 +14,7 @@
+ #include <linux/types.h>
+ #include <linux/pci.h>
+ #include <linux/sched.h>
++#include <linux/suspend.h>
+ #include <linux/interrupt.h>
+ #include <linux/workqueue.h>
+ #define CREATE_TRACE_POINTS
+@@ -97,6 +98,11 @@ static const struct pci_device_id ish_invalid_pci_ids[] = {
+ 	{}
+ };
+ 
++static inline bool ish_should_enter_d0i3(struct pci_dev *pdev)
++{
++	return !pm_suspend_via_firmware() || pdev->device == CHV_DEVICE_ID;
++}
++
+ /**
+  * ish_probe() - PCI driver probe callback
+  * @pdev:	pci device
+@@ -147,7 +153,6 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	/* mapping IO device memory */
+ 	hw->mem_addr = pcim_iomap_table(pdev)[0];
+ 	ishtp->pdev = pdev;
+-	pdev->dev_flags |= PCI_DEV_FLAGS_NO_D3;
+ 
+ 	/* request and enable interrupt */
+ 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
+@@ -184,7 +189,6 @@ static void ish_remove(struct pci_dev *pdev)
+ 	struct ishtp_device *ishtp_dev = pci_get_drvdata(pdev);
+ 
+ 	ishtp_bus_remove_all_clients(ishtp_dev, false);
+-	pdev->dev_flags &= ~PCI_DEV_FLAGS_NO_D3;
+ 	ish_device_disable(ishtp_dev);
+ }
+ 
+@@ -209,6 +213,8 @@ static void __maybe_unused ish_resume_handler(struct work_struct *work)
+ 	uint32_t fwsts;
+ 	int ret;
+ 
++	pdev->dev_flags &= ~PCI_DEV_FLAGS_NO_D3;
++
+ 	/* Get ISH FW status */
+ 	fwsts = IPC_GET_ISH_FWSTS(dev->ops->get_fw_status(dev));
+ 
+@@ -267,6 +273,17 @@ static int __maybe_unused ish_suspend(struct device *device)
+ 						 !dev->suspend_flag,
+ 						  msecs_to_jiffies(25));
+ 
++	if (ish_should_enter_d0i3(pdev)) {
++		/* Set the NO_D3 flag, the ISH would enter D0i3 */
++		pdev->dev_flags |= PCI_DEV_FLAGS_NO_D3;
++	} else {
++		/*
++		 * Clear the DMA bit before putting ISH into D3,
++		 * or ISH FW would reset automatically.
++		 */
++		ish_disable_dma(dev);
++	}
++
+ 	return 0;
+ }
+ 
 -- 
-2.22.0
+2.17.1

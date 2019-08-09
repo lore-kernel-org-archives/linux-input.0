@@ -1,431 +1,141 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: add support for polling to input devices
-Date: Fri, 9 Aug 2019 10:35:48 -0700
-Message-ID: <20190809173548.GA32693@dtor-ws>
+From: syzbot <syzbot+f817d84b72194c4a5fe2@syzkaller.appspotmail.com>
+Subject: KASAN: out-of-bounds Read in hidraw_ioctl
+Date: Fri, 09 Aug 2019 11:18:07 -0700
+Message-ID: <000000000000333f53058fb33243@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com
+To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-Separating "normal" and "polled" input devices was a mistake, as often we
-want to allow the very same device work on both interrupt-driven and
-polled mode, depending on the board on which the device is used.
+Hello,
 
-This introduces new APIs:
+syzbot found the following crash on:
 
-- input_setup_polling
-- input_set_poll_interval
-- input_set_min_poll_interval
-- input_set_max_poll_interval
+HEAD commit:    e96407b4 usb-fuzzer: main usb gadget fuzzer driver
+git tree:       https://github.com/google/kasan.git usb-fuzzer
+console output: https://syzkaller.appspot.com/x/log.txt?x=126120e2600000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=cfa2c18fb6a8068e
+dashboard link: https://syzkaller.appspot.com/bug?extid=f817d84b72194c4a5fe2
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
 
-These new APIs allow switching an input device into polled mode with sysfs
-attributes matching drivers using input_polled_dev APIs that will be
-eventually removed.
+Unfortunately, I don't have any reproducer for this crash yet.
 
-Tested-by: Michal Vokáč <michal.vokac@ysoft.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+f817d84b72194c4a5fe2@syzkaller.appspotmail.com
+
+==================================================================
+BUG: KASAN: out-of-bounds in hidraw_ioctl+0x609/0xae0  
+drivers/hid/hidraw.c:380
+Read of size 4 at addr ffff8881cb9fc018 by task syz-executor.1/3309
+
+CPU: 1 PID: 3309 Comm: syz-executor.1 Not tainted 5.3.0-rc2+ #25
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  print_address_description+0x6a/0x32c mm/kasan/report.c:351
+  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
+  kasan_report+0xe/0x12 mm/kasan/common.c:612
+  hidraw_ioctl+0x609/0xae0 drivers/hid/hidraw.c:380
+  vfs_ioctl fs/ioctl.c:46 [inline]
+  file_ioctl fs/ioctl.c:509 [inline]
+  do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
+  ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
+  __do_sys_ioctl fs/ioctl.c:720 [inline]
+  __se_sys_ioctl fs/ioctl.c:718 [inline]
+  __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
+  do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x459829
+Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f877bde2c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459829
+RDX: 0000000020001300 RSI: 0000000080044801 RDI: 0000000000000004
+RBP: 000000000075c118 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f877bde36d4
+R13: 00000000004c2206 R14: 00000000004d5610 R15: 00000000ffffffff
+
+Allocated by task 2751:
+  save_stack+0x1b/0x80 mm/kasan/common.c:69
+  set_track mm/kasan/common.c:77 [inline]
+  __kasan_kmalloc mm/kasan/common.c:487 [inline]
+  __kasan_kmalloc.constprop.0+0xbf/0xd0 mm/kasan/common.c:460
+  slab_post_alloc_hook mm/slab.h:520 [inline]
+  slab_alloc_node mm/slub.c:2766 [inline]
+  __kmalloc_node_track_caller+0xd0/0x230 mm/slub.c:4361
+  __kmalloc_reserve.isra.0+0x39/0xe0 net/core/skbuff.c:141
+  __alloc_skb+0xef/0x5a0 net/core/skbuff.c:209
+  alloc_skb include/linux/skbuff.h:1055 [inline]
+  alloc_uevent_skb+0x7b/0x210 lib/kobject_uevent.c:289
+  uevent_net_broadcast_untagged lib/kobject_uevent.c:325 [inline]
+  kobject_uevent_net_broadcast lib/kobject_uevent.c:408 [inline]
+  kobject_uevent_env+0x8ee/0x1160 lib/kobject_uevent.c:592
+  device_del+0x6b2/0xb10 drivers/base/core.c:2298
+  usb_disconnect+0x4c3/0x8d0 drivers/usb/core/hub.c:2225
+  hub_port_connect drivers/usb/core/hub.c:4949 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
+  port_event drivers/usb/core/hub.c:5359 [inline]
+  hub_event+0x1454/0x3640 drivers/usb/core/hub.c:5441
+  process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
+  worker_thread+0x96/0xe20 kernel/workqueue.c:2415
+  kthread+0x318/0x420 kernel/kthread.c:255
+  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+
+Freed by task 238:
+  save_stack+0x1b/0x80 mm/kasan/common.c:69
+  set_track mm/kasan/common.c:77 [inline]
+  __kasan_slab_free+0x130/0x180 mm/kasan/common.c:449
+  slab_free_hook mm/slub.c:1423 [inline]
+  slab_free_freelist_hook mm/slub.c:1470 [inline]
+  slab_free mm/slub.c:3012 [inline]
+  kfree+0xe4/0x2f0 mm/slub.c:3953
+  skb_free_head+0x8b/0xa0 net/core/skbuff.c:591
+  skb_release_data+0x41f/0x7c0 net/core/skbuff.c:611
+  skb_release_all+0x46/0x60 net/core/skbuff.c:665
+  __kfree_skb net/core/skbuff.c:679 [inline]
+  consume_skb net/core/skbuff.c:838 [inline]
+  consume_skb+0xd9/0x320 net/core/skbuff.c:832
+  skb_free_datagram+0x16/0xf0 net/core/datagram.c:328
+  netlink_recvmsg+0x65e/0xee0 net/netlink/af_netlink.c:1996
+  sock_recvmsg_nosec net/socket.c:871 [inline]
+  sock_recvmsg net/socket.c:889 [inline]
+  sock_recvmsg+0xca/0x110 net/socket.c:885
+  ___sys_recvmsg+0x271/0x5a0 net/socket.c:2480
+  __sys_recvmsg+0xe9/0x1b0 net/socket.c:2537
+  do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The buggy address belongs to the object at ffff8881cb9fc000
+  which belongs to the cache kmalloc-1k of size 1024
+The buggy address is located 24 bytes inside of
+  1024-byte region [ffff8881cb9fc000, ffff8881cb9fc400)
+The buggy address belongs to the page:
+page:ffffea00072e7f00 refcount:1 mapcount:0 mapping:ffff8881da002280  
+index:0x0 compound_mapcount: 0
+flags: 0x200000000010200(slab|head)
+raw: 0200000000010200 dead000000000100 dead000000000122 ffff8881da002280
+raw: 0000000000000000 00000000000e000e 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+  ffff8881cb9fbf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  ffff8881cb9fbf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+> ffff8881cb9fc000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                             ^
+  ffff8881cb9fc080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8881cb9fc100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+
 ---
- drivers/input/Makefile       |   2 +-
- drivers/input/input-poller.c | 208 +++++++++++++++++++++++++++++++++++
- drivers/input/input-poller.h |  18 +++
- drivers/input/input.c        |  36 ++++--
- include/linux/input.h        |  12 ++
- 5 files changed, 268 insertions(+), 8 deletions(-)
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 40de6a7be641..e35650930371 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -6,7 +6,7 @@
- # Each configuration option enables a list of files.
- 
- obj-$(CONFIG_INPUT)		+= input-core.o
--input-core-y := input.o input-compat.o input-mt.o ff-core.o
-+input-core-y := input.o input-compat.o input-mt.o input-poller.o ff-core.o
- 
- obj-$(CONFIG_INPUT_FF_MEMLESS)	+= ff-memless.o
- obj-$(CONFIG_INPUT_POLLDEV)	+= input-polldev.o
-diff --git a/drivers/input/input-poller.c b/drivers/input/input-poller.c
-new file mode 100644
-index 000000000000..e041adb04f5a
---- /dev/null
-+++ b/drivers/input/input-poller.c
-@@ -0,0 +1,208 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Support for polling mode for input devices.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/input.h>
-+#include <linux/jiffies.h>
-+#include <linux/mutex.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
-+#include <linux/workqueue.h>
-+#include "input-poller.h"
-+
-+struct input_dev_poller {
-+	void (*poll)(struct input_dev *dev);
-+
-+	unsigned int poll_interval; /* msec */
-+	unsigned int poll_interval_max; /* msec */
-+	unsigned int poll_interval_min; /* msec */
-+
-+	struct input_dev *input;
-+	struct delayed_work work;
-+};
-+
-+static void input_dev_poller_queue_work(struct input_dev_poller *poller)
-+{
-+	unsigned long delay;
-+
-+	delay = msecs_to_jiffies(poller->poll_interval);
-+	if (delay >= HZ)
-+		delay = round_jiffies_relative(delay);
-+
-+	queue_delayed_work(system_freezable_wq, &poller->work, delay);
-+}
-+
-+static void input_dev_poller_work(struct work_struct *work)
-+{
-+	struct input_dev_poller *poller =
-+		container_of(work, struct input_dev_poller, work.work);
-+
-+	poller->poll(poller->input);
-+	input_dev_poller_queue_work(poller);
-+}
-+
-+void input_dev_poller_finalize(struct input_dev_poller *poller)
-+{
-+	if (!poller->poll_interval)
-+		poller->poll_interval = 500;
-+	if (!poller->poll_interval_max)
-+		poller->poll_interval_max = poller->poll_interval;
-+}
-+
-+void input_dev_poller_start(struct input_dev_poller *poller)
-+{
-+	/* Only start polling if polling is enabled */
-+	if (poller->poll_interval > 0) {
-+		poller->poll(poller->input);
-+		input_dev_poller_queue_work(poller);
-+	}
-+}
-+
-+void input_dev_poller_stop(struct input_dev_poller *poller)
-+{
-+	cancel_delayed_work_sync(&poller->work);
-+}
-+
-+int input_setup_polling(struct input_dev *dev,
-+			void (*poll_fn)(struct input_dev *dev))
-+{
-+	struct input_dev_poller *poller;
-+
-+	poller = kzalloc(sizeof(*poller), GFP_KERNEL);
-+	if (!poller) {
-+		dev_err(dev->dev.parent ?: &dev->dev,
-+			"%s: unable to allocate poller structure\n", __func__);
-+		return -ENOMEM;
-+	}
-+
-+	INIT_DELAYED_WORK(&poller->work, input_dev_poller_work);
-+	poller->input = dev;
-+	poller->poll = poll_fn;
-+
-+	dev->poller = poller;
-+	return 0;
-+}
-+EXPORT_SYMBOL(input_setup_polling);
-+
-+static bool input_dev_ensure_poller(struct input_dev *dev)
-+{
-+	if (!dev->poller) {
-+		dev_err(dev->dev.parent ?: &dev->dev,
-+			"poller structure has not been set up\n");
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
-+void input_set_poll_interval(struct input_dev *dev, unsigned int interval)
-+{
-+	if (input_dev_ensure_poller(dev))
-+		dev->poller->poll_interval = interval;
-+}
-+EXPORT_SYMBOL(input_set_poll_interval);
-+
-+void input_set_min_poll_interval(struct input_dev *dev, unsigned int interval)
-+{
-+	if (input_dev_ensure_poller(dev))
-+		dev->poller->poll_interval_min = interval;
-+}
-+EXPORT_SYMBOL(input_set_min_poll_interval);
-+
-+void input_set_max_poll_interval(struct input_dev *dev, unsigned int interval)
-+{
-+	if (input_dev_ensure_poller(dev))
-+		dev->poller->poll_interval_max = interval;
-+}
-+EXPORT_SYMBOL(input_set_max_poll_interval);
-+
-+/* SYSFS interface */
-+
-+static ssize_t input_dev_get_poll_interval(struct device *dev,
-+					   struct device_attribute *attr,
-+					   char *buf)
-+{
-+	struct input_dev *input = to_input_dev(dev);
-+
-+	return sprintf(buf, "%d\n", input->poller->poll_interval);
-+}
-+
-+static ssize_t input_dev_set_poll_interval(struct device *dev,
-+					   struct device_attribute *attr,
-+					   const char *buf, size_t count)
-+{
-+	struct input_dev *input = to_input_dev(dev);
-+	struct input_dev_poller *poller = input->poller;
-+	unsigned int interval;
-+	int err;
-+
-+	err = kstrtouint(buf, 0, &interval);
-+	if (err)
-+		return err;
-+
-+	if (interval < poller->poll_interval_min)
-+		return -EINVAL;
-+
-+	if (interval > poller->poll_interval_max)
-+		return -EINVAL;
-+
-+	mutex_lock(&input->mutex);
-+
-+	poller->poll_interval = interval;
-+
-+	if (input->users) {
-+		cancel_delayed_work_sync(&poller->work);
-+		if (poller->poll_interval > 0)
-+			input_dev_poller_queue_work(poller);
-+	}
-+
-+	mutex_unlock(&input->mutex);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(poll, S_IRUGO | S_IWUSR,
-+		   input_dev_get_poll_interval, input_dev_set_poll_interval);
-+
-+static ssize_t input_dev_get_poll_max(struct device *dev,
-+				      struct device_attribute *attr, char *buf)
-+{
-+	struct input_dev *input = to_input_dev(dev);
-+
-+	return sprintf(buf, "%d\n", input->poller->poll_interval_max);
-+}
-+
-+static DEVICE_ATTR(max, S_IRUGO, input_dev_get_poll_max, NULL);
-+
-+static ssize_t input_dev_get_poll_min(struct device *dev,
-+				     struct device_attribute *attr, char *buf)
-+{
-+	struct input_dev *input = to_input_dev(dev);
-+
-+	return sprintf(buf, "%d\n", input->poller->poll_interval_min);
-+}
-+
-+static DEVICE_ATTR(min, S_IRUGO, input_dev_get_poll_min, NULL);
-+
-+static umode_t input_poller_attrs_visible(struct kobject *kobj,
-+					  struct attribute *attr, int n)
-+{
-+	struct device *dev = kobj_to_dev(kobj);
-+	struct input_dev *input = to_input_dev(dev);
-+
-+	return input->poller ? attr->mode : 0;
-+}
-+
-+static struct attribute *input_poller_attrs[] = {
-+	&dev_attr_poll.attr,
-+	&dev_attr_max.attr,
-+	&dev_attr_min.attr,
-+	NULL
-+};
-+
-+struct attribute_group input_poller_attribute_group = {
-+	.is_visible	= input_poller_attrs_visible,
-+	.attrs		= input_poller_attrs,
-+};
-diff --git a/drivers/input/input-poller.h b/drivers/input/input-poller.h
-new file mode 100644
-index 000000000000..e3fca0be1d32
---- /dev/null
-+++ b/drivers/input/input-poller.h
-@@ -0,0 +1,18 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+#ifndef _INPUT_POLLER_H
-+#define _INPUT_POLLER_H
-+
-+/*
-+ * Support for polling mode for input devices.
-+ */
-+#include <linux/sysfs.h>
-+
-+struct input_dev_poller;
-+
-+void input_dev_poller_finalize(struct input_dev_poller *poller);
-+void input_dev_poller_start(struct input_dev_poller *poller);
-+void input_dev_poller_stop(struct input_dev_poller *poller);
-+
-+extern struct attribute_group input_poller_attribute_group;
-+
-+#endif /* _INPUT_POLLER_H */
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 7494a0dede79..c08aa3596144 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -24,6 +24,7 @@
- #include <linux/mutex.h>
- #include <linux/rcupdate.h>
- #include "input-compat.h"
-+#include "input-poller.h"
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
- MODULE_DESCRIPTION("Input core");
-@@ -603,20 +604,31 @@ int input_open_device(struct input_handle *handle)
- 
- 	handle->open++;
- 
--	if (!dev->users++ && dev->open)
--		retval = dev->open(dev);
-+	if (dev->users++) {
-+		/*
-+		 * Device is already opened, so we can exit immediately and
-+		 * report success.
-+		 */
-+		goto out;
-+	}
- 
--	if (retval) {
--		dev->users--;
--		if (!--handle->open) {
-+	if (dev->open) {
-+		retval = dev->open(dev);
-+		if (retval) {
-+			dev->users--;
-+			handle->open--;
- 			/*
- 			 * Make sure we are not delivering any more events
- 			 * through this handle
- 			 */
- 			synchronize_rcu();
-+			goto out;
- 		}
- 	}
- 
-+	if (dev->poller)
-+		input_dev_poller_start(dev->poller);
-+
-  out:
- 	mutex_unlock(&dev->mutex);
- 	return retval;
-@@ -655,8 +667,13 @@ void input_close_device(struct input_handle *handle)
- 
- 	__input_release_device(handle);
- 
--	if (!--dev->users && dev->close)
--		dev->close(dev);
-+	if (!--dev->users) {
-+		if (dev->poller)
-+			input_dev_poller_stop(dev->poller);
-+
-+		if (dev->close)
-+			dev->close(dev);
-+	}
- 
- 	if (!--handle->open) {
- 		/*
-@@ -1502,6 +1519,7 @@ static const struct attribute_group *input_dev_attr_groups[] = {
- 	&input_dev_attr_group,
- 	&input_dev_id_attr_group,
- 	&input_dev_caps_attr_group,
-+	&input_poller_attribute_group,
- 	NULL
- };
- 
-@@ -1511,6 +1529,7 @@ static void input_dev_release(struct device *device)
- 
- 	input_ff_destroy(dev);
- 	input_mt_destroy_slots(dev);
-+	kfree(dev->poller);
- 	kfree(dev->absinfo);
- 	kfree(dev->vals);
- 	kfree(dev);
-@@ -2175,6 +2194,9 @@ int input_register_device(struct input_dev *dev)
- 	if (!dev->setkeycode)
- 		dev->setkeycode = input_default_setkeycode;
- 
-+	if (dev->poller)
-+		input_dev_poller_finalize(dev->poller);
-+
- 	error = device_add(&dev->dev);
- 	if (error)
- 		goto err_free_vals;
-diff --git a/include/linux/input.h b/include/linux/input.h
-index e95a439d8bd5..94f277cd806a 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -21,6 +21,8 @@
- #include <linux/timer.h>
- #include <linux/mod_devicetable.h>
- 
-+struct input_dev_poller;
-+
- /**
-  * struct input_value - input value representation
-  * @type: type of value (EV_KEY, EV_ABS, etc)
-@@ -71,6 +73,8 @@ enum input_clock_type {
-  *	not sleep
-  * @ff: force feedback structure associated with the device if device
-  *	supports force feedback effects
-+ * @poller: poller structure associated with the device if device is
-+ *	set up to use polling mode
-  * @repeat_key: stores key code of the last key pressed; used to implement
-  *	software autorepeat
-  * @timer: timer for software autorepeat
-@@ -156,6 +160,8 @@ struct input_dev {
- 
- 	struct ff_device *ff;
- 
-+	struct input_dev_poller *poller;
-+
- 	unsigned int repeat_key;
- 	struct timer_list timer;
- 
-@@ -372,6 +378,12 @@ void input_unregister_device(struct input_dev *);
- 
- void input_reset_device(struct input_dev *);
- 
-+int input_setup_polling(struct input_dev *dev,
-+			void (*poll_fn)(struct input_dev *dev));
-+void input_set_poll_interval(struct input_dev *dev, unsigned int interval);
-+void input_set_min_poll_interval(struct input_dev *dev, unsigned int interval);
-+void input_set_max_poll_interval(struct input_dev *dev, unsigned int interval);
-+
- int __must_check input_register_handler(struct input_handler *);
- void input_unregister_handler(struct input_handler *);
- 
--- 
-2.23.0.rc1.153.gdeed80330f-goog
-
-
--- 
-Dmitry
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.

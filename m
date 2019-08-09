@@ -1,141 +1,302 @@
-From: syzbot <syzbot+f817d84b72194c4a5fe2@syzkaller.appspotmail.com>
-Subject: KASAN: out-of-bounds Read in hidraw_ioctl
-Date: Fri, 09 Aug 2019 11:18:07 -0700
-Message-ID: <000000000000333f53058fb33243@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 00/16] ARM: remove ks8695 and w90x900 platforms
+Date: Fri,  9 Aug 2019 22:27:28 +0200
+Message-ID: <20190809202749.742267-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: soc@kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, Greg Ungerer <gerg@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-serial@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org, linux-spi@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, linux-fbdev@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>, linux-mtd@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+As discussed previously, these two ARM platforms have no
+known remaining users, let's remove them completely.
 
-syzbot found the following crash on:
+Subsystem maintainers: feel free to take the driver removals
+through your respective trees, they are all independent of
+one another. We can merge any remaining patches through the
+soc tree.
 
-HEAD commit:    e96407b4 usb-fuzzer: main usb gadget fuzzer driver
-git tree:       https://github.com/google/kasan.git usb-fuzzer
-console output: https://syzkaller.appspot.com/x/log.txt?x=126120e2600000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=cfa2c18fb6a8068e
-dashboard link: https://syzkaller.appspot.com/bug?extid=f817d84b72194c4a5fe2
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+      Arnd
 
-Unfortunately, I don't have any reproducer for this crash yet.
+Arnd Bergmann (16):
+  ARM: remove ks8695 platform
+  serial: remove ks8695 driver
+  gpio: remove ks8695 driver
+  watchdog: remove ks8695 driver
+  net: remove ks8695 driver
+  watchdog: remove w90x900 driver
+  spi: remove w90x900 driver
+  ASoC: remove w90x900/nuc900 platform drivers
+  fbdev: remove w90x900/nuc900 platform drivers
+  Input: remove w90x900 keyboard driver
+  Input: remove w90x900 touchscreen driver
+  mtd: rawnand: remove w90x900 driver
+  net: remove w90p910-ether driver
+  rtc: remove w90x900/nuc900 driver
+  usb: remove ehci-w90x900 driver
+  ARM: remove w90x900 platform
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+f817d84b72194c4a5fe2@syzkaller.appspotmail.com
+Cc: "Wanzongshun (Vincent)" <wanzongshun@huawei.com>
+Cc: Greg Ungerer <gerg@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-serial@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-gpio@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: alsa-devel@alsa-project.org
+Cc: linux-spi@vger.kernel.org
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: linux-fbdev@vger.kernel.org
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: linux-mtd@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
 
-==================================================================
-BUG: KASAN: out-of-bounds in hidraw_ioctl+0x609/0xae0  
-drivers/hid/hidraw.c:380
-Read of size 4 at addr ffff8881cb9fc018 by task syz-executor.1/3309
+ .../watchdog/watchdog-parameters.rst          |   19 -
+ MAINTAINERS                                   |   22 -
+ arch/arm/Kconfig                              |   34 +-
+ arch/arm/Kconfig.debug                        |    8 -
+ arch/arm/Makefile                             |    2 -
+ arch/arm/configs/acs5k_defconfig              |   77 -
+ arch/arm/configs/acs5k_tiny_defconfig         |   69 -
+ arch/arm/configs/ks8695_defconfig             |   67 -
+ arch/arm/configs/nuc910_defconfig             |   51 -
+ arch/arm/configs/nuc950_defconfig             |   67 -
+ arch/arm/configs/nuc960_defconfig             |   57 -
+ arch/arm/include/debug/ks8695.S               |   37 -
+ arch/arm/mach-ks8695/Kconfig                  |   88 -
+ arch/arm/mach-ks8695/Makefile                 |   23 -
+ arch/arm/mach-ks8695/Makefile.boot            |    9 -
+ arch/arm/mach-ks8695/board-acs5k.c            |  238 ---
+ arch/arm/mach-ks8695/board-dsm320.c           |  127 --
+ arch/arm/mach-ks8695/board-micrel.c           |   59 -
+ arch/arm/mach-ks8695/board-og.c               |  197 --
+ arch/arm/mach-ks8695/board-sg.c               |  118 --
+ arch/arm/mach-ks8695/cpu.c                    |   60 -
+ arch/arm/mach-ks8695/devices.c                |  197 --
+ arch/arm/mach-ks8695/devices.h                |   29 -
+ arch/arm/mach-ks8695/generic.h                |   12 -
+ .../mach-ks8695/include/mach/entry-macro.S    |   47 -
+ .../mach-ks8695/include/mach/gpio-ks8695.h    |   36 -
+ arch/arm/mach-ks8695/include/mach/hardware.h  |   42 -
+ arch/arm/mach-ks8695/include/mach/irqs.h      |   51 -
+ arch/arm/mach-ks8695/include/mach/memory.h    |   51 -
+ arch/arm/mach-ks8695/include/mach/regs-gpio.h |   55 -
+ arch/arm/mach-ks8695/include/mach/regs-irq.h  |   41 -
+ arch/arm/mach-ks8695/include/mach/regs-misc.h |   97 -
+ .../mach-ks8695/include/mach/regs-switch.h    |   66 -
+ arch/arm/mach-ks8695/include/mach/regs-uart.h |   89 -
+ .../arm/mach-ks8695/include/mach/uncompress.h |   33 -
+ arch/arm/mach-ks8695/irq.c                    |  164 --
+ arch/arm/mach-ks8695/pci.c                    |  247 ---
+ arch/arm/mach-ks8695/regs-hpna.h              |   25 -
+ arch/arm/mach-ks8695/regs-lan.h               |   65 -
+ arch/arm/mach-ks8695/regs-mem.h               |   89 -
+ arch/arm/mach-ks8695/regs-pci.h               |   53 -
+ arch/arm/mach-ks8695/regs-sys.h               |   34 -
+ arch/arm/mach-ks8695/regs-wan.h               |   65 -
+ arch/arm/mach-ks8695/time.c                   |  159 --
+ arch/arm/mach-w90x900/Kconfig                 |   50 -
+ arch/arm/mach-w90x900/Makefile                |   20 -
+ arch/arm/mach-w90x900/Makefile.boot           |    4 -
+ arch/arm/mach-w90x900/clksel.c                |   88 -
+ arch/arm/mach-w90x900/clock.c                 |  121 --
+ arch/arm/mach-w90x900/clock.h                 |   40 -
+ arch/arm/mach-w90x900/cpu.c                   |  238 ---
+ arch/arm/mach-w90x900/cpu.h                   |   56 -
+ arch/arm/mach-w90x900/dev.c                   |  537 ------
+ arch/arm/mach-w90x900/gpio.c                  |  150 --
+ .../mach-w90x900/include/mach/entry-macro.S   |   26 -
+ arch/arm/mach-w90x900/include/mach/hardware.h |   19 -
+ arch/arm/mach-w90x900/include/mach/irqs.h     |   82 -
+ arch/arm/mach-w90x900/include/mach/map.h      |  153 --
+ arch/arm/mach-w90x900/include/mach/mfp.h      |   21 -
+ .../mach-w90x900/include/mach/regs-clock.h    |   49 -
+ arch/arm/mach-w90x900/include/mach/regs-irq.h |   46 -
+ arch/arm/mach-w90x900/include/mach/regs-ldm.h |  248 ---
+ .../mach-w90x900/include/mach/regs-serial.h   |   54 -
+ .../mach-w90x900/include/mach/uncompress.h    |   43 -
+ arch/arm/mach-w90x900/irq.c                   |  212 ---
+ arch/arm/mach-w90x900/mach-nuc910evb.c        |   38 -
+ arch/arm/mach-w90x900/mach-nuc950evb.c        |   42 -
+ arch/arm/mach-w90x900/mach-nuc960evb.c        |   38 -
+ arch/arm/mach-w90x900/mfp.c                   |  197 --
+ arch/arm/mach-w90x900/nuc910.c                |   58 -
+ arch/arm/mach-w90x900/nuc910.h                |   17 -
+ arch/arm/mach-w90x900/nuc950.c                |   52 -
+ arch/arm/mach-w90x900/nuc950.h                |   17 -
+ arch/arm/mach-w90x900/nuc960.c                |   50 -
+ arch/arm/mach-w90x900/nuc960.h                |   17 -
+ arch/arm/mach-w90x900/nuc9xx.h                |   22 -
+ arch/arm/mach-w90x900/regs-ebi.h              |   29 -
+ arch/arm/mach-w90x900/regs-gcr.h              |   34 -
+ arch/arm/mach-w90x900/regs-timer.h            |   37 -
+ arch/arm/mach-w90x900/regs-usb.h              |   31 -
+ arch/arm/mach-w90x900/time.c                  |  168 --
+ arch/arm/mm/Kconfig                           |    2 +-
+ drivers/gpio/Makefile                         |    1 -
+ drivers/gpio/gpio-ks8695.c                    |  284 ---
+ drivers/input/keyboard/Kconfig                |   11 -
+ drivers/input/keyboard/Makefile               |    1 -
+ drivers/input/keyboard/w90p910_keypad.c       |  264 ---
+ drivers/input/touchscreen/Kconfig             |    9 -
+ drivers/input/touchscreen/Makefile            |    1 -
+ drivers/input/touchscreen/w90p910_ts.c        |  331 ----
+ drivers/mtd/nand/raw/Kconfig                  |    8 -
+ drivers/mtd/nand/raw/Makefile                 |    1 -
+ drivers/mtd/nand/raw/nuc900_nand.c            |  304 ---
+ drivers/net/ethernet/Kconfig                  |    1 -
+ drivers/net/ethernet/Makefile                 |    1 -
+ drivers/net/ethernet/micrel/Kconfig           |   11 +-
+ drivers/net/ethernet/micrel/Makefile          |    1 -
+ drivers/net/ethernet/micrel/ks8695net.c       | 1632 -----------------
+ drivers/net/ethernet/micrel/ks8695net.h       |  108 --
+ drivers/net/ethernet/nuvoton/Kconfig          |   29 -
+ drivers/net/ethernet/nuvoton/Makefile         |    6 -
+ drivers/net/ethernet/nuvoton/w90p910_ether.c  | 1082 -----------
+ drivers/rtc/Kconfig                           |    7 -
+ drivers/rtc/Makefile                          |    1 -
+ drivers/rtc/rtc-nuc900.c                      |  271 ---
+ drivers/spi/Kconfig                           |    7 -
+ drivers/spi/Makefile                          |    1 -
+ drivers/spi/spi-nuc900.c                      |  429 -----
+ drivers/tty/serial/Kconfig                    |   17 -
+ drivers/tty/serial/Makefile                   |    1 -
+ drivers/tty/serial/serial_ks8695.c            |  698 -------
+ drivers/usb/host/Kconfig                      |    6 -
+ drivers/usb/host/Makefile                     |    1 -
+ drivers/usb/host/ehci-w90x900.c               |  130 --
+ drivers/video/fbdev/Kconfig                   |   14 -
+ drivers/video/fbdev/Makefile                  |    1 -
+ drivers/video/fbdev/nuc900fb.c                |  760 --------
+ drivers/video/fbdev/nuc900fb.h                |   51 -
+ drivers/watchdog/Kconfig                      |   16 -
+ drivers/watchdog/Makefile                     |    2 -
+ drivers/watchdog/ks8695_wdt.c                 |  319 ----
+ drivers/watchdog/nuc900_wdt.c                 |  302 ---
+ include/Kbuild                                |    2 -
+ include/linux/platform_data/keypad-w90p910.h  |   16 -
+ include/linux/platform_data/spi-nuc900.h      |   29 -
+ include/linux/platform_data/video-nuc900fb.h  |   79 -
+ include/uapi/linux/serial_core.h              |    3 -
+ sound/soc/Kconfig                             |    1 -
+ sound/soc/Makefile                            |    1 -
+ sound/soc/nuc900/Kconfig                      |   29 -
+ sound/soc/nuc900/Makefile                     |   12 -
+ sound/soc/nuc900/nuc900-ac97.c                |  391 ----
+ sound/soc/nuc900/nuc900-audio.c               |   73 -
+ sound/soc/nuc900/nuc900-audio.h               |  108 --
+ sound/soc/nuc900/nuc900-pcm.c                 |  321 ----
+ 135 files changed, 6 insertions(+), 14461 deletions(-)
+ delete mode 100644 arch/arm/configs/acs5k_defconfig
+ delete mode 100644 arch/arm/configs/acs5k_tiny_defconfig
+ delete mode 100644 arch/arm/configs/ks8695_defconfig
+ delete mode 100644 arch/arm/configs/nuc910_defconfig
+ delete mode 100644 arch/arm/configs/nuc950_defconfig
+ delete mode 100644 arch/arm/configs/nuc960_defconfig
+ delete mode 100644 arch/arm/include/debug/ks8695.S
+ delete mode 100644 arch/arm/mach-ks8695/Kconfig
+ delete mode 100644 arch/arm/mach-ks8695/Makefile
+ delete mode 100644 arch/arm/mach-ks8695/Makefile.boot
+ delete mode 100644 arch/arm/mach-ks8695/board-acs5k.c
+ delete mode 100644 arch/arm/mach-ks8695/board-dsm320.c
+ delete mode 100644 arch/arm/mach-ks8695/board-micrel.c
+ delete mode 100644 arch/arm/mach-ks8695/board-og.c
+ delete mode 100644 arch/arm/mach-ks8695/board-sg.c
+ delete mode 100644 arch/arm/mach-ks8695/cpu.c
+ delete mode 100644 arch/arm/mach-ks8695/devices.c
+ delete mode 100644 arch/arm/mach-ks8695/devices.h
+ delete mode 100644 arch/arm/mach-ks8695/generic.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/entry-macro.S
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/gpio-ks8695.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/hardware.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/irqs.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/memory.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/regs-gpio.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/regs-irq.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/regs-misc.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/regs-switch.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/regs-uart.h
+ delete mode 100644 arch/arm/mach-ks8695/include/mach/uncompress.h
+ delete mode 100644 arch/arm/mach-ks8695/irq.c
+ delete mode 100644 arch/arm/mach-ks8695/pci.c
+ delete mode 100644 arch/arm/mach-ks8695/regs-hpna.h
+ delete mode 100644 arch/arm/mach-ks8695/regs-lan.h
+ delete mode 100644 arch/arm/mach-ks8695/regs-mem.h
+ delete mode 100644 arch/arm/mach-ks8695/regs-pci.h
+ delete mode 100644 arch/arm/mach-ks8695/regs-sys.h
+ delete mode 100644 arch/arm/mach-ks8695/regs-wan.h
+ delete mode 100644 arch/arm/mach-ks8695/time.c
+ delete mode 100644 arch/arm/mach-w90x900/Kconfig
+ delete mode 100644 arch/arm/mach-w90x900/Makefile
+ delete mode 100644 arch/arm/mach-w90x900/Makefile.boot
+ delete mode 100644 arch/arm/mach-w90x900/clksel.c
+ delete mode 100644 arch/arm/mach-w90x900/clock.c
+ delete mode 100644 arch/arm/mach-w90x900/clock.h
+ delete mode 100644 arch/arm/mach-w90x900/cpu.c
+ delete mode 100644 arch/arm/mach-w90x900/cpu.h
+ delete mode 100644 arch/arm/mach-w90x900/dev.c
+ delete mode 100644 arch/arm/mach-w90x900/gpio.c
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/entry-macro.S
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/hardware.h
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/irqs.h
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/map.h
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/mfp.h
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/regs-clock.h
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/regs-irq.h
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/regs-ldm.h
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/regs-serial.h
+ delete mode 100644 arch/arm/mach-w90x900/include/mach/uncompress.h
+ delete mode 100644 arch/arm/mach-w90x900/irq.c
+ delete mode 100644 arch/arm/mach-w90x900/mach-nuc910evb.c
+ delete mode 100644 arch/arm/mach-w90x900/mach-nuc950evb.c
+ delete mode 100644 arch/arm/mach-w90x900/mach-nuc960evb.c
+ delete mode 100644 arch/arm/mach-w90x900/mfp.c
+ delete mode 100644 arch/arm/mach-w90x900/nuc910.c
+ delete mode 100644 arch/arm/mach-w90x900/nuc910.h
+ delete mode 100644 arch/arm/mach-w90x900/nuc950.c
+ delete mode 100644 arch/arm/mach-w90x900/nuc950.h
+ delete mode 100644 arch/arm/mach-w90x900/nuc960.c
+ delete mode 100644 arch/arm/mach-w90x900/nuc960.h
+ delete mode 100644 arch/arm/mach-w90x900/nuc9xx.h
+ delete mode 100644 arch/arm/mach-w90x900/regs-ebi.h
+ delete mode 100644 arch/arm/mach-w90x900/regs-gcr.h
+ delete mode 100644 arch/arm/mach-w90x900/regs-timer.h
+ delete mode 100644 arch/arm/mach-w90x900/regs-usb.h
+ delete mode 100644 arch/arm/mach-w90x900/time.c
+ delete mode 100644 drivers/gpio/gpio-ks8695.c
+ delete mode 100644 drivers/input/keyboard/w90p910_keypad.c
+ delete mode 100644 drivers/input/touchscreen/w90p910_ts.c
+ delete mode 100644 drivers/mtd/nand/raw/nuc900_nand.c
+ delete mode 100644 drivers/net/ethernet/micrel/ks8695net.c
+ delete mode 100644 drivers/net/ethernet/micrel/ks8695net.h
+ delete mode 100644 drivers/net/ethernet/nuvoton/Kconfig
+ delete mode 100644 drivers/net/ethernet/nuvoton/Makefile
+ delete mode 100644 drivers/net/ethernet/nuvoton/w90p910_ether.c
+ delete mode 100644 drivers/rtc/rtc-nuc900.c
+ delete mode 100644 drivers/spi/spi-nuc900.c
+ delete mode 100644 drivers/tty/serial/serial_ks8695.c
+ delete mode 100644 drivers/usb/host/ehci-w90x900.c
+ delete mode 100644 drivers/video/fbdev/nuc900fb.c
+ delete mode 100644 drivers/video/fbdev/nuc900fb.h
+ delete mode 100644 drivers/watchdog/ks8695_wdt.c
+ delete mode 100644 drivers/watchdog/nuc900_wdt.c
+ delete mode 100644 include/linux/platform_data/keypad-w90p910.h
+ delete mode 100644 include/linux/platform_data/spi-nuc900.h
+ delete mode 100644 include/linux/platform_data/video-nuc900fb.h
+ delete mode 100644 sound/soc/nuc900/Kconfig
+ delete mode 100644 sound/soc/nuc900/Makefile
+ delete mode 100644 sound/soc/nuc900/nuc900-ac97.c
+ delete mode 100644 sound/soc/nuc900/nuc900-audio.c
+ delete mode 100644 sound/soc/nuc900/nuc900-audio.h
+ delete mode 100644 sound/soc/nuc900/nuc900-pcm.c
 
-CPU: 1 PID: 3309 Comm: syz-executor.1 Not tainted 5.3.0-rc2+ #25
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  print_address_description+0x6a/0x32c mm/kasan/report.c:351
-  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
-  kasan_report+0xe/0x12 mm/kasan/common.c:612
-  hidraw_ioctl+0x609/0xae0 drivers/hid/hidraw.c:380
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
-  ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
-  do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x459829
-Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
-48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f877bde2c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459829
-RDX: 0000000020001300 RSI: 0000000080044801 RDI: 0000000000000004
-RBP: 000000000075c118 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f877bde36d4
-R13: 00000000004c2206 R14: 00000000004d5610 R15: 00000000ffffffff
-
-Allocated by task 2751:
-  save_stack+0x1b/0x80 mm/kasan/common.c:69
-  set_track mm/kasan/common.c:77 [inline]
-  __kasan_kmalloc mm/kasan/common.c:487 [inline]
-  __kasan_kmalloc.constprop.0+0xbf/0xd0 mm/kasan/common.c:460
-  slab_post_alloc_hook mm/slab.h:520 [inline]
-  slab_alloc_node mm/slub.c:2766 [inline]
-  __kmalloc_node_track_caller+0xd0/0x230 mm/slub.c:4361
-  __kmalloc_reserve.isra.0+0x39/0xe0 net/core/skbuff.c:141
-  __alloc_skb+0xef/0x5a0 net/core/skbuff.c:209
-  alloc_skb include/linux/skbuff.h:1055 [inline]
-  alloc_uevent_skb+0x7b/0x210 lib/kobject_uevent.c:289
-  uevent_net_broadcast_untagged lib/kobject_uevent.c:325 [inline]
-  kobject_uevent_net_broadcast lib/kobject_uevent.c:408 [inline]
-  kobject_uevent_env+0x8ee/0x1160 lib/kobject_uevent.c:592
-  device_del+0x6b2/0xb10 drivers/base/core.c:2298
-  usb_disconnect+0x4c3/0x8d0 drivers/usb/core/hub.c:2225
-  hub_port_connect drivers/usb/core/hub.c:4949 [inline]
-  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
-  port_event drivers/usb/core/hub.c:5359 [inline]
-  hub_event+0x1454/0x3640 drivers/usb/core/hub.c:5441
-  process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
-  worker_thread+0x96/0xe20 kernel/workqueue.c:2415
-  kthread+0x318/0x420 kernel/kthread.c:255
-  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-
-Freed by task 238:
-  save_stack+0x1b/0x80 mm/kasan/common.c:69
-  set_track mm/kasan/common.c:77 [inline]
-  __kasan_slab_free+0x130/0x180 mm/kasan/common.c:449
-  slab_free_hook mm/slub.c:1423 [inline]
-  slab_free_freelist_hook mm/slub.c:1470 [inline]
-  slab_free mm/slub.c:3012 [inline]
-  kfree+0xe4/0x2f0 mm/slub.c:3953
-  skb_free_head+0x8b/0xa0 net/core/skbuff.c:591
-  skb_release_data+0x41f/0x7c0 net/core/skbuff.c:611
-  skb_release_all+0x46/0x60 net/core/skbuff.c:665
-  __kfree_skb net/core/skbuff.c:679 [inline]
-  consume_skb net/core/skbuff.c:838 [inline]
-  consume_skb+0xd9/0x320 net/core/skbuff.c:832
-  skb_free_datagram+0x16/0xf0 net/core/datagram.c:328
-  netlink_recvmsg+0x65e/0xee0 net/netlink/af_netlink.c:1996
-  sock_recvmsg_nosec net/socket.c:871 [inline]
-  sock_recvmsg net/socket.c:889 [inline]
-  sock_recvmsg+0xca/0x110 net/socket.c:885
-  ___sys_recvmsg+0x271/0x5a0 net/socket.c:2480
-  __sys_recvmsg+0xe9/0x1b0 net/socket.c:2537
-  do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-The buggy address belongs to the object at ffff8881cb9fc000
-  which belongs to the cache kmalloc-1k of size 1024
-The buggy address is located 24 bytes inside of
-  1024-byte region [ffff8881cb9fc000, ffff8881cb9fc400)
-The buggy address belongs to the page:
-page:ffffea00072e7f00 refcount:1 mapcount:0 mapping:ffff8881da002280  
-index:0x0 compound_mapcount: 0
-flags: 0x200000000010200(slab|head)
-raw: 0200000000010200 dead000000000100 dead000000000122 ffff8881da002280
-raw: 0000000000000000 00000000000e000e 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff8881cb9fbf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  ffff8881cb9fbf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-> ffff8881cb9fc000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                             ^
-  ffff8881cb9fc080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8881cb9fc100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+-- 
+2.20.0

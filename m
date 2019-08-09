@@ -1,171 +1,94 @@
 From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Subject: [PATCH v4 3/9] nvmem: core: add nvmem_device_find
-Date: Fri,  9 Aug 2019 12:32:25 +0200
-Message-ID: <20190809103235.16338-4-tbogendoerfer@suse.de>
-References: <20190809103235.16338-1-tbogendoerfer@suse.de>
+Subject: [PATCH v4 0/9] Use MFD framework for SGI IOC3 drivers
+Date: Fri,  9 Aug 2019 12:32:22 +0200
+Message-ID: <20190809103235.16338-1-tbogendoerfer@suse.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190809103235.16338-1-tbogendoerfer@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-nvmem_device_find provides a way to search for nvmem devices with
-the help of a match function simlair to bus_find_device.
+SGI IOC3 ASIC includes support for ethernet, PS2 keyboard/mouse,
+NIC (number in a can), GPIO and a byte  bus. By attaching a
+SuperIO chip to it, it also supports serial lines and a parallel
+port. The chip is used on a variety of SGI systems with different
+configurations. This patchset moves code out of the network driver,
+which doesn't belong there, into its new place a MFD driver and
+specific platform drivers for the different subfunctions.
 
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
----
- drivers/nvmem/core.c           | 62 ++++++++++++++++++++++--------------------
- include/linux/nvmem-consumer.h |  9 ++++++
- 2 files changed, 41 insertions(+), 30 deletions(-)
+Changes in v4:
+ - added w1 drivers to the series after merge in 5.3 failed because
+   of no response from maintainer and other parts of this series
+   won't work without that drivers
+ - moved ip30 systemboard support to the ip30 series, which will
+   deal with rtc oddity Lee found
+ - converted to use devm_platform_ioremap_resource
+ - use PLATFORM_DEVID_AUTO for serial, ethernet and serio in mfd driver
+ - fixed reverse christmas order in ioc3-eth.c
+ - formating issue found by Lee
+ - re-worked irq request/free in serio driver to avoid crashes during
+   probe/remove
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index ac5d945be88a..e591ba54758f 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -76,36 +76,18 @@ static struct bus_type nvmem_bus_type = {
- 	.name		= "nvmem",
- };
- 
-+#if IS_ENABLED(CONFIG_OF)
- static int of_nvmem_match(struct device *dev, const void *nvmem_np)
- {
- 	return dev->of_node == nvmem_np;
- }
-+#endif
- 
--static struct nvmem_device *of_nvmem_find(struct device_node *nvmem_np)
-+static int nvmem_match_name(struct device *dev, const void *data)
- {
--	struct device *d;
--
--	if (!nvmem_np)
--		return NULL;
--
--	d = bus_find_device(&nvmem_bus_type, NULL, nvmem_np, of_nvmem_match);
--
--	if (!d)
--		return NULL;
-+	const char *name = data;
- 
--	return to_nvmem_device(d);
--}
--
--static struct nvmem_device *nvmem_find(const char *name)
--{
--	struct device *d;
--
--	d = bus_find_device_by_name(&nvmem_bus_type, NULL, name);
--
--	if (!d)
--		return NULL;
--
--	return to_nvmem_device(d);
-+	return sysfs_streq(name, dev_name(dev));
- }
- 
- static void nvmem_cell_drop(struct nvmem_cell *cell)
-@@ -537,13 +519,16 @@ int devm_nvmem_unregister(struct device *dev, struct nvmem_device *nvmem)
- }
- EXPORT_SYMBOL(devm_nvmem_unregister);
- 
--static struct nvmem_device *__nvmem_device_get(struct device_node *np,
--					       const char *nvmem_name)
-+static struct nvmem_device *__nvmem_device_get(void *data,
-+			int (*match)(struct device *dev, const void *data))
- {
- 	struct nvmem_device *nvmem = NULL;
-+	struct device *dev;
- 
- 	mutex_lock(&nvmem_mutex);
--	nvmem = np ? of_nvmem_find(np) : nvmem_find(nvmem_name);
-+	dev = bus_find_device(&nvmem_bus_type, NULL, data, match);
-+	if (dev)
-+		nvmem = to_nvmem_device(dev);
- 	mutex_unlock(&nvmem_mutex);
- 	if (!nvmem)
- 		return ERR_PTR(-EPROBE_DEFER);
-@@ -592,7 +577,7 @@ struct nvmem_device *of_nvmem_device_get(struct device_node *np, const char *id)
- 	if (!nvmem_np)
- 		return ERR_PTR(-ENOENT);
- 
--	return __nvmem_device_get(nvmem_np, NULL);
-+	return __nvmem_device_get(nvmem_np, of_nvmem_match);
- }
- EXPORT_SYMBOL_GPL(of_nvmem_device_get);
- #endif
-@@ -618,10 +603,26 @@ struct nvmem_device *nvmem_device_get(struct device *dev, const char *dev_name)
- 
- 	}
- 
--	return __nvmem_device_get(NULL, dev_name);
-+	return __nvmem_device_get((void *)dev_name, nvmem_match_name);
- }
- EXPORT_SYMBOL_GPL(nvmem_device_get);
- 
-+/**
-+ * nvmem_device_find() - Find nvmem device with matching function
-+ *
-+ * @data: Data to pass to match function
-+ * @match: Callback function to check device
-+ *
-+ * Return: ERR_PTR() on error or a valid pointer to a struct nvmem_device
-+ * on success.
-+ */
-+struct nvmem_device *nvmem_device_find(void *data,
-+			int (*match)(struct device *dev, const void *data))
-+{
-+	return __nvmem_device_get(data, match);
-+}
-+EXPORT_SYMBOL_GPL(nvmem_device_find);
-+
- static int devm_nvmem_device_match(struct device *dev, void *res, void *data)
- {
- 	struct nvmem_device **nvmem = res;
-@@ -715,7 +716,8 @@ nvmem_cell_get_from_lookup(struct device *dev, const char *con_id)
- 		if ((strcmp(lookup->dev_id, dev_id) == 0) &&
- 		    (strcmp(lookup->con_id, con_id) == 0)) {
- 			/* This is the right entry. */
--			nvmem = __nvmem_device_get(NULL, lookup->nvmem_name);
-+			nvmem = __nvmem_device_get((void *)lookup->nvmem_name,
-+						   nvmem_match_name);
- 			if (IS_ERR(nvmem)) {
- 				/* Provider may not be registered yet. */
- 				cell = ERR_CAST(nvmem);
-@@ -785,7 +787,7 @@ struct nvmem_cell *of_nvmem_cell_get(struct device_node *np, const char *id)
- 	if (!nvmem_np)
- 		return ERR_PTR(-EINVAL);
- 
--	nvmem = __nvmem_device_get(nvmem_np, NULL);
-+	nvmem = __nvmem_device_get(nvmem_np, of_nvmem_match);
- 	of_node_put(nvmem_np);
- 	if (IS_ERR(nvmem))
- 		return ERR_CAST(nvmem);
-diff --git a/include/linux/nvmem-consumer.h b/include/linux/nvmem-consumer.h
-index 8f8be5b00060..02dc4aa992b2 100644
---- a/include/linux/nvmem-consumer.h
-+++ b/include/linux/nvmem-consumer.h
-@@ -89,6 +89,9 @@ void nvmem_del_cell_lookups(struct nvmem_cell_lookup *entries,
- int nvmem_register_notifier(struct notifier_block *nb);
- int nvmem_unregister_notifier(struct notifier_block *nb);
- 
-+struct nvmem_device *nvmem_device_find(void *data,
-+			int (*match)(struct device *dev, const void *data));
-+
- #else
- 
- static inline struct nvmem_cell *nvmem_cell_get(struct device *dev,
-@@ -204,6 +207,12 @@ static inline int nvmem_unregister_notifier(struct notifier_block *nb)
- 	return -EOPNOTSUPP;
- }
- 
-+static inline struct nvmem_device *nvmem_device_find(void *data,
-+			int (*match)(struct device *dev, const void *data))
-+{
-+	return NULL;
-+}
-+
- #endif /* CONFIG_NVMEM */
- 
- #if IS_ENABLED(CONFIG_NVMEM) && IS_ENABLED(CONFIG_OF)
+Changes in v3:
+ - use 1-wire subsystem for handling proms
+ - pci-xtalk driver uses prom information to create PCI subsystem
+   ids for use in MFD driver
+ - changed MFD driver to only use static declared mfd_cells
+ - added IP30 system board setup to MFD driver
+ - mac address is now read from ioc3-eth driver with nvmem framework
+
+Changes in v2:
+ - fixed issue in ioc3kbd.c reported by Dmitry Torokhov
+ - merged IP27 RTC removal and 8250 serial driver addition into
+   main MFD patch to keep patches bisectable
+
+Thomas Bogendoerfer (9):
+  w1: add 1-wire master driver for IP block found in SGI ASICs
+  w1: add DS2501, DS2502, DS2505 EPROM device driver
+  nvmem: core: add nvmem_device_find
+  MIPS: PCI: refactor ioc3 special handling
+  MIPS: PCI: use information from 1-wire PROM for IOC3 detection
+  MIPS: SGI-IP27: remove ioc3 ethernet init
+  mfd: ioc3: Add driver for SGI IOC3 chip
+  MIPS: SGI-IP27: fix readb/writeb addressing
+  Input: add IOC3 serio driver
+
+ arch/mips/include/asm/mach-ip27/mangle-port.h |    4 +-
+ arch/mips/include/asm/pci/bridge.h            |    1 +
+ arch/mips/include/asm/sn/ioc3.h               |  356 ++---
+ arch/mips/pci/pci-xtalk-bridge.c              |  296 ++--
+ arch/mips/sgi-ip27/ip27-console.c             |    5 +-
+ arch/mips/sgi-ip27/ip27-init.c                |   13 -
+ arch/mips/sgi-ip27/ip27-timer.c               |   20 -
+ arch/mips/sgi-ip27/ip27-xtalk.c               |   38 +-
+ drivers/input/serio/Kconfig                   |   10 +
+ drivers/input/serio/Makefile                  |    1 +
+ drivers/input/serio/ioc3kbd.c                 |  163 +++
+ drivers/mfd/Kconfig                           |   13 +
+ drivers/mfd/Makefile                          |    1 +
+ drivers/mfd/ioc3.c                            |  586 ++++++++
+ drivers/net/ethernet/sgi/Kconfig              |    4 +-
+ drivers/net/ethernet/sgi/ioc3-eth.c           | 1936 ++++++++++---------------
+ drivers/nvmem/core.c                          |   62 +-
+ drivers/rtc/rtc-m48t35.c                      |   11 +
+ drivers/tty/serial/8250/8250_ioc3.c           |   98 ++
+ drivers/tty/serial/8250/Kconfig               |   11 +
+ drivers/tty/serial/8250/Makefile              |    1 +
+ drivers/w1/masters/Kconfig                    |    9 +
+ drivers/w1/masters/Makefile                   |    1 +
+ drivers/w1/masters/sgi_w1.c                   |  130 ++
+ drivers/w1/slaves/Kconfig                     |    6 +
+ drivers/w1/slaves/Makefile                    |    1 +
+ drivers/w1/slaves/w1_ds250x.c                 |  293 ++++
+ include/linux/nvmem-consumer.h                |    9 +
+ include/linux/platform_data/sgi-w1.h          |   15 +
+ include/linux/w1.h                            |    2 +
+ 30 files changed, 2522 insertions(+), 1574 deletions(-)
+ create mode 100644 drivers/input/serio/ioc3kbd.c
+ create mode 100644 drivers/mfd/ioc3.c
+ create mode 100644 drivers/tty/serial/8250/8250_ioc3.c
+ create mode 100644 drivers/w1/masters/sgi_w1.c
+ create mode 100644 drivers/w1/slaves/w1_ds250x.c
+ create mode 100644 include/linux/platform_data/sgi-w1.h
+
 -- 
 2.13.7

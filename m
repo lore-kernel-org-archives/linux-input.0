@@ -1,88 +1,230 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH 13/22] input: omap: void using mach/*.h headers
-Date: Fri, 9 Aug 2019 01:39:41 +0200
-Message-ID: <20190808233941.v6elo2mdji5awylu@earth.universe>
-References: <20190808212234.2213262-1-arnd@arndb.de>
- <20190808212234.2213262-14-arnd@arndb.de>
- <20190808214257.GF178933@dtor-ws>
- <CAK8P3a2TOcjxwCBGkZAhMAf9HuTL=FAB1e0=FAg+oHB0U1nJ0A@mail.gmail.com>
- <20190808221950.GG178933@dtor-ws>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4tjmcfjvugwwn6md"
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Subject: [PATCH v4 1/9] w1: add 1-wire master driver for IP block found in SGI ASICs
+Date: Fri,  9 Aug 2019 12:32:23 +0200
+Message-ID: <20190809103235.16338-2-tbogendoerfer@suse.de>
+References: <20190809103235.16338-1-tbogendoerfer@suse.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190808221950.GG178933@dtor-ws>
+In-Reply-To: <20190809103235.16338-1-tbogendoerfer@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Aaro Koskinen <aaro.koskinen@iki.fi>, Tony Lindgren <tony@atomide.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-omap <linux-omap@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+To: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Starting with SGI Origin machines nearly every new SGI ASIC contains
+an 1-Wire master. They are used for attaching One-Wire prom devices,
+which contain information about part numbers, revision numbers,
+serial number etc. and MAC addresses for ethernet interfaces.
+This patch adds a master driver to support this IP block.
+It also adds an extra field dev_id to struct w1_bus_master, which
+could be in used in slave drivers for creating unique device names.
 
---4tjmcfjvugwwn6md
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+---
+ drivers/w1/masters/Kconfig           |   9 +++
+ drivers/w1/masters/Makefile          |   1 +
+ drivers/w1/masters/sgi_w1.c          | 130 +++++++++++++++++++++++++++++++++++
+ include/linux/platform_data/sgi-w1.h |  15 ++++
+ include/linux/w1.h                   |   2 +
+ 5 files changed, 157 insertions(+)
+ create mode 100644 drivers/w1/masters/sgi_w1.c
+ create mode 100644 include/linux/platform_data/sgi-w1.h
 
-Hi,
-
-On Thu, Aug 08, 2019 at 03:19:50PM -0700, Dmitry Torokhov wrote:
-> On Thu, Aug 08, 2019 at 11:46:45PM +0200, Arnd Bergmann wrote:
-> > On Thu, Aug 8, 2019 at 11:43 PM Dmitry Torokhov wrote:
-> > > On Thu, Aug 08, 2019 at 11:22:22PM +0200, Arnd Bergmann wrote:
-> > > > By using the new linux/soc/ti/omap1-io.h header instead,
-> > > > compile-testing can be enabled, and a CONFIG_ARCH_MULTIPLATFORM
-> > > > conversion of omap1 may eventually be possible.
-> > > >
-> > > > The warning in the header file gets removed in order to
-> > > > allow CONFIG_COMPILE_TEST.
-> > >
-> > > Given that we want to migrate people off this driver everywhere but
-> > > OMAP1 I wonder why we would want to improve compile coverage of it.
-> >=20
-> > Mainly for consistency: I'm converting all omap1 drivers in this series=
- to
-> > not rely on mach/* headers and to let them be compiled standalone.
-> > The other drivers don't have a replacement, so I could treat this diffe=
-rent
-> > from the rest and skip the Kconfig and platform_data changes if you
-> > prefer.
->=20
-> Yes, because at least with the version you posted we are losing the
-> #warning telling people to move to matrix_keypad. We could do:
->=20
-> #ifndef CONFIG_COMPILE_TEST
-> #warning ...
-> #endif
->=20
-> if you really want to allow compiling standalone for testing.
-
-FWIW the driver depends on ARCH_OMAP1 and the warning is
-only printed for !ARCH_OMAP1. In other words: The warning
-is never printed at the moment. All OMAP2+ boards moved to
-matrix-keypad long time ago and the driver does not support
-OMAP2+ anymore since f799a3d8fe170 from 2012.
-
--- Sebastian
-
---4tjmcfjvugwwn6md
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl1MsroACgkQ2O7X88g7
-+poQJBAAnjfNcZ21PrPoH/EmfeeRe4fGSZaNSCLXNqf+HuY+WIUD72F8q4ywHwvn
-Fkm85facQO3vu6RCVoapSh5nZVHkL/WyM6fqDhJDuBZvqleHE68sgmBY9KIgg7ur
-qeYMF4ul4BhvC218JY0dM/xwV0uwp61g3T+4vgUPvT3YsnB5uoYa7wT2D71lilr8
-Q+S/Az/rTrrn7uI1vKXZjfUKsm/cWuWyAHbzgH7Ax8f/gxcLUoHS1IUTiwyCFzKJ
-BxAGPsZziw7Un8d3LPwcSzqB9VslryGs4hiuiaSAYaYN6+NrjjlCI7wka+HFfKGO
-0OumM77eQCkVNgCSafoTxJWZZo9HsTAeKkJy1iDGWVeiSWqHKPUj/YDj6ityxuba
-5LKhZan4Gx1JoihDEw69N/a0ZxNvYJzHPBffqHbSLOc7QkWeveoSUMGgJjLLNl/f
-UD7U1rC1ugAz3jqmgS5it+35pCA17glrVtIPzDsTPx90lGK0lxe+krbPClVkeckP
-IIkuf4xyJtsep5fQQDGxtCape8V52GtQYre1BjBxQU/k7KUGR+08gkiRmc3x8qvK
-v05wmqSeIyGXox8WrvB/hARab8/2nTA6hf+LedV+ofvNzRGBKM8hrgdpfveXlwhF
-HEJ74R2g3SOIxtXz/CuFWgUwsHEEF1NlaBOAaNa+1H9tFMMRgIo=
-=sia4
------END PGP SIGNATURE-----
-
---4tjmcfjvugwwn6md--
+diff --git a/drivers/w1/masters/Kconfig b/drivers/w1/masters/Kconfig
+index 7ae260577901..24b9a8e05f64 100644
+--- a/drivers/w1/masters/Kconfig
++++ b/drivers/w1/masters/Kconfig
+@@ -65,5 +65,14 @@ config HDQ_MASTER_OMAP
+ 	  Say Y here if you want support for the 1-wire or HDQ Interface
+ 	  on an OMAP processor.
+ 
++config W1_MASTER_SGI
++	tristate "SGI ASIC driver"
++	help
++	  Say Y here if you want support for your 1-wire devices using
++	  SGI ASIC 1-Wire interface
++
++	  This support is also available as a module.  If so, the module
++	  will be called sgi_w1.
++
+ endmenu
+ 
+diff --git a/drivers/w1/masters/Makefile b/drivers/w1/masters/Makefile
+index 18954cae4256..dae629b7ab49 100644
+--- a/drivers/w1/masters/Makefile
++++ b/drivers/w1/masters/Makefile
+@@ -11,3 +11,4 @@ obj-$(CONFIG_W1_MASTER_MXC)		+= mxc_w1.o
+ obj-$(CONFIG_W1_MASTER_DS1WM)		+= ds1wm.o
+ obj-$(CONFIG_W1_MASTER_GPIO)		+= w1-gpio.o
+ obj-$(CONFIG_HDQ_MASTER_OMAP)		+= omap_hdq.o
++obj-$(CONFIG_W1_MASTER_SGI)		+= sgi_w1.o
+diff --git a/drivers/w1/masters/sgi_w1.c b/drivers/w1/masters/sgi_w1.c
+new file mode 100644
+index 000000000000..1b2d96b945be
+--- /dev/null
++++ b/drivers/w1/masters/sgi_w1.c
+@@ -0,0 +1,130 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * sgi_w1.c - w1 master driver for one wire support in SGI ASICs
++ */
++
++#include <linux/clk.h>
++#include <linux/delay.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
++#include <linux/module.h>
++#include <linux/mod_devicetable.h>
++#include <linux/platform_device.h>
++#include <linux/platform_data/sgi-w1.h>
++
++#include <linux/w1.h>
++
++#define MCR_RD_DATA	BIT(0)
++#define MCR_DONE	BIT(1)
++
++#define MCR_PACK(pulse, sample) (((pulse) << 10) | ((sample) << 2))
++
++struct sgi_w1_device {
++	u32 __iomem *mcr;
++	struct w1_bus_master bus_master;
++	char dev_id[64];
++};
++
++static u8 sgi_w1_wait(u32 __iomem *mcr)
++{
++	u32 mcr_val;
++
++	do {
++		mcr_val = readl(mcr);
++	} while (!(mcr_val & MCR_DONE));
++
++	return (mcr_val & MCR_RD_DATA) ? 1 : 0;
++}
++
++/*
++ * this is the low level routine to
++ * reset the device on the One Wire interface
++ * on the hardware
++ */
++static u8 sgi_w1_reset_bus(void *data)
++{
++	struct sgi_w1_device *dev = data;
++	u8 ret;
++
++	writel(MCR_PACK(520, 65), dev->mcr);
++	ret = sgi_w1_wait(dev->mcr);
++	udelay(500); /* recovery time */
++	return ret;
++}
++
++/*
++ * this is the low level routine to read/write a bit on the One Wire
++ * interface on the hardware. It does write 0 if parameter bit is set
++ * to 0, otherwise a write 1/read.
++ */
++static u8 sgi_w1_touch_bit(void *data, u8 bit)
++{
++	struct sgi_w1_device *dev = data;
++	u8 ret;
++
++	if (bit)
++		writel(MCR_PACK(6, 13), dev->mcr);
++	else
++		writel(MCR_PACK(80, 30), dev->mcr);
++
++	ret = sgi_w1_wait(dev->mcr);
++	if (bit)
++		udelay(100); /* recovery */
++	return ret;
++}
++
++static int sgi_w1_probe(struct platform_device *pdev)
++{
++	struct sgi_w1_device *sdev;
++	struct sgi_w1_platform_data *pdata;
++	struct resource *res;
++
++	sdev = devm_kzalloc(&pdev->dev, sizeof(struct sgi_w1_device),
++			    GFP_KERNEL);
++	if (!sdev)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	sdev->mcr = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(sdev->mcr))
++		return PTR_ERR(sdev->mcr);
++
++	sdev->bus_master.data = sdev;
++	sdev->bus_master.reset_bus = sgi_w1_reset_bus;
++	sdev->bus_master.touch_bit = sgi_w1_touch_bit;
++
++	pdata = dev_get_platdata(&pdev->dev);
++	if (pdata) {
++		strlcpy(sdev->dev_id, pdata->dev_id, sizeof(sdev->dev_id));
++		sdev->bus_master.dev_id = sdev->dev_id;
++	}
++
++	platform_set_drvdata(pdev, sdev);
++
++	return w1_add_master_device(&sdev->bus_master);
++}
++
++/*
++ * disassociate the w1 device from the driver
++ */
++static int sgi_w1_remove(struct platform_device *pdev)
++{
++	struct sgi_w1_device *sdev = platform_get_drvdata(pdev);
++
++	w1_remove_master_device(&sdev->bus_master);
++
++	return 0;
++}
++
++static struct platform_driver sgi_w1_driver = {
++	.driver = {
++		.name = "sgi_w1",
++	},
++	.probe = sgi_w1_probe,
++	.remove = sgi_w1_remove,
++};
++module_platform_driver(sgi_w1_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Thomas Bogendoerfer");
++MODULE_DESCRIPTION("Driver for One-Wire IP in SGI ASICs");
+diff --git a/include/linux/platform_data/sgi-w1.h b/include/linux/platform_data/sgi-w1.h
+new file mode 100644
+index 000000000000..fc6b92e0b942
+--- /dev/null
++++ b/include/linux/platform_data/sgi-w1.h
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * SGI One-Wire (W1) IP
++ */
++
++#ifndef PLATFORM_DATA_SGI_W1_H
++#define PLATFORM_DATA_SGI_W1_H
++
++#include <asm/sn/types.h>
++
++struct sgi_w1_platform_data {
++	char dev_id[64];
++};
++
++#endif /* PLATFORM_DATA_SGI_W1_H */
+diff --git a/include/linux/w1.h b/include/linux/w1.h
+index e0b5156f78fd..89843e9f634c 100644
+--- a/include/linux/w1.h
++++ b/include/linux/w1.h
+@@ -150,6 +150,8 @@ struct w1_bus_master {
+ 
+ 	void		(*search)(void *, struct w1_master *,
+ 		u8, w1_slave_found_callback);
++
++	char		*dev_id;
+ };
+ 
+ /**
+-- 
+2.13.7

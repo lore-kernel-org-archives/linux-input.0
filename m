@@ -1,46 +1,27 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 00/11] Face lift for bu21013_ts driver
-Date: Fri,  9 Aug 2019 17:20:28 -0700
-Message-ID: <20190810002039.95876-1-dmitry.torokhov@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 00/16] ARM: remove ks8695 and w90x900 platforms
+Date: Sat, 10 Aug 2019 09:29:00 +0200
+Message-ID: <20190810072900.GA16359@kroah.com>
+References: <20190809202749.742267-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190809202749.742267-1-arnd@arndb.de>
+Sender: netdev-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: soc@kernel.org, "Wanzongshun (Vincent)" <wanzongshun@huawei.com>, Greg Ungerer <gerg@kernel.org>, linux-serial@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org, linux-spi@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, linux-fbdev@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>, linux-mtd@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+On Fri, Aug 09, 2019 at 10:27:28PM +0200, Arnd Bergmann wrote:
+> As discussed previously, these two ARM platforms have no
+> known remaining users, let's remove them completely.
+> 
+> Subsystem maintainers: feel free to take the driver removals
+> through your respective trees, they are all independent of
+> one another. We can merge any remaining patches through the
+> soc tree.
 
-So your patch has prompted me to take a look at the driver and
-try to clean it up. I am sure I screwed up somewhere, but you said
-you have the device, so please take a look at the series and
-see if you can salvage them
+Serial and USB host controller driver patches applied, thanks!
 
-Thanks!
-
-Dmitry Torokhov (10):
-  ARM: ux500: improve BU21013 touchpad bindings
-  Input: bu21013_ts - rename some variables
-  Input: bu21013_ts - annotate supend/resume methods as __maybe_unused
-  Input: bu21013_ts - remove useless comments
-  Input: bu21013_ts - convert to using managed resources
-  Input: bu21013_ts - remove support for platform data
-  Input: bu21013_ts - use interrupt from I2C client
-  Input: bu21013_ts - fix suspend when wake source
-  Input: bu21013_ts - switch to using MT-B (slotted) protocol
-  Input: bu21013_ts - switch to using standard touchscreen properties
-
-Linus Walleij (1):
-  Input: bu21013_ts - convert to use GPIO descriptors
-
- .../bindings/input/touchscreen/bu21013.txt    |  27 +-
- arch/arm/boot/dts/ste-hrefprev60-stuib.dts    |  14 +-
- arch/arm/boot/dts/ste-hrefv60plus-stuib.dts   |  14 +-
- drivers/input/touchscreen/bu21013_ts.c        | 740 ++++++++----------
- include/linux/input/bu21013.h                 |  34 -
- 5 files changed, 362 insertions(+), 467 deletions(-)
- delete mode 100644 include/linux/input/bu21013.h
-
--- 
-Dmitry
+greg k-h

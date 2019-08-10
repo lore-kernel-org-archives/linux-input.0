@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 11/11] Input: bu21013_ts - switch to using standard touchscreen properties
-Date: Fri,  9 Aug 2019 17:20:39 -0700
-Message-ID: <20190810002039.95876-12-dmitry.torokhov@gmail.com>
+Subject: [PATCH 08/11] Input: bu21013_ts - use interrupt from I2C client
+Date: Fri,  9 Aug 2019 17:20:36 -0700
+Message-ID: <20190810002039.95876-9-dmitry.torokhov@gmail.com>
 References: <20190810002039.95876-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,155 +12,145 @@ To: Linus Walleij <linus.walleij@linaro.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This switches the driver over to the standard touchscreen properties for
-coordinate transformation, while keeping old bindings working as well.
+Instead of trying to map INT GPIO to interrupt, let's use one supplied by
+I2C client. If there is none - bail. This will also allow us to treat INT
+GPIO as optional, as per the binding.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- .../bindings/input/touchscreen/bu21013.txt    | 16 ++++--
- drivers/input/touchscreen/bu21013_ts.c        | 54 +++++++++++--------
- 2 files changed, 46 insertions(+), 24 deletions(-)
+ .../bindings/input/touchscreen/bu21013.txt    |  6 +++-
+ drivers/input/touchscreen/bu21013_ts.c        | 35 ++++++++++---------
+ 2 files changed, 24 insertions(+), 17 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
-index 7ddb5de8343d..da4c9d8b99b1 100644
+index 43899fc36ecf..7ddb5de8343d 100644
 --- a/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
 +++ b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
-@@ -10,6 +10,16 @@ Required properties:
+@@ -4,6 +4,8 @@ Required properties:
+  - compatible              : "rohm,bu21013_tp"
+  - reg                     : I2C device address
+  - reset-gpios             : GPIO pin enabling (selecting) chip (CS)
++ - interrupt-parent        : the phandle for the gpio controller
++ - interrupts              : (gpio) interrupt to which the chip is connected
+ 
  Optional properties:
   - touch-gpios             : GPIO pin registering a touch event
-  - <supply_name>-supply    : Phandle to a regulator supply
-+ - touchscreen-size-x      : General touchscreen binding, see [1].
-+ - touchscreen-size-y      : General touchscreen binding, see [1].
-+ - touchscreen-inverted-x  : General touchscreen binding, see [1].
-+ - touchscreen-inverted-y  : General touchscreen binding, see [1].
-+ - touchscreen-swapped-x-y : General touchscreen binding, see [1].
-+
-+[1] All general touchscreen properties are described in
-+    Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt.
-+
-+Deprecated properties:
-  - rohm,touch-max-x        : Maximum outward permitted limit in the X axis
-  - rohm,touch-max-y        : Maximum outward permitted limit in the Y axis
-  - rohm,flip-x             : Flip touch coordinates on the X axis
-@@ -26,8 +36,8 @@ Example:
- 			touch-gpio = <&gpio2 20 GPIO_ACTIVE_LOW>;
+@@ -19,7 +21,9 @@ Example:
+ 		bu21013_tp@5c {
+ 			compatible = "rohm,bu21013_tp";
+ 			reg = <0x5c>;
+-			touch-gpio = <&gpio2 20 0x4>;
++			interrupt-parent = <&gpio2>;
++			interrupts <&20 IRQ_TYPE_LEVEL_LOW>;
++			touch-gpio = <&gpio2 20 GPIO_ACTIVE_LOW>;
  			avdd-supply = <&ab8500_ldo_aux1_reg>;
  
--			rohm,touch-max-x = <384>;
--			rohm,touch-max-y = <704>;
--			rohm,flip-y;
-+			touchscreen-size-x = <384>;
-+			touchscreen-size-y = <704>;
-+			touchscreen-inverted-y;
- 		};
- 	};
+ 			rohm,touch-max-x = <384>;
 diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
-index 2c534aa61687..c89a00a6e67c 100644
+index 79de7327a460..d745643861cb 100644
 --- a/drivers/input/touchscreen/bu21013_ts.c
 +++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -10,6 +10,7 @@
- #include <linux/i2c.h>
- #include <linux/input.h>
- #include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -139,6 +140,7 @@
-  * struct bu21013_ts - touch panel data structure
-  * @client: pointer to the i2c client
-  * @in_dev: pointer to the input device structure
-+ * @props: the device coordinate transformation properties
+@@ -141,7 +141,6 @@
   * @regulator: pointer to the Regulator used for touch screen
   * @cs_gpiod: chip select GPIO line
   * @int_gpiod: touch interrupt GPIO line
-@@ -155,6 +157,7 @@
- struct bu21013_ts {
- 	struct i2c_client *client;
- 	struct input_dev *in_dev;
-+	struct touchscreen_properties props;
+- * @irq: interrupt number the device is using
+  * @touch_x_max: maximum X coordinate reported by the device
+  * @touch_y_max: maximum Y coordinate reported by the device
+  * @x_flip: indicates that the driver should invert X coordinate before
+@@ -158,7 +157,6 @@ struct bu21013_ts {
  	struct regulator *regulator;
  	struct gpio_desc *cs_gpiod;
  	struct gpio_desc *int_gpiod;
-@@ -201,19 +204,13 @@ static int bu21013_do_touch_report(struct bu21013_ts *ts)
+-	unsigned int irq;
+ 	u32 touch_x_max;
+ 	u32 touch_y_max;
+ 	bool x_flip;
+@@ -252,7 +250,8 @@ static irqreturn_t bu21013_gpio_irq(int irq, void *device_data)
+ 		if (unlikely(ts->touch_stopped))
+ 			break;
  
- 	for (i = 0; i < MAX_FINGERS; i++) {
- 		const u8 *data = &buf[4 * i + 3];
--		struct input_mt_pos *p = &pos[finger_down_count];
-+		unsigned int x, y;
- 
--		p->x = data[0] << SHIFT_2 | (data[1] & MASK_BITS);
--		p->y = data[2] << SHIFT_2 | (data[3] & MASK_BITS);
--		if (p->x == 0 || p->y == 0)
--			continue;
--
--		finger_down_count++;
--
--		if (ts->x_flip)
--			p->x = ts->touch_x_max - p->x;
--		if (ts->y_flip)
--			p->y = ts->touch_y_max - p->y;
-+		x = data[0] << SHIFT_2 | (data[1] & MASK_BITS);
-+		y = data[2] << SHIFT_2 | (data[3] & MASK_BITS);
-+		if (x != 0 && y != 0)
-+			touchscreen_set_mt_pos(&pos[finger_down_count++],
-+					       &ts->props, x, y);
+-		keep_polling = gpiod_get_value(ts->int_gpiod);
++		keep_polling = ts->int_gpiod ?
++			gpiod_get_value(ts->int_gpiod) : false;
+ 		if (keep_polling)
+ 			usleep_range(2000, 2500);
+ 	} while (keep_polling);
+@@ -419,6 +418,11 @@ static int bu21013_probe(struct i2c_client *client,
+ 		return -EIO;
  	}
  
- 	if (finger_down_count == 2 &&
-@@ -412,6 +409,8 @@ static int bu21013_probe(struct i2c_client *client,
- {
- 	struct bu21013_ts *ts;
- 	struct input_dev *in_dev;
-+	struct input_absinfo *info;
-+	u32 max_x = 0, max_y = 0;
- 	int error;
- 
- 	if (!i2c_check_functionality(client->adapter,
-@@ -434,11 +433,6 @@ static int bu21013_probe(struct i2c_client *client,
- 	ts->x_flip = device_property_read_bool(&client->dev, "rohm,flip-x");
- 	ts->y_flip = device_property_read_bool(&client->dev, "rohm,flip-y");
- 
--	device_property_read_u32(&client->dev, "rohm,touch-max-x",
--				 &ts->touch_x_max);
--	device_property_read_u32(&client->dev, "rohm,touch-max-y",
--				 &ts->touch_y_max);
--
- 	in_dev = devm_input_allocate_device(&client->dev);
- 	if (!in_dev) {
- 		dev_err(&client->dev, "device memory alloc failed\n");
-@@ -451,10 +445,28 @@ static int bu21013_probe(struct i2c_client *client,
- 	in_dev->name = DRIVER_TP;
- 	in_dev->id.bustype = BUS_I2C;
- 
--	input_set_abs_params(in_dev, ABS_MT_POSITION_X,
--			     0, ts->touch_x_max, 0, 0);
--	input_set_abs_params(in_dev, ABS_MT_POSITION_Y,
--			     0, ts->touch_y_max, 0, 0);
-+	device_property_read_u32(&client->dev, "rohm,touch-max-x", &max_x);
-+	device_property_read_u32(&client->dev, "rohm,touch-max-y", &max_y);
-+
-+	input_set_abs_params(in_dev, ABS_MT_POSITION_X, 0, max_x, 0, 0);
-+	input_set_abs_params(in_dev, ABS_MT_POSITION_Y, 0, max_y, 0, 0);
-+
-+	touchscreen_parse_properties(in_dev, true, &ts->props);
-+
-+	/* Adjust for the legacy "flip" properties, if present */
-+	if (!ts->props.invert_x &&
-+	    device_property_read_bool(&client->dev, "rohm,flip-x")) {
-+		info = &in_dev->absinfo[ABS_MT_POSITION_X];
-+		info->maximum -= info->minimum;
-+		info->minimum = 0;
++	if (!client->irq) {
++		dev_err(&client->dev, "No IRQ set up\n");
++		return -EINVAL;
 +	}
 +
-+	if (!ts->props.invert_y &&
-+	    device_property_read_bool(&client->dev, "rohm,flip-y")) {
-+		info = &in_dev->absinfo[ABS_MT_POSITION_Y];
-+		info->maximum -= info->minimum;
-+		info->minimum = 0;
-+	}
+ 	ts = devm_kzalloc(&client->dev, sizeof(*ts), GFP_KERNEL);
+ 	if (!ts)
+ 		return -ENOMEM;
+@@ -491,14 +495,17 @@ static int bu21013_probe(struct i2c_client *client,
+ 	}
  
- 	error = input_mt_init_slots(in_dev, MAX_FINGERS,
- 				    INPUT_MT_DIRECT | INPUT_MT_TRACK |
+ 	/* Named "INT" on the chip, DT binding is "touch" */
+-	ts->int_gpiod = devm_gpiod_get(&client->dev, "touch", GPIOD_IN);
++	ts->int_gpiod = devm_gpiod_get_optional(&client->dev,
++						"touch", GPIOD_IN);
+ 	error = PTR_ERR_OR_ZERO(ts->int_gpiod);
+ 	if (error) {
+ 		if (error != -EPROBE_DEFER)
+ 			dev_err(&client->dev, "failed to get INT GPIO\n");
+ 		return error;
+ 	}
+-	gpiod_set_consumer_name(ts->int_gpiod, "BU21013 INT");
++
++	if (ts->int_gpiod)
++		gpiod_set_consumer_name(ts->int_gpiod, "BU21013 INT");
+ 
+ 	/* configure the touch panel controller */
+ 	error = bu21013_init_chip(ts);
+@@ -507,16 +514,12 @@ static int bu21013_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
+-	ts->irq = gpiod_to_irq(ts->int_gpiod);
+-	error = devm_request_threaded_irq(&client->dev, ts->irq,
++	error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					  NULL, bu21013_gpio_irq,
+-					  IRQF_TRIGGER_FALLING |
+-						IRQF_SHARED |
+-						IRQF_ONESHOT,
+-					  DRIVER_TP, ts);
++					  IRQF_ONESHOT, DRIVER_TP, ts);
+ 	if (error) {
+ 		dev_err(&client->dev, "request irq %d failed\n",
+-			ts->irq);
++			client->irq);
+ 		return error;
+ 	}
+ 
+@@ -549,9 +552,9 @@ static int __maybe_unused bu21013_suspend(struct device *dev)
+ 
+ 	ts->touch_stopped = true;
+ 	if (device_may_wakeup(&client->dev))
+-		enable_irq_wake(ts->irq);
++		enable_irq_wake(client->irq);
+ 	else
+-		disable_irq(ts->irq);
++		disable_irq(client->irq);
+ 
+ 	regulator_disable(ts->regulator);
+ 
+@@ -579,9 +582,9 @@ static int __maybe_unused bu21013_resume(struct device *dev)
+ 	ts->touch_stopped = false;
+ 
+ 	if (device_may_wakeup(&client->dev))
+-		disable_irq_wake(ts->irq);
++		disable_irq_wake(client->irq);
+ 	else
+-		enable_irq(ts->irq);
++		enable_irq(client->irq);
+ 
+ 	return 0;
+ }
 -- 
 2.23.0.rc1.153.gdeed80330f-goog

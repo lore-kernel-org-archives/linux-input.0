@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 07/11] Input: bu21013_ts - remove support for platform data
-Date: Fri,  9 Aug 2019 17:20:35 -0700
-Message-ID: <20190810002039.95876-8-dmitry.torokhov@gmail.com>
+Subject: [PATCH 02/11] Input: bu21013_ts - convert to use GPIO descriptors
+Date: Fri,  9 Aug 2019 17:20:30 -0700
+Message-ID: <20190810002039.95876-3-dmitry.torokhov@gmail.com>
 References: <20190810002039.95876-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,260 +12,265 @@ To: Linus Walleij <linus.walleij@linaro.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-There are no current users of the platform data in the tree, and
-any new users should either use device tree, or static device
-properties to describe the device.
+From: Linus Walleij <linus.walleij@linaro.org>
 
-This change drop the platform data definition and handling and moves the
-driver over to generic device properties API. We also drop support for the
-external clock. If it is needed we will have to extend the bindings to
-supply the clock reference and handle it properly in the driver.
+This driver can use GPIO descriptors rather than GPIO numbers
+without any problems, convert it. Name the field variables after
+the actual pins on the chip rather than the "reset" and "touch"
+names from the devicetree bindings that are vaguely inaccurate.
 
-Also, wakeup setting should be coming from I2C client.
+No in-tree users pass GPIO numbers in platform data so drop
+this. Descriptor tables can be used to get these GPIOs from a board
+file if need be.
 
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/bu21013_ts.c | 109 +++++++++----------------
- include/linux/input/bu21013.h          |  30 -------
- 2 files changed, 37 insertions(+), 102 deletions(-)
- delete mode 100644 include/linux/input/bu21013.h
+ .../bindings/input/touchscreen/bu21013.txt    |  5 +-
+ drivers/input/touchscreen/bu21013_ts.c        | 86 ++++++++-----------
+ include/linux/input/bu21013.h                 |  4 -
+ 3 files changed, 41 insertions(+), 54 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
+index 56d835242af2..43899fc36ecf 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
+@@ -2,10 +2,11 @@
+ 
+ Required properties:
+  - compatible              : "rohm,bu21013_tp"
+- - reg                     :  I2C device address
++ - reg                     : I2C device address
++ - reset-gpios             : GPIO pin enabling (selecting) chip (CS)
+ 
+ Optional properties:
+- - touch-gpio              : GPIO pin registering a touch event
++ - touch-gpios             : GPIO pin registering a touch event
+  - <supply_name>-supply    : Phandle to a regulator supply
+  - rohm,touch-max-x        : Maximum outward permitted limit in the X axis
+  - rohm,touch-max-y        : Maximum outward permitted limit in the Y axis
 diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
-index 4b6f9544e94a..79de7327a460 100644
+index 1d703e230ac3..c20f86f98ffc 100644
 --- a/drivers/input/touchscreen/bu21013_ts.c
 +++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -4,18 +4,18 @@
-  * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com> for ST-Ericsson
-  */
- 
--#include <linux/kernel.h>
-+#include <linux/bitops.h>
- #include <linux/delay.h>
--#include <linux/interrupt.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
--#include <linux/workqueue.h>
- #include <linux/input.h>
--#include <linux/input/bu21013.h>
--#include <linux/slab.h>
--#include <linux/regulator/consumer.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
+@@ -14,11 +14,9 @@
+ #include <linux/slab.h>
+ #include <linux/regulator/consumer.h>
  #include <linux/module.h>
--#include <linux/gpio/consumer.h>
--#include <linux/of.h>
-+#include <linux/property.h>
-+#include <linux/regulator/consumer.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/of.h>
+-#include <linux/of_gpio.h>
  
+-#define PEN_DOWN_INTR	0
  #define MAX_FINGERS	2
  #define RESET_DELAY	30
-@@ -137,23 +137,32 @@
- /**
-  * struct bu21013_ts - touch panel data structure
-  * @client: pointer to the i2c client
-- * @touch_stopped: touch stop flag
-- * @chip: pointer to the touch panel controller
+ #define PENUP_TIMEOUT	(10)
+@@ -143,8 +141,9 @@
+  * @touch_stopped: touch stop flag
+  * @chip: pointer to the touch panel controller
   * @in_dev: pointer to the input device structure
+- * @intr_pin: interrupt pin value
   * @regulator: pointer to the Regulator used for touch screen
-  * @cs_gpiod: chip select GPIO line
-  * @int_gpiod: touch interrupt GPIO line
-+ * @irq: interrupt number the device is using
-+ * @touch_x_max: maximum X coordinate reported by the device
-+ * @touch_y_max: maximum Y coordinate reported by the device
-+ * @x_flip: indicates that the driver should invert X coordinate before
-+ *	reporting
-+ * @y_flip: indicates that the driver should invert Y coordinate before
-+ *	reporting
-+ * @touch_stopped: touch stop flag
++ * @cs_gpiod: chip select GPIO line
++ * @int_gpiod: touch interrupt GPIO line
   *
   * Touch panel device data structure
   */
- struct bu21013_ts {
- 	struct i2c_client *client;
--	const struct bu21013_platform_device *chip;
+@@ -154,8 +153,9 @@ struct bu21013_ts_data {
+ 	const struct bu21013_platform_device *chip;
  	struct input_dev *in_dev;
  	struct regulator *regulator;
- 	struct gpio_desc *cs_gpiod;
- 	struct gpio_desc *int_gpiod;
++	struct gpio_desc *cs_gpiod;
++	struct gpio_desc *int_gpiod;
  	unsigned int irq;
-+	u32 touch_x_max;
-+	u32 touch_y_max;
-+	bool x_flip;
-+	bool y_flip;
+-	unsigned int intr_pin;
  	bool touch_stopped;
  };
  
-@@ -208,10 +217,10 @@ static int bu21013_do_touch_report(struct bu21013_ts *ts)
+@@ -257,20 +257,21 @@ static irqreturn_t bu21013_gpio_irq(int irq, void *device_data)
+ {
+ 	struct bu21013_ts_data *data = device_data;
+ 	struct i2c_client *i2c = data->client;
++	int keep_polling;
+ 	int retval;
+ 
+ 	do {
+ 		retval = bu21013_do_touch_report(data);
+ 		if (retval < 0) {
+ 			dev_err(&i2c->dev, "bu21013_do_touch_report failed\n");
+-			return IRQ_NONE;
++			break;
  		}
  
- 		for (i = 0; i < finger_down_count; i++) {
--			if (ts->chip->x_flip)
--				pos_x[i] = ts->chip->touch_x_max - pos_x[i];
--			if (ts->chip->y_flip)
--				pos_y[i] = ts->chip->touch_y_max - pos_y[i];
-+			if (ts->x_flip)
-+				pos_x[i] = ts->touch_x_max - pos_x[i];
-+			if (ts->y_flip)
-+				pos_y[i] = ts->touch_y_max - pos_y[i];
+-		data->intr_pin = gpio_get_value(data->chip->touch_pin);
+-		if (data->intr_pin == PEN_DOWN_INTR)
++		keep_polling = gpiod_get_value(data->int_gpiod);
++		if (keep_polling)
+ 			wait_event_timeout(data->wait, data->touch_stopped,
+ 					   msecs_to_jiffies(2));
+-	} while (!data->intr_pin && !data->touch_stopped);
++	} while (keep_polling && !data->touch_stopped);
  
- 			input_report_abs(ts->in_dev,
- 					 ABS_MT_POSITION_X, pos_x[i]);
-@@ -304,14 +313,9 @@ static int bu21013_init_chip(struct bu21013_ts *ts)
- 		return error;
- 	}
- 
--	if (ts->chip->ext_clk)
--		error = i2c_smbus_write_byte_data(client, BU21013_CLK_MODE_REG,
--						  BU21013_CLK_MODE_EXT |
--							BU21013_CLK_MODE_CALIB);
--	else
--		error = i2c_smbus_write_byte_data(client, BU21013_CLK_MODE_REG,
--						  BU21013_CLK_MODE_DIV |
--							BU21013_CLK_MODE_CALIB);
-+	error = i2c_smbus_write_byte_data(client, BU21013_CLK_MODE_REG,
-+					  BU21013_CLK_MODE_DIV |
-+						BU21013_CLK_MODE_CALIB);
- 	if (error) {
- 		dev_err(&client->dev, "BU21013_CLK_MODE reg write failed\n");
- 		return error;
-@@ -388,43 +392,6 @@ static int bu21013_init_chip(struct bu21013_ts *ts)
- 	return 0;
+ 	return IRQ_HANDLED;
+ }
+@@ -425,28 +426,6 @@ static void bu21013_free_irq(struct bu21013_ts_data *bu21013_data)
+ 	free_irq(bu21013_data->irq, bu21013_data);
  }
  
--#ifdef CONFIG_OF
--static const struct bu21013_platform_device *
--bu21013_parse_dt(struct device *dev)
+-/**
+- * bu21013_cs_disable() - deconfigures the touch panel controller
+- * @bu21013_data: device structure pointer
+- *
+- * This function is used to deconfigure the chip selection
+- * for touch panel controller.
+- */
+-static void bu21013_cs_disable(struct bu21013_ts_data *bu21013_data)
 -{
--	struct device_node *np = dev->of_node;
--	struct bu21013_platform_device *pdata;
+-	int error;
 -
--	if (!np) {
--		dev_err(dev, "no device tree or platform data\n");
--		return ERR_PTR(-EINVAL);
--	}
+-	error = gpio_direction_output(bu21013_data->chip->cs_pin, 0);
+-	if (error < 0)
+-		dev_warn(&bu21013_data->client->dev,
+-			 "%s: gpio direction failed, error: %d\n",
+-			 __func__, error);
+-	else
+-		gpio_set_value(bu21013_data->chip->cs_pin, 0);
 -
--	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
--	if (!pdata)
--		return ERR_PTR(-ENOMEM);
--
--	pdata->y_flip = pdata->x_flip = false;
--
--	pdata->x_flip = of_property_read_bool(np, "rohm,flip-x");
--	pdata->y_flip = of_property_read_bool(np, "rohm,flip-y");
--
--	of_property_read_u32(np, "rohm,touch-max-x", &pdata->touch_x_max);
--	of_property_read_u32(np, "rohm,touch-max-y", &pdata->touch_y_max);
--
--	pdata->ext_clk = false;
--
--	return pdata;
+-	gpio_free(bu21013_data->chip->cs_pin);
 -}
--#else
--static inline const struct bu21013_platform_device *
--bu21013_parse_dt(struct device *dev)
--{
--	dev_err(dev, "no platform data available\n");
--	return ERR_PTR(-EINVAL);
--}
--#endif
 -
- static void bu21013_power_off(void *_ts)
- {
- 	struct bu21013_ts *ts = ts;
-@@ -442,8 +409,6 @@ static void bu21013_disable_chip(void *_ts)
- static int bu21013_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
--	const struct bu21013_platform_device *pdata =
--					dev_get_platdata(&client->dev);
- 	struct bu21013_ts *ts;
- 	struct input_dev *in_dev;
- 	int error;
-@@ -454,19 +419,20 @@ static int bu21013_probe(struct i2c_client *client,
- 		return -EIO;
+ #ifdef CONFIG_OF
+ static const struct bu21013_platform_device *
+ bu21013_parse_dt(struct device *dev)
+@@ -471,9 +450,6 @@ bu21013_parse_dt(struct device *dev)
+ 	of_property_read_u32(np, "rohm,touch-max-x", &pdata->touch_x_max);
+ 	of_property_read_u32(np, "rohm,touch-max-y", &pdata->touch_y_max);
+ 
+-	pdata->touch_pin = of_get_named_gpio(np, "touch-gpio", 0);
+-	pdata->cs_pin = of_get_named_gpio(np, "reset-gpio", 0);
+-
+ 	pdata->ext_clk = false;
+ 
+ 	return pdata;
+@@ -516,11 +492,6 @@ static int bu21013_probe(struct i2c_client *client,
+ 			return PTR_ERR(pdata);
  	}
  
--	if (!pdata) {
--		pdata = bu21013_parse_dt(&client->dev);
--		if (IS_ERR(pdata))
--			return PTR_ERR(pdata);
+-	if (!gpio_is_valid(pdata->touch_pin)) {
+-		dev_err(&client->dev, "invalid touch_pin supplied\n");
+-		return -EINVAL;
 -	}
 -
- 	ts = devm_kzalloc(&client->dev, sizeof(*ts), GFP_KERNEL);
- 	if (!ts)
- 		return -ENOMEM;
- 
--	ts->chip = pdata;
- 	ts->client = client;
- 
-+	ts->x_flip = device_property_read_bool(&client->dev, "rohm,flip-x");
-+	ts->y_flip = device_property_read_bool(&client->dev, "rohm,flip-y");
-+
-+	device_property_read_u32(&client->dev, "rohm,touch-max-x",
-+				 &ts->touch_x_max);
-+	device_property_read_u32(&client->dev, "rohm,touch-max-y",
-+				 &ts->touch_y_max);
-+
- 	in_dev = devm_input_allocate_device(&client->dev);
- 	if (!in_dev) {
- 		dev_err(&client->dev, "device memory alloc failed\n");
-@@ -483,9 +449,9 @@ static int bu21013_probe(struct i2c_client *client,
- 	__set_bit(EV_ABS, in_dev->evbit);
- 
- 	input_set_abs_params(in_dev, ABS_MT_POSITION_X,
--			     0, pdata->touch_x_max, 0, 0);
-+			     0, ts->touch_x_max, 0, 0);
- 	input_set_abs_params(in_dev, ABS_MT_POSITION_Y,
--			     0, pdata->touch_y_max, 0, 0);
-+			     0, ts->touch_y_max, 0, 0);
- 	input_set_drvdata(in_dev, ts);
- 
- 	ts->regulator = devm_regulator_get(&client->dev, "avdd");
-@@ -560,7 +526,6 @@ static int bu21013_probe(struct i2c_client *client,
- 		return error;
+ 	bu21013_data = kzalloc(sizeof(struct bu21013_ts_data), GFP_KERNEL);
+ 	in_dev = input_allocate_device();
+ 	if (!bu21013_data || !in_dev) {
+@@ -529,16 +500,26 @@ static int bu21013_probe(struct i2c_client *client,
+ 		goto err_free_mem;
  	}
  
--	device_init_wakeup(&client->dev, pdata->wakeup);
- 	i2c_set_clientdata(client, ts);
++	/* Named "INT" on the chip, DT binding is "touch" */
++	bu21013_data->int_gpiod = gpiod_get(&client->dev, "touch", GPIOD_IN);
++	error = PTR_ERR_OR_ZERO(bu21013_data->int_gpiod);
++	if (error) {
++		if (error != -EPROBE_DEFER)
++			dev_err(&client->dev, "failed to get INT GPIO\n");
++		goto err_free_mem;
++	}
++	gpiod_set_consumer_name(bu21013_data->int_gpiod, "BU21013 INT");
++
+ 	bu21013_data->in_dev = in_dev;
+ 	bu21013_data->chip = pdata;
+ 	bu21013_data->client = client;
+-	bu21013_data->irq = gpio_to_irq(pdata->touch_pin);
++	bu21013_data->irq = gpiod_to_irq(bu21013_data->int_gpiod);
+ 
+ 	bu21013_data->regulator = regulator_get(&client->dev, "avdd");
+ 	if (IS_ERR(bu21013_data->regulator)) {
+ 		dev_err(&client->dev, "regulator_get failed\n");
+ 		error = PTR_ERR(bu21013_data->regulator);
+-		goto err_free_mem;
++		goto err_put_int_gpio;
+ 	}
+ 
+ 	error = regulator_enable(bu21013_data->regulator);
+@@ -550,13 +531,16 @@ static int bu21013_probe(struct i2c_client *client,
+ 	bu21013_data->touch_stopped = false;
+ 	init_waitqueue_head(&bu21013_data->wait);
+ 
+-	/* configure the gpio pins */
+-	error = gpio_request_one(pdata->cs_pin, GPIOF_OUT_INIT_HIGH,
+-				 "touchp_reset");
+-	if (error < 0) {
+-		dev_err(&client->dev, "Unable to request gpio reset_pin\n");
++	/* Named "CS" on the chip, DT binding is "reset" */
++	bu21013_data->cs_gpiod = gpiod_get(&client->dev, "reset",
++					   GPIOD_OUT_HIGH);
++	error = PTR_ERR_OR_ZERO(bu21013_data->cs_gpiod);
++	if (error) {
++		if (error != -EPROBE_DEFER)
++			dev_err(&client->dev, "failed to get CS GPIO\n");
+ 		goto err_disable_regulator;
+ 	}
++	gpiod_set_consumer_name(bu21013_data->cs_gpiod, "BU21013 CS");
+ 
+ 	/* configure the touch panel controller */
+ 	error = bu21013_init_chip(bu21013_data);
+@@ -604,11 +588,14 @@ static int bu21013_probe(struct i2c_client *client,
+ err_free_irq:
+ 	bu21013_free_irq(bu21013_data);
+ err_cs_disable:
+-	bu21013_cs_disable(bu21013_data);
++	gpiod_set_value(bu21013_data->cs_gpiod, 0);
++	gpiod_put(bu21013_data->cs_gpiod);
+ err_disable_regulator:
+ 	regulator_disable(bu21013_data->regulator);
+ err_put_regulator:
+ 	regulator_put(bu21013_data->regulator);
++err_put_int_gpio:
++	gpiod_put(bu21013_data->int_gpiod);
+ err_free_mem:
+ 	input_free_device(in_dev);
+ 	kfree(bu21013_data);
+@@ -628,13 +615,16 @@ static int bu21013_remove(struct i2c_client *client)
+ 
+ 	bu21013_free_irq(bu21013_data);
+ 
+-	bu21013_cs_disable(bu21013_data);
++	gpiod_set_value(bu21013_data->cs_gpiod, 0);
++	gpiod_put(bu21013_data->cs_gpiod);
+ 
+ 	input_unregister_device(bu21013_data->in_dev);
+ 
+ 	regulator_disable(bu21013_data->regulator);
+ 	regulator_put(bu21013_data->regulator);
+ 
++	gpiod_put(bu21013_data->int_gpiod);
++
+ 	kfree(bu21013_data);
  
  	return 0;
 diff --git a/include/linux/input/bu21013.h b/include/linux/input/bu21013.h
-deleted file mode 100644
-index 58b1a9d44443..000000000000
+index 7e5b7e978e8a..58b1a9d44443 100644
 --- a/include/linux/input/bu21013.h
-+++ /dev/null
-@@ -1,30 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--/*
-- * Copyright (C) ST-Ericsson SA 2010
-- * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com> for ST-Ericsson
-- */
--
--#ifndef _BU21013_H
--#define _BU21013_H
--
--/**
-- * struct bu21013_platform_device - Handle the platform data
-- * @touch_x_max: touch x max
-- * @touch_y_max: touch y max
-- * @ext_clk: external clock flag
-- * @x_flip: x flip flag
-- * @y_flip: y flip flag
-- * @wakeup: wakeup flag
-- *
-- * This is used to handle the platform data
-- */
--struct bu21013_platform_device {
--	int touch_x_max;
--	int touch_y_max;
--	bool ext_clk;
--	bool x_flip;
--	bool y_flip;
--	bool wakeup;
--};
--
--#endif
++++ b/include/linux/input/bu21013.h
+@@ -11,8 +11,6 @@
+  * struct bu21013_platform_device - Handle the platform data
+  * @touch_x_max: touch x max
+  * @touch_y_max: touch y max
+- * @cs_pin: chip select pin
+- * @touch_pin: touch gpio pin
+  * @ext_clk: external clock flag
+  * @x_flip: x flip flag
+  * @y_flip: y flip flag
+@@ -23,8 +21,6 @@
+ struct bu21013_platform_device {
+ 	int touch_x_max;
+ 	int touch_y_max;
+-	unsigned int cs_pin;
+-	unsigned int touch_pin;
+ 	bool ext_clk;
+ 	bool x_flip;
+ 	bool y_flip;
 -- 
 2.23.0.rc1.153.gdeed80330f-goog

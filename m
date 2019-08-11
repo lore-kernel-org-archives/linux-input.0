@@ -1,57 +1,190 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v4 8/9] MIPS: SGI-IP27: fix readb/writeb addressing
-Date: Sun, 11 Aug 2019 09:29:07 +0200
-Message-ID: <20190811072907.GA1416@kroah.com>
-References: <20190809103235.16338-1-tbogendoerfer@suse.de>
- <20190809103235.16338-9-tbogendoerfer@suse.de>
- <CAHp75Vd_083R9sRsspVuJ3ZMTxpVR79PF5Lg-bpnMxRfN+b7wA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: ili210x - switch to using threaded IRQ
+Date: Sun, 11 Aug 2019 09:11:04 -0700
+Message-ID: <20190811161104.GA43556@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHp75Vd_083R9sRsspVuJ3ZMTxpVR79PF5Lg-bpnMxRfN+b7wA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Thomas Bogendoerfer <tbogendoerfer@suse.de>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, netdev <netdev@vger.kernel.org>, "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <linux-rtc@vger.kernel.org>, "open list:SERIAL DRIVERS" <linux-serial@v>
+To: linux-input@vger.kernel.org
+Cc: Marek Vasut <marex@denx.de>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Aug 10, 2019 at 04:22:23PM +0300, Andy Shevchenko wrote:
-> On Fri, Aug 9, 2019 at 1:34 PM Thomas Bogendoerfer
-> <tbogendoerfer@suse.de> wrote:
-> >
-> > Our chosen byte swapping, which is what firmware already uses, is to
-> > do readl/writel by normal lw/sw intructions (data invariance). This
-> > also means we need to mangle addresses for u8 and u16 accesses. The
-> > mangling for 16bit has been done aready, but 8bit one was missing.
-> > Correcting this causes different addresses for accesses to the
-> > SuperIO and local bus of the IOC3 chip. This is fixed by changing
-> > byte order in ioc3 and m48rtc_rtc structs.
-> 
-> >  /* serial port register map */
-> >  struct ioc3_serialregs {
-> > -       uint32_t        sscr;
-> > -       uint32_t        stpir;
-> > -       uint32_t        stcir;
-> > -       uint32_t        srpir;
-> > -       uint32_t        srcir;
-> > -       uint32_t        srtr;
-> > -       uint32_t        shadow;
-> > +       u32     sscr;
-> > +       u32     stpir;
-> > +       u32     stcir;
-> > +       u32     srpir;
-> > +       u32     srcir;
-> > +       u32     srtr;
-> > +       u32     shadow;
-> >  };
-> 
-> Isn't it a churn? AFAIU kernel documentation the uint32_t is okay to
-> use, just be consistent inside one module / driver.
-> Am I mistaken?
+Let's switch the driver to using threaded IRQ so that we do not need to
+manage the interrupt and work separately, and we do not acknowledge
+interrupt until we finished handling it completely.
 
-No, but really it uint* shouldn't be used anywhere in the kernel source
-as it does not make sense.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/ili210x.c | 89 +++++++++++++----------------
+ 1 file changed, 40 insertions(+), 49 deletions(-)
 
-thanks,
+diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+index e9006407c9bc..5a37d1eff2af 100644
+--- a/drivers/input/touchscreen/ili210x.c
++++ b/drivers/input/touchscreen/ili210x.c
+@@ -1,20 +1,20 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+-#include <linux/module.h>
++#include <linux/delay.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/i2c.h>
+-#include <linux/interrupt.h>
+-#include <linux/slab.h>
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
+-#include <linux/delay.h>
+-#include <linux/workqueue.h>
+-#include <linux/gpio/consumer.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
+ #include <linux/of_device.h>
++#include <linux/slab.h>
+ #include <asm/unaligned.h>
+ 
+ #define ILI210X_TOUCHES		2
+ #define ILI251X_TOUCHES		10
+-#define DEFAULT_POLL_PERIOD	20
++
++#define ILI2XXX_POLL_PERIOD	20
+ 
+ /* Touchscreen commands */
+ #define REG_TOUCHDATA		0x10
+@@ -36,12 +36,11 @@ enum ili2xxx_model {
+ struct ili210x {
+ 	struct i2c_client *client;
+ 	struct input_dev *input;
+-	unsigned int poll_period;
+-	struct delayed_work dwork;
+ 	struct gpio_desc *reset_gpio;
+ 	struct touchscreen_properties prop;
+ 	enum ili2xxx_model model;
+ 	unsigned int max_touches;
++	bool stop;
+ };
+ 
+ static int ili210x_read_reg(struct i2c_client *client, u8 reg, void *buf,
+@@ -170,43 +169,36 @@ static bool ili210x_report_events(struct ili210x *priv, u8 *touchdata)
+ 	return contact;
+ }
+ 
+-static void ili210x_work(struct work_struct *work)
++static irqreturn_t ili210x_irq(int irq, void *irq_data)
+ {
+-	struct ili210x *priv = container_of(work, struct ili210x,
+-					    dwork.work);
++	struct ili210x *priv = irq_data;
+ 	struct i2c_client *client = priv->client;
+ 	u8 touchdata[64] = { 0 };
+ 	bool touch;
+-	int error = -EINVAL;
+-
+-	if (priv->model == MODEL_ILI210X) {
+-		error = ili210x_read_reg(client, REG_TOUCHDATA,
+-					 touchdata, sizeof(touchdata));
+-	} else if (priv->model == MODEL_ILI251X) {
+-		error = ili210x_read_reg(client, REG_TOUCHDATA,
+-					 touchdata, 31);
+-		if (!error && touchdata[0] == 2)
+-			error = ili210x_read(client, &touchdata[31], 20);
+-	}
+-
+-	if (error) {
+-		dev_err(&client->dev,
+-			"Unable to get touchdata, err = %d\n", error);
+-		return;
+-	}
+-
+-	touch = ili210x_report_events(priv, touchdata);
++	int error;
+ 
+-	if (touch)
+-		schedule_delayed_work(&priv->dwork,
+-				      msecs_to_jiffies(priv->poll_period));
+-}
++	do {
++		if (priv->model == MODEL_ILI210X) {
++			error = ili210x_read_reg(client, REG_TOUCHDATA,
++						 touchdata, sizeof(touchdata));
++		} else if (priv->model == MODEL_ILI251X) {
++			error = ili210x_read_reg(client, REG_TOUCHDATA,
++						 touchdata, 31);
++			if (!error && touchdata[0] == 2)
++				error = ili210x_read(client,
++						     &touchdata[31], 20);
++		}
+ 
+-static irqreturn_t ili210x_irq(int irq, void *irq_data)
+-{
+-	struct ili210x *priv = irq_data;
++		if (error) {
++			dev_err(&client->dev,
++				"Unable to get touchdata, err = %d\n", error);
++			break;
++		}
+ 
+-	schedule_delayed_work(&priv->dwork, 0);
++		touch = ili210x_report_events(priv, touchdata);
++		if (touch)
++			msleep(ILI2XXX_POLL_PERIOD);
++	} while (!priv->stop && touch);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -253,11 +245,12 @@ static void ili210x_power_down(void *data)
+ 	gpiod_set_value_cansleep(reset_gpio, 1);
+ }
+ 
+-static void ili210x_cancel_work(void *data)
++static void ili210x_stop(void *data)
+ {
+ 	struct ili210x *priv = data;
+ 
+-	cancel_delayed_work_sync(&priv->dwork);
++	/* Tell ISR to quit even if there is a contact. */
++	priv->stop = true;
+ }
+ 
+ static int ili210x_i2c_probe(struct i2c_client *client,
+@@ -305,8 +298,6 @@ static int ili210x_i2c_probe(struct i2c_client *client,
+ 
+ 	priv->client = client;
+ 	priv->input = input;
+-	priv->poll_period = DEFAULT_POLL_PERIOD;
+-	INIT_DELAYED_WORK(&priv->dwork, ili210x_work);
+ 	priv->reset_gpio = reset_gpio;
+ 	priv->model = model;
+ 	if (model == MODEL_ILI210X)
+@@ -336,18 +327,18 @@ static int ili210x_i2c_probe(struct i2c_client *client,
+ 	touchscreen_parse_properties(input, true, &priv->prop);
+ 	input_mt_init_slots(input, priv->max_touches, INPUT_MT_DIRECT);
+ 
+-	error = devm_add_action(dev, ili210x_cancel_work, priv);
+-	if (error)
+-		return error;
+-
+-	error = devm_request_irq(dev, client->irq, ili210x_irq, 0,
+-				 client->name, priv);
++	error = devm_request_threaded_irq(dev, client->irq, NULL, ili210x_irq,
++					  IRQF_ONESHOT, client->name, priv);
+ 	if (error) {
+ 		dev_err(dev, "Unable to request touchscreen IRQ, err: %d\n",
+ 			error);
+ 		return error;
+ 	}
+ 
++	error = devm_add_action_or_reset(dev, ili210x_stop, priv);
++	if (error)
++		return error;
++
+ 	error = devm_device_add_group(dev, &ili210x_attr_group);
+ 	if (error) {
+ 		dev_err(dev, "Unable to create sysfs attributes, err: %d\n",
+-- 
+2.23.0.rc1.153.gdeed80330f-goog
 
-greg k-h
+
+-- 
+Dmitry

@@ -1,7 +1,7 @@
 From: stillcompiling@gmail.com
-Subject: [PATCH v3 2/3] HID: core: Add printk_once variants to hid_warn() etc
-Date: Mon, 12 Aug 2019 09:20:21 -0600
-Message-ID: <20190812152022.27963-3-stillcompiling@gmail.com>
+Subject: [PATCH v3 3/3] HID: core: fix dmesg flooding if report field larger than 32bit
+Date: Mon, 12 Aug 2019 09:20:22 -0600
+Message-ID: <20190812152022.27963-4-stillcompiling@gmail.com>
 References: <20190812152022.27963-1-stillcompiling@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,29 +14,34 @@ List-Id: linux-input@vger.kernel.org
 
 From: Joshua Clayton <stillcompiling@gmail.com>
 
-hid_warn_once() is needed. Add the others as part of the block.
+Only warn once of oversize hid report value field
+
+On HP spectre x360 convertible the message:
+hid-sensor-hub 001F:8087:0AC2.0002: hid_field_extract() called with n (192) > 32! (kworker/1:2)
+is continually printed many times per second, crowding out all else.
+Protect dmesg by printing the warning only one time.
+
+The size of the hid report field data structure should probably be increased.
+The data structure is treated as a u32 in Linux, but an unlimited number
+of bits in the USB hid spec, so there is some rearchitecture needed now that
+devices are sending more than 32 bits.
 
 Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index e6c7efdb0458..cd41f209043f 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -1171,4 +1171,15 @@ do {									\
- #define hid_dbg(hid, fmt, ...)				\
- 	dev_dbg(&(hid)->dev, fmt, ##__VA_ARGS__)
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 210b81a56e1a..3eaee2c37931 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1311,8 +1311,8 @@ u32 hid_field_extract(const struct hid_device *hid, u8 *report,
+ 			unsigned offset, unsigned n)
+ {
+ 	if (n > 32) {
+-		hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
+-			 n, current->comm);
++		hid_warn_once(hid, "%s() called with n (%d) > 32! (%s)\n",
++			      __func__, n, current->comm);
+ 		n = 32;
+ 	}
  
-+#define hid_err_once(hid, fmt, ...)			\
-+	dev_err_once(&(hid)->dev, fmt, ##__VA_ARGS__)
-+#define hid_notice_once(hid, fmt, ...)			\
-+	dev_notice_once(&(hid)->dev, fmt, ##__VA_ARGS__)
-+#define hid_warn_once(hid, fmt, ...)			\
-+	dev_warn_once(&(hid)->dev, fmt, ##__VA_ARGS__)
-+#define hid_info_once(hid, fmt, ...)			\
-+	dev_info_once(&(hid)->dev, fmt, ##__VA_ARGS__)
-+#define hid_dbg_once(hid, fmt, ...)			\
-+	dev_dbg_once(&(hid)->dev, fmt, ##__VA_ARGS__)
-+
- #endif
 -- 
 2.21.0

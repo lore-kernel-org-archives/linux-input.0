@@ -1,89 +1,155 @@
-From: syzbot <syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com>
-Subject: Re: KASAN: slab-out-of-bounds Read in hidraw_ioctl
-Date: Sun, 11 Aug 2019 13:46:06 -0700
-Message-ID: <00000000000016c09c058fdd7faa@google.com>
-References: <00000000000008b8c6058ee52407@google.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 1/3] mfd: mc13xxx: Add mc34708 adc support
+Date: Mon, 12 Aug 2019 11:08:44 +0100
+Message-ID: <20190812100844.GE26727@dell>
+References: <20190717222602.2912-1-lukma@denx.de>
+ <20190717222602.2912-2-lukma@denx.de>
+ <20190725123641.GJ23883@dell>
+ <20190725182020.3948c8d9@jawa>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <00000000000008b8c6058ee52407@google.com>
+Content-Disposition: inline
+In-Reply-To: <20190725182020.3948c8d9@jawa>
 Sender: linux-kernel-owner@vger.kernel.org
-To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: Lukasz Majewski <lukma@denx.de>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-syzbot has found a reproducer for the following crash on:
+On Thu, 25 Jul 2019, Lukasz Majewski wrote:
+> > On Thu, 18 Jul 2019, Lukasz Majewski wrote:
+> > 
+> > > From: Sascha Hauer <s.hauer@pengutronix.de>
+> > > 
+> > > The mc34708 has an improved adc. The older variants will always
+> > > convert a fixed order of channels. The mc34708 can do up to eight
+> > > conversions in arbitrary channel order. Currently this extended
+> > > feature is not supported. We only support touchscreen conversions
+> > > now, which will be sampled in a data format compatible to the older
+> > > chips in order to keep the API between the mfd and the touchscreen
+> > > driver.
+> > > 
+> > > Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> > > Signed-off-by: Lukasz Majewski <lukma@denx.de>
+> > > 
+> > > ---
+> > > Changes for v4:
+> > > - None
+> > > 
+> > > Changes for v3:
+> > > - None
+> > > 
+> > > Changes for v2:
+> > > - Change the return code patch when the mc13xxx ADC is performing
+> > > conversion
+> > > - Introduce new include/linux/mfd/mc34708.h header file for mc34708
+> > > specific defines
+> > > 
+> > > Changes from the original patches:
+> > > - ADC conversion functions prototypes added to fix build error
+> > > - Adjustments to make checkpatch clean (-ENOSYS, line over 80 char)
+> > > 
+> > > This patch applies on top of v5.2 - SHA1:
+> > > 0ecfebd2b52404ae0c54a878c872bb93363ada36 ---
+> > >  drivers/mfd/mc13xxx-core.c  | 102
+> > > +++++++++++++++++++++++++++++++++++++++++++-
+> > > drivers/mfd/mc13xxx.h       |   3 ++ include/linux/mfd/mc34708.h |
+> > > 37 ++++++++++++++++ 3 files changed, 141 insertions(+), 1
+> > > deletion(-) create mode 100644 include/linux/mfd/mc34708.h
+> > > 
+> > > diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
+> > > index 1abe7432aad8..01473d6fda21 100644
+> > > --- a/drivers/mfd/mc13xxx-core.c
+> > > +++ b/drivers/mfd/mc13xxx-core.c
+> > > @@ -12,6 +12,7 @@
+> > >  #include <linux/of_device.h>
+> > >  #include <linux/platform_device.h>
+> > >  #include <linux/mfd/core.h>
+> > > +#include <linux/mfd/mc34708.h>
+> > >  
+> > >  #include "mc13xxx.h"
+> > >  
+> > > @@ -45,6 +46,8 @@
+> > >  
+> > >  #define MC13XXX_ADC2		45
+> > >  
+> > > +#define MC13XXX_ADC_WORKING		(1 << 0)  
+> > 
+> > BIT(0) ?
+> 
+> The same convention - i.e. (1 << 0) is used in the rest of the file.
 
-HEAD commit:    e96407b4 usb-fuzzer: main usb gadget fuzzer driver
-git tree:       https://github.com/google/kasan.git usb-fuzzer
-console output: https://syzkaller.appspot.com/x/log.txt?x=150426ba600000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=cfa2c18fb6a8068e
-dashboard link: https://syzkaller.appspot.com/bug?extid=5a6c4ec678a0c6ee84ba
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12725c02600000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=162163c2600000
+Very well, but please consider converting it subsequently.
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com
+> > >  void mc13xxx_lock(struct mc13xxx *mc13xxx)
+> > >  {
+> > >  	if (!mutex_trylock(&mc13xxx->lock)) {
+> > > @@ -198,22 +201,30 @@ static void mc34708_print_revision(struct
+> > > mc13xxx *mc13xxx, u32 revision) maskval(revision,
+> > > MC34708_REVISION_FAB)); }
+> > >  
+> > > +static int mc13xxx_adc_conversion(struct mc13xxx *, unsigned int,
+> > > +				  unsigned int, u8, bool, unsigned
+> > > int *); +static int mc34708_adc_conversion(struct mc13xxx *,
+> > > unsigned int,
+> > > +				  unsigned int, u8, bool, unsigned
+> > > int *); +
+> > >  /* These are only exported for mc13xxx-i2c and mc13xxx-spi */
+> > >  struct mc13xxx_variant mc13xxx_variant_mc13783 = {
+> > >  	.name = "mc13783",
+> > >  	.print_revision = mc13xxx_print_revision,
+> > > +	.adc_do_conversion = mc13xxx_adc_conversion,
+> > >  };
+> > >  EXPORT_SYMBOL_GPL(mc13xxx_variant_mc13783);  
+> > 
+> > I'd prefer to keep the call-back functions as close to zero as
+> > possible.
+> 
+> If I may ask - what is wrong with having per device callback(s) ?
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in strlen+0x79/0x90 lib/string.c:525
-Read of size 1 at addr ffff8881d29bdf38 by task syz-executor201/1726
+Call-backs are ugly and hard to read/debug.
 
-CPU: 1 PID: 1726 Comm: syz-executor201 Not tainted 5.3.0-rc2+ #25
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  print_address_description+0x6a/0x32c mm/kasan/report.c:351
-  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
-  kasan_report+0xe/0x12 mm/kasan/common.c:612
-  strlen+0x79/0x90 lib/string.c:525
-  strlen include/linux/string.h:281 [inline]
-  hidraw_ioctl+0x245/0xae0 drivers/hid/hidraw.c:446
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
-  ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
-  do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x445679
-Code: e8 5c ad 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7  
-48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 9b cd fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007ffc8514f3a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000445679
-RDX: 0000000000000000 RSI: 0000000080404805 RDI: 0000000000000004
-RBP: 00000000006d0018 R08: 000000000000000b R09: 00000000004002e0
-R10: 000000000000000f R11: 0000000000000246 R12: 00000000004028a0
-R13: 0000000000402930 R14: 0000000000000000 R15: 0000000000000000
+If they can be avoided, they should be, IMHO>
 
-Allocated by task 0:
-(stack is not available)
+> > It would be better to turn mc13xxx_adc_conversion() in to the catch
+> > function
+> 
+> Could you share any example? 
 
-Freed by task 0:
-(stack is not available)
+Just put the code doing the conversion into mc13xxx_adc_conversion()
+and remove the call-back.
 
-The buggy address belongs to the object at ffff8881d29bde60
-  which belongs to the cache shmem_inode_cache of size 1168
-The buggy address is located 216 bytes inside of
-  1168-byte region [ffff8881d29bde60, ffff8881d29be2f0)
-The buggy address belongs to the page:
-page:ffffea00074a6f00 refcount:1 mapcount:0 mapping:ffff8881da115180  
-index:0x0 compound_mapcount: 0
-flags: 0x200000000010200(slab|head)
-raw: 0200000000010200 dead000000000100 dead000000000122 ffff8881da115180
-raw: 0000000000000000 00000000800c000c 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
+> > choose an execution route based on some platform matching.
+> > 
+> 
+> Could you help me with giving a hint of how shall I do the "platform
+> matching" in this particular driver ? 
 
-Memory state around the buggy address:
-  ffff8881d29bde00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff8881d29bde80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-> ffff8881d29bdf00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                                         ^
-  ffff8881d29bdf80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff8881d29be000: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-==================================================================
+We normally match on some platform ID, rather than passing around
+pointers to structures containing pointers to device specific
+functions.
+
+> The mc13xxx driver seems rather complex with SPI and I2C support and in
+> which the subdevices are added (e.g. rtc, adc, etc).
+
+Not sure I follow your point?
+
+> This particular patch just follows current driver design and fixes its
+> usability for mc13708 drvice.
+
+Right, but it is the current driver design that I'm trying to change.
+
+> > If you could do the same for print_revision too, that would be even
+> > better.
+> 
+> I would prefer to fix the driver (for mc13708) without the need to
+> change the working code.
+
+Okay, but no additional call-backs please.
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

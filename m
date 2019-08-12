@@ -1,47 +1,54 @@
-From: stillcompiling@gmail.com
-Subject: [PATCH v3 3/3] HID: core: fix dmesg flooding if report field larger than 32bit
-Date: Mon, 12 Aug 2019 09:20:22 -0600
-Message-ID: <20190812152022.27963-4-stillcompiling@gmail.com>
-References: <20190812152022.27963-1-stillcompiling@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: cp2112: prevent sleeping function called from invalid context
+Date: Mon, 12 Aug 2019 18:04:44 +0200
+Message-ID: <20190812160444.10402-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190812152022.27963-1-stillcompiling@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
-Cc: Joe Perches <joe@perches.com>, Joshua Clayton <stillcompiling@gmail.com>
+To: David Barksdale <dbarksdale@uplogix.com>, Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Joshua Clayton <stillcompiling@gmail.com>
+When calling request_threaded_irq() with a CP2112, the function
+cp2112_gpio_irq_startup() is called in a IRQ context.
 
-Only warn once of oversize hid report value field
+Therefore we can not sleep, and we can not call
+cp2112_gpio_direction_input() there.
 
-On HP spectre x360 convertible the message:
-hid-sensor-hub 001F:8087:0AC2.0002: hid_field_extract() called with n (192) > 32! (kworker/1:2)
-is continually printed many times per second, crowding out all else.
-Protect dmesg by printing the warning only one time.
+Move the call to cp2112_gpio_direction_input() earlier to have a working
+driver.
 
-The size of the hid report field data structure should probably be increased.
-The data structure is treated as a u32 in Linux, but an unlimited number
-of bits in the USB hid spec, so there is some rearchitecture needed now that
-devices are sending more than 32 bits.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-cp2112.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 210b81a56e1a..3eaee2c37931 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1311,8 +1311,8 @@ u32 hid_field_extract(const struct hid_device *hid, u8 *report,
- 			unsigned offset, unsigned n)
- {
- 	if (n > 32) {
--		hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
--			 n, current->comm);
-+		hid_warn_once(hid, "%s() called with n (%d) > 32! (%s)\n",
-+			      __func__, n, current->comm);
- 		n = 32;
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 2310c96ccf4a..db1b55df0d13 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1153,8 +1153,6 @@ static unsigned int cp2112_gpio_irq_startup(struct irq_data *d)
+ 
+ 	INIT_DELAYED_WORK(&dev->gpio_poll_worker, cp2112_gpio_poll_callback);
+ 
+-	cp2112_gpio_direction_input(gc, d->hwirq);
+-
+ 	if (!dev->gpio_poll) {
+ 		dev->gpio_poll = true;
+ 		schedule_delayed_work(&dev->gpio_poll_worker, 0);
+@@ -1204,6 +1202,12 @@ static int __maybe_unused cp2112_allocate_irq(struct cp2112_device *dev,
+ 		return PTR_ERR(dev->desc[pin]);
  	}
  
++	ret = cp2112_gpio_direction_input(&dev->gc, pin);
++	if (ret < 0) {
++		dev_err(dev->gc.parent, "Failed to set GPIO to input dir\n");
++		goto err_desc;
++	}
++
+ 	ret = gpiochip_lock_as_irq(&dev->gc, pin);
+ 	if (ret) {
+ 		dev_err(dev->gc.parent, "Failed to lock GPIO as interrupt\n");
 -- 
-2.21.0
+2.19.2

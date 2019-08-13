@@ -1,77 +1,83 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/2] Revert "HID: logitech-hidpp: add USB PID for a few more supported mice"
-Date: Tue, 13 Aug 2019 15:38:06 +0200
-Message-ID: <20190813133807.12384-2-benjamin.tissoires@redhat.com>
-References: <20190813133807.12384-1-benjamin.tissoires@redhat.com>
+From: Andrey Konovalov <andreyknvl@google.com>
+Subject: Re: KASAN: user-memory-access Read in hidraw_ioctl
+Date: Tue, 13 Aug 2019 15:42:57 +0200
+Message-ID: <CAAeHK+x9pZec1rJ=rpGvX-O9wmCic27zqd_8xKXgviSymy=ajQ@mail.gmail.com>
+References: <0000000000000de921058ee524e1@google.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190813133807.12384-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <0000000000000de921058ee524e1@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: syzbot <syzbot+5a8c44432a51154ff6d5@syzkaller.appspotmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>
 List-Id: linux-input@vger.kernel.org
 
-This partially reverts commit 27fc32fd9417968a459d43d9a7c50fd423d53eb9.
+On Tue, Jul 30, 2019 at 2:28 PM syzbot
+<syzbot+5a8c44432a51154ff6d5@syzkaller.appspotmail.com> wrote:
+>
+> Hello,
+>
+> syzbot found the following crash on:
+>
+> HEAD commit:    7f7867ff usb-fuzzer: main usb gadget fuzzer driver
+> git tree:       https://github.com/google/kasan.git usb-fuzzer
+> console output: https://syzkaller.appspot.com/x/log.txt?x=13c21ab4600000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=792eb47789f57810
+> dashboard link: https://syzkaller.appspot.com/bug?extid=5a8c44432a51154ff6d5
+> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+>
+> Unfortunately, I don't have any reproducer for this crash yet.
+>
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+5a8c44432a51154ff6d5@syzkaller.appspotmail.com
+>
+> ==================================================================
+> BUG: KASAN: user-memory-access in _copy_to_user+0x124/0x150
+> lib/usercopy.c:27
+> Read of size 148 at addr 0000100000000000 by task syz-executor.2/19576
+>
+> CPU: 1 PID: 19576 Comm: syz-executor.2 Not tainted 5.3.0-rc2+ #23
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+> Google 01/01/2011
+> Call Trace:
+>   __dump_stack lib/dump_stack.c:77 [inline]
+>   dump_stack+0xca/0x13e lib/dump_stack.c:113
+>   __kasan_report.cold+0x5/0x33 mm/kasan/report.c:486
+>   kasan_report+0xe/0x12 mm/kasan/common.c:612
+>   check_memory_region_inline mm/kasan/generic.c:185 [inline]
+>   check_memory_region+0x128/0x190 mm/kasan/generic.c:192
+>   _copy_to_user+0x124/0x150 lib/usercopy.c:27
+>   copy_to_user include/linux/uaccess.h:152 [inline]
+>   hidraw_ioctl+0x39c/0xae0 drivers/hid/hidraw.c:392
+>   vfs_ioctl fs/ioctl.c:46 [inline]
+>   file_ioctl fs/ioctl.c:509 [inline]
+>   do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
+>   ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
+>   __do_sys_ioctl fs/ioctl.c:720 [inline]
+>   __se_sys_ioctl fs/ioctl.c:718 [inline]
+>   __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
+>   do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
+>   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> RIP: 0033:0x459829
+> Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7
+> 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
+> ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+> RSP: 002b:00007f6587cfbc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459829
+> RDX: 0000000020005640 RSI: 0000000090044802 RDI: 0000000000000004
+> RBP: 000000000075c070 R08: 0000000000000000 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000246 R12: 00007f6587cfc6d4
+> R13: 00000000004c21db R14: 00000000004d5540 R15: 00000000ffffffff
+> ==================================================================
 
-It turns out that the G502 has some issues with hid-logitech-hidpp:
-when plugging it in, the driver tries to contact it but it fails.
-So the driver bails out leaving only the mouse event node available.
+#syz dup: BUG: bad usercopy in hidraw_ioctl
 
-This timeout is problematic as it introduce a delay in the boot,
-and having only the mouse event node means that the hardware
-macros keys can not be relayed to the userspace.
-
-Filipe and I just gave a shot at the following devices:
-
-G403 Wireless (0xC082)
-G703 (0xC087)
-G703 Hero (0xC090)
-G903 (0xC086)
-G903 Hero (0xC091)
-G Pro (0xC088)
-
-Reverting the device we are not sure that works flawlessly.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-logitech-hidpp.c | 20 --------------------
- 1 file changed, 20 deletions(-)
-
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 21268c9fa71a..343052b117a9 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -3749,30 +3749,10 @@ static const struct hid_device_id hidpp_devices[] = {
- 
- 	{ L27MHZ_DEVICE(HID_ANY_ID) },
- 
--	{ /* Logitech G203/Prodigy Gaming Mouse */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC084) },
--	{ /* Logitech G302 Gaming Mouse */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07F) },
--	{ /* Logitech G303 Gaming Mouse */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC080) },
--	{ /* Logitech G400 Gaming Mouse */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07E) },
- 	{ /* Logitech G403 Wireless Gaming Mouse over USB */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC082) },
--	{ /* Logitech G403 Gaming Mouse */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC083) },
--	{ /* Logitech G403 Hero Gaming Mouse over USB */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08F) },
--	{ /* Logitech G502 Proteus Core Gaming Mouse */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07D) },
--	{ /* Logitech G502 Proteus Spectrum Gaming Mouse over USB */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC332) },
--	{ /* Logitech G502 Hero Gaming Mouse over USB */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08B) },
- 	{ /* Logitech G700 Gaming Mouse over USB */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC06B) },
--	{ /* Logitech G700s Gaming Mouse over USB */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07C) },
- 	{ /* Logitech G703 Gaming Mouse over USB */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC087) },
- 	{ /* Logitech G703 Hero Gaming Mouse over USB */
--- 
-2.19.2
+>
+>
+> ---
+> This bug is generated by a bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for more information about syzbot.
+> syzbot engineers can be reached at syzkaller@googlegroups.com.
+>
+> syzbot will keep track of this bug report. See:
+> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.

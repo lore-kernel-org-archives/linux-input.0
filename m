@@ -1,56 +1,32 @@
-From: Fei Shao <fshao@chromium.org>
-Subject: [PATCH] Input: cros_ec_keyb: Add back missing mask for event_type
-Date: Tue, 13 Aug 2019 17:38:21 +0800
-Message-ID: <20190813093821.74158-1-fshao@chromium.org>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: Re: [PATCH v4 3/9] nvmem: core: add nvmem_device_find
+Date: Tue, 13 Aug 2019 10:40:34 +0100
+Message-ID: <8d18de64-9234-fcba-aa3d-b46789eb62a5@linaro.org>
+References: <20190809103235.16338-1-tbogendoerfer@suse.de>
+ <20190809103235.16338-4-tbogendoerfer@suse.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190809103235.16338-4-tbogendoerfer@suse.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benson Leung <bleung@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Guenter Roeck <groeck@chromium.org>, Ting Shen <phoenixshen@chromium.org>, Brian Norris <briannorris@chromium.org>, Fei Shao <fshao@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Thomas Bogendoerfer <tbogendoerfer@suse.de>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In the previous patch we didn't mask out event_type in case statement,
-so switches are always picked instead of buttons, which results in
-ChromeOS devices misbehaving when power button is pressed.
-This patch adds back the missing mask.
 
-Fixes: d096aa3eb604 ("Input: cros_ec_keyb: mask out extra flags in event_type")
-Signed-off-by: Fei Shao <fshao@chromium.org>
----
- drivers/input/keyboard/cros_ec_keyb.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 38cb6d82d8fe..bef7bee6f05e 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -226,6 +226,8 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- {
- 	struct cros_ec_keyb *ckdev = container_of(nb, struct cros_ec_keyb,
- 						  notifier);
-+	uint8_t mkbp_event_type = ckdev->ec->event_data.event_type &
-+				  EC_MKBP_EVENT_TYPE_MASK;
- 	u32 val;
- 	unsigned int ev_type;
+On 09/08/2019 11:32, Thomas Bogendoerfer wrote:
+> nvmem_device_find provides a way to search for nvmem devices with
+> the help of a match function simlair to bus_find_device.
+> 
+> Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+> ---
+>   drivers/nvmem/core.c           | 62 ++++++++++++++++++++++--------------------
+>   include/linux/nvmem-consumer.h |  9 ++++++
+>   2 files changed, 41 insertions(+), 30 deletions(-)
 
-@@ -237,7 +239,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 	if (queued_during_suspend && !device_may_wakeup(ckdev->dev))
- 		return NOTIFY_OK;
+Have you considered using nvmem_register_notifier() ?
 
--	switch (ckdev->ec->event_data.event_type & EC_MKBP_EVENT_TYPE_MASK) {
-+	switch (mkbp_event_type) {
- 	case EC_MKBP_EVENT_KEY_MATRIX:
- 		pm_wakeup_event(ckdev->dev, 0);
 
-@@ -264,7 +266,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 	case EC_MKBP_EVENT_SWITCH:
- 		pm_wakeup_event(ckdev->dev, 0);
-
--		if (ckdev->ec->event_data.event_type == EC_MKBP_EVENT_BUTTON) {
-+		if (mkbp_event_type == EC_MKBP_EVENT_BUTTON) {
- 			val = get_unaligned_le32(
- 					&ckdev->ec->event_data.data.buttons);
- 			ev_type = EV_KEY;
---
-2.23.0.rc1.153.gdeed80330f-goog
+--srini

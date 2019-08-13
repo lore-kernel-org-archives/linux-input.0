@@ -1,64 +1,56 @@
-From: =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <f4bug@amsat.org>
-Subject: Re: [PATCH v4 8/9] MIPS: SGI-IP27: fix readb/writeb addressing
-Date: Tue, 13 Aug 2019 10:47:13 +0200
-Message-ID: <90129235-58c2-aeed-a9d3-96f4a8f45709@amsat.org>
-References: <20190809103235.16338-1-tbogendoerfer@suse.de>
- <20190809103235.16338-9-tbogendoerfer@suse.de>
- <CAHp75Vd_083R9sRsspVuJ3ZMTxpVR79PF5Lg-bpnMxRfN+b7wA@mail.gmail.com>
- <20190811072907.GA1416@kroah.com>
+From: Fei Shao <fshao@chromium.org>
+Subject: [PATCH] Input: cros_ec_keyb: Add back missing mask for event_type
+Date: Tue, 13 Aug 2019 17:38:21 +0800
+Message-ID: <20190813093821.74158-1-fshao@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20190811072907.GA1416@kroah.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Thomas Bogendoerfer <tbogendoerfer@suse.de>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, netdev <netdev@vger.kernel.org>, "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <linux-rtc@vger.kernel.org>, "open list:SERIAL DRIVERS" <linux-serial@v>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benson Leung <bleung@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Guenter Roeck <groeck@chromium.org>, Ting Shen <phoenixshen@chromium.org>, Brian Norris <briannorris@chromium.org>, Fei Shao <fshao@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Thomas,
+In the previous patch we didn't mask out event_type in case statement,
+so switches are always picked instead of buttons, which results in
+ChromeOS devices misbehaving when power button is pressed.
+This patch adds back the missing mask.
 
-On 8/11/19 9:29 AM, Greg Kroah-Hartman wrote:
-> On Sat, Aug 10, 2019 at 04:22:23PM +0300, Andy Shevchenko wrote:
->> On Fri, Aug 9, 2019 at 1:34 PM Thomas Bogendoerfer
->> <tbogendoerfer@suse.de> wrote:
->>>
->>> Our chosen byte swapping, which is what firmware already uses, is to
->>> do readl/writel by normal lw/sw intructions (data invariance). This
->>> also means we need to mangle addresses for u8 and u16 accesses. The
->>> mangling for 16bit has been done aready, but 8bit one was missing.
->>> Correcting this causes different addresses for accesses to the
->>> SuperIO and local bus of the IOC3 chip. This is fixed by changing
->>> byte order in ioc3 and m48rtc_rtc structs.
->>
->>>  /* serial port register map */
->>>  struct ioc3_serialregs {
->>> -       uint32_t        sscr;
->>> -       uint32_t        stpir;
->>> -       uint32_t        stcir;
->>> -       uint32_t        srpir;
->>> -       uint32_t        srcir;
->>> -       uint32_t        srtr;
->>> -       uint32_t        shadow;
->>> +       u32     sscr;
->>> +       u32     stpir;
->>> +       u32     stcir;
->>> +       u32     srpir;
->>> +       u32     srcir;
->>> +       u32     srtr;
->>> +       u32     shadow;
->>>  };
->>
->> Isn't it a churn? AFAIU kernel documentation the uint32_t is okay to
->> use, just be consistent inside one module / driver.
->> Am I mistaken?
-> 
-> No, but really it uint* shouldn't be used anywhere in the kernel source
-> as it does not make sense.
+Fixes: d096aa3eb604 ("Input: cros_ec_keyb: mask out extra flags in event_type")
+Signed-off-by: Fei Shao <fshao@chromium.org>
+---
+ drivers/input/keyboard/cros_ec_keyb.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-If you respin your series, please send this cleanup as a separate patch.
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 38cb6d82d8fe..bef7bee6f05e 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -226,6 +226,8 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
+ {
+ 	struct cros_ec_keyb *ckdev = container_of(nb, struct cros_ec_keyb,
+ 						  notifier);
++	uint8_t mkbp_event_type = ckdev->ec->event_data.event_type &
++				  EC_MKBP_EVENT_TYPE_MASK;
+ 	u32 val;
+ 	unsigned int ev_type;
 
-Thanks,
+@@ -237,7 +239,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
+ 	if (queued_during_suspend && !device_may_wakeup(ckdev->dev))
+ 		return NOTIFY_OK;
 
-Phil.
+-	switch (ckdev->ec->event_data.event_type & EC_MKBP_EVENT_TYPE_MASK) {
++	switch (mkbp_event_type) {
+ 	case EC_MKBP_EVENT_KEY_MATRIX:
+ 		pm_wakeup_event(ckdev->dev, 0);
+
+@@ -264,7 +266,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
+ 	case EC_MKBP_EVENT_SWITCH:
+ 		pm_wakeup_event(ckdev->dev, 0);
+
+-		if (ckdev->ec->event_data.event_type == EC_MKBP_EVENT_BUTTON) {
++		if (mkbp_event_type == EC_MKBP_EVENT_BUTTON) {
+ 			val = get_unaligned_le32(
+ 					&ckdev->ec->event_data.data.buttons);
+ 			ev_type = EV_KEY;
+--
+2.23.0.rc1.153.gdeed80330f-goog

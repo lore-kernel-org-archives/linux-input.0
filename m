@@ -1,42 +1,75 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/2] HID: logitech-hidpp: remove support for the G700 over USB
-Date: Tue, 13 Aug 2019 15:38:07 +0200
-Message-ID: <20190813133807.12384-3-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/2] Revert "HID: logitech-hidpp: add USB PID for a few more supported mice"
+Date: Tue, 13 Aug 2019 15:38:06 +0200
+Message-ID: <20190813133807.12384-2-benjamin.tissoires@redhat.com>
 References: <20190813133807.12384-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190813133807.12384-1-benjamin.tissoires@redhat.com>
-Sender: stable-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-The G700 suffers from the same issue than the G502:
+This partially reverts commit 27fc32fd9417968a459d43d9a7c50fd423d53eb9.
+
+It turns out that the G502 has some issues with hid-logitech-hidpp:
 when plugging it in, the driver tries to contact it but it fails.
+So the driver bails out leaving only the mouse event node available.
 
 This timeout is problematic as it introduce a delay in the boot,
 and having only the mouse event node means that the hardware
 macros keys can not be relayed to the userspace.
 
-Link: https://github.com/libratbag/libratbag/issues/797
-Fixes: 91cf9a98ae41 ("HID: logitech-hidpp: make .probe usbhid capable")
-Cc: stable@vger.kernel.org # v5.2
+Filipe and I just gave a shot at the following devices:
+
+G403 Wireless (0xC082)
+G703 (0xC087)
+G703 Hero (0xC090)
+G903 (0xC086)
+G903 Hero (0xC091)
+G Pro (0xC088)
+
+Reverting the device we are not sure that works flawlessly.
+
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 20 --------------------
+ 1 file changed, 20 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 343052b117a9..0179f7ed77e5 100644
+index 21268c9fa71a..343052b117a9 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -3751,8 +3751,6 @@ static const struct hid_device_id hidpp_devices[] = {
+@@ -3749,30 +3749,10 @@ static const struct hid_device_id hidpp_devices[] = {
  
+ 	{ L27MHZ_DEVICE(HID_ANY_ID) },
+ 
+-	{ /* Logitech G203/Prodigy Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC084) },
+-	{ /* Logitech G302 Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07F) },
+-	{ /* Logitech G303 Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC080) },
+-	{ /* Logitech G400 Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07E) },
  	{ /* Logitech G403 Wireless Gaming Mouse over USB */
  	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC082) },
--	{ /* Logitech G700 Gaming Mouse over USB */
--	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC06B) },
+-	{ /* Logitech G403 Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC083) },
+-	{ /* Logitech G403 Hero Gaming Mouse over USB */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08F) },
+-	{ /* Logitech G502 Proteus Core Gaming Mouse */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07D) },
+-	{ /* Logitech G502 Proteus Spectrum Gaming Mouse over USB */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC332) },
+-	{ /* Logitech G502 Hero Gaming Mouse over USB */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC08B) },
+ 	{ /* Logitech G700 Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC06B) },
+-	{ /* Logitech G700s Gaming Mouse over USB */
+-	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC07C) },
  	{ /* Logitech G703 Gaming Mouse over USB */
  	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC087) },
  	{ /* Logitech G703 Hero Gaming Mouse over USB */

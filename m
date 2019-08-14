@@ -1,11 +1,11 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 01/28] HID: Add 044f:b320 ThrustMaster, Inc. 2 in 1 DT
-Date: Tue, 13 Aug 2019 22:25:23 -0400
-Message-ID: <20190814022550.17463-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 01/33] HID: Add 044f:b320 ThrustMaster, Inc. 2 in 1 DT
+Date: Tue, 13 Aug 2019 22:22:51 -0400
+Message-ID: <20190814022323.17111-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Ilya Trukhanov <lahvuun@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org

@@ -1,59 +1,62 @@
-From: Jonas Gorski <jonas.gorski@gmail.com>
-Subject: Re: [PATCH v4 9/9] Input: add IOC3 serio driver
-Date: Wed, 14 Aug 2019 18:57:55 +0200
-Message-ID: <CAOiHx=mjLpLg9r=mE25T7RQFNRT8wEPkRcy2ZkfT7H=Y5RT-vw@mail.gmail.com>
-References: <20190809103235.16338-1-tbogendoerfer@suse.de> <20190809103235.16338-10-tbogendoerfer@suse.de>
- <CAOiHx=kuQtOuNfsJ+fDrps+hbrbp5cPujmQpi8Vfy+0qeP8dtA@mail.gmail.com> <20190814163733.82f624e342d061866ba8ff87@suse.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v6 21/57] Input: Remove dev_err() usage after
+ platform_get_irq()
+Date: Wed, 14 Aug 2019 10:48:09 -0700
+Message-ID: <20190814174809.GB121898@dtor-ws>
+References: <20190730181557.90391-1-swboyd@chromium.org>
+ <20190730181557.90391-22-swboyd@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190814163733.82f624e342d061866ba8ff87@suse.de>
+Content-Disposition: inline
+In-Reply-To: <20190730181557.90391-22-swboyd@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Network Development <netdev@vger.kernel.org>, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
+To: Stephen Boyd <swboyd@chromium.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 14 Aug 2019 at 16:37, Thomas Bogendoerfer <tbogendoerfer@suse.de> wrote:
->
-> On Wed, 14 Aug 2019 15:20:14 +0200
-> Jonas Gorski <jonas.gorski@gmail.com> wrote:
->
-> > > +       d = devm_kzalloc(&pdev->dev, sizeof(*d), GFP_KERNEL);
-> >
-> > &pdev->dev => dev
->
-> will change.
->
-> >
-> > > +       if (!d)
-> > > +               return -ENOMEM;
-> > > +
-> > > +       sk = kzalloc(sizeof(*sk), GFP_KERNEL);
-> >
-> > any reason not to devm_kzalloc this as well? Then you won't need to
-> > manually free it in the error cases.
->
-> it has different life time than the device, so it may not allocated
-> via devm_kzalloc
->
-> > > +static int ioc3kbd_remove(struct platform_device *pdev)
-> > > +{
-> > > +       struct ioc3kbd_data *d = platform_get_drvdata(pdev);
-> > > +
-> > > +       devm_free_irq(&pdev->dev, d->irq, d);
-> > > +       serio_unregister_port(d->kbd);
-> > > +       serio_unregister_port(d->aux);
-> > > +       return 0;
-> > > +}
-> >
-> > and on that topic, won't you need to kfree d->kbd and d->aux here?
->
-> that's done in serio_release_port() by the serio core.
+On Tue, Jul 30, 2019 at 11:15:21AM -0700, Stephen Boyd wrote:
+> We don't need dev_err() messages when platform_get_irq() fails now that
+> platform_get_irq() prints an error message itself when something goes
+> wrong. Let's remove these prints with a simple semantic patch.
+> 
+> // <smpl>
+> @@
+> expression ret;
+> struct platform_device *E;
+> @@
+> 
+> ret =
+> (
+> platform_get_irq(E, ...)
+> |
+> platform_get_irq_byname(E, ...)
+> );
+> 
+> if ( \( ret < 0 \| ret <= 0 \) )
+> {
+> (
+> -if (ret != -EPROBE_DEFER)
+> -{ ...
+> -dev_err(...);
+> -... }
+> |
+> ...
+> -dev_err(...);
+> )
+> ...
+> }
+> // </smpl>
+> 
+> While we're here, remove braces on if statements that only have one
+> statement (manually).
+> 
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 
-i see. But in that case, don't the kfree's after the
-serio_unregister_port's in the error path of the .probe function cause
-a double free?
+Applied, thank you.
 
-
-Regards
-Jonas
+-- 
+Dmitry

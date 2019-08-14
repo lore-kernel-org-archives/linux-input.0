@@ -1,75 +1,42 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 017/123] HID: Add 044f:b320 ThrustMaster, Inc. 2 in 1 DT
-Date: Tue, 13 Aug 2019 22:09:01 -0400
-Message-ID: <20190814021047.14828-17-sashal@kernel.org>
-References: <20190814021047.14828-1-sashal@kernel.org>
+From: David Rheinsberg <david.rheinsberg@gmail.com>
+Subject: Re: [PATCH] HID: uhid: actually use the err number from userspace
+Date: Wed, 14 Aug 2019 10:30:22 +0200
+Message-ID: <CADyDSO7wyG7Zp6nFAL84b1tQ30t5x-5P+0QZBD-dx6VNm=WoeA@mail.gmail.com>
+References: <20190812162105.13428-1-benjamin.tissoires@redhat.com>
+ <CADyDSO4x49GWdRVkW=cytvMc7rM3NJkJ4-Sj-FjM9Gday7C-iw@mail.gmail.com> <CAO-hwJ+z0szwuQrUxpQhii2z_jwxMX91df0ynK5QbZpMhg79-g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
+In-Reply-To: <CAO-hwJ+z0szwuQrUxpQhii2z_jwxMX91df0ynK5QbZpMhg79-g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Trukhanov <lahvuun@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Ilya Trukhanov <lahvuun@gmail.com>
+Hey
 
-[ Upstream commit 65f11c72780fa9d598df88def045ccb6a885cf80 ]
+> > 2) I think you have to filter some of the error codes. For instance,
+> > if you return one of the -ERESTARTSYS codes, this might cause the
+> > syscall to restart (if auto-restart is enabled on this context). At
+> > the same time, this is not *that* bad. It might even be useful for the
+> > userspace driver to trigger an EINTR. At least we should be aware of
+> > this. So maybe filters are not necessary.. Mhhh. Comments?
+>
+> I haven't thought at all of the side effects of letting the user
+> return a random error code.
+> I have the impression that anything below EHWPOISON (133) is
+> relatively safe. So maybe we should just make sure the error code is
+> below 134?
+>
+> The ERESTARTSYS has a few warnings in the include file, so I guess the
+> side effects might be too much for what we want to deal with.
 
-Enable force feedback for the Thrustmaster Dual Trigger 2 in 1 Rumble Force
-gamepad. Compared to other Thrustmaster devices, left and right rumble
-motors here are swapped.
+How about `err < ERESTARTSYS`? That is, we grant user-space the entire
+range [1-511]. This seems to be the range reserved for uapi.
 
-Signed-off-by: Ilya Trukhanov <lahvuun@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-tmff.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+I think the ERESTART* codes would be fine as well, but I also don't
+believe there to be any actual use-case for them. Anyway, I am fine
+with either range.
 
-diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
-index e12f2588ddebb..bdfc5ff3b2c5c 100644
---- a/drivers/hid/hid-tmff.c
-+++ b/drivers/hid/hid-tmff.c
-@@ -22,6 +22,8 @@
- 
- #include "hid-ids.h"
- 
-+#define THRUSTMASTER_DEVICE_ID_2_IN_1_DT	0xb320
-+
- static const signed short ff_rumble[] = {
- 	FF_RUMBLE,
- 	-1
-@@ -76,6 +78,7 @@ static int tmff_play(struct input_dev *dev, void *data,
- 	struct hid_field *ff_field = tmff->ff_field;
- 	int x, y;
- 	int left, right;	/* Rumbling */
-+	int motor_swap;
- 
- 	switch (effect->type) {
- 	case FF_CONSTANT:
-@@ -100,6 +103,13 @@ static int tmff_play(struct input_dev *dev, void *data,
- 					ff_field->logical_minimum,
- 					ff_field->logical_maximum);
- 
-+		/* 2-in-1 strong motor is left */
-+		if (hid->product == THRUSTMASTER_DEVICE_ID_2_IN_1_DT) {
-+			motor_swap = left;
-+			left = right;
-+			right = motor_swap;
-+		}
-+
- 		dbg_hid("(left,right)=(%08x, %08x)\n", left, right);
- 		ff_field->value[0] = left;
- 		ff_field->value[1] = right;
-@@ -226,6 +236,8 @@ static const struct hid_device_id tm_devices[] = {
- 		.driver_data = (unsigned long)ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304),   /* FireStorm Dual Power 2 (and 3) */
- 		.driver_data = (unsigned long)ff_rumble },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, THRUSTMASTER_DEVICE_ID_2_IN_1_DT),   /* Dual Trigger 2-in-1 */
-+		.driver_data = (unsigned long)ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb323),   /* Dual Trigger 3-in-1 (PC Mode) */
- 		.driver_data = (unsigned long)ff_rumble },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb324),   /* Dual Trigger 3-in-1 (PS3 Mode) */
--- 
-2.20.1
+Thanks
+David

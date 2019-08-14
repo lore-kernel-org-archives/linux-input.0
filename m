@@ -1,55 +1,48 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 35/68] Input: kbtab - sanity check for endpoint type
-Date: Tue, 13 Aug 2019 22:15:13 -0400
-Message-ID: <20190814021548.16001-35-sashal@kernel.org>
-References: <20190814021548.16001-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 101/123] Input: iforce - add sanity checks
+Date: Tue, 13 Aug 2019 22:10:25 -0400
+Message-ID: <20190814021047.14828-101-sashal@kernel.org>
+References: <20190814021047.14828-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190814021548.16001-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Oliver Neukum <oneukum@suse.com>, syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Oliver Neukum <oneukum@suse.com>, syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit c88090dfc84254fa149174eb3e6a8458de1912c4 ]
+[ Upstream commit 849f5ae3a513c550cad741c68dd3d7eb2bcc2a2c ]
 
-The driver should check whether the endpoint it uses has the correct
-type.
+The endpoint type should also be checked before a device
+is accepted.
 
-Reported-by: syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com
+Reported-by: syzbot+5efc10c005014d061a74@syzkaller.appspotmail.com
 Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/tablet/kbtab.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/input/joystick/iforce/iforce-usb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/tablet/kbtab.c b/drivers/input/tablet/kbtab.c
-index 75b500651e4e4..b1cf0c9712740 100644
---- a/drivers/input/tablet/kbtab.c
-+++ b/drivers/input/tablet/kbtab.c
-@@ -116,6 +116,10 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
+diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
+index f1569ae8381bc..a0a686f56ac4f 100644
+--- a/drivers/input/joystick/iforce/iforce-usb.c
++++ b/drivers/input/joystick/iforce/iforce-usb.c
+@@ -129,7 +129,12 @@ static int iforce_usb_probe(struct usb_interface *intf,
  		return -ENODEV;
  
-+	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-+	if (!usb_endpoint_is_int_in(endpoint))
+ 	epirq = &interface->endpoint[0].desc;
++	if (!usb_endpoint_is_int_in(epirq))
 +		return -ENODEV;
 +
- 	kbtab = kzalloc(sizeof(struct kbtab), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!kbtab || !input_dev)
-@@ -154,8 +158,6 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	input_set_abs_params(input_dev, ABS_Y, 0, 0x1750, 4, 0);
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, 0xff, 0, 0);
+ 	epout = &interface->endpoint[1].desc;
++	if (!usb_endpoint_is_int_out(epout))
++		return -ENODEV;
  
--	endpoint = &intf->cur_altsetting->endpoint[0].desc;
--
- 	usb_fill_int_urb(kbtab->irq, dev,
- 			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
- 			 kbtab->data, 8,
+ 	if (!(iforce = kzalloc(sizeof(struct iforce) + 32, GFP_KERNEL)))
+ 		goto fail;
 -- 
 2.20.1

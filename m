@@ -1,55 +1,54 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 072/123] Input: kbtab - sanity check for endpoint type
-Date: Tue, 13 Aug 2019 22:09:56 -0400
-Message-ID: <20190814021047.14828-72-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 087/123] HID: holtek: test for sanity of intfdata
+Date: Tue, 13 Aug 2019 22:10:11 -0400
+Message-ID: <20190814021047.14828-87-sashal@kernel.org>
 References: <20190814021047.14828-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Oliver Neukum <oneukum@suse.com>, syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Oliver Neukum <oneukum@suse.com>, syzbot+965152643a75a56737be@syzkaller.appspotmail.com, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit c88090dfc84254fa149174eb3e6a8458de1912c4 ]
+[ Upstream commit 01ec0a5f19c8c82960a07f6c7410fc9e01d7fb51 ]
 
-The driver should check whether the endpoint it uses has the correct
-type.
+The ioctl handler uses the intfdata of a second interface,
+which may not be present in a broken or malicious device, hence
+the intfdata needs to be checked for NULL.
 
-Reported-by: syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com
+[jkosina@suse.cz: fix newly added spurious space]
+Reported-by: syzbot+965152643a75a56737be@syzkaller.appspotmail.com
 Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/tablet/kbtab.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/hid/hid-holtek-kbd.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/tablet/kbtab.c b/drivers/input/tablet/kbtab.c
-index 04b85571f41e3..aa577898e952b 100644
---- a/drivers/input/tablet/kbtab.c
-+++ b/drivers/input/tablet/kbtab.c
-@@ -117,6 +117,10 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
- 		return -ENODEV;
+diff --git a/drivers/hid/hid-holtek-kbd.c b/drivers/hid/hid-holtek-kbd.c
+index b3d502421b79d..0a38e8e9bc783 100644
+--- a/drivers/hid/hid-holtek-kbd.c
++++ b/drivers/hid/hid-holtek-kbd.c
+@@ -123,9 +123,14 @@ static int holtek_kbd_input_event(struct input_dev *dev, unsigned int type,
  
-+	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-+	if (!usb_endpoint_is_int_in(endpoint))
+ 	/* Locate the boot interface, to receive the LED change events */
+ 	struct usb_interface *boot_interface = usb_ifnum_to_if(usb_dev, 0);
++	struct hid_device *boot_hid;
++	struct hid_input *boot_hid_input;
+ 
+-	struct hid_device *boot_hid = usb_get_intfdata(boot_interface);
+-	struct hid_input *boot_hid_input = list_first_entry(&boot_hid->inputs,
++	if (unlikely(boot_interface == NULL))
 +		return -ENODEV;
 +
- 	kbtab = kzalloc(sizeof(struct kbtab), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!kbtab || !input_dev)
-@@ -155,8 +159,6 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	input_set_abs_params(input_dev, ABS_Y, 0, 0x1750, 4, 0);
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, 0xff, 0, 0);
++	boot_hid = usb_get_intfdata(boot_interface);
++	boot_hid_input = list_first_entry(&boot_hid->inputs,
+ 		struct hid_input, list);
  
--	endpoint = &intf->cur_altsetting->endpoint[0].desc;
--
- 	usb_fill_int_urb(kbtab->irq, dev,
- 			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
- 			 kbtab->data, 8,
+ 	return boot_hid_input->input->event(boot_hid_input->input, type, code,
 -- 
 2.20.1

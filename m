@@ -1,55 +1,73 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 14/28] Input: kbtab - sanity check for endpoint type
-Date: Tue, 13 Aug 2019 22:25:36 -0400
-Message-ID: <20190814022550.17463-14-sashal@kernel.org>
-References: <20190814022550.17463-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 01/28] HID: Add 044f:b320 ThrustMaster, Inc. 2 in 1 DT
+Date: Tue, 13 Aug 2019 22:25:23 -0400
+Message-ID: <20190814022550.17463-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190814022550.17463-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Oliver Neukum <oneukum@suse.com>, syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Ilya Trukhanov <lahvuun@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Ilya Trukhanov <lahvuun@gmail.com>
 
-[ Upstream commit c88090dfc84254fa149174eb3e6a8458de1912c4 ]
+[ Upstream commit 65f11c72780fa9d598df88def045ccb6a885cf80 ]
 
-The driver should check whether the endpoint it uses has the correct
-type.
+Enable force feedback for the Thrustmaster Dual Trigger 2 in 1 Rumble Force
+gamepad. Compared to other Thrustmaster devices, left and right rumble
+motors here are swapped.
 
-Reported-by: syzbot+c7df50363aaff50aa363@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Ilya Trukhanov <lahvuun@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/tablet/kbtab.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/hid/hid-tmff.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/input/tablet/kbtab.c b/drivers/input/tablet/kbtab.c
-index 2812f9236b7d0..0ccc120a0f145 100644
---- a/drivers/input/tablet/kbtab.c
-+++ b/drivers/input/tablet/kbtab.c
-@@ -125,6 +125,10 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
- 		return -ENODEV;
+diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
+index b83376077d722..cfa0cb22c9b3c 100644
+--- a/drivers/hid/hid-tmff.c
++++ b/drivers/hid/hid-tmff.c
+@@ -34,6 +34,8 @@
  
-+	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-+	if (!usb_endpoint_is_int_in(endpoint))
-+		return -ENODEV;
+ #include "hid-ids.h"
+ 
++#define THRUSTMASTER_DEVICE_ID_2_IN_1_DT	0xb320
 +
- 	kbtab = kzalloc(sizeof(struct kbtab), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!kbtab || !input_dev)
-@@ -164,8 +168,6 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	input_set_abs_params(input_dev, ABS_Y, 0, 0x1750, 4, 0);
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, 0xff, 0, 0);
+ static const signed short ff_rumble[] = {
+ 	FF_RUMBLE,
+ 	-1
+@@ -88,6 +90,7 @@ static int tmff_play(struct input_dev *dev, void *data,
+ 	struct hid_field *ff_field = tmff->ff_field;
+ 	int x, y;
+ 	int left, right;	/* Rumbling */
++	int motor_swap;
  
--	endpoint = &intf->cur_altsetting->endpoint[0].desc;
--
- 	usb_fill_int_urb(kbtab->irq, dev,
- 			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
- 			 kbtab->data, 8,
+ 	switch (effect->type) {
+ 	case FF_CONSTANT:
+@@ -112,6 +115,13 @@ static int tmff_play(struct input_dev *dev, void *data,
+ 					ff_field->logical_minimum,
+ 					ff_field->logical_maximum);
+ 
++		/* 2-in-1 strong motor is left */
++		if (hid->product == THRUSTMASTER_DEVICE_ID_2_IN_1_DT) {
++			motor_swap = left;
++			left = right;
++			right = motor_swap;
++		}
++
+ 		dbg_hid("(left,right)=(%08x, %08x)\n", left, right);
+ 		ff_field->value[0] = left;
+ 		ff_field->value[1] = right;
+@@ -238,6 +248,8 @@ static const struct hid_device_id tm_devices[] = {
+ 		.driver_data = (unsigned long)ff_rumble },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304),   /* FireStorm Dual Power 2 (and 3) */
+ 		.driver_data = (unsigned long)ff_rumble },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, THRUSTMASTER_DEVICE_ID_2_IN_1_DT),   /* Dual Trigger 2-in-1 */
++		.driver_data = (unsigned long)ff_rumble },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb323),   /* Dual Trigger 3-in-1 (PC Mode) */
+ 		.driver_data = (unsigned long)ff_rumble },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb324),   /* Dual Trigger 3-in-1 (PS3 Mode) */
 -- 
 2.20.1

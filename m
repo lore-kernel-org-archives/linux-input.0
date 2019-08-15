@@ -1,72 +1,132 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: cros_ec_keyb: Add back missing mask for event_type
-Date: Wed, 14 Aug 2019 15:06:25 -0700
-Message-ID: <20190814220625.GD121898@dtor-ws>
-References: <20190813093821.74158-1-fshao@chromium.org>
- <CANMq1KCNFfWA=ApVUFoPctgTftHDSAvGjtk-Xu2hcKWBq9R1zw@mail.gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: general protection fault in __pm_runtime_resume
+Date: Thu, 15 Aug 2019 13:43:36 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1908151333220.1343-100000@iolanthe.rowland.org>
+References: <000000000000b1729e058fecdcee@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CANMq1KCNFfWA=ApVUFoPctgTftHDSAvGjtk-Xu2hcKWBq9R1zw@mail.gmail.com>
+In-Reply-To: <000000000000b1729e058fecdcee@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolas Boichat <drinkcat@chromium.org>
-Cc: Fei Shao <fshao@chromium.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, Benson Leung <bleung@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Guenter Roeck <groeck@chromium.org>, Ting Shen <phoenixshen@chromium.org>, Brian Norris <briannorris@chromium.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: syzbot <syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com>, Jiri Kosina <jikos@kernel.org>
+Cc: andreyknvl@google.com, gregkh@linuxfoundation.org, gustavo@embeddedor.com, hdanton@sina.com, Kernel development list <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, Oliver Neukum <oneukum@suse.com>, syzkaller-bugs@googlegroups.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 13, 2019 at 05:47:22PM +0800, Nicolas Boichat wrote:
-> On Tue, Aug 13, 2019 at 5:38 PM Fei Shao <fshao@chromium.org> wrote:
-> >
-> > In the previous patch we didn't mask out event_type in case statement,
-> > so switches are always picked instead of buttons, which results in
-> > ChromeOS devices misbehaving when power button is pressed.
-> > This patch adds back the missing mask.
-> >
-> > Fixes: d096aa3eb604 ("Input: cros_ec_keyb: mask out extra flags in event_type")
-> > Signed-off-by: Fei Shao <fshao@chromium.org>
+On Mon, 12 Aug 2019, syzbot wrote:
+
+> Hello,
 > 
-> Reviewed-by: Nicolas Boichat <drinkcat@chromium.org>
-
-Applied, thank you.
-
+> syzbot has tested the proposed patch and the reproducer did not trigger  
+> crash:
 > 
-> > ---
-> >  drivers/input/keyboard/cros_ec_keyb.c | 6 ++++--
-> >  1 file changed, 4 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> > index 38cb6d82d8fe..bef7bee6f05e 100644
-> > --- a/drivers/input/keyboard/cros_ec_keyb.c
-> > +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> > @@ -226,6 +226,8 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
-> >  {
-> >         struct cros_ec_keyb *ckdev = container_of(nb, struct cros_ec_keyb,
-> >                                                   notifier);
-> > +       uint8_t mkbp_event_type = ckdev->ec->event_data.event_type &
-> > +                                 EC_MKBP_EVENT_TYPE_MASK;
-> >         u32 val;
-> >         unsigned int ev_type;
-> >
-> > @@ -237,7 +239,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
-> >         if (queued_during_suspend && !device_may_wakeup(ckdev->dev))
-> >                 return NOTIFY_OK;
-> >
-> > -       switch (ckdev->ec->event_data.event_type & EC_MKBP_EVENT_TYPE_MASK) {
-> > +       switch (mkbp_event_type) {
-> >         case EC_MKBP_EVENT_KEY_MATRIX:
-> >                 pm_wakeup_event(ckdev->dev, 0);
-> >
-> > @@ -264,7 +266,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
-> >         case EC_MKBP_EVENT_SWITCH:
-> >                 pm_wakeup_event(ckdev->dev, 0);
-> >
-> > -               if (ckdev->ec->event_data.event_type == EC_MKBP_EVENT_BUTTON) {
-> > +               if (mkbp_event_type == EC_MKBP_EVENT_BUTTON) {
-> >                         val = get_unaligned_le32(
-> >                                         &ckdev->ec->event_data.data.buttons);
-> >                         ev_type = EV_KEY;
-> > --
-> > 2.23.0.rc1.153.gdeed80330f-goog
+> Reported-and-tested-by:  
+> syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
+> 
+> Tested on:
+> 
+> commit:         7f7867ff usb-fuzzer: main usb gadget fuzzer driver
+> git tree:       https://github.com/google/kasan.git
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=792eb47789f57810
+> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> patch:          https://syzkaller.appspot.com/x/patch.diff?x=177252d2600000
+> 
+> Note: testing is done by a robot and is best-effort only.
 
--- 
-Dmitry
+That was the result from testing Hillf's patch:
+
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1410,6 +1410,7 @@ static void usbhid_disconnect(struct usb
+        spin_lock_irq(&usbhid->lock);   /* Sync with error and led handlers */
+        set_bit(HID_DISCONNECTED, &usbhid->iofl);
+        spin_unlock_irq(&usbhid->lock);
++       hid_hw_stop(hid);
+        hid_destroy_device(hid);
+        kfree(usbhid);
+ }
+
+There is very good reason to believe this patch is not the correct
+solution to the problem.  For one thing, in some circumstances the
+patch ends up calling hid_hw_stop() twice (not shown here, but we have 
+seen this in other bug reports from syzbot).
+
+For another, I have just tested a different patch and found that it 
+also prevents this particular crash:
+
+> Hello,
+>
+> syzbot has tested the proposed patch and the reproducer did not trigger
+> crash:
+>
+> Reported-and-tested-by:
+> syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
+>
+> Tested on:
+>
+> commit:         6a3599ce usb-fuzzer: main usb gadget fuzzer driver
+> git tree:       https://github.com/google/kasan.git
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=700ca426ab83faae
+> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> patch:          https://syzkaller.appspot.com/x/patch.diff?x=170b66a6600000
+>
+> Note: testing is done by a robot and is best-effort only.
+
+My patch:
+
+Index: usb-devel/drivers/hid/hid-lg.c
+===================================================================
+--- usb-devel.orig/drivers/hid/hid-lg.c
++++ usb-devel/drivers/hid/hid-lg.c
+@@ -818,7 +818,7 @@ static int lg_probe(struct hid_device *h
+ 
+ 		if (!buf) {
+ 			ret = -ENOMEM;
+-			goto err_free;
++			goto err_stop;
+ 		}
+ 
+ 		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
+@@ -850,9 +850,12 @@ static int lg_probe(struct hid_device *h
+ 		ret = lg4ff_init(hdev);
+ 
+ 	if (ret)
+-		goto err_free;
++		goto err_stop;
+ 
+ 	return 0;
++
++err_stop:
++	hid_hw_stop(hdev);
+ err_free:
+ 	kfree(drv_data);
+ 	return ret;
+@@ -863,8 +866,7 @@ static void lg_remove(struct hid_device
+ 	struct lg_drv_data *drv_data = hid_get_drvdata(hdev);
+ 	if (drv_data->quirks & LG_FF4)
+ 		lg4ff_deinit(hdev);
+-	else
+-		hid_hw_stop(hdev);
++	hid_hw_stop(hdev);
+ 	kfree(drv_data);
+ }
+ 
+Index: usb-devel/drivers/hid/hid-lg4ff.c
+===================================================================
+--- usb-devel.orig/drivers/hid/hid-lg4ff.c
++++ usb-devel/drivers/hid/hid-lg4ff.c
+@@ -1477,7 +1477,6 @@ int lg4ff_deinit(struct hid_device *hid)
+ 		}
+ 	}
+ #endif
+-	hid_hw_stop(hid);
+ 	drv_data->device_props = NULL;
+ 
+ 	kfree(entry);
+
+This fixes a fairly obvious bug in the hid-lg driver: It does not 
+always call hid_hw_stop() in all pathways after calling hid_hw_start().
+
+Presumably the same is true for the other related bugs found by syzbot.  
+I'm doing some more testing and we will see...
+
+Alan Stern

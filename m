@@ -1,67 +1,62 @@
-From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v1 50/63] Input: Atmel: handle ReportID "0x00" while processing T5 messages
-Date: Fri, 16 Aug 2019 17:37:44 +0900
-Message-ID: <20190816083757.19449-1-jiada_wang@mentor.com>
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH v4 3/9] nvmem: core: add nvmem_device_find
+Date: Fri, 16 Aug 2019 16:09:42 +0200
+Message-ID: <20190816140942.GA15050@alpha.franken.de>
+References: <20190809103235.16338-1-tbogendoerfer@suse.de>
+ <20190809103235.16338-4-tbogendoerfer@suse.de>
+ <8d18de64-9234-fcba-aa3d-b46789eb62a5@linaro.org>
+ <20190814134616.b4dab3c0aa6ac913d78edb6a@suse.de>
+ <31d680ee-ddb3-8536-c915-576222d263e1@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <31d680ee-ddb3-8536-c915-576222d263e1@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: nick@shmanahar.org, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com, george_davis@mentor.com
+To: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Deepak Das <deepak_das@mentor.com>
+On Wed, Aug 14, 2019 at 01:52:49PM +0100, Srinivas Kandagatla wrote:
+> On 14/08/2019 12:46, Thomas Bogendoerfer wrote:
+> >On Tue, 13 Aug 2019 10:40:34 +0100
+> >Srinivas Kandagatla <srinivas.kandagatla@linaro.org> wrote:
+> >>On 09/08/2019 11:32, Thomas Bogendoerfer wrote:
+> >>>nvmem_device_find provides a way to search for nvmem devices with
+> >>>the help of a match function simlair to bus_find_device.
+> >>>
+> >>>Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+> >>>---
+> >>>   drivers/nvmem/core.c           | 62 ++++++++++++++++++++++--------------------
+> >>>   include/linux/nvmem-consumer.h |  9 ++++++
+> >>>   2 files changed, 41 insertions(+), 30 deletions(-)
+> >>
+> >>Have you considered using nvmem_register_notifier() ?
+> >
+> >yes, that was the first idea. But then I realized I need to build up
+> >a private database of information already present in nvmem bus. So I
+> >looked for a way to retrieve it from there. Unfortunately I couldn't
+> >use bus_find_device directly, because nvmem_bus_type and struct nvmem_device
+> >is hidden. So I refactured the lookup code and added a more universal
+> >lookup function, which fits my needs and should be usable for more.
+> I see your point.
+> 
+> overall the patch as it is look good, but recently we added more generic
+> lookups for DT node, looks like part of your patch is un-doing generic
+> device name lookup.
+> 
+> DT node match lookup is in https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git/log/?h=generic_lookup_helpers
 
-ReportID "0x00" is reserved by Atmel and should not be used by any
-Atmel touch controller.
+these patches are not in Linus tree, yet. I guess they will show up
+in 5.4. No idea how to deal with it right now, do you ?
 
-reportID is the first byte retrieved from T5 message payload.
-Currently Atmel driver continues to process the T5 messages even if
-the reportID "0x00" is returned by Touch Controller.
+> Other missing bit is adding this api to documentation in
+> ./Documentation/driver-api/nvmem.rst
 
-This commit modifies Atmel touch driver to return -EINVAL if ReportID
-"0x00" is received while processing T5 messages.
+ok, will do.
 
-Signed-off-by: Deepak Das <deepak_das@mentor.com>
-Signed-off-by: George G. Davis <george_davis@mentor.com>
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Thomas.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index b17af89a4711..2041a82a4551 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -76,6 +76,7 @@
- #define MXT_PROCI_TOUCHSEQUENCELOGGER	93
- #define MXT_TOUCH_MULTITOUCHSCREEN_T100 100
- #define MXT_PROCI_ACTIVESTYLUS_T107	107
-+#define MXT_RPTID_RESERVED		0
- 
- /* MXT_GEN_MESSAGE_T5 object */
- #define MXT_RPTID_NOMSG		0xff
-@@ -1385,6 +1386,11 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	u8 report_id = message[0];
- 	bool dump = data->debug_enabled;
- 
-+	if (report_id == MXT_RPTID_RESERVED) {
-+		dev_err(&data->client->dev,
-+			"Received Reserved ReportID 0x00\n");
-+		return -EINVAL;
-+	}
- 	if (report_id == MXT_RPTID_NOMSG)
- 		return 0;
- 
-@@ -1456,6 +1462,8 @@ static int mxt_read_and_process_messages(struct mxt_data *data, u8 count)
- 		ret = mxt_proc_message(data,
- 			data->msg_buf + data->T5_msg_size * i);
- 
-+		if (ret < 0)
-+			return ret;
- 		if (ret == 1)
- 			num_valid++;
- 	}
 -- 
-2.19.2
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]

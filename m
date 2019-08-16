@@ -1,41 +1,87 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1 36/63] Input: atmel_mxt_ts - configure and use gpios
- as real gpios
-Date: Fri, 16 Aug 2019 10:24:22 -0700
-Message-ID: <20190816172422.GH121898@dtor-ws>
+Subject: Re: [PATCH v1 39/63] Input: touchscreen: Atmel: Add device tree
+ support for T15 key array objects
+Date: Fri, 16 Aug 2019 10:25:00 -0700
+Message-ID: <20190816172500.GI121898@dtor-ws>
 References: <20190816083525.19071-1-jiada_wang@mentor.com>
- <20190816083525.19071-2-jiada_wang@mentor.com>
+ <20190816083525.19071-5-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190816083525.19071-2-jiada_wang@mentor.com>
+In-Reply-To: <20190816083525.19071-5-jiada_wang@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jiada Wang <jiada_wang@mentor.com>
 Cc: nick@shmanahar.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 16, 2019 at 05:34:58PM +0900, Jiada Wang wrote:
-> From: Kautuk Consul <kautuk_consul@mentor.com>
-> 
-> The upstream Atmel mXT driver implementation seems to handle the
-> T19 GPIO/PWM object as a key pad. Keys can be defined in the
-> device tree ("linux,gpio-keymap") and will be transported as key
-> events to the Linux input device if GPIO state changes.
-> 
-> With our hardware, the GPIO pins of the touch controller are
-> connected to a PWM/backlight controller and used as supervision
-> inputs. We like to read the status of the pins by a script or an
-> application in the sysfs.
-> 
-> Adding newer sysfs entries which shall be placed in the input
-> class directory eg:
-> /sys/class/input/input<n>/backlight_error1
+On Fri, Aug 16, 2019 at 05:35:01PM +0900, Jiada Wang wrote:
+> From: Daniel Gong <Zhanli.Gong@cn.bosch.com>
 
-No, if you want to export GPIO lines for external use create a gpiochip
-instance and register it with GPIO subsystem. No ad-hoc sysfs please.
+This should be with the code adding T15 handling.
 
-Thanks.
+> 
+> Signed-off-by: Daniel Gong <Zhanli.Gong@cn.bosch.com>
+> Signed-off-by: George G. Davis <george_davis@mentor.com>
+> Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 29 ++++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index be63002c2b31..3b9544c0a209 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -4143,10 +4143,12 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+>  {
+>  	static const char keymap_property[] = "linux,gpio-keymap";
+>  	static const char gpios_property[] = "atmel,gpios";
+> +	static const char buttons_property[] = "atmel,key-buttons";
+>  	struct device *dev = &data->client->dev;
+>  	struct device_node *np = dev ? dev->of_node : NULL;
+>  	struct device_node *np_gpio;
+>  	u32 *keymap;
+> +	u32 *buttonmap;
+>  	int n_keys;
+>  	int error;
+>  
+> @@ -4181,6 +4183,33 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+>  		data->t19_num_keys = n_keys;
+>  	}
+>  
+> +	if (device_property_present(dev, buttons_property)) {
+> +		n_keys = device_property_read_u32_array(dev, buttons_property,
+> +							NULL, 0);
+> +		if (n_keys <= 0) {
+> +			error = n_keys < 0 ? n_keys : -EINVAL;
+> +			dev_err(dev, "invalid/malformed '%s' property: %d\n",
+> +				buttons_property, error);
+> +			return error;
+> +		}
+> +
+> +		buttonmap = devm_kmalloc_array(dev, n_keys, sizeof(*buttonmap),
+> +					       GFP_KERNEL);
+> +		if (!buttonmap)
+> +			return -ENOMEM;
+> +
+> +		error = device_property_read_u32_array(dev, buttons_property,
+> +						       buttonmap, n_keys);
+> +		if (error) {
+> +			dev_err(dev, "failed to parse '%s' property: %d\n",
+> +				buttons_property, error);
+> +			return error;
+> +		}
+> +
+> +		data->t15_keymap = buttonmap;
+> +		data->t15_num_keys = n_keys;
+> +	}
+> +
+>  	device_property_read_u32(dev, "atmel,suspend-mode", &data->suspend_mode);
+>  
+>  	np_gpio = of_get_child_by_name(np, gpios_property);
+> -- 
+> 2.19.2
+> 
 
 -- 
 Dmitry

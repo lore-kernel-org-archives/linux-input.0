@@ -1,7 +1,7 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v1 48/63] input: atmel_mxt_ts: move bootloader probe from mxt_initialize()
-Date: Fri, 16 Aug 2019 17:37:09 +0900
-Message-ID: <20190816083724.19341-4-jiada_wang@mentor.com>
+Subject: [PATCH v1 49/63] Input: Atmel: Improve error handling in mxt_initialize_input_device()
+Date: Fri, 16 Aug 2019 17:37:10 +0900
+Message-ID: <20190816083724.19341-5-jiada_wang@mentor.com>
 References: <20190816083724.19341-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -15,84 +15,49 @@ List-Id: linux-input@vger.kernel.org
 
 From: Deepak Das <deepak_das@mentor.com>
 
-Validity of bootloader address is now checked before checking the
-bootloader status so mxt_lookup_bootloader_address() was moved
-from mxt_probe_bootloader() to mxt_initialize().
-Above changes added lot of bootloader mode verification code into
-mxt_initialize() which made this function longer and unreadable.
-mxt_bootloader_status() moves bootloader mode verification code from
-mxt_initialize() to make it cleaner.
+Currently Driver probe continues with a warning message when it fails to
+get the proper multitouch object configurations like TouchScreen resolution.
+But Driver probe should fail in case of above scneario because it will not behave
+as expected without the proper touchscreen configurations.
+
+This commit modifies mxt_initialize_input_device() to return error when it fails
+to get the proper touch screen configurations.
 
 Signed-off-by: Deepak Das <deepak_das@mentor.com>
+Signed-off-by: Dean Jenkins <Dean_Jenkins@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 45 +++++++++++++++---------
- 1 file changed, 28 insertions(+), 17 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index dec9f2b2c64d..27b908a50b66 100644
+index 27b908a50b66..b17af89a4711 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2917,6 +2917,32 @@ static void mxt_config_cb(const struct firmware *cfg, void *ctx)
- 	release_firmware(cfg);
- }
- 
-+static int mxt_bootloader_status(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	int error;
-+
-+	error = mxt_lookup_bootloader_address(data, false);
-+	if (error) {
-+		dev_info(&client->dev,
-+			 "Bootloader address is not specified\n");
-+		return error;
-+	}
-+	/* Check bootloader state */
-+	error = mxt_probe_bootloader(data);
-+	if (error) {
-+		dev_info(&client->dev, "Trying alternate bootloader address\n");
-+		mxt_lookup_bootloader_address(data, true);
-+		error = mxt_probe_bootloader(data);
+@@ -2749,15 +2749,19 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	case MXT_TOUCH_MULTI_T9:
+ 		num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
+ 		error = mxt_read_t9_resolution(data);
+-		if (error)
+-			dev_warn(dev, "Failed to initialize T9 resolution\n");
 +		if (error) {
-+			dev_err(&client->dev,
-+				"Chip is not in appmode or bootloader mode\n");
++			dev_err(dev, "Failed to initialize T9 resolution\n");
 +			return error;
 +		}
-+	}
-+	return 0;
-+}
-+
- static int mxt_initialize(struct mxt_data *data)
- {
- 	struct i2c_client *client = data->client;
-@@ -2932,24 +2958,9 @@ static int mxt_initialize(struct mxt_data *data)
- 			 "info block read failed (%d), so try bootloader method\n",
- 			 error);
+ 		break;
  
--		error = mxt_lookup_bootloader_address(data, false);
--		if (error) {
--			dev_info(&client->dev,
--				 "Bootloader address is not specified\n");
-+		error = mxt_bootloader_status(data);
-+		if (error)
- 			return error;
--		}
--		/* Check bootloader state */
--		error = mxt_probe_bootloader(data);
--		if (error) {
--			dev_info(&client->dev, "Trying alternate bootloader address\n");
--			mxt_lookup_bootloader_address(data, true);
--			error = mxt_probe_bootloader(data);
--			if (error) {
--				dev_err(&client->dev,
--					"Chip is not in appmode or bootloader mode\n");
--				return error;
--			}
--		}
+ 	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 		num_mt_slots = data->num_touchids;
+ 		error = mxt_read_t100_config(data);
+-		if (error)
+-			dev_warn(dev, "Failed to read T100 config\n");
++		if (error) {
++			dev_err(dev, "Failed to read T100 config\n");
++			return error;
++		}
+ 		break;
  
- 		/* OK, we are in bootloader, see if we can recover */
- 		if (++recovery_attempts > 1) {
+ 	default:
 -- 
 2.19.2

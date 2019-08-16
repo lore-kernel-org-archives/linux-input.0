@@ -1,7 +1,7 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v1 09/63] Input: atmel_mxt_ts - handle reports from T47 Stylus object
-Date: Fri, 16 Aug 2019 17:30:36 +0900
-Message-ID: <20190816083130.18250-5-jiada_wang@mentor.com>
+Subject: [PATCH v1 07/63] Input: atmel_mxt_ts - implement T9 vector/orientation support
+Date: Fri, 16 Aug 2019 17:30:34 +0900
+Message-ID: <20190816083130.18250-3-jiada_wang@mentor.com>
 References: <20190816083130.18250-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -15,57 +15,78 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
+The atmel touch messages contain orientation information as a byte in a
+packed format which can be passed straight on to Android if the input
+device configuration is correct.
+
+This requires vector reports to be enabled in maXTouch config (zero
+DISVECT bit 3 in T9 CTRL field)
+
+Android converts the format in InputReader.cpp, search for
+ORIENTATION_CALIBRATION_VECTOR.
+
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 56405a5ea08eb34cfe83f3121867c9de0a5c48c1)
+(cherry picked from ndyer/linux/for-upstream commit a6f0ee919d2631678169b23fb18f55b6dbabcd4c)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 99b87042dfe5..adf63ecf6b8e 100644
+index 9226ec528adf..c619ac9f3108 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -822,6 +822,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+@@ -816,6 +816,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 	int y;
  	int area;
  	int amplitude;
- 	u8 vector;
-+	int tool;
++	u8 vector;
  
  	id = message[0] - data->T9_reportid_min;
  	status = message[1];
-@@ -835,6 +836,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
- 		y >>= 2;
+@@ -830,9 +831,10 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
  
  	area = message[5];
-+
  	amplitude = message[6];
- 	vector = message[7];
++	vector = message[7];
  
-@@ -864,12 +866,20 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
- 			mxt_input_sync(data);
- 		}
+ 	dev_dbg(dev,
+-		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u\n",
++		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u vector: %02X\n",
+ 		id,
+ 		(status & MXT_T9_DETECT) ? 'D' : '.',
+ 		(status & MXT_T9_PRESS) ? 'P' : '.',
+@@ -842,7 +844,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 		(status & MXT_T9_AMP) ? 'A' : '.',
+ 		(status & MXT_T9_SUPPRESS) ? 'S' : '.',
+ 		(status & MXT_T9_UNGRIP) ? 'U' : '.',
+-		x, y, area, amplitude);
++		x, y, area, amplitude, vector);
  
-+		/* A size of zero indicates touch is from a linked T47 Stylus */
-+		if (area == 0) {
-+			area = MXT_TOUCH_MAJOR_DEFAULT;
-+			tool = MT_TOOL_PEN;
-+		} else {
-+			tool = MT_TOOL_FINGER;
-+		}
-+
- 		/* if active, pressure must be non-zero */
- 		if (!amplitude)
- 			amplitude = MXT_PRESSURE_DEFAULT;
+ 	input_mt_slot(input_dev, id);
  
- 		/* Touch active */
--		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 1);
-+		input_mt_report_slot_state(input_dev, tool, 1);
- 		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+@@ -867,6 +869,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
  		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
  		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
+ 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
++		input_report_abs(input_dev, ABS_MT_ORIENTATION, vector);
+ 	} else {
+ 		/* Touch no longer active, close out slot */
+ 		input_mt_report_slot_inactive(input_dev);
+@@ -2177,8 +2180,9 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 				     0, 255, 0, 0);
+ 	}
+ 
+-	if (data->multitouch == MXT_TOUCH_MULTITOUCHSCREEN_T100 &&
+-	    data->t100_aux_vect) {
++	if (data->multitouch == MXT_TOUCH_MULTI_T9 ||
++	    (data->multitouch == MXT_TOUCH_MULTITOUCHSCREEN_T100 &&
++	    data->t100_aux_vect)) {
+ 		input_set_abs_params(input_dev, ABS_MT_ORIENTATION,
+ 				     0, 255, 0, 0);
+ 	}
 -- 
 2.19.2

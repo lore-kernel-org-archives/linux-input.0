@@ -1,11 +1,13 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v1 30/63] Input: atmel_mxt_ts - implement debug output for messages
-Date: Fri, 16 Aug 2019 17:34:18 +0900
-Message-ID: <20190816083451.18947-1-jiada_wang@mentor.com>
+Subject: [PATCH v1 31/63] Input: atmel_mxt_ts - add memory access interface via sysfs
+Date: Fri, 16 Aug 2019 17:34:19 +0900
+Message-ID: <20190816083451.18947-2-jiada_wang@mentor.com>
+References: <20190816083451.18947-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190816083451.18947-1-jiada_wang@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: nick@shmanahar.org, dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com, george_davis@mentor.com
@@ -13,118 +15,127 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Add a debug switch which causes all messages from the touch controller to
-be dumped to the dmesg log with a set prefix "MXT MSG:". This is used by
-Atmel user-space utilities to debug touch operation. Enabling this output
-does impact touch performance.
+Atmel maXTouch chips can be addressed via an "Object Based Protocol" which
+defines how i2c registers are mapped to different functions within the
+chips. This interface exposes the register map and allows user-space
+utilities to inspect and alter object configuration, and to view diagnostic
+data, while the device is running.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 3c3fcfdd4889dfeb1c80ae8cd94a622c6342b06a)
-[gdavis: Forward port and fix conflicts.]
+Acked-by: Benson Leung <bleung@chromium.org>
+(cherry picked from ndyer/linux/for-upstream commit 80731e95c888d09b663ad9eeaf4163939bfe17f8)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
+[jiada: Fix compilation warnings]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 44 ++++++++++++++++++++++--
- 1 file changed, 41 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 74 ++++++++++++++++++++++++
+ 1 file changed, 74 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ba608d04ee82..e317900279ed 100644
+index e317900279ed..05b21c9c0c04 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
 @@ -335,6 +335,7 @@ struct mxt_data {
  	u8 t100_aux_ampl;
  	u8 t100_aux_area;
  	u8 t100_aux_vect;
-+	bool debug_enabled;
++	struct bin_attribute mem_access_attr;
+ 	bool debug_enabled;
  	u8 max_reportid;
  	u32 config_crc;
- 	u32 info_crc;
-@@ -460,8 +461,8 @@ static bool mxt_object_readable(unsigned int type)
- 
- static void mxt_dump_message(struct mxt_data *data, u8 *message)
- {
--	dev_dbg(&data->client->dev, "message: %*ph\n",
--		data->T5_msg_size, message);
-+	dev_dbg(&data->client->dev, "MXT MSG: %*ph\n",
-+		       data->T5_msg_size, message);
- }
- 
- static int mxt_wait_for_completion(struct mxt_data *data,
-@@ -1213,6 +1214,7 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
- static int mxt_proc_message(struct mxt_data *data, u8 *message)
- {
- 	u8 report_id = message[0];
-+	bool dump = data->debug_enabled;
- 
- 	if (report_id == MXT_RPTID_NOMSG)
- 		return 0;
-@@ -1247,9 +1249,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	} else if (report_id == data->T93_reportid) {
- 		mxt_proc_t93_messages(data, message);
- 	} else {
--		mxt_dump_message(data, message);
-+		dump = true;
- 	}
- 
-+	if (dump)
-+		mxt_dump_message(data, message);
-+
- 	return 1;
- }
- 
-@@ -3518,6 +3523,36 @@ static ssize_t mxt_update_cfg_store(struct device *dev,
+@@ -3553,6 +3554,56 @@ static ssize_t mxt_debug_enable_store(struct device *dev,
  	return ret;
  }
  
-+static ssize_t mxt_debug_enable_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
++static int mxt_check_mem_access_params(struct mxt_data *data, loff_t off,
++				       size_t *count)
 +{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	char c;
++	if (off >= data->mem_size)
++		return -EIO;
 +
-+	c = data->debug_enabled ? '1' : '0';
-+	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
++	if (off + *count > data->mem_size)
++		*count = data->mem_size - off;
++
++	if (*count > MXT_MAX_BLOCK_WRITE)
++		*count = MXT_MAX_BLOCK_WRITE;
++
++	return 0;
 +}
 +
-+static ssize_t mxt_debug_enable_store(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t count)
++static ssize_t mxt_mem_access_read(struct file *filp, struct kobject *kobj,
++	struct bin_attribute *bin_attr, char *buf, loff_t off, size_t count)
 +{
++	struct device *dev = container_of(kobj, struct device, kobj);
 +	struct mxt_data *data = dev_get_drvdata(dev);
-+	u8 i;
-+	ssize_t ret;
++	int ret = 0;
 +
-+	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
-+		data->debug_enabled = (i == 1);
++	ret = mxt_check_mem_access_params(data, off, &count);
++	if (ret < 0)
++		return ret;
 +
-+		dev_dbg(dev, "%s\n", i ? "debug enabled" : "debug disabled");
-+		ret = count;
-+	} else {
-+		dev_dbg(dev, "debug_enabled write error\n");
-+		ret = -EINVAL;
-+	}
++	if (count > 0)
++		ret = __mxt_read_reg(data->client, off, count, buf);
 +
-+	return ret;
++	return ret == 0 ? (ssize_t)count : ret;
++}
++
++static ssize_t mxt_mem_access_write(struct file *filp, struct kobject *kobj,
++	struct bin_attribute *bin_attr, char *buf, loff_t off,
++	size_t count)
++{
++	struct device *dev = container_of(kobj, struct device, kobj);
++	struct mxt_data *data = dev_get_drvdata(dev);
++	int ret = 0;
++
++	ret = mxt_check_mem_access_params(data, off, &count);
++	if (ret < 0)
++		return ret;
++
++	if (count > 0)
++		ret = __mxt_write_reg(data->client, off, count, buf);
++
++	return ret == 0 ? (ssize_t)count : ret;
 +}
 +
  static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
  
  static struct attribute *mxt_fw_attrs[] = {
-@@ -3534,6 +3569,8 @@ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
- static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
- static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
- static DEVICE_ATTR(config_crc, S_IRUGO, mxt_config_crc_show, NULL);
-+static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
-+		   mxt_debug_enable_store);
+@@ -3598,13 +3649,36 @@ static int mxt_sysfs_init(struct mxt_data *data)
+ 		return error;
+ 	}
  
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
-@@ -3541,6 +3578,7 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_object.attr,
- 	&dev_attr_update_cfg.attr,
- 	&dev_attr_config_crc.attr,
-+	&dev_attr_debug_enable.attr,
- 	NULL
- };
++	sysfs_bin_attr_init(&data->mem_access_attr);
++	data->mem_access_attr.attr.name = "mem_access";
++	data->mem_access_attr.attr.mode = S_IRUGO | S_IWUSR;
++	data->mem_access_attr.read = mxt_mem_access_read;
++	data->mem_access_attr.write = mxt_mem_access_write;
++	data->mem_access_attr.size = data->mem_size;
++
++	error = sysfs_create_bin_file(&client->dev.kobj,
++				  &data->mem_access_attr);
++	if (error) {
++		dev_err(&client->dev, "Failed to create %s\n",
++			data->mem_access_attr.attr.name);
++		goto err_remove_sysfs_group;
++	}
++
+ 	return 0;
++
++err_remove_sysfs_group:
++	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
++	return error;
+ }
+ 
+ static void mxt_sysfs_remove(struct mxt_data *data)
+ {
+ 	struct i2c_client *client = data->client;
+ 
++	if (data->mem_access_attr.attr.name)
++		sysfs_remove_bin_file(&client->dev.kobj,
++				      &data->mem_access_attr);
++
+ 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
+ }
  
 -- 
 2.19.2

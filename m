@@ -1,77 +1,100 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v1 39/63] Input: touchscreen: Atmel: Add device tree support for T15 key array objects
-Date: Fri, 16 Aug 2019 17:35:01 +0900
-Message-ID: <20190816083525.19071-5-jiada_wang@mentor.com>
-References: <20190816083525.19071-1-jiada_wang@mentor.com>
+Subject: [PATCH v1 06/63] Input: atmel_mxt_ts - output status from T42 Touch Suppression
+Date: Fri, 16 Aug 2019 17:30:33 +0900
+Message-ID: <20190816083130.18250-2-jiada_wang@mentor.com>
+References: <20190816083130.18250-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190816083525.19071-1-jiada_wang@mentor.com>
+In-Reply-To: <20190816083130.18250-1-jiada_wang@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: nick@shmanahar.org, dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-From: Daniel Gong <Zhanli.Gong@cn.bosch.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Signed-off-by: Daniel Gong <Zhanli.Gong@cn.bosch.com>
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
+Acked-by: Yufeng Shen <miletus@chromium.org>
+(cherry picked from ndyer/linux/for-upstream commit ab95b5a309999d2c098daaa9f88d9fcfae7eb516)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 29 ++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 25 ++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index be63002c2b31..3b9544c0a209 100644
+index a75c35c6f9f9..9226ec528adf 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -4143,10 +4143,12 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+@@ -155,6 +155,9 @@ struct t37_debug {
+ #define MXT_RESET_VALUE		0x01
+ #define MXT_BACKUP_VALUE	0x55
+ 
++/* Define for MXT_PROCI_TOUCHSUPPRESSION_T42 */
++#define MXT_T42_MSG_TCHSUP	BIT(0)
++
+ /* T100 Multiple Touch Touchscreen */
+ #define MXT_T100_CTRL		0
+ #define MXT_T100_CFG1		1
+@@ -323,6 +326,8 @@ struct mxt_data {
+ 	u8 T9_reportid_max;
+ 	u16 T18_address;
+ 	u8 T19_reportid;
++	u8 T42_reportid_min;
++	u8 T42_reportid_max;
+ 	u16 T44_address;
+ 	u8 T48_reportid;
+ 	u8 T100_reportid_min;
+@@ -978,6 +983,17 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
+ 	data->update_input = true;
+ }
+ 
++static void mxt_proc_t42_messages(struct mxt_data *data, u8 *msg)
++{
++	struct device *dev = &data->client->dev;
++	u8 status = msg[1];
++
++	if (status & MXT_T42_MSG_TCHSUP)
++		dev_info(dev, "T42 suppress\n");
++	else
++		dev_info(dev, "T42 normal\n");
++}
++
+ static int mxt_proc_t48_messages(struct mxt_data *data, u8 *msg)
  {
- 	static const char keymap_property[] = "linux,gpio-keymap";
- 	static const char gpios_property[] = "atmel,gpios";
-+	static const char buttons_property[] = "atmel,key-buttons";
  	struct device *dev = &data->client->dev;
- 	struct device_node *np = dev ? dev->of_node : NULL;
- 	struct device_node *np_gpio;
- 	u32 *keymap;
-+	u32 *buttonmap;
- 	int n_keys;
- 	int error;
+@@ -1005,6 +1021,9 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
  
-@@ -4181,6 +4183,33 @@ static int mxt_parse_device_properties(struct mxt_data *data)
- 		data->t19_num_keys = n_keys;
- 	}
- 
-+	if (device_property_present(dev, buttons_property)) {
-+		n_keys = device_property_read_u32_array(dev, buttons_property,
-+							NULL, 0);
-+		if (n_keys <= 0) {
-+			error = n_keys < 0 ? n_keys : -EINVAL;
-+			dev_err(dev, "invalid/malformed '%s' property: %d\n",
-+				buttons_property, error);
-+			return error;
-+		}
-+
-+		buttonmap = devm_kmalloc_array(dev, n_keys, sizeof(*buttonmap),
-+					       GFP_KERNEL);
-+		if (!buttonmap)
-+			return -ENOMEM;
-+
-+		error = device_property_read_u32_array(dev, buttons_property,
-+						       buttonmap, n_keys);
-+		if (error) {
-+			dev_err(dev, "failed to parse '%s' property: %d\n",
-+				buttons_property, error);
-+			return error;
-+		}
-+
-+		data->t15_keymap = buttonmap;
-+		data->t15_num_keys = n_keys;
-+	}
-+
- 	device_property_read_u32(dev, "atmel,suspend-mode", &data->suspend_mode);
- 
- 	np_gpio = of_get_child_by_name(np, gpios_property);
+ 	if (report_id == data->T6_reportid) {
+ 		mxt_proc_t6_messages(data, message);
++	} else if (report_id >= data->T42_reportid_min
++		   && report_id <= data->T42_reportid_max) {
++		mxt_proc_t42_messages(data, message);
+ 	} else if (report_id == data->T48_reportid) {
+ 		mxt_proc_t48_messages(data, message);
+ 	} else if (!data->input_dev) {
+@@ -1683,6 +1702,8 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	data->T9_reportid_max = 0;
+ 	data->T18_address = 0;
+ 	data->T19_reportid = 0;
++	data->T42_reportid_min = 0;
++	data->T42_reportid_max = 0;
+ 	data->T44_address = 0;
+ 	data->T48_reportid = 0;
+ 	data->T100_reportid_min = 0;
+@@ -1760,6 +1781,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 		case MXT_SPT_COMMSCONFIG_T18:
+ 			data->T18_address = object->start_address;
+ 			break;
++		case MXT_PROCI_TOUCHSUPPRESSION_T42:
++			data->T42_reportid_min = min_id;
++			data->T42_reportid_max = max_id;
++			break;
+ 		case MXT_SPT_MESSAGECOUNT_T44:
+ 			data->T44_address = object->start_address;
+ 			break;
 -- 
 2.19.2

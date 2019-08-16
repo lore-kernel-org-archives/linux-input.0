@@ -1,63 +1,130 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v1 49/63] Input: Atmel: Improve error handling in mxt_initialize_input_device()
-Date: Fri, 16 Aug 2019 17:37:10 +0900
-Message-ID: <20190816083724.19341-5-jiada_wang@mentor.com>
-References: <20190816083724.19341-1-jiada_wang@mentor.com>
+Subject: [PATCH v1 30/63] Input: atmel_mxt_ts - implement debug output for messages
+Date: Fri, 16 Aug 2019 17:34:18 +0900
+Message-ID: <20190816083451.18947-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190816083724.19341-1-jiada_wang@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: nick@shmanahar.org, dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-From: Deepak Das <deepak_das@mentor.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Currently Driver probe continues with a warning message when it fails to
-get the proper multitouch object configurations like TouchScreen resolution.
-But Driver probe should fail in case of above scneario because it will not behave
-as expected without the proper touchscreen configurations.
+Add a debug switch which causes all messages from the touch controller to
+be dumped to the dmesg log with a set prefix "MXT MSG:". This is used by
+Atmel user-space utilities to debug touch operation. Enabling this output
+does impact touch performance.
 
-This commit modifies mxt_initialize_input_device() to return error when it fails
-to get the proper touch screen configurations.
-
-Signed-off-by: Deepak Das <deepak_das@mentor.com>
-Signed-off-by: Dean Jenkins <Dean_Jenkins@mentor.com>
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+(cherry picked from ndyer/linux/for-upstream commit 3c3fcfdd4889dfeb1c80ae8cd94a622c6342b06a)
+[gdavis: Forward port and fix conflicts.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 44 ++++++++++++++++++++++--
+ 1 file changed, 41 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 27b908a50b66..b17af89a4711 100644
+index ba608d04ee82..e317900279ed 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2749,15 +2749,19 @@ static int mxt_initialize_input_device(struct mxt_data *data)
- 	case MXT_TOUCH_MULTI_T9:
- 		num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
- 		error = mxt_read_t9_resolution(data);
--		if (error)
--			dev_warn(dev, "Failed to initialize T9 resolution\n");
-+		if (error) {
-+			dev_err(dev, "Failed to initialize T9 resolution\n");
-+			return error;
-+		}
- 		break;
+@@ -335,6 +335,7 @@ struct mxt_data {
+ 	u8 t100_aux_ampl;
+ 	u8 t100_aux_area;
+ 	u8 t100_aux_vect;
++	bool debug_enabled;
+ 	u8 max_reportid;
+ 	u32 config_crc;
+ 	u32 info_crc;
+@@ -460,8 +461,8 @@ static bool mxt_object_readable(unsigned int type)
  
- 	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
- 		num_mt_slots = data->num_touchids;
- 		error = mxt_read_t100_config(data);
--		if (error)
--			dev_warn(dev, "Failed to read T100 config\n");
-+		if (error) {
-+			dev_err(dev, "Failed to read T100 config\n");
-+			return error;
-+		}
- 		break;
+ static void mxt_dump_message(struct mxt_data *data, u8 *message)
+ {
+-	dev_dbg(&data->client->dev, "message: %*ph\n",
+-		data->T5_msg_size, message);
++	dev_dbg(&data->client->dev, "MXT MSG: %*ph\n",
++		       data->T5_msg_size, message);
+ }
  
- 	default:
+ static int mxt_wait_for_completion(struct mxt_data *data,
+@@ -1213,6 +1214,7 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
+ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ {
+ 	u8 report_id = message[0];
++	bool dump = data->debug_enabled;
+ 
+ 	if (report_id == MXT_RPTID_NOMSG)
+ 		return 0;
+@@ -1247,9 +1249,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id == data->T93_reportid) {
+ 		mxt_proc_t93_messages(data, message);
+ 	} else {
+-		mxt_dump_message(data, message);
++		dump = true;
+ 	}
+ 
++	if (dump)
++		mxt_dump_message(data, message);
++
+ 	return 1;
+ }
+ 
+@@ -3518,6 +3523,36 @@ static ssize_t mxt_update_cfg_store(struct device *dev,
+ 	return ret;
+ }
+ 
++static ssize_t mxt_debug_enable_show(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	char c;
++
++	c = data->debug_enabled ? '1' : '0';
++	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
++}
++
++static ssize_t mxt_debug_enable_store(struct device *dev,
++	struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	u8 i;
++	ssize_t ret;
++
++	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
++		data->debug_enabled = (i == 1);
++
++		dev_dbg(dev, "%s\n", i ? "debug enabled" : "debug disabled");
++		ret = count;
++	} else {
++		dev_dbg(dev, "debug_enabled write error\n");
++		ret = -EINVAL;
++	}
++
++	return ret;
++}
++
+ static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
+ 
+ static struct attribute *mxt_fw_attrs[] = {
+@@ -3534,6 +3569,8 @@ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
+ static DEVICE_ATTR(config_crc, S_IRUGO, mxt_config_crc_show, NULL);
++static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
++		   mxt_debug_enable_store);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+@@ -3541,6 +3578,7 @@ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_cfg.attr,
+ 	&dev_attr_config_crc.attr,
++	&dev_attr_debug_enable.attr,
+ 	NULL
+ };
+ 
 -- 
 2.19.2

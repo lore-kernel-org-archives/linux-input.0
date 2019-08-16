@@ -1,7 +1,7 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v1 38/63] Input: atmel_mxt_ts: Add support for run self-test routine.
-Date: Fri, 16 Aug 2019 17:35:00 +0900
-Message-ID: <20190816083525.19071-4-jiada_wang@mentor.com>
+Subject: [PATCH v1 36/63] Input: atmel_mxt_ts - configure and use gpios as real gpios
+Date: Fri, 16 Aug 2019 17:34:58 +0900
+Message-ID: <20190816083525.19071-2-jiada_wang@mentor.com>
 References: <20190816083525.19071-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,196 +13,232 @@ To: nick@shmanahar.org, dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-From: Nikhil Ravindran <Nikhil.Ravindran@in.bosch.com>
+From: Kautuk Consul <kautuk_consul@mentor.com>
 
-The self test object T25 runs self test routines in device to find faults
-Sysfs entry add to start self test routine and read back the test results
-for atmel touchcontrollers.The feature will be used for A-IVI and CAF projects.
+The upstream Atmel mXT driver implementation seems to handle the
+T19 GPIO/PWM object as a key pad. Keys can be defined in the
+device tree ("linux,gpio-keymap") and will be transported as key
+events to the Linux input device if GPIO state changes.
 
-Signed-off-by: Nikhil Ravindran <Nikhil.Ravindran@in.bosch.com>
+With our hardware, the GPIO pins of the touch controller are
+connected to a PWM/backlight controller and used as supervision
+inputs. We like to read the status of the pins by a script or an
+application in the sysfs.
+
+Adding newer sysfs entries which shall be placed in the input
+class directory eg:
+/sys/class/input/input<n>/backlight_error1
+
+Signed-off-by: Kautuk Consul <kautuk_consul@mentor.com>
+Signed-off-by: Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 111 +++++++++++++++++++++++
- 1 file changed, 111 insertions(+)
+ .../bindings/input/atmel,maxtouch.txt         |  15 +++
+ drivers/input/touchscreen/atmel_mxt_ts.c      | 120 ++++++++++++++++++
+ 2 files changed, 135 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+index d7db16920083..7afe12a93202 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+@@ -42,6 +42,9 @@ Optional properties for main touchpad device:
+ 
+ - atmel,input_name: Override name of input device from the default.
+ 
++- atmel,gpios: Specify the GPIO input pins whose status will be read via the
++    /sys/class/input/input<n>/backlight_error<x> sysfs entries.
++
+ Example:
+ 
+ 	touch@4b {
+@@ -49,4 +52,16 @@ Example:
+ 		reg = <0x4b>;
+ 		interrupt-parent = <&gpio>;
+ 		interrupts = <TEGRA_GPIO(W, 3) IRQ_TYPE_LEVEL_LOW>;
++
++		atmel,gpios {
++			backlight_error1 {
++				gpio = <3 GPIO_ACTIVE_HIGH>; /* connected to
++							      * the GPIO3 pin of mXT input */
++			};
++
++			backlight_error2 {
++				gpio = <5 GPIO_ACTIVE_HIGH>; /* connected to
++							      * the GPIO5 pin of mXT input */
++			};
++		};
+ 	};
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index def9f94d73ef..be63002c2b31 100644
+index 9cdb7754599c..a8e2b927bb12 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -336,6 +336,9 @@ struct mxt_data {
- 	u8 t100_aux_ampl;
- 	u8 t100_aux_area;
- 	u8 t100_aux_vect;
-+	u16 T25_address;
-+	u8  T25_reportid;
-+	u8  t25_msg[6];
- 	struct bin_attribute mem_access_attr;
- 	bool debug_enabled;
- 	bool debug_v2_enabled;
-@@ -418,6 +421,8 @@ struct mxt_data {
- 	unsigned long gpio_input_pin_status;
- 	struct attribute_group gpio_attrs;
- 	unsigned long gpio_input_pin_status_default;
+@@ -414,6 +414,15 @@ struct mxt_data {
+ 
+ 	/* Indicates whether device is updating configuration */
+ 	bool updating_config;
 +
-+	bool t25_status;
++	unsigned long gpio_input_pin_status;
++	struct attribute_group gpio_attrs;
++	unsigned long gpio_input_pin_status_default;
++};
++
++struct mxt_gpio_attr {
++	struct device_attribute attr;
++	int bit_index;
  };
  
- struct mxt_gpio_attr {
-@@ -1360,6 +1365,24 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
- 	dev_info(dev, "T93 report double tap %d\n", status);
- }
- 
-+static void mxt_proc_t25_messages(struct mxt_data *data, u8 *msg)
-+{
-+	struct device *dev = &data->client->dev;
-+
-+	/* Output debug if status has changed */
-+	dev_dbg(dev, "T25 Status 0x%x Info: %x %x %x %x %x\n",
-+		msg[1],
-+		msg[2],
-+		msg[3],
-+		msg[4],
-+		msg[5],
-+		msg[6]);
-+
-+	/* Save current status */
-+	memcpy(&data->t25_msg[0], &msg[1], sizeof(data->t25_msg));
-+	data->t25_status = false;
-+}
-+
- static int mxt_proc_message(struct mxt_data *data, u8 *message)
- {
- 	u8 report_id = message[0];
-@@ -1391,6 +1414,8 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ struct mxt_vb2_buffer {
+@@ -1381,6 +1390,7 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id == data->T19_reportid) {
  		mxt_input_button(data, message);
  		data->update_input = true;
- 		data->gpio_input_pin_status = message[1];
-+	} else if (report_id == data->T25_reportid) {
-+		mxt_proc_t25_messages(data, message);
++		data->gpio_input_pin_status = message[1];
  	} else if (report_id >= data->T15_reportid_min
  		   && report_id <= data->T15_reportid_max) {
  		mxt_proc_t15_messages(data, message);
-@@ -1615,6 +1640,84 @@ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
+@@ -2747,6 +2757,16 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 		goto err_free_mem;
+ 	}
+ 
++	if (data->gpio_attrs.attrs) {
++		error = sysfs_create_group(&input_dev->dev.kobj,
++					   &data->gpio_attrs);
++		if (error) {
++			dev_err(dev, "Failure %d creating sysfs group\n",
++				error);
++			goto err_free_mem;
++		}
++	}
++
+ 	data->input_dev = input_dev;
+ 
  	return 0;
+@@ -3995,10 +4015,26 @@ static void mxt_input_close(struct input_dev *dev)
+ 		dev_err(&data->client->dev, "%s failed rc=%d\n", __func__, ret);
  }
  
-+static int mxt_t25_command(struct mxt_data *data, u8 cmd, bool wait)
-+{
-+	u16 reg;
-+	int timeout_counter = 0;
-+	int ret;
-+	u8  val[2];
-+
-+	reg = data->T25_address;
-+	val[0] = 0x3;
-+	val[1] = cmd;
-+
-+	data->t25_status = true;
-+	ret = __mxt_write_reg(data->client, reg, sizeof(val), val);
-+	if (ret) {
-+		data->t25_status = false;
-+		return ret;
-+	}
-+
-+	if (!wait)
-+		return 0;
-+
-+	do {
-+		msleep(MXT_WAKEUP_TIME);
-+		ret = __mxt_read_reg(data->client, reg + 1, 1, &val[1]);
-+		if (ret)
-+			return ret;
-+	} while ((val[1] != 0) && (timeout_counter++ <= 100));
-+
-+	if (timeout_counter > 100) {
-+		dev_err(&data->client->dev, "Command failed!\n");
-+		data->t25_status = false;
-+		return -EIO;
-+	}
-+	return 0;
-+}
-+
-+/* Firmware Version is returned as Major.Minor.Build */
-+static ssize_t mxt_t25_selftest_show(struct device *dev, struct
-+				     device_attribute *attr, char *buf)
++static ssize_t mxt_gpio_input_pin_read(struct device *dev,
++				       struct device_attribute *attr,
++				       char *buf)
 +{
 +	struct mxt_data *data = dev_get_drvdata(dev);
-+	ssize_t offset = 0;
++	struct mxt_gpio_attr *attr_p = container_of(attr, struct mxt_gpio_attr,
++						    attr);
++	int pin_status = test_bit(attr_p->bit_index,
++				  &data->gpio_input_pin_status);
 +
-+	if (data->t25_status)
-+		return -EAGAIN;
-+
-+	if (data->t25_msg[0] == 0xFE)
-+		offset += scnprintf(buf, PAGE_SIZE, "PASS\n");
-+	else
-+		offset += scnprintf(buf, PAGE_SIZE, "FAILED\n");
-+
-+	offset += scnprintf(buf + offset, PAGE_SIZE, "%x %x %x %x %x %x\n",
-+		 data->t25_msg[0],
-+		 data->t25_msg[1],
-+		 data->t25_msg[2],
-+		 data->t25_msg[3],
-+		 data->t25_msg[4],
-+		 data->t25_msg[5]);
-+	return offset;
++	return scnprintf(buf, PAGE_SIZE, "%d\n", pin_status);
 +}
 +
-+static ssize_t mxt_t25_selftest_store(struct device *dev, struct
-+				      device_attribute *attr, const char *buf,
-+				      size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	u32 cmd;
-+
-+	if (sscanf(buf, "%x", &cmd) == 1) {
-+		if (mxt_t25_command(data, (u8)cmd, 1) == 0)
-+			return count;
-+
-+		dev_dbg(dev, "mxt_t25_cmd_store write cmd %x error\n", cmd);
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
- static int mxt_acquire_irq(struct mxt_data *data)
+ static int mxt_parse_device_properties(struct mxt_data *data)
  {
+ 	static const char keymap_property[] = "linux,gpio-keymap";
++	static const char gpios_property[] = "atmel,gpios";
+ 	struct device *dev = &data->client->dev;
++	struct device_node *np = dev ? dev->of_node : NULL;
++	struct device_node *np_gpio;
+ 	u32 *keymap;
+ 	int n_keys;
  	int error;
-@@ -2091,6 +2194,8 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T15_reportid_max = 0;
- 	data->T18_address = 0;
- 	data->T19_reportid = 0;
-+	data->T25_address = 0;
-+	data->T25_reportid = 0;
- 	data->T42_reportid_min = 0;
- 	data->T42_reportid_max = 0;
- 	data->T44_address = 0;
-@@ -2178,6 +2283,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
- 		case MXT_SPT_COMMSCONFIG_T18:
- 			data->T18_address = object->start_address;
- 			break;
-+		case MXT_SPT_SELFTEST_T25:
-+			data->T25_address = object->start_address;
-+			data->T25_reportid = min_id;
-+			break;
- 		case MXT_PROCI_TOUCHSUPPRESSION_T42:
- 			data->T42_reportid_min = min_id;
- 			data->T42_reportid_max = max_id;
-@@ -3823,6 +3932,7 @@ static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
- static DEVICE_ATTR(debug_v2_enable, S_IWUSR | S_IRUSR, NULL,
- 		   mxt_debug_v2_enable_store);
- static DEVICE_ATTR(debug_notify, S_IRUGO, mxt_debug_notify_show, NULL);
-+static DEVICE_ATTR(t25, 0600, mxt_t25_selftest_show, mxt_t25_selftest_store);
+@@ -4036,7 +4072,89 @@ static int mxt_parse_device_properties(struct mxt_data *data)
  
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
-@@ -3833,6 +3943,7 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_debug_enable.attr,
- 	&dev_attr_debug_v2_enable.attr,
- 	&dev_attr_debug_notify.attr,
-+	&dev_attr_t25.attr,
- 	NULL
- };
+ 	device_property_read_u32(dev, "atmel,suspend-mode", &data->suspend_mode);
  
++	np_gpio = of_get_child_by_name(np, gpios_property);
++	if (np_gpio) {
++		int gpio_pin;
++		struct mxt_gpio_attr *attr_p;
++		char *sysfs_gpio_file_name;
++		u8 num_gpio_pins = 0;
++
++		np_gpio = of_find_node_with_property(np_gpio, "gpio");
++		if (!np_gpio)
++			return -EINVAL;
++
++		data->gpio_attrs.attrs =
++			devm_kzalloc(dev,
++				     9 * sizeof(struct attribute *),
++				     GFP_KERNEL);
++		if (!data->gpio_attrs.attrs) {
++			error = -ENOMEM;
++			goto err_gpios_property_put;
++		}
++
++		do {
++			attr_p = devm_kmalloc(dev,
++					      sizeof(struct mxt_gpio_attr),
++					      GFP_KERNEL);
++			if (!attr_p) {
++				error = -ENOMEM;
++				goto err_gpios_property_put;
++			}
++
++			error = of_property_read_u32_index(np_gpio, "gpio", 0,
++							   &gpio_pin);
++			if (error) {
++				dev_warn(dev,
++					 "Couldn't read gpio property for node : %s\n",
++					 np_gpio->name);
++				error = -EINVAL;
++				goto err_gpios_property_put;
++			}
++
++			if (gpio_pin > 7) {
++				dev_warn(dev,
++					 "Incorrect GPIO pin index for node %s: %u\n",
++					 np_gpio->name, gpio_pin);
++				error = -EINVAL;
++				goto err_gpios_property_put;
++			}
++
++			sysfs_gpio_file_name =
++					devm_kmalloc(dev,
++						     strlen(np_gpio->name) + 1,
++						     GFP_KERNEL);
++			if (!sysfs_gpio_file_name) {
++				error = -ENOMEM;
++				goto err_gpios_property_put;
++			}
++
++			strcpy(sysfs_gpio_file_name, np_gpio->name);
++
++			sysfs_attr_init(&attr_p->attr.attr);
++
++			attr_p->attr.attr.name = sysfs_gpio_file_name;
++			attr_p->attr.attr.mode = 0444;
++			attr_p->attr.show = mxt_gpio_input_pin_read;
++			attr_p->attr.store = NULL;
++			attr_p->bit_index = gpio_pin;
++
++			data->gpio_input_pin_status_default |= BIT(gpio_pin);
++
++			data->gpio_attrs.attrs[num_gpio_pins++] =
++							&attr_p->attr.attr;
++		} while ((np_gpio =
++			  of_find_node_with_property(np_gpio, "gpio")) &&
++			 num_gpio_pins < 8);
++
++		if (np_gpio)
++			of_node_put(np_gpio);
++	}
++
+ 	return 0;
++
++err_gpios_property_put:
++	of_node_put(np_gpio);
++	return error;
+ }
+ 
+ static const struct dmi_system_id chromebook_T9_suspend_dmi[] = {
+@@ -4106,6 +4224,8 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (error)
+ 		return error;
+ 
++	data->gpio_input_pin_status = data->gpio_input_pin_status_default;
++
+ 	if (data->pcfg_name)
+ 		mxt_update_file_name(&data->client->dev,
+ 				     &data->cfg_name,
 -- 
 2.19.2

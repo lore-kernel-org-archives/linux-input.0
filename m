@@ -1,38 +1,104 @@
-From: Aaron Armstrong Skomra <skomra@gmail.com>
-Subject: [PATCH] HID: wacom: correct misreported EKR ring values
-Date: Fri, 16 Aug 2019 12:00:54 -0700
-Message-ID: <1565982054-29236-1-git-send-email-aaron.skomra@wacom.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com, ping.cheng@wacom.com, jason.gerecke@wacom.com
-Cc: Aaron Armstrong Skomra <aaron.skomra@wacom.com>, "# v4 . 3+" <stable@vger.kernel.org>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 2/2] HID: wacom: do not call hid_set_drvdata(hdev, NULL)
+Date: Fri, 16 Aug 2019 15:03:51 -0700
+Message-ID: <CANRwn3QQcGVGx2KjoU0sG70gSjzwjDKUuL_8q-oYFHRYrn4qGQ@mail.gmail.com>
+References: <20190812162740.15898-1-benjamin.tissoires@redhat.com> <20190812162740.15898-3-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190812162740.15898-3-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: =?UTF-8?Q?Bruno_Pr=C3=A9mont?= <bonbons@linux-vserver.org>, Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Jiri Kosina <jikos@kernel.org>, Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The EKR ring claims a range of 0 to 71 but actually reports
-values 1 to 72. The ring is used in relative mode so this
-change should not affect users.
+On Mon, Aug 12, 2019 at 9:29 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> This is a common pattern in the HID drivers to reset the drvdata.
+> However, this is actually already handled by driver core, so there
+> is no need to do it manually.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
-Cc: <stable@vger.kernel.org> # v4.3+
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+Acked-by: Jason Gerecke <jason.gerecke@wacom.com>
+
+Jason
 ---
- drivers/hid/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index abc17f2c8ef0..e314a7564236 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1098,7 +1098,7 @@ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
- 	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
- 
- 	if (data[12] & 0x80)
--		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
-+		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f) - 1);
- 	else
- 		input_report_abs(input, ABS_WHEEL, 0);
- 
--- 
-2.17.1
+
+> ---
+>  drivers/hid/wacom_sys.c | 18 +++++-------------
+>  1 file changed, 5 insertions(+), 13 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 53bddb50aeba..69ccfdd51a6f 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -2718,14 +2718,12 @@ static int wacom_probe(struct hid_device *hdev,
+>         wacom_wac->features =3D *((struct wacom_features *)id->driver_dat=
+a);
+>         features =3D &wacom_wac->features;
+>
+> -       if (features->check_for_hid_type && features->hid_type !=3D hdev-=
+>type) {
+> -               error =3D -ENODEV;
+> -               goto fail;
+> -       }
+> +       if (features->check_for_hid_type && features->hid_type !=3D hdev-=
+>type)
+> +               return -ENODEV;
+>
+>         error =3D kfifo_alloc(&wacom_wac->pen_fifo, WACOM_PKGLEN_MAX, GFP=
+_KERNEL);
+>         if (error)
+> -               goto fail;
+> +               return error;
+>
+>         wacom_wac->hid_data.inputmode =3D -1;
+>         wacom_wac->mode_report =3D -1;
+> @@ -2743,12 +2741,12 @@ static int wacom_probe(struct hid_device *hdev,
+>         error =3D hid_parse(hdev);
+>         if (error) {
+>                 hid_err(hdev, "parse failed\n");
+> -               goto fail;
+> +               return error;
+>         }
+>
+>         error =3D wacom_parse_and_register(wacom, false);
+>         if (error)
+> -               goto fail;
+> +               return error;
+>
+>         if (hdev->bus =3D=3D BUS_BLUETOOTH) {
+>                 error =3D device_create_file(&hdev->dev, &dev_attr_speed)=
+;
+> @@ -2759,10 +2757,6 @@ static int wacom_probe(struct hid_device *hdev,
+>         }
+>
+>         return 0;
+> -
+> -fail:
+> -       hid_set_drvdata(hdev, NULL);
+> -       return error;
+>  }
+>
+>  static void wacom_remove(struct hid_device *hdev)
+> @@ -2791,8 +2785,6 @@ static void wacom_remove(struct hid_device *hdev)
+>                 wacom_release_resources(wacom);
+>
+>         kfifo_free(&wacom_wac->pen_fifo);
+> -
+> -       hid_set_drvdata(hdev, NULL);
+>  }
+>
+>  #ifdef CONFIG_PM
+> --
+> 2.19.2
+>

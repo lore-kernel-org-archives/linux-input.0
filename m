@@ -1,87 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1 39/63] Input: touchscreen: Atmel: Add device tree
- support for T15 key array objects
-Date: Fri, 16 Aug 2019 10:25:00 -0700
-Message-ID: <20190816172500.GI121898@dtor-ws>
-References: <20190816083525.19071-1-jiada_wang@mentor.com>
- <20190816083525.19071-5-jiada_wang@mentor.com>
+Subject: Re: [PATCH v1 41/63] Input: touchscreen: Atmel: Enable
+ IRQ_DISABLE_UNLAZY flag for interrupt
+Date: Fri, 16 Aug 2019 10:26:15 -0700
+Message-ID: <20190816172615.GJ121898@dtor-ws>
+References: <20190816083558.19189-1-jiada_wang@mentor.com>
+ <20190816083558.19189-2-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190816083525.19071-5-jiada_wang@mentor.com>
+In-Reply-To: <20190816083558.19189-2-jiada_wang@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jiada Wang <jiada_wang@mentor.com>
 Cc: nick@shmanahar.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 16, 2019 at 05:35:01PM +0900, Jiada Wang wrote:
-> From: Daniel Gong <Zhanli.Gong@cn.bosch.com>
+On Fri, Aug 16, 2019 at 05:35:36PM +0900, Jiada Wang wrote:
+> From: Bhuvanesh Surachari <bhuvanesh_surachari@mentor.com>
+> 
+> The de-/serializer driver has defined only irq_mask "ds90ub927_irq_mask" and
+> irq_unmask "ds90ub927_irq_unmask" callback functions. And de-/serializer
+> driver doesn't implement the irq_disable and irq_enable callback functions.
+> Hence inorder to invoke irq_mask callback function when disable_irq_nosync is
+> called the IRQ_DISABLE_UNLAZY interrupt flag should be set. If not the
+> disable_irq_nosync will just increment the depth field in the irq
+> descriptor only once as shown below.
+> 
+> disable_irq_nosync
+>  __disable_irq_nosync
+>   __disable_irq (desc->depth++)
+>    irq_disable
+>     if irq_disable present -----------> if IRQ_DISABLE_UNLAZYflag set
+>              |                  no                  |
+>          yes |                                  yes |
+>              |                                      |
+>      desc->irq_data.chip->irq_disable   desc->irq_data.chip->irq_unmask
+>                                          (ds90ub927_irq_mask)
+>                                           disable_irq
+>                                            __disable_irq_nosync
+>                                             __disable_irq
+> (desc->depth++)
+> But the enable_irq will try to decrement the depth field twice which generates
+> the backtrace stating "Unbalanced enable for irq 293". This is because there is
+> no IRQ_DISABLE_UNLAZY flag check while calling irq_unmask callback function
+> of the "ds90ub927_irq_unmask" de-/serializer via enable_irq.
+> 
+> enable_irq
+>  __enable_irq (desc->depth--)
+>   irq_enable
+>    if irq_enable present -------------> desc->irq_data.chip->irq_unmask
+>               |                no        (ds90ub927_irq_unmask)
+>           yes |                            enable_irq
+>               |                             __enable_irq (desc->depth--)
+>     (desc->irq_data.chip->irq_enable)
 
-This should be with the code adding T15 handling.
+I'd prefer if we instead did not use the disable_irq_nosync() in the
+driver.
 
-> 
-> Signed-off-by: Daniel Gong <Zhanli.Gong@cn.bosch.com>
-> Signed-off-by: George G. Davis <george_davis@mentor.com>
-> Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 29 ++++++++++++++++++++++++
->  1 file changed, 29 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index be63002c2b31..3b9544c0a209 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -4143,10 +4143,12 @@ static int mxt_parse_device_properties(struct mxt_data *data)
->  {
->  	static const char keymap_property[] = "linux,gpio-keymap";
->  	static const char gpios_property[] = "atmel,gpios";
-> +	static const char buttons_property[] = "atmel,key-buttons";
->  	struct device *dev = &data->client->dev;
->  	struct device_node *np = dev ? dev->of_node : NULL;
->  	struct device_node *np_gpio;
->  	u32 *keymap;
-> +	u32 *buttonmap;
->  	int n_keys;
->  	int error;
->  
-> @@ -4181,6 +4183,33 @@ static int mxt_parse_device_properties(struct mxt_data *data)
->  		data->t19_num_keys = n_keys;
->  	}
->  
-> +	if (device_property_present(dev, buttons_property)) {
-> +		n_keys = device_property_read_u32_array(dev, buttons_property,
-> +							NULL, 0);
-> +		if (n_keys <= 0) {
-> +			error = n_keys < 0 ? n_keys : -EINVAL;
-> +			dev_err(dev, "invalid/malformed '%s' property: %d\n",
-> +				buttons_property, error);
-> +			return error;
-> +		}
-> +
-> +		buttonmap = devm_kmalloc_array(dev, n_keys, sizeof(*buttonmap),
-> +					       GFP_KERNEL);
-> +		if (!buttonmap)
-> +			return -ENOMEM;
-> +
-> +		error = device_property_read_u32_array(dev, buttons_property,
-> +						       buttonmap, n_keys);
-> +		if (error) {
-> +			dev_err(dev, "failed to parse '%s' property: %d\n",
-> +				buttons_property, error);
-> +			return error;
-> +		}
-> +
-> +		data->t15_keymap = buttonmap;
-> +		data->t15_num_keys = n_keys;
-> +	}
-> +
->  	device_property_read_u32(dev, "atmel,suspend-mode", &data->suspend_mode);
->  
->  	np_gpio = of_get_child_by_name(np, gpios_property);
-> -- 
-> 2.19.2
-> 
+Thanks.
 
 -- 
 Dmitry

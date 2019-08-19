@@ -1,7 +1,7 @@
 From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Subject: [PATCH v5 01/17] w1: add 1-wire master driver for IP block found in SGI ASICs
-Date: Mon, 19 Aug 2019 18:31:24 +0200
-Message-ID: <20190819163144.3478-2-tbogendoerfer@suse.de>
+Subject: [PATCH v5 03/17] nvmem: core: add nvmem_device_find
+Date: Mon, 19 Aug 2019 18:31:26 +0200
+Message-ID: <20190819163144.3478-4-tbogendoerfer@suse.de>
 References: <20190819163144.3478-1-tbogendoerfer@suse.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190819163144.3478-1-tbogendoerfer@suse.de>
@@ -9,222 +9,177 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Jonathan Corbet <corbet@lwn.net>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Starting with SGI Origin machines nearly every new SGI ASIC contains
-an 1-Wire master. They are used for attaching One-Wire prom devices,
-which contain information about part numbers, revision numbers,
-serial number etc. and MAC addresses for ethernet interfaces.
-This patch adds a master driver to support this IP block.
-It also adds an extra field dev_id to struct w1_bus_master, which
-could be in used in slave drivers for creating unique device names.
+nvmem_device_find provides a way to search for nvmem devices with
+the help of a match function simlair to bus_find_device.
 
 Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 ---
- drivers/w1/masters/Kconfig           |   9 +++
- drivers/w1/masters/Makefile          |   1 +
- drivers/w1/masters/sgi_w1.c          | 130 +++++++++++++++++++++++++++++++++++
- include/linux/platform_data/sgi-w1.h |  15 ++++
- include/linux/w1.h                   |   2 +
- 5 files changed, 157 insertions(+)
- create mode 100644 drivers/w1/masters/sgi_w1.c
- create mode 100644 include/linux/platform_data/sgi-w1.h
+ Documentation/driver-api/nvmem.rst |  2 ++
+ drivers/nvmem/core.c               | 62 ++++++++++++++++++++------------------
+ include/linux/nvmem-consumer.h     |  9 ++++++
+ 3 files changed, 43 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/w1/masters/Kconfig b/drivers/w1/masters/Kconfig
-index 7ae260577901..24b9a8e05f64 100644
---- a/drivers/w1/masters/Kconfig
-+++ b/drivers/w1/masters/Kconfig
-@@ -65,5 +65,14 @@ config HDQ_MASTER_OMAP
- 	  Say Y here if you want support for the 1-wire or HDQ Interface
- 	  on an OMAP processor.
- 
-+config W1_MASTER_SGI
-+	tristate "SGI ASIC driver"
-+	help
-+	  Say Y here if you want support for your 1-wire devices using
-+	  SGI ASIC 1-Wire interface
-+
-+	  This support is also available as a module.  If so, the module
-+	  will be called sgi_w1.
-+
- endmenu
- 
-diff --git a/drivers/w1/masters/Makefile b/drivers/w1/masters/Makefile
-index 18954cae4256..dae629b7ab49 100644
---- a/drivers/w1/masters/Makefile
-+++ b/drivers/w1/masters/Makefile
-@@ -11,3 +11,4 @@ obj-$(CONFIG_W1_MASTER_MXC)		+= mxc_w1.o
- obj-$(CONFIG_W1_MASTER_DS1WM)		+= ds1wm.o
- obj-$(CONFIG_W1_MASTER_GPIO)		+= w1-gpio.o
- obj-$(CONFIG_HDQ_MASTER_OMAP)		+= omap_hdq.o
-+obj-$(CONFIG_W1_MASTER_SGI)		+= sgi_w1.o
-diff --git a/drivers/w1/masters/sgi_w1.c b/drivers/w1/masters/sgi_w1.c
-new file mode 100644
-index 000000000000..1b2d96b945be
---- /dev/null
-+++ b/drivers/w1/masters/sgi_w1.c
-@@ -0,0 +1,130 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * sgi_w1.c - w1 master driver for one wire support in SGI ASICs
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/io.h>
-+#include <linux/jiffies.h>
-+#include <linux/module.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/platform_device.h>
-+#include <linux/platform_data/sgi-w1.h>
-+
-+#include <linux/w1.h>
-+
-+#define MCR_RD_DATA	BIT(0)
-+#define MCR_DONE	BIT(1)
-+
-+#define MCR_PACK(pulse, sample) (((pulse) << 10) | ((sample) << 2))
-+
-+struct sgi_w1_device {
-+	u32 __iomem *mcr;
-+	struct w1_bus_master bus_master;
-+	char dev_id[64];
-+};
-+
-+static u8 sgi_w1_wait(u32 __iomem *mcr)
-+{
-+	u32 mcr_val;
-+
-+	do {
-+		mcr_val = readl(mcr);
-+	} while (!(mcr_val & MCR_DONE));
-+
-+	return (mcr_val & MCR_RD_DATA) ? 1 : 0;
-+}
-+
-+/*
-+ * this is the low level routine to
-+ * reset the device on the One Wire interface
-+ * on the hardware
-+ */
-+static u8 sgi_w1_reset_bus(void *data)
-+{
-+	struct sgi_w1_device *dev = data;
-+	u8 ret;
-+
-+	writel(MCR_PACK(520, 65), dev->mcr);
-+	ret = sgi_w1_wait(dev->mcr);
-+	udelay(500); /* recovery time */
-+	return ret;
-+}
-+
-+/*
-+ * this is the low level routine to read/write a bit on the One Wire
-+ * interface on the hardware. It does write 0 if parameter bit is set
-+ * to 0, otherwise a write 1/read.
-+ */
-+static u8 sgi_w1_touch_bit(void *data, u8 bit)
-+{
-+	struct sgi_w1_device *dev = data;
-+	u8 ret;
-+
-+	if (bit)
-+		writel(MCR_PACK(6, 13), dev->mcr);
-+	else
-+		writel(MCR_PACK(80, 30), dev->mcr);
-+
-+	ret = sgi_w1_wait(dev->mcr);
-+	if (bit)
-+		udelay(100); /* recovery */
-+	return ret;
-+}
-+
-+static int sgi_w1_probe(struct platform_device *pdev)
-+{
-+	struct sgi_w1_device *sdev;
-+	struct sgi_w1_platform_data *pdata;
-+	struct resource *res;
-+
-+	sdev = devm_kzalloc(&pdev->dev, sizeof(struct sgi_w1_device),
-+			    GFP_KERNEL);
-+	if (!sdev)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	sdev->mcr = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(sdev->mcr))
-+		return PTR_ERR(sdev->mcr);
-+
-+	sdev->bus_master.data = sdev;
-+	sdev->bus_master.reset_bus = sgi_w1_reset_bus;
-+	sdev->bus_master.touch_bit = sgi_w1_touch_bit;
-+
-+	pdata = dev_get_platdata(&pdev->dev);
-+	if (pdata) {
-+		strlcpy(sdev->dev_id, pdata->dev_id, sizeof(sdev->dev_id));
-+		sdev->bus_master.dev_id = sdev->dev_id;
-+	}
-+
-+	platform_set_drvdata(pdev, sdev);
-+
-+	return w1_add_master_device(&sdev->bus_master);
-+}
-+
-+/*
-+ * disassociate the w1 device from the driver
-+ */
-+static int sgi_w1_remove(struct platform_device *pdev)
-+{
-+	struct sgi_w1_device *sdev = platform_get_drvdata(pdev);
-+
-+	w1_remove_master_device(&sdev->bus_master);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver sgi_w1_driver = {
-+	.driver = {
-+		.name = "sgi_w1",
-+	},
-+	.probe = sgi_w1_probe,
-+	.remove = sgi_w1_remove,
-+};
-+module_platform_driver(sgi_w1_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Thomas Bogendoerfer");
-+MODULE_DESCRIPTION("Driver for One-Wire IP in SGI ASICs");
-diff --git a/include/linux/platform_data/sgi-w1.h b/include/linux/platform_data/sgi-w1.h
-new file mode 100644
-index 000000000000..fc6b92e0b942
---- /dev/null
-+++ b/include/linux/platform_data/sgi-w1.h
-@@ -0,0 +1,15 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * SGI One-Wire (W1) IP
-+ */
-+
-+#ifndef PLATFORM_DATA_SGI_W1_H
-+#define PLATFORM_DATA_SGI_W1_H
-+
-+#include <asm/sn/types.h>
-+
-+struct sgi_w1_platform_data {
-+	char dev_id[64];
-+};
-+
-+#endif /* PLATFORM_DATA_SGI_W1_H */
-diff --git a/include/linux/w1.h b/include/linux/w1.h
-index e0b5156f78fd..89843e9f634c 100644
---- a/include/linux/w1.h
-+++ b/include/linux/w1.h
-@@ -150,6 +150,8 @@ struct w1_bus_master {
- 
- 	void		(*search)(void *, struct w1_master *,
- 		u8, w1_slave_found_callback);
-+
-+	char		*dev_id;
+diff --git a/Documentation/driver-api/nvmem.rst b/Documentation/driver-api/nvmem.rst
+index d9d958d5c824..287e86819640 100644
+--- a/Documentation/driver-api/nvmem.rst
++++ b/Documentation/driver-api/nvmem.rst
+@@ -129,6 +129,8 @@ To facilitate such consumers NVMEM framework provides below apis::
+   struct nvmem_device *nvmem_device_get(struct device *dev, const char *name);
+   struct nvmem_device *devm_nvmem_device_get(struct device *dev,
+ 					   const char *name);
++  struct nvmem_device *nvmem_device_find(void *data,
++			int (*match)(struct device *dev, const void *data));
+   void nvmem_device_put(struct nvmem_device *nvmem);
+   int nvmem_device_read(struct nvmem_device *nvmem, unsigned int offset,
+ 		      size_t bytes, void *buf);
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index ac5d945be88a..e591ba54758f 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -76,36 +76,18 @@ static struct bus_type nvmem_bus_type = {
+ 	.name		= "nvmem",
  };
  
- /**
++#if IS_ENABLED(CONFIG_OF)
+ static int of_nvmem_match(struct device *dev, const void *nvmem_np)
+ {
+ 	return dev->of_node == nvmem_np;
+ }
++#endif
+ 
+-static struct nvmem_device *of_nvmem_find(struct device_node *nvmem_np)
++static int nvmem_match_name(struct device *dev, const void *data)
+ {
+-	struct device *d;
+-
+-	if (!nvmem_np)
+-		return NULL;
+-
+-	d = bus_find_device(&nvmem_bus_type, NULL, nvmem_np, of_nvmem_match);
+-
+-	if (!d)
+-		return NULL;
++	const char *name = data;
+ 
+-	return to_nvmem_device(d);
+-}
+-
+-static struct nvmem_device *nvmem_find(const char *name)
+-{
+-	struct device *d;
+-
+-	d = bus_find_device_by_name(&nvmem_bus_type, NULL, name);
+-
+-	if (!d)
+-		return NULL;
+-
+-	return to_nvmem_device(d);
++	return sysfs_streq(name, dev_name(dev));
+ }
+ 
+ static void nvmem_cell_drop(struct nvmem_cell *cell)
+@@ -537,13 +519,16 @@ int devm_nvmem_unregister(struct device *dev, struct nvmem_device *nvmem)
+ }
+ EXPORT_SYMBOL(devm_nvmem_unregister);
+ 
+-static struct nvmem_device *__nvmem_device_get(struct device_node *np,
+-					       const char *nvmem_name)
++static struct nvmem_device *__nvmem_device_get(void *data,
++			int (*match)(struct device *dev, const void *data))
+ {
+ 	struct nvmem_device *nvmem = NULL;
++	struct device *dev;
+ 
+ 	mutex_lock(&nvmem_mutex);
+-	nvmem = np ? of_nvmem_find(np) : nvmem_find(nvmem_name);
++	dev = bus_find_device(&nvmem_bus_type, NULL, data, match);
++	if (dev)
++		nvmem = to_nvmem_device(dev);
+ 	mutex_unlock(&nvmem_mutex);
+ 	if (!nvmem)
+ 		return ERR_PTR(-EPROBE_DEFER);
+@@ -592,7 +577,7 @@ struct nvmem_device *of_nvmem_device_get(struct device_node *np, const char *id)
+ 	if (!nvmem_np)
+ 		return ERR_PTR(-ENOENT);
+ 
+-	return __nvmem_device_get(nvmem_np, NULL);
++	return __nvmem_device_get(nvmem_np, of_nvmem_match);
+ }
+ EXPORT_SYMBOL_GPL(of_nvmem_device_get);
+ #endif
+@@ -618,10 +603,26 @@ struct nvmem_device *nvmem_device_get(struct device *dev, const char *dev_name)
+ 
+ 	}
+ 
+-	return __nvmem_device_get(NULL, dev_name);
++	return __nvmem_device_get((void *)dev_name, nvmem_match_name);
+ }
+ EXPORT_SYMBOL_GPL(nvmem_device_get);
+ 
++/**
++ * nvmem_device_find() - Find nvmem device with matching function
++ *
++ * @data: Data to pass to match function
++ * @match: Callback function to check device
++ *
++ * Return: ERR_PTR() on error or a valid pointer to a struct nvmem_device
++ * on success.
++ */
++struct nvmem_device *nvmem_device_find(void *data,
++			int (*match)(struct device *dev, const void *data))
++{
++	return __nvmem_device_get(data, match);
++}
++EXPORT_SYMBOL_GPL(nvmem_device_find);
++
+ static int devm_nvmem_device_match(struct device *dev, void *res, void *data)
+ {
+ 	struct nvmem_device **nvmem = res;
+@@ -715,7 +716,8 @@ nvmem_cell_get_from_lookup(struct device *dev, const char *con_id)
+ 		if ((strcmp(lookup->dev_id, dev_id) == 0) &&
+ 		    (strcmp(lookup->con_id, con_id) == 0)) {
+ 			/* This is the right entry. */
+-			nvmem = __nvmem_device_get(NULL, lookup->nvmem_name);
++			nvmem = __nvmem_device_get((void *)lookup->nvmem_name,
++						   nvmem_match_name);
+ 			if (IS_ERR(nvmem)) {
+ 				/* Provider may not be registered yet. */
+ 				cell = ERR_CAST(nvmem);
+@@ -785,7 +787,7 @@ struct nvmem_cell *of_nvmem_cell_get(struct device_node *np, const char *id)
+ 	if (!nvmem_np)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	nvmem = __nvmem_device_get(nvmem_np, NULL);
++	nvmem = __nvmem_device_get(nvmem_np, of_nvmem_match);
+ 	of_node_put(nvmem_np);
+ 	if (IS_ERR(nvmem))
+ 		return ERR_CAST(nvmem);
+diff --git a/include/linux/nvmem-consumer.h b/include/linux/nvmem-consumer.h
+index 8f8be5b00060..02dc4aa992b2 100644
+--- a/include/linux/nvmem-consumer.h
++++ b/include/linux/nvmem-consumer.h
+@@ -89,6 +89,9 @@ void nvmem_del_cell_lookups(struct nvmem_cell_lookup *entries,
+ int nvmem_register_notifier(struct notifier_block *nb);
+ int nvmem_unregister_notifier(struct notifier_block *nb);
+ 
++struct nvmem_device *nvmem_device_find(void *data,
++			int (*match)(struct device *dev, const void *data));
++
+ #else
+ 
+ static inline struct nvmem_cell *nvmem_cell_get(struct device *dev,
+@@ -204,6 +207,12 @@ static inline int nvmem_unregister_notifier(struct notifier_block *nb)
+ 	return -EOPNOTSUPP;
+ }
+ 
++static inline struct nvmem_device *nvmem_device_find(void *data,
++			int (*match)(struct device *dev, const void *data))
++{
++	return NULL;
++}
++
+ #endif /* CONFIG_NVMEM */
+ 
+ #if IS_ENABLED(CONFIG_NVMEM) && IS_ENABLED(CONFIG_OF)
 -- 
 2.13.7

@@ -1,76 +1,69 @@
-From: Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-Subject: Re: [PATCH v2 0/4] Read battery voltage from G403 and G900 mice
-Date: Mon, 19 Aug 2019 14:44:21 +0100
-Message-ID: <ccad5760aef282d86abc4ba88c1fa484ad62108e.camel@archlinux.org>
-References: <20190605194533.18717-1-pedro@pedrovanzella.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: Re: [PATCH v4 3/9] nvmem: core: add nvmem_device_find
+Date: Mon, 19 Aug 2019 17:03:42 +0100
+Message-ID: <fca76e6d-fa0b-176b-abcf-e7551b22e6a9@linaro.org>
+References: <20190809103235.16338-1-tbogendoerfer@suse.de>
+ <20190809103235.16338-4-tbogendoerfer@suse.de>
+ <8d18de64-9234-fcba-aa3d-b46789eb62a5@linaro.org>
+ <20190814134616.b4dab3c0aa6ac913d78edb6a@suse.de>
+ <31d680ee-ddb3-8536-c915-576222d263e1@linaro.org>
+ <20190816140942.GA15050@alpha.franken.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-nsL2SEBp2H9r4FLuninh"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190605194533.18717-1-pedro@pedrovanzella.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pedro Vanzella <pedro@pedrovanzella.com>, linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20190816140942.GA15050@alpha.franken.de>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 
---=-nsL2SEBp2H9r4FLuninh
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2019-06-05 at 15:45 -0400, Pedro Vanzella wrote:
-> The gaming line of Logitech devices doesn't use the old hidpp20
-> feature
-> for battery level reporting. Instead, they report the current voltage
-> of the battery, in millivolts.
->=20
-> This patch set handles this case by adding a quirk to the devices we
-> know
-> to have this new feature, in both wired and wireless mode.
->=20
-> This version of the patch set is better split, as well as adding the
-> quirk to make sure we don't needlessly probe every device connected.
->=20
-> Pedro Vanzella (4):
->   HID: hid-logitech-hidpp: add quirk to handle battery voltage
->   HID: hid-logitech-hidpp: add function to query battery voltage
->   HID: hid-logitech-hidpp: report battery voltage to the power supply
->   HID: hid-logitech-hidpp: subscribe to battery voltage events
->=20
->  drivers/hid/hid-logitech-hidpp.c | 150
-> ++++++++++++++++++++++++++++++-
->  1 file changed, 147 insertions(+), 3 deletions(-)
->=20
+On 16/08/2019 15:09, Thomas Bogendoerfer wrote:
+> On Wed, Aug 14, 2019 at 01:52:49PM +0100, Srinivas Kandagatla wrote:
+>> On 14/08/2019 12:46, Thomas Bogendoerfer wrote:
+>>> On Tue, 13 Aug 2019 10:40:34 +0100
+>>> Srinivas Kandagatla <srinivas.kandagatla@linaro.org> wrote:
+>>>> On 09/08/2019 11:32, Thomas Bogendoerfer wrote:
+>>>>> nvmem_device_find provides a way to search for nvmem devices with
+>>>>> the help of a match function simlair to bus_find_device.
+>>>>>
+>>>>> Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+>>>>> ---
+>>>>>    drivers/nvmem/core.c           | 62 ++++++++++++++++++++++--------------------
+>>>>>    include/linux/nvmem-consumer.h |  9 ++++++
+>>>>>    2 files changed, 41 insertions(+), 30 deletions(-)
+>>>>
+>>>> Have you considered using nvmem_register_notifier() ?
+>>>
+>>> yes, that was the first idea. But then I realized I need to build up
+>>> a private database of information already present in nvmem bus. So I
+>>> looked for a way to retrieve it from there. Unfortunately I couldn't
+>>> use bus_find_device directly, because nvmem_bus_type and struct nvmem_device
+>>> is hidden. So I refactured the lookup code and added a more universal
+>>> lookup function, which fits my needs and should be usable for more.
+>> I see your point.
+>>
+>> overall the patch as it is look good, but recently we added more generic
+>> lookups for DT node, looks like part of your patch is un-doing generic
+>> device name lookup.
+>>
+>> DT node match lookup is in https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git/log/?h=generic_lookup_helpers
+> 
+> these patches are not in Linus tree, yet. I guess they will show up
+> in 5.4. No idea how to deal with it right now, do you ?
+All these patches are due to go in next merge window,
+You should base your patch on top of linux-next.
 
-This is OK. However since we now have a feature discovery routine I
-think the code should use that instead of quirks. I will send a patch
-making this change.
-
-You can have my
-Reviewed-by: Filipe La=C3=ADns <lains@archlinux.org>
-
-Thank you,
-Filipe La=C3=ADns
-
---=-nsL2SEBp2H9r4FLuninh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl1ap7AACgkQ+JPGdIFq
-qV3/hQ/9HqVd9/NubPX0RxXJ2Gh64enjTTHj2LFfbre7ylLBz3D3Ir5/1SLgr1dh
-uyXmUKD4gn6HeVYRLz0nYUzskuITwZ4VXjcOr2hfg3poht6MDl9AMFw+gQJt6mXs
-y4glX/4VjIODfP7LaO3pT28R+2S7iuAozdsrn3uacToexWA4p6AG1CnbTOCzcOYo
-e6hosSgvyrmWsiCqVyLMHhAuW29Sr5TEeCLghxZS3dWi2CF+eo/KOGG2zveB0CER
-iw9SLWwMnNy8hKS9aJUc6IuWyePrTekTm6xdMtzRz5SgA6rSpMObG144WVjs075Z
-tLufPaBGakp+d4/7+4grHC6YPsGnYrms+tE5xbRmc5udeYc7doc8J5WsyR3V7A4B
-7NOmzAS/uLL10Uv10oErvNk3eRK8YOMW7Auol9O7ohk4C/1TDvNcG3wHSDroDPUi
-i+8QYR8sm7C42XZDT/rq50kZrYrCbXD4QiNp4Tp28qFIvavR9nH8Z4Dvcr6GOtdS
-Ksl6im8Qj8LwyXJFSlim/KFO91RugujrAyai6B1yLvkB2mPHFiWLG26cGOjFcCGy
-RUEKGoSUqGKjy7QoJeBb+ltPvyA/ltn/oJAWU4N7IEGgHYBL2oc/DDkD8eEof5L+
-/qpngOcEWKMfx3ooVy2NWY9QoFHWWEaIeS9Ibh/JAWiEoaLex3s=
-=QENM
------END PGP SIGNATURE-----
-
---=-nsL2SEBp2H9r4FLuninh--
+thanks,
+srini
+> 
+>> Other missing bit is adding this api to documentation in
+>> ./Documentation/driver-api/nvmem.rst
+> 
+> ok, will do.
+> 
+> Thomas.
+> 

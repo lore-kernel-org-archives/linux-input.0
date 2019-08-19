@@ -1,68 +1,40 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH v2 0/3] HID: intel-ish-hid: support s2idle and s3 in
- ish_suspend()
-Date: Sun, 18 Aug 2019 19:52:23 -0700
-Message-ID: <77a8df403934d85967dcdb221862c13e15c26112.camel@linux.intel.com>
-References: <20190808102113.27802-1-lixu.zhang@intel.com>
+From: Jiada Wang <jiada_wang@mentor.com>
+Subject: Re: [PATCH v1 00/63] atmel_mxt_ts misc
+Date: Mon, 19 Aug 2019 18:29:07 +0900
+Message-ID: <1d6498a5-4049-d929-99d8-1177ffea135a@mentor.com>
+References: <20190816082952.17985-1-jiada_wang@mentor.com>
+ <20190816173209.GL121898@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190808102113.27802-1-lixu.zhang@intel.com>
+In-Reply-To: <20190816173209.GL121898@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Zhang Lixu <lixu.zhang@intel.com>, linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: nick@shmanahar.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2019-08-08 at 18:21 +0800, Zhang Lixu wrote:
-> Currently, the NO_D3 flag is set in ish_probe(), the intel-ish-ipc
-> driver
-> puts the ISH into D0i3 when system enter both suspend-to-idle(S0ix)
-> and
-> suspend-to-mem(S3). These patches are to put the ISH into D3 when
-> system
-> enter S3 and put the ISH into D0i3 when system enter S0ix.
+  HiDmitrij
+
+On 2019/08/17 2:32, Dmitry Torokhov wrote:
+> Hi Jiada,
 > 
-> I tested these patches on the following platforms:
-> ISH 5.2: ICL
-> ISH 5.0: CNL CFL WHL CML
-> ISH 4.0: GLK
-> ISH 3.0: KBL
+> On Fri, Aug 16, 2019 at 05:28:49PM +0900, Jiada Wang wrote:
+>> This patch-set forward ports Nick Dyer's work in ndyer/linux github repository
+>> as long as some other features and fixes
 > 
-> Test steps:
-> * Run the IIO Sensor tool to read the accel_3d sensor data
-> * Run cmd "echo mem > /sys/power/state" to suspend-to-mem
-> * Press the keyboard to wake up OS.
-> * Check if the tool can get the sensor data after OS resume.
-> * Run cmd "echo freeze > /sys/power/state" to suspend-to-idle
-> * Press the keyboard to wake up OS.
-> * Check if the tool can get the sensor data after OS resume.
-> 
-> Test results:
-> The tool can get the accel_3d sensor data after resuming from both
-> suspend-to-mem and suspend-to-idle.
-> 
-> Changes from v1:
-> * Fix the indentation issue
-> * Elaborate the reason to remove the NO_D3 flag
-> * Split the PATCH v1 to three changes, and try to minimize the lines
-> change
-> 
-> Zhang Lixu (3):
->   HID: intel-ish-hid: ipc: set NO_D3 flag only when needed
->   HID: intel-ish-hid: ipc: make ish suspend paths clear
->   HID: intel-ish-hid: ipc: check the NO_D3 flag to distinguish resume
->     paths
+> I see a lot of chages that are fixups for older changes in your series.
+> They need to be identified and squashed together, as we do not need to
+> be aware of your development history.
 > 
 
-For the series:
+Thanks for your comments,
+in v1, I already squashed several of our internal changes,
+but seems there are still some can be squashed,
+I will try to squash all possible changes in v2 patch-set
 
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-
-
->  drivers/hid/intel-ish-hid/ipc/hw-ish.h  |  1 +
->  drivers/hid/intel-ish-hid/ipc/ipc.c     |  2 +-
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 95 +++++++++++++++------
-> ----
->  3 files changed, 61 insertions(+), 37 deletions(-)
+Thanks,
+Jiada
+> Thanks.
 > 

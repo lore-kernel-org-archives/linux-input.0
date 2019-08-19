@@ -1,295 +1,353 @@
 From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Subject: [PATCH v5 12/17] net: sgi: ioc3-eth: use dma-direct for dma allocations
-Date: Mon, 19 Aug 2019 18:31:35 +0200
-Message-ID: <20190819163144.3478-13-tbogendoerfer@suse.de>
+Subject: [PATCH v5 02/17] w1: add DS2501, DS2502, DS2505 EPROM device driver
+Date: Mon, 19 Aug 2019 18:31:25 +0200
+Message-ID: <20190819163144.3478-3-tbogendoerfer@suse.de>
 References: <20190819163144.3478-1-tbogendoerfer@suse.de>
-Return-path: <netdev-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190819163144.3478-1-tbogendoerfer@suse.de>
-Sender: netdev-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jonathan Corbet <corbet@lwn.net>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Replace the homegrown DMA memory allocation, which only works on
-SGI-IP27 machines, with the generic dma allocations.
+Add a 1-Wire slave driver to support DS250x EPROM deivces. This
+slave driver attaches the devices to the NVMEM subsystem for
+an easy in-kernel usage.
 
 Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 ---
- drivers/net/ethernet/sgi/ioc3-eth.c | 107 ++++++++++++++++++++++++++----------
- 1 file changed, 77 insertions(+), 30 deletions(-)
+ drivers/w1/slaves/Kconfig     |   6 +
+ drivers/w1/slaves/Makefile    |   1 +
+ drivers/w1/slaves/w1_ds250x.c | 293 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 300 insertions(+)
+ create mode 100644 drivers/w1/slaves/w1_ds250x.c
 
-diff --git a/drivers/net/ethernet/sgi/ioc3-eth.c b/drivers/net/ethernet/sgi/ioc3-eth.c
-index 7f85a3bfef14..647e3926bd71 100644
---- a/drivers/net/ethernet/sgi/ioc3-eth.c
-+++ b/drivers/net/ethernet/sgi/ioc3-eth.c
-@@ -38,7 +38,6 @@
- #include <linux/ip.h>
- #include <linux/tcp.h>
- #include <linux/udp.h>
--#include <linux/dma-mapping.h>
- #include <linux/gfp.h>
+diff --git a/drivers/w1/slaves/Kconfig b/drivers/w1/slaves/Kconfig
+index 37aaad26b373..ebed495b9e69 100644
+--- a/drivers/w1/slaves/Kconfig
++++ b/drivers/w1/slaves/Kconfig
+@@ -101,6 +101,12 @@ config W1_SLAVE_DS2438
+ 	  Say Y here if you want to use a 1-wire
+ 	  DS2438 Smart Battery Monitor device support
  
- #ifdef CONFIG_SERIAL_8250
-@@ -51,6 +50,8 @@
- #include <linux/etherdevice.h>
- #include <linux/ethtool.h>
- #include <linux/skbuff.h>
-+#include <linux/dma-direct.h>
++config W1_SLAVE_DS250X
++	tristate "512b/1kb/16kb EPROM family support"
++	help
++	  Say Y here if you want to use a 1-wire
++	  512b/1kb/16kb EPROM family device (DS250x).
 +
- #include <net/ip.h>
- 
- #include <asm/byteorder.h>
-@@ -66,10 +67,12 @@
- #define RX_BUFFS		64
- #define RX_RING_ENTRIES		512		/* fixed in hardware */
- #define RX_RING_MASK		(RX_RING_ENTRIES - 1)
-+#define RX_RING_SIZE		(RX_RING_ENTRIES * sizeof(u64))
- 
- /* 128 TX buffers (not tunable) */
- #define TX_RING_ENTRIES		128
- #define TX_RING_MASK		(TX_RING_ENTRIES - 1)
-+#define TX_RING_SIZE		(TX_RING_ENTRIES * sizeof(struct ioc3_etxd))
- 
- /* BEWARE: The IOC3 documentation documents the size of rx buffers as
-  * 1644 while it's actually 1664.  This one was nasty to track down...
-@@ -84,9 +87,12 @@
- struct ioc3_private {
- 	struct ioc3_ethregs *regs;
- 	struct ioc3 *all_regs;
-+	struct device *dma_dev;
- 	u32 *ssram;
- 	unsigned long *rxr;		/* pointer to receiver ring */
- 	struct ioc3_etxd *txr;
-+	dma_addr_t rxr_dma;
-+	dma_addr_t txr_dma;
- 	struct sk_buff *rx_skbs[RX_RING_ENTRIES];
- 	struct sk_buff *tx_skbs[TX_RING_ENTRIES];
- 	int rx_ci;			/* RX consumer index */
-@@ -116,18 +122,22 @@ static void ioc3_init(struct net_device *dev);
- static const char ioc3_str[] = "IOC3 Ethernet";
- static const struct ethtool_ops ioc3_ethtool_ops;
- 
--static inline unsigned long ioc3_map(void *ptr, unsigned long vdev)
-+#ifdef CONFIG_PCI_XTALK_BRIDGE
-+static inline unsigned long ioc3_map(dma_addr_t addr, unsigned long attr)
- {
--#ifdef CONFIG_SGI_IP27
--	vdev <<= 57;   /* Shift to PCI64_ATTR_VIRTUAL */
-+	return (addr & ~PCI64_ATTR_BAR) | attr;
-+}
- 
--	return vdev | (0xaUL << PCI64_ATTR_TARG_SHFT) | PCI64_ATTR_PREF |
--	       ((unsigned long)ptr & TO_PHYS_MASK);
-+#define ERBAR_VAL	(ERBAR_BARRIER_BIT << ERBAR_RXBARR_SHIFT)
- #else
--	return virt_to_bus(ptr);
--#endif
-+static inline unsigned long ioc3_map(dma_addr_t addr, unsigned long attr)
+ config W1_SLAVE_DS2780
+ 	tristate "Dallas 2780 battery monitor chip"
+ 	help
+diff --git a/drivers/w1/slaves/Makefile b/drivers/w1/slaves/Makefile
+index eab29f151413..8e9655eaa478 100644
+--- a/drivers/w1/slaves/Makefile
++++ b/drivers/w1/slaves/Makefile
+@@ -14,6 +14,7 @@ obj-$(CONFIG_W1_SLAVE_DS2431)	+= w1_ds2431.o
+ obj-$(CONFIG_W1_SLAVE_DS2805)	+= w1_ds2805.o
+ obj-$(CONFIG_W1_SLAVE_DS2433)	+= w1_ds2433.o
+ obj-$(CONFIG_W1_SLAVE_DS2438)	+= w1_ds2438.o
++obj-$(CONFIG_W1_SLAVE_DS250X)	+= w1_ds250x.o
+ obj-$(CONFIG_W1_SLAVE_DS2780)	+= w1_ds2780.o
+ obj-$(CONFIG_W1_SLAVE_DS2781)	+= w1_ds2781.o
+ obj-$(CONFIG_W1_SLAVE_DS28E04)	+= w1_ds28e04.o
+diff --git a/drivers/w1/slaves/w1_ds250x.c b/drivers/w1/slaves/w1_ds250x.c
+new file mode 100644
+index 000000000000..78da3774bbbe
+--- /dev/null
++++ b/drivers/w1/slaves/w1_ds250x.c
+@@ -0,0 +1,293 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * w1_ds250x.c - w1 family 09/0b/89/91 (DS250x) driver
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/device.h>
++#include <linux/types.h>
++#include <linux/delay.h>
++#include <linux/slab.h>
++#include <linux/crc16.h>
++
++#include <linux/w1.h>
++#include <linux/nvmem-provider.h>
++
++#define W1_DS2501_UNW_FAMILY    0x91
++#define W1_DS2501_SIZE          64
++
++#define W1_DS2502_FAMILY        0x09
++#define W1_DS2502_UNW_FAMILY    0x89
++#define W1_DS2502_SIZE          128
++
++#define W1_DS2505_FAMILY	0x0b
++#define W1_DS2505_SIZE		2048
++
++#define W1_PAGE_SIZE		32
++
++#define W1_EXT_READ_MEMORY	0xA5
++#define W1_READ_DATA_CRC        0xC3
++
++#define OFF2PG(off)	((off) / W1_PAGE_SIZE)
++
++#define CRC16_INIT		0
++#define CRC16_VALID		0xb001
++
++struct w1_eprom_data {
++	size_t size;
++	int (*read)(struct w1_slave *sl, int pageno);
++	u8 eprom[W1_DS2505_SIZE];
++	DECLARE_BITMAP(page_present, W1_DS2505_SIZE / W1_PAGE_SIZE);
++	char nvmem_name[64];
++};
++
++static int w1_ds2502_read_page(struct w1_slave *sl, int pageno)
 +{
-+	return addr;
- }
- 
-+#define ERBAR_VAL	0
-+#endif
++	struct w1_eprom_data *data = sl->family_data;
++	int pgoff = pageno * W1_PAGE_SIZE;
++	int ret = -EIO;
++	u8 buf[3];
++	u8 crc8;
 +
- #define IOC3_SIZE 0x100000
- 
- static inline u32 mcr_pack(u32 pulse, u32 sample)
-@@ -494,6 +504,7 @@ static inline void ioc3_rx(struct net_device *dev)
- 	int rx_entry, n_entry, len;
- 	struct ioc3_erxbuf *rxb;
- 	unsigned long *rxr;
-+	dma_addr_t d;
- 	u32 w0, err;
- 
- 	rxr = ip->rxr;		/* Ring base */
-@@ -550,7 +561,9 @@ static inline void ioc3_rx(struct net_device *dev)
- 			dev->stats.rx_frame_errors++;
- next:
- 		ip->rx_skbs[n_entry] = new_skb;
--		rxr[n_entry] = cpu_to_be64(ioc3_map(rxb, 1));
-+		d = dma_map_single(ip->dma_dev, rxb, RX_BUF_SIZE,
-+				   DMA_FROM_DEVICE);
-+		rxr[n_entry] = cpu_to_be64(ioc3_map(d, PCI64_ATTR_BAR));
- 		rxb->w0 = 0;				/* Clear valid flag */
- 		n_entry = (n_entry + 1) & RX_RING_MASK;	/* Update erpir */
- 
-@@ -754,6 +767,26 @@ static inline void ioc3_clean_rx_ring(struct ioc3_private *ip)
- 	}
- }
- 
-+static inline void ioc3_tx_unmap(struct ioc3_private *ip, int entry)
-+{
-+	struct ioc3_etxd *desc;
-+	u32 cmd, bufcnt, len;
++	if (test_bit(pageno, data->page_present))
++		return 0; /* page already present */
 +
-+	desc = &ip->txr[entry];
-+	cmd = be32_to_cpu(desc->cmd);
-+	bufcnt = be32_to_cpu(desc->bufcnt);
-+	if (cmd & ETXD_B1V) {
-+		len = (bufcnt & ETXD_B1CNT_MASK) >> ETXD_B1CNT_SHIFT;
-+		dma_unmap_single(ip->dma_dev, be64_to_cpu(desc->p1),
-+				 len, DMA_TO_DEVICE);
-+	}
-+	if (cmd & ETXD_B2V) {
-+		len = (bufcnt & ETXD_B2CNT_MASK) >> ETXD_B2CNT_SHIFT;
-+		dma_unmap_single(ip->dma_dev, be64_to_cpu(desc->p2),
-+				 len, DMA_TO_DEVICE);
-+	}
++	mutex_lock(&sl->master->bus_mutex);
++
++	if (w1_reset_select_slave(sl))
++		goto err;
++
++	buf[0] = W1_READ_DATA_CRC;
++	buf[1] = pgoff & 0xff;
++	buf[2] = pgoff >> 8;
++	w1_write_block(sl->master, buf, 3);
++
++	crc8 = w1_read_8(sl->master);
++	if (w1_calc_crc8(buf, 3) != crc8)
++		goto err;
++
++	w1_read_block(sl->master, &data->eprom[pgoff], W1_PAGE_SIZE);
++
++	crc8 = w1_read_8(sl->master);
++	if (w1_calc_crc8(&data->eprom[pgoff], W1_PAGE_SIZE) != crc8)
++		goto err;
++
++	set_bit(pageno, data->page_present); /* mark page present */
++	ret = 0;
++err:
++	mutex_unlock(&sl->master->bus_mutex);
++	return ret;
 +}
 +
- static inline void ioc3_clean_tx_ring(struct ioc3_private *ip)
- {
- 	struct sk_buff *skb;
-@@ -762,6 +795,7 @@ static inline void ioc3_clean_tx_ring(struct ioc3_private *ip)
- 	for (i = 0; i < TX_RING_ENTRIES; i++) {
- 		skb = ip->tx_skbs[i];
- 		if (skb) {
-+			ioc3_tx_unmap(ip, i);
- 			ip->tx_skbs[i] = NULL;
- 			dev_kfree_skb_any(skb);
- 		}
-@@ -778,7 +812,8 @@ static void ioc3_free_rings(struct ioc3_private *ip)
- 
- 	if (ip->txr) {
- 		ioc3_clean_tx_ring(ip);
--		free_pages((unsigned long)ip->txr, 2);
-+		dma_direct_free_pages(ip->dma_dev, TX_RING_SIZE, ip->txr,
-+				      ip->txr_dma, 0);
- 		ip->txr = NULL;
- 	}
- 
-@@ -788,12 +823,17 @@ static void ioc3_free_rings(struct ioc3_private *ip)
- 
- 		while (n_entry != rx_entry) {
- 			skb = ip->rx_skbs[n_entry];
--			if (skb)
-+			if (skb) {
-+				dma_unmap_single(ip->dma_dev,
-+						 be64_to_cpu(ip->rxr[n_entry]),
-+						 RX_BUF_SIZE, DMA_FROM_DEVICE);
- 				dev_kfree_skb_any(skb);
-+			}
- 
- 			n_entry = (n_entry + 1) & RX_RING_MASK;
- 		}
--		free_page((unsigned long)ip->rxr);
-+		dma_direct_free_pages(ip->dma_dev, RX_RING_SIZE, ip->rxr,
-+				      ip->rxr_dma, 0);
- 		ip->rxr = NULL;
- 	}
- }
-@@ -801,16 +841,19 @@ static void ioc3_free_rings(struct ioc3_private *ip)
- static void ioc3_alloc_rings(struct net_device *dev)
- {
- 	struct ioc3_private *ip = netdev_priv(dev);
--	struct ioc3_erxbuf *rxb;
- 	unsigned long *rxr;
-+	dma_addr_t rxb;
- 	int i;
- 
- 	if (!ip->rxr) {
- 		/* Allocate and initialize rx ring.  4kb = 512 entries  */
--		ip->rxr = (unsigned long *)get_zeroed_page(GFP_ATOMIC);
-+		ip->rxr = dma_direct_alloc_pages(ip->dma_dev, RX_RING_SIZE,
-+						 &ip->rxr_dma, GFP_ATOMIC, 0);
- 		rxr = ip->rxr;
--		if (!rxr)
-+		if (!rxr) {
- 			pr_err("%s: get_zeroed_page() failed!\n", __func__);
-+			return;
-+		}
- 
- 		/* Now the rx buffers.  The RX ring may be larger but
- 		 * we only allocate 16 buffers for now.  Need to tune
-@@ -828,8 +871,9 @@ static void ioc3_alloc_rings(struct net_device *dev)
- 
- 			ip->rx_skbs[i] = skb;
- 
--			rxb = (struct ioc3_erxbuf *)skb->data;
--			rxr[i] = cpu_to_be64(ioc3_map(rxb, 1));
-+			rxb = dma_map_single(ip->dma_dev, skb->data,
-+					     RX_BUF_SIZE, DMA_BIDIRECTIONAL);
-+			rxr[i] = cpu_to_be64(ioc3_map(rxb, PCI64_ATTR_BAR));
- 			skb_reserve(skb, RX_OFFSET);
- 		}
- 		ip->rx_ci = 0;
-@@ -838,7 +882,9 @@ static void ioc3_alloc_rings(struct net_device *dev)
- 
- 	if (!ip->txr) {
- 		/* Allocate and initialize tx rings.  16kb = 128 bufs.  */
--		ip->txr = (struct ioc3_etxd *)__get_free_pages(GFP_KERNEL, 2);
-+		ip->txr = dma_direct_alloc_pages(ip->dma_dev, TX_RING_SIZE,
-+						 &ip->txr_dma,
-+						 GFP_KERNEL | __GFP_ZERO, 0);
- 		if (!ip->txr)
- 			pr_err("%s: __get_free_pages() failed!\n", __func__);
- 		ip->tx_pi = 0;
-@@ -859,13 +905,13 @@ static void ioc3_init_rings(struct net_device *dev)
- 	ioc3_clean_tx_ring(ip);
- 
- 	/* Now the rx ring base, consume & produce registers.  */
--	ring = ioc3_map(ip->rxr, 0);
-+	ring = ioc3_map(ip->rxr_dma, PCI64_ATTR_PREC);
- 	writel(ring >> 32, &regs->erbr_h);
- 	writel(ring & 0xffffffff, &regs->erbr_l);
- 	writel(ip->rx_ci << 3, &regs->ercir);
- 	writel((ip->rx_pi << 3) | ERPIR_ARM, &regs->erpir);
- 
--	ring = ioc3_map(ip->txr, 0);
-+	ring = ioc3_map(ip->txr_dma, PCI64_ATTR_PREC);
- 
- 	ip->txqlen = 0;					/* nothing queued  */
- 
-@@ -915,13 +961,7 @@ static void ioc3_init(struct net_device *dev)
- 	readl(&regs->emcr);
- 
- 	/* Misc registers  */
--#ifdef CONFIG_SGI_IP27
--	/* Barrier on last store */
--	writel(PCI64_ATTR_BAR >> 32, &regs->erbar);
--#else
--	/* Let PCI API get it right */
--	writel(0, &regs->erbar);
--#endif
-+	writel(ERBAR_VAL, &regs->erbar);
- 	readl(&regs->etcdc);			/* Clear on read */
- 	writel(15, &regs->ercsr);		/* RX low watermark  */
- 	writel(0, &regs->ertr);			/* Interrupt immediately */
-@@ -1187,6 +1227,7 @@ static int ioc3_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	ip = netdev_priv(dev);
- 	ip->dev = dev;
-+	ip->dma_dev = &pdev->dev;
- 
- 	dev->irq = pdev->irq;
- 
-@@ -1386,18 +1427,24 @@ static netdev_tx_t ioc3_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		unsigned long b2 = (data | 0x3fffUL) + 1UL;
- 		unsigned long s1 = b2 - data;
- 		unsigned long s2 = data + len - b2;
-+		dma_addr_t d;
- 
- 		desc->cmd    = cpu_to_be32(len | ETXD_INTWHENDONE |
- 					   ETXD_B1V | ETXD_B2V | w0);
- 		desc->bufcnt = cpu_to_be32((s1 << ETXD_B1CNT_SHIFT) |
- 					   (s2 << ETXD_B2CNT_SHIFT));
--		desc->p1     = cpu_to_be64(ioc3_map(skb->data, 1));
--		desc->p2     = cpu_to_be64(ioc3_map((void *)b2, 1));
-+		d = dma_map_single(ip->dma_dev, skb->data, s1, DMA_TO_DEVICE);
-+		desc->p1     = cpu_to_be64(ioc3_map(d, PCI64_ATTR_PREF));
-+		d = dma_map_single(ip->dma_dev, (void *)b2, s1, DMA_TO_DEVICE);
-+		desc->p2     = cpu_to_be64(ioc3_map(d, PCI64_ATTR_PREF));
- 	} else {
-+		dma_addr_t d;
++static int w1_ds2505_read_page(struct w1_slave *sl, int pageno)
++{
++	struct w1_eprom_data *data = sl->family_data;
++	int redir_retries = 16;
++	int pgoff, epoff;
++	int ret = -EIO;
++	u8 buf[6];
++	u8 redir;
++	u16 crc;
 +
- 		/* Normal sized packet that doesn't cross a page boundary. */
- 		desc->cmd = cpu_to_be32(len | ETXD_INTWHENDONE | ETXD_B1V | w0);
- 		desc->bufcnt = cpu_to_be32(len << ETXD_B1CNT_SHIFT);
--		desc->p1     = cpu_to_be64(ioc3_map(skb->data, 1));
-+		d = dma_map_single(ip->dma_dev, skb->data, len, DMA_TO_DEVICE);
-+		desc->p1     = cpu_to_be64(ioc3_map(d, PCI64_ATTR_PREF));
- 	}
- 
- 	mb(); /* make sure all descriptor changes are visible */
++	if (test_bit(pageno, data->page_present))
++		return 0; /* page already present */
++
++	epoff = pgoff = pageno * W1_PAGE_SIZE;
++	mutex_lock(&sl->master->bus_mutex);
++
++retry:
++	if (w1_reset_select_slave(sl))
++		goto err;
++
++	buf[0] = W1_EXT_READ_MEMORY;
++	buf[1] = pgoff & 0xff;
++	buf[2] = pgoff >> 8;
++	w1_write_block(sl->master, buf, 3);
++	w1_read_block(sl->master, buf + 3, 3); /* redir, crc16 */
++	redir = buf[3];
++	crc = crc16(CRC16_INIT, buf, 6);
++
++	if (crc != CRC16_VALID)
++		goto err;
++
++
++	if (redir != 0xff) {
++		redir_retries--;
++		if (redir_retries < 0)
++			goto err;
++
++		pgoff = (redir ^ 0xff) * W1_PAGE_SIZE;
++		goto retry;
++	}
++
++	w1_read_block(sl->master, &data->eprom[epoff], W1_PAGE_SIZE);
++	w1_read_block(sl->master, buf, 2); /* crc16 */
++	crc = crc16(CRC16_INIT, &data->eprom[epoff], W1_PAGE_SIZE);
++	crc = crc16(crc, buf, 2);
++
++	if (crc != CRC16_VALID)
++		goto err;
++
++	set_bit(pageno, data->page_present);
++	ret = 0;
++err:
++	mutex_unlock(&sl->master->bus_mutex);
++	return ret;
++}
++
++static int w1_nvmem_read(void *priv, unsigned int off, void *buf, size_t count)
++{
++	struct w1_slave *sl = priv;
++	struct w1_eprom_data *data = sl->family_data;
++	size_t eprom_size = data->size;
++	int ret;
++	int i;
++
++	if (off > eprom_size)
++		return -EINVAL;
++
++	if ((off + count) > eprom_size)
++		count = eprom_size - off;
++
++	i = OFF2PG(off);
++	do {
++		ret = data->read(sl, i++);
++		if (ret < 0)
++			return ret;
++	} while (i < OFF2PG(off + count));
++
++	memcpy(buf, &data->eprom[off], count);
++	return 0;
++}
++
++static int w1_eprom_add_slave(struct w1_slave *sl)
++{
++	struct w1_eprom_data *data;
++	struct nvmem_device *nvmem;
++	struct nvmem_config nvmem_cfg = {
++		.dev = &sl->dev,
++		.reg_read = w1_nvmem_read,
++		.type = NVMEM_TYPE_OTP,
++		.read_only = true,
++		.word_size = 1,
++		.priv = sl,
++		.id = -1
++	};
++
++	data = devm_kzalloc(&sl->dev, sizeof(struct w1_eprom_data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	sl->family_data = data;
++	switch (sl->family->fid) {
++	case W1_DS2501_UNW_FAMILY:
++		data->size = W1_DS2501_SIZE;
++		data->read = w1_ds2502_read_page;
++		break;
++	case W1_DS2502_FAMILY:
++	case W1_DS2502_UNW_FAMILY:
++		data->size = W1_DS2502_SIZE;
++		data->read = w1_ds2502_read_page;
++		break;
++	case W1_DS2505_FAMILY:
++		data->size = W1_DS2505_SIZE;
++		data->read = w1_ds2505_read_page;
++		break;
++	}
++
++	if (sl->master->bus_master->dev_id)
++		snprintf(data->nvmem_name, sizeof(data->nvmem_name),
++			 "%s-%02x-%012llx",
++			 sl->master->bus_master->dev_id, sl->reg_num.family,
++			 (unsigned long long)sl->reg_num.id);
++	else
++		snprintf(data->nvmem_name, sizeof(data->nvmem_name),
++			 "%02x-%012llx",
++			 sl->reg_num.family,
++			 (unsigned long long)sl->reg_num.id);
++
++	nvmem_cfg.name = data->nvmem_name;
++	nvmem_cfg.size = data->size;
++
++	nvmem = devm_nvmem_register(&sl->dev, &nvmem_cfg);
++	if (IS_ERR(nvmem))
++		return PTR_ERR(nvmem);
++
++	return 0;
++}
++
++static struct w1_family_ops w1_eprom_fops = {
++	.add_slave	= w1_eprom_add_slave,
++};
++
++static struct w1_family w1_family_09 = {
++	.fid = W1_DS2502_FAMILY,
++	.fops = &w1_eprom_fops,
++};
++
++static struct w1_family w1_family_0b = {
++	.fid = W1_DS2505_FAMILY,
++	.fops = &w1_eprom_fops,
++};
++
++static struct w1_family w1_family_89 = {
++	.fid = W1_DS2502_UNW_FAMILY,
++	.fops = &w1_eprom_fops,
++};
++
++static struct w1_family w1_family_91 = {
++	.fid = W1_DS2501_UNW_FAMILY,
++	.fops = &w1_eprom_fops,
++};
++
++static int __init w1_ds250x_init(void)
++{
++	int err;
++
++	err = w1_register_family(&w1_family_09);
++	if (err)
++		return err;
++
++	err = w1_register_family(&w1_family_0b);
++	if (err)
++		goto err_0b;
++
++	err = w1_register_family(&w1_family_89);
++	if (err)
++		goto err_89;
++
++	err = w1_register_family(&w1_family_91);
++	if (err)
++		goto err_91;
++
++	return 0;
++
++err_91:
++	w1_unregister_family(&w1_family_89);
++err_89:
++	w1_unregister_family(&w1_family_0b);
++err_0b:
++	w1_unregister_family(&w1_family_09);
++	return err;
++}
++
++static void __exit w1_ds250x_exit(void)
++{
++	w1_unregister_family(&w1_family_09);
++	w1_unregister_family(&w1_family_0b);
++	w1_unregister_family(&w1_family_89);
++	w1_unregister_family(&w1_family_91);
++}
++
++module_init(w1_ds250x_init);
++module_exit(w1_ds250x_exit);
++
++MODULE_AUTHOR("Thomas Bogendoerfer <tbogendoerfe@suse.de>");
++MODULE_DESCRIPTION("w1 family driver for DS250x Add Only Memory");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("w1-family-" __stringify(W1_DS2502_FAMILY));
++MODULE_ALIAS("w1-family-" __stringify(W1_DS2505_FAMILY));
++MODULE_ALIAS("w1-family-" __stringify(W1_DS2501_UNW_FAMILY));
++MODULE_ALIAS("w1-family-" __stringify(W1_DS2502_UNW_FAMILY));
 -- 
 2.13.7

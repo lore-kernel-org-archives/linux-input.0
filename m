@@ -1,59 +1,51 @@
-From: Dixit Parmar <dixitparmar19@gmail.com>
-Subject: [PATCH] driver:st1633: fixed multitouch incorrect coordinates
-Date: Mon, 19 Aug 2019 15:38:34 +0530
-Message-ID: <1566209314-21767-1-git-send-email-dixitparmar19@gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2 0/3] HID: intel-ish-hid: support s2idle and s3 in
+ ish_suspend()
+Date: Mon, 19 Aug 2019 14:06:37 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1908191406250.27147@cbobk.fhfr.pm>
+References: <20190808102113.27802-1-lixu.zhang@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190808102113.27802-1-lixu.zhang@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@bitmath.org, martink@posteo.de, kuninori.morimoto.gx@renesas.com, robh@kernel.org, matthias.fend@wolfvision.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Dixit Parmar <dixitparmar19@gmail.com>
+To: Zhang Lixu <lixu.zhang@intel.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, srinivas.pandruvada@linux.intel.com, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Dixit Parmar <dixitparmar19@gmail.com>
+On Thu, 8 Aug 2019, Zhang Lixu wrote:
 
-For Sitronix st1633 multi-touch controller driver the co-ordinates reported
-for multiple fingers were wrong.
+> Currently, the NO_D3 flag is set in ish_probe(), the intel-ish-ipc driver
+> puts the ISH into D0i3 when system enter both suspend-to-idle(S0ix) and
+> suspend-to-mem(S3). These patches are to put the ISH into D3 when system
+> enter S3 and put the ISH into D0i3 when system enter S0ix.
+> 
+> I tested these patches on the following platforms:
+> ISH 5.2: ICL
+> ISH 5.0: CNL CFL WHL CML
+> ISH 4.0: GLK
+> ISH 3.0: KBL
+> 
+> Test steps:
+> * Run the IIO Sensor tool to read the accel_3d sensor data
+> * Run cmd "echo mem > /sys/power/state" to suspend-to-mem
+> * Press the keyboard to wake up OS.
+> * Check if the tool can get the sensor data after OS resume.
+> * Run cmd "echo freeze > /sys/power/state" to suspend-to-idle
+> * Press the keyboard to wake up OS.
+> * Check if the tool can get the sensor data after OS resume.
+> 
+> Test results:
+> The tool can get the accel_3d sensor data after resuming from both
+> suspend-to-mem and suspend-to-idle.
+> 
+> Changes from v1:
+> * Fix the indentation issue
+> * Elaborate the reason to remove the NO_D3 flag
+> * Split the PATCH v1 to three changes, and try to minimize the lines change
 
-So the below mentioned bug was filed,
-Bugzilla Bug ID: 204561
+Applied to for-5.4/ish. Thanks,
 
-While reading co-ordinates from specified I2C registers, the X & Y
-co-ordinates should be read from proper I2C address for particular finger as
-specified in chip specific datasheet.
-
-for single touch this logic is working fine. However, for multi-touch
-scenario the logic of reading data from data buffer has issues.
-
-This patch fixes the reading logic from data buffer.
-
-Previous logic:
-* Offset of X & Y Lower byte coordinate is increased by i no. only(by 1 Byte)
-  for each finger.
-
-New logic:
-* The logic of reading X & Y Lower Byte coordinate needs to be increased
-  by i+y for each time/finger.
-
-Signed-off-by: Dixit Parmar <dixitparmar19@gmail.com>
----
- drivers/input/touchscreen/st1232.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index 3492339..1139714 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -81,8 +81,10 @@ static int st1232_ts_read_data(struct st1232_ts_data *ts)
- 	for (i = 0, y = 0; i < ts->chip_info->max_fingers; i++, y += 3) {
- 		finger[i].is_valid = buf[i + y] >> 7;
- 		if (finger[i].is_valid) {
--			finger[i].x = ((buf[i + y] & 0x0070) << 4) | buf[i + 1];
--			finger[i].y = ((buf[i + y] & 0x0007) << 8) | buf[i + 2];
-+			finger[i].x = ((buf[i + y] & 0x0070) << 4) |
-+					buf[i + y + 1];
-+			finger[i].y = ((buf[i + y] & 0x0007) << 8) |
-+					buf[i + y + 2];
- 
- 			/* st1232 includes a z-axis / touch strength */
- 			if (ts->chip_info->have_z)
 -- 
-2.7.4
+Jiri Kosina
+SUSE Labs

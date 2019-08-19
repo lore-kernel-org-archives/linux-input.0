@@ -1,34 +1,68 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 0/4] Add support for updated vmware hypercall instruction
-Date: Sun, 18 Aug 2019 21:37:45 +0200
-Message-ID: <20190818193744.GB29353@zn.tnic>
-References: <20190818143316.4906-1-thomas_os@shipmail.org>
- <20190818180929.GA29353@zn.tnic>
- <c0f32d6b-3b6a-f931-071f-9fb308efba00@shipmail.org>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH v2 0/3] HID: intel-ish-hid: support s2idle and s3 in
+ ish_suspend()
+Date: Sun, 18 Aug 2019 19:52:23 -0700
+Message-ID: <77a8df403934d85967dcdb221862c13e15c26112.camel@linux.intel.com>
+References: <20190808102113.27802-1-lixu.zhang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <c0f32d6b-3b6a-f931-071f-9fb308efba00@shipmail.org>
+In-Reply-To: <20190808102113.27802-1-lixu.zhang@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas =?utf-8?Q?Hellstr=C3=B6m_=28VMware=29?= <thomas_os@shipmail.org>
-Cc: linux-kernel@vger.kernel.org, pv-drivers@vmware.com, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Zhang Lixu <lixu.zhang@intel.com>, linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Aug 18, 2019 at 09:02:04PM +0200, Thomas Hellström (VMware) wrote:
-> I was trying to be clever and avoid spamming people with stuff they might
-> not care about.
+On Thu, 2019-08-08 at 18:21 +0800, Zhang Lixu wrote:
+> Currently, the NO_D3 flag is set in ish_probe(), the intel-ish-ipc
+> driver
+> puts the ISH into D0i3 when system enter both suspend-to-idle(S0ix)
+> and
+> suspend-to-mem(S3). These patches are to put the ISH into D3 when
+> system
+> enter S3 and put the ISH into D0i3 when system enter S0ix.
+> 
+> I tested these patches on the following platforms:
+> ISH 5.2: ICL
+> ISH 5.0: CNL CFL WHL CML
+> ISH 4.0: GLK
+> ISH 3.0: KBL
+> 
+> Test steps:
+> * Run the IIO Sensor tool to read the accel_3d sensor data
+> * Run cmd "echo mem > /sys/power/state" to suspend-to-mem
+> * Press the keyboard to wake up OS.
+> * Check if the tool can get the sensor data after OS resume.
+> * Run cmd "echo freeze > /sys/power/state" to suspend-to-idle
+> * Press the keyboard to wake up OS.
+> * Check if the tool can get the sensor data after OS resume.
+> 
+> Test results:
+> The tool can get the accel_3d sensor data after resuming from both
+> suspend-to-mem and suspend-to-idle.
+> 
+> Changes from v1:
+> * Fix the indentation issue
+> * Elaborate the reason to remove the NO_D3 flag
+> * Split the PATCH v1 to three changes, and try to minimize the lines
+> change
+> 
+> Zhang Lixu (3):
+>   HID: intel-ish-hid: ipc: set NO_D3 flag only when needed
+>   HID: intel-ish-hid: ipc: make ish suspend paths clear
+>   HID: intel-ish-hid: ipc: check the NO_D3 flag to distinguish resume
+>     paths
+> 
 
-Sure but if, for example, you're adding VMWARE_HYPERCALL in patch 2 and
-the users are in the following patches, it would be helpful if I could
-see them too. That is one good reason to CC everybody with the whole
-patchset.
+For the series:
 
-Thx.
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
--- 
-Regards/Gruss,
-    Boris.
 
-Good mailing practices for 400: avoid top-posting and trim the reply.
+>  drivers/hid/intel-ish-hid/ipc/hw-ish.h  |  1 +
+>  drivers/hid/intel-ish-hid/ipc/ipc.c     |  2 +-
+>  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 95 +++++++++++++++------
+> ----
+>  3 files changed, 61 insertions(+), 37 deletions(-)
+> 

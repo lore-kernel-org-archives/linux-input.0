@@ -1,32 +1,45 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH] HID: wacom: correct misreported EKR ring values
-Date: Mon, 19 Aug 2019 13:02:46 -0400
-Message-ID: <20190819170246.GA30205@sasha-vm>
-References: <1566232914-9919-1-git-send-email-aaron.skomra@wacom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Aaron Armstrong Skomra <skomra@gmail.com>
+Subject: [PATCH] HID: wacom: correct misreported EKR ring values
+Date: Mon, 19 Aug 2019 10:20:30 -0700
+Message-ID: <1566235230-11617-1-git-send-email-aaron.skomra@wacom.com>
+References: <20190817181109.33F1B2173B@mail.kernel.org>
 Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1566232914-9919-1-git-send-email-aaron.skomra@wacom.com>
+In-Reply-To: <20190817181109.33F1B2173B@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
-To: Aaron Armstrong Skomra <skomra@gmail.com>
-Cc: linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com, ping.cheng@wacom.com, jason.gerecke@wacom.com, Aaron Armstrong Skomra <aaron.skomra@wacom.com>, "# v4 . 3+" <stable@vger.kernel.org>
+To: sashal@kernel.org, linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com, ping.cheng@wacom.com, jason.gerecke@wacom.com
+Cc: Aaron Armstrong Skomra <aaron.skomra@wacom.com>, "# v4 . 3+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Aug 19, 2019 at 09:41:54AM -0700, Aaron Armstrong Skomra wrote:
->The EKR ring claims a range of 0 to 71 but actually reports
->values 1 to 72. The ring is used in relative mode so this
->change should not affect users.
->
->Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
->Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
->Cc: <stable@vger.kernel.org> # v4.3+
->Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
->Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
->---
->Patch specifically targeted to v4.9.189
+The EKR ring claims a range of 0 to 71 but actually reports
+values 1 to 72. The ring is used in relative mode so this
+change should not affect users.
 
-Is this not a problem upstream as well? Why not?
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
+Cc: <stable@vger.kernel.org> # v4.3+
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+My first attempt at sending this 
+patch specifically targeted to v4.9.189
 
-If it is, this patch will need to go upstream first, and then it'll get
-to stable branches from there.
+neglected the "in-reply-to" in git send-email. My apologies.
+
+ drivers/hid/wacom_wac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 6c3bf8846b52..949761dd29ca 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -819,7 +819,7 @@ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
+ 	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
+ 
+ 	if (data[12] & 0x80)
+-		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
++		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f) - 1);
+ 	else
+ 		input_report_abs(input, ABS_WHEEL, 0);
+ 
+-- 
+2.17.1

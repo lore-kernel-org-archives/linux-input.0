@@ -1,40 +1,59 @@
-From: Jiada Wang <jiada_wang@mentor.com>
-Subject: Re: [PATCH v1 00/63] atmel_mxt_ts misc
-Date: Mon, 19 Aug 2019 18:29:07 +0900
-Message-ID: <1d6498a5-4049-d929-99d8-1177ffea135a@mentor.com>
-References: <20190816082952.17985-1-jiada_wang@mentor.com>
- <20190816173209.GL121898@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Dixit Parmar <dixitparmar19@gmail.com>
+Subject: [PATCH] driver:st1633: fixed multitouch incorrect coordinates
+Date: Mon, 19 Aug 2019 15:38:34 +0530
+Message-ID: <1566209314-21767-1-git-send-email-dixitparmar19@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190816173209.GL121898@dtor-ws>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: nick@shmanahar.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, george_davis@mentor.com
+To: dmitry.torokhov@gmail.com, rydberg@bitmath.org, martink@posteo.de, kuninori.morimoto.gx@renesas.com, robh@kernel.org, matthias.fend@wolfvision.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dixit Parmar <dixitparmar19@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-  HiDmitrij
+From: Dixit Parmar <dixitparmar19@gmail.com>
 
-On 2019/08/17 2:32, Dmitry Torokhov wrote:
-> Hi Jiada,
-> 
-> On Fri, Aug 16, 2019 at 05:28:49PM +0900, Jiada Wang wrote:
->> This patch-set forward ports Nick Dyer's work in ndyer/linux github repository
->> as long as some other features and fixes
-> 
-> I see a lot of chages that are fixups for older changes in your series.
-> They need to be identified and squashed together, as we do not need to
-> be aware of your development history.
-> 
+For Sitronix st1633 multi-touch controller driver the co-ordinates reported
+for multiple fingers were wrong.
 
-Thanks for your comments,
-in v1, I already squashed several of our internal changes,
-but seems there are still some can be squashed,
-I will try to squash all possible changes in v2 patch-set
+So the below mentioned bug was filed,
+Bugzilla Bug ID: 204561
 
-Thanks,
-Jiada
-> Thanks.
-> 
+While reading co-ordinates from specified I2C registers, the X & Y
+co-ordinates should be read from proper I2C address for particular finger as
+specified in chip specific datasheet.
+
+for single touch this logic is working fine. However, for multi-touch
+scenario the logic of reading data from data buffer has issues.
+
+This patch fixes the reading logic from data buffer.
+
+Previous logic:
+* Offset of X & Y Lower byte coordinate is increased by i no. only(by 1 Byte)
+  for each finger.
+
+New logic:
+* The logic of reading X & Y Lower Byte coordinate needs to be increased
+  by i+y for each time/finger.
+
+Signed-off-by: Dixit Parmar <dixitparmar19@gmail.com>
+---
+ drivers/input/touchscreen/st1232.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+index 3492339..1139714 100644
+--- a/drivers/input/touchscreen/st1232.c
++++ b/drivers/input/touchscreen/st1232.c
+@@ -81,8 +81,10 @@ static int st1232_ts_read_data(struct st1232_ts_data *ts)
+ 	for (i = 0, y = 0; i < ts->chip_info->max_fingers; i++, y += 3) {
+ 		finger[i].is_valid = buf[i + y] >> 7;
+ 		if (finger[i].is_valid) {
+-			finger[i].x = ((buf[i + y] & 0x0070) << 4) | buf[i + 1];
+-			finger[i].y = ((buf[i + y] & 0x0007) << 8) | buf[i + 2];
++			finger[i].x = ((buf[i + y] & 0x0070) << 4) |
++					buf[i + y + 1];
++			finger[i].y = ((buf[i + y] & 0x0007) << 8) |
++					buf[i + y + 2];
+ 
+ 			/* st1232 includes a z-axis / touch strength */
+ 			if (ts->chip_info->have_z)
+-- 
+2.7.4

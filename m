@@ -1,33 +1,32 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: wacom: Correct distance scale for 2nd-gen Intuos
- devices
-Date: Mon, 19 Aug 2019 14:09:36 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1908191409220.27147@cbobk.fhfr.pm>
-References: <20190807051839.GA26833@kroah.com> <20190807211155.4280-1-jason.gerecke@wacom.com>
+Subject: Re: [PATCH] HID: cp2112: prevent sleeping function called from
+ invalid context
+Date: Mon, 19 Aug 2019 14:13:35 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1908191413200.27147@cbobk.fhfr.pm>
+References: <20190812160444.10402-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190807211155.4280-1-jason.gerecke@wacom.com>
-Sender: stable-owner@vger.kernel.org
-To: "Gerecke, Jason" <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Greg KH <gregkh@linuxfoundation.org>, Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190812160444.10402-1-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: David Barksdale <dbarksdale@uplogix.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 7 Aug 2019, Gerecke, Jason wrote:
+On Mon, 12 Aug 2019, Benjamin Tissoires wrote:
 
-> From: Jason Gerecke <jason.gerecke@wacom.com>
+> When calling request_threaded_irq() with a CP2112, the function
+> cp2112_gpio_irq_startup() is called in a IRQ context.
 > 
-> Distance values reported by 2nd-gen Intuos tablets are on an inverted
-> scale (0 == far, 63 == near). We need to change them over to a normal
-> scale before reporting to userspace or else userspace drivers and
-> applications can get confused.
+> Therefore we can not sleep, and we can not call
+> cp2112_gpio_direction_input() there.
 > 
-> Ref: https://github.com/linuxwacom/input-wacom/issues/98
-> Fixes: eda01dab53 ("HID: wacom: Add four new Intuos devices")
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Cc: <stable@vger.kernel.org> # v4.4+
+> Move the call to cp2112_gpio_direction_input() earlier to have a working
+> driver.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Applied to for-5.3/upstream-fixes. Thanks,
+Pushed out to for-5.3/upstream-fixes.
 
 -- 
 Jiri Kosina

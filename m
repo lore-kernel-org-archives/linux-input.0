@@ -1,55 +1,41 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH RESEND] HID: fix error message in hid_open_report()
-Date: Tue, 20 Aug 2019 16:55:53 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1908201655030.27147@cbobk.fhfr.pm>
-References: <1230b0c19fd21fdc4d0eb30f3e32e67fff86fef9.1563818405.git.mirq-linux@rere.qmqm.pl>
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH] Input: hyperv-keyboard: Use in-place iterator API in the
+ channel callback
+Date: Tue, 20 Aug 2019 11:29:15 -0400
+Message-ID: <20190820152915.GM30205@sasha-vm>
+References: <1566270066-27546-1-git-send-email-decui@microsoft.com>
+ <20190820031805.GO121898@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1230b0c19fd21fdc4d0eb30f3e32e67fff86fef9.1563818405.git.mirq-linux@rere.qmqm.pl>
+Content-Disposition: inline
+In-Reply-To: <20190820031805.GO121898@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: Dexuan Cui <decui@microsoft.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Sasha Levin <Alexander.Levin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, KY Srinivasan <kys@microsoft.com>, Michael Kelley <mikelley@microsoft.com>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 22 Jul 2019, Michał Mirosław wrote:
+On Mon, Aug 19, 2019 at 08:18:05PM -0700, dmitry.torokhov@gmail.com wrote:
+>On Tue, Aug 20, 2019 at 03:01:23AM +0000, Dexuan Cui wrote:
+>> Simplify the ring buffer handling with the in-place API.
+>>
+>> Also avoid the dynamic allocation and the memory leak in the channel
+>> callback function.
+>>
+>> Signed-off-by: Dexuan Cui <decui@microsoft.com>
+>> ---
+>>
+>> Hi Dmitry, can this patch go through Sasha's hyperv tree:
+>> https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git
+>>
+>> This is a purely Hyper-V specific change.
+>
+>Sure, no problem.
+>
+>Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-> On HID report descriptor parsing error the code displays bogus
-> pointer instead of error offset (subtracts start=NULL from end).
-> Make the message more useful by displaying correct error offset
-> and include total buffer size for reference.
-> 
-> This was carried over from ancient times - "Fixed" commit just
-> promoted the message from DEBUG to ERROR.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 8c3d52fc393b ("HID: make parser more verbose about parsing errors by default")
-> Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-[ ... snip ... ]
-> @@ -1230,7 +1232,8 @@ int hid_open_report(struct hid_device *device)
->  		}
->  	}
->  
-> -	hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
-> +	hid_err(device, "item fetching failed at offset %zu/%zu\n",
-> +		size - (end - start), size);
+Queued up for hyperv-fixes, thank you.
 
-Hi Michal,
-
-thanks for the fix.
-
-This causes:
-
-drivers/hid/hid-core.c: In function ‘hid_open_report’:
-drivers/hid/hid-core.c:1235:2: warning: format ‘%zu’ expects argument of type ‘size_t’, but argument 4 has type ‘unsigned int’ [-Wformat=]
-  hid_err(device, "item fetching failed at offset %zu/%zu\n",
-  ^
-
-could you please fix that up and resubmit?
-
+--
 Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Sasha

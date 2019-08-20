@@ -1,56 +1,69 @@
-From: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Subject: Re: [PATCH] input: misc: soc_button_array: use
- platform_device_register_resndata()
-Date: Tue, 20 Aug 2019 13:16:09 +0200
-Message-ID: <6781780e-a01f-a9f4-62fa-c36e105a4b76@metux.net>
-References: <1564410372-18506-1-git-send-email-info@metux.net>
- <20190729172313.GA755@penguin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH v2] input: misc: soc_button_array: use platform_device_register_resndata()
+Date: Tue, 20 Aug 2019 13:16:43 +0200
+Message-ID: <1566299803-19243-1-git-send-email-info@metux.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190729172313.GA755@penguin>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 29.07.19 19:23, Dmitry Torokhov wrote:
+From: Enrico Weigelt <info@metux.net>
 
-Hi,
+The registration of gpio-keys device can be written much shorter
+by using the platform_device_register_resndata() helper.
 
-> I wonder if we should pass &pdev->dev instead of NULL here to form
-> proper device hierarchy, now that we have this option.
+v2:
+    * pass &pdev->dev to platform_device_register_resndata()
+    * fixed errval on failed platform_device_register_resndata()
 
-good point, thanks, fixed in v2.
+Signed-off-by: Enrico Weigelt <info@metux.net>
+---
+ drivers/input/misc/soc_button_array.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-
->> +		"gpio-keys",
->> +		PLATFORM_DEVID_AUTO,
->> +		NULL,
->> +		0,
->> +		gpio_keys_pdata,
->> +		sizeof(*gpio_keys_pdata));
->> +
->> +	if (IS_ERR(pd)) {
->> +		dev_err(&pdev->dev, "failed registering gpio-keys: %ld\n", PTR_ERR(pd));
->>   		goto err_free_mem;
-> 
-> Since you did not assign 'error' value here this goto will result in the
-> function returning 0 even if platform_device_register_resndata() failed.
-
-Uh, thanks. IMHO it's even worse: 'error' could be uninitialized.
-
-
-I'm sending v2 separately.
-
-
-Thanks for your review.
-
---mtx
-
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index 5e59f8e5..27550f9 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -110,25 +110,24 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
+ 	gpio_keys_pdata->nbuttons = n_buttons;
+ 	gpio_keys_pdata->rep = autorepeat;
+ 
+-	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
+-	if (!pd) {
+-		error = -ENOMEM;
++	pd = platform_device_register_resndata(
++		&pdev->dev,
++		"gpio-keys",
++		PLATFORM_DEVID_AUTO,
++		NULL,
++		0,
++		gpio_keys_pdata,
++		sizeof(*gpio_keys_pdata));
++
++	error = PTR_ERR_OR_ZERO(pd);
++
++	if (IS_ERR(pd)) {
++		dev_err(&pdev->dev, "failed registering gpio-keys: %ld\n", PTR_ERR(pd));
+ 		goto err_free_mem;
+ 	}
+ 
+-	error = platform_device_add_data(pd, gpio_keys_pdata,
+-					 sizeof(*gpio_keys_pdata));
+-	if (error)
+-		goto err_free_pdev;
+-
+-	error = platform_device_add(pd);
+-	if (error)
+-		goto err_free_pdev;
+-
+ 	return pd;
+ 
+-err_free_pdev:
+-	platform_device_put(pd);
+ err_free_mem:
+ 	devm_kfree(&pdev->dev, gpio_keys_pdata);
+ 	return ERR_PTR(error);
 -- 
-Enrico Weigelt, metux IT consult
-Free software and Linux embedded engineering
-info@metux.net -- +49-151-27565287
+1.9.1

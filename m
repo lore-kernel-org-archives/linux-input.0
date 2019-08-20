@@ -1,38 +1,111 @@
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: Re: [PATCH v5 12/17] net: sgi: ioc3-eth: use dma-direct for dma
- allocations
-Date: Mon, 19 Aug 2019 17:07:35 -0700
-Message-ID: <20190819170735.13884ec9@cakuba.netronome.com>
-References: <20190819163144.3478-1-tbogendoerfer@suse.de>
-        <20190819163144.3478-13-tbogendoerfer@suse.de>
+From: Dexuan Cui <decui@microsoft.com>
+Subject: [PATCH] HID: hyperv: Use in-place iterator API in the channel
+ callback
+Date: Tue, 20 Aug 2019 02:56:34 +0000
+Message-ID: <1566269763-26817-1-git-send-email-decui@microsoft.com>
+Reply-To: Dexuan Cui <decui@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190819163144.3478-13-tbogendoerfer@suse.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Cc: Jonathan Corbet <corbet@lwn.net>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
+To: "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Sasha Levin <Alexander.Levin@microsoft.com>, "sashal@kernel.org" <sashal@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, KY Srinivasan <kys@microsoft.com>, Michael Kelley <mikelley@microsoft.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 19 Aug 2019 18:31:35 +0200, Thomas Bogendoerfer wrote:
-> @@ -1386,18 +1427,24 @@ static netdev_tx_t ioc3_start_xmit(struct sk_buff *skb, struct net_device *dev)
->  		unsigned long b2 = (data | 0x3fffUL) + 1UL;
->  		unsigned long s1 = b2 - data;
->  		unsigned long s2 = data + len - b2;
-> +		dma_addr_t d;
->  
->  		desc->cmd    = cpu_to_be32(len | ETXD_INTWHENDONE |
->  					   ETXD_B1V | ETXD_B2V | w0);
->  		desc->bufcnt = cpu_to_be32((s1 << ETXD_B1CNT_SHIFT) |
->  					   (s2 << ETXD_B2CNT_SHIFT));
-> -		desc->p1     = cpu_to_be64(ioc3_map(skb->data, 1));
-> -		desc->p2     = cpu_to_be64(ioc3_map((void *)b2, 1));
-> +		d = dma_map_single(ip->dma_dev, skb->data, s1, DMA_TO_DEVICE);
+Simplify the ring buffer handling with the in-place API.
 
-You'll need to check the DMA address with dma_mapping_error(dev, addr),
-otherwise static checkers will get upset.
+Also avoid the dynamic allocation and the memory leak in the channel
+callback function.
 
-> +		desc->p1     = cpu_to_be64(ioc3_map(d, PCI64_ATTR_PREF));
-> +		d = dma_map_single(ip->dma_dev, (void *)b2, s1, DMA_TO_DEVICE);
-> +		desc->p2     = cpu_to_be64(ioc3_map(d, PCI64_ATTR_PREF));
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+---
+
+Hi Jiri, Benjamin, can this patch go through Sasha's hyperv tree:
+https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git
+
+This is a purely Hyper-V specific change.
+
+ drivers/hid/hid-hyperv.c | 56 +++++++++-----------------------------------=
+----
+ 1 file changed, 10 insertions(+), 46 deletions(-)
+
+diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+index 7795831..f363163 100644
+--- a/drivers/hid/hid-hyperv.c
++++ b/drivers/hid/hid-hyperv.c
+@@ -314,60 +314,24 @@ static void mousevsc_on_receive(struct hv_device *dev=
+ice,
+=20
+ static void mousevsc_on_channel_callback(void *context)
+ {
+-	const int packet_size =3D 0x100;
+-	int ret;
+ 	struct hv_device *device =3D context;
+-	u32 bytes_recvd;
+-	u64 req_id;
+ 	struct vmpacket_descriptor *desc;
+-	unsigned char	*buffer;
+-	int	bufferlen =3D packet_size;
+-
+-	buffer =3D kmalloc(bufferlen, GFP_ATOMIC);
+-	if (!buffer)
+-		return;
+-
+-	do {
+-		ret =3D vmbus_recvpacket_raw(device->channel, buffer,
+-					bufferlen, &bytes_recvd, &req_id);
+-
+-		switch (ret) {
+-		case 0:
+-			if (bytes_recvd <=3D 0) {
+-				kfree(buffer);
+-				return;
+-			}
+-			desc =3D (struct vmpacket_descriptor *)buffer;
+-
+-			switch (desc->type) {
+-			case VM_PKT_COMP:
+-				break;
+-
+-			case VM_PKT_DATA_INBAND:
+-				mousevsc_on_receive(device, desc);
+-				break;
+-
+-			default:
+-				pr_err("unhandled packet type %d, tid %llx len %d\n",
+-					desc->type, req_id, bytes_recvd);
+-				break;
+-			}
+=20
++	foreach_vmbus_pkt(desc, device->channel) {
++		switch (desc->type) {
++		case VM_PKT_COMP:
+ 			break;
+=20
+-		case -ENOBUFS:
+-			kfree(buffer);
+-			/* Handle large packet */
+-			bufferlen =3D bytes_recvd;
+-			buffer =3D kmalloc(bytes_recvd, GFP_ATOMIC);
+-
+-			if (!buffer)
+-				return;
++		case VM_PKT_DATA_INBAND:
++			mousevsc_on_receive(device, desc);
++			break;
+=20
++		default:
++			pr_err("Unhandled packet type %d, tid %llx len %d\n",
++			       desc->type, desc->trans_id, desc->len8 * 8);
+ 			break;
+ 		}
+-	} while (1);
+-
++	}
+ }
+=20
+ static int mousevsc_connect_to_vsp(struct hv_device *device)
+--=20
+1.8.3.1

@@ -1,59 +1,31 @@
-From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Subject: Re: [PATCH v5 15/17] mfd: ioc3: Add driver for SGI IOC3 chip
-Date: Tue, 20 Aug 2019 10:17:34 +0200
-Message-ID: <20190820101734.bffe41588e0c92094b9dba3d@suse.de>
-References: <20190819163144.3478-1-tbogendoerfer@suse.de>
-        <20190819163144.3478-16-tbogendoerfer@suse.de>
-        <20190820062308.GK3545@piout.net>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: wacom: correct misreported EKR ring values
+Date: Tue, 20 Aug 2019 10:43:17 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1908201043020.27147@cbobk.fhfr.pm>
+References: <1565982054-29236-1-git-send-email-aaron.skomra@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190820062308.GK3545@piout.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1565982054-29236-1-git-send-email-aaron.skomra@wacom.com>
+Sender: stable-owner@vger.kernel.org
+To: Aaron Armstrong Skomra <skomra@gmail.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, ping.cheng@wacom.com, jason.gerecke@wacom.com, Aaron Armstrong Skomra <aaron.skomra@wacom.com>, "# v4 . 3+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 20 Aug 2019 08:23:08 +0200
-Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
-> On 19/08/2019 18:31:38+0200, Thomas Bogendoerfer wrote:
-> > diff --git a/drivers/mfd/ioc3.c b/drivers/mfd/ioc3.c
-> > new file mode 100644
-> > index 000000000000..5bcb3461a189
-> > --- /dev/null
-> > +++ b/drivers/mfd/ioc3.c
-> > @@ -0,0 +1,586 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +/*
-> > + * SGI IOC3 multifunction device driver
-> > + *
-> > + * Copyright (C) 2018, 2019 Thomas Bogendoerfer <tbogendoerfer@suse.de>
-> > + *
-> > + * Based on work by:
-> > + *   Stanislaw Skowronek <skylark@unaligned.org>
-> > + *   Joshua Kinard <kumba@gentoo.org>
-> > + *   Brent Casavant <bcasavan@sgi.com> - IOC4 master driver
-> > + *   Pat Gefre <pfg@sgi.com> - IOC3 serial port IRQ demuxer
-> > + */
-> > +
-> > +#include <linux/delay.h>
-> > +#include <linux/errno.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/mfd/core.h>
-> > +#include <linux/module.h>
-> > +#include <linux/pci.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/platform_data/sgi-w1.h>
-> > +#include <linux/rtc/ds1685.h>
-> I don't think this include is necessary.
+On Fri, 16 Aug 2019, Aaron Armstrong Skomra wrote:
 
-you are right. I'll move it to the patch where IP30 systemboard gets added.
+> The EKR ring claims a range of 0 to 71 but actually reports
+> values 1 to 72. The ring is used in relative mode so this
+> change should not affect users.
+> 
+> Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+> Fixes: 72b236d60218f ("HID: wacom: Add support for Express Key Remote.")
+> Cc: <stable@vger.kernel.org> # v4.3+
+> Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+> Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Thanks,
-Thomas.
+Queued for 5.3, thanks Aaron.
 
 -- 
-SUSE Linux GmbH
-GF: Felix Imendörffer, Mary Higgins, Sri Rasiah
-HRB 21284 (AG Nürnberg)
+Jiri Kosina
+SUSE Labs

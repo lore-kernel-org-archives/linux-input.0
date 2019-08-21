@@ -1,100 +1,90 @@
-From: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Subject: Re: [PATCH 2/2] drivers: input: mouse: alps: drop unneeded likely()
- call around IS_ERR()
-Date: Wed, 21 Aug 2019 13:37:09 +0200
-Message-ID: <2cd7178e-9713-7678-a02d-dde91e990c1e@metux.net>
-References: <1566298572-12409-1-git-send-email-info@metux.net>
- <1566298572-12409-2-git-send-email-info@metux.net>
- <20190820111719.7blyk5jstgwde2ae@pali>
- <02f5b546-5c30-4998-19b2-76b816a35371@metux.net>
- <20190820142204.x352bftlvnb7s57n@pali>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 00/11] Face lift for bu21013_ts driver
+Date: Wed, 21 Aug 2019 14:39:41 +0200
+Message-ID: <CACRpkdZo9so+5UoT3QpFmL_8NZT1d1i7Yab202RNn8gDfnPK7A@mail.gmail.com>
+References: <20190810002039.95876-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190820142204.x352bftlvnb7s57n@pali>
-Content-Language: en-US
+In-Reply-To: <20190810002039.95876-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>
-Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On 20.08.19 16:22, Pali Rohár wrote:
+On Sat, Aug 10, 2019 at 2:20 AM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 
-Hi,
+> So your patch has prompted me to take a look at the driver and
+> try to clean it up. I am sure I screwed up somewhere, but you said
+> you have the device, so please take a look at the series and
+> see if you can salvage them
 
->> In that case, wouldn't a comment be more suitable for that ?
-> 
-> And why to add comment if current state of code is more-readable and
-> does not need it?
+I will funnel patch 1/11 in the ARM SoC tree.
 
-Readability is probably a bit subjective :p
+The rest work fine except on the resource release in the error path. I had
+to do this:
 
-With ongoing efforts of automatically identifying redundant code pathes,
-the current situation causes the same discussion coming up over and over
-again. Sooner or later somebody might get the idea to add a comment on
-that line, that it's exactly as intented :o
+diff --git a/drivers/input/touchscreen/bu21013_ts.c
+b/drivers/input/touchscreen/bu21013_ts.c
+index c89a00a6e67c..bdae4cd4243a 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -390,18 +390,18 @@ static int bu21013_init_chip(struct bu21013_ts *ts)
+  return 0;
+ }
 
-OTOH, I'm unsure whether it's important to document that is particular
-error path is unlikely, while we don't do it in thousands of other
-places. IMHO, error pathes are supposed to be unlikely by nature,
-otherwise we wouldn't call it an error situation ;-)
+-static void bu21013_power_off(void *_ts)
++static void bu21013_power_off(void *data)
+ {
+- struct bu21013_ts *ts = ts;
++ struct regulator *regulator = data;
 
-> People normally add comments to code which is problematic to understand
-> or is somehow tricky, no so obvious or document how should code behave.
+- regulator_disable(ts->regulator);
++ regulator_disable(regulator);
+ }
 
-Yes, but isn't this case so obvious that it doesn't need any
-documentation at all ? Is it so important to never ever forget that this
-particular path is a rare situation ?
+-static void bu21013_disable_chip(void *_ts)
++static void bu21013_disable_chip(void *data)
+ {
+- struct bu21013_ts *ts = ts;
++ struct gpio_desc *gpiod = data;
 
-I might be wrong, but IMHO the likely()/unlikely() macros have been
-introduced for optimization (better pipeline optimization for the
-frequent cases).
+- gpiod_set_value(ts->cs_gpiod, 0);
++ gpiod_set_value(gpiod, 0);
+ }
 
-> People first need to understand that static code analysis cannot work
-> 100% reliably and always is needed to properly review changes.
+ static int bu21013_probe(struct i2c_client *client,
+@@ -488,7 +488,8 @@ static int bu21013_probe(struct i2c_client *client,
+  return error;
+  }
 
-Yes, but we see that this particular case is coming up again and again,
-from different people, who can't know the background of this (nobody
-can read the whole lkml and remember everything). This could be
-prevented by adding a comment on that line, but then the macro call
-just for documentation wouldn't be necessary anymore.
+- error = devm_add_action_or_reset(&client->dev, bu21013_power_off, ts);
++ error = devm_add_action_or_reset(&client->dev, bu21013_power_off,
++ ts->regulator);
+  if (error) {
+  dev_err(&client->dev, "failed to install power off handler\n");
+  return error;
+@@ -505,7 +506,7 @@ static int bu21013_probe(struct i2c_client *client,
+  gpiod_set_consumer_name(ts->cs_gpiod, "BU21013 CS");
 
-> And if the only reason for this change is to satisfy some static code
-> analysis program,
-
-Actually, it's more for people who're using the tools for the purpose
-of tidying up the code and find potential problems. They need some
-information to act on properly, which is currently missing ...
-
-> would not it better to teach this program to no
-> generate such false-positive results?
-
-Okay, but how to do that practically ? There's no information in the
-code which neither some tool nor any human could recognize this false
-alarm. That information is just in your brain, now also in mine, and
-the other folks who previously proposed the same change (assuming they
-still recall it after years).
-
-Blacklisting doesn't seem to be a good idea in the long run. Once going
-that route, such blacklists grow quickly and get hard to maintain (we
-now have two entirely separately maintained data sources that need to
-be synced manually, when something changes).
-
-I believe the code should be kinda self-documenting, so the reader
-shouldn't need any detailed special knowledge to understand it. IMHO,
-when such discussions on actual implementation details come up, the
-code isn't expressive enough.
-
-How can we improve the situation ?
-
-Shall we consider introducing yet another macro (explicitly different
-name) for stating/documenting such cases ?
+  error = devm_add_action_or_reset(&client->dev,
+- bu21013_disable_chip, ts);
++ bu21013_disable_chip, ts->cs_gpiod);
+  if (error) {
+  dev_err(&client->dev,
+  "failed to install chip disable handler\n");
 
 
---mtx
+I think this is because when probe() fails it first free:s the devm_kzalloc()
+allocations, so the ts->foo will result in NULL dereference.
 
--- 
-Enrico Weigelt, metux IT consult
-Free software and Linux embedded engineering
-info@metux.net -- +49-151-27565287
+If I just reference the gpio desc or regulator directly like this in the
+callback, things work fine.
+
+With these changes:
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij

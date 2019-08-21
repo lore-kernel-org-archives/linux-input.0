@@ -1,14 +1,14 @@
 From: syzbot <syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com>
 Subject: Re: Re: KASAN: slab-out-of-bounds Read in hidraw_ioctl
 Date: Wed, 21 Aug 2019 05:57:36 -0700
-Message-ID: <000000000000095ae90590a01e9a@google.com>
+Message-ID: <0000000000000c820c0590a01e9a@google.com>
 References: <CAAeHK+zeN+bLTix2yaWDo-iu_G4D8T1KELjds=KVTtywiPpc4g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <CAAeHK+zeN+bLTix2yaWDo-iu_G4D8T1KELjds=KVTtywiPpc4g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
 > On Sun, Aug 11, 2019 at 10:46 PM syzbot
@@ -102,3 +102,12 @@ List-Id: linux-input@vger.kernel.org
 > #syz test: https://github.com/google/kasan.git usb-fuzzer e96407b4
 
 want 2 args (repo, branch), got 3
+
+
+> --
+> You received this message because you are subscribed to the Google  
+> Groups "syzkaller-bugs" group.
+> To unsubscribe from this group and stop receiving emails from it, send an  
+> email to syzkaller-bugs+unsubscribe@googlegroups.com.
+> To view this discussion on the web visit  
+> https://groups.google.com/d/msgid/syzkaller-bugs/CAAeHK%2BzeN%2BbLTix2yaWDo-iu_G4D8T1KELjds%3DKVTtywiPpc4g%40mail.gmail.com.

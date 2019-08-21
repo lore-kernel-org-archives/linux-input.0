@@ -1,53 +1,40 @@
-From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Subject: Re: [PATCH v5 10/17] net: sgi: ioc3-eth: rework skb rx handling
-Date: Wed, 21 Aug 2019 16:28:47 +0200
-Message-ID: <20190821162847.479c9967d4dc8026fe65fa0e@suse.de>
-References: <20190819163144.3478-1-tbogendoerfer@suse.de>
-        <20190819163144.3478-11-tbogendoerfer@suse.de>
-        <20190819165522.451f2ea2@cakuba.netronome.com>
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH v4 3/9] nvmem: core: add nvmem_device_find
+Date: Wed, 21 Aug 2019 14:48:46 +0200
+Message-ID: <20190821124846.GA12591@alpha.franken.de>
+References: <20190809103235.16338-1-tbogendoerfer@suse.de>
+ <20190809103235.16338-4-tbogendoerfer@suse.de>
+ <8d18de64-9234-fcba-aa3d-b46789eb62a5@linaro.org>
+ <20190814134616.b4dab3c0aa6ac913d78edb6a@suse.de>
+ <31d680ee-ddb3-8536-c915-576222d263e1@linaro.org>
+ <20190816140942.GA15050@alpha.franken.de>
+ <fca76e6d-fa0b-176b-abcf-e7551b22e6a9@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190819165522.451f2ea2@cakuba.netronome.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jakub Kicinski <jakub.kicinski@netronome.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <fca76e6d-fa0b-176b-abcf-e7551b22e6a9@linaro.org>
+Sender: netdev-owner@vger.kernel.org
+To: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 19 Aug 2019 16:55:22 -0700
-Jakub Kicinski <jakub.kicinski@netronome.com> wrote:
+On Mon, Aug 19, 2019 at 05:03:42PM +0100, Srinivas Kandagatla wrote:
+> >>On 14/08/2019 12:46, Thomas Bogendoerfer wrote:
+> >these patches are not in Linus tree, yet. I guess they will show up
+> >in 5.4. No idea how to deal with it right now, do you ?
+> All these patches are due to go in next merge window,
+> You should base your patch on top of linux-next.
 
-> On Mon, 19 Aug 2019 18:31:33 +0200, Thomas Bogendoerfer wrote:
-> > Buffers alloacted by alloc_skb() are already cache aligned so there
-> > is no need for an extra align done by ioc3_alloc_skb. And instead
-> > of skb_put/skb_trim simply use one skb_put after frame size is known
-> > during receive.
-> [...]  
-> > -/* We use this to acquire receive skb's that we can DMA directly into. */
-> > -
-> > -#define IOC3_CACHELINE	128UL
-> 
-> Is the cache line on the platform this driver works on 128B?
-
-right now yes, in theory IOC3 CAD DUO cards might work in SGI O2 systems,
-but the current Linux PCI implementation for O2 will not detect that card.
-On X86 usually the BIOS will choke up on that cards.
-
-> This looks like a DMA engine alignment requirement, more than an
-> optimization.
-
-that true, there are two constraints for the rx buffers, start must be aligned
-to 128 bytes and a buffer must not cross a 16kbyte boundary. I was already
-thinking of allocating pages and chop them up. Is there a Linux API available,
-which could help for implementing this ?
-
-I'll probably drop this patch or only change the skb_put stuff plus RX_BUF_SIZE
-define.
+that depends, which maintainer will merge this series. Right now
+it doesn't look like this series will make it into 5.4 as there
+is still no sign form the W1 maintainer. My idea is to break out
+the 5.4 parts and submit it. So I'll rebase the nvmem patch to
+linux-next and send it. Hope it will be ok,  if the user of
+the new function will show up in 5.5.
 
 Thomas.
 
 -- 
-SUSE Linux GmbH
-GF: Felix Imendörffer, Mary Higgins, Sri Rasiah
-HRB 21284 (AG Nürnberg)
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]

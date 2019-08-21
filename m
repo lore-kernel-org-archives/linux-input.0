@@ -1,87 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] (submitted) input: misc: soc_button_array: use
- platform_device_register_resndata()
-Date: Tue, 20 Aug 2019 20:20:15 -0700
-Message-ID: <20190821032015.GR121898@dtor-ws>
-References: <1566303944-15321-1-git-send-email-info@metux.net>
+From: Jiada Wang <jiada_wang@mentor.com>
+Subject: Re: [PATCH v1 01/63] Input: introduce input_mt_report_slot_inactive
+Date: Wed, 21 Aug 2019 18:13:18 +0900
+Message-ID: <9359e5aa-0121-7165-1699-f62aecd1c583@mentor.com>
+References: <20190816082952.17985-1-jiada_wang@mentor.com>
+ <20190816082952.17985-2-jiada_wang@mentor.com>
+ <20190816171226.GE121898@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1566303944-15321-1-git-send-email-info@metux.net>
+In-Reply-To: <20190816171226.GE121898@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: nick@shmanahar.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Enrico,
+Hi Dmitry
 
-On Tue, Aug 20, 2019 at 02:25:44PM +0200, Enrico Weigelt, metux IT consult wrote:
-> From: Enrico Weigelt <info@metux.net>
+On 2019/08/17 2:12, Dmitry Torokhov wrote:
+> Hi Jiada,
 > 
-> The registration of gpio-keys device can be written much shorter
-> by using the platform_device_register_resndata() helper.
+> On Fri, Aug 16, 2019 at 05:28:50PM +0900, Jiada Wang wrote:
+>> input_mt_report_slot_state() ignores the tool when the slot is closed.
+>> which has caused a bit of confusion.
+>> This patch introduces input_mt_report_slot_inactive() to report slot
+>> inactive state.
+>> replaces all input_mt_report_slot_state() with input_mt_report_slot_inactive()
+>> in case of close of slot, also some other related changes.
 > 
-> v2:
->     * pass &pdev->dev to platform_device_register_resndata()
->     * fixed errval on failed platform_device_register_resndata()
+> This seems to actually contain 2 changes:
 > 
-> Signed-off-by: Enrico Weigelt <info@metux.net>
-> ---
->  drivers/input/misc/soc_button_array.c | 27 +++++++++++++--------------
->  1 file changed, 13 insertions(+), 14 deletions(-)
+> - switching to use return value of input_mt_report_slot_state()
+> - actually introducing and using input_mt_report_slot_inactive()
 > 
-> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-> index 5e59f8e5..27550f9 100644
-> --- a/drivers/input/misc/soc_button_array.c
-> +++ b/drivers/input/misc/soc_button_array.c
-> @@ -110,25 +110,24 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
->  	gpio_keys_pdata->nbuttons = n_buttons;
->  	gpio_keys_pdata->rep = autorepeat;
->  
-> -	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
-> -	if (!pd) {
-> -		error = -ENOMEM;
-> +	pd = platform_device_register_resndata(
-> +		&pdev->dev,
-> +		"gpio-keys",
-> +		PLATFORM_DEVID_AUTO,
-> +		NULL,
-> +		0,
-> +		gpio_keys_pdata,
-> +		sizeof(*gpio_keys_pdata));
-> +
-> +	error = PTR_ERR_OR_ZERO(pd);
-> +
-> +	if (IS_ERR(pd)) {
+> Please split them.
+> 
+will split this patch into two in v2 patchset
 
-I changed this and the PTR_ERR() to simply "error" and applied.
-
-> +		dev_err(&pdev->dev, "failed registering gpio-keys: %ld\n", PTR_ERR(pd));
->  		goto err_free_mem;
->  	}
->  
-> -	error = platform_device_add_data(pd, gpio_keys_pdata,
-> -					 sizeof(*gpio_keys_pdata));
-> -	if (error)
-> -		goto err_free_pdev;
-> -
-> -	error = platform_device_add(pd);
-> -	if (error)
-> -		goto err_free_pdev;
-> -
->  	return pd;
->  
-> -err_free_pdev:
-> -	platform_device_put(pd);
->  err_free_mem:
->  	devm_kfree(&pdev->dev, gpio_keys_pdata);
->  	return ERR_PTR(error);
-> -- 
-> 1.9.1
+>>   
+>> +/**
+>> + * input_mt_report_slot_inactive() - report contact inactive state
+>> + * @dev: input device with allocated MT slots
+>> + *
+>> + * Reports the contact inactive state via ABS_MT_TRACKING_ID
+>> + *
+>> + */
+>> +void input_mt_report_slot_inactive(struct input_dev *dev)
+>> +{
+>> +	input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
+>> +}
+>> +EXPORT_SYMBOL(input_mt_report_slot_inactive);
 > 
+> I think this should be a static inline, there is no need to have out of
+> line implementation for a 1-liner.
+>
+will change to a inline function in v2 patchset.
 
-Thanks.
+Thanks,
+Jiada
 
--- 
-Dmitry
+> Thanks.
+> 

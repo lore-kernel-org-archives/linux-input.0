@@ -1,82 +1,106 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH] HID: hidraw: Fix invalid read in hidraw_ioctl
-Date: Wed, 21 Aug 2019 13:27:12 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1908211323030.1816-100000@iolanthe.rowland.org>
-References: <000000000000d45a4c0590a2d8bd@google.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 00/11] Face lift for bu21013_ts driver
+Date: Wed, 21 Aug 2019 10:42:57 -0700
+Message-ID: <20190821174257.GC76194@dtor-ws>
+References: <20190810002039.95876-1-dmitry.torokhov@gmail.com>
+ <CACRpkdZo9so+5UoT3QpFmL_8NZT1d1i7Yab202RNn8gDfnPK7A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <000000000000d45a4c0590a2d8bd@google.com>
+Content-Disposition: inline
+In-Reply-To: <CACRpkdZo9so+5UoT3QpFmL_8NZT1d1i7Yab202RNn8gDfnPK7A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: andreyknvl@google.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, syzkaller-bugs@googlegroups.com
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The syzbot fuzzer has reported a pair of problems in the
-hidraw_ioctl() function: slab-out-of-bounds read and use-after-free
-read.  An example of the first:
+On Wed, Aug 21, 2019 at 02:39:41PM +0200, Linus Walleij wrote:
+> On Sat, Aug 10, 2019 at 2:20 AM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> 
+> > So your patch has prompted me to take a look at the driver and
+> > try to clean it up. I am sure I screwed up somewhere, but you said
+> > you have the device, so please take a look at the series and
+> > see if you can salvage them
+> 
+> I will funnel patch 1/11 in the ARM SoC tree.
+> 
+> The rest work fine except on the resource release in the error path. I had
+> to do this:
+> 
+> diff --git a/drivers/input/touchscreen/bu21013_ts.c
+> b/drivers/input/touchscreen/bu21013_ts.c
+> index c89a00a6e67c..bdae4cd4243a 100644
+> --- a/drivers/input/touchscreen/bu21013_ts.c
+> +++ b/drivers/input/touchscreen/bu21013_ts.c
+> @@ -390,18 +390,18 @@ static int bu21013_init_chip(struct bu21013_ts *ts)
+>   return 0;
+>  }
+> 
+> -static void bu21013_power_off(void *_ts)
+> +static void bu21013_power_off(void *data)
+>  {
+> - struct bu21013_ts *ts = ts;
+> + struct regulator *regulator = data;
+> 
+> - regulator_disable(ts->regulator);
+> + regulator_disable(regulator);
+>  }
+> 
+> -static void bu21013_disable_chip(void *_ts)
+> +static void bu21013_disable_chip(void *data)
+>  {
+> - struct bu21013_ts *ts = ts;
+> + struct gpio_desc *gpiod = data;
+> 
+> - gpiod_set_value(ts->cs_gpiod, 0);
+> + gpiod_set_value(gpiod, 0);
+>  }
+> 
+>  static int bu21013_probe(struct i2c_client *client,
+> @@ -488,7 +488,8 @@ static int bu21013_probe(struct i2c_client *client,
+>   return error;
+>   }
+> 
+> - error = devm_add_action_or_reset(&client->dev, bu21013_power_off, ts);
+> + error = devm_add_action_or_reset(&client->dev, bu21013_power_off,
+> + ts->regulator);
+>   if (error) {
+>   dev_err(&client->dev, "failed to install power off handler\n");
+>   return error;
+> @@ -505,7 +506,7 @@ static int bu21013_probe(struct i2c_client *client,
+>   gpiod_set_consumer_name(ts->cs_gpiod, "BU21013 CS");
+> 
+>   error = devm_add_action_or_reset(&client->dev,
+> - bu21013_disable_chip, ts);
+> + bu21013_disable_chip, ts->cs_gpiod);
+>   if (error) {
+>   dev_err(&client->dev,
+>   "failed to install chip disable handler\n");
+> 
+> 
+> I think this is because when probe() fails it first free:s the devm_kzalloc()
+> allocations, so the ts->foo will result in NULL dereference.
 
-BUG: KASAN: slab-out-of-bounds in strlen+0x79/0x90 lib/string.c:525
-Read of size 1 at addr ffff8881c8035f38 by task syz-executor.4/2833
+No, the release is done in opposite order of acquiring resources,
+anything else would be madness and would not work.
 
-CPU: 1 PID: 2833 Comm: syz-executor.4 Not tainted 5.3.0-rc2+ #1
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  print_address_description+0x6a/0x32c mm/kasan/report.c:351
-  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
-  kasan_report+0xe/0x12 mm/kasan/common.c:612
-  strlen+0x79/0x90 lib/string.c:525
-  strlen include/linux/string.h:281 [inline]
-  hidraw_ioctl+0x245/0xae0 drivers/hid/hidraw.c:446
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
-  ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
-  do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x459829
-Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
-48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f7a68f6dc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459829
-RDX: 0000000000000000 RSI: 0000000080404805 RDI: 0000000000000004
-RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f7a68f6e6d4
-R13: 00000000004c21de R14: 00000000004d5620 R15: 00000000ffffffff
+The issue is this:
 
-The two problems have the same cause: hidraw_ioctl() fails to test
-whether the device has been removed.  This patch adds the missing test.
+static void bu21013_disable_chip(void *_ts)
+{
+	struct bu21013_ts *ts = ts;
 
-Reported-and-tested-by: syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
+which shuts up gcc about the fact that 'ts' is uninitialized, it should
+have said "ts = _ts". I guess it is a lesson for me to not call the voi
+d pointer argument almost the same name as the structure, as it is easy
+to miss in the review. The compiler would not care in either case, but a
+human might have noticed.
 
----
+Can you please try making this change (and the same in power off
+handler)?
 
+Thanks.
 
-[as1910.hidraw-ioctl-fix]
-
-
- drivers/hid/hidraw.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: usb-devel/drivers/hid/hidraw.c
-===================================================================
---- usb-devel.orig/drivers/hid/hidraw.c
-+++ usb-devel/drivers/hid/hidraw.c
-@@ -370,7 +370,7 @@ static long hidraw_ioctl(struct file *fi
- 
- 	mutex_lock(&minors_lock);
- 	dev = hidraw_table[minor];
--	if (!dev) {
-+	if (!dev || !dev->exist) {
- 		ret = -ENODEV;
- 		goto out;
- 	}
+-- 
+Dmitry

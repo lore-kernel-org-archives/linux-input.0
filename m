@@ -1,100 +1,53 @@
-From: Andrey Konovalov <andreyknvl@google.com>
-Subject: Re: KASAN: slab-out-of-bounds Read in hidraw_ioctl
-Date: Wed, 21 Aug 2019 16:10:20 +0200
-Message-ID: <CAAeHK+xQc5Ce6TwtERTmQ+6qSbuAmGikxCU5SNTdcDAynDEiig@mail.gmail.com>
-References: <CAAeHK+x-q8u_-qyc6=5QjuLAtQafOftdmK_JEFVrvzjmowf2Ow@mail.gmail.com>
- <000000000000ed58060590a0aa30@google.com>
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Subject: Re: [PATCH v5 10/17] net: sgi: ioc3-eth: rework skb rx handling
+Date: Wed, 21 Aug 2019 16:28:47 +0200
+Message-ID: <20190821162847.479c9967d4dc8026fe65fa0e@suse.de>
+References: <20190819163144.3478-1-tbogendoerfer@suse.de>
+        <20190819163144.3478-11-tbogendoerfer@suse.de>
+        <20190819165522.451f2ea2@cakuba.netronome.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <000000000000ed58060590a0aa30@google.com>
+In-Reply-To: <20190819165522.451f2ea2@cakuba.netronome.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: syzbot <syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>
+To: Jakub Kicinski <jakub.kicinski@netronome.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Evgeniy Polyakov <zbr@ioremap.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Aug 21, 2019 at 3:37 PM syzbot
-<syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com> wrote:
->
-> Hello,
->
-> syzbot has tested the proposed patch but the reproducer still triggered
-> crash:
-> KASAN: slab-out-of-bounds Read in hidraw_ioctl
+On Mon, 19 Aug 2019 16:55:22 -0700
+Jakub Kicinski <jakub.kicinski@netronome.com> wrote:
 
-Same here, a different bug.
+> On Mon, 19 Aug 2019 18:31:33 +0200, Thomas Bogendoerfer wrote:
+> > Buffers alloacted by alloc_skb() are already cache aligned so there
+> > is no need for an extra align done by ioc3_alloc_skb. And instead
+> > of skb_put/skb_trim simply use one skb_put after frame size is known
+> > during receive.
+> [...]  
+> > -/* We use this to acquire receive skb's that we can DMA directly into. */
+> > -
+> > -#define IOC3_CACHELINE	128UL
+> 
+> Is the cache line on the platform this driver works on 128B?
 
->
-> ==================================================================
-> BUG: KASAN: slab-out-of-bounds in strlen+0x79/0x90 lib/string.c:525
-> Read of size 1 at addr ffff8881c8035f38 by task syz-executor.4/2833
->
-> CPU: 1 PID: 2833 Comm: syz-executor.4 Not tainted 5.3.0-rc2+ #1
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-> Google 01/01/2011
-> Call Trace:
->   __dump_stack lib/dump_stack.c:77 [inline]
->   dump_stack+0xca/0x13e lib/dump_stack.c:113
->   print_address_description+0x6a/0x32c mm/kasan/report.c:351
->   __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
->   kasan_report+0xe/0x12 mm/kasan/common.c:612
->   strlen+0x79/0x90 lib/string.c:525
->   strlen include/linux/string.h:281 [inline]
->   hidraw_ioctl+0x245/0xae0 drivers/hid/hidraw.c:446
->   vfs_ioctl fs/ioctl.c:46 [inline]
->   file_ioctl fs/ioctl.c:509 [inline]
->   do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
->   ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
->   __do_sys_ioctl fs/ioctl.c:720 [inline]
->   __se_sys_ioctl fs/ioctl.c:718 [inline]
->   __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
->   do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
->   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> RIP: 0033:0x459829
-> Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7
-> 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
-> ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-> RSP: 002b:00007f7a68f6dc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459829
-> RDX: 0000000000000000 RSI: 0000000080404805 RDI: 0000000000000004
-> RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000246 R12: 00007f7a68f6e6d4
-> R13: 00000000004c21de R14: 00000000004d5620 R15: 00000000ffffffff
->
-> Allocated by task 0:
-> (stack is not available)
->
-> Freed by task 0:
-> (stack is not available)
->
-> The buggy address belongs to the object at ffff8881c8035e60
->   which belongs to the cache shmem_inode_cache of size 1168
-> The buggy address is located 216 bytes inside of
->   1168-byte region [ffff8881c8035e60, ffff8881c80362f0)
-> The buggy address belongs to the page:
-> page:ffffea0007200d00 refcount:1 mapcount:0 mapping:ffff8881da115180
-> index:0x0 compound_mapcount: 0
-> flags: 0x200000000010200(slab|head)
-> raw: 0200000000010200 dead000000000100 dead000000000122 ffff8881da115180
-> raw: 0000000000000000 00000000800c000c 00000001ffffffff 0000000000000000
-> page dumped because: kasan: bad access detected
->
-> Memory state around the buggy address:
->   ffff8881c8035e00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->   ffff8881c8035e80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-> > ffff8881c8035f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->                                          ^
->   ffff8881c8035f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->   ffff8881c8036000: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-> ==================================================================
->
->
-> Tested on:
->
-> commit:         e96407b4 usb-fuzzer: main usb gadget fuzzer driver
-> git tree:       https://github.com/google/kasan.git
-> console output: https://syzkaller.appspot.com/x/log.txt?x=14f14a1e600000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=cfa2c18fb6a8068e
-> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> patch:          https://syzkaller.appspot.com/x/patch.diff?x=171cd95a600000
->
+right now yes, in theory IOC3 CAD DUO cards might work in SGI O2 systems,
+but the current Linux PCI implementation for O2 will not detect that card.
+On X86 usually the BIOS will choke up on that cards.
+
+> This looks like a DMA engine alignment requirement, more than an
+> optimization.
+
+that true, there are two constraints for the rx buffers, start must be aligned
+to 128 bytes and a buffer must not cross a 16kbyte boundary. I was already
+thinking of allocating pages and chop them up. Is there a Linux API available,
+which could help for implementing this ?
+
+I'll probably drop this patch or only change the skb_put stuff plus RX_BUF_SIZE
+define.
+
+Thomas.
+
+-- 
+SUSE Linux GmbH
+GF: Felix Imendörffer, Mary Higgins, Sri Rasiah
+HRB 21284 (AG Nürnberg)

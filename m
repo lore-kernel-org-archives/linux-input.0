@@ -1,116 +1,85 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: add support for polling to input devices
-Date: Tue, 20 Aug 2019 12:05:46 -0700
-Message-ID: <20190820190546.GP121898@dtor-ws>
-References: <20190809173548.GA32693@dtor-ws>
- <CAO-hwJL1Jq5XjqV32fD7+_nMpi3PhUbrB5QQ+EEs3N6=mBy-1g@mail.gmail.com>
- <20190812171135.GA178933@dtor-ws>
- <CAO-hwJKfHCwLkEDWrzJHejjaB+vY=0RsfY-=xfdRUSQPpeUVAg@mail.gmail.com>
- <8624c907-6d7e-3301-1044-113bb108ba9e@ysoft.com>
+Subject: Re: [PATCH v2] (submitted) input: misc: soc_button_array: use
+ platform_device_register_resndata()
+Date: Tue, 20 Aug 2019 20:20:15 -0700
+Message-ID: <20190821032015.GR121898@dtor-ws>
+References: <1566303944-15321-1-git-send-email-info@metux.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <8624c907-6d7e-3301-1044-113bb108ba9e@ysoft.com>
+In-Reply-To: <1566303944-15321-1-git-send-email-info@metux.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Michal =?utf-8?B?Vm9rw6HEjQ==?= <michal.vokac@ysoft.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Rob Herring <robh@kernel.org>
+To: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 20, 2019 at 01:56:53PM +0200, Michal Vokáč wrote:
-> On 13. 08. 19 16:04, Benjamin Tissoires wrote:
-> > On Mon, Aug 12, 2019 at 7:11 PM Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > > 
-> > > Hi Benjamin,
-> > > 
-> > > On Mon, Aug 12, 2019 at 06:50:38PM +0200, Benjamin Tissoires wrote:
-> > > > Hi Dmitry,
-> > > > 
-> > > > On Fri, Aug 9, 2019 at 7:35 PM Dmitry Torokhov
-> > > > <dmitry.torokhov@gmail.com> wrote:
-> > > > > 
-> > > > > Separating "normal" and "polled" input devices was a mistake, as often we
-> > > > > want to allow the very same device work on both interrupt-driven and
-> > > > > polled mode, depending on the board on which the device is used.
-> > > > > 
-> > > > > This introduces new APIs:
-> > > > > 
-> > > > > - input_setup_polling
-> > > > > - input_set_poll_interval
-> > > > > - input_set_min_poll_interval
-> > > > > - input_set_max_poll_interval
-> > > > > 
-> > > > > These new APIs allow switching an input device into polled mode with sysfs
-> > > > > attributes matching drivers using input_polled_dev APIs that will be
-> > > > > eventually removed.
-> > > > 
-> > > > Are you sure that using sysfs is the correct way here?
-> > > > I would think using generic properties that can be overwritten by the
-> > > > DSDT or by the device tree would make things easier from a driver
-> > > > point of view.
-> > > 
-> > > Couple of points: I wanted it to be compatible with input-polldev.c so
-> > > the sysfs attributes must match (so that we can convert existing drivers
-> > > and zap input-polldev).
-> > 
-> > Oh, I missed that. Good point.
-> > 
-> > > I also am not sure if polling parameters are
-> > > property of board, or it is either fundamental hardware limitation or
-> > > simply desired system behavior.
-> > 
-> > I think it's a combination of everything: sometimes the board misses
-> > the capability to not do IRQs for that device, and using properties
-> > would be better here: you can define them where you need (board,
-> > platform or device level), and have a working platfrom from the kernel
-> > description entirely.
-> > However, it doesn't solve the issue of input-polldev, so maybe
-> > properties should be added on top of this sysfs.
-> > 
-> > > If Rob is OK with adding device
-> > > properties I'd be fine adding them as a followup, otherwise we can have
-> > > udev adjust the behavior as needed for given box shortly after boot.
-> > 
-> > Fair enough.
-> > 
-> > > 
-> > > > 
-> > > > Also, checkpatch complains about a few octal permissions that are
-> > > > preferred over symbolic ones, and there is a possible 'out of memory'
-> > > > nessage at drivers/input/input-poller.c:75.
-> > > 
-> > > Yes, there is. It is there so we would know what device we were trying
-> > > to set up when OOM happened. You can probable decipher the driver from
-> > > the stack trace, but figuring particular device instance is harder.
-> > 
-> > Could you add a comment there explaining this choice? I have a feeling
-> > you'll have to refuse a few patches of people running coccinelle
-> > scripts and be too happy to send a kernel patch.
+Hi Enrico,
 
-Done.
-
-> > 
-> > Other than that:
-> > Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > 
+On Tue, Aug 20, 2019 at 02:25:44PM +0200, Enrico Weigelt, metux IT consult wrote:
+> From: Enrico Weigelt <info@metux.net>
 > 
-> Hi Dmitry,
+> The registration of gpio-keys device can be written much shorter
+> by using the platform_device_register_resndata() helper.
 > 
-> what is the status of this patch? Are we still waiting for Rob to
-> comment on the device properties or is this ready to land?
-
-I applied it just now.
-
+> v2:
+>     * pass &pdev->dev to platform_device_register_resndata()
+>     * fixed errval on failed platform_device_register_resndata()
 > 
-> Little bit OT question: what tree/branch do you use to apply patches?
-> According to the mailing list you recently applied some patches but
-> I can not find them here [1].
+> Signed-off-by: Enrico Weigelt <info@metux.net>
+> ---
+>  drivers/input/misc/soc_button_array.c | 27 +++++++++++++--------------
+>  1 file changed, 13 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> index 5e59f8e5..27550f9 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -110,25 +110,24 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
+>  	gpio_keys_pdata->nbuttons = n_buttons;
+>  	gpio_keys_pdata->rep = autorepeat;
+>  
+> -	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
+> -	if (!pd) {
+> -		error = -ENOMEM;
+> +	pd = platform_device_register_resndata(
+> +		&pdev->dev,
+> +		"gpio-keys",
+> +		PLATFORM_DEVID_AUTO,
+> +		NULL,
+> +		0,
+> +		gpio_keys_pdata,
+> +		sizeof(*gpio_keys_pdata));
+> +
+> +	error = PTR_ERR_OR_ZERO(pd);
+> +
+> +	if (IS_ERR(pd)) {
 
-Patches that go into current cycle will be in 'for-linus' branch.
-Patches that will be merged in the next merge window (like this one)
-will end up in 'next' branch.
+I changed this and the PTR_ERR() to simply "error" and applied.
+
+> +		dev_err(&pdev->dev, "failed registering gpio-keys: %ld\n", PTR_ERR(pd));
+>  		goto err_free_mem;
+>  	}
+>  
+> -	error = platform_device_add_data(pd, gpio_keys_pdata,
+> -					 sizeof(*gpio_keys_pdata));
+> -	if (error)
+> -		goto err_free_pdev;
+> -
+> -	error = platform_device_add(pd);
+> -	if (error)
+> -		goto err_free_pdev;
+> -
+>  	return pd;
+>  
+> -err_free_pdev:
+> -	platform_device_put(pd);
+>  err_free_mem:
+>  	devm_kfree(&pdev->dev, gpio_keys_pdata);
+>  	return ERR_PTR(error);
+> -- 
+> 1.9.1
+> 
 
 Thanks.
 

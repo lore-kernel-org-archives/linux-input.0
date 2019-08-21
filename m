@@ -1,46 +1,30 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] input/vmmouse: Update the backdoor call with support
- for new instructions
-Date: Wed, 21 Aug 2019 09:03:51 -0700
-Message-ID: <20190821160351.GA76194@dtor-ws>
-References: <20190818143316.4906-1-thomas_os@shipmail.org>
- <20190818143316.4906-5-thomas_os@shipmail.org>
- <20190821050925.GA566@penguin>
- <027a55d6-ab26-ef9c-bd89-93a38f96160b@shipmail.org>
+From: syzbot <syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com>
+Subject: Re: KASAN: slab-out-of-bounds Read in hidraw_ioctl
+Date: Wed, 21 Aug 2019 09:13:00 -0700
+Message-ID: <000000000000d45a4c0590a2d8bd@google.com>
+References: <Pine.LNX.4.44L0.1908211152230.1816-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <027a55d6-ab26-ef9c-bd89-93a38f96160b@shipmail.org>
+In-Reply-To: <Pine.LNX.4.44L0.1908211152230.1816-100000@iolanthe.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas =?iso-8859-1?Q?Hellstr=F6m_=28VMware=29?= <thomas_os@shipmail.org>
-Cc: linux-kernel@vger.kernel.org, pv-drivers@vmware.com, Thomas Hellstrom <thellstrom@vmware.com>, linux-input@vger.kernel.org, Doug Covelli <dcovelli@vmware.com>
+To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, stern@rowland.harvard.edu, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Aug 21, 2019 at 05:48:23PM +0200, Thomas Hellström (VMware) wrote:
-> On 8/21/19 7:09 AM, Dmitry Torokhov wrote:
-> > On Sun, Aug 18, 2019 at 04:33:16PM +0200, Thomas Hellström (VMware) wrote:
-> > > From: Thomas Hellstrom <thellstrom@vmware.com>
-> > > 
-> > > Use the definition provided by include/asm/vmware.h
-> > > 
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > Cc: <linux-input@vger.kernel.org>
-> > > Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-> > > Reviewed-by: Doug Covelli <dcovelli@vmware.com>
-> > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > 
-> > Please feel free to merge with the rest of the patches introducing
-> > VMWARE_HYPERCALL.
-> 
-> Thanks, Dmitry!
-> 
-> I have a version 2 of the patch were the only difference is that edx is
-> initialized to zero which is default for vmcall / vmmcall. Can I use your
-> ack for that one as well?
+Hello,
 
-Yes, sure.
+syzbot has tested the proposed patch and the reproducer did not trigger  
+crash:
 
--- 
-Dmitry
+Reported-and-tested-by:  
+syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com
+
+Tested on:
+
+commit:         e96407b4 usb-fuzzer: main usb gadget fuzzer driver
+git tree:       https://github.com/google/kasan.git
+kernel config:  https://syzkaller.appspot.com/x/.config?x=cfa2c18fb6a8068e
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+patch:          https://syzkaller.appspot.com/x/patch.diff?x=13dca42e600000
+
+Note: testing is done by a robot and is best-effort only.

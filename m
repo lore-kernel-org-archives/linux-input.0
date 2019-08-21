@@ -1,64 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] drivers: input: mouse: alps: drop unneeded likely()
- call around IS_ERR()
-Date: Wed, 21 Aug 2019 10:48:57 -0700
-Message-ID: <20190821174857.GD76194@dtor-ws>
-References: <1566298572-12409-1-git-send-email-info@metux.net>
- <1566298572-12409-2-git-send-email-info@metux.net>
- <20190820111719.7blyk5jstgwde2ae@pali>
- <02f5b546-5c30-4998-19b2-76b816a35371@metux.net>
- <20190820142204.x352bftlvnb7s57n@pali>
- <2cd7178e-9713-7678-a02d-dde91e990c1e@metux.net>
+Subject: Re: [PATCH v1 03/63] Input: atmel_mxt_ts - only read messages in
+ mxt_acquire_irq() when necessary
+Date: Wed, 21 Aug 2019 10:54:22 -0700
+Message-ID: <20190821175422.GE76194@dtor-ws>
+References: <20190816082952.17985-1-jiada_wang@mentor.com>
+ <20190816082952.17985-4-jiada_wang@mentor.com>
+ <20190816171622.GF121898@dtor-ws>
+ <558e1227-7671-0838-d4e0-f234833c0973@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <2cd7178e-9713-7678-a02d-dde91e990c1e@metux.net>
+In-Reply-To: <558e1227-7671-0838-d4e0-f234833c0973@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+To: Jiada Wang <jiada_wang@mentor.com>
+Cc: nick@shmanahar.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-Hi,
-
-On Wed, Aug 21, 2019 at 01:37:09PM +0200, Enrico Weigelt, metux IT consult wrote:
-> On 20.08.19 16:22, Pali Rohár wrote:
+On Wed, Aug 21, 2019 at 10:26:31PM +0900, Jiada Wang wrote:
+> Hi Dmitry
 > 
-> Hi,
-> 
-> > > In that case, wouldn't a comment be more suitable for that ?
+> On 2019/08/17 2:16, Dmitry Torokhov wrote:
+> > On Fri, Aug 16, 2019 at 05:28:52PM +0900, Jiada Wang wrote:
+> > > From: Nick Dyer <nick.dyer@itdev.co.uk>
+> > > 
+> > > The workaround of reading all messages until an invalid is received is a
+> > > way of forcing the CHG line high, which means that when using
+> > > edge-triggered interrupts the interrupt can be acquired.
+> > > 
+> > > With level-triggered interrupts the workaround is unnecessary.
+> > > 
+> > > Also, most recent maXTouch chips have a feature called RETRIGEN which, when
+> > > enabled, reasserts the interrupt line every cycle if there are messages
+> > > waiting. This also makes the workaround unnecessary.
+> > > 
+> > > Note: the RETRIGEN feature is only in some firmware versions/chips, it's
+> > > not valid simply to enable the bit.
 > > 
-> > And why to add comment if current state of code is more-readable and
-> > does not need it?
-> 
-> Readability is probably a bit subjective :p
-> 
-> With ongoing efforts of automatically identifying redundant code pathes,
-> the current situation causes the same discussion coming up over and over
-> again. Sooner or later somebody might get the idea to add a comment on
-> that line, that it's exactly as intented :o
-> 
-> OTOH, I'm unsure whether it's important to document that is particular
-> error path is unlikely, while we don't do it in thousands of other
-> places. IMHO, error pathes are supposed to be unlikely by nature,
-> otherwise we wouldn't call it an error situation ;-)
-> 
-> > People normally add comments to code which is problematic to understand
-> > or is somehow tricky, no so obvious or document how should code behave.
-> 
-> Yes, but isn't this case so obvious that it doesn't need any
-> documentation at all ? Is it so important to never ever forget that this
-> particular path is a rare situation ?
+> > Instead of trying to work around of misconfiguration for IRQ/firmware,
+> > can we simply error out of probe if we see a level interrupt with
+> > !RETRIGEN firmware?
+> > 
+> I think for old firmwares, which doesn't support RETRIGEN feature, this
+> workaround is needed, otherwise we will break all old firmwares, which
+> configured with edge-triggered IRQ
 
-Because if I see "if (IS_ERR(...))" in an interrupt path I will try to
-see if it can be optimized out, but in this particular case we document
-it with explicit "unlikely" and I know that I do not need to bother.
-
-The fact that there is unlikely in IS_ERR is an implementation detail.
-It may be gone tomorrow. I do not want to have to remember all
-implementation details of all kernel APIs and readjust the code all the
-time as they are change underneath me.
+Do you know if there are any? I know Chrome OS firmware have RETRIGEN
+activated and they are pretty old (original Pixel is from 2013). But if
+we indeed have devices with edge interrupt and old not firmware that
+does not retrigger, I guess we'll have to keep it... 
 
 Thanks.
 

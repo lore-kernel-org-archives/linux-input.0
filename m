@@ -1,74 +1,66 @@
-From: Jiada Wang <jiada_wang@mentor.com>
-Subject: Re: [PATCH v1 41/63] Input: touchscreen: Atmel: Enable
- IRQ_DISABLE_UNLAZY flag for interrupt
-Date: Thu, 22 Aug 2019 15:25:05 +0900
-Message-ID: <0c4edce0-1295-e36b-e658-c109dfca867e@mentor.com>
-References: <20190816083558.19189-1-jiada_wang@mentor.com>
- <20190816083558.19189-2-jiada_wang@mentor.com>
- <20190816172615.GJ121898@dtor-ws>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: hidraw: Fix invalid read in hidraw_ioctl
+Date: Thu, 22 Aug 2019 09:51:07 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1908220950470.27147@cbobk.fhfr.pm>
+References: <Pine.LNX.4.44L0.1908211323030.1816-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190816172615.GJ121898@dtor-ws>
-Content-Language: en-US
+In-Reply-To: <Pine.LNX.4.44L0.1908211323030.1816-100000@iolanthe.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: nick@shmanahar.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, george_davis@mentor.com
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: andreyknvl@google.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry
+On Wed, 21 Aug 2019, Alan Stern wrote:
 
-On 2019/08/17 2:26, Dmitry Torokhov wrote:
-> On Fri, Aug 16, 2019 at 05:35:36PM +0900, Jiada Wang wrote:
->> From: Bhuvanesh Surachari <bhuvanesh_surachari@mentor.com>
->>
->> The de-/serializer driver has defined only irq_mask "ds90ub927_irq_mask" and
->> irq_unmask "ds90ub927_irq_unmask" callback functions. And de-/serializer
->> driver doesn't implement the irq_disable and irq_enable callback functions.
->> Hence inorder to invoke irq_mask callback function when disable_irq_nosync is
->> called the IRQ_DISABLE_UNLAZY interrupt flag should be set. If not the
->> disable_irq_nosync will just increment the depth field in the irq
->> descriptor only once as shown below.
->>
->> disable_irq_nosync
->>   __disable_irq_nosync
->>    __disable_irq (desc->depth++)
->>     irq_disable
->>      if irq_disable present -----------> if IRQ_DISABLE_UNLAZYflag set
->>               |                  no                  |
->>           yes |                                  yes |
->>               |                                      |
->>       desc->irq_data.chip->irq_disable   desc->irq_data.chip->irq_unmask
->>                                           (ds90ub927_irq_mask)
->>                                            disable_irq
->>                                             __disable_irq_nosync
->>                                              __disable_irq
->> (desc->depth++)
->> But the enable_irq will try to decrement the depth field twice which generates
->> the backtrace stating "Unbalanced enable for irq 293". This is because there is
->> no IRQ_DISABLE_UNLAZY flag check while calling irq_unmask callback function
->> of the "ds90ub927_irq_unmask" de-/serializer via enable_irq.
->>
->> enable_irq
->>   __enable_irq (desc->depth--)
->>    irq_enable
->>     if irq_enable present -------------> desc->irq_data.chip->irq_unmask
->>                |                no        (ds90ub927_irq_unmask)
->>            yes |                            enable_irq
->>                |                             __enable_irq (desc->depth--)
->>      (desc->irq_data.chip->irq_enable)
+> The syzbot fuzzer has reported a pair of problems in the
+> hidraw_ioctl() function: slab-out-of-bounds read and use-after-free
+> read.  An example of the first:
 > 
-> I'd prefer if we instead did not use the disable_irq_nosync() in the
-> driver.
->
-sorry for the mistake, during forward port,
-I have already eliminated disable_irq_nosync(),
-so this patch is no longer needed,
-will drop it in v2 patch-set
-
-Thanks，
-Jiada
-
-> Thanks.
+> BUG: KASAN: slab-out-of-bounds in strlen+0x79/0x90 lib/string.c:525
+> Read of size 1 at addr ffff8881c8035f38 by task syz-executor.4/2833
 > 
+> CPU: 1 PID: 2833 Comm: syz-executor.4 Not tainted 5.3.0-rc2+ #1
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+> Google 01/01/2011
+> Call Trace:
+>   __dump_stack lib/dump_stack.c:77 [inline]
+>   dump_stack+0xca/0x13e lib/dump_stack.c:113
+>   print_address_description+0x6a/0x32c mm/kasan/report.c:351
+>   __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
+>   kasan_report+0xe/0x12 mm/kasan/common.c:612
+>   strlen+0x79/0x90 lib/string.c:525
+>   strlen include/linux/string.h:281 [inline]
+>   hidraw_ioctl+0x245/0xae0 drivers/hid/hidraw.c:446
+>   vfs_ioctl fs/ioctl.c:46 [inline]
+>   file_ioctl fs/ioctl.c:509 [inline]
+>   do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
+>   ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
+>   __do_sys_ioctl fs/ioctl.c:720 [inline]
+>   __se_sys_ioctl fs/ioctl.c:718 [inline]
+>   __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
+>   do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
+>   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> RIP: 0033:0x459829
+> Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
+> 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+> ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+> RSP: 002b:00007f7a68f6dc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459829
+> RDX: 0000000000000000 RSI: 0000000080404805 RDI: 0000000000000004
+> RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000246 R12: 00007f7a68f6e6d4
+> R13: 00000000004c21de R14: 00000000004d5620 R15: 00000000ffffffff
+> 
+> The two problems have the same cause: hidraw_ioctl() fails to test
+> whether the device has been removed.  This patch adds the missing test.
+> 
+> Reported-and-tested-by: syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+
+Thanks a lot Alan for chasing this; I've applied the patch.
+
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,66 +1,94 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hidraw: Fix invalid read in hidraw_ioctl
-Date: Thu, 22 Aug 2019 09:51:07 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1908220950470.27147@cbobk.fhfr.pm>
-References: <Pine.LNX.4.44L0.1908211323030.1816-100000@iolanthe.rowland.org>
+From: Jiada Wang <jiada_wang@mentor.com>
+Subject: Re: [PATCH v1 39/63] Input: touchscreen: Atmel: Add device tree
+ support for T15 key array objects
+Date: Thu, 22 Aug 2019 16:57:10 +0900
+Message-ID: <f40a8123-6d94-26ff-d6f1-cc8c9db313a4@mentor.com>
+References: <20190816083525.19071-1-jiada_wang@mentor.com>
+ <20190816083525.19071-5-jiada_wang@mentor.com>
+ <20190816172500.GI121898@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.1908211323030.1816-100000@iolanthe.rowland.org>
+In-Reply-To: <20190816172500.GI121898@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: andreyknvl@google.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, syzkaller-bugs@googlegroups.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: nick@shmanahar.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 21 Aug 2019, Alan Stern wrote:
+Hi
 
-> The syzbot fuzzer has reported a pair of problems in the
-> hidraw_ioctl() function: slab-out-of-bounds read and use-after-free
-> read.  An example of the first:
+On 2019/08/17 2:25, Dmitry Torokhov wrote:
+> On Fri, Aug 16, 2019 at 05:35:01PM +0900, Jiada Wang wrote:
+>> From: Daniel Gong <Zhanli.Gong@cn.bosch.com>
 > 
-> BUG: KASAN: slab-out-of-bounds in strlen+0x79/0x90 lib/string.c:525
-> Read of size 1 at addr ffff8881c8035f38 by task syz-executor.4/2833
+> This should be with the code adding T15 handling.
 > 
-> CPU: 1 PID: 2833 Comm: syz-executor.4 Not tainted 5.3.0-rc2+ #1
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-> Google 01/01/2011
-> Call Trace:
->   __dump_stack lib/dump_stack.c:77 [inline]
->   dump_stack+0xca/0x13e lib/dump_stack.c:113
->   print_address_description+0x6a/0x32c mm/kasan/report.c:351
->   __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
->   kasan_report+0xe/0x12 mm/kasan/common.c:612
->   strlen+0x79/0x90 lib/string.c:525
->   strlen include/linux/string.h:281 [inline]
->   hidraw_ioctl+0x245/0xae0 drivers/hid/hidraw.c:446
->   vfs_ioctl fs/ioctl.c:46 [inline]
->   file_ioctl fs/ioctl.c:509 [inline]
->   do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
->   ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
->   __do_sys_ioctl fs/ioctl.c:720 [inline]
->   __se_sys_ioctl fs/ioctl.c:718 [inline]
->   __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
->   do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
->   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> RIP: 0033:0x459829
-> Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
-> 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-> ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-> RSP: 002b:00007f7a68f6dc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459829
-> RDX: 0000000000000000 RSI: 0000000080404805 RDI: 0000000000000004
-> RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000246 R12: 00007f7a68f6e6d4
-> R13: 00000000004c21de R14: 00000000004d5620 R15: 00000000ffffffff
-> 
-> The two problems have the same cause: hidraw_ioctl() fails to test
-> whether the device has been removed.  This patch adds the missing test.
-> 
-> Reported-and-tested-by: syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com
-> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+will squash this patch into T15 handling one in v2 patchset
 
-Thanks a lot Alan for chasing this; I've applied the patch.
-
--- 
-Jiri Kosina
-SUSE Labs
+Thanks,
+Jiada
+>>
+>> Signed-off-by: Daniel Gong <Zhanli.Gong@cn.bosch.com>
+>> Signed-off-by: George G. Davis <george_davis@mentor.com>
+>> Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+>> ---
+>>   drivers/input/touchscreen/atmel_mxt_ts.c | 29 ++++++++++++++++++++++++
+>>   1 file changed, 29 insertions(+)
+>>
+>> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> index be63002c2b31..3b9544c0a209 100644
+>> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+>> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> @@ -4143,10 +4143,12 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+>>   {
+>>   	static const char keymap_property[] = "linux,gpio-keymap";
+>>   	static const char gpios_property[] = "atmel,gpios";
+>> +	static const char buttons_property[] = "atmel,key-buttons";
+>>   	struct device *dev = &data->client->dev;
+>>   	struct device_node *np = dev ? dev->of_node : NULL;
+>>   	struct device_node *np_gpio;
+>>   	u32 *keymap;
+>> +	u32 *buttonmap;
+>>   	int n_keys;
+>>   	int error;
+>>   
+>> @@ -4181,6 +4183,33 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+>>   		data->t19_num_keys = n_keys;
+>>   	}
+>>   
+>> +	if (device_property_present(dev, buttons_property)) {
+>> +		n_keys = device_property_read_u32_array(dev, buttons_property,
+>> +							NULL, 0);
+>> +		if (n_keys <= 0) {
+>> +			error = n_keys < 0 ? n_keys : -EINVAL;
+>> +			dev_err(dev, "invalid/malformed '%s' property: %d\n",
+>> +				buttons_property, error);
+>> +			return error;
+>> +		}
+>> +
+>> +		buttonmap = devm_kmalloc_array(dev, n_keys, sizeof(*buttonmap),
+>> +					       GFP_KERNEL);
+>> +		if (!buttonmap)
+>> +			return -ENOMEM;
+>> +
+>> +		error = device_property_read_u32_array(dev, buttons_property,
+>> +						       buttonmap, n_keys);
+>> +		if (error) {
+>> +			dev_err(dev, "failed to parse '%s' property: %d\n",
+>> +				buttons_property, error);
+>> +			return error;
+>> +		}
+>> +
+>> +		data->t15_keymap = buttonmap;
+>> +		data->t15_num_keys = n_keys;
+>> +	}
+>> +
+>>   	device_property_read_u32(dev, "atmel,suspend-mode", &data->suspend_mode);
+>>   
+>>   	np_gpio = of_get_child_by_name(np, gpios_property);
+>> -- 
+>> 2.19.2
+>>
+> 

@@ -1,43 +1,50 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/2] HID multitouch: small fixes
-Date: Thu, 22 Aug 2019 18:25:05 +0200
-Message-ID: <CAO-hwJ+kujRCBw-A8HV7ppLbnD-nkOsqFd3_KgCD9UBR23oq2w@mail.gmail.com>
-References: <20190812162326.14253-1-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Rishi Gupta <gupt21@gmail.com>
+Subject: [PATCH] HID: hidraw: replace printk() with corresponding pr_xx() variant
+Date: Thu, 22 Aug 2019 22:13:52 +0530
+Message-ID: <1566492232-13590-1-git-send-email-gupt21@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190812162326.14253-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Matthias Fend <Matthias.Fend@wolfvision.net>, Jiri Kosina <jikos@kernel.org>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rishi Gupta <gupt21@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Aug 12, 2019 at 6:23 PM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> First one should prevent us to add more quirks for Win8 devices
-> that have a trackstick.
-> Second one is a weird device that doesnt work properly in recent
-> kernels.
+This commit replaces direct invocations of printk with
+their appropriate pr_info/warn() variant.
 
-Looks like there is not much traction for this series.
+Signed-off-by: Rishi Gupta <gupt21@gmail.com>
+---
+ drivers/hid/hidraw.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-The test suite is still passing, so I applied the series in for-5.4/multitouch
-
-Cheers,
-Benjamin
-
->
-> Cheers,
-> Benjamin
->
-> Benjamin Tissoires (2):
->   HID: multitouch: do not filter mice nodes
->   HID: multitouch: add support for the Smart Tech panel
->
->  drivers/hid/hid-multitouch.c | 37 +++++++++++++++++++++++++++++-------
->  1 file changed, 30 insertions(+), 7 deletions(-)
->
-> --
-> 2.19.2
->
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 006bd6f..67b652b 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -197,14 +197,14 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t
+ 	}
+ 
+ 	if (count > HID_MAX_BUFFER_SIZE) {
+-		printk(KERN_WARNING "hidraw: pid %d passed too large report\n",
++		pr_warn("hidraw: pid %d passed too large report\n",
+ 				task_pid_nr(current));
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+ 
+ 	if (count < 2) {
+-		printk(KERN_WARNING "hidraw: pid %d passed too short report\n",
++		pr_warn("hidraw: pid %d passed too short report\n",
+ 				task_pid_nr(current));
+ 		ret = -EINVAL;
+ 		goto out;
+@@ -597,7 +597,7 @@ int __init hidraw_init(void)
+ 	if (result < 0)
+ 		goto error_class;
+ 
+-	printk(KERN_INFO "hidraw: raw HID events driver (C) Jiri Kosina\n");
++	pr_info("hidraw: raw HID events driver (C) Jiri Kosina\n");
+ out:
+ 	return result;
+ 
+-- 
+2.7.4

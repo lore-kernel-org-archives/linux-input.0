@@ -1,25 +1,39 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH] Input: ili210x - switch to using threaded IRQ
-Date: Fri, 23 Aug 2019 12:34:13 +0200
-Message-ID: <1bee0866-d022-2adf-3734-aeb2689d28f1@denx.de>
-References: <20190811161104.GA43556@dtor-ws>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 00/11] Face lift for bu21013_ts driver
+Date: Fri, 23 Aug 2019 13:30:22 +0200
+Message-ID: <CACRpkdaTK0pybDM6So-E=weE_+uz8TSr=38YNzNQdqjZvnnYXw@mail.gmail.com>
+References: <20190810002039.95876-1-dmitry.torokhov@gmail.com>
+ <CACRpkdZo9so+5UoT3QpFmL_8NZT1d1i7Yab202RNn8gDfnPK7A@mail.gmail.com> <20190821174257.GC76194@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190811161104.GA43556@dtor-ws>
-Content-Language: en-US
+In-Reply-To: <20190821174257.GC76194@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On 8/11/19 6:11 PM, Dmitry Torokhov wrote:
-> Let's switch the driver to using threaded IRQ so that we do not need to
-> manage the interrupt and work separately, and we do not acknowledge
-> interrupt until we finished handling it completely.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Wed, Aug 21, 2019 at 7:43 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 
-On ILI2117
-Tested-by: Marek Vasut <marex@denx.de>
+> The issue is this:
+>
+> static void bu21013_disable_chip(void *_ts)
+> {
+>         struct bu21013_ts *ts = ts;
+>
+> which shuts up gcc about the fact that 'ts' is uninitialized, it should
+> have said "ts = _ts". I guess it is a lesson for me to not call the voi
+> d pointer argument almost the same name as the structure, as it is easy
+> to miss in the review. The compiler would not care in either case, but a
+> human might have noticed.
+>
+> Can you please try making this change (and the same in power off
+> handler)?
+
+Yes this works! :)
+
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij

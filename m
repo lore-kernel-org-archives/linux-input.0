@@ -1,67 +1,40 @@
-From: Pedro Vanzella <pedro@pedrovanzella.com>
-Subject: [PATCH v3 3/4] hid-logitech-hidpp: report battery voltage to the power supply
-Date: Thu, 22 Aug 2019 16:18:47 -0400
-Message-ID: <20190822201849.28924-4-pedro@pedrovanzella.com>
-References: <20190822201849.28924-1-pedro@pedrovanzella.com>
+From: Jiada Wang <jiada_wang@mentor.com>
+Subject: Re: [PATCH v1 31/63] Input: atmel_mxt_ts - add memory access
+ interface via sysfs
+Date: Fri, 23 Aug 2019 12:00:49 +0900
+Message-ID: <94d1ef09-811b-4109-e3d4-4f4f4e9ac89c@mentor.com>
+References: <20190816083451.18947-1-jiada_wang@mentor.com>
+ <20190816083451.18947-2-jiada_wang@mentor.com>
+ <20190816172920.GK121898@dtor-ws>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190822201849.28924-1-pedro@pedrovanzella.com>
+In-Reply-To: <20190816172920.GK121898@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: lains@archlinux.org, Pedro Vanzella <pedro@pedrovanzella.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: nick@shmanahar.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-If we know the device supports reading its voltage, report that.
+Hi Dmitry
 
-Note that the protocol only gives us the current voltage in millivolts.
+On 2019/08/17 2:29, Dmitry Torokhov wrote:
+> On Fri, Aug 16, 2019 at 05:34:19PM +0900, Jiada Wang wrote:
+>> From: Nick Dyer <nick.dyer@itdev.co.uk>
+>>
+>> Atmel maXTouch chips can be addressed via an "Object Based Protocol" which
+>> defines how i2c registers are mapped to different functions within the
+>> chips. This interface exposes the register map and allows user-space
+>> utilities to inspect and alter object configuration, and to view diagnostic
+>> data, while the device is running.
+> 
+> I'd say if we want this we should look into write support in regmap and
+> switching the driver over.
+> 
+since switch to regmap is non-trival, I will drop this patch in v2 patchset
 
-Signed-off-by: Pedro Vanzella <pedro@pedrovanzella.com>
----
- drivers/hid/hid-logitech-hidpp.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index e1ddc9cdcc8b..06bee97d33b4 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1319,6 +1319,7 @@ static enum power_supply_property hidpp_battery_props[] = {
- 	POWER_SUPPLY_PROP_SERIAL_NUMBER,
- 	0, /* placeholder for POWER_SUPPLY_PROP_CAPACITY, */
- 	0, /* placeholder for POWER_SUPPLY_PROP_CAPACITY_LEVEL, */
-+	0, /* placeholder for POWER_SUPPLY_PROP_VOLTAGE_NOW, */
- };
- 
- static int hidpp_battery_get_property(struct power_supply *psy,
-@@ -1356,6 +1357,9 @@ static int hidpp_battery_get_property(struct power_supply *psy,
- 		case POWER_SUPPLY_PROP_SERIAL_NUMBER:
- 			val->strval = hidpp->hid_dev->uniq;
- 			break;
-+		case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-+			val->intval = hidpp->battery.voltage;
-+			break;
- 		default:
- 			ret = -EINVAL;
- 			break;
-@@ -3328,7 +3332,7 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
- 	if (!battery_props)
- 		return -ENOMEM;
- 
--	num_battery_props = ARRAY_SIZE(hidpp_battery_props) - 2;
-+	num_battery_props = ARRAY_SIZE(hidpp_battery_props) - 3;
- 
- 	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_MILEAGE)
- 		battery_props[num_battery_props++] =
-@@ -3338,6 +3342,10 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
- 		battery_props[num_battery_props++] =
- 				POWER_SUPPLY_PROP_CAPACITY_LEVEL;
- 
-+	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_VOLTAGE)
-+		battery_props[num_battery_props++] =
-+			POWER_SUPPLY_PROP_VOLTAGE_NOW;
-+
- 	battery = &hidpp->battery;
- 
- 	n = atomic_inc_return(&battery_no) - 1;
--- 
-2.23.0
+Thanks,
+Jiada
+> Thanks.
+> 

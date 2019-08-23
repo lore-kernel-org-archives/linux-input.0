@@ -1,61 +1,71 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [Resubmit] Read battery voltage from Logitech Gaming mice
-Date: Fri, 23 Aug 2019 10:25:46 +0200
-Message-ID: <CAO-hwJKQcTpmk8cVf-YmKu2awXv_53=qfpy2yfmy2rgMu_DEug@mail.gmail.com>
-References: <20190822201849.28924-1-pedro@pedrovanzella.com>
+Subject: Re: [PATCH] HID: logitech-dj: add support of the G700(s) receiver
+Date: Fri, 23 Aug 2019 12:06:07 +0200
+Message-ID: <CAO-hwJL2PeHNWsaPvWER7dSaG3iHPGZuWhLY54Z_dpTN=pBaPg@mail.gmail.com>
+References: <20190812160804.11803-1-benjamin.tissoires@redhat.com> <f97403fd-4bf0-f82b-06e7-8bf4dcb2b2aa@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190822201849.28924-1-pedro@pedrovanzella.com>
+In-Reply-To: <f97403fd-4bf0-f82b-06e7-8bf4dcb2b2aa@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pedro Vanzella <pedro@pedrovanzella.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Pedro,
-
-On Thu, Aug 22, 2019 at 10:19 PM Pedro Vanzella <pedro@pedrovanzella.com> wrote:
+On Mon, Aug 12, 2019 at 6:26 PM Hans de Goede <hdegoede@redhat.com> wrote:
 >
-> Resumitting this after having rebased it against the latest changes.
-
-thanks for resubmitting. Sorry I wasn't able to provide feedback on
-the last revision
-
+> Hi,
 >
-> The gaming line of Logitech devices doesn't use the old hidpp20
-> feature for battery level reporting. Instead, they report the
-> current voltage of the battery, in millivolts.
+> On 12-08-19 18:08, Benjamin Tissoires wrote:
+> > Both the G700 and the G700s are sharing the same receiver.
+> > Include support for this receiver in hid-logitech-dj so that userspace
+> > can differentiate both.
+> >
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 >
-> This patch set handles this case by adding a quirk to the
-> devices we know to have this new feature, in both wired
-> and wireless mode.
-
-So the quirk is in the end a bad idea after all. I had some chats with
-Filipe that made me realize this.
-Re-reading our previous exchanges also made me understood why I wasn't
-happy with the initial submission: for every request the code was
-checking both features 0x1000 and 0x1001 when we can remember this
-once and for all during hidpp_initialize_battery().
-
-So I think we should remove the useless quirk in the end (bad idea
-from me, I concede), and instead during hidpp_initialize_battery() set
-the correct HIDPP_CAPABILITY_*.
-Not entirely sure if we should try to call 0x1000, or 0x1001 or if we
-should rely on the 0x0001 feature to know which feature is available,
-but this should be implementation detail.
-
+> Nice, looks good to me:
 >
-> This version of the patch set is better split, as well as adding the
-> quirk to make sure we don't needlessly probe every device connected.
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-It is for sure easy to review, but doesn't make much sense in the end.
-I think we should squash all the patches together as you are just
-adding one feature in the driver, and it is a little bit disturbing to
-first add the quirk that has no use, then set up the structs when they
-are not used, and so on, so forth.
+thanks
+
+Applied to for-5.4/logitech
 
 Cheers,
 Benjamin
 
 >
+> Regards,
 >
+> Hans
+>
+>
+>
+> > ---
+> >   drivers/hid/hid-logitech-dj.c | 5 +++++
+> >   1 file changed, 5 insertions(+)
+> >
+> > diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+> > index c547cba05fbb..d6250b0cb9f8 100644
+> > --- a/drivers/hid/hid-logitech-dj.c
+> > +++ b/drivers/hid/hid-logitech-dj.c
+> > @@ -959,6 +959,7 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
+> >               break;
+> >       case 0x07:
+> >               device_type = "eQUAD step 4 Gaming";
+> > +             logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
+> >               break;
+> >       case 0x08:
+> >               device_type = "eQUAD step 4 for gamepads";
+> > @@ -1832,6 +1833,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
+> >         HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+> >                        USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_2),
+> >        .driver_data = recvr_type_hidpp},
+> > +     { /* Logitech G700(s) receiver (0xc531) */
+> > +       HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+> > +             0xc531),
+> > +      .driver_data = recvr_type_gaming_hidpp},
+> >       { /* Logitech lightspeed receiver (0xc539) */
+> >         HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+> >               USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED),
+> >

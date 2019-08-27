@@ -1,7 +1,7 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v2 21/49] Input: atmel_mxt_ts - refactor code to enter bootloader into separate func
-Date: Tue, 27 Aug 2019 15:28:42 +0900
-Message-ID: <20190827062910.20598-2-jiada_wang@mentor.com>
+Subject: [PATCH v2 22/49] Input: atmel_mxt_ts - combine bootloader version query with probe
+Date: Tue, 27 Aug 2019 15:28:43 +0900
+Message-ID: <20190827062910.20598-3-jiada_wang@mentor.com>
 References: <20190827062910.20598-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -15,96 +15,100 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
+This removes some complexity from the bootloader state machine, and means
+that we always output some debug about the version as soon as we start
+talking to the bootloader.
+
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit bedd706a32522b946467e15f4f4f24de86a1b4d7)
-[gdavis: Resolve forward port conflicts due to applying upstream
-	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
-	 data support").]
+(cherry picked from ndyer/linux/for-upstream commit a2d141f170c80fea6663af98aab0be32abc0ddb0)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Squash change from ndyer/linux/for-upstream commit d691d3ee6c6de84b38464a42
-3207b3e23cb9dc3a
-	- Input: atmel_mxt_ts - check firmware format before entering bootloader]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 43 +++++++++++++++---------
- 1 file changed, 27 insertions(+), 16 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 45 +++++++-----------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 85eefd4fbc9a..3da3f27ed580 100644
+index 3da3f27ed580..4ec28b73ee83 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3257,23 +3257,10 @@ static int mxt_check_firmware_format(struct device *dev,
- 	return -EINVAL;
+@@ -558,47 +558,31 @@ static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
+ {
+ 	struct device *dev = &data->client->dev;
+ 	int error;
+-	u8 val;
+-	bool crc_failure;
++	u8 buf[3];
++	bool crc_failure, extended_id;
+ 
+ 	error = mxt_lookup_bootloader_address(data, alt_address);
+ 	if (error)
+ 		return error;
+ 
+-	error = mxt_bootloader_read(data, &val, 1);
++	/* Check bootloader status and version information */
++	error = mxt_bootloader_read(data, buf, sizeof(buf));
+ 	if (error)
+ 		return error;
+ 
+-	/* Check app crc fail mode */
+-	crc_failure = (val & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
++	crc_failure = (buf[0] & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
++	extended_id = buf[0] & MXT_BOOT_EXTENDED_ID;
+ 
+-	dev_err(dev, "Detected bootloader, status:%02X%s\n",
+-			val, crc_failure ? ", APP_CRC_FAIL" : "");
++	dev_info(dev, "Found bootloader addr:%02x ID:%u%s%u%s\n",
++		 data->bootloader_addr,
++		 extended_id ? (buf[1] & MXT_BOOT_ID_MASK) : buf[0],
++		 extended_id ? " version:" : "",
++		 extended_id ? buf[2] : 0,
++		 crc_failure ? ", APP_CRC_FAIL" : "");
+ 
+ 	return 0;
  }
  
--static int mxt_load_fw(struct device *dev)
-+static int mxt_enter_bootloader(struct mxt_data *data)
- {
--	struct mxt_data *data = dev_get_drvdata(dev);
--	struct mxt_flash f = { 0, };
- 	int ret;
- 
--	ret = request_firmware(&f.fw, data->fw_name, dev);
--	if (ret) {
--		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
--		return ret;
+-static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
+-{
+-	struct device *dev = &data->client->dev;
+-	u8 buf[3];
+-
+-	if (val & MXT_BOOT_EXTENDED_ID) {
+-		if (mxt_bootloader_read(data, &buf[0], 3) != 0) {
+-			dev_err(dev, "%s: i2c failure\n", __func__);
+-			return val;
+-		}
+-
+-		dev_dbg(dev, "Bootloader ID:%d Version:%d\n", buf[1], buf[2]);
+-
+-		return buf[0];
+-	} else {
+-		dev_dbg(dev, "Bootloader ID:%d\n", val & MXT_BOOT_ID_MASK);
+-
+-		return val;
 -	}
+-}
 -
--	/* Check for incorrect enc file */
--	ret = mxt_check_firmware_format(dev, f.fw);
--	if (ret)
--		goto release_firmware;
--
- 	if (data->suspended) {
- 		if (data->suspend_mode == MXT_SUSPEND_REGULATOR)
- 			mxt_regulator_enable(data);
-@@ -3291,14 +3278,14 @@ static int mxt_load_fw(struct device *dev)
- 		ret = mxt_t6_command(data, MXT_COMMAND_RESET,
- 				     MXT_BOOT_VALUE, false);
- 		if (ret)
--			goto release_firmware;
-+			return ret;
+ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
+ 				bool wait)
+ {
+@@ -632,9 +616,6 @@ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
+ 	if (ret)
+ 		return ret;
  
+-	if (state == MXT_WAITING_BOOTLOAD_CMD)
+-		val = mxt_get_bootloader_version(data, val);
+-
+ 	switch (state) {
+ 	case MXT_WAITING_BOOTLOAD_CMD:
+ 	case MXT_WAITING_FRAME_DATA:
+@@ -3283,7 +3264,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
  		msleep(MXT_RESET_TIME);
  
  		/* Do not need to scan since we know family ID */
- 		ret = mxt_lookup_bootloader_address(data, 0);
+-		ret = mxt_lookup_bootloader_address(data, 0);
++		ret = mxt_probe_bootloader(data, 0);
  		if (ret)
--			goto release_firmware;
-+			return ret;
+ 			return ret;
  
- 		mxt_sysfs_remove(data);
- 		mxt_free_input_device(data);
-@@ -3309,6 +3296,30 @@ static int mxt_load_fw(struct device *dev)
- 
- 	reinit_completion(&data->bl_completion);
- 
-+	return 0;
-+}
-+
-+static int mxt_load_fw(struct device *dev)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	struct mxt_flash f = { 0, };
-+	int ret;
-+
-+	ret = request_firmware(&f.fw, data->fw_name, dev);
-+	if (ret) {
-+		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
-+		return ret;
-+	}
-+
-+	/* Check for incorrect enc file */
-+	ret = mxt_check_firmware_format(dev, f.fw);
-+	if (ret)
-+		goto release_firmware;
-+
-+	ret = mxt_enter_bootloader(data);
-+	if (ret)
-+		goto release_firmware;
-+
- 	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD, false);
- 	if (ret) {
- 		/* Bootloader may still be unlocked from previous attempt */
 -- 
 2.19.2

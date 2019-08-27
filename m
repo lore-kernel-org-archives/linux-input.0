@@ -1,7 +1,7 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v2 22/49] Input: atmel_mxt_ts - combine bootloader version query with probe
-Date: Tue, 27 Aug 2019 15:28:43 +0900
-Message-ID: <20190827062910.20598-3-jiada_wang@mentor.com>
+Subject: [PATCH v2 24/49] Input: atmel_mxt_ts - rename bl_completion to chg_completion
+Date: Tue, 27 Aug 2019 15:28:45 +0900
+Message-ID: <20190827062910.20598-5-jiada_wang@mentor.com>
 References: <20190827062910.20598-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -15,100 +15,108 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-This removes some complexity from the bootloader state machine, and means
-that we always output some debug about the version as soon as we start
-talking to the bootloader.
-
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit a2d141f170c80fea6663af98aab0be32abc0ddb0)
+(cherry picked from ndyer/linux/for-upstream commit dda8453bfb44216645ede798918a314d4fca2481)
+[gdavis: Resolve forward port conflicts due to applying upstream
+	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
+	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
+[jiada: call complete(&data->chg_completion) only when in_bootloader is TRUE]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 45 +++++++-----------------
- 1 file changed, 13 insertions(+), 32 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 3da3f27ed580..4ec28b73ee83 100644
+index 4e7f82e2fc0c..e5843cb9a35e 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -558,47 +558,31 @@ static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
- {
- 	struct device *dev = &data->client->dev;
- 	int error;
--	u8 val;
--	bool crc_failure;
-+	u8 buf[3];
-+	bool crc_failure, extended_id;
+@@ -381,9 +381,6 @@ struct mxt_data {
+ 	u8 T100_reportid_max;
+ 	u16 T107_address;
  
- 	error = mxt_lookup_bootloader_address(data, alt_address);
- 	if (error)
- 		return error;
+-	/* for fw update in bootloader */
+-	struct completion bl_completion;
+-
+ 	/* for reset handling */
+ 	struct completion reset_completion;
  
--	error = mxt_bootloader_read(data, &val, 1);
-+	/* Check bootloader status and version information */
-+	error = mxt_bootloader_read(data, buf, sizeof(buf));
- 	if (error)
- 		return error;
+@@ -395,6 +392,9 @@ struct mxt_data {
  
--	/* Check app crc fail mode */
--	crc_failure = (val & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
-+	crc_failure = (buf[0] & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
-+	extended_id = buf[0] & MXT_BOOT_EXTENDED_ID;
+ 	enum mxt_suspend_mode suspend_mode;
  
--	dev_err(dev, "Detected bootloader, status:%02X%s\n",
--			val, crc_failure ? ", APP_CRC_FAIL" : "");
-+	dev_info(dev, "Found bootloader addr:%02x ID:%u%s%u%s\n",
-+		 data->bootloader_addr,
-+		 extended_id ? (buf[1] & MXT_BOOT_ID_MASK) : buf[0],
-+		 extended_id ? " version:" : "",
-+		 extended_id ? buf[2] : 0,
-+		 crc_failure ? ", APP_CRC_FAIL" : "");
++	/* for power up handling */
++	struct completion chg_completion;
++
+ 	/* Indicates whether device is in suspend */
+ 	bool suspended;
+ 
+@@ -611,7 +611,7 @@ static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
+ 	 * CHG assertion before reading the status byte.
+ 	 * Once the status byte has been read, the line is deasserted.
+ 	 */
+-	ret = mxt_wait_for_completion(data, &data->bl_completion,
++	ret = mxt_wait_for_completion(data, &data->chg_completion,
+ 				      MXT_FW_CHG_TIMEOUT);
+ 	if (ret) {
+ 		/*
+@@ -1402,8 +1402,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 	struct mxt_data *data = dev_id;
+ 
+ 	if (data->in_bootloader) {
+-		/* bootloader state transition completion */
+-		complete(&data->bl_completion);
++		complete(&data->chg_completion);
+ 		return IRQ_HANDLED;
+ 	}
+ 
+@@ -2167,9 +2166,9 @@ static void mxt_regulator_enable(struct mxt_data *data)
+ 	msleep(MXT_CHG_DELAY);
+ 
+ retry_wait:
+-	reinit_completion(&data->bl_completion);
++	reinit_completion(&data->chg_completion);
+ 	data->in_bootloader = true;
+-	error = mxt_wait_for_completion(data, &data->bl_completion,
++	error = mxt_wait_for_completion(data, &data->chg_completion,
+ 					MXT_POWERON_DELAY);
+ 	if (error == -EINTR)
+ 		goto retry_wait;
+@@ -3334,7 +3333,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
+ 		enable_irq(data->irq);
+ 	}
+ 
+-	reinit_completion(&data->bl_completion);
++	reinit_completion(&data->chg_completion);
  
  	return 0;
  }
+@@ -3370,7 +3369,7 @@ static int mxt_load_fw(struct device *dev)
+ 	}
  
--static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
--{
--	struct device *dev = &data->client->dev;
--	u8 buf[3];
--
--	if (val & MXT_BOOT_EXTENDED_ID) {
--		if (mxt_bootloader_read(data, &buf[0], 3) != 0) {
--			dev_err(dev, "%s: i2c failure\n", __func__);
--			return val;
--		}
--
--		dev_dbg(dev, "Bootloader ID:%d Version:%d\n", buf[1], buf[2]);
--
--		return buf[0];
--	} else {
--		dev_dbg(dev, "Bootloader ID:%d\n", val & MXT_BOOT_ID_MASK);
--
--		return val;
--	}
--}
--
- static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
- 				bool wait)
- {
-@@ -632,9 +616,6 @@ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
+ 	/* Wait for flash. */
+-	ret = mxt_wait_for_completion(data, &data->bl_completion,
++	ret = mxt_wait_for_completion(data, &data->chg_completion,
+ 				      MXT_FW_RESET_TIME);
  	if (ret)
- 		return ret;
+ 		goto disable_irq;
+@@ -3381,7 +3380,7 @@ static int mxt_load_fw(struct device *dev)
+ 	 * the CHG line after bootloading has finished, so ignore potential
+ 	 * errors.
+ 	 */
+-	mxt_wait_for_completion(data, &data->bl_completion, MXT_FW_RESET_TIME);
++	mxt_wait_for_completion(data, &data->chg_completion, MXT_FW_RESET_TIME);
  
--	if (state == MXT_WAITING_BOOTLOAD_CMD)
--		val = mxt_get_bootloader_version(data, val);
--
- 	switch (state) {
- 	case MXT_WAITING_BOOTLOAD_CMD:
- 	case MXT_WAITING_FRAME_DATA:
-@@ -3283,7 +3264,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
- 		msleep(MXT_RESET_TIME);
+ 	data->in_bootloader = false;
+ disable_irq:
+@@ -3803,7 +3802,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	data->irq = client->irq;
+ 	i2c_set_clientdata(client, data);
  
- 		/* Do not need to scan since we know family ID */
--		ret = mxt_lookup_bootloader_address(data, 0);
-+		ret = mxt_probe_bootloader(data, 0);
- 		if (ret)
- 			return ret;
+-	init_completion(&data->bl_completion);
++	init_completion(&data->chg_completion);
+ 	init_completion(&data->reset_completion);
+ 	init_completion(&data->crc_completion);
  
 -- 
 2.19.2

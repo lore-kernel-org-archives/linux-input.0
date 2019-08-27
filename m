@@ -1,97 +1,173 @@
-From: Robin Gong <yibin.gong@nxp.com>
-Subject: RE: [PATCH] input: keyboard: snvs_pwrkey: Send press and release
- event for i.MX6 S,DL and Q
-Date: Tue, 27 Aug 2019 06:17:52 +0000
-Message-ID: <VE1PR04MB6638754916357F551502102589A00@VE1PR04MB6638.eurprd04.prod.outlook.com>
-References: <20190823123002.10448-1-robin@protonic.nl>
+From: Jiada Wang <jiada_wang@mentor.com>
+Subject: [PATCH v2 00/49] atmel_mxt_ts misc
+Date: Tue, 27 Aug 2019 15:25:18 +0900
+Message-ID: <20190827062607.19839-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190823123002.10448-1-robin@protonic.nl>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Robin van der Gracht <robin@protonic.nl>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, dl-linux-imx <linux-imx@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Adam Ford <aford173@gmail.com>, Fabio Estevam <festevam@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: nick@shmanahar.org, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com, george_davis@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 23, 2019 at 02:30:02PM +0200, Robin van der Gracht wrote:> 
-> The older generation i.MX6 processors send a powerdown request interrupt
-> if the powerkey is released before a hard shutdown (5 second press). This
-> should allow software to bring down the SoC safely.
-> 
-> For this driver to work as a regular powerkey with the older SoCs, we need to
-> send a keypress AND release when we get the powerdown request interrupt.
-Please clarify here more clearly that because there is NO press interrupt triggered
-but only release interrupt on elder i.mx6 processors and that HW issue fixed from
-i.mx6sx.
-> 
-> Signed-off-by: Robin van der Gracht <robin@protonic.nl>
-> ---
->  arch/arm/boot/dts/imx6qdl.dtsi       |  2 +-
->  arch/arm/boot/dts/imx6sll.dtsi       |  2 +-
->  arch/arm/boot/dts/imx6sx.dtsi        |  2 +-
->  arch/arm/boot/dts/imx6ul.dtsi        |  2 +-
->  arch/arm/boot/dts/imx7s.dtsi         |  2 +-
-As Shawn talked, please keep the original "fsl,sec-v4.0-pwrkey", just add
-'imx6qdl-snvs-pwrkey' for elder i.mx6 processor i.mx6q/dl/sl, thus no need
-to touch other newer processor's dts.
+This patch-set forward ports Nick Dyer's work in ndyer/linux github repository
+as long as some other features and fixes
 
-> 
->  static void imx_imx_snvs_check_for_events(struct timer_list *t) @@ -67,13
-> +85,23 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void
-> *dev_id)  {
->  	struct platform_device *pdev = dev_id;
->  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> +	struct input_dev *input = pdata->input;
->  	u32 lp_status;
-> 
-> -	pm_wakeup_event(pdata->input->dev.parent, 0);
-> +	pm_wakeup_event(input->dev.parent, 0);
-> 
->  	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
-> -	if (lp_status & SNVS_LPSR_SPO)
-> -		mod_timer(&pdata->check_timer, jiffies +
-> msecs_to_jiffies(DEBOUNCE_TIME));
-> +	if (lp_status & SNVS_LPSR_SPO) {
-> +		if (pdata->hwtype == IMX6QDL_SNVS) {
-> +			input_report_key(input, pdata->keycode, 1);
-> +			input_report_key(input, pdata->keycode, 0);
-> +			input_sync(input);
-> +			pm_relax(input->dev.parent);
-Could you move the above input event report steps into imx_imx_snvs_check_for_events()
-as before? That make code better to understand and less operation in ISR.
-> +		} else {
-> +			mod_timer(&pdata->check_timer,
-> +				jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
-> +		}
-> +	}
-> 
->  	/* clear SPO status */
->  	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO); @@
-> -88,11 +116,24 @@ static void imx_snvs_pwrkey_act(void *pdata)
->  	del_timer_sync(&pd->check_timer);
->  }
-> 
-> +static const struct of_device_id imx_snvs_pwrkey_ids[] = {
-> +	{
-> +		.compatible = "fsl,imx6sx-sec-v4.0-pwrkey",
-> +		.data = &imx_snvs_devtype[IMX6SX_SNVS],
-> +	}, {
-> +		.compatible = "fsl,imx6qdl-sec-v4.0-pwrkey",
-> +		.data = &imx_snvs_devtype[IMX6QDL_SNVS],
-No ' IMX6QDL_SNVS ' defined in your patch or am I missing?
-> +	},
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
-> --
-> 2.20.1
+Balasubramani Vivekanandan (2):
+  Input: atmel_mxt_ts: Limit the max bytes transferred in an i2c
+    transaction
+  Input: atmel_mxt_ts: use gpiod_set_value_cansleep for reset pin
+
+Dean Jenkins (1):
+  Input: atmel_mxt_ts: return error from
+    mxt_process_messages_until_invalid()
+
+Deepak Das (6):
+  Input: Atmel: improve error handling in mxt_start()
+  Input: Atmel: improve error handling in mxt_initialize()
+  Input: Atmel: improve error handling in mxt_update_cfg()
+  Input: Atmel: Improve error handling in mxt_initialize_input_device()
+  Input: Atmel: handle ReportID "0x00" while processing T5 messages
+  Input: Atmel: use T44 object to process T5 messages
+
+George G. Davis (1):
+  input: atmel_mxt_ts: export GPIO reset line via sysfs
+
+Jiada Wang (4):
+  Input: switch to use return value of input_mt_report_slot_state
+  Input: introduce input_mt_report_slot_inactive
+  Input: atmel_mxt_ts - eliminate data->raw_info_block
+  Input: atmel_mxt_ts - Fix compilation warning
+
+Karl Tsou (1):
+  Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msgs
+
+Kautuk Consul (2):
+  Input: atmel_mxt_ts - Change call-points of mxt_free_* functions
+  Input: atmel_mxt_ts - rely on calculated_crc rather than file
+    config_crc
+
+Naveen Chakka (2):
+  input: touchscreen: atmel_mxt_ts: Added sysfs entry for touchscreen
+    status
+  input: atmel_mxt_ts: added sysfs interface to update atmel T38 data
+
+Nick Dyer (26):
+  Input: atmel_mxt_ts - rework sysfs init/remove
+  Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when
+    necessary
+  Input: atmel_mxt_ts - split large i2c transfers into blocks
+  Input: atmel_mxt_ts - output status from T48 Noise Supression
+  Input: atmel_mxt_ts - output status from T42 Touch Suppression
+  Input: atmel_mxt_ts - implement T9 vector/orientation support
+  Input: atmel_mxt_ts - implement T15 Key Array support
+  Input: atmel_mxt_ts - handle reports from T47 Stylus object
+  Input: atmel_mxt_ts - implement support for T107 active stylus
+  Input: atmel_mxt_ts - release touch state during suspend
+  Input: atmel_mxt_ts - add regulator control support
+  Input: atmel_mxt_ts - report failures in suspend/resume
+  Input: atmel_mxt_ts - allow specification of firmware file name
+  Input: atmel_mxt_ts - handle cfg filename via pdata/sysfs
+  Input: atmel_mxt_ts - allow input name to be specified in platform
+    data
+  Input: atmel_mxt_ts - refactor firmware flash to extract context into
+    struct
+  Input: atmel_mxt_ts - refactor code to enter bootloader into separate
+    func
+  Input: atmel_mxt_ts - combine bootloader version query with probe
+  Input: atmel_mxt_ts - improve bootloader state machine handling
+  Input: atmel_mxt_ts - rename bl_completion to chg_completion
+  Input: atmel_mxt_ts - make bootloader interrupt driven
+  Input: atmel_mxt_ts - delay enabling IRQ when not using regulators
+  Input: atmel_mxt_ts - implement I2C retries
+  Input: atmel_mxt_ts - orientation is not present in hover
+  Input: atmel_mxt_ts - implement debug output for messages
+  Input: atmel_mxt_ts - implement improved debug message interface
+
+Nikhil Ravindran (1):
+  Input: atmel_mxt_ts: Add support for run self-test routine.
+
+Sanjeev Chugh (1):
+  Input: atmel_mxt_ts: Implement synchronization during various
+    operation
+
+karl tsou (1):
+  Input: atmel_mxt_ts - add config checksum attribute to sysfs
+
+keerthikumarp (1):
+  input: atmel_mxt_ts: Add Missing Delay for reset handling of Atmel
+    touch panel controller in detachable displays.
+---
+v2: 
+Following commit in v1 patchset has been split into two commits
+Input: introduce input_mt_report_slot_inactive
+
+Following commits have been updated compared to v1 patchset
+Input: atmel_mxt_ts - split large i2c transfers into blocks
+Input: atmel_mxt_ts - output status from T42 Touch Suppression
+
+Following commits in v1 patchset have been squashed
+Input: touchscreen: Atmel: Add device tree support for T15 key array objects
+Input: atmel_mxt_ts - check data->input_dev is not null in mxt_input_sync()
+Input: atmel_mxt_ts - check firmware format before entering bootloader
+Input: atmel_mxt_ts: update stale use_retrigen_workaround flag
+input: atmel_mxt_ts: move bootloader probe from mxt_initialize()
+input: Atmel: limit the max bytes transferred while reading T5 messages
+Input: atmel_mxt_ts: Use msecs_to_jiffies() instead of HZ
+Input: atmel_mxt_ts: Use complete when in_bootloader true 
+Input: atmel_mxt_ts: Prevent crash due to freeing of input device
+input: atmel_mxt_ts: Add NULL check for sysfs attribute debug_msg_attr
+
+Following commits in v1 patchset have been dropped:
+Input: atmel_mxt_ts - configure and use gpios as real gpios
+Input: touchscreen: Atmel: Enable IRQ_DISABLE_UNLAZY flag for interrupt
+Input: atmel_mxt_ts - add memory access interface via sysfs
+Input: atmel_mxt_ts: Remove sysfs attributes during driver detach
+Input: atmel_mxt_ts: Avoid race condition in freeing of input device
+
+
+v1: initial version
+---
+ .../bindings/input/atmel,maxtouch.txt         |   14 +
+ MAINTAINERS                                   |    1 +
+ drivers/hid/hid-alps.c                        |    3 +-
+ drivers/hid/hid-asus.c                        |    3 +-
+ drivers/hid/hid-elan.c                        |    3 +-
+ drivers/hid/hid-logitech-hidpp.c              |    5 +-
+ drivers/hid/hid-magicmouse.c                  |    3 +-
+ drivers/hid/hid-multitouch.c                  |    9 +-
+ drivers/hid/hid-sony.c                        |    8 +-
+ drivers/hid/wacom_wac.c                       |   15 +-
+ drivers/input/input-mt.c                      |    2 +-
+ drivers/input/misc/xen-kbdfront.c             |    2 +-
+ drivers/input/mouse/elan_i2c_core.c           |    2 +-
+ drivers/input/mouse/elantech.c                |    5 +-
+ drivers/input/mouse/focaltech.c               |    3 +-
+ drivers/input/mouse/sentelic.c                |    3 +-
+ drivers/input/mouse/synaptics.c               |    3 +-
+ drivers/input/rmi4/rmi_2d_sensor.c            |    6 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c      | 2269 ++++++++++++++---
+ drivers/input/touchscreen/chipone_icn8505.c   |    4 +-
+ drivers/input/touchscreen/cyttsp4_core.c      |    5 +-
+ drivers/input/touchscreen/cyttsp_core.c       |    2 +-
+ drivers/input/touchscreen/egalax_ts.c         |    3 +-
+ drivers/input/touchscreen/hideep.c            |    7 +-
+ drivers/input/touchscreen/ili210x.c           |    3 +-
+ drivers/input/touchscreen/melfas_mip4.c       |    4 +-
+ drivers/input/touchscreen/mms114.c            |    6 +-
+ drivers/input/touchscreen/penmount.c          |    5 +-
+ drivers/input/touchscreen/raspberrypi-ts.c    |    2 +-
+ drivers/input/touchscreen/raydium_i2c_ts.c    |    4 +-
+ drivers/input/touchscreen/sis_i2c.c           |    5 +-
+ drivers/input/touchscreen/stmfts.c            |    2 +-
+ drivers/input/touchscreen/surface3_spi.c      |    4 +-
+ drivers/input/touchscreen/wacom_w8001.c       |    3 +-
+ drivers/input/touchscreen/zforce_ts.c         |    6 +-
+ include/dt-bindings/input/atmel_mxt_ts.h      |   22 +
+ include/linux/input/mt.h                      |    5 +
+ 37 files changed, 2026 insertions(+), 425 deletions(-)
+ create mode 100644 include/dt-bindings/input/atmel_mxt_ts.h
+
+-- 
+2.19.2

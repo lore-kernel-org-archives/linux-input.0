@@ -1,13 +1,13 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v2 13/49] Input: atmel_mxt_ts - release touch state during suspend
-Date: Tue, 27 Aug 2019 15:27:20 +0900
-Message-ID: <20190827062756.20380-4-jiada_wang@mentor.com>
-References: <20190827062756.20380-1-jiada_wang@mentor.com>
+Subject: [PATCH v2 18/49] Input: atmel_mxt_ts - allow input name to be specified in platform data
+Date: Tue, 27 Aug 2019 15:28:03 +0900
+Message-ID: <20190827062834.20494-4-jiada_wang@mentor.com>
+References: <20190827062834.20494-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190827062756.20380-1-jiada_wang@mentor.com>
+In-Reply-To: <20190827062834.20494-1-jiada_wang@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: nick@shmanahar.org, dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com, george_davis@mentor.com
@@ -15,153 +15,68 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-If fingers are down as the MXT chip goes into suspend it does not send a
-lift message. In addition, it may not complete its final measurement cycle
-immediately, which means touch messages may be received by the interrupt
-handler after mxt_stop() has completed.
-
-So:
-- disable irq during suspend
-- flush any messages created after suspend
-- tell app layer that slots were released at suspend
+Android systems identify the input device and map to IDC file by using the
+input device name. To avoid unnecessary deltas to the driver file, allow
+this to be set from the platform data.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Benson Leung <bleung@chromium.org>
-Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 26794433086dbc7dea18d2f6a1c8d61ab25bcfda)
+(cherry picked from ndyer/linux/for-upstream commit cbf94a7bda754d2e1899d9f50313a0bccc91422d)
 [gdavis: Resolve forward port conflicts due to applying upstream
 	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
 	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[gdavis: Squash fix from Dirk Behme:
-	 - Input: atmel_mxt_ts - remove superfluous data->suspended]
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
----
-Notes:
-- Squash fix from Dirk Behme:
-  + Input: atmel_mxt_ts - remove superfluous data->suspended
-
-    data->suspended is already set to false in mxt_load_fw(), so it's not
-    needed here.
-
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 52 ++++++++++++++++++++++--
- 1 file changed, 49 insertions(+), 3 deletions(-)
+ .../devicetree/bindings/input/atmel,maxtouch.txt         | 2 ++
+ drivers/input/touchscreen/atmel_mxt_ts.c                 | 9 ++++++++-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+index 713ce870805c..d7db16920083 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+@@ -40,6 +40,8 @@ Optional properties for main touchpad device:
+ - atmel,cfg_name: Provide name of configuration file in OBP_RAW format. This
+     will be downloaded from the firmware loader on probe to the device.
+ 
++- atmel,input_name: Override name of input device from the default.
++
+ Example:
+ 
+ 	touch@4b {
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 26861252c088..4d28b30c4f76 100644
+index c6be716a974c..923ceb5118c5 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -372,6 +372,9 @@ struct mxt_data {
- 	unsigned int t19_num_keys;
+@@ -336,6 +336,7 @@ struct mxt_data {
+ 	char *fw_name;
+ 	char *cfg_name;
+ 	const char *pcfg_name;
++	const char *input_name;
  
- 	enum mxt_suspend_mode suspend_mode;
-+
-+	/* Indicates whether device is in suspend */
-+	bool suspended;
- };
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -2412,7 +2413,11 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	if (!input_dev)
+ 		return -ENOMEM;
  
- struct mxt_vb2_buffer {
-@@ -1151,10 +1154,10 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 		mxt_proc_t42_messages(data, message);
- 	} else if (report_id == data->T48_reportid) {
- 		mxt_proc_t48_messages(data, message);
--	} else if (!data->input_dev) {
-+	} else if (!data->input_dev || data->suspended) {
- 		/*
--		 * Do not report events if input device
--		 * is not yet registered.
-+		 * Do not report events if input device is not
-+		 * yet registered or returning from suspend
- 		 */
- 		mxt_dump_message(data, message);
- 	} else if (report_id >= data->T9_reportid_min &&
-@@ -3135,6 +3138,11 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 	if (ret)
- 		goto release_firmware;
+-	input_dev->name = "Atmel maXTouch Touchscreen";
++	if (data->input_name)
++		input_dev->name = data->input_name;
++	else
++		input_dev->name = "Atmel maXTouch Touchscreen";
++
+ 	input_dev->phys = data->phys;
+ 	input_dev->id.bustype = BUS_I2C;
+ 	input_dev->dev.parent = dev;
+@@ -3653,6 +3658,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
  
-+	if (data->suspended) {
-+		enable_irq(data->irq);
-+		data->suspended = false;
-+	}
-+
- 	if (!data->in_bootloader) {
- 		/* Change to the bootloader mode */
- 		data->in_bootloader = true;
-@@ -3306,8 +3314,27 @@ static void mxt_sysfs_remove(struct mxt_data *data)
- 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
- }
+ 	device_property_read_string(dev, "atmel,cfg_name", &data->pcfg_name);
  
-+static void mxt_reset_slots(struct mxt_data *data)
-+{
-+	struct input_dev *input_dev = data->input_dev;
-+	int id;
++	device_property_read_string(dev, "atmel,input_name", &data->input_name);
 +
-+	if (!input_dev)
-+		return;
-+
-+	for (id = 0; id < data->num_touchids; id++) {
-+		input_mt_slot(input_dev, id);
-+		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
-+	}
-+
-+	mxt_input_sync(data);
-+}
-+
- static void mxt_start(struct mxt_data *data)
- {
-+	if (!data->suspended || data->in_bootloader)
-+		return;
-+
- 	switch (data->suspend_mode) {
- 	case MXT_SUSPEND_T9_CTRL:
- 		mxt_soft_reset(data);
-@@ -3320,16 +3347,29 @@ static void mxt_start(struct mxt_data *data)
- 
- 	case MXT_SUSPEND_DEEP_SLEEP:
- 	default:
-+		/*
-+		 * Discard any touch messages still in message buffer
-+		 * from before chip went to sleep
-+		 */
-+		mxt_process_messages_until_invalid(data);
-+
- 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
- 
- 		/* Recalibrate since chip has been in deep sleep */
- 		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
-+
-+		mxt_acquire_irq(data);
- 		break;
- 	}
-+
-+	data->suspended = false;
- }
- 
- static void mxt_stop(struct mxt_data *data)
- {
-+	if (data->suspended || data->in_bootloader)
-+		return;
-+
- 	switch (data->suspend_mode) {
- 	case MXT_SUSPEND_T9_CTRL:
- 		/* Touch disable */
-@@ -3339,9 +3379,15 @@ static void mxt_stop(struct mxt_data *data)
- 
- 	case MXT_SUSPEND_DEEP_SLEEP:
- 	default:
-+		disable_irq(data->irq);
-+
- 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
-+
-+		mxt_reset_slots(data);
- 		break;
- 	}
-+
-+	data->suspended = true;
- }
- 
- static int mxt_input_open(struct input_dev *dev)
+ 	if (device_property_present(dev, keymap_property)) {
+ 		n_keys = device_property_read_u32_array(dev, keymap_property,
+ 							NULL, 0);
 -- 
 2.19.2

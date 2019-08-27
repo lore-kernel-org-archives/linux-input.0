@@ -1,38 +1,125 @@
-From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v2 49/49] Input: atmel_mxt_ts - Fix compilation warning
-Date: Tue, 27 Aug 2019 15:32:01 +0900
-Message-ID: <20190827063201.21048-5-jiada_wang@mentor.com>
-References: <20190827063201.21048-1-jiada_wang@mentor.com>
+From: robin <robin@protonic.nl>
+Subject: Re: [PATCH] input: keyboard: snvs_pwrkey: Send press and release
+ event for i.MX6 S,DL and Q
+Date: Tue, 27 Aug 2019 09:55:18 +0200
+Message-ID: <83c033a20f5f2e3ce15525a1efd072bb@protonic.nl>
+References: <20190823123002.10448-1-robin@protonic.nl>
+ <VE1PR04MB6638754916357F551502102589A00@VE1PR04MB6638.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190827063201.21048-1-jiada_wang@mentor.com>
+In-Reply-To: <VE1PR04MB6638754916357F551502102589A00@VE1PR04MB6638.eurprd04.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: nick@shmanahar.org, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com, george_davis@mentor.com
+To: Robin Gong <yibin.gong@nxp.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Adam Ford <aford173@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-fix "make W=1" compilation warnings from Atmel driver
-as per the compilation logs.
+On 2019-08-27 08:17, Robin Gong wrote:
+> On Fri, Aug 23, 2019 at 02:30:02PM +0200, Robin van der Gracht wrote:>
+>> The older generation i.MX6 processors send a powerdown request 
+>> interrupt
+>> if the powerkey is released before a hard shutdown (5 second press). 
+>> This
+>> should allow software to bring down the SoC safely.
+>> 
+>> For this driver to work as a regular powerkey with the older SoCs, we 
+>> need to
+>> send a keypress AND release when we get the powerdown request 
+>> interrupt.
+> Please clarify here more clearly that because there is NO press
+> interrupt triggered
+> but only release interrupt on elder i.mx6 processors and that HW issue
+> fixed from
+> i.mx6sx.
 
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ACK
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index a461220cd336..115c94d3f0d4 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2046,7 +2046,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data, struct mxt_cfg *cfg)
- 
- 			byte_offset = reg + i - cfg->start_ofs;
- 
--			if (byte_offset >= 0 && byte_offset < cfg->mem_size) {
-+			if (byte_offset < cfg->mem_size) {
- 				*(cfg->mem + byte_offset) = val;
- 			} else {
- 				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
--- 
-2.19.2
+>> 
+>> Signed-off-by: Robin van der Gracht <robin@protonic.nl>
+>> ---
+>>  arch/arm/boot/dts/imx6qdl.dtsi       |  2 +-
+>>  arch/arm/boot/dts/imx6sll.dtsi       |  2 +-
+>>  arch/arm/boot/dts/imx6sx.dtsi        |  2 +-
+>>  arch/arm/boot/dts/imx6ul.dtsi        |  2 +-
+>>  arch/arm/boot/dts/imx7s.dtsi         |  2 +-
+> As Shawn talked, please keep the original "fsl,sec-v4.0-pwrkey", just 
+> add
+> 'imx6qdl-snvs-pwrkey' for elder i.mx6 processor i.mx6q/dl/sl, thus no 
+> need
+> to touch other newer processor's dts.
+
+ACK
+
+> 
+>> 
+>>  static void imx_imx_snvs_check_for_events(struct timer_list *t) @@ 
+>> -67,13
+>> +85,23 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void
+>> *dev_id)  {
+>>  	struct platform_device *pdev = dev_id;
+>>  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+>> +	struct input_dev *input = pdata->input;
+>>  	u32 lp_status;
+>> 
+>> -	pm_wakeup_event(pdata->input->dev.parent, 0);
+>> +	pm_wakeup_event(input->dev.parent, 0);
+>> 
+>>  	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
+>> -	if (lp_status & SNVS_LPSR_SPO)
+>> -		mod_timer(&pdata->check_timer, jiffies +
+>> msecs_to_jiffies(DEBOUNCE_TIME));
+>> +	if (lp_status & SNVS_LPSR_SPO) {
+>> +		if (pdata->hwtype == IMX6QDL_SNVS) {
+>> +			input_report_key(input, pdata->keycode, 1);
+>> +			input_report_key(input, pdata->keycode, 0);
+>> +			input_sync(input);
+>> +			pm_relax(input->dev.parent);
+> Could you move the above input event report steps into
+> imx_imx_snvs_check_for_events()
+> as before? That make code better to understand and less operation in 
+> ISR.
+
+I placed it here to avoid the unnessesairy debounce delay (since thats 
+already
+implemented in hardware).
+
+I do agree with your arguments so I'll move emitting the events to
+imx_imx_snvs_check_for_events().
+
+Is it ok if I keep the conditional, but instead of emitting the events,
+schedule imx_imx_snvs_check_for_events() immidiatly to avoid the 
+debounce,
+or should I choose clarity over the 30 ms delay?
+
+>> +		} else {
+>> +			mod_timer(&pdata->check_timer,
+>> +				jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
+>> +		}
+>> +	}
+>> 
+>>  	/* clear SPO status */
+>>  	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO); @@
+>> -88,11 +116,24 @@ static void imx_snvs_pwrkey_act(void *pdata)
+>>  	del_timer_sync(&pd->check_timer);
+>>  }
+>> 
+>> +static const struct of_device_id imx_snvs_pwrkey_ids[] = {
+>> +	{
+>> +		.compatible = "fsl,imx6sx-sec-v4.0-pwrkey",
+>> +		.data = &imx_snvs_devtype[IMX6SX_SNVS],
+>> +	}, {
+>> +		.compatible = "fsl,imx6qdl-sec-v4.0-pwrkey",
+>> +		.data = &imx_snvs_devtype[IMX6QDL_SNVS],
+> No ' IMX6QDL_SNVS ' defined in your patch or am I missing?
+
+I added an enum 'imx_snvs_hwtype' that defines both IMX6SX_SNVS and 
+IMX6QDL_SNVS.
+
+>> +	},
+>> +	{ /* sentinel */ }
+>> +};
+>> +MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
+>> --
+>> 2.20.1

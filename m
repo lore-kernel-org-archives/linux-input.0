@@ -1,39 +1,42 @@
-From: Robin van der Gracht <robin@protonic.nl>
-Subject: [PATCH v2 2/2] arm: dts: imx6qdl: snvs-pwrkey: Change compatible string
-Date: Tue, 27 Aug 2019 14:32:16 +0200
-Message-ID: <20190827123216.32728-2-robin@protonic.nl>
-References: <20190827123216.32728-1-robin@protonic.nl>
+From: <hn.chen@weidahitech.com>
+Subject: [PATCH] Input: modify quirks of i2c-hid driver for weida's devices
+Date: Tue, 27 Aug 2019 20:47:16 +0800
+Message-ID: <1566910036-10516-1-git-send-email-hn.chen@weidahitech.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190827123216.32728-1-robin@protonic.nl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Robin Gong <yibin.gong@nxp.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "devicetree @ vger . kernel . org" <devicetree@vger.kernel.org>, "linux-arm-kernel @ lists . infradead . org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, "linux-input @ vger . kernel . org" <linux-input@vger.kernel.org>, Adam Ford <aford173@gmail.com>, Robin van der Gracht <robin@protonic.nl>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, hn.chen@weidahitech.com
 List-Id: linux-input@vger.kernel.org
 
-The older imx6 SoCs do not send a power key press interrupt, instead it
-sends a power down request interrupt when the key is released between
-750ms and 5 seconds. The driver uses a different compatible string to ID
-the older SoCs.
+From: HungNien Chen <hn.chen@weidahitech.com>
 
-Signed-off-by: Robin van der Gracht <robin@protonic.nl>
+This 'SET_PWR_WAKEUP_DEV' quirk only works for weida's devices with pid
+0xC300 & 0xC301. Some weida's devices with other pids also need this quirk
+now. Use 'HID_ANY_ID' instead of 0xC300 to make all of weida's devices can be
+fixed on the power on issue. This modification should be safe since devices
+without power on issue will send the power on command only once.
+
+Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
 ---
- arch/arm/boot/dts/imx6qdl.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
-index b3a77bcf00d5..91b97816881c 100644
---- a/arch/arm/boot/dts/imx6qdl.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl.dtsi
-@@ -836,7 +836,7 @@
- 				};
- 
- 				snvs_pwrkey: snvs-powerkey {
--					compatible = "fsl,sec-v4.0-pwrkey";
-+					compatible = "fsl,imx6qdl-snvs-pwrkey";
- 					regmap = <&snvs>;
- 					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
- 					linux,keycode = <KEY_POWER>;
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 90164fe..2a7c6e3 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -169,9 +169,7 @@ struct i2c_hid {
+ 	__u16 idProduct;
+ 	__u32 quirks;
+ } i2c_hid_quirks[] = {
+-	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8752,
+-		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+-	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8755,
++	{ USB_VENDOR_ID_WEIDA, HID_ANY_ID,
+ 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+ 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
+ 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET |
 -- 
-2.20.1
+1.9.1

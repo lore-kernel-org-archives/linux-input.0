@@ -1,82 +1,137 @@
-From: "tip-bot2 for Thomas Hellstrom" <tip-bot2@linutronix.de>
-Subject: [tip: x86/vmware] input/vmmouse: Update the backdoor call with
- support for new instructions
-Date: Wed, 28 Aug 2019 13:30:56 -0000
-Message-ID: <156699905611.5321.15444519862547054670.tip-bot2@tip-bot2>
-References: <20190828080353.12658-5-thomas_os@shipmail.org>
-Reply-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: Alps touchpad generates IRQ storm after S3
+Date: Wed, 28 Aug 2019 22:43:33 +0800
+Message-ID: <BFBB1DB9-00B6-497E-80D1-5168CF16B889@canonical.com>
+References: <44F93018-5F13-4932-A5AC-9D288CDF68DD@canonical.com>
+ <TYAPR01MB30223CB8A576C7809F6382C1ECA30@TYAPR01MB3022.jpnprd01.prod.outlook.com>
+ <TYXPR01MB1470902D804A47EE72013006C8A30@TYXPR01MB1470.jpnprd01.prod.outlook.com>
+ <A118551C-A0D9-485F-91F7-44A5BE228B99@canonical.com>
+ <39b2e63e339447e8b09b2601abf3d1ba@AUSX13MPC101.AMER.DELL.COM>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Content-Type: text/plain;
+        charset=utf-8;
+        delsp=yes;
+        format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190828080353.12658-5-thomas_os@shipmail.org>
+In-Reply-To: <39b2e63e339447e8b09b2601abf3d1ba@AUSX13MPC101.AMER.DELL.COM>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Hellstrom <thellstrom@vmware.com>, Borislav Petkov <bp@suse.de>, Doug Covelli <dcovelli@vmware.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, VMware Graphics <linux-graphics-maintainer@vmware.com>, pv-drivers@vmware.com, x86-ml <x86@kernel.org>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: Mario.Limonciello@dell.com
+Cc: xiaojian.cao@cn.alps.com, masaki.ota@alpsalpine.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, naoki.saito@alpsalpine.com
 List-Id: linux-input@vger.kernel.org
 
-The following commit has been merged into the x86/vmware branch of tip:
+Hi Mario,
 
-Commit-ID:     f7b15c74cffd760ec9959078982d8268a38456c4
-Gitweb:        https://git.kernel.org/tip/f7b15c74cffd760ec9959078982d8268a38456c4
-Author:        Thomas Hellstrom <thellstrom@vmware.com>
-AuthorDate:    Wed, 28 Aug 2019 10:03:53 +02:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Wed, 28 Aug 2019 13:43:01 +02:00
+at 21:25, <Mario.Limonciello@dell.com> <Mario.Limonciello@dell.com> wrote:
 
-input/vmmouse: Update the backdoor call with support for new instructions
+> KH,
+>
+> Just make sure I understand details.
+>
+>> Commit "HID: i2c-hid: Don't reset device upon system resume
+>
+> If you revert this it's fixed on this system?
 
-Use the definition provided by include/asm/vmware.h.
+Yes. Once reset is used instead of  the issue is gone.
 
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Doug Covelli <dcovelli@vmware.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: linux-input@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
-Cc: <pv-drivers@vmware.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190828080353.12658-5-thomas_os@shipmail.org
----
- drivers/input/mouse/vmmouse.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> In that commit you had mentioned if this causes problems it might be worth
+> quirking just Raydium but commit afbb1169ed5b58cfca017e368b53e019cf285853
+> confirmed that it helped several other systems too.
+>
+> If the conclusion from this investigation this is only fixable via  
+> touchpad FW update
+> it might be worth quirking this touchpad/touchpad FW/system combination.
 
-diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
-index 871e5b5..148245c 100644
---- a/drivers/input/mouse/vmmouse.c
-+++ b/drivers/input/mouse/vmmouse.c
-@@ -16,12 +16,12 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <asm/hypervisor.h>
-+#include <asm/vmware.h>
- 
- #include "psmouse.h"
- #include "vmmouse.h"
- 
- #define VMMOUSE_PROTO_MAGIC			0x564D5868U
--#define VMMOUSE_PROTO_PORT			0x5658
- 
- /*
-  * Main commands supported by the vmmouse hypervisor port.
-@@ -84,7 +84,7 @@ struct vmmouse_data {
- #define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)	\
- ({							\
- 	unsigned long __dummy1, __dummy2;		\
--	__asm__ __volatile__ ("inl %%dx" :		\
-+	__asm__ __volatile__ (VMWARE_HYPERCALL :	\
- 		"=a"(out1),				\
- 		"=b"(out2),				\
- 		"=c"(out3),				\
-@@ -94,7 +94,7 @@ struct vmmouse_data {
- 		"a"(VMMOUSE_PROTO_MAGIC),		\
- 		"b"(in1),				\
- 		"c"(VMMOUSE_PROTO_CMD_##cmd),		\
--		"d"(VMMOUSE_PROTO_PORT) :		\
-+		"d"(0) :			        \
- 		"memory");		                \
- })
- 
+Hopefully there’s a better solution from ALPS :)
+
+>
+>> Also Cc Mario because this could relate to BIOS.
+>
+> Also I assume this is on current stable BIOS/EC release, right?
+
+Yes. The BIOS version is 1.10.1.
+
+The IRQ storm stops as soon as the touchpad gets touched.
+
+Kai-Heng
+
+>
+> Thanks,
+>
+>> -----Original Message-----
+>> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>> Sent: Wednesday, August 28, 2019 1:58 AM
+>> To: Xiaojian Cao
+>> Cc: Masaki Ota; Limonciello, Mario; open list:HID CORE LAYER; Linux Kernel
+>> Mailing List; Naoki Saito
+>> Subject: Re: Alps touchpad generates IRQ storm after S3
+>>
+>>
+>> [EXTERNAL EMAIL]
+>>
+>> Hi Xiaojian,
+>>
+>> at 14:51, Xiaojian Cao <xiaojian.cao@cn.alps.com> wrote:
+>>
+>>> Hi Ota-san,
+>>>
+>>> OK, we will look into it.
+>>>
+>>>
+>>> Hi Kai-Heng,
+>>>
+>>> We will try to reproduce this issue first, could you please tell me the
+>>> target Ubuntu version?
+>>
+>> It’s distro-agnostic, any distro with mainline Linux can reproduce the  
+>> issue.
+>>
+>> Kai-Heng
+>>
+>>> Best regards,
+>>> Jason
+>>>
+>>> -----Original Message-----
+>>> From: 太田 真喜 Masaki Ota <masaki.ota@alpsalpine.com>
+>>> Sent: Wednesday, August 28, 2019 2:35 PM
+>>> To: 曹 曉建 Xiaojian Cao <xiaojian.cao@cn.alps.com>; Kai-Heng Feng
+>>> <kai.heng.feng@canonical.com>
+>>> Cc: Mario Limonciello <mario.limonciello@dell.com>; open list:HID CORE
+>>> LAYER <linux-input@vger.kernel.org>; Linux Kernel Mailing List
+>>> <linux-kernel@vger.kernel.org>; 斉藤 直樹 Naoki Saito
+>>> <naoki.saito@alpsalpine.com>
+>>> Subject: RE: Alps touchpad generates IRQ storm after S3
+>>>
+>>> Hi, Kai-Heng,
+>>>
+>>> Sorry, I'm not in charge of Linux task now.
+>>>
+>>> Hi, XiaoJian,
+>>>
+>>> Please check the following mail.
+>>> If you have any question, please ask Kai-Heng.
+>>>
+>>> Best Regards,
+>>> Masaki Ota
+>>> -----Original Message-----
+>>> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>>> Sent: Wednesday, August 28, 2019 3:22 PM
+>>> To: 太田 真喜 Masaki Ota <masaki.ota@alpsalpine.com>
+>>> Cc: Mario Limonciello <mario.limonciello@dell.com>; open list:HID CORE
+>>> LAYER <linux-input@vger.kernel.org>; Linux Kernel Mailing List
+>>> <linux-kernel@vger.kernel.org>
+>>> Subject: Alps touchpad generates IRQ storm after S3
+>>>
+>>> Hi Masaki,
+>>>
+>>> The Alps touchpad (044E:1220) on Dell Precision 7530 causes IRQ storm
+>>> after system suspend (S3).
+>>> Commit "HID: i2c-hid: Don't reset device upon system resume” which solves
+>>> the same issue for other vendors, cause the issue on Alps touchpad.
+>>> So I’d like to know the correct command Alps touchpad expects after
+>>> system resume.
+>>>
+>>> Also Cc Mario because this could relate to BIOS.
+>>>
+>>> Kai-Heng

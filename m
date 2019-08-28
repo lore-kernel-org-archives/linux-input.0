@@ -1,74 +1,82 @@
-From: <Mario.Limonciello@dell.com>
-Subject: RE: Alps touchpad generates IRQ storm after S3
-Date: Wed, 28 Aug 2019 13:25:31 +0000
-Message-ID: <39b2e63e339447e8b09b2601abf3d1ba@AUSX13MPC101.AMER.DELL.COM>
-References: <44F93018-5F13-4932-A5AC-9D288CDF68DD@canonical.com>
- <TYAPR01MB30223CB8A576C7809F6382C1ECA30@TYAPR01MB3022.jpnprd01.prod.outlook.com>
- <TYXPR01MB1470902D804A47EE72013006C8A30@TYXPR01MB1470.jpnprd01.prod.outlook.com>
- <A118551C-A0D9-485F-91F7-44A5BE228B99@canonical.com>
+From: "tip-bot2 for Thomas Hellstrom" <tip-bot2@linutronix.de>
+Subject: [tip: x86/vmware] input/vmmouse: Update the backdoor call with
+ support for new instructions
+Date: Wed, 28 Aug 2019 13:30:56 -0000
+Message-ID: <156699905611.5321.15444519862547054670.tip-bot2@tip-bot2>
+References: <20190828080353.12658-5-thomas_os@shipmail.org>
+Reply-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <A118551C-A0D9-485F-91F7-44A5BE228B99@canonical.com>
-Content-Language: en-US
+In-Reply-To: <20190828080353.12658-5-thomas_os@shipmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kai.heng.feng@canonical.com, xiaojian.cao@cn.alps.com
-Cc: masaki.ota@alpsalpine.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, naoki.saito@alpsalpine.com
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Hellstrom <thellstrom@vmware.com>, Borislav Petkov <bp@suse.de>, Doug Covelli <dcovelli@vmware.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, VMware Graphics <linux-graphics-maintainer@vmware.com>, pv-drivers@vmware.com, x86-ml <x86@kernel.org>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-S0gsDQoNCkp1c3QgbWFrZSBzdXJlIEkgdW5kZXJzdGFuZCBkZXRhaWxzLg0KDQo+IENvbW1pdCAi
-SElEOiBpMmMtaGlkOiBEb24ndCByZXNldCBkZXZpY2UgdXBvbiBzeXN0ZW0gcmVzdW1lDQoNCklm
-IHlvdSByZXZlcnQgdGhpcyBpdCdzIGZpeGVkIG9uIHRoaXMgc3lzdGVtPw0KDQpJbiB0aGF0IGNv
-bW1pdCB5b3UgaGFkIG1lbnRpb25lZCBpZiB0aGlzIGNhdXNlcyBwcm9ibGVtcyBpdCBtaWdodCBi
-ZSB3b3J0aA0KcXVpcmtpbmcganVzdCBSYXlkaXVtIGJ1dCBjb21taXQgYWZiYjExNjllZDViNThj
-ZmNhMDE3ZTM2OGI1M2UwMTljZjI4NTg1Mw0KY29uZmlybWVkIHRoYXQgaXQgaGVscGVkIHNldmVy
-YWwgb3RoZXIgc3lzdGVtcyB0b28uDQoNCklmIHRoZSBjb25jbHVzaW9uIGZyb20gdGhpcyBpbnZl
-c3RpZ2F0aW9uIHRoaXMgaXMgb25seSBmaXhhYmxlIHZpYSB0b3VjaHBhZCBGVyB1cGRhdGUNCml0
-IG1pZ2h0IGJlIHdvcnRoIHF1aXJraW5nIHRoaXMgdG91Y2hwYWQvdG91Y2hwYWQgRlcvc3lzdGVt
-IGNvbWJpbmF0aW9uLg0KDQo+IEFsc28gQ2MgTWFyaW8gYmVjYXVzZSB0aGlzIGNvdWxkIHJlbGF0
-ZSB0byBCSU9TLg0KDQpBbHNvIEkgYXNzdW1lIHRoaXMgaXMgb24gY3VycmVudCBzdGFibGUgQklP
-Uy9FQyByZWxlYXNlLCByaWdodD8NCg0KVGhhbmtzLA0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2Fn
-ZS0tLS0tDQo+IEZyb206IEthaS1IZW5nIEZlbmcgPGthaS5oZW5nLmZlbmdAY2Fub25pY2FsLmNv
-bT4NCj4gU2VudDogV2VkbmVzZGF5LCBBdWd1c3QgMjgsIDIwMTkgMTo1OCBBTQ0KPiBUbzogWGlh
-b2ppYW4gQ2FvDQo+IENjOiBNYXNha2kgT3RhOyBMaW1vbmNpZWxsbywgTWFyaW87IG9wZW4gbGlz
-dDpISUQgQ09SRSBMQVlFUjsgTGludXggS2VybmVsDQo+IE1haWxpbmcgTGlzdDsgTmFva2kgU2Fp
-dG8NCj4gU3ViamVjdDogUmU6IEFscHMgdG91Y2hwYWQgZ2VuZXJhdGVzIElSUSBzdG9ybSBhZnRl
-ciBTMw0KPiANCj4gDQo+IFtFWFRFUk5BTCBFTUFJTF0NCj4gDQo+IEhpIFhpYW9qaWFuLA0KPiAN
-Cj4gYXQgMTQ6NTEsIFhpYW9qaWFuIENhbyA8eGlhb2ppYW4uY2FvQGNuLmFscHMuY29tPiB3cm90
-ZToNCj4gDQo+ID4gSGkgT3RhLXNhbiwNCj4gPg0KPiA+IE9LLCB3ZSB3aWxsIGxvb2sgaW50byBp
-dC4NCj4gPg0KPiA+DQo+ID4gSGkgS2FpLUhlbmcsDQo+ID4NCj4gPiBXZSB3aWxsIHRyeSB0byBy
-ZXByb2R1Y2UgdGhpcyBpc3N1ZSBmaXJzdCwgY291bGQgeW91IHBsZWFzZSB0ZWxsIG1lIHRoZQ0K
-PiA+IHRhcmdldCBVYnVudHUgdmVyc2lvbj8NCj4gDQo+IEl04oCZcyBkaXN0cm8tYWdub3N0aWMs
-IGFueSBkaXN0cm8gd2l0aCBtYWlubGluZSBMaW51eCBjYW4gcmVwcm9kdWNlIHRoZSBpc3N1ZS4N
-Cj4gDQo+IEthaS1IZW5nDQo+IA0KPiA+DQo+ID4gQmVzdCByZWdhcmRzLA0KPiA+IEphc29uDQo+
-ID4NCj4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+IEZyb206IOWkqueUsCDnnJ/l
-lpwgTWFzYWtpIE90YSA8bWFzYWtpLm90YUBhbHBzYWxwaW5lLmNvbT4NCj4gPiBTZW50OiBXZWRu
-ZXNkYXksIEF1Z3VzdCAyOCwgMjAxOSAyOjM1IFBNDQo+ID4gVG86IOabuSDmm4nlu7ogWGlhb2pp
-YW4gQ2FvIDx4aWFvamlhbi5jYW9AY24uYWxwcy5jb20+OyBLYWktSGVuZyBGZW5nDQo+ID4gPGth
-aS5oZW5nLmZlbmdAY2Fub25pY2FsLmNvbT4NCj4gPiBDYzogTWFyaW8gTGltb25jaWVsbG8gPG1h
-cmlvLmxpbW9uY2llbGxvQGRlbGwuY29tPjsgb3BlbiBsaXN0OkhJRCBDT1JFDQo+ID4gTEFZRVIg
-PGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZz47IExpbnV4IEtlcm5lbCBNYWlsaW5nIExpc3QN
-Cj4gPiA8bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZz47IOaWieiXpCDnm7TmqLkgTmFva2kg
-U2FpdG8NCj4gPiA8bmFva2kuc2FpdG9AYWxwc2FscGluZS5jb20+DQo+ID4gU3ViamVjdDogUkU6
-IEFscHMgdG91Y2hwYWQgZ2VuZXJhdGVzIElSUSBzdG9ybSBhZnRlciBTMw0KPiA+DQo+ID4gSGks
-IEthaS1IZW5nLA0KPiA+DQo+ID4gU29ycnksIEknbSBub3QgaW4gY2hhcmdlIG9mIExpbnV4IHRh
-c2sgbm93Lg0KPiA+DQo+ID4gSGksIFhpYW9KaWFuLA0KPiA+DQo+ID4gUGxlYXNlIGNoZWNrIHRo
-ZSBmb2xsb3dpbmcgbWFpbC4NCj4gPiBJZiB5b3UgaGF2ZSBhbnkgcXVlc3Rpb24sIHBsZWFzZSBh
-c2sgS2FpLUhlbmcuDQo+ID4NCj4gPiBCZXN0IFJlZ2FyZHMsDQo+ID4gTWFzYWtpIE90YQ0KPiA+
-IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4gRnJvbTogS2FpLUhlbmcgRmVuZyA8a2Fp
-LmhlbmcuZmVuZ0BjYW5vbmljYWwuY29tPg0KPiA+IFNlbnQ6IFdlZG5lc2RheSwgQXVndXN0IDI4
-LCAyMDE5IDM6MjIgUE0NCj4gPiBUbzog5aSq55SwIOecn+WWnCBNYXNha2kgT3RhIDxtYXNha2ku
-b3RhQGFscHNhbHBpbmUuY29tPg0KPiA+IENjOiBNYXJpbyBMaW1vbmNpZWxsbyA8bWFyaW8ubGlt
-b25jaWVsbG9AZGVsbC5jb20+OyBvcGVuIGxpc3Q6SElEIENPUkUNCj4gPiBMQVlFUiA8bGludXgt
-aW5wdXRAdmdlci5rZXJuZWwub3JnPjsgTGludXggS2VybmVsIE1haWxpbmcgTGlzdA0KPiA+IDxs
-aW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnPg0KPiA+IFN1YmplY3Q6IEFscHMgdG91Y2hwYWQg
-Z2VuZXJhdGVzIElSUSBzdG9ybSBhZnRlciBTMw0KPiA+DQo+ID4gSGkgTWFzYWtpLA0KPiA+DQo+
-ID4gVGhlIEFscHMgdG91Y2hwYWQgKDA0NEU6MTIyMCkgb24gRGVsbCBQcmVjaXNpb24gNzUzMCBj
-YXVzZXMgSVJRIHN0b3JtDQo+ID4gYWZ0ZXIgc3lzdGVtIHN1c3BlbmQgKFMzKS4NCj4gPiBDb21t
-aXQgIkhJRDogaTJjLWhpZDogRG9uJ3QgcmVzZXQgZGV2aWNlIHVwb24gc3lzdGVtIHJlc3VtZeKA
-nSB3aGljaCBzb2x2ZXMNCj4gPiB0aGUgc2FtZSBpc3N1ZSBmb3Igb3RoZXIgdmVuZG9ycywgY2F1
-c2UgdGhlIGlzc3VlIG9uIEFscHMgdG91Y2hwYWQuDQo+ID4gU28gSeKAmWQgbGlrZSB0byBrbm93
-IHRoZSBjb3JyZWN0IGNvbW1hbmQgQWxwcyB0b3VjaHBhZCBleHBlY3RzIGFmdGVyDQo+ID4gc3lz
-dGVtIHJlc3VtZS4NCj4gPg0KPiA+IEFsc28gQ2MgTWFyaW8gYmVjYXVzZSB0aGlzIGNvdWxkIHJl
-bGF0ZSB0byBCSU9TLg0KPiA+DQo+ID4gS2FpLUhlbmcNCj4gDQoNCg==
+The following commit has been merged into the x86/vmware branch of tip:
+
+Commit-ID:     f7b15c74cffd760ec9959078982d8268a38456c4
+Gitweb:        https://git.kernel.org/tip/f7b15c74cffd760ec9959078982d8268a38456c4
+Author:        Thomas Hellstrom <thellstrom@vmware.com>
+AuthorDate:    Wed, 28 Aug 2019 10:03:53 +02:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Wed, 28 Aug 2019 13:43:01 +02:00
+
+input/vmmouse: Update the backdoor call with support for new instructions
+
+Use the definition provided by include/asm/vmware.h.
+
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Doug Covelli <dcovelli@vmware.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: linux-input@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
+Cc: <pv-drivers@vmware.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190828080353.12658-5-thomas_os@shipmail.org
+---
+ drivers/input/mouse/vmmouse.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
+index 871e5b5..148245c 100644
+--- a/drivers/input/mouse/vmmouse.c
++++ b/drivers/input/mouse/vmmouse.c
+@@ -16,12 +16,12 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <asm/hypervisor.h>
++#include <asm/vmware.h>
+ 
+ #include "psmouse.h"
+ #include "vmmouse.h"
+ 
+ #define VMMOUSE_PROTO_MAGIC			0x564D5868U
+-#define VMMOUSE_PROTO_PORT			0x5658
+ 
+ /*
+  * Main commands supported by the vmmouse hypervisor port.
+@@ -84,7 +84,7 @@ struct vmmouse_data {
+ #define VMMOUSE_CMD(cmd, in1, out1, out2, out3, out4)	\
+ ({							\
+ 	unsigned long __dummy1, __dummy2;		\
+-	__asm__ __volatile__ ("inl %%dx" :		\
++	__asm__ __volatile__ (VMWARE_HYPERCALL :	\
+ 		"=a"(out1),				\
+ 		"=b"(out2),				\
+ 		"=c"(out3),				\
+@@ -94,7 +94,7 @@ struct vmmouse_data {
+ 		"a"(VMMOUSE_PROTO_MAGIC),		\
+ 		"b"(in1),				\
+ 		"c"(VMMOUSE_PROTO_CMD_##cmd),		\
+-		"d"(VMMOUSE_PROTO_PORT) :		\
++		"d"(0) :			        \
+ 		"memory");		                \
+ })
+ 

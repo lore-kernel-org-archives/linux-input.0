@@ -1,28 +1,34 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: Alps touchpad generates IRQ storm after S3
-Date: Wed, 28 Aug 2019 14:22:18 +0800
-Message-ID: <44F93018-5F13-4932-A5AC-9D288CDF68DD@canonical.com>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Content-Type: text/plain;
-        charset=utf-8;
-        delsp=yes;
-        format=flowed
-Content-Transfer-Encoding: 8bit
+From: Masaki Ota <masaki.ota@alpsalpine.com>
+Subject: RE: Alps touchpad generates IRQ storm after S3
+Date: Wed, 28 Aug 2019 06:35:15 +0000
+Message-ID: <TYAPR01MB30223CB8A576C7809F6382C1ECA30@TYAPR01MB3022.jpnprd01.prod.outlook.com>
+References: <44F93018-5F13-4932-A5AC-9D288CDF68DD@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <44F93018-5F13-4932-A5AC-9D288CDF68DD@canonical.com>
+Content-Language: ja-JP
 Sender: linux-kernel-owner@vger.kernel.org
-To: masaki.ota@jp.alps.com
-Cc: Mario Limonciello <mario.limonciello@dell.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Xiaojian Cao <xiaojian.cao@cn.alps.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Mario Limonciello <mario.limonciello@dell.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Naoki Saito <naoki.saito@alpsalpine.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Masaki,
-
-The Alps touchpad (044E:1220) on Dell Precision 7530 causes IRQ storm after  
-system suspend (S3).
-Commit "HID: i2c-hid: Don't reset device upon system resume” which solves  
-the same issue for other vendors, cause the issue on Alps touchpad.
-So I’d like to know the correct command Alps touchpad expects after system  
-resume.
-
-Also Cc Mario because this could relate to BIOS.
-
-Kai-Heng
+SGksIEthaS1IZW5nLA0KDQpTb3JyeSwgSSdtIG5vdCBpbiBjaGFyZ2Ugb2YgTGludXggdGFzayBu
+b3cuDQoNCkhpLCBYaWFvSmlhbiwNCg0KUGxlYXNlIGNoZWNrIHRoZSBmb2xsb3dpbmcgbWFpbC4N
+CklmIHlvdSBoYXZlIGFueSBxdWVzdGlvbiwgcGxlYXNlIGFzayBLYWktSGVuZy4NCg0KQmVzdCBS
+ZWdhcmRzLA0KTWFzYWtpIE90YQ0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEth
+aS1IZW5nIEZlbmcgPGthaS5oZW5nLmZlbmdAY2Fub25pY2FsLmNvbT4gDQpTZW50OiBXZWRuZXNk
+YXksIEF1Z3VzdCAyOCwgMjAxOSAzOjIyIFBNDQpUbzog5aSq55SwIOecn+WWnCBNYXNha2kgT3Rh
+IDxtYXNha2kub3RhQGFscHNhbHBpbmUuY29tPg0KQ2M6IE1hcmlvIExpbW9uY2llbGxvIDxtYXJp
+by5saW1vbmNpZWxsb0BkZWxsLmNvbT47IG9wZW4gbGlzdDpISUQgQ09SRSBMQVlFUiA8bGludXgt
+aW5wdXRAdmdlci5rZXJuZWwub3JnPjsgTGludXggS2VybmVsIE1haWxpbmcgTGlzdCA8bGludXgt
+a2VybmVsQHZnZXIua2VybmVsLm9yZz4NClN1YmplY3Q6IEFscHMgdG91Y2hwYWQgZ2VuZXJhdGVz
+IElSUSBzdG9ybSBhZnRlciBTMw0KDQpIaSBNYXNha2ksDQoNClRoZSBBbHBzIHRvdWNocGFkICgw
+NDRFOjEyMjApIG9uIERlbGwgUHJlY2lzaW9uIDc1MzAgY2F1c2VzIElSUSBzdG9ybSBhZnRlciBz
+eXN0ZW0gc3VzcGVuZCAoUzMpLg0KQ29tbWl0ICJISUQ6IGkyYy1oaWQ6IERvbid0IHJlc2V0IGRl
+dmljZSB1cG9uIHN5c3RlbSByZXN1bWXigJ0gd2hpY2ggc29sdmVzIHRoZSBzYW1lIGlzc3VlIGZv
+ciBvdGhlciB2ZW5kb3JzLCBjYXVzZSB0aGUgaXNzdWUgb24gQWxwcyB0b3VjaHBhZC4NClNvIEni
+gJlkIGxpa2UgdG8ga25vdyB0aGUgY29ycmVjdCBjb21tYW5kIEFscHMgdG91Y2hwYWQgZXhwZWN0
+cyBhZnRlciBzeXN0ZW0gcmVzdW1lLg0KDQpBbHNvIENjIE1hcmlvIGJlY2F1c2UgdGhpcyBjb3Vs
+ZCByZWxhdGUgdG8gQklPUy4NCg0KS2FpLUhlbmcNCg==

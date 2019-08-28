@@ -1,75 +1,41 @@
-From: Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH] Input - i8042: Enable wakeup on a stable struct device
-Date: Tue, 27 Aug 2019 14:34:31 -0700
-Message-ID: <20190827213431.35882-1-swboyd@chromium.org>
+From: "Johnny.Chuang" <johnny.chuang@emc.com.tw>
+Subject: [PATCH] Input: elants_i2c - return real value of elants_i2c_initialize()
+Date: Wed, 28 Aug 2019 10:33:46 +0800
+Message-ID: <000601d55d49$05878160$10968420$@emc.com.tw>
+References: <1566958886-25756-1-git-send-email-johnny.chuang@emc.com.tw>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+        charset="big5"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1566958886-25756-1-git-send-email-johnny.chuang@emc.com.tw>
+Content-Language: zh-tw
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, =?big5?B?U1RSRDItsviozsBN?= <johnny.chuang@emc.com.tw>, =?big5?B?U1RSRDItvbK0Zrxg?= <jennifer.tsai@emc.com.tw>
+Cc: =?big5?B?U1RSRDIts6+xUqn6uGeyeg==?= <james.chen@emc.com.tw>, =?big5?B?J7Hns9W1vic=?= <paul.liang@emc.com.tw>, 'jeff' <jeff.chuang@emc.com.tw>
 List-Id: linux-input@vger.kernel.org
 
-We don't know when the device will be added with device_add() in
-serio_add_port() because serio_add_port() is called from a workqueue
-that this driver schedules by calling serio_register_port(). The best we
-can know is that the device will definitely not have been added yet when
-the start callback is called on the serio device.
+The return value of elants_i2c_initialize() was always 0.
+It maybe register input device when initialize fail.
 
-While it hasn't been shown to be a problem, proactively move the wakeup
-enabling calls to the start hook so that we don't race with the
-workqueue calling device_add(). This will avoid racy situations where
-code tries to add wakeup sysfs attributes for this device from
-dpm_sysfs_add() but the path in device_set_wakeup_capable() has already
-done so.
-
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
 ---
- drivers/input/serio/i8042.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/input/touchscreen/elants_i2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index e4352741c467..f32780ce22cc 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -432,6 +432,19 @@ static int i8042_start(struct serio *serio)
- {
- 	struct i8042_port *port = serio->port_data;
+diff --git a/drivers/input/touchscreen/elants_i2c.c
+b/drivers/input/touchscreen/elants_i2c.c
+index d4ad24e..9c9816f 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -571,7 +571,7 @@ static int elants_i2c_initialize(struct elants_data *ts)
+ 	if (error)
+ 		ts->iap_mode = ELAN_IAP_RECOVERY;
  
-+	device_set_wakeup_capable(&serio->dev, true);
-+
-+	/*
-+	 * On platforms using suspend-to-idle, allow the keyboard to
-+	 * wake up the system from sleep by enabling keyboard wakeups
-+	 * by default.  This is consistent with keyboard wakeup
-+	 * behavior on many platforms using suspend-to-RAM (ACPI S3)
-+	 * by default.
-+	 */
-+	if (pm_suspend_via_s2idle() &&
-+	    serio == i8042_ports[I8042_KBD_PORT_NO].serio)
-+		device_set_wakeup_enable(&serio->dev, true);
-+
- 	spin_lock_irq(&i8042_lock);
- 	port->exists = true;
- 	spin_unlock_irq(&i8042_lock);
-@@ -1397,17 +1410,6 @@ static void __init i8042_register_ports(void)
- 			(unsigned long) I8042_COMMAND_REG,
- 			i8042_ports[i].irq);
- 		serio_register_port(serio);
--		device_set_wakeup_capable(&serio->dev, true);
--
--		/*
--		 * On platforms using suspend-to-idle, allow the keyboard to
--		 * wake up the system from sleep by enabling keyboard wakeups
--		 * by default.  This is consistent with keyboard wakeup
--		 * behavior on many platforms using suspend-to-RAM (ACPI S3)
--		 * by default.
--		 */
--		if (pm_suspend_via_s2idle() && i == I8042_KBD_PORT_NO)
--			device_set_wakeup_enable(&serio->dev, true);
- 	}
+-	return 0;
++	return error;
  }
  
+ /*
 -- 
-Sent by a computer through tubes
+2.7.4

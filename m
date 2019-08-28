@@ -1,234 +1,74 @@
-From: Marco Felsch <m.felsch@pengutronix.de>
-Subject: Re: [PATCH v2 1/2] input: keyboard: snvs_pwrkey: Send key events for
- i.MX6 S, DL and Q
-Date: Wed, 28 Aug 2019 11:15:50 +0200
-Message-ID: <20190828091550.pdc57wanu6twew5p@pengutronix.de>
-References: <20190827123216.32728-1-robin@protonic.nl>
+From: <Mario.Limonciello@dell.com>
+Subject: RE: Alps touchpad generates IRQ storm after S3
+Date: Wed, 28 Aug 2019 13:25:31 +0000
+Message-ID: <39b2e63e339447e8b09b2601abf3d1ba@AUSX13MPC101.AMER.DELL.COM>
+References: <44F93018-5F13-4932-A5AC-9D288CDF68DD@canonical.com>
+ <TYAPR01MB30223CB8A576C7809F6382C1ECA30@TYAPR01MB3022.jpnprd01.prod.outlook.com>
+ <TYXPR01MB1470902D804A47EE72013006C8A30@TYXPR01MB1470.jpnprd01.prod.outlook.com>
+ <A118551C-A0D9-485F-91F7-44A5BE228B99@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190827123216.32728-1-robin@protonic.nl>
+In-Reply-To: <A118551C-A0D9-485F-91F7-44A5BE228B99@canonical.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Robin van der Gracht <robin@protonic.nl>
-Cc: Robin Gong <yibin.gong@nxp.com>, Mark Rutland <mark.rutland@arm.com>, "devicetree @ vger . kernel . org" <devicetree@vger.kernel.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, dl-linux-imx <linux-imx@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, "linux-input @ vger . kernel . org" <linux-input@vger.kernel.org>, Adam Ford <aford173@gmail.com>, Fabio Estevam <festevam@gmail.com>, "linux-arm-kernel @ lists . infradead . org" <linux-arm-kernel@lists.infradead.org>
+To: kai.heng.feng@canonical.com, xiaojian.cao@cn.alps.com
+Cc: masaki.ota@alpsalpine.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, naoki.saito@alpsalpine.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Robin,
-
-thanks for the patch.
-
-On 19-08-27 14:32, Robin van der Gracht wrote:
-> The first generation i.MX6 processors does not send an interrupt when the
-> power key is pressed. It sends a power down request interrupt if the key is
-> released before a hard shutdown (5 second press). This should allow
-> software to bring down the SoC safely.
-> 
-> For this driver to work as a regular power key with the older SoCs, we need
-> to send a keypress AND release when we get the power down request irq.
-> 
-> Signed-off-by: Robin van der Gracht <robin@protonic.nl>
-> ---
->  .../devicetree/bindings/crypto/fsl-sec4.txt   | 16 ++++--
->  drivers/input/keyboard/Kconfig                |  2 +-
->  drivers/input/keyboard/snvs_pwrkey.c          | 52 ++++++++++++++++---
-
-Can we split this so the dt-bindings are a standalone patch? IMHO this
-is the usual way because the maintainer can squash them on there needs.
-Also it would be cool to document the changes. A common place for
-changes is after the '---' or on the cover-letter.
-
->  3 files changed, 57 insertions(+), 13 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-> index 2fe245ca816a..e4fbb9797082 100644
-> --- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-> +++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
-> @@ -420,14 +420,22 @@ EXAMPLE
->  =====================================================================
->  System ON/OFF key driver
->  
-> -  The snvs-pwrkey is designed to enable POWER key function which controlled
-> -  by SNVS ONOFF, the driver can report the status of POWER key and wakeup
-> -  system if pressed after system suspend.
-> +  The snvs-pwrkey is designed to enable POWER key function which is controlled
-> +  by SNVS ONOFF. It can wakeup the system if pressed after system suspend.
-> +
-> +  There are two generations of SVNS pwrkey hardware. The first generation is
-> +  included in i.MX6 Solo, DualLite and Quad processors. The second generation
-> +  is included in i.MX6 SoloX and newer SoCs.
-> +
-> +  Second generation SNVS can detect and report the status of POWER key, but the
-> +  first generation can only detect a key release and so emits an instantaneous
-> +  press and release event when the key is released.
->  
->    - compatible:
->        Usage: required
->        Value type: <string>
-> -      Definition: Mush include "fsl,sec-v4.0-pwrkey".
-> +      Definition: Must include "fsl,sec-v4.0-pwrkey" for i.MX6 SoloX and newer
-> +	   or "fsl,imx6qdl-snvs-pwrkey" for older SoCs.
->  
->    - interrupts:
->        Usage: required
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 7c4f19dab34f..937e58da5ce1 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -436,7 +436,7 @@ config KEYBOARD_SNVS_PWRKEY
->  	depends on OF
->  	help
->  	  This is the snvs powerkey driver for the Freescale i.MX application
-> -	  processors that are newer than i.MX6 SX.
-> +	  processors.
->  
->  	  To compile this driver as a module, choose M here; the
->  	  module will be called snvs_pwrkey.
-> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-> index 5342d8d45f81..d71c44733103 100644
-> --- a/drivers/input/keyboard/snvs_pwrkey.c
-> +++ b/drivers/input/keyboard/snvs_pwrkey.c
-> @@ -29,6 +29,11 @@
->  #define DEBOUNCE_TIME 30
->  #define REPEAT_INTERVAL 60
->  
-> +enum imx_snvs_hwtype {
-> +	IMX6SX_SNVS,	/* i.MX6 SoloX and newer */
-> +	IMX6QDL_SNVS,	/* i.MX6 Solo, DualLite and Quad */
-> +};
-> +
->  struct pwrkey_drv_data {
->  	struct regmap *snvs;
->  	int irq;
-> @@ -37,14 +42,41 @@ struct pwrkey_drv_data {
->  	int wakeup;
->  	struct timer_list check_timer;
->  	struct input_dev *input;
-> +	enum imx_snvs_hwtype hwtype;
->  };
->  
-> +static const struct of_device_id imx_snvs_pwrkey_ids[] = {
-> +	{
-> +		.compatible = "fsl,sec-v4.0-pwrkey",
-> +		.data = (const void *)IMX6SX_SNVS,
-> +	},
-> +	{
-> +		.compatible = "fsl,imx6qdl-snvs-pwrkey",
-> +		.data = (const void *)IMX6QDL_SNVS,
-> +	},
-> +	{ /* sentinel */ },
-> +};
-> +MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
-
-Can we keep this on the original place if you are using ...
-
-> +
->  static void imx_imx_snvs_check_for_events(struct timer_list *t)
->  {
->  	struct pwrkey_drv_data *pdata = from_timer(pdata, t, check_timer);
->  	struct input_dev *input = pdata->input;
->  	u32 state;
->  
-> +	if (pdata->hwtype == IMX6QDL_SNVS) {
-> +		/*
-> +		 * The first generation i.MX6 SoCs only sends an interrupt on
-> +		 * button release. To mimic power-key usage, we'll prepend a
-> +		 * press event.
-> +		 */
-> +		input_report_key(input, pdata->keycode, 1);
-
-Missing input_sync() here?
-
-> +		input_report_key(input, pdata->keycode, 0);
-> +		input_sync(input);
-> +		pm_relax(input->dev.parent);
-> +		return;
-> +	}
-> +
->  	regmap_read(pdata->snvs, SNVS_HPSR_REG, &state);
->  	state = state & SNVS_HPSR_BTN ? 1 : 0;
->  
-> @@ -67,13 +99,17 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
->  {
->  	struct platform_device *pdev = dev_id;
->  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> +	unsigned long expire = jiffies;
->  	u32 lp_status;
->  
->  	pm_wakeup_event(pdata->input->dev.parent, 0);
->  
->  	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
-> -	if (lp_status & SNVS_LPSR_SPO)
-> -		mod_timer(&pdata->check_timer, jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
-> +	if (lp_status & SNVS_LPSR_SPO) {
-> +		if (pdata->hwtype == IMX6SX_SNVS)
-> +			expire += msecs_to_jiffies(DEBOUNCE_TIME);
-> +		mod_timer(&pdata->check_timer, expire);
-
-Is this desired because the timer gets triggered earlier.
-
-> +	}
->  
->  	/* clear SPO status */
->  	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
-> @@ -93,6 +129,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
->  	struct pwrkey_drv_data *pdata = NULL;
->  	struct input_dev *input = NULL;
->  	struct device_node *np;
-> +	const struct of_device_id *match;
->  	int error;
->  
->  	/* Get SNVS register Page */
-> @@ -100,6 +137,10 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
->  	if (!np)
->  		return -ENODEV;
->  
-> +	match = of_match_node(imx_snvs_pwrkey_ids, np);
-> +	if (!match)
-> +		return -ENODEV;
-
-... of_device_get_match_data() here. While reading the rm it seems that
-the snvs block has a dedicated version register. IMHO this could be a
-better way to apply the change also to existing devices with old
-firmware.
-
-Regards,
-  Marco
-
-
-> +
->  	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
->  	if (!pdata)
->  		return -ENOMEM;
-> @@ -115,6 +156,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
->  		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
->  	}
->  
-> +	pdata->hwtype = (enum imx_snvs_hwtype)match->data;
->  	pdata->wakeup = of_property_read_bool(np, "wakeup-source");
->  
->  	pdata->irq = platform_get_irq(pdev, 0);
-> @@ -175,12 +217,6 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> -static const struct of_device_id imx_snvs_pwrkey_ids[] = {
-> -	{ .compatible = "fsl,sec-v4.0-pwrkey" },
-> -	{ /* sentinel */ }
-> -};
-> -MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
-> -
->  static struct platform_driver imx_snvs_pwrkey_driver = {
->  	.driver = {
->  		.name = "snvs_pwrkey",
-> -- 
-> 2.20.1
-> 
-> 
-> 
-
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+S0gsDQoNCkp1c3QgbWFrZSBzdXJlIEkgdW5kZXJzdGFuZCBkZXRhaWxzLg0KDQo+IENvbW1pdCAi
+SElEOiBpMmMtaGlkOiBEb24ndCByZXNldCBkZXZpY2UgdXBvbiBzeXN0ZW0gcmVzdW1lDQoNCklm
+IHlvdSByZXZlcnQgdGhpcyBpdCdzIGZpeGVkIG9uIHRoaXMgc3lzdGVtPw0KDQpJbiB0aGF0IGNv
+bW1pdCB5b3UgaGFkIG1lbnRpb25lZCBpZiB0aGlzIGNhdXNlcyBwcm9ibGVtcyBpdCBtaWdodCBi
+ZSB3b3J0aA0KcXVpcmtpbmcganVzdCBSYXlkaXVtIGJ1dCBjb21taXQgYWZiYjExNjllZDViNThj
+ZmNhMDE3ZTM2OGI1M2UwMTljZjI4NTg1Mw0KY29uZmlybWVkIHRoYXQgaXQgaGVscGVkIHNldmVy
+YWwgb3RoZXIgc3lzdGVtcyB0b28uDQoNCklmIHRoZSBjb25jbHVzaW9uIGZyb20gdGhpcyBpbnZl
+c3RpZ2F0aW9uIHRoaXMgaXMgb25seSBmaXhhYmxlIHZpYSB0b3VjaHBhZCBGVyB1cGRhdGUNCml0
+IG1pZ2h0IGJlIHdvcnRoIHF1aXJraW5nIHRoaXMgdG91Y2hwYWQvdG91Y2hwYWQgRlcvc3lzdGVt
+IGNvbWJpbmF0aW9uLg0KDQo+IEFsc28gQ2MgTWFyaW8gYmVjYXVzZSB0aGlzIGNvdWxkIHJlbGF0
+ZSB0byBCSU9TLg0KDQpBbHNvIEkgYXNzdW1lIHRoaXMgaXMgb24gY3VycmVudCBzdGFibGUgQklP
+Uy9FQyByZWxlYXNlLCByaWdodD8NCg0KVGhhbmtzLA0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2Fn
+ZS0tLS0tDQo+IEZyb206IEthaS1IZW5nIEZlbmcgPGthaS5oZW5nLmZlbmdAY2Fub25pY2FsLmNv
+bT4NCj4gU2VudDogV2VkbmVzZGF5LCBBdWd1c3QgMjgsIDIwMTkgMTo1OCBBTQ0KPiBUbzogWGlh
+b2ppYW4gQ2FvDQo+IENjOiBNYXNha2kgT3RhOyBMaW1vbmNpZWxsbywgTWFyaW87IG9wZW4gbGlz
+dDpISUQgQ09SRSBMQVlFUjsgTGludXggS2VybmVsDQo+IE1haWxpbmcgTGlzdDsgTmFva2kgU2Fp
+dG8NCj4gU3ViamVjdDogUmU6IEFscHMgdG91Y2hwYWQgZ2VuZXJhdGVzIElSUSBzdG9ybSBhZnRl
+ciBTMw0KPiANCj4gDQo+IFtFWFRFUk5BTCBFTUFJTF0NCj4gDQo+IEhpIFhpYW9qaWFuLA0KPiAN
+Cj4gYXQgMTQ6NTEsIFhpYW9qaWFuIENhbyA8eGlhb2ppYW4uY2FvQGNuLmFscHMuY29tPiB3cm90
+ZToNCj4gDQo+ID4gSGkgT3RhLXNhbiwNCj4gPg0KPiA+IE9LLCB3ZSB3aWxsIGxvb2sgaW50byBp
+dC4NCj4gPg0KPiA+DQo+ID4gSGkgS2FpLUhlbmcsDQo+ID4NCj4gPiBXZSB3aWxsIHRyeSB0byBy
+ZXByb2R1Y2UgdGhpcyBpc3N1ZSBmaXJzdCwgY291bGQgeW91IHBsZWFzZSB0ZWxsIG1lIHRoZQ0K
+PiA+IHRhcmdldCBVYnVudHUgdmVyc2lvbj8NCj4gDQo+IEl04oCZcyBkaXN0cm8tYWdub3N0aWMs
+IGFueSBkaXN0cm8gd2l0aCBtYWlubGluZSBMaW51eCBjYW4gcmVwcm9kdWNlIHRoZSBpc3N1ZS4N
+Cj4gDQo+IEthaS1IZW5nDQo+IA0KPiA+DQo+ID4gQmVzdCByZWdhcmRzLA0KPiA+IEphc29uDQo+
+ID4NCj4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+IEZyb206IOWkqueUsCDnnJ/l
+lpwgTWFzYWtpIE90YSA8bWFzYWtpLm90YUBhbHBzYWxwaW5lLmNvbT4NCj4gPiBTZW50OiBXZWRu
+ZXNkYXksIEF1Z3VzdCAyOCwgMjAxOSAyOjM1IFBNDQo+ID4gVG86IOabuSDmm4nlu7ogWGlhb2pp
+YW4gQ2FvIDx4aWFvamlhbi5jYW9AY24uYWxwcy5jb20+OyBLYWktSGVuZyBGZW5nDQo+ID4gPGth
+aS5oZW5nLmZlbmdAY2Fub25pY2FsLmNvbT4NCj4gPiBDYzogTWFyaW8gTGltb25jaWVsbG8gPG1h
+cmlvLmxpbW9uY2llbGxvQGRlbGwuY29tPjsgb3BlbiBsaXN0OkhJRCBDT1JFDQo+ID4gTEFZRVIg
+PGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZz47IExpbnV4IEtlcm5lbCBNYWlsaW5nIExpc3QN
+Cj4gPiA8bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZz47IOaWieiXpCDnm7TmqLkgTmFva2kg
+U2FpdG8NCj4gPiA8bmFva2kuc2FpdG9AYWxwc2FscGluZS5jb20+DQo+ID4gU3ViamVjdDogUkU6
+IEFscHMgdG91Y2hwYWQgZ2VuZXJhdGVzIElSUSBzdG9ybSBhZnRlciBTMw0KPiA+DQo+ID4gSGks
+IEthaS1IZW5nLA0KPiA+DQo+ID4gU29ycnksIEknbSBub3QgaW4gY2hhcmdlIG9mIExpbnV4IHRh
+c2sgbm93Lg0KPiA+DQo+ID4gSGksIFhpYW9KaWFuLA0KPiA+DQo+ID4gUGxlYXNlIGNoZWNrIHRo
+ZSBmb2xsb3dpbmcgbWFpbC4NCj4gPiBJZiB5b3UgaGF2ZSBhbnkgcXVlc3Rpb24sIHBsZWFzZSBh
+c2sgS2FpLUhlbmcuDQo+ID4NCj4gPiBCZXN0IFJlZ2FyZHMsDQo+ID4gTWFzYWtpIE90YQ0KPiA+
+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4gRnJvbTogS2FpLUhlbmcgRmVuZyA8a2Fp
+LmhlbmcuZmVuZ0BjYW5vbmljYWwuY29tPg0KPiA+IFNlbnQ6IFdlZG5lc2RheSwgQXVndXN0IDI4
+LCAyMDE5IDM6MjIgUE0NCj4gPiBUbzog5aSq55SwIOecn+WWnCBNYXNha2kgT3RhIDxtYXNha2ku
+b3RhQGFscHNhbHBpbmUuY29tPg0KPiA+IENjOiBNYXJpbyBMaW1vbmNpZWxsbyA8bWFyaW8ubGlt
+b25jaWVsbG9AZGVsbC5jb20+OyBvcGVuIGxpc3Q6SElEIENPUkUNCj4gPiBMQVlFUiA8bGludXgt
+aW5wdXRAdmdlci5rZXJuZWwub3JnPjsgTGludXggS2VybmVsIE1haWxpbmcgTGlzdA0KPiA+IDxs
+aW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnPg0KPiA+IFN1YmplY3Q6IEFscHMgdG91Y2hwYWQg
+Z2VuZXJhdGVzIElSUSBzdG9ybSBhZnRlciBTMw0KPiA+DQo+ID4gSGkgTWFzYWtpLA0KPiA+DQo+
+ID4gVGhlIEFscHMgdG91Y2hwYWQgKDA0NEU6MTIyMCkgb24gRGVsbCBQcmVjaXNpb24gNzUzMCBj
+YXVzZXMgSVJRIHN0b3JtDQo+ID4gYWZ0ZXIgc3lzdGVtIHN1c3BlbmQgKFMzKS4NCj4gPiBDb21t
+aXQgIkhJRDogaTJjLWhpZDogRG9uJ3QgcmVzZXQgZGV2aWNlIHVwb24gc3lzdGVtIHJlc3VtZeKA
+nSB3aGljaCBzb2x2ZXMNCj4gPiB0aGUgc2FtZSBpc3N1ZSBmb3Igb3RoZXIgdmVuZG9ycywgY2F1
+c2UgdGhlIGlzc3VlIG9uIEFscHMgdG91Y2hwYWQuDQo+ID4gU28gSeKAmWQgbGlrZSB0byBrbm93
+IHRoZSBjb3JyZWN0IGNvbW1hbmQgQWxwcyB0b3VjaHBhZCBleHBlY3RzIGFmdGVyDQo+ID4gc3lz
+dGVtIHJlc3VtZS4NCj4gPg0KPiA+IEFsc28gQ2MgTWFyaW8gYmVjYXVzZSB0aGlzIGNvdWxkIHJl
+bGF0ZSB0byBCSU9TLg0KPiA+DQo+ID4gS2FpLUhlbmcNCj4gDQoNCg==

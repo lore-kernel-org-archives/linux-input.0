@@ -1,47 +1,85 @@
-From: Xiaojian Cao <xiaojian.cao@cn.alps.com>
-Subject: RE: Alps touchpad generates IRQ storm after S3
-Date: Wed, 28 Aug 2019 06:51:30 +0000
-Message-ID: <TYXPR01MB1470902D804A47EE72013006C8A30@TYXPR01MB1470.jpnprd01.prod.outlook.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: Alps touchpad generates IRQ storm after S3
+Date: Wed, 28 Aug 2019 14:58:12 +0800
+Message-ID: <A118551C-A0D9-485F-91F7-44A5BE228B99@canonical.com>
 References: <44F93018-5F13-4932-A5AC-9D288CDF68DD@canonical.com>
  <TYAPR01MB30223CB8A576C7809F6382C1ECA30@TYAPR01MB3022.jpnprd01.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <TYXPR01MB1470902D804A47EE72013006C8A30@TYXPR01MB1470.jpnprd01.prod.outlook.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Content-Type: text/plain;
+        charset=utf-8;
+        delsp=yes;
+        format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <TYAPR01MB30223CB8A576C7809F6382C1ECA30@TYAPR01MB3022.jpnprd01.prod.outlook.com>
-Content-Language: zh-CN
+In-Reply-To: <TYXPR01MB1470902D804A47EE72013006C8A30@TYXPR01MB1470.jpnprd01.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Masaki Ota <masaki.ota@alpsalpine.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Mario Limonciello <mario.limonciello@dell.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Naoki Saito <naoki.saito@alpsalpine.com>
+To: Xiaojian Cao <xiaojian.cao@cn.alps.com>
+Cc: Masaki Ota <masaki.ota@alpsalpine.com>, Mario Limonciello <mario.limonciello@dell.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Naoki Saito <naoki.saito@alpsalpine.com>
 List-Id: linux-input@vger.kernel.org
 
-SGkgT3RhLXNhbiwNCg0KT0ssIHdlIHdpbGwgbG9vayBpbnRvIGl0Lg0KDQoNCkhpIEthaS1IZW5n
-LA0KDQpXZSB3aWxsIHRyeSB0byByZXByb2R1Y2UgdGhpcyBpc3N1ZSBmaXJzdCwgY291bGQgeW91
-IHBsZWFzZSB0ZWxsIG1lIHRoZSB0YXJnZXQgVWJ1bnR1IHZlcnNpb24/DQoNCkJlc3QgcmVnYXJk
-cywgDQpKYXNvbg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTog5aSq55SwIOec
-n+WWnCBNYXNha2kgT3RhIDxtYXNha2kub3RhQGFscHNhbHBpbmUuY29tPiANClNlbnQ6IFdlZG5l
-c2RheSwgQXVndXN0IDI4LCAyMDE5IDI6MzUgUE0NClRvOiDmm7kg5puJ5bu6IFhpYW9qaWFuIENh
-byA8eGlhb2ppYW4uY2FvQGNuLmFscHMuY29tPjsgS2FpLUhlbmcgRmVuZyA8a2FpLmhlbmcuZmVu
-Z0BjYW5vbmljYWwuY29tPg0KQ2M6IE1hcmlvIExpbW9uY2llbGxvIDxtYXJpby5saW1vbmNpZWxs
-b0BkZWxsLmNvbT47IG9wZW4gbGlzdDpISUQgQ09SRSBMQVlFUiA8bGludXgtaW5wdXRAdmdlci5r
-ZXJuZWwub3JnPjsgTGludXggS2VybmVsIE1haWxpbmcgTGlzdCA8bGludXgta2VybmVsQHZnZXIu
-a2VybmVsLm9yZz47IOaWieiXpCDnm7TmqLkgTmFva2kgU2FpdG8gPG5hb2tpLnNhaXRvQGFscHNh
-bHBpbmUuY29tPg0KU3ViamVjdDogUkU6IEFscHMgdG91Y2hwYWQgZ2VuZXJhdGVzIElSUSBzdG9y
-bSBhZnRlciBTMw0KDQpIaSwgS2FpLUhlbmcsDQoNClNvcnJ5LCBJJ20gbm90IGluIGNoYXJnZSBv
-ZiBMaW51eCB0YXNrIG5vdy4NCg0KSGksIFhpYW9KaWFuLA0KDQpQbGVhc2UgY2hlY2sgdGhlIGZv
-bGxvd2luZyBtYWlsLg0KSWYgeW91IGhhdmUgYW55IHF1ZXN0aW9uLCBwbGVhc2UgYXNrIEthaS1I
-ZW5nLg0KDQpCZXN0IFJlZ2FyZHMsDQpNYXNha2kgT3RhDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2Ut
-LS0tLQ0KRnJvbTogS2FpLUhlbmcgRmVuZyA8a2FpLmhlbmcuZmVuZ0BjYW5vbmljYWwuY29tPiAN
-ClNlbnQ6IFdlZG5lc2RheSwgQXVndXN0IDI4LCAyMDE5IDM6MjIgUE0NClRvOiDlpKrnlLAg55yf
-5ZacIE1hc2FraSBPdGEgPG1hc2FraS5vdGFAYWxwc2FscGluZS5jb20+DQpDYzogTWFyaW8gTGlt
-b25jaWVsbG8gPG1hcmlvLmxpbW9uY2llbGxvQGRlbGwuY29tPjsgb3BlbiBsaXN0OkhJRCBDT1JF
-IExBWUVSIDxsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc+OyBMaW51eCBLZXJuZWwgTWFpbGlu
-ZyBMaXN0IDxsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnPg0KU3ViamVjdDogQWxwcyB0b3Vj
-aHBhZCBnZW5lcmF0ZXMgSVJRIHN0b3JtIGFmdGVyIFMzDQoNCkhpIE1hc2FraSwNCg0KVGhlIEFs
-cHMgdG91Y2hwYWQgKDA0NEU6MTIyMCkgb24gRGVsbCBQcmVjaXNpb24gNzUzMCBjYXVzZXMgSVJR
-IHN0b3JtIGFmdGVyIHN5c3RlbSBzdXNwZW5kIChTMykuDQpDb21taXQgIkhJRDogaTJjLWhpZDog
-RG9uJ3QgcmVzZXQgZGV2aWNlIHVwb24gc3lzdGVtIHJlc3VtZeKAnSB3aGljaCBzb2x2ZXMgdGhl
-IHNhbWUgaXNzdWUgZm9yIG90aGVyIHZlbmRvcnMsIGNhdXNlIHRoZSBpc3N1ZSBvbiBBbHBzIHRv
-dWNocGFkLg0KU28gSeKAmWQgbGlrZSB0byBrbm93IHRoZSBjb3JyZWN0IGNvbW1hbmQgQWxwcyB0
-b3VjaHBhZCBleHBlY3RzIGFmdGVyIHN5c3RlbSByZXN1bWUuDQoNCkFsc28gQ2MgTWFyaW8gYmVj
-YXVzZSB0aGlzIGNvdWxkIHJlbGF0ZSB0byBCSU9TLg0KDQpLYWktSGVuZw0K
+Hi Xiaojian,
+
+at 14:51, Xiaojian Cao <xiaojian.cao@cn.alps.com> wrote:
+
+> Hi Ota-san,
+>
+> OK, we will look into it.
+>
+>
+> Hi Kai-Heng,
+>
+> We will try to reproduce this issue first, could you please tell me the  
+> target Ubuntu version?
+
+It’s distro-agnostic, any distro with mainline Linux can reproduce the issue.
+
+Kai-Heng
+
+>
+> Best regards,
+> Jason
+>
+> -----Original Message-----
+> From: 太田 真喜 Masaki Ota <masaki.ota@alpsalpine.com>
+> Sent: Wednesday, August 28, 2019 2:35 PM
+> To: 曹 曉建 Xiaojian Cao <xiaojian.cao@cn.alps.com>; Kai-Heng Feng  
+> <kai.heng.feng@canonical.com>
+> Cc: Mario Limonciello <mario.limonciello@dell.com>; open list:HID CORE  
+> LAYER <linux-input@vger.kernel.org>; Linux Kernel Mailing List  
+> <linux-kernel@vger.kernel.org>; 斉藤 直樹 Naoki Saito  
+> <naoki.saito@alpsalpine.com>
+> Subject: RE: Alps touchpad generates IRQ storm after S3
+>
+> Hi, Kai-Heng,
+>
+> Sorry, I'm not in charge of Linux task now.
+>
+> Hi, XiaoJian,
+>
+> Please check the following mail.
+> If you have any question, please ask Kai-Heng.
+>
+> Best Regards,
+> Masaki Ota
+> -----Original Message-----
+> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Sent: Wednesday, August 28, 2019 3:22 PM
+> To: 太田 真喜 Masaki Ota <masaki.ota@alpsalpine.com>
+> Cc: Mario Limonciello <mario.limonciello@dell.com>; open list:HID CORE  
+> LAYER <linux-input@vger.kernel.org>; Linux Kernel Mailing List  
+> <linux-kernel@vger.kernel.org>
+> Subject: Alps touchpad generates IRQ storm after S3
+>
+> Hi Masaki,
+>
+> The Alps touchpad (044E:1220) on Dell Precision 7530 causes IRQ storm  
+> after system suspend (S3).
+> Commit "HID: i2c-hid: Don't reset device upon system resume” which solves  
+> the same issue for other vendors, cause the issue on Alps touchpad.
+> So I’d like to know the correct command Alps touchpad expects after  
+> system resume.
+>
+> Also Cc Mario because this could relate to BIOS.
+>
+> Kai-Heng

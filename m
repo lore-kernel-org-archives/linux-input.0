@@ -1,62 +1,60 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 30/45] HID: cp2112: prevent sleeping function called from invalid context
-Date: Thu, 29 Aug 2019 14:15:30 -0400
-Message-ID: <20190829181547.8280-30-sashal@kernel.org>
-References: <20190829181547.8280-1-sashal@kernel.org>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: elants_i2c - return real value of
+ elants_i2c_initialize()
+Date: Thu, 29 Aug 2019 11:29:33 -0700
+Message-ID: <20190829182933.GD187474@dtor-ws>
+References: <1566958886-25756-1-git-send-email-johnny.chuang@emc.com.tw>
+ <000601d55d49$05878160$10968420$@emc.com.tw>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190829181547.8280-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <000601d55d49$05878160$10968420$@emc.com.tw>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: "Johnny.Chuang" <johnny.chuang@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, =?utf-8?B?U1RSRDIt6JSh5oOg5ayL?= <jennifer.tsai@emc.com.tw>, =?utf-8?B?U1RSRDIt6Zmz5bSH5piO57aT55CG?= <james.chen@emc.com.tw>, =?utf-8?B?J+aigeWNmue/lCc=?= <paul.liang@emc.com.tw>, 'jeff' <jeff.chuang@emc.com.tw>
 List-Id: linux-input@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Hi Johnny,
 
-[ Upstream commit 2d05dba2b25ecb0f8fc3a0b4eb2232da6454a47b ]
+On Wed, Aug 28, 2019 at 10:33:46AM +0800, Johnny.Chuang wrote:
+> The return value of elants_i2c_initialize() was always 0.
+> It maybe register input device when initialize fail.
 
-When calling request_threaded_irq() with a CP2112, the function
-cp2112_gpio_irq_startup() is called in a IRQ context.
+We do not want to return error here, because it will abort probe, and
+then we will not be able to initiate firmware flash flow so we can
+attempt to recover the device.
 
-Therefore we can not sleep, and we can not call
-cp2112_gpio_direction_input() there.
+If you want to try you can change the ts->iap_mode before trying to
+register input device, but then you need to be very careful about
+registering and unregistering it later, after flashing or re-flashing
+firmware.
 
-Move the call to cp2112_gpio_direction_input() earlier to have a working
-driver.
+> 
+> Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
+> ---
+>  drivers/input/touchscreen/elants_i2c.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/elants_i2c.c
+> b/drivers/input/touchscreen/elants_i2c.c
+> index d4ad24e..9c9816f 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -571,7 +571,7 @@ static int elants_i2c_initialize(struct elants_data *ts)
+>  	if (error)
+>  		ts->iap_mode = ELAN_IAP_RECOVERY;
+>  
+> -	return 0;
+> +	return error;
+>  }
+>  
+>  /*
+> -- 
+> 2.7.4
+> 
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-cp2112.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+Thanks.
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 271f31461da42..6f65f52572368 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -1160,8 +1160,6 @@ static unsigned int cp2112_gpio_irq_startup(struct irq_data *d)
- 
- 	INIT_DELAYED_WORK(&dev->gpio_poll_worker, cp2112_gpio_poll_callback);
- 
--	cp2112_gpio_direction_input(gc, d->hwirq);
--
- 	if (!dev->gpio_poll) {
- 		dev->gpio_poll = true;
- 		schedule_delayed_work(&dev->gpio_poll_worker, 0);
-@@ -1209,6 +1207,12 @@ static int __maybe_unused cp2112_allocate_irq(struct cp2112_device *dev,
- 		return PTR_ERR(dev->desc[pin]);
- 	}
- 
-+	ret = cp2112_gpio_direction_input(&dev->gc, pin);
-+	if (ret < 0) {
-+		dev_err(dev->gc.parent, "Failed to set GPIO to input dir\n");
-+		goto err_desc;
-+	}
-+
- 	ret = gpiochip_lock_as_irq(&dev->gc, pin);
- 	if (ret) {
- 		dev_err(dev->gc.parent, "Failed to lock GPIO as interrupt\n");
 -- 
-2.20.1
+Dmitry

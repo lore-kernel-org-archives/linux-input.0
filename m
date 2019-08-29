@@ -1,62 +1,83 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 20/27] HID: cp2112: prevent sleeping function called from invalid context
-Date: Thu, 29 Aug 2019 14:16:46 -0400
-Message-ID: <20190829181655.8741-20-sashal@kernel.org>
-References: <20190829181655.8741-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 32/45] Input: hyperv-keyboard: Use in-place iterator API in the channel callback
+Date: Thu, 29 Aug 2019 14:15:32 -0400
+Message-ID: <20190829181547.8280-32-sashal@kernel.org>
+References: <20190829181547.8280-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190829181655.8741-1-sashal@kernel.org>
+In-Reply-To: <20190829181547.8280-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Dexuan Cui <decui@microsoft.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit 2d05dba2b25ecb0f8fc3a0b4eb2232da6454a47b ]
+[ Upstream commit d09bc83640d524b8467a660db7b1d15e6562a1de ]
 
-When calling request_threaded_irq() with a CP2112, the function
-cp2112_gpio_irq_startup() is called in a IRQ context.
+Simplify the ring buffer handling with the in-place API.
 
-Therefore we can not sleep, and we can not call
-cp2112_gpio_direction_input() there.
+Also avoid the dynamic allocation and the memory leak in the channel
+callback function.
 
-Move the call to cp2112_gpio_direction_input() earlier to have a working
-driver.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-cp2112.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/input/serio/hyperv-keyboard.c | 35 +++++----------------------
+ 1 file changed, 6 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 4e940a096b2ac..abf1079457664 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -1149,8 +1149,6 @@ static unsigned int cp2112_gpio_irq_startup(struct irq_data *d)
+diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
+index a8b9be3e28db7..7d0a5ccf57751 100644
+--- a/drivers/input/serio/hyperv-keyboard.c
++++ b/drivers/input/serio/hyperv-keyboard.c
+@@ -245,40 +245,17 @@ static void hv_kbd_handle_received_packet(struct hv_device *hv_dev,
  
- 	INIT_DELAYED_WORK(&dev->gpio_poll_worker, cp2112_gpio_poll_callback);
+ static void hv_kbd_on_channel_callback(void *context)
+ {
++	struct vmpacket_descriptor *desc;
+ 	struct hv_device *hv_dev = context;
+-	void *buffer;
+-	int bufferlen = 0x100; /* Start with sensible size */
+ 	u32 bytes_recvd;
+ 	u64 req_id;
+-	int error;
  
--	cp2112_gpio_direction_input(gc, d->hwirq);
+-	buffer = kmalloc(bufferlen, GFP_ATOMIC);
+-	if (!buffer)
+-		return;
 -
- 	if (!dev->gpio_poll) {
- 		dev->gpio_poll = true;
- 		schedule_delayed_work(&dev->gpio_poll_worker, 0);
-@@ -1198,6 +1196,12 @@ static int __maybe_unused cp2112_allocate_irq(struct cp2112_device *dev,
- 		return PTR_ERR(dev->desc[pin]);
- 	}
+-	while (1) {
+-		error = vmbus_recvpacket_raw(hv_dev->channel, buffer, bufferlen,
+-					     &bytes_recvd, &req_id);
+-		switch (error) {
+-		case 0:
+-			if (bytes_recvd == 0) {
+-				kfree(buffer);
+-				return;
+-			}
+-
+-			hv_kbd_handle_received_packet(hv_dev, buffer,
+-						      bytes_recvd, req_id);
+-			break;
++	foreach_vmbus_pkt(desc, hv_dev->channel) {
++		bytes_recvd = desc->len8 * 8;
++		req_id = desc->trans_id;
  
-+	ret = cp2112_gpio_direction_input(&dev->gc, pin);
-+	if (ret < 0) {
-+		dev_err(dev->gc.parent, "Failed to set GPIO to input dir\n");
-+		goto err_desc;
-+	}
-+
- 	ret = gpiochip_lock_as_irq(&dev->gc, pin);
- 	if (ret) {
- 		dev_err(dev->gc.parent, "Failed to lock GPIO as interrupt\n");
+-		case -ENOBUFS:
+-			kfree(buffer);
+-			/* Handle large packet */
+-			bufferlen = bytes_recvd;
+-			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
+-			if (!buffer)
+-				return;
+-			break;
+-		}
++		hv_kbd_handle_received_packet(hv_dev, desc, bytes_recvd,
++					      req_id);
+ 	}
+ }
+ 
 -- 
 2.20.1

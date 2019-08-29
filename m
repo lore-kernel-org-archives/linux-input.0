@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 53/76] Input: hyperv-keyboard: Use in-place iterator API in the channel callback
-Date: Thu, 29 Aug 2019 14:12:48 -0400
-Message-ID: <20190829181311.7562-53-sashal@kernel.org>
-References: <20190829181311.7562-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 21/27] Input: hyperv-keyboard: Use in-place iterator API in the channel callback
+Date: Thu, 29 Aug 2019 14:16:47 -0400
+Message-ID: <20190829181655.8741-21-sashal@kernel.org>
+References: <20190829181655.8741-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190829181655.8741-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Dexuan Cui <decui@microsoft.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -29,10 +29,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
-index 8e457e50f837e..770e36d0c66fb 100644
+index 55288a026e4e2..c137ffa6fdec8 100644
 --- a/drivers/input/serio/hyperv-keyboard.c
 +++ b/drivers/input/serio/hyperv-keyboard.c
-@@ -237,40 +237,17 @@ static void hv_kbd_handle_received_packet(struct hv_device *hv_dev,
+@@ -245,40 +245,17 @@ static void hv_kbd_handle_received_packet(struct hv_device *hv_dev,
  
  static void hv_kbd_on_channel_callback(void *context)
  {

@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 07/14] HID: input: fix a4tech horizontal wheel custom usage
-Date: Thu, 29 Aug 2019 06:50:36 -0400
-Message-ID: <20190829105043.2508-7-sashal@kernel.org>
-References: <20190829105043.2508-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 3/8] HID: input: fix a4tech horizontal wheel custom usage
+Date: Thu, 29 Aug 2019 06:50:55 -0400
+Message-ID: <20190829105100.2649-3-sashal@kernel.org>
+References: <20190829105100.2649-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190829105043.2508-1-sashal@kernel.org>
+In-Reply-To: <20190829105100.2649-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org

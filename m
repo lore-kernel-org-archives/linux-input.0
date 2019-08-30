@@ -1,7 +1,7 @@
 From: Anson Huang <Anson.Huang@nxp.com>
-Subject: [PATCH 5/5] arm64: defconfig: Enable CONFIG_KEYBOARD_IMX_SC_PWRKEY as module
-Date: Fri, 30 Aug 2019 16:53:49 -0400
-Message-ID: <1567198429-27886-5-git-send-email-Anson.Huang@nxp.com>
+Subject: [PATCH 3/5] arm64: dts: imx8qxp: Add scu power key node
+Date: Fri, 30 Aug 2019 16:53:47 -0400
+Message-ID: <1567198429-27886-3-git-send-email-Anson.Huang@nxp.com>
 References: <1567198429-27886-1-git-send-email-Anson.Huang@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1567198429-27886-1-git-send-email-Anson.Huang@nxp.com>
@@ -10,25 +10,39 @@ To: robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengu
 Cc: Linux-imx@nxp.com
 List-Id: linux-input@vger.kernel.org
 
-Select CONFIG_KEYBOARD_IMX_SC_PWRKEY as module by default to
-support i.MX8QXP power key driver.
+Add scu power key node for i.MX8QXP, disabled by default as it
+depends on board design.
 
 Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
- arch/arm64/configs/defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8qxp.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index 49bb3d4..8178737 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -313,6 +313,7 @@ CONFIG_INPUT_EVDEV=y
- CONFIG_KEYBOARD_ADC=m
- CONFIG_KEYBOARD_GPIO=y
- CONFIG_KEYBOARD_SNVS_PWRKEY=m
-+CONFIG_KEYBOARD_IMX_SC_PWRKEY=m
- CONFIG_KEYBOARD_CROS_EC=y
- CONFIG_INPUT_TOUCHSCREEN=y
- CONFIG_TOUCHSCREEN_ATMEL_MXT=m
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
+index 1133b41..a5d4ac6 100644
+--- a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
+@@ -8,6 +8,7 @@
+ #include <dt-bindings/clock/imx8-clock.h>
+ #include <dt-bindings/firmware/imx/rsrc.h>
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
+ #include <dt-bindings/pinctrl/pads-imx8qxp.h>
+ 
+@@ -174,6 +175,13 @@
+ 			#power-domain-cells = <1>;
+ 		};
+ 
++		scu_pwrkey: scu-pwrkey {
++			compatible = "fsl,imx8qxp-sc-pwrkey", "fsl,imx-sc-pwrkey";
++			linux,keycode = <KEY_POWER>;
++			wakeup-source;
++			status = "disabled";
++		};
++
+ 		rtc: rtc {
+ 			compatible = "fsl,imx8qxp-sc-rtc";
+ 		};
 -- 
 2.7.4

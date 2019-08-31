@@ -1,77 +1,72 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [kbuild-all] [tip: x86/vmware] input/vmmouse: Update the
- backdoor call with support for new instructions
-Date: Fri, 30 Aug 2019 21:35:57 +0200
-Message-ID: <20190830193557.GF30413@zn.tnic>
-References: <201908292325.aLXyyzEx%lkp@intel.com>
- <20190829163353.GC2132@zn.tnic>
- <20190830010349.GD857@intel.com>
- <alpine.DEB.2.21.1908300802390.1938@nanos.tec.linutronix.de>
- <20190830062053.GA2598@intel.com>
- <20190830080650.GA30413@zn.tnic>
- <20190830143645.GA4784@intel.com>
- <20190830144628.GC30413@zn.tnic>
- <20190830150002.GA6931@intel.com>
- <20190830150856.GB6931@intel.com>
+From: Peter Cai <peter@typeblog.net>
+Subject: [PATCH v2 1/2] gpio: acpi: add quirk to override GpioInt polarity
+Date: Sat, 31 Aug 2019 11:09:14 +0800
+Message-ID: <20190831030916.13172-1-peter@typeblog.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190830150856.GB6931@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Philip Li <philip.li@intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, kbuild test robot <lkp@intel.com>, linux-input@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>, x86-ml <x86@kernel.org>, linux-tip-commits@vger.kernel.org, pv-drivers@vmware.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, tip-bot2 for Thomas Hellstrom <tip-bot2@linutronix.de>, Doug Covelli <dcovelli@vmware.com>, Ingo Molnar <mingo@redhat.com>, VMware Graphics <linux-graphics-maintainer@vmware.com>, kbuild-all@01.org, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Peter Cai <peter@typeblog.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 30, 2019 at 11:08:56PM +0800, Philip Li wrote:
-> hi Boris, for the build status notification, we currently send to below
-> address, is it still valid? If not, can you suggest one for us?
+On GPD P2 Max, the firmware could not reset the touch panel correctly.
+The kernel needs to take on the job instead, but the GpioInt definition
+in DSDT specifies ActiveHigh while the GPIO pin should actually be
+ActiveLow.
 
-Sure, here's an update patch ontop of your master branch:
+We need to override the polarity defined by DSDT. The GPIO driver
+already allows defining polarity in acpi_gpio_params, but the option is
+not applied to GpioInt.
 
+This patch adds a new quirk that enables the polarity specified in
+acpi_gpio_params to also be applied to GpioInt.
+
+Signed-off-by: Peter Cai <peter@typeblog.net>
 ---
-From: Borislav Petkov <bp@suse.de>
-Date: Fri, 30 Aug 2019 21:33:29 +0200
-Subject: [PATCH] repo/linux/tip: Update tip tree contact information
 
-Replace hpa with Borislav and change contact mail address.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
+v2: rebased to gpio/for-next, moved quirk out of the gpioint
+conditional.
 ---
- repo/linux/tip | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpio/gpiolib-acpi.c   | 9 +++++++++
+ include/linux/gpio/consumer.h | 6 ++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/repo/linux/tip b/repo/linux/tip
-index 4fc5d88176fd..96a7dec66f97 100644
---- a/repo/linux/tip
-+++ b/repo/linux/tip
-@@ -2,11 +2,11 @@ url: https://kernel.googlesource.com/pub/scm/linux/kernel/git/tip/tip.git
- integration_testing_branches: auto-latest
- mail_cc:
- - linux-kernel@vger.kernel.org
--- tipbuild@zytor.com
-+- x86@kernel.org
- owner:
- - Ingo Molnar <mingo@kernel.org>
--- H. Peter Anvin <hpa@zytor.com>
- - Thomas Gleixner <tglx@linutronix.de>
-+- Borislav Petkov <bp@suse.de>
- subsystems:
- - x86
- - fpu
-@@ -16,4 +16,4 @@ subsystems:
- - locking
- blacklist_branch: auto-.*|tmp-.*|base-.*|test.*|.*-for-linus
- notify_build_success_branch: .*
--build_success_mail_to: tip build status <tipbuild@zytor.com>
-+build_success_mail_to: x86-ml <x86@kernel.org>
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index fdee8afa5339..ab16ea61a8fa 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -603,6 +603,15 @@ static int acpi_populate_gpio_lookup(struct acpi_resource *ares, void *data)
+ 			lookup->info.flags = acpi_gpio_to_gpiod_flags(agpio);
+ 			lookup->info.polarity = lookup->active_low;
+ 		}
++
++		/*
++		 * Override the polarity specified by GpioInt if
++		 * ACPI_GPIO_QUIRK_OVERRIDE_POLARITY is set.
++		 */
++		if (lookup->info.quirks & ACPI_GPIO_QUIRK_OVERRIDE_POLARITY) {
++			dev_warn(&lookup->info.adev->dev, FW_BUG "Incorrect polarity specified by GpioInt, overriding.\n");
++			lookup->info.polarity = lookup->active_low;
++		}
+ 	}
+ 
+ 	return 1;
+diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
+index b70af921c614..7e9f24ebb085 100644
+--- a/include/linux/gpio/consumer.h
++++ b/include/linux/gpio/consumer.h
+@@ -622,6 +622,12 @@ struct acpi_gpio_mapping {
+  * get GpioIo type explicitly, this quirk may be used.
+  */
+ #define ACPI_GPIO_QUIRK_ONLY_GPIOIO		BIT(1)
++/*
++ * Use the GPIO polarity (ActiveHigh / ActiveLow) from acpi_gpio_params
++ * for GpioInt as well. The default behavior is to use the one specified
++ * by GpioInt, which can be incorrect on some devices.
++ */
++#define ACPI_GPIO_QUIRK_OVERRIDE_POLARITY	BIT(2)
+ 
+ 	unsigned int quirks;
+ };
 -- 
-2.21.0
-
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-Good mailing practices for 400: avoid top-posting and trim the reply.
+2.23.0

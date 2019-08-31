@@ -1,40 +1,38 @@
 From: Denis Efremov <efremov@linux.com>
-Subject: Re: [PATCH v3 09/11] Input: alps - remove unlikely() from IS_ERR*()
- condition
-Date: Sat, 31 Aug 2019 18:50:34 +0300
-Message-ID: <e1713d4e-c12e-8925-a93a-50da560c6c13@linux.com>
+Subject: Re: [PATCH v3 01/11] checkpatch: check for nested (un)?likely() calls
+Date: Sat, 31 Aug 2019 18:54:12 +0300
+Message-ID: <689c8baf-2298-f086-3461-5cd1cdd191c6@linux.com>
 References: <20190829165025.15750-1-efremov@linux.com>
- <20190829165025.15750-9-efremov@linux.com> <20190829175039.GA187474@dtor-ws>
- <20190831152500.eg7xqo5ace6wu427@pali>
+ <0d9345ed-f16a-de0b-6125-1f663765eb46@web.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190831152500.eg7xqo5ace6wu427@pali>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <0d9345ed-f16a-de0b-6125-1f663765eb46@web.de>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Joe Perches <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
+To: Markus Elfring <Markus.Elfring@web.de>, Joe Perches <joe@perches.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Anton Altaparmakov <anton@tuxera.com>, Andy Whitcroft <apw@canonical.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Boris Pismenny <borisp@mellanox.com>, "Darrick J. Wong" <darrick.wong@oracle.com>, "David S. Miller" <davem@davemloft.net>, Dennis Dalessandro <dennis.dalessandro@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dri-devel@lists.freedesktop.org, Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>, =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>, Leon Romanovsky <leon@kernel.org>, linux-arm-msm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net, linux-rdma@vger.kernel.org, linux-wimax@intel.com
 List-Id: linux-input@vger.kernel.org
 
-On 31.08.2019 18:25, Pali Rohár wrote:
-> On Thursday 29 August 2019 10:50:39 Dmitry Torokhov wrote:
->> On Thu, Aug 29, 2019 at 07:50:23PM +0300, Denis Efremov wrote:
->>> "unlikely(IS_ERR_OR_NULL(x))" is excessive. IS_ERR_OR_NULL() already uses
->>> unlikely() internally.
->>
->> The keyword here is _internally_.
->>
->> https://lore.kernel.org/lkml/20190821174857.GD76194@dtor-ws/
->>
->> So please no.
-> 
-> Dmitry and I already rejected this patch, see also linked-list:
-> https://lore.kernel.org/lkml/20190820111719.7blyk5jstgwde2ae@pali/
->
 
-Looks like this is a very long recurring story with this patch.
-Thanks, for the clarification.
+
+On 31.08.2019 12:15, Markus Elfring wrote:
+>> +# nested likely/unlikely calls
+>> +        if ($line =~ /\b(?:(?:un)?likely)\s*\(\s*!?\s*(IS_ERR(?:_OR_NULL|_VALUE)?|WARN)/) {
+>> +            WARN("LIKELY_MISUSE",
+> 
+> How do you think about to use the specification “(?:IS_ERR(?:_(?:OR_NULL|VALUE))?|WARN)”
+> in this regular expression?
+
+Hmm, 
+(?:   <- Catch group is required here, since it is used in diagnostic message,
+         see $1
+   IS_ERR
+   (?:_ <- Another atomic group just to show that '_' is a common prefix?
+           I'm not sure about this. Usually, Perl interpreter is very good at optimizing such things.
+           You could see this optimization if you run perl with -Mre=debug.
+     (?:OR_NULL|VALUE))?|WARN)
 
 Regards,
 Denis

@@ -1,87 +1,27 @@
-From: Peter Cai <peter@typeblog.net>
-Subject: [PATCH v2 2/2] touchscreen: goodix: define GPIO mapping for GPD P2 Max
-Date: Sat, 31 Aug 2019 11:09:15 +0800
-Message-ID: <20190831030916.13172-2-peter@typeblog.net>
-References: <20190831030916.13172-1-peter@typeblog.net>
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: Re: [PATCH v3 01/11] checkpatch: check for nested (un)?likely() calls
+Date: Sat, 31 Aug 2019 11:15:20 +0200
+Message-ID: <0d9345ed-f16a-de0b-6125-1f663765eb46@web.de>
+References: <20190829165025.15750-1-efremov@linux.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190831030916.13172-1-peter@typeblog.net>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Peter Cai <peter@typeblog.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20190829165025.15750-1-efremov@linux.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Denis Efremov <efremov@linux.com>, Joe Perches <joe@perches.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Anton Altaparmakov <anton@tuxera.com>, Andy Whitcroft <apw@canonical.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Boris Pismenny <borisp@mellanox.com>, "Darrick J. Wong" <darrick.wong@oracle.com>, "David S. Miller" <davem@davemloft.net>, Dennis Dalessandro <dennis.dalessandro@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dri-devel@lists.freedesktop.org, Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>, =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>, Leon Romanovsky <leon@kernel.org>, linux-arm-msm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net, linux-rdma@vger.kernel.org, linux-wimax@intel.com
 List-Id: linux-input@vger.kernel.org
 
-The firmware of GPD P2 Max could not handle panel resets although code
-is present in DSDT. The kernel needs to take on this job instead, but
-the DSDT does not provide _DSD, rendering kernel helpless when trying to
-find the respective GPIO pins.
+> +# nested likely/unlikely calls
+> +		if ($line =3D~ /\b(?:(?:un)?likely)\s*\(\s*!?\s*(IS_ERR(?:_OR_NULL|_V=
+ALUE)?|WARN)/) {
+> +			WARN("LIKELY_MISUSE",
 
-Fortunately, this time GPD has proper DMI vendor / product strings that
-we could match against. We simply apply an acpi_gpio_mapping table when
-GPD P2 Max is matched.
+How do you think about to use the specification =E2=80=9C(?:IS_ERR(?:_(?:O=
+R_NULL|VALUE))?|WARN)=E2=80=9D
+in this regular expression?
 
-Additionally, the DSDT definition of the irq pin specifies a wrong
-polarity. The new quirk introduced in the previous patch
-(ACPI_GPIO_QUIRK_OVERRIDE_POLARITY) is applied to correct this.
-
-Signed-off-by: Peter Cai <peter@typeblog.net>
----
-
-v2: removed '#ifdef CONFIG_ACPI' as per suggestion. The #ifdef guards
-for CONFIG_DMI is kept for consistency with the other dmi_system_id
-definition in the same file.
----
- drivers/input/touchscreen/goodix.c | 31 ++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
-
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 5178ea8b5f30..df476f7dcd95 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -144,6 +144,31 @@ static const struct dmi_system_id rotated_screen[] = {
- 	{}
- };
- 
-+static const struct acpi_gpio_params irq_gpios_default = { 0, 0, false };
-+static const struct acpi_gpio_params reset_gpios_default = { 1, 0, false };
-+static const struct acpi_gpio_mapping gpio_mapping_force_irq_active_high[] = {
-+	{ "irq-gpios", &irq_gpios_default, 1, ACPI_GPIO_QUIRK_OVERRIDE_POLARITY },
-+	{ "reset-gpios", &reset_gpios_default, 1 },
-+	{}
-+};
-+
-+/*
-+ * Devices that need acpi_gpio_mapping to function correctly
-+ */
-+static const struct dmi_system_id need_gpio_mapping[] = {
-+#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-+	{
-+		.ident = "GPD P2 Max",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "GPD"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P2 MAX")
-+		},
-+		.driver_data = &gpio_mapping_force_irq_active_high
-+	},
-+#endif
-+	{}
-+};
-+
- /**
-  * goodix_i2c_read - read data from a register of the i2c slave device.
-  *
-@@ -795,6 +820,12 @@ static int goodix_ts_probe(struct i2c_client *client,
- {
- 	struct goodix_ts_data *ts;
- 	int error;
-+	struct dmi_system_id *dmi_match;
-+
-+	dmi_match = dmi_first_match(need_gpio_mapping);
-+	if (dmi_match)
-+		devm_acpi_dev_add_driver_gpios(&client->dev,
-+					       dmi_match->driver_data);
- 
- 	dev_dbg(&client->dev, "I2C Address: 0x%02x\n", client->addr);
- 
--- 
-2.23.0
+Regards,
+Markus

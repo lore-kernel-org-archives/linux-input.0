@@ -1,73 +1,392 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/5] dt-bindings: fsl: scu: add scu power key binding
-Date: Mon, 02 Sep 2019 14:39:14 +0100
-Message-ID: <20190902043521.GA14143@bogus>
-References: <1567198429-27886-1-git-send-email-Anson.Huang@nxp.com>
+From: =?UTF-8?B?Sm/Do28gTW9yZW5v?= <mail@joaomoreno.com>
+Subject: Re: [PATCH] HID: apple: Fix stuck function keys when using FN
+Date: Mon, 2 Sep 2019 16:44:18 +0200
+Message-ID: <CAHxFc3QP8Jtbh0AVbj1zfUNtO+ek+PH-DG==DGfo6Dj7t7PXRA@mail.gmail.com>
+References: <20190610213106.19342-1-mail@joaomoreno.com> <CAHxFc3QC147B6j4pBztjK7stLgCveeYhJWojai_SbKNbnpC9yw@mail.gmail.com>
+ <CAO-hwJ+1FyaXj0iuCjvc5R-Kqdh6PNB7Un0ko1F_NV7-f5GMdw@mail.gmail.com>
+ <CAHxFc3QJ1Xkgckt1BPptXT5S1xkROVdJzHTYT=GAcHXgm5UGqg@mail.gmail.com>
+ <CAHxFc3TjZu7_u0U3ZoB466WGNzbfYLe4ZB7C4LuKdBAwkRum5Q@mail.gmail.com>
+ <CAN+gG=H6O202SYXGbTG5rTMUt_X5dZyi02YFUquPaqL=FGHXwQ@mail.gmail.com> <bf759ce7-a0e1-0da8-ccd8-1925e5ccc184@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1567198429-27886-1-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <bf759ce7-a0e1-0da8-ccd8-1925e5ccc184@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anson Huang <Anson.Huang@nxp.com>
-Cc: mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, catalin.marinas@arm.com, will@kernel.org, dmitry.torokhov@gmail.com, aisheng.dong@nxp.com, ulf.hansson@linaro.org, fugang.duan@nxp.com, peng.fan@nxp.com, daniel.baluta@nxp.com, leonard.crestez@nxp.com, olof@lixom.net, mripard@kernel.org, arnd@arndb.de, jagan@amarulasolutions.com, bjorn.andersson@linaro.org, dinguyen@kernel.org, marcin.juszkiewicz@linaro.org, hsweeten@visionengravers.com, tglx@linutronix.de, gregkh@linuxfoundation.org, stefan@agner.ch, ronald@innovation.ch, ping.bai@nxp.com, m.felsch@pengutronix.de, andriy.shevchenko@linux.intel.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Linux-imx
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 30, 2019 at 04:53:45PM -0400, Anson Huang wrote:
-> NXP i.MX8QXP is an ARMv8 SoC with a Cortex-M4 core inside as
-> system controller, the system controller is in charge of system
-> power, clock and power key event etc. management, Linux kernel
-> has to communicate with system controller via MU (message unit)
-> IPC to get power key event, add binding doc for i.MX system
-> controller power key driver.
-> 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Hi Benjamin,
+
+First of all, sorry for the late reply. Turns out a newborn baby can
+keep one quite busy, who would have known? :)
+
+On Tue, 27 Aug 2019 at 18:57, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> Hi Jo=C3=A3o,
+>
+> On 8/12/19 6:57 PM, Benjamin Tissoires wrote:
+> > Hi Jo=C3=A3o,
+> >
+> > On Thu, Aug 8, 2019 at 10:35 PM Jo=C3=A3o Moreno <mail@joaomoreno.com> =
+wrote:
+> >>
+> >> Hi Benjamin,
+> >>
+> >> On Mon, 8 Jul 2019 at 22:35, Jo=C3=A3o Moreno <mail@joaomoreno.com> wr=
+ote:
+> >>>
+> >>> Hi Benjamin,
+> >>>
+> >>> No worries, also pretty busy over here. Didn't mean to press.
+> >>>
+> >>> On Mon, 1 Jul 2019 at 10:32, Benjamin Tissoires
+> >>> <benjamin.tissoires@redhat.com> wrote:
+> >>>>
+> >>>> Hi Jo=C3=A3o,
+> >>>>
+> >>>> On Sun, Jun 30, 2019 at 10:15 PM Jo=C3=A3o Moreno <mail@joaomoreno.c=
+om> wrote:
+> >>>>>
+> >>>>> Hi Jiri & Benjamin,
+> >>>>>
+> >>>>> Let me know if you need something else to get this patch moving for=
+ward. This
+> >>>>> fixes an issue I hit daily, it would be great to get it fixed.
+> >>>>
+> >>>> Sorry for the delay, I am very busy with internal corporate stuff, a=
+nd
+> >>>> I tried setting up a new CI system at home, and instead of spending =
+a
+> >>>> couple of ours, I am down to 2 weeks of hard work, without possibili=
+ty
+> >>>> to switch to the new right now :(
+> >>>> Anyway.
+> >>>>
+> >>>>>
+> >>>>> Thanks.
+> >>>>>
+> >>>>> On Mon, 10 Jun 2019 at 23:31, Joao Moreno <mail@joaomoreno.com> wro=
+te:
+> >>>>>>
+> >>>>>> This fixes an issue in which key down events for function keys wou=
+ld be
+> >>>>>> repeatedly emitted even after the user has raised the physical key=
+. For
+> >>>>>> example, the driver fails to emit the F5 key up event when going t=
+hrough
+> >>>>>> the following steps:
+> >>>>>> - fnmode=3D1: hold FN, hold F5, release FN, release F5
+> >>>>>> - fnmode=3D2: hold F5, hold FN, release F5, release FN
+> >>>>
+> >>>> Ouch :/
+> >>>>
+> >>>
+> >>> Right?!
+> >>>
+> >>>>>>
+> >>>>>> The repeated F5 key down events can be easily verified using xev.
+> >>>>>>
+> >>>>>> Signed-off-by: Joao Moreno <mail@joaomoreno.com>
+> >>>>>> ---
+> >>>>>>  drivers/hid/hid-apple.c | 21 +++++++++++----------
+> >>>>>>  1 file changed, 11 insertions(+), 10 deletions(-)
+> >>>>>>
+> >>>>>> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> >>>>>> index 1cb41992aaa1..81867a6fa047 100644
+> >>>>>> --- a/drivers/hid/hid-apple.c
+> >>>>>> +++ b/drivers/hid/hid-apple.c
+> >>>>>> @@ -205,20 +205,21 @@ static int hidinput_apple_event(struct hid_d=
+evice *hid, struct input_dev *input,
+> >>>>>>                 trans =3D apple_find_translation (table, usage->co=
+de);
+> >>>>>>
+> >>>>>>                 if (trans) {
+> >>>>>> -                       if (test_bit(usage->code, asc->pressed_fn)=
+)
+> >>>>>> -                               do_translate =3D 1;
+> >>>>>> -                       else if (trans->flags & APPLE_FLAG_FKEY)
+> >>>>>> -                               do_translate =3D (fnmode =3D=3D 2 =
+&& asc->fn_on) ||
+> >>>>>> -                                       (fnmode =3D=3D 1 && !asc->=
+fn_on);
+> >>>>>> +                       int fn_on =3D value ? asc->fn_on :
+> >>>>>> +                               test_bit(usage->code, asc->pressed=
+_fn);
+> >>>>>> +
+> >>>>>> +                       if (!value)
+> >>>>>> +                               clear_bit(usage->code, asc->presse=
+d_fn);
+> >>>>>> +                       else if (asc->fn_on)
+> >>>>>> +                               set_bit(usage->code, asc->pressed_=
+fn);
+> >>>>
+> >>>> I have the feeling that this is not the correct fix here.
+> >>>>
+> >>>> I might be wrong, but the following sequence might also mess up the
+> >>>> driver state, depending on how the reports are emitted:
+> >>>> - hold FN, hold F4, hold F5, release F4, release FN, release F5
+> >>>>
+> >>>
+> >>> I believe this should be fine. Following the code:
+> >>>
+> >>> - hold FN, sets asc->fn_on to true
+> >>> - hold F4, in the trans block fn_on will be true and we'll set the F4
+> >>> bit in the bitmap
+> >>> - hold F5, in the trans block fn_on will be true and we'll set the F5=
+ bit
+> >>> - release F4, in the trans block fn_on will be true (because of the b=
+itmap) and
+> >>> we'll clear the F4 bit
+> >>> - release FN, asc->fn_on will be false, but it doesn't matter since..=
+.
+> >>> - release F5, in the trans block we'll look into the bitmap (instead
+> >>> of asc->fn_on),
+> >>> so fn_on will be true and we'll clear the F5 bit
+> >>>
+> >>> I tested it in practice using my changes:
+> >>>
+> >>> Interestingly the Apple keyboard doesn't seem to emit an even for F5 =
+when F4 is
+> >>> pressed, seems like a hardware limitation. But F6 does work. So, when=
+ I execute
+> >>> these events in that order, everything works as it should: xev report=
+s
+> >>> the following:
+> >>>
+> >>> KeyPress F4
+> >>> KeyPress F6
+> >>> KeyRelease F4
+> >>> KeyRelease F6
+> >>>
+> >>>> The reason is that the driver only considers you have one key presse=
+d
+> >>>> with the modifier, and as the code changed its state based on the la=
+st
+> >>>> value.
+> >>>>
+> >>>
+> >>> I believe the bitmap takes care of storing the FN state per key press=
+. The
+> >>> trick I did was to check on the global `asc->fn_on` state only when a=
+ key
+> >>> is pressed, but check on the bitmap instead when it's released.
+> >>>
+> >>> Let me know what you think. Am I missing something here?
+> >>>
+> >>> Cheers,
+> >>> Jo=C3=A3o.
+> >>>
+> >>>> IMO a better fix would:
+> >>>>
+> >>>> - keep the existing `trans` mapping lookout
+> >>>> - whenever a `trans` mapping gets found:
+> >>>>   * get both translated and non-translated currently reported values
+> >>>> (`test_bit(keycode, input_dev->key)`)
+> >>>>   * if one of them is set to true, then consider the keycode to be t=
+he
+> >>>> one of the key (no matter fn_on)
+> >>>>     -> deal with `value` with the corrected keycode
+> >>>>   * if the key was not pressed:
+> >>>>     -> chose the keycode based on `fn_on` and `fnmode` states
+> >>>>     and report the key press event
+> >>>>
+> >>>> This should remove the nasty pressed_fn state which depends on the
+> >>>> other pressed keys.
+> >>>>
+> >>>> Cheers,
+> >>>> Benjamin
+> >>>>
+> >>>>>> +
+> >>>>>> +                       if (trans->flags & APPLE_FLAG_FKEY)
+> >>>>>> +                               do_translate =3D (fnmode =3D=3D 2 =
+&& fn_on) ||
+> >>>>>> +                                       (fnmode =3D=3D 1 && !fn_on=
+);
+> >>>>>>                         else
+> >>>>>>                                 do_translate =3D asc->fn_on;
+> >>>>>>
+> >>>>>>                         if (do_translate) {
+> >>>>>> -                               if (value)
+> >>>>>> -                                       set_bit(usage->code, asc->=
+pressed_fn);
+> >>>>>> -                               else
+> >>>>>> -                                       clear_bit(usage->code, asc=
+->pressed_fn);
+> >>>>>> -
+> >>>>>>                                 input_event(input, usage->type, tr=
+ans->to,
+> >>>>>>                                                 value);
+> >>>>>>
+> >>>>>> --
+> >>>>>> 2.19.1
+> >>>>>>
+> >>
+> >> Gave this another look and I still haven't found any issues, let me
+> >> know if you still
+> >> think I'm missing something. Thanks!
+> >>
+> >
+> > OK, I am tempted to take the patch, but I'll need to add this as a
+> > regression test in my test-suite. This is too complex that it can
+> > easily break next time someone looks at it.
+> >
+> > Can you send me the report descriptors of the device using
+> > hid-recorder from hid-tools[0].
+> > Ideally, if you can put the faulty sequence in the logs, that would
+> > help writing down the use case.
+> >
+>
+> I finally managed to get the regression tests up in
+> https://gitlab.freedesktop.org/libevdev/hid-tools/merge_requests/52
+>
+
+This is great, really cool that you can write proper tests for this. I
+assume you don't need me to send you the report descriptors any more?
+
+> This allowed me to better understand the code, and yes, for the F-keys,
+> I could not find a faulty situation with your patch.
+>
+> However, the same problem is happening with the arrow keys, as arrow up
+> is translated to page up.
+>
+
+Great catch, I can easily repro that issue as well on my keyboard.
+
+> We *could* adapt your patch to solve this, but I find it really hard to u=
+nderstand.
+>
+> How about the following diff:
 > ---
->  .../devicetree/bindings/arm/freescale/fsl,scu.txt      | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> index c149fad..001d0b7 100644
-> --- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> +++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> @@ -157,6 +157,17 @@ Required properties:
->  Optional properties:
->  - timeout-sec: contains the watchdog timeout in seconds.
->  
-> +Power key bindings based on SCU Message Protocol
-> +------------------------------------------------------------
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index 81df62f48c4c..ef916c0f3c0b 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -54,7 +54,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\=
+") and Command (\"Flag\")
+>  struct apple_sc {
+>         unsigned long quirks;
+>         unsigned int fn_on;
+> -       DECLARE_BITMAP(pressed_fn, KEY_CNT);
+>         DECLARE_BITMAP(pressed_numlock, KEY_CNT);
+>  };
+>
+> @@ -181,6 +180,8 @@ static int hidinput_apple_event(struct hid_device *hi=
+d, struct input_dev *input,
+>  {
+>         struct apple_sc *asc =3D hid_get_drvdata(hid);
+>         const struct apple_key_translation *trans, *table;
+> +       bool do_translate;
+> +       u16 code =3D 0;
+>
+>         if (usage->code =3D=3D KEY_FN) {
+>                 asc->fn_on =3D !!value;
+> @@ -189,8 +190,6 @@ static int hidinput_apple_event(struct hid_device *hi=
+d, struct input_dev *input,
+>         }
+>
+>         if (fnmode) {
+> -               int do_translate;
+> -
+>                 if (hid->product >=3D USB_DEVICE_ID_APPLE_WELLSPRING4_ANS=
+I &&
+>                                 hid->product <=3D USB_DEVICE_ID_APPLE_WEL=
+LSPRING4A_JIS)
+>                         table =3D macbookair_fn_keys;
+> @@ -202,25 +201,33 @@ static int hidinput_apple_event(struct hid_device *=
+hid, struct input_dev *input,
+>                 trans =3D apple_find_translation (table, usage->code);
+>
+>                 if (trans) {
+> -                       if (test_bit(usage->code, asc->pressed_fn))
+> -                               do_translate =3D 1;
+> -                       else if (trans->flags & APPLE_FLAG_FKEY)
+> -                               do_translate =3D (fnmode =3D=3D 2 && asc-=
+>fn_on) ||
+> -                                       (fnmode =3D=3D 1 && !asc->fn_on);
+> -                       else
+> -                               do_translate =3D asc->fn_on;
+> -
+> -                       if (do_translate) {
+> -                               if (value)
+> -                                       set_bit(usage->code, asc->pressed=
+_fn);
+> -                               else
+> -                                       clear_bit(usage->code, asc->press=
+ed_fn);
+> -
+> -                               input_event(input, usage->type, trans->to=
+,
+> -                                               value);
+> -
+> -                               return 1;
+> +                       if (test_bit(trans->from, input->key))
+> +                               code =3D trans->from;
+> +                       if (test_bit(trans->to, input->key))
+> +                               code =3D trans->to;
+
+I see, this is what you meant before. I still don't quite understand
+what information `input->key` actually holds. Can you elaborate on
+what it contains? How does it differ from `usage->code`?
+
+Also, should the second `if` be an `else if` instead? We shouldn't
+have to call `test_bit` more than once here, right? If right, then the
+next `if` would could simply be an `else`, since the translation
+tables should not have zeros in them.
+
 > +
-> +Required properties:
-> +- compatible: should be:
-> +              "fsl,imx8qxp-sc-pwrkey"
-> +              followed by "fsl,imx-sc-pwrkey";
-> +- linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
-> +Optional Properties:
-> +- wakeup-source: See Documentation/devicetree/bindings/power/wakeup-source.txt
+> +                       if (!code) {
+> +                               if (trans->flags & APPLE_FLAG_FKEY) {
+> +                                       switch (fnmode) {
+> +                                       case 1:
+> +                                               do_translate =3D !asc->fn=
+_on;
+> +                                               break;
+> +                                       case 2:
+> +                                               do_translate =3D asc->fn_=
+on;
+> +                                               break;
+> +                                       default:
+> +                                               /* should never happen */
+> +                                               do_translate =3D false;
+> +                                       }
+> +                               } else {
+> +                                       do_translate =3D asc->fn_on;
+> +                               }
 > +
->  Example (imx8qxp):
->  -------------
->  aliases {
-> @@ -220,6 +231,13 @@ firmware {
->  			compatible = "fsl,imx8qxp-sc-rtc";
->  		};
->  
-> +		scu_pwrkey: scu-pwrkey {
-> +			compatible = "fsl,imx8qxp-sc-pwrkey", "fsl,imx-sc-pwrkey";
-> +			linux,keycode = <KEY_POWER>;
-> +			wakeup-source;
-
-wakeup-source implies an interrupt property.
-
-> +			status = "disabled";
-
-Don't should status in examples.
-
-> +		};
+> +                               code =3D do_translate ? trans->to : trans=
+->from;
+>                         }
 > +
->  		watchdog {
->  			compatible = "fsl,imx8qxp-sc-wdt", "fsl,imx-sc-wdt";
->  			timeout-sec = <60>;
-> -- 
-> 2.7.4
-> 
+> +                       input_event(input, usage->type, code, value);
+> +                       return 1;
+>                 }
+>
+>                 if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
+> ---
+>
+> This is more or less what I suggested, minus the bug fixes.
+>
+> I find this easier to understand as the .pressed_fn field is not there
+> anymore and we just rely on the actual state of the input subsystem.
+>
+> Comments?
+
+Love it. Seems to catch all the cases on my hardware. Thanks for
+following up with the patch!
+
+>
+> Cheers,
+> Benjamin
+>
+>
+> > Cheers,
+> > Benjamin
+> >
+> > [0] https://gitlab.freedesktop.org/libevdev/hid-tools
+> >
+
+Cheers,
+Jo=C3=A3o

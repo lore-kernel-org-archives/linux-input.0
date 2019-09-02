@@ -1,113 +1,58 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 2/2] touchscreen: goodix: define GPIO mapping for GPD
- P2 Max
-Date: Mon, 2 Sep 2019 13:04:15 +0300
-Message-ID: <20190902100415.GX2680@smile.fi.intel.com>
-References: <20190831030916.13172-1-peter@typeblog.net>
- <20190831030916.13172-2-peter@typeblog.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190831030916.13172-2-peter@typeblog.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Cai <peter@typeblog.net>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Sebastian Parschauer <s.parschauer@gmx.de>
+Subject: [PATCH] HID: Add quirk for HP X500 PIXART OEM mouse
+Date: Mon,  2 Sep 2019 12:39:30 +0200
+Message-ID: <20190902103930.9004-1-s.parschauer@gmx.de>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Aug 31, 2019 at 11:09:15AM +0800, Peter Cai wrote:
-> The firmware of GPD P2 Max could not handle panel resets although code
-> is present in DSDT. The kernel needs to take on this job instead, but
-> the DSDT does not provide _DSD, rendering kernel helpless when trying to
-> find the respective GPIO pins.
-> 
-> Fortunately, this time GPD has proper DMI vendor / product strings that
-> we could match against. We simply apply an acpi_gpio_mapping table when
-> GPD P2 Max is matched.
-> 
-> Additionally, the DSDT definition of the irq pin specifies a wrong
-> polarity. The new quirk introduced in the previous patch
-> (ACPI_GPIO_QUIRK_OVERRIDE_POLARITY) is applied to correct this.
+The PixArt OEM mice are known for disconnecting every minute in
+runlevel 1 or 3 if they are not always polled. So add quirk
+ALWAYS_POLL for this one as well.
 
-FWIW,
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Ville Viinikka (viinikv) reported and tested the quirk.
+Reference: https://github.com/sriemer/fix-linux-mouse issue 15
 
-though one comment below.
+Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
+CC: stable@vger.kernel.org # v4.16+
+=2D--
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-> 
-> Signed-off-by: Peter Cai <peter@typeblog.net>
-> ---
-> 
-> v2: removed '#ifdef CONFIG_ACPI' as per suggestion. The #ifdef guards
-> for CONFIG_DMI is kept for consistency with the other dmi_system_id
-> definition in the same file.
-> ---
->  drivers/input/touchscreen/goodix.c | 31 ++++++++++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> index 5178ea8b5f30..df476f7dcd95 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -144,6 +144,31 @@ static const struct dmi_system_id rotated_screen[] = {
->  	{}
->  };
->  
-> +static const struct acpi_gpio_params irq_gpios_default = { 0, 0, false };
-> +static const struct acpi_gpio_params reset_gpios_default = { 1, 0, false };
-> +static const struct acpi_gpio_mapping gpio_mapping_force_irq_active_high[] = {
-> +	{ "irq-gpios", &irq_gpios_default, 1, ACPI_GPIO_QUIRK_OVERRIDE_POLARITY },
-> +	{ "reset-gpios", &reset_gpios_default, 1 },
-> +	{}
-> +};
-> +
-> +/*
-> + * Devices that need acpi_gpio_mapping to function correctly
-> + */
-> +static const struct dmi_system_id need_gpio_mapping[] = {
-> +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-> +	{
-> +		.ident = "GPD P2 Max",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "GPD"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "P2 MAX")
-> +		},
-> +		.driver_data = &gpio_mapping_force_irq_active_high
-> +	},
-> +#endif
-> +	{}
-> +};
-> +
->  /**
->   * goodix_i2c_read - read data from a register of the i2c slave device.
->   *
-> @@ -795,6 +820,12 @@ static int goodix_ts_probe(struct i2c_client *client,
->  {
->  	struct goodix_ts_data *ts;
->  	int error;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 0a00be19f7a0..e4d51ce20a6a 100644
+=2D-- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -568,6 +568,7 @@
+ #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
++#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941	0x0941
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
 
-> +	struct dmi_system_id *dmi_match;
-
-I guess it should be const as kbuild bot complained on v1.
-
-And perhaps you want to keep reverse xmas tree order in definition block:
-
-	const struct dmi_system_id *dmi_match;
-	struct goodix_ts_data *ts;
-	int error;
-
-> +
-> +	dmi_match = dmi_first_match(need_gpio_mapping);
-> +	if (dmi_match)
-> +		devm_acpi_dev_add_driver_gpios(&client->dev,
-> +					       dmi_match->driver_data);
->  
->  	dev_dbg(&client->dev, "I2C Address: 0x%02x\n", client->addr);
->  
-> -- 
-> 2.23.0
-> 
-
--- 
-With Best Regards,
-Andy Shevchenko
+ #define USB_VENDOR_ID_HUION		0x256c
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 166f41f3173b..c50bcd967d99 100644
+=2D-- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -92,6 +92,7 @@ static const struct hid_device_id hid_quirks[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OP=
+TICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
+CAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
+CAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
+CAL_MOUSE_0941), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
+CAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), =
+HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_AT=
+ARI), HID_QUIRK_MULTI_INPUT },
+=2D-
+2.16.4

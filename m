@@ -1,71 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 09/11] Input: alps - remove unlikely() from IS_ERR*()
- condition
-Date: Sat, 31 Aug 2019 14:03:56 -0700
-Message-ID: <20190831210356.GI187474@dtor-ws>
-References: <20190829165025.15750-1-efremov@linux.com>
- <20190829165025.15750-9-efremov@linux.com>
- <20190829175039.GA187474@dtor-ws>
- <20190831152500.eg7xqo5ace6wu427@pali>
- <762056d9c081c40f3fc760c9af79d6851f0a65e5.camel@perches.com>
+From: Philip Li <philip.li@intel.com>
+Subject: Re: [kbuild-all] [tip: x86/vmware] input/vmmouse: Update the
+ backdoor call with support for new instructions
+Date: Mon, 2 Sep 2019 09:13:42 +0800
+Message-ID: <20190902011342.GA14687@intel.com>
+References: <20190829163353.GC2132@zn.tnic>
+ <20190830010349.GD857@intel.com>
+ <alpine.DEB.2.21.1908300802390.1938@nanos.tec.linutronix.de>
+ <20190830062053.GA2598@intel.com>
+ <20190830080650.GA30413@zn.tnic>
+ <20190830143645.GA4784@intel.com>
+ <20190830144628.GC30413@zn.tnic>
+ <20190830150002.GA6931@intel.com>
+ <20190830150856.GB6931@intel.com>
+ <20190830193557.GF30413@zn.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <762056d9c081c40f3fc760c9af79d6851f0a65e5.camel@perches.com>
+In-Reply-To: <20190830193557.GF30413@zn.tnic>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Denis Efremov <efremov@linux.com>, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>, kbuild test robot <lkp@intel.com>, linux-input@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>, x86-ml <x86@kernel.org>, linux-tip-commits@vger.kernel.org, pv-drivers@vmware.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, tip-bot2 for Thomas Hellstrom <tip-bot2@linutronix.de>, Doug Covelli <dcovelli@vmware.com>, Ingo Molnar <mingo@redhat.com>, VMware Graphics <linux-graphics-maintainer@vmware.com>, kbuild-all@01.org, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Aug 31, 2019 at 01:32:02PM -0700, Joe Perches wrote:
-> On Sat, 2019-08-31 at 17:25 +0200, Pali Rohár wrote:
-> > On Thursday 29 August 2019 10:50:39 Dmitry Torokhov wrote:
-> > > On Thu, Aug 29, 2019 at 07:50:23PM +0300, Denis Efremov wrote:
-> > > > "unlikely(IS_ERR_OR_NULL(x))" is excessive. IS_ERR_OR_NULL() already uses
-> > > > unlikely() internally.
-> > > 
-> > > The keyword here is _internally_.
-> > > 
-> > > https://lore.kernel.org/lkml/20190821174857.GD76194@dtor-ws/
-> > > 
-> > > So please no.
+On Fri, Aug 30, 2019 at 09:35:57PM +0200, Borislav Petkov wrote:
+> On Fri, Aug 30, 2019 at 11:08:56PM +0800, Philip Li wrote:
+> > hi Boris, for the build status notification, we currently send to below
+> > address, is it still valid? If not, can you suggest one for us?
 > 
-> I think it poor form not to simply restate your original
-> objection from 4 message levels below this link
-
-Thank you for the lesson in etiquette, but I posted reference to the
-very message I wanted.
+> Sure, here's an update patch ontop of your master branch:
+Thanks Boris, it is applied, and will take effect soon.
 
 > 
-> https://lists.gt.net/linux/kernel/2269724
+> ---
+> From: Borislav Petkov <bp@suse.de>
+> Date: Fri, 30 Aug 2019 21:33:29 +0200
+> Subject: [PATCH] repo/linux/tip: Update tip tree contact information
 > 
->    Hm... I do not like this change. If I read code 
->     
->     if (unlikely(IS_ERR_OR_NULL(priv->dev3))) 
->     
->    then I know that it is really unlikely that condition will be truth and 
->    so this is some case of error/exception or something that normally does 
->    not happen too much. 
->     
->    But if I read code 
->     
->     if (IS_ERR_OR_NULL(priv->dev3)) 
->     
->    I know nothing about chance that this condition will be truth. Explicit 
->    unlikely in previous example give me more information. 
->     
-> I alslo think this argument is dubious as it also applies
-> to any IS_ERR and all the unlikely uses have been removed
-> from those.
-
-No, if you read the reference I posted, the argument does not apply to
-all IS_ERR() instances. Majority of them are in probe() paths where we
-do not really care about likely/unlikely. Here we are dealing with
-IS_ERR in a [fairly] hot path.
-
-Thanks.
-
--- 
-Dmitry
+> Replace hpa with Borislav and change contact mail address.
+> 
+> Signed-off-by: Borislav Petkov <bp@suse.de>
+> ---
+>  repo/linux/tip | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/repo/linux/tip b/repo/linux/tip
+> index 4fc5d88176fd..96a7dec66f97 100644
+> --- a/repo/linux/tip
+> +++ b/repo/linux/tip
+> @@ -2,11 +2,11 @@ url: https://kernel.googlesource.com/pub/scm/linux/kernel/git/tip/tip.git
+>  integration_testing_branches: auto-latest
+>  mail_cc:
+>  - linux-kernel@vger.kernel.org
+> -- tipbuild@zytor.com
+> +- x86@kernel.org
+>  owner:
+>  - Ingo Molnar <mingo@kernel.org>
+> -- H. Peter Anvin <hpa@zytor.com>
+>  - Thomas Gleixner <tglx@linutronix.de>
+> +- Borislav Petkov <bp@suse.de>
+>  subsystems:
+>  - x86
+>  - fpu
+> @@ -16,4 +16,4 @@ subsystems:
+>  - locking
+>  blacklist_branch: auto-.*|tmp-.*|base-.*|test.*|.*-for-linus
+>  notify_build_success_branch: .*
+> -build_success_mail_to: tip build status <tipbuild@zytor.com>
+> +build_success_mail_to: x86-ml <x86@kernel.org>
+> -- 
+> 2.21.0
+> 
+> Thx.
+> 
+> -- 
+> Regards/Gruss,
+>     Boris.
+> 
+> Good mailing practices for 400: avoid top-posting and trim the reply.

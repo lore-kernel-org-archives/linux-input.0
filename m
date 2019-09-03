@@ -1,7 +1,7 @@
 From: Anson Huang <Anson.Huang@nxp.com>
-Subject: [PATCH V2 3/5] arm64: dts: imx8qxp: Add scu power key node
-Date: Tue,  3 Sep 2019 10:03:42 -0400
-Message-ID: <1567519424-32271-3-git-send-email-Anson.Huang@nxp.com>
+Subject: [PATCH V2 4/5] arm64: dts: imx8qxp-mek: Enable scu power key
+Date: Tue,  3 Sep 2019 10:03:43 -0400
+Message-ID: <1567519424-32271-4-git-send-email-Anson.Huang@nxp.com>
 References: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
@@ -10,41 +10,26 @@ To: robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengu
 Cc: Linux-imx@nxp.com
 List-Id: linux-input@vger.kernel.org
 
-Add scu power key node for i.MX8QXP, disabled by default as it
-depends on board design.
+Enable scu power key for i.MX8QXP MEK board.
 
 Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
-Changes since V1:
-	- remove "wakeup-source" property, as it is NOT needed for scu mu interrupt;
+No changes.
 ---
- arch/arm64/boot/dts/freescale/imx8qxp.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm64/boot/dts/freescale/imx8qxp-mek.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-index 1133b41..85c5534 100644
---- a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-@@ -8,6 +8,7 @@
- #include <dt-bindings/clock/imx8-clock.h>
- #include <dt-bindings/firmware/imx/rsrc.h>
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
- #include <dt-bindings/interrupt-controller/arm-gic.h>
- #include <dt-bindings/pinctrl/pads-imx8qxp.h>
- 
-@@ -174,6 +175,12 @@
- 			#power-domain-cells = <1>;
- 		};
- 
-+		scu_pwrkey: scu-pwrkey {
-+			compatible = "fsl,imx8qxp-sc-pwrkey", "fsl,imx-sc-pwrkey";
-+			linux,keycode = <KEY_POWER>;
-+			status = "disabled";
-+		};
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts b/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
+index 1946805..f3df5c4 100644
+--- a/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
+@@ -234,3 +234,7 @@
+ &adma_dsp {
+ 	status = "okay";
+ };
 +
- 		rtc: rtc {
- 			compatible = "fsl,imx8qxp-sc-rtc";
- 		};
++&scu_pwrkey {
++	status = "okay";
++};
 -- 
 2.7.4

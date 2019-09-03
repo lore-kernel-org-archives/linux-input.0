@@ -1,66 +1,87 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: Add quirk for HP X500 PIXART OEM mouse
-Date: Tue, 3 Sep 2019 17:14:41 +0200
-Message-ID: <CAO-hwJ+PG6jxV7MbBcsAuP0cF_ROLcSbov4+k7wKkJPcu+KLZw@mail.gmail.com>
-References: <20190902103930.9004-1-s.parschauer@gmx.de>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: elants_i2c - return real value of
+ elants_i2c_initialize()
+Date: Tue, 3 Sep 2019 08:55:14 -0700
+Message-ID: <20190903155514.GL187474@dtor-ws>
+References: <1566958886-25756-1-git-send-email-johnny.chuang@emc.com.tw>
+ <000601d55d49$05878160$10968420$@emc.com.tw>
+ <20190829182933.GD187474@dtor-ws>
+ <001e01d561ff$fb3d7000$f1b85000$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190902103930.9004-1-s.parschauer@gmx.de>
-Sender: stable-owner@vger.kernel.org
-To: Sebastian Parschauer <s.parschauer@gmx.de>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <001e01d561ff$fb3d7000$f1b85000$@emc.com.tw>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Johnny.Chuang" <johnny.chuang@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, =?utf-8?B?J1NUUkQyLeiUoeaDoOWsiyc=?= <jennifer.tsai@emc.com.tw>, =?utf-8?B?J1NUUkQyLemZs+W0h+aYjue2k+eQhic=?= <james.chen@emc.com.tw>, =?utf-8?B?J+aigeWNmue/lCc=?= <paul.liang@emc.com.tw>, 'jeff' <jeff.chuang@emc.com.tw>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 2, 2019 at 12:41 PM Sebastian Parschauer
-<s.parschauer@gmx.de> wrote:
->
-> The PixArt OEM mice are known for disconnecting every minute in
-> runlevel 1 or 3 if they are not always polled. So add quirk
-> ALWAYS_POLL for this one as well.
->
-> Ville Viinikka (viinikv) reported and tested the quirk.
-> Reference: https://github.com/sriemer/fix-linux-mouse issue 15
->
-> Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-> CC: stable@vger.kernel.org # v4.16+
-> ---
+On Tue, Sep 03, 2019 at 10:33:33AM +0800, Johnny.Chuang wrote:
+> Hi Dmitry,
+> 
+> Thanks for your explanation.
+> If I want to abandon this patch, what's step I need to do?
 
-thanks!
+Absolutely nothing ;) Consider it dropped.
 
-Applied to for-5.4/core
+> 
+> Many thanks,
+> Johnny
+> -----Original Message-----
+> From: 'Dmitry Torokhov' [mailto:dmitry.torokhov@gmail.com] 
+> Sent: Friday, August 30, 2019 2:30 AM
+> To: Johnny.Chuang
+> Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org; STRD2-蔡惠嬋;
+> STRD2-陳崇明經理; '梁博翔'; 'jeff'
+> Subject: Re: [PATCH] Input: elants_i2c - return real value of
+> elants_i2c_initialize()
+> 
+> Hi Johnny,
+> 
+> On Wed, Aug 28, 2019 at 10:33:46AM +0800, Johnny.Chuang wrote:
+> > The return value of elants_i2c_initialize() was always 0.
+> > It maybe register input device when initialize fail.
+> 
+> We do not want to return error here, because it will abort probe, and then
+> we will not be able to initiate firmware flash flow so we can attempt to
+> recover the device.
+> 
+> If you want to try you can change the ts->iap_mode before trying to register
+> input device, but then you need to be very careful about registering and
+> unregistering it later, after flashing or re-flashing firmware.
+> 
+> > 
+> > Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
+> > ---
+> >  drivers/input/touchscreen/elants_i2c.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/elants_i2c.c
+> > b/drivers/input/touchscreen/elants_i2c.c
+> > index d4ad24e..9c9816f 100644
+> > --- a/drivers/input/touchscreen/elants_i2c.c
+> > +++ b/drivers/input/touchscreen/elants_i2c.c
+> > @@ -571,7 +571,7 @@ static int elants_i2c_initialize(struct elants_data
+> *ts)
+> >  	if (error)
+> >  		ts->iap_mode = ELAN_IAP_RECOVERY;
+> >  
+> > -	return 0;
+> > +	return error;
+> >  }
+> >  
+> >  /*
+> > --
+> > 2.7.4
+> > 
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
+> 
 
-Cheers,
-Benjamin
-
->  drivers/hid/hid-ids.h    | 1 +
->  drivers/hid/hid-quirks.c | 1 +
->  2 files changed, 2 insertions(+)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 0a00be19f7a0..e4d51ce20a6a 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -568,6 +568,7 @@
->  #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A  0x0b4a
->  #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE         0x134a
->  #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A    0x094a
-> +#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941    0x0941
->  #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641    0x0641
->
->  #define USB_VENDOR_ID_HUION            0x256c
-> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> index 166f41f3173b..c50bcd967d99 100644
-> --- a/drivers/hid/hid-quirks.c
-> +++ b/drivers/hid/hid-quirks.c
-> @@ -92,6 +92,7 @@ static const struct hid_device_id hid_quirks[] = {
->         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
->         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
->         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
-> +       { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941), HID_QUIRK_ALWAYS_POLL },
->         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
->         { HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
->         { HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
-> --
-> 2.16.4
->
+-- 
+Dmitry

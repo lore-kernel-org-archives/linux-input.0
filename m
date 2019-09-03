@@ -1,19 +1,19 @@
 From: Andrey Konovalov <andreyknvl@google.com>
-Subject: Re: KASAN: use-after-free Write in usbhid_open
-Date: Tue, 3 Sep 2019 14:12:56 +0200
-Message-ID: <CAAeHK+xdsA1wSBsrCJZsrB8FAvXtzt9JkDaeMK52v6FQe7Lbbw@mail.gmail.com>
-References: <00000000000043c9390591a4f14b@google.com>
+Subject: Re: WARNING: ODEBUG bug in usbhid_disconnect (2)
+Date: Tue, 3 Sep 2019 14:17:10 +0200
+Message-ID: <CAAeHK+zdtLm6CZ9=vJDF4d52a=vebPj10gpFkuETcxMjvEwsNg@mail.gmail.com>
+References: <0000000000001b41900591a4f149@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <00000000000043c9390591a4f14b@google.com>
+In-Reply-To: <0000000000001b41900591a4f149@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: syzbot <syzbot+058e326a87dbb54f2426@syzkaller.appspotmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>
+To: Roderick.Colenbrander@sony.com
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, syzbot <syzbot+14b53bfeb17f2b210eb7@syzkaller.appspotmail.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Alan Stern <stern@rowland.harvard.edu>
 List-Id: linux-input@vger.kernel.org
 
 On Tue, Sep 3, 2019 at 2:08 PM syzbot
-<syzbot+058e326a87dbb54f2426@syzkaller.appspotmail.com> wrote:
+<syzbot+14b53bfeb17f2b210eb7@syzkaller.appspotmail.com> wrote:
 >
 > Hello,
 >
@@ -21,73 +21,70 @@ On Tue, Sep 3, 2019 at 2:08 PM syzbot
 >
 > HEAD commit:    eea39f24 usb-fuzzer: main usb gadget fuzzer driver
 > git tree:       https://github.com/google/kasan.git usb-fuzzer
-> console output: https://syzkaller.appspot.com/x/log.txt?x=16ab9982600000
+> console output: https://syzkaller.appspot.com/x/log.txt?x=173983ac600000
 > kernel config:  https://syzkaller.appspot.com/x/.config?x=d0c62209eedfd54e
-> dashboard link: https://syzkaller.appspot.com/bug?extid=058e326a87dbb54f2426
+> dashboard link: https://syzkaller.appspot.com/bug?extid=14b53bfeb17f2b210eb7
 > compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
->
-> Unfortunately, I don't have any reproducer for this crash yet.
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10d36aca600000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=178e208e600000
 >
 > IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+058e326a87dbb54f2426@syzkaller.appspotmail.com
+> Reported-by: syzbot+14b53bfeb17f2b210eb7@syzkaller.appspotmail.com
 >
-> ==================================================================
-> BUG: KASAN: use-after-free in clear_bit
-> include/asm-generic/bitops-instrumented.h:56 [inline]
-> BUG: KASAN: use-after-free in usbhid_open+0x263/0x390
-> drivers/hid/usbhid/hid-core.c:727
-> Write of size 8 at addr ffff8881c89228c0 by task syz-executor.1/10380
->
-> CPU: 0 PID: 10380 Comm: syz-executor.1 Not tainted 5.3.0-rc5+ #28
+> ------------[ cut here ]------------
+> ODEBUG: free active (active state 0) object type: timer_list hint:
+> hid_retry_timeout+0x0/0xd0 drivers/hid/usbhid/hid-core.c:712
+> WARNING: CPU: 1 PID: 17 at lib/debugobjects.c:481
+> debug_print_object+0x160/0x250 lib/debugobjects.c:481
+> Kernel panic - not syncing: panic_on_warn set ...
+> CPU: 1 PID: 17 Comm: kworker/1:0 Not tainted 5.3.0-rc5+ #28
 > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
 > Google 01/01/2011
+> Workqueue: usb_hub_wq hub_event
 > Call Trace:
 >   __dump_stack lib/dump_stack.c:77 [inline]
 >   dump_stack+0xca/0x13e lib/dump_stack.c:113
->   print_address_description+0x6a/0x32c mm/kasan/report.c:351
->   __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
->   kasan_report+0xe/0x12 mm/kasan/common.c:612
->   check_memory_region_inline mm/kasan/generic.c:185 [inline]
->   check_memory_region+0x128/0x190 mm/kasan/generic.c:192
->   clear_bit include/asm-generic/bitops-instrumented.h:56 [inline]
->   usbhid_open+0x263/0x390 drivers/hid/usbhid/hid-core.c:727
->   hid_hw_open+0xd2/0x160 drivers/hid/hid-core.c:2023
->   hidraw_open+0x256/0x740 drivers/hid/hidraw.c:288
->   chrdev_open+0x219/0x5c0 fs/char_dev.c:414
->   do_dentry_open+0x494/0x1120 fs/open.c:797
->   do_last fs/namei.c:3416 [inline]
->   path_openat+0x1430/0x3f50 fs/namei.c:3533
->   do_filp_open+0x1a1/0x280 fs/namei.c:3563
->   do_sys_open+0x3c0/0x580 fs/open.c:1089
->   do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
->   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> RIP: 0033:0x413761
-> Code: 75 14 b8 02 00 00 00 0f 05 48 3d 01 f0 ff ff 0f 83 04 19 00 00 c3 48
-> 83 ec 08 e8 0a fa ff ff 48 89 04 24 b8 02 00 00 00 0f 05 <48> 8b 3c 24 48
-> 89 c2 e8 53 fa ff ff 48 89 d0 48 83 c4 08 48 3d 01
-> RSP: 002b:00007f50d4f077a0 EFLAGS: 00000293 ORIG_RAX: 0000000000000002
-> RAX: ffffffffffffffda RBX: 6666666666666667 RCX: 0000000000413761
-> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00007f50d4f07850
-> RBP: 000000000075bf20 R08: 000000000000000f R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000293 R12: 00007f50d4f086d4
-> R13: 00000000004c8c86 R14: 00000000004dfc10 R15: 00000000ffffffff
->
-> The buggy address belongs to the page:
-> page:ffffea0007224880 refcount:0 mapcount:0 mapping:0000000000000000
-> index:0x0
-> flags: 0x200000000000000()
-> raw: 0200000000000000 0000000000000000 dead000000000122 0000000000000000
-> raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
-> page dumped because: kasan: bad access detected
->
-> Memory state around the buggy address:
->   ffff8881c8922780: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->   ffff8881c8922800: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-> > ffff8881c8922880: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->                                             ^
->   ffff8881c8922900: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->   ffff8881c8922980: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-> ==================================================================
+>   panic+0x2a3/0x6da kernel/panic.c:219
+>   __warn.cold+0x20/0x4a kernel/panic.c:576
+>   report_bug+0x262/0x2a0 lib/bug.c:186
+>   fixup_bug arch/x86/kernel/traps.c:179 [inline]
+>   fixup_bug arch/x86/kernel/traps.c:174 [inline]
+>   do_error_trap+0x12b/0x1e0 arch/x86/kernel/traps.c:272
+>   do_invalid_op+0x32/0x40 arch/x86/kernel/traps.c:291
+>   invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1028
+> RIP: 0010:debug_print_object+0x160/0x250 lib/debugobjects.c:481
+> Code: dd 80 ef da 85 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 bf 00 00 00 48
+> 8b 14 dd 80 ef da 85 48 c7 c7 c0 e4 da 85 e8 e5 dd 31 ff <0f> 0b 83 05 4b
+> 0f a8 05 01 48 83 c4 20 5b 5d 41 5c 41 5d c3 48 89
+> RSP: 0018:ffff8881da24f718 EFLAGS: 00010282
+> RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
+> RDX: 0000000000000000 RSI: ffffffff81288cfd RDI: ffffed103b449ed5
+> RBP: 0000000000000001 R08: ffff8881da233000 R09: fffffbfff11ad79a
+> R10: fffffbfff11ad799 R11: ffffffff88d6bccf R12: ffffffff86d0dc60
+> R13: ffffffff812e7b70 R14: ffff8881c9d5a8c8 R15: ffff8881cf8943f0
+>   __debug_check_no_obj_freed lib/debugobjects.c:963 [inline]
+>   debug_check_no_obj_freed+0x2df/0x443 lib/debugobjects.c:994
+>   free_pages_prepare mm/page_alloc.c:1174 [inline]
+>   __free_pages_ok+0x222/0x1d70 mm/page_alloc.c:1420
+>   usbhid_disconnect+0xab/0xd0 drivers/hid/usbhid/hid-core.c:1414
+>   usb_unbind_interface+0x1bd/0x8a0 drivers/usb/core/driver.c:423
+>   __device_release_driver drivers/base/dd.c:1134 [inline]
+>   device_release_driver_internal+0x42f/0x500 drivers/base/dd.c:1165
+>   bus_remove_device+0x2dc/0x4a0 drivers/base/bus.c:556
+>   device_del+0x420/0xb10 drivers/base/core.c:2339
+>   usb_disable_device+0x211/0x690 drivers/usb/core/message.c:1237
+>   usb_disconnect+0x284/0x8d0 drivers/usb/core/hub.c:2199
+>   hub_port_connect drivers/usb/core/hub.c:4949 [inline]
+>   hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
+>   port_event drivers/usb/core/hub.c:5359 [inline]
+>   hub_event+0x1454/0x3640 drivers/usb/core/hub.c:5441
+>   process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
+>   process_scheduled_works kernel/workqueue.c:2331 [inline]
+>   worker_thread+0x7ab/0xe20 kernel/workqueue.c:2417
+>   kthread+0x318/0x420 kernel/kthread.c:255
+>   ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+> Kernel Offset: disabled
+> Rebooting in 86400 seconds..
 >
 >
 > ---
@@ -97,5 +94,8 @@ On Tue, Sep 3, 2019 at 2:08 PM syzbot
 >
 > syzbot will keep track of this bug report. See:
 > https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> syzbot can test patches for this bug, for details see:
+> https://goo.gl/tpsmEJ#testing-patches
 
-#syz dup: general protection fault in __pm_runtime_resume
+Roderick, FYI, this particular repro is triggering that issue in the
+Sony driver AFAICS.

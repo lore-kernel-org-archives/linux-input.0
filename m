@@ -1,7 +1,7 @@
-From: syzbot <syzbot+058e326a87dbb54f2426@syzkaller.appspotmail.com>
-Subject: KASAN: use-after-free Write in usbhid_open
+From: syzbot <syzbot+90b997df76897a013829@syzkaller.appspotmail.com>
+Subject: KASAN: use-after-free Read in usbhid_close
 Date: Tue, 03 Sep 2019 05:08:11 -0700
-Message-ID: <00000000000043c9390591a4f14b@google.com>
+Message-ID: <0000000000004070630591a4f124@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -15,24 +15,22 @@ syzbot found the following crash on:
 
 HEAD commit:    eea39f24 usb-fuzzer: main usb gadget fuzzer driver
 git tree:       https://github.com/google/kasan.git usb-fuzzer
-console output: https://syzkaller.appspot.com/x/log.txt?x=16ab9982600000
+console output: https://syzkaller.appspot.com/x/log.txt?x=140a786c600000
 kernel config:  https://syzkaller.appspot.com/x/.config?x=d0c62209eedfd54e
-dashboard link: https://syzkaller.appspot.com/bug?extid=058e326a87dbb54f2426
+dashboard link: https://syzkaller.appspot.com/bug?extid=90b997df76897a013829
 compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
 
 Unfortunately, I don't have any reproducer for this crash yet.
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+058e326a87dbb54f2426@syzkaller.appspotmail.com
+Reported-by: syzbot+90b997df76897a013829@syzkaller.appspotmail.com
 
 ==================================================================
-BUG: KASAN: use-after-free in clear_bit  
-include/asm-generic/bitops-instrumented.h:56 [inline]
-BUG: KASAN: use-after-free in usbhid_open+0x263/0x390  
-drivers/hid/usbhid/hid-core.c:727
-Write of size 8 at addr ffff8881c89228c0 by task syz-executor.1/10380
+BUG: KASAN: use-after-free in __lock_acquire+0x302a/0x3b50  
+kernel/locking/lockdep.c:3753
+Read of size 8 at addr ffff8881d34368a0 by task syz-executor.3/10760
 
-CPU: 0 PID: 10380 Comm: syz-executor.1 Not tainted 5.3.0-rc5+ #28
+CPU: 0 PID: 10760 Comm: syz-executor.3 Not tainted 5.3.0-rc5+ #28
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
 Google 01/01/2011
 Call Trace:
@@ -41,33 +39,37 @@ Call Trace:
   print_address_description+0x6a/0x32c mm/kasan/report.c:351
   __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
   kasan_report+0xe/0x12 mm/kasan/common.c:612
-  check_memory_region_inline mm/kasan/generic.c:185 [inline]
-  check_memory_region+0x128/0x190 mm/kasan/generic.c:192
-  clear_bit include/asm-generic/bitops-instrumented.h:56 [inline]
-  usbhid_open+0x263/0x390 drivers/hid/usbhid/hid-core.c:727
-  hid_hw_open+0xd2/0x160 drivers/hid/hid-core.c:2023
-  hidraw_open+0x256/0x740 drivers/hid/hidraw.c:288
-  chrdev_open+0x219/0x5c0 fs/char_dev.c:414
-  do_dentry_open+0x494/0x1120 fs/open.c:797
-  do_last fs/namei.c:3416 [inline]
-  path_openat+0x1430/0x3f50 fs/namei.c:3533
-  do_filp_open+0x1a1/0x280 fs/namei.c:3563
-  do_sys_open+0x3c0/0x580 fs/open.c:1089
-  do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
+  __lock_acquire+0x302a/0x3b50 kernel/locking/lockdep.c:3753
+  lock_acquire+0x127/0x320 kernel/locking/lockdep.c:4412
+  __raw_spin_lock_irq include/linux/spinlock_api_smp.h:128 [inline]
+  _raw_spin_lock_irq+0x2d/0x40 kernel/locking/spinlock.c:167
+  spin_lock_irq include/linux/spinlock.h:363 [inline]
+  usbhid_close+0x51/0x210 drivers/hid/usbhid/hid-core.c:740
+  hid_hw_close+0xa8/0xd0 drivers/hid/hid-core.c:2046
+  drop_ref.part.0+0x32/0xe0 drivers/hid/hidraw.c:337
+  drop_ref drivers/hid/hidraw.c:360 [inline]
+  hidraw_release+0x34f/0x440 drivers/hid/hidraw.c:356
+  __fput+0x2d7/0x840 fs/file_table.c:280
+  task_work_run+0x13f/0x1c0 kernel/task_work.c:113
+  tracehook_notify_resume include/linux/tracehook.h:188 [inline]
+  exit_to_usermode_loop+0x1d2/0x200 arch/x86/entry/common.c:163
+  prepare_exit_to_usermode arch/x86/entry/common.c:194 [inline]
+  syscall_return_slowpath arch/x86/entry/common.c:274 [inline]
+  do_syscall_64+0x45f/0x580 arch/x86/entry/common.c:299
   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x413761
-Code: 75 14 b8 02 00 00 00 0f 05 48 3d 01 f0 ff ff 0f 83 04 19 00 00 c3 48  
-83 ec 08 e8 0a fa ff ff 48 89 04 24 b8 02 00 00 00 0f 05 <48> 8b 3c 24 48  
-89 c2 e8 53 fa ff ff 48 89 d0 48 83 c4 08 48 3d 01
-RSP: 002b:00007f50d4f077a0 EFLAGS: 00000293 ORIG_RAX: 0000000000000002
-RAX: ffffffffffffffda RBX: 6666666666666667 RCX: 0000000000413761
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00007f50d4f07850
-RBP: 000000000075bf20 R08: 000000000000000f R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000293 R12: 00007f50d4f086d4
-R13: 00000000004c8c86 R14: 00000000004dfc10 R15: 00000000ffffffff
+RIP: 0033:0x413561
+Code: 75 14 b8 03 00 00 00 0f 05 48 3d 01 f0 ff ff 0f 83 04 1b 00 00 c3 48  
+83 ec 08 e8 0a fc ff ff 48 89 04 24 b8 03 00 00 00 0f 05 <48> 8b 3c 24 48  
+89 c2 e8 53 fc ff ff 48 89 d0 48 83 c4 08 48 3d 01
+RSP: 002b:00007ffc873b3300 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 0000000000000006 RCX: 0000000000413561
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000005
+RBP: 0000000000000001 R08: 0000000055395a94 R09: 0000000055395a98
+R10: 00007ffc873b33e0 R11: 0000000000000293 R12: 000000000075bfc8
+R13: 0000000000096f96 R14: 0000000000762460 R15: ffffffffffffffff
 
 The buggy address belongs to the page:
-page:ffffea0007224880 refcount:0 mapcount:0 mapping:0000000000000000  
+page:ffffea00074d0d80 refcount:0 mapcount:0 mapping:0000000000000000  
 index:0x0
 flags: 0x200000000000000()
 raw: 0200000000000000 0000000000000000 dead000000000122 0000000000000000
@@ -75,12 +77,12 @@ raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
 page dumped because: kasan: bad access detected
 
 Memory state around the buggy address:
-  ffff8881c8922780: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  ffff8881c8922800: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-> ffff8881c8922880: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                                            ^
-  ffff8881c8922900: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  ffff8881c8922980: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  ffff8881d3436780: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  ffff8881d3436800: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+> ffff8881d3436880: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                                ^
+  ffff8881d3436900: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  ffff8881d3436980: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
 ==================================================================
 
 

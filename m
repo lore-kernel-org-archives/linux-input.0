@@ -1,52 +1,40 @@
-From: Dexuan Cui <decui@microsoft.com>
-Subject: RE: [PATCH] HID: hyperv: Use in-place iterator API in the channel
- callback
-Date: Tue, 3 Sep 2019 00:43:34 +0000
-Message-ID: <KU1P153MB016679060F4360071B751AF0BFB90@KU1P153MB0166.APCP153.PROD.OUTLOOK.COM>
-References: <1566269763-26817-1-git-send-email-decui@microsoft.com>
+From: Philip Li <philip.li@intel.com>
+Subject: Re: [kbuild-all] [tip: x86/vmware] input/vmmouse: Update the
+ backdoor call with support for new instructions
+Date: Tue, 3 Sep 2019 09:06:46 +0800
+Message-ID: <20190903010646.GA21851@intel.com>
+References: <alpine.DEB.2.21.1908300802390.1938@nanos.tec.linutronix.de>
+ <20190830062053.GA2598@intel.com>
+ <20190830080650.GA30413@zn.tnic>
+ <20190830143645.GA4784@intel.com>
+ <20190830144628.GC30413@zn.tnic>
+ <20190830150002.GA6931@intel.com>
+ <20190830150856.GB6931@intel.com>
+ <20190830193557.GF30413@zn.tnic>
+ <20190902011342.GA14687@intel.com>
+ <20190902093651.GC9605@zn.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1566269763-26817-1-git-send-email-decui@microsoft.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190902093651.GC9605@zn.tnic>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Sasha Levin <Alexander.Levin@microsoft.com>, "sashal@kernel.org" <sashal@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, KY Srinivasan <kys@microsoft.com>, Michael Kelley <mikelley@microsoft.com>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>, kbuild test robot <lkp@intel.com>, linux-input@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>, x86-ml <x86@kernel.org>, linux-tip-commits@vger.kernel.org, pv-drivers@vmware.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, tip-bot2 for Thomas Hellstrom <tip-bot2@linutronix.de>, Doug Covelli <dcovelli@vmware.com>, Ingo Molnar <mingo@redhat.com>, VMware Graphics <linux-graphics-maintainer@vmware.com>, kbuild-all@01.org, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-> -----Original Message-----
-> From: Dexuan Cui <decui@microsoft.com>
-> Sent: Monday, August 19, 2019 7:57 PM
-> To: jikos@kernel.org; benjamin.tissoires@redhat.com;
-> linux-input@vger.kernel.org; linux-hyperv@vger.kernel.org; Stephen
-> Hemminger <sthemmin@microsoft.com>; Sasha Levin
-> <Alexander.Levin@microsoft.com>; sashal@kernel.org; Haiyang Zhang
-> <haiyangz@microsoft.com>; KY Srinivasan <kys@microsoft.com>; Michael
-> Kelley <mikelley@microsoft.com>
-> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org; Dexuan Cui
-> <decui@microsoft.com>
-> Subject: [PATCH] HID: hyperv: Use in-place iterator API in the channel ca=
-llback
->=20
-> Simplify the ring buffer handling with the in-place API.
->=20
-> Also avoid the dynamic allocation and the memory leak in the channel
-> callback function.
->=20
-> Signed-off-by: Dexuan Cui <decui@microsoft.com>
-> ---
->=20
-> Hi Jiri, Benjamin, can this patch go through Sasha's hyperv tree:
-> https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git
->=20
-> This is a purely Hyper-V specific change.
+On Mon, Sep 02, 2019 at 11:36:51AM +0200, Borislav Petkov wrote:
+> On Mon, Sep 02, 2019 at 09:13:42AM +0800, Philip Li wrote:
+> > Thanks Boris, it is applied, and will take effect soon.
+> 
+> Seems to has taken effect. I got the first build report.
+thanks for the info, Boris, glad to know this.
 
-Hi Jiri, Benjamin,
-Are you OK if this patch for the Hyper-V HID driver goes through the Hyper-=
-V
-tree maintained by Sasha Levin? It's a purely Hyper-V change, and I have
-been using the patch for several months and there is no regression.
-
-Thanks,
--- Dexuan
+> 
+> Thx!
+> 
+> -- 
+> Regards/Gruss,
+>     Boris.
+> 
+> Good mailing practices for 400: avoid top-posting and trim the reply.

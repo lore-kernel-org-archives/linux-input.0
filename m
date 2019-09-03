@@ -1,36 +1,57 @@
-From: Anson Huang <Anson.Huang@nxp.com>
-Subject: [PATCH V2 5/5] arm64: defconfig: Enable CONFIG_KEYBOARD_IMX_SC_PWRKEY as module
-Date: Tue,  3 Sep 2019 10:03:44 -0400
-Message-ID: <1567519424-32271-5-git-send-email-Anson.Huang@nxp.com>
-References: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
+From: Anson Huang <anson.huang@nxp.com>
+Subject: RE: [PATCH 1/5] dt-bindings: fsl: scu: add scu power key binding
+Date: Tue, 3 Sep 2019 02:05:33 +0000
+Message-ID: <DB3PR0402MB3916135233AA2DDD5DA177B8F5B90@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1567198429-27886-1-git-send-email-Anson.Huang@nxp.com>
+ <20190902043521.GA14143@bogus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <20190902043521.GA14143@bogus>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, catalin.marinas@arm.com, will@kernel.org, dmitry.torokhov@gmail.com, aisheng.dong@nxp.com, ulf.hansson@linaro.org, fugang.duan@nxp.com, peng.fan@nxp.com, daniel.baluta@nxp.com, leonard.crestez@nxp.com, mripard@kernel.org, olof@lixom.net, arnd@arndb.de, jagan@amarulasolutions.com, bjorn.andersson@linaro.org, dinguyen@kernel.org, marcin.juszkiewicz@linaro.org, stefan@agner.ch, gregkh@linuxfoundation.org, andriy.shevchenko@linux.intel.com, yuehaibing@huawei.com, tglx@linutronix.de, ronald@innovation.ch, m.felsch@pengutronix.de, ping.bai@nxp.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.
-Cc: Linux-imx@nxp.com
+To: Rob Herring <robh@kernel.org>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Aisheng Dong <aisheng.dong@nxp.com>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Andy Duan <fugang.duan@nxp.com>, Peng Fan <peng.fan@nxp.com>, Daniel Baluta <daniel.baluta@nxp.com>, Leonard Crestez <leonard.crestez@nxp.com>, "olof@lixom.net" <olof@lixom.net>, "mripard@kernel.org" <mripard@kernel.org>, "arnd@arndb.de" <arnd@arndb.de>, "jagan@amarulasolutions.com" <jagan@amarula>
 List-Id: linux-input@vger.kernel.org
 
-Select CONFIG_KEYBOARD_IMX_SC_PWRKEY as module by default to
-support i.MX8QXP power key driver.
-
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
-No changes.
----
- arch/arm64/configs/defconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index 49bb3d4..8178737 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -313,6 +313,7 @@ CONFIG_INPUT_EVDEV=y
- CONFIG_KEYBOARD_ADC=m
- CONFIG_KEYBOARD_GPIO=y
- CONFIG_KEYBOARD_SNVS_PWRKEY=m
-+CONFIG_KEYBOARD_IMX_SC_PWRKEY=m
- CONFIG_KEYBOARD_CROS_EC=y
- CONFIG_INPUT_TOUCHSCREEN=y
- CONFIG_TOUCHSCREEN_ATMEL_MXT=m
--- 
-2.7.4
+SGksIFJvYg0KDQo+IE9uIEZyaSwgQXVnIDMwLCAyMDE5IGF0IDA0OjUzOjQ1UE0gLTA0MDAsIEFu
+c29uIEh1YW5nIHdyb3RlOg0KPiA+IE5YUCBpLk1YOFFYUCBpcyBhbiBBUk12OCBTb0Mgd2l0aCBh
+IENvcnRleC1NNCBjb3JlIGluc2lkZSBhcyBzeXN0ZW0NCj4gPiBjb250cm9sbGVyLCB0aGUgc3lz
+dGVtIGNvbnRyb2xsZXIgaXMgaW4gY2hhcmdlIG9mIHN5c3RlbSBwb3dlciwgY2xvY2sNCj4gPiBh
+bmQgcG93ZXIga2V5IGV2ZW50IGV0Yy4gbWFuYWdlbWVudCwgTGludXgga2VybmVsIGhhcyB0byBj
+b21tdW5pY2F0ZQ0KPiA+IHdpdGggc3lzdGVtIGNvbnRyb2xsZXIgdmlhIE1VIChtZXNzYWdlIHVu
+aXQpIElQQyB0byBnZXQgcG93ZXIga2V5DQo+ID4gZXZlbnQsIGFkZCBiaW5kaW5nIGRvYyBmb3Ig
+aS5NWCBzeXN0ZW0gY29udHJvbGxlciBwb3dlciBrZXkgZHJpdmVyLg0KPiA+DQo+ID4gU2lnbmVk
+LW9mZi1ieTogQW5zb24gSHVhbmcgPEFuc29uLkh1YW5nQG54cC5jb20+DQo+ID4gLS0tDQo+ID4g
+IC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL2FybS9mcmVlc2NhbGUvZnNsLHNjdS50eHQgICAgICB8
+IDE4DQo+ICsrKysrKysrKysrKysrKysrKw0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgMTggaW5zZXJ0
+aW9ucygrKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdA0KPiA+IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0
+cmVlL2JpbmRpbmdzL2FybS9mcmVlc2NhbGUvZnNsLHNjdS50eHQNCj4gPiBiL0RvY3VtZW50YXRp
+b24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0DQo+ID4gaW5k
+ZXggYzE0OWZhZC4uMDAxZDBiNyAxMDA2NDQNCj4gPiAtLS0gYS9Eb2N1bWVudGF0aW9uL2Rldmlj
+ZXRyZWUvYmluZGluZ3MvYXJtL2ZyZWVzY2FsZS9mc2wsc2N1LnR4dA0KPiA+ICsrKyBiL0RvY3Vt
+ZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0DQo+
+ID4gQEAgLTE1Nyw2ICsxNTcsMTcgQEAgUmVxdWlyZWQgcHJvcGVydGllczoNCj4gPiAgT3B0aW9u
+YWwgcHJvcGVydGllczoNCj4gPiAgLSB0aW1lb3V0LXNlYzogY29udGFpbnMgdGhlIHdhdGNoZG9n
+IHRpbWVvdXQgaW4gc2Vjb25kcy4NCj4gPg0KPiA+ICtQb3dlciBrZXkgYmluZGluZ3MgYmFzZWQg
+b24gU0NVIE1lc3NhZ2UgUHJvdG9jb2wNCj4gPiArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+ID4gKw0KPiA+ICtSZXF1aXJlZCBw
+cm9wZXJ0aWVzOg0KPiA+ICstIGNvbXBhdGlibGU6IHNob3VsZCBiZToNCj4gPiArICAgICAgICAg
+ICAgICAiZnNsLGlteDhxeHAtc2MtcHdya2V5Ig0KPiA+ICsgICAgICAgICAgICAgIGZvbGxvd2Vk
+IGJ5ICJmc2wsaW14LXNjLXB3cmtleSI7DQo+ID4gKy0gbGludXgsa2V5Y29kZXM6IFNlZQ0KPiA+
+ICtEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQva2V5cy50eHQNCj4gPiAr
+T3B0aW9uYWwgUHJvcGVydGllczoNCj4gPiArLSB3YWtldXAtc291cmNlOiBTZWUNCj4gPiArRG9j
+dW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3Bvd2VyL3dha2V1cC1zb3VyY2UudHh0DQo+
+ID4gKw0KPiA+ICBFeGFtcGxlIChpbXg4cXhwKToNCj4gPiAgLS0tLS0tLS0tLS0tLQ0KPiA+ICBh
+bGlhc2VzIHsNCj4gPiBAQCAtMjIwLDYgKzIzMSwxMyBAQCBmaXJtd2FyZSB7DQo+ID4gIAkJCWNv
+bXBhdGlibGUgPSAiZnNsLGlteDhxeHAtc2MtcnRjIjsNCj4gPiAgCQl9Ow0KPiA+DQo+ID4gKwkJ
+c2N1X3B3cmtleTogc2N1LXB3cmtleSB7DQo+ID4gKwkJCWNvbXBhdGlibGUgPSAiZnNsLGlteDhx
+eHAtc2MtcHdya2V5IiwgImZzbCxpbXgtc2MtDQo+IHB3cmtleSI7DQo+ID4gKwkJCWxpbnV4LGtl
+eWNvZGUgPSA8S0VZX1BPV0VSPjsNCj4gPiArCQkJd2FrZXVwLXNvdXJjZTsNCj4gDQo+IHdha2V1
+cC1zb3VyY2UgaW1wbGllcyBhbiBpbnRlcnJ1cHQgcHJvcGVydHkuDQoNCkFmdGVyIGZ1cnRoZXIg
+Y2hlY2ssIEkgY29uZmlybSB0aGlzICJ3YWtldXAtc291cmNlIiBwcm9wZXJ0eSBpcyBOT1QgbmVl
+ZGVkIGZvciBTQ1UgZ2VuZXJhbCBpbnRlcnJ1cHQNCndha2V1cCwgcmVtb3ZlIGl0IGluIFYyLiAN
+Cg0KPiANCj4gPiArCQkJc3RhdHVzID0gImRpc2FibGVkIjsNCj4gDQo+IERvbid0IHNob3VsZCBz
+dGF0dXMgaW4gZXhhbXBsZXMuDQoNClJlbW92ZWQgaXQgaW4gVjIsIHBsZWFzZSBoZWxwIHJldmll
+dywgdGhhbmtzLg0KDQpBbnNvbg0KDQo=

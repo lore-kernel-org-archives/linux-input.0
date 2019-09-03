@@ -1,124 +1,42 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2] HID: apple: Fix stuck function keys when using FN
-Date: Tue,  3 Sep 2019 16:46:32 +0200
-Message-ID: <20190903144632.26299-1-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v6] HID: sb0540: add support for Creative SB0540 IR receivers
+Date: Tue, 3 Sep 2019 17:13:49 +0200
+Message-ID: <CAO-hwJLGfvNMgV9eU8xAur+a1NbvtV62gD2XVY6WXdOKrx0JUQ@mail.gmail.com>
+References: <20190702083931.7392-1-hadess@hadess.net> <2505a7c3e29afb5a140ed47e54ea9c72d0192367.camel@hadess.net>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <2505a7c3e29afb5a140ed47e54ea9c72d0192367.camel@hadess.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joao Moreno <mail@joaomoreno.com>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Bastien Nocera <bnocera@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Joao Moreno <mail@joaomoreno.com>
+On Tue, Sep 3, 2019 at 4:15 PM Bastien Nocera <hadess@hadess.net> wrote:
+>
+> Hey,
+>
+> On Tue, 2019-07-02 at 10:39 +0200, Bastien Nocera wrote:
+> > From: Bastien Nocera <bnocera@redhat.com>
+> >
+> > Add a new hid driver for the Creative SB0540 IR receiver. This
+> > receiver
+> > is usually coupled with an RM-1500 or an RM-1800 remote control.
+> >
+> > The scrollwheels on the RM-1800 remote are not bound, as they are
+> > labelled for specific audio controls that don't usually exist on most
+> > systems. They can be remapped using standard Linux keyboard
+> > remapping tools.
+>
+> I'm back from travelling, so ready to update/respin this patch if
+> needed.
+>
 
-This fixes an issue in which key down events for function keys would be
-repeatedly emitted even after the user has raised the physical key. For
-example, the driver fails to emit the F5 key up event when going through
-the following steps:
-- fnmode=1: hold FN, hold F5, release FN, release F5
-- fnmode=2: hold F5, hold FN, release F5, release FN
+Nope, looks good now.
 
-The repeated F5 key down events can be easily verified using xev.
+Applied to for-5.4/sb0540
 
-Signed-off-by: Joao Moreno <mail@joaomoreno.com>
-Co-developed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-
-Hi Joao,
-
-last chance to pull back :)
-
-If you are still happy, I'll push this version
+Sorry for the delay, a mess in my mailbox hid the v6.
 
 Cheers,
 Benjamin
-
- drivers/hid/hid-apple.c | 49 +++++++++++++++++++++++------------------
- 1 file changed, 28 insertions(+), 21 deletions(-)
-
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 81df62f48c4c..6ac8becc2372 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -54,7 +54,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
- struct apple_sc {
- 	unsigned long quirks;
- 	unsigned int fn_on;
--	DECLARE_BITMAP(pressed_fn, KEY_CNT);
- 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
- };
- 
-@@ -181,6 +180,8 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- {
- 	struct apple_sc *asc = hid_get_drvdata(hid);
- 	const struct apple_key_translation *trans, *table;
-+	bool do_translate;
-+	u16 code = 0;
- 
- 	if (usage->code == KEY_FN) {
- 		asc->fn_on = !!value;
-@@ -189,8 +190,6 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 	}
- 
- 	if (fnmode) {
--		int do_translate;
--
- 		if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
- 				hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
- 			table = macbookair_fn_keys;
-@@ -202,25 +201,33 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		trans = apple_find_translation (table, usage->code);
- 
- 		if (trans) {
--			if (test_bit(usage->code, asc->pressed_fn))
--				do_translate = 1;
--			else if (trans->flags & APPLE_FLAG_FKEY)
--				do_translate = (fnmode == 2 && asc->fn_on) ||
--					(fnmode == 1 && !asc->fn_on);
--			else
--				do_translate = asc->fn_on;
--
--			if (do_translate) {
--				if (value)
--					set_bit(usage->code, asc->pressed_fn);
--				else
--					clear_bit(usage->code, asc->pressed_fn);
--
--				input_event(input, usage->type, trans->to,
--						value);
--
--				return 1;
-+			if (test_bit(trans->from, input->key))
-+				code = trans->from;
-+			else if (test_bit(trans->to, input->key))
-+				code = trans->to;
-+
-+			if (!code) {
-+				if (trans->flags & APPLE_FLAG_FKEY) {
-+					switch (fnmode) {
-+					case 1:
-+						do_translate = !asc->fn_on;
-+						break;
-+					case 2:
-+						do_translate = asc->fn_on;
-+						break;
-+					default:
-+						/* should never happen */
-+						do_translate = false;
-+					}
-+				} else {
-+					do_translate = asc->fn_on;
-+				}
-+
-+				code = do_translate ? trans->to : trans->from;
- 			}
-+
-+			input_event(input, usage->type, code, value);
-+			return 1;
- 		}
- 
- 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
--- 
-2.19.2

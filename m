@@ -1,269 +1,92 @@
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: Re: [PATCH V3 2/5] input: keyboard: imx_sc: Add i.MX system
- controller key support
-Date: Tue, 3 Sep 2019 12:05:48 +0200
-Message-ID: <d98b20a8-17b7-b757-6e1d-89932ddbea88@pengutronix.de>
-References: <1567546600-21566-1-git-send-email-Anson.Huang@nxp.com>
- <1567546600-21566-2-git-send-email-Anson.Huang@nxp.com>
+From: syzbot <syzbot+14b53bfeb17f2b210eb7@syzkaller.appspotmail.com>
+Subject: WARNING: ODEBUG bug in usbhid_disconnect (2)
+Date: Tue, 03 Sep 2019 05:08:09 -0700
+Message-ID: <0000000000001b41900591a4f149@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1567546600-21566-2-git-send-email-Anson.Huang@nxp.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anson Huang <Anson.Huang@nxp.com>, robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, catalin.marinas@arm.com, will@kernel.org, dmitry.torokhov@gmail.com, aisheng.dong@nxp.com, ulf.hansson@linaro.org, fugang.duan@nxp.com, peng.fan@nxp.com, daniel.baluta@nxp.com, leonard.crestez@nxp.com, mripard@kernel.org, olof@lixom.net, arnd@arndb.de, jagan@amarulasolutions.com, bjorn.andersson@linaro.org, dinguyen@kernel.org, marcin.juszkiewicz@linaro.org, stefan@agner.ch, gregkh@linuxfoundation.org, andriy.shevchenko@linux.intel.com, yuehaibing@huawei.com, tglx@linutronix.de, ronald@innovation.ch, m.felsch@pengutronix.de, ping.bai@nxp.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lis
-Cc: Linux-imx@nxp.com
+To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
+Hello,
+
+syzbot found the following crash on:
+
+HEAD commit:    eea39f24 usb-fuzzer: main usb gadget fuzzer driver
+git tree:       https://github.com/google/kasan.git usb-fuzzer
+console output: https://syzkaller.appspot.com/x/log.txt?x=173983ac600000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=d0c62209eedfd54e
+dashboard link: https://syzkaller.appspot.com/bug?extid=14b53bfeb17f2b210eb7
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10d36aca600000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=178e208e600000
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+14b53bfeb17f2b210eb7@syzkaller.appspotmail.com
+
+------------[ cut here ]------------
+ODEBUG: free active (active state 0) object type: timer_list hint:  
+hid_retry_timeout+0x0/0xd0 drivers/hid/usbhid/hid-core.c:712
+WARNING: CPU: 1 PID: 17 at lib/debugobjects.c:481  
+debug_print_object+0x160/0x250 lib/debugobjects.c:481
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 1 PID: 17 Comm: kworker/1:0 Not tainted 5.3.0-rc5+ #28
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  panic+0x2a3/0x6da kernel/panic.c:219
+  __warn.cold+0x20/0x4a kernel/panic.c:576
+  report_bug+0x262/0x2a0 lib/bug.c:186
+  fixup_bug arch/x86/kernel/traps.c:179 [inline]
+  fixup_bug arch/x86/kernel/traps.c:174 [inline]
+  do_error_trap+0x12b/0x1e0 arch/x86/kernel/traps.c:272
+  do_invalid_op+0x32/0x40 arch/x86/kernel/traps.c:291
+  invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1028
+RIP: 0010:debug_print_object+0x160/0x250 lib/debugobjects.c:481
+Code: dd 80 ef da 85 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 bf 00 00 00 48  
+8b 14 dd 80 ef da 85 48 c7 c7 c0 e4 da 85 e8 e5 dd 31 ff <0f> 0b 83 05 4b  
+0f a8 05 01 48 83 c4 20 5b 5d 41 5c 41 5d c3 48 89
+RSP: 0018:ffff8881da24f718 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff81288cfd RDI: ffffed103b449ed5
+RBP: 0000000000000001 R08: ffff8881da233000 R09: fffffbfff11ad79a
+R10: fffffbfff11ad799 R11: ffffffff88d6bccf R12: ffffffff86d0dc60
+R13: ffffffff812e7b70 R14: ffff8881c9d5a8c8 R15: ffff8881cf8943f0
+  __debug_check_no_obj_freed lib/debugobjects.c:963 [inline]
+  debug_check_no_obj_freed+0x2df/0x443 lib/debugobjects.c:994
+  free_pages_prepare mm/page_alloc.c:1174 [inline]
+  __free_pages_ok+0x222/0x1d70 mm/page_alloc.c:1420
+  usbhid_disconnect+0xab/0xd0 drivers/hid/usbhid/hid-core.c:1414
+  usb_unbind_interface+0x1bd/0x8a0 drivers/usb/core/driver.c:423
+  __device_release_driver drivers/base/dd.c:1134 [inline]
+  device_release_driver_internal+0x42f/0x500 drivers/base/dd.c:1165
+  bus_remove_device+0x2dc/0x4a0 drivers/base/bus.c:556
+  device_del+0x420/0xb10 drivers/base/core.c:2339
+  usb_disable_device+0x211/0x690 drivers/usb/core/message.c:1237
+  usb_disconnect+0x284/0x8d0 drivers/usb/core/hub.c:2199
+  hub_port_connect drivers/usb/core/hub.c:4949 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
+  port_event drivers/usb/core/hub.c:5359 [inline]
+  hub_event+0x1454/0x3640 drivers/usb/core/hub.c:5441
+  process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
+  process_scheduled_works kernel/workqueue.c:2331 [inline]
+  worker_thread+0x7ab/0xe20 kernel/workqueue.c:2417
+  kthread+0x318/0x420 kernel/kthread.c:255
+  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
 
 
-On 03.09.19 23:36, Anson Huang wrote:
-> i.MX8QXP is an ARMv8 SoC which has a Cortex-M4 system controller
-> inside, the system controller is in charge of controlling power,
-> clock and scu key etc..
-> 
-> Adds i.MX system controller key driver support, Linux kernel has
-> to communicate with system controller via MU (message unit) IPC
-> to get scu key's status.
-> 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
-
-> ---
-> Changes since V2:
-> 	- use private platform data instead of global data;
-> 	- use "key" instead of "pwrkey";
-> 	- fix some data format.
-> ---
->   drivers/input/keyboard/Kconfig      |   7 ++
->   drivers/input/keyboard/Makefile     |   1 +
->   drivers/input/keyboard/imx_sc_key.c | 178 ++++++++++++++++++++++++++++++++++++
->   3 files changed, 186 insertions(+)
->   create mode 100644 drivers/input/keyboard/imx_sc_key.c
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 2e6d288..607acf2 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -469,6 +469,13 @@ config KEYBOARD_IMX
->   	  To compile this driver as a module, choose M here: the
->   	  module will be called imx_keypad.
->   
-> +config KEYBOARD_IMX_SC_KEY
-> +	tristate "IMX SCU Key Driver"
-> +	depends on IMX_SCU
-> +	help
-> +	  This is the system controller key driver for NXP i.MX SoCs with
-> +	  system controller inside.
-> +
->   config KEYBOARD_NEWTON
->   	tristate "Newton keyboard"
->   	select SERIO
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 9510325..f5b1752 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -29,6 +29,7 @@ obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
->   obj-$(CONFIG_KEYBOARD_HIL_OLD)		+= hilkbd.o
->   obj-$(CONFIG_KEYBOARD_IPAQ_MICRO)	+= ipaq-micro-keys.o
->   obj-$(CONFIG_KEYBOARD_IMX)		+= imx_keypad.o
-> +obj-$(CONFIG_KEYBOARD_IMX_SC_KEY)	+= imx_sc_key.o
->   obj-$(CONFIG_KEYBOARD_HP6XX)		+= jornada680_kbd.o
->   obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
->   obj-$(CONFIG_KEYBOARD_LKKBD)		+= lkkbd.o
-> diff --git a/drivers/input/keyboard/imx_sc_key.c b/drivers/input/keyboard/imx_sc_key.c
-> new file mode 100644
-> index 0000000..e69479b
-> --- /dev/null
-> +++ b/drivers/input/keyboard/imx_sc_key.c
-> @@ -0,0 +1,178 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Copyright 2019 NXP.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/err.h>
-> +#include <linux/firmware/imx/sci.h>
-> +#include <linux/init.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/jiffies.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_address.h>
-> +#include <linux/platform_device.h>
-> +
-> +#define DEBOUNCE_TIME	100
-> +#define REPEAT_INTERVAL	60
-> +
-> +#define SC_IRQ_BUTTON		1
-> +#define SC_IRQ_GROUP_WAKE	3
-> +#define IMX_SC_MISC_FUNC_GET_BUTTON_STATUS	18
-> +
-> +struct imx_key_drv_data {
-> +	int keycode;
-> +	bool keystate;  /* 1: pressed, 0: release */
-> +	bool delay_check;
-> +	struct delayed_work check_work;
-> +	struct input_dev *input;
-> +	struct imx_sc_ipc *key_ipc_handle;
-> +	struct notifier_block key_notifier;
-> +};
-> +
-> +struct imx_sc_msg_key {
-> +	struct imx_sc_rpc_msg hdr;
-> +	u8 state;
-> +};
-> +
-> +static int imx_sc_key_notify(struct notifier_block *nb,
-> +			     unsigned long event, void *group)
-> +{
-> +	struct imx_key_drv_data *priv =
-> +				 container_of(nb,
-> +					      struct imx_key_drv_data,
-> +					      key_notifier);
-> +
-> +	if ((event & SC_IRQ_BUTTON) && (*(u8 *)group == SC_IRQ_GROUP_WAKE)
-> +	    && !priv->delay_check) {
-> +		priv->delay_check = 1;
-> +		schedule_delayed_work(&priv->check_work,
-> +				      msecs_to_jiffies(REPEAT_INTERVAL));
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void imx_sc_check_for_events(struct work_struct *work)
-> +{
-> +	struct imx_key_drv_data *priv =
-> +				 container_of(work,
-> +					      struct imx_key_drv_data,
-> +					      check_work.work);
-> +	struct input_dev *input = priv->input;
-> +	struct imx_sc_msg_key msg;
-> +	struct imx_sc_rpc_msg *hdr = &msg.hdr;
-> +	bool state;
-> +	int ret;
-> +
-> +	hdr->ver = IMX_SC_RPC_VERSION;
-> +	hdr->svc = IMX_SC_RPC_SVC_MISC;
-> +	hdr->func = IMX_SC_MISC_FUNC_GET_BUTTON_STATUS;
-> +	hdr->size = 1;
-> +
-> +	ret = imx_scu_call_rpc(priv->key_ipc_handle, &msg, true);
-> +	if (ret) {
-> +		dev_err(&input->dev, "read imx sc key failed, ret %d\n", ret);
-> +		return;
-> +	}
-> +
-> +	state = (bool)msg.state;
-> +
-> +	if (!state && !priv->keystate)
-> +		state = true;
-> +
-> +	if (state ^ priv->keystate) {
-> +		pm_wakeup_event(input->dev.parent, 0);
-> +		priv->keystate = state;
-> +		input_event(input, EV_KEY, priv->keycode, state);
-> +		input_sync(input);
-> +		if (!state)
-> +			priv->delay_check = 0;
-> +		pm_relax(priv->input->dev.parent);
-> +	}
-> +
-> +	if (state)
-> +		schedule_delayed_work(&priv->check_work,
-> +				      msecs_to_jiffies(DEBOUNCE_TIME));
-> +}
-> +
-> +static int imx_sc_key_probe(struct platform_device *pdev)
-> +{
-> +	struct device_node *np = pdev->dev.of_node;
-> +	static struct imx_key_drv_data *priv;
-> +	struct input_dev *input;
-> +	int ret;
-> +
-> +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	ret = imx_scu_get_handle(&priv->key_ipc_handle);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (of_property_read_u32(np, "linux,keycode", &priv->keycode)) {
-> +		dev_err(&pdev->dev, "missing KEY_POWER in DT\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	INIT_DELAYED_WORK(&priv->check_work, imx_sc_check_for_events);
-> +
-> +	input = devm_input_allocate_device(&pdev->dev);
-> +	if (!input) {
-> +		dev_err(&pdev->dev, "failed to allocate the input device\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	input->name = pdev->name;
-> +	input->phys = "imx-sc-key/input0";
-> +	input->id.bustype = BUS_HOST;
-> +
-> +	input_set_capability(input, EV_KEY, priv->keycode);
-> +
-> +	ret = input_register_device(input);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to register input device\n");
-> +		return ret;
-> +	}
-> +
-> +	priv->input = input;
-> +	platform_set_drvdata(pdev, priv);
-> +
-> +	ret = imx_scu_irq_group_enable(SC_IRQ_GROUP_WAKE, SC_IRQ_BUTTON, true);
-> +	if (ret) {
-> +		dev_warn(&pdev->dev, "enable scu group irq failed\n");
-> +		return ret;
-> +	}
-> +
-> +	priv->key_notifier.notifier_call = imx_sc_key_notify;
-> +	ret = imx_scu_irq_register_notifier(&priv->key_notifier);
-> +	if (ret) {
-> +		imx_scu_irq_group_enable(SC_IRQ_GROUP_WAKE, SC_IRQ_BUTTON, false);
-> +		dev_warn(&pdev->dev, "register scu notifier failed\n");
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static const struct of_device_id imx_sc_key_ids[] = {
-> +	{ .compatible = "fsl,imx-sc-key" },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, imx_sc_key_ids);
-> +
-> +static struct platform_driver imx_sc_key_driver = {
-> +	.driver = {
-> +		.name = "imx-sc-key",
-> +		.of_match_table = imx_sc_key_ids,
-> +	},
-> +	.probe = imx_sc_key_probe,
-> +};
-> +module_platform_driver(imx_sc_key_driver);
-> +
-> +MODULE_AUTHOR("Anson Huang <Anson.Huang@nxp.com>");
-> +MODULE_DESCRIPTION("i.MX System Controller Key Driver");
-> +MODULE_LICENSE("GPL v2");
-> 
-
-Kind regards,
-Oleksij Rempel
-
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches

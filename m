@@ -1,33 +1,152 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH V3 1/5] dt-bindings: fsl: scu: add scu key binding
-Date: Tue, 3 Sep 2019 19:01:19 +0100
-Message-ID: <20190903180119.GA5856@bogus>
-References: <1567546600-21566-1-git-send-email-Anson.Huang@nxp.com>
+From: =?UTF-8?B?Sm/Do28gTW9yZW5v?= <mail@joaomoreno.com>
+Subject: Re: [PATCH v2] HID: apple: Fix stuck function keys when using FN
+Date: Tue, 3 Sep 2019 20:33:34 +0200
+Message-ID: <CAHxFc3SXM6hkbpTGZCsWOk70tByHE8af59ftOBwahY4fL0Sz=g@mail.gmail.com>
+References: <20190903144632.26299-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1567546600-21566-1-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <20190903144632.26299-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anson Huang <Anson.Huang@nxp.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, catalin.marinas@arm.com, will@kernel.org, dmitry.torokhov@gmail.com, aisheng.dong@nxp.com, ulf.hansson@linaro.org, fugang.duan@nxp.com, peng.fan@nxp.com, daniel.baluta@nxp.com, leonard.crestez@nxp.com, mripard@kernel.org, olof@lixom.net, arnd@arndb.de, jagan@amarulasolutions.com, bjorn.andersson@linaro.org, dinguyen@kernel.org, marcin.juszkiewicz@linaro.org, stefan@agner.ch, gregkh@linuxfoundation.org, andriy.shevchenko@linux.intel.com, yuehaibing@huawei.com, tglx@linutronix.de, ronald@innovation.ch, m.felsch@pengutronix.de, ping.bai@nxp.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue,  3 Sep 2019 17:36:36 -0400, Anson Huang wrote:
-> NXP i.MX8QXP is an ARMv8 SoC with a Cortex-M4 core inside as
-> system controller, the system controller is in charge of system
-> power, clock and scu key event etc. management, Linux kernel has
-> to communicate with system controller via MU (message unit) IPC
-> to get scu key event, add binding doc for i.MX system controller
-> key driver.
-> 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> ---
-> Changes since V2:
-> 	- use "key" instead of "pwrkey" as the key function can be defined in DT.
-> ---
->  .../devicetree/bindings/arm/freescale/fsl,scu.txt          | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
-> 
+Hi Benjamin,
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+On Tue, 3 Sep 2019 at 16:46, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> From: Joao Moreno <mail@joaomoreno.com>
+>
+> This fixes an issue in which key down events for function keys would be
+> repeatedly emitted even after the user has raised the physical key. For
+> example, the driver fails to emit the F5 key up event when going through
+> the following steps:
+> - fnmode=3D1: hold FN, hold F5, release FN, release F5
+> - fnmode=3D2: hold F5, hold FN, release F5, release FN
+>
+> The repeated F5 key down events can be easily verified using xev.
+>
+> Signed-off-by: Joao Moreno <mail@joaomoreno.com>
+> Co-developed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>
+> Hi Joao,
+>
+> last chance to pull back :)
+>
+> If you are still happy, I'll push this version
+>
+> Cheers,
+> Benjamin
+>
+
+Looks great. Thanks a bunch for your help!
+
+Cheers,
+Jo=C3=A3o
+
+>  drivers/hid/hid-apple.c | 49 +++++++++++++++++++++++------------------
+>  1 file changed, 28 insertions(+), 21 deletions(-)
+>
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index 81df62f48c4c..6ac8becc2372 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -54,7 +54,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\=
+") and Command (\"Flag\")
+>  struct apple_sc {
+>         unsigned long quirks;
+>         unsigned int fn_on;
+> -       DECLARE_BITMAP(pressed_fn, KEY_CNT);
+>         DECLARE_BITMAP(pressed_numlock, KEY_CNT);
+>  };
+>
+> @@ -181,6 +180,8 @@ static int hidinput_apple_event(struct hid_device *hi=
+d, struct input_dev *input,
+>  {
+>         struct apple_sc *asc =3D hid_get_drvdata(hid);
+>         const struct apple_key_translation *trans, *table;
+> +       bool do_translate;
+> +       u16 code =3D 0;
+>
+>         if (usage->code =3D=3D KEY_FN) {
+>                 asc->fn_on =3D !!value;
+> @@ -189,8 +190,6 @@ static int hidinput_apple_event(struct hid_device *hi=
+d, struct input_dev *input,
+>         }
+>
+>         if (fnmode) {
+> -               int do_translate;
+> -
+>                 if (hid->product >=3D USB_DEVICE_ID_APPLE_WELLSPRING4_ANS=
+I &&
+>                                 hid->product <=3D USB_DEVICE_ID_APPLE_WEL=
+LSPRING4A_JIS)
+>                         table =3D macbookair_fn_keys;
+> @@ -202,25 +201,33 @@ static int hidinput_apple_event(struct hid_device *=
+hid, struct input_dev *input,
+>                 trans =3D apple_find_translation (table, usage->code);
+>
+>                 if (trans) {
+> -                       if (test_bit(usage->code, asc->pressed_fn))
+> -                               do_translate =3D 1;
+> -                       else if (trans->flags & APPLE_FLAG_FKEY)
+> -                               do_translate =3D (fnmode =3D=3D 2 && asc-=
+>fn_on) ||
+> -                                       (fnmode =3D=3D 1 && !asc->fn_on);
+> -                       else
+> -                               do_translate =3D asc->fn_on;
+> -
+> -                       if (do_translate) {
+> -                               if (value)
+> -                                       set_bit(usage->code, asc->pressed=
+_fn);
+> -                               else
+> -                                       clear_bit(usage->code, asc->press=
+ed_fn);
+> -
+> -                               input_event(input, usage->type, trans->to=
+,
+> -                                               value);
+> -
+> -                               return 1;
+> +                       if (test_bit(trans->from, input->key))
+> +                               code =3D trans->from;
+> +                       else if (test_bit(trans->to, input->key))
+> +                               code =3D trans->to;
+> +
+> +                       if (!code) {
+> +                               if (trans->flags & APPLE_FLAG_FKEY) {
+> +                                       switch (fnmode) {
+> +                                       case 1:
+> +                                               do_translate =3D !asc->fn=
+_on;
+> +                                               break;
+> +                                       case 2:
+> +                                               do_translate =3D asc->fn_=
+on;
+> +                                               break;
+> +                                       default:
+> +                                               /* should never happen */
+> +                                               do_translate =3D false;
+> +                                       }
+> +                               } else {
+> +                                       do_translate =3D asc->fn_on;
+> +                               }
+> +
+> +                               code =3D do_translate ? trans->to : trans=
+->from;
+>                         }
+> +
+> +                       input_event(input, usage->type, code, value);
+> +                       return 1;
+>                 }
+>
+>                 if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
+> --
+> 2.19.2
+>

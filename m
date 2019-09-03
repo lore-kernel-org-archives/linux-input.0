@@ -1,7 +1,7 @@
 From: Anson Huang <Anson.Huang@nxp.com>
-Subject: [PATCH V3 3/5] arm64: dts: imx8qxp: Add scu key node
-Date: Tue,  3 Sep 2019 17:36:38 -0400
-Message-ID: <1567546600-21566-3-git-send-email-Anson.Huang@nxp.com>
+Subject: [PATCH V3 5/5] arm64: defconfig: Enable CONFIG_KEYBOARD_IMX_SC_KEY as module
+Date: Tue,  3 Sep 2019 17:36:40 -0400
+Message-ID: <1567546600-21566-5-git-send-email-Anson.Huang@nxp.com>
 References: <1567546600-21566-1-git-send-email-Anson.Huang@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1567546600-21566-1-git-send-email-Anson.Huang@nxp.com>
@@ -10,41 +10,28 @@ To: robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengu
 Cc: Linux-imx@nxp.com
 List-Id: linux-input@vger.kernel.org
 
-Add scu key node for i.MX8QXP, disabled by default as it
-depends on board design.
+Select CONFIG_KEYBOARD_IMX_SC_KEY as module by default to
+support i.MX8QXP scu key driver.
 
 Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
 Changes since V2:
-	- use "key" instead of "pwrkey".
+	- change CONFIG name.
 ---
- arch/arm64/boot/dts/freescale/imx8qxp.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm64/configs/defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-index 1133b41..71e38c1 100644
---- a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
-@@ -8,6 +8,7 @@
- #include <dt-bindings/clock/imx8-clock.h>
- #include <dt-bindings/firmware/imx/rsrc.h>
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
- #include <dt-bindings/interrupt-controller/arm-gic.h>
- #include <dt-bindings/pinctrl/pads-imx8qxp.h>
- 
-@@ -174,6 +175,12 @@
- 			#power-domain-cells = <1>;
- 		};
- 
-+		scu_key: scu-key {
-+			compatible = "fsl,imx8qxp-sc-key", "fsl,imx-sc-key";
-+			linux,keycode = <KEY_POWER>;
-+			status = "disabled";
-+		};
-+
- 		rtc: rtc {
- 			compatible = "fsl,imx8qxp-sc-rtc";
- 		};
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index 49bb3d4..2913c21 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -313,6 +313,7 @@ CONFIG_INPUT_EVDEV=y
+ CONFIG_KEYBOARD_ADC=m
+ CONFIG_KEYBOARD_GPIO=y
+ CONFIG_KEYBOARD_SNVS_PWRKEY=m
++CONFIG_KEYBOARD_IMX_SC_KEY=m
+ CONFIG_KEYBOARD_CROS_EC=y
+ CONFIG_INPUT_TOUCHSCREEN=y
+ CONFIG_TOUCHSCREEN_ATMEL_MXT=m
 -- 
 2.7.4

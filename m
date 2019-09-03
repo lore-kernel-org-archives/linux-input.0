@@ -1,57 +1,76 @@
-From: Anson Huang <anson.huang@nxp.com>
-Subject: RE: [PATCH 1/5] dt-bindings: fsl: scu: add scu power key binding
-Date: Tue, 3 Sep 2019 02:05:33 +0000
-Message-ID: <DB3PR0402MB3916135233AA2DDD5DA177B8F5B90@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-References: <1567198429-27886-1-git-send-email-Anson.Huang@nxp.com>
- <20190902043521.GA14143@bogus>
+From: "Johnny.Chuang" <johnny.chuang@emc.com.tw>
+Subject: RE: [PATCH] Input: elants_i2c - return real value of elants_i2c_initialize()
+Date: Tue, 3 Sep 2019 10:33:33 +0800
+Message-ID: <001e01d561ff$fb3d7000$f1b85000$@emc.com.tw>
+References: <1566958886-25756-1-git-send-email-johnny.chuang@emc.com.tw> <000601d55d49$05878160$10968420$@emc.com.tw> <20190829182933.GD187474@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain;
+        charset="big5"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190902043521.GA14143@bogus>
-Content-Language: en-US
+In-Reply-To: <20190829182933.GD187474@dtor-ws>
+Content-Language: zh-tw
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Aisheng Dong <aisheng.dong@nxp.com>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Andy Duan <fugang.duan@nxp.com>, Peng Fan <peng.fan@nxp.com>, Daniel Baluta <daniel.baluta@nxp.com>, Leonard Crestez <leonard.crestez@nxp.com>, "olof@lixom.net" <olof@lixom.net>, "mripard@kernel.org" <mripard@kernel.org>, "arnd@arndb.de" <arnd@arndb.de>, "jagan@amarulasolutions.com" <jagan@amarula>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, =?big5?B?J1NUUkQyLb2ytGa8YCc=?= <jennifer.tsai@emc.com.tw>, =?big5?B?J1NUUkQyLbOvsVKp+rhnsnon?= <james.chen@emc.com.tw>, =?big5?B?J7Hns9W1vic=?= <paul.liang@emc.com.tw>, 'jeff' <jeff.chuang@emc.com.tw>
 List-Id: linux-input@vger.kernel.org
 
-SGksIFJvYg0KDQo+IE9uIEZyaSwgQXVnIDMwLCAyMDE5IGF0IDA0OjUzOjQ1UE0gLTA0MDAsIEFu
-c29uIEh1YW5nIHdyb3RlOg0KPiA+IE5YUCBpLk1YOFFYUCBpcyBhbiBBUk12OCBTb0Mgd2l0aCBh
-IENvcnRleC1NNCBjb3JlIGluc2lkZSBhcyBzeXN0ZW0NCj4gPiBjb250cm9sbGVyLCB0aGUgc3lz
-dGVtIGNvbnRyb2xsZXIgaXMgaW4gY2hhcmdlIG9mIHN5c3RlbSBwb3dlciwgY2xvY2sNCj4gPiBh
-bmQgcG93ZXIga2V5IGV2ZW50IGV0Yy4gbWFuYWdlbWVudCwgTGludXgga2VybmVsIGhhcyB0byBj
-b21tdW5pY2F0ZQ0KPiA+IHdpdGggc3lzdGVtIGNvbnRyb2xsZXIgdmlhIE1VIChtZXNzYWdlIHVu
-aXQpIElQQyB0byBnZXQgcG93ZXIga2V5DQo+ID4gZXZlbnQsIGFkZCBiaW5kaW5nIGRvYyBmb3Ig
-aS5NWCBzeXN0ZW0gY29udHJvbGxlciBwb3dlciBrZXkgZHJpdmVyLg0KPiA+DQo+ID4gU2lnbmVk
-LW9mZi1ieTogQW5zb24gSHVhbmcgPEFuc29uLkh1YW5nQG54cC5jb20+DQo+ID4gLS0tDQo+ID4g
-IC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL2FybS9mcmVlc2NhbGUvZnNsLHNjdS50eHQgICAgICB8
-IDE4DQo+ICsrKysrKysrKysrKysrKysrKw0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgMTggaW5zZXJ0
-aW9ucygrKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdA0KPiA+IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0
-cmVlL2JpbmRpbmdzL2FybS9mcmVlc2NhbGUvZnNsLHNjdS50eHQNCj4gPiBiL0RvY3VtZW50YXRp
-b24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0DQo+ID4gaW5k
-ZXggYzE0OWZhZC4uMDAxZDBiNyAxMDA2NDQNCj4gPiAtLS0gYS9Eb2N1bWVudGF0aW9uL2Rldmlj
-ZXRyZWUvYmluZGluZ3MvYXJtL2ZyZWVzY2FsZS9mc2wsc2N1LnR4dA0KPiA+ICsrKyBiL0RvY3Vt
-ZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0DQo+
-ID4gQEAgLTE1Nyw2ICsxNTcsMTcgQEAgUmVxdWlyZWQgcHJvcGVydGllczoNCj4gPiAgT3B0aW9u
-YWwgcHJvcGVydGllczoNCj4gPiAgLSB0aW1lb3V0LXNlYzogY29udGFpbnMgdGhlIHdhdGNoZG9n
-IHRpbWVvdXQgaW4gc2Vjb25kcy4NCj4gPg0KPiA+ICtQb3dlciBrZXkgYmluZGluZ3MgYmFzZWQg
-b24gU0NVIE1lc3NhZ2UgUHJvdG9jb2wNCj4gPiArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+ID4gKw0KPiA+ICtSZXF1aXJlZCBw
-cm9wZXJ0aWVzOg0KPiA+ICstIGNvbXBhdGlibGU6IHNob3VsZCBiZToNCj4gPiArICAgICAgICAg
-ICAgICAiZnNsLGlteDhxeHAtc2MtcHdya2V5Ig0KPiA+ICsgICAgICAgICAgICAgIGZvbGxvd2Vk
-IGJ5ICJmc2wsaW14LXNjLXB3cmtleSI7DQo+ID4gKy0gbGludXgsa2V5Y29kZXM6IFNlZQ0KPiA+
-ICtEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQva2V5cy50eHQNCj4gPiAr
-T3B0aW9uYWwgUHJvcGVydGllczoNCj4gPiArLSB3YWtldXAtc291cmNlOiBTZWUNCj4gPiArRG9j
-dW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3Bvd2VyL3dha2V1cC1zb3VyY2UudHh0DQo+
-ID4gKw0KPiA+ICBFeGFtcGxlIChpbXg4cXhwKToNCj4gPiAgLS0tLS0tLS0tLS0tLQ0KPiA+ICBh
-bGlhc2VzIHsNCj4gPiBAQCAtMjIwLDYgKzIzMSwxMyBAQCBmaXJtd2FyZSB7DQo+ID4gIAkJCWNv
-bXBhdGlibGUgPSAiZnNsLGlteDhxeHAtc2MtcnRjIjsNCj4gPiAgCQl9Ow0KPiA+DQo+ID4gKwkJ
-c2N1X3B3cmtleTogc2N1LXB3cmtleSB7DQo+ID4gKwkJCWNvbXBhdGlibGUgPSAiZnNsLGlteDhx
-eHAtc2MtcHdya2V5IiwgImZzbCxpbXgtc2MtDQo+IHB3cmtleSI7DQo+ID4gKwkJCWxpbnV4LGtl
-eWNvZGUgPSA8S0VZX1BPV0VSPjsNCj4gPiArCQkJd2FrZXVwLXNvdXJjZTsNCj4gDQo+IHdha2V1
-cC1zb3VyY2UgaW1wbGllcyBhbiBpbnRlcnJ1cHQgcHJvcGVydHkuDQoNCkFmdGVyIGZ1cnRoZXIg
-Y2hlY2ssIEkgY29uZmlybSB0aGlzICJ3YWtldXAtc291cmNlIiBwcm9wZXJ0eSBpcyBOT1QgbmVl
-ZGVkIGZvciBTQ1UgZ2VuZXJhbCBpbnRlcnJ1cHQNCndha2V1cCwgcmVtb3ZlIGl0IGluIFYyLiAN
-Cg0KPiANCj4gPiArCQkJc3RhdHVzID0gImRpc2FibGVkIjsNCj4gDQo+IERvbid0IHNob3VsZCBz
-dGF0dXMgaW4gZXhhbXBsZXMuDQoNClJlbW92ZWQgaXQgaW4gVjIsIHBsZWFzZSBoZWxwIHJldmll
-dywgdGhhbmtzLg0KDQpBbnNvbg0KDQo=
+Hi Dmitry,
+
+Thanks for your explanation.
+If I want to abandon this patch, what's step I need to do?
+
+Many thanks,
+Johnny
+-----Original Message-----
+From: 'Dmitry Torokhov' [mailto:dmitry.torokhov@gmail.com] 
+Sent: Friday, August 30, 2019 2:30 AM
+To: Johnny.Chuang
+Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org; STRD2-蔡惠嬋;
+STRD2-陳崇明經理; '梁博翔'; 'jeff'
+Subject: Re: [PATCH] Input: elants_i2c - return real value of
+elants_i2c_initialize()
+
+Hi Johnny,
+
+On Wed, Aug 28, 2019 at 10:33:46AM +0800, Johnny.Chuang wrote:
+> The return value of elants_i2c_initialize() was always 0.
+> It maybe register input device when initialize fail.
+
+We do not want to return error here, because it will abort probe, and then
+we will not be able to initiate firmware flash flow so we can attempt to
+recover the device.
+
+If you want to try you can change the ts->iap_mode before trying to register
+input device, but then you need to be very careful about registering and
+unregistering it later, after flashing or re-flashing firmware.
+
+> 
+> Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
+> ---
+>  drivers/input/touchscreen/elants_i2c.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/elants_i2c.c
+> b/drivers/input/touchscreen/elants_i2c.c
+> index d4ad24e..9c9816f 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -571,7 +571,7 @@ static int elants_i2c_initialize(struct elants_data
+*ts)
+>  	if (error)
+>  		ts->iap_mode = ELAN_IAP_RECOVERY;
+>  
+> -	return 0;
+> +	return error;
+>  }
+>  
+>  /*
+> --
+> 2.7.4
+> 
+
+Thanks.
+
+-- 
+Dmitry

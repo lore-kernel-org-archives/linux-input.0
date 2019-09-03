@@ -1,7 +1,7 @@
-From: syzbot <syzbot+90b997df76897a013829@syzkaller.appspotmail.com>
-Subject: KASAN: use-after-free Read in usbhid_close
-Date: Tue, 03 Sep 2019 05:08:11 -0700
-Message-ID: <0000000000004070630591a4f124@google.com>
+From: syzbot <syzbot+1088533649dafa1c9004@syzkaller.appspotmail.com>
+Subject: general protection fault in pk_probe
+Date: Tue, 03 Sep 2019 05:08:10 -0700
+Message-ID: <0000000000002725f40591a4f118@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -15,75 +15,105 @@ syzbot found the following crash on:
 
 HEAD commit:    eea39f24 usb-fuzzer: main usb gadget fuzzer driver
 git tree:       https://github.com/google/kasan.git usb-fuzzer
-console output: https://syzkaller.appspot.com/x/log.txt?x=140a786c600000
+console output: https://syzkaller.appspot.com/x/log.txt?x=14c3589e600000
 kernel config:  https://syzkaller.appspot.com/x/.config?x=d0c62209eedfd54e
-dashboard link: https://syzkaller.appspot.com/bug?extid=90b997df76897a013829
+dashboard link: https://syzkaller.appspot.com/bug?extid=1088533649dafa1c9004
 compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-
-Unfortunately, I don't have any reproducer for this crash yet.
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1667cc66600000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10f30dbc600000
 
 IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+90b997df76897a013829@syzkaller.appspotmail.com
+Reported-by: syzbot+1088533649dafa1c9004@syzkaller.appspotmail.com
 
-==================================================================
-BUG: KASAN: use-after-free in __lock_acquire+0x302a/0x3b50  
-kernel/locking/lockdep.c:3753
-Read of size 8 at addr ffff8881d34368a0 by task syz-executor.3/10760
-
-CPU: 0 PID: 10760 Comm: syz-executor.3 Not tainted 5.3.0-rc5+ #28
+prodikeys 0003:041E:2801.0001: unknown main item tag 0x0
+prodikeys 0003:041E:2801.0001: unknown main item tag 0x0
+prodikeys 0003:041E:2801.0001: hidraw0: USB HID v0.00 Device [HID  
+041e:2801] on usb-dummy_hcd.0-1/input1
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN
+CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.3.0-rc5+ #28
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
 Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:pcmidi_submit_output_report drivers/hid/hid-prodikeys.c:300  
+[inline]
+RIP: 0010:pcmidi_set_operational drivers/hid/hid-prodikeys.c:558 [inline]
+RIP: 0010:pcmidi_snd_initialise drivers/hid/hid-prodikeys.c:686 [inline]
+RIP: 0010:pk_probe+0xb51/0xfd0 drivers/hid/hid-prodikeys.c:836
+Code: 0f 85 50 04 00 00 48 8b 04 24 4c 89 7d 10 48 8b 58 08 e8 b2 53 e4 fc  
+48 8b 54 24 20 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f  
+85 13 04 00 00 48 ba 00 00 00 00 00 fc ff df 49 8b
+RSP: 0018:ffff8881da20ee10 EFLAGS: 00010206
+RAX: dffffc0000000000 RBX: ffff8881d2d40000 RCX: ffffffff8459833e
+RDX: 0000000000000006 RSI: ffffffff8459862e RDI: ffff8881d2aee610
+RBP: ffff8881d2aee600 R08: ffff8881da1f9800 R09: ffffed103b64677c
+R10: ffffed103b64677b R11: ffff8881db233bdb R12: ffff8881d2d40000
+R13: 0000000000000000 R14: ffff8881d4ec4ab0 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f2fc6afa518 CR3: 00000001d099d000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  print_address_description+0x6a/0x32c mm/kasan/report.c:351
-  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
-  kasan_report+0xe/0x12 mm/kasan/common.c:612
-  __lock_acquire+0x302a/0x3b50 kernel/locking/lockdep.c:3753
-  lock_acquire+0x127/0x320 kernel/locking/lockdep.c:4412
-  __raw_spin_lock_irq include/linux/spinlock_api_smp.h:128 [inline]
-  _raw_spin_lock_irq+0x2d/0x40 kernel/locking/spinlock.c:167
-  spin_lock_irq include/linux/spinlock.h:363 [inline]
-  usbhid_close+0x51/0x210 drivers/hid/usbhid/hid-core.c:740
-  hid_hw_close+0xa8/0xd0 drivers/hid/hid-core.c:2046
-  drop_ref.part.0+0x32/0xe0 drivers/hid/hidraw.c:337
-  drop_ref drivers/hid/hidraw.c:360 [inline]
-  hidraw_release+0x34f/0x440 drivers/hid/hidraw.c:356
-  __fput+0x2d7/0x840 fs/file_table.c:280
-  task_work_run+0x13f/0x1c0 kernel/task_work.c:113
-  tracehook_notify_resume include/linux/tracehook.h:188 [inline]
-  exit_to_usermode_loop+0x1d2/0x200 arch/x86/entry/common.c:163
-  prepare_exit_to_usermode arch/x86/entry/common.c:194 [inline]
-  syscall_return_slowpath arch/x86/entry/common.c:274 [inline]
-  do_syscall_64+0x45f/0x580 arch/x86/entry/common.c:299
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x413561
-Code: 75 14 b8 03 00 00 00 0f 05 48 3d 01 f0 ff ff 0f 83 04 1b 00 00 c3 48  
-83 ec 08 e8 0a fc ff ff 48 89 04 24 b8 03 00 00 00 0f 05 <48> 8b 3c 24 48  
-89 c2 e8 53 fc ff ff 48 89 d0 48 83 c4 08 48 3d 01
-RSP: 002b:00007ffc873b3300 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
-RAX: 0000000000000000 RBX: 0000000000000006 RCX: 0000000000413561
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000005
-RBP: 0000000000000001 R08: 0000000055395a94 R09: 0000000055395a98
-R10: 00007ffc873b33e0 R11: 0000000000000293 R12: 000000000075bfc8
-R13: 0000000000096f96 R14: 0000000000762460 R15: ffffffffffffffff
-
-The buggy address belongs to the page:
-page:ffffea00074d0d80 refcount:0 mapcount:0 mapping:0000000000000000  
-index:0x0
-flags: 0x200000000000000()
-raw: 0200000000000000 0000000000000000 dead000000000122 0000000000000000
-raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff8881d3436780: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  ffff8881d3436800: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-> ffff8881d3436880: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                                ^
-  ffff8881d3436900: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  ffff8881d3436980: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-==================================================================
+  hid_device_probe+0x2be/0x3f0 drivers/hid/hid-core.c:2209
+  really_probe+0x281/0x6d0 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:721
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:828
+  bus_for_each_drv+0x162/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:894
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2165
+  hid_add_device+0x33c/0x990 drivers/hid/hid-core.c:2365
+  usbhid_probe+0xa81/0xfa0 drivers/hid/usbhid/hid-core.c:1386
+  usb_probe_interface+0x305/0x7a0 drivers/usb/core/driver.c:361
+  really_probe+0x281/0x6d0 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:721
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:828
+  bus_for_each_drv+0x162/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:894
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2165
+  usb_set_configuration+0xdf6/0x1670 drivers/usb/core/message.c:2023
+  generic_probe+0x9d/0xd5 drivers/usb/core/generic.c:210
+  usb_probe_device+0x99/0x100 drivers/usb/core/driver.c:266
+  really_probe+0x281/0x6d0 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:721
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:828
+  bus_for_each_drv+0x162/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:894
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2165
+  usb_new_device.cold+0x6a4/0xe79 drivers/usb/core/hub.c:2536
+  hub_port_connect drivers/usb/core/hub.c:5098 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5213 [inline]
+  port_event drivers/usb/core/hub.c:5359 [inline]
+  hub_event+0x1b5c/0x3640 drivers/usb/core/hub.c:5441
+  process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
+  worker_thread+0x96/0xe20 kernel/workqueue.c:2415
+  kthread+0x318/0x420 kernel/kthread.c:255
+  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+Modules linked in:
+---[ end trace 57a1aecde3464295 ]---
+RIP: 0010:pcmidi_submit_output_report drivers/hid/hid-prodikeys.c:300  
+[inline]
+RIP: 0010:pcmidi_set_operational drivers/hid/hid-prodikeys.c:558 [inline]
+RIP: 0010:pcmidi_snd_initialise drivers/hid/hid-prodikeys.c:686 [inline]
+RIP: 0010:pk_probe+0xb51/0xfd0 drivers/hid/hid-prodikeys.c:836
+Code: 0f 85 50 04 00 00 48 8b 04 24 4c 89 7d 10 48 8b 58 08 e8 b2 53 e4 fc  
+48 8b 54 24 20 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f  
+85 13 04 00 00 48 ba 00 00 00 00 00 fc ff df 49 8b
+RSP: 0018:ffff8881da20ee10 EFLAGS: 00010206
+RAX: dffffc0000000000 RBX: ffff8881d2d40000 RCX: ffffffff8459833e
+RDX: 0000000000000006 RSI: ffffffff8459862e RDI: ffff8881d2aee610
+RBP: ffff8881d2aee600 R08: ffff8881da1f9800 R09: ffffed103b64677c
+R10: ffffed103b64677b R11: ffff8881db233bdb R12: ffff8881d2d40000
+R13: 0000000000000000 R14: ffff8881d4ec4ab0 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f2fc6afa518 CR3: 00000001d099d000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
 
 ---
@@ -93,3 +123,5 @@ syzbot engineers can be reached at syzkaller@googlegroups.com.
 
 syzbot will keep track of this bug report. See:
 https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches

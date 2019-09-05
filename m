@@ -1,57 +1,48 @@
 From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] HID: prodikeys: make array keys static const, makes object smaller
-Date: Thu,  5 Sep 2019 17:54:06 +0100
-Message-ID: <20190905165406.24641-1-colin.king@canonical.com>
+Subject: [PATCH] input: sidewinder: make array seq static const, makes object smaller
+Date: Thu,  5 Sep 2019 18:36:55 +0100
+Message-ID: <20190905173655.5621-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org
 Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 From: Colin Ian King <colin.king@canonical.com>
 
-Don't populate the array keys on the stack but instead make it
-static const. Makes the object code smaller by 166 bytes.
+Don't populate the array seq on the stack but instead make it
+static const. Makes the object code smaller by 30 bytes.
 
 Before:
    text	   data	    bss	    dec	    hex	filename
-  18931	   5872	    480	  25283	   62c3	drivers/hid/hid-prodikeys.o
+  22284	   3184	      0	  25468	   637c	drivers/input/joystick/sidewinder.o
 
 After:
    text	   data	    bss	    dec	    hex	filename
-  18669	   5968	    480	  25117	   621d	drivers/hid/hid-prodikeys.o
+  22158	   3280	      0	  25438	   635e	drivers/input/joystick/sidewinder.o
 
 (gcc version 9.2.1, amd64)
 
 Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
- drivers/hid/hid-prodikeys.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/joystick/sidewinder.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-index 21544ebff855..fb6841ebe4d9 100644
---- a/drivers/hid/hid-prodikeys.c
-+++ b/drivers/hid/hid-prodikeys.c
-@@ -516,7 +516,7 @@ static void pcmidi_setup_extra_keys(
- 		MY PICTURES =>	KEY_WORDPROCESSOR
- 		MY MUSIC=>	KEY_SPREADSHEET
- 	*/
--	unsigned int keys[] = {
-+	static const unsigned int keys[] = {
- 		KEY_FN,
- 		KEY_MESSENGER, KEY_CALENDAR,
- 		KEY_ADDRESSBOOK, KEY_DOCUMENTS,
-@@ -532,7 +532,7 @@ static void pcmidi_setup_extra_keys(
- 		0
- 	};
+diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
+index 0284da874a2b..1777e68c9f02 100644
+--- a/drivers/input/joystick/sidewinder.c
++++ b/drivers/input/joystick/sidewinder.c
+@@ -223,7 +223,7 @@ static __u64 sw_get_bits(unsigned char *buf, int pos, int num, char bits)
  
--	unsigned int *pkeys = &keys[0];
-+	const unsigned int *pkeys = &keys[0];
- 	unsigned short i;
+ static void sw_init_digital(struct gameport *gameport)
+ {
+-	int seq[] = { 140, 140+725, 140+300, 0 };
++	static const int seq[] = { 140, 140+725, 140+300, 0 };
+ 	unsigned long flags;
+ 	int i, t;
  
- 	if (pm->ifnum != 1)  /* only set up ONCE for interace 1 */
 -- 
 2.20.1

@@ -1,46 +1,67 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH stable 5.2/4.19] Revert "Input: elantech - enable SMBus
- on new (2018+) systems"
-Date: Fri, 6 Sep 2019 11:53:47 +0200
-Message-ID: <20190906095347.GC16843@kroah.com>
-References: <20190906085345.26279-1-benjamin.tissoires@redhat.com>
+From: Dan Elkouby <streetwalkermc@gmail.com>
+Subject: [PATCH] Bluetooth: hidp: Fix assumptions on the return value of hidp_send_message
+Date: Fri,  6 Sep 2019 14:06:44 +0300
+Message-ID: <20190906110645.27601-1-streetwalkermc@gmail.com>
+References: <20190906101306.GA12017@kadam>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190906085345.26279-1-benjamin.tissoires@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190906101306.GA12017@kadam>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Dan Elkouby <streetwalkermc@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Marcel Holtmann <marcel@holtmann.org>, Johan Hedberg <johan.hedberg@gmail.com>, "David S. Miller" <davem@davemloft.net>, Brian Norris <computersforpeace@gmail.com>, Fabian Henneke <fabian.henneke@gmail.com>, Al Viro <viro@zeniv.linux.org.uk>, Andrea Parri <andrea.parri@amarulasolutions.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Sep 06, 2019 at 10:53:45AM +0200, Benjamin Tissoires wrote:
-> This reverts commit 60956b018bfe23b879405a7d88103d0a8f06a5e3.
-> 
-> This patch depends on an other series:
-> https://patchwork.kernel.org/project/linux-input/list/?series=122327&state=%2A&archive=both
-> 
-> It was a mistake to backport it in the v5.2 branch, as there
-> is a high chance we encounter a touchpad that needs the series
-> above.
-> 
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=204733
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=204771
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> ---
-> 
-> Hi,
-> 
-> this is a stable only patch aimed at kernels v5.2 and v4.19 branches.
-> 
-> We already have 2 bug reports of a failing touchpad, and I don't think
-> it is worth trying to get a smoother touchpad if we randomly
-> break a few of them in the way.
+hidp_send_message was changed to return non-zero values on success,
+which some other bits did not expect. This caused spurious errors to be
+propagated through the stack, breaking some drivers, such as hid-sony
+for the Dualshock 4 in Bluetooth mode.
 
-Now reverted, I'll push out some new releases with that now so people's
-machines get back to a working state.
+As pointed out by Dan Carpenter, hid-microsoft directly relied on that
+assumption as well.
 
-thanks,
+Fixes: 48d9cc9d85dd ("Bluetooth: hidp: Let hidp_send_message return number of queued bytes")
 
-greg k-h
+Signed-off-by: Dan Elkouby <streetwalkermc@gmail.com>
+---
+ drivers/hid/hid-microsoft.c | 2 +-
+ net/bluetooth/hidp/core.c   | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 8b3a922bdad3..2cf83856f2e4 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -303,7 +303,7 @@ static void ms_ff_worker(struct work_struct *work)
+ 	r->magnitude[MAGNITUDE_WEAK] = ms->weak;     /* right actuator */
+ 
+ 	ret = hid_hw_output_report(hdev, (__u8 *)r, sizeof(*r));
+-	if (ret)
++	if (ret < 0)
+ 		hid_warn(hdev, "failed to send FF report\n");
+ }
+ 
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 8d889969ae7e..bef84b95e2c4 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -267,7 +267,7 @@ static int hidp_get_raw_report(struct hid_device *hid,
+ 	set_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
+ 	data[0] = report_number;
+ 	ret = hidp_send_ctrl_message(session, report_type, data, 1);
+-	if (ret)
++	if (ret < 0)
+ 		goto err;
+ 
+ 	/* Wait for the return of the report. The returned report
+@@ -343,7 +343,7 @@ static int hidp_set_raw_report(struct hid_device *hid, unsigned char reportnum,
+ 	data[0] = reportnum;
+ 	set_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
+ 	ret = hidp_send_ctrl_message(session, report_type, data, count);
+-	if (ret)
++	if (ret < 0)
+ 		goto err;
+ 
+ 	/* Wait for the ACK from the device. */
+-- 
+2.23.0

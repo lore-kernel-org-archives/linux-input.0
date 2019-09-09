@@ -1,7 +1,7 @@
 From: Lukasz Majewski <lukma@denx.de>
-Subject: [PATCH v5 2/3] input: touchscreen mc13xxx: Make platform data optional
-Date: Mon,  9 Sep 2019 23:44:39 +0200
-Message-ID: <20190909214440.30674-3-lukma@denx.de>
+Subject: [PATCH v5 3/3] input: touchscreen mc13xxx: Add mc34708 support
+Date: Mon,  9 Sep 2019 23:44:40 +0200
+Message-ID: <20190909214440.30674-4-lukma@denx.de>
 References: <20190909214440.30674-1-lukma@denx.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190909214440.30674-1-lukma@denx.de>
@@ -12,9 +12,9 @@ List-Id: linux-input@vger.kernel.org
 
 From: Sascha Hauer <s.hauer@pengutronix.de>
 
-The platform data once was optional, make it optional again. This
-is a first step towards device tree support for the mc13xxx touchscreen
-driver.
+The mc34708 has a different bit to enable pen detection. This
+adds the driver data and devtype necessary to probe the device
+and to distinguish between the mc13783 and the mc34708.
 
 Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
 Signed-off-by: Lukasz Majewski <lukma@denx.de>
@@ -25,66 +25,161 @@ Changes for v5:
 - None
 
 Changes for v4:
-- Add Dmitry's Acked-by:
+- Remove type from struct mc13xx_chip
+- Add Acked-by from Dmitry
 
 Changes for v3:
-- None
+- Replace forward declaration of mc13xxx_driver_data with
+  structure definition
+- Rename mc13xxx_driver_data with mc13xxx_chip
+- Move static struct mc13xxx_chip mc13783_chip and mc34708_chip
+  closer to ID table
+- Do not check mc13xxx device type
 
 Changes for v2:
-- None
+- Change nested if statements to a single one (with cr0 > ...)
+- Replace hardcoded max resistance value (4080) with a generic driver data
+  value.
+- Introduce new include/linux/mfd/mc34708.h header file for mc34708 specific
+  defines
+- Define as driver data mask and value for accessing mc13xxx registers
 
 Changes from the original patch:
-- Commit message typo fixes
+- Simplify the mcXXXXX_set_pen_detection functions
+- Fix checkpatch warnings
 ---
- drivers/input/touchscreen/mc13783_ts.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+---
+ drivers/input/touchscreen/mc13783_ts.c | 48 +++++++++++++++++++++++---
+ 1 file changed, 44 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
-index ae0d978c83bf..edd49e44e0c9 100644
+index edd49e44e0c9..1dd8ed396225 100644
 --- a/drivers/input/touchscreen/mc13783_ts.c
 +++ b/drivers/input/touchscreen/mc13783_ts.c
-@@ -35,7 +35,8 @@ struct mc13783_ts_priv {
+@@ -10,6 +10,7 @@
+  */
+ #include <linux/platform_device.h>
+ #include <linux/mfd/mc13783.h>
++#include <linux/mfd/mc34708.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/input.h>
+@@ -30,6 +31,12 @@ MODULE_PARM_DESC(sample_tolerance,
+ 		"is supposed to be wrong and is discarded.  Set to 0 to "
+ 		"disable this check.");
+ 
++struct mc13xxx_chip {
++	int max_resistance;
++	u32 reg_mask;
++	u32 reg_value;
++};
++
+ struct mc13783_ts_priv {
+ 	struct input_dev *idev;
  	struct mc13xxx *mc13xxx;
- 	struct delayed_work work;
+@@ -37,6 +44,7 @@ struct mc13783_ts_priv {
  	unsigned int sample[4];
--	struct mc13xxx_ts_platform_data *touch;
-+	u8 ato;
-+	bool atox;
+ 	u8 ato;
+ 	bool atox;
++	const struct mc13xxx_chip *chip;
  };
  
  static irqreturn_t mc13783_ts_handler(int irq, void *data)
-@@ -125,7 +126,7 @@ static void mc13783_ts_work(struct work_struct *work)
+@@ -93,6 +101,9 @@ static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
  
- 	if (mc13xxx_adc_do_conversion(priv->mc13xxx,
- 				mode, channel,
--				priv->touch->ato, priv->touch->atox,
-+				priv->ato, priv->atox,
- 				priv->sample) == 0)
- 		mc13783_ts_report_sample(priv);
- }
-@@ -169,6 +170,7 @@ static void mc13783_ts_close(struct input_dev *dev)
- static int __init mc13783_ts_probe(struct platform_device *pdev)
- {
+ 	cr0 = (cr0 + cr1) / 2;
+ 
++	if (cr0 > priv->chip->max_resistance)
++		cr0 = 0;
++
+ 	if (!cr0 || !sample_tolerance ||
+ 			(x2 - x0 < sample_tolerance &&
+ 			 y2 - y0 < sample_tolerance)) {
+@@ -102,14 +113,14 @@ static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
+ 			input_report_abs(idev, ABS_Y, y1);
+ 
+ 			dev_dbg(&idev->dev, "report (%d, %d, %d)\n",
+-					x1, y1, 0x1000 - cr0);
++				x1, y1, priv->chip->max_resistance - cr0);
+ 			schedule_delayed_work(&priv->work, HZ / 50);
+ 		} else {
+ 			dev_dbg(&idev->dev, "report release\n");
+ 		}
+ 
+ 		input_report_abs(idev, ABS_PRESSURE,
+-				cr0 ? 0x1000 - cr0 : cr0);
++				 cr0 ? priv->chip->max_resistance - cr0 : 0);
+ 		input_report_key(idev, BTN_TOUCH, cr0);
+ 		input_sync(idev);
+ 	} else {
+@@ -146,7 +157,8 @@ static int mc13783_ts_open(struct input_dev *dev)
+ 		goto out;
+ 
+ 	ret = mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
+-			MC13XXX_ADC0_TSMOD_MASK, MC13XXX_ADC0_TSMOD0);
++			      priv->chip->reg_mask,
++			      priv->chip->reg_value);
+ 	if (ret)
+ 		mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
+ out:
+@@ -160,7 +172,7 @@ static void mc13783_ts_close(struct input_dev *dev)
+ 
+ 	mc13xxx_lock(priv->mc13xxx);
+ 	mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
+-			MC13XXX_ADC0_TSMOD_MASK, 0);
++			priv->chip->reg_mask, 0);
+ 	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
+ 	mc13xxx_unlock(priv->mc13xxx);
+ 
+@@ -172,6 +184,7 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
  	struct mc13783_ts_priv *priv;
-+	struct mc13xxx_ts_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct mc13xxx_ts_platform_data *pdata = dev_get_platdata(&pdev->dev);
  	struct input_dev *idev;
++	const struct platform_device_id *id = platform_get_device_id(pdev);
  	int ret = -ENOMEM;
  
-@@ -180,11 +182,10 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+@@ -182,6 +195,7 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
  	INIT_DELAYED_WORK(&priv->work, mc13783_ts_work);
  	priv->mc13xxx = dev_get_drvdata(pdev->dev.parent);
  	priv->idev = idev;
--	priv->touch = dev_get_platdata(&pdev->dev);
--	if (!priv->touch) {
--		dev_err(&pdev->dev, "missing platform data\n");
--		ret = -ENODEV;
--		goto err_free_mem;
-+
-+	if (pdata) {
-+		priv->atox = pdata->atox;
-+		priv->ato = pdata->ato;
- 	}
++	priv->chip = (void *)id->driver_data;
  
- 	idev->name = MC13783_TS_NAME;
+ 	if (pdata) {
+ 		priv->atox = pdata->atox;
+@@ -228,7 +242,33 @@ static int mc13783_ts_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static struct mc13xxx_chip mc13783_chip = {
++	.max_resistance = 4096,
++	.reg_mask = MC13XXX_ADC0_TSMOD_MASK,
++	.reg_value = MC13XXX_ADC0_TSMOD0,
++};
++
++static struct mc13xxx_chip mc34708_chip = {
++	.max_resistance = 4080,
++	.reg_mask = MC34708_ADC0_TSMASK,
++	.reg_value = MC34708_ADC0_TSPENDETEN,
++};
++
++static const struct platform_device_id mc13xxx_ts_idtable[] = {
++	{
++		.name = "mc13783-ts",
++		.driver_data = (kernel_ulong_t)&mc13783_chip,
++	}, {
++		.name = "mc34708-ts",
++		.driver_data = (kernel_ulong_t)&mc34708_chip,
++	}, {
++		/* sentinel */
++	}
++};
++MODULE_DEVICE_TABLE(platform, mc13xxx_ts_idtable);
++
+ static struct platform_driver mc13783_ts_driver = {
++	.id_table	= mc13xxx_ts_idtable,
+ 	.remove		= mc13783_ts_remove,
+ 	.driver		= {
+ 		.name	= MC13783_TS_NAME,
 -- 
 2.20.1

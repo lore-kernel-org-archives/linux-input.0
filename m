@@ -1,7 +1,7 @@
 From: Dexuan Cui <decui@microsoft.com>
-Subject: [PATCH] HID: hyperv: Add the support of hibernation
-Date: Wed, 11 Sep 2019 23:35:59 +0000
-Message-ID: <1568244952-66716-1-git-send-email-decui@microsoft.com>
+Subject: [PATCH] Input: hyperv-keyboard: Add the support of hibernation
+Date: Wed, 11 Sep 2019 23:36:20 +0000
+Message-ID: <1568244975-66795-1-git-send-email-decui@microsoft.com>
 Reply-To: Dexuan Cui <decui@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -9,14 +9,14 @@ Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "sashal@kernel.org" <sashal@kernel.org>, "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Kelley <mikelley@microsoft.com>
+To: KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "sashal@kernel.org" <sashal@kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Kelley <mikelley@microsoft.com>
 Cc: Dexuan Cui <decui@microsoft.com>
 List-Id: linux-input@vger.kernel.org
 
-We need mousevsc_pm_notify() to make sure the pm_wakeup_hard_event() call
+We need hv_kbd_pm_notify() to make sure the pm_wakeup_hard_event() call
 does not prevent the system from entering hibernation: the hibernation
 is a relatively long process, which can be aborted by the call
-pm_wakeup_hard_event(), which is invoked upon mouse events.
+pm_wakeup_hard_event(), which is invoked upon keyboard events.
 
 Signed-off-by: Dexuan Cui <decui@microsoft.com>
 ---
@@ -29,110 +29,92 @@ https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git/log/?h=3Dh=
 yperv-next
 
 I request this patch should go through Sasha's tree rather than the
-input subsystem's tree.
+input subsystemi's tree.
 
-Hi Jiri, Benjamin, can you please Ack?
+Hi Dmitry, can you please Ack?
 
- drivers/hid/hid-hyperv.c | 71 ++++++++++++++++++++++++++++++++++++++++++++=
-++--
- 1 file changed, 69 insertions(+), 2 deletions(-)
+ drivers/input/serio/hyperv-keyboard.c | 68 +++++++++++++++++++++++++++++++=
++---
+ 1 file changed, 63 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index cc5b09b8..e798740 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -12,6 +12,7 @@
- #include <linux/hid.h>
- #include <linux/hiddev.h>
+diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hy=
+perv-keyboard.c
+index 88ae7c2..277dc4c 100644
+--- a/drivers/input/serio/hyperv-keyboard.c
++++ b/drivers/input/serio/hyperv-keyboard.c
+@@ -10,6 +10,7 @@
  #include <linux/hyperv.h>
+ #include <linux/serio.h>
+ #include <linux/slab.h>
 +#include <linux/suspend.h>
 =20
-=20
- struct hv_input_dev_info {
-@@ -150,6 +151,9 @@ struct mousevsc_dev {
- 	struct hv_input_dev_info hid_dev_info;
- 	struct hid_device       *hid_device;
- 	u8			input_buf[HID_MAX_BUFFER_SIZE];
+ /*
+  * Current version 1.0
+@@ -95,6 +96,9 @@ struct hv_kbd_dev {
+ 	struct completion wait_event;
+ 	spinlock_t lock; /* protects 'started' field */
+ 	bool started;
 +
-+	struct notifier_block	pm_nb;
-+	bool			hibernation_in_progress;
++	struct notifier_block pm_nb;
++	bool hibernation_in_progress;
  };
 =20
-=20
-@@ -192,6 +196,9 @@ static void mousevsc_on_receive_device_info(struct mous=
-evsc_dev *input_device,
- 	if (desc->bLength =3D=3D 0)
- 		goto cleanup;
-=20
-+	/* The pointer is not NULL when we resume from hibernation */
-+	if (input_device->hid_desc !=3D NULL)
-+		kfree(input_device->hid_desc);
- 	input_device->hid_desc =3D kmemdup(desc, desc->bLength, GFP_ATOMIC);
-=20
- 	if (!input_device->hid_desc)
-@@ -203,6 +210,9 @@ static void mousevsc_on_receive_device_info(struct mous=
-evsc_dev *input_device,
- 		goto cleanup;
- 	}
-=20
-+	/* The pointer is not NULL when we resume from hibernation */
-+	if (input_device->report_desc !=3D NULL)
-+		kfree(input_device->report_desc);
- 	input_device->report_desc =3D kzalloc(input_device->report_desc_size,
- 					  GFP_ATOMIC);
-=20
-@@ -243,7 +253,7 @@ static void mousevsc_on_receive_device_info(struct mous=
-evsc_dev *input_device,
- }
-=20
- static void mousevsc_on_receive(struct hv_device *device,
--				struct vmpacket_descriptor *packet)
-+				const struct vmpacket_descriptor *packet)
- {
- 	struct pipe_prt_msg *pipe_msg;
- 	struct synthhid_msg *hid_msg;
-@@ -301,7 +311,8 @@ static void mousevsc_on_receive(struct hv_device *devic=
-e,
- 		hid_input_report(input_dev->hid_device, HID_INPUT_REPORT,
- 				 input_dev->input_buf, len, 1);
-=20
--		pm_wakeup_hard_event(&input_dev->device->device);
-+		if (!input_dev->hibernation_in_progress)
-+			pm_wakeup_hard_event(&input_dev->device->device);
+ static void hv_kbd_on_receive(struct hv_device *hv_dev,
+@@ -168,7 +172,7 @@ static void hv_kbd_on_receive(struct hv_device *hv_dev,
+ 		 * "echo freeze > /sys/power/state" can't really enter the
+ 		 * state because the Enter-UP can trigger a wakeup at once.
+ 		 */
+-		if (!(info & IS_BREAK))
++		if (!(info & IS_BREAK) && !kbd_dev->hibernation_in_progress)
+ 			pm_wakeup_hard_event(&hv_dev->device);
 =20
  		break;
- 	default:
-@@ -378,6 +389,8 @@ static int mousevsc_connect_to_vsp(struct hv_device *de=
-vice)
- 	struct mousevsc_prt_msg *request;
- 	struct mousevsc_prt_msg *response;
+@@ -179,10 +183,10 @@ static void hv_kbd_on_receive(struct hv_device *hv_de=
+v,
+ 	}
+ }
 =20
-+	reinit_completion(&input_dev->wait_event);
+-static void hv_kbd_handle_received_packet(struct hv_device *hv_dev,
+-					  struct vmpacket_descriptor *desc,
+-					  u32 bytes_recvd,
+-					  u64 req_id)
++static void
++hv_kbd_handle_received_packet(struct hv_device *hv_dev,
++			      const struct vmpacket_descriptor *desc,
++			      u32 bytes_recvd, u64 req_id)
+ {
+ 	struct synth_kbd_msg *msg;
+ 	u32 msg_sz;
+@@ -282,6 +286,8 @@ static int hv_kbd_connect_to_vsp(struct hv_device *hv_d=
+ev)
+ 	u32 proto_status;
+ 	int error;
+=20
++	reinit_completion(&kbd_dev->wait_event);
 +
- 	request =3D &input_dev->protocol_req;
- 	memset(request, 0, sizeof(struct mousevsc_prt_msg));
+ 	request =3D &kbd_dev->protocol_req;
+ 	memset(request, 0, sizeof(struct synth_kbd_protocol_request));
+ 	request->header.type =3D __cpu_to_le32(SYNTH_KBD_PROTOCOL_REQUEST);
+@@ -332,6 +338,29 @@ static void hv_kbd_stop(struct serio *serio)
+ 	spin_unlock_irqrestore(&kbd_dev->lock, flags);
+ }
 =20
-@@ -475,6 +488,29 @@ static int mousevsc_hid_raw_request(struct hid_device =
-*hid,
-=20
- static struct hid_driver mousevsc_hid_driver;
-=20
-+static int mousevsc_pm_notify(struct notifier_block *nb,
-+			      unsigned long val, void *ign)
++static int hv_kbd_pm_notify(struct notifier_block *nb,
++			    unsigned long val, void *ign)
 +{
-+	struct mousevsc_dev *input_dev;
++	struct hv_kbd_dev *kbd_dev;
 +
-+	input_dev =3D container_of(nb, struct mousevsc_dev, pm_nb);
++	kbd_dev =3D container_of(nb, struct hv_kbd_dev, pm_nb);
 +
 +	switch (val) {
 +	case PM_HIBERNATION_PREPARE:
 +	case PM_RESTORE_PREPARE:
-+		input_dev->hibernation_in_progress =3D true;
++		kbd_dev->hibernation_in_progress =3D true;
 +		return NOTIFY_OK;
 +
 +	case PM_POST_HIBERNATION:
 +	case PM_POST_RESTORE:
-+		input_dev->hibernation_in_progress =3D false;
++		kbd_dev->hibernation_in_progress =3D false;
 +		return NOTIFY_OK;
 +
 +	default:
@@ -140,65 +122,63 @@ vice)
 +	}
 +}
 +
- static int mousevsc_probe(struct hv_device *device,
+ static int hv_kbd_probe(struct hv_device *hv_dev,
  			const struct hv_vmbus_device_id *dev_id)
  {
-@@ -549,6 +585,9 @@ static int mousevsc_probe(struct hv_device *device,
- 	input_dev->connected =3D true;
- 	input_dev->init_complete =3D true;
+@@ -380,6 +409,9 @@ static int hv_kbd_probe(struct hv_device *hv_dev,
 =20
-+	input_dev->pm_nb.notifier_call =3D mousevsc_pm_notify;
-+	register_pm_notifier(&input_dev->pm_nb);
+ 	device_init_wakeup(&hv_dev->device, true);
+=20
++	kbd_dev->pm_nb.notifier_call =3D hv_kbd_pm_notify;
++	register_pm_notifier(&kbd_dev->pm_nb);
 +
- 	return ret;
+ 	return 0;
 =20
- probe_err2:
-@@ -568,6 +607,8 @@ static int mousevsc_remove(struct hv_device *dev)
+ err_close_vmbus:
+@@ -394,6 +426,7 @@ static int hv_kbd_remove(struct hv_device *hv_dev)
  {
- 	struct mousevsc_dev *input_dev =3D hv_get_drvdata(dev);
+ 	struct hv_kbd_dev *kbd_dev =3D hv_get_drvdata(hv_dev);
 =20
-+	unregister_pm_notifier(&input_dev->pm_nb);
-+
- 	device_init_wakeup(&dev->device, false);
- 	vmbus_close(dev->channel);
- 	hid_hw_stop(input_dev->hid_device);
-@@ -577,6 +618,30 @@ static int mousevsc_remove(struct hv_device *dev)
++	unregister_pm_notifier(&kbd_dev->pm_nb);
+ 	serio_unregister_port(kbd_dev->hv_serio);
+ 	vmbus_close(hv_dev->channel);
+ 	kfree(kbd_dev);
+@@ -403,6 +436,29 @@ static int hv_kbd_remove(struct hv_device *hv_dev)
  	return 0;
  }
 =20
-+static int mousevsc_suspend(struct hv_device *dev)
++static int hv_kbd_suspend(struct hv_device *hv_dev)
 +{
-+	vmbus_close(dev->channel);
++	vmbus_close(hv_dev->channel);
 +
 +	return 0;
 +}
 +
-+static int mousevsc_resume(struct hv_device *dev)
++static int hv_kbd_resume(struct hv_device *hv_dev)
 +{
 +	int ret;
 +
-+	ret =3D vmbus_open(dev->channel,
-+			 INPUTVSC_SEND_RING_BUFFER_SIZE,
-+			 INPUTVSC_RECV_RING_BUFFER_SIZE,
++	ret =3D vmbus_open(hv_dev->channel,
++			 KBD_VSC_SEND_RING_BUFFER_SIZE,
++			 KBD_VSC_RECV_RING_BUFFER_SIZE,
 +			 NULL, 0,
-+			 mousevsc_on_channel_callback,
-+			 dev);
-+	if (ret)
-+		return ret;
++			 hv_kbd_on_channel_callback,
++			 hv_dev);
++	if (ret =3D=3D 0)
++		ret =3D hv_kbd_connect_to_vsp(hv_dev);
 +
-+	ret =3D mousevsc_connect_to_vsp(dev);
 +	return ret;
 +}
 +
  static const struct hv_vmbus_device_id id_table[] =3D {
- 	/* Mouse guid */
- 	{ HV_MOUSE_GUID, },
-@@ -590,6 +655,8 @@ static int mousevsc_remove(struct hv_device *dev)
+ 	/* Keyboard guid */
+ 	{ HV_KBD_GUID, },
+@@ -416,6 +472,8 @@ static int hv_kbd_remove(struct hv_device *hv_dev)
  	.id_table =3D id_table,
- 	.probe =3D mousevsc_probe,
- 	.remove =3D mousevsc_remove,
-+	.suspend =3D mousevsc_suspend,
-+	.resume =3D mousevsc_resume,
+ 	.probe =3D hv_kbd_probe,
+ 	.remove =3D hv_kbd_remove,
++	.suspend =3D hv_kbd_suspend,
++	.resume =3D hv_kbd_resume,
  	.driver =3D {
  		.probe_type =3D PROBE_PREFER_ASYNCHRONOUS,
  	},

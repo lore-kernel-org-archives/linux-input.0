@@ -1,185 +1,206 @@
-From: Lukasz Majewski <lukma@denx.de>
-Subject: [PATCH v5 3/3] input: touchscreen mc13xxx: Add mc34708 support
-Date: Mon,  9 Sep 2019 23:44:40 +0200
-Message-ID: <20190909214440.30674-4-lukma@denx.de>
-References: <20190909214440.30674-1-lukma@denx.de>
+From: Dexuan Cui <decui@microsoft.com>
+Subject: [PATCH] HID: hyperv: Add the support of hibernation
+Date: Wed, 11 Sep 2019 23:35:59 +0000
+Message-ID: <1568244952-66716-1-git-send-email-decui@microsoft.com>
+Reply-To: Dexuan Cui <decui@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190909214440.30674-1-lukma@denx.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lukasz Majewski <lukma@denx.de>
+To: KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "sashal@kernel.org" <sashal@kernel.org>, "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Kelley <mikelley@microsoft.com>
+Cc: Dexuan Cui <decui@microsoft.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+We need mousevsc_pm_notify() to make sure the pm_wakeup_hard_event() call
+does not prevent the system from entering hibernation: the hibernation
+is a relatively long process, which can be aborted by the call
+pm_wakeup_hard_event(), which is invoked upon mouse events.
 
-The mc34708 has a different bit to enable pen detection. This
-adds the driver data and devtype necessary to probe the device
-and to distinguish between the mc13783 and the mc34708.
-
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Lukasz Majewski <lukma@denx.de>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
 ---
-Changes for v5:
-- None
 
-Changes for v4:
-- Remove type from struct mc13xx_chip
-- Add Acked-by from Dmitry
+This patch is basically a pure Hyper-V specific change and it has a
+build dependency on the commit 271b2224d42f ("Drivers: hv: vmbus: Implement
+suspend/resume for VSC drivers for hibernation"), which is on Sasha Levin's
+Hyper-V tree's hyperv-next branch:
+https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git/log/?h=3Dh=
+yperv-next
 
-Changes for v3:
-- Replace forward declaration of mc13xxx_driver_data with
-  structure definition
-- Rename mc13xxx_driver_data with mc13xxx_chip
-- Move static struct mc13xxx_chip mc13783_chip and mc34708_chip
-  closer to ID table
-- Do not check mc13xxx device type
+I request this patch should go through Sasha's tree rather than the
+input subsystem's tree.
 
-Changes for v2:
-- Change nested if statements to a single one (with cr0 > ...)
-- Replace hardcoded max resistance value (4080) with a generic driver data
-  value.
-- Introduce new include/linux/mfd/mc34708.h header file for mc34708 specific
-  defines
-- Define as driver data mask and value for accessing mc13xxx registers
+Hi Jiri, Benjamin, can you please Ack?
 
-Changes from the original patch:
-- Simplify the mcXXXXX_set_pen_detection functions
-- Fix checkpatch warnings
----
----
- drivers/input/touchscreen/mc13783_ts.c | 48 +++++++++++++++++++++++---
- 1 file changed, 44 insertions(+), 4 deletions(-)
+ drivers/hid/hid-hyperv.c | 71 ++++++++++++++++++++++++++++++++++++++++++++=
+++--
+ 1 file changed, 69 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
-index edd49e44e0c9..1dd8ed396225 100644
---- a/drivers/input/touchscreen/mc13783_ts.c
-+++ b/drivers/input/touchscreen/mc13783_ts.c
-@@ -10,6 +10,7 @@
-  */
- #include <linux/platform_device.h>
- #include <linux/mfd/mc13783.h>
-+#include <linux/mfd/mc34708.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/input.h>
-@@ -30,6 +31,12 @@ MODULE_PARM_DESC(sample_tolerance,
- 		"is supposed to be wrong and is discarded.  Set to 0 to "
- 		"disable this check.");
- 
-+struct mc13xxx_chip {
-+	int max_resistance;
-+	u32 reg_mask;
-+	u32 reg_value;
-+};
+diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+index cc5b09b8..e798740 100644
+--- a/drivers/hid/hid-hyperv.c
++++ b/drivers/hid/hid-hyperv.c
+@@ -12,6 +12,7 @@
+ #include <linux/hid.h>
+ #include <linux/hiddev.h>
+ #include <linux/hyperv.h>
++#include <linux/suspend.h>
+=20
+=20
+ struct hv_input_dev_info {
+@@ -150,6 +151,9 @@ struct mousevsc_dev {
+ 	struct hv_input_dev_info hid_dev_info;
+ 	struct hid_device       *hid_device;
+ 	u8			input_buf[HID_MAX_BUFFER_SIZE];
 +
- struct mc13783_ts_priv {
- 	struct input_dev *idev;
- 	struct mc13xxx *mc13xxx;
-@@ -37,6 +44,7 @@ struct mc13783_ts_priv {
- 	unsigned int sample[4];
- 	u8 ato;
- 	bool atox;
-+	const struct mc13xxx_chip *chip;
++	struct notifier_block	pm_nb;
++	bool			hibernation_in_progress;
  };
- 
- static irqreturn_t mc13783_ts_handler(int irq, void *data)
-@@ -93,6 +101,9 @@ static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
- 
- 	cr0 = (cr0 + cr1) / 2;
- 
-+	if (cr0 > priv->chip->max_resistance)
-+		cr0 = 0;
+=20
+=20
+@@ -192,6 +196,9 @@ static void mousevsc_on_receive_device_info(struct mous=
+evsc_dev *input_device,
+ 	if (desc->bLength =3D=3D 0)
+ 		goto cleanup;
+=20
++	/* The pointer is not NULL when we resume from hibernation */
++	if (input_device->hid_desc !=3D NULL)
++		kfree(input_device->hid_desc);
+ 	input_device->hid_desc =3D kmemdup(desc, desc->bLength, GFP_ATOMIC);
+=20
+ 	if (!input_device->hid_desc)
+@@ -203,6 +210,9 @@ static void mousevsc_on_receive_device_info(struct mous=
+evsc_dev *input_device,
+ 		goto cleanup;
+ 	}
+=20
++	/* The pointer is not NULL when we resume from hibernation */
++	if (input_device->report_desc !=3D NULL)
++		kfree(input_device->report_desc);
+ 	input_device->report_desc =3D kzalloc(input_device->report_desc_size,
+ 					  GFP_ATOMIC);
+=20
+@@ -243,7 +253,7 @@ static void mousevsc_on_receive_device_info(struct mous=
+evsc_dev *input_device,
+ }
+=20
+ static void mousevsc_on_receive(struct hv_device *device,
+-				struct vmpacket_descriptor *packet)
++				const struct vmpacket_descriptor *packet)
+ {
+ 	struct pipe_prt_msg *pipe_msg;
+ 	struct synthhid_msg *hid_msg;
+@@ -301,7 +311,8 @@ static void mousevsc_on_receive(struct hv_device *devic=
+e,
+ 		hid_input_report(input_dev->hid_device, HID_INPUT_REPORT,
+ 				 input_dev->input_buf, len, 1);
+=20
+-		pm_wakeup_hard_event(&input_dev->device->device);
++		if (!input_dev->hibernation_in_progress)
++			pm_wakeup_hard_event(&input_dev->device->device);
+=20
+ 		break;
+ 	default:
+@@ -378,6 +389,8 @@ static int mousevsc_connect_to_vsp(struct hv_device *de=
+vice)
+ 	struct mousevsc_prt_msg *request;
+ 	struct mousevsc_prt_msg *response;
+=20
++	reinit_completion(&input_dev->wait_event);
 +
- 	if (!cr0 || !sample_tolerance ||
- 			(x2 - x0 < sample_tolerance &&
- 			 y2 - y0 < sample_tolerance)) {
-@@ -102,14 +113,14 @@ static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
- 			input_report_abs(idev, ABS_Y, y1);
- 
- 			dev_dbg(&idev->dev, "report (%d, %d, %d)\n",
--					x1, y1, 0x1000 - cr0);
-+				x1, y1, priv->chip->max_resistance - cr0);
- 			schedule_delayed_work(&priv->work, HZ / 50);
- 		} else {
- 			dev_dbg(&idev->dev, "report release\n");
- 		}
- 
- 		input_report_abs(idev, ABS_PRESSURE,
--				cr0 ? 0x1000 - cr0 : cr0);
-+				 cr0 ? priv->chip->max_resistance - cr0 : 0);
- 		input_report_key(idev, BTN_TOUCH, cr0);
- 		input_sync(idev);
- 	} else {
-@@ -146,7 +157,8 @@ static int mc13783_ts_open(struct input_dev *dev)
- 		goto out;
- 
- 	ret = mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
--			MC13XXX_ADC0_TSMOD_MASK, MC13XXX_ADC0_TSMOD0);
-+			      priv->chip->reg_mask,
-+			      priv->chip->reg_value);
- 	if (ret)
- 		mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
- out:
-@@ -160,7 +172,7 @@ static void mc13783_ts_close(struct input_dev *dev)
- 
- 	mc13xxx_lock(priv->mc13xxx);
- 	mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
--			MC13XXX_ADC0_TSMOD_MASK, 0);
-+			priv->chip->reg_mask, 0);
- 	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
- 	mc13xxx_unlock(priv->mc13xxx);
- 
-@@ -172,6 +184,7 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
- 	struct mc13783_ts_priv *priv;
- 	struct mc13xxx_ts_platform_data *pdata = dev_get_platdata(&pdev->dev);
- 	struct input_dev *idev;
-+	const struct platform_device_id *id = platform_get_device_id(pdev);
- 	int ret = -ENOMEM;
- 
- 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-@@ -182,6 +195,7 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
- 	INIT_DELAYED_WORK(&priv->work, mc13783_ts_work);
- 	priv->mc13xxx = dev_get_drvdata(pdev->dev.parent);
- 	priv->idev = idev;
-+	priv->chip = (void *)id->driver_data;
- 
- 	if (pdata) {
- 		priv->atox = pdata->atox;
-@@ -228,7 +242,33 @@ static int mc13783_ts_remove(struct platform_device *pdev)
+ 	request =3D &input_dev->protocol_req;
+ 	memset(request, 0, sizeof(struct mousevsc_prt_msg));
+=20
+@@ -475,6 +488,29 @@ static int mousevsc_hid_raw_request(struct hid_device =
+*hid,
+=20
+ static struct hid_driver mousevsc_hid_driver;
+=20
++static int mousevsc_pm_notify(struct notifier_block *nb,
++			      unsigned long val, void *ign)
++{
++	struct mousevsc_dev *input_dev;
++
++	input_dev =3D container_of(nb, struct mousevsc_dev, pm_nb);
++
++	switch (val) {
++	case PM_HIBERNATION_PREPARE:
++	case PM_RESTORE_PREPARE:
++		input_dev->hibernation_in_progress =3D true;
++		return NOTIFY_OK;
++
++	case PM_POST_HIBERNATION:
++	case PM_POST_RESTORE:
++		input_dev->hibernation_in_progress =3D false;
++		return NOTIFY_OK;
++
++	default:
++		return NOTIFY_DONE;
++	}
++}
++
+ static int mousevsc_probe(struct hv_device *device,
+ 			const struct hv_vmbus_device_id *dev_id)
+ {
+@@ -549,6 +585,9 @@ static int mousevsc_probe(struct hv_device *device,
+ 	input_dev->connected =3D true;
+ 	input_dev->init_complete =3D true;
+=20
++	input_dev->pm_nb.notifier_call =3D mousevsc_pm_notify;
++	register_pm_notifier(&input_dev->pm_nb);
++
+ 	return ret;
+=20
+ probe_err2:
+@@ -568,6 +607,8 @@ static int mousevsc_remove(struct hv_device *dev)
+ {
+ 	struct mousevsc_dev *input_dev =3D hv_get_drvdata(dev);
+=20
++	unregister_pm_notifier(&input_dev->pm_nb);
++
+ 	device_init_wakeup(&dev->device, false);
+ 	vmbus_close(dev->channel);
+ 	hid_hw_stop(input_dev->hid_device);
+@@ -577,6 +618,30 @@ static int mousevsc_remove(struct hv_device *dev)
  	return 0;
  }
- 
-+static struct mc13xxx_chip mc13783_chip = {
-+	.max_resistance = 4096,
-+	.reg_mask = MC13XXX_ADC0_TSMOD_MASK,
-+	.reg_value = MC13XXX_ADC0_TSMOD0,
-+};
+=20
++static int mousevsc_suspend(struct hv_device *dev)
++{
++	vmbus_close(dev->channel);
 +
-+static struct mc13xxx_chip mc34708_chip = {
-+	.max_resistance = 4080,
-+	.reg_mask = MC34708_ADC0_TSMASK,
-+	.reg_value = MC34708_ADC0_TSPENDETEN,
-+};
++	return 0;
++}
 +
-+static const struct platform_device_id mc13xxx_ts_idtable[] = {
-+	{
-+		.name = "mc13783-ts",
-+		.driver_data = (kernel_ulong_t)&mc13783_chip,
-+	}, {
-+		.name = "mc34708-ts",
-+		.driver_data = (kernel_ulong_t)&mc34708_chip,
-+	}, {
-+		/* sentinel */
-+	}
-+};
-+MODULE_DEVICE_TABLE(platform, mc13xxx_ts_idtable);
++static int mousevsc_resume(struct hv_device *dev)
++{
++	int ret;
 +
- static struct platform_driver mc13783_ts_driver = {
-+	.id_table	= mc13xxx_ts_idtable,
- 	.remove		= mc13783_ts_remove,
- 	.driver		= {
- 		.name	= MC13783_TS_NAME,
--- 
-2.20.1
++	ret =3D vmbus_open(dev->channel,
++			 INPUTVSC_SEND_RING_BUFFER_SIZE,
++			 INPUTVSC_RECV_RING_BUFFER_SIZE,
++			 NULL, 0,
++			 mousevsc_on_channel_callback,
++			 dev);
++	if (ret)
++		return ret;
++
++	ret =3D mousevsc_connect_to_vsp(dev);
++	return ret;
++}
++
+ static const struct hv_vmbus_device_id id_table[] =3D {
+ 	/* Mouse guid */
+ 	{ HV_MOUSE_GUID, },
+@@ -590,6 +655,8 @@ static int mousevsc_remove(struct hv_device *dev)
+ 	.id_table =3D id_table,
+ 	.probe =3D mousevsc_probe,
+ 	.remove =3D mousevsc_remove,
++	.suspend =3D mousevsc_suspend,
++	.resume =3D mousevsc_resume,
+ 	.driver =3D {
+ 		.probe_type =3D PROBE_PREFER_ASYNCHRONOUS,
+ 	},
+--=20
+1.8.3.1

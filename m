@@ -1,117 +1,67 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input: keyboard: snvs_pwrkey: Send key events for
- i.MX6 S, DL and Q
-Date: Thu, 12 Sep 2019 21:13:00 +0100
-Message-ID: <20190912201300.GA636@penguin>
-References: <20190904062329.97520-1-robin@protonic.nl>
+Subject: Re: [PATCH] HID: hidraw: replace printk() with corresponding pr_xx()
+ variant
+Date: Thu, 12 Sep 2019 21:31:19 +0100
+Message-ID: <20190912203119.GC636@penguin>
+References: <1566492232-13590-1-git-send-email-gupt21@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190904062329.97520-1-robin@protonic.nl>
+In-Reply-To: <1566492232-13590-1-git-send-email-gupt21@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Robin van der Gracht <robin@protonic.nl>
-Cc: "linux-input @ vger . kernel . org" <linux-input@vger.kernel.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, RobinGong <yibin.gong@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, Marco Felsch <m.felsch@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, Adam Ford <aford173@gmail.com>, "linux-arm-kernel @ lists . infradead . org" <linux-arm-kernel@lists.infradead.org>
+To: Rishi Gupta <gupt21@gmail.com>
+Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Robin,
+Hi Rishi,
 
-On Wed, Sep 04, 2019 at 06:23:29AM +0000, Robin van der Gracht wrote:
-> The first generation i.MX6 processors does not send an interrupt when the
-> power key is pressed. It sends a power down request interrupt if the key is
-> released before a hard shutdown (5 second press). This should allow
-> software to bring down the SoC safely.
+On Thu, Aug 22, 2019 at 10:13:52PM +0530, Rishi Gupta wrote:
+> This commit replaces direct invocations of printk with
+> their appropriate pr_info/warn() variant.
 > 
-> For this driver to work as a regular power key with the older SoCs, we need
-> to send a keypress AND release when we get the power down request irq.
-> 
-> Signed-off-by: Robin van der Gracht <robin@protonic.nl>
+> Signed-off-by: Rishi Gupta <gupt21@gmail.com>
 > ---
+>  drivers/hid/hidraw.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> Changes v2 -> v3:
->  - Drop alt compatible string for identifying first revision snvs hardware,
->    read minor revision from register instead.
->  - Drop imx6qdl.dtsi modification and device-tree binding documentation.
->  - Add an additional input_sync() to create 2 seperate input reports for press
->    and release.
-> 
->  drivers/input/keyboard/Kconfig       |  2 +-
->  drivers/input/keyboard/snvs_pwrkey.c | 28 ++++++++++++++++++++++++++--
->  2 files changed, 27 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 7c4f19dab34f..937e58da5ce1 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -436,7 +436,7 @@ config KEYBOARD_SNVS_PWRKEY
->  	depends on OF
->  	help
->  	  This is the snvs powerkey driver for the Freescale i.MX application
-> -	  processors that are newer than i.MX6 SX.
-> +	  processors.
+> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+> index 006bd6f..67b652b 100644
+> --- a/drivers/hid/hidraw.c
+> +++ b/drivers/hid/hidraw.c
+> @@ -197,14 +197,14 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t
+>  	}
 >  
->  	  To compile this driver as a module, choose M here; the
->  	  module will be called snvs_pwrkey.
-> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-> index 5342d8d45f81..828580eee0d2 100644
-> --- a/drivers/input/keyboard/snvs_pwrkey.c
-> +++ b/drivers/input/keyboard/snvs_pwrkey.c
-> @@ -19,6 +19,7 @@
->  #include <linux/mfd/syscon.h>
->  #include <linux/regmap.h>
->  
-> +#define SNVS_HPVIDR1_REG 0xF8
->  #define SNVS_LPSR_REG	0x4C	/* LP Status Register */
->  #define SNVS_LPCR_REG	0x38	/* LP Control Register */
->  #define SNVS_HPSR_REG	0x14
-> @@ -37,6 +38,7 @@ struct pwrkey_drv_data {
->  	int wakeup;
->  	struct timer_list check_timer;
->  	struct input_dev *input;
-> +	u8 minor_rev;
->  };
->  
->  static void imx_imx_snvs_check_for_events(struct timer_list *t)
-> @@ -45,6 +47,20 @@ static void imx_imx_snvs_check_for_events(struct timer_list *t)
->  	struct input_dev *input = pdata->input;
->  	u32 state;
->  
-> +	if (pdata->minor_rev == 0) {
-> +		/*
-> +		 * The first generation i.MX6 SoCs only sends an interrupt on
-> +		 * button release. To mimic power-key usage, we'll prepend a
-> +		 * press event.
-> +		 */
-> +		input_report_key(input, pdata->keycode, 1);
-> +		input_sync(input);
-> +		input_report_key(input, pdata->keycode, 0);
-> +		input_sync(input);
-> +		pm_relax(input->dev.parent);
-> +		return;
-> +	}
-> +
->  	regmap_read(pdata->snvs, SNVS_HPSR_REG, &state);
->  	state = state & SNVS_HPSR_BTN ? 1 : 0;
->  
-> @@ -67,13 +83,17 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
->  {
->  	struct platform_device *pdev = dev_id;
->  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> +	unsigned long expire = jiffies;
->  	u32 lp_status;
->  
->  	pm_wakeup_event(pdata->input->dev.parent, 0);
->  
->  	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
-> -	if (lp_status & SNVS_LPSR_SPO)
-> -		mod_timer(&pdata->check_timer, jiffies + msecs_to_jiffies(DEBOUNCE_TIME));
-> +	if (lp_status & SNVS_LPSR_SPO) {
-> +		if (pdata->minor_rev > 0)
-> +			expire = jiffies + msecs_to_jiffies(DEBOUNCE_TIME);
-> +		mod_timer(&pdata->check_timer, expire);
+>  	if (count > HID_MAX_BUFFER_SIZE) {
+> -		printk(KERN_WARNING "hidraw: pid %d passed too large report\n",
+> +		pr_warn("hidraw: pid %d passed too large report\n",
+>  				task_pid_nr(current));
 
-Why do we even need to fire the timer in case of the first generation
-hardware? Just send press and release events directly from the ISR.
+If you are doing this, you should also look into pr_fmt() so that we do
+not need to manually add "hidraw: " prefix to the messages.
+
+>  		ret = -EINVAL;
+>  		goto out;
+>  	}
+>  
+>  	if (count < 2) {
+> -		printk(KERN_WARNING "hidraw: pid %d passed too short report\n",
+> +		pr_warn("hidraw: pid %d passed too short report\n",
+>  				task_pid_nr(current));
+>  		ret = -EINVAL;
+>  		goto out;
+> @@ -597,7 +597,7 @@ int __init hidraw_init(void)
+>  	if (result < 0)
+>  		goto error_class;
+>  
+> -	printk(KERN_INFO "hidraw: raw HID events driver (C) Jiri Kosina\n");
+> +	pr_info("hidraw: raw HID events driver (C) Jiri Kosina\n");
+>  out:
+>  	return result;
+>  
+> -- 
+> 2.7.4
+> 
 
 Thanks.
 

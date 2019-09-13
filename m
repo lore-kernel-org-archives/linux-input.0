@@ -1,27 +1,27 @@
 From: robin <robin@protonic.nl>
 Subject: Re: [PATCH v3] input: keyboard: snvs_pwrkey: Send key events for
  i.MX6 S, DL and Q
-Date: Fri, 13 Sep 2019 09:30:51 +0200
-Message-ID: <803592d161b9ca75d6ac1c2c54e891a1@protonic.nl>
+Date: Fri, 13 Sep 2019 09:39:26 +0200
+Message-ID: <f12945994b66c5e605c0a121e7ad0526@protonic.nl>
 References: <20190904062329.97520-1-robin@protonic.nl>
- <20190912201300.GA636@penguin>
+ <20190904065248.4i7q2vuxxt2xdnrr@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190912201300.GA636@penguin>
+In-Reply-To: <20190904065248.4i7q2vuxxt2xdnrr@pengutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input @ vger . kernel . org" <linux-input@vger.kernel.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, RobinGong <yibin.gong@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, Marco Felsch <m.felsch@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, Adam Ford <aford173@gmail.com>, "linux-arm-kernel @ lists . infradead . org" <linux-arm-kernel@lists.infradead.org>
+To: Marco Felsch <m.felsch@pengutronix.de>
+Cc: "linux-input @ vger . kernel . org" <linux-input@vger.kernel.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, RobinGong <yibin.gong@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, Adam Ford <aford173@gmail.com>, "linux-arm-kernel @ lists . infradead . org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
-
-On 2019-09-12 22:13, Dmitry Torokhov wrote:
+On 2019-09-04 08:52, Marco Felsch wrote:
 > Hi Robin,
 > 
-> On Wed, Sep 04, 2019 at 06:23:29AM +0000, Robin van der Gracht wrote:
+> thanks for the patch it looks quite good, just two minor nitpicks.
+> 
+> On 19-09-04 06:23, Robin van der Gracht wrote:
 >> The first generation i.MX6 processors does not send an interrupt when 
 >> the
 >> power key is pressed. It sends a power down request interrupt if the 
@@ -93,6 +93,9 @@ On 2019-09-12 22:13, Dmitry Torokhov wrote:
 >>  	u32 state;
 >> 
 >> +	if (pdata->minor_rev == 0) {
+> 
+> Should we use a define here and ..
+> 
 >> +		/*
 >> +		 * The first generation i.MX6 SoCs only sends an interrupt on
 >> +		 * button release. To mimic power-key usage, we'll prepend a
@@ -125,18 +128,27 @@ On 2019-09-12 22:13, Dmitry Torokhov wrote:
 >> msecs_to_jiffies(DEBOUNCE_TIME));
 >> +	if (lp_status & SNVS_LPSR_SPO) {
 >> +		if (pdata->minor_rev > 0)
->> +			expire = jiffies + msecs_to_jiffies(DEBOUNCE_TIME);
->> +		mod_timer(&pdata->check_timer, expire);
 > 
-> Why do we even need to fire the timer in case of the first generation
-> hardware? Just send press and release events directly from the ISR.
+> here? Just a nitpick, feel free to add/drop it.
 
-Robin Gong proposed to move the code to imx_imx_snvs_check_for_events()
-to improve readability and unload the ISR.
+Like a Macro?
 
-But since I, eventually, couldn't use the existing handling in
-imx_imx_snvs_check_for_events(), I do see why you're asking.
+#define FIRST_HW_REV(pdata)      (pdata->minor_rev == 0)
 
-I'll move the code to the ISR and submit a new patch.
+if (FIRST_HW_REV(pdata) {
+         ...
+}
 
+
+or just a define to identify the minor rev used for the first hw 
+revision
+
+
+#define FIRST_HW_MINOR_REV       0
+
+if (pdata->minor_rev == FIRST_HW_MINOR_REV) {
+         ...
+}
+
+Regards,
 Robin van der Gracht

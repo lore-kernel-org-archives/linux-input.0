@@ -1,90 +1,75 @@
-From: Pedro Vanzella <pedro@pedrovanzella.com>
-Subject: Re: [PATCH v5] hid-logitech-hidpp: read battery voltage from newer
- devices
-Date: Fri, 13 Sep 2019 17:45:45 -0400
-Message-ID: <cb3e7c8f-b8f9-7a59-d358-8682625e4adf@pedrovanzella.com>
-References: <20190831175659.7404-1-pedro@pedrovanzella.com>
- <80785df1c804796a01bbfbae4b2aeda66f30d7c5.camel@archlinux.org>
+From: Dmitry Torokhov <dtor@chromium.org>
+Subject: [PATCH 2/3] HID: google: whiskers: signal tablet mode switch on disconnect
+Date: Fri, 13 Sep 2019 15:03:16 -0700
+Message-ID: <20190913220317.58289-2-dtor@chromium.org>
+References: <20190913220317.58289-1-dtor@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <80785df1c804796a01bbfbae4b2aeda66f30d7c5.camel@archlinux.org>
-Content-Language: en-US
+In-Reply-To: <20190913220317.58289-1-dtor@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Filipe_La=c3=adns?= <lains@archlinux.org>, linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Nicolas Boichat <drinkcat@chromium.org>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 9/9/19 8:00 AM, Filipe Laíns wrote:
-> On Sat, 2019-08-31 at 13:56 -0400, Pedro Vanzella wrote:
->> +static int hidpp20_battery_map_status_voltage(u8 data[3], int
->> *voltage)
->> +{
->> +	int status;
->> +
->> +	switch (data[2]) {
->> +	case 0x00: /* discharging */
->> +		status = POWER_SUPPLY_STATUS_DISCHARGING;
->> +		break;
->> +	case 0x10: /* wireless charging */
->> +	case 0x80: /* charging */
->> +		status = POWER_SUPPLY_STATUS_CHARGING;
->> +		break;
->> +	case 0x81: /* fully charged */
->> +		status = POWER_SUPPLY_STATUS_FULL;
->> +		break;
->> +	default:
->> +		status = POWER_SUPPLY_STATUS_NOT_CHARGING;
->> +	}
->> +
->> +	*voltage = get_unaligned_be16(data);
->> +
->> +	return status;
->> +}
-> 
-> Here's the missing specification:
-> 
-> +--------+-------------------------------------------------------------------------+
-> |  byte  |                                    2                                    |
-> +--------+--------------+------------+------------+----------+----------+----------+
-> |   bit  |     0..2     |      3     |      4     |     5    |     6    |     7    |
-> +--------+--------------+------------+------------+----------+----------+----------+
-> | buffer | chargeStatus | fastCharge | slowCharge | critical | (unused) | extPower |
-> +--------+--------------+------------+------------+----------+----------+----------+
-> Table 1 - battery voltage (0x1001), getBatteryInfo() (ASE 0), 3rd byte
-> 
-> +-------+--------------------------------------+
-> | value |                meaning               |
-> +-------+--------------------------------------+
-> |   0   | Charging                             |
-> +-------+--------------------------------------+
-> |   1   | End of charge (100% charged)         |
-> +-------+--------------------------------------+
-> |   2   | Charge stopped (any "normal" reason) |
-> +-------+--------------------------------------+
-> |   7   | Hardware error                       |
-> +-------+--------------------------------------+
-> Table 2 - chargeStatus value
-> 
-> I know this is already on the 5th revision but could you please change
-> hidpp20_battery_map_status_voltage() to properly handle the 3rd byte?
-> Also, if you could make sure those values are properly exported via
-> sysfs it would be great! We will need them for proper upower support.
+Currently, the tablet mode switch that takes two signals as its input:
+base attached switch from the EC and some GMR signal from whiskers when
+it's folded over. This tablet mode switch is then sent to Chrome, which
+changes the UI.
 
-Sure thing. I'll have a new patch in a few days.
+However, there are some units which have a lot of leakage on the ADC
+pins that the EC uses to determine whether or not a base is attached.
+This can result in the base being physically detached, but the EC
+thinking that it's still attached. The user would then be stuck in
+laptop mode and wouldn't be able to rotate their display.
 
-Thanks for figuring that stuff out, by the way.
+To work around this let's send "tablet mode" signal when we remove HID
+interface, which normally happens when we physically disconnect
+whiskers.
 
-> 
-> Sorry for not saying this in my first review. Since then I have done
-> some testing and I discovered that if we want to get accurate upower
-> support we will need the values exposed by the 3rd byte to be
-> exported properly.
-> 
-> I am not sure about the endianness of chargeStatus but you can find
-> that easily.
-> 
-> Thank you!
-> Filipe Laíns
-> 
+Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+---
+ drivers/hid/hid-google-hammer.c | 24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
+index 4f64f93ddfcb..3dc6116c8f76 100644
+--- a/drivers/hid/hid-google-hammer.c
++++ b/drivers/hid/hid-google-hammer.c
+@@ -498,11 +498,33 @@ static int hammer_probe(struct hid_device *hdev,
+ 
+ static void hammer_remove(struct hid_device *hdev)
+ {
++	unsigned long flags;
++
+ 	if (hdev->product == USB_DEVICE_ID_GOOGLE_WHISKERS &&
+-			hammer_is_keyboard_interface(hdev))
++			hammer_is_keyboard_interface(hdev)) {
+ 		hid_hw_close(hdev);
+ 
++		/*
++		 * If we are disconnecting then most likely Whiskers is
++		 * being removed. Even if it is not removed, without proper
++		 * keyboard we should not stay in clamshell mode.
++		 *
++		 * The reason for doing it here and not waiting for signal
++		 * from EC, is that on some devices there are high leakage
++		 * on Whiskers pins and we do not detect disconnect reliably,
++		 * resulting in devices being stuck in clamshell mode.
++		 */
++		spin_lock_irqsave(&cbas_ec_lock, flags);
++		if (cbas_ec.input && cbas_ec.base_present) {
++			input_report_switch(cbas_ec.input, SW_TABLET_MODE, 1);
++			input_sync(cbas_ec.input);
++		}
++		cbas_ec.base_present = false;
++		spin_unlock_irqrestore(&cbas_ec_lock, flags);
++	}
++
+ 	hammer_unregister_leds(hdev);
++
+ 	hid_hw_stop(hdev);
+ }
+ 
+-- 
+2.23.0.237.gc6a4ce50a0-goog

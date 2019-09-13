@@ -1,154 +1,90 @@
-From: robin <robin@protonic.nl>
-Subject: Re: [PATCH v3] input: keyboard: snvs_pwrkey: Send key events for
- i.MX6 S, DL and Q
-Date: Fri, 13 Sep 2019 09:39:26 +0200
-Message-ID: <f12945994b66c5e605c0a121e7ad0526@protonic.nl>
-References: <20190904062329.97520-1-robin@protonic.nl>
- <20190904065248.4i7q2vuxxt2xdnrr@pengutronix.de>
+From: Pedro Vanzella <pedro@pedrovanzella.com>
+Subject: Re: [PATCH v5] hid-logitech-hidpp: read battery voltage from newer
+ devices
+Date: Fri, 13 Sep 2019 17:45:45 -0400
+Message-ID: <cb3e7c8f-b8f9-7a59-d358-8682625e4adf@pedrovanzella.com>
+References: <20190831175659.7404-1-pedro@pedrovanzella.com>
+ <80785df1c804796a01bbfbae4b2aeda66f30d7c5.camel@archlinux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190904065248.4i7q2vuxxt2xdnrr@pengutronix.de>
+In-Reply-To: <80785df1c804796a01bbfbae4b2aeda66f30d7c5.camel@archlinux.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Marco Felsch <m.felsch@pengutronix.de>
-Cc: "linux-input @ vger . kernel . org" <linux-input@vger.kernel.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, RobinGong <yibin.gong@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, Adam Ford <aford173@gmail.com>, "linux-arm-kernel @ lists . infradead . org" <linux-arm-kernel@lists.infradead.org>
+To: =?UTF-8?Q?Filipe_La=c3=adns?= <lains@archlinux.org>, linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 2019-09-04 08:52, Marco Felsch wrote:
-> Hi Robin,
-> 
-> thanks for the patch it looks quite good, just two minor nitpicks.
-> 
-> On 19-09-04 06:23, Robin van der Gracht wrote:
->> The first generation i.MX6 processors does not send an interrupt when 
->> the
->> power key is pressed. It sends a power down request interrupt if the 
->> key is
->> released before a hard shutdown (5 second press). This should allow
->> software to bring down the SoC safely.
->> 
->> For this driver to work as a regular power key with the older SoCs, we 
->> need
->> to send a keypress AND release when we get the power down request irq.
->> 
->> Signed-off-by: Robin van der Gracht <robin@protonic.nl>
->> ---
->> 
->> Changes v2 -> v3:
->>  - Drop alt compatible string for identifying first revision snvs 
->> hardware,
->>    read minor revision from register instead.
->>  - Drop imx6qdl.dtsi modification and device-tree binding 
->> documentation.
->>  - Add an additional input_sync() to create 2 seperate input reports 
->> for press
->>    and release.
->> 
->>  drivers/input/keyboard/Kconfig       |  2 +-
->>  drivers/input/keyboard/snvs_pwrkey.c | 28 
->> ++++++++++++++++++++++++++--
->>  2 files changed, 27 insertions(+), 3 deletions(-)
->> 
->> diff --git a/drivers/input/keyboard/Kconfig 
->> b/drivers/input/keyboard/Kconfig
->> index 7c4f19dab34f..937e58da5ce1 100644
->> --- a/drivers/input/keyboard/Kconfig
->> +++ b/drivers/input/keyboard/Kconfig
->> @@ -436,7 +436,7 @@ config KEYBOARD_SNVS_PWRKEY
->>  	depends on OF
->>  	help
->>  	  This is the snvs powerkey driver for the Freescale i.MX 
->> application
->> -	  processors that are newer than i.MX6 SX.
->> +	  processors.
->> 
->>  	  To compile this driver as a module, choose M here; the
->>  	  module will be called snvs_pwrkey.
->> diff --git a/drivers/input/keyboard/snvs_pwrkey.c 
->> b/drivers/input/keyboard/snvs_pwrkey.c
->> index 5342d8d45f81..828580eee0d2 100644
->> --- a/drivers/input/keyboard/snvs_pwrkey.c
->> +++ b/drivers/input/keyboard/snvs_pwrkey.c
->> @@ -19,6 +19,7 @@
->>  #include <linux/mfd/syscon.h>
->>  #include <linux/regmap.h>
->> 
->> +#define SNVS_HPVIDR1_REG 0xF8
->>  #define SNVS_LPSR_REG	0x4C	/* LP Status Register */
->>  #define SNVS_LPCR_REG	0x38	/* LP Control Register */
->>  #define SNVS_HPSR_REG	0x14
->> @@ -37,6 +38,7 @@ struct pwrkey_drv_data {
->>  	int wakeup;
->>  	struct timer_list check_timer;
->>  	struct input_dev *input;
->> +	u8 minor_rev;
->>  };
->> 
->>  static void imx_imx_snvs_check_for_events(struct timer_list *t)
->> @@ -45,6 +47,20 @@ static void imx_imx_snvs_check_for_events(struct 
->> timer_list *t)
->>  	struct input_dev *input = pdata->input;
->>  	u32 state;
->> 
->> +	if (pdata->minor_rev == 0) {
-> 
-> Should we use a define here and ..
-> 
->> +		/*
->> +		 * The first generation i.MX6 SoCs only sends an interrupt on
->> +		 * button release. To mimic power-key usage, we'll prepend a
->> +		 * press event.
->> +		 */
->> +		input_report_key(input, pdata->keycode, 1);
->> +		input_sync(input);
->> +		input_report_key(input, pdata->keycode, 0);
->> +		input_sync(input);
->> +		pm_relax(input->dev.parent);
->> +		return;
+On 9/9/19 8:00 AM, Filipe Laíns wrote:
+> On Sat, 2019-08-31 at 13:56 -0400, Pedro Vanzella wrote:
+>> +static int hidpp20_battery_map_status_voltage(u8 data[3], int
+>> *voltage)
+>> +{
+>> +	int status;
+>> +
+>> +	switch (data[2]) {
+>> +	case 0x00: /* discharging */
+>> +		status = POWER_SUPPLY_STATUS_DISCHARGING;
+>> +		break;
+>> +	case 0x10: /* wireless charging */
+>> +	case 0x80: /* charging */
+>> +		status = POWER_SUPPLY_STATUS_CHARGING;
+>> +		break;
+>> +	case 0x81: /* fully charged */
+>> +		status = POWER_SUPPLY_STATUS_FULL;
+>> +		break;
+>> +	default:
+>> +		status = POWER_SUPPLY_STATUS_NOT_CHARGING;
 >> +	}
 >> +
->>  	regmap_read(pdata->snvs, SNVS_HPSR_REG, &state);
->>  	state = state & SNVS_HPSR_BTN ? 1 : 0;
->> 
->> @@ -67,13 +83,17 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int 
->> irq, void *dev_id)
->>  {
->>  	struct platform_device *pdev = dev_id;
->>  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
->> +	unsigned long expire = jiffies;
->>  	u32 lp_status;
->> 
->>  	pm_wakeup_event(pdata->input->dev.parent, 0);
->> 
->>  	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
->> -	if (lp_status & SNVS_LPSR_SPO)
->> -		mod_timer(&pdata->check_timer, jiffies + 
->> msecs_to_jiffies(DEBOUNCE_TIME));
->> +	if (lp_status & SNVS_LPSR_SPO) {
->> +		if (pdata->minor_rev > 0)
+>> +	*voltage = get_unaligned_be16(data);
+>> +
+>> +	return status;
+>> +}
 > 
-> here? Just a nitpick, feel free to add/drop it.
+> Here's the missing specification:
+> 
+> +--------+-------------------------------------------------------------------------+
+> |  byte  |                                    2                                    |
+> +--------+--------------+------------+------------+----------+----------+----------+
+> |   bit  |     0..2     |      3     |      4     |     5    |     6    |     7    |
+> +--------+--------------+------------+------------+----------+----------+----------+
+> | buffer | chargeStatus | fastCharge | slowCharge | critical | (unused) | extPower |
+> +--------+--------------+------------+------------+----------+----------+----------+
+> Table 1 - battery voltage (0x1001), getBatteryInfo() (ASE 0), 3rd byte
+> 
+> +-------+--------------------------------------+
+> | value |                meaning               |
+> +-------+--------------------------------------+
+> |   0   | Charging                             |
+> +-------+--------------------------------------+
+> |   1   | End of charge (100% charged)         |
+> +-------+--------------------------------------+
+> |   2   | Charge stopped (any "normal" reason) |
+> +-------+--------------------------------------+
+> |   7   | Hardware error                       |
+> +-------+--------------------------------------+
+> Table 2 - chargeStatus value
+> 
+> I know this is already on the 5th revision but could you please change
+> hidpp20_battery_map_status_voltage() to properly handle the 3rd byte?
+> Also, if you could make sure those values are properly exported via
+> sysfs it would be great! We will need them for proper upower support.
 
-Like a Macro?
+Sure thing. I'll have a new patch in a few days.
 
-#define FIRST_HW_REV(pdata)      (pdata->minor_rev == 0)
+Thanks for figuring that stuff out, by the way.
 
-if (FIRST_HW_REV(pdata) {
-         ...
-}
-
-
-or just a define to identify the minor rev used for the first hw 
-revision
-
-
-#define FIRST_HW_MINOR_REV       0
-
-if (pdata->minor_rev == FIRST_HW_MINOR_REV) {
-         ...
-}
-
-Regards,
-Robin van der Gracht
+> 
+> Sorry for not saying this in my first review. Since then I have done
+> some testing and I discovered that if we want to get accurate upower
+> support we will need the values exposed by the 3rd byte to be
+> exported properly.
+> 
+> I am not sure about the endianness of chargeStatus but you can find
+> that easily.
+> 
+> Thank you!
+> Filipe Laíns
+> 

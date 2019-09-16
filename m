@@ -1,74 +1,76 @@
-From: Dmitry Torokhov <dtor@chromium.org>
-Subject: Re: [PATCH 1/3] HID: google: whiskers: more robust tablet mode detection
-Date: Sun, 15 Sep 2019 20:36:34 -0700
-Message-ID: <CAE_wzQ9U-Lu=Uce0jFjec9JMYMhsQZoTuB+xqDpkOdC+Ufq6Ng@mail.gmail.com>
-References: <20190913220317.58289-1-dtor@chromium.org> <CANMq1KALGLdZmOgcrrOROU5BXjwnXWSfq6fr85jfRn079JympQ@mail.gmail.com>
+From: Robin Gong <yibin.gong@nxp.com>
+Subject: RE: [PATCH v3] input: keyboard: snvs_pwrkey: Send key events for
+ i.MX6 S, DL and Q
+Date: Mon, 16 Sep 2019 07:45:37 +0000
+Message-ID: <VE1PR04MB663896B94C68B5EF9AE0BE36898C0@VE1PR04MB6638.eurprd04.prod.outlook.com>
+References: <20190904062329.97520-1-robin@protonic.nl>
+ <20190912201300.GA636@penguin> <803592d161b9ca75d6ac1c2c54e891a1@protonic.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CANMq1KALGLdZmOgcrrOROU5BXjwnXWSfq6fr85jfRn079JympQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolas Boichat <drinkcat@chromium.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <803592d161b9ca75d6ac1c2c54e891a1@protonic.nl>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: robin <robin@protonic.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Shawn Guo <shawnguo@kernel.org>, Marco Felsch <m.felsch@pengutronix.de>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, Pengutronix Kernel Team <kernel@pengutronix.de>, "linux-input @ vger . kernel . org" <linux-input@vger.kernel.org>, Adam Ford <aford173@gmail.com>, "linux-arm-kernel @ lists . infradead . org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Sep 15, 2019 at 8:26 PM Nicolas Boichat <drinkcat@chromium.org> wrote:
->
-> On Sat, Sep 14, 2019 at 6:03 AM Dmitry Torokhov <dtor@chromium.org> wrote:
+On 2019/9/13 15:31 robin <robin@protonic.nl> wrote:> 
+> Hi Dmitry,
+> 
+> On 2019-09-12 22:13, Dmitry Torokhov wrote:
+> > Hi Robin,
 > >
-> > The USB interface may get detected before the platform/EC one, so let's
-> > note the state of the base (if we receive event) and use it to correctly
-> > initialize the tablet mode switch state.
+> > On Wed, Sep 04, 2019 at 06:23:29AM +0000, Robin van der Gracht wrote:
+> >> The first generation i.MX6 processors does not send an interrupt when
+> >> the power key is pressed. It sends a power down request interrupt if
+> >> the key is released before a hard shutdown (5 second press). This
+> >> should allow software to bring down the SoC safely.
+> >>
+> >> For this driver to work as a regular power key with the older SoCs,
+> >> we need to send a keypress AND release when we get the power down
+> >> request irq.
+> >>
+> >> Signed-off-by: Robin van der Gracht <robin@protonic.nl>
+> >> ---
+> >> @@ -67,13 +83,17 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int
+> >> irq, void *dev_id)  {
+> >>  	struct platform_device *pdev = dev_id;
+> >>  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> >> +	unsigned long expire = jiffies;
+> >>  	u32 lp_status;
+> >>
+> >>  	pm_wakeup_event(pdata->input->dev.parent, 0);
+> >>
+> >>  	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
+> >> -	if (lp_status & SNVS_LPSR_SPO)
+> >> -		mod_timer(&pdata->check_timer, jiffies +
+> >> msecs_to_jiffies(DEBOUNCE_TIME));
+> >> +	if (lp_status & SNVS_LPSR_SPO) {
+> >> +		if (pdata->minor_rev > 0)
+> >> +			expire = jiffies + msecs_to_jiffies(DEBOUNCE_TIME);
+> >> +		mod_timer(&pdata->check_timer, expire);
 > >
-> > Also let's start the HID interface immediately when probing, this will
-> > ensure that we correctly process "base folded" events that may be sent
-> > as we initialize the base. Note that this requires us to add a release()
->
-> s/release/remove/ ?
-
-You are right.
-
->
-> > function where we stop and close the hardware and switch the LED
-> > registration away from devm interface as we need to make sure that we
-> > destroy the LED instance before we stop the hardware.
-> >
-> > Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
-> > ---
-> >  drivers/hid/hid-google-hammer.c | 71 ++++++++++++++++++++++++++-------
-> >  1 file changed, 56 insertions(+), 15 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-> > index 84f8c127ebdc..4f64f93ddfcb 100644
-> > --- a/drivers/hid/hid-google-hammer.c
-> > +++ b/drivers/hid/hid-google-hammer.c
-> > @@ -208,7 +209,14 @@ static int __cbas_ec_probe(struct platform_device *pdev)
-> >                 return error;
-> >         }
-> >
-> > -       input_report_switch(input, SW_TABLET_MODE, !cbas_ec.base_present);
-> > +       if (!cbas_ec.base_present)
-> > +               cbas_ec.base_folded = false;
->
-> I'm not sure to see why this is necessary? The folded base state
-> should be in bss and false anyway, and even if it was true, it would
-> not change the result of the expression below (!cbas_ec.base_present
-> || cbas_ec.base_folded).
-
-To have a more accurate printout generated by the line below. The fact
-that it is in bss it not relevant, as I can unbind and rebind the
-driver via sysfs, so it could have stale data from the previous run.
-
->
-> > +
-> > +       dev_dbg(&pdev->dev, "%s: base: %d, folded: %d\n", __func__,
-> > +               cbas_ec.base_present, cbas_ec.base_folded);
-> > +
-> > +       input_report_switch(input, SW_TABLET_MODE,
-> > +                           !cbas_ec.base_present || cbas_ec.base_folded);
-> >
-> >         cbas_ec_set_input(input);
-> >
-
-Thanks,
-Dmitry
+> > Why do we even need to fire the timer in case of the first generation
+> > hardware? Just send press and release events directly from the ISR.
+That timer looks like a software debounce to prevent unexpected and
+meaningless interrupt/event caused by quick press/release.   
+> 
+> Robin Gong proposed to move the code to imx_imx_snvs_check_for_events()
+> to improve readability and unload the ISR.
+> 
+> But since I, eventually, couldn't use the existing handling in
+> imx_imx_snvs_check_for_events(), I do see why you're asking.
+> 
+> I'll move the code to the ISR and submit a new patch.
+> 
+> Robin van der Gracht

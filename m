@@ -1,76 +1,75 @@
-From: Robin Gong <yibin.gong@nxp.com>
-Subject: RE: [PATCH v3] input: keyboard: snvs_pwrkey: Send key events for
- i.MX6 S, DL and Q
-Date: Mon, 16 Sep 2019 07:45:37 +0000
-Message-ID: <VE1PR04MB663896B94C68B5EF9AE0BE36898C0@VE1PR04MB6638.eurprd04.prod.outlook.com>
-References: <20190904062329.97520-1-robin@protonic.nl>
- <20190912201300.GA636@penguin> <803592d161b9ca75d6ac1c2c54e891a1@protonic.nl>
+From: syzbot <syzbot+403741a091bf41d4ae79@syzkaller.appspotmail.com>
+Subject: KASAN: slab-out-of-bounds Write in ga_probe
+Date: Mon, 16 Sep 2019 06:29:10 -0700
+Message-ID: <000000000000cd1def0592ab9697@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <803592d161b9ca75d6ac1c2c54e891a1@protonic.nl>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: robin <robin@protonic.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Shawn Guo <shawnguo@kernel.org>, Marco Felsch <m.felsch@pengutronix.de>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, Pengutronix Kernel Team <kernel@pengutronix.de>, "linux-input @ vger . kernel . org" <linux-input@vger.kernel.org>, Adam Ford <aford173@gmail.com>, "linux-arm-kernel @ lists . infradead . org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-On 2019/9/13 15:31 robin <robin@protonic.nl> wrote:> 
-> Hi Dmitry,
-> 
-> On 2019-09-12 22:13, Dmitry Torokhov wrote:
-> > Hi Robin,
-> >
-> > On Wed, Sep 04, 2019 at 06:23:29AM +0000, Robin van der Gracht wrote:
-> >> The first generation i.MX6 processors does not send an interrupt when
-> >> the power key is pressed. It sends a power down request interrupt if
-> >> the key is released before a hard shutdown (5 second press). This
-> >> should allow software to bring down the SoC safely.
-> >>
-> >> For this driver to work as a regular power key with the older SoCs,
-> >> we need to send a keypress AND release when we get the power down
-> >> request irq.
-> >>
-> >> Signed-off-by: Robin van der Gracht <robin@protonic.nl>
-> >> ---
-> >> @@ -67,13 +83,17 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int
-> >> irq, void *dev_id)  {
-> >>  	struct platform_device *pdev = dev_id;
-> >>  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> >> +	unsigned long expire = jiffies;
-> >>  	u32 lp_status;
-> >>
-> >>  	pm_wakeup_event(pdata->input->dev.parent, 0);
-> >>
-> >>  	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
-> >> -	if (lp_status & SNVS_LPSR_SPO)
-> >> -		mod_timer(&pdata->check_timer, jiffies +
-> >> msecs_to_jiffies(DEBOUNCE_TIME));
-> >> +	if (lp_status & SNVS_LPSR_SPO) {
-> >> +		if (pdata->minor_rev > 0)
-> >> +			expire = jiffies + msecs_to_jiffies(DEBOUNCE_TIME);
-> >> +		mod_timer(&pdata->check_timer, expire);
-> >
-> > Why do we even need to fire the timer in case of the first generation
-> > hardware? Just send press and release events directly from the ISR.
-That timer looks like a software debounce to prevent unexpected and
-meaningless interrupt/event caused by quick press/release.   
-> 
-> Robin Gong proposed to move the code to imx_imx_snvs_check_for_events()
-> to improve readability and unload the ISR.
-> 
-> But since I, eventually, couldn't use the existing handling in
-> imx_imx_snvs_check_for_events(), I do see why you're asking.
-> 
-> I'll move the code to the ISR and submit a new patch.
-> 
-> Robin van der Gracht
+Hello,
+
+syzbot found the following crash on:
+
+HEAD commit:    f0df5c1b usb-fuzzer: main usb gadget fuzzer driver
+git tree:       https://github.com/google/kasan.git usb-fuzzer
+console output: https://syzkaller.appspot.com/x/log.txt?x=14045831600000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=5c6633fa4ed00be5
+dashboard link: https://syzkaller.appspot.com/bug?extid=403741a091bf41d4ae79
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=13c1e62d600000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=166a3a95600000
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+403741a091bf41d4ae79@syzkaller.appspotmail.com
+
+usb 1-1: config 0 interface 0 altsetting 0 has 1 endpoint descriptor,  
+different from the interface descriptor's value: 9
+usb 1-1: New USB device found, idVendor=0e8f, idProduct=0012, bcdDevice=  
+0.00
+usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+usb 1-1: config 0 descriptor??
+greenasia 0003:0E8F:0012.0001: unknown main item tag 0x0
+greenasia 0003:0E8F:0012.0001: hidraw0: USB HID v0.00 Device [HID  
+0e8f:0012] on usb-dummy_hcd.0-1/input0
+==================================================================
+BUG: KASAN: slab-out-of-bounds in set_bit  
+include/asm-generic/bitops-instrumented.h:28 [inline]
+BUG: KASAN: slab-out-of-bounds in gaff_init drivers/hid/hid-gaff.c:97  
+[inline]
+BUG: KASAN: slab-out-of-bounds in ga_probe+0x1fd/0x6f0  
+drivers/hid/hid-gaff.c:146
+Write of size 8 at addr ffff8881d9acafc0 by task kworker/1:1/78
+
+CPU: 1 PID: 78 Comm: kworker/1:1 Not tainted 5.3.0-rc7+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  print_address_description+0x6a/0x32c mm/kasan/report.c:351
+  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
+  kasan_report+0xe/0x12 mm/kasan/common.c:618
+  check_memory_region_inline mm/kasan/generic.c:185 [inline]
+  check_memory_region+0x128/0x190 mm/kasan/generic.c:192
+  set_bit include/asm-generic/bitops-instrumented.h:28 [inline]
+  gaff_init drivers/hid/hid-gaff.c:97 [inline]
+  ga_probe+0x1fd/0x6f0 drivers/hid/hid-gaff.c:146
+  hid_device_probe+0x2be/0x3f0 drivers/hid/hid-core.c:2209
+  really_probe+0x281/0x6d0 drivers/base/dd.c:548
+  driver_probe_device+0x101/0x1b0 drivers/base/dd.c:721
+  __device_attach_driver+0x
+
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches

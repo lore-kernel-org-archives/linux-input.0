@@ -1,78 +1,71 @@
-From: David Rientjes <rientjes@google.com>
-Subject: Re: WARNING in implement
-Date: Mon, 16 Sep 2019 13:03:23 -0700 (PDT)
-Message-ID: <alpine.DEB.2.21.1909161302370.118156@chino.kir.corp.google.com>
-References: <0000000000002b27c60592b00f38@google.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] input: keyboard: snvs_pwrkey: Send key events for
+ i.MX6 S, DL and Q
+Date: Mon, 16 Sep 2019 16:37:01 -0700
+Message-ID: <20190916233701.GH237523@dtor-ws>
+References: <20190904062329.97520-1-robin@protonic.nl>
+ <20190912201300.GA636@penguin>
+ <803592d161b9ca75d6ac1c2c54e891a1@protonic.nl>
+ <VE1PR04MB663896B94C68B5EF9AE0BE36898C0@VE1PR04MB6638.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0000000000002b27c60592b00f38@google.com>
+Content-Disposition: inline
+In-Reply-To: <VE1PR04MB663896B94C68B5EF9AE0BE36898C0@VE1PR04MB6638.eurprd04.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: syzbot <syzbot+38e7237add3712479d65@syzkaller.appspotmail.com>
-Cc: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: Robin Gong <yibin.gong@nxp.com>
+Cc: robin <robin@protonic.nl>, "linux-input @ vger . kernel . org" <linux-input@vger.kernel.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, Pengutronix Kernel Team <kernel@pengutronix.de>, Marco Felsch <m.felsch@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, Adam Ford <aford173@gmail.com>, "linux-arm-kernel @ lists . infradead . org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 16 Sep 2019, syzbot wrote:
+On Mon, Sep 16, 2019 at 07:45:37AM +0000, Robin Gong wrote:
+> On 2019/9/13 15:31 robin <robin@protonic.nl> wrote:> 
+> > Hi Dmitry,
+> > 
+> > On 2019-09-12 22:13, Dmitry Torokhov wrote:
+> > > Hi Robin,
+> > >
+> > > On Wed, Sep 04, 2019 at 06:23:29AM +0000, Robin van der Gracht wrote:
+> > >> The first generation i.MX6 processors does not send an interrupt when
+> > >> the power key is pressed. It sends a power down request interrupt if
+> > >> the key is released before a hard shutdown (5 second press). This
+> > >> should allow software to bring down the SoC safely.
+> > >>
+> > >> For this driver to work as a regular power key with the older SoCs,
+> > >> we need to send a keypress AND release when we get the power down
+> > >> request irq.
+> > >>
+> > >> Signed-off-by: Robin van der Gracht <robin@protonic.nl>
+> > >> ---
+> > >> @@ -67,13 +83,17 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int
+> > >> irq, void *dev_id)  {
+> > >>  	struct platform_device *pdev = dev_id;
+> > >>  	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
+> > >> +	unsigned long expire = jiffies;
+> > >>  	u32 lp_status;
+> > >>
+> > >>  	pm_wakeup_event(pdata->input->dev.parent, 0);
+> > >>
+> > >>  	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
+> > >> -	if (lp_status & SNVS_LPSR_SPO)
+> > >> -		mod_timer(&pdata->check_timer, jiffies +
+> > >> msecs_to_jiffies(DEBOUNCE_TIME));
+> > >> +	if (lp_status & SNVS_LPSR_SPO) {
+> > >> +		if (pdata->minor_rev > 0)
+> > >> +			expire = jiffies + msecs_to_jiffies(DEBOUNCE_TIME);
+> > >> +		mod_timer(&pdata->check_timer, expire);
+> > >
+> > > Why do we even need to fire the timer in case of the first generation
+> > > hardware? Just send press and release events directly from the ISR.
+> That timer looks like a software debounce to prevent unexpected and
+> meaningless interrupt/event caused by quick press/release.   
 
-> Hello,
-> 
-> syzbot found the following crash on:
-> 
-> HEAD commit:    f0df5c1b usb-fuzzer: main usb gadget fuzzer driver
-> git tree:       https://github.com/google/kasan.git usb-fuzzer
-> console output: https://syzkaller.appspot.com/x/log.txt?x=170b213e600000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=5c6633fa4ed00be5
-> dashboard link: https://syzkaller.appspot.com/bug?extid=38e7237add3712479d65
-> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16830dc1600000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=11f2d3fa600000
-> 
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+38e7237add3712479d65@syzkaller.appspotmail.com
-> 
-> keytouch 0003:0926:3333.0001: implement() called with too large value 32769
-> (n: 1)! (kworker/0:1)
-> ------------[ cut here ]------------
-> WARNING: CPU: 0 PID: 12 at drivers/hid/hid-core.c:1370
-> implement.cold+0x40/0x81 drivers/hid/hid-core.c:1370
-> Kernel panic - not syncing: panic_on_warn set ...
-> CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.3.0-rc7+ #0
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google
-> 01/01/2011
-> Workqueue: events hidinput_led_worker
-> Call Trace:
-> __dump_stack lib/dump_stack.c:77 [inline]
-> dump_stack+0xca/0x13e lib/dump_stack.c:113
-> panic+0x2a3/0x6da kernel/panic.c:219
-> __warn.cold+0x20/0x4a kernel/panic.c:576
-> report_bug+0x262/0x2a0 lib/bug.c:186
-> fixup_bug arch/x86/kernel/traps.c:179 [inline]
-> fixup_bug arch/x86/kernel/traps.c:174 [inline]
-> do_error_trap+0x12b/0x1e0 arch/x86/kernel/traps.c:272
-> do_invalid_op+0x32/0x40 arch/x86/kernel/traps.c:291
-> invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1028
-> RIP: 0010:implement.cold+0x40/0x81 drivers/hid/hid-core.c:1370
-> Code: 00 ef 01 00 48 c7 c2 a0 ac 52 86 48 c7 c6 c0 8a 52 86 4c 8d 88 70 06 00
-> 00 e8 3f 3b 1a fe 48 c7 c7 20 8b 52 86 e8 fc 4e d7 fc <0f> 0b 44 21 e5 e9 06
-> 3a ff ff e8 64 ad ec fc 49 8d bd 28 19 00 00
-> RSP: 0018:ffff8881da20fb88 EFLAGS: 00010082
-> RAX: 0000000000000024 RBX: 0000000000000000 RCX: 0000000000000000
-> RDX: 0000000000000000 RSI: ffffffff81288ddd RDI: ffffed103b441f63
-> RBP: 0000000000008001 R08: 0000000000000024 R09: ffffed103b643ee7
-> R10: ffffed103b643ee6 R11: ffff8881db21f737 R12: 0000000000000001
-> R13: ffff8881d28d8000 R14: 0000000000000001 R15: 0000000000000001
-> hid_output_field drivers/hid/hid-core.c:1543 [inline]
-> hid_output_report+0x2dc/0x4c0 drivers/hid/hid-core.c:1562
-> __usbhid_submit_report drivers/hid/usbhid/hid-core.c:593 [inline]
-> usbhid_submit_report+0x65c/0xde0 drivers/hid/usbhid/hid-core.c:638
-> usbhid_request+0x3c/0x70 drivers/hid/usbhid/hid-core.c:1252
-> hidinput_led_worker+0xbd/0x360 drivers/hid/hid-input.c:1495
-> process_one_work+0x92b/0x1530 kernel/workqueue.c:2269
-> worker_thread+0x96/0xe20 kernel/workqueue.c:2415
-> kthread+0x318/0x420 kernel/kthread.c:255
-> ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+Right, but in case of the first generation hardware we schedule the
+timer immediately (expire == 0) and do not check state of the hardware
+in the timer handler, but rather simply emit down/up events, so we do
+not really get any benefit from the timer (again, I am talking about
+first generation hardware only).
 
-I assume this is the same issue as 
-https://marc.info/?l=linux-kernel&m=156865976021549 and any fix for that 
-issue would apply to this one as well.  Looks like syzbot found Benjamin 
-and Jiri already.
+Thanks.
+
+-- 
+Dmitry

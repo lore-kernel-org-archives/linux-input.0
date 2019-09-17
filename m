@@ -1,7 +1,7 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v3 28/49] Input: atmel_mxt_ts - orientation is not present in hover
-Date: Tue, 17 Sep 2019 18:38:54 +0900
-Message-ID: <20190917093915.18645-9-jiada_wang@mentor.com>
+Subject: [PATCH v3 26/49] Input: atmel_mxt_ts - delay enabling IRQ when not using regulators
+Date: Tue, 17 Sep 2019 18:38:52 +0900
+Message-ID: <20190917093915.18645-7-jiada_wang@mentor.com>
 References: <20190917093915.18645-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -15,30 +15,107 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-When in hover, the orientation information is not sent
+The path of enabling the IRQ in the probe function is not safe in level
+triggered operation, if it was already powered up and there is a message
+waiting on the device (eg finger down) because the object table has not yet
+been read. This forces the ISR into a hard loop.
+
+Delay enabling the interrupt until it is first needed.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 0c885d5bd276bd9240c43aa046fc407cbe2ae864)
+(cherry picked from ndyer/linux/for-upstream commit 64c9dadc4a3250a185baf06ab0f628be45d5d9a0)
+[gdavis: Resolve forward port conflicts due to v4.14-rc1 commit
+	 8cc8446b9b62 ("Input: atmel_mxt_ts - use more managed
+	 resources") and applying upstream commit 96a938aa214e ("Input:
+	 atmel_mxt_ts - remove platform data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 40 +++++++++++++++---------
+ 1 file changed, 26 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index cf77f46dd08d..570001131a65 100644
+index 49d06eb0c6ee..0ff144529eda 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1029,10 +1029,6 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
- 			distance = MXT_DISTANCE_HOVERING;
- 			hover = true;
- 			active = true;
--
--			if (data->t100_aux_vect)
--				orientation = message[data->t100_aux_vect];
--
- 			break;
+@@ -1451,9 +1451,24 @@ static int mxt_acquire_irq(struct mxt_data *data)
+ {
+ 	int error;
  
- 		case MXT_T100_TYPE_FINGER:
+-	enable_irq(data->irq);
++	if (!data->irq) {
++		error = devm_request_threaded_irq(&data->client->dev,
++						  data->client->irq,
++						  NULL, mxt_interrupt,
++						  IRQF_ONESHOT,
++						  data->client->name, data);
++		if (error) {
++			dev_err(&data->client->dev, "Error requesting irq\n");
++			return error;
++		}
++
++		/* Presence of data->irq means IRQ initialised */
++		data->irq = data->client->irq;
++	} else {
++		enable_irq(data->irq);
++	}
+ 
+-	if (data->use_retrigen_workaround) {
++	if (data->object_table && data->use_retrigen_workaround) {
+ 		error = mxt_process_messages_until_invalid(data);
+ 		if (error)
+ 			return error;
+@@ -3373,7 +3388,9 @@ static int mxt_load_fw(struct device *dev)
+ 			goto release_firmware;
+ 	}
+ 
+-	enable_irq(data->irq);
++	ret = mxt_acquire_irq(data);
++	if (ret)
++		goto release_firmware;
+ 
+ 	/* Poll after 0.1s if no interrupt received */
+ 	schedule_delayed_work(&data->flash->work, msecs_to_jiffies(100));
+@@ -3801,7 +3818,6 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		 client->adapter->nr, client->addr);
+ 
+ 	data->client = client;
+-	data->irq = client->irq;
+ 	i2c_set_clientdata(client, data);
+ 
+ 	init_completion(&data->chg_completion);
+@@ -3829,26 +3845,22 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		return error;
+ 	}
+ 
+-	error = devm_request_threaded_irq(&client->dev, client->irq,
+-					  NULL, mxt_interrupt, IRQF_ONESHOT,
+-					  client->name, data);
+-	if (error) {
+-		dev_err(&client->dev, "Failed to register interrupt\n");
+-		return error;
+-	}
+-
+ 	if (data->suspend_mode == MXT_SUSPEND_REGULATOR) {
++		error = mxt_acquire_irq(data);
++		if (error)
++			return error;
++
+ 		error = mxt_probe_regulators(data);
+ 		if (error)
+ 			return error;
++
++		disable_irq(data->irq);
+ 	} else if (data->reset_gpio) {
+ 		msleep(MXT_RESET_GPIO_TIME);
+ 		gpiod_set_value(data->reset_gpio, 1);
+ 		msleep(MXT_RESET_INVALID_CHG);
+ 	}
+ 
+-	disable_irq(data->irq);
+-
+ 	error = mxt_initialize(data);
+ 	if (error)
+ 		return error;
 -- 
 2.19.2

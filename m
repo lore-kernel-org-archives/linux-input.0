@@ -1,13 +1,11 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v3 18/49] Input: atmel_mxt_ts - allow input name to be specified in platform data
-Date: Tue, 17 Sep 2019 18:37:35 +0900
-Message-ID: <20190917093806.18538-4-jiada_wang@mentor.com>
-References: <20190917093806.18538-1-jiada_wang@mentor.com>
+Subject: [PATCH v3 20/49] Input: atmel_mxt_ts - refactor firmware flash to extract context into struct
+Date: Tue, 17 Sep 2019 18:38:46 +0900
+Message-ID: <20190917093915.18645-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190917093806.18538-1-jiada_wang@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: nick@shmanahar.org, dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, rydberg@bitmath.org
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com
@@ -15,68 +13,140 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Android systems identify the input device and map to IDC file by using the
-input device name. To avoid unnecessary deltas to the driver file, allow
-this to be set from the platform data.
-
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit cbf94a7bda754d2e1899d9f50313a0bccc91422d)
-[gdavis: Resolve forward port conflicts due to applying upstream
-	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
-	 data support").]
+(cherry picked from ndyer/linux/for-upstream commit 1bbe20ff3dcd6612e7942c495929eae5c138ece2)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- .../devicetree/bindings/input/atmel,maxtouch.txt         | 2 ++
- drivers/input/touchscreen/atmel_mxt_ts.c                 | 9 ++++++++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 59 +++++++++++++++---------
+ 1 file changed, 36 insertions(+), 23 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-index 713ce870805c..d7db16920083 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-@@ -40,6 +40,8 @@ Optional properties for main touchpad device:
- - atmel,cfg_name: Provide name of configuration file in OBP_RAW format. This
-     will be downloaded from the firmware loader on probe to the device.
- 
-+- atmel,input_name: Override name of input device from the default.
-+
- Example:
- 
- 	touch@4b {
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c09ef7689f6a..f0522f4416dc 100644
+index 69e34294688c..711ce39f38ca 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -336,6 +336,7 @@ struct mxt_data {
- 	char *fw_name;
- 	char *cfg_name;
- 	const char *pcfg_name;
-+	const char *input_name;
+@@ -291,6 +291,22 @@ struct mxt_cfg {
+ 	struct mxt_info info;
+ };
  
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -2412,7 +2413,11 @@ static int mxt_initialize_input_device(struct mxt_data *data)
- 	if (!input_dev)
- 		return -ENOMEM;
- 
--	input_dev->name = "Atmel maXTouch Touchscreen";
-+	if (data->input_name)
-+		input_dev->name = data->input_name;
-+	else
-+		input_dev->name = "Atmel maXTouch Touchscreen";
++/* Firmware frame structure */
++struct mxt_fw_frame {
++	__be16 size;
++	u8 data[];
++};
 +
- 	input_dev->phys = data->phys;
- 	input_dev->id.bustype = BUS_I2C;
- 	input_dev->dev.parent = dev;
-@@ -3653,6 +3658,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
- 
- 	device_property_read_string(dev, "atmel,cfg_name", &data->pcfg_name);
- 
-+	device_property_read_string(dev, "atmel,input_name", &data->input_name);
++/* Firmware update context */
++struct mxt_flash {
++	const struct firmware *fw;
++	struct mxt_fw_frame *frame;
++	loff_t pos;
++	size_t frame_size;
++	unsigned int count;
++	unsigned int retry;
++};
 +
- 	if (device_property_present(dev, keymap_property)) {
- 		n_keys = device_property_read_u32_array(dev, keymap_property,
- 							NULL, 0);
+ /* Each client has this additional data */
+ struct mxt_data {
+ 	struct i2c_client *client;
+@@ -3244,21 +3260,17 @@ static int mxt_check_firmware_format(struct device *dev,
+ static int mxt_load_fw(struct device *dev)
+ {
+ 	struct mxt_data *data = dev_get_drvdata(dev);
+-	const struct firmware *fw = NULL;
+-	unsigned int frame_size;
+-	unsigned int pos = 0;
+-	unsigned int retry = 0;
+-	unsigned int frame = 0;
++	struct mxt_flash f = { 0, };
+ 	int ret;
+ 
+-	ret = request_firmware(&fw, data->fw_name, dev);
++	ret = request_firmware(&f.fw, data->fw_name, dev);
+ 	if (ret) {
+ 		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
+ 		return ret;
+ 	}
+ 
+ 	/* Check for incorrect enc file */
+-	ret = mxt_check_firmware_format(dev, fw);
++	ret = mxt_check_firmware_format(dev, f.fw);
+ 	if (ret)
+ 		goto release_firmware;
+ 
+@@ -3312,41 +3324,42 @@ static int mxt_load_fw(struct device *dev)
+ 			goto disable_irq;
+ 	}
+ 
+-	while (pos < fw->size) {
++	while (f.pos < f.fw->size) {
++		f.frame = (struct mxt_fw_frame *)(f.fw->data + f.pos);
++
+ 		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, true);
+ 		if (ret)
+ 			goto disable_irq;
+ 
+-		frame_size = ((*(fw->data + pos) << 8) | *(fw->data + pos + 1));
+-
+ 		/* Take account of CRC bytes */
+-		frame_size += 2;
++		f.frame_size = __be16_to_cpu(f.frame->size) + 2U;
+ 
+ 		/* Write one frame to device */
+-		ret = mxt_bootloader_write(data, fw->data + pos, frame_size);
++		ret = mxt_bootloader_write(data, f.fw->data + f.pos,
++					   f.frame_size);
+ 		if (ret)
+ 			goto disable_irq;
+ 
+ 		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS, true);
+ 		if (ret) {
+-			retry++;
++			f.retry++;
+ 
+ 			/* Back off by 20ms per retry */
+-			msleep(retry * 20);
++			msleep(f.retry * 20);
+ 
+-			if (retry > 20) {
++			if (f.retry > 20) {
+ 				dev_err(dev, "Retry count exceeded\n");
+ 				goto disable_irq;
+ 			}
+ 		} else {
+-			retry = 0;
+-			pos += frame_size;
+-			frame++;
++			f.retry = 0;
++			f.pos += f.frame_size;
++			f.count++;
+ 		}
+ 
+-		if (frame % 50 == 0)
+-			dev_dbg(dev, "Sent %d frames, %d/%zd bytes\n",
+-				frame, pos, fw->size);
++		if (f.count % 50 == 0)
++			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
++				f.count, f.pos, f.fw->size);
+ 	}
+ 
+ 	/* Wait for flash. */
+@@ -3355,7 +3368,7 @@ static int mxt_load_fw(struct device *dev)
+ 	if (ret)
+ 		goto disable_irq;
+ 
+-	dev_dbg(dev, "Sent %d frames, %d bytes\n", frame, pos);
++	dev_dbg(dev, "Sent %u frames, %lld bytes\n", f.count, f.pos);
+ 
+ 	/*
+ 	 * Wait for device to reset. Some bootloader versions do not assert
+@@ -3369,7 +3382,7 @@ static int mxt_load_fw(struct device *dev)
+ disable_irq:
+ 	disable_irq(data->irq);
+ release_firmware:
+-	release_firmware(fw);
++	release_firmware(f.fw);
+ 	return ret;
+ }
+ 
 -- 
 2.19.2

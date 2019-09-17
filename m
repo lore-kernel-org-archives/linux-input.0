@@ -1,13 +1,11 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v3 27/49] Input: atmel_mxt_ts - implement I2C retries
-Date: Tue, 17 Sep 2019 18:38:53 +0900
-Message-ID: <20190917093915.18645-8-jiada_wang@mentor.com>
-References: <20190917093915.18645-1-jiada_wang@mentor.com>
+Subject: [PATCH v3 29/49] Input: atmel_mxt_ts - implement debug output for messages
+Date: Tue, 17 Sep 2019 18:40:30 +0900
+Message-ID: <20190917094050.18771-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190917093915.18645-1-jiada_wang@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: nick@shmanahar.org, dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, rydberg@bitmath.org
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com
@@ -15,107 +13,121 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Some maXTouch chips (eg mXT1386) will not respond on the first I2C request
-when they are in a sleep state. It must be retried after a delay for the
-chip to wake up.
+Add a debug switch which causes all messages from the touch controller to
+be dumped to the dmesg log with a set prefix "MXT MSG:". This is used by
+Atmel user-space utilities to debug touch operation. Enabling this output
+does impact touch performance.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 63fd7a2cd03c3a572a5db39c52f4856819e1835d)
+(cherry picked from ndyer/linux/for-upstream commit 3c3fcfdd4889dfeb1c80ae8cd94a622c6342b06a)
 [gdavis: Forward port and fix conflicts.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 45 ++++++++++++++++--------
- 1 file changed, 30 insertions(+), 15 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 47 ++++++++++++++++++++++--
+ 1 file changed, 44 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 0ff144529eda..cf77f46dd08d 100644
+index 570001131a65..7cc127a529fc 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -216,6 +216,7 @@ enum t100_type {
- #define MXT_CRC_TIMEOUT		1000	/* msec */
- #define MXT_FW_RESET_TIME	3000	/* msec */
- #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-+#define MXT_WAKEUP_TIME		25	/* msec */
- #define MXT_REGULATOR_DELAY	150	/* msec */
- #define MXT_CHG_DELAY	        100	/* msec */
- #define MXT_POWERON_DELAY	150	/* msec */
-@@ -723,6 +724,7 @@ static int __mxt_read_chunk(struct i2c_client *client,
- 	struct i2c_msg xfer[2];
- 	u8 buf[2];
- 	int ret;
-+	bool retry = false;
+@@ -335,6 +335,7 @@ struct mxt_data {
+ 	u8 t100_aux_ampl;
+ 	u8 t100_aux_area;
+ 	u8 t100_aux_vect;
++	bool debug_enabled;
+ 	u8 max_reportid;
+ 	u32 config_crc;
+ 	u32 info_crc;
+@@ -460,8 +461,11 @@ static bool mxt_object_readable(unsigned int type)
  
- 	buf[0] = reg & 0xff;
- 	buf[1] = (reg >> 8) & 0xff;
-@@ -739,17 +741,22 @@ static int __mxt_read_chunk(struct i2c_client *client,
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
- 
--	ret = i2c_transfer(client->adapter, xfer, 2);
--	if (ret == 2) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
--			ret = -EIO;
--		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
--			__func__, ret);
-+retry_read:
-+	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
-+	if (ret != ARRAY_SIZE(xfer)) {
-+		if (!retry) {
-+			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
-+			msleep(MXT_WAKEUP_TIME);
-+			retry = true;
-+			goto retry_read;
-+		} else {
-+			dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
-+				__func__, ret);
-+			return -EIO;
-+		}
- 	}
- 
--	return ret;
-+	return 0;
+ static void mxt_dump_message(struct mxt_data *data, u8 *message)
+ {
+-	dev_dbg(&data->client->dev, "message: %*ph\n",
+-		data->T5_msg_size, message);
++	/* debug message with prefix 'MXT MSG:' used by
++	 * Atmel user-space utilities to debug touch operation
++	 */
++	dev_dbg(&data->client->dev, "MXT MSG: %*ph\n",
++		       data->T5_msg_size, message);
  }
  
- static int __mxt_read_reg(struct i2c_client *client,
-@@ -780,6 +787,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 	u8 *buf;
- 	size_t count;
- 	int ret;
-+	bool retry = false;
+ static int mxt_wait_for_completion(struct mxt_data *data,
+@@ -1214,6 +1218,7 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
+ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ {
+ 	u8 report_id = message[0];
++	bool dump = data->debug_enabled;
  
- 	count = len + 2;
- 	buf = kmalloc(count, GFP_KERNEL);
-@@ -790,14 +798,21 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 	buf[1] = (reg >> 8) & 0xff;
- 	memcpy(&buf[2], val, len);
- 
-+retry_write:
- 	ret = i2c_master_send(client, buf, count);
--	if (ret == count) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
-+	if (ret != count) {
-+		if (!retry) {
-+			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
-+			msleep(MXT_WAKEUP_TIME);
-+			retry = true;
-+			goto retry_write;
-+		} else {
-+			dev_err(&client->dev, "%s: i2c send failed (%d)\n",
-+				__func__, ret);
- 			ret = -EIO;
--		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
--			__func__, ret);
-+		}
-+	} else {
-+		ret = 0;
+ 	if (report_id == MXT_RPTID_NOMSG)
+ 		return 0;
+@@ -1248,9 +1253,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id == data->T93_reportid) {
+ 		mxt_proc_t93_messages(data, message);
+ 	} else {
+-		mxt_dump_message(data, message);
++		dump = true;
  	}
  
- 	kfree(buf);
++	if (dump)
++		mxt_dump_message(data, message);
++
+ 	return 1;
+ }
+ 
+@@ -3522,6 +3530,36 @@ static ssize_t mxt_update_cfg_store(struct device *dev,
+ 	return ret;
+ }
+ 
++static ssize_t mxt_debug_enable_show(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	char c;
++
++	c = data->debug_enabled ? '1' : '0';
++	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
++}
++
++static ssize_t mxt_debug_enable_store(struct device *dev,
++	struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	u8 i;
++	ssize_t ret;
++
++	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
++		data->debug_enabled = (i == 1);
++
++		dev_dbg(dev, "%s\n", i ? "debug enabled" : "debug disabled");
++		ret = count;
++	} else {
++		dev_dbg(dev, "debug_enabled write error\n");
++		ret = -EINVAL;
++	}
++
++	return ret;
++}
++
+ static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
+ 
+ static struct attribute *mxt_fw_attrs[] = {
+@@ -3538,6 +3576,8 @@ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
+ static DEVICE_ATTR(config_crc, S_IRUGO, mxt_config_crc_show, NULL);
++static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
++		   mxt_debug_enable_store);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+@@ -3545,6 +3585,7 @@ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_cfg.attr,
+ 	&dev_attr_config_crc.attr,
++	&dev_attr_debug_enable.attr,
+ 	NULL
+ };
+ 
 -- 
 2.19.2

@@ -1,7 +1,7 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v3 31/49] Input: atmel_mxt_ts - eliminate data->raw_info_block
-Date: Tue, 17 Sep 2019 18:40:32 +0900
-Message-ID: <20190917094050.18771-3-jiada_wang@mentor.com>
+Subject: [PATCH v3 33/49] Input: atmel_mxt_ts - rely on calculated_crc rather than file config_crc
+Date: Tue, 17 Sep 2019 18:40:34 +0900
+Message-ID: <20190917094050.18771-5-jiada_wang@mentor.com>
 References: <20190917094050.18771-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,58 +13,119 @@ To: nick@shmanahar.org, dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.ti
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-Dynamically allocated in mxt_read_info_block() buffer buf is assigned
-both to data->info and data->raw_info_block, having both data->info
-and data->raw_info_block is redundant and confusing.
+From: Kautuk Consul <kautuk_consul@mentor.com>
 
-This patch eliminates data->raw_info_block.
+We now prefer to rely on the calculated CRC and not on the CRC stored in
+the file.
 
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+The new logic is as follows:
+1) stored CRC of file != calculated CRC of file, then refuse the possible
+   corrupted file
+2) calculated CRC of file != CRC of configuration in controller, then
+   update configuration in controller
+3) calculated CRC of file == CRC of configuration in controller, then
+   ignore configuration file
+
+Signed-off-by: Kautuk Consul <kautuk_consul@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 65 +++++++++++++-----------
+ 1 file changed, 36 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index b3152aaaed63..560fe8a3bf62 100644
+index e441eab8b201..bdc5088baea8 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -323,7 +323,6 @@ struct mxt_data {
- 	char phys[64];		/* device physical location */
- 	struct mxt_object *object_table;
- 	struct mxt_info *info;
--	void *raw_info_block;
- 	unsigned int irq;
- 	unsigned int max_x;
- 	unsigned int max_y;
-@@ -2070,9 +2069,8 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	v4l2_device_unregister(&data->dbg.v4l2);
- #endif
- 	data->object_table = NULL;
-+	kfree(data->info);
- 	data->info = NULL;
--	kfree(data->raw_info_block);
--	data->raw_info_block = NULL;
- 	kfree(data->msg_buf);
- 	data->msg_buf = NULL;
- 	data->T5_address = 0;
-@@ -2241,7 +2239,7 @@ static int mxt_read_info_block(struct mxt_data *data)
- 	u8 *crc_ptr;
+@@ -1908,7 +1908,7 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	int ret;
+ 	int offset;
+ 	int i;
+-	u32 info_crc, config_crc, calculated_crc;
++	u32 info_crc, config_crc, calculated_crc = 0;
+ 	u16 crc_start = 0;
  
- 	/* If info block already allocated, free it */
--	if (data->raw_info_block)
-+	if (data->info)
- 		mxt_free_object_table(data);
+ 	/* Make zero terminated copy of the OBP_RAW file */
+@@ -1971,30 +1971,6 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	}
+ 	cfg.raw_pos += offset;
  
- 	/* Read 7-byte ID information block starting at address 0 */
-@@ -2292,7 +2290,6 @@ static int mxt_read_info_block(struct mxt_data *data)
- 		goto err_free_mem;
+-	/*
+-	 * The Info Block CRC is calculated over mxt_info and the object
+-	 * table. If it does not match then we are trying to load the
+-	 * configuration from a different chip or firmware version, so
+-	 * the configuration CRC is invalid anyway.
+-	 */
+-	if (info_crc == data->info_crc) {
+-		if (config_crc == 0 || data->config_crc == 0) {
+-			dev_info(dev, "CRC zero, attempting to apply config\n");
+-		} else if (config_crc == data->config_crc) {
+-			dev_dbg(dev, "Config CRC 0x%06X: OK\n",
+-				 data->config_crc);
+-			ret = 0;
+-			goto release_raw;
+-		} else {
+-			dev_info(dev, "Config CRC 0x%06X: does not match file 0x%06X\n",
+-				 data->config_crc, config_crc);
+-		}
+-	} else {
+-		dev_warn(dev,
+-			 "Warning: Info CRC error - device=0x%06X file=0x%06X\n",
+-			 data->info_crc, info_crc);
+-	}
+-
+ 	/* Malloc memory to store configuration */
+ 	cfg.start_ofs = MXT_OBJECT_START +
+ 			data->info->object_num * sizeof(struct mxt_object) +
+@@ -2018,14 +1994,45 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	else
+ 		dev_warn(dev, "Could not find CRC start\n");
+ 
+-	if (crc_start > cfg.start_ofs) {
++	if (crc_start > cfg.start_ofs)
+ 		calculated_crc = mxt_calculate_crc(cfg.mem,
+ 						   crc_start - cfg.start_ofs,
+ 						   cfg.mem_size);
+ 
+-		if (config_crc > 0 && config_crc != calculated_crc)
+-			dev_warn(dev, "Config CRC in file inconsistent, calculated=%06X, file=%06X\n",
+-				 calculated_crc, config_crc);
++	/* If the CRC stored in the file is not the same as what
++	 * was calculated by mxt_calculate_crc, this means we
++	 * have to refuse the config file and abort download.
++	 */
++	if (config_crc != calculated_crc) {
++		dev_warn(dev,
++			 "Config CRC in file inconsistent, calculated=%06X, file=%06X\n",
++			 calculated_crc, config_crc);
++		ret = 0;
++		goto release_mem;
++	}
++
++	/*
++	 * The Info Block CRC is calculated over mxt_info and the object
++	 * table. If it does not match then we are trying to load the
++	 * configuration from a different chip or firmware version, so
++	 * the configuration CRC is invalid anyway.
++	 */
++	if (info_crc == data->info_crc) {
++		if (config_crc == 0 || data->config_crc == 0) {
++			dev_info(dev, "CRC zero, attempting to apply config\n");
++		} else if (config_crc == data->config_crc) {
++			dev_dbg(dev, "Config CRC 0x%06X: OK\n",
++				data->config_crc);
++			ret = 0;
++			goto release_mem;
++		} else {
++			dev_info(dev, "Config CRC 0x%06X: does not match file 0x%06X\n",
++				 data->config_crc, config_crc);
++		}
++	} else {
++		dev_warn(dev,
++			 "Warning: Info CRC error - device=0x%06X file=0x%06X\n",
++			 data->info_crc, info_crc);
  	}
  
--	data->raw_info_block = id_buf;
- 	data->info = (struct mxt_info *)id_buf;
- 
- 	dev_info(&client->dev,
+ 	ret = mxt_upload_cfg_mem(data, &cfg);
 -- 
 2.19.2

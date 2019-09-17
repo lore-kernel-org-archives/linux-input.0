@@ -1,7 +1,7 @@
 From: Jiada Wang <jiada_wang@mentor.com>
-Subject: [PATCH v3 19/49] Input: atmel_mxt_ts - add config checksum attribute to sysfs
-Date: Tue, 17 Sep 2019 18:37:36 +0900
-Message-ID: <20190917093806.18538-5-jiada_wang@mentor.com>
+Subject: [PATCH v3 18/49] Input: atmel_mxt_ts - allow input name to be specified in platform data
+Date: Tue, 17 Sep 2019 18:37:35 +0900
+Message-ID: <20190917093806.18538-4-jiada_wang@mentor.com>
 References: <20190917093806.18538-1-jiada_wang@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,51 +13,70 @@ To: nick@shmanahar.org, dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.ti
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiada_wang@mentor.com
 List-Id: linux-input@vger.kernel.org
 
-From: karl tsou <karl.funlab@gmail.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+
+Android systems identify the input device and map to IDC file by using the
+input device name. To avoid unnecessary deltas to the driver file, allow
+this to be set from the platform data.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 03477477ddbe5dcad42853ab3f84166a8f807acf)
-[gdavis: Forward port and fix conflicts.]
+(cherry picked from ndyer/linux/for-upstream commit cbf94a7bda754d2e1899d9f50313a0bccc91422d)
+[gdavis: Resolve forward port conflicts due to applying upstream
+	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
+	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ .../devicetree/bindings/input/atmel,maxtouch.txt         | 2 ++
+ drivers/input/touchscreen/atmel_mxt_ts.c                 | 9 ++++++++-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+index 713ce870805c..d7db16920083 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+@@ -40,6 +40,8 @@ Optional properties for main touchpad device:
+ - atmel,cfg_name: Provide name of configuration file in OBP_RAW format. This
+     will be downloaded from the firmware loader on probe to the device.
+ 
++- atmel,input_name: Override name of input device from the default.
++
+ Example:
+ 
+ 	touch@4b {
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index f0522f4416dc..69e34294688c 100644
+index c09ef7689f6a..f0522f4416dc 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3128,6 +3128,15 @@ static int mxt_configure_objects(struct mxt_data *data,
- 	return error;
- }
+@@ -336,6 +336,7 @@ struct mxt_data {
+ 	char *fw_name;
+ 	char *cfg_name;
+ 	const char *pcfg_name;
++	const char *input_name;
  
-+/* Configuration crc check sum is returned as hex xxxxxx */
-+static ssize_t mxt_config_crc_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -2412,7 +2413,11 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	if (!input_dev)
+ 		return -ENOMEM;
+ 
+-	input_dev->name = "Atmel maXTouch Touchscreen";
++	if (data->input_name)
++		input_dev->name = data->input_name;
++	else
++		input_dev->name = "Atmel maXTouch Touchscreen";
 +
-+	return scnprintf(buf, PAGE_SIZE, "%06x\n", data->config_crc);
-+}
+ 	input_dev->phys = data->phys;
+ 	input_dev->id.bustype = BUS_I2C;
+ 	input_dev->dev.parent = dev;
+@@ -3653,6 +3658,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+ 
+ 	device_property_read_string(dev, "atmel,cfg_name", &data->pcfg_name);
+ 
++	device_property_read_string(dev, "atmel,input_name", &data->input_name);
 +
- /* Firmware Version is returned as Major.Minor.Build */
- static ssize_t mxt_fw_version_show(struct device *dev,
- 				   struct device_attribute *attr, char *buf)
-@@ -3481,12 +3490,14 @@ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
- static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
- static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
- static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
-+static DEVICE_ATTR(config_crc, S_IRUGO, mxt_config_crc_show, NULL);
- 
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
- 	&dev_attr_hw_version.attr,
- 	&dev_attr_object.attr,
- 	&dev_attr_update_cfg.attr,
-+	&dev_attr_config_crc.attr,
- 	NULL
- };
- 
+ 	if (device_property_present(dev, keymap_property)) {
+ 		n_keys = device_property_read_u32_array(dev, keymap_property,
+ 							NULL, 0);
 -- 
 2.19.2

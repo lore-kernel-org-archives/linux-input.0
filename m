@@ -1,78 +1,55 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3 3/3] HID: core: fix dmesg flooding if report field
- larger than 32bit
-Date: Wed, 18 Sep 2019 17:35:19 +0200
-Message-ID: <CAO-hwJLVS0G+TtShbBQ6j9_aCAKjb_AsvoN2HkR+zKpd98MKRw@mail.gmail.com>
-References: <20190812152022.27963-1-stillcompiling@gmail.com>
- <20190812152022.27963-4-stillcompiling@gmail.com> <CAMB+bfK9Oge1T96aJkuvpoAdUSsm+YxY1W70b62gUMMBKfD8vg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+From: Rishi Gupta <gupt21@gmail.com>
+Subject: [PATCH v2] HID: hidraw: replace printk() with corresponding pr_xx() variant
+Date: Wed, 18 Sep 2019 21:59:11 +0530
+Message-ID: <1568824151-12668-1-git-send-email-gupt21@gmail.com>
+References: <20190912203119.GC636@penguin>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMB+bfK9Oge1T96aJkuvpoAdUSsm+YxY1W70b62gUMMBKfD8vg@mail.gmail.com>
+In-Reply-To: <20190912203119.GC636@penguin>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joshua Clayton <stillcompiling@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, Joe Perches <joe@perches.com>
+To: dmitry.torokhov@gmail.com
+Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rishi Gupta <gupt21@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Aug 29, 2019 at 1:26 AM Joshua Clayton <stillcompiling@gmail.com> w=
-rote:
->
-> ping?
-> I'd love to see this get in.
-> with distro kernel I have effectively no dmesg due to this issue
+This commit replaces direct invocations of printk with
+their appropriate pr_info/warn() variant.
 
-Apologies for the delay.
+Signed-off-by: Rishi Gupta <gupt21@gmail.com>
+---
+Changes in v2:
+- Removed manually adding prefix "hidraw:".
 
-I really thought we should find a better way of fixing this, until I
-got a laptop affected by it. This series is a must have.
+ drivers/hid/hidraw.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Applied to for-5.4/core
-
-Cheers,
-Benjamin
-
->
-> On Mon, Aug 12, 2019 at 9:20 AM <stillcompiling@gmail.com> wrote:
-> >
-> > From: Joshua Clayton <stillcompiling@gmail.com>
-> >
-> > Only warn once of oversize hid report value field
-> >
-> > On HP spectre x360 convertible the message:
-> > hid-sensor-hub 001F:8087:0AC2.0002: hid_field_extract() called with n (=
-192) > 32! (kworker/1:2)
-> > is continually printed many times per second, crowding out all else.
-> > Protect dmesg by printing the warning only one time.
-> >
-> > The size of the hid report field data structure should probably be incr=
-eased.
-> > The data structure is treated as a u32 in Linux, but an unlimited numbe=
-r
-> > of bits in the USB hid spec, so there is some rearchitecture needed now=
- that
-> > devices are sending more than 32 bits.
-> >
-> > Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
-> >
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > index 210b81a56e1a..3eaee2c37931 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -1311,8 +1311,8 @@ u32 hid_field_extract(const struct hid_device *hi=
-d, u8 *report,
-> >                         unsigned offset, unsigned n)
-> >  {
-> >         if (n > 32) {
-> > -               hid_warn(hid, "hid_field_extract() called with n (%d) >=
- 32! (%s)\n",
-> > -                        n, current->comm);
-> > +               hid_warn_once(hid, "%s() called with n (%d) > 32! (%s)\=
-n",
-> > +                             __func__, n, current->comm);
-> >                 n =3D 32;
-> >         }
-> >
-> > --
-> > 2.21.0
-> >
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 006bd6f..2d082f3 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -197,14 +197,14 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t
+ 	}
+ 
+ 	if (count > HID_MAX_BUFFER_SIZE) {
+-		printk(KERN_WARNING "hidraw: pid %d passed too large report\n",
++		pr_warn("pid %d passed too large report\n",
+ 				task_pid_nr(current));
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+ 
+ 	if (count < 2) {
+-		printk(KERN_WARNING "hidraw: pid %d passed too short report\n",
++		pr_warn("pid %d passed too short report\n",
+ 				task_pid_nr(current));
+ 		ret = -EINVAL;
+ 		goto out;
+@@ -597,7 +597,7 @@ int __init hidraw_init(void)
+ 	if (result < 0)
+ 		goto error_class;
+ 
+-	printk(KERN_INFO "hidraw: raw HID events driver (C) Jiri Kosina\n");
++	pr_info("raw HID events driver (C) Jiri Kosina\n");
+ out:
+ 	return result;
+ 
+-- 
+2.7.4

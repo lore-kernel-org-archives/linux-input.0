@@ -1,31 +1,78 @@
-From: syzbot <syzbot+403741a091bf41d4ae79@syzkaller.appspotmail.com>
-Subject: Re: KASAN: slab-out-of-bounds Write in ga_probe
-Date: Wed, 18 Sep 2019 05:07:00 -0700
-Message-ID: <000000000000a400c60592d2ac8f@google.com>
-References: <CAAeHK+xJgJoR9rODcRH74knaRKmEq+DDVarNNwDMT_Vtg+gV2Q@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3 3/3] HID: core: fix dmesg flooding if report field
+ larger than 32bit
+Date: Wed, 18 Sep 2019 17:35:19 +0200
+Message-ID: <CAO-hwJLVS0G+TtShbBQ6j9_aCAKjb_AsvoN2HkR+zKpd98MKRw@mail.gmail.com>
+References: <20190812152022.27963-1-stillcompiling@gmail.com>
+ <20190812152022.27963-4-stillcompiling@gmail.com> <CAMB+bfK9Oge1T96aJkuvpoAdUSsm+YxY1W70b62gUMMBKfD8vg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAAeHK+xJgJoR9rODcRH74knaRKmEq+DDVarNNwDMT_Vtg+gV2Q@mail.gmail.com>
+In-Reply-To: <CAMB+bfK9Oge1T96aJkuvpoAdUSsm+YxY1W70b62gUMMBKfD8vg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, stern@rowland.harvard.edu, syzkaller-bugs@googlegroups.com
+To: Joshua Clayton <stillcompiling@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, Joe Perches <joe@perches.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+On Thu, Aug 29, 2019 at 1:26 AM Joshua Clayton <stillcompiling@gmail.com> w=
+rote:
+>
+> ping?
+> I'd love to see this get in.
+> with distro kernel I have effectively no dmesg due to this issue
 
-syzbot has tested the proposed patch and the reproducer did not trigger  
-crash:
+Apologies for the delay.
 
-Reported-and-tested-by:  
-syzbot+403741a091bf41d4ae79@syzkaller.appspotmail.com
+I really thought we should find a better way of fixing this, until I
+got a laptop affected by it. This series is a must have.
 
-Tested on:
+Applied to for-5.4/core
 
-commit:         f0df5c1b usb-fuzzer: main usb gadget fuzzer driver
-git tree:       https://github.com/google/kasan.git
-kernel config:  https://syzkaller.appspot.com/x/.config?x=5c6633fa4ed00be5
-dashboard link: https://syzkaller.appspot.com/bug?extid=403741a091bf41d4ae79
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=131651c9600000
+Cheers,
+Benjamin
 
-Note: testing is done by a robot and is best-effort only.
+>
+> On Mon, Aug 12, 2019 at 9:20 AM <stillcompiling@gmail.com> wrote:
+> >
+> > From: Joshua Clayton <stillcompiling@gmail.com>
+> >
+> > Only warn once of oversize hid report value field
+> >
+> > On HP spectre x360 convertible the message:
+> > hid-sensor-hub 001F:8087:0AC2.0002: hid_field_extract() called with n (=
+192) > 32! (kworker/1:2)
+> > is continually printed many times per second, crowding out all else.
+> > Protect dmesg by printing the warning only one time.
+> >
+> > The size of the hid report field data structure should probably be incr=
+eased.
+> > The data structure is treated as a u32 in Linux, but an unlimited numbe=
+r
+> > of bits in the USB hid spec, so there is some rearchitecture needed now=
+ that
+> > devices are sending more than 32 bits.
+> >
+> > Signed-off-by: Joshua Clayton <stillcompiling@gmail.com>
+> >
+> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > index 210b81a56e1a..3eaee2c37931 100644
+> > --- a/drivers/hid/hid-core.c
+> > +++ b/drivers/hid/hid-core.c
+> > @@ -1311,8 +1311,8 @@ u32 hid_field_extract(const struct hid_device *hi=
+d, u8 *report,
+> >                         unsigned offset, unsigned n)
+> >  {
+> >         if (n > 32) {
+> > -               hid_warn(hid, "hid_field_extract() called with n (%d) >=
+ 32! (%s)\n",
+> > -                        n, current->comm);
+> > +               hid_warn_once(hid, "%s() called with n (%d) > 32! (%s)\=
+n",
+> > +                             __func__, n, current->comm);
+> >                 n =3D 32;
+> >         }
+> >
+> > --
+> > 2.21.0
+> >

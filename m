@@ -1,51 +1,65 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] HID: hidraw: replace printk() with corresponding
- pr_xx() variant
-Date: Thu, 19 Sep 2019 09:16:13 -0700
-Message-ID: <20190919161613.GR237523@dtor-ws>
-References: <20190912203119.GC636@penguin>
- <1568824151-12668-1-git-send-email-gupt21@gmail.com>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: hyperv-keyboard: Add the support of hibernation
+Date: Thu, 19 Sep 2019 09:17:52 -0700
+Message-ID: <20190919161752.GS237523@dtor-ws>
+References: <1568244975-66795-1-git-send-email-decui@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1568824151-12668-1-git-send-email-gupt21@gmail.com>
+In-Reply-To: <1568244975-66795-1-git-send-email-decui@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rishi Gupta <gupt21@gmail.com>
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dexuan Cui <decui@microsoft.com>
+Cc: KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "sashal@kernel.org" <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Kelley <mikelley@microsoft.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Rishi,
+Hi Dexuan,
 
-On Wed, Sep 18, 2019 at 09:59:11PM +0530, Rishi Gupta wrote:
-> This commit replaces direct invocations of printk with
-> their appropriate pr_info/warn() variant.
+On Wed, Sep 11, 2019 at 11:36:20PM +0000, Dexuan Cui wrote:
+> We need hv_kbd_pm_notify() to make sure the pm_wakeup_hard_event() call
+> does not prevent the system from entering hibernation: the hibernation
+> is a relatively long process, which can be aborted by the call
+> pm_wakeup_hard_event(), which is invoked upon keyboard events.
 > 
-> Signed-off-by: Rishi Gupta <gupt21@gmail.com>
+> Signed-off-by: Dexuan Cui <decui@microsoft.com>
 > ---
-> Changes in v2:
-> - Removed manually adding prefix "hidraw:".
 > 
->  drivers/hid/hidraw.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> This patch is basically a pure Hyper-V specific change and it has a
+> build dependency on the commit 271b2224d42f ("Drivers: hv: vmbus: Implement
+> suspend/resume for VSC drivers for hibernation"), which is on Sasha Levin's
+> Hyper-V tree's hyperv-next branch:
+> https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git/log/?h=hyperv-next
 > 
-> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> index 006bd6f..2d082f3 100644
-> --- a/drivers/hid/hidraw.c
-> +++ b/drivers/hid/hidraw.c
-> @@ -197,14 +197,14 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t
->  	}
+> I request this patch should go through Sasha's tree rather than the
+> input subsystemi's tree.
+> 
+> Hi Dmitry, can you please Ack?
+> 
+>  drivers/input/serio/hyperv-keyboard.c | 68 ++++++++++++++++++++++++++++++++---
+>  1 file changed, 63 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
+> index 88ae7c2..277dc4c 100644
+> --- a/drivers/input/serio/hyperv-keyboard.c
+> +++ b/drivers/input/serio/hyperv-keyboard.c
+> @@ -10,6 +10,7 @@
+>  #include <linux/hyperv.h>
+>  #include <linux/serio.h>
+>  #include <linux/slab.h>
+> +#include <linux/suspend.h>
 >  
->  	if (count > HID_MAX_BUFFER_SIZE) {
-> -		printk(KERN_WARNING "hidraw: pid %d passed too large report\n",
-> +		pr_warn("pid %d passed too large report\n",
->  				task_pid_nr(current));
+>  /*
+>   * Current version 1.0
+> @@ -95,6 +96,9 @@ struct hv_kbd_dev {
+>  	struct completion wait_event;
+>  	spinlock_t lock; /* protects 'started' field */
+>  	bool started;
+> +
+> +	struct notifier_block pm_nb;
+> +	bool hibernation_in_progress;
 
-It looks like here and in the instance below you actually have a hid
-device, so you can use hid_warn() instead of pr_warn(), similarly to
-hidraw_send_report().
-
-The change to pr_info() in hidraw_init() is good.
+Why do you use notifier block instead of exposing proper PM methods if
+you want to support hibernation?
 
 Thanks.
 

@@ -1,24 +1,58 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [git pull] Input updates for v5.4-rc0
-Date: Thu, 19 Sep 2019 21:30:28 +0000
-Message-ID: <156892862889.30913.1553387579406573122.pr-tracker-bot@kernel.org>
-References: <20190917234004.GA145240@dtor-ws>
+From: Rishi Gupta <gupt21@gmail.com>
+Subject: [PATCH v3] HID: hidraw: replace printk() with corresponding pr_xx() variant
+Date: Fri, 20 Sep 2019 08:05:01 +0530
+Message-ID: <1568946901-29752-1-git-send-email-gupt21@gmail.com>
+References: <20190919161613.GR237523@dtor-ws>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190917234004.GA145240@dtor-ws>
+In-Reply-To: <20190919161613.GR237523@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rishi Gupta <gupt21@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The pull request you sent on Tue, 17 Sep 2019 16:40:04 -0700:
+This commit replaces direct invocations of printk with
+their appropriate pr_info/warn() variant.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Signed-off-by: Rishi Gupta <gupt21@gmail.com>
+---
+Changes in v3:
+* Use hid_warn() subsystem specific variant instead of pr_warn()
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/c6cfaf4f86d9d15e5541adb3bb899d0b80f89ec7
+ drivers/hid/hidraw.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Thank you!
-
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 006bd6f..a42f4b5 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -197,15 +197,15 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t
+ 	}
+ 
+ 	if (count > HID_MAX_BUFFER_SIZE) {
+-		printk(KERN_WARNING "hidraw: pid %d passed too large report\n",
+-				task_pid_nr(current));
++		hid_warn(dev, "pid %d passed too large report\n",
++			task_pid_nr(current));
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+ 
+ 	if (count < 2) {
+-		printk(KERN_WARNING "hidraw: pid %d passed too short report\n",
+-				task_pid_nr(current));
++		hid_warn(dev, "pid %d passed too short report\n",
++			task_pid_nr(current));
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+@@ -597,7 +597,7 @@ int __init hidraw_init(void)
+ 	if (result < 0)
+ 		goto error_class;
+ 
+-	printk(KERN_INFO "hidraw: raw HID events driver (C) Jiri Kosina\n");
++	pr_info("raw HID events driver (C) Jiri Kosina\n");
+ out:
+ 	return result;
+ 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.7.4

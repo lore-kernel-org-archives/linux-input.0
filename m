@@ -1,38 +1,55 @@
 From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH V2 2/5] input: keyboard: imx_sc: Add i.MX system
- controller power key support
-Date: Sun, 22 Sep 2019 18:14:01 +0200
-Message-ID: <20190922161401.GC1999@bug>
+Subject: Re: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
+Date: Sun, 22 Sep 2019 18:14:15 +0200
+Message-ID: <20190922161415.GD1999@bug>
 References: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
- <1567519424-32271-2-git-send-email-Anson.Huang@nxp.com>
- <6d8dd5df-02da-b4cd-e61d-a4a15d0bf0c8@pengutronix.de>
- <DB3PR0402MB391602C6B425DD7EBFB9AF1DF5B90@DB3PR0402MB3916.eurprd04.prod.outlook.com>
- <dbe0ba0a-29bc-ee96-541d-244b3dbf0b81@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <dbe0ba0a-29bc-ee96-541d-244b3dbf0b81@pengutronix.de>
+In-Reply-To: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Anson Huang <anson.huang@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Aisheng Dong <aisheng.dong@nxp.com>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Andy Duan <fugang.duan@nxp.com>, Peng Fan <peng.fan@nxp.com>, Daniel Baluta <daniel.baluta@nxp.com>, Leonard Crestez <leonard.crestez@nxp.com>, "mripard@kernel.org" <mripard@kernel.org>, "olof@lixom.net" <olof@lixom.net>
+To: Anson Huang <Anson.Huang@nxp.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, catalin.marinas@arm.com, will@kernel.org, dmitry.torokhov@gmail.com, aisheng.dong@nxp.com, ulf.hansson@linaro.org, fugang.duan@nxp.com, peng.fan@nxp.com, daniel.baluta@nxp.com, leonard.crestez@nxp.com, mripard@kernel.org, olof@lixom.net, arnd@arndb.de, jagan@amarulasolutions.com, bjorn.andersson@linaro.org, dinguyen@kernel.org, marcin.juszkiewicz@linaro.org, stefan@agner.ch, gregkh@linuxfoundation.org, andriy.shevchenko@linux.intel.com, yuehaibing@huawei.com, tglx@linutronix.de, ronald@innovation.ch, m.felsch@pengutronix.de, ping.bai@nxp.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.
 List-Id: linux-input@vger.kernel.org
 
-Hi!
-
-> >>Why is it global struct? It seems to be flexible configurable over devicetree.
-> >>So I would assume it should be able to handle more then one button. Please
-> >>remove global variables, make it allocatable per OF node.
-> >
-> >There is ONLY one button available for SC key, but yes, I think I can make the structure
-> >private and get all necessary data from the structure using container_of.
+On Tue 2019-09-03 10:03:40, Anson Huang wrote:
+> NXP i.MX8QXP is an ARMv8 SoC with a Cortex-M4 core inside as
+> system controller, the system controller is in charge of system
+> power, clock and power key event etc. management, Linux kernel
+> has to communicate with system controller via MU (message unit)
+> IPC to get power key event, add binding doc for i.MX system
+> controller power key driver.
 > 
-> And we will never need more then 640 kB RAM ;)
-> https://en.wikiquote.org/wiki/Talk:Bill_Gates
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+> ---
+> Changes since V1:
+> 	- remove "wakeup-source" property, as it is NOT needed for SCU interrupt;
+> 	- remove "status" in example.
+> ---
+>  .../devicetree/bindings/arm/freescale/fsl,scu.txt          | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+> index c149fad..f93e2e4 100644
+> --- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+> +++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+> @@ -157,6 +157,15 @@ Required properties:
+>  Optional properties:
+>  - timeout-sec: contains the watchdog timeout in seconds.
+>  
+> +Power key bindings based on SCU Message Protocol
+> +------------------------------------------------------------
+> +
+> +Required properties:
+> +- compatible: should be:
+> +              "fsl,imx8qxp-sc-pwrkey"
+> +              followed by "fsl,imx-sc-pwrkey";
+> +- linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
 
-Right question is "is it worth complicating kernel now (and making it slower/bigger)
-for future flexibility?". And I believe answer is "no", but it is not a big deal
-either way.								Pavel
+Note you have keycode_s_ here, but keycode in the example and in the dts patch.
+
+									Pavel
 
 -- 
 (english) http://www.livejournal.com/~pavelmachek

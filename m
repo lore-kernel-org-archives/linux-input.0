@@ -1,51 +1,84 @@
 From: Anson Huang <anson.huang@nxp.com>
-Subject: RE: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
-Date: Mon, 23 Sep 2019 02:34:07 +0000
-Message-ID: <DB3PR0402MB3916F48DA2A16E57C624432BF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-References: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
- <20190922161415.GD1999@bug>
+Subject: RE: [PATCH V4 2/5] input: keyboard: imx_sc: Add i.MX system
+ controller key support
+Date: Mon, 23 Sep 2019 02:43:04 +0000
+Message-ID: <DB3PR0402MB39164F6EB8141BA5CC4F26FCF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1568602373-14164-1-git-send-email-Anson.Huang@nxp.com>
+ <1568602373-14164-2-git-send-email-Anson.Huang@nxp.com>
+ <20190916235330.GI237523@dtor-ws>
+ <DB3PR0402MB3916859326C76BC9BC1F781CF58F0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+ <20190922161432.GE1999@bug>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190922161415.GD1999@bug>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190922161432.GE1999@bug>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Pavel Machek <pavel@ucw.cz>
-Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Aisheng Dong <aisheng.dong@nxp.com>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Andy Duan <fugang.duan@nxp.com>, Peng Fan <peng.fan@nxp.com>, Daniel Baluta <daniel.baluta@nxp.com>, Leonard Crestez <leonard.crestez@nxp.com>, "mripard@kernel.org" <mripard@kernel.org>, "olof@lixom.net" <olof@lixom.net>, "arnd@arndb.de" <arnd@arndb.de>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Jacky Bai <ping.bai@nxp.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, Peng Fan <peng.fan@nxp.com>, "stefan@agner.ch" <stefan@agner.ch>, "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>, Leonard Crestez <leonard.crestez@nxp.com>, "will@kernel.org" <will@kernel.org>, "festevam@gmail.com" <festevam@gmail.com>, "yuehaibing@huawei.com" <yuehaibing@huawei.com>, "marcin.juszkiewicz@linaro.org" <marcin.juszkiewicz@linaro.org>, "cw00.choi@samsung.com" <cw00.choi@samsung.com>, "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "ronald@innovation.ch" <ronald@innovation.ch>, dl-linux-imx <linux-imx@nxp.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "arnd@arndb.de" <arnd@arndb.>
 List-Id: linux-input@vger.kernel.org
 
-SGksIFBhdmVsDQoNCj4gU3ViamVjdDogUmU6IFtQQVRDSCBWMiAxLzVdIGR0LWJpbmRpbmdzOiBm
-c2w6IHNjdTogYWRkIHNjdSBwb3dlciBrZXkgYmluZGluZw0KPiANCj4gT24gVHVlIDIwMTktMDkt
-MDMgMTA6MDM6NDAsIEFuc29uIEh1YW5nIHdyb3RlOg0KPiA+IE5YUCBpLk1YOFFYUCBpcyBhbiBB
-Uk12OCBTb0Mgd2l0aCBhIENvcnRleC1NNCBjb3JlIGluc2lkZSBhcyBzeXN0ZW0NCj4gPiBjb250
-cm9sbGVyLCB0aGUgc3lzdGVtIGNvbnRyb2xsZXIgaXMgaW4gY2hhcmdlIG9mIHN5c3RlbSBwb3dl
-ciwgY2xvY2sNCj4gPiBhbmQgcG93ZXIga2V5IGV2ZW50IGV0Yy4gbWFuYWdlbWVudCwgTGludXgg
-a2VybmVsIGhhcyB0byBjb21tdW5pY2F0ZQ0KPiA+IHdpdGggc3lzdGVtIGNvbnRyb2xsZXIgdmlh
-IE1VIChtZXNzYWdlIHVuaXQpIElQQyB0byBnZXQgcG93ZXIga2V5DQo+ID4gZXZlbnQsIGFkZCBi
-aW5kaW5nIGRvYyBmb3IgaS5NWCBzeXN0ZW0gY29udHJvbGxlciBwb3dlciBrZXkgZHJpdmVyLg0K
-PiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogQW5zb24gSHVhbmcgPEFuc29uLkh1YW5nQG54cC5jb20+
-DQo+ID4gLS0tDQo+ID4gQ2hhbmdlcyBzaW5jZSBWMToNCj4gPiAJLSByZW1vdmUgIndha2V1cC1z
-b3VyY2UiIHByb3BlcnR5LCBhcyBpdCBpcyBOT1QgbmVlZGVkIGZvciBTQ1UNCj4gaW50ZXJydXB0
-Ow0KPiA+IAktIHJlbW92ZSAic3RhdHVzIiBpbiBleGFtcGxlLg0KPiA+IC0tLQ0KPiA+ICAuLi4v
-ZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0ICAgICAgICAgIHwg
-MTQNCj4gKysrKysrKysrKysrKysNCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDE0IGluc2VydGlvbnMo
-KykNCj4gPg0KPiA+IGRpZmYgLS1naXQNCj4gPiBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9i
-aW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0DQo+ID4gYi9Eb2N1bWVudGF0aW9uL2Rl
-dmljZXRyZWUvYmluZGluZ3MvYXJtL2ZyZWVzY2FsZS9mc2wsc2N1LnR4dA0KPiA+IGluZGV4IGMx
-NDlmYWQuLmY5M2UyZTQgMTAwNjQ0DQo+ID4gLS0tIGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVl
-L2JpbmRpbmdzL2FybS9mcmVlc2NhbGUvZnNsLHNjdS50eHQNCj4gPiArKysgYi9Eb2N1bWVudGF0
-aW9uL2RldmljZXRyZWUvYmluZGluZ3MvYXJtL2ZyZWVzY2FsZS9mc2wsc2N1LnR4dA0KPiA+IEBA
-IC0xNTcsNiArMTU3LDE1IEBAIFJlcXVpcmVkIHByb3BlcnRpZXM6DQo+ID4gIE9wdGlvbmFsIHBy
-b3BlcnRpZXM6DQo+ID4gIC0gdGltZW91dC1zZWM6IGNvbnRhaW5zIHRoZSB3YXRjaGRvZyB0aW1l
-b3V0IGluIHNlY29uZHMuDQo+ID4NCj4gPiArUG93ZXIga2V5IGJpbmRpbmdzIGJhc2VkIG9uIFND
-VSBNZXNzYWdlIFByb3RvY29sDQo+ID4gKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KPiA+ICsNCj4gPiArUmVxdWlyZWQgcHJvcGVy
-dGllczoNCj4gPiArLSBjb21wYXRpYmxlOiBzaG91bGQgYmU6DQo+ID4gKyAgICAgICAgICAgICAg
-ImZzbCxpbXg4cXhwLXNjLXB3cmtleSINCj4gPiArICAgICAgICAgICAgICBmb2xsb3dlZCBieSAi
-ZnNsLGlteC1zYy1wd3JrZXkiOw0KPiA+ICstIGxpbnV4LGtleWNvZGVzOiBTZWUNCj4gPiArRG9j
-dW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L2tleXMudHh0DQo+IA0KPiBOb3Rl
-IHlvdSBoYXZlIGtleWNvZGVfc18gaGVyZSwgYnV0IGtleWNvZGUgaW4gdGhlIGV4YW1wbGUgYW5k
-IGluIHRoZSBkdHMNCj4gcGF0Y2guDQoNCk5PVCBxdWl0ZSB1bmRlcnN0YW5kIHlvdXIgcG9pbnQs
-IGNvdWxkIHlvdSBwbGVhc2UgcHJvdmlkZSBtb3JlIGRldGFpbHM/DQoNClRoYW5rcywNCkFuc29u
-DQo=
+Hi, Pavel
+
+> Subject: Re: [PATCH V4 2/5] input: keyboard: imx_sc: Add i.MX system
+> controller key support
+> 
+> Hi!
+> 
+> > > > +	ret = imx_scu_call_rpc(priv->key_ipc_handle, &msg, true);
+> > > > +	if (ret) {
+> > > > +		dev_err(&input->dev, "read imx sc key failed, ret %d\n", ret);
+> > > > +		return;
+> > > > +	}
+> > > > +
+> > > > +	state = (bool)msg.state;
+> > > > +
+> > > > +	if (!state && !priv->keystate)
+> > > > +		state = true;
+> > >
+> > > This needs an explanation please.
+> >
+> > This is to handle the quick press of button, e.g., when button is
+> > pressed and released very quickly, when the delay work is scheduled,
+> > the button state read from SCU FW is actually a release state (0), the press
+> state is (1), so the quick press/release will be ignored.
+> >
+> > However, after double check and test, I think this should be handled
+> > by debounce time, if the button is pressed/release very quickly, the
+> > event should be ignored, I will remove it and reduce the debounce time to
+> 30mS, previous 100mS is too long, using 30mS as debounce time, I did NOT
+> see similar issue no matter how quick I press/release the button.
+> 
+> Are you sure this is expected behaviour?
+> 
+> AFAIK microswitches can bounce when the button is pressed and released,
+> but will not generate glitches when the button was not pressed, so even
+> short presses are real and should be propagated...
+
+Latest version of patch handle the quick press as below:
+
+- When the button is pressed, the delayed work will be scheduled;
+- In the delayed work, the button state will be read, once the state is different as previous
+  state, it will be propagated;
+- If the state is a press state, another delayed work will be scheduled for handling release
+  event.
+
+So there could be a small window of DEBOUNCE_TIME (30mS) between button press and the delayed
+work scheduled for reading the button state, if the button is released in less than 30ms, then the
+state read could be a release state which is same as previous state and it will be ignored.
+
+Do you think in this case, we should also propagated the press event? If yes, then what about the
+release event? Although from what I tested, no matter how quick I press the button, the driver
+can always receive both the press and release event, as the 30mS is very short.
+
+Thanks,
+Anson 

@@ -1,129 +1,56 @@
-From: Anson Huang <Anson.Huang@nxp.com>
-Subject: [PATCH] input: keyboard: imx_keypad: Use 'dev' instead of dereferencing it repeatedly
-Date: Tue, 24 Sep 2019 17:04:19 +0800
-Message-ID: <1569315859-7046-1-git-send-email-Anson.Huang@nxp.com>
+From: Evan Green <evgreen@chromium.org>
+Subject: [PATCH v2] Input: atmel_mxt_ts - Disable IRQ across suspend
+Date: Tue, 24 Sep 2019 14:52:38 -0700
+Message-ID: <20190924215238.184750-1-evgreen@chromium.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, swboyd@chromium.org, mojha@codeaurora.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Linux-imx@nxp.com
+To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jongpil Jung <jongpil19.jung@samsung.com>, Furquan Shaikh <furquan@chromium.org>, Rajat Jain <rajatja@chromium.org>, Evan Green <evgreen@chromium.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add helper variable dev = &pdev->dev to simply the code.
+Across suspend and resume, we are seeing error messages like the following:
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+atmel_mxt_ts i2c-PRP0001:00: __mxt_read_reg: i2c transfer failed (-121)
+atmel_mxt_ts i2c-PRP0001:00: Failed to read T44 and T5 (-121)
+
+This occurs because the driver leaves its IRQ enabled. Upon resume, there
+is an IRQ pending, but the interrupt is serviced before both the driver and
+the underlying I2C bus have been resumed. This causes EREMOTEIO errors.
+
+Disable the IRQ in suspend, and re-enable it on resume. If there are cases
+where the driver enters suspend with interrupts disabled, that's a bug we
+should fix separately.
+
+Signed-off-by: Evan Green <evgreen@chromium.org>
 ---
- drivers/input/keyboard/imx_keypad.c | 35 ++++++++++++++++++-----------------
- 1 file changed, 18 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 5a46d11..3024d2a 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -418,14 +418,15 @@ MODULE_DEVICE_TABLE(of, imx_keypad_of_match);
+Changes in v2:
+ - Enable and disable unconditionally (Dmitry)
+
+ drivers/input/touchscreen/atmel_mxt_ts.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 24c4b691b1c9..a58092488679 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -3155,6 +3155,7 @@ static int __maybe_unused mxt_suspend(struct device *dev)
+ 		mxt_stop(data);
  
- static int imx_keypad_probe(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
- 	const struct matrix_keymap_data *keymap_data =
--			dev_get_platdata(&pdev->dev);
-+			dev_get_platdata(dev);
- 	struct imx_keypad *keypad;
- 	struct input_dev *input_dev;
- 	int irq, error, i, row, col;
+ 	mutex_unlock(&input_dev->mutex);
++	disable_irq(data->irq);
  
--	if (!keymap_data && !pdev->dev.of_node) {
--		dev_err(&pdev->dev, "no keymap defined\n");
-+	if (!keymap_data && !dev->of_node) {
-+		dev_err(dev, "no keymap defined\n");
- 		return -EINVAL;
- 	}
+ 	return 0;
+ }
+@@ -3174,6 +3175,7 @@ static int __maybe_unused mxt_resume(struct device *dev)
+ 		mxt_start(data);
  
-@@ -433,15 +434,15 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 	if (irq < 0)
- 		return irq;
- 
--	input_dev = devm_input_allocate_device(&pdev->dev);
-+	input_dev = devm_input_allocate_device(dev);
- 	if (!input_dev) {
--		dev_err(&pdev->dev, "failed to allocate the input device\n");
-+		dev_err(dev, "failed to allocate the input device\n");
- 		return -ENOMEM;
- 	}
- 
--	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
-+	keypad = devm_kzalloc(dev, sizeof(*keypad), GFP_KERNEL);
- 	if (!keypad) {
--		dev_err(&pdev->dev, "not enough memory for driver data\n");
-+		dev_err(dev, "not enough memory for driver data\n");
- 		return -ENOMEM;
- 	}
- 
-@@ -456,16 +457,16 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 	if (IS_ERR(keypad->mmio_base))
- 		return PTR_ERR(keypad->mmio_base);
- 
--	keypad->clk = devm_clk_get(&pdev->dev, NULL);
-+	keypad->clk = devm_clk_get(dev, NULL);
- 	if (IS_ERR(keypad->clk)) {
--		dev_err(&pdev->dev, "failed to get keypad clock\n");
-+		dev_err(dev, "failed to get keypad clock\n");
- 		return PTR_ERR(keypad->clk);
- 	}
- 
- 	/* Init the Input device */
- 	input_dev->name = pdev->name;
- 	input_dev->id.bustype = BUS_HOST;
--	input_dev->dev.parent = &pdev->dev;
-+	input_dev->dev.parent = dev;
- 	input_dev->open = imx_keypad_open;
- 	input_dev->close = imx_keypad_close;
- 
-@@ -474,7 +475,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 					   MAX_MATRIX_KEY_COLS,
- 					   keypad->keycodes, input_dev);
- 	if (error) {
--		dev_err(&pdev->dev, "failed to build keymap\n");
-+		dev_err(dev, "failed to build keymap\n");
- 		return error;
- 	}
- 
-@@ -488,8 +489,8 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 			}
- 		}
- 	}
--	dev_dbg(&pdev->dev, "enabled rows mask: %x\n", keypad->rows_en_mask);
--	dev_dbg(&pdev->dev, "enabled cols mask: %x\n", keypad->cols_en_mask);
-+	dev_dbg(dev, "enabled rows mask: %x\n", keypad->rows_en_mask);
-+	dev_dbg(dev, "enabled cols mask: %x\n", keypad->cols_en_mask);
- 
- 	__set_bit(EV_REP, input_dev->evbit);
- 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
-@@ -502,22 +503,22 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 	imx_keypad_inhibit(keypad);
- 	clk_disable_unprepare(keypad->clk);
- 
--	error = devm_request_irq(&pdev->dev, irq, imx_keypad_irq_handler, 0,
-+	error = devm_request_irq(dev, irq, imx_keypad_irq_handler, 0,
- 			    pdev->name, keypad);
- 	if (error) {
--		dev_err(&pdev->dev, "failed to request IRQ\n");
-+		dev_err(dev, "failed to request IRQ\n");
- 		return error;
- 	}
- 
- 	/* Register the input device */
- 	error = input_register_device(input_dev);
- 	if (error) {
--		dev_err(&pdev->dev, "failed to register input device\n");
-+		dev_err(dev, "failed to register input device\n");
- 		return error;
- 	}
- 
- 	platform_set_drvdata(pdev, keypad);
--	device_init_wakeup(&pdev->dev, 1);
-+	device_init_wakeup(dev, 1);
+ 	mutex_unlock(&input_dev->mutex);
++	enable_irq(data->irq);
  
  	return 0;
  }
 -- 
-2.7.4
+2.21.0

@@ -1,73 +1,77 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: KASAN: use-after-free Read in usb_anchor_resume_wakeups
-Date: Wed, 25 Sep 2019 09:16:14 +0200
-Message-ID: <20190925071614.GA14159@localhost>
-References: <000000000000e9312b058d3eadb8@google.com>
- <CAAeHK+yPewmT9J0mAYL0P2Wz55asVFD0DbQnwkBS7zdRTkyN2A@mail.gmail.com>
- <CAL411-o09wBhiPtRixFo4=6pB1rAmUsTKc2sBQmn4MjQcPBy2A@mail.gmail.com>
+From: You-Sheng Yang <vicamo.yang@canonical.com>
+Subject: [PATCH 0/2] HID: i2c-hid: add 60ms SET_POWER delay for Goodix touchpad
+Date: Wed, 25 Sep 2019 17:43:24 +0800
+Message-ID: <20190925094326.41693-1-vicamo.yang@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAL411-o09wBhiPtRixFo4=6pB1rAmUsTKc2sBQmn4MjQcPBy2A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Chen <hzpeterchen@gmail.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>, syzbot <syzbot+58e201002fe1e775e1ae@syzkaller.appspotmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Allison Randal <allison@lohutok.net>, Ramses =?iso-8859-1?Q?Ram=EDrez?= <ramzeto@gmail.com>, Richard Fontana <rfontana@redhat.com>, Cameron Gutman <aicommander@gmail.com>, Tom Panfil <tom@steelseries.com>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>, Hui Wang <hui.wang@canonical.com>, Julian Sax <jsbc@gmx.de>, HungNien Chen <hn.chen@weidahitech.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 23, 2019 at 05:41:54PM +0800, Peter Chen wrote:
-> > On Tue, Jul 9, 2019 at 2:27 PM syzbot
-> > <syzbot+58e201002fe1e775e1ae@syzkaller.appspotmail.com> wrote:
-> > >
-> > > Hello,
-> > >
-> > > syzbot found the following crash on:
-> > >
-> > > HEAD commit:    7829a896 usb-fuzzer: main usb gadget fuzzer driver
-> > > git tree:       https://github.com/google/kasan.git usb-fuzzer
-> > > console output: https://syzkaller.appspot.com/x/log.txt?x=118d136da00000
-> > > kernel config:  https://syzkaller.appspot.com/x/.config?x=f6d4561982f71f63
-> > > dashboard link: https://syzkaller.appspot.com/bug?extid=58e201002fe1e775e1ae
-> > > compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> > >
-> > > Unfortunately, I don't have any reproducer for this crash yet.
-> > >
-> > > IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> > > Reported-by: syzbot+58e201002fe1e775e1ae@syzkaller.appspotmail.com
-> > >
-> > > dummy_hcd dummy_hcd.5: no ep configured for urb 00000000c6093b7b
-> > > xpad 6-1:0.169: xpad_irq_out - usb_submit_urb failed with result -19
-> > > ==================================================================
-> > > BUG: KASAN: use-after-free in debug_spin_lock_before
-> > > kernel/locking/spinlock_debug.c:83 [inline]
-> > > BUG: KASAN: use-after-free in do_raw_spin_lock+0x24d/0x280
-> > > kernel/locking/spinlock_debug.c:112
-> > > Read of size 4 at addr ffff8881d0e584dc by task kworker/1:4/2786
-> > >
-> 
-> It should due to URB is freed at xpad_disconnect, but xpad_irq_out
-> still tries to access
-> freed URB.
-> 
-> Peter
-> 
-> #syz test: https://github.com/google/kasan.git 7829a896
-> 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 6b40a1c68f9f..32b7a199b580 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -1850,6 +1850,7 @@ static void xpad_disconnect(struct usb_interface *intf)
-> 
->         xpad_deinit_input(xpad);
-> 
-> +       usb_kill_urb(xpad->irq_out);
+I2C traffic after resumed from s2idle:
 
-I'm not sure this is the right fix. The interrupt-urb should have been
-stopped by xpad_stop_output() just above. Perhaps the type test in that
-function is broken, or we may have a race where another thread is
-submitting the URB after we tried to stop it which we fail to handle.
+  [ 275.312190] i2c_hid i2c-DELL096E:00: i2c_hid_set_power
+  [ 275.312191] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 01 08
+  [ 283.926905] i2c_hid i2c-DELL096E:00: i2c_hid_set_power
+  [ 283.926910] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 00 08
+  [ 283.927146] i2c_hid i2c-DELL096E:00: i2c_hid_set_or_send_report
+  [ 283.927149] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 37 03 06 00 05 00 07 00 00
+  [ 283.927872] i2c_hid i2c-DELL096E:00: i2c_hid_set_or_send_report
+  [ 283.927874] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 33 03 06 00 05 00 03 03 00
+  [ 283.929148] i2c_hid i2c-DELL096E:00: i2c_hid_set_or_send_report
+  [ 283.929151] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 35 03 06 00 05 00 05 03 00
+  # when touching touchpad:
+  [ 289.262675] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 00 00 00 00 00 00 00
+  [ 289.270314] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 fe 00 00 00 00 00 00
+  [ 289.276806] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 fd 00 00 00 00 00 00
+  [ 289.283863] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 fb 01 00 00 00 00 00
+  [ 289.291213] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 fa 02 00 00 00 00 00
+  [ 289.297932] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 f9 03 00 00 00 00 00
+  [ 289.304775] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 f9 03 00 00 00 00 00
 
-Didn't check that closely, though.
+On this device (Goodix touchpad 27C6:01F0), both Precision Touchpad
+mode and a legacy Mouse mode are supported. When I2C SET_POWER ON is
+issued, it would take as long as 60ms to complete state transition and
+is then able to receive and execute further commands. On boot the
+device is running under Mouse mode for legacy platform support, and
+will be put to PTP mode with a SET_OR_SEND_REPORT command. If somehow
+the time gap between the first SET_POWER ON and further
+SET_OR_SEND_REPORT commands is less than 60ms, the device will still
+operating under Mouse mode and gives reports like
+"0b 00 01 00 fe 00 00 00 00 00 00".
 
-Johan
+On Linux system boot, it may take 500ms from i2c probe (SET_POWER ON)
+to hid initialization (SET_OR_SEND_REPORT), so it will always be put
+to PTP mode successfully. But when the device is put under s2idle
+suspend and resumed, the hid reset resume process will be right after
+i2c resume, so the device won't have enough time to complete its
+state transition, which fails following SET_OR_SEND_REPORT executing
+and therefore it operates under Mouse mode instead.
+
+Currently Linux has a at most 5ms sleep in i2c_hid_hwreset(), but
+according to HID over I2C Specification[1] section 7.2.8 "SET_POWER":
+
+> The DEVICE must ensure that it transitions to the HOST
+> specified Power State in under 1 second.
+
+it can take as long as 1 second.
+
+This changeset add a device property post-setpower-delay-ms and use it
+to specify the delay after a SET_POWER command is issued for this
+device.
+
+References: https://bugzilla.kernel.org/show_bug.cgi?id=204991
+
+You-Sheng Yang (2):
+  HID: i2c-hid: allow delay after SET_POWER
+  HID: i2c-hid: add 60ms SET_POWER delay for Goodix touchpad
+
+ .../bindings/input/hid-over-i2c.txt           |  2 +
+ drivers/hid/i2c-hid/i2c-hid-core.c            | 48 +++++++++++--------
+ include/linux/platform_data/i2c-hid.h         |  3 ++
+ 3 files changed, 33 insertions(+), 20 deletions(-)
+
+-- 
+2.23.0

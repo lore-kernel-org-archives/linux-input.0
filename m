@@ -1,62 +1,145 @@
-From: You-Sheng Yang <vicamo.yang@canonical.com>
-Subject: [PATCH 2/2] HID: i2c-hid: add 60ms SET_POWER delay for Goodix touchpad
-Date: Wed, 25 Sep 2019 17:43:26 +0800
-Message-ID: <20190925094326.41693-3-vicamo.yang@canonical.com>
-References: <20190925094326.41693-1-vicamo.yang@canonical.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: Alps touchpad generates IRQ storm after S3
+Date: Wed, 25 Sep 2019 18:01:03 +0800
+Message-ID: <82884F1B-A4CD-44EF-9245-1143277484A6@canonical.com>
+References: <44F93018-5F13-4932-A5AC-9D288CDF68DD@canonical.com>
+ <TYAPR01MB30223CB8A576C7809F6382C1ECA30@TYAPR01MB3022.jpnprd01.prod.outlook.com>
+ <TYXPR01MB1470902D804A47EE72013006C8A30@TYXPR01MB1470.jpnprd01.prod.outlook.com>
+ <A118551C-A0D9-485F-91F7-44A5BE228B99@canonical.com>
+ <39b2e63e339447e8b09b2601abf3d1ba@AUSX13MPC101.AMER.DELL.COM>
+ <BFBB1DB9-00B6-497E-80D1-5168CF16B889@canonical.com>
+Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3594.4.13\))
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190925094326.41693-1-vicamo.yang@canonical.com>
+In-Reply-To: <BFBB1DB9-00B6-497E-80D1-5168CF16B889@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Kai-Heng Feng <kai.heng.feng@canonical.com>, Hui Wang <hui.wang@canonical.com>, Julian Sax <jsbc@gmx.de>, HungNien Chen <hn.chen@weidahitech.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mario.Limonciello@dell.com
+Cc: Xiaojian Cao <xiaojian.cao@cn.alps.com>, masaki.ota@alpsalpine.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, naoki.saito@alpsalpine.com
 List-Id: linux-input@vger.kernel.org
 
-Goodix touchpad 27C6:01F0 fails to switch to PTP mode when resumed from
-suspend. The traffic after resumed looks like:
+Hi Xiaojian,
 
-  [ 275.312190] i2c_hid i2c-DELL096E:00: i2c_hid_set_power
-  [ 275.312191] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 01 08
-  [ 283.926905] i2c_hid i2c-DELL096E:00: i2c_hid_set_power
-  [ 283.926910] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 00 08
-  [ 283.927146] i2c_hid i2c-DELL096E:00: i2c_hid_set_or_send_report
-  [ 283.927149] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 37 03 06 00 05 00 07 00 00
-  [ 283.927872] i2c_hid i2c-DELL096E:00: i2c_hid_set_or_send_report
-  [ 283.927874] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 33 03 06 00 05 00 03 03 00
-  [ 283.929148] i2c_hid i2c-DELL096E:00: i2c_hid_set_or_send_report
-  [ 283.929151] i2c_hid i2c-DELL096E:00: __i2c_hid_command: cmd=05 00 35 03 06 00 05 00 05 03 00
-  [ 289.262675] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 00 00 00 00 00 00 00
-  [ 289.270314] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 fe 00 00 00 00 00 00
-  [ 289.276806] i2c_hid i2c-DELL096E:00: input: 0b 00 01 00 fd 00 00 00 00 00 00
-  ...
+> On Aug 28, 2019, at 22:43, Kai-Heng Feng <kai.heng.feng@canonical.com> wrote:
+> 
+> Hi Mario,
+> 
+> at 21:25, <Mario.Limonciello@dell.com> <Mario.Limonciello@dell.com> wrote:
+> 
+>> KH,
+>> 
+>> Just make sure I understand details.
+>> 
+>>> Commit "HID: i2c-hid: Don't reset device upon system resume
+>> 
+>> If you revert this it's fixed on this system?
+> 
+> Yes. Once reset is used instead of  the issue is gone.
 
-The time delay between i2c_hid_set_power and i2c_hid_set_or_send_report
-is less than vendor recommended 60ms, so it failed to complete its power
-state transition, ignored i2c_hid_set_or_send_report and is still
-operating in legacy mouse mode, and therefore it gives unsupported input
-reports.
+Do you figure out the correct command to use here?
 
-This change updates the quirk for the device to specifies a 60ms
-post-setpower-delay-ms.
+Kai-Heng
 
-References: https://bugzilla.kernel.org/show_bug.cgi?id=204991
-Signed-off-by: You-Sheng Yang <vicamo.yang@canonical.com>
----
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index a5bc2786dc440..8c01ce33f1c61 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -180,7 +180,7 @@ static const struct i2c_hid_quirks {
- 	{ USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
- 		I2C_HID_QUIRK_NO_RUNTIME_PM },
- 	{ I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_01F0,
--		I2C_HID_QUIRK_NO_RUNTIME_PM },
-+		I2C_HID_QUIRK_NO_RUNTIME_PM, 60 },
- 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
- 		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ 0, 0 }
--- 
-2.23.0
+> 
+>> 
+>> In that commit you had mentioned if this causes problems it might be worth
+>> quirking just Raydium but commit afbb1169ed5b58cfca017e368b53e019cf285853
+>> confirmed that it helped several other systems too.
+>> 
+>> If the conclusion from this investigation this is only fixable via touchpad FW update
+>> it might be worth quirking this touchpad/touchpad FW/system combination.
+> 
+> Hopefully there’s a better solution from ALPS :)
+> 
+>> 
+>>> Also Cc Mario because this could relate to BIOS.
+>> 
+>> Also I assume this is on current stable BIOS/EC release, right?
+> 
+> Yes. The BIOS version is 1.10.1.
+> 
+> The IRQ storm stops as soon as the touchpad gets touched.
+> 
+> Kai-Heng
+> 
+>> 
+>> Thanks,
+>> 
+>>> -----Original Message-----
+>>> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>>> Sent: Wednesday, August 28, 2019 1:58 AM
+>>> To: Xiaojian Cao
+>>> Cc: Masaki Ota; Limonciello, Mario; open list:HID CORE LAYER; Linux Kernel
+>>> Mailing List; Naoki Saito
+>>> Subject: Re: Alps touchpad generates IRQ storm after S3
+>>> 
+>>> 
+>>> [EXTERNAL EMAIL]
+>>> 
+>>> Hi Xiaojian,
+>>> 
+>>> at 14:51, Xiaojian Cao <xiaojian.cao@cn.alps.com> wrote:
+>>> 
+>>>> Hi Ota-san,
+>>>> 
+>>>> OK, we will look into it.
+>>>> 
+>>>> 
+>>>> Hi Kai-Heng,
+>>>> 
+>>>> We will try to reproduce this issue first, could you please tell me the
+>>>> target Ubuntu version?
+>>> 
+>>> It’s distro-agnostic, any distro with mainline Linux can reproduce the issue.
+>>> 
+>>> Kai-Heng
+>>> 
+>>>> Best regards,
+>>>> Jason
+>>>> 
+>>>> -----Original Message-----
+>>>> From: 太田 真喜 Masaki Ota <masaki.ota@alpsalpine.com>
+>>>> Sent: Wednesday, August 28, 2019 2:35 PM
+>>>> To: 曹 曉建 Xiaojian Cao <xiaojian.cao@cn.alps.com>; Kai-Heng Feng
+>>>> <kai.heng.feng@canonical.com>
+>>>> Cc: Mario Limonciello <mario.limonciello@dell.com>; open list:HID CORE
+>>>> LAYER <linux-input@vger.kernel.org>; Linux Kernel Mailing List
+>>>> <linux-kernel@vger.kernel.org>; 斉藤 直樹 Naoki Saito
+>>>> <naoki.saito@alpsalpine.com>
+>>>> Subject: RE: Alps touchpad generates IRQ storm after S3
+>>>> 
+>>>> Hi, Kai-Heng,
+>>>> 
+>>>> Sorry, I'm not in charge of Linux task now.
+>>>> 
+>>>> Hi, XiaoJian,
+>>>> 
+>>>> Please check the following mail.
+>>>> If you have any question, please ask Kai-Heng.
+>>>> 
+>>>> Best Regards,
+>>>> Masaki Ota
+>>>> -----Original Message-----
+>>>> From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>>>> Sent: Wednesday, August 28, 2019 3:22 PM
+>>>> To: 太田 真喜 Masaki Ota <masaki.ota@alpsalpine.com>
+>>>> Cc: Mario Limonciello <mario.limonciello@dell.com>; open list:HID CORE
+>>>> LAYER <linux-input@vger.kernel.org>; Linux Kernel Mailing List
+>>>> <linux-kernel@vger.kernel.org>
+>>>> Subject: Alps touchpad generates IRQ storm after S3
+>>>> 
+>>>> Hi Masaki,
+>>>> 
+>>>> The Alps touchpad (044E:1220) on Dell Precision 7530 causes IRQ storm
+>>>> after system suspend (S3).
+>>>> Commit "HID: i2c-hid: Don't reset device upon system resume” which solves
+>>>> the same issue for other vendors, cause the issue on Alps touchpad.
+>>>> So I’d like to know the correct command Alps touchpad expects after
+>>>> system resume.
+>>>> 
+>>>> Also Cc Mario because this could relate to BIOS.
+>>>> 
+>>>> Kai-Heng
+> 
+> 

@@ -1,66 +1,66 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: core: clean up indentation issue
-Date: Fri, 27 Sep 2019 12:04:04 +0200
-Message-ID: <CAO-hwJKpqGBi+9CRn08sNcn+ggQtnefuMgG98bXtW1UiGqneQA@mail.gmail.com>
-References: <20190922115054.10880-1-colin.king@canonical.com>
- <nycvar.YFH.7.76.1909231303180.1459@cbobk.fhfr.pm> <20190925114741.GD27389@kadam>
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH] HID: hyperv: Add the support of hibernation
+Date: Fri, 27 Sep 2019 08:05:13 -0400
+Message-ID: <20190927120513.GM8171@sasha-vm>
+References: <1568244952-66716-1-git-send-email-decui@microsoft.com>
+ <PU1P153MB01695CEE01D65E8CD5CFA4E9BF870@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+ <nycvar.YFH.7.76.1909261521410.24354@cbobk.fhfr.pm>
+ <nycvar.YFH.7.76.1909261522380.24354@cbobk.fhfr.pm>
+ <PU1P153MB016973F30CC1A52E46D15230BF810@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190925114741.GD27389@kadam>
+Content-Disposition: inline
+In-Reply-To: <PU1P153MB016973F30CC1A52E46D15230BF810@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Colin King <colin.king@canonical.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, kernel-janitors@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+To: Dexuan Cui <decui@microsoft.com>
+Cc: Jiri Kosina <jikos@kernel.org>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Kelley <mikelley@microsoft.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 25, 2019 at 1:48 PM Dan Carpenter <dan.carpenter@oracle.com> wr=
-ote:
+On Fri, Sep 27, 2019 at 05:42:31AM +0000, Dexuan Cui wrote:
+>> From: Jiri Kosina <jikos@kernel.org>
+>> Sent: Thursday, September 26, 2019 6:23 AM
+>> To: Dexuan Cui <decui@microsoft.com>
+>>
+>> On Thu, 26 Sep 2019, Jiri Kosina wrote:
+>>
+>> > > > This patch is basically a pure Hyper-V specific change and it has a
+>> > > > build dependency on the commit 271b2224d42f ("Drivers: hv: vmbus:
+>> > > > Implement
+>> > > > suspend/resume for VSC drivers for hibernation"), which is on Sasha
+>> Levin's
+>> > > > Hyper-V tree's hyperv-next branch [ ... snipped ...]
+>> > > >
+>> > > > I request this patch should go through Sasha's tree rather than the
+>> > > > input subsystem's tree.
+>> > > >
+>> > > > Hi Jiri, Benjamin, can you please Ack?
+>> > >
+>> > > Hi Jiri, Benjamin,
+>> > > Can you please take a look at the patch?
+>> >
+>> > Hi Dexuan,
+>> >
+>> > I am planning to process it once 5.4 merge window is over and thus hid.git
+>> > is open again for 5.5 material.
+>>
+>> Ah, now I see you asked for this go through hyperv tree. For that, feel
+>> free to add
+>> 	Acked-by: Jiri Kosina <jkosina@suse.cz>
+>> Jiri Kosina
 >
-> On Mon, Sep 23, 2019 at 01:04:13PM +0200, Jiri Kosina wrote:
-> > On Sun, 22 Sep 2019, Colin King wrote:
-> >
-> > > From: Colin Ian King <colin.king@canonical.com>
-> > >
-> > > There is an if statement that is indented by one extra space,
-> > > fix this by removing the extraneous space.
-> > >
-> > > Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> > > ---
-> > >  drivers/hid/hid-core.c | 4 ++--
-> > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > > index 3eaee2c37931..9469c382a182 100644
-> > > --- a/drivers/hid/hid-core.c
-> > > +++ b/drivers/hid/hid-core.c
-> > > @@ -2329,10 +2329,10 @@ int hid_add_device(struct hid_device *hdev)
-> > >     /*
-> > >      * Check for the mandatory transport channel.
-> > >      */
-> > > -    if (!hdev->ll_driver->raw_request) {
-> > > +   if (!hdev->ll_driver->raw_request) {
-> > >             hid_err(hdev, "transport driver missing .raw_request()\n"=
-);
-> > >             return -EINVAL;
-> > > -    }
-> > > +   }
-> >
-> > Let's not pollute git blame and wait for an ocasion when we need to tou=
-ch
-> > the code for some more valid reason.
+>Thanks for the Ack, Jiri!
 >
-> Just use `git blame -w`.
->
-> This probably came from a Smatch warning.  Smatch warns very seldom
-> warns about style issues, but in this case the indenting is legitimately
-> bad.
+>I have a bunch of patches, including this one, to support Linux VM's hibernation
+>when the VM runs on Hyper-V. I just feel it would be better for all of them to
+>go through the Hyper-V tree. :-)
 
-Well, I tend to agree with Jiri here. Yes, you can use a particular
-flag in a tool to 'solve' the git blame/history issue, but this is
-putting the workload on the user, while tthe code is fine, in this
-case. Why do we need to pollute the history of a file for no good
-reasons?
+Thank Dexuan, Jiri,
 
-Cheers,
-Benjamin
+Dexuan, I've been silently ignoring your patches for the past few weeks
+for the same reason as Jiri has mentioned. I'll pick them all up once
+the 5.4 merge window closes in a few days.
+
+--
+Thanks,
+Sasha

@@ -1,97 +1,94 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 08/49] HID: wacom: Fix several minor compiler warnings
-Date: Sun, 29 Sep 2019 13:30:08 -0400
-Message-ID: <20190929173053.8400-8-sashal@kernel.org>
-References: <20190929173053.8400-1-sashal@kernel.org>
+From: Dexuan Cui <decui@microsoft.com>
+Subject: RE: [PATCH] HID: hyperv: Add the support of hibernation
+Date: Sun, 29 Sep 2019 17:44:09 +0000
+Message-ID: <PU1P153MB01698048162343130F34DAE0BF830@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+References: <1568244952-66716-1-git-send-email-decui@microsoft.com>
+ <PU1P153MB01695CEE01D65E8CD5CFA4E9BF870@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+ <nycvar.YFH.7.76.1909261521410.24354@cbobk.fhfr.pm>
+ <nycvar.YFH.7.76.1909261522380.24354@cbobk.fhfr.pm>
+ <PU1P153MB016973F30CC1A52E46D15230BF810@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+ <20190927120513.GM8171@sasha-vm>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190929173053.8400-1-sashal@kernel.org>
+In-Reply-To: <20190927120513.GM8171@sasha-vm>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Sasha Levin <sashal@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Kelley <mikelley@microsoft.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+> From: Sasha Levin <sashal@kernel.org>
+> Sent: Friday, September 27, 2019 5:05 AM
+> To: Dexuan Cui <decui@microsoft.com>
+> Cc: Jiri Kosina <jikos@kernel.org>; KY Srinivasan <kys@microsoft.com>;
+> Haiyang Zhang <haiyangz@microsoft.com>; Stephen Hemminger
+> <sthemmin@microsoft.com>; benjamin.tissoires@redhat.com;
+> linux-hyperv@vger.kernel.org; linux-input@vger.kernel.org;
+> linux-kernel@vger.kernel.org; Michael Kelley <mikelley@microsoft.com>
+> Subject: Re: [PATCH] HID: hyperv: Add the support of hibernation
+>=20
+> On Fri, Sep 27, 2019 at 05:42:31AM +0000, Dexuan Cui wrote:
+> >> From: Jiri Kosina <jikos@kernel.org>
+> >> Sent: Thursday, September 26, 2019 6:23 AM
+> >> To: Dexuan Cui <decui@microsoft.com>
+> >>
+> >> On Thu, 26 Sep 2019, Jiri Kosina wrote:
+> >>
+> >> > > > This patch is basically a pure Hyper-V specific change and it ha=
+s a
+> >> > > > build dependency on the commit 271b2224d42f ("Drivers: hv: vmbus=
+:
+> >> > > > Implement
+> >> > > > suspend/resume for VSC drivers for hibernation"), which is on Sa=
+sha
+> >> Levin's
+> >> > > > Hyper-V tree's hyperv-next branch [ ... snipped ...]
+> >> > > >
+> >> > > > I request this patch should go through Sasha's tree rather than =
+the
+> >> > > > input subsystem's tree.
+> >> > > >
+> >> > > > Hi Jiri, Benjamin, can you please Ack?
+> >> > >
+> >> > > Hi Jiri, Benjamin,
+> >> > > Can you please take a look at the patch?
+> >> >
+> >> > Hi Dexuan,
+> >> >
+> >> > I am planning to process it once 5.4 merge window is over and thus h=
+id.git
+> >> > is open again for 5.5 material.
+> >>
+> >> Ah, now I see you asked for this go through hyperv tree. For that, fee=
+l
+> >> free to add
+> >> 	Acked-by: Jiri Kosina <jkosina@suse.cz>
+> >> Jiri Kosina
+> >
+> >Thanks for the Ack, Jiri!
+> >
+> >I have a bunch of patches, including this one, to support Linux VM's
+> hibernation
+> >when the VM runs on Hyper-V. I just feel it would be better for all of t=
+hem to
+> >go through the Hyper-V tree. :-)
+>=20
+> Thank Dexuan, Jiri,
+>=20
+> Dexuan, I've been silently ignoring your patches for the past few weeks
+> for the same reason as Jiri has mentioned. I'll pick them all up once
+> the 5.4 merge window closes in a few days.
+>=20
+> Thanks,
+> Sasha
 
-[ Upstream commit 073b50bccbbf99a3b79a1913604c656d0e1a56c9 ]
+Thanks, Sasha!
 
-Addresses a few issues that were noticed when compiling with non-default
-warnings enabled. The trimmed-down warnings in the order they are fixed
-below are:
+BTW, I'll post a v2 for this patch, as IMO I may be able to get rid of the
+mousevsc_pm_notify in this patch by disabling the channel callback
+in the suspend function.
 
-* declaration of 'size' shadows a parameter
-
-* '%s' directive output may be truncated writing up to 5 bytes into a
-  region of size between 1 and 64
-
-* pointer targets in initialization of 'char *' from 'unsigned char *'
-  differ in signedness
-
-* left shift of negative value
-
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/wacom_sys.c | 7 ++++---
- drivers/hid/wacom_wac.c | 4 ++--
- 2 files changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 53bddb50aebaf..602219a8710d0 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -88,7 +88,7 @@ static void wacom_wac_queue_flush(struct hid_device *hdev,
- }
- 
- static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
--		struct hid_report *report, u8 *raw_data, int size)
-+		struct hid_report *report, u8 *raw_data, int report_size)
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-@@ -149,7 +149,8 @@ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
- 	if (flush)
- 		wacom_wac_queue_flush(hdev, &wacom_wac->pen_fifo);
- 	else if (insert)
--		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo, raw_data, size);
-+		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo,
-+				       raw_data, report_size);
- 
- 	return insert && !flush;
- }
-@@ -2176,7 +2177,7 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
- {
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct wacom_features *features = &wacom_wac->features;
--	char name[WACOM_NAME_MAX];
-+	char name[WACOM_NAME_MAX - 20]; /* Leave some room for suffixes */
- 
- 	/* Generic devices name unspecified */
- 	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 1713235d28cb0..2b46403973755 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -251,7 +251,7 @@ static int wacom_dtu_irq(struct wacom_wac *wacom)
- 
- static int wacom_dtus_irq(struct wacom_wac *wacom)
- {
--	char *data = wacom->data;
-+	unsigned char *data = wacom->data;
- 	struct input_dev *input = wacom->pen_input;
- 	unsigned short prox, pressure = 0;
- 
-@@ -572,7 +572,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
- 		strip2 = ((data[3] & 0x1f) << 8) | data[4];
- 	}
- 
--	prox = (buttons & ~(~0 << nbuttons)) | (keys & ~(~0 << nkeys)) |
-+	prox = (buttons & ~(~0U << nbuttons)) | (keys & ~(~0U << nkeys)) |
- 	       (ring1 & 0x80) | (ring2 & 0x80) | strip1 | strip2;
- 
- 	wacom_report_numbered_buttons(input, nbuttons, buttons);
--- 
-2.20.1
+Thanks,
+-- Dexuan

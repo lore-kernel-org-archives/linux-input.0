@@ -1,108 +1,97 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: hyperv-keyboard: Add the support of hibernation
-Date: Fri, 27 Sep 2019 17:31:56 -0700
-Message-ID: <20190928003156.GU237523@dtor-ws>
-References: <1568244975-66795-1-git-send-email-decui@microsoft.com>
- <20190919161752.GS237523@dtor-ws>
- <PU1P153MB016914A7C827CA35D7FEB66ABF8B0@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 08/42] HID: wacom: Fix several minor compiler warnings
+Date: Sun, 29 Sep 2019 13:32:07 -0400
+Message-ID: <20190929173244.8918-8-sashal@kernel.org>
+References: <20190929173244.8918-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <PU1P153MB016914A7C827CA35D7FEB66ABF8B0@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dexuan Cui <decui@microsoft.com>
-Cc: KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "sashal@kernel.org" <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Kelley <mikelley@microsoft.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Sep 21, 2019 at 06:56:04AM +0000, Dexuan Cui wrote:
-> > From: dmitry.torokhov@gmail.com <dmitry.torokhov@gmail.com>
-> > Sent: Thursday, September 19, 2019 9:18 AM
-> > 
-> > Hi Dexuan,
-> > 
-> > On Wed, Sep 11, 2019 at 11:36:20PM +0000, Dexuan Cui wrote:
-> > > We need hv_kbd_pm_notify() to make sure the pm_wakeup_hard_event()
-> > call
-> > > does not prevent the system from entering hibernation: the hibernation
-> > > is a relatively long process, which can be aborted by the call
-> > > pm_wakeup_hard_event(), which is invoked upon keyboard events.
-> > >
-> > > diff --git a/drivers/input/serio/hyperv-keyboard.c
-> > b/drivers/input/serio/hyperv-keyboard.c
-> > > index 88ae7c2..277dc4c 100644
-> > > --- a/drivers/input/serio/hyperv-keyboard.c
-> > > +++ b/drivers/input/serio/hyperv-keyboard.c
-> > > @@ -10,6 +10,7 @@
-> > >  #include <linux/hyperv.h>
-> > >  #include <linux/serio.h>
-> > >  #include <linux/slab.h>
-> > > +#include <linux/suspend.h>
-> > >
-> > >  /*
-> > >   * Current version 1.0
-> > > @@ -95,6 +96,9 @@ struct hv_kbd_dev {
-> > >  	struct completion wait_event;
-> > >  	spinlock_t lock; /* protects 'started' field */
-> > >  	bool started;
-> > > +
-> > > +	struct notifier_block pm_nb;
-> > > +	bool hibernation_in_progress;
-> > 
-> > Why do you use notifier block instead of exposing proper PM methods if
-> > you want to support hibernation?
-> > 
-> > Dmitry
-> 
-> Hi,
-> In the patch I do implement hv_kbd_suspend() and hv_kbd_resume(), and
-> add them into the hv_kbd_drv struct:
-> 
-> @@ -416,6 +472,8 @@ static struct  hv_driver hv_kbd_drv = {
->         .id_table = id_table,
->         .probe = hv_kbd_probe,
->         .remove = hv_kbd_remove,
-> +       .suspend = hv_kbd_suspend,
-> +       .resume = hv_kbd_resume,
-> 
-> The .suspend and .resume callbacks are inroduced by another patch (which
-> uses the dev_pm_ops struct):
-> 271b2224d42f ("Drivers: hv: vmbus: Implement suspend/resume for VSC drivers for hibernation")
-> (which is on the Hyper-V tree's hyperv-next branch:
-> https://git.kernel.org/pub/scm/linux/kernel/git/hyperv/linux.git/commit/?h=hyperv-next&id=271b2224d42f88870e6b060924ee374871c131fc )
-> 
-> The only purpose of the notifier is to set the variable 
-> kbd_dev->hibernation_in_progress to true during the hibernation process.
-> 
-> As I explained in the changelog, the hibernation is a long process (which
-> can take 10+ seconds), during which the user may unintentionally touch
-> the keyboard, causing key up/down events, which are still handled by
-> hv_kbd_on_receive(), which calls pm_wakeup_hard_event(), which
-> calls some other functions which increase the global counter
-> "pm_abort_suspend", and hence pm_wakeup_pending() becomes true.
-> 
-> pm_wakeup_pending() is tested in a lot of places in the suspend
-> process and eventually an unintentional keystroke (or mouse movement,
-> when it comes to the Hyper-V mouse driver drivers/hid/hid-hyperv.c)
-> causes the whole hibernation process to be aborted. Usually this
-> behavior is not expected by the user, I think.
+From: Jason Gerecke <killertofu@gmail.com>
 
-Why not? If a device is configured as wakeup source, then it activity
-should wake up the system, unless you disable it.
+[ Upstream commit 073b50bccbbf99a3b79a1913604c656d0e1a56c9 ]
 
-> 
-> So, I use the notifier to set the flag variable and with it the driver can
-> know when it should not call pm_wakeup_hard_event().
+Addresses a few issues that were noticed when compiling with non-default
+warnings enabled. The trimmed-down warnings in the order they are fixed
+below are:
 
-No, please implement hibernation support properly, as notifier + flag is
-a hack. In this particular case you do not want to have your
-hv_kbd_resume() to be called in place of pm_ops->thaw() as that is what
-reenables the keyboard vmbus channel and causes the undesired wakeup
-events. Your vmbus implementation should allow individual drivers to
-control the set of PM operations that they wish to use, instead of
-forcing everything through suspend/resume.
+* declaration of 'size' shadows a parameter
 
-Thanks.
+* '%s' directive output may be truncated writing up to 5 bytes into a
+  region of size between 1 and 64
 
+* pointer targets in initialization of 'char *' from 'unsigned char *'
+  differ in signedness
+
+* left shift of negative value
+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/wacom_sys.c | 7 ++++---
+ drivers/hid/wacom_wac.c | 4 ++--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 53bddb50aebaf..602219a8710d0 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -88,7 +88,7 @@ static void wacom_wac_queue_flush(struct hid_device *hdev,
+ }
+ 
+ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
+-		struct hid_report *report, u8 *raw_data, int size)
++		struct hid_report *report, u8 *raw_data, int report_size)
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+@@ -149,7 +149,8 @@ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
+ 	if (flush)
+ 		wacom_wac_queue_flush(hdev, &wacom_wac->pen_fifo);
+ 	else if (insert)
+-		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo, raw_data, size);
++		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo,
++				       raw_data, report_size);
+ 
+ 	return insert && !flush;
+ }
+@@ -2176,7 +2177,7 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
+ {
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct wacom_features *features = &wacom_wac->features;
+-	char name[WACOM_NAME_MAX];
++	char name[WACOM_NAME_MAX - 20]; /* Leave some room for suffixes */
+ 
+ 	/* Generic devices name unspecified */
+ 	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 58719461850de..6be98851edca4 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -251,7 +251,7 @@ static int wacom_dtu_irq(struct wacom_wac *wacom)
+ 
+ static int wacom_dtus_irq(struct wacom_wac *wacom)
+ {
+-	char *data = wacom->data;
++	unsigned char *data = wacom->data;
+ 	struct input_dev *input = wacom->pen_input;
+ 	unsigned short prox, pressure = 0;
+ 
+@@ -572,7 +572,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 		strip2 = ((data[3] & 0x1f) << 8) | data[4];
+ 	}
+ 
+-	prox = (buttons & ~(~0 << nbuttons)) | (keys & ~(~0 << nkeys)) |
++	prox = (buttons & ~(~0U << nbuttons)) | (keys & ~(~0U << nkeys)) |
+ 	       (ring1 & 0x80) | (ring2 & 0x80) | strip1 | strip2;
+ 
+ 	wacom_report_numbered_buttons(input, nbuttons, buttons);
 -- 
-Dmitry
+2.20.1

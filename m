@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 07/13] HID: apple: Fix stuck function keys when using FN
-Date: Sun, 29 Sep 2019 13:36:17 -0400
-Message-ID: <20190929173625.10003-7-sashal@kernel.org>
-References: <20190929173625.10003-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 4/9] HID: apple: Fix stuck function keys when using FN
+Date: Sun, 29 Sep 2019 13:36:49 -0400
+Message-ID: <20190929173655.10178-4-sashal@kernel.org>
+References: <20190929173655.10178-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190929173625.10003-1-sashal@kernel.org>
+In-Reply-To: <20190929173655.10178-1-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Joao Moreno <mail@joaomoreno.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -34,7 +34,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 28 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 65a0c79f212e1..31c087e1746d6 100644
+index 884d82f9190e2..8af87dc05f2a5 100644
 --- a/drivers/hid/hid-apple.c
 +++ b/drivers/hid/hid-apple.c
 @@ -55,7 +55,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")

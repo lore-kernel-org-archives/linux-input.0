@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0A6CC4CED1
-	for <linux-input@archiver.kernel.org>; Sun, 29 Sep 2019 17:38:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61AA4C47404
+	for <linux-input@archiver.kernel.org>; Sun, 29 Sep 2019 17:40:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7868621906
-	for <linux-input@archiver.kernel.org>; Sun, 29 Sep 2019 17:38:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D04121928
+	for <linux-input@archiver.kernel.org>; Sun, 29 Sep 2019 17:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569778726;
+	s=default; t=1569778817;
 	bh=loZr7MLJpU4XU6TOPh2BVQXDVFm5QAyJaqArvekhQzo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=MgBkPIxyH2i8AfllMyj+IL8BOmcqMvdN/lMhn/B0beFH4U8hfPbjCivl9No4zs0Ck
-	 8NZwVdgxRh3KSE7bJANvG0OqGUmNRcmkK/dUrzyQF0G4JpBuvFcNRxqkWFsuB4lFHc
-	 i84PVPnsrylhpl/FXd9Hb8Sxn5JCyWgKmqgveh+o=
+	b=yEt4cxfid/J2ZO6PEFPZNC+THtjaXcADhVv5ajTmNbeKt3ibJzoRhNeWXRnWfkhHc
+	 FkDRXUNkKVgtYWvV1r9ax+oMEgiCkZqZ3ta81UMXF5InR7Y79tbUhDKPyy+1VBQfz1
+	 N9gXt5Tmpuxbeu9bwfZPJMDwq9WMEiL9fg9XU03o=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729887AbfI2Rih (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 29 Sep 2019 13:38:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48292 "EHLO mail.kernel.org"
+        id S1729280AbfI2Re4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 29 Sep 2019 13:34:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729786AbfI2RgA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:36:00 -0400
+        id S1730481AbfI2Re4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:34:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3E2621D6C;
-        Sun, 29 Sep 2019 17:35:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33D0621A4C;
+        Sun, 29 Sep 2019 17:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778559;
+        s=default; t=1569778494;
         bh=loZr7MLJpU4XU6TOPh2BVQXDVFm5QAyJaqArvekhQzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jx8InXds9YDSisXpCh5ducyiVGQR6LV8v9n/4YJatME7aRpIpmrhnZlECpRoswSRL
-         1R7NnnVyOpdahZDKH+9f6hY9EEXr9VVWAP2CfxoIbl1UkZ4xpc6UgywZU0UGv3hYMN
-         4j9/tk3QDVBXiC++J4wto/XV9RPXLOqvjLg8p0jI=
+        b=bUFRnF4P4fuaR1jUgNIXB0AdfwlU8WC5R4zK6ZLuP7cTreFGBtWQJWIFWj49hJZ/5
+         WOCsDmhsM6RJTyKQYGrKkQEvHIZSY6a8kkxwM58cwjyrfFCRWTWkGRo0kyOlr1Qv+u
+         qQumsquvdnSqGxvBAckZprPb1adBdRwbR5s/CT9c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Joao Moreno <mail@joaomoreno.com>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 12/23] HID: apple: Fix stuck function keys when using FN
-Date:   Sun, 29 Sep 2019 13:35:22 -0400
-Message-Id: <20190929173535.9744-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 16/33] HID: apple: Fix stuck function keys when using FN
+Date:   Sun, 29 Sep 2019 13:34:04 -0400
+Message-Id: <20190929173424.9361-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190929173535.9744-1-sashal@kernel.org>
-References: <20190929173535.9744-1-sashal@kernel.org>
+In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
+References: <20190929173424.9361-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,7 +58,7 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <20190929173522.ZbhBZtBwM-fgnCgYstQfnVMzpZBXPKzDkAV7o97OBwI@z>
+Message-ID: <20190929173404.sfxFAUDcNSH0sv_OTXa_P6hrs-r_NNdvbHldO4af5ZA@z>
 
 From: Joao Moreno <mail@joaomoreno.com>
 

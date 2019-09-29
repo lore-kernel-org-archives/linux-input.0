@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77C7FC352A9
-	for <linux-input@archiver.kernel.org>; Sun, 29 Sep 2019 17:31:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 091D8C352A9
+	for <linux-input@archiver.kernel.org>; Sun, 29 Sep 2019 17:33:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4E2552086A
-	for <linux-input@archiver.kernel.org>; Sun, 29 Sep 2019 17:31:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D659E21920
+	for <linux-input@archiver.kernel.org>; Sun, 29 Sep 2019 17:33:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569778274;
-	bh=Tp4b11cspHAWK0Ld2nEYPjnxgVmJTvFsF4NDh6tAmdA=;
+	s=default; t=1569778382;
+	bh=DSnlGAxhxB7SSX6XqT2FqtNxf7JUGJ/CRstIzZireiI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=d2VFFL6Tzq09vKAptWARf9092eFz9oS4WxBAytSBOu49CEjzto9XXxezoyM+kMn3s
-	 mKIo4YD2b76iURcg2m13YU8/R6eqop4plzhiUrXcHUJT+UYEr3mCILi9awd6ScCY5h
-	 zm9XpM0pAggv8qTIMD8hXexcY1OGqlzdBgXIb+48=
+	b=KLh9wG3biIs/ahUcK94jLFt4f845rv2in0VMFX5yy+HeX58oyLInubJCqL7niw7eW
+	 gE/VBOyKlSfRwVJv+Y2b1mLdMhkB2BWQS6lLW/IPC5GgS2zew2J9k6QV1VedGQK+YT
+	 jgSwL735TtqzFDCqRFBDRE+BFPt00YvqO8EubPfM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729195AbfI2RbN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 29 Sep 2019 13:31:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41548 "EHLO mail.kernel.org"
+        id S1729930AbfI2RdB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 29 Sep 2019 13:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729185AbfI2RbM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:31:12 -0400
+        id S1729925AbfI2RdB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:33:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 603F72086A;
-        Sun, 29 Sep 2019 17:31:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D85A421928;
+        Sun, 29 Sep 2019 17:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778271;
-        bh=Tp4b11cspHAWK0Ld2nEYPjnxgVmJTvFsF4NDh6tAmdA=;
+        s=default; t=1569778380;
+        bh=DSnlGAxhxB7SSX6XqT2FqtNxf7JUGJ/CRstIzZireiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqsOrpHmta+9RBunrUQzYMyf7XEdaa+CsbnkCVNAD6VV45G1vNwvtOGni5YLtHe6v
-         dO2bd22c2tp9V54rWc3QwlXXltef91gGydAmD2AR+rPUOjmLEeqmJpM7TMdDiQ1dY+
-         hryRm95+bX5exA6yY28ihXnh/lP9el4KXrEk3p90=
+        b=IDlgNZr92weRBLNSjxf3V0g5V5irYr5blztWA+6jrUVv63ahKFM5+6QKwxbSZxb1m
+         07Z/LaDjIE7YqHZ3WKBhnRMvvbTQeEmm76A/T3CdLoTOR0PcaVtuSnSuI7ZgW+CGp/
+         DZNK4m/zqeB97AOl0sjCHNHGCgt20xNeEY729Jvg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jason Gerecke <killertofu@gmail.com>,
@@ -45,12 +45,12 @@ Cc:     Jason Gerecke <killertofu@gmail.com>,
         Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 08/49] HID: wacom: Fix several minor compiler warnings
-Date:   Sun, 29 Sep 2019 13:30:08 -0400
-Message-Id: <20190929173053.8400-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 08/42] HID: wacom: Fix several minor compiler warnings
+Date:   Sun, 29 Sep 2019 13:32:07 -0400
+Message-Id: <20190929173244.8918-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190929173053.8400-1-sashal@kernel.org>
-References: <20190929173053.8400-1-sashal@kernel.org>
+In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
+References: <20190929173244.8918-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,7 +60,7 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <20190929173008.DP2AVoUAFKnm97WQ7eEyiYNwlZXYlwoNSk0CDb1EZdw@z>
+Message-ID: <20190929173207.2NVJ6GmEwj96Hvsx_ihWFSR5_EZTG1sOfP2Vj1VEc9s@z>
 
 From: Jason Gerecke <killertofu@gmail.com>
 
@@ -122,7 +122,7 @@ index 53bddb50aebaf..602219a8710d0 100644
  	/* Generic devices name unspecified */
  	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 1713235d28cb0..2b46403973755 100644
+index 58719461850de..6be98851edca4 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
 @@ -251,7 +251,7 @@ static int wacom_dtu_irq(struct wacom_wac *wacom)

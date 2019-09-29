@@ -1,119 +1,97 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 12/23] HID: apple: Fix stuck function keys when using FN
-Date: Sun, 29 Sep 2019 13:35:22 -0400
-Message-ID: <20190929173535.9744-12-sashal@kernel.org>
-References: <20190929173535.9744-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 07/33] HID: wacom: Fix several minor compiler warnings
+Date: Sun, 29 Sep 2019 13:33:55 -0400
+Message-ID: <20190929173424.9361-7-sashal@kernel.org>
+References: <20190929173424.9361-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190929173535.9744-1-sashal@kernel.org>
+In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Joao Moreno <mail@joaomoreno.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Joao Moreno <mail@joaomoreno.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-[ Upstream commit aec256d0ecd561036f188dbc8fa7924c47a9edfd ]
+[ Upstream commit 073b50bccbbf99a3b79a1913604c656d0e1a56c9 ]
 
-This fixes an issue in which key down events for function keys would be
-repeatedly emitted even after the user has raised the physical key. For
-example, the driver fails to emit the F5 key up event when going through
-the following steps:
-- fnmode=1: hold FN, hold F5, release FN, release F5
-- fnmode=2: hold F5, hold FN, release F5, release FN
+Addresses a few issues that were noticed when compiling with non-default
+warnings enabled. The trimmed-down warnings in the order they are fixed
+below are:
 
-The repeated F5 key down events can be easily verified using xev.
+* declaration of 'size' shadows a parameter
 
-Signed-off-by: Joao Moreno <mail@joaomoreno.com>
-Co-developed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+* '%s' directive output may be truncated writing up to 5 bytes into a
+  region of size between 1 and 64
+
+* pointer targets in initialization of 'char *' from 'unsigned char *'
+  differ in signedness
+
+* left shift of negative value
+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 49 +++++++++++++++++++++++------------------
- 1 file changed, 28 insertions(+), 21 deletions(-)
+ drivers/hid/wacom_sys.c | 7 ++++---
+ drivers/hid/wacom_wac.c | 4 ++--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 1cb41992aaa1f..d0a81a03ddbdd 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -57,7 +57,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
- struct apple_sc {
- 	unsigned long quirks;
- 	unsigned int fn_on;
--	DECLARE_BITMAP(pressed_fn, KEY_CNT);
- 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
- };
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 5a2d5140c1f42..3038c975e417c 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -91,7 +91,7 @@ static void wacom_wac_queue_flush(struct hid_device *hdev,
+ }
  
-@@ -184,6 +183,8 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
+-		struct hid_report *report, u8 *raw_data, int size)
++		struct hid_report *report, u8 *raw_data, int report_size)
  {
- 	struct apple_sc *asc = hid_get_drvdata(hid);
- 	const struct apple_key_translation *trans, *table;
-+	bool do_translate;
-+	u16 code = 0;
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+@@ -152,7 +152,8 @@ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
+ 	if (flush)
+ 		wacom_wac_queue_flush(hdev, &wacom_wac->pen_fifo);
+ 	else if (insert)
+-		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo, raw_data, size);
++		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo,
++				       raw_data, report_size);
  
- 	if (usage->code == KEY_FN) {
- 		asc->fn_on = !!value;
-@@ -192,8 +193,6 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 	return insert && !flush;
+ }
+@@ -2147,7 +2148,7 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
+ {
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct wacom_features *features = &wacom_wac->features;
+-	char name[WACOM_NAME_MAX];
++	char name[WACOM_NAME_MAX - 20]; /* Leave some room for suffixes */
+ 
+ 	/* Generic devices name unspecified */
+ 	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 6f5c838f9d474..1df037e7f0b42 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -255,7 +255,7 @@ static int wacom_dtu_irq(struct wacom_wac *wacom)
+ 
+ static int wacom_dtus_irq(struct wacom_wac *wacom)
+ {
+-	char *data = wacom->data;
++	unsigned char *data = wacom->data;
+ 	struct input_dev *input = wacom->pen_input;
+ 	unsigned short prox, pressure = 0;
+ 
+@@ -576,7 +576,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 		strip2 = ((data[3] & 0x1f) << 8) | data[4];
  	}
  
- 	if (fnmode) {
--		int do_translate;
--
- 		if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
- 				hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
- 			table = macbookair_fn_keys;
-@@ -205,25 +204,33 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		trans = apple_find_translation (table, usage->code);
+-	prox = (buttons & ~(~0 << nbuttons)) | (keys & ~(~0 << nkeys)) |
++	prox = (buttons & ~(~0U << nbuttons)) | (keys & ~(~0U << nkeys)) |
+ 	       (ring1 & 0x80) | (ring2 & 0x80) | strip1 | strip2;
  
- 		if (trans) {
--			if (test_bit(usage->code, asc->pressed_fn))
--				do_translate = 1;
--			else if (trans->flags & APPLE_FLAG_FKEY)
--				do_translate = (fnmode == 2 && asc->fn_on) ||
--					(fnmode == 1 && !asc->fn_on);
--			else
--				do_translate = asc->fn_on;
--
--			if (do_translate) {
--				if (value)
--					set_bit(usage->code, asc->pressed_fn);
--				else
--					clear_bit(usage->code, asc->pressed_fn);
--
--				input_event(input, usage->type, trans->to,
--						value);
--
--				return 1;
-+			if (test_bit(trans->from, input->key))
-+				code = trans->from;
-+			else if (test_bit(trans->to, input->key))
-+				code = trans->to;
-+
-+			if (!code) {
-+				if (trans->flags & APPLE_FLAG_FKEY) {
-+					switch (fnmode) {
-+					case 1:
-+						do_translate = !asc->fn_on;
-+						break;
-+					case 2:
-+						do_translate = asc->fn_on;
-+						break;
-+					default:
-+						/* should never happen */
-+						do_translate = false;
-+					}
-+				} else {
-+					do_translate = asc->fn_on;
-+				}
-+
-+				code = do_translate ? trans->to : trans->from;
- 			}
-+
-+			input_event(input, usage->type, code, value);
-+			return 1;
- 		}
- 
- 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
+ 	wacom_report_numbered_buttons(input, nbuttons, buttons);
 -- 
 2.20.1

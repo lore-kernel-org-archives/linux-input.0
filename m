@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 23/42] HID: apple: Fix stuck function keys when using FN
-Date: Sun, 29 Sep 2019 13:32:22 -0400
-Message-ID: <20190929173244.8918-23-sashal@kernel.org>
-References: <20190929173244.8918-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 16/33] HID: apple: Fix stuck function keys when using FN
+Date: Sun, 29 Sep 2019 13:34:04 -0400
+Message-ID: <20190929173424.9361-16-sashal@kernel.org>
+References: <20190929173424.9361-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
+In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Joao Moreno <mail@joaomoreno.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -34,10 +34,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 28 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 81df62f48c4c3..6ac8becc2372e 100644
+index 1cb41992aaa1f..d0a81a03ddbdd 100644
 --- a/drivers/hid/hid-apple.c
 +++ b/drivers/hid/hid-apple.c
-@@ -54,7 +54,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
+@@ -57,7 +57,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
  struct apple_sc {
  	unsigned long quirks;
  	unsigned int fn_on;
@@ -45,7 +45,7 @@ index 81df62f48c4c3..6ac8becc2372e 100644
  	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
  };
  
-@@ -181,6 +180,8 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+@@ -184,6 +183,8 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
  {
  	struct apple_sc *asc = hid_get_drvdata(hid);
  	const struct apple_key_translation *trans, *table;
@@ -54,7 +54,7 @@ index 81df62f48c4c3..6ac8becc2372e 100644
  
  	if (usage->code == KEY_FN) {
  		asc->fn_on = !!value;
-@@ -189,8 +190,6 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+@@ -192,8 +193,6 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
  	}
  
  	if (fnmode) {
@@ -63,7 +63,7 @@ index 81df62f48c4c3..6ac8becc2372e 100644
  		if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
  				hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
  			table = macbookair_fn_keys;
-@@ -202,25 +201,33 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+@@ -205,25 +204,33 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
  		trans = apple_find_translation (table, usage->code);
  
  		if (trans) {

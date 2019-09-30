@@ -1,90 +1,108 @@
-From: syzbot <syzbot+a3f4c2f4f8cde2ff797b@syzkaller.appspotmail.com>
-Subject: KASAN: slab-out-of-bounds Read in hiddev_ioctl_usage
-Date: Mon, 30 Sep 2019 15:39:15 -0700
-Message-ID: <000000000000d043690593cce730@google.com>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: hyperv-keyboard: Add the support of hibernation
+Date: Mon, 30 Sep 2019 16:06:52 -0700
+Message-ID: <20190930230652.GW237523@dtor-ws>
+References: <1568244975-66795-1-git-send-email-decui@microsoft.com>
+ <20190919161752.GS237523@dtor-ws>
+ <PU1P153MB016914A7C827CA35D7FEB66ABF8B0@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+ <20190928003156.GU237523@dtor-ws>
+ <PU1P153MB0169C315F7F9EBEBED4C7A7DBF820@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <PU1P153MB0169C315F7F9EBEBED4C7A7DBF820@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
 Sender: linux-kernel-owner@vger.kernel.org
-To: andreyknvl@google.com, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: Dexuan Cui <decui@microsoft.com>
+Cc: KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "sashal@kernel.org" <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Kelley <mikelley@microsoft.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+On Mon, Sep 30, 2019 at 10:09:27PM +0000, Dexuan Cui wrote:
+> > From: dmitry.torokhov@gmail.com <dmitry.torokhov@gmail.com>
+> > Sent: Friday, September 27, 2019 5:32 PM
+> > > ...
+> > > pm_wakeup_pending() is tested in a lot of places in the suspend
+> > > process and eventually an unintentional keystroke (or mouse movement,
+> > > when it comes to the Hyper-V mouse driver drivers/hid/hid-hyperv.c)
+> > > causes the whole hibernation process to be aborted. Usually this
+> > > behavior is not expected by the user, I think.
+> > 
+> > Why not? If a device is configured as wakeup source, then it activity
+> > should wake up the system, unless you disable it.
+> 
+> Generally speaking, I agree, but compared to a physical machine, IMO 
+> the scenario is a little differnet when it comes to a VM running on Hyper-V:
+> on the host there is a window that represents the VM, and the user can
+> unintentionally switch the keyboard input focus to the window (or move
+> the mouse/cursor over the window) and then the host automatically 
+> sends some special keystrokes (and mouse events) , and this aborts the
+> hibernation process.  
+> 
+> And, when it comes to the Hyper-V mouse device, IMO it's easy for the
+> user to unintentionally move the mouse after the "hibernation" button
+> is clicked. I suppose a physical machine would have the same issue, though.
 
-syzbot found the following crash on:
+If waking the machine up by mouse/keyboard activity is not desired in
+Hyper-V environment, then simply disable them as wakeup sources.
 
-HEAD commit:    2994c077 usb-fuzzer: main usb gadget fuzzer driver
-git tree:       https://github.com/google/kasan.git usb-fuzzer
-console output: https://syzkaller.appspot.com/x/log.txt?x=15170f6d600000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=69ddefac6929256a
-dashboard link: https://syzkaller.appspot.com/bug?extid=a3f4c2f4f8cde2ff797b
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14a1a55b600000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=107c47bd600000
+> 
+> > > So, I use the notifier to set the flag variable and with it the driver can
+> > > know when it should not call pm_wakeup_hard_event().
+> > 
+> > No, please implement hibernation support properly, as notifier + flag is
+> > a hack. 
+> 
+> The keyboard/mouse driver can avoid the flag by disabling the 
+> keyboard/mouse event handling, but the problem is that they don't know
+> when exactly they should disable the event handling. I think the PM
+> notifier is the only way to tell the drivers a hibernation process is ongoing.
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+a3f4c2f4f8cde2ff797b@syzkaller.appspotmail.com
+Whatever initiates hibernation (in userspace) can adjust wakeup sources
+as needed if you want them disabled completely.
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in hiddev_ioctl_usage.isra.0+0x12d0/0x13b0  
-drivers/hid/usbhid/hiddev.c:535
-Read of size 4 at addr ffff8881d3fc81dc by task syz-executor894/1724
+> 
+> Do you think this idea (notifer + disabling event handling) is acceptable?
 
-CPU: 0 PID: 1724 Comm: syz-executor894 Not tainted 5.3.0+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0xca/0x13e lib/dump_stack.c:113
-  print_address_description.constprop.0+0x36/0x50 mm/kasan/report.c:374
-  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:506
-  kasan_report+0xe/0x12 mm/kasan/common.c:634
-  hiddev_ioctl_usage.isra.0+0x12d0/0x13b0 drivers/hid/usbhid/hiddev.c:535
-  hiddev_ioctl+0x7a1/0x1550 drivers/hid/usbhid/hiddev.c:807
-  vfs_ioctl fs/ioctl.c:46 [inline]
-  file_ioctl fs/ioctl.c:509 [inline]
-  do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
-  ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
-  __do_sys_ioctl fs/ioctl.c:720 [inline]
-  __se_sys_ioctl fs/ioctl.c:718 [inline]
-  __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
-  do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x444969
-Code: e8 bc af 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7  
-48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 1b d8 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007ffff4d72ed8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00000000004002e0 RCX: 0000000000444969
-RDX: 0000000020000100 RSI: 00000000c018480b RDI: 0000000000000004
-RBP: 00000000006cf018 R08: 8fce4d9635172f21 R09: 00000000004002e0
-R10: 000000000000000f R11: 0000000000000246 R12: 0000000000402610
-R13: 00000000004026a0 R14: 0000000000000000 R15: 0000000000000000
+No, I believe this a hack, that is why I am pushing back on this.
 
-The buggy address belongs to the page:
-page:ffffea00074fe000 refcount:1 mapcount:0 mapping:0000000000000000  
-index:0x0 compound_mapcount: 0
-flags: 0x200000000010000(head)
-raw: 0200000000010000 dead000000000100 dead000000000122 0000000000000000
-raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
+> 
+> If not, then I'll have to remove the notifer completely, and document this as
+> a known issue to the user: when a hibernation process is started, be careful
+> to not switch input focus and not touch the keyboard/mouse until the
+> hibernation process is finished. :-)
+> 
+> > In this particular case you do not want to have your
+> > hv_kbd_resume() to be called in place of pm_ops->thaw() as that is what
+> > reenables the keyboard vmbus channel and causes the undesired wakeup
+> > events. 
+> 
+> This is only part of the issues. Another example: before the
+> pm_ops()->freeze()'s of all the devices are called, pm_wakeup_pending()
+> is already tested in a lot of places (e.g. in try_to_freeze_tasks ()) in the 
+> suspend process, and can abort the whole suspend process upon the user's
+> unintentional input focus switch, keystroke and mouse movement.
 
-Memory state around the buggy address:
-  ffff8881d3fc8080: fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
-  ffff8881d3fc8100: fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
-> ffff8881d3fc8180: fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
-                                                     ^
-  ffff8881d3fc8200: fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
-  ffff8881d3fc8280: fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe fe
-==================================================================
+How long is the prepare() phase on your systems? User may wiggle mouse
+at any time really, even before the notifier fires up.
 
+> 
+> > Your vmbus implementation should allow individual drivers to
+> > control the set of PM operations that they wish to use, instead of
+> > forcing everything through suspend/resume.
+> > 
+> > Dmitry
+> 
+> Since the devices are pure software-emulated devices, no PM operation was
+> supported in the past, and now suspend/resume are the only two PM operations
+> we're going to support. If the idea (notifer + disabling event handling) is not
+> good enough, we'll have to document the issue to the user, as I described above.
 
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+¯\_(ツ)_/¯ If you do not want to implement hibernation properly in vmbus
+code that is totally up to you (have you read in pm.h how freeze() is
+different from suspend()?).
 
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+Thanks.
+
+-- 
+Dmitry

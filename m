@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 2/6] dt-bindings: input: max77650: convert the binding document to yaml
-Date: Mon, 30 Sep 2019 15:02:42 +0200
-Message-ID: <20190930130246.4860-3-brgl@bgdev.pl>
+Subject: [PATCH 4/6] dt-bindings: power: max77650: convert the binding document to yaml
+Date: Mon, 30 Sep 2019 15:02:44 +0200
+Message-ID: <20190930130246.4860-5-brgl@bgdev.pl>
 References: <20190930130246.4860-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,95 +14,96 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Convert the binding document for max77650 onkey module to yaml.
+Convert the binding document for max77650 charger module to yaml.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- .../bindings/input/max77650-onkey.txt         | 27 +-----------
- .../bindings/input/max77650-onkey.yaml        | 43 +++++++++++++++++++
- 2 files changed, 44 insertions(+), 26 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.yaml
+ .../power/supply/max77650-charger.txt         | 29 +------------
+ .../power/supply/max77650-charger.yaml        | 42 +++++++++++++++++++
+ 2 files changed, 43 insertions(+), 28 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
 
-diff --git a/Documentation/devicetree/bindings/input/max77650-onkey.txt b/Documentation/devicetree/bindings/input/max77650-onkey.txt
-index 477dc74f452a..a691fc49f1ea 100644
---- a/Documentation/devicetree/bindings/input/max77650-onkey.txt
-+++ b/Documentation/devicetree/bindings/input/max77650-onkey.txt
-@@ -1,26 +1 @@
--Onkey driver for MAX77650 PMIC from Maxim Integrated.
+diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+index e6d0fb6ff94e..fbab7d3ac8e3 100644
+--- a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
++++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+@@ -1,28 +1 @@
+-Battery charger driver for MAX77650 PMIC from Maxim Integrated.
 -
 -This module is part of the MAX77650 MFD device. For more details
 -see Documentation/devicetree/bindings/mfd/max77650.txt.
 -
--The onkey controller is represented as a sub-node of the PMIC node on
--the device tree.
+-The charger is represented as a sub-node of the PMIC node on the device tree.
 -
 -Required properties:
 ---------------------
--- compatible:		Must be "maxim,max77650-onkey".
+-- compatible:		Must be "maxim,max77650-charger"
 -
 -Optional properties:
--- linux,code:		The key-code to be reported when the key is pressed.
--			Defaults to KEY_POWER.
--- maxim,onkey-slide:	The system's button is a slide switch, not the default
--			push button.
+---------------------
+-- input-voltage-min-microvolt:	Minimum CHGIN regulation voltage. Must be one
+-				of: 4000000, 4100000, 4200000, 4300000,
+-				4400000, 4500000, 4600000, 4700000.
+-- input-current-limit-microamp:	CHGIN input current limit (in microamps). Must
+-				be one of: 95000, 190000, 285000, 380000,
+-				475000.
 -
 -Example:
 ---------
 -
--	onkey {
--		compatible = "maxim,max77650-onkey";
--		linux,code = <KEY_END>;
--		maxim,onkey-slide;
+-	charger {
+-		compatible = "maxim,max77650-charger";
+-		input-voltage-min-microvolt = <4200000>;
+-		input-current-limit-microamp = <285000>;
 -	};
-+This file has been moved to max77650-onkey.yaml.
-diff --git a/Documentation/devicetree/bindings/input/max77650-onkey.yaml b/Documentation/devicetree/bindings/input/max77650-onkey.yaml
++This file was moved to max77650-charger.yaml.
+diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.yaml b/Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
 new file mode 100644
-index 000000000000..eb2f8609bae2
+index 000000000000..9dd0dad0f948
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/max77650-onkey.yaml
-@@ -0,0 +1,43 @@
++++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
+@@ -0,0 +1,42 @@
 +# SPDX-License-Identifier: GPL-2.0
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/input/max77650-onkey.yaml#
++$id: http://devicetree.org/schemas/power/supply/max77650-charger.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Onkey driver for MAX77650 PMIC from Maxim Integrated.
++title: Battery charger driver for MAX77650 PMIC from Maxim Integrated.
 +
 +maintainers:
 +  - Bartosz Golaszewski <bgolaszewski@baylibre.com>
 +
 +description: |
 +  This module is part of the MAX77650 MFD device. For more details
-+  see Documentation/devicetree/bindings/mfd/max77650.yaml.
++  see Documentation/devicetree/bindings/mfd/max77650.txt.
 +
-+  The onkey controller is represented as a sub-node of the PMIC node on
-+  the device tree.
++  The charger is represented as a sub-node of the PMIC node on the device tree.
 +
 +properties:
 +  compatible:
-+    const: maxim,max77650-onkey
++    const: maxim,max77650-charger
 +
-+  linux,code:
-+    $ref: /schemas/types.yaml#/definitions/uint32
++  input-voltage-min-microvolt:
 +    description:
-+      The key-code to be reported when the key is pressed. Defaults
-+      to KEY_POWER.
++      Minimum CHGIN regulation voltage.
++    enum: [ 4000000, 4100000, 4200000, 4300000,
++            4400000, 4500000, 4600000, 4700000 ]
 +
-+  maxim,onkey-slide:
-+    $ref: /schemas/types.yaml#/definitions/flag
++  input-current-limit-microamp:
 +    description:
-+      The system's button is a slide switch, not the default push button.
++      CHGIN input current limit (in microamps).
++    enum: [ 95000, 190000, 285000, 380000, 475000 ]
 +
 +required:
 +  - compatible
 +
 +examples:
 +  - |
-+    onkey {
-+        compatible = "maxim,max77650-onkey";
-+        linux,code = <KEY_END>;
-+        maxim,onkey-slide;
++    charger {
++        compatible = "maxim,max77650-charger";
++        input-voltage-min-microvolt = <4200000>;
++        input-current-limit-microamp = <285000>;
 +    };
 -- 
 2.23.0

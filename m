@@ -7,54 +7,54 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E846FC388F3
-	for <linux-input@archiver.kernel.org>; Mon, 30 Sep 2019 13:03:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62110C32792
+	for <linux-input@archiver.kernel.org>; Mon, 30 Sep 2019 13:03:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BF08421D80
-	for <linux-input@archiver.kernel.org>; Mon, 30 Sep 2019 13:03:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 375F921D56
+	for <linux-input@archiver.kernel.org>; Mon, 30 Sep 2019 13:03:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="Jo/WBmAF"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="vkzdkYyv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731159AbfI3NDZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 30 Sep 2019 09:03:25 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:53269 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731091AbfI3NDE (ORCPT
+        id S1731168AbfI3NDe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 30 Sep 2019 09:03:34 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:51292 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731065AbfI3NDC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 Sep 2019 09:03:04 -0400
-Received: by mail-wm1-f67.google.com with SMTP id i16so13322957wmd.3
-        for <linux-input@vger.kernel.org>; Mon, 30 Sep 2019 06:03:02 -0700 (PDT)
+        Mon, 30 Sep 2019 09:03:02 -0400
+Received: by mail-wm1-f65.google.com with SMTP id 7so13337939wme.1
+        for <linux-input@vger.kernel.org>; Mon, 30 Sep 2019 06:02:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=r1biT3z4HmAvefafF9uIXaOf/W/MJzkBlJwoZ49uPn4=;
-        b=Jo/WBmAF7Fx7KoQj04IyncOX+koFGrFGMhNCzZnkJrgWepLEcOtKzJoXvX4A/vSdBx
-         aYLxRpb3bFqb4Y2UoUHhlbcrbnuA7iqopq09y4Sjq3tfr30KCoNaACPdrlcrDGQ96xF5
-         5eGlPPR0Ay1nXoOE30DU2fuoYr32rkhblV5QukBhpg/4cr6yd7QAtT/WfBo4f00gloEg
-         9KMC1Ky9gpXU+DFRTZllk/woqnzdb56JLSoeSYATshVlSY+/shvpmS0F8LOGlEHqWuBP
-         qHIeeAwiKajIC4VyOPwQIKiWGRs4ugl/7LS1TRFqMNin5sugUHHpK1L1BSZfK6KGPEyf
-         5ZoQ==
+        bh=LYsu0lDWKxQ5G5EtJe6rqenJarRBonlZ3Wzg4XP51lM=;
+        b=vkzdkYyv2bRGrVpXlSpwKW1x1i3bMfFqKHl5cSYQBhEh1uUC6r5j8/n3/+ZXRdqJKI
+         avVUnCaR9hEQ4nmnEfQxdbaNF+0LwMEuhcodmBd2yOmBm6H4CskDhXbXwL/JXuLCC+qR
+         EcUhrKv8nFvLg+trHNhrJGlgpXJH5odOS/q+9QvOgsBXS7oZGUz6JPGClRKCSokZ8xGh
+         tA0tpnyV2ZKmFfjPLEpBrR6GCcNH3BVvREjdz+H7UGfLx38NYx/O2wwy4AwYuqnS25Ov
+         ZaxDDwlAQswY1AdeOZA4X2+zZuqQBQfi3VCUQtoNdz1hMsSWRsbKf8Lbnwc6c1YAwDK1
+         RYwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=r1biT3z4HmAvefafF9uIXaOf/W/MJzkBlJwoZ49uPn4=;
-        b=ntijuPeswt9NFzVGQA6uNN8i4hl1Y7uvTFNHA/lVRoA/CkndMw0vEtSZcjo5aN9D0K
-         LbHseZQ/aOxmBXFltQ4uIk1wFjm8p5bPGAnUH7BzWpdRJHm0EWeHtNJH+3yDw1rqXmpd
-         G1UqlO59snt5ZkNxOuSU9EInD4hPN5GdfAmHFnrrgtbLqiMXea3717mlct+gwt3/ERG4
-         D8oEMhtMwD8/QOYcIvWs6hGJvrOdVvqLrh/IzL+TffBn/kyDXYwFI3VCY4wGnCJkzo8b
-         jB8/C3WrKxX7DkTt1OB0lhGcOmGca+yeOTA1kZjWWo3yl1yzAbXhXUhtt33+LJP82nXB
-         4Z0A==
-X-Gm-Message-State: APjAAAUBaKXMMgh3F2rP3HbcIaqEUJGZl+G6i02qNjF3Yadxo00TT/Hq
-        egjDsw0H2dEBvDZe+Q2G/lhlfQ==
-X-Google-Smtp-Source: APXvYqyUiRHOSL+ukTU1KeQ0u0W4UWcc3iXtjoPGnJT3uuv36m3JieAsjCXuI8JIrKnrGzsep8fgxg==
-X-Received: by 2002:a7b:c10b:: with SMTP id w11mr16341237wmi.108.1569848582114;
-        Mon, 30 Sep 2019 06:03:02 -0700 (PDT)
+        bh=LYsu0lDWKxQ5G5EtJe6rqenJarRBonlZ3Wzg4XP51lM=;
+        b=lgKzzgKa5soXj6+a0ha56edE5RS7/RVPLbdetLqpDM1JHz/arJWlOvD/E7L9PXcgZr
+         Dqilil33h71sVq43X3CLzJTOBSAWiCjn2PHasef6ujnHtJaoEjxm8C7SniKnCrH2vplS
+         5fdD0KetXQXLNaNP6EZ5Foh9l7+wc6iRmkJSJeFmYelEDn+01MtbcB6+oD36LCKnMlIP
+         7c1XHpJ/7mj+eqEqmPxXThgCLLAJlNnbFuHTtGMXCByTKYobUV8HQ3a9CrDPyoNjdeZV
+         3TEU4IBVzft1stWR16Rpm1WJtzkpX1Fs4vOHhu3BrnkA2U4qlH68oSfNcvlFc9aH7JdG
+         /oeA==
+X-Gm-Message-State: APjAAAXmxZGRJX7h/yvTEPh0z33ql/WRYpUPrnIYdQvZskhpbFB2twbz
+        aIXKSWV/pxCF71QutmtWwy4LVg==
+X-Google-Smtp-Source: APXvYqyvZKOkmn0n9oatNC3JwQ6hUqFw5xzAHpgRsWRv/OpnGW9BxVRR9MkFoMz95vAimW545q6P+Q==
+X-Received: by 2002:a1c:cc0e:: with SMTP id h14mr17436338wmb.117.1569848578775;
+        Mon, 30 Sep 2019 06:02:58 -0700 (PDT)
 Received: from localhost.localdomain (amontpellier-652-1-281-69.w109-210.abo.wanadoo.fr. [109.210.96.69])
-        by smtp.gmail.com with ESMTPSA id e6sm10654756wrp.91.2019.09.30.06.03.01
+        by smtp.gmail.com with ESMTPSA id e6sm10654756wrp.91.2019.09.30.06.02.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Sep 2019 06:03:01 -0700 (PDT)
+        Mon, 30 Sep 2019 06:02:58 -0700 (PDT)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -69,9 +69,9 @@ Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
         linux-pm@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 4/6] dt-bindings: power: max77650: convert the binding document to yaml
-Date:   Mon, 30 Sep 2019 15:02:44 +0200
-Message-Id: <20190930130246.4860-5-brgl@bgdev.pl>
+Subject: [PATCH 1/6] dt-bindings: mfd: max77650: convert the binding document to yaml
+Date:   Mon, 30 Sep 2019 15:02:41 +0200
+Message-Id: <20190930130246.4860-2-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190930130246.4860-1-brgl@bgdev.pl>
 References: <20190930130246.4860-1-brgl@bgdev.pl>
@@ -82,100 +82,159 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Message-ID: <20190930130244.h8ELMi7-2X0Rfvmlfjy4pxGIx3WJ_lix2jJo3BTbts8@z>
+Message-ID: <20190930130241.KeO5a6o874gZn7SI7c_-z1xHCqwipla1RHJWq8xDD1s@z>
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Convert the binding document for max77650 charger module to yaml.
+Convert the binding document for max77650 core mfd module to yaml.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- .../power/supply/max77650-charger.txt         | 29 +------------
- .../power/supply/max77650-charger.yaml        | 42 +++++++++++++++++++
- 2 files changed, 43 insertions(+), 28 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
+ .../devicetree/bindings/mfd/max77650.txt      | 47 +----------
+ .../devicetree/bindings/mfd/max77650.yaml     | 83 +++++++++++++++++++
+ 2 files changed, 84 insertions(+), 46 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77650.yaml
 
-diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
-index e6d0fb6ff94e..fbab7d3ac8e3 100644
---- a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
-+++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
-@@ -1,28 +1 @@
--Battery charger driver for MAX77650 PMIC from Maxim Integrated.
--
--This module is part of the MAX77650 MFD device. For more details
--see Documentation/devicetree/bindings/mfd/max77650.txt.
--
--The charger is represented as a sub-node of the PMIC node on the device tree.
+diff --git a/Documentation/devicetree/bindings/mfd/max77650.txt b/Documentation/devicetree/bindings/mfd/max77650.txt
+index b529d8d19335..080871686b3b 100644
+--- a/Documentation/devicetree/bindings/mfd/max77650.txt
++++ b/Documentation/devicetree/bindings/mfd/max77650.txt
+@@ -1,46 +1 @@
+-MAX77650 ultra low-power PMIC from Maxim Integrated.
 -
 -Required properties:
----------------------
--- compatible:		Must be "maxim,max77650-charger"
+--------------------
+-- compatible:		Must be "maxim,max77650"
+-- reg:			I2C device address.
+-- interrupts:		The interrupt on the parent the controller is
+-			connected to.
+-- interrupt-controller: Marks the device node as an interrupt controller.
+-- #interrupt-cells:	Must be <2>.
+-
+-- gpio-controller:	Marks the device node as a gpio controller.
+-- #gpio-cells:		Must be <2>. The first cell is the pin number and
+-			the second cell is used to specify the gpio active
+-			state.
 -
 -Optional properties:
 ---------------------
--- input-voltage-min-microvolt:	Minimum CHGIN regulation voltage. Must be one
--				of: 4000000, 4100000, 4200000, 4300000,
--				4400000, 4500000, 4600000, 4700000.
--- input-current-limit-microamp:	CHGIN input current limit (in microamps). Must
--				be one of: 95000, 190000, 285000, 380000,
--				475000.
+-gpio-line-names:	Single string containing the name of the GPIO line.
+-
+-The GPIO-controller module is represented as part of the top-level PMIC
+-node. The device exposes a single GPIO line.
+-
+-For device-tree bindings of other sub-modules (regulator, power supply,
+-LEDs and onkey) refer to the binding documents under the respective
+-sub-system directories.
+-
+-For more details on GPIO bindings, please refer to the generic GPIO DT
+-binding document <devicetree/bindings/gpio/gpio.txt>.
 -
 -Example:
 ---------
 -
--	charger {
--		compatible = "maxim,max77650-charger";
--		input-voltage-min-microvolt = <4200000>;
--		input-current-limit-microamp = <285000>;
+-	pmic@48 {
+-		compatible = "maxim,max77650";
+-		reg = <0x48>;
+-
+-		interrupt-controller;
+-		interrupt-parent = <&gpio2>;
+-		#interrupt-cells = <2>;
+-		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+-
+-		gpio-controller;
+-		#gpio-cells = <2>;
+-		gpio-line-names = "max77650-charger";
 -	};
-+This file was moved to max77650-charger.yaml.
-diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.yaml b/Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
++This file has been moved to max77650.yaml.
+diff --git a/Documentation/devicetree/bindings/mfd/max77650.yaml b/Documentation/devicetree/bindings/mfd/max77650.yaml
 new file mode 100644
-index 000000000000..9dd0dad0f948
+index 000000000000..5186ad287ec7
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
-@@ -0,0 +1,42 @@
++++ b/Documentation/devicetree/bindings/mfd/max77650.yaml
+@@ -0,0 +1,83 @@
 +# SPDX-License-Identifier: GPL-2.0
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/power/supply/max77650-charger.yaml#
++$id: http://devicetree.org/schemas/mfd/max77650.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Battery charger driver for MAX77650 PMIC from Maxim Integrated.
++title: MAX77650 ultra low-power PMIC from Maxim Integrated.
 +
 +maintainers:
 +  - Bartosz Golaszewski <bgolaszewski@baylibre.com>
 +
 +description: |
-+  This module is part of the MAX77650 MFD device. For more details
-+  see Documentation/devicetree/bindings/mfd/max77650.txt.
++  This document describes the DT properties of the core MFD controller.
 +
-+  The charger is represented as a sub-node of the PMIC node on the device tree.
++  The GPIO-controller module is represented as part of the top-level PMIC
++  node. The device exposes a single GPIO line.
++
++  For device-tree bindings of other sub-modules (regulator, power supply,
++  LEDs and onkey) refer to the binding documents under the respective
++  sub-system directories.
++
++  For more details on GPIO bindings, please refer to the generic GPIO DT
++  binding document <devicetree/bindings/gpio/gpio.txt>.
 +
 +properties:
 +  compatible:
-+    const: maxim,max77650-charger
++    const: maxim,max77650
 +
-+  input-voltage-min-microvolt:
++  reg:
 +    description:
-+      Minimum CHGIN regulation voltage.
-+    enum: [ 4000000, 4100000, 4200000, 4300000,
-+            4400000, 4500000, 4600000, 4700000 ]
++      I2C device address.
++    maxItems: 1
 +
-+  input-current-limit-microamp:
++  interrupts:
 +    description:
-+      CHGIN input current limit (in microamps).
-+    enum: [ 95000, 190000, 285000, 380000, 475000 ]
++      The interrupt on the parent the controller is connected to.
++    maxItems: 1
++
++  interrupt-controller: true
++
++  "#interrupt-cells":
++    const: 2
++    description:
++      The first cell is the IRQ number, the second cell is the trigger type.
++
++  gpio-controller: true
++
++  "#gpio-cells":
++    const: 2
++    description:
++      The first cell is the pin number and the second cell is used to specify
++      the gpio active state.
++
++  gpio-line-names:
++    $ref: '/schemas/types.yaml#/definitions/string-array'
++    maxItems: 1
++    description:
++      Single string containing the name of the GPIO line.
 +
 +required:
 +  - compatible
++  - reg
++  - interrupts
++  - interrupt-controller
++  - "#interrupt-cells"
++  - gpio-controller
++  - "#gpio-cells"
 +
 +examples:
 +  - |
-+    charger {
-+        compatible = "maxim,max77650-charger";
-+        input-voltage-min-microvolt = <4200000>;
-+        input-current-limit-microamp = <285000>;
++    pmic@48 {
++        compatible = "maxim,max77650";
++        reg = <0x48>;
++
++        interrupt-controller;
++        interrupt-parent = <&gpio2>;
++        #interrupt-cells = <2>;
++        interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++
++        gpio-controller;
++        #gpio-cells = <2>;
++        gpio-line-names = "max77650-charger";
 +    };
 -- 
 2.23.0

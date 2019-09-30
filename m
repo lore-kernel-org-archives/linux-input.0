@@ -1,39 +1,339 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v5 0/3] mfd: mc13xxx: Fixes and enhancements for NXP's
- mc34708
-Date: Mon, 30 Sep 2019 10:21:34 +0200
-Message-ID: <20190930082134.GB2036553@kroah.com>
-References: <20190909214440.30674-1-lukma@denx.de>
- <20190930095159.64e1001a@jawa>
+From: Candle Sun <candlesea@gmail.com>
+Subject: Re: [PATCH] HID: core: add usage_page_preceding flag for hid_concatenate_usage_page()
+Date: Mon, 30 Sep 2019 23:20:27 +0800
+Message-ID: <CAPnx3XO4ktenr8f_AJmDK5qT9RFA5GvD+tF8Le5K=5LsJ1F74A@mail.gmail.com>
+References: <1569830949-10771-1-git-send-email-candlesea@gmail.com> <CAO-hwJLrQTp7qeMpQvF7429a0qisAe-=zLFRtY79ajhLtusdRg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190930095159.64e1001a@jawa>
+In-Reply-To: <CAO-hwJLrQTp7qeMpQvF7429a0qisAe-=zLFRtY79ajhLtusdRg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lukasz Majewski <lukma@denx.de>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, chunyan.zhang@unisoc.com, Candle Sun <candle.sun@unisoc.com>, Nianfu Bai <nianfu.bai@unisoc.com>, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 30, 2019 at 09:51:59AM +0200, Lukasz Majewski wrote:
-> Dear Lee,
-> 
-> > This patch set provides several enhancements to mc13xxx MFD family
-> > of devices by introducing mc34708 as a separate device.
-> > 
-> > This IC has dedicated pen detection feature, which allows better
-> > touchscreen experience.
-> > 
-> > This is the fifth version of this code (v5).
-> > Discussion regarding previous versions can be found here:
-> > https://lkml.org/lkml/2018/4/12/351
-> > https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1661934.html
-> > https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1664296.html
-> > https://lkml.org/lkml/2019/7/17/705
-> 
-> Gentle ping on this patch series. It is now 3 weeks without any reply...
+Hi Benjamin,
+Thank you very much for the detailed review.
 
-It's the middle of the merge window, 2 weeks where we can't add any new
-code to any of our trees.  Please give people a chance...
+On Mon, Sep 30, 2019 at 5:36 PM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> Hi,
+>
+> [also addingg Nicolas, the author of 58e75155009c]
+>
+> On Mon, Sep 30, 2019 at 10:10 AM Candle Sun <candlesea@gmail.com> wrote:
+> >
+> > From: Candle Sun <candle.sun@unisoc.com>
+> >
+> > Upstream commit 58e75155009c ("HID: core: move Usage Page concatenation
+> > to Main item") adds support for Usage Page item following Usage items
+> > (such as keyboards manufactured by Primax).
+> >
+> > Usage Page concatenation in Main item works well for following report
+> > descriptor patterns:
+> >
+> >     USAGE_PAGE (Keyboard)                   05 07
+> >     USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+> >     USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+> >     LOGICAL_MINIMUM (0)                     15 00
+> >     LOGICAL_MAXIMUM (1)                     25 01
+> >     REPORT_SIZE (1)                         75 01
+> >     REPORT_COUNT (8)                        95 08
+> >     INPUT (Data,Var,Abs)                    81 02
+> >
+> > -------------
+> >
+> >     USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+> >     USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+> >     LOGICAL_MINIMUM (0)                     15 00
+> >     LOGICAL_MAXIMUM (1)                     25 01
+> >     REPORT_SIZE (1)                         75 01
+> >     REPORT_COUNT (8)                        95 08
+> >     USAGE_PAGE (Keyboard)                   05 07
+> >     INPUT (Data,Var,Abs)                    81 02
+> >
+> > But it makes the parser act wrong for the following report
+> > descriptor pattern(such as some Gamepads):
+> >
+> >     USAGE_PAGE (Button)                     05 09
+> >     USAGE (Button 1)                        09 01
+> >     USAGE (Button 2)                        09 02
+> >     USAGE (Button 4)                        09 04
+> >     USAGE (Button 5)                        09 05
+> >     USAGE (Button 7)                        09 07
+> >     USAGE (Button 8)                        09 08
+> >     USAGE (Button 14)                       09 0E
+> >     USAGE (Button 15)                       09 0F
+> >     USAGE (Button 13)                       09 0D
+> >     USAGE_PAGE (Consumer Devices)           05 0C
+> >     USAGE (Back)                            0a 24 02
+> >     USAGE (HomePage)                        0a 23 02
+> >     LOGICAL_MINIMUM (0)                     15 00
+> >     LOGICAL_MAXIMUM (1)                     25 01
+> >     REPORT_SIZE (1)                         75 01
+> >     REPORT_COUNT (11)                       95 0B
+> >     INPUT (Data,Var,Abs)                    81 02
+> >
+> > With Usage Page concatenation in Main item, parser recognizes all the
+> > 11 Usages as consumer keys, it is not the HID device's real intention.
+> >
+> > This patch adds usage_page_preceding flag to detect the third pattern.
+> > Usage Page concatenation is done in both Local and Main parsing.
+> > If usage_page_preceding equals 3(the third pattern encountered),
+> > hid_concatenate_usage_page() is jumped.
+>
+> For anything core related (and especially the parsing), I am trying to
+> enforce having regression tests.
+> See https://gitlab.freedesktop.org/libevdev/hid-tools/merge_requests/37
+> for the one related to 58e75155009c.
+>
+> So I would like to have a similar-ish MR adding the matching tests so
+> I know we won't break this in the future.
+>
+> Few other comments in the code:
+>
 
-greg k-h
+Thanks.
+
+
+Candle
+
+> >
+> > Signed-off-by: Candle Sun <candle.sun@unisoc.com>
+> > Signed-off-by: Nianfu Bai <nianfu.bai@unisoc.com>
+> > ---
+> >  drivers/hid/hid-core.c | 21 +++++++++++++++++++--
+> >  include/linux/hid.h    |  1 +
+> >  2 files changed, 20 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > index 3eaee2c..043a232 100644
+> > --- a/drivers/hid/hid-core.c
+> > +++ b/drivers/hid/hid-core.c
+> > @@ -221,7 +221,15 @@ static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
+> >                 hid_err(parser->device, "usage index exceeded\n");
+> >                 return -1;
+> >         }
+> > -       parser->local.usage[parser->local.usage_index] = usage;
+> > +       if (!parser->local.usage_index && parser->global.usage_page)
+>
+> parser->global.usage_page is never reset, so unless I am misreading,
+> it will always be set to a value except for the very first elements.
+> I am just raising this in case you rely on global.usage_page being
+> null in your algorithm.
+>
+
+The patch doesn't rely on the global.usage_page being null.
+
+Checking whether the global.usage_page is zero here aims for ignoring the case
+when the first Usage Page of the whole report descriptor is after some defined
+Usage items:
+
+USAGE (Button 1)                                 09 01
+USAGE_PAGE (Button)                        05 09
+REPORT_SIZE (1)                               75 01
+REPORT_COUNT (1)                           95 01
+LOGICAL_MINIMUM (0)                      15 00
+LOGICAL_MAXIMUM (1)                     25 01
+INPUT (Data,Var,Abs)                          81 02
+
+Of course, it maybe never occur, but it is allowed by the Spec.
+
+Regards,
+Candle
+
+> > +               parser->local.usage_page_preceding = 1;
+> > +       if (parser->local.usage_page_preceding == 2)
+> > +               parser->local.usage_page_preceding = 3;
+>
+> Can't we use an enum at least for those 1, 2, 3 values?
+> Unless you are counting the previous items, in which we should rename
+> the field .usage_page_preceding with something more explicit IMO.
+>
+>
+
+Yes, using enum type for the values is much better, will add it in next version.
+
+Candle
+
+> > +       if (size <= 2 && parser->global.usage_page)
+> > +               parser->local.usage[parser->local.usage_index] =
+> > +                       (usage & 0xffff) + (parser->global.usage_page << 16);
+>
+> we could use a function as this assignment is also reused in
+> hid_concatenate_usage_page()
+>
+
+Yes, using one function is better, will amend it in next version.
+
+Candle
+
+> > +       else
+> > +               parser->local.usage[parser->local.usage_index] = usage;
+> >         parser->local.usage_size[parser->local.usage_index] = size;
+> >         parser->local.collection_index[parser->local.usage_index] =
+> >                 parser->collection_stack_ptr ?
+> > @@ -366,6 +374,8 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
+> >
+> >         case HID_GLOBAL_ITEM_TAG_USAGE_PAGE:
+> >                 parser->global.usage_page = item_udata(item);
+> > +               if (parser->local.usage_page_preceding == 1)
+> > +                       parser->local.usage_page_preceding = 2;
+> >                 return 0;
+> >
+> >         case HID_GLOBAL_ITEM_TAG_LOGICAL_MINIMUM:
+> > @@ -547,9 +557,16 @@ static void hid_concatenate_usage_page(struct hid_parser *parser)
+> >  {
+> >         int i;
+> >
+> > +       if (parser->local.usage_page_preceding == 3) {
+> > +               dbg_hid("Using preceding usage page for final usage\n");
+> > +               return;
+> > +       }
+> > +
+> >         for (i = 0; i < parser->local.usage_index; i++)
+> >                 if (parser->local.usage_size[i] <= 2)
+> > -                       parser->local.usage[i] += parser->global.usage_page << 16;
+> > +                       parser->local.usage[i] =
+> > +                               (parser->global.usage_page << 16)
+> > +                               + (parser->local.usage[i] & 0xffff);
+>
+> I find the whole logic really hard to follow. I'm not saying you are
+> wrong, but if it's hard to get the concepts behind the various states
+> and this will make it really prone to future errors.
+>
+
+By reading "Device Class Definition for Human Interface Devices (HID)
+Version 1.11"
+Spec more times, I think Spec regards both of the following cases legal, they
+are not contradictory:
+
+- Usages after some already defined Usage Page
+"If the bSize field = 1 or 2 then the Usage is interpreted as an unsigned value
+that selects a Usage ID on the *currently defined Usage Page*."
+
+- No Usage Page defined before Usages (Usage Page is *LAST")
+"When the parser encounters a main item it concatenates the *last
+declared Usage Page*
+with a Usage to form a complete usage value."
+(Here I think *last* means no Usage Page is already defined before the
+Usages.)
+
+HID device designer can choose either pattern for the device. So the descriptor
+parser must have the ability to recognize the real complete Usage value.
+
+In my opinion, the following descriptor which exsits in practice
+doesn't strictly
+conform the HID Spec:
+
+------------------------
+05 01      Usage Page (Desktop),               ; Generic desktop controls (01h)
+09 06      Usage (Keyboard),                   ; Keyboard (06h,
+application collection)
+a1 01      Collection (Application),
+05 07          Usage Page (Keyboard),          ; Keyboard/keypad (07h)
+19 e0          Usage Minimum (KB Leftcontrol), ; Keyboard left control
+(E0h, dynamic value)
+29 e7          Usage Maximum (KB Right GUI),   ; Keyboard right GUI
+(E7h, dynamic value)
+15 00          Logical Minimum (0),
+25 01          Logical Maximum (1),
+75 01          Report Size (1),
+95 08          Report Count (8),
+81 02          Input (Variable),
+
+75 08          Report Size (8),
+95 01          Report Count (1),
+81 01          Input (Constant),
+
+05 08          Usage Page (LED),               ; LEDs (08h)
+19 01          Usage Minimum (01h),
+29 03          Usage Maximum (03h),
+75 01          Report Size (1),
+95 03          Report Count (3),
+91 02          Output (Variable),
+95 01          Report Count (1),
+75 05          Report Size (5),
+91 01          Output (Constant),
+
+15 00          Logical Minimum (0),
+26 ff 00       Logical Maximum (255),
+19 00          Usage Minimum (00h),
+2a ff 00       Usage Maximum (FFh),
+05 07          Usage Page (Keyboard),          ; Keyboard/keypad (07h)
+75 08          Report Size (8),
+95 06          Report Count (6),
+81 00          Input,
+
+05 01          Usage Page (Desktop),           ; Generic desktop controls (01h)
+0a 68 01       Usage (0168h),
+15 80          Logical Minimum (-128),
+25 7f          Logical Maximum (127),
+95 01          Report Count (1),
+75 08          Report Size (8),
+81 02          Input (Variable),
+c0         End Collection
+------------------------------------
+
+Nicolas' patch(58e75155009c) can make parser to recognize above
+device's intention.
+
+But it also produces side effects on the compound Usage/Usage Page
+sequences, such
+as the following case which conforms the Spec:
+
+------------------------------------
+Usage Page (X)
+Usage (X.1)
+Usage Page (Y)
+Usage (Y.1)
+Input/Output/Feature
+------------------------------------
+
+Usage Page concatenation in Main item will always use the last Usage
+Page for all
+preceding usages.
+
+This patch is using the usage_page_preceding flag to find above
+compound sequence and
+jump hid_concatenate_usage_page() while keeping Nicolas' patch(58e75155009c) for
+some keyboards.
+
+Candle
+
+> I wonder if we should not:
+> - store the current usage page in the current local item as they come in
+> - then in hid_concatenate_usage_page() iterate over the usages in
+> reverse order. We should be able to detect if the last usage page was
+> given for the whole previous range (i.e. not assigned to any local
+> usage) or if it has already been given to a local usage, meaning we
+> should just keep things as it is.
+>
+> Cheers,
+> Benjamin
+>
+
+Sorry, I don't know how to do it now.
+
+Candle
+
+> >  }
+> >
+> >  /*
+> > diff --git a/include/linux/hid.h b/include/linux/hid.h
+> > index cd41f20..7fb6cf3 100644
+> > --- a/include/linux/hid.h
+> > +++ b/include/linux/hid.h
+> > @@ -412,6 +412,7 @@ struct hid_local {
+> >         unsigned usage_minimum;
+> >         unsigned delimiter_depth;
+> >         unsigned delimiter_branch;
+> > +       unsigned int usage_page_preceding;
+> >  };
+> >
+> >  /*
+> > --
+> > 2.7.4
+> >
+>

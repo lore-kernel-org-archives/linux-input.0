@@ -1,80 +1,138 @@
-From: Lukasz Majewski <lukma@denx.de>
-Subject: Re: [PATCH v5 0/3] mfd: mc13xxx: Fixes and enhancements for NXP's
- mc34708
-Date: Mon, 30 Sep 2019 09:51:59 +0200
-Message-ID: <20190930095159.64e1001a@jawa>
-References: <20190909214440.30674-1-lukma@denx.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- boundary="Sig_//YIL_V9Fmub+k=zkc2GyIA6"; protocol="application/pgp-signature"
+From: Candle Sun <candlesea@gmail.com>
+Subject: [PATCH] HID: core: add usage_page_preceding flag for hid_concatenate_usage_page()
+Date: Mon, 30 Sep 2019 16:09:09 +0800
+Message-ID: <1569830949-10771-1-git-send-email-candlesea@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190909214440.30674-1-lukma@denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chunyan.zhang@unisoc.com, Candle Sun <candle.sun@unisoc.com>, Nianfu Bai <nianfu.bai@unisoc.com>
 List-Id: linux-input@vger.kernel.org
 
---Sig_//YIL_V9Fmub+k=zkc2GyIA6
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+From: Candle Sun <candle.sun@unisoc.com>
 
-Dear Lee,
+Upstream commit 58e75155009c ("HID: core: move Usage Page concatenation
+to Main item") adds support for Usage Page item following Usage items
+(such as keyboards manufactured by Primax).
 
-> This patch set provides several enhancements to mc13xxx MFD family
-> of devices by introducing mc34708 as a separate device.
->=20
-> This IC has dedicated pen detection feature, which allows better
-> touchscreen experience.
->=20
-> This is the fifth version of this code (v5).
-> Discussion regarding previous versions can be found here:
-> https://lkml.org/lkml/2018/4/12/351
-> https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1661934.html
-> https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1664296.html
-> https://lkml.org/lkml/2019/7/17/705
+Usage Page concatenation in Main item works well for following report
+descriptor patterns:
 
-Gentle ping on this patch series. It is now 3 weeks without any reply...
+    USAGE_PAGE (Keyboard)                   05 07
+    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (8)                        95 08
+    INPUT (Data,Var,Abs)                    81 02
 
->=20
-> Sascha Hauer (3):
->   mfd: mc13xxx: Add mc34708 adc support
->   input: touchscreen mc13xxx: Make platform data optional
->   input: touchscreen mc13xxx: Add mc34708 support
->=20
->  drivers/input/touchscreen/mc13783_ts.c | 63 ++++++++++++++---
->  drivers/mfd/mc13xxx-core.c             | 98
-> +++++++++++++++++++++++++- include/linux/mfd/mc34708.h            |
-> 37 ++++++++++ 3 files changed, 185 insertions(+), 13 deletions(-)
->  create mode 100644 include/linux/mfd/mc34708.h
->=20
+-------------
 
+    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (8)                        95 08
+    USAGE_PAGE (Keyboard)                   05 07
+    INPUT (Data,Var,Abs)                    81 02
 
+But it makes the parser act wrong for the following report
+descriptor pattern(such as some Gamepads):
 
+    USAGE_PAGE (Button)                     05 09
+    USAGE (Button 1)                        09 01
+    USAGE (Button 2)                        09 02
+    USAGE (Button 4)                        09 04
+    USAGE (Button 5)                        09 05
+    USAGE (Button 7)                        09 07
+    USAGE (Button 8)                        09 08
+    USAGE (Button 14)                       09 0E
+    USAGE (Button 15)                       09 0F
+    USAGE (Button 13)                       09 0D
+    USAGE_PAGE (Consumer Devices)           05 0C
+    USAGE (Back)                            0a 24 02
+    USAGE (HomePage)                        0a 23 02
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (11)                       95 0B
+    INPUT (Data,Var,Abs)                    81 02
 
-Best regards,
+With Usage Page concatenation in Main item, parser recognizes all the
+11 Usages as consumer keys, it is not the HID device's real intention.
 
-Lukasz Majewski
+This patch adds usage_page_preceding flag to detect the third pattern.
+Usage Page concatenation is done in both Local and Main parsing.
+If usage_page_preceding equals 3(the third pattern encountered),
+hid_concatenate_usage_page() is jumped.
 
---
+Signed-off-by: Candle Sun <candle.sun@unisoc.com>
+Signed-off-by: Nianfu Bai <nianfu.bai@unisoc.com>
+---
+ drivers/hid/hid-core.c | 21 +++++++++++++++++++--
+ include/linux/hid.h    |  1 +
+ 2 files changed, 20 insertions(+), 2 deletions(-)
 
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-Phone: (+49)-8142-66989-59 Fax: (+49)-8142-66989-80 Email: lukma@denx.de
-
---Sig_//YIL_V9Fmub+k=zkc2GyIA6
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEgAyFJ+N6uu6+XupJAR8vZIA0zr0FAl2RtB8ACgkQAR8vZIA0
-zr3vHwgAqDghkSGOToJcjlxmTxbnkF2JdYSKUD0tR0Je2c3CGbGL6jtDYe2rqWk8
-8lPDns6dgzA3mlbibBXjhPbx5AAtkEtDGB5FPUigq/y/XomIoEOm33G2QuY97Jsi
-NEfhV3HzIcdhHGro/q1N3ATBGouI5xpVyKirKlmkQuJzXmseGjkJ05v4FtaIbmuP
-eFRrvytW+Bkkdarko2KWcQHDkqJtsU/mSMXh680PRX4sxZyDrkmOkm19wY9zBrhz
-CW8/j4N89iovIEq1xiJuVR/5zdxN7+tqAmjsoDvku7yGfXWRQ9pUcqJ0SnzN8hV9
-OAZjBte9hOBG9CZvPuv3sx7n4oZiLg==
-=YCsb
------END PGP SIGNATURE-----
-
---Sig_//YIL_V9Fmub+k=zkc2GyIA6--
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 3eaee2c..043a232 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -221,7 +221,15 @@ static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
+ 		hid_err(parser->device, "usage index exceeded\n");
+ 		return -1;
+ 	}
+-	parser->local.usage[parser->local.usage_index] = usage;
++	if (!parser->local.usage_index && parser->global.usage_page)
++		parser->local.usage_page_preceding = 1;
++	if (parser->local.usage_page_preceding == 2)
++		parser->local.usage_page_preceding = 3;
++	if (size <= 2 && parser->global.usage_page)
++		parser->local.usage[parser->local.usage_index] =
++			(usage & 0xffff) + (parser->global.usage_page << 16);
++	else
++		parser->local.usage[parser->local.usage_index] = usage;
+ 	parser->local.usage_size[parser->local.usage_index] = size;
+ 	parser->local.collection_index[parser->local.usage_index] =
+ 		parser->collection_stack_ptr ?
+@@ -366,6 +374,8 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
+ 
+ 	case HID_GLOBAL_ITEM_TAG_USAGE_PAGE:
+ 		parser->global.usage_page = item_udata(item);
++		if (parser->local.usage_page_preceding == 1)
++			parser->local.usage_page_preceding = 2;
+ 		return 0;
+ 
+ 	case HID_GLOBAL_ITEM_TAG_LOGICAL_MINIMUM:
+@@ -547,9 +557,16 @@ static void hid_concatenate_usage_page(struct hid_parser *parser)
+ {
+ 	int i;
+ 
++	if (parser->local.usage_page_preceding == 3) {
++		dbg_hid("Using preceding usage page for final usage\n");
++		return;
++	}
++
+ 	for (i = 0; i < parser->local.usage_index; i++)
+ 		if (parser->local.usage_size[i] <= 2)
+-			parser->local.usage[i] += parser->global.usage_page << 16;
++			parser->local.usage[i] =
++				(parser->global.usage_page << 16)
++				+ (parser->local.usage[i] & 0xffff);
+ }
+ 
+ /*
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index cd41f20..7fb6cf3 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -412,6 +412,7 @@ struct hid_local {
+ 	unsigned usage_minimum;
+ 	unsigned delimiter_depth;
+ 	unsigned delimiter_branch;
++	unsigned int usage_page_preceding;
+ };
+ 
+ /*
+-- 
+2.7.4

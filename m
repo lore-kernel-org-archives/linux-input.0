@@ -1,59 +1,38 @@
-From: Evan Green <evgreen@chromium.org>
-Subject: [PATCH v3] Input: atmel_mxt_ts - Disable IRQ across suspend
-Date: Tue,  1 Oct 2019 11:15:03 -0700
-Message-ID: <20191001181504.207486-1-evgreen@chromium.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH] HID: hyperv: Add the support of hibernation
+Date: Tue, 1 Oct 2019 14:40:23 -0400
+Message-ID: <20191001184023.GC8171@sasha-vm>
+References: <1568244952-66716-1-git-send-email-decui@microsoft.com>
+ <PU1P153MB01695CEE01D65E8CD5CFA4E9BF870@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+ <nycvar.YFH.7.76.1909261521410.24354@cbobk.fhfr.pm>
+ <nycvar.YFH.7.76.1909261522380.24354@cbobk.fhfr.pm>
+ <PU1P153MB016973F30CC1A52E46D15230BF810@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+ <20190927120513.GM8171@sasha-vm>
+ <PU1P153MB01698048162343130F34DAE0BF830@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <PU1P153MB01698048162343130F34DAE0BF830@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jongpil Jung <jongpil19.jung@samsung.com>, Furquan Shaikh <furquan@chromium.org>, Rajat Jain <rajatja@chromium.org>, Evan Green <evgreen@chromium.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dexuan Cui <decui@microsoft.com>
+Cc: Jiri Kosina <jikos@kernel.org>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Kelley <mikelley@microsoft.com>
 List-Id: linux-input@vger.kernel.org
 
-Across suspend and resume, we are seeing error messages like the following:
+On Sun, Sep 29, 2019 at 05:44:09PM +0000, Dexuan Cui wrote:
+>> From: Sasha Levin <sashal@kernel.org>
+>> Dexuan, I've been silently ignoring your patches for the past few weeks
+>> for the same reason as Jiri has mentioned. I'll pick them all up once
+>> the 5.4 merge window closes in a few days.
+>
+>Thanks, Sasha!
+>
+>BTW, I'll post a v2 for this patch, as IMO I may be able to get rid of the
+>mousevsc_pm_notify in this patch by disabling the channel callback
+>in the suspend function.
 
-atmel_mxt_ts i2c-PRP0001:00: __mxt_read_reg: i2c transfer failed (-121)
-atmel_mxt_ts i2c-PRP0001:00: Failed to read T44 and T5 (-121)
+Okay, I'm ignoring this patch for now then.
 
-This occurs because the driver leaves its IRQ enabled. Upon resume, there
-is an IRQ pending, but the interrupt is serviced before both the driver and
-the underlying I2C bus have been resumed. This causes EREMOTEIO errors.
-
-Disable the IRQ in suspend, and re-enable it on resume. If there are cases
-where the driver enters suspend with interrupts disabled, that's a bug we
-should fix separately.
-
-Signed-off-by: Evan Green <evgreen@chromium.org>
----
-
-Changes in v3:
- - Move enable_irq to the beginning of resume (Dmitry)
-
-Changes in v2:
- - Enable and disable unconditionally (Dmitry)
-
- drivers/input/touchscreen/atmel_mxt_ts.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 24c4b691b1c9..1627fcb27f35 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3155,6 +3155,7 @@ static int __maybe_unused mxt_suspend(struct device *dev)
- 		mxt_stop(data);
- 
- 	mutex_unlock(&input_dev->mutex);
-+	disable_irq(data->irq);
- 
- 	return 0;
- }
-@@ -3168,6 +3169,7 @@ static int __maybe_unused mxt_resume(struct device *dev)
- 	if (!input_dev)
- 		return 0;
- 
-+	enable_irq(data->irq);
- 	mutex_lock(&input_dev->mutex);
- 
- 	if (input_dev->users)
--- 
-2.21.0
+--
+Thanks,
+Sasha

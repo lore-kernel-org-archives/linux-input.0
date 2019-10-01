@@ -1,36 +1,62 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: fix error message in hid_open_report()
-Date: Tue, 1 Oct 2019 16:19:50 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1910011619280.13160@cbobk.fhfr.pm>
-References: <5866b49b330a750b44003ebd9f532541dcb13f18.1566587656.git.mirq-linux@rere.qmqm.pl>
+Subject: Re: [PATCH] HID: prodikeys: make array keys static const, makes
+ object smaller
+Date: Tue, 1 Oct 2019 16:21:34 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1910011621240.13160@cbobk.fhfr.pm>
+References: <20190905165406.24641-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5866b49b330a750b44003ebd9f532541dcb13f18.1566587656.git.mirq-linux@rere.qmqm.pl>
+In-Reply-To: <20190905165406.24641-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 23 Aug 2019, Michał Mirosław wrote:
+On Thu, 5 Sep 2019, Colin King wrote:
 
-> On HID report descriptor parsing error the code displays bogus
-> pointer instead of error offset (subtracts start=NULL from end).
-> Make the message more useful by displaying correct error offset
-> and include total buffer size for reference.
+> From: Colin Ian King <colin.king@canonical.com>
 > 
-> This was carried over from ancient times - "Fixed" commit just
-> promoted the message from DEBUG to ERROR.
+> Don't populate the array keys on the stack but instead make it
+> static const. Makes the object code smaller by 166 bytes.
 > 
-> Cc: stable@vger.kernel.org
-> Fixes: 8c3d52fc393b ("HID: make parser more verbose about parsing errors by default")
-> Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> Before:
+>    text	   data	    bss	    dec	    hex	filename
+>   18931	   5872	    480	  25283	   62c3	drivers/hid/hid-prodikeys.o
 > 
+> After:
+>    text	   data	    bss	    dec	    hex	filename
+>   18669	   5968	    480	  25117	   621d	drivers/hid/hid-prodikeys.o
+> 
+> (gcc version 9.2.1, amd64)
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 > ---
-> v2: fixed printf() warning spotted by Jiri Kosina <jikos@kernel.org>
+>  drivers/hid/hid-prodikeys.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
+> index 21544ebff855..fb6841ebe4d9 100644
+> --- a/drivers/hid/hid-prodikeys.c
+> +++ b/drivers/hid/hid-prodikeys.c
+> @@ -516,7 +516,7 @@ static void pcmidi_setup_extra_keys(
+>  		MY PICTURES =>	KEY_WORDPROCESSOR
+>  		MY MUSIC=>	KEY_SPREADSHEET
+>  	*/
+> -	unsigned int keys[] = {
+> +	static const unsigned int keys[] = {
+>  		KEY_FN,
+>  		KEY_MESSENGER, KEY_CALENDAR,
+>  		KEY_ADDRESSBOOK, KEY_DOCUMENTS,
+> @@ -532,7 +532,7 @@ static void pcmidi_setup_extra_keys(
+>  		0
+>  	};
+>  
+> -	unsigned int *pkeys = &keys[0];
+> +	const unsigned int *pkeys = &keys[0];
+>  	unsigned short i;
 
-Applied, thank you.
+Applied, thanks for the fix.
 
 -- 
 Jiri Kosina

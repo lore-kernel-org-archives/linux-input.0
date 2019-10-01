@@ -3,110 +3,79 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92C8CC352AA
-	for <linux-input@archiver.kernel.org>; Tue,  1 Oct 2019 14:18:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D06C4C352AA
+	for <linux-input@archiver.kernel.org>; Tue,  1 Oct 2019 14:20:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 643112086A
-	for <linux-input@archiver.kernel.org>; Tue,  1 Oct 2019 14:18:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A3B2B21855
+	for <linux-input@archiver.kernel.org>; Tue,  1 Oct 2019 14:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569939497;
-	bh=V1X4vM5LyhMojnRAqDtv1Lkud7jILmSl7EvtxhBRJ28=;
+	s=default; t=1569939618;
+	bh=UBnUQs50xSOkAzYN97eAZdHXL9k0XEWd0kn+PTRxajU=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=Ez3ndIwbFqWJOHw4ih66NMEnHtfWeNvwlwXc3DN9VJS/tvjleJkOm7B4jlA+n04JY
-	 jGA2dVU/qktZgr0mNXWL+4ZGdC4Tq79PyljzEBILD1W839IxTRNDzsG89vBk/xaw4L
-	 +s5j82t0YM7S41dLFlJ+5p4yh/mMklf0jwX/1B6I=
+	b=i+PudL1xuSfYtMfgseUNdLTrcgT2Au4riuNF7y0/wmRN+2MegD+4O6lmXQ5KN8oGD
+	 sJj1oBJT21JqBp48RtgXKERmE0hGuMoCWixRGIjmiax1yWd1Q9oj3AQjO07DJafZpr
+	 a+ywlu28vgqFkZN1ZTYW9OIqYGOnFvXsqFkESo1Q=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388205AbfJAOSR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 1 Oct 2019 10:18:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33000 "EHLO mail.kernel.org"
+        id S2388939AbfJAOUS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 1 Oct 2019 10:20:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727096AbfJAOSQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 1 Oct 2019 10:18:16 -0400
+        id S1727055AbfJAOUR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 1 Oct 2019 10:20:17 -0400
 Received: from pobox.suse.cz (prg-ext-pat.suse.com [213.151.95.130])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0958D2086A;
-        Tue,  1 Oct 2019 14:18:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F2332086A;
+        Tue,  1 Oct 2019 14:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569939496;
-        bh=V1X4vM5LyhMojnRAqDtv1Lkud7jILmSl7EvtxhBRJ28=;
+        s=default; t=1569939617;
+        bh=UBnUQs50xSOkAzYN97eAZdHXL9k0XEWd0kn+PTRxajU=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=SF6tf4/yMf+nuaUQsZ6w5m2+YHU79cQawLEcWzvXncnasG6nZw0pQ7Vr3DFT/zQDn
-         Ob9YBR9lI4Zm06Hv+DyoNu3BLn/hpVxAQpZxTsobqXh0BGLWnIjxVQ+azGu86uRjRU
-         mO1y0fMwmImKgrctOskja6vE8K1f1q1/A+v7wj7c=
-Date:   Tue, 1 Oct 2019 16:17:49 +0200 (CEST)
+        b=prT1Fl0YizlgUboDPPxpvbZVV3SIGE00+dMlBtgmbgqP2s4Y36KEsx6rGTtadGOQy
+         wKEwLgLclodCRs1bQzLK2lTFrNTfTrz8axTBqpJujYH8suF7TejEbyvBtq6fAdqGJJ
+         5rgpw0aRNPnRhd4yp/6vJ7feBYTNdsFNcX1x2N+Q=
+Date:   Tue, 1 Oct 2019 16:19:50 +0200 (CEST)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Ethan Warth <redyoshi49q@gmail.com>
-cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        benjamin.tissoires@redhat.com
-Subject: Re: [PATCH] HID: add support for 0079:1846 Mayflash/Dragonrise USB
- Gamecube Adapter
-In-Reply-To: <CAAPc1Th4mgE=ntLY=NXn2Jbfgi0OBpZ5R2sYGhWJ_4+syuPA9w@mail.gmail.com>
-Message-ID: <nycvar.YFH.7.76.1910011617080.13160@cbobk.fhfr.pm>
-References: <CAAPc1Th4mgE=ntLY=NXn2Jbfgi0OBpZ5R2sYGhWJ_4+syuPA9w@mail.gmail.com>
+To:     =?ISO-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+cc:     linux-input@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] HID: fix error message in hid_open_report()
+In-Reply-To: <5866b49b330a750b44003ebd9f532541dcb13f18.1566587656.git.mirq-linux@rere.qmqm.pl>
+Message-ID: <nycvar.YFH.7.76.1910011619280.13160@cbobk.fhfr.pm>
+References: <5866b49b330a750b44003ebd9f532541dcb13f18.1566587656.git.mirq-linux@rere.qmqm.pl>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
-Message-ID: <20191001141749.aUbQ20k_slZcmhVlrwE6ZZmZeK4BpMWfewOxz7CHlx0@z>
+Message-ID: <20191001141950.WwzWlLeFtPmE5CQ3A9k2LtDQ-tw6cydzXmElIw6xFis@z>
 
-On Fri, 6 Sep 2019, Ethan Warth wrote:
+On Fri, 23 Aug 2019, Michał Mirosław wrote:
 
-> >From 32bdfb1d652cc38ab13f8616df58dee726201785 Mon Sep 17 00:00:00 2001
-> From: Ethan Warth <redyoshi49q@gmail.com>
-> Date: Wed, 4 Sep 2019 16:07:45 -0500
-> Subject: [PATCH] HID: add support for 0079:1846 Mayflash/Dragonrise USB Gamecube
->  Adapter
+> On HID report descriptor parsing error the code displays bogus
+> pointer instead of error offset (subtracts start=NULL from end).
+> Make the message more useful by displaying correct error offset
+> and include total buffer size for reference.
 > 
-> Mayflash/Dragonrise seems to have yet another device ID for one of their
-> Gamecube controller adapters.  Previous to this commit, the adapter
-> registered only one /dev/input/js* device, and all controller inputs (from
-> any controller) were mapped to this device.  This patch defines the 1846
-> USB device ID and enables the HID_QUIRK_MULTI_INPUT quirk for it, which
-> fixes that (with the patch, four /dev/input/js* devices are created, one
-> for each of the four controller ports).
+> This was carried over from ancient times - "Fixed" commit just
+> promoted the message from DEBUG to ERROR.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 8c3d52fc393b ("HID: make parser more verbose about parsing errors by default")
+> Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> 
 > ---
->  drivers/hid/hid-ids.h    | 1 +
->  drivers/hid/hid-mf.c     | 2 ++
->  drivers/hid/hid-quirks.c | 2 ++
->  3 files changed, 5 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 0a00be19f7a0..9cd909985a4c 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -362,6 +362,7 @@
->  #define USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR    0x1803
->  #define USB_DEVICE_ID_DRAGONRISE_GAMECUBE1    0x1843
->  #define USB_DEVICE_ID_DRAGONRISE_GAMECUBE2    0x1844
-> +#define USB_DEVICE_ID_DRAGONRISE_GAMECUBE3    0x1846
-> 
->  #define USB_VENDOR_ID_DWAV        0x0eef
->  #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER    0x0001
-> diff --git a/drivers/hid/hid-mf.c b/drivers/hid/hid-mf.c
-> index fc75f30f537c..92d7ecd41a78 100644
-> --- a/drivers/hid/hid-mf.c
-> +++ b/drivers/hid/hid-mf.c
-> @@ -153,6 +153,8 @@ static const struct hid_device_id mf_devices[] = {
->          .driver_data = HID_QUIRK_MULTI_INPUT },
->      { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE,
-> USB_DEVICE_ID_DRAGONRISE_GAMECUBE2),
->          .driver_data = 0 }, /* No quirk required */
-> +    { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE,
-> USB_DEVICE_ID_DRAGONRISE_GAMECUBE3),
+> v2: fixed printf() warning spotted by Jiri Kosina <jikos@kernel.org>
 
-Thanks a lot for the fix; however your mail client seems to have damaged 
-it badly with respect to whitespace and line-wrapping. Could you please 
-fix that up and resend?
-
-Thanks,
+Applied, thank you.
 
 -- 
 Jiri Kosina

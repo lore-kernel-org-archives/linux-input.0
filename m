@@ -1,64 +1,107 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v5 0/3] mfd: mc13xxx: Fixes and enhancements for NXP's
- mc34708
-Date: Tue, 1 Oct 2019 07:41:30 +0100
-Message-ID: <20191001064130.GA11769@dell>
-References: <20190909214440.30674-1-lukma@denx.de>
- <20190930095159.64e1001a@jawa>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH] Revert "Input: elantech - enable SMBus on new (2018+) systems"
+Date: Tue,  1 Oct 2019 15:08:45 +0800
+Message-ID: <20191001070845.9720-1-kai.heng.feng@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190930095159.64e1001a@jawa>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lukasz Majewski <lukma@denx.de>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: dmitry.torokhov@gmail.com
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 30 Sep 2019, Lukasz Majewski wrote:
+This reverts commit 883a2a80f79ca5c0c105605fafabd1f3df99b34c.
 
-> Dear Lee,
-> 
-> > This patch set provides several enhancements to mc13xxx MFD family
-> > of devices by introducing mc34708 as a separate device.
-> > 
-> > This IC has dedicated pen detection feature, which allows better
-> > touchscreen experience.
-> > 
-> > This is the fifth version of this code (v5).
-> > Discussion regarding previous versions can be found here:
-> > https://lkml.org/lkml/2018/4/12/351
-> > https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1661934.html
-> > https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1664296.html
-> > https://lkml.org/lkml/2019/7/17/705
-> 
-> Gentle ping on this patch series. It is now 3 weeks without any reply...
+Apparently use dmi_get_bios_year() as manufacturing date isn't accurate
+and this breaks older laptops with new BIOS update.
 
-Please take note and follow the kernel release cycle.
+So let's revert this patch.
 
-These patches were sent after the release of -rc7 i.e. very late
-in the release cycle and a point where most kernel maintainers stop
-reviewing/applying patches and start to prepare for the impending
-merge-window.
+There are still new HP laptops still need to use SMBus to support all
+features, but it'll be enabled via a whitelist.
 
-Also, there is no such thing as a gentle ping.  If you genuinely think
-your patches have unlikely("slipped though the gaps"), then post a
-[RESEND] complete with a note alluding your reasons doing such.
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+---
+ drivers/input/mouse/elantech.c | 55 ++++++++++++++++++----------------
+ 1 file changed, 29 insertions(+), 26 deletions(-)
 
-> > Sascha Hauer (3):
-> >   mfd: mc13xxx: Add mc34708 adc support
-> >   input: touchscreen mc13xxx: Make platform data optional
-> >   input: touchscreen mc13xxx: Add mc34708 support
-> > 
-> >  drivers/input/touchscreen/mc13783_ts.c | 63 ++++++++++++++---
-> >  drivers/mfd/mc13xxx-core.c             | 98
-> > +++++++++++++++++++++++++- include/linux/mfd/mc34708.h            |
-> > 37 ++++++++++ 3 files changed, 185 insertions(+), 13 deletions(-)
-> >  create mode 100644 include/linux/mfd/mc34708.h
-
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 04fe43440a3c..2d8434b7b623 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1827,31 +1827,6 @@ static int elantech_create_smbus(struct psmouse *psmouse,
+ 				  leave_breadcrumbs);
+ }
+ 
+-static bool elantech_use_host_notify(struct psmouse *psmouse,
+-				     struct elantech_device_info *info)
+-{
+-	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+-		return true;
+-
+-	switch (info->bus) {
+-	case ETP_BUS_PS2_ONLY:
+-		/* expected case */
+-		break;
+-	case ETP_BUS_SMB_HST_NTFY_ONLY:
+-	case ETP_BUS_PS2_SMB_HST_NTFY:
+-		/* SMbus implementation is stable since 2018 */
+-		if (dmi_get_bios_year() >= 2018)
+-			return true;
+-		/* fall through */
+-	default:
+-		psmouse_dbg(psmouse,
+-			    "Ignoring SMBus bus provider %d\n", info->bus);
+-		break;
+-	}
+-
+-	return false;
+-}
+-
+ /**
+  * elantech_setup_smbus - called once the PS/2 devices are enumerated
+  * and decides to instantiate a SMBus InterTouch device.
+@@ -1871,7 +1846,7 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+ 		 * i2c_blacklist_pnp_ids.
+ 		 * Old ICs are up to the user to decide.
+ 		 */
+-		if (!elantech_use_host_notify(psmouse, info) ||
++		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
+ 		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
+ 			return -ENXIO;
+ 	}
+@@ -1891,6 +1866,34 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+ 	return 0;
+ }
+ 
++static bool elantech_use_host_notify(struct psmouse *psmouse,
++				     struct elantech_device_info *info)
++{
++	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
++		return true;
++
++	switch (info->bus) {
++	case ETP_BUS_PS2_ONLY:
++		/* expected case */
++		break;
++	case ETP_BUS_SMB_ALERT_ONLY:
++		/* fall-through  */
++	case ETP_BUS_PS2_SMB_ALERT:
++		psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
++		break;
++	case ETP_BUS_SMB_HST_NTFY_ONLY:
++		/* fall-through  */
++	case ETP_BUS_PS2_SMB_HST_NTFY:
++		return true;
++	default:
++		psmouse_dbg(psmouse,
++			    "Ignoring SMBus bus provider %d.\n",
++			    info->bus);
++	}
++
++	return false;
++}
++
+ int elantech_init_smbus(struct psmouse *psmouse)
+ {
+ 	struct elantech_device_info info;
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.17.1

@@ -2,134 +2,85 @@ Return-Path: <SRS0=4O58=X3=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B1EFC35280
-	for <linux-input@archiver.kernel.org>; Wed,  2 Oct 2019 06:18:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2834C35280
+	for <linux-input@archiver.kernel.org>; Wed,  2 Oct 2019 09:57:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1F601205C9
-	for <linux-input@archiver.kernel.org>; Wed,  2 Oct 2019 06:18:01 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b="XpcQGD81"
+	by mail.kernel.org (Postfix) with ESMTP id 6FCD2218DE
+	for <linux-input@archiver.kernel.org>; Wed,  2 Oct 2019 09:57:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727476AbfJBGSA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 2 Oct 2019 02:18:00 -0400
-Received: from uho.ysoft.cz ([81.19.3.130]:39966 "EHLO uho.ysoft.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726965AbfJBGSA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 2 Oct 2019 02:18:00 -0400
-Received: from [10.1.8.111] (unknown [10.1.8.111])
-        by uho.ysoft.cz (Postfix) with ESMTP id D9D20A223B;
-        Wed,  2 Oct 2019 08:17:58 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ysoft.com;
-        s=20160406-ysoft-com; t=1569997078;
-        bh=FIMBiKZZmVBEVNXnumjyj1AH0rUHMveRkxF4bvtUU+E=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=XpcQGD81w/toVWTeJ6RCe0JzxMNXCSn8+WssrgnbRGhjO8ab6TLIrwSU9ik33sY/6
-         Ag8LLUSwY3M9GjXjsrqDoiEzZv4UXcHUlCzESSPNnQyhkVodU8bSz0NdOTzUYGLZzz
-         k4kDI5KU4hrA35MEcZQrFLHtsACBSUVadd1xzOac=
-Subject: Re: [PATCH v2 1/5] dt-bindings: input: Add common input binding in
- json-schema
-To:     Rob Herring <robh+dt@kernel.org>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Linux Input <linux-input@vger.kernel.org>,
-        devicetree@vger.kernel.org
-References: <1569940180-11417-1-git-send-email-michal.vokac@ysoft.com>
- <1569940180-11417-2-git-send-email-michal.vokac@ysoft.com>
- <CAL_JsqJHexWRNPPP-+Vv43CYOJmD0X9aqEtn2djMgfqzyBVy5w@mail.gmail.com>
-From:   =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
-Message-ID: <d4c3dd53-0b61-c647-ee57-9b3252561711@ysoft.com>
-Date:   Wed, 2 Oct 2019 08:17:58 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1726215AbfJBJ5k (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 2 Oct 2019 05:57:40 -0400
+Received: from mout.kundenserver.de ([212.227.126.135]:36659 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725765AbfJBJ5j (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 2 Oct 2019 05:57:39 -0400
+Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue012 [212.227.15.129]) with ESMTPA (Nemesis) id
+ 1MGQ85-1iLKYf3qhR-00GoKh; Wed, 02 Oct 2019 11:57:37 +0200
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Enrico Weigelt <info@metux.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] input: ixp4xx-beeper: include linux/io.h
+Date:   Wed,  2 Oct 2019 11:57:21 +0200
+Message-Id: <20191002095736.1297224-1-arnd@arndb.de>
+X-Mailer: git-send-email 2.20.0
 MIME-Version: 1.0
-In-Reply-To: <CAL_JsqJHexWRNPPP-+Vv43CYOJmD0X9aqEtn2djMgfqzyBVy5w@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:24fZ4EDvS5qx6pIzugbo6RzU55jRwuVGHQsFc+PVcaIgImsatsY
+ CL+nFs5G8PoVyOOWQjk2//NELf7ZyC873zG3wdpSVRIT/Mz90xfu6cGTBfpIpE5xhMb1PN7
+ W2A+nt671+6ZvRxYFglfF+4E2r9S+O/FijgdWcY5rGr+KUtJqcX8ojoOjaxqT021DG26a80
+ ijUJiYbMrsPuTSvZ3bgZQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:JWhXE4mWqiE=:gxmht7zMm8E6LXBuogV2Ei
+ HRtLKbrK3gqh4F+JmtWj3t4YCIfQjDegHX2+zWqjjvzfbaj8crze4B7lOuqkviXU6Ok2m9JNw
+ H/KFvFnOLWAccQSBDU+YnYSb8G3CR8dXyFTW7JgAOUHcrBaFTqTWdxaGY2e0h60rk3BBXP4aK
+ xUx4jRbIUQHAJqIkGL7z4DmW0uBQtt4ueB1Z3ffJYHKQHytZBVWAP5a644SVIHvXhqfvKAI8i
+ 0BqOOWBdCAWVqXXwrlBf9iRSlp9l37jl/T+qfxKR3Yuz2XXhC9Y5bsWQaEarN459lIOUuqi4Y
+ B0O3ENCsuyetgw3FNxQioxqh64J+Nqacx/7DmR37/bgiDQZ0Zli9NxqGI8BOgNInJ70cLfJUM
+ TNYkYZfzO8y6McxBhTjR76P/tvO46HvDR2o31h+OWj4mC426B1TwKx+YXrs0a/F7RV2EljlSg
+ S8POplYjyFz0I15e3cJwKkc5RpbvjY8HLi6OenuAWqccFiHDOBNPr7bz9mblB6MpE1jrU12cE
+ Agab8V+PEw/mZBOuqrQaA7fNEpkDjnl5DoefCUuEnYq59vnOR7A5PCrHHINvn05rhOdlq0yrk
+ pqE+pKWe9L0Uz71WMG0Ie1JFFFvbgM3IbO+ywRsWK/ttcD/JjMJZHprTgY0RMyQAezp7m+zao
+ BR9u5gubdSZUQ4ApCcbkBdS7z6Gn3/LsvJlcGmf3OeviR/5sPoxMSGBc1+pRo8PEd5nkQHYOB
+ jplhjYxvK1s297X8fbAerQSuExLHFfKut2AWmsSCSmN/60QSQTM+UvXaXTUeJyloh/AGE+eix
+ +fCjIYlYAYec+u66VYt5quqdqjOAsvguQQ/NOLyFK3BaMZYT/i4yZiHc0lb25H8bY6seA2e2q
+ SShwUVY8pKbmDdlxh1Vw==
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20191002095721.Ue7-jnMYYPrX87OUuXChyKzqO6I-d9wth0K8YBuQRYw@z>
 
-On 01. 10. 19 17:03, Rob Herring wrote:
-> On Tue, Oct 1, 2019 at 9:29 AM Michal Vokáč <michal.vokac@ysoft.com> wrote:
->>
->> Create schema for the common input properties.
->>
->> Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
->> ---
->> Changes since v1:
->>   - New patch in the series.
->>
->> Rob, you suggested to extract the common properties from
->> fsl,mpr121-touchkey.yaml into this file. In the meantime I realized that
->> the linux,keycodes property is already documented in keys.txt.
->>
->> What do you suggest to do? Some possible options:
->>   - Just remove the linux,keycodes propery from keys.txt.
->>   - Merge this input.yaml with all content of keys.txt. How to name the result?
-> 
-> Yes. input.yaml is fine. Looks like there's only 3 references to
-> keys.txt to update.
+asm/io.h may not be included implicitly, causing a rare
+randconfig build error:
 
-OK.
-Thanks for mentioning the references, I would surely forget to update those.
+drivers/input/misc/ixp4xx-beeper.c:48:3: error: implicit declaration of function '__raw_writel' [-Werror,-Wimplicit-function-declaration]
+                __raw_writel((count & ~IXP4XX_OST_RELOAD_MASK) | IXP4XX_OST_ENABLE,
 
->>   - Something else?
->>
->>   Documentation/devicetree/bindings/input/input.yaml | 25 ++++++++++++++++++++++
->>   1 file changed, 25 insertions(+)
->>   create mode 100644 Documentation/devicetree/bindings/input/input.yaml
->>
->> diff --git a/Documentation/devicetree/bindings/input/input.yaml b/Documentation/devicetree/bindings/input/input.yaml
->> new file mode 100644
->> index 000000000000..494e7d031ea3
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/input.yaml
->> @@ -0,0 +1,25 @@
->> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
->> +%YAML 1.2
->> +---
->> +$id: http://devicetree.org/schemas/input/input.yaml#
->> +$schema: http://devicetree.org/meta-schemas/core.yaml#
->> +
->> +title: Common input schema binding
->> +
->> +maintainers:
->> +  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> +
->> +properties:
->> +  linux,keycodes:
->> +    description:
->> +      Specifies an array of numeric keycode values to be used for reporting
->> +      button presses. The array can contain up to 12 entries.
-> 
-> 12 is specific to your device.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/input/misc/ixp4xx-beeper.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Sure, I will remove this.
-I also had question in patch 2/5 regarding the additional minItems and
-maxItems constrains. I tried various methods to add the constrains but
-all fail to pass the validation with the same error message.
-
-Thanks a lot,
-Michal
-
->> +    allOf:
->> +      - $ref: /schemas/types.yaml#/definitions/uint32-array
->> +      - items:
->> +          minimum: 0
->> +          maximum: 0xff
->> +
->> +  autorepeat:
->> +    description: Enable autorepeat when key is pressed and held down.
->> +    type: boolean
->> --
->> 2.1.4
->>
+diff --git a/drivers/input/misc/ixp4xx-beeper.c b/drivers/input/misc/ixp4xx-beeper.c
+index 764cf21c0aaf..456325f0ea59 100644
+--- a/drivers/input/misc/ixp4xx-beeper.c
++++ b/drivers/input/misc/ixp4xx-beeper.c
+@@ -17,6 +17,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/interrupt.h>
+ #include <linux/gpio.h>
++#include <linux/io.h>
+ 
+ MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
+ MODULE_DESCRIPTION("ixp4xx beeper driver");
+-- 
+2.20.0
 

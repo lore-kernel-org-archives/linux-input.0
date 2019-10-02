@@ -2,66 +2,43 @@ Return-Path: <SRS0=4O58=X3=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1182BC35280
-	for <linux-input@archiver.kernel.org>; Wed,  2 Oct 2019 15:18:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49B30C35280
+	for <linux-input@archiver.kernel.org>; Wed,  2 Oct 2019 15:24:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DCBAC222BE
-	for <linux-input@archiver.kernel.org>; Wed,  2 Oct 2019 15:18:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="niLLx97Y"
+	by mail.kernel.org (Postfix) with ESMTP id 2BFF621D80
+	for <linux-input@archiver.kernel.org>; Wed,  2 Oct 2019 15:24:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727801AbfJBPSS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 2 Oct 2019 11:18:18 -0400
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:53308 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727498AbfJBPSR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 2 Oct 2019 11:18:17 -0400
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id x92FHqu7121321;
-        Wed, 2 Oct 2019 10:17:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1570029472;
-        bh=XdNPQjDWDIANjxFkYVhRetRjSoQQX2NhBQD1Yjc+BQw=;
-        h=Date:From:To:CC:Subject:References:In-Reply-To;
-        b=niLLx97YsloDYxsLEY2Ee34kmRfx0AUfa12xUKAEwRb1DBtOrM/heORSb7lERCqdS
-         jFSj/6F1INcoFPinQA20t76QJUbwd7hA406B70FpxxzHxplK8uzNGgR/oEXvAeIVtb
-         A3Q5mdbBfLz70v4XCRseSRueRqeUCkTeKkN8UHL8=
-Received: from DLEE108.ent.ti.com (dlee108.ent.ti.com [157.170.170.38])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id x92FHqmC068960;
-        Wed, 2 Oct 2019 10:17:52 -0500
-Received: from DLEE102.ent.ti.com (157.170.170.32) by DLEE108.ent.ti.com
- (157.170.170.38) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Wed, 2 Oct
- 2019 10:17:41 -0500
-Received: from fllv0039.itg.ti.com (10.64.41.19) by DLEE102.ent.ti.com
- (157.170.170.32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
- Frontend Transport; Wed, 2 Oct 2019 10:17:41 -0500
-Received: from ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
-        by fllv0039.itg.ti.com (8.15.2/8.15.2) with SMTP id x92FHpAo044680;
-        Wed, 2 Oct 2019 10:17:51 -0500
-Date:   Wed, 2 Oct 2019 10:20:03 -0500
-From:   Benoit Parrot <bparrot@ti.com>
+        id S1727707AbfJBPY6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 2 Oct 2019 11:24:58 -0400
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:39053 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726710AbfJBPY6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 2 Oct 2019 11:24:58 -0400
+X-Originating-IP: 86.207.98.53
+Received: from localhost (aclermont-ferrand-651-1-259-53.w86-207.abo.wanadoo.fr [86.207.98.53])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 26AE21BF207;
+        Wed,  2 Oct 2019 15:24:53 +0000 (UTC)
+Date:   Wed, 2 Oct 2019 17:24:52 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Marco Felsch <m.felsch@pengutronix.de>
-CC:     Rob Herring <robh@kernel.org>,
+Cc:     Rob Herring <robh@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        <andriy.shevchenko@linux.intel.com>, <andy.shevchenko@gmail.com>,
-        <simon.budig@kernelconcepts.de>, <hdegoede@redhat.com>,
-        <fcooper@ti.com>, <linux-input@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <kernel@pengutronix.de>,
-        <bcousson@baylibre.com>, <tony@atomide.com>,
-        <nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
-        <ludovic.desroches@microchip.com>, <s.hauer@pengutronix.de>,
-        <festevam@gmail.com>, <linux-imx@nxp.com>, <shawnguo@kernel.org>,
-        <mripard@kernel.org>, <wens@csie.org>
+        andriy.shevchenko@linux.intel.com, bparrot@ti.com,
+        andy.shevchenko@gmail.com, simon.budig@kernelconcepts.de,
+        hdegoede@redhat.com, fcooper@ti.com, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, kernel@pengutronix.de,
+        bcousson@baylibre.com, tony@atomide.com,
+        nicolas.ferre@microchip.com, ludovic.desroches@microchip.com,
+        s.hauer@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        shawnguo@kernel.org, mripard@kernel.org, wens@csie.org
 Subject: Re: [PATCH 2/6] dt-bindings: Input: edt-ft5x06 - add disable
  wakeup-source documentation
-Message-ID: <20191002152003.ag36lrragazsdn5j@ti.com>
+Message-ID: <20191002152452.GN4106@piout.net>
 References: <20190917155808.27818-1-m.felsch@pengutronix.de>
  <20190917155808.27818-3-m.felsch@pengutronix.de>
  <20190917170743.GO237523@dtor-ws>
@@ -70,17 +47,16 @@ References: <20190917155808.27818-1-m.felsch@pengutronix.de>
  <20190930231146.GA30010@bogus>
  <20191002130018.pvgipl6bkcv3dexj@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20191002130018.pvgipl6bkcv3dexj@pengutronix.de>
-User-Agent: NeoMutt/20171215
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Marco Felsch <m.felsch@pengutronix.de> wrote on Wed [2019-Oct-02 15:00:18 +0200]:
+On 02/10/2019 15:00:18+0200, Marco Felsch wrote:
 > Hi,
 > 
 > all of you using a edt,* touchscreen and currently the driver marks
@@ -88,18 +64,88 @@ Marco Felsch <m.felsch@pengutronix.de> wrote on Wed [2019-Oct-02 15:00:18 +0200]
 > a workaround binding (see below) but Dmitry prefer to use the normal
 > "wakeup-source" binding and change the affected device-tree's
 > (discussion below). Can you give me your ack/nack for Dmitry's solution?
-
-So, if I understand this correctly, currently the driver always assume it
-is a wakeup source regardless if the "wakeup-source" DT property being
-present or not. And the proposed change now is to fix the driver so that it
-will assume a wakeup source role only if the DT property is present?
-
-If that is the case then ACK from my side for the AM43x devices.
-
-Regards,
-Benoit
-
 > 
+
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+
 > Regards,
 >   Marco
 > 
+> On 19-09-30 18:11, Rob Herring wrote:
+> > On Tue, Sep 17, 2019 at 10:26:58AM -0700, Dmitry Torokhov wrote:
+> > > On Tue, Sep 17, 2019 at 07:18:14PM +0200, Marco Felsch wrote:
+> > > > Hi Dmitry,
+> > > > 
+> > > > On 19-09-17 10:07, Dmitry Torokhov wrote:
+> > > > > On Tue, Sep 17, 2019 at 05:58:04PM +0200, Marco Felsch wrote:
+> > > > > > The default driver behaviour is to enable the wakeup-source everytime.
+> > > > > > There are hardware designs which have a dedicated gpio to act as wakeup
+> > > > > > device. So it must be allowed to disable the wakeup-source capability.
+> > > > > > 
+> > > > > > This patch adds the binding documentation to disable the wakeup-source
+> > > > > > capability.
+> > > > > > 
+> > > > > > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+> > > > > > ---
+> > > > > >  .../devicetree/bindings/input/touchscreen/edt-ft5x06.txt      | 4 ++++
+> > > > > >  1 file changed, 4 insertions(+)
+> > > > > > 
+> > > > > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > > > > > index 870b8c5cce9b..4d6524fe3cf4 100644
+> > > > > > --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > > > > > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > > > > > @@ -35,6 +35,10 @@ Optional properties:
+> > > > > >   - pinctrl-0:   a phandle pointing to the pin settings for the
+> > > > > >                  control gpios
+> > > > > >  
+> > > > > > + - edt,disable-wakeup-source: If left the device will act as wakeup-source
+> > > > > > +			      (for legacy compatibility). Add the property
+> > > > > > +			      so the device won't act as wakeup-source.
+> > > > > 
+> > > > > I think this is too ugly and I consider it being a bug in the driver
+> > > > > that it enables wakeup unconditionally.
+> > > > 
+> > > > That's right.
+> > > > 
+> > > > > Let's just update DTS in tree for devices that actually want it (I am
+> > > > > curious how many that do not declare "wakeup-source" have it working and
+> > > > > actually want it) and key the dirver behavior off the standard property.
+> > > > 
+> > > > There are a few DTS using this driver and the current driver behaviour.
+> > > > We need to keep the backward compatibility since the DTB is part of the
+> > > > firmware and firmware isn't always included during a system-update. I
+> > > > know its ugly but IMHO that's the right way to go to keep the backward
+> > > > compatibility. Let us see what the DT-folk says.
+> > > > 
+> > > > > Until we start seeing this controller in devices that actually have DTS
+> > > > > in hardware device tree I think it is better to use standard property.
+> > > > 
+> > > > Sorry, I didn't get you here..
+> > > 
+> > > What I was trying to say is that I have not actually seen DTB that is
+> > > part of hardware or separately upgradable frimware (not talking about
+> > > ppc or sparc boxes, but ones that might be using this driver). It is
+> > > always built into the kernel in my experience, so backward compatibility
+> > > is simply a tool that is being used to prevent us from being too wild
+> > > with hacking on bindings, but rarely a practical concern.
+> > 
+> > Well, that's self fulfilling...
+> > 
+> > > In cases like this I think it is worthwhile to simply update in-tree
+> > > DTS and arrive at a sane binding.
+> > 
+> > Get the maintainers of the affected platforms to agree to the changes.
+> > 
+> > Rob
+> > 
+> 
+> -- 
+> Pengutronix e.K.                           |                             |
+> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com

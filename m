@@ -1,43 +1,37 @@
-From: =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
-Subject: Re: [PATCH] input: touchscreen: imx6ul_tsc: Use 'dev' instead of
- dereferencing it repeatedly
-Date: Wed, 2 Oct 2019 07:32:42 +0200
-Message-ID: <c0773e65-fc14-8cad-06a3-861bd264a44c@ysoft.com>
-References: <1569315731-2387-1-git-send-email-Anson.Huang@nxp.com>
- <20190930230806.GX237523@dtor-ws>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] input: ixp4xx-beeper: include linux/io.h
+Date: Wed,  2 Oct 2019 11:57:21 +0200
+Message-ID: <20191002095736.1297224-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190930230806.GX237523@dtor-ws>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Anson Huang <Anson.Huang@nxp.com>
-Cc: shawnguo@kernel.org, s.hauer@pengutronix.de, linux-kernel@vger.kernel.org, swboyd@chromium.org, Linux-imx@nxp.com, kernel@pengutronix.de, linux-input@vger.kernel.org, festevam@gmail.com, mojha@codeaurora.org, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Enrico Weigelt <info@metux.net>, Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 01. 10. 19 1:08, Dmitry Torokhov wrote:
-> On Tue, Sep 24, 2019 at 05:02:11PM +0800, Anson Huang wrote:
->> Add helper variable dev = &pdev->dev to simply the code.
-> 
-> Do we get any code savings from this?
+asm/io.h may not be included implicitly, causing a rare
+randconfig build error:
 
-I noticed Anson submitted similar patches into various other subsystems.
-Here [1] is a very detailed response from David Laight shedding some light
-on this topic.
+drivers/input/misc/ixp4xx-beeper.c:48:3: error: implicit declaration of function '__raw_writel' [-Werror,-Wimplicit-function-declaration]
+                __raw_writel((count & ~IXP4XX_OST_RELOAD_MASK) | IXP4XX_OST_ENABLE,
 
-[1] https://lkml.org/lkml/2019/9/24/151
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/input/misc/ixp4xx-beeper.c | 1 +
+ 1 file changed, 1 insertion(+)
 
->>
->> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
->> ---
->>   drivers/input/touchscreen/imx6ul_tsc.c | 37 +++++++++++++++++-----------------
->>   1 file changed, 19 insertions(+), 18 deletions(-)
+diff --git a/drivers/input/misc/ixp4xx-beeper.c b/drivers/input/misc/ixp4xx-beeper.c
+index 764cf21c0aaf..456325f0ea59 100644
+--- a/drivers/input/misc/ixp4xx-beeper.c
++++ b/drivers/input/misc/ixp4xx-beeper.c
+@@ -17,6 +17,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/interrupt.h>
+ #include <linux/gpio.h>
++#include <linux/io.h>
+ 
+ MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
+ MODULE_DESCRIPTION("ixp4xx beeper driver");
+-- 
+2.20.0

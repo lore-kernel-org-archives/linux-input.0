@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39CD5C32792
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 701DEC10F14
 	for <linux-input@archiver.kernel.org>; Thu,  3 Oct 2019 06:13:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0F365222C9
+	by mail.kernel.org (Postfix) with ESMTP id 3C18E218DE
 	for <linux-input@archiver.kernel.org>; Thu,  3 Oct 2019 06:13:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b="Qnyz60Vu"
+	dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b="gXhGxtVa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727259AbfJCGND (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1728061AbfJCGND (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 3 Oct 2019 02:13:03 -0400
-Received: from uho.ysoft.cz ([81.19.3.130]:44162 "EHLO uho.ysoft.cz"
+Received: from uho.ysoft.cz ([81.19.3.130]:44186 "EHLO uho.ysoft.cz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725874AbfJCGND (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1727259AbfJCGND (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Thu, 3 Oct 2019 02:13:03 -0400
 Received: from iota-build.ysoft.local (unknown [10.1.5.151])
-        by uho.ysoft.cz (Postfix) with ESMTP id DE39BA095B;
-        Thu,  3 Oct 2019 08:13:00 +0200 (CEST)
+        by uho.ysoft.cz (Postfix) with ESMTP id 716A8A0977;
+        Thu,  3 Oct 2019 08:13:01 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ysoft.com;
-        s=20160406-ysoft-com; t=1570083180;
-        bh=Sy55JxpoNfmQQuRDsoHKv3oT39z9AK+6c1CfdAzxXGo=;
+        s=20160406-ysoft-com; t=1570083181;
+        bh=sDhAcmy0v+OgVf0jXfuCTQcjSqcE9lp3+uJN92xToZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qnyz60Vu9VwZiPMwwj/WiDRprNd7qgpiuD8Yo2Tbrt3b5CsxGoLBWutOLIj9rVX8j
-         v2Hdxf2KH3lB1Y9P4+MHxTVMuvrcqNTdx6VOJmP36W7+S8zMMVTONbqN09Rai6rp2i
-         5kX72p9/bZGdvLbxqXqg9hWohGIoWiS/ySMpWjK8=
+        b=gXhGxtVaL9IVFMS+evKfshej9cFhsVjhzODMxrTa4Pqalbw5kQvnTRN3Cp2hwG+qY
+         7fu+tdNQLibLv3ps3v1m06LwP8IrnW0Tr/YaWEbueEJNEWVk70GwSHDLM+VtzP0BQT
+         jn7L8B8hiPveETnvj1su6rvhHjhTxI0YjzIpsmsU=
 From:   =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>
@@ -38,9 +38,9 @@ Cc:     Shawn Guo <shawnguo@kernel.org>,
         Fabio Estevam <festevam@gmail.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
-Subject: [PATCH v3 1/5] dt-bindings: input: Add common input binding in json-schema
-Date:   Thu,  3 Oct 2019 08:12:52 +0200
-Message-Id: <1570083176-8231-2-git-send-email-michal.vokac@ysoft.com>
+Subject: [PATCH v3 4/5] Input: mpr121: Add polling mode
+Date:   Thu,  3 Oct 2019 08:12:55 +0200
+Message-Id: <1570083176-8231-5-git-send-email-michal.vokac@ysoft.com>
 X-Mailer: git-send-email 2.1.4
 In-Reply-To: <1570083176-8231-1-git-send-email-michal.vokac@ysoft.com>
 References: <1570083176-8231-1-git-send-email-michal.vokac@ysoft.com>
@@ -52,111 +52,155 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Create schema for the common input properties and merge all properties
-from the Documentation/devicetree/bindings/input/keys.txt binding into
-this common schema.
+In case the interrupt line is not available, polling can be used
+to read out the state of the keys. Period of the polling needs to
+be configured by the poll-interval DT property.
 
 Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
 ---
 Changes since v2:
- - Merge content of keys.txt binding inti this schema.
+ - None
 
 Changes since v1:
- - New patch in the series.
+ - Use poll-interval property name instead of linux,poll-interval.
 
- Documentation/devicetree/bindings/input/input.yaml | 32 ++++++++++++++++++++++
- Documentation/devicetree/bindings/input/keys.txt   |  8 ------
- .../devicetree/bindings/input/mtk-pmic-keys.txt    |  4 +--
- .../devicetree/bindings/input/st,stpmic1-onkey.txt |  2 +-
- 4 files changed, 35 insertions(+), 11 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/input.yaml
- delete mode 100644 Documentation/devicetree/bindings/input/keys.txt
+ drivers/input/keyboard/mpr121_touchkey.c | 69 +++++++++++++++++++++++---------
+ 1 file changed, 51 insertions(+), 18 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/input.yaml b/Documentation/devicetree/bindings/input/input.yaml
-new file mode 100644
-index 000000000000..ca8fe84a2e62
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/input.yaml
-@@ -0,0 +1,32 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/input.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+index ee80de44ce3f..40d6e5087cde 100644
+--- a/drivers/input/keyboard/mpr121_touchkey.c
++++ b/drivers/input/keyboard/mpr121_touchkey.c
+@@ -54,6 +54,9 @@
+ /* MPR121 has 12 keys */
+ #define MPR121_MAX_KEY_COUNT		12
+ 
++#define MPR121_MIN_POLL_INTERVAL	10
++#define MPR121_MAX_POLL_INTERVAL	200
 +
-+title: Common input schema binding
+ struct mpr121_touchkey {
+ 	struct i2c_client	*client;
+ 	struct input_dev	*input_dev;
+@@ -115,11 +118,11 @@ static struct regulator *mpr121_vdd_supply_init(struct device *dev)
+ 	return vdd_supply;
+ }
+ 
+-static irqreturn_t mpr_touchkey_interrupt(int irq, void *dev_id)
++static void mpr_touchkey_report(struct input_dev *dev)
+ {
+-	struct mpr121_touchkey *mpr121 = dev_id;
+-	struct i2c_client *client = mpr121->client;
++	struct mpr121_touchkey *mpr121 = input_get_drvdata(dev);
+ 	struct input_dev *input = mpr121->input_dev;
++	struct i2c_client *client = mpr121->client;
+ 	unsigned long bit_changed;
+ 	unsigned int key_num;
+ 	int reg;
+@@ -127,14 +130,14 @@ static irqreturn_t mpr_touchkey_interrupt(int irq, void *dev_id)
+ 	reg = i2c_smbus_read_byte_data(client, ELE_TOUCH_STATUS_1_ADDR);
+ 	if (reg < 0) {
+ 		dev_err(&client->dev, "i2c read error [%d]\n", reg);
+-		goto out;
++		return;
+ 	}
+ 
+ 	reg <<= 8;
+ 	reg |= i2c_smbus_read_byte_data(client, ELE_TOUCH_STATUS_0_ADDR);
+ 	if (reg < 0) {
+ 		dev_err(&client->dev, "i2c read error [%d]\n", reg);
+-		goto out;
++		return;
+ 	}
+ 
+ 	reg &= TOUCH_STATUS_MASK;
+@@ -155,8 +158,14 @@ static irqreturn_t mpr_touchkey_interrupt(int irq, void *dev_id)
+ 
+ 	}
+ 	input_sync(input);
++}
 +
-+maintainers:
-+  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
++static irqreturn_t mpr_touchkey_interrupt(int irq, void *dev_id)
++{
++	struct mpr121_touchkey *mpr121 = dev_id;
 +
-+properties:
-+  autorepeat:
-+    description: Enable autorepeat when key is pressed and held down.
-+    type: boolean
-+
-+  linux,keycodes:
-+    description:
-+      Specifies an array of numeric keycode values to be used for reporting
-+      button presses.
-+    allOf:
-+      - $ref: /schemas/types.yaml#/definitions/uint32-array
-+      - items:
-+          minimum: 0
-+          maximum: 0xff
-+
-+  power-off-time-sec:
-+    description:
-+      Duration in seconds which the key should be kept pressed for device to
-+      power off automatically. Device with key pressed shutdown feature can
-+      specify this property.
-+    $ref: /schemas/types.yaml#/definitions/uint32
-diff --git a/Documentation/devicetree/bindings/input/keys.txt b/Documentation/devicetree/bindings/input/keys.txt
-deleted file mode 100644
-index f5a5ddde53f1..000000000000
---- a/Documentation/devicetree/bindings/input/keys.txt
-+++ /dev/null
-@@ -1,8 +0,0 @@
--General Keys Properties:
++	mpr_touchkey_report(mpr121->input_dev);
+ 
+-out:
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -229,14 +238,10 @@ static int mpr_touchkey_probe(struct i2c_client *client,
+ 	int vdd_uv;
+ 	struct mpr121_touchkey *mpr121;
+ 	struct input_dev *input_dev;
++	u32 poll_interval = 0;
+ 	int error;
+ 	int i;
+ 
+-	if (!client->irq) {
+-		dev_err(dev, "irq number should not be zero\n");
+-		return -EINVAL;
+-	}
 -
--Optional properties for Keys:
--- power-off-time-sec: Duration in seconds which the key should be kept
--	pressed for device to power off automatically. Device with key pressed
--	shutdown feature can specify this property.
--- linux,keycodes: Specifies the numeric keycode values to be used for
--	reporting key presses.
-diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-index 2888d07c2ef0..535d92885372 100644
---- a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-+++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-@@ -10,13 +10,13 @@ Documentation/devicetree/bindings/mfd/mt6397.txt
+ 	vdd_supply = mpr121_vdd_supply_init(dev);
+ 	if (IS_ERR(vdd_supply))
+ 		return PTR_ERR(vdd_supply);
+@@ -274,6 +279,7 @@ static int mpr_touchkey_probe(struct i2c_client *client,
+ 	if (device_property_read_bool(dev, "autorepeat"))
+ 		__set_bit(EV_REP, input_dev->evbit);
+ 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
++	input_set_drvdata(input_dev, mpr121);
  
- Required properties:
- - compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
--- linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
-+- linux,keycodes: See Documentation/devicetree/bindings/input/input.yaml
+ 	input_dev->keycode = mpr121->keycodes;
+ 	input_dev->keycodesize = sizeof(mpr121->keycodes[0]);
+@@ -288,13 +294,40 @@ static int mpr_touchkey_probe(struct i2c_client *client,
+ 		return error;
+ 	}
  
- Optional Properties:
- - wakeup-source: See Documentation/devicetree/bindings/power/wakeup-source.txt
- - mediatek,long-press-mode: Long press key shutdown setting, 1 for
- 	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
--- power-off-time-sec: See Documentation/devicetree/bindings/input/keys.txt
-+- power-off-time-sec: See Documentation/devicetree/bindings/input/input.yaml
+-	error = devm_request_threaded_irq(dev, client->irq, NULL,
+-					  mpr_touchkey_interrupt,
+-					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+-					  dev->driver->name, mpr121);
+-	if (error) {
+-		dev_err(dev, "Failed to register interrupt\n");
+-		return error;
++	device_property_read_u32(dev, "poll-interval", &poll_interval);
++
++	if (client->irq) {
++		error = devm_request_threaded_irq(dev, client->irq, NULL,
++						  mpr_touchkey_interrupt,
++						  IRQF_TRIGGER_FALLING |
++						  IRQF_ONESHOT,
++						  dev->driver->name, mpr121);
++		if (error) {
++			dev_err(dev, "Failed to register interrupt\n");
++			return error;
++		}
++	} else if (poll_interval) {
++		if (poll_interval < MPR121_MIN_POLL_INTERVAL)
++			return -EINVAL;
++
++		if (poll_interval > MPR121_MAX_POLL_INTERVAL)
++			return -EINVAL;
++
++		error = input_setup_polling(input_dev, mpr_touchkey_report);
++		if (error) {
++			dev_err(dev, "Failed to setup polling\n");
++			return error;
++		}
++
++		input_set_poll_interval(input_dev, poll_interval);
++		input_set_min_poll_interval(input_dev,
++					    MPR121_MIN_POLL_INTERVAL);
++		input_set_max_poll_interval(input_dev,
++					    MPR121_MAX_POLL_INTERVAL);
++	} else {
++		dev_err(dev,
++			"invalid IRQ number and polling not configured\n");
++		return -EINVAL;
+ 	}
  
- Example:
- 
-diff --git a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-index 4494613ae7ad..eb8e83736c02 100644
---- a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-+++ b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-@@ -15,7 +15,7 @@ Optional properties:
- - st,onkey-pu-inactive: onkey pull up is not active
- - power-off-time-sec: Duration in seconds which the key should be kept
-         pressed for device to power off automatically (from 1 to 16 seconds).
--        see See Documentation/devicetree/bindings/input/keys.txt
-+        see See Documentation/devicetree/bindings/input/input.yaml
- 
- Example:
- 
+ 	error = input_register_device(input_dev);
 -- 
 2.1.4
 

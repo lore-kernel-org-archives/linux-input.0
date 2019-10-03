@@ -2,34 +2,35 @@ Return-Path: <SRS0=81TE=X4=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27A50C10F14
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 798B6C32792
 	for <linux-input@archiver.kernel.org>; Thu,  3 Oct 2019 06:13:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DD285222C3
-	for <linux-input@archiver.kernel.org>; Thu,  3 Oct 2019 06:13:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A881222CA
+	for <linux-input@archiver.kernel.org>; Thu,  3 Oct 2019 06:13:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b="QI5pd1ou"
+	dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b="Vlq3MXY9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727912AbfJCGND (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1728047AbfJCGND (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 3 Oct 2019 02:13:03 -0400
-Received: from uho.ysoft.cz ([81.19.3.130]:44152 "EHLO uho.ysoft.cz"
+Received: from uho.ysoft.cz ([81.19.3.130]:44170 "EHLO uho.ysoft.cz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726116AbfJCGND (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1727382AbfJCGND (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Thu, 3 Oct 2019 02:13:03 -0400
 Received: from iota-build.ysoft.local (unknown [10.1.5.151])
-        by uho.ysoft.cz (Postfix) with ESMTP id AA06FA095A;
-        Thu,  3 Oct 2019 08:13:00 +0200 (CEST)
+        by uho.ysoft.cz (Postfix) with ESMTP id 1427DA0962;
+        Thu,  3 Oct 2019 08:13:01 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ysoft.com;
-        s=20160406-ysoft-com; t=1570083180;
-        bh=kXQqqbMcLtxZ0koE7VMl0eu2FUL7HocEmrY3mYk6RTU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=QI5pd1ounZWXtaJ/embrSU2SeTYIX6nOwDtxweJq6erJ50Yyhfsj3kmUoSIGnYH6q
-         mu8pZFdEJsCf1Jf05I7jc75Hi3x1q6R21Qh3EH/ahWVzc+EgVqPzYm5rWK+f52FWBz
-         SIUOBEOPC0beC01aApu77lnVwBE5zRZcUPsx+Frw=
+        s=20160406-ysoft-com; t=1570083181;
+        bh=wke8h2wbrfQNZ42H8T4keUHJBoM895dO4SfW7Gsx5cs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Vlq3MXY94LPhnRgAvVyr9K4iVpJXW1YJQ56inc7cTe5OOSuFSicFKDKho+ijX9byp
+         nZtPIdNhB4ANQ1G/tzy4AlbO3OUX2r+aNDYdkKaGoPhSbaQhfdXuE8lN6G+9YmUvVy
+         cBIiYmQyIDU49Ij5UN/vXPdC+jC6M9vhpkrwbSws=
 From:   =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>
@@ -37,10 +38,12 @@ Cc:     Shawn Guo <shawnguo@kernel.org>,
         Fabio Estevam <festevam@gmail.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
-Subject: [PATCH v3 0/5] Add polling mode to the MPR121 touchkey
-Date:   Thu,  3 Oct 2019 08:12:51 +0200
-Message-Id: <1570083176-8231-1-git-send-email-michal.vokac@ysoft.com>
+Subject: [PATCH v3 2/5] dt-bindings: input: Convert mpr121 binding to json-schema
+Date:   Thu,  3 Oct 2019 08:12:53 +0200
+Message-Id: <1570083176-8231-3-git-send-email-michal.vokac@ysoft.com>
 X-Mailer: git-send-email 2.1.4
+In-Reply-To: <1570083176-8231-1-git-send-email-michal.vokac@ysoft.com>
+References: <1570083176-8231-1-git-send-email-michal.vokac@ysoft.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,40 +52,147 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series is another attempt to use the MPR121 touch sensor
-controller in polling mode. This version uses the brand new
-input-poller API.
+Convert the mpr121 binding to DT schema format using json-schema.
 
-First of all, create a common input binding schema that assosiates some
-existing input device properties.
-In second step, convert the existing MPR121 freeform text binding into
-a json-schema. Then the binding is enhanced with the poll-interval
-property. The ability to work in the pollig mode is then added to the
-mpr121_touchkey driver and enabled on a imx6dl-yapp4-hydra platform that
-uses this controller.
+Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
+---
+Changes since v2:
+ - None
 
-Michal Vokáč (5):
-  dt-bindings: input: Add common input binding in json-schema
-  dt-bindings: input: Convert mpr121 binding to json-schema
-  dt-bindings: input: Add poll-interval property
-  Input: mpr121: Add polling mode
-  ARM: dts: imx6dl-yapp4: Enable the MPR121 touchkey controller on Hydra
+Changes since v1:
+ - Extract the common input properties into the input.yaml schema.
+ - Fix the wakeup-source description.
+ - Fix the example to pass validation. Put the mpr121 device sub-node
+   into a i2c {} node.
 
- .../bindings/input/fsl,mpr121-touchkey.yaml        | 89 ++++++++++++++++++++++
- Documentation/devicetree/bindings/input/input.yaml | 36 +++++++++
- Documentation/devicetree/bindings/input/keys.txt   |  8 --
- .../devicetree/bindings/input/mpr121-touchkey.txt  | 30 --------
- .../devicetree/bindings/input/mtk-pmic-keys.txt    |  4 +-
- .../devicetree/bindings/input/st,stpmic1-onkey.txt |  2 +-
- arch/arm/boot/dts/imx6dl-yapp4-common.dtsi         | 13 ++++
- arch/arm/boot/dts/imx6dl-yapp4-hydra.dts           |  4 +
- drivers/input/keyboard/mpr121_touchkey.c           | 69 ++++++++++++-----
- 9 files changed, 196 insertions(+), 59 deletions(-)
+The linux,keycodes property is not valid as it is. If I put the minItems
+and maxItems into the common schema, it is valid and the min/max length
+check works fine. Rob, could you advice how to fix this please?
+
+The error is not very specific..
+
+$ make dt_binding_check DT_SCHEMA_FILES=Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
+  SCHEMA  Documentation/devicetree/bindings/processed-schema.yaml
+/home/vokac/development/sources/linux-fslc/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml: ignoring, error in schema 'linux,ke
+warning: no schema found in file: /home/vokac/development/sources/linux-fslc/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
+/home/vokac/development/sources/linux-fslc/Documentation/devicetree/bindings/Makefile:33: recipe for target 'Documentation/devicetree/bindings/p
+make[3]: *** [Documentation/devicetree/bindings/processed-schema.yaml] Error 255
+/home/vokac/development/sources/linux-fslc/Makefile:1264: recipe for target 'dt_binding_check' failed
+
+ .../bindings/input/fsl,mpr121-touchkey.yaml        | 66 ++++++++++++++++++++++
+ .../devicetree/bindings/input/mpr121-touchkey.txt  | 30 ----------
+ 2 files changed, 66 insertions(+), 30 deletions(-)
  create mode 100644 Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
- create mode 100644 Documentation/devicetree/bindings/input/input.yaml
- delete mode 100644 Documentation/devicetree/bindings/input/keys.txt
  delete mode 100644 Documentation/devicetree/bindings/input/mpr121-touchkey.txt
 
+diff --git a/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml b/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
+new file mode 100644
+index 000000000000..c6fbcdf78556
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
+@@ -0,0 +1,66 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/fsl,mpr121-touchkey.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Freescale MPR121 capacitive touch sensor controller
++
++maintainers:
++  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
++
++description: |
++  The MPR121 supports up to 12 completely independent electrodes/capacitance
++  sensing inputs in which 8 are multifunctional for LED driving and GPIO.
++  https://www.nxp.com/docs/en/data-sheet/MPR121.pdf
++
++allOf:
++  - $ref: input.yaml#
++
++properties:
++  compatible:
++    const: fsl,mpr121-touchkey
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  vdd-supply:
++    maxItems: 1
++
++  linux,keycodes:
++    minItems: 1
++    maxItems: 12
++
++  wakeup-source:
++    description: Use any event on keypad as wakeup event.
++    type: boolean
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - vdd-supply
++  - linux,keycodes
++
++examples:
++  - |
++    #include "dt-bindings/input/input.h"
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        mpr121@5a {
++            compatible = "fsl,mpr121-touchkey";
++            reg = <0x5a>;
++            interrupt-parent = <&gpio1>;
++            interrupts = <28 2>;
++            autorepeat;
++            vdd-supply = <&ldo4_reg>;
++            linux,keycodes = <KEY_0>, <KEY_1>, <KEY_2>, <KEY_3>,
++                             <KEY_4>, <KEY_5>, <KEY_6>, <KEY_7>,
++                             <KEY_8>, <KEY_9>, <KEY_A>, <KEY_B>;
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/input/mpr121-touchkey.txt b/Documentation/devicetree/bindings/input/mpr121-touchkey.txt
+deleted file mode 100644
+index b7c61ee5841b..000000000000
+--- a/Documentation/devicetree/bindings/input/mpr121-touchkey.txt
++++ /dev/null
+@@ -1,30 +0,0 @@
+-* Freescale MPR121 Controllor
+-
+-Required Properties:
+-- compatible:		Should be "fsl,mpr121-touchkey"
+-- reg:			The I2C slave address of the device.
+-- interrupts:		The interrupt number to the cpu.
+-- vdd-supply:		Phandle to the Vdd power supply.
+-- linux,keycodes:	Specifies an array of numeric keycode values to
+-			be used for reporting button presses. The array can
+-			contain up to 12 entries.
+-
+-Optional Properties:
+-- wakeup-source:	Use any event on keypad as wakeup event.
+-- autorepeat:		Enable autorepeat feature.
+-
+-Example:
+-
+-#include "dt-bindings/input/input.h"
+-
+-	touchkey: mpr121@5a {
+-		compatible = "fsl,mpr121-touchkey";
+-		reg = <0x5a>;
+-		interrupt-parent = <&gpio1>;
+-		interrupts = <28 2>;
+-		autorepeat;
+-		vdd-supply = <&ldo4_reg>;
+-		linux,keycodes = <KEY_0>, <KEY_1>, <KEY_2>, <KEY_3>,
+-				<KEY_4> <KEY_5>, <KEY_6>, <KEY_7>,
+-				<KEY_8>, <KEY_9>, <KEY_A>, <KEY_B>;
+-	};
 -- 
 2.1.4
 

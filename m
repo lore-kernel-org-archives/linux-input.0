@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E1FAC10F14
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9AB5C10F14
 	for <linux-input@archiver.kernel.org>; Thu,  3 Oct 2019 06:13:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D800F222CB
-	for <linux-input@archiver.kernel.org>; Thu,  3 Oct 2019 06:13:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9FC55222C7
+	for <linux-input@archiver.kernel.org>; Thu,  3 Oct 2019 06:13:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b="VXlKrOCX"
+	dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b="jzXNuTst"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725874AbfJCGND (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 3 Oct 2019 02:13:03 -0400
-Received: from uho.ysoft.cz ([81.19.3.130]:44178 "EHLO uho.ysoft.cz"
+        id S1728117AbfJCGNF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 3 Oct 2019 02:13:05 -0400
+Received: from uho.ysoft.cz ([81.19.3.130]:44198 "EHLO uho.ysoft.cz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727587AbfJCGND (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 3 Oct 2019 02:13:03 -0400
+        id S1728049AbfJCGNE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 3 Oct 2019 02:13:04 -0400
 Received: from iota-build.ysoft.local (unknown [10.1.5.151])
-        by uho.ysoft.cz (Postfix) with ESMTP id 3BE37A0973;
+        by uho.ysoft.cz (Postfix) with ESMTP id 984FBA097E;
         Thu,  3 Oct 2019 08:13:01 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ysoft.com;
         s=20160406-ysoft-com; t=1570083181;
-        bh=oIkokaJCWSqaC/MedpRmpwQpGjqjHo/ZVzfOZeqsW7s=;
+        bh=xdnbhlP5VZbX9psldGdVTegnvgtlaS1Fp9fUYQIGahc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VXlKrOCX494qkZhWWBl8z/EKmVHGAZPXGKrEcaMkcFMBDAUqlelwpBBPMCSazjWs5
-         ay7kf0rGeWqbSRFR8qtURyvozFED66cP7HqJW5KMCwXK4SzCPX6Az0pSSpIFPQbv7Q
-         7ZR862+7j/EvhXN1OeaofSGP7h3TxTxOSdAcLsyE=
+        b=jzXNuTstAvIRcwxw0uaMz8WP5eiNlVYqcxVHcXy6k2MuFix+Owq2QWpSAN4aZHoTZ
+         OsDVix5LvcztbDzQS720x6g7Xtc1wTTvUTgeeM8wFpvxwlF1IWwAwiUMsh15uUv4+m
+         RetB633fnFBW7m/qIfY4BBwCT/FiW/fP1kqwHtrQ=
 From:   =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>
@@ -38,9 +38,9 @@ Cc:     Shawn Guo <shawnguo@kernel.org>,
         Fabio Estevam <festevam@gmail.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
-Subject: [PATCH v3 3/5] dt-bindings: input: Add poll-interval property
-Date:   Thu,  3 Oct 2019 08:12:54 +0200
-Message-Id: <1570083176-8231-4-git-send-email-michal.vokac@ysoft.com>
+Subject: [PATCH v3 5/5] ARM: dts: imx6dl-yapp4: Enable the MPR121 touchkey controller on Hydra
+Date:   Thu,  3 Oct 2019 08:12:56 +0200
+Message-Id: <1570083176-8231-6-git-send-email-michal.vokac@ysoft.com>
 X-Mailer: git-send-email 2.1.4
 In-Reply-To: <1570083176-8231-1-git-send-email-michal.vokac@ysoft.com>
 References: <1570083176-8231-1-git-send-email-michal.vokac@ysoft.com>
@@ -52,8 +52,9 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add an option to periodicaly poll the device to get state of the inputs
-as the interrupt line may not be used on some platforms.
+Add the touch keyboard present on Hydra board. The controller
+is connected only using I2C lines. The interrupt line is not
+available hence we use the polling mode.
 
 Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
 ---
@@ -61,83 +62,58 @@ Changes since v2:
  - None
 
 Changes since v1:
- - Use poll-interval instead of linux,poll-interval.
- - Place the poll-interval binding into the common schema.
- - Properly describe that either interrupts or poll-interval property is
-   required.
- - Fix the example to pass validation.
+ - Use poll-interval property name instead of linux,poll-interval.
 
- .../bindings/input/fsl,mpr121-touchkey.yaml        | 25 +++++++++++++++++++++-
- Documentation/devicetree/bindings/input/input.yaml |  4 ++++
- 2 files changed, 28 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6dl-yapp4-common.dtsi | 13 +++++++++++++
+ arch/arm/boot/dts/imx6dl-yapp4-hydra.dts   |  4 ++++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml b/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
-index c6fbcdf78556..035b2fee4491 100644
---- a/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
-+++ b/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
-@@ -17,6 +17,10 @@ description: |
- allOf:
-   - $ref: input.yaml#
+diff --git a/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi b/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
+index e8d800fec637..6507bfc0141a 100644
+--- a/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
++++ b/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
+@@ -4,6 +4,7 @@
  
-+oneOf:
-+  - required: [ interrupts ]
-+  - required: [ poll-interval ]
-+
- properties:
-   compatible:
-     const: fsl,mpr121-touchkey
-@@ -41,12 +45,12 @@ properties:
- required:
-   - compatible
-   - reg
--  - interrupts
-   - vdd-supply
-   - linux,keycodes
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/input/input.h>
+ #include <dt-bindings/pwm/pwm.h>
  
- examples:
-   - |
-+    // Example with interrupts
-     #include "dt-bindings/input/input.h"
-     i2c {
-         #address-cells = <1>;
-@@ -64,3 +68,22 @@ examples:
-                              <KEY_8>, <KEY_9>, <KEY_A>, <KEY_B>;
-         };
-     };
+ / {
+@@ -330,6 +331,18 @@
+ 		vcc-supply = <&sw2_reg>;
+ 		status = "disabled";
+ 	};
 +
-+  - |
-+    // Example with polling
-+    #include "dt-bindings/input/input.h"
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        mpr121@5a {
-+            compatible = "fsl,mpr121-touchkey";
-+            reg = <0x5a>;
-+            poll-interval = <20>;
-+            autorepeat;
-+            vdd-supply = <&ldo4_reg>;
-+            linux,keycodes = <KEY_0>, <KEY_1>, <KEY_2>, <KEY_3>,
-+                             <KEY_4>, <KEY_5>, <KEY_6>, <KEY_7>,
-+                             <KEY_8>, <KEY_9>, <KEY_A>, <KEY_B>;
-+        };
-+    };
-diff --git a/Documentation/devicetree/bindings/input/input.yaml b/Documentation/devicetree/bindings/input/input.yaml
-index ca8fe84a2e62..6d519046b3af 100644
---- a/Documentation/devicetree/bindings/input/input.yaml
-+++ b/Documentation/devicetree/bindings/input/input.yaml
-@@ -24,6 +24,10 @@ properties:
-           minimum: 0
-           maximum: 0xff
++	touchkeys: keys@5a {
++		compatible = "fsl,mpr121-touchkey";
++		reg = <0x5a>;
++		vdd-supply = <&sw2_reg>;
++		autorepeat;
++		linux,keycodes = <KEY_1>, <KEY_2>, <KEY_3>, <KEY_4>, <KEY_5>,
++				<KEY_6>, <KEY_7>, <KEY_8>, <KEY_9>,
++				<KEY_BACKSPACE>, <KEY_0>, <KEY_ENTER>;
++		poll-interval = <50>;
++		status = "disabled";
++	};
+ };
  
-+  poll-interval:
-+    description: Poll interval time in milliseconds.
-+    $ref: /schemas/types.yaml#/definitions/uint32
+ &iomuxc {
+diff --git a/arch/arm/boot/dts/imx6dl-yapp4-hydra.dts b/arch/arm/boot/dts/imx6dl-yapp4-hydra.dts
+index f97927064750..84c275bfdd38 100644
+--- a/arch/arm/boot/dts/imx6dl-yapp4-hydra.dts
++++ b/arch/arm/boot/dts/imx6dl-yapp4-hydra.dts
+@@ -45,6 +45,10 @@
+ 	status = "okay";
+ };
+ 
++&touchkeys {
++	status = "okay";
++};
 +
-   power-off-time-sec:
-     description:
-       Duration in seconds which the key should be kept pressed for device to
+ &usdhc3 {
+ 	status = "okay";
+ };
 -- 
 2.1.4
 

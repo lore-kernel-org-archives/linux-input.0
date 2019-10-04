@@ -1,41 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
 Subject: Re: [PATCH] Input: add input_get_poll_interval()
-Date: Thu, 3 Oct 2019 11:57:37 -0700
-Message-ID: <20191003185737.GC22365@dtor-ws>
+Date: Fri, 4 Oct 2019 10:09:16 +0200
+Message-ID: <d52af5bc-aa1c-c186-e686-de63d66a95b7@ysoft.com>
 References: <20191002215812.GA135681@dtor-ws>
- <CAO-hwJ+v1jJJ=APP__84SPrFdR+Te8nAxR6DirD8a9US_Bm4wQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAO-hwJ+v1jJJ=APP__84SPrFdR+Te8nAxR6DirD8a9US_Bm4wQ@mail.gmail.com>
+In-Reply-To: <20191002215812.GA135681@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin,
-
-On Thu, Oct 03, 2019 at 02:34:59PM -0400, Benjamin Tissoires wrote:
-> Hi Dmitry,
+On 02. 10. 19 23:58, Dmitry Torokhov wrote:
+> Some drivers need to be able to know the current polling interval for
+> devices working in polling mode, let's allow them fetching it.
 > 
-> On Wed, Oct 2, 2019 at 5:58 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > Some drivers need to be able to know the current polling interval for
-> > devices working in polling mode, let's allow them fetching it.
-> >
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Not sure if you really need my input on this one, but, sure, looks good to me:
-> Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Thanks!
+Just tested to use this function from a mpr121_touchkey driver.
+Works as expected. When I change the poll interval from sysfs, the new
+value is correctly reported.
 
-I like for someone to have taken look at the stuff I write before I
-commit it to the tree, and you are one of the most active developers in
-linux-input, so I tend to copy you on random bits and pieces and I
-really appreciate that you take time to check them out.
+Tested-by: Michal Vokáč <michal.vokac@ysoft.com>
 
--- 
-Dmitry
+> ---
+>   drivers/input/input-poller.c | 9 +++++++++
+>   include/linux/input.h        | 1 +
+>   2 files changed, 10 insertions(+)

@@ -1,115 +1,58 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v5 0/3] mfd: mc13xxx: Fixes and enhancements for NXP's
- mc34708
-Date: Fri, 4 Oct 2019 15:07:49 +0100
-Message-ID: <20191004140749.GH18429@dell>
-References: <20190909214440.30674-1-lukma@denx.de>
- <20190930095159.64e1001a@jawa>
- <20191001064130.GA11769@dell>
- <20191001101909.79aacda0@jawa>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v7 0/8] efi/firmware/platform-x86: Add EFI embedded fw support
+Date: Fri,  4 Oct 2019 16:50:48 +0200
+Message-ID: <20191004145056.43267-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191001101909.79aacda0@jawa>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lukasz Majewski <lukma@denx.de>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Enrico Weigelt <info@metux.net>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Luis Chamberlain <mcgrof@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J . Wysocki" <rafael@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Jonathan Corbet <corbet@lwn.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Peter Jones <pjones@redhat.com>, Dave Olsthoorn <dave@bewaar.me>, x86@kernel.org, platform-driver-x86@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 01 Oct 2019, Lukasz Majewski wrote:
-> > On Mon, 30 Sep 2019, Lukasz Majewski wrote:
-> > 
-> > > Dear Lee,
-> > >   
-> > > > This patch set provides several enhancements to mc13xxx MFD family
-> > > > of devices by introducing mc34708 as a separate device.
-> > > > 
-> > > > This IC has dedicated pen detection feature, which allows better
-> > > > touchscreen experience.
-> > > > 
-> > > > This is the fifth version of this code (v5).
-> > > > Discussion regarding previous versions can be found here:
-> > > > https://lkml.org/lkml/2018/4/12/351
-> > > > https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1661934.html
-> > > > https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1664296.html
-> > > > https://lkml.org/lkml/2019/7/17/705  
-> > > 
-> > > Gentle ping on this patch series. It is now 3 weeks without any
-> > > reply...  
-> > 
-> > Please take note and follow the kernel release cycle.
-> > 
-> > These patches were sent after the release of -rc7 i.e. very late
-> > in the release cycle and a point where most kernel maintainers stop
-> > reviewing/applying patches
-> 
-> Maybe something has changed recently, but I thought that the review is
-> an ongoing process (that the discussion about patches takes place all
-> the time to refine the code).
-> 
-> (and nobody expects maintainers pulling new patches after merge window).
+Hi All,
 
-Nothing changed recently.  Some maintainers will review just before
-and during the merge windows, others use the time to prepare their
-branches for submission and welcome the break from reviewing during
-this time.  Either way, please do not *expect* a fast turn-around
-during in this period of the cycle.
+Here is v7 of my patch-set to add support for EFI embedded fw to the kernel.
 
-> > and start to prepare for the impending
-> > merge-window.
-> > 
-> > Also, there is no such thing as a gentle ping.
-> 
-> I'm a bit puzzled now. 
-> I do know that maintainers are overworked - and I do understand that.
-> 
-> However, NO reply for such a long time is at best confusing for
-> somebody who is willing to fix the kernel.
+v6 was posted a long time ago, around the 4.18 days. The long wait was for
+a suitable secure-hash for checking the firmware we find embedded in the EFI
+is the one we expect.
 
-If you respect the merge cycle, you will come to expect a short delay
-at the end and during the merge-window.  Please also understand that
-Maintainers also take vacation, attend conferences and have other work
-to attend to.
+With 5.4-rc1 we finally have a standalone sha256 lib, so that hurdle for
+this patch-set is now gone.
 
-> (Maybe this has changed too - but I do remember that there was a "rule
-> of thumb" to express any comment about the patch in 2 weeks time).
+I've tried to address all review-remarks against v6 in this new version:
 
-Same rule of thumb applies.  If after 2 weeks you have not received a
-review, feel free to send a [RESEND].  However, bumping threads with
-contentless pings is considered bad form.
+Changes in v7:
+- Split drivers/firmware/efi and drivers/base/firmware_loader changes into
+  2 patches
+- Use new, standalone, lib/crypto/sha256.c code
+- Address kdoc comments from Randy Dunlap
+- Add new FW_OPT_FALLBACK_PLATFORM flag and firmware_request_platform()
+  _request_firmware() wrapper, as requested by Luis R. Rodriguez
+- Stop using "efi-embedded-firmware" device-property, now that drivers need to
+  use the new firmware_request_platform() to enable fallback to a device fw
+  copy embedded in the platform's main firmware, we no longer need a property
+  on the device to trigger this behavior
+- Use security_kernel_load_data instead of calling
+  security_kernel_read_file with a NULL file pointer argument
+- Move the docs to Documentation/driver-api/firmware/fallback-mechanisms.rst
+- Document the new firmware_request_platform() function in
+  Documentation/driver-api/firmware/request_firmware.rst
+- Add 2 new patches for the silead and chipone-icn8505 touchscreen drivers
+  to use the new firmware_request_platform() method
+- Rebased on top of 5.4-rc1
 
-As an aside, I (and others) conduct reviews in batches and in
-chronological order (first come, first served) of how the mails are
-represented in my inbox.  Thus, if you bump a thread, it goes to the
-back of the queue.
+I guess this will probably need another round (ot two) of review + fixing,
+but eventually this can hopefully be merged. Since this touches a bunch
+of different subsystems the question is how to merge this? Most of the
+touched files outside of the firmware-loader code do not see a lot of
+churn, so my proposal would be to merge patches 1-6 through the tree
+which carries firmware-loader changes; and then provide an immutable
+branch for the platform/x86 maintainers to merge and then they can merge
+the last 2 patches (as the touchscreen_dmi.c file does see quite a bit
+of changes every release).
 
-> >  If you genuinely think
-> > your patches have unlikely("slipped though the gaps"), then post a
-> > [RESEND] complete with a note alluding your reasons doing such.
-> > 
-> 
-> Please forgive me, but are patches from this series eligible for pulling
-> (to v5.4 or even next release)?
+Regards,
 
-v5.4-rc1 has already been released.  No new functionality will hit
-v5.4.  We have around 6-7 weeks to agree on acceptance for this set
-for them to be eligible for v5.5.
-
-> > > > Sascha Hauer (3):
-> > > >   mfd: mc13xxx: Add mc34708 adc support
-> > > >   input: touchscreen mc13xxx: Make platform data optional
-> > > >   input: touchscreen mc13xxx: Add mc34708 support
-> > > > 
-> > > >  drivers/input/touchscreen/mc13783_ts.c | 63 ++++++++++++++---
-> > > >  drivers/mfd/mc13xxx-core.c             | 98
-> > > > +++++++++++++++++++++++++- include/linux/mfd/mc34708.h
-> > > > | 37 ++++++++++ 3 files changed, 185 insertions(+), 13
-> > > > deletions(-) create mode 100644 include/linux/mfd/mc34708.h  
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Hans

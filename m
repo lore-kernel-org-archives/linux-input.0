@@ -2,70 +2,106 @@ Return-Path: <SRS0=eGih=X5=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F368C4360C
-	for <linux-input@archiver.kernel.org>; Fri,  4 Oct 2019 08:09:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E5D0C4360C
+	for <linux-input@archiver.kernel.org>; Fri,  4 Oct 2019 11:30:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DA1112084D
-	for <linux-input@archiver.kernel.org>; Fri,  4 Oct 2019 08:09:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ysoft.com header.i=@ysoft.com header.b="M4s539QD"
+	by mail.kernel.org (Postfix) with ESMTP id 0049021D81
+	for <linux-input@archiver.kernel.org>; Fri,  4 Oct 2019 11:30:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731066AbfJDIJS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 4 Oct 2019 04:09:18 -0400
-Received: from uho.ysoft.cz ([81.19.3.130]:51804 "EHLO uho.ysoft.cz"
+        id S1725775AbfJDLap (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 4 Oct 2019 07:30:45 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:41600 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731053AbfJDIJS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 4 Oct 2019 04:09:18 -0400
-Received: from [10.1.8.111] (unknown [10.1.8.111])
-        by uho.ysoft.cz (Postfix) with ESMTP id F164CA05D3;
-        Fri,  4 Oct 2019 10:09:16 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ysoft.com;
-        s=20160406-ysoft-com; t=1570176557;
-        bh=rszklT5AfFggE4WOlv5dnLOTdW5pIVWmTQcYuHaDbw8=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=M4s539QDrgzbTtln0Of3sHmOcK4SYwaYlRV4rQGuS1bLu2khid6UbB76wGystnC21
-         1+/oLmaaGXKu620WjbRLPO+Rg8u2QvxBsceODjFhvVZgwT9L7wwGaYg4PEvrSqMiPT
-         uNDEmI2kUUR3jAin5BXApxowlxMjG5sh/BfdNu2o=
-Subject: Re: [PATCH] Input: add input_get_poll_interval()
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20191002215812.GA135681@dtor-ws>
-From:   =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
-Message-ID: <d52af5bc-aa1c-c186-e686-de63d66a95b7@ysoft.com>
-Date:   Fri, 4 Oct 2019 10:09:16 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1727254AbfJDLan (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 4 Oct 2019 07:30:43 -0400
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com [209.85.222.200])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id B35DD90B0A
+        for <linux-input@vger.kernel.org>; Fri,  4 Oct 2019 11:30:42 +0000 (UTC)
+Received: by mail-qk1-f200.google.com with SMTP id o133so6006596qke.4
+        for <linux-input@vger.kernel.org>; Fri, 04 Oct 2019 04:30:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=YwMS/qxpXgivNoIwaLdCz/PCQ/UTGFAe0MuGXkZY1II=;
+        b=SO6G8BqTI5geQWh46YM0viq6nNPJr0oTFsaTSrtAiZqiPKOC1xz4Mgu0qxpeLdvMWW
+         oybd8thCz35NqOpX77bGUzK+whI/9IdhMyT5BOnhcIkDac+2saQY9sw5rFvYb9WUM7Oy
+         Qq9X0Lf+6CsmDTxwQg6tuFarh3D39p8AoFcz/+Duws09hOLiUDsdQYxk7z4dv/UUniYS
+         njqZAZGhTSgPjAgOl4HpSSoiarhIlPlBXyqRJVUec+UC1QwP+xYUSzjiNHiVaBEOuFlx
+         kNXdQqKJBDXNukP/BGAKNXqPI/81wvY1GKvm2536WSAxZAv5li+oj2xJYTeFh3prtLpu
+         Speg==
+X-Gm-Message-State: APjAAAU9jcSUF0LWSkX3kDA+uqtTU5edkF1spGKGGATaOxmROUbhaaRE
+        5Vq6lUYPAwQqIFZe3pZWYfKSTQjLDFSbDvE7iG/u1yImbJ1d5+lIw0UE7VOq+aLMIQAGUMK3aCW
+        QablSIMi36Ie5Iq/4tl7Tz8z5gIJrSpPIya/T7wU=
+X-Received: by 2002:a37:4c4d:: with SMTP id z74mr9166765qka.459.1570188641900;
+        Fri, 04 Oct 2019 04:30:41 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqzWXNZ+Y5Tm4D+I14DvsyzwEj5izsH7L4rxJ2hXV91wBm52aL02c9NJx0pSs8KON4IQHLgIFJAJc9BCtIwkRuo=
+X-Received: by 2002:a37:4c4d:: with SMTP id z74mr9166753qka.459.1570188641655;
+ Fri, 04 Oct 2019 04:30:41 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20191002215812.GA135681@dtor-ws>
-Content-Type: text/plain; charset="UTF-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20191004073715.6075-1-hdegoede@redhat.com>
+In-Reply-To: <20191004073715.6075-1-hdegoede@redhat.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Fri, 4 Oct 2019 07:30:30 -0400
+Message-ID: <CAO-hwJ+kGmQSJZTO=PHKO6kTpwV6GwkbCkCMTtYV4=LabkUTNQ@mail.gmail.com>
+Subject: Re: [PATCH] HID: logitech: Add depends on LEDS_CLASS to Logitech
+ Kconfig entry
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        kbuild test robot <lkp@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
-Message-ID: <20191004080916.maobhOIKGSPmIQODOolFA0P37qrSE3vkZX73qNbQLO8@z>
 
-On 02. 10. 19 23:58, Dmitry Torokhov wrote:
-> Some drivers need to be able to know the current polling interval for
-> devices working in polling mode, let's allow them fetching it.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Hi Hans,
 
-Just tested to use this function from a mpr121_touchkey driver.
-Works as expected. When I change the poll interval from sysfs, the new
-value is correctly reported.
-
-Tested-by: Michal Vokáč <michal.vokac@ysoft.com>
-
+On Fri, Oct 4, 2019 at 3:37 AM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Commit 97b741aba918 ("HID: lg-g15: Add keyboard and LCD backlight control")
+> makes the hid-lg15 kernel module, which gets configured through config
+> HID_LOGITECH depends on symbols from the led class. Add a depends on
+> LEDS_CLASS to HID_LOGITECH to avoid undefined reference errors on the
+> led class symbols.
+>
+> Fixes: 97b741aba918 ("HID: lg-g15: Add keyboard and LCD backlight control")
+> Reported-by: kbuild test robot <lkp@intel.com>
+> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
->   drivers/input/input-poller.c | 9 +++++++++
->   include/linux/input.h        | 1 +
->   2 files changed, 10 insertions(+)
+>  drivers/hid/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 1ecb5124421c..494a39e74939 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -525,6 +525,7 @@ config HID_LENOVO
+>  config HID_LOGITECH
+>         tristate "Logitech devices"
+>         depends on HID
+> +       depends on LEDS_CLASS
+
+My CI failed with this patch. It seems this creates a loop in the
+dependencies and I can not create the config file. Also, it seems
+weird to have a depends on LEDS_CLASS when you surely wants to enable
+it. How about using SELECT instead?
+
+Cheers,
+Benjamin
+
+>         default !EXPERT
+>         ---help---
+>         Support for Logitech devices that are not fully compliant with HID standard.
+> --
+> 2.23.0
+>

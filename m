@@ -1,78 +1,93 @@
-From: Mazin Rezk <mnrzk@protonmail.com>
-Subject: [PATCH v3 4/4] HID: logitech: Support WirelessDeviceStatus connect events
-Date: Sun, 06 Oct 2019 01:05:08 +0000
-Message-ID: <Zn73qAH6QAj1V0kjJQsq_8VUdDBHRfbRuKJLA-kH_jm63uZw_tbLjaG5QJOI7VAfy6GB74L6bnb7Faiwy49JSjIEfV6f-_KwWYbjQtog8mU=@protonmail.com>
-Reply-To: Mazin Rezk <mnrzk@protonmail.com>
+From: Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
+Subject: Re: [PATCH v3 1/4] HID: logitech: Add MX Mice over Bluetooth
+Date: Sun, 06 Oct 2019 16:07:59 +0100
+Message-ID: <c440435a1fb8a04a9fca83f17b7cc1ebb95bcc44.camel@archlinux.org>
+References: <l7xYjnA9EGfZe03FsrFhnH2aMq8qS8plWhHVvOtY_l4ShZ1NV6HA6hn9aI-jAzbLYUGFCIQCIKkx9z42Uoj4-AZDwBfRcAecYIn-0ZA5upE=@protonmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-4zPzoW7jzVovkqYvJJGf"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <l7xYjnA9EGfZe03FsrFhnH2aMq8qS8plWhHVvOtY_l4ShZ1NV6HA6hn9aI-jAzbLYUGFCIQCIKkx9z42Uoj4-AZDwBfRcAecYIn-0ZA5upE=@protonmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "lains@archlinux.org" <lains@archlinux.org>, "mnrzk@protonmail.com" <mnrzk@protonmail.com>
+To: Mazin Rezk <mnrzk@protonmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch makes WirelessDeviceStatus (0x1d4b) events get detected as
-connection events on devices with HIDPP_QUIRK_WIRELESS_DEVICE_STATUS.
 
-This quirk is currently an alias for HIDPP_QUIRK_CLASS_BLUETOOTH since
-the added Bluetooth devices do not support regular connect events.
+--=-4zPzoW7jzVovkqYvJJGf
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
----
- drivers/hid/hid-logitech-hidpp.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+On Sun, 2019-10-06 at 01:04 +0000, Mazin Rezk wrote:
+> This patch adds support for several MX mice over Bluetooth. The device ID=
+s
+> have been copied from the libratbag device database and their features
+> have been based on their DJ device counterparts.
+>=20
+> Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+>=20
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
+hidpp.c
+> index 0179f7ed77e5..85fd0c17cc2f 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -3773,6 +3773,24 @@ static const struct hid_device_id hidpp_devices[] =
+=3D {
+>  	{ /* MX5500 keyboard over Bluetooth */
+>  	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+>  	  .driver_data =3D HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
+> +	{ /* MX Anywhere 2 mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb013),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb018),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ /* MX Anywhere 2S mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01a),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ /* MX Master mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb017),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ /* MX Master 2S mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb019),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+>  	{}
+>  };
+>=20
+> --
+> 2.23.0
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
-dpp.c
-index 64ac94c581aa..4a6e41c2c9fc 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -84,6 +84,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
+I think you should only add the mice you tested. We are not sure if
+this devices actually do work properly with the current stack. I will
+try to test some devices after Tuesday.
 
- /* Just an alias for now, may possibly be a catch-all in the future */
- #define HIDPP_QUIRK_MISSING_SHORT_REPORTS=09HIDPP_QUIRK_CLASS_BLUETOOTH
-+#define HIDPP_QUIRK_WIRELESS_DEVICE_STATUS=09HIDPP_QUIRK_CLASS_BLUETOOTH
+Filipe La=C3=ADns
 
- #define HIDPP_QUIRK_DELAYED_INIT=09=09HIDPP_QUIRK_NO_HIDINPUT
+--=-4zPzoW7jzVovkqYvJJGf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-@@ -406,9 +407,22 @@ static inline bool hidpp_match_error(struct hidpp_repo=
-rt *question,
- =09    (answer->fap.params[0] =3D=3D question->fap.funcindex_clientid);
- }
+-----BEGIN PGP SIGNATURE-----
 
--static inline bool hidpp_report_is_connect_event(struct hidpp_report *repo=
-rt)
-+#define HIDPP_PAGE_WIRELESS_DEVICE_STATUS=09=090x1d4b
-+
-+static inline bool hidpp_report_is_connect_event(struct hidpp_device *hidp=
-p,
-+=09=09=09=09=09=09 struct hidpp_report *report)
- {
--=09return (report->report_id =3D=3D REPORT_ID_HIDPP_SHORT) &&
-+=09if (hidpp->quirks & HIDPP_QUIRK_WIRELESS_DEVICE_STATUS) {
-+=09=09/* If feature is invalid, skip array check */
-+=09=09if (report->fap.feature_index > hidpp->feature_count)
-+=09=09=09return false;
-+
-+=09=09return (hidpp->features[report->fap.feature_index] =3D=3D
-+=09=09=09 HIDPP_PAGE_WIRELESS_DEVICE_STATUS);
-+=09}
-+
-+=09return ((report->report_id =3D=3D REPORT_ID_HIDPP_SHORT) ||
-+=09=09(hidpp->quirks & HIDPP_QUIRK_MISSING_SHORT_REPORTS)) &&
- =09=09(report->rap.sub_id =3D=3D 0x41);
- }
+iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl2aA0UACgkQ+JPGdIFq
+qV2tShAAmhubw9I/kSIhhapRmz2G0cNdy0pa2TS5Aai1RQulADup1aIHEAQpH+dW
+WxeNSeNkuB0pFgGIw+weOmuvvV5H2M+J+K+dWxdfuM08lJmmXSIbJBXSkDy0FZLd
+8Ausxvwg+RHVPmVhQg7h6pe3FpLEKEpM0T/D8cvyUGJmbbCNgBtz12sltY4XKyo/
+tOJ0g0TU4STocg722fFYaQCh2MeBQzCj5qIMITM84Q7Wv7GUSIbVHmYfBHbC7EvY
+wyJEkX2y12HQeJOsUVYPMArmzVX0xqe/v72V8m0lpNH55KUYzzy5HFqqzKzEq1v0
+FTCJHdIZRoDIKz4rd85175v2hEnsdEju9dD0UmfGPbasvaMQb6qxYRMMlve7G+tg
+bzblD6UgD7sU7jsmFdj/Cnu5gxQqZqT6GfENLtK7IFy6fFURtR5qxnGUZuxh6j3m
+o8CyPDjp2dwt+k6jpOUmFXinMw0oqpUD0g1pJ3jkVy8XEiMRIsrMt141B+osmJYT
+ZOHpRSARTh1WkTBxi7mfFNh9TOYxur+6llGIdReKYtfLTQyN73Ae+FQexjsf8beQ
+4xB4/9C8e3tBV5ApxcHhDrt5EqOW84gMD54tDL93GeGsAVlLDTB6jvrrTIlW+GKk
+A2I1ZQwChJYunDEIO8eXxqBePp2qPZSwu2SkUGIhLugDN8byS6s=
+=QMFT
+-----END PGP SIGNATURE-----
 
-@@ -3159,7 +3173,7 @@ static int hidpp_raw_hidpp_event(struct hidpp_device =
-*hidpp, u8 *data,
- =09=09}
- =09}
-
--=09if (unlikely(hidpp_report_is_connect_event(report))) {
-+=09if (unlikely(hidpp_report_is_connect_event(hidpp, report))) {
- =09=09atomic_set(&hidpp->connected,
- =09=09=09=09!(report->rap.params[0] & (1 << 6)));
- =09=09if (schedule_work(&hidpp->work) =3D=3D 0)
---
-2.23.0
+--=-4zPzoW7jzVovkqYvJJGf--

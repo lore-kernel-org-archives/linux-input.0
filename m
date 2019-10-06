@@ -2,145 +2,95 @@ Return-Path: <SRS0=RAiR=X7=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,HK_RANDOM_FROM,HK_RANDOM_REPLYTO,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39E1BC47404
-	for <linux-input@archiver.kernel.org>; Sun,  6 Oct 2019 00:32:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EAF3C47404
+	for <linux-input@archiver.kernel.org>; Sun,  6 Oct 2019 01:04:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 11B45222CC
-	for <linux-input@archiver.kernel.org>; Sun,  6 Oct 2019 00:32:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1570321974;
-	bh=yVSCUoI+lseGFR4IYqnIN8StTXuL1oZ1vQrmfXipRHY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=TlJ1twsNjuDzEft4jValJJACWOiSbue7pNwvs5UsRLDah75GjVxABGUFKkGFy9cfS
-	 lOaZV/XMvibKLWbnOiRfNi9St89WLgIXj5UB7ZURfKNPywv/57maOEOgnfRk0nwP5P
-	 0rh7OzsJHxTjlDNU7JYh++Yh/0KuRHXZgkBNGEIE=
+	by mail.kernel.org (Postfix) with ESMTP id EBEB3222C5
+	for <linux-input@archiver.kernel.org>; Sun,  6 Oct 2019 01:04:06 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="yGvuqtfz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726891AbfJFAcx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 5 Oct 2019 20:32:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45084 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726863AbfJFAcx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 5 Oct 2019 20:32:53 -0400
-Received: from dragon (li937-157.members.linode.com [45.56.119.157])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A0FD222BE;
-        Sun,  6 Oct 2019 00:32:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570321971;
-        bh=yVSCUoI+lseGFR4IYqnIN8StTXuL1oZ1vQrmfXipRHY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=D6LxZ1QuFoDIl516K2GCTZjZv4BnFdsxk8Jr9cmMguCqq9nIc8ryLQiLOhy36x0jN
-         KTPJ1AP5u5xqnbnHmec2+YhpaeZ+PD2x2/BFKC/Q3/sudiUIkJ9IGGUiSuqIVXuoP5
-         B0gOzu0wn+PcBb+I+UZrNS6/EFatxXtZ3hK81bmo=
-Date:   Sun, 6 Oct 2019 08:32:27 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Anson Huang <anson.huang@nxp.com>
-Cc:     Pavel Machek <pavel@ucw.cz>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will@kernel.org" <will@kernel.org>,
-        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
-        Andy Duan <fugang.duan@nxp.com>, Peng Fan <peng.fan@nxp.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        "mripard@kernel.org" <mripard@kernel.org>,
-        "olof@lixom.net" <olof@lixom.net>, "arnd@arndb.de" <arnd@arndb.de>,
-        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        "dinguyen@kernel.org" <dinguyen@kernel.org>,
-        "marcin.juszkiewicz@linaro.org" <marcin.juszkiewicz@linaro.org>,
-        "stefan@agner.ch" <stefan@agner.ch>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        "yuehaibing@huawei.com" <yuehaibing@huawei.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "ronald@innovation.ch" <ronald@innovation.ch>,
-        "m.felsch@pengutronix.de" <m.felsch@pengutronix.de>,
-        Jacky Bai <ping.bai@nxp.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        id S1726968AbfJFBEG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 5 Oct 2019 21:04:06 -0400
+Received: from mail-40136.protonmail.ch ([185.70.40.136]:32585 "EHLO
+        mail-40136.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727008AbfJFBEG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 5 Oct 2019 21:04:06 -0400
+Date:   Sun, 06 Oct 2019 01:04:01 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=default; t=1570323843;
+        bh=xOf7naOIf6rDpc0khn4XCANsLt39rlB4TiL3sCEDg70=;
+        h=Date:To:From:Cc:Reply-To:Subject:Feedback-ID:From;
+        b=yGvuqtfzb4tOobTwRTNB+3m7L6HP02jRum1TsROQSWZ9wTKat9xzFemc5anAYO2im
+         1Ir2Df6MXJnmeqk7CgpA5nc/N/S46XsrzBg8apTdwx9JvS+6jI8XDmHxM5qkh60yWq
+         4lUnbH+oOvnKavkBXmM7b63U8jm9s8tVkEu0W28k=
+To:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+From:   Mazin Rezk <mnrzk@protonmail.com>
+Cc:     "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>,
+        "jikos@kernel.org" <jikos@kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        dl-linux-imx <linux-imx@nxp.com>
-Subject: Re: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
-Message-ID: <20191006003225.GD7150@dragon>
-References: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
- <20190922161415.GD1999@bug>
- <DB3PR0402MB3916F48DA2A16E57C624432BF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+        "lains@archlinux.org" <lains@archlinux.org>,
+        "mnrzk@protonmail.com" <mnrzk@protonmail.com>
+Reply-To: Mazin Rezk <mnrzk@protonmail.com>
+Subject: [PATCH v3 1/4] HID: logitech: Add MX Mice over Bluetooth
+Message-ID:
+ <l7xYjnA9EGfZe03FsrFhnH2aMq8qS8plWhHVvOtY_l4ShZ1NV6HA6hn9aI-jAzbLYUGFCIQCIKkx9z42Uoj4-AZDwBfRcAecYIn-0ZA5upE=@protonmail.com>
+Feedback-ID: 18B_FC5q-t32TXzMsVp9BgkgrdNH3iwklfW8WOrHrcxZA0WRj7JodCh5VXKxs6A3OaiHK0QNd8wi3SImKex8yQ==:Ext:ProtonMail
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
-In-Reply-To: <DB3PR0402MB3916F48DA2A16E57C624432BF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
-Message-ID: <20191006003227.eug7PsRG__sB_xjzEgJ0QB9yEU_sCwO1ps40fj1COSg@z>
+Message-ID: <20191006010401.AbbE3wBuZX85AvKtcsOcUSIZPwxokBDZngsIYbT-acY@z>
 
-On Mon, Sep 23, 2019 at 02:34:07AM +0000, Anson Huang wrote:
-> Hi, Pavel
-> 
-> > Subject: Re: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
-> > 
-> > On Tue 2019-09-03 10:03:40, Anson Huang wrote:
-> > > NXP i.MX8QXP is an ARMv8 SoC with a Cortex-M4 core inside as system
-> > > controller, the system controller is in charge of system power, clock
-> > > and power key event etc. management, Linux kernel has to communicate
-> > > with system controller via MU (message unit) IPC to get power key
-> > > event, add binding doc for i.MX system controller power key driver.
-> > >
-> > > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> > > ---
-> > > Changes since V1:
-> > > 	- remove "wakeup-source" property, as it is NOT needed for SCU
-> > interrupt;
-> > > 	- remove "status" in example.
-> > > ---
-> > >  .../devicetree/bindings/arm/freescale/fsl,scu.txt          | 14
-> > ++++++++++++++
-> > >  1 file changed, 14 insertions(+)
-> > >
-> > > diff --git
-> > > a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> > > b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> > > index c149fad..f93e2e4 100644
-> > > --- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> > > +++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> > > @@ -157,6 +157,15 @@ Required properties:
-> > >  Optional properties:
-> > >  - timeout-sec: contains the watchdog timeout in seconds.
-> > >
-> > > +Power key bindings based on SCU Message Protocol
-> > > +------------------------------------------------------------
-> > > +
-> > > +Required properties:
-> > > +- compatible: should be:
-> > > +              "fsl,imx8qxp-sc-pwrkey"
-> > > +              followed by "fsl,imx-sc-pwrkey";
-> > > +- linux,keycodes: See
-> > > +Documentation/devicetree/bindings/input/keys.txt
-> > 
-> > Note you have keycode_s_ here, but keycode in the example and in the dts
-> > patch.
-> 
-> NOT quite understand your point, could you please provide more details?
+This patch adds support for several MX mice over Bluetooth. The device IDs
+have been copied from the libratbag device database and their features
+have been based on their DJ device counterparts.
 
-The property being used in driver, DTS, and DT example in the
-bindings are all 'linux,keycode' rather than 'linux,keycodes'.
+Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-Shawn
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
+dpp.c
+index 0179f7ed77e5..85fd0c17cc2f 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3773,6 +3773,24 @@ static const struct hid_device_id hidpp_devices[] =
+=3D {
+ =09{ /* MX5500 keyboard over Bluetooth */
+ =09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+ =09  .driver_data =3D HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
++=09{ /* MX Anywhere 2 mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb013),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb018),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ /* MX Anywhere 2S mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01a),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ /* MX Master mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb017),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ /* MX Master 2S mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb019),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+ =09{}
+ };
+
+--
+2.23.0
+

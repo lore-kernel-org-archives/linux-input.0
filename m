@@ -2,81 +2,129 @@ Return-Path: <SRS0=RAiR=X7=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DD22C4360C
-	for <linux-input@archiver.kernel.org>; Sun,  6 Oct 2019 11:26:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F8FCC4360C
+	for <linux-input@archiver.kernel.org>; Sun,  6 Oct 2019 15:08:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0786D20867
-	for <linux-input@archiver.kernel.org>; Sun,  6 Oct 2019 11:26:58 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="V4YDwzPC"
+	by mail.kernel.org (Postfix) with ESMTP id 601FF2084B
+	for <linux-input@archiver.kernel.org>; Sun,  6 Oct 2019 15:08:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726261AbfJFL05 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 6 Oct 2019 07:26:57 -0400
-Received: from forward106o.mail.yandex.net ([37.140.190.187]:36042 "EHLO
-        forward106o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726250AbfJFL05 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 6 Oct 2019 07:26:57 -0400
-X-Greylist: delayed 479 seconds by postgrey-1.27 at vger.kernel.org; Sun, 06 Oct 2019 07:26:55 EDT
-Received: from mxback7g.mail.yandex.net (mxback7g.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b7:168])
-        by forward106o.mail.yandex.net (Yandex) with ESMTP id 58C1C5060B5A
-        for <linux-input@vger.kernel.org>; Sun,  6 Oct 2019 14:18:55 +0300 (MSK)
-Received: from localhost (localhost [::1])
-        by mxback7g.mail.yandex.net (nwsmtp/Yandex) with ESMTP id JKkQJXFCH6-IseOfNg4;
-        Sun, 06 Oct 2019 14:18:54 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail; t=1570360734;
-        bh=CwEfGMTFhFMaB+iX8kDyFCnB1xzszuOvV4u2enZ4fSY=;
-        h=Date:Message-Id:Subject:In-Reply-To:To:From;
-        b=V4YDwzPCKbMgQ50jQBHuFjujZpaoYEjonDnyAzem4g7NtRnnc7EIhlQn7WgBB54H3
-         CHsqMfUGrH6l1iymP/7dAV1AstnbRQLJr3zWr0j0IEDBkJ+R38WFz8P8uIOkANQ6D8
-         wGVwMwBDEFZ3vPl/bnRMwu3qVlnGVWQWKEpNeETE=
-Authentication-Results: mxback7g.mail.yandex.net; dkim=pass header.i=@yandex.ru
-Received: by sas8-7ec005b03c91.qloud-c.yandex.net with HTTP;
-        Sun, 06 Oct 2019 14:18:54 +0300
-From:   ghz3@yandex.ru
-Envelope-From: ghz3@yandex.ru
-To:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-In-Reply-To: <5568171570360161@iva3-02ce486de7d2.qloud-c.yandex.net>
-Subject: Regarding psmouse.synaptics_intertouch=1
+        id S1726368AbfJFPIM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 6 Oct 2019 11:08:12 -0400
+Received: from orion.archlinux.org ([88.198.91.70]:55626 "EHLO
+        orion.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725905AbfJFPIL (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 6 Oct 2019 11:08:11 -0400
+Received: from orion.archlinux.org (localhost [127.0.0.1])
+        by orion.archlinux.org (Postfix) with ESMTP id 5E61215A9B9BEC;
+        Sun,  6 Oct 2019 15:08:01 +0000 (UTC)
+Received: from saetre (unknown [79.140.127.125])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: ffy00)
+        by orion.archlinux.org (Postfix) with ESMTPSA;
+        Sun,  6 Oct 2019 15:08:00 +0000 (UTC)
+Message-ID: <c440435a1fb8a04a9fca83f17b7cc1ebb95bcc44.camel@archlinux.org>
+Subject: Re: [PATCH v3 1/4] HID: logitech: Add MX Mice over Bluetooth
+From:   Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
+To:     Mazin Rezk <mnrzk@protonmail.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc:     "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>,
+        "jikos@kernel.org" <jikos@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <l7xYjnA9EGfZe03FsrFhnH2aMq8qS8plWhHVvOtY_l4ShZ1NV6HA6hn9aI-jAzbLYUGFCIQCIKkx9z42Uoj4-AZDwBfRcAecYIn-0ZA5upE=@protonmail.com>
+References: <l7xYjnA9EGfZe03FsrFhnH2aMq8qS8plWhHVvOtY_l4ShZ1NV6HA6hn9aI-jAzbLYUGFCIQCIKkx9z42Uoj4-AZDwBfRcAecYIn-0ZA5upE=@protonmail.com>
+Organization: Archlinux
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-4zPzoW7jzVovkqYvJJGf"
+Date:   Sun, 06 Oct 2019 16:07:59 +0100
 MIME-Version: 1.0
-X-Mailer: Yamail [ http://yandex.ru ] 5.0
-Date:   Sun, 06 Oct 2019 14:18:54 +0300
-Message-Id: <49831021570360734@sas8-7ec005b03c91.qloud-c.yandex.net>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=utf-8
+User-Agent: Evolution 3.34.0 
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
+Message-ID: <20191006150759.pEq6zX7rerVHBKq0schPViXWKdVyqBIitWAQ4fJS0Cs@z>
 
-I had following in `dmesg`:
 
-[    4.074260] psmouse serio1: synaptics: Your touchpad (PNP: LEN0099 PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi are not used, you might want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org
+--=-4zPzoW7jzVovkqYvJJGf
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-But enabling `psmouse.synaptics_intertouch=1` resulted in following `/var/log/Xorg.0.log`:
+On Sun, 2019-10-06 at 01:04 +0000, Mazin Rezk wrote:
+> This patch adds support for several MX mice over Bluetooth. The device ID=
+s
+> have been copied from the libratbag device database and their features
+> have been based on their DJ device counterparts.
+>=20
+> Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+>=20
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
+hidpp.c
+> index 0179f7ed77e5..85fd0c17cc2f 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -3773,6 +3773,24 @@ static const struct hid_device_id hidpp_devices[] =
+=3D {
+>  	{ /* MX5500 keyboard over Bluetooth */
+>  	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+>  	  .driver_data =3D HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
+> +	{ /* MX Anywhere 2 mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb013),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb018),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ /* MX Anywhere 2S mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01a),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ /* MX Master mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb017),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ /* MX Master 2S mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb019),
+> +	  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+>  	{}
+>  };
+>=20
+> --
+> 2.23.0
 
-[    19.747] (II) config/udev: Adding input device Synaptics TM3418-002 (/dev/input/event12)
-[    19.747] (II) No input driver specified, ignoring this device.
-[    19.747] (II) This device may have been added with another device file.
+I think you should only add the mice you tested. We are not sure if
+this devices actually do work properly with the current stack. I will
+try to test some devices after Tuesday.
 
-And touchpad with trackpoint remain disabled completely.
+Filipe La=C3=ADns
 
-My `/etc/X11/xorg.conf.d/synaptics.conf` is the following:
+--=-4zPzoW7jzVovkqYvJJGf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-Section "InputClass"
-        Identifier "Mouse0"
-        Driver "synaptics"
-        MatchIsTouchpad "on"
-        Option "VertTwoFingerScroll" "on"
-        Option "HorizTwoFingerScroll" "on"
-        Option      "CircularScrolling"         "on"
-        Option      "VertScrollDelta"          "-111"
-        Option      "HorizScrollDelta"         "-111"
-        Option      "TapButton1"                  "1"
-        Option      "TapButton2"                  "3"
-EndSection
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl2aA0UACgkQ+JPGdIFq
+qV2tShAAmhubw9I/kSIhhapRmz2G0cNdy0pa2TS5Aai1RQulADup1aIHEAQpH+dW
+WxeNSeNkuB0pFgGIw+weOmuvvV5H2M+J+K+dWxdfuM08lJmmXSIbJBXSkDy0FZLd
+8Ausxvwg+RHVPmVhQg7h6pe3FpLEKEpM0T/D8cvyUGJmbbCNgBtz12sltY4XKyo/
+tOJ0g0TU4STocg722fFYaQCh2MeBQzCj5qIMITM84Q7Wv7GUSIbVHmYfBHbC7EvY
+wyJEkX2y12HQeJOsUVYPMArmzVX0xqe/v72V8m0lpNH55KUYzzy5HFqqzKzEq1v0
+FTCJHdIZRoDIKz4rd85175v2hEnsdEju9dD0UmfGPbasvaMQb6qxYRMMlve7G+tg
+bzblD6UgD7sU7jsmFdj/Cnu5gxQqZqT6GfENLtK7IFy6fFURtR5qxnGUZuxh6j3m
+o8CyPDjp2dwt+k6jpOUmFXinMw0oqpUD0g1pJ3jkVy8XEiMRIsrMt141B+osmJYT
+ZOHpRSARTh1WkTBxi7mfFNh9TOYxur+6llGIdReKYtfLTQyN73Ae+FQexjsf8beQ
+4xB4/9C8e3tBV5ApxcHhDrt5EqOW84gMD54tDL93GeGsAVlLDTB6jvrrTIlW+GKk
+A2I1ZQwChJYunDEIO8eXxqBePp2qPZSwu2SkUGIhLugDN8byS6s=
+=QMFT
+-----END PGP SIGNATURE-----
+
+--=-4zPzoW7jzVovkqYvJJGf--

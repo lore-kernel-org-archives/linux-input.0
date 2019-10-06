@@ -1,69 +1,56 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
-Date: Sun, 6 Oct 2019 08:32:27 +0800
-Message-ID: <20191006003225.GD7150@dragon>
-References: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
- <20190922161415.GD1999@bug>
- <DB3PR0402MB3916F48DA2A16E57C624432BF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+From: Mazin Rezk <mnrzk@protonmail.com>
+Subject: [PATCH v3 1/4] HID: logitech: Add MX Mice over Bluetooth
+Date: Sun, 06 Oct 2019 01:04:01 +0000
+Message-ID: <l7xYjnA9EGfZe03FsrFhnH2aMq8qS8plWhHVvOtY_l4ShZ1NV6HA6hn9aI-jAzbLYUGFCIQCIKkx9z42Uoj4-AZDwBfRcAecYIn-0ZA5upE=@protonmail.com>
+Reply-To: Mazin Rezk <mnrzk@protonmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <DB3PR0402MB3916F48DA2A16E57C624432BF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anson Huang <anson.huang@nxp.com>
-Cc: Pavel Machek <pavel@ucw.cz>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Aisheng Dong <aisheng.dong@nxp.com>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Andy Duan <fugang.duan@nxp.com>, Peng Fan <peng.fan@nxp.com>, Daniel Baluta <daniel.baluta@nxp.com>, Leonard Crestez <leonard.crestez@nxp.com>, "mripard@kernel.org" <mripard@kernel.org>, "olof@lixom.net" <olof@lixom.net>, "arnd@arndb.de" <arnd@arndb.de>, jagan@amarulaso
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "lains@archlinux.org" <lains@archlinux.org>, "mnrzk@protonmail.com" <mnrzk@protonmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 23, 2019 at 02:34:07AM +0000, Anson Huang wrote:
-> Hi, Pavel
-> 
-> > Subject: Re: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
-> > 
-> > On Tue 2019-09-03 10:03:40, Anson Huang wrote:
-> > > NXP i.MX8QXP is an ARMv8 SoC with a Cortex-M4 core inside as system
-> > > controller, the system controller is in charge of system power, clock
-> > > and power key event etc. management, Linux kernel has to communicate
-> > > with system controller via MU (message unit) IPC to get power key
-> > > event, add binding doc for i.MX system controller power key driver.
-> > >
-> > > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> > > ---
-> > > Changes since V1:
-> > > 	- remove "wakeup-source" property, as it is NOT needed for SCU
-> > interrupt;
-> > > 	- remove "status" in example.
-> > > ---
-> > >  .../devicetree/bindings/arm/freescale/fsl,scu.txt          | 14
-> > ++++++++++++++
-> > >  1 file changed, 14 insertions(+)
-> > >
-> > > diff --git
-> > > a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> > > b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> > > index c149fad..f93e2e4 100644
-> > > --- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> > > +++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
-> > > @@ -157,6 +157,15 @@ Required properties:
-> > >  Optional properties:
-> > >  - timeout-sec: contains the watchdog timeout in seconds.
-> > >
-> > > +Power key bindings based on SCU Message Protocol
-> > > +------------------------------------------------------------
-> > > +
-> > > +Required properties:
-> > > +- compatible: should be:
-> > > +              "fsl,imx8qxp-sc-pwrkey"
-> > > +              followed by "fsl,imx-sc-pwrkey";
-> > > +- linux,keycodes: See
-> > > +Documentation/devicetree/bindings/input/keys.txt
-> > 
-> > Note you have keycode_s_ here, but keycode in the example and in the dts
-> > patch.
-> 
-> NOT quite understand your point, could you please provide more details?
+This patch adds support for several MX mice over Bluetooth. The device IDs
+have been copied from the libratbag device database and their features
+have been based on their DJ device counterparts.
 
-The property being used in driver, DTS, and DT example in the
-bindings are all 'linux,keycode' rather than 'linux,keycodes'.
+Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-Shawn
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
+dpp.c
+index 0179f7ed77e5..85fd0c17cc2f 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3773,6 +3773,24 @@ static const struct hid_device_id hidpp_devices[] =
+=3D {
+ =09{ /* MX5500 keyboard over Bluetooth */
+ =09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+ =09  .driver_data =3D HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
++=09{ /* MX Anywhere 2 mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb013),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb018),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ /* MX Anywhere 2S mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01a),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ /* MX Master mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb017),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ /* MX Master 2S mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb019),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+ =09{}
+ };
+
+--
+2.23.0

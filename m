@@ -1,52 +1,69 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 5.4 regression fix] Input: soc_button_array - partial
- revert of support for newer surface devices
-Date: Sat, 5 Oct 2019 22:14:51 +0200
-Message-ID: <ef31abf6-b3f2-f3aa-1536-3ecd5fc819e1@redhat.com>
-References: <20191005105551.353273-1-hdegoede@redhat.com>
- <222c364a-bc2b-5960-3fe4-7d1ce222e3e2@gmail.com>
- <96cea5be-d285-8323-1ab2-9c8e87993165@redhat.com>
- <65b265d2-f7a8-bcd7-e63f-f8efb7349324@gmail.com>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
+Date: Sun, 6 Oct 2019 08:32:27 +0800
+Message-ID: <20191006003225.GD7150@dragon>
+References: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
+ <20190922161415.GD1999@bug>
+ <DB3PR0402MB3916F48DA2A16E57C624432BF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <65b265d2-f7a8-bcd7-e63f-f8efb7349324@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <DB3PR0402MB3916F48DA2A16E57C624432BF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Maximilian Luz <luzmaximilian@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Shevchenko <andy@infradead.org>
-Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Anson Huang <anson.huang@nxp.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Aisheng Dong <aisheng.dong@nxp.com>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Andy Duan <fugang.duan@nxp.com>, Peng Fan <peng.fan@nxp.com>, Daniel Baluta <daniel.baluta@nxp.com>, Leonard Crestez <leonard.crestez@nxp.com>, "mripard@kernel.org" <mripard@kernel.org>, "olof@lixom.net" <olof@lixom.net>, "arnd@arndb.de" <arnd@arndb.de>, jagan@amarulaso
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Mon, Sep 23, 2019 at 02:34:07AM +0000, Anson Huang wrote:
+> Hi, Pavel
+> 
+> > Subject: Re: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
+> > 
+> > On Tue 2019-09-03 10:03:40, Anson Huang wrote:
+> > > NXP i.MX8QXP is an ARMv8 SoC with a Cortex-M4 core inside as system
+> > > controller, the system controller is in charge of system power, clock
+> > > and power key event etc. management, Linux kernel has to communicate
+> > > with system controller via MU (message unit) IPC to get power key
+> > > event, add binding doc for i.MX system controller power key driver.
+> > >
+> > > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+> > > ---
+> > > Changes since V1:
+> > > 	- remove "wakeup-source" property, as it is NOT needed for SCU
+> > interrupt;
+> > > 	- remove "status" in example.
+> > > ---
+> > >  .../devicetree/bindings/arm/freescale/fsl,scu.txt          | 14
+> > ++++++++++++++
+> > >  1 file changed, 14 insertions(+)
+> > >
+> > > diff --git
+> > > a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+> > > b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+> > > index c149fad..f93e2e4 100644
+> > > --- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+> > > +++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+> > > @@ -157,6 +157,15 @@ Required properties:
+> > >  Optional properties:
+> > >  - timeout-sec: contains the watchdog timeout in seconds.
+> > >
+> > > +Power key bindings based on SCU Message Protocol
+> > > +------------------------------------------------------------
+> > > +
+> > > +Required properties:
+> > > +- compatible: should be:
+> > > +              "fsl,imx8qxp-sc-pwrkey"
+> > > +              followed by "fsl,imx-sc-pwrkey";
+> > > +- linux,keycodes: See
+> > > +Documentation/devicetree/bindings/input/keys.txt
+> > 
+> > Note you have keycode_s_ here, but keycode in the example and in the dts
+> > patch.
+> 
+> NOT quite understand your point, could you please provide more details?
 
-On 05-10-2019 17:01, Maximilian Luz wrote:
-> Hi, again
->=20
-> On 10/5/19 3:20 PM, Hans de Goede wrote:
->> Ok, on x86 the GPIO drivers really should all be builtin because
->> various ACPI methods including device D0 / D3 (power-on/off) methods
->> may depend on them. So normally this should never happen.
->>
->> If this (-EPROBE_DEFER on surface devices) somehow still is happening
->> please let me know and we will figure something out.
->=20
-> I have never personally experienced this, only received reports which
-> indicated this and that the change (as well as manually reloading
-> soc_button_array) fixed it. I will come back to you if I hear anything
-> in regards to this again.
->=20
-> I have now also tested your patch on the Surface Book 2. Does not cause
-> any issues as far as I can tell.
->=20
-> Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
->=20
-> And if that is needed/wanted
->=20
-> Acked-by: Maximilian Luz <luzmaximilian@gmail.com>
+The property being used in driver, DTS, and DT example in the
+bindings are all 'linux,keycode' rather than 'linux,keycodes'.
 
-Great, thank you.
-
-Regards,
-
-Hans
+Shawn

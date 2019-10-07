@@ -1,54 +1,38 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] HID: i2c-hid: add Trekstor Primebook C11B to descriptor override
-Date: Mon,  7 Oct 2019 20:56:26 +0200
-Message-ID: <20191007185626.247959-1-hdegoede@redhat.com>
+From: Stephan Gerhold <stephan@gerhold.net>
+Subject: [PATCH 1/3] Input: mms114 - use device_get_match_data
+Date: Mon,  7 Oct 2019 22:33:41 +0200
+Message-ID: <20191007203343.101466-2-stephan@gerhold.net>
+References: <20191007203343.101466-1-stephan@gerhold.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191007203343.101466-1-stephan@gerhold.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>, Simon Shields <simon@lineageos.org>, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>
 List-Id: linux-input@vger.kernel.org
 
-The Primebook C11B uses the SIPODEV SP1064 touchpad. There are 2 versions
-of this 2-in-1 and the touchpad in the older version does not supply
-descriptors, so it has to be added to the override list.
+device_get_match_data is available now, so we can replace the call
+to of_device_get_match_data and remove the FIXME comment.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/input/touchscreen/mms114.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index 75078c83be1a..d31ea82b84c1 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -322,6 +322,25 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		/*
-+		 * There are at least 2 Primebook C11B versions, the older
-+		 * version has a product-name of "Primebook C11B", and a
-+		 * bios version / release / firmware revision of:
-+		 * V2.1.2 / 05/03/2018 / 18.2
-+		 * The new version has "PRIMEBOOK C11B" as product-name and a
-+		 * bios version / release / firmware revision of:
-+		 * CFALKSW05_BIOS_V1.1.2 / 11/19/2018 / 19.2
-+		 * Only the older version needs this quirk, note the newer
-+		 * version will not match as it has a different product-name.
-+		 */
-+		.ident = "Trekstor Primebook C11B",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Primebook C11B"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{
- 		.ident = "Direkt-Tek DTLAPY116-2",
- 		.matches = {
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index a5ab774da4cc..69c6d559eeb0 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -446,8 +446,7 @@ static int mms114_probe(struct i2c_client *client,
+ 	data->client = client;
+ 	data->input_dev = input_dev;
+ 
+-	/* FIXME: switch to device_get_match_data() when available */
+-	match_data = of_device_get_match_data(&client->dev);
++	match_data = device_get_match_data(&client->dev);
+ 	if (!match_data)
+ 		return -EINVAL;
+ 
 -- 
 2.23.0

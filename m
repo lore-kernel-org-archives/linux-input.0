@@ -2,212 +2,75 @@ Return-Path: <SRS0=orFy=YA=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E74EAC47404
-	for <linux-input@archiver.kernel.org>; Mon,  7 Oct 2019 05:13:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 191DCC47404
+	for <linux-input@archiver.kernel.org>; Mon,  7 Oct 2019 07:45:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B3D412133F
-	for <linux-input@archiver.kernel.org>; Mon,  7 Oct 2019 05:13:11 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LsKZRUQ4"
+	by mail.kernel.org (Postfix) with ESMTP id E9FAF2133F
+	for <linux-input@archiver.kernel.org>; Mon,  7 Oct 2019 07:45:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727170AbfJGFNC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 7 Oct 2019 01:13:02 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:34646 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726960AbfJGFNA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Oct 2019 01:13:00 -0400
-Received: by mail-pg1-f195.google.com with SMTP id y35so7482722pgl.1;
-        Sun, 06 Oct 2019 22:13:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=nEqYcxr8VTklLjPr6joLE4pwqMopckDYUKFfIpNXBME=;
-        b=LsKZRUQ4dO/ZiuXXRB9G+xjGweDsZqpVXBy1tavOoKwBM/3QG+r+CBjzep8yX+y9l3
-         VQ3PkWzaQU2KowY5h6St4ZmdyrqvevZGVAXub0yZmJDXxcWoFGY86VNQgmZM7SGdaU21
-         g/6R+UePA3PuZwV0rWo4xWiXLa3E+lZj4qke879I2GTJQQFR0RJJvwh77fl2/1NhKuOk
-         5wkn5dDoyl4KdyTKhPNrO4t5U08CeEUZ03XqzTyfQM/G25tEZHHTkzTDMhp59ICsqVvj
-         mTtxwwk9yZsojX86abnzu8FzJ40vPsbu0nWq8x+zIdBi1qcC7DLtKtTOHDODdwCdbRMx
-         80Yg==
+        id S1727252AbfJGHp1 convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Oct 2019 03:45:27 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:39123 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727115AbfJGHp1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Oct 2019 03:45:27 -0400
+Received: from mail-pg1-f198.google.com ([209.85.215.198])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kai.heng.feng@canonical.com>)
+        id 1iHNht-0007ds-BR
+        for linux-input@vger.kernel.org; Mon, 07 Oct 2019 07:45:25 +0000
+Received: by mail-pg1-f198.google.com with SMTP id r25so1863074pga.20
+        for <linux-input@vger.kernel.org>; Mon, 07 Oct 2019 00:45:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=nEqYcxr8VTklLjPr6joLE4pwqMopckDYUKFfIpNXBME=;
-        b=sy20FuuIrDUHAddJCYdSkVpz0tWwDTHZ9rWVb8IluBnNv591jueRMbU1RUJT86/MvG
-         QQIydyBil3dBNBGtwO5SL5rOFFaxWLBpeVJ8hnECBbcdpO3zmPMrKdn+XsTLtU/xJX1w
-         OQUdMr59K5z5Ri5ffQwU+GLcTJhz4utoT+nJ1QDRx8QumFzOccw9RHM+vhhCsh0g2yVP
-         uCkQ0l4xXFXycUnPx5qjZUnPt7WpV+VcYjPNrKfnFdYp0D6PGqomAnSvB2sWFaH6gJ2p
-         7b0S84qm0zbq7KGmVHHgS+xVSyKZrzrk4e1X++tf061V1HqUolshZ07Ew6VGgSzOQVBo
-         etzg==
-X-Gm-Message-State: APjAAAXT1INHS9h8cq6riRGymXgZWK4EZvDBVO5/xTPqmV6MtFPSmmOt
-        br5LIxS7pX0Ej9NLUhWbYAyAJOUfKi8=
-X-Google-Smtp-Source: APXvYqxfac+rxYcUVMzMQzH0IdMK8ubxCzXncEy0dqKYJ5FvHVmxKWprnZc9P4qDNslGcKU1SDfsgg==
-X-Received: by 2002:a63:1765:: with SMTP id 37mr28565575pgx.121.1570425179172;
-        Sun, 06 Oct 2019 22:12:59 -0700 (PDT)
-Received: from localhost.lan (c-67-185-54-80.hsd1.wa.comcast.net. [67.185.54.80])
-        by smtp.gmail.com with ESMTPSA id v133sm2209680pgb.74.2019.10.06.22.12.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 06 Oct 2019 22:12:58 -0700 (PDT)
-From:   Andrey Smirnov <andrew.smirnov@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Sam Bazely <sambazley@fastmail.com>,
-        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-        Austin Palmer <austinp@valvesoftware.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 1/3] HID: logitech-hidpp: use devres to manage FF private data
-Date:   Sun,  6 Oct 2019 22:12:38 -0700
-Message-Id: <20191007051240.4410-2-andrew.smirnov@gmail.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20191007051240.4410-1-andrew.smirnov@gmail.com>
-References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        h=x-gm-message-state:from:content-transfer-encoding:mime-version
+         :subject:message-id:date:cc:to;
+        bh=vEuH2bRCO9qIKoewfyYnOM95mPIls7xJzpSnS5DmW6c=;
+        b=Fvf4WOtexP+A8dz2YXjmGHxcd75L7okFV4Toi/Y92OxZPwJV+a97UGuo/g74fEBAKr
+         nYQPRxpG6ur9b/W5yPy0OvPXi9ygIJ7NNGSdVBrENLjitdJR0XtYsM6GPV1r523slk4V
+         w2TXkvkv9OKuOVewOaBX+xBuchw+9ucU4HFdG7x8nkNatWrX5rIxl4Z5rCQy6TgNhzHJ
+         Y+zaRUMcf8eaEWtVA49EzcWuXhDznz0pGtGcmJdst5TSUtlfTupfyQj9USPmlIsnOlsl
+         bQAd6tbuZUS2YPNIyPVckkAuDQcq8vFERU+erSDnCHC6VoxJ6zJ8fMoBzSyFxg6mkbhq
+         697A==
+X-Gm-Message-State: APjAAAVm9nhGysALKsLlPCS8Kl6YBiHCysFAVVVHaUegc2x4mcuB6iv4
+        ZAsXNyPsPY82aMFVqVJN8KSWSU7D4fUteJfybbRZVwB674Gd0tpUz8jofs40I6GI7bX0YPVhryc
+        vsxv0ZvMzH8dsCpwZuaNfFgrDyj75frvH5qAHbJGP
+X-Received: by 2002:a63:ab05:: with SMTP id p5mr29112885pgf.414.1570434323820;
+        Mon, 07 Oct 2019 00:45:23 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqxC1Dz/vvDr2wiPxR+oy5eK2dmwy1bOOzxIvxm4qShOd4q7P6EEQqG9PmoiWAOhiQamku3L0w==
+X-Received: by 2002:a63:ab05:: with SMTP id p5mr29112859pgf.414.1570434323409;
+        Mon, 07 Oct 2019 00:45:23 -0700 (PDT)
+Received: from 2001-b011-380f-3c42-ecd4-c98e-b194-f9c1.dynamic-ip6.hinet.net (2001-b011-380f-3c42-ecd4-c98e-b194-f9c1.dynamic-ip6.hinet.net. [2001:b011:380f:3c42:ecd4:c98e:b194:f9c1])
+        by smtp.gmail.com with ESMTPSA id r11sm12874941pgn.67.2019.10.07.00.45.20
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 07 Oct 2019 00:45:22 -0700 (PDT)
+From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
+Content-Type: text/plain;
+        charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3594.4.19\))
+Subject: How to make sure touchpad doesn't use psmouse.ko?
+Message-Id: <7DD64ADB-478C-408C-873D-C07186FEB65F@canonical.com>
+Date:   Mon, 7 Oct 2019 15:45:19 +0800
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        ray.chen@canonical.com, You-Sheng Yang <vicamo.yang@canonical.com>
+To:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+X-Mailer: Apple Mail (2.3594.4.19)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Message-ID: <20191007051238.p9xgLGL85UoAp-2BPmApfWtWEaPP0-N9j84N0zoSBlM@z>
 
-To simplify resource management in commit that follows as well as to
-save a couple of extra kfree()s and simplify hidpp_ff_deinit() switch
-driver code to use devres to manage the life-cycle of FF private data.
+Hi,
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Sam Bazely <sambazley@fastmail.com>
-Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-Cc: Austin Palmer <austinp@valvesoftware.com>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
----
- drivers/hid/hid-logitech-hidpp.c | 53 +++++++++++++++++---------------
- 1 file changed, 29 insertions(+), 24 deletions(-)
+When we are enabling a new hardware, sometimes touchpad may still use psmouse.ko due to bugs or missing IDs.
+Is there a way to quickly to determine the touchpad doesn't use psmouse but something like SMBus or HID over I2C?
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 0179f7ed77e5..58eb928224e5 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2079,6 +2079,11 @@ static void hidpp_ff_destroy(struct ff_device *ff)
- 	struct hidpp_ff_private_data *data = ff->private;
- 
- 	kfree(data->effect_ids);
-+	/*
-+	 * Set private to NULL to prevent input_ff_destroy() from
-+	 * freeing our devres allocated memory
-+	 */
-+	ff->private = NULL;
- }
- 
- static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
-@@ -2090,7 +2095,7 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 	const u16 bcdDevice = le16_to_cpu(udesc->bcdDevice);
- 	struct ff_device *ff;
- 	struct hidpp_report response;
--	struct hidpp_ff_private_data *data;
-+	struct hidpp_ff_private_data *data = hidpp->private_data;
- 	int error, j, num_slots;
- 	u8 version;
- 
-@@ -2129,18 +2134,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 		return error;
- 	}
- 
--	data = kzalloc(sizeof(*data), GFP_KERNEL);
--	if (!data)
--		return -ENOMEM;
- 	data->effect_ids = kcalloc(num_slots, sizeof(int), GFP_KERNEL);
--	if (!data->effect_ids) {
--		kfree(data);
-+	if (!data->effect_ids)
- 		return -ENOMEM;
--	}
-+
- 	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
- 	if (!data->wq) {
- 		kfree(data->effect_ids);
--		kfree(data);
- 		return -ENOMEM;
- 	}
- 
-@@ -2199,28 +2199,15 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 	return 0;
- }
- 
--static int hidpp_ff_deinit(struct hid_device *hid)
-+static void hidpp_ff_deinit(struct hid_device *hid)
- {
--	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
--	struct input_dev *dev = hidinput->input;
--	struct hidpp_ff_private_data *data;
--
--	if (!dev) {
--		hid_err(hid, "Struct input_dev not found!\n");
--		return -EINVAL;
--	}
-+	struct hidpp_device *hidpp = hid_get_drvdata(hid);
-+	struct hidpp_ff_private_data *data = hidpp->private_data;
- 
- 	hid_info(hid, "Unloading HID++ force feedback.\n");
--	data = dev->ff->private;
--	if (!data) {
--		hid_err(hid, "Private data not found!\n");
--		return -EINVAL;
--	}
- 
- 	destroy_workqueue(data->wq);
- 	device_remove_file(&hid->dev, &dev_attr_range);
--
--	return 0;
- }
- 
- 
-@@ -2725,6 +2712,20 @@ static int k400_connect(struct hid_device *hdev, bool connected)
- 
- #define HIDPP_PAGE_G920_FORCE_FEEDBACK			0x8123
- 
-+static int g920_allocate(struct hid_device *hdev)
-+{
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-+	struct hidpp_ff_private_data *data;
-+
-+	data = devm_kzalloc(&hdev->dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	hidpp->private_data = data;
-+
-+	return 0;
-+}
-+
- static int g920_get_config(struct hidpp_device *hidpp)
- {
- 	u8 feature_type;
-@@ -3561,6 +3562,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		ret = k400_allocate(hdev);
- 		if (ret)
- 			return ret;
-+	} else if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
-+		ret = g920_allocate(hdev);
-+		if (ret)
-+			return ret;
- 	}
- 
- 	INIT_WORK(&hidpp->work, delayed_work_cb);
--- 
-2.21.0
-
+Kai-Heng

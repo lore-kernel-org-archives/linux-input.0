@@ -1,209 +1,63 @@
-From: Mazin Rezk <mnrzk@protonmail.com>
-Subject: Re: [PATCH v3 3/4] HID: logitech: Add feature 0x0001: FeatureSet
-Date: Sun, 06 Oct 2019 19:29:09 +0000
-Message-ID: <R1ooPQVKZmsUqlvqixQWt1oSjWQh4x9pfrGMkSKOuBhCPB2QHPSUBQKtdC3E-SVODHPXI9E4a43KCtV_q_EeXDGHMY8vjss9y23_39OfS8E=@protonmail.com>
-References: <nZMYgsXB3gdFVoIR3TeMjdbHiP4STlPINtmdH7TkH-nLrHS5APVXn00Z-L89Bjnam4_EBf1GLqI5KAZDZhFnH9hyWGyCOGJQKZzpyN2tqlE=@protonmail.com>
- <e0dc8d111e1615d35da0c87b4b93b55b3bb89f23.camel@archlinux.org>
-Reply-To: Mazin Rezk <mnrzk@protonmail.com>
+From: Anson Huang <anson.huang@nxp.com>
+Subject: RE: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
+Date: Mon, 7 Oct 2019 01:29:19 +0000
+Message-ID: <DB3PR0402MB3916A5821856B3FEAE9265C8F59B0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
+ <20190922161415.GD1999@bug>
+ <DB3PR0402MB3916F48DA2A16E57C624432BF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+ <20191006003225.GD7150@dragon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e0dc8d111e1615d35da0c87b4b93b55b3bb89f23.camel@archlinux.org>
+In-Reply-To: <20191006003225.GD7150@dragon>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Shawn Guo <shawnguo@kernel.org>
+Cc: Pavel Machek <pavel@ucw.cz>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Aisheng Dong <aisheng.dong@nxp.com>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Andy Duan <fugang.duan@nxp.com>, Peng Fan <peng.fan@nxp.com>, Daniel Baluta <daniel.baluta@nxp.com>, Leonard Crestez <leonard.crestez@nxp.com>, "mripard@kernel.org" <mripard@kernel.org>, "olof@lixom.net" <olof@lixom.net>, "arnd@arndb.de" <arnd@arndb.de>, jagan@amarulaso
 List-Id: linux-input@vger.kernel.org
 
-On Sunday, October 6, 2019 11:25 AM, Filipe La=C3=ADns <lains@archlinux.org=
-> wrote:
-
-> On Sun, 2019-10-06 at 01:04 +0000, Mazin Rezk wrote:
-> > This patch adds support for the 0x0001 (FeatureSet) feature. This featu=
-re
-> > is used to look up the feature ID of a feature index on a device and li=
-st
-> > the total count of features on the device.
-> >
-> > I also added the hidpp20_get_features function which iterates through a=
-ll
-> > feature indexes on the device and stores a map of them in features an
-> > hidpp_device struct. This function runs when an HID++ 2.0 device is pro=
-bed.
-> >
-> > Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
-> > ---
-> >  drivers/hid/hid-logitech-hidpp.c | 92 ++++++++++++++++++++++++++++++++
-> >  1 file changed, 92 insertions(+)
-> >
-> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitec=
-h-hidpp.c
-> > index a0efa8a43213..64ac94c581aa 100644
-> > --- a/drivers/hid/hid-logitech-hidpp.c
-> > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > @@ -190,6 +190,9 @@ struct hidpp_device {
-> >
-> >  =09struct hidpp_battery battery;
-> >  =09struct hidpp_scroll_counter vertical_wheel_counter;
-> > +
-> > +=09u16 *features;
-> > +=09u8 feature_count;
-> >  };
-> >
-> >  /* HID++ 1.0 error codes */
-> > @@ -911,6 +914,84 @@ static int hidpp_root_get_protocol_version(struct =
-hidpp_device *hidpp)
-> >  =09return 0;
-> >  }
-> >
-> > +/* -------------------------------------------------------------------=
-------- */
-> > +/* 0x0001: FeatureSet                                                 =
-        */
-> > +/* -------------------------------------------------------------------=
-------- */
-> > +
-> > +#define HIDPP_PAGE_FEATURESET=09=09=09=090x0001
-> > +
-> > +#define CMD_FEATURESET_GET_COUNT=09=09=090x00
-> > +#define CMD_FEATURESET_GET_FEATURE=09=09=090x11
-> > +
-> > +static int hidpp20_featureset_get_feature(struct hidpp_device *hidpp,
->
-> Can you change this to `hidpp20_featureset_get_feature_id` please? So
-> that we keep in sync with the documentation, and to avoid minor
-> confusion as IRoot has a `get_feature` function.
-
-I will change this in v4, thanks.
-
->
-> > +=09u8 featureset_index, u8 feature_index, u16 *feature_id)
-> > +{
-> > +=09struct hidpp_report response;
-> > +=09int ret;
-> > +
-> > +=09ret =3D hidpp_send_fap_command_sync(hidpp, featureset_index,
-> > +=09=09CMD_FEATURESET_GET_FEATURE, &feature_index, 1, &response);
-> > +
-> > +=09if (ret)
-> > +=09=09return ret;
-> > +
-> > +=09*feature_id =3D (response.fap.params[0] << 8) | response.fap.params=
-[1];
-> > +
-> > +=09return ret;
-> > +}
-> > +
-> > +static int hidpp20_featureset_get_count(struct hidpp_device *hidpp,
-> > +=09u8 feature_index, u8 *count)
-> > +{
-> > +=09struct hidpp_report response;
-> > +=09int ret;
-> > +
-> > +=09ret =3D hidpp_send_fap_command_sync(hidpp, feature_index,
-> > +=09=09CMD_FEATURESET_GET_COUNT, NULL, 0, &response);
-> > +
-> > +=09if (ret)
-> > +=09=09return ret;
-> > +
-> > +=09*count =3D response.fap.params[0];
-> > +
-> > +=09return ret;
-> > +}
->
-> Just a nitpick but can we put this before
-> `hidpp20_featureset_get_feature`? This way we keep the ID order.
-
-That makes sense. I will change this in v4, thanks.
-
->
-> > +
-> > +static int hidpp20_get_features(struct hidpp_device *hidpp)
-> > +{
-> > +=09int ret;
-> > +=09u8 featureset_index, featureset_type;
-> > +=09u8 i;
-> > +
-> > +=09hidpp->feature_count =3D 0;
-> > +
-> > +=09ret =3D hidpp_root_get_feature(hidpp, HIDPP_PAGE_FEATURESET,
-> > +=09=09=09=09     &featureset_index, &featureset_type);
-> > +
-> > +=09if (ret =3D=3D -ENOENT) {
-> > +=09=09hid_warn(hidpp->hid_dev, "Unable to retrieve feature set.");
-> > +=09=09return 0;
-> > +=09}
-> > +
-> > +=09if (ret)
-> > +=09=09return ret;
-> > +
-> > +=09ret =3D hidpp20_featureset_get_count(hidpp, featureset_index,
-> > +=09=09&hidpp->feature_count);
-> > +
-> > +=09if (ret)
-> > +=09=09return ret;
-> > +
-> > +=09hidpp->features =3D devm_kzalloc(&hidpp->hid_dev->dev,
-> > +=09=09=09hidpp->feature_count * sizeof(u16), GFP_KERNEL);
-> > +
-> > +=09for (i =3D 0; i < hidpp->feature_count && !ret; i++)
-> > +=09=09ret =3D hidpp20_featureset_get_feature(hidpp, featureset_index,
-> > +=09=09=09=09i, &(hidpp->features[i]));
-> > +
-> > +=09return ret;
-> > +}
-> > +
-> >  /* -------------------------------------------------------------------=
-------- */
-> >  /* 0x0005: GetDeviceNameType                                          =
-        */
-> >  /* -------------------------------------------------------------------=
-------- */
->
-> Please use `DeviceNameType` here to keep in sync with the
-> documentation.
-
-Since I have not modified GetDeviceNameType in this patch, I will keep it
-the way it was for now. This could probably be changed in a different and
-unrelated patch.
-
->
-> > @@ -3625,6 +3706,17 @@ static int hidpp_probe(struct hid_device *hdev, =
-const struct hid_device_id *id)
-> >  =09=09hidpp_overwrite_name(hdev);
-> >  =09}
-> >
-> > +=09/* Cache feature indexes and IDs to check reports faster */
-> > +=09if (hidpp->protocol_major >=3D 2) {
-> > +=09=09if (hidpp20_get_features(hidpp)) {
-> > +=09=09=09hid_err(hdev, "%s:hidpp20_get_features returned error\n",
-> > +=09=09=09=09__func__);
-> > +=09=09=09goto hid_hw_init_fail;
-> > +=09=09}
-> > +=09} else {
-> > +=09=09hidpp->feature_count =3D 0;
-> > +=09}
->
-> I have not looked at the whole code that much but is the else really
-> needed here?
-
-I wanted to initialize feature_count to 0 if the device was either
-HID++ 1.0 or did not support FeatureSet. This was so that, just in case
-its features array was accessed, it would not try to check an uninitialized
-array. Although, I could probably remove the else statement and set
-feature_count to 0 before the if statement. I would also be able to remove
-the redundant initialization statement in hidpp20_get_features.
-
-I will make these changes in v4, thanks.
-
->
-> > +
-> >  =09if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
-> >  =09=09ret =3D wtp_get_config(hidpp);
-> >  =09=09if (ret)
-> > --
-> > 2.23.0
-> >
-> --
-> Filipe La=C3=ADns
-> 3DCE 51D6 0930 EBA4 7858 BA41 46F6 33CB B0EB 4BF2
+SGksIFNoYXduDQoNCj4gT24gTW9uLCBTZXAgMjMsIDIwMTkgYXQgMDI6MzQ6MDdBTSArMDAwMCwg
+QW5zb24gSHVhbmcgd3JvdGU6DQo+ID4gSGksIFBhdmVsDQo+ID4NCj4gPiA+IFN1YmplY3Q6IFJl
+OiBbUEFUQ0ggVjIgMS81XSBkdC1iaW5kaW5nczogZnNsOiBzY3U6IGFkZCBzY3UgcG93ZXIga2V5
+DQo+ID4gPiBiaW5kaW5nDQo+ID4gPg0KPiA+ID4gT24gVHVlIDIwMTktMDktMDMgMTA6MDM6NDAs
+IEFuc29uIEh1YW5nIHdyb3RlOg0KPiA+ID4gPiBOWFAgaS5NWDhRWFAgaXMgYW4gQVJNdjggU29D
+IHdpdGggYSBDb3J0ZXgtTTQgY29yZSBpbnNpZGUgYXMNCj4gPiA+ID4gc3lzdGVtIGNvbnRyb2xs
+ZXIsIHRoZSBzeXN0ZW0gY29udHJvbGxlciBpcyBpbiBjaGFyZ2Ugb2Ygc3lzdGVtDQo+ID4gPiA+
+IHBvd2VyLCBjbG9jayBhbmQgcG93ZXIga2V5IGV2ZW50IGV0Yy4gbWFuYWdlbWVudCwgTGludXgg
+a2VybmVsIGhhcw0KPiA+ID4gPiB0byBjb21tdW5pY2F0ZSB3aXRoIHN5c3RlbSBjb250cm9sbGVy
+IHZpYSBNVSAobWVzc2FnZSB1bml0KSBJUEMgdG8NCj4gPiA+ID4gZ2V0IHBvd2VyIGtleSBldmVu
+dCwgYWRkIGJpbmRpbmcgZG9jIGZvciBpLk1YIHN5c3RlbSBjb250cm9sbGVyIHBvd2VyDQo+IGtl
+eSBkcml2ZXIuDQo+ID4gPiA+DQo+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IEFuc29uIEh1YW5nIDxB
+bnNvbi5IdWFuZ0BueHAuY29tPg0KPiA+ID4gPiAtLS0NCj4gPiA+ID4gQ2hhbmdlcyBzaW5jZSBW
+MToNCj4gPiA+ID4gCS0gcmVtb3ZlICJ3YWtldXAtc291cmNlIiBwcm9wZXJ0eSwgYXMgaXQgaXMg
+Tk9UIG5lZWRlZCBmb3IgU0NVDQo+ID4gPiBpbnRlcnJ1cHQ7DQo+ID4gPiA+IAktIHJlbW92ZSAi
+c3RhdHVzIiBpbiBleGFtcGxlLg0KPiA+ID4gPiAtLS0NCj4gPiA+ID4gIC4uLi9kZXZpY2V0cmVl
+L2JpbmRpbmdzL2FybS9mcmVlc2NhbGUvZnNsLHNjdS50eHQgICAgICAgICAgfCAxNA0KPiA+ID4g
+KysrKysrKysrKysrKysNCj4gPiA+ID4gIDEgZmlsZSBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCsp
+DQo+ID4gPiA+DQo+ID4gPiA+IGRpZmYgLS1naXQNCj4gPiA+ID4gYS9Eb2N1bWVudGF0aW9uL2Rl
+dmljZXRyZWUvYmluZGluZ3MvYXJtL2ZyZWVzY2FsZS9mc2wsc2N1LnR4dA0KPiA+ID4gPiBiL0Rv
+Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0
+DQo+ID4gPiA+IGluZGV4IGMxNDlmYWQuLmY5M2UyZTQgMTAwNjQ0DQo+ID4gPiA+IC0tLSBhL0Rv
+Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0
+DQo+ID4gPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJl
+ZXNjYWxlL2ZzbCxzY3UudHh0DQo+ID4gPiA+IEBAIC0xNTcsNiArMTU3LDE1IEBAIFJlcXVpcmVk
+IHByb3BlcnRpZXM6DQo+ID4gPiA+ICBPcHRpb25hbCBwcm9wZXJ0aWVzOg0KPiA+ID4gPiAgLSB0
+aW1lb3V0LXNlYzogY29udGFpbnMgdGhlIHdhdGNoZG9nIHRpbWVvdXQgaW4gc2Vjb25kcy4NCj4g
+PiA+ID4NCj4gPiA+ID4gK1Bvd2VyIGtleSBiaW5kaW5ncyBiYXNlZCBvbiBTQ1UgTWVzc2FnZSBQ
+cm90b2NvbA0KPiA+ID4gPiArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+ID4gPiA+ICsNCj4gPiA+ID4gK1JlcXVpcmVkIHByb3Bl
+cnRpZXM6DQo+ID4gPiA+ICstIGNvbXBhdGlibGU6IHNob3VsZCBiZToNCj4gPiA+ID4gKyAgICAg
+ICAgICAgICAgImZzbCxpbXg4cXhwLXNjLXB3cmtleSINCj4gPiA+ID4gKyAgICAgICAgICAgICAg
+Zm9sbG93ZWQgYnkgImZzbCxpbXgtc2MtcHdya2V5IjsNCj4gPiA+ID4gKy0gbGludXgsa2V5Y29k
+ZXM6IFNlZQ0KPiA+ID4gPiArRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0
+L2tleXMudHh0DQo+ID4gPg0KPiA+ID4gTm90ZSB5b3UgaGF2ZSBrZXljb2RlX3NfIGhlcmUsIGJ1
+dCBrZXljb2RlIGluIHRoZSBleGFtcGxlIGFuZCBpbiB0aGUNCj4gPiA+IGR0cyBwYXRjaC4NCj4g
+Pg0KPiA+IE5PVCBxdWl0ZSB1bmRlcnN0YW5kIHlvdXIgcG9pbnQsIGNvdWxkIHlvdSBwbGVhc2Ug
+cHJvdmlkZSBtb3JlIGRldGFpbHM/DQo+IA0KPiBUaGUgcHJvcGVydHkgYmVpbmcgdXNlZCBpbiBk
+cml2ZXIsIERUUywgYW5kIERUIGV4YW1wbGUgaW4gdGhlIGJpbmRpbmdzIGFyZQ0KPiBhbGwgJ2xp
+bnV4LGtleWNvZGUnIHJhdGhlciB0aGFuICdsaW51eCxrZXljb2RlcycuDQoNCkkgc2VlIG5vdywg
+c2luY2UgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L2tleXMudHh0IHVz
+ZXMgImxpbnV4LGtleWNvZGVzIiwNCnNvIEkgd2lsbCBhbHNvIHVzZSAibGludXgsa2V5Y29kZXMi
+IGZvciBkcml2ZXIsIERUUyBhbmQgRFQgZXhhbXBsZSBpbiBWMy4NCg0KVGhhbmtzLA0KQW5zb24N
+Cg==

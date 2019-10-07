@@ -1,68 +1,160 @@
-From: Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-Subject: Re: [PATCH v3 3/4] HID: logitech: Add feature 0x0001: FeatureSet
-Date: Mon, 07 Oct 2019 09:07:52 +0100
-Message-ID: <3a73789b18ce109a2c9c810b638d42001c74df34.camel@archlinux.org>
-References: <nZMYgsXB3gdFVoIR3TeMjdbHiP4STlPINtmdH7TkH-nLrHS5APVXn00Z-L89Bjnam4_EBf1GLqI5KAZDZhFnH9hyWGyCOGJQKZzpyN2tqlE=@protonmail.com>
-         <e0dc8d111e1615d35da0c87b4b93b55b3bb89f23.camel@archlinux.org>
-         <R1ooPQVKZmsUqlvqixQWt1oSjWQh4x9pfrGMkSKOuBhCPB2QHPSUBQKtdC3E-SVODHPXI9E4a43KCtV_q_EeXDGHMY8vjss9y23_39OfS8E=@protonmail.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH v7 0/8] efi/firmware/platform-x86: Add EFI embedded fw
+ support
+Date: Mon, 7 Oct 2019 16:19:56 +0200
+Message-ID: <20191007141956.GA25347@gmail.com>
+References: <20191004145056.43267-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-kGv6YloVMQJBMwlPHIMb"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <R1ooPQVKZmsUqlvqixQWt1oSjWQh4x9pfrGMkSKOuBhCPB2QHPSUBQKtdC3E-SVODHPXI9E4a43KCtV_q_EeXDGHMY8vjss9y23_39OfS8E=@protonmail.com>
+Content-Disposition: inline
+In-Reply-To: <20191004145056.43267-1-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mazin Rezk <mnrzk@protonmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Luis Chamberlain <mcgrof@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J . Wysocki" <rafael@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Jonathan Corbet <corbet@lwn.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Jones <pjones@redhat.com>, Dave Olsthoorn <dave@bewaar.me>, x86@kernel.org, platform-driver-x86@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 
---=-kGv6YloVMQJBMwlPHIMb
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+* Hans de Goede <hdegoede@redhat.com> wrote:
 
-On Sun, 2019-10-06 at 19:29 +0000, Mazin Rezk wrote:
-> > >  /* -----------------------------------------------------------
-> > > --------------- */
-> > >  /* 0x0005:
-> > > GetDeviceNameType                                               =20
-> > >   */
-> > >  /* -----------------------------------------------------------
-> > > --------------- */
-> >=20
-> > Please use `DeviceNameType` here to keep in sync with the
-> > documentation.
->=20
-> Since I have not modified GetDeviceNameType in this patch, I will
-> keep it
-> the way it was for now. This could probably be changed in a different
-> and
-> unrelated patch.
+> Hi All,
+> 
+> Here is v7 of my patch-set to add support for EFI embedded fw to the kernel.
+> 
+> v6 was posted a long time ago, around the 4.18 days. The long wait was for
+> a suitable secure-hash for checking the firmware we find embedded in the EFI
+> is the one we expect.
+> 
+> With 5.4-rc1 we finally have a standalone sha256 lib, so that hurdle for
+> this patch-set is now gone.
+> 
+> I've tried to address all review-remarks against v6 in this new version:
+> 
+> Changes in v7:
+> - Split drivers/firmware/efi and drivers/base/firmware_loader changes into
+>   2 patches
+> - Use new, standalone, lib/crypto/sha256.c code
+> - Address kdoc comments from Randy Dunlap
+> - Add new FW_OPT_FALLBACK_PLATFORM flag and firmware_request_platform()
+>   _request_firmware() wrapper, as requested by Luis R. Rodriguez
+> - Stop using "efi-embedded-firmware" device-property, now that drivers need to
+>   use the new firmware_request_platform() to enable fallback to a device fw
+>   copy embedded in the platform's main firmware, we no longer need a property
+>   on the device to trigger this behavior
+> - Use security_kernel_load_data instead of calling
+>   security_kernel_read_file with a NULL file pointer argument
+> - Move the docs to Documentation/driver-api/firmware/fallback-mechanisms.rst
+> - Document the new firmware_request_platform() function in
+>   Documentation/driver-api/firmware/request_firmware.rst
+> - Add 2 new patches for the silead and chipone-icn8505 touchscreen drivers
+>   to use the new firmware_request_platform() method
+> - Rebased on top of 5.4-rc1
+> 
+> I guess this will probably need another round (ot two) of review + fixing,
+> but eventually this can hopefully be merged. Since this touches a bunch
+> of different subsystems the question is how to merge this? Most of the
+> touched files outside of the firmware-loader code do not see a lot of
+> churn, so my proposal would be to merge patches 1-6 through the tree
+> which carries firmware-loader changes; and then provide an immutable
+> branch for the platform/x86 maintainers to merge and then they can merge
+> the last 2 patches (as the touchscreen_dmi.c file does see quite a bit
+> of changes every release).
 
-Ah, sorry. On my quick look it seemed to be included in the patch
-:facepalm:.
+So I was looking for a high level 0/ boilerplate description of this 
+series, to explain what "EFI embedded fw" is, what problems it solves and 
+how it helps the kernel in general - and found this in 2/8:
+
+>> Just like with PCI options ROMs, which we save in the setup_efi_pci*
+>> functions from arch/x86/boot/compressed/eboot.c, the EFI code / ROM itself
+>> sometimes may contain data which is useful/necessary for peripheral drivers
+>> to have access to.
+>>
+>> Specifically the EFI code may contain an embedded copy of firmware which
+>> needs to be (re)loaded into the peripheral. Normally such firmware would be
+>> part of linux-firmware, but in some cases this is not feasible, for 2
+>> reasons:
+>>
+>> 1) The firmware is customized for a specific use-case of the chipset / use
+>> with a specific hardware model, so we cannot have a single firmware file
+>> for the chipset. E.g. touchscreen controller firmwares are compiled
+>> specifically for the hardware model they are used with, as they are
+>> calibrated for a specific model digitizer.
+>>
+>> 2) Despite repeated attempts we have failed to get permission to
+>> redistribute the firmware. This is especially a problem with customized
+>> firmwares, these get created by the chip vendor for a specific ODM and the
+>> copyright may partially belong with the ODM, so the chip vendor cannot
+>> give a blanket permission to distribute these.
+>>
+>> This commit adds support for finding peripheral firmware embedded in the
+>> EFI code and makes the found firmware available through the new
+>> efi_get_embedded_fw() function.
+>>
+>> Support for loading these firmwares through the standard firmware loading
+>> mechanism is added in a follow-up commit in this patch-series.
+>>
+>> Note we check the EFI_BOOT_SERVICES_CODE for embedded firmware near the end
+>> of start_kernel(), just before calling rest_init(), this is on purpose
+>> because the typical EFI_BOOT_SERVICES_CODE memory-segment is too large for
+>> early_memremap(), so the check must be done after mm_init(). This relies
+>> on EFI_BOOT_SERVICES_CODE not being free-ed until efi_free_boot_services()
+>> is called, which means that this will only work on x86 for now.
+>>
+>> Reported-by: Dave Olsthoorn <dave@bewaar.me>
+>> Suggested-by: Peter Jones <pjones@redhat.com>
+>> Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+There's also patch #3, which explains how this is used:
+
+>> This commit adds a new platform fallback mechanism to the firmware loader
+>> which will try to lookup a device fw copy embedded in the platform's main
+>> firmware if direct filesystem lookup fails.
+>>
+>> Drivers which need such embedded fw copies can enable this fallback
+>> mechanism by using the new firmware_request_platform() function.
+>>
+>> Note that for now this is only supported on EFI platforms and even on
+>> these platforms firmware_fallback_platform() only works if
+>> CONFIG_EFI_EMBEDDED_FIRMWARE is enabled (this gets selected by drivers
+>> which need this), in all other cases firmware_fallback_platform() simply
+>> always returns -ENOENT.
+
+Plus there's 3 patches that opt in three drivers to this new EFI-firmware 
+loading mechanism, right?
+
+A couple of high level questions:
+
+- How common are these kinds of firmware files that should be loaded into 
+  the device by the OS device driver? Common? Or 1% of systems? 0.1% of 
+  systems? 0.0001%?
+
+- Can there be a situation where linux-firmware already includes an older 
+  copy of the firmware, and the EFI firmware has a newer version? If this 
+  can plausibly happen, shouldn't the fallback mechanism do some sort of 
+  version check (if that's possible), and load the newer version?
+
+- I'm worried about the explicit opt-in nature of these firmware files - 
+  the OS driver has to be explicitly aware of this possibility. Shouldn't 
+  we at minimum have some sort of boot time check to see whether a device 
+  has an embedded fw blob, and warn the user if we don't actually load 
+  it? Which would generate some gentle pressure to fix our drivers?
+
+- I think the config option should be default-y, because AFAICS this 
+  mechanism makes broken drivers/devices work.
+
+- Finally, is there any question of trust or a potential for other 
+  security pitfalls here, where we'd trust linux-firmware over what the 
+  EFI firmware says is the proper firmware for a device? My default 
+  assumption would be that we are exposed to the EFI firmware anyway, and 
+  it comes with the hardware just like the devices come with the 
+  hardware, so we can generally trust it. But I might be missing 
+  something. If there's any plausible question of trust (for example can 
+  attackers hide rooted firmware in the EFI image, without triggering 
+  filesystem integrity checks on the regular filesystem side?) then it 
+  might make sense to offer a boot parameter to disable this, beyond the 
+  config parameter.
 
 Thanks,
-Filipe La=C3=ADns
 
---=-kGv6YloVMQJBMwlPHIMb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl2a8lAACgkQ+JPGdIFq
-qV2gQhAAqbcpl2tftYpSAs14KZ1Wef/yfREgL6ctnYSKsZncr8iAmPngNQ3Kzyq4
-1SBct54cKn+zN5H445nbwwrnhCb7lsusV6w0J9Lrm6Fuw4OLUBHHbgK72nmaxT2g
-IhAbth0jmNmAhFv+vpaYL7ZDKzBbeTTAEWXtdRJfrCX7TL4mT0jYEpvlYcD3VzLJ
-613PTovHRjZ8AdGgfzwEQPLRg5D1znnl2DTu8wFlqvY5WUSzVfE2Mg0UXv3WtMhv
-h1+BLrYyVcIPCT02hzG8UMR5Y8yTgiWA4pUKwzGfjd3N75HCh/M4Ii0jHs5lgD7x
-Cer/8aMhVEE4ucJ5pM022XM+VMgtgrqQBKu5YUsWVNArBdlxtge0wcbATiLx2Mda
-9YxrmQNpq43oKo2AnwY0U/18tuxbleaqL45fljn0aGV/AIaUI7BW4M4jEE3Fq4BB
-YnJDdBmeyNyDTw2g9VVJE5W7FH/3kAUzU+su2mpQelry1ia9KJB9FMnSpHtfBHqE
-b8QrGrfq5K3F73DzYp7o9UMyh0R954HG6UTJCw6W27lJoFiMzj14HFIr8+gLUoHl
-NyPEJyGKodM96M6lJ6AWdRq+t5Yxk5UKgv8oUxZx7rWzD9DL5P1yU8Rl1peaR95I
-Xojg2u8KQc3Yb4EZDzUSXH21LFyGtVskht1Qb4M8q+x9oGnpHBo=
-=zItG
------END PGP SIGNATURE-----
-
---=-kGv6YloVMQJBMwlPHIMb--
+	Ingo

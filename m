@@ -1,63 +1,60 @@
-From: Anson Huang <anson.huang@nxp.com>
-Subject: RE: [PATCH V2 1/5] dt-bindings: fsl: scu: add scu power key binding
-Date: Mon, 7 Oct 2019 01:29:19 +0000
-Message-ID: <DB3PR0402MB3916A5821856B3FEAE9265C8F59B0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-References: <1567519424-32271-1-git-send-email-Anson.Huang@nxp.com>
- <20190922161415.GD1999@bug>
- <DB3PR0402MB3916F48DA2A16E57C624432BF5850@DB3PR0402MB3916.eurprd04.prod.outlook.com>
- <20191006003225.GD7150@dragon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Anson Huang <Anson.Huang@nxp.com>
+Subject: [PATCH V6 1/5] dt-bindings: fsl: scu: add scu key binding
+Date: Mon,  7 Oct 2019 09:41:45 +0800
+Message-ID: <1570412509-7893-1-git-send-email-Anson.Huang@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191006003225.GD7150@dragon>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Shawn Guo <shawnguo@kernel.org>
-Cc: Pavel Machek <pavel@ucw.cz>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Aisheng Dong <aisheng.dong@nxp.com>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Andy Duan <fugang.duan@nxp.com>, Peng Fan <peng.fan@nxp.com>, Daniel Baluta <daniel.baluta@nxp.com>, Leonard Crestez <leonard.crestez@nxp.com>, "mripard@kernel.org" <mripard@kernel.org>, "olof@lixom.net" <olof@lixom.net>, "arnd@arndb.de" <arnd@arndb.de>, jagan@amarulaso
+To: robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, catalin.marinas@arm.com, will@kernel.org, dmitry.torokhov@gmail.com, aisheng.dong@nxp.com, ulf.hansson@linaro.org, peng.fan@nxp.com, fugang.duan@nxp.com, leonard.crestez@nxp.com, daniel.baluta@nxp.com, olof@lixom.net, mripard@kernel.org, bjorn.andersson@linaro.org, jagan@amarulasolutions.com, dinguyen@kernel.org, marcin.juszkiewicz@linaro.org, arnd@arndb.de, andriy.shevchenko@linux.intel.com, stefan@agner.ch, enric.balletbo@collabora.com, yuehaibing@huawei.com, ping.bai@nxp.com, m.felsch@pengutronix.de, ronald@innovation.ch, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: Linux-imx@nxp.com
 List-Id: linux-input@vger.kernel.org
 
-SGksIFNoYXduDQoNCj4gT24gTW9uLCBTZXAgMjMsIDIwMTkgYXQgMDI6MzQ6MDdBTSArMDAwMCwg
-QW5zb24gSHVhbmcgd3JvdGU6DQo+ID4gSGksIFBhdmVsDQo+ID4NCj4gPiA+IFN1YmplY3Q6IFJl
-OiBbUEFUQ0ggVjIgMS81XSBkdC1iaW5kaW5nczogZnNsOiBzY3U6IGFkZCBzY3UgcG93ZXIga2V5
-DQo+ID4gPiBiaW5kaW5nDQo+ID4gPg0KPiA+ID4gT24gVHVlIDIwMTktMDktMDMgMTA6MDM6NDAs
-IEFuc29uIEh1YW5nIHdyb3RlOg0KPiA+ID4gPiBOWFAgaS5NWDhRWFAgaXMgYW4gQVJNdjggU29D
-IHdpdGggYSBDb3J0ZXgtTTQgY29yZSBpbnNpZGUgYXMNCj4gPiA+ID4gc3lzdGVtIGNvbnRyb2xs
-ZXIsIHRoZSBzeXN0ZW0gY29udHJvbGxlciBpcyBpbiBjaGFyZ2Ugb2Ygc3lzdGVtDQo+ID4gPiA+
-IHBvd2VyLCBjbG9jayBhbmQgcG93ZXIga2V5IGV2ZW50IGV0Yy4gbWFuYWdlbWVudCwgTGludXgg
-a2VybmVsIGhhcw0KPiA+ID4gPiB0byBjb21tdW5pY2F0ZSB3aXRoIHN5c3RlbSBjb250cm9sbGVy
-IHZpYSBNVSAobWVzc2FnZSB1bml0KSBJUEMgdG8NCj4gPiA+ID4gZ2V0IHBvd2VyIGtleSBldmVu
-dCwgYWRkIGJpbmRpbmcgZG9jIGZvciBpLk1YIHN5c3RlbSBjb250cm9sbGVyIHBvd2VyDQo+IGtl
-eSBkcml2ZXIuDQo+ID4gPiA+DQo+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IEFuc29uIEh1YW5nIDxB
-bnNvbi5IdWFuZ0BueHAuY29tPg0KPiA+ID4gPiAtLS0NCj4gPiA+ID4gQ2hhbmdlcyBzaW5jZSBW
-MToNCj4gPiA+ID4gCS0gcmVtb3ZlICJ3YWtldXAtc291cmNlIiBwcm9wZXJ0eSwgYXMgaXQgaXMg
-Tk9UIG5lZWRlZCBmb3IgU0NVDQo+ID4gPiBpbnRlcnJ1cHQ7DQo+ID4gPiA+IAktIHJlbW92ZSAi
-c3RhdHVzIiBpbiBleGFtcGxlLg0KPiA+ID4gPiAtLS0NCj4gPiA+ID4gIC4uLi9kZXZpY2V0cmVl
-L2JpbmRpbmdzL2FybS9mcmVlc2NhbGUvZnNsLHNjdS50eHQgICAgICAgICAgfCAxNA0KPiA+ID4g
-KysrKysrKysrKysrKysNCj4gPiA+ID4gIDEgZmlsZSBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCsp
-DQo+ID4gPiA+DQo+ID4gPiA+IGRpZmYgLS1naXQNCj4gPiA+ID4gYS9Eb2N1bWVudGF0aW9uL2Rl
-dmljZXRyZWUvYmluZGluZ3MvYXJtL2ZyZWVzY2FsZS9mc2wsc2N1LnR4dA0KPiA+ID4gPiBiL0Rv
-Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0
-DQo+ID4gPiA+IGluZGV4IGMxNDlmYWQuLmY5M2UyZTQgMTAwNjQ0DQo+ID4gPiA+IC0tLSBhL0Rv
-Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJlZXNjYWxlL2ZzbCxzY3UudHh0
-DQo+ID4gPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vZnJl
-ZXNjYWxlL2ZzbCxzY3UudHh0DQo+ID4gPiA+IEBAIC0xNTcsNiArMTU3LDE1IEBAIFJlcXVpcmVk
-IHByb3BlcnRpZXM6DQo+ID4gPiA+ICBPcHRpb25hbCBwcm9wZXJ0aWVzOg0KPiA+ID4gPiAgLSB0
-aW1lb3V0LXNlYzogY29udGFpbnMgdGhlIHdhdGNoZG9nIHRpbWVvdXQgaW4gc2Vjb25kcy4NCj4g
-PiA+ID4NCj4gPiA+ID4gK1Bvd2VyIGtleSBiaW5kaW5ncyBiYXNlZCBvbiBTQ1UgTWVzc2FnZSBQ
-cm90b2NvbA0KPiA+ID4gPiArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+ID4gPiA+ICsNCj4gPiA+ID4gK1JlcXVpcmVkIHByb3Bl
-cnRpZXM6DQo+ID4gPiA+ICstIGNvbXBhdGlibGU6IHNob3VsZCBiZToNCj4gPiA+ID4gKyAgICAg
-ICAgICAgICAgImZzbCxpbXg4cXhwLXNjLXB3cmtleSINCj4gPiA+ID4gKyAgICAgICAgICAgICAg
-Zm9sbG93ZWQgYnkgImZzbCxpbXgtc2MtcHdya2V5IjsNCj4gPiA+ID4gKy0gbGludXgsa2V5Y29k
-ZXM6IFNlZQ0KPiA+ID4gPiArRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0
-L2tleXMudHh0DQo+ID4gPg0KPiA+ID4gTm90ZSB5b3UgaGF2ZSBrZXljb2RlX3NfIGhlcmUsIGJ1
-dCBrZXljb2RlIGluIHRoZSBleGFtcGxlIGFuZCBpbiB0aGUNCj4gPiA+IGR0cyBwYXRjaC4NCj4g
-Pg0KPiA+IE5PVCBxdWl0ZSB1bmRlcnN0YW5kIHlvdXIgcG9pbnQsIGNvdWxkIHlvdSBwbGVhc2Ug
-cHJvdmlkZSBtb3JlIGRldGFpbHM/DQo+IA0KPiBUaGUgcHJvcGVydHkgYmVpbmcgdXNlZCBpbiBk
-cml2ZXIsIERUUywgYW5kIERUIGV4YW1wbGUgaW4gdGhlIGJpbmRpbmdzIGFyZQ0KPiBhbGwgJ2xp
-bnV4LGtleWNvZGUnIHJhdGhlciB0aGFuICdsaW51eCxrZXljb2RlcycuDQoNCkkgc2VlIG5vdywg
-c2luY2UgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L2tleXMudHh0IHVz
-ZXMgImxpbnV4LGtleWNvZGVzIiwNCnNvIEkgd2lsbCBhbHNvIHVzZSAibGludXgsa2V5Y29kZXMi
-IGZvciBkcml2ZXIsIERUUyBhbmQgRFQgZXhhbXBsZSBpbiBWMy4NCg0KVGhhbmtzLA0KQW5zb24N
-Cg==
+NXP i.MX8QXP is an ARMv8 SoC with a Cortex-M4 core inside as
+system controller, the system controller is in charge of system
+power, clock and scu key event etc. management, Linux kernel has
+to communicate with system controller via MU (message unit) IPC
+to get scu key event, add binding doc for i.MX system controller
+key driver.
+
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+Changes since V5:
+	- use "linux,keycodes" instead of "linux,keycode" in example.
+---
+ .../devicetree/bindings/arm/freescale/fsl,scu.txt          | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+index c149fad..70c1a62 100644
+--- a/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
++++ b/Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+@@ -157,6 +157,15 @@ Required properties:
+ Optional properties:
+ - timeout-sec: contains the watchdog timeout in seconds.
+ 
++SCU key bindings based on SCU Message Protocol
++------------------------------------------------------------
++
++Required properties:
++- compatible: should be:
++              "fsl,imx8qxp-sc-key"
++              followed by "fsl,imx-sc-key";
++- linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
++
+ Example (imx8qxp):
+ -------------
+ aliases {
+@@ -220,6 +229,11 @@ firmware {
+ 			compatible = "fsl,imx8qxp-sc-rtc";
+ 		};
+ 
++		scu_key: scu-key {
++			compatible = "fsl,imx8qxp-sc-key", "fsl,imx-sc-key";
++			linux,keycodes = <KEY_POWER>;
++		};
++
+ 		watchdog {
+ 			compatible = "fsl,imx8qxp-sc-wdt", "fsl,imx-sc-wdt";
+ 			timeout-sec = <60>;
+-- 
+2.7.4

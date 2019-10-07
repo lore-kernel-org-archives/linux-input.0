@@ -1,7 +1,7 @@
 From: Anson Huang <Anson.Huang@nxp.com>
-Subject: [PATCH V6 5/5] arm64: defconfig: Enable CONFIG_KEYBOARD_IMX_SC_KEY as module
-Date: Mon,  7 Oct 2019 09:41:49 +0800
-Message-ID: <1570412509-7893-5-git-send-email-Anson.Huang@nxp.com>
+Subject: [PATCH V6 3/5] arm64: dts: imx8qxp: Add scu key node
+Date: Mon,  7 Oct 2019 09:41:47 +0800
+Message-ID: <1570412509-7893-3-git-send-email-Anson.Huang@nxp.com>
 References: <1570412509-7893-1-git-send-email-Anson.Huang@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1570412509-7893-1-git-send-email-Anson.Huang@nxp.com>
@@ -10,27 +10,41 @@ To: robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengu
 Cc: Linux-imx@nxp.com
 List-Id: linux-input@vger.kernel.org
 
-Select CONFIG_KEYBOARD_IMX_SC_KEY as module by default to
-support i.MX8QXP scu key driver.
+Add scu key node for i.MX8QXP, disabled by default as it
+depends on board design.
 
 Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
-No changes.
+Changes since V5:
+	- use "linux,keycodes" instead of "linux,keycode".
 ---
- arch/arm64/configs/defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8qxp.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index c9adae4..9062d57 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -314,6 +314,7 @@ CONFIG_INPUT_EVDEV=y
- CONFIG_KEYBOARD_ADC=m
- CONFIG_KEYBOARD_GPIO=y
- CONFIG_KEYBOARD_SNVS_PWRKEY=m
-+CONFIG_KEYBOARD_IMX_SC_KEY=m
- CONFIG_KEYBOARD_CROS_EC=y
- CONFIG_INPUT_TOUCHSCREEN=y
- CONFIG_TOUCHSCREEN_ATMEL_MXT=m
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
+index 1133b41..2d69f1a 100644
+--- a/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8qxp.dtsi
+@@ -8,6 +8,7 @@
+ #include <dt-bindings/clock/imx8-clock.h>
+ #include <dt-bindings/firmware/imx/rsrc.h>
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
+ #include <dt-bindings/pinctrl/pads-imx8qxp.h>
+ 
+@@ -174,6 +175,12 @@
+ 			#power-domain-cells = <1>;
+ 		};
+ 
++		scu_key: scu-key {
++			compatible = "fsl,imx8qxp-sc-key", "fsl,imx-sc-key";
++			linux,keycodes = <KEY_POWER>;
++			status = "disabled";
++		};
++
+ 		rtc: rtc {
+ 			compatible = "fsl,imx8qxp-sc-rtc";
+ 		};
 -- 
 2.7.4

@@ -1,70 +1,105 @@
-From: Evan Green <evgreen@chromium.org>
-Subject: [PATCH] Input: synaptics-rmi4 - Avoid processing unknown IRQs
-Date: Tue,  8 Oct 2019 15:36:57 -0700
-Message-ID: <20191008223657.163366-1-evgreen@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 5.4 regression fix] Input: soc_button_array - partial
+ revert of support for newer surface devices
+Date: Tue, 8 Oct 2019 16:44:00 -0700
+Message-ID: <20191008234400.GJ22365@dtor-ws>
+References: <20191005105551.353273-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20191005105551.353273-1-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Evan Green <evgreen@chromium.org>, Pan Bian <bianpan2016@163.com>, Allison Randal <allison@lohutok.net>, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andy@infradead.org>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-rmi_process_interrupt_requests() calls handle_nested_irq() for
-each interrupt status bit it finds. If the irq domain mapping for
-this bit had not yet been set up, then it ends up calling
-handle_nested_irq(0), which causes a NULL pointer dereference.
+On Sat, Oct 05, 2019 at 12:55:51PM +0200, Hans de Goede wrote:
+> Commit c394159310d0 ("Input: soc_button_array - add support for newer
+> surface devices") not only added support for the MSHW0040 ACPI HID,
+> but for some reason it also makes changes to the error handling of the
+> soc_button_lookup_gpio() call in soc_button_device_create(). Note ideally
+> this seamingly unrelated change would have been made in a separate commit,
+> with a message explaining the what and why of this change.
+> 
+> I guess this change may have been added to deal with -EPROBE_DEFER errors,
+> but in case of the existing support for PNP0C40 devices, treating
+> -EPROBE_DEFER as any other error is deliberate, see the comment this
+> commit adds for why.
+> 
+> The actual returning of -EPROBE_DEFER to the caller of soc_button_probe()
+> introduced by the new error checking causes a serious regression:
+> 
+> On devices with so called virtual GPIOs soc_button_lookup_gpio() will
+> always return -EPROBE_DEFER for these fake GPIOs, when this happens
+> during the second call of soc_button_device_create() we already have
+> successfully registered our first child. This causes the kernel to think
+> we are making progress with probing things even though we unregister the
+> child before again before we return the -EPROBE_DEFER. Since we are making
+> progress the kernel will retry deferred-probes again immediately ending
+> up stuck in a loop with the following showing in dmesg:
+> 
+> [  124.022697] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6537
+> [  124.040764] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6538
+> [  124.056967] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6539
+> [  124.072143] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6540
+> [  124.092373] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6541
+> [  124.108065] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6542
+> [  124.128483] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6543
+> [  124.147141] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6544
+> [  124.165070] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6545
+> [  124.179775] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6546
+> [  124.202726] input: gpio-keys as /devices/platform/INTCFD9:00/gpio-keys.0.auto/input/input6547
+> <continues on and on and on>
+> 
+> And 1 CPU core being stuck at 100% and udev hanging since it is waiting
+> for the modprobe of soc_button_array to return.
+> 
+> This patch reverts the soc_button_lookup_gpio() error handling changes,
+> fixing this regression.
+> 
+> Fixes: c394159310d0 ("Input: soc_button_array - add support for newer surface devices")
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205031
+> Cc: Maximilian Luz <luzmaximilian@gmail.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-There's already code that masks the irq_status bits coming out of the
-hardware with current_irq_mask, presumably to avoid this situation.
-However current_irq_mask seems to more reflect the actual mask set
-in the hardware rather than the IRQs software has set up and registered
-for. For example, in rmi_driver_reset_handler(), the current_irq_mask
-is initialized based on what is read from the hardware. If the reset
-value of this mask enables IRQs that Linux has not set up yet, then
-we end up in this situation.
+Applied, thank you.
 
-There appears to be a third unused bitmask that used to serve this
-purpose, fn_irq_bits. Use that bitmask instead of current_irq_mask
-to avoid calling handle_nested_irq() on IRQs that have not yet been
-set up.
+> ---
+>  drivers/input/misc/soc_button_array.c | 17 ++++++++++++-----
+>  1 file changed, 12 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> index 97e3639e99d0..97761421d6dd 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -92,11 +92,18 @@ soc_button_device_create(struct platform_device *pdev,
+>  			continue;
+>  
+>  		gpio = soc_button_lookup_gpio(&pdev->dev, info->acpi_index);
+> -		if (gpio < 0 && gpio != -ENOENT) {
+> -			error = gpio;
+> -			goto err_free_mem;
+> -		} else if (!gpio_is_valid(gpio)) {
+> -			/* Skip GPIO if not present */
+> +		if (!gpio_is_valid(gpio)) {
+> +			/*
+> +			 * Skip GPIO if not present. Note we deliberately
+> +			 * ignore -EPROBE_DEFER errors here. On some devices
+> +			 * Intel is using so called virtual GPIOs which are not
+> +			 * GPIOs at all but some way for AML code to check some
+> +			 * random status bits without need a custom opregion.
+> +			 * In some cases the resources table we parse points to
+> +			 * such a virtual GPIO, since these are not real GPIOs
+> +			 * we do not have a driver for these so they will never
+> +			 * show up, therefor we ignore -EPROBE_DEFER.
+> +			 */
+>  			continue;
+>  		}
+>  
+> -- 
+> 2.23.0
+> 
 
-Signed-off-by: Evan Green <evgreen@chromium.org>
----
-
- drivers/input/rmi4/rmi_driver.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 772493b1f665..190b9974526b 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -146,7 +146,7 @@ static int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
- 	}
- 
- 	mutex_lock(&data->irq_mutex);
--	bitmap_and(data->irq_status, data->irq_status, data->current_irq_mask,
-+	bitmap_and(data->irq_status, data->irq_status, data->fn_irq_bits,
- 	       data->irq_count);
- 	/*
- 	 * At this point, irq_status has all bits that are set in the
-@@ -385,6 +385,8 @@ static int rmi_driver_set_irq_bits(struct rmi_device *rmi_dev,
- 	bitmap_copy(data->current_irq_mask, data->new_irq_mask,
- 		    data->num_of_irq_regs);
- 
-+	bitmap_or(data->fn_irq_bits, data->fn_irq_bits, mask, data->irq_count);
-+
- error_unlock:
- 	mutex_unlock(&data->irq_mutex);
- 	return error;
-@@ -398,6 +400,8 @@ static int rmi_driver_clear_irq_bits(struct rmi_device *rmi_dev,
- 	struct device *dev = &rmi_dev->dev;
- 
- 	mutex_lock(&data->irq_mutex);
-+	bitmap_andnot(data->fn_irq_bits,
-+		      data->fn_irq_bits, mask, data->irq_count);
- 	bitmap_andnot(data->new_irq_mask,
- 		  data->current_irq_mask, mask, data->irq_count);
- 
 -- 
-2.21.0
+Dmitry

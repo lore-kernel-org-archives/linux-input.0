@@ -1,52 +1,70 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] Input: mms114 - add support for mms345l
-Date: Tue, 8 Oct 2019 15:00:14 -0700
-Message-ID: <20191008220014.GI22365@dtor-ws>
-References: <20191007203343.101466-1-stephan@gerhold.net>
- <20191007205021.104402-1-stephan@gerhold.net>
+From: Evan Green <evgreen@chromium.org>
+Subject: [PATCH] Input: synaptics-rmi4 - Avoid processing unknown IRQs
+Date: Tue,  8 Oct 2019 15:36:57 -0700
+Message-ID: <20191008223657.163366-1-evgreen@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191007205021.104402-1-stephan@gerhold.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stephan Gerhold <stephan@gerhold.net>
-Cc: Andi Shyti <andi@etezian.org>, Simon Shields <simon@lineageos.org>, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Evan Green <evgreen@chromium.org>, Pan Bian <bianpan2016@163.com>, Allison Randal <allison@lohutok.net>, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 07, 2019 at 10:50:21PM +0200, Stephan Gerhold wrote:
-> MMS345L is another first generation touch screen from Melfas,
-> which uses the same registers as MMS152.
-> 
-> However, using I2C_M_NOSTART for it causes errors when reading:
-> 
-> 	i2c i2c-0: sendbytes: NAK bailout.
-> 	mms114 0-0048: __mms114_read_reg: i2c transfer failed (-5)
-> 
-> The driver works fine as soon as I2C_M_NOSTART is removed.
-> 
-> Add a separate melfas,mms345l binding, and make use of I2C_M_NOSTART
-> only for MMS114 and MMS152.
-> 
-> Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-> ---
-> Note: I was not able to find a datasheet for any of the models,
-> so this change is merely based on testing and comparison with
-> the downstream driver [1].
-> 
-> There was a related patch [2] that removes I2C_M_NOSTART for all models,
-> but it seems abandoned and I do not have any other model for testing.
-> Therefore, this patch implements the least instrusive solution
-> and only removes I2C_M_NOSTART for MMS345L.
+rmi_process_interrupt_requests() calls handle_nested_irq() for
+each interrupt status bit it finds. If the irq domain mapping for
+this bit had not yet been set up, then it ends up calling
+handle_nested_irq(0), which causes a NULL pointer dereference.
 
-Hmm,  at this point I am inclined to pick up Andi's patch since it seems
-to work for you and him and it looks like Android drivers are not using
-I2C_M_NOSTART. I wonder if this was some quirk/big on the platform where
-it was originally developed.
+There's already code that masks the irq_status bits coming out of the
+hardware with current_irq_mask, presumably to avoid this situation.
+However current_irq_mask seems to more reflect the actual mask set
+in the hardware rather than the IRQs software has set up and registered
+for. For example, in rmi_driver_reset_handler(), the current_irq_mask
+is initialized based on what is read from the hardware. If the reset
+value of this mask enables IRQs that Linux has not set up yet, then
+we end up in this situation.
 
-Any objections?
+There appears to be a third unused bitmask that used to serve this
+purpose, fn_irq_bits. Use that bitmask instead of current_irq_mask
+to avoid calling handle_nested_irq() on IRQs that have not yet been
+set up.
 
-Thanks.
+Signed-off-by: Evan Green <evgreen@chromium.org>
+---
 
+ drivers/input/rmi4/rmi_driver.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 772493b1f665..190b9974526b 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -146,7 +146,7 @@ static int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
+ 	}
+ 
+ 	mutex_lock(&data->irq_mutex);
+-	bitmap_and(data->irq_status, data->irq_status, data->current_irq_mask,
++	bitmap_and(data->irq_status, data->irq_status, data->fn_irq_bits,
+ 	       data->irq_count);
+ 	/*
+ 	 * At this point, irq_status has all bits that are set in the
+@@ -385,6 +385,8 @@ static int rmi_driver_set_irq_bits(struct rmi_device *rmi_dev,
+ 	bitmap_copy(data->current_irq_mask, data->new_irq_mask,
+ 		    data->num_of_irq_regs);
+ 
++	bitmap_or(data->fn_irq_bits, data->fn_irq_bits, mask, data->irq_count);
++
+ error_unlock:
+ 	mutex_unlock(&data->irq_mutex);
+ 	return error;
+@@ -398,6 +400,8 @@ static int rmi_driver_clear_irq_bits(struct rmi_device *rmi_dev,
+ 	struct device *dev = &rmi_dev->dev;
+ 
+ 	mutex_lock(&data->irq_mutex);
++	bitmap_andnot(data->fn_irq_bits,
++		      data->fn_irq_bits, mask, data->irq_count);
+ 	bitmap_andnot(data->new_irq_mask,
+ 		  data->current_irq_mask, mask, data->irq_count);
+ 
 -- 
-Dmitry
+2.21.0

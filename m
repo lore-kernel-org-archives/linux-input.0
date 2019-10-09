@@ -2,88 +2,100 @@ Return-Path: <SRS0=Awm/=YC=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 126B9ECE58C
-	for <linux-input@archiver.kernel.org>; Wed,  9 Oct 2019 18:00:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6811ECE58C
+	for <linux-input@archiver.kernel.org>; Wed,  9 Oct 2019 19:14:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DB33C21920
-	for <linux-input@archiver.kernel.org>; Wed,  9 Oct 2019 18:00:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1570644019;
-	bh=OJG+giJe+Q7Ljx6NMncXKgZJ6O3ww3uJa7HPqGYceLk=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=q6fl6l7JwlgCkxD+tE1OycAIOUCqTJIjZy/a2o4mL0UWjjiQvhz4a8bUaNzPyUvdE
-	 Sq8dtaNEvMZFE0d/l+Q6O4tZvZa76LMU1o5uXKJJgBLd0iHRj+4/8fVivsZbt5XsnU
-	 nFLv096HgvErbgEHx8/NfnqnFMiSgT22Wdym3iNU=
+	by mail.kernel.org (Postfix) with ESMTP id 8143E218AC
+	for <linux-input@archiver.kernel.org>; Wed,  9 Oct 2019 19:14:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731392AbfJISAT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 9 Oct 2019 14:00:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34234 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731287AbfJISAT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 9 Oct 2019 14:00:19 -0400
-Received: from pobox.suse.cz (prg-ext-pat.suse.com [213.151.95.130])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 136BE206C0;
-        Wed,  9 Oct 2019 18:00:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570644018;
-        bh=OJG+giJe+Q7Ljx6NMncXKgZJ6O3ww3uJa7HPqGYceLk=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=tm0GHkhrtvG2djQkr2yzL5Bk6qnl7ExoOkV17uHfLmE2IyLg29ka6jjl4o033K0zV
-         NSKkNh8xzW58S2EhwMRplEhHzDSFD3rNc0AIX7haoViveORm7CwrydGOxwVSwkRZvr
-         XAECrQzVYtWbh241+pJ5wuAfvkHUdsa25SwmgVXI=
-Date:   Wed, 9 Oct 2019 19:59:48 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-cc:     Candle Sun <candlesea@gmail.com>, benjamin.tissoires@redhat.com,
-        orson.zhai@unisoc.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Candle Sun <candle.sun@unisoc.com>,
-        Nianfu Bai <nianfu.bai@unisoc.com>
-Subject: Re: [PATCH v2] HID: core: check whether usage page item is after
- usage id item
-In-Reply-To: <d739f691b677fb3ed88a23476d221527a87c363d.camel@suse.de>
-Message-ID: <nycvar.YFH.7.76.1910091958120.13160@cbobk.fhfr.pm>
-References: <1570625609-11083-1-git-send-email-candlesea@gmail.com> <d739f691b677fb3ed88a23476d221527a87c363d.camel@suse.de>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1731901AbfJITLR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 9 Oct 2019 15:11:17 -0400
+Received: from mout.kundenserver.de ([212.227.126.135]:33525 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731839AbfJITLQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Oct 2019 15:11:16 -0400
+Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue011 [212.227.15.129]) with ESMTPA (Nemesis) id
+ 1MUY9w-1iiiBO3dmy-00QSut; Wed, 09 Oct 2019 21:11:14 +0200
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     linux-kernel@vger.kernel.org, y2038@lists.linaro.org,
+        linux-fsdevel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH v6 24/43] compat_ioctl: remove joystick ioctl translation
+Date:   Wed,  9 Oct 2019 21:10:24 +0200
+Message-Id: <20191009191044.308087-24-arnd@arndb.de>
+X-Mailer: git-send-email 2.20.0
+In-Reply-To: <20191009190853.245077-1-arnd@arndb.de>
+References: <20191009190853.245077-1-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:x2cKbCWiwvtTu0Qle1GTAXaofujFu4TqPOSrzfs49dxShM/dHOg
+ AM8+FdkHPUNbbcajz9XAKdK/00jXiMqsA7QxZ7e5Elfsjj/JgJHiRfQpUiydME6xnaHzZFE
+ DICT07/ckpbdTm8x6zSAJ7ENEf5ADRKW4Hzfzb0uCmZhtzEFqUgBNACJf1folSnv14Ykzwa
+ uLzFp/WEybLIr+pcSNFzg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:3WaeOwFJhJc=:nuObE3Ol7NblOV2/MWCAkC
+ xS4Mgc2fhrU4MUe0GtkE61H5snv7FwEBJsrBMARTxrQ1txWFb5+jhksnjxb9pzXvgtHYoXm3C
+ yH+bOdbsD7kqWzFzzeHZZaKlKuWtx2HuWP0mhVvTgQGuVY4TSSjleq20X6bZOfOU9opdffRir
+ T8/drHeM1JKBUMfsM5iT/JMrtmappIQ2kUea89pFUNVRTDplxOZqdQZYbbEttsejmtLL9f20B
+ h4cegT7gWt0L2WfK1d4VrXqU+ITwBYdNh8VVVCV2Wzk6seGnEzdZgt0Oym8AUP0ShNLv9gMid
+ ACCVpUU89VV3h6sT+mAQ8WfWq4mHBvnVMfojL9NiQvN8E8k6f0PTp9BnIh38xCxiLy/hy9y2e
+ ABmCVY/m7tMwgyTm57UAg514liHZ45SAxnJxu3Vt/3iwrS4dyDiPofBKlWxuVi8C+S7KSIw6y
+ RzL4L6lyQnIvBvMvvlZjXC0FJo5a99j43r2IT88DkGIyvCI57Li2+hCrPg/Dg1E7gtk4sQnnF
+ zYQzkOylD9/IosZV4QxXgS3CQic3e68j23wUHvyd8CbfL0t8MeNB869d9q4jYKBQz74tOpRkv
+ tUHX+uvgRdTG/d3csFoFAUT2DYOuKUyru+Y/52KOXJZsZZLB6OKJF4nwnZWjVTANxC1UG6rFR
+ D+vPkiBVz2icsVJiyw9H6qpoQtvwmMmTzAR84wY6yWhp9v+uTI5ibhcdi1QzQasynrsAmMRx7
+ JSG7gnWJLTjuBSNfEGz/qAzZ9meKQeivQi18CLzyv5q4zMQ9PXsM4iL7oGbT8jgUuWrCPfbFf
+ Flp1lEd5dd4RKIkV2cBqTDt62t4eYcrFaQez+alalTIGHvZSOxOZGUiIoamsDeP8F0htoga76
+ uVLyPKoiSKplEYNIawfg==
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
-Message-ID: <20191009175948.mL2iRjkqLvyr0EX_NBPbg6cmk5UZL9ohJ7KeTaJkxq0@z>
+Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20191009191024.jU7UmnV5vxG7UonVIg1SCk-4AYo8IJF0I0-ULRpCEhE@z>
 
-On Wed, 9 Oct 2019, Nicolas Saenz Julienne wrote:
+The joystick driver already handles these just fine, so
+the entries in the table are not needed any more.
 
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > index 3eaee2c..3394222 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -35,6 +35,8 @@
-> >  
-> >  #include "hid-ids.h"
-> >  
-> > +#define GET_COMPLETE_USAGE(page, id) (((page) << 16) + ((id) & 0xffff))
-> 
-> Not sure I like the macro. I'd rather have the explicit code. That said, lets
-> see what Benjamin has to say.
+Cc: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ fs/compat_ioctl.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-Not sure about Benjamin :) but I personally would ask for putting it 
-somewhere into hid.h as static inline.
-
-And even if it's for some reason insisted on this staying macro, please at 
-least put it as close to the place(s) it's being used as possible, in 
-order to maintain some code sanity.
-
-Thanks,
-
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index 398268604ab7..a214ae052596 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -11,8 +11,6 @@
+  * ioctls.
+  */
+ 
+-#include <linux/joystick.h>
+-
+ #include <linux/types.h>
+ #include <linux/compat.h>
+ #include <linux/kernel.h>
+@@ -444,11 +442,6 @@ COMPATIBLE_IOCTL(PCIIOC_CONTROLLER)
+ COMPATIBLE_IOCTL(PCIIOC_MMAP_IS_IO)
+ COMPATIBLE_IOCTL(PCIIOC_MMAP_IS_MEM)
+ COMPATIBLE_IOCTL(PCIIOC_WRITE_COMBINE)
+-/* joystick */
+-COMPATIBLE_IOCTL(JSIOCGVERSION)
+-COMPATIBLE_IOCTL(JSIOCGAXES)
+-COMPATIBLE_IOCTL(JSIOCGBUTTONS)
+-COMPATIBLE_IOCTL(JSIOCGNAME(0))
+ };
+ 
+ /*
 -- 
-Jiri Kosina
-SUSE Labs
+2.20.0
 

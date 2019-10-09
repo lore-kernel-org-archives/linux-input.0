@@ -1,42 +1,51 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: core: check whether usage page item is after
- usage id item
-Date: Wed, 9 Oct 2019 19:59:48 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1910091958120.13160@cbobk.fhfr.pm>
-References: <1570625609-11083-1-git-send-email-candlesea@gmail.com> <d739f691b677fb3ed88a23476d221527a87c363d.camel@suse.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH v6 24/43] compat_ioctl: remove joystick ioctl translation
+Date: Wed,  9 Oct 2019 21:10:24 +0200
+Message-ID: <20191009191044.308087-24-arnd@arndb.de>
+References: <20191009190853.245077-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d739f691b677fb3ed88a23476d221527a87c363d.camel@suse.de>
+In-Reply-To: <20191009190853.245077-1-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc: Candle Sun <candlesea@gmail.com>, benjamin.tissoires@redhat.com, orson.zhai@unisoc.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Candle Sun <candle.sun@unisoc.com>, Nianfu Bai <nianfu.bai@unisoc.com>
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, y2038@lists.linaro.org, linux-fsdevel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 9 Oct 2019, Nicolas Saenz Julienne wrote:
+The joystick driver already handles these just fine, so
+the entries in the table are not needed any more.
 
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > index 3eaee2c..3394222 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -35,6 +35,8 @@
-> >  
-> >  #include "hid-ids.h"
-> >  
-> > +#define GET_COMPLETE_USAGE(page, id) (((page) << 16) + ((id) & 0xffff))
-> 
-> Not sure I like the macro. I'd rather have the explicit code. That said, lets
-> see what Benjamin has to say.
+Cc: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ fs/compat_ioctl.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-Not sure about Benjamin :) but I personally would ask for putting it 
-somewhere into hid.h as static inline.
-
-And even if it's for some reason insisted on this staying macro, please at 
-least put it as close to the place(s) it's being used as possible, in 
-order to maintain some code sanity.
-
-Thanks,
-
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index 398268604ab7..a214ae052596 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -11,8 +11,6 @@
+  * ioctls.
+  */
+ 
+-#include <linux/joystick.h>
+-
+ #include <linux/types.h>
+ #include <linux/compat.h>
+ #include <linux/kernel.h>
+@@ -444,11 +442,6 @@ COMPATIBLE_IOCTL(PCIIOC_CONTROLLER)
+ COMPATIBLE_IOCTL(PCIIOC_MMAP_IS_IO)
+ COMPATIBLE_IOCTL(PCIIOC_MMAP_IS_MEM)
+ COMPATIBLE_IOCTL(PCIIOC_WRITE_COMBINE)
+-/* joystick */
+-COMPATIBLE_IOCTL(JSIOCGVERSION)
+-COMPATIBLE_IOCTL(JSIOCGAXES)
+-COMPATIBLE_IOCTL(JSIOCGBUTTONS)
+-COMPATIBLE_IOCTL(JSIOCGNAME(0))
+ };
+ 
+ /*
 -- 
-Jiri Kosina
-SUSE Labs
+2.20.0

@@ -2,205 +2,276 @@ Return-Path: <SRS0=Awm/=YC=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EACAC47404
-	for <linux-input@archiver.kernel.org>; Wed,  9 Oct 2019 14:07:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A98F4C47404
+	for <linux-input@archiver.kernel.org>; Wed,  9 Oct 2019 17:01:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 14EDF218AC
-	for <linux-input@archiver.kernel.org>; Wed,  9 Oct 2019 14:07:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7FA9E20B7C
+	for <linux-input@archiver.kernel.org>; Wed,  9 Oct 2019 17:01:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731418AbfJIOHd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 9 Oct 2019 10:07:33 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:28855 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731432AbfJIOHd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 9 Oct 2019 10:07:33 -0400
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com [209.85.128.69])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 1C06FAD887
-        for <linux-input@vger.kernel.org>; Wed,  9 Oct 2019 13:59:14 +0000 (UTC)
-Received: by mail-wm1-f69.google.com with SMTP id r187so2182643wme.0
-        for <linux-input@vger.kernel.org>; Wed, 09 Oct 2019 06:59:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=IlNxxlW30AXk2pCJR6QVkj5c2p86veqQztlocOKMAv0=;
-        b=Ag6/fMCVLbhskzo0t06Tv+dxXq1FlylFVsHvfPPIW8jdYZX+wsul2B9/VOiV+kE4cC
-         dzNeu22M4JejlkIIOHq+wQUMbl5QlFmUJgmsfw127slQpQkTjHsxCc7ORdzrPqRN/j1u
-         p7EUykaMKwkTpg3BS2EZXsmo9D2ByPwmbZXmMZnYZJM0t98CqN1mG2IlqxjYO6wvTEZa
-         fdNmyUDnHAdBPu+vJRG/3iJWrp2CqnhaYalEDLM3jltfiyjRg+nRzJpCLQZuAylurtc7
-         sPyWG5mkTXURDU00lztxJ9//HpM4RqYh0c1sQEXEebE/87t/IMFfjNUvxB9ZC76itPG/
-         yenQ==
-X-Gm-Message-State: APjAAAWxzsFc/VzomuCbX/PSewbN4deM5D4/bsgExQOxdrPhMzuWmObX
-        ekNCdGycFoSgm4E1ZSrw9aHyAHWmvrZAS0MFx9LKlYTXr6mVTYUl9fldzN7aFUNUdVZ4fW105Nb
-        lQ3U4sjlhkJ7qGxWYS5KAy6k=
-X-Received: by 2002:a5d:6250:: with SMTP id m16mr3047892wrv.322.1570629552227;
-        Wed, 09 Oct 2019 06:59:12 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqxK6exxvy56MGfd32RiDNMWAT27CUblCzLWExqhg7dIsvGAXRbTbZ4PDSeCcTu8k/dGE3uV7Q==
-X-Received: by 2002:a5d:6250:: with SMTP id m16mr3047868wrv.322.1570629552001;
-        Wed, 09 Oct 2019 06:59:12 -0700 (PDT)
-Received: from shalem.localdomain (2001-1c00-0c14-2800-ec23-a060-24d5-2453.cable.dynamic.v6.ziggo.nl. [2001:1c00:c14:2800:ec23:a060:24d5:2453])
-        by smtp.gmail.com with ESMTPSA id h125sm3227806wmf.31.2019.10.09.06.59.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Oct 2019 06:59:11 -0700 (PDT)
-Subject: Re: [PATCH v7 1/8] efi: Export boot-services code and data as
- debugfs-blobs
-To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc:     Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Peter Jones <pjones@redhat.com>,
-        Dave Olsthoorn <dave@bewaar.me>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        platform-driver-x86@vger.kernel.org,
-        linux-efi <linux-efi@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        linux-input@vger.kernel.org
-References: <20191004145056.43267-1-hdegoede@redhat.com>
- <20191004145056.43267-2-hdegoede@redhat.com>
- <CAKv+Gu9OU3rS-j+L+pxpK7HZi41XtQZTq9BDs6VpUC8RCq5X6g@mail.gmail.com>
- <c0256726-0aa3-b005-0a18-7b6a41533a0b@redhat.com>
- <CAKv+Gu9YLesC1abXAcUMe+0BE8Vv52Y_BhN-1Ps+h161Q00KKQ@mail.gmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <81c648d6-428e-d978-246b-9a87d43c5d21@redhat.com>
-Date:   Wed, 9 Oct 2019 15:59:10 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        id S1731158AbfJIRBx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 9 Oct 2019 13:01:53 -0400
+Received: from mx2.suse.de ([195.135.220.15]:32960 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730546AbfJIRBx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:01:53 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 9B4DDAFBF;
+        Wed,  9 Oct 2019 17:01:50 +0000 (UTC)
+Message-ID: <d739f691b677fb3ed88a23476d221527a87c363d.camel@suse.de>
+Subject: Re: [PATCH v2] HID: core: check whether usage page item is after
+ usage id item
+From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+To:     Candle Sun <candlesea@gmail.com>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com
+Cc:     orson.zhai@unisoc.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Candle Sun <candle.sun@unisoc.com>,
+        Nianfu Bai <nianfu.bai@unisoc.com>
+Date:   Wed, 09 Oct 2019 19:01:26 +0200
+In-Reply-To: <1570625609-11083-1-git-send-email-candlesea@gmail.com>
+References: <1570625609-11083-1-git-send-email-candlesea@gmail.com>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-+cgRzwSHq0mjN6hyjB+b"
+User-Agent: Evolution 3.32.4 
 MIME-Version: 1.0
-In-Reply-To: <CAKv+Gu9YLesC1abXAcUMe+0BE8Vv52Y_BhN-1Ps+h161Q00KKQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
-Message-ID: <20191009135910.DA6-QlslP_hNP8_lYQEaK9KR-Vikql7V1YT-NEq7N6M@z>
-
-Hi,
-
-On 09-10-2019 15:35, Ard Biesheuvel wrote:
-> On Wed, 9 Oct 2019 at 15:18, Hans de Goede <hdegoede@redhat.com> wrote:
->>
->> Hi,
->>
->> On 09-10-2019 15:07, Ard Biesheuvel wrote:
->>> On Fri, 4 Oct 2019 at 16:51, Hans de Goede <hdegoede@redhat.com> wrote:
->>>>
->>>> Sometimes it is useful to be able to dump the efi boot-services code and
->>>> data. This commit adds these as debugfs-blobs to /sys/kernel/debug/efi,
->>>> but only if efi=debug is passed on the kernel-commandline as this requires
->>>> not freeing those memory-regions, which costs 20+ MB of RAM.
->>>>
->>>> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>>> Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
->>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>>> ---
->>>> Changes in v5:
->>>> -Rename the EFI_BOOT_SERVICES flag to EFI_PRESERVE_BS_REGIONS
->>>>
->>>> Changes in v4:
->>>> -Add new EFI_BOOT_SERVICES flag and use it to determine if the boot-services
->>>>    memory segments are available (and thus if it makes sense to register the
->>>>    debugfs bits for them)
->>>>
->>>> Changes in v2:
->>>> -Do not call pr_err on debugfs call failures
->>>> ---
->>>>    arch/x86/platform/efi/efi.c    |  1 +
->>>>    arch/x86/platform/efi/quirks.c |  4 +++
->>>>    drivers/firmware/efi/efi.c     | 53 ++++++++++++++++++++++++++++++++++
->>>>    include/linux/efi.h            |  1 +
->>>>    4 files changed, 59 insertions(+)
->>>>
->>>> diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
->>>> index c202e1b07e29..847730f7e74b 100644
->>>> --- a/arch/x86/platform/efi/efi.c
->>>> +++ b/arch/x86/platform/efi/efi.c
->>>> @@ -232,6 +232,7 @@ int __init efi_memblock_x86_reserve_range(void)
->>>>                efi.memmap.desc_version);
->>>>
->>>>           memblock_reserve(pmap, efi.memmap.nr_map * efi.memmap.desc_size);
->>>> +       set_bit(EFI_PRESERVE_BS_REGIONS, &efi.flags);
->>>
->>> Should we add a Kconfig symbol to opt into this behavior [set by the
->>> driver in question], instead of always preserving all boot services
->>> regions on all x86 systems?
->>
->> This bit does not control anything, it merely signals that the arch early
->> boot EFI code keeps the boot-services code around, which is something
->> which the x86 code already does. Where as e.g. on arm / aarch64 this is
->> freed early on, this ties in with the other bits:
->>
->>>
->>>>
->>>>           return 0;
->>>>    }
->>>> diff --git a/arch/x86/platform/efi/quirks.c b/arch/x86/platform/efi/quirks.c
->>>> index 3b9fd679cea9..fab12ebf0ada 100644
->>>> --- a/arch/x86/platform/efi/quirks.c
->>>> +++ b/arch/x86/platform/efi/quirks.c
->>>> @@ -411,6 +411,10 @@ void __init efi_free_boot_services(void)
->>>>           int num_entries = 0;
->>>>           void *new, *new_md;
->>>>
->>>> +       /* Keep all regions for /sys/kernel/debug/efi */
->>>> +       if (efi_enabled(EFI_DBG))
->>>> +               return;
->>>> +
->>
->> This is the point where normally on x86 we do actually free the boot-services
->> code which is a lot later then on other arches. And this new code actually
->> does change things to keep the boot-services code *forever* but only
->> if EFI debugging is enabled on the kernel commandline.
->>
-> 
-> I get this part. But at some point, your driver is going to expect
-> this memory to be preserved even if EFI_DBG is not set, right? My
-> question was whether we should only opt into that if such a driver is
-> enabled in the first place.
-
-Ah, I see. No even with CONFIG_EFI_EMBEDDED_FIRMWARE selected, the
-boot-services code still gets free-ed. The efi_get_embedded_fw()
-function from drivers/firmware/efi/embedded-firmware.c runs before
-efi_free_boot_services() and it memdup-s any found firmwares, so it
-does not cause the EFI boot-services code to stick around longer
-then usual.
-
-The only thing which does cause it to stick around is enabling
-EFI debugging with efi=debug, so that the various efi segments
-(not only the code-services ones) can be inspected as debugfs
-blobs.
-
-Basically this first patch of the series is independent of the
-rest. It is part of the series, because adding new
-efi_embedded_fw_desc structs to the table of firmwares to check
-for becomes a lot easier when we can easily inspect the efi
-segments and see if they contain the firmware we want.
+Message-ID: <20191009170126.OfglvCc-3XlwLEwJJZiuBGLvFeGaRjOmEIvc6WS5DwY@z>
 
 
-As for Kconfig options, the compiling of
-drivers/firmware/efi/embedded-firmware.c is controlled by
-CONFIG_EFI_EMBEDDED_FIRMWARE which is a hidden option, which
-can be selected by code which needs this. currently this is
-only selected by CONFIG_TOUCHSCREEN_DMI which is defined
-in drivers/platform/x86/Kconfig.
+--=-+cgRzwSHq0mjN6hyjB+b
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2019-10-09 at 20:53 +0800, Candle Sun wrote:
+> From: Candle Sun <candle.sun@unisoc.com>
+>=20
+> Upstream commit 58e75155009c ("HID: core: move Usage Page concatenation
+> to Main item") adds support for Usage Page item after Usage ID items
+> (such as keyboards manufactured by Primax).
+>=20
+> Usage Page concatenation in Main item works well for following report
+> descriptor patterns:
+>=20
+>     USAGE_PAGE (Keyboard)                   05 07
+>     USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+>     USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+>     LOGICAL_MINIMUM (0)                     15 00
+>     LOGICAL_MAXIMUM (1)                     25 01
+>     REPORT_SIZE (1)                         75 01
+>     REPORT_COUNT (8)                        95 08
+>     INPUT (Data,Var,Abs)                    81 02
+>=20
+> -------------
+>=20
+>     USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+>     USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+>     LOGICAL_MINIMUM (0)                     15 00
+>     LOGICAL_MAXIMUM (1)                     25 01
+>     REPORT_SIZE (1)                         75 01
+>     REPORT_COUNT (8)                        95 08
+>     USAGE_PAGE (Keyboard)                   05 07
+>     INPUT (Data,Var,Abs)                    81 02
+>=20
+> But it makes the parser act wrong for the following report
+> descriptor pattern(such as some Gamepads):
+>=20
+>     USAGE_PAGE (Button)                     05 09
+>     USAGE (Button 1)                        09 01
+>     USAGE (Button 2)                        09 02
+>     USAGE (Button 4)                        09 04
+>     USAGE (Button 5)                        09 05
+>     USAGE (Button 7)                        09 07
+>     USAGE (Button 8)                        09 08
+>     USAGE (Button 14)                       09 0E
+>     USAGE (Button 15)                       09 0F
+>     USAGE (Button 13)                       09 0D
+>     USAGE_PAGE (Consumer Devices)           05 0C
+>     USAGE (Back)                            0a 24 02
+>     USAGE (HomePage)                        0a 23 02
+>     LOGICAL_MINIMUM (0)                     15 00
+>     LOGICAL_MAXIMUM (1)                     25 01
+>     REPORT_SIZE (1)                         75 01
+>     REPORT_COUNT (11)                       95 0B
+>     INPUT (Data,Var,Abs)                    81 02
+>=20
+> With Usage Page concatenation in Main item, parser recognizes all the
+> 11 Usages as consumer keys, it is not the HID device's real intention.
+>=20
+> This patch adds usage_page_last to flag whether Usage Page is after
+> Usage ID items. usage_page_last is false default, it is set as true
+> once Usage Page item is encountered and is reverted by next Usage ID
+> item.
+>=20
+> Usage Page concatenation on the currently defined Usage Page will do
+> firstly in Local parsing when Usage ID items encountered.
+>=20
+> When Main item is parsing, concatenation will do again with last
+> defined Usage Page if usage_page_last flag is true.
+
+Functionally I think this is the right approach. Sadly I don't have access =
+to
+any  Primax device anymore so I can't test it. But I suggest you update
+hid-tools' parser and add a new unit test to verify we aren't missing anyth=
+ing.
+
+You can base your code on this:
+
+https://gitlab.freedesktop.org/libevdev/hid-tools/merge_requests/37/commits
+
+> Signed-off-by: Candle Sun <candle.sun@unisoc.com>
+> Signed-off-by: Nianfu Bai <nianfu.bai@unisoc.com>
+> ---
+> Changes in v2:
+> - Update patch title
+> - Add GET_COMPLETE_USAGE macro
+> - Change the logic of checking whether to concatenate usage page again
+>   in main parsing
+> ---
+>  drivers/hid/hid-core.c | 31 +++++++++++++++++++++++++------
+>  include/linux/hid.h    |  1 +
+>  2 files changed, 26 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 3eaee2c..3394222 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -35,6 +35,8 @@
+> =20
+>  #include "hid-ids.h"
+> =20
+> +#define GET_COMPLETE_USAGE(page, id) (((page) << 16) + ((id) & 0xffff))
+
+Not sure I like the macro. I'd rather have the explicit code. That said, le=
+ts
+see what Benjamin has to say.
+
+> +
+>  /*
+>   * Version Information
+>   */
+> @@ -221,7 +223,15 @@ static int hid_add_usage(struct hid_parser *parser,
+> unsigned usage, u8 size)
+>  		hid_err(parser->device, "usage index exceeded\n");
+>  		return -1;
+>  	}
+> -	parser->local.usage[parser->local.usage_index] =3D usage;
+> +
+> +	if (size <=3D 2) {
+> +		parser->local.usage_page_last =3D false;
+> +		parser->local.usage[parser->local.usage_index] =3D
+> +			GET_COMPLETE_USAGE(parser->global.usage_page, usage);
+> +	} else {
+> +		parser->local.usage[parser->local.usage_index] =3D usage;
+> +	}
+> +
+>  	parser->local.usage_size[parser->local.usage_index] =3D size;
+>  	parser->local.collection_index[parser->local.usage_index] =3D
+>  		parser->collection_stack_ptr ?
+> @@ -366,6 +376,7 @@ static int hid_parser_global(struct hid_parser *parse=
+r,
+> struct hid_item *item)
+> =20
+>  	case HID_GLOBAL_ITEM_TAG_USAGE_PAGE:
+>  		parser->global.usage_page =3D item_udata(item);
+> +		parser->local.usage_page_last =3D true;
+>  		return 0;
+> =20
+>  	case HID_GLOBAL_ITEM_TAG_LOGICAL_MINIMUM:
+> @@ -543,13 +554,21 @@ static int hid_parser_local(struct hid_parser *pars=
+er,
+> struct hid_item *item)
+>   * usage value."
+>   */
+
+I'd expand the comment above to further explain what we're doing here.
+
+> =20
+> -static void hid_concatenate_usage_page(struct hid_parser *parser)
+> +static void hid_concatenate_last_usage_page(struct hid_parser *parser)
+>  {
+>  	int i;
+> +	unsigned int usage;
+> +	unsigned int usage_page =3D parser->global.usage_page;
+> +
+> +	if (!parser->local.usage_page_last)
+> +		return;
+> =20
+>  	for (i =3D 0; i < parser->local.usage_index; i++)
+
+Technically correct but it's preferred if you use braces here.
+
+> -		if (parser->local.usage_size[i] <=3D 2)
+> -			parser->local.usage[i] +=3D parser->global.usage_page <<
+> 16;
+> +		if (parser->local.usage_size[i] <=3D 2) {
+> +			usage =3D parser->local.usage[i];
+> +			parser->local.usage[i] =3D
+> +				GET_COMPLETE_USAGE(usage_page, usage);
+> +		}
+>  }
+> =20
+>  /*
+> @@ -561,7 +580,7 @@ static int hid_parser_main(struct hid_parser *parser,
+> struct hid_item *item)
+>  	__u32 data;
+>  	int ret;
+> =20
+> -	hid_concatenate_usage_page(parser);
+> +	hid_concatenate_last_usage_page(parser);
+> =20
+>  	data =3D item_udata(item);
+> =20
+> @@ -772,7 +791,7 @@ static int hid_scan_main(struct hid_parser *parser, s=
+truct
+> hid_item *item)
+>  	__u32 data;
+>  	int i;
+> =20
+> -	hid_concatenate_usage_page(parser);
+> +	hid_concatenate_last_usage_page(parser);
+> =20
+>  	data =3D item_udata(item);
+> =20
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index cd41f20..2e0ea2f7 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -412,6 +412,7 @@ struct hid_local {
+>  	unsigned usage_minimum;
+>  	unsigned delimiter_depth;
+>  	unsigned delimiter_branch;
+> +	bool usage_page_last;      /* whether usage page is after usage id */
+>  };
+> =20
+>  /*
 
 Regards,
+Nicolas
 
-Hans
+
+--=-+cgRzwSHq0mjN6hyjB+b
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEErOkkGDHCg2EbPcGjlfZmHno8x/4FAl2eEmYACgkQlfZmHno8
+x/78WAf/VdRG9KkWWsJBI1HnxULNw7ZULq4MQ+4PrC+qXn8u5dxxfMLpNxGwRQvN
+FBBqrjXfDvcZDqUE2kqOTOqAnbs2mheNejQCY33L7wSYwWPKzDlejZDAF6lH1Bsv
+a3QfRf9oV2iRDvxR4WZKtoLTm/SeX/VaMOvjQUX4JgxsQzeCkxCRY4GXqQrXrU/s
+YzJBCYDs9SNnfamnkcZOnfnd/LGLA8VBbHE5krpdcV3ivgOv3oZ1OUkBzrz8GSnu
+0VR0T5oGhy3pXHfcXH08eKZE1j2zhhscqNYGtkECZHphq8eAqUDQ7tCBfrILs2Ty
+HY4HB+i+ZDtjDkE/e48W3vix5yGoJQ==
+=TRI3
+-----END PGP SIGNATURE-----
+
+--=-+cgRzwSHq0mjN6hyjB+b--
+

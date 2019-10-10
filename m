@@ -1,81 +1,96 @@
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Subject: Re: [PATCH v2] HID: core: check whether usage page item is after
  usage id item
-Date: Thu, 10 Oct 2019 09:42:45 +0200
-Message-ID: <9c7526b57ca330a686439921a0672d50553f4d2d.camel@suse.de>
+Date: Thu, 10 Oct 2019 14:16:47 +0200
+Message-ID: <CAO-hwJJEcP3AEYfadhEbqzfszawxiQ7E9NAwmxHcK6SH8zzhiQ@mail.gmail.com>
 References: <1570625609-11083-1-git-send-email-candlesea@gmail.com>
-         <d739f691b677fb3ed88a23476d221527a87c363d.camel@suse.de>
-         <CAPnx3XPDA_n_yjyiAqwX05ee0ez3tUrJz=2tQ95VeiA_dRA-xA@mail.gmail.com>
+ <d739f691b677fb3ed88a23476d221527a87c363d.camel@suse.de> <nycvar.YFH.7.76.1910091958120.13160@cbobk.fhfr.pm>
+ <CAPnx3XNGBw+SKSFA3DhhHFZZ17f54DMfYjKOcqYTb3N-PWGKpw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-5jhaCDq01xP+MKyVBEDl"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAPnx3XPDA_n_yjyiAqwX05ee0ez3tUrJz=2tQ95VeiA_dRA-xA@mail.gmail.com>
+In-Reply-To: <CAPnx3XNGBw+SKSFA3DhhHFZZ17f54DMfYjKOcqYTb3N-PWGKpw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Candle Sun <candlesea@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, orson.zhai@unisoc.com, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Candle Sun <candle.sun@unisoc.com>, Nianfu Bai <nianfu.bai@unisoc.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, orson.zhai@unisoc.com, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Candle Sun <candle.sun@unisoc.com>, Nianfu Bai <nianfu.bai@unisoc.com>
 List-Id: linux-input@vger.kernel.org
 
+On Thu, Oct 10, 2019 at 5:19 AM Candle Sun <candlesea@gmail.com> wrote:
+>
+> On Thu, Oct 10, 2019 at 2:00 AM Jiri Kosina <jikos@kernel.org> wrote:
+> >
+> > On Wed, 9 Oct 2019, Nicolas Saenz Julienne wrote:
+> >
+> > > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > > > index 3eaee2c..3394222 100644
+> > > > --- a/drivers/hid/hid-core.c
+> > > > +++ b/drivers/hid/hid-core.c
+> > > > @@ -35,6 +35,8 @@
+> > > >
+> > > >  #include "hid-ids.h"
+> > > >
+> > > > +#define GET_COMPLETE_USAGE(page, id) (((page) << 16) + ((id) & 0xf=
+fff))
+> > >
+> > > Not sure I like the macro. I'd rather have the explicit code. That sa=
+id, lets
+> > > see what Benjamin has to say.
+> >
+> > Not sure about Benjamin :) but I personally would ask for putting it
+> > somewhere into hid.h as static inline.
+> >
+> > And even if it's for some reason insisted on this staying macro, please=
+ at
+> > least put it as close to the place(s) it's being used as possible, in
+> > order to maintain some code sanity.
+> >
+> > Thanks,
+> >
+> > --
+> > Jiri Kosina
+> > SUSE Labs
+> >
+>
+> Thanks Nicolas and Jiri,
+> If macro is not good, I will change it to static function. But the
+> funciton is only used in hid-core.c,
+> maybe placing it into hid.h is not good?
 
---=-5jhaCDq01xP+MKyVBEDl
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+I would rather use a function too (in hid-core.c, as it's not reused
+anywhere else), and we can make it simpler from the caller point of
+view (if I am not mistaken):
+---
+static void concatenate_usage_page(struct hid_parser *parser, int index)
+{
+    parser->local.usage[index] &=3D 0xFFFF;
+    parser->local.usage[index] |=3D (parser->global.usage_page & 0xFFFF) <<=
+ 16;
+}
 
-On Thu, 2019-10-10 at 11:05 +0800, Candle Sun wrote:
-> > > -static void hid_concatenate_usage_page(struct hid_parser *parser)
-> > > +static void hid_concatenate_last_usage_page(struct hid_parser *parse=
-r)
-> > >  {
-> > >       int i;
-> > > +     unsigned int usage;
-> > > +     unsigned int usage_page =3D parser->global.usage_page;
-> > > +
-> > > +     if (!parser->local.usage_page_last)
-> > > +             return;
-> > >=20
-> > >       for (i =3D 0; i < parser->local.usage_index; i++)
-> >=20
-> > Technically correct but it's preferred if you use braces here.
-> >=20
->=20
-> Nicolas, do you mean this:
->=20
-> @@ -563,12 +563,13 @@ static void
-> hid_concatenate_last_usage_page(struct hid_parser *parser)
->         if (!parser->local.usage_page_last)
->                 return;
->=20
-> -       for (i =3D 0; i < parser->local.usage_index; i++)
-> +       for (i =3D 0; i < parser->local.usage_index; i++) {
->                 if (parser->local.usage_size[i] <=3D 2) {
->                         usage =3D parser->local.usage[i];
->                         parser->local.usage[i] =3D
->                                 GET_COMPLETE_USAGE(usage_page, usage);
->                 }
-> +       }
->  }
+// Which can then be called as:
++       parser->local.usage[parser->local.usage_index] =3D usage;
++       if (size <=3D 2)
++               concatenate_usage_page(parser, parser->local.usage_index);
++
 
-Yes, thanks!
+// And
+        for (i =3D 0; i < parser->local.usage_index; i++)
+-               if (parser->local.usage_size[i] <=3D 2)
+-                       parser->local.usage[i] +=3D
+parser->global.usage_page << 16;
++               if (parser->local.usage_size[i] <=3D 2) {
++                       concatenate_usage_page(parser, i);
++               }
+ }
+---
 
-Regards,
-Nicolas
+And now that I have written this, the check on the size could also be
+very well integrated in concatenate_usage_page().
 
+Cheers,
+Benjamin
 
---=-5jhaCDq01xP+MKyVBEDl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEErOkkGDHCg2EbPcGjlfZmHno8x/4FAl2e4PUACgkQlfZmHno8
-x/69vwgAjR8aeJo21xhyQKJHYyPaFmT+yloEpKJegfetDk817eWMx1SVaaGxTFLv
-JJ9hiehw004r1WtZcwHiSAI6f2+D4LdjOVUtIhb9Osw9Qj+Zf5nLdBDuKhQJwuAz
-rVPYNLHr8WUB4x1VW1Y3wa5j1ydD0rohmH2XneiqsuWylFxr/8oQl1UqRTGRsmxC
-R9WF5HSU49SXE7r7Vm/7JYw+jL07r8ac1EK55PR5p85DxfSmDUYUmw6Rzptq0bT/
-JNMzdE5h1bQSi+xQbiCJwCSTN3VAd/5+Rni1ZJeMS8k1jXkU2exNZ6BNN46DG+KY
-eejOJVdCuVF93W5COr2E/PHkn4mpAg==
-=8Prm
------END PGP SIGNATURE-----
-
---=-5jhaCDq01xP+MKyVBEDl--
+>
+> Regards,
+> Candle

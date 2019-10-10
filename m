@@ -1,41 +1,280 @@
-From: Sam Bazley <sambazley@fastmail.com>
-Subject: Re: [PATCH 0/3] Logitech G920 fixes
-Date: Thu, 10 Oct 2019 23:38:33 +0100
-Message-ID: <20191010223833.axroklxlo2lkdzo6@SamLinux>
-References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH 15/36] ARM: s3c: adc: move header to linux/soc/samsung
+Date: Fri, 11 Oct 2019 00:44:36 +0200
+Message-ID: <20191010224436.t6gwb5fassr2dymp@earth.universe>
+References: <20191010202802.1132272-1-arnd@arndb.de>
+ <20191010203043.1241612-1-arnd@arndb.de>
+ <20191010203043.1241612-15-arnd@arndb.de>
+ <da32e8a3-cbb3-ea08-1c55-55980b3dc53e@roeck-us.net>
+ <20191010222955.GB229325@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191007051240.4410-1-andrew.smirnov@gmail.com>
-Sender: stable-owner@vger.kernel.org
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Austin Palmer <austinp@valvesoftware.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============1761450439335636980=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20191010222955.GB229325@dtor-ws>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-pm@vger.kernel.org, linus.walleij@linaro.org, linux-kernel@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>, Jean Delvare <jdelvare@suse.com>, Kukjin Kim <kgene@kernel.org>, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Oct 06, 2019 at 10:12:37PM -0700, Andrey Smirnov wrote:
-> Everyone:
-> 
-> This series contains patches to fix a couple of regressions in G920
-> wheel support by hid-logitech-hidpp driver. Without the patches the
-> wheel remains stuck in autocentering mode ("resisting" any attempt to
-> trun) as well as missing support for any FF action.
-> 
-> Thanks,
-> Andrey Smirnov
-> 
-> Andrey Smirnov (3):
->   HID: logitech-hidpp: use devres to manage FF private data
->   HID: logitech-hidpp: split g920_get_config()
->   HID: logitech-hidpp: add G920 device validation quirk
-> 
->  drivers/hid/hid-logitech-hidpp.c | 193 +++++++++++++++++++------------
->  1 file changed, 120 insertions(+), 73 deletions(-)
-> 
-> -- 
-> 2.21.0
-> 
 
-All seems to work now. Thanks again Andrey!
+--===============1761450439335636980==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="mopqc6x4c2h7s3hb"
+Content-Disposition: inline
 
-Tested-by: Sam Bazley <sambazley@fastmail.com>
+
+--mopqc6x4c2h7s3hb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Thu, Oct 10, 2019 at 03:29:55PM -0700, Dmitry Torokhov wrote:
+> On Thu, Oct 10, 2019 at 03:20:32PM -0700, Guenter Roeck wrote:
+> > On 10/10/19 1:29 PM, Arnd Bergmann wrote:
+> > > There are multiple drivers using the private adc interface.
+> > > It seems unlikely that they would ever get converted to iio,
+> > > so make the current state official by making the header file
+> > > global.
+> > >=20
+> > > The s3c2410_ts driver needs a couple of register definitions
+> > > as well.
+> > >=20
+> > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> >=20
+> > For hwmon:
+> >=20
+> > Acked-by: Guenter Roeck <linux@roeck-us.net>
+>=20
+> For input:
+>=20
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+For power-supply:
+
+Acked-by: Sebastian Reichel <sre@kernel.org>
+
+-- Sebastian
+
+> > > ---
+> > >   arch/arm/mach-s3c64xx/mach-crag6410.c         |  2 +-
+> > >   arch/arm/mach-s3c64xx/mach-mini6410.c         |  2 +-
+> > >   arch/arm/mach-s3c64xx/mach-real6410.c         |  2 +-
+> > >   arch/arm/mach-s3c64xx/mach-smdk6410.c         |  2 +-
+> > >   arch/arm/plat-samsung/adc.c                   |  2 +-
+> > >   arch/arm/plat-samsung/devs.c                  |  2 +-
+> > >   drivers/hwmon/s3c-hwmon.c                     |  2 +-
+> > >   drivers/input/touchscreen/s3c2410_ts.c        | 37 ++++++++++++++++=
+++-
+> > >   drivers/power/supply/s3c_adc_battery.c        |  2 +-
+> > >   .../linux/soc/samsung/s3c-adc.h               |  0
+> > >   10 files changed, 43 insertions(+), 10 deletions(-)
+> > >   rename arch/arm/plat-samsung/include/plat/adc.h =3D> include/linux/=
+soc/samsung/s3c-adc.h (100%)
+> > >=20
+> > > diff --git a/arch/arm/mach-s3c64xx/mach-crag6410.c b/arch/arm/mach-s3=
+c64xx/mach-crag6410.c
+> > > index da5b50981a14..133453562d23 100644
+> > > --- a/arch/arm/mach-s3c64xx/mach-crag6410.c
+> > > +++ b/arch/arm/mach-s3c64xx/mach-crag6410.c
+> > > @@ -57,7 +57,7 @@
+> > >   #include <plat/keypad.h>
+> > >   #include <plat/devs.h>
+> > >   #include <plat/cpu.h>
+> > > -#include <plat/adc.h>
+> > > +#include <linux/soc/samsung/s3c-adc.h>
+> > >   #include <linux/platform_data/i2c-s3c2410.h>
+> > >   #include <plat/pm.h>
+> > >   #include <plat/samsung-time.h>
+> > > diff --git a/arch/arm/mach-s3c64xx/mach-mini6410.c b/arch/arm/mach-s3=
+c64xx/mach-mini6410.c
+> > > index 0dd36ae49e6a..c7140300bd3f 100644
+> > > --- a/arch/arm/mach-s3c64xx/mach-mini6410.c
+> > > +++ b/arch/arm/mach-s3c64xx/mach-mini6410.c
+> > > @@ -27,7 +27,7 @@
+> > >   #include <mach/regs-gpio.h>
+> > >   #include <mach/gpio-samsung.h>
+> > > -#include <plat/adc.h>
+> > > +#include <linux/soc/samsung/s3c-adc.h>
+> > >   #include <plat/cpu.h>
+> > >   #include <plat/devs.h>
+> > >   #include <plat/fb.h>
+> > > diff --git a/arch/arm/mach-s3c64xx/mach-real6410.c b/arch/arm/mach-s3=
+c64xx/mach-real6410.c
+> > > index 0ff88b6859c4..f55097fde94c 100644
+> > > --- a/arch/arm/mach-s3c64xx/mach-real6410.c
+> > > +++ b/arch/arm/mach-s3c64xx/mach-real6410.c
+> > > @@ -29,7 +29,7 @@
+> > >   #include <mach/gpio-samsung.h>
+> > >   #include <mach/irqs.h>
+> > > -#include <plat/adc.h>
+> > > +#include <linux/soc/samsung/s3c-adc.h>
+> > >   #include <plat/cpu.h>
+> > >   #include <plat/devs.h>
+> > >   #include <plat/fb.h>
+> > > diff --git a/arch/arm/mach-s3c64xx/mach-smdk6410.c b/arch/arm/mach-s3=
+c64xx/mach-smdk6410.c
+> > > index 95bdcfe95a53..3042f6cbffd9 100644
+> > > --- a/arch/arm/mach-s3c64xx/mach-smdk6410.c
+> > > +++ b/arch/arm/mach-s3c64xx/mach-smdk6410.c
+> > > @@ -60,7 +60,7 @@
+> > >   #include <plat/devs.h>
+> > >   #include <plat/cpu.h>
+> > > -#include <plat/adc.h>
+> > > +#include <linux/soc/samsung/s3c-adc.h>
+> > >   #include <linux/platform_data/touchscreen-s3c2410.h>
+> > >   #include <plat/keypad.h>
+> > >   #include <plat/samsung-time.h>
+> > > diff --git a/arch/arm/plat-samsung/adc.c b/arch/arm/plat-samsung/adc.c
+> > > index ee3d5c989a76..623a9774cc52 100644
+> > > --- a/arch/arm/plat-samsung/adc.c
+> > > +++ b/arch/arm/plat-samsung/adc.c
+> > > @@ -20,7 +20,7 @@
+> > >   #include <linux/regulator/consumer.h>
+> > >   #include <plat/regs-adc.h>
+> > > -#include <plat/adc.h>
+> > > +#include <linux/soc/samsung/s3c-adc.h>
+> > >   /* This driver is designed to control the usage of the ADC block be=
+tween
+> > >    * the touchscreen and any other drivers that may need to use it, s=
+uch as
+> > > diff --git a/arch/arm/plat-samsung/devs.c b/arch/arm/plat-samsung/dev=
+s.c
+> > > index fd94a35e22f8..ddd90f0bb380 100644
+> > > --- a/arch/arm/plat-samsung/devs.c
+> > > +++ b/arch/arm/plat-samsung/devs.c
+> > > @@ -44,7 +44,7 @@
+> > >   #include <plat/cpu.h>
+> > >   #include <plat/devs.h>
+> > > -#include <plat/adc.h>
+> > > +#include <linux/soc/samsung/s3c-adc.h>
+> > >   #include <linux/platform_data/ata-samsung_cf.h>
+> > >   #include <plat/fb.h>
+> > >   #include <plat/fb-s3c2410.h>
+> > > diff --git a/drivers/hwmon/s3c-hwmon.c b/drivers/hwmon/s3c-hwmon.c
+> > > index b490fe3d2ee8..f2703c5460d0 100644
+> > > --- a/drivers/hwmon/s3c-hwmon.c
+> > > +++ b/drivers/hwmon/s3c-hwmon.c
+> > > @@ -20,7 +20,7 @@
+> > >   #include <linux/hwmon.h>
+> > >   #include <linux/hwmon-sysfs.h>
+> > > -#include <plat/adc.h>
+> > > +#include <linux/soc/samsung/s3c-adc.h>
+> > >   #include <linux/platform_data/hwmon-s3c.h>
+> > >   struct s3c_hwmon_attr {
+> > > diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/t=
+ouchscreen/s3c2410_ts.c
+> > > index b346e7cafd62..1a5a178ea286 100644
+> > > --- a/drivers/input/touchscreen/s3c2410_ts.c
+> > > +++ b/drivers/input/touchscreen/s3c2410_ts.c
+> > > @@ -21,10 +21,43 @@
+> > >   #include <linux/clk.h>
+> > >   #include <linux/io.h>
+> > > -#include <plat/adc.h>
+> > > -#include <plat/regs-adc.h>
+> > > +#include <linux/soc/samsung/s3c-adc.h>
+> > >   #include <linux/platform_data/touchscreen-s3c2410.h>
+> > > +#define	S3C2410_ADCCON			(0x00)
+> > > +#define	S3C2410_ADCTSC			(0x04)
+> > > +#define	S3C2410_ADCDLY			(0x08)
+> > > +#define	S3C2410_ADCDAT0			(0x0C)
+> > > +#define	S3C2410_ADCDAT1			(0x10)
+> > > +#define	S3C64XX_ADCUPDN			(0x14)
+> > > +#define	S3C2443_ADCMUX			(0x18)
+> > > +#define	S3C64XX_ADCCLRINT		(0x18)
+> > > +#define	S5P_ADCMUX			(0x1C)
+> > > +#define	S3C64XX_ADCCLRINTPNDNUP		(0x20)
+> > > +
+> > > +/* ADCTSC Register Bits */
+> > > +#define S3C2443_ADCTSC_UD_SEN		(1 << 8)
+> > > +#define S3C2410_ADCTSC_YM_SEN		(1<<7)
+> > > +#define S3C2410_ADCTSC_YP_SEN		(1<<6)
+> > > +#define S3C2410_ADCTSC_XM_SEN		(1<<5)
+> > > +#define S3C2410_ADCTSC_XP_SEN		(1<<4)
+> > > +#define S3C2410_ADCTSC_PULL_UP_DISABLE	(1<<3)
+> > > +#define S3C2410_ADCTSC_AUTO_PST		(1<<2)
+> > > +#define S3C2410_ADCTSC_XY_PST(x)	(((x)&0x3)<<0)
+> > > +
+> > > +/* ADCDAT0 Bits */
+> > > +#define S3C2410_ADCDAT0_UPDOWN		(1<<15)
+> > > +#define S3C2410_ADCDAT0_AUTO_PST	(1<<14)
+> > > +#define S3C2410_ADCDAT0_XY_PST		(0x3<<12)
+> > > +#define S3C2410_ADCDAT0_XPDATA_MASK	(0x03FF)
+> > > +
+> > > +/* ADCDAT1 Bits */
+> > > +#define S3C2410_ADCDAT1_UPDOWN		(1<<15)
+> > > +#define S3C2410_ADCDAT1_AUTO_PST	(1<<14)
+> > > +#define S3C2410_ADCDAT1_XY_PST		(0x3<<12)
+> > > +#define S3C2410_ADCDAT1_YPDATA_MASK	(0x03FF)
+> > > +
+> > > +
+> > >   #define TSC_SLEEP  (S3C2410_ADCTSC_PULL_UP_DISABLE | S3C2410_ADCTSC=
+_XY_PST(0))
+> > >   #define INT_DOWN	(0)
+> > > diff --git a/drivers/power/supply/s3c_adc_battery.c b/drivers/power/s=
+upply/s3c_adc_battery.c
+> > > index 3d00b35cafc9..60b7f41ab063 100644
+> > > --- a/drivers/power/supply/s3c_adc_battery.c
+> > > +++ b/drivers/power/supply/s3c_adc_battery.c
+> > > @@ -22,7 +22,7 @@
+> > >   #include <linux/init.h>
+> > >   #include <linux/module.h>
+> > > -#include <plat/adc.h>
+> > > +#include <linux/soc/samsung/s3c-adc.h>
+> > >   #define BAT_POLL_INTERVAL		10000 /* ms */
+> > >   #define JITTER_DELAY			500 /* ms */
+> > > diff --git a/arch/arm/plat-samsung/include/plat/adc.h b/include/linux=
+/soc/samsung/s3c-adc.h
+> > > similarity index 100%
+> > > rename from arch/arm/plat-samsung/include/plat/adc.h
+> > > rename to include/linux/soc/samsung/s3c-adc.h
+> > >=20
+> >=20
+>=20
+> --=20
+> Dmitry
+
+--mopqc6x4c2h7s3hb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl2ftFAACgkQ2O7X88g7
++ppCxxAAn15YlBwsqaGwUaYchBuBq14qU4EobExBzZbw8oYHQL4I5oAbH2t+3oOa
+UrhNrvHnWWftmlq/2ycEzWRk4NOQ8ZES1AD/4r7q56i4QxyV/zk/cRiAjRjcCm5w
+IRJEAVVSxyADbMTxK0omr0GW2cIqUlJcRmW5JyqQvXKC5wOXVz3+0C613tQCm0o2
+JBSC+HqZkoDAlcBF/6IDcDfy1K+3FEhCEYkvFTPNeh+7I48u7qdLFS6Xf66+kLPW
+ccKaSTBw6WV9KLrwf4+sEukRP5QfA0ehVuaV447SiH2n1uzSQlju4w5pRleAwlps
+umOd1n1rFcrxBf+TEQS0XsRJ7Oa/h11DXkkLWPtCtA84FXO1IvHGLmkSx3yxRxSz
+JIszIsYHyTWwJJNKorhB2PjpSGZoaciwgOE/lt8mgPc5I64MZXvHosV2nlAMsFhJ
+LMKyxh69aShi8ylCFBy+ukiC8yXM4CzRNh1chazvB2cjNNB1p6BS/4zAxlTmIvGo
+9lUxde12J325Z9peeP6OInu1h1/v+fRfrg2wxsblwCQmdC6eQoWTPTynH9t+WADr
+ka6XkZvcoAEoaPji8fyGfY6DUkhiRwSkDpn3bk1zg7nmm5jAlH1MCoMBVrUOKylv
+Xp2bULDZLS6KD5LBn+s3bsZ1hatAJpU2746uE4Afal2lgcAnqb4=
+=0aUK
+-----END PGP SIGNATURE-----
+
+--mopqc6x4c2h7s3hb--
+
+
+--===============1761450439335636980==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============1761450439335636980==--

@@ -1,83 +1,100 @@
-From: Mazin Rezk <mnrzk@protonmail.com>
-Subject: [PATCH v4 4/4] HID: logitech: Support WirelessDeviceStatus connect events
-Date: Fri, 11 Oct 2019 00:57:56 +0000
-Message-ID: <GOPSiaLYzQc3Hi9-MvdMQOmiF6O9whCeVYWavirKdm-9VHGb37VtawOPII8FEdYAOWZYFvk3oSQcHkPGazJKZNx8DEwBO7JfrRjLjWA84UI=@protonmail.com>
-Reply-To: Mazin Rezk <mnrzk@protonmail.com>
+From: Candle Sun <candlesea@gmail.com>
+Subject: Re: [PATCH v2] HID: core: check whether usage page item is after
+ usage id item
+Date: Fri, 11 Oct 2019 10:08:41 +0800
+Message-ID: <CAPnx3XOeJRBsrAamv8o7H_zgnxNfwBX5gsaom_zJHJjewiELSw@mail.gmail.com>
+References: <1570625609-11083-1-git-send-email-candlesea@gmail.com>
+ <d739f691b677fb3ed88a23476d221527a87c363d.camel@suse.de> <nycvar.YFH.7.76.1910091958120.13160@cbobk.fhfr.pm>
+ <CAPnx3XNGBw+SKSFA3DhhHFZZ17f54DMfYjKOcqYTb3N-PWGKpw@mail.gmail.com> <CAO-hwJJEcP3AEYfadhEbqzfszawxiQ7E9NAwmxHcK6SH8zzhiQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAO-hwJJEcP3AEYfadhEbqzfszawxiQ7E9NAwmxHcK6SH8zzhiQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>, "mnrzk@protonmail.com" <mnrzk@protonmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, orson.zhai@unisoc.com, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Candle Sun <candle.sun@unisoc.com>, Nianfu Bai <nianfu.bai@unisoc.com>
 List-Id: linux-input@vger.kernel.org
 
-On Saturday, October 5, 2019 9:05 PM, Mazin Rezk <mnrzk@protonmail.com> wro=
-te:
-
-> This patch makes WirelessDeviceStatus (0x1d4b) events get detected as
-> connection events on devices with HIDPP_QUIRK_WIRELESS_DEVICE_STATUS.
+On Thu, Oct 10, 2019 at 8:17 PM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
 >
-> This quirk is currently an alias for HIDPP_QUIRK_CLASS_BLUETOOTH since
-> the added Bluetooth devices do not support regular connect events.
+> On Thu, Oct 10, 2019 at 5:19 AM Candle Sun <candlesea@gmail.com> wrote:
+> >
+> > On Thu, Oct 10, 2019 at 2:00 AM Jiri Kosina <jikos@kernel.org> wrote:
+> > >
+> > > On Wed, 9 Oct 2019, Nicolas Saenz Julienne wrote:
+> > >
+> > > > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > > > > index 3eaee2c..3394222 100644
+> > > > > --- a/drivers/hid/hid-core.c
+> > > > > +++ b/drivers/hid/hid-core.c
+> > > > > @@ -35,6 +35,8 @@
+> > > > >
+> > > > >  #include "hid-ids.h"
+> > > > >
+> > > > > +#define GET_COMPLETE_USAGE(page, id) (((page) << 16) + ((id) & 0xffff))
+> > > >
+> > > > Not sure I like the macro. I'd rather have the explicit code. That said, lets
+> > > > see what Benjamin has to say.
+> > >
+> > > Not sure about Benjamin :) but I personally would ask for putting it
+> > > somewhere into hid.h as static inline.
+> > >
+> > > And even if it's for some reason insisted on this staying macro, please at
+> > > least put it as close to the place(s) it's being used as possible, in
+> > > order to maintain some code sanity.
+> > >
+> > > Thanks,
+> > >
+> > > --
+> > > Jiri Kosina
+> > > SUSE Labs
+> > >
+> >
+> > Thanks Nicolas and Jiri,
+> > If macro is not good, I will change it to static function. But the
+> > funciton is only used in hid-core.c,
+> > maybe placing it into hid.h is not good?
+>
+> I would rather use a function too (in hid-core.c, as it's not reused
+> anywhere else), and we can make it simpler from the caller point of
+> view (if I am not mistaken):
+> ---
+> static void concatenate_usage_page(struct hid_parser *parser, int index)
+> {
+>     parser->local.usage[index] &= 0xFFFF;
+>     parser->local.usage[index] |= (parser->global.usage_page & 0xFFFF) << 16;
+> }
+>
+> // Which can then be called as:
+> +       parser->local.usage[parser->local.usage_index] = usage;
+> +       if (size <= 2)
+> +               concatenate_usage_page(parser, parser->local.usage_index);
+> +
+>
+> // And
+>         for (i = 0; i < parser->local.usage_index; i++)
+> -               if (parser->local.usage_size[i] <= 2)
+> -                       parser->local.usage[i] +=
+> parser->global.usage_page << 16;
+> +               if (parser->local.usage_size[i] <= 2) {
+> +                       concatenate_usage_page(parser, i);
+> +               }
+>  }
+> ---
+>
+> And now that I have written this, the check on the size could also be
+> very well integrated in concatenate_usage_page().
+>
+> Cheers,
+> Benjamin
+>
 
-No changes have been made to this patch in v4.
+Thanks Benjamin's detailed directions. I will amend the patch.
 
-Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
----
- drivers/hid/hid-logitech-hidpp.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+Candle
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
-dpp.c
-index 2062be922c08..b2b5fe2c74db 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -84,6 +84,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
-
- /* Just an alias for now, may possibly be a catch-all in the future */
- #define HIDPP_QUIRK_MISSING_SHORT_REPORTS=09HIDPP_QUIRK_CLASS_BLUETOOTH
-+#define HIDPP_QUIRK_WIRELESS_DEVICE_STATUS=09HIDPP_QUIRK_CLASS_BLUETOOTH
-
- #define HIDPP_QUIRK_DELAYED_INIT=09=09HIDPP_QUIRK_NO_HIDINPUT
-
-@@ -406,9 +407,22 @@ static inline bool hidpp_match_error(struct hidpp_repo=
-rt *question,
- =09    (answer->fap.params[0] =3D=3D question->fap.funcindex_clientid);
- }
-
--static inline bool hidpp_report_is_connect_event(struct hidpp_report *repo=
-rt)
-+#define HIDPP_PAGE_WIRELESS_DEVICE_STATUS=09=090x1d4b
-+
-+static inline bool hidpp_report_is_connect_event(struct hidpp_device *hidp=
-p,
-+=09=09=09=09=09=09 struct hidpp_report *report)
- {
--=09return (report->report_id =3D=3D REPORT_ID_HIDPP_SHORT) &&
-+=09if (hidpp->quirks & HIDPP_QUIRK_WIRELESS_DEVICE_STATUS) {
-+=09=09/* If feature is invalid, skip array check */
-+=09=09if (report->fap.feature_index > hidpp->feature_count)
-+=09=09=09return false;
-+
-+=09=09return (hidpp->features[report->fap.feature_index] =3D=3D
-+=09=09=09 HIDPP_PAGE_WIRELESS_DEVICE_STATUS);
-+=09}
-+
-+=09return ((report->report_id =3D=3D REPORT_ID_HIDPP_SHORT) ||
-+=09=09(hidpp->quirks & HIDPP_QUIRK_MISSING_SHORT_REPORTS)) &&
- =09=09(report->rap.sub_id =3D=3D 0x41);
- }
-
-@@ -3157,7 +3171,7 @@ static int hidpp_raw_hidpp_event(struct hidpp_device =
-*hidpp, u8 *data,
- =09=09}
- =09}
-
--=09if (unlikely(hidpp_report_is_connect_event(report))) {
-+=09if (unlikely(hidpp_report_is_connect_event(hidpp, report))) {
- =09=09atomic_set(&hidpp->connected,
- =09=09=09=09!(report->rap.params[0] & (1 << 6)));
- =09=09if (schedule_work(&hidpp->work) =3D=3D 0)
---
-2.23.0
+> >
+> > Regards,
+> > Candle
+>

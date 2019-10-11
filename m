@@ -1,69 +1,110 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Avoid processing unknown IRQs
-Date: Fri, 11 Oct 2019 21:46:56 +0000
-Message-ID: <a6e517a2-51ca-431a-88f8-8bfa0a867dc6@synaptics.com>
-References: <20191008223657.163366-1-evgreen@chromium.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 3/3] HID: logitech-hidpp: add G920 device validation quirk
+Date: Sat, 12 Oct 2019 00:32:57 +0200
+Message-ID: <CAO-hwJ+HZEhn_riNwrODKSySt4aP4RzZq+omYDAF-7q5dLQR1Q@mail.gmail.com>
+References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
+ <20191007051240.4410-4-andrew.smirnov@gmail.com> <CAO-hwJJ8tp4Rqte-umv9e=S5evR5oJTErsNR0Wk-z8wcbtR0wg@mail.gmail.com>
+ <CAHQ1cqHCYiaEXck3LMGBwYiHVDQcF=XuF=kHJ4f_v1ea6hDR2g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191008223657.163366-1-evgreen@chromium.org>
-Content-Language: en-US
-Content-ID: <D82C027DC78BB94798D67336C1E7C48F@namprd03.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Evan Green <evgreen@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pan Bian <bianpan2016@163.com>, Allison Randal <allison@lohutok.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Kate Stewart <kstewart@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nick Dyer <nick@shmanahar.org>, Christopher Heiny <Cheiny@synaptics.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <CAHQ1cqHCYiaEXck3LMGBwYiHVDQcF=XuF=kHJ4f_v1ea6hDR2g@mail.gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Sam Bazely <sambazley@fastmail.com>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Austin Palmer <austinp@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-SGkgRXZhbiwNCg0KT24gMTAvOC8xOSAzOjM2IFBNLCBFdmFuIEdyZWVuIHdyb3RlOg0KPiBybWlf
-cHJvY2Vzc19pbnRlcnJ1cHRfcmVxdWVzdHMoKSBjYWxscyBoYW5kbGVfbmVzdGVkX2lycSgpIGZv
-cg0KPiBlYWNoIGludGVycnVwdCBzdGF0dXMgYml0IGl0IGZpbmRzLiBJZiB0aGUgaXJxIGRvbWFp
-biBtYXBwaW5nIGZvcg0KPiB0aGlzIGJpdCBoYWQgbm90IHlldCBiZWVuIHNldCB1cCwgdGhlbiBp
-dCBlbmRzIHVwIGNhbGxpbmcNCj4gaGFuZGxlX25lc3RlZF9pcnEoMCksIHdoaWNoIGNhdXNlcyBh
-IE5VTEwgcG9pbnRlciBkZXJlZmVyZW5jZS4NCj4NCj4gVGhlcmUncyBhbHJlYWR5IGNvZGUgdGhh
-dCBtYXNrcyB0aGUgaXJxX3N0YXR1cyBiaXRzIGNvbWluZyBvdXQgb2YgdGhlDQo+IGhhcmR3YXJl
-IHdpdGggY3VycmVudF9pcnFfbWFzaywgcHJlc3VtYWJseSB0byBhdm9pZCB0aGlzIHNpdHVhdGlv
-bi4NCj4gSG93ZXZlciBjdXJyZW50X2lycV9tYXNrIHNlZW1zIHRvIG1vcmUgcmVmbGVjdCB0aGUg
-YWN0dWFsIG1hc2sgc2V0DQo+IGluIHRoZSBoYXJkd2FyZSByYXRoZXIgdGhhbiB0aGUgSVJRcyBz
-b2Z0d2FyZSBoYXMgc2V0IHVwIGFuZCByZWdpc3RlcmVkDQo+IGZvci4gRm9yIGV4YW1wbGUsIGlu
-IHJtaV9kcml2ZXJfcmVzZXRfaGFuZGxlcigpLCB0aGUgY3VycmVudF9pcnFfbWFzaw0KPiBpcyBp
-bml0aWFsaXplZCBiYXNlZCBvbiB3aGF0IGlzIHJlYWQgZnJvbSB0aGUgaGFyZHdhcmUuIElmIHRo
-ZSByZXNldA0KPiB2YWx1ZSBvZiB0aGlzIG1hc2sgZW5hYmxlcyBJUlFzIHRoYXQgTGludXggaGFz
-IG5vdCBzZXQgdXAgeWV0LCB0aGVuDQo+IHdlIGVuZCB1cCBpbiB0aGlzIHNpdHVhdGlvbi4NCj4N
-Cj4gVGhlcmUgYXBwZWFycyB0byBiZSBhIHRoaXJkIHVudXNlZCBiaXRtYXNrIHRoYXQgdXNlZCB0
-byBzZXJ2ZSB0aGlzDQo+IHB1cnBvc2UsIGZuX2lycV9iaXRzLiBVc2UgdGhhdCBiaXRtYXNrIGlu
-c3RlYWQgb2YgY3VycmVudF9pcnFfbWFzaw0KPiB0byBhdm9pZCBjYWxsaW5nIGhhbmRsZV9uZXN0
-ZWRfaXJxKCkgb24gSVJRcyB0aGF0IGhhdmUgbm90IHlldCBiZWVuDQo+IHNldCB1cC4NCg0KWWVz
-LCBpdCBsb29rcyBsaWtlIHRoZSBjb2RlIHdoaWNoIGVuc3VyZWQgdGhhdCB0aGVyZSB3YXMgYSBm
-dW5jdGlvbiANCmhhbmRsZXIgdG8gaGFuZGxlIHRoZSBJUlEgd2FzIHJlbW92ZWQgd2hlbiB0aGUg
-ZHJpdmVyIHN3aXRjaGVkIHRvIHVzaW5nIA0KYW4gaXJxIGRvbWFpbi4gU2V0dGluZyB0aGUgZm5f
-aXJxX2JpdHMgYW5kIHVzaW5nIHRoZW0gaW5zdGVhZCBvZiANCmN1cnJlbnRfaXJxX21hc2sgaW4g
-cm1pX3Byb2Nlc3NfaW50ZXJydXB0X3JlcXVlc3RzKCkgbWFrZXMgc2Vuc2UgdG8gbWUuDQoNCkFu
-ZHJldw0KDQo+IFNpZ25lZC1vZmYtYnk6IEV2YW4gR3JlZW4gPGV2Z3JlZW5AY2hyb21pdW0ub3Jn
-Pg0KUmV2aWV3ZWQtYnk6IEFuZHJldyBEdWdnYW4gPGFkdWdnYW5Ac3luYXB0aWNzLmNvbT4NCj4g
-LS0tDQo+DQo+ICAgZHJpdmVycy9pbnB1dC9ybWk0L3JtaV9kcml2ZXIuYyB8IDYgKysrKystDQo+
-ICAgMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPg0KPiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9ybWk0L3JtaV9kcml2ZXIuYyBiL2RyaXZlcnMvaW5w
-dXQvcm1pNC9ybWlfZHJpdmVyLmMNCj4gaW5kZXggNzcyNDkzYjFmNjY1Li4xOTBiOTk3NDUyNmIg
-MTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5wdXQvcm1pNC9ybWlfZHJpdmVyLmMNCj4gKysrIGIv
-ZHJpdmVycy9pbnB1dC9ybWk0L3JtaV9kcml2ZXIuYw0KPiBAQCAtMTQ2LDcgKzE0Niw3IEBAIHN0
-YXRpYyBpbnQgcm1pX3Byb2Nlc3NfaW50ZXJydXB0X3JlcXVlc3RzKHN0cnVjdCBybWlfZGV2aWNl
-ICpybWlfZGV2KQ0KPiAgIAl9DQo+ICAgDQo+ICAgCW11dGV4X2xvY2soJmRhdGEtPmlycV9tdXRl
-eCk7DQo+IC0JYml0bWFwX2FuZChkYXRhLT5pcnFfc3RhdHVzLCBkYXRhLT5pcnFfc3RhdHVzLCBk
-YXRhLT5jdXJyZW50X2lycV9tYXNrLA0KPiArCWJpdG1hcF9hbmQoZGF0YS0+aXJxX3N0YXR1cywg
-ZGF0YS0+aXJxX3N0YXR1cywgZGF0YS0+Zm5faXJxX2JpdHMsDQo+ICAgCSAgICAgICBkYXRhLT5p
-cnFfY291bnQpOw0KPiAgIAkvKg0KPiAgIAkgKiBBdCB0aGlzIHBvaW50LCBpcnFfc3RhdHVzIGhh
-cyBhbGwgYml0cyB0aGF0IGFyZSBzZXQgaW4gdGhlDQo+IEBAIC0zODUsNiArMzg1LDggQEAgc3Rh
-dGljIGludCBybWlfZHJpdmVyX3NldF9pcnFfYml0cyhzdHJ1Y3Qgcm1pX2RldmljZSAqcm1pX2Rl
-diwNCj4gICAJYml0bWFwX2NvcHkoZGF0YS0+Y3VycmVudF9pcnFfbWFzaywgZGF0YS0+bmV3X2ly
-cV9tYXNrLA0KPiAgIAkJICAgIGRhdGEtPm51bV9vZl9pcnFfcmVncyk7DQo+ICAgDQo+ICsJYml0
-bWFwX29yKGRhdGEtPmZuX2lycV9iaXRzLCBkYXRhLT5mbl9pcnFfYml0cywgbWFzaywgZGF0YS0+
-aXJxX2NvdW50KTsNCj4gKw0KPiAgIGVycm9yX3VubG9jazoNCj4gICAJbXV0ZXhfdW5sb2NrKCZk
-YXRhLT5pcnFfbXV0ZXgpOw0KPiAgIAlyZXR1cm4gZXJyb3I7DQo+IEBAIC0zOTgsNiArNDAwLDgg
-QEAgc3RhdGljIGludCBybWlfZHJpdmVyX2NsZWFyX2lycV9iaXRzKHN0cnVjdCBybWlfZGV2aWNl
-ICpybWlfZGV2LA0KPiAgIAlzdHJ1Y3QgZGV2aWNlICpkZXYgPSAmcm1pX2Rldi0+ZGV2Ow0KPiAg
-IA0KPiAgIAltdXRleF9sb2NrKCZkYXRhLT5pcnFfbXV0ZXgpOw0KPiArCWJpdG1hcF9hbmRub3Qo
-ZGF0YS0+Zm5faXJxX2JpdHMsDQo+ICsJCSAgICAgIGRhdGEtPmZuX2lycV9iaXRzLCBtYXNrLCBk
-YXRhLT5pcnFfY291bnQpOw0KPiAgIAliaXRtYXBfYW5kbm90KGRhdGEtPm5ld19pcnFfbWFzaywN
-Cj4gICAJCSAgZGF0YS0+Y3VycmVudF9pcnFfbWFzaywgbWFzaywgZGF0YS0+aXJxX2NvdW50KTsN
-Cj4gICANCg==
+On Fri, Oct 11, 2019 at 9:39 PM Andrey Smirnov <andrew.smirnov@gmail.com> w=
+rote:
+>
+> On Fri, Oct 11, 2019 at 7:56 AM Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> >
+> > On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail.com=
+> wrote:
+> > >
+> > > G920 device only advertises REPORT_ID_HIDPP_LONG and
+> > > REPORT_ID_HIDPP_VERY_LONG in its HID report descriptor, so querying
+> > > for REPORT_ID_HIDPP_SHORT with optional=3Dfalse will always fail and
+> > > prevent G920 to be recognized as a valid HID++ device.
+> > >
+> > > Modify hidpp_validate_device() to check only REPORT_ID_HIDPP_LONG wit=
+h
+> > > optional=3Dfalse on G920 to fix this.
+> > >
+> > > Fixes: fe3ee1ec007b ("HID: logitech-hidpp: allow non HID++ devices to=
+ be handled by this module")
+> > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D204191
+> > > Reported-by: Sam Bazely <sambazley@fastmail.com>
+> > > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> > > Cc: Jiri Kosina <jikos@kernel.org>
+> > > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > Cc: Henrik Rydberg <rydberg@bitmath.org>
+> > > Cc: Sam Bazely <sambazley@fastmail.com>
+> > > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+> > > Cc: Austin Palmer <austinp@valvesoftware.com>
+> > > Cc: linux-input@vger.kernel.org
+> > > Cc: linux-kernel@vger.kernel.org
+> > > Cc: stable@vger.kernel.org
+> > > ---
+> > >  drivers/hid/hid-logitech-hidpp.c | 6 ++++++
+> > >  1 file changed, 6 insertions(+)
+> > >
+> > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logit=
+ech-hidpp.c
+> > > index cadf36d6c6f3..f415bf398e17 100644
+> > > --- a/drivers/hid/hid-logitech-hidpp.c
+> > > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > > @@ -3511,6 +3511,12 @@ static bool hidpp_validate_report(struct hid_d=
+evice *hdev, int id,
+> > >
+> > >  static bool hidpp_validate_device(struct hid_device *hdev)
+> > >  {
+> > > +       struct hidpp_device *hidpp =3D hid_get_drvdata(hdev);
+> > > +
+> > > +       if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
+> > > +               return hidpp_validate_report(hdev, REPORT_ID_HIDPP_LO=
+NG,
+> > > +                                            HIDPP_REPORT_SHORT_LENGT=
+H, false);
+> > > +
+> >
+> > with https://patchwork.kernel.org/patch/11184749/ we also have a need
+> > for such a trick for BLE mice.
+> >
+> > I wonder if we should not have a more common way of validating the devi=
+ces
+> >
+>
+> What about just checking for:
+>
+> hidpp_validate_report(REPORT_ID_HIDPP_SHORT,
+>                                     HIDPP_REPORT_SHORT_LENGTH, true) ||
+> hidpp_validate_report(hdev, REPORT_ID_HIDPP_LONG,
+>                                     HIDPP_REPORT_LONG_LENGTH, true);
+>
+> and probably dropping the "optional" argument for
+> hidpp_validate_report()? Original code allows there to be devices
+> supporting shorts reports only, but it seems that devices that support
+> only long reports are legitimate too, so maybe the only "invalid"
+> combination is if both are invalid length or missing?
+
+Well, the problem is we also want to detect 2 things:
+- devices that do not have any of the HID++ collections, and handle
+them as generic ones (the second mouse/keyboard collection in the
+gaming mice should still be exported by the driver, or this will kill
+the macros / rebinding capabilities
+- malicious devices that pretends to have a HID++ collection but want
+to trigger a buffer overflow by having a shorter than expected report
+length
+
+Point 2 above should still be fine, but point 1 is why we have the
+enforcement of the HID++ short report in the first place.
+
+Cheers,
+Benjamin
+
+>
+> Thanks,
+> Andrey Smirnov

@@ -1,69 +1,86 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v4 3/4] HID: logitech: Add feature 0x0001: FeatureSet
-Date: Fri, 11 Oct 2019 10:45:54 +0200
-Message-ID: <CAO-hwJLAwodSXpz-_T0nGqnjHY3cVAu9GYjvp8SW8grTXX+VYg@mail.gmail.com>
-References: <jCmT1QOunDmSu59iO1T1xj2-WfFeGhMn_i5knEWTCoph9VH1oxjpYf3Q6CWH7BRrq1NTVYBsAVJcIgu8azAEmFZJA8PzLfH3bHBcWNbFqeY=@protonmail.com>
- <CAO-hwJ+AMmNUOhas+vq6K4sRcCspyJuAefKO8oomAH4=CDHoJw@mail.gmail.com>
+From: Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
+Subject: Re: [PATCH v4 1/4] HID: logitech: Add MX Mice over Bluetooth
+Date: Fri, 11 Oct 2019 09:49:34 +0100
+Message-ID: <403b3e7f6d276e47c447e6ea56a3370b03c3298c.camel@archlinux.org>
+References: <uBbIS3nFJ1jdYNLHcqjW5wxQAwmZv0kmYEoeoPrxNhfzi6cHwmCOY-ewdqe7S1hNEj-p4Hd9D0_Y3PymUTdh_6WFXuMmIYUkV2xaKCPMYz0=@protonmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJ+AMmNUOhas+vq6K4sRcCspyJuAefKO8oomAH4=CDHoJw@mail.gmail.com>
+In-Reply-To: <uBbIS3nFJ1jdYNLHcqjW5wxQAwmZv0kmYEoeoPrxNhfzi6cHwmCOY-ewdqe7S1hNEj-p4Hd9D0_Y3PymUTdh_6WFXuMmIYUkV2xaKCPMYz0=@protonmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mazin Rezk <mnrzk@protonmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>
+To: Mazin Rezk <mnrzk@protonmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 10:33 AM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> On Fri, Oct 11, 2019 at 2:57 AM Mazin Rezk <mnrzk@protonmail.com> wrote:
-> >
-> > On Saturday, October 5, 2019 9:04 PM, Mazin Rezk <mnrzk@protonmail.com>=
- wrote:
-> >
-> > > This patch adds support for the 0x0001 (FeatureSet) feature. This fea=
-ture
-> > > is used to look up the feature ID of a feature index on a device and =
-list
-> > > the total count of features on the device.
-> > >
-> > > I also added the hidpp20_get_features function which iterates through=
- all
-> > > feature indexes on the device and stores a map of them in features an
-> > > hidpp_device struct. This function runs when an HID++ 2.0 device is p=
-robed.
-> >
-> > Changes in the version:
-> >  - Renamed hidpp20_featureset_get_feature to
-> >    hidpp20_featureset_get_feature_id.
-> >
-> >  - Re-ordered hidpp20_featureset_get_count and
-> >    hidpp20_featureset_get_feature_id based on their command IDs.
-> >
-> >  - Made feature_count initialize to 0 before running hidpp20_get_featur=
-es.
->
-> I still need to decide whether or not we need to take this one. We
-> historically did not do this to mimic the Windows driver at the time.
-> However, the driver is full of quirks that could be detected instead
-> of hardcoded thanks to this functions. So we might want to switch to
-> auto-detection of those quirks so we can keep 'quirks' for actual
-> defects that can't be auto-detected.
->
-> But, if we want to go this route, we need to actually make use of it.
-> So this patch should be part of a series where we use it, not added by
-> its own.
->
-> Can you drop it from the series?
-> And maybe possibly work on a cleanup of some of the auto detection,
-> like the HIDPP_QUIRK_HI_RES_SCROLL_X2121 which you can easily test?
-> But this would need to happen in a second series, once this one gets
-> merged in.
+On Fri, 2019-10-11 at 00:57 +0000, Mazin Rezk wrote:
+> On Saturday, October 5, 2019 9:04 PM, Mazin Rezk <
+> mnrzk@protonmail.com> wrote:
+> 
+> > This patch adds support for several MX mice over Bluetooth. The
+> > device IDs
+> > have been copied from the libratbag device database and their
+> > features
+> > have been based on their DJ device counterparts.
+> 
+> No changes have been made to this patch in v4. However, it should be
+> noted
+> that the only device that has been thoroughly tested in this patch is
+> the
+> MX Master (b01e). Further testing for the other devices may be
+> required.
+> 
+> Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
+> logitech-hidpp.c
+> index 0179f7ed77e5..85fd0c17cc2f 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -3773,6 +3773,24 @@ static const struct hid_device_id
+> hidpp_devices[] = {
+>  	{ /* MX5500 keyboard over Bluetooth */
+>  	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+>  	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
+> +	{ /* MX Anywhere 2 mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb013),
+> +	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb018),
+> +	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ /* MX Anywhere 2S mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01a),
+> +	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ /* MX Master mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
+> +	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb017),
+> +	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
+> +	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +	{ /* MX Master 2S mouse over Bluetooth */
+> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb019),
+> +	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+>  	{}
+>  };
+> 
+> --
+> 2.23.0
+> 
 
-While reviewing 4/4, I realized why you need this one.
-See my comments in 4/4, I still believe the case is not strong enough
-to spend some time to enable the feature for barely no gain.
+The series now looks great, thanks!
 
-Cheers,
-Benjamin
+Benjamin, I can confirm that up to now all BLE devices don't have short
+reports. I am not sure if you still want to only enable tested devices
+but from an architectural standpoint everything here should be fine.
+
+Mazin, you can have my
+
+Reviewed-by: Filipe Laíns <lains@archlinux.org>
+
+for the series.
+
+Thank you,
+Filipe Laíns

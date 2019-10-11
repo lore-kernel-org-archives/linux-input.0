@@ -1,209 +1,99 @@
-From: Candle Sun <candlesea@gmail.com>
-Subject: Re: [PATCH v2] HID: core: check whether usage page item is after
- usage id item
-Date: Fri, 11 Oct 2019 10:38:00 +0800
-Message-ID: <CAPnx3XP2XfcAQ_YsXU3Vi1zJORp7LQaH5KEvMJ+7EsBfOzgNfw@mail.gmail.com>
-References: <1570625609-11083-1-git-send-email-candlesea@gmail.com> <CAO-hwJKjZedG6yySDHKQoAmG5DdQ7QPhuaoMN9g0_KmbktD9fA@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v4 1/4] HID: logitech: Add MX Mice over Bluetooth
+Date: Fri, 11 Oct 2019 10:19:47 +0200
+Message-ID: <CAO-hwJK7gaL7pcTji3buN-wdp4HJw497Zi0S47Xr21FRHffLXQ@mail.gmail.com>
+References: <uBbIS3nFJ1jdYNLHcqjW5wxQAwmZv0kmYEoeoPrxNhfzi6cHwmCOY-ewdqe7S1hNEj-p4Hd9D0_Y3PymUTdh_6WFXuMmIYUkV2xaKCPMYz0=@protonmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJKjZedG6yySDHKQoAmG5DdQ7QPhuaoMN9g0_KmbktD9fA@mail.gmail.com>
+In-Reply-To: <uBbIS3nFJ1jdYNLHcqjW5wxQAwmZv0kmYEoeoPrxNhfzi6cHwmCOY-ewdqe7S1hNEj-p4Hd9D0_Y3PymUTdh_6WFXuMmIYUkV2xaKCPMYz0=@protonmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, =?UTF-8?B?57+f5LqsIChPcnNvbiBaaGFpKQ==?= <orson.zhai@unisoc.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Candle Sun <candle.sun@unisoc.com>, Nianfu Bai <nianfu.bai@unisoc.com>
+To: Mazin Rezk <mnrzk@protonmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Oct 10, 2019 at 8:24 PM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> On Wed, Oct 9, 2019 at 2:54 PM Candle Sun <candlesea@gmail.com> wrote:
-> >
-> > From: Candle Sun <candle.sun@unisoc.com>
-> >
-> > Upstream commit 58e75155009c ("HID: core: move Usage Page concatenation
-> > to Main item") adds support for Usage Page item after Usage ID items
-> > (such as keyboards manufactured by Primax).
-> >
-> > Usage Page concatenation in Main item works well for following report
-> > descriptor patterns:
-> >
-> >     USAGE_PAGE (Keyboard)                   05 07
-> >     USAGE_MINIMUM (Keyboard LeftControl)    19 E0
-> >     USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
-> >     LOGICAL_MINIMUM (0)                     15 00
-> >     LOGICAL_MAXIMUM (1)                     25 01
-> >     REPORT_SIZE (1)                         75 01
-> >     REPORT_COUNT (8)                        95 08
-> >     INPUT (Data,Var,Abs)                    81 02
-> >
-> > -------------
-> >
-> >     USAGE_MINIMUM (Keyboard LeftControl)    19 E0
-> >     USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
-> >     LOGICAL_MINIMUM (0)                     15 00
-> >     LOGICAL_MAXIMUM (1)                     25 01
-> >     REPORT_SIZE (1)                         75 01
-> >     REPORT_COUNT (8)                        95 08
-> >     USAGE_PAGE (Keyboard)                   05 07
-> >     INPUT (Data,Var,Abs)                    81 02
-> >
-> > But it makes the parser act wrong for the following report
-> > descriptor pattern(such as some Gamepads):
-> >
-> >     USAGE_PAGE (Button)                     05 09
-> >     USAGE (Button 1)                        09 01
-> >     USAGE (Button 2)                        09 02
-> >     USAGE (Button 4)                        09 04
-> >     USAGE (Button 5)                        09 05
-> >     USAGE (Button 7)                        09 07
-> >     USAGE (Button 8)                        09 08
-> >     USAGE (Button 14)                       09 0E
-> >     USAGE (Button 15)                       09 0F
-> >     USAGE (Button 13)                       09 0D
-> >     USAGE_PAGE (Consumer Devices)           05 0C
-> >     USAGE (Back)                            0a 24 02
-> >     USAGE (HomePage)                        0a 23 02
-> >     LOGICAL_MINIMUM (0)                     15 00
-> >     LOGICAL_MAXIMUM (1)                     25 01
-> >     REPORT_SIZE (1)                         75 01
-> >     REPORT_COUNT (11)                       95 0B
-> >     INPUT (Data,Var,Abs)                    81 02
-> >
-> > With Usage Page concatenation in Main item, parser recognizes all the
-> > 11 Usages as consumer keys, it is not the HID device's real intention.
-> >
-> > This patch adds usage_page_last to flag whether Usage Page is after
-> > Usage ID items. usage_page_last is false default, it is set as true
-> > once Usage Page item is encountered and is reverted by next Usage ID
-> > item.
-> >
-> > Usage Page concatenation on the currently defined Usage Page will do
-> > firstly in Local parsing when Usage ID items encountered.
-> >
-> > When Main item is parsing, concatenation will do again with last
-> > defined Usage Page if usage_page_last flag is true.
-> >
-> > Signed-off-by: Candle Sun <candle.sun@unisoc.com>
-> > Signed-off-by: Nianfu Bai <nianfu.bai@unisoc.com>
-> > ---
-> > Changes in v2:
-> > - Update patch title
-> > - Add GET_COMPLETE_USAGE macro
-> > - Change the logic of checking whether to concatenate usage page again
-> >   in main parsing
-> > ---
-> >  drivers/hid/hid-core.c | 31 +++++++++++++++++++++++++------
-> >  include/linux/hid.h    |  1 +
-> >  2 files changed, 26 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > index 3eaee2c..3394222 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -35,6 +35,8 @@
-> >
-> >  #include "hid-ids.h"
-> >
-> > +#define GET_COMPLETE_USAGE(page, id) (((page) << 16) + ((id) & 0xffff))
-> > +
-> >  /*
-> >   * Version Information
-> >   */
-> > @@ -221,7 +223,15 @@ static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
-> >                 hid_err(parser->device, "usage index exceeded\n");
-> >                 return -1;
-> >         }
-> > -       parser->local.usage[parser->local.usage_index] = usage;
-> > +
-> > +       if (size <= 2) {
-> > +               parser->local.usage_page_last = false;
-> > +               parser->local.usage[parser->local.usage_index] =
-> > +                       GET_COMPLETE_USAGE(parser->global.usage_page, usage);
-> > +       } else {
-> > +               parser->local.usage[parser->local.usage_index] = usage;
-> > +       }
-> > +
-> >         parser->local.usage_size[parser->local.usage_index] = size;
-> >         parser->local.collection_index[parser->local.usage_index] =
-> >                 parser->collection_stack_ptr ?
-> > @@ -366,6 +376,7 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
-> >
-> >         case HID_GLOBAL_ITEM_TAG_USAGE_PAGE:
-> >                 parser->global.usage_page = item_udata(item);
-> > +               parser->local.usage_page_last = true;
-> >                 return 0;
-> >
-> >         case HID_GLOBAL_ITEM_TAG_LOGICAL_MINIMUM:
-> > @@ -543,13 +554,21 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
-> >   * usage value."
-> >   */
-> >
-> > -static void hid_concatenate_usage_page(struct hid_parser *parser)
-> > +static void hid_concatenate_last_usage_page(struct hid_parser *parser)
-> >  {
-> >         int i;
-> > +       unsigned int usage;
-> > +       unsigned int usage_page = parser->global.usage_page;
-> > +
-> > +       if (!parser->local.usage_page_last)
-> > +               return;
-> >
-> >         for (i = 0; i < parser->local.usage_index; i++)
-> > -               if (parser->local.usage_size[i] <= 2)
-> > -                       parser->local.usage[i] += parser->global.usage_page << 16;
-> > +               if (parser->local.usage_size[i] <= 2) {
-> > +                       usage = parser->local.usage[i];
-> > +                       parser->local.usage[i] =
-> > +                               GET_COMPLETE_USAGE(usage_page, usage);
-> > +               }
-> >  }
-> >
-> >  /*
-> > @@ -561,7 +580,7 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
-> >         __u32 data;
-> >         int ret;
-> >
-> > -       hid_concatenate_usage_page(parser);
-> > +       hid_concatenate_last_usage_page(parser);
-> >
-> >         data = item_udata(item);
-> >
-> > @@ -772,7 +791,7 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
-> >         __u32 data;
-> >         int i;
-> >
-> > -       hid_concatenate_usage_page(parser);
-> > +       hid_concatenate_last_usage_page(parser);
-> >
-> >         data = item_udata(item);
-> >
-> > diff --git a/include/linux/hid.h b/include/linux/hid.h
-> > index cd41f20..2e0ea2f7 100644
-> > --- a/include/linux/hid.h
-> > +++ b/include/linux/hid.h
-> > @@ -412,6 +412,7 @@ struct hid_local {
-> >         unsigned usage_minimum;
-> >         unsigned delimiter_depth;
-> >         unsigned delimiter_branch;
-> > +       bool usage_page_last;      /* whether usage page is after usage id */
->
-> We don't need that extra flag:
-> if you just check on the last element, you can guess that information:
->
->         if ((parser->local.usage[parser->local.usage_index - 1] &
-> HID_USAGE_PAGE) >> 16 == usage_page)
->               return 0;
->
-> Let's see the next version before requesting too many changes.
->
-> And yes, I agree I need the hid-tools patches or I will not merge this
-> patch (and I will advise Jiri to not take it either).
->
-> Cheers,
-> Benjamin
->
+Hi Mazin,
 
-Thanks Benjamin.
-I will rework the patch and add changes on hid-tools to test it more.
+On Fri, Oct 11, 2019 at 2:57 AM Mazin Rezk <mnrzk@protonmail.com> wrote:
+>
+> On Saturday, October 5, 2019 9:04 PM, Mazin Rezk <mnrzk@protonmail.com> w=
+rote:
+>
+> > This patch adds support for several MX mice over Bluetooth. The device =
+IDs
+> > have been copied from the libratbag device database and their features
+> > have been based on their DJ device counterparts.
+>
+> No changes have been made to this patch in v4. However, it should be note=
+d
+> that the only device that has been thoroughly tested in this patch is the
+> MX Master (b01e). Further testing for the other devices may be required.
 
-Candle
+Thanks a lot for the series, but please amend your format-patch process:
+- The commit message should not contain the leading `>` characters,
+and checkpath.pl then complains about Possible unwrapped commit
+description (prefer a maximum 75 chars per line)
+- this description of the changes is very useful, but it should go
+after the first `---` so that we do not pull it while applying the
+patch.
+
+Also, this patch introduces a breakage in the bisectability of the
+devices it adds. If we were to bisect a breakage in one of those
+devices, the device will fail to work, and we could not detect where
+the error comes from.
+
+So please squash this patch with the next one.
+
+Last, if we need "Further testing for the other devices may be
+required", then I'd rather enable those device one by one when ewe get
+the confirmation they are working. Adding a new device costs, but not
+as much than breaking an existing one, especially when it gets
+detected later, when the kernel gets shipped in distributions.
+Note that I have the MX Master 0xB012, so you can safely keep that one
+on the list, I'll test it myself.
+
+Cheers,
+Benjamin
+
+
+>
+> Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+>
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
+hidpp.c
+> index 0179f7ed77e5..85fd0c17cc2f 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -3773,6 +3773,24 @@ static const struct hid_device_id hidpp_devices[] =
+=3D {
+>         { /* MX5500 keyboard over Bluetooth */
+>           HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+>           .driver_data =3D HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
+> +       { /* MX Anywhere 2 mouse over Bluetooth */
+> +         HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb013),
+> +         .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb018),
+> +         .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* MX Anywhere 2S mouse over Bluetooth */
+> +         HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01a),
+> +         .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* MX Master mouse over Bluetooth */
+> +         HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
+> +         .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb017),
+> +         .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
+> +         .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* MX Master 2S mouse over Bluetooth */
+> +         HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb019),
+> +         .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+>         {}
+>  };
+>
+> --
+> 2.23.0
+>

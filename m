@@ -1,60 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v7 6/8] Input: icn8505 - Switch to
- firmware_request_platform for retreiving the fw
-Date: Thu, 10 Oct 2019 17:47:59 -0700
-Message-ID: <20191011004759.GD229325@dtor-ws>
-References: <20191004145056.43267-1-hdegoede@redhat.com>
- <20191004145056.43267-7-hdegoede@redhat.com>
+From: Mazin Rezk <mnrzk@protonmail.com>
+Subject: [PATCH v4 1/4] HID: logitech: Add MX Mice over Bluetooth
+Date: Fri, 11 Oct 2019 00:57:01 +0000
+Message-ID: <uBbIS3nFJ1jdYNLHcqjW5wxQAwmZv0kmYEoeoPrxNhfzi6cHwmCOY-ewdqe7S1hNEj-p4Hd9D0_Y3PymUTdh_6WFXuMmIYUkV2xaKCPMYz0=@protonmail.com>
+Reply-To: Mazin Rezk <mnrzk@protonmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191004145056.43267-7-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Luis Chamberlain <mcgrof@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J . Wysocki" <rafael@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Jonathan Corbet <corbet@lwn.net>, Peter Jones <pjones@redhat.com>, Dave Olsthoorn <dave@bewaar.me>, x86@kernel.org, platform-driver-x86@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "jikos@kernel.org" <jikos@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>, "mnrzk@protonmail.com" <mnrzk@protonmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 04, 2019 at 04:50:54PM +0200, Hans de Goede wrote:
-> Unfortunately sofar we have been unable to get permission to redistribute
-> icn8505 touchscreen firmwares in linux-firmware. This means that people
-> need to find and install the firmware themselves before the touchscreen
-> will work
-> 
-> Some UEFI/x86 tablets with an icn8505 touchscreen have a copy of the fw
-> embedded in their UEFI boot-services code.
-> 
-> This commit makes the icn8505 driver use the new firmware_request_platform
-> function, which will fallback to looking for such an embedded copy when
-> direct filesystem lookup fails. This will make the touchscreen work OOTB
-> on devices where there is a fw copy embedded in the UEFI code.
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+On Saturday, October 5, 2019 9:04 PM, Mazin Rezk <mnrzk@protonmail.com> wro=
+te:
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> This patch adds support for several MX mice over Bluetooth. The device ID=
+s
+> have been copied from the libratbag device database and their features
+> have been based on their DJ device counterparts.
 
-Feel free to merge with the rest of the series.
+No changes have been made to this patch in v4. However, it should be noted
+that the only device that has been thoroughly tested in this patch is the
+MX Master (b01e). Further testing for the other devices may be required.
 
-> ---
->  drivers/input/touchscreen/chipone_icn8505.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/chipone_icn8505.c b/drivers/input/touchscreen/chipone_icn8505.c
-> index c768186ce856..f9ca5502ac8c 100644
-> --- a/drivers/input/touchscreen/chipone_icn8505.c
-> +++ b/drivers/input/touchscreen/chipone_icn8505.c
-> @@ -288,7 +288,7 @@ static int icn8505_upload_fw(struct icn8505_data *icn8505)
->  	 * we may need it at resume. Having loaded it once will make the
->  	 * firmware class code cache it at suspend/resume.
->  	 */
-> -	error = request_firmware(&fw, icn8505->firmware_name, dev);
-> +	error = firmware_request_platform(&fw, icn8505->firmware_name, dev);
->  	if (error) {
->  		dev_err(dev, "Firmware request error %d\n", error);
->  		return error;
-> -- 
-> 2.23.0
-> 
+Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
--- 
-Dmitry
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
+dpp.c
+index 0179f7ed77e5..85fd0c17cc2f 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3773,6 +3773,24 @@ static const struct hid_device_id hidpp_devices[] =
+=3D {
+ =09{ /* MX5500 keyboard over Bluetooth */
+ =09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+ =09  .driver_data =3D HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
++=09{ /* MX Anywhere 2 mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb013),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb018),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ /* MX Anywhere 2S mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01a),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ /* MX Master mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb017),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
++=09{ /* MX Master 2S mouse over Bluetooth */
++=09  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb019),
++=09  .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+ =09{}
+ };
+
+--
+2.23.0

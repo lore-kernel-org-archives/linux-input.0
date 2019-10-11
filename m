@@ -1,48 +1,139 @@
-From: Luis Chamberlain <mcgrof@kernel.org>
-Subject: Re: [PATCH v7 3/8] firmware: Rename FW_OPT_NOFALLBACK to
- FW_OPT_NOFALLBACK_SYSFS
-Date: Fri, 11 Oct 2019 15:02:27 +0000
-Message-ID: <20191011150227.GO16384@42.do-not-panic.com>
-References: <20191004145056.43267-1-hdegoede@redhat.com>
- <20191004145056.43267-4-hdegoede@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Revert "Input: elantech - enable SMBus on new (2018+) systems"
+Date: Fri, 11 Oct 2019 17:26:05 +0200
+Message-ID: <CAO-hwJJ_hjL8=D+BDTW6LQRhd86NawORuY-jnDF71mD88woiDw@mail.gmail.com>
+References: <20191001070845.9720-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191004145056.43267-4-hdegoede@redhat.com>
+In-Reply-To: <20191001070845.9720-1-kai.heng.feng@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Scott Branden <scott.branden@broadcom.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J . Wysocki" <rafael@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Jonathan Corbet <corbet@lwn.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Jones <pjones@redhat.com>, Dave Olsthoorn <dave@bewaar.me>, x86@kernel.org, platform-driver-x86@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 04, 2019 at 04:50:51PM +0200, Hans de Goede wrote:
-> diff --git a/drivers/base/firmware_loader/fallback.c b/drivers/base/firmware_loader/fallback.c
-> index 62ee90b4db56..665b350419cb 100644
-> --- a/drivers/base/firmware_loader/fallback.c
-> +++ b/drivers/base/firmware_loader/fallback.c
-> @@ -606,7 +606,7 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_flags)
->  		return false;
->  	}
->  
-> -	if ((opt_flags & FW_OPT_NOFALLBACK))
-> +	if ((opt_flags & FW_OPT_NOFALLBACK_SYSFS))
->  		return false;
->  
->  	/* Also permit LSMs and IMA to fail firmware sysfs fallback */
-> @@ -630,10 +630,11 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_flags)
->   * interface. Userspace is in charge of loading the firmware through the sysfs
->   * loading interface. This sysfs fallback mechanism may be disabled completely
->   * on a system by setting the proc sysctl value ignore_sysfs_fallback to true.
-> - * If this false we check if the internal API caller set the @FW_OPT_NOFALLBACK
-> - * flag, if so it would also disable the fallback mechanism. A system may want
-> - * to enfoce the sysfs fallback mechanism at all times, it can do this by
-> - * setting ignore_sysfs_fallback to false and force_sysfs_fallback to true.
-> + * If this false we check if the internal API caller set the
-         ignore_sysfs_fallback set to true or force_sysfs_fallback is
-	 set to false
+Hi Kai-Heng,
 
-Otherwise looks good. You can add:
+On Tue, Oct 1, 2019 at 9:09 AM Kai-Heng Feng
+<kai.heng.feng@canonical.com> wrote:
+>
+> This reverts commit 883a2a80f79ca5c0c105605fafabd1f3df99b34c.
+>
+> Apparently use dmi_get_bios_year() as manufacturing date isn't accurate
+> and this breaks older laptops with new BIOS update.
+>
+> So let's revert this patch.
+>
+> There are still new HP laptops still need to use SMBus to support all
+> features, but it'll be enabled via a whitelist.
+>
 
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+You might want to add here:
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D204771
 
-  Luis
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+
+Oops, seems like you are missing my acked by:
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Also, don't we want to send this one to stable as well? I can't
+remember if we reverted it in all the released kernels.
+
+Cheers,
+Benjamin
+
+> ---
+>  drivers/input/mouse/elantech.c | 55 ++++++++++++++++++----------------
+>  1 file changed, 29 insertions(+), 26 deletions(-)
+>
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantec=
+h.c
+> index 04fe43440a3c..2d8434b7b623 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1827,31 +1827,6 @@ static int elantech_create_smbus(struct psmouse *p=
+smouse,
+>                                   leave_breadcrumbs);
+>  }
+>
+> -static bool elantech_use_host_notify(struct psmouse *psmouse,
+> -                                    struct elantech_device_info *info)
+> -{
+> -       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+> -               return true;
+> -
+> -       switch (info->bus) {
+> -       case ETP_BUS_PS2_ONLY:
+> -               /* expected case */
+> -               break;
+> -       case ETP_BUS_SMB_HST_NTFY_ONLY:
+> -       case ETP_BUS_PS2_SMB_HST_NTFY:
+> -               /* SMbus implementation is stable since 2018 */
+> -               if (dmi_get_bios_year() >=3D 2018)
+> -                       return true;
+> -               /* fall through */
+> -       default:
+> -               psmouse_dbg(psmouse,
+> -                           "Ignoring SMBus bus provider %d\n", info->bus=
+);
+> -               break;
+> -       }
+> -
+> -       return false;
+> -}
+> -
+>  /**
+>   * elantech_setup_smbus - called once the PS/2 devices are enumerated
+>   * and decides to instantiate a SMBus InterTouch device.
+> @@ -1871,7 +1846,7 @@ static int elantech_setup_smbus(struct psmouse *psm=
+ouse,
+>                  * i2c_blacklist_pnp_ids.
+>                  * Old ICs are up to the user to decide.
+>                  */
+> -               if (!elantech_use_host_notify(psmouse, info) ||
+> +               if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
+>                     psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids=
+))
+>                         return -ENXIO;
+>         }
+> @@ -1891,6 +1866,34 @@ static int elantech_setup_smbus(struct psmouse *ps=
+mouse,
+>         return 0;
+>  }
+>
+> +static bool elantech_use_host_notify(struct psmouse *psmouse,
+> +                                    struct elantech_device_info *info)
+> +{
+> +       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+> +               return true;
+> +
+> +       switch (info->bus) {
+> +       case ETP_BUS_PS2_ONLY:
+> +               /* expected case */
+> +               break;
+> +       case ETP_BUS_SMB_ALERT_ONLY:
+> +               /* fall-through  */
+> +       case ETP_BUS_PS2_SMB_ALERT:
+> +               psmouse_dbg(psmouse, "Ignoring SMBus provider through ale=
+rt protocol.\n");
+> +               break;
+> +       case ETP_BUS_SMB_HST_NTFY_ONLY:
+> +               /* fall-through  */
+> +       case ETP_BUS_PS2_SMB_HST_NTFY:
+> +               return true;
+> +       default:
+> +               psmouse_dbg(psmouse,
+> +                           "Ignoring SMBus bus provider %d.\n",
+> +                           info->bus);
+> +       }
+> +
+> +       return false;
+> +}
+> +
+>  int elantech_init_smbus(struct psmouse *psmouse)
+>  {
+>         struct elantech_device_info info;
+> --
+> 2.17.1
+>

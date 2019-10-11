@@ -1,29 +1,27 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 1/3] HID: logitech-hidpp: use devres to manage FF private
  data
-Date: Fri, 11 Oct 2019 14:11:08 -0700
-Message-ID: <20191011211108.GI229325@dtor-ws>
+Date: Fri, 11 Oct 2019 14:33:49 -0700
+Message-ID: <20191011213349.GJ229325@dtor-ws>
 References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
  <20191007051240.4410-2-andrew.smirnov@gmail.com>
  <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
  <20191011182617.GE229325@dtor-ws>
  <CAO-hwJLH6SMkLb1kZGj1E+BUHJ+ZsE1n+d=xeJgsvTCjHH1Wzw@mail.gmail.com>
  <20191011203303.GF229325@dtor-ws>
- <CAHQ1cqFc-7BpgZuinLakHAjT=6XNzcsQE=RFHOw2xu4Gqdpeog@mail.gmail.com>
+ <20191011203509.GG229325@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHQ1cqFc-7BpgZuinLakHAjT=6XNzcsQE=RFHOw2xu4Gqdpeog@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Sam Bazely <sambazley@fastmail.com>, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Austin Palmer <austinp@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
+In-Reply-To: <20191011203509.GG229325@dtor-ws>
+Sender: stable-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Sam Bazely <sambazley@fastmail.com>, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Austin Palmer <austinp@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 02:02:30PM -0700, Andrey Smirnov wrote:
-> On Fri, Oct 11, 2019 at 1:33 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
+On Fri, Oct 11, 2019 at 01:35:09PM -0700, Dmitry Torokhov wrote:
+> On Fri, Oct 11, 2019 at 01:33:03PM -0700, Dmitry Torokhov wrote:
 > > On Fri, Oct 11, 2019 at 09:25:52PM +0200, Benjamin Tissoires wrote:
 > > > On Fri, Oct 11, 2019 at 8:26 PM Dmitry Torokhov
 > > > <dmitry.torokhov@gmail.com> wrote:
@@ -78,40 +76,66 @@ On Fri, Oct 11, 2019 at 02:02:30PM -0700, Andrey Smirnov wrote:
 > > > > to them. They were done before devm and the lifetime of the "private"
 > > > > data pieces was tied to the lifetime of the input device to simplify
 > > > > error handling and teardown.
-> > >
+> > > 
 > > > Yeah, that stealing of the pointer is not good :)
 > > > But OTOH, it helps
-> > >
+> > > 
 > > > >
 > > > > Maybe we should clean it up a bit... I'm open to suggestions.
-> > >
+> > > 
 > > > The problem I had when doing the review was that there is no easy way
 > > > to have a "devm_input_ff_create_()", because the way it's built is
 > > > already "devres-compatible": the destroy gets called by input core.
-> >
+> > 
 > > I do not think we want devm_input_ff_create() explicitly, I think the
 > > fact that you can "build up" an input device by allocating it, then
 > > adding slots, poller, ff support, etc, and input core cleans it up is
 > > all good. It is just the ownership if the driver-private data block is
 > > not very obvious and is not compatible with allocating via devm.
-> >
+> > 
+> > > 
+> > > So I don't have a good answer to simplify in a transparent manner
+> > > without breaking the API.
+> > > 
+> > > >
+> > > > In this case maybe best way is to get rid of hidpp_ff_destroy() and not
+> > > > set ff->private and rely on devm to free the buffers. One can get to
+> > > > device private data from ff methods via input_get_drvdata() since they
+> > > > all (except destroy) are passed input device pointer.
+> > > 
+> > > Sounds like a good idea. However, it seems there might be a race when
+> > > removing the workqueue:
+> > > the workqueue gets deleted in hidpp_remove, when the input node will
+> > > be freed by devres, so after the call of hidpp_remove.
+> > 
+> > Yeah, well, that is a common issue with mixing devm and normal resources
+> > (and workqueue here is that "normal" resource), and we should either:
+> > 
+> > - not use devm
+> > - use devm_add_action_or_reset() to work in custom actions that work
+> >   freeing of non-managed resources into devm flow.
 > 
-> What do you think of creating input_ff_create_with_private() which
-> would take a pointer to private memory and set a new
-> "borrowed_private" flag in struct ff_device which input_ff_destroy()
-> can check to determine if it needs to free ->private or not?
+> Actually, there is a door #3: use system workqueue. After all the work
+> that Tejun done on workqueues it is very rare that one actually needs
+> a dedicated workqueue (as works usually execute on one if the system
+> worker threads that are shared with other workqueues anyway).
 
->From my quick check we only have 3 users of ff->private in the tree:
+And additional note about devm:
 
-dtor@dtor-ws:~/kernel/master (next)$ git grep -l "[^a-z]ff\->private" -- drivers/
-drivers/hid/hid-logitech-hidpp.c
-drivers/hid/usbhid/hid-pidff.c
-drivers/input/ff-core.c
-drivers/input/ff-memless.c
+I think all HID input drivers that are using devm in probe, but do not
+have proper remove() function (and maybe even some with remove) are
+broken: hid_device_remove() calls hid_hw_stop() which potentially will
+shut off the transport. This happens before devm starts unwinding, so
+we still can be trying to communicate with the device in question, but
+the transport is gone.
 
-and I really wonder if we actually need to have this pointer and
-maintain it, given that logitech driver appears to not needing it that
-much...
+io_started/driver_input_lock is broken on removal as well as we release
+the lock when driver may very well be still talking to the device in
+devm teardown actions.
+
+I think we have similar kind of issues in other buses as well (i2c, spi,
+etc). For example, in i2c we remove the device from power domain before
+we actually complete devm unwinding.
 
 Thanks.
 

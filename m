@@ -1,72 +1,80 @@
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-Subject: Re: [PATCH 0/3] Logitech G920 fixes
-Date: Fri, 11 Oct 2019 11:19:07 -0700
-Message-ID: <CAHQ1cqHU2DmKzAtcDCPLtUXwkzhyCynki3GKOwgULnN0ya6POg@mail.gmail.com>
-References: <20191007051240.4410-1-andrew.smirnov@gmail.com> <CAO-hwJ+=pDmvPbLVO8mViygJof7O1YeX3KO951nqN4dNaKz83g@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] HID: logitech-hidpp: use devres to manage FF private
+ data
+Date: Fri, 11 Oct 2019 11:26:17 -0700
+Message-ID: <20191011182617.GE229325@dtor-ws>
+References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
+ <20191007051240.4410-2-andrew.smirnov@gmail.com>
+ <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJ+=pDmvPbLVO8mViygJof7O1YeX3KO951nqN4dNaKz83g@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Sam Bazely <sambazley@fastmail.com>, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Austin Palmer <austinp@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Sam Bazely <sambazley@fastmail.com>, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Austin Palmer <austinp@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 7:53 AM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> Hi,
->
-> Finally, someone who takes care of the G920!
-> Note that when I sent my first initial version that Hans reused, I
-> surely broke it (looking at your patch 3/3), but no one cared to test
-> it :(
->
+On Fri, Oct 11, 2019 at 04:52:04PM +0200, Benjamin Tissoires wrote:
+> Hi Andrey,
+> 
 > On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail.com> wrote:
 > >
-> > Everyone:
+> > To simplify resource management in commit that follows as well as to
+> > save a couple of extra kfree()s and simplify hidpp_ff_deinit() switch
+> > driver code to use devres to manage the life-cycle of FF private data.
 > >
-> > This series contains patches to fix a couple of regressions in G920
-> > wheel support by hid-logitech-hidpp driver. Without the patches the
-> > wheel remains stuck in autocentering mode ("resisting" any attempt to
-> > trun) as well as missing support for any FF action.
->
-> So, you are talking about regressions, and for that I would like to be
-> able to push the patches to stable.
->
-> However, I would need more information:
-> - patch 3/3 seems simple enough to go in stable, and is clearly a
-> regression from the recent series. Can you put it in first and add
-> stable@vger.kernel.org in a CC field (and possibly with a Fixes tag as
-> well)?
+> > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> > Cc: Jiri Kosina <jikos@kernel.org>
+> > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Cc: Henrik Rydberg <rydberg@bitmath.org>
+> > Cc: Sam Bazely <sambazley@fastmail.com>
+> > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+> > Cc: Austin Palmer <austinp@valvesoftware.com>
+> > Cc: linux-input@vger.kernel.org
+> > Cc: linux-kernel@vger.kernel.org
+> > Cc: stable@vger.kernel.org
+> 
+> This patch doesn't seem to fix any error, is there a reason to send it
+> to stable? (besides as a dependency of the rest of the series).
+> 
+> > ---
+> >  drivers/hid/hid-logitech-hidpp.c | 53 +++++++++++++++++---------------
+> >  1 file changed, 29 insertions(+), 24 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > index 0179f7ed77e5..58eb928224e5 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -2079,6 +2079,11 @@ static void hidpp_ff_destroy(struct ff_device *ff)
+> >         struct hidpp_ff_private_data *data = ff->private;
+> >
+> >         kfree(data->effect_ids);
+> 
+> Is there any reasons we can not also devm alloc data->effect_ids?
+> 
+> > +       /*
+> > +        * Set private to NULL to prevent input_ff_destroy() from
+> > +        * freeing our devres allocated memory
+> 
+> Ouch. There is something wrong here: input_ff_destroy() calls
+> kfree(ff->private), when the data has not been allocated by
+> input_ff_create(). This seems to lack a little bit of symmetry.
 
-It patch 3/3 on purpose because applying it by itself, without fix in
-2/3 in place would lead to a segfault and a non working wheel. Maybe
-that FF for-next fix you pointed out can prevent that from happening,
-but as is the series is pretty atomic and can't be divided.
+Yeah, ff and ff-memless essentially take over the private data assigned
+to them. They were done before devm and the lifetime of the "private"
+data pieces was tied to the lifetime of the input device to simplify
+error handling and teardown.
 
-Patch 3/3 already has stable in CC and Fixes tag.
+Maybe we should clean it up a bit... I'm open to suggestions.
 
-> - I am not sure which patch fixes the wheel remains stuck in
-> autocentering mode. Is it patch 2/3?
+In this case maybe best way is to get rid of hidpp_ff_destroy() and not
+set ff->private and rely on devm to free the buffers. One can get to
+device private data from ff methods via input_get_drvdata() since they
+all (except destroy) are passed input device pointer.
 
-There's no specific patch that does that. There were two G920
-regressions in the driver and both need to be fixed for wheel to be
-configured properly. The specific code that releases the wheel is in
-g920_ff_set_autocenter().
+Thanks.
 
-> - was the "wheel remains stuck in autocentering mode" bug present from
-> on of the recent patch or was it always there since we introduced
-> support in hid-logitech-hidpp, but the game would need to unlock the
-> wheel first?
-
-The wheel worked as expected prior to
-
-fe3ee1ec007b ("HID: logitech-hidpp: allow non HID++ devices to be
-handled by this module")
-91cf9a98ae41 ("HID: logitech-hidpp: make .probe usbhid capable")
-
-It's not the game that needs to unlock the wheel, but the driver itself.
-
-Thanks,
-Andrey Smirnov
+-- 
+Dmitry

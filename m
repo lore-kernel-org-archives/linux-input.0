@@ -1,110 +1,137 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 3/3] HID: logitech-hidpp: add G920 device validation quirk
-Date: Sat, 12 Oct 2019 00:32:57 +0200
-Message-ID: <CAO-hwJ+HZEhn_riNwrODKSySt4aP4RzZq+omYDAF-7q5dLQR1Q@mail.gmail.com>
+Subject: Re: [PATCH 1/3] HID: logitech-hidpp: use devres to manage FF private data
+Date: Sat, 12 Oct 2019 00:34:30 +0200
+Message-ID: <CAO-hwJJjiMdKMGoAEyxXN0+Kc0mBPC_KZn-YoHBx8gWfD=RM3g@mail.gmail.com>
 References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
- <20191007051240.4410-4-andrew.smirnov@gmail.com> <CAO-hwJJ8tp4Rqte-umv9e=S5evR5oJTErsNR0Wk-z8wcbtR0wg@mail.gmail.com>
- <CAHQ1cqHCYiaEXck3LMGBwYiHVDQcF=XuF=kHJ4f_v1ea6hDR2g@mail.gmail.com>
+ <20191007051240.4410-2-andrew.smirnov@gmail.com> <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
+ <20191011182617.GE229325@dtor-ws> <CAO-hwJLH6SMkLb1kZGj1E+BUHJ+ZsE1n+d=xeJgsvTCjHH1Wzw@mail.gmail.com>
+ <20191011203303.GF229325@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <CAHQ1cqHCYiaEXck3LMGBwYiHVDQcF=XuF=kHJ4f_v1ea6hDR2g@mail.gmail.com>
+In-Reply-To: <20191011203303.GF229325@dtor-ws>
 Sender: stable-owner@vger.kernel.org
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Sam Bazely <sambazley@fastmail.com>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Austin Palmer <austinp@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Sam Bazely <sambazley@fastmail.com>, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Austin Palmer <austinp@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 9:39 PM Andrey Smirnov <andrew.smirnov@gmail.com> w=
-rote:
+On Fri, Oct 11, 2019 at 10:33 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 >
-> On Fri, Oct 11, 2019 at 7:56 AM Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
+> On Fri, Oct 11, 2019 at 09:25:52PM +0200, Benjamin Tissoires wrote:
+> > On Fri, Oct 11, 2019 at 8:26 PM Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > >
+> > > On Fri, Oct 11, 2019 at 04:52:04PM +0200, Benjamin Tissoires wrote:
+> > > > Hi Andrey,
+> > > >
+> > > > On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail=
+.com> wrote:
+> > > > >
+> > > > > To simplify resource management in commit that follows as well as=
+ to
+> > > > > save a couple of extra kfree()s and simplify hidpp_ff_deinit() sw=
+itch
+> > > > > driver code to use devres to manage the life-cycle of FF private =
+data.
+> > > > >
+> > > > > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> > > > > Cc: Jiri Kosina <jikos@kernel.org>
+> > > > > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > > > Cc: Henrik Rydberg <rydberg@bitmath.org>
+> > > > > Cc: Sam Bazely <sambazley@fastmail.com>
+> > > > > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+> > > > > Cc: Austin Palmer <austinp@valvesoftware.com>
+> > > > > Cc: linux-input@vger.kernel.org
+> > > > > Cc: linux-kernel@vger.kernel.org
+> > > > > Cc: stable@vger.kernel.org
+> > > >
+> > > > This patch doesn't seem to fix any error, is there a reason to send=
+ it
+> > > > to stable? (besides as a dependency of the rest of the series).
+> > > >
+> > > > > ---
+> > > > >  drivers/hid/hid-logitech-hidpp.c | 53 +++++++++++++++++---------=
+------
+> > > > >  1 file changed, 29 insertions(+), 24 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-l=
+ogitech-hidpp.c
+> > > > > index 0179f7ed77e5..58eb928224e5 100644
+> > > > > --- a/drivers/hid/hid-logitech-hidpp.c
+> > > > > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > > > > @@ -2079,6 +2079,11 @@ static void hidpp_ff_destroy(struct ff_dev=
+ice *ff)
+> > > > >         struct hidpp_ff_private_data *data =3D ff->private;
+> > > > >
+> > > > >         kfree(data->effect_ids);
+> > > >
+> > > > Is there any reasons we can not also devm alloc data->effect_ids?
+> > > >
+> > > > > +       /*
+> > > > > +        * Set private to NULL to prevent input_ff_destroy() from
+> > > > > +        * freeing our devres allocated memory
+> > > >
+> > > > Ouch. There is something wrong here: input_ff_destroy() calls
+> > > > kfree(ff->private), when the data has not been allocated by
+> > > > input_ff_create(). This seems to lack a little bit of symmetry.
+> > >
+> > > Yeah, ff and ff-memless essentially take over the private data assign=
+ed
+> > > to them. They were done before devm and the lifetime of the "private"
+> > > data pieces was tied to the lifetime of the input device to simplify
+> > > error handling and teardown.
 > >
-> > On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail.com=
-> wrote:
-> > >
-> > > G920 device only advertises REPORT_ID_HIDPP_LONG and
-> > > REPORT_ID_HIDPP_VERY_LONG in its HID report descriptor, so querying
-> > > for REPORT_ID_HIDPP_SHORT with optional=3Dfalse will always fail and
-> > > prevent G920 to be recognized as a valid HID++ device.
-> > >
-> > > Modify hidpp_validate_device() to check only REPORT_ID_HIDPP_LONG wit=
-h
-> > > optional=3Dfalse on G920 to fix this.
-> > >
-> > > Fixes: fe3ee1ec007b ("HID: logitech-hidpp: allow non HID++ devices to=
- be handled by this module")
-> > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D204191
-> > > Reported-by: Sam Bazely <sambazley@fastmail.com>
-> > > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> > > Cc: Jiri Kosina <jikos@kernel.org>
-> > > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > Cc: Henrik Rydberg <rydberg@bitmath.org>
-> > > Cc: Sam Bazely <sambazley@fastmail.com>
-> > > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-> > > Cc: Austin Palmer <austinp@valvesoftware.com>
-> > > Cc: linux-input@vger.kernel.org
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Cc: stable@vger.kernel.org
-> > > ---
-> > >  drivers/hid/hid-logitech-hidpp.c | 6 ++++++
-> > >  1 file changed, 6 insertions(+)
-> > >
-> > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logit=
-ech-hidpp.c
-> > > index cadf36d6c6f3..f415bf398e17 100644
-> > > --- a/drivers/hid/hid-logitech-hidpp.c
-> > > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > > @@ -3511,6 +3511,12 @@ static bool hidpp_validate_report(struct hid_d=
-evice *hdev, int id,
-> > >
-> > >  static bool hidpp_validate_device(struct hid_device *hdev)
-> > >  {
-> > > +       struct hidpp_device *hidpp =3D hid_get_drvdata(hdev);
-> > > +
-> > > +       if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
-> > > +               return hidpp_validate_report(hdev, REPORT_ID_HIDPP_LO=
-NG,
-> > > +                                            HIDPP_REPORT_SHORT_LENGT=
-H, false);
-> > > +
+> > Yeah, that stealing of the pointer is not good :)
+> > But OTOH, it helps
 > >
-> > with https://patchwork.kernel.org/patch/11184749/ we also have a need
-> > for such a trick for BLE mice.
+> > >
+> > > Maybe we should clean it up a bit... I'm open to suggestions.
 > >
-> > I wonder if we should not have a more common way of validating the devi=
-ces
-> >
+> > The problem I had when doing the review was that there is no easy way
+> > to have a "devm_input_ff_create_()", because the way it's built is
+> > already "devres-compatible": the destroy gets called by input core.
 >
-> What about just checking for:
->
-> hidpp_validate_report(REPORT_ID_HIDPP_SHORT,
->                                     HIDPP_REPORT_SHORT_LENGTH, true) ||
-> hidpp_validate_report(hdev, REPORT_ID_HIDPP_LONG,
->                                     HIDPP_REPORT_LONG_LENGTH, true);
->
-> and probably dropping the "optional" argument for
-> hidpp_validate_report()? Original code allows there to be devices
-> supporting shorts reports only, but it seems that devices that support
-> only long reports are legitimate too, so maybe the only "invalid"
-> combination is if both are invalid length or missing?
+> I do not think we want devm_input_ff_create() explicitly, I think the
+> fact that you can "build up" an input device by allocating it, then
+> adding slots, poller, ff support, etc, and input core cleans it up is
+> all good. It is just the ownership if the driver-private data block is
+> not very obvious and is not compatible with allocating via devm.
 
-Well, the problem is we also want to detect 2 things:
-- devices that do not have any of the HID++ collections, and handle
-them as generic ones (the second mouse/keyboard collection in the
-gaming mice should still be exported by the driver, or this will kill
-the macros / rebinding capabilities
-- malicious devices that pretends to have a HID++ collection but want
-to trigger a buffer overflow by having a shorter than expected report
-length
-
-Point 2 above should still be fine, but point 1 is why we have the
-enforcement of the HID++ short report in the first place.
+Yep, that's what I meant: input_ff_create() already handles its
+cleanup, so there is no point in devm_input_ff_create() as the input
+core should clean it up for us.
 
 Cheers,
 Benjamin
 
 >
-> Thanks,
-> Andrey Smirnov
+> >
+> > So I don't have a good answer to simplify in a transparent manner
+> > without breaking the API.
+> >
+> > >
+> > > In this case maybe best way is to get rid of hidpp_ff_destroy() and n=
+ot
+> > > set ff->private and rely on devm to free the buffers. One can get to
+> > > device private data from ff methods via input_get_drvdata() since the=
+y
+> > > all (except destroy) are passed input device pointer.
+> >
+> > Sounds like a good idea. However, it seems there might be a race when
+> > removing the workqueue:
+> > the workqueue gets deleted in hidpp_remove, when the input node will
+> > be freed by devres, so after the call of hidpp_remove.
+>
+> Yeah, well, that is a common issue with mixing devm and normal resources
+> (and workqueue here is that "normal" resource), and we should either:
+>
+> - not use devm
+> - use devm_add_action_or_reset() to work in custom actions that work
+>   freeing of non-managed resources into devm flow.
+>
+> Thanks.
+>
+> --
+> Dmitry

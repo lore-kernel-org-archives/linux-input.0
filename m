@@ -1,221 +1,91 @@
-Return-Path: <SRS0=199A=YG=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=szqD=YH=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7368CC4360C
-	for <linux-input@archiver.kernel.org>; Sun, 13 Oct 2019 15:17:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DC28C4360C
+	for <linux-input@archiver.kernel.org>; Mon, 14 Oct 2019 00:08:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 420E520869
-	for <linux-input@archiver.kernel.org>; Sun, 13 Oct 2019 15:17:45 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=vdwaa-nl.20150623.gappssmtp.com header.i=@vdwaa-nl.20150623.gappssmtp.com header.b="B7cUImcm"
+	by mail.kernel.org (Postfix) with ESMTP id 4B1A22067B
+	for <linux-input@archiver.kernel.org>; Mon, 14 Oct 2019 00:08:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727141AbfJMPRo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 13 Oct 2019 11:17:44 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:44413 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726085AbfJMPRo (ORCPT
+        id S1729454AbfJNAIh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 13 Oct 2019 20:08:37 -0400
+Received: from 8.mo5.mail-out.ovh.net ([178.32.116.78]:35499 "EHLO
+        8.mo5.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729383AbfJNAIh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 13 Oct 2019 11:17:44 -0400
-Received: by mail-ed1-f66.google.com with SMTP id r16so12603108edq.11
-        for <linux-input@vger.kernel.org>; Sun, 13 Oct 2019 08:17:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=vdwaa-nl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=VZQ4Ij7vw7nZ2BwAbCr6W3WjBFto6hUXu45r/qSRMRc=;
-        b=B7cUImcmjgLNoh8eA+sWNLXyhxlBBamwwdpz5gI/Q1Ga5tC42/Nbf6fIokkkp0y/RQ
-         8ye/EGusi0HpRvvZpfPdh4IEoI2OyBKwdzsp2/Jvs682xAwjIVfNRYkoZqV7SAmTWjAO
-         Sxxg7/rTFsaAwreEql02F7NzLRrDahIwxFIRkAReHeup+po3v2lQBNfKdWjxAL9bMY3I
-         D9X8P1+rb6m9krfgi3NdxvE9rhnKHR+PGB5WYq0bCqULynm490LDdksQ+U5shAdQoDgf
-         d3iHNU5tm1fh4CdggnCj4258BGg8f2y+mR0HrTkT9Yiu41yOZdwIOlNNxRduXtAgascq
-         kMqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=VZQ4Ij7vw7nZ2BwAbCr6W3WjBFto6hUXu45r/qSRMRc=;
-        b=ZT7epuKoM4sV1Sr0rhlAIJuCLbT/5Nylt7h90MmOCNiW3+rJQygYUIrUKrY0UPfumM
-         LbioH/KCMqhEL5GIwt9PxPVwxJwK+/Ez2mu5dQgQjGjFPDQUg58VWPFsqD+Fliv82305
-         eOf0bGOl2FpyUxreuaQL0iNfN/yzt2nR2T48acgNRK6k1t59XXuNliAYIYAulkeET2iR
-         QA1TZ9bwlRlJaOirm25FcMh/TIdBiPNpdxNVitTtVyOpFBhMALduhnDpoVNw4l+Sj4P3
-         l4ElLPLHi5xRozLFsFLNhsqhUOvnRTfqS5p9y2ympvl8voMs1f4vUiTs72gbht50iwCz
-         0Neg==
-X-Gm-Message-State: APjAAAUa84b79LMT/nd0feq537TnXKBJGyndonAV8V4CHl78onOYVjqM
-        0niH5IVE32C6ehLGID7zDnengA==
-X-Google-Smtp-Source: APXvYqyfPWAm9CfQjMMcHMW+6u3PnJS65FNLSqYtWSi4mYDwUUseMNVho0pDmCKGeAR28983+ZMGWw==
-X-Received: by 2002:a17:906:b24c:: with SMTP id ce12mr24296448ejb.327.1570979862020;
-        Sun, 13 Oct 2019 08:17:42 -0700 (PDT)
-Received: from localhost.localdomain (83-84-17-34.cable.dynamic.v4.ziggo.nl. [83.84.17.34])
-        by smtp.gmail.com with ESMTPSA id h10sm2702489edf.81.2019.10.13.08.17.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Oct 2019 08:17:41 -0700 (PDT)
-From:   Jelle van der Waa <jelle@vdwaa.nl>
-X-Google-Original-From: Jelle van der Waa
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input@vger.kernel.org, Jelle van der Waa <jelle@vdwaa.nl>
-Subject: [PATCH v2] HID: Add support for Razer Blackwidow keyboards
-Date:   Sun, 13 Oct 2019 17:16:50 +0200
-Message-Id: <20191013151650.41360-1-jelle@vdwaa.nl>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190705221605.28293-1-jelle@vdwaa.nl>
-References: <20190705221605.28293-1-jelle@vdwaa.nl>
+        Sun, 13 Oct 2019 20:08:37 -0400
+X-Greylist: delayed 10499 seconds by postgrey-1.27 at vger.kernel.org; Sun, 13 Oct 2019 20:08:36 EDT
+Received: from player793.ha.ovh.net (unknown [10.109.143.79])
+        by mo5.mail-out.ovh.net (Postfix) with ESMTP id 2E53424FF85
+        for <linux-input@vger.kernel.org>; Sun, 13 Oct 2019 23:40:02 +0200 (CEST)
+Received: from etezian.org (81-175-223-118.bb.dnainternet.fi [81.175.223.118])
+        (Authenticated sender: andi@etezian.org)
+        by player793.ha.ovh.net (Postfix) with ESMTPSA id E1807AE3A080;
+        Sun, 13 Oct 2019 21:39:51 +0000 (UTC)
+Date:   Mon, 14 Oct 2019 00:39:50 +0300
+From:   Andi Shyti <andi@etezian.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Andi Shyti <andi@etezian.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Simon Shields <simon@lineageos.org>,
+        linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] Input: mms114 - add support for mms345l
+Message-ID: <20191013213950.GB16344@jack.zhora.eu>
+References: <20191007203343.101466-1-stephan@gerhold.net>
+ <20191007205021.104402-1-stephan@gerhold.net>
+ <20191008220014.GI22365@dtor-ws>
+ <20191009072612.GA2814@jack.zhora.eu>
+ <20191009204017.GK22365@dtor-ws>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
+In-Reply-To: <20191009204017.GK22365@dtor-ws>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Ovh-Tracer-Id: 11074914435028337306
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrjedtgddtudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
+Message-ID: <20191013213950.jKQRkULC-scd9s6DPwC5YPX8qx5eO_UcHTcosG0hiNM@z>
 
-From: Jelle van der Waa <jelle@vdwaa.nl>
+Hi Dmitry,
 
-Add support for the macro keys on the Razer Blackwidow keyboards. By
-default the macro keys do not work and have to be enabled via a feature
-report. After being enabled they report as XF86Tools, XF86Launch5-8.
+> > > > There was a related patch [2] that removes I2C_M_NOSTART for all models,
+> > > > but it seems abandoned and I do not have any other model for testing.
+> > > > Therefore, this patch implements the least instrusive solution
+> > > > and only removes I2C_M_NOSTART for MMS345L.
+> > > 
+> > > Hmm,  at this point I am inclined to pick up Andi's patch since it seems
+> > > to work for you and him and it looks like Android drivers are not using
+> > > I2C_M_NOSTART. I wonder if this was some quirk/big on the platform where
+> > > it was originally developed.
+> > 
+> > I completely forgot about that patch :)
+> > 
+> > I should refresh some old work on that device which was left
+> > undone.
+> > 
+> > > Any objections?
+> > 
+> > It's OK for me. If you can just update my e-mail, please, when
+> > applying the patch to "andi@etezian.org". Thanks!
+> 
+> Andi, any chance you could resend it with the new email? One thing that
+> I try to avoid modifying whenever I can is S-O-B strings...
 
-Signed-off-by: Jelle van der Waa <jelle@vdwaa.nl>
----
- drivers/hid/Kconfig     |  7 ++++
- drivers/hid/Makefile    |  1 +
- drivers/hid/hid-ids.h   |  3 ++
- drivers/hid/hid-razer.c | 78 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 89 insertions(+)
- create mode 100644 drivers/hid/hid-razer.c
+sure, I will resend the patches, but it might take some time (a
+few days I hope) because I don't have the devices with me right
+now for testing (and I added some small fixes, as well)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 1ecb5124421c..4f347fe60a63 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -1144,6 +1144,13 @@ config HID_ALPS
- 	Say Y here if you have a Alps touchpads over i2c-hid or usbhid
- 	and want support for its special functionalities.
- 
-+config HID_RAZER
-+	tristate "Razer Blackwidow keyboard support"
-+	depends on HID
-+	---help---
-+	Say Y here if you want the Razer Blackwidow keyboards to enable macro
-+	keys.
-+
- endmenu
- 
- endif # HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 0c03308cfb08..5ae72667b07e 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -107,6 +107,7 @@ obj-$(CONFIG_HID_STEAM)		+= hid-steam.o
- obj-$(CONFIG_HID_STEELSERIES)	+= hid-steelseries.o
- obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
- obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
-+obj-$(CONFIG_HID_RAZER)		+= hid-razer.o
- obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o
- obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
- obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 76969a22b0f2..d9ab9a048fee 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -960,6 +960,9 @@
- 
- #define USB_VENDOR_ID_RAZER            0x1532
- #define USB_DEVICE_ID_RAZER_BLADE_14   0x011D
-+#define USB_DEVICE_ID_RAZER_BLACKWIDOW 0x010e
-+#define USB_DEVICE_ID_RAZER_BLACKWIDOW_ULTIMATE 0x011a
-+#define USB_DEVICE_ID_RAZER_BLACKWIDOW_2013 0x011b
- 
- #define USB_VENDOR_ID_REALTEK		0x0bda
- #define USB_DEVICE_ID_REALTEK_READER	0x0152
-diff --git a/drivers/hid/hid-razer.c b/drivers/hid/hid-razer.c
-new file mode 100644
-index 000000000000..d958fd9f9311
---- /dev/null
-+++ b/drivers/hid/hid-razer.c
-@@ -0,0 +1,78 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * HID driver to enable macro keys on Razer keyboards
-+ *
-+ * Copyright (c) 2019 Jelle van der Waa <jelle@vdwaa.nl>
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+
-+#define RAZER_BLACKWIDOW_FEATURE_REPORT 0x00
-+#define BUF_SIZE 91
-+
-+static const u8 data[BUF_SIZE] = {0, 0, 0, 0, 0, 0, 2, 0, 4, 2, 0, 0, 0, 0, 0,
-+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-+	0, 0, 4, 0};
-+
-+static const struct hid_device_id razer_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLACKWIDOW) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLACKWIDOW_2013) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLACKWIDOW_ULTIMATE) },
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(hid, razer_devices);
-+
-+static int razer_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	struct hid_report_enum *rep_enum;
-+	struct hid_report *rep;
-+	unsigned char *dmabuf;
-+	bool has_ff000002 = false;
-+	int ret = 0;
-+
-+	dmabuf = kmemdup(data, BUF_SIZE, GFP_KERNEL);
-+	if (!dmabuf)
-+		return -ENOMEM;
-+
-+	hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
-+
-+	ret = hid_parse(hdev);
-+	if (ret)
-+		return ret;
-+
-+	rep_enum = &hdev->report_enum[HID_FEATURE_REPORT];
-+	list_for_each_entry(rep, &rep_enum->report_list, list) {
-+		if (rep->maxfield && rep->field[0]->maxusage)
-+			if (rep->field[0]->usage[0].hid == 0xff000002)
-+				has_ff000002 = true;
-+	}
-+
-+	if (has_ff000002) {
-+		ret = hid_hw_raw_request(hdev, RAZER_BLACKWIDOW_FEATURE_REPORT,
-+				dmabuf, BUF_SIZE, HID_FEATURE_REPORT,
-+				HID_REQ_SET_REPORT);
-+		if (ret != BUF_SIZE)
-+			hid_err(hdev, "Razer failed to enable macro keys\n");
-+	}
-+
-+	kfree(dmabuf);
-+
-+	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+}
-+
-+static struct hid_driver razer_driver = {
-+	.name = "hid-razer",
-+	.id_table = razer_devices,
-+	.probe = razer_probe,
-+};
-+
-+module_hid_driver(razer_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Jelle van der Waa <jelle@vdwaa.nl");
-+MODULE_DESCRIPTION("Razer blackwidow 2013/2014 HID driver");
--- 
-2.23.0
-
+Thanks,
+Andi

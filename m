@@ -2,70 +2,74 @@ Return-Path: <SRS0=CCxI=YK=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E29FEECE58D
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:44:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7011ECE58D
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:44:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B242F21835
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:44:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C90521835
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:44:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hkbKRcr0"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aG9qiAf2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2501949AbfJQUm3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Oct 2019 16:42:29 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:42139 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2440678AbfJQUm3 (ORCPT
+        id S2440211AbfJQUm2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Oct 2019 16:42:28 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:34047 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727269AbfJQUm1 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Oct 2019 16:42:29 -0400
-Received: by mail-pg1-f194.google.com with SMTP id f14so2006751pgi.9;
-        Thu, 17 Oct 2019 13:42:28 -0700 (PDT)
+        Thu, 17 Oct 2019 16:42:27 -0400
+Received: by mail-pf1-f195.google.com with SMTP id b128so2392237pfa.1;
+        Thu, 17 Oct 2019 13:42:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=xREUl1NsyRw48QZ1koCr3VjBYFASQ7LMvhvI9Mxd8Eg=;
-        b=hkbKRcr0aDKQQEgH7N63R/GPV3ypco9E2U5GEYGBOHp4gT2lm3d4LglyQbO/fKT+D5
-         /Yf+zkhIMahQs8azEFXBur489HQqdJ5CEvJhqlhMHnljIOtTqavHAXORy8/py9TL4G09
-         soYNXlynNEVJQkOu6rS/5m0GYwI1fV6X/2oMRgLXe9m/xptJTe1u3HfUacG5T614DGTY
-         +dXvKok79BUUm0dNlX/9unpfmkXPPszLpC2Z8TK6vFmSetwg510IRA6pcZ3X8AOwbQv4
-         x2pg5YPPrEi+vQXEg0YhrtiPSCi6vA0vnYuiFNjTP5w803iCKtCcX1WEJlTXOxSA6Uua
-         U+vQ==
+        bh=IR9wXPx+VgMHzXyTssPlOjBdtYa1XMszXx3amY1GdBs=;
+        b=aG9qiAf2i+m9OGvs7MBGnS64P7Nnat81BEJrK94hz3F6AE4OHX7n9Zqf5pHUSQMiN8
+         hpu4QK8j5+lim/xX1ydTdUD3pd9TE0+YmSiF5/nP3laJc1hLQfI76tELt2JPmz3qlg+M
+         vEYWNfbV2ONJIzdzGz+duZkzLgl+HRMsQzIKrTL76FQ+lqs/VxzyzF4yoHrmwMSUBEaA
+         HZB8RdB920kDXdjrVheVqVNgkmSGiVQHxJCsQ85G9nkNP26fqUTT5+cnB1YtRezoo3qp
+         c6aWBEB0xVDRMH7VmZtPZTGJqoYyVlT1XnUAqwH8YyqvJiZxYlzA7AnbYdk+mfZabavQ
+         oaXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=xREUl1NsyRw48QZ1koCr3VjBYFASQ7LMvhvI9Mxd8Eg=;
-        b=Cmkt0+Qr9roFu7NZt/tpPHCEjSIYA2gUEf8SITU4M2nLi8S0AfKokoogTEwGOFx/3/
-         nguLmsFTQQaCPWng6TfKyEV/80uw7vwSUi1bA9Z7d1cDWP5ykfI0DNQk2Xby42A+RRzu
-         2V0FXbtj8OTE/O9hyfCot7PiP5+GIFacyCQeeFF1t+4HCjBAx/4T/JwhKVHUq3uCx9mZ
-         QBHJ0yyC1i5NKPWlrqvY/LUSB2UyL0ZAQ1ov4TfxvPppKxLK0/jOxJ/yPtwHZn49E9Kj
-         pi2ovr9Xzlb365N9uidQt3k1Jw31g5heZFY/ZHXP1tVPM5WPyvrVOjiUUcuVUNhszNvm
-         tRzg==
-X-Gm-Message-State: APjAAAWnRG6dwlPXKd/ibNc55V5YtYE2DjdwrE/9n96PuUr23KQQ2xco
-        xE+ihxYm7PwBexF+TjIOndPAMetn
-X-Google-Smtp-Source: APXvYqzS7MmleeeZ6TVFaT71zNM54PUh5o6nDqqhWIdh0jbEFDPo1mN/AzPsjK8jG+rxOjGgSBp7Fg==
-X-Received: by 2002:a63:5162:: with SMTP id r34mr6146979pgl.339.1571344947454;
-        Thu, 17 Oct 2019 13:42:27 -0700 (PDT)
+        bh=IR9wXPx+VgMHzXyTssPlOjBdtYa1XMszXx3amY1GdBs=;
+        b=MeWxqjbRc095a0JKEvZ8s5OEGfOCeTfjP87Q+AK7IJpd2ul8pvmFl0uqyDOwDlZYmj
+         xBF8GlfcK0gFEW4J9RT22LwQpncws4YzuWvU2hT4p8emDG3gds1cfmaq2JgnkWL6bvt8
+         xmniTn9gl8w+/AD7gwnuoeu0oy4wvuNj6YPIW+k+NPMtyQ1wOKmBXwUKcqk1zXMryKad
+         dWgAdVjk1it4t1MNedEyslHg2C7LOqgcI8Kqo7iBIOgD/3AHqNwIzUfzM82+2VVHs//x
+         NqxCJ3hVzA7WhADqzC9obxDlyGVoFI+QYuKN1slGybS5EdWgfUNdp13Bo2jFfmqjbTLj
+         Smlg==
+X-Gm-Message-State: APjAAAXPtcjDkRAa4A3+mV1yPfY1p/Y7ILD00KNOHJNXtdWg+8/Y5CBc
+        UvVBz7f8klI2OFZcALsZdF0xQkbd
+X-Google-Smtp-Source: APXvYqyGY/xepLpzs7oKpDHQvq+XzriiJXpToXeF8sqZS77YlSA+n97vplCXT19O3CjX6GcfLUJkSA==
+X-Received: by 2002:a63:4d8:: with SMTP id 207mr6448499pge.168.1571344944516;
+        Thu, 17 Oct 2019 13:42:24 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.26
+        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Oct 2019 13:42:26 -0700 (PDT)
+        Thu, 17 Oct 2019 13:42:23 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     linux-input@vger.kernel.org
-Cc:     Anders Roxell <anders.roxell@linaro.org>,
+Cc:     Allison Randal <allison@lohutok.net>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Eric Anholt <eric@anholt.net>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Jeff LaBundy <jeff@labundy.com>,
         Martin Kepplinger <martink@posteo.de>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 04/22] Input: tsc6507x-ts - switch to using polled mode of input devices
-Date:   Thu, 17 Oct 2019 13:41:58 -0700
-Message-Id: <20191017204217.106453-5-dmitry.torokhov@gmail.com>
+Subject: [PATCH 02/22] Input: sur40 - switch to using polled mode of input devices
+Date:   Thu, 17 Oct 2019 13:41:56 -0700
+Message-Id: <20191017204217.106453-3-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.23.0.866.gb869b98d4c-goog
 In-Reply-To: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
 References: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
@@ -77,116 +81,236 @@ List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 We have added polled mode to the normal input devices with the intent of
-retiring input_polled_dev. This converts tsc6507x-ts driver to use the
+retiring input_polled_dev. This converts sur40 driver to use the
 polling mode of standard input devices and removes dependency on
 INPUT_POLLDEV.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
 
- drivers/input/touchscreen/Kconfig       |  1 -
- drivers/input/touchscreen/tps6507x-ts.c | 36 ++++++++++++-------------
- 2 files changed, 17 insertions(+), 20 deletions(-)
+ drivers/input/touchscreen/Kconfig |  1 -
+ drivers/input/touchscreen/sur40.c | 92 ++++++++++++++++++-------------
+ 2 files changed, 53 insertions(+), 40 deletions(-)
 
 diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 2c00232b2506..40bfc551ce30 100644
+index 00e7a9f218bc..df9cb92166c3 100644
 --- a/drivers/input/touchscreen/Kconfig
 +++ b/drivers/input/touchscreen/Kconfig
-@@ -1243,7 +1243,6 @@ config TOUCHSCREEN_SX8654
- config TOUCHSCREEN_TPS6507X
- 	tristate "TPS6507x based touchscreens"
- 	depends on I2C
+@@ -1209,7 +1209,6 @@ config TOUCHSCREEN_SUR40
+ 	tristate "Samsung SUR40 (Surface 2.0/PixelSense) touchscreen"
+ 	depends on USB && MEDIA_USB_SUPPORT && HAS_DMA
+ 	depends on VIDEO_V4L2
 -	select INPUT_POLLDEV
+ 	select VIDEOBUF2_DMA_SG
  	help
- 	  Say Y here if you have a TPS6507x based touchscreen
- 	  controller.
-diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-index 75170a7439b1..357a3108f2e5 100644
---- a/drivers/input/touchscreen/tps6507x-ts.c
-+++ b/drivers/input/touchscreen/tps6507x-ts.c
-@@ -17,7 +17,6 @@
- #include <linux/workqueue.h>
- #include <linux/slab.h>
- #include <linux/input.h>
+ 	  Say Y here if you want support for the Samsung SUR40 touchscreen
+diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+index 00cb1ba2d364..04638900fe0e 100644
+--- a/drivers/input/touchscreen/sur40.c
++++ b/drivers/input/touchscreen/sur40.c
+@@ -27,7 +27,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/usb.h>
+ #include <linux/printk.h>
 -#include <linux/input-polldev.h>
- #include <linux/platform_device.h>
- #include <linux/mfd/tps6507x.h>
- #include <linux/input/tps6507x-ts.h>
-@@ -40,7 +39,7 @@ struct ts_event {
++#include <linux/input.h>
+ #include <linux/input/mt.h>
+ #include <linux/usb/input.h>
+ #include <linux/videodev2.h>
+@@ -206,7 +206,7 @@ struct sur40_state {
  
- struct tps6507x_ts {
- 	struct device		*dev;
--	struct input_polled_dev	*poll_dev;
-+	struct input_dev	*input;
- 	struct tps6507x_dev	*mfd;
- 	char			phys[32];
- 	struct ts_event		tc;
-@@ -148,10 +147,9 @@ static s32 tps6507x_adc_standby(struct tps6507x_ts *tsc)
- 	return ret;
+ 	struct usb_device *usbdev;
+ 	struct device *dev;
+-	struct input_polled_dev *input;
++	struct input_dev *input;
+ 
+ 	struct v4l2_device v4l2;
+ 	struct video_device vdev;
+@@ -370,6 +370,10 @@ static int sur40_init(struct sur40_state *dev)
+ 		goto error;
+ 
+ 	result = sur40_command(dev, SUR40_GET_VERSION, 0x03, buffer, 12);
++	if (result < 0)
++		goto error;
++
++	result = 0;
+ 
+ 	/*
+ 	 * Discard the result buffer - no known data inside except
+@@ -381,22 +385,22 @@ static int sur40_init(struct sur40_state *dev)
  }
  
--static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
-+static void tps6507x_ts_poll(struct input_dev *input_dev)
- {
--	struct tps6507x_ts *tsc = poll_dev->private;
--	struct input_dev *input_dev = poll_dev->input;
-+	struct tps6507x_ts *tsc = input_get_drvdata(input_dev);
- 	bool pendown;
- 	s32 ret;
+ /*
+- * Callback routines from input_polled_dev
++ * Callback routines from input_dev
+  */
  
-@@ -205,7 +203,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 	const struct tps6507x_board *tps_board;
- 	const struct touchscreen_init_data *init_data;
- 	struct tps6507x_ts *tsc;
+ /* Enable the device, polling will now start. */
+-static void sur40_open(struct input_polled_dev *polldev)
++static int sur40_open(struct input_dev *input)
+ {
+-	struct sur40_state *sur40 = polldev->private;
++	struct sur40_state *sur40 = input_get_drvdata(input);
+ 
+ 	dev_dbg(sur40->dev, "open\n");
+-	sur40_init(sur40);
++	return sur40_init(sur40);
+ }
+ 
+ /* Disable device, polling has stopped. */
+-static void sur40_close(struct input_polled_dev *polldev)
++static void sur40_close(struct input_dev *input)
+ {
+-	struct sur40_state *sur40 = polldev->private;
++	struct sur40_state *sur40 = input_get_drvdata(input);
+ 
+ 	dev_dbg(sur40->dev, "close\n");
+ 	/*
+@@ -448,10 +452,9 @@ static void sur40_report_blob(struct sur40_blob *blob, struct input_dev *input)
+ }
+ 
+ /* core function: poll for new input data */
+-static void sur40_poll(struct input_polled_dev *polldev)
++static void sur40_poll(struct input_dev *input)
+ {
+-	struct sur40_state *sur40 = polldev->private;
+-	struct input_dev *input = polldev->input;
++	struct sur40_state *sur40 = input_get_drvdata(input);
+ 	int result, bulk_read, need_blobs, packet_blobs, i;
+ 	u32 uninitialized_var(packet_id);
+ 
+@@ -613,10 +616,9 @@ static void sur40_process_video(struct sur40_state *sur40)
+ }
+ 
+ /* Initialize input device parameters. */
+-static void sur40_input_setup(struct input_dev *input_dev)
++static int sur40_input_setup_events(struct input_dev *input_dev)
+ {
+-	__set_bit(EV_KEY, input_dev->evbit);
+-	__set_bit(EV_ABS, input_dev->evbit);
++	int error;
+ 
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ 			     0, SENSOR_RES_X, 0, 0);
+@@ -637,8 +639,14 @@ static void sur40_input_setup(struct input_dev *input_dev)
+ 
+ 	input_set_abs_params(input_dev, ABS_MT_ORIENTATION, 0, 1, 0, 0);
+ 
+-	input_mt_init_slots(input_dev, MAX_CONTACTS,
+-			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	error = input_mt_init_slots(input_dev, MAX_CONTACTS,
++				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	if (error) {
++		dev_err(input_dev->dev.parent, "failed to set up slots\n");
++		return error;
++	}
++
++	return 0;
+ }
+ 
+ /* Check candidate USB interface. */
+@@ -649,7 +657,7 @@ static int sur40_probe(struct usb_interface *interface,
+ 	struct sur40_state *sur40;
+ 	struct usb_host_interface *iface_desc;
+ 	struct usb_endpoint_descriptor *endpoint;
 -	struct input_polled_dev *poll_dev;
- 	struct input_dev *input_dev;
++	struct input_dev *input;
  	int error;
  
-@@ -240,23 +237,16 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 	snprintf(tsc->phys, sizeof(tsc->phys),
- 		 "%s/input0", dev_name(tsc->dev));
- 
--	poll_dev = devm_input_allocate_polled_device(&pdev->dev);
--	if (!poll_dev) {
-+	input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!input_dev) {
- 		dev_err(tsc->dev, "Failed to allocate polled input device.\n");
+ 	/* Check if we really have the right interface. */
+@@ -670,8 +678,8 @@ static int sur40_probe(struct usb_interface *interface,
+ 	if (!sur40)
  		return -ENOMEM;
+ 
+-	poll_dev = input_allocate_polled_device();
+-	if (!poll_dev) {
++	input = input_allocate_device();
++	if (!input) {
+ 		error = -ENOMEM;
+ 		goto err_free_dev;
+ 	}
+@@ -681,26 +689,33 @@ static int sur40_probe(struct usb_interface *interface,
+ 	spin_lock_init(&sur40->qlock);
+ 	mutex_init(&sur40->lock);
+ 
+-	/* Set up polled input device control structure */
+-	poll_dev->private = sur40;
+-	poll_dev->poll_interval = POLL_INTERVAL;
+-	poll_dev->open = sur40_open;
+-	poll_dev->poll = sur40_poll;
+-	poll_dev->close = sur40_close;
+-
+ 	/* Set up regular input device structure */
+-	sur40_input_setup(poll_dev->input);
+-
+-	poll_dev->input->name = DRIVER_LONG;
+-	usb_to_input_id(usbdev, &poll_dev->input->id);
++	input->name = DRIVER_LONG;
++	usb_to_input_id(usbdev, &input->id);
+ 	usb_make_path(usbdev, sur40->phys, sizeof(sur40->phys));
+ 	strlcat(sur40->phys, "/input0", sizeof(sur40->phys));
+-	poll_dev->input->phys = sur40->phys;
+-	poll_dev->input->dev.parent = &interface->dev;
++	input->phys = sur40->phys;
++	input->dev.parent = &interface->dev;
++
++	input->open = sur40_open;
++	input->close = sur40_close;
++
++	error = sur40_input_setup_events(input);
++	if (error)
++		goto err_free_input;
++
++	input_set_drvdata(input, sur40);
++	error = input_setup_polling(input, sur40_poll);
++	if (error) {
++		dev_err(&interface->dev, "failed to set up polling");
++		goto err_free_input;
++	}
++
++	input_set_poll_interval(input, POLL_INTERVAL);
+ 
+ 	sur40->usbdev = usbdev;
+ 	sur40->dev = &interface->dev;
+-	sur40->input = poll_dev;
++	sur40->input = input;
+ 
+ 	/* use the bulk-in endpoint tested above */
+ 	sur40->bulk_in_size = usb_endpoint_maxp(endpoint);
+@@ -709,11 +724,11 @@ static int sur40_probe(struct usb_interface *interface,
+ 	if (!sur40->bulk_in_buffer) {
+ 		dev_err(&interface->dev, "Unable to allocate input buffer.");
+ 		error = -ENOMEM;
+-		goto err_free_polldev;
++		goto err_free_input;
  	}
  
--	tsc->poll_dev = poll_dev;
--
--	poll_dev->private = tsc;
--	poll_dev->poll = tps6507x_ts_poll;
--	poll_dev->poll_interval = init_data ?
--			init_data->poll_period : TSC_DEFAULT_POLL_PERIOD;
--
--	input_dev = poll_dev->input;
--	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+	tsc->input = input_dev;
-+	input_set_drvdata(input_dev, tsc);
- 
-+	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
- 	input_set_abs_params(input_dev, ABS_X, 0, MAX_10BIT, 0, 0);
- 	input_set_abs_params(input_dev, ABS_Y, 0, MAX_10BIT, 0, 0);
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_10BIT, 0, 0);
-@@ -275,7 +265,15 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 	if (error)
- 		return error;
- 
+ 	/* register the polled input device */
 -	error = input_register_polled_device(poll_dev);
-+	error = input_setup_polling(input_dev, tps6507x_ts_poll);
-+	if (error)
-+		return error;
-+
-+	input_set_poll_interval(input_dev,
-+				init_data ? init_data->poll_period :
-+					    TSC_DEFAULT_POLL_PERIOD);
-+
-+	error = input_register_device(input_dev);
- 	if (error)
- 		return error;
++	error = input_register_device(input);
+ 	if (error) {
+ 		dev_err(&interface->dev,
+ 			"Unable to register polled input device.");
+@@ -796,8 +811,8 @@ static int sur40_probe(struct usb_interface *interface,
+ 	v4l2_device_unregister(&sur40->v4l2);
+ err_free_buffer:
+ 	kfree(sur40->bulk_in_buffer);
+-err_free_polldev:
+-	input_free_polled_device(sur40->input);
++err_free_input:
++	input_free_device(input);
+ err_free_dev:
+ 	kfree(sur40);
+ 
+@@ -813,8 +828,7 @@ static void sur40_disconnect(struct usb_interface *interface)
+ 	video_unregister_device(&sur40->vdev);
+ 	v4l2_device_unregister(&sur40->v4l2);
+ 
+-	input_unregister_polled_device(sur40->input);
+-	input_free_polled_device(sur40->input);
++	input_unregister_device(sur40->input);
+ 	kfree(sur40->bulk_in_buffer);
+ 	kfree(sur40);
  
 -- 
 2.23.0.866.gb869b98d4c-goog

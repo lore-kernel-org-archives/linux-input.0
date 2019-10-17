@@ -5,67 +5,63 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6FFAFA372A
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:43:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0842FA3737
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:43:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7D1CC21835
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:43:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C09612089C
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:43:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pqLcROSw"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sosHBIU0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389347AbfJQUnk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Oct 2019 16:43:40 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:36790 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502683AbfJQUmq (ORCPT
+        id S2503574AbfJQUnp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Oct 2019 16:43:45 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:42160 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502552AbfJQUmo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Oct 2019 16:42:46 -0400
-Received: by mail-pl1-f194.google.com with SMTP id j11so1706668plk.3;
-        Thu, 17 Oct 2019 13:42:45 -0700 (PDT)
+        Thu, 17 Oct 2019 16:42:44 -0400
+Received: by mail-pg1-f195.google.com with SMTP id f14so2007056pgi.9;
+        Thu, 17 Oct 2019 13:42:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=p4qYPdv7CFoLETcuSBMJehUgVm9YqKP05FJFL0znofs=;
-        b=pqLcROSwueULk1UQmRmI4xu4kebA1YY8lp01P56aYflnoLGFbt/RUOlJg0NtCglNHz
-         B75T3HnKlxcyQ5zE7r+Lz033eUuBLMQtbZIDphmg1DnoABAtN9e79YvmlQZnpnMaFYsu
-         bKnVvwKt+Q8iOMsYyTp7jLhgXyNF2lN2MDEm3dD8Mguy1poH/MtiUfdrmGJae1RJP19j
-         sTVwAgOUh5qqj3Ez9uus6ySN/fWX/QTx0IWCbINHoh4qmbwgAQYWJKKYrNMNhAKq5dvI
-         Qp4tGUEfg09sRRcSlTBR4P5aKBAX+CwyBslS8A+uzXlOxTqhlzolAcs6f1gkXplO3OfN
-         ChUA==
+        bh=Rw40Y7pRi4fTQvKbY/v46MITEUGL/XAU6ul7eCZwlVo=;
+        b=sosHBIU0RsMqX17uO+wNzNK+kTy+a2nIFoJViL+RO0PmnZeS5wLogNIhsI6ZFet+U0
+         C8T94GZQOS4cgMpAQ/aUOb3LZ60rTrnwBD5ubj9FE0ZndFOgELM3lw+FnioxXNUR4AQ+
+         488KaZljXNL/XiQS5gYiEm0PU0eHrYUhAKlOqzRwv3okyPruZVB2DZ+Lir3uMZzQZsVS
+         wHKseAUYgWvgZMZGpkz1L8lJaO7EacPEQpJalDbuLKRQ1PChklT8VmBA/0FBQJBHuiXV
+         /WOB/wtEw95TcmXnjM8ZZxYeYLPJpp7cN+1amGmo8MihmpH8MaHIkQ64lfha4BkRt9Ma
+         6Bfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=p4qYPdv7CFoLETcuSBMJehUgVm9YqKP05FJFL0znofs=;
-        b=ZD25+nceFGP9z3e5/Sp527/dYzE4uG3Vkh+aJCQD947Jk6bwMz+hZZbgtKXgZJ4hWM
-         j73Abhe2iu+mztm+R3K49tpzFcmIGRFSpvO14CLmgatez80tTjjpXhn90kfRsJ2jkDvw
-         w/cyVCRXbQqLqc8n/Nl6g6UigyJECX3R5FNGFmz6Rrz7PwISaJaxVSw8rL0YzuIZmMr2
-         WKwueKlKfWFUcy5fogXSypNLASq1CA94Ru8fKKS/nfv/UO2ZN8TKIVF044BILw2UCVlt
-         4HvRXV9oasoQN4AVh2H/Pm2bHE/6ldDjUb5HcEcdE9RqpZA15agmNYKJ1+iNfrvaNbCm
-         r6wg==
-X-Gm-Message-State: APjAAAUR/lRalu26yj+SOXgsWSJkVb974dXS+vGcIxmkM7MCVlDEzCdP
-        yf2lpPMfAT9xV1RVs7ganFgBQ092
-X-Google-Smtp-Source: APXvYqwDjpGzYiq0sp+iFvgp16XRF6y797HH5834RO2CuHI/TouX8uBOInGBHnJgNbUuMg8eFuOx+w==
-X-Received: by 2002:a17:902:44d:: with SMTP id 71mr970453ple.320.1571344964914;
-        Thu, 17 Oct 2019 13:42:44 -0700 (PDT)
+        bh=Rw40Y7pRi4fTQvKbY/v46MITEUGL/XAU6ul7eCZwlVo=;
+        b=gKtPbzLnFBXMPzfTBPSen+5VeDpXWrB9ycfAvVb7GTGKYXfpUvcXrtvcD/NgF3pSSs
+         czKg8q92SglH3bspWfmuk+qnEWXPF/BGRlO1CIAYda1kVjloG09ddOZLDJH4r7U06No7
+         4KAqgdRDvvfOX8spefkQ4F9i4vrdd3VvWdteqRNaa6UDtSSOuBxjlBASwpl1Tk+pYf1H
+         jKLO8oOl2IZAfmgLRhnFsv9BbzOwKvT5AvBFIKsWs0NKS4/RywB9ugQcT3vQ4KdQbxco
+         2dRxmuzUR1CTK4jmteqDMndb16iU+nEU07oRrbLFCSQHxH+uNYqBbiqhVpXxslKTpJi5
+         DUog==
+X-Gm-Message-State: APjAAAX0QA9cq7+MTPJPiVLC0Hr1eYxY6RjPzQA0Mej/bkGk50rwueTh
+        o7dB18gO8EFcRKfiBcHWtJZLMeWm
+X-Google-Smtp-Source: APXvYqwtsuKuPXZsa6pO5sz5LSSNVN+NQpd7xgf5wX3/YM8FzUSQ7oSB8pkq6qaUhvZnucZLxfiB+A==
+X-Received: by 2002:a17:90a:a407:: with SMTP id y7mr6561565pjp.124.1571344961518;
+        Thu, 17 Oct 2019 13:42:41 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.43
+        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Oct 2019 13:42:43 -0700 (PDT)
+        Thu, 17 Oct 2019 13:42:40 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     linux-input@vger.kernel.org
-Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Brian Masney <masneyb@onstation.org>,
-        Luca Weiss <luca@z3ntu.xyz>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 17/22] Input: gpio_decoder - switch to using polled mode of input devices
-Date:   Thu, 17 Oct 2019 13:42:11 -0700
-Message-Id: <20191017204217.106453-18-dmitry.torokhov@gmail.com>
+Cc:     linux-kernel@vger.kernel.org
+Subject: [PATCH 15/22] Input: rb532_button - switch to using managed resources
+Date:   Thu, 17 Oct 2019 13:42:09 -0700
+Message-Id: <20191017204217.106453-16-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.23.0.866.gb869b98d4c-goog
 In-Reply-To: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
 References: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
@@ -76,132 +72,64 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-We have added polled mode to the normal input devices with the intent of
-retiring input_polled_dev. This converts gpio_decoder driver to use
-the polling mode of standard input devices and removes dependency on
-INPUT_POLLDEV.
+Using devm API allows us to clean up error handling paths and drop the
+remove() method.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
 
- drivers/input/misc/Kconfig        |  1 -
- drivers/input/misc/gpio_decoder.c | 42 +++++++++++++++++--------------
- 2 files changed, 23 insertions(+), 20 deletions(-)
+ drivers/input/misc/rb532_button.c | 20 ++------------------
+ 1 file changed, 2 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 102e993bbd6b..b108c992bb7a 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -290,7 +290,6 @@ config INPUT_GPIO_BEEPER
- config INPUT_GPIO_DECODER
- 	tristate "Polled GPIO Decoder Input driver"
- 	depends on GPIOLIB || COMPILE_TEST
--	select INPUT_POLLDEV
- 	help
- 	 Say Y here if you want driver to read status of multiple GPIO
- 	 lines and report the encoded value as an absolute integer to
-diff --git a/drivers/input/misc/gpio_decoder.c b/drivers/input/misc/gpio_decoder.c
-index 1dca526e6f1a..145826a1a9a1 100644
---- a/drivers/input/misc/gpio_decoder.c
-+++ b/drivers/input/misc/gpio_decoder.c
-@@ -17,14 +17,12 @@
- #include <linux/device.h>
- #include <linux/gpio/consumer.h>
- #include <linux/input.h>
--#include <linux/input-polldev.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
+diff --git a/drivers/input/misc/rb532_button.c b/drivers/input/misc/rb532_button.c
+index 4412055f8761..3c43024f4527 100644
+--- a/drivers/input/misc/rb532_button.c
++++ b/drivers/input/misc/rb532_button.c
+@@ -58,7 +58,7 @@ static int rb532_button_probe(struct platform_device *pdev)
+ 	struct input_polled_dev *poll_dev;
+ 	int error;
  
- struct gpio_decoder {
--	struct input_polled_dev *poll_dev;
- 	struct gpio_descs *input_gpios;
- 	struct device *dev;
- 	u32 axis;
-@@ -53,15 +51,15 @@ static int gpio_decoder_get_gpios_state(struct gpio_decoder *decoder)
- 	return ret;
- }
- 
--static void gpio_decoder_poll_gpios(struct input_polled_dev *poll_dev)
-+static void gpio_decoder_poll_gpios(struct input_dev *input)
- {
--	struct gpio_decoder *decoder = poll_dev->private;
-+	struct gpio_decoder *decoder = input_get_drvdata(input);
- 	int state;
- 
- 	state = gpio_decoder_get_gpios_state(decoder);
- 	if (state >= 0 && state != decoder->last_stable) {
--		input_report_abs(poll_dev->input, decoder->axis, state);
--		input_sync(poll_dev->input);
-+		input_report_abs(input, decoder->axis, state);
-+		input_sync(input);
- 		decoder->last_stable = state;
- 	}
- }
-@@ -70,20 +68,23 @@ static int gpio_decoder_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct gpio_decoder *decoder;
--	struct input_polled_dev *poll_dev;
-+	struct input_dev *input;
- 	u32  max;
- 	int err;
- 
--	decoder = devm_kzalloc(dev, sizeof(struct gpio_decoder), GFP_KERNEL);
-+	decoder = devm_kzalloc(dev, sizeof(*decoder), GFP_KERNEL);
- 	if (!decoder)
+-	poll_dev = input_allocate_polled_device();
++	poll_dev = devm_input_allocate_polled_device(&pdev->dev);
+ 	if (!poll_dev)
  		return -ENOMEM;
  
-+	decoder->dev = dev;
- 	device_property_read_u32(dev, "linux,axis", &decoder->axis);
-+
- 	decoder->input_gpios = devm_gpiod_get_array(dev, NULL, GPIOD_IN);
- 	if (IS_ERR(decoder->input_gpios)) {
- 		dev_err(dev, "unable to acquire input gpios\n");
- 		return PTR_ERR(decoder->input_gpios);
- 	}
-+
- 	if (decoder->input_gpios->ndescs < 2) {
- 		dev_err(dev, "not enough gpios found\n");
- 		return -EINVAL;
-@@ -92,22 +93,25 @@ static int gpio_decoder_probe(struct platform_device *pdev)
- 	if (device_property_read_u32(dev, "decoder-max-value", &max))
- 		max = (1U << decoder->input_gpios->ndescs) - 1;
+@@ -68,34 +68,18 @@ static int rb532_button_probe(struct platform_device *pdev)
+ 	poll_dev->input->name = "rb532 button";
+ 	poll_dev->input->phys = "rb532/button0";
+ 	poll_dev->input->id.bustype = BUS_HOST;
+-	poll_dev->input->dev.parent = &pdev->dev;
+-
+-	dev_set_drvdata(&pdev->dev, poll_dev);
  
--	decoder->dev = dev;
--	poll_dev = devm_input_allocate_polled_device(decoder->dev);
--	if (!poll_dev)
-+	input = devm_input_allocate_device(dev);
-+	if (!input)
- 		return -ENOMEM;
+ 	input_set_capability(poll_dev->input, EV_KEY, RB532_BTN_KSYM);
  
--	poll_dev->private = decoder;
--	poll_dev->poll = gpio_decoder_poll_gpios;
--	decoder->poll_dev = poll_dev;
-+	input_set_drvdata(input, decoder);
+ 	error = input_register_polled_device(poll_dev);
+-	if (error) {
+-		input_free_polled_device(poll_dev);
++	if (error)
+ 		return error;
+-	}
+-
+-	return 0;
+-}
+-
+-static int rb532_button_remove(struct platform_device *pdev)
+-{
+-	struct input_polled_dev *poll_dev = dev_get_drvdata(&pdev->dev);
+-
+-	input_unregister_polled_device(poll_dev);
+-	input_free_polled_device(poll_dev);
  
--	poll_dev->input->name = pdev->name;
--	poll_dev->input->id.bustype = BUS_HOST;
--	input_set_abs_params(poll_dev->input, decoder->axis, 0, max, 0, 0);
-+	input->name = pdev->name;
-+	input->id.bustype = BUS_HOST;
-+	input_set_abs_params(input, decoder->axis, 0, max, 0, 0);
-+
-+	err = input_setup_polling(input, gpio_decoder_poll_gpios);
-+	if (err) {
-+		dev_err(dev, "failed to set up polling\n");
-+		return err;
-+	}
+ 	return 0;
+ }
  
--	err = input_register_polled_device(poll_dev);
-+	err = input_register_device(input);
- 	if (err) {
--		dev_err(dev, "failed to register polled  device\n");
-+		dev_err(dev, "failed to register input device\n");
- 		return err;
- 	}
- 
+ static struct platform_driver rb532_button_driver = {
+ 	.probe = rb532_button_probe,
+-	.remove = rb532_button_remove,
+ 	.driver = {
+ 		.name = DRV_NAME,
+ 	},
 -- 
 2.23.0.866.gb869b98d4c-goog
 

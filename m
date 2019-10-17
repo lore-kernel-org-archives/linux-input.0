@@ -8,168 +8,241 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1CCEECE58D
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50580FA372A
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7EC5121D7D
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17FAA21A49
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CbQAgdz0"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b8aIqbUI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502570AbfJQUmn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Oct 2019 16:42:43 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:42318 "EHLO
+        id S2502962AbfJQUmt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Oct 2019 16:42:49 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:37940 "EHLO
         mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502472AbfJQUmk (ORCPT
+        with ESMTP id S2502902AbfJQUms (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Oct 2019 16:42:40 -0400
-Received: by mail-pl1-f195.google.com with SMTP id g9so383799plj.9;
-        Thu, 17 Oct 2019 13:42:38 -0700 (PDT)
+        Thu, 17 Oct 2019 16:42:48 -0400
+Received: by mail-pl1-f195.google.com with SMTP id w8so1702233plq.5;
+        Thu, 17 Oct 2019 13:42:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=+B6qJ2+sSOJxH3bWqT0dnUTKHAsVIIfgBFCuwwzUvjw=;
-        b=CbQAgdz0/oATooI3JAjctya7d07Tum22kSzH0rlFQExxNDjvC1yAx+owKU4ysP3SKD
-         9yb7s2uIEH/105h8+GSQVl60hNegEwtDz0vlIpGCiNerVAwyPJBhFzsip7BRAVbx5NGq
-         6Q4fkJEmZbjtMlcSuRFk/4AsziJR4GtD3brq1dS20KStyj8folSpT5flYwr1W1ocIiYC
-         WF1I3L6RWhgaYEzacOIm2hOviTTmZ1GcOraxZs2DZMJ0fhuRpaqmZ1Qls112sxOCzyZT
-         0l081m5qb7VDyMaBTq2YnVEVCX+654J2CfYaNjDBhFcGIBoKSx+iWrdznAFwS0UlIGJN
-         3N7g==
+        bh=5BIGpmeokH2sY4/0NRYi8Dgb6NHFzLHS/Fu+tgAQ27o=;
+        b=b8aIqbUI+I12/63O85JG9GaYo6uedNwIl8VfTpEuBFBxE/m4bCa4XEiHS5/ooQrJja
+         2RrVlk0otj/5twmTfarVPgwBpU07spppv4SgF8/gg/lsFoYNn4HjfcXjtIMSXBB+jx3W
+         ruD92QMS6MF6R/kcmTjB4seN+rXiEltoLWqqLjK376eOJ3Xa2epzyYCDmvXPkepsLvxX
+         snP6s73ez0/84xfqnslmWgMAD8oyJq3df3tAIrD8uHCRzdZeVpiM80Hfmlo1+780rrSd
+         TUeh2SLnx/MAhkqDIR1EPKMlaX5N7tEXcqS1U9HVWln9JYcxRdDzkrZfgCFpkVKNyGmN
+         6s+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=+B6qJ2+sSOJxH3bWqT0dnUTKHAsVIIfgBFCuwwzUvjw=;
-        b=OI5DjDt70xeaWZ3UVs8Ox8XuHFgkNsmiOVNtGC9dY6ufWJwVuvsPzYp4pqLYaSkhE1
-         QEhOs1xXlxDGswBtMSNG8/2RXEuV26v+2L6JaGv3InefdvJGKeJZG8VBkZNE7bKHTyE5
-         EIa2Q6wg4Pa2A5eAzXV6brm5/DQ0RVdfEMhnKJYI2Si9T8/Zxv13X2sN7sKwP343iFpR
-         ETct7ehRcbbze0xLTWbgygufmdWUey4QNOi2hzC6/uZlsdiWSp27fRj0FbSnHU6d7/cO
-         nlaR+oVTp7RpQ/FqPVJLK6MUUFQtJO5Ma9nB0fGehUCL3wULvppr9K12YQ/Hvz51c/Mu
-         rF3w==
-X-Gm-Message-State: APjAAAU6xyUhow34h3e6Ov9YtiVD0vaRKS5VxFiLeXFey/JO6YW//jGt
-        oRBBZD0ALiOSt53L5fEMgH2DbfXR
-X-Google-Smtp-Source: APXvYqzI5gLW8a6HyzNcyCcjJkOmrrq46EKMuhYNuMDZbqFmTjdU0b+0s1BXJwbfkAOFURuuW1V+4A==
-X-Received: by 2002:a17:902:6acb:: with SMTP id i11mr5767468plt.273.1571344957746;
-        Thu, 17 Oct 2019 13:42:37 -0700 (PDT)
+        bh=5BIGpmeokH2sY4/0NRYi8Dgb6NHFzLHS/Fu+tgAQ27o=;
+        b=BsA4qq60pZb+PHJQZMPawJ0Im32zyhuuhOIHLb9AIzipxmZjlWiQjntC6FVlSe/OxA
+         Ah6FG1UeWavchSKCWONby15cZTZt0iLstJIFmJE7hp8ghSmod0UdOHiYVJF2g/MVfi3y
+         2omP/BWNjWHu/b92suA3NS5ScIt5f7GyZTlJyYrLCpCTzIuE2Fsn4uPzX0ob3jN2BDAp
+         8oAnAcy1TTQT9wv219UWaO8sy9wEj9QPeoYPmiAhg8SlUi8FBSxm7YxwSpqh45USWhiS
+         XIOLF+0rOr4sNRzbk8XQmuFWs/HC0Im/bqbU4neXELPDm93lpOHGnkQwUb4t+tHtXNKj
+         m+Tg==
+X-Gm-Message-State: APjAAAUxLO04oJCKw5oewjOl5HuP+W9QeV5YGOsF8Jjy9BPz85bR5/YD
+        CHiIIGWnuxcgfhUf4IpAqUW6fSBz
+X-Google-Smtp-Source: APXvYqzMrPPmPFf8xEra5/XAodpUzGqyd3bDtsf2KLXUA3HeM6peOxzXezE2E84VvGvFodf2W6YLoA==
+X-Received: by 2002:a17:902:bb92:: with SMTP id m18mr5740841pls.297.1571344967359;
+        Thu, 17 Oct 2019 13:42:47 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.36
+        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Oct 2019 13:42:36 -0700 (PDT)
+        Thu, 17 Oct 2019 13:42:46 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     linux-input@vger.kernel.org
-Cc:     Allison Randal <allison@lohutok.net>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Brian Masney <masneyb@onstation.org>,
-        Jilayne Lovejoy <opensource@jilayne.com>,
-        Luca Weiss <luca@z3ntu.xyz>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
+Cc:     Jonathan Bakker <xc-racer2@live.ca>,
+        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        Allison Randal <allison@lohutok.net>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 12/22] Input: cobalt_btns - switch to using polled mode of input devices
-Date:   Thu, 17 Oct 2019 13:42:06 -0700
-Message-Id: <20191017204217.106453-13-dmitry.torokhov@gmail.com>
+Subject: [PATCH 19/22] Input: bma150 - use managed resources helpers
+Date:   Thu, 17 Oct 2019 13:42:13 -0700
+Message-Id: <20191017204217.106453-20-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.23.0.866.gb869b98d4c-goog
 In-Reply-To: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
 References: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-We have added polled mode to the normal input devices with the intent of
-retiring input_polled_dev. This converts cobalt_btns driver to use
-the polling mode of standard input devices and removes dependency on
-INPUT_POLLDEV.
+From: Jonathan Bakker <xc-racer2@live.ca>
 
+The driver can be cleaned up by using managed resource helpers.
+
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Patchwork-Id: 10794333
+[dtor: do not explicitly set parent of input device since we are using devm]
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
 
- drivers/input/misc/Kconfig       |  1 -
- drivers/input/misc/cobalt_btns.c | 26 ++++++++++++++------------
- 2 files changed, 14 insertions(+), 13 deletions(-)
+ drivers/input/misc/bma150.c | 51 ++++++++++---------------------------
+ 1 file changed, 14 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 248e3b40bd24..05520bf4e31d 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -326,7 +326,6 @@ config INPUT_IXP4XX_BEEPER
- config INPUT_COBALT_BTNS
- 	tristate "Cobalt button interface"
- 	depends on MIPS_COBALT
--	select INPUT_POLLDEV
- 	help
- 	  Say Y here if you want to support MIPS Cobalt button interface.
+diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+index 735d3a46f44b..d65b008a3c7a 100644
+--- a/drivers/input/misc/bma150.c
++++ b/drivers/input/misc/bma150.c
+@@ -439,13 +439,11 @@ static int bma150_initialize(struct bma150_data *bma150,
+ 	return bma150_set_mode(bma150, BMA150_MODE_SLEEP);
+ }
  
-diff --git a/drivers/input/misc/cobalt_btns.c b/drivers/input/misc/cobalt_btns.c
-index f7c1693fc6bb..b1624f5414ee 100644
---- a/drivers/input/misc/cobalt_btns.c
-+++ b/drivers/input/misc/cobalt_btns.c
-@@ -4,7 +4,7 @@
-  *
-  *  Copyright (C) 2007-2008  Yoichi Yuasa <yuasa@linux-mips.org>
-  */
--#include <linux/input-polldev.h>
-+#include <linux/input.h>
- #include <linux/io.h>
- #include <linux/ioport.h>
- #include <linux/module.h>
-@@ -32,10 +32,9 @@ struct buttons_dev {
- 	void __iomem *reg;
- };
- 
--static void handle_buttons(struct input_polled_dev *dev)
-+static void handle_buttons(struct input_dev *input)
+-static void bma150_init_input_device(struct bma150_data *bma150,
+-						struct input_dev *idev)
++static void bma150_init_input_device(struct input_dev *idev)
  {
--	struct buttons_dev *bdev = dev->private;
--	struct input_dev *input = dev->input;
-+	struct buttons_dev *bdev = input_get_drvdata(input);
- 	uint32_t status;
- 	int i;
+ 	idev->name = BMA150_DRIVER;
+ 	idev->phys = BMA150_DRIVER "/input0";
+ 	idev->id.bustype = BUS_I2C;
+-	idev->dev.parent = &bma150->client->dev;
  
-@@ -62,7 +61,6 @@ static void handle_buttons(struct input_polled_dev *dev)
- static int cobalt_buttons_probe(struct platform_device *pdev)
- {
- 	struct buttons_dev *bdev;
--	struct input_polled_dev *poll_dev;
- 	struct input_dev *input;
- 	struct resource *res;
- 	int error, i;
-@@ -81,15 +79,12 @@ static int cobalt_buttons_probe(struct platform_device *pdev)
+ 	idev->evbit[0] = BIT_MASK(EV_ABS);
+ 	input_set_abs_params(idev, ABS_X, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
+@@ -458,11 +456,11 @@ static int bma150_register_input_device(struct bma150_data *bma150)
+ 	struct input_dev *idev;
+ 	int error;
  
- 	memcpy(bdev->keymap, cobalt_map, sizeof(bdev->keymap));
- 
--	poll_dev = devm_input_allocate_polled_device(&pdev->dev);
--	if (!poll_dev)
-+	input = devm_input_allocate_device(&pdev->dev);
-+	if (!input)
+-	idev = input_allocate_device();
++	idev = devm_input_allocate_device(&bma150->client->dev);
+ 	if (!idev)
  		return -ENOMEM;
  
--	poll_dev->private = bdev;
--	poll_dev->poll = handle_buttons;
--	poll_dev->poll_interval = BUTTONS_POLL_INTERVAL;
-+	input_set_drvdata(input, bdev);
+-	bma150_init_input_device(bma150, idev);
++	bma150_init_input_device(idev);
  
--	input = poll_dev->input;
- 	input->name = "Cobalt buttons";
- 	input->phys = "cobalt/input0";
- 	input->id.bustype = BUS_HOST;
-@@ -104,7 +99,14 @@ static int cobalt_buttons_probe(struct platform_device *pdev)
- 		__set_bit(bdev->keymap[i], input->keybit);
- 	__clear_bit(KEY_RESERVED, input->keybit);
+ 	idev->open = bma150_irq_open;
+ 	idev->close = bma150_irq_close;
+@@ -471,10 +469,8 @@ static int bma150_register_input_device(struct bma150_data *bma150)
+ 	bma150->input = idev;
  
--	error = input_register_polled_device(poll_dev);
-+
-+	error = input_setup_polling(input, handle_buttons);
+ 	error = input_register_device(idev);
+-	if (error) {
+-		input_free_device(idev);
 +	if (error)
-+		return error;
-+
-+	input_set_poll_interval(input, BUTTONS_POLL_INTERVAL);
-+
-+	error = input_register_device(input);
- 	if (error)
  		return error;
+-	}
+ 
+ 	return 0;
+ }
+@@ -484,7 +480,7 @@ static int bma150_register_polled_device(struct bma150_data *bma150)
+ 	struct input_polled_dev *ipoll_dev;
+ 	int error;
+ 
+-	ipoll_dev = input_allocate_polled_device();
++	ipoll_dev = devm_input_allocate_polled_device(&bma150->client->dev);
+ 	if (!ipoll_dev)
+ 		return -ENOMEM;
+ 
+@@ -496,16 +492,14 @@ static int bma150_register_polled_device(struct bma150_data *bma150)
+ 	ipoll_dev->poll_interval_min = BMA150_POLL_MIN;
+ 	ipoll_dev->poll_interval_max = BMA150_POLL_MAX;
+ 
+-	bma150_init_input_device(bma150, ipoll_dev->input);
++	bma150_init_input_device(ipoll_dev->input);
+ 
+ 	bma150->input_polled = ipoll_dev;
+ 	bma150->input = ipoll_dev->input;
+ 
+ 	error = input_register_polled_device(ipoll_dev);
+-	if (error) {
+-		input_free_polled_device(ipoll_dev);
++	if (error)
+ 		return error;
+-	}
+ 
+ 	return 0;
+ }
+@@ -531,7 +525,7 @@ static int bma150_probe(struct i2c_client *client,
+ 		return -EINVAL;
+ 	}
+ 
+-	bma150 = kzalloc(sizeof(struct bma150_data), GFP_KERNEL);
++	bma150 = devm_kzalloc(&client->dev, sizeof(*bma150), GFP_KERNEL);
+ 	if (!bma150)
+ 		return -ENOMEM;
+ 
+@@ -544,7 +538,7 @@ static int bma150_probe(struct i2c_client *client,
+ 				dev_err(&client->dev,
+ 					"IRQ GPIO conf. error %d, error %d\n",
+ 					client->irq, error);
+-				goto err_free_mem;
++				return error;
+ 			}
+ 		}
+ 		cfg = &pdata->cfg;
+@@ -554,14 +548,14 @@ static int bma150_probe(struct i2c_client *client,
+ 
+ 	error = bma150_initialize(bma150, cfg);
+ 	if (error)
+-		goto err_free_mem;
++		return error;
+ 
+ 	if (client->irq > 0) {
+ 		error = bma150_register_input_device(bma150);
+ 		if (error)
+-			goto err_free_mem;
++			return error;
+ 
+-		error = request_threaded_irq(client->irq,
++		error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					NULL, bma150_irq_thread,
+ 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+ 					BMA150_DRIVER, bma150);
+@@ -569,13 +563,12 @@ static int bma150_probe(struct i2c_client *client,
+ 			dev_err(&client->dev,
+ 				"irq request failed %d, error %d\n",
+ 				client->irq, error);
+-			input_unregister_device(bma150->input);
+-			goto err_free_mem;
++			return error;
+ 		}
+ 	} else {
+ 		error = bma150_register_polled_device(bma150);
+ 		if (error)
+-			goto err_free_mem;
++			return error;
+ 	}
+ 
+ 	i2c_set_clientdata(client, bma150);
+@@ -583,28 +576,12 @@ static int bma150_probe(struct i2c_client *client,
+ 	pm_runtime_enable(&client->dev);
+ 
+ 	return 0;
+-
+-err_free_mem:
+-	kfree(bma150);
+-	return error;
+ }
+ 
+ static int bma150_remove(struct i2c_client *client)
+ {
+-	struct bma150_data *bma150 = i2c_get_clientdata(client);
+-
+ 	pm_runtime_disable(&client->dev);
+ 
+-	if (client->irq > 0) {
+-		free_irq(client->irq, bma150);
+-		input_unregister_device(bma150->input);
+-	} else {
+-		input_unregister_polled_device(bma150->input_polled);
+-		input_free_polled_device(bma150->input_polled);
+-	}
+-
+-	kfree(bma150);
+-
+ 	return 0;
+ }
  
 -- 
 2.23.0.866.gb869b98d4c-goog

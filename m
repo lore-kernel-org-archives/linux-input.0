@@ -2,97 +2,113 @@ Return-Path: <SRS0=CCxI=YK=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5653AFA372A
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 16:32:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0A17FA372A
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 16:38:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2759821848
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 16:32:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7835821835
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 16:38:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="c0Ul3Ami"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TwaisgwZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406542AbfJQQcU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Oct 2019 12:32:20 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:44509 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730640AbfJQQcU (ORCPT
+        id S2408431AbfJQQiF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Oct 2019 12:38:05 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:34715 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729529AbfJQQiE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Oct 2019 12:32:20 -0400
-Received: by mail-io1-f67.google.com with SMTP id w12so3741623iol.11
-        for <linux-input@vger.kernel.org>; Thu, 17 Oct 2019 09:32:19 -0700 (PDT)
+        Thu, 17 Oct 2019 12:38:04 -0400
+Received: by mail-pg1-f193.google.com with SMTP id k20so1679155pgi.1;
+        Thu, 17 Oct 2019 09:38:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=+0nsp8YUe6GDrJ0TuBakk/ATNKu0tD/75AlnwMlWFBo=;
-        b=c0Ul3AmifOFvya7o3yhj0OCQd/wB5vbawrcr5oOEuOnJNHFSnGN4PYk9oirzftTRmp
-         EXs6RkeJ4inpKI3mMCmq255xCbm34gT33YckGqVG4vp0Ur5wyxH4Z74+fD9T1LJTZnU5
-         mTQ4+PELk6qy1AA6hx66C6JKyv+1D87qX6Kvw=
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=88QrclS2PFOwVeOOMbkwV6zSODwwtRGUvBm1chNxLs8=;
+        b=TwaisgwZAaA4qkGE53nYwB1lSxKA+G5+veH52439X8jBXHvU42UWL5rNHWFiqAHhcW
+         5BnGuQpqNzbzSTXog9ToPGmAltHejjl9p2RoOG0Is4nQ/7Ijo7Ekcu5TPpPfATf7dIf9
+         DlYDqBktz3hadccNsJV63v0y2sz7fYa7vVqzwr0DeWTriK0gj51qx6QZ7dFkbyYpfpNN
+         CeHe46ypx+1EIJLtSFCWsFXFW4H467EQir5Cq2WCAlhjP1ljavEl7raRci4m0lMwrk7d
+         hQ4OsDZH7x+9qJP2LVxuTinRLYQMqT7psF4ZtU0UMqBwCUX/T2Yh6lCXC6B9VhfEk0jA
+         lllg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=+0nsp8YUe6GDrJ0TuBakk/ATNKu0tD/75AlnwMlWFBo=;
-        b=c5fxs5W/dSz5CJgCN7S0DjZCz6dtepyS5uZIqZih6tOiNeAFSHDQfurxNKdjaVpKsi
-         jpnJowrehsdUQ7K5S2w08HxHsfwP0KzoShX+tmI9FtHTxvEtsOm0j5K+aLqqcAB4NyqX
-         nSV2qAH14i5lnGmn49t8eO1/ulJUu5VRC3imtN7aC7+p6ylwoy0MjNKr1MT50dVwAuzM
-         rqsdDon6fhO2gBSHCDqXkbUPcfmi1+CAMRHSEHh+D75Ofwp8AW5xCyBwwMP/lxGxgN7Y
-         HEMEtBO+4emziuNfwNP2xkBEtZziqiXXmt0c8Sqi0EX2ysupVb0vDzqUqX7FHJwNs06L
-         8Y0g==
-X-Gm-Message-State: APjAAAU8vLihGY7UBKPdvZyY9cCZ5aVjq1P3Qke+clFNKZA+/W/Fbl0J
-        RECfw5Omfcfsf81aTd0Kb3GsDQ==
-X-Google-Smtp-Source: APXvYqzyReRkOVh7Tfwf5fVzvgZVZ5D3xC7y1UdhocS+o7WoDQiSqBZzqhxMJkTOnOzg2fO4VskDqQ==
-X-Received: by 2002:a5e:cb0a:: with SMTP id p10mr3862196iom.85.1571329939058;
-        Thu, 17 Oct 2019 09:32:19 -0700 (PDT)
-Received: from localhost ([2620:15c:183:200:777a:4e3:a71c:e893])
-        by smtp.gmail.com with ESMTPSA id o14sm822878iob.49.2019.10.17.09.32.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Oct 2019 09:32:18 -0700 (PDT)
-From:   Mathew King <mathewk@chromium.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Mathew King <mathewk@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rajat Jain <rajatja@google.com>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=88QrclS2PFOwVeOOMbkwV6zSODwwtRGUvBm1chNxLs8=;
+        b=tBxfqhiBHQ+jzYYBe78QYw+bBT1C68/esAXD+m7wiebhaFHdq5j9p/ijR7i3+pOldS
+         PYzi5Rl82x6cC5XqKdKOyi+KzjMNE4SAEOC24e7IB1o/9BY6YBzGLYPgZ755nPJyo0L6
+         zja0GEZev6YWHykETY0bKZoQEypdWUG7w+ALDUx4o37rgB75W3+B4dFtzjWTs1lZ7/01
+         CMuW5BwN12kpmZRo0yCwUMnhkC3HPZipN267uacGQF1FVHI98/8ogxgxNadi3UvMvHkZ
+         JwHSqo9Ohbg+hukvbBVYiUG2Ku1DswhSP0NvMaI3vff0Sl1hHtWaRY9aDOOMyuBuqGMv
+         LEGA==
+X-Gm-Message-State: APjAAAUCrM/yh0yJnz0+DrE1psPQ4FdUOBgQpX5MJ4t4uQyn8eEYT1sN
+        gf24h1odBw1ixrMOa8AYapo=
+X-Google-Smtp-Source: APXvYqwrSECf3n+OBbr/yGcHjAeSPsYpzfrGqnuKQdER8z/UtqkIihfEt0cGDtSbbSQ5BoRtG8M/rw==
+X-Received: by 2002:a63:383:: with SMTP id 125mr5181681pgd.41.1571330282234;
+        Thu, 17 Oct 2019 09:38:02 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
+        by smtp.gmail.com with ESMTPSA id y144sm3713581pfb.188.2019.10.17.09.38.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Oct 2019 09:38:01 -0700 (PDT)
+Date:   Thu, 17 Oct 2019 09:37:59 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Mathew King <mathewk@chromium.org>
+Cc:     linux-kernel@vger.kernel.org, Rajat Jain <rajatja@google.com>,
         Sean Paul <seanpaul@chromium.org>,
         Jesse Barnes <jsbarnes@google.com>,
         Duncan Laurie <dlaurie@google.com>, linux-input@vger.kernel.org
-Subject: [PATCH] input: Add privacy screen toggle keycode
-Date:   Thu, 17 Oct 2019 10:32:08 -0600
-Message-Id: <20191017163208.235518-1-mathewk@chromium.org>
-X-Mailer: git-send-email 2.23.0.700.g56cf767bdb-goog
+Subject: Re: [PATCH] input: Add privacy screen toggle keycode
+Message-ID: <20191017163759.GI35946@dtor-ws>
+References: <20191017163208.235518-1-mathewk@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191017163208.235518-1-mathewk@chromium.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add keycode for toggling electronic privacy screen to the keycodes
-definition. Some new laptops have a privacy screen which can be toggled
-with a key on the keyboard.
+Hi Mathew,
 
-Signed-off-by: Mathew King <mathewk@chromium.org>
----
- include/uapi/linux/input-event-codes.h | 2 ++
- 1 file changed, 2 insertions(+)
+On Thu, Oct 17, 2019 at 10:32:08AM -0600, Mathew King wrote:
+> Add keycode for toggling electronic privacy screen to the keycodes
+> definition. Some new laptops have a privacy screen which can be toggled
+> with a key on the keyboard.
 
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 85387c76c24f..05d8b4f4f82f 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -649,6 +649,8 @@
-  */
- #define KEY_DATA			0x277
- #define KEY_ONSCREEN_KEYBOARD		0x278
-+/* Electronic privacy screen control */
-+#define KEY_PRIVACY_SCREEN_TOGGLE	0x279
- 
- #define BTN_TRIGGER_HAPPY		0x2c0
- #define BTN_TRIGGER_HAPPY1		0x2c0
+Has it made into HID spec yet?
+
+> 
+> Signed-off-by: Mathew King <mathewk@chromium.org>
+> ---
+>  include/uapi/linux/input-event-codes.h | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 85387c76c24f..05d8b4f4f82f 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -649,6 +649,8 @@
+>   */
+>  #define KEY_DATA			0x277
+>  #define KEY_ONSCREEN_KEYBOARD		0x278
+> +/* Electronic privacy screen control */
+> +#define KEY_PRIVACY_SCREEN_TOGGLE	0x279
+>  
+>  #define BTN_TRIGGER_HAPPY		0x2c0
+>  #define BTN_TRIGGER_HAPPY1		0x2c0
+> -- 
+> 2.23.0.700.g56cf767bdb-goog
+> 
+
+Thanks.
+
 -- 
-2.23.0.700.g56cf767bdb-goog
-
+Dmitry

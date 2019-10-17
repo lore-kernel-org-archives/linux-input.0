@@ -5,65 +5,69 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C1EBECE58D
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:43:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5037FFA372A
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:43:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5BD1521835
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:43:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 10CAC21835
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:43:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PnZ4hYwE"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hY7q6Tdy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503004AbfJQUna (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Oct 2019 16:43:30 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:41602 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2503017AbfJQUmv (ORCPT
+        id S2502911AbfJQUms (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Oct 2019 16:42:48 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:44135 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502847AbfJQUmr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Oct 2019 16:42:51 -0400
-Received: by mail-pf1-f193.google.com with SMTP id q7so2368385pfh.8;
-        Thu, 17 Oct 2019 13:42:50 -0700 (PDT)
+        Thu, 17 Oct 2019 16:42:47 -0400
+Received: by mail-pf1-f195.google.com with SMTP id q21so2360330pfn.11;
+        Thu, 17 Oct 2019 13:42:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=nakS4ni/rzOzl8FCN3SL5jKJ0hRnlt/GoJAm0yqa078=;
-        b=PnZ4hYwEbStV5VEGMzJSEN6FdtifpkFlGbm5q0movRTugtW+PpjBrsmsuTncl1+rkn
-         HdbrHLceCbMiS8URsK6KETlr4YVmaRGhqky0DWLL3ZgyxyVwM1oKnkT/TypiILQgWmnB
-         CxbzFJySVcKjPf7f6qUyw6w0w0QKpDZUQjU0twGJUH4vKrg5Ns167e1U/fSJWJ4lZbSZ
-         //I4SCEofeFxvtVRmvTHOCcVuuAwTySDuAsrxjEQDLVyk+i0b9HZvFZ2j2p6Pr5ynQrq
-         6Wjkfp9w6jDXHqVId0rNZ+JcBIJuRDehdgkck42U5br2BwmSPbplczIzjcbKm+ZR8z/O
-         ZfpA==
+        bh=GEKRNk3+QkHLGS5SoKpdCHIgbctxhbvYiOrQ84TzMNs=;
+        b=hY7q6TdyrEkXN/Xfmg7eHuNh6G2X8Ih8dc8Auh5ky5Ji0SRfN5zs/D50sXgocYLecb
+         7x3pDa/f2OFRqW1IflBmLaR1XG0f+C6Be3bvN6pPTxRd0aABI0an7pah2Afpf2N4T1AC
+         WJUqw+dtx9bjP/IJDEMCXyguBN96emVQ7scdzhbW/tFGUdWapD+m7D23SEdguPSTOAKs
+         THjmEiYuhO6xGYXLqyRFXaGYGmtYLK4bQOMamXnwGj8de3pq7xk3wJh7x4mjerXkxdl3
+         mlcX7tCeQuGipMayOTJMnl9crGbCg996IknwnutfG/JKnx5YLHoa7I0keeZB9AgGM2Eo
+         BJ/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=nakS4ni/rzOzl8FCN3SL5jKJ0hRnlt/GoJAm0yqa078=;
-        b=AS+WgyuqOMzI+AUjo1PgMumvUiZl+0uiBC4AL6m5aSbl4nyhpFF5Y2lxqkd3f7vgzm
-         zNTxlgcP7q3lpJgyAmqE3Nuv7kwQptnSRcCoBvGA9Sy8BhmFMLrPJzaWYYzSHqWXcaAe
-         ivFIzq46XVgZxVOmoRvWucqY4Z0mq3d64/BWoTux74fb9pxtilrUgRrHKgvLWPzvpRsd
-         Id4ZzwHlM2VZHE8d1l0ITct6Ey1OkjER93YcxCZ+24EC3xOiQ73beXV0rri4JGpIz3Di
-         kgmDU4mWD0R+VzdJEowy0Ef54Brfop0snwH+GIjKDacl3XT8GeZQhugig2SHqLUH7T1r
-         840A==
-X-Gm-Message-State: APjAAAWamIPhWjYzA3rDhbu4725WLvcnTxrsCNcAW4Du/s493s58v36T
-        7iBw/qNBsLVdhJ1jDxGo5pGL44qC
-X-Google-Smtp-Source: APXvYqxkfJlhpt9lZeGxJkPWeJELDZT4tnBWyAeABdOUDsiw4ptS+IX1wWTVg3XEHm/FsGi9WjwEeA==
-X-Received: by 2002:a62:fc12:: with SMTP id e18mr2326918pfh.257.1571344969228;
-        Thu, 17 Oct 2019 13:42:49 -0700 (PDT)
+        bh=GEKRNk3+QkHLGS5SoKpdCHIgbctxhbvYiOrQ84TzMNs=;
+        b=S1y2ZjGuXAZb3GeH+3kZ1QCR7b1ir42HwunI3lU5SvtNPQlpoxSfboke6ZC0uUlyDC
+         Qs2iHBaRCyxMgdf7VlUjUKYaucwkeqQeq7Vk2gt+ISL+Guwpq5u95KgudjSd752h/o/w
+         R8DO3vrEc1hq+cZ+ERGWHhyL8Nl2dlND3fbSrBM78Ll9pZ2fVYBmxpMuQlEdC88Sl5K8
+         mDMhYXascgkttypC1FW6E2FDNwYsOr6RzO/axWyrMp3LTuAx0ie7+W7bx5LGRHhXs3bc
+         1ARGbmWC2wYqvWw9Tge4T3APn4DQXbY1dSASFEPC3UH0wL+wo1YMugXMsVCl0sruGIJV
+         yMjA==
+X-Gm-Message-State: APjAAAX50o5ad0ZFTYHqcq4fWa2ZmxsAK2tNl+LtegXeRX3fSUFXVa0X
+        4zFvCiq5tSqeMBqd2x9hHoEpBz60
+X-Google-Smtp-Source: APXvYqzg9ZKoArye3kOHPW48Es/ba5aPjwjIw9jZ6abbc53culSCzhD4LvQi5DqApogShAzfCU7kEw==
+X-Received: by 2002:a17:90a:2522:: with SMTP id j31mr6575663pje.123.1571344966474;
+        Thu, 17 Oct 2019 13:42:46 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.48
+        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Oct 2019 13:42:48 -0700 (PDT)
+        Thu, 17 Oct 2019 13:42:45 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     linux-input@vger.kernel.org
-Cc:     Alexios Zavras <alexios.zavras@intel.com>,
-        Allison Randal <allison@lohutok.net>,
+Cc:     Allison Randal <allison@lohutok.net>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Brian Masney <masneyb@onstation.org>,
+        Luca Weiss <luca@z3ntu.xyz>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Richard Fontana <rfontana@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 21/22] Input: kxtj9 - switch to using managed resources
-Date:   Thu, 17 Oct 2019 13:42:15 -0700
-Message-Id: <20191017204217.106453-22-dmitry.torokhov@gmail.com>
+Subject: [PATCH 18/22] Input: mma8450 - switch to using polled mode of input devices
+Date:   Thu, 17 Oct 2019 13:42:12 -0700
+Message-Id: <20191017204217.106453-19-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.23.0.866.gb869b98d4c-goog
 In-Reply-To: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
 References: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
@@ -74,209 +78,226 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Using devm API allows to clean up error handling and drop the remove()
-method.
+We have added polled mode to the normal input devices with the intent of
+retiring input_polled_dev. This converts mma8450 driver to use the polling
+mode of standard input devices and removes dependency on INPUT_POLLDEV.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
 
- drivers/input/misc/kxtj9.c | 86 +++++++++++++-------------------------
- 1 file changed, 28 insertions(+), 58 deletions(-)
+ drivers/input/misc/Kconfig   |   1 -
+ drivers/input/misc/mma8450.c | 101 ++++++++++++++++-------------------
+ 2 files changed, 46 insertions(+), 56 deletions(-)
 
-diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
-index db01c4a33914..a86544d575f8 100644
---- a/drivers/input/misc/kxtj9.c
-+++ b/drivers/input/misc/kxtj9.c
-@@ -292,7 +292,6 @@ static void kxtj9_init_input_device(struct kxtj9_data *tj9,
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index b108c992bb7a..e1309cb190e1 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -246,7 +246,6 @@ config INPUT_MC13783_PWRBUTTON
+ config INPUT_MMA8450
+ 	tristate "MMA8450 - Freescale's 3-Axis, 8/12-bit Digital Accelerometer"
+ 	depends on I2C
+-	select INPUT_POLLDEV
+ 	help
+ 	  Say Y here if you want to support Freescale's MMA8450 Accelerometer
+ 	  through I2C interface.
+diff --git a/drivers/input/misc/mma8450.c b/drivers/input/misc/mma8450.c
+index 49f5242bc54c..1b5a5e19230a 100644
+--- a/drivers/input/misc/mma8450.c
++++ b/drivers/input/misc/mma8450.c
+@@ -10,7 +10,7 @@
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/i2c.h>
+-#include <linux/input-polldev.h>
++#include <linux/input.h>
+ #include <linux/of_device.h>
  
- 	input_dev->name = "kxtj9_accel";
- 	input_dev->id.bustype = BUS_I2C;
--	input_dev->dev.parent = &tj9->client->dev;
+ #define MMA8450_DRV_NAME	"mma8450"
+@@ -39,15 +39,8 @@
+ #define MMA8450_CTRL_REG1	0x38
+ #define MMA8450_CTRL_REG2	0x39
+ 
+-/* mma8450 status */
+-struct mma8450 {
+-	struct i2c_client	*client;
+-	struct input_polled_dev	*idev;
+-};
+-
+-static int mma8450_read(struct mma8450 *m, unsigned off)
++static int mma8450_read(struct i2c_client *c, unsigned int off)
+ {
+-	struct i2c_client *c = m->client;
+ 	int ret;
+ 
+ 	ret = i2c_smbus_read_byte_data(c, off);
+@@ -59,9 +52,8 @@ static int mma8450_read(struct mma8450 *m, unsigned off)
+ 	return ret;
  }
  
- static int kxtj9_setup_input_device(struct kxtj9_data *tj9)
-@@ -300,7 +299,7 @@ static int kxtj9_setup_input_device(struct kxtj9_data *tj9)
- 	struct input_dev *input_dev;
- 	int err;
- 
--	input_dev = input_allocate_device();
-+	input_dev = devm_input_allocate_device(&tj9->client->dev);
- 	if (!input_dev) {
- 		dev_err(&tj9->client->dev, "input device allocate failed\n");
- 		return -ENOMEM;
-@@ -319,7 +318,6 @@ static int kxtj9_setup_input_device(struct kxtj9_data *tj9)
- 		dev_err(&tj9->client->dev,
- 			"unable to register input polled device %s: %d\n",
- 			tj9->input_dev->name, err);
--		input_free_device(tj9->input_dev);
- 		return err;
- 	}
- 
-@@ -424,8 +422,8 @@ static int kxtj9_setup_polled_device(struct kxtj9_data *tj9)
+-static int mma8450_write(struct mma8450 *m, unsigned off, u8 v)
++static int mma8450_write(struct i2c_client *c, unsigned int off, u8 v)
  {
- 	int err;
- 	struct input_polled_dev *poll_dev;
--	poll_dev = input_allocate_polled_device();
+-	struct i2c_client *c = m->client;
+ 	int error;
  
-+	poll_dev = devm_input_allocate_polled_device(&tj9->client->dev);
- 	if (!poll_dev) {
- 		dev_err(&tj9->client->dev,
- 			"Failed to allocate polled device\n");
-@@ -446,19 +444,12 @@ static int kxtj9_setup_polled_device(struct kxtj9_data *tj9)
- 	if (err) {
- 		dev_err(&tj9->client->dev,
- 			"Unable to register polled device, err=%d\n", err);
--		input_free_polled_device(poll_dev);
- 		return err;
- 	}
- 
+ 	error = i2c_smbus_write_byte_data(c, off, v);
+@@ -75,10 +67,9 @@ static int mma8450_write(struct mma8450 *m, unsigned off, u8 v)
  	return 0;
  }
  
--static void kxtj9_teardown_polled_device(struct kxtj9_data *tj9)
--{
--	input_unregister_polled_device(tj9->poll_dev);
--	input_free_polled_device(tj9->poll_dev);
--}
--
- #else
+-static int mma8450_read_block(struct mma8450 *m, unsigned off,
++static int mma8450_read_block(struct i2c_client *c, unsigned int off,
+ 			      u8 *buf, size_t size)
+ {
+-	struct i2c_client *c = m->client;
+ 	int err;
  
- static inline int kxtj9_setup_polled_device(struct kxtj9_data *tj9)
-@@ -466,11 +457,15 @@ static inline int kxtj9_setup_polled_device(struct kxtj9_data *tj9)
- 	return -ENOSYS;
+ 	err = i2c_smbus_read_i2c_block_data(c, off, size, buf);
+@@ -92,21 +83,21 @@ static int mma8450_read_block(struct mma8450 *m, unsigned off,
+ 	return 0;
  }
  
--static inline void kxtj9_teardown_polled_device(struct kxtj9_data *tj9)
-+#endif
-+
-+static void kxtj9_platform_exit(void *data)
+-static void mma8450_poll(struct input_polled_dev *dev)
++static void mma8450_poll(struct input_dev *input)
  {
--}
-+	struct kxtj9_data *tj9 = data;
+-	struct mma8450 *m = dev->private;
++	struct i2c_client *c = input_get_drvdata(input);
+ 	int x, y, z;
+ 	int ret;
+ 	u8 buf[6];
  
--#endif
-+	if (tj9->pdata.exit)
-+		tj9->pdata.exit();
-+}
+-	ret = mma8450_read(m, MMA8450_STATUS);
++	ret = mma8450_read(c, MMA8450_STATUS);
+ 	if (ret < 0)
+ 		return;
  
- static int kxtj9_verify(struct kxtj9_data *tj9)
- {
-@@ -494,7 +489,7 @@ static int kxtj9_verify(struct kxtj9_data *tj9)
+ 	if (!(ret & MMA8450_STATUS_ZXYDR))
+ 		return;
+ 
+-	ret = mma8450_read_block(m, MMA8450_OUT_X_LSB, buf, sizeof(buf));
++	ret = mma8450_read_block(c, MMA8450_OUT_X_LSB, buf, sizeof(buf));
+ 	if (ret < 0)
+ 		return;
+ 
+@@ -114,41 +105,42 @@ static void mma8450_poll(struct input_polled_dev *dev)
+ 	y = ((int)(s8)buf[3] << 4) | (buf[2] & 0xf);
+ 	z = ((int)(s8)buf[5] << 4) | (buf[4] & 0xf);
+ 
+-	input_report_abs(dev->input, ABS_X, x);
+-	input_report_abs(dev->input, ABS_Y, y);
+-	input_report_abs(dev->input, ABS_Z, z);
+-	input_sync(dev->input);
++	input_report_abs(input, ABS_X, x);
++	input_report_abs(input, ABS_Y, y);
++	input_report_abs(input, ABS_Z, z);
++	input_sync(input);
  }
  
- static int kxtj9_probe(struct i2c_client *client,
--				 const struct i2c_device_id *id)
-+		       const struct i2c_device_id *id)
+ /* Initialize the MMA8450 chip */
+-static void mma8450_open(struct input_polled_dev *dev)
++static int mma8450_open(struct input_dev *input)
  {
- 	const struct kxtj9_platform_data *pdata =
- 			dev_get_platdata(&client->dev);
-@@ -512,7 +507,7 @@ static int kxtj9_probe(struct i2c_client *client,
- 		return -EINVAL;
- 	}
+-	struct mma8450 *m = dev->private;
++	struct i2c_client *c = input_get_drvdata(input);
+ 	int err;
  
--	tj9 = kzalloc(sizeof(*tj9), GFP_KERNEL);
-+	tj9 = devm_kzalloc(&client->dev, sizeof(*tj9), GFP_KERNEL);
- 	if (!tj9) {
- 		dev_err(&client->dev,
- 			"failed to allocate memory for module data\n");
-@@ -525,13 +520,17 @@ static int kxtj9_probe(struct i2c_client *client,
- 	if (pdata->init) {
- 		err = pdata->init();
- 		if (err < 0)
--			goto err_free_mem;
-+			return err;
- 	}
+ 	/* enable all events from X/Y/Z, no FIFO */
+-	err = mma8450_write(m, MMA8450_XYZ_DATA_CFG, 0x07);
++	err = mma8450_write(c, MMA8450_XYZ_DATA_CFG, 0x07);
+ 	if (err)
+-		return;
++		return err;
  
-+	err = devm_add_action_or_reset(&client->dev, kxtj9_platform_exit, tj9);
+ 	/*
+ 	 * Sleep mode poll rate - 50Hz
+ 	 * System output data rate - 400Hz
+ 	 * Full scale selection - Active, +/- 2G
+ 	 */
+-	err = mma8450_write(m, MMA8450_CTRL_REG1, 0x01);
+-	if (err < 0)
+-		return;
++	err = mma8450_write(c, MMA8450_CTRL_REG1, 0x01);
 +	if (err)
 +		return err;
-+
- 	err = kxtj9_verify(tj9);
- 	if (err < 0) {
- 		dev_err(&client->dev, "device not recognized\n");
--		goto err_pdata_exit;
-+		return err;
- 	}
  
- 	i2c_set_clientdata(client, tj9);
-@@ -546,59 +545,31 @@ static int kxtj9_probe(struct i2c_client *client,
- 
- 		err = kxtj9_setup_input_device(tj9);
- 		if (err)
--			goto err_pdata_exit;
-+			return err;
- 
--		err = request_threaded_irq(client->irq, NULL, kxtj9_isr,
--					   IRQF_TRIGGER_RISING | IRQF_ONESHOT,
--					   "kxtj9-irq", tj9);
-+		err = devm_request_threaded_irq(&client->dev, client->irq,
-+						NULL, kxtj9_isr,
-+						IRQF_TRIGGER_RISING |
-+							IRQF_ONESHOT,
-+						"kxtj9-irq", tj9);
- 		if (err) {
- 			dev_err(&client->dev, "request irq failed: %d\n", err);
--			goto err_destroy_input;
-+			return err;
- 		}
- 
--		err = sysfs_create_group(&client->dev.kobj, &kxtj9_attribute_group);
-+		err = devm_device_add_group(&client->dev,
-+					    &kxtj9_attribute_group);
- 		if (err) {
- 			dev_err(&client->dev, "sysfs create failed: %d\n", err);
--			goto err_free_irq;
-+			return err;
- 		}
- 
- 	} else {
- 		err = kxtj9_setup_polled_device(tj9);
- 		if (err)
--			goto err_pdata_exit;
--	}
--
--	return 0;
--
--err_free_irq:
--	free_irq(client->irq, tj9);
--err_destroy_input:
--	input_unregister_device(tj9->input_dev);
--err_pdata_exit:
--	if (tj9->pdata.exit)
--		tj9->pdata.exit();
--err_free_mem:
--	kfree(tj9);
--	return err;
--}
--
--static int kxtj9_remove(struct i2c_client *client)
--{
--	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
--
--	if (client->irq) {
--		sysfs_remove_group(&client->dev.kobj, &kxtj9_attribute_group);
--		free_irq(client->irq, tj9);
--		input_unregister_device(tj9->input_dev);
--	} else {
--		kxtj9_teardown_polled_device(tj9);
-+			return err;
- 	}
- 
--	if (tj9->pdata.exit)
--		tj9->pdata.exit();
--
--	kfree(tj9);
--
- 	return 0;
+ 	msleep(MODE_CHANGE_DELAY_MS);
++	return 0;
  }
  
-@@ -647,7 +618,6 @@ static struct i2c_driver kxtj9_driver = {
- 		.pm	= &kxtj9_pm_ops,
- 	},
- 	.probe		= kxtj9_probe,
--	.remove		= kxtj9_remove,
- 	.id_table	= kxtj9_id,
- };
+-static void mma8450_close(struct input_polled_dev *dev)
++static void mma8450_close(struct input_dev *input)
+ {
+-	struct mma8450 *m = dev->private;
++	struct i2c_client *c = input_get_drvdata(input);
+ 
+-	mma8450_write(m, MMA8450_CTRL_REG1, 0x00);
+-	mma8450_write(m, MMA8450_CTRL_REG2, 0x01);
++	mma8450_write(c, MMA8450_CTRL_REG1, 0x00);
++	mma8450_write(c, MMA8450_CTRL_REG2, 0x01);
+ }
+ 
+ /*
+@@ -157,38 +149,37 @@ static void mma8450_close(struct input_polled_dev *dev)
+ static int mma8450_probe(struct i2c_client *c,
+ 			 const struct i2c_device_id *id)
+ {
+-	struct input_polled_dev *idev;
+-	struct mma8450 *m;
++	struct input_dev *input;
+ 	int err;
+ 
+-	m = devm_kzalloc(&c->dev, sizeof(*m), GFP_KERNEL);
+-	if (!m)
++	input = devm_input_allocate_device(&c->dev);
++	if (!input)
+ 		return -ENOMEM;
+ 
+-	idev = devm_input_allocate_polled_device(&c->dev);
+-	if (!idev)
+-		return -ENOMEM;
++	input_set_drvdata(input, c);
++
++	input->name = MMA8450_DRV_NAME;
++	input->id.bustype = BUS_I2C;
++
++	input->open = mma8450_open;
++	input->close = mma8450_close;
+ 
+-	m->client = c;
+-	m->idev = idev;
++	input_set_abs_params(input, ABS_X, -2048, 2047, 32, 32);
++	input_set_abs_params(input, ABS_Y, -2048, 2047, 32, 32);
++	input_set_abs_params(input, ABS_Z, -2048, 2047, 32, 32);
+ 
+-	idev->private		= m;
+-	idev->input->name	= MMA8450_DRV_NAME;
+-	idev->input->id.bustype	= BUS_I2C;
+-	idev->poll		= mma8450_poll;
+-	idev->poll_interval	= POLL_INTERVAL;
+-	idev->poll_interval_max	= POLL_INTERVAL_MAX;
+-	idev->open		= mma8450_open;
+-	idev->close		= mma8450_close;
++	err = input_setup_polling(input, mma8450_poll);
++	if (err) {
++		dev_err(&c->dev, "failed to set up polling\n");
++		return err;
++	}
+ 
+-	__set_bit(EV_ABS, idev->input->evbit);
+-	input_set_abs_params(idev->input, ABS_X, -2048, 2047, 32, 32);
+-	input_set_abs_params(idev->input, ABS_Y, -2048, 2047, 32, 32);
+-	input_set_abs_params(idev->input, ABS_Z, -2048, 2047, 32, 32);
++	input_set_poll_interval(input, POLL_INTERVAL);
++	input_set_max_poll_interval(input, POLL_INTERVAL_MAX);
+ 
+-	err = input_register_polled_device(idev);
++	err = input_register_device(input);
+ 	if (err) {
+-		dev_err(&c->dev, "failed to register polled input device\n");
++		dev_err(&c->dev, "failed to register input device\n");
+ 		return err;
+ 	}
  
 -- 
 2.23.0.866.gb869b98d4c-goog

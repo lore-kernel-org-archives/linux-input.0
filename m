@@ -5,68 +5,66 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D634FA372B
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9A72ECE58D
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 50C6D2089C
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B953F2089C
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DNDNpCdF"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Etg86CwG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502425AbfJQUmh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Oct 2019 16:42:37 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:36237 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502343AbfJQUmf (ORCPT
+        id S2502167AbfJQUmk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Oct 2019 16:42:40 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:35670 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502467AbfJQUmk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Oct 2019 16:42:35 -0400
-Received: by mail-pf1-f193.google.com with SMTP id y22so2382919pfr.3;
-        Thu, 17 Oct 2019 13:42:34 -0700 (PDT)
+        Thu, 17 Oct 2019 16:42:40 -0400
+Received: by mail-pg1-f194.google.com with SMTP id p30so2035378pgl.2;
+        Thu, 17 Oct 2019 13:42:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=PVrYmBoDUzQiiHoNw2A+nCbZJE8bePDfQgT4dijBPRw=;
-        b=DNDNpCdFAd9VeiF8CHjBIo/j1+/PJ276Ve7b+Rck3q2D9WkgKlum2WioD8TIZJlWO1
-         hrzurCLh+Q4pMxpBRfgqxSHsoxr66e593gDDXUYZO6gxl9LpsA8IMt/rdaCA7Oqo2V2L
-         rOEU0OeEHMquodtQeSdBU8xmVrdLnJOVgHFFvB5cOQ6D06KsHNNT1fpXjIzNqIO7+JMz
-         S8e0cQGLm9yJD4bPhhcUJHvheXxUEyvAjyMdM2UMfnng6dFve0cXux1NxDnbba8t0zV3
-         HzLH1an4pkCtnyBX/ILC9iJlaqcOJ0QczrP4cC2g5pa9wIiiJLbizms+3IADNsxqFpya
-         H/cg==
+        bh=HlyTv1vxc6ePybQkoO4f5oM/4dcEruouJB05duaVKOg=;
+        b=Etg86CwGZ+v3CIcN3+OB9F2ezo3lxulhWGvKvFJ/Khi2bemD+HihqF4RzcPR/QO/XU
+         cEpINIkKoz4HldLf/AQwdqTskzwveI1ITM3xLiSULviKiFauPsIKhg3xgatCy00zN+41
+         zwxYlUvUoJauPL6GJ2GyIgJ5OSJ7TMEVIdPIYBWLW+upLso81zbsRuX0//zV4lT0piAU
+         FIP6XqLXzcXXX53tSCPMDnjByp0Ys0yaufH3JDRpCGNoMeRYLahuD9sYCDD/yugvJk1C
+         Fm7GxgKzRfDPSbvUMxkVg6MVTIW8UpT87L6I8X7dn4f6mnbGSFicZ29tmmXpAfZ9+OLT
+         WPNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=PVrYmBoDUzQiiHoNw2A+nCbZJE8bePDfQgT4dijBPRw=;
-        b=qBwnRlz9k9ma/egp0mqbkj8esnW0Vyzja69GuduL6mxHH4VZULiTgt2iJRMXGHr5JT
-         0oc/Y6vuGcdwZh4n3Y96VTJKwh7HUTKA8UaFyY1CA4bWQMDF5BR+1N2cVJA5Pnz0LQoH
-         8crXijYbF7UCB214SVmm6ixObHe8SXzFZAtCZ6W5O7CLIsZf8LEgisvdzWI8zSGXCmvy
-         UEIyiON5ccOZLm9edBDmRIUDPY44v+DyhQPcaTxVg7RySc0NtxxIlv5x65rIgOjNwZuN
-         IeN2Ek7HeGK7Pg2bQmIdS61otKiFfckh6Mh7VZ4RqPKWDVff4FQ2usDGo6lqYBarkoIW
-         pioA==
-X-Gm-Message-State: APjAAAWoEncA/n5Dx76w8lNhxBWlnZ6yWn0kxc7NILD+Ew87c3pMAFF7
-        TGGZZn+gPCl71366F+xjaszE5Egb
-X-Google-Smtp-Source: APXvYqwWilu0YT8+PBehmdRToprPAd+XGSdWPKVKJygxm7UFO/unONTgu6oIM937o/0QKQdQ2SFSrQ==
-X-Received: by 2002:a63:3853:: with SMTP id h19mr2781778pgn.55.1571344953854;
-        Thu, 17 Oct 2019 13:42:33 -0700 (PDT)
+        bh=HlyTv1vxc6ePybQkoO4f5oM/4dcEruouJB05duaVKOg=;
+        b=mh/JoiBY02hrgyunRDWhArL1q1DyBGU0WgqL8XmYEpTcreK2jqJZtcRo54IH8TvarA
+         FthzLXmGpKP3vyPkppofmW/tQIQJCxY6eTef7KyEJouDV0IH3W/vDmgUezw3eryIgp+i
+         WqLcr+qOYSqE0wLLNEQVzeVgbFDivrAxAt0t/CDVsYB58GF34UqXpP3W130zoxRbAIwQ
+         M8cte37ofZ6wSGZ/TM8d69UFY6kIvlCZtEU9QQbEBcapCQNcOSXjkWSZ/lK4Og5YKI8+
+         MKzWJJchE5tYC6Pj6UYZbuRUvluF7TcnfQ82ITlo7wnYJv/egHSxLssqbQiV5hcs/DVl
+         XSzg==
+X-Gm-Message-State: APjAAAXJRyeunsycgSC9Nw8PIbHUZqpgyz/RwR/23s/jMzt8bLYr35b3
+        BXVefyXEMp1AoChpkiCR78rsLJfA
+X-Google-Smtp-Source: APXvYqx2rCUUL0uB7Oa8fpKv2VmOqEtr/L5iYRfOD3zpjZFO02ZAaJyVscUDv45qdl9E5OpiRTf61g==
+X-Received: by 2002:a17:90a:858a:: with SMTP id m10mr6937186pjn.128.1571344958930;
+        Thu, 17 Oct 2019 13:42:38 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.32
+        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Oct 2019 13:42:33 -0700 (PDT)
+        Thu, 17 Oct 2019 13:42:38 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     linux-input@vger.kernel.org
-Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Brian Masney <masneyb@onstation.org>,
-        Enrico Weigelt <info@metux.net>, Luca Weiss <luca@z3ntu.xyz>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
+Cc:     Allison Randal <allison@lohutok.net>,
+        Jilayne Lovejoy <opensource@jilayne.com>,
+        Steve Winslow <swinslow@gmail.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 09/22] Input: apanel - switch to using polled mode of input devices
-Date:   Thu, 17 Oct 2019 13:42:03 -0700
-Message-Id: <20191017204217.106453-10-dmitry.torokhov@gmail.com>
+Subject: [PATCH 13/22] Input: sgi_btns - switch to using managed resources
+Date:   Thu, 17 Oct 2019 13:42:07 -0700
+Message-Id: <20191017204217.106453-14-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.23.0.866.gb869b98d4c-goog
 In-Reply-To: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
 References: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
@@ -77,265 +75,92 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-We have added polled mode to the normal input devices with the intent of
-retiring input_polled_dev. This converts apanel driver to use the polling
-mode of standard input devices and removes dependency on INPUT_POLLDEV.
-
-While at it, let's convert the driver to use devm.
+Switching to devm API allows to clean up error handling paths and drop
+the remove() method.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
 
- drivers/input/misc/Kconfig  |   1 -
- drivers/input/misc/apanel.c | 153 +++++++++++++++---------------------
- 2 files changed, 64 insertions(+), 90 deletions(-)
+ drivers/input/misc/sgi_btns.c | 37 ++++++++---------------------------
+ 1 file changed, 8 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7d9ae394e597..a6b8af69915d 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -257,7 +257,6 @@ config INPUT_MMA8450
- config INPUT_APANEL
- 	tristate "Fujitsu Lifebook Application Panel buttons"
- 	depends on X86 && I2C && LEDS_CLASS
--	select INPUT_POLLDEV
- 	select CHECK_SIGNATURE
- 	help
- 	 Say Y here for support of the Application Panel buttons, used on
-diff --git a/drivers/input/misc/apanel.c b/drivers/input/misc/apanel.c
-index 53ec40d1b90d..de0deb432fe3 100644
---- a/drivers/input/misc/apanel.c
-+++ b/drivers/input/misc/apanel.c
-@@ -17,7 +17,7 @@
- #include <linux/module.h>
- #include <linux/ioport.h>
- #include <linux/io.h>
--#include <linux/input-polldev.h>
-+#include <linux/input.h>
- #include <linux/i2c.h>
- #include <linux/leds.h>
- 
-@@ -51,19 +51,28 @@ static enum apanel_chip device_chip[APANEL_DEV_MAX];
- #define MAX_PANEL_KEYS	12
- 
- struct apanel {
--	struct input_polled_dev *ipdev;
-+	struct input_dev *idev;
- 	struct i2c_client *client;
- 	unsigned short keymap[MAX_PANEL_KEYS];
--	u16    nkeys;
-+	u16 nkeys;
- 	struct led_classdev mail_led;
+diff --git a/drivers/input/misc/sgi_btns.c b/drivers/input/misc/sgi_btns.c
+index 0fee6ddf3602..829277b4271f 100644
+--- a/drivers/input/misc/sgi_btns.c
++++ b/drivers/input/misc/sgi_btns.c
+@@ -45,7 +45,6 @@ static const unsigned short sgi_map[] = {
  };
  
-+static unsigned short apanel_keymap[MAX_PANEL_KEYS] = {
-+	[0] = KEY_MAIL,
-+	[1] = KEY_WWW,
-+	[2] = KEY_PROG2,
-+	[3] = KEY_PROG1,
+ struct buttons_dev {
+-	struct input_polled_dev *poll_dev;
+ 	unsigned short keymap[ARRAY_SIZE(sgi_map)];
+ 	int count[ARRAY_SIZE(sgi_map)];
+ };
+@@ -84,12 +83,13 @@ static int sgi_buttons_probe(struct platform_device *pdev)
+ 	struct input_dev *input;
+ 	int error, i;
  
--static int apanel_probe(struct i2c_client *, const struct i2c_device_id *);
-+	[8] = KEY_FORWARD,
-+	[9] = KEY_REWIND,
-+	[10] = KEY_STOPCD,
-+	[11] = KEY_PLAYPAUSE,
-+};
+-	bdev = kzalloc(sizeof(struct buttons_dev), GFP_KERNEL);
+-	poll_dev = input_allocate_polled_device();
+-	if (!bdev || !poll_dev) {
+-		error = -ENOMEM;
+-		goto err_free_mem;
+-	}
++	bdev = devm_kzalloc(&pdev->dev, sizeof(*bdev), GFP_KERNEL);
++	if (!bdev)
++		return -ENOMEM;
++
++	poll_dev = devm_input_allocate_polled_device(&pdev->dev);
++	if (!poll_dev)
++		return -ENOMEM;
  
- static void report_key(struct input_dev *input, unsigned keycode)
- {
--	pr_debug(APANEL ": report key %#x\n", keycode);
-+	dev_dbg(input->dev.parent, "report key %#x\n", keycode);
- 	input_report_key(input, keycode, 1);
- 	input_sync(input);
+ 	memcpy(bdev->keymap, sgi_map, sizeof(bdev->keymap));
  
-@@ -79,10 +88,9 @@ static void report_key(struct input_dev *input, unsigned keycode)
-  * CD keys:
-  * Forward (0x100), Rewind (0x200), Stop (0x400), Pause (0x800)
-  */
--static void apanel_poll(struct input_polled_dev *ipdev)
-+static void apanel_poll(struct input_dev *idev)
- {
--	struct apanel *ap = ipdev->private;
--	struct input_dev *idev = ipdev->input;
-+	struct apanel *ap = input_get_drvdata(idev);
- 	u8 cmd = device_chip[APANEL_DEV_APPBTN] == CHIP_OZ992C ? 0 : 8;
- 	s32 data;
- 	int i;
-@@ -112,126 +120,93 @@ static int mail_led_set(struct led_classdev *led,
- 	return i2c_smbus_write_word_data(ap->client, 0x10, led_bits);
- }
+@@ -101,7 +101,6 @@ static int sgi_buttons_probe(struct platform_device *pdev)
+ 	input->name = "SGI buttons";
+ 	input->phys = "sgi/input0";
+ 	input->id.bustype = BUS_HOST;
+-	input->dev.parent = &pdev->dev;
  
--static int apanel_remove(struct i2c_client *client)
--{
--	struct apanel *ap = i2c_get_clientdata(client);
+ 	input->keycode = bdev->keymap;
+ 	input->keycodemax = ARRAY_SIZE(bdev->keymap);
+@@ -113,35 +112,15 @@ static int sgi_buttons_probe(struct platform_device *pdev)
+ 		__set_bit(bdev->keymap[i], input->keybit);
+ 	__clear_bit(KEY_RESERVED, input->keybit);
+ 
+-	bdev->poll_dev = poll_dev;
+-	platform_set_drvdata(pdev, bdev);
 -
--	if (device_chip[APANEL_DEV_LED] != CHIP_NONE)
--		led_classdev_unregister(&ap->mail_led);
--
--	input_unregister_polled_device(ap->ipdev);
--	input_free_polled_device(ap->ipdev);
+ 	error = input_register_polled_device(poll_dev);
+ 	if (error)
+-		goto err_free_mem;
 -
 -	return 0;
+-
+- err_free_mem:
+-	input_free_polled_device(poll_dev);
+-	kfree(bdev);
+-	return error;
 -}
 -
--static void apanel_shutdown(struct i2c_client *client)
+-static int sgi_buttons_remove(struct platform_device *pdev)
 -{
--	apanel_remove(client);
--}
+-	struct buttons_dev *bdev = platform_get_drvdata(pdev);
 -
--static const struct i2c_device_id apanel_id[] = {
--	{ "fujitsu_apanel", 0 },
--	{ }
--};
--MODULE_DEVICE_TABLE(i2c, apanel_id);
--
--static struct i2c_driver apanel_driver = {
--	.driver = {
--		.name = APANEL,
--	},
--	.probe		= &apanel_probe,
--	.remove		= &apanel_remove,
--	.shutdown	= &apanel_shutdown,
--	.id_table	= apanel_id,
--};
--
--static struct apanel apanel = {
--	.keymap = {
--		[0] = KEY_MAIL,
--		[1] = KEY_WWW,
--		[2] = KEY_PROG2,
--		[3] = KEY_PROG1,
--
--		[8] = KEY_FORWARD,
--		[9] = KEY_REWIND,
--		[10] = KEY_STOPCD,
--		[11] = KEY_PLAYPAUSE,
--
--	},
--	.mail_led = {
--		.name = "mail:blue",
--		.brightness_set_blocking = mail_led_set,
--	},
--};
--
--/* NB: Only one panel on the i2c. */
- static int apanel_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
- 	struct apanel *ap;
--	struct input_polled_dev *ipdev;
- 	struct input_dev *idev;
- 	u8 cmd = device_chip[APANEL_DEV_APPBTN] == CHIP_OZ992C ? 0 : 8;
--	int i, err = -ENOMEM;
-+	int i, err;
- 
--	ap = &apanel;
-+	ap = devm_kzalloc(&client->dev, sizeof(*ap), GFP_KERNEL);
-+	if (!ap)
-+		return -ENOMEM;
- 
--	ipdev = input_allocate_polled_device();
--	if (!ipdev)
--		goto out1;
-+	idev = devm_input_allocate_device(&client->dev);
-+	if (!idev)
-+		return -ENOMEM;
- 
--	ap->ipdev = ipdev;
-+	ap->idev = idev;
- 	ap->client = client;
- 
- 	i2c_set_clientdata(client, ap);
- 
- 	err = i2c_smbus_write_word_data(client, cmd, 0);
- 	if (err) {
--		dev_warn(&client->dev, APANEL ": smbus write error %d\n",
--			 err);
--		goto out3;
-+		dev_warn(&client->dev, "smbus write error %d\n", err);
-+		return err;
- 	}
- 
--	ipdev->poll = apanel_poll;
--	ipdev->poll_interval = POLL_INTERVAL_DEFAULT;
--	ipdev->private = ap;
-+	input_set_drvdata(idev, ap);
- 
--	idev = ipdev->input;
- 	idev->name = APANEL_NAME " buttons";
- 	idev->phys = "apanel/input0";
- 	idev->id.bustype = BUS_HOST;
--	idev->dev.parent = &client->dev;
--
--	set_bit(EV_KEY, idev->evbit);
- 
-+	memcpy(ap->keymap, apanel_keymap, sizeof(apanel_keymap));
- 	idev->keycode = ap->keymap;
- 	idev->keycodesize = sizeof(ap->keymap[0]);
- 	idev->keycodemax = (device_chip[APANEL_DEV_CDBTN] != CHIP_NONE) ? 12 : 4;
- 
-+	set_bit(EV_KEY, idev->evbit);
- 	for (i = 0; i < idev->keycodemax; i++)
- 		if (ap->keymap[i])
- 			set_bit(ap->keymap[i], idev->keybit);
- 
--	err = input_register_polled_device(ipdev);
-+	err = input_setup_polling(idev, apanel_poll);
-+	if (err)
-+		return err;
-+
-+	input_set_poll_interval(idev, POLL_INTERVAL_DEFAULT);
-+
-+	err = input_register_device(idev);
- 	if (err)
--		goto out3;
-+		return err;
- 
- 	if (device_chip[APANEL_DEV_LED] != CHIP_NONE) {
--		err = led_classdev_register(&client->dev, &ap->mail_led);
-+		ap->mail_led.name = "mail:blue";
-+		ap->mail_led.brightness_set_blocking = mail_led_set;
-+		err = devm_led_classdev_register(&client->dev, &ap->mail_led);
- 		if (err)
--			goto out4;
-+			return err;
- 	}
+-	input_unregister_polled_device(bdev->poll_dev);
+-	input_free_polled_device(bdev->poll_dev);
+-	kfree(bdev);
++		return error;
  
  	return 0;
--out4:
--	input_unregister_polled_device(ipdev);
--out3:
--	input_free_polled_device(ipdev);
--out1:
--	return err;
  }
  
-+static void apanel_shutdown(struct i2c_client *client)
-+{
-+	struct apanel *ap = i2c_get_clientdata(client);
-+
-+	if (device_chip[APANEL_DEV_LED] != CHIP_NONE)
-+		led_set_brightness(&ap->mail_led, LED_OFF);
-+}
-+
-+static const struct i2c_device_id apanel_id[] = {
-+	{ "fujitsu_apanel", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, apanel_id);
-+
-+static struct i2c_driver apanel_driver = {
-+	.driver = {
-+		.name = APANEL,
-+	},
-+	.probe		= &apanel_probe,
-+	.shutdown	= &apanel_shutdown,
-+	.id_table	= apanel_id,
-+};
-+
- /* Scan the system ROM for the signature "FJKEYINF" */
- static __init const void __iomem *bios_signature(const void __iomem *bios)
- {
+ static struct platform_driver sgi_buttons_driver = {
+ 	.probe	= sgi_buttons_probe,
+-	.remove	= sgi_buttons_remove,
+ 	.driver	= {
+ 		.name	= "sgibtns",
+ 	},
 -- 
 2.23.0.866.gb869b98d4c-goog
 

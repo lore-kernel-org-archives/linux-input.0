@@ -2,159 +2,238 @@ Return-Path: <SRS0=CCxI=YK=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2426FA372A
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53604FA3737
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 887572089C
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1AC6C21835
+	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:42:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JY5V0+zs"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q+8X1Hp3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728951AbfJQUmZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Oct 2019 16:42:25 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:37901 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727269AbfJQUmY (ORCPT
+        id S2440791AbfJQUm3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Oct 2019 16:42:29 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:35929 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727269AbfJQUm3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Oct 2019 16:42:24 -0400
-Received: by mail-pl1-f195.google.com with SMTP id w8so1701678plq.5;
-        Thu, 17 Oct 2019 13:42:22 -0700 (PDT)
+        Thu, 17 Oct 2019 16:42:29 -0400
+Received: by mail-pg1-f195.google.com with SMTP id 23so2026689pgk.3;
+        Thu, 17 Oct 2019 13:42:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nPDOMJGsHH0zWzPAXm/wI3oxwPr0hf8L0/bKy7cCfl0=;
-        b=JY5V0+zsgcHQRg+zIlfgYCnfvpm4+2xS++Wrh5CZKpfPmBH97fjeKguHx2KGQ7JcU4
-         B1RXuRi2+tSbaAqaGOzzASRHJj++kOC+LCAmQDJSPeyZb8DnL2mMRwlPiCwzdPiCWlUs
-         Xh6p7h9kKxZsBiq/NA6sEtIH65uq9Hafzf+lUVMfb8ijpYSuTXaNoiTNqv9sFEtuUwOt
-         TbRUWF7kiHt5lcy828hYBACk5tIrtJaTrhPuN5uMVq25g5F/5h3tPmTd5qmwS88pYnAg
-         2zZJVCktgXrf3VCPK9oywT03Y57xan/2a7SgrdB9dfI6+pIu3+CRznM3ZR/GkKdN2cf/
-         aCKA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=/mXh8WjJ84Xe5TPBXdxoghR6RYUn9xReRFHQXe2AzjQ=;
+        b=Q+8X1Hp37Rq29G/LGyQDyZJT89lEC455WByv5xthezcA/h+TnnZzPFY2NqtFN6/azh
+         TMCMLepNRMYh4Jl9p36ArOoHxdyqt/ZbKK9Dew/TJ8B4vp28LnjZfvkCki6FTouQSWw0
+         tI4FTA621mPhHvOP9Psoi5HwMD0xrqM1iASIboCGkgWlOP7/CqssYb6SxBeFr1g4nQS8
+         ODXGqpT2adJw5kl2Vp5m/ag1MNEPhtqwSSmod1azk7y3Y6WyQBt85WISkTQLOnN9OXVG
+         xL0s1sQjNZHncroI2MrnXlGsmw2KEo5sQGigjnZnWnq19OSpo7q9Xpz1Kbe3xrjE83il
+         DhSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nPDOMJGsHH0zWzPAXm/wI3oxwPr0hf8L0/bKy7cCfl0=;
-        b=d99OnXNMe+/LGtum3nRgFdkixdmA+faJFHvCTZnusgQlrDtMU67myLjDiCa/HDadQ+
-         W8UCtEP68NVmwb4FAJ8OwETTMeCm5UE71B/eWmK2n0+shGYGGlO3Ra4oOCFVTHCoKaDF
-         UlVXPac0JgcV/B485ZJ3O7EGGytVKnrGVP+D1jdAu/vyoXDQ9+UjjbBQfhDcRQ9zczYM
-         xCeAu1XTRkZ6JpctbYNI6aUervrw2VqQibEsEBtF+1UJEZvkEeMEt80d8Y1EKToSIHmq
-         h66gFjUdEb8/0gdiUjimy6XfbafS+Auq4h0luCUGEFUKkIsb5NRfmzBr9x8v3GX+3/+F
-         XAZw==
-X-Gm-Message-State: APjAAAXq8HHBsXk071uCqMaPqPmyblmniWwFaWVVT+jWYpPTcycj2YDJ
-        KyN/9HFDDO21/0NLJP9PNS8bFo2t
-X-Google-Smtp-Source: APXvYqzB6sY5K36yP5ikWTXLkI1rfufnmBl38JrsxdSekitFu0TG7m6r9+16waKtOEprzS9jLoRCDw==
-X-Received: by 2002:a17:902:2e:: with SMTP id 43mr6159836pla.55.1571344941448;
-        Thu, 17 Oct 2019 13:42:21 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=/mXh8WjJ84Xe5TPBXdxoghR6RYUn9xReRFHQXe2AzjQ=;
+        b=hj3wY/xeOHEPZlgwWDgNehbHF1FbE66061pf6gScb/92hRHdoLrZtEwZIosEXF1WAl
+         bjL/GRiJAihoF/NUTtyAeelYOuISRhGyETyKKHbmU+KipDfB+UMwtAZdcRodXMqx6Uln
+         2/t+CjQEiVkDuSzViQOijxwIYaO9D1v1btJMnvuXHIe9zDhpQRtlWCdV9/ep+YU8Na4p
+         XCxgmcu+4heOFnyeC9kQvCx8frvB8vE7AN+hBNC/fcZrqoX3nGzmqTOWz4abbkSLnv5v
+         l2tEJ1LWvoWlfpDdWX6U27BO195rq939pTZxfXAwyhbiGaHrbKVuXBcDG2TPgIS3LgDX
+         tMjg==
+X-Gm-Message-State: APjAAAXdfWzZd6FKWc/l+oOtX6pvoYQBWGWy0MVVRO7i8WsA86cykpu7
+        BGX1JIuyOObOwyK98yJMOGasppCr
+X-Google-Smtp-Source: APXvYqxRpEh6skic+1OjBIzOhOXjdDuMCG/hGlSb2M9JafhBr1a+59XrUWGHA3l+ptZkT0f/Bv4xLw==
+X-Received: by 2002:a63:b551:: with SMTP id u17mr6092921pgo.88.1571344946094;
+        Thu, 17 Oct 2019 13:42:26 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.19
+        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Oct 2019 13:42:20 -0700 (PDT)
+        Thu, 17 Oct 2019 13:42:25 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     linux-input@vger.kernel.org
-Cc:     Alexander Shiyan <shc_work@mail.ru>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Allison Randal <allison@lohutok.net>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Brian Masney <masneyb@onstation.org>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Enrico Weigelt <info@metux.net>, Eric Anholt <eric@anholt.net>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Jacky Bai <ping.bai@nxp.com>, Jeff LaBundy <jeff@labundy.com>,
-        Jilayne Lovejoy <opensource@jilayne.com>,
-        Jonathan Bakker <xc-racer2@live.ca>,
-        Luca Weiss <luca@z3ntu.xyz>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Marco Felsch <m.felsch@pengutronix.de>,
+Cc:     Anders Roxell <anders.roxell@linaro.org>,
+        Jeff LaBundy <jeff@labundy.com>,
         Martin Kepplinger <martink@posteo.de>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Miloslav Trmac <mitr@volny.cz>,
         Mukesh Ojha <mojha@codeaurora.org>,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Pavel Machek <pavel@ucw.cz>,
-        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
-        Richard Fontana <rfontana@redhat.com>,
-        =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>,
-        Stefan Agner <stefan@agner.ch>,
-        Steve Winslow <swinslow@gmail.com>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 00/22] Stop using input_polled_dev in polling drivers
-Date:   Thu, 17 Oct 2019 13:41:54 -0700
-Message-Id: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 03/22] Input: ts4800-ts - switch to using polled mode of input devices
+Date:   Thu, 17 Oct 2019 13:41:57 -0700
+Message-Id: <20191017204217.106453-4-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.23.0.866.gb869b98d4c-goog
+In-Reply-To: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
+References: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Input devices now support polling mode natively (via input_setup_polling
-API), and input_polled_dev implementation is going away. This series
-switches drivers found in drivers/input to the new scheme.
+We have added polled mode to the normal input devices with the intent of
+retiring input_polled_dev. This converts ts4800-ts driver to use the
+polling mode of standard input devices and removes dependency on
+INPUT_POLLDEV.
 
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
 
-Dmitry Torokhov (21):
-  Input: raspberrypi-ts - switch to using polled mode of input devices
-  Input: sur40 - switch to using polled mode of input devices
-  Input: ts4800-ts - switch to using polled mode of input devices
-  Input: tsc6507x-ts - switch to using polled mode of input devices
-  Input: adc-keys - switch to using polled mode of input devices
-  Input: clps711x-keypad - switch to using polled mode of input devices
-  Input: jornada680_kbd - switch to using polled mode of input devices
-  Input: gpio_keys_polled - switch to using polled mode of input devices
-  Input: apanel - switch to using polled mode of input devices
-  Input: wistron_btns - switch to using polled mode of input devices
-  Input: cobalt_btns - convert to use managed resources
-  Input: cobalt_btns - switch to using polled mode of input devices
-  Input: sgi_btns - switch to using managed resources
-  Input: sgi_btns - switch to using polled mode of input devices
-  Input: rb532_button - switch to using managed resources
-  Input: rb532_button - switch to using polled mode of input devices
-  Input: gpio_decoder - switch to using polled mode of input devices
-  Input: mma8450 - switch to using polled mode of input devices
-  Input: bma150 - switch to using polled mode of input devices
-  Input: kxtj9 - switch to using managed resources
-  Input: kxtj9 - switch to using polled mode of input devices
+ drivers/input/touchscreen/Kconfig     |  1 -
+ drivers/input/touchscreen/ts4800-ts.c | 68 +++++++++++++++------------
+ 2 files changed, 38 insertions(+), 31 deletions(-)
 
-Jonathan Bakker (1):
-  Input: bma150 - use managed resources helpers
-
- drivers/input/keyboard/Kconfig             |   4 -
- drivers/input/keyboard/adc-keys.c          |  36 ++--
- drivers/input/keyboard/clps711x-keypad.c   |  70 +++----
- drivers/input/keyboard/gpio_keys_polled.c  |  65 +++---
- drivers/input/keyboard/jornada680_kbd.c    |  37 ++--
- drivers/input/misc/Kconfig                 |  15 --
- drivers/input/misc/apanel.c                | 153 ++++++--------
- drivers/input/misc/bma150.c                | 190 +++++------------
- drivers/input/misc/cobalt_btns.c           |  73 +++----
- drivers/input/misc/gpio_decoder.c          |  42 ++--
- drivers/input/misc/kxtj9.c                 | 224 ++++++---------------
- drivers/input/misc/mma8450.c               | 101 +++++-----
- drivers/input/misc/rb532_button.c          |  48 ++---
- drivers/input/misc/sgi_btns.c              |  54 ++---
- drivers/input/misc/wistron_btns.c          |  51 ++---
- drivers/input/touchscreen/Kconfig          |   4 -
- drivers/input/touchscreen/raspberrypi-ts.c |  38 ++--
- drivers/input/touchscreen/sur40.c          |  92 +++++----
- drivers/input/touchscreen/tps6507x-ts.c    |  36 ++--
- drivers/input/touchscreen/ts4800-ts.c      |  68 ++++---
- 20 files changed, 557 insertions(+), 844 deletions(-)
-
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index df9cb92166c3..2c00232b2506 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -1037,7 +1037,6 @@ config TOUCHSCREEN_TS4800
+ 	depends on HAS_IOMEM && OF
+ 	depends on SOC_IMX51 || COMPILE_TEST
+ 	select MFD_SYSCON
+-	select INPUT_POLLDEV
+ 	help
+ 	  Say Y here if you have a touchscreen on a TS-4800 board.
+ 
+diff --git a/drivers/input/touchscreen/ts4800-ts.c b/drivers/input/touchscreen/ts4800-ts.c
+index 5b4f5362c67b..6cf66aadc10e 100644
+--- a/drivers/input/touchscreen/ts4800-ts.c
++++ b/drivers/input/touchscreen/ts4800-ts.c
+@@ -10,7 +10,6 @@
+ 
+ #include <linux/bitops.h>
+ #include <linux/input.h>
+-#include <linux/input-polldev.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/mfd/syscon.h>
+@@ -33,7 +32,7 @@
+ #define Y_OFFSET		0x2
+ 
+ struct ts4800_ts {
+-	struct input_polled_dev *poll_dev;
++	struct input_dev        *input;
+ 	struct device           *dev;
+ 	char                    phys[32];
+ 
+@@ -46,22 +45,26 @@ struct ts4800_ts {
+ 	int                     debounce;
+ };
+ 
+-static void ts4800_ts_open(struct input_polled_dev *dev)
++static int ts4800_ts_open(struct input_dev *input_dev)
+ {
+-	struct ts4800_ts *ts = dev->private;
+-	int ret;
++	struct ts4800_ts *ts = input_get_drvdata(input_dev);
++	int error;
+ 
+ 	ts->pendown = false;
+ 	ts->debounce = DEBOUNCE_COUNT;
+ 
+-	ret = regmap_update_bits(ts->regmap, ts->reg, ts->bit, ts->bit);
+-	if (ret)
+-		dev_warn(ts->dev, "Failed to enable touchscreen\n");
++	error = regmap_update_bits(ts->regmap, ts->reg, ts->bit, ts->bit);
++	if (error) {
++		dev_warn(ts->dev, "Failed to enable touchscreen: %d\n", error);
++		return error;
++	}
++
++	return 0;
+ }
+ 
+-static void ts4800_ts_close(struct input_polled_dev *dev)
++static void ts4800_ts_close(struct input_dev *input_dev)
+ {
+-	struct ts4800_ts *ts = dev->private;
++	struct ts4800_ts *ts = input_get_drvdata(input_dev);
+ 	int ret;
+ 
+ 	ret = regmap_update_bits(ts->regmap, ts->reg, ts->bit, 0);
+@@ -70,10 +73,9 @@ static void ts4800_ts_close(struct input_polled_dev *dev)
+ 
+ }
+ 
+-static void ts4800_ts_poll(struct input_polled_dev *dev)
++static void ts4800_ts_poll(struct input_dev *input_dev)
+ {
+-	struct input_dev *input_dev = dev->input;
+-	struct ts4800_ts *ts = dev->private;
++	struct ts4800_ts *ts = input_get_drvdata(input_dev);
+ 	u16 last_x = readw(ts->base + X_OFFSET);
+ 	u16 last_y = readw(ts->base + Y_OFFSET);
+ 	bool pendown = last_x & PENDOWN_MASK;
+@@ -146,7 +148,7 @@ static int ts4800_parse_dt(struct platform_device *pdev,
+ 
+ static int ts4800_ts_probe(struct platform_device *pdev)
+ {
+-	struct input_polled_dev *poll_dev;
++	struct input_dev *input_dev;
+ 	struct ts4800_ts *ts;
+ 	int error;
+ 
+@@ -162,32 +164,38 @@ static int ts4800_ts_probe(struct platform_device *pdev)
+ 	if (IS_ERR(ts->base))
+ 		return PTR_ERR(ts->base);
+ 
+-	poll_dev = devm_input_allocate_polled_device(&pdev->dev);
+-	if (!poll_dev)
++	input_dev = devm_input_allocate_device(&pdev->dev);
++	if (!input_dev)
+ 		return -ENOMEM;
+ 
+ 	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(&pdev->dev));
+-	ts->poll_dev = poll_dev;
++	ts->input = input_dev;
+ 	ts->dev = &pdev->dev;
+ 
+-	poll_dev->private = ts;
+-	poll_dev->poll_interval = POLL_INTERVAL;
+-	poll_dev->open = ts4800_ts_open;
+-	poll_dev->close = ts4800_ts_close;
+-	poll_dev->poll = ts4800_ts_poll;
++	input_set_drvdata(input_dev, ts);
++
++	input_dev->name = "TS-4800 Touchscreen";
++	input_dev->phys = ts->phys;
++
++	input_dev->open = ts4800_ts_open;
++	input_dev->close = ts4800_ts_close;
++
++	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
++	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+ 
+-	poll_dev->input->name = "TS-4800 Touchscreen";
+-	poll_dev->input->phys = ts->phys;
++	error = input_setup_polling(input_dev, ts4800_ts_poll);
++	if (error) {
++		dev_err(&pdev->dev, "Unable to set up polling: %d\n", error);
++		return error;
++	}
+ 
+-	input_set_capability(poll_dev->input, EV_KEY, BTN_TOUCH);
+-	input_set_abs_params(poll_dev->input, ABS_X, 0, MAX_12BIT, 0, 0);
+-	input_set_abs_params(poll_dev->input, ABS_Y, 0, MAX_12BIT, 0, 0);
++	input_set_poll_interval(input_dev, POLL_INTERVAL);
+ 
+-	error = input_register_polled_device(poll_dev);
++	error = input_register_device(input_dev);
+ 	if (error) {
+ 		dev_err(&pdev->dev,
+-			"Unabled to register polled input device (%d)\n",
+-			error);
++			"Unable to register input device: %d\n", error);
+ 		return error;
+ 	}
+ 
 -- 
 2.23.0.866.gb869b98d4c-goog
 

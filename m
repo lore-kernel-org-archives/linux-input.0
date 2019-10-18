@@ -7,46 +7,45 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87ED0CA9EA0
-	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 22:21:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A566CA9EAC
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 22:21:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5C2B4205C9
-	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 22:21:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F37C20872
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 22:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1571437305;
-	bh=UVWN1IQsnHONNGn6shfGmJKv7yWKE5L+vnchf3/8s1I=;
+	s=default; t=1571437306;
+	bh=HKTIdQwMrvjWDforNYHTyKrkVYHiKnZQBFV//gOWcXo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=G59bLtvwuZkZ1TTeLQFUv2szn/QFSgfgAlyHjM2Ujgr9biagMHw/22DwycwWhmXQ0
-	 xgmeXsYFEG9Uw0WWdqqZcRVK57qlQw94q0Y5S+vbB+WF2CEHDMt0DiISYUH0TuHZ7f
-	 ydGGN5hzIddIJtjmzlPVIwmNJ9DFkPP0wVbxWmD8=
+	b=gKW6ln3901UDna4NDeIXczKHNgsyjvB0+OMkg4GPuhvhtPcwLlBVOZcYh3r/3e/3J
+	 R/2zHx1F1gQ/tvLJL3hHFyo0s84dorXwrS4WvDDGf/cSoVN9bIOhKUCI3GRaQRUHgo
+	 niCD4JkWlbvYm5PweTVp0iPNQ+mtIiU2kno7gc9A=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404776AbfJRWVk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Oct 2019 18:21:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38216 "EHLO mail.kernel.org"
+        id S1731145AbfJRWGP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Oct 2019 18:06:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731138AbfJRWGQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:06:16 -0400
+        id S1731085AbfJRWGP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:06:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF9232245B;
-        Fri, 18 Oct 2019 22:06:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA7D2205F4;
+        Fri, 18 Oct 2019 22:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436375;
-        bh=UVWN1IQsnHONNGn6shfGmJKv7yWKE5L+vnchf3/8s1I=;
+        s=default; t=1571436374;
+        bh=HKTIdQwMrvjWDforNYHTyKrkVYHiKnZQBFV//gOWcXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvokMGt29IIJjp7rIroVqV6zGHeWV3WK0RjTrlYHE4/+hRrPtIAxTvTQxI+SSg+NK
-         KK6idg1DPGJ4jhPdYhmvSxL9xlvQsX5GSEvjD5rNvP0aLK8QZUTMee+9DQchasaFdI
-         TqWYBBO4hJri51dmiaBbKb9VyC314Z1LfVl/AaWs=
+        b=TtQxZuNggzbhcRWNWiONnVFAKKbOz4T9v3g7ZUIM7FT/SAlumhoRhFP1GDe4UWfNG
+         am4upmtfcn0pAAOgx0BSjAFZfTPQZWWOeNzom7FKAdwSNyDxX6EdKgClHDlomeA0jb
+         H2i4NOMFrM8ZvEGWdhZLIhHB4cEM/6zbD5/FmgzY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
-        Simon Gene Gottlieb <simon@gottliebtfreitag.de>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 029/100] HID: steam: fix deadlock with input devices.
-Date:   Fri, 18 Oct 2019 18:04:14 -0400
-Message-Id: <20191018220525.9042-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 028/100] HID: steam: fix boot loop with bluetooth firmware
+Date:   Fri, 18 Oct 2019 18:04:13 -0400
+Message-Id: <20191018220525.9042-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -61,100 +60,119 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 
-[ Upstream commit 6b538cc21334b83f09b25dec4aa2d2726bf07ed0 ]
+[ Upstream commit cf28aee292e102740e49f74385b4b89c00050763 ]
 
-When using this driver with the wireless dongle and some usermode
-program that monitors every input device (acpid, for example), while
-another usermode client opens and closes the low-level device
-repeadedly, the system eventually deadlocks.
+There is a new firmware for the Steam Controller with support for BLE
+connections. When using such a device with a wired connection, it
+reboots itself every 10 seconds unless an application has opened it.
 
-The reason is that steam_input_register_device() must not be called with
-the mutex held, because the input subsystem has its own synchronization
-that clashes with this one: it is possible that steam_input_open() is
-called before input_register_device() returns, and since
-steam_input_open() needs to lock the mutex, it deadlocks.
+Doing hid_hw_open() unconditionally on probe fixes the issue, and the
+code becomes simpler.
 
-However we must hold the mutex when calling any function that sends
-commands to the controller. If not, random commands end up falling fail.
-
-Reported-by: Simon Gene Gottlieb <simon@gottliebtfreitag.de>
 Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Tested-by: Simon Gene Gottlieb <simon@gottliebtfreitag.de>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-steam.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ drivers/hid/hid-steam.c | 34 +++++++++++-----------------------
+ 1 file changed, 11 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 8141cadfca0e3..8dae0f9b819e0 100644
+index dc4128bfe2ca9..8141cadfca0e3 100644
 --- a/drivers/hid/hid-steam.c
 +++ b/drivers/hid/hid-steam.c
-@@ -499,6 +499,7 @@ static void steam_battery_unregister(struct steam_device *steam)
- static int steam_register(struct steam_device *steam)
+@@ -283,11 +283,6 @@ static void steam_set_lizard_mode(struct steam_device *steam, bool enable)
+ static int steam_input_open(struct input_dev *dev)
  {
- 	int ret;
-+	bool client_opened;
- 
- 	/*
- 	 * This function can be called several times in a row with the
-@@ -511,9 +512,11 @@ static int steam_register(struct steam_device *steam)
- 		 * Unlikely, but getting the serial could fail, and it is not so
- 		 * important, so make up a serial number and go on.
- 		 */
-+		mutex_lock(&steam->mutex);
- 		if (steam_get_serial(steam) < 0)
- 			strlcpy(steam->serial_no, "XXXXXXXXXX",
- 					sizeof(steam->serial_no));
-+		mutex_unlock(&steam->mutex);
- 
- 		hid_info(steam->hdev, "Steam Controller '%s' connected",
- 				steam->serial_no);
-@@ -528,13 +531,15 @@ static int steam_register(struct steam_device *steam)
- 	}
+ 	struct steam_device *steam = input_get_drvdata(dev);
+-	int ret;
+-
+-	ret = hid_hw_open(steam->hdev);
+-	if (ret)
+-		return ret;
  
  	mutex_lock(&steam->mutex);
--	if (!steam->client_opened) {
-+	client_opened = steam->client_opened;
-+	if (!client_opened)
- 		steam_set_lizard_mode(steam, lizard_mode);
-+	mutex_unlock(&steam->mutex);
-+
-+	if (!client_opened)
- 		ret = steam_input_register(steam);
--	} else {
-+	else
- 		ret = 0;
--	}
--	mutex_unlock(&steam->mutex);
- 
- 	return ret;
+ 	if (!steam->client_opened && lizard_mode)
+@@ -304,8 +299,6 @@ static void steam_input_close(struct input_dev *dev)
+ 	if (!steam->client_opened && lizard_mode)
+ 		steam_set_lizard_mode(steam, true);
+ 	mutex_unlock(&steam->mutex);
+-
+-	hid_hw_close(steam->hdev);
  }
-@@ -630,14 +635,21 @@ static void steam_client_ll_close(struct hid_device *hdev)
+ 
+ static enum power_supply_property steam_battery_props[] = {
+@@ -623,11 +616,6 @@ static void steam_client_ll_stop(struct hid_device *hdev)
+ static int steam_client_ll_open(struct hid_device *hdev)
  {
  	struct steam_device *steam = hdev->driver_data;
+-	int ret;
+-
+-	ret = hid_hw_open(steam->hdev);
+-	if (ret)
+-		return ret;
  
-+	unsigned long flags;
-+	bool connected;
-+
-+	spin_lock_irqsave(&steam->lock, flags);
-+	connected = steam->connected;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+
  	mutex_lock(&steam->mutex);
- 	steam->client_opened = false;
-+	if (connected)
-+		steam_set_lizard_mode(steam, lizard_mode);
- 	mutex_unlock(&steam->mutex);
+ 	steam->client_opened = true;
+@@ -635,7 +623,7 @@ static int steam_client_ll_open(struct hid_device *hdev)
  
--	if (steam->connected) {
--		steam_set_lizard_mode(steam, lizard_mode);
-+	if (connected)
- 		steam_input_register(steam);
--	}
+ 	steam_input_unregister(steam);
+ 
+-	return ret;
++	return 0;
  }
  
- static int steam_client_ll_raw_request(struct hid_device *hdev,
+ static void steam_client_ll_close(struct hid_device *hdev)
+@@ -646,7 +634,6 @@ static void steam_client_ll_close(struct hid_device *hdev)
+ 	steam->client_opened = false;
+ 	mutex_unlock(&steam->mutex);
+ 
+-	hid_hw_close(steam->hdev);
+ 	if (steam->connected) {
+ 		steam_set_lizard_mode(steam, lizard_mode);
+ 		steam_input_register(steam);
+@@ -759,14 +746,15 @@ static int steam_probe(struct hid_device *hdev,
+ 	if (ret)
+ 		goto client_hdev_add_fail;
+ 
++	ret = hid_hw_open(hdev);
++	if (ret) {
++		hid_err(hdev,
++			"%s:hid_hw_open\n",
++			__func__);
++		goto hid_hw_open_fail;
++	}
++
+ 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+-		ret = hid_hw_open(hdev);
+-		if (ret) {
+-			hid_err(hdev,
+-				"%s:hid_hw_open for wireless\n",
+-				__func__);
+-			goto hid_hw_open_fail;
+-		}
+ 		hid_info(hdev, "Steam wireless receiver connected");
+ 		steam_request_conn_status(steam);
+ 	} else {
+@@ -781,8 +769,8 @@ static int steam_probe(struct hid_device *hdev,
+ 
+ 	return 0;
+ 
+-hid_hw_open_fail:
+ input_register_fail:
++hid_hw_open_fail:
+ client_hdev_add_fail:
+ 	hid_hw_stop(hdev);
+ hid_hw_start_fail:
+@@ -809,8 +797,8 @@ static void steam_remove(struct hid_device *hdev)
+ 	cancel_work_sync(&steam->work_connect);
+ 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+ 		hid_info(hdev, "Steam wireless receiver disconnected");
+-		hid_hw_close(hdev);
+ 	}
++	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
+ 	steam_unregister(steam);
+ }
 -- 
 2.20.1
 

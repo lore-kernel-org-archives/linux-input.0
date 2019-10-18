@@ -2,26 +2,27 @@ Return-Path: <SRS0=Maqc=YL=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2ADBECA9EAB
-	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 15:43:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C62FCA9EAC
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 15:44:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0D8BF21852
-	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 15:43:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6876C21852
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 15:44:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408982AbfJRPn6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Oct 2019 11:43:58 -0400
-Received: from mout.kundenserver.de ([217.72.192.74]:40943 "EHLO
+        id S2505184AbfJRPmm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Oct 2019 11:42:42 -0400
+Received: from mout.kundenserver.de ([217.72.192.73]:47635 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2505179AbfJRPmn (ORCPT
+        with ESMTP id S2505168AbfJRPmk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Oct 2019 11:42:43 -0400
+        Fri, 18 Oct 2019 11:42:40 -0400
 Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
  (mreue108 [212.227.15.145]) with ESMTPA (Nemesis) id
- 1Mysa4-1i8cRr1njm-00vzeJ; Fri, 18 Oct 2019 17:42:29 +0200
+ 1Mlf8e-1hdwQw37Za-00ihx9; Fri, 18 Oct 2019 17:42:28 +0200
 From:   Arnd Bergmann <arnd@arndb.de>
 To:     Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
@@ -31,179 +32,150 @@ Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         Arnd Bergmann <arnd@arndb.de>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 28/46] input: touchscreen: mainstone: sync with zylonite driver
-Date:   Fri, 18 Oct 2019 17:41:43 +0200
-Message-Id: <20191018154201.1276638-28-arnd@arndb.de>
+Subject: [PATCH 26/46] ARM: pxa: zylonite: use gpio lookup instead mfp header
+Date:   Fri, 18 Oct 2019 17:41:41 +0200
+Message-Id: <20191018154201.1276638-26-arnd@arndb.de>
 X-Mailer: git-send-email 2.20.0
 In-Reply-To: <20191018154052.1276506-1-arnd@arndb.de>
 References: <20191018154052.1276506-1-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:saH5kjlynqqUDVkNub5Ma1XPk99l3/V8Shfn2TYRSAgJ+P8L2B6
- BW8X/SikVvaOq1ChVLPL+Of+XJoeTLZrZY6UpRMW6ZDaHWB1H67j0yTBW4Nn+QKik7OfK0s
- BRLFMQTIUi8MD4xWkYicAIqu9TTHjaw4cO810QTUsevOMSakQjKerNMLBoqT+m4COuEiotF
- xKold953kpPZEF6py6DGg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:VFZafkCMpQc=:TSB0QPeWSMmMsc+ju761Lc
- Aor1M1UlkuWqzyCepVKJRWMw6mjhUcLJ2ch5cAT+HfnrQ/zaGA7ES5Vtn5PKgc0+DRabL2tin
- tfO/ctOrIlsDUU0yqo5657VddgJy+LR/yXRHlILuJCdtdAl2P+Vbp8rL9+fJDRgyLaFh2+WDr
- o0eE1bzfjJ623IfYpCSXIWN2WE9n/pLpb5DyCyMEXNpMixLRmoZvP9zzSGN4co2mFb8+qnZVP
- R5Nc9M+GsZZ2UZJmqiyZXjggRwrGFGWSSL65TlviYwrPh3eCL+XG5DdhwRovgpTKaMjXQuI4o
- E0okqEkx2EQncIF5Ah3i9+aAPiwLivXaa8RvIr9XYrDLqWoqhvvYdf2lvUnCf5ZwheHKtq8HY
- mJJAnncRKYt/YdyhxqNdlknDNgF4cKjzQIipD5FDYo6USfkma9BcCsSGOmn1Xka9auBrZ42N9
- i1XEjPsXdOLDyLlpstrB7ehWCL0fop5tCKMZ6Pz8tbplQuhOhFaqD4V8nBatCUwxqdFZIsclM
- FB215AW8DvS4J7rMi5UFJzKV9qT6uvWX9g5DBuMo9Ppdr4oZA8WvQMH44goj8QqTGAysuU8aS
- 7dn4p/d6ldtNR9hYXFQ6SUbXyk1zox88b4Leg4swSNkYzaEIDdUF3vNN6PDCrJA7XfR+BVJkk
- rLJuUXTLn/bCaVYDKfSPUSoCHLCxyjfH5xiwKpvMYkcLqsS/Yj+EXgkGaN7pd4lTJJTwyysMK
- O265YIQ46ZkZpv8v97d5kYuNd8rjVPcmwKh8MMjrQl8Hdg0xG8I0oCpQtDvQ2genFLTEhtaye
- emngIGpWB17R2Lvv7SzpHy2ghJVH4vhbzk4xjaB+NMm+rvziRDl5mOpUHgxHWNSQuwu+67tR4
- fBf7nvAQTI1eTA35d6Yw==
+X-Provags-ID: V03:K1:EPfdFNGMYkktAwTtVc77ZjC/u3+lzwkn9SfHHkjQqYryFRSRDgF
+ ri+bw6JPu+6gMo4DnAnJHKHZxaOMUZE7fUrMhZLetVePjkAUj1l08PDhNNqpub0rXxy9ZIP
+ kGrI7wefjbcBNTpWWnidB0pxWkI2vq9r/vFR6V1x6HZvcgFWnJOLgNRsvIoeDU+CMs6flyt
+ bDifXaf0KF1O25W114BLg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:Zs4SFYr2g24=:7WTzUVql3CseAxe0/QSQDE
+ gaNZ1GlSN/EhKzBBHWyD/qddqOLolS3uJr7QWAX67KsRrXMl137vRbHdxknp11Ve5GcqHqsI8
+ xfmNMAwp7hayjyMXdLvpszJgqi3mXvzlcYInHR3sq5CanCrjSfvtMz/42XvbfI1hp89jDVrKu
+ CgmIBsqEIR97kdemRZfhhCioetk79pDst+AnD4dyo9arPLh9srxokuiZ+2HVc241WHzxZJdrU
+ mrxelO1vt/DQIFmlLMm66LIA5mBC8SGCag++URIvgc4ZpeVuEg0LQeX+0kUG6v7g09qz50NZX
+ a1X/mIVEvue6HDGqVRfBadPbi73ht3oqA6ZMxrwhypCD2yv4P/9BioJREoXYn0FFh9GHdAqbh
+ yx0j9eUGEr14ZauY537Cy1IWlMAJ0iI+VQntT6n1YjJnhngxQk2rRRV6H5vV7vL6CPHI1aEf9
+ R3jCmKT/9iUOYXH3nrZVmzMUgsdz5NJR3cR6cNuj7cQVqlqNErmqgTSQbokeArTdZg+EdD0di
+ fjIx1FA7ar5p/JZQpnGeUJDT21jd4zKAYb5qIBz/67ILp+QpXRfQP1yIWzS0ql3WeQT1UIvDE
+ C8bjPDvsvWKElhEuyZxtrQMWzftgPhmDjhiGlL9ci2XmL2Fvd4lqYc1GJbEFpibMIY07vFr7u
+ RH1Wiuex8tT/ldcucr4+KCV0rCrsWiOhv/QIg/RpiHLYjg2Qzzb7/xrm40sgXIRI3gU1nPeE2
+ /nALa08zOEDAZTfvqvWbQ4dqJmTtKBFob2CSPURZdAGi6r5KobsmwfwHH320EgNBsGfbyfM03
+ I+R5EeD2TCQIHA7ivxYVLr9mWpVdsJ0YZUQvORAs0fvC0yIpnqAVEE64zjB98NWtd8K32OemS
+ sqRvKGMvPiv3DK5nRzsg==
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The two drivers are almost identical and can work on a variety
-of hardware in principle. The mainstone driver supports additional
-hardware, and the zylonite driver has a few cleanup patches.
-
-Sync the two by adding the zylonite changes into the mainstone
-one, and checking for the zylonite board to order to keep the
-default behavior (interrupt enabled) there.
+The mach/mfp.h header is only used by this one driver
+for hardcoded gpio numbers. Change that to use a lookup
+table instead.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/touchscreen/mainstone-wm97xx.c | 59 ++++++++++----------
- 1 file changed, 31 insertions(+), 28 deletions(-)
+ arch/arm/mach-pxa/zylonite.c                | 31 +++++++++++++++++++++
+ drivers/input/touchscreen/zylonite-wm97xx.c | 20 +++++++------
+ 2 files changed, 42 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
-index 618c80847d9f..940d3c92b1f8 100644
---- a/drivers/input/touchscreen/mainstone-wm97xx.c
-+++ b/drivers/input/touchscreen/mainstone-wm97xx.c
-@@ -24,9 +24,9 @@
- #include <linux/gpio/consumer.h>
+diff --git a/arch/arm/mach-pxa/zylonite.c b/arch/arm/mach-pxa/zylonite.c
+index e3ae45f444d5..d6c0e8866e18 100644
+--- a/arch/arm/mach-pxa/zylonite.c
++++ b/arch/arm/mach-pxa/zylonite.c
+@@ -32,6 +32,7 @@
+ #include <linux/platform_data/usb-ohci-pxa27x.h>
+ #include <linux/platform_data/keypad-pxa27x.h>
+ #include <linux/platform_data/mtd-nand-pxa3xx.h>
++#include <mach/mfp.h>
+ 
+ #include "devices.h"
+ #include "generic.h"
+@@ -426,6 +427,35 @@ static void __init zylonite_init_ohci(void)
+ static inline void zylonite_init_ohci(void) {}
+ #endif /* CONFIG_USB_OHCI_HCD || CONFIG_USB_OHCI_HCD_MODULE */
+ 
++static struct gpiod_lookup_table zylonite_wm97xx_touch_gpio15_table = {
++	.dev_id = "wm97xx-touch.0",
++	.table = {
++		GPIO_LOOKUP("gpio-pxa", mfp_to_gpio(MFP_PIN_GPIO15),
++			    "touch", GPIO_ACTIVE_LOW),
++		{ },
++	},
++};
++
++static struct gpiod_lookup_table zylonite_wm97xx_touch_gpio26_table = {
++	.dev_id = "wm97xx-touch.0",
++	.table = {
++		GPIO_LOOKUP("gpio-pxa", mfp_to_gpio(MFP_PIN_GPIO26),
++			    "touch", GPIO_ACTIVE_LOW),
++		{ },
++	},
++};
++
++static void __init zylonite_init_wm97xx_touch(void)
++{
++	if (!IS_ENABLED(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE))
++		return;
++
++	if (cpu_is_pxa320())
++		gpiod_add_lookup_table(&zylonite_wm97xx_touch_gpio15_table);
++	else
++		gpiod_add_lookup_table(&zylonite_wm97xx_touch_gpio26_table);
++}
++
+ static void __init zylonite_init(void)
+ {
+ 	pxa_set_ffuart_info(NULL);
+@@ -451,6 +481,7 @@ static void __init zylonite_init(void)
+ 	zylonite_init_nand();
+ 	zylonite_init_leds();
+ 	zylonite_init_ohci();
++	zylonite_init_wm97xx_touch();
+ }
+ 
+ MACHINE_START(ZYLONITE, "PXA3xx Platform Development Kit (aka Zylonite)")
+diff --git a/drivers/input/touchscreen/zylonite-wm97xx.c b/drivers/input/touchscreen/zylonite-wm97xx.c
+index f57bdf083188..cabdd6e3c6f8 100644
+--- a/drivers/input/touchscreen/zylonite-wm97xx.c
++++ b/drivers/input/touchscreen/zylonite-wm97xx.c
+@@ -17,14 +17,13 @@
+ #include <linux/moduleparam.h>
+ #include <linux/kernel.h>
+ #include <linux/delay.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
  #include <linux/irq.h>
  #include <linux/interrupt.h>
--#include <linux/wm97xx.h>
  #include <linux/io.h>
--#include <linux/gpio.h>
-+#include <linux/soc/pxa/cpu.h>
-+#include <linux/wm97xx.h>
+ #include <linux/soc/pxa/cpu.h>
+ #include <linux/wm97xx.h>
  
+-#include <mach/mfp.h>
  #include <mach/regs-ac97.h>
  
-@@ -42,23 +42,22 @@ struct continuous {
- #define WM_READS(sp) ((sp / HZ) + 1)
- 
- static const struct continuous cinfo[] = {
--	{WM9705_ID2, 0, WM_READS(94), 94},
--	{WM9705_ID2, 1, WM_READS(188), 188},
--	{WM9705_ID2, 2, WM_READS(375), 375},
--	{WM9705_ID2, 3, WM_READS(750), 750},
--	{WM9712_ID2, 0, WM_READS(94), 94},
--	{WM9712_ID2, 1, WM_READS(188), 188},
--	{WM9712_ID2, 2, WM_READS(375), 375},
--	{WM9712_ID2, 3, WM_READS(750), 750},
--	{WM9713_ID2, 0, WM_READS(94), 94},
--	{WM9713_ID2, 1, WM_READS(120), 120},
--	{WM9713_ID2, 2, WM_READS(154), 154},
--	{WM9713_ID2, 3, WM_READS(188), 188},
-+	{ WM9705_ID2, 0, WM_READS(94),  94  },
-+	{ WM9705_ID2, 1, WM_READS(188), 188 },
-+	{ WM9705_ID2, 2, WM_READS(375), 375 },
-+	{ WM9705_ID2, 3, WM_READS(750), 750 },
-+	{ WM9712_ID2, 0, WM_READS(94),  94  },
-+	{ WM9712_ID2, 1, WM_READS(188), 188 },
-+	{ WM9712_ID2, 2, WM_READS(375), 375 },
-+	{ WM9712_ID2, 3, WM_READS(750), 750 },
-+	{ WM9713_ID2, 0, WM_READS(94),  94  },
-+	{ WM9713_ID2, 1, WM_READS(120), 120 },
-+	{ WM9713_ID2, 2, WM_READS(154), 154 },
-+	{ WM9713_ID2, 3, WM_READS(188), 188 },
- };
- 
- /* continuous speed index */
- static int sp_idx;
--static u16 last, tries;
- static struct gpio_desc *gpiod_irq;
- 
- /*
-@@ -102,7 +101,7 @@ static void wm97xx_acc_pen_up(struct wm97xx *wm)
+ struct continuous {
+@@ -181,14 +180,17 @@ static struct wm97xx_mach_ops zylonite_mach_ops = {
+ static int zylonite_wm97xx_probe(struct platform_device *pdev)
  {
- 	unsigned int count;
- 
--	schedule_timeout_uninterruptible(1);
-+	msleep(1);
- 
- 	if (cpu_is_pxa27x()) {
- 		while (MISR & (1 << 2))
-@@ -117,13 +116,14 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
- {
- 	u16 x, y, p = 0x100 | WM97XX_ADCSEL_PRES;
- 	int reads = 0;
-+	static u16 last, tries;
- 
- 	/* When the AC97 queue has been drained we need to allow time
- 	 * to buffer up samples otherwise we end up spinning polling
- 	 * for samples.  The controller can't have a suitably low
- 	 * threshold set to use the notifications it gives.
- 	 */
--	schedule_timeout_uninterruptible(1);
-+	msleep(1);
- 
- 	if (tries > 5) {
- 		tries = 0;
-@@ -193,6 +193,8 @@ static int wm97xx_acc_startup(struct wm97xx *wm)
- 		/* There is some obscure mutant of WM9712 interbred with WM9713
- 		 * used on Palm HW */
- 		wm->variant = WM97xx_WM1613;
-+	} else if (machine_is_zylonite()) {
-+		pen_int = 1;
- 	}
- 
- 	if (pen_int) {
-@@ -253,13 +255,13 @@ static void wm97xx_irq_enable(struct wm97xx *wm, int enable)
- }
- 
- static struct wm97xx_mach_ops mainstone_mach_ops = {
--	.acc_enabled = 1,
--	.acc_pen_up = wm97xx_acc_pen_up,
--	.acc_pen_down = wm97xx_acc_pen_down,
--	.acc_startup = wm97xx_acc_startup,
--	.acc_shutdown = wm97xx_acc_shutdown,
--	.irq_enable = wm97xx_irq_enable,
--	.irq_gpio = WM97XX_GPIO_2,
-+	.acc_enabled	= 1,
-+	.acc_pen_up	= wm97xx_acc_pen_up,
-+	.acc_pen_down	= wm97xx_acc_pen_down,
-+	.acc_startup	= wm97xx_acc_startup,
-+	.acc_shutdown	= wm97xx_acc_shutdown,
-+	.irq_enable	= wm97xx_irq_enable,
-+	.irq_gpio	= WM97XX_GPIO_2,
- };
- 
- static int mainstone_wm97xx_probe(struct platform_device *pdev)
-@@ -274,14 +276,15 @@ static int mainstone_wm97xx_remove(struct platform_device *pdev)
  	struct wm97xx *wm = platform_get_drvdata(pdev);
- 
- 	wm97xx_unregister_mach_ops(wm);
+-	int gpio_touch_irq;
+-
+-	if (cpu_is_pxa320())
+-		gpio_touch_irq = mfp_to_gpio(MFP_PIN_GPIO15);
+-	else
+-		gpio_touch_irq = mfp_to_gpio(MFP_PIN_GPIO26);
++	struct gpio_desc *gpio_touch_irq;
++	int err;
 +
- 	return 0;
- }
++	gpio_touch_irq = devm_gpiod_get(&pdev->dev, "touch", GPIOD_IN);
++	err = PTR_ERR_OR_ZERO(gpio_touch_irq);
++	if (err) {
++		dev_err(&pdev->dev, "Cannot get irq gpio: %d\n", err);
++		return err;
++	}
  
- static struct platform_driver mainstone_wm97xx_driver = {
--	.probe = mainstone_wm97xx_probe,
--	.remove = mainstone_wm97xx_remove,
--	.driver = {
--		.name = "wm97xx-touch",
-+	.probe	= mainstone_wm97xx_probe,
-+	.remove	= mainstone_wm97xx_remove,
-+	.driver	= {
-+		.name	= "wm97xx-touch",
- 	},
- };
- module_platform_driver(mainstone_wm97xx_driver);
+-	wm->pen_irq = gpio_to_irq(gpio_touch_irq);
++	wm->pen_irq = gpiod_to_irq(gpio_touch_irq);
+ 	irq_set_irq_type(wm->pen_irq, IRQ_TYPE_EDGE_BOTH);
+ 
+ 	wm97xx_config_gpio(wm, WM97XX_GPIO_13, WM97XX_GPIO_IN,
 -- 
 2.20.0
 

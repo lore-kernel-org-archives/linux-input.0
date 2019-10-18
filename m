@@ -2,160 +2,107 @@ Return-Path: <SRS0=Maqc=YL=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD153CA9ECF
-	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 04:54:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDA7CCA9ECF
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 04:55:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9FA8D222C5
-	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 04:54:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A1B8B2070B
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 04:55:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IYTVyaw4"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rn0xH2r9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729603AbfJREyF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Oct 2019 00:54:05 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:35217 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725972AbfJRExy (ORCPT
+        id S2409474AbfJREzz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Oct 2019 00:55:55 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:33282 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392808AbfJREzz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Oct 2019 00:53:54 -0400
-Received: by mail-pl1-f193.google.com with SMTP id c3so2249180plo.2;
-        Thu, 17 Oct 2019 21:53:52 -0700 (PDT)
+        Fri, 18 Oct 2019 00:55:55 -0400
+Received: by mail-io1-f68.google.com with SMTP id z19so5947178ior.0;
+        Thu, 17 Oct 2019 21:55:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=JNvDqC31WTWdI2vpSAPtpYynuJNNNTYl8P0mHvHLMNk=;
-        b=IYTVyaw4C9oBzL+7mOyH7VFzP20az+ts6hbtvsVnXIWzQjm+ppeVosbblAdJYMzyXO
-         I5ySkabTrYIu71JT/oLm10CmVQNxy7JUvfKgQSe1CTTyUMwGiEhe7m5oZ+YgH9cWydBE
-         IDDEWvFEdnBZQXi+KYd3vpAJCpuHsDcidlquMM+hsgk5bE2IJ2njN4YnKDQRmpQlnC3r
-         p20wP8peXRSf9V7dRjbC8bdn/8elPZfGp+DKjm2kjB+VHqD57lk8i05ZFQ9lBS0rwY7M
-         m9Dpu4vonPmTHFlk7B8u40nwAA83fJOGKow5EFfqP0QxulRmfwfuPkqdbE4FWxonW4z3
-         f8Ow==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3ehKOW/N+FTLF+YoAGhVTdIuexN5qbQUY1mLWAZQXhU=;
+        b=Rn0xH2r9CfVldbfAXR7dSTkpYMinTskC7GYU6kajDgPXiOplHYv2cNAhOEVnSzJXDA
+         F3tzNodRaDbkqwWcXSYR2sBad8nlbqIlHcGBnB+uCNHls3MTX3mA0oU/RXvbUx1L8Xmk
+         kSQ0C21flTDCxiO8tBAPxNTZA5f+DMilVkHmkvdvZREOnlxyec446GobkM2/Xtoc0gTK
+         L4dK+WyJLJ8f8o1TvjoqJI/DS3CtErgMAPfo8SFJtWOzlCHUhnHjK+ZBut9abgqMVCaC
+         HJalSa+BV8SiaTeRYOLhIms9VBsLmkRN1h+4aGwm5Xw85RU6GjRi+L+aC3CWcPmWlTJC
+         viAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=JNvDqC31WTWdI2vpSAPtpYynuJNNNTYl8P0mHvHLMNk=;
-        b=IXhYvdJ8fUcK5L4tRmEjfYU+++B7E5mOMyvMm/bPsOkkcBH1Au6pbH69H37i9MbLaK
-         35qmrjGNhQ3pzi5b5Js0NYKSiEPj/vABOZVUp9ltU8FrxMAfNvGjyDdzq38R25reU6j+
-         6N8mbeQjA5gggJ5Hb0/kLpFrldxWbr9EIMjSEYMi4Rzrufx64vqsVgqdlPpWrgWTyoGJ
-         /1IRfy/wQHvcghG1XmAVPq3vSa7Kkl4wzg3nLjP1S9/VHo1lpCOdesr2sNGVwyO1WxUJ
-         i93DZtXLKTqM1ZEYD1vYfcOjUba4GWSJr1QFz23lqHv7YS60aXFYXYuERDDCKBq52p/5
-         2+LA==
-X-Gm-Message-State: APjAAAW0kmZ3NZ8aRMbrLcQ0lP/rdtkgcdc0MAeoE76CZA7jqhnRPPcp
-        zR45BNBZg6q1jucgxN6dyOFPtcBN+e8=
-X-Google-Smtp-Source: APXvYqyK1y01wydsFJcLUX52fuVNf1rbAwNe2Kgq8tlf4HAFeD9RwxPa0/AfHGZuhADnxHmeOWjyHw==
-X-Received: by 2002:a17:902:101:: with SMTP id 1mr7757492plb.170.1571373944591;
-        Thu, 17 Oct 2019 21:45:44 -0700 (PDT)
-Received: from localhost.lan (c-67-185-54-80.hsd1.wa.comcast.net. [67.185.54.80])
-        by smtp.gmail.com with ESMTPSA id b3sm3696445pjp.13.2019.10.17.21.45.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Oct 2019 21:45:43 -0700 (PDT)
-From:   Andrey Smirnov <andrew.smirnov@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-        Austin Palmer <austinp@valvesoftware.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v3 3/3] HID: logitech-hidpp: do all FF cleanup in hidpp_ff_destroy()
-Date:   Thu, 17 Oct 2019 21:45:17 -0700
-Message-Id: <20191018044517.6430-4-andrew.smirnov@gmail.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20191018044517.6430-1-andrew.smirnov@gmail.com>
-References: <20191018044517.6430-1-andrew.smirnov@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3ehKOW/N+FTLF+YoAGhVTdIuexN5qbQUY1mLWAZQXhU=;
+        b=l43R3y3d8YA++QGShbVbLt5YJ3NLpltk0UDWF7MbiKuMlN/4MkwSB0F4tnyKKNICMM
+         YF1ollKBKNtvbIUMJ5SEJUFUbj6pHLPYJ6Wi86bLBR7/e+M3TKx/D0GIOLboILfCsB3S
+         h9v+skFZ7GHw/pil7BEsIqtfSfKtJGY82aGWbAwKM78vgCvewIE5l4lb6f9xq8D2u8V1
+         zBi4TEIXotRtrAEkeYiQeSvU6Da6qBO6SsoI08Eb16zAlqGiU9i1VdbfNahf4oNJaPlm
+         Yp/d7GavStWllhZmQ+KBE6RfKXgbjBi/a5rLsGQz1FuRMJCXBBjxc5IRepxcR4lrvKlF
+         cmHg==
+X-Gm-Message-State: APjAAAXVKNk0BTtr+ncuDIdtdwrTS2gmV7oFiyUEQJU4+UCzTNwyHDG/
+        JWqPAi5n4Fgxp59lqvYUA0BP60jm/AcCUKGHvCQ9Iagx
+X-Google-Smtp-Source: APXvYqxgS5ct0v8h7EZnQaxNd7n2Gy9Yn06F3wrKDNTFF1bjL6NRVgvhUFG8RaKqVn3zR8oyEpdCL+wHTr4gIP47/3Y=
+X-Received: by 2002:a5e:db46:: with SMTP id r6mr4668633iop.287.1571372761181;
+ Thu, 17 Oct 2019 21:26:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191016182935.5616-4-andrew.smirnov@gmail.com> <20191017143149.449AA21D7C@mail.kernel.org>
+In-Reply-To: <20191017143149.449AA21D7C@mail.kernel.org>
+From:   Andrey Smirnov <andrew.smirnov@gmail.com>
+Date:   Thu, 17 Oct 2019 21:25:49 -0700
+Message-ID: <CAHQ1cqHF+3S1xYCVs19U7Hr+SjMp+z3QhW-KsKDSa00VMGN8FA@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] HID: logitech-hidpp: do all FF cleanup in hidpp_ff_destroy()
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
+        Austin Palmer <austinp@valvesoftware.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-All of the FF-related resources belong to corresponding FF device, so
-they should be freed as a part of hidpp_ff_destroy() to avoid
-potential race condidions.
+On Thu, Oct 17, 2019 at 7:31 AM Sasha Levin <sashal@kernel.org> wrote:
+>
+> Hi,
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: ff21a635dd1a9 HID: logitech-hidpp: Force feedback support for the Logitech G920.
+>
+> The bot has tested the following trees: v5.3.6, v4.19.79, v4.14.149, v4.9.196.
+>
+> v5.3.6: Build OK!
+> v4.19.79: Failed to apply! Possible dependencies:
+>     91cf9a98ae412 ("HID: logitech-hidpp: make .probe usbhid capable")
+>
+> v4.14.149: Failed to apply! Possible dependencies:
+>     91cf9a98ae412 ("HID: logitech-hidpp: make .probe usbhid capable")
+>
+> v4.9.196: Failed to apply! Possible dependencies:
+>     6bd4e65d521f9 ("HID: logitech-hidpp: remove HIDPP_QUIRK_CONNECT_EVENTS")
+>     91cf9a98ae412 ("HID: logitech-hidpp: make .probe usbhid capable")
+>     a4bf6153b3177 ("HID: logitech-hidpp: add a sysfs file to tell we support power_supply")
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
 
-Fixes: ff21a635dd1a ("HID: logitech-hidpp: Force feedback support for the Logitech G920")
-Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-Cc: Austin Palmer <austinp@valvesoftware.com>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # 5.2+
----
- drivers/hid/hid-logitech-hidpp.c | 33 +++++---------------------------
- 1 file changed, 5 insertions(+), 28 deletions(-)
+Looks like I'd have to mark this one as 5.2+ as well. Please disregard
+this series in favor of v3 that will be sent out shortly.
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 6e669eb7dc69..8e91e2f06cb4 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2078,7 +2078,12 @@ static DEVICE_ATTR(range, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, hidpp
- static void hidpp_ff_destroy(struct ff_device *ff)
- {
- 	struct hidpp_ff_private_data *data = ff->private;
-+	struct hid_device *hid = data->hidpp->hid_dev;
- 
-+	hid_info(hid, "Unloading HID++ force feedback.\n");
-+
-+	device_remove_file(&hid->dev, &dev_attr_range);
-+	destroy_workqueue(data->wq);
- 	kfree(data->effect_ids);
- }
- 
-@@ -2170,31 +2175,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp,
- 	return 0;
- }
- 
--static int hidpp_ff_deinit(struct hid_device *hid)
--{
--	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
--	struct input_dev *dev = hidinput->input;
--	struct hidpp_ff_private_data *data;
--
--	if (!dev) {
--		hid_err(hid, "Struct input_dev not found!\n");
--		return -EINVAL;
--	}
--
--	hid_info(hid, "Unloading HID++ force feedback.\n");
--	data = dev->ff->private;
--	if (!data) {
--		hid_err(hid, "Private data not found!\n");
--		return -EINVAL;
--	}
--
--	destroy_workqueue(data->wq);
--	device_remove_file(&hid->dev, &dev_attr_range);
--
--	return 0;
--}
--
--
- /* ************************************************************************** */
- /*                                                                            */
- /* Device Support                                                             */
-@@ -3713,9 +3693,6 @@ static void hidpp_remove(struct hid_device *hdev)
- 
- 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
- 
--	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
--		hidpp_ff_deinit(hdev);
--
- 	hid_hw_stop(hdev);
- 	cancel_work_sync(&hidpp->work);
- 	mutex_destroy(&hidpp->send_mutex);
--- 
-2.21.0
-
+Thanks,
+Andrey Smirnov

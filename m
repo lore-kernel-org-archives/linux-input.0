@@ -2,209 +2,148 @@ Return-Path: <SRS0=Maqc=YL=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96BC3CA9EA1
-	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 06:45:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA08DCA9EA0
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 08:44:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5FFA120820
-	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 06:45:10 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="fdz+n06H"
+	by mail.kernel.org (Postfix) with ESMTP id 7C904222BD
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 08:44:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727925AbfJRGpK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Oct 2019 02:45:10 -0400
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:43354 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726405AbfJRGpJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Oct 2019 02:45:09 -0400
-Received: by mail-ot1-f66.google.com with SMTP id o44so4062986ota.10
-        for <linux-input@vger.kernel.org>; Thu, 17 Oct 2019 23:45:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=1lF1MIdaENKkNdKHx3QF8806cfpyw2N47Ri2S6zNu+A=;
-        b=fdz+n06HECsJp9I5yC12MLoPyso3cVdDWSygC4Y7XVo2s+raIUe7Kh+aLwemhLMU5k
-         i7dVQR2xfPsax9aa+5VJyUvt0/X84pN8bZr2I1IqodPrl3WJd8v/DQvU0Mn7HPDL3F9G
-         p2zjMx/ktE9PQCFIGtVBeHWjl+r/xzysY7yUr0+lRii3jz18vN6MqHlkSU45xQ55o05m
-         G1FSO9291SHGdzv4XiuXv+oNdb3MCs2XWDCdELcJYSDl+uaG/muocWgujsYLr1TZ5iXU
-         5ElzuYwPbcYqYAwmJUKvQibj3nrYv8cN7CxOJQhhzGPFEDhOSpyWjgAwj+3CpwrqQEHf
-         a/Pw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1lF1MIdaENKkNdKHx3QF8806cfpyw2N47Ri2S6zNu+A=;
-        b=sgdveRh60W7KegTJwjlMG/NsmRz1yL/sw5nfoQAAmAPB+objFdV8OzAezXWL52bhPp
-         Ip8H/wv0eifg6pGoZ/K6a/6YLNjtBMWxf/jd397Hchaq7r/l/VaF5uSm4yS6dXFdHd3n
-         li2EE8Zy6aivOrxAjF572hDGzsp/sjI0gUiLuwVCGSakYQDwTecIiQz4oFgAiMi2iH7k
-         3OxSG6w3vHiSeK23hisweYGxilafhfUXvSNj49c54wPkBfX2iBlX4J4nQKZ3hkiZ1aaV
-         7APvBm5HzkFUxTm+NUUenhb/Q5R0HRb/YG9CEBO1dRaoURjTuuxtwriY4hV5kAdk7mxr
-         yYNg==
-X-Gm-Message-State: APjAAAU0sT7ennF677cP5rVfqAjrQRRmmUH7zDMwVvr4MBVEwjp67R/1
-        /Y0GG24tLOLv3cgTcQpqdU0F/42k2STrSfKmpEAQ3A==
-X-Google-Smtp-Source: APXvYqxyM+v+SYTdyxQ4dtigF5DDcYtT8ndNrsXVrCyXLrBJJzjjCW0hbJvIcRwuifhyrCsk7IlYvVPciQR043PPUQs=
-X-Received: by 2002:a9d:7d09:: with SMTP id v9mr6404595otn.292.1571381108752;
- Thu, 17 Oct 2019 23:45:08 -0700 (PDT)
+        id S2438291AbfJRIoO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Oct 2019 04:44:14 -0400
+Received: from mga06.intel.com ([134.134.136.31]:47120 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727903AbfJRIoO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 18 Oct 2019 04:44:14 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Oct 2019 01:44:13 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,311,1566889200"; 
+   d="scan'208";a="397870720"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by fmsmga006.fm.intel.com with ESMTP; 18 Oct 2019 01:44:05 -0700
+Received: from andy by smile with local (Exim 4.92.2)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1iLNrf-0008LD-3B; Fri, 18 Oct 2019 11:44:03 +0300
+Date:   Fri, 18 Oct 2019 11:44:03 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Allison Randal <allison@lohutok.net>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Brian Masney <masneyb@onstation.org>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Enrico Weigelt <info@metux.net>, Eric Anholt <eric@anholt.net>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Jacky Bai <ping.bai@nxp.com>, Jeff LaBundy <jeff@labundy.com>,
+        Jilayne Lovejoy <opensource@jilayne.com>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        Luca Weiss <luca@z3ntu.xyz>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Martin Kepplinger <martink@posteo.de>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Miloslav Trmac <mitr@volny.cz>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Pavel Machek <pavel@ucw.cz>,
+        =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>,
+        Richard Fontana <rfontana@redhat.com>,
+        Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>,
+        Stefan Agner <stefan@agner.ch>,
+        Steve Winslow <swinslow@gmail.com>,
+        Sven Van Asbroeck <TheSven73@gmail.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/22] Stop using input_polled_dev in polling drivers
+Message-ID: <20191018084403.GR32742@smile.fi.intel.com>
+References: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
-References: <20191017071234.8719-1-brgl@bgdev.pl> <20191017071234.8719-4-brgl@bgdev.pl>
- <20191017183543.GA28403@bogus>
-In-Reply-To: <20191017183543.GA28403@bogus>
-From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date:   Fri, 18 Oct 2019 08:44:57 +0200
-Message-ID: <CAMpxmJUMgqocphdPhS_zCYX3ib_hnwhnhBfQEVaY8hnpi4vxQg@mail.gmail.com>
-Subject: Re: [PATCH v3 3/6] dt-bindings: regulator: max77650: convert the
- binding document to yaml
-To:     Rob Herring <robh@kernel.org>
-Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>, Dan Murphy <dmurphy@ti.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Linux Input <linux-input@vger.kernel.org>,
-        linux-devicetree <devicetree@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux LED Subsystem <linux-leds@vger.kernel.org>,
-        linux-pm <linux-pm@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-czw., 17 pa=C5=BA 2019 o 20:35 Rob Herring <robh@kernel.org> napisa=C5=82(a=
-):
->
-> On Thu, Oct 17, 2019 at 09:12:31AM +0200, Bartosz Golaszewski wrote:
-> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >
-> > Convert the binding document for MAX77650 regulator module to YAML.
-> >
-> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > ---
-> >  .../bindings/regulator/max77650-regulator.txt | 41 -------------------
-> >  .../regulator/max77650-regulator.yaml         | 31 ++++++++++++++
-> >  2 files changed, 31 insertions(+), 41 deletions(-)
-> >  delete mode 100644 Documentation/devicetree/bindings/regulator/max7765=
-0-regulator.txt
-> >  create mode 100644 Documentation/devicetree/bindings/regulator/max7765=
-0-regulator.yaml
-> >
-> > diff --git a/Documentation/devicetree/bindings/regulator/max77650-regul=
-ator.txt b/Documentation/devicetree/bindings/regulator/max77650-regulator.t=
-xt
-> > deleted file mode 100644
-> > index f1cbe813c30f..000000000000
-> > --- a/Documentation/devicetree/bindings/regulator/max77650-regulator.tx=
-t
-> > +++ /dev/null
-> > @@ -1,41 +0,0 @@
-> > -Regulator driver for MAX77650 PMIC from Maxim Integrated.
-> > -
-> > -This module is part of the MAX77650 MFD device. For more details
-> > -see Documentation/devicetree/bindings/mfd/max77650.txt.
-> > -
-> > -The regulator controller is represented as a sub-node of the PMIC node
-> > -on the device tree.
-> > -
-> > -The device has a single LDO regulator and a SIMO buck-boost regulator =
-with
-> > -three independent power rails.
-> > -
-> > -Required properties:
-> > ---------------------
-> > -- compatible:                Must be "maxim,max77650-regulator"
-> > -
-> > -Each rail must be instantiated under the regulators subnode of the top=
- PMIC
-> > -node. Up to four regulators can be defined. For standard regulator pro=
-perties
-> > -refer to Documentation/devicetree/bindings/regulator/regulator.txt.
-> > -
-> > -Available regulator compatible strings are: "ldo", "sbb0", "sbb1", "sb=
-b2".
-> > -
-> > -Example:
-> > ---------
-> > -
-> > -     regulators {
-> > -             compatible =3D "maxim,max77650-regulator";
-> > -
-> > -             max77650_ldo: regulator@0 {
-> > -                     regulator-compatible =3D "ldo";
-> > -                     regulator-name =3D "max77650-ldo";
-> > -                     regulator-min-microvolt =3D <1350000>;
-> > -                     regulator-max-microvolt =3D <2937500>;
-> > -             };
-> > -
-> > -             max77650_sbb0: regulator@1 {
-> > -                     regulator-compatible =3D "sbb0";
-> > -                     regulator-name =3D "max77650-sbb0";
-> > -                     regulator-min-microvolt =3D <800000>;
-> > -                     regulator-max-microvolt =3D <1587500>;
-> > -             };
-> > -     };
-> > diff --git a/Documentation/devicetree/bindings/regulator/max77650-regul=
-ator.yaml b/Documentation/devicetree/bindings/regulator/max77650-regulator.=
-yaml
-> > new file mode 100644
-> > index 000000000000..a8770742836d
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/regulator/max77650-regulator.ya=
-ml
-> > @@ -0,0 +1,31 @@
-> > +# SPDX-License-Identifier: GPL-2.0
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/regulator/max77650-regulator.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Regulator driver for MAX77650 PMIC from Maxim Integrated.
-> > +
-> > +maintainers:
-> > +  - Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > +
-> > +description: |
-> > +  This module is part of the MAX77650 MFD device. For more details
-> > +  see Documentation/devicetree/bindings/mfd/max77650.txt.
->
-> .yaml?
->
+On Thu, Oct 17, 2019 at 01:41:54PM -0700, Dmitry Torokhov wrote:
+> Input devices now support polling mode natively (via input_setup_polling
+> API), and input_polled_dev implementation is going away. This series
+> switches drivers found in drivers/input to the new scheme.
+> 
 
-Is there any better way of referencing the main document than
-mentioning it in the description?
+For all I have been Cc'ed
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Bart
+> 
+> Dmitry Torokhov (21):
+>   Input: raspberrypi-ts - switch to using polled mode of input devices
+>   Input: sur40 - switch to using polled mode of input devices
+>   Input: ts4800-ts - switch to using polled mode of input devices
+>   Input: tsc6507x-ts - switch to using polled mode of input devices
+>   Input: adc-keys - switch to using polled mode of input devices
+>   Input: clps711x-keypad - switch to using polled mode of input devices
+>   Input: jornada680_kbd - switch to using polled mode of input devices
+>   Input: gpio_keys_polled - switch to using polled mode of input devices
+>   Input: apanel - switch to using polled mode of input devices
+>   Input: wistron_btns - switch to using polled mode of input devices
+>   Input: cobalt_btns - convert to use managed resources
+>   Input: cobalt_btns - switch to using polled mode of input devices
+>   Input: sgi_btns - switch to using managed resources
+>   Input: sgi_btns - switch to using polled mode of input devices
+>   Input: rb532_button - switch to using managed resources
+>   Input: rb532_button - switch to using polled mode of input devices
+>   Input: gpio_decoder - switch to using polled mode of input devices
+>   Input: mma8450 - switch to using polled mode of input devices
+>   Input: bma150 - switch to using polled mode of input devices
+>   Input: kxtj9 - switch to using managed resources
+>   Input: kxtj9 - switch to using polled mode of input devices
+> 
+> Jonathan Bakker (1):
+>   Input: bma150 - use managed resources helpers
+> 
+>  drivers/input/keyboard/Kconfig             |   4 -
+>  drivers/input/keyboard/adc-keys.c          |  36 ++--
+>  drivers/input/keyboard/clps711x-keypad.c   |  70 +++----
+>  drivers/input/keyboard/gpio_keys_polled.c  |  65 +++---
+>  drivers/input/keyboard/jornada680_kbd.c    |  37 ++--
+>  drivers/input/misc/Kconfig                 |  15 --
+>  drivers/input/misc/apanel.c                | 153 ++++++--------
+>  drivers/input/misc/bma150.c                | 190 +++++------------
+>  drivers/input/misc/cobalt_btns.c           |  73 +++----
+>  drivers/input/misc/gpio_decoder.c          |  42 ++--
+>  drivers/input/misc/kxtj9.c                 | 224 ++++++---------------
+>  drivers/input/misc/mma8450.c               | 101 +++++-----
+>  drivers/input/misc/rb532_button.c          |  48 ++---
+>  drivers/input/misc/sgi_btns.c              |  54 ++---
+>  drivers/input/misc/wistron_btns.c          |  51 ++---
+>  drivers/input/touchscreen/Kconfig          |   4 -
+>  drivers/input/touchscreen/raspberrypi-ts.c |  38 ++--
+>  drivers/input/touchscreen/sur40.c          |  92 +++++----
+>  drivers/input/touchscreen/tps6507x-ts.c    |  36 ++--
+>  drivers/input/touchscreen/ts4800-ts.c      |  68 ++++---
+>  20 files changed, 557 insertions(+), 844 deletions(-)
+> 
+> -- 
+> 2.23.0.866.gb869b98d4c-goog
+> 
 
-> > +
-> > +  The regulator controller is represented as a sub-node of the PMIC no=
-de
-> > +  on the device tree.
-> > +
-> > +  The device has a single LDO regulator and a SIMO buck-boost regulato=
-r with
-> > +  three independent power rails.
-> > +
-> > +properties:
-> > +  compatible:
-> > +    const: maxim,max77650-regulator
-> > +
-> > +patternProperties:
-> > +  "^regulator@[0-3]$":
-> > +    $ref: "regulator.yaml#"
-> > +
-> > +required:
-> > +  - compatible
-> > --
-> > 2.23.0
-> >
+-- 
+With Best Regards,
+Andy Shevchenko
+
+

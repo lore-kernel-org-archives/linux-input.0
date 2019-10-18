@@ -1,215 +1,153 @@
-Return-Path: <SRS0=CCxI=YK=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=Maqc=YL=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CF4FFA372A
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:44:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32381CA9EC8
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 01:40:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DC23821A49
-	for <linux-input@archiver.kernel.org>; Thu, 17 Oct 2019 20:44:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC332222C4
+	for <linux-input@archiver.kernel.org>; Fri, 18 Oct 2019 01:40:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BWRmDSXM"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="SUDrhBrY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439070AbfJQUm0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Oct 2019 16:42:26 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:46084 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727269AbfJQUm0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Oct 2019 16:42:26 -0400
-Received: by mail-pl1-f194.google.com with SMTP id q24so1685022plr.13;
-        Thu, 17 Oct 2019 13:42:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=FRd9N8H3Zj0SBuvRkmIjq6Ws5g96mPSLFpPokjqPplU=;
-        b=BWRmDSXMRq9DoKgr1v2TSx8T0o32gfU2NU+n8mZZyn9YytbJa1bS48b5fWxU9soMxh
-         R4EVBZEP2tv6sS/FBQP1fpZsiXKue+Z60nLeEvcPQERTXp2beG5IZsvuMoLC8WUp0NAJ
-         uuWPBdqmIsxBfwDlbuwnZKi8M0UqOOUZzAQ8rXvH0yZ0E5eYtkDMnMcH3TsebswcmPFz
-         B5DvU5QvDoJxaskcMtkQkBfRjwTApFS3ULlc8tC2pOJrc+PFV5hKOjzbARkE6n8YMxNL
-         P4RcD8NY3FqR14BrbbWIJzJI2uqB7vR+sTyRcPli8oM7b/v8ThPVExLnd2O0RUmcRSRP
-         8UUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=FRd9N8H3Zj0SBuvRkmIjq6Ws5g96mPSLFpPokjqPplU=;
-        b=XGCsuiz3TUDIzpKSs0uXLXQNfWOBeu/IaKQXffSp5lSLyvJ2nrhJb+nK4vCpTNDwsR
-         v8wgFfpjjoC0piAiKe1HdFcIINLnTuWUeOsay7LrbEgxcFK6ECrTS4c9JW4lKHKWccFw
-         BfneZTuw/5FVkyL5bI1Bpd/c33lCD0+vXJ+1Z2RD4kgWIf6FpGWD98dahVsKvbCc9ssW
-         +k/DCyPtz7720rkl6QL3KMDlJBS1qtGNKtWZTrySRYv6lLX6CPXRaEhGZ4Dpy//68DnE
-         cHS2X/v/X85Oi/Gq80uAiKi7cugD1iUFcFt9+W4egkMyy0SvPxZLA2zp6aWHfUsbxHZk
-         HWFg==
-X-Gm-Message-State: APjAAAUAoVnUYIqjecTG8ALsvHI5tkyoQBPcLJALxHAxwb8CvCVFT6a+
-        pdZn69Sz0+1fKbUwm7UivC2OoT+E
-X-Google-Smtp-Source: APXvYqy4DjIZZDAFfKWysG4JMraEBfmKvTJP+p74rT2vrlpeq0Fph0yu/ub3pwgysEU92y35pS8dMw==
-X-Received: by 2002:a17:902:ac8a:: with SMTP id h10mr5853080plr.180.1571344943241;
-        Thu, 17 Oct 2019 13:42:23 -0700 (PDT)
-Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id b3sm4626365pfd.125.2019.10.17.13.42.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Oct 2019 13:42:21 -0700 (PDT)
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Anders Roxell <anders.roxell@linaro.org>,
-        Eric Anholt <eric@anholt.net>, Jeff LaBundy <jeff@labundy.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Martin Kepplinger <martink@posteo.de>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 01/22] Input: raspberrypi-ts - switch to using polled mode of input devices
-Date:   Thu, 17 Oct 2019 13:41:55 -0700
-Message-Id: <20191017204217.106453-2-dmitry.torokhov@gmail.com>
-X-Mailer: git-send-email 2.23.0.866.gb869b98d4c-goog
-In-Reply-To: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
-References: <20191017204217.106453-1-dmitry.torokhov@gmail.com>
+        id S2407065AbfJRBkP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Oct 2019 21:40:15 -0400
+Received: from mail-eopbgr150087.outbound.protection.outlook.com ([40.107.15.87]:33090
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2388373AbfJRBkP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 17 Oct 2019 21:40:15 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=eyj2WtKX7gVWxLSQ2Kj8nWq+QNLTvBv+xGpuAJMZ/vYQTkvSTOeVbnyg3qQOqaADhDGVu7cxgTRCEl1yPL9HeJMEuT3w/XgIGDp6n8wsXnPzh7znEYyY1suS3sLzdX29+Sg+qTIkpFSbKQilYqq28BTFlJhuTsMjUhfmgqIwJBTk4zqM2boHwN2QQufTvmy/P/5GqkqzsxMhOC0NrWs/2jeZfDf/bvqW4CgrqTF7/Y8F7hjjXnfKrWWnXookVXoEW4t4i5wvalNHwsWGe2RwisM8j3HOu+0p1GXBhULGXnnj/JAAYHoR8R7IqBFP9svL1wQhb3ReYDqy7W+WHl4Kjg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VvpBT7uci3ETWyMsDwGLIzuRRHPudaOH7VYydqD3xx8=;
+ b=R3PY02+7ioSori648+tQmfqEM/NAgSwkBsRume6mXvliUH0Dlv8lV5qykzFakmDzsYDe201/KyZ7p/ciVHrRColSnO++jEvfuRqheF9isHQj93+cAG6VtHfWb46QnjPgV3y2LDX71m2+vRj2tm7zxxLt3nrPGTii8OcUa9dWyHZxqbWOH9qRY7mdc5nH3BbxGoZlH5/JnxOLith8kLzX2Yf0EYT+T19Bjw76snSze1lv9c45VMqc1Rc9V5KQhEFGH2qL/LBvYc/73ewetc7kyJzyyV3QrOSrE2lndw2SvpIPOU+5t8vShbKPPsjMgVPqg7t7xoq/l2XXpHiCqD3gwQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VvpBT7uci3ETWyMsDwGLIzuRRHPudaOH7VYydqD3xx8=;
+ b=SUDrhBrYk84PqV8x8xrk8sQgBfdxXwNm8UgeMYvU2if2vJvxlrHGPWrNC01aMyVb6sR9kqJczgj2Ifd5WZPIsg0YVpyfrH3/732r5HGLBQE0c9wkN96atHGTdY/LdmMoP6kG1LUnqymCVIsT4QvlEZFbb0wEWRpH7jttjZZAhHw=
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
+ DB3PR0402MB3801.eurprd04.prod.outlook.com (52.134.65.147) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2347.16; Fri, 18 Oct 2019 01:40:10 +0000
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::d469:ad51:2bec:19f0]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::d469:ad51:2bec:19f0%6]) with mapi id 15.20.2347.023; Fri, 18 Oct 2019
+ 01:40:10 +0000
+From:   Anson Huang <anson.huang@nxp.com>
+To:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will@kernel.org" <will@kernel.org>,
+        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        Aisheng Dong <aisheng.dong@nxp.com>,
+        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
+        Peng Fan <peng.fan@nxp.com>, Andy Duan <fugang.duan@nxp.com>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        "olof@lixom.net" <olof@lixom.net>,
+        "mripard@kernel.org" <mripard@kernel.org>,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        "jagan@amarulasolutions.com" <jagan@amarulasolutions.com>,
+        "dinguyen@kernel.org" <dinguyen@kernel.org>,
+        "marcin.juszkiewicz@linaro.org" <marcin.juszkiewicz@linaro.org>,
+        "arnd@arndb.de" <arnd@arndb.de>,
+        "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>,
+        "stefan@agner.ch" <stefan@agner.ch>,
+        "enric.balletbo@collabora.com" <enric.balletbo@collabora.com>,
+        "yuehaibing@huawei.com" <yuehaibing@huawei.com>,
+        Jacky Bai <ping.bai@nxp.com>,
+        "m.felsch@pengutronix.de" <m.felsch@pengutronix.de>,
+        "ronald@innovation.ch" <ronald@innovation.ch>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+CC:     dl-linux-imx <linux-imx@nxp.com>
+Subject: RE: [PATCH V6 3/5] arm64: dts: imx8qxp: Add scu key node
+Thread-Topic: [PATCH V6 3/5] arm64: dts: imx8qxp: Add scu key node
+Thread-Index: AQHVfLDFmP5Z6hMXG0yS4sRUAZxu6qdfsAEg
+Date:   Fri, 18 Oct 2019 01:40:10 +0000
+Message-ID: <DB3PR0402MB3916BA030CDAD9057017F52FF56C0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1570412509-7893-1-git-send-email-Anson.Huang@nxp.com>
+ <1570412509-7893-3-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <1570412509-7893-3-git-send-email-Anson.Huang@nxp.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=anson.huang@nxp.com; 
+x-originating-ip: [119.31.174.66]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 0c152cb0-64dd-47c0-9497-08d7536c1d2d
+x-ms-office365-filtering-ht: Tenant
+x-ms-traffictypediagnostic: DB3PR0402MB3801:|DB3PR0402MB3801:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <DB3PR0402MB380154C6ECFD9FF42F5A6C98F56C0@DB3PR0402MB3801.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:3044;
+x-forefront-prvs: 01949FE337
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(396003)(136003)(346002)(366004)(39860400002)(376002)(189003)(199004)(478600001)(229853002)(74316002)(76176011)(5660300002)(4326008)(25786009)(7736002)(44832011)(3846002)(6506007)(81166006)(66476007)(186003)(26005)(8676002)(2906002)(6116002)(71190400001)(71200400001)(81156014)(99286004)(52536014)(8936002)(7696005)(6246003)(76116006)(66946007)(102836004)(86362001)(476003)(316002)(14454004)(55016002)(446003)(9686003)(110136005)(14444005)(256004)(66066001)(486006)(11346002)(33656002)(66556008)(64756008)(66446008)(2501003)(7416002)(6436002)(2201001)(305945005)(921003)(32563001)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3801;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ccx0BBsRl7yx/z1yHG1aw4hnQQeXQ6cnO410wvum0iWDytzYLwjPk1O2nyodbQa3LW9bEVuH0xW+qYaH5OJ22VdGGKoCJB/2PocNKyGCLd2TZwBNHOk5mMztYfGtvYCaxThi+pZkgd5AMhMp1N3UAEhs/NhTk0yNZaVxu/iPiWy3hOSYsBIFIR2wWJvus8K+ApQewcj0fLdRJl1KXmjZqTlFghxSsC3rfX0M4fghGIL11KSizR/uJq8ekXiTm0GXMrvNz0pWY21t6BseYR2y2lYZZ2qrMzLugIIQ4ahYTVrU393Q7LTmMDmeOP61sTr+v0jLsTtkGM1Y25dYImBJ2DMMluNL7LW9DbH6Eh44tkDO6nl3bMm/xWngxoG2A4jsgcFl9igSNOMe7ST+lzmfw+puMmRBnq+dAslbM9Ml9QU=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0c152cb0-64dd-47c0-9497-08d7536c1d2d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Oct 2019 01:40:10.4126
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: UzusZtMACZR1BxD+xPqABGHiuw/gCFWjaU8xL8ArCma33hVdqxz2Hmv4Q0rfPlgf+PFEWbFblOUSaWntGo9s4g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3801
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-We have added polled mode to the normal input devices with the intent of
-retiring input_polled_dev. This converts raspberrypi-ts driver to use the
-polling mode of standard input devices and removes dependency on
-INPUT_POLLDEV.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
-
- drivers/input/touchscreen/Kconfig          |  1 -
- drivers/input/touchscreen/raspberrypi-ts.c | 38 ++++++++++++----------
- 2 files changed, 20 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 46ad9090493b..00e7a9f218bc 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -700,7 +700,6 @@ config TOUCHSCREEN_EDT_FT5X06
- config TOUCHSCREEN_RASPBERRYPI_FW
- 	tristate "Raspberry Pi's firmware base touch screen support"
- 	depends on RASPBERRYPI_FIRMWARE || (RASPBERRYPI_FIRMWARE=n && COMPILE_TEST)
--	select INPUT_POLLDEV
- 	help
- 	  Say Y here if you have the official Raspberry Pi 7 inch screen on
- 	  your system.
-diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
-index 69881265d121..0e2e08f3f433 100644
---- a/drivers/input/touchscreen/raspberrypi-ts.c
-+++ b/drivers/input/touchscreen/raspberrypi-ts.c
-@@ -16,7 +16,6 @@
- #include <linux/platform_device.h>
- #include <linux/input.h>
- #include <linux/input/mt.h>
--#include <linux/input-polldev.h>
- #include <linux/input/touchscreen.h>
- #include <soc/bcm2835/raspberrypi-firmware.h>
- 
-@@ -34,7 +33,7 @@
- 
- struct rpi_ts {
- 	struct platform_device *pdev;
--	struct input_polled_dev *poll_dev;
-+	struct input_dev *input;
- 	struct touchscreen_properties prop;
- 
- 	void __iomem *fw_regs_va;
-@@ -57,10 +56,9 @@ struct rpi_ts_regs {
- 	} point[RPI_TS_MAX_SUPPORTED_POINTS];
- };
- 
--static void rpi_ts_poll(struct input_polled_dev *dev)
-+static void rpi_ts_poll(struct input_dev *input)
- {
--	struct input_dev *input = dev->input;
--	struct rpi_ts *ts = dev->private;
-+	struct rpi_ts *ts = input_get_drvdata(input);
- 	struct rpi_ts_regs regs;
- 	int modified_ids = 0;
- 	long released_ids;
-@@ -123,10 +121,9 @@ static int rpi_ts_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct device_node *np = dev->of_node;
--	struct input_polled_dev *poll_dev;
-+	struct input_dev *input;
- 	struct device_node *fw_node;
- 	struct rpi_firmware *fw;
--	struct input_dev *input;
- 	struct rpi_ts *ts;
- 	u32 touchbuf;
- 	int error;
-@@ -160,7 +157,6 @@ static int rpi_ts_probe(struct platform_device *pdev)
- 		return error;
- 	}
- 
--
- 	touchbuf = (u32)ts->fw_regs_phys;
- 	error = rpi_firmware_property(fw, RPI_FIRMWARE_FRAMEBUFFER_SET_TOUCHBUF,
- 				      &touchbuf, sizeof(touchbuf));
-@@ -170,19 +166,17 @@ static int rpi_ts_probe(struct platform_device *pdev)
- 		return error;
- 	}
- 
--	poll_dev = devm_input_allocate_polled_device(dev);
--	if (!poll_dev) {
-+	input = devm_input_allocate_device(dev);
-+	if (!input) {
- 		dev_err(dev, "Failed to allocate input device\n");
- 		return -ENOMEM;
- 	}
--	ts->poll_dev = poll_dev;
--	input = poll_dev->input;
-+
-+	ts->input = input;
-+	input_set_drvdata(input, ts);
- 
- 	input->name = "raspberrypi-ts";
- 	input->id.bustype = BUS_HOST;
--	poll_dev->poll_interval = RPI_TS_POLL_INTERVAL;
--	poll_dev->poll = rpi_ts_poll;
--	poll_dev->private = ts;
- 
- 	input_set_abs_params(input, ABS_MT_POSITION_X, 0,
- 			     RPI_TS_DEFAULT_WIDTH, 0, 0);
-@@ -197,7 +191,15 @@ static int rpi_ts_probe(struct platform_device *pdev)
- 		return error;
- 	}
- 
--	error = input_register_polled_device(poll_dev);
-+	error = input_setup_polling(input, rpi_ts_poll);
-+	if (error) {
-+		dev_err(dev, "could not set up polling mode, %d\n", error);
-+		return error;
-+	}
-+
-+	input_set_poll_interval(input, RPI_TS_POLL_INTERVAL);
-+
-+	error = input_register_device(input);
- 	if (error) {
- 		dev_err(dev, "could not register input device, %d\n", error);
- 		return error;
-@@ -214,10 +216,10 @@ MODULE_DEVICE_TABLE(of, rpi_ts_match);
- 
- static struct platform_driver rpi_ts_driver = {
- 	.driver = {
--		.name   = "raspberrypi-ts",
-+		.name = "raspberrypi-ts",
- 		.of_match_table = rpi_ts_match,
- 	},
--	.probe          = rpi_ts_probe,
-+	.probe = rpi_ts_probe,
- };
- module_platform_driver(rpi_ts_driver);
- 
--- 
-2.23.0.866.gb869b98d4c-goog
-
+SGksIFNoYXduDQoJRG1pdHJ5IGhhcyBwaWNrZWQgdXAgdGhlICMxIGFuZCAjMiBwYXRjaCwgd291
+bGQgeW91IHBsZWFzZSBwaWNrIHVwICMzIH4gIzUsIHRoYW5rcy4NCg0KQW5zb24NCg0KPiBTdWJq
+ZWN0OiBbUEFUQ0ggVjYgMy81XSBhcm02NDogZHRzOiBpbXg4cXhwOiBBZGQgc2N1IGtleSBub2Rl
+DQo+IA0KPiBBZGQgc2N1IGtleSBub2RlIGZvciBpLk1YOFFYUCwgZGlzYWJsZWQgYnkgZGVmYXVs
+dCBhcyBpdCBkZXBlbmRzIG9uIGJvYXJkDQo+IGRlc2lnbi4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6
+IEFuc29uIEh1YW5nIDxBbnNvbi5IdWFuZ0BueHAuY29tPg0KPiAtLS0NCj4gQ2hhbmdlcyBzaW5j
+ZSBWNToNCj4gCS0gdXNlICJsaW51eCxrZXljb2RlcyIgaW5zdGVhZCBvZiAibGludXgsa2V5Y29k
+ZSIuDQo+IC0tLQ0KPiAgYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUvaW14OHF4cC5kdHNp
+IHwgNyArKysrKysrDQo+ICAxIGZpbGUgY2hhbmdlZCwgNyBpbnNlcnRpb25zKCspDQo+IA0KPiBk
+aWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUvaW14OHF4cC5kdHNpDQo+
+IGIvYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUvaW14OHF4cC5kdHNpDQo+IGluZGV4IDEx
+MzNiNDEuLjJkNjlmMWEgMTAwNjQ0DQo+IC0tLSBhL2FyY2gvYXJtNjQvYm9vdC9kdHMvZnJlZXNj
+YWxlL2lteDhxeHAuZHRzaQ0KPiArKysgYi9hcmNoL2FybTY0L2Jvb3QvZHRzL2ZyZWVzY2FsZS9p
+bXg4cXhwLmR0c2kNCj4gQEAgLTgsNiArOCw3IEBADQo+ICAjaW5jbHVkZSA8ZHQtYmluZGluZ3Mv
+Y2xvY2svaW14OC1jbG9jay5oPiAgI2luY2x1ZGUgPGR0LQ0KPiBiaW5kaW5ncy9maXJtd2FyZS9p
+bXgvcnNyYy5oPiAgI2luY2x1ZGUgPGR0LWJpbmRpbmdzL2dwaW8vZ3Bpby5oPg0KPiArI2luY2x1
+ZGUgPGR0LWJpbmRpbmdzL2lucHV0L2lucHV0Lmg+DQo+ICAjaW5jbHVkZSA8ZHQtYmluZGluZ3Mv
+aW50ZXJydXB0LWNvbnRyb2xsZXIvYXJtLWdpYy5oPg0KPiAgI2luY2x1ZGUgPGR0LWJpbmRpbmdz
+L3BpbmN0cmwvcGFkcy1pbXg4cXhwLmg+DQo+IA0KPiBAQCAtMTc0LDYgKzE3NSwxMiBAQA0KPiAg
+CQkJI3Bvd2VyLWRvbWFpbi1jZWxscyA9IDwxPjsNCj4gIAkJfTsNCj4gDQo+ICsJCXNjdV9rZXk6
+IHNjdS1rZXkgew0KPiArCQkJY29tcGF0aWJsZSA9ICJmc2wsaW14OHF4cC1zYy1rZXkiLCAiZnNs
+LGlteC1zYy1rZXkiOw0KPiArCQkJbGludXgsa2V5Y29kZXMgPSA8S0VZX1BPV0VSPjsNCj4gKwkJ
+CXN0YXR1cyA9ICJkaXNhYmxlZCI7DQo+ICsJCX07DQo+ICsNCj4gIAkJcnRjOiBydGMgew0KPiAg
+CQkJY29tcGF0aWJsZSA9ICJmc2wsaW14OHF4cC1zYy1ydGMiOw0KPiAgCQl9Ow0KPiAtLQ0KPiAy
+LjcuNA0KDQo=

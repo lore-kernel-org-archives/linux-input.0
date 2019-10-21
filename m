@@ -7,54 +7,54 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05910CA9EB0
-	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 12:45:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D379C47E49
+	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 12:45:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C6B0C20873
-	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 12:45:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E7A0F20873
+	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 12:45:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="dTdIgDUe"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="F3itfG7P"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728800AbfJUMpG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1728243AbfJUMpG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 21 Oct 2019 08:45:06 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:35061 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728798AbfJUMoi (ORCPT
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:40356 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728814AbfJUMoi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Mon, 21 Oct 2019 08:44:38 -0400
-Received: by mail-wm1-f65.google.com with SMTP id 14so5992241wmu.0
-        for <linux-input@vger.kernel.org>; Mon, 21 Oct 2019 05:44:35 -0700 (PDT)
+Received: by mail-wm1-f67.google.com with SMTP id b24so12630825wmj.5
+        for <linux-input@vger.kernel.org>; Mon, 21 Oct 2019 05:44:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=e45fDRa6lt4TVk/xCaylRrJNDsL4rdRDWffuoxbFC/s=;
-        b=dTdIgDUe+rbxw9Er/S+hKUhvyYCM8dFCQpHzM3kQFpdrboIlN4qoBdh6qbSxSGqdJS
-         RAHBaQQeY6/e4PpMjOiCwFVSKrK1Jcj9N8PW6zFQhyquISkWjOP8+nLMWJtMu5IosAgx
-         A+WuhNAd3CdgaulIrkj0haFeApXmEMa9T+oyRENmW/JLjTmYlCpPVOSzYtVRbtzvAD+w
-         W5h3Yj+H9HZZRf2aOZAfOu26WsTrAt0bWrfrthVhdHd/YyPUD9F4WKeQj57Sqb/lZtXS
-         ZlS2u8rCz9kPfX0odggBoXQxvar7+TjvPlJycBdAvt99xG5EcG3ua7UdLfUfVMwA0pKb
-         EvzQ==
+        bh=FbliBa1VhrZKjwZZgo9YBYBDBnz5mW0Jl/y78vfYK5s=;
+        b=F3itfG7P2iJu2uSiO8bPUCz6gsXDwqCg0me7nWNSzccPfO5Hp9zVtAy0JTy1saMUQU
+         +MXwhaDxQJDkVLy3su6qApGJbYl6b9dbLLplqvdcW639yTFkfAP4jaltm6hiNZ0QVBMG
+         ZAbeBxJA85I53xdhArLrj4rQ0lnrNcEjmLFLfS7A0VoXGwqo+MuAUI82jEAq5Z5w2BaI
+         EnD1SPa/VVJ1vLRw+TMabY2R0BmM73646gEvjT1aNuNiA/N5eXN6lds654GfaqCpZPy6
+         9YAY9aEcK2eH6mil9R0AXHRsM81nvAchF20MHBBafpUDvGe1nKMCvFmbk9eUJRNbV2MC
+         V/bQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=e45fDRa6lt4TVk/xCaylRrJNDsL4rdRDWffuoxbFC/s=;
-        b=PVkOzwLB0eUmWXjxjGPgzfZYfKUUYu2A2DVNq/STH899DTMr15WV40MBaDz2k15mRM
-         zMoN7a7vZr51QvZDEm16W6vU3kR9Oh9e/dUbFBFgVUL6y1bZ9KgHQuRw5ptMZ5Afa4mP
-         yhjdG4LhcM8tsP2mxCvcLV2aPCwaD0QXCt2uqGQ3N5VWo4i+dCMNji0bkExG5ame1fY2
-         /yu1moaherIaxw/DE99/WlcSmIyU1PtJuknERnTH4gCRX386M1+X3K1ZDlMFCmhS6CxH
-         /LcVYbIuDg5Mn5Rfzlt+JJJPKAUKjR4F5Jbw4C/Zz2oMyTkkhTOYT3+653XEvYUgtj73
-         uwzA==
-X-Gm-Message-State: APjAAAWcydeUbyZqWInLo/ojbfnAkjXshM5psUbEh5VLqDhNh8QKadGV
-        t4O3E3oM522bP1BV1jlNAuyvEw==
-X-Google-Smtp-Source: APXvYqz/r0eXO3ESbY8W2Yk8YiMyA2wNrEv41SgZfzo1fuCoUgFOhtw1QF8oY/U0ylwTDVWsFvzKxA==
-X-Received: by 2002:a1c:4907:: with SMTP id w7mr2508403wma.62.1571661874655;
-        Mon, 21 Oct 2019 05:44:34 -0700 (PDT)
+        bh=FbliBa1VhrZKjwZZgo9YBYBDBnz5mW0Jl/y78vfYK5s=;
+        b=JYf/TAVKvyVqq7hMGu9fT9zZh9Q1jEQ6XG9StpGdFUMYPAlgFDvUhbH80ML2cP9ryo
+         tFIot/EmCrBEdSONTNHb8eFwGytN8lQUnbWGiCIEkZx/iS9szl74FXzp6EIrHkuaIyho
+         uRs9P7+9RN5Mwr6hWONFJZYLBsY5RRH1R2OyFRkwItooAQabRY4/B3td/QXcyiSrNrCr
+         nZekt4f4bLFudOZInY7l1DGN0c+fmvQaXrdTuwhkGJp5heLpx9+aPd++NJUt4w6mPB6N
+         yU9OSeeD2zmnlShKeBvf/hLyCY9TRR9gQ494/ogN/+5UeC7wcwQJtf9LzFUBJb//vAOf
+         ONbQ==
+X-Gm-Message-State: APjAAAWZb99B0q2lAG9PX3vmouX4WX97PuXlIZb01h8pYoZiKKHJgsSN
+        vY+tcNyu5kc5Qk1BgZ08241t7Q==
+X-Google-Smtp-Source: APXvYqw8PFsmtbUuomL4aBiyNRsZAYhTMftxSHrzusnCImRIZn4IbvSamiKMe9Edc7Z0zhuj/55Jvg==
+X-Received: by 2002:a7b:c7c8:: with SMTP id z8mr3574162wmk.29.1571661877315;
+        Mon, 21 Oct 2019 05:44:37 -0700 (PDT)
 Received: from debian-brgl.home ([2a01:cb1d:af:5b00:6d6c:8493:1ab5:dad7])
-        by smtp.gmail.com with ESMTPSA id a17sm10216150wmb.8.2019.10.21.05.44.33
+        by smtp.gmail.com with ESMTPSA id a17sm10216150wmb.8.2019.10.21.05.44.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Oct 2019 05:44:34 -0700 (PDT)
+        Mon, 21 Oct 2019 05:44:36 -0700 (PDT)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -68,11 +68,10 @@ To:     Rob Herring <robh+dt@kernel.org>,
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
         linux-pm@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v4 1/6] dt-bindings: input: max77650: convert the binding document to yaml
-Date:   Mon, 21 Oct 2019 14:44:23 +0200
-Message-Id: <20191021124428.2541-2-brgl@bgdev.pl>
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH v4 3/6] dt-bindings: power: max77650: convert the binding document to yaml
+Date:   Mon, 21 Oct 2019 14:44:25 +0200
+Message-Id: <20191021124428.2541-4-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191021124428.2541-1-brgl@bgdev.pl>
 References: <20191021124428.2541-1-brgl@bgdev.pl>
@@ -85,62 +84,64 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Convert the binding document for MAX77650 onkey module to YAML.
+Convert the binding document for MAX77650 charger module to YAML.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Sebastian Reichel <sre@kernel.org>
 ---
- .../bindings/input/max77650-onkey.txt         | 26 --------------
- .../bindings/input/max77650-onkey.yaml        | 35 +++++++++++++++++++
- 2 files changed, 35 insertions(+), 26 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.txt
- create mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.yaml
+ .../power/supply/max77650-charger.txt         | 28 ---------------
+ .../power/supply/max77650-charger.yaml        | 34 +++++++++++++++++++
+ 2 files changed, 34 insertions(+), 28 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+ create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
 
-diff --git a/Documentation/devicetree/bindings/input/max77650-onkey.txt b/Documentation/devicetree/bindings/input/max77650-onkey.txt
+diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
 deleted file mode 100644
-index 477dc74f452a..000000000000
---- a/Documentation/devicetree/bindings/input/max77650-onkey.txt
+index e6d0fb6ff94e..000000000000
+--- a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
 +++ /dev/null
-@@ -1,26 +0,0 @@
--Onkey driver for MAX77650 PMIC from Maxim Integrated.
+@@ -1,28 +0,0 @@
+-Battery charger driver for MAX77650 PMIC from Maxim Integrated.
 -
 -This module is part of the MAX77650 MFD device. For more details
 -see Documentation/devicetree/bindings/mfd/max77650.txt.
 -
--The onkey controller is represented as a sub-node of the PMIC node on
--the device tree.
+-The charger is represented as a sub-node of the PMIC node on the device tree.
 -
 -Required properties:
 ---------------------
--- compatible:		Must be "maxim,max77650-onkey".
+-- compatible:		Must be "maxim,max77650-charger"
 -
 -Optional properties:
--- linux,code:		The key-code to be reported when the key is pressed.
--			Defaults to KEY_POWER.
--- maxim,onkey-slide:	The system's button is a slide switch, not the default
--			push button.
+---------------------
+-- input-voltage-min-microvolt:	Minimum CHGIN regulation voltage. Must be one
+-				of: 4000000, 4100000, 4200000, 4300000,
+-				4400000, 4500000, 4600000, 4700000.
+-- input-current-limit-microamp:	CHGIN input current limit (in microamps). Must
+-				be one of: 95000, 190000, 285000, 380000,
+-				475000.
 -
 -Example:
 ---------
 -
--	onkey {
--		compatible = "maxim,max77650-onkey";
--		linux,code = <KEY_END>;
--		maxim,onkey-slide;
+-	charger {
+-		compatible = "maxim,max77650-charger";
+-		input-voltage-min-microvolt = <4200000>;
+-		input-current-limit-microamp = <285000>;
 -	};
-diff --git a/Documentation/devicetree/bindings/input/max77650-onkey.yaml b/Documentation/devicetree/bindings/input/max77650-onkey.yaml
+diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.yaml b/Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
 new file mode 100644
-index 000000000000..2f2e0b6ebbbd
+index 000000000000..deef010ec535
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/max77650-onkey.yaml
-@@ -0,0 +1,35 @@
++++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
+@@ -0,0 +1,34 @@
 +# SPDX-License-Identifier: GPL-2.0
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/input/max77650-onkey.yaml#
++$id: http://devicetree.org/schemas/power/supply/max77650-charger.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Onkey driver for MAX77650 PMIC from Maxim Integrated.
++title: Battery charger driver for MAX77650 PMIC from Maxim Integrated.
 +
 +maintainers:
 +  - Bartosz Golaszewski <bgolaszewski@baylibre.com>
@@ -149,23 +150,22 @@ index 000000000000..2f2e0b6ebbbd
 +  This module is part of the MAX77650 MFD device. For more details
 +  see Documentation/devicetree/bindings/mfd/max77650.yaml.
 +
-+  The onkey controller is represented as a sub-node of the PMIC node on
-+  the device tree.
++  The charger is represented as a sub-node of the PMIC node on the device tree.
 +
 +properties:
 +  compatible:
-+    const: maxim,max77650-onkey
++    const: maxim,max77650-charger
 +
-+  linux,code:
-+    $ref: /schemas/types.yaml#/definitions/uint32
++  input-voltage-min-microvolt:
 +    description:
-+      The key-code to be reported when the key is pressed. Defaults
-+      to KEY_POWER.
++      Minimum CHGIN regulation voltage.
++    enum: [ 4000000, 4100000, 4200000, 4300000,
++            4400000, 4500000, 4600000, 4700000 ]
 +
-+  maxim,onkey-slide:
-+    $ref: /schemas/types.yaml#/definitions/flag
++  input-current-limit-microamp:
 +    description:
-+      The system's button is a slide switch, not the default push button.
++      CHGIN input current limit (in microamps).
++    enum: [ 95000, 190000, 285000, 380000, 475000 ]
 +
 +required:
 +  - compatible

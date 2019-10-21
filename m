@@ -2,58 +2,59 @@ Return-Path: <SRS0=/2eg=YO=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 721FFCA9EB0
-	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 12:44:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12C59CA9EAF
+	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 12:44:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 48C18214B2
-	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 12:44:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DDCE620882
+	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 12:44:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="dr7wEaSY"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="ION8LIsv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728795AbfJUMof (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 21 Oct 2019 08:44:35 -0400
-Received: from mail-wr1-f52.google.com ([209.85.221.52]:35223 "EHLO
-        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728781AbfJUMof (ORCPT
+        id S1728443AbfJUMot (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 21 Oct 2019 08:44:49 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:40366 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728853AbfJUMoo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Oct 2019 08:44:35 -0400
-Received: by mail-wr1-f52.google.com with SMTP id l10so13399257wrb.2
-        for <linux-input@vger.kernel.org>; Mon, 21 Oct 2019 05:44:34 -0700 (PDT)
+        Mon, 21 Oct 2019 08:44:44 -0400
+Received: by mail-wm1-f68.google.com with SMTP id b24so12631042wmj.5
+        for <linux-input@vger.kernel.org>; Mon, 21 Oct 2019 05:44:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=VpVTW+WZL6DdTi8R1egFqPRwhOG2T/BnlrI0vbGyKSo=;
-        b=dr7wEaSY8UQJ/AGGF8UXvMrEs1GBk4PDp/qRe60BXnj7SOebY0ws+tP9IK08OXd3WA
-         kJoq8fetsUi4FkHh+sBV/YmnRD6gIjEH4N1Am4Ke2muT28aQSeyApTI3r+2/dP9N+0t7
-         onSwyMIwTu7ueIJ+elRnh3UjKkx+mEYmzWe1tFb7MvYeii774AU19xwhKT/Zt8V6uotq
-         02Em+Q3qsSDWgWOGt+RSYtRMl1ZmT4ZbyjojQJE7RlUNLYaVhOzGY+ZEGj9ZKpTzwIOe
-         gR5kB15y/ls8Ufg9q5zq1voYnC1BU+xBenMeFh562h8p/UmuHrVeS1dCHx8ihObV8JOk
-         ZBow==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=NCkJW8hsmdyLXFt6MhpHpJY81uuJvP6lUEoz3ZFYt/w=;
+        b=ION8LIsvfEy5SqihAZKz7LKPRfMSL7i6m0aEyJki29pNZWbjKk5IQCX6MEmGEpqUcY
+         5L+aW90H+eyc7YrYq8Qxq76oXlq2KQ0ybB+GYKjfDtZrVzKyb8ZAVtMxwfox5VhVXu4e
+         KPc4VgpUhHqqgCdP74oIbZHVw3MIkmloiw5RXczIk0Et1UGrFB/fibdaR48SvB4pzDSa
+         9Q0607kMFH4qSDLamWjbbYmbqvcuL6Sh6dt1QSjNRhQ114snxRNfxAl131lB1AR5G49e
+         tFcH0mpJdVSBZesAxS3+pfYZHIctHKmrZBWbDNyXOuQCQ2iljgU6e6zV3LYDoHgsdobQ
+         U6vA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=VpVTW+WZL6DdTi8R1egFqPRwhOG2T/BnlrI0vbGyKSo=;
-        b=VbBR/eAXk/Cq+ZkojLSS5QQ5IWXSA+1eHm6fRrS3g4UR8aanAWLjPR1tuwC7Jeq0+3
-         LlkuVEKyWFFhejTubBjUi2x+wGwAWdj9yCK74vdFVHILBF6JGQjzcdwpA289DUyUftwM
-         fI2bfoAyE2nO7QInlRWimnFU4hgVPWc4ujt/aVBx/Sz6vpcAVQn95P9JZ/wDXFwhJZMt
-         knHlZLlDHkp5fU09Mz/pYCjxyE7BAP5B9SaFj4dWNcAsvqu1vmFyZ/DEV2lLH1eJzK/I
-         QSQ5LajIsdLEdfysYOdFKxBiJrGKUu5IzSOkchCB9iHC7U5u2oI2+8HUPsNso+dgvvgr
-         9mdw==
-X-Gm-Message-State: APjAAAX4AytRAa83NuQwq/D1D0PQlG6DeRYUY++Zs4Y4dNmUImOP+t0Q
-        ARqGUq7L547O5oGUTUi/chMGZg==
-X-Google-Smtp-Source: APXvYqyQZq9D7JNE8PCA9bjbf3OX5gqPK3dKrKLOL8KxWrUV3Y0cO+9DD/86Di3mogYOVO6kiCvOTA==
-X-Received: by 2002:adf:e2c5:: with SMTP id d5mr18874464wrj.283.1571661873402;
-        Mon, 21 Oct 2019 05:44:33 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=NCkJW8hsmdyLXFt6MhpHpJY81uuJvP6lUEoz3ZFYt/w=;
+        b=PKOERBN05bg+6qwAdSRvJVsju0HimbB1Sq8hHEbV/OVwSbVBw6bHx9zBdjcSeOcv6a
+         gkUsBh6tvqe4JyJaWhVgvdnObL0EfzxEZQpkS9fydsewjclfKNtUQMZrYUcrK7oWO//U
+         84Py9ROYwywnyWsoSV9aiu2/nJ1XDDz4KlDXADk0/ZmPiaQSmiXIUOLigbHfN+Miih4G
+         uwHH/3ACyPuqxFiuirarA8zM8PkuT/A0I6U6KvSTH7JM6DfCMEn70NS+A77Uui7CqK66
+         UXnNfx1eOUQLLnERTwn/ITx2Kuu56yDbA0ej8hZyPw0iDjad1YJunRxQ5Tww9k9voA3/
+         AEnQ==
+X-Gm-Message-State: APjAAAUM/a2LIDAUXudHCieLjtYThlZqoPg1N9M+yToJ+KcYsiXbChJZ
+        tB7fYj+D1ODnaCHlOJ/GZzABfA==
+X-Google-Smtp-Source: APXvYqx0+yUmRQS7ukveB8lxPxiZgZjPrOEofvzcha2EYE39MifDue4d8z23bg2kYvWFW5FqkLtuaw==
+X-Received: by 2002:a1c:9695:: with SMTP id y143mr6671242wmd.103.1571661881081;
+        Mon, 21 Oct 2019 05:44:41 -0700 (PDT)
 Received: from debian-brgl.home ([2a01:cb1d:af:5b00:6d6c:8493:1ab5:dad7])
-        by smtp.gmail.com with ESMTPSA id a17sm10216150wmb.8.2019.10.21.05.44.32
+        by smtp.gmail.com with ESMTPSA id a17sm10216150wmb.8.2019.10.21.05.44.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Oct 2019 05:44:32 -0700 (PDT)
+        Mon, 21 Oct 2019 05:44:40 -0700 (PDT)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -68,10 +69,12 @@ Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
         linux-pm@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH v4 0/6] dt-bindings: max77650: convert the device-tree bindings to yaml
-Date:   Mon, 21 Oct 2019 14:44:22 +0200
-Message-Id: <20191021124428.2541-1-brgl@bgdev.pl>
+Subject: [PATCH v4 6/6] MAINTAINERS: update the list of maintained files for max77650
+Date:   Mon, 21 Oct 2019 14:44:28 +0200
+Message-Id: <20191021124428.2541-7-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191021124428.2541-1-brgl@bgdev.pl>
+References: <20191021124428.2541-1-brgl@bgdev.pl>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
@@ -81,56 +84,29 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-This series converts all DT binding documents for MAX77650 PMIC to YAML.
+The DT bindings for MAX77650 MFD have now been converted to YAML.
+Update the MAINTAINERS entry for this set of drivers.
 
-v1 -> v2:
-- use upper case for abbreviations in commit messages
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ MAINTAINERS | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-v2 -> v3:
-- pull all example fragments into the binding document for the core MFD module
-- fix all dt_binding_check errors
-- add references to submodules to the main binding document
-- drop the type for gpio-line-names
-- drop the description for the interrupts property
-- completely delete the previous txt files
-
-v3 -> v4:
-- remove unnecessary parts of descriptions, added details on the chip
-- correct file references (.txt -> .yaml)
-- fix mixing scalar and array constraints
-- dropped type refs for globally defined properties
-
-Bartosz Golaszewski (6):
-  dt-bindings: input: max77650: convert the binding document to yaml
-  dt-bindings: regulator: max77650: convert the binding document to yaml
-  dt-bindings: power: max77650: convert the binding document to yaml
-  dt-bindings: leds: max77650: convert the binding document to yaml
-  dt-bindings: mfd: max77650: convert the binding document to yaml
-  MAINTAINERS: update the list of maintained files for max77650
-
- .../bindings/input/max77650-onkey.txt         |  26 ---
- .../bindings/input/max77650-onkey.yaml        |  35 ++++
- .../bindings/leds/leds-max77650.txt           |  57 -------
- .../bindings/leds/leds-max77650.yaml          |  51 ++++++
- .../devicetree/bindings/mfd/max77650.txt      |  46 ------
- .../devicetree/bindings/mfd/max77650.yaml     | 149 ++++++++++++++++++
- .../power/supply/max77650-charger.txt         |  28 ----
- .../power/supply/max77650-charger.yaml        |  34 ++++
- .../bindings/regulator/max77650-regulator.txt |  41 -----
- .../regulator/max77650-regulator.yaml         |  31 ++++
- MAINTAINERS                                   |   4 +-
- 11 files changed, 302 insertions(+), 200 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.txt
- create mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.yaml
- delete mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.txt
- create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.yaml
- delete mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/max77650.yaml
- delete mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
- create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
- delete mode 100644 Documentation/devicetree/bindings/regulator/max77650-regulator.txt
- create mode 100644 Documentation/devicetree/bindings/regulator/max77650-regulator.yaml
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e51a68bf8ca8..aba7de45a7ca 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9903,8 +9903,8 @@ MAXIM MAX77650 PMIC MFD DRIVER
+ M:	Bartosz Golaszewski <bgolaszewski@baylibre.com>
+ L:	linux-kernel@vger.kernel.org
+ S:	Maintained
+-F:	Documentation/devicetree/bindings/*/*max77650.txt
+-F:	Documentation/devicetree/bindings/*/max77650*.txt
++F:	Documentation/devicetree/bindings/*/*max77650.yaml
++F:	Documentation/devicetree/bindings/*/max77650*.yaml
+ F:	include/linux/mfd/max77650.h
+ F:	drivers/mfd/max77650.c
+ F:	drivers/regulator/max77650-regulator.c
 -- 
 2.23.0
 

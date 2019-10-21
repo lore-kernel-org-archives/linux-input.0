@@ -4,25 +4,24 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCBF6CA9EB6
-	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 04:19:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36E94CA9EBA
+	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 04:19:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B68872053B
-	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 04:19:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DD3D2053B
+	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 04:19:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725874AbfJUETM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 21 Oct 2019 00:19:12 -0400
-Received: from p3plsmtpa06-04.prod.phx3.secureserver.net ([173.201.192.105]:37476
+        id S1727006AbfJUETN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 21 Oct 2019 00:19:13 -0400
+Received: from p3plsmtpa06-04.prod.phx3.secureserver.net ([173.201.192.105]:56740
         "EHLO p3plsmtpa06-04.prod.phx3.secureserver.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726913AbfJUETM (ORCPT
+        by vger.kernel.org with ESMTP id S1726913AbfJUETN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Oct 2019 00:19:12 -0400
+        Mon, 21 Oct 2019 00:19:13 -0400
 Received: from localhost.localdomain ([136.49.227.119])
         by :SMTPAUTH: with ESMTPSA
-        id MP2oifB4Hr3FgMP2tiDyXo; Sun, 20 Oct 2019 21:11:53 -0700
+        id MP2oifB4Hr3FgMP2wiDyYZ; Sun, 20 Oct 2019 21:11:55 -0700
 From:   Jeff LaBundy <jeff@labundy.com>
 To:     lee.jones@linaro.org, dmitry.torokhov@gmail.com, jdelvare@suse.com,
         linux@roeck-us.net, thierry.reding@gmail.com, jic23@kernel.org,
@@ -32,281 +31,414 @@ Cc:     linux-input@vger.kernel.org, linux-hwmon@vger.kernel.org,
         knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net,
         linux-iio@vger.kernel.org, robh+dt@kernel.org,
         mark.rutland@arm.com, Jeff LaBundy <jeff@labundy.com>
-Subject: [PATCH 1/8] dt-bindings: mfd: iqs62x: Add bindings
-Date:   Sun, 20 Oct 2019 23:11:16 -0500
-Message-Id: <1571631083-4962-2-git-send-email-jeff@labundy.com>
+Subject: [PATCH 3/8] input: keyboard: Add support for Azoteq IQS620A/621/622/624/625
+Date:   Sun, 20 Oct 2019 23:11:18 -0500
+Message-Id: <1571631083-4962-4-git-send-email-jeff@labundy.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1571631083-4962-1-git-send-email-jeff@labundy.com>
 References: <1571631083-4962-1-git-send-email-jeff@labundy.com>
-X-CMAE-Envelope: MS4wfPM30Nn04H8YI2tC95MVBsoFU3P0bpbVxPKHXFyBpRrB5dpnFBcG7163MgAdu1sp/s1tFOLKaaTBU3Nk6eW3wRzHQm2cXAVMWtiZkYnlOWDpF3yqhfx4
- vOl+tVcjMsWVGeyrGBCn/6vci6wWRdZM8qj+A1PD67BZJyxMez7J5QhZErNojP4RxkmvNt9sWmUNPxFWPRMJB3jx3krDGp6RSKwCRlAGobtNe1O/AdB2BeWa
- +pTxqkfz3rmpKX3hl4S4wQfz7oHsN27FjIXSFrDX7Xo2SMLJ5tiid+Ts1JbC2Ulpjdh5PM2rQuv0P4lDbLn91u8ddTJHpCDIciEy/DJO6w4v83olbrIGSgeI
- U/gnRRroAvHFvIIujscV1Dy8w5vHfETPbgXE1k7Bda2QfVQ0MBfhrfdhXwDvZOiCKh0x5HcYv93DAWp/fkfsu4INQhohiYfTADIVztj/Ck8a0WvggDmXd0HP
- R/8faiITTKIrbf68kr9itCdYnsoIX1IXaMKRh5Hn2HuDbR3ZNQe0Gw3ixFLqPrqMlIeKA9yq4hr0Nq1DtLEinM8nWn6eFhCFfVPX9Vp2w3ZvPaDDuDCvlXIi
- Wg0UF+EdAy7xKitKQywLmHm3k7HDIvS4bpOwUfF/JeED0HjrE5gNlLfe/uOqGzyckgA4I2t53Jg9E9nhaIpfTxx3OrrwZE3IZ1kE3S+dZZqEhIZGBlcL88H5
- 4KnbFRHE4kb5DSorjfdjqVk27gGTVdUOoVT5NPrun5wV9HGLKetCQA==
+X-CMAE-Envelope: MS4wfHgxhpxOVl0sALoZoA5HsFO3L9Mj3gSzZVCLSbFPlJqMRwR8ooEuKlOzqivzxzqXzaiokgLTt9eKu+jn/l2HytxV5V1di+q19UWLTKvkHB7IqpT/P+ic
+ plZ/Jz32pOBr955CqXKo2WrAQQ+wDeB3zAlW73sJyxpC2iHwMXLM+MDjh1eobGL2H8r9XxppN7/84zmDYiZvka5GgrkRId069DskElr6YuK9XHGiA4IhgZho
+ QRDQ83tzp/zep0K5olNEIRZ68d5rigb0EOnqEjVzu7f/6DHDZfHgtf2PDCkoLyWPR0cMCiganLvXlBqHuJoQdHrUVlklz2Ag0+JPRTuVKMxV+AIcqt2f1Urb
+ du44eEo/L9w8RbGrcM2i8zygqlcEYe7SMcLMRUqSXsejoAuI97XR9erXQaRASzFxED2qpVfbc+5bnhhOmu5/N9oMmoOGLufh+zbl4FYTjXxbKatzMJSIgjOA
+ XO/QYvKyxueUe6Nw91t6eIVQpd2ZET4Y1zTN1PkUCwfrAg89pY+NPPPMoysv46LTwZJ+dImLMePGj3Rk8sreoqporqi/b69RUS4iXNA8GFEWpVfznRWSpSPR
+ bzAKjO1euOk17MHIxCfkQeKcmQkXVIKNUwM96vUR2NhE5LX3vNX9O7/UlHGb+5rcm2KgUYK06xGQS9rF3NLCK3IHMeYovJP2XDe+Qj8Xfe/g4AlINAghHn8K
+ URDrlhPx0ZztWlVtK4JNsaqCdplhoo10eE1YIJncUNe3Ma8kwT4Fjg==
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch adds binding documentation for six-channel members of the
+This patch adds touch key support for six-channel members of the
 Azoteq ProxFusion family of sensor devices.
 
 Signed-off-by: Jeff LaBundy <jeff@labundy.com>
 ---
- Documentation/devicetree/bindings/mfd/iqs62x.txt | 242 +++++++++++++++++++++++
- 1 file changed, 242 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/iqs62x.txt
+ drivers/input/keyboard/Kconfig       |  10 ++
+ drivers/input/keyboard/Makefile      |   1 +
+ drivers/input/keyboard/iqs62x-keys.c | 340 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 351 insertions(+)
+ create mode 100644 drivers/input/keyboard/iqs62x-keys.c
 
-diff --git a/Documentation/devicetree/bindings/mfd/iqs62x.txt b/Documentation/devicetree/bindings/mfd/iqs62x.txt
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 8911bc2..ab10aff 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -657,6 +657,16 @@ config KEYBOARD_IPAQ_MICRO
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ipaq-micro-keys.
+ 
++config KEYBOARD_IQS62X
++	tristate "Azoteq IQS620A/621/622/624/625 touch keys"
++	depends on MFD_IQS62X
++	help
++	  Say Y here to enable touch-key support for six-channel members of
++	  the Azoteq ProxFusion family of sensor devices.
++
++	  To compile this driver as a module, choose M here: the module will
++	  be called iqs62x-keys.
++
+ config KEYBOARD_OMAP
+ 	tristate "TI OMAP keypad support"
+ 	depends on ARCH_OMAP1
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 9510325..ee85b7f 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -28,6 +28,7 @@ obj-$(CONFIG_KEYBOARD_TCA8418)		+= tca8418_keypad.o
+ obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
+ obj-$(CONFIG_KEYBOARD_HIL_OLD)		+= hilkbd.o
+ obj-$(CONFIG_KEYBOARD_IPAQ_MICRO)	+= ipaq-micro-keys.o
++obj-$(CONFIG_KEYBOARD_IQS62X)		+= iqs62x-keys.o
+ obj-$(CONFIG_KEYBOARD_IMX)		+= imx_keypad.o
+ obj-$(CONFIG_KEYBOARD_HP6XX)		+= jornada680_kbd.o
+ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
+diff --git a/drivers/input/keyboard/iqs62x-keys.c b/drivers/input/keyboard/iqs62x-keys.c
 new file mode 100644
-index 0000000..089f567
+index 0000000..9d929f1
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/iqs62x.txt
-@@ -0,0 +1,242 @@
-+Azoteq IQS620A/621/622/624/625 ProxFusion Sensor Family
++++ b/drivers/input/keyboard/iqs62x-keys.c
+@@ -0,0 +1,340 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Azoteq IQS620A/621/622/624/625 Touch Keys
++ *
++ * Copyright (C) 2019
++ * Author: Jeff LaBundy <jeff@labundy.com>
++ */
 +
-+Required properties:
++#include <linux/device.h>
++#include <linux/input.h>
++#include <linux/kernel.h>
++#include <linux/mfd/iqs62x.h>
++#include <linux/module.h>
++#include <linux/notifier.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
 +
-+- compatible			: Must be equal to one of the following:
-+				  "azoteq,iqs620a"
-+				  "azoteq,iqs621"
-+				  "azoteq,iqs622"
-+				  "azoteq,iqs624"
-+				  "azoteq,iqs625"
++enum {
++	IQS62X_SW_HALL_N,
++	IQS62X_SW_HALL_S,
++};
 +
-+- reg				: I2C slave address for the device.
++static const char * const iqs62x_switch_names[] = {
++	[IQS62X_SW_HALL_N] = "hall_switch_north",
++	[IQS62X_SW_HALL_S] = "hall_switch_south",
++};
 +
-+- interrupts			: GPIO to which the device's active-low RDY
-+				  output is connected (see [0]).
++struct iqs62x_switch_desc {
++	enum iqs62x_event_flag flag;
++	unsigned int code;
++	bool enabled;
++};
 +
-+Optional properties:
++struct iqs62x_keys_private {
++	struct iqs62x_core *iqs62x;
++	struct input_dev *input;
++	struct notifier_block notifier;
++	struct iqs62x_switch_desc switches[ARRAY_SIZE(iqs62x_switch_names)];
++	unsigned int keycode[IQS62X_NUM_KEYS];
++	unsigned int keycodemax;
++	u8 interval;
++};
 +
-+- linux,fw-file			: Specifies the name of the calibration and
-+				  configuration file selected by the driver.
-+				  If this property is omitted, the filename
-+				  is selected based on the device name with
-+				  ".bin" as the extension (e.g. iqs620a.bin
-+				  for IQS620A).
++static int iqs62x_keys_parse_prop(struct platform_device *pdev,
++				  struct iqs62x_keys_private *iqs62x_keys)
++{
++	struct device_node *keys_node = pdev->dev.of_node;
++	struct device_node *hall_node;
++	unsigned int val;
++	int ret, i;
 +
-+All devices accommodate a child node (e.g. "keys") that represents touch key
-+support. Required properties for the "keys" child node include:
++	if (!keys_node)
++		return 0;
 +
-+- compatible			: Must be equal to one of the following:
-+				  "azoteq,iqs620a-keys"
-+				  "azoteq,iqs621-keys"
-+				  "azoteq,iqs622-keys"
-+				  "azoteq,iqs624-keys"
-+				  "azoteq,iqs625-keys"
++	ret = of_property_read_variable_u32_array(keys_node, "linux,keycodes",
++						  iqs62x_keys->keycode, 0,
++						  IQS62X_NUM_KEYS);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "Failed to read keycodes: %d\n", ret);
++		return ret;
++	}
++	iqs62x_keys->keycodemax = ret;
 +
-+- linux,keycodes		: Specifies an array of up to 16 numeric key-
-+				  codes corresponding to each available touch
-+				  or proximity event. An 'x' in the following
-+				  table indicates an event is supported for a
-+				  given device; specify 0 for unused events.
++	for (i = 0; i < ARRAY_SIZE(iqs62x_keys->switches); i++) {
++		hall_node = of_get_child_by_name(keys_node,
++						 iqs62x_switch_names[i]);
++		if (!hall_node)
++			continue;
 +
-+  ----------------------------------------------------------------------------
-+  | #  | Event                 | IQS620A | IQS621 | IQS622 | IQS624 | IQS625 |
-+  ----------------------------------------------------------------------------
-+  | 0  | CH0 Touch             |    x    |    x   |    x   |    x   |    x   |
-+  |    | Antenna 1 Touch*      |    x    |        |        |        |        |
-+  ----------------------------------------------------------------------------
-+  | 1  | CH0 Proximity         |    x    |    x   |    x   |    x   |    x   |
-+  |    | Antenna 1 Proximity*  |    x    |        |        |        |        |
-+  ----------------------------------------------------------------------------
-+  | 2  | CH1 Touch             |    x    |    x   |    x   |    x   |    x   |
-+  |    | Antenna 1 Deep Touch* |    x    |        |        |        |        |
-+  ----------------------------------------------------------------------------
-+  | 3  | CH1 Proximity         |    x    |    x   |    x   |    x   |    x   |
-+  ----------------------------------------------------------------------------
-+  | 4  | CH2 Touch             |    x    |        |        |        |        |
-+  ----------------------------------------------------------------------------
-+  | 5  | CH2 Proximity         |    x    |        |        |        |        |
-+  |    | Antenna 2 Proximity*  |    x    |        |        |        |        |
-+  ----------------------------------------------------------------------------
-+  | 6  | Metal (+) Touch**     |    x    |    x   |        |        |        |
-+  |    | Antenna 2 Deep Touch* |    x    |        |        |        |        |
-+  ----------------------------------------------------------------------------
-+  | 7  | Metal (+) Proximity** |    x    |    x   |        |        |        |
-+  |    | Antenna 2 Touch*      |    x    |        |        |        |        |
-+  ----------------------------------------------------------------------------
-+  | 8  | Metal (-) Touch**     |    x    |    x   |        |        |        |
-+  ----------------------------------------------------------------------------
-+  | 9  | Metal (-) Proximity** |    x    |    x   |        |        |        |
-+  ----------------------------------------------------------------------------
-+  | 10 | SAR Active***         |    x    |        |    x   |        |        |
-+  ----------------------------------------------------------------------------
-+  | 11 | SAR Quick Release***  |    x    |        |    x   |        |        |
-+  ----------------------------------------------------------------------------
-+  | 12 | SAR Movement***       |    x    |        |    x   |        |        |
-+  ----------------------------------------------------------------------------
-+  | 13 | SAR Filter Halt***    |    x    |        |    x   |        |        |
-+  ----------------------------------------------------------------------------
-+  | 14 | Wheel Up              |         |        |        |    x   |        |
-+  ----------------------------------------------------------------------------
-+  | 15 | Wheel Down            |         |        |        |    x   |        |
-+  ----------------------------------------------------------------------------
-+  *   Dual-channel SAR. Replaces CH0-2 and metal touch and proximity events if
-+      enabled via firmware.
-+  **  "+" and "-" refer to the polarity of the channel's delta (LTA - counts),
-+      where "LTA" is defined as the channel's long-term average.
-+  *** Single-channel SAR. Replaces CH0-2 touch and proximity events if enabled
-+      via firmware.
++		ret = of_property_read_u32(hall_node, "linux,code", &val);
++		if (ret < 0) {
++			dev_err(&pdev->dev, "Failed to read switch code: %d\n",
++				ret);
++			of_node_put(hall_node);
++			return ret;
++		}
 +
-+The "keys" child node supports "hall_switch_north" and "hall_switch_south"
-+child nodes that represent north-field and south-field Hall-effect sensor
-+events, respectively (IQS620A/621/622 only). Required properties include:
++		if (of_property_read_bool(hall_node, "azoteq,use-prox"))
++			iqs62x_keys->switches[i].flag = (i == IQS62X_SW_HALL_N ?
++							 IQS62X_EVENT_HALL_N_P :
++							 IQS62X_EVENT_HALL_S_P);
++		else
++			iqs62x_keys->switches[i].flag = (i == IQS62X_SW_HALL_N ?
++							 IQS62X_EVENT_HALL_N_T :
++							 IQS62X_EVENT_HALL_S_T);
 +
-+- linux,code			: Numeric switch code.
++		iqs62x_keys->switches[i].code = val;
++		iqs62x_keys->switches[i].enabled = true;
 +
-+Optional properties for the "hall_switch_north" and "hall_switch_south" nodes:
++		of_node_put(hall_node);
++	}
 +
-+- azoteq,use-prox		: Boolean to specify that Hall-effect sensor
-+				  reporting must use the device's wide-range
-+				  proximity threshold instead of its narrow-
-+				  range touch threshold.
++	return 0;
++}
 +
-+Note: North/south-field orientation is reversed on the IQS620AXzCSR device due
-+      to its flip-chip package.
++static int iqs62x_keys_init(struct iqs62x_keys_private *iqs62x_keys)
++{
++	struct iqs62x_core *iqs62x = iqs62x_keys->iqs62x;
++	enum iqs62x_event_flag flag;
++	unsigned int event_mask_reg;
++	unsigned int event_mask = 0;
++	unsigned int val;
++	int error, i;
 +
-+The IQS620A supports a PWM controller node; required properties include:
++	switch (iqs62x->dev_desc->prod_num) {
++	case IQS620_PROD_NUM:
++	case IQS621_PROD_NUM:
++	case IQS622_PROD_NUM:
++		event_mask_reg = IQS620_GLBL_EVENT_MASK;
 +
-+- compatible			: Must be equal to "azoteq,iqs620a-pwm".
++		/*
++		 * Discreet button, hysteresis and SAR UI flags represent keys
++		 * and are unmasked if mapped to a valid keycode.
++		 */
++		for (i = 0; i < iqs62x_keys->keycodemax; i++) {
++			if (iqs62x_keys->keycode[i] == KEY_RESERVED)
++				continue;
 +
-+- #pwm-cells			: Must be equal to 2 (see [1]).
++			if (iqs62x_events[i].reg == IQS62X_EVENT_PROX)
++				event_mask |= iqs62x->dev_desc->prox_mask;
++			else if (iqs62x_events[i].reg == IQS62X_EVENT_HYST)
++				event_mask |= (iqs62x->dev_desc->hyst_mask |
++					       iqs62x->dev_desc->sar_mask);
++		}
 +
-+The IQS622 supports an additional child node (e.g. "prox") that represents
-+active IR detection; required properties include:
++		error = regmap_read(iqs62x->map, iqs62x->dev_desc->hall_flags,
++				    &val);
++		if (error)
++			return error;
 +
-+- compatible			: Must be equal to "azoteq,iqs622-prox".
++		/*
++		 * Hall UI flags represent switches and are unmasked if their
++		 * corresponding child nodes are present.
++		 */
++		for (i = 0; i < ARRAY_SIZE(iqs62x_keys->switches); i++) {
++			if (!(iqs62x_keys->switches[i].enabled))
++				continue;
 +
-+Optional properties for the "prox" child node:
++			flag = iqs62x_keys->switches[i].flag;
 +
-+- azoteq,use-prox		: Boolean to specify that IR threshold event
-+				  reporting must use the device's wide-range
-+				  proximity threshold instead of its narrow-
-+				  range touch threshold.
++			if (iqs62x_events[flag].reg != IQS62X_EVENT_HALL)
++				continue;
 +
-+[0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
-+[1]: Documentation/devicetree/bindings/pwm/pwm.txt
++			event_mask |= iqs62x->dev_desc->hall_mask;
 +
-+Example 1: Dual capacitive buttons with additional "air button," unipolar lid
-+	   switch and panel-mounted LED.
++			input_report_switch(iqs62x_keys->input,
++					    iqs62x_keys->switches[i].code,
++					    (val & iqs62x_events[flag].mask) ==
++					    iqs62x_events[flag].val);
++		}
 +
-+	&i2c1 {
-+		/* ... */
++		input_sync(iqs62x_keys->input);
++		break;
 +
-+		iqs620a: iqs620a@44 {
-+			compatible = "azoteq,iqs620a";
-+			reg = <0x44>;
-+			interrupt-parent = <&gpio>;
-+			interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
++	case IQS624_PROD_NUM:
++		event_mask_reg = IQS624_HALL_UI;
 +
-+			iqs620a_keys: keys {
-+				compatible = "azoteq,iqs620a-keys";
++		/*
++		 * Interval change events represent keys and are unmasked if
++		 * either wheel movement flag is mapped to a valid keycode.
++		 */
++		if (iqs62x_keys->keycode[IQS62X_EVENT_WHEEL_UP] != KEY_RESERVED)
++			event_mask |= IQS624_HALL_UI_INT_EVENT;
 +
-+				linux,keycodes = <KEY_SELECT>,
-+						 <KEY_MENU>,
-+						 <KEY_OK>,
-+						 <KEY_MENU>;
++		if (iqs62x_keys->keycode[IQS62X_EVENT_WHEEL_DN] != KEY_RESERVED)
++			event_mask |= IQS624_HALL_UI_INT_EVENT;
 +
-+				hall_switch_south {
-+					linux,code = <SW_LID>;
-+					azoteq,use-prox;
-+				};
-+			};
++		error = regmap_read(iqs62x->map, iqs62x->dev_desc->interval,
++				    &val);
++		if (error)
++			return error;
 +
-+			iqs620a_pwm: pwm {
-+				compatible = "azoteq,iqs620a-pwm";
-+				#pwm-cells = <2>;
-+			};
-+		};
++		iqs62x_keys->interval = val;
++		break;
 +
-+		/* ... */
-+	};
++	default:
++		return 0;
++	}
 +
-+	pwmleds {
-+		compatible = "pwm-leds";
++	return regmap_update_bits(iqs62x->map, event_mask_reg, event_mask, 0);
++}
 +
-+		panel {
-+			pwms = <&iqs620a_pwm 0 1000000>;
-+			max-brightness = <255>;
-+		};
-+	};
++static int iqs62x_keys_notifier(struct notifier_block *notifier,
++				unsigned long event_flags, void *context)
++{
++	struct iqs62x_event_data *event_data = context;
++	struct iqs62x_keys_private *iqs62x_keys;
++	int error, i;
 +
-+Example 2: Single inductive button with bipolar dock/tablet-mode switch.
++	iqs62x_keys = container_of(notifier, struct iqs62x_keys_private,
++				   notifier);
 +
-+	&i2c1 {
-+		/* ... */
++	if (event_flags & BIT(IQS62X_EVENT_SYS_RESET)) {
++		error = iqs62x_keys_init(iqs62x_keys);
++		if (error) {
++			dev_err(iqs62x_keys->input->dev.parent,
++				"Failed to re-initialize device: %d\n", error);
++			return NOTIFY_BAD;
++		}
 +
-+		iqs620a: iqs620a@44 {
-+			compatible = "azoteq,iqs620a";
-+			reg = <0x44>;
-+			interrupt-parent = <&gpio>;
-+			interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
++		return NOTIFY_OK;
++	}
 +
-+			linux,fw-file = "iqs620a_coil.bin";
++	for (i = 0; i < iqs62x_keys->keycodemax; i++) {
++		if (iqs62x_events[i].reg == IQS62X_EVENT_WHEEL &&
++		    event_data->interval == iqs62x_keys->interval)
++			continue;
 +
-+			iqs620a_keys: keys {
-+				compatible = "azoteq,iqs620a-keys";
++		input_report_key(iqs62x_keys->input, iqs62x_keys->keycode[i],
++				 event_flags & BIT(i));
++	}
 +
-+				linux,keycodes = <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <KEY_MUTE>;
++	for (i = 0; i < ARRAY_SIZE(iqs62x_keys->switches); i++)
++		if (iqs62x_keys->switches[i].enabled)
++			input_report_switch(iqs62x_keys->input,
++					    iqs62x_keys->switches[i].code,
++					    event_flags &
++					    BIT(iqs62x_keys->switches[i].flag));
 +
-+				hall_switch_north {
-+					linux,code = <SW_DOCK>;
-+				};
++	input_sync(iqs62x_keys->input);
 +
-+				hall_switch_south {
-+					linux,code = <SW_TABLET_MODE>;
-+				};
-+			};
-+		};
++	if (event_data->interval == iqs62x_keys->interval)
++		return NOTIFY_OK;
 +
-+		/* ... */
-+	};
++	/*
++	 * Each frame contains at most one wheel event (up or down), in which
++	 * case a full keystroke is emulated.
++	 */
++	if (event_flags & BIT(IQS62X_EVENT_WHEEL_UP)) {
++		input_report_key(iqs62x_keys->input,
++				 iqs62x_keys->keycode[IQS62X_EVENT_WHEEL_UP],
++				 0);
++		input_sync(iqs62x_keys->input);
++	} else if (event_flags & BIT(IQS62X_EVENT_WHEEL_DN)) {
++		input_report_key(iqs62x_keys->input,
++				 iqs62x_keys->keycode[IQS62X_EVENT_WHEEL_DN],
++				 0);
++		input_sync(iqs62x_keys->input);
++	}
 +
-+Example 3: Dual capacitive buttons with volume knob.
++	iqs62x_keys->interval = event_data->interval;
 +
-+	&i2c1 {
-+		/* ... */
++	return NOTIFY_OK;
++}
 +
-+		iqs624: iqs624@44 {
-+			compatible = "azoteq,iqs624";
-+			reg = <0x44>;
-+			interrupt-parent = <&gpio>;
-+			interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
++static int iqs62x_keys_probe(struct platform_device *pdev)
++{
++	struct iqs62x_core *iqs62x = dev_get_drvdata(pdev->dev.parent);
++	struct iqs62x_keys_private *iqs62x_keys;
++	struct input_dev *input;
++	int error, i;
 +
-+			iqs624_keys: keys {
-+				compatible = "azoteq,iqs624-keys";
++	iqs62x_keys = devm_kzalloc(&pdev->dev, sizeof(*iqs62x_keys),
++				   GFP_KERNEL);
++	if (!iqs62x_keys)
++		return -ENOMEM;
 +
-+				linux,keycodes = <BTN_0>,
-+						 <0>,
-+						 <BTN_1>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <0>,
-+						 <KEY_VOLUMEUP>,
-+						 <KEY_VOLUMEDOWN>;
-+			};
-+		};
++	platform_set_drvdata(pdev, iqs62x_keys);
 +
-+		/* ... */
-+	};
++	error = iqs62x_keys_parse_prop(pdev, iqs62x_keys);
++	if (error)
++		return error;
++
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input)
++		return -ENOMEM;
++
++	input->keycodemax = iqs62x_keys->keycodemax;
++	input->keycode = iqs62x_keys->keycode;
++	input->keycodesize = sizeof(*iqs62x_keys->keycode);
++
++	input->name = iqs62x->dev_desc->dev_name;
++	input->id.bustype = BUS_I2C;
++
++	__set_bit(EV_KEY, input->evbit);
++
++	for (i = 0; i < iqs62x_keys->keycodemax; i++)
++		__set_bit(iqs62x_keys->keycode[i], input->keybit);
++
++	__clear_bit(KEY_RESERVED, input->keybit);
++
++	for (i = 0; i < ARRAY_SIZE(iqs62x_keys->switches); i++)
++		if (iqs62x_keys->switches[i].enabled) {
++			__set_bit(EV_SW, input->evbit);
++			__set_bit(iqs62x_keys->switches[i].code, input->swbit);
++		}
++
++	iqs62x_keys->iqs62x = iqs62x;
++	iqs62x_keys->input = input;
++
++	error = iqs62x_keys_init(iqs62x_keys);
++	if (error) {
++		dev_err(&pdev->dev, "Failed to initialize device: %d\n", error);
++		return error;
++	}
++
++	error = input_register_device(iqs62x_keys->input);
++	if (error) {
++		dev_err(&pdev->dev, "Failed to register device: %d\n", error);
++		return error;
++	}
++
++	iqs62x_keys->notifier.notifier_call = iqs62x_keys_notifier;
++	error = blocking_notifier_chain_register(&iqs62x_keys->iqs62x->nh,
++						 &iqs62x_keys->notifier);
++	if (error)
++		dev_err(&pdev->dev, "Failed to register notifier: %d\n", error);
++
++	return error;
++}
++
++static int iqs62x_keys_remove(struct platform_device *pdev)
++{
++	struct iqs62x_keys_private *iqs62x_keys = platform_get_drvdata(pdev);
++	int error;
++
++	error = blocking_notifier_chain_unregister(&iqs62x_keys->iqs62x->nh,
++						   &iqs62x_keys->notifier);
++	if (error)
++		dev_err(&pdev->dev,
++			"Failed to unregister notifier: %d\n", error);
++
++	return error;
++}
++
++static struct platform_driver iqs62x_keys_platform_driver = {
++	.driver = {
++		.name	= IQS62X_DRV_NAME_KEYS,
++	},
++	.probe		= iqs62x_keys_probe,
++	.remove		= iqs62x_keys_remove,
++};
++module_platform_driver(iqs62x_keys_platform_driver);
++
++MODULE_AUTHOR("Jeff LaBundy <jeff@labundy.com>");
++MODULE_DESCRIPTION("Azoteq IQS620A/621/622/624/625 Touch Keys");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:" IQS62X_DRV_NAME_KEYS);
 -- 
 2.7.4
 

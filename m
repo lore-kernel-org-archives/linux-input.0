@@ -1,161 +1,148 @@
-Return-Path: <SRS0=pFeM=YN=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=/2eg=YO=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B402CA9EA0
-	for <linux-input@archiver.kernel.org>; Sun, 20 Oct 2019 21:48:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D0CACA9EAE
+	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 02:27:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 643A9218BA
-	for <linux-input@archiver.kernel.org>; Sun, 20 Oct 2019 21:48:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 443E821A4A
+	for <linux-input@archiver.kernel.org>; Mon, 21 Oct 2019 02:27:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="HBXUvt04"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726520AbfJTVsf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 20 Oct 2019 17:48:35 -0400
-Received: from 9.mo68.mail-out.ovh.net ([46.105.78.111]:34858 "EHLO
-        9.mo68.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726374AbfJTVse (ORCPT
+        id S1727001AbfJUC1k (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 20 Oct 2019 22:27:40 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:41136 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726995AbfJUC1k (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 20 Oct 2019 17:48:34 -0400
-X-Greylist: delayed 4199 seconds by postgrey-1.27 at vger.kernel.org; Sun, 20 Oct 2019 17:48:33 EDT
-Received: from player697.ha.ovh.net (unknown [10.109.143.183])
-        by mo68.mail-out.ovh.net (Postfix) with ESMTP id E455D1447B7
-        for <linux-input@vger.kernel.org>; Sun, 20 Oct 2019 22:29:21 +0200 (CEST)
-Received: from etezian.org (81-175-223-118.bb.dnainternet.fi [81.175.223.118])
-        (Authenticated sender: andi@etezian.org)
-        by player697.ha.ovh.net (Postfix) with ESMTPSA id CC385B33638B;
-        Sun, 20 Oct 2019 20:29:15 +0000 (UTC)
-From:   Andi Shyti <andi@etezian.org>
-To:     Linux Input <linux-input@vger.kernel.org>
-Cc:     Seung-Woo Kim <sw0312.kim@samsung.com>,
+        Sun, 20 Oct 2019 22:27:40 -0400
+Received: by mail-pg1-f195.google.com with SMTP id t3so6783703pga.8
+        for <linux-input@vger.kernel.org>; Sun, 20 Oct 2019 19:27:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=+XgAS3p3ETrEIu1jjk49WnshOluu9ziyQFPp12n3bCU=;
+        b=HBXUvt040GMIEwLCNj0cv5hSZlRkL/uSj5D7wLWdq/dK4otL0nVEbSqZR/yA3O2Og9
+         AGWR8nz33JcyPwt0cVzYqNq50Faf18+z3imXfVGexdoVV7YqaTAx1/VUr9tWFd1T5Cbb
+         Tf3GaNcBURk5SkpU/x/jomYDDMhIfJxW71YTg5rvruJX3ueO8ezhfGPDpZ8h4aBGcFO7
+         kumSOPEltTLr+L4+0n9vUg4CWg75RR45G4UAxyVxqOpn3JU7cI+2DI4kkwOVZWPX+nFt
+         EIZgqQsA7otGwkMKpKWeRDE8Vka9aexA24uKnw1PmWmT0weSSgJHTEGbfcCA0RE8KN8b
+         2ajw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=+XgAS3p3ETrEIu1jjk49WnshOluu9ziyQFPp12n3bCU=;
+        b=FzP+/4DXnWpU+tCuK1iEnI6vL42jV33+7ZqBdAPujPjoGgpEC6sn+QPEhMD1FUwRrj
+         a5o52JMY//FIHdsBtdYWrPOn9TnsASolHio2ZXWS8Btt68NwJMjRkJb8TCAktE3rEwla
+         dgx1lo2e4QHkvkJyLOm3Uob+n5E277vdyVxCCio/3ZG02GUuo6EiCGJ4zmjNrpf9aiB6
+         1IY6yPmhchvuYfQF21pZO/qpFprkTkYTsto4RRDOL3NIknmDdVe5mtzGcB6MAZE/md8T
+         vNUMGsYcJAaO2XodVIquRcKIsYG9bbVrL4MIPjsaYRlA69R3vq4C0FjLTIYRjVbd9H6D
+         jt7w==
+X-Gm-Message-State: APjAAAWv/6yROsesf5ym1M0KJe1be4idRNZZ4RL25lNzk3tSh75GJeX2
+        gXgEnmvRAmY/2gtjZ+JtWh71+Q==
+X-Google-Smtp-Source: APXvYqwgXGc8U+6JV2azREgJVpwvucEYJlBr8fKvxMlwaeCP9tIcS23wt/WioWPY0VSEsf3wqmlSTg==
+X-Received: by 2002:a63:4e52:: with SMTP id o18mr11185515pgl.153.1571624859157;
+        Sun, 20 Oct 2019 19:27:39 -0700 (PDT)
+Received: from localhost ([122.172.151.112])
+        by smtp.gmail.com with ESMTPSA id f17sm20835265pgd.8.2019.10.20.19.27.38
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 20 Oct 2019 19:27:38 -0700 (PDT)
+Date:   Mon, 21 Oct 2019 07:57:36 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Joonyoung Shim <jy0922.shim@samsung.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Andi Shyti <andi@etezian.org>
-Subject: [PATCH v2 1/2] Input: mms114 - use smbus functions whenever possible
-Date:   Sun, 20 Oct 2019 23:28:55 +0300
-Message-Id: <20191020202856.20287-2-andi@etezian.org>
-X-Mailer: git-send-email 2.24.0.rc0
-In-Reply-To: <20191020202856.20287-1-andi@etezian.org>
-References: <20191020202856.20287-1-andi@etezian.org>
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mark Brown <broonie@kernel.org>, linux-clk@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-rtc@vger.kernel.org,
+        linux-usb@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH 05/46] ARM: pxa: split up mach/hardware.h
+Message-ID: <20191021022736.yu6unspozqf5634p@vireshk-i7>
+References: <20191018154052.1276506-1-arnd@arndb.de>
+ <20191018154201.1276638-5-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 14096548312903828038
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrkeefgdduhedtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191018154201.1276638-5-arnd@arndb.de>
+User-Agent: NeoMutt/20180716-391-311a52
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The exchange of data to and from the mms114 touchscreen never
-exceeds 256 bytes. In the worst case it goes up to 80 bytes in
-the interrupt handler while reading the events.
+On 18-10-19, 17:41, Arnd Bergmann wrote:
+> The mach/hardware.h is included in lots of places, and it provides
+> three different things on pxa:
+> 
+> - the cpu_is_pxa* macros
+> - an indirect inclusion of mach/addr-map.h
+> - the __REG() and io_pv2() helper macros
+> 
+> Split it up into separate <linux/soc/pxa/cpu.h> and mach/pxa-regs.h
+> headers, then change all the files that use mach/hardware.h to
+> include the exact set of those three headers that they actually
+> need, allowing for further more targeted cleanup.
+> 
+> linux/soc/pxa/cpu.h can remain permanently exported and is now in
+> a global location along with similar headers. pxa-regs.h and
+> addr-map.h are only used in a very small number of drivers now
+> and can be moved to arch/arm/mach-pxa/ directly when those drivers
+> are to pass the necessary data as resources.
+> 
+> Cc: Michael Turquette <mturquette@baylibre.com>
+> Cc: Stephen Boyd <sboyd@kernel.org>
+> Cc: Viresh Kumar <viresh.kumar@linaro.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: Ulf Hansson <ulf.hansson@linaro.org>
+> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: linux-clk@vger.kernel.org
+> Cc: linux-pm@vger.kernel.org
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-leds@vger.kernel.org
+> Cc: linux-mmc@vger.kernel.org
+> Cc: linux-mtd@lists.infradead.org
+> Cc: linux-rtc@vger.kernel.org
+> Cc: linux-usb@vger.kernel.org
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: linux-fbdev@vger.kernel.org
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: alsa-devel@alsa-project.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/cpufreq/pxa2xx-cpufreq.c              |  1 +
+>  drivers/cpufreq/pxa3xx-cpufreq.c              |  1 +
 
-Thus it's not needed to make use of custom read/write functions
-for accessing the i2c. Replace, whenever possible, the use of
-custom functions with the more standard smbus ones.
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 
-It's not possible only in one case, in the mms114_set_active()
-function where the 'cache_mode_control' variable is updated
-according to the value in the register 'MMS114_MODE_CONTROL'
-register.
-
-Signed-off-by: Andi Shyti <andi@etezian.org>
-Tested-by: Seung-Woo Kim <sw0312.kim@samsung.com>
----
- drivers/input/touchscreen/mms114.c | 32 +++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index a5ab774da4cc..170dcb5312b9 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -204,14 +204,15 @@ static irqreturn_t mms114_interrupt(int irq, void *dev_id)
- 	}
- 	mutex_unlock(&input_dev->mutex);
- 
--	packet_size = mms114_read_reg(data, MMS114_PACKET_SIZE);
-+	packet_size = i2c_smbus_read_byte_data(data->client,
-+					       MMS114_PACKET_SIZE);
- 	if (packet_size <= 0)
- 		goto out;
- 
- 	touch_size = packet_size / MMS114_PACKET_NUM;
- 
--	error = __mms114_read_reg(data, MMS114_INFORMATION, packet_size,
--			(u8 *)touch);
-+	error = i2c_smbus_read_i2c_block_data(data->client, MMS114_INFORMATION,
-+					      packet_size, (u8 *)touch);
- 	if (error < 0)
- 		goto out;
- 
-@@ -251,7 +252,8 @@ static int mms114_get_version(struct mms114_data *data)
- 
- 	switch (data->type) {
- 	case TYPE_MMS152:
--		error = __mms114_read_reg(data, MMS152_FW_REV, 3, buf);
-+		error = i2c_smbus_read_i2c_block_data(data->client,
-+						      MMS152_FW_REV, 3, buf);
- 		if (error)
- 			return error;
- 
-@@ -265,7 +267,8 @@ static int mms114_get_version(struct mms114_data *data)
- 		break;
- 
- 	case TYPE_MMS114:
--		error = __mms114_read_reg(data, MMS114_TSP_REV, 6, buf);
-+		error = i2c_smbus_read_i2c_block_data(data->client,
-+						      MMS114_TSP_REV, 6, buf);
- 		if (error)
- 			return error;
- 
-@@ -297,30 +300,35 @@ static int mms114_setup_regs(struct mms114_data *data)
- 
- 	val = (props->max_x >> 8) & 0xf;
- 	val |= ((props->max_y >> 8) & 0xf) << 4;
--	error = mms114_write_reg(data, MMS114_XY_RESOLUTION_H, val);
-+	error = i2c_smbus_write_byte_data(data->client,
-+					  MMS114_XY_RESOLUTION_H, val);
- 	if (error < 0)
- 		return error;
- 
- 	val = props->max_x & 0xff;
--	error = mms114_write_reg(data, MMS114_X_RESOLUTION, val);
-+	error = i2c_smbus_write_byte_data(data->client,
-+					  MMS114_X_RESOLUTION, val);
- 	if (error < 0)
- 		return error;
- 
- 	val = props->max_x & 0xff;
--	error = mms114_write_reg(data, MMS114_Y_RESOLUTION, val);
-+	error = i2c_smbus_write_byte_data(data->client,
-+					  MMS114_Y_RESOLUTION, val);
- 	if (error < 0)
- 		return error;
- 
- 	if (data->contact_threshold) {
--		error = mms114_write_reg(data, MMS114_CONTACT_THRESHOLD,
--				data->contact_threshold);
-+		error = i2c_smbus_write_byte_data(data->client,
-+						  MMS114_CONTACT_THRESHOLD,
-+						  data->contact_threshold);
- 		if (error < 0)
- 			return error;
- 	}
- 
- 	if (data->moving_threshold) {
--		error = mms114_write_reg(data, MMS114_MOVING_THRESHOLD,
--				data->moving_threshold);
-+		error = i2c_smbus_write_byte_data(data->client,
-+						  MMS114_MOVING_THRESHOLD,
-+						  data->moving_threshold);
- 		if (error < 0)
- 			return error;
- 	}
 -- 
-2.24.0.rc0
-
+viresh

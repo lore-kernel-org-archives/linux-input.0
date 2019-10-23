@@ -2,89 +2,115 @@ Return-Path: <SRS0=FNJ7=YQ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECB58CA9EB6
-	for <linux-input@archiver.kernel.org>; Wed, 23 Oct 2019 13:23:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97A90CA9EB9
+	for <linux-input@archiver.kernel.org>; Wed, 23 Oct 2019 13:39:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CDF1021925
-	for <linux-input@archiver.kernel.org>; Wed, 23 Oct 2019 13:23:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 794FC21928
+	for <linux-input@archiver.kernel.org>; Wed, 23 Oct 2019 13:39:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405835AbfJWNXo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 23 Oct 2019 09:23:44 -0400
-Received: from mout.kundenserver.de ([217.72.192.73]:58323 "EHLO
+        id S2405936AbfJWNjy convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 23 Oct 2019 09:39:54 -0400
+Received: from mout.kundenserver.de ([212.227.126.133]:43825 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405812AbfJWNXo (ORCPT
+        with ESMTP id S2392089AbfJWNjy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Oct 2019 09:23:44 -0400
-Received: from mail-qt1-f178.google.com ([209.85.160.178]) by
- mrelayeu.kundenserver.de (mreue108 [212.227.15.145]) with ESMTPSA (Nemesis)
- id 1MpDVx-1hf9pS47iR-00qfp4; Wed, 23 Oct 2019 15:23:42 +0200
-Received: by mail-qt1-f178.google.com with SMTP id w14so32197503qto.9;
-        Wed, 23 Oct 2019 06:23:41 -0700 (PDT)
-X-Gm-Message-State: APjAAAUOEer4RSyYJoTiziHt8cYel+67LG9wADwnk7kk+F0IuyC1ktQY
-        QG1Ro0Qn/r+hOJoQLOSWGVIi/mOzQpv60MzBVto=
-X-Google-Smtp-Source: APXvYqwU3y5YqkOIsK2y7eYvy0ctJhOflxSMk/EdUo4ryq/EKaRqLWAAN8gOEJgyL2Cd6mKUElnaT6RSKuR35fFlkXE=
-X-Received: by 2002:a0c:c70a:: with SMTP id w10mr8851889qvi.222.1571837020471;
- Wed, 23 Oct 2019 06:23:40 -0700 (PDT)
+        Wed, 23 Oct 2019 09:39:54 -0400
+Received: from mail-qt1-f177.google.com ([209.85.160.177]) by
+ mrelayeu.kundenserver.de (mreue010 [212.227.15.129]) with ESMTPSA (Nemesis)
+ id 1Mf0Nm-1hmXPR1EIE-00gboz; Wed, 23 Oct 2019 15:39:51 +0200
+Received: by mail-qt1-f177.google.com with SMTP id o49so24470171qta.7;
+        Wed, 23 Oct 2019 06:39:49 -0700 (PDT)
+X-Gm-Message-State: APjAAAU6rjuILI+dBSQWkepJeZcFXjrhStzYWyvwa71wsCNVgYufVnZt
+        iHt9MtJEPLOwsEVZaopkvY4n9SDmIlf2VoWvAbc=
+X-Google-Smtp-Source: APXvYqyt7m8OnGbGOfKvN6UapNf8Y0PixnD+b/5MFVO15QeK4AzpoE5xCHBxjuJT4OWklHgs4L5FWsrmt4sucJ53v+g=
+X-Received: by 2002:ac8:18eb:: with SMTP id o40mr9289234qtk.304.1571837989082;
+ Wed, 23 Oct 2019 06:39:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20191010202802.1132272-1-arnd@arndb.de> <20191010203043.1241612-1-arnd@arndb.de>
- <20191010203043.1241612-15-arnd@arndb.de> <20191023123722.GD11048@pi3>
-In-Reply-To: <20191023123722.GD11048@pi3>
+References: <20191010202802.1132272-1-arnd@arndb.de> <20191023131049.GG11048@pi3>
+In-Reply-To: <20191023131049.GG11048@pi3>
 From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Wed, 23 Oct 2019 15:23:24 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a13UWnsnTeDQPTDdAXjnwT+-UZchKqezqG+npEuFNK2vg@mail.gmail.com>
-Message-ID: <CAK8P3a13UWnsnTeDQPTDdAXjnwT+-UZchKqezqG+npEuFNK2vg@mail.gmail.com>
-Subject: Re: [PATCH 15/36] ARM: s3c: adc: move header to linux/soc/samsung
+Date:   Wed, 23 Oct 2019 15:39:32 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a1v2-+geD+JbNP-t418ZjntQNSte4rt8c7N6sJdpb3+DQ@mail.gmail.com>
+Message-ID: <CAK8P3a1v2-+geD+JbNP-t418ZjntQNSte4rt8c7N6sJdpb3+DQ@mail.gmail.com>
+Subject: Re: [PATCH 00/36] ARM: samsung platform cleanup
 To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-hwmon@vger.kernel.org,
+Cc:     Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
+        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        linux-leds@vger.kernel.org,
         "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" 
         <linux-samsung-soc@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Kukjin Kim <kgene@kernel.org>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Lihua Yao <ylhuajnu@outlook.com>,
+        Kukjin Kim <kgene@kernel.org>, linux-serial@vger.kernel.org,
         "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        =?UTF-8?Q?Pawe=C5=82_Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        Linux PWM List <linux-pwm@vger.kernel.org>,
+        Sergio Prado <sergio.prado@e-labworks.com>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        Lihua Yao <ylhuajnu@163.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-hwmon@vger.kernel.org, patches@opensource.cirrus.com,
+        USB list <linux-usb@vger.kernel.org>,
+        linux-mmc <linux-mmc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-spi <linux-spi@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:giqxSs+A+LAWYj0Sxj5nusxA8wHxPgN5F7tmxIao8ABk3bArcf2
- zUzbNsCh/ELi1K0kYEtEHgESjQs8HH8mRSfd6UfgD6VoJILtQhIurqpPVu/Y7ppYgCxdeBO
- +KPW8WQc+3tYNDu+wtPaWzmF1d5joeNw55Bk/kXIYjEbT2M7JIc++gbj3x+D9b2+YVUHKmD
- CGd/U+YvZsxVeqmRKKhmQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:c23PmR9jg7U=:6laGSqdsRzet9T20EG8mhj
- lZQ2S+7Lre/1Kzv6tJnOjdHHK8EXjc/R15mmPPfPm5h+MuuAwjf1KuercXzl/j5MPe7UzUoo1
- C63FU6HnEhpnPHPYXb0KDFIlRTu9uAGEZC+XPCSGfbQEmEPYhQqHi/vgYSYfmYXIfzSDPpLN3
- f3cvZ13VuNbUM4x1o1VxHQ327ejTmy8a+Uf/oFKDLRsLl3qjxb+TxwMu0L2G63Sfr+ahQiHe1
- aJ852JJkqrYYBGDGft9v4qKqE2gmq6zGKoMVmFhc3hL2jC4I3GKFyufrGApIxZDOoJhCNjYmx
- OAFKxQB5OJDc4y6PMADDKi5eIUA2dJ5nI6F+Fvq9Y33vABOubg2B+kZgDjs6DrgNgLC1/LQNp
- 5OhBo0KjulvjcuGLeXq9FHG6rzYEFhsQp8nX7/Z9SMlXOhDszKiI6ksfZrl4r4nnXErAPCJQP
- OM0F6N7qjKmaeeE++LrBmfw3YHyvGs3i+ITKviJOiAdL9cIGDI6Itw3jrbwftAbf64tA033LD
- gaFdIIOYwk40PqVyx4ETW/tTJ8EuPAseG17aDzKz8zDxIO5vA8+ubHKCfiONgh6P1oyHOLL6x
- uAmOBPPyB+e4uGE5Zz6LpAj7LOTsfo1gdm/iJMnqPEyfJjOXqwwdOaD3zvv6f1f3mzrt5Zx3b
- KaXpf7+ujMKJBRmpkAprsHhO42e0jXZQJnxNSei2NARCRKJ0Hi2hTtZNzLxPBOwaI3iSqX1Jc
- srxZWs+TDPV0QWZYr3puP+6ixTN95m/CXe0vJ34uuR42GfSxSvdmDFuaz0abdbvy8HQiPB2wA
- y72Fdtkd/7Dz81LMb3+g/uP4lwPBAX6bRtWRxXe0iklXLSqImDosSqnK/QmOlhVi5TG1Wkq13
- XXob4cq0+k4U7jH5cCPA==
+Content-Transfer-Encoding: 8BIT
+X-Provags-ID: V03:K1:NLof35stNYTGVLCCiBOj5shE8fEwjZaac7cdAu2nrrmym/kOcjv
+ Qnfa/3i0a5qyJkyMXctYodBV7VP0bHQaFrXIBjwV/gpmENyzPTQE7+sVihuV4liYROCT33b
+ 9WO8+gy5V2fG2DuQgIo6thaPwkDMewwBExepC4yasYMIPkDiS0zr+8kJODaOpU4HPFc7gMV
+ MPShUYeuOvxdtdljHgfJg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:DaQc5ZGaJsY=:F603/POvpKLPXWa0X1lFEH
+ aQjxfOCxGD/pIMHmKlHcbcFD80Nc+ewErQWmvj+Qgp6xaAE5MxfbNNNrin9LMgRKve0v8GrHu
+ BPPYcLBIJd/tRGzy7EoHKzi1xCTWBRKPuZW+NRo5Q3c4o6tNWGjXzPGUI9xyOYPIzGuB4sxow
+ ECbUMNeq+vtLAQSVxvpHOttzchCbbhPJcjfvA+bQAYJp52FgAuxb7i+4FvHbE4PKIBUfZrfn7
+ RTWpJntJNT2FyPouWE44kX34NjZBTj4rpIcCKzq/vJGEBiexW1JIi5IKVdXZvOH5f6ayOyfG4
+ N5aMRdit65bReN0guN1SsKJ7uFbD0kzxYt0bE1Mf25djeRlbjBl6eNdESrSyRRUYp5EHOfQ/A
+ Sa10vMW4Ena5av/pF9Ivtanmnx43oe8gg/n1e283kgsPXqMvxru3WC5Nzl6w8FtOo8cSrKeIA
+ 4cwYy4vh4ukZW7IvGkXi8VTyHR5QO0uX/EIi41POGGpNZfuz2RZFE3OQuaZ2ZAWDyKIDIkMiS
+ w6MOzO71LwFlzMud8Juwt083ioitXDvT/9TIYbAIAmfnUtb8NIa87LZjq9LnymQfMT/771jDX
+ Pv0pU2J8yDYscI2Ar/9iY65bLYD1odSzwo1yupcBRkEYBk2LtDP2ofqM/FtIHQxHEgUCSL8BF
+ +DQWO4nbj5c/D8V8Rcbk6xIsj3dpX/eZmDwcjBHzixCuvxTtC6bkTqxwxXemSc09w9sXO96BH
+ 8wrLVBqppvA4u9/3mwzDk1TPdUl264mBZECZMuP2bwYmiOyo6CZ+bMP0dYsot7zDsLQZk6JM2
+ zgDILD/0tZiVRCT1r1eA1ueLWwCTN+MFNjGnfX1TAxma6wIGEoHuP9Uzto3sTth328X/tkiaT
+ tiL3D4xHp9lUaPHnTz2w==
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Oct 23, 2019 at 2:41 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
-
-> > diff --git a/arch/arm/plat-samsung/include/plat/adc.h b/include/linux/soc/samsung/s3c-adc.h
-> > similarity index 100%
-> > rename from arch/arm/plat-samsung/include/plat/adc.h
-> > rename to include/linux/soc/samsung/s3c-adc.h
+On Wed, Oct 23, 2019 at 3:11 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
+> On Thu, Oct 10, 2019 at 10:28:02PM +0200, Arnd Bergmann wrote:
+> > The contents are available for testing in
+> >
+> > git://kernel.org:/pub/scm/linux/kernel/git/arnd/playground.git s3c-multiplatform
 >
-> Can you update the name of header guard? __LINUX_SOC_SAMSUNG_S3C_ADC_H?
+> When sending v2, can you Cc:
+>
+> Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+> Lihua Yao <ylhuajnu@outlook.com>
+> (or Lihua Yao <ylhuajnu@163.com> if outlook.com bounces)
+> Sergio Prado <sergio.prado@e-labworks.com>
+> Sylwester Nawrocki <s.nawrocki@samsung.com>
+>
+> These are folks which to my knowledge had working S3C and S5P boards
+> so maybe they could provide testing.
 
-Ok, done.
+Ok, will do. I've uploaded the modified version based on your comments to
+the above URL for now.
 
-       Arnd
+I'll probably give it a little more time before resending, but they
+could already
+start testing that version.
+
+Thanks a lot for the review!
+
+      Arnd

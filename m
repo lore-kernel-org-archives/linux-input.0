@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08A1DC47E49
-	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 13:57:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5F47CA9EBC
+	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 14:01:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CB241222CE
-	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 13:57:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B40BC2246B
+	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 14:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1572011841;
+	s=default; t=1572012101;
 	bh=JhgiOy7W35cOH2G64kH7kdFPGPQuCkXJeZQQJAg3rA8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=pAWzOs4uhfIDMOx3e3YQPy4A2zlhseF1lxK/jExTO/xYMX2D2axu4usYIYu9pjr+m
-	 r317IRPmVehqHTTuveZsoVCT3uGmjOEC+HCIMpbIh8mWhfw04/BImR8V7TyKehXbuq
-	 eG/wNZb9/EVECUjeWOwqBJLmMCcOdck4Hc4b13Q8=
+	b=ZD4obsFlk4+TU6uoyvSxo9VNomD1V29qltG+ngT6Qdd798sR9RQUDR/g4mTV/3J6l
+	 atal6w/zW4uS51XOLf9v+XIqTDhKGsn8/V9cD8sKfx2yd+ov2LIXgnhoFFR+dbKqAo
+	 0lxI+xAjD4CJlrZlLtsA9IBEMtpgBGlrHEtSRTIE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505302AbfJYN5U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 25 Oct 2019 09:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52064 "EHLO mail.kernel.org"
+        id S2505477AbfJYN6H (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Oct 2019 09:58:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505293AbfJYN5U (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:57:20 -0400
+        id S2505469AbfJYN6H (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:58:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B38EE21E6F;
-        Fri, 25 Oct 2019 13:57:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BBD2222C4;
+        Fri, 25 Oct 2019 13:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011839;
+        s=default; t=1572011886;
         bh=JhgiOy7W35cOH2G64kH7kdFPGPQuCkXJeZQQJAg3rA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RsAl1KP5EgW+e0tf+JFy7N67cdcwtzL1Obp6f7nLwTLUy6KS0eoMx8ITDJHsNpriX
-         jgB+9wRbvBExKPdGcmRlkSCC0wRtUZSQAeNFv3kKrtEUKdwbKk8eOSWjZsa16SE0dZ
-         J7fNHDdIeQR3hoqZpw5Vqhibcf7v8VkbWB+GGu5s=
+        b=0/5EX1LCIKy+kl2mJ+i/5O9QF/ZwgPa5yoF8fl8A836YQFcIpgYPuU7juBZLHxYmU
+         u9MMqNm6no0LWo+rMWX5CGh1Z4QPsc1ck/d9JgJmhVzSqEpoJIYDTkUUpQRapciqMR
+         YBzM9pbDrFuZkg1XG64kWdznOXwMhKhF9V0LyBX0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Rene Wagner <redhatbugzilla@callerid.de>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/25] HID: i2c-hid: Add Odys Winbook 13 to descriptor override
-Date:   Fri, 25 Oct 2019 09:56:50 -0400
-Message-Id: <20191025135715.25468-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 02/20] HID: i2c-hid: Add Odys Winbook 13 to descriptor override
+Date:   Fri, 25 Oct 2019 09:57:42 -0400
+Message-Id: <20191025135801.25739-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191025135715.25468-1-sashal@kernel.org>
-References: <20191025135715.25468-1-sashal@kernel.org>
+In-Reply-To: <20191025135801.25739-1-sashal@kernel.org>
+References: <20191025135801.25739-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore

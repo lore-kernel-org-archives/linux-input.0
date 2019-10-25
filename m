@@ -4,84 +4,86 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DCA5CA9EA0
-	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 16:56:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3492CA9EA0
+	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 16:57:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3E8AD21D81
-	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 16:56:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C9A37222BD
+	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 16:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1572022600;
-	bh=vEqQXJuMkHIEFWMJrvuzbIc/2RFpiXpPlmej2bVwQSg=;
+	s=default; t=1572022679;
+	bh=OFmQwqArIeCaT5JpYJbWWa9fQMirQDIN5sBLqlneGXU=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=15DzH3V4fcZ4RP/NGsamrwBcW2uj6Sl/J6izAuXoPJwo3+kQpD86dxosWY63XUIIW
-	 oCzja6i7saog5tz0l7z/8T0hWd89y6O3rMeDRm1p5VKqDfa/OCU5uHS4mx/y7WoSfQ
-	 vM/sSsjwU36FU+lqYQI669tsgIGD+F17vmzXRQGE=
+	b=wlcP4DHzekRykxYTA8VHoYNTfKMfNOxc6Ut40xsnR7NuF4zXq4cqJXE7NsykTa01S
+	 sMHhmCw2hlvE+J1RPU0ga5dDCZnSQz+aWVWMW+ePjhgPG3jK2xZKlAmbDGdKJbQSUY
+	 bmK7yh+US7hnBZUYNiJ9Y4RX3R1H1zEIZcE/XlZM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505763AbfJYQ4j (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 25 Oct 2019 12:56:39 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:36445 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731452AbfJYQ4j (ORCPT
+        id S2633180AbfJYQ54 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Oct 2019 12:57:56 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:42913 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2633153AbfJYQ5z (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Oct 2019 12:56:39 -0400
-Received: by mail-ot1-f65.google.com with SMTP id c7so2530742otm.3;
-        Fri, 25 Oct 2019 09:56:38 -0700 (PDT)
+        Fri, 25 Oct 2019 12:57:55 -0400
+Received: by mail-oi1-f195.google.com with SMTP id i185so2051530oif.9;
+        Fri, 25 Oct 2019 09:57:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=n8vqf9dLwTsGTBgK1g33cr8B5xKtZqiaKcIRTMTeyfE=;
-        b=oavJJYWy3WnRzalHos5FIRdt6MvtwAucFAsk0QVNIMu9ltn5cOBBenDFgZ4iAwQAda
-         SSe5j6WVRCw2UB/XWSgK9O+dK84ggvS2S6RlgdV6BXk+4AvzCXmH6IXCmCB+/PG07TSW
-         CqqfyYROJfO0vAltFjplyWmcbgn84Jvt71URcl1/9FwpNGznrK9EWcjYU53Fb/eIsOre
-         JWzL7/HakV/EW7QbeKCuV1GBByfBc+gUIJnEDqbM2rc/DW5b8vHrFYaFIYBjiro5xo74
-         1QVvBDSLrMqVeQSaBzJ8s4uH3/wI7pRGfVrl5MZAw/y9jdBUqCP52WygZ0wwUB7RmSK0
-         bKiw==
-X-Gm-Message-State: APjAAAVT0WKxinBtnudUmAX/4Jne5n8fDUgYMwwOtnlS+TN01J591dzW
-        u5NcFMnzJycu+yp5zyh9Zw==
-X-Google-Smtp-Source: APXvYqzZLlPI7VNCS+rdHZMnC5H/HwwT3QNxyBcZM13Vjm5DqM8M64uqaWorWzBhJ1Tq+kS+k3kfQA==
-X-Received: by 2002:a9d:4e98:: with SMTP id v24mr3677564otk.58.1572022598242;
-        Fri, 25 Oct 2019 09:56:38 -0700 (PDT)
+        bh=hq9rx4uZQsLcywYZ8a8zWtFe+JHQBE/zXzg6s+nJ+pU=;
+        b=QZii1/sNkjEdJvTbUEVCUGWHcco6FXaW7JDf9Ex2l7BVlJy1MmI8qTGs0rhF1+yqNJ
+         IXTPcbR0mkQ/8roolQEa1bMEywbq4/+cG7T0e/NfvvGmpE5FYfzUOLuYn9FTudQaOnPv
+         JKDgSV3ZuRc9FruOiKRCqnFswlE1SaDROKlko4pLKdiaBXja8CgORvNVt6n2Pamxf4PG
+         bUYimdL1IXRf/iyg008bjTZMLd+cdNHs2/bVu3AWNhhLX/TAiajqhldkw7Cl+Pv733t9
+         k/1tFYOwM0G6F5W7xR6me4LvEUswVVRCRH+MM9bJBfWrSckjT1EcNNk/vHnxrmSNha0U
+         CPSg==
+X-Gm-Message-State: APjAAAWY0J8aNhbT0M5v1kVds72FmMSYVjjXuz6u9nJowsl3m06Ojm9H
+        cepsRrC2Pg+7C/XLy2CS0bbhvpI=
+X-Google-Smtp-Source: APXvYqyAkVeN+VUGzwpWfNbuaHqU75wGHHJARoXofxTxatKCJ0VHMOLlyBDlykfgv602riq0RIfVgQ==
+X-Received: by 2002:aca:2b10:: with SMTP id i16mr3694345oik.43.1572022674653;
+        Fri, 25 Oct 2019 09:57:54 -0700 (PDT)
 Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id c19sm884854otl.6.2019.10.25.09.56.36
+        by smtp.gmail.com with ESMTPSA id t18sm867806otm.8.2019.10.25.09.57.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Oct 2019 09:56:36 -0700 (PDT)
-Date:   Fri, 25 Oct 2019 11:56:36 -0500
+        Fri, 25 Oct 2019 09:57:54 -0700 (PDT)
+Date:   Fri, 25 Oct 2019 11:57:53 -0500
 From:   Rob Herring <robh@kernel.org>
 To:     Bartosz Golaszewski <brgl@bgdev.pl>
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
         linux-pm@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PATCH v4 2/6] dt-bindings: regulator: max77650: convert the
- binding document to yaml
-Message-ID: <20191025165636.GA26878@bogus>
+Subject: Re: [PATCH v4 3/6] dt-bindings: power: max77650: convert the binding
+ document to yaml
+Message-ID: <20191025165753.GA28678@bogus>
 References: <20191021124428.2541-1-brgl@bgdev.pl>
- <20191021124428.2541-3-brgl@bgdev.pl>
+ <20191021124428.2541-4-brgl@bgdev.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191021124428.2541-3-brgl@bgdev.pl>
+In-Reply-To: <20191021124428.2541-4-brgl@bgdev.pl>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 21 Oct 2019 14:44:24 +0200, Bartosz Golaszewski wrote:
+On Mon, 21 Oct 2019 14:44:25 +0200, Bartosz Golaszewski wrote:
 > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 > 
-> Convert the binding document for MAX77650 regulator module to YAML.
+> Convert the binding document for MAX77650 charger module to YAML.
 > 
 > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> Acked-by: Sebastian Reichel <sre@kernel.org>
 > ---
->  .../bindings/regulator/max77650-regulator.txt | 41 -------------------
->  .../regulator/max77650-regulator.yaml         | 31 ++++++++++++++
->  2 files changed, 31 insertions(+), 41 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/regulator/max77650-regulator.txt
->  create mode 100644 Documentation/devicetree/bindings/regulator/max77650-regulator.yaml
+>  .../power/supply/max77650-charger.txt         | 28 ---------------
+>  .../power/supply/max77650-charger.yaml        | 34 +++++++++++++++++++
+>  2 files changed, 34 insertions(+), 28 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+>  create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.yaml
 > 
 
 Reviewed-by: Rob Herring <robh@kernel.org>

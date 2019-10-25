@@ -2,78 +2,94 @@ Return-Path: <SRS0=0DbS=YS=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AB47CA9EA0
-	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 21:05:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0139ACA9EA0
+	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 21:18:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DEE2221D7B
-	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 21:05:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD5C32084C
+	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 21:18:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JC5Cm9f1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725783AbfJYVFA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 25 Oct 2019 17:05:00 -0400
-Received: from freundtech.com ([78.47.86.165]:46980 "EHLO freundtech.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725283AbfJYVFA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Oct 2019 17:05:00 -0400
-Received: from arch-desktop.local (unknown [IPv6:2a02:8071:2b91:e400:8dde:ba23:ec46:35e3])
-        by freundtech.com (Postfix) with ESMTPSA id CF4DD1E6127;
-        Fri, 25 Oct 2019 23:04:58 +0200 (CEST)
-From:   Adrian Freund <adrian@freund.io>
-To:     linux-input@vger.kernel.org
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Adrian Freund <adrian@freund.io>
-Subject: [PATCH v3] HID: logitech: Add MX Master 3 Mouse
-Date:   Fri, 25 Oct 2019 22:59:29 +0200
-Message-Id: <20191025205928.87295-1-adrian@freund.io>
-X-Mailer: git-send-email 2.23.0
+        id S1725811AbfJYVSC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Oct 2019 17:18:02 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:34928 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725783AbfJYVSB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Oct 2019 17:18:01 -0400
+Received: by mail-pg1-f196.google.com with SMTP id c8so2359214pgb.2
+        for <linux-input@vger.kernel.org>; Fri, 25 Oct 2019 14:18:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=TM/SLZ1KgBcRGRw095P4EAfILp7FQAa6pFdS1rVxB0k=;
+        b=JC5Cm9f1+xUHZzWkaORDxHwBl3jMX2UMx68ac94vAimDiFf5in4zMjeRQZdzFj/ACX
+         KnlJw983bcvxCuGF80iNTUQ0FXNNFt+xZeJUCqA5go+1H75oBz4nSMO9mGFPRzWZtl/w
+         P6jfyG9m4yRTq9/NIXZvO1yxYohrLvAxml1F0/wxxY5/z8HhJiiNfXoILao3CPH5qRa4
+         jAlw8na+sKHnI4r1FUD8EGvoFi74CLFy4xhKTpFXh39S3RiIQd9gdnukHiExzFXdqt1y
+         9PtCtW3jMmY/LNcHFWW6Mgru8iOdlT/V9sCg7xDjk6SYj0bKLndF+NEc9dAUqp8XbmSF
+         zc0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=TM/SLZ1KgBcRGRw095P4EAfILp7FQAa6pFdS1rVxB0k=;
+        b=uFXlDrXR9SUmJ+KBqmI/G59GvxpKMEm5ZdXAELzxAvq/nJ6ZY+IifARpvg9T0on3UD
+         jF/10emDSMb8KQ00pxjSrsDaXFuSn7L14KyU9+AEg2rj0TTOQDI34IH6w34urT+qCJop
+         VQqolIeaKJ1B/AsMXpMU7zn/gLqHMwHX9NIl3yviYu3Qr4dXfBCw6tKquZxrJqRFp6Ld
+         jX0T/Bje+0iDl0J/xQafcX4GOZt74syrzqW9DbIaAV9nBpEhy7jGzIuXRGQJuodLplAn
+         PHjxpSkkS9zkqwPqlF/bm/qybS65gtKqdZLrG4B73CKtPyA0tZGTeYK8GhGzY06DQdFr
+         NW1A==
+X-Gm-Message-State: APjAAAUxeOZkCCXh4VPLKtzOxlSJVYhgW2//mv0LvELJD+rlKDeynZ1J
+        ovXaosfVjR1M10+J70atZqU=
+X-Google-Smtp-Source: APXvYqzi8ihFoecGuB3PPlwzS3gOnVydAfE54HxZI3z5rj7iHlGmI35qiXs4nQUcZBpxT24j2cqiYQ==
+X-Received: by 2002:a63:5417:: with SMTP id i23mr7018630pgb.305.1572038280882;
+        Fri, 25 Oct 2019 14:18:00 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
+        by smtp.gmail.com with ESMTPSA id m34sm3602283pgb.26.2019.10.25.14.18.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Oct 2019 14:18:00 -0700 (PDT)
+Date:   Fri, 25 Oct 2019 14:17:58 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Saiyam Doshi <saiyamdoshi.in@gmail.com>
+Cc:     robh@kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH] input: touchscreen: Add NULL pointer check before
+ dereference
+Message-ID: <20191025211758.GC163068@dtor-ws>
+References: <20190901182309.GA5574@ahmlpt0706>
+ <20191024180822.GA6408@SD>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191024180822.GA6408@SD>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch adds support for the Logitech MX Master 3 Mouse using the
-Logitech Unifying Receiver and Bluetooth LE.
+Hi Saiyam,
 
-Signed-off-by: Adrian Freund <adrian@freund.io>
----
-v3:
-  - rebased on top of https://patchwork.kernel.org/project/linux-input/list/?series=190445
-  - Added bluetooth id
+On Thu, Oct 24, 2019 at 11:38:22PM +0530, Saiyam Doshi wrote:
+> On Sun, Sep 01, 2019 at 11:53:09PM +0530, Saiyam Doshi wrote:
+> > In sx8654_probe function, if call to device_get_match_data()
+> > return NULL, it dereferences driver_data from 'id'.
+> > 
+> > To avoid NULL pointer dereference, add check to make sure
+> > 'id' is not NULL.
+> 
+> Any review / update on this?
 
-v2:
-  - added Signed-off-by line
----
- drivers/hid/hid-logitech-hidpp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Can you please explain under what circumstances we can get NULL from
+device_get_match_data() in this driver?
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 23baf9b09c48..74f2517d88d5 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -3793,6 +3793,8 @@ static const struct hid_device_id hidpp_devices[] = {
- 	{ LDJ_DEVICE(0x4071), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
- 	{ /* Mouse Logitech MX Master 2S */
- 	  LDJ_DEVICE(0x4069), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
-+	{ /* Mouse Logitech MX Master 3 */
-+	  LDJ_DEVICE(0x4082), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
- 	{ /* Mouse Logitech Performance MX */
- 	  LDJ_DEVICE(0x101a), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_1P0 },
- 	{ /* Keyboard logitech K400 */
-@@ -3854,6 +3856,9 @@ static const struct hid_device_id hidpp_devices[] = {
- 	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
- 	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
-+	{ /* MX Master 3 mouse over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb023),
-+	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
- 	{}
- };
- 
+Thanks.
+
 -- 
-2.23.0
-
+Dmitry

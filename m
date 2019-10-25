@@ -2,99 +2,86 @@ Return-Path: <SRS0=0DbS=YS=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EE57CA9EBD
-	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 14:05:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DCA5CA9EA0
+	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 16:56:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EE51A21D7B
-	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 14:05:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E8AD21D81
+	for <linux-input@archiver.kernel.org>; Fri, 25 Oct 2019 16:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1572012332;
-	bh=JhgiOy7W35cOH2G64kH7kdFPGPQuCkXJeZQQJAg3rA8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=yAVWJHri5zliVpXDMK07pgO9ccKSvqbE6ozPNHWrXUFZQgnbdGTyFmmRnwoir/Kay
-	 uz1OGnL3+4hxHNeJ2PogsiNWsX3KPhGSRo3ZpN3deRBDhgvfRDgoqxpvr50tSwB1xF
-	 r/0GkuM2VlWqe6OyMH8SW46OLMd6LQ9NpE2PNsOk=
+	s=default; t=1572022600;
+	bh=vEqQXJuMkHIEFWMJrvuzbIc/2RFpiXpPlmej2bVwQSg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=15DzH3V4fcZ4RP/NGsamrwBcW2uj6Sl/J6izAuXoPJwo3+kQpD86dxosWY63XUIIW
+	 oCzja6i7saog5tz0l7z/8T0hWd89y6O3rMeDRm1p5VKqDfa/OCU5uHS4mx/y7WoSfQ
+	 vM/sSsjwU36FU+lqYQI669tsgIGD+F17vmzXRQGE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395285AbfJYOF0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 25 Oct 2019 10:05:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50328 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2632777AbfJYN4I (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:56:08 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECCF821D7F;
-        Fri, 25 Oct 2019 13:56:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011767;
-        bh=JhgiOy7W35cOH2G64kH7kdFPGPQuCkXJeZQQJAg3rA8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YoOY0iq31iN5GM9L57wpvtNFYjxd6j9OcWq6yr3nmcwn6ky274PCMwAKJ7AVX89Z/
-         3BwFTT4xV1irW2dlou7kXatXWRCxI3dCpJELhAO2m6tLq99AG7jcFnDR1Q8gbJxr+5
-         wA/BrkxI3dR3VxdpBLaYStcj6Yl2jMy1/WjIWf04=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Rene Wagner <redhatbugzilla@callerid.de>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/37] HID: i2c-hid: Add Odys Winbook 13 to descriptor override
-Date:   Fri, 25 Oct 2019 09:55:26 -0400
-Message-Id: <20191025135603.25093-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191025135603.25093-1-sashal@kernel.org>
-References: <20191025135603.25093-1-sashal@kernel.org>
+        id S2505763AbfJYQ4j (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Oct 2019 12:56:39 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:36445 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731452AbfJYQ4j (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Oct 2019 12:56:39 -0400
+Received: by mail-ot1-f65.google.com with SMTP id c7so2530742otm.3;
+        Fri, 25 Oct 2019 09:56:38 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=n8vqf9dLwTsGTBgK1g33cr8B5xKtZqiaKcIRTMTeyfE=;
+        b=oavJJYWy3WnRzalHos5FIRdt6MvtwAucFAsk0QVNIMu9ltn5cOBBenDFgZ4iAwQAda
+         SSe5j6WVRCw2UB/XWSgK9O+dK84ggvS2S6RlgdV6BXk+4AvzCXmH6IXCmCB+/PG07TSW
+         CqqfyYROJfO0vAltFjplyWmcbgn84Jvt71URcl1/9FwpNGznrK9EWcjYU53Fb/eIsOre
+         JWzL7/HakV/EW7QbeKCuV1GBByfBc+gUIJnEDqbM2rc/DW5b8vHrFYaFIYBjiro5xo74
+         1QVvBDSLrMqVeQSaBzJ8s4uH3/wI7pRGfVrl5MZAw/y9jdBUqCP52WygZ0wwUB7RmSK0
+         bKiw==
+X-Gm-Message-State: APjAAAVT0WKxinBtnudUmAX/4Jne5n8fDUgYMwwOtnlS+TN01J591dzW
+        u5NcFMnzJycu+yp5zyh9Zw==
+X-Google-Smtp-Source: APXvYqzZLlPI7VNCS+rdHZMnC5H/HwwT3QNxyBcZM13Vjm5DqM8M64uqaWorWzBhJ1Tq+kS+k3kfQA==
+X-Received: by 2002:a9d:4e98:: with SMTP id v24mr3677564otk.58.1572022598242;
+        Fri, 25 Oct 2019 09:56:38 -0700 (PDT)
+Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id c19sm884854otl.6.2019.10.25.09.56.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Oct 2019 09:56:36 -0700 (PDT)
+Date:   Fri, 25 Oct 2019 11:56:36 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-pm@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH v4 2/6] dt-bindings: regulator: max77650: convert the
+ binding document to yaml
+Message-ID: <20191025165636.GA26878@bogus>
+References: <20191021124428.2541-1-brgl@bgdev.pl>
+ <20191021124428.2541-3-brgl@bgdev.pl>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191021124428.2541-3-brgl@bgdev.pl>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+On Mon, 21 Oct 2019 14:44:24 +0200, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> Convert the binding document for MAX77650 regulator module to YAML.
+> 
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ---
+>  .../bindings/regulator/max77650-regulator.txt | 41 -------------------
+>  .../regulator/max77650-regulator.yaml         | 31 ++++++++++++++
+>  2 files changed, 31 insertions(+), 41 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/regulator/max77650-regulator.txt
+>  create mode 100644 Documentation/devicetree/bindings/regulator/max77650-regulator.yaml
+> 
 
-[ Upstream commit f8f807441eefddc3c6d8a378421f0ede6361d565 ]
-
-The Odys Winbook 13 uses a SIPODEV SP1064 touchpad, which does not
-supply descriptors, add this to the DMI descriptor override list, fixing
-the touchpad not working.
-
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1526312
-Reported-by: Rene Wagner <redhatbugzilla@callerid.de>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index cac262a912c12..c5ac23b75143a 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -338,6 +338,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Odys Winbook 13",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AXDIA International GmbH"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "WINBOOK 13"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{ }	/* Terminate list */
- };
- 
--- 
-2.20.1
-
+Reviewed-by: Rob Herring <robh@kernel.org>

@@ -2,105 +2,157 @@ Return-Path: <SRS0=IZ7M=YU=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F1A3CA9EAF
-	for <linux-input@archiver.kernel.org>; Sun, 27 Oct 2019 18:16:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A984ECA9EBD
+	for <linux-input@archiver.kernel.org>; Sun, 27 Oct 2019 21:38:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1D9FB20873
-	for <linux-input@archiver.kernel.org>; Sun, 27 Oct 2019 18:16:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OlSWBvCS"
+	by mail.kernel.org (Postfix) with ESMTP id 7BB99205F4
+	for <linux-input@archiver.kernel.org>; Sun, 27 Oct 2019 21:38:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1572212289;
+	bh=ejTMU2PKQBIvXRez9MZn4+fwYEV5lq+acuqnLFVTjRk=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=m43ztKSwSLBhvihEWW/irnC7KUOKVNoia7AZA0Q45HlH6dhaxZBmEEyge2VJInkwO
+	 7DLgHO/jaJnsc+VWdQLS9MwAL9m0HO7I5yYnm/eGY60/4XBBovkp/ZgKjHOdK0paQs
+	 +A/IdS8mSJ+Dp/gQEMySkvSmiNCo8eiUBgWnm/aI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727762AbfJ0SQG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 27 Oct 2019 14:16:06 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:40357 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727069AbfJ0SQG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 27 Oct 2019 14:16:06 -0400
-Received: by mail-pg1-f195.google.com with SMTP id 15so4936984pgt.7
-        for <linux-input@vger.kernel.org>; Sun, 27 Oct 2019 11:16:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=1W2XoEVtGuc2XUNTJQlDvRVLQe73jWZqsSbUfxLeNr8=;
-        b=OlSWBvCSBmUAo7FV77uZWdByUf6ytfhM4THD9accu6g129Ct/KVo0sRezHLkYbO7On
-         xY7pyzmjmBE5WJVVRRjz+qfPwV6yjWZnQfgvoo1aTYa3/hpCyvQk+PbKZ16mHjrJ88r0
-         wTpNL8eydwCxqIpM2iPUdQNFHg0UhM0wogn1ONM/VFOWfBNICi5N1zwwMS51usPkGWPn
-         jGPa+Lv+li3qmqtk2q8c+bgEoPo2iYa+2lfceqj58Jf+REc1VdWeQSJin5abMwSjUhyQ
-         h35Wu4uZQjk4HkTQyFRJMuJYOIwRAgs5zgyyYHKIK/v04BHJHUlgIknTMGAhVmaDT+5W
-         DaqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=1W2XoEVtGuc2XUNTJQlDvRVLQe73jWZqsSbUfxLeNr8=;
-        b=YcQGvvZfNIIWxtoHOpptnI/cnlQDkHKoTIbn6luegMZqhU1i9urOvOxlc4TfDgn25J
-         raTJ9uEHAXixuLnFgBN5gPDvDTlSFEkv1IZ3ZihvVD1coWEDJ1na9SlCDPMkWTXvADj2
-         K+iT611J/+CFHFP4U7JkasowmmI/ale0dHmMdK7/YVvrsPoN7DovudIUnJEH1a6xAvmV
-         Wm4pmJp9uOdEP+Hfj9QuKr8e796HrIH7JDVSK2vmDSki11Y7jEMzYPbUYMFAZb2p2xTe
-         BVWEICczgPREoJ1MdWPjmMdgc8MIRuDPbjVon6tlUjKQMTQE3oCswQ6YC7amcn3xY/D7
-         Ti3g==
-X-Gm-Message-State: APjAAAVdhQ7BDdFkcNzCqujdRlFPPY6bV25nz2Q+sxO/KwjlaoVUfxrG
-        9jkrkR77jAZ7aP72KB0xk8lJu/Uj
-X-Google-Smtp-Source: APXvYqysTFowgX8Ow2P9EAKwvVejXNYNsHt9RFmvImjSu1BxZ7/5eHflkHSQN0FzACynW4aUpfqlog==
-X-Received: by 2002:a17:90a:b118:: with SMTP id z24mr1994546pjq.120.1572200164304;
-        Sun, 27 Oct 2019 11:16:04 -0700 (PDT)
-Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id x12sm8429774pfm.130.2019.10.27.11.16.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Oct 2019 11:16:02 -0700 (PDT)
-Date:   Sun, 27 Oct 2019 11:16:00 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Fabio Estevam <festevam@gmail.com>
-Cc:     linux-input@vger.kernel.org
-Subject: Re: [PATCH 3/3] Input: wacom_i2c - remove unneeded gpio.h header file
-Message-ID: <20191027181600.GF163068@dtor-ws>
-References: <20191026185958.24158-1-festevam@gmail.com>
- <20191026185958.24158-3-festevam@gmail.com>
+        id S1729791AbfJ0ViI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 27 Oct 2019 17:38:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49666 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728507AbfJ0VEE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:04:04 -0400
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46EB6222BE;
+        Sun, 27 Oct 2019 21:04:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572210243;
+        bh=ejTMU2PKQBIvXRez9MZn4+fwYEV5lq+acuqnLFVTjRk=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=YS5blBDgCLLdaVUBscufdzFBWqilByx/mzOp2lPJdgTGefAY0qo7zl3CToLksevf5
+         RXNIWsBQgj8DjxJbSlCw5u0MnvbfSlZbd31dvvM2s/w15qFbLDC356zis+nFLypp+y
+         yuu51CWefzALIDqXy6XOnj/tfiMfRjVJ+DlH3lgg=
+Received: by mail-qk1-f180.google.com with SMTP id w2so6699615qkf.2;
+        Sun, 27 Oct 2019 14:04:03 -0700 (PDT)
+X-Gm-Message-State: APjAAAWQjCkEogmbS7F72uuk9gf6P1BLLMRa82DuhREgwqfdZjxmB47d
+        as/hJcrlWEMSmkan7tzNtZ8AFkbXZ01qJPtpjA==
+X-Google-Smtp-Source: APXvYqxH6jcRbIdQqMyzEbVP8RBOqjV1tIloJha8kSXqB1poy40CPrXvcGOaIctBmE89+n7Vi2T5C7riiCYexD1eFZE=
+X-Received: by 2002:a37:9847:: with SMTP id a68mr13244112qke.223.1572210242357;
+ Sun, 27 Oct 2019 14:04:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191026185958.24158-3-festevam@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20191021124428.2541-1-brgl@bgdev.pl> <CAMRc=MeYS+rQMCEc_z1FudnremUhUsXnxdcB2heF6qdtOkH9uQ@mail.gmail.com>
+In-Reply-To: <CAMRc=MeYS+rQMCEc_z1FudnremUhUsXnxdcB2heF6qdtOkH9uQ@mail.gmail.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Sun, 27 Oct 2019 16:03:51 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqK+6-pz6gQyW3ZEEb6_2AOzwsM0aDZ1PwVCLy-=OeSjhw@mail.gmail.com>
+Message-ID: <CAL_JsqK+6-pz6gQyW3ZEEb6_2AOzwsM0aDZ1PwVCLy-=OeSjhw@mail.gmail.com>
+Subject: Re: [PATCH v4 0/6] dt-bindings: max77650: convert the device-tree
+ bindings to yaml
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     Linux Input <linux-input@vger.kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Lee Jones <lee.jones@linaro.org>, Dan Murphy <dmurphy@ti.com>,
+        Linux LED Subsystem <linux-leds@vger.kernel.org>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, Oct 26, 2019 at 03:59:58PM -0300, Fabio Estevam wrote:
-> There is no gpio functions used in the driver that is exported
-> by the gpio.h header, so remove this unneeded header.
-> 
-> Signed-off-by: Fabio Estevam <festevam@gmail.com>
+On Sat, Oct 26, 2019 at 6:54 AM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+>
+> pon., 21 pa=C5=BA 2019 o 14:44 Bartosz Golaszewski <brgl@bgdev.pl> napisa=
+=C5=82(a):
+> >
+> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> >
+> > This series converts all DT binding documents for MAX77650 PMIC to YAML=
+.
+> >
+> > v1 -> v2:
+> > - use upper case for abbreviations in commit messages
+> >
+> > v2 -> v3:
+> > - pull all example fragments into the binding document for the core MFD=
+ module
+> > - fix all dt_binding_check errors
+> > - add references to submodules to the main binding document
+> > - drop the type for gpio-line-names
+> > - drop the description for the interrupts property
+> > - completely delete the previous txt files
+> >
+> > v3 -> v4:
+> > - remove unnecessary parts of descriptions, added details on the chip
+> > - correct file references (.txt -> .yaml)
+> > - fix mixing scalar and array constraints
+> > - dropped type refs for globally defined properties
+> >
+> > Bartosz Golaszewski (6):
+> >   dt-bindings: input: max77650: convert the binding document to yaml
+> >   dt-bindings: regulator: max77650: convert the binding document to yam=
+l
+> >   dt-bindings: power: max77650: convert the binding document to yaml
+> >   dt-bindings: leds: max77650: convert the binding document to yaml
+> >   dt-bindings: mfd: max77650: convert the binding document to yaml
+> >   MAINTAINERS: update the list of maintained files for max77650
+> >
+> >  .../bindings/input/max77650-onkey.txt         |  26 ---
+> >  .../bindings/input/max77650-onkey.yaml        |  35 ++++
+> >  .../bindings/leds/leds-max77650.txt           |  57 -------
+> >  .../bindings/leds/leds-max77650.yaml          |  51 ++++++
+> >  .../devicetree/bindings/mfd/max77650.txt      |  46 ------
+> >  .../devicetree/bindings/mfd/max77650.yaml     | 149 ++++++++++++++++++
+> >  .../power/supply/max77650-charger.txt         |  28 ----
+> >  .../power/supply/max77650-charger.yaml        |  34 ++++
+> >  .../bindings/regulator/max77650-regulator.txt |  41 -----
+> >  .../regulator/max77650-regulator.yaml         |  31 ++++
+> >  MAINTAINERS                                   |   4 +-
+> >  11 files changed, 302 insertions(+), 200 deletions(-)
+> >  delete mode 100644 Documentation/devicetree/bindings/input/max77650-on=
+key.txt
+> >  create mode 100644 Documentation/devicetree/bindings/input/max77650-on=
+key.yaml
+> >  delete mode 100644 Documentation/devicetree/bindings/leds/leds-max7765=
+0.txt
+> >  create mode 100644 Documentation/devicetree/bindings/leds/leds-max7765=
+0.yaml
+> >  delete mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
+> >  create mode 100644 Documentation/devicetree/bindings/mfd/max77650.yaml
+> >  delete mode 100644 Documentation/devicetree/bindings/power/supply/max7=
+7650-charger.txt
+> >  create mode 100644 Documentation/devicetree/bindings/power/supply/max7=
+7650-charger.yaml
+> >  delete mode 100644 Documentation/devicetree/bindings/regulator/max7765=
+0-regulator.txt
+> >  create mode 100644 Documentation/devicetree/bindings/regulator/max7765=
+0-regulator.yaml
+> >
+> > --
+> > 2.23.0
+> >
+>
+> Hi Rob,
+>
+> thanks for reviewing the series. Can you please take it through your
+> tree for v5.5? I think it'll be easier than bothering all the
+> respective maintainers and it only touches on bindings anyway.
 
-Applied, thank you.
+Okay, series applied.
 
-> ---
->  drivers/input/touchscreen/wacom_i2c.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/wacom_i2c.c b/drivers/input/touchscreen/wacom_i2c.c
-> index f017af8c2aa3..1afc6bde2891 100644
-> --- a/drivers/input/touchscreen/wacom_i2c.c
-> +++ b/drivers/input/touchscreen/wacom_i2c.c
-> @@ -12,7 +12,6 @@
->  #include <linux/slab.h>
->  #include <linux/irq.h>
->  #include <linux/interrupt.h>
-> -#include <linux/gpio.h>
->  #include <asm/unaligned.h>
->  
->  #define WACOM_CMD_QUERY0	0x04
-> -- 
-> 2.17.1
-> 
-
--- 
-Dmitry
+Rob

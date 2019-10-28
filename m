@@ -6,25 +6,25 @@ X-Spam-Status: No, score=-3.7 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
 	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08ABACA9EC0
-	for <linux-input@archiver.kernel.org>; Mon, 28 Oct 2019 21:31:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11A7DCA9EC0
+	for <linux-input@archiver.kernel.org>; Mon, 28 Oct 2019 21:33:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D4613208C0
-	for <linux-input@archiver.kernel.org>; Mon, 28 Oct 2019 21:31:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DDB2A218AC
+	for <linux-input@archiver.kernel.org>; Mon, 28 Oct 2019 21:33:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730003AbfJ1Vb0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 28 Oct 2019 17:31:26 -0400
-Received: from smtp09.smtpout.orange.fr ([80.12.242.131]:36984 "EHLO
+        id S1726234AbfJ1VdL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 28 Oct 2019 17:33:11 -0400
+Received: from smtp09.smtpout.orange.fr ([80.12.242.131]:22377 "EHLO
         smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729979AbfJ1Vb0 (ORCPT
+        with ESMTP id S1730448AbfJ1VdL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Oct 2019 17:31:26 -0400
+        Mon, 28 Oct 2019 17:33:11 -0400
 Received: from belgarion ([90.55.204.252])
         by mwinf5d17 with ME
-        id K9XP2100H5TFNlm039XPai; Mon, 28 Oct 2019 22:31:24 +0100
+        id K9Z82100Q5TFNlm039Z9fU; Mon, 28 Oct 2019 22:33:09 +0100
 X-ME-Helo: belgarion
 X-ME-Auth: amFyem1pay5yb2JlcnRAb3JhbmdlLmZy
-X-ME-Date: Mon, 28 Oct 2019 22:31:24 +0100
+X-ME-Date: Mon, 28 Oct 2019 22:33:09 +0100
 X-ME-IP: 90.55.204.252
 From:   Robert Jarzmik <robert.jarzmik@free.fr>
 To:     Arnd Bergmann <arnd@arndb.de>
@@ -34,14 +34,14 @@ Cc:     Daniel Mack <daniel@zonque.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org
-Subject: Re: [PATCH 26/46] ARM: pxa: zylonite: use gpio lookup instead mfp header
+Subject: Re: [PATCH 27/46] input: touchscreen: mainstone: fix pxa2xx+pxa3xx configuration
 References: <20191018154052.1276506-1-arnd@arndb.de>
-        <20191018154201.1276638-26-arnd@arndb.de>
+        <20191018154201.1276638-27-arnd@arndb.de>
 X-URL:  http://belgarath.falguerolles.org/
-Date:   Mon, 28 Oct 2019 22:31:23 +0100
-In-Reply-To: <20191018154201.1276638-26-arnd@arndb.de> (Arnd Bergmann's
-        message of "Fri, 18 Oct 2019 17:41:41 +0200")
-Message-ID: <8736fclfpw.fsf@belgarion.home>
+Date:   Mon, 28 Oct 2019 22:33:08 +0100
+In-Reply-To: <20191018154201.1276638-27-arnd@arndb.de> (Arnd Bergmann's
+        message of "Fri, 18 Oct 2019 17:41:42 +0200")
+Message-ID: <87y2x4k12j.fsf@belgarion.home>
 User-Agent: Gnus/5.130008 (Ma Gnus v0.8) Emacs/26 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain
@@ -52,9 +52,11 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Arnd Bergmann <arnd@arndb.de> writes:
 
-> The mach/mfp.h header is only used by this one driver
-> for hardcoded gpio numbers. Change that to use a lookup
-> table instead.
+> There are two different ways of flushing the ac97 queue
+> in this driver, selected by a compile time option.
+>
+> Change this to a runtime selection to make it work when both
+> are enabled.
 >
 > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > Cc: linux-input@vger.kernel.org

@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6665CCA9EC2
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A47C7CA9EC4
 	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:24:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3F69920862
+	by mail.kernel.org (Postfix) with ESMTP id 8322720862
 	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:24:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727654AbfJ2HX4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Oct 2019 03:23:56 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:41267 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730405AbfJ2HVP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
+        id S1730377AbfJ2HVP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 29 Oct 2019 03:21:15 -0400
-IronPort-SDR: tHa+BnwYCsWurXeM1sF6c/qmXGK48G70rd7EiR32x+UbzZpdzBYcubbvfLM7Oxj42o6l1K3PVS
- YsK3P1/4JlHN8PcPqfBYno5o9H7/tM8all5Dl9bjo1/UwzpPoVPXzypt1LbRNq2qNpfLv13NIR
- UPxCq6QKhI8MZSkI4Fm9Boyz1piQ8UTeNqARXa2QHck2zYBCPl4WZkfGHRbGsA0DiE5JPZ0F2d
- Ezf4EP2/uQP7PctEOee0ZGNdK2dYv5cwhCYkKNHgti9DgellGRHEsv5GmBT0Zas7OUrh1CuL4x
- AHE=
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:41262 "EHLO
+        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728101AbfJ2HVO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 29 Oct 2019 03:21:14 -0400
+IronPort-SDR: qkPmCM3I3VSsDzbtspmI5bnQjRTXZo9ZWpi5fElepKGIvWB2pKrmLeiVsZbPikZxhOUzNncXkA
+ bIhQZzh82tWDsilOV0X9T71Yhj66t9sHH0+B4A09pXeq5iUhnnvvoQytXZT8SKP0xg6hNZCDeQ
+ iqZQsouDORvYyB5veO5RnWL3sHQaRdLrdZAC/dpwmIM4pUTY+zHIfUgqo7f3nHLGlg1/cMcb+H
+ FTadJABJi9ceTilKyVu7KRBTIRuBdBxbOVMZ6Sb9BTrZ483WB9An9l4E3gFJzr9I2UdqxU4FaW
+ nIo=
 X-IronPort-AV: E=Sophos;i="5.68,243,1569312000"; 
-   d="scan'208";a="42663234"
+   d="scan'208";a="42663229"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:05 -0800
-IronPort-SDR: Mwyz0CmQjRNK5Cm+cYVz7t8jSIztEfKXCBM5XBEve6NRh5XWusuT7eB/RqTUvzEeFuYfKvkzss
- pPypSBdSk1axiVX4SeGRULVlwEO+3n/9dxZcupbhqfIVAI5GEvJlvFTdKNUzRJX00UUqsjONS8
- WO4dX/NHIlI/SzqldFumBdcPldzLrkO3cm8FdF54KiNj4aRg8ITLnv0FWDQT39yCEZfFsjXz4r
- 6b7REEhQWqw8Wy6prpFEGD2qxiAru7kgkwad8gxoODmFodGkBSXXKCvjWhGhJC/AOAQgISfF1U
- +54=
+  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:20:58 -0800
+IronPort-SDR: bDmjaJFvqufFryOp3tMrUvFhtWMKTfjH1mbebuAW6Hd8SMPaL5puZvm23pJIWt5vNDplWwI+SU
+ C0lPYf5DOJJcA6MyPxvlC+6YRX8gxPGMwBqwQTQr5bFFb2vKlHJkQ16/tzgodEC0hLNxO2/J/e
+ 4Y6FJg9k4rLOzJEyEskjADTnmb0L8LmbLQggPggRcAXB6FoO7XZz4z3t8kRQ8DtsAb6qhJzGc6
+ s/4k1PZghXij5oPLMlOATjvhkQVwf7yi8zoYz8HUIIKoZYqamcqWw2VLwt1IJyTAyxApLSDGDd
+ sx4=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v4 14/48] Input: atmel_mxt_ts - report failures in suspend/resume
-Date:   Tue, 29 Oct 2019 16:19:36 +0900
-Message-ID: <20191029072010.8492-15-jiada_wang@mentor.com>
+Subject: [PATCH v4 12/48] Input: atmel_mxt_ts - release touch state during suspend
+Date:   Tue, 29 Oct 2019 16:19:34 +0900
+Message-ID: <20191029072010.8492-13-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191029072010.8492-1-jiada_wang@mentor.com>
 References: <20191029072010.8492-1-jiada_wang@mentor.com>
@@ -55,130 +55,154 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-(cherry picked from ndyer/linux/for-upstream commit 93a57575403de4dd07cd64807d3c2ed7f2cca262)
+If fingers are down as the MXT chip goes into suspend it does not send a
+lift message. In addition, it may not complete its final measurement cycle
+immediately, which means touch messages may be received by the interrupt
+handler after mxt_stop() has completed.
+
+So:
+- disable irq during suspend
+- flush any messages created after suspend
+- tell app layer that slots were released at suspend
+
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
+Acked-by: Yufeng Shen <miletus@chromium.org>
+(cherry picked from ndyer/linux/for-upstream commit 26794433086dbc7dea18d2f6a1c8d61ab25bcfda)
 [gdavis: Resolve forward port conflicts due to applying upstream
 	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
 	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Fix compilation warning]
+[gdavis: Squash fix from Dirk Behme:
+	 - Input: atmel_mxt_ts - remove superfluous data->suspended]
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+---
+Notes:
+- Squash fix from Dirk Behme:
+  + Input: atmel_mxt_ts - remove superfluous data->suspended
+
+    data->suspended is already set to false in mxt_load_fw(), so it's not
+    needed here.
+
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 51 ++++++++++++++++++------
- 1 file changed, 39 insertions(+), 12 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 52 ++++++++++++++++++++++--
+ 1 file changed, 49 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c9f010ce46d5..b28bcbb315c2 100644
+index 6d062621096c..89b8e5e331b2 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3425,10 +3425,12 @@ static void mxt_reset_slots(struct mxt_data *data)
- 	mxt_input_sync(data);
+@@ -372,6 +372,9 @@ struct mxt_data {
+ 	unsigned int t19_num_keys;
+ 
+ 	enum mxt_suspend_mode suspend_mode;
++
++	/* Indicates whether device is in suspend */
++	bool suspended;
+ };
+ 
+ struct mxt_vb2_buffer {
+@@ -1151,10 +1154,10 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 		mxt_proc_t42_messages(data, message);
+ 	} else if (report_id == data->T48_reportid) {
+ 		mxt_proc_t48_messages(data, message);
+-	} else if (!data->input_dev) {
++	} else if (!data->input_dev || data->suspended) {
+ 		/*
+-		 * Do not report events if input device
+-		 * is not yet registered.
++		 * Do not report events if input device is not
++		 * yet registered or returning from suspend
+ 		 */
+ 		mxt_dump_message(data, message);
+ 	} else if (report_id >= data->T9_reportid_min &&
+@@ -3135,6 +3138,11 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	if (ret)
+ 		goto release_firmware;
+ 
++	if (data->suspended) {
++		enable_irq(data->irq);
++		data->suspended = false;
++	}
++
+ 	if (!data->in_bootloader) {
+ 		/* Change to the bootloader mode */
+ 		data->in_bootloader = true;
+@@ -3306,8 +3314,27 @@ static void mxt_sysfs_remove(struct mxt_data *data)
+ 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
  }
  
--static void mxt_start(struct mxt_data *data)
-+static int mxt_start(struct mxt_data *data)
- {
-+	int ret = 0;
++static void mxt_reset_slots(struct mxt_data *data)
++{
++	struct input_dev *input_dev = data->input_dev;
++	int id;
 +
- 	if (!data->suspended || data->in_bootloader)
--		return;
-+		return 0;
- 
++	if (!input_dev)
++		return;
++
++	for (id = 0; id < data->num_touchids; id++) {
++		input_mt_slot(input_dev, id);
++		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
++	}
++
++	mxt_input_sync(data);
++}
++
+ static void mxt_start(struct mxt_data *data)
+ {
++	if (!data->suspended || data->in_bootloader)
++		return;
++
  	switch (data->suspend_mode) {
  	case MXT_SUSPEND_T9_CTRL:
-@@ -3453,28 +3455,42 @@ static void mxt_start(struct mxt_data *data)
- 		 */
- 		mxt_process_messages_until_invalid(data);
+ 		mxt_soft_reset(data);
+@@ -3320,16 +3347,29 @@ static void mxt_start(struct mxt_data *data)
  
--		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
-+		ret = mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
-+		if (ret)
-+			return ret;
+ 	case MXT_SUSPEND_DEEP_SLEEP:
+ 	default:
++		/*
++		 * Discard any touch messages still in message buffer
++		 * from before chip went to sleep
++		 */
++		mxt_process_messages_until_invalid(data);
++
+ 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
  
  		/* Recalibrate since chip has been in deep sleep */
--		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
-+		ret = mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
-+		if (ret)
-+			return ret;
+ 		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
 +
-+		ret = mxt_acquire_irq(data);
-+		if (ret)
-+			return ret;
- 
--		mxt_acquire_irq(data);
++		mxt_acquire_irq(data);
  		break;
  	}
- 
- 	data->suspended = false;
 +
-+	return 0;
++	data->suspended = false;
  }
  
--static void mxt_stop(struct mxt_data *data)
-+static int mxt_stop(struct mxt_data *data)
+ static void mxt_stop(struct mxt_data *data)
  {
-+	int ret;
++	if (data->suspended || data->in_bootloader)
++		return;
 +
- 	if (data->suspended || data->in_bootloader)
--		return;
-+		return 0;
- 
  	switch (data->suspend_mode) {
  	case MXT_SUSPEND_T9_CTRL:
  		/* Touch disable */
--		mxt_write_object(data,
-+		ret = mxt_write_object(data,
- 				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0);
-+		if (ret)
-+			return ret;
-+
- 		break;
+@@ -3339,9 +3379,15 @@ static void mxt_stop(struct mxt_data *data)
  
- 	case MXT_SUSPEND_REGULATOR:
-@@ -3487,29 +3503,40 @@ static void mxt_stop(struct mxt_data *data)
+ 	case MXT_SUSPEND_DEEP_SLEEP:
  	default:
- 		disable_irq(data->irq);
- 
--		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
-+		ret = mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
-+		if (ret)
-+			return ret;
- 
- 		mxt_reset_slots(data);
++		disable_irq(data->irq);
++
+ 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
++
++		mxt_reset_slots(data);
  		break;
  	}
- 
- 	data->suspended = true;
-+	return 0;
++
++	data->suspended = true;
  }
  
  static int mxt_input_open(struct input_dev *dev)
- {
- 	struct mxt_data *data = input_get_drvdata(dev);
-+	int ret;
- 
--	mxt_start(data);
-+	ret = mxt_start(data);
- 
--	return 0;
-+	if (ret)
-+		dev_err(&data->client->dev, "%s failed rc=%d\n", __func__, ret);
-+
-+	return ret;
- }
- 
- static void mxt_input_close(struct input_dev *dev)
- {
- 	struct mxt_data *data = input_get_drvdata(dev);
-+	int ret;
- 
--	mxt_stop(data);
-+	ret = mxt_stop(data);
-+
-+	if (ret)
-+		dev_err(&data->client->dev, "%s failed rc=%d\n", __func__, ret);
- }
- 
- static int mxt_parse_device_properties(struct mxt_data *data)
 -- 
 2.17.1
 

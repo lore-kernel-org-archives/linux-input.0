@@ -2,210 +2,96 @@ Return-Path: <SRS0=VlPx=YW=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCB21CA9EC2
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:24:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D9E1C47E49
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 08:40:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AE4E62086A
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:24:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 08F6C2086D
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 08:40:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1572338425;
+	bh=mgWIhjckqxqZSyRbf9Ero4ZNiEz9TMOyb3Twc/C42Qw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=egZTe9WWGv4X7ZWxQzGOgBMBcqRRIOBKgteekAqNnSt6VHeaxcqYM04Hpyvwwfvlk
+	 hX0DhIR3Ol6GuqJSQSOWgmbgzzlkcj2s4yoaaVRncS3jiFVdWHF2QGyy8b8cogWb98
+	 lbEvXax/x5bp7LZ6glHPwxAXAUSHrE9QqQYfdDbw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730174AbfJ2HVJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Oct 2019 03:21:09 -0400
-Received: from esa1.mentor.iphmx.com ([68.232.129.153]:7759 "EHLO
-        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728101AbfJ2HU2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Oct 2019 03:20:28 -0400
-IronPort-SDR: y/u4xVCKASvVXfAGt0DH5SLd+DmNgIyKzxBoHnFrk2E51Eg4pIxDgfoDXpSZl5/2YXn5sw36NE
- jgoXgt8WT6Mf5cA/R4Nxn8ilFaEutvnNejhaNPKvfnCZJ74lyuAIWFZx/RuepaL0wVofacd+/Y
- IjFtscubmTI8QHd0INFTanb4PX9DJe4rc56laHDRPMOXglaXBrOOFXdL0bS3kueixcBzHzDEUg
- KM05fDas0TCVKmgXNzMFdEhRx53We0m1lyag13jcAx8SuI9FIuc3z3hNQnFC/2jyhZf/BkA+qz
- 3ho=
-X-IronPort-AV: E=Sophos;i="5.68,243,1569312000"; 
-   d="scan'208";a="44509363"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa1.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:20:26 -0800
-IronPort-SDR: 39IXEjwNERs81O8IcKY+4ske4lZOZ2UwoAHPWAZ2dlMWWyPKRcLgGd8DYZmG5mOsCmWUtyiPUB
- 9Tls5rIUejfst8De19PQZIqLKaiy8oweZRUXLGxE6QyS+dyn7dIYkOkSKnM/cvss4LAKwkif+i
- dfq9Qdcncr/bKLlLWh2q4SUX9y94u7/RVGSt5yo3Xnr/oJ/q1u6Q/JEjsMTeVdiHp9kafJPc3K
- 09cOA2+5V0OKSOxUlKmgF2tvIlvyQnKIOYmTqzt033CeIEk/wQ4II1WGsgrN+uvCJQDUsWPPF4
- 1Oc=
-From:   Jiada Wang <jiada_wang@mentor.com>
-To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
-        <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>
-CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
-        <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v4 03/48] Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when necessary
-Date:   Tue, 29 Oct 2019 16:19:25 +0900
-Message-ID: <20191029072010.8492-4-jiada_wang@mentor.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20191029072010.8492-1-jiada_wang@mentor.com>
-References: <20191029072010.8492-1-jiada_wang@mentor.com>
+        id S1729302AbfJ2IkY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Oct 2019 04:40:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40568 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727036AbfJ2IkY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 29 Oct 2019 04:40:24 -0400
+Received: from localhost (unknown [91.217.168.176])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 292D52067D;
+        Tue, 29 Oct 2019 08:40:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572338423;
+        bh=mgWIhjckqxqZSyRbf9Ero4ZNiEz9TMOyb3Twc/C42Qw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VX+bTrWJaxeA2GZo6IMS5PC8kXNJvpeD5Q4wP4xSZ7Dr2B5qn68G1qj1p3C1WtNj9
+         tgZPaKROjJoIbCD9PNoQMMTZg1tQrDhBnNx/3TihzsuYA5c+v07maBq+iDHzyr44sg
+         RebUP5pDHloE7kPCl3rCVrWGqXWjBrgT+dUVSSzY=
+Date:   Tue, 29 Oct 2019 09:30:12 +0100
+From:   Maxime Ripard <mripard@kernel.org>
+To:     Ondrej Jirman <megous@megous.com>
+Cc:     linux-sunxi@googlegroups.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?utf-8?Q?Myl=C3=A8ne?= Josserand <mylene.josserand@bootlin.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 3/3] arm: dts: sun8i: a83t: a711: Add touchscreen node
+Message-ID: <20191029083012.62wgvonpxkgmznpn@hendrix>
+References: <20191029005806.3577376-1-megous@megous.com>
+ <20191029005806.3577376-4-megous@megous.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="vjc7bik6lfh4bmzh"
+Content-Disposition: inline
+In-Reply-To: <20191029005806.3577376-4-megous@megous.com>
+User-Agent: NeoMutt/20180716
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-The workaround of reading all messages until an invalid is received is a
-way of forcing the CHG line high, which means that when using
-edge-triggered interrupts the interrupt can be acquired.
+--vjc7bik6lfh4bmzh
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-With level-triggered interrupts the workaround is unnecessary.
+On Tue, Oct 29, 2019 at 01:58:06AM +0100, Ondrej Jirman wrote:
+> From: Myl=E8ne Josserand <mylene.josserand@bootlin.com>
+>
+> Enable a FocalTech EDT-FT5x06 Polytouch touchscreen.
+>
+> Signed-off-by: Ondrej Jirman <megous@megous.com>
+> Signed-off-by: Myl=E8ne Josserand <mylene.josserand@bootlin.com>
 
-Also, most recent maXTouch chips have a feature called RETRIGEN which, when
-enabled, reasserts the interrupt line every cycle if there are messages
-waiting. This also makes the workaround unnecessary.
+Applied, thanks
 
-Note: the RETRIGEN feature is only in some firmware versions/chips, it's
-not valid simply to enable the bit.
+--vjc7bik6lfh4bmzh
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Benson Leung <bleung@chromium.org>
-Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 1ae4e8281e491b22442cd5acdfca1862555f8ecb)
-[gdavis: Fix conflicts due to v4.6-rc7 commit eb43335c4095 ("Input:
-	 atmel_mxt_ts - use mxt_acquire_irq in mxt_soft_reset").]
-Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: reset use_retrigen_workaround at beginning of mxt_check_retrigen()]
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 51 ++++++++++++++++++++++--
- 1 file changed, 48 insertions(+), 3 deletions(-)
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ffe8a80f4d0a..ce5a069b62d4 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -20,6 +20,7 @@
- #include <linux/i2c.h>
- #include <linux/input/mt.h>
- #include <linux/interrupt.h>
-+#include <linux/irq.h>
- #include <linux/of.h>
- #include <linux/property.h>
- #include <linux/slab.h>
-@@ -129,6 +130,7 @@ struct t9_range {
- /* MXT_SPT_COMMSCONFIG_T18 */
- #define MXT_COMMS_CTRL		0
- #define MXT_COMMS_CMD		1
-+#define MXT_COMMS_RETRIGEN      BIT(6)
- 
- /* MXT_DEBUG_DIAGNOSTIC_T37 */
- #define MXT_DIAGNOSTIC_PAGEUP	0x01
-@@ -308,6 +310,7 @@ struct mxt_data {
- 	struct t7_config t7_cfg;
- 	struct mxt_dbg dbg;
- 	struct gpio_desc *reset_gpio;
-+	bool use_retrigen_workaround;
- 
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -318,6 +321,7 @@ struct mxt_data {
- 	u16 T71_address;
- 	u8 T9_reportid_min;
- 	u8 T9_reportid_max;
-+	u16 T18_address;
- 	u8 T19_reportid;
- 	u16 T44_address;
- 	u8 T100_reportid_min;
-@@ -1190,9 +1194,11 @@ static int mxt_acquire_irq(struct mxt_data *data)
- 
- 	enable_irq(data->irq);
- 
--	error = mxt_process_messages_until_invalid(data);
--	if (error)
--		return error;
-+	if (data->use_retrigen_workaround) {
-+		error = mxt_process_messages_until_invalid(data);
-+		if (error)
-+			return error;
-+	}
- 
- 	return 0;
- }
-@@ -1282,6 +1288,33 @@ static u32 mxt_calculate_crc(u8 *base, off_t start_off, off_t end_off)
- 	return crc;
- }
- 
-+static int mxt_check_retrigen(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	int error;
-+	int val;
-+
-+	data->use_retrigen_workaround = false;
-+
-+	if (irq_get_trigger_type(data->irq) & IRQF_TRIGGER_LOW)
-+		return 0;
-+
-+	if (data->T18_address) {
-+		error = __mxt_read_reg(client,
-+				       data->T18_address + MXT_COMMS_CTRL,
-+				       1, &val);
-+		if (error)
-+			return error;
-+
-+		if (val & MXT_COMMS_RETRIGEN)
-+			return 0;
-+	}
-+
-+	dev_warn(&client->dev, "Enabling RETRIGEN workaround\n");
-+	data->use_retrigen_workaround = true;
-+	return 0;
-+}
-+
- static int mxt_prepare_cfg_mem(struct mxt_data *data, struct mxt_cfg *cfg)
- {
- 	struct device *dev = &data->client->dev;
-@@ -1561,6 +1594,10 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
- 
- 	mxt_update_crc(data, MXT_COMMAND_BACKUPNV, MXT_BACKUP_VALUE);
- 
-+	ret = mxt_check_retrigen(data);
-+	if (ret)
-+		goto release_mem;
-+
- 	ret = mxt_soft_reset(data);
- 	if (ret)
- 		goto release_mem;
-@@ -1604,6 +1641,7 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T71_address = 0;
- 	data->T9_reportid_min = 0;
- 	data->T9_reportid_max = 0;
-+	data->T18_address = 0;
- 	data->T19_reportid = 0;
- 	data->T44_address = 0;
- 	data->T100_reportid_min = 0;
-@@ -1678,6 +1716,9 @@ static int mxt_parse_object_table(struct mxt_data *data,
- 						object->num_report_ids - 1;
- 			data->num_touchids = object->num_report_ids;
- 			break;
-+		case MXT_SPT_COMMSCONFIG_T18:
-+			data->T18_address = object->start_address;
-+			break;
- 		case MXT_SPT_MESSAGECOUNT_T44:
- 			data->T44_address = object->start_address;
- 			break;
-@@ -2141,6 +2182,10 @@ static int mxt_initialize(struct mxt_data *data)
- 		msleep(MXT_FW_RESET_TIME);
- 	}
- 
-+	error = mxt_check_retrigen(data);
-+	if (error)
-+		return error;
-+
- 	error = mxt_acquire_irq(data);
- 	if (error)
- 		return error;
--- 
-2.17.1
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXbf4lAAKCRDj7w1vZxhR
+xVbSAQDT1XY746DPYfIud8pyJ8oPJujpzqL4+l8r1CyT6njIYQD/UIVWkNxtxcoq
+K3j4wdKkaXwfIZ5fyFVqDB6uE9PToAc=
+=wvMX
+-----END PGP SIGNATURE-----
 
+--vjc7bik6lfh4bmzh--

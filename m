@@ -6,42 +6,42 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2E5CCA9EC3
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:22:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D9A0CA9EC2
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:22:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CF66220663
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:22:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C7D12086D
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:22:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728800AbfJ2HWc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Oct 2019 03:22:32 -0400
+        id S1728950AbfJ2HWl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Oct 2019 03:22:41 -0400
 Received: from esa1.mentor.iphmx.com ([68.232.129.153]:7825 "EHLO
         esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729677AbfJ2HWc (ORCPT
+        with ESMTP id S1733089AbfJ2HWj (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Oct 2019 03:22:32 -0400
-IronPort-SDR: ZIJAOe4bkf42ne8sODLsKA/jDZJhThvc8bBtaXehPq5JZ1gy6UsG15l51sv8qbAv/4rWUtXWLU
- +R5Wt4Pd58WfcwM8coh52SQsfon9ZnH1R33saEd4ZAJEaAg9oKBo4rUF6h0k9ihB/oSfgg4rBv
- /v5Ynb9vCFRu/EjMxoOwY06kLtNkwVskgJbyoA79+Bbqa8KpAOJGSPnb1OJJiJTPIXFg9bxKru
- 097/6fiRBDHAdZ8B8IqT1NUMoM2BkkXFZgTTUwuRR991aPu6eeyI/qBu04EOTv7LwL/dz/ZO2f
- /9Y=
+        Tue, 29 Oct 2019 03:22:39 -0400
+IronPort-SDR: Sl/VArKq1YiPmM3imuOplizLMqUwkx3Ks/AMQhKXdnuS1RqDJUCpuLZKJs6TaEZiXoRx+xSram
+ WkvjB2s0EYy5p03T9/1+euNZ7xdPt47f5/sMBs7XnTthrXvoLMcaDufvgt2VzHy1yIaOLY2sgx
+ b2rImnnVqtFNnt8YP8U8BV2zJlnCqiB8C+t8gmTsFU+kq7AQDbkh8BZhUu5jcMjOq7kNGB/RKt
+ hdh7ZdYhOAPqb5CuZOmicvnhnDp7sdiBSio9dKDPf1Xlleh4WsGpkv+nOk+tdWyGAgbSvK5B+M
+ qhg=
 X-IronPort-AV: E=Sophos;i="5.68,243,1569312000"; 
-   d="scan'208";a="44509438"
+   d="scan'208";a="44509446"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa1.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:22:31 -0800
-IronPort-SDR: Cwug88gtiUubjyMGZbM3J1wWJ+h+ecIVQI9AdfiyzjRZjrOT4AtW59JAeSauf4dPh5jkPGYC81
- V1MBYwMITduVrmxKGhUcQopbn0MZ7W50vYGFhL0uXeor1BGbCp22sY91vZO/gTBtDtMe+Y9O4z
- ECz1i0hgwzkGyZAdAM5sqmxUEmORBsOwm3BTQRy8I1UzSlXI8jKGi3IbDkvTsjVxMpmLzv41Qq
- VSuK77nbsXflKbIkDEeR9qYgOveyB2qMIVuqFH2jROk/zD5PjwtvPEUq4dxzHICvAZtGXWhr8Z
- UiM=
+  by esa1.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:22:38 -0800
+IronPort-SDR: KuEAr4QiyfcFRsg+dUfSgvAU0VZ5J4zJpU1ztGfLe7MZQMLpI+YBqSTt3SlSKUV0hj9+GSFwGd
+ ebhtC3tWUrZzN7pdNpkijh+ORnxtmpuT80EfqME/xgtpsE53ck0mM6kFKOpEo2nUY23z6KB1Sh
+ 0yg+rYUJUX2wcbaF6w0YSYov9Ty5ty78uUJaPDJP6wZ7lZs7BMwYxqvgbXEOPQgGnovbLLLFiV
+ vImwsB3vmliTio5gLGL9J/pC2DRaQmFRtfrgJAY7mbC6/zIX1txeiuLvxLYfImrku760zYLuvb
+ /5U=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v4 38/48] Input: Atmel: improve error handling in mxt_start()
-Date:   Tue, 29 Oct 2019 16:20:00 +0900
-Message-ID: <20191029072010.8492-39-jiada_wang@mentor.com>
+Subject: [PATCH v4 40/48] Input: Atmel: improve error handling in mxt_update_cfg()
+Date:   Tue, 29 Oct 2019 16:20:02 +0900
+Message-ID: <20191029072010.8492-41-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191029072010.8492-1-jiada_wang@mentor.com>
 References: <20191029072010.8492-1-jiada_wang@mentor.com>
@@ -54,100 +54,31 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Deepak Das <deepak_das@mentor.com>
 
-mxt_start() does not return error in any of
-the failure cases which will allow input_dev->open()
-to return success even in case of any failure.
-
-This commit modifies mxt_start() to return error
-in failure cases.
+mxt_update_cfg() failed to propagate the error
+code from mxt_init_t7_power_cfg() so return the error code.
 
 Signed-off-by: Deepak Das <deepak_das@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 31 ++++++++++++------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 4a0dce1aa1d5..e6212d384b9d 100644
+index a0e5910e6a2a..d05ead2e605b 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3974,12 +3974,13 @@ static int mxt_start(struct mxt_data *data)
+@@ -2186,7 +2186,9 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	dev_info(dev, "Config successfully updated\n");
  
- 	switch (data->suspend_mode) {
- 	case MXT_SUSPEND_T9_CTRL:
--		mxt_soft_reset(data);
--
-+		ret = mxt_soft_reset(data);
-+		if (ret)
-+			break;
- 		/* Touch enable */
- 		/* 0x83 = SCANEN | RPTEN | ENABLE */
--		mxt_write_object(data,
--				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0x83);
-+		ret = mxt_write_object(data,
-+				       MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0x83);
- 		break;
+ 	/* T7 config may have changed */
+-	mxt_init_t7_power_cfg(data);
++	ret = mxt_init_t7_power_cfg(data);
++	if (ret)
++		dev_warn(dev, "Power Config failed to update\n");
  
- 	case MXT_SUSPEND_REGULATOR:
-@@ -3993,27 +3994,26 @@ static int mxt_start(struct mxt_data *data)
- 		 * Discard any touch messages still in message buffer
- 		 * from before chip went to sleep
- 		 */
--		mxt_process_messages_until_invalid(data);
-+		ret = mxt_process_messages_until_invalid(data);
-+		if (ret)
-+			break;
- 
- 		ret = mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
- 		if (ret)
--			return ret;
-+			break;
- 
- 		/* Recalibrate since chip has been in deep sleep */
- 		ret = mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
- 		if (ret)
--			return ret;
-+			break;
- 
- 		ret = mxt_acquire_irq(data);
--		if (ret)
--			return ret;
--
--		break;
- 	}
- 
--	data->suspended = false;
-+	if (!ret)
-+		data->suspended = false;
- 
--	return 0;
-+	return ret;
- }
- 
- static int mxt_stop(struct mxt_data *data)
-@@ -4333,6 +4333,7 @@ static int __maybe_unused mxt_resume(struct device *dev)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct mxt_data *data = i2c_get_clientdata(client);
- 	struct input_dev *input_dev = data->input_dev;
-+	int ret = 0;
- 
- 	if (!input_dev)
- 		return 0;
-@@ -4340,11 +4341,11 @@ static int __maybe_unused mxt_resume(struct device *dev)
- 	mutex_lock(&input_dev->mutex);
- 
- 	if (input_dev->users)
--		mxt_start(data);
-+		ret = mxt_start(data);
- 
- 	mutex_unlock(&input_dev->mutex);
- 
--	return 0;
-+	return ret;
- }
- 
- static SIMPLE_DEV_PM_OPS(mxt_pm_ops, mxt_suspend, mxt_resume);
+ release_mem:
+ 	kfree(cfg.mem);
 -- 
 2.17.1
 

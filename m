@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A8F3CA9EC2
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04281CA9EC2
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0934520862
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D7A252086A
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733005AbfJ2HWP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Oct 2019 03:22:15 -0400
-Received: from esa1.mentor.iphmx.com ([68.232.129.153]:7825 "EHLO
-        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732984AbfJ2HWO (ORCPT
+        id S1730712AbfJ2HVU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Oct 2019 03:21:20 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:41262 "EHLO
+        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730690AbfJ2HVT (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Oct 2019 03:22:14 -0400
-IronPort-SDR: uoBub0NMDjgPDlkcB4bWhFwYV+k1eL4LYCm5dIphnoTg4z+gV68y8uRSub4XAOSXgXOYv/4EYY
- z1zriIS5n7kQppVs/hXi06ZxhZX+4cbztmeE9DHVWOdy9hfHg8ZZBSgIr7SqglnI2wFJSvBDHh
- V+csMDN08DJLWEdiYQ4dyM82uHf+6JhTcOOX9qk74GrjLbu8sRDYoGttM0qnBvBglym05NnXPJ
- 0UUeN1C5r22CimhjiOkqBbAqgPdAn0YvqeuYx+B7ts745ef35EO8oerSdmzkQiiR1UlnQxGI9T
- Xb8=
+        Tue, 29 Oct 2019 03:21:19 -0400
+IronPort-SDR: fF03ikvs7G7vH8yOVK/nMeK6zExKKTGwSSuZJusyHsF6XaW5rWuupxrAdhy0vsjUNIlpCrut3J
+ RKS9U5xbcmjBxByXC4mr5PU6MnQ0jxtXHtUHs0A/D8AVWCJ/nk/fwzirvNM+A0ajmInIQ+7Ncn
+ sOUhAvHAU7erJBKNMWm3eCVKRMlqibh3g2ckE7GfjkXu+Mh8S9A02gILrfe3fPNVSSEqlN/BrU
+ JEea2R8ss9eC3d5h8CiHf+L5Q7jx6DxEUO4bFRDIOYfeTkdkX+Lkzh7IYJ76AM2w8Ju9hOt/Te
+ hKg=
 X-IronPort-AV: E=Sophos;i="5.68,243,1569312000"; 
-   d="scan'208";a="44509425"
+   d="scan'208";a="42663242"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa1.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:22:13 -0800
-IronPort-SDR: TT4A7F9H1jaUUokg1UQTEv9q0hLn0kJ+wIHg9hhWp144cfK6wJIVrwacIYdCW43FQCMdkUlIg+
- JOrxdIOWfKTF3l9p4NarGLFCzaw3wka1ja1nVlVrpF9sEpav6ApUiXK3cf8UyWmg2DTU2SBBnX
- PZ5njnmbsBqOW0omEpPv6SORF+UOUo7zAHTu3ZsevT9otOiCyIZ8me5P1E6SSzUBSsGH6ocMwe
- j+Mo5DPTOsY/ROxZIVyV6JPOAXp0t+ka2Njswh5lHaDU69jtwqwyQLJKFGZ3lsjn0uhRS+mfEZ
- vwY=
+  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:19 -0800
+IronPort-SDR: Ou3TL1AxzQn6Rl82/L/hFlUy4lK5ZaoX77m1bzHjKNi4rOjH5OyLL+mxrbZIdyc/sYuiVqoR2V
+ 35XcjJxLod2BUSVS1CjDBoDeZAKffnoDMA2sKIUabY1HANnPXb6yDm502lGOajwU3xraTrVEdX
+ rsgLpWFT8SmENgg2ZetR+1G3wwKNwz79sgDf8cpa0h7exI0y3SZ4bUvMg9YJpudGH5X4MZvMdH
+ sMA+3mUEbquoFM+Z56s0c9inWjsiSr1fZDP0SREy/mbmJuV7ngEABuf05Ss5PrmIeU/hM9wXqy
+ H/E=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v4 33/48] input: atmel_mxt_ts: export GPIO reset line via sysfs
-Date:   Tue, 29 Oct 2019 16:19:55 +0900
-Message-ID: <20191029072010.8492-34-jiada_wang@mentor.com>
+Subject: [PATCH v4 18/48] Input: atmel_mxt_ts - add config checksum attribute to sysfs
+Date:   Tue, 29 Oct 2019 16:19:40 +0900
+Message-ID: <20191029072010.8492-19-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191029072010.8492-1-jiada_wang@mentor.com>
 References: <20191029072010.8492-1-jiada_wang@mentor.com>
@@ -53,67 +53,52 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: "George G. Davis" <george_davis@mentor.com>
+From: karl tsou <karl.funlab@gmail.com>
 
-N.B. Modifying the atmel_mxt_ts GPIO reset line during operation will
-cause problems with normal driver operation.  This feature is provided
-as a diagnostic debug aid.  It does not take into consideration any
-pending operations which may be in progress.  Modifying the atmel_mxt_ts
-GPIO reset line at any time will inevitably cause the driver to fail.
-
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+(cherry picked from ndyer/linux/for-upstream commit 03477477ddbe5dcad42853ab3f84166a8f807acf)
+[gdavis: Forward port and fix conflicts.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-Signed-off-by: Rajeev Kumar <rajeev_kumar@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 21c29a8db794..8708bbb877cf 100644
+index 43f71a4a44dd..f55d1f719f18 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -4085,6 +4085,19 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return error;
- 	}
- 
-+	if (data->reset_gpio) {
-+		error = gpiod_export(data->reset_gpio, 0);
-+		if (error)
-+			return error;
-+
-+		error = gpiod_export_link(&client->dev, "reset",
-+					  data->reset_gpio);
-+		if (error) {
-+			gpiod_unexport(data->reset_gpio);
-+			return error;
-+		}
-+	}
-+
- 	if (data->suspend_mode == MXT_SUSPEND_REGULATOR) {
- 		error = mxt_acquire_irq(data);
- 		if (error)
-@@ -4117,6 +4130,10 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- err_free_object:
- 	mxt_free_input_device(data);
- 	mxt_free_object_table(data);
-+	if (data->reset_gpio) {
-+		sysfs_remove_link(&client->dev.kobj, "reset");
-+		gpiod_unexport(data->reset_gpio);
-+	}
+@@ -3128,6 +3128,15 @@ static int mxt_configure_objects(struct mxt_data *data,
  	return error;
  }
  
-@@ -4126,6 +4143,10 @@ static int mxt_remove(struct i2c_client *client)
++/* Configuration crc check sum is returned as hex xxxxxx */
++static ssize_t mxt_config_crc_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++
++	return scnprintf(buf, PAGE_SIZE, "%06x\n", data->config_crc);
++}
++
+ /* Firmware Version is returned as Major.Minor.Build */
+ static ssize_t mxt_fw_version_show(struct device *dev,
+ 				   struct device_attribute *attr, char *buf)
+@@ -3481,12 +3490,14 @@ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
++static DEVICE_ATTR(config_crc, S_IRUGO, mxt_config_crc_show, NULL);
  
- 	disable_irq(data->irq);
- 	sysfs_remove_group(&client->dev.kobj, &mxt_fw_attr_group);
-+	if (data->reset_gpio) {
-+		sysfs_remove_link(&client->dev.kobj, "reset");
-+		gpiod_unexport(data->reset_gpio);
-+	}
- 	mxt_debug_msg_remove(data);
- 	mxt_sysfs_remove(data);
- 	mxt_free_input_device(data);
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+ 	&dev_attr_hw_version.attr,
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_cfg.attr,
++	&dev_attr_config_crc.attr,
+ 	NULL
+ };
+ 
 -- 
 2.17.1
 

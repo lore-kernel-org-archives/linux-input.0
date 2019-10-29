@@ -2,139 +2,321 @@ Return-Path: <SRS0=VlPx=YW=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A7CECA9EAE
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 13:57:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B24DFCA9EAE
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 17:27:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4362320862
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 13:57:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7804520830
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 17:27:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=analog.onmicrosoft.com header.i=@analog.onmicrosoft.com header.b="kLuFyTz4"
+	dkim=pass (1024-bit key) header.d=bitmath.org header.i=@bitmath.org header.b="b6rKPRx+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388453AbfJ2N5S (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Oct 2019 09:57:18 -0400
-Received: from mx0b-00128a01.pphosted.com ([148.163.139.77]:63042 "EHLO
-        mx0b-00128a01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388294AbfJ2N5S (ORCPT
+        id S1727046AbfJ2R1f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Oct 2019 13:27:35 -0400
+Received: from mailrelay3-2.pub.mailoutpod1-cph3.one.com ([46.30.212.2]:52910
+        "EHLO mailrelay3-2.pub.mailoutpod1-cph3.one.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726416AbfJ2R1f (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Oct 2019 09:57:18 -0400
-Received: from pps.filterd (m0167090.ppops.net [127.0.0.1])
-        by mx0b-00128a01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x9TDlq21032045;
-        Tue, 29 Oct 2019 09:57:05 -0400
-Received: from nam03-co1-obe.outbound.protection.outlook.com (mail-co1nam03lp2050.outbound.protection.outlook.com [104.47.40.50])
-        by mx0b-00128a01.pphosted.com with ESMTP id 2vvjs67ran-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Tue, 29 Oct 2019 09:57:05 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HckpPdxGoJSW0zD1QNISBYGkOT5prQkucobA2JMLJmIQofmuyUlJqC3SOQ2CtD+W6E/aHmgv8yuCwOFbcR055y9E+xAt9jpxnjNHdx6wuAREiX1+dYWoLE88vsiURnC1ElTItfBrtPiSNUH1HicfDj2CIlrMftCyZ2BJ5NXMtBi+ksP52qGAIDduTjOgDrs4/0gSd/H9rgHg7kHqm4ciPXavmqre5JsoYxQK9PZLL+wSoLOylh5vwXkDtXNDYPpHClKN3VGazT2jp09bz/IcXhCDI8yDPatyvRkzO9W+49xd5uRn/uq9KbFZMrbOPgfwb47rxnvQw3HxBR4msaOlTA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=XNB7ztnaq5+XhmGPvdtkzOE01FYiN2TVnlteExXiORQ=;
- b=K5bDVtzB+RMgy29cbHbHaPRcmd3QTJD4gdWsfEIUVt0OGwi4nOS0E38PGuDdh5zW4/6A0bY6XiULicbL0HEIGSY4Mj1ZVGh3Dax6OQYy8e6CmK27+tafhVGQfBpbWQhhZ6DD3cnHpakjF16mRYKAWrP+gRWoHchUZuA3gLe9N19OIF9p43dRUlxsbIMeB6nGuO/sEiLMubMbETGVH4G5BpJlpDDFVh4+OpVQMTwfATIhoQp/QluJg8nxeF4I7m8/Jfx2otZOx71iJOoEdXUgdg56MkB8qp02Xi12hdbmbns5DkdRFE0gCJi1z0CIJ99XvJD+qzBo7iS8R2C/fZnXLw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=analog.com; dmarc=pass action=none header.from=analog.com;
- dkim=pass header.d=analog.com; arc=none
+        Tue, 29 Oct 2019 13:27:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=analog.onmicrosoft.com; s=selector2-analog-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=XNB7ztnaq5+XhmGPvdtkzOE01FYiN2TVnlteExXiORQ=;
- b=kLuFyTz4VohFA7Vbm+m/LX3w2TD4z/cwy9SUNMcDwEJ3uY5fcUxsxU9Ga3zxQDu0ak3xX29M+y4PiJFXHi/7zyBAa1zIxSDVh7gRvOt/87MvMReinGJn1zWG0rSM0rD10Q9Hkbvhr7UQ7PJ6CCQQkpZKfuOh1uXzp18Suxr+UPI=
-Received: from CH2PR03MB5192.namprd03.prod.outlook.com (20.180.12.152) by
- CH2PR03MB5192.namprd03.prod.outlook.com (20.180.12.152) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2387.23; Tue, 29 Oct 2019 13:57:03 +0000
-Received: from CH2PR03MB5192.namprd03.prod.outlook.com
- ([fe80::99:71f2:a588:977c]) by CH2PR03MB5192.namprd03.prod.outlook.com
- ([fe80::99:71f2:a588:977c%3]) with mapi id 15.20.2387.027; Tue, 29 Oct 2019
- 13:57:03 +0000
-From:   "Ardelean, Alexandru" <alexandru.Ardelean@analog.com>
-To:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "lars@metafoo.de" <lars@metafoo.de>
-Subject: Re: [PATCH 1/2] input: adp5589: Add default platform data
-Thread-Topic: [PATCH 1/2] input: adp5589: Add default platform data
-Thread-Index: AQHVjkwF/ninCoxxEkuyjM4FpApMQadxpOOA
-Date:   Tue, 29 Oct 2019 13:57:03 +0000
-Message-ID: <056ce7661ecf24049982d9f61bed836b4580d888.camel@analog.com>
-References: <20191029112836.9188-1-alexandru.ardelean@analog.com>
-In-Reply-To: <20191029112836.9188-1-alexandru.ardelean@analog.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [137.71.226.54]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 53b86690-55af-4438-959c-08d75c77e0c2
-x-ms-traffictypediagnostic: CH2PR03MB5192:
-x-microsoft-antispam-prvs: <CH2PR03MB5192C94292E23C39166324E9F9610@CH2PR03MB5192.namprd03.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:6790;
-x-forefront-prvs: 0205EDCD76
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(39860400002)(346002)(366004)(396003)(376002)(189003)(199004)(14444005)(3846002)(478600001)(256004)(11346002)(66476007)(66556008)(64756008)(66446008)(66946007)(6116002)(486006)(446003)(2616005)(476003)(2501003)(118296001)(5660300002)(76116006)(2906002)(110136005)(54906003)(8676002)(4001150100001)(81156014)(81166006)(6506007)(102836004)(26005)(186003)(99286004)(76176011)(36756003)(14454004)(86362001)(229853002)(66066001)(7736002)(6486002)(6512007)(25786009)(305945005)(6246003)(71190400001)(71200400001)(316002)(8936002)(4326008)(6436002);DIR:OUT;SFP:1101;SCL:1;SRVR:CH2PR03MB5192;H:CH2PR03MB5192.namprd03.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: analog.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: jbmNsVp2x/hwjA4oGaWrn/t8nyJp7vHxmItVW/0hDnWawEUXY8BBEM0uDQGi1tRBe2lfYu7FRlZRtflN/Dicqv7/DglD/zBIBo3yHB2f21q9Te64LxK5vr0aCc8ijsVo8a1rCxV5zZst3I9/eCIInbopj69awRjdCXaKrMtyAzule0boUCnFeBwcOYKsjRaeBNAn6spk7lD1o4ugsooBehB/NjYeXx3jwOXx+F7YGHeLzjLpEuu4p8tjDX4o8qEwaTQUeg4jBnyYPT6oSknLyYQNSoPlZWM3FzutOb62rO69OgpLs13UBAcMMKvLKq8F7CxZDzXeWYMyb9P6u7JYccLhBcH16NLZSIo9q/Xz61IYJkwaXqkkT0BRtQBwLbVmWlmYkUn6bA4qXejbZbNq89MPWyN2HNcPJ+IIqWP/LpfbD3C1GL2ZstD8+XsXQbHh
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <78D2CD8512CC73419AE9AA81D1F5AB23@namprd03.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        d=bitmath.org; s=20140924;
+        h=content-transfer-encoding:content-type:in-reply-to:mime-version:date:
+         message-id:from:references:cc:to:subject:from;
+        bh=91UbllbaugNsaC3+pZV7RlwkED7ypx/A4kf/WI6hLuc=;
+        b=b6rKPRx+UnPs3LyJ/mUmWA08Z/PPY29nlys4f9cEm5zkkoZRif/D/0cMTaWKCiQqMEf/0oCDpXxkC
+         AeEyzlZki2//oQrDLt/DycMlkil7aNDaed7qdktl7xspRYM2bLL2nPGvDdbrha0EXM1k90mEHndgC2
+         u+9adOX3zDYt6+l0=
+X-HalOne-Cookie: 9f9087eeae64f66a48bc9d4ef987f9bf683bdb95
+X-HalOne-ID: 25027133-fa6f-11e9-b5f1-d0431ea8bb03
+Received: from [192.168.19.13] (unknown [98.128.166.173])
+        by mailrelay3.pub.mailoutpod1-cph3.one.com (Halon) with ESMTPSA
+        id 25027133-fa6f-11e9-b5f1-d0431ea8bb03;
+        Tue, 29 Oct 2019 17:11:28 +0000 (UTC)
+Subject: Re: [PATCH v4 01/48] Input: introduce input_mt_report_slot_inactive
+To:     Jiada Wang <jiada_wang@mentor.com>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        erosca@de.adit-jv.com, Andrew_Gabbasov@mentor.com
+References: <20191029072010.8492-1-jiada_wang@mentor.com>
+ <20191029072010.8492-2-jiada_wang@mentor.com>
+From:   Henrik Rydberg <rydberg@bitmath.org>
+Message-ID: <b3de4c05-d2d1-58f8-a447-d5e127574ac0@bitmath.org>
+Date:   Tue, 29 Oct 2019 18:13:09 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-X-OriginatorOrg: analog.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 53b86690-55af-4438-959c-08d75c77e0c2
-X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Oct 2019 13:57:03.6622
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: eaa689b4-8f87-40e0-9c6f-7228de4d754a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: QOJXNvVMVDsECpzTb+XW3IRHM26bQVvjRUe9/KAVSJ+6oId2Lh3DEgrlMPoTS405R7hVV2ljAPX8RpEJG2+cQhSx0Uw6EK9+vKsH1Ra2gD8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR03MB5192
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,1.0.8
- definitions=2019-10-29_04:2019-10-28,2019-10-29 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- malwarescore=0 mlxlogscore=999 impostorscore=0 clxscore=1015 adultscore=0
- priorityscore=1501 spamscore=0 suspectscore=0 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1908290000 definitions=main-1910290136
+In-Reply-To: <20191029072010.8492-2-jiada_wang@mentor.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-T24gVHVlLCAyMDE5LTEwLTI5IGF0IDEzOjI4ICswMjAwLCBBbGV4YW5kcnUgQXJkZWxlYW4gd3Jv
-dGU6DQo+IEZyb206IExhcnMtUGV0ZXIgQ2xhdXNlbiA8bGFyc0BtZXRhZm9vLmRlPg0KPiANCg0K
-RGlzcmVnYXJkIHRoaXMgc2VyaWVzLg0KSSBqdXN0IG5vdGljZWQgdGhhdCBpdCBuZWVkcyB0byBi
-ZSByZS12aXNpdGVkLg0KU29tZSB0aGluZ3MgaGF2ZSBjaGFuZ2VkLCBhbmQgSSBkaWRuJ3Qgbm90
-aWNlLg0KDQpBcG9sb2dpZXMgZm9yIHRoZSBub2lzZS4NCkFsZXgNCg0KDQo+IElmIG5vIHBsYXRm
-b3JtIGRhdGEgaXMgc3VwcGxpZWQgdXNlIGEgZHVtbXkgcGxhdGZvcm0gZGF0YSB0aGF0IGNvbmZp
-Z3VyZXMNCj4gdGhlIGRldmljZSBpbiBHUElPIG9ubHkgbW9kZS4NCj4gDQo+IFNpZ25lZC1vZmYt
-Ynk6IExhcnMtUGV0ZXIgQ2xhdXNlbiA8bGFyc0BtZXRhZm9vLmRlPg0KPiBTaWduZWQtb2ZmLWJ5
-OiBBbGV4YW5kcnUgQXJkZWxlYW4gPGFsZXhhbmRydS5hcmRlbGVhbkBhbmFsb2cuY29tPg0KPiAt
-LS0NCj4gIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvYWRwNTU4OS1rZXlzLmMgfCAxNCArKysrKysr
-KysrLS0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDEwIGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25z
-KC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9hZHA1NTg5LWtl
-eXMuYw0KPiBiL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvYWRwNTU4OS1rZXlzLmMNCj4gaW5kZXgg
-ZTdkNThlN2YwMjU3Li5lZDJjMTNiZWYxYjcgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5wdXQv
-a2V5Ym9hcmQvYWRwNTU4OS1rZXlzLmMNCj4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9h
-ZHA1NTg5LWtleXMuYw0KPiBAQCAtOTg3LDYgKzk4NywxNCBAQCBzdGF0aWMgdm9pZCBhZHA1NTg5
-X2tleXBhZF9yZW1vdmUoc3RydWN0DQo+IGFkcDU1ODlfa3BhZCAqa3BhZCkNCj4gIAl9DQo+ICB9
-DQo+ICANCj4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgYWRwNTU4OV9ncGlvX3BsYXRmb3JtX2RhdGEN
-Cj4gYWRwNTU4OV9kZWZhdWx0X2dwaW9fcGRhdGEgPSB7DQo+ICsJLmdwaW9fc3RhcnQgPSAtMSwN
-Cj4gK307DQo+ICsNCj4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgYWRwNTU4OV9rcGFkX3BsYXRmb3Jt
-X2RhdGEgYWRwNTU4OV9kZWZhdWx0X3BkYXRhID0gew0KPiArCS5ncGlvX2RhdGEgPSAmYWRwNTU4
-OV9kZWZhdWx0X2dwaW9fcGRhdGEsDQo+ICt9Ow0KPiArDQo+ICBzdGF0aWMgaW50IGFkcDU1ODlf
-cHJvYmUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwNCj4gIAkJCSBjb25zdCBzdHJ1Y3QgaTJj
-X2RldmljZV9pZCAqaWQpDQo+ICB7DQo+IEBAIC0xMDAyLDEwICsxMDEwLDggQEAgc3RhdGljIGlu
-dCBhZHA1NTg5X3Byb2JlKHN0cnVjdCBpMmNfY2xpZW50DQo+ICpjbGllbnQsDQo+ICAJCXJldHVy
-biAtRUlPOw0KPiAgCX0NCj4gIA0KPiAtCWlmICghcGRhdGEpIHsNCj4gLQkJZGV2X2VycigmY2xp
-ZW50LT5kZXYsICJubyBwbGF0Zm9ybSBkYXRhP1xuIik7DQo+IC0JCXJldHVybiAtRUlOVkFMOw0K
-PiAtCX0NCj4gKwlpZiAoIXBkYXRhKQ0KPiArCQlwZGF0YSA9ICZhZHA1NTg5X2RlZmF1bHRfcGRh
-dGE7DQo+ICANCj4gIAlrcGFkID0ga3phbGxvYyhzaXplb2YoKmtwYWQpLCBHRlBfS0VSTkVMKTsN
-Cj4gIAlpZiAoIWtwYWQpDQo=
+Hi Jiada,
+
+> input_mt_report_slot_state() ignores the tool when the slot is closed.
+> which has caused a bit of confusion.
+> This patch introduces input_mt_report_slot_inactive() to report slot
+> inactive state.
+> replaces all input_mt_report_slot_state() with
+> input_mt_report_slot_inactive() in case of close of slot.
+>
+> Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+
+NACK on this one.
+
+We already discussed this patch and the potentially changed behavior to 
+existing setups stemming from ignoring the MT state.
+
+On the upside, what I can see this patch does exactly no difference to 
+the cases where the MT state is set, so it can be safely dropped without 
+affecting the rest of the patch series.
+
+Thanks,
+
+Henrik
+
+> ---
+>   drivers/hid/hid-alps.c                     | 3 +--
+>   drivers/hid/hid-multitouch.c               | 6 ++----
+>   drivers/input/input-mt.c                   | 2 +-
+>   drivers/input/misc/xen-kbdfront.c          | 2 +-
+>   drivers/input/mouse/elan_i2c_core.c        | 2 +-
+>   drivers/input/touchscreen/atmel_mxt_ts.c   | 7 +++----
+>   drivers/input/touchscreen/cyttsp4_core.c   | 5 ++---
+>   drivers/input/touchscreen/cyttsp_core.c    | 2 +-
+>   drivers/input/touchscreen/melfas_mip4.c    | 4 ++--
+>   drivers/input/touchscreen/mms114.c         | 2 +-
+>   drivers/input/touchscreen/raspberrypi-ts.c | 2 +-
+>   drivers/input/touchscreen/stmfts.c         | 2 +-
+>   include/linux/input/mt.h                   | 5 +++++
+>   13 files changed, 22 insertions(+), 22 deletions(-)
+>
+> diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+> index ae79a7c66737..36ca1d815d53 100644
+> --- a/drivers/hid/hid-alps.c
+> +++ b/drivers/hid/hid-alps.c
+> @@ -387,8 +387,7 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
+>   				input_report_abs(hdata->input,
+>   					ABS_MT_PRESSURE, z);
+>   			} else {
+> -				input_mt_report_slot_state(hdata->input,
+> -					MT_TOOL_FINGER, 0);
+> +				input_mt_report_slot_inactive(hdata->input);
+>   			}
+>   		}
+>   
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 3cfeb1629f79..15e6c04a76dd 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -896,7 +896,7 @@ static void mt_release_pending_palms(struct mt_device *td,
+>   		clear_bit(slotnum, app->pending_palm_slots);
+>   
+>   		input_mt_slot(input, slotnum);
+> -		input_mt_report_slot_state(input, MT_TOOL_PALM, false);
+> +		input_mt_report_slot_inactive(input);
+>   
+>   		need_sync = true;
+>   	}
+> @@ -1640,9 +1640,7 @@ static void mt_release_contacts(struct hid_device *hid)
+>   		if (mt) {
+>   			for (i = 0; i < mt->num_slots; i++) {
+>   				input_mt_slot(input_dev, i);
+> -				input_mt_report_slot_state(input_dev,
+> -							   MT_TOOL_FINGER,
+> -							   false);
+> +				input_mt_report_slot_inactive(input_dev);
+>   			}
+>   			input_mt_sync_frame(input_dev);
+>   			input_sync(input_dev);
+> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+> index a81e14148407..7626fe5bfe44 100644
+> --- a/drivers/input/input-mt.c
+> +++ b/drivers/input/input-mt.c
+> @@ -145,7 +145,7 @@ bool input_mt_report_slot_state(struct input_dev *dev,
+>   	slot->frame = mt->frame;
+>   
+>   	if (!active) {
+> -		input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
+> +		input_mt_report_slot_inactive(dev);
+>   		return false;
+>   	}
+>   
+> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+> index 24bc5c5d876f..a1bba722b234 100644
+> --- a/drivers/input/misc/xen-kbdfront.c
+> +++ b/drivers/input/misc/xen-kbdfront.c
+> @@ -146,7 +146,7 @@ static void xenkbd_handle_mt_event(struct xenkbd_info *info,
+>   		break;
+>   
+>   	case XENKBD_MT_EV_UP:
+> -		input_mt_report_slot_state(info->mtouch, MT_TOOL_FINGER, false);
+> +		input_mt_report_slot_inactive(info->mtouch);
+>   		break;
+>   
+>   	case XENKBD_MT_EV_SYN:
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index 8719da540383..3f9354baac4b 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -938,7 +938,7 @@ static void elan_report_contact(struct elan_tp_data *data,
+>   		input_report_abs(input, ABS_MT_TOUCH_MINOR, minor);
+>   	} else {
+>   		input_mt_slot(input, contact_num);
+> -		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
+> +		input_mt_report_slot_inactive(input);
+>   	}
+>   }
+>   
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 24c4b691b1c9..6e758af343ea 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -822,8 +822,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+>   		 * have happened.
+>   		 */
+>   		if (status & MXT_T9_RELEASE) {
+> -			input_mt_report_slot_state(input_dev,
+> -						   MT_TOOL_FINGER, 0);
+> +			input_mt_report_slot_inactive(input_dev);
+>   			mxt_input_sync(data);
+>   		}
+>   
+> @@ -839,7 +838,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+>   		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
+>   	} else {
+>   		/* Touch no longer active, close out slot */
+> -		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
+> +		input_mt_report_slot_inactive(input_dev);
+>   	}
+>   
+>   	data->update_input = true;
+> @@ -947,7 +946,7 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
+>   		dev_dbg(dev, "[%u] release\n", id);
+>   
+>   		/* close out slot */
+> -		input_mt_report_slot_state(input_dev, 0, 0);
+> +		input_mt_report_slot_inactive(input_dev);
+>   	}
+>   
+>   	data->update_input = true;
+> diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
+> index 4b22d49a0f49..a3a85e2348a2 100644
+> --- a/drivers/input/touchscreen/cyttsp4_core.c
+> +++ b/drivers/input/touchscreen/cyttsp4_core.c
+> @@ -744,8 +744,7 @@ static void cyttsp4_report_slot_liftoff(struct cyttsp4_mt_data *md,
+>   
+>   	for (t = 0; t < max_slots; t++) {
+>   		input_mt_slot(md->input, t);
+> -		input_mt_report_slot_state(md->input,
+> -			MT_TOOL_FINGER, false);
+> +		input_mt_report_slot_inactive(md->input);
+>   	}
+>   }
+>   
+> @@ -845,7 +844,7 @@ static void cyttsp4_final_sync(struct input_dev *input, int max_slots, int *ids)
+>   		if (ids[t])
+>   			continue;
+>   		input_mt_slot(input, t);
+> -		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
+> +		input_mt_report_slot_inactive(input);
+>   	}
+>   
+>   	input_sync(input);
+> diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
+> index 3f5d463dbeed..697aa2c158f7 100644
+> --- a/drivers/input/touchscreen/cyttsp_core.c
+> +++ b/drivers/input/touchscreen/cyttsp_core.c
+> @@ -340,7 +340,7 @@ static void cyttsp_report_tchdata(struct cyttsp *ts)
+>   			continue;
+>   
+>   		input_mt_slot(input, i);
+> -		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
+> +		input_mt_report_slot_inactive(input);
+>   	}
+>   
+>   	input_sync(input);
+> diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+> index 247c3aaba2d8..f67efdd040b2 100644
+> --- a/drivers/input/touchscreen/melfas_mip4.c
+> +++ b/drivers/input/touchscreen/melfas_mip4.c
+> @@ -391,7 +391,7 @@ static void mip4_clear_input(struct mip4_ts *ts)
+>   	/* Screen */
+>   	for (i = 0; i < MIP4_MAX_FINGERS; i++) {
+>   		input_mt_slot(ts->input, i);
+> -		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, 0);
+> +		input_mt_report_slot_inactive(ts->input);
+>   	}
+>   
+>   	/* Keys */
+> @@ -534,7 +534,7 @@ static void mip4_report_touch(struct mip4_ts *ts, u8 *packet)
+>   	} else {
+>   		/* Release event */
+>   		input_mt_slot(ts->input, id);
+> -		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, 0);
+> +		input_mt_report_slot_inactive(ts->input);
+>   	}
+>   
+>   	input_mt_sync_frame(ts->input);
+> diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+> index a5ab774da4cc..8112bd77afae 100644
+> --- a/drivers/input/touchscreen/mms114.c
+> +++ b/drivers/input/touchscreen/mms114.c
+> @@ -550,7 +550,7 @@ static int __maybe_unused mms114_suspend(struct device *dev)
+>   	/* Release all touch */
+>   	for (id = 0; id < MMS114_MAX_TOUCH; id++) {
+>   		input_mt_slot(input_dev, id);
+> -		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, false);
+> +		input_mt_report_slot_inactive(input_dev);
+>   	}
+>   
+>   	input_mt_report_pointer_emulation(input_dev, true);
+> diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
+> index 69881265d121..147ea4f8f87b 100644
+> --- a/drivers/input/touchscreen/raspberrypi-ts.c
+> +++ b/drivers/input/touchscreen/raspberrypi-ts.c
+> @@ -102,7 +102,7 @@ static void rpi_ts_poll(struct input_polled_dev *dev)
+>   	released_ids = ts->known_ids & ~modified_ids;
+>   	for_each_set_bit(i, &released_ids, RPI_TS_MAX_SUPPORTED_POINTS) {
+>   		input_mt_slot(input, i);
+> -		input_mt_report_slot_state(input, MT_TOOL_FINGER, 0);
+> +		input_mt_report_slot_inactive(input);
+>   		modified_ids &= ~(BIT(i));
+>   	}
+>   	ts->known_ids = modified_ids;
+> diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+> index b6f95f20f924..b54cc64e4ea6 100644
+> --- a/drivers/input/touchscreen/stmfts.c
+> +++ b/drivers/input/touchscreen/stmfts.c
+> @@ -198,7 +198,7 @@ static void stmfts_report_contact_release(struct stmfts_data *sdata,
+>   	u8 slot_id = (event[0] & STMFTS_MASK_TOUCH_ID) >> 4;
+>   
+>   	input_mt_slot(sdata->input, slot_id);
+> -	input_mt_report_slot_state(sdata->input, MT_TOOL_FINGER, false);
+> +	input_mt_report_slot_inactive(sdata->input);
+>   
+>   	input_sync(sdata->input);
+>   }
+> diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
+> index 9e409bb13642..ab9a34c312f9 100644
+> --- a/include/linux/input/mt.h
+> +++ b/include/linux/input/mt.h
+> @@ -97,6 +97,11 @@ static inline bool input_is_mt_axis(int axis)
+>   	return axis == ABS_MT_SLOT || input_is_mt_value(axis);
+>   }
+>   
+> +static inline void input_mt_report_slot_inactive(struct input_dev *dev)
+> +{
+> +	input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
+> +
+> +}
+>   bool input_mt_report_slot_state(struct input_dev *dev,
+>   				unsigned int tool_type, bool active);
+>   

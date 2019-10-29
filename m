@@ -2,47 +2,47 @@ Return-Path: <SRS0=VlPx=YW=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B468DCA9EC3
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:22:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92996CA9EC2
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:22:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 934EB2067D
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:22:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7105220663
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:22:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728810AbfJ2HV5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Oct 2019 03:21:57 -0400
+        id S1731673AbfJ2HVj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Oct 2019 03:21:39 -0400
 Received: from esa3.mentor.iphmx.com ([68.232.137.180]:41262 "EHLO
         esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726362AbfJ2HV4 (ORCPT
+        with ESMTP id S1731637AbfJ2HVi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Oct 2019 03:21:56 -0400
-IronPort-SDR: O4ErAt7DStt+Db3YzjUlHQqdWXm/PsBuznNQYQyCoCAbo7xQJsyK1wANR7boIVbaAnoPHqOfG/
- 9WJdW5f4DGqQHhjl7hvc8F5WKEXNiaHLPvKeysu1PRe0sj3lSHagOVQUYsZc+dyB0/CQ2muZrB
- QSOrSyKPZ093R6IOtc20eMUgj+fu3UwV6RxJ/renQ/NCcCThYNl511fqan/ixor4Mc1zOjBf2U
- YQS/H9LLBCeadFAyodSTZ7CY1qT4JzZuIfzfn6cbrYkIxBAaUbV4LC3S3JF+pQJkLTPk9YiP4X
- CWk=
+        Tue, 29 Oct 2019 03:21:38 -0400
+IronPort-SDR: no5ZuwBNi/1BrBw1FqhzEKih+8QOnAP6KfDSOrUJcamLlkgCeLW3glvqRt30cWd+uwDJhJCQ9t
+ GjfgVgjL0D3/9mnfHugYrrMz13iiRJo5dcWxCAALdtCONSDdtVM0qwFCAj+osUycmmAf0Pt5YF
+ cQmxV0oejYVhvcMjGaPuDLbaJ1kiqavvJqCHXSmWZ1/NFiZdNDKZJFWvpmoyrGaSIcFe6QpdEN
+ 9EBvFAJ9X90sEp+bLCUu2OVLJ0JdVsCznT3SR0gSCFS/RKjglgoFih67zGtJtOp7Zmnihie93Z
+ Wi4=
 X-IronPort-AV: E=Sophos;i="5.68,243,1569312000"; 
-   d="scan'208";a="42663278"
+   d="scan'208";a="42663265"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:56 -0800
-IronPort-SDR: gRBoj+f3UJVxfrmiMkmvcc7JecOflyMExY51jc2Y2EohzVxs2VWBOSVDwa3v6oQ1hc45sfg0Rc
- MCK+4I4oNTbzbQVXQQrvEECckFW7vOawiNzYZxitTm4O9tF4ZEm7PfpjV9AFWx/Tt89GVQl1n/
- +pZQaS1B/ER52o0HrkN0LuEdHiR41PSk6nNqIJ6vJJq5oDKwoqiSJTic5mKPQjmElGVlSoEEmj
- xBj2PAo3SP2w7crxq/4owR4sTFlB4FPgKfb6KulmIHfx/Di1ueQaX9hc7offhFBsO/uiPLMgZ4
- 9OE=
+  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:37 -0800
+IronPort-SDR: VKMQbo6/vuuPFF/0YOlnoefiE1PEV1ntwnPXo0dZFsF0wkOB4Ysu62nidJnil3KgRh6rvBBc2r
+ lYQyDgwnNbiQHHLC6BAdYeqbSTsB1dusZX0rejuRp9zjit40EQfkslyM4HzhHcri4ybI1llwCC
+ aBwpAZgdw0U8nYXkx+3ihmpwWxoybY04OOIzaR+T1b405HXeDGtN0kZZWK/X6ji8npDZlf5nn5
+ GJV/pRNv6WBDIg9VUHIkNw3dUq/0ea3u7nNKebVJGci+uxCiJKMnNzT9UH/A74bqW/tfqXfaMb
+ kgs=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v4 28/48] Input: atmel_mxt_ts - implement debug output for messages
-Date:   Tue, 29 Oct 2019 16:19:50 +0900
-Message-ID: <20191029072010.8492-29-jiada_wang@mentor.com>
+Subject: [PATCH v4 23/48] Input: atmel_mxt_ts - rename bl_completion to chg_completion
+Date:   Tue, 29 Oct 2019 16:19:45 +0900
+Message-ID: <20191029072010.8492-24-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191029072010.8492-1-jiada_wang@mentor.com>
 References: <20191029072010.8492-1-jiada_wang@mentor.com>
@@ -55,121 +55,108 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Add a debug switch which causes all messages from the touch controller to
-be dumped to the dmesg log with a set prefix "MXT MSG:". This is used by
-Atmel user-space utilities to debug touch operation. Enabling this output
-does impact touch performance.
-
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 3c3fcfdd4889dfeb1c80ae8cd94a622c6342b06a)
-[gdavis: Forward port and fix conflicts.]
+(cherry picked from ndyer/linux/for-upstream commit dda8453bfb44216645ede798918a314d4fca2481)
+[gdavis: Resolve forward port conflicts due to applying upstream
+	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
+	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
+[jiada: call complete(&data->chg_completion) only when in_bootloader is TRUE]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 47 ++++++++++++++++++++++--
- 1 file changed, 44 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 6685bda243ed..2b418536618b 100644
+index d1bc31feafb8..bc34d8d5b854 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -335,6 +335,7 @@ struct mxt_data {
- 	u8 t100_aux_ampl;
- 	u8 t100_aux_area;
- 	u8 t100_aux_vect;
-+	bool debug_enabled;
- 	u8 max_reportid;
- 	u32 config_crc;
- 	u32 info_crc;
-@@ -460,8 +461,11 @@ static bool mxt_object_readable(unsigned int type)
+@@ -381,9 +381,6 @@ struct mxt_data {
+ 	u8 T100_reportid_max;
+ 	u16 T107_address;
  
- static void mxt_dump_message(struct mxt_data *data, u8 *message)
- {
--	dev_dbg(&data->client->dev, "message: %*ph\n",
--		data->T5_msg_size, message);
-+	/* debug message with prefix 'MXT MSG:' used by
-+	 * Atmel user-space utilities to debug touch operation
-+	 */
-+	dev_dbg(&data->client->dev, "MXT MSG: %*ph\n",
-+		       data->T5_msg_size, message);
- }
+-	/* for fw update in bootloader */
+-	struct completion bl_completion;
+-
+ 	/* for reset handling */
+ 	struct completion reset_completion;
  
- static int mxt_wait_for_completion(struct mxt_data *data,
-@@ -1214,6 +1218,7 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
- static int mxt_proc_message(struct mxt_data *data, u8 *message)
- {
- 	u8 report_id = message[0];
-+	bool dump = data->debug_enabled;
+@@ -395,6 +392,9 @@ struct mxt_data {
  
- 	if (report_id == MXT_RPTID_NOMSG)
- 		return 0;
-@@ -1248,9 +1253,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	} else if (report_id == data->T93_reportid) {
- 		mxt_proc_t93_messages(data, message);
- 	} else {
--		mxt_dump_message(data, message);
-+		dump = true;
+ 	enum mxt_suspend_mode suspend_mode;
+ 
++	/* for power up handling */
++	struct completion chg_completion;
++
+ 	/* Indicates whether device is in suspend */
+ 	bool suspended;
+ 
+@@ -611,7 +611,7 @@ static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
+ 	 * CHG assertion before reading the status byte.
+ 	 * Once the status byte has been read, the line is deasserted.
+ 	 */
+-	ret = mxt_wait_for_completion(data, &data->bl_completion,
++	ret = mxt_wait_for_completion(data, &data->chg_completion,
+ 				      MXT_FW_CHG_TIMEOUT);
+ 	if (ret) {
+ 		/*
+@@ -1402,8 +1402,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 	struct mxt_data *data = dev_id;
+ 
+ 	if (data->in_bootloader) {
+-		/* bootloader state transition completion */
+-		complete(&data->bl_completion);
++		complete(&data->chg_completion);
+ 		return IRQ_HANDLED;
  	}
  
-+	if (dump)
-+		mxt_dump_message(data, message);
-+
- 	return 1;
+@@ -2167,9 +2166,9 @@ static void mxt_regulator_enable(struct mxt_data *data)
+ 	msleep(MXT_CHG_DELAY);
+ 
+ retry_wait:
+-	reinit_completion(&data->bl_completion);
++	reinit_completion(&data->chg_completion);
+ 	data->in_bootloader = true;
+-	error = mxt_wait_for_completion(data, &data->bl_completion,
++	error = mxt_wait_for_completion(data, &data->chg_completion,
+ 					MXT_POWERON_DELAY);
+ 	if (error == -EINTR)
+ 		goto retry_wait;
+@@ -3334,7 +3333,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
+ 		enable_irq(data->irq);
+ 	}
+ 
+-	reinit_completion(&data->bl_completion);
++	reinit_completion(&data->chg_completion);
+ 
+ 	return 0;
  }
+@@ -3370,7 +3369,7 @@ static int mxt_load_fw(struct device *dev)
+ 	}
  
-@@ -3522,6 +3530,36 @@ static ssize_t mxt_update_cfg_store(struct device *dev,
- 	return ret;
- }
+ 	/* Wait for flash. */
+-	ret = mxt_wait_for_completion(data, &data->bl_completion,
++	ret = mxt_wait_for_completion(data, &data->chg_completion,
+ 				      MXT_FW_RESET_TIME);
+ 	if (ret)
+ 		goto disable_irq;
+@@ -3381,7 +3380,7 @@ static int mxt_load_fw(struct device *dev)
+ 	 * the CHG line after bootloading has finished, so ignore potential
+ 	 * errors.
+ 	 */
+-	mxt_wait_for_completion(data, &data->bl_completion, MXT_FW_RESET_TIME);
++	mxt_wait_for_completion(data, &data->chg_completion, MXT_FW_RESET_TIME);
  
-+static ssize_t mxt_debug_enable_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	char c;
-+
-+	c = data->debug_enabled ? '1' : '0';
-+	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
-+}
-+
-+static ssize_t mxt_debug_enable_store(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	u8 i;
-+	ssize_t ret;
-+
-+	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
-+		data->debug_enabled = (i == 1);
-+
-+		dev_dbg(dev, "%s\n", i ? "debug enabled" : "debug disabled");
-+		ret = count;
-+	} else {
-+		dev_dbg(dev, "debug_enabled write error\n");
-+		ret = -EINVAL;
-+	}
-+
-+	return ret;
-+}
-+
- static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
+ 	data->in_bootloader = false;
+ disable_irq:
+@@ -3802,7 +3801,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	data->irq = client->irq;
+ 	i2c_set_clientdata(client, data);
  
- static struct attribute *mxt_fw_attrs[] = {
-@@ -3538,6 +3576,8 @@ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
- static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
- static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
- static DEVICE_ATTR(config_crc, S_IRUGO, mxt_config_crc_show, NULL);
-+static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
-+		   mxt_debug_enable_store);
- 
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
-@@ -3545,6 +3585,7 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_object.attr,
- 	&dev_attr_update_cfg.attr,
- 	&dev_attr_config_crc.attr,
-+	&dev_attr_debug_enable.attr,
- 	NULL
- };
+-	init_completion(&data->bl_completion);
++	init_completion(&data->chg_completion);
+ 	init_completion(&data->reset_completion);
+ 	init_completion(&data->crc_completion);
  
 -- 
 2.17.1

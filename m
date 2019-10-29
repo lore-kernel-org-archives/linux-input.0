@@ -6,84 +6,106 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCF31CA9EC1
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 00:58:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96DACCA9EC0
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 01:46:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9065E21835
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 00:58:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 672AC218AC
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 01:46:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=megous.com header.i=@megous.com header.b="j2jzhrSz"
+	dkim=pass (1024-bit key) header.d=megous.com header.i=@megous.com header.b="JpS+61pb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727602AbfJ2A62 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 28 Oct 2019 20:58:28 -0400
-Received: from vps.xff.cz ([195.181.215.36]:51592 "EHLO vps.xff.cz"
+        id S1727685AbfJ2BqB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 28 Oct 2019 21:46:01 -0400
+Received: from vps.xff.cz ([195.181.215.36]:52226 "EHLO vps.xff.cz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727336AbfJ2A6Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Oct 2019 20:58:16 -0400
+        id S1727379AbfJ2BqB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 28 Oct 2019 21:46:01 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
-        t=1572310692; bh=LdBB96lc5mOW3OGGRyo4GacYhMj29ptosU6PsgU7yus=;
-        h=From:To:Cc:Subject:Date:From;
-        b=j2jzhrSzyU+pwMB0jX47G/MPKaOl6Voi3i8XBUHZ7Q+R1QbwaF+De5qjyixRYigTg
-         eNbcUvP0sO2piUoEHf7ijARp8d+GDmgGieTHRoZAUV9lAwc80qfdQ0OUaTe7GVJX8r
-         cO4r00n5JGL7YMXtvqnhtkClmvFUs7Z9sw1/DBBI=
-From:   Ondrej Jirman <megous@megous.com>
-To:     linux-sunxi@googlegroups.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
+        t=1572313559; bh=bhzP3bhLk0Yol8s//otk/IDBmGkxLhl6fpdcUqfP75w=;
+        h=Date:From:To:Cc:Subject:References:X-My-GPG-KeyId:From;
+        b=JpS+61pbJDVyKblhRaIm8JKjWkdojeV3KkxIdJT7+eXBFH95J36s8aeAEdwN/SCmT
+         mbtRRj0QAxxeQABDjCt+q665021+BQa2joEzZStqmCaz6bSZi7FpMfanHh5s2LbpoA
+         qHs9wXu4OYQVXaCynhiU9hEUyQ7giGGeUGr+Ho/I=
+Date:   Tue, 29 Oct 2019 02:45:59 +0100
+From:   =?utf-8?Q?Ond=C5=99ej?= Jirman <megous@megous.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-sunxi@googlegroups.com, Hans de Goede <hdegoede@redhat.com>,
         Maxime Ripard <mripard@kernel.org>,
         Chen-Yu Tsai <wens@csie.org>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Ondrej Jirman <megous@megous.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@bootlin.com>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 0/3] Add touchscreen support for TBS A711 Tablet
-Date:   Tue, 29 Oct 2019 01:58:03 +0100
-Message-Id: <20191029005806.3577376-1-megous@megous.com>
+        "open list:SUN4I LOW RES ADC ATTACHED TABLET KEYS DRIVER" 
+        <linux-input@vger.kernel.org>,
+        "moderated list:ARM/Allwinner sunXi SoC support" 
+        <linux-arm-kernel@lists.infradead.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-sunxi] Re: [PATCH] input: sun4i-lradc-keys: Add wakup
+ support
+Message-ID: <20191029014559.gif3ay7anq24un2i@core.my.home>
+Mail-Followup-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-sunxi@googlegroups.com, Hans de Goede <hdegoede@redhat.com>,
+        Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        "open list:SUN4I LOW RES ADC ATTACHED TABLET KEYS DRIVER" <linux-input@vger.kernel.org>,
+        "moderated list:ARM/Allwinner sunXi SoC support" <linux-arm-kernel@lists.infradead.org>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20191028221502.3503543-1-megous@megous.com>
+ <20191028233828.GA57214@dtor-ws>
+ <20191028235626.5afvszxtppsieywi@core.my.home>
+ <20191029001250.GB57214@dtor-ws>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191029001250.GB57214@dtor-ws>
+X-My-GPG-KeyId: EBFBDDE11FB918D44D1F56C1F9F0A873BE9777ED
+ <https://xff.cz/key.txt>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is a resurrection of https://lkml.org/lkml/2018/7/25/143
+On Mon, Oct 28, 2019 at 05:12:50PM -0700, Dmitry Torokhov wrote:
+> On Tue, Oct 29, 2019 at 12:56:26AM +0100, Ondřej Jirman wrote:
+> > On Mon, Oct 28, 2019 at 04:38:28PM -0700, Dmitry Torokhov wrote:
+> > > > +
+> > > > +	error = dev_pm_set_wake_irq(dev, irq);
+> > > > +	if (error) {
+> > > > +		dev_err(dev, "Could not set wake IRQ\n");
+> > > > +		return error;
+> > > > +	}
+> > > > +
+> > > 
+> > > I wonder if we could teach platform driver core to handle this for us.
+> > 
+> > Not sure, some drivers do enable/disable wake_irq by hand in suspend/resume
+> > callbacks, so it would probably need to be opt-in somehow. I guess calling the
+> > function like this is one way to make it opt-in.
+> > 
+> > The other way may be by passing a flag somewhere, like to
+> > request_threaded_irq. Did you have something more concrete in mind?
+> 
+> I think it is perfectly fine to continue using enable_irq_wake and
+> disable_irq_wake from the driver while marking irq as being wake irq
+> form the core.
 
-Compared to v4 of Mylène's series I've dropped all attempts to
-power off the chip during suspend. This patch just enables the
-regulator during probe and disables it on driver rmmod.
+I see, it looks like irq_set_irq_wake will track the calls via wake_depth
 
-I've tested the driver with suspend/resume and touching the
-panel resumes my soc.
+https://elixir.bootlin.com/linux/latest/source/kernel/irq/manage.c#L714
 
-Please take a look.
+But all irqs are not necessarily wake irqs, no? So it still may need to be
+opt-in somehow.
 
-thank you and regards,
-  Ondrej Jirman
+Anyway, I'm no PM expert. I started looking at PM code about two weeks ago, and
+I really don't feel like I can contribute much to these kinds of decisions with
+my current level of understanding, right now.
 
+regards,
+	o.
 
-Changes since v4 of Mylène's series:
-- slight whitespace improvements
-- drop all modifications of suspend/resume hooks
-- drop useless header include
-- split the dt-bindings into a separate patch
-
-Mylène Josserand (2):
-  input: edt-ft5x06: Add support for regulator
-  arm: dts: sun8i: a83t: a711: Add touchscreen node
-
-Ondrej Jirman (1):
-  dt-bindings: input: edt-ft5x06: Add regulator support
-
- .../bindings/input/touchscreen/edt-ft5x06.txt |  1 +
- arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts     | 16 ++++++++++
- drivers/input/touchscreen/edt-ft5x06.c        | 30 +++++++++++++++++++
- 3 files changed, 47 insertions(+)
-
--- 
-2.23.0
-
+> Thanks.
+> 
+> -- 
+> Dmitry
+> 
+> -- 
+> You received this message because you are subscribed to the Google Groups "linux-sunxi" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to linux-sunxi+unsubscribe@googlegroups.com.
+> To view this discussion on the web, visit https://groups.google.com/d/msgid/linux-sunxi/20191029001250.GB57214%40dtor-ws.

@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEFD3CA9EC2
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6665CCA9EC2
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:24:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AB61420862
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3F69920862
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:24:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728101AbfJ2HVR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Oct 2019 03:21:17 -0400
-Received: from esa2.mentor.iphmx.com ([68.232.141.98]:18659 "EHLO
-        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730457AbfJ2HVR (ORCPT
+        id S1727654AbfJ2HX4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Oct 2019 03:23:56 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:41267 "EHLO
+        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730405AbfJ2HVP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Oct 2019 03:21:17 -0400
-IronPort-SDR: bfS1d7rNXXVYpTw8NROtCMd2jGudsbeqju2tc3VnhKFAPFUox3jpL3liatP826kZwNWtAHEivY
- Zt4WS3rOr6IbVt23lkuaRFAHWnZToMp+Y7mK/OhO9rsPyg+ipxkAHablOf44NI4Z35fpswJEDe
- 8ds6gcpRhzwaolHfk5EMHVhANlD4o//AKDKRtTrW74yvpmajmX+7Ys6I9RxRFvdCijUPfEM2WC
- P/IDTMuTLTYcTMlI2Qy9fNahwAOzWaeoG7+vDGqrqvta7ml7sS5btLd6ZlOwBowq6VKh7vZifw
- mlQ=
+        Tue, 29 Oct 2019 03:21:15 -0400
+IronPort-SDR: tHa+BnwYCsWurXeM1sF6c/qmXGK48G70rd7EiR32x+UbzZpdzBYcubbvfLM7Oxj42o6l1K3PVS
+ YsK3P1/4JlHN8PcPqfBYno5o9H7/tM8all5Dl9bjo1/UwzpPoVPXzypt1LbRNq2qNpfLv13NIR
+ UPxCq6QKhI8MZSkI4Fm9Boyz1piQ8UTeNqARXa2QHck2zYBCPl4WZkfGHRbGsA0DiE5JPZ0F2d
+ Ezf4EP2/uQP7PctEOee0ZGNdK2dYv5cwhCYkKNHgti9DgellGRHEsv5GmBT0Zas7OUrh1CuL4x
+ AHE=
 X-IronPort-AV: E=Sophos;i="5.68,243,1569312000"; 
-   d="scan'208";a="42609608"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa2.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:16 -0800
-IronPort-SDR: 4bDTQ2u1SXnfKHA74od5hD4Ah3nrpV12bpYKvv98il12MUJsc1SnImMNLj/WMyy84nTbE6RehF
- khX+k0aXjU4PJ480NlOM9UHdr/Qd30+1oDAKqwe0f3F2y6ErDpJm4JZkk1JxKiC/8akUdKB37O
- tx+9Km95PkSeHHAGNZmpNSszwQ7QzGZ5qa8n8SoCvlaGxGSH8zOY+RLjqVg8wVQwEyV/dtzlrS
- irpW9P9mRHYwyWClaBZqnwL92IQg26y4YRlux3hwWojbgPqPhj8IKZSu3K6a+AMkeYDgiOjCQK
- ZVQ=
+   d="scan'208";a="42663234"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:05 -0800
+IronPort-SDR: Mwyz0CmQjRNK5Cm+cYVz7t8jSIztEfKXCBM5XBEve6NRh5XWusuT7eB/RqTUvzEeFuYfKvkzss
+ pPypSBdSk1axiVX4SeGRULVlwEO+3n/9dxZcupbhqfIVAI5GEvJlvFTdKNUzRJX00UUqsjONS8
+ WO4dX/NHIlI/SzqldFumBdcPldzLrkO3cm8FdF54KiNj4aRg8ITLnv0FWDQT39yCEZfFsjXz4r
+ 6b7REEhQWqw8Wy6prpFEGD2qxiAru7kgkwad8gxoODmFodGkBSXXKCvjWhGhJC/AOAQgISfF1U
+ +54=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v4 17/48] Input: atmel_mxt_ts - allow input name to be specified in platform data
-Date:   Tue, 29 Oct 2019 16:19:39 +0900
-Message-ID: <20191029072010.8492-18-jiada_wang@mentor.com>
+Subject: [PATCH v4 14/48] Input: atmel_mxt_ts - report failures in suspend/resume
+Date:   Tue, 29 Oct 2019 16:19:36 +0900
+Message-ID: <20191029072010.8492-15-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191029072010.8492-1-jiada_wang@mentor.com>
 References: <20191029072010.8492-1-jiada_wang@mentor.com>
@@ -55,69 +55,130 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Android systems identify the input device and map to IDC file by using the
-input device name. To avoid unnecessary deltas to the driver file, allow
-this to be set from the platform data.
-
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit cbf94a7bda754d2e1899d9f50313a0bccc91422d)
+(cherry picked from ndyer/linux/for-upstream commit 93a57575403de4dd07cd64807d3c2ed7f2cca262)
 [gdavis: Resolve forward port conflicts due to applying upstream
 	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
 	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
+[jiada: Fix compilation warning]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- .../devicetree/bindings/input/atmel,maxtouch.txt         | 2 ++
- drivers/input/touchscreen/atmel_mxt_ts.c                 | 9 ++++++++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 51 ++++++++++++++++++------
+ 1 file changed, 39 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-index 713ce870805c..d7db16920083 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-@@ -40,6 +40,8 @@ Optional properties for main touchpad device:
- - atmel,cfg_name: Provide name of configuration file in OBP_RAW format. This
-     will be downloaded from the firmware loader on probe to the device.
- 
-+- atmel,input_name: Override name of input device from the default.
-+
- Example:
- 
- 	touch@4b {
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 3eff58a5dc08..43f71a4a44dd 100644
+index c9f010ce46d5..b28bcbb315c2 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -336,6 +336,7 @@ struct mxt_data {
- 	char *fw_name;
- 	char *cfg_name;
- 	const char *pcfg_name;
-+	const char *input_name;
+@@ -3425,10 +3425,12 @@ static void mxt_reset_slots(struct mxt_data *data)
+ 	mxt_input_sync(data);
+ }
  
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -2412,7 +2413,11 @@ static int mxt_initialize_input_device(struct mxt_data *data)
- 	if (!input_dev)
- 		return -ENOMEM;
- 
--	input_dev->name = "Atmel maXTouch Touchscreen";
-+	if (data->input_name)
-+		input_dev->name = data->input_name;
-+	else
-+		input_dev->name = "Atmel maXTouch Touchscreen";
+-static void mxt_start(struct mxt_data *data)
++static int mxt_start(struct mxt_data *data)
+ {
++	int ret = 0;
 +
- 	input_dev->phys = data->phys;
- 	input_dev->id.bustype = BUS_I2C;
- 	input_dev->dev.parent = dev;
-@@ -3653,6 +3658,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+ 	if (!data->suspended || data->in_bootloader)
+-		return;
++		return 0;
  
- 	device_property_read_string(dev, "atmel,cfg_name", &data->pcfg_name);
+ 	switch (data->suspend_mode) {
+ 	case MXT_SUSPEND_T9_CTRL:
+@@ -3453,28 +3455,42 @@ static void mxt_start(struct mxt_data *data)
+ 		 */
+ 		mxt_process_messages_until_invalid(data);
  
-+	device_property_read_string(dev, "atmel,input_name", &data->input_name);
+-		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++		ret = mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++		if (ret)
++			return ret;
+ 
+ 		/* Recalibrate since chip has been in deep sleep */
+-		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
++		ret = mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
++		if (ret)
++			return ret;
 +
- 	if (device_property_present(dev, keymap_property)) {
- 		n_keys = device_property_count_u32(dev, keymap_property);
- 		if (n_keys <= 0) {
++		ret = mxt_acquire_irq(data);
++		if (ret)
++			return ret;
+ 
+-		mxt_acquire_irq(data);
+ 		break;
+ 	}
+ 
+ 	data->suspended = false;
++
++	return 0;
+ }
+ 
+-static void mxt_stop(struct mxt_data *data)
++static int mxt_stop(struct mxt_data *data)
+ {
++	int ret;
++
+ 	if (data->suspended || data->in_bootloader)
+-		return;
++		return 0;
+ 
+ 	switch (data->suspend_mode) {
+ 	case MXT_SUSPEND_T9_CTRL:
+ 		/* Touch disable */
+-		mxt_write_object(data,
++		ret = mxt_write_object(data,
+ 				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0);
++		if (ret)
++			return ret;
++
+ 		break;
+ 
+ 	case MXT_SUSPEND_REGULATOR:
+@@ -3487,29 +3503,40 @@ static void mxt_stop(struct mxt_data *data)
+ 	default:
+ 		disable_irq(data->irq);
+ 
+-		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
++		ret = mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
++		if (ret)
++			return ret;
+ 
+ 		mxt_reset_slots(data);
+ 		break;
+ 	}
+ 
+ 	data->suspended = true;
++	return 0;
+ }
+ 
+ static int mxt_input_open(struct input_dev *dev)
+ {
+ 	struct mxt_data *data = input_get_drvdata(dev);
++	int ret;
+ 
+-	mxt_start(data);
++	ret = mxt_start(data);
+ 
+-	return 0;
++	if (ret)
++		dev_err(&data->client->dev, "%s failed rc=%d\n", __func__, ret);
++
++	return ret;
+ }
+ 
+ static void mxt_input_close(struct input_dev *dev)
+ {
+ 	struct mxt_data *data = input_get_drvdata(dev);
++	int ret;
+ 
+-	mxt_stop(data);
++	ret = mxt_stop(data);
++
++	if (ret)
++		dev_err(&data->client->dev, "%s failed rc=%d\n", __func__, ret);
+ }
+ 
+ static int mxt_parse_device_properties(struct mxt_data *data)
 -- 
 2.17.1
 

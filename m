@@ -4,44 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5A59CA9EC2
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:21:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F334CA9EC2
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:21:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 821FF2067D
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:21:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F64B20862
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:21:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730933AbfJ2HVY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Oct 2019 03:21:24 -0400
+        id S1731260AbfJ2HVa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Oct 2019 03:21:30 -0400
 Received: from esa3.mentor.iphmx.com ([68.232.137.180]:41262 "EHLO
         esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730885AbfJ2HVY (ORCPT
+        with ESMTP id S1731044AbfJ2HVa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Oct 2019 03:21:24 -0400
-IronPort-SDR: H0OJMKnMxuP0Rd0IRhQpbsDRHP9dyMUiyK/XEAbKuYTkoSPJor0Cle1dnwB/4UW69cZR3tkleT
- IeyBbc8zaksY5L7UCE1OGnfwLdWjxENyshQhnk4VHF4g7lpOo9DwTQvMgwVdNcWGAlsZerPG+S
- RDS5st1lJTOrL7mnt8ALg80Owi5bLgnw4EYt8a1PbBgPkSNhJTXVjLiOCJ8Vbhs8TtPEhsF+/Q
- U/Uso2qFcA8yLK4o+DXWXhDCVhOGNVf0LdyfzjkJogTCWk+uu5JZA8oT+D/sgrc/yrI/OZLS4V
- bOg=
+        Tue, 29 Oct 2019 03:21:30 -0400
+IronPort-SDR: 3mtjlG4GVtALUH11OCBef2WAiJaA0F5gUD2bemF+tQktZJvwFZ4x6Q0T6rSqyQqxmeEf4uxj7v
+ T7f5fufWGMv/HBvpLlUZipn75EHy2qvLftt5Ot9gXhEGnn3bIQaOJGsCRoxyNWr8TzeX27vAhV
+ bd3POFLsDGOA7iB1LHFuYV4uFB44rcRNC8D9UYJ8dAVpX1K9CE3hE/mxqZ4KkcF13RoTyRXg1w
+ fJZiuOaXXqYzzi/bbc1QeAHI84c0oyabTBz9rbeA6cB9LuPR/PLx84daIb19l8CLkyZCsbRA3f
+ WFI=
 X-IronPort-AV: E=Sophos;i="5.68,243,1569312000"; 
-   d="scan'208";a="42663248"
+   d="scan'208";a="42663257"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:23 -0800
-IronPort-SDR: Pfb13oft8jr0D3b/IvoNTAzTOQHSj5UJZ+zui/TlugWb+1rN7rj9sLwWoBv0JVhNlsXgQXl2bD
- fvlmmlgEaQB6tAHWgNFxvSCXlPNRXAUUwb1l3vA90pzKAm4WXCJXyEs7ptD3LKEUYojiul3D5e
- ddFx1E9JP3tlvFPwNHWK22gAyDGMnG/t3Ebwi9kZUP+55ujObOdGdBwmVxiF5GuSM9KzORoZ8o
- T5yrWAcAqAvB9KVyZxEz7AO0UUyf6xmscSpLlCuF7tE0PUK7aI+sHbjnosFa0pDxGQOBVzzMbU
- 0CI=
+  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:30 -0800
+IronPort-SDR: Mz5fjQJhOAxUJD+zXtQe2XIdi/HXHZQ1He94ogSgAX9XkdCGQL6tzvdDTssRAFlFiHKKoTXUVY
+ 5CvWMG6Yin3RDTbZBcqw6kNrR8z8np6Tx/ggANlXKWoFrX5z3fjSoKHSQ8ZrN3kJL6NWM8ZnDX
+ rjRf/VJo5hXc84dwOxfi/jQEoCFLNJQk7NYnwUy6TjjdBq03O2j1cgA0r3PAPhzGXFjDTL/2Rw
+ T7RGHFANeWmCc8IJdjvsJ27FNl8sH5U0fQ5IamvbkVBq+OnvYFAEDBbFf94InwTFKR004Ydj/I
+ FfI=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v4 19/48] Input: atmel_mxt_ts - refactor firmware flash to extract context into struct
-Date:   Tue, 29 Oct 2019 16:19:41 +0900
-Message-ID: <20191029072010.8492-20-jiada_wang@mentor.com>
+Subject: [PATCH v4 21/48] Input: atmel_mxt_ts - combine bootloader version query with probe
+Date:   Tue, 29 Oct 2019 16:19:43 +0900
+Message-ID: <20191029072010.8492-22-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191029072010.8492-1-jiada_wang@mentor.com>
 References: <20191029072010.8492-1-jiada_wang@mentor.com>
@@ -54,140 +55,100 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
+This removes some complexity from the bootloader state machine, and means
+that we always output some debug about the version as soon as we start
+talking to the bootloader.
+
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 1bbe20ff3dcd6612e7942c495929eae5c138ece2)
+(cherry picked from ndyer/linux/for-upstream commit a2d141f170c80fea6663af98aab0be32abc0ddb0)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 59 +++++++++++++++---------
- 1 file changed, 36 insertions(+), 23 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 45 +++++++-----------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index f55d1f719f18..855c36e7903d 100644
+index 49ec37149118..4c9f75e2f953 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -291,6 +291,22 @@ struct mxt_cfg {
- 	struct mxt_info info;
- };
- 
-+/* Firmware frame structure */
-+struct mxt_fw_frame {
-+	__be16 size;
-+	u8 data[];
-+};
-+
-+/* Firmware update context */
-+struct mxt_flash {
-+	const struct firmware *fw;
-+	struct mxt_fw_frame *frame;
-+	loff_t pos;
-+	size_t frame_size;
-+	unsigned int count;
-+	unsigned int retry;
-+};
-+
- /* Each client has this additional data */
- struct mxt_data {
- 	struct i2c_client *client;
-@@ -3244,21 +3260,17 @@ static int mxt_check_firmware_format(struct device *dev,
- static int mxt_load_fw(struct device *dev)
+@@ -558,47 +558,31 @@ static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
  {
- 	struct mxt_data *data = dev_get_drvdata(dev);
--	const struct firmware *fw = NULL;
--	unsigned int frame_size;
--	unsigned int pos = 0;
--	unsigned int retry = 0;
--	unsigned int frame = 0;
-+	struct mxt_flash f = { 0, };
- 	int ret;
+ 	struct device *dev = &data->client->dev;
+ 	int error;
+-	u8 val;
+-	bool crc_failure;
++	u8 buf[3];
++	bool crc_failure, extended_id;
  
--	ret = request_firmware(&fw, data->fw_name, dev);
-+	ret = request_firmware(&f.fw, data->fw_name, dev);
- 	if (ret) {
- 		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
- 		return ret;
- 	}
+ 	error = mxt_lookup_bootloader_address(data, alt_address);
+ 	if (error)
+ 		return error;
  
- 	/* Check for incorrect enc file */
--	ret = mxt_check_firmware_format(dev, fw);
-+	ret = mxt_check_firmware_format(dev, f.fw);
- 	if (ret)
- 		goto release_firmware;
+-	error = mxt_bootloader_read(data, &val, 1);
++	/* Check bootloader status and version information */
++	error = mxt_bootloader_read(data, buf, sizeof(buf));
+ 	if (error)
+ 		return error;
  
-@@ -3312,41 +3324,42 @@ static int mxt_load_fw(struct device *dev)
- 			goto disable_irq;
- 	}
+-	/* Check app crc fail mode */
+-	crc_failure = (val & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
++	crc_failure = (buf[0] & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
++	extended_id = buf[0] & MXT_BOOT_EXTENDED_ID;
  
--	while (pos < fw->size) {
-+	while (f.pos < f.fw->size) {
-+		f.frame = (struct mxt_fw_frame *)(f.fw->data + f.pos);
-+
- 		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, true);
- 		if (ret)
- 			goto disable_irq;
+-	dev_err(dev, "Detected bootloader, status:%02X%s\n",
+-			val, crc_failure ? ", APP_CRC_FAIL" : "");
++	dev_info(dev, "Found bootloader addr:%02x ID:%u%s%u%s\n",
++		 data->bootloader_addr,
++		 extended_id ? (buf[1] & MXT_BOOT_ID_MASK) : buf[0],
++		 extended_id ? " version:" : "",
++		 extended_id ? buf[2] : 0,
++		 crc_failure ? ", APP_CRC_FAIL" : "");
  
--		frame_size = ((*(fw->data + pos) << 8) | *(fw->data + pos + 1));
--
- 		/* Take account of CRC bytes */
--		frame_size += 2;
-+		f.frame_size = __be16_to_cpu(f.frame->size) + 2U;
- 
- 		/* Write one frame to device */
--		ret = mxt_bootloader_write(data, fw->data + pos, frame_size);
-+		ret = mxt_bootloader_write(data, f.fw->data + f.pos,
-+					   f.frame_size);
- 		if (ret)
- 			goto disable_irq;
- 
- 		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS, true);
- 		if (ret) {
--			retry++;
-+			f.retry++;
- 
- 			/* Back off by 20ms per retry */
--			msleep(retry * 20);
-+			msleep(f.retry * 20);
- 
--			if (retry > 20) {
-+			if (f.retry > 20) {
- 				dev_err(dev, "Retry count exceeded\n");
- 				goto disable_irq;
- 			}
- 		} else {
--			retry = 0;
--			pos += frame_size;
--			frame++;
-+			f.retry = 0;
-+			f.pos += f.frame_size;
-+			f.count++;
- 		}
- 
--		if (frame % 50 == 0)
--			dev_dbg(dev, "Sent %d frames, %d/%zd bytes\n",
--				frame, pos, fw->size);
-+		if (f.count % 50 == 0)
-+			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
-+				f.count, f.pos, f.fw->size);
- 	}
- 
- 	/* Wait for flash. */
-@@ -3355,7 +3368,7 @@ static int mxt_load_fw(struct device *dev)
- 	if (ret)
- 		goto disable_irq;
- 
--	dev_dbg(dev, "Sent %d frames, %d bytes\n", frame, pos);
-+	dev_dbg(dev, "Sent %u frames, %lld bytes\n", f.count, f.pos);
- 
- 	/*
- 	 * Wait for device to reset. Some bootloader versions do not assert
-@@ -3369,7 +3382,7 @@ static int mxt_load_fw(struct device *dev)
- disable_irq:
- 	disable_irq(data->irq);
- release_firmware:
--	release_firmware(fw);
-+	release_firmware(f.fw);
- 	return ret;
+ 	return 0;
  }
+ 
+-static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
+-{
+-	struct device *dev = &data->client->dev;
+-	u8 buf[3];
+-
+-	if (val & MXT_BOOT_EXTENDED_ID) {
+-		if (mxt_bootloader_read(data, &buf[0], 3) != 0) {
+-			dev_err(dev, "%s: i2c failure\n", __func__);
+-			return val;
+-		}
+-
+-		dev_dbg(dev, "Bootloader ID:%d Version:%d\n", buf[1], buf[2]);
+-
+-		return buf[0];
+-	} else {
+-		dev_dbg(dev, "Bootloader ID:%d\n", val & MXT_BOOT_ID_MASK);
+-
+-		return val;
+-	}
+-}
+-
+ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
+ 				bool wait)
+ {
+@@ -632,9 +616,6 @@ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
+ 	if (ret)
+ 		return ret;
+ 
+-	if (state == MXT_WAITING_BOOTLOAD_CMD)
+-		val = mxt_get_bootloader_version(data, val);
+-
+ 	switch (state) {
+ 	case MXT_WAITING_BOOTLOAD_CMD:
+ 	case MXT_WAITING_FRAME_DATA:
+@@ -3283,7 +3264,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
+ 		msleep(MXT_RESET_TIME);
+ 
+ 		/* Do not need to scan since we know family ID */
+-		ret = mxt_lookup_bootloader_address(data, 0);
++		ret = mxt_probe_bootloader(data, 0);
+ 		if (ret)
+ 			return ret;
  
 -- 
 2.17.1

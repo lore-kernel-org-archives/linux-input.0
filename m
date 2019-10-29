@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C886CA9EC2
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEFD3CA9EC2
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4D3B720862
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB61420862
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730579AbfJ2HVR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1728101AbfJ2HVR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 29 Oct 2019 03:21:17 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:41267 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730494AbfJ2HVR (ORCPT
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:18659 "EHLO
+        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730457AbfJ2HVR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Tue, 29 Oct 2019 03:21:17 -0400
-IronPort-SDR: WLM4SYn3+yINj5kZ3nj7i0XfkR3z/KtQnoCUM797ESOs3G5/4w4E3/tCB4R4WGza9f4DOsByhz
- 5te2YPGdvjwYUkFT3oJusnmnXKN3E6ptRYXIe5zCMEhGLLsWr6L56cu85ksW31t1KHeMsygJnB
- 97Fk7hW9EoDib7dpFo9LkUOnQXFaNQeDcQo/cvUncH9BRhBDZiCZf02lPYHSrCdoW4P+m2Ss7R
- 69bav9JtxzfRFNaCNQbhNTWnmF7oyOVW051Eyuog6lfQBKpyUbFdUyH8EEAv4dcHxq9Jj1hW7x
- ziU=
+IronPort-SDR: bfS1d7rNXXVYpTw8NROtCMd2jGudsbeqju2tc3VnhKFAPFUox3jpL3liatP826kZwNWtAHEivY
+ Zt4WS3rOr6IbVt23lkuaRFAHWnZToMp+Y7mK/OhO9rsPyg+ipxkAHablOf44NI4Z35fpswJEDe
+ 8ds6gcpRhzwaolHfk5EMHVhANlD4o//AKDKRtTrW74yvpmajmX+7Ys6I9RxRFvdCijUPfEM2WC
+ P/IDTMuTLTYcTMlI2Qy9fNahwAOzWaeoG7+vDGqrqvta7ml7sS5btLd6ZlOwBowq6VKh7vZifw
+ mlQ=
 X-IronPort-AV: E=Sophos;i="5.68,243,1569312000"; 
-   d="scan'208";a="42663236"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:09 -0800
-IronPort-SDR: DtoIo9vdCOmyUs2Zr+jEDC68Tk2QCRmyDgG25JGMP8qnGtnmX+HhKrC8OFRUbyYfn96BWqHLjG
- BvBOSO0/t7BjCc2wLdvKdXT6auWzsAEXG8gkr18gVmTzNj2bIxJnuuD7WDigZW1Fj744HRmcuN
- QtaO+grgGebXNsNvQfLcv/hX38hGrmaiqgixZItBSI8vJkQsntWAibCy+zLScjmfOJWtX00tQl
- Ru42Ov+/aJt/qvL+IK+ycuQkvWjpcMS2wv7P796IazFufxqZPnX0mFsrxsGIrUOvdktquLP0nE
- Pss=
+   d="scan'208";a="42609608"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa2.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:21:16 -0800
+IronPort-SDR: 4bDTQ2u1SXnfKHA74od5hD4Ah3nrpV12bpYKvv98il12MUJsc1SnImMNLj/WMyy84nTbE6RehF
+ khX+k0aXjU4PJ480NlOM9UHdr/Qd30+1oDAKqwe0f3F2y6ErDpJm4JZkk1JxKiC/8akUdKB37O
+ tx+9Km95PkSeHHAGNZmpNSszwQ7QzGZ5qa8n8SoCvlaGxGSH8zOY+RLjqVg8wVQwEyV/dtzlrS
+ irpW9P9mRHYwyWClaBZqnwL92IQg26y4YRlux3hwWojbgPqPhj8IKZSu3K6a+AMkeYDgiOjCQK
+ ZVQ=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v4 15/48] Input: atmel_mxt_ts - allow specification of firmware file name
-Date:   Tue, 29 Oct 2019 16:19:37 +0900
-Message-ID: <20191029072010.8492-16-jiada_wang@mentor.com>
+Subject: [PATCH v4 17/48] Input: atmel_mxt_ts - allow input name to be specified in platform data
+Date:   Tue, 29 Oct 2019 16:19:39 +0900
+Message-ID: <20191029072010.8492-18-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191029072010.8492-1-jiada_wang@mentor.com>
 References: <20191029072010.8492-1-jiada_wang@mentor.com>
@@ -55,113 +55,69 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-On platforms which have multiple device instances using this driver, the
-firmware may be different on each device. This patch makes the user give
-the name of the firmware file when flashing.
-
-This also prevents accidental triggering of the firmware load process.
+Android systems identify the input device and map to IDC file by using the
+input device name. To avoid unnecessary deltas to the driver file, allow
+this to be set from the platform data.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Benson Leung <bleung@chromium.org>
-Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 76ebb7cee971cb42dfb0a3a9224403b8b09abcf1)
-[gdavis: Forward port and fix conflicts.]
+(cherry picked from ndyer/linux/for-upstream commit cbf94a7bda754d2e1899d9f50313a0bccc91422d)
+[gdavis: Resolve forward port conflicts due to applying upstream
+	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
+	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 43 ++++++++++++++++++++----
- 1 file changed, 37 insertions(+), 6 deletions(-)
+ .../devicetree/bindings/input/atmel,maxtouch.txt         | 2 ++
+ drivers/input/touchscreen/atmel_mxt_ts.c                 | 9 ++++++++-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+index 713ce870805c..d7db16920083 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+@@ -40,6 +40,8 @@ Optional properties for main touchpad device:
+ - atmel,cfg_name: Provide name of configuration file in OBP_RAW format. This
+     will be downloaded from the firmware loader on probe to the device.
+ 
++- atmel,input_name: Override name of input device from the default.
++
+ Example:
+ 
+ 	touch@4b {
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index b28bcbb315c2..85267c958da7 100644
+index 3eff58a5dc08..43f71a4a44dd 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -33,8 +33,7 @@
- #include <media/videobuf2-vmalloc.h>
- #include <dt-bindings/input/atmel_mxt_ts.h>
- 
--/* Firmware files */
--#define MXT_FW_NAME		"maxtouch.fw"
-+/* Configuration file */
- #define MXT_CFG_NAME		"maxtouch.cfg"
- #define MXT_CFG_MAGIC		"OBP_RAW V1"
- 
-@@ -335,6 +334,7 @@ struct mxt_data {
- 	bool use_retrigen_workaround;
- 	struct regulator *reg_vdd;
- 	struct regulator *reg_avdd;
-+	char *fw_name;
+@@ -336,6 +336,7 @@ struct mxt_data {
+ 	char *fw_name;
+ 	char *cfg_name;
+ 	const char *pcfg_name;
++	const char *input_name;
  
  	/* Cached parameters from object table */
  	u16 T5_address;
-@@ -3207,7 +3207,7 @@ static int mxt_check_firmware_format(struct device *dev,
- 	return -EINVAL;
- }
+@@ -2412,7 +2413,11 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	if (!input_dev)
+ 		return -ENOMEM;
  
--static int mxt_load_fw(struct device *dev, const char *fn)
-+static int mxt_load_fw(struct device *dev)
- {
- 	struct mxt_data *data = dev_get_drvdata(dev);
- 	const struct firmware *fw = NULL;
-@@ -3217,9 +3217,9 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 	unsigned int frame = 0;
- 	int ret;
- 
--	ret = request_firmware(&fw, fn, dev);
-+	ret = request_firmware(&fw, data->fw_name, dev);
- 	if (ret) {
--		dev_err(dev, "Unable to open firmware %s\n", fn);
-+		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
- 		return ret;
- 	}
- 
-@@ -3339,6 +3339,33 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 	return ret;
- }
- 
-+static int mxt_update_file_name(struct device *dev, char **file_name,
-+				const char *buf, size_t count)
-+{
-+	char *file_name_tmp;
-+
-+	/* Simple sanity check */
-+	if (count > 64) {
-+		dev_warn(dev, "File name too long\n");
-+		return -EINVAL;
-+	}
-+
-+	file_name_tmp = krealloc(*file_name, count + 1, GFP_KERNEL);
-+	if (!file_name_tmp)
-+		return -ENOMEM;
-+
-+	*file_name = file_name_tmp;
-+	memcpy(*file_name, buf, count);
-+
-+	/* Echo into the sysfs entry may append newline at the end of buf */
-+	if (buf[count - 1] == '\n')
-+		(*file_name)[count - 1] = '\0';
+-	input_dev->name = "Atmel maXTouch Touchscreen";
++	if (data->input_name)
++		input_dev->name = data->input_name;
 +	else
-+		(*file_name)[count] = '\0';
++		input_dev->name = "Atmel maXTouch Touchscreen";
 +
-+	return 0;
-+}
-+
- static ssize_t mxt_update_fw_store(struct device *dev,
- 					struct device_attribute *attr,
- 					const char *buf, size_t count)
-@@ -3346,7 +3373,11 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 	struct mxt_data *data = dev_get_drvdata(dev);
- 	int error;
+ 	input_dev->phys = data->phys;
+ 	input_dev->id.bustype = BUS_I2C;
+ 	input_dev->dev.parent = dev;
+@@ -3653,6 +3658,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
  
--	error = mxt_load_fw(dev, MXT_FW_NAME);
-+	error = mxt_update_file_name(dev, &data->fw_name, buf, count);
-+	if (error)
-+		return error;
+ 	device_property_read_string(dev, "atmel,cfg_name", &data->pcfg_name);
+ 
++	device_property_read_string(dev, "atmel,input_name", &data->input_name);
 +
-+	error = mxt_load_fw(dev);
- 	if (error) {
- 		dev_err(dev, "The firmware update failed(%d)\n", error);
- 		count = error;
+ 	if (device_property_present(dev, keymap_property)) {
+ 		n_keys = device_property_count_u32(dev, keymap_property);
+ 		if (n_keys <= 0) {
 -- 
 2.17.1
 

@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62463CA9EC3
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35E59CA9EC2
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 384162086D
-	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0BA4320663
+	for <linux-input@archiver.kernel.org>; Tue, 29 Oct 2019 07:23:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726562AbfJ2HXH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Oct 2019 03:23:07 -0400
-Received: from esa4.mentor.iphmx.com ([68.232.137.252]:27330 "EHLO
-        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728321AbfJ2HXF (ORCPT
+        id S1728615AbfJ2HXA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Oct 2019 03:23:00 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:41336 "EHLO
+        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729290AbfJ2HW5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Oct 2019 03:23:05 -0400
-IronPort-SDR: hKH6TmF5kTcv1gOEOdYGbV40vrZuXMbmj4Mo4HwbkqVZ85IUhrBQXtYXvyN0nrtBs/BQaNm4QJ
- V08up4WQA380yhj4v7hqbZbbhvXlZVhb+aPeXuZDlkUTmICOfc2Mq55Mjk1yxxufxpM/OjbHsN
- babiS3lXGqbFeAp2XW2Htph8AR9/UXUw9CgMrtsX3aPIh2kgsEJX7QAeKXa6/tU/dOcEawv8vc
- RTlWBPq6uZfRS22Vj7/CHQyHnIb6gVuybQaSYiRrd/Y8q8fdU8RQ0V1ovP5FHqn+TmU6tsSwuG
- D4g=
+        Tue, 29 Oct 2019 03:22:57 -0400
+IronPort-SDR: Fy1BRJ1RE1PUeYS4O5U0R6c+SwJpo7GaQ2aXVakNQhmryQlbTCWCCvoGyKXbjdWpWPxMr9TU1S
+ QYZpZOCPF9i7HceH41cFeRd1YV+bQoUHxpe/a9JgqAtEi5gSar66CiXG3ouAu5eecnOd5f0v9q
+ bU9aBB/Yxky1mcEwPv+pnfQ+wae6V7p6Eed4BcAQP+7WTu0EWV3FJN1bD1VYISPYsGuFSyzayy
+ FgEmVw6ulXC+Gb7ln1dZGgJSExqpSoBZEkGIB8qepyIB4fDuMJ65ewU3baAEwC4FBEJYdiUkt+
+ Lpg=
 X-IronPort-AV: E=Sophos;i="5.68,243,1569312000"; 
-   d="scan'208";a="42697355"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:23:03 -0800
-IronPort-SDR: 3ue8ZASKh2W2dS6LYFHsIc/PDU7WYEoxgXgOByY0pzWATL0+DzyKRFvp2IGy06VxtzsFNlFYCl
- U4wd94jZOctACQ6TF+v2drPTDNyZkSx1vCimv+9vxrvJeQ+VeZWKUFJuEKC8H3sYcIXbCvKqqo
- 0PWS7nTyU9mSGczxQXATG34yh6QE2qzQ/0fyRt7WcnFUi6IZjJi1JbSEaxWS4UMMl6W64z9Jdl
- Z5RYRE9D5WP9Zf9OsyAGBaF2fScAwcU8HhRdGeMN156uBzpjfEV8FhOZxv/4k1tRh91Z7l/tOr
- BKc=
+   d="scan'208";a="42663294"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa3.mentor.iphmx.com with ESMTP; 28 Oct 2019 23:22:56 -0800
+IronPort-SDR: wP7q0Izhup8o30ezmD6Ll2ziA2hSabTmCYIBEl7CrwHaz6L11zBDZgviRcRttfjgBs7DwlBNCN
+ pdZB6dZT2ghu4e0W/ynYhqGuzJZSF28LSe4gQlsv1ZtEkZhV6vqNR9EyP/TsHjcNdOejmtledO
+ aR39r6lwB0EJ6S0N+oV1U11apescPClJySQLyBKJyF131ChVRjDU9Ii/wqnMNuGFVP5GpDWWbu
+ 3cf4Ss9bw2dvvtYqwtaU0e8ShHtvWFiPbjxjtFywp4xS+hz0N9jgZZZQnELEOQ/WAIjwpvEQQE
+ AD8=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v4 47/48] Input: atmel_mxt_ts: Implement synchronization during various operation
-Date:   Tue, 29 Oct 2019 16:20:09 +0900
-Message-ID: <20191029072010.8492-48-jiada_wang@mentor.com>
+Subject: [PATCH v4 45/48] input: touchscreen: atmel_mxt_ts: Added sysfs entry for touchscreen status
+Date:   Tue, 29 Oct 2019 16:20:07 +0900
+Message-ID: <20191029072010.8492-46-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191029072010.8492-1-jiada_wang@mentor.com>
 References: <20191029072010.8492-1-jiada_wang@mentor.com>
@@ -53,449 +53,247 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Sanjeev Chugh <sanjeev_chugh@mentor.com>
+From: Naveen Chakka <Naveen.Chakka@in.bosch.com>
 
-There could be scope of race conditions when sysfs is being handled
-and at the same time, device removal is occurring. For example,
-we don't want the device removal to begin if the Atmel device
-cfg update is going on or firmware update is going on. In such
-cases, wait for device update to be completed before the removal
-continues.
+To know the current communication status of the touch controller during
+runtime, sysfs interface is added
 
-    Thread                                          Thread 2:
-=========================                       =========================
-mxt_update_fw_store()                           mxt_remove()
-mutex_lock(&data->lock)                         ...
-mxt_initialize()                                //Tries to acquire lock
-  request_firmware_nowait()                     mutex_lock(&data->lock)
-...                                             ==>waits for lock()
-...                                             .
-...                                             .
-mutex_unlock(&data->lock)                       .
-                                                //Gets lock and proceeds
-                                                mxt_free_input_device();
-                                                ...
-                                                mutex_unlock(&data->lock)
-                                                //Frees atmel driver data
-                                                kfree(data)
+sysfs interface: /sys/class/i2c-dev/i2c-*/device/*/touch_dev_stat
+Executing the above sysfs interface provides two output values
 
-If the request_firmware_nowait() completes after the driver removal,
-and callback is triggered. But kernel crashes since the module is
-already removed.
+1)Status of the touch device
+	value 0 represents device is inactive
+	value 1 represents device is active
+2)Error counter
+	value represents the number of times device in inactive since last read
 
-This commit adds state machine to serialize such scenarios.
-
+Signed-off-by: Naveen Chakka <Naveen.Chakka@in.bosch.com>
 Signed-off-by: Sanjeev Chugh <sanjeev_chugh@mentor.com>
-Signed-off-by: Bhuvanesh Surachari <bhuvanesh_surachari@mentor.com>
+Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 222 ++++++++++++++++++++---
- 1 file changed, 196 insertions(+), 26 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 109 +++++++++++++++++++++--
+ 1 file changed, 102 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index b30bd0baacf1..f89382343c08 100644
+index 3e81e5d9175b..f4168614738c 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -224,6 +224,7 @@ enum t100_type {
+@@ -25,6 +25,7 @@
+ #include <linux/property.h>
+ #include <linux/slab.h>
+ #include <linux/gpio/consumer.h>
++#include <linux/timer.h>
+ #include <asm/unaligned.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/workqueue.h>
+@@ -222,6 +223,7 @@ enum t100_type {
+ #define MXT_CHG_DELAY	        100	/* msec */
  #define MXT_POWERON_DELAY	150	/* msec */
  #define MXT_BOOTLOADER_WAIT	36E5	/* 1 minute */
- #define MXT_WATCHDOG_TIMEOUT	1000	/* msec */
-+#define MXT_CONFIG_TIMEOUT	1000	/* msec */
++#define MXT_WATCHDOG_TIMEOUT	1000	/* msec */
  
  /* Command to unlock bootloader */
  #define MXT_UNLOCK_CMD_MSB	0xaa
-@@ -247,6 +248,20 @@ enum t100_type {
- 
- #define DEBUG_MSG_MAX		200
- 
-+enum device_state {
-+	MXT_STATE_READY,
-+	MXT_STATE_UPDATING_CONFIG,
-+	MXT_STATE_UPDATING_CONFIG_ASYNC,
-+	MXT_STATE_START,
-+	MXT_STATE_STOP,
-+	MXT_STATE_GOING_AWAY
-+};
-+
-+enum mxt_cmd {
-+	UPDATE_CFG,
-+	UPDATE_FW
-+};
-+
- struct mxt_info {
- 	u8 family_id;
- 	u8 variant_id;
-@@ -426,11 +441,15 @@ struct mxt_data {
- 	/* Indicates whether device is in suspend */
- 	bool suspended;
- 
--	/* Indicates whether device is updating configuration */
--	bool updating_config;
-+	struct mutex lock;
- 
- 	unsigned int mtu;
- 	bool t25_status;
-+
-+	/* State handling for probe/remove, open/close and config update */
-+	enum device_state e_state;
-+
-+	struct completion update_cfg_completion;
+@@ -317,6 +319,12 @@ struct mxt_flash {
+ 	struct delayed_work work;
  };
  
- struct mxt_vb2_buffer {
-@@ -1657,6 +1676,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
++struct mxt_statusinfo {
++	bool dev_status;
++	bool intp_triggered;
++	u32 error_count;
++};
++
+ /* Each client has this additional data */
+ struct mxt_data {
+ 	struct i2c_client *client;
+@@ -372,6 +380,9 @@ struct mxt_data {
+ 	const char *pcfg_name;
+ 	const char *input_name;
+ 	struct mxt_flash *flash;
++	struct work_struct watchdog_work;
++	struct timer_list watchdog_timer;
++	struct mxt_statusinfo mxt_status;
+ 
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -1624,11 +1635,30 @@ static int mxt_process_messages(struct mxt_data *data)
+ 	return total_handled;
+ }
+ 
++static void mxt_start_wd_timer(struct mxt_data *data)
++{
++	mod_timer(&data->watchdog_timer, jiffies +
++			msecs_to_jiffies(MXT_WATCHDOG_TIMEOUT));
++}
++
++static void mxt_stop_wd_timer(struct mxt_data *data)
++{
++	/*
++	 * Ensure we wait until the watchdog timer
++	 * running on a different CPU finishes
++	 */
++	del_timer_sync(&data->watchdog_timer);
++	cancel_work_sync(&data->watchdog_work);
++	del_timer_sync(&data->watchdog_timer);
++}
++
+ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ {
  	struct mxt_data *data = dev_id;
  	int ret;
  
-+	mutex_lock(&data->lock);
- 	data->mxt_status.intp_triggered = true;
- 
++	data->mxt_status.intp_triggered = true;
++
  	if (data->in_bootloader) {
-@@ -1684,6 +1704,8 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 		complete(&data->chg_completion);
  
- exit:
- 	data->mxt_status.intp_triggered = false;
-+	mutex_unlock(&data->lock);
+@@ -1636,21 +1666,25 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 			cancel_delayed_work_sync(&data->flash->work);
+ 
+ 		ret = mxt_check_bootloader(data);
+-		return IRQ_RETVAL(ret);
++		ret = IRQ_RETVAL(ret);
++		goto exit;
+ 	}
+ 
+-	if (!data->object_table)
+-		return IRQ_HANDLED;
++	if (!data->object_table) {
++		ret = IRQ_HANDLED;
++		goto exit;
++	}
+ 
+ 	if (data->T44_address)
+ 		ret = mxt_process_messages_t44(data);
+ 	else
+ 		ret = mxt_process_messages(data);
+ 
+-	if (ret <= 0)
+-		return IRQ_NONE;
+-	else
+-		return IRQ_HANDLED;
++	ret = (ret <= 0) ? IRQ_NONE : IRQ_HANDLED;
 +
- 	return ret;
++exit:
++	data->mxt_status.intp_triggered = false;
++	return ret;
  }
  
-@@ -2264,6 +2286,8 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	video_unregister_device(&data->dbg.vdev);
- 	v4l2_device_unregister(&data->dbg.v4l2);
- #endif
-+	mutex_lock(&data->lock);
-+
- 	data->object_table = NULL;
- 	kfree(data->info);
- 	data->info = NULL;
-@@ -2293,6 +2317,8 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T100_reportid_min = 0;
- 	data->T100_reportid_max = 0;
- 	data->max_reportid = 0;
-+
-+	mutex_unlock(&data->lock);
- }
- 
- static int mxt_parse_object_table(struct mxt_data *data,
-@@ -2974,8 +3000,15 @@ static int mxt_configure_objects(struct mxt_data *data,
- 
- static void mxt_config_cb(const struct firmware *cfg, void *ctx)
- {
-+	struct mxt_data *data = ctx;
-+
- 	mxt_configure_objects(ctx, cfg);
- 	release_firmware(cfg);
-+	complete(&data->update_cfg_completion);
-+	mutex_lock(&data->lock);
-+	if (data->e_state != MXT_STATE_GOING_AWAY)
-+		data->e_state = MXT_STATE_READY;
-+	mutex_unlock(&data->lock);
- }
- 
- static int mxt_bootloader_status(struct mxt_data *data)
-@@ -3088,6 +3121,15 @@ static int mxt_initialize(struct mxt_data *data)
- 		goto err_free_sysfs;
- 
- 	if (data->cfg_name) {
-+		mutex_lock(&data->lock);
-+		if (data->e_state != MXT_STATE_GOING_AWAY) {
-+			data->e_state = MXT_STATE_UPDATING_CONFIG_ASYNC;
-+		} else {
-+			mutex_unlock(&data->lock);
-+			return -EBUSY;
-+		}
-+		reinit_completion(&data->update_cfg_completion);
-+		mutex_unlock(&data->lock);
- 		error = request_firmware_nowait(THIS_MODULE, true,
- 						data->cfg_name,
- 						&client->dev,
-@@ -3867,30 +3909,58 @@ static int mxt_update_file_name(struct device *dev, char **file_name,
+ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
+@@ -2970,6 +3004,36 @@ static int mxt_bootloader_status(struct mxt_data *data)
  	return 0;
  }
  
-+static int mxt_process_operation(struct mxt_data *data,
-+				 enum mxt_cmd cmd,
-+				 void *cmd_data);
++static void mxt_watchdog_timer(struct timer_list *t)
++{
++	struct mxt_data *data = from_timer(data, t, watchdog_timer);
 +
- static ssize_t mxt_update_fw_store(struct device *dev,
--					struct device_attribute *attr,
--					const char *buf, size_t count)
-+				   struct device_attribute *attr,
-+				   const char *buf, size_t count)
- {
- 	struct mxt_data *data = dev_get_drvdata(dev);
-+	char *filename = NULL;
-+	int ret;
++	if (!work_pending(&data->watchdog_work)) {
++		if (!data->mxt_status.intp_triggered)
++			schedule_work(&data->watchdog_work);
++	}
 +
-+	ret = mxt_update_file_name(dev, &filename, buf, count);
-+	if (ret)
-+		goto out;
-+
-+	ret = mxt_process_operation(data, UPDATE_FW, filename);
-+	kfree(filename);
-+
-+	if (ret)
-+		goto out;
-+
-+	return count;
-+out:
-+	return ret;
++	mxt_start_wd_timer(data);
 +}
 +
-+static int mxt_fw_update(struct mxt_data *data,
-+			 const char *filename)
++static void mxt_watchdog_work(struct work_struct *work)
 +{
-+	struct device *dev = &data->client->dev;
-+	unsigned int len = 0;
- 	int error;
- 
--	error = mxt_update_file_name(dev, &data->fw_name, buf, count);
-+	len = strlen(filename);
-+	error = mxt_update_file_name(dev, &data->fw_name, filename, len);
- 	if (error)
- 		return error;
- 
- 	error = mxt_load_fw(dev);
- 	if (error) {
- 		dev_err(dev, "The firmware update failed(%d)\n", error);
--		count = error;
--	} else {
--		dev_info(dev, "The firmware update succeeded\n");
--
--		error = mxt_initialize(data);
--		if (error)
--			return error;
-+		return error;
- 	}
- 
--	return count;
-+	error = mxt_initialize(data);
-+	if (error)
-+		return error;
++	struct mxt_data *data =
++		container_of(work, struct mxt_data, watchdog_work);
++	u16 info_buf;
++	int ret = 0;
++	u8 size = 2;
 +
-+	dev_info(dev, "The firmware update succeeded\n");
++	ret = __mxt_read_reg(data->client, 0, size, &info_buf);
 +
-+	return error;
- }
- 
- static ssize_t mxt_update_cfg_store(struct device *dev,
-@@ -3898,14 +3968,38 @@ static ssize_t mxt_update_cfg_store(struct device *dev,
- 		const char *buf, size_t count)
- {
- 	struct mxt_data *data = dev_get_drvdata(dev);
-+	char *filename = NULL;
-+	int ret;
-+
-+	ret = mxt_update_file_name(dev, &filename, buf, count);
-+	if (ret)
-+		goto out;
-+
-+	ret = mxt_process_operation(data, UPDATE_CFG, filename);
-+	kfree(filename);
-+
-+	if (ret)
-+		goto out;
-+
-+	return count;
-+out:
-+	return ret;
-+}
-+
-+static int mxt_cfg_update(struct mxt_data *data,
-+			  char *filename)
-+{
-+	struct device *dev = &data->client->dev;
- 	const struct firmware *cfg;
-+	unsigned int len = 0;
- 	int ret;
- 
--	ret = mxt_update_file_name(dev, &data->cfg_name, buf, count);
-+	len = strlen(filename);
-+	ret = mxt_update_file_name(dev, &data->cfg_name, filename, len);
- 	if (ret)
- 		return ret;
- 
--	ret = request_firmware(&cfg, data->cfg_name, dev);
-+	ret = request_firmware(&cfg, data->cfg_name, &data->client->dev);
- 	if (ret < 0) {
- 		dev_err(dev, "Failure to request config file %s\n",
- 			data->cfg_name);
-@@ -3913,8 +4007,6 @@ static ssize_t mxt_update_cfg_store(struct device *dev,
- 		goto out;
- 	}
- 
--	data->updating_config = true;
--
- 	mxt_free_input_device(data);
- 
- 	if (data->suspended) {
-@@ -3930,15 +4022,8 @@ static ssize_t mxt_update_cfg_store(struct device *dev,
- 	}
- 
- 	ret = mxt_configure_objects(data, cfg);
--	if (ret)
--		goto release;
--
--	ret = count;
--
--release:
- 	release_firmware(cfg);
- out:
--	data->updating_config = false;
- 	return ret;
- }
- 
-@@ -4202,8 +4287,17 @@ static int mxt_start(struct mxt_data *data)
- {
- 	int ret = 0;
- 
--	if (!data->suspended || data->in_bootloader)
-+	mutex_lock(&data->lock);
-+	if (!data->suspended) {
-+		mutex_unlock(&data->lock);
- 		return 0;
-+	}
-+	if (data->in_bootloader || data->e_state != MXT_STATE_READY) {
-+		mutex_unlock(&data->lock);
-+		return -EBUSY;
-+	}
-+	data->e_state = MXT_STATE_START;
-+	mutex_unlock(&data->lock);
- 
- 	switch (data->suspend_mode) {
- 	case MXT_SUSPEND_T9_CTRL:
-@@ -4247,8 +4341,12 @@ static int mxt_start(struct mxt_data *data)
- 		ret = mxt_acquire_irq(data);
- 	}
- 
-+	mutex_lock(&data->lock);
- 	if (!ret)
- 		data->suspended = false;
-+	if (data->e_state != MXT_STATE_GOING_AWAY)
-+		data->e_state = MXT_STATE_READY;
-+	mutex_unlock(&data->lock);
- 
- 	return ret;
- }
-@@ -4257,8 +4355,19 @@ static int mxt_stop(struct mxt_data *data)
- {
- 	int ret;
- 
--	if (data->suspended || data->in_bootloader || data->updating_config)
-+	mutex_lock(&data->lock);
-+	if (data->suspended) {
-+		mutex_unlock(&data->lock);
- 		return 0;
-+	}
-+	if (data->in_bootloader || (data->e_state != MXT_STATE_READY &&
-+				    data->e_state != MXT_STATE_GOING_AWAY)) {
-+		mutex_unlock(&data->lock);
-+		return -EBUSY;
-+	}
-+	if (data->e_state != MXT_STATE_GOING_AWAY)
-+		data->e_state = MXT_STATE_STOP;
-+	mutex_unlock(&data->lock);
- 
- 	switch (data->suspend_mode) {
- 	case MXT_SUSPEND_T9_CTRL:
-@@ -4288,8 +4397,15 @@ static int mxt_stop(struct mxt_data *data)
- 		break;
- 	}
- 
-+	mutex_lock(&data->lock);
- 	data->suspended = true;
-+
-+	if (data->e_state != MXT_STATE_GOING_AWAY)
-+		data->e_state = MXT_STATE_READY;
-+	mutex_unlock(&data->lock);
-+
- 	return 0;
-+
- }
- 
- static int mxt_input_open(struct input_dev *dev)
-@@ -4443,12 +4559,15 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	snprintf(data->phys, sizeof(data->phys), "i2c-%u-%04x/input0",
- 		 client->adapter->nr, client->addr);
- 
-+	mutex_init(&data->lock);
-+
- 	data->client = client;
- 	i2c_set_clientdata(client, data);
- 
- 	init_completion(&data->chg_completion);
- 	init_completion(&data->reset_completion);
- 	init_completion(&data->crc_completion);
-+	init_completion(&data->update_cfg_completion);
- 	mutex_init(&data->debug_msg_lock);
- 
- 	data->suspend_mode = dmi_check_system(chromebook_T9_suspend_dmi) ?
-@@ -4542,6 +4661,18 @@ static int mxt_remove(struct i2c_client *client)
- {
- 	struct mxt_data *data = i2c_get_clientdata(client);
- 
-+	mutex_lock(&data->lock);
-+	if (data->e_state == MXT_STATE_UPDATING_CONFIG_ASYNC ||
-+	    data->e_state == MXT_STATE_UPDATING_CONFIG) {
-+		data->e_state = MXT_STATE_GOING_AWAY;
-+		mutex_unlock(&data->lock);
-+		mxt_wait_for_completion(data, &data->update_cfg_completion,
-+					MXT_CONFIG_TIMEOUT);
++	if (ret) {
++		data->mxt_status.error_count++;
++		data->mxt_status.dev_status = false;
 +	} else {
-+		data->e_state = MXT_STATE_GOING_AWAY;
-+		mutex_unlock(&data->lock);
++		data->mxt_status.dev_status = true;
 +	}
++}
 +
- 	disable_irq(data->irq);
- 	sysfs_remove_group(&client->dev.kobj, &mxt_fw_attr_group);
- 	if (data->reset_gpio) {
-@@ -4598,6 +4729,45 @@ static int __maybe_unused mxt_resume(struct device *dev)
- 	return ret;
- }
+ static int mxt_initialize(struct mxt_data *data)
+ {
+ 	struct i2c_client *client = data->client;
+@@ -3947,6 +4011,22 @@ static const struct attribute_group mxt_fw_attr_group = {
+ 	.attrs = mxt_fw_attrs,
+ };
  
-+static int mxt_process_operation(struct mxt_data *data,
-+				 enum mxt_cmd cmd,
-+				 void *cmd_data)
++static ssize_t mxt_touch_device_status(struct device *dev, struct
++				       device_attribute *attr, char *buf)
 +{
++	struct mxt_data *data = dev_get_drvdata(dev);
 +	int ret = 0;
 +
-+	mutex_lock(&data->lock);
-+	if (data->e_state != MXT_STATE_READY) {
-+		mutex_unlock(&data->lock);
-+		dev_err(&data->client->dev, "Atmel touch device is shutting down\n");
-+		return -EBUSY;
-+	}
-+	data->e_state = MXT_STATE_UPDATING_CONFIG;
-+	reinit_completion(&data->update_cfg_completion);
-+	mutex_unlock(&data->lock);
++	if (data->mxt_status.dev_status)
++		data->mxt_status.error_count = 0;
 +
-+	switch (cmd) {
-+	case UPDATE_CFG:
-+	case UPDATE_FW:
-+		if (cmd == UPDATE_CFG)
-+			ret = mxt_cfg_update(data, (char *)cmd_data);
-+		else
-+			ret = mxt_fw_update(data, (char *)cmd_data);
-+		break;
-+
-+	default:
-+		break;
-+	}
-+	mutex_lock(&data->lock);
-+	if (data->e_state != MXT_STATE_UPDATING_CONFIG_ASYNC) {
-+		complete(&data->update_cfg_completion);
-+		if (data->e_state != MXT_STATE_GOING_AWAY)
-+			data->e_state = MXT_STATE_READY;
-+	}
-+	mutex_unlock(&data->lock);
-+
++	ret =  snprintf(buf, PAGE_SIZE, "%d %d\n", data->mxt_status.dev_status,
++			data->mxt_status.error_count);
++	/* clear the error counter once it is read */
++	data->mxt_status.error_count = 0;
 +	return ret;
 +}
 +
- static SIMPLE_DEV_PM_OPS(mxt_pm_ops, mxt_suspend, mxt_resume);
+ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+@@ -3958,6 +4038,7 @@ static DEVICE_ATTR(debug_v2_enable, S_IWUSR | S_IRUSR, NULL,
+ 		   mxt_debug_v2_enable_store);
+ static DEVICE_ATTR(debug_notify, S_IRUGO, mxt_debug_notify_show, NULL);
+ static DEVICE_ATTR(t25, 0600, mxt_t25_selftest_show, mxt_t25_selftest_store);
++static DEVICE_ATTR(touch_dev_stat, 0444, mxt_touch_device_status, NULL);
  
- static const struct of_device_id mxt_of_match[] = {
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+@@ -3969,6 +4050,7 @@ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_debug_v2_enable.attr,
+ 	&dev_attr_debug_notify.attr,
+ 	&dev_attr_t25.attr,
++	&dev_attr_touch_dev_stat.attr,
+ 	NULL
+ };
+ 
+@@ -4321,6 +4403,13 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		msleep(MXT_RESET_TIME);
+ 	}
+ 
++	INIT_WORK(&data->watchdog_work, mxt_watchdog_work);
++
++	/* setup watchdog timer */
++	timer_setup(&data->watchdog_timer, mxt_watchdog_timer, 0);
++
++	mxt_start_wd_timer(data);
++
+ 	error = mxt_initialize(data);
+ 	if (error)
+ 		goto err_free_object;
+@@ -4335,8 +4424,11 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	return 0;
+ 
+ err_free_object:
++	cancel_work_sync(&data->watchdog_work);
++	mxt_stop_wd_timer(data);
+ 	mxt_free_input_device(data);
+ 	mxt_free_object_table(data);
++	del_timer(&data->watchdog_timer);
+ 	if (data->reset_gpio) {
+ 		sysfs_remove_link(&client->dev.kobj, "reset");
+ 		gpiod_unexport(data->reset_gpio);
+@@ -4359,6 +4451,9 @@ static int mxt_remove(struct i2c_client *client)
+ 	mxt_free_input_device(data);
+ 	mxt_free_object_table(data);
+ 
++	cancel_work_sync(&data->watchdog_work);
++	mxt_stop_wd_timer(data);
++
+ 	return 0;
+ }
+ 
 -- 
 2.17.1
 

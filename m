@@ -2,115 +2,196 @@ Return-Path: <SRS0=LG2p=Y4=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5D9ACA9EC9
-	for <linux-input@archiver.kernel.org>; Mon,  4 Nov 2019 21:43:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D79BCA9ED4
+	for <linux-input@archiver.kernel.org>; Mon,  4 Nov 2019 22:09:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 86FF420848
-	for <linux-input@archiver.kernel.org>; Mon,  4 Nov 2019 21:43:45 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rKoYLnzq"
+	by mail.kernel.org (Postfix) with ESMTP id 08A8220650
+	for <linux-input@archiver.kernel.org>; Mon,  4 Nov 2019 22:09:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1572905363;
+	bh=F11OIyybmXWTD+0HmLsrSH+TXw7EJfZ/N53pkdzMMPM=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=nzFsqdOnONDfds6Fyd205OpIeYiyKADOAj0sqy+p7WxKxGfvuRoIGANtW/HVogEuu
+	 4+rjAySBn96KAkXpXFMfKr6Og2EP18ccOSXHNXpKLUcBAsoeshsFNdfbPMFOHNTH73
+	 Cr01/a1B0p7NVgbVAJkg9G/BAfaH8YYX3TG2MSQc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728634AbfKDVnp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 4 Nov 2019 16:43:45 -0500
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:44119 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728409AbfKDVno (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Nov 2019 16:43:44 -0500
-Received: by mail-ot1-f66.google.com with SMTP id n48so15763699ota.11;
-        Mon, 04 Nov 2019 13:43:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HqgsGp53OtlR6neqVOzYFTFQROyiEWTcquDxocb9OCI=;
-        b=rKoYLnzq0DyJN6YnznKHfWTUnH5xlWLMgunCpjXOUAPQKbi1s6hW12cgqc3z997Wix
-         hWVHKAy61sZDse7QZAV+1H38ZXD9uNumjjaRBfocXsAIpbbY71tB4DwG0VUItBdm20A8
-         fqKmjl4B4Ut0f/MNYMe+B5xxZff7P1mTrGJWNUmJSj0uPUESmoLEwYehsRFqXXec1QTH
-         NsC5T3xvpLWeFfsyJXkeogzBN3mwhMy4liDUO3iHmEQtwndgYAw/I7Td4fQEuvdatGQU
-         4v/u2ZsxDfX2T+xZHmxLMLCFicFRRog6ueCEX1IX2Sie1oblMnoxMrpqtIcvFgw8MTWc
-         l80A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=HqgsGp53OtlR6neqVOzYFTFQROyiEWTcquDxocb9OCI=;
-        b=NNeWiqtv+IhnrjF1Us3fB9aRz1UwPROjn8qIiVnVkMIudGNjqnm3GvkES+89goGYv0
-         JU/T14ML3OAse+vVlzrvve7+/VYKpYDSdpTHrPQQEYaOPtvcKaUnV8Pw4P6CKpldfmZ0
-         vIXGg0c8GzKUBcvvr+jthSFICYzWL5t2sHu0ILOvL9kRd265DNJ33qquUW4Nf548jiiL
-         HVI+n65DsmdZWNfGTCL/y8lo3fFxzVau5V1kQMX2vexHBqllWglWVvz3tW/hKgPMpY33
-         LDEX/Zyuk+yzKuJ3rGfQUakY3SBXRhRNmjJqlvgc0M6NQbA+6poSeZ5vb1ySYKs35VJO
-         xt+A==
-X-Gm-Message-State: APjAAAXg0aLBDmAbr2XOzKWVBfiADBmSbd0QwS0CtC7Popc1unHtvN52
-        zXJl4YCkUzDE06kNE4NWRW0+oHSvk7uN9+Cz0AKkkGp9
-X-Google-Smtp-Source: APXvYqyBkkUvqZgxzUUjvR+AW6uTCN7bzCA6HUt9VFBPvsLnErJvmzyH79ZRpGqofhHq5x2faMIpi0D+Zn+saszXe90=
-X-Received: by 2002:a05:6830:11d2:: with SMTP id v18mr15278490otq.116.1572903823498;
- Mon, 04 Nov 2019 13:43:43 -0800 (PST)
+        id S2390392AbfKDWJW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 4 Nov 2019 17:09:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42394 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390047AbfKDWJV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:09:21 -0500
+Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F38FD217F5;
+        Mon,  4 Nov 2019 22:09:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572905360;
+        bh=F11OIyybmXWTD+0HmLsrSH+TXw7EJfZ/N53pkdzMMPM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=sX7j5M2N9+i8laADpYSeqVnipO/ZKe8Tzev8bS08kkm/mLtpGJCfOfz1blJo5wMWk
+         uElWEBwXSvC1+QyzwtnNDjKSZjUIltTGx21hkAOlqJilTEBR4P9BFElETSwBvlF8ig
+         16z3/BbMnMuUYYtSEYfPniu6N8E6E1p3rmNDIhcQ=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Sam Bazely <sambazley@fastmail.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
+        Austin Palmer <austinp@valvesoftware.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH 5.3 119/163] HID: logitech-hidpp: rework device validation
+Date:   Mon,  4 Nov 2019 22:45:09 +0100
+Message-Id: <20191104212148.837477552@linuxfoundation.org>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-References: <20191104070116.GM57214@dtor-ws> <20191104183702.8894-1-TheSven73@gmail.com>
- <CAHCN7xJc6DeyQV27OVjD14a8hZT+_Fo9qo-iHgLO414t3y6hVQ@mail.gmail.com>
-In-Reply-To: <CAHCN7xJc6DeyQV27OVjD14a8hZT+_Fo9qo-iHgLO414t3y6hVQ@mail.gmail.com>
-From:   Sven Van Asbroeck <thesven73@gmail.com>
-Date:   Mon, 4 Nov 2019 16:43:32 -0500
-Message-ID: <CAGngYiXp52g7X=KLVqxTAhK0AJ9mpgGyaptbkYvhwWfRkQCaXQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] Input: ili210x - add ILI2117 support
-To:     Adam Ford <aford173@gmail.com>
-Cc:     Marek Vasut <marex@denx.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Adam,
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-On Mon, Nov 4, 2019 at 4:28 PM Adam Ford <aford173@gmail.com> wrote:
->
-> I am using IRQ_TYPE_EDGE_RISING for the 2117A.  Is that correct?  For
-> my touchscreen, the IRQ line is low until a touch is detected, so I
-> assume we want to capure on the rising edge.
+commit 905d754c53a522aacf806ea1d3e7c929148c1910 upstream.
 
-That is correct for the 2117A, as far as I know. I am using the same
-setting.
+G920 device only advertises REPORT_ID_HIDPP_LONG and
+REPORT_ID_HIDPP_VERY_LONG in its HID report descriptor, so querying
+for REPORT_ID_HIDPP_SHORT with optional=false will always fail and
+prevent G920 to be recognized as a valid HID++ device.
 
->
-> Regarding Dmitry's patch,
-> Is it a good idea to use msleep in an IRQ?  It seems like using the
-> schedule_delayed_work() call seems like it will get in and get out of
-> the ISR faster.
->
-> If we use msleep and scan again, isn't it possible to starve other processes?
+To fix this and improve some other aspects, modify
+hidpp_validate_device() as follows:
 
-I believe using msleep() is ok because this is not a "real" interrupt handler,
-but a threaded one. It runs in a regular kernel thread, with its interrupt
-turned off (but all other interrupts remain enabled). Its interrupt is
-re-enabled automatically after the threaded handler returns.
+  - Inline the code of hidpp_validate_report() to simplify
+    distingushing between non-present and invalid report descriptors
 
-See
-https://elixir.bootlin.com/linux/latest/source/include/linux/interrupt.h#L50
+  - Drop the check for id >= HID_MAX_IDS || id < 0 since all of our
+    IDs are static and known to satisfy that at compile time
 
-> > @@ -268,7 +278,7 @@ static irqreturn_t ili210x_irq(int irq, void *irq_data)
-> >                 }
-> >
-> >                 touch = ili210x_report_events(priv, touchdata);
-> > -               keep_polling = touch || chip->continue_polling(touchdata);
-> > +               keep_polling = chip->continue_polling(touchdata, touch);
-> >                 if (keep_polling)
->
-> Why not just check the value of touch instead of invoking the function
-> pointer which takes the value of touch in as a parameter?
->
+  - Change the algorithms to check all possible report
+    types (including very long report) and deem the device as a valid
+    HID++ device if it supports at least one
 
-The value of touch must be checked inside the callback, because
-some variants use it to decide if they should poll again, and
-some do not, such as the ili211x.
+  - Treat invalid report length as a hard stop for the validation
+    algorithm, meaning that if any of the supported reports has
+    invalid length we assume the worst and treat the device as a
+    generic HID device.
 
-If I have misinterpreted your suggestion, could you perhaps
-express it in C, so I can understand better?
+  - Fold initialization of hidpp->very_long_report_length into
+    hidpp_validate_device() since it already fetches very long report
+    length and validates its value
+
+Fixes: fe3ee1ec007b ("HID: logitech-hidpp: allow non HID++ devices to be handled by this module")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204191
+Reported-by: Sam Bazely <sambazley@fastmail.com>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+Cc: Austin Palmer <austinp@valvesoftware.com>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # 5.2+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/hid/hid-logitech-hidpp.c |   54 +++++++++++++++++++++------------------
+ 1 file changed, 30 insertions(+), 24 deletions(-)
+
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3498,34 +3498,45 @@ static int hidpp_get_report_length(struc
+ 	return report->field[0]->report_count + 1;
+ }
+ 
+-static bool hidpp_validate_report(struct hid_device *hdev, int id,
+-				  int expected_length, bool optional)
++static bool hidpp_validate_device(struct hid_device *hdev)
+ {
+-	int report_length;
++	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
++	int id, report_length, supported_reports = 0;
++
++	id = REPORT_ID_HIDPP_SHORT;
++	report_length = hidpp_get_report_length(hdev, id);
++	if (report_length) {
++		if (report_length < HIDPP_REPORT_SHORT_LENGTH)
++			goto bad_device;
+ 
+-	if (id >= HID_MAX_IDS || id < 0) {
+-		hid_err(hdev, "invalid HID report id %u\n", id);
+-		return false;
++		supported_reports++;
+ 	}
+ 
++	id = REPORT_ID_HIDPP_LONG;
+ 	report_length = hidpp_get_report_length(hdev, id);
+-	if (!report_length)
+-		return optional;
++	if (report_length) {
++		if (report_length < HIDPP_REPORT_LONG_LENGTH)
++			goto bad_device;
+ 
+-	if (report_length < expected_length) {
+-		hid_warn(hdev, "not enough values in hidpp report %d\n", id);
+-		return false;
++		supported_reports++;
+ 	}
+ 
+-	return true;
+-}
++	id = REPORT_ID_HIDPP_VERY_LONG;
++	report_length = hidpp_get_report_length(hdev, id);
++	if (report_length) {
++		if (report_length < HIDPP_REPORT_LONG_LENGTH ||
++		    report_length > HIDPP_REPORT_VERY_LONG_MAX_LENGTH)
++			goto bad_device;
+ 
+-static bool hidpp_validate_device(struct hid_device *hdev)
+-{
+-	return hidpp_validate_report(hdev, REPORT_ID_HIDPP_SHORT,
+-				     HIDPP_REPORT_SHORT_LENGTH, false) &&
+-	       hidpp_validate_report(hdev, REPORT_ID_HIDPP_LONG,
+-				     HIDPP_REPORT_LONG_LENGTH, true);
++		supported_reports++;
++		hidpp->very_long_report_length = report_length;
++	}
++
++	return supported_reports;
++
++bad_device:
++	hid_warn(hdev, "not enough values in hidpp report %d\n", id);
++	return false;
+ }
+ 
+ static bool hidpp_application_equals(struct hid_device *hdev,
+@@ -3572,11 +3583,6 @@ static int hidpp_probe(struct hid_device
+ 		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	}
+ 
+-	hidpp->very_long_report_length =
+-		hidpp_get_report_length(hdev, REPORT_ID_HIDPP_VERY_LONG);
+-	if (hidpp->very_long_report_length > HIDPP_REPORT_VERY_LONG_MAX_LENGTH)
+-		hidpp->very_long_report_length = HIDPP_REPORT_VERY_LONG_MAX_LENGTH;
+-
+ 	if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
+ 		hidpp->quirks |= HIDPP_QUIRK_UNIFYING;
+ 
+
+

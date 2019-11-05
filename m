@@ -2,128 +2,83 @@ Return-Path: <SRS0=K88o=Y5=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21648CA9EC9
-	for <linux-input@archiver.kernel.org>; Tue,  5 Nov 2019 00:04:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0348FCA9ED3
+	for <linux-input@archiver.kernel.org>; Tue,  5 Nov 2019 02:04:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E5F3B20717
-	for <linux-input@archiver.kernel.org>; Tue,  5 Nov 2019 00:04:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE7B8214E0
+	for <linux-input@archiver.kernel.org>; Tue,  5 Nov 2019 02:04:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pc4ujORQ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lh+taqpr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387399AbfKEAED (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 4 Nov 2019 19:04:03 -0500
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:44497 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387394AbfKEAED (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Nov 2019 19:04:03 -0500
-Received: by mail-pf1-f194.google.com with SMTP id q26so13731832pfn.11
-        for <linux-input@vger.kernel.org>; Mon, 04 Nov 2019 16:04:03 -0800 (PST)
+        id S1729796AbfKECEZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 4 Nov 2019 21:04:25 -0500
+Received: from mail-oi1-f170.google.com ([209.85.167.170]:44238 "EHLO
+        mail-oi1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729597AbfKECEZ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Nov 2019 21:04:25 -0500
+Received: by mail-oi1-f170.google.com with SMTP id s71so16078113oih.11;
+        Mon, 04 Nov 2019 18:04:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=4FyWZlNrN/bH7vbFCEcNs2L9LUdfh+Hb2mhp1uWjlF0=;
-        b=Pc4ujORQRso5MmSAMfxJLK6PFG0lo/U2t1Cf+XvEvoNpi5/FpP0drn9KY+zIjuRZlh
-         D/BOarBUHcItyDjMqKulXsAoQ2EIkeVE0IE87PVxGcSYVaYfMv5QCi7t8KJ7QLFGotd0
-         4oZNSf41dUEvTf6+X/dM1wRaswgNMfjOPqQTkK8KpVW0YNFCpL+wVbtHGSCIoBeQONmq
-         h5NMM5s3Qo8BNPZcszmwo8qkYKDyNRSZ8Ec7SslOm2Aj5ttDMg/4d97SgcZDUQVsS+Ze
-         TD2sZ8Cr7/2da79dyT2Ftit2kKqUgKVQFnusfwpyFImQEvb8trCEphUeann7OKuBR6+a
-         0iUA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ADhHQyzzzWn62AhgjPBGjZ8RKk/lIEHw/9dcMO6+pCk=;
+        b=lh+taqpro3T1ItQODcyPB3kJNsKkTG9wg7JPqeRouX9H+IDJbvGh3xl/krrLLUGcKD
+         g6tjmweAkkVbxMWeRF6OKnvvhZ3Mps5JQcs4uGMCOgBcQbtSuLWHClnbJLki94kkiPfF
+         sBrJQdETsXyOwtXkffzRQf1bqoUfcfS604LCBI/V6rr/OK9qWj93jeks784jnZmVkFBt
+         9L51/MVqilrrvg3qaZLJG9MD67gv4CQfEgSqAW2w4Hj5b4zLwEyT7MYyJVTdH4fY35hO
+         54yklCViHM4UeTEotJ/E/RQFJ91RU+ROAFc40K5D0xtLlxj5MHeOEsSGbLnPoba4S/gW
+         nkCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=4FyWZlNrN/bH7vbFCEcNs2L9LUdfh+Hb2mhp1uWjlF0=;
-        b=RzTC20tOVX2Alkva7qcmzOYsHgrg2VUXehVWM483xMX0p+2QkdT4US1ra6k/Mt2HkM
-         a8NLx6oSlw5HSqw5ggJb60krS8lzZW3opys5BSNab4bU+HOuQg0Kc+viHCNwfsyJwel/
-         Hn5UmAtLEcTRXql3m9TSFSIbJ0DhCqoPYoff+lw6eauo+IZKEdyKURElflujhwk9C1Oy
-         aA2yoKMVTrjgHXTwNxB0rHLjfP1r6tyT+WP1Os80lYFGGRixKmkQn8c6kkq1TZTbMNlB
-         FwFQMHUW34pTUkQ+x9Z6hMzBP0WvKmA9cabaXWGhTDvsc8qff/2CwzHLyemQnhzOKAB5
-         pSOw==
-X-Gm-Message-State: APjAAAXTclWl0rWmAcHv/dJDY3MMKwl4SHzSEM90JtrK/F1HRbiqVM7k
-        5LshMLc81DfpeM+tQ//D6NY=
-X-Google-Smtp-Source: APXvYqy13jqWgdpwBClkykKDJ3WE72r3g8SU1Q0TSikRSeOjcy7umJOuxPyO7EdCf5adfd4u9GT60g==
-X-Received: by 2002:a62:ce85:: with SMTP id y127mr842422pfg.197.1572912242520;
-        Mon, 04 Nov 2019 16:04:02 -0800 (PST)
-Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id e198sm19385040pfh.83.2019.11.04.16.04.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Nov 2019 16:04:01 -0800 (PST)
-Date:   Mon, 4 Nov 2019 16:03:59 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Lucas Stach <l.stach@pengutronix.de>
-Cc:     linux-input@vger.kernel.org, patchwork-lst@pengutronix.de,
-        kernel@pengutronix.de
-Subject: Re: [PATCH resend 2/3] Input: synaptics-rmi4 - add dummy F54
- attention handler
-Message-ID: <20191105000359.GS57214@dtor-ws>
-References: <20191104114454.10500-1-l.stach@pengutronix.de>
- <20191104114454.10500-2-l.stach@pengutronix.de>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ADhHQyzzzWn62AhgjPBGjZ8RKk/lIEHw/9dcMO6+pCk=;
+        b=rCeLLLz/ehkhzirqkiyoPfIxN1ohZg8Vzjdy+VuTDdwPfsU2C3HHQZi8+xA5XTHu81
+         UoFkyDFqlhW1Eo7+p2N+fNA4jzjd0uzT/VqRayu7MatCmyuyxNlp2LJ9SHKHa/zB9lhP
+         tnHZiBiRxbOQsC+C98nZhpNYu9nyNsRSlDLSUMpNezbgsUe+dXqNdBExC3ZqEC74CTZf
+         MsAB3MU2um/jUVFKc6PYEvdzWL1IpZPEfUes8lUR/i4o7nH2RFUwxs7y9eHHKw29aH2a
+         rhVNE3z6gslzk7zy2uCFUtwGDavu0oqZGPjwxKewfoTkv3oxjSA8xXL5Wh5Qj+QW2x2h
+         DJQA==
+X-Gm-Message-State: APjAAAU2B5//5DKfqWhbCRb9Xb5hiphVb9T0Sme5EsbhajTTGseI/zHf
+        icIjBSfOWqsKnuYuMGhJ0kEew9N1DI6TSKNkUq3ajA==
+X-Google-Smtp-Source: APXvYqzQGIxisFpxPq6yZRZ1LuLxkXbVelLMLIpWXHzlIySh5ijOD0lSqbLfxkb7ZpV3CqbjgwCHs7NOUJQ48sEM7hw=
+X-Received: by 2002:a05:6808:7d0:: with SMTP id f16mr1769719oij.86.1572919463689;
+ Mon, 04 Nov 2019 18:04:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191104114454.10500-2-l.stach@pengutronix.de>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20191104070116.GM57214@dtor-ws> <20191104183702.8894-1-TheSven73@gmail.com>
+ <CAHCN7xJc6DeyQV27OVjD14a8hZT+_Fo9qo-iHgLO414t3y6hVQ@mail.gmail.com>
+ <CAGngYiXp52g7X=KLVqxTAhK0AJ9mpgGyaptbkYvhwWfRkQCaXQ@mail.gmail.com>
+ <CAHCN7xLhqHzcHro7HYUdNAi8K3ToeruOtLw=0SZNAgNqUpxvHQ@mail.gmail.com>
+ <20191104233621.GP57214@dtor-ws> <CAHCN7x+=_FM32JTEKAb=5pPJNvim88cUFuEXgdGhMG9gdr0Emg@mail.gmail.com>
+In-Reply-To: <CAHCN7x+=_FM32JTEKAb=5pPJNvim88cUFuEXgdGhMG9gdr0Emg@mail.gmail.com>
+From:   Sven Van Asbroeck <thesven73@gmail.com>
+Date:   Mon, 4 Nov 2019 21:04:11 -0500
+Message-ID: <CAGngYiX1JP8NZBU+wRzdsLBMN7hhsbmfaD5o4PGPX27Q-6J4xw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] Input: ili210x - add ILI2117 support
+To:     Adam Ford <aford173@gmail.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Marek Vasut <marex@denx.de>, linux-input@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Nov 04, 2019 at 12:44:53PM +0100, Lucas Stach wrote:
-> F54 is IRQ capable, even if it is not used in the current driver
-> implementation. The common driver code in rmi_create_function_irq always
-> installs a irq handler for functions that are IRQ capable. Without a
-> assigned attention handler, this means a NULL pointer being passed as
-> the nested IRQ handler. This seems to work with some architecture
-> implementations, but crashes on others like ARM64.
-> 
-> Don't rely on implementation defined behavior and actually install
-> a proper attention handler.
+On Mon, Nov 4, 2019 at 6:40 PM Adam Ford <aford173@gmail.com> wrote:
+>
+> I will test it tomorrow on a 2117a and reply with results.  I am very
+> excited to see this integrated.
+>
 
-Instead of supplying dummy IRQ handler, can't we simply disable relevant
-interrupts bits?
+I will do the same. That should give us confidence that 211x works
+ok.
 
-> 
-> Fixes: 24d28e4f1271 ("Input: synaptics-rmi4 - convert irq distribution
->                       to irq_domain")
-> Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-> ---
->  drivers/input/rmi4/rmi_f54.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-> index 4841354af0d7..22390e89c680 100644
-> --- a/drivers/input/rmi4/rmi_f54.c
-> +++ b/drivers/input/rmi4/rmi_f54.c
-> @@ -732,6 +732,11 @@ static void rmi_f54_remove(struct rmi_function *fn)
->  	v4l2_device_unregister(&f54->v4l2);
->  }
->  
-> +static irqreturn_t rmi_f54_attention(int irq, void *ctx)
-> +{
-> +	return IRQ_HANDLED;
-> +}
-> +
->  struct rmi_function_handler rmi_f54_handler = {
->  	.driver = {
->  		.name = F54_NAME,
-> @@ -740,4 +745,5 @@ struct rmi_function_handler rmi_f54_handler = {
->  	.probe = rmi_f54_probe,
->  	.config = rmi_f54_config,
->  	.remove = rmi_f54_remove,
-> +	.attention = rmi_f54_attention,
->  };
-> -- 
-> 2.20.1
-> 
-
-Thanks.
-
--- 
-Dmitry
+Dmitry, should someone retest 251x and 210x after such a significant
+change? Unfortunately I don't have access to these chips.

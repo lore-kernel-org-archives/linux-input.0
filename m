@@ -2,37 +2,36 @@ Return-Path: <SRS0=pzmn=Y6=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01E3FC5DF64
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:03:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7145EC5DF62
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:03:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C51A2217F4
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:03:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3FC5A217F4
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:03:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731619AbfKFHDl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Nov 2019 02:03:41 -0500
-Received: from esa2.mentor.iphmx.com ([68.232.141.98]:9041 "EHLO
-        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730997AbfKFHDk (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:03:40 -0500
-IronPort-SDR: 0JawOS8eb0mO/ubajf00T9Zp+gZQdBq1xQbnqPvsLQg6/rlQd+7piOYgP3wQiEHOSc2o//1Q2n
- TjeD1AArRy4QIQTdd27KRQM4as1D0e2dfSUIscxFPYxOvS5/6mXwHrrtw6RMndKrQ3E26oLrtM
- ZQwuTJTQqWyPdAMkC2agKcC71isUIt4hKaQ4/PSK9PXGfKLx1vBtII9GrkKQgcH/Eby4zKNDvs
- yXhgxlvAOmN+TZuCJ+RVz0yxfH7x5c3VPyHyEdIk4b8JTQzgEA/7p2GzttYE7c1OIrjktkWJ5a
- pSU=
+        id S1731671AbfKFHDt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Nov 2019 02:03:49 -0500
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:18623 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729926AbfKFHDs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:03:48 -0500
+IronPort-SDR: mL8JUM/wa/RdpVME/k51twZL4A6FnEq+7zKYMAoP2d/oD92JvEQL5eM8GNlx9ALTWDts0bYkHp
+ gUxEQ7tCDjoUWK8NDhdTOg3tWuYgcnn0QrJseVae0bWzbYcnAnULnhRQspJFREK71OLxjIXC/O
+ Fv1kZmdHjMrOnzQ6nOsofdkK4Ap5vv34WoSF7xQdJ8a3JbCDda+2p4J/lNO1fOa4hkKvKODXpC
+ 1wAURmiDO5F+PuxDnH+QuX99Fk/m7bmsT/jUIa76rrmo6Y0GROAQX4QmVvxC2Aune7/OD6ige1
+ 594=
 X-IronPort-AV: E=Sophos;i="5.68,272,1569312000"; 
-   d="scan'208";a="42848289"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa2.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:03:40 -0800
-IronPort-SDR: szwH+T+kC4PDP1e5bvWN3gcxaUmiBl6g+MKCOk+JBh39XJPH1eDrmMvZzZXvkZbOvo6aMfST/3
- ypdbz/zheyPYlbxEhiHtP9Mz2nmUfi7hKTgAIE+Ji0ebDgDqjC6jc7mlfw3fEkgwOOSXPAL8Np
- Z4l/t20VEvA4kyR6aPZaoznEUCR3yvGXYMdBZHCOrs5UM3Euv/jP5J1JK33IUbErAC6tNBo8LC
- nyrnRF4OkIu/lwE8K1dfjs79TtFfyLnyFFk7kXoajB5o4GojBKSVjCPC5M3rG9WkSjGU4aud5o
- TpM=
+   d="scan'208";a="44759290"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa1.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:03:47 -0800
+IronPort-SDR: szDzx3mvg78n4McnqPSjHY/I0k53AkrScLfAdGUj0cAqfjhY5K7rIo1NEAecR5hOShNHdh+Fl3
+ wM3VRsjlmjmpHSFiNGjceEJxihyzAkCS5jhLfeigP2vIGlkG5x4Tp2l4DOkMRK4wsYHHlWujJ1
+ paPcgR5L+5ok0Brs9pcF8iCFjO3qWH2wZthb6dYNrEM/tDLwu3m/GIa013QhQx6CDy9Ga/NUx4
+ /0I4/qWqAOC+6XAReqI4Laa1Q3XTUfKxho/Xy39Y2ZF/FqnYdti4GAx8JMbT9TV7iLdJQzRYEG
+ aLQ=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +39,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v5 28/48] Input: atmel_mxt_ts - implement debug output for messages
-Date:   Wed, 6 Nov 2019 16:01:26 +0900
-Message-ID: <20191106070146.18759-29-jiada_wang@mentor.com>
+Subject: [PATCH v5 30/48] Input: atmel_mxt_ts - eliminate data->raw_info_block
+Date:   Wed, 6 Nov 2019 16:01:28 +0900
+Message-ID: <20191106070146.18759-31-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191106070146.18759-1-jiada_wang@mentor.com>
 References: <20191106070146.18759-1-jiada_wang@mentor.com>
@@ -53,124 +52,59 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+Dynamically allocated in mxt_read_info_block() buffer buf is assigned
+both to data->info and data->raw_info_block, having both data->info
+and data->raw_info_block is redundant and confusing.
 
-Add a debug switch which causes all messages from the touch controller to
-be dumped to the dmesg log with a set prefix "MXT MSG:". This is used by
-Atmel user-space utilities to debug touch operation. Enabling this output
-does impact touch performance.
+This patch eliminates data->raw_info_block.
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 3c3fcfdd4889dfeb1c80ae8cd94a622c6342b06a)
-[gdavis: Forward port and fix conflicts.]
-Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+Signed-off-by: George G. Davis <george_davis@mentor.com>
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 47 ++++++++++++++++++++++--
- 1 file changed, 44 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index de77079e3324..6f4274a1c7e0 100644
+index db91caff40e4..54e2d5f81af9 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -335,6 +335,7 @@ struct mxt_data {
- 	u8 t100_aux_ampl;
- 	u8 t100_aux_area;
- 	u8 t100_aux_vect;
-+	bool debug_enabled;
- 	u8 max_reportid;
- 	u32 config_crc;
- 	u32 info_crc;
-@@ -460,8 +461,11 @@ static bool mxt_object_readable(unsigned int type)
+@@ -323,7 +323,6 @@ struct mxt_data {
+ 	char phys[64];		/* device physical location */
+ 	struct mxt_object *object_table;
+ 	struct mxt_info *info;
+-	void *raw_info_block;
+ 	unsigned int irq;
+ 	unsigned int max_x;
+ 	unsigned int max_y;
+@@ -2070,9 +2069,8 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	v4l2_device_unregister(&data->dbg.v4l2);
+ #endif
+ 	data->object_table = NULL;
++	kfree(data->info);
+ 	data->info = NULL;
+-	kfree(data->raw_info_block);
+-	data->raw_info_block = NULL;
+ 	kfree(data->msg_buf);
+ 	data->msg_buf = NULL;
+ 	data->T5_address = 0;
+@@ -2241,7 +2239,7 @@ static int mxt_read_info_block(struct mxt_data *data)
+ 	u8 *crc_ptr;
  
- static void mxt_dump_message(struct mxt_data *data, u8 *message)
- {
--	dev_dbg(&data->client->dev, "message: %*ph\n",
--		data->T5_msg_size, message);
-+	/* debug message with prefix 'MXT MSG:' used by
-+	 * Atmel user-space utilities to debug touch operation
-+	 */
-+	dev_dbg(&data->client->dev, "MXT MSG: %*ph\n",
-+		       data->T5_msg_size, message);
- }
+ 	/* If info block already allocated, free it */
+-	if (data->raw_info_block)
++	if (data->info)
+ 		mxt_free_object_table(data);
  
- static int mxt_wait_for_completion(struct mxt_data *data,
-@@ -1214,6 +1218,7 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
- static int mxt_proc_message(struct mxt_data *data, u8 *message)
- {
- 	u8 report_id = message[0];
-+	bool dump = data->debug_enabled;
- 
- 	if (report_id == MXT_RPTID_NOMSG)
- 		return 0;
-@@ -1248,9 +1253,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	} else if (report_id == data->T93_reportid) {
- 		mxt_proc_t93_messages(data, message);
- 	} else {
--		mxt_dump_message(data, message);
-+		dump = true;
+ 	/* Read 7-byte ID information block starting at address 0 */
+@@ -2292,7 +2290,6 @@ static int mxt_read_info_block(struct mxt_data *data)
+ 		goto err_free_mem;
  	}
  
-+	if (dump)
-+		mxt_dump_message(data, message);
-+
- 	return 1;
- }
+-	data->raw_info_block = id_buf;
+ 	data->info = (struct mxt_info *)id_buf;
  
-@@ -3522,6 +3530,36 @@ static ssize_t mxt_update_cfg_store(struct device *dev,
- 	return ret;
- }
- 
-+static ssize_t mxt_debug_enable_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	char c;
-+
-+	c = data->debug_enabled ? '1' : '0';
-+	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
-+}
-+
-+static ssize_t mxt_debug_enable_store(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	u8 i;
-+	ssize_t ret;
-+
-+	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
-+		data->debug_enabled = (i == 1);
-+
-+		dev_dbg(dev, "%s\n", i ? "debug enabled" : "debug disabled");
-+		ret = count;
-+	} else {
-+		dev_dbg(dev, "debug_enabled write error\n");
-+		ret = -EINVAL;
-+	}
-+
-+	return ret;
-+}
-+
- static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
- 
- static struct attribute *mxt_fw_attrs[] = {
-@@ -3538,6 +3576,8 @@ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
- static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
- static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
- static DEVICE_ATTR(config_crc, S_IRUGO, mxt_config_crc_show, NULL);
-+static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
-+		   mxt_debug_enable_store);
- 
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
-@@ -3545,6 +3585,7 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_object.attr,
- 	&dev_attr_update_cfg.attr,
- 	&dev_attr_config_crc.attr,
-+	&dev_attr_debug_enable.attr,
- 	NULL
- };
- 
+ 	dev_info(&client->dev,
 -- 
 2.17.1
 

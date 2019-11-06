@@ -2,92 +2,101 @@ Return-Path: <SRS0=pzmn=Y6=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D639C5DF63
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 09:51:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C87BFC5DF63
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 10:07:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5818F21848
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 09:51:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A28142077C
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 10:07:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731376AbfKFJvW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Nov 2019 04:51:22 -0500
-Received: from sauhun.de ([88.99.104.3]:50146 "EHLO pokefinder.org"
+        id S1726811AbfKFKG5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Nov 2019 05:06:57 -0500
+Received: from gofer.mess.org ([88.97.38.141]:45907 "EHLO gofer.mess.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726143AbfKFJug (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Nov 2019 04:50:36 -0500
-Received: from localhost (p54B33505.dip0.t-ipconnect.de [84.179.53.5])
-        by pokefinder.org (Postfix) with ESMTPSA id 65D0A2C053B;
-        Wed,  6 Nov 2019 10:50:33 +0100 (CET)
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     Wolfram Sang <wsa@the-dreams.de>, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [RFC PATCH 00/12] i2c: replace i2c_new_probed_device with an ERR_PTR variant
-Date:   Wed,  6 Nov 2019 10:50:18 +0100
-Message-Id: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.20.1
+        id S1725856AbfKFKG5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 6 Nov 2019 05:06:57 -0500
+Received: by gofer.mess.org (Postfix, from userid 1000)
+        id 5EF88C635F; Wed,  6 Nov 2019 10:06:55 +0000 (GMT)
+Date:   Wed, 6 Nov 2019 10:06:55 +0000
+From:   Sean Young <sean@mess.org>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc:     linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: Re: [RFC PATCH 00/12] i2c: replace i2c_new_probed_device with an
+ ERR_PTR variant
+Message-ID: <20191106100655.GA2743@gofer.mess.org>
+References: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Wolfram Sang <wsa@the-dreams.de>
+On Wed, Nov 06, 2019 at 10:50:18AM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa@the-dreams.de>
+> 
+> In the on-going mission to let i2c_new_* calls return an ERR_PTR instead
+> of NULL, here is a series converting i2c_new_probed_device(). A new
+> function called i2c_new_scanned_device() is introduced with the new
+> retval, but for now, a compatibility helper is provided until all users
+> are converted. The rest of the patches convert all current in-tree
+> users.
+> 
+> Note that these patches are RFC because I want feedback on the approach
+> and hopefully collect acks on the driver conversions. If all goes well,
+> I'll apply the first two patches for the next merge window. Then, once
+> this dependency is upstream, I'll resend this series with all issues
+> fixed and acks collected.
 
-In the on-going mission to let i2c_new_* calls return an ERR_PTR instead
-of NULL, here is a series converting i2c_new_probed_device(). A new
-function called i2c_new_scanned_device() is introduced with the new
-retval, but for now, a compatibility helper is provided until all users
-are converted. The rest of the patches convert all current in-tree
-users.
+The patches to drivers/media/pci/* are all IR related which have touched
+on/read over the years. So, for those:
 
-Note that these patches are RFC because I want feedback on the approach
-and hopefully collect acks on the driver conversions. If all goes well,
-I'll apply the first two patches for the next merge window. Then, once
-this dependency is upstream, I'll resend this series with all issues
-fixed and acks collected.
+Acked-by: Sean Young <sean@mess.org>
 
-Core changes tested on a Renesas Salvator-XS board (R-Car M3-N), driver
-patches build tested by me and buildbot.
-
-Wolfram Sang (12):
-  i2c: replace i2c_new_probed_device with an ERR_PTR variant
-  i2c: icy: convert to i2c_new_scanned_device
-  macintosh: convert to i2c_new_scanned_device
-  platform: chrome: convert to i2c_new_scanned_device
-  video: fbdev: matrox: convert to i2c_new_scanned_device
-  input: mouse: convert to i2c_new_scanned_device
-  media: pci: cx23885: convert to i2c_new_scanned_device
-  media: pci: cx88: convert to i2c_new_scanned_device
-  media: pci: bt8xx: convert to i2c_new_scanned_device
-  media: pci: cx18: convert to i2c_new_scanned_device
-  media: pci: ivtv: convert to i2c_new_scanned_device
-  media: v4l2-core: convert to i2c_new_scanned_device
-
- Documentation/i2c/instantiating-devices.rst | 10 ++++-----
- Documentation/i2c/writing-clients.rst       |  8 +++----
- drivers/i2c/busses/i2c-icy.c                |  8 +++----
- drivers/i2c/i2c-core-base.c                 | 25 ++++++++++++++++-----
- drivers/input/mouse/psmouse-smbus.c         |  8 ++++---
- drivers/macintosh/therm_windtunnel.c        |  4 ++--
- drivers/media/pci/bt8xx/bttv-input.c        |  6 ++---
- drivers/media/pci/cx18/cx18-i2c.c           |  2 +-
- drivers/media/pci/cx23885/cx23885-i2c.c     |  4 ++--
- drivers/media/pci/cx88/cx88-input.c         |  2 +-
- drivers/media/pci/ivtv/ivtv-i2c.c           |  6 ++---
- drivers/media/pci/ivtv/ivtv-i2c.h           |  2 +-
- drivers/media/v4l2-core/v4l2-i2c.c          | 10 ++++-----
- drivers/platform/chrome/chromeos_laptop.c   | 18 ++++++++-------
- drivers/video/fbdev/matrox/i2c-matroxfb.c   |  4 ++--
- include/linux/i2c.h                         | 12 +++++++---
- 16 files changed, 76 insertions(+), 53 deletions(-)
-
--- 
-2.20.1
-
+> 
+> Core changes tested on a Renesas Salvator-XS board (R-Car M3-N), driver
+> patches build tested by me and buildbot.
+> 
+> Wolfram Sang (12):
+>   i2c: replace i2c_new_probed_device with an ERR_PTR variant
+>   i2c: icy: convert to i2c_new_scanned_device
+>   macintosh: convert to i2c_new_scanned_device
+>   platform: chrome: convert to i2c_new_scanned_device
+>   video: fbdev: matrox: convert to i2c_new_scanned_device
+>   input: mouse: convert to i2c_new_scanned_device
+>   media: pci: cx23885: convert to i2c_new_scanned_device
+>   media: pci: cx88: convert to i2c_new_scanned_device
+>   media: pci: bt8xx: convert to i2c_new_scanned_device
+>   media: pci: cx18: convert to i2c_new_scanned_device
+>   media: pci: ivtv: convert to i2c_new_scanned_device
+>   media: v4l2-core: convert to i2c_new_scanned_device
+> 
+>  Documentation/i2c/instantiating-devices.rst | 10 ++++-----
+>  Documentation/i2c/writing-clients.rst       |  8 +++----
+>  drivers/i2c/busses/i2c-icy.c                |  8 +++----
+>  drivers/i2c/i2c-core-base.c                 | 25 ++++++++++++++++-----
+>  drivers/input/mouse/psmouse-smbus.c         |  8 ++++---
+>  drivers/macintosh/therm_windtunnel.c        |  4 ++--
+>  drivers/media/pci/bt8xx/bttv-input.c        |  6 ++---
+>  drivers/media/pci/cx18/cx18-i2c.c           |  2 +-
+>  drivers/media/pci/cx23885/cx23885-i2c.c     |  4 ++--
+>  drivers/media/pci/cx88/cx88-input.c         |  2 +-
+>  drivers/media/pci/ivtv/ivtv-i2c.c           |  6 ++---
+>  drivers/media/pci/ivtv/ivtv-i2c.h           |  2 +-
+>  drivers/media/v4l2-core/v4l2-i2c.c          | 10 ++++-----
+>  drivers/platform/chrome/chromeos_laptop.c   | 18 ++++++++-------
+>  drivers/video/fbdev/matrox/i2c-matroxfb.c   |  4 ++--
+>  include/linux/i2c.h                         | 12 +++++++---
+>  16 files changed, 76 insertions(+), 53 deletions(-)
+> 
+> -- 
+> 2.20.1

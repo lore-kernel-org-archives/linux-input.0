@@ -2,165 +2,214 @@ Return-Path: <SRS0=pzmn=Y6=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66639C5DF62
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 06:07:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ECD5C5DF62
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:01:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 25A3A2087E
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 06:07:12 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WtVhmZxD"
+	by mail.kernel.org (Postfix) with ESMTP id 299B6217D7
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:01:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730037AbfKFGHL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Nov 2019 01:07:11 -0500
-Received: from mail-yw1-f66.google.com ([209.85.161.66]:44515 "EHLO
-        mail-yw1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729966AbfKFGHL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 01:07:11 -0500
-Received: by mail-yw1-f66.google.com with SMTP id p128so353792ywc.11
-        for <linux-input@vger.kernel.org>; Tue, 05 Nov 2019 22:07:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ow9f9V+rSKoz1ZYone9J08Jkn/N4+iISXil9NZ29mb0=;
-        b=WtVhmZxDPRrNwV0eCRXPXdquZOSVixoit2ADKcc3k8WwYA2nhjtMUR/F/3QttERRSQ
-         0qVysrrKP2g80B5kGo1Wtw3upTYDVEC8E5p+Akq9F1E6+jyN1JGs5NcjpJMSVyWOy+fQ
-         NtykjqVdhJu3JTXB7w4Vmm5QS3ckueipjpT90dSxXO4E105BsJoKZIRt+NyXXk9pWkUh
-         h87ZPjfAMcUJgDwIT85u2QISISkI/2n09gk/22tZjBSYn2oGZ+5uM1IMgCyW69JmD2V8
-         QAqYPirR/d0ON/WT2We39QdI65K880AC5dsvxF4UDNA5ycdEH62SOdloex7oeUlPPe4J
-         HZnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ow9f9V+rSKoz1ZYone9J08Jkn/N4+iISXil9NZ29mb0=;
-        b=lGLNZoVBW4m7zRs7VN+00yuVhGQd5Tuj1pJS4VZ99a6ZkU2QNw8XVG00Ib+nxcLk/c
-         7UFbAEboFenL/opIO/A/9t84nQnKUYFLFEGy2GKe1cmEqw8Q1fLTOLWvoPfTuNzjsaf/
-         eEJFDr7xXMiZL+9ua7jQ0R1DI4oskuXPtNzLxrYgPMZhKn+fCSKj6x2SPi/LRfSJyGn/
-         sDC3wXz6SHJcFSam+xdBsso54OKI57pTUG9M6JwZNn/y2rRKyPFYDpRnveaigrIIL7LA
-         jTUA6PB/rIyu5T9galrD9A+Eis2TLKDjK6VUFaOYcO3PZSYkVDhNIo6+Be2yBVBB+B15
-         WHfA==
-X-Gm-Message-State: APjAAAXWneOi2SlPal3ayfFiaAZHeGRVLzs/PSfAlm39Huar9HtNo4Ui
-        tmg+6uiwR/zRy7ki9WPreXh0qOfv8sSZXQ==
-X-Google-Smtp-Source: APXvYqzDOnxBUwfmeQXjY6NgATEfkbtY73Z6YgC7U6/r4bMe+FbMLUVNnvCn5nrSh3/yG7ExCRUCrg==
-X-Received: by 2002:a81:b617:: with SMTP id u23mr435292ywh.295.1573020429284;
-        Tue, 05 Nov 2019 22:07:09 -0800 (PST)
-Received: from Arrakis.djogorchock.com ([136.33.205.58])
-        by smtp.gmail.com with ESMTPSA id e82sm11039596ywb.87.2019.11.05.22.07.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Nov 2019 22:07:08 -0800 (PST)
-From:   "Daniel J. Ogorchock" <djogorchock@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     thunderbird2k@gmail.com, blaws05@gmail.com,
-        benjamin.tissoires@redhat.com, jikos@kernel.org,
-        Roderick.Colenbrander@sony.com, svv@google.com, s.jegen@gmail.com,
-        "Daniel J. Ogorchock" <djogorchock@gmail.com>
-Subject: [PATCH v9 10/10] HID: nintendo: set controller uniq to MAC
-Date:   Wed,  6 Nov 2019 00:06:48 -0600
-Message-Id: <20191106060648.3018478-11-djogorchock@gmail.com>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191106060648.3018478-1-djogorchock@gmail.com>
-References: <20191106060648.3018478-1-djogorchock@gmail.com>
+        id S1731206AbfKFHBw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Nov 2019 02:01:52 -0500
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:22361 "EHLO
+        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726772AbfKFHBw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:01:52 -0500
+IronPort-SDR: DxMWfcyGRMW20us5xxgYaDrOjKs0Y5FjSD+NzZUe7LLzZU0OFhcUVJkx5VCa9BywDpaY9X64PE
+ qNC1lSECFCH2LcmucHn22ShXjXDneOr76D6wI1+nE6TcZE/Q+8SXZ+27aYDDXOoRD72OFtXLGg
+ HFeSM3BhOBc+4BZBn6mlH5oGy9BrDgZDmaDd9BSsKWzad4BqnZwQL4Ua4/2j9mk57gxXN4alYf
+ FYeLBDmqO8UfKkUYZ8HV8yGdWCB+/q5GVxaGgYIMqIOFvOwy7oF2fZgOG1sI5gaM7uThWS2cQX
+ NUM=
+X-IronPort-AV: E=Sophos;i="5.68,272,1569312000"; 
+   d="scan'208";a="42848207"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa2.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:01:51 -0800
+IronPort-SDR: 0ojCCtfzTUrhdd9b7vAATxZ6Iz0EwjtoK+U/8hS+c7tpAbMBoAk+EyhY62nv0xdXfdwMSpujjH
+ XTny5ZZXMj8kiq3Rc43lZsIdzE3YmQgJjClO8eKtttV8EwSLua6lDrzX0XZXcqdP01P40QxRKF
+ v8OCvHnCvSNibyNGebZqxBFoPsecfhCiLMxOpCxB7nDssNUO5iHqOXu9nnwWDsuhcdmP4yQ9qd
+ jllcyS9a9Nmg1WVfM9uye2lzWT8aKECEsPuM81/aSiGZET3rF3LT+Q5DLqmO13+kAzWk7pKjBA
+ XLo=
+From:   Jiada Wang <jiada_wang@mentor.com>
+To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
+        <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
+        <nick@shmanahar.org>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
+        <Andrew_Gabbasov@mentor.com>
+Subject: [PATCH v5 00/48] atmel_mxt_ts misc
+Date:   Wed, 6 Nov 2019 16:00:58 +0900
+Message-ID: <20191106070146.18759-1-jiada_wang@mentor.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch sets the input device's uniq identifier to the controller's
-MAC address. This is useful for future association between an IMU input
-device with the normal input device as well as associating the
-controller with any serial joy-con driver.
+This patch-set forward ports Nick Dyer's work in ndyer/linux github repository
+as long as some other features and fixes
 
-Signed-off-by: Daniel J. Ogorchock <djogorchock@gmail.com>
+Balasubramani Vivekanandan (2):
+  Input: atmel_mxt_ts: Limit the max bytes transferred in an i2c
+    transaction
+  Input: atmel_mxt_ts: use gpiod_set_value_cansleep for reset pin
+
+Dean Jenkins (1):
+  Input: atmel_mxt_ts: return error from
+    mxt_process_messages_until_invalid()
+
+Deepak Das (6):
+  Input: Atmel: improve error handling in mxt_start()
+  Input: Atmel: improve error handling in mxt_initialize()
+  Input: Atmel: improve error handling in mxt_update_cfg()
+  Input: Atmel: Improve error handling in mxt_initialize_input_device()
+  Input: Atmel: handle ReportID "0x00" while processing T5 messages
+  Input: Atmel: use T44 object to process T5 messages
+
+George G. Davis (1):
+  input: atmel_mxt_ts: export GPIO reset line via sysfs
+
+Jiada Wang (3):
+  Input: introduce input_mt_report_slot_inactive
+  Input: atmel_mxt_ts - eliminate data->raw_info_block
+  Input: atmel_mxt_ts - Fix compilation warning
+
+Karl Tsou (1):
+  Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msgs
+
+Kautuk Consul (2):
+  Input: atmel_mxt_ts - Change call-points of mxt_free_* functions
+  Input: atmel_mxt_ts - rely on calculated_crc rather than file
+    config_crc
+
+Naveen Chakka (2):
+  input: touchscreen: atmel_mxt_ts: Added sysfs entry for touchscreen
+    status
+  input: atmel_mxt_ts: added sysfs interface to update atmel T38 data
+
+Nick Dyer (26):
+  Input: atmel_mxt_ts - rework sysfs init/remove
+  Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when
+    necessary
+  Input: atmel_mxt_ts - split large i2c transfers into blocks
+  Input: atmel_mxt_ts - output status from T48 Noise Supression
+  Input: atmel_mxt_ts - output status from T42 Touch Suppression
+  Input: atmel_mxt_ts - implement T9 vector/orientation support
+  Input: atmel_mxt_ts - implement T15 Key Array support
+  Input: atmel_mxt_ts - handle reports from T47 Stylus object
+  Input: atmel_mxt_ts - implement support for T107 active stylus
+  Input: atmel_mxt_ts - release touch state during suspend
+  Input: atmel_mxt_ts - add regulator control support
+  Input: atmel_mxt_ts - report failures in suspend/resume
+  Input: atmel_mxt_ts - allow specification of firmware file name
+  Input: atmel_mxt_ts - handle cfg filename via pdata/sysfs
+  Input: atmel_mxt_ts - allow input name to be specified in platform
+    data
+  Input: atmel_mxt_ts - refactor firmware flash to extract context into
+    struct
+  Input: atmel_mxt_ts - refactor code to enter bootloader into separate
+    func
+  Input: atmel_mxt_ts - combine bootloader version query with probe
+  Input: atmel_mxt_ts - improve bootloader state machine handling
+  Input: atmel_mxt_ts - rename bl_completion to chg_completion
+  Input: atmel_mxt_ts - make bootloader interrupt driven
+  Input: atmel_mxt_ts - delay enabling IRQ when not using regulators
+  Input: atmel_mxt_ts - implement I2C retries
+  Input: atmel_mxt_ts - orientation is not present in hover
+  Input: atmel_mxt_ts - implement debug output for messages
+  Input: atmel_mxt_ts - implement improved debug message interface
+
+Nikhil Ravindran (1):
+  Input: atmel_mxt_ts: Add support for run self-test routine.
+
+Sanjeev Chugh (1):
+  Input: atmel_mxt_ts: Implement synchronization during various
+    operation
+
+karl tsou (1):
+  Input: atmel_mxt_ts - add config checksum attribute to sysfs
+
+keerthikumarp (1):
+  input: atmel_mxt_ts: Add Missing Delay for reset handling of Atmel
+    touch panel controller in detachable displays.
+
 ---
- drivers/hid/hid-nintendo.c | 45 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 45 insertions(+)
+v5:
+Following commits have been updated to address warnings & errors
+reported by kbuild test robot 
+Input: atmel_mxt_ts - make bootloader interrupt driven
+Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msgs
 
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 24c4ec4e453a..c81bdcda76d4 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -313,6 +313,8 @@ struct joycon_ctlr {
- 	struct led_classdev home_led;
- 	enum joycon_ctlr_state ctlr_state;
- 	spinlock_t lock;
-+	u8 mac_addr[6];
-+	char *mac_addr_str;
- 
- 	/* The following members are used for synchronous sends/receives */
- 	enum joycon_msg_type msg_type;
-@@ -970,6 +972,7 @@ static int joycon_input_create(struct joycon_ctlr *ctlr)
- 	ctlr->input->id.vendor = hdev->vendor;
- 	ctlr->input->id.product = hdev->product;
- 	ctlr->input->id.version = hdev->version;
-+	ctlr->input->uniq = ctlr->mac_addr_str;
- 	ctlr->input->name = name;
- 	input_set_drvdata(ctlr->input, ctlr);
- 
-@@ -1250,6 +1253,41 @@ static int joycon_power_supply_create(struct joycon_ctlr *ctlr)
- 	return 0;
- }
- 
-+static int joycon_read_mac(struct joycon_ctlr *ctlr)
-+{
-+	int ret;
-+	int i;
-+	int j;
-+	struct joycon_subcmd_request req = { 0 };
-+	struct joycon_input_report *report;
-+
-+	req.subcmd_id = JC_SUBCMD_REQ_DEV_INFO;
-+	ret = joycon_send_subcmd(ctlr, &req, 0, HZ);
-+	if (ret) {
-+		hid_err(ctlr->hdev, "Failed to get joycon info; ret=%d\n", ret);
-+		return ret;
-+	}
-+
-+	report = (struct joycon_input_report *)ctlr->input_buf;
-+
-+	for (i = 4, j = 0; j < 6; i++, j++)
-+		ctlr->mac_addr[j] = report->reply.data[i];
-+
-+	ctlr->mac_addr_str = devm_kasprintf(&ctlr->hdev->dev, GFP_KERNEL,
-+					    "%02X:%02X:%02X:%02X:%02X:%02X",
-+					    ctlr->mac_addr[0],
-+					    ctlr->mac_addr[1],
-+					    ctlr->mac_addr[2],
-+					    ctlr->mac_addr[3],
-+					    ctlr->mac_addr[4],
-+					    ctlr->mac_addr[5]);
-+	if (!ctlr->mac_addr_str)
-+		return -ENOMEM;
-+	hid_info(ctlr->hdev, "controller MAC = %s\n", ctlr->mac_addr_str);
-+
-+	return 0;
-+}
-+
- /* Common handler for parsing inputs */
- static int joycon_ctlr_read_handler(struct joycon_ctlr *ctlr, u8 *data,
- 							      int size)
-@@ -1428,6 +1466,13 @@ static int nintendo_hid_probe(struct hid_device *hdev,
- 		goto err_mutex;
- 	}
- 
-+	ret = joycon_read_mac(ctlr);
-+	if (ret) {
-+		hid_err(hdev, "Failed to retrieve controller MAC; ret=%d\n",
-+			ret);
-+		goto err_close;
-+	}
-+
- 	mutex_unlock(&ctlr->output_mutex);
- 
- 	ret = joycon_input_create(ctlr);
+Following commit has been updated
+Input: introduce input_mt_report_slot_inactive
+
+v4:
+Following commit in v3 patch-set has been removed
+Input: switch to use return value of input_mt_report_slot_state
+
+Following commit has been updated to address checkpatch warning
+Input: atmel_mxt_ts: Implement synchronization during various operation
+
+v3:
+Following commits have been updated compared to v2 patchset
+Input: atmel_mxt_ts - implement debug output for messages
+- added inline comment
+Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msg
+- changed dev_info() to dev_dbg()
+
+v2:
+Following commit in v1 patchset has been split into two commits
+Input: introduce input_mt_report_slot_inactive
+
+Following commits have been updated compared to v1 patchset
+Input: atmel_mxt_ts - split large i2c transfers into blocks
+Input: atmel_mxt_ts - output status from T42 Touch Suppression
+
+Following commits in v1 patchset have been squashed
+Input: touchscreen: Atmel: Add device tree support for T15 key array objects
+Input: atmel_mxt_ts - check data->input_dev is not null in mxt_input_sync()
+Input: atmel_mxt_ts - check firmware format before entering bootloader
+Input: atmel_mxt_ts: update stale use_retrigen_workaround flag
+input: atmel_mxt_ts: move bootloader probe from mxt_initialize()
+input: Atmel: limit the max bytes transferred while reading T5 messages
+Input: atmel_mxt_ts: Use msecs_to_jiffies() instead of HZ
+Input: atmel_mxt_ts: Use complete when in_bootloader true
+Input: atmel_mxt_ts: Prevent crash due to freeing of input device
+input: atmel_mxt_ts: Add NULL check for sysfs attribute debug_msg_attr
+
+Following commits in v1 patchset have been dropped:
+Input: atmel_mxt_ts - configure and use gpios as real gpios
+Input: touchscreen: Atmel: Enable IRQ_DISABLE_UNLAZY flag for interrupt
+Input: atmel_mxt_ts - add memory access interface via sysfs
+Input: atmel_mxt_ts: Remove sysfs attributes during driver detach
+Input: atmel_mxt_ts: Avoid race condition in freeing of input device
+
+
+v1: initial version
+---
+ .../bindings/input/atmel,maxtouch.txt         |   14 +
+ MAINTAINERS                                   |    1 +
+ drivers/hid/hid-alps.c                        |    3 +-
+ drivers/hid/hid-multitouch.c                  |    6 +-
+ drivers/input/input-mt.c                      |    2 +-
+ drivers/input/misc/xen-kbdfront.c             |    2 +-
+ drivers/input/mouse/elan_i2c_core.c           |    2 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c      | 2266 ++++++++++++++---
+ drivers/input/touchscreen/cyttsp4_core.c      |    5 +-
+ drivers/input/touchscreen/cyttsp_core.c       |    2 +-
+ drivers/input/touchscreen/melfas_mip4.c       |    4 +-
+ drivers/input/touchscreen/mms114.c            |    2 +-
+ drivers/input/touchscreen/raspberrypi-ts.c    |    2 +-
+ drivers/input/touchscreen/stmfts.c            |    2 +-
+ include/dt-bindings/input/atmel_mxt_ts.h      |   22 +
+ include/linux/input/mt.h                      |    5 +
+ 16 files changed, 1984 insertions(+), 356 deletions(-)
+ create mode 100644 include/dt-bindings/input/atmel_mxt_ts.h
+
 -- 
-2.23.0
+2.17.1
 

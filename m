@@ -7,32 +7,32 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CA7AC5DF62
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:05:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21ACEC5DF62
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:05:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EC13D217D7
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:05:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E2F97217F4
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:05:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731477AbfKFHC7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Nov 2019 02:02:59 -0500
-Received: from esa4.mentor.iphmx.com ([68.232.137.252]:36314 "EHLO
-        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730804AbfKFHC6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:02:58 -0500
-IronPort-SDR: XsspmB6CSdvyQk9D5J/A5Iv7IEtzOe1jVqYW6CRDUkZcAhBZ1j0fBYo77Kkc++r8R7FOp94W4i
- irKUzAxqpkA/g7FIvNV6+u6OjcILC/rl8N3qK34Q5oETHGqAw73or1bjEXh6sK2WsdYaMHf0iE
- 2clhZt2YFqdW4Szxy7586x6UQ5vapiWZCVXnUQ6qxK34XennyqfNNz+hZWV4NZzbP1QlCuUEaI
- sGjfSGeJuYwIq5D72k8TNPPSU4W2nRX15Z5rkI/qu4VgVI0g2vYPb4r7IIWXNzxD09ZYV4dzRY
- Z1o=
+        id S1731429AbfKFHCm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Nov 2019 02:02:42 -0500
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:18550 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726772AbfKFHCk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:02:40 -0500
+IronPort-SDR: cuH4dcwme96P03232Xvbp/m4ejk92vYGxyUkikQRmP28GPNzLXotJUOJSaIZJJOCXvQcwIgMn8
+ 5B76kgErjxrF7MQwyosRbXD3CmBYMq0aCBVD+D92lvUF1Z/uouC+VkU/SSuMWAkq88elv17fyO
+ OhMDECrZMQBuwZXCa/PJRvLYuvcjzgkqVNUe7NQ2ffvoPeBQMsUz28CxS+TyHDvPrTgxExRPwK
+ SWvaq/NMIXHLwyg/SrcrrutBcA4xmwwQIABnmqmnxXCZpO545R+TQbfNBpqtBt6pNVWt1Wj11M
+ 98g=
 X-IronPort-AV: E=Sophos;i="5.68,272,1569312000"; 
-   d="scan'208";a="42943617"
+   d="scan'208";a="44759228"
 Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa4.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:02:57 -0800
-IronPort-SDR: BKMnOEkxUqe6Y4DaKo63VosKQJ7RaM3MbSQ1V9GUm8Vpk/yy+5i0euPEdc+gUxn6xf10teSu5Q
- +agUPXT8uILUzHiTAWFRlb7xPfYq6GayFUc1UCF8x/mDrf916iyGD/UZLbyLSajm8cqYl095y2
- tctamkSFGkJIRuoISze5mlBx5ZMGH4XVls41FksS4dkaZdwOLVKxHoWy1zZUXv311U/XlYEPCE
- qVvA87maJMVRZ1rZpI2rleykltKtXyoA5FtNyDKdv1omNveUrs6cCJq3uG0/Zi1wKOcpf2HJW3
- JKs=
+  by esa1.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:02:40 -0800
+IronPort-SDR: rGMnjDOz7PJoZc3zDx+z20sngSKDMfELHn+doZXwtLR8jSd3N4Wrgev9xSXUisNJbbsMYuYVtW
+ /g83S12WYmkA75He9Tty3xYCT4bFQsDTLSrgeAM7lSdKjIENc00SJlioCyQLLIfsykxof01igY
+ JVkwq7a+BCG7tg7hZmbV6LtPqblkOAXuCyYdzcjiAIUcJ1e95Xm0ocj/MJcb3J2u7o4ccXxMxB
+ swDMNn6wU0gsNtc9JzoVKSk/WvZe63k60fSy5SsVmG/8MK/iCBHU+lQRkVgkDapPHekbEt1yg1
+ nwc=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +40,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v5 16/48] Input: atmel_mxt_ts - handle cfg filename via pdata/sysfs
-Date:   Wed, 6 Nov 2019 16:01:14 +0900
-Message-ID: <20191106070146.18759-17-jiada_wang@mentor.com>
+Subject: [PATCH v5 12/48] Input: atmel_mxt_ts - release touch state during suspend
+Date:   Wed, 6 Nov 2019 16:01:10 +0900
+Message-ID: <20191106070146.18759-13-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191106070146.18759-1-jiada_wang@mentor.com>
 References: <20191106070146.18759-1-jiada_wang@mentor.com>
@@ -55,268 +55,154 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-There may be multiple maXTouch chips on a single device which will require
-different configuration files. Add a platform data value for the
-configuration filename.
+If fingers are down as the MXT chip goes into suspend it does not send a
+lift message. In addition, it may not complete its final measurement cycle
+immediately, which means touch messages may be received by the interrupt
+handler after mxt_stop() has completed.
 
-Add sysfs entry to write configuration file if the platform data is not
-set.
-
-Split out the object initialisation code from mxt_initialize() into
-mxt_configure_objects() to allow this.
+So:
+- disable irq during suspend
+- flush any messages created after suspend
+- tell app layer that slots were released at suspend
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
 Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 71a2a4d1954460b949a16b607f72bafab294ca79)
+(cherry picked from ndyer/linux/for-upstream commit 26794433086dbc7dea18d2f6a1c8d61ab25bcfda)
 [gdavis: Resolve forward port conflicts due to applying upstream
 	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
 	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[gdavis: Squash fix from Vladimir Zapolskiy:
-	 - Input: atmel_mxt_ts - fix error paths in mxt_configure_objects()]
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+[gdavis: Squash fix from Dirk Behme:
+	 - Input: atmel_mxt_ts - remove superfluous data->suspended]
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
 ---
 Notes:
-- Squash fix from Vladimir Zapolskiy:
-  + Input: atmel_mxt_ts - fix error paths in mxt_configure_objects()
+- Squash fix from Dirk Behme:
+  + Input: atmel_mxt_ts - remove superfluous data->suspended
 
-    Fail in mxt_update_cfg() is critical, because the driver state machine
-    is broken and it can not be safely used afterwards.
+    data->suspended is already set to false in mxt_load_fw(), so it's not
+    needed here.
 
-[jiada: Squash fix from ndyer/linux/for-upstream commit c909ada856861f305653b127db3ea0fa60264331
-	- Input: atmel_mxt_ts - check data->input_dev is not null in mxt_input_sync()]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- .../bindings/input/atmel,maxtouch.txt         |   3 +
- drivers/input/touchscreen/atmel_mxt_ts.c      | 109 +++++++++++++++---
- 2 files changed, 97 insertions(+), 15 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 52 ++++++++++++++++++++++--
+ 1 file changed, 49 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-index e28139ce3cae..713ce870805c 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-@@ -37,6 +37,9 @@ Optional properties for main touchpad device:
-     MXT_SUSPEND_REGULATOR - use regulators to power down device during suspend
-     Definitions are in <dt-bindings/input/atmel_mxt_ts.h>.
- 
-+- atmel,cfg_name: Provide name of configuration file in OBP_RAW format. This
-+    will be downloaded from the firmware loader on probe to the device.
-+
- Example:
- 
- 	touch@4b {
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index a0e367bc6e83..362b7630ec6e 100644
+index 1498342c3d98..cc4f0b5a0ae6 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -34,7 +34,6 @@
- #include <dt-bindings/input/atmel_mxt_ts.h>
+@@ -372,6 +372,9 @@ struct mxt_data {
+ 	unsigned int t19_num_keys;
  
- /* Configuration file */
--#define MXT_CFG_NAME		"maxtouch.cfg"
- #define MXT_CFG_MAGIC		"OBP_RAW V1"
- 
- /* Registers */
-@@ -335,6 +334,8 @@ struct mxt_data {
- 	struct regulator *reg_vdd;
- 	struct regulator *reg_avdd;
- 	char *fw_name;
-+	char *cfg_name;
-+	const char *pcfg_name;
- 
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -377,6 +378,9 @@ struct mxt_data {
- 
- 	/* Indicates whether device is in suspend */
- 	bool suspended;
+ 	enum mxt_suspend_mode suspend_mode;
 +
-+	/* Indicates whether device is updating configuration */
-+	bool updating_config;
++	/* Indicates whether device is in suspend */
++	bool suspended;
  };
  
  struct mxt_vb2_buffer {
-@@ -833,9 +837,11 @@ static void mxt_input_button(struct mxt_data *data, u8 *message)
+@@ -1151,10 +1154,10 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 		mxt_proc_t42_messages(data, message);
+ 	} else if (report_id == data->T48_reportid) {
+ 		mxt_proc_t48_messages(data, message);
+-	} else if (!data->input_dev) {
++	} else if (!data->input_dev || data->suspended) {
+ 		/*
+-		 * Do not report events if input device
+-		 * is not yet registered.
++		 * Do not report events if input device is not
++		 * yet registered or returning from suspend
+ 		 */
+ 		mxt_dump_message(data, message);
+ 	} else if (report_id >= data->T9_reportid_min &&
+@@ -3135,6 +3138,11 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	if (ret)
+ 		goto release_firmware;
  
- static void mxt_input_sync(struct mxt_data *data)
- {
--	input_mt_report_pointer_emulation(data->input_dev,
--					  data->t19_num_keys);
--	input_sync(data->input_dev);
-+	if (data->input_dev) {
-+		input_mt_report_pointer_emulation(data->input_dev,
-+						  data->t19_num_keys);
-+		input_sync(data->input_dev);
-+	}
- }
- 
- static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
-@@ -2578,13 +2584,21 @@ static int mxt_initialize(struct mxt_data *data)
- 	if (error)
- 		return error;
- 
--	error = request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
--					&client->dev, GFP_KERNEL, data,
--					mxt_config_cb);
--	if (error) {
--		dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
--			error);
--		goto err_free_sysfs;
-+	if (data->cfg_name) {
-+		error = request_firmware_nowait(THIS_MODULE, true,
-+						data->cfg_name,
-+						&client->dev,
-+						GFP_KERNEL, data,
-+						mxt_config_cb);
-+		if (error) {
-+			dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
-+				error);
-+			goto err_free_sysfs;
-+		}
-+	} else {
-+		error = mxt_configure_objects(data, NULL);
-+		if (error)
-+			goto err_free_sysfs;
- 	}
- 
- 	return 0;
-@@ -3081,19 +3095,21 @@ static int mxt_configure_objects(struct mxt_data *data,
- 	error = mxt_init_t7_power_cfg(data);
- 	if (error) {
- 		dev_err(dev, "Failed to initialize power cfg\n");
--		return error;
-+		goto err_free_object_table;
- 	}
- 
- 	if (cfg) {
- 		error = mxt_update_cfg(data, cfg);
--		if (error)
-+		if (error) {
- 			dev_warn(dev, "Error %d updating config\n", error);
-+			goto err_free_object_table;
-+		}
- 	}
- 
- 	if (data->multitouch) {
- 		error = mxt_initialize_input_device(data);
- 		if (error)
--			return error;
-+			goto err_free_object_table;
- 	} else {
- 		dev_warn(dev, "No touch object detected\n");
- 	}
-@@ -3101,6 +3117,10 @@ static int mxt_configure_objects(struct mxt_data *data,
- 	mxt_debug_init(data);
- 
- 	return 0;
-+
-+err_free_object_table:
-+	mxt_free_object_table(data);
-+	return error;
- }
- 
- /* Firmware Version is returned as Major.Minor.Build */
-@@ -3392,6 +3412,55 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 	return count;
- }
- 
-+static ssize_t mxt_update_cfg_store(struct device *dev,
-+		struct device_attribute *attr,
-+		const char *buf, size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	const struct firmware *cfg;
-+	int ret;
-+
-+	ret = mxt_update_file_name(dev, &data->cfg_name, buf, count);
-+	if (ret)
-+		return ret;
-+
-+	ret = request_firmware(&cfg, data->cfg_name, dev);
-+	if (ret < 0) {
-+		dev_err(dev, "Failure to request config file %s\n",
-+			data->cfg_name);
-+		ret = -ENOENT;
-+		goto out;
-+	}
-+
-+	data->updating_config = true;
-+
-+	mxt_free_input_device(data);
-+
 +	if (data->suspended) {
-+		if (data->suspend_mode == MXT_SUSPEND_REGULATOR) {
-+			enable_irq(data->irq);
-+			mxt_regulator_enable(data);
-+		} else if (data->suspend_mode == MXT_SUSPEND_DEEP_SLEEP) {
-+			mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
-+			mxt_acquire_irq(data);
-+		}
-+
++		enable_irq(data->irq);
 +		data->suspended = false;
 +	}
 +
-+	ret = mxt_configure_objects(data, cfg);
-+	if (ret)
-+		goto release;
+ 	if (!data->in_bootloader) {
+ 		/* Change to the bootloader mode */
+ 		data->in_bootloader = true;
+@@ -3306,8 +3314,27 @@ static void mxt_sysfs_remove(struct mxt_data *data)
+ 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
+ }
+ 
++static void mxt_reset_slots(struct mxt_data *data)
++{
++	struct input_dev *input_dev = data->input_dev;
++	int id;
 +
-+	ret = count;
++	if (!input_dev)
++		return;
 +
-+release:
-+	release_firmware(cfg);
-+out:
-+	data->updating_config = false;
-+	return ret;
++	for (id = 0; id < data->num_touchids; id++) {
++		input_mt_slot(input_dev, id);
++		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
++	}
++
++	mxt_input_sync(data);
 +}
 +
- static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
- 
- static struct attribute *mxt_fw_attrs[] = {
-@@ -3406,11 +3475,13 @@ static const struct attribute_group mxt_fw_attr_group = {
- static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
- static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
- static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
-+static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
- 
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
- 	&dev_attr_hw_version.attr,
- 	&dev_attr_object.attr,
-+	&dev_attr_update_cfg.attr,
- 	NULL
- };
- 
-@@ -3511,7 +3582,7 @@ static int mxt_stop(struct mxt_data *data)
+ static void mxt_start(struct mxt_data *data)
  {
- 	int ret;
- 
--	if (data->suspended || data->in_bootloader)
-+	if (data->suspended || data->in_bootloader || data->updating_config)
- 		return 0;
- 
++	if (!data->suspended || data->in_bootloader)
++		return;
++
  	switch (data->suspend_mode) {
-@@ -3580,6 +3651,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
- 	int n_keys;
- 	int error;
+ 	case MXT_SUSPEND_T9_CTRL:
+ 		mxt_soft_reset(data);
+@@ -3320,16 +3347,29 @@ static void mxt_start(struct mxt_data *data)
  
-+	device_property_read_string(dev, "atmel,cfg_name", &data->pcfg_name);
+ 	case MXT_SUSPEND_DEEP_SLEEP:
+ 	default:
++		/*
++		 * Discard any touch messages still in message buffer
++		 * from before chip went to sleep
++		 */
++		mxt_process_messages_until_invalid(data);
 +
- 	if (device_property_present(dev, keymap_property)) {
- 		n_keys = device_property_count_u32(dev, keymap_property);
- 		if (n_keys <= 0) {
-@@ -3704,6 +3777,12 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (error)
- 		return error;
+ 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
  
-+	if (data->pcfg_name)
-+		mxt_update_file_name(&data->client->dev,
-+				     &data->cfg_name,
-+				     data->pcfg_name,
-+				     strlen(data->pcfg_name));
+ 		/* Recalibrate since chip has been in deep sleep */
+ 		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
 +
- 	data->reset_gpio = devm_gpiod_get_optional(&client->dev,
- 						   "reset", GPIOD_OUT_LOW);
- 	if (IS_ERR(data->reset_gpio)) {
++		mxt_acquire_irq(data);
+ 		break;
+ 	}
++
++	data->suspended = false;
+ }
+ 
+ static void mxt_stop(struct mxt_data *data)
+ {
++	if (data->suspended || data->in_bootloader)
++		return;
++
+ 	switch (data->suspend_mode) {
+ 	case MXT_SUSPEND_T9_CTRL:
+ 		/* Touch disable */
+@@ -3339,9 +3379,15 @@ static void mxt_stop(struct mxt_data *data)
+ 
+ 	case MXT_SUSPEND_DEEP_SLEEP:
+ 	default:
++		disable_irq(data->irq);
++
+ 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
++
++		mxt_reset_slots(data);
+ 		break;
+ 	}
++
++	data->suspended = true;
+ }
+ 
+ static int mxt_input_open(struct input_dev *dev)
 -- 
 2.17.1
 

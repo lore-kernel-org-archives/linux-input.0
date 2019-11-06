@@ -6,32 +6,32 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 197D4C5DF64
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:02:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3771FC5DF63
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:02:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DB527217F4
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:02:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 013AE206DF
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:02:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731296AbfKFHCH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Nov 2019 02:02:07 -0500
-Received: from esa1.mentor.iphmx.com ([68.232.129.153]:18506 "EHLO
-        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726772AbfKFHCH (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:02:07 -0500
-IronPort-SDR: r5eX5vioeVeOi2svyso6HaI7jg1v5g6SMna2e3/UDiim1rApuEMBnbBQ+X6JdRxN+zb9WIj5oB
- zvYjlf19stpR9hnDVIH3tP6IiMr2zq3hveIbvUVpNwNPpBHeUQMQDBhfRK7BSjwAFjCOlsCq6M
- BoyNlf1MPiiiPtHCfSXjSuDWT73DHU03abWCuGUgmvBRMpGNyWG3+iJ6IexFQGL3uIEJIu8hd8
- 3f/vBgNMUu2yUfrFsOHxB/znHJPp9/9jJXUYHE4TJYrQWgW8Lbjr41qCeySMJ9xILi9KwCptYU
- 1Po=
+        id S1731397AbfKFHC3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Nov 2019 02:02:29 -0500
+Received: from esa4.mentor.iphmx.com ([68.232.137.252]:36288 "EHLO
+        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726772AbfKFHC2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:02:28 -0500
+IronPort-SDR: YQGuy0/pypZOg5/0+o2avplIMhFvvNabLtJ1pk8q3BTVYQBkkNEbbjwrWKTQO1fCXfCUAOXzB9
+ XuXVAl3/80bqhzTThpkwOE4L43zr1bVVYJTQ4cta5mc5+8204knuuUHEWhjMYVk+eheLdS1P4m
+ IVmNJ1NHyjHfrWjX9mRDKTQwQ3xQ7NEYKwVZC29dtbarNViyPm38EpF5Nj4L8zsO+ueKHDu1It
+ LRr4axI7nJRxr45Ci89KYeH4SsyES6ZGrETv+Oos4xoGeEb5N6Wr2tvYb0LJ+6/vuRQT9hMySN
+ 0VY=
 X-IronPort-AV: E=Sophos;i="5.68,272,1569312000"; 
-   d="scan'208";a="44759198"
+   d="scan'208";a="42943601"
 Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa1.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:02:05 -0800
-IronPort-SDR: AtdoYf5TuU7HTyEIDCKqErOAQ6NJ5lcjK2t9HNlZWdmvaaedToX2756lPRB9LYG7TTn1hOa93q
- MBjO0DHFtZtp5gpjL2hBqgzj+6DM73fIDZrQkucogRTlNlePhdJnrQQUcHKc6Yz54iZSxTfTz/
- O69f7nSYyR5HjsN+YnMZrbCFjoq9Hbko++8lOcNQG1SFmIh5m7r3sxbqvAF+9YLdsUcBBv6SJr
- ldKSu8xfvSWc0Xevumipza4GiUjsQnAZVJNjJARzpvr3OtFf6YEAE+cDVOQ3U4dhxf35zAuwBX
- Zho=
+  by esa4.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:02:27 -0800
+IronPort-SDR: 0kPBW+J1BgrQNyFnEJMlcDV5MrIu3h8smint2y5YgzRsd1SFBtpqhlN5WpRlFZzpO5d5zA08w4
+ Q3r8mRIESTUpPhwTohgQkJ72pHJ0b8nMh//yVTH7YPWg1FI+ELpl3IgwqgrdwuVSYP77prIh8Z
+ tI9yUjiJHt0Y9gPMtJ5c8B2dWDAHLeTsYUGGtI7v80qt60NP4bVMc/0+UpeewkxvJqp/0lyT2d
+ TtqCxG/o0CdAn7yPX05snrkon5ZQSUsHKzR2gYYX/DMlHdO0KgrePZkTIznEhHp2w/8F/CHWkw
+ dFU=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -39,9 +39,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v5 03/48] Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when necessary
-Date:   Wed, 6 Nov 2019 16:01:01 +0900
-Message-ID: <20191106070146.18759-4-jiada_wang@mentor.com>
+Subject: [PATCH v5 09/48] Input: atmel_mxt_ts - handle reports from T47 Stylus object
+Date:   Wed, 6 Nov 2019 16:01:07 +0900
+Message-ID: <20191106070146.18759-10-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191106070146.18759-1-jiada_wang@mentor.com>
 References: <20191106070146.18759-1-jiada_wang@mentor.com>
@@ -54,157 +54,58 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-The workaround of reading all messages until an invalid is received is a
-way of forcing the CHG line high, which means that when using
-edge-triggered interrupts the interrupt can be acquired.
-
-With level-triggered interrupts the workaround is unnecessary.
-
-Also, most recent maXTouch chips have a feature called RETRIGEN which, when
-enabled, reasserts the interrupt line every cycle if there are messages
-waiting. This also makes the workaround unnecessary.
-
-Note: the RETRIGEN feature is only in some firmware versions/chips, it's
-not valid simply to enable the bit.
-
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 1ae4e8281e491b22442cd5acdfca1862555f8ecb)
-[gdavis: Fix conflicts due to v4.6-rc7 commit eb43335c4095 ("Input:
-	 atmel_mxt_ts - use mxt_acquire_irq in mxt_soft_reset").]
+(cherry picked from ndyer/linux/for-upstream commit 56405a5ea08eb34cfe83f3121867c9de0a5c48c1)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: reset use_retrigen_workaround at beginning of mxt_check_retrigen()]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 51 ++++++++++++++++++++++--
- 1 file changed, 48 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ffe8a80f4d0a..ce5a069b62d4 100644
+index 2df3104e94b9..661bfe4a43b9 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -20,6 +20,7 @@
- #include <linux/i2c.h>
- #include <linux/input/mt.h>
- #include <linux/interrupt.h>
-+#include <linux/irq.h>
- #include <linux/of.h>
- #include <linux/property.h>
- #include <linux/slab.h>
-@@ -129,6 +130,7 @@ struct t9_range {
- /* MXT_SPT_COMMSCONFIG_T18 */
- #define MXT_COMMS_CTRL		0
- #define MXT_COMMS_CMD		1
-+#define MXT_COMMS_RETRIGEN      BIT(6)
+@@ -823,6 +823,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 	int area;
+ 	int amplitude;
+ 	u8 vector;
++	int tool;
  
- /* MXT_DEBUG_DIAGNOSTIC_T37 */
- #define MXT_DIAGNOSTIC_PAGEUP	0x01
-@@ -308,6 +310,7 @@ struct mxt_data {
- 	struct t7_config t7_cfg;
- 	struct mxt_dbg dbg;
- 	struct gpio_desc *reset_gpio;
-+	bool use_retrigen_workaround;
+ 	id = message[0] - data->T9_reportid_min;
+ 	status = message[1];
+@@ -836,6 +837,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 		y >>= 2;
  
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -318,6 +321,7 @@ struct mxt_data {
- 	u16 T71_address;
- 	u8 T9_reportid_min;
- 	u8 T9_reportid_max;
-+	u16 T18_address;
- 	u8 T19_reportid;
- 	u16 T44_address;
- 	u8 T100_reportid_min;
-@@ -1190,9 +1194,11 @@ static int mxt_acquire_irq(struct mxt_data *data)
- 
- 	enable_irq(data->irq);
- 
--	error = mxt_process_messages_until_invalid(data);
--	if (error)
--		return error;
-+	if (data->use_retrigen_workaround) {
-+		error = mxt_process_messages_until_invalid(data);
-+		if (error)
-+			return error;
-+	}
- 
- 	return 0;
- }
-@@ -1282,6 +1288,33 @@ static u32 mxt_calculate_crc(u8 *base, off_t start_off, off_t end_off)
- 	return crc;
- }
- 
-+static int mxt_check_retrigen(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	int error;
-+	int val;
+ 	area = message[5];
 +
-+	data->use_retrigen_workaround = false;
-+
-+	if (irq_get_trigger_type(data->irq) & IRQF_TRIGGER_LOW)
-+		return 0;
-+
-+	if (data->T18_address) {
-+		error = __mxt_read_reg(client,
-+				       data->T18_address + MXT_COMMS_CTRL,
-+				       1, &val);
-+		if (error)
-+			return error;
-+
-+		if (val & MXT_COMMS_RETRIGEN)
-+			return 0;
-+	}
-+
-+	dev_warn(&client->dev, "Enabling RETRIGEN workaround\n");
-+	data->use_retrigen_workaround = true;
-+	return 0;
-+}
-+
- static int mxt_prepare_cfg_mem(struct mxt_data *data, struct mxt_cfg *cfg)
- {
- 	struct device *dev = &data->client->dev;
-@@ -1561,6 +1594,10 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	amplitude = message[6];
+ 	vector = message[7];
  
- 	mxt_update_crc(data, MXT_COMMAND_BACKUPNV, MXT_BACKUP_VALUE);
+@@ -865,12 +867,20 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 			mxt_input_sync(data);
+ 		}
  
-+	ret = mxt_check_retrigen(data);
-+	if (ret)
-+		goto release_mem;
++		/* A size of zero indicates touch is from a linked T47 Stylus */
++		if (area == 0) {
++			area = MXT_TOUCH_MAJOR_DEFAULT;
++			tool = MT_TOOL_PEN;
++		} else {
++			tool = MT_TOOL_FINGER;
++		}
 +
- 	ret = mxt_soft_reset(data);
- 	if (ret)
- 		goto release_mem;
-@@ -1604,6 +1641,7 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T71_address = 0;
- 	data->T9_reportid_min = 0;
- 	data->T9_reportid_max = 0;
-+	data->T18_address = 0;
- 	data->T19_reportid = 0;
- 	data->T44_address = 0;
- 	data->T100_reportid_min = 0;
-@@ -1678,6 +1716,9 @@ static int mxt_parse_object_table(struct mxt_data *data,
- 						object->num_report_ids - 1;
- 			data->num_touchids = object->num_report_ids;
- 			break;
-+		case MXT_SPT_COMMSCONFIG_T18:
-+			data->T18_address = object->start_address;
-+			break;
- 		case MXT_SPT_MESSAGECOUNT_T44:
- 			data->T44_address = object->start_address;
- 			break;
-@@ -2141,6 +2182,10 @@ static int mxt_initialize(struct mxt_data *data)
- 		msleep(MXT_FW_RESET_TIME);
- 	}
+ 		/* if active, pressure must be non-zero */
+ 		if (!amplitude)
+ 			amplitude = MXT_PRESSURE_DEFAULT;
  
-+	error = mxt_check_retrigen(data);
-+	if (error)
-+		return error;
-+
- 	error = mxt_acquire_irq(data);
- 	if (error)
- 		return error;
+ 		/* Touch active */
+-		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 1);
++		input_mt_report_slot_state(input_dev, tool, 1);
+ 		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+ 		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
+ 		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
 -- 
 2.17.1
 

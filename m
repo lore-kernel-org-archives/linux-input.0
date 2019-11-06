@@ -7,32 +7,32 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AB0BC5DF63
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:05:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 657A7C5DF62
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:05:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 476932187F
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:05:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 31DEC21848
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:05:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731857AbfKFHFK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Nov 2019 02:05:10 -0500
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:8786 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731000AbfKFHEM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:04:12 -0500
-IronPort-SDR: dRB2aqNO4j5397tx1Bk5irvsFEsiqpsbe0pR0rAIW3u73gBKQNFp4QpeCardAukp6XPc4Wo+e1
- 2JYL0uQSYLCb6AAlIFNLNqrYFED6xKkjGvGmbmJ5unYmjYQjGFCN4JLAlhjbeBo3wr3RSP4P6/
- 2ZXF4dJHgZHte0ZDNYA9M+9Z1x5b912g7vW2uoN9TZHORS7sZkf/SGtPdsBrfHqypEA1xQlAi7
- s/Z3vrewf+ahv5/qt0hlOrFuTQuzTRf89aq5C9uytF9O/XYPl8TNdOuJct0vl4FDmxhzrWm0Eh
- /VU=
+        id S1731512AbfKFHDJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Nov 2019 02:03:09 -0500
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:23839 "EHLO
+        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731206AbfKFHDH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:03:07 -0500
+IronPort-SDR: 7xX1Jb0kSFtfad5GUl7MmNoBxUtEpeWk+LW4crjdWOztZIOnt9p95LSA5w+p8OHfe1mRf6fA8C
+ o95g8TfxXeXHvBB6BhSPMzB3on/H/BwjhPbI8Z3OmTfowZTYlKCK9N3WF6TKwT/ny31qDWGA0y
+ RaHGWdDjQ72z8VFK4VJlmwYpHrvlqSZKgbPUjGlt1jdQ92lvQiTUexNVWytGQetCdNmpqRF28k
+ TdcJw6cYcPVJd/G4nZvEnglMjWQpCvOTDvFM4EpaOycszKZwhry73PwQeI/lM882ysW7InnDLg
+ kzU=
 X-IronPort-AV: E=Sophos;i="5.68,272,1569312000"; 
-   d="scan'208";a="42908660"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa3.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:04:02 -0800
-IronPort-SDR: XK5BxMdEY0Lozxy2SWgAp5XMZTXUdo8mJ3s3hv+3J3qErXV17i+SRoj8ok6Htf2KX9A6GM40Zz
- NM75U8onkHuepN0ZcZ4RSc0cNIE6xFt7XV2wdIy0MJ1bLcgJJZxaiiOeAm90/okERPQfHAY1CW
- rX5oo341X5h7ecjdYm062T4Saapp3z7qGXIBbCGYuujjFrCkWqjRxdmjhTYfu3MVuX7QKpklk7
- MporTs+JqRSFefV5sT7svd7fvHFn+E6wc8LaGTzo3HsIMJ5RhCQj9vyxbpInigzqv8UUeVOOaH
- VaE=
+   d="scan'208";a="42848264"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa2.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:03:07 -0800
+IronPort-SDR: 1JS2NqSTmHTyBg7wvbVNvi3V+NSovbED+RTGwSGDvVdkD0eTbm1CDqSYy28jK7Sv/3qqIXoP1s
+ AtKxuZnVoaUjKINpjhsxCWjlIMxvg68+fUI6FXxONW6/jZuaJ71BP7Hg2Axi4LxyIVM+SfsUkc
+ abXbDPcTVcTXlSqKJyhLTCoWK3/NSDR6kroq6tz146BwSPsyY5GLDvLAvF60Q/eHFGxDCOq1Yo
+ i67fkOOf9IFq4my2JvjdDikvNPhToiJnLt7zttkIAdVnmb0BqpboajbxNdnIpHQ/PgeaLSVjXl
+ 6NY=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +40,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v5 34/48] input: atmel_mxt_ts: Add Missing Delay for reset handling of Atmel touch panel controller in detachable displays.
-Date:   Wed, 6 Nov 2019 16:01:32 +0900
-Message-ID: <20191106070146.18759-35-jiada_wang@mentor.com>
+Subject: [PATCH v5 19/48] Input: atmel_mxt_ts - refactor firmware flash to extract context into struct
+Date:   Wed, 6 Nov 2019 16:01:17 +0900
+Message-ID: <20191106070146.18759-20-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191106070146.18759-1-jiada_wang@mentor.com>
 References: <20191106070146.18759-1-jiada_wang@mentor.com>
@@ -53,42 +53,143 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: keerthikumarp <Keerthikumar.Padmanabha@in.bosch.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-In case of attached display, the touchpanel reset is controlled
-via imx gpio's from  atmel driver and the delay between
-touchpanel reset and the time at which the chip becomes capable to
-communicate with the host processor, has be taken care.
-
-However in case of detachable displays, the touchpanel reset is
-controlled via a deserializer gpio which is triggered just before
-the atmel driver is probed.The delay between touchpanel reset and
-the time at which the chip becomes capable to communicate (as
-specified in datasheet) was not being accounted for. This patch
-introduces that delay.
-
-Signed-off-by: keerthikumarp <Keerthikumar.Padmanabha@in.bosch.com>
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+(cherry picked from ndyer/linux/for-upstream commit 1bbe20ff3dcd6612e7942c495929eae5c138ece2)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 59 +++++++++++++++---------
+ 1 file changed, 36 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index f357d353447f..835cc7a29c2f 100644
+index 81e3a71849c0..44bb77c0159c 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -4112,6 +4112,10 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		msleep(MXT_RESET_GPIO_TIME);
- 		gpiod_set_value(data->reset_gpio, 1);
- 		msleep(MXT_RESET_INVALID_CHG);
-+	} else {
-+		dev_dbg(&client->dev,
-+			"atmel reset pin not found in device tree");
-+		msleep(MXT_RESET_TIME);
+@@ -291,6 +291,22 @@ struct mxt_cfg {
+ 	struct mxt_info info;
+ };
+ 
++/* Firmware frame structure */
++struct mxt_fw_frame {
++	__be16 size;
++	u8 data[];
++};
++
++/* Firmware update context */
++struct mxt_flash {
++	const struct firmware *fw;
++	struct mxt_fw_frame *frame;
++	loff_t pos;
++	size_t frame_size;
++	unsigned int count;
++	unsigned int retry;
++};
++
+ /* Each client has this additional data */
+ struct mxt_data {
+ 	struct i2c_client *client;
+@@ -3244,21 +3260,17 @@ static int mxt_check_firmware_format(struct device *dev,
+ static int mxt_load_fw(struct device *dev)
+ {
+ 	struct mxt_data *data = dev_get_drvdata(dev);
+-	const struct firmware *fw = NULL;
+-	unsigned int frame_size;
+-	unsigned int pos = 0;
+-	unsigned int retry = 0;
+-	unsigned int frame = 0;
++	struct mxt_flash f = { 0, };
+ 	int ret;
+ 
+-	ret = request_firmware(&fw, data->fw_name, dev);
++	ret = request_firmware(&f.fw, data->fw_name, dev);
+ 	if (ret) {
+ 		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
+ 		return ret;
  	}
  
- 	error = mxt_initialize(data);
+ 	/* Check for incorrect enc file */
+-	ret = mxt_check_firmware_format(dev, fw);
++	ret = mxt_check_firmware_format(dev, f.fw);
+ 	if (ret)
+ 		goto release_firmware;
+ 
+@@ -3312,41 +3324,42 @@ static int mxt_load_fw(struct device *dev)
+ 			goto disable_irq;
+ 	}
+ 
+-	while (pos < fw->size) {
++	while (f.pos < f.fw->size) {
++		f.frame = (struct mxt_fw_frame *)(f.fw->data + f.pos);
++
+ 		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, true);
+ 		if (ret)
+ 			goto disable_irq;
+ 
+-		frame_size = ((*(fw->data + pos) << 8) | *(fw->data + pos + 1));
+-
+ 		/* Take account of CRC bytes */
+-		frame_size += 2;
++		f.frame_size = __be16_to_cpu(f.frame->size) + 2U;
+ 
+ 		/* Write one frame to device */
+-		ret = mxt_bootloader_write(data, fw->data + pos, frame_size);
++		ret = mxt_bootloader_write(data, f.fw->data + f.pos,
++					   f.frame_size);
+ 		if (ret)
+ 			goto disable_irq;
+ 
+ 		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS, true);
+ 		if (ret) {
+-			retry++;
++			f.retry++;
+ 
+ 			/* Back off by 20ms per retry */
+-			msleep(retry * 20);
++			msleep(f.retry * 20);
+ 
+-			if (retry > 20) {
++			if (f.retry > 20) {
+ 				dev_err(dev, "Retry count exceeded\n");
+ 				goto disable_irq;
+ 			}
+ 		} else {
+-			retry = 0;
+-			pos += frame_size;
+-			frame++;
++			f.retry = 0;
++			f.pos += f.frame_size;
++			f.count++;
+ 		}
+ 
+-		if (frame % 50 == 0)
+-			dev_dbg(dev, "Sent %d frames, %d/%zd bytes\n",
+-				frame, pos, fw->size);
++		if (f.count % 50 == 0)
++			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
++				f.count, f.pos, f.fw->size);
+ 	}
+ 
+ 	/* Wait for flash. */
+@@ -3355,7 +3368,7 @@ static int mxt_load_fw(struct device *dev)
+ 	if (ret)
+ 		goto disable_irq;
+ 
+-	dev_dbg(dev, "Sent %d frames, %d bytes\n", frame, pos);
++	dev_dbg(dev, "Sent %u frames, %lld bytes\n", f.count, f.pos);
+ 
+ 	/*
+ 	 * Wait for device to reset. Some bootloader versions do not assert
+@@ -3369,7 +3382,7 @@ static int mxt_load_fw(struct device *dev)
+ disable_irq:
+ 	disable_irq(data->irq);
+ release_firmware:
+-	release_firmware(fw);
++	release_firmware(f.fw);
+ 	return ret;
+ }
+ 
 -- 
 2.17.1
 

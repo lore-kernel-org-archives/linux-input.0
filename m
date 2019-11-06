@@ -4,34 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4E88C5DF63
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:03:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FA6DC5DF62
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:03:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8187F217D7
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:03:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E57B217D7
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:03:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731550AbfKFHDT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Nov 2019 02:03:19 -0500
-Received: from esa4.mentor.iphmx.com ([68.232.137.252]:36339 "EHLO
-        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731206AbfKFHDT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:03:19 -0500
-IronPort-SDR: 3m2o67arGx8lv3E42jBwfFEzcaTOgCY0Xca3GdMZOMk06LCS6xH15H+ajsmCJ+p8O7UH+p/Pvc
- cjk2v0cTu+C2EUdiVlmOm0Fk4b4oM7q3l6SzTPJKU1cNCYJfBlOZBuK/LWJuTu0q0dQOTrlAFJ
- zd1LoUVJFsqI6fsGOzXO7MX6Up73RFZLOMjsVuaodpsSkZmFiKbETMqPVRM4vJ3lmtqs9tcCFl
- MpUiovCwNXO2BP2gNirIYyhtc3S1oPmTIP+v3zRV4jyXuZJ6ytkhGj8Croc2GzgMQhlPahWev2
- fQg=
+        id S1731628AbfKFHDd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Nov 2019 02:03:33 -0500
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:18602 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731619AbfKFHDd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:03:33 -0500
+IronPort-SDR: VigbTDZeOVcq6JOIKNspXDGa9eMgIRJRk7LnewnQOC5YFRsgdW2aTyfqqIQ0pfRuJxg9fhDeuZ
+ vFIHXTy52EHHNlb+g5GQfJ2bVQ014HSYByAkpq4xXe5mWUnih2DeMp7hGXOKMjCRBASDYtVjTi
+ GNP/iVLAecwQHsxdMKhi2L0XRw3mtBnGSjdOaMCll/LVtIvXI8dg0A+bF0evexIPFsakMu+OXz
+ TMd6EaY/QfpKtjtNjzeLwvRrd/+IUY486Lo37hS773oRxd9VW3NHFkNRIdjgaC57ovhg5ml32B
+ nzo=
 X-IronPort-AV: E=Sophos;i="5.68,272,1569312000"; 
-   d="scan'208";a="42943644"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa4.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:03:18 -0800
-IronPort-SDR: TkwQH3nomshUZIJpYYZd6MojVUPYU1Oyp9gAr0VU/2hSBNaxrZZW67VQALisEmznJmaW7iyWxe
- qunEJjKa65+lOm66lhZOJhlNhRF4f3rAa+gt3By6q4EGHQBcY3ncA+QAw/lkIkxIw17gGQv4/z
- MuX/YTGOq5n0n+AjdCrFWKOE3yVVAEHVheNXikgcvUI+DRH28V+FY9w8PtQU+MRByn8qE/w5kd
- D9PG9hgfgzg9L9yZcQUiIRZIhimm52RWtRlSV+T5+bwIGcwJeXmzLus06kS96Fuj1o0gvEM0oc
- Mgs=
+   d="scan'208";a="44759274"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa1.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:03:32 -0800
+IronPort-SDR: iRtb1r84yoJWIABdY6wXYT90gvbbBGUfODIhCgp+A76CHxlcWMz+Hf+OLPxWgR5ttTJ6OXYPJb
+ fC/qRXntIgkmuvAla7tfj9Sfwbf2UrEbFYVDZdEw8pRi0OqE+OY35NlKkFalja2t0WSht3oqJR
+ TpyL3WBhbfFFr+VEE5IZOurZ9F8mmwGxTmMldw2rGsDoK7Df252oo3Q6ekSksyIK5Li1L6Ri98
+ EEbVjGDimkvWXFWzJYKw2lne/qytmBXnV5spehQCm7uWxijOO+mmojzNAaz7LTKVXNWvw4kq00
+ iwc=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -39,9 +40,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v5 22/48] Input: atmel_mxt_ts - improve bootloader state machine handling
-Date:   Wed, 6 Nov 2019 16:01:20 +0900
-Message-ID: <20191106070146.18759-23-jiada_wang@mentor.com>
+Subject: [PATCH v5 26/48] Input: atmel_mxt_ts - implement I2C retries
+Date:   Wed, 6 Nov 2019 16:01:24 +0900
+Message-ID: <20191106070146.18759-27-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191106070146.18759-1-jiada_wang@mentor.com>
 References: <20191106070146.18759-1-jiada_wang@mentor.com>
@@ -54,285 +55,108 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-The code is much clearer if we switch on the actual state the bootloader
-is in, rather than the state we want it to be in, and allows the removal
-of a goto retry tangle.
+Some maXTouch chips (eg mXT1386) will not respond on the first I2C request
+when they are in a sleep state. It must be retried after a delay for the
+chip to wake up.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 463e15ee95ee6e6274017ff645839dbe34d75c99)
-[gdavis: Squash fix from George G. Davis:
-	 - input: atmel_mxt_ts - Fix 'mxt_send_bootloader_cmd' was not
-	   declared warning]
+Acked-by: Yufeng Shen <miletus@chromium.org>
+(cherry picked from ndyer/linux/for-upstream commit 63fd7a2cd03c3a572a5db39c52f4856819e1835d)
+[gdavis: Forward port and fix conflicts.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
----
-Notes:
-- Squash fix from George G. Davis:
-  + input: atmel_mxt_ts - Fix 'mxt_send_bootloader_cmd' was not declared warning
-
-    The following sparse warning was introduced by ndyer/linux/for-upstream
-    commit 463e15ee95ee ("Input: atmel_mxt_ts - improve bootloader state
-    machine handling"):
-
-    drivers/input/touchscreen/atmel_mxt_ts.c:888:5: warning: symbol 'mxt_send_bootloader_cmd' was not declared. Should it be static?
-
-    Fix the above sparse warning by restoring the 'mxt_send_bootloader_cmd'
-    static declaration which was errantly removed by
-    ndyer/linux/for-upstream commit 463e15ee95ee ("Input: atmel_mxt_ts -
-    improve bootloader state machine handling").
-
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 183 ++++++++++++-----------
- 1 file changed, 98 insertions(+), 85 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 45 ++++++++++++++++--------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index d38ae9525e35..1c5230f7a9af 100644
+index f5d67e43a786..fc2f804e5293 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -305,6 +305,8 @@ struct mxt_flash {
- 	size_t frame_size;
- 	unsigned int count;
- 	unsigned int retry;
-+	u8 previous;
-+	bool complete;
- };
- 
- /* Each client has this additional data */
-@@ -583,64 +585,121 @@ static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
- 	return 0;
- }
- 
--static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
--				bool wait)
-+static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock);
-+
-+static int mxt_write_firmware_frame(struct mxt_data *data, struct mxt_flash *f)
-+{
-+	f->frame = (struct mxt_fw_frame *)(f->fw->data + f->pos);
-+
-+	/* Take account of CRC bytes */
-+	f->frame_size = __be16_to_cpu(f->frame->size) + 2U;
-+
-+	/* Write one frame to device */
-+	return mxt_bootloader_write(data, f->fw->data + f->pos,
-+				   f->frame_size);
-+}
-+
-+static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
- {
- 	struct device *dev = &data->client->dev;
--	u8 val;
-+	u8 state;
+@@ -216,6 +216,7 @@ enum t100_type {
+ #define MXT_CRC_TIMEOUT		1000	/* msec */
+ #define MXT_FW_RESET_TIME	3000	/* msec */
+ #define MXT_FW_CHG_TIMEOUT	300	/* msec */
++#define MXT_WAKEUP_TIME		25	/* msec */
+ #define MXT_REGULATOR_DELAY	150	/* msec */
+ #define MXT_CHG_DELAY	        100	/* msec */
+ #define MXT_POWERON_DELAY	150	/* msec */
+@@ -723,6 +724,7 @@ static int __mxt_read_chunk(struct i2c_client *client,
+ 	struct i2c_msg xfer[2];
+ 	u8 buf[2];
  	int ret;
++	bool retry = false;
  
--recheck:
--	if (wait) {
-+	/*
-+	 * In application update mode, the interrupt
-+	 * line signals state transitions. We must wait for the
-+	 * CHG assertion before reading the status byte.
-+	 * Once the status byte has been read, the line is deasserted.
-+	 */
-+	ret = mxt_wait_for_completion(data, &data->bl_completion,
-+				      MXT_FW_CHG_TIMEOUT);
-+	if (ret) {
- 		/*
--		 * In application update mode, the interrupt
--		 * line signals state transitions. We must wait for the
--		 * CHG assertion before reading the status byte.
--		 * Once the status byte has been read, the line is deasserted.
-+		 * TODO: handle -ERESTARTSYS better by terminating
-+		 * fw update process before returning to userspace
-+		 * by writing length 0x000 to device (iff we are in
-+		 * WAITING_FRAME_DATA state).
- 		 */
--		ret = mxt_wait_for_completion(data, &data->bl_completion,
--					      MXT_FW_CHG_TIMEOUT);
--		if (ret) {
--			/*
--			 * TODO: handle -ERESTARTSYS better by terminating
--			 * fw update process before returning to userspace
--			 * by writing length 0x000 to device (iff we are in
--			 * WAITING_FRAME_DATA state).
--			 */
--			dev_err(dev, "Update wait error %d\n", ret);
--			return ret;
--		}
-+		dev_warn(dev, "Update wait error %d\n", ret);
- 	}
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+@@ -739,17 +741,22 @@ static int __mxt_read_chunk(struct i2c_client *client,
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
  
--	ret = mxt_bootloader_read(data, &val, 1);
-+	ret = mxt_bootloader_read(data, &state, 1);
- 	if (ret)
- 		return ret;
- 
-+	/* Remove don't care bits */
-+	if (state & ~MXT_BOOT_STATUS_MASK)
-+		state &= ~MXT_BOOT_STATUS_MASK;
-+
- 	switch (state) {
- 	case MXT_WAITING_BOOTLOAD_CMD:
-+		dev_info(dev, "Unlocking bootloader\n");
-+		ret = mxt_send_bootloader_cmd(data, true);
-+		if (ret)
-+			return ret;
-+
-+		break;
-+
- 	case MXT_WAITING_FRAME_DATA:
--	case MXT_APP_CRC_FAIL:
--		val &= ~MXT_BOOT_STATUS_MASK;
-+		if ((f->previous != MXT_WAITING_BOOTLOAD_CMD)
-+		    && (f->previous != MXT_FRAME_CRC_PASS)
-+		    && (f->previous != MXT_FRAME_CRC_FAIL))
-+			goto unexpected;
-+
-+		ret = mxt_write_firmware_frame(data, f);
-+		if (ret)
-+			return ret;
-+
-+		break;
-+
-+	case MXT_FRAME_CRC_CHECK:
-+		if (f->previous != MXT_WAITING_FRAME_DATA)
-+			goto unexpected;
- 		break;
-+
- 	case MXT_FRAME_CRC_PASS:
--		if (val == MXT_FRAME_CRC_CHECK) {
--			goto recheck;
--		} else if (val == MXT_FRAME_CRC_FAIL) {
--			dev_err(dev, "Bootloader CRC fail\n");
--			return -EINVAL;
-+		if (f->previous != MXT_FRAME_CRC_CHECK)
-+			goto unexpected;
-+
-+		/* Next frame */
-+		f->retry = 0;
-+		f->pos += f->frame_size;
-+		f->count++;
-+
-+		if (f->pos >= f->fw->size) {
-+			f->complete = true;
-+			dev_info(dev, "Sent %u frames, %zu bytes\n",
-+				f->count, f->fw->size);
-+		} else if (f->count % 50 == 0) {
-+			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
-+				f->count, f->pos, f->fw->size);
- 		}
-+
-+		break;
-+
-+	case MXT_FRAME_CRC_FAIL:
-+		if (f->retry > 20) {
-+			dev_err(dev, "Retry count exceeded\n");
+-	ret = i2c_transfer(client->adapter, xfer, 2);
+-	if (ret == 2) {
+-		ret = 0;
+-	} else {
+-		if (ret >= 0)
+-			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
+-			__func__, ret);
++retry_read:
++	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
++	if (ret != ARRAY_SIZE(xfer)) {
++		if (!retry) {
++			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
++			msleep(MXT_WAKEUP_TIME);
++			retry = true;
++			goto retry_read;
++		} else {
++			dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
++				__func__, ret);
 +			return -EIO;
 +		}
-+
-+		/* Back off by 20ms per retry */
-+		dev_dbg(dev, "Bootloader frame CRC failure\n");
-+		f->retry++;
-+		msleep(f->retry * 20);
- 		break;
-+
- 	default:
- 		return -EINVAL;
  	}
  
--	if (val != state) {
--		dev_err(dev, "Invalid bootloader state %02X != %02X\n",
--			val, state);
--		return -EINVAL;
--	}
-+	f->previous = state;
- 
- 	return 0;
-+
-+unexpected:
-+	dev_err(dev, "Unexpected state transition\n");
-+	return -EINVAL;
+-	return ret;
++	return 0;
  }
  
- static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
-@@ -3301,57 +3360,13 @@ static int mxt_load_fw(struct device *dev)
- 	if (ret)
- 		goto release_firmware;
+ static int __mxt_read_reg(struct i2c_client *client,
+@@ -780,6 +787,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	u8 *buf;
+ 	size_t count;
+ 	int ret;
++	bool retry = false;
  
--	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD, false);
--	if (ret) {
--		/* Bootloader may still be unlocked from previous attempt */
--		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, false);
--		if (ret)
--			goto disable_irq;
+ 	count = len + 2;
+ 	buf = kmalloc(count, GFP_KERNEL);
+@@ -790,14 +798,21 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	buf[1] = (reg >> 8) & 0xff;
+ 	memcpy(&buf[2], val, len);
+ 
++retry_write:
+ 	ret = i2c_master_send(client, buf, count);
+-	if (ret == count) {
+-		ret = 0;
 -	} else {
--		dev_info(dev, "Unlocking bootloader\n");
--
--		/* Unlock bootloader */
--		ret = mxt_send_bootloader_cmd(data, true);
-+	while (true) {
-+		ret = mxt_check_bootloader(data, &f);
- 		if (ret)
--			goto disable_irq;
--	}
--
--	while (f.pos < f.fw->size) {
--		f.frame = (struct mxt_fw_frame *)(f.fw->data + f.pos);
--
--		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, true);
--		if (ret)
--			goto disable_irq;
--
--		/* Take account of CRC bytes */
--		f.frame_size = __be16_to_cpu(f.frame->size) + 2U;
--
--		/* Write one frame to device */
--		ret = mxt_bootloader_write(data, f.fw->data + f.pos,
--					   f.frame_size);
--		if (ret)
--			goto disable_irq;
--
--		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS, true);
--		if (ret) {
--			f.retry++;
--
--			/* Back off by 20ms per retry */
--			msleep(f.retry * 20);
--
--			if (f.retry > 20) {
--				dev_err(dev, "Retry count exceeded\n");
--				goto disable_irq;
--			}
--		} else {
--			f.retry = 0;
--			f.pos += f.frame_size;
--			f.count++;
--		}
-+			return ret;
- 
--		if (f.count % 50 == 0)
--			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
--				f.count, f.pos, f.fw->size);
-+		if (f.complete)
-+			break;
+-		if (ret >= 0)
++	if (ret != count) {
++		if (!retry) {
++			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
++			msleep(MXT_WAKEUP_TIME);
++			retry = true;
++			goto retry_write;
++		} else {
++			dev_err(&client->dev, "%s: i2c send failed (%d)\n",
++				__func__, ret);
+ 			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
+-			__func__, ret);
++		}
++	} else {
++		ret = 0;
  	}
  
- 	/* Wait for flash. */
-@@ -3360,7 +3375,6 @@ static int mxt_load_fw(struct device *dev)
- 	if (ret)
- 		goto disable_irq;
- 
--	dev_dbg(dev, "Sent %u frames, %lld bytes\n", f.count, f.pos);
- 
- 	/*
- 	 * Wait for device to reset. Some bootloader versions do not assert
-@@ -3370,7 +3384,6 @@ static int mxt_load_fw(struct device *dev)
- 	mxt_wait_for_completion(data, &data->bl_completion, MXT_FW_RESET_TIME);
- 
- 	data->in_bootloader = false;
--
- disable_irq:
- 	disable_irq(data->irq);
- release_firmware:
+ 	kfree(buf);
 -- 
 2.17.1
 

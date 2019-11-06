@@ -2,137 +2,174 @@ Return-Path: <SRS0=pzmn=Y6=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7FF8C5DF62
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 11:03:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55A35C5DF65
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 20:00:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B2938217F5
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 11:03:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 24EDD217D7
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 20:00:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=mxxn.io header.i=@mxxn.io header.b="BgZvCYSE";
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="o87Av97m"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c/PhPI5T"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726402AbfKFLDZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Nov 2019 06:03:25 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:35703 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725890AbfKFLDY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Nov 2019 06:03:24 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 03D344D7;
-        Wed,  6 Nov 2019 06:03:22 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Wed, 06 Nov 2019 06:03:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mxxn.io; h=from
-        :to:cc:subject:date:message-id:mime-version:content-type
-        :content-transfer-encoding; s=fm3; bh=Ii2oxrWwPIXyOz9KTyWZWso10b
-        yGznburLcw9Zjh5ao=; b=BgZvCYSEOWLQrLl7SRYAy5u+NZbovI1AEIFybvfyzt
-        MQwfOWtqj1YDSsB1yOOdFxb/9M2Hen4rosBd2qEI1HzAnBqEL0sWG6APSv84W7gA
-        Vf74wohU89kSvuOOFjIAofRDZrRpheoUnj8n8UiHbS4ZJK6q+KdgJkpc+OgOcVc7
-        DPfKL5G5YAk/wLATdYsL9cc0/g//EyUJc6U+7mcprQufGLyMiBYScQxdzPIDiVu+
-        M1/Zjrk1JWj9iaVW/8rObsmrUuxKDsw4n2EN4x2tEETgohv+gIUtzqFNQRpZFIix
-        n40KUBcM7Nww4+yPFHuev/MEj6IFTwm+1IWlIGFNyzOQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Ii2oxr
-        WwPIXyOz9KTyWZWso10byGznburLcw9Zjh5ao=; b=o87Av97mKTjX57VjcioQ3N
-        la1PH9XaL3wB/G1Q/SaAmH9aNV6ximiqj1dgqJHrq/W8p0v01n7l+HE/16kVw4sp
-        Br4/eJ8PcTng0/FZgKz+wAH+KWvDf36W1TG+AUiLTLXCJ97T30yZAWLEbLdl56ly
-        DFX/Vq1K95YPHGkQQqZBkv83CRNlkcIBYu7kepkWNF+c9rSBbUsRy6c3KWvkVl5I
-        iDVURqXaH+Zj4PeVda85VylY/1WKnu24dP858Ex6FXThbbMMUmDVdjX1JEh0RrG5
-        8DPD3L2M4wqynxtEMjNG+Yaw3niGIYtzMfB/Vv2E+p/eGc6Rr3oDi0ADvn1Dp7hw
-        ==
-X-ME-Sender: <xms:eqjCXSlPQceVNtPabUw40ukxAK3L7W1DC0hbhISZ1bcVZM0zNUWZlA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddujedgvdefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    hmihhsshhinhhgucfvqfcufhhivghlugculdeftddmnegoteeftdduqddtudculdduhedm
-    necujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomhepuehlrgkkuc
-    fjrhgrshhtnhhikhcuoegslhgriiesmhiggihnrdhioheqnecukfhppeduuddurddutdej
-    rddvtdelrddvvdehnecurfgrrhgrmhepmhgrihhlfhhrohhmpegslhgriiesmhiggihnrd
-    hiohenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:eqjCXVhaXBg-6fXjBSMW-_nm_kXGEvOoMsAcekaLsf0qyg8gkxZCtg>
-    <xmx:eqjCXbXg5Y0kTfvtAS9mf6Yvl8aT5kYIkqryH062pklkpoCRIKc8Jg>
-    <xmx:eqjCXXiSyd0fnmkoVm8KkBN2jnyvfjzFkh-yraj964I4mGlIqLNyvQ>
-    <xmx:eqjCXUJSqQcRIgPGKUN_hlMB4jBhuWZzlj1Gkadch9kITwQkT8Uw-Q>
-Received: from localhost.localdomain (225.ec0279u.cyberhome.ne.jp [111.107.209.225])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C271680062;
-        Wed,  6 Nov 2019 06:03:20 -0500 (EST)
-From:   =?UTF-8?q?Bla=C5=BE=20Hrastnik?= <blaz@mxxn.io>
-Cc:     =?UTF-8?q?Bla=C5=BE=20Hrastnik?= <blaz@mxxn.io>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: Improve Windows Precision Touchpad detection.
-Date:   Wed,  6 Nov 2019 20:02:46 +0900
-Message-Id: <20191106110246.70937-1-blaz@mxxn.io>
+        id S1727143AbfKFUAM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Nov 2019 15:00:12 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:40664 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726934AbfKFUAM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 15:00:12 -0500
+Received: by mail-pf1-f193.google.com with SMTP id r4so19727066pfl.7;
+        Wed, 06 Nov 2019 12:00:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Z2NBa2LgrpE4L6RGacxchP+uklVKgX1wRCtxgifUbs8=;
+        b=c/PhPI5TiUtDMh9DKGZg0Pcn9PeuFpl5OWCpqkNLlMnUBryNNkcWZTiKuxmx0x2hm9
+         Q78nCv3CexnDHzj0nWOxntT4bmOVjSI22SjrUUMj2NLzuP87WdEu69tbfSo8y8vLFNrU
+         W7E+CFz9FtNM7I2T7PBBy3k9FjSbqwTm4S+fGr3t1XiaV7P3lk0fmrbqvlhVwD81MszV
+         BkXU3Vl4K7lw7Hh6JwBstqszFGNYGCa5gKjKsJfNUAMxUWf/MtmTJC/BtwtjnCmALcSn
+         buAUbE3TI+frjnWQpAgGeTaD74d8645q44drX7mtZxO8KxePcTv9wlbsUILqlhf3nPuX
+         5qvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Z2NBa2LgrpE4L6RGacxchP+uklVKgX1wRCtxgifUbs8=;
+        b=oYuOImBPg1/Q3qJQnTzmPCBe5uKGtWCrFBCdQ2u/dD5NKdelE+8JhW5+7yh3HzUE/l
+         tIWKnwANTQ+W86WeQRB7MMEnJYbCXl6nPyr8kNKcCIgpy8z9t36NkjTz7tUyF8H4MlB5
+         rjL4gshhWjIjDB04iZ1jGKKKnlkc4RjZjVmqLUPFQG0d40HD4xqu1g1C4IlJ6D7V8VBI
+         wEKto0IAZ5bkkUgEeyFZC11RCbR1FT+B+UMN/4SeftMfVNHfTrgUDFiuIYeUd1loPAV3
+         uAERed0C5D8BxDSCYUtN/erNbDJMvL5cxW4+P3xOIoiEYNc2N3d/DldtuqGnG39+BIb8
+         R42w==
+X-Gm-Message-State: APjAAAXFe/FyM6VDt1D40gLzDOoUDqlinbhPaVOrJMbmDE+q+hlpK84s
+        Z0s86QEHjGp+/EjfUkJn8Os+LK8fjr4=
+X-Google-Smtp-Source: APXvYqwyXfgOgss/tHAjqU7N38N0FVzf0AMwncW+sMuCyh4vPY4CqJWtx7EvNoJ9le3YfXiKQep81g==
+X-Received: by 2002:a65:6290:: with SMTP id f16mr5144528pgv.40.1573070410807;
+        Wed, 06 Nov 2019 12:00:10 -0800 (PST)
+Received: from US-191-ENG0002.corp.onewacom.com (75-148-82-17-Oregon.hfc.comcastbusiness.net. [75.148.82.17])
+        by smtp.gmail.com with ESMTPSA id 76sm11795674pfw.75.2019.11.06.12.00.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Nov 2019 12:00:10 -0800 (PST)
+From:   "Gerecke, Jason" <killertofu@gmail.com>
+X-Google-Original-From: "Gerecke, Jason" <jason.gerecke@wacom.com>
+To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Jason Gerecke <killertofu@gmail.com>, stable@vger.kernel.org,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Subject: [PATCH] HID: wacom: generic: Treat serial number and related fields as unsigned
+Date:   Wed,  6 Nov 2019 11:59:46 -0800
+Message-Id: <20191106195946.552879-1-jason.gerecke@wacom.com>
 X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Per Microsoft spec, usage 0xC5 (page 0xFF) returns a blob containing
-data used to verify the touchpad as a Windows Precision Touchpad.
+From: Jason Gerecke <killertofu@gmail.com>
 
-   0x85, REPORTID_PTPHQA,    //    REPORT_ID (PTPHQA)
-    0x09, 0xC5,              //    USAGE (Vendor Usage 0xC5)
-    0x15, 0x00,              //    LOGICAL_MINIMUM (0)
-    0x26, 0xff, 0x00,        //    LOGICAL_MAXIMUM (0xff)
-    0x75, 0x08,              //    REPORT_SIZE (8)
-    0x96, 0x00, 0x01,        //    REPORT_COUNT (0x100 (256))
-    0xb1, 0x02,              //    FEATURE (Data,Var,Abs)
+The HID descriptors for most Wacom devices oddly declare the serial
+number and other related fields as signed integers. When these numbers
+are ingested by the HID subsystem, they are automatically sign-extended
+into 32-bit integers. We treat the fields as unsigned elsewhere in the
+kernel and userspace, however, so this sign-extension causes problems.
+In particular, the sign-extended tool ID sent to userspace as ABS_MISC
+does not properly match unsigned IDs used by xf86-input-wacom and libwacom.
 
-However, some devices, namely Microsoft's Surface line of products
-instead implement a "segmented device certification report" (usage 0xC6)
-which returns the same report, but in smaller chunks.
+We introduce a function 'wacom_s32tou' that can undo the automatic sign
+extension performed by 'hid_snto32'. We call this function when processing
+the serial number and related fields to ensure that we are dealing with
+and reporting the unsigned form. We opt to use this method rather than
+adding a descriptor fixup in 'wacom_hid_usage_quirk' since it should be
+more robust in the face of future devices.
 
-    0x06, 0x00, 0xff,        //     USAGE_PAGE (Vendor Defined)
-    0x85, REPORTID_PTPHQA,   //     REPORT_ID (PTPHQA)
-    0x09, 0xC6,              //     USAGE (Vendor usage for segment #)
-    0x25, 0x08,              //     LOGICAL_MAXIMUM (8)
-    0x75, 0x08,              //     REPORT_SIZE (8)
-    0x95, 0x01,              //     REPORT_COUNT (1)
-    0xb1, 0x02,              //     FEATURE (Data,Var,Abs)
-    0x09, 0xC7,              //     USAGE (Vendor Usage)
-    0x26, 0xff, 0x00,        //     LOGICAL_MAXIMUM (0xff)
-    0x95, 0x20,              //     REPORT_COUNT (32)
-    0xb1, 0x02,              //     FEATURE (Data,Var,Abs)
-
-By expanding Win8 touchpad detection to also look for the segmented
-report, all Surface touchpads are now properly recognized by
-hid-multitouch.
-
-Signed-off-by: Blaž Hrastnik <blaz@mxxn.io>
+Ref: https://github.com/linuxwacom/input-wacom/issues/134
+Fixes: f85c9dc678 ("HID: wacom: generic: Support tool ID and additional tool types")
+CC: <stable@vger.kernel.org> # v4.10+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 ---
- drivers/hid/hid-core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/wacom.h     | 15 +++++++++++++++
+ drivers/hid/wacom_wac.c | 10 ++++++----
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 63fdbf09b044..2af597cd5d65 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -742,6 +742,10 @@ static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
- 	if (usage == 0xff0000c5 && parser->global.report_count == 256 &&
- 	    parser->global.report_size == 8)
- 		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
-+
-+	if (usage == 0xff0000c6 && parser->global.report_count == 1 &&
-+	    parser->global.report_size == 8)
-+		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
+diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
+index 4a7f8d363220..203d27d198b8 100644
+--- a/drivers/hid/wacom.h
++++ b/drivers/hid/wacom.h
+@@ -202,6 +202,21 @@ static inline void wacom_schedule_work(struct wacom_wac *wacom_wac,
+ 	}
  }
  
- static void hid_scan_collection(struct hid_parser *parser, unsigned type)
++/*
++ * Convert a signed 32-bit integer to an unsigned n-bit integer. Undoes
++ * the normally-helpful work of 'hid_snto32' for fields that use signed
++ * ranges for questionable reasons.
++ */
++static inline __u32 wacom_s32tou(s32 value, __u8 n)
++{
++	switch (n) {
++	case 8:  return ((__u8)value);
++	case 16: return ((__u16)value);
++	case 32: return ((__u32)value);
++	}
++	return value & (1 << (n - 1)) ? value & (~(~0U << n)) : value;
++}
++
+ extern const struct hid_device_id wacom_ids[];
+ 
+ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len);
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 2b0a5b8ca6e6..ccb74529bc78 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2303,7 +2303,7 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+ 	case HID_DG_TOOLSERIALNUMBER:
+ 		if (value) {
+ 			wacom_wac->serial[0] = (wacom_wac->serial[0] & ~0xFFFFFFFFULL);
+-			wacom_wac->serial[0] |= (__u32)value;
++			wacom_wac->serial[0] |= wacom_s32tou(value, field->report_size);
+ 		}
+ 		return;
+ 	case HID_DG_TWIST:
+@@ -2319,15 +2319,17 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+ 		return;
+ 	case WACOM_HID_WD_SERIALHI:
+ 		if (value) {
++			__u32 raw_value = wacom_s32tou(value, field->report_size);
++
+ 			wacom_wac->serial[0] = (wacom_wac->serial[0] & 0xFFFFFFFF);
+-			wacom_wac->serial[0] |= ((__u64)value) << 32;
++			wacom_wac->serial[0] |= ((__u64)raw_value) << 32;
+ 			/*
+ 			 * Non-USI EMR devices may contain additional tool type
+ 			 * information here. See WACOM_HID_WD_TOOLTYPE case for
+ 			 * more details.
+ 			 */
+ 			if (value >> 20 == 1) {
+-				wacom_wac->id[0] |= value & 0xFFFFF;
++				wacom_wac->id[0] |= raw_value & 0xFFFFF;
+ 			}
+ 		}
+ 		return;
+@@ -2339,7 +2341,7 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+ 		 * bitwise OR so the complete value can be built
+ 		 * up over time :(
+ 		 */
+-		wacom_wac->id[0] |= value;
++		wacom_wac->id[0] |= wacom_s32tou(value, field->report_size);
+ 		return;
+ 	case WACOM_HID_WD_OFFSETLEFT:
+ 		if (features->offset_left && value != features->offset_left)
 -- 
 2.23.0
 

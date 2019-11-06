@@ -2,37 +2,37 @@ Return-Path: <SRS0=pzmn=Y6=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15CC4C5DF63
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:04:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76F42C5DF62
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:04:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CE7DC206DF
-	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:04:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4596C21882
+	for <linux-input@archiver.kernel.org>; Wed,  6 Nov 2019 07:04:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731342AbfKFHEP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Nov 2019 02:04:15 -0500
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:8786 "EHLO
+        id S1731265AbfKFHET (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Nov 2019 02:04:19 -0500
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:8793 "EHLO
         esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731147AbfKFHEN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:04:13 -0500
-IronPort-SDR: n/WwFGgUFYhV5VTBeFWIJDRlKrddyfX04OR1UI5ByPB8ovo/3n3JVPOM8SIfeB/eBFfK6yt51N
- gNUcv33KkgEGktThGNYnjxNbQva994LOkiV5KfNUHFKjpV3b6hdQixEbAsE5plDAZOajP9f9hZ
- lNq2zhiuL3bNrERGlF7b5OkJpt2/nym2ys33d2RfFo4v7e56/vomFE0dK/H08DuI/lkouwv/nh
- 4vw3+b1+YtGkm+2oMYshwt7Xwl9dtnn6S9hcK8MVSGO9D9aPZC7CuGYIworiAGYN7qewjG7/sC
- Xe0=
+        with ESMTP id S1731733AbfKFHES (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Nov 2019 02:04:18 -0500
+IronPort-SDR: IZCegv9M42kilb2C4KzY0bXx4BQG+qv8gg/oMWvxMw5EJ9z1j/htvH84d1y0vcPII7POxVz60s
+ /PJp2cLKXuLTIIbPzC9mwZdVeWAfPowsztKwqjD+FacJVQQ4ekvRBK5tXMpAgnfCGPpS2Jdm/y
+ 0m+zE5YUWYxjyJKKh9KbTTovzPk40bKtVlQJKhinvPuJsExAvSY16pVbVLH3hFyIC/MSNK2b9L
+ 19tv6m3tEZuPvrImJhDAhUQ3rcaE05OIPN8tlP4z+XGn6qMxGzivtjIVL3FOtg4ajIWHHjJr8N
+ fhw=
 X-IronPort-AV: E=Sophos;i="5.68,272,1569312000"; 
-   d="scan'208";a="42908665"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa3.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:04:06 -0800
-IronPort-SDR: RecWTTSfhPP+lbUpBg71Dc/wKB5UbxISDxZ1rz6LvvmBD/d8C0BDZdp1uAnnw7+FhMRxmtazFA
- I+zZzGgl4zilRTfalAEOjDR3NxFaeIPPqkYIHxXSqRpyJOzPCFkJEq0zYjkzkRAbGsGgNKbeFs
- CVkMFn7sNIpvTx2e2gBADHOtUTbcEMEvsyEPYORLgcAiD1ui+BYQ06Zh1ubuQSS3YftZdx7+OA
- +EHlheosY706eM+VamgaJ45nvRj4CNpnVjPOuK5iH3W4dGI3wyDira1vDgsFfpugxAGLcvGfYB
- uSE=
+   d="scan'208";a="42908672"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa3.mentor.iphmx.com with ESMTP; 05 Nov 2019 23:04:17 -0800
+IronPort-SDR: Q8ZhhjXEZb8MjTmSs0X0JDBYeoTgPv3x1E3wmsKY3UwQKqUbqT/fYSRs+4zfmWWrmAP8dv+sJ3
+ twS+2Er1ioy5JEDp775qXl/pi+8las8FFRtOt4aXNK/4Xv/C+KVuYdS48hlPyN6ZTLAyCYSFZl
+ 3ZWRUcRlkGzXrtEjumV0/Rcdjqi3tkmcXtjChTifqBWFMQ7vPwiAtCqfKyEXovGeY6yKyuKdQJ
+ 7wCERdDc34vY2bbANaP5J4s2+lpnwO0cOcY1FaqZMB2f/RlzNrMs5yoGdWVkskK9U+Kifsp443
+ jiY=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +40,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <jiada_wang@mentor.com>, <erosca@de.adit-jv.com>,
         <Andrew_Gabbasov@mentor.com>
-Subject: [PATCH v5 35/48] Input: atmel_mxt_ts: Add support for run self-test routine.
-Date:   Wed, 6 Nov 2019 16:01:33 +0900
-Message-ID: <20191106070146.18759-36-jiada_wang@mentor.com>
+Subject: [PATCH v5 38/48] Input: Atmel: improve error handling in mxt_start()
+Date:   Wed, 6 Nov 2019 16:01:36 +0900
+Message-ID: <20191106070146.18759-39-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191106070146.18759-1-jiada_wang@mentor.com>
 References: <20191106070146.18759-1-jiada_wang@mentor.com>
@@ -53,197 +53,102 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nikhil Ravindran <Nikhil.Ravindran@in.bosch.com>
+From: Deepak Das <deepak_das@mentor.com>
 
-The self test object T25 runs self test routines in device to find faults
-Sysfs entry add to start self test routine and read back the test results
-for atmel touchcontrollers.The feature will be used for A-IVI and CAF projects.
+mxt_start() does not return error in any of
+the failure cases which will allow input_dev->open()
+to return success even in case of any failure.
 
-Signed-off-by: Nikhil Ravindran <Nikhil.Ravindran@in.bosch.com>
+This commit modifies mxt_start() to return error
+in failure cases.
+
+Signed-off-by: Deepak Das <deepak_das@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 111 +++++++++++++++++++++++
- 1 file changed, 111 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 31 ++++++++++++------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 835cc7a29c2f..74866015572f 100644
+index a5af1f91d704..1ebdca1ed815 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -336,6 +336,9 @@ struct mxt_data {
- 	u8 t100_aux_ampl;
- 	u8 t100_aux_area;
- 	u8 t100_aux_vect;
-+	u16 T25_address;
-+	u8  T25_reportid;
-+	u8  t25_msg[6];
- 	bool debug_enabled;
- 	bool debug_v2_enabled;
- 	u8 *debug_msg_data;
-@@ -413,6 +416,8 @@ struct mxt_data {
+@@ -3974,12 +3974,13 @@ static int mxt_start(struct mxt_data *data)
  
- 	/* Indicates whether device is updating configuration */
- 	bool updating_config;
-+
-+	bool t25_status;
- };
- 
- struct mxt_vb2_buffer {
-@@ -1359,6 +1364,24 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
- 	dev_info(dev, "T93 report double tap %d\n", status);
- }
- 
-+static void mxt_proc_t25_messages(struct mxt_data *data, u8 *msg)
-+{
-+	struct device *dev = &data->client->dev;
-+
-+	/* Output debug if status has changed */
-+	dev_dbg(dev, "T25 Status 0x%x Info: %x %x %x %x %x\n",
-+		msg[1],
-+		msg[2],
-+		msg[3],
-+		msg[4],
-+		msg[5],
-+		msg[6]);
-+
-+	/* Save current status */
-+	memcpy(&data->t25_msg[0], &msg[1], sizeof(data->t25_msg));
-+	data->t25_status = false;
-+}
-+
- static int mxt_proc_message(struct mxt_data *data, u8 *message)
- {
- 	u8 report_id = message[0];
-@@ -1389,6 +1412,8 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	} else if (report_id == data->T19_reportid) {
- 		mxt_input_button(data, message);
- 		data->update_input = true;
-+	} else if (report_id == data->T25_reportid) {
-+		mxt_proc_t25_messages(data, message);
- 	} else if (report_id >= data->T15_reportid_min
- 		   && report_id <= data->T15_reportid_max) {
- 		mxt_proc_t15_messages(data, message);
-@@ -1613,6 +1638,84 @@ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
- 	return 0;
- }
- 
-+static int mxt_t25_command(struct mxt_data *data, u8 cmd, bool wait)
-+{
-+	u16 reg;
-+	int timeout_counter = 0;
-+	int ret;
-+	u8  val[2];
-+
-+	reg = data->T25_address;
-+	val[0] = 0x3;
-+	val[1] = cmd;
-+
-+	data->t25_status = true;
-+	ret = __mxt_write_reg(data->client, reg, sizeof(val), val);
-+	if (ret) {
-+		data->t25_status = false;
-+		return ret;
-+	}
-+
-+	if (!wait)
-+		return 0;
-+
-+	do {
-+		msleep(MXT_WAKEUP_TIME);
-+		ret = __mxt_read_reg(data->client, reg + 1, 1, &val[1]);
+ 	switch (data->suspend_mode) {
+ 	case MXT_SUSPEND_T9_CTRL:
+-		mxt_soft_reset(data);
+-
++		ret = mxt_soft_reset(data);
 +		if (ret)
-+			return ret;
-+	} while ((val[1] != 0) && (timeout_counter++ <= 100));
-+
-+	if (timeout_counter > 100) {
-+		dev_err(&data->client->dev, "Command failed!\n");
-+		data->t25_status = false;
-+		return -EIO;
-+	}
-+	return 0;
-+}
-+
-+/* Firmware Version is returned as Major.Minor.Build */
-+static ssize_t mxt_t25_selftest_show(struct device *dev, struct
-+				     device_attribute *attr, char *buf)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	ssize_t offset = 0;
-+
-+	if (data->t25_status)
-+		return -EAGAIN;
-+
-+	if (data->t25_msg[0] == 0xFE)
-+		offset += scnprintf(buf, PAGE_SIZE, "PASS\n");
-+	else
-+		offset += scnprintf(buf, PAGE_SIZE, "FAILED\n");
-+
-+	offset += scnprintf(buf + offset, PAGE_SIZE, "%x %x %x %x %x %x\n",
-+		 data->t25_msg[0],
-+		 data->t25_msg[1],
-+		 data->t25_msg[2],
-+		 data->t25_msg[3],
-+		 data->t25_msg[4],
-+		 data->t25_msg[5]);
-+	return offset;
-+}
-+
-+static ssize_t mxt_t25_selftest_store(struct device *dev, struct
-+				      device_attribute *attr, const char *buf,
-+				      size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	u32 cmd;
-+
-+	if (sscanf(buf, "%x", &cmd) == 1) {
-+		if (mxt_t25_command(data, (u8)cmd, 1) == 0)
-+			return count;
-+
-+		dev_dbg(dev, "mxt_t25_cmd_store write cmd %x error\n", cmd);
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
- static int mxt_acquire_irq(struct mxt_data *data)
- {
- 	int error;
-@@ -2091,6 +2194,8 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T15_reportid_max = 0;
- 	data->T18_address = 0;
- 	data->T19_reportid = 0;
-+	data->T25_address = 0;
-+	data->T25_reportid = 0;
- 	data->T42_reportid_min = 0;
- 	data->T42_reportid_max = 0;
- 	data->T44_address = 0;
-@@ -2178,6 +2283,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
- 		case MXT_SPT_COMMSCONFIG_T18:
- 			data->T18_address = object->start_address;
- 			break;
-+		case MXT_SPT_SELFTEST_T25:
-+			data->T25_address = object->start_address;
-+			data->T25_reportid = min_id;
 +			break;
- 		case MXT_PROCI_TOUCHSUPPRESSION_T42:
- 			data->T42_reportid_min = min_id;
- 			data->T42_reportid_max = max_id;
-@@ -3764,6 +3873,7 @@ static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
- static DEVICE_ATTR(debug_v2_enable, S_IWUSR | S_IRUSR, NULL,
- 		   mxt_debug_v2_enable_store);
- static DEVICE_ATTR(debug_notify, S_IRUGO, mxt_debug_notify_show, NULL);
-+static DEVICE_ATTR(t25, 0600, mxt_t25_selftest_show, mxt_t25_selftest_store);
+ 		/* Touch enable */
+ 		/* 0x83 = SCANEN | RPTEN | ENABLE */
+-		mxt_write_object(data,
+-				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0x83);
++		ret = mxt_write_object(data,
++				       MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0x83);
+ 		break;
  
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
-@@ -3774,6 +3884,7 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_debug_enable.attr,
- 	&dev_attr_debug_v2_enable.attr,
- 	&dev_attr_debug_notify.attr,
-+	&dev_attr_t25.attr,
- 	NULL
- };
+ 	case MXT_SUSPEND_REGULATOR:
+@@ -3993,27 +3994,26 @@ static int mxt_start(struct mxt_data *data)
+ 		 * Discard any touch messages still in message buffer
+ 		 * from before chip went to sleep
+ 		 */
+-		mxt_process_messages_until_invalid(data);
++		ret = mxt_process_messages_until_invalid(data);
++		if (ret)
++			break;
  
+ 		ret = mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
+ 		if (ret)
+-			return ret;
++			break;
+ 
+ 		/* Recalibrate since chip has been in deep sleep */
+ 		ret = mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
+ 		if (ret)
+-			return ret;
++			break;
+ 
+ 		ret = mxt_acquire_irq(data);
+-		if (ret)
+-			return ret;
+-
+-		break;
+ 	}
+ 
+-	data->suspended = false;
++	if (!ret)
++		data->suspended = false;
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int mxt_stop(struct mxt_data *data)
+@@ -4333,6 +4333,7 @@ static int __maybe_unused mxt_resume(struct device *dev)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct mxt_data *data = i2c_get_clientdata(client);
+ 	struct input_dev *input_dev = data->input_dev;
++	int ret = 0;
+ 
+ 	if (!input_dev)
+ 		return 0;
+@@ -4340,11 +4341,11 @@ static int __maybe_unused mxt_resume(struct device *dev)
+ 	mutex_lock(&input_dev->mutex);
+ 
+ 	if (input_dev->users)
+-		mxt_start(data);
++		ret = mxt_start(data);
+ 
+ 	mutex_unlock(&input_dev->mutex);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static SIMPLE_DEV_PM_OPS(mxt_pm_ops, mxt_suspend, mxt_resume);
 -- 
 2.17.1
 

@@ -2,49 +2,253 @@ Return-Path: <SRS0=YnYo=Y7=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=FREEMAIL_REPLYTO_END_DIGIT,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3852BC5DF60
-	for <linux-input@archiver.kernel.org>; Thu,  7 Nov 2019 15:10:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23C84C5DF60
+	for <linux-input@archiver.kernel.org>; Thu,  7 Nov 2019 18:10:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 13E4921D79
-	for <linux-input@archiver.kernel.org>; Thu,  7 Nov 2019 15:10:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07E0B20869
+	for <linux-input@archiver.kernel.org>; Thu,  7 Nov 2019 18:10:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389292AbfKGPJ7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 7 Nov 2019 10:09:59 -0500
-Received: from [211.53.128.215] ([211.53.128.215]:52287 "EHLO MAIL.isd.co.kr"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729985AbfKGPJ7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 7 Nov 2019 10:09:59 -0500
-Received: from 192.168.1.3 (217.217.179.17) by MAIL.isd.co.kr (10.10.10.22)
- with Microsoft SMTP Server id 14.3.123.3; Fri, 8 Nov 2019 00:08:16 +0900
-Date:   Thu, 7 Nov 2019 16:08:14 +0100
-From:   Peter Wong <choimj@isd.co.kr>
-Reply-To: Peter Wong <pw178483@protonmail.com>
-To:     <linux-input@vger.kernel.org>
-Message-ID: <11377477.22549.1573139296399.JavaMail.cash@211.53.128.215>
-Subject: Investment opportunity
+        id S1726231AbfKGSKW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 7 Nov 2019 13:10:22 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:51900 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725912AbfKGSKW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Nov 2019 13:10:22 -0500
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: sre)
+        with ESMTPSA id 4DD55290AD6
+Received: by jupiter.universe (Postfix, from userid 1000)
+        id 43D1B48009B; Thu,  7 Nov 2019 19:10:17 +0100 (CET)
+From:   Sebastian Reichel <sebastian.reichel@collabora.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Ahmet Inan <inan@distec.de>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@collabora.com,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCHv1 2/2] Input: EXC3000: Add support to query model and fw_version
+Date:   Thu,  7 Nov 2019 19:10:10 +0100
+Message-Id: <20191107181010.17211-2-sebastian.reichel@collabora.com>
+X-Mailer: git-send-email 2.24.0.rc1
+In-Reply-To: <20191107181010.17211-1-sebastian.reichel@collabora.com>
+References: <20191107181010.17211-1-sebastian.reichel@collabora.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [217.217.179.17]
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Greetings,
+Expose model and fw_version via sysfs. Also query the model
+in probe to make sure, that the I2C communication with the
+device works before successfully probing the driver.
 
-Find attached email very confidential. reply for more details
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+---
+ drivers/input/touchscreen/exc3000.c | 136 ++++++++++++++++++++++++++++
+ 1 file changed, 136 insertions(+)
 
-Thanks.
-Peter Wong
-
-
-
-
-----------------------------------------------------
-This email was sent by the shareware version of Postman Professional.
+diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
+index 7d695022082c..4c9f132629b9 100644
+--- a/drivers/input/touchscreen/exc3000.c
++++ b/drivers/input/touchscreen/exc3000.c
+@@ -41,6 +41,11 @@ struct exc3000_data {
+ 	struct touchscreen_properties prop;
+ 	struct timer_list timer;
+ 	u8 buf[2 * EXC3000_LEN_FRAME];
++	char model[11];
++	char fw_version[6];
++	struct completion wait_event;
++	struct mutex query_lock;
++	int query_result;
+ };
+ 
+ static void exc3000_report_slots(struct input_dev *input,
+@@ -121,6 +126,35 @@ static int exc3000_read_data(struct i2c_client *client,
+ 	return 0;
+ }
+ 
++static void exc3000_query_interrupt(struct exc3000_data *data)
++{
++	u8 *buf = data->buf;
++	int err;
++
++	data->query_result = 0;
++
++	err = i2c_master_recv(data->client, buf, EXC3000_LEN_FRAME);
++	if (err < 0) {
++		data->query_result = err;
++		goto out;
++	}
++
++	if (buf[0] == 0x42 && buf[4] == 'E') {
++		memcpy(data->model, buf+5, 10);
++		data->model[10] = '\0';
++		goto out;
++	} else if (buf[0] == 0x42 && buf[4] == 'D') {
++		memcpy(data->fw_version, buf+5, 5);
++		data->fw_version[5] = '\0';
++		goto out;
++	}
++
++	data->query_result = -EPROTO;
++
++out:
++	complete(&data->wait_event);
++}
++
+ static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
+ {
+ 	struct exc3000_data *data = dev_id;
+@@ -129,6 +163,11 @@ static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
+ 	int slots, total_slots;
+ 	int error;
+ 
++	if (mutex_is_locked(&data->query_lock)) {
++		exc3000_query_interrupt(data);
++		goto out;
++	}
++
+ 	error = exc3000_read_data(data->client, buf, &total_slots);
+ 	if (error) {
+ 		/* Schedule a timer to release "stuck" contacts */
+@@ -156,12 +195,92 @@ static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static int exc3000_get_fw_version(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct exc3000_data *data = dev_get_drvdata(dev);
++	static const u8 request[68] =
++		{0x67, 0x00, 0x42, 0x00, 0x03, 0x01, 'D', 0x00};
++	struct i2c_client *client = data->client;
++	int err;
++
++	mutex_lock(&data->query_lock);
++
++	data->query_result = -ETIMEDOUT;
++	reinit_completion(&data->wait_event);
++
++	err = i2c_master_send(client, request, sizeof(request));
++	if (err < 0) {
++		mutex_unlock(&data->query_lock);
++		return err;
++	}
++
++	wait_for_completion_interruptible_timeout(&data->wait_event, 1*HZ);
++	mutex_unlock(&data->query_lock);
++
++	if (data->query_result < 0)
++		return data->query_result;
++
++	return sprintf(buf, "%s\n", data->fw_version);
++}
++static DEVICE_ATTR(fw_version, S_IRUGO, exc3000_get_fw_version, NULL);
++
++static ssize_t exc3000_get_model(struct exc3000_data *data)
++{
++	static const u8 request[68] =
++		{0x67, 0x00, 0x42, 0x00, 0x03, 0x01, 'E', 0x00};
++	struct i2c_client *client = data->client;
++	int err;
++
++	mutex_lock(&data->query_lock);
++	data->query_result = -ETIMEDOUT;
++	reinit_completion(&data->wait_event);
++
++	err = i2c_master_send(client, request, sizeof(request));
++	if (err < 0) {
++		mutex_unlock(&data->query_lock);
++		return err;
++	}
++
++	wait_for_completion_interruptible_timeout(&data->wait_event, 1*HZ);
++	mutex_unlock(&data->query_lock);
++
++	return data->query_result;
++}
++
++static ssize_t exc3000_get_model_sysfs(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct exc3000_data *data = dev_get_drvdata(dev);
++	int err = exc3000_get_model(data);
++
++	if (err < 0)
++		return err;
++
++	return sprintf(buf, "%s\n", data->model);
++}
++static DEVICE_ATTR(model, S_IRUGO, exc3000_get_model_sysfs, NULL);
++
++static struct attribute *sysfs_attrs[] = {
++	&dev_attr_model.attr,
++	&dev_attr_fw_version.attr,
++	NULL
++};
++
++static struct attribute_group exc3000_attribute_group = {
++	.attrs = sysfs_attrs
++};
++
++static const struct attribute_group *exc3000_attribute_groups[] = {
++	&exc3000_attribute_group,
++	NULL
++};
++
+ static int exc3000_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+ 	struct exc3000_data *data;
+ 	struct input_dev *input;
+ 	int error;
++	int retry;
+ 
+ 	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+@@ -170,15 +289,19 @@ static int exc3000_probe(struct i2c_client *client,
+ 	data->client = client;
+ 	data->type = id->driver_data;
+ 	timer_setup(&data->timer, exc3000_timer, 0);
++	init_completion(&data->wait_event);
++	mutex_init(&data->query_lock);
+ 
+ 	input = devm_input_allocate_device(&client->dev);
+ 	if (!input)
+ 		return -ENOMEM;
+ 
+ 	data->input = input;
++	input_set_drvdata(input, data);
+ 
+ 	input->name = "EETI EXC3000 Touch Screen";
+ 	input->id.bustype = BUS_I2C;
++	input->dev.groups = exc3000_attribute_groups;
+ 
+ 	if (data->type == EETI_EXC80Hxx) {
+ 		input_set_abs_params(input, ABS_MT_POSITION_X, 0, 16383, 0, 0);
+@@ -204,6 +327,19 @@ static int exc3000_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
++	for (retry = 0; retry < 3; ++retry) {
++		error = exc3000_get_model(data);
++		if (!error) {
++			break;
++		}
++		dev_warn(&client->dev, "Retry %d get EETI EXC3000 model: %d\n", retry + 1, error);
++	}
++
++	if (error)
++		return error;
++
++	dev_dbg(&client->dev, "TS Model: %s", data->model);
++
+ 	return 0;
+ }
+ 
+-- 
+2.24.0.rc1
 

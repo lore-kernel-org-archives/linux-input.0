@@ -1,156 +1,87 @@
-Return-Path: <SRS0=YnYo=Y7=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=myQR=ZA=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BA73C5DF60
-	for <linux-input@archiver.kernel.org>; Thu,  7 Nov 2019 18:10:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1EE9FC6194
+	for <linux-input@archiver.kernel.org>; Fri,  8 Nov 2019 11:24:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1EDA7218AE
-	for <linux-input@archiver.kernel.org>; Thu,  7 Nov 2019 18:10:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4EBA21848
+	for <linux-input@archiver.kernel.org>; Fri,  8 Nov 2019 11:24:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725912AbfKGSKX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 7 Nov 2019 13:10:23 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:51898 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725930AbfKGSKX (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Nov 2019 13:10:23 -0500
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: sre)
-        with ESMTPSA id 4696B29036F
-Received: by jupiter.universe (Postfix, from userid 1000)
-        id 41BBC48009C; Thu,  7 Nov 2019 19:10:17 +0100 (CET)
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ahmet Inan <inan@distec.de>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel@collabora.com,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCHv1 1/2] Input: EXC3000: add EXC80Hxx support
-Date:   Thu,  7 Nov 2019 19:10:09 +0100
-Message-Id: <20191107181010.17211-1-sebastian.reichel@collabora.com>
-X-Mailer: git-send-email 2.24.0.rc1
+        id S1730616AbfKHLY6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 Nov 2019 06:24:58 -0500
+Received: from smtp.asem.it ([151.1.184.197]:64272 "EHLO smtp.asem.it"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725730AbfKHLY5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:24:57 -0500
+X-Greylist: delayed 304 seconds by postgrey-1.27 at vger.kernel.org; Fri, 08 Nov 2019 06:24:57 EST
+Received: from webmail.asem.it
+        by asem.it (smtp.asem.it)
+        (SecurityGateway 5.5.0)
+        with ESMTP id SG004227403.MSG 
+        for <linux-input@vger.kernel.org>; Fri, 08 Nov 2019 12:19:50 +0100S
+Received: from ASAS044.asem.intra (172.16.16.44) by ASAS044.asem.intra
+ (172.16.16.44) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1261.35; Fri, 8
+ Nov 2019 12:19:49 +0100
+Received: from flavio-x.asem.intra (172.16.17.208) by ASAS044.asem.intra
+ (172.16.16.44) with Microsoft SMTP Server id 15.1.1261.35 via Frontend
+ Transport; Fri, 8 Nov 2019 12:19:49 +0100
+From:   Flavio Suligoi <f.suligoi@asem.it>
+To:     rokhov <dmitry.torokhov@gmail.com>,
+        Armijn Hemel <armijn@tjaldur.nl>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Flavio Suligoi <f.suligoi@asem.it>
+Subject: [PATCH] input: ar1021: fix typo in preprocessor macro name
+Date:   Fri, 8 Nov 2019 12:19:07 +0100
+Message-ID: <1573211947-660-1-git-send-email-f.suligoi@asem.it>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-SGHeloLookup-Result: hardfail smtp.helo=webmail.asem.it (does not match 172.16.16.44)
+X-SGSPF-Result: none (smtp.asem.it)
+X-SGOP-RefID: str=0001.0A090207.5DC54F56.0033,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0 (_st=1 _vt=0 _iwf=0)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This adds support for EXC80Hxx controllers, which uses
-a different event type id and has two extra bits for the
-resolution (so the maximum is 16384 instead of 4096).
+Fix spelling mistake.
 
-The patch has been tested with EXC80H60 and EXC80H84.
-
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
 ---
- .../bindings/input/touchscreen/exc3000.txt    |  6 ++--
- drivers/input/touchscreen/exc3000.c           | 34 ++++++++++++++-----
- 2 files changed, 30 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/ar1021_i2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt b/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
-index 68291b94fec2..057b680f0420 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
-@@ -1,7 +1,9 @@
--* EETI EXC3000 Multiple Touch Controller
-+* EETI EXC3000 and EXC80Hxx Multiple Touch Controller
+diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
+index 28644f3..c0d5c24 100644
+--- a/drivers/input/touchscreen/ar1021_i2c.c
++++ b/drivers/input/touchscreen/ar1021_i2c.c
+@@ -13,7 +13,7 @@
+ #include <linux/irq.h>
+ #include <linux/interrupt.h>
  
- Required properties:
--- compatible: must be "eeti,exc3000"
-+- compatible: must be one of
-+ * "eeti,exc3000"
-+ * "eeti,exc80hxx"
- - reg: i2c slave address
- - interrupts: touch controller interrupt
- - touchscreen-size-x: See touchscreen.txt
-diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
-index e007e2e8f626..7d695022082c 100644
---- a/drivers/input/touchscreen/exc3000.c
-+++ b/drivers/input/touchscreen/exc3000.c
-@@ -23,11 +23,20 @@
- #define EXC3000_SLOTS_PER_FRAME		5
- #define EXC3000_LEN_FRAME		66
- #define EXC3000_LEN_POINT		10
--#define EXC3000_MT_EVENT		6
-+
-+#define EXC3000_MT1_EVENT		0x06
-+#define EXC3000_MT2_EVENT		0x18
-+
- #define EXC3000_TIMEOUT_MS		100
+-#define AR1021_TOCUH_PKG_SIZE	5
++#define AR1021_TOUCH_PKG_SIZE	5
  
-+enum exc3000_device_type {
-+	EETI_EXC3000,
-+	EETI_EXC80Hxx
-+};
-+
- struct exc3000_data {
+ #define AR1021_MAX_X	4095
+ #define AR1021_MAX_Y	4095
+@@ -25,7 +25,7 @@
+ struct ar1021_i2c {
  	struct i2c_client *client;
-+	enum exc3000_device_type type;
  	struct input_dev *input;
- 	struct touchscreen_properties prop;
- 	struct timer_list timer;
-@@ -76,8 +85,10 @@ static int exc3000_read_frame(struct i2c_client *client, u8 *buf)
- 	if (ret != EXC3000_LEN_FRAME)
- 		return -EIO;
- 
--	if (get_unaligned_le16(buf) != EXC3000_LEN_FRAME ||
--			buf[2] != EXC3000_MT_EVENT)
-+	if (get_unaligned_le16(buf) != EXC3000_LEN_FRAME)
-+		return -EINVAL;
-+
-+	if (buf[2] != EXC3000_MT1_EVENT && buf[2] != EXC3000_MT2_EVENT)
- 		return -EINVAL;
- 
- 	return 0;
-@@ -157,6 +168,7 @@ static int exc3000_probe(struct i2c_client *client,
- 		return -ENOMEM;
- 
- 	data->client = client;
-+	data->type = id->driver_data;
- 	timer_setup(&data->timer, exc3000_timer, 0);
- 
- 	input = devm_input_allocate_device(&client->dev);
-@@ -168,8 +180,13 @@ static int exc3000_probe(struct i2c_client *client,
- 	input->name = "EETI EXC3000 Touch Screen";
- 	input->id.bustype = BUS_I2C;
- 
--	input_set_abs_params(input, ABS_MT_POSITION_X, 0, 4095, 0, 0);
--	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, 4095, 0, 0);
-+	if (data->type == EETI_EXC80Hxx) {
-+		input_set_abs_params(input, ABS_MT_POSITION_X, 0, 16383, 0, 0);
-+		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, 16383, 0, 0);
-+	} else {
-+		input_set_abs_params(input, ABS_MT_POSITION_X, 0, 4095, 0, 0);
-+		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, 4095, 0, 0);
-+	}
- 	touchscreen_parse_properties(input, true, &data->prop);
- 
- 	error = input_mt_init_slots(input, EXC3000_NUM_SLOTS,
-@@ -191,14 +208,15 @@ static int exc3000_probe(struct i2c_client *client,
- }
- 
- static const struct i2c_device_id exc3000_id[] = {
--	{ "exc3000", 0 },
--	{ }
-+	{ "exc3000", EETI_EXC3000 },
-+	{ "exc80hxx", EETI_EXC80Hxx }
+-	u8 data[AR1021_TOCUH_PKG_SIZE];
++	u8 data[AR1021_TOUCH_PKG_SIZE];
  };
- MODULE_DEVICE_TABLE(i2c, exc3000_id);
  
- #ifdef CONFIG_OF
- static const struct of_device_id exc3000_of_match[] = {
--	{ .compatible = "eeti,exc3000" },
-+	{ .compatible = "eeti,exc3000", .data = (const void*) EETI_EXC3000 },
-+	{ .compatible = "eeti,exc80hxx", .data = (const void*) EETI_EXC80Hxx },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, exc3000_of_match);
+ static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
 -- 
-2.24.0.rc1
+2.7.4
 

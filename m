@@ -1,127 +1,134 @@
-Return-Path: <SRS0=myQR=ZA=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=0HJ5=ZC=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA820FC6196
-	for <linux-input@archiver.kernel.org>; Fri,  8 Nov 2019 20:38:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C463C17442
+	for <linux-input@archiver.kernel.org>; Sun, 10 Nov 2019 10:44:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8AC2121924
-	for <linux-input@archiver.kernel.org>; Fri,  8 Nov 2019 20:38:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5204B2184C
+	for <linux-input@archiver.kernel.org>; Sun, 10 Nov 2019 10:44:45 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CWGAkg1f"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731267AbfKHUh7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 Nov 2019 15:37:59 -0500
-Received: from mout.kundenserver.de ([212.227.17.24]:60679 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726349AbfKHUh7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Nov 2019 15:37:59 -0500
-Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue107 [212.227.15.145]) with ESMTPA (Nemesis) id
- 1M9Evp-1iWjmN29CR-006RBe; Fri, 08 Nov 2019 21:37:48 +0100
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     y2038@lists.linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        sparclinux@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org,
-        Deepa Dinamani <deepa.kernel@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 8/8] Input: input_event: fix struct padding on sparc64
-Date:   Fri,  8 Nov 2019 21:34:31 +0100
-Message-Id: <20191108203435.112759-9-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
-In-Reply-To: <20191108203435.112759-1-arnd@arndb.de>
-References: <20191108203435.112759-1-arnd@arndb.de>
+        id S1726749AbfKJKoo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 10 Nov 2019 05:44:44 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:33217 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726617AbfKJKoo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 10 Nov 2019 05:44:44 -0500
+Received: by mail-wm1-f66.google.com with SMTP id a17so9909933wmb.0;
+        Sun, 10 Nov 2019 02:44:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:references:from:cc:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=eryEuzW5LLYUQSnAXY+CWSHyAchI3nh6wj0+J18wG0s=;
+        b=CWGAkg1fXKEyVghxfK/WeubgW5ZiTFHYgyKIoUB9DqPnIC8+8BXzlvC/4LbxW7RNQB
+         neqANLILBqJalbbpTV/u6v31ZsywOfEJ5FFwcU6lbyoDYQn0ti76u6PO4MyD6eocI3Ug
+         hne/PkT7kLjCXWYdVN3uXu6ycGWHpempj9q+TK/gWkdj5HbU8JLrl7suVH3ePQeSGirm
+         DiYweHVO4AMTvjXLAhwFkMHj28zBJjZ2uKhHLQipw5rNo8H9Z/7aOmTkFE7QN0tNcsg5
+         52jC621FZmy6loslsyBT3L+DpuMUIOASA/UB7GaqrnOKJ+rhWEsTrWF6IFg/9hqmmYwK
+         Un3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:from:cc:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=eryEuzW5LLYUQSnAXY+CWSHyAchI3nh6wj0+J18wG0s=;
+        b=eBkTh1TDIb9iW11VphhjL2pfLlJuef7Nory1zYy2pwD67hch+bdMzUalV/Y7SYlq7I
+         N/Z2cI/aokLKJbqjDDEDkdaat0c7hiRL6cCqzkZPC3rS7J8Xlcav0Vzsp4W9rCq/lMVU
+         9Zbuhf3n3QPp7XOXTtu3UtlAlSM1jP6vRd+JXSUIlXaNCZ6ZDEp1uQhyV/W3mNsuXItY
+         6JEeIycOZ/KX9GwXY4QbogJjIgsDbMdb9owNg7hly1GWFsZh+WEsj3sttffWoNEz/nJ0
+         9NnBaLYyL156ZfiJ0rCvCEEtlsmwjYbcp1HGFnSil/SdZqX8ltOfZNfy0silRP9kCUts
+         4nPQ==
+X-Gm-Message-State: APjAAAUHsm8d6PVGk0LOgAB36jVzbG71lvraoCAvR8m5HOS4SlN3bDnO
+        ZkOtXsQ1m0RjZoexgfusMcLyFRDu
+X-Google-Smtp-Source: APXvYqyx/vE/A32OgxJRCe0jw8yt6yqurmLGhljXLOCGdeO7rSBIxTshkLSsH+SrXyflCiSFQa3+JA==
+X-Received: by 2002:a1c:7905:: with SMTP id l5mr16847189wme.76.1573382681670;
+        Sun, 10 Nov 2019 02:44:41 -0800 (PST)
+Received: from ?IPv6:2003:ea:8f4d:a200:6547:67a0:39a9:9bba? (p200300EA8F4DA200654767A039A99BBA.dip0.t-ipconnect.de. [2003:ea:8f4d:a200:6547:67a0:39a9:9bba])
+        by smtp.googlemail.com with ESMTPSA id l4sm11646235wml.33.2019.11.10.02.44.38
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 10 Nov 2019 02:44:39 -0800 (PST)
+Subject: Re: Linux "hid_led" vs "hidraw" USB HID question
+To:     "Tod E. Kurt" <tod@todbot.com>
+References: <6A37A3D7-96A6-49A4-83E5-ABE5DB417E8B@todbot.com>
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Linux USB Mailing List <linux-usb@vger.kernel.org>
+Message-ID: <b93817a2-97a2-3bcc-9741-5622b74bcd3c@gmail.com>
+Date:   Sun, 10 Nov 2019 11:44:31 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
 MIME-Version: 1.0
+In-Reply-To: <6A37A3D7-96A6-49A4-83E5-ABE5DB417E8B@todbot.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:u6kVp9UKD+j5V6nf6JiBnsKaa0LcdKVi2XG79PhwgluwxaPn537
- JqX1+w4EzLmlGXpLjxX9AvVL+FsYlf7H6657Eapb17jd5kmqUqyaJHFBxnMPnUd4juxe6KT
- gRpRzLHS22sv0vGG9873r88aFqFY8GB1dGUaJUbh67CrdY3MMA9TlE3CGVC1wvOspK+YRBE
- tWERzIcvD8mD0C9zkhlRQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:QoQHUljkwik=:jlY4L3FT8f0wD8u1XiFw7Z
- h3+AyZXRuq5c8ebfbAH/dp8y2Q5jMb+GbbhsPaEA2a7MPF1PF/N8JuK+q2AFFRuQJcHecE6M2
- wyIrgZ4fyGSpTREXcdY8PDWuk/NtBKzZuKkXyHreMWKYQub8/FI5mePtE7aORk/e14hj/mB2O
- ERwQFQyraRgE7aYwcH5d4B5CZX+k89/xrvFv2kNZc5Z5PmRNkIN/dfMDxpD9aNji++3uKGg5K
- AgkohYYZmv9XNXkwL4dC3iSCaEca5btoxk2/9tcBUUVMJRhDwgL0bAJpyaGLxrp9+H3ktoABj
- aUtYxzpSgzDnIhxNLyYgM00SIurLlTKQ2fzkQaOvqxXIi4CAcyLH1rfiJPGo+GCK3zdNV0Qbk
- 1tWSII8WsC8sUNoRFhra6Om83Cthg66/7Lsnsvg7fKe3SlHkJpiJBzCxl3eSI/6XAkKG9OWWc
- owcuBuy3UuodiSTwazfxz3NQMGzvnKY+wGFVxuEYPPkJ6JHrVYCd+5k4SnScsgSHJmg3p/yzv
- mApihJBs6/Xj8PCPN688hICGCI4M/ldYU4qdniL17PGVFqVE6QB7E1cu1mOVvvgYUsudeZtcg
- b9b0JX0eKZAb1NfjT445ZS3XzyifaRdVy4gi/coV2v9AHQP8DkYepKymu7sYuKjOSP7D/Z9/v
- f5+XK1Qa4rLaE+NmzvrJxEItcA6IKiB814x53Xq2UjTXCL767wY+LuxXdNdewEwAcjaf+9AqF
- 4iTvqs2QG0ugID76PJtSFqafr2c+sFqAflhL5Rc1RDkBWSQEUKPY3LJtUvVXP/CWSb0K3R14B
- Z3HQVxs+9OTO5jfMMLic3qWm8pn596v8xSot4nX0YnaO5nZSRxY4d0rIjcHMmLjGXxEqFG4m9
- uUXYlF7efhWsZ7UEubSA==
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Going through all uses of timeval, I noticed that we screwed up
-input_event in the previous attempts to fix it:
+On 10.11.2019 04:26, Tod E. Kurt wrote:
+> HiI
+> 
+Hi Tod,
 
-The time fields now match between kernel and user space, but
-all following fields are in the wrong place.
+> Since you are listed as author of "hid-led.c": 
+>   https://github.com/torvalds/linux/blob/master/drivers/hid/hid-led.c, 
+> I was wondering if you could offer some insight on an issue I'm seeing.
+> I'm a maintainer of "hidapi" and "node-hid", cross-platform C and NodeJs libraries for accessing HID devices, and I'm the creator of the ThingM blink(1) USB LED that "hid-led" controls.
+> 
+> On the distros I've seen (Ubuntu, Raspian) where "hid-led" is enabled, when inserting a blink(1) device, the "hid-led" driver appears to grab the device and remove it from available "hidraw" devices.  This makes generic hidraw-based systems (like "hidapi" and the upcoming Chrome WebHID) unable to see the blink(1)
+> 
+> I have tried blacklisting the "hid-led" module but the problem persist. Ffrom dmesg and lsmod the module does appear to not be loaded on reboot.
+> 
+> Any insights on what's going on?  Any tips on how to debug this or how to prevent this from occurring?
+> 
+When hid-led was written it was needed to add the LED devices to hid_have_special_driver list.
+Else the driver can't take control over the device. Side effect is that even if hid-led
+isn't loaded hid-generic can't take control.
+I think since e04a0442d33b ("HID: core: remove the absolute need of hid_have_special_driver[]")
+it's no longer needed to have the LED devices in hid_have_special_driver.
+Could you please test the following patch? If hid-led is loaded is should control the
+device, if it's blacklisted hid-generic should have the control.
 
-Add the required padding that is implied by the glibc timeval
-definition to fix the layout, and add explicit initialization
-to avoid leaking kernel stack data.
 
-Cc: sparclinux@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: stable@vger.kernel.org
-Fixes: 141e5dcaa735 ("Input: input_event - fix the CONFIG_SPARC64 mixup")
-Fixes: 2e746942ebac ("Input: input_event - provide override for sparc64")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/input/evdev.c       | 3 +++
- drivers/input/misc/uinput.c | 3 +++
- include/uapi/linux/input.h  | 1 +
- 3 files changed, 7 insertions(+)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index d7dd6fcf2db0..24a90793caf0 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -228,6 +228,9 @@ static void __pass_event(struct evdev_client *client,
- 						event->input_event_sec;
- 		client->buffer[client->tail].input_event_usec =
- 						event->input_event_usec;
-+#ifdef CONFIG_SPARC64
-+		client->buffer[client->tail].__pad = 0;
-+#endif
- 		client->buffer[client->tail].type = EV_SYN;
- 		client->buffer[client->tail].code = SYN_DROPPED;
- 		client->buffer[client->tail].value = 0;
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 84051f20b18a..1d8c09e9fd47 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -80,6 +80,9 @@ static int uinput_dev_event(struct input_dev *dev,
- 	ktime_get_ts64(&ts);
- 	udev->buff[udev->head].input_event_sec = ts.tv_sec;
- 	udev->buff[udev->head].input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
-+#ifdef CONFIG_SPARC64
-+	udev->buff[udev->head].__pad = 0;
-+#endif
- 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
- 
- 	wake_up_interruptible(&udev->waitq);
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index f056b2a00d5c..9a61c28ed3ae 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -34,6 +34,7 @@ struct input_event {
- 	__kernel_ulong_t __sec;
- #if defined(__sparc__) && defined(__arch64__)
- 	unsigned int __usec;
-+	unsigned int __pad;
- #else
- 	__kernel_ulong_t __usec;
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index c50bcd967..bdaab79f7 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -419,13 +419,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ #if IS_ENABLED(CONFIG_HID_LCPOWER)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LCPOWER, USB_DEVICE_ID_LCPOWER_LC1000) },
  #endif
+-#if IS_ENABLED(CONFIG_HID_LED)
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_LUXAFOR) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU, USB_DEVICE_ID_RI_KA_WEBMAIL) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_THINGM, USB_DEVICE_ID_BLINK1) },
+-#endif
+ #if IS_ENABLED(CONFIG_HID_LENOVO)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CUSBKBD) },
 -- 
-2.20.0
+2.24.0
 
+> I can send you blink(1) devices and "hidapi" test programs if you'd like to try to replicate this.
+> 
+Thanks for the offer, I've got a blink(1) already. Just tested the patch with this device
+and it worked properly like described above.
+
+> Thanks!
+> -=Tod
+
+Heiner

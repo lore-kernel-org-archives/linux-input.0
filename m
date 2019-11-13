@@ -4,51 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF978C43331
-	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 01:53:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66442C17441
+	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 02:04:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8FCB022459
-	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 01:53:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35E70206B6
+	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 02:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1573610020;
-	bh=1eXkFWEjcePNjzFPmGb5k9Ej3dTFFQjf7HftCKIGBz8=;
+	s=default; t=1573610652;
+	bh=fI/sHNHGSc0l4/Uf78vJqDg2ySHPHwPPg75JGYqJpZw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=weWGzNS2YCKQ6t/DgJi+2L0d+CQW1uvJzMa56/g1rCEIG1Ixcrg1KPqti7RZ+8cen
-	 ly6zzK/2yycB7D74PNEc/r0c1TfHggarErqIZN6Tf7KG58EXNVX3H5Xkd5aXO5W/ai
-	 +e8epSXsZXztNC5tgNOVibEiXeGIDq2jZL0StjmA=
+	b=Oqg9tU/SRKGKI5HqKX+MYxvLaLGjCXUc9huJ9VHjF6zW0ASzcZEzQ2ozxU+cWrV14
+	 8Tq9QHZgbBFi2BYuRPtI2XQ9LE+RLlIsABGwISOvS6MeeG4Gl4s9W4SAmd7dgKPI5K
+	 69zcfs/dq2v3a/zjCmUQJRmRKZus/ltKi678ImSs=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728637AbfKMBxj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 Nov 2019 20:53:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43522 "EHLO mail.kernel.org"
+        id S1730993AbfKMCCT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 Nov 2019 21:02:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728631AbfKMBxi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:53:38 -0500
+        id S1730991AbfKMCCS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:02:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C0E722459;
-        Wed, 13 Nov 2019 01:53:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0493204EC;
+        Wed, 13 Nov 2019 02:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610018;
-        bh=1eXkFWEjcePNjzFPmGb5k9Ej3dTFFQjf7HftCKIGBz8=;
+        s=default; t=1573610538;
+        bh=fI/sHNHGSc0l4/Uf78vJqDg2ySHPHwPPg75JGYqJpZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swXV4pmVmssi0pEYiCn+AY04Eizq93z+bJD6ZePK1hYIiv+EJ480Aih2neDsZiS+2
-         bv/aVRR3WCkrSQuoFU5K9SIu7/R1U2HOzV+IrXXtTnGeJ5wISJMM3acFCtmjl94SqM
-         lg6ElZnIOAckh2uL7n/Uy0nWp/HfNmFQSq38OFx4=
+        b=v9F8WepgKhJhIq5QTk/HqjPKm3fFKnsAHMftfuNnozDuHjRbGAkxLEXUPEW58sO+5
+         9FKSKkZSn7pZzWmFSvmom1hcFQKE1/qi6N21R/ILRKn+u8assKFQh/NMPEVGI5Nisx
+         kDMSerqOqT6IqoEyr5afZfTkYlADjkVCWHfzMS5I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Martin Kepplinger <martink@posteo.de>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 120/209] Input: st1232 - set INPUT_PROP_DIRECT property
-Date:   Tue, 12 Nov 2019 20:48:56 -0500
-Message-Id: <20191113015025.9685-120-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 27/48] Input: st1232 - set INPUT_PROP_DIRECT property
+Date:   Tue, 12 Nov 2019 21:01:10 -0500
+Message-Id: <20191113020131.13356-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
-References: <20191113015025.9685-1-sashal@kernel.org>
+In-Reply-To: <20191113020131.13356-1-sashal@kernel.org>
+References: <20191113020131.13356-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -72,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index d5dfa4053bbf2..b71673911aac3 100644
+index e943678ce54cd..f1c574d6be17f 100644
 --- a/drivers/input/touchscreen/st1232.c
 +++ b/drivers/input/touchscreen/st1232.c
-@@ -195,6 +195,7 @@ static int st1232_ts_probe(struct i2c_client *client,
+@@ -203,6 +203,7 @@ static int st1232_ts_probe(struct i2c_client *client,
  	input_dev->id.bustype = BUS_I2C;
  	input_dev->dev.parent = &client->dev;
  

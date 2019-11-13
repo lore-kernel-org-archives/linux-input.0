@@ -2,117 +2,151 @@ Return-Path: <SRS0=/ird=ZF=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E9DAC43331
-	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 02:22:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0D34C43331
+	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 02:30:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CF081222D0
-	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 02:22:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1573611722;
-	bh=4wa0y7siKNPCymmJxLw0kfiWr913Znmfw02HWPsD7t8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=YvwX1XutHnkBKsjgYdkq5sALveh2CcnsOzBAxYrvkPJgZjfCBx0q928xm+JKt7fmM
-	 vCRar5aH9yFaSxzg+85TFKArvkvKIhZPQ8OUOAw/jF4l0796kNqVFWjtrd41kvvia6
-	 FDpNy5qJWQOw+/yY5UdSR/RVOuAdwHf/RNIOLHz4=
+	by mail.kernel.org (Postfix) with ESMTP id A565021A49
+	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 02:30:05 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="iZR8PCI6";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="mawd8vkz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728640AbfKMBxk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 Nov 2019 20:53:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43568 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728638AbfKMBxk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:53:40 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1727755AbfKMCaF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 Nov 2019 21:30:05 -0500
+Received: from smtp.codeaurora.org ([198.145.29.96]:55800 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727754AbfKMCaE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:30:04 -0500
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id F26D4611AD; Wed, 13 Nov 2019 02:30:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1573612204;
+        bh=z2r5uWIsjDvxKFVEHYoB49j8sCNktDPwByXTjPf6Wzo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=iZR8PCI6qvpQ3oSaMUW+0bcn3WuxdAi72hYNtZgu6HW6lW+7Pq31Ul4nGYAVl5d+t
+         RM/MC7Q4Oew2ravc5DG6nE+SOOMxoEYLajLAA7P0n4WH2oEr52hpqUVgKMqxbOtDEG
+         osTNIXjP809D/ix6rfpvqCVLXkMW5rd7r3FcAgIQ=
+Received: from [10.79.169.100] (blr-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.18.19])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BBE122468;
-        Wed, 13 Nov 2019 01:53:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610019;
-        bh=4wa0y7siKNPCymmJxLw0kfiWr913Znmfw02HWPsD7t8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtBwTg5b0g7Wda0brAiIHxPxBvW3kjABPlkpYhtVbMmGqBclCEKqLYnsKi/MY4HC7
-         fU7JfX1v8eMZQAFg0jC/i17amjI88+7yS32lbRgsznA3KygY5WBcDvPAl/wfAtNYsN
-         NYrfh7sX4DsRHGgzfhbgxL7F3FQIr4Qp0Rl2pN+Y=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Sax <jsbc@gmx.de>, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 121/209] Input: silead - try firmware reload after unsuccessful resume
-Date:   Tue, 12 Nov 2019 20:48:57 -0500
-Message-Id: <20191113015025.9685-121-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
-References: <20191113015025.9685-1-sashal@kernel.org>
+        (Authenticated sender: neeraju@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 1DCB5612DD;
+        Wed, 13 Nov 2019 02:29:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1573612201;
+        bh=z2r5uWIsjDvxKFVEHYoB49j8sCNktDPwByXTjPf6Wzo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=mawd8vkztFVhWwO+zcRd9np6hEhSYUYDcv2+zpMiept3DIXyr833mZX653DY421Qt
+         CKU2gvIkR1y43y/Zrllh1J1pffSWT5hWxWz2bwf1k09vXrFlTsP7IS+Xl4qDggkjob
+         lSornY0oWzf3uCLulhyVIbOCdrA0H/g4MwsphLiE=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 1DCB5612DD
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=neeraju@codeaurora.org
+From:   Neeraj Upadhyay <neeraju@codeaurora.org>
+To:     jikos@kernel.org, benjamin.tissoires@redhat.com,
+        rydberg@bitmath.org
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm-owner@vger.kernel.org, prsood@codeaurora.org,
+        gkohli@codeaurora.org
+Subject: Query regarding hid-multitouch.c driver in 4.14/4.19
+Message-ID: <e1e05bd3-19f5-0dfe-66ad-70717c1c29c6@codeaurora.org>
+Date:   Wed, 13 Nov 2019 07:59:54 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Language: en-GB
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Julian Sax <jsbc@gmx.de>
+Hi,
 
-[ Upstream commit dde27443211062e841806feaf690674b7c3a599f ]
+I have one query regarding hid-multitouch.c driver and need your guidance on
+how hid-multitouchc can restore/support the original behaviour, where, for
+devices, for which application is not 
+HID_DG_TOUCHSCREEN/HID_DG_TOUCHPAD, and has
+HID_DG_CONTACTID usage in its report, can still use generic input mappings.
 
-A certain silead controller (Chip ID: 0x56810000) loses its firmware
-after suspend, causing the resume to fail. This patch tries to load
-the firmware, should a resume error occur and retries the resuming.
+We are using kernel versions 4.14 , 4.19 respectively in 2 different 
+projects:
 
-Signed-off-by: Julian Sax <jsbc@gmx.de>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/input/touchscreen/silead.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+4.14: 
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers/hid/hid-multitouch.c?h=v4.14.153
+4.19: 
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers/hid/hid-multitouch.c?h=v4.19.83
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index e5c3b066bd2a1..06f0eb04a8fd4 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -558,20 +558,33 @@ static int __maybe_unused silead_ts_suspend(struct device *dev)
- static int __maybe_unused silead_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	bool second_try = false;
- 	int error, status;
- 
- 	silead_ts_set_power(client, SILEAD_POWER_ON);
- 
-+ retry:
- 	error = silead_ts_reset(client);
- 	if (error)
- 		return error;
- 
-+	if (second_try) {
-+		error = silead_ts_load_fw(client);
-+		if (error)
-+			return error;
-+	}
-+
- 	error = silead_ts_startup(client);
- 	if (error)
- 		return error;
- 
- 	status = silead_ts_get_status(client);
- 	if (status != SILEAD_STATUS_OK) {
-+		if (!second_try) {
-+			second_try = true;
-+			dev_dbg(dev, "Reloading firmware after unsuccessful resume\n");
-+			goto retry;
-+		}
- 		dev_err(dev, "Resume error, status: 0x%02x\n", status);
- 		return -ENODEV;
- 	}
+I checked the application for our hid device, it's HID_DG_PEN, device 
+also has a HID_DG_CONTACTID usage defined in
+
+its report.
+
+In 4.19, is_mt_collection is set to 'true'. All multitouch code paths or 
+input mapping is configured
+
+mt_allocate_report_data()
+         ...
+         for (n = 0; n < field->report_count; n++) {
+                         if (field->usage[n].hid == HID_DG_CONTACTID)
+                                 rdata->is_mt_collection = true;   // 
+is_mt_collection is set to 'true'
+                 }
+         }
+
+mt_input_mapping()
+         ...
+         if (rdata->is_mt_collection)
+             return mt_touch_input_mapping(...)  // 
+mt_touch_input_mapping() is called
+
+mt_event()
+         if (rdata && rdata->is_mt_collection)
+             return mt_touch_event();  // mt_touch_event() is called
+
+However, in 4.14, the behaviour was different, mt input mapping was done 
+only
+for HID_DG_TOUCHSCREEN/HID_DG_TOUCHPAD , and because our hid device is
+HID_DG_PEN, generic mappings were applied for it; with these settings, 
+device
+responds to events.
+
+static int mt_input_mapping()
+         if (field->application == HID_DG_TOUCHSCREEN ||
+             field->application == HID_DG_TOUCHPAD)
+             return mt_touch_input_mapping();  // This is not called.
+
+
+mt_touch_input_mapping()
+         case HID_DG_CONTACTID:
+                         mt_store_field(usage, td, hi);
+                         td->touches_by_report++;
+                         td->mt_report_id = field->report->id; // 
+mt_report_id is not set.
+                         return 1;
+
+
+Looks like this behaviour changed, with below commits:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/hid/hid-multitouch.c?h=v4.19.83&id=8dfe14b3b47ff832cb638731f9fc696a3a84f804
+8dfe14b3b47f    HID: multitouch: ditch mt_report_id
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/hid/hid-multitouch.c?h=v4.19.83&id=ba6b055e0f3b4ff4942e4ab273260affcfad9bff
+ba6b055e0f3b     HID: input: enable Totem on the Dell Canvas 27
+
+Can you please suggest on how we can support/preserve the original 
+behaviour?
+
+
+Thanks
+Neeraj
+
 -- 
-2.20.1
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, hosted by The Linux Foundation
 

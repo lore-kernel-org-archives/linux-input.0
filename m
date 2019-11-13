@@ -2,99 +2,113 @@ Return-Path: <SRS0=/ird=ZF=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.3 required=3.0 tests=DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8776C43331
-	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 06:37:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2087DC43331
+	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 08:05:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 820DB222C6
-	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 06:37:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4A79214E0
+	for <linux-input@archiver.kernel.org>; Wed, 13 Nov 2019 08:05:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cGFxbyyj"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LSuj3jRs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725939AbfKMGhP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 13 Nov 2019 01:37:15 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:44636 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725858AbfKMGhO (ORCPT
+        id S1726486AbfKMIFr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 13 Nov 2019 03:05:47 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:39172 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726303AbfKMIFr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 13 Nov 2019 01:37:14 -0500
-Received: by mail-pf1-f193.google.com with SMTP id q26so926793pfn.11;
-        Tue, 12 Nov 2019 22:37:14 -0800 (PST)
+        Wed, 13 Nov 2019 03:05:47 -0500
+Received: by mail-pf1-f196.google.com with SMTP id x28so1106854pfo.6
+        for <linux-input@vger.kernel.org>; Wed, 13 Nov 2019 00:05:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=voR8XQk2CC3vnccynDlGH9xxP2Lq83CWSGXGxEUwD7A=;
-        b=cGFxbyyj/3qQrrutSScWLNTMv2UWUdyZFsXeqM/6A6Mg946RO5J2bi1MlMZoMrT3Bf
-         6qtgs86jdQJhBWbD6xRRC5wP6EhhdAHEuxFpVGYoDGUAsYyVRzHfhmQoovkWvoixBGFw
-         +ZzMJaNiaYElvD2w+B5TzR72Qg/Ai8G6757j6/12nONbLqlcK8wz1pINfnblKqDA7Gi8
-         WfN0fUk94Vz7aEZCfgZ389kWf+lGw0az+4IRjRr2Tfi1cumDkA2EHCDaZMgtVyBxIrmf
-         Iu+Fys2/7i0UWjIxiq9NAQEZ52sTn8JGBKhaz93/fHPgEGblUfUc9a9J/rVVWv9KJ/Lu
-         xOqg==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=1VNtpxA+xns0+HvR9pjtHdo7qWmIpQuOu+mCOMct/Dg=;
+        b=LSuj3jRs/Q+lgczFwrAb4yYq5E2ZBJj9G5sYpwaZ/ieW8ip5V7fV5lwA+X3q2WD1Yy
+         iP+H1WQYaPBJAnA/IBaYR0eYCzWbfs9AGcuPJGsnifLlTxsexcQHvpWHtaF8ceZPc/8w
+         bp0yIaQaRkEg+JbzJCEwq/oEibM8nYCV8C7XBuJOZMavkPzipz09gjZVgUkQ/utIOFlT
+         u/S19B2tKZZaPmI0pO7cBSpdliKv10GkmTpRaAeaxqe0+XGbhPHl2W1OcN93K2p+XnYa
+         O8a1g+hCc+M4LLw2nBAVrrTHyOq4wtkPf4u/+UQc7qwXB/KCkTc+CAeUn9FyDEZ/tqD2
+         Gtig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=voR8XQk2CC3vnccynDlGH9xxP2Lq83CWSGXGxEUwD7A=;
-        b=dTp8CPJpMHPSJ96Puj7+DRO27V6Ffg4X54f7C1DT6UmKXSABxorf8i5nh31hJti1nm
-         CaTpjeSLt2CPkzl3P1VDnEmS51h14KcRuft31dWkoQ4vi9os6TGNzeuGg3AZjE2881ra
-         cSkI5Csj4Mrav4HZTz5Up8SpT+bsmp0hulWwWAgR9hNMMGQPZiMX5dgRBNa+rIOQ4jCo
-         KhgfVnh/lmnoIS2RxkwwtkD2Gs4ZXGsyg09w2Mw6OLeMCEVdPXbIRgqml4qhokQ2Zi3K
-         4fBEuNGuk4kdEhKMQjCt6x/r4/fwrzAWR+OsydwfrUJ18kEJMyQHhh3BPEsqPReQp7o+
-         bUbg==
-X-Gm-Message-State: APjAAAUWzCgfjj1wb6kAkYSTtVsiIW/Jy1Um3rDB1rMM3o0LXzA/JeN8
-        xcAMc9Uzt6FVVTRp/UoW1JU=
-X-Google-Smtp-Source: APXvYqzyZdy2Y11hisqEHnoMiavn/ffHFdr/fBWi7fBCfeAcMFAqb9Cfh+4fMY/o1m5PE6veSJM5OA==
-X-Received: by 2002:a63:c60f:: with SMTP id w15mr1842093pgg.33.1573627034238;
-        Tue, 12 Nov 2019 22:37:14 -0800 (PST)
-Received: from suzukaze.ipads-lab.se.sjtu.edu.cn ([202.120.40.82])
-        by smtp.gmail.com with ESMTPSA id o7sm1531920pjo.7.2019.11.12.22.37.10
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=1VNtpxA+xns0+HvR9pjtHdo7qWmIpQuOu+mCOMct/Dg=;
+        b=nSq/lebWHMIHio+8yqTxiTlyz515+smkBeAvynh8JI9wgUG4ys6YKE4cQ6HRN+06DU
+         3xeWbcGAfvddEPNc2QhULSEDyMWDV0NGaBm7ZH24mlYpUTZvLeAgL/39u+CjJgXCMeFR
+         ouojs7KCCGA12yUTbcdLzwHSB3fJXIDmSY4/EDEbjASrcEw2EXa1k9yWZRIE/FcPgy3s
+         q5GR791egjacV6T939e28DKXNOHlu6MbFJGfB/cJ1EALy78HrKzeGeaWNH4tgoVvdooS
+         1lnmKSE4tP0heZYucn0UI9hpVc05ImbP5AEpa6JCWGRsXxwU3ZyD+bTThHVQPzi7p3cg
+         j51g==
+X-Gm-Message-State: APjAAAXobTjEba3yXg2xmA2KPVglWwPhXmB2uFOZRqcpFGoMytSejAnp
+        Iix88VodYhyvBxY5ptwtT8ZYV242
+X-Google-Smtp-Source: APXvYqwlKzhBtQCi/9psWFe0MyS1DlpfPGNmafoOOhr0kvDkcLq9E1Cm1pCD+OyHwwNp4pUQEGPKiA==
+X-Received: by 2002:a62:2cd7:: with SMTP id s206mr2793083pfs.106.1573632346371;
+        Wed, 13 Nov 2019 00:05:46 -0800 (PST)
+Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
+        by smtp.gmail.com with ESMTPSA id x2sm1503078pge.76.2019.11.13.00.05.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Nov 2019 22:37:13 -0800 (PST)
-From:   Chuhong Yuan <hslester96@gmail.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Chuhong Yuan <hslester96@gmail.com>
-Subject: [PATCH] Input: synaptics-rmi4 - add missed operations in remove
-Date:   Wed, 13 Nov 2019 14:36:56 +0800
-Message-Id: <20191113063656.8713-1-hslester96@gmail.com>
-X-Mailer: git-send-email 2.23.0
+        Wed, 13 Nov 2019 00:05:45 -0800 (PST)
+Date:   Wed, 13 Nov 2019 00:05:42 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     "zhengbin (A)" <zhengbin13@huawei.com>
+Cc:     pali.rohar@gmail.com, linux-input@vger.kernel.org
+Subject: Re: [PATCH] Input: alps - Remove unnecessary unlikely
+Message-ID: <20191113080542.GN13374@dtor-ws>
+References: <1570869407-41262-1-git-send-email-zhengbin13@huawei.com>
+ <f9e1bf60-6936-4aea-090f-cc64a1fffa25@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f9e1bf60-6936-4aea-090f-cc64a1fffa25@huawei.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The driver forgets to deal with work and workqueue in remove like what
-is done when probe fails.
-Add the missed operations to fix it.
+On Wed, Nov 13, 2019 at 11:11:04AM +0800, zhengbin (A) wrote:
+> ping
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
----
- drivers/input/rmi4/rmi_f54.c | 3 +++
- 1 file changed, 3 insertions(+)
+No, the preference is to keep the code here as is, thank you.
 
-diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-index 710b02595486..2c0cde5c775c 100644
---- a/drivers/input/rmi4/rmi_f54.c
-+++ b/drivers/input/rmi4/rmi_f54.c
-@@ -730,6 +730,9 @@ static void rmi_f54_remove(struct rmi_function *fn)
- 
- 	video_unregister_device(&f54->vdev);
- 	v4l2_device_unregister(&f54->v4l2);
-+	cancel_delayed_work_sync(&f54->work);
-+	flush_workqueue(f54->workqueue);
-+	destroy_workqueue(f54->workqueue);
- }
- 
- struct rmi_function_handler rmi_f54_handler = {
+> 
+> On 2019/10/12 16:36, zhengbin wrote:
+> > IS_ERR_OR_NULL already contains unlikely, there is no need
+> > for another one.
+> >
+> > Signed-off-by: zhengbin <zhengbin13@huawei.com>
+> > ---
+> >  drivers/input/mouse/alps.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> > index 34700ed..ed16614 100644
+> > --- a/drivers/input/mouse/alps.c
+> > +++ b/drivers/input/mouse/alps.c
+> > @@ -1476,7 +1476,7 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
+> >  		/* On V2 devices the DualPoint Stick reports bare packets */
+> >  		dev = priv->dev2;
+> >  		dev2 = psmouse->dev;
+> > -	} else if (unlikely(IS_ERR_OR_NULL(priv->dev3))) {
+> > +	} else if (IS_ERR_OR_NULL(priv->dev3)) {
+> >  		/* Register dev3 mouse if we received PS/2 packet first time */
+> >  		if (!IS_ERR(priv->dev3))
+> >  			psmouse_queue_work(psmouse, &priv->dev3_register_work,
+> > --
+> > 2.7.4
+> >
+> >
+> > .
+> >
+> 
+
 -- 
-2.23.0
-
+Dmitry

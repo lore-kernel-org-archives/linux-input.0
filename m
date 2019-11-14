@@ -6,36 +6,35 @@ X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D37D1C432C3
-	for <linux-input@archiver.kernel.org>; Thu, 14 Nov 2019 14:47:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F2E8C432C3
+	for <linux-input@archiver.kernel.org>; Thu, 14 Nov 2019 15:38:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 809E22070E
-	for <linux-input@archiver.kernel.org>; Thu, 14 Nov 2019 14:47:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F20EF206D5
+	for <linux-input@archiver.kernel.org>; Thu, 14 Nov 2019 15:38:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kryma.net header.i=@kryma.net header.b="ARc48BYQ"
+	dkim=pass (1024-bit key) header.d=kryma.net header.i=@kryma.net header.b="VbDNblNR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726482AbfKNOrh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 14 Nov 2019 09:47:37 -0500
-Received: from li825-139.members.linode.com ([104.237.157.139]:33830 "EHLO
+        id S1726505AbfKNPir (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 Nov 2019 10:38:47 -0500
+Received: from li825-139.members.linode.com ([104.237.157.139]:33848 "EHLO
         smtp.factglobal.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726473AbfKNOrh (ORCPT
+        with ESMTP id S1726474AbfKNPir (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 Nov 2019 09:47:37 -0500
-X-Greylist: delayed 343 seconds by postgrey-1.27 at vger.kernel.org; Thu, 14 Nov 2019 09:47:36 EST
+        Thu, 14 Nov 2019 10:38:47 -0500
 Received: from [192.168.0.187] (modemcable184.72-21-96.mc.videotron.ca [96.21.72.184])
-        by smtp.factglobal.ca (Postfix) with ESMTPSA id EA39F7B94F
-        for <linux-input@vger.kernel.org>; Thu, 14 Nov 2019 14:41:52 +0000 (UTC)
+        by smtp.factglobal.ca (Postfix) with ESMTPSA id 982BA7B94F
+        for <linux-input@vger.kernel.org>; Thu, 14 Nov 2019 15:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kryma.net; s=mail;
-        t=1573742513; bh=18fw5kOFkXsASEiKRKdXz0tp36AKlx7QWXIjlGkkSPo=;
-        h=To:From:Subject:Date:From;
-        b=ARc48BYQ6jkI7+svL3zKiCWBfZYRX4YbzAb9PjQwLiK21FFHfan9M/wqKG2dLxiEK
-         KjA7wNKInvnCG+jcB0AyutV8DN+HPyxJ87dQmvGgcBcnPMriP1dk+otxyBmGCMdEZ3
-         CFpaRsrKQH/xVX5+av+rabINzdFjR46GOF9FHbZU=
-To:     linux-input@vger.kernel.org
+        t=1573745926; bh=18fw5kOFkXsASEiKRKdXz0tp36AKlx7QWXIjlGkkSPo=;
+        h=From:Subject:To:Date:From;
+        b=VbDNblNR9vDekZBajuKdiWSFyPOKlQJ1RDEwmahXX3LiTpXMfNyFZGzQpD6FrvSgb
+         GFFT0YMuFwIn2h2me4TVfwMV4OcQxe+FtOS14CU2rkw5/D9/h9R7OpKX3pqc0o/5tI
+         qtKQ4fHHtNhilUBESv0CacETf2c+zfHt/3nynGDI=
 From:   Pavel Balan <admin@kryma.net>
 Subject: I2C HID incomplete report + misc debugging questions
-Message-ID: <35e5a64f-41b0-188d-90aa-70b03f111ebc@kryma.net>
-Date:   Thu, 14 Nov 2019 09:41:52 -0500
+To:     linux-input@vger.kernel.org
+Message-ID: <a5a2b6b5-0bef-96c0-3d40-361f277f6761@kryma.net>
+Date:   Thu, 14 Nov 2019 10:38:44 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
@@ -68,4 +67,5 @@ approach is probably needed in this case, though I'm not yet sure which.
 Any recommendations? Possibly a way to get hidraw, if such exists?
 
 Thanks for the help.
+
 

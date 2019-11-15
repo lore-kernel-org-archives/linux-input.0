@@ -7,51 +7,51 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD0DBC43141
-	for <linux-input@archiver.kernel.org>; Fri, 15 Nov 2019 09:50:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9295FC432C3
+	for <linux-input@archiver.kernel.org>; Fri, 15 Nov 2019 09:50:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 94AD120748
-	for <linux-input@archiver.kernel.org>; Fri, 15 Nov 2019 09:50:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 623402077B
+	for <linux-input@archiver.kernel.org>; Fri, 15 Nov 2019 09:50:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="bV5Cgu3v"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="N3IBTSfW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727344AbfKOJuY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 15 Nov 2019 04:50:24 -0500
-Received: from mail-pj1-f67.google.com ([209.85.216.67]:37762 "EHLO
-        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727316AbfKOJuX (ORCPT
+        id S1727386AbfKOJu1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 15 Nov 2019 04:50:27 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:35801 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727361AbfKOJu0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Nov 2019 04:50:23 -0500
-Received: by mail-pj1-f67.google.com with SMTP id f3so49416pjg.4
-        for <linux-input@vger.kernel.org>; Fri, 15 Nov 2019 01:50:23 -0800 (PST)
+        Fri, 15 Nov 2019 04:50:26 -0500
+Received: by mail-pf1-f196.google.com with SMTP id q13so6371044pff.2
+        for <linux-input@vger.kernel.org>; Fri, 15 Nov 2019 01:50:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=217eC9hKKPhFR1dt5ut+bKE9PoJLm9Luk5L1E4O08SY=;
-        b=bV5Cgu3vp7/I5f4JwZ8BVuzarL/xFpG1avEzPFu5Q5faSfZP9PupsphWvmEmhYtGhN
-         HY1kN2JlDy2J2n03BkYZF+ImkBQcM7a/Z8afCNmGXMRxHE1PHOIyLVjLOWf11Bg8OBwr
-         3XTkJ51McBscgxwFPNDou0HxpDj/d5aGYdSMU=
+        bh=qcdix2k3jYm/imuNI0PPRh8hJzwWOlu7Ag0tUZl+FNM=;
+        b=N3IBTSfWSA4biiMVbe1lKLsQVtvcvT3HjzEbItXrJZ+EqUiBesPtOlxIEnkxrW+uuY
+         9RkUsN8NzFytRnUa/rweZTrZ9W00x6P+dC/pJ5J88l7ebpafcWXJWERChDueI7KGugBt
+         QM4ntTW6VPnivxWke9s49UgSoCig7uCrOloeM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=217eC9hKKPhFR1dt5ut+bKE9PoJLm9Luk5L1E4O08SY=;
-        b=guN4e1UPeyJCRPXwxvKPPeTTQCWSP3UN51GsnkYenC0trRaC0UnaxlBY+XulAiYyOq
-         OaV5OL0foM9CRUvQHuUldl9YUia+kAsRHatHNYp+2k9Q5IxvMx8sHaLmzG/Rp/pAlGPc
-         YN6TwZNjVPUtjMvBIIUpXFkVht/+/UvbuBIH4q9P6hJt1X8s5WB7c4ak9SAlc3iUn4RS
-         TBwXDj5oILUdmSU1wdR8tRE1AOZGddFUWLC5Aks+28O2nApni37sOzdPc47tPirabCSk
-         BeAd4xNKgbV0SOoARReDONyWdr8i50U7oFtF0hSqR9p+UVbXlJyFzpDibiTxSSM6n8oW
-         B4Ig==
-X-Gm-Message-State: APjAAAX1RHODkNQW0fUYdlgmu5U/QoonF/A78afSUEklgqE53GJhrXPO
-        gBJfzfVX53147HBXAFW8dgcYMg==
-X-Google-Smtp-Source: APXvYqzIMSU8vq9BjvPriBULbuqe6wv7lEuICA3AcXhgNzKQm/2tNyxkqjBDqx6XYftyqKXWMAQzvA==
-X-Received: by 2002:a17:90a:f013:: with SMTP id bt19mr18446883pjb.16.1573811422687;
-        Fri, 15 Nov 2019 01:50:22 -0800 (PST)
+        bh=qcdix2k3jYm/imuNI0PPRh8hJzwWOlu7Ag0tUZl+FNM=;
+        b=nzwg2rgeGHoBHP6gs7AKXqDpGtiR7UaTGEJn1SZZXCgxxLeQTgQyD3Hnptz/EBJEU7
+         Io/z3Ghvyc6xxrhqZF+Su64lQuZmDSatDw5VwcZNSNamppf6gB4k1wK7TBnni6cXDUPH
+         VuYJEHjQ5gDarQ0Jof0jYBh7hrHyufAEMC3oNG01Vidqbz5zkneiLWExRoRnBl2rh5st
+         jXef4b1SGGC+CxdfoOYZYpVQB4AGtn/UEp4mx7v+pkPCcrvGmy0DADex6odINohvU5Xm
+         W82Z48ny2Q6uhI8QTQ47K5r/uJwth2hqLNZ8tRmSYrtfyboxg9lWluGV8lyK9oz+tp4V
+         9J5Q==
+X-Gm-Message-State: APjAAAWLqOfUliWOnOu8AIvNhHpkVn8e5OWjCjUtQaJd+WsWBg/RWvpS
+        34CHMqyWKCUmyq7c9Ng7lS4xPw==
+X-Google-Smtp-Source: APXvYqySz+Ogm7VbD2QmqvdA9pBGr2tG9kF0HVxsz1er5ty2/Rlo3+KN5jq+6kiG5U4puI8ORB9I9A==
+X-Received: by 2002:aa7:9aa9:: with SMTP id x9mr16689923pfi.207.1573811425555;
+        Fri, 15 Nov 2019 01:50:25 -0800 (PST)
 Received: from localhost ([2620:15c:202:1:3c8f:512b:3522:dfaf])
-        by smtp.gmail.com with ESMTPSA id p18sm9935506pff.9.2019.11.15.01.50.21
+        by smtp.gmail.com with ESMTPSA id w62sm11312319pfb.15.2019.11.15.01.50.24
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Nov 2019 01:50:22 -0800 (PST)
+        Fri, 15 Nov 2019 01:50:25 -0800 (PST)
 From:   Gwendal Grignou <gwendal@chromium.org>
 To:     dmitry.torokhov@gmail.com, groeck@chromium.org,
         briannorris@chromium.org, jic23@kernel.org, knaack.h@gmx.de,
@@ -59,10 +59,12 @@ To:     dmitry.torokhov@gmail.com, groeck@chromium.org,
         bleung@chromium.org, enric.balletbo@collabora.com,
         dianders@chromium.org, fabien.lahoudere@collabora.com
 Cc:     linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>
-Subject: [PATCH v5 02/18] platform: cros_ec: Add cros_ec_sensor_hub driver
-Date:   Fri, 15 Nov 2019 01:33:56 -0800
-Message-Id: <20191115093412.144922-3-gwendal@chromium.org>
+        linux-input@vger.kernel.org,
+        Gwendal Grignou <gwendal@chromium.org>,
+        Jonathan Cameron <Jonathan.Cameron@kernel.org>
+Subject: [PATCH v5 04/18] platform: chrome: cros-ec: record event timestamp in the hard irq
+Date:   Fri, 15 Nov 2019 01:33:58 -0800
+Message-Id: <20191115093412.144922-5-gwendal@chromium.org>
 X-Mailer: git-send-email 2.24.0.432.g9d3f5f5b63-goog
 In-Reply-To: <20191115093412.144922-1-gwendal@chromium.org>
 References: <20191115093412.144922-1-gwendal@chromium.org>
@@ -73,333 +75,173 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Similar to HID sensor stack, the new driver sits between cros_ec_dev
-and the iio device drivers:
+To improve sensor timestamp precision, given EC and AP are in
+different time domains, the AP needs to try to record the exact
+moment an event was signalled to the AP by the EC as soon as
+possible after it happens.
 
-EC based iio device topology would be:
-iio:device1 ->
-...0/0000:00:1f.0/PNP0C09:00/GOOG0004:00/cros-ec-dev.6.auto/
-                                         cros-ec-sensorhub.7.auto/
-                                         cros-ec-accel.15.auto/
-                                         iio:device1
-
-It will be expanded to control EC sensor FIFO.
+First thing in the hard irq is the best place for this.
 
 Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@kernel.org>
+Acked-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
 Changes in v5:
-- Use devm_add_action_or_reset() to free children devices.
-  In consequence, remove array and define not use for house keeping in
-  .h file, remove .remove entry point.
-- Use PTR_ERR() when needed.
-- Use demv_kzalloc for device memory allocation.
+  Enforce kernel-doc function naming.
 Changes in v4:
-- Use platform_device_register_data in children registration.
-- Free registered pdev children at remove time.
-- Remove useless includes
-- Check patch with --strict option
-    Use sizeof(*obj) instead of sizeof(struct ...obj)
+  Check patch with --strict option
     Alignement
-- Describe cros_ec_sensorhub in kernel-doc format.
-Changes in v3:
-- Fix doxygen comments
-- Fix use of ret |=
-- Remove unncessary goto.
+No changes in v3.
 Changes in v2:
-- Remove unerelated changes.
-- Fix spelling.
-- Use !x instead of x == NULL
-- Use platform_ API directly to register IIO sensors from
-  cros_ec_sensorhub.
+  Make cros_ec_get_time_ns inline.
+  Using ktime_t instead of s64 when dealing with time.
+  Added code in ishtp to gather timestamp.
 
- drivers/iio/common/cros_ec_sensors/Kconfig    |   2 +-
- drivers/platform/chrome/Kconfig               |  12 ++
- drivers/platform/chrome/Makefile              |   1 +
- drivers/platform/chrome/cros_ec_sensorhub.c   | 197 ++++++++++++++++++
- .../linux/platform_data/cros_ec_sensorhub.h   |  22 ++
- 5 files changed, 233 insertions(+), 1 deletion(-)
- create mode 100644 drivers/platform/chrome/cros_ec_sensorhub.c
- create mode 100644 include/linux/platform_data/cros_ec_sensorhub.h
+ drivers/platform/chrome/cros_ec.c           | 17 ++++++++++++++---
+ drivers/platform/chrome/cros_ec_ishtp.c     | 17 +++++++++++++++--
+ drivers/platform/chrome/cros_ec_lpc.c       |  2 ++
+ include/linux/platform_data/cros_ec_proto.h | 16 ++++++++++++++++
+ 4 files changed, 47 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iio/common/cros_ec_sensors/Kconfig b/drivers/iio/common/cros_ec_sensors/Kconfig
-index cdbb29cfb907..fefad9572790 100644
---- a/drivers/iio/common/cros_ec_sensors/Kconfig
-+++ b/drivers/iio/common/cros_ec_sensors/Kconfig
-@@ -4,7 +4,7 @@
- #
- config IIO_CROS_EC_SENSORS_CORE
- 	tristate "ChromeOS EC Sensors Core"
--	depends on SYSFS && CROS_EC
-+	depends on SYSFS && CROS_EC_SENSORHUB
- 	select IIO_BUFFER
- 	select IIO_TRIGGERED_BUFFER
- 	help
-diff --git a/drivers/platform/chrome/Kconfig b/drivers/platform/chrome/Kconfig
-index ee5f08ea57b6..884ac9a287f2 100644
---- a/drivers/platform/chrome/Kconfig
-+++ b/drivers/platform/chrome/Kconfig
-@@ -190,6 +190,18 @@ config CROS_EC_DEBUGFS
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called cros_ec_debugfs.
+diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
+index 9b2d07422e17..925f84dbf621 100644
+--- a/drivers/platform/chrome/cros_ec.c
++++ b/drivers/platform/chrome/cros_ec.c
+@@ -31,6 +31,15 @@ static struct cros_ec_platform pd_p = {
+ 	.cmd_offset = EC_CMD_PASSTHRU_OFFSET(CROS_EC_DEV_PD_INDEX),
+ };
  
-+config CROS_EC_SENSORHUB
-+	tristate "ChromeOS EC MEMS Sensor Hub"
-+	depends on CROS_EC
-+	help
-+	  Allow loading IIO sensors. This driver is loaded by MFD and will in
-+	  turn query the EC and register the sensors.
-+	  It also spreads the sensor data coming from the EC to the IIO sensor
-+	  object.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called cros_ec_sensorhub.
-+
- config CROS_EC_SYSFS
- 	tristate "ChromeOS EC control and information through sysfs"
- 	depends on MFD_CROS_EC_DEV && SYSFS
-diff --git a/drivers/platform/chrome/Makefile b/drivers/platform/chrome/Makefile
-index 477ec3d1d1c9..a164c40dc099 100644
---- a/drivers/platform/chrome/Makefile
-+++ b/drivers/platform/chrome/Makefile
-@@ -17,6 +17,7 @@ obj-$(CONFIG_CROS_EC_PROTO)		+= cros_ec_proto.o cros_ec_trace.o
- obj-$(CONFIG_CROS_KBD_LED_BACKLIGHT)	+= cros_kbd_led_backlight.o
- obj-$(CONFIG_CROS_EC_CHARDEV)		+= cros_ec_chardev.o
- obj-$(CONFIG_CROS_EC_LIGHTBAR)		+= cros_ec_lightbar.o
-+obj-$(CONFIG_CROS_EC_SENSORHUB)		+= cros_ec_sensorhub.o
- obj-$(CONFIG_CROS_EC_VBC)		+= cros_ec_vbc.o
- obj-$(CONFIG_CROS_EC_DEBUGFS)		+= cros_ec_debugfs.o
- obj-$(CONFIG_CROS_EC_SYSFS)		+= cros_ec_sysfs.o
-diff --git a/drivers/platform/chrome/cros_ec_sensorhub.c b/drivers/platform/chrome/cros_ec_sensorhub.c
-new file mode 100644
-index 000000000000..85e3d3f25786
---- /dev/null
-+++ b/drivers/platform/chrome/cros_ec_sensorhub.c
-@@ -0,0 +1,197 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * SensorHub: driver that discover sensors behind
-+ * a ChromeOS Embedded controller.
-+ *
-+ * Copyright 2019 Google LLC
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/module.h>
-+#include <linux/mfd/cros_ec.h>
-+#include <linux/platform_data/cros_ec_commands.h>
-+#include <linux/platform_data/cros_ec_proto.h>
-+#include <linux/platform_data/cros_ec_sensorhub.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+
-+#define DRV_NAME		"cros-ec-sensorhub"
-+
-+static void cros_ec_sensorhub_free_single_sensor(void *arg)
++static irqreturn_t ec_irq_handler(int irq, void *data)
 +{
-+	struct platform_device *pdev = arg;
++	struct cros_ec_device *ec_dev = data;
 +
-+	platform_device_unregister(pdev);
++	ec_dev->last_event_time = cros_ec_get_time_ns();
++
++	return IRQ_WAKE_THREAD;
 +}
 +
-+static int cros_ec_sensorhub_allocate_single_sensor(struct device *parent,
-+						    char *sensor_name,
-+						    int sensor_num)
-+{
-+	struct platform_device *pdev;
-+	struct cros_ec_sensor_platform sensor_platforms = {
-+		.sensor_num = sensor_num,
-+	};
-+
-+	pdev = platform_device_register_data(parent, sensor_name,
-+					     PLATFORM_DEVID_AUTO,
-+					     &sensor_platforms,
-+					     sizeof(sensor_platforms));
-+	if (IS_ERR(pdev))
-+		return PTR_ERR(pdev);
-+
-+	return devm_add_action_or_reset(parent,
-+			cros_ec_sensorhub_free_single_sensor, pdev);
-+}
-+
-+static int cros_ec_sensorhub_register(struct device *dev,
-+				      struct cros_ec_sensorhub *sensorhub)
-+{
-+	int ret, i, id, sensor_num;
-+	struct cros_ec_dev *ec = sensorhub->ec;
-+	int sensor_type[MOTIONSENSE_TYPE_MAX] = { 0 };
-+	struct ec_params_motion_sense *params;
-+	struct ec_response_motion_sense *resp;
-+	struct cros_ec_command *msg;
-+	char *name;
-+
-+	sensor_num = cros_ec_get_sensor_count(ec);
-+	if (sensor_num < 0) {
-+		dev_err(dev,
-+			"Unable to retrieve sensor information (err:%d)\n",
-+			sensor_num);
-+		return sensor_num;
-+	}
-+
-+	if (sensor_num == 0) {
-+		dev_err(dev, "Zero sensors reported.\n");
-+		return -EINVAL;
-+	}
-+
-+	/* Prepare a message to send INFO command to each sensor. */
-+	msg = kzalloc(sizeof(*msg) + max(sizeof(*params), sizeof(*resp)),
-+		      GFP_KERNEL);
-+	if (!msg)
-+		return -ENOMEM;
-+
-+	msg->version = 1;
-+	msg->command = EC_CMD_MOTION_SENSE_CMD + ec->cmd_offset;
-+	msg->outsize = sizeof(*params);
-+	msg->insize = sizeof(*resp);
-+	params = (struct ec_params_motion_sense *)msg->data;
-+	resp = (struct ec_response_motion_sense *)msg->data;
-+
-+	id = 0;
-+	for (i = 0; i < sensor_num; i++) {
-+		params->cmd = MOTIONSENSE_CMD_INFO;
-+		params->info.sensor_num = i;
-+		ret = cros_ec_cmd_xfer_status(ec->ec_dev, msg);
-+		if (ret < 0) {
-+			dev_warn(dev, "no info for EC sensor %d : %d/%d\n",
-+				 i, ret, msg->result);
-+			continue;
-+		}
-+		switch (resp->info.type) {
-+		case MOTIONSENSE_TYPE_ACCEL:
-+			name = "cros-ec-accel";
-+			break;
-+		case MOTIONSENSE_TYPE_BARO:
-+			name = "cros-ec-baro";
-+			break;
-+		case MOTIONSENSE_TYPE_GYRO:
-+			name = "cros-ec-gyro";
-+			break;
-+		case MOTIONSENSE_TYPE_MAG:
-+			name = "cros-ec-mag";
-+			break;
-+		case MOTIONSENSE_TYPE_PROX:
-+			name = "cros-ec-prox";
-+			break;
-+		case MOTIONSENSE_TYPE_LIGHT:
-+			name = "cros-ec-light";
-+			break;
-+		case MOTIONSENSE_TYPE_ACTIVITY:
-+			name = "cros-ec-activity";
-+			break;
-+		default:
-+			dev_warn(dev, "unknown type %d\n", resp->info.type);
-+			continue;
-+		}
-+		ret = cros_ec_sensorhub_allocate_single_sensor(dev, name, i);
-+		if (ret)
-+			goto error;
-+
-+		sensor_type[resp->info.type]++;
-+	}
-+
-+	if (sensor_type[MOTIONSENSE_TYPE_ACCEL] >= 2)
-+		ec->has_kb_wake_angle = true;
-+
-+	if (cros_ec_check_features(ec,
-+				   EC_FEATURE_REFINED_TABLET_MODE_HYSTERESIS)) {
-+		ret = cros_ec_sensorhub_allocate_single_sensor(dev,
-+							"cros-ec-lid-angle", 0);
-+		if (ret)
-+			goto error;
-+	}
-+	kfree(msg);
-+	return 0;
-+
-+error:
-+	kfree(msg);
-+	return ret;
-+}
-+
-+static int cros_ec_sensorhub_probe(struct platform_device *sensorhub_pdev)
-+{
-+	struct device *dev = &sensorhub_pdev->dev;
-+	struct cros_ec_dev *ec = dev_get_drvdata(dev->parent);
-+	int ret, i;
-+	struct cros_ec_sensorhub *data =
-+		devm_kzalloc(dev, sizeof(struct cros_ec_sensorhub), GFP_KERNEL);
-+
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->ec = ec;
-+	dev_set_drvdata(dev, data);
-+
-+	/* Check whether this EC is a sensor hub. */
-+	if (cros_ec_check_features(ec, EC_FEATURE_MOTION_SENSE)) {
-+		ret = cros_ec_sensorhub_register(dev, data);
-+		if (ret) {
-+			dev_err(dev, "Register failed %d\n", ret);
-+			return ret;
-+		}
-+	} else {
+ static irqreturn_t ec_irq_thread(int irq, void *data)
+ {
+ 	struct cros_ec_device *ec_dev = data;
+@@ -141,9 +150,11 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 	}
+ 
+ 	if (ec_dev->irq) {
+-		err = devm_request_threaded_irq(dev, ec_dev->irq, NULL,
+-				ec_irq_thread, IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+-				"chromeos-ec", ec_dev);
++		err = devm_request_threaded_irq(dev, ec_dev->irq,
++						ec_irq_handler,
++						ec_irq_thread,
++						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++						"chromeos-ec", ec_dev);
+ 		if (err) {
+ 			dev_err(dev, "Failed to request IRQ %d: %d",
+ 				ec_dev->irq, err);
+diff --git a/drivers/platform/chrome/cros_ec_ishtp.c b/drivers/platform/chrome/cros_ec_ishtp.c
+index 25ca2c894b4d..5c848f22b44b 100644
+--- a/drivers/platform/chrome/cros_ec_ishtp.c
++++ b/drivers/platform/chrome/cros_ec_ishtp.c
+@@ -200,13 +200,14 @@ static int ish_send(struct ishtp_cl_data *client_data,
+  * process_recv() - Received and parse incoming packet
+  * @cros_ish_cl: Client instance to get stats
+  * @rb_in_proc: Host interface message buffer
++ * @timestamp: Timestamp of when parent callback started
+  *
+  * Parse the incoming packet. If it is a response packet then it will
+  * update per instance flags and wake up the caller waiting to for the
+  * response. If it is an event packet then it will schedule event work.
+  */
+ static void process_recv(struct ishtp_cl *cros_ish_cl,
+-			 struct ishtp_cl_rb *rb_in_proc)
++			 struct ishtp_cl_rb *rb_in_proc, ktime_t timestamp)
+ {
+ 	size_t data_len = rb_in_proc->buf_idx;
+ 	struct ishtp_cl_data *client_data =
+@@ -295,6 +296,11 @@ static void process_recv(struct ishtp_cl *cros_ish_cl,
+ 		break;
+ 
+ 	case CROS_MKBP_EVENT:
 +		/*
-+		 * If the device has sensors but does not claim to
-+		 * be a sensor hub, we are in legacy mode.
++		 * Set timestamp from beginning of function since we actually
++		 * got an incoming MKBP event
 +		 */
-+		for (i = 0; i < 2; i++) {
-+			ret = cros_ec_sensorhub_allocate_single_sensor(dev,
-+						"cros-ec-accel-legacy", i);
-+			if (ret) {
-+				dev_err(dev, "Legacy %d failed %d\n", i, ret);
-+				return ret;
-+			}
-+		}
-+	}
++		client_data->ec_dev->last_event_time = timestamp;
+ 		/* The event system doesn't send any data in buffer */
+ 		schedule_work(&client_data->work_ec_evt);
+ 
+@@ -322,10 +328,17 @@ static void ish_event_cb(struct ishtp_cl_device *cl_device)
+ {
+ 	struct ishtp_cl_rb *rb_in_proc;
+ 	struct ishtp_cl	*cros_ish_cl = ishtp_get_drvdata(cl_device);
++	ktime_t timestamp;
 +
-+	return 0;
++	/*
++	 * Take timestamp as close to hardware interrupt as possible for sensor
++	 * timestamps.
++	 */
++	timestamp = cros_ec_get_time_ns();
+ 
+ 	while ((rb_in_proc = ishtp_cl_rx_get_rb(cros_ish_cl)) != NULL) {
+ 		/* Decide what to do with received data */
+-		process_recv(cros_ish_cl, rb_in_proc);
++		process_recv(cros_ish_cl, rb_in_proc, timestamp);
+ 	}
+ }
+ 
+diff --git a/drivers/platform/chrome/cros_ec_lpc.c b/drivers/platform/chrome/cros_ec_lpc.c
+index 7d10d909435f..3c77496e164d 100644
+--- a/drivers/platform/chrome/cros_ec_lpc.c
++++ b/drivers/platform/chrome/cros_ec_lpc.c
+@@ -313,6 +313,8 @@ static void cros_ec_lpc_acpi_notify(acpi_handle device, u32 value, void *data)
+ {
+ 	struct cros_ec_device *ec_dev = data;
+ 
++	ec_dev->last_event_time = cros_ec_get_time_ns();
++
+ 	if (ec_dev->mkbp_event_supported &&
+ 	    cros_ec_get_next_event(ec_dev, NULL) > 0)
+ 		blocking_notifier_call_chain(&ec_dev->event_notifier, 0,
+diff --git a/include/linux/platform_data/cros_ec_proto.h b/include/linux/platform_data/cros_ec_proto.h
+index 691f9e953a96..02dc34f366d7 100644
+--- a/include/linux/platform_data/cros_ec_proto.h
++++ b/include/linux/platform_data/cros_ec_proto.h
+@@ -122,6 +122,8 @@ struct cros_ec_command {
+  * @event_data: Raw payload transferred with the MKBP event.
+  * @event_size: Size in bytes of the event data.
+  * @host_event_wake_mask: Mask of host events that cause wake from suspend.
++ * @last_event_time: exact time from the hard irq when we got notified of
++ *     a new event.
+  * @ec: The platform_device used by the mfd driver to interface with the
+  *      main EC.
+  * @pd: The platform_device used by the mfd driver to interface with the
+@@ -162,6 +164,7 @@ struct cros_ec_device {
+ 	int event_size;
+ 	u32 host_event_wake_mask;
+ 	u32 last_resume_result;
++	ktime_t last_event_time;
+ 
+ 	/* The platform devices used by the mfd driver */
+ 	struct platform_device *ec;
+@@ -210,4 +213,17 @@ int cros_ec_check_features(struct cros_ec_dev *ec, int feature);
+ 
+ int cros_ec_get_sensor_count(struct cros_ec_dev *ec);
+ 
++/**
++ * cros_ec_get_time_ns() - Return time in ns.
++ *
++ * This is the function used to record the time for last_event_time in struct
++ * cros_ec_device during the hard irq.
++ *
++ * Return: ktime_t format since boot.
++ */
++static inline ktime_t cros_ec_get_time_ns(void)
++{
++	return ktime_get_boottime_ns();
 +}
 +
-+static struct platform_driver cros_ec_sensorhub_driver = {
-+	.driver = {
-+		.name = DRV_NAME,
-+	},
-+	.probe = cros_ec_sensorhub_probe,
-+};
-+
-+module_platform_driver(cros_ec_sensorhub_driver);
-+
-+MODULE_ALIAS("platform:" DRV_NAME);
-+MODULE_AUTHOR("Gwendal Grignou <gwendal@chromium.org>");
-+MODULE_DESCRIPTION("ChromeOS EC MEMS Sensor Hub Driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/platform_data/cros_ec_sensorhub.h b/include/linux/platform_data/cros_ec_sensorhub.h
-new file mode 100644
-index 000000000000..63c8dafb87e8
---- /dev/null
-+++ b/include/linux/platform_data/cros_ec_sensorhub.h
-@@ -0,0 +1,22 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * cros_ec_sensorhub- Chrome OS EC MEMS Sensor Hub driver.
-+ *
-+ * Copyright (C) 2019 Google, Inc
-+ */
-+
-+#ifndef __LINUX_PLATFORM_DATA_CROS_EC_SENSORHUB_H
-+#define __LINUX_PLATFORM_DATA_CROS_EC_SENSORHUB_H
-+
-+#include <linux/platform_data/cros_ec_commands.h>
-+
-+/**
-+ * struct cros_ec_sensorhub - Sensor Hub device data.
-+ *
-+ * @ec:           Embedded Controller where the hub is located.
-+ */
-+struct cros_ec_sensorhub {
-+	struct cros_ec_dev *ec;
-+};
-+
-+#endif   /* __LINUX_PLATFORM_DATA_CROS_EC_SENSORHUB_H */
+ #endif /* __LINUX_CROS_EC_PROTO_H */
 -- 
 2.24.0.432.g9d3f5f5b63-goog
 

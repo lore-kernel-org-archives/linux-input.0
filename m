@@ -7,51 +7,51 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AADEC43141
-	for <linux-input@archiver.kernel.org>; Fri, 15 Nov 2019 09:51:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B535C43215
+	for <linux-input@archiver.kernel.org>; Fri, 15 Nov 2019 09:51:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1BAC1207DD
-	for <linux-input@archiver.kernel.org>; Fri, 15 Nov 2019 09:51:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 11EDF20723
+	for <linux-input@archiver.kernel.org>; Fri, 15 Nov 2019 09:51:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="m2EFgUMs"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="g+iOhcZr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727192AbfKOJv0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 15 Nov 2019 04:51:26 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:42371 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727429AbfKOJub (ORCPT
+        id S1727404AbfKOJu3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 15 Nov 2019 04:50:29 -0500
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:44630 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727349AbfKOJu2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Nov 2019 04:50:31 -0500
-Received: by mail-pl1-f196.google.com with SMTP id j12so4300864plt.9
-        for <linux-input@vger.kernel.org>; Fri, 15 Nov 2019 01:50:30 -0800 (PST)
+        Fri, 15 Nov 2019 04:50:28 -0500
+Received: by mail-pg1-f196.google.com with SMTP id f19so5713514pgk.11
+        for <linux-input@vger.kernel.org>; Fri, 15 Nov 2019 01:50:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=cfEOVKIJ8U0GfHedTM8uop95E6UnQcFBXP6PO2Xab/M=;
-        b=m2EFgUMsdkyQYfBqNYpaO5s0oKfL1ugX3rEJQyR6V1NScny95WiRNhsA/pIgkhM6tE
-         CRyBvyLsuKWFk6m9vb7ECHapzMYJBzFbYtCyNGu/f0ybVwgMi62LF48QEBPoqSbzN2Bi
-         U/LX62BKdu5ckGKJLVx+AT82sogu83S90lNrI=
+        bh=00TE3UjkilRir+eBZdBUQADWxjiLoIj6o72iA3B1Sak=;
+        b=g+iOhcZrs7UHvseKUzS7H3Gpvuf+nZBEoWW8rYkkCFWMInk9W59sz0xitzhao5Txsi
+         WrUHfnBCjiQRmDJ3EAACFoIQ78JL3NwHz6QWOXGmrjik1Fex0wwvpOo4JlBeAboBLH5Z
+         O89w7p63Hp9pEwQ3GHEpduv0T3LhEn0JEmdsY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=cfEOVKIJ8U0GfHedTM8uop95E6UnQcFBXP6PO2Xab/M=;
-        b=fw+FUhhDU4nQOtueAZMfH7XhTyLj4DGx8X0uxidDiwq/nSFJaHBOzkuwiAjRThnAK7
-         WUMhnaXO6dDZ02BtXBrUAytty2T5frxc/QE+k3I7Qed/npEsZs70lQaShEZ4oMytDREg
-         PMJhBnpIWlatseZmSbY23TcXSpKt1+CnxTRVXzC3iZVT4O0v4szH7wTn7tAQtnkKb3d1
-         tWYV8UeaX1vkGsTfNMT/C5792OFaoRZIJmqKJMKeDs3HPLDKX76mXoXSnY+/guBDBXWk
-         SZC8H+WOOexBt5TJWjxgYeVpIHpGrI3GmjPHa62DcjoWRmjtgGwM5bZ2Tw2dA+QHreuX
-         B5tA==
-X-Gm-Message-State: APjAAAXaqpT/OZf0NFHPLgwmtpKLkdeqrc6JIyAV/w7uBHBctFmS1YwJ
-        UJrBbZvDX4lJBZyNJsiNNSIgLw==
-X-Google-Smtp-Source: APXvYqwMQarLqCwMW2+EGNqFNExtVLNkA66aqH0FntvLNMlxemfuDPhChGsPbPaT/XThVqCt8gfSJQ==
-X-Received: by 2002:a17:902:aa42:: with SMTP id c2mr13953629plr.311.1573811430375;
-        Fri, 15 Nov 2019 01:50:30 -0800 (PST)
+        bh=00TE3UjkilRir+eBZdBUQADWxjiLoIj6o72iA3B1Sak=;
+        b=ZWUaCGwnm4GxVflxc7HJvBMNdJxtwqxIAJUAAFLtdNYJWvbQx5MMPbWvbHswuPJnxb
+         wJu5bNythTgFbSF79tlABtJBPkwvyyOgaYV/cRA+AZfK9+757bM7Rgfigb0f6m73BZIU
+         4Y5Tu/2vY9rWZnzZVByUvkI7ICE5TaNWhz+7Dt2+amAL2sDY2HC9fNCa0MyEpyIIv5V/
+         xJrwemjc57KqiXCWDQjgT+LTy4yOGSr9t3IlC8ZriMZm76NuZLiHILos782Yjw2Tjw15
+         SRh3WU5rCUkWYIrTPJGPMXfvwoxcubeJMgrwMw8zBjt+vxP3zROfhmdUnFOUid6Ci2yE
+         MrAQ==
+X-Gm-Message-State: APjAAAX/6P+teVB6JcX8vBoMROIj9o/grRT9JzVG4tm2ZF6rUK3tdYk9
+        ZQSN17vbZ7KU/vFNPDyfbhgu+w==
+X-Google-Smtp-Source: APXvYqwSf7X2rW+Bxb5/bsjJWmQV2TgPWw6OX5rnxCqpAbf3+Ggth6PILQOMBFyXwlyMU5+ZUMuJjA==
+X-Received: by 2002:a63:1f08:: with SMTP id f8mr14240497pgf.145.1573811426996;
+        Fri, 15 Nov 2019 01:50:26 -0800 (PST)
 Received: from localhost ([2620:15c:202:1:3c8f:512b:3522:dfaf])
-        by smtp.gmail.com with ESMTPSA id i32sm8317366pgl.73.2019.11.15.01.50.29
+        by smtp.gmail.com with ESMTPSA id y14sm9792409pff.69.2019.11.15.01.50.26
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Nov 2019 01:50:29 -0800 (PST)
+        Fri, 15 Nov 2019 01:50:26 -0800 (PST)
 From:   Gwendal Grignou <gwendal@chromium.org>
 To:     dmitry.torokhov@gmail.com, groeck@chromium.org,
         briannorris@chromium.org, jic23@kernel.org, knaack.h@gmx.de,
@@ -59,10 +59,13 @@ To:     dmitry.torokhov@gmail.com, groeck@chromium.org,
         bleung@chromium.org, enric.balletbo@collabora.com,
         dianders@chromium.org, fabien.lahoudere@collabora.com
 Cc:     linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>
-Subject: [PATCH v5 07/18] Revert "Input: cros_ec_keyb - add back missing mask for event_type"
-Date:   Fri, 15 Nov 2019 01:34:01 -0800
-Message-Id: <20191115093412.144922-8-gwendal@chromium.org>
+        linux-input@vger.kernel.org,
+        Gwendal Grignou <gwendal@chromium.org>,
+        Enrico Granata <egranata@chromium.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH v5 05/18] platform: chrome: cros_ec: Do not attempt to register a non-positive IRQ number
+Date:   Fri, 15 Nov 2019 01:33:59 -0800
+Message-Id: <20191115093412.144922-6-gwendal@chromium.org>
 X-Mailer: git-send-email 2.24.0.432.g9d3f5f5b63-goog
 In-Reply-To: <20191115093412.144922-1-gwendal@chromium.org>
 References: <20191115093412.144922-1-gwendal@chromium.org>
@@ -73,52 +76,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This reverts commit 62c3801619e16b68a37ea899b76572145dfe41c9.
+Add a layer of sanity checking to cros_ec_register against attempting to
+register IRQ values that are not strictly greater than 0.
 
-This patch is not needed anymore since we clear EC_MKBP_HAS_MORE_EVENTS
-flag before calling the notifiers in patch
-"9d9518f5b52a (platform: chrome: cros_ec: handle MKBP more events flag)"
-
+Signed-off-by: Enrico Granata <egranata@chromium.org>
 Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
 No changes in v5, v4, v3.
-New to v2.
+Changes in v2:
+  Remove dual Enrico's signature.
 
- drivers/input/keyboard/cros_ec_keyb.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/platform/chrome/cros_ec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 8d4d9786cc74..a29e81fdf186 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -226,8 +226,6 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- {
- 	struct cros_ec_keyb *ckdev = container_of(nb, struct cros_ec_keyb,
- 						  notifier);
--	uint8_t mkbp_event_type = ckdev->ec->event_data.event_type &
--				  EC_MKBP_EVENT_TYPE_MASK;
- 	u32 val;
- 	unsigned int ev_type;
+diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
+index 925f84dbf621..d3dfa27171e6 100644
+--- a/drivers/platform/chrome/cros_ec.c
++++ b/drivers/platform/chrome/cros_ec.c
+@@ -149,7 +149,7 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 		return err;
+ 	}
  
-@@ -239,7 +237,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 	if (queued_during_suspend && !device_may_wakeup(ckdev->dev))
- 		return NOTIFY_OK;
- 
--	switch (mkbp_event_type) {
-+	switch (ckdev->ec->event_data.event_type & EC_MKBP_EVENT_TYPE_MASK) {
- 	case EC_MKBP_EVENT_KEY_MATRIX:
- 		pm_wakeup_event(ckdev->dev, 0);
- 
-@@ -266,7 +264,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 	case EC_MKBP_EVENT_SWITCH:
- 		pm_wakeup_event(ckdev->dev, 0);
- 
--		if (mkbp_event_type == EC_MKBP_EVENT_BUTTON) {
-+		if (ckdev->ec->event_data.event_type == EC_MKBP_EVENT_BUTTON) {
- 			val = get_unaligned_le32(
- 					&ckdev->ec->event_data.data.buttons);
- 			ev_type = EV_KEY;
+-	if (ec_dev->irq) {
++	if (ec_dev->irq > 0) {
+ 		err = devm_request_threaded_irq(dev, ec_dev->irq,
+ 						ec_irq_handler,
+ 						ec_irq_thread,
 -- 
 2.24.0.432.g9d3f5f5b63-goog
 

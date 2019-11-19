@@ -5,35 +5,35 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5011C33C9F
-	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78F57C33CA1
+	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B23FC208D4
-	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44882222F2
+	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="NUt1JnFA"
+	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="GXa4/IdM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727682AbfKSKvY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Nov 2019 05:51:24 -0500
-Received: from lb3-smtp-cloud7.xs4all.net ([194.109.24.31]:49605 "EHLO
-        lb3-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727646AbfKSKvW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
+        id S1725798AbfKSKvW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 19 Nov 2019 05:51:22 -0500
+Received: from lb3-smtp-cloud7.xs4all.net ([194.109.24.31]:58609 "EHLO
+        lb3-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726510AbfKSKvV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 Nov 2019 05:51:21 -0500
 Received: from marune.fritz.box ([IPv6:2001:983:e9a7:1:9879:d2e2:f0e2:9c7])
         by smtp-cloud7.xs4all.net with ESMTPA
-        id X16MiClSQcs92X16OiynYV; Tue, 19 Nov 2019 11:51:20 +0100
+        id X16MiClSQcs92X16NiynXo; Tue, 19 Nov 2019 11:51:20 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s1;
-        t=1574160680; bh=K6hYpltp/ZoW+ANAksmPQOMy+7HBkZ0IaQfGtBZ5Za0=;
+        t=1574160680; bh=MlggBG+CD7fPcgJTp67HpQHeT5mQfD9yxA6YaGd7pwY=;
         h=From:To:Subject:Date:Message-Id:MIME-Version:From:Subject;
-        b=NUt1JnFA/XPdbnxDDH4N7+74icOwoBnc1hXVAppiZyaGuFzvg3qZUnzwx7Scepe2Z
-         F245OjL9zxvWfGaXOMNLLSugiHlGV0ZeUWLPjpT5dD4AVw6yQtHESZcGu3TvPtZGgm
-         xBv0Jkddr2ge/nCJJuwSR46E+E6PmhDNIOGjBpz+RMzVOLK1kdAyv9Bt2+LbI3dOyz
-         3AQcYm7nwX0I5bVV4PXXuAB3UCIMjtdqoA7rDwx5zIT+MbWUDUfxIH7svBlvLTHqzh
-         mQGsbSEfiMop3qXtXBWV2AZfGkOkWRTcVcu04xgcz2tGQ/ZZWhU13Qmmbl9AG4fkO0
-         4wSDfO4xVTQog==
+        b=GXa4/IdM8oC+1fYL6DBlqHKmv4l/OieqaZAJ6jtxXZ+U7MjN5h1a+tIOpddvuNMja
+         GkhEjw8SPnyCcGtFct5tVrmBFaxg75TsDYtDyPzgst616H8Zqrn5Ag27sES3Wn/6ax
+         jUSaPBEgrAmOl0gVPaGF8Bxxza2ys2vPhJdnHl1mviKCaSBly600zSd6goiQ/8ZEEG
+         oCH/NEJeJua7CQ+37hBuFRXqJfZFdobCFtg9tZnP5TbV+xvIYzW4QrmZMfd2HPoIiT
+         YYEhwhv7L1f2UVBcUzFztwrWCTWYwwkEncdpspHChGJvgbFk/VT7UXgubBUcmZGhTs
+         v2CRIEBMLm96Q==
 From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
 To:     linux-media@vger.kernel.org
 Cc:     linux-input@vger.kernel.org,
@@ -44,9 +44,9 @@ Cc:     linux-input@vger.kernel.org,
         Christopher Heiny <cheiny@synaptics.com>,
         Vandana BN <bnvandana@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Subject: [PATCH 5/5] input/rmi4/rmi_smbus.c: don't increment rmiaddr in rmi_smb_read_block()
-Date:   Tue, 19 Nov 2019 11:51:18 +0100
-Message-Id: <20191119105118.54285-6-hverkuil-cisco@xs4all.nl>
+Subject: [PATCH 1/5] input/mouse/synaptics: add LEN0091 support
+Date:   Tue, 19 Nov 2019 11:51:14 +0100
+Message-Id: <20191119105118.54285-2-hverkuil-cisco@xs4all.nl>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191119105118.54285-1-hverkuil-cisco@xs4all.nl>
 References: <20191119105118.54285-1-hverkuil-cisco@xs4all.nl>
@@ -62,36 +62,26 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This increment of rmi_smbus causes garbage to be returned.
-The first read of SMB_MAX_COUNT bytes is fine, but after that
-it is nonsense. Trial-and-error showed that by dropping the
-increment of rmiaddr everything is fine and the F54 function
-properly works.
-
-Even going back to the original code when F54 was added, I
-could not make it work without this patch. So I do not understand
-how this ever worked.
-
-My guess is that the same change is needed in rmi_smb_write_block,
-but I wouldn't know how to test this.
+Some Lenovo X1 Carbon Gen 6 laptops report LEN0091. Add this
+to the smbus_pnp_ids list.
 
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 ---
- drivers/input/rmi4/rmi_smbus.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index 2407ea43de59..79ecea5edacc 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -215,7 +215,6 @@ static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiaddr,
- 		/* prepare to read next block of bytes */
- 		cur_len -= SMB_MAX_COUNT;
- 		databuff += SMB_MAX_COUNT;
--		rmiaddr += SMB_MAX_COUNT;
- 	}
- 
- 	retval = 0;
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 56fae3472114..1ae6f8bba9ae 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -172,6 +172,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0071", /* T480 */
+ 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
+ 	"LEN0073", /* X1 Carbon G5 (Elantech) */
++	"LEN0091", /* X1 Carbon 6 */
+ 	"LEN0092", /* X1 Carbon 6 */
+ 	"LEN0093", /* T480 */
+ 	"LEN0096", /* X280 */
 -- 
 2.23.0
 

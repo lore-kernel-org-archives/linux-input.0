@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89247C432C3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5011C33C9F
 	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 61A56208D4
+	by mail.kernel.org (Postfix) with ESMTP id B23FC208D4
 	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="N4VhK+l1"
+	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="NUt1JnFA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727684AbfKSKvY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1727682AbfKSKvY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 19 Nov 2019 05:51:24 -0500
-Received: from lb1-smtp-cloud7.xs4all.net ([194.109.24.24]:56431 "EHLO
-        lb1-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727638AbfKSKvW (ORCPT
+Received: from lb3-smtp-cloud7.xs4all.net ([194.109.24.31]:49605 "EHLO
+        lb3-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727646AbfKSKvW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Tue, 19 Nov 2019 05:51:22 -0500
 Received: from marune.fritz.box ([IPv6:2001:983:e9a7:1:9879:d2e2:f0e2:9c7])
         by smtp-cloud7.xs4all.net with ESMTPA
-        id X16MiClSQcs92X16OiynYB; Tue, 19 Nov 2019 11:51:20 +0100
+        id X16MiClSQcs92X16OiynYV; Tue, 19 Nov 2019 11:51:20 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s1;
-        t=1574160680; bh=QJNKgbqqLCwOtr7xCFAGFzv4hgqLTxUBrVvrdQHGMME=;
+        t=1574160680; bh=K6hYpltp/ZoW+ANAksmPQOMy+7HBkZ0IaQfGtBZ5Za0=;
         h=From:To:Subject:Date:Message-Id:MIME-Version:From:Subject;
-        b=N4VhK+l1V+TvOGKicGsIS/OBvgf6NQqbuE5MqzJLeAUYSlPo8s7Ou62PA174UH+RQ
-         9ixD+zkEOPLyn8yien5tDCEio2qb0AKuATJ3GHhTivI21ZHR0h/60U+sFRwXGkIii9
-         wHHKEsunvj5mEMxgAGCYsGfsCDAphPn+2Xw2+iRwy2pc8oyZ9VDMhPrEf+75MNisDS
-         iwf75u894wZI6dwi6CRf//XQxMMVqKdk/aTaGWVEjdudNRLJWx1E4tux974ihC5AVS
-         DFdtl9BiTsmWK2Ic4KXMxAHa/VadN8jdH9qcoBmel28LNGU8xoGrd5F4lK90FUC/Qo
-         RaYpS6objA6Ag==
+        b=NUt1JnFA/XPdbnxDDH4N7+74icOwoBnc1hXVAppiZyaGuFzvg3qZUnzwx7Scepe2Z
+         F245OjL9zxvWfGaXOMNLLSugiHlGV0ZeUWLPjpT5dD4AVw6yQtHESZcGu3TvPtZGgm
+         xBv0Jkddr2ge/nCJJuwSR46E+E6PmhDNIOGjBpz+RMzVOLK1kdAyv9Bt2+LbI3dOyz
+         3AQcYm7nwX0I5bVV4PXXuAB3UCIMjtdqoA7rDwx5zIT+MbWUDUfxIH7svBlvLTHqzh
+         mQGsbSEfiMop3qXtXBWV2AZfGkOkWRTcVcu04xgcz2tGQ/ZZWhU13Qmmbl9AG4fkO0
+         4wSDfO4xVTQog==
 From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
 To:     linux-media@vger.kernel.org
 Cc:     linux-input@vger.kernel.org,
@@ -44,9 +44,9 @@ Cc:     linux-input@vger.kernel.org,
         Christopher Heiny <cheiny@synaptics.com>,
         Vandana BN <bnvandana@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Subject: [PATCH 3/5] pixfmt-tch-td16/tu16.rst: document that this is little endian
-Date:   Tue, 19 Nov 2019 11:51:16 +0100
-Message-Id: <20191119105118.54285-4-hverkuil-cisco@xs4all.nl>
+Subject: [PATCH 5/5] input/rmi4/rmi_smbus.c: don't increment rmiaddr in rmi_smb_read_block()
+Date:   Tue, 19 Nov 2019 11:51:18 +0100
+Message-Id: <20191119105118.54285-6-hverkuil-cisco@xs4all.nl>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191119105118.54285-1-hverkuil-cisco@xs4all.nl>
 References: <20191119105118.54285-1-hverkuil-cisco@xs4all.nl>
@@ -62,152 +62,36 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Testing with the rmi_f54 driver on the Lenovo X1 Carbon 6th gen
-laptop showed that the data is in little endian format. Update
-the documentation accordingly.
+This increment of rmi_smbus causes garbage to be returned.
+The first read of SMB_MAX_COUNT bytes is fine, but after that
+it is nonsense. Trial-and-error showed that by dropping the
+increment of rmiaddr everything is fine and the F54 function
+properly works.
+
+Even going back to the original code when F54 was added, I
+could not make it work without this patch. So I do not understand
+how this ever worked.
+
+My guess is that the same change is needed in rmi_smb_write_block,
+but I wouldn't know how to test this.
 
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 ---
- .../media/uapi/v4l/pixfmt-tch-td16.rst        | 34 +++++++++----------
- .../media/uapi/v4l/pixfmt-tch-tu16.rst        | 34 +++++++++----------
- 2 files changed, 34 insertions(+), 34 deletions(-)
+ drivers/input/rmi4/rmi_smbus.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/Documentation/media/uapi/v4l/pixfmt-tch-td16.rst b/Documentation/media/uapi/v4l/pixfmt-tch-td16.rst
-index 4031b175257c..6f1be873bec1 100644
---- a/Documentation/media/uapi/v4l/pixfmt-tch-td16.rst
-+++ b/Documentation/media/uapi/v4l/pixfmt-tch-td16.rst
-@@ -15,7 +15,7 @@ V4L2_TCH_FMT_DELTA_TD16 ('TD16')
+diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+index 2407ea43de59..79ecea5edacc 100644
+--- a/drivers/input/rmi4/rmi_smbus.c
++++ b/drivers/input/rmi4/rmi_smbus.c
+@@ -215,7 +215,6 @@ static int rmi_smb_read_block(struct rmi_transport_dev *xport, u16 rmiaddr,
+ 		/* prepare to read next block of bytes */
+ 		cur_len -= SMB_MAX_COUNT;
+ 		databuff += SMB_MAX_COUNT;
+-		rmiaddr += SMB_MAX_COUNT;
+ 	}
  
- *man V4L2_TCH_FMT_DELTA_TD16(2)*
- 
--16-bit signed Touch Delta
-+16-bit signed little endian Touch Delta
- 
- 
- Description
-@@ -37,38 +37,38 @@ Each cell is one byte.
-     :widths:       2 1 1 1 1 1 1 1 1
- 
-     * - start + 0:
--      - D'\ :sub:`00high`
-       - D'\ :sub:`00low`
--      - D'\ :sub:`01high`
-+      - D'\ :sub:`00high`
-       - D'\ :sub:`01low`
--      - D'\ :sub:`02high`
-+      - D'\ :sub:`01high`
-       - D'\ :sub:`02low`
--      - D'\ :sub:`03high`
-+      - D'\ :sub:`02high`
-       - D'\ :sub:`03low`
-+      - D'\ :sub:`03high`
-     * - start + 8:
--      - D'\ :sub:`10high`
-       - D'\ :sub:`10low`
--      - D'\ :sub:`11high`
-+      - D'\ :sub:`10high`
-       - D'\ :sub:`11low`
--      - D'\ :sub:`12high`
-+      - D'\ :sub:`11high`
-       - D'\ :sub:`12low`
--      - D'\ :sub:`13high`
-+      - D'\ :sub:`12high`
-       - D'\ :sub:`13low`
-+      - D'\ :sub:`13high`
-     * - start + 16:
--      - D'\ :sub:`20high`
-       - D'\ :sub:`20low`
--      - D'\ :sub:`21high`
-+      - D'\ :sub:`20high`
-       - D'\ :sub:`21low`
--      - D'\ :sub:`22high`
-+      - D'\ :sub:`21high`
-       - D'\ :sub:`22low`
--      - D'\ :sub:`23high`
-+      - D'\ :sub:`22high`
-       - D'\ :sub:`23low`
-+      - D'\ :sub:`23high`
-     * - start + 24:
--      - D'\ :sub:`30high`
-       - D'\ :sub:`30low`
--      - D'\ :sub:`31high`
-+      - D'\ :sub:`30high`
-       - D'\ :sub:`31low`
--      - D'\ :sub:`32high`
-+      - D'\ :sub:`31high`
-       - D'\ :sub:`32low`
--      - D'\ :sub:`33high`
-+      - D'\ :sub:`32high`
-       - D'\ :sub:`33low`
-+      - D'\ :sub:`33high`
-diff --git a/Documentation/media/uapi/v4l/pixfmt-tch-tu16.rst b/Documentation/media/uapi/v4l/pixfmt-tch-tu16.rst
-index 8278543be99a..cb3da6687a58 100644
---- a/Documentation/media/uapi/v4l/pixfmt-tch-tu16.rst
-+++ b/Documentation/media/uapi/v4l/pixfmt-tch-tu16.rst
-@@ -15,7 +15,7 @@ V4L2_TCH_FMT_TU16 ('TU16')
- 
- *man V4L2_TCH_FMT_TU16(2)*
- 
--16-bit unsigned raw touch data
-+16-bit unsigned little endian raw touch data
- 
- 
- Description
-@@ -36,38 +36,38 @@ Each cell is one byte.
-     :widths:       2 1 1 1 1 1 1 1 1
- 
-     * - start + 0:
--      - R'\ :sub:`00high`
-       - R'\ :sub:`00low`
--      - R'\ :sub:`01high`
-+      - R'\ :sub:`00high`
-       - R'\ :sub:`01low`
--      - R'\ :sub:`02high`
-+      - R'\ :sub:`01high`
-       - R'\ :sub:`02low`
--      - R'\ :sub:`03high`
-+      - R'\ :sub:`02high`
-       - R'\ :sub:`03low`
-+      - R'\ :sub:`03high`
-     * - start + 8:
--      - R'\ :sub:`10high`
-       - R'\ :sub:`10low`
--      - R'\ :sub:`11high`
-+      - R'\ :sub:`10high`
-       - R'\ :sub:`11low`
--      - R'\ :sub:`12high`
-+      - R'\ :sub:`11high`
-       - R'\ :sub:`12low`
--      - R'\ :sub:`13high`
-+      - R'\ :sub:`12high`
-       - R'\ :sub:`13low`
-+      - R'\ :sub:`13high`
-     * - start + 16:
--      - R'\ :sub:`20high`
-       - R'\ :sub:`20low`
--      - R'\ :sub:`21high`
-+      - R'\ :sub:`20high`
-       - R'\ :sub:`21low`
--      - R'\ :sub:`22high`
-+      - R'\ :sub:`21high`
-       - R'\ :sub:`22low`
--      - R'\ :sub:`23high`
-+      - R'\ :sub:`22high`
-       - R'\ :sub:`23low`
-+      - R'\ :sub:`23high`
-     * - start + 24:
--      - R'\ :sub:`30high`
-       - R'\ :sub:`30low`
--      - R'\ :sub:`31high`
-+      - R'\ :sub:`30high`
-       - R'\ :sub:`31low`
--      - R'\ :sub:`32high`
-+      - R'\ :sub:`31high`
-       - R'\ :sub:`32low`
--      - R'\ :sub:`33high`
-+      - R'\ :sub:`32high`
-       - R'\ :sub:`33low`
-+      - R'\ :sub:`33high`
+ 	retval = 0;
 -- 
 2.23.0
 

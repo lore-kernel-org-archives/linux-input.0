@@ -2,38 +2,38 @@ Return-Path: <SRS0=+AoC=ZL=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00104C432C3
-	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A701C33C8C
+	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 96B932230B
-	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5AF23222F2
+	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="a3VJ8oLI"
+	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="HCcV+aS3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727656AbfKSKvV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Nov 2019 05:51:21 -0500
-Received: from lb2-smtp-cloud7.xs4all.net ([194.109.24.28]:55799 "EHLO
+        id S1727673AbfKSKvW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Nov 2019 05:51:22 -0500
+Received: from lb2-smtp-cloud7.xs4all.net ([194.109.24.28]:43677 "EHLO
         lb2-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725798AbfKSKvV (ORCPT
+        by vger.kernel.org with ESMTP id S1727640AbfKSKvW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Nov 2019 05:51:21 -0500
+        Tue, 19 Nov 2019 05:51:22 -0500
 Received: from marune.fritz.box ([IPv6:2001:983:e9a7:1:9879:d2e2:f0e2:9c7])
         by smtp-cloud7.xs4all.net with ESMTPA
-        id X16MiClSQcs92X16NiynXW; Tue, 19 Nov 2019 11:51:19 +0100
+        id X16MiClSQcs92X16OiynYK; Tue, 19 Nov 2019 11:51:20 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s1;
-        t=1574160679; bh=5AeY67vqkH0wxjzbZl0BQApPLZ/nspql0RmmufAxdi4=;
+        t=1574160680; bh=9U+inmzg5NrDx5i6uhSFqhpwKs50Qq/7assBwITEC2U=;
         h=From:To:Subject:Date:Message-Id:MIME-Version:From:Subject;
-        b=a3VJ8oLIswg6WCotYrkJ087e4fLd1bujOLaR4A9J2TUkblpalFIv56b55yvWS4Xct
-         u6dOnKf9qpdpB8SsTzjrob7cHEsUsZF/yrJ2IDXJolj8B5m9vmAhUslhd1uTKP8hte
-         c/nYjP6YEm/o+SyVe3X0xQiB0EJjDYeunpnxEKyeQkmCfV5O/Q5q9vbsaF5w/pnSyp
-         Gp6krkZl+kjirxHnRJG1CoEV+k/F2vgsOEwn2RFAwAME9Mb6p1jErruqo0YMguHoec
-         TElBYbZck1ea2YMqaTnGmFcwj6K/fJMVU5fd9nPOzzw4MY2PF7+XuHrmxtLUy1azm0
-         NB+T0xpL6ySFQ==
+        b=HCcV+aS3b95/a481mRSNssdcmECUPmfJyV3vR3H5r3Fei8d7TIEH14tCou+6c+1aC
+         TEbw5khaiRzswxJ2ViEJtvnCEoDD9wiuoqeW5z92lk57uLlxCJ/ZvOk4F3ZehZ2caD
+         brxSWw4nMlR5oVQJo+jS5SpsZc6FnTMnWbkZBuAfpzSS+3CtWGg4cb05C8dhfbn+6K
+         FJhcSP7SiDFTRzEhqeTbPKD6AfkNG435xiE7tmoCbdaGXRVrvcAqvptSRW1N68kP/9
+         eBXNFmF9COSBFK9uGVKItc+8Lmc7nlJTjokt9eSMavCvWVY95NfScpVrYghihrAgfS
+         y+15JMo0t6ZaQ==
 From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
 To:     linux-media@vger.kernel.org
 Cc:     linux-input@vger.kernel.org,
@@ -42,70 +42,59 @@ Cc:     linux-input@vger.kernel.org,
         Nick Dyer <nick@shmanahar.org>,
         Lucas Stach <l.stach@pengutronix.de>,
         Christopher Heiny <cheiny@synaptics.com>,
-        Vandana BN <bnvandana@gmail.com>
-Subject: [PATCH 0/5] input: rmi4/synaptics fixes
-Date:   Tue, 19 Nov 2019 11:51:13 +0100
-Message-Id: <20191119105118.54285-1-hverkuil-cisco@xs4all.nl>
+        Vandana BN <bnvandana@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Subject: [PATCH 4/5] input/rmi4/rmi_driver: check if irq_find_mapping returns 0
+Date:   Tue, 19 Nov 2019 11:51:17 +0100
+Message-Id: <20191119105118.54285-5-hverkuil-cisco@xs4all.nl>
 X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191119105118.54285-1-hverkuil-cisco@xs4all.nl>
+References: <20191119105118.54285-1-hverkuil-cisco@xs4all.nl>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4wfHNzPygtr9JemSlajnYEBcN40ZcoNBnilEnvwUYSA1jpCd2s+Ud5VResGqjlNqjjGZ4wf/ggGBYqn7WLQD4+5TrkpP72bWpDWRv5QAij6aHeTp5k5LA2
- 6IcXpusDSiUok+BMwnV0mtLybiZcZZkWKdY1C9fQ6BSvH0tLyZP0EgO15SOcYuy0Snr3MCIKUg1ziwKH3ugXGGV1GwTLO0q3rrDKehpjJzmNTpKgUmYenO8h
- /XYKQ4QivfcoOlnTFgUuOR4/XXXZaYPyn2ATcHoW9tT3x07Ze7ZKkuAn9UNs8kyVvM8ZcBQclisboEhVOe79QWFcC9fdTFbe854eSU84S1RWTbfc9AKKDfQ9
- f8nqW/dHV+sVh44v13wu9yPTvrtNsZ42KXxeWRVr4K4W9AELGqolScrqXKuTOqk8jq43sdHC0cWHmjS4lWSVz3lY7BvIcN+/1Wp7A2BT1Oqk5YgaNFGIM9rP
- gufHTQ4u9xL6G8po
+X-CMAE-Envelope: MS4wfITl6e8i82InOTHwXM3kdwYO2AxR8EsKQ3NIN50rAHb0nE7+NpDfx3mE0aarPKfcSasr0Ef93osdW5It+tibHUdNgekdaia7RnK1JLNhQe9ASaSRaj5Y
+ 01ScKcty+LNeFJk7S1KoU3uHCHNR/+GdaMmzWBexrnJQPZUBleqd1VFwyAiHcrwbjijryb0SIzJh+/W2xGnIofAyh8nccKoptJ2IxRw+4eHaVoINciU5/fmh
+ uQYCUsTe1oqd//1y1LMgbJZpGVxy/vx86+7G1kdQdSKiTkDO09acp4XttZL7PEBZSHHh/y2lgAWQWtk1xlr2rXqF1UXKshBJgGpyjlzb0etJDqBE0XPFq7y+
+ tUhSg0KxnAq6nkJf2uQFDKq+b2McMvnzVWvHUFmD+tVqsN7xzqyGGlKKlH+6JsKJXhVQ9hpSAkrXbw+FAUBtInmWE7pekAYhRS/+AbkWgAIru+kBPUm5qThf
+ olwcCYk9h6xgzTBzYbBaB+ImNTreFf8npd3UDT5T+dh67J53wJ2Cu5wS9q4=
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-These are five patches that fix various issues I found when testing
-the F54 support of my Lenovo X1 Carbon Gen 6 laptop.
+The irq_find_mapping() function can return 0 when called in the
+rmi_process_interrupt_requests() function.
 
-The first three are pretty straightforward. The third patch is a
-media documentation fix and, once Acked, it can go in either through
-the media subsystem or the input subsystem, whatever is easiest.
+This causes a kernel crash. Check for a 0 value and skip calling
+handle_nested_irq() in that case.
 
-The last two patches are more of an RFC quality:
+This was tested with the F54 function enabled on a Lenovo X1 Carbon.
 
-I noticed that irq_find_mapping() could return 0, which causes
-a kernel crash. I suspect that this patch just fixes the symptom
-and not necessarily the actual cause. I can do more testing to see
-if I can find the real cause. Hints of where to look would be
-welcome.
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 24d28e4f1271 ("Input: synaptics-rmi4 - convert irq distribution to irq_domain")
+---
+ drivers/input/rmi4/rmi_driver.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-The last patch is basically trial-and-error. When testing F54 I noticed
-that only the first 32 bytes of the capture image were valid, everything
-else was garbage. By deleting the line that increments rmiaddr it suddenly
-started working, but I only found an old RMI4 spec and I have no idea
-why this fix works.
-
-I can't imagine that it failed when this F54 driver was first added,
-so did something else break? Or is my Lenovo special in some way?
-
-I can help with testing, but the https://github.com/ndyer/heatmap/commits/heatmap-v4l
-is easy enough to use.
-
-Regards,
-
-	Hans
-
-Hans Verkuil (5):
-  input/mouse/synaptics: add LEN0091 support
-  input/rmi4/rmi_f54: fix various V4L2 compliance problems
-  pixfmt-tch-td16/tu16.rst: document that this is little endian
-  input/rmi4/rmi_driver: check if irq_find_mapping returns 0
-  input/rmi4/rmi_smbus.c: don't increment rmiaddr in
-    rmi_smb_read_block()
-
- .../media/uapi/v4l/pixfmt-tch-td16.rst        | 34 +++++++++----------
- .../media/uapi/v4l/pixfmt-tch-tu16.rst        | 34 +++++++++----------
- drivers/input/mouse/synaptics.c               |  1 +
- drivers/input/rmi4/rmi_driver.c               |  8 +++--
- drivers/input/rmi4/rmi_f54.c                  | 15 +++++++-
- drivers/input/rmi4/rmi_smbus.c                |  1 -
- 6 files changed, 55 insertions(+), 38 deletions(-)
-
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 772493b1f665..6085ec424a84 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -154,8 +154,12 @@ static int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
+ 	 */
+ 	mutex_unlock(&data->irq_mutex);
+ 
+-	for_each_set_bit(i, data->irq_status, data->irq_count)
+-		handle_nested_irq(irq_find_mapping(data->irqdomain, i));
++	for_each_set_bit(i, data->irq_status, data->irq_count) {
++		unsigned int irq = irq_find_mapping(data->irqdomain, i);
++
++		if (irq)
++			handle_nested_irq(irq);
++	}
+ 
+ 	if (data->input)
+ 		input_sync(data->input);
 -- 
 2.23.0
 

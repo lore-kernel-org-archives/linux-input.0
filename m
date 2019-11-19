@@ -5,35 +5,35 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A701C33C8C
-	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DA61C33C9D
+	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5AF23222F2
-	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 42669208D4
+	for <linux-input@archiver.kernel.org>; Tue, 19 Nov 2019 10:51:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="HCcV+aS3"
+	dkim=pass (2048-bit key) header.d=xs4all.nl header.i=@xs4all.nl header.b="tJ7nEy3z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727673AbfKSKvW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Nov 2019 05:51:22 -0500
-Received: from lb2-smtp-cloud7.xs4all.net ([194.109.24.28]:43677 "EHLO
-        lb2-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727640AbfKSKvW (ORCPT
+        id S1727640AbfKSKvX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Nov 2019 05:51:23 -0500
+Received: from lb1-smtp-cloud7.xs4all.net ([194.109.24.24]:59563 "EHLO
+        lb1-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727352AbfKSKvW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Tue, 19 Nov 2019 05:51:22 -0500
 Received: from marune.fritz.box ([IPv6:2001:983:e9a7:1:9879:d2e2:f0e2:9c7])
         by smtp-cloud7.xs4all.net with ESMTPA
-        id X16MiClSQcs92X16OiynYK; Tue, 19 Nov 2019 11:51:20 +0100
+        id X16MiClSQcs92X16OiynY0; Tue, 19 Nov 2019 11:51:20 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s1;
-        t=1574160680; bh=9U+inmzg5NrDx5i6uhSFqhpwKs50Qq/7assBwITEC2U=;
+        t=1574160680; bh=pA7d9ibcyBpo76n2ZOdiJPdSt0mQ/nhmdI3YFOC70Xg=;
         h=From:To:Subject:Date:Message-Id:MIME-Version:From:Subject;
-        b=HCcV+aS3b95/a481mRSNssdcmECUPmfJyV3vR3H5r3Fei8d7TIEH14tCou+6c+1aC
-         TEbw5khaiRzswxJ2ViEJtvnCEoDD9wiuoqeW5z92lk57uLlxCJ/ZvOk4F3ZehZ2caD
-         brxSWw4nMlR5oVQJo+jS5SpsZc6FnTMnWbkZBuAfpzSS+3CtWGg4cb05C8dhfbn+6K
-         FJhcSP7SiDFTRzEhqeTbPKD6AfkNG435xiE7tmoCbdaGXRVrvcAqvptSRW1N68kP/9
-         eBXNFmF9COSBFK9uGVKItc+8Lmc7nlJTjokt9eSMavCvWVY95NfScpVrYghihrAgfS
-         y+15JMo0t6ZaQ==
+        b=tJ7nEy3zE76pr6Rt+V9Ed0FxGOltJwrr01u5MbWEOD796wPZwDYoch272LFpPhxQE
+         lSBFeC9a70qKU2NDWtTGebPC04rfeWcgv3fY+7iNyuoPgAphcfak+0dxdVqtNYpAsw
+         pe1atAk4ztzygxel4gTB4rVp3rbvPG7lTGUA1M6ms7s7BXHTFMDNjqlWDUYD+yMFDg
+         SWKfj++XUMfTnFpYKyS6lbgwv3l6Uj2939i8men0VsG61O/DWbGqD5vBPDQBJxGdlS
+         AnxtTl3wZDWXpNrgm1eVO4R8n6VJuaeSKRZWPheTZi0EaQ9VHoMtUYmY8DZyY5tEb9
+         eNhzDfaX0hPNA==
 From:   Hans Verkuil <hverkuil-cisco@xs4all.nl>
 To:     linux-media@vger.kernel.org
 Cc:     linux-input@vger.kernel.org,
@@ -44,9 +44,9 @@ Cc:     linux-input@vger.kernel.org,
         Christopher Heiny <cheiny@synaptics.com>,
         Vandana BN <bnvandana@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Subject: [PATCH 4/5] input/rmi4/rmi_driver: check if irq_find_mapping returns 0
-Date:   Tue, 19 Nov 2019 11:51:17 +0100
-Message-Id: <20191119105118.54285-5-hverkuil-cisco@xs4all.nl>
+Subject: [PATCH 2/5] input/rmi4/rmi_f54: fix various V4L2 compliance problems
+Date:   Tue, 19 Nov 2019 11:51:15 +0100
+Message-Id: <20191119105118.54285-3-hverkuil-cisco@xs4all.nl>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191119105118.54285-1-hverkuil-cisco@xs4all.nl>
 References: <20191119105118.54285-1-hverkuil-cisco@xs4all.nl>
@@ -62,39 +62,85 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The irq_find_mapping() function can return 0 when called in the
-rmi_process_interrupt_requests() function.
+The v4l2-compliance utility reported several V4L2 API compliance
+issues:
 
-This causes a kernel crash. Check for a 0 value and skip calling
-handle_nested_irq() in that case.
+- the sequence counter wasn't filled in
+- the sequence counter wasn't reset to 0 at the start of streaming
+- the returned field value wasn't set to V4L2_FIELD_NONE
+- the timestamp wasn't set
+- the payload size was undefined if an error was returned
+- min_buffers_needed doesn't need to be initialized
 
-This was tested with the F54 function enabled on a Lenovo X1 Carbon.
+Fix these issues.
 
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 24d28e4f1271 ("Input: synaptics-rmi4 - convert irq distribution to irq_domain")
 ---
- drivers/input/rmi4/rmi_driver.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/input/rmi4/rmi_f54.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 772493b1f665..6085ec424a84 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -154,8 +154,12 @@ static int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
- 	 */
- 	mutex_unlock(&data->irq_mutex);
+diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+index 710b02595486..ebccab7a4834 100644
+--- a/drivers/input/rmi4/rmi_f54.c
++++ b/drivers/input/rmi4/rmi_f54.c
+@@ -116,6 +116,7 @@ struct f54_data {
+ 	struct video_device vdev;
+ 	struct vb2_queue queue;
+ 	struct mutex lock;
++	u32 sequence;
+ 	int input;
+ 	enum rmi_f54_report_type inputs[F54_MAX_REPORT_TYPE];
+ };
+@@ -290,6 +291,7 @@ static int rmi_f54_queue_setup(struct vb2_queue *q, unsigned int *nbuffers,
  
--	for_each_set_bit(i, data->irq_status, data->irq_count)
--		handle_nested_irq(irq_find_mapping(data->irqdomain, i));
-+	for_each_set_bit(i, data->irq_status, data->irq_count) {
-+		unsigned int irq = irq_find_mapping(data->irqdomain, i);
+ static void rmi_f54_buffer_queue(struct vb2_buffer *vb)
+ {
++	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+ 	struct f54_data *f54 = vb2_get_drv_priv(vb->vb2_queue);
+ 	u16 *ptr;
+ 	enum vb2_buffer_state state;
+@@ -298,6 +300,7 @@ static void rmi_f54_buffer_queue(struct vb2_buffer *vb)
+ 
+ 	mutex_lock(&f54->status_mutex);
+ 
++	vb2_set_plane_payload(vb, 0, 0);
+ 	reptype = rmi_f54_get_reptype(f54, f54->input);
+ 	if (reptype == F54_REPORT_NONE) {
+ 		state = VB2_BUF_STATE_ERROR;
+@@ -344,14 +347,25 @@ static void rmi_f54_buffer_queue(struct vb2_buffer *vb)
+ data_done:
+ 	mutex_unlock(&f54->data_mutex);
+ done:
++	vb->timestamp = ktime_get_ns();
++	vbuf->field = V4L2_FIELD_NONE;
++	vbuf->sequence = f54->sequence++;
+ 	vb2_buffer_done(vb, state);
+ 	mutex_unlock(&f54->status_mutex);
+ }
+ 
++static void rmi_f54_stop_streaming(struct vb2_queue *q)
++{
++	struct f54_data *f54 = vb2_get_drv_priv(q);
 +
-+		if (irq)
-+			handle_nested_irq(irq);
-+	}
++	f54->sequence = 0;
++}
++
+ /* V4L2 structures */
+ static const struct vb2_ops rmi_f54_queue_ops = {
+ 	.queue_setup            = rmi_f54_queue_setup,
+ 	.buf_queue              = rmi_f54_buffer_queue,
++	.stop_streaming		= rmi_f54_stop_streaming,
+ 	.wait_prepare           = vb2_ops_wait_prepare,
+ 	.wait_finish            = vb2_ops_wait_finish,
+ };
+@@ -363,7 +377,6 @@ static const struct vb2_queue rmi_f54_queue = {
+ 	.ops = &rmi_f54_queue_ops,
+ 	.mem_ops = &vb2_vmalloc_memops,
+ 	.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC,
+-	.min_buffers_needed = 1,
+ };
  
- 	if (data->input)
- 		input_sync(data->input);
+ static int rmi_f54_vidioc_querycap(struct file *file, void *priv,
 -- 
 2.23.0
 

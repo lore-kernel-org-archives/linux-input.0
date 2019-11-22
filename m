@@ -4,35 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D16E6C43215
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:27:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE8CFC432C3
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:27:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B0CD32071C
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:27:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 90FD52070E
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:27:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727786AbfKVI1E (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 03:27:04 -0500
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:4507 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727116AbfKVI1D (ORCPT
+        id S1727535AbfKVIZp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 03:25:45 -0500
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:60568 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727529AbfKVIZo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Nov 2019 03:27:03 -0500
-IronPort-SDR: WmE4YpRTIdKexfKlXc+xiQIxrcGVPaBsL0TL0yy1gxZmTsipzFQk/F3Zs/MbIeU7D14kXCFwwf
- UfNrLB7mzmxNIIp9rw5U4j2+cD8WCTWX4CE2vJBmRIzgujpp81XtqWqs2j638wTROzIsIAwUzO
- LX+Ic8XZhXQ/OPA2HvAPdwQ7f7entQ7/RMETJAK04wiLYRxlaXiy2TR2unQNeTxPduviOYu0rd
- 43O1em9ICCtS61Q3xw+Em2cIQnrx8nKmcGrqQn6MACm8PHWNfm0F1YRHQ1BFBam+XNlCiHT+zI
- FA4=
+        Fri, 22 Nov 2019 03:25:44 -0500
+IronPort-SDR: 6FKMhYuUEd7O25zaWCBe/YqzppFflF61uGsobbOuJqC7Cjup2dY8PwDG6B/ypUrDuOI5P72hSk
+ 0plPCMxTOlCZRC14HStuVRAc8lFABa6FbaPXJyluxV6lTreZHwEPfwB75oKfhfnNTBMdvmCTKp
+ nwlQ57OekxQeXik/QsrKSwAxC8+9nGGgfACGzLXedWicFSyycLB296e29hEZGtdwf8nnaZvLLH
+ Z8HDGyl5HHdHgw7Jb0Dzb3IcSonGbfOn7vwdz2kh8zJUc1KwZabgT20sNLyCMQS8a6WMYH7Yz9
+ yuY=
 X-IronPort-AV: E=Sophos;i="5.69,229,1571731200"; 
-   d="scan'208";a="43419521"
+   d="scan'208";a="45291148"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:27:03 -0800
-IronPort-SDR: 9l9ljm6lWSenEIbXSZW35AakmKv0BEFPwkciDkX2Oi0LFlamqYbVh8mT0/SuhefPHepGspJZED
- PyLAMqWK015XGGKSTkHMDmIOLffEyUMCeaLwVjhsy9cj7M8mZJdgtoncBGG3e7kS5NATtNUGA0
- pCOvGzLCyAhAbZNvAYsD1fpKVeuM2w1FD8b+pdZVSV5vxblQ6lfPU89mCu0ai8WK+R1dLvRVkl
- SrMHqS0PZ0F6M2ciVtoU7xNnLdd9CEonU7clAuP3HH6v9gaYOz9BytaXGEnoHDOJvogTEJUDEM
- whs=
+  by esa1.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:25:44 -0800
+IronPort-SDR: 8vcvcRxrs7iO1JAqq+x+sUhEE4gMRC1dNJN16YfYxcDEQJ8ULcjqZhNcpoOOEVDzBKgi2+JlII
+ 8n/Dzzf/VL8/VpP9Rhrlr/N5U6IUTc1kvPbeycGNp+2zNg9jwS1uABUzmKuK3bdMhOPJfkGThh
+ GPpyQjYjbsVb0yNhmCYP4JH1zt0P+vc8Vr+8kX44V5VUFBc0lP0PSoECgsTfRd4MgoLbVUeqJQ
+ kixQ/AcCJut5EZpoa1yM4HVgw8OwrVS5+28rQPzFDqN/O6AjSgQVJpsiEY19lAY5H5P0ty4ztH
+ UFo=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +41,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v6 48/48] Input: atmel_mxt_ts - Fix compilation warning
-Date:   Fri, 22 Nov 2019 17:24:02 +0900
-Message-ID: <20191122082402.18173-49-jiada_wang@mentor.com>
+Subject: [PATCH v6 27/48] Input: atmel_mxt_ts - orientation is not present in hover
+Date:   Fri, 22 Nov 2019 17:23:41 +0900
+Message-ID: <20191122082402.18173-28-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191122082402.18173-1-jiada_wang@mentor.com>
 References: <20191122082402.18173-1-jiada_wang@mentor.com>
@@ -53,27 +54,33 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-fix "make W=1" compilation warnings from Atmel driver
-as per the compilation logs.
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
+When in hover, the orientation information is not sent
+
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+(cherry picked from ndyer/linux/for-upstream commit 0c885d5bd276bd9240c43aa046fc407cbe2ae864)
+Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 243820b102b8..3e2697810cf0 100644
+index fc2f804e5293..de77079e3324 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2049,7 +2049,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data, struct mxt_cfg *cfg)
+@@ -1029,10 +1029,6 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
+ 			distance = MXT_DISTANCE_HOVERING;
+ 			hover = true;
+ 			active = true;
+-
+-			if (data->t100_aux_vect)
+-				orientation = message[data->t100_aux_vect];
+-
+ 			break;
  
- 			byte_offset = reg + i - cfg->start_ofs;
- 
--			if (byte_offset >= 0 && byte_offset < cfg->mem_size) {
-+			if (byte_offset < cfg->mem_size) {
- 				*(cfg->mem + byte_offset) = val;
- 			} else {
- 				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
+ 		case MXT_T100_TYPE_FINGER:
 -- 
 2.17.1
 

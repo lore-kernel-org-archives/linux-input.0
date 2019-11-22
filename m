@@ -4,35 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2ECC4C432C0
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEA76C432C0
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 12C5F20718
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 869A920717
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbfKVIYV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 03:24:21 -0500
-Received: from esa2.mentor.iphmx.com ([68.232.141.98]:52461 "EHLO
-        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725999AbfKVIYV (ORCPT
+        id S1727051AbfKVIYY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 03:24:24 -0500
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:60514 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725999AbfKVIYX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Nov 2019 03:24:21 -0500
-IronPort-SDR: SQIhX7JwH4BYZjXXm7jWcs47L8Lw6AKPwOcA3bL6bkSKxZOuRFSCGQZg5QbnsFYXWi/JLe5NtY
- UPoSvHvKIRKEa9Wu8Fof98yMAlG+7NiGIaAUHsxjT+DEoZSdyIDFbNI4wz5SfY/2T01e3VlPRZ
- MiyHHNh6R/3S56zdCFZWMIaAKInjFOYYDMdAiC7gVq3uywK5C1EDmo9aCmLq6rKnbLb5dyENFs
- YhdAszRSqCtBWnxn+0IpPfmvnvB1WABlp21Z5x6Ux/OUOooq2xrCZgocF/0y+bez/S48boWCxk
- ZNw=
+        Fri, 22 Nov 2019 03:24:23 -0500
+IronPort-SDR: FGnyb6Lp5OvJwp+osvKOpEuR/AyqWiS6oT4m0rrRoKc9MvwGIe8XkTXSfpKmlzacdnIdoN46CZ
+ VmuXEiWb0QuT7d5NfzCpyBEl5fpmOnctFObDXFcKiRXh42AqVOL6SJTvlZjvCsvev6YhXE3X33
+ y2uESeXnirpmhg/2cDDz2GiqS+2uAu2l3FnMGt1qnIgkus+K/ZuJurc6zqfnoN4U1eHCkTLBvW
+ 7axRJDLlpS75XOgGRzjeqUmXXxqYAdjavfB6gHExCOB5AEIgxCD/LLiz4/n4L9rNmGSUjVqNKk
+ eDs=
 X-IronPort-AV: E=Sophos;i="5.69,229,1571731200"; 
-   d="scan'208";a="43358888"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa2.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:24:20 -0800
-IronPort-SDR: XvyKyFn8UpO2pWmvMLeYvVcQbQH0VhQMgrbDOsMCblPh9PtRjvRO/mFSlBFZO0hdWa0qVZ7zwD
- vaA9Pwxu2c0M0IzVyPLkeIYvTrb5fWXTYSSNuIsT/qSi7TrCjT6f9OB+uUOO1wIaUL6kbzDZyw
- yoEDrxpQqZBZ0nPnxOH09H2WNFnzbCCyNYMg4aYt7llQ4Ab3qCFIFrltGwkeN/ajNOUjqVE17d
- exlc5RPufavfYq60N9nbBhasPIspyvE8t5oWSzIcSfKIvh7QaStgdazT+foqGJmHkGhW9MG4gl
- 0zI=
+   d="scan'208";a="45291094"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa1.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:24:13 -0800
+IronPort-SDR: C3IfEUvY298/qipBdKiy3UCbbacTOf9HA5yUlE8UT8TnSfRaMJ3Da68IIPbzY3sHROgIBrjvMy
+ 5qGYQGwsPBcaty00+milmYoYTRbqTbrtbScaszgf8fAXpvzTdn6+mqvAba8FNII40OplJBLBA4
+ PZTuE4HY78UsMNi/r/YGCkstszmA/hUlmsmR3HuyS7rKoGr94oNFcoapXxGaVwl26pIoKUJYMZ
+ NMJY/RlI5ZAnFByX649egjb/duirt8lR+9Z+1mcr3DIGWwu1jNNk2p/1r9QH2/p2Bdnr7KCZbW
+ tC0=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +41,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v6 04/48] Input: atmel_mxt_ts - split large i2c transfers into blocks
-Date:   Fri, 22 Nov 2019 17:23:18 +0900
-Message-ID: <20191122082402.18173-5-jiada_wang@mentor.com>
+Subject: [PATCH v6 02/48] Input: atmel_mxt_ts - rework sysfs init/remove
+Date:   Fri, 22 Nov 2019 17:23:16 +0900
+Message-ID: <20191122082402.18173-3-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191122082402.18173-1-jiada_wang@mentor.com>
 References: <20191122082402.18173-1-jiada_wang@mentor.com>
@@ -55,75 +56,163 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-On some firmware variants, the size of the info block exceeds what can
-be read in a single transfer.
+An error in the sysfs init may otherwise interfere with the async return
+from the firmware loader
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 74c4f5277cfa403d43fafc404119dc57a08677db)
-[gdavis: Forward port and fix conflicts due to v4.14.51 commit
-	 960fe000b1d3 ("Input: atmel_mxt_ts - fix the firmware
-	 update").]
+(cherry picked from ndyer/linux/for-upstream commit 3114584ae77c2b03b6dad87174f010d002e9c05d)
+[gdavis: Forward port and fixup conflicts. Also fixed sysfs leaks in
+	 both the mxt_initialize() and mxt_probe() error return cases.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Change mxt_read_blks() to __mxt_read_reg(), original __mxt_read_reg() to
-	__mxt_read_chunk()]
+[jiada: keep call mxt_initialize() before sysfs creation]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 28 +++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 64 +++++++++++++++++++-----
+ 1 file changed, 52 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ce5a069b62d4..9088b2d3266b 100644
+index 6e758af343ea..ffe8a80f4d0a 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -40,7 +40,7 @@
- #define MXT_OBJECT_START	0x07
- #define MXT_OBJECT_SIZE		6
- #define MXT_INFO_CHECKSUM_SIZE	3
--#define MXT_MAX_BLOCK_WRITE	256
-+#define MXT_MAX_BLOCK_WRITE	255
- 
- /* Object types */
- #define MXT_DEBUG_DIAGNOSTIC_T37	37
-@@ -624,8 +624,8 @@ static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
+@@ -2086,10 +2086,14 @@ static int mxt_initialize_input_device(struct mxt_data *data)
  	return 0;
+ 
+ err_free_mem:
++	data->input_dev = NULL;
+ 	input_free_device(input_dev);
+ 	return error;
  }
  
--static int __mxt_read_reg(struct i2c_client *client,
--			       u16 reg, u16 len, void *val)
-+static int __mxt_read_chunk(struct i2c_client *client,
-+			    u16 reg, u16 len, void *val)
- {
- 	struct i2c_msg xfer[2];
- 	u8 buf[2];
-@@ -659,6 +659,28 @@ static int __mxt_read_reg(struct i2c_client *client,
- 	return ret;
++static int mxt_sysfs_init(struct mxt_data *data);
++static void mxt_sysfs_remove(struct mxt_data *data);
++
+ static int mxt_configure_objects(struct mxt_data *data,
+ 				 const struct firmware *cfg);
+ 
+@@ -2141,16 +2145,24 @@ static int mxt_initialize(struct mxt_data *data)
+ 	if (error)
+ 		return error;
+ 
++	error = mxt_sysfs_init(data);
++	if (error)
++		return error;
++
+ 	error = request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
+ 					&client->dev, GFP_KERNEL, data,
+ 					mxt_config_cb);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
+ 			error);
+-		return error;
++		goto err_free_sysfs;
+ 	}
+ 
+ 	return 0;
++
++err_free_sysfs:
++	mxt_sysfs_remove(data);
++	return error;
  }
  
-+static int __mxt_read_reg(struct i2c_client *client,
-+			  u16 reg, u16 len, void *buf)
+ static int mxt_set_t7_power_cfg(struct mxt_data *data, u8 sleep)
+@@ -2803,6 +2815,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 		if (ret)
+ 			goto release_firmware;
+ 
++		mxt_sysfs_remove(data);
+ 		mxt_free_input_device(data);
+ 		mxt_free_object_table(data);
+ 	} else {
+@@ -2909,16 +2922,25 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	return count;
+ }
+ 
++static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
++
++static struct attribute *mxt_fw_attrs[] = {
++	&dev_attr_update_fw.attr,
++	NULL
++};
++
++static const struct attribute_group mxt_fw_attr_group = {
++	.attrs = mxt_fw_attrs,
++};
++
+ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+-static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+ 	&dev_attr_hw_version.attr,
+ 	&dev_attr_object.attr,
+-	&dev_attr_update_fw.attr,
+ 	NULL
+ };
+ 
+@@ -2926,6 +2948,28 @@ static const struct attribute_group mxt_attr_group = {
+ 	.attrs = mxt_attrs,
+ };
+ 
++static int mxt_sysfs_init(struct mxt_data *data)
 +{
-+	u16 offset = 0;
++	struct i2c_client *client = data->client;
 +	int error;
-+	u16 size;
 +
-+	while (offset < len) {
-+		size = min(MXT_MAX_BLOCK_WRITE, len - offset);
-+
-+		error = __mxt_read_chunk(client,
-+					 reg + offset,
-+					 size, buf + offset);
-+		if (error)
-+			return error;
-+
-+		offset += size;
++	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
++	if (error) {
++		dev_err(&client->dev, "Failure %d creating sysfs group\n",
++			error);
++		return error;
 +	}
 +
 +	return 0;
 +}
 +
- static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 			   const void *val)
++static void mxt_sysfs_remove(struct mxt_data *data)
++{
++	struct i2c_client *client = data->client;
++
++	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
++}
++
+ static void mxt_start(struct mxt_data *data)
  {
+ 	switch (data->suspend_mode) {
+@@ -3112,19 +3156,14 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (error)
+ 		return error;
+ 
+-	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
++	error = sysfs_create_group(&client->dev.kobj, &mxt_fw_attr_group);
+ 	if (error) {
+-		dev_err(&client->dev, "Failure %d creating sysfs group\n",
++		dev_err(&client->dev, "Failure %d creating fw sysfs group\n",
+ 			error);
+-		goto err_free_object;
++		return error;
+ 	}
+ 
+ 	return 0;
+-
+-err_free_object:
+-	mxt_free_input_device(data);
+-	mxt_free_object_table(data);
+-	return error;
+ }
+ 
+ static int mxt_remove(struct i2c_client *client)
+@@ -3132,7 +3171,8 @@ static int mxt_remove(struct i2c_client *client)
+ 	struct mxt_data *data = i2c_get_clientdata(client);
+ 
+ 	disable_irq(data->irq);
+-	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
++	sysfs_remove_group(&client->dev.kobj, &mxt_fw_attr_group);
++	mxt_sysfs_remove(data);
+ 	mxt_free_input_device(data);
+ 	mxt_free_object_table(data);
+ 
 -- 
 2.17.1
 

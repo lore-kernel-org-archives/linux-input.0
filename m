@@ -2,183 +2,120 @@ Return-Path: <SRS0=Zkgr=ZO=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75DC4C432C3
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 17:43:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29420C432C0
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 19:02:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2E57820674
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 17:43:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F189B2071B
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 19:02:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=flowbird.group header.i=@flowbird.group header.b="DeUEAA99"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JVGcKgS9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726638AbfKVRnw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 12:43:52 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:37374 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726666AbfKVRnw (ORCPT
+        id S1726747AbfKVTCN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 14:02:13 -0500
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:38077 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726062AbfKVTCN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Nov 2019 12:43:52 -0500
-Received: by mail-wr1-f68.google.com with SMTP id t1so9618087wrv.4
-        for <linux-input@vger.kernel.org>; Fri, 22 Nov 2019 09:43:50 -0800 (PST)
+        Fri, 22 Nov 2019 14:02:13 -0500
+Received: by mail-pj1-f65.google.com with SMTP id f7so3416108pjw.5;
+        Fri, 22 Nov 2019 11:02:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=flowbird.group; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=Jhs/tdQjYIEWTRcB0MrJAK0ricmoQz3oM5hnSS/G8Wo=;
-        b=DeUEAA999MCNj61UTE0yqunROn+JFWelJgFE8QESgDgghl2Ui7AFdQ4ar1Ai/aBBSH
-         WAQ9JlOFRHpfad/lAlBFS9CTicthJ0a5IAq5jl/iN5lU2THKfiBJKsD25qGoLr8RHS6K
-         2zhADrvh1tzWnzYUM7NU350i+Kxb3iAihmzza7MoGvyJzcWMDh04Qj5GADdjkxX9v8Bz
-         D5zqHU4t0Triv86UlrucEoeXluMnv0ujiTqoKfUzKQHQMZe8YRqbgvvWpPmfWGvv7/f9
-         RhhCwVXotRx9kxmdbVYWe43kk8DcR/bf/HQOjH37c/dr56vgFwBh3oEkTclNzUoxfVXz
-         7BVQ==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=rXO9cqEQmTofVcUIhUtd2eNJuGiff/iEv3zoqiv6qHo=;
+        b=JVGcKgS9V2ip/SRxOAk03Fht0RCY6Asf7kXy1KRaOcWczzcWUR9yBEdsrXVf1lOz6y
+         04H5Bq9Y20bNKdrti7DmVLKFnqaSwl9oNSyZgzRP/BRIH8fJrdidtavACPXt46uQjo/k
+         plm33ARALqvWtCTxKcktBDH+w4Tj4eHjlXnCpjcvpB7TW/hN1nybRlSy+2X2IThkczQl
+         0+xdWthH+823/yFLAnzV26AG0BiBQIiKhddpUZ6Pk0CpzCXGnkRx+eRPb9TD42c4pPzE
+         mFO9GWvyz9dCkAfdJ2oNp5u2HVvg1XtAgxXQ7MQbEZNAu6g9nYLy0vNyyOebfD0r8txr
+         olQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=Jhs/tdQjYIEWTRcB0MrJAK0ricmoQz3oM5hnSS/G8Wo=;
-        b=fgjezRTgBZ2KaGLxvYQBLULfr2fi7UnLbANHX6sQFsv1xOYamRVrEza9gABr0KOyED
-         IyESy/zMr2CmSJYWtqPAOayXGEL8DyA17uWAJlJaLOoxzFDMHos2LkuWt2H3ug7WkJzr
-         sJmRs4wHoGFWCj/BMziCED2BU3v5uzc/yJk5APmDam5kWqEMIAWLqkydaPWmQVAtaxal
-         I+SEsHSK6zts/yPHqbKLTigqr3ZtGbH0f9cM35lK25Pvxz0B6ybFSNrBfTfp43Glr9xD
-         EbGj1p31w1pVK+2A8uidWWbimDcAvsSLJkN+e+o0Q0WP3x1T39k0zsj+4gFpiAfHVsnN
-         2wxg==
-X-Gm-Message-State: APjAAAVJE8jeJuchG3zY5eMTJGK1t53dz5eo8f4yXUTGFR+mcI5132bm
-        FXXQXAzTnlDLc1yV7hnZdPHRWw==
-X-Google-Smtp-Source: APXvYqxxk9S8do51zGWUu4tC45fKtPKiwgqbw8KXvXwcwCl5HBK9lKgKuSNJfyc3xQ7DBnfLi+aznQ==
-X-Received: by 2002:adf:e545:: with SMTP id z5mr18581366wrm.321.1574444630111;
-        Fri, 22 Nov 2019 09:43:50 -0800 (PST)
-Received: from [10.32.50.232] ([185.149.63.251])
-        by smtp.gmail.com with ESMTPSA id a6sm9096597wrh.69.2019.11.22.09.43.49
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 22 Nov 2019 09:43:49 -0800 (PST)
-Subject: Re: [PATCHv1 2/2] Input: EXC3000: Add support to query model and
- fw_version
-To:     Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ahmet Inan <inan@distec.de>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel@collabora.com
-References: <20191107181010.17211-1-sebastian.reichel@collabora.com>
- <20191107181010.17211-2-sebastian.reichel@collabora.com>
-From:   Martin Fuzzey <martin.fuzzey@flowbird.group>
-Message-ID: <4ee3ce4f-f544-700c-bc8d-817cea35137a@flowbird.group>
-Date:   Fri, 22 Nov 2019 18:43:48 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=rXO9cqEQmTofVcUIhUtd2eNJuGiff/iEv3zoqiv6qHo=;
+        b=mmUEmaTvCuiIGMoHPL1onbj/rPdTHVZ3ggurD3A0mGF5vbM20pXnnH+WFp3SqxlEUi
+         eyqV2PvWWqobdPOXvqMwvjn7t+SEz5KnkBIts0RcQonB9GkRxDfC2xAVwri9QhAWMyzY
+         gXVbeSAmK15j4ZRdKRj8zYkrq2zSc3MI7qc3ouEeVoaZMgEdPE11XH0+IzzK6f4vHuvG
+         6WR0pCGkPZtwFA7RzTSU2rqPPLjgDYTv0xWrpoxHIma/vpOxtbY3JfMZqHjMTfryZmGm
+         sgnjZOfvNiFJy+X2ZL8+D9Tosv2pizZUkBTMjvlQMs56UNoebFW16AlXILstpeuUUCk1
+         bfXg==
+X-Gm-Message-State: APjAAAU8RIMVPWWezy+OZe5xgrqruWC+1R5fVo5Ci5YL5J+olFS8EIjP
+        Cz2Aiwj5rubGqU68SlxeADY=
+X-Google-Smtp-Source: APXvYqxmIeXmYqTAGH5G6KIOCDjlzWl389mvrK8MD9R9K8eUmje6qYAJBh9w3bdvna6APckPqBIq8w==
+X-Received: by 2002:a17:90a:db43:: with SMTP id u3mr21080194pjx.56.1574449332145;
+        Fri, 22 Nov 2019 11:02:12 -0800 (PST)
+Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
+        by smtp.gmail.com with ESMTPSA id l21sm3554290pjt.28.2019.11.22.11.02.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Nov 2019 11:02:11 -0800 (PST)
+Date:   Fri, 22 Nov 2019 11:02:08 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Navid Emamdoost <navid.emamdoost@gmail.com>
+Cc:     Kate Stewart <kstewart@linuxfoundation.org>,
+        Richard Fontana <rfontana@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Allison Randal <allison@lohutok.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        emamd001@umn.edu
+Subject: Re: [PATCH] Input: Fix memory leak in psxpad_spi_probe
+Message-ID: <20191122190208.GA248138@dtor-ws>
+References: <20191121200115.24846-1-navid.emamdoost@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20191107181010.17211-2-sebastian.reichel@collabora.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: fr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191121200115.24846-1-navid.emamdoost@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Sebastian,
+Hi Navid,
 
-On 07/11/2019 19:10, Sebastian Reichel wrote:
-> Expose model and fw_version via sysfs. Also query the model
-> in probe to make sure, that the I2C communication with the
-> device works before successfully probing the driver.
->
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+On Thu, Nov 21, 2019 at 02:01:11PM -0600, Navid Emamdoost wrote:
+> In the implementation of psxpad_spi_probe() the allocated memory for
+> pdev is leaked if psxpad_spi_init_ff() or input_register_polled_device()
+> fail. The solution is using device managed allocation, like the one used
+> for pad. Perform the allocation using
+> devm_input_allocate_polled_device().
+> 
+> Fixes: 8be193c7b1f4 ("Input: add support for PlayStation 1/2 joypads connected via SPI")
+> Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+
+This is fixed in the current version of the driver, but you can send it
+to stable@gerkernel.orf with my
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
 > ---
->   drivers/input/touchscreen/exc3000.c | 136 ++++++++++++++++++++++++++++
->   1 file changed, 136 insertions(+)
->
-> diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
-> index 7d695022082c..4c9f132629b9 100644
-> --- a/drivers/input/touchscreen/exc3000.c
-> +++ b/drivers/input/touchscreen/exc3000.c
-> @@ -41,6 +41,11 @@ struct exc3000_data {
->   	struct touchscreen_properties prop;
->   	struct timer_list timer;
->   	u8 buf[2 * EXC3000_LEN_FRAME];
-> +	char model[11];
-> +	char fw_version[6];
+>  drivers/input/joystick/psxpad-spi.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/joystick/psxpad-spi.c b/drivers/input/joystick/psxpad-spi.c
+> index 7eee1b0e360f..99a6052500ca 100644
+> --- a/drivers/input/joystick/psxpad-spi.c
+> +++ b/drivers/input/joystick/psxpad-spi.c
+> @@ -292,7 +292,7 @@ static int psxpad_spi_probe(struct spi_device *spi)
+>  	if (!pad)
+>  		return -ENOMEM;
+>  
+> -	pdev = input_allocate_polled_device();
+> +	pdev = devm_input_allocate_polled_device(&spi->dev);
+>  	if (!pdev) {
+>  		dev_err(&spi->dev, "failed to allocate input device\n");
+>  		return -ENOMEM;
+> -- 
+> 2.17.1
+> 
 
-These buffers are too small.
-
-I know those are the values shown in the EETI "I2C Programming Guide" 
-but, on my exc80H32 I have 16 bytes for the model and 14 for the fw_version.
-
-It may even be possible to have larger, depends on the firmware / config 
-blob that has been loaded.
-
-The guide seems to be mostly an example. As nothing else is sent in the 
-reply message, worst case the full frame would be filled.
-
-
->   
-> +static void exc3000_query_interrupt(struct exc3000_data *data)
-> +{
-> +	u8 *buf = data->buf;
-> +	int err;
-> +
-> +	data->query_result = 0;
-> +
-> +	err = i2c_master_recv(data->client, buf, EXC3000_LEN_FRAME);
-> +	if (err < 0) {
-> +		data->query_result = err;
-> +		goto out;
-> +	}
-> +
-> +	if (buf[0] == 0x42 && buf[4] == 'E') {
-> +		memcpy(data->model, buf+5, 10);
-> +		data->model[10] = '\0';
-
-Maybe use sizeof() to avoid the hard coded 10?
-
-> +		goto out;
-> +	} else if (buf[0] == 0x42 && buf[4] == 'D') {
-> +		memcpy(data->fw_version, buf+5, 5);
-> +		data->fw_version[5] = '\0';
-> +		goto out;
-> +	}
-> +
-
-
-Ok so at least there won't be a buffer overflow but it will truncate.
-
-
-> +static DEVICE_ATTR(fw_version, S_IRUGO, exc3000_get_fw_version, NULL);
-> +
-
-
-Maybe use DEVICE_ATTR_RO  to reduce the amount of boilerplate?
-
-
-> +	input->dev.groups = exc3000_attribute_groups;
-
-
-Hum, this adds the attributes to the input device (in /sys/class/input) 
-but these attributes are really for the whole I2C device.
-
-Wouldn't it be better to use devm_device_add_group() to add them to the 
-I2C device?
-
-
-> +	for (retry = 0; retry < 3; ++retry) {
-> +		error = exc3000_get_model(data);
-> +		if (!error) {
-> +			break;
-> +		}
-> +		dev_warn(&client->dev, "Retry %d get EETI EXC3000 model: %d\n", retry + 1, error);
-> +	}
-> +
-
-
-Is there a particular reason why retries are needed?
-
-
-Regards,
-
-
-Martin
-
+-- 
+Dmitry

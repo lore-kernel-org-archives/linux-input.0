@@ -4,36 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEA76C432C0
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19402C432C0
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 869A920717
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4C0120672
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727051AbfKVIYY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 03:24:24 -0500
-Received: from esa1.mentor.iphmx.com ([68.232.129.153]:60514 "EHLO
-        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725999AbfKVIYX (ORCPT
+        id S1727158AbfKVIYg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 03:24:36 -0500
+Received: from esa4.mentor.iphmx.com ([68.232.137.252]:4441 "EHLO
+        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725999AbfKVIYf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Nov 2019 03:24:23 -0500
-IronPort-SDR: FGnyb6Lp5OvJwp+osvKOpEuR/AyqWiS6oT4m0rrRoKc9MvwGIe8XkTXSfpKmlzacdnIdoN46CZ
- VmuXEiWb0QuT7d5NfzCpyBEl5fpmOnctFObDXFcKiRXh42AqVOL6SJTvlZjvCsvev6YhXE3X33
- y2uESeXnirpmhg/2cDDz2GiqS+2uAu2l3FnMGt1qnIgkus+K/ZuJurc6zqfnoN4U1eHCkTLBvW
- 7axRJDLlpS75XOgGRzjeqUmXXxqYAdjavfB6gHExCOB5AEIgxCD/LLiz4/n4L9rNmGSUjVqNKk
- eDs=
+        Fri, 22 Nov 2019 03:24:35 -0500
+IronPort-SDR: tdpnniA2kz07zUJnoAD6QhKwO8mRKQx2BlJdK884m8PqiptUriJ1N5sOQiObmetbvCwYRiUUHL
+ Pny+RNcp5GYyMx1ftNXMQ/nKjfCv3bxb+JKDZrb9xNGDKmObXvePxpZBtYxM7nUqZuj8Ano5dl
+ /ULF/nsduCjmQp8SOsRzD9ZdIwCTxPGzBgzh56ZtOa8UqqTIC5O2CxaRo8SuiI/SZd04xZtBPn
+ UX9MbW0N+xdX2yuEQLkqUjEONlXB9ZM5AyJ9I4YO0ibdVsCI0zUsKG28/ZwpZwk682IZQjcJHr
+ uo8=
 X-IronPort-AV: E=Sophos;i="5.69,229,1571731200"; 
-   d="scan'208";a="45291094"
+   d="scan'208";a="43457556"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa1.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:24:13 -0800
-IronPort-SDR: C3IfEUvY298/qipBdKiy3UCbbacTOf9HA5yUlE8UT8TnSfRaMJ3Da68IIPbzY3sHROgIBrjvMy
- 5qGYQGwsPBcaty00+milmYoYTRbqTbrtbScaszgf8fAXpvzTdn6+mqvAba8FNII40OplJBLBA4
- PZTuE4HY78UsMNi/r/YGCkstszmA/hUlmsmR3HuyS7rKoGr94oNFcoapXxGaVwl26pIoKUJYMZ
- NMJY/RlI5ZAnFByX649egjb/duirt8lR+9Z+1mcr3DIGWwu1jNNk2p/1r9QH2/p2Bdnr7KCZbW
- tC0=
+  by esa4.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:24:34 -0800
+IronPort-SDR: tDcnMsOUugxqnaL7O+C8fZ0Yxmcp85JaaB0dbbiStgpff87Lwiu/QuOaUlTP08dwbCOWImWh4v
+ LBTc2tLuFu5LlBrHntRYXE11LcViFP04YTx64yLCOdD7S2vBSlUpeN8DNb9AcGMfVQ3AG/pptz
+ YQ4rcfINWK1Lh1nc4GxZNBJPVxzQJRMJUa6pQghe6ugBshnQwmvpyAPFx5CeWY2of1Hq0G0mRk
+ DaOUK/3HvsUih6JSpEeF4w7KpvIbz3iIg36m2/JsgjPqxqOpA1We/Szh1sNGWM4fO7+Z9gnuoZ
+ hYA=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -41,9 +40,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v6 02/48] Input: atmel_mxt_ts - rework sysfs init/remove
-Date:   Fri, 22 Nov 2019 17:23:16 +0900
-Message-ID: <20191122082402.18173-3-jiada_wang@mentor.com>
+Subject: [PATCH v6 08/48] Input: atmel_mxt_ts - implement T15 Key Array support
+Date:   Fri, 22 Nov 2019 17:23:22 +0900
+Message-ID: <20191122082402.18173-9-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191122082402.18173-1-jiada_wang@mentor.com>
 References: <20191122082402.18173-1-jiada_wang@mentor.com>
@@ -56,162 +55,184 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-An error in the sysfs init may otherwise interfere with the async return
-from the firmware loader
+There is a key array object in many maXTouch chips which allows some X/Y
+lines to be used as a key array. This patch maps them to a series of keys
+which may be configured in a platform data array.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 3114584ae77c2b03b6dad87174f010d002e9c05d)
-[gdavis: Forward port and fixup conflicts. Also fixed sysfs leaks in
-	 both the mxt_initialize() and mxt_probe() error return cases.]
+Acked-by: Benson Leung <bleung@chromium.org>
+Acked-by: Yufeng Shen <miletus@chromium.org>
+(cherry picked from ndyer/linux/for-upstream commit 15bb074b5abf3a101f7b79544213f1c110ea4cab)
+[gdavis: Resolve forward port conflicts due to applying upstream
+	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
+	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: keep call mxt_initialize() before sysfs creation]
+[jiada: Fix compilation warning]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 64 +++++++++++++++++++-----
- 1 file changed, 52 insertions(+), 12 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 85 ++++++++++++++++++++++++
+ 1 file changed, 85 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 6e758af343ea..ffe8a80f4d0a 100644
+index 405bff1c2055..2df3104e94b9 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2086,10 +2086,14 @@ static int mxt_initialize_input_device(struct mxt_data *data)
- 	return 0;
+@@ -314,6 +314,9 @@ struct mxt_data {
+ 	struct mxt_dbg dbg;
+ 	struct gpio_desc *reset_gpio;
+ 	bool use_retrigen_workaround;
++	unsigned long t15_keystatus;
++	int t15_num_keys;
++	const unsigned int *t15_keymap;
  
- err_free_mem:
-+	data->input_dev = NULL;
- 	input_free_device(input_dev);
- 	return error;
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -324,6 +327,8 @@ struct mxt_data {
+ 	u16 T71_address;
+ 	u8 T9_reportid_min;
+ 	u8 T9_reportid_max;
++	u8 T15_reportid_min;
++	u8 T15_reportid_max;
+ 	u16 T18_address;
+ 	u8 T19_reportid;
+ 	u8 T42_reportid_min;
+@@ -987,6 +992,38 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
+ 	data->update_input = true;
  }
  
-+static int mxt_sysfs_init(struct mxt_data *data);
-+static void mxt_sysfs_remove(struct mxt_data *data);
-+
- static int mxt_configure_objects(struct mxt_data *data,
- 				 const struct firmware *cfg);
- 
-@@ -2141,16 +2145,24 @@ static int mxt_initialize(struct mxt_data *data)
- 	if (error)
- 		return error;
- 
-+	error = mxt_sysfs_init(data);
-+	if (error)
-+		return error;
-+
- 	error = request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
- 					&client->dev, GFP_KERNEL, data,
- 					mxt_config_cb);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
- 			error);
--		return error;
-+		goto err_free_sysfs;
- 	}
- 
- 	return 0;
-+
-+err_free_sysfs:
-+	mxt_sysfs_remove(data);
-+	return error;
- }
- 
- static int mxt_set_t7_power_cfg(struct mxt_data *data, u8 sleep)
-@@ -2803,6 +2815,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 		if (ret)
- 			goto release_firmware;
- 
-+		mxt_sysfs_remove(data);
- 		mxt_free_input_device(data);
- 		mxt_free_object_table(data);
- 	} else {
-@@ -2909,16 +2922,25 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 	return count;
- }
- 
-+static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
-+
-+static struct attribute *mxt_fw_attrs[] = {
-+	&dev_attr_update_fw.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group mxt_fw_attr_group = {
-+	.attrs = mxt_fw_attrs,
-+};
-+
- static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
- static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
- static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
--static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
- 
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
- 	&dev_attr_hw_version.attr,
- 	&dev_attr_object.attr,
--	&dev_attr_update_fw.attr,
- 	NULL
- };
- 
-@@ -2926,6 +2948,28 @@ static const struct attribute_group mxt_attr_group = {
- 	.attrs = mxt_attrs,
- };
- 
-+static int mxt_sysfs_init(struct mxt_data *data)
++static void mxt_proc_t15_messages(struct mxt_data *data, u8 *msg)
 +{
-+	struct i2c_client *client = data->client;
-+	int error;
++	struct input_dev *input_dev = data->input_dev;
++	struct device *dev = &data->client->dev;
++	int key;
++	bool curr_state, new_state;
++	bool sync = false;
++	unsigned long keystates = le32_to_cpu((__force __le32)msg[2]);
 +
-+	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
-+	if (error) {
-+		dev_err(&client->dev, "Failure %d creating sysfs group\n",
-+			error);
-+		return error;
++	for (key = 0; key < data->t15_num_keys; key++) {
++		curr_state = test_bit(key, &data->t15_keystatus);
++		new_state = test_bit(key, &keystates);
++
++		if (!curr_state && new_state) {
++			dev_dbg(dev, "T15 key press: %u\n", key);
++			__set_bit(key, &data->t15_keystatus);
++			input_event(input_dev, EV_KEY,
++				    data->t15_keymap[key], 1);
++			sync = true;
++		} else if (curr_state && !new_state) {
++			dev_dbg(dev, "T15 key release: %u\n", key);
++			__clear_bit(key, &data->t15_keystatus);
++			input_event(input_dev, EV_KEY,
++				    data->t15_keymap[key], 0);
++			sync = true;
++		}
 +	}
 +
-+	return 0;
++	if (sync)
++		input_sync(input_dev);
 +}
 +
-+static void mxt_sysfs_remove(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+
-+	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
-+}
-+
- static void mxt_start(struct mxt_data *data)
+ static void mxt_proc_t42_messages(struct mxt_data *data, u8 *msg)
  {
- 	switch (data->suspend_mode) {
-@@ -3112,19 +3156,14 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (error)
- 		return error;
+ 	struct device *dev = &data->client->dev;
+@@ -1045,6 +1082,9 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id == data->T19_reportid) {
+ 		mxt_input_button(data, message);
+ 		data->update_input = true;
++	} else if (report_id >= data->T15_reportid_min
++		   && report_id <= data->T15_reportid_max) {
++		mxt_proc_t15_messages(data, message);
+ 	} else {
+ 		mxt_dump_message(data, message);
+ 	}
+@@ -1706,6 +1746,8 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	data->T71_address = 0;
+ 	data->T9_reportid_min = 0;
+ 	data->T9_reportid_max = 0;
++	data->T15_reportid_min = 0;
++	data->T15_reportid_max = 0;
+ 	data->T18_address = 0;
+ 	data->T19_reportid = 0;
+ 	data->T42_reportid_min = 0;
+@@ -1784,6 +1826,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 						object->num_report_ids - 1;
+ 			data->num_touchids = object->num_report_ids;
+ 			break;
++		case MXT_TOUCH_KEYARRAY_T15:
++			data->T15_reportid_min = min_id;
++			data->T15_reportid_max = max_id;
++			break;
+ 		case MXT_SPT_COMMSCONFIG_T18:
+ 			data->T18_address = object->start_address;
+ 			break;
+@@ -2077,6 +2123,7 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	int error;
+ 	unsigned int num_mt_slots;
+ 	unsigned int mt_flags = 0;
++	int i;
  
--	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
-+	error = sysfs_create_group(&client->dev.kobj, &mxt_fw_attr_group);
- 	if (error) {
--		dev_err(&client->dev, "Failure %d creating sysfs group\n",
-+		dev_err(&client->dev, "Failure %d creating fw sysfs group\n",
- 			error);
--		goto err_free_object;
-+		return error;
+ 	switch (data->multitouch) {
+ 	case MXT_TOUCH_MULTI_T9:
+@@ -2190,6 +2237,15 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 				     0, 255, 0, 0);
  	}
  
++	/* For T15 Key Array */
++	if (data->T15_reportid_min) {
++		data->t15_keystatus = 0;
++
++		for (i = 0; i < data->t15_num_keys; i++)
++			input_set_capability(input_dev, EV_KEY,
++					data->t15_keymap[i]);
++	}
++
+ 	input_set_drvdata(input_dev, data);
+ 
+ 	error = input_register_device(input_dev);
+@@ -3148,8 +3204,10 @@ static void mxt_input_close(struct input_dev *dev)
+ static int mxt_parse_device_properties(struct mxt_data *data)
+ {
+ 	static const char keymap_property[] = "linux,gpio-keymap";
++	static const char buttons_property[] = "atmel,key-buttons";
+ 	struct device *dev = &data->client->dev;
+ 	u32 *keymap;
++	u32 *buttonmap;
+ 	int n_keys;
+ 	int error;
+ 
+@@ -3179,6 +3237,33 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+ 		data->t19_num_keys = n_keys;
+ 	}
+ 
++	if (device_property_present(dev, buttons_property)) {
++		n_keys = device_property_read_u32_array(dev, buttons_property,
++							NULL, 0);
++		if (n_keys <= 0) {
++			error = n_keys < 0 ? n_keys : -EINVAL;
++			dev_err(dev, "invalid/malformed '%s' property: %d\n",
++				buttons_property, error);
++			return error;
++		}
++
++		buttonmap = devm_kmalloc_array(dev, n_keys, sizeof(*buttonmap),
++					       GFP_KERNEL);
++		if (!buttonmap)
++			return -ENOMEM;
++
++		error = device_property_read_u32_array(dev, buttons_property,
++						       buttonmap, n_keys);
++		if (error) {
++			dev_err(dev, "failed to parse '%s' property: %d\n",
++				buttons_property, error);
++			return error;
++		}
++
++		data->t15_keymap = buttonmap;
++		data->t15_num_keys = n_keys;
++	}
++
  	return 0;
--
--err_free_object:
--	mxt_free_input_device(data);
--	mxt_free_object_table(data);
--	return error;
  }
- 
- static int mxt_remove(struct i2c_client *client)
-@@ -3132,7 +3171,8 @@ static int mxt_remove(struct i2c_client *client)
- 	struct mxt_data *data = i2c_get_clientdata(client);
- 
- 	disable_irq(data->irq);
--	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
-+	sysfs_remove_group(&client->dev.kobj, &mxt_fw_attr_group);
-+	mxt_sysfs_remove(data);
- 	mxt_free_input_device(data);
- 	mxt_free_object_table(data);
  
 -- 
 2.17.1

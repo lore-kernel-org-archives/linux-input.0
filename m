@@ -2,93 +2,219 @@ Return-Path: <SRS0=Zkgr=ZO=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEA91C432C3
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:30:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D97EC432C0
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ABAAA2070A
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:30:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1574404241;
-	bh=lYgW7XNs/bbUDwrVycp3txPbcFxD4o6rSDmCKbDXXEo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=kYJVqcolsHhndFedH7MvidG+zG4WeFurH6Pe+OL0CY9KvlAjO/luIa63pH2gSNzxU
-	 tD5vU4CLiGv9f2jL/RzD+c5u6kzZMpUXYo9IjsxpxD8wqRfHAouEG6xdhA/JXp+KuT
-	 kvhhqbEIoe+p/96SqSf61LG5HzVZDmHw339CrXKE=
+	by mail.kernel.org (Postfix) with ESMTP id E141220672
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728035AbfKVGaf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 01:30:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53664 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727091AbfKVFtd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:49:33 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6FCB2070B;
-        Fri, 22 Nov 2019 05:49:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401772;
-        bh=lYgW7XNs/bbUDwrVycp3txPbcFxD4o6rSDmCKbDXXEo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3DkW109RdRE3mnfzsp90aCyCy+NCy1jp7FJGPzS8w8UGPa7WIE1bEK8MlmsaoNjO
-         +T7PG5x3eaOqiTTB350dK8lbLJIO63AnuA7mvyX6bDyJ2/uZpu1h45xYPNBPJf+WMt
-         ENObN3BXm6xFSZ0erpRkUrRYLefuKnpUBuxf+2PE=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        linux-parisc@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 022/219] parisc: Fix serio address output
-Date:   Fri, 22 Nov 2019 00:45:54 -0500
-Message-Id: <20191122054911.1750-15-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
-References: <20191122054911.1750-1-sashal@kernel.org>
+        id S1726500AbfKVIYH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 03:24:07 -0500
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:52454 "EHLO
+        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725999AbfKVIYH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 22 Nov 2019 03:24:07 -0500
+IronPort-SDR: SUcOU6aUObpxoaLaJLnjyT3vatGLBCm6tFY0Nx1ZZYoYE31k/4AXA8/UEs5FplGmGWtF6yW4Zo
+ H1MbN9sjk/Xc7S1a9NInSYB0pWMamh3fsorYmpZmoML/xSj0rUT5rpDEZtVgbmaqCCuI2IgfBK
+ wlasOEj+Kl47s2DDZiIxPRDEae9NsLKe9EqjBoSKJk9OGGM3wW9+HQM0CjKKzguShMsgOut/60
+ tgDO0lYZCNxODyrV7Lxhhb4wwG3KmKD9PkZmD6ZPZ/KJTB021G4qbIvUMOkk30A8BUMFeNOLmk
+ xhE=
+X-IronPort-AV: E=Sophos;i="5.69,229,1571731200"; 
+   d="scan'208";a="43358877"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa2.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:24:06 -0800
+IronPort-SDR: mQ3OUjG+DEPUT0ZsCjj9ZsTimaRlX03xP8cr0pwYRuF+I+cMSkypv7ltJYgNJzFAWGWAXnrw2F
+ NtxXzYMNuWjGT+gC4vr4tsOpaf4o9oPf0xhkqGkwVDjpi3DJ2G99OD0DZLAHbiAkkeURS7Vc2I
+ thEPSD0QqPG+wPqPahtzuiqHnky8BC8o0koc6vYkwXtkQK7GHGg8+vk5NBR9H6vN1lOEzu5ldq
+ NcC0v8vLH7BU7a2DcRErEz6SYTdVlcRIaTob/kxjaxAgpAyFcdNF0/CdtEJFo7OzTLb43JRVIE
+ bTg=
+From:   Jiada Wang <jiada_wang@mentor.com>
+To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
+        <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
+        <nick@shmanahar.org>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
+        <jiada_wang@mentor.com>
+Subject: [PATCH v6 00/48] atmel_mxt_ts misc
+Date:   Fri, 22 Nov 2019 17:23:14 +0900
+Message-ID: <20191122082402.18173-1-jiada_wang@mentor.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+This patch-set forward ports Nick Dyer's work in ndyer/linux github repository
+as long as some other features and fixes
 
-[ Upstream commit 785145171d17af2554128becd6a7c8f89e101141 ]
+Balasubramani Vivekanandan (2):
+  Input: atmel_mxt_ts: Limit the max bytes transferred in an i2c
+    transaction
+  Input: atmel_mxt_ts: use gpiod_set_value_cansleep for reset pin
 
-We want the hpa addresses printed in the serio modules, not some
-virtual ioremap()ed address, e.g.:
+Dean Jenkins (1):
+  Input: atmel_mxt_ts: return error from
+    mxt_process_messages_until_invalid()
 
- serio: gsc-ps2-keyboard port at 0xf0108000 irq 22 @ 2:0:11
- serio: gsc-ps2-mouse port at 0xf0108100 irq 22 @ 2:0:12
+Deepak Das (6):
+  Input: Atmel: improve error handling in mxt_start()
+  Input: Atmel: improve error handling in mxt_initialize()
+  Input: Atmel: improve error handling in mxt_update_cfg()
+  Input: Atmel: Improve error handling in mxt_initialize_input_device()
+  Input: Atmel: handle ReportID "0x00" while processing T5 messages
+  Input: Atmel: use T44 object to process T5 messages
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+George G. Davis (1):
+  input: atmel_mxt_ts: export GPIO reset line via sysfs
+
+Jiada Wang (3):
+  Input: introduce input_mt_report_slot_inactive
+  Input: atmel_mxt_ts - eliminate data->raw_info_block
+  Input: atmel_mxt_ts - Fix compilation warning
+
+Karl Tsou (1):
+  Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msgs
+
+Kautuk Consul (2):
+  Input: atmel_mxt_ts - Change call-points of mxt_free_* functions
+  Input: atmel_mxt_ts - rely on calculated_crc rather than file
+    config_crc
+
+Naveen Chakka (2):
+  input: touchscreen: atmel_mxt_ts: Added sysfs entry for touchscreen
+    status
+  input: atmel_mxt_ts: added sysfs interface to update atmel T38 data
+
+Nick Dyer (26):
+  Input: atmel_mxt_ts - rework sysfs init/remove
+  Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when
+    necessary
+  Input: atmel_mxt_ts - split large i2c transfers into blocks
+  Input: atmel_mxt_ts - output status from T48 Noise Supression
+  Input: atmel_mxt_ts - output status from T42 Touch Suppression
+  Input: atmel_mxt_ts - implement T9 vector/orientation support
+  Input: atmel_mxt_ts - implement T15 Key Array support
+  Input: atmel_mxt_ts - handle reports from T47 Stylus object
+  Input: atmel_mxt_ts - implement support for T107 active stylus
+  Input: atmel_mxt_ts - release touch state during suspend
+  Input: atmel_mxt_ts - add regulator control support
+  Input: atmel_mxt_ts - report failures in suspend/resume
+  Input: atmel_mxt_ts - allow specification of firmware file name
+  Input: atmel_mxt_ts - handle cfg filename via pdata/sysfs
+  Input: atmel_mxt_ts - allow input name to be specified in platform
+    data
+  Input: atmel_mxt_ts - refactor firmware flash to extract context into
+    struct
+  Input: atmel_mxt_ts - refactor code to enter bootloader into separate
+    func
+  Input: atmel_mxt_ts - combine bootloader version query with probe
+  Input: atmel_mxt_ts - improve bootloader state machine handling
+  Input: atmel_mxt_ts - rename bl_completion to chg_completion
+  Input: atmel_mxt_ts - make bootloader interrupt driven
+  Input: atmel_mxt_ts - delay enabling IRQ when not using regulators
+  Input: atmel_mxt_ts - implement I2C retries
+  Input: atmel_mxt_ts - orientation is not present in hover
+  Input: atmel_mxt_ts - implement debug output for messages
+  Input: atmel_mxt_ts - implement improved debug message interface
+
+Nikhil Ravindran (1):
+  Input: atmel_mxt_ts: Add support for run self-test routine.
+
+Sanjeev Chugh (1):
+  Input: atmel_mxt_ts: Implement synchronization during various
+    operation
+
+karl tsou (1):
+  Input: atmel_mxt_ts - add config checksum attribute to sysfs
+
+keerthikumarp (1):
+  input: atmel_mxt_ts: Add Missing Delay for reset handling of Atmel
+    touch panel controller in detachable displays.
+
 ---
- drivers/input/serio/gscps2.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+v6:
+Fix issue in commit ("Input: introduce input_mt_report_slot_inactive")
+reported by kernel test robot
 
-diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
-index 49d8d53e50b7b..96f9b5397367f 100644
---- a/drivers/input/serio/gscps2.c
-+++ b/drivers/input/serio/gscps2.c
-@@ -381,9 +381,9 @@ static int __init gscps2_probe(struct parisc_device *dev)
- 		goto fail;
- #endif
- 
--	printk(KERN_INFO "serio: %s port at 0x%p irq %d @ %s\n",
-+	pr_info("serio: %s port at 0x%08lx irq %d @ %s\n",
- 		ps2port->port->name,
--		ps2port->addr,
-+		hpa,
- 		ps2port->padev->irq,
- 		ps2port->port->phys);
- 
+v5:
+Following commits have been updated to address warnings & errors
+reported by kbuild test robot 
+Input: atmel_mxt_ts - make bootloader interrupt driven
+Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msgs
+
+Following commit has been updated
+Input: introduce input_mt_report_slot_inactive
+
+v4:
+Following commit in v3 patch-set has been removed
+Input: switch to use return value of input_mt_report_slot_state
+
+Following commit has been updated to address checkpatch warning
+Input: atmel_mxt_ts: Implement synchronization during various operation
+
+v3:
+Following commits have been updated compared to v2 patchset
+Input: atmel_mxt_ts - implement debug output for messages
+- added inline comment
+Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msg
+- changed dev_info() to dev_dbg()
+
+v2:
+Following commit in v1 patchset has been split into two commits
+Input: introduce input_mt_report_slot_inactive
+
+Following commits have been updated compared to v1 patchset
+Input: atmel_mxt_ts - split large i2c transfers into blocks
+Input: atmel_mxt_ts - output status from T42 Touch Suppression
+
+Following commits in v1 patchset have been squashed
+Input: touchscreen: Atmel: Add device tree support for T15 key array objects
+Input: atmel_mxt_ts - check data->input_dev is not null in mxt_input_sync()
+Input: atmel_mxt_ts - check firmware format before entering bootloader
+Input: atmel_mxt_ts: update stale use_retrigen_workaround flag
+input: atmel_mxt_ts: move bootloader probe from mxt_initialize()
+input: Atmel: limit the max bytes transferred while reading T5 messages
+Input: atmel_mxt_ts: Use msecs_to_jiffies() instead of HZ
+Input: atmel_mxt_ts: Use complete when in_bootloader true
+Input: atmel_mxt_ts: Prevent crash due to freeing of input device
+input: atmel_mxt_ts: Add NULL check for sysfs attribute debug_msg_attr
+
+Following commits in v1 patchset have been dropped:
+Input: atmel_mxt_ts - configure and use gpios as real gpios
+Input: touchscreen: Atmel: Enable IRQ_DISABLE_UNLAZY flag for interrupt
+Input: atmel_mxt_ts - add memory access interface via sysfs
+Input: atmel_mxt_ts: Remove sysfs attributes during driver detach
+Input: atmel_mxt_ts: Avoid race condition in freeing of input device
+
+
+v1: initial version
+---
+ .../bindings/input/atmel,maxtouch.txt         |   14 +
+ MAINTAINERS                                   |    1 +
+ drivers/hid/hid-alps.c                        |    3 +-
+ drivers/hid/hid-multitouch.c                  |    6 +-
+ drivers/input/input-mt.c                      |    2 +-
+ drivers/input/misc/xen-kbdfront.c             |    2 +-
+ drivers/input/mouse/elan_i2c_core.c           |    2 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c      | 2266 ++++++++++++++---
+ drivers/input/touchscreen/cyttsp4_core.c      |    5 +-
+ drivers/input/touchscreen/cyttsp_core.c       |    2 +-
+ drivers/input/touchscreen/melfas_mip4.c       |    4 +-
+ drivers/input/touchscreen/mms114.c            |    2 +-
+ drivers/input/touchscreen/raspberrypi-ts.c    |    2 +-
+ drivers/input/touchscreen/stmfts.c            |    2 +-
+ include/dt-bindings/input/atmel_mxt_ts.h      |   22 +
+ include/linux/input/mt.h                      |    5 +
+ 16 files changed, 1984 insertions(+), 356 deletions(-)
+ create mode 100644 include/dt-bindings/input/atmel_mxt_ts.h
+
 -- 
-2.20.1
+2.17.1
 

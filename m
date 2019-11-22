@@ -4,35 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B1DAC432C0
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:25:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A026C432C0
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:25:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5DDB42071B
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:25:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5880320672
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:25:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727418AbfKVIZU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 03:25:20 -0500
+        id S1726767AbfKVIZa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 03:25:30 -0500
 Received: from esa2.mentor.iphmx.com ([68.232.141.98]:52499 "EHLO
         esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727415AbfKVIZU (ORCPT
+        with ESMTP id S1727469AbfKVIZa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Nov 2019 03:25:20 -0500
-IronPort-SDR: AE4rsWmIvCjm3c8QrExfcc7G0lgPnPKxgVGrYRPrtxkQlUr9/pev5I4p1l/2hy8LuknpeCT8ds
- LNlMxLHTdelvhbDWt6gu0uNTu9bc2PsFp5ULosoMx+zclEFWVL+jzEbV/WaDYNk8F0EcsYX44r
- MW/BbDwN33AAcZNx1//I/NUrSXqE7jyW02dUBCA2wgjGpZKbuCJ7HsWR/lL6vTmkxJrvt4iI+x
- dNgDQFMjJFGVzfVMHQa/xLTzHMEO43TqbAR9DhpPM0BoBTvXxp+0312jV45S+WKlqGfO9R/wJp
- RLU=
+        Fri, 22 Nov 2019 03:25:30 -0500
+IronPort-SDR: YzdUC/D3KGPrX5o5ONYcCBKzRY1/frBUGZshUMM5WPUDJ2xSb0qSmR3kQafdNFU6IxN892oSYd
+ deq7fYksu45zLfoIopHg+22zU4GyRK3rHuJMtQ7xiSHOm94cYS/FsNNHL+FEaf2jVFJG76SfLb
+ b8Y4PblrJofGELTiu+sjoMNK3WwidqwFakvRpnYDsvxwIj3i8RHsom0EPniFh38ALVIz7jBCq3
+ OzDFRtMhcGNBV6uFDHSKE8/yeojkgG/BlZTRE0cjcQUacGRfwRVbOdnTtWZEZYGzq33hoWQjPQ
+ H3I=
 X-IronPort-AV: E=Sophos;i="5.69,229,1571731200"; 
-   d="scan'208";a="43358922"
+   d="scan'208";a="43358930"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa2.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:25:19 -0800
-IronPort-SDR: SoHED8XtekJl5VOTOSyaV+oV7992iFOM8QdaHBWijnwM6H6IpcbltXEJagGeqNcTKTXN4vz6Ik
- 65iMt3HsiCt6AyXzpTRnUHUKL+4HLTUmsFq7xNef4Uf80n2gMIOlnc1JrdS2wCFTgeKA/XYLKd
- 3Gbq8zrEVBoCUomBEefefVADm4tduUyjFM+C0toYrThT8d5GKSljdmlgLSHK9lzQ6WnI1JWhQy
- yzMMHu5od5gjFN663o6C2xJA1tRhAi6hpwxV3q+Enq/E484us7pwthKIqzoQn9ZhNbeB4Tw1gB
- Rno=
+  by esa2.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:25:29 -0800
+IronPort-SDR: QUEAV1pzUhF/EIwJ56uup30aSTa8AFA2SBwkUW4v+4x/oZsQ3QAHAWAsIPF2qsSHYf1I7tuq4x
+ FdCN7CpRy1BTjXLvAf6XYCao03NoyvdBocGa5G+NdMc6x4QcEpG/COyQCr+rSMvOEtwPkj7xit
+ mkl5vxzscGhXsvsT+vN4VQxwlv5XDyG5qEGoZ0+ROUw/8XeI2w2LXa5nI3O5r5JrMjQbDV0v3Z
+ NB2/AZb9ix/08xBiHjRyuSAmb+UtTw+NA7TtYz8cf5R6QRs/m/nPnWfHrlGlGn+K73/nPXQhaL
+ AQs=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +41,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v6 20/48] Input: atmel_mxt_ts - refactor code to enter bootloader into separate func
-Date:   Fri, 22 Nov 2019 17:23:34 +0900
-Message-ID: <20191122082402.18173-21-jiada_wang@mentor.com>
+Subject: [PATCH v6 23/48] Input: atmel_mxt_ts - rename bl_completion to chg_completion
+Date:   Fri, 22 Nov 2019 17:23:37 +0900
+Message-ID: <20191122082402.18173-24-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191122082402.18173-1-jiada_wang@mentor.com>
 References: <20191122082402.18173-1-jiada_wang@mentor.com>
@@ -56,96 +57,108 @@ X-Mailing-List: linux-input@vger.kernel.org
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit bedd706a32522b946467e15f4f4f24de86a1b4d7)
+(cherry picked from ndyer/linux/for-upstream commit dda8453bfb44216645ede798918a314d4fca2481)
 [gdavis: Resolve forward port conflicts due to applying upstream
 	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
 	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Squash change from ndyer/linux/for-upstream commit d691d3ee6c6de84b38464a42
-3207b3e23cb9dc3a
-	- Input: atmel_mxt_ts - check firmware format before entering bootloader]
+[jiada: call complete(&data->chg_completion) only when in_bootloader is TRUE]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 43 +++++++++++++++---------
- 1 file changed, 27 insertions(+), 16 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 44bb77c0159c..04627db23ad2 100644
+index 1c5230f7a9af..520dc9670b38 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3257,23 +3257,10 @@ static int mxt_check_firmware_format(struct device *dev,
- 	return -EINVAL;
- }
+@@ -381,9 +381,6 @@ struct mxt_data {
+ 	u8 T100_reportid_max;
+ 	u16 T107_address;
  
--static int mxt_load_fw(struct device *dev)
-+static int mxt_enter_bootloader(struct mxt_data *data)
- {
--	struct mxt_data *data = dev_get_drvdata(dev);
--	struct mxt_flash f = { 0, };
- 	int ret;
- 
--	ret = request_firmware(&f.fw, data->fw_name, dev);
--	if (ret) {
--		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
--		return ret;
--	}
+-	/* for fw update in bootloader */
+-	struct completion bl_completion;
 -
--	/* Check for incorrect enc file */
--	ret = mxt_check_firmware_format(dev, f.fw);
--	if (ret)
--		goto release_firmware;
--
- 	if (data->suspended) {
- 		if (data->suspend_mode == MXT_SUSPEND_REGULATOR)
- 			mxt_regulator_enable(data);
-@@ -3291,14 +3278,14 @@ static int mxt_load_fw(struct device *dev)
- 		ret = mxt_t6_command(data, MXT_COMMAND_RESET,
- 				     MXT_BOOT_VALUE, false);
- 		if (ret)
--			goto release_firmware;
-+			return ret;
+ 	/* for reset handling */
+ 	struct completion reset_completion;
  
- 		msleep(MXT_RESET_TIME);
+@@ -395,6 +392,9 @@ struct mxt_data {
  
- 		/* Do not need to scan since we know family ID */
- 		ret = mxt_lookup_bootloader_address(data, 0);
- 		if (ret)
--			goto release_firmware;
-+			return ret;
+ 	enum mxt_suspend_mode suspend_mode;
  
- 		mxt_sysfs_remove(data);
- 		mxt_free_input_device(data);
-@@ -3309,6 +3296,30 @@ static int mxt_load_fw(struct device *dev)
++	/* for power up handling */
++	struct completion chg_completion;
++
+ 	/* Indicates whether device is in suspend */
+ 	bool suspended;
  
- 	reinit_completion(&data->bl_completion);
- 
-+	return 0;
-+}
-+
-+static int mxt_load_fw(struct device *dev)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	struct mxt_flash f = { 0, };
-+	int ret;
-+
-+	ret = request_firmware(&f.fw, data->fw_name, dev);
-+	if (ret) {
-+		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
-+		return ret;
-+	}
-+
-+	/* Check for incorrect enc file */
-+	ret = mxt_check_firmware_format(dev, f.fw);
-+	if (ret)
-+		goto release_firmware;
-+
-+	ret = mxt_enter_bootloader(data);
-+	if (ret)
-+		goto release_firmware;
-+
- 	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD, false);
+@@ -611,7 +611,7 @@ static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
+ 	 * CHG assertion before reading the status byte.
+ 	 * Once the status byte has been read, the line is deasserted.
+ 	 */
+-	ret = mxt_wait_for_completion(data, &data->bl_completion,
++	ret = mxt_wait_for_completion(data, &data->chg_completion,
+ 				      MXT_FW_CHG_TIMEOUT);
  	if (ret) {
- 		/* Bootloader may still be unlocked from previous attempt */
+ 		/*
+@@ -1402,8 +1402,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 	struct mxt_data *data = dev_id;
+ 
+ 	if (data->in_bootloader) {
+-		/* bootloader state transition completion */
+-		complete(&data->bl_completion);
++		complete(&data->chg_completion);
+ 		return IRQ_HANDLED;
+ 	}
+ 
+@@ -2167,9 +2166,9 @@ static void mxt_regulator_enable(struct mxt_data *data)
+ 	msleep(MXT_CHG_DELAY);
+ 
+ retry_wait:
+-	reinit_completion(&data->bl_completion);
++	reinit_completion(&data->chg_completion);
+ 	data->in_bootloader = true;
+-	error = mxt_wait_for_completion(data, &data->bl_completion,
++	error = mxt_wait_for_completion(data, &data->chg_completion,
+ 					MXT_POWERON_DELAY);
+ 	if (error == -EINTR)
+ 		goto retry_wait;
+@@ -3334,7 +3333,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
+ 		enable_irq(data->irq);
+ 	}
+ 
+-	reinit_completion(&data->bl_completion);
++	reinit_completion(&data->chg_completion);
+ 
+ 	return 0;
+ }
+@@ -3370,7 +3369,7 @@ static int mxt_load_fw(struct device *dev)
+ 	}
+ 
+ 	/* Wait for flash. */
+-	ret = mxt_wait_for_completion(data, &data->bl_completion,
++	ret = mxt_wait_for_completion(data, &data->chg_completion,
+ 				      MXT_FW_RESET_TIME);
+ 	if (ret)
+ 		goto disable_irq;
+@@ -3381,7 +3380,7 @@ static int mxt_load_fw(struct device *dev)
+ 	 * the CHG line after bootloading has finished, so ignore potential
+ 	 * errors.
+ 	 */
+-	mxt_wait_for_completion(data, &data->bl_completion, MXT_FW_RESET_TIME);
++	mxt_wait_for_completion(data, &data->chg_completion, MXT_FW_RESET_TIME);
+ 
+ 	data->in_bootloader = false;
+ disable_irq:
+@@ -3802,7 +3801,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	data->irq = client->irq;
+ 	i2c_set_clientdata(client, data);
+ 
+-	init_completion(&data->bl_completion);
++	init_completion(&data->chg_completion);
+ 	init_completion(&data->reset_completion);
+ 	init_completion(&data->crc_completion);
+ 
 -- 
 2.17.1
 

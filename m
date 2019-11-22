@@ -4,50 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9586C432C0
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:08:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 925A2C43215
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:12:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B6FEC2068F
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:08:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 61F272070E
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1574402939;
-	bh=pBD8D54Jh+aAZ584Gec2gIdMiQfp2n7SefwZdXpySxQ=;
+	s=default; t=1574403134;
+	bh=9mvyKiStdqWHIi9NvCE4eDL7Uh0tn5Xgra9f21+o9Z4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=ro1okB4RWfU/1AGX0ZfzFbM05e6yGTHuNKpXASQaabeoEAecmU1Oihb+Khq2HCrfi
-	 x6w6//R3vnHsfnXVMJAycpY4tsNfWHqBOO2dJYDJf15FHwHAOmBnxibVC3bWFA4UqQ
-	 LSWqOezsl37NzdImtITRi/fDkgR4nPDTXP90ijuM=
+	b=qTTZyABffuVbhevZuT7udzcHP5SPQd/bS5Lee8MIxe3xdUFMO6s+qb4rDdzkuFf+f
+	 tvHchU4/aFTX55pcL+TmgHlbtQYdLgZowM1dB67RzOgkSUmgsUL1RovT5ET65iHrON
+	 97QrRvOQybVu31g6Hk8N91hRqmrDSW/IJaFIsK7s=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728909AbfKVGBe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 01:01:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
+        id S1727577AbfKVGMN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 01:12:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727320AbfKVGBe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:01:34 -0500
+        id S1729112AbfKVF4V (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:56:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B44612070A;
-        Fri, 22 Nov 2019 06:01:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 782842071F;
+        Fri, 22 Nov 2019 05:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402493;
-        bh=pBD8D54Jh+aAZ584Gec2gIdMiQfp2n7SefwZdXpySxQ=;
+        s=default; t=1574402181;
+        bh=9mvyKiStdqWHIi9NvCE4eDL7Uh0tn5Xgra9f21+o9Z4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gs9+VEyi7nfmonYyAFtJgDkzTAJb/i0+KJtvU6MfiTE5NwqoOQEspmt5nfGvXxEho
-         /uzQg2OSo+MKjdFgoBa47xZHmXKTqLY6+URmHGi2JNm17WViPAZ51adaaqCjVst7kW
-         URVULmlwDbBNo/85mcImZHrJbe+8dxEdengYzvv0=
+        b=Me9UoYVCsz2tMGTlnfi3Z95d4ABggjlyTxcZOEmzikxRz6mepx98Q9ZIVYOVDliYq
+         pljy/DgiMUvHWsPlMUn6xx1ehJN91NvdyaUWeErkOI1jtnj05SbjTk/RPMJyPHXoew
+         dKZzIhL68zK+HNvBwsCkszeHgDAwiElPeV8eqw5k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        linux-parisc@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 04/91] parisc: Fix serio address output
-Date:   Fri, 22 Nov 2019 01:00:02 -0500
-Message-Id: <20191122060129.4239-3-sashal@kernel.org>
+Cc:     Pan Bian <bianpan2016@163.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 032/127] HID: intel-ish-hid: fixes incorrect error handling
+Date:   Fri, 22 Nov 2019 00:54:10 -0500
+Message-Id: <20191122055544.3299-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
-References: <20191122060129.4239-1-sashal@kernel.org>
+In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
+References: <20191122055544.3299-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,37 +59,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 785145171d17af2554128becd6a7c8f89e101141 ]
+[ Upstream commit 6e0856d317440a950b17c00a9283114f025e5699 ]
 
-We want the hpa addresses printed in the serio modules, not some
-virtual ioremap()ed address, e.g.:
+The memory chunk allocated by hid_allocate_device() should be released
+by hid_destroy_device(), not kfree().
 
- serio: gsc-ps2-keyboard port at 0xf0108000 irq 22 @ 2:0:11
- serio: gsc-ps2-mouse port at 0xf0108100 irq 22 @ 2:0:12
-
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 0b28cb4bcb1("HID: intel-ish-hid: ISH HID client driver")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/gscps2.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp-hid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
-index ecba666afadb7..cca26e6f38b36 100644
---- a/drivers/input/serio/gscps2.c
-+++ b/drivers/input/serio/gscps2.c
-@@ -382,9 +382,9 @@ static int gscps2_probe(struct parisc_device *dev)
- 		goto fail;
- #endif
- 
--	printk(KERN_INFO "serio: %s port at 0x%p irq %d @ %s\n",
-+	pr_info("serio: %s port at 0x%08lx irq %d @ %s\n",
- 		ps2port->port->name,
--		ps2port->addr,
-+		hpa,
- 		ps2port->padev->irq,
- 		ps2port->port->phys);
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.c b/drivers/hid/intel-ish-hid/ishtp-hid.c
+index cd23903ddcf19..e918d78e541c0 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.c
+@@ -222,7 +222,7 @@ int ishtp_hid_probe(unsigned int cur_hid_dev,
+ err_hid_device:
+ 	kfree(hid_data);
+ err_hid_data:
+-	kfree(hid);
++	hid_destroy_device(hid);
+ 	return rv;
+ }
  
 -- 
 2.20.1

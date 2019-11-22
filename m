@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6931DC432C3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88D6DC43215
 	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4AF7020672
+	by mail.kernel.org (Postfix) with ESMTP id 696482071C
 	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:24:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726861AbfKVIYk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 03:24:40 -0500
+        id S1727133AbfKVIYd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 03:24:33 -0500
 Received: from esa4.mentor.iphmx.com ([68.232.137.252]:4441 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725999AbfKVIYi (ORCPT
+        with ESMTP id S1725999AbfKVIYc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Nov 2019 03:24:38 -0500
-IronPort-SDR: 3D+5cfH5tl/qS+vsitVBvRv22jNk4Y0tkfDDWEYXe3hEUuMTL4xfvOLQ/ZTl9MEBcwEHCR04dH
- Hvo+zR7oylZyKszzbSNdu0f45Omq1AfYy2QOsk6fiWl7389nlbj1x30KqHOOW7R/ec+U3n53if
- rRcObCvXitWqfIijhGg2X+mQjqJvzj6kQJdC7jRfM8GxqADeD8aEq6Ur7qahRpb5btLR+ZROf5
- h4ClDXMbB5ADtLiSOjdtF2jlZ4AEHJqQb9H6w+ik25s85inVUJEDNdU7LzKD5SpY0tsrcqtsCo
- UE8=
+        Fri, 22 Nov 2019 03:24:32 -0500
+IronPort-SDR: N3d2Shrk4a6LmmTXE1e0dPTscKY53vIJzr9Z5g8HhTtyXNn59SSCeZDnnKLjEeZJUULYAc+Szb
+ Jpmi/FHluN6A5oYl+Ut7zfrvP2kvx2RP9WrKjRM36laU6F4+qDXFDx8fQVzxTTPMfCFx+OJcaF
+ v9RVi77bVTQ/Nr6PEvMD5mTMN/b0TaKC1SKQ5TILV6WnlayYFIfvLGNfRTgRflt1McIqbiZjMZ
+ 96+F331rk+ON9SctbDg+gT3NtbtW6eI0c1eLl5fH/4R37ujlog0It1XXUni5JV1J1MZrr96T3j
+ OhY=
 X-IronPort-AV: E=Sophos;i="5.69,229,1571731200"; 
-   d="scan'208";a="43457558"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:24:38 -0800
-IronPort-SDR: 381xu3DF+4Cgovhpec0OSIUUYMasd0L/LUbJpsD4nSSh2UZpE8rIfzLhTdqMy+K98PvjW+B5GS
- JdkYindOeGzcFTrr+MrKUjg8vA9oxEVf1OxCcZQD2W8alZWa4N9QzfER1H7EUbrpRCaxffERGL
- HpRqHKX2747vE0Kwd17ux/Ps+E455+fil7A9jXM2mNNIrhIXnAHKDHkdif3M3ydfPGQ8zIpZrV
- ppPAw/zLQY1hGoMLww5+fF7ipvP2pY+uZmIWb956ZIl+4lwSz+L8bkC7Sbb7URPheVyipUR2ag
- uj8=
+   d="scan'208";a="43457552"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa4.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:24:31 -0800
+IronPort-SDR: ciqpEjF+8XXJDD870VAR6w1P4xHnifR06m8TY8j6xqLwgrsjXq4eYMdkrqXjGV+vFV78xLfRdh
+ cgXeDGh8u6c37V5/wtD2Xti3UNLQIa773uk8tOZVvD69bUYSgu+2oGECBv82CiTEEatp3AIscD
+ dLho/ZMHI39cfjBLoeLL8yOgmm6rns9Mqn5ShU5umPWsgRe2fTPIgf8h+T+rThyAUm382bpWtP
+ hlzfLgdc9kpVroXs84UIDsYaA1/neX8yGDjfkfIpfx1AD7m+53HOtRdI68rf05t4kYeXFZdHS8
+ ZFM=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -41,9 +41,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v6 09/48] Input: atmel_mxt_ts - handle reports from T47 Stylus object
-Date:   Fri, 22 Nov 2019 17:23:23 +0900
-Message-ID: <20191122082402.18173-10-jiada_wang@mentor.com>
+Subject: [PATCH v6 07/48] Input: atmel_mxt_ts - implement T9 vector/orientation support
+Date:   Fri, 22 Nov 2019 17:23:21 +0900
+Message-ID: <20191122082402.18173-8-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191122082402.18173-1-jiada_wang@mentor.com>
 References: <20191122082402.18173-1-jiada_wang@mentor.com>
@@ -56,58 +56,79 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
+The atmel touch messages contain orientation information as a byte in a
+packed format which can be passed straight on to Android if the input
+device configuration is correct.
+
+This requires vector reports to be enabled in maXTouch config (zero
+DISVECT bit 3 in T9 CTRL field)
+
+Android converts the format in InputReader.cpp, search for
+ORIENTATION_CALIBRATION_VECTOR.
+
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 56405a5ea08eb34cfe83f3121867c9de0a5c48c1)
+(cherry picked from ndyer/linux/for-upstream commit a6f0ee919d2631678169b23fb18f55b6dbabcd4c)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 2df3104e94b9..661bfe4a43b9 100644
+index 4e0dae004927..405bff1c2055 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -823,6 +823,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+@@ -817,6 +817,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 	int y;
  	int area;
  	int amplitude;
- 	u8 vector;
-+	int tool;
++	u8 vector;
  
  	id = message[0] - data->T9_reportid_min;
  	status = message[1];
-@@ -836,6 +837,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
- 		y >>= 2;
+@@ -831,9 +832,10 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
  
  	area = message[5];
-+
  	amplitude = message[6];
- 	vector = message[7];
++	vector = message[7];
  
-@@ -865,12 +867,20 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
- 			mxt_input_sync(data);
- 		}
+ 	dev_dbg(dev,
+-		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u\n",
++		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u vector: %02X\n",
+ 		id,
+ 		(status & MXT_T9_DETECT) ? 'D' : '.',
+ 		(status & MXT_T9_PRESS) ? 'P' : '.',
+@@ -843,7 +845,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 		(status & MXT_T9_AMP) ? 'A' : '.',
+ 		(status & MXT_T9_SUPPRESS) ? 'S' : '.',
+ 		(status & MXT_T9_UNGRIP) ? 'U' : '.',
+-		x, y, area, amplitude);
++		x, y, area, amplitude, vector);
  
-+		/* A size of zero indicates touch is from a linked T47 Stylus */
-+		if (area == 0) {
-+			area = MXT_TOUCH_MAJOR_DEFAULT;
-+			tool = MT_TOOL_PEN;
-+		} else {
-+			tool = MT_TOOL_FINGER;
-+		}
-+
- 		/* if active, pressure must be non-zero */
- 		if (!amplitude)
- 			amplitude = MXT_PRESSURE_DEFAULT;
+ 	input_mt_slot(input_dev, id);
  
- 		/* Touch active */
--		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 1);
-+		input_mt_report_slot_state(input_dev, tool, 1);
- 		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+@@ -868,6 +870,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
  		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
  		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
+ 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
++		input_report_abs(input_dev, ABS_MT_ORIENTATION, vector);
+ 	} else {
+ 		/* Touch no longer active, close out slot */
+ 		input_mt_report_slot_inactive(input_dev);
+@@ -2180,8 +2183,9 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 				     0, 255, 0, 0);
+ 	}
+ 
+-	if (data->multitouch == MXT_TOUCH_MULTITOUCHSCREEN_T100 &&
+-	    data->t100_aux_vect) {
++	if (data->multitouch == MXT_TOUCH_MULTI_T9 ||
++	    (data->multitouch == MXT_TOUCH_MULTITOUCHSCREEN_T100 &&
++	    data->t100_aux_vect)) {
+ 		input_set_abs_params(input_dev, ABS_MT_ORIENTATION,
+ 				     0, 255, 0, 0);
+ 	}
 -- 
 2.17.1
 

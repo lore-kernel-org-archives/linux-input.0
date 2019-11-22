@@ -7,44 +7,44 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E54ABC33C9A
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:08:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9586C432C0
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:08:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B58B32071B
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:08:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B6FEC2068F
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 06:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1574402938;
-	bh=7Ry9jrHQuYnZY7uOPI526vZCkCbcI2sx4X8O3i8qnwc=;
+	s=default; t=1574402939;
+	bh=pBD8D54Jh+aAZ584Gec2gIdMiQfp2n7SefwZdXpySxQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=SfGY0oAuLzd/AhFVsfqVWycd4+CBvOS+a1F01z1Bjtz/IXVvZHNQciF3kmKb/Okgc
-	 BrQ/XdCx0MaFXUw2loaZPKoB754xNN6GqGoXQfNWYNmsAx7vHWtIOQqHW/nSCd69V9
-	 LunjHQ6Diqy5TdyAK7VuSR6fhGlXExDWs3I5PQPE=
+	b=ro1okB4RWfU/1AGX0ZfzFbM05e6yGTHuNKpXASQaabeoEAecmU1Oihb+Khq2HCrfi
+	 x6w6//R3vnHsfnXVMJAycpY4tsNfWHqBOO2dJYDJf15FHwHAOmBnxibVC3bWFA4UqQ
+	 LSWqOezsl37NzdImtITRi/fDkgR4nPDTXP90ijuM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726712AbfKVGBf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 01:01:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39814 "EHLO mail.kernel.org"
+        id S1728909AbfKVGBe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 01:01:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728926AbfKVGBe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1727320AbfKVGBe (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Fri, 22 Nov 2019 01:01:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD51B2068F;
-        Fri, 22 Nov 2019 06:01:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B44612070A;
+        Fri, 22 Nov 2019 06:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402494;
-        bh=7Ry9jrHQuYnZY7uOPI526vZCkCbcI2sx4X8O3i8qnwc=;
+        s=default; t=1574402493;
+        bh=pBD8D54Jh+aAZ584Gec2gIdMiQfp2n7SefwZdXpySxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SJw+dbLq3zC1Bhc+ukxiH219Ofj8vSE4zWbkFsZXOcUW8YUOTsTnvajOClPo8mQ5c
-         Iimo6oeRkOTj1SHVAuoOLpKpPjTzRqwNNJ9IQGT+pWSum1fa22rcuTA7Rmfz3LjZeD
-         B8+zqTHB5W0VQ9BBQHQFJ/LL6jGIfU93up/CjSw0=
+        b=Gs9+VEyi7nfmonYyAFtJgDkzTAJb/i0+KJtvU6MfiTE5NwqoOQEspmt5nfGvXxEho
+         /uzQg2OSo+MKjdFgoBa47xZHmXKTqLY6+URmHGi2JNm17WViPAZ51adaaqCjVst7kW
+         URVULmlwDbBNo/85mcImZHrJbe+8dxEdengYzvv0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
         linux-parisc@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 05/91] parisc: Fix HP SDC hpa address output
-Date:   Fri, 22 Nov 2019 01:00:03 -0500
-Message-Id: <20191122060129.4239-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 04/91] parisc: Fix serio address output
+Date:   Fri, 22 Nov 2019 01:00:02 -0500
+Message-Id: <20191122060129.4239-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
 References: <20191122060129.4239-1-sashal@kernel.org>
@@ -59,32 +59,36 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit c4bff35ca1bfba886da6223c9fed76a2b1382b8e ]
+[ Upstream commit 785145171d17af2554128becd6a7c8f89e101141 ]
 
-Show the hpa address of the HP SDC instead of a hashed value, e.g.:
-HP SDC: HP SDC at 0xf0201000, IRQ 23 (NMI IRQ 24)
+We want the hpa addresses printed in the serio modules, not some
+virtual ioremap()ed address, e.g.:
+
+ serio: gsc-ps2-keyboard port at 0xf0108000 irq 22 @ 2:0:11
+ serio: gsc-ps2-mouse port at 0xf0108100 irq 22 @ 2:0:12
 
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/hp_sdc.c | 4 ++--
+ drivers/input/serio/gscps2.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index 852858e5d8d08..92f541db98a09 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -887,8 +887,8 @@ static int __init hp_sdc_init(void)
- 			"HP SDC NMI", &hp_sdc))
- 		goto err2;
+diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
+index ecba666afadb7..cca26e6f38b36 100644
+--- a/drivers/input/serio/gscps2.c
++++ b/drivers/input/serio/gscps2.c
+@@ -382,9 +382,9 @@ static int gscps2_probe(struct parisc_device *dev)
+ 		goto fail;
+ #endif
  
--	printk(KERN_INFO PREFIX "HP SDC at 0x%p, IRQ %d (NMI IRQ %d)\n",
--	       (void *)hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
-+	pr_info(PREFIX "HP SDC at 0x%08lx, IRQ %d (NMI IRQ %d)\n",
-+	       hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
+-	printk(KERN_INFO "serio: %s port at 0x%p irq %d @ %s\n",
++	pr_info("serio: %s port at 0x%08lx irq %d @ %s\n",
+ 		ps2port->port->name,
+-		ps2port->addr,
++		hpa,
+ 		ps2port->padev->irq,
+ 		ps2port->port->phys);
  
- 	hp_sdc_status_in8();
- 	hp_sdc_data_in8();
 -- 
 2.20.1
 

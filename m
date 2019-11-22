@@ -4,36 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A59A9C43215
-	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:26:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22CA7C432C3
+	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:26:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 88B6220672
+	by mail.kernel.org (Postfix) with ESMTP id EC4A820708
 	for <linux-input@archiver.kernel.org>; Fri, 22 Nov 2019 08:26:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727616AbfKVI0G (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Nov 2019 03:26:06 -0500
-Received: from esa4.mentor.iphmx.com ([68.232.137.252]:62576 "EHLO
-        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727602AbfKVI0D (ORCPT
+        id S1727007AbfKVI0P (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Nov 2019 03:26:15 -0500
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:23065 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726554AbfKVI0N (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Nov 2019 03:26:03 -0500
-IronPort-SDR: bNSpA08vu544cPXokNX3bfqXVKaKYKrzf5g5+bCs12n0ezR+Rl0W71mEvsOHQdQatYjCwg8qI1
- SFtHN3/W6/a8o6SZyxEHqjpN1cw/mcsVUSz6iZKV0uEX9craM81ykwjm/TaEsq2tJN76goBwiX
- rBtb8CsYjXO63Jsf5Ouc2lnRWHWDBtFDlZBDhSqxU2lbPq5DjbqcFKJHS5mh0s1zMzbLvkPv80
- CRTPbhhEPL4k0pS+vSYqTuQ1mt+vhkg8BzcefzsLTJxd5eKvzTpRS7ojsPySvXatwSQAxqTrZ+
- 7eI=
+        Fri, 22 Nov 2019 03:26:13 -0500
+IronPort-SDR: O7W54g9Zc1mfeqZ7QL3yZZBXBaMiEr6piTzJiNHzHEsy+1De8bjC60CLhkp96WTeuMGH9wXCMb
+ zqmQcCdmab/9gkY0D3ZfzY1q3bTWL+knnFUSjyWWuynTq7jhlhQUC4wJg2xhHqW2gFtwvmzlTa
+ rg5othlFxXTMibkqKbXOn1ElH+AXsFXT8ZfC2MlRuh1gNLIaY35eixcKFOE2AR4Y/kwe/aRidU
+ njK+6MXeyC0Ihx9eqAY4sjCYnUl8heC2vUsr8r98vZqYCLXIvhR7EMdcUboOPj7o1FpE/c1wQZ
+ CRM=
 X-IronPort-AV: E=Sophos;i="5.69,229,1571731200"; 
-   d="scan'208";a="43457617"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa4.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:26:02 -0800
-IronPort-SDR: UioE6kYJSFYFyNAu85mw+hETNmUzPAiLLhz0U2/BSqXUaaa9b/JRS2EcwYGjSNY2DA5eBNXbFC
- EK/kK5F8nFh95L24sj8h+1+xZktvXR51O9nrZkqwxDDwwOLK9PBQ7fCDwsMtVfY+3As7p5B9bu
- OoMMdjIEWJdWgkqNdM0XqvVju3lNcJtagK/FwMYufptmlVmbKM7Il6YXy8PGbDd9QSgxpDHLZD
- CkV2+7EycZSxZ+OmmM7ESGN+TdABf6i5xzwe0DDwZo2rgyg1KpN2lomw9oH8EfIDSnyKWvSkVO
- 9ws=
+   d="scan'208";a="45291168"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa1.mentor.iphmx.com with ESMTP; 22 Nov 2019 00:26:12 -0800
+IronPort-SDR: 95vGJvZy7P4A4RfrXVys4fungW696IkjKtZ4DNEoq8GnRe9DywS5XuVq2x3BNd5n0w0SuER+mI
+ CCKnMtzqECMf+yNb8700wyq9twk/ldtKomgPZxre0NX0641+DodnG76Vk2Rv4e17LHw0rDW1oO
+ ggBP37QNrolrvJyy5cDtLKCVE+9t2nQ4muur5WSveS9rZDIer0viqkfmrBAf7IeluerSUSe3EU
+ kcW4lJEiP/HhMavlHIMDJYQJu5FbuNIz57kIFi721+RuRsNJrhEaCgiDG38azdETwptpWhHU/l
+ Tjo=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -41,9 +40,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v6 32/48] Input: atmel_mxt_ts - rely on calculated_crc rather than file config_crc
-Date:   Fri, 22 Nov 2019 17:23:46 +0900
-Message-ID: <20191122082402.18173-33-jiada_wang@mentor.com>
+Subject: [PATCH v6 34/48] input: atmel_mxt_ts: Add Missing Delay for reset handling of Atmel touch panel controller in detachable displays.
+Date:   Fri, 22 Nov 2019 17:23:48 +0900
+Message-ID: <20191122082402.18173-35-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191122082402.18173-1-jiada_wang@mentor.com>
 References: <20191122082402.18173-1-jiada_wang@mentor.com>
@@ -54,120 +53,42 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Kautuk Consul <kautuk_consul@mentor.com>
+From: keerthikumarp <Keerthikumar.Padmanabha@in.bosch.com>
 
-We now prefer to rely on the calculated CRC and not on the CRC stored in
-the file.
+In case of attached display, the touchpanel reset is controlled
+via imx gpio's from  atmel driver and the delay between
+touchpanel reset and the time at which the chip becomes capable to
+communicate with the host processor, has be taken care.
 
-The new logic is as follows:
-1) stored CRC of file != calculated CRC of file, then refuse the possible
-   corrupted file
-2) calculated CRC of file != CRC of configuration in controller, then
-   update configuration in controller
-3) calculated CRC of file == CRC of configuration in controller, then
-   ignore configuration file
+However in case of detachable displays, the touchpanel reset is
+controlled via a deserializer gpio which is triggered just before
+the atmel driver is probed.The delay between touchpanel reset and
+the time at which the chip becomes capable to communicate (as
+specified in datasheet) was not being accounted for. This patch
+introduces that delay.
 
-Signed-off-by: Kautuk Consul <kautuk_consul@mentor.com>
+Signed-off-by: keerthikumarp <Keerthikumar.Padmanabha@in.bosch.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 65 +++++++++++++-----------
- 1 file changed, 36 insertions(+), 29 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index acbba44d604c..3513413158c3 100644
+index f357d353447f..835cc7a29c2f 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1908,7 +1908,7 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
- 	int ret;
- 	int offset;
- 	int i;
--	u32 info_crc, config_crc, calculated_crc;
-+	u32 info_crc, config_crc, calculated_crc = 0;
- 	u16 crc_start = 0;
- 
- 	/* Make zero terminated copy of the OBP_RAW file */
-@@ -1971,30 +1971,6 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
- 	}
- 	cfg.raw_pos += offset;
- 
--	/*
--	 * The Info Block CRC is calculated over mxt_info and the object
--	 * table. If it does not match then we are trying to load the
--	 * configuration from a different chip or firmware version, so
--	 * the configuration CRC is invalid anyway.
--	 */
--	if (info_crc == data->info_crc) {
--		if (config_crc == 0 || data->config_crc == 0) {
--			dev_info(dev, "CRC zero, attempting to apply config\n");
--		} else if (config_crc == data->config_crc) {
--			dev_dbg(dev, "Config CRC 0x%06X: OK\n",
--				 data->config_crc);
--			ret = 0;
--			goto release_raw;
--		} else {
--			dev_info(dev, "Config CRC 0x%06X: does not match file 0x%06X\n",
--				 data->config_crc, config_crc);
--		}
--	} else {
--		dev_warn(dev,
--			 "Warning: Info CRC error - device=0x%06X file=0x%06X\n",
--			 data->info_crc, info_crc);
--	}
--
- 	/* Malloc memory to store configuration */
- 	cfg.start_ofs = MXT_OBJECT_START +
- 			data->info->object_num * sizeof(struct mxt_object) +
-@@ -2018,14 +1994,45 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
- 	else
- 		dev_warn(dev, "Could not find CRC start\n");
- 
--	if (crc_start > cfg.start_ofs) {
-+	if (crc_start > cfg.start_ofs)
- 		calculated_crc = mxt_calculate_crc(cfg.mem,
- 						   crc_start - cfg.start_ofs,
- 						   cfg.mem_size);
- 
--		if (config_crc > 0 && config_crc != calculated_crc)
--			dev_warn(dev, "Config CRC in file inconsistent, calculated=%06X, file=%06X\n",
--				 calculated_crc, config_crc);
-+	/* If the CRC stored in the file is not the same as what
-+	 * was calculated by mxt_calculate_crc, this means we
-+	 * have to refuse the config file and abort download.
-+	 */
-+	if (config_crc != calculated_crc) {
-+		dev_warn(dev,
-+			 "Config CRC in file inconsistent, calculated=%06X, file=%06X\n",
-+			 calculated_crc, config_crc);
-+		ret = 0;
-+		goto release_mem;
-+	}
-+
-+	/*
-+	 * The Info Block CRC is calculated over mxt_info and the object
-+	 * table. If it does not match then we are trying to load the
-+	 * configuration from a different chip or firmware version, so
-+	 * the configuration CRC is invalid anyway.
-+	 */
-+	if (info_crc == data->info_crc) {
-+		if (config_crc == 0 || data->config_crc == 0) {
-+			dev_info(dev, "CRC zero, attempting to apply config\n");
-+		} else if (config_crc == data->config_crc) {
-+			dev_dbg(dev, "Config CRC 0x%06X: OK\n",
-+				data->config_crc);
-+			ret = 0;
-+			goto release_mem;
-+		} else {
-+			dev_info(dev, "Config CRC 0x%06X: does not match file 0x%06X\n",
-+				 data->config_crc, config_crc);
-+		}
+@@ -4112,6 +4112,10 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		msleep(MXT_RESET_GPIO_TIME);
+ 		gpiod_set_value(data->reset_gpio, 1);
+ 		msleep(MXT_RESET_INVALID_CHG);
 +	} else {
-+		dev_warn(dev,
-+			 "Warning: Info CRC error - device=0x%06X file=0x%06X\n",
-+			 data->info_crc, info_crc);
++		dev_dbg(&client->dev,
++			"atmel reset pin not found in device tree");
++		msleep(MXT_RESET_TIME);
  	}
  
- 	ret = mxt_upload_cfg_mem(data, &cfg);
+ 	error = mxt_initialize(data);
 -- 
 2.17.1
 

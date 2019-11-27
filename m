@@ -2,47 +2,41 @@ Return-Path: <SRS0=/9uc=ZT=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61FB9C43141
-	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 12:10:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D316C432C0
+	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 12:54:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 385C92071E
-	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 12:10:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E75F2071E
+	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 12:54:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727004AbfK0MKN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 27 Nov 2019 07:10:13 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:37561 "EHLO
+        id S1726520AbfK0My7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 27 Nov 2019 07:54:59 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:40921 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726540AbfK0MKN (ORCPT
+        with ESMTP id S1726282AbfK0My6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 27 Nov 2019 07:10:13 -0500
-Received: from dude02.hi.pengutronix.de ([2001:67c:670:100:1d::28] helo=dude02.lab.pengutronix.de)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1iZw8k-0002K9-VT; Wed, 27 Nov 2019 13:09:50 +0100
-Received: from mfe by dude02.lab.pengutronix.de with local (Exim 4.92)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1iZw8j-0006Ib-IV; Wed, 27 Nov 2019 13:09:49 +0100
-From:   Marco Felsch <m.felsch@pengutronix.de>
-To:     robh+dt@kernel.org, andriy.shevchenko@linux.intel.com,
-        dmitry.torokhov@gmail.com, bparrot@ti.com,
-        andy.shevchenko@gmail.com, simon.budig@kernelconcepts.de,
-        hdegoede@redhat.com, fcooper@ti.com, mripard@kernel.org,
-        alexandre.belloni@bootlin.com, shawnguo@kernel.org
-Cc:     devicetree@vger.kernel.org, kernel@pengutronix.de,
-        linux-input@vger.kernel.org
-Subject: [PATCH v2 0/5] EDT-FT5x06 improvements
-Date:   Wed, 27 Nov 2019 13:09:43 +0100
-Message-Id: <20191127120948.22251-1-m.felsch@pengutronix.de>
+        Wed, 27 Nov 2019 07:54:58 -0500
+Received: from dude02.hi.pengutronix.de ([2001:67c:670:100:1d::28] helo=dude02.pengutronix.de.)
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <l.stach@pengutronix.de>)
+        id 1iZwqO-0006zX-JC; Wed, 27 Nov 2019 13:54:56 +0100
+From:   Lucas Stach <l.stach@pengutronix.de>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Nick Dyer <nick@shmanahar.org>
+Cc:     Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, kernel@pengutronix.de,
+        patchwork-lst@pengutronix.de
+Subject: [PATCH v2] Input: atmel_mxt_ts - allow specification of config name
+Date:   Wed, 27 Nov 2019 13:54:56 +0100
+Message-Id: <20191127125456.9672-1-l.stach@pengutronix.de>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::28
-X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Mail-From: l.stach@pengutronix.de
 X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
 X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Sender: linux-input-owner@vger.kernel.org
@@ -50,33 +44,62 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+From: Nick Dyer <nick@shmanahar.org>
 
-this v2 address all comments made on [1]. See the patch based changelog
-for further information.
+Signed-off-by: Nick Dyer <nick@shmanahar.org>
+---
+v2: Switch to linux instead of atmel as vendor prefix.
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+---
+ Documentation/devicetree/bindings/input/atmel,maxtouch.txt | 3 +++
+ drivers/input/touchscreen/atmel_mxt_ts.c                   | 6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-During the discussion we all agreed to use the common wakeup-src device
-property but I added all users of this driver again. So they can provide
-their ack-tag.
-
-Regards,
-  Marco
-
-[1] https://patchwork.kernel.org/cover/11149039/
-
-Marco Felsch (4):
-  Input: edt-ft5x06 - alphabetical include reorder
-  dt-bindings: Input: edt-ft5x06 - document wakeup-source capability
-  Input: edt-ft5x06 - make wakeup-source switchable
-  Input: edt-ft5x06 - improve power management operations
-
-Philipp Zabel (1):
-  Input: edt-ft5x06: work around first register access error
-
- .../bindings/input/touchscreen/edt-ft5x06.txt |  2 +
- drivers/input/touchscreen/edt-ft5x06.c        | 85 ++++++++++++++++---
- 2 files changed, 73 insertions(+), 14 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+index c88919480d37..0764c7af045c 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+@@ -31,6 +31,9 @@ Optional properties for main touchpad device:
+ 
+ - reset-gpios: GPIO specifier for the touchscreen's reset pin (active low)
+ 
++- linux,cfg-name: Provide name of configuration file in OBP_RAW format. This
++    will be downloaded from the firmware loader on probe to the device.
++
+ Example:
+ 
+ 	touch@4b {
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 24c4b691b1c9..60997086763b 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -308,6 +308,7 @@ struct mxt_data {
+ 	struct t7_config t7_cfg;
+ 	struct mxt_dbg dbg;
+ 	struct gpio_desc *reset_gpio;
++	const char *cfg_name;
+ 
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -2142,7 +2143,8 @@ static int mxt_initialize(struct mxt_data *data)
+ 	if (error)
+ 		return error;
+ 
+-	error = request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
++	error = request_firmware_nowait(THIS_MODULE, true,
++					data->cfg_name ? : MXT_CFG_NAME,
+ 					&client->dev, GFP_KERNEL, data,
+ 					mxt_config_cb);
+ 	if (error) {
+@@ -3015,6 +3017,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+ 		data->t19_num_keys = n_keys;
+ 	}
+ 
++	device_property_read_string(dev, "linux,cfg-name", &data->cfg_name);
++
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 

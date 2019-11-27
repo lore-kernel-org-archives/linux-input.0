@@ -2,110 +2,96 @@ Return-Path: <SRS0=/9uc=ZT=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0117DC432C0
-	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 10:29:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FF2DC43141
+	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 12:10:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CC025207DD
-	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 10:29:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="Pr3Z78mC"
+	by mail.kernel.org (Postfix) with ESMTP id 075F72071E
+	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 12:10:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726873AbfK0K3H (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 27 Nov 2019 05:29:07 -0500
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:30728 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726546AbfK0K3H (ORCPT
+        id S1726873AbfK0MKG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 27 Nov 2019 07:10:06 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:46459 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726515AbfK0MKG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 27 Nov 2019 05:29:07 -0500
-Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
-        by mx08-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xARAR2dk031886;
-        Wed, 27 Nov 2019 11:29:04 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : subject :
- date : message-id : mime-version : content-type :
- content-transfer-encoding; s=STMicroelectronics;
- bh=Bmi9ZxvHiIlWxe/sSml2LTtA26zSCPWx7oIRLedeHJE=;
- b=Pr3Z78mCwyJ9TShbbI12Na03BJ4OiVZwMtDSWYVnuxhayk6LzKq3YiFopT8c55DlgFSA
- xoig3XdJcgk6oAQW5qS3Wa2/b+2XMcsRa0/4GZvKNLzmnNibvsBDsIuT0wPuNl5dtXZD
- rFQfnC9r1f3yMcg1+Z62xKHxSNkbycdsGcxvFzhcyH2dOPocP0JZEigZ2ggqmkAnZSd1
- v2F+69ysw+FZPYYNwlw9g4bwoUfnaFNVF+J6dmn+fMvgBDDAYuK0WXxDGgccU3MVZno5
- orgZNCBILAxnNgA5AQ0S3WzeZIY1lfRT+bAf/ZK6pMNB2I+sNHc5YB58ZzGKJjs1iSmU OQ== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx08-00178001.pphosted.com with ESMTP id 2whcxsb1hc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Nov 2019 11:29:03 +0100
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 0235910002A;
-        Wed, 27 Nov 2019 11:29:03 +0100 (CET)
-Received: from Webmail-eu.st.com (sfhdag6node1.st.com [10.75.127.16])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 5591E2B1868;
-        Wed, 27 Nov 2019 11:29:03 +0100 (CET)
-Received: from localhost (10.75.127.45) by SFHDAG6NODE1.st.com (10.75.127.16)
- with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 27 Nov 2019 11:29:02
- +0100
-From:   Yannick Fertre <yannick.fertre@st.com>
-To:     Yannick Fertre <yannick.fertre@st.com>,
-        Philippe Cornu <philippe.cornu@st.com>,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Bastien Nocera <hadess@hadess.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: goodix: request_irq: convert gpio to irq
-Date:   Wed, 27 Nov 2019 11:29:01 +0100
-Message-ID: <1574850541-13577-1-git-send-email-yannick.fertre@st.com>
-X-Mailer: git-send-email 2.7.4
+        Wed, 27 Nov 2019 07:10:06 -0500
+Received: from dude02.hi.pengutronix.de ([2001:67c:670:100:1d::28] helo=dude02.lab.pengutronix.de)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1iZw8k-0002KA-VT; Wed, 27 Nov 2019 13:09:50 +0100
+Received: from mfe by dude02.lab.pengutronix.de with local (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1iZw8j-0006Id-J4; Wed, 27 Nov 2019 13:09:49 +0100
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     robh+dt@kernel.org, andriy.shevchenko@linux.intel.com,
+        dmitry.torokhov@gmail.com, bparrot@ti.com,
+        andy.shevchenko@gmail.com, simon.budig@kernelconcepts.de,
+        hdegoede@redhat.com, fcooper@ti.com, mripard@kernel.org,
+        alexandre.belloni@bootlin.com, shawnguo@kernel.org
+Cc:     devicetree@vger.kernel.org, kernel@pengutronix.de,
+        linux-input@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>
+Subject: [PATCH v2 1/5] Input: edt-ft5x06: work around first register access error
+Date:   Wed, 27 Nov 2019 13:09:44 +0100
+Message-Id: <20191127120948.22251-2-m.felsch@pengutronix.de>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191127120948.22251-1-m.felsch@pengutronix.de>
+References: <20191127120948.22251-1-m.felsch@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.75.127.45]
-X-ClientProxiedBy: SFHDAG7NODE3.st.com (10.75.127.21) To SFHDAG6NODE1.st.com
- (10.75.127.16)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
- definitions=2019-11-27_02:2019-11-27,2019-11-27 signatures=0
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::28
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Yannick Fertré <yannick.fertre@st.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-Convert gpio to irq if not already done by gpio lib.
+The EP0700MLP1 returns bogus data on the first register read access
+(reading the threshold parameter from register 0x00):
 
-Signed-off-by: Yannick Fertré <yannick.fertre
+    edt_ft5x06 2-0038: crc error: 0xfc expected, got 0x40
+
+It ignores writes until then. This patch adds a dummy read after which
+the number of sensors and parameter read/writes work correctly.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 ---
- drivers/input/touchscreen/goodix.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/input/touchscreen/edt-ft5x06.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index b470773..f1d9d5e 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -23,6 +23,7 @@
- #include <linux/delay.h>
- #include <linux/irq.h>
- #include <linux/interrupt.h>
-+#include <linux/gpio.h>
- #include <linux/regulator/consumer.h>
- #include <linux/slab.h>
- #include <linux/acpi.h>
-@@ -392,6 +393,13 @@ static void goodix_free_irq(struct goodix_ts_data *ts)
- 
- static int goodix_request_irq(struct goodix_ts_data *ts)
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index d61731c0037d..b87b1e074f62 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -1050,6 +1050,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
  {
-+	int gpio;
+ 	const struct edt_i2c_chip_data *chip_data;
+ 	struct edt_ft5x06_ts_data *tsdata;
++	u8 buf[2] = { 0xfc, 0x00 };
+ 	struct input_dev *input;
+ 	unsigned long irq_flags;
+ 	int error;
+@@ -1140,6 +1141,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
++	/*
++	 * Dummy read access. EP0700MLP1 returns bogus data on the first
++	 * register read access and ignores writes.
++	 */
++	edt_ft5x06_ts_readwrite(tsdata->client, 2, buf, 2, buf);
 +
-+	gpio = desc_to_gpio(ts->gpiod_int);
-+
-+	if (gpio_is_valid(gpio))
-+		ts->client->irq = gpio_to_irq(gpio);
-+
- 	return devm_request_threaded_irq(&ts->client->dev, ts->client->irq,
- 					 NULL, goodix_ts_irq_handler,
- 					 ts->irq_flags, ts->client->name, ts);
+ 	edt_ft5x06_ts_set_regs(tsdata);
+ 	edt_ft5x06_ts_get_defaults(&client->dev, tsdata);
+ 	edt_ft5x06_ts_get_parameters(tsdata);
 -- 
-2.7.4
+2.20.1
 

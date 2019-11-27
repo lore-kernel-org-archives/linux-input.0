@@ -6,32 +6,32 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DCD8C432C0
-	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 17:10:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD589C432C3
+	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 17:15:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2D0FC2073F
-	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 17:10:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D591206E0
+	for <linux-input@archiver.kernel.org>; Wed, 27 Nov 2019 17:15:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726984AbfK0RKX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 27 Nov 2019 12:10:23 -0500
-Received: from mga18.intel.com ([134.134.136.126]:9203 "EHLO mga18.intel.com"
+        id S1726970AbfK0RPB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 27 Nov 2019 12:15:01 -0500
+Received: from mga18.intel.com ([134.134.136.126]:9555 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726593AbfK0RKX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 27 Nov 2019 12:10:23 -0500
+        id S1726510AbfK0RPB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 27 Nov 2019 12:15:01 -0500
 X-Amp-Result: UNKNOWN
 X-Amp-Original-Verdict: FILE UNKNOWN
 X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 27 Nov 2019 09:10:22 -0800
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 27 Nov 2019 09:15:00 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.69,250,1571727600"; 
-   d="scan'208";a="199250615"
+   d="scan'208";a="206831043"
 Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga007.jf.intel.com with ESMTP; 27 Nov 2019 09:10:19 -0800
+  by fmsmga008.fm.intel.com with ESMTP; 27 Nov 2019 09:14:57 -0800
 Received: from andy by smile with local (Exim 4.93-RC1)
         (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1ia0pW-0004W3-I3; Wed, 27 Nov 2019 19:10:18 +0200
-Date:   Wed, 27 Nov 2019 19:10:18 +0200
+        id 1ia0u0-0004ah-PY; Wed, 27 Nov 2019 19:14:56 +0200
+Date:   Wed, 27 Nov 2019 19:14:56 +0200
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Marco Felsch <m.felsch@pengutronix.de>
 Cc:     robh+dt@kernel.org, dmitry.torokhov@gmail.com, bparrot@ti.com,
@@ -40,7 +40,7 @@ Cc:     robh+dt@kernel.org, dmitry.torokhov@gmail.com, bparrot@ti.com,
         shawnguo@kernel.org, devicetree@vger.kernel.org,
         kernel@pengutronix.de, linux-input@vger.kernel.org
 Subject: Re: [PATCH v2 0/5] EDT-FT5x06 improvements
-Message-ID: <20191127171018.GQ32742@smile.fi.intel.com>
+Message-ID: <20191127171456.GR32742@smile.fi.intel.com>
 References: <20191127120948.22251-1-m.felsch@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -62,12 +62,11 @@ On Wed, Nov 27, 2019 at 01:09:43PM +0100, Marco Felsch wrote:
 > During the discussion we all agreed to use the common wakeup-src device
 > property but I added all users of this driver again. So they can provide
 > their ack-tag.
-
-It doesn't break my case (Adafruit 2.8" TFT + cap/ts).
-
-Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
 > 
+
+Independently on the decision on patch 5, FWIW,
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
 > Regards,
 >   Marco
 > 

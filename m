@@ -1,298 +1,75 @@
-Return-Path: <SRS0=jluN=ZV=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=Lf0F=ZW=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIM_ADSP_ALL,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 733B2C43215
-	for <linux-input@archiver.kernel.org>; Fri, 29 Nov 2019 15:40:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 468B0C432C0
+	for <linux-input@archiver.kernel.org>; Sat, 30 Nov 2019 22:27:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4491321736
-	for <linux-input@archiver.kernel.org>; Fri, 29 Nov 2019 15:40:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1561C2085B
+	for <linux-input@archiver.kernel.org>; Sat, 30 Nov 2019 22:27:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="F82YmRMv"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=plaes.org header.i=@plaes.org header.b="NIrWqzta"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726928AbfK2Pk0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 29 Nov 2019 10:40:26 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:43482 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727091AbfK2PkY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 29 Nov 2019 10:40:24 -0500
-Received: by mail-wr1-f68.google.com with SMTP id n1so35737814wra.10
-        for <linux-input@vger.kernel.org>; Fri, 29 Nov 2019 07:40:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=d1qlPGKEub2zxKrCwvu7wl5sgPz0ycWM4uVqvybEP3o=;
-        b=F82YmRMvls0MB5LUz2QLPFzl3BfaxgxvnOVCEJhs1lPCNqRLd1ALGX/cWTwx/odPIW
-         IemIWncQEOpg+J/XVdmZD8pa932RyfoOZV4pOcjVYPzCUl6MH1uJfvVchf6zsgyCwhxG
-         bCPE7pnQMnBdKE05ualTzpbl3MPA+ESEs8cyw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=d1qlPGKEub2zxKrCwvu7wl5sgPz0ycWM4uVqvybEP3o=;
-        b=lDOx2EMCRVMLC0GOlql3n8OXqxIUoY0HkciubMv+LoCJ0QOVbBaHwMZ1cVhdecrGkg
-         jJzsvN5o44FURmQ9XYyvduxzvKitO2uhIomCXi7UVMgIEUoRA9RrUKrG7LUrBMA24Eye
-         Ed1msxbwINDhyEcO5Uo4+KbYlEIdPqQikBrk+z0iTMeIra/Y9ZD4xJP/jTScVne3W2P3
-         t+NVPgSv5CiC2IzlL25CoJBF1tkBf+XhN5m9iHt2Ng9x7kPBul1PfDM5ojSNB6AOlw7s
-         FsWjaILFaQLZ9qJIL5lmng+UDHXCQiU/RNhr68IBiy89Q5lzvo/YYB98SqCzwE4ewVd/
-         Q6wQ==
-X-Gm-Message-State: APjAAAUZECzZ7JXV2HkG2ePwfHbVpyKqj+G/CeXu1X47UcEfipSI33bK
-        kT49tEwIdOvrHsoqi0feUQjVJw==
-X-Google-Smtp-Source: APXvYqyOcTZwJaF1yb8C5yGqGrIDeDIxvzOnil0vbT94pRF4zJdnCm1UYhNHwa7P+mD1vwCUSOZm1A==
-X-Received: by 2002:adf:fa87:: with SMTP id h7mr44553361wrr.172.1575042022285;
-        Fri, 29 Nov 2019 07:40:22 -0800 (PST)
-Received: from phenom.ffwll.local (212-51-149-96.fiber7.init7.net. [212.51.149.96])
-        by smtp.gmail.com with ESMTPSA id e16sm13723160wme.35.2019.11.29.07.40.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Nov 2019 07:40:21 -0800 (PST)
-Date:   Fri, 29 Nov 2019 16:40:19 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Jani Nikula <jani.nikula@intel.com>
-Cc:     dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org, ville.syrjala@linux.intel.com,
-        Andy Walls <awalls@md.metrocast.net>,
-        Bernie Thompson <bernie@plugable.com>,
-        Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Jaya Kumar <jayalk@intworks.biz>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>,
-        Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>,
-        Robin van der Gracht <robin@protonic.nl>,
-        Steve Glendinning <steve.glendinning@shawell.net>,
-        ivtv-devel@ivtvdriver.org, kvm@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-omap@vger.kernel.org
-Subject: Re: [PATCH v2 00/14] video, drm, etc: constify fbops in struct
- fb_info
-Message-ID: <20191129154019.GI624164@phenom.ffwll.local>
-References: <cover.1575022735.git.jani.nikula@intel.com>
+        id S1727280AbfK3W1c (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 30 Nov 2019 17:27:32 -0500
+Received: from plaes.org ([188.166.43.21]:36752 "EHLO plaes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727179AbfK3W1c (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 30 Nov 2019 17:27:32 -0500
+X-Greylist: delayed 315 seconds by postgrey-1.27 at vger.kernel.org; Sat, 30 Nov 2019 17:27:31 EST
+Received: from localhost (unknown [IPv6:2001:1530:1000:7c6d:940e:6b9e:3deb:2])
+        by plaes.org (Postfix) with ESMTPSA id D0F654037F;
+        Sat, 30 Nov 2019 22:22:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=plaes.org; s=mail;
+        t=1575152535; bh=5vE+9+imtN9f4FnW9xL7E0O17/0rF12odZ5Z7xVWr8w=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NIrWqztaHgJ0ibM/3SNjEY8irNbi7wAqcp/PMcwkW39khCWn9yOKgAr3Y+uAuJg+a
+         m39f/1fnouEuJI19smZukeOmMt4PGzs97a/Usu+e0JUyp26zOlpzc172pMm6j6V+qT
+         AcaS8MKbVXoFKfbZn2/tOLQiqsvcd5v6EeuII5Rx7ncdex3aY6uu2LaQnf2TMT74SF
+         4k8dKRu8DOs8udVF7KZWy7vBZAxD8rJmZXU2UaWqwgaSZBAd6a6GOI4zau96+ATpR8
+         fphGSmn00C9KUCl9K6IXtZMsZess9CjR+ROF5KoiV5Raghp5DX6lxor2vZmTmP9WT3
+         7Mnc5YRSqS4ng==
+From:   Priit Laes <plaes@plaes.org>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Priit Laes <plaes@plaes.org>
+Subject: [PATCH] HID: Add quirk for Xin-Mo Dual Controller
+Date:   Sun,  1 Dec 2019 00:22:09 +0200
+Message-Id: <20191130222209.5084-1-plaes@plaes.org>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <cover.1575022735.git.jani.nikula@intel.com>
-X-Operating-System: Linux phenom 5.3.0-2-amd64 
-User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Nov 29, 2019 at 12:29:30PM +0200, Jani Nikula wrote:
-> This is v2 of https://patchwork.freedesktop.org/series/70119/
-> 
-> I wanted to make our struct fb_ops const because we don't modify
-> it... and this is what I ended up with to fix it and a bunch of others.
-> 
-> I would appreciate acks to merge all this via the drm-misc tree. This is
-> especially important for patches 1-8 to reasonably get the job
-> done. Patches 9-14 are somewhat easier to merge at leisure afterwards,
-> but there really isn't much conflict potential IMO.
+Without the quirk, joystick shows up as single controller
+for both first and second player pads/pins.
 
-Only patches 11-14 need acks, drivers/video is already officially
-maintained in drm-misc.
+Signed-off-by: Priit Laes <plaes@plaes.org>
+---
+ drivers/hid/hid-quirks.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> Daniel, please double-check me adding your Reviewed-by on the later
-> patches wasn't overzealous.
-
-Yeah, looks all neat&tidy.
--Daniel
-
-> 
-> BR,
-> Jani.
-> 
-> 
-> Cc: Andy Walls <awalls@md.metrocast.net>
-> Cc: Bernie Thompson <bernie@plugable.com>
-> Cc: Bruno Prémont <bonbons@linux-vserver.org>
-> Cc: Daniel Vetter <daniel@ffwll.ch>
-> Cc: Hans Verkuil <hverkuil@xs4all.nl>
-> Cc: Jaya Kumar <jayalk@intworks.biz>
-> Cc: Kirti Wankhede <kwankhede@nvidia.com>
-> Cc: Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
-> Cc: Noralf Trønnes <noralf@tronnes.org>
-> Cc: Robin van der Gracht <robin@protonic.nl>
-> Cc: Steve Glendinning <steve.glendinning@shawell.net>
-> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Cc: dri-devel@lists.freedesktop.org
-> Cc: ivtv-devel@ivtvdriver.org
-> Cc: kvm@vger.kernel.org
-> Cc: linux-fbdev@vger.kernel.org
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-media@vger.kernel.org
-> Cc: linux-omap@vger.kernel.org
-> 
-> 
-> Jani Nikula (14):
->   video: fb_defio: preserve user fb_ops
->   drm/fb-helper: don't preserve fb_ops across deferred IO use
->   video: smscufx: don't restore fb_mmap after deferred IO cleanup
->   video: udlfb: don't restore fb_mmap after deferred IO cleanup
->   video: fbdev: vesafb: modify the static fb_ops directly
->   video: fbmem: use const pointer for fb_ops
->   video: omapfb: use const pointer for fb_ops
->   video: fbdev: make fbops member of struct fb_info a const pointer
->   drm: constify fb ops across all drivers
->   video: constify fb ops across all drivers
->   HID: picoLCD: constify fb ops
->   media: constify fb ops across all drivers
->   samples: vfio-mdev: constify fb ops
->   auxdisplay: constify fb ops
-> 
->  drivers/auxdisplay/cfag12864bfb.c             |  2 +-
->  drivers/auxdisplay/ht16k33.c                  |  2 +-
->  drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c        |  2 +-
->  drivers/gpu/drm/armada/armada_fbdev.c         |  2 +-
->  drivers/gpu/drm/drm_fb_helper.c               | 27 +++----------------
->  drivers/gpu/drm/exynos/exynos_drm_fbdev.c     |  2 +-
->  .../gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c |  2 +-
->  drivers/gpu/drm/i915/display/intel_fbdev.c    |  2 +-
->  drivers/gpu/drm/msm/msm_fbdev.c               |  2 +-
->  drivers/gpu/drm/nouveau/nouveau_fbcon.c       |  4 +--
->  drivers/gpu/drm/omapdrm/omap_fbdev.c          |  2 +-
->  drivers/gpu/drm/radeon/radeon_fb.c            |  2 +-
->  drivers/gpu/drm/rockchip/rockchip_drm_fbdev.c |  2 +-
->  drivers/gpu/drm/tegra/fb.c                    |  2 +-
->  drivers/gpu/drm/vmwgfx/vmwgfx_fb.c            |  2 +-
->  drivers/hid/hid-picolcd_fb.c                  |  3 +--
->  drivers/media/pci/ivtv/ivtvfb.c               |  3 +--
->  drivers/media/platform/vivid/vivid-osd.c      |  3 +--
->  drivers/video/fbdev/68328fb.c                 |  2 +-
->  drivers/video/fbdev/acornfb.c                 |  2 +-
->  drivers/video/fbdev/amba-clcd.c               |  2 +-
->  drivers/video/fbdev/amifb.c                   |  2 +-
->  drivers/video/fbdev/arcfb.c                   |  2 +-
->  drivers/video/fbdev/arkfb.c                   |  2 +-
->  drivers/video/fbdev/asiliantfb.c              |  2 +-
->  drivers/video/fbdev/atmel_lcdfb.c             |  2 +-
->  drivers/video/fbdev/aty/aty128fb.c            |  2 +-
->  drivers/video/fbdev/aty/atyfb_base.c          |  2 +-
->  drivers/video/fbdev/aty/radeon_base.c         |  2 +-
->  drivers/video/fbdev/au1100fb.c                |  2 +-
->  drivers/video/fbdev/au1200fb.c                |  2 +-
->  drivers/video/fbdev/broadsheetfb.c            |  2 +-
->  drivers/video/fbdev/bw2.c                     |  2 +-
->  drivers/video/fbdev/carminefb.c               |  2 +-
->  drivers/video/fbdev/cg14.c                    |  2 +-
->  drivers/video/fbdev/cg3.c                     |  2 +-
->  drivers/video/fbdev/cg6.c                     |  2 +-
->  drivers/video/fbdev/chipsfb.c                 |  2 +-
->  drivers/video/fbdev/cirrusfb.c                |  2 +-
->  drivers/video/fbdev/clps711x-fb.c             |  2 +-
->  drivers/video/fbdev/cobalt_lcdfb.c            |  2 +-
->  drivers/video/fbdev/controlfb.c               |  2 +-
->  drivers/video/fbdev/core/fb_defio.c           |  3 ---
->  drivers/video/fbdev/core/fbmem.c              | 19 ++++++++-----
->  drivers/video/fbdev/cyber2000fb.c             |  2 +-
->  drivers/video/fbdev/da8xx-fb.c                |  2 +-
->  drivers/video/fbdev/dnfb.c                    |  2 +-
->  drivers/video/fbdev/efifb.c                   |  2 +-
->  drivers/video/fbdev/ep93xx-fb.c               |  2 +-
->  drivers/video/fbdev/fb-puv3.c                 |  2 +-
->  drivers/video/fbdev/ffb.c                     |  2 +-
->  drivers/video/fbdev/fm2fb.c                   |  2 +-
->  drivers/video/fbdev/fsl-diu-fb.c              |  2 +-
->  drivers/video/fbdev/g364fb.c                  |  2 +-
->  drivers/video/fbdev/gbefb.c                   |  2 +-
->  drivers/video/fbdev/geode/gx1fb_core.c        |  2 +-
->  drivers/video/fbdev/geode/gxfb_core.c         |  2 +-
->  drivers/video/fbdev/geode/lxfb_core.c         |  2 +-
->  drivers/video/fbdev/goldfishfb.c              |  2 +-
->  drivers/video/fbdev/grvga.c                   |  2 +-
->  drivers/video/fbdev/gxt4500.c                 |  2 +-
->  drivers/video/fbdev/hecubafb.c                |  2 +-
->  drivers/video/fbdev/hgafb.c                   |  2 +-
->  drivers/video/fbdev/hitfb.c                   |  2 +-
->  drivers/video/fbdev/hpfb.c                    |  2 +-
->  drivers/video/fbdev/hyperv_fb.c               |  2 +-
->  drivers/video/fbdev/i740fb.c                  |  2 +-
->  drivers/video/fbdev/imsttfb.c                 |  2 +-
->  drivers/video/fbdev/imxfb.c                   |  2 +-
->  drivers/video/fbdev/intelfb/intelfbdrv.c      |  2 +-
->  drivers/video/fbdev/kyro/fbdev.c              |  2 +-
->  drivers/video/fbdev/leo.c                     |  2 +-
->  drivers/video/fbdev/macfb.c                   |  2 +-
->  drivers/video/fbdev/matrox/matroxfb_crtc2.c   |  2 +-
->  drivers/video/fbdev/maxinefb.c                |  2 +-
->  drivers/video/fbdev/mb862xx/mb862xxfbdrv.c    |  2 +-
->  drivers/video/fbdev/mbx/mbxfb.c               |  2 +-
->  drivers/video/fbdev/metronomefb.c             |  2 +-
->  drivers/video/fbdev/mmp/fb/mmpfb.c            |  2 +-
->  drivers/video/fbdev/mx3fb.c                   |  5 ++--
->  drivers/video/fbdev/neofb.c                   |  2 +-
->  drivers/video/fbdev/nvidia/nvidia.c           |  2 +-
->  drivers/video/fbdev/ocfb.c                    |  2 +-
->  drivers/video/fbdev/offb.c                    |  2 +-
->  drivers/video/fbdev/omap/omapfb_main.c        |  2 +-
->  .../video/fbdev/omap2/omapfb/omapfb-main.c    |  2 +-
->  drivers/video/fbdev/p9100.c                   |  2 +-
->  drivers/video/fbdev/platinumfb.c              |  2 +-
->  drivers/video/fbdev/pm2fb.c                   |  2 +-
->  drivers/video/fbdev/pm3fb.c                   |  2 +-
->  drivers/video/fbdev/pmag-aa-fb.c              |  2 +-
->  drivers/video/fbdev/pmag-ba-fb.c              |  2 +-
->  drivers/video/fbdev/pmagb-b-fb.c              |  2 +-
->  drivers/video/fbdev/ps3fb.c                   |  2 +-
->  drivers/video/fbdev/pvr2fb.c                  |  2 +-
->  drivers/video/fbdev/pxa168fb.c                |  2 +-
->  drivers/video/fbdev/pxafb.c                   |  4 +--
->  drivers/video/fbdev/q40fb.c                   |  2 +-
->  drivers/video/fbdev/riva/fbdev.c              |  2 +-
->  drivers/video/fbdev/s3c-fb.c                  |  2 +-
->  drivers/video/fbdev/s3c2410fb.c               |  2 +-
->  drivers/video/fbdev/s3fb.c                    |  2 +-
->  drivers/video/fbdev/sa1100fb.c                |  2 +-
->  drivers/video/fbdev/savage/savagefb_driver.c  |  2 +-
->  drivers/video/fbdev/sh7760fb.c                |  2 +-
->  drivers/video/fbdev/sh_mobile_lcdcfb.c        |  4 +--
->  drivers/video/fbdev/simplefb.c                |  2 +-
->  drivers/video/fbdev/sis/sis_main.c            |  2 +-
->  drivers/video/fbdev/skeletonfb.c              |  2 +-
->  drivers/video/fbdev/sm712fb.c                 |  2 +-
->  drivers/video/fbdev/smscufx.c                 |  3 +--
->  drivers/video/fbdev/ssd1307fb.c               |  2 +-
->  drivers/video/fbdev/sstfb.c                   |  2 +-
->  drivers/video/fbdev/stifb.c                   |  2 +-
->  drivers/video/fbdev/sunxvr1000.c              |  2 +-
->  drivers/video/fbdev/sunxvr2500.c              |  2 +-
->  drivers/video/fbdev/sunxvr500.c               |  2 +-
->  drivers/video/fbdev/tcx.c                     |  2 +-
->  drivers/video/fbdev/tdfxfb.c                  |  2 +-
->  drivers/video/fbdev/tgafb.c                   |  2 +-
->  drivers/video/fbdev/tmiofb.c                  |  2 +-
->  drivers/video/fbdev/tridentfb.c               |  2 +-
->  drivers/video/fbdev/udlfb.c                   |  1 -
->  drivers/video/fbdev/uvesafb.c                 |  2 +-
->  drivers/video/fbdev/valkyriefb.c              |  2 +-
->  drivers/video/fbdev/vesafb.c                  |  6 ++---
->  drivers/video/fbdev/vfb.c                     |  2 +-
->  drivers/video/fbdev/vga16fb.c                 |  2 +-
->  drivers/video/fbdev/vt8500lcdfb.c             |  2 +-
->  drivers/video/fbdev/vt8623fb.c                |  2 +-
->  drivers/video/fbdev/w100fb.c                  |  2 +-
->  drivers/video/fbdev/wm8505fb.c                |  2 +-
->  drivers/video/fbdev/xen-fbfront.c             |  2 +-
->  drivers/video/fbdev/xilinxfb.c                |  2 +-
->  include/linux/fb.h                            |  2 +-
->  samples/vfio-mdev/mdpy-fb.c                   |  2 +-
->  136 files changed, 156 insertions(+), 175 deletions(-)
-> 
-> -- 
-> 2.20.1
-> 
-
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index c50bcd967d99..2007e31837ad 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -173,6 +173,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD2, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE), HID_QUIRK_MULTI_INPUT },
+ 
+ 	{ 0 }
+ };
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.23.0
+

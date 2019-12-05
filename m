@@ -2,249 +2,356 @@ Return-Path: <SRS0=/2A/=Z3=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E56D8C2D0C0
-	for <linux-input@archiver.kernel.org>; Thu,  5 Dec 2019 18:45:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B330C43603
+	for <linux-input@archiver.kernel.org>; Thu,  5 Dec 2019 20:03:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C0DF82464E
-	for <linux-input@archiver.kernel.org>; Thu,  5 Dec 2019 18:45:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D939924671
+	for <linux-input@archiver.kernel.org>; Thu,  5 Dec 2019 20:03:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VMees2KU"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="MBYsKYOK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730283AbfLESp3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Dec 2019 13:45:29 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:44305 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730266AbfLESp3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Dec 2019 13:45:29 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575571527;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=v1V7G6KZpMpicveh7Yj58ONMjNBe3cjyXNatkeBn9BI=;
-        b=VMees2KUrJKjOlenOYAFtmOSqzvKF428zHNfSZcM7X82SoU5/eEJpegbanRr8foRQoIIo5
-        xogDWoQhz+PumjHY7yRhA2QiV/kCOZ5d0DjrajOd15mV1glktPasmI6dOre28RytBj0xoS
-        mr9pTW46meU+aHKq9Pmpc5P00FJ5nBQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-328-4A0oJEkIPKODtyErVmr4Lg-1; Thu, 05 Dec 2019 13:45:23 -0500
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5DDEA800C7A;
-        Thu,  5 Dec 2019 18:45:21 +0000 (UTC)
-Received: from shalem.localdomain.com (ovpn-116-55.ams2.redhat.com [10.36.116.55])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9752B60137;
-        Thu,  5 Dec 2019 18:45:17 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Peter Jones <pjones@redhat.com>,
-        Dave Olsthoorn <dave@bewaar.me>, x86@kernel.org,
-        platform-driver-x86@vger.kernel.org, linux-efi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-input@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v9 09/10] platform/x86: touchscreen_dmi: Add EFI embedded firmware info support
-Date:   Thu,  5 Dec 2019 19:44:21 +0100
-Message-Id: <20191205184422.7316-10-hdegoede@redhat.com>
-In-Reply-To: <20191205184422.7316-1-hdegoede@redhat.com>
-References: <20191205184422.7316-1-hdegoede@redhat.com>
+        id S1729240AbfLEUDS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Dec 2019 15:03:18 -0500
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:38525 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726589AbfLEUDR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Dec 2019 15:03:17 -0500
+Received: by mail-qk1-f194.google.com with SMTP id k6so4463590qki.5
+        for <linux-input@vger.kernel.org>; Thu, 05 Dec 2019 12:03:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=TBiv4nPbrGmaDqcfwGsd80bH2zK3bD+1nOLL62W2Qyw=;
+        b=MBYsKYOKB4r9tdW+VvB/DjrVB26qTzDFihxkTUQNX+skyZK0UfrIXarweDJbmioxpJ
+         GCvXtap50GEX+KmryrGSrPZsZz8jpJXKpsL7llFnJqyoEg/7HjJ7RNcULlEiTv3hlU9A
+         iG6FpCYvfn+pDQLmzLauli32SDyORKNlKMnX0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=TBiv4nPbrGmaDqcfwGsd80bH2zK3bD+1nOLL62W2Qyw=;
+        b=KKO/KHIPbOR14WdjxNvwGGSa3ZxBCMNp6D7FcSkRXkNwH409+qXztaaYe3DmK218lc
+         uy60y8b/UfzMUIJDr1xZxip3OfcYnT41DybsuI58oxBv1s6UoppdU4W+BYn3WfCfraP6
+         YykJ7a5q88w2zTqM8wc2fNGvQvqZYI2Lo0ddN0iBG5Oyp6pmyMrpLWbplvMOJoHbhlHO
+         LQTmu627nAmfyfugvs+MkxUBtLoxN5nisFMBVTEaDu4H6raio7TKxPcGhcWK736mKNsu
+         meb4lvyeo8hs0dUC7Wi9gGYLFHn0NmHprNS/rGauUK6VPPXR4sj8liG8LL/vGuxGbw6z
+         WVJA==
+X-Gm-Message-State: APjAAAWs0PeDwhtSzD5f/mYUU/6VwJ1wsg4uwxjrx/NTU3DBV5U4sxyF
+        s6A8iLoQ2FJPFQLGyWAkFSRdjPCu3IUvLrhiVLRDQw==
+X-Google-Smtp-Source: APXvYqzBkiKi2lRXSJjyQxFRLev60N/jqicAagry3bcezBfQgp4hV4mJaGk4NfEgl57q0bVocZvcqAoMvD94RE8q9VM=
+X-Received: by 2002:a05:620a:796:: with SMTP id 22mr3676166qka.419.1575576196444;
+ Thu, 05 Dec 2019 12:03:16 -0800 (PST)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-MC-Unique: 4A0oJEkIPKODtyErVmr4Lg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=US-ASCII
+References: <20191127185139.65048-1-abhishekpandit@chromium.org>
+ <20191201145357.ybq5gfty4ulnfasq@pali> <20191202012305.GQ248138@dtor-ws>
+ <20191202084750.k7lafzzrf3yq2tqs@pali> <20191202175440.GA50317@dtor-ws>
+ <20191202185340.nae4lljten5jqp3y@pali> <20191202193628.GI50317@dtor-ws>
+ <20191202230947.ld5ibnczdpkekfcm@pali> <20191203173821.4u6uzxeaqnt3gyz3@pali>
+ <20191203191112.GJ50317@dtor-ws> <20191205105206.slibwytrcteicx6y@pali>
+In-Reply-To: <20191205105206.slibwytrcteicx6y@pali>
+From:   Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Date:   Thu, 5 Dec 2019 12:03:05 -0800
+Message-ID: <CANFp7mXyaqoMDBs4m_Dfm9+4U88g9WoJVcV1g_4KM4xzFhiGXQ@mail.gmail.com>
+Subject: Re: [PATCH] Input: uinput - Add UI_SET_UNIQ ioctl handler
+To:     =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org,
+        Bluez mailing list <linux-bluetooth@vger.kernel.org>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Kirill Smelkov <kirr@nexedi.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Sofar we have been unable to get permission from the vendors to put the
-firmware for touchscreens listed in touchscreen_dmi in linux-firmware.
+On Thu, Dec 5, 2019 at 2:52 AM Pali Roh=C3=A1r <pali.rohar@gmail.com> wrote=
+:
+>
+> On Tuesday 03 December 2019 11:11:12 Dmitry Torokhov wrote:
+> > On Tue, Dec 03, 2019 at 06:38:21PM +0100, Pali Roh=C3=A1r wrote:
+> > > On Tuesday 03 December 2019 00:09:47 Pali Roh=C3=A1r wrote:
+> > > > On Monday 02 December 2019 11:36:28 Dmitry Torokhov wrote:
+> > > > > On Mon, Dec 02, 2019 at 07:53:40PM +0100, Pali Roh=C3=A1r wrote:
+> > > > > > On Monday 02 December 2019 09:54:40 Dmitry Torokhov wrote:
+> > > > > > > On Mon, Dec 02, 2019 at 09:47:50AM +0100, Pali Roh=C3=A1r wro=
+te:
+> > > > > > > > On Sunday 01 December 2019 17:23:05 Dmitry Torokhov wrote:
+> > > > > > > > > Hi Pali,
+> > > > > > > > >
+> > > > > > > > > On Sun, Dec 01, 2019 at 03:53:57PM +0100, Pali Roh=C3=A1r=
+ wrote:
+> > > > > > > > > > Hello!
+> > > > > > > > > >
+> > > > > > > > > > On Wednesday 27 November 2019 10:51:39 Abhishek Pandit-=
+Subedi wrote:
+> > > > > > > > > > > Support setting the uniq attribute of the input devic=
+e. The uniq
+> > > > > > > > > > > attribute is used as a unique identifier for the conn=
+ected device.
+> > > > > > > > > > >
+> > > > > > > > > > > For example, uinput devices created by BlueZ will sto=
+re the address of
+> > > > > > > > > > > the connected device as the uniq property.
+> > > > > > > > > > >
+> > > > > > > > > > > Signed-off-by: Abhishek Pandit-Subedi <abhishekpandit=
+@chromium.org>
+> > > > > > > > > >
+> > > > > > > > > > ...
+> > > > > > > > > >
+> > > > > > > > > > > diff --git a/include/uapi/linux/uinput.h b/include/ua=
+pi/linux/uinput.h
+> > > > > > > > > > > index c9e677e3af1d..d5b7767c1b02 100644
+> > > > > > > > > > > --- a/include/uapi/linux/uinput.h
+> > > > > > > > > > > +++ b/include/uapi/linux/uinput.h
+> > > > > > > > > > > @@ -145,6 +145,7 @@ struct uinput_abs_setup {
+> > > > > > > > > > >  #define UI_SET_PHYS                _IOW(UINPUT_IOCTL=
+_BASE, 108, char*)
+> > > > > > > > > > >  #define UI_SET_SWBIT               _IOW(UINPUT_IOCTL=
+_BASE, 109, int)
+> > > > > > > > > > >  #define UI_SET_PROPBIT             _IOW(UINPUT_IOCTL=
+_BASE, 110, int)
+> > > > > > > > > > > +#define UI_SET_UNIQ                _IOW(UINPUT_IOCTL=
+_BASE, 111, char*)
+> > > > > > > > > >
+> > > > > > > > > > I think that usage of char* as type in _IOW would cause=
+ compatibility
+> > > > > > > > > > problems like it is for UI_SET_PHYS (there is UI_SET_PH=
+YS_COMPAT). Size
+> > > > > > > > > > of char* pointer depends on userspace (32 vs 64bit), so=
+ 32bit process on
+> > > > > > > > > > 64bit kernel would not be able to call this new UI_SET_=
+UNIQ ioctl.
+> > > > > > > > > >
+> > > > > > > > > > I would suggest to define this ioctl as e.g.:
+> > > > > > > > > >
+> > > > > > > > > >   #define UI_SET_UNIQ         _IOW(_IOC_WRITE, UINPUT_I=
+OCTL_BASE, 111, 0)
+> > > > > > > > > >
+> > > > > > > > > > And then in uinput.c code handle it as:
+> > > > > > > > > >
+> > > > > > > > > >   case UI_SET_UNIQ & ~IOCSIZE_MASK:
+> > > > > > > > > >
+> > > > > > > > > > as part of section /* Now check variable-length command=
+s */
+> > > > > > > > >
+> > > > > > > > > If we did not have UI_SET_PHYS in its current form, I'd a=
+gree with you,
+> > > > > > > > > but I think there is benefit in having UI_SET_UNIQ be sim=
+ilar to
+> > > > > > > > > UI_SET_PHYS.
+> > > > > > > >
+> > > > > > > > I thought that ioctl is just number, so we can define it as=
+ we want. And
+> > > > > > > > because uinput.c has already switch for variable-length com=
+mands it
+> > > > > > > > would be easy to use it. Final handling can be in separate =
+function like
+> > > > > > > > for UI_SET_PHYS which can look like same.
+> > > > > > >
+> > > > > > > Yes, we can define ioctl number as whatever we want. What I w=
+as trying
+> > > > > > > to say, right now users do this:
+> > > > > > >
+> > > > > > >     rc =3D ioctl(fd, UI_SET_PHYS, "whatever");
+> > > > > > >     ...
+> > > > > > >
+> > > > > > > and with UI_SET_UNIQ they expect the following to work:
+> > > > > > >
+> > > > > > >     rc =3D ioctl(fd, UI_SET_UNIQ, "whatever");
+> > > > > > >     ...
+> > > > > >
+> > > > > > And would not following definition
+> > > > > >
+> > > > > >   #define UI_SET_UNIQ _IOW(_IOC_WRITE, UINPUT_IOCTL_BASE, 111, =
+0)
+> > > > > >
+> > > > > > allow userspace to call
+> > > > > >
+> > > > > >   rc =3D ioctl(fd, UI_SET_UNIQ, "whatever");
+> > > > > >
+> > > > > > as you want?
+> > > > >
+> > > > > OK, so what you are saying is that we can have whatever in the si=
+ze
+> > > > > portion of ioctl number and simply ignore it in the driver
+> > > >
+> > > > Yes.
+> > > >
+> > > > > (and I do not
+> > > > > think we need to do any of "UI_SET_UNIQ & ~IOCSIZE_MASK" really).
+> > > >
+> > > > You are right, we do not need to clear any IOCSIZE_MASK. As ioctl n=
+umber
+> > > > would be always sam constant number. So it would be really simple. =
+So
+> > > > original patch would work if UI_SET_UNIQ define would be changed to
+> > > > above with _IOW() macro.
+> > > >
+> > > > > While this would work, I am not sure it is the best option as I t=
+hink
+> > > > > we'd have to comment extensively why we have arbitrary number in =
+place
+> > > > > of the size.
+> > > >
+> > > > Comment can be added. But this is as ioctl is going to accept varia=
+ble
+> > > > length array (not fixed array), zero value make sense for me (zero =
+as we
+> > > > do not know exact size).
+> > > >
+> > > > > And we still do not really save anything, as we still have to go =
+through
+> > > > > compat ioctl handler (since we have it already) and it is very si=
+mple to
+> > > > > add a case for UI_SET_UNIQ there...
+> > > >
+> > > > Yes, compat ioctl is still used. But my proposed solution does not
+> > > > involve to define a new compact ioctl number just for sizeof(char *=
+).
+> > > >
+> > > > I'm looking at this particular problem from side, that there is no
+> > > > reason to define two new ioctl numbers for UI_SET_UNIQ (one normal
+> > > > number and one compat number), when one number is enough. It is one=
+ new
+> > > > ioctl call, so one ioctl number should be enough.
+> > > >
+> > > > And also with my proposed solution with ioctl size=3D0 it simplify
+> > > > implementation of UI_SET_UNIQ as it is not needed to implement also
+> > > > UI_SET_UNIQ_COMPAT ioctl nor touch compat ioct code path. Basically
+> > > > original patch (with changed UI_SET_UNIQ macro) is enough.
+> > > >
+> > > > But of of course, this is my view of this problem and I would not b=
+e
+> > > > against your decision from maintainer position. Both solutions woul=
+d
+> > > > work correctly and bring same behavior for userspace applications.
+> > >
+> > >
+> > > Hi Dmitry!
+> > >
+> > > I was looking again at those _IOW defines for ioctl calls and I have
+> > > another argument why not specify 'char *' in _IOW:
+> > >
+> > > All ioctls in _IOW() specify as a third macro argument type which is
+> > > passed as pointer to the third argument for ioctl() syscall.
+> > >
+> > > So e.g.:
+> > >
+> > >   #define EVIOCSCLOCKID _IOW('E', 0xa0, int)
+> > >
+> > > is called from userspace as:
+> > >
+> > >   int val;
+> > >   ioctl(fd, EVIOCSCLOCKID, &val);
+> > >
+> > > Or
+> > >
+> > >   #define EVIOCSMASK _IOW('E', 0x93, struct input_mask)
+> > >
+> > > is called as:
+> > >
+> > >   struct input_mask val;
+> > >   ioctl(fd, EVIOCSMASK, &val);
+> > >
+> > > So basically third argument for _IOW specify size of byte buffer pass=
+ed
+> > > as third argument for ioctl(). In _IOW is not specified pointer to
+> > > struct input_mask, but struct input_mask itself.
+> > >
+> > > And in case you define
+> > >
+> > >   #define MY_NEW_IOCTL _IOW(UINPUT_IOCTL_BASE, 200, char*)
+> > >
+> > > then you by above usage you should pass data as:
+> > >
+> > >   char *val =3D "DATA";
+> > >   ioctl(fd, MY_NEW_IOCTL, &val);
+> > >
+> > > Which is not same as just:
+> > >
+> > >   ioctl(fd, MY_NEW_IOCTL, "DATA");
+> > >
+> > > As in former case you passed pointer to pointer to data and in later
+> > > case you passed only pointer to data.
+> > >
+> > > It just mean that UI_SET_PHYS is already defined inconsistently which=
+ is
+> > > also reason why compat ioctl for it was introduced.
+> >
+> > Yes, you are right. UI_SET_PHYS is messed up. I guess the question is
+> > what to do with all of this...
+> >
+> > Maybe we should define
+> >
+> > #define UI_SET_PHYS_STR(len)  _IOC(_IOC_WRITE, UINPUT_IOCTL_BASE, 111, =
+len)
+> > #define UI_SET_UNIQ_STR(len)  _IOC(_IOC_WRITE, UINPUT_IOCTL_BASE, 112, =
+len)
+>
+> I'm not sure if this is ideal. Normally in C strings are nul-termined,
+> so functions/macros do not take buffer length.
+Except strncpy, strndup, snprintf, etc. all expect a buffer length. At
+the user to kernel boundary of ioctl, I think we should require size
+of the user buffer regardless of the data type.
 
-Some of the tablets with such a touchscreen have a touchscreen driver, and
-thus a copy of the firmware, as part of their EFI code.
+> _STR therefore in names looks inconsistent.
+The _STR suffix is odd (what to name UI_SET_PHYS_STR then??) but
+requiring the length seems to be common across various ioctls.
+* input.h requires a length when requesting the phys and uniq
+(https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/in=
+clude/uapi/linux/input.h#n138)
+* Same with HIDRAW when setting and getting features:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/inc=
+lude/uapi/linux/hidraw.h#n40,
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/sam=
+ples/hidraw/hid-example.c#n88
 
-This commit adds the necessary info for the new EFI embedded-firmware code
-to extract these firmwares, making the touchscreen work OOTB without the
-user needing to manually add the firmware.
+>
+> Maybe this is something which should be handled and unified at global
+> scope of linux include files. Or al least make consensus how should be
+> new ioctls for linux written.
+>
+> Otherwise each API would use different ioctl schema and mess would be
+> still there. Which means that defining a new ioctl UI_SET_PHYS_STR for
+> existing one UI_SET_PHYS does not fix anything -- but rather make mess a
+> big larger.
+>
+> Or is there already some discussion on LKML about this ioctl problem?
+I found this fairly old email (couldn't find something more recent):
+http://lkml.iu.edu/hypermail/linux/kernel/9903.3/0325.html
+I think the intent is for userspace to provide the size of the string
+they're passing in (or at least the size of the allocated buffer that
+has the string).
 
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v7:
-- Remove adding of PROPERTY_ENTRY_BOOL("efi-embedded-firmware"), to touchsc=
-reen
-  props, as this is no longer necessary
+>
+> > and mark UI_SET_PHYS as deprecated/wrong? This will allow us to specify
+> > exactly how much data kernel is supposed to fetch from userspace instea=
+d
+> > of trying to rely on a null-terminated string.
+> >
+> > It would also be very helpful if BlueZ did not accept changes that use
+> > this brand new ioctl until after we agreed on how it should look like.
+> > Luiz, can it be reverted for now please?
+> >
+> > Thanks.
+> >
+>
+> --
+> Pali Roh=C3=A1r
+> pali.rohar@gmail.com
 
-Changes in v6:
-- Switch from crc sums to SHA256 hashes for the firmware hashes
----
- drivers/firmware/efi/embedded-firmware.c |  3 ++
- drivers/platform/x86/Kconfig             |  1 +
- drivers/platform/x86/touchscreen_dmi.c   | 41 +++++++++++++++++++++++-
- include/linux/efi_embedded_fw.h          |  2 ++
- 4 files changed, 46 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/efi/embedded-firmware.c b/drivers/firmware/ef=
-i/embedded-firmware.c
-index 6668ad48133f..9592c6d12840 100644
---- a/drivers/firmware/efi/embedded-firmware.c
-+++ b/drivers/firmware/efi/embedded-firmware.c
-@@ -21,6 +21,9 @@ EXPORT_SYMBOL_GPL(efi_embedded_fw_list);
- static bool checked_for_fw;
-=20
- static const struct dmi_system_id * const embedded_fw_table[] =3D {
-+#ifdef CONFIG_TOUCHSCREEN_DMI
-+=09touchscreen_dmi_table,
-+#endif
- =09NULL
- };
-=20
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 1cab99320514..3891fd8af886 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -1250,6 +1250,7 @@ config INTEL_TURBO_MAX_3
- config TOUCHSCREEN_DMI
- =09bool "DMI based touchscreen configuration info"
- =09depends on ACPI && DMI && I2C=3Dy && TOUCHSCREEN_SILEAD
-+=09select EFI_EMBEDDED_FIRMWARE if EFI
- =09---help---
- =09  Certain ACPI based tablets with e.g. Silead or Chipone touchscreens
- =09  do not have enough data in ACPI tables for the touchscreen driver to
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/=
-touchscreen_dmi.c
-index 72205771d03d..4449e4c0b26b 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -11,12 +11,15 @@
- #include <linux/acpi.h>
- #include <linux/device.h>
- #include <linux/dmi.h>
-+#include <linux/efi_embedded_fw.h>
- #include <linux/i2c.h>
- #include <linux/notifier.h>
- #include <linux/property.h>
- #include <linux/string.h>
-=20
- struct ts_dmi_data {
-+=09/* The EFI embedded-fw code expects this to be the first member! */
-+=09struct efi_embedded_fw_desc embedded_fw;
- =09const char *acpi_name;
- =09const struct property_entry *properties;
- };
-@@ -64,6 +67,15 @@ static const struct property_entry chuwi_hi8_pro_props[]=
- =3D {
- };
-=20
- static const struct ts_dmi_data chuwi_hi8_pro_data =3D {
-+=09.embedded_fw =3D {
-+=09=09.name=09=3D "silead/gsl3680-chuwi-hi8-pro.fw",
-+=09=09.prefix =3D { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
-+=09=09.length=09=3D 39864,
-+=09=09.sha256=09=3D { 0xc0, 0x88, 0xc5, 0xef, 0xd1, 0x70, 0x77, 0x59,
-+=09=09=09    0x4e, 0xe9, 0xc4, 0xd8, 0x2e, 0xcd, 0xbf, 0x95,
-+=09=09=09    0x32, 0xd9, 0x03, 0x28, 0x0d, 0x48, 0x9f, 0x92,
-+=09=09=09    0x35, 0x37, 0xf6, 0x8b, 0x2a, 0xe4, 0x73, 0xff },
-+=09},
- =09.acpi_name=09=3D "MSSL1680:00",
- =09.properties=09=3D chuwi_hi8_pro_props,
- };
-@@ -181,6 +193,15 @@ static const struct property_entry cube_iwork8_air_pro=
-ps[] =3D {
- };
-=20
- static const struct ts_dmi_data cube_iwork8_air_data =3D {
-+=09.embedded_fw =3D {
-+=09=09.name=09=3D "silead/gsl3670-cube-iwork8-air.fw",
-+=09=09.prefix =3D { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
-+=09=09.length=09=3D 38808,
-+=09=09.sha256=09=3D { 0xff, 0x62, 0x2d, 0xd1, 0x8a, 0x78, 0x04, 0x7b,
-+=09=09=09    0x33, 0x06, 0xb0, 0x4f, 0x7f, 0x02, 0x08, 0x9c,
-+=09=09=09    0x96, 0xd4, 0x9f, 0x04, 0xe1, 0x47, 0x25, 0x25,
-+=09=09=09    0x60, 0x77, 0x41, 0x33, 0xeb, 0x12, 0x82, 0xfc },
-+=09},
- =09.acpi_name=09=3D "MSSL1680:00",
- =09.properties=09=3D cube_iwork8_air_props,
- };
-@@ -390,6 +411,15 @@ static const struct property_entry onda_v80_plus_v3_pr=
-ops[] =3D {
- };
-=20
- static const struct ts_dmi_data onda_v80_plus_v3_data =3D {
-+=09.embedded_fw =3D {
-+=09=09.name=09=3D "silead/gsl3676-onda-v80-plus-v3.fw",
-+=09=09.prefix =3D { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
-+=09=09.length=09=3D 37224,
-+=09=09.sha256=09=3D { 0x8f, 0xbd, 0x8f, 0x0c, 0x6b, 0xba, 0x5b, 0xf5,
-+=09=09=09    0xa3, 0xc7, 0xa3, 0xc0, 0x4f, 0xcd, 0xdf, 0x32,
-+=09=09=09    0xcc, 0xe4, 0x70, 0xd6, 0x46, 0x9c, 0xd7, 0xa7,
-+=09=09=09    0x4b, 0x82, 0x3f, 0xab, 0xc7, 0x90, 0xea, 0x23 },
-+=09},
- =09.acpi_name=09=3D "MSSL1680:00",
- =09.properties=09=3D onda_v80_plus_v3_props,
- };
-@@ -456,6 +486,15 @@ static const struct property_entry pipo_w2s_props[] =
-=3D {
- };
-=20
- static const struct ts_dmi_data pipo_w2s_data =3D {
-+=09.embedded_fw =3D {
-+=09=09.name=09=3D "silead/gsl1680-pipo-w2s.fw",
-+=09=09.prefix =3D { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
-+=09=09.length=09=3D 39072,
-+=09=09.sha256=09=3D { 0xd0, 0x58, 0xc4, 0x7d, 0x55, 0x2d, 0x62, 0x18,
-+=09=09=09    0xd1, 0x6a, 0x71, 0x73, 0x0b, 0x3f, 0xbe, 0x60,
-+=09=09=09    0xbb, 0x45, 0x8c, 0x52, 0x27, 0xb7, 0x18, 0xf4,
-+=09=09=09    0x31, 0x00, 0x6a, 0x49, 0x76, 0xd8, 0x7c, 0xd3 },
-+=09},
- =09.acpi_name=09=3D "MSSL1680:00",
- =09.properties=09=3D pipo_w2s_props,
- };
-@@ -642,7 +681,7 @@ static const struct ts_dmi_data trekstor_surftab_wintro=
-n70_data =3D {
- };
-=20
- /* NOTE: Please keep this table sorted alphabetically */
--static const struct dmi_system_id touchscreen_dmi_table[] =3D {
-+const struct dmi_system_id touchscreen_dmi_table[] =3D {
- =09{
- =09=09/* Chuwi Hi8 */
- =09=09.driver_data =3D (void *)&chuwi_hi8_data,
-diff --git a/include/linux/efi_embedded_fw.h b/include/linux/efi_embedded_f=
-w.h
-index 5a8ae662911b..c4737fd07e33 100644
---- a/include/linux/efi_embedded_fw.h
-+++ b/include/linux/efi_embedded_fw.h
-@@ -34,6 +34,8 @@ struct efi_embedded_fw_desc {
- =09u8 sha256[32];
- };
-=20
-+extern const struct dmi_system_id touchscreen_dmi_table[];
-+
- int efi_get_embedded_fw(const char *name, void **dat, size_t *sz);
-=20
- #endif
---=20
-2.23.0
-
+Abhishek

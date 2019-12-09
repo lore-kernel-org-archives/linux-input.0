@@ -2,128 +2,134 @@ Return-Path: <SRS0=PdMS=Z7=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02091C43603
-	for <linux-input@archiver.kernel.org>; Mon,  9 Dec 2019 20:55:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2485C43603
+	for <linux-input@archiver.kernel.org>; Mon,  9 Dec 2019 21:01:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C3361205C9
-	for <linux-input@archiver.kernel.org>; Mon,  9 Dec 2019 20:55:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E517206D5
+	for <linux-input@archiver.kernel.org>; Mon,  9 Dec 2019 21:01:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="G38QlEon"
+	dkim=pass (1024-bit key) header.d=seznam.cz header.i=@seznam.cz header.b="Y9baib6r"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726602AbfLIUzo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 9 Dec 2019 15:55:44 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:33284 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726483AbfLIUzo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Dec 2019 15:55:44 -0500
-Received: by mail-pg1-f195.google.com with SMTP id 6so7720225pgk.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Dec 2019 12:55:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=cADxJVnUoV3/CYs6mlZcytBGrKUT6v8F+9De0N+ZbQ4=;
-        b=G38QlEonTCbZ77UkBJ4yf5cvaMTZNNiAf9wfBifsurQ7ULbIYVa9Mq9MLXvlHQCTjt
-         BL+cmITXf1bOz4unMnV/Pa9KxWEWfWbBPN6tlFbv5cZK6+xqAozesljsgEcqSJrJZwmr
-         hDJFlRNmLFy8GxdagXVj5drkP9CnfaBgtPmgJ8s/fhBY+H3+TF5WfqbxYi88f+Gf1bUs
-         8QYkCKfQJ+Nr61fu98LKA5r/KuS5ztGbWNXBHlD6LTsJGg8Stftkd3CTMlGjkJ4pnFkv
-         NpUbLBJBgwfgvZJIBTmhwiG3ar1IZyAP6CeqRdxcwYksisyMyDaziMAc0f+ESm7btsTk
-         VA0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=cADxJVnUoV3/CYs6mlZcytBGrKUT6v8F+9De0N+ZbQ4=;
-        b=qdFeIgx4ITypxL5fLYdT8EPvuwyGrUIRn0y6puyG3tkFZMQZs6Ovb/1cri0OCBxiXm
-         wm7HvvOhi5DSpbojSDkwLR34B1b66dq72XA+DPGrmVFH/MtPIxq3m9XWFy6hpxEGlvv6
-         VWk0GUYTFs+uJHM3E/djBT4jcXalEzaRP4oUoAl6Y22ormuWH3kj6DePpWbu7SWJLVvj
-         pWlnaI9v1fj/pmnjz3p/+wARkGLgzV8UHmW1RyTeJIfLcT7fY8DXT2qV1gbtt+fZwbXh
-         wBLSbKFJnViSg09VzlubpYlSUt/xr2SrhMj0DhwUyQRMBRb7PmwcFb5Odzjpz8L6so3l
-         koWg==
-X-Gm-Message-State: APjAAAXdqpAyiMeDAQlKND/VdQioMrYu+blpHBf7+LG3CGvt2KPS6wc4
-        Dam/CZ3qicbYuE9ui1gu0ExSGO3FWKk+5tED+gzYKA==
-X-Google-Smtp-Source: APXvYqxhfCWhW/ylSziU+SAhjFBcrT9hZoKpHuKfFf9c+r14vZOL+ZmvdX3AR6YV9ukFakL3EJ76WXHGRuIa2uEbOi4=
-X-Received: by 2002:a63:590e:: with SMTP id n14mr11564655pgb.10.1575924942967;
- Mon, 09 Dec 2019 12:55:42 -0800 (PST)
+        id S1726598AbfLIVBr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 9 Dec 2019 16:01:47 -0500
+Received: from mxa1.seznam.cz ([77.75.78.90]:27568 "EHLO mxa1.seznam.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726532AbfLIVBq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 9 Dec 2019 16:01:46 -0500
+X-Greylist: delayed 732 seconds by postgrey-1.27 at vger.kernel.org; Mon, 09 Dec 2019 16:01:45 EST
+Received: from email.seznam.cz
+        by email-smtpc8b.ko.seznam.cz (email-smtpc8b.ko.seznam.cz [10.53.13.225])
+        id 72f6188a29f84ce3735fd4d4;
+        Mon, 09 Dec 2019 22:01:40 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seznam.cz; s=beta;
+        t=1575925300; bh=PrVyWKz+cStZKFUbfG88xeiAHpw+y5USeILJtHAAfcU=;
+        h=Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:
+         References:MIME-Version:Content-Transfer-Encoding;
+        b=Y9baib6r+H7Lsi/Zm0rTxuMeV2IkRPtv/1g/4pt17rEs7ZouzKwYgFRFxtN9QzV2d
+         vDiOXLRyCCVKxcJEIukCA2Rpl1DwZmG1o0UKcp7yWXYa/TvLthcx4YNXJIPD5Ov4BO
+         n/c4GpXi5joNzTGcvsiIcrhXOm0y7tcXG3TQ/taM=
+Received: from localhost.localdomain (212.69.128.228 [212.69.128.228])
+        by email-relay21.ko.seznam.cz (Seznam SMTPD 1.3.108) with ESMTP;
+        Mon, 09 Dec 2019 21:49:25 +0100 (CET)  
+From:   michael.srba@seznam.cz
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        Michael Srba <Michael.Srba@seznam.cz>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH v3 2/2] dt-bindings: input/touchscreen: add bindings for zinitix
+Date:   Mon,  9 Dec 2019 21:46:29 +0100
+Message-Id: <20191209204629.27243-2-michael.srba@seznam.cz>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191209204629.27243-1-michael.srba@seznam.cz>
+References: <20191209204629.27243-1-michael.srba@seznam.cz>
 MIME-Version: 1.0
-References: <20191209203855.25500-1-natechancellor@gmail.com>
-In-Reply-To: <20191209203855.25500-1-natechancellor@gmail.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 9 Dec 2019 12:55:32 -0800
-Message-ID: <CAKwvOdkYrXehgFPFPeOLy5KKsS96d59DHE6JH+aEn57-avVA3Q@mail.gmail.com>
-Subject: Re: [PATCH] HID: core: Adjust indentation in hid_add_device
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Jiri Kosina <jkosina@suse.cz>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Dec 9, 2019 at 12:39 PM Nathan Chancellor
-<natechancellor@gmail.com> wrote:
->
-> Clang warns:
->
-> ../drivers/hid/hid-core.c:2378:3: warning: misleading indentation;
-> statement is not part of the previous 'if' [-Wmisleading-indentation]
->          if (!hdev->ll_driver->raw_request) {
->          ^
-> ../drivers/hid/hid-core.c:2372:2: note: previous statement is here
->         if (hid_ignore(hdev))
->         ^
-> 1 warning generated.
->
-> This warning occurs because there is a space after the tab on this line.
-> Remove it so that the indentation is consistent with the Linux kernel
-> coding style and clang no longer warns.
->
-> Fixes: 3c86726cfe38 ("HID: make .raw_request mandatory")
-> Link: https://github.com/ClangBuiltLinux/linux/issues/793
-> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+From: Michael Srba <Michael.Srba@seznam.cz>
 
-Thanks for taking the time to track down proper fixes tags.
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+This patch adds dts bindings for the zinitix bt541 touchscreen.
 
-> ---
->  drivers/hid/hid-core.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index e0b241bd3070..9c7f03f23eca 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2375,10 +2375,10 @@ int hid_add_device(struct hid_device *hdev)
->         /*
->          * Check for the mandatory transport channel.
->          */
-> -        if (!hdev->ll_driver->raw_request) {
-> +       if (!hdev->ll_driver->raw_request) {
->                 hid_err(hdev, "transport driver missing .raw_request()\n");
->                 return -EINVAL;
-> -        }
-> +       }
->
->         /*
->          * Read the device report descriptor once and use as template
-> --
-> 2.24.0
->
-> --
-> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20191209203855.25500-1-natechancellor%40gmail.com.
+Signed-off-by: Michael Srba <Michael.Srba@seznam.cz>
+---
+ changes in v2: none
+ changes in v3: document zinitix,mode property
 
 
+ .../bindings/input/touchscreen/zinitix.txt    | 40 +++++++++++++++++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
+ 2 files changed, 42 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/zinitix.txt b/Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
+new file mode 100644
+index 000000000000..446efb9f5f55
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
+@@ -0,0 +1,40 @@
++Device tree bindings for Zinitx BT541 touchscreen controller
++
++Required properties:
++
++ - compatible		: Should be "zinitix,bt541"
++ - reg			: I2C address of the chip. Should be 0x20
++ - interrupts		: Interrupt to which the chip is connected
++
++Optional properties:
++
++ - vdd-supply		: Analog power supply regulator on VCCA pin
++ - vddo-supply		: Digital power supply regulator on VDD pin
++ - zinitix,mode		: Mode of reporting touch points. Some modes may not work
++			  with a particular ts firmware for unknown reasons. Available
++			  modes are 1 and 2. Mode 2 is the default and preferred.
++
++The touchscreen-* properties are documented in touchscreen.txt in this
++directory.
++
++Example:
++
++	i2c@00000000 {
++		/* ... */
++
++		bt541@20 {
++			compatible = "zinitix,bt541";
++			reg = <0x20>;
++			interrupt-parent = <&msmgpio>;
++			interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&tsp_default>;
++			vdd-supply = <&reg_vdd_tsp>;
++			vddo-supply = <&pm8916_l6>;
++			touchscreen-size-x = <540>;
++			touchscreen-size-y = <960>;
++			zinitix,mode = <2>;
++		};
++
++		/* ... */
++	};
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index 967e78c5ec0a..1b0b5e23267d 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1066,6 +1066,8 @@ patternProperties:
+     description: Shenzhen Zidoo Technology Co., Ltd.
+   "^zii,.*":
+     description: Zodiac Inflight Innovations
++  "^zinitix,.*":
++    description: Zinitix Co., Ltd
+   "^zte,.*":
+     description: ZTE Corp.
+   "^zyxel,.*":
 -- 
-Thanks,
-~Nick Desaulniers
+2.24.0

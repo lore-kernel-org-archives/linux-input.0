@@ -7,44 +7,44 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD8ABC2D0C2
-	for <linux-input@archiver.kernel.org>; Mon,  9 Dec 2019 00:38:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19E90C43603
+	for <linux-input@archiver.kernel.org>; Mon,  9 Dec 2019 00:38:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9C8ED20722
-	for <linux-input@archiver.kernel.org>; Mon,  9 Dec 2019 00:38:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C254E206E0
+	for <linux-input@archiver.kernel.org>; Mon,  9 Dec 2019 00:38:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=NETORG5796793.onmicrosoft.com header.i=@NETORG5796793.onmicrosoft.com header.b="nPrLbBrm"
+	dkim=pass (1024-bit key) header.d=NETORG5796793.onmicrosoft.com header.i=@NETORG5796793.onmicrosoft.com header.b="WdABihN8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726780AbfLIAin (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 8 Dec 2019 19:38:43 -0500
+        id S1726786AbfLIAip (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 8 Dec 2019 19:38:45 -0500
 Received: from mail-mw2nam12on2065.outbound.protection.outlook.com ([40.107.244.65]:11831
         "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726654AbfLIAin (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 8 Dec 2019 19:38:43 -0500
+        id S1726659AbfLIAio (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 8 Dec 2019 19:38:44 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=N621hrktsC90BHws7QSdCQbMqgMvoRhBTqkDTpJnzmIAO0YwlHsjsJGqEpUkpfs2I7NisHvVCnFjL0kqRJpQbtMbOJ3CZQcARlYhSDv9p8Jm9JAIuPTPSipXBwTOX8PGgObEUZOLLdjxNWERmYoVQepJOxcfRdVVA3Um4vvRWzDcs4ghbbmA4gvwA1C6/2nvNKSqq3Rwe/sUxI5lA9tW5SP9zAgbmecyT4/fYoFXaZT6htvYzIYe2ot9aABE81j8LYbQForgKAJEPacHL08WPKsbKsSwMYEN1XtDb3t0qTAK22plZCHrhE6Eg1eKdeg3cAQw4H81ygs/oV5bvNgi7w==
+ b=P2BAulDkUxnf4Aic6Q96US8iV7x+ocyqoz/cuFAaTuN78q3YZwdg//50ZhjS7UwS5NJRDBCS1QJDO0ZVtx0q5AazdA2cCAM90t4Fd87430A9abKuBD4H4ECMc+hu/yXG1CWOXbjn/cUVBOjhSb0mKw1QEJH1I3cJJN1HrNscLwJQH8Uaj52KIxHVONDTPXyN1GZIQz3/U14y4++RI452O6l6aOC8Eu/4f3DVnPT4uxUBp3OgLIiVkO2eJCi7PcVLUmJS+ZgVyjxTSJIeYh39u/QWLH+1QyQ4JCXoV9+hUOVfUGAk6f/h9I5ZS4spZt8xJvZo7OhMGiuA/II9k/q8Aw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KJu2GRi4HrHCo4OB/bnX69S3TccINdZu0YRb64+UvjE=;
- b=YZ0+Qu5Ar7Nf036El7sdUKYXSlgvUct356QN243ZPfsiEd9uijG6PMbnVgIBSkGH6mFXEH8jMmPQTIoywDZB6f9MEpPT9qksmOWsCcUpR/pX0F9KIlVfLnwwbQyXLt174OMGwCQ15ZRxmKM0+flA5AnqpQUwd+ribvml/yW4MKlFIVoA2chGt5q112QGXXN55iGJzKmNYW2CgzkI5zDQIfZsJwQFumQKlDaos8EaWAazt7GvkHqDhSRpq27LCyCSMwkKlvxEVdmPM/7oefQgc5IUZxjGl4k1VWnEcIEXwrNh6nYuy0w6S7Ypt44xb0brf8ZaiWx0Xu2UvauSacDl1A==
+ bh=IdGVSsvFfBLzJsDLULuN078Ft1c8An0zp0bohKishv4=;
+ b=DMHF2hZ6oDRHxZZdvQgXrlnTbZ1Ko/Ne+cLOLKMJozT4FiOKUxacBdvKXI9a3YgmAmA07WxqUPLpe/2PqdTIhag8XbwTqHZDr/6AGcZG6I5IEhCT1ezklyolMbI5BY3ZeWDrCY8h1EE3L/9U0KtRl2VZ70wYfjj4Xm59lhVUQvzk8ED8GjQhKJ72RqX5k3s+/6kqq5HZT8pC0zq8WrOnM6MPrHI25wSGv2tp6oMb+TjCYYcws64WzUK6WQBbbEmFbMgiaA3PIr2ERTF3wqjp2KIwYy0qKI8wGpZa3MOaHXQhAWT1hhxe19NnVSRsuPiea7Vy/x8KuWthzYUustPC0Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
  dkim=pass header.d=labundy.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KJu2GRi4HrHCo4OB/bnX69S3TccINdZu0YRb64+UvjE=;
- b=nPrLbBrmPAfSkVvYlY0OOTe5Nn4ONL4hh1E31SJD7grNx4d4bGrDMdFcQg4BJljdKjEOMQsPVtyUMAYgLFHsbu99J41VCA+UdRanMIM/J/cpGzqPdP7iBz1x5DD3yzOpWaQw3bN2EtDsJgOq6g3D0rxHn3n/wH8nRBEpfXvcedY=
+ bh=IdGVSsvFfBLzJsDLULuN078Ft1c8An0zp0bohKishv4=;
+ b=WdABihN82sijKeU9jmABa2c53aepMxHF/icWzTvV6ldvHYlmOt62gZFgjtEuFVk0H2hhfOE3FLeLZOgZ8LnnvgypDrK0bcuM/Y+6iS7W7a6tVLeVF/rn4leDgJG5nxTF0+AseCrjqseWHEtvObzayR3POdUyjsORmvIJoHDAsi4=
 Received: from BN7PR08MB5042.namprd08.prod.outlook.com (20.176.177.14) by
  BN7PR08MB4402.namprd08.prod.outlook.com (52.132.223.26) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2516.12; Mon, 9 Dec 2019 00:38:32 +0000
+ 15.20.2516.12; Mon, 9 Dec 2019 00:38:35 +0000
 Received: from BN7PR08MB5042.namprd08.prod.outlook.com
  ([fe80::48de:9418:73ef:d7c1]) by BN7PR08MB5042.namprd08.prod.outlook.com
  ([fe80::48de:9418:73ef:d7c1%6]) with mapi id 15.20.2516.018; Mon, 9 Dec 2019
- 00:38:32 +0000
+ 00:38:35 +0000
 From:   Jeff LaBundy <jeff@labundy.com>
 To:     "lee.jones@linaro.org" <lee.jones@linaro.org>,
         "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
@@ -61,13 +61,13 @@ CC:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         Jeff LaBundy <jeff@labundy.com>
-Subject: [PATCH v2 1/7] dt-bindings: Add bindings for Azoteq
+Subject: [PATCH v2 3/7] input: keyboard: Add support for Azoteq
  IQS620A/621/622/624/625
-Thread-Topic: [PATCH v2 1/7] dt-bindings: Add bindings for Azoteq
+Thread-Topic: [PATCH v2 3/7] input: keyboard: Add support for Azoteq
  IQS620A/621/622/624/625
-Thread-Index: AQHVrij7SDxpuO5/BEuAwvUFNi/Xqg==
-Date:   Mon, 9 Dec 2019 00:38:32 +0000
-Message-ID: <1575851866-18919-2-git-send-email-jeff@labundy.com>
+Thread-Index: AQHVrij9Kfk3AlJ9zEGQVl4oHUIQVA==
+Date:   Mon, 9 Dec 2019 00:38:35 +0000
+Message-ID: <1575851866-18919-4-git-send-email-jeff@labundy.com>
 References: <1575851866-18919-1-git-send-email-jeff@labundy.com>
 In-Reply-To: <1575851866-18919-1-git-send-email-jeff@labundy.com>
 Accept-Language: en-US
@@ -83,471 +83,437 @@ x-ms-exchange-messagesentrepresentingtype: 1
 x-mailer: git-send-email 2.7.4
 x-originating-ip: [136.49.227.119]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: b1be61e4-8b90-4c65-3440-08d77c401e29
+x-ms-office365-filtering-correlation-id: 6061c0b0-72a2-438b-390f-08d77c401ff7
 x-ms-traffictypediagnostic: BN7PR08MB4402:
 x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BN7PR08MB4402B6FE816A000FBC739EDED3580@BN7PR08MB4402.namprd08.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8273;
+x-microsoft-antispam-prvs: <BN7PR08MB4402C7BAADB3BFD016E8977ED3580@BN7PR08MB4402.namprd08.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:3826;
 x-forefront-prvs: 02462830BE
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(376002)(34096005)(366004)(136003)(396003)(346002)(39830400003)(199004)(189003)(99286004)(76176011)(71200400001)(52116002)(71190400001)(54906003)(4326008)(2906002)(6512007)(38610400001)(66556008)(66476007)(6486002)(66946007)(586005)(64756008)(66446008)(110136005)(107886003)(36756003)(966005)(8936002)(102836004)(50226002)(30864003)(305945005)(2616005)(7416002)(5660300002)(6506007)(81166006)(81156014)(498600001)(26005)(86362001)(186003)(8676002);DIR:OUT;SFP:1101;SCL:1;SRVR:BN7PR08MB4402;H:BN7PR08MB5042.namprd08.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(376002)(34096005)(366004)(136003)(396003)(346002)(39830400003)(199004)(189003)(99286004)(76176011)(71200400001)(52116002)(71190400001)(54906003)(4326008)(2906002)(6512007)(38610400001)(66556008)(66476007)(6486002)(66946007)(586005)(64756008)(66446008)(110136005)(107886003)(36756003)(8936002)(102836004)(50226002)(30864003)(305945005)(2616005)(7416002)(5660300002)(6506007)(81166006)(81156014)(498600001)(26005)(86362001)(186003)(8676002);DIR:OUT;SFP:1101;SCL:1;SRVR:BN7PR08MB4402;H:BN7PR08MB5042.namprd08.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
 received-spf: None (protection.outlook.com: labundy.com does not designate
  permitted sender hosts)
 x-ms-exchange-senderadcheck: 1
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: BLMNwunzV0zvB8EZ46e4KAv3Xh4EvosltCgm3OupnoTkfGpUJ8tfhjGxT2aEOiaaB3auF+SBivUGF6IRQTWWsyp6806+wbPY5Y9qAjUU7Iv+bXyXjg2bRruoifhBj/hlZJIym8vm3csKbWK5iZxKyH/pKtbJ+pvEY+sUWFdLpFmOSSJNKpDvOaIUOC/2ExFD/MnDVhRtXEs/wBj+RKQXuNu3HOIx/Y0FalKLaVWfOKoRcmqUZwJebbvfIg95YxgRsU6IkV5Rj5pf/Io0vQp4hKb1LchtIQyWhD3VRdwPJtCvZe4N4vOUXG4DEy+Bl8WVb2ea4WJl6FVOywPgxDQr8CeA6BVRtmJiJQw0GP8WTjKHiAqLYFCV220qlSqKm5SzvbRtM/kqUHlilD2lWzQxmlG2mgMOUsK8//G+KDAg6NVHssWzALOMOZlH8xBILVROvc8E6K1xcV34GfeUk6se68yAZvvGlxOgQ7fyonB3Qyo=
+x-microsoft-antispam-message-info: uafIQNVwABbwDg3ZPh8if9oHbjNi8yYy9uYm6m8FXjco73YtisR+hSvyKR9csebExZycZMPyCxQVLjuOCUIMVIAPPbKigEfny8S3OOaNp4kMd+9nKtFq1c+Vr5/hOQG3ZqJN+sF9iYFFU5oINJu1eDzJucK5iaGJpDelBZ3mH3r7MSzHdG76Qh8Yhhy7tEGwab28HB0O+qjfW1I1ZA3yHUlFj3T2AOPJ1Sq3nVBBPBboV08MbJvKjnySvxA/9d9A1X5EgNM+LMGPNXv2031ihSsGZQyYhKl8AgEmmM4zVQo9FoYXYmosJlu97Ygkcs9Jx9RN3rCoRCln8zHNirsJk7XPILIQStOTM+cA1l7m7KoNn+EwwKVGyNIw6V0pigXuS9VskCajK8xXSkdEfjzpj9ZXMx8HeKfCRjpg+8rdDDKTzWcMiCPyASQXACP7RrHM
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: labundy.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b1be61e4-8b90-4c65-3440-08d77c401e29
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Dec 2019 00:38:32.5251
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6061c0b0-72a2-438b-390f-08d77c401ff7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Dec 2019 00:38:35.4761
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Gcn8wnr0UoSGz0G7Rs35QmfxqLH0UzyrE1Q9C6blsqSrIZlP7/iJqByXKB6lRYA5L3R4WbXsuwF+Vei9dK1VZQ==
+X-MS-Exchange-CrossTenant-userprincipalname: /jv5mo8sMrq4JGGsV9pU9Dq5IUy0JIxtOftTWz68Ung1RxuyORHIwf5npvQ/Ko0gM5k8wIhqneqLJqD/YsrwMQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PR08MB4402
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch adds device tree bindings for the Azoteq IQS620A, IQS621,
-IQS622, IQS624 and IQS625 multi-function sensors.
-
-A total of three bindings are presented (one MFD and two child nodes);
-they are submitted as a single patch because the child node bindings
-have no meaning in the absence of the MFD binding.
+This patch adds key and switch support for the Azoteq IQS620A,
+IQS621, IQS622, IQS624 and IQS625 multi-function sensors.
 
 Signed-off-by: Jeff LaBundy <jeff@labundy.com>
 ---
 Changes in v2:
-  - Removed "prox" child node and moved "keys" and "pwm" child nodes to the=
-ir
-    own bindings
-  - Replaced linux,fw-file property with more common firmware-name property
-  - Converted all bindings to YAML
+  - Merged 'Copyright' and 'Author' lines into one in introductory comments
+  - Replaced 'error' with 'ret' throughout
+  - Updated iqs62x_keys_parse_prop to use unified device property interface
+  - Clarified the comment in iqs62x_keys_notifier to state that wheel up or
+    down events elicit an emulated release cycle
+  - Eliminated tabbed alignment of platform_driver struct members
 
- .../devicetree/bindings/input/iqs62x-keys.yaml     | 126 +++++++++++++++
- Documentation/devicetree/bindings/mfd/iqs62x.yaml  | 177 +++++++++++++++++=
+ drivers/input/keyboard/Kconfig       |  10 ++
+ drivers/input/keyboard/Makefile      |   1 +
+ drivers/input/keyboard/iqs62x-keys.c | 340 +++++++++++++++++++++++++++++++=
 ++++
- .../devicetree/bindings/pwm/iqs620a-pwm.yaml       |  30 ++++
- 3 files changed, 333 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/iqs62x-keys.yam=
-l
- create mode 100644 Documentation/devicetree/bindings/mfd/iqs62x.yaml
- create mode 100644 Documentation/devicetree/bindings/pwm/iqs620a-pwm.yaml
+ 3 files changed, 351 insertions(+)
+ create mode 100644 drivers/input/keyboard/iqs62x-keys.c
 
-diff --git a/Documentation/devicetree/bindings/input/iqs62x-keys.yaml b/Doc=
-umentation/devicetree/bindings/input/iqs62x-keys.yaml
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfi=
+g
+index 4706ff0..28de965 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -663,6 +663,16 @@ config KEYBOARD_IPAQ_MICRO
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ipaq-micro-keys.
+
++config KEYBOARD_IQS62X
++	tristate "Azoteq IQS620A/621/622/624/625 keys and switches"
++	depends on MFD_IQS62X
++	help
++	  Say Y here to enable key and switch support for the Azoteq IQS620A,
++	  IQS621, IQS622, IQS624 and IQS625 multi-function sensors.
++
++	  To compile this driver as a module, choose M here: the module will
++	  be called iqs62x-keys.
++
+ config KEYBOARD_OMAP
+ 	tristate "TI OMAP keypad support"
+ 	depends on ARCH_OMAP1
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makef=
+ile
+index f5b1752..1d689fd 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -28,6 +28,7 @@ obj-$(CONFIG_KEYBOARD_TCA8418)		+=3D tca8418_keypad.o
+ obj-$(CONFIG_KEYBOARD_HIL)		+=3D hil_kbd.o
+ obj-$(CONFIG_KEYBOARD_HIL_OLD)		+=3D hilkbd.o
+ obj-$(CONFIG_KEYBOARD_IPAQ_MICRO)	+=3D ipaq-micro-keys.o
++obj-$(CONFIG_KEYBOARD_IQS62X)		+=3D iqs62x-keys.o
+ obj-$(CONFIG_KEYBOARD_IMX)		+=3D imx_keypad.o
+ obj-$(CONFIG_KEYBOARD_IMX_SC_KEY)	+=3D imx_sc_key.o
+ obj-$(CONFIG_KEYBOARD_HP6XX)		+=3D jornada680_kbd.o
+diff --git a/drivers/input/keyboard/iqs62x-keys.c b/drivers/input/keyboard/=
+iqs62x-keys.c
 new file mode 100644
-index 0000000..e9b54e0
+index 0000000..b477334
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/iqs62x-keys.yaml
-@@ -0,0 +1,126 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/iqs62x-keys.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++++ b/drivers/input/keyboard/iqs62x-keys.c
+@@ -0,0 +1,340 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Azoteq IQS620A/621/622/624/625 Keys and Switches
++ *
++ * Copyright (C) 2019 Jeff LaBundy <jeff@labundy.com>
++ */
 +
-+title: Azoteq IQS620A/621/622/624/625 Keys and Switches
++#include <linux/device.h>
++#include <linux/input.h>
++#include <linux/kernel.h>
++#include <linux/mfd/iqs62x.h>
++#include <linux/module.h>
++#include <linux/notifier.h>
++#include <linux/platform_device.h>
++#include <linux/property.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
 +
-+maintainers:
-+  - Jeff LaBundy <jeff@labundy.com>
++enum {
++	IQS62X_SW_HALL_N,
++	IQS62X_SW_HALL_S,
++};
 +
-+description: |
-+  The Azoteq IQS620A, IQS621, IQS622, IQS624 and IQS625 multi-function sen=
-sors
-+  feature a variety of self-capacitive, mutual-inductive and Hall-effect s=
-ens-
-+  ing capabilities that can facilitate a variety of contactless key and sw=
-itch
-+  applications.
++static const char * const iqs62x_switch_names[] =3D {
++	[IQS62X_SW_HALL_N] =3D "hall-switch-north",
++	[IQS62X_SW_HALL_S] =3D "hall-switch-south",
++};
 +
-+  These functions are collectively represented by a "keys" child node from=
- the
-+  parent MFD driver. See Documentation/devicetree/bindings/mfd/iqs62x.yaml=
- for
-+  further details and examples. Sensor hardware configuration (self-capaci=
-tive
-+  vs. mutual-inductive, etc.) is selected based on the device's firmware.
++struct iqs62x_switch_desc {
++	enum iqs62x_event_flag flag;
++	unsigned int code;
++	bool enabled;
++};
 +
-+properties:
-+  compatible:
-+    enum:
-+      - azoteq,iqs620a-keys
-+      - azoteq,iqs621-keys
-+      - azoteq,iqs622-keys
-+      - azoteq,iqs624-keys
-+      - azoteq,iqs625-keys
++struct iqs62x_keys_private {
++	struct iqs62x_core *iqs62x;
++	struct input_dev *input;
++	struct notifier_block notifier;
++	struct iqs62x_switch_desc switches[ARRAY_SIZE(iqs62x_switch_names)];
++	unsigned int keycode[IQS62X_NUM_KEYS];
++	unsigned int keycodemax;
++	u8 interval;
++};
 +
-+  linux,keycodes:
-+    allOf:
-+      - $ref: /schemas/types.yaml#/definitions/uint32-array
-+      - minItems: 1
-+        maxItems: 16
-+    description: |
-+      Specifies the numeric keycodes associated with each available touch =
-or
-+      proximity event according to the following table. An 'x' indicates t=
-he
-+      event is supported for a given device. Specify 0 for unused events.
++static int iqs62x_keys_parse_prop(struct platform_device *pdev,
++				  struct iqs62x_keys_private *iqs62x_keys)
++{
++	struct fwnode_handle *child;
++	unsigned int val;
++	int ret, i;
 +
-+      --------------------------------------------------------------------=
------
-+      | #  | Event              | IQS620A | IQS621 | IQS622 | IQS624 | IQS=
-625 |
-+      --------------------------------------------------------------------=
------
-+      | 0  | CH0 Touch          |    x    |    x   |    x   |    x   |    =
-x   |
-+      |    | Antenna 1 Touch*   |    x    |        |        |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 1  | CH0 Proximity      |    x    |    x   |    x   |    x   |    =
-x   |
-+      |    | Antenna 1 Prox.*   |    x    |        |        |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 2  | CH1 Touch          |    x    |    x   |    x   |    x   |    =
-x   |
-+      |    | Ant. 1 Deep Touch* |    x    |        |        |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 3  | CH1 Proximity      |    x    |    x   |    x   |    x   |    =
-x   |
-+      --------------------------------------------------------------------=
------
-+      | 4  | CH2 Touch          |    x    |        |        |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 5  | CH2 Proximity      |    x    |        |        |        |    =
-    |
-+      |    | Antenna 2 Prox.*   |    x    |        |        |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 6  | Metal (+) Touch**  |    x    |    x   |        |        |    =
-    |
-+      |    | Ant. 2 Deep Touch* |    x    |        |        |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 7  | Metal (+) Prox.**  |    x    |    x   |        |        |    =
-    |
-+      |    | Antenna 2 Touch*   |    x    |        |        |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 8  | Metal (-) Touch**  |    x    |    x   |        |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 9  | Metal (-) Prox.**  |    x    |    x   |        |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 10 | SAR Active***      |    x    |        |    x   |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 11 | SAR Quick Rel.***  |    x    |        |    x   |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 12 | SAR Movement***    |    x    |        |    x   |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 13 | SAR Filter Halt*** |    x    |        |    x   |        |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 14 | Wheel Up           |         |        |        |    x   |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      | 15 | Wheel Down         |         |        |        |    x   |    =
-    |
-+      --------------------------------------------------------------------=
------
-+      *   Two-channel SAR. Replaces CH0-2 plus metal touch and proximity e=
-vents
-+          if enabled via firmware.
-+      **  "+" and "-" refer to the polarity of a channel's delta (LTA - co=
-unts),
-+          where "LTA" is defined as the channel's long-term average.
-+      *** One-channel SAR. Replaces CH0-2 touch and proximity events if en=
-abled
-+          via firmware.
++	ret =3D device_property_read_u32_array(&pdev->dev, "linux,keycodes",
++					     NULL, 0);
++	if (ret > IQS62X_NUM_KEYS) {
++		dev_err(&pdev->dev, "Too many keycodes present\n");
++		return -EINVAL;
++	} else if (ret < 0) {
++		dev_err(&pdev->dev, "Failed to count keycodes: %d\n", ret);
++		return ret;
++	}
++	iqs62x_keys->keycodemax =3D ret;
 +
-+required:
-+  - compatible
-+  - linux,keycodes
++	ret =3D device_property_read_u32_array(&pdev->dev, "linux,keycodes",
++					     iqs62x_keys->keycode,
++					     iqs62x_keys->keycodemax);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to read keycodes: %d\n", ret);
++		return ret;
++	}
 +
-+if:
-+  properties:
-+    compatible:
-+      contains:
-+        enum:
-+          - azoteq,iqs620a-keys
-+          - azoteq,iqs621-keys
-+          - azoteq,iqs622-keys
-+then:
-+  patternProperties:
-+    "^hall-switch-(north|south)$":
-+      type: object
-+      description:
-+        Represents north/south-field Hall-effect sensor touch or proximity
-+        events. Note that north/south-field orientation is reversed on the
-+        IQS620AXzCSR device due to its flip-chip package.
++	for (i =3D 0; i < ARRAY_SIZE(iqs62x_keys->switches); i++) {
++		child =3D device_get_named_child_node(&pdev->dev,
++						    iqs62x_switch_names[i]);
++		if (!child)
++			continue;
 +
-+      properties:
-+        linux,code:
-+          $ref: /schemas/types.yaml#/definitions/uint32
-+          description: Numeric switch code associated with the event.
++		ret =3D fwnode_property_read_u32(child, "linux,code", &val);
++		if (ret) {
++			dev_err(&pdev->dev, "Failed to read switch code: %d\n",
++				ret);
++			return ret;
++		}
++		iqs62x_keys->switches[i].code =3D val;
++		iqs62x_keys->switches[i].enabled =3D true;
 +
-+        azoteq,use-prox:
-+          $ref: /schemas/types.yaml#/definitions/flag
-+          description:
-+            If present, specifies that Hall-effect sensor reporting should
-+            use the device's wide-range proximity threshold instead of its
-+            close-range touch threshold (default).
++		if (fwnode_property_present(child, "azoteq,use-prox"))
++			iqs62x_keys->switches[i].flag =3D (i =3D=3D IQS62X_SW_HALL_N ?
++							 IQS62X_EVENT_HALL_N_P :
++							 IQS62X_EVENT_HALL_S_P);
++		else
++			iqs62x_keys->switches[i].flag =3D (i =3D=3D IQS62X_SW_HALL_N ?
++							 IQS62X_EVENT_HALL_N_T :
++							 IQS62X_EVENT_HALL_S_T);
++	}
 +
-+      required:
-+        - linux,code
++	return 0;
++}
 +
-+...
-diff --git a/Documentation/devicetree/bindings/mfd/iqs62x.yaml b/Documentat=
-ion/devicetree/bindings/mfd/iqs62x.yaml
-new file mode 100644
-index 0000000..24e6004
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/iqs62x.yaml
-@@ -0,0 +1,177 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/iqs62x.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++static int iqs62x_keys_init(struct iqs62x_keys_private *iqs62x_keys)
++{
++	struct iqs62x_core *iqs62x =3D iqs62x_keys->iqs62x;
++	enum iqs62x_event_flag flag;
++	unsigned int event_mask_reg;
++	unsigned int event_mask =3D 0;
++	unsigned int val;
++	int ret, i;
 +
-+title: Azoteq IQS620A/621/622/624/625 Multi-Function Sensors
++	switch (iqs62x->dev_desc->prod_num) {
++	case IQS620_PROD_NUM:
++	case IQS621_PROD_NUM:
++	case IQS622_PROD_NUM:
++		event_mask_reg =3D IQS620_GLBL_EVENT_MASK;
 +
-+maintainers:
-+  - Jeff LaBundy <jeff@labundy.com>
++		/*
++		 * Discreet button, hysteresis and SAR UI flags represent keys
++		 * and are unmasked if mapped to a valid keycode.
++		 */
++		for (i =3D 0; i < iqs62x_keys->keycodemax; i++) {
++			if (iqs62x_keys->keycode[i] =3D=3D KEY_RESERVED)
++				continue;
 +
-+description: |
-+  The Azoteq IQS620A, IQS621, IQS622, IQS624 and IQS625 multi-function sen=
-sors
-+  integrate multiple sensing technologies in a single package.
++			if (iqs62x_events[i].reg =3D=3D IQS62X_EVENT_PROX)
++				event_mask |=3D iqs62x->dev_desc->prox_mask;
++			else if (iqs62x_events[i].reg =3D=3D IQS62X_EVENT_HYST)
++				event_mask |=3D (iqs62x->dev_desc->hyst_mask |
++					       iqs62x->dev_desc->sar_mask);
++		}
 +
-+  Link to data sheets: https://www.azoteq.com/
++		ret =3D regmap_read(iqs62x->map, iqs62x->dev_desc->hall_flags,
++				  &val);
++		if (ret)
++			return ret;
 +
-+properties:
-+  compatible:
-+    enum:
-+      - azoteq,iqs620a
-+      - azoteq,iqs621
-+      - azoteq,iqs622
-+      - azoteq,iqs624
-+      - azoteq,iqs625
++		/*
++		 * Hall UI flags represent switches and are unmasked if their
++		 * corresponding child nodes are present.
++		 */
++		for (i =3D 0; i < ARRAY_SIZE(iqs62x_keys->switches); i++) {
++			if (!(iqs62x_keys->switches[i].enabled))
++				continue;
 +
-+  reg:
-+    maxItems: 1
++			flag =3D iqs62x_keys->switches[i].flag;
 +
-+  interrupts:
-+    maxItems: 1
++			if (iqs62x_events[flag].reg !=3D IQS62X_EVENT_HALL)
++				continue;
 +
-+  firmware-name:
-+    $ref: /schemas/types.yaml#/definitions/string
-+    description:
-+      Specifies the name of the calibration and configuration file selecte=
-d by
-+      the driver. If this property is omitted, the name is chosen based on=
- the
-+      device name with ".bin" as the extension (e.g. iqs620a.bin for IQS62=
-0A).
++			event_mask |=3D iqs62x->dev_desc->hall_mask;
 +
-+  keys:
-+    $ref: ../input/iqs62x-keys.yaml
++			input_report_switch(iqs62x_keys->input,
++					    iqs62x_keys->switches[i].code,
++					    (val & iqs62x_events[flag].mask) =3D=3D
++					    iqs62x_events[flag].val);
++		}
 +
-+  pwm:
-+    $ref: ../pwm/iqs620a-pwm.yaml
++		input_sync(iqs62x_keys->input);
++		break;
 +
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
++	case IQS624_PROD_NUM:
++		event_mask_reg =3D IQS624_HALL_UI;
 +
-+examples:
-+  - |
-+    /*
-+     * Dual capacitive buttons with additional "air button," unipolar lid
-+     * switch and panel-mounted LED.
-+     */
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
++		/*
++		 * Interval change events represent keys and are unmasked if
++		 * either wheel movement flag is mapped to a valid keycode.
++		 */
++		if (iqs62x_keys->keycode[IQS62X_EVENT_WHEEL_UP] !=3D KEY_RESERVED)
++			event_mask |=3D IQS624_HALL_UI_INT_EVENT;
 +
-+    i2c {
-+            #address-cells =3D <1>;
-+            #size-cells =3D <0>;
++		if (iqs62x_keys->keycode[IQS62X_EVENT_WHEEL_DN] !=3D KEY_RESERVED)
++			event_mask |=3D IQS624_HALL_UI_INT_EVENT;
 +
-+            iqs620a@44 {
-+                    compatible =3D "azoteq,iqs620a";
-+                    reg =3D <0x44>;
-+                    interrupt-parent =3D <&gpio>;
-+                    interrupts =3D <17 IRQ_TYPE_LEVEL_LOW>;
++		ret =3D regmap_read(iqs62x->map, iqs62x->dev_desc->interval,
++				  &val);
++		if (ret)
++			return ret;
 +
-+                    keys {
-+                            compatible =3D "azoteq,iqs620a-keys";
++		iqs62x_keys->interval =3D val;
++		break;
 +
-+                            linux,keycodes =3D <KEY_SELECT>,
-+                                             <KEY_MENU>,
-+                                             <KEY_OK>,
-+                                             <KEY_MENU>;
++	default:
++		return 0;
++	}
 +
-+                            hall-switch-south {
-+                                    linux,code =3D <SW_LID>;
-+                                    azoteq,use-prox;
-+                            };
-+                    };
++	return regmap_update_bits(iqs62x->map, event_mask_reg, event_mask, 0);
++}
 +
-+                    iqs620a_pwm: pwm {
-+                            compatible =3D "azoteq,iqs620a-pwm";
-+                            #pwm-cells =3D <2>;
-+                    };
-+            };
-+    };
++static int iqs62x_keys_notifier(struct notifier_block *notifier,
++				unsigned long event_flags, void *context)
++{
++	struct iqs62x_event_data *event_data =3D context;
++	struct iqs62x_keys_private *iqs62x_keys;
++	int ret, i;
 +
-+    pwmleds {
-+            compatible =3D "pwm-leds";
++	iqs62x_keys =3D container_of(notifier, struct iqs62x_keys_private,
++				   notifier);
 +
-+            panel {
-+                    pwms =3D <&iqs620a_pwm 0 1000000>;
-+                    max-brightness =3D <255>;
-+            };
-+    };
++	if (event_flags & BIT(IQS62X_EVENT_SYS_RESET)) {
++		ret =3D iqs62x_keys_init(iqs62x_keys);
++		if (ret) {
++			dev_err(iqs62x_keys->input->dev.parent,
++				"Failed to re-initialize device: %d\n", ret);
++			return NOTIFY_BAD;
++		}
 +
-+  - |
-+    /* Single inductive button with bipolar dock/tablet-mode switch. */
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
++		return NOTIFY_OK;
++	}
 +
-+    i2c {
-+            #address-cells =3D <1>;
-+            #size-cells =3D <0>;
++	for (i =3D 0; i < iqs62x_keys->keycodemax; i++) {
++		if (iqs62x_events[i].reg =3D=3D IQS62X_EVENT_WHEEL &&
++		    event_data->interval =3D=3D iqs62x_keys->interval)
++			continue;
 +
-+            iqs620a@44 {
-+                    compatible =3D "azoteq,iqs620a";
-+                    reg =3D <0x44>;
-+                    interrupt-parent =3D <&gpio>;
-+                    interrupts =3D <17 IRQ_TYPE_LEVEL_LOW>;
++		input_report_key(iqs62x_keys->input, iqs62x_keys->keycode[i],
++				 event_flags & BIT(i));
++	}
 +
-+                    firmware-name =3D "iqs620a_coil.bin";
++	for (i =3D 0; i < ARRAY_SIZE(iqs62x_keys->switches); i++)
++		if (iqs62x_keys->switches[i].enabled)
++			input_report_switch(iqs62x_keys->input,
++					    iqs62x_keys->switches[i].code,
++					    event_flags &
++					    BIT(iqs62x_keys->switches[i].flag));
 +
-+                    keys {
-+                            compatible =3D "azoteq,iqs620a-keys";
++	input_sync(iqs62x_keys->input);
 +
-+                            linux,keycodes =3D <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <KEY_MUTE>;
++	if (event_data->interval =3D=3D iqs62x_keys->interval)
++		return NOTIFY_OK;
 +
-+                            hall-switch-north {
-+                                    linux,code =3D <SW_DOCK>;
-+                            };
++	/*
++	 * Each frame contains at most one wheel event (up or down), in which
++	 * case a complementary release cycle is emulated.
++	 */
++	if (event_flags & BIT(IQS62X_EVENT_WHEEL_UP)) {
++		input_report_key(iqs62x_keys->input,
++				 iqs62x_keys->keycode[IQS62X_EVENT_WHEEL_UP],
++				 0);
++		input_sync(iqs62x_keys->input);
++	} else if (event_flags & BIT(IQS62X_EVENT_WHEEL_DN)) {
++		input_report_key(iqs62x_keys->input,
++				 iqs62x_keys->keycode[IQS62X_EVENT_WHEEL_DN],
++				 0);
++		input_sync(iqs62x_keys->input);
++	}
 +
-+                            hall-switch-south {
-+                                    linux,code =3D <SW_TABLET_MODE>;
-+                            };
-+                    };
-+            };
-+    };
++	iqs62x_keys->interval =3D event_data->interval;
 +
-+  - |
-+    /* Dual capacitive buttons with volume knob. */
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
++	return NOTIFY_OK;
++}
 +
-+    i2c {
-+            #address-cells =3D <1>;
-+            #size-cells =3D <0>;
++static int iqs62x_keys_probe(struct platform_device *pdev)
++{
++	struct iqs62x_core *iqs62x =3D dev_get_drvdata(pdev->dev.parent);
++	struct iqs62x_keys_private *iqs62x_keys;
++	struct input_dev *input;
++	int ret, i;
 +
-+            iqs624@44 {
-+                    compatible =3D "azoteq,iqs624";
-+                    reg =3D <0x44>;
-+                    interrupt-parent =3D <&gpio>;
-+                    interrupts =3D <17 IRQ_TYPE_LEVEL_LOW>;
++	iqs62x_keys =3D devm_kzalloc(&pdev->dev, sizeof(*iqs62x_keys),
++				   GFP_KERNEL);
++	if (!iqs62x_keys)
++		return -ENOMEM;
 +
-+                    keys {
-+                            compatible =3D "azoteq,iqs624-keys";
++	platform_set_drvdata(pdev, iqs62x_keys);
 +
-+                            linux,keycodes =3D <BTN_0>,
-+                                             <0>,
-+                                             <BTN_1>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <0>,
-+                                             <KEY_VOLUMEUP>,
-+                                             <KEY_VOLUMEDOWN>;
-+                    };
-+            };
-+    };
++	ret =3D iqs62x_keys_parse_prop(pdev, iqs62x_keys);
++	if (ret)
++		return ret;
 +
-+...
-diff --git a/Documentation/devicetree/bindings/pwm/iqs620a-pwm.yaml b/Docum=
-entation/devicetree/bindings/pwm/iqs620a-pwm.yaml
-new file mode 100644
-index 0000000..6b7aaef
---- /dev/null
-+++ b/Documentation/devicetree/bindings/pwm/iqs620a-pwm.yaml
-@@ -0,0 +1,30 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/pwm/iqs620a-pwm.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++	input =3D devm_input_allocate_device(&pdev->dev);
++	if (!input)
++		return -ENOMEM;
 +
-+title: Azoteq IQS620A PWM Generator
++	input->keycodemax =3D iqs62x_keys->keycodemax;
++	input->keycode =3D iqs62x_keys->keycode;
++	input->keycodesize =3D sizeof(*iqs62x_keys->keycode);
 +
-+maintainers:
-+  - Jeff LaBundy <jeff@labundy.com>
++	input->name =3D iqs62x->dev_desc->dev_name;
++	input->id.bustype =3D BUS_I2C;
 +
-+description: |
-+  The Azoteq IQS620A multi-function sensor generates a fixed-frequency PWM
-+  output represented by a "pwm" child node from the parent MFD driver. See
-+  Documentation/devicetree/bindings/mfd/iqs62x.yaml for further details as
-+  well as an example.
++	__set_bit(EV_KEY, input->evbit);
 +
-+properties:
-+  compatible:
-+    enum:
-+      - azoteq,iqs620a-pwm
++	for (i =3D 0; i < iqs62x_keys->keycodemax; i++)
++		__set_bit(iqs62x_keys->keycode[i], input->keybit);
 +
-+  "#pwm-cells":
-+    const: 2
++	__clear_bit(KEY_RESERVED, input->keybit);
 +
-+required:
-+  - compatible
-+  - "#pwm-cells"
++	for (i =3D 0; i < ARRAY_SIZE(iqs62x_keys->switches); i++)
++		if (iqs62x_keys->switches[i].enabled) {
++			__set_bit(EV_SW, input->evbit);
++			__set_bit(iqs62x_keys->switches[i].code, input->swbit);
++		}
 +
-+...
++	iqs62x_keys->iqs62x =3D iqs62x;
++	iqs62x_keys->input =3D input;
++
++	ret =3D iqs62x_keys_init(iqs62x_keys);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to initialize device: %d\n", ret);
++		return ret;
++	}
++
++	ret =3D input_register_device(iqs62x_keys->input);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to register device: %d\n", ret);
++		return ret;
++	}
++
++	iqs62x_keys->notifier.notifier_call =3D iqs62x_keys_notifier;
++	ret =3D blocking_notifier_chain_register(&iqs62x_keys->iqs62x->nh,
++					       &iqs62x_keys->notifier);
++	if (ret)
++		dev_err(&pdev->dev, "Failed to register notifier: %d\n", ret);
++
++	return ret;
++}
++
++static int iqs62x_keys_remove(struct platform_device *pdev)
++{
++	struct iqs62x_keys_private *iqs62x_keys =3D platform_get_drvdata(pdev);
++	int ret;
++
++	ret =3D blocking_notifier_chain_unregister(&iqs62x_keys->iqs62x->nh,
++						 &iqs62x_keys->notifier);
++	if (ret)
++		dev_err(&pdev->dev, "Failed to unregister notifier: %d\n", ret);
++
++	return ret;
++}
++
++static struct platform_driver iqs62x_keys_platform_driver =3D {
++	.driver =3D {
++		.name =3D IQS62X_DRV_NAME_KEYS,
++	},
++	.probe =3D iqs62x_keys_probe,
++	.remove =3D iqs62x_keys_remove,
++};
++module_platform_driver(iqs62x_keys_platform_driver);
++
++MODULE_AUTHOR("Jeff LaBundy <jeff@labundy.com>");
++MODULE_DESCRIPTION("Azoteq IQS620A/621/622/624/625 Keys and Switches");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:" IQS62X_DRV_NAME_KEYS);
 --
 2.7.4
 

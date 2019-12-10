@@ -7,40 +7,40 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52FCAC2BD09
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 00:19:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E01B1C04E30
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 00:19:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2A69420828
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 00:19:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B476420838
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 00:19:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="msWPI5rc"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="WtYMlSZC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727496AbfLJATU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 9 Dec 2019 19:19:20 -0500
-Received: from rere.qmqm.pl ([91.227.64.183]:6266 "EHLO rere.qmqm.pl"
+        id S1727304AbfLJATi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 9 Dec 2019 19:19:38 -0500
+Received: from rere.qmqm.pl ([91.227.64.183]:33426 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727419AbfLJATT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 9 Dec 2019 19:19:19 -0500
+        id S1727435AbfLJATU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 9 Dec 2019 19:19:20 -0500
 Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 47X0wr4mhKzF0;
-        Tue, 10 Dec 2019 01:16:44 +0100 (CET)
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 47X0ws1pr4zKW;
+        Tue, 10 Dec 2019 01:16:45 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1575937004; bh=Ikv5AJJhaGvKrnyC7mUPeJgkvCtgUEaTu7zd0aqxlLs=;
+        t=1575937005; bh=YsyNObBBW1OvJDWq+l2QUR44LJx4brO0CWUVjUFNO6I=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=msWPI5rc1R7eQNJBVJ0y1ONhFeqLq+Ya6NMp7hIr5yAiJsFkrgU9gYzRw1xuiapYS
-         tzMO95K78iAA3jfHVslGSD/mVll3mw1XsQZqKJUjQ4/yjGcQLUV9VTvfP67wJL5TyZ
-         ZppSVKPEpBVeGvP6gBr6AdHK12k69dnNSAbB2JJ7C8sg5aoN2aF3SFDumWr+onq0O5
-         528Cnu6+3VT1qYIP4Kz7bIqUDZiY3iP8AWrc9U7HIsxcICurop3ugvO/s01zUMa9Qz
-         8qF5AsqDOXYVYRfx6ZpAAM8afAFCV2rAGhE0VQsVAPcfJFZ45bCG15kc5aGonoU69t
-         hN6WbsuG4hmbg==
+        b=WtYMlSZCQ3PVpW0dr9oxJkJm3qsavL4CXsGsKF2SW6MWhbSpXLiFno9XEiqEJEYTK
+         hEzWm41lhpTpqklbPgGpkLjL5dag0s4skYYTsBR0VL06wVkt7ZDmpc+8euA9+Bq3N6
+         hpLR8U9u1fKESj0LxxTSngKJ/qouyICKZAYE22VtMu9PrmEUiws63ocqJjKV4IvC72
+         6gm0KHScnpdSYBjwWr+7Xf4zP5zT/7KLe5eLCm6mFbllRsFHKL1+viZ1xVsLupbnn9
+         mQcXLGPnReSxd/BU8XvkTzA2kxktt9HZARWNOoz5NnE1NJJzSWuJBNuiLfEceeIzsM
+         0qfly5zBIyalg==
 X-Virus-Status: Clean
 X-Virus-Scanned: clamav-milter 0.101.4 at mail
 Date:   Tue, 10 Dec 2019 01:19:17 +0100
-Message-Id: <90aafcc8bac6335924df03610648418314a9dec6.1575936961.git.mirq-linux@rere.qmqm.pl>
+Message-Id: <7e650a6ef98e3178d6829c3c2c83f21437070d84.1575936961.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1575936961.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1575936961.git.mirq-linux@rere.qmqm.pl>
 From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH 1/6] input: elants: document some registers and values
+Subject: [PATCH 3/6] input: elants: support common touchscreen DT properties
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -52,86 +52,92 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add information found in downstream kernels, to make the code less
-magic.
+Support common DT properties like axis inversions to complement
+information obtained from device's firmware.
 
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 ---
- drivers/input/touchscreen/elants_i2c.c | 29 +++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/elants_i2c.c | 27 ++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index d4ad24ea54c8..887888c53996 100644
+index eadd26d5a06f..02bd5e3e2171 100644
 --- a/drivers/input/touchscreen/elants_i2c.c
 +++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -77,7 +77,11 @@
+@@ -31,6 +31,7 @@
+ #include <linux/buffer_head.h>
+ #include <linux/slab.h>
+ #include <linux/firmware.h>
++#include <linux/input/touchscreen.h>
+ #include <linux/input/mt.h>
+ #include <linux/acpi.h>
+ #include <linux/of.h>
+@@ -146,8 +147,7 @@ struct elants_data {
+ 	u16 hw_version;
+ 	unsigned int x_res;	/* resolution in units/mm */
+ 	unsigned int y_res;
+-	unsigned int x_max;
+-	unsigned int y_max;
++	struct touchscreen_properties prop;
  
- #define HEADER_REPORT_10_FINGER	0x62
+ 	enum elants_state state;
+ 	enum elants_iap_mode iap_mode;
+@@ -498,10 +498,10 @@ static int elants_i2c_query_ts_info(struct elants_data *ts)
+ 			 rows, cols, osr);
+ 	} else {
+ 		/* translate trace number to TS resolution */
+-		ts->x_max = ELAN_TS_RESOLUTION(rows, osr);
+-		ts->x_res = DIV_ROUND_CLOSEST(ts->x_max, phy_x);
+-		ts->y_max = ELAN_TS_RESOLUTION(cols, osr);
+-		ts->y_res = DIV_ROUND_CLOSEST(ts->y_max, phy_y);
++		ts->prop.max_x = ELAN_TS_RESOLUTION(rows, osr);
++		ts->x_res = DIV_ROUND_CLOSEST(ts->prop.max_x, phy_x);
++		ts->prop.max_y = ELAN_TS_RESOLUTION(cols, osr);
++		ts->y_res = DIV_ROUND_CLOSEST(ts->prop.max_y, phy_y);
+ 	}
  
--/* Header (4 bytes) plus 3 fill 10-finger packets */
-+/* Power state */
-+#define PWR_STATE_DEEP_SLEEP	0
-+#define PWR_STATE_NORMAL	1
+ 	return 0;
+@@ -833,8 +833,7 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf,
+ 
+ 			input_mt_slot(input, i);
+ 			input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
+-			input_event(input, EV_ABS, ABS_MT_POSITION_X, x);
+-			input_event(input, EV_ABS, ABS_MT_POSITION_Y, y);
++			touchscreen_report_pos(input, &ts->prop, x, y, true);
+ 			input_event(input, EV_ABS, ABS_MT_PRESSURE, p);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, w);
+ 
+@@ -1251,13 +1250,15 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	ts->input->name = "Elan Touchscreen";
+ 	ts->input->id.bustype = BUS_I2C;
+ 
++	touchscreen_parse_properties(ts->input, true, &ts->prop);
 +
-+/* Header (4 bytes) plus 3 full 10-finger packets */
- #define MAX_PACKET_SIZE		169
+ 	__set_bit(BTN_TOUCH, ts->input->keybit);
+ 	__set_bit(EV_ABS, ts->input->evbit);
+ 	__set_bit(EV_KEY, ts->input->evbit);
  
- #define BOOT_TIME_DELAY_MS	50
-@@ -87,10 +91,21 @@
- #define E_ELAN_INFO_BC_VER	0x10
- #define E_ELAN_INFO_TEST_VER	0xE0
- #define E_ELAN_INFO_FW_ID	0xF0
-+#define E_POWER_MODE		0x40
-+#define E_POWER_STATE		0x50
-+#define E_INFO_X_RES		0x60
-+#define E_INFO_Y_RES		0x63
- #define E_INFO_OSR		0xD6
- #define E_INFO_PHY_SCAN		0xD7
- #define E_INFO_PHY_DRIVER	0xD8
+ 	/* Single touch input params setup */
+-	input_set_abs_params(ts->input, ABS_X, 0, ts->x_max, 0, 0);
+-	input_set_abs_params(ts->input, ABS_Y, 0, ts->y_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_X, 0, ts->prop.max_x, 0, 0);
++	input_set_abs_params(ts->input, ABS_Y, 0, ts->prop.max_y, 0, 0);
+ 	input_set_abs_params(ts->input, ABS_PRESSURE, 0, 255, 0, 0);
+ 	input_abs_set_res(ts->input, ABS_X, ts->x_res);
+ 	input_abs_set_res(ts->input, ABS_Y, ts->y_res);
+@@ -1271,8 +1272,10 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 		return error;
+ 	}
  
-+/* FW write command, 0x54 0x?? 0x0, 0x01 */
-+#define E_POWER_MODE_BATTERY	0x40
-+#define E_POWER_MODE_AC		0x41
-+#define E_POWER_MODE_USB	0x42
-+#define E_POWER_STATE_SLEEP	0x50
-+#define E_POWER_STATE_RESUME	0x58
-+
- #define MAX_RETRIES		3
- #define MAX_FW_UPDATE_RETRIES	30
- 
-@@ -231,8 +246,8 @@ static int elants_i2c_calibrate(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	int ret, error;
--	static const u8 w_flashkey[] = { 0x54, 0xC0, 0xE1, 0x5A };
--	static const u8 rek[] = { 0x54, 0x29, 0x00, 0x01 };
-+	static const u8 w_flashkey[] = { CMD_HEADER_WRITE, 0xC0, 0xE1, 0x5A };
-+	static const u8 rek[] = { CMD_HEADER_WRITE, 0x29, 0x00, 0x01 };
- 	static const u8 rek_resp[] = { CMD_HEADER_REK, 0x66, 0x66, 0x66 };
- 
- 	disable_irq(client->irq);
-@@ -1295,7 +1310,9 @@ static int __maybe_unused elants_i2c_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elants_data *ts = i2c_get_clientdata(client);
--	const u8 set_sleep_cmd[] = { 0x54, 0x50, 0x00, 0x01 };
-+	const u8 set_sleep_cmd[] = {
-+		CMD_HEADER_WRITE, E_POWER_STATE_SLEEP, 0x00, 0x01
-+	};
- 	int retry_cnt;
- 	int error;
- 
-@@ -1332,7 +1349,9 @@ static int __maybe_unused elants_i2c_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elants_data *ts = i2c_get_clientdata(client);
--	const u8 set_active_cmd[] = { 0x54, 0x58, 0x00, 0x01 };
-+	const u8 set_active_cmd[] = {
-+		CMD_HEADER_WRITE, E_POWER_STATE_RESUME, 0x00, 0x01
-+	};
- 	int retry_cnt;
- 	int error;
- 
+-	input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0, ts->x_max, 0, 0);
+-	input_set_abs_params(ts->input, ABS_MT_POSITION_Y, 0, ts->y_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_POSITION_X,
++			     0, ts->prop.max_x, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_POSITION_Y,
++			     0, ts->prop.max_y, 0, 0);
+ 	input_set_abs_params(ts->input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+ 	input_set_abs_params(ts->input, ABS_MT_PRESSURE, 0, 255, 0, 0);
+ 	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
 -- 
 2.20.1
 

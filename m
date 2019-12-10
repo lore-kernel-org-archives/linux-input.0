@@ -7,58 +7,60 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03E52C00454
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:38:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79B54C43603
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:38:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CE5C12073D
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:38:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 50C892073B
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1575977911;
-	bh=TSVeQs7JWEsxKy1hFyFhDjuN0iweEA/CFFVgV4fMmWI=;
+	s=default; t=1575977913;
+	bh=NeE6MYZWFRkcp1EprbbpY6tYeXfa9fh1FICc3NB+rDQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=imzvqcCF7cmqdT1xdYxYgTXSDfqpfBUdUNyAtOUPENlHFDp0CTgTX6Yp6Xhx/Yg2A
-	 F6lj6yDpNfDysVMpPWY1xVsfkmCE3EjMqc2gs9pxOmn7f40lelZWmZFpfF5pyTyabE
-	 8qNzDCo0eiOczBlT9hNs/U7aMSWQto1idHAM2ABs=
+	b=m8CnPGCuI7yxFFC1bxHXb5Y1u+zLoEdZDQvG1sykk09FkMgzSFiNuICaVzI1Tr/oM
+	 EIm+Np2ksopFmVf8J5nTnp27IlaCiBr7PKn1P1MgHOvNtt7sbzsKGksgPA/84+l7DV
+	 lmDy7aLWMdzlLDmClxZunjS5VO+Hfgqz7plCluI8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727374AbfLJLi0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Dec 2019 06:38:26 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:44783 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727385AbfLJLhx (ORCPT
+        id S1727018AbfLJLhv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Dec 2019 06:37:51 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:39901 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727131AbfLJLhv (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Dec 2019 06:37:53 -0500
-Received: by mail-lf1-f65.google.com with SMTP id v201so13397047lfa.11;
-        Tue, 10 Dec 2019 03:37:51 -0800 (PST)
+        Tue, 10 Dec 2019 06:37:51 -0500
+Received: by mail-lf1-f66.google.com with SMTP id y1so2112150lfb.6;
+        Tue, 10 Dec 2019 03:37:49 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=9Vzfb7uq16SGhOTeNCkEKm8i/+IfT4zo8B8umjQrP2Q=;
-        b=IDeMRsaa2bRO7A7b+lJmCIhd/DU1eXrvM2dFtJAreR/LxuZudurpQzsLi2aXTp+x9G
-         TqlXr+s8hVvX2kqm7ay5Me3z112brDlAKgOCGxicWyX6hbIuf3cVerUFuaPaAo3pj/1V
-         SipM4rnkamrOhBFGEf9yeL0hqAfsV8Buekc3HWz4XX4SKSoCpBveY+uHIeF1VsE21Egm
-         BkV2Uz/MhLkRtLmgefHnKEq375+QlmJmtiVl0plMOB5wy6GDubsbsyA0GsU2aPv9fboD
-         Lh3X2yX6QMDAz7BcUCm2KDKdZVVanapswk+BKNw4PzTgtkjRG1i0muqEJTzHmdiyVsOv
-         z62Q==
-X-Gm-Message-State: APjAAAWG0IgexfTE4jX+o6GI0k0yBmjwjyfx6i35VkabOOgXWpQHSwK4
-        WsbX3FO5I1SblzE8DKSEW9KcC85e
-X-Google-Smtp-Source: APXvYqxkYaor8ZxGswMpVmxWvaZhxt0v514WJ5beneZnfPx7VLTil1pUVT4+cYcZwGtAESyfBdx7og==
-X-Received: by 2002:a19:7401:: with SMTP id v1mr18239687lfe.129.1575977871028;
-        Tue, 10 Dec 2019 03:37:51 -0800 (PST)
-Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id g6sm1623983lja.10.2019.12.10.03.37.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        bh=ZY93hUXgP9MdjxnR094b5yMFKUy+YydKGknr6vwPzSM=;
+        b=ss7kiSP711gFTqT3iMckKzXWfkAlF1673Dcdou2O2mtfrZuvYxjTdzVQsHnwaAOBE2
+         1XteH/vRG8FgqbVHGMkc59Eff18IF6Aa9vO7toaySTYu0eBmZrWIoZixXRUhmP4ehaI+
+         K5YkfDSKYy/gyo0bzXeGuwwCluynVEtYverCYT/cHPAaX8zRDv71av4EjoADPWPI257B
+         WhRfgBhoXf//i3Vbu0hzQIK8nV46hGkSR5vaGW9/U94lMTVhKYQTULLVU9XRg15bkNp4
+         jOTvcJsX+qMXA5NuZLtLoXcKORC2K1El87MwuxVpCEM7f6kr98y8o1ZC3GU62axh1YJo
+         KUeQ==
+X-Gm-Message-State: APjAAAUILQC8W5G6lHq5zPsNxw6OM587jQqL0U2KKSDFAwCFLJj6Sf+c
+        zkcy3iB39BS/XF7PRxO536M=
+X-Google-Smtp-Source: APXvYqzqUPnasg7TcmqZwZCL73CR6bdEW7PtC489KLUT5hWmCeetgNTRr1cvB2nHk0JBXWWB5Qq1tg==
+X-Received: by 2002:a19:6a06:: with SMTP id u6mr14684526lfu.187.1575977868601;
         Tue, 10 Dec 2019 03:37:48 -0800 (PST)
+Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
+        by smtp.gmail.com with ESMTPSA id f24sm1615955ljm.12.2019.12.10.03.37.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Dec 2019 03:37:47 -0800 (PST)
 Received: from johan by xi.terra with local (Exim 4.92.3)
         (envelope-from <johan@xi.terra>)
-        id 1iedpu-00013s-0a; Tue, 10 Dec 2019 12:37:50 +0100
+        id 1iedpt-00013j-QS; Tue, 10 Dec 2019 12:37:49 +0100
 From:   Johan Hovold <johan@kernel.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 3/7] Input: aiptek: use descriptors of current altsetting
-Date:   Tue, 10 Dec 2019 12:37:33 +0100
-Message-Id: <20191210113737.4016-4-johan@kernel.org>
+        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Martin Kepplinger <martink@posteo.de>
+Subject: [PATCH 1/7] Input: pegasus_notetaker: fix endpoint sanity check
+Date:   Tue, 10 Dec 2019 12:37:31 +0100
+Message-Id: <20191210113737.4016-2-johan@kernel.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191210113737.4016-1-johan@kernel.org>
 References: <20191210113737.4016-1-johan@kernel.org>
@@ -69,28 +71,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Make sure to always use the descriptors of the current alternate setting
-to avoid future issues when accessing fields that may differ between
-settings.
+The driver was checking the number of endpoints of the first alternate
+setting instead of the current one, something which could be used by a
+malicious device (or USB descriptor fuzzer) to trigger a NULL-pointer
+dereference.
 
+Fixes: 1afca2b66aac ("Input: add Pegasus Notetaker tablet driver")
+Cc: stable <stable@vger.kernel.org>     # 4.8
+Cc: Martin Kepplinger <martink@posteo.de>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/input/tablet/aiptek.c | 2 +-
+ drivers/input/tablet/pegasus_notetaker.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
-index 06d0ffef4a17..e08b0ef078e8 100644
---- a/drivers/input/tablet/aiptek.c
-+++ b/drivers/input/tablet/aiptek.c
-@@ -1713,7 +1713,7 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+index a1f3a0cb197e..38f087404f7a 100644
+--- a/drivers/input/tablet/pegasus_notetaker.c
++++ b/drivers/input/tablet/pegasus_notetaker.c
+@@ -275,7 +275,7 @@ static int pegasus_probe(struct usb_interface *intf,
+ 		return -ENODEV;
  
- 	aiptek->inputdev = inputdev;
- 	aiptek->intf = intf;
--	aiptek->ifnum = intf->altsetting[0].desc.bInterfaceNumber;
-+	aiptek->ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
- 	aiptek->inDelay = 0;
- 	aiptek->endDelay = 0;
- 	aiptek->previousJitterable = 0;
+ 	/* Sanity check that the device has an endpoint */
+-	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
++	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
+ 		dev_err(&intf->dev, "Invalid number of endpoints\n");
+ 		return -EINVAL;
+ 	}
 -- 
 2.24.0
 

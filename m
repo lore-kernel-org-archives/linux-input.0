@@ -2,47 +2,47 @@ Return-Path: <SRS0=db+e=2A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNWANTED_LANGUAGE_BODY autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0314C00454
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:51:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1E35C2D0C4
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:51:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6921320726
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:51:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7912120836
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:51:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WYZdtuNd"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hPWYbFSw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727631AbfLJLvr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Dec 2019 06:51:47 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:44648 "EHLO
+        id S1727768AbfLJLvz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Dec 2019 06:51:55 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:47656 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727630AbfLJLvr (ORCPT
+        by vger.kernel.org with ESMTP id S1727711AbfLJLvw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Dec 2019 06:51:47 -0500
+        Tue, 10 Dec 2019 06:51:52 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575978707;
+        s=mimecast20190719; t=1575978710;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=fUWUkAQNAvMtZ8EbtAtuhCe7GW5wk+XJnd8sLndlYtw=;
-        b=WYZdtuNdQndEZoT2AxFrsg83gbUsACPmAWqW41x9qMkdm/ksUwiTZDVgGr42w1P1jVoL4n
-        2OouqGqO8EjzTR6dTtXD/uDopLhEboO9rYyFKSUsDeK3rzb6shA3V4Tb6BGRO9XejJ4Aux
-        MxB6/2WwebwrdiNYtKCA/I45zKWs6Xs=
+        bh=9iewXkgZ98kUOBpFLU0jCIRcpaJJCeUS5vqH0PGqdK8=;
+        b=hPWYbFSwxLeEOo51L1OzCiEk36HasmZMoyw9EMQUND68TtWs3h0XI51ctr0l0gLQLMdIZ8
+        +ywgDF3UfBhXRzxIxm0KZTo63vmAn71S9F2M+yPrl5xHEOHl5hPLRYOsNK+fpyrCpK0UPB
+        Mk1fXC+vlvxpwN3B6WSmYQ/RMS+LHVI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-369-3JDbasoaP2qIcH6A8m7Bdw-1; Tue, 10 Dec 2019 06:51:39 -0500
+ us-mta-346-C22tcfImPcynyBIkcH4M7A-1; Tue, 10 Dec 2019 06:51:47 -0500
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AEBFFB06CE;
-        Tue, 10 Dec 2019 11:51:36 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E77998028C9;
+        Tue, 10 Dec 2019 11:51:44 +0000 (UTC)
 Received: from shalem.localdomain.com (unknown [10.36.118.144])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F0DF05DA2C;
-        Tue, 10 Dec 2019 11:51:32 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6397A5DA2C;
+        Tue, 10 Dec 2019 11:51:41 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Darren Hart <dvhart@infradead.org>,
@@ -61,14 +61,14 @@ Cc:     Hans de Goede <hdegoede@redhat.com>,
         platform-driver-x86@vger.kernel.org, linux-efi@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
         linux-input@vger.kernel.org
-Subject: [PATCH v10 03/10] firmware: Rename FW_OPT_NOFALLBACK to FW_OPT_NOFALLBACK_SYSFS
-Date:   Tue, 10 Dec 2019 12:51:10 +0100
-Message-Id: <20191210115117.303935-4-hdegoede@redhat.com>
+Subject: [PATCH v10 05/10] test_firmware: add support for firmware_request_platform
+Date:   Tue, 10 Dec 2019 12:51:12 +0100
+Message-Id: <20191210115117.303935-6-hdegoede@redhat.com>
 In-Reply-To: <20191210115117.303935-1-hdegoede@redhat.com>
 References: <20191210115117.303935-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-MC-Unique: 3JDbasoaP2qIcH6A8m7Bdw-1
+X-MC-Unique: C22tcfImPcynyBIkcH4M7A-1
 X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
@@ -77,106 +77,115 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is a preparation patch for adding a new platform fallback mechanism,
-which will have its own enable/disable FW_OPT_xxx option.
+Add support for testing firmware_request_platform through a new
+trigger_request_platform trigger.
 
-Note this also fixes a typo in one of the re-wordwrapped comments:
-enfoce -> enforce.
-
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/base/firmware_loader/fallback.c | 11 ++++++-----
- drivers/base/firmware_loader/firmware.h | 16 ++++++++--------
- drivers/base/firmware_loader/main.c     |  2 +-
- 3 files changed, 15 insertions(+), 14 deletions(-)
+ lib/test_firmware.c | 68 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
 
-diff --git a/drivers/base/firmware_loader/fallback.c b/drivers/base/firmwar=
-e_loader/fallback.c
-index 62ee90b4db56..8704e1bae175 100644
---- a/drivers/base/firmware_loader/fallback.c
-+++ b/drivers/base/firmware_loader/fallback.c
-@@ -606,7 +606,7 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_flags=
-)
- =09=09return false;
- =09}
+diff --git a/lib/test_firmware.c b/lib/test_firmware.c
+index 251213c872b5..9af00cfc8979 100644
+--- a/lib/test_firmware.c
++++ b/lib/test_firmware.c
+@@ -24,6 +24,7 @@
+ #include <linux/delay.h>
+ #include <linux/kthread.h>
+ #include <linux/vmalloc.h>
++#include <linux/efi_embedded_fw.h>
 =20
--=09if ((opt_flags & FW_OPT_NOFALLBACK))
-+=09if ((opt_flags & FW_OPT_NOFALLBACK_SYSFS))
- =09=09return false;
-=20
- =09/* Also permit LSMs and IMA to fail firmware sysfs fallback */
-@@ -630,10 +630,11 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_fla=
-gs)
-  * interface. Userspace is in charge of loading the firmware through the s=
-ysfs
-  * loading interface. This sysfs fallback mechanism may be disabled comple=
-tely
-  * on a system by setting the proc sysctl value ignore_sysfs_fallback to t=
-rue.
-- * If this false we check if the internal API caller set the @FW_OPT_NOFAL=
-LBACK
-- * flag, if so it would also disable the fallback mechanism. A system may =
-want
-- * to enfoce the sysfs fallback mechanism at all times, it can do this by
-- * setting ignore_sysfs_fallback to false and force_sysfs_fallback to true=
-.
-+ * If this is false we check if the internal API caller set the
-+ * @FW_OPT_NOFALLBACK_SYSFS flag, if so it would also disable the fallback
-+ * mechanism. A system may want to enforce the sysfs fallback mechanism at=
- all
-+ * times, it can do this by setting ignore_sysfs_fallback to false and
-+ * force_sysfs_fallback to true.
-  * Enabling force_sysfs_fallback is functionally equivalent to build a ker=
-nel
-  * with CONFIG_FW_LOADER_USER_HELPER_FALLBACK.
-  **/
-diff --git a/drivers/base/firmware_loader/firmware.h b/drivers/base/firmwar=
-e_loader/firmware.h
-index 7ecd590e67fe..8656e5239a80 100644
---- a/drivers/base/firmware_loader/firmware.h
-+++ b/drivers/base/firmware_loader/firmware.h
-@@ -27,16 +27,16 @@
-  *=09firmware file lookup on storage is avoided. Used for calls where the
-  *=09file may be too big, or where the driver takes charge of its own
-  *=09firmware caching mechanism.
-- * @FW_OPT_NOFALLBACK: Disable the fallback mechanism. Takes precedence ov=
-er
-- *=09&FW_OPT_UEVENT and &FW_OPT_USERHELPER.
-+ * @FW_OPT_NOFALLBACK_SYSFS: Disable the sysfs fallback mechanism. Takes
-+ *=09precedence over &FW_OPT_UEVENT and &FW_OPT_USERHELPER.
-  */
- enum fw_opt {
--=09FW_OPT_UEVENT =3D         BIT(0),
--=09FW_OPT_NOWAIT =3D         BIT(1),
--=09FW_OPT_USERHELPER =3D     BIT(2),
--=09FW_OPT_NO_WARN =3D        BIT(3),
--=09FW_OPT_NOCACHE =3D        BIT(4),
--=09FW_OPT_NOFALLBACK =3D     BIT(5),
-+=09FW_OPT_UEVENT=09=09=09=3D BIT(0),
-+=09FW_OPT_NOWAIT=09=09=09=3D BIT(1),
-+=09FW_OPT_USERHELPER=09=09=3D BIT(2),
-+=09FW_OPT_NO_WARN=09=09=09=3D BIT(3),
-+=09FW_OPT_NOCACHE=09=09=09=3D BIT(4),
-+=09FW_OPT_NOFALLBACK_SYSFS=09=09=3D BIT(5),
- };
-=20
- enum fw_status {
-diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_lo=
-ader/main.c
-index 249add8c5e05..57133a9dad09 100644
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -877,7 +877,7 @@ int request_firmware_direct(const struct firmware **fir=
-mware_p,
- =09__module_get(THIS_MODULE);
- =09ret =3D _request_firmware(firmware_p, name, device, NULL, 0,
- =09=09=09=09FW_OPT_UEVENT | FW_OPT_NO_WARN |
--=09=09=09=09FW_OPT_NOFALLBACK);
-+=09=09=09=09FW_OPT_NOFALLBACK_SYSFS);
- =09module_put(THIS_MODULE);
- =09return ret;
+ #define TEST_FIRMWARE_NAME=09"test-firmware.bin"
+ #define TEST_FIRMWARE_NUM_REQS=094
+@@ -507,12 +508,76 @@ static ssize_t trigger_request_store(struct device *d=
+ev,
  }
+ static DEVICE_ATTR_WO(trigger_request);
+=20
++#ifdef CONFIG_EFI_EMBEDDED_FIRMWARE
++static ssize_t trigger_request_platform_store(struct device *dev,
++=09=09=09=09=09      struct device_attribute *attr,
++=09=09=09=09=09      const char *buf, size_t count)
++{
++=09static const u8 test_data[] =3D {
++=09=090x55, 0xaa, 0x55, 0xaa, 0x01, 0x02, 0x03, 0x04,
++=09=090x55, 0xaa, 0x55, 0xaa, 0x05, 0x06, 0x07, 0x08,
++=09=090x55, 0xaa, 0x55, 0xaa, 0x10, 0x20, 0x30, 0x40,
++=09=090x55, 0xaa, 0x55, 0xaa, 0x50, 0x60, 0x70, 0x80
++=09};
++=09struct efi_embedded_fw fw;
++=09int rc;
++=09char *name;
++
++=09name =3D kstrndup(buf, count, GFP_KERNEL);
++=09if (!name)
++=09=09return -ENOSPC;
++
++=09pr_info("inserting test platform fw '%s'\n", name);
++=09fw.name =3D name;
++=09fw.data =3D (void *)test_data;
++=09fw.length =3D sizeof(test_data);
++=09list_add(&fw.list, &efi_embedded_fw_list);
++
++=09pr_info("loading '%s'\n", name);
++
++=09mutex_lock(&test_fw_mutex);
++=09release_firmware(test_firmware);
++=09test_firmware =3D NULL;
++=09rc =3D firmware_request_platform(&test_firmware, name, dev);
++=09if (rc) {
++=09=09pr_info("load of '%s' failed: %d\n", name, rc);
++=09=09goto out;
++=09}
++=09if (test_firmware->size !=3D sizeof(test_data) ||
++=09    memcmp(test_firmware->data, test_data, sizeof(test_data)) !=3D 0) {
++=09=09pr_info("firmware contents mismatch for '%s'\n", name);
++=09=09rc =3D -EINVAL;
++=09=09goto out;
++=09}
++=09pr_info("loaded: %zu\n", test_firmware->size);
++=09rc =3D count;
++
++out:
++=09mutex_unlock(&test_fw_mutex);
++
++=09list_del(&fw.list);
++=09kfree(name);
++
++=09return rc;
++}
++static DEVICE_ATTR_WO(trigger_request_platform);
++#endif
++
+ static DECLARE_COMPLETION(async_fw_done);
+=20
+ static void trigger_async_request_cb(const struct firmware *fw, void *cont=
+ext)
+ {
+ =09test_firmware =3D fw;
+ =09complete(&async_fw_done);
++
++
++
++
++
++
++
++
++
+ }
+=20
+ static ssize_t trigger_async_request_store(struct device *dev,
+@@ -903,6 +968,9 @@ static struct attribute *test_dev_attrs[] =3D {
+ =09TEST_FW_DEV_ATTR(trigger_request),
+ =09TEST_FW_DEV_ATTR(trigger_async_request),
+ =09TEST_FW_DEV_ATTR(trigger_custom_fallback),
++#ifdef CONFIG_EFI_EMBEDDED_FIRMWARE
++=09TEST_FW_DEV_ATTR(trigger_request_platform),
++#endif
+=20
+ =09/* These use the config and can use the test_result */
+ =09TEST_FW_DEV_ATTR(trigger_batched_requests),
 --=20
 2.23.0
 

@@ -2,568 +2,162 @@ Return-Path: <SRS0=db+e=2A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7630DC2D0BF
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:52:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8185BC2D0C4
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:52:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 35EA8205C9
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:52:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 586C9214D8
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 11:52:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bEwTdC7I"
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="FWgvCa1/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727788AbfLJLw3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Dec 2019 06:52:29 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:57548 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727628AbfLJLvv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Dec 2019 06:51:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575978709;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZtBsTm3fRFjIyMa+EFTgFbazzMWS0kDI+hTGx1+0S64=;
-        b=bEwTdC7ISOHKVuUqveUyYMydUpXwlZeRKrd/zutZZ1023pLKRxXOVL7JZwaOFj+MPXRVbm
-        7PIdwmPeKSdbkp77mWNG7Q82SxTm9B9/m2k9eNs7ktYd8G+CC5xLL9jyAndBU2bDcGLT9w
-        +DBa13FCu0jTlOoDU74sKHoe692mWy0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-260-drcrFZeKPci8uI6H4xR-Aw-1; Tue, 10 Dec 2019 06:51:43 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1E19618036B1;
-        Tue, 10 Dec 2019 11:51:41 +0000 (UTC)
-Received: from shalem.localdomain.com (unknown [10.36.118.144])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4E2EC5DA60;
-        Tue, 10 Dec 2019 11:51:37 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Jonathan Corbet <corbet@lwn.net>,
+        id S1727682AbfLJLwc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Dec 2019 06:52:32 -0500
+Received: from mout02.posteo.de ([185.67.36.66]:41853 "EHLO mout02.posteo.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727615AbfLJLvt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 10 Dec 2019 06:51:49 -0500
+Received: from submission (posteo.de [89.146.220.130]) 
+        by mout02.posteo.de (Postfix) with ESMTPS id 8346924010A
+        for <linux-input@vger.kernel.org>; Tue, 10 Dec 2019 12:51:45 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=posteo.de; s=2017;
+        t=1575978705; bh=m4Q2fb645yaCXwwqlvCoypR/3L+HA9GRmr0c83G63Vk=;
+        h=Subject:To:Cc:From:Autocrypt:Date:From;
+        b=FWgvCa1/OaKxs5bCb1HJNu83R9Kx6N1N0igvWQBSaX/HSCU0cW/kUQs1E4LIB58/z
+         otOKfOjWZs8TJaO8Z57v9bZkuECORxZf3zIcAq/8jWcSwomCpgDYfO4F/mK0TZdDId
+         mcyIfoxrIUjnHoDE9Pp+c4uMvOnGLgbxP+2yb5fv1DO0b+2onDTsbbVlzgJFew6cv4
+         OzSpJ+A/guW9/hSnEFXp+EwRLOqSdcgUfZgydAECwTJgj6yPu1Yw33ORwMttl2xUcL
+         046Y7LazGeSDFPjepLaNrOwoBP4DmfNDwbOqiwOySRchLVhhEObGSXig2yE4LVNx9E
+         Y67kBLmiTmBXg==
+Received: from customer (localhost [127.0.0.1])
+        by submission (posteo.de) with ESMTPSA id 47XJLj0vHSz9rxk;
+        Tue, 10 Dec 2019 12:51:40 +0100 (CET)
+Subject: Re: [PATCH 1/7] Input: pegasus_notetaker: fix endpoint sanity check
+To:     Johan Hovold <johan@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Peter Jones <pjones@redhat.com>,
-        Dave Olsthoorn <dave@bewaar.me>, x86@kernel.org,
-        platform-driver-x86@vger.kernel.org, linux-efi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH v10 04/10] firmware: Add new platform fallback mechanism and firmware_request_platform()
-Date:   Tue, 10 Dec 2019 12:51:11 +0100
-Message-Id: <20191210115117.303935-5-hdegoede@redhat.com>
-In-Reply-To: <20191210115117.303935-1-hdegoede@redhat.com>
-References: <20191210115117.303935-1-hdegoede@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>
+References: <20191210113737.4016-1-johan@kernel.org>
+ <20191210113737.4016-2-johan@kernel.org>
+From:   Martin Kepplinger <martink@posteo.de>
+Autocrypt: addr=martink@posteo.de; keydata=
+ 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
+Message-ID: <71f10cb5-304a-c053-af86-469c6abc7373@posteo.de>
+Date:   Tue, 10 Dec 2019 12:51:39 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-MC-Unique: drcrFZeKPci8uI6H4xR-Aw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20191210113737.4016-2-johan@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-In some cases the platform's main firmware (e.g. the UEFI fw) may contain
-an embedded copy of device firmware which needs to be (re)loaded into the
-peripheral. Normally such firmware would be part of linux-firmware, but in
-some cases this is not feasible, for 2 reasons:
+On 10.12.19 12:37, Johan Hovold wrote:
+> The driver was checking the number of endpoints of the first alternate
+> setting instead of the current one, something which could be used by a
+> malicious device (or USB descriptor fuzzer) to trigger a NULL-pointer
+> dereference.
+> 
+> Fixes: 1afca2b66aac ("Input: add Pegasus Notetaker tablet driver")
+> Cc: stable <stable@vger.kernel.org>     # 4.8
+> Cc: Martin Kepplinger <martink@posteo.de>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/input/tablet/pegasus_notetaker.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+> index a1f3a0cb197e..38f087404f7a 100644
+> --- a/drivers/input/tablet/pegasus_notetaker.c
+> +++ b/drivers/input/tablet/pegasus_notetaker.c
+> @@ -275,7 +275,7 @@ static int pegasus_probe(struct usb_interface *intf,
+>  		return -ENODEV;
+>  
+>  	/* Sanity check that the device has an endpoint */
+> -	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
+> +	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
+>  		dev_err(&intf->dev, "Invalid number of endpoints\n");
+>  		return -EINVAL;
+>  	}
+> 
 
-1) The firmware is customized for a specific use-case of the chipset / use
-with a specific hardware model, so we cannot have a single firmware file
-for the chipset. E.g. touchscreen controller firmwares are compiled
-specifically for the hardware model they are used with, as they are
-calibrated for a specific model digitizer.
-
-2) Despite repeated attempts we have failed to get permission to
-redistribute the firmware. This is especially a problem with customized
-firmwares, these get created by the chip vendor for a specific ODM and the
-copyright may partially belong with the ODM, so the chip vendor cannot
-give a blanket permission to distribute these.
-
-This commit adds a new platform fallback mechanism to the firmware loader
-which will try to lookup a device fw copy embedded in the platform's main
-firmware if direct filesystem lookup fails.
-
-Drivers which need such embedded fw copies can enable this fallback
-mechanism by using the new firmware_request_platform() function.
-
-Note that for now this is only supported on EFI platforms and even on
-these platforms firmware_fallback_platform() only works if
-CONFIG_EFI_EMBEDDED_FIRMWARE is enabled (this gets selected by drivers
-which need this), in all other cases firmware_fallback_platform() simply
-always returns -ENOENT.
-
-Reported-by: Dave Olsthoorn <dave@bewaar.me>
-Suggested-by: Peter Jones <pjones@redhat.com>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v9:
-- Add static inline wrapper for firmware_request_platform() to firmware.h,
-  for when CONFIG_FW_LOADER is not set
-
-Changes in v8:
-- Only build fallback_platform.c if CONFIG_EFI_EMBEDDED_FIRMWARE is defined=
-,
-  otherwise make firmware_fallback_platform() a static inline stub
-- Add documentation to Documentation/driver-api/firmware/fallback-mechanism=
-s.rst
-  on how the boot_service_code? files exported by EFI debugfs can be used t=
-o
-  check if there is an embedded firmware and to get the embedded firmware
-  length and sha256sum
-
-Changes in v7:
-- Split drivers/firmware/efi and drivers/base/firmware_loader changes into
-  2 patches
-- Address kdoc comments from Randy Dunlap
-- Add new FW_OPT_FALLBACK_PLATFORM flag and firmware_request_platform()
-  _request_firmware() wrapper, as requested by Luis R. Rodriguez
-- Stop using "efi-embedded-firmware" device-property, now that drivers need=
- to
-  use the new firmware_request_platform() to enable fallback to a device fw
-  copy embedded in the platform's main firmware, we no longer need a proper=
-ty
-  on the device to trigger this behavior
-- Use security_kernel_load_data instead of calling
-  security_kernel_read_file with a NULL file pointer argument
-- Move the docs to Documentation/driver-api/firmware/fallback-mechanisms.rs=
-t
-- Document the new firmware_request_platform() function in
-  Documentation/driver-api/firmware/request_firmware.rst
-
-Changes in v6:
-- Rework code to remove casts from if (prefix =3D=3D mem) comparison
-- Use SHA256 hashes instead of crc32 sums
-- Add new READING_FIRMWARE_EFI_EMBEDDED read_file_id and use it
-- Call security_kernel_read_file(NULL, READING_FIRMWARE_EFI_EMBEDDED)
-  to check if this is allowed before looking at EFI embedded fw
-- Document why we are not using the UEFI PI Firmware Volume protocol
-
-Changes in v5:
-- Rename the EFI_BOOT_SERVICES flag to EFI_PRESERVE_BS_REGIONS
-
-Changes in v4:
-- Drop note in docs about EFI_FIRMWARE_VOLUME_PROTOCOL, it is not part of
-  UEFI proper, so the EFI maintainers don't want us referring people to it
-- Use new EFI_BOOT_SERVICES flag
-- Put the new fw_get_efi_embedded_fw() function in its own fallback_efi.c
-  file which only gets built when EFI_EMBEDDED_FIRMWARE is selected
-- Define an empty stub for fw_get_efi_embedded_fw() in fallback.h hwen
-  EFI_EMBEDDED_FIRMWARE is not selected, to avoid the need for #ifdefs
-  in firmware_loader/main.c
-- Properly call security_kernel_post_read_file() on the firmware returned
-  by efi_get_embedded_fw() to make sure that we are allowed to use it
-
-Changes in v3:
-- Fix the docs using "efi-embedded-fw" as property name instead of
-  "efi-embedded-firmware"
-
-Changes in v2:
-- Rebased on driver-core/driver-core-next
-- Add documentation describing the EFI embedded firmware mechanism to:
-  Documentation/driver-api/firmware/request_firmware.rst
-- Add a new EFI_EMBEDDED_FIRMWARE Kconfig bool and only build the embedded
-  fw support if this is set. This is an invisible option which should be
-  selected by drivers which need this
-- Remove the efi_embedded_fw_desc and dmi_system_id-s for known devices
-  from the efi-embedded-fw code, instead drivers using this are expected to
-  export a dmi_system_id array, with each entries' driver_data pointing to =
-a
-  efi_embedded_fw_desc struct and register this with the efi-embedded-fw co=
-de
-- Use kmemdup to make a copy instead of efi_mem_reserve()-ing the firmware,
-  this avoids us messing with the EFI memmap and avoids the need to make
-  changes to efi_mem_desc_lookup()
-- Make the firmware-loader code only fallback to efi_get_embedded_fw() if t=
-he
-  passed in device has the "efi-embedded-firmware" device-property bool set
-- Skip usermodehelper fallback when "efi-embedded-firmware" device-property
-  is set
----
- .../firmware/fallback-mechanisms.rst          | 103 ++++++++++++++++++
- .../driver-api/firmware/lookup-order.rst      |   2 +
- .../driver-api/firmware/request_firmware.rst  |   5 +
- drivers/base/firmware_loader/Makefile         |   1 +
- drivers/base/firmware_loader/fallback.h       |  10 ++
- .../base/firmware_loader/fallback_platform.c  |  29 +++++
- drivers/base/firmware_loader/firmware.h       |   4 +
- drivers/base/firmware_loader/main.c           |  27 +++++
- include/linux/firmware.h                      |   9 ++
- include/linux/fs.h                            |   1 +
- 10 files changed, 191 insertions(+)
- create mode 100644 drivers/base/firmware_loader/fallback_platform.c
-
-diff --git a/Documentation/driver-api/firmware/fallback-mechanisms.rst b/Do=
-cumentation/driver-api/firmware/fallback-mechanisms.rst
-index 8b041d0ab426..036383dad6d6 100644
---- a/Documentation/driver-api/firmware/fallback-mechanisms.rst
-+++ b/Documentation/driver-api/firmware/fallback-mechanisms.rst
-@@ -202,3 +202,106 @@ the following file:
-=20
- If you echo 0 into it means MAX_JIFFY_OFFSET will be used. The data type
- for the timeout is an int.
-+
-+EFI embedded firmware fallback mechanism
-+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-+
-+On some devices the system's EFI code / ROM may contain an embedded copy
-+of firmware for some of the system's integrated peripheral devices and
-+the peripheral's Linux device-driver needs to access this firmware.
-+
-+Device drivers which need such firmware can use the
-+firmware_request_platform() function for this, note that this is a
-+separate fallback mechanism from the other fallback mechanisms and
-+this does not use the sysfs interface.
-+
-+A device driver which needs this can describe the firmware it needs
-+using an efi_embedded_fw_desc struct:
-+
-+.. kernel-doc:: include/linux/efi_embedded_fw.h
-+   :functions: efi_embedded_fw_desc
-+
-+The EFI embedded-fw code works by scanning all EFI_BOOT_SERVICES_CODE memo=
-ry
-+segments for an eight byte sequence matching prefix; if the prefix is foun=
-d it
-+then does a sha256 over length bytes and if that matches makes a copy of l=
-ength
-+bytes and adds that to its list with found firmwares.
-+
-+To avoid doing this somewhat expensive scan on all systems, dmi matching i=
-s
-+used. Drivers are expected to export a dmi_system_id array, with each entr=
-ies'
-+driver_data pointing to an efi_embedded_fw_desc.
-+
-+To register this array with the efi-embedded-fw code, a driver needs to:
-+
-+1. Always be builtin to the kernel or store the dmi_system_id array in a
-+   separate object file which always gets builtin.
-+
-+2. Add an extern declaration for the dmi_system_id array to
-+   include/linux/efi_embedded_fw.h.
-+
-+3. Add the dmi_system_id array to the embedded_fw_table in
-+   drivers/firmware/efi/embedded-firmware.c wrapped in a #ifdef testing th=
-at
-+   the driver is being builtin.
-+
-+4. Add "select EFI_EMBEDDED_FIRMWARE if EFI_STUB" to its Kconfig entry.
-+
-+The firmware_request_platform() function will always first try to load fir=
-mware
-+with the specified name directly from the disk, so the EFI embedded-fw can
-+always be overridden by placing a file under /lib/firmware.
-+
-+Note that:
-+
-+1. The code scanning for EFI embedded-firmware runs near the end
-+   of start_kernel(), just before calling rest_init(). For normal drivers =
-and
-+   subsystems using subsys_initcall() to register themselves this does not
-+   matter. This means that code running earlier cannot use EFI
-+   embedded-firmware.
-+
-+2. At the moment the EFI embedded-fw code assumes that firmwares always st=
-art at
-+   an offset which is a multiple of 8 bytes, if this is not true for your =
-case
-+   send in a patch to fix this.
-+
-+3. At the moment the EFI embedded-fw code only works on x86 because other =
-archs
-+   free EFI_BOOT_SERVICES_CODE before the EFI embedded-fw code gets a chan=
-ce to
-+   scan it.
-+
-+4. The current brute-force scanning of EFI_BOOT_SERVICES_CODE is an ad-hoc
-+   brute-force solution. There has been discussion to use the UEFI Platfor=
-m
-+   Initialization (PI) spec's Firmware Volume protocol. This has been reje=
-cted
-+   because the FV Protocol relies on *internal* interfaces of the PI spec,=
- and:
-+   1. The PI spec does not define peripheral firmware at all
-+   2. The internal interfaces of the PI spec do not guarantee any backward
-+   compatibility. Any implementation details in FV may be subject to chang=
-e,
-+   and may vary system to system. Supporting the FV Protocol would be
-+   difficult as it is purposely ambiguous.
-+
-+Example how to check for and extract embedded firmware
-+------------------------------------------------------
-+
-+To check for, for example Silead touchscreen controller embedded firmware,
-+do the following:
-+
-+1. Boot the system with efi=3Ddebug on the kernel commandline
-+
-+2. cp /sys/kernel/debug/efi/boot_services_code? to your home dir
-+
-+3. Open the boot_services_code? files in a hex-editor, search for the
-+   magic prefix for Silead firmware: F0 00 00 00 02 00 00 00, this gives y=
-ou
-+   the beginning address of the firmware inside the boot_services_code? fi=
-le.
-+
-+4. The firmware has a specific pattern, it starts with a 8 byte page-addre=
-ss,
-+   typically F0 00 00 00 02 00 00 00 for the first page followed by 32-bit
-+   word-address + 32-bit value pairs. With the word-address incrementing 4
-+   bytes (1 word) for each pair until a page is complete. A complete page =
-is
-+   followed by a new page-address, followed by more word + value pairs. Th=
-is
-+   leads to a very distinct pattern. Scroll down until this pattern stops,
-+   this gives you the end of the firmware inside the boot_services_code? f=
-ile.
-+
-+5. "dd if=3Dboot_services_code? of=3Dfirmware bs=3D1 skip=3D<begin-addr> c=
-ount=3D<len>"
-+   will extract the firmware for you. Inspect the firmware file in a
-+   hexeditor to make sure you got the dd parameters correct.
-+
-+6. Copy it to /lib/firmware under the expected name to test it.
-+
-+7. If the extracted firmware works, you can use the found info to fill an
-+   efi_embedded_fw_desc struct to describe it, run "sha256sum firmware"
-+   to get the sha256sum to put in the sha256 field.
-diff --git a/Documentation/driver-api/firmware/lookup-order.rst b/Documenta=
-tion/driver-api/firmware/lookup-order.rst
-index 88c81739683c..6064672a782e 100644
---- a/Documentation/driver-api/firmware/lookup-order.rst
-+++ b/Documentation/driver-api/firmware/lookup-order.rst
-@@ -12,6 +12,8 @@ a driver issues a firmware API call.
-   return it immediately
- * The ''Direct filesystem lookup'' is performed next, if found we
-   return it immediately
-+* The ''Platform firmware fallback'' is performed next, but only when
-+  firmware_request_platform() is used, if found we return it immediately
- * If no firmware has been found and the fallback mechanism was enabled
-   the sysfs interface is created. After this either a kobject uevent
-   is issued or the custom firmware loading is relied upon for firmware
-diff --git a/Documentation/driver-api/firmware/request_firmware.rst b/Docum=
-entation/driver-api/firmware/request_firmware.rst
-index f62bdcbfed5b..cd076462d235 100644
---- a/Documentation/driver-api/firmware/request_firmware.rst
-+++ b/Documentation/driver-api/firmware/request_firmware.rst
-@@ -25,6 +25,11 @@ firmware_request_nowarn
- .. kernel-doc:: drivers/base/firmware_loader/main.c
-    :functions: firmware_request_nowarn
-=20
-+firmware_request_platform
-+-------------------------
-+.. kernel-doc:: drivers/base/firmware_loader/main.c
-+   :functions: firmware_request_platform
-+
- request_firmware_direct
- -----------------------
- .. kernel-doc:: drivers/base/firmware_loader/main.c
-diff --git a/drivers/base/firmware_loader/Makefile b/drivers/base/firmware_=
-loader/Makefile
-index 0b2dfa6259c9..e87843408fe6 100644
---- a/drivers/base/firmware_loader/Makefile
-+++ b/drivers/base/firmware_loader/Makefile
-@@ -5,5 +5,6 @@ obj-$(CONFIG_FW_LOADER_USER_HELPER) +=3D fallback_table.o
- obj-$(CONFIG_FW_LOADER)=09+=3D firmware_class.o
- firmware_class-objs :=3D main.o
- firmware_class-$(CONFIG_FW_LOADER_USER_HELPER) +=3D fallback.o
-+firmware_class-$(CONFIG_EFI_EMBEDDED_FIRMWARE) +=3D fallback_platform.o
-=20
- obj-y +=3D builtin/
-diff --git a/drivers/base/firmware_loader/fallback.h b/drivers/base/firmwar=
-e_loader/fallback.h
-index 21063503e4ea..06f4577733a8 100644
---- a/drivers/base/firmware_loader/fallback.h
-+++ b/drivers/base/firmware_loader/fallback.h
-@@ -66,4 +66,14 @@ static inline void unregister_sysfs_loader(void)
- }
- #endif /* CONFIG_FW_LOADER_USER_HELPER */
-=20
-+#ifdef CONFIG_EFI_EMBEDDED_FIRMWARE
-+int firmware_fallback_platform(struct fw_priv *fw_priv, enum fw_opt opt_fl=
-ags);
-+#else
-+static inline int firmware_fallback_platform(struct fw_priv *fw_priv,
-+=09=09=09=09=09     enum fw_opt opt_flags)
-+{
-+=09return -ENOENT;
-+}
-+#endif
-+
- #endif /* __FIRMWARE_FALLBACK_H */
-diff --git a/drivers/base/firmware_loader/fallback_platform.c b/drivers/bas=
-e/firmware_loader/fallback_platform.c
-new file mode 100644
-index 000000000000..37746efaf8e3
---- /dev/null
-+++ b/drivers/base/firmware_loader/fallback_platform.c
-@@ -0,0 +1,29 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <linux/efi_embedded_fw.h>
-+#include <linux/property.h>
-+#include <linux/security.h>
-+#include <linux/vmalloc.h>
-+
-+#include "fallback.h"
-+#include "firmware.h"
-+
-+int firmware_fallback_platform(struct fw_priv *fw_priv, enum fw_opt opt_fl=
-ags)
-+{
-+=09int rc;
-+
-+=09if (!(opt_flags & FW_OPT_FALLBACK_PLATFORM))
-+=09=09return -ENOENT;
-+
-+=09rc =3D security_kernel_load_data(LOADING_FIRMWARE_EFI_EMBEDDED);
-+=09if (rc)
-+=09=09return rc;
-+
-+=09rc =3D efi_get_embedded_fw(fw_priv->fw_name, &fw_priv->data,
-+=09=09=09=09 &fw_priv->size);
-+=09if (rc)
-+=09=09return rc; /* rc =3D=3D -ENOENT when the fw was not found */
-+
-+=09fw_state_done(fw_priv);
-+=09return 0;
-+}
-diff --git a/drivers/base/firmware_loader/firmware.h b/drivers/base/firmwar=
-e_loader/firmware.h
-index 8656e5239a80..25836a6afc9f 100644
---- a/drivers/base/firmware_loader/firmware.h
-+++ b/drivers/base/firmware_loader/firmware.h
-@@ -29,6 +29,9 @@
-  *=09firmware caching mechanism.
-  * @FW_OPT_NOFALLBACK_SYSFS: Disable the sysfs fallback mechanism. Takes
-  *=09precedence over &FW_OPT_UEVENT and &FW_OPT_USERHELPER.
-+ * @FW_OPT_FALLBACK_PLATFORM: Enable fallback to device fw copy embedded i=
-n
-+ *=09the platform's main firmware. If both this fallback and the sysfs
-+ *      fallback are enabled, then this fallback will be tried first.
-  */
- enum fw_opt {
- =09FW_OPT_UEVENT=09=09=09=3D BIT(0),
-@@ -37,6 +40,7 @@ enum fw_opt {
- =09FW_OPT_NO_WARN=09=09=09=3D BIT(3),
- =09FW_OPT_NOCACHE=09=09=09=3D BIT(4),
- =09FW_OPT_NOFALLBACK_SYSFS=09=09=3D BIT(5),
-+=09FW_OPT_FALLBACK_PLATFORM=09=3D BIT(6),
- };
-=20
- enum fw_status {
-diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_lo=
-ader/main.c
-index 57133a9dad09..cfdbf0010545 100644
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -776,6 +776,9 @@ _request_firmware(const struct firmware **firmware_p, c=
-onst char *name,
- =09=09=09=09=09=09 fw_decompress_xz);
- #endif
-=20
-+=09if (ret =3D=3D -ENOENT)
-+=09=09ret =3D firmware_fallback_platform(fw->priv, opt_flags);
-+
- =09if (ret) {
- =09=09if (!(opt_flags & FW_OPT_NO_WARN))
- =09=09=09dev_warn(device,
-@@ -883,6 +886,30 @@ int request_firmware_direct(const struct firmware **fi=
-rmware_p,
- }
- EXPORT_SYMBOL_GPL(request_firmware_direct);
-=20
-+/**
-+ * firmware_request_platform() - request firmware with platform-fw fallbac=
-k
-+ * @firmware: pointer to firmware image
-+ * @name: name of firmware file
-+ * @device: device for which firmware is being loaded
-+ *
-+ * This function is similar in behaviour to request_firmware, except that =
-if
-+ * direct filesystem lookup fails, it will fallback to looking for a copy =
-of the
-+ * requested firmware embedded in the platform's main (e.g. UEFI) firmware=
-.
-+ **/
-+int firmware_request_platform(const struct firmware **firmware,
-+=09=09=09      const char *name, struct device *device)
-+{
-+=09int ret;
-+
-+=09/* Need to pin this module until return */
-+=09__module_get(THIS_MODULE);
-+=09ret =3D _request_firmware(firmware, name, device, NULL, 0,
-+=09=09=09=09FW_OPT_UEVENT | FW_OPT_FALLBACK_PLATFORM);
-+=09module_put(THIS_MODULE);
-+=09return ret;
-+}
-+EXPORT_SYMBOL_GPL(firmware_request_platform);
-+
- /**
-  * firmware_request_cache() - cache firmware for suspend so resume can use=
- it
-  * @name: name of firmware file
-diff --git a/include/linux/firmware.h b/include/linux/firmware.h
-index 2dd566c91d44..4bbd0afd91b7 100644
---- a/include/linux/firmware.h
-+++ b/include/linux/firmware.h
-@@ -44,6 +44,8 @@ int request_firmware(const struct firmware **fw, const ch=
-ar *name,
- =09=09     struct device *device);
- int firmware_request_nowarn(const struct firmware **fw, const char *name,
- =09=09=09    struct device *device);
-+int firmware_request_platform(const struct firmware **fw, const char *name=
-,
-+=09=09=09      struct device *device);
- int request_firmware_nowait(
- =09struct module *module, bool uevent,
- =09const char *name, struct device *device, gfp_t gfp, void *context,
-@@ -69,6 +71,13 @@ static inline int firmware_request_nowarn(const struct f=
-irmware **fw,
- =09return -EINVAL;
- }
-=20
-+static inline int firmware_request_platform(const struct firmware **fw,
-+=09=09=09=09=09    const char *name,
-+=09=09=09=09=09    struct device *device)
-+{
-+=09return -EINVAL;
-+}
-+
- static inline int request_firmware_nowait(
- =09struct module *module, bool uevent,
- =09const char *name, struct device *device, gfp_t gfp, void *context,
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 98e0349adb52..4b4f11a80a2c 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2964,6 +2964,7 @@ extern int do_pipe_flags(int *, int);
- =09id(UNKNOWN, unknown)=09=09\
- =09id(FIRMWARE, firmware)=09=09\
- =09id(FIRMWARE_PREALLOC_BUFFER, firmware)=09\
-+=09id(FIRMWARE_EFI_EMBEDDED, firmware)=09\
- =09id(MODULE, kernel-module)=09=09\
- =09id(KEXEC_IMAGE, kexec-image)=09=09\
- =09id(KEXEC_INITRAMFS, kexec-initramfs)=09\
---=20
-2.23.0
-
+Acked-by: Martin Kepplinger <martink@posteo.de>

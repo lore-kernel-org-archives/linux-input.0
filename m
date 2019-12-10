@@ -2,167 +2,103 @@ Return-Path: <SRS0=db+e=2A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2288C43603
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 00:19:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7126C43603
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 00:59:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 990EE20828
-	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 00:19:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F4EF2073D
+	for <linux-input@archiver.kernel.org>; Tue, 10 Dec 2019 00:59:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="GWiGBFyJ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yfw4+uN+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727491AbfLJATU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 9 Dec 2019 19:19:20 -0500
-Received: from rere.qmqm.pl ([91.227.64.183]:21281 "EHLO rere.qmqm.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727425AbfLJATT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 9 Dec 2019 19:19:19 -0500
-Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 47X0wr6vJFzFZ;
-        Tue, 10 Dec 2019 01:16:44 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1575937005; bh=+yXkdEmHbGVnUoL0SE9nNKnNhlZX/InCwmV5e2Rr8j8=;
-        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=GWiGBFyJHivTlCR//wBW0N2/Fjwa6tU8NPORwvFwHRJqXTNORTmAHBSRfyvWceKvY
-         TlS2TB40WYcCU8owZN6SmWvJBE85N5wgUyRsj568115hERt2cMDT5lBEABRlbWr24j
-         DCNSZIwMxf/dmqTLXoV0RjK9ctIUOPTiEZ+0EgYX3JvNjk3Xl3Fyo6i+Trcrugzd0Q
-         2gxTWAtpm74UbxIJ2hmUQMW4ChEfmVDpKU6mJ0VlsUPEewfuvgUJnvFxb/YBRFnFMI
-         VzVIxgKJCw5qAZILz8QiHAL4s6ITUpw0w92LdCpJRK5mH6JD7cHuKoG1MzZ7/AKWhG
-         Is2Jy7ffMWmoA==
-X-Virus-Status: Clean
-X-Virus-Scanned: clamav-milter 0.101.4 at mail
-Date:   Tue, 10 Dec 2019 01:19:17 +0100
-Message-Id: <7a8ff01ae0952d026a7da307a69e4540055e370a.1575936961.git.mirq-linux@rere.qmqm.pl>
-In-Reply-To: <cover.1575936961.git.mirq-linux@rere.qmqm.pl>
-References: <cover.1575936961.git.mirq-linux@rere.qmqm.pl>
-From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH 2/6] input: elants: support old touch report format
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-To:     linux-input@vger.kernel.org
+        id S1727213AbfLJA7b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 9 Dec 2019 19:59:31 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:35605 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727059AbfLJA7a (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Dec 2019 19:59:30 -0500
+Received: by mail-lf1-f67.google.com with SMTP id 15so12282761lfr.2;
+        Mon, 09 Dec 2019 16:59:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=9hiWosH+VeoYM4lxmg313Iwo3l/eXHwLXDbT5+/apOg=;
+        b=Yfw4+uN+uJBfN02MxQ3yon1n9qcbB5nca3yJx1+kKufYYm9Jh2h578cNmDna8r1vFF
+         FYE2DpJ6DRcqPZASUkHxy4FkGu9m/X/hGVXPL4JcafEgAouOzzcZFRIDqHMLdiF6X9nB
+         ISQF/72Atj4D1WG/eVFDgnqvoxVC/ZhbA10CDIqeesRHdV3QwAmu6JV2mBYkWF+FziXL
+         VXua8wqBiLShKx6OD9b6y6twgQltqP3BuN9WLjSBTmoZhwaR8c7hd38ZIBE+2zbHD02j
+         j3PoHyn/7kW6iRU2qoM8OdMAIlEg2TAHNw9/dHQKUNSp7Huv6L6ayVYwDrGOVGhb4A8b
+         TgJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=9hiWosH+VeoYM4lxmg313Iwo3l/eXHwLXDbT5+/apOg=;
+        b=ByRfTQV8cCpJDVVbR8ffUj/JQ3FO08rBzqbOTOliEFwxExErjqAIbqdJ8JZZpXBPo+
+         PiYYN9SNjz4qGeDGo6KVQMvMXcVnMTC6+fqHdKygslI1L84aE+7si4NOpW8t/f2uFAmH
+         obBSMsVFhewIU4YoNUEd5Z2PS63l9lq7oV5IF6goWP3SHXgRKXXWnwrLo3A/dIP3LHww
+         ziuXpWgSZXTsqwwy5mBihPeqDO8SIj6xA6O4aQXI+pFrNsf3H1cM71+jGQSN2wvxj7gS
+         imcK3ihmRooiJyvfZ0RMBSG3BP3pPQfTh1V/+9J8m5Jn3f5Si5M7+EKwhAdrfdwDHmB/
+         wnWg==
+X-Gm-Message-State: APjAAAV52y9NhIDFZ+QF9z7VIRgsofBjAoC60D5sFcjwMtce/hNPgbVZ
+        0c68m3cADwPpJPwApG18G2KHlWV8
+X-Google-Smtp-Source: APXvYqwmCCRCTNKWhRPCGttlljSjvqPj7XX9KNbGngHF0rMgpwvpAd7g0ToffDkyDToFCm/OAxgWbw==
+X-Received: by 2002:a19:f716:: with SMTP id z22mr4779911lfe.14.1575939567355;
+        Mon, 09 Dec 2019 16:59:27 -0800 (PST)
+Received: from [192.168.2.145] (79-139-233-37.dynamic.spd-mgts.ru. [79.139.233.37])
+        by smtp.googlemail.com with ESMTPSA id w16sm507286lfc.1.2019.12.09.16.59.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 Dec 2019 16:59:26 -0800 (PST)
+Subject: Re: [PATCH 0/6] input: elants: Support Asus TF300T touchscreen
+To:     =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+        linux-input@vger.kernel.org
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-kernel@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>
+        linux-kernel@vger.kernel.org
+References: <cover.1575936961.git.mirq-linux@rere.qmqm.pl>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <8b656670-fd05-57b5-d361-267f3e3c78b9@gmail.com>
+Date:   Tue, 10 Dec 2019 03:59:25 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
+MIME-Version: 1.0
+In-Reply-To: <cover.1575936961.git.mirq-linux@rere.qmqm.pl>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Support ELAN touchpad sensor with older firmware as found on eg. Asus
-Transformer Pads.
+10.12.2019 03:19, Michał Mirosław пишет:
+> This series implements changes needed to support EKTF3624-based touchscreen
+> used in eg. Asus Transformer Pad TF300T.
+> 
+> Michał Mirosław (6):
+>   input: elants: document some registers and values
+>   input: elants: support old touch report format
+>   input: elants: support common touchscreen DT properties
+>   input: elants: detect max_x/y from hardware
+>   input: elants: refactor elants_i2c_execute_command()
+>   input: elants: read touchscreen size for EKTF3624
+> 
+>  drivers/input/touchscreen/elants_i2c.c | 365 ++++++++++++++++---------
+>  1 file changed, 237 insertions(+), 128 deletions(-)
+> 
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
----
- drivers/input/touchscreen/elants_i2c.c | 36 ++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 11 deletions(-)
+Hello Michał,
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 887888c53996..eadd26d5a06f 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -65,6 +65,7 @@
- #define CMD_HEADER_REK		0x66
- 
- /* FW position data */
-+#define PACKET_SIZE_OLD		40
- #define PACKET_SIZE		55
- #define MAX_CONTACT_NUM		10
- #define FW_POS_HEADER		0
-@@ -792,7 +793,8 @@ static int elants_i2c_fw_update(struct elants_data *ts)
-  * Event reporting.
-  */
- 
--static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf)
-+static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf,
-+				size_t report_len)
- {
- 	struct input_dev *input = ts->input;
- 	unsigned int n_fingers;
-@@ -804,7 +806,8 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf)
- 			buf[FW_POS_STATE];
- 
- 	dev_dbg(&ts->client->dev,
--		"n_fingers: %u, state: %04x\n",  n_fingers, finger_state);
-+		"n_fingers: %u, state: %04x, report_len: %zu\n",
-+		n_fingers, finger_state, report_len);
- 
- 	for (i = 0; i < MAX_CONTACT_NUM && n_fingers; i++) {
- 		if (finger_state & 1) {
-@@ -814,8 +817,16 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf)
- 			pos = &buf[FW_POS_XY + i * 3];
- 			x = (((u16)pos[0] & 0xf0) << 4) | pos[1];
- 			y = (((u16)pos[0] & 0x0f) << 8) | pos[2];
--			p = buf[FW_POS_PRESSURE + i];
--			w = buf[FW_POS_WIDTH + i];
-+			if (report_len == PACKET_SIZE_OLD) {
-+				w = buf[FW_POS_WIDTH + i / 2];
-+				w >>= 4 * (~i & 1);	// little-endian-nibbles
-+				w |= w << 4;
-+				w |= !w;
-+				p = w;
-+			} else {
-+				p = buf[FW_POS_PRESSURE + i];
-+				w = buf[FW_POS_WIDTH + i];
-+			}
- 
- 			dev_dbg(&ts->client->dev, "i=%d x=%d y=%d p=%d w=%d\n",
- 				i, x, y, p, w);
-@@ -848,7 +859,8 @@ static u8 elants_i2c_calculate_checksum(u8 *buf)
- 	return checksum;
- }
- 
--static void elants_i2c_event(struct elants_data *ts, u8 *buf)
-+static void elants_i2c_event(struct elants_data *ts, u8 *buf,
-+			     size_t report_len)
- {
- 	u8 checksum = elants_i2c_calculate_checksum(buf);
- 
-@@ -862,7 +874,7 @@ static void elants_i2c_event(struct elants_data *ts, u8 *buf)
- 			 "%s: unknown packet type: %02x\n",
- 			 __func__, buf[FW_POS_HEADER]);
- 	else
--		elants_i2c_mt_event(ts, buf);
-+		elants_i2c_mt_event(ts, buf, report_len);
- }
- 
- static irqreturn_t elants_i2c_irq(int irq, void *_dev)
-@@ -920,7 +932,8 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
- 			break;
- 
- 		case QUEUE_HEADER_SINGLE:
--			elants_i2c_event(ts, &ts->buf[HEADER_SIZE]);
-+			elants_i2c_event(ts, &ts->buf[HEADER_SIZE],
-+					 ts->buf[FW_HDR_LENGTH]);
- 			break;
- 
- 		case QUEUE_HEADER_NORMAL:
-@@ -933,17 +946,18 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
- 			}
- 
- 			report_len = ts->buf[FW_HDR_LENGTH] / report_count;
--			if (report_len != PACKET_SIZE) {
-+			if (report_len != PACKET_SIZE &&
-+			    report_len != PACKET_SIZE_OLD) {
- 				dev_err(&client->dev,
--					"mismatching report length: %*ph\n",
-+					"unsupported report length: %*ph\n",
- 					HEADER_SIZE, ts->buf);
- 				break;
- 			}
- 
- 			for (i = 0; i < report_count; i++) {
- 				u8 *buf = ts->buf + HEADER_SIZE +
--							i * PACKET_SIZE;
--				elants_i2c_event(ts, buf);
-+					  i * report_len;
-+				elants_i2c_event(ts, buf, report_len);
- 			}
- 			break;
- 
--- 
-2.20.1
+Very nice work! I saw these patches couple days ago on the rere git, but
+wasn't sure if you were going to submit them. It's very good that you
+found time to send them out, looks like we're going to have a fully
+supported eKTF3624 in upstream soon!
 
+It's a bit unfortunate that Elantech firmware writers couldn't maintain
+common commands format for all firmware versions, but not really a big
+deal since it will be one more trivial patch to support Nexus 7 :)

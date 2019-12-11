@@ -7,49 +7,50 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF78AC2D0C8
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 15:47:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFAD8C2D0C7
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7DA0D2073D
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 15:47:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A431F2073D
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1576079242;
-	bh=T9ks6T+rhopzS3sRezOIMYMOUnsrEE3XWDB5kr4AmDQ=;
+	s=default; t=1576080123;
+	bh=JBmAVkhcp71r07TrM4idsZy9hXaAMVHGdeXcNZUvKro=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=I6o3FJCMD6RYLpnT5DDkflmjgU7uZ4dLbOsYfxRjOsOaSCJx+4UDBMLkUtHrNExGH
-	 e2eVHZ4H+yicdy4ShVKWTXyRF5XgWi9cEdYZR6e3+It9867kvA37z1QYqGZYLKk6dd
-	 5eypJlChfX1pxTjmAfTIvayvKdI+zdGYPw6YdzB0=
+	b=wshPQOMwX1T8AltWwarT/pNIix6agfHruaX0a76rQ7oe5/65SUAy4z25AbeMg+Z+T
+	 S6OAmPPQXmmGHN+5xPfcpOXgMKH8IkI2ttoZwkYVbVkQByaGOTGa5vxActY2vPsdjl
+	 Bh8CRLmkywyLezr4fIy0J/jJ5ZVkAUYTlCmOJnS0=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730318AbfLKP0w (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 11 Dec 2019 10:26:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60236 "EHLO mail.kernel.org"
+        id S1731396AbfLKPNV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 11 Dec 2019 10:13:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733168AbfLKP0t (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:26:49 -0500
+        id S1731391AbfLKPNU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18D792465A;
-        Wed, 11 Dec 2019 15:26:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB9F52468A;
+        Wed, 11 Dec 2019 15:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078008;
-        bh=T9ks6T+rhopzS3sRezOIMYMOUnsrEE3XWDB5kr4AmDQ=;
+        s=default; t=1576077199;
+        bh=JBmAVkhcp71r07TrM4idsZy9hXaAMVHGdeXcNZUvKro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyDCT0QgZN04P61IuLr8XwlKFI5sVr6jhv7xrhF64tzjeLOongkouvKGLKoSk8rXz
-         dtkIRwauXm6D5NP9soagBIY25M9rEox4mmoPPy4TowhLP0gv0ZPa/mKczrigme8Qx6
-         Dr01nuwTSsItyep+DmAVz0QVUznPdPOXodu+a2Jk=
+        b=MjDMPozJ6pUXzMDRy0Mv2fDQij8vW+gJVci64/nwbywQbWT+3FTgXPrtT5ZMhvTc0
+         3I3Pa4eAYXI06WBAYTQam6KksipFiFE5rg3Cs0fLJzHfEaWsiVXZlvAuHyGLlXQGWY
+         LI3wDrp1RdWTxAKe5sgq5dZfN/B4zcn7UAtq5jDM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Green <evgreen@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+Cc:     =?UTF-8?q?Bla=C5=BE=20Hrastnik?= <blaz@mxxn.io>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/79] Input: atmel_mxt_ts - disable IRQ across suspend
-Date:   Wed, 11 Dec 2019 10:25:28 -0500
-Message-Id: <20191211152643.23056-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 082/134] HID: Improve Windows Precision Touchpad detection.
+Date:   Wed, 11 Dec 2019 10:10:58 -0500
+Message-Id: <20191211151150.19073-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
-References: <20191211152643.23056-1-sashal@kernel.org>
+In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
+References: <20191211151150.19073-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,52 +59,63 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Blaž Hrastnik <blaz@mxxn.io>
 
-[ Upstream commit 463fa44eec2fef50d111ed0199cf593235065c04 ]
+[ Upstream commit 2dbc6f113acd74c66b04bf49fb027efd830b1c5a ]
 
-Across suspend and resume, we are seeing error messages like the following:
+Per Microsoft spec, usage 0xC5 (page 0xFF) returns a blob containing
+data used to verify the touchpad as a Windows Precision Touchpad.
 
-atmel_mxt_ts i2c-PRP0001:00: __mxt_read_reg: i2c transfer failed (-121)
-atmel_mxt_ts i2c-PRP0001:00: Failed to read T44 and T5 (-121)
+   0x85, REPORTID_PTPHQA,    //    REPORT_ID (PTPHQA)
+    0x09, 0xC5,              //    USAGE (Vendor Usage 0xC5)
+    0x15, 0x00,              //    LOGICAL_MINIMUM (0)
+    0x26, 0xff, 0x00,        //    LOGICAL_MAXIMUM (0xff)
+    0x75, 0x08,              //    REPORT_SIZE (8)
+    0x96, 0x00, 0x01,        //    REPORT_COUNT (0x100 (256))
+    0xb1, 0x02,              //    FEATURE (Data,Var,Abs)
 
-This occurs because the driver leaves its IRQ enabled. Upon resume, there
-is an IRQ pending, but the interrupt is serviced before both the driver and
-the underlying I2C bus have been resumed. This causes EREMOTEIO errors.
+However, some devices, namely Microsoft's Surface line of products
+instead implement a "segmented device certification report" (usage 0xC6)
+which returns the same report, but in smaller chunks.
 
-Disable the IRQ in suspend, and re-enable it on resume. If there are cases
-where the driver enters suspend with interrupts disabled, that's a bug we
-should fix separately.
+    0x06, 0x00, 0xff,        //     USAGE_PAGE (Vendor Defined)
+    0x85, REPORTID_PTPHQA,   //     REPORT_ID (PTPHQA)
+    0x09, 0xC6,              //     USAGE (Vendor usage for segment #)
+    0x25, 0x08,              //     LOGICAL_MAXIMUM (8)
+    0x75, 0x08,              //     REPORT_SIZE (8)
+    0x95, 0x01,              //     REPORT_COUNT (1)
+    0xb1, 0x02,              //     FEATURE (Data,Var,Abs)
+    0x09, 0xC7,              //     USAGE (Vendor Usage)
+    0x26, 0xff, 0x00,        //     LOGICAL_MAXIMUM (0xff)
+    0x95, 0x20,              //     REPORT_COUNT (32)
+    0xb1, 0x02,              //     FEATURE (Data,Var,Abs)
 
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+By expanding Win8 touchpad detection to also look for the segmented
+report, all Surface touchpads are now properly recognized by
+hid-multitouch.
+
+Signed-off-by: Blaž Hrastnik <blaz@mxxn.io>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++++
+ drivers/hid/hid-core.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index a7ace07e179e2..e8f98de60df3a 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3162,6 +3162,8 @@ static int __maybe_unused mxt_suspend(struct device *dev)
- 
- 	mutex_unlock(&input_dev->mutex);
- 
-+	disable_irq(data->irq);
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 2fa3587d974f4..e0b241bd3070c 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -781,6 +781,10 @@ static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
+ 	if (usage == 0xff0000c5 && parser->global.report_count == 256 &&
+ 	    parser->global.report_size == 8)
+ 		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
 +
- 	return 0;
++	if (usage == 0xff0000c6 && parser->global.report_count == 1 &&
++	    parser->global.report_size == 8)
++		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
  }
  
-@@ -3174,6 +3176,8 @@ static int __maybe_unused mxt_resume(struct device *dev)
- 	if (!input_dev)
- 		return 0;
- 
-+	enable_irq(data->irq);
-+
- 	mutex_lock(&input_dev->mutex);
- 
- 	if (input_dev->users)
+ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
 -- 
 2.20.1
 

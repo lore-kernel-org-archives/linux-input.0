@@ -2,88 +2,95 @@ Return-Path: <SRS0=YbS0=2B=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E045BC2D0C6
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:11:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78604C43603
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 19:07:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B6646208C3
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:11:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A8694222C4
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 19:07:03 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gerhold.net header.i=@gerhold.net header.b="Ll74oJ+e"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730486AbfLKQLh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 11 Dec 2019 11:11:37 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:55076 "HELO
-        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1730798AbfLKPKo (ORCPT
+        id S1726595AbfLKTHD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 11 Dec 2019 14:07:03 -0500
+Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.217]:14617 "EHLO
+        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727224AbfLKTHC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:10:44 -0500
-Received: (qmail 1752 invoked by uid 2102); 11 Dec 2019 10:10:43 -0500
-Received: from localhost (sendmail-bs@127.0.0.1)
-  by localhost with SMTP; 11 Dec 2019 10:10:43 -0500
-Date:   Wed, 11 Dec 2019 10:10:43 -0500 (EST)
-From:   Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To:     Jiri Kosina <jikos@kernel.org>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        <linux-input@vger.kernel.org>,
-        USB list <linux-usb@vger.kernel.org>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Subject: Re: [PATCH] HID: Fix slab-out-of-bounds read in hid_field_extract
-In-Reply-To: <nycvar.YFH.7.76.1912111517570.4603@cbobk.fhfr.pm>
-Message-ID: <Pine.LNX.4.44L0.1912111009080.1549-100000@iolanthe.rowland.org>
+        Wed, 11 Dec 2019 14:07:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1576091220;
+        s=strato-dkim-0002; d=gerhold.net;
+        h=Message-Id:Date:Subject:Cc:To:From:X-RZG-CLASS-ID:X-RZG-AUTH:From:
+        Subject:Sender;
+        bh=vnCZ1JwFpfUlpBrhMmMi5eGuLHhdCSYvuvmmfW1o1H4=;
+        b=Ll74oJ+e5mqpt8tlsAkwK9Nc39SITa8GkF6eZuhnp7xpCg4CLoG/yKdEhXrnhrl26x
+        7VI8J886StdfId11kaHOJBSon2yunvajuFlMxikhfe3PE+qc/SwzNhjBqoe1ogyTT6rz
+        KmX5EnVxeffkPWHqsyomqG0+oz51WhikNIuCtZvHHktq/ApxjUbT/Ar0z7KDNsDzgtxY
+        +/PPCWdwFRoQb9nTLKW7A5iHSZOVntwTz2stQL7DB5NA6aGieOtDFQGLuXXanlk6zo4T
+        0OpWdGokG/usDVGdNfqb9q1uThnTJxF7C807phmG7WZ6UtLR7gAw5/GjiLpPRQH73C1o
+        ezSQ==
+X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVORvLd4SsytBXQrEOHTIXtc/vtBNY3Q=="
+X-RZG-CLASS-ID: mo00
+Received: from localhost.localdomain
+        by smtp.strato.de (RZmta 46.0.2 AUTH)
+        with ESMTPSA id R01a59vBBJ0roiQ
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Wed, 11 Dec 2019 20:00:53 +0100 (CET)
+From:   Stephan Gerhold <stephan@gerhold.net>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH] Input: pm8xxx-vib - fix handling of separate enable register
+Date:   Wed, 11 Dec 2019 20:00:26 +0100
+Message-Id: <20191211190026.52662-1-stephan@gerhold.net>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 11 Dec 2019, Jiri Kosina wrote:
+Setting the vibrator enable_mask is not implemented correctly:
 
-> On Tue, 10 Dec 2019, Alan Stern wrote:
-> 
-> > The syzbot fuzzer found a slab-out-of-bounds bug in the HID report
-> > handler.  The bug was caused by a report descriptor which included a
-> > field with size 12 bits and count 4899, for a total size of 7349
-> > bytes.
-> > 
-> > The usbhid driver uses at most a single-page 4-KB buffer for reports.
-> > In the test there wasn't any problem about overflowing the buffer,
-> > since only one byte was received from the device.  Rather, the bug
-> > occurred when the HID core tried to extract the data from the report
-> > fields, which caused it to try reading data beyond the end of the
-> > allocated buffer.
-> > 
-> > This patch fixes the problem by rejecting any report whose total
-> > length exceeds the HID_MAX_BUFFER_SIZE limit (minus one byte to allow
-> > for a possible report index).  In theory a device could have a report
-> > longer than that, but if there was such a thing we wouldn't handle it 
-> > correctly anyway.
-> > 
-> > Reported-and-tested-by: syzbot+09ef48aa58261464b621@syzkaller.appspotmail.com
-> > Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-> > CC: <stable@vger.kernel.org>
-> 
-> Thanks for hunting this down Alan. Applied.
+For regmap_update_bits(map, reg, mask, val) we give in either
+regs->enable_mask or 0 (= no-op) as mask and "val" as value.
+But "val" actually refers to the vibrator voltage control register,
+which has nothing to do with the enable_mask.
 
-I just noticed this code:
+So we usually end up doing nothing when we really wanted
+to enable the vibrator.
 
-u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags)
-{
-	/*
-	 * 7 extra bytes are necessary to achieve proper functionality
-	 * of implement() working on 8 byte chunks
-	 */
+We want to set or clear the enable_mask (to enable/disable the vibrator).
+Therefore, change the call to always modify the enable_mask
+and set the bits only if we want to enable the vibrator.
 
-	u32 len = hid_report_len(report) + 7;
+Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Fixes: d4c7c5c96c92 ("Input: pm8xxx-vib - handle separate enable register")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+---
+ drivers/input/misc/pm8xxx-vibrator.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-	return kmalloc(len, flags);
-}
-
-Does this indicate that the upper limit on a report length should 
-really be HID_MAX_BUFFER_SIZE - 8 instead of HID_MAX_BUFFER_SIZE - 1?
-
-Alan Stern
+diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/pm8xxx-vibrator.c
+index ecd762f93732..8dc345604a4d 100644
+--- a/drivers/input/misc/pm8xxx-vibrator.c
++++ b/drivers/input/misc/pm8xxx-vibrator.c
+@@ -90,7 +90,8 @@ static int pm8xxx_vib_set(struct pm8xxx_vib *vib, bool on)
+ 
+ 	if (regs->enable_mask)
+ 		rc = regmap_update_bits(vib->regmap, regs->enable_addr,
+-					on ? regs->enable_mask : 0, val);
++					regs->enable_mask,
++					on ? regs->enable_mask : 0);
+ 
+ 	return rc;
+ }
+-- 
+2.24.0
 

@@ -7,51 +7,52 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2BDAC43603
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:03:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6CB0C00454
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:03:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8850120836
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:03:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C62620836
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:03:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="NAi+IgEn"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="LEw3E0wq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731457AbfLKQDj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 11 Dec 2019 11:03:39 -0500
-Received: from rere.qmqm.pl ([91.227.64.183]:51024 "EHLO rere.qmqm.pl"
+        id S1731398AbfLKQD6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 11 Dec 2019 11:03:58 -0500
+Received: from rere.qmqm.pl ([91.227.64.183]:17810 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388818AbfLKQD3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Dec 2019 11:03:29 -0500
+        id S2388809AbfLKQD2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 11 Dec 2019 11:03:28 -0500
 Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 47Y1tl0DK4zwQ;
-        Wed, 11 Dec 2019 17:03:27 +0100 (CET)
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 47Y1tj1TTTzwT;
+        Wed, 11 Dec 2019 17:03:25 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1576080207; bh=AO4ukHwV9QpNi0US401dnW4qucmusMjSQ/kpCSF8EjY=;
+        t=1576080205; bh=Oy1VvPQHyP5QeFjH7svcEiAPSnLBrr+l7IoFFshlf3Y=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=NAi+IgEn5gdlt/3Jqm8U2WEv6nA4APhea1eDhUw3egVvfTjQfZ0Wy8tCJ7UQz+WRF
-         hLahOWk8eRVWehZlHD7usJkXV9neZPvHm87zAlt4ddBT26F3C1tOHJZ/7a9MEk8swN
-         RrupacI0Kz9zHcHL3EFUSoFONtJ2uwO8VvZwWTha3yuF8YREaRfn/keleLLf/9/Brj
-         2/NR8hFnWL9Vm2E6khvevcpSwFzeHRzkVPWRJIPzPZXWQDe+Byi8ZELdk5x/GHGgWE
-         lXN/vjqsJ39abOPl8ciKN/+7x5a9N2H80Yn3sNAWm/ewnVCdWRy/V8/7IFtgfgB/gO
-         OWSnu3TcW41lw==
+        b=LEw3E0wqPNydVX/ZrXBs0IBb9pg5KK3a+T+LbXtW5igMe6IBi+K1bq4hXsIg21AUm
+         VODV0aAF98Cwgb+g3cRWn7SjOOBlLp7+Wz2wxVk3AQWzXUEzu05I2LkKa+Y3CTQcVA
+         c5l8vPZsbrAtk9GXRrjhi43kzavr7vpp0RM99Axxu3mA3unVnaeAFwHSE6QhD9J6Xb
+         ku4J5dYV7/HsJX+C4iVeEwzmuv/xH0Rk5WEOzCp0SI8mNjwM/kbs5gL8GCSoX/R8E0
+         zN6wJyZgwjVjexs0VOt0eX800yb4GER2OV5aZhjHEae11QUMoanFZJOK0Jplz5+8Vi
+         6AHpepuqnm5zw==
 X-Virus-Status: Clean
 X-Virus-Scanned: clamav-milter 0.101.4 at mail
-Date:   Wed, 11 Dec 2019 17:03:26 +0100
-Message-Id: <882916345a8aa2dc545a1bd2ca150cf913371d1a.1576079249.git.mirq-linux@rere.qmqm.pl>
+Date:   Wed, 11 Dec 2019 17:03:24 +0100
+Message-Id: <fb5d7ea800dbbd908ff5a497bb02055ab7fe7ea8.1576079249.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1576079249.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1576079249.git.mirq-linux@rere.qmqm.pl>
 From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH v2 9/9] dt-bindings: input: elants-i2c: Document eKTF3624
+Subject: [PATCH v2 7/9] input: elants: support 0x66 reply opcode for reporting
+ touches
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 To:     linux-input@vger.kernel.org, devicetree@vger.kernel.org
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh-dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
         linux-kernel@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
         Henrik Rydberg <rydberg@bitmath.org>,
         James Chen <james.chen@emc.com.tw>,
         Johnny Chuang <johnny.chuang@emc.com.tw>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh-dt@kernel.org>,
         Scott Liu <scott.liu@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
@@ -60,27 +61,63 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Dmitry Osipenko <digetx@gmail.com>
 
-The eKTF3624 hardware is similar to eKTH3500.
+eKTF3624 touchscreen firmware uses two variants of the reply opcodes for
+reporting touch events: one is 0x63 (used by older firmware) and other is
+0x66 (used by newer firmware). The 0x66 variant is equal to 0x63 of
+eKTH3500, while 0x63 needs small adjustment of the touch pressure value.
+
+Nexus 7 tablet device has eKTF3624 touchscreen and it uses 0x66 opcode for
+reporting touch events, let's support it now. Other devices, eg. ASUS TF300T,
+use 0x63.
+
+Note: CMD_HEADER_REK is used for replying to calibration requests, it has
+the same 0x66 opcode number which eKTF3624 uses for reporting touches.
+The calibration replies are handled separately from the the rest of the
+commands in the driver by entering into ELAN_WAIT_RECALIBRATION state
+and thus this change shouldn't change the old behavior.
 
 Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 ---
- Documentation/devicetree/bindings/input/elants_i2c.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/elants_i2c.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/input/elants_i2c.txt b/Documentation/devicetree/bindings/input/elants_i2c.txt
-index 45fab32bbc19..1bc60303f0ea 100644
---- a/Documentation/devicetree/bindings/input/elants_i2c.txt
-+++ b/Documentation/devicetree/bindings/input/elants_i2c.txt
-@@ -1,7 +1,7 @@
- Elantech I2C Touchscreen
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 1c3eb49a22e4..d750eb97c912 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -60,6 +60,15 @@
+ #define QUEUE_HEADER_NORMAL	0X63
+ #define QUEUE_HEADER_WAIT	0x64
  
- Required properties:
--- compatible: must be "elan,ekth3500".
-+- compatible: must be "elan,ekth3500" or "elan,ektf3624".
- - reg: I2C address of the chip.
- - interrupts: interrupt to which the chip is connected (see interrupt
-   binding[0]).
++/*
++ * Depending on firmware version, eKTF3624 touchscreens may utilize one of
++ * these opcodes for the touch events: 0x63 and 0x66. The 0x63 is used by
++ * older firmware version and differs from 0x66 such that touch pressure
++ * value needs to be adjusted. The 0x66 opcode of newer firmware is equal
++ * to 0x63 of eKTH3500.
++ */
++#define QUEUE_HEADER_NORMAL2	0x66
++
+ /* Command header definition */
+ #define CMD_HEADER_WRITE	0x54
+ #define CMD_HEADER_READ		0x53
+@@ -990,7 +999,6 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+ 		switch (ts->buf[FW_HDR_TYPE]) {
+ 		case CMD_HEADER_HELLO:
+ 		case CMD_HEADER_RESP:
+-		case CMD_HEADER_REK:
+ 			break;
+ 
+ 		case QUEUE_HEADER_WAIT:
+@@ -1010,6 +1018,7 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+ 			break;
+ 
+ 		case QUEUE_HEADER_NORMAL:
++		case QUEUE_HEADER_NORMAL2:
+ 			report_count = ts->buf[FW_HDR_COUNT];
+ 			if (report_count == 0 || report_count > 3) {
+ 				dev_err(&client->dev,
 -- 
 2.20.1
 

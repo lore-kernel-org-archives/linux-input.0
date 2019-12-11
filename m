@@ -2,49 +2,49 @@ Return-Path: <SRS0=YbS0=2B=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4573DC2D0C6
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A88DC43603
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 129A72073D
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 002FC2073D
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1576080136;
-	bh=ViHz5u/uWxAOrJktt1S26vphXYtLoGqBe2iwBCprXmk=;
+	s=default; t=1576080149;
+	bh=Rh5ce0QnwACFW34gLI8wpJiDmwUoZjCSxe/Za8lhpTw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=Xy//wLS1sqlCAGooTKta3h8GZX1MAVQg9DKFBOCi6XXKEjVhfJkWOEP3W2CMewuf9
-	 q6cvL5kF3TIMt+Lz4Wt4rpcbO5iwHPXptgXc0EwK7eouQWjiLmBJT66X4SUxsUVxkg
-	 esXL8Kbj8M7Rl3wk6iDISb1frNThF7yucixYs8AE=
+	b=oFmxheOT4D2OqMSdxQlkaxlIrdE668HnlQ4DaAMsxVzcmCiX7nmf89ibWmzjUvhM8
+	 UODBgRuTfovwRSx0tgDKI+jpMcoKRN6IQAmD2UXuIufTwZAIrl2V3FmR1HyaLZnzIn
+	 EsFmEKJRXz9ocLHEeD2+mr9um9tUbCdWEUAYcFFQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731125AbfLKQCK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 11 Dec 2019 11:02:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36458 "EHLO mail.kernel.org"
+        id S1730672AbfLKPNN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 11 Dec 2019 10:13:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730718AbfLKPNP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:15 -0500
+        id S1731372AbfLKPNN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B98DD208C3;
-        Wed, 11 Dec 2019 15:13:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6607C22B48;
+        Wed, 11 Dec 2019 15:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077195;
-        bh=ViHz5u/uWxAOrJktt1S26vphXYtLoGqBe2iwBCprXmk=;
+        s=default; t=1576077192;
+        bh=Rh5ce0QnwACFW34gLI8wpJiDmwUoZjCSxe/Za8lhpTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMmUr6uuHX81ebmL47D4A0pqfLMTDzLNF164li1pay9osVOK+CO4DIIucfrji0ah0
-         jBsWH/JTPxScloN/WJZTCIrCmuc+6A4oz251/FzuZLxrSkzIAnXmKjTvGTdgPzacUd
-         9T1eB6SXBx9C9hQYBZ9rHRsuWU8Qs7vOyEKhCSnY=
+        b=O6goPbJ03qAMtOswMfzoB44J4zdJXMR9Hb0aS1tGjJVtOUCw54fvBpV2IbVks1fpN
+         U8BqKbZb2meTe6+BrWgZdmMpoLaURYr3TeDqksefyqV56EG7Wwny4Z56VLnLsliDOF
+         4JEG6xFcAeZGq8CE1SSQZpV82I5VrfzjdjCsm+bs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
+Cc:     Jinke Fan <fanjinke@hygon.cn>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 078/134] HID: logitech-hidpp: Silence intermittent get_battery_capacity errors
-Date:   Wed, 11 Dec 2019 10:10:54 -0500
-Message-Id: <20191211151150.19073-78-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 075/134] HID: quirks: Add quirk for HP MSU1465 PIXART OEM mouse
+Date:   Wed, 11 Dec 2019 10:10:51 -0500
+Message-Id: <20191211151150.19073-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -57,44 +57,61 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jinke Fan <fanjinke@hygon.cn>
 
-[ Upstream commit 61005d65b6c7dcf61c19516e6ebe5acc02d2cdda ]
+[ Upstream commit f1a0094cbbe97a5f8aca7bdc64bfe43ac9dc6879 ]
 
-My Logitech M185 (PID:4038) 2.4 GHz wireless HID++ mouse is causing
-intermittent errors like these in the log:
+The PixArt OEM mouse disconnets/reconnects every minute on
+Linux. All contents of dmesg are repetitive:
 
-[11091.034857] logitech-hidpp-device 0003:046D:4038.0006: hidpp20_batterylevel_get_battery_capacity: received protocol error 0x09
-[12388.031260] logitech-hidpp-device 0003:046D:4038.0006: hidpp20_batterylevel_get_battery_capacity: received protocol error 0x09
-[16613.718543] logitech-hidpp-device 0003:046D:4038.0006: hidpp20_batterylevel_get_battery_capacity: received protocol error 0x09
-[23529.938728] logitech-hidpp-device 0003:046D:4038.0006: hidpp20_batterylevel_get_battery_capacity: received protocol error 0x09
+[ 1465.810014] usb 1-2.2: USB disconnect, device number 20
+[ 1467.431509] usb 1-2.2: new low-speed USB device number 21 using xhci_hcd
+[ 1467.654982] usb 1-2.2: New USB device found, idVendor=03f0,idProduct=1f4a, bcdDevice= 1.00
+[ 1467.654985] usb 1-2.2: New USB device strings: Mfr=1, Product=2,SerialNumber=0
+[ 1467.654987] usb 1-2.2: Product: HP USB Optical Mouse
+[ 1467.654988] usb 1-2.2: Manufacturer: PixArt
+[ 1467.699722] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:07.1/0000:05:00.3/usb1/1-2/1-2.2/1-2.2:1.0/0003:03F0:1F4A.0012/input/input19
+[ 1467.700124] hid-generic 0003:03F0:1F4A.0012: input,hidraw0: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:05:00.3-2.2/input0
 
-We are already silencing error-code 0x09 (HIDPP_ERROR_RESOURCE_ERROR)
-errors in other places, lets do the same in
-hidpp20_batterylevel_get_battery_capacity to remove these harmless,
-but scary looking errors from the dmesg output.
+So add HID_QUIRK_ALWAYS_POLL for this one as well.
+Test the patch, the mouse is no longer disconnected and there are no
+duplicate logs in dmesg.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reference:
+https://github.com/sriemer/fix-linux-mouse
+
+Signed-off-by: Jinke Fan <fanjinke@hygon.cn>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 8e91e2f06cb4f..cd9193078525b 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1102,6 +1102,9 @@ static int hidpp20_batterylevel_get_battery_capacity(struct hidpp_device *hidpp,
- 	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
- 					  CMD_BATTERY_LEVEL_STATUS_GET_BATTERY_LEVEL_STATUS,
- 					  NULL, 0, &response);
-+	/* Ignore these intermittent errors */
-+	if (ret == HIDPP_ERROR_RESOURCE_ERROR)
-+		return -EIO;
- 	if (ret > 0) {
- 		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
- 			__func__, ret);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 447e8db21174a..00904537e17c4 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -573,6 +573,7 @@
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941	0x0941
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
++#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a	0x1f4a
+ 
+ #define USB_VENDOR_ID_HUION		0x256c
+ #define USB_DEVICE_ID_HUION_TABLET	0x006e
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index c50bcd967d994..9a35af1e26623 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -94,6 +94,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X), HID_QUIRK_MULTI_INPUT },
 -- 
 2.20.1
 

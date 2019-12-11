@@ -2,116 +2,205 @@ Return-Path: <SRS0=YbS0=2B=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A88DC43603
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6579FC43603
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:03:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 002FC2073D
-	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:02:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1576080149;
-	bh=Rh5ce0QnwACFW34gLI8wpJiDmwUoZjCSxe/Za8lhpTw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=oFmxheOT4D2OqMSdxQlkaxlIrdE668HnlQ4DaAMsxVzcmCiX7nmf89ibWmzjUvhM8
-	 UODBgRuTfovwRSx0tgDKI+jpMcoKRN6IQAmD2UXuIufTwZAIrl2V3FmR1HyaLZnzIn
-	 EsFmEKJRXz9ocLHEeD2+mr9um9tUbCdWEUAYcFFQ=
+	by mail.kernel.org (Postfix) with ESMTP id 3777C20836
+	for <linux-input@archiver.kernel.org>; Wed, 11 Dec 2019 16:03:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="XERaZQOg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730672AbfLKPNN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 11 Dec 2019 10:13:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36288 "EHLO mail.kernel.org"
+        id S2388819AbfLKQD2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 11 Dec 2019 11:03:28 -0500
+Received: from rere.qmqm.pl ([91.227.64.183]:62251 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731372AbfLKPNN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:13 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6607C22B48;
-        Wed, 11 Dec 2019 15:13:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077192;
-        bh=Rh5ce0QnwACFW34gLI8wpJiDmwUoZjCSxe/Za8lhpTw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O6goPbJ03qAMtOswMfzoB44J4zdJXMR9Hb0aS1tGjJVtOUCw54fvBpV2IbVks1fpN
-         U8BqKbZb2meTe6+BrWgZdmMpoLaURYr3TeDqksefyqV56EG7Wwny4Z56VLnLsliDOF
-         4JEG6xFcAeZGq8CE1SSQZpV82I5VrfzjdjCsm+bs=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jinke Fan <fanjinke@hygon.cn>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 075/134] HID: quirks: Add quirk for HP MSU1465 PIXART OEM mouse
-Date:   Wed, 11 Dec 2019 10:10:51 -0500
-Message-Id: <20191211151150.19073-75-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
-References: <20191211151150.19073-1-sashal@kernel.org>
+        id S2388802AbfLKQD0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 11 Dec 2019 11:03:26 -0500
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 47Y1th2QGDzwF;
+        Wed, 11 Dec 2019 17:03:24 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1576080204; bh=ujt5LjOMDLo6ORE9kCA8N7sV8FvBbZrKrJsW51hx9r8=;
+        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
+        b=XERaZQOgGh7raTAqfL5TMRZiF8vpGB5cYkqvd3XxhRKt0wuzMviOCH8n3qSItVKh1
+         TcdbIg9PBr0sbpOtgOHAPiQ7RwqiPhDMApnyLSmwYLKHNDM1gk7upz6LzfNK7/Umks
+         ikdXiwmLbmlOHJycs94AznxPl7VtARXomJ5xgdrNucoOUN+dFHnHnqQBahF97wltg4
+         ygiLFQrf5YYKDFTODZgvk27ZhPoyE2q3VjhhjsQ7MMBTbr0PUEf09W3FfhzR2iVD7H
+         mHV30H7wjcTIRcMnJVwuZiCQGJ6HlTjJ4UDG91YrfakIuOcPhAJ+EjYzpjIn1LFk1w
+         it2nGDubBX9Qg==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.101.4 at mail
+Date:   Wed, 11 Dec 2019 17:03:23 +0100
+Message-Id: <a9681f2f1b64d9677886dd81c228b0194298277d.1576079249.git.mirq-linux@rere.qmqm.pl>
+In-Reply-To: <cover.1576079249.git.mirq-linux@rere.qmqm.pl>
+References: <cover.1576079249.git.mirq-linux@rere.qmqm.pl>
+From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH v2 6/9] input: elants: read touchscreen size for EKTF3624
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+To:     linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>,
+        James Chen <james.chen@emc.com.tw>,
+        Johnny Chuang <johnny.chuang@emc.com.tw>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh-dt@kernel.org>,
+        Scott Liu <scott.liu@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Jinke Fan <fanjinke@hygon.cn>
+EKTF3624 as present in Asus TF300T tablet has touchscreen size encoded
+in different registers.
 
-[ Upstream commit f1a0094cbbe97a5f8aca7bdc64bfe43ac9dc6879 ]
-
-The PixArt OEM mouse disconnets/reconnects every minute on
-Linux. All contents of dmesg are repetitive:
-
-[ 1465.810014] usb 1-2.2: USB disconnect, device number 20
-[ 1467.431509] usb 1-2.2: new low-speed USB device number 21 using xhci_hcd
-[ 1467.654982] usb 1-2.2: New USB device found, idVendor=03f0,idProduct=1f4a, bcdDevice= 1.00
-[ 1467.654985] usb 1-2.2: New USB device strings: Mfr=1, Product=2,SerialNumber=0
-[ 1467.654987] usb 1-2.2: Product: HP USB Optical Mouse
-[ 1467.654988] usb 1-2.2: Manufacturer: PixArt
-[ 1467.699722] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:07.1/0000:05:00.3/usb1/1-2/1-2.2/1-2.2:1.0/0003:03F0:1F4A.0012/input/input19
-[ 1467.700124] hid-generic 0003:03F0:1F4A.0012: input,hidraw0: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:05:00.3-2.2/input0
-
-So add HID_QUIRK_ALWAYS_POLL for this one as well.
-Test the patch, the mouse is no longer disconnected and there are no
-duplicate logs in dmesg.
-
-Reference:
-https://github.com/sriemer/fix-linux-mouse
-
-Signed-off-by: Jinke Fan <fanjinke@hygon.cn>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/input/touchscreen/elants_i2c.c | 82 ++++++++++++++++++++++++--
+ 1 file changed, 77 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 447e8db21174a..00904537e17c4 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -573,6 +573,7 @@
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941	0x0941
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
-+#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a	0x1f4a
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 369004678a46..1c3eb49a22e4 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -34,7 +34,7 @@
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
+ #include <linux/acpi.h>
+-#include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/regulator/consumer.h>
+ #include <asm/unaligned.h>
+@@ -42,6 +42,10 @@
+ /* Device, Driver information */
+ #define DEVICE_NAME	"elants_i2c"
  
- #define USB_VENDOR_ID_HUION		0x256c
- #define USB_DEVICE_ID_HUION_TABLET	0x006e
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index c50bcd967d994..9a35af1e26623 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -94,6 +94,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X), HID_QUIRK_MULTI_INPUT },
++/* Device IDs */
++#define EKTH3500	0
++#define EKTF3624	1
++
+ /* Convert from rows or columns into resolution */
+ #define ELAN_TS_RESOLUTION(n, m)   (((n) - 1) * (m))
+ 
+@@ -162,6 +166,7 @@ struct elants_data {
+ 
+ 	bool wake_irq_enabled;
+ 	bool keep_power_in_suspend;
++	u8 chip_id;
+ 
+ 	/* Must be last to be used for DMA operations */
+ 	u8 buf[MAX_PACKET_SIZE] ____cacheline_aligned;
+@@ -436,7 +441,58 @@ static int elants_i2c_query_bc_version(struct elants_data *ts)
+ 	return 0;
+ }
+ 
+-static int elants_i2c_query_ts_info(struct elants_data *ts)
++static int elants_i2c_query_ts_info_ektf(struct elants_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	int error;
++	u8 resp[4];
++	u16 phy_x, phy_y;
++	const u8 get_xres_cmd[] = {
++		CMD_HEADER_READ, E_INFO_X_RES, 0x00, 0x00
++	};
++	const u8 get_yres_cmd[] = {
++		CMD_HEADER_READ, E_INFO_Y_RES, 0x00, 0x00
++	};
++
++	/* Get X/Y size in mm */
++	error = elants_i2c_execute_command(client, get_xres_cmd,
++					   sizeof(get_xres_cmd),
++					   resp, sizeof(resp), 1,
++					   "get X size");
++	if (error)
++		return error;
++
++	phy_x = resp[2] | ((resp[3] & 0xF0) << 4);
++
++	error = elants_i2c_execute_command(client, get_yres_cmd,
++					   sizeof(get_yres_cmd),
++					   resp, sizeof(resp), 1,
++					   "get Y size");
++	if (error)
++		return error;
++
++	phy_y = resp[2] | ((resp[3] & 0xF0) << 4);
++
++	if (!phy_x || !phy_y) {
++		dev_warn(&client->dev,
++			 "invalid size data: %d x %d mm\n",
++			 phy_x, phy_y);
++		return 0;
++	}
++
++	dev_dbg(&client->dev, "phy_x=%d, phy_y=%d\n", phy_x, phy_y);
++
++	/* calculate resolution from size */
++	ts->x_max = 2240-1;
++	ts->x_res = DIV_ROUND_CLOSEST(ts->prop.max_x, phy_x);
++
++	ts->y_max = 1408-1;
++	ts->y_res = DIV_ROUND_CLOSEST(ts->prop.max_y, phy_y);
++
++	return 0;
++}
++
++static int elants_i2c_query_ts_info_ekth(struct elants_data *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+ 	int error;
+@@ -587,8 +643,20 @@ static int elants_i2c_initialize(struct elants_data *ts)
+ 		error = elants_i2c_query_test_version(ts);
+ 	if (!error)
+ 		error = elants_i2c_query_bc_version(ts);
+-	if (!error)
+-		error = elants_i2c_query_ts_info(ts);
++
++	switch (ts->chip_id) {
++	case EKTH3500:
++		if (!error)
++			error = elants_i2c_query_ts_info_ekth(ts);
++		break;
++	case EKTF3624:
++		if (!error)
++			error = elants_i2c_query_ts_info_ektf(ts);
++		break;
++	default:
++		unreachable();
++		break;
++	}
+ 
+ 	if (error)
+ 		ts->iap_mode = ELAN_IAP_RECOVERY;
+@@ -1185,6 +1253,9 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	ts->client = client;
+ 	i2c_set_clientdata(client, ts);
+ 
++	if (client->dev.of_node)
++		ts->chip_id = (uintptr_t)of_device_get_match_data(&client->dev);
++
+ 	ts->vcc33 = devm_regulator_get(&client->dev, "vcc33");
+ 	if (IS_ERR(ts->vcc33)) {
+ 		error = PTR_ERR(ts->vcc33);
+@@ -1409,7 +1480,8 @@ MODULE_DEVICE_TABLE(acpi, elants_acpi_id);
+ 
+ #ifdef CONFIG_OF
+ static const struct of_device_id elants_of_match[] = {
+-	{ .compatible = "elan,ekth3500" },
++	{ .compatible = "elan,ekth3500", .data = (void *)EKTH3500 },
++	{ .compatible = "elan,ektf3624", .data = (void *)EKTF3624 },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, elants_of_match);
 -- 
 2.20.1
 

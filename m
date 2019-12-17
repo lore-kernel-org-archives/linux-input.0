@@ -2,128 +2,87 @@ Return-Path: <SRS0=0+SX=2H=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1189C2D0CD
-	for <linux-input@archiver.kernel.org>; Tue, 17 Dec 2019 14:06:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D338C43603
+	for <linux-input@archiver.kernel.org>; Tue, 17 Dec 2019 14:12:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 73FB021835
-	for <linux-input@archiver.kernel.org>; Tue, 17 Dec 2019 14:06:55 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="f9tkSxBn";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="AQDaSeiW"
+	by mail.kernel.org (Postfix) with ESMTP id 74D2D20663
+	for <linux-input@archiver.kernel.org>; Tue, 17 Dec 2019 14:12:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1576591926;
+	bh=sJ9ZcIroVoAcSdgRNeq0MYynqRKM5xhE4GjqRLXnliA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=qeEZ4a+f90/b6EjpCauiB4kb94ASbtWT3LZiVVCd6rVXVD8/J80hkqT/Fh2dIVGco
+	 3bGBXuaGqcf/7w1BHZC7F+W6nAL0r4HUEVVeBvtPlYZTX2jWEMs9UCdIUdOoDnilks
+	 1EeZUe51xG+dQoxCXmZ0l75P8nf7S5fxl4boD2F8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728771AbfLQOGy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 17 Dec 2019 09:06:54 -0500
-Received: from new2-smtp.messagingengine.com ([66.111.4.224]:48123 "EHLO
-        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726164AbfLQOGy (ORCPT
+        id S1728669AbfLQOMC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 17 Dec 2019 09:12:02 -0500
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:34460 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728575AbfLQOMC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 17 Dec 2019 09:06:54 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id C24962EC6;
-        Tue, 17 Dec 2019 09:06:52 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 17 Dec 2019 09:06:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=eTfZFWGi2smTIboUi+zb16BN5p3
-        65ojxo8UtApRdrno=; b=f9tkSxBnH8B04ocRQbrSrxJ/KUA5blrabluCkfWQWpA
-        pMyPAQCTkyNRjEKBm65HGE2E31nkIdUTfnEsNATgqoL6UV6mlQJM6zlZX1XD0Iyf
-        RM5JiSyQR0aOCRkQawfMsWTbBPd6sTuk1cjmGx7bsw1g0eAiw9MoGv8ZTrxU2/PN
-        Z8MeoJre5CkhSj653Wme+Z5/rTacgCg/fXfDhNXVjCm+g03Cot7tSvS6I5GdoIUw
-        IYldt+k8Bdcq74xc4auXBF2kjp5gbL73ug1am5NL+0ZAs/4NZX7TWgbC8wfR+sis
-        T6Bgu7dd6EhZmen4w00L8qhfR2riV53ZIp00iDfb0Jw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=eTfZFW
-        Gi2smTIboUi+zb16BN5p365ojxo8UtApRdrno=; b=AQDaSeiWpqvGSbZLeLnuaL
-        wMmyVKG1UmbHGV1h0Ro+wZpDzTcfKV99i3YWJQ9o8xdrwgBwNemTYWPe1Tqbkb5l
-        psF5yIMs5w5Ag0TQS17IyUV5LizKS9+f+KmR4VUG+Z3VY5lEOORMLfw0G3mMnmHQ
-        AgaCFUGWKlmbW7M/VAnhDG/M75UEtkGVm1iLFss9Qk2v3ZV5VcV5e7+JtrTsYFVl
-        aQjFFq42tujH5sP6ftZ6uVk6hU3YFVduevKL1kO5hmZJuG3vlktw4EHORNIrRL07
-        tQPbu1Mr7M9VB7XyxG2d1UgMPUB4uR6rdlkw/rsf1lEpz3crliFwrx60TcSMWJAA
-        ==
-X-ME-Sender: <xms:--D4XdLZsdQmxSmgsLkN7cXn2bxx8gRHsYyHMJAfEnkmN8VANyuA0w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtjedgheelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujgesthdtre
-    dttddtvdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
-    necukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepgh
-    hrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:--D4XbEYHp2-kPuIG59C4Kl8OOlB_3tVYtLRDu2Ik_uE8uvfJa5XOg>
-    <xmx:--D4XQF9seA1xGquH3HeVPyGspu2rwCEX1dFMcsKP5gk59cJI7bifA>
-    <xmx:--D4XbtFPyAwX9F_pdIlKhzD8qV00SzbDSuAj4Jyc-fQGNtyALma6Q>
-    <xmx:_OD4XW6MGPJBTTOQGOeoamg_JCrFeTZpL8VTexlu-vYMP6J95djZVA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8C92C80065;
-        Tue, 17 Dec 2019 09:06:50 -0500 (EST)
-Date:   Tue, 17 Dec 2019 15:06:46 +0100
-From:   Greg KH <greg@kroah.com>
-To:     "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Cc:     "Enrico Weigelt, metux IT consult" <info@metux.net>,
-        linux-kernel@vger.kernel.org, linus.walleij@linaro.org,
-        bgolaszewski@baylibre.com, dmitry.torokhov@gmail.com,
-        jacek.anaszewski@gmail.com, pavel@ucw.cz, dmurphy@ti.com,
-        arnd@arndb.de, masahiroy@kernel.org, michal.lkml@markovi.net,
-        kafai@fb.com, songliubraving@fb.com, yhs@fb.com, andriin@fb.com,
-        linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-kbuild@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: Re: [PATCH] RFC: platform driver registering via initcall tables
-Message-ID: <20191217140646.GC3489463@kroah.com>
-References: <20191217102219.29223-1-info@metux.net>
- <20191217103152.GB2914497@kroah.com>
- <6422bc88-6d0a-7b51-aaa7-640c6961b177@metux.net>
+        Tue, 17 Dec 2019 09:12:02 -0500
+Received: by mail-ot1-f66.google.com with SMTP id a15so919899otf.1;
+        Tue, 17 Dec 2019 06:12:01 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=7rqOZSsecbL2UhtBa4fx6RNVQTfn4hGMuYHOIPPf+Vg=;
+        b=fb0I30PDXz6XyrKKiCrSrS98AXGcnwj5kzborhjfcEF+JuCbdA8rGVCuECur1w938L
+         7yY4XX2uHmQm7ZpokrWq9SeMyO/bhgErbE3YPh9F5npHtoSbNdr9RftaShI0kEdgXvW8
+         PHpN3PUKJKBHip5gdBgkjNNAKmeMWZBHBWQfgJ9t3IwlDcqa1rAZMmIVL+LMGcCVWxoj
+         yeql20Xqrh6hjk6p6kPVGoGmWuA/TfvEY34qIK+U0XnBSqqj0Wne6yeg/dVPFoZ/3o/e
+         yTP0JmjzdiOvfKYCoIc4KpuUBWWGxYRUlG17FfXQmEo7qkfwklX0dLvKxQ0LQ1dglimG
+         s5mA==
+X-Gm-Message-State: APjAAAVpystEA5NA7jOx/1z7WepZBseHhc+RL3E30d4q3jQxSSOrwXMk
+        S2SyNtDN/ijJPK0m9Rr7gQ==
+X-Google-Smtp-Source: APXvYqzpVlXg5lD8QaRZoYczlzBvb9EV2OaM1vk2lbqIALkgqhWBspcL5MF3P9ytTEuLdP0Xt2oy1Q==
+X-Received: by 2002:a9d:1d02:: with SMTP id m2mr35624006otm.45.1576591921370;
+        Tue, 17 Dec 2019 06:12:01 -0800 (PST)
+Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id v25sm8050659otk.51.2019.12.17.06.12.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Dec 2019 06:12:00 -0800 (PST)
+Date:   Tue, 17 Dec 2019 08:11:59 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Brian Masney <masneyb@onstation.org>
+Cc:     sboyd@kernel.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+        mark.rutland@arm.com, agross@kernel.org,
+        bjorn.andersson@linaro.org, mturquette@baylibre.com,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: Re: [PATCH 2/7] dt-bindings: Input: drop msm-vibrator in favor of
+ clk-vibrator
+Message-ID: <20191217141159.GA21795@bogus>
+References: <20191205002503.13088-1-masneyb@onstation.org>
+ <20191205002503.13088-3-masneyb@onstation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6422bc88-6d0a-7b51-aaa7-640c6961b177@metux.net>
+In-Reply-To: <20191205002503.13088-3-masneyb@onstation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Dec 17, 2019 at 02:44:39PM +0100, Enrico Weigelt, metux IT consult wrote:
-> On 17.12.19 11:31, Greg KH wrote:
+On Wed,  4 Dec 2019 19:24:58 -0500, Brian Masney wrote:
+> Let's drop the msm-vibrator bindings so that the more generic
+> clk-vibrator can be used instead. No one is currently using these
+> bindings so this won't affect any users.
 > 
-> Hi,
+> Signed-off-by: Brian Masney <masneyb@onstation.org>
+> ---
+>  .../bindings/input/msm-vibrator.txt           | 36 -------------------
+>  1 file changed, 36 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/input/msm-vibrator.txt
 > 
-> > No, what is so "special" about platform drivers that they require this?
-> 
-> Nothing, of course ;-)
-> 
-> It's the the starting point for this PoC. The idea actually is doing
-> this for all other driver types, too (eg. spi, pci, usb, ...). But
-> they'll need their own tables, as different *_register() functions have
-> to be called - just haven't implemented that yet.
 
-That's not needed, and you are going to break the implicit ordering we
-already have with link order.  You are going to have to figure out what
-bus type the driver is, to determine what segment it was in, to figure
-out what was loaded before what.
-
-Not good.
-
-> > If anything, we should be moving _AWAY_ from platform drivers and use
-> > real bus drivers instead.
-> 
-> That would be nice, but, unfortunately, we have lots of devices which
-> aren't attached to any (probing-capable) bus. That's why we have things
-> like oftree, etc.
-> 
-> > Please no, I don't see why this is even needed.
-> 
-> The idea is getting rid of all the init code, which all just does the
-> same, just calls some *_register() function.
-
-There's no need to get rid of it, what are you trying to save here?  How
-can you be sure init order is still the same?
-
-thanks,
-
-greg k-h
+Acked-by: Rob Herring <robh@kernel.org>

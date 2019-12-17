@@ -2,87 +2,103 @@ Return-Path: <SRS0=0+SX=2H=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 370CEC43603
-	for <linux-input@archiver.kernel.org>; Tue, 17 Dec 2019 13:06:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C53DC2D0C8
+	for <linux-input@archiver.kernel.org>; Tue, 17 Dec 2019 13:45:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1203A20716
-	for <linux-input@archiver.kernel.org>; Tue, 17 Dec 2019 13:06:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7911221739
+	for <linux-input@archiver.kernel.org>; Tue, 17 Dec 2019 13:45:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726402AbfLQNGx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 17 Dec 2019 08:06:53 -0500
-Received: from imap2.colo.codethink.co.uk ([78.40.148.184]:41864 "EHLO
-        imap2.colo.codethink.co.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726191AbfLQNGx (ORCPT
+        id S1728377AbfLQNpa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 17 Dec 2019 08:45:30 -0500
+Received: from mout.kundenserver.de ([212.227.126.131]:50523 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726164AbfLQNpa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 17 Dec 2019 08:06:53 -0500
-X-Greylist: delayed 2501 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Dec 2019 08:06:52 EST
-Received: from [167.98.27.226] (helo=rainbowdash.codethink.co.uk)
-        by imap2.colo.codethink.co.uk with esmtpsa  (Exim 4.92 #3 (Debian))
-        id 1ihBuW-0006bh-NL; Tue, 17 Dec 2019 12:25:08 +0000
-Received: from ben by rainbowdash.codethink.co.uk with local (Exim 4.92.3)
-        (envelope-from <ben@rainbowdash.codethink.co.uk>)
-        id 1ihBuW-0093GP-7z; Tue, 17 Dec 2019 12:25:08 +0000
-From:   "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>
-To:     ben.dooks@codethink.co.uk
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Allison Randal <allison@lohutok.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-input@vger.kernel.org
-Subject: [PATCH] Input: apbps2 - add __iomem to register struct
-Date:   Tue, 17 Dec 2019 12:25:07 +0000
-Message-Id: <20191217122507.2157454-1-ben.dooks@codethink.co.uk>
-X-Mailer: git-send-email 2.24.0
+        Tue, 17 Dec 2019 08:45:30 -0500
+Received: from [192.168.1.155] ([95.114.21.161]) by mrelayeu.kundenserver.de
+ (mreue011 [212.227.15.167]) with ESMTPSA (Nemesis) id
+ 1MfYgC-1i1FZn1CtU-00fzgB; Tue, 17 Dec 2019 14:45:11 +0100
+Subject: Re: [PATCH] RFC: platform driver registering via initcall tables
+To:     Greg KH <greg@kroah.com>,
+        "Enrico Weigelt, metux IT consult" <info@metux.net>
+Cc:     linux-kernel@vger.kernel.org, linus.walleij@linaro.org,
+        bgolaszewski@baylibre.com, dmitry.torokhov@gmail.com,
+        jacek.anaszewski@gmail.com, pavel@ucw.cz, dmurphy@ti.com,
+        arnd@arndb.de, masahiroy@kernel.org, michal.lkml@markovi.net,
+        kafai@fb.com, songliubraving@fb.com, yhs@fb.com, andriin@fb.com,
+        linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+References: <20191217102219.29223-1-info@metux.net>
+ <20191217103152.GB2914497@kroah.com>
+From:   "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Message-ID: <6422bc88-6d0a-7b51-aaa7-640c6961b177@metux.net>
+Date:   Tue, 17 Dec 2019 14:44:39 +0100
+User-Agent: Mozilla/5.0 (X11; Linux i686 on x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191217103152.GB2914497@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: tl
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:UIxsKeF+t4AJ8q6DRnqSCsifxsav8JqTSzPbvflDT49nTCN38N2
+ kn8QUDipr/KlL5RzF2fLtyOuCzxNjxUSI4UZqAlp6xIsJjV2bywjnE+BMyjssnPF9+oH6ww
+ j5NFvhGrB1pzGK+XoSpXibonoL3JFM9dGJqe8hfLnfeBH94z62AKKyID1MFmz2D/kfr9ua1
+ +I6P+xiT9RjL5BBgRigTg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:nhzDFcqFHhI=:Tt4Fe7MEEtN81vc41C7AoZ
+ wctLg7SjkItjTD1J3EE0wIIRp68zGRkICb7akDkm7TzGVY/Jv10cHWbbYxhEfiW4whMmm7gx1
+ calgbAvlJfzZju7vWqVRx24cZKnsPXbGGNQI6AltrredEl0JuONWHGFccnaBRDzW2rH1MKxpx
+ 7guijvh0tF+MuaZMsUVm1dIggOl4cQFDElahLOqvviCWwKyID5OeS4sL9WhPMRRYqxAHM9q5O
+ uPRf4lICI04o5CkAW0vu/jJU2fDAqqn8VRS8aZfQZtuRhCtoDTvZTEoOMN/icN7ljMBCxrxzO
+ jKVvHCAs/ZD0+MWmVOPS6sdGZYhKGJfOrGUMZTIo07lGNMYuMdb6Mvx7qAuFP3Yttazz361XR
+ WOiEbrlEia6jOwJTx0JGQiUkJqwUMutPSCYqHT+ZlswBl3PcXs2kTDeEimiMTkTWcs6cnQ5YJ
+ 0Ev+Ibgd1aJ5uVBqPmFfJs821dyrQ/nj2kpivSX944s+JlT5J79FdHn3yG5tlk4NsXcGYZpDb
+ +Su81EDqspIcaHEsqNYqm4wHR4C4MRln/yQ/qEtoFPV/rx6N17k0IIo+d/DbjDUJ5PoLA6scG
+ u5HIncBDs/JHZGLSftyL04NMt7m/WCxdQ6vh4pOOgJ+pBlIOtaNs/sr2RGvaMd1drejh8xN8T
+ oVqTHasq/lYf0bopjmsmrUnoodoESr4GakdnC5EivRzMSeLiz11uVTbijiJ6z5hpZxZEUXDoy
+ GSj9nLs8W6dvwEJKDzhLDRZdwjHLl6WE/XxOcwxG3eQ2N/ab5WauSh8y5djcp7H16KpJZ6A69
+ pcY7K1TMdNUlig8lhlUX+Ij4IEaClVQj0yKqknPNhhHZTCef462eFxVdARrJ0sbaH1PRWpIfH
+ buhiRZ+mDZotLHFEAKJ93oZ2o67FNflSKVDFquVEZb6lab6XoEveVJVdH6nxtOBexbBLcxxXW
+ ARVod/u0vtgm8aj0oa/n+a8Xz6kwOYwTrei/SbYDwnKT6YuTO5xQd
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add __iomem to the apbps2_priv.regs field to make the numerous
-warnings about differing address spaces go away. Fixes warnings
-such as:
+On 17.12.19 11:31, Greg KH wrote:
 
-drivers/input/serio/apbps2.c:65:26: warning: incorrect type in argument 1 (different address spaces)
-drivers/input/serio/apbps2.c:65:26:    expected void const volatile [noderef] <asn:2> *addr
-drivers/input/serio/apbps2.c:65:26:    got unsigned int [noderef] *
-drivers/input/serio/apbps2.c:65:26: warning: incorrect type in argument 1 (different address spaces)
-drivers/input/serio/apbps2.c:65:26:    expected void const volatile [noderef] <asn:2> *addr
-drivers/input/serio/apbps2.c:65:26:    got unsigned int [noderef] *
-drivers/input/serio/apbps2.c:65:26: warning: incorrect type in argument 1 (different address spaces)
-drivers/input/serio/apbps2.c:65:26:    expected void const volatile [noderef] <asn:2> *addr
-drivers/input/serio/apbps2.c:65:26:    got unsigned int [noderef] *
-drivers/input/serio/apbps2.c:65:26: warning: incorrect type in argument 1 (different address spaces)
-drivers/input/serio/apbps2.c:65:26:    expected void const volatile [noderef] <asn:2> *addr
-[rest snipped]
+Hi,
 
-Signed-off-by: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
+> No, what is so "special" about platform drivers that they require this?
+
+Nothing, of course ;-)
+
+It's the the starting point for this PoC. The idea actually is doing
+this for all other driver types, too (eg. spi, pci, usb, ...). But
+they'll need their own tables, as different *_register() functions have
+to be called - just haven't implemented that yet.
+
+> If anything, we should be moving _AWAY_ from platform drivers and use
+> real bus drivers instead.
+
+That would be nice, but, unfortunately, we have lots of devices which
+aren't attached to any (probing-capable) bus. That's why we have things
+like oftree, etc.
+
+> Please no, I don't see why this is even needed.
+
+The idea is getting rid of all the init code, which all just does the
+same, just calls some *_register() function.
+
+
+--mtx
+
 ---
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Allison Randal <allison@lohutok.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-input@vger.kernel.org
----
- drivers/input/serio/apbps2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/serio/apbps2.c b/drivers/input/serio/apbps2.c
-index f290d5d146c3..594ac4e6f8ea 100644
---- a/drivers/input/serio/apbps2.c
-+++ b/drivers/input/serio/apbps2.c
-@@ -51,7 +51,7 @@ struct apbps2_regs {
- 
- struct apbps2_priv {
- 	struct serio		*io;
--	struct apbps2_regs	*regs;
-+	struct apbps2_regs	__iomem *regs;
- };
- 
- static int apbps2_idx;
--- 
-2.24.0
-
+Enrico Weigelt, metux IT consult
+Free software and Linux embedded engineering
+info@metux.net -- +49-151-27565287

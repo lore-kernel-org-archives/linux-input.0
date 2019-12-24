@@ -1,106 +1,90 @@
-Return-Path: <SRS0=x1lE=2M=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=vahk=2O=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC497C2D0D4
-	for <linux-input@archiver.kernel.org>; Sun, 22 Dec 2019 21:49:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 385BEC2D0C3
+	for <linux-input@archiver.kernel.org>; Tue, 24 Dec 2019 03:52:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BCB40206D3
-	for <linux-input@archiver.kernel.org>; Sun, 22 Dec 2019 21:49:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F2D8206D3
+	for <linux-input@archiver.kernel.org>; Tue, 24 Dec 2019 03:52:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726664AbfLVVtE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 22 Dec 2019 16:49:04 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:50563 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726604AbfLVVtE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 22 Dec 2019 16:49:04 -0500
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ij95p-0002Wh-9Q; Sun, 22 Dec 2019 22:48:53 +0100
-Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ij95n-000697-Bk; Sun, 22 Dec 2019 22:48:51 +0100
-Date:   Sun, 22 Dec 2019 22:48:51 +0100
-From:   Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Jeff LaBundy <jeff@labundy.com>
-Cc:     "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "lars@metafoo.de" <lars@metafoo.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>,
-        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
-        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        "pmeerw@pmeerw.net" <pmeerw@pmeerw.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "jic23@kernel.org" <jic23@kernel.org>,
-        "knaack.h@gmx.de" <knaack.h@gmx.de>
-Subject: Re: [PATCH v2 4/7] pwm: Add support for Azoteq IQS620A PWM generator
-Message-ID: <20191222214851.kapsro6b6qylke43@pengutronix.de>
-References: <1575851866-18919-1-git-send-email-jeff@labundy.com>
- <1575851866-18919-5-git-send-email-jeff@labundy.com>
- <20191209073206.6pftsak5v25jdepz@pengutronix.de>
- <20191210000252.GA6361@labundy.com>
- <20191210072227.434hyv5wl3rwztqx@pengutronix.de>
- <20191215203607.GA31390@labundy.com>
- <20191216091912.r4onikojbkbmguag@pengutronix.de>
- <20191220031924.GA2658@labundy.com>
- <20191220085948.iagsdpjqd6ixdo7j@pengutronix.de>
- <20191221032755.GA3051@labundy.com>
+        id S1726832AbfLXDw4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 23 Dec 2019 22:52:56 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:7737 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726747AbfLXDw4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 23 Dec 2019 22:52:56 -0500
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 99CE0BD3E0E93DEBEFC4;
+        Tue, 24 Dec 2019 11:52:54 +0800 (CST)
+Received: from HGHY4L002753561.china.huawei.com (10.133.215.186) by
+ DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
+ 14.3.439.0; Tue, 24 Dec 2019 11:52:45 +0800
+From:   Zhen Lei <thunder.leizhen@huawei.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-usb <linux-usb@vger.kernel.org>,
+        linux-input <linux-input@vger.kernel.org>
+CC:     Zhen Lei <thunder.leizhen@huawei.com>,
+        Hillf Danton <hdanton@sina.com>
+Subject: [PATCH 1/1] HID: hiddev: remove a duplicated check
+Date:   Tue, 24 Dec 2019 11:51:17 +0800
+Message-ID: <20191224035117.98816-1-thunder.leizhen@huawei.com>
+X-Mailer: git-send-email 2.21.0.windows.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191221032755.GA3051@labundy.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.133.215.186]
+X-CFilter-Loop: Reflected
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello Jeff,
+After commit 9c09b214f30e ("HID: hiddev: avoid opening a disconnected
+device"), the original check "list->hiddev->exist" become unnecessary.
 
-On Sat, Dec 21, 2019 at 03:28:01AM +0000, Jeff LaBundy wrote:
-> I heard back from the vendor today; they've acknowledged the limitation and
-> are considering adding support for 0% in a future ROM spin. In the meantime,
-> they've agreed to describe the high-impedance behavior in the data sheet as
-> well as include the pull-down resistor in an example schematic.
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+---
+ drivers/hid/usbhid/hiddev.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-Oh wow, seems like a good vendor then. :-)
-
-> > > Option (3) seems like overkill for such a simple PWM, and ultimately doesn't
-> > > add any value because I don't want to allow option (1) behavior in any case.
-> > > Whether the PWM is disabled because it is truly disabled or to simulate a 0%
-> > > duty cycle as in option (2), the pull-down is ultimately required regardless
-> > > of whether or not the data sheet happens to go into such detail.
-> > 
-> > Actually I like option 3 best.
-> >  
-> 
-> Based on your other feedback, I'm moving forward under the impression that
-> you'll still accept option (2); please let me know if I have misunderstood
-> (thank you for being flexible).
-
-Yeah, that's fine. If in the end it shows that this is a bad idea we can
-still change to (3).
-
-Best regards
-Uwe
-
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index e421cdf2d1a4ec5..e04cf95fca094a8 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -292,16 +292,16 @@ static int hiddev_open(struct inode *inode, struct file *file)
+ 		res = -ENODEV;
+ 		goto bail_unlock;
+ 	}
+-	if (!list->hiddev->open++)
+-		if (list->hiddev->exist) {
+-			struct hid_device *hid = hiddev->hid;
+-			res = hid_hw_power(hid, PM_HINT_FULLON);
+-			if (res < 0)
+-				goto bail_unlock;
+-			res = hid_hw_open(hid);
+-			if (res < 0)
+-				goto bail_normal_power;
+-		}
++	if (!list->hiddev->open++) {
++		struct hid_device *hid = hiddev->hid;
++
++		res = hid_hw_power(hid, PM_HINT_FULLON);
++		if (res < 0)
++			goto bail_unlock;
++		res = hid_hw_open(hid);
++		if (res < 0)
++			goto bail_normal_power;
++	}
+ 	mutex_unlock(&hiddev->existancelock);
+ 	return 0;
+ bail_normal_power:
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+1.8.3
+
+

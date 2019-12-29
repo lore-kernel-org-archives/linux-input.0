@@ -2,39 +2,40 @@ Return-Path: <SRS0=IGfu=2T=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UPPERCASE_50_75,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44619C2D0D1
-	for <linux-input@archiver.kernel.org>; Sun, 29 Dec 2019 19:34:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B29DC2D0DB
+	for <linux-input@archiver.kernel.org>; Sun, 29 Dec 2019 19:34:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 253E220748
-	for <linux-input@archiver.kernel.org>; Sun, 29 Dec 2019 19:34:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C69C20748
+	for <linux-input@archiver.kernel.org>; Sun, 29 Dec 2019 19:34:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727101AbfL2TeT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 29 Dec 2019 14:34:19 -0500
-Received: from relay-b03.edpnet.be ([212.71.1.220]:53273 "EHLO
+        id S1727071AbfL2TeU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 29 Dec 2019 14:34:20 -0500
+Received: from relay-b03.edpnet.be ([212.71.1.220]:53270 "EHLO
         relay-b03.edpnet.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727071AbfL2TeT (ORCPT
+        with ESMTP id S1726958AbfL2TeU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 29 Dec 2019 14:34:19 -0500
-X-ASG-Debug-ID: 1577647294-0a881838811ea3530001-vblZzk
-Received: from zotac.vandijck-laurijssen.be (77.109.105.251.adsl.dyn.edpnet.net [77.109.105.251]) by relay-b03.edpnet.be with ESMTP id YoLEJElyW3zDPPBm; Sun, 29 Dec 2019 20:21:34 +0100 (CET)
+        Sun, 29 Dec 2019 14:34:20 -0500
+X-Greylist: delayed 764 seconds by postgrey-1.27 at vger.kernel.org; Sun, 29 Dec 2019 14:34:18 EST
+X-ASG-Debug-ID: 1577647294-0a881838821e9eb60001-vblZzk
+Received: from zotac.vandijck-laurijssen.be (77.109.105.251.adsl.dyn.edpnet.net [77.109.105.251]) by relay-b03.edpnet.be with ESMTP id GkK5pquqW3o7lC4V; Sun, 29 Dec 2019 20:21:34 +0100 (CET)
 X-Barracuda-Envelope-From: dev.kurt@vandijck-laurijssen.be
 X-Barracuda-Effective-Source-IP: 77.109.105.251.adsl.dyn.edpnet.net[77.109.105.251]
 X-Barracuda-Apparent-Source-IP: 77.109.105.251
 Received: from x1.vandijck-laurijssen.be (x1.vandijck-laurijssen.be [192.168.0.36])
-        by zotac.vandijck-laurijssen.be (Postfix) with ESMTPSA id C132AC02E52;
+        by zotac.vandijck-laurijssen.be (Postfix) with ESMTPSA id ACC7EC02E4E;
         Sun, 29 Dec 2019 20:21:33 +0100 (CET)
 From:   Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
 To:     linux-input@vger.kernel.org
 Cc:     linux-can@vger.kernel.org,
         Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
-Subject: [PATCH 5/6] cap11xx: enable all 8 inputs
-Date:   Sun, 29 Dec 2019 20:21:16 +0100
-X-ASG-Orig-Subj: [PATCH 5/6] cap11xx: enable all 8 inputs
-Message-Id: <1577647277-8298-6-git-send-email-dev.kurt@vandijck-laurijssen.be>
+Subject: [PATCH 3/6] cap11xx: polling mode without irq
+Date:   Sun, 29 Dec 2019 20:21:14 +0100
+X-ASG-Orig-Subj: [PATCH 3/6] cap11xx: polling mode without irq
+Message-Id: <1577647277-8298-4-git-send-email-dev.kurt@vandijck-laurijssen.be>
 X-Mailer: git-send-email 1.8.5.rc3
 In-Reply-To: <1577647277-8298-1-git-send-email-dev.kurt@vandijck-laurijssen.be>
 References: <1577647277-8298-1-git-send-email-dev.kurt@vandijck-laurijssen.be>
@@ -42,17 +43,15 @@ X-Barracuda-Connect: 77.109.105.251.adsl.dyn.edpnet.net[77.109.105.251]
 X-Barracuda-Start-Time: 1577647294
 X-Barracuda-URL: https://212.71.1.220:443/cgi-mod/mark.cgi
 X-Virus-Scanned: by bsmtpd at edpnet.be
-X-Barracuda-Scan-Msg-Size: 1810
+X-Barracuda-Scan-Msg-Size: 3123
 X-Barracuda-BRTS-Status: 1
-X-Barracuda-Bayes: SPAM GLOBAL 0.9940 1.0000 4.2732
-X-Barracuda-Spam-Score: 4.76
-X-Barracuda-Spam-Status: No, SCORE=4.76 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 tests=UPPERCASE_50_75, UPPERCASE_50_75_2
+X-Barracuda-Bayes: SPAM GLOBAL 0.9508 1.0000 3.7809
+X-Barracuda-Spam-Score: 3.78
+X-Barracuda-Spam-Status: No, SCORE=3.78 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 tests=
 X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.78985
         Rule breakdown below
          pts rule name              description
         ---- ---------------------- --------------------------------------------------
-        0.00 UPPERCASE_50_75        message body is 50-75% uppercase
-        0.49 UPPERCASE_50_75_2      message body is 50-75% uppercase
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -60,48 +59,111 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Signed-off-by: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
 ---
- drivers/input/keyboard/cap11xx.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/input/keyboard/cap11xx.c | 49 ++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 45 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index b666e9e..cdcc89b9 100644
+index 092dcd2..5a7eaed 100644
 --- a/drivers/input/keyboard/cap11xx.c
 +++ b/drivers/input/keyboard/cap11xx.c
-@@ -117,13 +117,13 @@ enum {
- 	{ CAP11XX_REG_NOISE_FLAG_STATUS,	0x00 },
- 	{ CAP11XX_REG_SENSITIVITY_CONTROL,	0x2f },
- 	{ CAP11XX_REG_CONFIG,			0x20 },
--	{ CAP11XX_REG_SENSOR_ENABLE,		0x3f },
-+	{ CAP11XX_REG_SENSOR_ENABLE,		0xff },
- 	{ CAP11XX_REG_SENSOR_CONFIG,		0xa4 },
- 	{ CAP11XX_REG_SENSOR_CONFIG2,		0x07 },
- 	{ CAP11XX_REG_SAMPLING_CONFIG,		0x39 },
- 	{ CAP11XX_REG_CALIBRATION,		0x00 },
--	{ CAP11XX_REG_INT_ENABLE,		0x3f },
--	{ CAP11XX_REG_REPEAT_RATE,		0x3f },
-+	{ CAP11XX_REG_INT_ENABLE,		0xff },
-+	{ CAP11XX_REG_REPEAT_RATE,		0xff },
- 	{ CAP11XX_REG_MT_CONFIG,		0x80 },
- 	{ CAP11XX_REG_MT_PATTERN_CONFIG,	0x00 },
- 	{ CAP11XX_REG_MT_PATTERN,		0x3f },
-@@ -134,6 +134,8 @@ enum {
- 	{ CAP11XX_REG_SENSOR_THRESH(3),		0x40 },
- 	{ CAP11XX_REG_SENSOR_THRESH(4),		0x40 },
- 	{ CAP11XX_REG_SENSOR_THRESH(5),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(6),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(7),		0x40 },
- 	{ CAP11XX_REG_SENSOR_NOISE_THRESH,	0x01 },
- 	{ CAP11XX_REG_STANDBY_CHANNEL,		0x00 },
- 	{ CAP11XX_REG_STANDBY_CONFIG,		0x39 },
-@@ -157,6 +159,8 @@ static bool cap11xx_volatile_reg(struct device *dev, unsigned int reg)
- 	case CAP11XX_REG_SENOR_DELTA(3):
- 	case CAP11XX_REG_SENOR_DELTA(4):
- 	case CAP11XX_REG_SENOR_DELTA(5):
-+	case CAP11XX_REG_SENOR_DELTA(6):
-+	case CAP11XX_REG_SENOR_DELTA(7):
- 	case CAP11XX_REG_PRODUCT_ID:
- 	case CAP11XX_REG_MANUFACTURER_ID:
- 	case CAP11XX_REG_REVISION:
+@@ -9,6 +9,7 @@
+ #include <linux/module.h>
+ #include <linux/interrupt.h>
+ #include <linux/input.h>
++#include <linux/kthread.h>
+ #include <linux/leds.h>
+ #include <linux/of_irq.h>
+ #include <linux/regmap.h>
+@@ -78,6 +79,7 @@ struct cap11xx_led {
+ 
+ struct cap11xx_priv {
+ 	struct regmap *regmap;
++	struct task_struct *poll_thread;
+ 	struct input_dev *idev;
+ 
+ 	struct cap11xx_led *leds;
+@@ -202,6 +204,24 @@ static irqreturn_t cap11xx_thread_func(int irq_num, void *data)
+ 	return IRQ_HANDLED;
+ }
+ 
++static int poll_irq(void *data) {
++
++	struct cap11xx_priv *priv = data;
++	int ret;
++	unsigned int status;
++
++	/* until module unload */
++	while (!kthread_should_stop()) {
++		ret = regmap_read(priv->regmap, CAP11XX_REG_MAIN_CONTROL, &status);
++		if (ret >= 0 && (status & 1))
++			cap11xx_thread_func(-1, priv);
++		usleep_range(15000, 25000);
++	}
++
++	return 0;
++}
++
++
+ static int cap11xx_set_sleep(struct cap11xx_priv *priv, bool sleep)
+ {
+ 	/*
+@@ -320,6 +340,17 @@ static int cap11xx_init_leds(struct device *dev,
+ }
+ #endif
+ 
++static int cap11xx_i2c_remove(struct i2c_client *i2c_client)
++{
++	struct cap11xx_priv *priv = i2c_get_clientdata(i2c_client);
++
++	if (priv->poll_thread) {
++		kthread_stop(priv->poll_thread);
++		mdelay(10);
++	}
++	return 0;
++}
++
+ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+ 			     const struct i2c_device_id *id)
+ {
+@@ -348,8 +379,6 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	i2c_set_clientdata(i2c_client, priv);
+-
+ 	priv->regmap = devm_regmap_init_i2c(i2c_client, &cap11xx_regmap_config);
+ 	if (IS_ERR(priv->regmap))
+ 		return PTR_ERR(priv->regmap);
+@@ -458,8 +487,19 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+ 
+ 	irq = irq_of_parse_and_map(node, 0);
+ 	if (!irq) {
+-		dev_err(dev, "Unable to parse or map IRQ\n");
+-		return -ENXIO;
++		if (!of_property_read_bool(node, "linux,irq-poll")) {
++			dev_err(dev, "Unable to parse or map IRQ\n");
++			return -ENXIO;
++		}
++		dev_info(dev, "IRQ failed or undefined, using poll_thread\n");
++		priv->poll_thread = kthread_create(poll_irq, priv, "%s-%s-poll",
++				id->name, dev_name(dev));
++		if (!priv->poll_thread) {
++			dev_err(dev, "Unable to start poll_thread\n");
++			return -ENXIO;
++		}
++		wake_up_process(priv->poll_thread);
++		return 0;
+ 	}
+ 
+ 	error = devm_request_threaded_irq(dev, irq, NULL, cap11xx_thread_func,
+@@ -495,6 +535,7 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+ 	},
+ 	.id_table	= cap11xx_i2c_ids,
+ 	.probe		= cap11xx_i2c_probe,
++	.remove		= cap11xx_i2c_remove,
+ };
+ 
+ module_i2c_driver(cap11xx_i2c_driver);
 -- 
 1.8.5.rc3
 

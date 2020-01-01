@@ -7,50 +7,50 @@ X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C26EC32764
-	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E81FFC2D0DC
+	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E67672072C
+	by mail.kernel.org (Postfix) with ESMTP id BB8D02073D
 	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Fth0eeRk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gchBX8Q3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725783AbgAAOyk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1727139AbgAAOyk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 1 Jan 2020 09:54:40 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:20624 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:45991 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727075AbgAAOyk (ORCPT
+        with ESMTP id S1725783AbgAAOyk (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jan 2020 09:54:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1577890479;
+        s=mimecast20190719; t=1577890478;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=yYF1Eh6BdlBgYViYPOQxQA/y599qa5XtCzbwclormsw=;
-        b=Fth0eeRkNJ8J++2uk8i2KzL3R1uZZ2hc1Fup9HsPOxYbu0+NVVEbnJ2FYRGcnKYNrp2mX+
-        1xqgeQi19vQaPy7cMC2qIuNxoNGqNJC2z+y1h6hx3JuICihIwDMcGKmVwbXEAy8JCrABI2
-        XLEa1Rv1/2I4Jujw3PqpOCMMQgmYZCg=
+        bh=jvhp+xnz9EwRvP63K0+dQ4Xvfe7NLR2F8UF0Jv3WGIg=;
+        b=gchBX8Q30Mh2zr2ZacWhgmbwd7uXiiUsgXxqXlZFgCtGpek0MzmvU/klgwrHw/3JlMcmxA
+        rGAwCeHJc2kfeyyologKJD04j87lo03ijP89Bi11hgNgbvkUATXvJWx0WVDAMEkCiOBQ8e
+        Y05dzSJU+UsAtiD/mqw9MAVZKS8WqzI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-79-ceVvxlwVM1W6YHO-h6wyaw-1; Wed, 01 Jan 2020 09:54:38 -0500
-X-MC-Unique: ceVvxlwVM1W6YHO-h6wyaw-1
+ us-mta-107-wk-rlNhMOwGFmWPoFZ_9kQ-1; Wed, 01 Jan 2020 09:54:34 -0500
+X-MC-Unique: wk-rlNhMOwGFmWPoFZ_9kQ-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F14EE477;
-        Wed,  1 Jan 2020 14:54:36 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D7A8D10054E3;
+        Wed,  1 Jan 2020 14:54:32 +0000 (UTC)
 Received: from shalem.localdomain.com (ovpn-116-55.ams2.redhat.com [10.36.116.55])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DC59E82063;
-        Wed,  1 Jan 2020 14:54:35 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C149482063;
+        Wed,  1 Jan 2020 14:54:31 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Bastien Nocera <hadess@hadess.net>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
         Dmitry Mastykin <mastichi@gmail.com>
-Subject: [PATCH 05/10] Input: goodix - Add support for getting IRQ + reset GPIOs on Bay Trail devices
-Date:   Wed,  1 Jan 2020 15:54:24 +0100
-Message-Id: <20200101145429.16185-5-hdegoede@redhat.com>
+Subject: [PATCH 02/10] Input: goodix - Make loading the config from disk independent from the GPIO setup
+Date:   Wed,  1 Jan 2020 15:54:21 +0100
+Message-Id: <20200101145429.16185-2-hdegoede@redhat.com>
 In-Reply-To: <20200101145429.16185-1-hdegoede@redhat.com>
 References: <20200101145429.16185-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -61,24 +61,27 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On most Bay Trail (x86, UEFI + ACPI) devices the ACPI tables do not have
-a _DSD with a "daffd814-6eba-4d8c-8a91-bc9bbf4aa301" UUID, adding
-"irq-gpios" and "reset-gpios" mappings, so we cannot get the GPIOS by nam=
-e
-without first manually adding mappings ourselves.
+At least on X86 ACPI platforms it is not necessary to load the touchscree=
+n
+controller config from disk, if it needs to be loaded this has already be=
+en
+done by the BIOS / UEFI firmware.
 
-These devices contain 2 GpioIo resource in their _CRS table, on all 4 suc=
-h
-devices which I have access to, the order of the 2 GPIOs is reset, int.
+Even on other (e.g. devicetree) platforms the config-loading as currently
+done has the issue that the loaded cfg file is based on the controller
+model, but the actual cfg is device specific, so the cfg files are not
+part of linux-firmware and this can only work with a device specific OS
+image which includes the cfg file.
 
-Note that the GPIO to which the touchscreen controller irq pin is connect=
-ed
-is configured in direct-irq mode on these Bay Trail devices, the
-pinctrl-baytrail.c driver still allows controlling the pin as a GPIO in
-this case, but this is not necessarily the case on other X86 ACPI
-platforms, nor do we have a guarantee that the GPIO order is the same
-elsewhere, so we limit the use of a _CRS table with 2 GpioIo resources
-to Bay Trail devices only.
+And we do not need access to the GPIOs at all to load the config, if we
+do not have access we can still load the config.
+
+So all in all tying the decision to try to load the config from disk to
+being able to access the GPIOs is not desirable. This commit adds a new
+load_cfg_from_disk boolean to control the firmware loading instead.
+
+This commits sets the new bool to true when we set irq_pin_access_method
+to irq_pin_access_gpio, so there are no functional changes.
 
 BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1786317
 BugLink: https://github.com/nexus511/gpd-ubuntu-packages/issues/10
@@ -86,51 +89,65 @@ BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D199207
 Cc: Dmitry Mastykin <mastichi@gmail.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/goodix.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/input/touchscreen/goodix.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscre=
 en/goodix.c
-index 9de2f325ac6e..d178aa33b529 100644
+index 08806a00a9b9..eccf07adfae1 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -610,6 +610,21 @@ static int goodix_reset(struct goodix_ts_data *ts)
+@@ -56,6 +56,7 @@ struct goodix_ts_data {
+ 	u16 id;
+ 	u16 version;
+ 	const char *cfg_name;
++	bool load_cfg_from_disk;
+ 	struct completion firmware_loading_complete;
+ 	unsigned long irq_flags;
+ 	enum goodix_irq_pin_access_method irq_pin_access_method;
+@@ -654,8 +655,10 @@ static int goodix_get_gpio_config(struct goodix_ts_d=
+ata *ts)
+=20
+ 	ts->gpiod_rst =3D gpiod;
+=20
+-	if (ts->gpiod_int && ts->gpiod_rst)
++	if (ts->gpiod_int && ts->gpiod_rst) {
++		ts->load_cfg_from_disk =3D true;
+ 		ts->irq_pin_access_method =3D irq_pin_access_gpio;
++	}
+=20
+ 	return 0;
  }
+@@ -952,7 +955,7 @@ static int goodix_ts_probe(struct i2c_client *client,
 =20
- #if defined CONFIG_X86 && defined CONFIG_ACPI
-+#include <asm/cpu_device_id.h>
-+#include <asm/intel-family.h>
-+
-+static const struct x86_cpu_id baytrail_cpu_ids[] =3D {
-+	{ X86_VENDOR_INTEL, 6, INTEL_FAM6_ATOM_SILVERMONT, X86_FEATURE_ANY, },
-+	{}
-+};
-+
-+static inline bool is_byt(void)
-+{
-+	const struct x86_cpu_id *id =3D x86_match_cpu(baytrail_cpu_ids);
-+
-+	return !!id;
-+}
-+
- static const struct acpi_gpio_params first_gpio =3D { 0, 0, false };
- static const struct acpi_gpio_params second_gpio =3D { 1, 0, false };
+ 	ts->chip =3D goodix_get_chip_data(ts->id);
 =20
-@@ -675,6 +690,10 @@ static int goodix_add_acpi_gpio_mappings(struct good=
-ix_ts_data *ts)
- 	} else if (ts->gpio_count =3D=3D 2 && ts->gpio_int_idx =3D=3D 1) {
- 		ts->irq_pin_access_method =3D irq_pin_access_acpi_gpio;
- 		gpio_mapping =3D acpi_goodix_int_last_gpios;
-+	} else if (is_byt() && ts->gpio_count =3D=3D 2 && ts->gpio_int_idx =3D=3D=
- -1) {
-+		dev_info(dev, "No ACPI GpioInt resource, assuming that the GPIO order =
-is reset, int\n");
-+		ts->irq_pin_access_method =3D irq_pin_access_acpi_gpio;
-+		gpio_mapping =3D acpi_goodix_int_last_gpios;
- 	} else {
- 		dev_warn(dev, "Unexpected ACPI resources: gpio_count %d, gpio_int_idx =
-%d\n",
- 			 ts->gpio_count, ts->gpio_int_idx);
+-	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio) {
++	if (ts->load_cfg_from_disk) {
+ 		/* update device config */
+ 		ts->cfg_name =3D devm_kasprintf(&client->dev, GFP_KERNEL,
+ 					      "goodix_%d_cfg.bin", ts->id);
+@@ -983,7 +986,7 @@ static int goodix_ts_remove(struct i2c_client *client=
+)
+ {
+ 	struct goodix_ts_data *ts =3D i2c_get_clientdata(client);
+=20
+-	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio)
++	if (ts->load_cfg_from_disk)
+ 		wait_for_completion(&ts->firmware_loading_complete);
+=20
+ 	return 0;
+@@ -1001,7 +1004,8 @@ static int __maybe_unused goodix_suspend(struct dev=
+ice *dev)
+ 		return 0;
+ 	}
+=20
+-	wait_for_completion(&ts->firmware_loading_complete);
++	if (ts->load_cfg_from_disk)
++		wait_for_completion(&ts->firmware_loading_complete);
+=20
+ 	/* Free IRQ as IRQ pin is used as output in the suspend sequence */
+ 	goodix_free_irq(ts);
 --=20
 2.24.1
 

@@ -7,50 +7,50 @@ X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E81FFC2D0DC
-	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D3BEC2D0DF
+	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BB8D02073D
-	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E77FB2072C
+	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gchBX8Q3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P9dtqmo4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727139AbgAAOyk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Jan 2020 09:54:40 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:45991 "EHLO
+        id S1727145AbgAAOyl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Jan 2020 09:54:41 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:47589 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725783AbgAAOyk (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jan 2020 09:54:40 -0500
+        with ESMTP id S1727075AbgAAOyl (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jan 2020 09:54:41 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1577890478;
+        s=mimecast20190719; t=1577890480;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=jvhp+xnz9EwRvP63K0+dQ4Xvfe7NLR2F8UF0Jv3WGIg=;
-        b=gchBX8Q30Mh2zr2ZacWhgmbwd7uXiiUsgXxqXlZFgCtGpek0MzmvU/klgwrHw/3JlMcmxA
-        rGAwCeHJc2kfeyyologKJD04j87lo03ijP89Bi11hgNgbvkUATXvJWx0WVDAMEkCiOBQ8e
-        Y05dzSJU+UsAtiD/mqw9MAVZKS8WqzI=
+        bh=sykq5oyf8HtizPO+AWjtHHYMVaq0dvk2MPBnAarmFGo=;
+        b=P9dtqmo4V+Ydloo3mnOhOJ8ZQ5MgmOn9BA453c1fGSLku62ktJPmYX/q4NBIUtA9WghGBJ
+        61QbSv1jrPUHyqJWmmUbhiffDrcL0+KtjgclWGcxtf1JKliocGClwyLSpJ52FoYwvxFyHr
+        ZctzWQ2VYjo7Xev+D3OhJD8p/xCGjEw=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-107-wk-rlNhMOwGFmWPoFZ_9kQ-1; Wed, 01 Jan 2020 09:54:34 -0500
-X-MC-Unique: wk-rlNhMOwGFmWPoFZ_9kQ-1
+ us-mta-381-BTKMOVWYMrW1Duc4dAoeCA-1; Wed, 01 Jan 2020 09:54:39 -0500
+X-MC-Unique: BTKMOVWYMrW1Duc4dAoeCA-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D7A8D10054E3;
-        Wed,  1 Jan 2020 14:54:32 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5806A800D41;
+        Wed,  1 Jan 2020 14:54:38 +0000 (UTC)
 Received: from shalem.localdomain.com (ovpn-116-55.ams2.redhat.com [10.36.116.55])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C149482063;
-        Wed,  1 Jan 2020 14:54:31 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 42C5E82063;
+        Wed,  1 Jan 2020 14:54:37 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Bastien Nocera <hadess@hadess.net>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
         Dmitry Mastykin <mastichi@gmail.com>
-Subject: [PATCH 02/10] Input: goodix - Make loading the config from disk independent from the GPIO setup
-Date:   Wed,  1 Jan 2020 15:54:21 +0100
-Message-Id: <20200101145429.16185-2-hdegoede@redhat.com>
+Subject: [PATCH 06/10] Input: goodix - Add support for controlling the IRQ pin through ACPI methods
+Date:   Wed,  1 Jan 2020 15:54:25 +0100
+Message-Id: <20200101145429.16185-6-hdegoede@redhat.com>
 In-Reply-To: <20200101145429.16185-1-hdegoede@redhat.com>
 References: <20200101145429.16185-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -61,27 +61,14 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-At least on X86 ACPI platforms it is not necessary to load the touchscree=
-n
-controller config from disk, if it needs to be loaded this has already be=
-en
-done by the BIOS / UEFI firmware.
+Some Apollo Lake (x86, UEFI + ACPI) devices only list the reset GPIO
+in their _CRS table and the bit-banging of the IRQ line necessary to
+wake-up the controller from suspend can be done by calling 2 Goodix
+custom / specific ACPI methods.
 
-Even on other (e.g. devicetree) platforms the config-loading as currently
-done has the issue that the loaded cfg file is based on the controller
-model, but the actual cfg is device specific, so the cfg files are not
-part of linux-firmware and this can only work with a device specific OS
-image which includes the cfg file.
-
-And we do not need access to the GPIOs at all to load the config, if we
-do not have access we can still load the config.
-
-So all in all tying the decision to try to load the config from disk to
-being able to access the GPIOs is not desirable. This commit adds a new
-load_cfg_from_disk boolean to control the firmware loading instead.
-
-This commits sets the new bool to true when we set irq_pin_access_method
-to irq_pin_access_gpio, so there are no functional changes.
+This commit adds support for controlling the IRQ line in this matter,
+allowing us to properly suspend the touchscreen controller on such
+devices.
 
 BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1786317
 BugLink: https://github.com/nexus511/gpd-ubuntu-packages/issues/10
@@ -89,65 +76,110 @@ BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D199207
 Cc: Dmitry Mastykin <mastichi@gmail.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/goodix.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/goodix.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscre=
 en/goodix.c
-index 08806a00a9b9..eccf07adfae1 100644
+index d178aa33b529..784c4dd8c430 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -56,6 +56,7 @@ struct goodix_ts_data {
- 	u16 id;
- 	u16 version;
- 	const char *cfg_name;
-+	bool load_cfg_from_disk;
- 	struct completion firmware_loading_complete;
- 	unsigned long irq_flags;
- 	enum goodix_irq_pin_access_method irq_pin_access_method;
-@@ -654,8 +655,10 @@ static int goodix_get_gpio_config(struct goodix_ts_d=
-ata *ts)
+@@ -35,6 +35,7 @@ enum goodix_irq_pin_access_method {
+ 	irq_pin_access_none,
+ 	irq_pin_access_gpio,
+ 	irq_pin_access_acpi_gpio,
++	irq_pin_access_acpi_method,
+ };
 =20
- 	ts->gpiod_rst =3D gpiod;
-=20
--	if (ts->gpiod_int && ts->gpiod_rst)
-+	if (ts->gpiod_int && ts->gpiod_rst) {
-+		ts->load_cfg_from_disk =3D true;
- 		ts->irq_pin_access_method =3D irq_pin_access_gpio;
-+	}
-=20
- 	return 0;
- }
-@@ -952,7 +955,7 @@ static int goodix_ts_probe(struct i2c_client *client,
-=20
- 	ts->chip =3D goodix_get_chip_data(ts->id);
-=20
--	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio) {
-+	if (ts->load_cfg_from_disk) {
- 		/* update device config */
- 		ts->cfg_name =3D devm_kasprintf(&client->dev, GFP_KERNEL,
- 					      "goodix_%d_cfg.bin", ts->id);
-@@ -983,7 +986,7 @@ static int goodix_ts_remove(struct i2c_client *client=
-)
+ struct goodix_chip_data {
+@@ -516,6 +517,9 @@ static int goodix_send_cfg(struct goodix_ts_data *ts,
+ static int goodix_irq_direction_output(struct goodix_ts_data *ts,
+ 				       int value)
  {
- 	struct goodix_ts_data *ts =3D i2c_get_clientdata(client);
-=20
--	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio)
-+	if (ts->load_cfg_from_disk)
- 		wait_for_completion(&ts->firmware_loading_complete);
-=20
- 	return 0;
-@@ -1001,7 +1004,8 @@ static int __maybe_unused goodix_suspend(struct dev=
-ice *dev)
- 		return 0;
++	struct device *dev =3D &ts->client->dev;
++	acpi_status status;
++
+ 	switch (ts->irq_pin_access_method) {
+ 	case irq_pin_access_none:
+ 		dev_err(&ts->client->dev,
+@@ -530,6 +534,10 @@ static int goodix_irq_direction_output(struct goodix=
+_ts_data *ts,
+ 		 * as active-low, use output_raw to avoid the value inversion.
+ 		 */
+ 		return gpiod_direction_output_raw(ts->gpiod_int, value);
++	case irq_pin_access_acpi_method:
++		status =3D acpi_execute_simple_method(ACPI_HANDLE(dev),
++						    "INTO", value);
++		return ACPI_SUCCESS(status) ? 0 : -EIO;
  	}
 =20
--	wait_for_completion(&ts->firmware_loading_complete);
-+	if (ts->load_cfg_from_disk)
-+		wait_for_completion(&ts->firmware_loading_complete);
+ 	return -EINVAL; /* Never reached */
+@@ -537,6 +545,9 @@ static int goodix_irq_direction_output(struct goodix_=
+ts_data *ts,
 =20
- 	/* Free IRQ as IRQ pin is used as output in the suspend sequence */
- 	goodix_free_irq(ts);
+ static int goodix_irq_direction_input(struct goodix_ts_data *ts)
+ {
++	struct device *dev =3D &ts->client->dev;
++	acpi_status status;
++
+ 	switch (ts->irq_pin_access_method) {
+ 	case irq_pin_access_none:
+ 		dev_err(&ts->client->dev,
+@@ -546,6 +557,10 @@ static int goodix_irq_direction_input(struct goodix_=
+ts_data *ts)
+ 	case irq_pin_access_gpio:
+ 	case irq_pin_access_acpi_gpio:
+ 		return gpiod_direction_input(ts->gpiod_int);
++	case irq_pin_access_acpi_method:
++		status =3D acpi_evaluate_object(ACPI_HANDLE(dev), "INTI",
++					      NULL, NULL);
++		return ACPI_SUCCESS(status) ? 0 : -EIO;
+ 	}
+=20
+ 	return -EINVAL; /* Never reached */
+@@ -640,6 +655,11 @@ static const struct acpi_gpio_mapping acpi_goodix_in=
+t_last_gpios[] =3D {
+ 	{ },
+ };
+=20
++static const struct acpi_gpio_mapping acpi_goodix_reset_only_gpios[] =3D=
+ {
++	{ GOODIX_GPIO_RST_NAME "-gpios", &first_gpio, 1 },
++	{ },
++};
++
+ static int goodix_resource(struct acpi_resource *ares, void *data)
+ {
+ 	struct goodix_ts_data *ts =3D data;
+@@ -690,6 +710,12 @@ static int goodix_add_acpi_gpio_mappings(struct good=
+ix_ts_data *ts)
+ 	} else if (ts->gpio_count =3D=3D 2 && ts->gpio_int_idx =3D=3D 1) {
+ 		ts->irq_pin_access_method =3D irq_pin_access_acpi_gpio;
+ 		gpio_mapping =3D acpi_goodix_int_last_gpios;
++	} else if (ts->gpio_count =3D=3D 1 && ts->gpio_int_idx =3D=3D -1 &&
++		   acpi_has_method(ACPI_HANDLE(dev), "INTI") &&
++		   acpi_has_method(ACPI_HANDLE(dev), "INTO")) {
++		dev_info(dev, "Using ACPI INTI and INTO methods for IRQ pin access\n")=
+;
++		ts->irq_pin_access_method =3D irq_pin_access_acpi_method;
++		gpio_mapping =3D acpi_goodix_reset_only_gpios;
+ 	} else if (is_byt() && ts->gpio_count =3D=3D 2 && ts->gpio_int_idx =3D=3D=
+ -1) {
+ 		dev_info(dev, "No ACPI GpioInt resource, assuming that the GPIO order =
+is reset, int\n");
+ 		ts->irq_pin_access_method =3D irq_pin_access_acpi_gpio;
+@@ -778,6 +804,10 @@ static int goodix_get_gpio_config(struct goodix_ts_d=
+ata *ts)
+ 		if (!ts->gpiod_int || !ts->gpiod_rst)
+ 			ts->irq_pin_access_method =3D irq_pin_access_none;
+ 		break;
++	case irq_pin_access_acpi_method:
++		if (!ts->gpiod_rst)
++			ts->irq_pin_access_method =3D irq_pin_access_none;
++		break;
+ 	default:
+ 		if (ts->gpiod_int && ts->gpiod_rst) {
+ 			ts->reset_controller_at_probe =3D true;
 --=20
 2.24.1
 

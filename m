@@ -7,50 +7,50 @@ X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D3BEC2D0DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E899BC32764
 	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E77FB2072C
-	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5FC42072C
+	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P9dtqmo4"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RJcK/NIU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727145AbgAAOyl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Jan 2020 09:54:41 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:47589 "EHLO
+        id S1727146AbgAAOym (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Jan 2020 09:54:42 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:29397 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727075AbgAAOyl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jan 2020 09:54:41 -0500
+        with ESMTP id S1727141AbgAAOym (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jan 2020 09:54:42 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1577890480;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=sykq5oyf8HtizPO+AWjtHHYMVaq0dvk2MPBnAarmFGo=;
-        b=P9dtqmo4V+Ydloo3mnOhOJ8ZQ5MgmOn9BA453c1fGSLku62ktJPmYX/q4NBIUtA9WghGBJ
-        61QbSv1jrPUHyqJWmmUbhiffDrcL0+KtjgclWGcxtf1JKliocGClwyLSpJ52FoYwvxFyHr
-        ZctzWQ2VYjo7Xev+D3OhJD8p/xCGjEw=
+        bh=9GQp9VNyLuRBghM5LJ44CXGSUbtKCxQK064zl98GZFI=;
+        b=RJcK/NIUafd9oxLtMYYlQLAUo30GFG8ECWDiHLsW7fSssITCmgElwwWlhNiOGpkAzk3CcY
+        jx1OZ46TmXvqcHMhJDdJk9gHuiOcw45iq/uWSKXffwB46mc+QO8l0eLgSBbH7MxjMYPwTv
+        9YsgK47AOvy6WdekXFErf9tFdB9KR+Y=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-381-BTKMOVWYMrW1Duc4dAoeCA-1; Wed, 01 Jan 2020 09:54:39 -0500
-X-MC-Unique: BTKMOVWYMrW1Duc4dAoeCA-1
+ us-mta-105-OakQTniAMwu1JB1pJRkPrw-1; Wed, 01 Jan 2020 09:54:36 -0500
+X-MC-Unique: OakQTniAMwu1JB1pJRkPrw-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5806A800D41;
-        Wed,  1 Jan 2020 14:54:38 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 96D628024CC;
+        Wed,  1 Jan 2020 14:54:35 +0000 (UTC)
 Received: from shalem.localdomain.com (ovpn-116-55.ams2.redhat.com [10.36.116.55])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 42C5E82063;
-        Wed,  1 Jan 2020 14:54:37 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 83F7182063;
+        Wed,  1 Jan 2020 14:54:34 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Bastien Nocera <hadess@hadess.net>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
         Dmitry Mastykin <mastichi@gmail.com>
-Subject: [PATCH 06/10] Input: goodix - Add support for controlling the IRQ pin through ACPI methods
-Date:   Wed,  1 Jan 2020 15:54:25 +0100
-Message-Id: <20200101145429.16185-6-hdegoede@redhat.com>
+Subject: [PATCH 04/10] Input: goodix - Add support for getting IRQ + reset GPIOs on Cherry Trail devices
+Date:   Wed,  1 Jan 2020 15:54:23 +0100
+Message-Id: <20200101145429.16185-4-hdegoede@redhat.com>
 In-Reply-To: <20200101145429.16185-1-hdegoede@redhat.com>
 References: <20200101145429.16185-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -61,14 +61,23 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some Apollo Lake (x86, UEFI + ACPI) devices only list the reset GPIO
-in their _CRS table and the bit-banging of the IRQ line necessary to
-wake-up the controller from suspend can be done by calling 2 Goodix
-custom / specific ACPI methods.
+On most Cherry Trail (x86, UEFI + ACPI) devices the ACPI tables do not ha=
+ve
+a _DSD with a "daffd814-6eba-4d8c-8a91-bc9bbf4aa301" UUID, adding
+"irq-gpios" and "reset-gpios" mappings, so we cannot get the GPIOS by nam=
+e
+without first manually adding mappings ourselves.
 
-This commit adds support for controlling the IRQ line in this matter,
-allowing us to properly suspend the touchscreen controller on such
-devices.
+These devices contain 1 GpioInt and 1 GpioIo resource in their _CRS table=
+.
+There is no fixed order for these 2. This commit adds code to check that
+there is 1 of each as expected and then registers a mapping matching thei=
+r
+order using devm_acpi_dev_add_driver_gpios().
+
+This gives us access to both GPIOs allowing us to properly suspend the
+controller during suspend, and making it possible to reset the controller
+if necessary.
 
 BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1786317
 BugLink: https://github.com/nexus511/gpd-ubuntu-packages/issues/10
@@ -76,110 +85,199 @@ BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D199207
 Cc: Dmitry Mastykin <mastichi@gmail.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/goodix.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ drivers/input/touchscreen/goodix.c | 113 ++++++++++++++++++++++++++++-
+ 1 file changed, 109 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscre=
 en/goodix.c
-index d178aa33b529..784c4dd8c430 100644
+index dd5a8f9e8ada..9de2f325ac6e 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -35,6 +35,7 @@ enum goodix_irq_pin_access_method {
+@@ -34,6 +34,7 @@ struct goodix_ts_data;
+ enum goodix_irq_pin_access_method {
  	irq_pin_access_none,
  	irq_pin_access_gpio,
- 	irq_pin_access_acpi_gpio,
-+	irq_pin_access_acpi_method,
++	irq_pin_access_acpi_gpio,
  };
 =20
  struct goodix_chip_data {
-@@ -516,6 +517,9 @@ static int goodix_send_cfg(struct goodix_ts_data *ts,
- static int goodix_irq_direction_output(struct goodix_ts_data *ts,
- 				       int value)
- {
-+	struct device *dev =3D &ts->client->dev;
-+	acpi_status status;
-+
- 	switch (ts->irq_pin_access_method) {
- 	case irq_pin_access_none:
- 		dev_err(&ts->client->dev,
-@@ -530,6 +534,10 @@ static int goodix_irq_direction_output(struct goodix=
+@@ -53,6 +54,8 @@ struct goodix_ts_data {
+ 	struct regulator *vddio;
+ 	struct gpio_desc *gpiod_int;
+ 	struct gpio_desc *gpiod_rst;
++	int gpio_count;
++	int gpio_int_idx;
+ 	u16 id;
+ 	u16 version;
+ 	const char *cfg_name;
+@@ -521,6 +524,12 @@ static int goodix_irq_direction_output(struct goodix=
 _ts_data *ts,
- 		 * as active-low, use output_raw to avoid the value inversion.
- 		 */
- 		return gpiod_direction_output_raw(ts->gpiod_int, value);
-+	case irq_pin_access_acpi_method:
-+		status =3D acpi_execute_simple_method(ACPI_HANDLE(dev),
-+						    "INTO", value);
-+		return ACPI_SUCCESS(status) ? 0 : -EIO;
- 	}
-=20
- 	return -EINVAL; /* Never reached */
-@@ -537,6 +545,9 @@ static int goodix_irq_direction_output(struct goodix_=
-ts_data *ts,
-=20
- static int goodix_irq_direction_input(struct goodix_ts_data *ts)
- {
-+	struct device *dev =3D &ts->client->dev;
-+	acpi_status status;
-+
- 	switch (ts->irq_pin_access_method) {
- 	case irq_pin_access_none:
- 		dev_err(&ts->client->dev,
-@@ -546,6 +557,10 @@ static int goodix_irq_direction_input(struct goodix_=
-ts_data *ts)
+ 		return -EINVAL;
  	case irq_pin_access_gpio:
- 	case irq_pin_access_acpi_gpio:
- 		return gpiod_direction_input(ts->gpiod_int);
-+	case irq_pin_access_acpi_method:
-+		status =3D acpi_evaluate_object(ACPI_HANDLE(dev), "INTI",
-+					      NULL, NULL);
-+		return ACPI_SUCCESS(status) ? 0 : -EIO;
+ 		return gpiod_direction_output(ts->gpiod_int, value);
++	case irq_pin_access_acpi_gpio:
++		/*
++		 * The IRQ pin triggers on a falling edge, so its gets marked
++		 * as active-low, use output_raw to avoid the value inversion.
++		 */
++		return gpiod_direction_output_raw(ts->gpiod_int, value);
  	}
 =20
  	return -EINVAL; /* Never reached */
-@@ -640,6 +655,11 @@ static const struct acpi_gpio_mapping acpi_goodix_in=
-t_last_gpios[] =3D {
- 	{ },
- };
+@@ -535,6 +544,7 @@ static int goodix_irq_direction_input(struct goodix_t=
+s_data *ts)
+ 			__func__);
+ 		return -EINVAL;
+ 	case irq_pin_access_gpio:
++	case irq_pin_access_acpi_gpio:
+ 		return gpiod_direction_input(ts->gpiod_int);
+ 	}
 =20
-+static const struct acpi_gpio_mapping acpi_goodix_reset_only_gpios[] =3D=
- {
-+	{ GOODIX_GPIO_RST_NAME "-gpios", &first_gpio, 1 },
+@@ -599,6 +609,87 @@ static int goodix_reset(struct goodix_ts_data *ts)
+ 	return 0;
+ }
+=20
++#if defined CONFIG_X86 && defined CONFIG_ACPI
++static const struct acpi_gpio_params first_gpio =3D { 0, 0, false };
++static const struct acpi_gpio_params second_gpio =3D { 1, 0, false };
++
++static const struct acpi_gpio_mapping acpi_goodix_int_first_gpios[] =3D =
+{
++	{ GOODIX_GPIO_INT_NAME "-gpios", &first_gpio, 1 },
++	{ GOODIX_GPIO_RST_NAME "-gpios", &second_gpio, 1 },
 +	{ },
 +};
 +
- static int goodix_resource(struct acpi_resource *ares, void *data)
- {
- 	struct goodix_ts_data *ts =3D data;
-@@ -690,6 +710,12 @@ static int goodix_add_acpi_gpio_mappings(struct good=
-ix_ts_data *ts)
- 	} else if (ts->gpio_count =3D=3D 2 && ts->gpio_int_idx =3D=3D 1) {
- 		ts->irq_pin_access_method =3D irq_pin_access_acpi_gpio;
- 		gpio_mapping =3D acpi_goodix_int_last_gpios;
-+	} else if (ts->gpio_count =3D=3D 1 && ts->gpio_int_idx =3D=3D -1 &&
-+		   acpi_has_method(ACPI_HANDLE(dev), "INTI") &&
-+		   acpi_has_method(ACPI_HANDLE(dev), "INTO")) {
-+		dev_info(dev, "Using ACPI INTI and INTO methods for IRQ pin access\n")=
-;
-+		ts->irq_pin_access_method =3D irq_pin_access_acpi_method;
-+		gpio_mapping =3D acpi_goodix_reset_only_gpios;
- 	} else if (is_byt() && ts->gpio_count =3D=3D 2 && ts->gpio_int_idx =3D=3D=
- -1) {
- 		dev_info(dev, "No ACPI GpioInt resource, assuming that the GPIO order =
-is reset, int\n");
- 		ts->irq_pin_access_method =3D irq_pin_access_acpi_gpio;
-@@ -778,6 +804,10 @@ static int goodix_get_gpio_config(struct goodix_ts_d=
++static const struct acpi_gpio_mapping acpi_goodix_int_last_gpios[] =3D {
++	{ GOODIX_GPIO_RST_NAME "-gpios", &first_gpio, 1 },
++	{ GOODIX_GPIO_INT_NAME "-gpios", &second_gpio, 1 },
++	{ },
++};
++
++static int goodix_resource(struct acpi_resource *ares, void *data)
++{
++	struct goodix_ts_data *ts =3D data;
++	struct device *dev =3D &ts->client->dev;
++	struct acpi_resource_gpio *gpio;
++
++	switch (ares->type) {
++	case ACPI_RESOURCE_TYPE_GPIO:
++		gpio =3D &ares->data.gpio;
++		if (gpio->connection_type =3D=3D ACPI_RESOURCE_GPIO_TYPE_INT) {
++			if (ts->gpio_int_idx =3D=3D -1) {
++				ts->gpio_int_idx =3D ts->gpio_count;
++			} else {
++				dev_err(dev, "More then one GpioInt resource, ignoring ACPI GPIO res=
+ources\n");
++				ts->gpio_int_idx =3D -2;
++			}
++		}
++		ts->gpio_count++;
++		break;
++	default:
++		break;
++	}
++
++	return 0;
++}
++
++static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
++{
++	const struct acpi_gpio_mapping *gpio_mapping =3D NULL;
++	struct device *dev =3D &ts->client->dev;
++	LIST_HEAD(resources);
++	int ret;
++
++	ts->gpio_count =3D 0;
++	ts->gpio_int_idx =3D -1;
++	ret =3D acpi_dev_get_resources(ACPI_COMPANION(dev), &resources,
++				     goodix_resource, ts);
++	if (ret < 0) {
++		dev_err(dev, "Error getting ACPI resources: %d\n", ret);
++		return ret;
++	}
++
++	acpi_dev_free_resource_list(&resources);
++
++	if (ts->gpio_count =3D=3D 2 && ts->gpio_int_idx =3D=3D 0) {
++		ts->irq_pin_access_method =3D irq_pin_access_acpi_gpio;
++		gpio_mapping =3D acpi_goodix_int_first_gpios;
++	} else if (ts->gpio_count =3D=3D 2 && ts->gpio_int_idx =3D=3D 1) {
++		ts->irq_pin_access_method =3D irq_pin_access_acpi_gpio;
++		gpio_mapping =3D acpi_goodix_int_last_gpios;
++	} else {
++		dev_warn(dev, "Unexpected ACPI resources: gpio_count %d, gpio_int_idx =
+%d\n",
++			 ts->gpio_count, ts->gpio_int_idx);
++		return -EINVAL;
++	}
++
++	return devm_acpi_dev_add_driver_gpios(dev, gpio_mapping);
++}
++#else
++static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
++{
++	return -EINVAL;
++}
++#endif /* CONFIG_X86 && CONFIG_ACPI */
++
+ /**
+  * goodix_get_gpio_config - Get GPIO config from ACPI/DT
+  *
+@@ -609,6 +700,7 @@ static int goodix_get_gpio_config(struct goodix_ts_da=
+ta *ts)
+ 	int error;
+ 	struct device *dev;
+ 	struct gpio_desc *gpiod;
++	bool added_acpi_mappings =3D false;
+=20
+ 	if (!ts->client)
+ 		return -EINVAL;
+@@ -632,6 +724,7 @@ static int goodix_get_gpio_config(struct goodix_ts_da=
+ta *ts)
+ 		return error;
+ 	}
+=20
++retry_get_irq_gpio:
+ 	/* Get the interrupt GPIO pin number */
+ 	gpiod =3D devm_gpiod_get_optional(dev, GOODIX_GPIO_INT_NAME, GPIOD_IN);
+ 	if (IS_ERR(gpiod)) {
+@@ -641,6 +734,11 @@ static int goodix_get_gpio_config(struct goodix_ts_d=
 ata *ts)
- 		if (!ts->gpiod_int || !ts->gpiod_rst)
- 			ts->irq_pin_access_method =3D irq_pin_access_none;
- 		break;
-+	case irq_pin_access_acpi_method:
-+		if (!ts->gpiod_rst)
+ 				GOODIX_GPIO_INT_NAME, error);
+ 		return error;
+ 	}
++	if (!gpiod && has_acpi_companion(dev) && !added_acpi_mappings) {
++		added_acpi_mappings =3D true;
++		if (goodix_add_acpi_gpio_mappings(ts) =3D=3D 0)
++			goto retry_get_irq_gpio;
++	}
+=20
+ 	ts->gpiod_int =3D gpiod;
+=20
+@@ -656,10 +754,17 @@ static int goodix_get_gpio_config(struct goodix_ts_=
+data *ts)
+=20
+ 	ts->gpiod_rst =3D gpiod;
+=20
+-	if (ts->gpiod_int && ts->gpiod_rst) {
+-		ts->reset_controller_at_probe =3D true;
+-		ts->load_cfg_from_disk =3D true;
+-		ts->irq_pin_access_method =3D irq_pin_access_gpio;
++	switch (ts->irq_pin_access_method) {
++	case irq_pin_access_acpi_gpio:
++		if (!ts->gpiod_int || !ts->gpiod_rst)
 +			ts->irq_pin_access_method =3D irq_pin_access_none;
 +		break;
- 	default:
- 		if (ts->gpiod_int && ts->gpiod_rst) {
- 			ts->reset_controller_at_probe =3D true;
++	default:
++		if (ts->gpiod_int && ts->gpiod_rst) {
++			ts->reset_controller_at_probe =3D true;
++			ts->load_cfg_from_disk =3D true;
++			ts->irq_pin_access_method =3D irq_pin_access_gpio;
++		}
+ 	}
+=20
+ 	return 0;
 --=20
 2.24.1
 

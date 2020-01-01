@@ -7,49 +7,53 @@ X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7AB6C2D0DC
-	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C291C2D0DC
+	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B01B92072C
-	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 121702072C
+	for <linux-input@archiver.kernel.org>; Wed,  1 Jan 2020 14:54:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iTT6G/2l"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gta49X1V"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725872AbgAAOyf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Jan 2020 09:54:35 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:43028 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725783AbgAAOyf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jan 2020 09:54:35 -0500
+        id S1725900AbgAAOyh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Jan 2020 09:54:37 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:21486 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725783AbgAAOyh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 1 Jan 2020 09:54:37 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1577890473;
+        s=mimecast20190719; t=1577890476;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=VPoCIYQhaegM3bDKwHJmmjZaEd7Og9Fn6SIGpzPkHWA=;
-        b=iTT6G/2lM94pKQ/AHRWLCkUZsGTvEWarEPW6sZ/nY+RRgAjW4To5OzSwr0GiCXYcq5lSC9
-        WBxF0qYr47stOZLRqfugcXh3OZlqpFkfllWlNrffsOBvZUyyBlnI0xcsLmsBd/3bYrmvGf
-        ENGZ5jkx5kCwvTkuwsNA4um5MW3XusY=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=PrFDttW00HT8+r1wKB5F+O9CjgnzQwIJTKLoi1FfpM0=;
+        b=gta49X1V1j199k8mJy8leQrNahjjrRvhOY2uygQg6XB6hTHUFqdGpR3JJKTQugg+u0vjVk
+        m5VVINkxrqhnTHoFkHwxDDWXTJuv1sUWuKluxSQLmhsZ63LjHdX/d4hVkIqqkd5R/swgjs
+        EN4DsEiIRrj2MgM37JBW+aT2ib/9G+o=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-158-eqzc9kZnOGWn4UVUtI9zWQ-1; Wed, 01 Jan 2020 09:54:32 -0500
-X-MC-Unique: eqzc9kZnOGWn4UVUtI9zWQ-1
+ us-mta-201-hqsuyk8TN2a0e4PLLSgL7w-1; Wed, 01 Jan 2020 09:54:35 -0500
+X-MC-Unique: hqsuyk8TN2a0e4PLLSgL7w-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7A937185432C;
-        Wed,  1 Jan 2020 14:54:31 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3FEF1477;
+        Wed,  1 Jan 2020 14:54:34 +0000 (UTC)
 Received: from shalem.localdomain.com (ovpn-116-55.ams2.redhat.com [10.36.116.55])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 39EDB82063;
-        Wed,  1 Jan 2020 14:54:30 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2AC2083C09;
+        Wed,  1 Jan 2020 14:54:33 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Bastien Nocera <hadess@hadess.net>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
         Dmitry Mastykin <mastichi@gmail.com>
-Subject: [PATCH 01/10] Input: goodix - Refactor IRQ pin GPIO accesses
-Date:   Wed,  1 Jan 2020 15:54:20 +0100
-Message-Id: <20200101145429.16185-1-hdegoede@redhat.com>
+Subject: [PATCH 03/10] Input: goodix - Make resetting the controller at probe independent from the GPIO setup
+Date:   Wed,  1 Jan 2020 15:54:22 +0100
+Message-Id: <20200101145429.16185-3-hdegoede@redhat.com>
+In-Reply-To: <20200101145429.16185-1-hdegoede@redhat.com>
+References: <20200101145429.16185-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Content-Transfer-Encoding: quoted-printable
@@ -58,26 +62,23 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Suspending Goodix touchscreens requires changing the interrupt pin to
-output before sending them a power-down command. Followed by wiggling
-the interrupt pin to wake the device up, after which it is put back
-in input mode.
+Before this commit we would always reset the controller at probe when we
+have access to the GPIOs which are necessary to do a reset.
 
-So far we have only effectively supported this on devices which use
-devicetree. On X86 ACPI platforms both looking up the pins; and using a
-pin as both IRQ and GPIO is a bit more complicated. E.g. on some devices
-we cannot directly access the IRQ pin as GPIO and we need to call ACPI
-methods to control it instead.
+Doing the reset requires access to the GPIOs, but just because we have
+access to the GPIOs does not mean that we should always reset the
+controller at probe. On X86 ACPI platforms the BIOS / UEFI firmware will
+already have reset the controller and it will have loaded the device
+specific config into the controller. Doing the reset sometimes causes the
+controller to loose its configuration, so on X86 ACPI platforms this is n=
+ot
+a good idea.
 
-This commit adds a new irq_pin_access_method field to the goodix_chip_dat=
-a
-struct and adds goodix_irq_direction_output and goodix_irq_direction_inpu=
-t
-helpers which together abstract the GPIO accesses to the IRQ pin.
+This commit adds a new reset_controller_at_probe boolean to control the
+reset at probe behavior.
 
-This is a preparation patch for adding support for properly suspending th=
-e
-touchscreen on X86 ACPI platforms.
+This commits sets the new bool to true when we set irq_pin_access_method
+to irq_pin_access_gpio, so there are no functional changes.
 
 BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1786317
 BugLink: https://github.com/nexus511/gpd-ubuntu-packages/issues/10
@@ -85,186 +86,40 @@ BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D199207
 Cc: Dmitry Mastykin <mastichi@gmail.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/goodix.c | 62 ++++++++++++++++++++++++------
- 1 file changed, 51 insertions(+), 11 deletions(-)
+ drivers/input/touchscreen/goodix.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscre=
 en/goodix.c
-index 0403102e807e..08806a00a9b9 100644
+index eccf07adfae1..dd5a8f9e8ada 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -31,6 +31,11 @@
-=20
- struct goodix_ts_data;
-=20
-+enum goodix_irq_pin_access_method {
-+	irq_pin_access_none,
-+	irq_pin_access_gpio,
-+};
-+
- struct goodix_chip_data {
- 	u16 config_addr;
- 	int config_len;
-@@ -53,6 +58,7 @@ struct goodix_ts_data {
+@@ -56,6 +56,7 @@ struct goodix_ts_data {
+ 	u16 id;
+ 	u16 version;
  	const char *cfg_name;
++	bool reset_controller_at_probe;
+ 	bool load_cfg_from_disk;
  	struct completion firmware_loading_complete;
  	unsigned long irq_flags;
-+	enum goodix_irq_pin_access_method irq_pin_access_method;
- 	unsigned int contact_size;
- };
-=20
-@@ -502,17 +508,48 @@ static int goodix_send_cfg(struct goodix_ts_data *t=
-s,
- 	return 0;
- }
-=20
-+static int goodix_irq_direction_output(struct goodix_ts_data *ts,
-+				       int value)
-+{
-+	switch (ts->irq_pin_access_method) {
-+	case irq_pin_access_none:
-+		dev_err(&ts->client->dev,
-+			"%s called without an irq_pin_access_method set\n",
-+			__func__);
-+		return -EINVAL;
-+	case irq_pin_access_gpio:
-+		return gpiod_direction_output(ts->gpiod_int, value);
-+	}
-+
-+	return -EINVAL; /* Never reached */
-+}
-+
-+static int goodix_irq_direction_input(struct goodix_ts_data *ts)
-+{
-+	switch (ts->irq_pin_access_method) {
-+	case irq_pin_access_none:
-+		dev_err(&ts->client->dev,
-+			"%s called without an irq_pin_access_method set\n",
-+			__func__);
-+		return -EINVAL;
-+	case irq_pin_access_gpio:
-+		return gpiod_direction_input(ts->gpiod_int);
-+	}
-+
-+	return -EINVAL; /* Never reached */
-+}
-+
- static int goodix_int_sync(struct goodix_ts_data *ts)
- {
- 	int error;
-=20
--	error =3D gpiod_direction_output(ts->gpiod_int, 0);
-+	error =3D goodix_irq_direction_output(ts, 0);
- 	if (error)
- 		return error;
-=20
- 	msleep(50);				/* T5: 50ms */
-=20
--	error =3D gpiod_direction_input(ts->gpiod_int);
-+	error =3D goodix_irq_direction_input(ts);
- 	if (error)
- 		return error;
-=20
-@@ -536,7 +573,7 @@ static int goodix_reset(struct goodix_ts_data *ts)
- 	msleep(20);				/* T2: > 10ms */
-=20
- 	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
--	error =3D gpiod_direction_output(ts->gpiod_int, ts->client->addr =3D=3D=
- 0x14);
-+	error =3D goodix_irq_direction_output(ts, ts->client->addr =3D=3D 0x14)=
-;
- 	if (error)
- 		return error;
-=20
-@@ -617,6 +654,9 @@ static int goodix_get_gpio_config(struct goodix_ts_da=
+@@ -656,6 +657,7 @@ static int goodix_get_gpio_config(struct goodix_ts_da=
 ta *ts)
-=20
  	ts->gpiod_rst =3D gpiod;
 =20
-+	if (ts->gpiod_int && ts->gpiod_rst)
-+		ts->irq_pin_access_method =3D irq_pin_access_gpio;
-+
- 	return 0;
- }
-=20
-@@ -889,7 +929,7 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 	if (ts->gpiod_int && ts->gpiod_rst) {
++		ts->reset_controller_at_probe =3D true;
+ 		ts->load_cfg_from_disk =3D true;
+ 		ts->irq_pin_access_method =3D irq_pin_access_gpio;
+ 	}
+@@ -932,7 +934,7 @@ static int goodix_ts_probe(struct i2c_client *client,
  	if (error)
  		return error;
 =20
--	if (ts->gpiod_int && ts->gpiod_rst) {
-+	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio) {
+-	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio) {
++	if (ts->reset_controller_at_probe) {
  		/* reset the controller */
  		error =3D goodix_reset(ts);
  		if (error) {
-@@ -912,7 +952,7 @@ static int goodix_ts_probe(struct i2c_client *client,
-=20
- 	ts->chip =3D goodix_get_chip_data(ts->id);
-=20
--	if (ts->gpiod_int && ts->gpiod_rst) {
-+	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio) {
- 		/* update device config */
- 		ts->cfg_name =3D devm_kasprintf(&client->dev, GFP_KERNEL,
- 					      "goodix_%d_cfg.bin", ts->id);
-@@ -943,7 +983,7 @@ static int goodix_ts_remove(struct i2c_client *client=
-)
- {
- 	struct goodix_ts_data *ts =3D i2c_get_clientdata(client);
-=20
--	if (ts->gpiod_int && ts->gpiod_rst)
-+	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio)
- 		wait_for_completion(&ts->firmware_loading_complete);
-=20
- 	return 0;
-@@ -956,7 +996,7 @@ static int __maybe_unused goodix_suspend(struct devic=
-e *dev)
- 	int error;
-=20
- 	/* We need gpio pins to suspend/resume */
--	if (!ts->gpiod_int || !ts->gpiod_rst) {
-+	if (ts->irq_pin_access_method =3D=3D irq_pin_access_none) {
- 		disable_irq(client->irq);
- 		return 0;
- 	}
-@@ -967,7 +1007,7 @@ static int __maybe_unused goodix_suspend(struct devi=
-ce *dev)
- 	goodix_free_irq(ts);
-=20
- 	/* Output LOW on the INT pin for 5 ms */
--	error =3D gpiod_direction_output(ts->gpiod_int, 0);
-+	error =3D goodix_irq_direction_output(ts, 0);
- 	if (error) {
- 		goodix_request_irq(ts);
- 		return error;
-@@ -979,7 +1019,7 @@ static int __maybe_unused goodix_suspend(struct devi=
-ce *dev)
- 				    GOODIX_CMD_SCREEN_OFF);
- 	if (error) {
- 		dev_err(&ts->client->dev, "Screen off command failed\n");
--		gpiod_direction_input(ts->gpiod_int);
-+		goodix_irq_direction_input(ts);
- 		goodix_request_irq(ts);
- 		return -EAGAIN;
- 	}
-@@ -999,7 +1039,7 @@ static int __maybe_unused goodix_resume(struct devic=
-e *dev)
- 	struct goodix_ts_data *ts =3D i2c_get_clientdata(client);
- 	int error;
-=20
--	if (!ts->gpiod_int || !ts->gpiod_rst) {
-+	if (ts->irq_pin_access_method =3D=3D irq_pin_access_none) {
- 		enable_irq(client->irq);
- 		return 0;
- 	}
-@@ -1008,7 +1048,7 @@ static int __maybe_unused goodix_resume(struct devi=
-ce *dev)
- 	 * Exit sleep mode by outputting HIGH level to INT pin
- 	 * for 2ms~5ms.
- 	 */
--	error =3D gpiod_direction_output(ts->gpiod_int, 1);
-+	error =3D goodix_irq_direction_output(ts, 1);
- 	if (error)
- 		return error;
-=20
 --=20
 2.24.1
 

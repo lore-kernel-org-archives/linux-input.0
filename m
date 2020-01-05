@@ -1,82 +1,91 @@
-Return-Path: <SRS0=XWK6=2Y=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=M6O5=22=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA3CC2D0C2
-	for <linux-input@archiver.kernel.org>; Fri,  3 Jan 2020 13:12:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2BB8C3F68F
+	for <linux-input@archiver.kernel.org>; Sun,  5 Jan 2020 00:10:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0685020866
-	for <linux-input@archiver.kernel.org>; Fri,  3 Jan 2020 13:12:39 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="DGJ6nh5/"
+	by mail.kernel.org (Postfix) with ESMTP id B85762465A
+	for <linux-input@archiver.kernel.org>; Sun,  5 Jan 2020 00:10:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727723AbgACNMh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 3 Jan 2020 08:12:37 -0500
-Received: from mail-io1-f67.google.com ([209.85.166.67]:33324 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727494AbgACNMg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Jan 2020 08:12:36 -0500
-Received: by mail-io1-f67.google.com with SMTP id z8so41279415ioh.0
-        for <linux-input@vger.kernel.org>; Fri, 03 Jan 2020 05:12:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=30zoyA7P6Tv3skAoDZoq8xqN4o9iJa06FRbHK1Zh9ic=;
-        b=DGJ6nh5/nf7PcSoztvP4CVhpVQb7hNYvrQZBRxdCB0AWSALZd+/ICTmeUaMSEb+yrw
-         Vk/Z++sUZ2Nl+tDAzXYkqp4NODzCrJMqRgzsF7E3bjIgWWuocMtRfq7Ws8OeQyYooSYr
-         goKkBVmJ+9WmO6Ov1n9/B12T2lXGA6u5bIr4BkTAa96IbfFQDh5r2IPMTbRXn/Ki5u6d
-         vaZbt0Mmf18I3EafvXixEkiHZPCBo5yQrDJAlW+6CRo8S2zEyBcnErKwu8Fc0ATF8i5P
-         jrH/hOVgna0BxsKEzxc1IZfv4/MwyO1Cc2/WAmtbYcCC+DuDDiv3BNltFmVHqAxy7ubB
-         f4Ag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=30zoyA7P6Tv3skAoDZoq8xqN4o9iJa06FRbHK1Zh9ic=;
-        b=PhlyCYjU9DlBHjX/1MVqtmTAid2zyKoan8SdDUMqoHGyqQUgwsJu5BBPxtJIvlBs8l
-         Ssk0bqC8Q92ArtwpoSblLjrq6PbgmSquxZiLxK4igVpepHG/DlN/XpXwAgsFxDPzJhzx
-         FzqRUXNABKuBm4gkggJWCZI6UsbByDvb1BLgfhEXg33r9S5I3aZc9OEuKklmihdKExJC
-         JutH/H2maVGQnCi4zWaLUWZsGhKDpDqNPcL15nJl9vLrkCV4hm3mHuEUygB1k7Ev3VCQ
-         iyESSemvauzxo6Mw6s+7cJi8zdfZJs3aJ1gPa4dexzvbPiew9Sj5l6j0zNFpa7+GrNH5
-         YngA==
-X-Gm-Message-State: APjAAAXwya2G7M4+0xBDT0h/5aHhbGZ5iKcb27FfCrz0/ljJ7yMagQ+J
-        rDQLA+HrMe91XtsGSncn+ON0QOxPoHdBNWcv0gJfUA==
-X-Google-Smtp-Source: APXvYqy0pZUNAtl/Nu2tduflgj0dhUAGTOGl95cPZjOxBUjRtKp24RYctuGBbX6S2rM2LVnts2snudB1ZdXB3M5WsM0=
-X-Received: by 2002:a05:6602:2352:: with SMTP id r18mr50032452iot.220.1578057155997;
- Fri, 03 Jan 2020 05:12:35 -0800 (PST)
+        id S1726260AbgAEAKj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 4 Jan 2020 19:10:39 -0500
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:37699 "EHLO
+        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726191AbgAEAKj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2020 19:10:39 -0500
+X-Originating-IP: 195.189.32.242
+Received: from pc.localdomain (unknown [195.189.32.242])
+        (Authenticated sender: contact@artur-rojek.eu)
+        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 71EC31C0004;
+        Sun,  5 Jan 2020 00:10:35 +0000 (UTC)
+From:   Artur Rojek <contact@artur-rojek.eu>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Paul Cercueil <paul@crapouillou.net>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Artur Rojek <contact@artur-rojek.eu>
+Subject: [PATCH 1/5] IIO: Ingenic JZ47xx: Add xlate cb to retrieve correct channel idx
+Date:   Sun,  5 Jan 2020 01:16:35 +0100
+Message-Id: <20200105001639.142061-1-contact@artur-rojek.eu>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-References: <20191210100753.11090-1-brgl@bgdev.pl>
-In-Reply-To: <20191210100753.11090-1-brgl@bgdev.pl>
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-Date:   Fri, 3 Jan 2020 14:12:25 +0100
-Message-ID: <CAMRc=MfZmMV58kYD=bhuUCY0n3eb5iVy1kY=6NJsx6guagCd=Q@mail.gmail.com>
-Subject: Re: [PATCH] input: max77650-onkey: add of_match table
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Input <linux-input@vger.kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-wt., 10 gru 2019 o 11:08 Bartosz Golaszewski <brgl@bgdev.pl> napisa=C5=82(a=
-):
->
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->
-> We need the of_match table if we want to use the compatible string in
-> the pmic's child node and get the onkey driver loaded automatically.
->
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Provide an of_xlate callback in order to retrieve the correct channel
+specifier index from the IIO channels array.
 
-Gentle ping.
+Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
+Tested-by: Paul Cercueil <paul@crapouillou.net>
+---
+ drivers/iio/adc/ingenic-adc.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-Bart
+diff --git a/drivers/iio/adc/ingenic-adc.c b/drivers/iio/adc/ingenic-adc.c
+index 39c0a609fc94..7a24bc1dabe1 100644
+--- a/drivers/iio/adc/ingenic-adc.c
++++ b/drivers/iio/adc/ingenic-adc.c
+@@ -383,6 +383,21 @@ static int ingenic_adc_read_raw(struct iio_dev *iio_dev,
+ 	}
+ }
+ 
++static int ingenic_adc_of_xlate(struct iio_dev *iio_dev,
++				const struct of_phandle_args *iiospec)
++{
++	int i;
++
++	if (!iiospec->args_count)
++		return -EINVAL;
++
++	for (i = 0; i < iio_dev->num_channels; ++i)
++		if (iio_dev->channels[i].channel == iiospec->args[0])
++			return i;
++
++	return -EINVAL;
++}
++
+ static void ingenic_adc_clk_cleanup(void *data)
+ {
+ 	clk_unprepare(data);
+@@ -392,6 +407,7 @@ static const struct iio_info ingenic_adc_info = {
+ 	.write_raw = ingenic_adc_write_raw,
+ 	.read_raw = ingenic_adc_read_raw,
+ 	.read_avail = ingenic_adc_read_avail,
++	.of_xlate = ingenic_adc_of_xlate,
+ };
+ 
+ static const struct iio_chan_spec ingenic_channels[] = {
+-- 
+2.24.1
+

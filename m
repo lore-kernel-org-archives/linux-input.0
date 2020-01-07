@@ -2,225 +2,165 @@ Return-Path: <SRS0=I0bg=24=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CD86C33C9B
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jan 2020 17:17:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5CE7C33C8C
+	for <linux-input@archiver.kernel.org>; Tue,  7 Jan 2020 17:48:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1BE8D2073D
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jan 2020 17:17:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BBB3D24677
+	for <linux-input@archiver.kernel.org>; Tue,  7 Jan 2020 17:48:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1578419280;
+	bh=kTXZQjN173fCqmgTGewLyg98W69N0GpFT+kNBfLzEDI=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=g4EZ2GLIJ6HLKgpG95wV0RVzbADNfRtz4G95nCSrOrnG2sYKwKEsC6Z+fkOUMR784
+	 H/F7WSu5PmROuGt1otoD+OcCd4PcB8dpfDKLYV6Sokb22BL0LA964S9cmio+5SP5c7
+	 h9vUnId2JdtFqhqVxs0nKcyb1gZ3aNFiMLSm7Uwc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728348AbgAGRRn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Jan 2020 12:17:43 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:56001 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728262AbgAGRRn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Jan 2020 12:17:43 -0500
-Received: from dude02.hi.pengutronix.de ([2001:67c:670:100:1d::28] helo=dude02.pengutronix.de.)
-        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <l.stach@pengutronix.de>)
-        id 1iosU9-00057y-Bl; Tue, 07 Jan 2020 18:17:41 +0100
-From:   Lucas Stach <l.stach@pengutronix.de>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, patchwork-lst@pengutronix.de,
-        kernel@pengutronix.de, Chris Healy <cphealy@gmail.com>
-Subject: [PATCH 2/4] Input: exc3000: query and show type, model and firmware revision info
-Date:   Tue,  7 Jan 2020 18:17:38 +0100
-Message-Id: <20200107171741.10856-2-l.stach@pengutronix.de>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200107171741.10856-1-l.stach@pengutronix.de>
-References: <20200107171741.10856-1-l.stach@pengutronix.de>
+        id S1728266AbgAGRsA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Jan 2020 12:48:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40514 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728211AbgAGRsA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 7 Jan 2020 12:48:00 -0500
+Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8CD42087F;
+        Tue,  7 Jan 2020 17:47:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1578419278;
+        bh=kTXZQjN173fCqmgTGewLyg98W69N0GpFT+kNBfLzEDI=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=HR3USh9sYG0VnEHrfsPVmJUywzTogMyMYEoiNpLU76gdgueuJ+hqo4f+x0mdgy3ez
+         a955S7kulz4m4Aw8Cz8VcHYLtd0Y+CG7ab1Eo59tMeOLC1h8hYoPndsAytRDkOYrwG
+         l6KSatU+wBe8syQ3hDKKaOYpHyelebkEduEGuKo4=
+Received: by mail-qv1-f47.google.com with SMTP id z3so239583qvn.0;
+        Tue, 07 Jan 2020 09:47:58 -0800 (PST)
+X-Gm-Message-State: APjAAAVCPKd0dHXDscERiZkbv9AS3Wcn/3TQDxN31a7UakC2nYQN6HiG
+        PGm11aPYg8P1YqrfM1U2xxj0S1UOM7vQegqFWg==
+X-Google-Smtp-Source: APXvYqy2gvndoftu+Svzdtgi4ocpDnEG+xgfxqRliZPMO1eJIZNuzlk7B27b+jq5NQ2EWa4xSJ8ybWKNGOelefYwehQ=
+X-Received: by 2002:a0c:f68f:: with SMTP id p15mr518790qvn.79.1578419277767;
+ Tue, 07 Jan 2020 09:47:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::28
-X-SA-Exim-Mail-From: l.stach@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+References: <20200107130903.14421-1-benjamin.gaignard@st.com> <20200107130903.14421-2-benjamin.gaignard@st.com>
+In-Reply-To: <20200107130903.14421-2-benjamin.gaignard@st.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Tue, 7 Jan 2020 11:47:46 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqKDqea2r-ocsj4U6Uv8p4zoANzWgq6a49F3EvBEeRqD0w@mail.gmail.com>
+Message-ID: <CAL_JsqKDqea2r-ocsj4U6Uv8p4zoANzWgq6a49F3EvBEeRqD0w@mail.gmail.com>
+Subject: Re: [PATCH 1/2] dt-bindings: touchscreen: Add touchscreen schema
+To:     Benjamin Gaignard <benjamin.gaignard@st.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Linux Input <linux-input@vger.kernel.org>,
+        devicetree@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Yannick Fertre <yannick.fertre@st.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-It's very useful to have this information in the log, as differences in
-behavior can be tied to the controller firmware.
+On Tue, Jan 7, 2020 at 7:09 AM Benjamin Gaignard
+<benjamin.gaignard@st.com> wrote:
+>
+> Add touchscreen schema for common properties
+>
+> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
+> ---
+>  .../bindings/input/touchscreen/touchscreen.yaml    | 63 ++++++++++++++++++++++
+>  1 file changed, 63 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
----
- drivers/input/touchscreen/exc3000.c | 116 ++++++++++++++++++++++++++--
- 1 file changed, 110 insertions(+), 6 deletions(-)
+Don't just add schema. Remove the old definitions. To avoid updating a
+bunch of references to touchscreen.txt, I just put a 'see
+touchscreen.yaml' in it.
 
-diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
-index 3458d02310dd..accee4fd1b97 100644
---- a/drivers/input/touchscreen/exc3000.c
-+++ b/drivers/input/touchscreen/exc3000.c
-@@ -22,7 +22,9 @@
- #define EXC3000_NUM_SLOTS		10
- #define EXC3000_SLOTS_PER_FRAME		5
- #define EXC3000_LEN_FRAME		66
-+#define EXC3000_LEN_VENDOR_REQUEST	68
- #define EXC3000_LEN_POINT		10
-+#define EXC3000_VENDOR_EVENT		3
- #define EXC3000_MT_EVENT		6
- #define EXC3000_TIMEOUT_MS		100
- 
-@@ -32,6 +34,9 @@ struct exc3000_data {
- 	struct touchscreen_properties prop;
- 	struct timer_list timer;
- 	u8 buf[2 * EXC3000_LEN_FRAME];
-+	struct mutex vendor_data_lock;
-+	struct completion vendor_data_done;
-+	char *type, *model, *fw_rev;
- };
- 
- static void exc3000_report_slots(struct input_dev *input,
-@@ -136,6 +141,13 @@ static int exc3000_handle_mt_event(struct exc3000_data *data)
- 	return ret;
- }
- 
-+static int exc3000_handle_vendor_event(struct exc3000_data *data)
-+{
-+	complete(&data->vendor_data_done);
-+
-+	return 0;
-+}
-+
- static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
- {
- 	struct exc3000_data *data = dev_id;
-@@ -153,6 +165,9 @@ static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
- 		case EXC3000_MT_EVENT:
- 			exc3000_handle_mt_event(data);
- 			break;
-+		case EXC3000_VENDOR_EVENT:
-+			exc3000_handle_vendor_event(data);
-+			break;
- 		default:
- 			break;
- 	}
-@@ -161,6 +176,89 @@ static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+static int exc3000_vendor_data_request(struct exc3000_data *data, u8 *request,
-+				       u8 request_len, u8 *response)
-+{
-+	u8 buf[EXC3000_LEN_VENDOR_REQUEST] = { 0x67, 0x00, 0x42, 0x00, 0x03 };
-+	int ret;
-+
-+	mutex_lock(&data->vendor_data_lock);
-+
-+	reinit_completion(&data->vendor_data_done);
-+
-+	buf[5] = request_len;
-+	memcpy(&buf[6], request, request_len);
-+
-+	ret = i2c_master_send(data->client, buf, EXC3000_LEN_VENDOR_REQUEST);
-+	if (ret < 0)
-+		goto out_unlock;
-+
-+	if (response) {
-+		wait_for_completion(&data->vendor_data_done);
-+		memcpy(response, &data->buf[4], data->buf[3]);
-+		ret = data->buf[3];
-+	}
-+
-+out_unlock:
-+	mutex_unlock(&data->vendor_data_lock);
-+
-+	return ret;
-+}
-+static int exc3000_populate_device_info(struct exc3000_data *data)
-+{
-+	struct device *dev = &data->client->dev;
-+	u8 response[EXC3000_LEN_FRAME];
-+	int ret;
-+
-+	/* query type info */
-+	ret = exc3000_vendor_data_request(data, (u8[]){0x46}, 1, response);
-+	if (ret < 0)
-+		return -ENODEV;
-+
-+	data->type = devm_kmemdup(dev, &response[1], ret - 1, GFP_KERNEL);
-+
-+	/* query model info */
-+	ret = exc3000_vendor_data_request(data, (u8[]){0x45}, 1, response);
-+	if (ret < 0)
-+		return -ENODEV;
-+
-+	data->model = devm_kmemdup(dev, &response[1], ret - 1, GFP_KERNEL);
-+
-+	/* query bootloader info */
-+	ret = exc3000_vendor_data_request(data,
-+					  (u8[]){0x39, 0x02}, 2, response);
-+	if (ret < 0)
-+		return -ENODEV;
-+
-+	/*
-+	 * If the bootloader version is non-zero then the device is in
-+	 * bootloader mode and won't answer a query for the application FW
-+	 * version, so we just use the bootloader version info.
-+	 */
-+	if (response[2] || response[3]) {
-+		char bl_version[8];
-+
-+		snprintf(bl_version, 8, "%d.%d", response[2], response[3]);
-+		data->fw_rev = devm_kmemdup(dev, bl_version,
-+					    strlen(bl_version), GFP_KERNEL);
-+	} else {
-+		/* query application firmware version */
-+		ret = exc3000_vendor_data_request(data,
-+						  (u8[]){0x44}, 1, response);
-+		if (ret < 0)
-+			return -ENODEV;
-+
-+		data->fw_rev = devm_kmemdup(dev, &response[1],
-+					    ret - 1, GFP_KERNEL);
-+	}
-+
-+	dev_info(&data->client->dev,
-+		 "found type %s, model %s, firmware revision %s",
-+		 data->type, data->model, data->fw_rev);
-+
-+	return 0;
-+}
-+
- static int exc3000_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
-@@ -174,6 +272,18 @@ static int exc3000_probe(struct i2c_client *client,
- 
- 	data->client = client;
- 	timer_setup(&data->timer, exc3000_timer, 0);
-+	mutex_init(&data->vendor_data_lock);
-+	init_completion(&data->vendor_data_done);
-+
-+	error = devm_request_threaded_irq(&client->dev, client->irq,
-+					  NULL, exc3000_interrupt, IRQF_ONESHOT,
-+					  client->name, data);
-+	if (error)
-+		return error;
-+
-+	error = exc3000_populate_device_info(data);
-+	if (error)
-+		return error;
- 
- 	input = devm_input_allocate_device(&client->dev);
- 	if (!input)
-@@ -197,12 +307,6 @@ static int exc3000_probe(struct i2c_client *client,
- 	if (error)
- 		return error;
- 
--	error = devm_request_threaded_irq(&client->dev, client->irq,
--					  NULL, exc3000_interrupt, IRQF_ONESHOT,
--					  client->name, data);
--	if (error)
--		return error;
--
- 	return 0;
- }
- 
--- 
-2.20.1
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> new file mode 100644
+> index 000000000000..f6e7c73ef14e
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> @@ -0,0 +1,63 @@
+> +# SPDX-License-Identifier: GPL-2.0
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/input/touchscreen/touchscreen.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Common touchscreen Bindings
+> +
+> +maintainers:
+> +  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> +
+> +properties:
+> +  touchscreen-min-x:
+> +    description: minimum x coordinate reported (0 if not set)
 
+You need a type reference on a bunch of these. And "(0 if not set)"
+sounds like a 'default' constraint.
+
+> +
+> +  touchscreen-min-y:
+> +    description: minimum y coordinate reported (0 if not set)
+> +
+> +  touchscreen-size-x:
+> +    description: horizontal resolution of touchscreen (maximum x coordinate reported + 1)
+> +
+> +  touchscreen-size-y:
+> +    description: vertical resolution of touchscreen (maximum y coordinate reported + 1)
+
+I don't think it makes sense if both of these aren't present, so you need:
+
+dependencies:
+  touchscreen-size-x: [ touchscreen-size-y ]
+  touchscreen-size-y: [ touchscreen-size-x ]
+
+> +
+> +  touchscreen-max-pressure:
+> +    description: maximum reported pressure (arbitrary range dependent on the controller)
+> +
+> +  touchscreen-min-pressure:
+> +    description: minimum pressure on the touchscreen to be achieved in order for the
+> +                 touchscreen driver to report a touch event.
+> +
+> +  touchscreen-fuzz-x:
+> +    description: horizontal noise value of the absolute input device (in pixels)
+> +
+> +  touchscreen-fuzz-y:
+> +    description: vertical noise value of the absolute input device (in pixels)
+> +
+> +  touchscreen-fuzz-pressure:
+> +    description: pressure noise value of the absolute input device (arbitrary range
+> +                 dependent on the controller)
+> +
+> +  touchscreen-average-samples:
+> +    description: Number of data samples which are averaged for each read (valid values
+> +                 dependent on the controller)
+> +
+> +  touchscreen-inverted-x:
+> +    description: X axis is inverted (boolean)
+> +    type: boolean
+> +
+> +  touchscreen-inverted-y:
+> +    description: Y axis is inverted (boolean)
+> +    type: boolean
+> +
+> +  touchscreen-swapped-x-y:
+> +    description: X and Y axis are swapped (boolean)
+> +                 Swapping is done after inverting the axis
+> +    type: boolean
+> +
+> +  touchscreen-x-mm:
+> +    description: horizontal length in mm of the touchscreen
+> +
+> +  touchscreen-y-mm:
+> +    description: vertical length in mm of the touchscreen
+
+Same dependencies here.
+
+Rob

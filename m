@@ -2,96 +2,216 @@ Return-Path: <SRS0=I0bg=24=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD84BC33C8C
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jan 2020 12:03:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 616CAC33C8C
+	for <linux-input@archiver.kernel.org>; Tue,  7 Jan 2020 13:09:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 958972080A
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jan 2020 12:03:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3445C2087F
+	for <linux-input@archiver.kernel.org>; Tue,  7 Jan 2020 13:09:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=onstation.org header.i=@onstation.org header.b="GA0fdnhn"
+	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="gMQSYVxk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727834AbgAGMDT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Jan 2020 07:03:19 -0500
-Received: from onstation.org ([52.200.56.107]:59186 "EHLO onstation.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726690AbgAGMDT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 7 Jan 2020 07:03:19 -0500
-Received: from localhost (c-98-239-145-235.hsd1.wv.comcast.net [98.239.145.235])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: masneyb)
-        by onstation.org (Postfix) with ESMTPSA id C829B3EE6F;
-        Tue,  7 Jan 2020 12:03:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=onstation.org;
-        s=default; t=1578398598;
-        bh=G1NgPRmqbaXrZt93MHof7xiFvsWe6mnmfknmDsCSABw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GA0fdnhnOSDm5j34rjSDsYJaMexcgJedMapRAkvYbkjiOTfLhhDYqXNnvO57AAsK1
-         kDxUvPA5pzm4TWkzT+gSXhXnYN7pB+YqvFyQvCrwhdx59Vi9S1z2O4Pnc+JBa1MprS
-         bu2enSjcwniB+kfLJFfY8gNVtjf6Ew9/NeesMMq0=
-Date:   Tue, 7 Jan 2020 07:03:17 -0500
-From:   Brian Masney <masneyb@onstation.org>
-To:     Stephen Boyd <sboyd@kernel.org>
-Cc:     dmitry.torokhov@gmail.com, robh+dt@kernel.org,
-        mark.rutland@arm.com, agross@kernel.org,
-        bjorn.andersson@linaro.org, mturquette@baylibre.com,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: Re: [PATCH 4/7] dt-bindings: Input: introduce new clock vibrator
- bindings
-Message-ID: <20200107120317.GB8083@onstation.org>
-References: <20191205002503.13088-1-masneyb@onstation.org>
- <20191205002503.13088-5-masneyb@onstation.org>
- <20200105083534.01EB12071A@mail.kernel.org>
+        id S1728117AbgAGNJS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Jan 2020 08:09:18 -0500
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:22522 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728060AbgAGNJM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 7 Jan 2020 08:09:12 -0500
+Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
+        by mx08-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 007D3eN4013503;
+        Tue, 7 Jan 2020 14:09:07 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=STMicroelectronics;
+ bh=HLx9i+/0RPKX4a7BkgUwWOWfGGEAfQSWOkgkflG2r0M=;
+ b=gMQSYVxksKZfuCBlyHU2XMPwd09renYbNWAi0ymzPCaIMToquL5BV9ENr7NriH7OPCDi
+ aOu+M3T0XNi0o/pTiS41LdHLlaX64Jq1v1z8RV/kRJojjvK4Kz6zW3HcMcebVwU9gr9G
+ 29R1mfGhkChS7P9xC1w29zrfSu+xof3b8egpF5eGLNy4og1iW7+/pj1gT3NzH4aC65bU
+ m6HHqa9W/6KnP6jia6Pobycw/O/X/Evi8X3wMroeb0PPzKLD/KGeQbWb1D65MZfSXeKO
+ zkHaemXx9tKtT19QRXtCjHQIMQebty2r5dB5hIdy2TyieHNNMJNA9qNnV/iDM44bV82o 9w== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx08-00178001.pphosted.com with ESMTP id 2xakkape5v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 07 Jan 2020 14:09:07 +0100
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id CB9E110002A;
+        Tue,  7 Jan 2020 14:09:06 +0100 (CET)
+Received: from Webmail-eu.st.com (sfhdag3node3.st.com [10.75.127.9])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id C016A2AD9ED;
+        Tue,  7 Jan 2020 14:09:06 +0100 (CET)
+Received: from localhost (10.75.127.49) by SFHDAG3NODE3.st.com (10.75.127.9)
+ with Microsoft SMTP Server (TLS) id 15.0.1347.2; Tue, 7 Jan 2020 14:09:06
+ +0100
+From:   Benjamin Gaignard <benjamin.gaignard@st.com>
+To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
+        <mark.rutland@arm.com>
+CC:     <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <yannick.fertre@st.com>,
+        Benjamin Gaignard <benjamin.gaignard@st.com>
+Subject: [PATCH 2/2] dt-bindings: touchscreen: Convert Goodix touchscreen to json-schema
+Date:   Tue, 7 Jan 2020 14:09:03 +0100
+Message-ID: <20200107130903.14421-3-benjamin.gaignard@st.com>
+X-Mailer: git-send-email 2.15.0
+In-Reply-To: <20200107130903.14421-1-benjamin.gaignard@st.com>
+References: <20200107130903.14421-1-benjamin.gaignard@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200105083534.01EB12071A@mail.kernel.org>
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.49]
+X-ClientProxiedBy: SFHDAG8NODE1.st.com (10.75.127.22) To SFHDAG3NODE3.st.com
+ (10.75.127.9)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
+ definitions=2020-01-07_03:2020-01-06,2020-01-07 signatures=0
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Jan 05, 2020 at 12:35:33AM -0800, Stephen Boyd wrote:
-> Quoting Brian Masney (2019-12-04 16:25:00)
-> > +examples:
-> > +  - |
-> > +    #include <dt-bindings/clock/qcom,mmcc-msm8974.h>
-> > +    #include <dt-bindings/gpio/gpio.h>
-> > +
-> > +    vibrator {
-> > +        compatible = "clk-vibrator";
-> > +
-> > +        vcc-supply = <&pm8941_l19>;
-> > +
-> > +        clocks = <&mmcc CAMSS_GP1_CLK>;
-> > +        clock-names = "core";
-> > +        clock-frequency = <24000>;
-> > +
-> > +        enable-gpios = <&msmgpio 60 GPIO_ACTIVE_HIGH>;
-> > +
-> > +        pinctrl-names = "default";
-> > +        pinctrl-0 = <&vibrator_pin>;
-> 
-> I'm still trying to wrap my head around this. I think we can have a pwm
-> provider in a clk controller node (so imagine &mmcc has #pwm-cells) and
-> then this 'clk-vibrator' binding wouldn't exist? Instead we would have
-> some sort of binding for a device that expects a pwm and whatever else
-> is required, like the enable gpio and power supply. Is there an actual
-> hardware block that is this way? Does it have a real product id and is
-> made by some company? Right now this looks a little too generic to not
-> just be a catch-all for something that buzzes.
+Convert the Goodix binding to DT schema format using json-schema
 
-So have some of the Qualcomm clocks like this one register with both the
-clk and the pwm frameworks? I feel that approach would better represent
-the hardware in device tree.
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
+---
+ .../bindings/input/touchscreen/goodix.txt          | 50 ----------------
+ .../bindings/input/touchscreen/goodix.yaml         | 69 ++++++++++++++++++++++
+ 2 files changed, 69 insertions(+), 50 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
 
-If we did that, then the pwm-vibra driver in the input subsystem could
-be used.
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+deleted file mode 100644
+index fc03ea4cf5ab..000000000000
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
++++ /dev/null
+@@ -1,50 +0,0 @@
+-Device tree bindings for Goodix GT9xx series touchscreen controller
+-
+-Required properties:
+-
+- - compatible		: Should be "goodix,gt1151"
+-				 or "goodix,gt5663"
+-				 or "goodix,gt5688"
+-				 or "goodix,gt911"
+-				 or "goodix,gt9110"
+-				 or "goodix,gt912"
+-				 or "goodix,gt927"
+-				 or "goodix,gt9271"
+-				 or "goodix,gt928"
+-				 or "goodix,gt967"
+- - reg			: I2C address of the chip. Should be 0x5d or 0x14
+- - interrupts		: Interrupt to which the chip is connected
+-
+-Optional properties:
+-
+- - irq-gpios		: GPIO pin used for IRQ. The driver uses the
+-			  interrupt gpio pin as output to reset the device.
+- - reset-gpios		: GPIO pin used for reset
+- - AVDD28-supply	: Analog power supply regulator on AVDD28 pin
+- - VDDIO-supply		: GPIO power supply regulator on VDDIO pin
+- - touchscreen-inverted-x
+- - touchscreen-inverted-y
+- - touchscreen-size-x
+- - touchscreen-size-y
+- - touchscreen-swapped-x-y
+-
+-The touchscreen-* properties are documented in touchscreen.txt in this
+-directory.
+-
+-Example:
+-
+-	i2c@00000000 {
+-		/* ... */
+-
+-		gt928@5d {
+-			compatible = "goodix,gt928";
+-			reg = <0x5d>;
+-			interrupt-parent = <&gpio>;
+-			interrupts = <0 0>;
+-
+-			irq-gpios = <&gpio1 0 0>;
+-			reset-gpios = <&gpio1 1 0>;
+-		};
+-
+-		/* ... */
+-	};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
+new file mode 100644
+index 000000000000..05b52d359ac5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
+@@ -0,0 +1,69 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/goodix.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Goodix GT9xx series touchscreen controller Bindings
++
++maintainers:
++  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    enum:
++      - goodix,gt1151
++      - goodix,gt5663
++      - goodix,gt5688
++      - goodix,gt911
++      - goodix,gt9110
++      - goodix,gt912
++      - goodix,gt927
++      - goodix,gt9271
++      - goodix,gt928
++      - goodix,gt967
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  irq-gpios:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  AVDD28-supply:
++    description: Analog power supply regulator on AVDD28 pin
++
++  VDDIO-supply:
++    description: GPIO power supply regulator on VDDIO pin
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++examples:
++- |
++    i2c@00000000 {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      gt928@5d {
++        compatible = "goodix,gt928";
++        reg = <0x5d>;
++        interrupt-parent = <&gpio>;
++        interrupts = <0 0>;
++        irq-gpios = <&gpio1 0 0>;
++        reset-gpios = <&gpio1 1 0>;
++      };
++    };
++
++...
+-- 
+2.15.0
 
-Brian

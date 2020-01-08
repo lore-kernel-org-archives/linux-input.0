@@ -2,31 +2,30 @@ Return-Path: <SRS0=5Ffx=25=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.8 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58AAFC33CA6
-	for <linux-input@archiver.kernel.org>; Wed,  8 Jan 2020 11:11:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC664C00523
+	for <linux-input@archiver.kernel.org>; Wed,  8 Jan 2020 11:11:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 33BB52073A
-	for <linux-input@archiver.kernel.org>; Wed,  8 Jan 2020 11:11:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 76DA62072A
+	for <linux-input@archiver.kernel.org>; Wed,  8 Jan 2020 11:11:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727610AbgAHLLE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1727156AbgAHLLE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 8 Jan 2020 06:11:04 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:49253 "EHLO
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:50507 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727490AbgAHLLD (ORCPT
+        with ESMTP id S1727158AbgAHLLD (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2020 06:11:03 -0500
 Received: from dude02.hi.pengutronix.de ([2001:67c:670:100:1d::28] helo=dude02.lab.pengutronix.de)
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <mfe@pengutronix.de>)
-        id 1ip9Ei-0003V1-Tq; Wed, 08 Jan 2020 12:10:52 +0100
+        id 1ip9Ei-0003Uz-Tr; Wed, 08 Jan 2020 12:10:52 +0100
 Received: from mfe by dude02.lab.pengutronix.de with local (Exim 4.92)
         (envelope-from <mfe@pengutronix.de>)
-        id 1ip9Eh-0005Ti-8m; Wed, 08 Jan 2020 12:10:51 +0100
+        id 1ip9Eh-0005Ta-7l; Wed, 08 Jan 2020 12:10:51 +0100
 From:   Marco Felsch <m.felsch@pengutronix.de>
 To:     robh+dt@kernel.org, andriy.shevchenko@linux.intel.com,
         dmitry.torokhov@gmail.com, bparrot@ti.com,
@@ -35,9 +34,9 @@ To:     robh+dt@kernel.org, andriy.shevchenko@linux.intel.com,
         alexandre.belloni@bootlin.com, shawnguo@kernel.org
 Cc:     devicetree@vger.kernel.org, kernel@pengutronix.de,
         linux-input@vger.kernel.org
-Subject: [PATCH v3 6/6] Input: edt-ft5x06 - improve power management operations
-Date:   Wed,  8 Jan 2020 12:10:50 +0100
-Message-Id: <20200108111050.19001-7-m.felsch@pengutronix.de>
+Subject: [PATCH v3 4/6] Input: edt-ft5x06 - make wakeup-source switchable
+Date:   Wed,  8 Jan 2020 12:10:48 +0100
+Message-Id: <20200108111050.19001-5-m.felsch@pengutronix.de>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200108111050.19001-1-m.felsch@pengutronix.de>
 References: <20200108111050.19001-1-m.felsch@pengutronix.de>
@@ -52,134 +51,43 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-It is possible to bring the device into a deep sleep state. To exit this
-state the reset or wakeup pin must be toggeled as documented in [1].
-Because of the poor documentation I used the several downstream kernels
-[2] and other applications notes [3] to indentify the related registers.
+Since day one the touch controller acts as wakeup-source. This seems to
+be wrong since the device supports deep-sleep mechanism [1] which
+requires a reset to leave it. Also some designs won't use the
+touchscreen as wakeup-source.
 
-Furthermore I added the support to disable the device completely. This is
-the most effective power-saving mechanism. Disabling the device don't
-change the suspend logic because the hibernate mode needs a hardware
-reset anyway.
+According discussion [2] we decided to break backward compatibility and
+go the common way by using the 'wakeup-source' device-property.
 
 [1] https://www.newhavendisplay.com/appnotes/datasheets/touchpanel/FT5x26.pdf
-[2] https://github.com/linux-sunxi/linux-sunxi/blob/sunxi-3.4/drivers/input/touchscreen/ft5x_ts.c
-    https://github.com/Pablito2020/focaltech-touch-driver/blob/master/ft5336_driver.c
-[3] https://www.newhavendisplay.com/appnotes/datasheets/touchpanel/FT5x16_registers.pdf
+[2] https://patchwork.kernel.org/patch/11149037/
 
 Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
 Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
 v3:
-- drop enable/disable_irq_wake()
+- make use of i2c-core wakeup-source handling
 
 v2:
+- make use of common wakeup-source property
 - adapt commit message
-- don't return errors during suspend/resume
-- replace dev_err() by dev_warn()
-- add support to disable the regulator too
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 65 ++++++++++++++++++++++++++
- 1 file changed, 65 insertions(+)
+ drivers/input/touchscreen/edt-ft5x06.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index d2587724c52a..4fd97758cbdd 100644
+index e1b31fd525e2..c781952c3409 100644
 --- a/drivers/input/touchscreen/edt-ft5x06.c
 +++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -38,6 +38,9 @@
- #define WORK_REGISTER_NUM_X		0x33
- #define WORK_REGISTER_NUM_Y		0x34
+@@ -1208,7 +1208,6 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 		return error;
  
-+#define PMOD_REGISTER_ACTIVE		0x00
-+#define PMOD_REGISTER_HIBERNATE		0x03
-+
- #define M09_REGISTER_THRESHOLD		0x80
- #define M09_REGISTER_GAIN		0x92
- #define M09_REGISTER_OFFSET		0x93
-@@ -53,6 +56,7 @@
+ 	edt_ft5x06_ts_prepare_debugfs(tsdata, dev_driver_string(&client->dev));
+-	device_init_wakeup(&client->dev, 1);
  
- #define WORK_REGISTER_OPMODE		0x3c
- #define FACTORY_REGISTER_OPMODE		0x01
-+#define PMOD_REGISTER_OPMODE		0xa5
- 
- #define TOUCH_EVENT_DOWN		0x00
- #define TOUCH_EVENT_UP			0x01
-@@ -1227,6 +1231,66 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
- 	return 0;
- }
- 
-+static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-+	int ret;
-+
-+	if (device_may_wakeup(dev))
-+		return 0;
-+
-+	/*
-+	 * Hibernate mode requires reset or wake signal to recover to active
-+	 * state.
-+	 */
-+	if (!tsdata->wake_gpio && !tsdata->reset_gpio)
-+		return 0;
-+
-+	ret = edt_ft5x06_register_write(tsdata, PMOD_REGISTER_OPMODE,
-+					PMOD_REGISTER_HIBERNATE);
-+	if (ret)
-+		dev_warn(dev, "Failed to set hibernate mode\n");
-+
-+	ret = regulator_disable(tsdata->vcc);
-+	if (ret)
-+		dev_warn(dev, "Failed to disable vcc\n");
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-+	int ret;
-+
-+	if (device_may_wakeup(dev))
-+		return 0;
-+
-+	ret = regulator_enable(tsdata->vcc);
-+	if (ret)
-+		dev_warn(dev, "Failed to enable vcc\n");
-+
-+	/* Recover from hibernate mode if hardware supports it */
-+	if (tsdata->wake_gpio) {
-+		gpiod_set_value_cansleep(tsdata->wake_gpio, 0);
-+		usleep_range(5000, 6000);
-+		gpiod_set_value_cansleep(tsdata->wake_gpio, 1);
-+		msleep(300);
-+	} else if (tsdata->reset_gpio) {
-+		gpiod_set_value_cansleep(tsdata->reset_gpio, 1);
-+		usleep_range(5000, 6000);
-+		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
-+		msleep(300);
-+	}
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
-+			 edt_ft5x06_ts_suspend, edt_ft5x06_ts_resume);
-+
- static const struct edt_i2c_chip_data edt_ft5x06_data = {
- 	.max_support_points = 5,
- };
-@@ -1265,6 +1329,7 @@ static struct i2c_driver edt_ft5x06_ts_driver = {
- 	.driver = {
- 		.name = "edt_ft5x06",
- 		.of_match_table = edt_ft5x06_of_match,
-+		.pm = &edt_ft5x06_ts_pm_ops,
- 	},
- 	.id_table = edt_ft5x06_ts_id,
- 	.probe    = edt_ft5x06_ts_probe,
+ 	dev_dbg(&client->dev,
+ 		"EDT FT5x06 initialized: IRQ %d, WAKE pin %d, Reset pin %d.\n",
 -- 
 2.20.1
 

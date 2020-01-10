@@ -2,154 +2,125 @@ Return-Path: <SRS0=gHlt=27=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29BFEC33CA5
-	for <linux-input@archiver.kernel.org>; Fri, 10 Jan 2020 16:34:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 614F8C282DD
+	for <linux-input@archiver.kernel.org>; Fri, 10 Jan 2020 18:28:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 00F9F205F4
-	for <linux-input@archiver.kernel.org>; Fri, 10 Jan 2020 16:34:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35A172080D
+	for <linux-input@archiver.kernel.org>; Fri, 10 Jan 2020 18:28:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=aosc.io header.i=@aosc.io header.b="n09rdI7u"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vq4SWeGE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728174AbgAJQej (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 10 Jan 2020 11:34:39 -0500
-Received: from hermes.aosc.io ([199.195.250.187]:50548 "EHLO hermes.aosc.io"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728494AbgAJQej (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Jan 2020 11:34:39 -0500
-Received: from localhost (localhost [127.0.0.1]) (Authenticated sender: icenowy@aosc.io)
-        by hermes.aosc.io (Postfix) with ESMTPSA id 73CE846F48;
-        Fri, 10 Jan 2020 16:27:29 +0000 (UTC)
-From:   Icenowy Zheng <icenowy@aosc.io>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Bastien Nocera <hadess@hadess.net>,
-        Jagan Teki <jagan@amarulasolutions.com>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>
-Subject: [PATCH 2/3] Input: goodix - use string-based chip ID
-Date:   Sat, 11 Jan 2020 00:26:07 +0800
-Message-Id: <20200110162608.1066397-3-icenowy@aosc.io>
-In-Reply-To: <20200110162608.1066397-1-icenowy@aosc.io>
-References: <20200110162608.1066397-1-icenowy@aosc.io>
+        id S1726789AbgAJS2p (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 10 Jan 2020 13:28:45 -0500
+Received: from mail-pj1-f66.google.com ([209.85.216.66]:36016 "EHLO
+        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726346AbgAJS2p (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Jan 2020 13:28:45 -0500
+Received: by mail-pj1-f66.google.com with SMTP id n59so1342987pjb.1;
+        Fri, 10 Jan 2020 10:28:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=J94Gt2KavJ+92EsuF8j8kbpp+RsCKdBdscQwUnQ304s=;
+        b=Vq4SWeGEJHm0vmbrNoikmLoWEjOSMfyGtm/vurBrG0nIDevLPW8eAij0yuj9h7huRt
+         y6IF4mGn0jJh3A/jgVKMFYRzblai47NigxwkDL9uhA4lG1xz7viO23gTReokI6HtTBuW
+         rYvCc+cnvTduHmmZ/+6dpY9h2hUG575L2HpO02e1OQY9gLIm25GMX74cFgNPhqLaoFT8
+         4GGZxKELbkWXjJA+HvtPfPhCNgsswQ2Zq2mH8UVJxR3vNsAfNKSLYTYcp0RXLStKRTUA
+         7JSp/RZkAF7I2ZU+49N6Afcobzyjt1fWpw6S3JGLejOobfP/FjO5uhtCdaK7crtoAfUZ
+         +CPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=J94Gt2KavJ+92EsuF8j8kbpp+RsCKdBdscQwUnQ304s=;
+        b=BFfkb2vlB6lS4AUSmstJ4Tuq8k5xzfLCOL4Hh+CIgABHq/lHWSojuUC8IvyWn7DEUr
+         2UyLodVv5BSpF606uAw+XCTlbV2rf2OIMXPXYt408hddXFAe9csI9/51otTVcVf32GBR
+         UIe6M0l38QKwWnEpzVZCfUNJct2ixVvfYr66qDG5EWb74S5tKHy59ZGxb+FNTKcVmoPy
+         MeF6VoVX28+CbDFyT0qzMoI9eJNBemMpD4Rdfwi7r2Gu/T3iNBaR6/ORs5cZLUkaKG8+
+         K7LEQpbk8kQl+qZ7mF/nb4FTIt9gse7knE/BNNImK/8ijZd1OldvuJ11IznTelAage60
+         bjwg==
+X-Gm-Message-State: APjAAAV5FFlAm050KoOkrn1L9W35ND7l25zZzyavQjfWZyF2Xf8cy144
+        KSLnt6HK7/bGSMUumMbwm6g=
+X-Google-Smtp-Source: APXvYqxv/OH8LTfIgw2X+dUqs2IICI+hkk1y93ELAsSn8IVTCqkVeTgPvrm92eMOO1cksCL5wfwXsQ==
+X-Received: by 2002:a17:902:868e:: with SMTP id g14mr5960561plo.214.1578680924226;
+        Fri, 10 Jan 2020 10:28:44 -0800 (PST)
+Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
+        by smtp.gmail.com with ESMTPSA id v23sm3467360pjh.4.2020.01.10.10.28.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jan 2020 10:28:43 -0800 (PST)
+Date:   Fri, 10 Jan 2020 10:28:41 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH] input: max77650-onkey: add of_match table
+Message-ID: <20200110182841.GT8314@dtor-ws>
+References: <20191210100753.11090-1-brgl@bgdev.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aosc.io; s=dkim;
-        t=1578673658;
-        h=from:subject:date:message-id:to:cc:mime-version:content-transfer-encoding:in-reply-to:references;
-        bh=Ai8vKwQmojc8dFI43W6cKcPsNNFMQ/agmFABSU1F9Tg=;
-        b=n09rdI7uB1yu/27yhd5KA7gsXqO1ybaE1os1lsan0+CweYb7AmicFwZcdoo4vM81aoJlH6
-        TCrjMjqq3aHdtLOqHnk0X8efhq+lJ1rWfhi/WiwHBQOD1z/vCPLFQmctCwNXTPnHBs3AeD
-        HEwzowQodSLdUCwHc0AFzbUX7mzwfpE=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191210100753.11090-1-brgl@bgdev.pl>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-For Goodix GT917S chip, the chip ID string is "917S", which contains not
-only numbers now.
+On Tue, Dec 10, 2019 at 11:07:53AM +0100, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> We need the of_match table if we want to use the compatible string in
+> the pmic's child node and get the onkey driver loaded automatically.
 
-Use string-based chip ID in the driver to support this chip and further
-chips with alphanumber ID.
+Do we really need of_match table or adding
 
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
----
- drivers/input/touchscreen/goodix.c | 39 ++++++++++++++----------------
- 1 file changed, 18 insertions(+), 21 deletions(-)
+MODULE_ALIAS("platform:max77650-onkey");
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 0403102e807e..bfd067d7145e 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -48,7 +48,7 @@ struct goodix_ts_data {
- 	struct regulator *vddio;
- 	struct gpio_desc *gpiod_int;
- 	struct gpio_desc *gpiod_rst;
--	u16 id;
-+	char id[5];
- 	u16 version;
- 	const char *cfg_name;
- 	struct completion firmware_loading_complete;
-@@ -235,28 +235,25 @@ static int goodix_i2c_write_u8(struct i2c_client *client, u16 reg, u8 value)
- 	return goodix_i2c_write(client, reg, &value, sizeof(value));
- }
- 
--static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
-+static const struct goodix_chip_data *goodix_get_chip_data(const char *id)
- {
--	switch (id) {
--	case 1151:
--	case 5663:
--	case 5688:
-+	if (!strcmp(id, "1151") ||
-+	    !strcmp(id, "5663") ||
-+	    !strcmp(id, "5688"))
- 		return &gt1x_chip_data;
- 
--	case 911:
--	case 9271:
--	case 9110:
--	case 927:
--	case 928:
-+	if (!strcmp(id, "911") ||
-+	    !strcmp(id, "9271") ||
-+	    !strcmp(id, "9110") ||
-+	    !strcmp(id, "927") ||
-+	    !strcmp(id, "928"))
- 		return &gt911_chip_data;
- 
--	case 912:
--	case 967:
-+	if (!strcmp(id, "912") ||
-+	    !strcmp(id, "967"))
- 		return &gt967_chip_data;
- 
--	default:
--		return &gt9x_chip_data;
--	}
-+	return &gt9x_chip_data;
- }
- 
- static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
-@@ -673,12 +670,11 @@ static int goodix_read_version(struct goodix_ts_data *ts)
- 
- 	memcpy(id_str, buf, 4);
- 	id_str[4] = 0;
--	if (kstrtou16(id_str, 10, &ts->id))
--		ts->id = 0x1001;
-+	strscpy(ts->id, id_str, 5);
- 
- 	ts->version = get_unaligned_le16(&buf[4]);
- 
--	dev_info(&ts->client->dev, "ID %d, version: %04x\n", ts->id,
-+	dev_info(&ts->client->dev, "ID %s, version: %04x\n", ts->id,
- 		 ts->version);
- 
- 	return 0;
-@@ -736,7 +732,8 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
- 	ts->input_dev->phys = "input/ts";
- 	ts->input_dev->id.bustype = BUS_I2C;
- 	ts->input_dev->id.vendor = 0x0416;
--	ts->input_dev->id.product = ts->id;
-+	if (kstrtou16(ts->id, 10, &ts->input_dev->id.product))
-+		ts->input_dev->id.product = 0x1001;
- 	ts->input_dev->id.version = ts->version;
- 
- 	/* Capacitive Windows/Home button on some devices */
-@@ -915,7 +912,7 @@ static int goodix_ts_probe(struct i2c_client *client,
- 	if (ts->gpiod_int && ts->gpiod_rst) {
- 		/* update device config */
- 		ts->cfg_name = devm_kasprintf(&client->dev, GFP_KERNEL,
--					      "goodix_%d_cfg.bin", ts->id);
-+					      "goodix_%s_cfg.bin", ts->id);
- 		if (!ts->cfg_name)
- 			return -ENOMEM;
- 
+will work as well?
+
+In general, do we ever instantiate onkey portion from device tree? Or
+is it always an MFD cell that is instantiated unconditionally?
+
+> 
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ---
+>  drivers/input/misc/max77650-onkey.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/input/misc/max77650-onkey.c b/drivers/input/misc/max77650-onkey.c
+> index 4d875f2ac13d..ee55f22dbca5 100644
+> --- a/drivers/input/misc/max77650-onkey.c
+> +++ b/drivers/input/misc/max77650-onkey.c
+> @@ -108,9 +108,16 @@ static int max77650_onkey_probe(struct platform_device *pdev)
+>  	return input_register_device(onkey->input);
+>  }
+>  
+> +static const struct of_device_id max77650_onkey_of_match[] = {
+> +	{ .compatible = "maxim,max77650-onkey" },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, max77650_onkey_of_match);
+> +
+>  static struct platform_driver max77650_onkey_driver = {
+>  	.driver = {
+>  		.name = "max77650-onkey",
+> +		.of_match_table = max77650_onkey_of_match,
+>  	},
+>  	.probe = max77650_onkey_probe,
+>  };
+> -- 
+> 2.23.0
+> 
+
+Thanks.
+
 -- 
-2.23.0
-
+Dmitry

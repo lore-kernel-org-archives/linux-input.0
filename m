@@ -2,62 +2,71 @@ Return-Path: <SRS0=zvy9=3C=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94D52C33CA9
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 18:26:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDCECC33CA9
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 19:23:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 75FE82075B
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 18:26:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8772520CC7
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 19:23:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728913AbgAMS0P (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Jan 2020 13:26:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50464 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728682AbgAMS0P (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Jan 2020 13:26:15 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726878AbgAMTXM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Jan 2020 14:23:12 -0500
+Received: from orion.archlinux.org ([88.198.91.70]:51316 "EHLO
+        orion.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726435AbgAMTXM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Jan 2020 14:23:12 -0500
+Received: from orion.archlinux.org (localhost [127.0.0.1])
+        by orion.archlinux.org (Postfix) with ESMTP id 7CCB51818448AC;
+        Mon, 13 Jan 2020 19:23:09 +0000 (UTC)
+Received: from localhost.localdomain (unknown [IPv6:2001:8a0:f254:2300:dad6:8c60:8394:88da])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88FFD2075B;
-        Mon, 13 Jan 2020 18:26:14 +0000 (UTC)
-Date:   Mon, 13 Jan 2020 19:26:12 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] Input: keyspan-remote: fix control-message timeouts
-Message-ID: <20200113182612.GH411698@kroah.com>
-References: <20200113171715.30621-1-johan@kernel.org>
+        (Authenticated sender: ffy00)
+        by orion.archlinux.org (Postfix) with ESMTPSA;
+        Mon, 13 Jan 2020 19:23:08 +0000 (UTC)
+From:   =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>
+Subject: [PATCH] HID: logitech-dj: add debug msg when exporting a HID++ report descriptors
+Date:   Mon, 13 Jan 2020 19:23:00 +0000
+Message-Id: <20200113192300.2482096-1-lains@archlinux.org>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200113171715.30621-1-johan@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Jan 13, 2020 at 06:17:15PM +0100, Johan Hovold wrote:
-> The driver was issuing synchronous uninterruptible control requests
-> without using a timeout. This could lead to the driver hanging on probe
-> due to a malfunctioning (or malicious) device until the device is
-> physically disconnected. While sleeping in probe the driver prevents
-> other devices connected to the same hub from being added to (or removed
-> from) the bus.
-> 
-> The USB upper limit of five seconds per request should be more than
-> enough.
-> 
-> Fixes: 99f83c9c9ac9 ("[PATCH] USB: add driver for Keyspan Digital Remote")
-> Cc: stable <stable@vger.kernel.org>     # 2.6.13
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
->  drivers/input/misc/keyspan_remote.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
+When exporting all other types of report descriptors we print a debug
+message. Not doing so for HID++ descriptors makes unaware users think
+that no HID++ descriptor was exported.
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Filipe Laíns <lains@archlinux.org>
+---
+ drivers/hid/hid-logitech-dj.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index cc7fc71d8b05..8f17a29b5a94 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -1368,6 +1368,8 @@ static int logi_dj_ll_parse(struct hid_device *hid)
+ 	}
+ 
+ 	if (djdev->reports_supported & HIDPP) {
++		dbg_hid("%s: sending a HID++ descriptor, reports_supported: %llx\n",
++			__func__, djdev->reports_supported);
+ 		rdcat(rdesc, &rsize, hidpp_descriptor,
+ 		      sizeof(hidpp_descriptor));
+ 	}
+-- 
+2.24.1

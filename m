@@ -2,93 +2,107 @@ Return-Path: <SRS0=zvy9=3C=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99DF5C33CAE
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 05:30:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5AC3C33CAD
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 10:40:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 67DEA21556
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 05:30:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B71F52081E
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 10:40:10 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="v3vjyNLs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725978AbgAMFac (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Jan 2020 00:30:32 -0500
-Received: from mail02.vodafone.es ([217.130.24.81]:40341 "EHLO
-        mail02.vodafone.es" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725909AbgAMFac (ORCPT
+        id S1726133AbgAMKkK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Jan 2020 05:40:10 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:51293 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726127AbgAMKkK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Jan 2020 00:30:32 -0500
-IronPort-SDR: faUguVMfgz4dJgbutFacNhC57fIn7iJvpiWRwF7d6TSRlwSEL2y+3cQ4HtTlH7Un409qzzJoor
- hzf3ZdsiA4Hw==
-IronPort-PHdr: =?us-ascii?q?9a23=3A50G1QhecoWLku+2KmlNgjzDblGMj4u6mDksu8p?=
- =?us-ascii?q?Mizoh2WeGdxcSzZx7h7PlgxGXEQZ/co6odzbaP6Oa6Bz1LsczJmUtBWaQEbw?=
- =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
- =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRu7oR/PusQXhYZuJaU8xg?=
- =?us-ascii?q?XUqXZUZupawn9lK0iOlBjm/Mew+5Bj8yVUu/0/8sNLTLv3caclQ7FGFToqK2?=
- =?us-ascii?q?866tHluhnFVguP+2ATUn4KnRpSAgjK9w/1U5HsuSbnrOV92S2aPcrrTbAoXD?=
- =?us-ascii?q?mp8qlmRAP0hCoBKjU19mbbhNFsg61BpRKgpwVzzpDTYIGPLPp+ebndcskGRW?=
- =?us-ascii?q?VfR8peSSpBDpqgYosTE+oOJ/pXr4njqFsLsxS+AxWsCPrxxT9On3P42qo60+?=
- =?us-ascii?q?I/HgDGxQAvAdQOu2nQoNj7KKseTeW5wa/VxjvBcvxWwy/w5obIfBA7v/+CXq?=
- =?us-ascii?q?9+fsXNxkcgDA7FkledppD5Mz+JyugBrW6W5PdgW+K1jG4nrhl8rCKxyccwlI?=
- =?us-ascii?q?bJnJ8exVDD9SV/z4Y+ONq1SFZlbt64DpRQrS+bN4xwQsMtWGxouD06xaYatp?=
- =?us-ascii?q?KhYCcKz5EnywTfa/yEaoWF5A/oWuWJITpgmn5pZbCyiwyv/UWu1uHwTNe43V?=
- =?us-ascii?q?lQoidLktTBsG0G2QbJ5cidUPR9+1+s2TOI1w/O9O5JOVs0la/HK545xb4wi4?=
- =?us-ascii?q?YTvVzDHiDonEX2i7ebdkA+9eip7+TneKvpppuAO4J7kA3+LKMuldGlDuQ2NQ?=
- =?us-ascii?q?gOWXaU9f6i27345UH5QbNKgeMqkqTBrpzWOMYWqrSkDwJbzoov8QizAji83N?=
- =?us-ascii?q?kWnXQLNFdFdwiGj4jtNVHOOvf4DfKnjlS0jjhr2+7JPqfvA5XKKHjDn6zsfb?=
- =?us-ascii?q?Zm60FH1AU/18xQ55VRCr0bIPLzWVf9tMbEAR8hLwy03+HnBc151oMfX2KPH6?=
- =?us-ascii?q?CYPLrTsV+O/uIvPvWMaZQLuDbyNfcl/eTijXwnll8He6mmw58XZGq/HvR8LE?=
- =?us-ascii?q?XKKUbr19MAF3oa+ws4VPH2oEONXCQVZHuoWa84oDYhB9GcAJ/HV7yq1YSMwC?=
- =?us-ascii?q?qhVqJRYG8OXkiBDXryaIKCVPcPaDmYKedulzUFUf6qTIp3hj+0swqv87d7I/?=
- =?us-ascii?q?CcxSoeutq3zNVp6vfMkhc93TxvBc/b2GaICWF3yDBbDwQq1bxy9BUugmyI1r?=
- =?us-ascii?q?J11qcATdE=3D?=
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: =?us-ascii?q?A2ETKgB8/xtemCMYgtkUBjMYGgEBAQE?=
- =?us-ascii?q?BAQEBAQMBAQEBEQEBAQICAQEBAYF7AgEBFwEBgS6BTVIgEpNQgU0fg0OLY4E?=
- =?us-ascii?q?Agx4VhggTDIFbDQEBAQEBNQIBAYRATgEXgQ8kOgQNAgMNAQEFAQEBAQEFBAE?=
- =?us-ascii?q?BAhABAQEBAQYNCwYphUqCHQweAQQBAQEBAwMDAQEMAYNdBxkPOUpMAQ4BU4M?=
- =?us-ascii?q?EgksBATOFI5dQAY0EDQ0ChR2CRAQKgQmBGiOBNgGMGBqBQT+BIyGCKwgBggG?=
- =?us-ascii?q?CfwESAWyCSIJZBI1CEiGBB4gpmBeCQQR2iUyMAoI3AQ+IAYQxAxCCRQ+BCYg?=
- =?us-ascii?q?DhE6BfaM3V4EMDXpxMxqCJhqBIE8YDYgbji1AgRYQAk+JLoIyAQE?=
-X-IPAS-Result: =?us-ascii?q?A2ETKgB8/xtemCMYgtkUBjMYGgEBAQEBAQEBAQMBAQEBE?=
- =?us-ascii?q?QEBAQICAQEBAYF7AgEBFwEBgS6BTVIgEpNQgU0fg0OLY4EAgx4VhggTDIFbD?=
- =?us-ascii?q?QEBAQEBNQIBAYRATgEXgQ8kOgQNAgMNAQEFAQEBAQEFBAEBAhABAQEBAQYNC?=
- =?us-ascii?q?wYphUqCHQweAQQBAQEBAwMDAQEMAYNdBxkPOUpMAQ4BU4MEgksBATOFI5dQA?=
- =?us-ascii?q?Y0EDQ0ChR2CRAQKgQmBGiOBNgGMGBqBQT+BIyGCKwgBggGCfwESAWyCSIJZB?=
- =?us-ascii?q?I1CEiGBB4gpmBeCQQR2iUyMAoI3AQ+IAYQxAxCCRQ+BCYgDhE6BfaM3V4EMD?=
- =?us-ascii?q?XpxMxqCJhqBIE8YDYgbji1AgRYQAk+JLoIyAQE?=
-X-IronPort-AV: E=Sophos;i="5.69,427,1571695200"; 
-   d="scan'208";a="323805421"
-Received: from mailrel04.vodafone.es ([217.130.24.35])
-  by mail02.vodafone.es with ESMTP; 13 Jan 2020 06:30:27 +0100
-Received: (qmail 24274 invoked from network); 12 Jan 2020 05:00:20 -0000
-Received: from unknown (HELO 192.168.1.3) (quesosbelda@[217.217.179.17])
-          (envelope-sender <peterwong@hsbc.com.hk>)
-          by mailrel04.vodafone.es (qmail-ldap-1.03) with SMTP
-          for <linux-input@vger.kernel.org>; 12 Jan 2020 05:00:20 -0000
-Date:   Sun, 12 Jan 2020 06:00:19 +0100 (CET)
-From:   Peter Wong <peterwong@hsbc.com.hk>
-Reply-To: Peter Wong <peterwonghkhsbc@gmail.com>
-To:     linux-input@vger.kernel.org
-Message-ID: <3579162.460749.1578805220294.JavaMail.cash@217.130.24.55>
-Subject: Investment opportunity
+        Mon, 13 Jan 2020 05:40:10 -0500
+Received: by mail-wm1-f65.google.com with SMTP id d73so9048090wmd.1
+        for <linux-input@vger.kernel.org>; Mon, 13 Jan 2020 02:40:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=8woBrjBV2pJrpCEHmipp5tCMuainYmDSO6QY88461Bw=;
+        b=v3vjyNLsU/ZP+duwAMBIiT/jTK8pe+/ftmLtCCvrnYszggFFYPTlNqj9hvYjDOOUmq
+         EpgQZglWUe1m2gz3HugJRucSZwcNiMfPUkj7Eav0XFDbxrEr/ahC36GknblhDRjc7ahH
+         zQjHyJwdJJhf+QMpI0IDbA/wNfOcZ2FznT70pmF8lv26V2byaqL3jChP1ohJIt0TXMcH
+         Udb7ZfjiUa/aUwIvQJ7yybd9UwrI/FtTqZdU9m8cJaaQQFkFmDImu/OE3+WU9PajHTUo
+         4c92RFQuMMUFx5sEkOfW1ctKcz6VghA9q4Ry+EEEAp7p2MtqTeW+fEIsng1iLqdHdWrY
+         gs/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=8woBrjBV2pJrpCEHmipp5tCMuainYmDSO6QY88461Bw=;
+        b=EfIVN5aUwGu8nmOdR9MiQkxxSDlXmcXq/A9N+Hu8zzrbba30leTDev0LOQjDnbdf7O
+         QjVctEMhHZMw6x3Y/Tur722nP9DeXFodpGgRGcKpaAC2IsQ+RqMjzcTlMcVEjiANuqKr
+         QgWtZ38AuuFJkTjb2abBRcPBdySbTjlvCZ5mfx9PfNwE0qzPWYj5asqokPfUFcNlhK/F
+         o8Nhfce7ZoW81o53y+Q3IyFInx0Rf/AL8LFQBff2KmFAvmHOHES8puF0Jolp0Cw3ZDqc
+         wiM7oPp3GHuP83OrmMI64c8PjVu0ihtsCr8zOkBJy9NtnA6B634Oh4TeIQwVgAby/69y
+         Lp9A==
+X-Gm-Message-State: APjAAAVBp3aQ7Uk6dTamVPCjfGeDJGIaGqXWx3yN8GSbreQF8mest2Kn
+        rrv41WS7tOxvomND7kEH5im2ig==
+X-Google-Smtp-Source: APXvYqzahBcdOwjWkOf5gPeQ+ARXeltCNOTaht2mJFVatu9RTi95f0Vd/GWdieYkCfCRg7L1Uj2Cnw==
+X-Received: by 2002:a1c:e108:: with SMTP id y8mr18978661wmg.147.1578912008310;
+        Mon, 13 Jan 2020 02:40:08 -0800 (PST)
+Received: from dell ([95.147.198.95])
+        by smtp.gmail.com with ESMTPSA id c5sm14403122wmb.9.2020.01.13.02.40.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jan 2020 02:40:07 -0800 (PST)
+Date:   Mon, 13 Jan 2020 10:40:28 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Marco Felsch <m.felsch@pengutronix.de>
+Cc:     support.opensource@diasemi.com, stwiss.opensource@diasemi.com,
+        dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+        Adam.Thomson.Opensource@diasemi.com, devicetree@vger.kernel.org,
+        kernel@pengutronix.de, linux-input@vger.kernel.org
+Subject: Re: [PATCH v2 2/3] input: misc: da9063_onkey: add mode change support
+Message-ID: <20200113104028.GB5414@dell>
+References: <20191127132304.22924-1-m.felsch@pengutronix.de>
+ <20191127132304.22924-3-m.felsch@pengutronix.de>
+ <20200108084800.x2doud4v6m3ssz6s@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200108084800.x2doud4v6m3ssz6s@pengutronix.de>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Greetings,
-Please read the attached investment proposal and reply for more details.
-Are you interested in loan?
-Sincerely: Peter Wong
+On Wed, 08 Jan 2020, Marco Felsch wrote:
 
+> Hi Lee,
+> 
+> I forgot to add you to review the mfd part, sorry. Please can you have a
+> look on it?
 
+[...]
 
+> > --- a/drivers/mfd/da9062-core.c
+> > +++ b/drivers/mfd/da9062-core.c
+> > @@ -510,6 +510,7 @@ static const struct regmap_range da9062_aa_writeable_ranges[] = {
+> >  	regmap_reg_range(DA9062AA_VLDO1_B, DA9062AA_VLDO4_B),
+> >  	regmap_reg_range(DA9062AA_BBAT_CONT, DA9062AA_BBAT_CONT),
+> >  	regmap_reg_range(DA9062AA_GP_ID_0, DA9062AA_GP_ID_19),
+> > +	regmap_reg_range(DA9062AA_CONFIG_I, DA9062AA_CONFIG_I),
+> >  };
+> >  
+> >  static const struct regmap_range da9062_aa_volatile_ranges[] = {
 
-----------------------------------------------------
-This email was sent by the shareware version of Postman Professional.
+Looks fine.
 
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

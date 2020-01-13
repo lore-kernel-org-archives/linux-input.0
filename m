@@ -2,123 +2,62 @@ Return-Path: <SRS0=zvy9=3C=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BD4AC33CA9
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 17:17:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94D52C33CA9
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 18:26:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 60B3C2080D
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 17:17:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1578935849;
-	bh=mYYruo9DgYFR6fyOn/QPYsXHbX1pRUdnwnWoOX/NUDw=;
-	h=From:To:Cc:Subject:Date:List-ID:From;
-	b=tPEKYpXYomgX3TIcAhYRjS7RbsXesw4VnEqhwgqWh4LD5NZNlfT4VTBakSLOyBGUG
-	 cf6zGm4Ei0VTp8xm4Q9/fFSS4sTD4uc4+1Tkj0HRgZRBOixZZcIyMSXevMTP4tpTtp
-	 n7hihmFaY3Wp3pW+oEkZxK7uZdpHE6f/EX8wSHbw=
+	by mail.kernel.org (Postfix) with ESMTP id 75FE82075B
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 18:26:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727331AbgAMRR3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Jan 2020 12:17:29 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:37119 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727222AbgAMRR2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Jan 2020 12:17:28 -0500
-Received: by mail-lf1-f67.google.com with SMTP id b15so7446300lfc.4;
-        Mon, 13 Jan 2020 09:17:26 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9m41qUTzIRJJakUykLj2yxJoWCGlTXPYpdoX2xvbBMA=;
-        b=lzaTqvwrqH+kg3+wnCI/Kmr+M07/jTN/r9WZSmgifyEbY9KUkJKxmTi2YCPv8rdVsr
-         HXSevYGRmvWvHCL5ecva1CNhnrUOorC7sOk3J1pA5SOzq1LfDtp5vvC6bWXHvWbB3ck8
-         +7Fzanf3JVY9lzOVEGLP+UUXduwFS92lr6aPWENd5IwYV5vs7+ulBw4AQKvaMis7rVDK
-         TQWwY1sLuqKYwpb3BLdWQh84caDyix9IcK8u7KeV3tRZSLqLQfTNGz3GRJNOZlWpS0s6
-         8KeE66Ew0sU/1y5uZZWaQl1vRu45Mc+Y/cfCRHp2BgJjve1Kj1i6tBIvgONInEIMpq7N
-         fhFg==
-X-Gm-Message-State: APjAAAUXzgRCXTEzJwDMTAxew48pd7QmfdGUNsIECm39582viz7FpAH1
-        jbgy1m4/pzM1L5Jt2cKa1Lo=
-X-Google-Smtp-Source: APXvYqyL9cG3pPXjlHZhqSEBycmTM3iVOEX2hFl/z4oMBIvFShLBEcF8/uJMYti83XXCiqPbjwLa1A==
-X-Received: by 2002:a19:c7c5:: with SMTP id x188mr10208572lff.22.1578935846285;
-        Mon, 13 Jan 2020 09:17:26 -0800 (PST)
-Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id e17sm6313349ljg.101.2020.01.13.09.17.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2020 09:17:25 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@xi.terra>)
-        id 1ir3LB-0007ye-NK; Mon, 13 Jan 2020 18:17:25 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] Input: keyspan-remote: fix control-message timeouts
-Date:   Mon, 13 Jan 2020 18:17:15 +0100
-Message-Id: <20200113171715.30621-1-johan@kernel.org>
-X-Mailer: git-send-email 2.24.1
+        id S1728913AbgAMS0P (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Jan 2020 13:26:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50464 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728682AbgAMS0P (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Jan 2020 13:26:15 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88FFD2075B;
+        Mon, 13 Jan 2020 18:26:14 +0000 (UTC)
+Date:   Mon, 13 Jan 2020 19:26:12 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] Input: keyspan-remote: fix control-message timeouts
+Message-ID: <20200113182612.GH411698@kroah.com>
+References: <20200113171715.30621-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200113171715.30621-1-johan@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The driver was issuing synchronous uninterruptible control requests
-without using a timeout. This could lead to the driver hanging on probe
-due to a malfunctioning (or malicious) device until the device is
-physically disconnected. While sleeping in probe the driver prevents
-other devices connected to the same hub from being added to (or removed
-from) the bus.
+On Mon, Jan 13, 2020 at 06:17:15PM +0100, Johan Hovold wrote:
+> The driver was issuing synchronous uninterruptible control requests
+> without using a timeout. This could lead to the driver hanging on probe
+> due to a malfunctioning (or malicious) device until the device is
+> physically disconnected. While sleeping in probe the driver prevents
+> other devices connected to the same hub from being added to (or removed
+> from) the bus.
+> 
+> The USB upper limit of five seconds per request should be more than
+> enough.
+> 
+> Fixes: 99f83c9c9ac9 ("[PATCH] USB: add driver for Keyspan Digital Remote")
+> Cc: stable <stable@vger.kernel.org>     # 2.6.13
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/input/misc/keyspan_remote.c | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
+> 
 
-The USB upper limit of five seconds per request should be more than
-enough.
-
-Fixes: 99f83c9c9ac9 ("[PATCH] USB: add driver for Keyspan Digital Remote")
-Cc: stable <stable@vger.kernel.org>     # 2.6.13
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/input/misc/keyspan_remote.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
-index 83368f1e7c4e..4650f4a94989 100644
---- a/drivers/input/misc/keyspan_remote.c
-+++ b/drivers/input/misc/keyspan_remote.c
-@@ -336,7 +336,8 @@ static int keyspan_setup(struct usb_device* dev)
- 	int retval = 0;
- 
- 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
--				 0x11, 0x40, 0x5601, 0x0, NULL, 0, 0);
-+				 0x11, 0x40, 0x5601, 0x0, NULL, 0,
-+				 USB_CTRL_SET_TIMEOUT);
- 	if (retval) {
- 		dev_dbg(&dev->dev, "%s - failed to set bit rate due to error: %d\n",
- 			__func__, retval);
-@@ -344,7 +345,8 @@ static int keyspan_setup(struct usb_device* dev)
- 	}
- 
- 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
--				 0x44, 0x40, 0x0, 0x0, NULL, 0, 0);
-+				 0x44, 0x40, 0x0, 0x0, NULL, 0,
-+				 USB_CTRL_SET_TIMEOUT);
- 	if (retval) {
- 		dev_dbg(&dev->dev, "%s - failed to set resume sensitivity due to error: %d\n",
- 			__func__, retval);
-@@ -352,7 +354,8 @@ static int keyspan_setup(struct usb_device* dev)
- 	}
- 
- 	retval = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
--				 0x22, 0x40, 0x0, 0x0, NULL, 0, 0);
-+				 0x22, 0x40, 0x0, 0x0, NULL, 0,
-+				 USB_CTRL_SET_TIMEOUT);
- 	if (retval) {
- 		dev_dbg(&dev->dev, "%s - failed to turn receive on due to error: %d\n",
- 			__func__, retval);
--- 
-2.24.1
-
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>

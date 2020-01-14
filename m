@@ -2,124 +2,152 @@ Return-Path: <SRS0=BxR0=3D=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DATE_IN_FUTURE_06_12,
+	DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45E1CC33CA9
-	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 00:55:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9031C33CAF
+	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 01:06:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 236AF2080D
-	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 00:55:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A06952084D
+	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 01:06:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hV5nmls0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729099AbgANAzU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Jan 2020 19:55:20 -0500
-Received: from orion.archlinux.org ([88.198.91.70]:37184 "EHLO
-        orion.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728778AbgANAzU (ORCPT
+        id S1729153AbgANBGM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Jan 2020 20:06:12 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:35094 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728896AbgANBGM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Jan 2020 19:55:20 -0500
-Received: from orion.archlinux.org (localhost [127.0.0.1])
-        by orion.archlinux.org (Postfix) with ESMTP id 11E52181900802;
-        Tue, 14 Jan 2020 00:55:17 +0000 (UTC)
-Received: from genesis (unknown [IPv6:2001:8a0:f254:2300:dad6:8c60:8394:88da])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: ffy00)
-        by orion.archlinux.org (Postfix) with ESMTPSA;
-        Tue, 14 Jan 2020 00:55:16 +0000 (UTC)
-Message-ID: <1e4143394f773df60a2ba329c940b339e4563bee.camel@archlinux.org>
-Subject: Re: [PATCH] HID: logitech-hidpp: add support for the Powerplay
- mat/receiver
-From:   Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+        Mon, 13 Jan 2020 20:06:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578963970;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pcPgHMjbM1tTuJs57rpRm00UDVEplEHbWgFk0hTeOZ4=;
+        b=hV5nmls0y+UjjLdXrdHioATIafPa74aOEh3qZHQJvgy5NC7qEDePpvhwg5hdNV3a2liUXr
+        NmAh3TeJFoNw8tYD7ZNmETxkud3jxtY1S+9MR/TiJo4DuibrIH4CynbsIr0Ja+UMrWz5fn
+        hfhrY0AeLkUhtu80W49bSBmGLgjeamI=
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
+ [209.85.160.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-44-8PLzc5h4MQqROY_aihn4Ug-1; Mon, 13 Jan 2020 20:06:08 -0500
+X-MC-Unique: 8PLzc5h4MQqROY_aihn4Ug-1
+Received: by mail-qt1-f199.google.com with SMTP id b7so7890427qtg.23
+        for <linux-input@vger.kernel.org>; Mon, 13 Jan 2020 17:06:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=pcPgHMjbM1tTuJs57rpRm00UDVEplEHbWgFk0hTeOZ4=;
+        b=mknvF30kiN3HS/ak7lnkSTOpQlIDbJ7vsLapoGUgdDl5G8Mg7OJD6zVRQEDRUC8SbJ
+         L8lCNT5SeDPHSSN4Z22Rdgo7ToQX7njcGhT7jOZFuZt+9NF9FVznEo7Lb0MoVMIvK8QV
+         dPssymwybpjAhIIuqtoxoBw9drGVQEOO0GFuPHg8ss8W2l6Ee1saFNmfSB9zx24318UR
+         uv8xXXI8lKmDyDz+36hmt7ryyBbGl62x1eKiEct2vv8gm07qQxOhaqYDGVZLEKMQvK7t
+         eY+TducdWkYQlste1t4c+GIOY0ToLchplpO2P1gELI+AhMphO4ovVMgzNJeolWOveSrv
+         kyCw==
+X-Gm-Message-State: APjAAAXbGhtQHrawd+8hcCq0IO87FerRMbPDgOqo+xS/AiSjNQ4lvDMS
+        D/uQXZdjO3jVV/VJY9QBH2dwS6TDCFSESRdnYCb1l+aY+UO4VefxJampmXjBO5mv76xLvuejaXl
+        fRqJ2r6vQgWodnU+iRUJVtzJ0hvxxmKe/1tT5zsA=
+X-Received: by 2002:a37:a086:: with SMTP id j128mr14135969qke.459.1578963968132;
+        Mon, 13 Jan 2020 17:06:08 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzFgUVJ57OMm6qYtoPN41WVqMHNymaDdu9B+b9YyZZgWZjfQ9S0NylFBVceVMYo3g/DIWX4riFinR12zotGq5c=
+X-Received: by 2002:a37:a086:: with SMTP id j128mr14135942qke.459.1578963967884;
+ Mon, 13 Jan 2020 17:06:07 -0800 (PST)
+MIME-Version: 1.0
+References: <20200112220612.3448741-1-lains@archlinux.org>
+In-Reply-To: <20200112220612.3448741-1-lains@archlinux.org>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Tue, 14 Jan 2020 21:03:30 +1000
+Message-ID: <CAO-hwJJJYRc8_kRiGGu9E4Dx-WpSADro4b28D8QoE87FBUTnOA@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: logitech-hidpp: add support for the Powerplay mat/receiver
+To:     =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>
 Cc:     Jiri Kosina <jikos@kernel.org>,
         "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
         lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <CAO-hwJ+56qUTr8HQOLyx9tgbJMuTTPbb6K40cwWnO=PzMcO+tQ@mail.gmail.com>
-References: <20200112205021.3004703-1-lains@archlinux.org>
-         <7d49a8444ea1740444d1e9133104530731bfb30a.camel@archlinux.org>
-         <CAO-hwJ+56qUTr8HQOLyx9tgbJMuTTPbb6K40cwWnO=PzMcO+tQ@mail.gmail.com>
-Organization: Archlinux
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-Coe2qyRW8zt8HxLcXjje"
-Date:   Tue, 14 Jan 2020 00:55:14 +0000
-MIME-Version: 1.0
-User-Agent: Evolution 3.34.3 
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Hi Filipe,
 
---=-Coe2qyRW8zt8HxLcXjje
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On Mon, Jan 13, 2020 at 8:07 AM Filipe La=C3=ADns <lains@archlinux.org> wro=
+te:
+>
+> The Logitech G Powerplay has a lightspeed receiver with a static HID++
+> device with ID 7 attached to it to. It is used to configure the led on
+> the mat. For this reason I increased the max number of devices.
+>
+> I also marked all lightspeed devices as HID++ compatible. As the
+> internal powerplay device does not have REPORT_TYPE_KEYBOARD or
+> REPORT_TYPE_MOUSE it was not being marked as HID++ compatible in
+> logi_hidpp_dev_conn_notif_equad.
+>
+> Signed-off-by: Filipe La=C3=ADns <lains@archlinux.org>
+> ---
+>  drivers/hid/hid-logitech-dj.c | 10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.=
+c
+> index bb50d6e7745b..732380b55b15 100644
+> --- a/drivers/hid/hid-logitech-dj.c
+> +++ b/drivers/hid/hid-logitech-dj.c
+> @@ -16,11 +16,11 @@
+>  #include <asm/unaligned.h>
+>  #include "hid-ids.h"
+>
+> -#define DJ_MAX_PAIRED_DEVICES                  6
+> +#define DJ_MAX_PAIRED_DEVICES                  7
+>  #define DJ_MAX_NUMBER_NOTIFS                   8
+>  #define DJ_RECEIVER_INDEX                      0
+>  #define DJ_DEVICE_INDEX_MIN                    1
+> -#define DJ_DEVICE_INDEX_MAX                    6
+> +#define DJ_DEVICE_INDEX_MAX                    7
+>
+>  #define DJREPORT_SHORT_LENGTH                  15
+>  #define DJREPORT_LONG_LENGTH                   32
+> @@ -971,7 +971,7 @@ static void logi_hidpp_recv_queue_notif(struct hid_de=
+vice *hdev,
+>         case 0x0c:
+>                 device_type =3D "eQUAD Lightspeed 1";
+>                 logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &work=
+item);
+> -               workitem.reports_supported |=3D STD_KEYBOARD;
+> +               workitem.reports_supported |=3D STD_KEYBOARD | HIDPP;
 
-On Tue, 2020-01-14 at 20:48 +1000, Benjamin Tissoires wrote:
-> On Tue, Jan 14, 2020 at 1:31 AM Filipe La=C3=ADns <lains@archlinux.org>
-> wrote:
-> > On Sun, 2020-01-12 at 20:50 +0000, Filipe La=C3=ADns wrote:
-> > > I also marked all lightspeed devices as HID++ compatible. As the
-> > > internal powerplay device does not have REPORT_TYPE_KEYBOARD or
-> > > REPORT_TYPE_KEYBOARD it was not being marked as HID++ compatible
-> > > in
-> > > logi_hidpp_dev_conn_notif_equad.
-> >=20
-> > Actually I had another look at the code and I don't understand why
-> > we
-> > are manually setting |=3D HIDPP in
-> > logi_hidpp_dev_conn_notif_equad/logi_hidpp_dev_conn_notif_27mhz. We
-> > should set it in logi_dj_hidpp_event as it is triggered by
-> > receiving a
-> > HID++ packet.
->=20
-> long story short: nope :)
->=20
-> The whole purpose of setting the workitem->reports_supported is to be
-> able to create the matching report descriptor in the new virtual
-> device. So having this set in a callback will add an operation for
-> nothing every time we get an event, and will also not ensure a proper
-> separation of concerns.
->=20
-> Cheers,
-> Benjamin
->=20
-> > What do you think Benjamin?
-> >=20
-> > --
-> > Filipe La=C3=ADns
+This feels wrong. The whole initial code was hack-ish, and now this is
+even more hack-ish.
 
-Okay, then is maybe better if I add HIDPP to reports_supported based on
-the device ID (7). This is the only product to my knowledge that
-exports a device with ID 7. It's a better solution than setting HIDPP
-on all lightspeed devices.
+I don't have a simple solution right now (at a conference this week),
+but I will need to be convinced this is the only sane solution :/
 
-I will send a new patch if you agree with this approach.
+Cheers,
+Benjamin
 
---=20
-Filipe La=C3=ADns
+>                 break;
+>         case 0x0d:
+>                 device_type =3D "eQUAD Lightspeed 1_1";
+> @@ -1850,6 +1850,10 @@ static const struct hid_device_id logi_dj_receiver=
+s[] =3D {
+>           HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+>                 USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_1),
+>          .driver_data =3D recvr_type_gaming_hidpp},
+> +       { /* Logitech powerplay mat/receiver (0xc539) */
+> +         HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               0xc53a),
+> +        .driver_data =3D recvr_type_gaming_hidpp},
+>         { /* Logitech 27 MHz HID++ 1.0 receiver (0xc513) */
+>           HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_REC=
+EIVER),
+>          .driver_data =3D recvr_type_27mhz},
+> --
+> 2.24.1
+>
 
---=-Coe2qyRW8zt8HxLcXjje
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl4dEW0ACgkQ+JPGdIFq
-qV274w//cxr08FDCJRNfbEH4C6UferfSC8Ad6N4njm6kIJIku9RjgcVYtTI/3GJP
-5twvmW13yT1DkacXesO6XEiWt8i7KftAkvqeoZDnCXJ5RavxXoXPZHCMz0O7lwdE
-XwHkQ1GARxciOs01DyRdiOAxjZjLhtzTt36W/CLvVM96n8t5+NH4lWYyy5p7EE92
-d5DnQF/B+g1Z2vSXpbH+2nw+HNXKvB+3Pm/Be8r7oeGJ7Fis9dRFJFl1EImcYaAY
-281d5paUPRMLf7EOqtoN7IGS1gKEu2L3YJiBabk+E4FgnbOvBCcDnAgL1pjYj+Ni
-+We03Ta3QlTSMlspwpx3ygM54HeLE1sFI5a9XCeJcf659SNNEzGH3PM3nMEVw0Mg
-Dost4byun61M0xYi/RUXhqbVWk6QOiaUbnHIPZlwL6cPk40rvYh56yuO12SXVLAO
-jKG7hqZCiu9wQOjPE4V1GhHXNhDut1RHU1mriDmSYX9L5qWuh+t5D7DEOTOM36Bt
-MOk7sx+K1wgTG+c/pULpDxwFDwnHCI9TC6IKj59bTS+nyX6vd8Hs0YYtuq1SDNDJ
-9mnmn9sjo+kPv7AhCZIIc0a8U1CEPkMuZPrSBCpGX0+BGD4vFog6SnEh34c4cLYH
-05y+QQdGI333deNdjxhdP9GI8sBjJbKHORT7DSPhdsAno7BO6Vo=
-=Ld/i
------END PGP SIGNATURE-----
-
---=-Coe2qyRW8zt8HxLcXjje--

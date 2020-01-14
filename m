@@ -2,120 +2,131 @@ Return-Path: <SRS0=BxR0=3D=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43859C33CAF
-	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 01:24:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D0A9C33CA9
+	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 01:47:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 04BD821556
-	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 01:24:24 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OI4sHU7d"
+	by mail.kernel.org (Postfix) with ESMTP id 0C3ED2080D
+	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 01:47:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729213AbgANBYX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Jan 2020 20:24:23 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:26155 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729305AbgANBYX (ORCPT
+        id S1728931AbgANBr2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Jan 2020 20:47:28 -0500
+Received: from orion.archlinux.org ([88.198.91.70]:42476 "EHLO
+        orion.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728838AbgANBr2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Jan 2020 20:24:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578965061;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fHEMm2SsTYZoIki8jbB8+WC5Q2vGKFdNsQ1V1gkRMy8=;
-        b=OI4sHU7dzmfbaOWQeTbdLBNwueBXqdgY3LpzNSax2J0KCab+CHTAIA35/WFBLtDW3xS0Ie
-        JIz1beCjplmQKvPRLX9lCE25viQEzgB45PFXmTrzxQtYtikX0qhuRX3ijZQATgqmVyd2qn
-        dy1DDAVTIHbKbYKfTSMQviZwiCfGMP8=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-78-NEPe6AVONV-PneJrJdRR0w-1; Mon, 13 Jan 2020 20:24:20 -0500
-X-MC-Unique: NEPe6AVONV-PneJrJdRR0w-1
-Received: by mail-qv1-f70.google.com with SMTP id u11so7625959qvo.8
-        for <linux-input@vger.kernel.org>; Mon, 13 Jan 2020 17:24:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=fHEMm2SsTYZoIki8jbB8+WC5Q2vGKFdNsQ1V1gkRMy8=;
-        b=UeYTmvLjXCUsMB+VHHYRLlp//KfGgRFkwDBfr/U1cgbfXsGzMxDuwCUUiOMaGPM9Pq
-         H3EpaVZeH3bv/Cc5ghaefjBwdZzJpe2X80+pU2EcWKkycvB6bkdT9OtMxK3pECo36sX9
-         tCxKcm7fGJgkznTF+UyhaN/kSHg7+TnLZwcbZh8K93T847Bi/PItPygI+wxmovIqmgy9
-         5lFND3PBUFpQaIxDTINq/bcMFdbSqrk1ww+YAnk7aZbMJq/H4J93QMMJVE3QOnkn0Smh
-         F85OGVEJPfjjn5Trwvmi/3Cjo5++UQXnhd9bSHOt/ouduGs4/N5BRDM592kqfRW9pXFz
-         VUVA==
-X-Gm-Message-State: APjAAAUfk1zyb52CkrzPrf6HKjyFllHHg8Axh+Ltrwo/E2eA29nZi9r9
-        HoInDds6HAW+J92ID8m+hE5K5OeyWakycIT3t0WI0cdcFsK611HgVfHRPlxDWDIjQyMSGUqh7xh
-        KufLM2bx+b6H9PWF+SL6Wg96tIEJOeTLuGjqBGtI=
-X-Received: by 2002:a0c:fac7:: with SMTP id p7mr18867683qvo.46.1578965059692;
-        Mon, 13 Jan 2020 17:24:19 -0800 (PST)
-X-Google-Smtp-Source: APXvYqy8rp2tVJG8FFSrMqEEhMSegO/Ch9+dAU7aqOjlvhAWdChQ9jSPgjRB76ehlY2C/JNhnmNpbdLe0UeQ6dG9z0g=
-X-Received: by 2002:a0c:fac7:: with SMTP id p7mr18867665qvo.46.1578965059435;
- Mon, 13 Jan 2020 17:24:19 -0800 (PST)
-MIME-Version: 1.0
-References: <20200113192300.2482096-1-lains@archlinux.org>
-In-Reply-To: <20200113192300.2482096-1-lains@archlinux.org>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Tue, 14 Jan 2020 11:24:08 +1000
-Message-ID: <CAO-hwJKkMv7T0e11XoYKh9GtsnNCfOztFsoU7JXgmxCvfROeZw@mail.gmail.com>
+        Mon, 13 Jan 2020 20:47:28 -0500
+Received: from orion.archlinux.org (localhost [127.0.0.1])
+        by orion.archlinux.org (Postfix) with ESMTP id 015C5181900AAE;
+        Tue, 14 Jan 2020 01:47:25 +0000 (UTC)
+Received: from genesis (unknown [IPv6:2001:8a0:f254:2300:dad6:8c60:8394:88da])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: ffy00)
+        by orion.archlinux.org (Postfix) with ESMTPSA;
+        Tue, 14 Jan 2020 01:47:24 +0000 (UTC)
+Message-ID: <320e6e0d7f8968b3febb3422ba02a2b249e09f60.camel@archlinux.org>
 Subject: Re: [PATCH] HID: logitech-dj: add debug msg when exporting a HID++
  report descriptors
-To:     =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>
+From:   Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     Jiri Kosina <jikos@kernel.org>,
         "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
         lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAO-hwJKkMv7T0e11XoYKh9GtsnNCfOztFsoU7JXgmxCvfROeZw@mail.gmail.com>
+References: <20200113192300.2482096-1-lains@archlinux.org>
+         <CAO-hwJKkMv7T0e11XoYKh9GtsnNCfOztFsoU7JXgmxCvfROeZw@mail.gmail.com>
+Organization: Archlinux
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-XZpYMbjM2oNFIHaa2S3w"
+Date:   Tue, 14 Jan 2020 01:47:23 +0000
+MIME-Version: 1.0
+User-Agent: Evolution 3.34.3 
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Filipe,
 
-On Tue, Jan 14, 2020 at 5:23 AM Filipe La=C3=ADns <lains@archlinux.org> wro=
-te:
->
-> When exporting all other types of report descriptors we print a debug
-> message. Not doing so for HID++ descriptors makes unaware users think
-> that no HID++ descriptor was exported.
+--=-XZpYMbjM2oNFIHaa2S3w
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Unless I am mistaken, those dbg_hid() calls are not displayed by
-default on any distribution. So I am not sure what is the benefit to
-add this one here when we are already not showing the rest to the
-users by default. There is a tiny improvement to have some code
-symmetry, but here, honestly, it doesn't feel that required.
+On Tue, 2020-01-14 at 11:24 +1000, Benjamin Tissoires wrote:
+> Hi Filipe,
+>=20
+> On Tue, Jan 14, 2020 at 5:23 AM Filipe La=C3=ADns <lains@archlinux.org> w=
+rote:
+> > When exporting all other types of report descriptors we print a debug
+> > message. Not doing so for HID++ descriptors makes unaware users think
+> > that no HID++ descriptor was exported.
+>=20
+> Unless I am mistaken, those dbg_hid() calls are not displayed by
+> default on any distribution. So I am not sure what is the benefit to
+> add this one here when we are already not showing the rest to the
+> users by default. There is a tiny improvement to have some code
+> symmetry, but here, honestly, it doesn't feel that required.
+>=20
+> Cheers,
+> Benjamin
 
-Cheers,
-Benjamin
+Hi Benjamin,
 
->
-> Signed-off-by: Filipe La=C3=ADns <lains@archlinux.org>
-> ---
->  drivers/hid/hid-logitech-dj.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.=
-c
-> index cc7fc71d8b05..8f17a29b5a94 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -1368,6 +1368,8 @@ static int logi_dj_ll_parse(struct hid_device *hid)
->         }
->
->         if (djdev->reports_supported & HIDPP) {
-> +               dbg_hid("%s: sending a HID++ descriptor, reports_supporte=
-d: %llx\n",
-> +                       __func__, djdev->reports_supported);
->                 rdcat(rdesc, &rsize, hidpp_descriptor,
->                       sizeof(hidpp_descriptor));
->         }
-> --
-> 2.24.1
->
+As far as I know, they aren't. This was just a nitpick. As I already
+had the code locally I decided to just go ahead and submit the patch.
+But noted, I won't submit any more of this nitpick patches.
 
+> > Signed-off-by: Filipe La=C3=ADns <lains@archlinux.org>
+> > ---
+> >  drivers/hid/hid-logitech-dj.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >=20
+> > diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-d=
+j.c
+> > index cc7fc71d8b05..8f17a29b5a94 100644
+> > --- a/drivers/hid/hid-logitech-dj.c
+> > +++ b/drivers/hid/hid-logitech-dj.c
+> > @@ -1368,6 +1368,8 @@ static int logi_dj_ll_parse(struct hid_device *hi=
+d)
+> >         }
+> >=20
+> >         if (djdev->reports_supported & HIDPP) {
+> > +               dbg_hid("%s: sending a HID++ descriptor, reports_suppor=
+ted: %llx\n",
+> > +                       __func__, djdev->reports_supported);
+> >                 rdcat(rdesc, &rsize, hidpp_descriptor,
+> >                       sizeof(hidpp_descriptor));
+> >         }
+> > --
+> > 2.24.1
+> >=20
+
+Thank you,
+Filipe La=C3=ADns
+
+--=-XZpYMbjM2oNFIHaa2S3w
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl4dHaYACgkQ+JPGdIFq
+qV06zQ//XmrOqe71XNz/hvtjcOSxohDk+tdLtCvBOwhJr7UKJLWvRDqYy245uO3h
+4VOFKNQfbAFmuAJnGybxQSPlZp0qnqEaBj5OnycfLmpEfuhGP1afxv8dJxA0TNZF
+FbBmjm+oj2tenrtgE4kQ4GyzrE/AWE3vkKp3FMR+5vILxUG8gd8VKwvYX553gO5r
+sz46WGhkc4+skHscqKqqefRW+Z72kNmp1YuOKYntXeK6qomBmWPfN4xH4jM5R1je
+03tnYOH45uT+swXczKSoLZXfPNuEVVK7SA0g7HQqrpRe0P7q4KDmbgTaEGec5Y8r
+WZopYPDe822UwKukLR7h9EN2ilKdmg2/XwoVgnYofzy0f/0lAisAO9cNTNRwY3C6
+ElftlSUZlrruwy9wDX4T3pN+a+ynEybPLRyQj4KwBwFI5Bh2IXwEh5YpHFvz6Odi
+5qo0vtUE5cL6Du1Aomqk9WBcIvfPd8dxZojsQfUJJvFocmPk6WzO8CVSBRm8RZT3
+nNoYzT5pLMU9A+VWkdIlIjd2wCZWMsV9KYIPNq11wfMYcbuc0XbJXKG/vq6D3Yue
+vczfAaoWIDNY6zccimwYT67iF6ZZtogBmeNb4DAN6PlHA7L1I0OxQColmB9Zbke+
+uYRmBGZO4yigaKsdj1892j4qaP4Xh5Qyf/mKCBOovzNpMqzrQdA=
+=EY9x
+-----END PGP SIGNATURE-----
+
+--=-XZpYMbjM2oNFIHaa2S3w--

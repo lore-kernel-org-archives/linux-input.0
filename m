@@ -1,120 +1,109 @@
-Return-Path: <SRS0=zvy9=3C=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=BxR0=3D=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DATE_IN_FUTURE_06_12,
+	DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7345C33CAF
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 22:52:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69287C33CAF
+	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 00:49:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ACB71207FD
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jan 2020 22:52:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1578955960;
-	bh=veUkhuWj56Oql55ZqqS+wmUdDbbo2ngb7WraR/GRYCA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=ni1Vx1dB5GDj1UuOO5CjyRENowrhxfgwaC6YV8J4uQZDu7/uktvkwORROsF02y3TJ
-	 CkZeKXU+YwSS5nPeB/bd8eRuEBI5lhkgYuNNZeb2T4e9wNBNbYgpKuyWsxmuSpECg2
-	 obJ0XQydvOu0CK8d6O12WoqJICtbA2Wy3JcpCLW4=
+	by mail.kernel.org (Postfix) with ESMTP id 405E520678
+	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 00:49:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Qs995Vgt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728998AbgAMWwj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Jan 2020 17:52:39 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:44693 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728833AbgAMWwj (ORCPT
+        id S1726494AbgANAtg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Jan 2020 19:49:36 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:43841 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726536AbgANAtg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Jan 2020 17:52:39 -0500
-Received: by mail-ot1-f68.google.com with SMTP id h9so10612533otj.11
-        for <linux-input@vger.kernel.org>; Mon, 13 Jan 2020 14:52:38 -0800 (PST)
+        Mon, 13 Jan 2020 19:49:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578962974;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2l/F28QWuQvndxXiZazLaTDPrBDdV1YaH8Th1UuXAEQ=;
+        b=Qs995VgtIwaXnRi+UyXEHdbXCjZCdl3ZWGmqy8obIGmhBCgXyVImFA+aF2+2Q+D+azFjsx
+        YGjFbGf4xkUjXzMLWvjzWxbrdCSHCC1bMuNen46/YsrbJFD+yxGtyZIigYUnmChXGoboog
+        EGQ5sGtVu5fQubaMkWuINw571VB74CE=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-26-tyeVph6lMNmqge0fx68V0w-1; Mon, 13 Jan 2020 19:49:33 -0500
+X-MC-Unique: tyeVph6lMNmqge0fx68V0w-1
+Received: by mail-qk1-f200.google.com with SMTP id x127so7219998qkb.0
+        for <linux-input@vger.kernel.org>; Mon, 13 Jan 2020 16:49:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=J+zBhW/gDhabcv8JezsZDbLiOV+72tFZs2kFt+zjTFs=;
-        b=g+Eq+HD/QNbwhFDK1tFwzdWmax3K07rdR++wNDBgKjoSueQV+AaFTcYMe476A3Vo/6
-         2wtQ8y293IUUo5yJphRJn57wqUB2BhL6QkMQoRYEGTy1zTknOLnjT0I8m9tOM2eydMLI
-         NRuq7hldk4zG2N0FJB5osynKi42ql9pA/LVlzUDLf08x5vX6q8TxaOiBbo+16Wio5kA3
-         A2UZ7ex8E++rRo6Y8GVZCvBtdpJ02HLetarHEat6Gd1Voof6KzN2sWNAxYQJsXa+mpWB
-         TUqvfbEyMFUwpnQSR6Fbtj5blxIxYfkshpEFdlRGgGKVp0y6tlu/Y8y3x/FFD8h0wqPh
-         GNqQ==
-X-Gm-Message-State: APjAAAUA31x35PA4Bz04kbtoyKpUUvgdAaQwhwSXKkKmcYrg1E5RXiwX
-        Do7vNWX3I+H9FVX110Ysl+yDpLI=
-X-Google-Smtp-Source: APXvYqzPLz+Gz8ghuTv9UuKUouiSUzC8Mq8AD2qzQpcPvS+MUDkOEQsZxkadmW3gvGmVQICg3a7x2w==
-X-Received: by 2002:a9d:1c95:: with SMTP id l21mr14567603ota.271.1578955958296;
-        Mon, 13 Jan 2020 14:52:38 -0800 (PST)
-Received: from rob-hp-laptop (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id e65sm4696765otb.62.2020.01.13.14.52.37
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2020 14:52:37 -0800 (PST)
-Received: from rob (uid 1000)
-        (envelope-from rob@rob-hp-laptop)
-        id 2219cf
-        by rob-hp-laptop (DragonFly Mail Agent v0.11);
-        Mon, 13 Jan 2020 16:52:36 -0600
-Date:   Mon, 13 Jan 2020 16:52:36 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        linux-input@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Minkyu Kang <mk7.kang@samsung.com>,
-        =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>,
-        Jonathan Bakker <xc-racer2@live.ca>,
-        Oskar Andero <oskar.andero@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH 1/2 v4] iio: light: Add DT bindings for GP2AP002
-Message-ID: <20200113225236.GA17926@bogus>
-References: <20200112111341.21388-1-linus.walleij@linaro.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=2l/F28QWuQvndxXiZazLaTDPrBDdV1YaH8Th1UuXAEQ=;
+        b=HdcPPemYSVVqcX+o8qI1XyqeSmBcbKoqXpdHzL5Pppd+oQ1R9+nyhyQy/AWga9x7Q5
+         QITgcm8RTXccHQJO9QLjG9qkKRc1xZbKAT2o1tqibsI73etSnO4YcJ0cEAHwWiLGc79h
+         3EPq5cj96Us8BRu3+1i3LKEnnUn6iEtDNfNXHlu1seLoO8/Z0q8xrSVcxTxECFcxqSl0
+         9ZOWGKSrGrODNqCnJv3/AyZMY3srQGeIywllBitfGunQiUCTpoQpbU2C1N7rOeLOs12i
+         t3tZcWf8fEfmNbGQc9D7BpgiB85gUUEqFn1FGLNoP3e8ndT2aHvkPtDJZT+1I3NVrnNS
+         X1BA==
+X-Gm-Message-State: APjAAAW3EjIhlD5NJVRFOsY4XLJ58m1DZmpwJNoCT5k/1kt53Gz624Cy
+        Q1vaQnNhFHJAmBqM8rpaaecNkzLEXX1RjSd0/290upGbC9Pe+YoNgNs0JB5pPM4WIuP8/Q1sljd
+        zWORFsq2Uf4HL6q6uayjhY2KFA9hUsrXghyXcNLc=
+X-Received: by 2002:ac8:478a:: with SMTP id k10mr1344568qtq.260.1578962972792;
+        Mon, 13 Jan 2020 16:49:32 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyjxu5nBmZuS7sk+Evmp+4P+dIg5mfw0lvZthkPTRl3Bk9pdAQzlF5dtnuqpdGQwTqLJqW9VdkFG12KK27SFQI=
+X-Received: by 2002:ac8:478a:: with SMTP id k10mr1344554qtq.260.1578962972518;
+ Mon, 13 Jan 2020 16:49:32 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200112111341.21388-1-linus.walleij@linaro.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20200112205021.3004703-1-lains@archlinux.org> <7d49a8444ea1740444d1e9133104530731bfb30a.camel@archlinux.org>
+In-Reply-To: <7d49a8444ea1740444d1e9133104530731bfb30a.camel@archlinux.org>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Tue, 14 Jan 2020 20:48:17 +1000
+Message-ID: <CAO-hwJ+56qUTr8HQOLyx9tgbJMuTTPbb6K40cwWnO=PzMcO+tQ@mail.gmail.com>
+Subject: Re: [PATCH] HID: logitech-hidpp: add support for the Powerplay mat/receiver
+To:     =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 12 Jan 2020 12:13:40 +0100, Linus Walleij wrote:
-> This adds device tree bindings for the GP2AP002 light
-> and proximity sensor.
-> 
-> As with other early proximity sensors (~2010) the light
-> sensor and proximity sensors were combined into a single
-> component.
-> 
-> Cc: Stephan Gerhold <stephan@gerhold.net>
-> Cc: Minkyu Kang <mk7.kang@samsung.com>
-> Cc: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-> Cc: Jonathan Bakker <xc-racer2@live.ca>
-> Cc: Oskar Andero <oskar.andero@gmail.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v3->v4:
-> - Resend with the changes in the main patch.
-> ChangeLog v1->v3:
-> - Drop the maxitems on the supplies, it is already 1
-> - Drop quotes around "alsout"
-> - Limit the sharp hysteresis to 8 bits as it should be
-> - Use /bits/ 8 in the example so it is correct
-> ---
->  .../bindings/iio/light/sharp,gp2ap002.yaml    | 85 +++++++++++++++++++
->  1 file changed, 85 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/iio/light/sharp,gp2ap002.yaml
-> 
+On Tue, Jan 14, 2020 at 1:31 AM Filipe La=C3=ADns <lains@archlinux.org> wro=
+te:
+>
+> On Sun, 2020-01-12 at 20:50 +0000, Filipe La=C3=ADns wrote:
+> > I also marked all lightspeed devices as HID++ compatible. As the
+> > internal powerplay device does not have REPORT_TYPE_KEYBOARD or
+> > REPORT_TYPE_KEYBOARD it was not being marked as HID++ compatible in
+> > logi_hidpp_dev_conn_notif_equad.
+>
+> Actually I had another look at the code and I don't understand why we
+> are manually setting |=3D HIDPP in
+> logi_hidpp_dev_conn_notif_equad/logi_hidpp_dev_conn_notif_27mhz. We
+> should set it in logi_dj_hidpp_event as it is triggered by receiving a
+> HID++ packet.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+long story short: nope :)
+
+The whole purpose of setting the workitem->reports_supported is to be
+able to create the matching report descriptor in the new virtual
+device. So having this set in a callback will add an operation for
+nothing every time we get an event, and will also not ensure a proper
+separation of concerns.
+
+Cheers,
+Benjamin
+
+>
+> What do you think Benjamin?
+>
+> --
+> Filipe La=C3=ADns
+

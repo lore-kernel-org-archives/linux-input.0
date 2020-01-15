@@ -1,98 +1,112 @@
-Return-Path: <SRS0=BxR0=3D=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=BonL=3E=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=unavailable
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEEA9C33C9E
-	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 23:31:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54024C33C9E
+	for <linux-input@archiver.kernel.org>; Wed, 15 Jan 2020 01:30:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 99BBC24679
-	for <linux-input@archiver.kernel.org>; Tue, 14 Jan 2020 23:31:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579044699;
-	bh=OZuBL2XXxCUw/c1yIGlmQB5x308FiSkcvFtCTwXs4wE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=vAUUqxRjs9k7DfMtOUel3MKXjijBNtbUsBGjxb99hwddQWcJoFn2AaOu9VGJQKms+
-	 rWWPu+rwUr3wbESi/wSEYa6IRN9TesF1LNTAhgO4uQ1PxXKPTEHrTIdyv3IPPMWor0
-	 cm+PCOnkovNHZV7XjFFJXTEm4Dp1hPEMrYWMSghA=
+	by mail.kernel.org (Postfix) with ESMTP id 1D50524679
+	for <linux-input@archiver.kernel.org>; Wed, 15 Jan 2020 01:30:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q7eWKs0w"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728913AbgANXbg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 14 Jan 2020 18:31:36 -0500
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:44819 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728890AbgANXbg (ORCPT
+        id S1728862AbgAOBag (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 14 Jan 2020 20:30:36 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:54502 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728848AbgAOBag (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Jan 2020 18:31:36 -0500
-Received: by mail-oi1-f195.google.com with SMTP id d62so13599767oia.11
-        for <linux-input@vger.kernel.org>; Tue, 14 Jan 2020 15:31:36 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=jAkgnrf4y6WZwtNfVCRDWdRSB0xmK/6Aa/25HCZGKjg=;
-        b=pQGahGqzCOgD7kKzS2qGDIwhNndX0kkM004gtwKSFx4uONzwLNpTmiYxmRLDniDxvq
-         fRoFuicJZZb/c/CABjM9l4YxbhWTOJF9NC814qb3KklDdC0K2bJICQQwCLMgm0fGHtzP
-         QHQJyNDnfD6MT0QUbMm5YiR9y3/ExprrBDLO75ZQ/2J4pWsM6Ae/rczwxnRmYWI6FbEc
-         nEh4Hf400Z2rQ1mA1LKUbe/6RnUexw2CriZEcIWugLOfgnFc37qN0b1H/tCw3CFgCumh
-         kgKkio1y9bahnhf0wtGlmGJ+5ZajyO8zxc9kw0Q+lkE9LTpMPIuRAxbSELOxqiRIofhC
-         wJmw==
-X-Gm-Message-State: APjAAAVr90YpE+HiHl/X5ed2GXLbcwbGiuHDbkb71sIybz5hksUUxfEt
-        EWQoPb8VceFZYQie2oJOBSUL/Tk=
-X-Google-Smtp-Source: APXvYqwPhBV1XTUp031BMeeCOL2FnsIJ+5oX+UKfa7aKQiOnSoRLRflQ28aAaavV7+X5iSREp4HWsA==
-X-Received: by 2002:aca:1b19:: with SMTP id b25mr19154965oib.24.1579044695474;
-        Tue, 14 Jan 2020 15:31:35 -0800 (PST)
-Received: from rob-hp-laptop (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id p184sm5062371oic.40.2020.01.14.15.31.34
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jan 2020 15:31:34 -0800 (PST)
-Received: from rob (uid 1000)
-        (envelope-from rob@rob-hp-laptop)
-        id 2209ae
-        by rob-hp-laptop (DragonFly Mail Agent v0.11);
-        Tue, 14 Jan 2020 17:31:34 -0600
-Date:   Tue, 14 Jan 2020 17:31:34 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Benjamin Gaignard <benjamin.gaignard@st.com>
-Cc:     dmitry.torokhov@gmail.com, robh+dt@kernel.org,
-        mark.rutland@arm.com, hadess@hadess.net,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, yannick.fertre@st.com,
-        Benjamin Gaignard <benjamin.gaignard@st.com>
-Subject: Re: [PATCH v2 2/2] dt-bindings: touchscreen: Convert Goodix
- touchscreen to json-schema
-Message-ID: <20200114233134.GA23810@bogus>
-References: <20200108091118.5130-1-benjamin.gaignard@st.com>
- <20200108091118.5130-3-benjamin.gaignard@st.com>
+        Tue, 14 Jan 2020 20:30:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579051835;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=cq04Ga1b8xTrH17T3rkjESGzzrFCqY7RRinYPFVL2u0=;
+        b=Q7eWKs0w9E1gn14AnUZJCdjk1u2cWMfRu1SefhIc4yLM8s7FcZXMEdlN4/L6KKzqHsZQXj
+        IBj7oPVJV1Kepe539MehgjLIpixYGfY/ZnFB50Dhn9+5IRICkY4fY6Gx4ZOYjD3gPSzLTy
+        KxIEXtJFbtt+Svgt0F9vA0qez0Vf4Hk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-59-MILkH8OSOieJ7asONUSy-w-1; Tue, 14 Jan 2020 20:30:31 -0500
+X-MC-Unique: MILkH8OSOieJ7asONUSy-w-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3A71C1800D78;
+        Wed, 15 Jan 2020 01:30:30 +0000 (UTC)
+Received: from plouf.redhat.com (ovpn-116-34.ams2.redhat.com [10.36.116.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B657A675AE;
+        Wed, 15 Jan 2020 01:30:26 +0000 (UTC)
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] Input: synaptics - remove the LEN0049 dmi id from topbuttonpad list
+Date:   Wed, 15 Jan 2020 02:30:23 +0100
+Message-Id: <20200115013023.9710-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200108091118.5130-3-benjamin.gaignard@st.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 8 Jan 2020 10:11:18 +0100, Benjamin Gaignard wrote:
-> Convert the Goodix binding to DT schema format using json-schema
-> 
-> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
-> ---
-> version 2:
-> - enumerate goodix's I2C adresses
-> - add description for irq-gpio property
-> - reference the common properties used by goodix
-> 
->  .../bindings/input/touchscreen/goodix.txt          | 50 --------------
->  .../bindings/input/touchscreen/goodix.yaml         | 78 ++++++++++++++++++++++
->  2 files changed, 78 insertions(+), 50 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/goodix.txt
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-> 
+The Yoga 11e is using LEN0049, but it doesn't have a trackstick.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Thus, there is no need to create a software top buttons row.
+
+However, it seems that the device works under SMBus, so keep it as part
+of the smbus_pnp_ids.
+
+
+Link: https://gitlab.freedesktop.org/libinput/libinput/issues/414
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+--
+
+Hi Dmitry,
+
+Sending the patch to the list untested (sanity only), and I'll ask
+for the reporter to provide a little bit more testing.
+
+I will keep you updated when you can merge the patch.
+
+Cheers,
+Benjamin
+---
+ drivers/input/mouse/synaptics.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synapt=
+ics.c
+index 1ae6f8bba9ae..7aa84f743c48 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -146,7 +146,6 @@ static const char * const topbuttonpad_pnp_ids[] =3D =
+{
+ 	"LEN0042", /* Yoga */
+ 	"LEN0045",
+ 	"LEN0047",
+-	"LEN0049",
+ 	"LEN2000", /* S540 */
+ 	"LEN2001", /* Edge E431 */
+ 	"LEN2002", /* Edge E531 */
+@@ -166,6 +165,7 @@ static const char * const smbus_pnp_ids[] =3D {
+ 	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras *=
+/
+ 	"LEN0048", /* X1 Carbon 3 */
+ 	"LEN0046", /* X250 */
++	"LEN0049", /* Yoga 11e */
+ 	"LEN004a", /* W541 */
+ 	"LEN005b", /* P50 */
+ 	"LEN005e", /* T560 */
+--=20
+2.24.1
+

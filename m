@@ -6,37 +6,37 @@ X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3402FC3F68F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FAC0C2D0CE
 	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 15:15:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0C8E62253D
-	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 15:15:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5C8B217F4
+	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 15:14:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbgAUPO7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1728186AbgAUPO7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 21 Jan 2020 10:14:59 -0500
-Received: from mga02.intel.com ([134.134.136.20]:35625 "EHLO mga02.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:31529 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727059AbgAUPO7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1727817AbgAUPO7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Tue, 21 Jan 2020 10:14:59 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Jan 2020 07:14:58 -0800
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Jan 2020 07:14:58 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.70,346,1574150400"; 
-   d="scan'208";a="244725066"
+   d="scan'208";a="374616982"
 Received: from lkp-server01.sh.intel.com (HELO lkp-server01) ([10.239.97.150])
-  by orsmga002.jf.intel.com with ESMTP; 21 Jan 2020 07:14:57 -0800
+  by orsmga004.jf.intel.com with ESMTP; 21 Jan 2020 07:14:57 -0800
 Received: from kbuild by lkp-server01 with local (Exim 4.89)
         (envelope-from <lkp@intel.com>)
-        id 1itvF2-0005gQ-S9; Tue, 21 Jan 2020 23:14:56 +0800
-Date:   Tue, 21 Jan 2020 23:14:06 +0800
+        id 1itvF2-0005gm-TA; Tue, 21 Jan 2020 23:14:56 +0800
+Date:   Tue, 21 Jan 2020 23:13:58 +0800
 From:   kbuild test robot <lkp@intel.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-input@vger.kernel.org
-Subject: [input:next] BUILD SUCCESS
- 0dfed6dc24576f256782d5288537927c69256081
-Message-ID: <5e27153e.w5sl3+eIN8pm1wOw%lkp@intel.com>
+Subject: [input:for-linus] BUILD SUCCESS
+ 996d5d5f89a558a3608a46e73ccd1b99f1b1d058
+Message-ID: <5e271536.WTKVYnh06ZRQxSy6%lkp@intel.com>
 User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -46,10 +46,10 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git  next
-branch HEAD: 0dfed6dc24576f256782d5288537927c69256081  Input: ads7846 - use new `delay` structure for SPI transfer delays
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git  for-linus
+branch HEAD: 996d5d5f89a558a3608a46e73ccd1b99f1b1d058  Input: pm8xxx-vib - fix handling of separate enable register
 
-elapsed time: 322m
+elapsed time: 332m
 
 configs tested: 152
 configs skipped: 0
@@ -102,6 +102,11 @@ openrisc             randconfig-a001-20200121
 s390                 randconfig-a001-20200121
 sh                   randconfig-a001-20200121
 xtensa               randconfig-a001-20200121
+x86_64                              fedora-25
+x86_64                                  kexec
+x86_64                                    lkp
+x86_64                                   rhel
+x86_64                               rhel-7.6
 ia64                             alldefconfig
 ia64                             allmodconfig
 ia64                              allnoconfig
@@ -131,6 +136,9 @@ x86_64               randconfig-d003-20200121
 i386                 randconfig-d001-20200121
 i386                 randconfig-d002-20200121
 i386                 randconfig-d003-20200121
+um                                  defconfig
+um                             i386_defconfig
+um                           x86_64_defconfig
 x86_64               randconfig-e001-20200121
 x86_64               randconfig-e002-20200121
 x86_64               randconfig-e003-20200121
@@ -147,7 +155,6 @@ csky                                defconfig
 nds32                             allnoconfig
 nds32                               defconfig
 arm64                               defconfig
-um                           x86_64_defconfig
 s390                             alldefconfig
 s390                             allmodconfig
 s390                              allnoconfig
@@ -164,8 +171,17 @@ mips                      fuloong2e_defconfig
 mips                      malta_kvm_defconfig
 arm                              allmodconfig
 arm64                            allmodconfig
-um                                  defconfig
-um                             i386_defconfig
+arm                               allnoconfig
+arm                              allyesconfig
+arm                         at91_dt_defconfig
+arm                           efm32_defconfig
+arm                          exynos_defconfig
+arm                        multi_v5_defconfig
+arm                        multi_v7_defconfig
+arm                        shmobile_defconfig
+arm                           sunxi_defconfig
+arm64                             allnoconfig
+arm64                            allyesconfig
 x86_64               randconfig-g001-20200121
 x86_64               randconfig-g002-20200121
 x86_64               randconfig-g003-20200121
@@ -182,11 +198,6 @@ sparc64                          allmodconfig
 sparc64                           allnoconfig
 sparc64                          allyesconfig
 sparc64                             defconfig
-x86_64                              fedora-25
-x86_64                                  kexec
-x86_64                                    lkp
-x86_64                                   rhel
-x86_64                               rhel-7.6
 c6x                  randconfig-a001-20200121
 h8300                randconfig-a001-20200121
 microblaze           randconfig-a001-20200121
@@ -198,17 +209,6 @@ x86_64               randconfig-f003-20200121
 i386                 randconfig-f001-20200121
 i386                 randconfig-f002-20200121
 i386                 randconfig-f003-20200121
-arm                               allnoconfig
-arm                              allyesconfig
-arm                         at91_dt_defconfig
-arm                           efm32_defconfig
-arm                          exynos_defconfig
-arm                        multi_v5_defconfig
-arm                        multi_v7_defconfig
-arm                        shmobile_defconfig
-arm                           sunxi_defconfig
-arm64                             allnoconfig
-arm64                            allyesconfig
 
 ---
 0-DAY kernel test infrastructure                 Open Source Technology Center

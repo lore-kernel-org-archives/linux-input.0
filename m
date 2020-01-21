@@ -8,112 +8,92 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B69A7C3F68F
-	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 14:19:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 004DCC33CB6
+	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 14:19:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8E38E217F4
+	by mail.kernel.org (Postfix) with ESMTP id CB1F724654
 	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 14:19:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=web.de header.i=@web.de header.b="ODOAl3bY"
+	dkim=pass (1024-bit key) header.d=web.de header.i=@web.de header.b="ge+UGsfN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729030AbgAUOTH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1727255AbgAUOTH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 21 Jan 2020 09:19:07 -0500
-Received: from mout.web.de ([217.72.192.78]:51253 "EHLO mout.web.de"
+Received: from mout.web.de ([212.227.17.12]:43631 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728794AbgAUOTG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1728916AbgAUOTG (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Tue, 21 Jan 2020 09:19:06 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
-        s=dbaedf251592; t=1579616342;
-        bh=9kRnx6Jx4zaILv3sEjaVmFzBKiRSW1pV8G1VB8CJASA=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=ODOAl3bYQl7SaKcOWN9MzrEsCh8KQviYNFjI1R0Zq/hIItUPDFXVPUk8fCfhSQs17
-         iadm2Mbo2B6SNc+NaqSEEYPrcRW8paZMEXcyLflVHxw4Ig3MNqhYS0MXSBv3mL1nfi
-         fq6eV8YX/0h8cCe1EWkdhsjqmu4YpvSxilhgxc48=
+        s=dbaedf251592; t=1579616341;
+        bh=oyW5kwO8xJarn3kuEr7zxq2OV3sMcoGNfUpvTIw+h1I=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=ge+UGsfNGl/VEaZcZ0OgqBVZhh/ZI3W7At+AAqbBiRTZlVfI5q9K6HFzFnEoO90tk
+         mBGYKmxmqFNZLI+xaYIBI6L5zDUN7+8r7aYnTgxMXg3QaLgaPoxkx+50vLqsE2J1SN
+         i0w16UmYQvVLtFON3DbxUxfyYlcKq3mcbn5F/AmU=
 X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
 Received: from LaptopNick.fritz.box ([79.227.106.217]) by smtp.web.de
  (mrweb101 [213.165.67.124]) with ESMTPSA (Nemesis) id
- 0MUFGo-1j2GM00yEE-00R2Ha; Tue, 21 Jan 2020 15:19:02 +0100
+ 0Lrs70-1jch6R1qH8-013gUQ; Tue, 21 Jan 2020 15:19:01 +0100
 From:   Nick Reitemeyer <nick.reitemeyer@web.de>
 To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org
 Cc:     stephan@gerhold.net, linux-input@vger.kernel.org,
         devicetree@vger.kernel.org,
         Nick Reitemeyer <nick.reitemeyer@web.de>
-Subject: [PATCH 3/3] Input: tm2-touchkey - add support for Coreriver TC360 variant
-Date:   Tue, 21 Jan 2020 15:15:26 +0100
-Message-Id: <20200121141525.3404-3-nick.reitemeyer@web.de>
+Subject: [PATCH 1/3] dt-bindings: vendor-prefixes: Add Coreriver vendor prefix
+Date:   Tue, 21 Jan 2020 15:15:24 +0100
+Message-Id: <20200121141525.3404-1-nick.reitemeyer@web.de>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20200121141525.3404-1-nick.reitemeyer@web.de>
-References: <20200121141525.3404-1-nick.reitemeyer@web.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:k2+u9ZfeHwTXo/d5p4ZrSG55i2emVHb8kyrVo/l1GUPLBrHNxY2
- V8ZN8Myc/LGrAiZl0hyphimMnp+hZhQ8tVuomgH9VjRa5+yisWx4FlojBTdPtJUFhS4WM9s
- 3hx+0LywkSLQCCmQyWESeu+65CoKsWQYEIujYlksjwmL0BrgFyDHuGeMY9Xvjrvt7vNW0oa
- fhTOd0cS5Sd5WtFAZKEeg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:ZOgEio7KkAI=:MQnRiI+KYBY6HbEqOH9T7E
- pzuvNli34D6a+CMx/UuDppIiKsHEyKOiRITaPOHg5XHu8v882vmwD4gLvekHu9iQuvdkCK8Kn
- oVaYnvVU3wwMLaqY6jTQvwZYhPZ8z/8UGRBeUxGv6GoVRgsq46I5pQd8f9pfJ+5ZJXLBDq5cz
- 5yP5CKcFjs8dwYLfYNkxMEWqUrnfo1Uech+ncdZkCJI1NwHgLq+XS4xDMVyHe3rLWtXGRxyuk
- a9pbOtgTcrQHazIV1TaMGoWegQKS219bUlPzt89RuvLq3/G1cx6doDP3IPUI7hurXBDpxqlPw
- eiVoz+TgblrqxOySGHhwupY+PlADf/R0C+uJvGF8qMRih8IpW2hWX8CnskHfYZnqUxvJ5WZL0
- lYc0t9HiBOPOt+yCE47ouw3AIEfPd9s/LYnru0fZ4/aMKuME2XTmPYaSSAbn7z/rU0D+BMbe+
- DJ2jHoSetadkZwG7UMyDMBKEHHF/81LZCC5V0Te4fT0ic0clhxqWRR4acZTNZ11VXfiazb2CP
- coWdyCRc0DEnmD77yV4NEAb5SglTkcVkYBeHL151PK6pcpKNtzMDJroWQAOjbxWN67D92QFNG
- /QsIFccoJAn4vkMP3krXn2FsJ7uu6wTTl+mF0czY3BrgGL0zEgyxgVJnCnob8KRYhy2jKSruG
- DpMsiDREtX6cTIWBC7xoZtoxN1WZCW0idt41cL0YwDIZOFanOl3wGHO/FXYFHGT6gTQ/3O7xa
- UMw+NjUbriO91hjPGAXLK9MTNcS3Oq4Uva9sw/KUWJK6S9LWL0q14r0euw7+G26Ax3bAj8zym
- nPRjCRZMuIrJy10gbNDKTa3CnDcRXQzDPuE97KK3AEvUklGa/SWCP8skqWm1AEcVT9QVjbA+f
- YzKmV1wP9O4HLtdFRxCRXKal8hL8cI4BChOmf54ulmmmc4+XmjE1mHk9Cq+0FsBZyA7p3u02J
- ICxpK+K/uM9obFhT3Raxc8WYb2aS6gPt8g7kyIWdma7fT77daqQgxFnG+RtVb5IL61brQ+25R
- 5a1HFWexqxSPYa1acyPCB+QewBnL6RHV/UvI+xb/dF0pmNj6ww/MIL9SaB8sB3co5KdengFV4
- S2Sy1s83XZfCFUt7/ZRnDi3HkmIFrAwoXCPqxqXShhmJ4hnkQfUFUFsS4f0wdIcRKNOWFVRDh
- KRHa4nYbX+H95AWsZoNXgEOsqT5CqbmUyjYcL/eIv1loUIvFBH3H+ogv/dhIY3tz+NCy46bk6
- uhNn7CFiQk/mG8b0FLtux0dPjVeXLcmHswjnGR+yeXXXZ786ZtI1ff1hqMQs=
+X-Provags-ID: V03:K1:kN2/uaHHSicxe1V/hz2OieOJKKx6B1Tx95Yd9/Hcpu+4ZaYbfCC
+ MURnyZ/iITvdW7N9MebmFc3hYjHnU9VnU7gCDQWr+8ejMzOPnwqhW6GQfQpnMc9bB8Cesbs
+ xNueTWr/vApeW15xL/RBk754nGsZhJYFzySU543HKJj2K06MUdND69ddPOLESF8TZ9o4M5S
+ /bMjdqS2ae+09FNu60NpA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:9n/+EnS/cGo=:p+dN9YhqwwgZJL0dDuKZTm
+ vDixCZcj9T0pjsh+/iBTXgExtMt7TceuOdMcN87Z4mg2ZBq8uSUIFm7eJ0hlHY9ytJXB9HlVg
+ lXm0PZznTVS4Jd9A/idT5Tbo7dmXnHYxyglva48b6/8X5mN9dmvr7S2omgVn03PvfznJ22uvk
+ kqk8VehRGQDze2yZX4lUs68GkCKb5eucdN/Cmqi8oWzC1RdJGXhRqifwgyCw0t4h217Js5KIT
+ 4fqgVn1jZ+vlMXnP4dlOKwC39et6eDsbeqXNLtDCzVhTUbnTBrRJDyoDrlk7ygcrnALC3fF9M
+ /dNXBrS8l4nYEHQBSe/SXBtfYTOKUtG/jxcEzkGskpS9uj92RZu37jrFsltnL1TdHyvtvyORL
+ qw7DnYIwbpt4gCh/5+TM+hFfcjpuhv6aXig7ItdKL4ZCz/JPVXEn6w1f4Q6iB9VK2p91LDBY/
+ Ov+TczC4Z+O4i2X+D1qVIzmNwT+TXs9CgG0eYfU4jpnv0NZQi4u/cCF64acdub31iW1gB3frD
+ /Og7POQ2q3YBf4RwHVPXmjyP6uU0k/sE+h+3gX29oCFac4JoqbvT9SBMvLyTrovbnZAzFrik7
+ BIyeDjrVbjZDTEH6QsbojNO4FAj9oQzoTczlqid/VMhg2f6sSwDniPF3kecHwmrrJfOT59cur
+ jqpztsBq/tT+6pbUjwYjv9m/tJ46v7TNNSO2HilGr7NcBb1KhCyNK2lhlcTLiXWYO3T+72M2v
+ 668lkqTZc4y2NeTHA6rJhsedVOm9gVbQF3dUqkmPECrbEVvzlpI7a5QYGyyOf9LWxApgd646U
+ wQb6pzH0lfjYlQzQl+Hbgi27qPkWSv58jHwEycthjiK/DJMaM5J6+8SQJ0dHgBESfOdth8z5L
+ 6hNWXBV5/jnIEyOa3Ob+mJtX8BxwpqO/XRY3HdunesoASR/ccblr7uyZOisoNO6uPRnEgSAYI
+ sPldtj7Hc1kBQIvTAhhFWvspSTLY3bkfkEJAk+UyGTGVlmZ3pXgzWoKjr/lqCB2TykhO9iKUx
+ ZsKJ1zxr5aryuQ+9pnpFC/1UYyY2OPnedHe6rcrIbEIEin25B1EXX/3QOBPomK25WlzcTcIrm
+ w8O7nGq4lW+O9oQDUliyMWaHAhSIuwq+JxqLVv9swIERwHObuppT6bVMl3HC5cF2ZWEfgTQ4P
+ an35sIgRuAnhhhSlDEpBwFB5qbRRM1U7zfdtXZ2tXt1/dCMu/ZGQ5SYkeDNskKIx/aqHkFln3
+ 74y+Cfv2Uvd2Zb45BKti4TSfYJeeT69l2EqKrIUCn/+eEslicPw1Zid3xmYw=
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The Coreriver TouchCore 360 is like the midas board touchkey, but it is us=
-ing a fixed regulator.
+Coreriver is a South Korean microcontroller manufacturer: http://coreriver=
+.com
 
 Signed-off-by: Nick Reitemeyer <nick.reitemeyer@web.de>
 =2D--
- drivers/input/keyboard/tm2-touchkey.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboar=
-d/tm2-touchkey.c
-index 14b55bacdd0f..fb078e049413 100644
-=2D-- a/drivers/input/keyboard/tm2-touchkey.c
-+++ b/drivers/input/keyboard/tm2-touchkey.c
-@@ -75,6 +75,14 @@ static struct touchkey_variant aries_touchkey_variant =
-=3D {
- 	.cmd_led_off =3D ARIES_TOUCHKEY_CMD_LED_OFF,
- };
-
-+static const struct touchkey_variant tc360_touchkey_variant =3D {
-+	.keycode_reg =3D 0x00,
-+	.base_reg =3D 0x00,
-+	.fixed_regulator =3D true,
-+	.cmd_led_on =3D TM2_TOUCHKEY_CMD_LED_ON,
-+	.cmd_led_off =3D TM2_TOUCHKEY_CMD_LED_OFF,
-+};
-+
- static int tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
- 					    enum led_brightness brightness)
- {
-@@ -327,6 +335,9 @@ static const struct of_device_id tm2_touchkey_of_match=
-[] =3D {
- 	}, {
- 		.compatible =3D "cypress,aries-touchkey",
- 		.data =3D &aries_touchkey_variant,
-+	}, {
-+		.compatible =3D "coreriver,tc360-touchkey",
-+		.data =3D &tc360_touchkey_variant,
- 	},
- 	{ },
- };
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Docu=
+mentation/devicetree/bindings/vendor-prefixes.yaml
+index 6046f4555852..77fb3c453014 100644
+=2D-- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -199,6 +199,8 @@ patternProperties:
+     description: Colorful GRP, Shenzhen Xueyushi Technology Ltd.
+   "^compulab,.*":
+     description: CompuLab Ltd.
++  "^coreriver,.*":
++    description: CORERIVER Semiconductor Co.,Ltd.
+   "^corpro,.*":
+     description: Chengdu Corpro Technology Co., Ltd.
+   "^cortina,.*":
 =2D-
 2.23.0
 

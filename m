@@ -2,342 +2,97 @@ Return-Path: <SRS0=JQgI=3K=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86777C2D0CE
-	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 11:10:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EB7EC33CAA
+	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 14:19:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 49A7524653
-	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 11:10:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 14239217F4
+	for <linux-input@archiver.kernel.org>; Tue, 21 Jan 2020 14:19:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ha8M5PVu"
+	dkim=pass (1024-bit key) header.d=web.de header.i=@web.de header.b="Iy6Pi+wI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729247AbgAULKZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 21 Jan 2020 06:10:25 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:58635 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729214AbgAULKZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Jan 2020 06:10:25 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579605024;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=b+8SEynOpND7/2OBN6UhZ1dWTPpNnOZVE/3Iwbxj2v4=;
-        b=Ha8M5PVulIjIGQ4c0lugC5b7r9f/DnxvrcwibSk3zRLFREDAognjs7Z0JhI9Ub11srnEKm
-        dYp865RUMpVB+EvzwMpZdqt3wFWIiMMszPOEo4J/R63CqkZYQ0suuIY7cF0ar3CHBNajA/
-        Cl4lcNxe1y/fBWFKwA0uTdBzeyKaZnA=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-8-Pp-M9BC2NnCDi1dEoz24jQ-1; Tue, 21 Jan 2020 06:10:23 -0500
-X-MC-Unique: Pp-M9BC2NnCDi1dEoz24jQ-1
-Received: by mail-wm1-f71.google.com with SMTP id c4so475713wmb.8
-        for <linux-input@vger.kernel.org>; Tue, 21 Jan 2020 03:10:22 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=b+8SEynOpND7/2OBN6UhZ1dWTPpNnOZVE/3Iwbxj2v4=;
-        b=I8Z+jylWerpLJT1l2zqADCKrwu474TzdZqBEtnNZ4Z2nyNfwXLagXWVE1PrnYVGxni
-         y4FlF9lmydfxnwZkeR5o/hTgVpqVKSwX5kkOrcpgOpm3fVfobZzebqaTbzPjJoIhBxsR
-         Nj8U/0R4kbnQpValZjQWKsR4B63ioEeXbsZ/h6exbfU/88jHigvMT2ExuSNjNpXYwQYc
-         hCBEDcv9FrkWeU9H1vZm/u2Ph/MFJAzpI+aoXXxbn9T7l0pNFsR/VELOve2TvJOo60Tx
-         qkXiRxD/nvNQho9jKIG8da91nVO61PkMJCvUVOqFXQ7lSK8JrG0Aju4S/3rcPaxNZlft
-         L9Uw==
-X-Gm-Message-State: APjAAAWK1/K+/6WH+ejq7so+V4u1kfTMDx4mKCiwn8zJwNlvCrXD5xtJ
-        hbgYIaYcLo9ZCBHTibyCUdDxFA/PAtdzZmp/xP1DX3eLf4Y0ZRooa5so2QxY5mTEDosR+e+LCEv
-        R6KpeWAIAc2RmLqYb5hJwsWg=
-X-Received: by 2002:a5d:410e:: with SMTP id l14mr4467843wrp.238.1579605021671;
-        Tue, 21 Jan 2020 03:10:21 -0800 (PST)
-X-Google-Smtp-Source: APXvYqx6E/9G43mRcTFxNByexE6om9v7EsDQr/EzOq9zF2S7o8d+bSE4jR9kEXjwDaInyR8pb4D2Yg==
-X-Received: by 2002:a5d:410e:: with SMTP id l14mr4467801wrp.238.1579605021317;
-        Tue, 21 Jan 2020 03:10:21 -0800 (PST)
-Received: from shalem.localdomain (2001-1c00-0c0c-fe00-7e79-4dac-39d0-9c14.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:7e79:4dac:39d0:9c14])
-        by smtp.gmail.com with ESMTPSA id j12sm56198260wrw.54.2020.01.21.03.10.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 21 Jan 2020 03:10:20 -0800 (PST)
-Subject: Re: [PATCH v11 02/10] efi: Add embedded peripheral firmware support
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Peter Jones <pjones@redhat.com>,
-        Dave Olsthoorn <dave@bewaar.me>, X86 ML <x86@kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-References: <20200111145703.533809-1-hdegoede@redhat.com>
- <20200111145703.533809-3-hdegoede@redhat.com>
- <CALCETrUz4gdVOH=5X+MkB56ST=DNcHKicRST1j1ff0kU1yXWzw@mail.gmail.com>
- <9b5b8304-74bc-4e5c-5030-98bd6e12eaf0@redhat.com>
- <CALCETrWtf3iEdZS8zu=k60cnZtokbxRaH5dfkWoM7JokkhAL2w@mail.gmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <a2d34c73-6a83-94a0-94a3-dcbbf68b25ff@redhat.com>
-Date:   Tue, 21 Jan 2020 12:10:19 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1729028AbgAUOTG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 21 Jan 2020 09:19:06 -0500
+Received: from mout.web.de ([217.72.192.78]:39039 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728186AbgAUOTG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 21 Jan 2020 09:19:06 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1579616342;
+        bh=MdUkYMZtyFfdIN9M9eXhJ33ZqLBdXaWNs9AvLX4Dzw8=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=Iy6Pi+wIzJXEdQbxn2Bn5Dethd/JP0VUnlKjOZ8v8KTHYtRQXA2kRDAKmDHASfPD6
+         8SdegMAq9pRByTws7M++AzDWq0vC1OuWNtACOZBrRjFezv/mT5HdN+hXYSacPxkRuJ
+         pfpfkylveh3Go8aM03Rg9YO2lqD0oQPwCkq+jAkA=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from LaptopNick.fritz.box ([79.227.106.217]) by smtp.web.de
+ (mrweb101 [213.165.67.124]) with ESMTPSA (Nemesis) id
+ 0M2uj4-1jjGfT3Vgs-00si7a; Tue, 21 Jan 2020 15:19:01 +0100
+From:   Nick Reitemeyer <nick.reitemeyer@web.de>
+To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org
+Cc:     stephan@gerhold.net, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org,
+        Nick Reitemeyer <nick.reitemeyer@web.de>
+Subject: [PATCH 2/3] dt-bindings: input: add Coreriver TC360 binding
+Date:   Tue, 21 Jan 2020 15:15:25 +0100
+Message-Id: <20200121141525.3404-2-nick.reitemeyer@web.de>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20200121141525.3404-1-nick.reitemeyer@web.de>
+References: <20200121141525.3404-1-nick.reitemeyer@web.de>
 MIME-Version: 1.0
-In-Reply-To: <CALCETrWtf3iEdZS8zu=k60cnZtokbxRaH5dfkWoM7JokkhAL2w@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:6sX1kR2dv4gmfrQvCBnMZCU5faUd40Pfw/cNMHOBXaAYvw4wTig
+ jgav/qxXLrT1K5Q2qKS4Y02NGXfZOH1NUIdJkhq55IMNNVyqGgz0+0uJ8N8d/vgl583mF9R
+ 57L9Hdnw5fqh3CfkZvV3eJouOLJyWVe0Ekl6Fep0om4pfEEUC4hgq+DuNzRCSb1ku0S8wmO
+ fyVvTZgSzcbCidYuE9dUQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:MptSEcWn4Nw=:3hjcNa1SfGd4pYCGaov5n7
+ xeaOqtBXdB4WQP/qWKeYTAM60v3jOhZpyF0ONp0EGLbPoDtLiau0BO6hax2CJo3JwTz4HWmTy
+ ESRJqZSeKpZ+AgkiFWKeGsER3oHH2kIIG1hso842s6J2jcKnsndbnqe37H4/mb6s9v5veWxxY
+ 31X/YIoKiMTFa728HTQ6XV7DMhWr/jahwRtenE3zz+Wm9DYiTU2cBz/VJhYbO5255Ux3drk7O
+ 0PASmPzIqrN+c5SMVv+HZ6kkHBN3kzcXK4wLL2kwJt0u2ikEk9TQCYB0s+v4Np28REgsGwYif
+ IeuUMEr+M+EBBdC8SqG2BDEc+nAFfw7G5P01uqEunjclePw/5TlIIMdq0pFtgJvRPhLlkhyEx
+ q+EvZ76f1hPRSKoV5az365A936rR4a/YZ091jxnCInPWfTLczv4PtQ+adr5pXZ68GH1jmlPq2
+ DY73MHhSRAtdyC6VjnHFxOLVUXGePSoesxWcz9E/92IC8VqQI4oIDi5ht8yqhwNt7QbqvYUwD
+ iEGz88Ao9X+VvJbXiKk1HTxZ5h/OV8NgPHrIYwPnDr0LmfWaACnf67hPoJ4OqX5ejYFdrtNL4
+ 55/9ofklsgNKC2Jj5cYVPYadlBUvWDpIPGmhYv3afm2PcOSVdQqyu3KH3JwRYMWebZwpekXEZ
+ vJYa0MPg8dutGB+5s8B0iEJv0syP8LWg5bUxPCU1C4GTyvco15WUzQSqnqBWQa2LZENSzur45
+ loyxNUUq3KdotIOyF29FXqcSVagwlc1Z6gSvjWJxaHRSLmcK3fc47VMnd7o9TsC4QXTBIyVsb
+ R6Jbb9g3RWzFND9ufSa3ZuRsVKHm+HdyWo9pZ4MohN90JDQ4AgsjrGMsA4Ysfp0QVC6rKU/ae
+ OjK8OhpWnOk1a9G6zGZl27S4plJEgUB5hdn3/MH2BpVT3grYt3On6NGJKnfLEq3tsGdufD4Xa
+ 6g9oI19AWFlLPJPenr3Bs/n6l/1rBzo7iRQTeqvtGcJVqSkby02sum95ZYCv5yXg8VIAnofuC
+ cYvrQygEceR1tiqvTNIOvBs5m8P1OGBtdBFebr5Pfl3K3kKTLxVx3z3Fu1NLc/XDHJzisZqCn
+ +0Zo6KtvhcE+erndzKGlUHx8LxGBggLVqzw1ej4fCmoQ4njxVEMetILk3s8+xZTiABpaVXaxd
+ HSgEUIIGN8Rll3gCrIPcOPgnpKKvcMEGa1tgLnw6dyav3OIlvlchvW6MyIgQrmenhquQL5Vec
+ /ZnTL3hS2ollhIboFRN/+fMNrnQxyQW3Gtac77JQFxqNX2lE7UQLz5qQ87rg=
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Andy,
+Signed-off-by: Nick Reitemeyer <nick.reitemeyer@web.de>
+=2D--
+ Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-On 17-01-2020 21:06, Andy Lutomirski wrote:
->> On Jan 14, 2020, at 4:25 AM, Hans de Goede <hdegoede@redhat.com> wrote:
->>
->> ﻿Hi Andy,
->>
-> 
->> Even if we get more use of this the chances of 1 device model using
->> more then 1 embedded fw are small. Where as if we first map the
->> EFI_BOOT_SERVICES_CODE segment before doing the DMI match then we
->> do this for all EFI_BOOT_SERVICES_CODE segments on all hardware.
->> The current implementation is very much optimized to do as little
->> work as possible when there is no DMI match, which will be true
->> on almost all devices out there.
-> 
-> Fine with me.
-> 
-> 
->> If we hit firmware which is not 8 byte aligned, then yes that would be
->> a good idea, but for now I feel that that would just cause a slowdown
->> in the scanning without any benefits.
->>
-> 
-> It would shorten the code and remove a comment :). Also, a good memmem
-> implementation should be very fast, potentially faster than your loop.
-> I suspect the latter is only true in user code where SSE would get
-> used, but still.
-> 
-> it would also be unfortunate if some firmware update switches to
-> 4-byte alignment and touchscreens stop working with no explanation.
-
-So I was thinking sure, fine lets replace the loop with memmem,
-but the kernel has no memmem, it has memscan but that takes an
-int to search for, and reducing the prefix to an int seems likely
-to cause more false positives and unnecessary sha256summing.
-
-So I believe it is best to keep this as is for now, we can always
-change the alignment requirement later, now that we use memcmp
-to check the prefix changing it is just a matter of changing the
-i += 8 to e.g. i += 4.
-
-Regards,
-
-Hans
-
-
->>>> +
->>>> +               sha256_init(&sctx);
->>>> +               sha256_update(&sctx, map + i, desc->length);
->>>> +               sha256_final(&sctx, sha256);
->>>> +               if (memcmp(sha256, desc->sha256, 32) == 0)
->>>> +                       break;
->>>> +       }
->>>> +       if ((i + desc->length) > size) {
->>>> +               memunmap(map);
->>>> +               return -ENOENT;
->>>> +       }
->>>> +
->>>> +       pr_info("Found EFI embedded fw '%s'\n", desc->name);
->>>> +
->>> It might be nice to also log which EFI section it was in?
->>
->> The EFI sections do not have names, so all I could is log
->> the section number which does not really feel useful?
->>
->>>> +       fw = kmalloc(sizeof(*fw), GFP_KERNEL);
->>>> +       if (!fw) {
->>>> +               memunmap(map);
->>>> +               return -ENOMEM;
->>>> +       }
->>>> +
->>>> +       fw->data = kmemdup(map + i, desc->length, GFP_KERNEL);
->>>> +       memunmap(map);
->>>> +       if (!fw->data) {
->>>> +               kfree(fw);
->>>> +               return -ENOMEM;
->>>> +       }
->>>> +
->>>> +       fw->name = desc->name;
->>>> +       fw->length = desc->length;
->>>> +       list_add(&fw->list, &efi_embedded_fw_list);
->>>> +
->>> If you actually copy the firmware name instead of just a pointer to
->>> it, then you could potentially free the list of EFI firmwares.
->>
->> If we move to having a separate dmi_system_id table for this then
->> that would be true. ATM the dmi_system_id from
->> drivers/platform/x86/touchscreen_dmi.c
->> is not freed as it is referenced from a bus-notifier.
->>
->>> Why are you copying the firmware into linear (kmemdup) memory here
->>
->> The kmemdup is because the EFI_BOOT_SERVICES_CODE section is
->> free-ed almost immediately after we run.
->>
->>> just to copy it to vmalloc space down below...
->>
->> The vmalloc is because the efi_get_embedded_fw() function is
->> a helper for later implementing firmware_Request_platform
->> which returns a struct firmware *fw and release_firmware()
->> uses vfree() to free the firmware contents.
->>
->> I guess we could have efi_get_embedded_fw() return an const u8 *
->> and have the firmware code do the vmalloc + memcpy but it boils
->> down to the same thing.
->>
->>
->>>> +       return 0;
->>>> +}
->>>> +
->>>> +void __init efi_check_for_embedded_firmwares(void)
->>>> +{
->>>> +       const struct efi_embedded_fw_desc *fw_desc;
->>>> +       const struct dmi_system_id *dmi_id;
->>>> +       efi_memory_desc_t *md;
->>>> +       int i, r;
->>>> +
->>>> +       for (i = 0; embedded_fw_table[i]; i++) {
->>>> +               dmi_id = dmi_first_match(embedded_fw_table[i]);
->>>> +               if (!dmi_id)
->>>> +                       continue;
->>>> +
->>>> +               fw_desc = dmi_id->driver_data;
->>>> +
->>>> +               /*
->>>> +                * In some drivers the struct driver_data contains may contain
->>>> +                * other driver specific data after the fw_desc struct; and
->>>> +                * the fw_desc struct itself may be empty, skip these.
->>>> +                */
->>>> +               if (!fw_desc->name)
->>>> +                       continue;
->>>> +
->>>> +               for_each_efi_memory_desc(md) {
->>>> +                       if (md->type != EFI_BOOT_SERVICES_CODE)
->>>> +                               continue;
->>>> +
->>>> +                       r = efi_check_md_for_embedded_firmware(md, fw_desc);
->>>> +                       if (r == 0)
->>>> +                               break;
->>>> +               }
->>>> +       }
->>>> +
->>>> +       checked_for_fw = true;
->>>> +}
->>> Have you measured how long this takes on a typical system per matching DMI id?
->>
->> I originally wrote this approx. 18 months ago, it has been on hold for a while
->> since it needed a sha256 method which would work before subsys_initcall-s
->> run so I couldn't use the standard crypto_alloc_shash() stuff. In the end
->> I ended up merging the duplicate purgatory and crypto/sha256_generic.c
->> generic C SHA256 implementation into a set of new directly callable lib
->> functions in lib/crypto/sha256.c, just so that I could move forward with
->> this...
->>
->> Anyways the reason for this background info is that because this is a while
->> ago I do not remember exactly how, but yes I did measure this (but not
->> very scientifically) and there was no discernible difference in boot
->> to init (from the initrd) with this in place vs without this.
->>
->>>> +
->>>> +int efi_get_embedded_fw(const char *name, void **data, size_t *size)
->>>> +{
->>>> +       struct efi_embedded_fw *iter, *fw = NULL;
->>>> +       void *buf = *data;
->>>> +
->>>> +       if (!checked_for_fw) {
->>> WARN_ON_ONCE?  A stack dump would be quite nice here.
->>
->> As discussed when this check was added (discussion in v7 of
->> the set I guess, check added in v8) we can also hit this without
->> it being a bug, e.g. when booted through kexec the whole
->> efi_check_for_embedded_firmwares() call we be skipped, hence the
->> pr_warn.
->>
->>
->>>> +       buf = vmalloc(fw->length);
->>>> +       if (!buf)
->>>> +               return -ENOMEM;
->>>> +
->>>> +       memcpy(buf, fw->data, fw->length);
->>>> +       *size = fw->length;
->>>> +       *data = buf;
->>> See above.  What's vmalloc() for?  Where's the vfree()?
->>
->> See above for my answer. I'm fine with moving this into the
->> firmware code, since that is where the matching vfree is, please
->> let me know how you want to proceed with this.
->>
->>> BTW, it would be very nice to have a straightforward way
->>> (/sys/kernel/debug/efi_firmware/[name]?) to dump all found firmwares.
->>
->> That is an interesting idea, we could add a subsys_init call or
->> some such to add this to debugfs (efi_check_for_embedded_firmwares runs
->> too early).
->>
->> But given how long this patch-set has been in the making I would really
->> like to get this (or at least the first 2 patches as a start) upstream,
->> so for now I would like to keep the changes to a minimum. Are you ok
->> with me adding the debugfs support with a follow-up patch ?
->>
->> Let me also reply to your summary comment elsewhere in the thread here:
->>
->>> Early in boot, you check a bunch of firmware descriptors, bundled with
->>> drivers, to search EFI code and data for firmware before you free said
->>> code and data.  You catalogue it by name.  Later on, you use this list
->>> as a fallback, again catalogued by name.  I think it would be rather
->>> nicer if you simply had a list in a single file containing all these
->>> descriptors rather than commingling it with the driver's internal dmi
->>> data.  This gets rid of all the ifdeffery and module issues.  It also
->>> avoids any potential nastiness when you have a dmi entry that contains
->>> driver_data that points into the driver when the driver is a module.
->>>
->>> And you can mark the entire list __initdata.  And you can easily (now
->>> or later on) invert the code flow so you map each EFI region exactly
->>> once and then search for all the firmware in it.
->>
->> I believe we have mostly discussed this above. At least for the
->> X86 touchscreen case, which is the only user of this for now, I
->> believe that re-using the table from drivers/platform/x86/touchscreen_dmi.c
->> is better as it avoids duplication of DMI strings and it keeps all
->> the info in one place (also avoiding churn in 2 files / 2 different
->> trees when new models are added).
->>
->> I agree that when looking at this as a generic mechanism which may be
->> used elsewhere, your suggestion makes a lot of sense. But even though
->> this is very much written so that it can be used as a generic mechanism
->> I'm not sure if other users will appear. So for now, with only the X86
->> touchscreen use-case actually using this I believe the current
->> implementation is best, but I'm definitely open to changing this around
->> if more users show up.
->>
->> Regards,
->>
->> Hans
->>
-> 
+diff --git a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.=
+txt b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
+index ef2ae729718f..921172f689b8 100644
+=2D-- a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
++++ b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
+@@ -5,6 +5,7 @@ Required properties:
+     * "cypress,tm2-touchkey" - for the touchkey found on the tm2 board
+     * "cypress,midas-touchkey" - for the touchkey found on midas boards
+     * "cypress,aries-touchkey" - for the touchkey found on aries boards
++    * "coreriver,tc360-touchkey" - for the Coreriver TouchCore 360 touchk=
+ey
+ - reg: I2C address of the chip.
+ - interrupts: interrupt to which the chip is connected (see interrupt
+ 	binding[0]).
+=2D-
+2.23.0
 

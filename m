@@ -7,47 +7,47 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB104C35241
-	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:18:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E66EC35242
+	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:18:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7561821D7E
-	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:18:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 679AA206A2
+	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579828709;
-	bh=Nk9jNBcw53r9L6+tLhH7YjGpWnkMDQa7jjKGCG4czck=;
+	s=default; t=1579828731;
+	bh=mwQz/jJ5kefqSlmbAplM0OP5U5yjCh5kFbvMim84M+k=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=OH8bzkh7u3F4COh9f8jx11+pRNNCutVcHgMOSITy8EsjQzG60VVJyolGT/jFZgRXn
-	 xKhnIDRhVDIRq4+kZQ3ODsVj7b7c3n1rCJgrYCP6iq+E1aTAHXLW9ZVXTyEsWMkta1
-	 9TNBgq9LT2khHtrACOuObwn8JsJqWSgT0UmnUB0A=
+	b=vZe4fJ+ddIIWUTTkwk9gSbepOIE22bnmV2MOFMgsnZaBLkYIRRmMjdXwyFhYjsOCP
+	 K+d5f5191igJMX90LW8VBw48FtK0erkcBw7/BLoJi53uZv6NYuvMXkRj/+EWLUBnUv
+	 1t4Bq7GeU4OK5uPVf8zktK5LdSDPa3m8e6QsiRVI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730996AbgAXBSJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Jan 2020 20:18:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33312 "EHLO mail.kernel.org"
+        id S1729316AbgAXBR7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 23 Jan 2020 20:17:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730988AbgAXBSI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:18:08 -0500
+        id S1730862AbgAXBR7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44DCA2253D;
-        Fri, 24 Jan 2020 01:18:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFB022087E;
+        Fri, 24 Jan 2020 01:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828687;
-        bh=Nk9jNBcw53r9L6+tLhH7YjGpWnkMDQa7jjKGCG4czck=;
+        s=default; t=1579828678;
+        bh=mwQz/jJ5kefqSlmbAplM0OP5U5yjCh5kFbvMim84M+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UKUBc7oihc33JLW40fO2YBmsgnHVdNwGagZtYacq4LvLrz+0cVXcg/xHp8YT6d3wb
-         DOcYuylUiIuk058fQs+ATC8lOSAQMRcZLR7a5zgiPpuSAMglbFdK6G3Y9wkAJUMr/e
-         iOwTkTHzeC75gQ1N7tOeiOeGWjXn5NB0If1oti5A=
+        b=TXYky0tK2X/yWYbhCQam6Wuf7Clmay/Gl5RKb+cxtuti6eKrjsXuf36mZIr67FSpo
+         HZfA+PcyIjdekmZabn8IUYMc2KQIqqpOZfBsnqoXp1H71cDU0F4FkfOQtaxGx7Bp4K
+         UIUgaeQfvanY45jP1yvn169KZ1pIMrLd1Xi4NXW8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 5/5] HID: ite: Add USB id match for Acer SW5-012 keyboard dock
-Date:   Thu, 23 Jan 2020 20:18:01 -0500
-Message-Id: <20200124011801.18712-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 09/11] HID: ite: Add USB id match for Acer SW5-012 keyboard dock
+Date:   Thu, 23 Jan 2020 20:17:45 -0500
+Message-Id: <20200124011747.18575-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200124011801.18712-1-sashal@kernel.org>
-References: <20200124011801.18712-1-sashal@kernel.org>
+In-Reply-To: <20200124011747.18575-1-sashal@kernel.org>
+References: <20200124011747.18575-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -80,10 +80,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 4 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1e2e6e58256ad..9d372fa7c298c 100644
+index 1949d6fca53e5..f5d3da93f51a8 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -1024,6 +1024,7 @@
+@@ -1074,6 +1074,7 @@
  #define USB_DEVICE_ID_SYNAPTICS_LTS2	0x1d10
  #define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
  #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3

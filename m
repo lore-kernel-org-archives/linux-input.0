@@ -2,87 +2,111 @@ Return-Path: <SRS0=4u0T=3N=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF21FC35241
-	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:19:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97D07C3F68F
+	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:35:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A8C1621D7E
-	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:19:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 67BB021D7E
+	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579828769;
-	bh=ODhOgXBkgDKqiZWuJ6tXJ5epKpG4Qzm8ZTpAoglS7Bo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=ILCT3aASPNPbX1zDzBeAJJ27EHSegKEc9cFr8GwlGr4UXD2uM+ggtuolNsyINjU8M
-	 LnLJt5Z2Ot1qEjPhYuPGHrI5140dlu0p8y4CTjlIS1OsY1Rst6ue1whdNFY8BJnn/8
-	 0KgUjGc6h1+fUpItfNdjmGM9Cc7cVofxbnW5lXu4=
+	s=default; t=1579829721;
+	bh=lUsFFBFubN7Kqpvdox2ZHVN9k/+SRSmDmco21YUHlT0=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=E14lvCHGoVhEVE431xkJwhEjUByZr5CfB8BhFYaI4F/cQf+p6qIQsc4I7JTKYiLln
+	 bGkAmoq5D0ExGEUmoAE14a+A5djcOIrORMki9zg76EXKYhuSyHvBSRacjde9ouuLYI
+	 EoYy8ezbl16fg3cGIhKE4YE+Mwb8FguEhuBMJTPo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728655AbgAXBT2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Jan 2020 20:19:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60908 "EHLO mail.kernel.org"
+        id S1729246AbgAXBfU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 23 Jan 2020 20:35:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730709AbgAXBRn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:43 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1729232AbgAXBfU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:35:20 -0500
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B7CA2071E;
-        Fri, 24 Jan 2020 01:17:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12A6621835;
+        Fri, 24 Jan 2020 01:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828663;
-        bh=ODhOgXBkgDKqiZWuJ6tXJ5epKpG4Qzm8ZTpAoglS7Bo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=you1LtzDhzevc53BU81uVQTPsboEsBek1EzX3vUmsj3yv5KhDOXtpUwDWDagSO3jJ
-         2+1jJSM03pUMfoSilb7Amzhe53S8bHwxJK0QouJCsAQi0l02j/DsFphLBx7DXKULlZ
-         oU4o5GHPm0dUDgdxibjrH6/FS2P++88LNOQfdkNA=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Priit Laes <plaes@plaes.org>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 30/33] HID: Add quirk for Xin-Mo Dual Controller
-Date:   Thu, 23 Jan 2020 20:17:05 -0500
-Message-Id: <20200124011708.18232-30-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200124011708.18232-1-sashal@kernel.org>
-References: <20200124011708.18232-1-sashal@kernel.org>
+        s=default; t=1579829720;
+        bh=lUsFFBFubN7Kqpvdox2ZHVN9k/+SRSmDmco21YUHlT0=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=fJGIqwnm+83w9/Z3tvCVyJw/iIoQ3IyH0LMQ0AjizzV1aRCUHlJRjLuU4/elr0Z66
+         AqaKafVNr/c0yDqSYUO3DtNB7uCmGEpnejoE7J0P8SVZe+2AnChRyuAS7tmAmHaEq4
+         tds06GLUmekYADSWHjttwVLyqK5TQvkR/Y/bhRi0=
+Received: by mail-qk1-f180.google.com with SMTP id d10so593081qke.1;
+        Thu, 23 Jan 2020 17:35:20 -0800 (PST)
+X-Gm-Message-State: APjAAAWhhnus1HuF51ukuPrjwydNWk1xKpi3xk+hg7z1k1hQ9qqWJvLQ
+        5ftCRqtK5kCZSfLzfccriRJrNgDUcYzQR5s2Sg==
+X-Google-Smtp-Source: APXvYqxRHpYVFGcIL4i71kh6oc0W0k4a0comvWJnL6kSgDqnS2kTF9WUsAbtJyhtQ0hO3c3qE5aWPmYJxDTVfrFdT9o=
+X-Received: by 2002:a05:620a:135b:: with SMTP id c27mr336288qkl.119.1579829719256;
+ Thu, 23 Jan 2020 17:35:19 -0800 (PST)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20200123214222.17897-1-robh@kernel.org> <20200123222508.GB184237@dtor-ws>
+In-Reply-To: <20200123222508.GB184237@dtor-ws>
+From:   Rob Herring <robh@kernel.org>
+Date:   Thu, 23 Jan 2020 19:35:06 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqLNG0i9QbRiueXAZ6LjAGN7Mx0vaoUM43np8Jn4qOuiZg@mail.gmail.com>
+Message-ID: <CAL_JsqLNG0i9QbRiueXAZ6LjAGN7Mx0vaoUM43np8Jn4qOuiZg@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: input: Convert gpio-keys bindings to schema
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Linux Input <linux-input@vger.kernel.org>,
+        devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Priit Laes <plaes@plaes.org>
+On Thu, Jan 23, 2020 at 4:25 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Rob,
+>
+> On Thu, Jan 23, 2020 at 03:42:22PM -0600, Rob Herring wrote:
+> > Convert the gpio-keys and gpio-keys-polled bindings to a DT schema. As
+> > both bindings are almost the same, combine them into a single schema.
+> >
+> > The binding said 'interrupts' was required, but testing on dts files
+> > showed that it isn't required.
+> >
+> > 'linux,input-value' was only documented for gpio-keys-polled, but there
+> > doesn't seem to be any reason for it to be specific to that.
+>
+> Actually, there is: with gpio-keys-polled we take a "snapshot" of the
+> entire device state, so we know when to generate a 0 event (the example
+> we have a device with several GPIOs with values assigned 1, 2, 3, 4, 5..
+> values, when one of the gpios is active we generate event with given
+> value, when all are inactive we generate 0 event). This does not work
+> for interrupt-only driven device.
 
-[ Upstream commit c62f7cd8ed066a93a243643ebf57ca99f754388e ]
+Okay, it wasn't clear to me reading the binding doc. I'll make it conditional.
 
-Without the quirk, joystick shows up as single controller
-for both first and second player pads/pins.
 
-Signed-off-by: Priit Laes <plaes@plaes.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-quirks.c | 1 +
- 1 file changed, 1 insertion(+)
+> > +      properties:
+> > +        gpios:
+> > +          maxItems: 1
 
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 9a35af1e26623..fa58a7cbb3ff2 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -174,6 +174,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD2, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE), HID_QUIRK_MULTI_INPUT },
- 
- 	{ 0 }
- };
--- 
-2.20.1
+> > +
+> > +        interrupts:
+> > +          maxItems: 1
+>
+> We support "interrupt-only" mode where we do not have GPIO, so for
+> "gpio-keys" we need either interrupts or gpios or both, and for polled
+> we must have gpios (and I guess we simply ignore interrupts if they are
+> specified).
+>
+> Does this binding manages to enforce this?
 
+Yes, this hunk does that:
+
++      anyOf:
++        - required:
++            - interrupts
++        - required:
++            - gpios
+
+Rob

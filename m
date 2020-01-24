@@ -7,45 +7,44 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4365DC35244
-	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:19:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DA72C35240
+	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:19:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0C13824676
-	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:19:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D6B92087E
+	for <linux-input@archiver.kernel.org>; Fri, 24 Jan 2020 01:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579828749;
-	bh=mT+Mylf0esXaJpgwHmYIz93oQT3mpdTi4KBdPMR82QA=;
+	s=default; t=1579828755;
+	bh=AFL1qKM9zkNwovEGBFMBJ83gzXsaN62cIGTEMx7HV5g=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=FZzqAWFyU66Nf3jaND9lcZA2rrl/CIIMGyhK1t4rstGoG32rziiREtVDWiy727qSH
-	 JN+MylDhUTDVWbKf4FWlzX1Dy1aPHD8p6wrt6wEz+dU9AJEUwUei+WQxFDm5Ly+oNw
-	 SPDoMVTv7xnz4fPxbnHPRamAP5icj36drBc7blxM=
+	b=ncYPW1Q3g7DRHprj/rtS9nSUEZSVzs739/AT1jQjgIK/DIen5456gVVqLvrEFsn7U
+	 JGCRrvMQ1C57TSSKZRHr9nRu8SrVVjbp/ChihZRWvcincT89u5FbFAcQU6RscDCJS8
+	 RRSNukcmSLDdqBPd07sa8O3cPTiXxfIaK4YaYo8k=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729365AbgAXBRt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Jan 2020 20:17:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60990 "EHLO mail.kernel.org"
+        id S1730742AbgAXBRq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 23 Jan 2020 20:17:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730745AbgAXBRr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Jan 2020 20:17:47 -0500
+        id S1730738AbgAXBRq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 23 Jan 2020 20:17:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B722B2467F;
-        Fri, 24 Jan 2020 01:17:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1E5F21D7D;
+        Fri, 24 Jan 2020 01:17:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579828666;
-        bh=mT+Mylf0esXaJpgwHmYIz93oQT3mpdTi4KBdPMR82QA=;
+        s=default; t=1579828665;
+        bh=AFL1qKM9zkNwovEGBFMBJ83gzXsaN62cIGTEMx7HV5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g1bCdYTbYzwUu6lHNM89G/e5CdGfYHPxIDk8dQEnOKlDEtOllZRkVr3dtQqeJJY9m
-         GGygq02g4oIFYT2dgcBOZsUnAIMQmp/y9U1gykQYyKdOjJwM7VnJKIIGJ8CEg74LqY
-         dLlADTYHxnjbD1lMTSUIL6vkVPMXG0d7bGOu/5Bc=
+        b=yFaCsm1xGJWHMbaV+PzJddlnZzgqL6XK+MiZBte7gfYwIZ4dKuHEu+AcckrutMRa7
+         EQWzWQKaq6oQN9HC16mSFYczebEaTNqjqCYCzaXzpHWnRB6yFdmfM07C2GcrxLeMJ2
+         2m+nACtf7QQPRAa9zFpsfWXWLP/wDCFl/YVND0sc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pan Zhang <zhangpan26@huawei.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+Cc:     Pavel Balan <admin@kryma.net>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 33/33] drivers/hid/hid-multitouch.c: fix a possible null pointer access.
-Date:   Thu, 23 Jan 2020 20:17:08 -0500
-Message-Id: <20200124011708.18232-33-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 32/33] HID: Add quirk for incorrect input length on Lenovo Y720
+Date:   Thu, 23 Jan 2020 20:17:07 -0500
+Message-Id: <20200124011708.18232-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200124011708.18232-1-sashal@kernel.org>
 References: <20200124011708.18232-1-sashal@kernel.org>
@@ -58,42 +57,97 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Pan Zhang <zhangpan26@huawei.com>
+From: Pavel Balan <admin@kryma.net>
 
-[ Upstream commit 306d5acbfc66e7cccb4d8f91fc857206b8df80d1 ]
+[ Upstream commit fd0913768701612fc2b8ab9c8a5c019133e8d978 ]
 
-1002     if ((quirks & MT_QUIRK_IGNORE_DUPLICATES) && mt) {
-1003         struct input_mt_slot *i_slot = &mt->slots[slotnum];
-1004
-1005         if (input_mt_is_active(i_slot) &&
-1006             input_mt_is_used(mt, i_slot))
-1007             return -EAGAIN;
-1008     }
+Apply it to the Lenovo Y720 gaming laptop I2C peripheral then.
 
-We previously assumed 'mt' could be null (see line 1002).
+This fixes dmesg being flooded with errors visible on un-suspend
+in Linux Mint 19 Cinnamon.
 
-The following situation is similar, so add a judgement.
+Example of error log:
 
-Signed-off-by: Pan Zhang <zhangpan26@huawei.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+<...>
+[    4.326588] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+[    4.326845] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+[    4.327095] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+[    4.327341] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+[    4.327609] i2c_hid i2c-ITE33D1:00: i2c_hid_get_input: incomplete report (2/4)
+<...>
+
+Example of fixed log (debug on)
+
+<...>
+[ 3731.333183] i2c_hid i2c-ITE33D1:00: input: 02 00
+[ 3731.333581] i2c_hid i2c-ITE33D1:00: input: 02 00
+[ 3731.333842] i2c_hid i2c-ITE33D1:00: input: 02 00
+[ 3731.334107] i2c_hid i2c-ITE33D1:00: input: 02 00
+[ 3731.334367] i2c_hid i2c-ITE33D1:00: input: 02 00
+<...>
+
+[jkosina@suse.cz: rebase onto more recent codebase]
+Signed-off-by: Pavel Balan <admin@kryma.net>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-multitouch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h              |  1 +
+ drivers/hid/i2c-hid/i2c-hid-core.c | 16 +++++++++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3cfeb1629f79f..28aaa26bb44cf 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1019,7 +1019,7 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 		tool = MT_TOOL_DIAL;
- 	else if (unlikely(!confidence_state)) {
- 		tool = MT_TOOL_PALM;
--		if (!active &&
-+		if (!active && mt &&
- 		    input_mt_is_active(&mt->slots[slotnum])) {
- 			/*
- 			 * The non-confidence was reported for
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c99d56308fbc9..df786df0c0ab9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -631,6 +631,7 @@
+ #define USB_VENDOR_ID_ITE               0x048d
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
++#define I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720	0x837a
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
+ #define USB_DEVICE_ID_ITE8595		0x8595
+ 
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index ac44bf752ff1f..479934f7d2411 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -49,6 +49,8 @@
+ #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
+ #define I2C_HID_QUIRK_BOGUS_IRQ			BIT(4)
+ #define I2C_HID_QUIRK_RESET_ON_RESUME		BIT(5)
++#define I2C_HID_QUIRK_BAD_INPUT_SIZE		BIT(6)
++
+ 
+ /* flags */
+ #define I2C_HID_STARTED		0
+@@ -177,6 +179,8 @@ static const struct i2c_hid_quirks {
+ 		 I2C_HID_QUIRK_BOGUS_IRQ },
+ 	{ USB_VENDOR_ID_ALPS_JP, HID_ANY_ID,
+ 		 I2C_HID_QUIRK_RESET_ON_RESUME },
++	{ USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720,
++		I2C_HID_QUIRK_BAD_INPUT_SIZE },
+ 	{ 0, 0 }
+ };
+ 
+@@ -498,9 +502,15 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+ 	}
+ 
+ 	if ((ret_size > size) || (ret_size < 2)) {
+-		dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
+-			__func__, size, ret_size);
+-		return;
++		if (ihid->quirks & I2C_HID_QUIRK_BAD_INPUT_SIZE) {
++			ihid->inbuf[0] = size & 0xff;
++			ihid->inbuf[1] = size >> 8;
++			ret_size = size;
++		} else {
++			dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
++				__func__, size, ret_size);
++			return;
++		}
+ 	}
+ 
+ 	i2c_hid_dbg(ihid, "input: %*ph\n", ret_size, ihid->inbuf);
 -- 
 2.20.1
 

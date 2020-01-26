@@ -2,146 +2,77 @@ Return-Path: <SRS0=DZ7O=3P=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F275EC35247
-	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 15:17:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B66DC2D0DB
+	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 16:05:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C7CD62075D
-	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 15:17:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="c790BvrF"
+	by mail.kernel.org (Postfix) with ESMTP id 75B8120708
+	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 16:05:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726079AbgAZPRO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Jan 2020 10:17:14 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:37211 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725907AbgAZPRO (ORCPT
+        id S1726294AbgAZQF0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Jan 2020 11:05:26 -0500
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:46277 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725838AbgAZQFZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Jan 2020 10:17:14 -0500
-Received: by mail-lj1-f193.google.com with SMTP id v17so7961217ljg.4
-        for <linux-input@vger.kernel.org>; Sun, 26 Jan 2020 07:17:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jzO4kvhvu2342eqevha+Ur5tSgDydF3IhWq+9VEqU/E=;
-        b=c790BvrFpMrVYqNU/drWNWkENB9rcoDOBIj5dFKfXY3DDvxkd9OjQeN57/6ZrYzvJV
-         nRgoaNwtjHLTQZFbUQLC0bkIxexthOT1Qh8gv+4Pprq563lvYITwsOwsRcQVQPXoHAKi
-         OcnwdmxkvW52lRzrQzt7P//Xtd87KpYs8u0US6DUd0KYrAKOrb+HCl0oQy1dqhppsWFr
-         47SZAx1jmL7EGRYVwGhhi+4UymXqqLVcWnjdvULpkxWUMEvhp7hzeQQcpnlAfTmS3Gnu
-         SHFC4i767DdZ/yLTeaUvpxYuICwtnxi2q1qXVzy0OmgVRA1Fgu3n66/5V4XM3zsRAznu
-         1Fzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jzO4kvhvu2342eqevha+Ur5tSgDydF3IhWq+9VEqU/E=;
-        b=Q2+N18K40KocmicBulN78GSUFAMpDmR9XmZ8hDJsGYEBoMfpbYa+Pdfnmcwijt3NTg
-         aTBw0hUmE62z2JJpcnBXhZGlLmkHXXgebCneg3kywQUfakLURA36zj2r5k8jiHwDQfTD
-         RhvbT2c8geoOJEQF2UsheTTR8kpHDrlAg/YXZz7mt13KPdgCV4rh7DicXD5XrfhG5M0h
-         qVasDvxlXrxdjMEnluffVMYQ+4cWEt6halR4mwchClRislXvu0HuteVEmm1d+Wp3Et3n
-         TWviwcXQIxX0fyHEmRh2IaOIFEZfMWRzTLXjXhTHoMnuahF9Hu4GWGRjfUvdscbGLpsB
-         mDOg==
-X-Gm-Message-State: APjAAAWohLDcPeKcYTOL9nJbYHKZekwOMh3InRxE3xhs+M8DDNm4sZLv
-        X5cvu1Rgz0oBb9jJcNl44eP1Ip+ktP1TaD8VmZqOQg==
-X-Google-Smtp-Source: APXvYqwdDjhUnzzgEF0ZRpLUcU4CUNf9kV7vXQfX6KghRxguooIH8gP9o1ruScZjHbdfqP0+9Kz1yULKRn9YA1ZTDRI=
-X-Received: by 2002:a2e:2a84:: with SMTP id q126mr7440023ljq.258.1580051830986;
- Sun, 26 Jan 2020 07:17:10 -0800 (PST)
+        Sun, 26 Jan 2020 11:05:25 -0500
+X-Originating-IP: 195.189.32.242
+Received: from pc.localdomain (unknown [195.189.32.242])
+        (Authenticated sender: contact@artur-rojek.eu)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id D6A9E1BF20A;
+        Sun, 26 Jan 2020 16:05:21 +0000 (UTC)
+From:   Artur Rojek <contact@artur-rojek.eu>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Paul Cercueil <paul@crapouillou.net>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Artur Rojek <contact@artur-rojek.eu>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH v2 2/5] dt-bindings: iio/adc: Add touchscreen idx for JZ47xx SoC ADC
+Date:   Sun, 26 Jan 2020 17:12:33 +0100
+Message-Id: <20200126161236.63631-2-contact@artur-rojek.eu>
+X-Mailer: git-send-email 2.25.0
+In-Reply-To: <20200126161236.63631-1-contact@artur-rojek.eu>
+References: <20200126161236.63631-1-contact@artur-rojek.eu>
 MIME-Version: 1.0
-References: <20200121210419.13372-1-linus.walleij@linaro.org>
- <20200121210419.13372-2-linus.walleij@linaro.org> <BYAPR10MB3479CEEA65545B8422C77091A30E0@BYAPR10MB3479.namprd10.prod.outlook.com>
-In-Reply-To: <BYAPR10MB3479CEEA65545B8422C77091A30E0@BYAPR10MB3479.namprd10.prod.outlook.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Sun, 26 Jan 2020 16:16:59 +0100
-Message-ID: <CACRpkdYMxXL6oY0eA+5EYOUTZ_opAtiT-6THfc9dwy_9Ufq8MQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2 v5] iio: light: Add a driver for Sharp GP2AP002x00F
-To:     Jonathan Bakker <xc-racer2@live.ca>
-Cc:     Jonathan Cameron <jic23@kernel.org>,
-        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Minkyu Kang <mk7.kang@samsung.com>,
-        =?UTF-8?Q?Pawe=C5=82_Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
-        Oskar Andero <oskar.andero@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Jan 24, 2020 at 1:47 AM Jonathan Bakker <xc-racer2@live.ca> wrote:
+Introduce support for touchscreen channels found in JZ47xx SoCs.
 
-> Thanks for the driver, I've tested it on a first-gen Galaxy S
-> device with a GP2AP002A00F.  I have a few comments that I've put inline
-> based on my experiences.
+Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
+Tested-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Rob Herring <robh@kernel.org>
+---
 
-Thanks a lot!
+ Changes:
 
-> Both shortly after probe (when runtime pm timeout occurs?) and after
-> manually disabling the proximity event, this
-> irq handler is called.  Since the chip is in low power state, it obviously
-> fails to read the proximity value and write to the OCON register below, eg
->
-> [    7.215875] gp2ap002 11-0044: error reading proximity
-> [    8.105878] gp2ap002 11-0044: error setting up VOUT control 1
->
-> Can we do something like disable_irq() in the runtime pm function to prevent
-> this?
+ v2: no change
 
-I added that in v6, I hope this solves your problem.
+ include/dt-bindings/iio/adc/ingenic,adc.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> The gp2ap002s00f_regmap_i2c_read function works on the gp2ap002a00f as well,
-> so this can be simplified/dropped.
+diff --git a/include/dt-bindings/iio/adc/ingenic,adc.h b/include/dt-bindings/iio/adc/ingenic,adc.h
+index 42f871ab3272..95e20a8d6dc8 100644
+--- a/include/dt-bindings/iio/adc/ingenic,adc.h
++++ b/include/dt-bindings/iio/adc/ingenic,adc.h
+@@ -7,5 +7,7 @@
+ #define INGENIC_ADC_AUX		0
+ #define INGENIC_ADC_BATTERY	1
+ #define INGENIC_ADC_AUX2	2
++#define INGENIC_ADC_TOUCH_XP	3
++#define INGENIC_ADC_TOUCH_YP	4
+ 
+ #endif
+-- 
+2.25.0
 
-Fixed this too in v6.
-
-> > +             if (ch_type != IIO_CURRENT) {
-> > +                     dev_err(dev,
-> > +                             "wrong type of IIO channel specified for ALSOUT\n");
-> > +                     return -EINVAL;
-> > +             }
->
-> This enforces a current ADC, while several devices besides mine (eg Galaxy Nexus)
-> use a resistor and a voltage ADC.  For this case, could we add a device property such as
-> sharp,adc-adjustment-ratio to convert from the raw ADC values to a "current" that
-> could be used in the lookup table?  So the "current" would be the raw ADC divided
-> by that special value.
->
-> Instructions for converting the ADC back to the current can be found eg at
-> https://android.googlesource.com/device/samsung/crespo/+/2e0ab7265e3039fee787c2216e0c98d92ea0b49e%5E%21/#F0
-
-I'd like to keep that as a future enhancement unless someone is very eager
-to get it and has a device they can test it on. Otherwise it will be
-just dry-coding
-on my part.
-
-I think the property we would add in the device tree in that case should
-be the resistance value. This is based on the following assumption
-which is indeed a bit of speculation since there is no proper datasheet
-for the light sensor part of the component:
-
-- The light sensor part is simply a photodiode
-- This emits a nonlinear current in relation to how many
-  photons hit the photodiode in a time interval, the relationship
-  is described in the curren->lux table we have
-- Some vendors do not have any current ADC, so they connect
-  this to a resistor, and measure the voltage over the
-  resistor because the have a voltage ADC
-
-Since current is linear to the voltage over the resistor, we should
-include the resistance in the device tree, then using that the
-corresponding current can be calculated and we use the same
-look-up table to find the lux. Probably each system may need
-to also subtract some bias voltage or so.
-
-But we definately need something to test on to do this right.
-
-Yours,
-Linus Walleij

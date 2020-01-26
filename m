@@ -1,131 +1,210 @@
-Return-Path: <SRS0=vq/H=3O=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=DZ7O=3P=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDD91C2D0DB
-	for <linux-input@archiver.kernel.org>; Sat, 25 Jan 2020 21:45:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0993C2D0DB
+	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 15:05:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BD3EF20716
-	for <linux-input@archiver.kernel.org>; Sat, 25 Jan 2020 21:45:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579988754;
-	bh=keOy4GRQhyXRTP/uhH/nLH96KFaq+Sid+s3TTEP9b/A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=2EXP6r7HgBy6JGCkdYFUlRZjdLgLTzn83gfFSP6CbKRFmrjYZ9lLUVpEXuIw8hiFV
-	 AAV9QyWEQLsyNdwJtyTPpMVZs5KGYlJr6CsOfuHa566Jji3akX9vdaRp0t9pFNcGjX
-	 lSm1Jym6dLN8V8fYYSlP2JBGZI1cpA/0SCNdKFP8=
+	by mail.kernel.org (Postfix) with ESMTP id A839B20720
+	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 15:05:55 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="nDfWJs/D"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726871AbgAYVpv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 25 Jan 2020 16:45:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58940 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726780AbgAYVpu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 25 Jan 2020 16:45:50 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 922B720716;
-        Sat, 25 Jan 2020 21:45:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579988749;
-        bh=keOy4GRQhyXRTP/uhH/nLH96KFaq+Sid+s3TTEP9b/A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Q8GDHX7MNYQlUe4RjDIHaJzDlzlesYuLGOvW8lO6ElTcfdwu/Jw/CYhQnQJeV9b0N
-         +DLEHIQnQVJ4BAewHnFPj20dEbTxrVb40917yLeKR8Cm1mIfmfFTLcI44gT6yxHQtY
-         n3hdH6FrK4KMNyoWc/1OANUSHq3dRcDypPED/kSI=
-Date:   Sat, 25 Jan 2020 16:45:48 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Dexuan Cui <decui@microsoft.com>
-Cc:     "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        KY Srinivasan <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Sasha Levin <Alexander.Levin@microsoft.com>
-Subject: Re: [PATCH][RESEND] Input: hyperv-keyboard: Add the support of
- hibernation
-Message-ID: <20200125214548.GA11467@sasha-vm>
-References: <1578350444-129991-1-git-send-email-decui@microsoft.com>
- <20200111162657.GJ1706@sasha-vm>
- <KU1P153MB01505A56BACA9DA4AF0E7BABBF370@KU1P153MB0150.APCP153.PROD.OUTLOOK.COM>
- <HK0P153MB01489C2ABCFF40822EC8B695BF090@HK0P153MB0148.APCP153.PROD.OUTLOOK.COM>
+        id S1726079AbgAZPFz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Jan 2020 10:05:55 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:47067 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725908AbgAZPFy (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 26 Jan 2020 10:05:54 -0500
+Received: by mail-lf1-f65.google.com with SMTP id z26so4390430lfg.13
+        for <linux-input@vger.kernel.org>; Sun, 26 Jan 2020 07:05:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+RHTE3nUb5dfPevjsWD1iLezxvXfZXjeHjK9RsRGLMU=;
+        b=nDfWJs/DHHcdQ78FJWwCKFIzFckSaf1JdgHXG5c7veYmpNleLMzAsxp/rn7tJm2ie0
+         jPy9ku4xKj2itbbOvHvrL3Eals8SMZid0kjvrKqqmWta8yrp0gqYHJLpJfHAlXKz2wLZ
+         jE/qtnjDfClb8o7nXGHdDlA/TrRkaWJTRIlHQkXRlIFN0M717I91I80niUr2dSNp6xOr
+         2QhncGWKA5zlg/gnzjxSvHB7gHFxSSOnSywbbcNdRa8fC1aBEV/KC13Vqjnc4AZUFjeK
+         XKQCEqBny+RWYvLEhDphLTrh2uJSpfEP+eFO3/67apS44GOLjlHd3pCRdPArvjFVCLpq
+         icPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+RHTE3nUb5dfPevjsWD1iLezxvXfZXjeHjK9RsRGLMU=;
+        b=JAssaYBTVZ4+exr4tdAVPLZx0Y5MJds7C/LenasK4nxUbb5mUHCyiDo+ha+wRi2O0k
+         cmcGouSe93LNG2lc1A+SkZOBc0Z+M5jRuE3dahdTCdxNUr5EJb+TQ2ou62YUa7vMG7JT
+         lndCQsF8t24t6wSP1m0YqAr8Bc9wvIdQIp0QhiUeqKXcR5Pezzynk/V+WY/OTAdui48E
+         T0eVxoGftOBFnPnpeGU/EASENaiBXwcdbDvF608LWj6bxxTvoOQCVGqheunxfV+dg0pj
+         OI84/TROWU5ey7KbYjV0Gl5mAfXW/nk8HbpxvTrjixhxZxcTQpvgaFmhFvnXdIZFF8gW
+         01iQ==
+X-Gm-Message-State: APjAAAWo/iF5JL0KaEKQNIy+znUYIKTbhXwGkQlewWk5V6MBzLEyJs7u
+        tq9Whif1KwspSq7wOZpJ4gJQkQ==
+X-Google-Smtp-Source: APXvYqxg6PLPDQ9mjIyqvHGAgo2AyQkQ7ZmShfE1zgLEnjgc2RLw7tCmB4qFkRsL6xY6Kn/2LN7/xA==
+X-Received: by 2002:a19:3f51:: with SMTP id m78mr5726542lfa.70.1580051152251;
+        Sun, 26 Jan 2020 07:05:52 -0800 (PST)
+Received: from localhost.bredbandsbolaget (c-5ac9225c.014-348-6c756e10.bbcust.telenor.se. [92.34.201.90])
+        by smtp.gmail.com with ESMTPSA id l12sm6635870lji.52.2020.01.26.07.05.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Jan 2020 07:05:51 -0800 (PST)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org
+Cc:     Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        linux-input@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Minkyu Kang <mk7.kang@samsung.com>,
+        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        Oskar Andero <oskar.andero@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>
+Subject: [PATCH 1/2 v6] iio: light: Add DT bindings for GP2AP002
+Date:   Sun, 26 Jan 2020 16:05:47 +0100
+Message-Id: <20200126150548.9168-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <HK0P153MB01489C2ABCFF40822EC8B695BF090@HK0P153MB0148.APCP153.PROD.OUTLOOK.COM>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, Jan 25, 2020 at 01:59:03AM +0000, Dexuan Cui wrote:
->> From: linux-hyperv-owner@vger.kernel.org
->> <linux-hyperv-owner@vger.kernel.org> On Behalf Of Dexuan Cui
->> Sent: Wednesday, January 15, 2020 11:53 AM
->> > ...
->> > On Mon, Jan 06, 2020 at 02:40:44PM -0800, Dexuan Cui wrote:
->> > >Add suspend() and resume() functions so the Hyper-V virtual keyboard
->> > >can participate in VM hibernation.
->> > >
->> > >Note that the keyboard is a "wakeup" device that could abort an in-progress
->> > >hibernation if there is keyboard event.  No attempt is made to suppress
->> > this
->> > >behavior.  If desired, a sysadmin can disable the keyboard as a wakeup
->> > device
->> > >using standard mechanisms such as:
->> > >
->> > >echo disabled >
->> > /sys/bus/vmbus/drivers/hyperv_keyboard/XXX/power/wakeup
->> > >(where XXX is the device's GUID)
->> > >
->> > >Reviewed-by:  Michael Kelley <mikelley@microsoft.com>
->> > >Signed-off-by: Dexuan Cui <decui@microsoft.com>
->> > >---
->> > >
->> > >This is a RESEND of https://lkml.org/lkml/2019/11/24/115 .
->> >
->> > >Please review.
->> > >
->> > >If it looks good, Sasha Levin, can you please pick it up via the
->> > >hyperv/linux.git tree, as you did last time for this driver?
->> >
->> > This will need an ack from the input driver maintainers, unless they
->> > want to give a blanket ack to this type of patches.
->> >
->> > Thanks,
->> > Sasha
->>
->> Hi Dmitry,
->> May I have your Acked-by for this patch?
->>
->> Thanks
->> -- Dexuan
->
->It looks Dmitry may be on leave and there is no ACK from any input driver
->maintainers. :-(
->
->Sasha, for this patch, I would suggest it may as well go directly through the
->Hyper-V tree because
->1. It's really small and it's a pure Hyper-V change.
->2. This is for a new functionality and it can not break any existing code.
->3. I'm pretty sure it can not cause any merge conflict or build failure.
->
->It's still wonderful to get an Ack or some comment from the input driver
->maintainer(s), so maybe let's wait more time (e.g. a week?) and then I
->suggust we proceed.
+This adds device tree bindings for the GP2AP002 light
+and proximity sensor.
 
-I'll queue it up via the hyperv tree, if anyone has any objections
-please let me know.
+As with other early proximity sensors (~2010) the light
+sensor and proximity sensors were combined into a single
+component.
 
+Cc: Stephan Gerhold <stephan@gerhold.net>
+Cc: Minkyu Kang <mk7.kang@samsung.com>
+Cc: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Cc: Jonathan Bakker <xc-racer2@live.ca>
+Cc: Oskar Andero <oskar.andero@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ChangeLog v5->v6:
+- Resending with v6 of the driver.
+ChangeLog v4->v5:
+- Collected Rob's Reviewed-by tag.
+ChangeLog v3->v4:
+- Resend with the changes in the main patch.
+ChangeLog v1->v3:
+- Drop the maxitems on the supplies, it is already 1
+- Drop quotes around "alsout"
+- Limit the sharp hysteresis to 8 bits as it should be
+- Use /bits/ 8 in the example so it is correct
+---
+ .../bindings/iio/light/sharp,gp2ap002.yaml    | 85 +++++++++++++++++++
+ 1 file changed, 85 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/iio/light/sharp,gp2ap002.yaml
+
+diff --git a/Documentation/devicetree/bindings/iio/light/sharp,gp2ap002.yaml b/Documentation/devicetree/bindings/iio/light/sharp,gp2ap002.yaml
+new file mode 100644
+index 000000000000..12aa16f24772
+--- /dev/null
++++ b/Documentation/devicetree/bindings/iio/light/sharp,gp2ap002.yaml
+@@ -0,0 +1,85 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/iio/light/sharp,gp2ap002.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Sharp GP2AP002A00F and GP2AP002S00F proximity and ambient light sensors
++
++maintainers:
++  - Linus Walleij <linus.walleij@linaro.org>
++
++description: |
++  Proximity and ambient light sensor with IR LED for the proximity
++  sensing and an analog output for light intensity. The ambient light
++  sensor output is not available on the GP2AP002S00F variant.
++
++properties:
++  compatible:
++    enum:
++      - sharp,gp2ap002a00f
++      - sharp,gp2ap002s00f
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++    description: an interrupt for proximity, usually a GPIO line
++
++  vdd-supply:
++    description: VDD power supply a phandle to a regulator
++
++  vio-supply:
++    description: VIO power supply a phandle to a regulator
++
++  io-channels:
++    maxItems: 1
++    description: ALSOUT ADC channel to read the ambient light
++
++  io-channel-names:
++    const: alsout
++
++  sharp,proximity-far-hysteresis:
++    $ref: /schemas/types.yaml#/definitions/uint8
++    description: |
++      Hysteresis setting for "far" object detection, this setting is
++      device-unique and adjust the optical setting for proximity detection
++      of a "far away" object in front of the sensor.
++
++  sharp,proximity-close-hysteresis:
++    $ref: /schemas/types.yaml#/definitions/uint8
++    description: |
++      Hysteresis setting for "close" object detection, this setting is
++      device-unique and adjust the optical setting for proximity detection
++      of a "close" object in front of the sensor.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - sharp,proximity-far-hysteresis
++  - sharp,proximity-close-hysteresis
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      light-sensor@44 {
++        compatible = "sharp,gp2ap002a00f";
++        reg = <0x44>;
++        interrupts = <18 IRQ_TYPE_EDGE_FALLING>;
++        vdd-supply = <&vdd_regulator>;
++        vio-supply = <&vio_regulator>;
++        io-channels = <&adc_channel>;
++        io-channel-names = "alsout";
++        sharp,proximity-far-hysteresis = /bits/ 8 <0x2f>;
++        sharp,proximity-close-hysteresis = /bits/ 8 <0x0f>;
++      };
++    };
++
++...
 -- 
-Thanks,
-Sasha
+2.21.1
+

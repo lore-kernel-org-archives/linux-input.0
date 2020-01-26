@@ -4,26 +4,26 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B66DC2D0DB
-	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 16:05:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23863C35247
+	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 16:05:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 75B8120708
-	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 16:05:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 05A092075D
+	for <linux-input@archiver.kernel.org>; Sun, 26 Jan 2020 16:05:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726294AbgAZQF0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Jan 2020 11:05:26 -0500
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:46277 "EHLO
+        id S1728935AbgAZQF3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Jan 2020 11:05:29 -0500
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:46933 "EHLO
         relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725838AbgAZQFZ (ORCPT
+        with ESMTP id S1728831AbgAZQF3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Jan 2020 11:05:25 -0500
+        Sun, 26 Jan 2020 11:05:29 -0500
 X-Originating-IP: 195.189.32.242
 Received: from pc.localdomain (unknown [195.189.32.242])
         (Authenticated sender: contact@artur-rojek.eu)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id D6A9E1BF20A;
-        Sun, 26 Jan 2020 16:05:21 +0000 (UTC)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 3B55F1BF209;
+        Sun, 26 Jan 2020 16:05:26 +0000 (UTC)
 From:   Artur Rojek <contact@artur-rojek.eu>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -32,11 +32,10 @@ To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Paul Cercueil <paul@crapouillou.net>
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Artur Rojek <contact@artur-rojek.eu>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v2 2/5] dt-bindings: iio/adc: Add touchscreen idx for JZ47xx SoC ADC
-Date:   Sun, 26 Jan 2020 17:12:33 +0100
-Message-Id: <20200126161236.63631-2-contact@artur-rojek.eu>
+        Artur Rojek <contact@artur-rojek.eu>
+Subject: [PATCH v2 4/5] dt-bindings: input: Add docs for ADC driven joystick.
+Date:   Sun, 26 Jan 2020 17:12:35 +0100
+Message-Id: <20200126161236.63631-4-contact@artur-rojek.eu>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200126161236.63631-1-contact@artur-rojek.eu>
 References: <20200126161236.63631-1-contact@artur-rojek.eu>
@@ -47,32 +46,146 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Introduce support for touchscreen channels found in JZ47xx SoCs.
+Add documentation for the adc-joystick driver, used to provide support
+for joysticks connected over ADC.
 
 Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
 Tested-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
 
  Changes:
 
- v2: no change
+ v2: - Add `reg` property to axis subnode in order to enumerate the axes,
+     - rename `linux,abs-code` property to `linux,code`,
+     - drop `linux,` prefix from the remaining properties of axis subnode
 
- include/dt-bindings/iio/adc/ingenic,adc.h | 2 ++
- 1 file changed, 2 insertions(+)
+ .../bindings/input/adc-joystick.yaml          | 117 ++++++++++++++++++
+ 1 file changed, 117 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/adc-joystick.yaml
 
-diff --git a/include/dt-bindings/iio/adc/ingenic,adc.h b/include/dt-bindings/iio/adc/ingenic,adc.h
-index 42f871ab3272..95e20a8d6dc8 100644
---- a/include/dt-bindings/iio/adc/ingenic,adc.h
-+++ b/include/dt-bindings/iio/adc/ingenic,adc.h
-@@ -7,5 +7,7 @@
- #define INGENIC_ADC_AUX		0
- #define INGENIC_ADC_BATTERY	1
- #define INGENIC_ADC_AUX2	2
-+#define INGENIC_ADC_TOUCH_XP	3
-+#define INGENIC_ADC_TOUCH_YP	4
- 
- #endif
+diff --git a/Documentation/devicetree/bindings/input/adc-joystick.yaml b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+new file mode 100644
+index 000000000000..91fc87dcbddb
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+@@ -0,0 +1,117 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++# Copyright 2019-2020 Artur Rojek
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/bindings/input/adc-joystick.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
++
++title: ADC attached joystick
++
++maintainers:
++  - Artur Rojek <contact@artur-rojek.eu>
++
++description: |
++  Bindings for joystick devices connected to ADC controllers supporting
++  the Industrial I/O subsystem.
++
++properties:
++  compatible:
++    const: adc-joystick
++
++  io-channels:
++    description: |
++      List of phandle and IIO specifier pairs.
++      Each pair defines one ADC channel to which a joystick axis is connected.
++      See Documentation/devicetree/bindings/iio/iio-bindings.txt for details.
++
++  '#address-cells':
++    const: 1
++
++  '#size-cells':
++    const: 0
++
++required:
++  - compatible
++  - io-channels
++  - '#address-cells'
++  - '#size-cells'
++
++additionalProperties: false
++
++patternProperties:
++  "^axis@([0-9])$":
++    type: object
++    description: |
++      Represents a joystick axis bound to the given ADC channel.
++      For each entry in the io-channels list, one axis subnode with a matching
++      reg property must be specified.
++
++    properties:
++      reg:
++        items:
++          description: Index of an io-channels list entry bound to this axis.
++
++      linux,code:
++        $ref: /schemas/types.yaml#/definitions/uint32
++        description: EV_ABS specific event code generated by the axis.
++
++      abs-range:
++        $ref: /schemas/types.yaml#/definitions/uint32-array
++        items:
++          - description: minimum value
++          - description: maximum value
++        description: |
++          Minimum and maximum values produced by the axis.
++          For an ABS_X axis this will be the left-most and right-most
++          inclination of the joystick. If min > max, it is left to userspace to
++          treat the axis as inverted.
++          This property is interpreted as two signed 32 bit values.
++
++      abs-fuzz:
++        $ref: /schemas/types.yaml#/definitions/uint32
++        description: |
++          Amount of noise in the input value.
++          Omitting this property indicates the axis is precise.
++
++      abs-flat:
++        $ref: /schemas/types.yaml#/definitions/uint32
++        description: |
++          Axial "deadzone", or area around the center position, where the axis
++          is considered to be at rest.
++          Omitting this property indicates the axis always returns to exactly
++          the center position.
++
++    required:
++      - reg
++      - linux,code
++      - abs-range
++
++    additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/iio/adc/ingenic,adc.h>
++    #include <dt-bindings/input/input.h>
++
++    joystick: adc-joystick {
++      compatible = "adc-joystick";
++      io-channels = <&adc INGENIC_ADC_TOUCH_XP>,
++                    <&adc INGENIC_ADC_TOUCH_YP>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      axis@0 {
++              reg = <0>;
++              linux,code = <ABS_X>;
++              abs-range = <3300 0>;
++              abs-fuzz = <4>;
++              abs-flat = <200>;
++      };
++      axis@1 {
++              reg = <1>;
++              linux,code = <ABS_Y>;
++              abs-range = <0 3300>;
++              abs-fuzz = <4>;
++              abs-flat = <200>;
++      };
++    };
 -- 
 2.25.0
 

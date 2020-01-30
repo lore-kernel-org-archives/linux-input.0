@@ -2,131 +2,169 @@ Return-Path: <SRS0=7tdG=3T=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5E98C2D0DB
-	for <linux-input@archiver.kernel.org>; Thu, 30 Jan 2020 20:34:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64F3FC2D0DB
+	for <linux-input@archiver.kernel.org>; Thu, 30 Jan 2020 20:45:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 850E8214D8
-	for <linux-input@archiver.kernel.org>; Thu, 30 Jan 2020 20:34:31 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="g7awB2ne"
+	by mail.kernel.org (Postfix) with ESMTP id 4005F20674
+	for <linux-input@archiver.kernel.org>; Thu, 30 Jan 2020 20:45:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727142AbgA3Ueb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 30 Jan 2020 15:34:31 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:35286 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727630AbgA3Ueb (ORCPT
+        id S1727277AbgA3UpY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 30 Jan 2020 15:45:24 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:35064 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727089AbgA3UpY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 30 Jan 2020 15:34:31 -0500
-Received: by mail-pg1-f195.google.com with SMTP id l24so2255720pgk.2
-        for <linux-input@vger.kernel.org>; Thu, 30 Jan 2020 12:34:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ls2tMeKv9f/jgxrcgT00rlFPgO3Iqf2bPNU9NTKhuuA=;
-        b=g7awB2ne4o5cENNYO4XNZlKcdtN8PAc/gTPbg8CFzfTmV7vVXy0DaMpOT1WCpvirXj
-         ILtB4VGoCSqxDbVxIIg6dkSkjOOAzvGm2Muc0iM7VUAcvoFOWtR6d8uoQGpV8IHdkguE
-         GUejGP2g1hEG3giv+H3VxhLiwH9QDlLB1OYpE=
+        Thu, 30 Jan 2020 15:45:24 -0500
+Received: by mail-wm1-f68.google.com with SMTP id b17so5993987wmb.0;
+        Thu, 30 Jan 2020 12:45:22 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ls2tMeKv9f/jgxrcgT00rlFPgO3Iqf2bPNU9NTKhuuA=;
-        b=UHL7kfD++7pxJSdb+TncdjEI6tt4nwGfm9mrTtwENseKZrbTJI8/yVffoArVSS2Rby
-         vH4WP/2Ab19wOftML/tWETyPxxALve2cz9tB4VxgQ649Ov/T63rnP+B0GVU7iDqwGKoS
-         4aJOHQEwlyRzqHAqgQOHqJJxZykUbjeZqwG+OZOPBC29us4cB/PdhCaKOPvlG8A8hAjM
-         eUvuMogOEuH3m/+6arjPggM5bDRAOMLyjATUO15VX+aQDsRnvF9Bca5j03QZuNh7DDiI
-         aJErKO8MCSQk4lb1kXsWBKqWvUEp7Fh5hOAoZk5ejDh+Gwjag/VCMGjiyVSv9NkSQ6FE
-         6rag==
-X-Gm-Message-State: APjAAAVTsSu5zBOiJNIFPsQRPK11z1a8k8TDyc0mhgNBj17zU3XGfxgy
-        rCop7QUhP9khr915AcuY9oPVMg==
-X-Google-Smtp-Source: APXvYqy/Joy7rxQu+O8dsSuoijXrNllSzK67kFbyoHNLVIFp3OdJPOLc29S4oQ8YzWkHSSCf0ip0mA==
-X-Received: by 2002:a63:ed4a:: with SMTP id m10mr5736301pgk.99.1580416469829;
-        Thu, 30 Jan 2020 12:34:29 -0800 (PST)
-Received: from pmalani2.mtv.corp.google.com ([2620:15c:202:201:172e:4646:c089:ce59])
-        by smtp.gmail.com with ESMTPSA id q12sm7469321pfh.158.2020.01.30.12.34.29
+        bh=aMCqGO6pzPjnIyQyehlTcprRJgNKArYeT/n5QqHWbwU=;
+        b=UA36xoDgTEicI4r5nCLrlVqzHgrzXysWdmtx31gNpABAIOsJuk0v+3QP2ouvk+YhlJ
+         2vH5O2sWoMbksgVYszFsqclSd+57iH4e84b1rZYInAjYbBEZ3bD/cSuI89kgfOv55bLX
+         NBFBagHCc/H8p04ZiSW/y1UWtJn7ulqcvbIcf2Z2F+yMHXZo64R6f6EN9oES1nb5ZFop
+         yp1H1NOEdOPvJ/trTWVu4J1nILdWtuvRKVrgETMv/YU66GQfKP2zOk7rC6ioQj0ExDet
+         Cc0c3bhHvQftpynu1ab95jQKnIlGs6eTBa2XJ+VhfopEAyaBa6d2x8+DDpVLik0/Iump
+         x6kA==
+X-Gm-Message-State: APjAAAWhzuxAkSZkufRYW1sOw1krY4VPOuPcTYK9q9xbSQfqYeEu9ais
+        dsOyWFrk1iC9IM8oGayxc1mBstDjdGs=
+X-Google-Smtp-Source: APXvYqzrgdzJcsprJtbQOSYTQznza0XkNwRyr+mAW4GFha2hvfsajM2WB3HFwV4uoD1PbB+UUbeBsA==
+X-Received: by 2002:a1c:7d93:: with SMTP id y141mr7380983wmc.111.1580417121978;
+        Thu, 30 Jan 2020 12:45:21 -0800 (PST)
+Received: from 1aq-andre.garage.tyco.com ([77.107.218.170])
+        by smtp.gmail.com with ESMTPSA id x7sm8874885wrq.41.2020.01.30.12.45.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jan 2020 12:34:29 -0800 (PST)
-From:   Prashant Malani <pmalani@chromium.org>
+        Thu, 30 Jan 2020 12:45:21 -0800 (PST)
+From:   =?UTF-8?q?Andr=C3=A9=20Draszik?= <git@andred.net>
 To:     linux-kernel@vger.kernel.org
-Cc:     Prashant Malani <pmalani@chromium.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org (open list:HID CORE LAYER)
-Subject: [PATCH 09/17] hid: google-hammer: Use cros_ec_send_cmd_msg()
-Date:   Thu, 30 Jan 2020 12:30:52 -0800
-Message-Id: <20200130203106.201894-10-pmalani@chromium.org>
-X-Mailer: git-send-email 2.25.0.341.g760bfbb309-goog
-In-Reply-To: <20200130203106.201894-1-pmalani@chromium.org>
-References: <20200130203106.201894-1-pmalani@chromium.org>
+Cc:     =?UTF-8?q?Andr=C3=A9=20Draszik?= <git@andred.net>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Aymen Sghaier <aymen.sghaier@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-crypto@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH 2/3] Input: snvs_pwrkey - enable snvs clock as needed
+Date:   Thu, 30 Jan 2020 20:45:15 +0000
+Message-Id: <20200130204516.4760-2-git@andred.net>
+X-Mailer: git-send-email 2.23.0.rc1
+In-Reply-To: <20200130204516.4760-1-git@andred.net>
+References: <20200130204516.4760-1-git@andred.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Replace cros_ec_cmd_xfer_status() with cros_ec_send_cmd_msg() which does
-the message buffer setup and cleanup.
+At the moment, enabling this driver without the SNVS RTC driver
+being active will hang the kernel as soon as the power button
+is pressed.
 
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
+The reason is that in that case the SNVS isn't enabled, and
+any attempt to read the SNVS registers will simply hang forever.
+
+Ensure the clock is enabled (during the interrupt handler) to
+make this driver work.
+
+Also see commit 7f8993995410 ("drivers/rtc/rtc-snvs: add clock support")
+and commit edb190cb1734
+("rtc: snvs: make sure clock is enabled for interrupt handle")
+for similar updates to the snvs rtc driver.
+
+Signed-off-by: André Draszik <git@andred.net>
+Cc: Anson Huang <Anson.Huang@nxp.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Horia Geantă" <horia.geanta@nxp.com>
+Cc: Aymen Sghaier <aymen.sghaier@nxp.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 ---
- drivers/hid/hid-google-hammer.c | 23 +++++------------------
- 1 file changed, 5 insertions(+), 18 deletions(-)
+ drivers/input/keyboard/snvs_pwrkey.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-index 2aa4ed157aec87..428762a6a4993f 100644
---- a/drivers/hid/hid-google-hammer.c
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -53,38 +53,25 @@ static bool cbas_parse_base_state(const void *data)
- static int cbas_ec_query_base(struct cros_ec_device *ec_dev, bool get_state,
- 				  bool *state)
- {
--	struct ec_params_mkbp_info *params;
--	struct cros_ec_command *msg;
-+	struct ec_params_mkbp_info params = {0};
- 	int ret;
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index 2f5e3ab5ed63..c29711d8735c 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -16,6 +16,7 @@
+ #include <linux/of_address.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_wakeirq.h>
++#include <linux/clk.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
  
--	msg = kzalloc(sizeof(*msg) + max(sizeof(u32), sizeof(*params)),
--		      GFP_KERNEL);
--	if (!msg)
--		return -ENOMEM;
--
--	msg->command = EC_CMD_MKBP_INFO;
--	msg->version = 1;
--	msg->outsize = sizeof(*params);
--	msg->insize = sizeof(u32);
--	params = (struct ec_params_mkbp_info *)msg->data;
--	params->info_type = get_state ?
-+	params.info_type = get_state ?
- 		EC_MKBP_INFO_CURRENT : EC_MKBP_INFO_SUPPORTED;
--	params->event_type = EC_MKBP_EVENT_SWITCH;
-+	params.event_type = EC_MKBP_EVENT_SWITCH;
+@@ -38,6 +39,7 @@ struct pwrkey_drv_data {
+ 	int wakeup;
+ 	struct timer_list check_timer;
+ 	struct input_dev *input;
++	struct clk *clk;
+ 	u8 minor_rev;
+ };
  
--	ret = cros_ec_cmd_xfer_status(ec_dev, msg);
-+	ret = cros_ec_send_cmd_msg(ec_dev, 1, EC_CMD_MKBP_INFO,
-+				   &params, sizeof(params), state, sizeof(u32));
- 	if (ret >= 0) {
- 		if (ret != sizeof(u32)) {
- 			dev_warn(ec_dev->dev, "wrong result size: %d != %zu\n",
- 				 ret, sizeof(u32));
- 			ret = -EPROTO;
- 		} else {
--			*state = cbas_parse_base_state(msg->data);
- 			ret = 0;
- 		}
- 	}
+@@ -72,6 +74,9 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
+ 	struct input_dev *input = pdata->input;
+ 	u32 lp_status;
  
--	kfree(msg);
--
- 	return ret;
++	if (pdata->clk)
++		clk_enable(pdata->clk);
++
+ 	pm_wakeup_event(input->dev.parent, 0);
+ 
+ 	regmap_read(pdata->snvs, SNVS_LPSR_REG, &lp_status);
+@@ -96,6 +101,9 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
+ 	/* clear SPO status */
+ 	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
+ 
++	if (pdata->clk)
++		clk_disable(pdata->clk);
++
+ 	return IRQ_HANDLED;
  }
  
+@@ -140,6 +148,25 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	if (pdata->irq < 0)
+ 		return -EINVAL;
+ 
++	pdata->clk = devm_clk_get(&pdev->dev, "snvs-pwrkey");
++	if (IS_ERR(pdata->clk)) {
++		pdata->clk = NULL;
++	} else {
++		error = clk_prepare_enable(pdata->clk);
++		if (error) {
++			dev_err(&pdev->dev,
++				"Could not prepare or enable the snvs clock\n");
++			return error;
++		}
++		error = devm_add_action_or_reset(&pdev->dev,
++				(void(*)(void *))clk_disable_unprepare,
++				pdata->clk);
++		if (error) {
++			dev_err(&pdev->dev, "failed to add reset action on 'snvs-pwrkey'");
++			return error;
++		}
++	}
++
+ 	regmap_read(pdata->snvs, SNVS_HPVIDR1_REG, &vid);
+ 	pdata->minor_rev = vid & 0xff;
+ 
 -- 
-2.25.0.341.g760bfbb309-goog
+2.23.0.rc1
 

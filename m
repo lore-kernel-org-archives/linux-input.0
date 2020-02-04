@@ -2,44 +2,59 @@ Return-Path: <SRS0=GsZw=3Y=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19608C35247
-	for <linux-input@archiver.kernel.org>; Tue,  4 Feb 2020 18:07:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E86AC35247
+	for <linux-input@archiver.kernel.org>; Tue,  4 Feb 2020 18:11:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E0ACB2166E
-	for <linux-input@archiver.kernel.org>; Tue,  4 Feb 2020 18:07:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 017C221741
+	for <linux-input@archiver.kernel.org>; Tue,  4 Feb 2020 18:11:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1580839879;
+	bh=R0MoCSZQK+PC0Q5mvT/DyawqafJ+9P3gT74qdvj40B0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=g0JqJFTi2OuAPzupI+7gyYVWJyS8OuJFDhukYvE7ANy1sSTvzIYEjtgBHaFRDmMxF
+	 tVc+jfHrrTdvVuR8itaRHR4M11CvXJrORYp8V+mg7ttryzOqWVjtmD5uaO8D87gW1b
+	 exm8XlpYZYquo1BV/S9Fafqg9ait9KSuLYLAWvh8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727440AbgBDSHc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 4 Feb 2020 13:07:32 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:47048 "HELO
-        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1727361AbgBDSHc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2020 13:07:32 -0500
-Received: (qmail 9526 invoked by uid 2102); 4 Feb 2020 13:07:31 -0500
-Received: from localhost (sendmail-bs@127.0.0.1)
-  by localhost with SMTP; 4 Feb 2020 13:07:31 -0500
-Date:   Tue, 4 Feb 2020 13:07:31 -0500 (EST)
-From:   Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
+        id S1727363AbgBDSLS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 4 Feb 2020 13:11:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50136 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727361AbgBDSLS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 4 Feb 2020 13:11:18 -0500
+Received: from localhost (unknown [167.98.85.149])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 431612082E;
+        Tue,  4 Feb 2020 18:11:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1580839877;
+        bh=R0MoCSZQK+PC0Q5mvT/DyawqafJ+9P3gT74qdvj40B0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Dw1WyUarX9uEzYVrUeuajcVVxjPRGecegJhMJu3GO86QFClKT50WtPDejiRIn5Thv
+         HNoeYvdBsjOs5cBsX5QQp5chIE2SDc97LOG6w8ajxpu6OKrq8XIop1lQTnzrGisobK
+         9ZcuWLcYS6XLyCfPiW1h4GCz+8KdtNRJGk2iUxvA=
+Date:   Tue, 4 Feb 2020 18:11:15 +0000
+From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Lauri Jakku <lja@iki.fi>
-cc:     oneukum@suse.com, <benjamin.tissoires@redhat.com>,
-        <jikos@kernel.org>, <linux-input@vger.kernel.org>,
-        <gregkh@linuxfoundation.org>, <linux-usb@vger.kernel.org>
+Cc:     oneukum@suse.com, benjamin.tissoires@redhat.com, jikos@kernel.org,
+        linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 Subject: Re: [PATCH v5] USB: HID: random timeout failures tackle try.
-In-Reply-To: <20200204175238.3817-1-lja@iki.fi>
-Message-ID: <Pine.LNX.4.44L0.2002041306100.1587-100000@iolanthe.rowland.org>
+Message-ID: <20200204181115.GA1115743@kroah.com>
+References: <20200204175238.3817-1-lja@iki.fi>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200204175238.3817-1-lja@iki.fi>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, 4 Feb 2020, Lauri Jakku wrote:
-
+On Tue, Feb 04, 2020 at 07:52:39PM +0200, Lauri Jakku wrote:
 > -- v1 ------------------------------------------------------------
 > send, 20ms apart, control messages, if error is timeout.
 > 
@@ -69,9 +84,35 @@ On Tue, 4 Feb 2020, Lauri Jakku wrote:
 >     before, if all is golden.
 > 
 > Why modify usb-hid-core: No need to modify driver by driver.
+> 
+> -- v3 ------------------------------------------------------------
+> 
+> Timeout given is divided by 100, but taken care that it is always
+> at least 10ms.
+> 
+> so total time in common worst-case-scenario is:
+> 
+>  sleep of 20ms + common timeout divided by 100 (50ms) makes
+>  70ms per loop, 20 loops => 1.4sec .
+> 
+> -- v4 ------------------------------------------------------------
+> No changes in code, just elaborating what is done in v[1,2,3].
+> 
+> -- v5 ------------------------------------------------------------
+> changes in code: what the build robot found:
+>    drivers/usb/core/message.c: In function 'usb_control_msg':
+> >> drivers/usb/core/message.c:173:11: error: type defaults to 'int' \
+>      in declaration of 'timeout_happened' [-Werror=implicit-int]
+>        static timeout_happened = 0;
+>               ^~~~~~~~~~~~~~~~
+>    cc1: some warnings being treated as errors
+> 
+> Fix done: added int to declaration.
 
-Please note: Your patch does _not_ modify usb-hid-core (that is, 
-drivers/hid/usbhid).  It modifies usb-core (that is, drivers/usb/core).
+Um, please read the documentation for how to do versioning of patches.
+Or look at examples on the mailing list for this as well.  What you have
+here will unfortunately not work at all.
 
-Alan Stern
+thanks,
 
+greg k-h

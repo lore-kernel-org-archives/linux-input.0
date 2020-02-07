@@ -2,198 +2,200 @@ Return-Path: <SRS0=Y6A5=33=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFDB1C35247
-	for <linux-input@archiver.kernel.org>; Fri,  7 Feb 2020 00:36:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A342C2D0B1
+	for <linux-input@archiver.kernel.org>; Fri,  7 Feb 2020 07:37:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B8B3A2082E
-	for <linux-input@archiver.kernel.org>; Fri,  7 Feb 2020 00:36:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 256B120726
+	for <linux-input@archiver.kernel.org>; Fri,  7 Feb 2020 07:37:05 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="Q6+3f/HF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726597AbgBGAgx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 6 Feb 2020 19:36:53 -0500
-Received: from orion.archlinux.org ([88.198.91.70]:50814 "EHLO
-        orion.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726543AbgBGAgw (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Feb 2020 19:36:52 -0500
-Received: from orion.archlinux.org (localhost [127.0.0.1])
-        by orion.archlinux.org (Postfix) with ESMTP id 6D8FB18B660FB1;
-        Fri,  7 Feb 2020 00:36:49 +0000 (UTC)
-Received: from genesis (unknown [IPv6:2001:8a0:f254:2300:dad6:8c60:8394:88da])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: ffy00)
-        by orion.archlinux.org (Postfix) with ESMTPSA;
-        Fri,  7 Feb 2020 00:36:48 +0000 (UTC)
-Message-ID: <74339066fc673cf95c0306e3005239eeae60761c.camel@archlinux.org>
-Subject: Re: Make the hid-logitech-dj driver remove the HID++ nodes when
- the device disconnects
-From:   Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-To:     Peter Hutterer <peter.hutterer@redhat.com>,
-        Benjamin Tissoires <btissoir@redhat.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        linux-input <linux-input@vger.kernel.org>,
-        Nestor Lopez Casado <nlopezcasad@logitech.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Bastien Nocera <hadess@hadess.net>,
-        Julien Hartmann <juli1.hartmann@gmail.com>
-In-Reply-To: <b867da88-991d-4a9b-7640-4a7994b7112a@redhat.com>
-References: <451e552444483c52a038d3d14391611f897582f4.camel@archlinux.org>
-         <f2997fc7-1f34-79d3-f0aa-8367ed09f473@redhat.com>
-         <ac804c20c692aa5a65e78ba6c8e22e4f328f1667.camel@archlinux.org>
-         <4168f943-5ffe-10aa-b15f-21799ca99c0d@redhat.com>
-         <7bf597e43c38518692dee5fdc2c03e21f78f61a1.camel@archlinux.org>
-         <CAO-hwJLKrY6vJ-95+A-w3BdGXLVQDsX73VkgqjGCFOztTVRa9w@mail.gmail.com>
-         <b867da88-991d-4a9b-7640-4a7994b7112a@redhat.com>
-Organization: Archlinux
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-Etvpn6BjVWmGaJPRkLPo"
-Date:   Fri, 07 Feb 2020 00:36:47 +0000
+        id S1726642AbgBGHhE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 7 Feb 2020 02:37:04 -0500
+Received: from mail-eopbgr140072.outbound.protection.outlook.com ([40.107.14.72]:54740
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726136AbgBGHhE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 7 Feb 2020 02:37:04 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=f9K+FxcNOkCSRCC1a2XshiVm3icLMtkQD6utmPgcZPEFnPlnMgCcc5mQlkm13Gi1CUvwGQR651V2+TP5Sw9bwgvs2q+KvvJxcH4dU1s8n/dDlV++kxgrLmzx8PGKPi+dpbPT5AGZUG7ueTHMc232nLTTNO0G6znJuPH4IWh3AgHi97kYAOJg2sYt5koFKqgN9GYjg+eeNM1RG8Pwz943zmLlkJxAs44mbpdxxdJJGMVilrJiwZzSuLXGAvZqbKM3eVu/8b7h+G1CSZ0mUf4rYbhyzJ7C8Iy+FRpy4N92u5f29Q3Yk1PXdjGGtQhWqMwiFWHVNaA4ZqcQOi5Im0lIVQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TonupJVX6lcZ/M4/yDVPGJ+52Btda+VNZDZ3nh1xoPI=;
+ b=fOPxO6nBiyPMCxTpQVJdugA/jw7mSc+e3zfG8djGxHwq3vQ5nK82aYSgRh/prOd3n0dzgu7AAk1lHjG55H7CsP/nhER2vw8ejmTZxa9/7S0wbXE01IgChcdHFeQKkFCiaZHpm75ShtCKosxBhWNg3WSO3g0/OLia9+AGuY+RVIkwhZ7EVXDRAPHONlJuA+bmTcXf9uBzy9VZvZyty3bCYa3ych9L7GPqvkg5M+vzJAb8KtaAopzXa1BZQXGkh6fb4T0voRB0qX7c0wYK2uDtDVRXol1BA6JJ2dI8rrahZ9siaZ7VnU/0321u7lgkOu/zyNgqVEsR1TsxmxNXKL9sPA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TonupJVX6lcZ/M4/yDVPGJ+52Btda+VNZDZ3nh1xoPI=;
+ b=Q6+3f/HFutM8sNpF07h9ohkUIQqUCkF75QVBLOiv7Uev7ruuLJpECepdOJOLWR0qizWi926wPtj+y7z+q7HKZ8m+JM2TTMyZ+j6G9NYa9r6ypOjKFjjZavPpWEbSU7RidHtng+Z41eH2tr7EacULOI/ZG/WUaq6OWAAqPqW4T7w=
+Received: from VI1PR0402MB3485.eurprd04.prod.outlook.com (52.134.3.153) by
+ VI1PR0402MB3504.eurprd04.prod.outlook.com (52.134.4.21) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2686.27; Fri, 7 Feb 2020 07:36:59 +0000
+Received: from VI1PR0402MB3485.eurprd04.prod.outlook.com
+ ([fe80::85e9:f844:f8b0:27d]) by VI1PR0402MB3485.eurprd04.prod.outlook.com
+ ([fe80::85e9:f844:f8b0:27d%7]) with mapi id 15.20.2707.024; Fri, 7 Feb 2020
+ 07:36:59 +0000
+From:   Horia Geanta <horia.geanta@nxp.com>
+To:     =?iso-8859-2?Q?Andr=E9_Draszik?= <git@andred.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     Anson Huang <anson.huang@nxp.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Aymen Sghaier <aymen.sghaier@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Robin Gong <yibin.gong@nxp.com>,
+        dl-linux-imx <linux-imx@nxp.com>
+Subject: Re: [PATCH 1/3] ARM: dts: imx7s: add snvs clock to pwrkey
+Thread-Topic: [PATCH 1/3] ARM: dts: imx7s: add snvs clock to pwrkey
+Thread-Index: AQHV164xC7dgwu9e4kaRkYTJlTesdg==
+Date:   Fri, 7 Feb 2020 07:36:59 +0000
+Message-ID: <VI1PR0402MB3485BFC1B2BD9842ACE2E834981C0@VI1PR0402MB3485.eurprd04.prod.outlook.com>
+References: <20200130204516.4760-1-git@andred.net>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=horia.geanta@nxp.com; 
+x-originating-ip: [212.146.100.6]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 4612cabb-3d35-467a-cb43-08d7aba083e9
+x-ms-traffictypediagnostic: VI1PR0402MB3504:|VI1PR0402MB3504:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <VI1PR0402MB35048F878DC6960B70EFDAA0981C0@VI1PR0402MB3504.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:3968;
+x-forefront-prvs: 0306EE2ED4
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(136003)(366004)(39860400002)(396003)(376002)(346002)(189003)(199004)(91956017)(54906003)(316002)(76116006)(110136005)(64756008)(5660300002)(55016002)(9686003)(52536014)(7696005)(66946007)(66556008)(66446008)(6506007)(53546011)(66476007)(26005)(86362001)(71200400001)(4326008)(8936002)(81166006)(7416002)(8676002)(186003)(44832011)(33656002)(81156014)(2906002)(478600001);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR0402MB3504;H:VI1PR0402MB3485.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ihjRnMdEf3l8PtR7XKZ4R1tZirSdkkpxhn02dHsiRWsw5k8r63ByyjeJY2T4ci1hylTRWhbV2WOYrD0PIN2fNVawz4p6rmYiCnrUZzPhayupKdxAxHPLkrhgNOt+6ogT+8C3fDC5gcNTFTUzL3NWd+nCCfd8jn6UD8qWMh9a14CVbXoCPPg804UrPkE2yZVfaAwGgWxNkAmirFMhTtpvCImVwkMw4AtRURqnGyn4tQ3Ky/+5iiFffgxe2a1PJvA39N5nzBeBoheVZ8VLE3V4AMJSwWDTOQZcKXRaHbfIy6wUh1nnXiCmByyp9k2Y8MoVumZvNLqjr9AYnHQh3ciN+X7gWrqFU78ZoI3dn+oUG6H7gnHsaORMAVm7Fb50abZHR5Cv8ifKDtuOXTCfxXHl7AgP2VSEfxTQlOcNFF7/PTQoz7QuJsU8ChE91QU1XxDI
+x-ms-exchange-antispam-messagedata: ucqayEml1S6C62EefBkbdxoSRBB41cCfRm+t60A+qogsIMg5eDqXIYfZcZpdHD/uuLcs3Fx0hxKtiySbyLdta/6j8EWNjEAq5R/7czCzKXa9i7uzVMKAqfk4h1FQwFaq424EgugMzXP0SLpVwjZcew==
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-User-Agent: Evolution 3.34.3 
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4612cabb-3d35-467a-cb43-08d7aba083e9
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Feb 2020 07:36:59.1489
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: DOuPcsjVHOIs+tb67ieQ7Muz5PeCd6d0AGipbbS02y0+BA4b5FN24TIsyclmWaVarvQ9trl8PtF6rnjgzh+gCA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR0402MB3504
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-
---=-Etvpn6BjVWmGaJPRkLPo
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, 2020-02-07 at 10:03 +1000, Peter Hutterer wrote:
-> On 7/2/20 3:01 am, Benjamin Tissoires wrote:
-> > On Thu, Feb 6, 2020 at 4:42 PM Filipe La=C3=ADns <lains@archlinux.org> =
-wrote:
-> > > On Thu, 2020-02-06 at 13:13 +0100, Hans de Goede wrote:
-> > > > Hi,
-> > > >=20
-> > > > On 2/6/20 12:51 PM, Filipe La=C3=ADns wrote:
-> > > > > On Thu, 2020-02-06 at 12:30 +0100, Hans de Goede wrote:
-> > > > > > HI,
-> > > > > >=20
-> > > > > > On 2/6/20 12:14 PM, Filipe La=C3=ADns wrote:
-> > > > > > > Hello,
-> > > > > > >=20
-> > > > > > > Right now the hid-logitech-dj driver will export one node for=
- each
-> > > > > > > connected device, even when the device is not connected. That=
- causes
-> > > > > > > some trouble because in userspace we don't have have any way =
-to know if
-> > > > > > > the device is connected or not, so when we try to communicate=
-, if the
-> > > > > > > device is disconnected it will fail.
-> > > > > >=20
-> > > > > > I'm a bit reluctant to make significant changes to how the
-> > > > > > hid-logitech-dj driver works. We have seen a number of regressi=
-ons
-> > > > > > when it was changed to handle the non unifying receivers and I =
-would
-> > > > > > like to avoid more regressions.
-> > > > > >=20
-> > > > > > Some questions:
-> > > > > > 1. What is the specific use case where you are hitting this?
-> > > > >=20
-> > > > > For example, in libratbag we enumerate the devices and then probe=
- them.
-> > > > > Currently if the device is not connected, the communication fails=
-. To
-> > > > > get the device to show up we need to replug it, so it it triggers=
- udev,
-> > > > > or restart the daemon.
-> > > >=20
-> > > > Thanks, that is exactly the sort of context to your suggested chang=
-es
-> > > > which I need.
-> > > >=20
-> > > > > > 2. Can't the userspace tools involved by modified to handle the=
- errors
-> > > > > > they are getting gracefully?
-> > > > >=20
-> > > > > They can, but the approaches I see are not optimal:
-> > > > >     - Wait for HID events coming from the device, which could nev=
-er
-> > > > > happen.
-> > > > >     - Poll the device until it wakes up.
-> > > >=20
-> > > > I guess we do get some (other or repeated?) event when the device d=
-oes
-> > > > actually connect, otherwise your suggested changes would not be pos=
-sible.
-> > >=20
-> > > No, I was thinking to just send the HID++ version identification
-> > > routine and see if the device replies.
-> >=20
-> > Hmm, to continue on these questions:
-> > - yes, the current approach is to have the users of the HID++ device
-> > try to contact the device, get an error from the receiver, then keep
-> > the hidraw node open until we get something out of it, and then we can
-> > start talking to it
-> > - to your question Hans, when a device connects, it emits a HID++
-> > notification, which we should be relaying in the hidraw node. If not,
-> > well then starting to receive a key or abs event on the input node is
-> > a pretty good hint that the device connected.
-> >=20
-> > So at any time, the kernel knows which devices are connected among
-> > those that are paired, so the kernel knows a lot more than user space.
-> >=20
-> > The main problem Filipe is facing here is that we specifically
-> > designed libratbag to *not* keep the device nodes opened, and to not
-> > poll on the input events. The reason being... we do not want libratbag
-> > to be considered as a keylogger.
->=20
-> I'm wondering - can we really get around this long-term? Even if we have=
-=20
-> a separate HID++ node and/or udev change events and/or some other=20
-> notification, in the end you still have some time T between that event=
-=20
-> and userspace opening the actual event node. Where the first key event=
-=20
-> wakes up the physical keyboard, you're now racing.
-
-Yes but it doesn't really matter in this case. We would only be
-potentially losing HID++ events, which are not that important, unlike
-normal input events. In fact, libratbag does not care about HID++
-events, they are just ignored.
-
-We would still have the same issue, yes, except here we don't really
-care.
-
-> So the separate HID++ node works as long as libratbag *only* listens to=
-=20
-> that node, as soon as we need to start caring about a normal event it=20
-> won't work any longer.
-
-You mean when libratbag starts caring about normal input events? What
-is the point of that? Why would we need to do that? Also, as Benjamin
-pointed out, that would classify as a keylogger.
-
-Cheers,
-Filipe La=C3=ADns=20
-
---=-Etvpn6BjVWmGaJPRkLPo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl48sR8ACgkQ+JPGdIFq
-qV2btxAArWCfxmeItacYztrHLGKs1Rf4AuGiukOVG50lygpTE3dSeb9A2N6RzCLN
-2f2G25jwNMogt+wN8Z7mQH3JK+Y5N7vrfF9RjYevn0eI4gqjVGamgDIF6mFQvXls
-SduZRJ1DnX354s3VjuMRl8/7ceXGZ38T+u6X+QildbWhPUyA2hwp2Ri4ifrznRRY
-PIj5r7OpyqzYjsLx65D6FxR+QRoyPV9zQGfYYKmDSVMWIb5cIcpy8kcFlRhVXZ9g
-jaE/a/QpijDBEBiaWooKrHpa+IWLt8OIHTetgUTrVDOT7NBLqwCx8BnKn60KRiVy
-8kQCfqVoAd/gnAT2TRP66xWfTvgAwIr+/KV9pQU4s4f6VKPNmqM0YZxwY2eawkGF
-BvmQlybdZzOfRE/o4FRHrbdZtbSN/M5nKV2BKtSU756++PFOXKKmX3kX9qd9VNWt
-jyimCFj4eq/Sg4mfuLNTXr3mOvPM6NCWY8xOlfEt2bog4B3uGysSLPPK4Zta1A2f
-HOBjv6z/cRCWUGXd2GGWiIn+kCYyrQWV6BZ/FmUqAy/Un/6n7Z8s1RqdZCUkp/4M
-Ax25wNmZH3NveMgmIKyYb2mPyuL5VkhcEiuj6WQjgVdYGJv3kAt77EcwU5XFaHFp
-3OqGpKhv8lP+DWmszR7NlFMieZYLZX5CuNcPON4AedsoAg4sU1s=
-=+nfK
------END PGP SIGNATURE-----
-
---=-Etvpn6BjVWmGaJPRkLPo--
+On 1/30/2020 10:45 PM, Andr=E9 Draszik wrote:=0A=
+> On i.MX7, the SNVS requires a clock. This is similar to the clock=0A=
+> bound to the SNVS RTC node, but if the SNVS RTC driver isn't enabled,=0A=
+> then SNVS doesn't work, and as such the pwrkey driver doesn't=0A=
+> work (i.e. hangs the kernel, as the clock isn't enabled).=0A=
+> =0A=
+This is true also for i.MX8M.=0A=
+For this reason it would probably better splitting the=0A=
+DT bindings update in a separate patch.=0A=
+=0A=
+> Also see commit ec2a844ef7c1=0A=
+> ("ARM: dts: imx7s: add snvs rtc clock")=0A=
+> for a similar fix.=0A=
+> =0A=
+> Signed-off-by: Andr=E9 Draszik <git@andred.net>=0A=
+> Cc: Anson Huang <Anson.Huang@nxp.com>=0A=
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>=0A=
+> Cc: "Horia Geant=E3" <horia.geanta@nxp.com>=0A=
+> Cc: Aymen Sghaier <aymen.sghaier@nxp.com>=0A=
+> Cc: Herbert Xu <herbert@gondor.apana.org.au>=0A=
+> Cc: "David S. Miller" <davem@davemloft.net>=0A=
+> Cc: Rob Herring <robh+dt@kernel.org>=0A=
+> Cc: Mark Rutland <mark.rutland@arm.com>=0A=
+> Cc: linux-crypto@vger.kernel.org=0A=
+> Cc: devicetree@vger.kernel.org=0A=
+> Cc: linux-input@vger.kernel.org=0A=
+Reviewed-by: Horia Geant=E3 <horia.geanta@nxp.com>=0A=
+=0A=
+> ---=0A=
+>  .../devicetree/bindings/crypto/fsl-sec4.txt     | 17 +++++++++++++++++=
+=0A=
+>  arch/arm/boot/dts/imx7s.dtsi                    |  2 ++=0A=
+>  2 files changed, 19 insertions(+)=0A=
+> =0A=
+> diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Docu=
+mentation/devicetree/bindings/crypto/fsl-sec4.txt=0A=
+> index 2fe245ca816a..755c2838d658 100644=0A=
+> --- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt=0A=
+> +++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt=0A=
+> @@ -449,6 +449,19 @@ System ON/OFF key driver=0A=
+>        Value type: <phandle>=0A=
+>        Definition: this is phandle to the register map node.=0A=
+>  =0A=
+> +   - clocks=0A=
+> +      Usage: optional, required if SNVS LP requires explicit=0A=
+> +          enablement of clocks=0A=
+> +      Value type: <prop_encoded-array>=0A=
+> +      Definition:  a clock specifier describing the clock required for=
+=0A=
+> +          enabling and disabling SNVS LP RTC.=0A=
+> +=0A=
+> +   - clock-names=0A=
+> +      Usage: optional, required if SNVS LP requires explicit=0A=
+> +          enablement of clocks=0A=
+> +      Value type: <string>=0A=
+> +      Definition: clock name string should be "snvs-pwrkey".=0A=
+> +=0A=
+>  EXAMPLE:=0A=
+>  	snvs-pwrkey@020cc000 {=0A=
+>  		compatible =3D "fsl,sec-v4.0-pwrkey";=0A=
+> @@ -456,6 +469,8 @@ EXAMPLE:=0A=
+>  		interrupts =3D <0 4 0x4>=0A=
+>  	        linux,keycode =3D <116>; /* KEY_POWER */=0A=
+>  		wakeup-source;=0A=
+> +		clocks =3D <&clks IMX7D_SNVS_CLK>;=0A=
+> +		clock-names =3D "snvs-pwrkey";=0A=
+>  	};=0A=
+>  =0A=
+>  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+> @@ -547,6 +562,8 @@ FULL EXAMPLE=0A=
+>  			interrupts =3D <0 4 0x4>;=0A=
+>  			linux,keycode =3D <116>; /* KEY_POWER */=0A=
+>  			wakeup-source;=0A=
+> +			clocks =3D <&clks IMX7D_SNVS_CLK>;=0A=
+> +			clock-names =3D "snvs-pwrkey";=0A=
+>  		};=0A=
+>  	};=0A=
+>  =0A=
+> diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi=
+=0A=
+> index 1b812f4e7453..6240a6f58048 100644=0A=
+> --- a/arch/arm/boot/dts/imx7s.dtsi=0A=
+> +++ b/arch/arm/boot/dts/imx7s.dtsi=0A=
+> @@ -614,6 +614,8 @@=0A=
+>  					linux,keycode =3D <KEY_POWER>;=0A=
+>  					wakeup-source;=0A=
+>  					status =3D "disabled";=0A=
+> +					clocks =3D <&clks IMX7D_SNVS_CLK>;=0A=
+> +					clock-names =3D "snvs-pwrkey";=0A=
+>  				};=0A=
+>  			};=0A=
+>  =0A=
+> =0A=

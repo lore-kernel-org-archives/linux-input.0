@@ -1,80 +1,159 @@
-Return-Path: <SRS0=Y6A5=33=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=KDQx=34=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 385F4C2BA83
-	for <linux-input@archiver.kernel.org>; Fri,  7 Feb 2020 18:50:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6846AC35250
+	for <linux-input@archiver.kernel.org>; Sat,  8 Feb 2020 11:47:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 17A1E214AF
-	for <linux-input@archiver.kernel.org>; Fri,  7 Feb 2020 18:50:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 368F8217BA
+	for <linux-input@archiver.kernel.org>; Sat,  8 Feb 2020 11:47:15 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="YMeyOxlC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726974AbgBGSua (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 7 Feb 2020 13:50:30 -0500
-Received: from mail-vs1-f47.google.com ([209.85.217.47]:46981 "EHLO
-        mail-vs1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726951AbgBGSua (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Feb 2020 13:50:30 -0500
-Received: by mail-vs1-f47.google.com with SMTP id t12so221339vso.13
-        for <linux-input@vger.kernel.org>; Fri, 07 Feb 2020 10:50:29 -0800 (PST)
+        id S1727076AbgBHLrO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 8 Feb 2020 06:47:14 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:34178 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727118AbgBHLrO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 8 Feb 2020 06:47:14 -0500
+Received: by mail-lj1-f193.google.com with SMTP id x7so2099090ljc.1
+        for <linux-input@vger.kernel.org>; Sat, 08 Feb 2020 03:47:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=lfib1cvE8Qx1QhEsPsHSP8YT5t21BPrQoDhCsuJr4lo=;
+        b=YMeyOxlCyyXRtks5fVGnlCGzuukSntb+AfCe/WorgOlcILbYjgZV8hcF+Z+pA6ASDW
+         t8OcxXpblkJNwNL20kvYNm38nYBiLrzofa10Ka5XS4efRYgvWiIKVozHjcaYOhLLAl1g
+         pLEJ6jsfhF/xNmINTA6m/8HKG1ZPrrPKLl1Ki2RblTue9xnbWzk2OMmh8HVyc1rex7K8
+         aerZl4bJuwwT4YnDvYUHF39ho4X6zYuX8KjBAnGU+0dlphN+rP+XZiag98eg7MQEKoXV
+         OMi8TTt5yM8gc1pm+SNNrLnk1CxRu7j2UKoymh8Y16vMovGQoD/2rBTsv435t0GVXxSO
+         /q7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=Uwbx/c1BR3A8J7N/oJicdhvE+PcyZpoETC2f4CkpxIc=;
-        b=KolheCZmDYa+A5aAHyR6CRwTWe/jUFImfQrcW/CpWNqOt/r/sCouP/EXKcWVTv7Khr
-         2ciNgD/HYPomi42BRzlDoAWYQNhE4Oibkb+6FAgqYLB1mkUkP5dWzbiyF4OY1e1xfS6f
-         oAi0XW26SplmVHQt/LZR9OCTyjwnXS/B1r6dS1SDCRR93OqUavC6bJzOgBi9Ma7lRoJQ
-         ICLF4lKkL9yfYKQZKQ/k9X0rXky13rYum5tZ9/XUIy1FFkSQyrVOicfoy9M6MJpxVevO
-         Y/CR/TWLs4z5S83dvBxm3VgZEBQ2w9pTYZPOUpAI0rS148UNPzlmS9snJHb8W7A+ggUo
-         Mw1Q==
-X-Gm-Message-State: APjAAAXhH8FCVLbQyXKgKPmJvsZqvHUw+63DWrHSzWFaWcTyF+24kKj1
-        xVcZJfTiqRMVM0uwqPWRU5XEHFQrTh1qXw==
-X-Google-Smtp-Source: APXvYqwe1O2jpu+hBjQUcLNFIHaIno4pyxkFGKlRpjv1yDpJzcp/Otr8qImkhTCCSEGDzNTP4QmxUw==
-X-Received: by 2002:a67:ad06:: with SMTP id t6mr413318vsl.87.1581101429066;
-        Fri, 07 Feb 2020 10:50:29 -0800 (PST)
-Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com. [209.85.217.51])
-        by smtp.gmail.com with ESMTPSA id o16sm1112030vsa.3.2020.02.07.10.50.28
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 07 Feb 2020 10:50:28 -0800 (PST)
-Received: by mail-vs1-f51.google.com with SMTP id v141so226491vsv.12
-        for <linux-input@vger.kernel.org>; Fri, 07 Feb 2020 10:50:28 -0800 (PST)
-X-Received: by 2002:a05:6102:52e:: with SMTP id m14mr376479vsa.25.1581101428323;
- Fri, 07 Feb 2020 10:50:28 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=lfib1cvE8Qx1QhEsPsHSP8YT5t21BPrQoDhCsuJr4lo=;
+        b=cXfwOArRmo+A0Q3gQACMvL0QOD15RmKB9ZVgR7YZqsUb9USBzrGeGdvMa4e4XEhrri
+         KUMQ6yTvy4srlhVR53du9AfMP+BzbyiOu7R/nQISINZK16YPc6IMALBwYMZiv7mlc7gb
+         4N2SX1P9/FNCsgHSm+qdaeItJ6rMt1CStyMc6zP+Nq5J+wWQI9iDcbFtXoklGH2bSWvs
+         7WHfaUUzK46BBUcjvHdXlb6puKlt3jfXuammbVk/brxq4qTGP6FhK+kTdACiWtIOPML2
+         gHYLG0paUZqWkllczTXAL1/IPV4wUt63l2j7vUg9UVgCe0HauaUWvsNefqzHbGEv9Iiu
+         FI0w==
+X-Gm-Message-State: APjAAAWdwZwkwjL5obz2+XPhj9LD8P/me8uAIRgsvbSjvhoJ4VCjKnmC
+        H/ECl5n47n5QADeULOZk8LbXukEu9H+K7+611Pr/tg==
+X-Google-Smtp-Source: APXvYqzWoCinsXqyTZEQbGqMPAzCyi65WXPcoeIK8WVUDDy3QqbcirGTn7SNBUPWpsvNR7GjNMiVrDIOPbinNzmU+Ls=
+X-Received: by 2002:a2e:81c3:: with SMTP id s3mr2513016ljg.168.1581162432256;
+ Sat, 08 Feb 2020 03:47:12 -0800 (PST)
 MIME-Version: 1.0
-From:   Gaurav Agrawal <agrawalgaurav@gnome.org>
-Date:   Sat, 8 Feb 2020 00:20:16 +0530
-X-Gmail-Original-Message-ID: <CADdtggVzVJq5gGNmFhKSz2MBwjTpdN5YVOdr4D3Hkkv=KZRc9g@mail.gmail.com>
-Message-ID: <CADdtggVzVJq5gGNmFhKSz2MBwjTpdN5YVOdr4D3Hkkv=KZRc9g@mail.gmail.com>
-Subject: Input: synaptics - enable SMBus on ThinkPad L470
-To:     linux-input@vger.kernel.org
-Cc:     benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com
+References: <20200126150548.9168-1-linus.walleij@linaro.org>
+ <20200126150548.9168-2-linus.walleij@linaro.org> <20200202152742.073a4df6@archlinux>
+In-Reply-To: <20200202152742.073a4df6@archlinux>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Sat, 8 Feb 2020 12:47:01 +0100
+Message-ID: <CACRpkdZ3WWEmAaF6mSVTRTWXsPPQ=BVWNshBTS9wPn4Hc0CEDA@mail.gmail.com>
+Subject: Re: [PATCH 2/2 v6] iio: light: Add a driver for Sharp GP2AP002x00F
+To:     Jonathan Cameron <jic23@kernel.org>
+Cc:     linux-iio <linux-iio@vger.kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Linux Input <linux-input@vger.kernel.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Minkyu Kang <mk7.kang@samsung.com>,
+        =?UTF-8?Q?Pawe=C5=82_Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        Jonathan Bakker <xc-racer2@live.ca>,
+        Oskar Andero <oskar.andero@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add touchpad LEN2044 to the list, as it is capable of working with
-psmouse.synaptics_intertouch=1
+On Sun, Feb 2, 2020 at 4:27 PM Jonathan Cameron <jic23@kernel.org> wrote:
+> On Sun, 26 Jan 2020 16:05:48 +0100 Linus Walleij <linus.walleij@linaro.or=
+g> wrote:
 
-Signed-off-by: Gaurav Agrawal <agrawalgaurav@gnome.org>
----
- drivers/input/mouse/synaptics.c | 1 +
- 1 file changed, 1 insertion(+)
+> Hmm. There are a few minor things inline, but in the interests of
+> saving everyone time I'll just fix them up.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 1ae6f8bba9ae1..6947772cfc405 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -179,6 +179,7 @@ static const char * const smbus_pnp_ids[] = {
-     "LEN0097", /* X280 -> ALPS trackpoint */
-     "LEN009b", /* T580 */
-     "LEN200f", /* T450s */
-+    "LEN2044", /* L470  */
-     "LEN2054", /* E480 */
-     "LEN2055", /* E580 */
-     "SYN3052", /* HP EliteBook 840 G4 */
+Sweet! Thanks Jonathan.
+
+> For the missing docs one I'll make something up based on what I think
+> they are.  Please check!
+
+OK
+
+> Also it doesn't actually build..
+>
+> drivers/iio/light/gp2ap002.c:760:26: error: =E2=80=98gp2ap002_id=E2=80=99=
+ undeclared here (not in a function); did you mean =E2=80=98gp2ap002_info=
+=E2=80=99?
+>   760 | MODULE_DEVICE_TABLE(i2c, gp2ap002_id);
+>       |                          ^~~~~~~~~~~
+> ./include/linux/module.h:230:15: note: in definition of macro =E2=80=98MO=
+DULE_DEVICE_TABLE=E2=80=99
+>   230 | extern typeof(name) __mod_##type##__##name##_device_table  \
+>       |               ^~~~
+> ./include/linux/module.h:230:21: error: =E2=80=98__mod_i2c__gp2ap002_id_d=
+evice_table=E2=80=99 aliased to undefined symbol =E2=80=98gp2ap002_id=E2=80=
+=99
+>   230 | extern typeof(name) __mod_##type##__##name##_device_table  \
+>       |                     ^~~~~~
+> drivers/iio/light/gp2ap002.c:760:1: note: in expansion of macro =E2=80=98=
+MODULE_DEVICE_TABLE=E2=80=99
+>   760 | MODULE_DEVICE_TABLE(i2c, gp2ap002_id);
+>       | ^~~~~~~~~~~~~~~~~~~
+>
+> I'll fix that as well..
+
+That's what I get for not testing allmodconfig.
+
+I have some new testing infrastructure in place, that will hopefully
+let me test this better. I use build servers because my poor desktops
+and laptops literally take hours to churn through allyes allno and
+allmod configs.
+
+> > +/**
+> > + * struct gp2ap002 - GP2AP002 state
+> > + * @map: regmap pointer for the i2c regmap
+> > + * @dev: pointer to parent device
+> > + * @vdd: regulator controlling VDD
+> > + * @vio: regulator controlling VIO
+> > + * @alsout: IIO ADC channel to convert the ALSOUT signal
+>
+> Grumble.. Incomplete docs. Please send a follow up patch fixing that.
+
+OK
+
+> > +struct gp2ap002 {
+> > +     struct regmap *map;
+> > +     struct device *dev;
+> > +     struct regulator *vdd;
+> > +     struct regulator *vio;
+> > +     struct iio_channel *alsout;
+> > +     enum iio_event_direction dir;
+> This one doesn't actually seem to be used so I dropped it rather than
+> make up the docs ;)
+
+OK
+
+> > +     /* VIO should be between 1.65V and VDD */
+> > +     ret =3D regulator_get_voltage(gp2ap002->vdd);
+> > +     if (ret < 0) {
+> > +             dev_err(dev, "failed to get VIO voltage\n");
+>
+> VDD. I'll fix that up if I don't find anything else.
+
+Thanks!
+
+I checked the result on your testing branch and it looks good to me.
+
+Yours,
+Linus Walleij

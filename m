@@ -2,65 +2,71 @@ Return-Path: <SRS0=tMsn=37=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72F12C3F68F
-	for <linux-input@archiver.kernel.org>; Tue, 11 Feb 2020 02:43:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49DC5C352A5
+	for <linux-input@archiver.kernel.org>; Tue, 11 Feb 2020 02:43:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4BBD92080C
-	for <linux-input@archiver.kernel.org>; Tue, 11 Feb 2020 02:43:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2EAFF2070A
+	for <linux-input@archiver.kernel.org>; Tue, 11 Feb 2020 02:43:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727878AbgBKCn0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 Feb 2020 21:43:26 -0500
-Received: from mail1.bemta25.messagelabs.com ([195.245.230.4]:42367 "EHLO
+        id S1727922AbgBKCn2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 Feb 2020 21:43:28 -0500
+Received: from mail1.bemta25.messagelabs.com ([195.245.230.2]:36438 "EHLO
         mail1.bemta25.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727493AbgBKCn0 (ORCPT
+        by vger.kernel.org with ESMTP id S1727747AbgBKCn1 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Feb 2020 21:43:26 -0500
+        Mon, 10 Feb 2020 21:43:27 -0500
 Received: from [100.112.192.239] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
-        by server-4.bemta.az-a.eu-west-1.aws.symcld.net id E3/40-38240-AC4124E5; Tue, 11 Feb 2020 02:43:22 +0000
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrHIsWRWlGSWpSXmKPExsVy8MN7Xd2TIk5
-  xBk83m1vMP3KO1eLwoheMFjc/fWO1uLxrDpvF0usXmSxa9x5hd2DzWDNvDaPHzll32T02repk
-  8/i8SS6AJYo1My8pvyKBNWPvjrqCXs2KN/O8GhgnKHUxcnEICaxllFh+8zBTFyMnkFMpsfTSZ
-  dYuRg4OXoEIiVN/xUHCnAJmEod73zBDlJhKbL73nhXEZhPQkXg0cz1YK4uAqsTFib/A4sICIR
-  IPpkPUiAiUSxz4OJMVZBezwDRGiT0fD4MN4hUQlDg58wkLiM0sICFx8MULqAVaEufWrGKcwMg
-  7C0nZLCRlCxiZVjFaJBVlpmeU5CZm5ugaGhjoGhoa6RpamugaWhjqJVbpJuqlluqWpxaX6AK5
-  5cV6xZW5yTkpenmpJZsYgYGaUnBo6w7GLfPf6x1ilORgUhLl3XDYMU6ILyk/pTIjsTgjvqg0J
-  7X4EKMMB4eSBO81Yac4IcGi1PTUirTMHGDUwKQlOHiURHhdQdK8xQWJucWZ6RCpU4zGHGf/zV
-  vEzPF7w5JFzEIsefl5qVLivBNBSgVASjNK8+AGwaL5EqOslDAvIwMDgxBPQWpRbmYJqvwrRnE
-  ORiVhXl+QKTyZeSVw+14BncIEdMp1EweQU0oSEVJSDUyy4QI338+72Ch1/IOZ1peMi5+vXaup
-  8PF4vqF778XSzTH5TaJmUfWH2UO3VjatkL9ikLlvgdO88iXWHHG1Uw8/WV/7b7lM/nfbtkUnd
-  vlO4Fvrt5FpyvXd/RbuwZsl4reJ9LUt6lpqUvF0l1NEa/CJ41+i7efa7TXvOSu2b6fo+TDBFy
-  t0V53l/p8mP9czP0BOtfSeg8JGj41Gu+RcN4j1vwh5Kb7gnrKh/efiGW2uvMdW33lUMp8/ePn
-  2MK1+kTtB23ffF+Gt0Ap8v3b6zAVfF0fnM9WJXI32T02YsfyT6XVvjkeuq//PKHb4evdbwba3
-  Gq+VjugITdwmZ3Rq87aUxmzfJRdWnraOdTi2zipFiaU4I9FQi7moOBEAiFyKNGEDAAA=
+        by server-2.bemta.az-a.eu-west-1.aws.symcld.net id B5/1B-51549-AC4124E5; Tue, 11 Feb 2020 02:43:22 +0000
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrHIsWRWlGSWpSXmKPExsVy8MN7Xd1TIk5
+  xBm9ec1jMOd/CYjH/yDlWi8OLXjBaNC9ez2Zx/+tRRoubn76xWlzeNYfNon3jbFaLpdcvMlm8
+  /9TJZNG69wi7xf89O9gtfu6ax2Jxe+JkRgc+jzXz1jB6bFl5k8lj56y77B6bVnWyedy5tofNY
+  //cNewe/X8NPD5vkgvgiGLNzEvKr0hgzTi46ztLwQuOiivNJxgbGA+wdTFycQgJrGWUWH7zMF
+  MXIyeQUynxd9odRhCbV8BUYsnujawgNpuAjsSjmevBalgEVCUuTvwFFhcWcJD4eWwxO8ggEYG
+  TzBKd976ygDjMAtMYJfZ8PMwMMUlQ4uTMJywgNrOAhMTBFy+YIbZpSZxbs4pxAiP3LCRls5CU
+  LWBkWsVonlSUmZ5RkpuYmaNraGCga2hopGtoaaRrYq6XWKWbqJdaqlueWlyia6iXWF6sV1yZm
+  5yTopeXWrKJERj0KQUH9Hcw/lrzXu8QoyQHk5Io74bDjnFCfEn5KZUZicUZ8UWlOanFhxhlOD
+  iUJHivCTvFCQkWpaanVqRl5gAjECYtwcGjJMLrCpLmLS5IzC3OTIdInWLU5bj+fu9SZiGWvPy
+  8VClx3okgRQIgRRmleXAjYMngEqOslDAvIwMDgxBPQWpRbmYJqvwrRnEORiVhXl+QKTyZeSVw
+  m14BHcEEdMR1EweQI0oSEVJSDUzV7lMZw6e0e1TNuR530IHNdrGCrvKLQ9ckzE0nbQs89a9nx
+  maNa6bnzvMydDX/0Enx3BNqJeBRU/17yZaiSKf4+ffv3L34ae9Ohy5jW/FHqjapvusPLZT0zZ
+  BUUyt0ftdv0R/h2PP8r1J9mZXd1s/c+3ek7f2+b+c9vkVvDR/J71/d621ilBrsGlXjssRC8oz
+  Npnd8rOeuHBN80CrZGGfkubeW899d3emWfGqrXlbr9Ez56avZmH1A8+q3RSLXFoXE7N711mvd
+  kYqQGxdFDra6bTu69kVpYv4Oc7GW6qvV0Zt3yFmX7rSe+GGz8/w5+muZXkV8kMi+X5WU2TrN8
+  Vwr548FfX03QnQcltyMPqXEUpyRaKjFXFScCABS5bYCgQMAAA==
 X-Env-Sender: roy.im.opensource@diasemi.com
-X-Msg-Ref: server-15.tower-262.messagelabs.com!1581389001!1529582!1
+X-Msg-Ref: server-15.tower-262.messagelabs.com!1581389001!1529582!2
 X-Originating-IP: [193.240.239.45]
 X-SYMC-ESS-Client-Auth: outbound-route-from=pass
 X-StarScan-Received: 
 X-StarScan-Version: 9.44.25; banners=-,-,-
 X-VirusChecked: Checked
-Received: (qmail 6580 invoked from network); 11 Feb 2020 02:43:21 -0000
+Received: (qmail 6598 invoked from network); 11 Feb 2020 02:43:22 -0000
 Received: from unknown (HELO NB-EX-CASHUB01.diasemi.com) (193.240.239.45)
-  by server-15.tower-262.messagelabs.com with ECDHE-RSA-AES256-SHA384 encrypted SMTP; 11 Feb 2020 02:43:21 -0000
+  by server-15.tower-262.messagelabs.com with ECDHE-RSA-AES256-SHA384 encrypted SMTP; 11 Feb 2020 02:43:22 -0000
 Received: from krsrvapps-03.diasemi.com (10.95.17.51) by
  NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
  14.3.468.0; Tue, 11 Feb 2020 03:43:20 +0100
 Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
- 2853913F673; Tue, 11 Feb 2020 11:43:19 +0900 (KST)
-Message-ID: <306f2542a3315d72a8143255b53e65e3d2eb8746.1581383604.git.Roy.Im@diasemi.com>
-In-Reply-To: <cover.1581383604.git.Roy.Im@diasemi.com>
-References: <cover.1581383604.git.Roy.Im@diasemi.com>
+ 24D7413F671; Tue, 11 Feb 2020 11:43:19 +0900 (KST)
+Message-ID: <cover.1581383604.git.Roy.Im@diasemi.com>
 From:   Roy Im <roy.im.opensource@diasemi.com>
 Date:   Tue, 11 Feb 2020 10:13:24 +0900
-Subject: [RESEND PATCH V8 2/3] dt-bindings: input: Add document bindings for
- DA7280
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+Subject: [RESEND PATCH V8 0/3]  da7280: haptic driver submission
+To:     "David S. Miller" <davem@davemloft.net>,
+        Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>
 CC:     Support Opensource <support.opensource@diasemi.com>,
         <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>
@@ -71,142 +77,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add device tree binding information for DA7280 haptic driver.
-Example bindings for DA7280 are added.
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-Reviewed-by: Rob Herring <robh@kernel.org>.
+In this patch set the following is provided:
 
-Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
+[PATCH V8 1/3] MAINTAINERS file update for DA7280
+[PATCH V8 2/3] DA7280 DT Binding
+[PATCH V8 3/3] DA7280 Driver
 
----
-v8: Updated descriptions for new properties.
-v7: No changes.
-v6: No changes.
-v5: Updated descriptions and fixed errors.
-v4: Fixed commit message, properties.
-v3: Fixed subject format.
-v2: No changes
+This patch applies against linux-next and v5.5
 
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
 
- .../devicetree/bindings/input/dlg,da7280.txt       | 109 +++++++++++++++++++++
- 1 file changed, 109 insertions(+)
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |  109 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1688 ++++++++++++++++++++
+ drivers/input/misc/da7280.h                        |  412 +++++
+ 6 files changed, 2225 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+ create mode 100644 drivers/input/misc/da7280.h
 
-diff --git a/Documentation/devicetree/bindings/input/dlg,da7280.txt b/Documentation/devicetree/bindings/input/dlg,da7280.txt
-new file mode 100644
-index 0000000..e6b719d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/dlg,da7280.txt
-@@ -0,0 +1,109 @@
-+Dialog Semiconductor DA7280 Haptics bindings
-+
-+Required properties:
-+- compatible: Should be "dlg,da7280".
-+- reg: Specifies the I2C slave address.
-+
-+- interrupt-parent : Specifies the phandle of the interrupt controller to
-+  which the IRQs from DA7280 are delivered to.
-+
-+- dlg,actuator-type: Set Actuator type. it should be one of:
-+  "LRA" - Linear Resonance Actuator type.
-+  "ERM-bar" - Bar type Eccentric Rotating Mass.
-+  "ERM-coin" - Coin type Eccentric Rotating Mass.
-+
-+- dlg,const-op-mode: Haptic operation mode for FF_CONSTANT.
-+  Possible values:
-+	1 - Direct register override(DRO) mode triggered by i2c(default),
-+	2 - PWM data source mode controlled by PWM duty,
-+- dlg,periodic-op-mode: Haptic operation mode for FF_PERIODIC.
-+  Possible values:
-+	1 - Register triggered waveform memory(RTWM) mode, the pattern
-+	    assigned to the PS_SEQ_ID played as much times as PS_SEQ_LOOP,
-+	2 - Edge triggered waveform memory(ETWM) mode, external GPI(N)
-+	    control are required to enable/disable and it needs to keep
-+	    device enabled by sending magnitude (X > 0),
-+	    the pattern is assigned to the GPI(N)_SEQUENCE_ID below.
-+	The default value is 1 for both of the operation modes.
-+	For more details, please see the datasheet.
-+
-+- dlg,nom-microvolt: Nominal actuator voltage rating.
-+  Valid values: 0 - 6000000.
-+- dlg,abs-max-microvolt: Absolute actuator maximum voltage rating.
-+  Valid values: 0 - 6000000.
-+- dlg,imax-microamp: Actuator max current rating.
-+  Valid values: 0 - 252000.
-+  Default: 130000.
-+- dlg,impd-micro-ohms: the impedance of the actuator in micro ohms.
-+  Valid values: 0 - 1500000000.
-+
-+Optional properties:
-+- pwms : phandle to the physical PWM(Pulse Width Modulation) device.
-+  PWM properties should be named "pwms". And number of cell is different
-+  for each pwm device.
-+  (See Documentation/devicetree/bindings/pwm/pwm.txt
-+   for further information relating to pwm properties)
-+
-+- dlg,ps-seq-id: the PS_SEQ_ID(pattern ID in waveform memory inside chip)
-+  to play back when RTWM-MODE is enabled.
-+  Valid range: 0 - 15.
-+- dlg,ps-seq-loop: the PS_SEQ_LOOP, Number of times the pre-stored sequence
-+  pointed to by PS_SEQ_ID or GPI(N)_SEQUENCE_ID is repeated.
-+  Valid range: 0 - 15.
-+- dlg,gpiN-seq-id: the GPI(N)_SEQUENCE_ID, pattern to play
-+  when gpi0 is triggered, 'N' must be 0 - 2.
-+  Valid range: 0 - 15.
-+- dlg,gpiN-mode: the pattern mode which can select either
-+  "Single-pattern" or "Multi-pattern", 'N' must be 0 - 2.
-+- dlg,gpiN-polarity: gpiN polarity which can be chosen among
-+  "Rising-edge", "Falling-edge" and "Both-edge",
-+  'N' must be 0 - 2
-+  Haptic will work by this edge option in case of ETWM mode.
-+
-+- dlg,resonant-freq-hz: use in case of LRA.
-+  the frequency range: 50 - 300.
-+  Default: 205.
-+
-+- dlg,bemf-sens-enable: Enable for internal loop computations.
-+- dlg,freq-track-enable: Enable for resonant frequency tracking.
-+- dlg,acc-enable: Enable for active acceleration.
-+- dlg,rapid-stop-enable: Enable for rapid stop.
-+- dlg,amp-pid-enable: Enable for the amplitude PID.
-+- dlg,mem-array: Customized waveform memory(patterns) data downloaded to
-+  the device during initialization. This is an array of 100 values(u8).
-+
-+For further information, see device datasheet.
-+
-+======
-+
-+Example:
-+
-+	haptics: da7280-haptics@4a {
-+		compatible = "dlg,da7280";
-+		reg = <0x4a>;
-+		interrupt-parent = <&gpio6>;
-+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
-+		dlg,actuator-type = "LRA";
-+		dlg,dlg,const-op-mode = <1>;
-+		dlg,dlg,periodic-op-mode = <1>;
-+		dlg,nom-microvolt = <2000000>;
-+		dlg,abs-max-microvolt = <2000000>;
-+		dlg,imax-microamp = <170000>;
-+		dlg,resonant-freq-hz = <180>;
-+		dlg,impd-micro-ohms = <10500000>;
-+		dlg,freq-track-enable;
-+		dlg,rapid-stop-enable;
-+		dlg,mem-array = <
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+		>;
-+
-+	};
 -- 
 end-of-patch for RESEND PATCH V8
 

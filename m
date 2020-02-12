@@ -2,37 +2,38 @@ Return-Path: <SRS0=6nV4=4A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48403C352A4
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:44:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFB34C2BA83
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:44:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2B2D920873
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:44:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC53C20714
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:44:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728551AbgBLIoo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Feb 2020 03:44:44 -0500
-Received: from esa2.mentor.iphmx.com ([68.232.141.98]:45660 "EHLO
+        id S1728562AbgBLIow (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Feb 2020 03:44:52 -0500
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:45663 "EHLO
         esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728435AbgBLIoo (ORCPT
+        with ESMTP id S1728435AbgBLIow (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Feb 2020 03:44:44 -0500
-IronPort-SDR: qhFAQieqMWnkri35X66ssF8wXopCCRiTIBOZVRSVMh4qogazfGl4A6Ysx1jbMuEE1bi8dgmYRN
- 95cSjmPQM3C4Nnc51TwL2ldne+bMPhzodYS0INJBImAwjOLQxN04Em+LwF7XW6P8gbDKicsX9D
- BBmAPKmGfcjRkd+z6Qj/WcJ262LaQN1Y3gV3Mb3nl5BOn/7QjmiLiq0qnotYxW1uNKjNxziaKk
- kRnefFiIhLlkdc53DZIGKoSM3MLJiCU5GiQWmhbjc0SHyW9oHHf1bkEJJV4TC3/ZWe5OOXEBXy
- vAs=
+        Wed, 12 Feb 2020 03:44:52 -0500
+IronPort-SDR: zIR+hqFLqfHO3TIPFoga0ZrdfmE9Dsykb8OVojHahRyuLiR+SjMoKNAmAOyVzQiVsLFFu2lcU1
+ pNR+UxwuUKeA27YTyYsnewuY11/MrAjyegQFgh7mO1UpbKMFAOPi55bt4EpPRgTzP1CH8nc8Ll
+ GIgorkNsIv8V1rrtIqtKdCalQ8XiVJ+6GQT6oGDjuunN/JPy5Wamp6NioKsVuxbwmETTrLRK69
+ Yi9SeCbk/zPBno2vSlUGncMle1YrjauBecPPNcgQoJEGQaHhlvEirxjlQqC12r9o2L5RIHw7YI
+ nPU=
 X-IronPort-AV: E=Sophos;i="5.70,428,1574150400"; 
-   d="scan'208";a="45686211"
+   d="scan'208";a="45686180"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa2.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:44:42 -0800
-IronPort-SDR: 0LzThaZ2+24WYYU+lSiM7IovoHEU3go1S68dtIj+W1owjnMsJxvEcuxQnpAqYct6W2qkU7wwCf
- 0sFVAUZIM4ID2RKQuW07oOWmncSKcFCwgo595Inhosylu7PgQC43c9LvVV8MQKMGnUoKPr97ux
- Or2nYo+sst/IUaO+Lu/+IM92SSFGQw2QBT6Z3XPav1TVl/vBoXWbvvumsc4AKEWYL5Vxud+lGt
- ZLtI5i0tW0ISu9G31HHfvGIxk29zBMWtfY6HTNiHmHcvZCpHBugOR1jg9AEVMbK6xBEYnW80wE
- QQ0=
+  by esa2.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:43:48 -0800
+IronPort-SDR: gg+UozxgWfAGWDrkYkZdoxE1MVC+A4tVBy8RgRyCBBVEvle6ekZ4AsijYtFYjQ2Ihlyq802FKn
+ /TKTRREWv8X6E2exI1tUS5XVG4ln7wlvAJZ0G4dbBC4RS2rCiTNd9Jb4PPYmz/p0GVNMtNrsi4
+ yXUEGnijgtyfwqEHs6OGinKhK1mae28seRz4xS3tf32AwhdVozs7SVELsCBfMJsRXY9+yX2oQK
+ vD8u/tIEqh01WrSvZAzxiAgy0xN8tc1ZtDyg0XyRweCQoyAb/os4Ta34HJYBhZVd9Nok2DICpB
+ OgM=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +41,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v7 17/48] Input: atmel_mxt_ts - allow input name to be specified in platform data
-Date:   Wed, 12 Feb 2020 00:41:47 -0800
-Message-ID: <20200212084218.32344-18-jiada_wang@mentor.com>
+Subject: [PATCH v7 11/48] Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msgs
+Date:   Wed, 12 Feb 2020 00:41:41 -0800
+Message-ID: <20200212084218.32344-12-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200212084218.32344-1-jiada_wang@mentor.com>
 References: <20200212084218.32344-1-jiada_wang@mentor.com>
@@ -53,71 +54,106 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+From: Karl Tsou <karl.funlab@gmail.com>
 
-Android systems identify the input device and map to IDC file by using the
-input device name. To avoid unnecessary deltas to the driver file, allow
-this to be set from the platform data.
+output T92 gesture and T93 touch sequence messages.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit cbf94a7bda754d2e1899d9f50313a0bccc91422d)
-[gdavis: Resolve forward port conflicts due to applying upstream
-	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
-	 data support").]
+(cherry picked from ndyer/linux/for-upstream commit cb98986f8342107bf4a536aed4160b20839e97c1)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+[jiada: changed dev_debug() to dev_info()]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- .../devicetree/bindings/input/atmel,maxtouch.txt         | 2 ++
- drivers/input/touchscreen/atmel_mxt_ts.c                 | 9 ++++++++-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 40 ++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-index 713ce870805c..d7db16920083 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-@@ -40,6 +40,8 @@ Optional properties for main touchpad device:
- - atmel,cfg_name: Provide name of configuration file in OBP_RAW format. This
-     will be downloaded from the firmware loader on probe to the device.
- 
-+- atmel,input_name: Override name of input device from the default.
-+
- Example:
- 
- 	touch@4b {
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 84ad8daef7d3..b0a07d077016 100644
+index 2f8708c3b3c7..b6286b1f4a1a 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -336,6 +336,7 @@ struct mxt_data {
- 	char *fw_name;
- 	char *cfg_name;
- 	const char *pcfg_name;
-+	const char *input_name;
+@@ -71,6 +71,8 @@
+ #define MXT_SPT_MESSAGECOUNT_T44	44
+ #define MXT_SPT_CTECONFIG_T46		46
+ #define MXT_SPT_DYNAMICCONFIGURATIONCONTAINER_T71 71
++#define MXT_PROCI_SYMBOLGESTUREPROCESSOR	92
++#define MXT_PROCI_TOUCHSEQUENCELOGGER	93
+ #define MXT_TOUCH_MULTITOUCHSCREEN_T100 100
+ #define MXT_PROCI_ACTIVESTYLUS_T107	107
  
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -2412,7 +2413,11 @@ static int mxt_initialize_input_device(struct mxt_data *data)
- 	if (!input_dev)
- 		return -ENOMEM;
+@@ -349,6 +351,10 @@ struct mxt_data {
+ 	u8 T42_reportid_max;
+ 	u16 T44_address;
+ 	u8 T48_reportid;
++	u16 T92_address;
++	u8 T92_reportid;
++	u16 T93_address;
++	u8 T93_reportid;
+ 	u8 T100_reportid_min;
+ 	u8 T100_reportid_max;
+ 	u16 T107_address;
+@@ -1113,6 +1119,24 @@ static int mxt_proc_t48_messages(struct mxt_data *data, u8 *msg)
+ 	return 0;
+ }
  
--	input_dev->name = "Atmel maXTouch Touchscreen";
-+	if (data->input_name)
-+		input_dev->name = data->input_name;
-+	else
-+		input_dev->name = "Atmel maXTouch Touchscreen";
++static void mxt_proc_t92_messages(struct mxt_data *data, u8 *msg)
++{
++	struct device *dev = &data->client->dev;
++	u8 status = msg[1];
 +
- 	input_dev->phys = data->phys;
- 	input_dev->id.bustype = BUS_I2C;
- 	input_dev->dev.parent = dev;
-@@ -3653,6 +3658,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
- 
- 	device_property_read_string(dev, "atmel,cfg_name", &data->pcfg_name);
- 
-+	device_property_read_string(dev, "atmel,input_name", &data->input_name);
++	dev_info(dev, "T92 long stroke LSTR=%d %d\n",
++		 (status & 0x80) ? 1 : 0,
++		 status & 0x0F);
++}
 +
- 	if (device_property_present(dev, keymap_property)) {
- 		n_keys = device_property_count_u32(dev, keymap_property);
- 		if (n_keys <= 0) {
++static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
++{
++	struct device *dev = &data->client->dev;
++	u8 status = msg[1];
++
++	dev_info(dev, "T93 report double tap %d\n", status);
++}
++
+ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ {
+ 	u8 report_id = message[0];
+@@ -1145,6 +1169,10 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id >= data->T15_reportid_min
+ 		   && report_id <= data->T15_reportid_max) {
+ 		mxt_proc_t15_messages(data, message);
++	} else if (report_id == data->T92_reportid) {
++		mxt_proc_t92_messages(data, message);
++	} else if (report_id == data->T93_reportid) {
++		mxt_proc_t93_messages(data, message);
+ 	} else {
+ 		mxt_dump_message(data, message);
+ 	}
+@@ -1814,6 +1842,10 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	data->T42_reportid_max = 0;
+ 	data->T44_address = 0;
+ 	data->T48_reportid = 0;
++	data->T92_reportid = 0;
++	data->T92_address = 0;
++	data->T93_reportid = 0;
++	data->T93_address = 0;
+ 	data->T100_reportid_min = 0;
+ 	data->T100_reportid_max = 0;
+ 	data->max_reportid = 0;
+@@ -1906,6 +1938,14 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 		case MXT_PROCG_NOISESUPPRESSION_T48:
+ 			data->T48_reportid = min_id;
+ 			break;
++		case MXT_PROCI_SYMBOLGESTUREPROCESSOR:
++			data->T92_reportid = min_id;
++			data->T92_address = object->start_address;
++			break;
++		case MXT_PROCI_TOUCHSEQUENCELOGGER:
++			data->T93_reportid = min_id;
++			data->T93_address = object->start_address;
++			break;
+ 		case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 			data->multitouch = MXT_TOUCH_MULTITOUCHSCREEN_T100;
+ 			data->T100_reportid_min = min_id;
 -- 
 2.17.1
 

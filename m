@@ -2,37 +2,38 @@ Return-Path: <SRS0=6nV4=4A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58D73C2BA83
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:45:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9444DC2BA83
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:46:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3069D20848
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:45:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 75B5620848
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:46:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728607AbgBLIp6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Feb 2020 03:45:58 -0500
-Received: from esa2.mentor.iphmx.com ([68.232.141.98]:34484 "EHLO
-        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728608AbgBLIpz (ORCPT
+        id S1728550AbgBLIqB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Feb 2020 03:46:01 -0500
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:43395 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728493AbgBLIp6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Feb 2020 03:45:55 -0500
-IronPort-SDR: feTklHXYTXi47k648DaYAFZ/WjqRfVCiDUK77axpfkqNkDiFtnjdyj0W3r+21ymSBI/sL8yo6e
- /eBx9z3r5J4mteJ3tMXdFaoNvYTByAh+VGKb2ZXkJQcVCCQ+ibN3xDxw7qXcf06khSocM9C8pN
- OIwjuoQsns+NDK4OuJQpYn9Ki7qwwbHIPRYjNWoHtV5RyapNZC9VKl3OuuThoEnZNLXbciR/6y
- DTsCJ3wclgxrvVOsros20EhmFLZH6bVJgK12sVolihXUUm6KaAKsA5Mt8LvKYunjFU9/ZaRJHt
- yhE=
+        Wed, 12 Feb 2020 03:45:58 -0500
+IronPort-SDR: rlIYzEL6YUiC+6Z9kVEoE+h3jjhbxtQTPKDKQ1GmvAZX9uVnu/J3mF3YMxezncVbe0Sa3hMLAy
+ B4SCwq+RPkNt3TLN75ktwgRCDgPOlVRTTLJq67Ours2xKPP+PjEpnKDn4hwytLlR6og8ghV0gG
+ 5DaBuR6qBA5SRnx0D07oXye+dccK1HE3jmcNlZTJGOmoqFYfldttPOyAVc5z7FgjeKGx5FEbc5
+ U43vwDy2gotxM0KXEH1k4qvAKP8htY+78sCVg4P1b3yPd/gZvi44knB535wGEBp6zFQe2Dn5oK
+ 2GA=
 X-IronPort-AV: E=Sophos;i="5.70,428,1574150400"; 
-   d="scan'208";a="45686145"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa2.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:42:50 -0800
-IronPort-SDR: IhR9iuKvpUUj8JEaFaE2TB2Ji7PZR0sT2VXLMVwlamj+0mpinqF+bGP9h0LbOnvjbwvSaoNuLG
- xaGnLwEFJwEfDC8SZXC9NqaBV4cN5hKD2XhZEtRo3svwm0Tvi8g1j0C+rLDux/LRpKECMF6jnw
- 1kMzVosntulVR4jjw8lwwO1sctgUETUCPBYN2ijZmH0+vssbb1Re5rrtxxq+AXSzCROGo199iQ
- rxP8EX4n/x5oaOID77xtXN9v1xolMSBJ1M+gKH0TM4XlVy0TApGuQJ6bwZXwo8/pG1xQmoVWXc
- vJM=
+   d="scan'208";a="47667063"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa1.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:45:57 -0800
+IronPort-SDR: ONU7RM8EKjPUUKPPXv6wJ0N6FUXN7wV0Nzv4NfaIHVC2QSHPCjpiavBphbZKwOat5FXHk9LJ+N
+ k/X7NIZTBKG7c2d3otLWKZ2TGJA2sHvVkj8JVg866mIMcvAdgLaSJnMWmuLA1/5QrWiul6OT9A
+ YeR6JJR9GJMczGTg5L7KSIp7B5ybju0ZnGknUaq5wUFlUHUVKcPfqKXq/ky8sifILcC6EPrlRZ
+ VwZ6ukxNF2GSNqd3xrZR6Qj3L3+Ll2ym98Izq/4RJbFt0Uzxv+SnN2omxZrubTpJ250XJjpI8x
+ Tfk=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +41,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v7 03/48] Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when necessary
-Date:   Wed, 12 Feb 2020 00:41:33 -0800
-Message-ID: <20200212084218.32344-4-jiada_wang@mentor.com>
+Subject: [PATCH v7 28/48] Input: atmel_mxt_ts - implement debug output for messages
+Date:   Wed, 12 Feb 2020 00:41:58 -0800
+Message-ID: <20200212084218.32344-29-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200212084218.32344-1-jiada_wang@mentor.com>
 References: <20200212084218.32344-1-jiada_wang@mentor.com>
@@ -55,157 +56,122 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-The workaround of reading all messages until an invalid is received is a
-way of forcing the CHG line high, which means that when using
-edge-triggered interrupts the interrupt can be acquired.
-
-With level-triggered interrupts the workaround is unnecessary.
-
-Also, most recent maXTouch chips have a feature called RETRIGEN which, when
-enabled, reasserts the interrupt line every cycle if there are messages
-waiting. This also makes the workaround unnecessary.
-
-Note: the RETRIGEN feature is only in some firmware versions/chips, it's
-not valid simply to enable the bit.
+Add a debug switch which causes all messages from the touch controller to
+be dumped to the dmesg log with a set prefix "MXT MSG:". This is used by
+Atmel user-space utilities to debug touch operation. Enabling this output
+does impact touch performance.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Benson Leung <bleung@chromium.org>
-Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 1ae4e8281e491b22442cd5acdfca1862555f8ecb)
-[gdavis: Fix conflicts due to v4.6-rc7 commit eb43335c4095 ("Input:
-	 atmel_mxt_ts - use mxt_acquire_irq in mxt_soft_reset").]
+(cherry picked from ndyer/linux/for-upstream commit 3c3fcfdd4889dfeb1c80ae8cd94a622c6342b06a)
+[gdavis: Forward port and fix conflicts.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: reset use_retrigen_workaround at beginning of mxt_check_retrigen()]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 51 ++++++++++++++++++++++--
- 1 file changed, 48 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 47 ++++++++++++++++++++++--
+ 1 file changed, 44 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 550caec1018e..e184d0e67ef8 100644
+index 64770d646052..1652618a8daa 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -20,6 +20,7 @@
- #include <linux/i2c.h>
- #include <linux/input/mt.h>
- #include <linux/interrupt.h>
-+#include <linux/irq.h>
- #include <linux/of.h>
- #include <linux/property.h>
- #include <linux/slab.h>
-@@ -129,6 +130,7 @@ struct t9_range {
- /* MXT_SPT_COMMSCONFIG_T18 */
- #define MXT_COMMS_CTRL		0
- #define MXT_COMMS_CMD		1
-+#define MXT_COMMS_RETRIGEN      BIT(6)
+@@ -335,6 +335,7 @@ struct mxt_data {
+ 	u8 t100_aux_ampl;
+ 	u8 t100_aux_area;
+ 	u8 t100_aux_vect;
++	bool debug_enabled;
+ 	u8 max_reportid;
+ 	u32 config_crc;
+ 	u32 info_crc;
+@@ -460,8 +461,11 @@ static bool mxt_object_readable(unsigned int type)
  
- /* MXT_DEBUG_DIAGNOSTIC_T37 */
- #define MXT_DIAGNOSTIC_PAGEUP	0x01
-@@ -308,6 +310,7 @@ struct mxt_data {
- 	struct t7_config t7_cfg;
- 	struct mxt_dbg dbg;
- 	struct gpio_desc *reset_gpio;
-+	bool use_retrigen_workaround;
- 
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -318,6 +321,7 @@ struct mxt_data {
- 	u16 T71_address;
- 	u8 T9_reportid_min;
- 	u8 T9_reportid_max;
-+	u16 T18_address;
- 	u8 T19_reportid;
- 	u16 T44_address;
- 	u8 T100_reportid_min;
-@@ -1190,9 +1194,11 @@ static int mxt_acquire_irq(struct mxt_data *data)
- 
- 	enable_irq(data->irq);
- 
--	error = mxt_process_messages_until_invalid(data);
--	if (error)
--		return error;
-+	if (data->use_retrigen_workaround) {
-+		error = mxt_process_messages_until_invalid(data);
-+		if (error)
-+			return error;
-+	}
- 
- 	return 0;
- }
-@@ -1282,6 +1288,33 @@ static u32 mxt_calculate_crc(u8 *base, off_t start_off, off_t end_off)
- 	return crc;
- }
- 
-+static int mxt_check_retrigen(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	int error;
-+	int val;
-+
-+	data->use_retrigen_workaround = false;
-+
-+	if (irq_get_trigger_type(data->irq) & IRQF_TRIGGER_LOW)
-+		return 0;
-+
-+	if (data->T18_address) {
-+		error = __mxt_read_reg(client,
-+				       data->T18_address + MXT_COMMS_CTRL,
-+				       1, &val);
-+		if (error)
-+			return error;
-+
-+		if (val & MXT_COMMS_RETRIGEN)
-+			return 0;
-+	}
-+
-+	dev_warn(&client->dev, "Enabling RETRIGEN workaround\n");
-+	data->use_retrigen_workaround = true;
-+	return 0;
-+}
-+
- static int mxt_prepare_cfg_mem(struct mxt_data *data, struct mxt_cfg *cfg)
+ static void mxt_dump_message(struct mxt_data *data, u8 *message)
  {
- 	struct device *dev = &data->client->dev;
-@@ -1561,6 +1594,10 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+-	dev_dbg(&data->client->dev, "message: %*ph\n",
+-		data->T5_msg_size, message);
++	/* debug message with prefix 'MXT MSG:' used by
++	 * Atmel user-space utilities to debug touch operation
++	 */
++	dev_dbg(&data->client->dev, "MXT MSG: %*ph\n",
++		       data->T5_msg_size, message);
+ }
  
- 	mxt_update_crc(data, MXT_COMMAND_BACKUPNV, MXT_BACKUP_VALUE);
+ static int mxt_wait_for_completion(struct mxt_data *data,
+@@ -1211,6 +1215,7 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
+ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ {
+ 	u8 report_id = message[0];
++	bool dump = data->debug_enabled;
  
-+	ret = mxt_check_retrigen(data);
-+	if (ret)
-+		goto release_mem;
-+
- 	ret = mxt_soft_reset(data);
- 	if (ret)
- 		goto release_mem;
-@@ -1604,6 +1641,7 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T71_address = 0;
- 	data->T9_reportid_min = 0;
- 	data->T9_reportid_max = 0;
-+	data->T18_address = 0;
- 	data->T19_reportid = 0;
- 	data->T44_address = 0;
- 	data->T100_reportid_min = 0;
-@@ -1678,6 +1716,9 @@ static int mxt_parse_object_table(struct mxt_data *data,
- 						object->num_report_ids - 1;
- 			data->num_touchids = object->num_report_ids;
- 			break;
-+		case MXT_SPT_COMMSCONFIG_T18:
-+			data->T18_address = object->start_address;
-+			break;
- 		case MXT_SPT_MESSAGECOUNT_T44:
- 			data->T44_address = object->start_address;
- 			break;
-@@ -2141,6 +2182,10 @@ static int mxt_initialize(struct mxt_data *data)
- 		msleep(MXT_FW_RESET_TIME);
+ 	if (report_id == MXT_RPTID_NOMSG)
+ 		return 0;
+@@ -1245,9 +1250,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id == data->T93_reportid) {
+ 		mxt_proc_t93_messages(data, message);
+ 	} else {
+-		mxt_dump_message(data, message);
++		dump = true;
  	}
  
-+	error = mxt_check_retrigen(data);
-+	if (error)
-+		return error;
++	if (dump)
++		mxt_dump_message(data, message);
 +
- 	error = mxt_acquire_irq(data);
- 	if (error)
- 		return error;
+ 	return 1;
+ }
+ 
+@@ -3519,6 +3527,36 @@ static ssize_t mxt_update_cfg_store(struct device *dev,
+ 	return ret;
+ }
+ 
++static ssize_t mxt_debug_enable_show(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	char c;
++
++	c = data->debug_enabled ? '1' : '0';
++	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
++}
++
++static ssize_t mxt_debug_enable_store(struct device *dev,
++	struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	u8 i;
++	ssize_t ret;
++
++	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
++		data->debug_enabled = (i == 1);
++
++		dev_dbg(dev, "%s\n", i ? "debug enabled" : "debug disabled");
++		ret = count;
++	} else {
++		dev_dbg(dev, "debug_enabled write error\n");
++		ret = -EINVAL;
++	}
++
++	return ret;
++}
++
+ static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
+ 
+ static struct attribute *mxt_fw_attrs[] = {
+@@ -3535,6 +3573,8 @@ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
+ static DEVICE_ATTR(config_crc, S_IRUGO, mxt_config_crc_show, NULL);
++static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
++		   mxt_debug_enable_store);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+@@ -3542,6 +3582,7 @@ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_cfg.attr,
+ 	&dev_attr_config_crc.attr,
++	&dev_attr_debug_enable.attr,
+ 	NULL
+ };
+ 
 -- 
 2.17.1
 

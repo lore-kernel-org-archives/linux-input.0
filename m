@@ -6,33 +6,34 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FFF4C2BA83
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:44:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77CD4C2BA83
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:44:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E23CF20661
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:44:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 56A8420661
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:44:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728530AbgBLIoa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Feb 2020 03:44:30 -0500
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:18899 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728435AbgBLIoa (ORCPT
+        id S1728540AbgBLIoh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Feb 2020 03:44:37 -0500
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:45653 "EHLO
+        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728512AbgBLIog (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Feb 2020 03:44:30 -0500
-IronPort-SDR: j1sOn4uF7uAMM+ju8dQ9L/YItmkrsgmFSI5Vtw5g2vDfy2fenzSIPHn9hC60wP4HYqyZx74gXx
- UrzXTkorQ0tmWCDA/C8KEwhMqfazccMpJdeMq2FU7bHmvhyBoWbNB/DPSFY08KzmYIkFt0edAm
- Ith0xxW8XB4QLYYW14q44jNJ1VGB04viEZTmdmbwKqob0K8FdFcIVR9OtSxHkdnfE8uEaxWVCH
- TD5f3VMMI9PwDYWRJiwPG5P44WJIACocOiqd4h86Gs+Y9EMQv2WTrdBU0nTmaZtkaKE8j2iuv5
- pas=
+        Wed, 12 Feb 2020 03:44:36 -0500
+X-Greylist: delayed 305 seconds by postgrey-1.27 at vger.kernel.org; Wed, 12 Feb 2020 03:44:36 EST
+IronPort-SDR: BUBzl1JKQiAPFzFFO/w/mkAqVgOyIaWId8fnIPQx1o5lDPFeMTP6VGzUHEjipej8gXyEnJ/7UT
+ cc5efMUthOTG0qwpOygSv65fehbzBOAEyC+JLxcItXwQn+o5V0ngygpNQpbtPaBEA0mPd1DAZo
+ w8t/DJoHJd7IxSM47IAY98InicT47eLA6UnN373fM72vcpiUsssktsCkE6ReGo2NgVRdDP3PGW
+ TdUiuF7PUbvdevYSRJgVVZurQ41+rbhN5PelLUDdqrLOsq/5d69JhtU5cG0rLYdpOYgO7hrcDy
+ 3u4=
 X-IronPort-AV: E=Sophos;i="5.70,428,1574150400"; 
-   d="scan'208";a="45742534"
+   d="scan'208";a="45686168"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:44:29 -0800
-IronPort-SDR: 6ZgdK61HSSpa109T8Q1VPW+t6ep7uhS+r/ejteihCvMpTjjHu1oWx6umkZplCgAtmfhzDiW21o
- GZmaNrxEnMoZgc2cjMzEbtbazha0s1BqAxAqugEywp/iSqNoFDNGVf27LYDnPbHGbEMWgzYwZh
- 1vda5+1jm96WlRKYXHpdVErO5GK0Z/smHcc/GI6Clp7McANncx0NmY3UaTtv5wrr3sflWimFqv
- I40c6bJK9t4/YvUcCbGI7cA9ayAjOcJ4baSiw1SL7XXyOrcPqj+Q2QXCmOQOxNByu1jECJyXGa
- TGQ=
+  by esa2.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:43:33 -0800
+IronPort-SDR: 2cer1NyDuyBdF6oOgYBHjI0rd7mCendWmkAn77dsCyTRuc44OhjWM3H/wM/opyfPEEQ08ZDvOx
+ uoMnzGRNywnRttCqW17sWKtPpwJpXyk9W8cj6YtoqbliGYnlFKvkyYxAIFkmmYQecm2eDHpT5Q
+ Bj4WQ3A241ICQtEstAzANnzLrNZoD87xo5Pnm8dPIVrNDq/+OClZ466RKOGYMN5BLpF3HlbIu+
+ p32Lajdgr9QxN+yMPnagyfukheSlGUY569kXi+8NyK0GBIzs+gmifaCNOCnZytMvOBbAviq+Ga
+ tzU=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +41,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v7 15/48] Input: atmel_mxt_ts - allow specification of firmware file name
-Date:   Wed, 12 Feb 2020 00:41:45 -0800
-Message-ID: <20200212084218.32344-16-jiada_wang@mentor.com>
+Subject: [PATCH v7 09/48] Input: atmel_mxt_ts - handle reports from T47 Stylus object
+Date:   Wed, 12 Feb 2020 00:41:39 -0800
+Message-ID: <20200212084218.32344-10-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200212084218.32344-1-jiada_wang@mentor.com>
 References: <20200212084218.32344-1-jiada_wang@mentor.com>
@@ -55,113 +56,58 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-On platforms which have multiple device instances using this driver, the
-firmware may be different on each device. This patch makes the user give
-the name of the firmware file when flashing.
-
-This also prevents accidental triggering of the firmware load process.
-
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 76ebb7cee971cb42dfb0a3a9224403b8b09abcf1)
-[gdavis: Forward port and fix conflicts.]
+(cherry picked from ndyer/linux/for-upstream commit 56405a5ea08eb34cfe83f3121867c9de0a5c48c1)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 43 ++++++++++++++++++++----
- 1 file changed, 37 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 8cac4debb505..1fa9166d01a1 100644
+index e0e9e6770bc5..bb88bc8ce817 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -33,8 +33,7 @@
- #include <media/videobuf2-vmalloc.h>
- #include <dt-bindings/input/atmel_mxt_ts.h>
+@@ -823,6 +823,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 	int area;
+ 	int amplitude;
+ 	u8 vector;
++	int tool;
  
--/* Firmware files */
--#define MXT_FW_NAME		"maxtouch.fw"
-+/* Configuration file */
- #define MXT_CFG_NAME		"maxtouch.cfg"
- #define MXT_CFG_MAGIC		"OBP_RAW V1"
+ 	id = message[0] - data->T9_reportid_min;
+ 	status = message[1];
+@@ -836,6 +837,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 		y >>= 2;
  
-@@ -335,6 +334,7 @@ struct mxt_data {
- 	bool use_retrigen_workaround;
- 	struct regulator *reg_vdd;
- 	struct regulator *reg_avdd;
-+	char *fw_name;
- 
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -3207,7 +3207,7 @@ static int mxt_check_firmware_format(struct device *dev,
- 	return -EINVAL;
- }
- 
--static int mxt_load_fw(struct device *dev, const char *fn)
-+static int mxt_load_fw(struct device *dev)
- {
- 	struct mxt_data *data = dev_get_drvdata(dev);
- 	const struct firmware *fw = NULL;
-@@ -3217,9 +3217,9 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 	unsigned int frame = 0;
- 	int ret;
- 
--	ret = request_firmware(&fw, fn, dev);
-+	ret = request_firmware(&fw, data->fw_name, dev);
- 	if (ret) {
--		dev_err(dev, "Unable to open firmware %s\n", fn);
-+		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
- 		return ret;
- 	}
- 
-@@ -3339,6 +3339,33 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 	return ret;
- }
- 
-+static int mxt_update_file_name(struct device *dev, char **file_name,
-+				const char *buf, size_t count)
-+{
-+	char *file_name_tmp;
+ 	area = message[5];
 +
-+	/* Simple sanity check */
-+	if (count > 64) {
-+		dev_warn(dev, "File name too long\n");
-+		return -EINVAL;
-+	}
-+
-+	file_name_tmp = krealloc(*file_name, count + 1, GFP_KERNEL);
-+	if (!file_name_tmp)
-+		return -ENOMEM;
-+
-+	*file_name = file_name_tmp;
-+	memcpy(*file_name, buf, count);
-+
-+	/* Echo into the sysfs entry may append newline at the end of buf */
-+	if (buf[count - 1] == '\n')
-+		(*file_name)[count - 1] = '\0';
-+	else
-+		(*file_name)[count] = '\0';
-+
-+	return 0;
-+}
-+
- static ssize_t mxt_update_fw_store(struct device *dev,
- 					struct device_attribute *attr,
- 					const char *buf, size_t count)
-@@ -3346,7 +3373,11 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 	struct mxt_data *data = dev_get_drvdata(dev);
- 	int error;
+ 	amplitude = message[6];
+ 	vector = message[7];
  
--	error = mxt_load_fw(dev, MXT_FW_NAME);
-+	error = mxt_update_file_name(dev, &data->fw_name, buf, count);
-+	if (error)
-+		return error;
+@@ -865,12 +867,20 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 			mxt_input_sync(data);
+ 		}
+ 
++		/* A size of zero indicates touch is from a linked T47 Stylus */
++		if (area == 0) {
++			area = MXT_TOUCH_MAJOR_DEFAULT;
++			tool = MT_TOOL_PEN;
++		} else {
++			tool = MT_TOOL_FINGER;
++		}
 +
-+	error = mxt_load_fw(dev);
- 	if (error) {
- 		dev_err(dev, "The firmware update failed(%d)\n", error);
- 		count = error;
+ 		/* if active, pressure must be non-zero */
+ 		if (!amplitude)
+ 			amplitude = MXT_PRESSURE_DEFAULT;
+ 
+ 		/* Touch active */
+-		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 1);
++		input_mt_report_slot_state(input_dev, tool, 1);
+ 		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+ 		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
+ 		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
 -- 
 2.17.1
 

@@ -4,35 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DF73C352A4
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:48:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8229BC2BA83
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:48:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D762B20714
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:48:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 640FB20661
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:48:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728835AbgBLIsY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Feb 2020 03:48:24 -0500
-Received: from esa1.mentor.iphmx.com ([68.232.129.153]:64953 "EHLO
-        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728534AbgBLIsY (ORCPT
+        id S1728669AbgBLIsa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Feb 2020 03:48:30 -0500
+Received: from esa4.mentor.iphmx.com ([68.232.137.252]:19974 "EHLO
+        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728534AbgBLIs3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Feb 2020 03:48:24 -0500
-IronPort-SDR: IDQRK61UeHXyhOFo7UfPjw512NoQWI9r8LO8EJC39y6mWfG7JauE29JDBH2cJC2XF7ij1h/CV/
- 8JwAqIhMy7wArFYzLgmE5NA9IoiDEwMYw1k/TG+da7drjPVBtZuAeZxFtQgwkizpEbGzhIjhwC
- FDJRdfx+9aRUwQrXOUJHWtZ9dh8wwTFzGva0vAMWwQiNU193ostpb1fZpMKtsRVPtpdMuawNn7
- KMJbak6wA5t5BqgMCNZM4Emp82557ByI7SwZOLt+X/zq2M2mAOoe5x9259iSZtngDcjauz3ech
- 91k=
+        Wed, 12 Feb 2020 03:48:29 -0500
+IronPort-SDR: 6slfDQp9+SanrKFmig/5ZUfcLTzMwkiXMiPpnS0jSpZ4imN6FaMDIoJdFr+nUSwUGF2Uiivvqn
+ kkbQp4InOiO1d/v1OMAEmUxkyW8fUkhLGnVOl0ZhWEbNhZNx1CxYoHkYbT5RtWQilCJy/oPi68
+ E8HjJVKrTMu54dxXB2Xwo1BsTqnHWQ8PayTvgzeQlD3i6PnE/T4u2B7kZKRJw1d7l0jqlAJcfJ
+ duxZHmulsKn7r4ZPs7gdmI6EyZz8ppd9LtiW73gMVhk7LT4CSGkNEOFkBYvJMBo8DSoV+Y/25n
+ 0NI=
 X-IronPort-AV: E=Sophos;i="5.70,428,1574150400"; 
-   d="scan'208";a="47667153"
+   d="scan'208";a="45799356"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa1.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:48:23 -0800
-IronPort-SDR: pMx6pZZ1hzElr2kstLoKz8noLsCiXqBP5pPbvS0oJ5V8hWAO1VRXBINQtoXffHP2pMlGfSnOfy
- oSVRTyEBNvvdNNaF+urKoKkAl5tWJdEt4IPJYImmfLNy3Z6LnpodZ9brh9lAySquJl99iXso/Y
- 3hXRMVhli5R2/SBm6vZyO8FV1dVDiFWV9fzllh1OxliddBL9uja5NwRYwYMv5Z1X9NBSdQm18o
- ouPjUX81StByajMC/HobtY8M9jrK+fzdeHY0ry73SgQx9WQ7igXB1ADjxSxCcfdzLnEVJ2NLHo
- 9Ks=
+  by esa4.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:45:24 -0800
+IronPort-SDR: m1Ux3H4wGcWBYv9bXehLW3At2ofECRahfki/YfGRLEh5kwL3IYECUDozJcuN6X54NGsokp0TFS
+ Kr+psr90nIXxeaCEkBGIdigvHfwkagpb7bhuCzUWavVFf4tqZqcnACjP69bq2iJ9jAykIzZjLD
+ 0K71M6nkUNufwze7vXhXhFfbzSOTfUI1ugEEw9wT/TWC5z8Vghp3Pl9ssqCl5LXpiONL/y+EKc
+ J3SqzYPzsa+pjtFgna5Rffbf1QEk7NJN5n/Fj90dXZCiq3yuIAe9jbPeanpzQNTW5aUdknjcni
+ lS4=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +40,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v7 46/48] input: atmel_mxt_ts: added sysfs interface to update atmel T38 data
-Date:   Wed, 12 Feb 2020 00:42:16 -0800
-Message-ID: <20200212084218.32344-47-jiada_wang@mentor.com>
+Subject: [PATCH v7 23/48] Input: atmel_mxt_ts - rename bl_completion to chg_completion
+Date:   Wed, 12 Feb 2020 00:41:53 -0800
+Message-ID: <20200212084218.32344-24-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200212084218.32344-1-jiada_wang@mentor.com>
 References: <20200212084218.32344-1-jiada_wang@mentor.com>
@@ -53,165 +53,110 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Naveen Chakka <Naveen.Chakka@in.bosch.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Atmel touch controller contains T38 object where a user can store its own
-data of length 64 bytes. T38 data will not be part of checksum
-calculation on executing T6 BACKUP command.
-
-format used to update the T38 data is given below:
-
-<offset> <length> <actual_data>
-
-offset: offset address of the data to be written in the t38 object
-	(in decimal)
-
-length: length of the data to be written into the t38 object(in decimal)
-
-data: actual data bytes to be written into the t38 object
-      (values should be in hex)
-
-Ex:
-1. 0 2 10 20
-updates first two bytes of the t38 data with values 10 and 20
-
-2. 19 6 10 2f 30 4a 50 60
-updates 6 bytes of t38 data from the index 19-24 with hex values
-
-Signed-off-by: Naveen Chakka <Naveen.Chakka@in.bosch.com>
-Signed-off-by: Sanjeev Chugh <sanjeev_chugh@mentor.com>
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+(cherry picked from ndyer/linux/for-upstream commit dda8453bfb44216645ede798918a314d4fca2481)
+[gdavis: Resolve forward port conflicts due to applying upstream
+	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
+	 data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
+[jiada: call complete(&data->chg_completion) only when in_bootloader is TRUE]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 102 +++++++++++++++++++++++
- 1 file changed, 102 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index afe58b30ecb1..96ac9b916b4f 100644
+index 23775f2e0eff..2164da9a160c 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -4027,6 +4027,106 @@ static ssize_t mxt_touch_device_status(struct device *dev, struct
- 	return ret;
+@@ -382,9 +382,6 @@ struct mxt_data {
+ 	u8 T100_reportid_max;
+ 	u16 T107_address;
+ 
+-	/* for fw update in bootloader */
+-	struct completion bl_completion;
+-
+ 	/* for reset handling */
+ 	struct completion reset_completion;
+ 
+@@ -396,6 +393,9 @@ struct mxt_data {
+ 
+ 	enum mxt_suspend_mode suspend_mode;
+ 
++	/* for power up handling */
++	struct completion chg_completion;
++
+ 	/* Indicates whether device is in suspend */
+ 	bool suspended;
+ 
+@@ -613,7 +613,7 @@ static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
+ 		 * CHG assertion before reading the status byte.
+ 		 * Once the status byte has been read, the line is deasserted.
+ 		 */
+-		ret = mxt_wait_for_completion(data, &data->bl_completion,
++		ret = mxt_wait_for_completion(data, &data->chg_completion,
+ 					      MXT_FW_CHG_TIMEOUT);
+ 		if (ret) {
+ 			/*
+@@ -1414,8 +1414,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 	struct mxt_data *data = dev_id;
+ 
+ 	if (data->in_bootloader) {
+-		/* bootloader state transition completion */
+-		complete(&data->bl_completion);
++		complete(&data->chg_completion);
+ 		return IRQ_HANDLED;
+ 	}
+ 
+@@ -2179,9 +2178,9 @@ static void mxt_regulator_enable(struct mxt_data *data)
+ 	msleep(MXT_CHG_DELAY);
+ 
+ retry_wait:
+-	reinit_completion(&data->bl_completion);
++	reinit_completion(&data->chg_completion);
+ 	data->in_bootloader = true;
+-	error = mxt_wait_for_completion(data, &data->bl_completion,
++	error = mxt_wait_for_completion(data, &data->chg_completion,
+ 					MXT_POWERON_DELAY);
+ 	if (error == -EINTR)
+ 		goto retry_wait;
+@@ -3346,7 +3345,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
+ 		enable_irq(data->irq);
+ 	}
+ 
+-	reinit_completion(&data->bl_completion);
++	reinit_completion(&data->chg_completion);
+ 
+ 	return 0;
  }
+@@ -3382,7 +3381,7 @@ static int mxt_load_fw(struct device *dev)
+ 	}
  
-+static ssize_t mxt_t38_data_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	struct mxt_object *object;
-+	size_t count = 0, size;
-+	u8 i, *t38_buf;
-+
-+	if (!data->object_table)
-+		return -ENXIO;
-+
-+	object = mxt_get_object(data, MXT_SPT_USERDATA_T38);
-+	size = mxt_obj_size(object);
-+
-+	/* Pre-allocate buffer large enough to hold max size of t38 object.*/
-+	t38_buf = kmalloc(size, GFP_KERNEL);
-+	if (!t38_buf)
-+		return -ENOMEM;
-+
-+	count = __mxt_read_reg(data->client, object->start_address,
-+			       size, t38_buf);
-+	if (count)
-+		goto end;
-+
-+	for (i = 0; i < size; i++)
-+		count += scnprintf(buf + count, PAGE_SIZE - count,
-+				   "[%2u]: %02x\n", i, t38_buf[i]);
-+	count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
-+end:
-+	kfree(t38_buf);
-+	return count;
-+}
-+
-+static ssize_t mxt_t38_data_store(struct device *dev,
-+				  struct device_attribute *attr,
-+				  const char *buf, size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	struct mxt_object *object;
-+	ssize_t ret = 0, pos, offset;
-+	unsigned int i, len, index;
-+	u8 *t38_buf;
-+
-+	if (!data->object_table)
-+		return -ENXIO;
-+
-+	object = mxt_get_object(data, MXT_SPT_USERDATA_T38);
-+
-+	/* Pre-allocate buffer large enough to hold max size of t38 object.*/
-+	t38_buf = kmalloc(mxt_obj_size(object), GFP_KERNEL);
-+	if (!t38_buf)
-+		return -ENOMEM;
-+
-+	ret = sscanf(buf, "%zd %d%zd", &offset, &len, &pos);
-+	if (ret != 2) {
-+		dev_err(dev, "Bad format: Invalid parameter to update t38\n");
-+		ret = -EINVAL;
-+		goto end;
-+	}
-+
-+	if (len == 0) {
-+		dev_err(dev,
-+			"Bad format: Data length should not be equal to 0\n");
-+		ret = -EINVAL;
-+		goto end;
-+	}
-+
-+	if (offset < 0 || ((offset + len) > 64)) {
-+		dev_err(dev, "Invalid offset value to update t38\n");
-+		ret = -EINVAL;
-+		goto end;
-+	}
-+
-+	index = pos;
-+	for (i = 0; i < len; i++) {
-+		ret = sscanf(buf + index, "%hhx%zd", t38_buf + i, &pos);
-+		if (ret != 1) {
-+			dev_err(dev, "Bad format: Invalid Data\n");
-+			ret = -EINVAL;
-+			goto end;
-+		}
-+		index += pos;
-+	}
-+
-+	ret = __mxt_write_reg(data->client, object->start_address + offset,
-+			      len, t38_buf);
-+	if (ret)
-+		goto end;
-+
-+	ret = mxt_t6_command(data, MXT_COMMAND_BACKUPNV, MXT_BACKUP_VALUE,
-+			     true);
-+	if (ret)
-+		dev_err(dev, "backup command failed\n");
-+	else
-+		ret = count;
-+end:
-+	kfree(t38_buf);
-+	return ret;
-+}
-+
- static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
- static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
- static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
-@@ -4039,6 +4139,7 @@ static DEVICE_ATTR(debug_v2_enable, S_IWUSR | S_IRUSR, NULL,
- static DEVICE_ATTR(debug_notify, S_IRUGO, mxt_debug_notify_show, NULL);
- static DEVICE_ATTR(t25, 0600, mxt_t25_selftest_show, mxt_t25_selftest_store);
- static DEVICE_ATTR(touch_dev_stat, 0444, mxt_touch_device_status, NULL);
-+static DEVICE_ATTR(t38_data, 0600, mxt_t38_data_show, mxt_t38_data_store);
+ 	/* Wait for flash. */
+-	ret = mxt_wait_for_completion(data, &data->bl_completion,
++	ret = mxt_wait_for_completion(data, &data->chg_completion,
+ 				      MXT_FW_RESET_TIME);
+ 	if (ret)
+ 		goto disable_irq;
+@@ -3393,7 +3392,7 @@ static int mxt_load_fw(struct device *dev)
+ 	 * the CHG line after bootloading has finished, so ignore potential
+ 	 * errors.
+ 	 */
+-	mxt_wait_for_completion(data, &data->bl_completion, MXT_FW_RESET_TIME);
++	mxt_wait_for_completion(data, &data->chg_completion, MXT_FW_RESET_TIME);
  
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
-@@ -4051,6 +4152,7 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_debug_notify.attr,
- 	&dev_attr_t25.attr,
- 	&dev_attr_touch_dev_stat.attr,
-+	&dev_attr_t38_data.attr,
- 	NULL
- };
+ 	data->in_bootloader = false;
+ disable_irq:
+@@ -3814,7 +3813,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	data->irq = client->irq;
+ 	i2c_set_clientdata(client, data);
+ 
+-	init_completion(&data->bl_completion);
++	init_completion(&data->chg_completion);
+ 	init_completion(&data->reset_completion);
+ 	init_completion(&data->crc_completion);
  
 -- 
 2.17.1

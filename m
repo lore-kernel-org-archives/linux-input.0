@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D4D7C2BA83
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:48:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DF73C352A4
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:48:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 51F0520714
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:48:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D762B20714
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:48:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728537AbgBLIsW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Feb 2020 03:48:22 -0500
-Received: from esa4.mentor.iphmx.com ([68.232.137.252]:19967 "EHLO
-        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728534AbgBLIsW (ORCPT
+        id S1728835AbgBLIsY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Feb 2020 03:48:24 -0500
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:64953 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728534AbgBLIsY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Feb 2020 03:48:22 -0500
-IronPort-SDR: ti98hUUaRPNeMK9Qry4Krz4zmSR2VBtOI660hnBaqp5qs5jk52N6Y8w1OCKXJUmTMicErB3IGa
- PghjbvSviao3jI7SRu3PuJI+BlJJXn4g5hpg3qnoZ4JSRC3tUqjLuzmc6ySmV+31YyCEIjnrau
- IWbwFX/U+sc+yiWjd6XmWW/b9wvfgYaDzO5r1Jt66Q6ZqJ19kkvbJKw5UFhBpR98TatbkrkhLw
- 5jHCiZi1mA0C2MMfjdfJTj2ZYU4BLNuD03Ig70AqBbuHVYtyUIzx1m3yXjq/FyJTjVnTFO0Bu7
- +zA=
+        Wed, 12 Feb 2020 03:48:24 -0500
+IronPort-SDR: IDQRK61UeHXyhOFo7UfPjw512NoQWI9r8LO8EJC39y6mWfG7JauE29JDBH2cJC2XF7ij1h/CV/
+ 8JwAqIhMy7wArFYzLgmE5NA9IoiDEwMYw1k/TG+da7drjPVBtZuAeZxFtQgwkizpEbGzhIjhwC
+ FDJRdfx+9aRUwQrXOUJHWtZ9dh8wwTFzGva0vAMWwQiNU193ostpb1fZpMKtsRVPtpdMuawNn7
+ KMJbak6wA5t5BqgMCNZM4Emp82557ByI7SwZOLt+X/zq2M2mAOoe5x9259iSZtngDcjauz3ech
+ 91k=
 X-IronPort-AV: E=Sophos;i="5.70,428,1574150400"; 
-   d="scan'208";a="45799352"
+   d="scan'208";a="47667153"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:45:17 -0800
-IronPort-SDR: ZIBg0C4zXAg/wbZzeRq10mKZQscpTOKwVqZagWxyNTGeL4SZK134wXpy4eBO4/71bTCWC8HAok
- ZXlaUo3k4jtEp/05O6U5k7TqTfrly3onQc3BkdV5Yr5ZQLw4OgLhnK8JgtclOTDUiSJU+JQMq2
- KKrPuEYdFVtNj0RfXdmGMhM28+r24qLq0lGHToZIgsRtBJTT0KAEpgoE1Cb9/fJNda9dOzc5qb
- JfUUyZbp+uS0hvisq48PqLk8k4ssJwu8qU8jc/PKHmENrbTGoYxJVaAj7qvki6ieGSNSbhEnM4
- Jvk=
+  by esa1.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:48:23 -0800
+IronPort-SDR: pMx6pZZ1hzElr2kstLoKz8noLsCiXqBP5pPbvS0oJ5V8hWAO1VRXBINQtoXffHP2pMlGfSnOfy
+ oSVRTyEBNvvdNNaF+urKoKkAl5tWJdEt4IPJYImmfLNy3Z6LnpodZ9brh9lAySquJl99iXso/Y
+ 3hXRMVhli5R2/SBm6vZyO8FV1dVDiFWV9fzllh1OxliddBL9uja5NwRYwYMv5Z1X9NBSdQm18o
+ ouPjUX81StByajMC/HobtY8M9jrK+fzdeHY0ry73SgQx9WQ7igXB1ADjxSxCcfdzLnEVJ2NLHo
+ 9Ks=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +40,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v7 22/48] Input: atmel_mxt_ts - improve bootloader state machine handling
-Date:   Wed, 12 Feb 2020 00:41:52 -0800
-Message-ID: <20200212084218.32344-23-jiada_wang@mentor.com>
+Subject: [PATCH v7 46/48] input: atmel_mxt_ts: added sysfs interface to update atmel T38 data
+Date:   Wed, 12 Feb 2020 00:42:16 -0800
+Message-ID: <20200212084218.32344-47-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200212084218.32344-1-jiada_wang@mentor.com>
 References: <20200212084218.32344-1-jiada_wang@mentor.com>
@@ -53,261 +53,166 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+From: Naveen Chakka <Naveen.Chakka@in.bosch.com>
 
-The code is much clearer if we switch on the actual state the bootloader
-is in, rather than the state we want it to be in, and allows the removal
-of a goto retry tangle.
+Atmel touch controller contains T38 object where a user can store its own
+data of length 64 bytes. T38 data will not be part of checksum
+calculation on executing T6 BACKUP command.
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 463e15ee95ee6e6274017ff645839dbe34d75c99)
-[gdavis: Squash fix from George G. Davis:
-	 - input: atmel_mxt_ts - Fix 'mxt_send_bootloader_cmd' was not
-	   declared warning]
+format used to update the T38 data is given below:
+
+<offset> <length> <actual_data>
+
+offset: offset address of the data to be written in the t38 object
+	(in decimal)
+
+length: length of the data to be written into the t38 object(in decimal)
+
+data: actual data bytes to be written into the t38 object
+      (values should be in hex)
+
+Ex:
+1. 0 2 10 20
+updates first two bytes of the t38 data with values 10 and 20
+
+2. 19 6 10 2f 30 4a 50 60
+updates 6 bytes of t38 data from the index 19-24 with hex values
+
+Signed-off-by: Naveen Chakka <Naveen.Chakka@in.bosch.com>
+Signed-off-by: Sanjeev Chugh <sanjeev_chugh@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: only wait on some status change]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 165 +++++++++++++----------
- 1 file changed, 95 insertions(+), 70 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 102 +++++++++++++++++++++++
+ 1 file changed, 102 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index bcdb2e05912e..23775f2e0eff 100644
+index afe58b30ecb1..96ac9b916b4f 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -305,6 +305,9 @@ struct mxt_flash {
- 	size_t frame_size;
- 	unsigned int count;
- 	unsigned int retry;
-+	u8 previous;
-+	bool complete;
-+	bool wait;
- };
- 
- /* Each client has this additional data */
-@@ -583,15 +586,27 @@ static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
- 	return 0;
+@@ -4027,6 +4027,106 @@ static ssize_t mxt_touch_device_status(struct device *dev, struct
+ 	return ret;
  }
  
--static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
--				bool wait)
-+static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock);
-+
-+static int mxt_write_firmware_frame(struct mxt_data *data, struct mxt_flash *f)
++static ssize_t mxt_t38_data_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
 +{
-+	f->frame = (struct mxt_fw_frame *)(f->fw->data + f->pos);
++	struct mxt_data *data = dev_get_drvdata(dev);
++	struct mxt_object *object;
++	size_t count = 0, size;
++	u8 i, *t38_buf;
 +
-+	/* Take account of CRC bytes */
-+	f->frame_size = __be16_to_cpu(f->frame->size) + 2U;
++	if (!data->object_table)
++		return -ENXIO;
 +
-+	/* Write one frame to device */
-+	return mxt_bootloader_write(data, f->fw->data + f->pos,
-+				   f->frame_size);
++	object = mxt_get_object(data, MXT_SPT_USERDATA_T38);
++	size = mxt_obj_size(object);
++
++	/* Pre-allocate buffer large enough to hold max size of t38 object.*/
++	t38_buf = kmalloc(size, GFP_KERNEL);
++	if (!t38_buf)
++		return -ENOMEM;
++
++	count = __mxt_read_reg(data->client, object->start_address,
++			       size, t38_buf);
++	if (count)
++		goto end;
++
++	for (i = 0; i < size; i++)
++		count += scnprintf(buf + count, PAGE_SIZE - count,
++				   "[%2u]: %02x\n", i, t38_buf[i]);
++	count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
++end:
++	kfree(t38_buf);
++	return count;
 +}
 +
-+static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
- {
- 	struct device *dev = &data->client->dev;
--	u8 val;
-+	u8 state;
- 	int ret;
- 
--recheck:
--	if (wait) {
-+	if (f->wait) {
- 		/*
- 		 * In application update mode, the interrupt
- 		 * line signals state transitions. We must wait for the
-@@ -607,40 +622,96 @@ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
- 			 * by writing length 0x000 to device (iff we are in
- 			 * WAITING_FRAME_DATA state).
- 			 */
--			dev_err(dev, "Update wait error %d\n", ret);
-+			dev_warn(dev, "Update wait error %d\n", ret);
- 			return ret;
- 		}
- 	}
- 
--	ret = mxt_bootloader_read(data, &val, 1);
-+	f->wait = false;
++static ssize_t mxt_t38_data_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	struct mxt_object *object;
++	ssize_t ret = 0, pos, offset;
++	unsigned int i, len, index;
++	u8 *t38_buf;
 +
-+	ret = mxt_bootloader_read(data, &state, 1);
- 	if (ret)
- 		return ret;
- 
-+	/* Remove don't care bits */
-+	if (state & ~MXT_BOOT_STATUS_MASK)
-+		state &= ~MXT_BOOT_STATUS_MASK;
++	if (!data->object_table)
++		return -ENXIO;
 +
- 	switch (state) {
- 	case MXT_WAITING_BOOTLOAD_CMD:
-+		dev_info(dev, "Unlocking bootloader\n");
-+		ret = mxt_send_bootloader_cmd(data, true);
-+		if (ret)
-+			return ret;
-+		f->wait = true;
++	object = mxt_get_object(data, MXT_SPT_USERDATA_T38);
 +
-+		break;
++	/* Pre-allocate buffer large enough to hold max size of t38 object.*/
++	t38_buf = kmalloc(mxt_obj_size(object), GFP_KERNEL);
++	if (!t38_buf)
++		return -ENOMEM;
 +
- 	case MXT_WAITING_FRAME_DATA:
--	case MXT_APP_CRC_FAIL:
--		val &= ~MXT_BOOT_STATUS_MASK;
-+		if ((f->previous != MXT_WAITING_BOOTLOAD_CMD)
-+		    && (f->previous != MXT_FRAME_CRC_PASS)
-+		    && (f->previous != MXT_FRAME_CRC_FAIL))
-+			goto unexpected;
++	ret = sscanf(buf, "%zd %d%zd", &offset, &len, &pos);
++	if (ret != 2) {
++		dev_err(dev, "Bad format: Invalid parameter to update t38\n");
++		ret = -EINVAL;
++		goto end;
++	}
 +
-+		ret = mxt_write_firmware_frame(data, f);
-+		if (ret)
-+			return ret;
++	if (len == 0) {
++		dev_err(dev,
++			"Bad format: Data length should not be equal to 0\n");
++		ret = -EINVAL;
++		goto end;
++	}
 +
-+		f->wait = true;
++	if (offset < 0 || ((offset + len) > 64)) {
++		dev_err(dev, "Invalid offset value to update t38\n");
++		ret = -EINVAL;
++		goto end;
++	}
 +
-+		break;
-+
-+	case MXT_FRAME_CRC_CHECK:
-+		if (f->previous != MXT_WAITING_FRAME_DATA)
-+			goto unexpected;
-+		f->wait = true;
- 		break;
-+
- 	case MXT_FRAME_CRC_PASS:
--		if (val == MXT_FRAME_CRC_CHECK) {
--			goto recheck;
--		} else if (val == MXT_FRAME_CRC_FAIL) {
--			dev_err(dev, "Bootloader CRC fail\n");
--			return -EINVAL;
-+		if (f->previous != MXT_FRAME_CRC_CHECK)
-+			goto unexpected;
-+
-+		/* Next frame */
-+		f->retry = 0;
-+		f->pos += f->frame_size;
-+		f->count++;
-+		f->wait = true;
-+
-+		if (f->pos >= f->fw->size) {
-+			f->complete = true;
-+			dev_info(dev, "Sent %u frames, %zu bytes\n",
-+				f->count, f->fw->size);
-+		} else if (f->count % 50 == 0) {
-+			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
-+				f->count, f->pos, f->fw->size);
++	index = pos;
++	for (i = 0; i < len; i++) {
++		ret = sscanf(buf + index, "%hhx%zd", t38_buf + i, &pos);
++		if (ret != 1) {
++			dev_err(dev, "Bad format: Invalid Data\n");
++			ret = -EINVAL;
++			goto end;
 +		}
++		index += pos;
++	}
 +
-+		break;
++	ret = __mxt_write_reg(data->client, object->start_address + offset,
++			      len, t38_buf);
++	if (ret)
++		goto end;
 +
-+	case MXT_FRAME_CRC_FAIL:
-+		if (f->retry > 20) {
-+			dev_err(dev, "Retry count exceeded\n");
-+			return -EIO;
- 		}
++	ret = mxt_t6_command(data, MXT_COMMAND_BACKUPNV, MXT_BACKUP_VALUE,
++			     true);
++	if (ret)
++		dev_err(dev, "backup command failed\n");
++	else
++		ret = count;
++end:
++	kfree(t38_buf);
++	return ret;
++}
 +
-+		/* Back off by 20ms per retry */
-+		dev_dbg(dev, "Bootloader frame CRC failure\n");
-+		f->retry++;
-+		f->wait = true;
-+		msleep(f->retry * 20);
- 		break;
-+
- 	default:
- 		return -EINVAL;
- 	}
+ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+@@ -4039,6 +4139,7 @@ static DEVICE_ATTR(debug_v2_enable, S_IWUSR | S_IRUSR, NULL,
+ static DEVICE_ATTR(debug_notify, S_IRUGO, mxt_debug_notify_show, NULL);
+ static DEVICE_ATTR(t25, 0600, mxt_t25_selftest_show, mxt_t25_selftest_store);
+ static DEVICE_ATTR(touch_dev_stat, 0444, mxt_touch_device_status, NULL);
++static DEVICE_ATTR(t38_data, 0600, mxt_t38_data_show, mxt_t38_data_store);
  
--	if (val != state) {
--		dev_err(dev, "Invalid bootloader state %02X != %02X\n",
--			val, state);
--		return -EINVAL;
--	}
-+	f->previous = state;
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+@@ -4051,6 +4152,7 @@ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_debug_notify.attr,
+ 	&dev_attr_t25.attr,
+ 	&dev_attr_touch_dev_stat.attr,
++	&dev_attr_t38_data.attr,
+ 	NULL
+ };
  
- 	return 0;
-+
-+unexpected:
-+	dev_err(dev, "Unexpected state transition\n");
-+	return -EINVAL;
- }
- 
- static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
-@@ -3301,57 +3372,13 @@ static int mxt_load_fw(struct device *dev)
- 	if (ret)
- 		goto release_firmware;
- 
--	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD, false);
--	if (ret) {
--		/* Bootloader may still be unlocked from previous attempt */
--		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, false);
--		if (ret)
--			goto disable_irq;
--	} else {
--		dev_info(dev, "Unlocking bootloader\n");
--
--		/* Unlock bootloader */
--		ret = mxt_send_bootloader_cmd(data, true);
-+	while (true) {
-+		ret = mxt_check_bootloader(data, &f);
- 		if (ret)
--			goto disable_irq;
--	}
--
--	while (f.pos < f.fw->size) {
--		f.frame = (struct mxt_fw_frame *)(f.fw->data + f.pos);
--
--		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, true);
--		if (ret)
--			goto disable_irq;
--
--		/* Take account of CRC bytes */
--		f.frame_size = __be16_to_cpu(f.frame->size) + 2U;
--
--		/* Write one frame to device */
--		ret = mxt_bootloader_write(data, f.fw->data + f.pos,
--					   f.frame_size);
--		if (ret)
--			goto disable_irq;
--
--		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS, true);
--		if (ret) {
--			f.retry++;
--
--			/* Back off by 20ms per retry */
--			msleep(f.retry * 20);
--
--			if (f.retry > 20) {
--				dev_err(dev, "Retry count exceeded\n");
--				goto disable_irq;
--			}
--		} else {
--			f.retry = 0;
--			f.pos += f.frame_size;
--			f.count++;
--		}
-+			return ret;
- 
--		if (f.count % 50 == 0)
--			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
--				f.count, f.pos, f.fw->size);
-+		if (f.complete)
-+			break;
- 	}
- 
- 	/* Wait for flash. */
-@@ -3360,7 +3387,6 @@ static int mxt_load_fw(struct device *dev)
- 	if (ret)
- 		goto disable_irq;
- 
--	dev_dbg(dev, "Sent %u frames, %lld bytes\n", f.count, f.pos);
- 
- 	/*
- 	 * Wait for device to reset. Some bootloader versions do not assert
-@@ -3370,7 +3396,6 @@ static int mxt_load_fw(struct device *dev)
- 	mxt_wait_for_completion(data, &data->bl_completion, MXT_FW_RESET_TIME);
- 
- 	data->in_bootloader = false;
--
- disable_irq:
- 	disable_irq(data->irq);
- release_firmware:
 -- 
 2.17.1
 

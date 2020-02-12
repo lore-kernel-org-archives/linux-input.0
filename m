@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 339C9C2BA83
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:45:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 763AEC2BA83
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:45:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 12A9421569
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:45:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C2D920873
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:45:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728497AbgBLIpn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Feb 2020 03:45:43 -0500
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:18979 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728493AbgBLIpn (ORCPT
+        id S1728590AbgBLIps (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Feb 2020 03:45:48 -0500
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:34476 "EHLO
+        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728493AbgBLIps (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Feb 2020 03:45:43 -0500
-IronPort-SDR: v5HZ2mwUoVvN3JyBthW4ucNJ8zCfEAzGLgGSYQIJQicN3sHkkFhwJYSnLRhacfNBMI0LUo6L7W
- 407ra1+fQaWPNjm6kYuuK2p2ot6EN2MCpsWVLlH+So9DmWtkWnE5ptF5aODAgV6Pp4c+QumbFo
- aaWXerUh4Vc7WFY+JW7HqDlcqDA95LvtNjfEszVRiVXDeJ5MzXUFaqRj/o44i8ach7M675BZUI
- QNj5BMq0c5XEWiQoV1RvOxR8XZxh51Sb6h8vNiAG5gr2jOD2epjMShkpHyLikLLfe4QUzD4gTy
- zPc=
+        Wed, 12 Feb 2020 03:45:48 -0500
+IronPort-SDR: VQeNPQbW8oVBBOO/tXZhCEcKJ8JWcj0qawFbAYrNGAbvICBllYst+OWUlCX1xwZmkUqUNY+sXn
+ 63/KAN7h3rRAvT18Dz7hcBWi8Nq6tSzEPDbPUbeqTEfLErqug2IYU0DXkDPyLWdwI2Fn2GL47b
+ xMwoAhxyZ5Dep620GdjNSJN6x2Ez75niWv3rLanCtefT57SfPiY9MTHMDA3o32AvlZPE1zcFU6
+ G28MRaTHLwsbHmubavSP25D0TFXWCgCHNyXh5dnMZKcvLkpSEcKkvWFrT3nM9AVaoxq3HF/Azz
+ c34=
 X-IronPort-AV: E=Sophos;i="5.70,428,1574150400"; 
-   d="scan'208";a="45742575"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa3.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:45:42 -0800
-IronPort-SDR: +JSlk8LkqYPPurqfsLebXi7nHI61YYUpcN87omqGTs/KXxocL8RZhnzjSgwlKomhQG81ukE3aD
- 1rcwKneNg7bXF4J6Vp5lAMGEXDTpxJzQPkdSUSffrkUjmm/aGO7i0yE+QG/kV/4p8/OKaTujOU
- ly++HfcQAy1N5gwtbFN5+G4cFL6u7VpWAB1fMq81j7rdp7nPYGyGLIyt/m/stRqW1EXkkFQGTt
- YLOqK4pZ8OZgP4KLntv8qoN5lb2nGe0Y5DVGHW7PuUlY34mNTlHVNWN6FKYeAjIAdNJmU5Vezl
- hG0=
+   d="scan'208";a="45686139"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa2.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:42:44 -0800
+IronPort-SDR: uB/PtkdGGUaQk2V67sJeMxDkh8mUZXmBeRIDDeFOZ+2a3jjQW9UPqpgwXGI3LEWShPS3yNBcIB
+ etnxHcmCUWOBVf4zW87AXSDlPTso+Mbh5vw+aIMd4WNNu9ww1jraIBTZwp8paj3zXV1cVjj+lp
+ Lt8IB7k8tMQPVXCAl7SGyJlVhW4prZNaPGttpFLGULTUIdE6KIJh1BTwptpINxlgpkgpHAiE5D
+ YhTF708XxrL4/iQHTh577kSGsyi6NFUKwe0vvHwcspZqpQWaYrXIyuYiQugGE3FIR8oixvuFXO
+ jBA=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
@@ -40,9 +40,9 @@ To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v7 26/48] Input: atmel_mxt_ts - implement I2C retries
-Date:   Wed, 12 Feb 2020 00:41:56 -0800
-Message-ID: <20200212084218.32344-27-jiada_wang@mentor.com>
+Subject: [PATCH v7 02/48] Input: atmel_mxt_ts - rework sysfs init/remove
+Date:   Wed, 12 Feb 2020 00:41:32 -0800
+Message-ID: <20200212084218.32344-3-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200212084218.32344-1-jiada_wang@mentor.com>
 References: <20200212084218.32344-1-jiada_wang@mentor.com>
@@ -55,108 +55,163 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Some maXTouch chips (eg mXT1386) will not respond on the first I2C request
-when they are in a sleep state. It must be retried after a delay for the
-chip to wake up.
+An error in the sysfs init may otherwise interfere with the async return
+from the firmware loader
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 63fd7a2cd03c3a572a5db39c52f4856819e1835d)
-[gdavis: Forward port and fix conflicts.]
+(cherry picked from ndyer/linux/for-upstream commit 3114584ae77c2b03b6dad87174f010d002e9c05d)
+[gdavis: Forward port and fixup conflicts. Also fixed sysfs leaks in
+	 both the mxt_initialize() and mxt_probe() error return cases.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
+[jiada: keep call mxt_initialize() before sysfs creation]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 45 ++++++++++++++++--------
- 1 file changed, 30 insertions(+), 15 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 64 +++++++++++++++++++-----
+ 1 file changed, 52 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ff9a801e9e5e..b20b520cb278 100644
+index a2189739e30f..550caec1018e 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -216,6 +216,7 @@ enum t100_type {
- #define MXT_CRC_TIMEOUT		1000	/* msec */
- #define MXT_FW_RESET_TIME	3000	/* msec */
- #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-+#define MXT_WAKEUP_TIME		25	/* msec */
- #define MXT_REGULATOR_DELAY	150	/* msec */
- #define MXT_CHG_DELAY	        100	/* msec */
- #define MXT_POWERON_DELAY	150	/* msec */
-@@ -720,6 +721,7 @@ static int __mxt_read_chunk(struct i2c_client *client,
- 	struct i2c_msg xfer[2];
- 	u8 buf[2];
- 	int ret;
-+	bool retry = false;
+@@ -2086,10 +2086,14 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	return 0;
  
- 	buf[0] = reg & 0xff;
- 	buf[1] = (reg >> 8) & 0xff;
-@@ -736,17 +738,22 @@ static int __mxt_read_chunk(struct i2c_client *client,
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
- 
--	ret = i2c_transfer(client->adapter, xfer, 2);
--	if (ret == 2) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
--			ret = -EIO;
--		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
--			__func__, ret);
-+retry_read:
-+	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
-+	if (ret != ARRAY_SIZE(xfer)) {
-+		if (!retry) {
-+			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
-+			msleep(MXT_WAKEUP_TIME);
-+			retry = true;
-+			goto retry_read;
-+		} else {
-+			dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
-+				__func__, ret);
-+			return -EIO;
-+		}
- 	}
- 
--	return ret;
-+	return 0;
+ err_free_mem:
++	data->input_dev = NULL;
+ 	input_free_device(input_dev);
+ 	return error;
  }
  
- static int __mxt_read_reg(struct i2c_client *client,
-@@ -777,6 +784,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 	u8 *buf;
- 	size_t count;
- 	int ret;
-+	bool retry = false;
++static int mxt_sysfs_init(struct mxt_data *data);
++static void mxt_sysfs_remove(struct mxt_data *data);
++
+ static int mxt_configure_objects(struct mxt_data *data,
+ 				 const struct firmware *cfg);
  
- 	count = len + 2;
- 	buf = kmalloc(count, GFP_KERNEL);
-@@ -787,14 +795,21 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 	buf[1] = (reg >> 8) & 0xff;
- 	memcpy(&buf[2], val, len);
+@@ -2141,16 +2145,24 @@ static int mxt_initialize(struct mxt_data *data)
+ 	if (error)
+ 		return error;
  
-+retry_write:
- 	ret = i2c_master_send(client, buf, count);
--	if (ret == count) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
-+	if (ret != count) {
-+		if (!retry) {
-+			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
-+			msleep(MXT_WAKEUP_TIME);
-+			retry = true;
-+			goto retry_write;
-+		} else {
-+			dev_err(&client->dev, "%s: i2c send failed (%d)\n",
-+				__func__, ret);
- 			ret = -EIO;
--		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
--			__func__, ret);
-+		}
-+	} else {
-+		ret = 0;
++	error = mxt_sysfs_init(data);
++	if (error)
++		return error;
++
+ 	error = request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
+ 					&client->dev, GFP_KERNEL, data,
+ 					mxt_config_cb);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
+ 			error);
+-		return error;
++		goto err_free_sysfs;
  	}
  
- 	kfree(buf);
+ 	return 0;
++
++err_free_sysfs:
++	mxt_sysfs_remove(data);
++	return error;
+ }
+ 
+ static int mxt_set_t7_power_cfg(struct mxt_data *data, u8 sleep)
+@@ -2803,6 +2815,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 		if (ret)
+ 			goto release_firmware;
+ 
++		mxt_sysfs_remove(data);
+ 		mxt_free_input_device(data);
+ 		mxt_free_object_table(data);
+ 	} else {
+@@ -2909,16 +2922,25 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	return count;
+ }
+ 
++static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
++
++static struct attribute *mxt_fw_attrs[] = {
++	&dev_attr_update_fw.attr,
++	NULL
++};
++
++static const struct attribute_group mxt_fw_attr_group = {
++	.attrs = mxt_fw_attrs,
++};
++
+ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+-static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+ 	&dev_attr_hw_version.attr,
+ 	&dev_attr_object.attr,
+-	&dev_attr_update_fw.attr,
+ 	NULL
+ };
+ 
+@@ -2926,6 +2948,28 @@ static const struct attribute_group mxt_attr_group = {
+ 	.attrs = mxt_attrs,
+ };
+ 
++static int mxt_sysfs_init(struct mxt_data *data)
++{
++	struct i2c_client *client = data->client;
++	int error;
++
++	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
++	if (error) {
++		dev_err(&client->dev, "Failure %d creating sysfs group\n",
++			error);
++		return error;
++	}
++
++	return 0;
++}
++
++static void mxt_sysfs_remove(struct mxt_data *data)
++{
++	struct i2c_client *client = data->client;
++
++	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
++}
++
+ static void mxt_start(struct mxt_data *data)
+ {
+ 	switch (data->suspend_mode) {
+@@ -3112,19 +3156,14 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (error)
+ 		return error;
+ 
+-	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
++	error = sysfs_create_group(&client->dev.kobj, &mxt_fw_attr_group);
+ 	if (error) {
+-		dev_err(&client->dev, "Failure %d creating sysfs group\n",
++		dev_err(&client->dev, "Failure %d creating fw sysfs group\n",
+ 			error);
+-		goto err_free_object;
++		return error;
+ 	}
+ 
+ 	return 0;
+-
+-err_free_object:
+-	mxt_free_input_device(data);
+-	mxt_free_object_table(data);
+-	return error;
+ }
+ 
+ static int mxt_remove(struct i2c_client *client)
+@@ -3132,7 +3171,8 @@ static int mxt_remove(struct i2c_client *client)
+ 	struct mxt_data *data = i2c_get_clientdata(client);
+ 
+ 	disable_irq(data->irq);
+-	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
++	sysfs_remove_group(&client->dev.kobj, &mxt_fw_attr_group);
++	mxt_sysfs_remove(data);
+ 	mxt_free_input_device(data);
+ 	mxt_free_object_table(data);
+ 
 -- 
 2.17.1
 

@@ -2,116 +2,248 @@ Return-Path: <SRS0=6nV4=4A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ACA8C2BA83
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:46:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B065C352A4
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:46:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 766CD20873
-	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:46:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2AE1320714
+	for <linux-input@archiver.kernel.org>; Wed, 12 Feb 2020 08:46:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728814AbgBLIqh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Feb 2020 03:46:37 -0500
-Received: from esa2.mentor.iphmx.com ([68.232.141.98]:34515 "EHLO
-        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728642AbgBLIqh (ORCPT
+        id S1728646AbgBLIql (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Feb 2020 03:46:41 -0500
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:32513 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728595AbgBLIqk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Feb 2020 03:46:37 -0500
-IronPort-SDR: 2TaUWfGz159jBrIxLvkvbG003RsTsfUQdEWkDyCfQ3Quvp2igP1+epXJpHTxq5NeluR5o/Tf4U
- QDAoJYl9PeXp/pPycO9PSW0MQWyxDpT0BudQj/KT2MOT6cCqhAgrHWoCPbNLzp8Hg5Ud7JEl+/
- hijxypV/Z6O5Tvg1pAu3oVkqwRKoOYpupBOnaccBfTutVt3Sgl4ufwzA9VHr2K5v03Gc6k2vkw
- dao+oSKrhDMQ993IkSJs143LMHyTkVBmpTdGnAA6rmu6OaSPFDVCOBXN+8+AVA2mNvKWaAnt9j
- /cU=
+        Wed, 12 Feb 2020 03:46:40 -0500
+IronPort-SDR: lqzXvy33FvyAZr1d8U+IvucNvC4t3XACJAqZsOKP1XHDMRLsJB+5KxMiZtclh8ekX+3ovmdCjR
+ Q2m2eZeCYL+LPKMeUWsNvo7IRQAps8tMvaZve+J9ImN3EorQ45uz9LXbDyLTDQLk/fKSXGiCtn
+ aLaOxlhhNA9ZIB6rP1Pz6JfMMDijVc41bFery13K8FOjXWyiQsLDq2fO3lwo5D41Bt8bN0dSIw
+ r14j3CgRrCFPzKEbeL2zHXN85LgURRLO2JD3p0xX0Qrt/KsFnlF/2gZikS7k6wVrtBJ9vG6hAw
+ oAw=
 X-IronPort-AV: E=Sophos;i="5.70,428,1574150400"; 
-   d="scan'208";a="45686076"
+   d="scan'208";a="47667097"
 Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa2.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:39:30 -0800
-IronPort-SDR: pQpryPK47i03139lAwDnAblCiPUOtB7ZZx0CRFiUUCN9ujhFnqVvZg7adoMOdRnBu06nFofL4Q
- 1CzXqBTB//uCB/5PTkHxvAOg7P9bZQePAT3/bEZTcLM55HQTYYvwVASaVtFKxCzKjZK7TyYC2N
- qU1c6GCFkf2jqwOOrvvJ9tLMSanB3r6lLqyBkT3wu6p41V07N17k3LzGFghJsmlu7QslBjA+K/
- oBWNTssnX0pYrlHZOIfKLCaTwAwdVoWUbK49202YQw4UmgAbm5RJfmvZS9NVaIZE8LoUZpvLZF
- rak=
-Subject: Re: [PATCH v6 24/48] Input: atmel_mxt_ts - make bootloader interrupt
- driven
-To:     Bartosz Szczepanek <bsz@semihalf.com>, <nick.dyer@itdev.co.uk>
-CC:     <Andrew_Gabbasov@mentor.com>, <benjamin.tissoires@redhat.com>,
-        <dmitry.torokhov@gmail.com>, <erosca@de.adit-jv.com>,
-        <jikos@kernel.org>, <linux-input@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <nick@shmanahar.org>,
-        <rydberg@bitmath.org>, <levinale@google.com>, <rad@semihalf.com>
-References: <20191122082402.18173-25-jiada_wang@mentor.com>
- <20200127174127.25522-1-bsz@semihalf.com>
-From:   "Wang, Jiada" <jiada_wang@mentor.com>
-Message-ID: <884a9ce0-b6db-6716-e366-e4c8ed7b4910@mentor.com>
-Date:   Wed, 12 Feb 2020 17:39:07 +0900
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.2
+  by esa1.mentor.iphmx.com with ESMTP; 12 Feb 2020 00:46:39 -0800
+IronPort-SDR: 0NHPmR4aTTedV8buL3IgjF4zJ51ojoHZKNMVvormNhvgJvCxnaNnkRT1mcvTiRE9ctI2cbLppY
+ n7Jka4ooj5l3Bt2UjL7zM+SWWHNV9bjjSZR49riy/PuHS/xxW08yMQg1io0vKC/yqFaJ1Dy3dj
+ O9A+73pq/rgaE3/5dmzCaDSdowfcQaeilddGKD8FIuf8kMW4cFlDa1cDY1ZOM/PowBlz7OIbNf
+ PapmM5Rj23m8cPNoqfyb0r9G9uds22ayvMGkATeJQAWO7oITf0lvm8kkmP92lretdX2IxBzPT0
+ yrQ=
+From:   Jiada Wang <jiada_wang@mentor.com>
+To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
+        <rydberg@bitmath.org>, <dmitry.torokhov@gmail.com>,
+        <nick@shmanahar.org>, <bsz@semihalf.com>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
+        <jiada_wang@mentor.com>
+Subject: [PATCH v7 35/48] Input: atmel_mxt_ts: Add support for run self-test routine.
+Date:   Wed, 12 Feb 2020 00:42:05 -0800
+Message-ID: <20200212084218.32344-36-jiada_wang@mentor.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200212084218.32344-1-jiada_wang@mentor.com>
+References: <20200212084218.32344-1-jiada_wang@mentor.com>
 MIME-Version: 1.0
-In-Reply-To: <20200127174127.25522-1-bsz@semihalf.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: svr-orw-mbx-08.mgc.mentorg.com (147.34.90.208) To
- svr-orw-mbx-01.mgc.mentorg.com (147.34.90.201)
+Content-Type: text/plain
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello Bartosz
+From: Nikhil Ravindran <Nikhil.Ravindran@in.bosch.com>
 
-On 2020/01/28 2:41, Bartosz Szczepanek wrote:
-> Hi,
-> 
-> I've been testing this patchset on Chromebook equipped with Atmel touchscreen &
-> touchpad. In my setup, this particular patch seems to introduce a regression
-> on firmware update:
-> 
->> localhost /sys/devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-ATML0001:00 # echo maxtouch-ts.fw > update_fw
->> bash: echo: write error: Remote I/O error
-> 
-> Kernel logs show that the reason is failed I2C transfer:
-> 
->> [ 111.632131] atmel_mxt_ts i2c-ATML0001:00: Found bootloader addr:27 ID:21 version:4
->> [ 111.637711] atmel_mxt_ts i2c-ATML0001:00: Unlocking bootloader
->> [ 129.155091] atmel_mxt_ts i2c-ATML0001:00: Sent 1356 frames, 212224 bytes
->> [ 129.263269] atmel_mxt_ts i2c-ATML0001:00: The firmware update succeeded
->> [ 129.263952] atmel_mxt_ts i2c-ATML0001:00: __mxt_read_chunk: i2c transfer failed (-121)
->> [ 129.265072] atmel_mxt_ts i2c-ATML0001:00: mxt_bootloader_read: i2c recv failed (-121)
->> [ 129.265588] atmel_mxt_ts i2c-ATML0001:00: Trying alternate bootloader address
->> [ 129.266375] atmel_mxt_ts i2c-ATML0001:00: mxt_bootloader_read: i2c recv failed (-121)
-> 
-> Surprisingly, only touchscreen device is affected. When I checked out to
-> 119e1b7e8481 ("Input: atmel_mxt_ts - refactor code to enter bootloader into
-> separate func") all worked fine. In between these commits I got some mixed
-> results, including timeout while waiting for completion:
-> 
->> [ 190.006174] atmel_mxt_ts i2c-ATML0001:00: Found bootloader addr:27 ID:21 version:4
->> [ 190.317819] atmel_mxt_ts i2c-ATML0001:00: Wait for completion timed out.
->> [ 190.318267] atmel_mxt_ts i2c-ATML0001:00: Update wait error -110
->> [ 190.319310] atmel_mxt_ts i2c-ATML0001:00: Unlocking bootloader
->> [ 208.369825] atmel_mxt_ts i2c-ATML0001:00: Sent 1356 frames, 212224 bytes
->> [ 208.536942] atmel_mxt_ts i2c-ATML0001:00: The firmware update succeeded
->> [ 208.544835] atmel_mxt_ts i2c-ATML0001:00: Family: 164 Variant: 14 Firmware V2.3.AA Objects: 40
->> [ 208.547623] atmel_mxt_ts i2c-ATML0001:00: Touchscreen size X4095Y2729
-> 
-> Some more details - the touchscreen device reports itself as:
-> 
->> atmel_mxt_ts i2c-ATML0001:00: Family: 164 Variant: 14 Firmware V2.3.AA Objects: 40
-> 
-> Due to Chromebook limitations on kernel version, I'm running 4.19 kernel
-> with patches backported from master (so that atmel_mxt_ts is aligned between
-> master and 4.19). The platform is Samsung Chromebook Pro.
-> 
-I have found the root cause for the regression,
-will submit v7 patch-set shortly,
-if you could validate for the update,
-it will be very helpful
+The self test object T25 runs self test routines in device to find faults
+Sysfs entry add to start self test routine and read back the test results
+for atmel touchcontrollers.The feature will be used for A-IVI and CAF projects.
 
-thanks,
-Jiada
-> Best regards,
-> Bartosz
-> 
+Signed-off-by: Nikhil Ravindran <Nikhil.Ravindran@in.bosch.com>
+Signed-off-by: George G. Davis <george_davis@mentor.com>
+Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 111 +++++++++++++++++++++++
+ 1 file changed, 111 insertions(+)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 9f4212aedd11..1595b92b1190 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -336,6 +336,9 @@ struct mxt_data {
+ 	u8 t100_aux_ampl;
+ 	u8 t100_aux_area;
+ 	u8 t100_aux_vect;
++	u16 T25_address;
++	u8  T25_reportid;
++	u8  t25_msg[6];
+ 	bool debug_enabled;
+ 	bool debug_v2_enabled;
+ 	u8 *debug_msg_data;
+@@ -413,6 +416,8 @@ struct mxt_data {
+ 
+ 	/* Indicates whether device is updating configuration */
+ 	bool updating_config;
++
++	bool t25_status;
+ };
+ 
+ struct mxt_vb2_buffer {
+@@ -1356,6 +1361,24 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
+ 	dev_info(dev, "T93 report double tap %d\n", status);
+ }
+ 
++static void mxt_proc_t25_messages(struct mxt_data *data, u8 *msg)
++{
++	struct device *dev = &data->client->dev;
++
++	/* Output debug if status has changed */
++	dev_dbg(dev, "T25 Status 0x%x Info: %x %x %x %x %x\n",
++		msg[1],
++		msg[2],
++		msg[3],
++		msg[4],
++		msg[5],
++		msg[6]);
++
++	/* Save current status */
++	memcpy(&data->t25_msg[0], &msg[1], sizeof(data->t25_msg));
++	data->t25_status = false;
++}
++
+ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ {
+ 	u8 report_id = message[0];
+@@ -1386,6 +1409,8 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id == data->T19_reportid) {
+ 		mxt_input_button(data, message);
+ 		data->update_input = true;
++	} else if (report_id == data->T25_reportid) {
++		mxt_proc_t25_messages(data, message);
+ 	} else if (report_id >= data->T15_reportid_min
+ 		   && report_id <= data->T15_reportid_max) {
+ 		mxt_proc_t15_messages(data, message);
+@@ -1610,6 +1635,84 @@ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
+ 	return 0;
+ }
+ 
++static int mxt_t25_command(struct mxt_data *data, u8 cmd, bool wait)
++{
++	u16 reg;
++	int timeout_counter = 0;
++	int ret;
++	u8  val[2];
++
++	reg = data->T25_address;
++	val[0] = 0x3;
++	val[1] = cmd;
++
++	data->t25_status = true;
++	ret = __mxt_write_reg(data->client, reg, sizeof(val), val);
++	if (ret) {
++		data->t25_status = false;
++		return ret;
++	}
++
++	if (!wait)
++		return 0;
++
++	do {
++		msleep(MXT_WAKEUP_TIME);
++		ret = __mxt_read_reg(data->client, reg + 1, 1, &val[1]);
++		if (ret)
++			return ret;
++	} while ((val[1] != 0) && (timeout_counter++ <= 100));
++
++	if (timeout_counter > 100) {
++		dev_err(&data->client->dev, "Command failed!\n");
++		data->t25_status = false;
++		return -EIO;
++	}
++	return 0;
++}
++
++/* Firmware Version is returned as Major.Minor.Build */
++static ssize_t mxt_t25_selftest_show(struct device *dev, struct
++				     device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	ssize_t offset = 0;
++
++	if (data->t25_status)
++		return -EAGAIN;
++
++	if (data->t25_msg[0] == 0xFE)
++		offset += scnprintf(buf, PAGE_SIZE, "PASS\n");
++	else
++		offset += scnprintf(buf, PAGE_SIZE, "FAILED\n");
++
++	offset += scnprintf(buf + offset, PAGE_SIZE, "%x %x %x %x %x %x\n",
++		 data->t25_msg[0],
++		 data->t25_msg[1],
++		 data->t25_msg[2],
++		 data->t25_msg[3],
++		 data->t25_msg[4],
++		 data->t25_msg[5]);
++	return offset;
++}
++
++static ssize_t mxt_t25_selftest_store(struct device *dev, struct
++				      device_attribute *attr, const char *buf,
++				      size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	u32 cmd;
++
++	if (sscanf(buf, "%x", &cmd) == 1) {
++		if (mxt_t25_command(data, (u8)cmd, 1) == 0)
++			return count;
++
++		dev_dbg(dev, "mxt_t25_cmd_store write cmd %x error\n", cmd);
++		return -EINVAL;
++	}
++	return 0;
++}
++
+ static int mxt_acquire_irq(struct mxt_data *data)
+ {
+ 	int error;
+@@ -2088,6 +2191,8 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	data->T15_reportid_max = 0;
+ 	data->T18_address = 0;
+ 	data->T19_reportid = 0;
++	data->T25_address = 0;
++	data->T25_reportid = 0;
+ 	data->T42_reportid_min = 0;
+ 	data->T42_reportid_max = 0;
+ 	data->T44_address = 0;
+@@ -2175,6 +2280,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 		case MXT_SPT_COMMSCONFIG_T18:
+ 			data->T18_address = object->start_address;
+ 			break;
++		case MXT_SPT_SELFTEST_T25:
++			data->T25_address = object->start_address;
++			data->T25_reportid = min_id;
++			break;
+ 		case MXT_PROCI_TOUCHSUPPRESSION_T42:
+ 			data->T42_reportid_min = min_id;
+ 			data->T42_reportid_max = max_id;
+@@ -3761,6 +3870,7 @@ static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
+ static DEVICE_ATTR(debug_v2_enable, S_IWUSR | S_IRUSR, NULL,
+ 		   mxt_debug_v2_enable_store);
+ static DEVICE_ATTR(debug_notify, S_IRUGO, mxt_debug_notify_show, NULL);
++static DEVICE_ATTR(t25, 0600, mxt_t25_selftest_show, mxt_t25_selftest_store);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+@@ -3771,6 +3881,7 @@ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_debug_enable.attr,
+ 	&dev_attr_debug_v2_enable.attr,
+ 	&dev_attr_debug_notify.attr,
++	&dev_attr_t25.attr,
+ 	NULL
+ };
+ 
+-- 
+2.17.1
+

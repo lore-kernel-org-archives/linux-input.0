@@ -2,280 +2,83 @@ Return-Path: <SRS0=V5p8=4C=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5433C2BA83
-	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 11:12:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 397F3C2BA83
+	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 11:44:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 655162082F
-	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 11:12:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F15ED222C2
+	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 11:44:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xs0Rsahv"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=hanno.de header.i=@hanno.de header.b="eWeiVeGr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729183AbgBNLMS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 14 Feb 2020 06:12:18 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:54270 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387433AbgBNLMR (ORCPT
+        id S1727754AbgBNLoq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 14 Feb 2020 06:44:46 -0500
+Received: from www149.your-server.de ([78.47.15.70]:54408 "EHLO
+        www149.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726635AbgBNLoq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Feb 2020 06:12:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1581678734;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0EgADtpXAIc9NC8vLjU5weib7HnB3a9Giee4qncSXqQ=;
-        b=Xs0RsahvFwCp29abo8vRmou/9nd62H3oCWfsoWr+6FWYredgGfGgt4ZDrX6CDwBBerVpqz
-        UUxTW84B6B7rleQ/C8NWw4rZYrrt2enNAtokqYnhYpH8wFNVD6F03tPnFgviPPR1tmdboV
-        K6Gfe0kijDCxT97TIE+Y4Oc7RTqUICo=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-285-wzegRAWcPpe3zg377H8pvQ-1; Fri, 14 Feb 2020 06:12:09 -0500
-X-MC-Unique: wzegRAWcPpe3zg377H8pvQ-1
-Received: by mail-qv1-f71.google.com with SMTP id p3so5469121qvt.9
-        for <linux-input@vger.kernel.org>; Fri, 14 Feb 2020 03:12:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=0EgADtpXAIc9NC8vLjU5weib7HnB3a9Giee4qncSXqQ=;
-        b=Pabr+Aam4n+qZxQvZX5aYyKTx8hwDRatZm4oVvgfteb+RoNQbrLAGdsFlLL9IbJlgu
-         ekrQ1uDLEanPrhIpBZSv35VHlpIRExZRdjb3wAvSM/D4yPjcGbgbKnYeCIFUtlVmq7oz
-         rvTfR4QRG3WnWuNZGYqdfZ6BoG9tpk2p8/xcrs7eeNQe4txJiYlOx3XHbmlW3IB1myXD
-         Incrbb+8GiQ8AIHzXrY9JqKjZTzfotdpZwoNfGmGz2F+McjrlMGZiZNlvUMFlZ3NUK5W
-         BzlzKwawmYcB1VwC/+frQO5K/Cobq7cwChblYSsQc32mRNYk7EN3BMgaHoc1Nvo4F5vQ
-         +3iQ==
-X-Gm-Message-State: APjAAAVW2gIZzBPaepy8J5sCVGtHjAn1iOyhL3EIrTs3JSGvOSr0OFxO
-        LQ4iHxIByc/Oyf81y2BSxtlyV8yuS9ayh239f0maEaxbeI4w7+4DAheEd51k3GhmKMl8o+R3bu9
-        /dvlj+++vAyPZ8sS1OQvTKQZ238OT4I9tJkxYOJ8=
-X-Received: by 2002:ac8:365c:: with SMTP id n28mr2025216qtb.260.1581678728261;
-        Fri, 14 Feb 2020 03:12:08 -0800 (PST)
-X-Google-Smtp-Source: APXvYqz1QckY2romso9aqxIFBMHsb1vON4cEumXd/xunHm/MgJQfIkQVY0uU+NSxeeBpwO6SAZ14npaTT48Dv089ZVM=
-X-Received: by 2002:ac8:365c:: with SMTP id n28mr2025194qtb.260.1581678727879;
- Fri, 14 Feb 2020 03:12:07 -0800 (PST)
+        Fri, 14 Feb 2020 06:44:46 -0500
+X-Greylist: delayed 341 seconds by postgrey-1.27 at vger.kernel.org; Fri, 14 Feb 2020 06:44:45 EST
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hanno.de;
+         s=default1911; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+        MIME-Version:Date:Message-ID:References:Cc:To:From:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=MDhs0k5Hxjx7r04RR09T+FpIodHW2WaEwAQBV4p365k=; b=eWeiVeGrrohEGbZIMPZV1zgwXf
+        P3ZKv5n6mt56MfBf6rkEaxoAdAKiw6mgtXddPz5TvnpzaawBJpJVX5EYyWS2UqoFUKspYgTdg6A6G
+        DWOb3aufkjUBW1uPV9h59qO7SeZEnPIf+RAP+KMvUCCHl1LMqjr60Q5+j25pWao6PvfvhHoDbv2W6
+        ad0FZPZLCbZFwB3maY8KwjqBtSxFQOzEGwKBDzrJKAdMx2WAhWCTqnQeqN8Z7bSpgV1neDpTkd4V6
+        8oPHRy9LlaXu+fCVp77jYx86SZwTubbxk8AOMHyYcV+n0VcrtPaXl8PUALgqCLhgSvJWJoLzJTj48
+        SagRHggQ==;
+Received: from sslproxy06.your-server.de ([78.46.172.3])
+        by www149.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <abos@hanno.de>)
+        id 1j2ZOj-0001ag-C2; Fri, 14 Feb 2020 12:44:41 +0100
+Received: from [62.96.7.134] (helo=[10.1.0.41])
+        by sslproxy06.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <abos@hanno.de>)
+        id 1j2ZOj-000OMQ-80; Fri, 14 Feb 2020 12:44:41 +0100
+Subject: Re: hid-bigbenff general protection fault on unplug (Re: hid-sony
+ kernel crash)
+From:   Hanno Zulla <abos@hanno.de>
+To:     Roderick Colenbrander <thunderbird2k@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>
+Cc:     linux-input <linux-input@vger.kernel.org>
+References: <CAEc3jaC0yJF7oYs1TK_zcrQ6_Er5sSBD41feC8GEjpDsBs9iLA@mail.gmail.com>
+ <f61c212e-159e-b42c-bbab-ccf985e90975@hanno.de>
+Message-ID: <272a035e-45cb-1281-4151-84ae4be5c6dc@hanno.de>
+Date:   Fri, 14 Feb 2020 12:44:40 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-References: <1581476197-25854-1-git-send-email-Sandeep.Singh@amd.com>
- <1ce6f591-1e8b-8291-7f18-48876fd70e10@redhat.com> <CAO-hwJJkWkpApB-i0tHxEb0BeWcMpFLwSsOWKKdzGKnJEbHA_A@mail.gmail.com>
- <719b929927ce76dd7dda3a48319b5798aced591a.camel@linux.intel.com> <7a9b6f51-ef50-9078-325c-28e8cd17c182@amd.com>
-In-Reply-To: <7a9b6f51-ef50-9078-325c-28e8cd17c182@amd.com>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Fri, 14 Feb 2020 12:11:56 +0100
-Message-ID: <CAO-hwJJj8uHVr_BTG0rcBchiEttuQTr7ovrtTQ=Cp5vJ2eeoNg@mail.gmail.com>
-Subject: Re: [PATCH v3 0/5] SFH: Add Support for AMD Sensor Fusion Hub
-To:     "Shah, Nehal-bakulchandra" <nehal-bakulchandra.shah@amd.com>
-Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sandeep Singh <Sandeep.Singh@amd.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org,
-        Shyam-sundar.S-k@amd.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <f61c212e-159e-b42c-bbab-ccf985e90975@hanno.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: abos@hanno.de
+X-Virus-Scanned: Clear (ClamAV 0.102.1/25722/Thu Feb 13 12:45:05 2020)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 11:04 AM Shah, Nehal-bakulchandra
-<nehal-bakulchandra.shah@amd.com> wrote:
->
-> Hi
->
-> On 2/14/2020 10:10 AM, Srinivas Pandruvada wrote:
-> > On Thu, 2020-02-13 at 15:56 +0100, Benjamin Tissoires wrote:
-> >> Hi,
-> >>
-> >> On Wed, Feb 12, 2020 at 3:45 PM Hans de Goede <hdegoede@redhat.com>
-> >> wrote:
-> >>> Hi,
-> >>>
-> >>> On 2/12/20 3:56 AM, Sandeep Singh wrote:
-> >>>> From: Sandeep Singh <sandeep.singh@amd.com>
-> >>>>
-> >>>> AMD SFH(Sensor Fusion Hub) is HID based driver.SFH FW
-> >>>> is part of MP2 processor (MP2 which is an ARM=C2=AE Cortex-M4
-> >>>> core based co-processor to x86) and it runs on MP2 where
-> >>>> in driver resides on X86.The driver functionalities are
-> >>>> divided  into three parts:-
-> >>>>
-> >>>> 1: amd-mp2-pcie:-       This module will communicate with MP2 FW
-> >>>> and
-> >>>>                          provide that data into DRAM.
-> >>>> 2: Client driver :-     This part for driver will use dram data
-> >>>> and
-> >>>>                          convert that data into HID format based
-> >>>> on
-> >>>>                          HID reports.
-> >>>> 3: Transport driver :-  This part of driver will communicate with
-> >>>>                          HID core. Communication between devices
-> >>>> and
-> >>>>                          HID core is mostly done via HID reports
-> >>>>
-> >>>> In terms of architecture it is much more reassembles like
-> >>>> ISH(Intel Integrated Sensor Hub). However the major difference
-> >>>> is all the hid reports are generated as part of kernel driver.
-> >>>> AMD SFH driver taken reference from ISH in terms of
-> >>>> design and functionalities at fewer location.
-> >>>>
-> >>>> AMD sensor fusion Hub is part of a SOC 17h family based
-> >>>> platforms.
-> >>>> The solution is working well on several OEM products.
-> >>>> AMD SFH uses HID over PCIe bus.
-> >>> I started looking at this patch because of the phoronix' news item
-> >>> on it.
-> >>>
-> >>> First of all I want to say that it is great that AMD is working on
-> >>> getting the Sensor Fusion Hub supported on Linux and that you are
-> >>> working on a driver for this.
-> Thanks for the valuable input.
-> >> But, I've taken a quick look, mainly at the
-> >> "[PATCH v3 5/5] SFH: Create HID report to Enable support of AMD
-> >> sensor fusion Hub (SFH)"
-> >> patch.
-> >>
-> >> AFAIK with the Intel ISH the sensor-hub itself is actually
-> >> providing
-> >> HID descriptors and HID input reports.
-> >>
-> >> Looking at the AMD code, that does not seem to be the case, it
-> >> seems
-> >> the values come directly from the AMD sensor-hub without being in
-> >> any
-> >> HID specific form, e.g.:
-> >>
-> >> +u8 get_input_report(int sensor_idx, int report_id,
-> >> +                   u8 *input_report, u32 *sensor_virt_addr)
-> >> +{
-> >> +       u8 report_size =3D 0;
-> >> +       struct accel3_input_report acc_input;
-> >> +       struct gyro_input_report gyro_input;
-> >> +       struct magno_input_report magno_input;
-> >> +       struct als_input_report als_input;
-> >> +
-> >> +       if (!sensor_virt_addr || !input_report)
-> >> +               return report_size;
-> >> +
-> >> +       switch (sensor_idx) {
-> >> +       case ACCEL_IDX: /* accel */
-> >> +               acc_input.common_property.report_id =3D report_id;
-> >> +               acc_input.common_property.sensor_state =3D
-> >> +                                       HID_USAGE_SENSOR_STATE_READ
-> >> Y_ENUM;
-> >> +               acc_input.common_property.event_type =3D
-> >> +                               HID_USAGE_SENSOR_EVENT_DATA_UPDATED
-> >> _ENUM;
-> >> +               acc_input.in_accel_x_value =3D
-> >> (int)sensor_virt_addr[0] /
-> >> +                                               AMD_SFH_FIRMWARE_MU
-> >> LTIPLIER;
-> >> +               acc_input.in_accel_y_value =3D
-> >> (int)sensor_virt_addr[1] /
-> >> +                                               AMD_SFH_FIRMWARE_MU
-> >> LTIPLIER;
-> >> +               acc_input.in_accel_z_value
-> >> =3D  (int)sensor_virt_addr[2] /
-> >> +                                               AMD_SFH_FIRMWARE_MU
-> >> LTIPLIER;
-> >> +               memcpy(input_report, &acc_input,
-> >> sizeof(acc_input));
-> >> +               report_size =3D sizeof(acc_input);
-> >> +               break;
-> >>
-> >> And the descriptors are hardcoded in the driver so as to fake a HID
-> >> device.
-> >>
-> >> So going through the HID subsystem seems like an unnecessary
-> >> detour,
-> >> which just makes things needlessly complex and harder to debug
-> >> (and extend).
-> >>
-> >> The HID devices which the current patch-set is creating ultimately
-> >> will result in a number of devices being created under
-> >>
-> >> /sys/bus/iio/devices
-> >>
-> >> And this are the devices which userspace uses to get the sensor
-> >> data.
-> >>
-> >> IMHO instead of going through the HID subsys the AMD Sensor Fusion
-> >> Hub
-> >> driver should simply register 4 (*) iio-devices itself and directly
-> >> pass the data through at the iio subsys level rather then going the
-> >> long way around by creating a fake HID device which then gets
-> >> attached to by the hid-sensor driver to ultimately create the same
-> >> iio-devices.
-> >>
-> >> There are examples of e.g. various iio accel drivers under:
-> >> drivers/iio/accel/ you could start with a simple driver supporting
-> >> just the accelerometer bits and then extend things from there.
-> >>
-> >> Benjamin, Jiri, Jonathan, what is your take on this?
-> >> Hard to say without knowing AMD roadmap for that. If they intend to
-> >> have an ISH-like approach in the end with reports and descriptors
-> >> provided by the firmwares, then it makes sense to keep this
-> >> architecture for the first revision of devices.
-> >> If not, then yes, this is probably overkill compared to what needs to
-> >> be done.
-> >>
-> > I suggested this approach to follow something like Chrome-OS EC based
-> > hub, but looks like in longer run this may come from firmware. That's
-> > why they may have decided.
-> >
-> > Thanks,
-> > Srinivas
-> >
-> >
-> >> Sandeep, can you explain to us why you think using HID is the best
-> >> way?
-> >>
-> >> On a side note, I don't necessarily like patch 4/5 with the debugfs
-> >> interface. It's adding a kernel API for no gain, and we should
-> >> already
-> >> have the debug API available in the various subsystems involved.
-> >>
-> >> Cheers,
-> >> Benjamin
->
-> Yes today, the  HID Reports are getting generated in driver. But, we woul=
-d like to have HID based driver as we may go for HID based firmware in futu=
-re . Hence keeping that in mind current AMD SFH design.
->
-> So, kindly consider our design w.r.t HID for this patch series.
+Hi there,
 
-OK, that's good enough for me. Jiri, are you fine with that too?
+> unplugging the BigBen gamepad supported by the hid-bigbenff driver 
+> reliably leads to a general protection fault
 
->
-> For the debugfs part,currently it is really handy for us to debug raw val=
-ues coming from firmware.But if guys feel that it is not necessary, we can =
-remove it.
->
+Wanted to add - this is just caused by plugging in, unplugging and then 
+waiting for the next memory allocation.
 
-2 problems here:
-- patch 3/5 references this debugfs interface which is only added in 4/5.
-- you are creating a new sysfs set of file for debug purpose only, but
-as soon as we start shipping those, some other people will find it
-more convenient to use that directly instead or IIO, and you won't be
-able to change anything there.
+The GPF happens without rumble effects.
 
-So I would strongly advocate against having this debugfs, and suggest you t=
-o:
-- either keep this debugfs as a downstream patch
-- either play with eBPF or kprobes to retrieve the same information
-without changing the kernel.
+Kind regards,
 
-For reference, I recently tried to replicate the hidraw functionality
-with eBPF[0] without changing the kernel code, and it was working.
-Well, there was no filtering on the source of the HID event, but
-still, I got the same data directly from the kernel just by adding
-instrumentation in a couple of functions.
-
-Cheers,
-Benjamin
-
-[0] https://gitlab.freedesktop.org/bentiss/hid-tools/snippets/875
-
+Hanno

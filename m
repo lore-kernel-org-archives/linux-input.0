@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D387EC3B1A4
-	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 16:51:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 327B4C2BA83
+	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 17:05:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A38E02067D
-	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 16:51:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 08C052067D
+	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 17:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581699092;
-	bh=NTq86b0DCPvXQOu5B4YCHjoybaZyE1rhW4Q21+e191c=;
+	s=default; t=1581699940;
+	bh=aTkwBG4IKOurcW/xcYirLZ4nz5+6vBqxuGUZY+UNv+U=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=PeeLvm0Q3itR1VbYzaWnCg4Yc0FQY1rgLA16f40ur6AjhzO5eJoNIZhjnnUBCskl+
-	 LjGYnFCPm2HaGPqyrmRMXAmf0fwX/4oy2FGOlKOuxwrk9X0k4OMyIj0blmQqZQhqEA
-	 +ecf6zQusyMAFIL6iiX4mLEl3CPDkKNe6+76oKQM=
+	b=EAOmOUXTK25ioJIORedSUNQP1WVgVWbAb0jlT6pjMI31PgcQFzq5PDgDVwWglvBy6
+	 Ec2CMM+bQBainWiJMkZCtC7dl5DwCmktsJkWN73mNuIxe5dl3iseC8dJjDOhBL4A4+
+	 aLsn0642dklGi/GeYcLY07AYm8lF1HwCvevSSK2g=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404626AbgBNQTp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 14 Feb 2020 11:19:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52928 "EHLO mail.kernel.org"
+        id S2404064AbgBNQPD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 14 Feb 2020 11:15:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392806AbgBNQTp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:19:45 -0500
+        id S2392021AbgBNQPC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:15:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 244D124718;
-        Fri, 14 Feb 2020 16:19:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EB9E246E5;
+        Fri, 14 Feb 2020 16:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697185;
-        bh=NTq86b0DCPvXQOu5B4YCHjoybaZyE1rhW4Q21+e191c=;
+        s=default; t=1581696901;
+        bh=aTkwBG4IKOurcW/xcYirLZ4nz5+6vBqxuGUZY+UNv+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=omnOixlSkCbxrzzhEVjGMKFjNli10E+TK93q1zp30OSfbaPp03C+wcGrYZ+Nr5Us7
-         dvImN8uCOw9TFgZ8NP7npKsvKEpCBZ75rmn0Z6ZhBgrosFNAPDoC+mPvmB+9hI0hsp
-         Kl5RcTfWwLA2ba7sczbjckxN4hmG75KhLqPXAoFo=
+        b=JYM53RSv599PQMMCYaL4CTxGLttCvbIHcwGEcHVVdruii+e42vflz2Uxj0v3TwxUx
+         4PibD4hefYgybFgM73117Sq+df6326Wz/QP0MB+42SpFZwF3hSt5JuMwPZ1pxHuXPp
+         kX7wGkbxLsPA4v21CbqVfSn5Ew3Upmxrw7y3C/hs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
@@ -45,12 +45,12 @@ Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 115/186] Input: edt-ft5x06 - work around first register access error
-Date:   Fri, 14 Feb 2020 11:16:04 -0500
-Message-Id: <20200214161715.18113-115-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 152/252] Input: edt-ft5x06 - work around first register access error
+Date:   Fri, 14 Feb 2020 11:10:07 -0500
+Message-Id: <20200214161147.15842-152-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
-References: <20200214161715.18113-1-sashal@kernel.org>
+In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
+References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -83,10 +83,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 5bf63f76dddac..4eff5b44640cf 100644
+index 1e18ca0d1b4e1..3fdaa644a82c1 100644
 --- a/drivers/input/touchscreen/edt-ft5x06.c
 +++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -888,6 +888,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+@@ -968,6 +968,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
  {
  	const struct edt_i2c_chip_data *chip_data;
  	struct edt_ft5x06_ts_data *tsdata;
@@ -94,7 +94,7 @@ index 5bf63f76dddac..4eff5b44640cf 100644
  	struct input_dev *input;
  	unsigned long irq_flags;
  	int error;
-@@ -957,6 +958,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+@@ -1037,6 +1038,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
  		return error;
  	}
  

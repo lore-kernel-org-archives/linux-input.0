@@ -4,40 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F6BDC3B19F
-	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 16:23:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84DACC3B1A4
+	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 16:32:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2F54D24770
-	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 16:23:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D600246A1
+	for <linux-input@archiver.kernel.org>; Fri, 14 Feb 2020 16:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581697397;
-	bh=xTfDbkr37bVX7WPtntC0qxawFpQYpjYWedgmtw+jqao=;
+	s=default; t=1581697958;
+	bh=T1ZKD43Hoi0VlEAm4qsLbLuTAyNG1fwLV0FTSp5WMTQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=NLyJwaDKVdStWxzTSm/w50QCfIExgQ/svbbSmHt4OZ5xwSPuObGObokYXMxc4sflO
-	 W9rIc6CrcGMgyLeYJmaymICpyz4Svo8VyMgJ6Q/TOEUvDGx02nEqPv6CDplSO8w2bq
-	 iTu47iLZtNGezRlDM+CjaCdwVkiiEPDDnY9mlNmw=
+	b=cxh5ZcPB7uh9VQvdJ0KY8euPKoWywsUbyA9DpLAfX3i2HZ7llG5zT3ClSLL0/RSXd
+	 IE5dSm6pqoW9ucn3Jj24S7spzvIcoSJIncehtiDreEZSg5p5BGZMfy1VLThSPbCyFz
+	 O66PFN6G6bMCIR2MzAu0sY8CoaHy3PvHbMzo5cKM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405219AbgBNQXQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 14 Feb 2020 11:23:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59340 "EHLO mail.kernel.org"
+        id S2406204AbgBNQZq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 14 Feb 2020 11:25:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405563AbgBNQXO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:23:14 -0500
+        id S2406197AbgBNQZp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:25:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28B4E24772;
-        Fri, 14 Feb 2020 16:23:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 423AB247D0;
+        Fri, 14 Feb 2020 16:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697394;
-        bh=xTfDbkr37bVX7WPtntC0qxawFpQYpjYWedgmtw+jqao=;
+        s=default; t=1581697545;
+        bh=T1ZKD43Hoi0VlEAm4qsLbLuTAyNG1fwLV0FTSp5WMTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Tg/SenFZQ5u6GeUiczqSc9HKSwyLrnct6FMqy5jEWNgvhfwSv7K+YvVnfyEbhZUr
-         +B7lay2uzK2luMUsDg5uFExc+UJ6G4ujiGjR8pzMwx4oxu+c1C61U902b7zasFiBEK
-         jlqOzKol0g2kWKFI6/plTXfjNqnxn7g1kQVN2cDg=
+        b=zFhJTgmuketWb8/eBZ+nELYOaPL7ct6LZqdv3nRPFMtGtB+iTaUJLnyDbGTxv4aTU
+         Hm9NT1dqBlCO9ir3KbSqxi0w0Kf8qGB55oYoPB63tLkFhzfbPcM/Urys1EGFMdObY8
+         YVZzssrNq+JCExmaTit6N0IW5ooTyo8VGLL9dcgg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
@@ -45,12 +45,12 @@ Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 088/141] Input: edt-ft5x06 - work around first register access error
-Date:   Fri, 14 Feb 2020 11:20:28 -0500
-Message-Id: <20200214162122.19794-88-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 064/100] Input: edt-ft5x06 - work around first register access error
+Date:   Fri, 14 Feb 2020 11:23:48 -0500
+Message-Id: <20200214162425.21071-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
-References: <20200214162122.19794-1-sashal@kernel.org>
+In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
+References: <20200214162425.21071-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -83,10 +83,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 28466e358fee1..22c8d2070faac 100644
+index 0b0f8c17f3f7e..a9d97d577a7e9 100644
 --- a/drivers/input/touchscreen/edt-ft5x06.c
 +++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -887,6 +887,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+@@ -880,6 +880,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
  {
  	const struct edt_i2c_chip_data *chip_data;
  	struct edt_ft5x06_ts_data *tsdata;
@@ -94,7 +94,7 @@ index 28466e358fee1..22c8d2070faac 100644
  	struct input_dev *input;
  	unsigned long irq_flags;
  	int error;
-@@ -956,6 +957,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+@@ -949,6 +950,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
  		return error;
  	}
  

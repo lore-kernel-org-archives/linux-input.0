@@ -2,75 +2,85 @@ Return-Path: <SRS0=pVs3=4F=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2F05C3B1BF
-	for <linux-input@archiver.kernel.org>; Mon, 17 Feb 2020 02:48:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E919C34021
+	for <linux-input@archiver.kernel.org>; Mon, 17 Feb 2020 14:12:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B8F6D22522
-	for <linux-input@archiver.kernel.org>; Mon, 17 Feb 2020 02:48:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C3182072C
+	for <linux-input@archiver.kernel.org>; Mon, 17 Feb 2020 14:12:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=hanno.de header.i=@hanno.de header.b="jbcrscui"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726256AbgBQCsC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 16 Feb 2020 21:48:02 -0500
-Received: from inva021.nxp.com ([92.121.34.21]:56462 "EHLO inva021.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726251AbgBQCsB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 16 Feb 2020 21:48:01 -0500
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 24A73200E5D;
-        Mon, 17 Feb 2020 03:48:00 +0100 (CET)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 6FDDC200044;
-        Mon, 17 Feb 2020 03:47:54 +0100 (CET)
-Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 5EBEE402DD;
-        Mon, 17 Feb 2020 10:47:47 +0800 (SGT)
-From:   Anson Huang <Anson.Huang@nxp.com>
-To:     dmitry.torokhov@gmail.com, shawnguo@kernel.org,
-        s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
-        mojha@codeaurora.org, swboyd@chromium.org,
-        linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Cc:     Linux-imx@nxp.com
-Subject: [PATCH] input: keyboard: imx_keypad: Remove unused includes
-Date:   Mon, 17 Feb 2020 10:42:13 +0800
-Message-Id: <1581907333-11493-1-git-send-email-Anson.Huang@nxp.com>
-X-Mailer: git-send-email 2.7.4
-X-Virus-Scanned: ClamAV using ClamSMTP
+        id S1727953AbgBQOMx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 17 Feb 2020 09:12:53 -0500
+Received: from www149.your-server.de ([78.47.15.70]:45186 "EHLO
+        www149.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727898AbgBQOMx (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 17 Feb 2020 09:12:53 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hanno.de;
+         s=default1911; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+        MIME-Version:Date:Message-ID:References:Cc:To:From:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=A9dFEjO7USMU/ZVTOSFUAsBK+68fok0OXsA5Hi15Cq8=; b=jbcrscuiirfAuPVhC3UmeUoFC9
+        vcLP0fPKgHYslVhtjlfqOH7Wcn4txTxh3yC6Zvx6KIy1Zu69o/HF+9hkZS7xzEf9N0IfmEYepT9E7
+        g87l7OVLwsz/Y35dyPXLy9FrkL3c+7jcXpAduAWaQ3pjrL7tloop34hFiqBiQCxdjubZiEXdOW3ip
+        6deftW1pldrYO6fBZFGOdqN2gPn+C6Sh8IFD17DaEe7VNGNP0dc8F2TC5Xt1qkWQw7U7zURyiGLRh
+        GPcOI3U+Ji/lUmODUbmyLcRhEGbpOI44mKaJq2kTfV+KDHZZ46k1AMvSGfnIfWb/u/TM96BSTfOaq
+        DVnUkOgQ==;
+Received: from sslproxy02.your-server.de ([78.47.166.47])
+        by www149.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <abos@hanno.de>)
+        id 1j3h8l-00013B-9I; Mon, 17 Feb 2020 15:12:51 +0100
+Received: from [62.96.7.134] (helo=[10.1.0.41])
+        by sslproxy02.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <abos@hanno.de>)
+        id 1j3h8l-00051l-6B; Mon, 17 Feb 2020 15:12:51 +0100
+Subject: Re: hid-bigbenff general protection fault on unplug (Re: hid-sony
+ kernel crash)
+From:   Hanno Zulla <abos@hanno.de>
+To:     Roderick Colenbrander <thunderbird2k@gmail.com>
+Cc:     linux-input <linux-input@vger.kernel.org>
+References: <CAEc3jaC0yJF7oYs1TK_zcrQ6_Er5sSBD41feC8GEjpDsBs9iLA@mail.gmail.com>
+ <f61c212e-159e-b42c-bbab-ccf985e90975@hanno.de>
+ <272a035e-45cb-1281-4151-84ae4be5c6dc@hanno.de>
+Message-ID: <63e3a6b2-ebc4-d006-1f9c-8670d14494d6@hanno.de>
+Date:   Mon, 17 Feb 2020 15:12:50 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <272a035e-45cb-1281-4151-84ae4be5c6dc@hanno.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: abos@hanno.de
+X-Virus-Scanned: Clear (ClamAV 0.102.1/25725/Sun Feb 16 13:04:22 2020)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-There is nothing in use from device.h/slab.h, remove them.
+Hi Roderick,
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
- drivers/input/keyboard/imx_keypad.c | 2 --
- 1 file changed, 2 deletions(-)
+I found the bug, it's a double free.
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 5a46d11..ba4bf80 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -5,7 +5,6 @@
- 
- #include <linux/clk.h>
- #include <linux/delay.h>
--#include <linux/device.h>
- #include <linux/err.h>
- #include <linux/input/matrix_keypad.h>
- #include <linux/interrupt.h>
-@@ -15,7 +14,6 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
--#include <linux/slab.h>
- #include <linux/timer.h>
- 
- /*
--- 
-2.7.4
+ > Apparently, the resource cleanup in bigben_remove() is wrong in some
+ > way. I wonder if this is somehow related to the problem Roderick
+ > discussed below or possibly its original cause.
 
+Just fyi, it's not related to the issue you described back in July about 
+the Sony driver in Message-ID: 
+<CAEc3jaC0yJF7oYs1TK_zcrQ6_Er5sSBD41feC8GEjpDsBs9iLA@mail.gmail.com>.
+
+Will prepare a patch later.
+
+Kind regards,
+
+Hanno

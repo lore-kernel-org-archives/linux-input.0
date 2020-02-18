@@ -2,84 +2,122 @@ Return-Path: <SRS0=mr/9=4G=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 984FFC34026
-	for <linux-input@archiver.kernel.org>; Tue, 18 Feb 2020 11:44:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89151C3403A
+	for <linux-input@archiver.kernel.org>; Tue, 18 Feb 2020 11:57:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 621D52176D
-	for <linux-input@archiver.kernel.org>; Tue, 18 Feb 2020 11:44:49 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=hanno.de header.i=@hanno.de header.b="YrBlPiXe"
+	by mail.kernel.org (Postfix) with ESMTP id 6B797206F4
+	for <linux-input@archiver.kernel.org>; Tue, 18 Feb 2020 11:57:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726043AbgBRLot (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 18 Feb 2020 06:44:49 -0500
-Received: from www149.your-server.de ([78.47.15.70]:44596 "EHLO
-        www149.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726437AbgBRLos (ORCPT
+        id S1726206AbgBRL5E (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 18 Feb 2020 06:57:04 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:59565 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726292AbgBRL5E (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 18 Feb 2020 06:44:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hanno.de;
-         s=default1911; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=9ODcbuBq0KSowtL9HqLEZNLZuVdpriDI3R3nICsV+FY=; b=YrBlPiXeQy59XycF3VGLBZD/jn
-        wEyqzN3Tk6w4NdpKdrzXRouQQgZ8I2odZgQ2yhCSHbDCeh+HzUJ/yal61HWtQdDmnG+tI9cOIVTI0
-        y84t56B4wvrGs40/J2ZZ5UIxMpDK/1dp5cMhniigep9XTHCovaVkOM5tk0FCKQQXTrPwl1sWU4dGt
-        vCdE4f1tNK3ri6DHOTMkcMXdYZoqjOOYP1a9bnPCFWKfjHvBqDfgPfmYSiWio8nxXRYdVFVR5V7g8
-        uDTpaZhk2k6+SkUKEtU4q/2U57hxdFd8bbQOK+c8Mr6lI2KnsoaTofTqL2KTOyJzoUZNVc3R5uSkK
-        QeXb2F9A==;
-Received: from sslproxy03.your-server.de ([88.198.220.132])
-        by www149.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92.3)
-        (envelope-from <kontakt@hanno.de>)
-        id 1j415R-0002Uw-EP; Tue, 18 Feb 2020 12:30:45 +0100
-Received: from [2a04:4540:680e:4300:a894:29ae:bca2:b322]
-        by sslproxy03.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        Tue, 18 Feb 2020 06:57:04 -0500
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
-        (envelope-from <kontakt@hanno.de>)
-        id 1j415R-000GFn-B0; Tue, 18 Feb 2020 12:30:45 +0100
-Subject: [PATCH v2 0/3] HID: hid-bigbenff: fixing three crash bugs in a
- gamepad driver
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>
-References: <ae5eee33-9dfc-0609-1bf8-33fd773b9bd5@hanno.de>
- <CAO-hwJJ1sc_RAh4ytWSOmRqfVESi2dvB_Ao_Vn+6XXixxVyxrA@mail.gmail.com>
-From:   Hanno Zulla <kontakt@hanno.de>
-Message-ID: <74d73ebc-0cff-768d-00b7-57bb9b44124f@hanno.de>
-Date:   Tue, 18 Feb 2020 12:30:44 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        (envelope-from <mfe@pengutronix.de>)
+        id 1j41Uq-0005og-IB; Tue, 18 Feb 2020 12:57:00 +0100
+Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1j41Up-0004Nb-U0; Tue, 18 Feb 2020 12:56:59 +0100
+Date:   Tue, 18 Feb 2020 12:56:59 +0100
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>, robh+dt@kernel.org
+Cc:     robh+dt@kernel.org, support.opensource@diasemi.com,
+        stwiss.opensource@diasemi.com, Adam.Thomson.Opensource@diasemi.com,
+        devicetree@vger.kernel.org, kernel@pengutronix.de,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] dt-bindings: Input: da9062 - add key-opmode
+ documentation
+Message-ID: <20200218115659.b3mggkniwvoyzqgn@pengutronix.de>
+References: <20191127132304.22924-1-m.felsch@pengutronix.de>
+ <20191127132304.22924-2-m.felsch@pengutronix.de>
+ <20200122055706.GB110084@dtor-ws>
 MIME-Version: 1.0
-In-Reply-To: <CAO-hwJJ1sc_RAh4ytWSOmRqfVESi2dvB_Ao_Vn+6XXixxVyxrA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: kontakt@hanno.de
-X-Virus-Scanned: Clear (ClamAV 0.102.1/25726/Mon Feb 17 15:01:07 2020)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200122055706.GB110084@dtor-ws>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 12:56:26 up 95 days,  3:15, 123 users,  load average: 0.09, 0.19,
+ 0.17
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Benjamin,
+Hi Rob,
 
-> I think the patches are correct (have you tested them with actual HW?).
+On 20-01-21 21:57, Dmitry Torokhov wrote:
+> On Wed, Nov 27, 2019 at 02:23:02PM +0100, Marco Felsch wrote:
+> > The onkey behaviour can be changed by programming the NONKEY_PIN
+> > bitfield. Since the driver supports the reconfiguration we need to add
+> > the documentation here.
+> > 
+> > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+> > ---
+> > v2:
+> > - add da9061/3 references
+> > - adapt binding description to be more general
+> > 
+> >  .../devicetree/bindings/input/da9062-onkey.txt         | 10 ++++++++++
+> >  1 file changed, 10 insertions(+)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/da9062-onkey.txt b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+> > index 5f9fbc68e58a..0005b2bdcdd7 100644
+> > --- a/Documentation/devicetree/bindings/input/da9062-onkey.txt
+> > +++ b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+> > @@ -19,6 +19,16 @@ Optional properties:
+> >      entry exists the OnKey driver will remove support for the KEY_POWER key
+> >      press when triggered using a long press of the OnKey.
+> >  
+> > +- dlg,key-opmode : Set the nONKEY behaviour. This value is initial set by the
+> > +    otp values. 
+> 
+> Did you mean to say "nONKEY behavior is normally specified in OTP
+> settings; this property allows modifying it".
+> 
+> Rob, do you have any comments?
 
-Yes, I did, and am also properly embarrassed that I didn't notice the 
-double free bug in the original driver.
+gentle ping.
 
-> However, checkpatch complains that the From and Signed-off-by email
-> differ. Can you send a v2 with a fix for that?
+> > See nONKEY_PIN register description for more information.
+> > +    Valid value range: 0x0..0x3
+> > +
+> > +References:
+> > +
+> > +[1] https://www.dialog-semiconductor.com/sites/default/files/da9061_datasheet_3v6.pdf
+> > +[2] https://www.dialog-semiconductor.com/sites/default/files/da9062_datasheet_3v6.pdf
+> > +[3] https://www.dialog-semiconductor.com/sites/default/files/da9063_datasheet_2v2.pdf
+> > +
+> >  Example: DA9063
+> >  
+> >  	pmic0: da9063@58 {
+> > -- 
+> > 2.20.1
+> > 
+> 
+> -- 
+> Dmitry
+> 
 
-Here it is.
-
-Thanks,
-
-Hanno
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

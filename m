@@ -2,111 +2,118 @@ Return-Path: <SRS0=mr/9=4G=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62A64C34035
-	for <linux-input@archiver.kernel.org>; Tue, 18 Feb 2020 10:40:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1CDDC34026
+	for <linux-input@archiver.kernel.org>; Tue, 18 Feb 2020 11:37:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3793521D56
-	for <linux-input@archiver.kernel.org>; Tue, 18 Feb 2020 10:40:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C1133207FD
+	for <linux-input@archiver.kernel.org>; Tue, 18 Feb 2020 11:37:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WTRM+mex"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=hanno.de header.i=@hanno.de header.b="oExTkIri"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726437AbgBRKk1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 18 Feb 2020 05:40:27 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:43196 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726199AbgBRKk1 (ORCPT
+        id S1726338AbgBRLhw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 18 Feb 2020 06:37:52 -0500
+Received: from www149.your-server.de ([78.47.15.70]:60150 "EHLO
+        www149.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726312AbgBRLhw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 18 Feb 2020 05:40:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582022426;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=TdO6y8AHR+AaKNMW/gc1AonKG1Co8fKJjYOLG4b+LMk=;
-        b=WTRM+mexDY0DajVByEJEl9dUt0xlrWQrCuoCcYeu2WyX+wHZRyQbAV2kNkfP6+Kmqzsj/z
-        Mfp19qDYIni7UWkLegiBDA5iAj4XmxjWyaqf6/bMf5C55eI4GEus11/wiVgDLXCdOTVFSg
-        IqSn1j04knaKf+QkQoATW/TFjtYiOt0=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-47-VKIeDO_lNfOuOsIvvuH76Q-1; Tue, 18 Feb 2020 05:40:20 -0500
-X-MC-Unique: VKIeDO_lNfOuOsIvvuH76Q-1
-Received: by mail-qv1-f72.google.com with SMTP id e26so12106676qvb.4
-        for <linux-input@vger.kernel.org>; Tue, 18 Feb 2020 02:40:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TdO6y8AHR+AaKNMW/gc1AonKG1Co8fKJjYOLG4b+LMk=;
-        b=Wc6hAHY8ncnNyRuQMkbxh3AehI2JyyIMcHE41aBm0zyoA60w3pfubnJzLaNrADJRCk
-         z7BZzDzp2Bi55Aft55KDHDcpflFt3p1SOvPRvn15S5p/rHpH8bTIyzoZljZoaUDeUcR8
-         Kt5J0HGPYDPh3sMQORlTWDKl1hhsrTQd90lXGPQa8uZ1VayRws91MvHg8jmmk3PTYTIM
-         ricmghDt1iuNXOsu2T/hPw1EZCzOPtpYK03LMER91YFFvnSjkQwPvRoIY7xciw7/yQ34
-         5sNGBXcqr3/yyavmxZj1Vnk2NyvCTxTrcxz4OvDF2VGI63ghmSWKdqhAXlhZjsyiky36
-         6Xiw==
-X-Gm-Message-State: APjAAAUOVgBIbZSLe0JO569s/2KIl2wYyJAUU7P1Zrdi0Pk7XFmoRMn1
-        NcRgUZGSN2Z5zWXU3UXHbKMRFxzRtuyflNFMcj0dPetH34M71C18XHnyWm1v5i/KWWV6Mz9AFem
-        62UthoBZ1l+s2buBGWWINxPSqCi6QZzk2XjroMQI=
-X-Received: by 2002:ac8:4914:: with SMTP id e20mr16568404qtq.199.1582022420169;
-        Tue, 18 Feb 2020 02:40:20 -0800 (PST)
-X-Google-Smtp-Source: APXvYqzop8HEVbMlqlTBReRnlW8cuV5OvmWmqddfFy0j/sJmV4q9d4HcrjMvRfW6D61qeuNc5yVz8c7y9clG60iT4W8=
-X-Received: by 2002:ac8:4914:: with SMTP id e20mr16568385qtq.199.1582022419942;
- Tue, 18 Feb 2020 02:40:19 -0800 (PST)
-MIME-Version: 1.0
-References: <ae5eee33-9dfc-0609-1bf8-33fd773b9bd5@hanno.de>
-In-Reply-To: <ae5eee33-9dfc-0609-1bf8-33fd773b9bd5@hanno.de>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Tue, 18 Feb 2020 11:40:09 +0100
-Message-ID: <CAO-hwJJ1sc_RAh4ytWSOmRqfVESi2dvB_Ao_Vn+6XXixxVyxrA@mail.gmail.com>
-Subject: Re: [PATCH 0/3] HID: hid-bigbenff: fixing three crash bugs in a
- gamepad driver
-To:     Hanno Zulla <abos@hanno.de>
+        Tue, 18 Feb 2020 06:37:52 -0500
+X-Greylist: delayed 423 seconds by postgrey-1.27 at vger.kernel.org; Tue, 18 Feb 2020 06:37:51 EST
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hanno.de;
+         s=default1911; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+        MIME-Version:Date:Message-ID:References:Cc:To:From:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=P5DWN49D92TYsuLESpqd7fS0a6DhOWs1cg95OmyVKFk=; b=oExTkIriDMLNUtj5rHDW6TvTwp
+        G7NDOREH8BF/zFec6i+qf2LgUBN1zOqhSKumQ3WwEwTD3gx2qxNPgaSFFkAcp5F6yA+D8UyXJ3GYZ
+        FamFZlFda1IspXFWLG92BCUovwYwPkoJaLqfDJqAGxUEjh7sdYRhgg2rUHeS04MEfwpaCgsYdz+AI
+        C9p+G64Pz5puMNB3ErmOv7EGHhNis/N/xdmXfTGph1XxF66OizllzlL7Qy2rx7qVeC+tsn+LobSBr
+        y4ct/MiDjKg1bOnemO7X9b7TntMriPX5OGMOB69mlbZShtZrJ/MT9jB0O4/Osk7WAS0CfA35q6Gl2
+        4XwhMbTw==;
+Received: from sslproxy06.your-server.de ([78.46.172.3])
+        by www149.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <kontakt@hanno.de>)
+        id 1j41CG-0003st-G4; Tue, 18 Feb 2020 12:37:48 +0100
+Received: from [2a04:4540:680e:4300:a894:29ae:bca2:b322]
+        by sslproxy06.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <kontakt@hanno.de>)
+        id 1j41CG-000Cyl-Cc; Tue, 18 Feb 2020 12:37:48 +0100
+Subject: [PATCH v2 1/3] HID: hid-bigbenff: fix general protection fault caused
+ by double kfree
+From:   Hanno Zulla <kontakt@hanno.de>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     Jiri Kosina <jikos@kernel.org>,
         "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
         lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+References: <ae5eee33-9dfc-0609-1bf8-33fd773b9bd5@hanno.de>
+ <CAO-hwJJ1sc_RAh4ytWSOmRqfVESi2dvB_Ao_Vn+6XXixxVyxrA@mail.gmail.com>
+ <74d73ebc-0cff-768d-00b7-57bb9b44124f@hanno.de>
+Message-ID: <266828ed-d335-d707-56ef-622fd1cc216d@hanno.de>
+Date:   Tue, 18 Feb 2020 12:37:47 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <74d73ebc-0cff-768d-00b7-57bb9b44124f@hanno.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: kontakt@hanno.de
+X-Virus-Scanned: Clear (ClamAV 0.102.1/25726/Mon Feb 17 15:01:07 2020)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Hanno,
+HID: hid-bigbenff: fix general protection fault caused by double kfree
 
-On Mon, Feb 17, 2020 at 4:24 PM Hanno Zulla <abos@hanno.de> wrote:
->
-> Hi there,
->
-> the hid-bigbenff.c had three bugs causing possible kernel crashes.
->
-> The first patch fixes a double free during device removal, which was
-> caused by a wrong use of input_ff_create_memless(). The
-> "driver-specific data to be passed into play_effect" parameter of
-> input_ff_create_memless() would later be freed automatically when the ff
-> device is removed. Since the driver also uses the managed resource API,
-> it would automatically free the memory of this parameter twice, causing
-> a general protection fault moments later.
->
-> The second patch fixes the error path after hid_hw_start(), as a call
-> to hid_hw_stop() is required in case of an error.
->
-> The second patch also removes the hid_hw_close() call during device
-> removal, as several other hid device drivers don't call this routine,
-> either.
->
-> The third patch adds a flag to avoid a race condition when there is
-> still scheduled work left (or newly being scheduled) during or after
-> device removal, which could cause a kernel crash.
->
-> Thanks in advance for your review & kind regards,
->
+The struct *bigben was allocated via devm_kzalloc() and then used as a
+parameter in input_ff_create_memless(). This caused a double kfree
+during removal of the device, since both the managed resource API and
+ml_ff_destroy() in drivers/input/ff-memless.c would call kfree() on it.
 
-I think the patches are correct (have you tested them with actual HW?).
-However, checkpatch complains that the From and Signed-off-by email
-differ. Can you send a v2 with a fix for that?
+Signed-off-by: Hanno Zulla <kontakt@hanno.de>
+---
+ drivers/hid/hid-bigbenff.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-Cheers,
-Benjamin
+diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
+index 3f6abd190df4..f7e85bacb688 100644
+--- a/drivers/hid/hid-bigbenff.c
++++ b/drivers/hid/hid-bigbenff.c
+@@ -220,10 +220,16 @@ static void bigben_worker(struct work_struct *work)
+ static int hid_bigben_play_effect(struct input_dev *dev, void *data,
+ 			 struct ff_effect *effect)
+ {
+-	struct bigben_device *bigben = data;
++	struct hid_device *hid = input_get_drvdata(dev);
++	struct bigben_device *bigben = hid_get_drvdata(hid);
+ 	u8 right_motor_on;
+ 	u8 left_motor_force;
+ 
++	if (!bigben) {
++		hid_err(hid, "no device data\n");
++		return 0;
++	}
++
+ 	if (effect->type != FF_RUMBLE)
+ 		return 0;
+ 
+@@ -341,7 +347,7 @@ static int bigben_probe(struct hid_device *hid,
+ 
+ 	INIT_WORK(&bigben->worker, bigben_worker);
+ 
+-	error = input_ff_create_memless(hidinput->input, bigben,
++	error = input_ff_create_memless(hidinput->input, NULL,
+ 		hid_bigben_play_effect);
+ 	if (error)
+ 		return error;
+-- 
+2.20.1
 

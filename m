@@ -2,305 +2,211 @@ Return-Path: <SRS0=vEFK=4J=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C13ADC11D00
-	for <linux-input@archiver.kernel.org>; Fri, 21 Feb 2020 02:37:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA07AC35641
+	for <linux-input@archiver.kernel.org>; Fri, 21 Feb 2020 08:25:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 705F9207FD
-	for <linux-input@archiver.kernel.org>; Fri, 21 Feb 2020 02:37:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=Synaptics.onmicrosoft.com header.i=@Synaptics.onmicrosoft.com header.b="ao1hk5Ei"
+	by mail.kernel.org (Postfix) with ESMTP id 8B907246BD
+	for <linux-input@archiver.kernel.org>; Fri, 21 Feb 2020 08:25:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729342AbgBUChO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 20 Feb 2020 21:37:14 -0500
-Received: from mail-eopbgr680080.outbound.protection.outlook.com ([40.107.68.80]:12164
-        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729259AbgBUChN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Feb 2020 21:37:13 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=b9tRUevqXJyvS8W6FO8EXMJ+j1pNe94ZlMcONY1k5NI6VwbC0ixbWBerj3GxTTCvOjjC6a4WhQESSsWemytkW4qRw/N5AdxEs8ZIvdgK6Wg76lwDlMsSwOTeQfASdWN1uo/RDt5O58tR2WFy5eR5mlnQGOVx7ro5z3LHS0xuSc8jNMpvOHLrs/dThq4Nm3w/sxpgBVk+MTgPNKWzCgREcMGniWUxoFbi+4o2+NJHOhSrUNJvkJ0faLJkSS6iw7AaiTWiD6geNuh4s6ZSKNLIh7ayXcSJNADts6CTWFu+TjekSEW1wDBYS8ucMC7Sq/6GkIg2edUstvjFGA0V8CKrDg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=t+U07Fr7LlnF1RF5rIBS/ZY3WoyDWehaHM1uMWLw5CM=;
- b=YUTu9EBldD8Kp86AMtwJYEtejeVvu/tU7WajGhBvNMWsXJvoTdVKnpxUjUcS4707StDAmgThyTXurGiyNIxJWT4vLIJSKY6vGuRyRflzJRxJkWFXIAcb0c5pXhrj2Cco7/7mNtZY3BtIr+VBZkvJxzxwL1IMbJ7dMiwoectb8sVMLHUDvrYc+QMRii4E6zcUO/kq3/DlFnfZfI9ifskzBr9e9VhAyHfJAztGxyonAhNxqj5my93SxIQjKALwG/M1SvVNiNS3GWSlyWyQHT1+eXRGy4N5SZNiq9jxJWEyrpRRKnybYGn2ZfAa/IZruB3gaF/YhKjMciW8ddEPQnfUJg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=synaptics.com; dmarc=pass action=none
- header.from=synaptics.com; dkim=pass header.d=synaptics.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=Synaptics.onmicrosoft.com; s=selector2-Synaptics-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=t+U07Fr7LlnF1RF5rIBS/ZY3WoyDWehaHM1uMWLw5CM=;
- b=ao1hk5Ei+W/phX7GkO2yGkU3qgR2IZkf9mWINQ9BGNeD5xOf7qFeTJIXQUA4eHmEUzNyor/xTdtId3l1BvsUv7fLjDSMwZ8kFxArA+jruq6QmqE/5a+kRk32xVfc+lsyxoDJaQ+XiArZn7brA03mLJTGrPpjHxU6tfs6IUMDh3o=
-Authentication-Results: spf=none (sender IP is )
- smtp.mailfrom=aduggan@synaptics.com; 
-Received: from BYAPR03MB4135.namprd03.prod.outlook.com (20.177.127.85) by
- BYAPR03MB4088.namprd03.prod.outlook.com (20.177.184.89) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2729.22; Fri, 21 Feb 2020 02:37:07 +0000
-Received: from BYAPR03MB4135.namprd03.prod.outlook.com
- ([fe80::64aa:faa8:c503:302d]) by BYAPR03MB4135.namprd03.prod.outlook.com
- ([fe80::64aa:faa8:c503:302d%5]) with mapi id 15.20.2729.032; Fri, 21 Feb 2020
- 02:37:07 +0000
-Subject: Re: [PATCH] Input: synaptics-rmi4 - switch to reduced reporting mode
-To:     Paul Hollinsky <phollinsky@holtechnik.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Christopher Heiny <Cheiny@synaptics.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "patchwork-lst@pengutronix.de" <patchwork-lst@pengutronix.de>
-References: <20200120111628.18376-1-l.stach@pengutronix.de>
- <20200127022448.GC184237@dtor-ws>
- <b2ca3006-281a-c991-4c6c-7ae7ce5cc3f7@synaptics.com>
- <23ecff7a48f801fcc18680fb6cb150e32fc3c858.camel@synaptics.com>
- <a46120cfd113a4d016f37270eb92c4fccd00a2ed.camel@pengutronix.de>
- <f7b19df4972a7293a701b738426fb63738a771a0.camel@synaptics.com>
- <0da4c22b-efb0-fccc-fd99-cdb398e1df8c@synaptics.com>
- <20200201013852.GG184237@dtor-ws>
- <1f6b0b96-d6fb-7e76-afdd-0ff405e3e84a@holtechnik.com>
-From:   Andrew Duggan <aduggan@synaptics.com>
-Message-ID: <2d54859d-ee5a-97ec-fe62-79fc1f9e3122@synaptics.com>
-Date:   Thu, 20 Feb 2020 18:36:59 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
-In-Reply-To: <1f6b0b96-d6fb-7e76-afdd-0ff405e3e84a@holtechnik.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-ClientProxiedBy: BYAPR07CA0022.namprd07.prod.outlook.com
- (2603:10b6:a02:bc::35) To BYAPR03MB4135.namprd03.prod.outlook.com
- (2603:10b6:a03:77::21)
+        id S2388787AbgBUIZR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 21 Feb 2020 03:25:17 -0500
+Received: from mail1.bemta25.messagelabs.com ([195.245.230.65]:35322 "EHLO
+        mail1.bemta25.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388781AbgBUIZR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 21 Feb 2020 03:25:17 -0500
+Received: from [100.112.198.146] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
+        by server-1.bemta.az-b.eu-west-1.aws.symcld.net id 33/32-41576-AE39F4E5; Fri, 21 Feb 2020 08:25:14 +0000
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrPIsWRWlGSWpSXmKPExsVy8MN7Xd1Xk/3
+  jDC53c1vMP3KO1eLwoheMFjc/fWO1uLxrDpvF0usXmSxa9x5hd2DzWDNvDaPHzll32T02repk
+  8/i8SS6AJYo1My8pvyKBNeNS73WWgmmaFVd28TYwTlfqYuTiEBJYyyixe9kt5i5GTiCnUmL5h
+  YmsIDavQITEq4132EFsTgEziUd7v7FC1JhKrJrYyQZiswnoSDyauZ4JxGYRUJU49Pw6C4gtLO
+  AjcX75WbAaEYFyiQMfZ7KCLGMWmMYosefjYWaIBYISJ2c+AWtgFpCQOPjiBdQRWhLn1qxinMD
+  IOwtJ2SwkZQsYmVYxmicVZaZnlOQmZuboGhoY6BoaGukaWlrqmprrJVbpJumlluqWpxaX6Brq
+  JZYX6xVX5ibnpOjlpZZsYgSGakrBccsdjE/Xvtc7xCjJwaQkyqvY5x8nxJeUn1KZkVicEV9Um
+  pNafIhRhoNDSYLXFRj8QoJFqempFWmZOcC4gUlLcPAoifA69gKleYsLEnOLM9MhUqcYjTnO/p
+  u3iJnj94Yli5iFWPLy81KlxHlbJwGVCoCUZpTmwQ2CxfMlRlkpYV5GBgYGIZ6C1KLczBJU+Ve
+  M4hyMSsK8PyYCTeHJzCuB2/cK6BQmoFPeC/uAnFKSiJCSamBSnDc7VShngmJzfMaSdPOLDdt9
+  /P+am4g/LKqcUfGCW2L5xkOWu6f9t/sfZhmTu9Xrupq0oqjNbcfut/FnThys2a3mkHmPd3/Rj
+  r8V6kvermNnMLrasM9EYaP+f8nqox9lTh3J61kxRz9u7eZvG1JkC94rPfwYUsAn//zs/LyNTW
+  /3TVBsmTc1Mclc9pufSs6Ww0V3SgNm3Jh/5cwFr8OWJTkdrq9Wsr76ELbr1qKlmx66Ppt70CJ
+  NuubyvJuMVXOXll66mWdrfE+6Mm3J1hT5ksm39zinq7CkrmdP25GtfLqi0WnvHutPO2vns+/c
+  fWlNh47tw0hBcfYHCuuCyu6rNiQnPgiecbiuluNFZN4TJZbijERDLeai4kQAxjz1hGIDAAA=
+X-Env-Sender: roy.im.opensource@diasemi.com
+X-Msg-Ref: server-15.tower-288.messagelabs.com!1582273513!731327!1
+X-Originating-IP: [193.240.239.45]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.44.25; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 22350 invoked from network); 21 Feb 2020 08:25:14 -0000
+Received: from unknown (HELO NB-EX-CASHUB01.diasemi.com) (193.240.239.45)
+  by server-15.tower-288.messagelabs.com with ECDHE-RSA-AES256-SHA384 encrypted SMTP; 21 Feb 2020 08:25:14 -0000
+Received: from krsrvapps-03.diasemi.com (10.95.17.51) by
+ NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
+ 14.3.468.0; Fri, 21 Feb 2020 09:25:13 +0100
+Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
+ 7ACF613F673; Fri, 21 Feb 2020 17:25:11 +0900 (KST)
+Message-ID: <10e62805d7ff0fb75c7b1ddef5562669ec73e781.1582270025.git.Roy.Im@diasemi.com>
+In-Reply-To: <cover.1582270025.git.Roy.Im@diasemi.com>
+References: <cover.1582270025.git.Roy.Im@diasemi.com>
+From:   Roy Im <roy.im.opensource@diasemi.com>
+Date:   Fri, 21 Feb 2020 16:27:05 +0900
+Subject: [PATCH V9 2/3] dt-bindings: input: Add document bindings for DA7280
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>
+CC:     Support Opensource <support.opensource@diasemi.com>,
+        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Received: from [10.1.10.74] (192.147.44.15) by BYAPR07CA0022.namprd07.prod.outlook.com (2603:10b6:a02:bc::35) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2729.27 via Frontend Transport; Fri, 21 Feb 2020 02:37:06 +0000
-X-Originating-IP: [192.147.44.15]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d039b124-bf00-4f6d-5462-08d7b676f17e
-X-MS-TrafficTypeDiagnostic: BYAPR03MB4088:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BYAPR03MB4088A7796E4E6DC26E741236B2120@BYAPR03MB4088.namprd03.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-Forefront-PRVS: 0320B28BE1
-X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10009020)(39850400004)(346002)(366004)(136003)(376002)(396003)(189003)(199004)(8676002)(81156014)(81166006)(66476007)(66556008)(4326008)(6666004)(8936002)(36756003)(956004)(2616005)(2906002)(6486002)(26005)(5660300002)(52116002)(478600001)(16526019)(86362001)(110136005)(53546011)(66946007)(31696002)(316002)(54906003)(16576012)(31686004)(186003);DIR:OUT;SFP:1101;SCL:1;SRVR:BYAPR03MB4088;H:BYAPR03MB4135.namprd03.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-Received-SPF: None (protection.outlook.com: synaptics.com does not designate
- permitted sender hosts)
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 8QQ5jc2oyGDb2oX4BoNN+VrHl+les8SUmPoaQXaq3nc88dnJHndHK5jFv/Q3RCGtFoYTUT1e9YfNDtkSdFI4482RgxQRz9+MwNyTf9KxyxZvmpEYwxd6FVRKkDBxksirXw88VGC3mAs/R2wA50IjrOFDs6F60UoVVgQ3wFmObMnogvYPPwdSkQxvJGLFhVPW5ipRE119OZ9Y0pQGH1pwJnXedZ1bdkStgd+KCm7EW5h9dmruxoJ8G7QDrSTYoBQA1QOEDVksou6g9bJz3h5pbRpk71oS7F2aksWZJoSxsqoXguzHiZbEDwJLu9fjaXKmYMCuU1beuQy1E1CUZUUdAjb6v0NrfNwSjpEyqCJJBFdw2dPGkdcQL3piCni0eFo9qX0UHmQsVEiFi/y7B7ryoXbGv+m/Pkte4rrwKpa2s3s93NffR4180dJIAoAhfOAs
-X-MS-Exchange-AntiSpam-MessageData: 8Y3S3R9/3QpXChBHwVoQDeuOUw8ZqC1hRBGMugzBThUy1v4BDy4jFNbE1mPJCe3svMm3BhqD88yduuMsP1AksAOWUgG+UmDYP1ZUF6T6SPB/tNgZE21TBBMBIhYhqEZ9tyWJFgGvtMAcJeVwelc+wA==
-X-OriginatorOrg: synaptics.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d039b124-bf00-4f6d-5462-08d7b676f17e
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Feb 2020 02:37:07.3846
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 335d1fbc-2124-4173-9863-17e7051a2a0e
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: PTq304k3PzLAxuYgTPhF1FQVBAyjkV/op+NPFAh+tba3+hgJ6WkscGKbVFwcR+3U+HkhebFr/Tg9ABu9SlM6oA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR03MB4088
+Content-Type: text/plain
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Add device tree binding information for DA7280 haptic driver.
+Example bindings for DA7280 are added.
 
-On 2/18/20 7:01 PM, Paul Hollinsky wrote:
->
->
-> On 1/31/2020 8:38 PM, Dmitry Torokhov wrote:
->> On Fri, Jan 31, 2020 at 10:28:23AM -0800, Andrew Duggan wrote:
->>> On 1/28/20 9:22 AM, Christopher Heiny wrote:
->>>> On Tue, 2020-01-28 at 10:41 +0100, Lucas Stach wrote:
->>>>> CAUTION: Email originated externally, do not click links or open
->>>>> attachments unless you recognize the sender and know the content is
->>>>> safe.
->>>>>
->>>>>
->>>>> Hi Christopher,
->>>>>
->>>>> On Di, 2020-01-28 at 07:02 +0000, Christopher Heiny wrote:
->>>>>> On Mon, 2020-01-27 at 11:21 -0800, Andrew Duggan wrote:
->>>>>>> Hi Dmitry,
->>>>>>>
->>>>>>> On 1/26/20 6:24 PM, Dmitry Torokhov wrote:
->>>>>>>> On Mon, Jan 20, 2020 at 12:16:28PM +0100, Lucas Stach wrote:
->>>>>>>>> When the distance thresholds are set the controller must be
->>>>>>>>> in
->>>>>>>>> reduced
->>>>>>>>> reporting mode for them to have any effect on the interrupt
->>>>>>>>> generation.
->>>>>>>>> This has a potentially large impact on the number of events
->>>>>>>>> the
->>>>>>>>> host
->>>>>>>>> needs to process.
->>>>>>>>>
->>>>>>>>> Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
->>>>>>>>> ---
->>>>>>>>> I'm not sure if we want a separate DT property to allow the
->>>>>>>>> use
->>>>>>>>> of
->>>>>>>>> reduced reporting mode, as this change might lead to problems
->>>>>>>>> for
->>>>>>>>> controllers with unreasonably large threshold values. I'm not
->>>>>>>>> sure if
->>>>>>>>> any controller with bogus threshold values exist in the wild.
->>>>>>>>> ---
->>>>>>>> Andrew, any feedback on this patch?
->>>>>>>>
->>>>>>>> Thanks!
->>>>>>> The RMI4 spec does say that delta X/Y thresholds are only used in
->>>>>>> reduced reporting mode, so this patch is needed for the threshold
->>>>>>> values
->>>>>>> to have an effect.
->>>>>>>
->>>>>>> Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
->>>>>>>
->>>>>>> Because reduced reporting mode is so dependent on these
->>>>>>> thresholds,
->>>>>>> my
->>>>>>> opinion is that it is better not to add a separate DT property,
->>>>>>> but
->>>>>>> to
->>>>>>> instead control reduced reporting mode through the setting of
->>>>>>> these
->>>>>>> thresholds. My guess is that the if reduced reporting is not
->>>>>>> enabled
->>>>>>> in
->>>>>>> the firmware by default, then the thresholds may not be valid.
->>>>>>> Setting
->>>>>>> the thresholds to 0 will essentially disable reduced reporting
->>>>>>> mode.
->>>>>>> So
->>>>>>> that would be how a user could disable reduced reporting mode
->>>>>>> without
->>>>>>> a
->>>>>>> separate DT property. Chris, do you have an opinion on this?
->>>>>>> Anything
->>>>>>> I
->>>>>>> overlooked?
->>>>>> Hi Dmitry, Andrew, Lucas,
->>>>>>
->>>>>> I'm in agreement with Andrew on this.  Having two ways to
->>>>>> enable/disable reduced reporting (that is, both the DT property and
->>>>>> the
->>>>>> thresholds) could lead to confusion and unexpected
->>>>>> behavior.  Simpler
->>>>>> is better, in my opinion.
->>>>>>
->>>>>> However, in that case I'm a little concerned about the logic in the
->>>>>> patch below.  When either of the thresholds are set to non-zero, we
->>>>>> clear the report mask and then enable the reduced reporting bit.
->>>>>> Subsequently setting both thresholds to zero will disable reduced
->>>>>> reporting, but will not enable another report mode. Unless there
->>>>>> is
->>>>>> code elsewhere to catch this case (and if there is, it seems like a
->>>>>> bad
->>>>>> idea to be handling this in two different places), it could result
->>>>>> in
->>>>>> the touchpad being disabled.
->>>>>>
->>>>>> As a hypothetical instance of this, imagine a user using the
->>>>>> touchpad
->>>>>> to manipulate report threshold sliders in a GUI. Setting both
->>>>>> sliders
->>>>>> to zero would disable the touch sensor reporting, potentially
->>>>>> leaving
->>>>>> the user with a dead touch sensor and no easy way to recover from
->>>>>> that.
->>>>> I can see how this would be a problem, but then I see no interface in
->>>>> the driver to actually change the threshold values on the fly. They
->>>>> are
->>>>> either set by firmware or specified via DT properties. So I don't see
->>>>> how the threshold values would change on an active device. Anything
->>>>> i'm
->>>>> overlooking?
->>>> Hi Lucas,
->>>>
->>>> You're not overlooking anything.  Mainly it's me being a worry-wart,
->>>> and assuming that if something can be adjusted, someone will 
->>>> eventually
->>>> come along and add a sysfs interface to adjust it, and then someone
->>>> else will create a userspace tool to adjust it, and things will break.
->>>>
->>>> If you guys are OK with Andrew's original evaluation, then you can
->>>> ignore my worry (which is, as admitted, entirely a hypothetical).
->>>>
->>>>                                     Cheers,
->>>>                                             Chris
->>> Currently, the driver only sets the thresholds in 
->>> rmi_f11_initialize(). If
->>> someone were to decide to add another method for setting the 
->>> thresholds they
->>> would probably remove the logic from rmi_f11_initialize() and put it 
->>> in a
->>> new function so that the code can be called from multiple places. In 
->>> that
->>> case, they should also include the code in this patch in the new 
->>> function. I
->>> think the comment above the new code makes it clear that setting the
->>> reporting mode to reduced reporting is needed for the threshold 
->>> values to be
->>> used by the firmware. I don't see a way to handle potential future 
->>> changes
->>> without adding what may be unnecessary complexity. I reaffirm my 
->>> review sign
->>> off.
->> Applied, thank you everyone.
->>
->
-> Hi everyone,
->
-> I believe there may be an issue with the reduced reporting mode, at
-> least on my machine. I have a Lenovo ThinkPad X250 with the Synaptics
-> TM3075-002 trackpad.
->
-> With this patch, the trackpad becomes unusable. On a reboot, my control
-> register values are [38 00 19 19 00 10 90 06 ea 03 0f 01]. This
-> corresponds to a delta X/Y threshold of 25 and a palm rejection value of
-> 0. The protocol documentation mentions that the palm rejection value
-> becomes active when in reduced reporting mode, hence its inclusion here.
->
-Hmm, it looks like the firmware was configured with non-zero Delta X/Y 
-Position thresholds. But, the firmware does not enable reduced reporting 
-mode by default so those thresholds have no effect. However, this patch 
-will now enable reduced reporting mode since it sees the non-zero 
-threshold which were read from the firmware. I did not consider the case 
-where the firmware would have thresholds set, but not enabled when I 
-reviewed this patch initially. Based on this new info I would suggest we 
-change the if statement to check sensor->axis_align.delta_x_threshold || 
-sensor->axis_align.delta_y_threshold. Then we would only change the 
-reporting mode if the driver is explicitly setting the thresholds.
+Reviewed-by: Rob Herring <robh@kernel.org>.
+
+Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
+
+---
+v9: No changes.
+v8: Updated descriptions for new properties.
+v7: No changes.
+v6: No changes.
+v5: Updated descriptions and fixed errors.
+v4: Fixed commit message, properties.
+v3: Fixed subject format.
+v2: No changes
 
 
-> Sometimes I could get the mouse to move very sporadically if I used my
-> entire hand on the trackpad. I instrumented the f11_attention IRQ
-> handler and found that it was not being called except for these sporadic
-> movements. I tried a few different combinations of these three values,
-> but they had no effect. This included setting all three values to 0,
-> which in theory will yield the same behavior as continuous reporting
-> mode, but it did not on my machine.
->
-> This leads me to suspect a hardware/firmware bug.
->
-> I believe the idea was that the platform/configuration could set
-> sensor->axis_align.delta_x(/y)_threshold to 0 in order to disable the
-> reduced reporting mode. This is the case on my laptop, but only a
-> nonzero value will override the value from the firmware, so the reduced
-> reporting mode still gets enabled.
->
-The patch is meant to enable reduced reporting mode if the driver sets 
-the delta thresholds. Otherwise, the newly set thresholds will have no 
-effect. Generally, I don't think reduced reporting mode is enabled by 
-default. At least not on the various touchpads I looked at. I think the 
-issue you are seeing is that reduced reporting mode is being enabled 
-when it should not be.
+ .../devicetree/bindings/input/dlg,da7280.txt       | 109 +++++++++++++++++++++
+ 1 file changed, 109 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
 
-Andrew
+diff --git a/Documentation/devicetree/bindings/input/dlg,da7280.txt b/Documentation/devicetree/bindings/input/dlg,da7280.txt
+new file mode 100644
+index 0000000..e6b719d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/dlg,da7280.txt
+@@ -0,0 +1,109 @@
++Dialog Semiconductor DA7280 Haptics bindings
++
++Required properties:
++- compatible: Should be "dlg,da7280".
++- reg: Specifies the I2C slave address.
++
++- interrupt-parent : Specifies the phandle of the interrupt controller to
++  which the IRQs from DA7280 are delivered to.
++
++- dlg,actuator-type: Set Actuator type. it should be one of:
++  "LRA" - Linear Resonance Actuator type.
++  "ERM-bar" - Bar type Eccentric Rotating Mass.
++  "ERM-coin" - Coin type Eccentric Rotating Mass.
++
++- dlg,const-op-mode: Haptic operation mode for FF_CONSTANT.
++  Possible values:
++	1 - Direct register override(DRO) mode triggered by i2c(default),
++	2 - PWM data source mode controlled by PWM duty,
++- dlg,periodic-op-mode: Haptic operation mode for FF_PERIODIC.
++  Possible values:
++	1 - Register triggered waveform memory(RTWM) mode, the pattern
++	    assigned to the PS_SEQ_ID played as much times as PS_SEQ_LOOP,
++	2 - Edge triggered waveform memory(ETWM) mode, external GPI(N)
++	    control are required to enable/disable and it needs to keep
++	    device enabled by sending magnitude (X > 0),
++	    the pattern is assigned to the GPI(N)_SEQUENCE_ID below.
++	The default value is 1 for both of the operation modes.
++	For more details, please see the datasheet.
++
++- dlg,nom-microvolt: Nominal actuator voltage rating.
++  Valid values: 0 - 6000000.
++- dlg,abs-max-microvolt: Absolute actuator maximum voltage rating.
++  Valid values: 0 - 6000000.
++- dlg,imax-microamp: Actuator max current rating.
++  Valid values: 0 - 252000.
++  Default: 130000.
++- dlg,impd-micro-ohms: the impedance of the actuator in micro ohms.
++  Valid values: 0 - 1500000000.
++
++Optional properties:
++- pwms : phandle to the physical PWM(Pulse Width Modulation) device.
++  PWM properties should be named "pwms". And number of cell is different
++  for each pwm device.
++  (See Documentation/devicetree/bindings/pwm/pwm.txt
++   for further information relating to pwm properties)
++
++- dlg,ps-seq-id: the PS_SEQ_ID(pattern ID in waveform memory inside chip)
++  to play back when RTWM-MODE is enabled.
++  Valid range: 0 - 15.
++- dlg,ps-seq-loop: the PS_SEQ_LOOP, Number of times the pre-stored sequence
++  pointed to by PS_SEQ_ID or GPI(N)_SEQUENCE_ID is repeated.
++  Valid range: 0 - 15.
++- dlg,gpiN-seq-id: the GPI(N)_SEQUENCE_ID, pattern to play
++  when gpi0 is triggered, 'N' must be 0 - 2.
++  Valid range: 0 - 15.
++- dlg,gpiN-mode: the pattern mode which can select either
++  "Single-pattern" or "Multi-pattern", 'N' must be 0 - 2.
++- dlg,gpiN-polarity: gpiN polarity which can be chosen among
++  "Rising-edge", "Falling-edge" and "Both-edge",
++  'N' must be 0 - 2
++  Haptic will work by this edge option in case of ETWM mode.
++
++- dlg,resonant-freq-hz: use in case of LRA.
++  the frequency range: 50 - 300.
++  Default: 205.
++
++- dlg,bemf-sens-enable: Enable for internal loop computations.
++- dlg,freq-track-enable: Enable for resonant frequency tracking.
++- dlg,acc-enable: Enable for active acceleration.
++- dlg,rapid-stop-enable: Enable for rapid stop.
++- dlg,amp-pid-enable: Enable for the amplitude PID.
++- dlg,mem-array: Customized waveform memory(patterns) data downloaded to
++  the device during initialization. This is an array of 100 values(u8).
++
++For further information, see device datasheet.
++
++======
++
++Example:
++
++	haptics: da7280-haptics@4a {
++		compatible = "dlg,da7280";
++		reg = <0x4a>;
++		interrupt-parent = <&gpio6>;
++		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
++		dlg,actuator-type = "LRA";
++		dlg,dlg,const-op-mode = <1>;
++		dlg,dlg,periodic-op-mode = <1>;
++		dlg,nom-microvolt = <2000000>;
++		dlg,abs-max-microvolt = <2000000>;
++		dlg,imax-microamp = <170000>;
++		dlg,resonant-freq-hz = <180>;
++		dlg,impd-micro-ohms = <10500000>;
++		dlg,freq-track-enable;
++		dlg,rapid-stop-enable;
++		dlg,mem-array = <
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++		>;
++
++	};
+-- 
+end-of-patch for PATCH V9
 
-
-> All the best,
-> Paul

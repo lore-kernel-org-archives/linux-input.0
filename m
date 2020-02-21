@@ -2,208 +2,153 @@ Return-Path: <SRS0=vEFK=4J=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CABF9C35655
-	for <linux-input@archiver.kernel.org>; Fri, 21 Feb 2020 13:17:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2116DC35657
+	for <linux-input@archiver.kernel.org>; Fri, 21 Feb 2020 16:47:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9DA9B24670
-	for <linux-input@archiver.kernel.org>; Fri, 21 Feb 2020 13:17:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1582291077;
-	bh=S1Jbj5o5lJoLCnkgP2rdU16DC7uSI63S2yqDd33FuFE=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:List-ID:From;
-	b=xaZVwxv1htJiBUfPcMUBERBqTCgmHV8gC4CDLfzE/lyT5l8kYVyWIMBH26b9ypJ7h
-	 wVy98oYnCLRAaUuXE4tMrEzo0XP1GKJce03rYBDLDa3rnBZ7mzid6n4UDYZBkHiCHn
-	 NIxJYChaamICA58+oLPqqURI81s92vFxw0XhU+Uw=
+	by mail.kernel.org (Postfix) with ESMTP id E8E39208E4
+	for <linux-input@archiver.kernel.org>; Fri, 21 Feb 2020 16:47:52 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c0VayzDV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728626AbgBUNR5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 21 Feb 2020 08:17:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47406 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727928AbgBUNR4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Feb 2020 08:17:56 -0500
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726906AbgBUQrv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 21 Feb 2020 11:47:51 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:20530 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726132AbgBUQru (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 21 Feb 2020 11:47:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1582303670;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=S1r4FIUL7qB3fBQaOBLFcMpVZZog+fBa7ZPo3TQZqvU=;
+        b=c0VayzDVvdwv325cWJXm6crgKhpxnOUTybnjyJfoWTH19gaOAr/kSZmIoMs4GgHmrOkVfe
+        lxOl45Whr+k95lKW9QMRDtfyfiz5DSsf/dia7svuOQQgQffjW7hO54/2KgsSFOixjCfyWh
+        opMoexL527ogO9I//CHkT2eNy56/vkY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-36-iOZXGb0XMtqg2e8jMs4-rA-1; Fri, 21 Feb 2020 11:47:46 -0500
+X-MC-Unique: iOZXGb0XMtqg2e8jMs4-rA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC52E24650;
-        Fri, 21 Feb 2020 13:17:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582291075;
-        bh=S1Jbj5o5lJoLCnkgP2rdU16DC7uSI63S2yqDd33FuFE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=03sht77VZSMQkXc5jsctcYxDT1DYcJLCl1NTKpq/YU1rLIU/NjjUm6gKf9jzEtHTV
-         CoxbxnWEDKprrHIxgKnQaPV++9nlaPGoUdhstgUD1qiwlbNCcgH75eDLpENrcaYNOw
-         SVXbaQwtB2wrJWZ2Nl2SU2elwciyWlh8z91OITqo=
-Date:   Fri, 21 Feb 2020 13:17:51 +0000
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     linux-iio@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        linux-input@vger.kernel.org, Gregor Riepl <onitake@gmail.com>,
-        Jonathan Bakker <xc-racer2@live.ca>
-Subject: Re: [PATCH] iio: light: Simplify the current to lux LUT
-Message-ID: <20200221131751.59ce8be7@archlinux>
-In-Reply-To: <20200220212053.32577-1-linus.walleij@linaro.org>
-References: <20200220212053.32577-1-linus.walleij@linaro.org>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AF0DC802578;
+        Fri, 21 Feb 2020 16:47:44 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-116-191.ams2.redhat.com [10.36.116.191])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 58D7861070;
+        Fri, 21 Feb 2020 16:47:40 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Bastien Nocera <hadess@hadess.net>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
+        Dmitry Mastykin <mastichi@gmail.com>
+Subject: [PATCH resend 02/10] Input: goodix - Make loading the config from disk independent from the GPIO setup
+Date:   Fri, 21 Feb 2020 17:47:27 +0100
+Message-Id: <20200221164735.508324-2-hdegoede@redhat.com>
+In-Reply-To: <20200221164735.508324-1-hdegoede@redhat.com>
+References: <20200221164735.508324-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 20 Feb 2020 22:20:53 +0100
-Linus Walleij <linus.walleij@linaro.org> wrote:
+At least on X86 ACPI platforms it is not necessary to load the touchscree=
+n
+controller config from disk, if it needs to be loaded this has already be=
+en
+done by the BIOS / UEFI firmware.
 
-> From: Gregor Riepl <onitake@gmail.com>
-> 
-> The look-up-table for currens to lux is simply specifying
-> all currents from 5..47 mA, if we add some values for 0..5
-> we can just select the index for the lux value in an array
-> from the mA value. Use clamp() to get the value in the
-> range of values in the array.
-> 
-> Cc: Jonathan Bakker <xc-racer2@live.ca>
-> Signed-off-by: Gregor Riepl <onitake@gmail.com>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Applied to the togreg branch of iio.git and pushed out as testing
-for the autobuilders to play with it.
+Even on other (e.g. devicetree) platforms the config-loading as currently
+done has the issue that the loaded cfg file is based on the controller
+model, but the actual cfg is device specific, so the cfg files are not
+part of linux-firmware and this can only work with a device specific OS
+image which includes the cfg file.
 
-Thanks,
+And we do not need access to the GPIOs at all to load the config, if we
+do not have access we can still load the config.
 
-Jonathan
+So all in all tying the decision to try to load the config from disk to
+being able to access the GPIOs is not desirable. This commit adds a new
+load_cfg_from_disk boolean to control the firmware loading instead.
 
-> ---
->  drivers/iio/light/gp2ap002.c | 92 ++++++------------------------------
->  1 file changed, 14 insertions(+), 78 deletions(-)
-> 
-> diff --git a/drivers/iio/light/gp2ap002.c b/drivers/iio/light/gp2ap002.c
-> index f747a42882e0..b24f43f961c8 100644
-> --- a/drivers/iio/light/gp2ap002.c
-> +++ b/drivers/iio/light/gp2ap002.c
-> @@ -204,71 +204,27 @@ static irqreturn_t gp2ap002_prox_irq(int irq, void *d)
->  	return IRQ_HANDLED;
->  }
->  
-> -struct gp2ap002_illuminance {
-> -	unsigned int curr;
-> -	unsigned int lux;
-> -};
-> -
->  /*
->   * This array maps current and lux.
->   *
->   * Ambient light sensing range is 3 to 55000 lux.
->   *
->   * This mapping is based on the following formula.
-> - * illuminance = 10 ^ (current / 10)
-> + * illuminance = 10 ^ (current[mA] / 10)
-> + *
-> + * When the ADC measures 0, return 0 lux.
->   */
-> -static const struct gp2ap002_illuminance gp2ap002_illuminance_table[] = {
-> -	{ .curr		= 5, .lux	= 3 },
-> -	{ .curr		= 6, .lux	= 4 },
-> -	{ .curr		= 7, .lux	= 5 },
-> -	{ .curr		= 8, .lux	= 6 },
-> -	{ .curr		= 9, .lux	= 8 },
-> -	{ .curr		= 10, .lux	= 10 },
-> -	{ .curr		= 11, .lux	= 12 },
-> -	{ .curr		= 12, .lux	= 16 },
-> -	{ .curr		= 13, .lux	= 20 },
-> -	{ .curr		= 14, .lux	= 25 },
-> -	{ .curr		= 15, .lux	= 32 },
-> -	{ .curr		= 16, .lux	= 40 },
-> -	{ .curr		= 17, .lux	= 50 },
-> -	{ .curr		= 18, .lux	= 63 },
-> -	{ .curr		= 19, .lux	= 79 },
-> -	{ .curr		= 20, .lux	= 100 },
-> -	{ .curr		= 21, .lux	= 126 },
-> -	{ .curr		= 22, .lux	= 158 },
-> -	{ .curr		= 23, .lux	= 200 },
-> -	{ .curr		= 24, .lux	= 251 },
-> -	{ .curr		= 25, .lux	= 316 },
-> -	{ .curr		= 26, .lux	= 398 },
-> -	{ .curr		= 27, .lux	= 501 },
-> -	{ .curr		= 28, .lux	= 631 },
-> -	{ .curr		= 29, .lux	= 794 },
-> -	{ .curr		= 30, .lux	= 1000 },
-> -	{ .curr		= 31, .lux	= 1259 },
-> -	{ .curr		= 32, .lux	= 1585 },
-> -	{ .curr		= 33, .lux	= 1995 },
-> -	{ .curr		= 34, .lux	= 2512 },
-> -	{ .curr		= 35, .lux	= 3162 },
-> -	{ .curr		= 36, .lux	= 3981 },
-> -	{ .curr		= 37, .lux	= 5012 },
-> -	{ .curr		= 38, .lux	= 6310 },
-> -	{ .curr		= 39, .lux	= 7943 },
-> -	{ .curr		= 40, .lux	= 10000 },
-> -	{ .curr		= 41, .lux	= 12589 },
-> -	{ .curr		= 42, .lux	= 15849 },
-> -	{ .curr		= 43, .lux	= 19953 },
-> -	{ .curr		= 44, .lux	= 25119 },
-> -	{ .curr		= 45, .lux	= 31623 },
-> -	{ .curr		= 46, .lux	= 39811 },
-> -	{ .curr		= 47, .lux	= 50119 },
-> +static const u16 gp2ap002_illuminance_table[] = {
-> +	0, 1, 1, 2, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 25, 32, 40, 50, 63, 79,
-> +	100, 126, 158, 200, 251, 316, 398, 501, 631, 794, 1000, 1259, 1585,
-> +	1995, 2512, 3162, 3981, 5012, 6310, 7943, 10000, 12589, 15849, 19953,
-> +	25119, 31623, 39811, 50119,
->  };
->  
->  static int gp2ap002_get_lux(struct gp2ap002 *gp2ap002)
->  {
-> -	const struct gp2ap002_illuminance *ill1;
-> -	const struct gp2ap002_illuminance *ill2;
->  	int ret, res;
-> -	int i;
-> +	u16 lux;
->  
->  	ret = iio_read_channel_processed(gp2ap002->alsout, &res);
->  	if (ret < 0)
-> @@ -276,31 +232,11 @@ static int gp2ap002_get_lux(struct gp2ap002 *gp2ap002)
->  
->  	dev_dbg(gp2ap002->dev, "read %d mA from ADC\n", res);
->  
-> -	ill1 = &gp2ap002_illuminance_table[0];
-> -	if (res < ill1->curr) {
-> -		dev_dbg(gp2ap002->dev, "total darkness\n");
-> -		return 0;
-> -	}
-> -	for (i = 0; i < ARRAY_SIZE(gp2ap002_illuminance_table) - 1; i++) {
-> -		ill1 = &gp2ap002_illuminance_table[i];
-> -		ill2 = &gp2ap002_illuminance_table[i + 1];
-> -
-> -		if (res > ill2->curr)
-> -			continue;
-> -		if ((res <= ill1->curr) && (res >= ill2->curr))
-> -			break;
-> -	}
-> -	if (res > ill2->curr) {
-> -		dev_info_once(gp2ap002->dev, "max current overflow\n");
-> -		return ill2->curr;
-> -	}
-> -	/* Interpolate and return */
-> -	dev_dbg(gp2ap002->dev, "interpolate index %d and %d\n", i, i + 1);
-> -	/* How many steps along the curve */
-> -	i = res - ill1->curr; /* x - x0 */
-> -	/* Linear interpolation */
-> -	return ill1->lux + i *
-> -		((ill2->lux - ill1->lux) / (ill2->curr - ill1->curr));
-> +	/* ensure we don't under/overflow */
-> +	res = clamp(res, 0, (int)ARRAY_SIZE(gp2ap002_illuminance_table) - 1);
-> +	lux = gp2ap002_illuminance_table[res];
-> +
-> +	return (int)lux;
->  }
->  
->  static int gp2ap002_read_raw(struct iio_dev *indio_dev,
+This commits sets the new bool to true when we set irq_pin_access_method
+to irq_pin_access_gpio, so there are no functional changes.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1786317
+BugLink: https://github.com/nexus511/gpd-ubuntu-packages/issues/10
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D199207
+Cc: Dmitry Mastykin <mastichi@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/touchscreen/goodix.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscre=
+en/goodix.c
+index 08806a00a9b9..eccf07adfae1 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -56,6 +56,7 @@ struct goodix_ts_data {
+ 	u16 id;
+ 	u16 version;
+ 	const char *cfg_name;
++	bool load_cfg_from_disk;
+ 	struct completion firmware_loading_complete;
+ 	unsigned long irq_flags;
+ 	enum goodix_irq_pin_access_method irq_pin_access_method;
+@@ -654,8 +655,10 @@ static int goodix_get_gpio_config(struct goodix_ts_d=
+ata *ts)
+=20
+ 	ts->gpiod_rst =3D gpiod;
+=20
+-	if (ts->gpiod_int && ts->gpiod_rst)
++	if (ts->gpiod_int && ts->gpiod_rst) {
++		ts->load_cfg_from_disk =3D true;
+ 		ts->irq_pin_access_method =3D irq_pin_access_gpio;
++	}
+=20
+ 	return 0;
+ }
+@@ -952,7 +955,7 @@ static int goodix_ts_probe(struct i2c_client *client,
+=20
+ 	ts->chip =3D goodix_get_chip_data(ts->id);
+=20
+-	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio) {
++	if (ts->load_cfg_from_disk) {
+ 		/* update device config */
+ 		ts->cfg_name =3D devm_kasprintf(&client->dev, GFP_KERNEL,
+ 					      "goodix_%d_cfg.bin", ts->id);
+@@ -983,7 +986,7 @@ static int goodix_ts_remove(struct i2c_client *client=
+)
+ {
+ 	struct goodix_ts_data *ts =3D i2c_get_clientdata(client);
+=20
+-	if (ts->irq_pin_access_method =3D=3D irq_pin_access_gpio)
++	if (ts->load_cfg_from_disk)
+ 		wait_for_completion(&ts->firmware_loading_complete);
+=20
+ 	return 0;
+@@ -1001,7 +1004,8 @@ static int __maybe_unused goodix_suspend(struct dev=
+ice *dev)
+ 		return 0;
+ 	}
+=20
+-	wait_for_completion(&ts->firmware_loading_complete);
++	if (ts->load_cfg_from_disk)
++		wait_for_completion(&ts->firmware_loading_complete);
+=20
+ 	/* Free IRQ as IRQ pin is used as output in the suspend sequence */
+ 	goodix_free_irq(ts);
+--=20
+2.25.0
 

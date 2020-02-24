@@ -1,87 +1,136 @@
-Return-Path: <SRS0=1UqK=4L=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=3kir=4M=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 276ECC35671
-	for <linux-input@archiver.kernel.org>; Sun, 23 Feb 2020 10:09:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6221FC35679
+	for <linux-input@archiver.kernel.org>; Mon, 24 Feb 2020 09:11:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B9377208C4
-	for <linux-input@archiver.kernel.org>; Sun, 23 Feb 2020 10:09:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3903520838
+	for <linux-input@archiver.kernel.org>; Mon, 24 Feb 2020 09:11:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.no header.i=@yahoo.no header.b="jBKDB+gr"
+	dkim=pass (2048-bit key) header.d=cerno.tech header.i=@cerno.tech header.b="lZ4OE2YE";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="r57KjA79"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726208AbgBWKJU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 23 Feb 2020 05:09:20 -0500
-Received: from sonic303-20.consmr.mail.ir2.yahoo.com ([77.238.178.201]:39607
-        "EHLO sonic303-20.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725980AbgBWKJT (ORCPT
+        id S1727857AbgBXJLR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Feb 2020 04:11:17 -0500
+Received: from new3-smtp.messagingengine.com ([66.111.4.229]:36727 "EHLO
+        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727794AbgBXJLD (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 23 Feb 2020 05:09:19 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.no; s=s2048; t=1582452557; bh=3VUX6iHKUKGJOLIe65cU9fDCQTegwATkt7a5/jR1TAg=; h=Date:From:To:Subject:References:From:Subject; b=jBKDB+grS8jAgIUeuugQzV9oI2whoioobLWdnG2l8qidV3y15GIXlQ+p/ewYrwMC4AHfPpntvUluA65wwBD6ykFFAoeGaUqhFDSuYDMDQJX3Lbou9GNGsPjQzoM34ZD4yM0H8ANK/kCjV3+PDYoGMT+wj0jyZH5nC8Q80Ih347d5ic5UCPhJp8P10yfzG8rC3zCJA+WK4bi09SG8khl4on1Z614NqZdTa1Ls8pPArEAXvORp0if5KUQjB3yUv72bl1Jah54rgeblNMkWgJldFk4peLIXjC1MPkusOPFLCpT40EK5/BEIeMoXUqeCjvjHzMVG6rIJyQm6JEa0T8lyGw==
-X-YMail-OSG: Hwlmv_oVM1mJDLdleLOmiEXVgfZgE6X7Bavj8uHP0fByNxOunJn2rZyYgpaKWUF
- Vqh9zoEJXpdLRJLhxLNM0xGUSNVVybysfFoYscIOCDCTiHA4dRHxaC_F7WrEZvN2odXSwSQYbSws
- 6f9A5Sn7fzNXlmRkMAtTGTa2COo9cYposh5AUllyFFWhZdymbXmXSUVH4Kh692yeJJZjfxXGaPqn
- 1_nbi5yyTlDBVsy0JV_ccEqmEexRWvoIKy4WkNpIvQBBUSf1sdag7QRfCss8.hN9MtaSaKnxGrHc
- 5oJm07Hnh9lf2rgVF_e7WJ12LcshGJldIDMQqspwZJC3_VbjUiHm7zfpz4qr8QxebGYmJ4kxtMWN
- xPQVX70zvICPRTJugRR9kkKmQ7A6vtm8xwWnGi75JymgcyobXo3gflxqKG.zGMSK4D_1XfW.RCkX
- pjXQQHVls9iBItkVbJloXraLhe3OeVQaY2IVMV_J0YT4whJOoj_o1UX0FpDkzcU5R.e_GPtH9yd8
- 58EC_.B0k62u93z4YXb.j9zu1LL.j3eRLc6X_4h3Iof65iOUsVWmjI8jCAw.gR3YRL1v8z4h84MS
- ZZ4VqQrbX.ouoLS9rUz5f0WMcvA4txgwo5TRzxwZKFIuJJU93gTeDibTSYI_w8_TSLs6z7le3ysc
- QxPztP4Bl1k0KS7pNcKt9vn1RQ2IX5WsdyqEIcxZKpWfrpczFTEVxTO8HEV1tO3Ny1u6oKVRtzcn
- CXkr7EZs2Kejlwtzt3aZdtkUdyc4RkBayPGiPL0qwxRPPzq51eAetCTp7nRp4iNRgTnBAlPZ6GA7
- LqGgLutLJTAemlxtyUHXYvVb.UEE3Q6LfdWkQaPh7KBbX_FJv_S_nqyccsbDhfkZdQvIFvHM.bZ6
- ODdKVScf7ehWDFbprZp2rldSH4W6COFDavh27hD67ZP8uJ7PAf1v_rG2GtZLH6roLMQ7_.DvaPQx
- 0h8xOdiOyvotGQzJItU6.mDVZ4s2qzn3VQO3BzFmXn9TKuNoQiIQban_ZPv6sDi0SqNSVrDrTy3R
- Uw6alZvFHqKpwD9SkVXP1v38.HVJzgv0r_lJb0Mx0EpDG7ZWykvVu129TXo17EDCJizRQl8ZnSk9
- HjuJ2GOZl0.wGobUn4UNV.d9H4Nb.JzHy5XCX2c2SOJd00Fuv3169am4.62EMadHPoL5tJn4MukM
- YzX1.8ol_Ni8t1T1QEw9wB5NaA1a6VpswQLtuR2J3qNrvJieBiJq2gSOWUEmT7jNHo7nj0EN3RHQ
- byZqkoM8lZwsddBprl2N00nnECMiDXXlmeGLd1RlILvsuYEOf_i5CklCvSEXhd_7rEgGDviohluT
- z8RylYpQumQIFMqGvNKaInmpMGctP
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ir2.yahoo.com with HTTP; Sun, 23 Feb 2020 10:09:17 +0000
-Date:   Sun, 23 Feb 2020 10:09:14 +0000 (UTC)
-From:   =?UTF-8?Q?Ole_J=C3=B8rgen_Br=C3=B8nner?= <olejorgenb@yahoo.no>
-To:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Message-ID: <81245543.11565865.1582452554354@mail.yahoo.com>
-Subject: psmouse.synaptics_intertouch=1 works for TM3145-006 (thinkpad
- T470s)
+        Mon, 24 Feb 2020 04:11:03 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 34D407698;
+        Mon, 24 Feb 2020 04:11:02 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Mon, 24 Feb 2020 04:11:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=P6NSWkrKZ4ycnvFOSuy67yShL4e
+        kMBsFHiAL05968xc=; b=lZ4OE2YE954qYDC16RXXOtM/qnFZraFfeQ0BPlrNAQt
+        GXa5BRrgjuoMXO09Hj3a+SRn3OWbiJfp1i7iHeX49HvPtvYKGj2ka60gIk6QygsS
+        xOedDCFBmF5v3PSXS+L3NxwVtIqE9RznUlMhphBxtmlaexBZKMCsLbsXEtmnyWFY
+        pEHkRiCnYtzef/iZ9FYqOK2PmauywfwotGSDS2ZUzSt7Y+pIb5q+qAQYlq5a9+4S
+        4EP5CiPaANupbgvtbAquupThLnPHIfavvUMjae8bB/oPE3uGTWNm4571hPnqzcdV
+        tIp44pxnFoVzlNbG6lpp5aNwDIpEsxcIGB/g47CMCuw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=P6NSWk
+        rKZ4ycnvFOSuy67yShL4ekMBsFHiAL05968xc=; b=r57KjA79/p5plmAAJXNv/J
+        hnoNbfH/Fm5PIKdb1WwapcoQy4JZwmrTAKiYdDrU1xmPe7YO7cg67fWW48x/8Fg0
+        W26pjrXMh+5qpMVxoKbHogk903GtPfV8zMhdIYPCRS2I4WRgLVL9zN0dmtKVcK+i
+        +nFZkhg/lAgAR/F4y/hcFeDm10hT/erEAES/h79aAY8bMLzzV6UcDsBWX01txzKi
+        9J3KqrQ01PWX26AWkYE4nz7E7TgV/YUQHv3e2RlERTMoj0olsRWysMp3i+g4zilC
+        ikqMBqw87Ow0nRPMkSim4j0vTFLFbDC0hjG/xkHYH/Scm6XVExWWXkLkrNQgbz8w
+        ==
+X-ME-Sender: <xms:JJNTXoeASscD0ZE79XXdYIUaj_4HERRURm8t60DN_w_LZdOkXgefiQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrledtucetufdoteggodetrfdotffvucfrrh
+    hofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgenuceurghi
+    lhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurh
+    epfffhvffukfhfgggtuggjsehgtderredttddvnecuhfhrohhmpeforgigihhmvgcutfhi
+    phgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecukfhppeeltddrkeelrd
+    eikedrjeeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhho
+    mhepmhgrgihimhgvsegtvghrnhhordhtvggthh
+X-ME-Proxy: <xmx:JJNTXluWuPtuGN1waXd_JiswnG4e7u-fVcy7PczKJAgHSvNxt3tqQg>
+    <xmx:JJNTXv_wMhB5XVyVpuBZBac9XmYEjBsod6Y6Tlf2Dk6TfKZoM0gR_w>
+    <xmx:JJNTXo1zXyyBSNGeEc12xnIp9_AK21g3yWfN8SJAGvtSF8hQMAa4Sg>
+    <xmx:JpNTXugmknZ6EKgtv52oiyQ9y3cZAT18nBrpAmieETp8hBTU8RsCag>
+Received: from localhost (lfbn-tou-1-1502-76.w90-89.abo.wanadoo.fr [90.89.68.76])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 421BA328005A;
+        Mon, 24 Feb 2020 04:11:00 -0500 (EST)
+Date:   Mon, 24 Feb 2020 10:10:59 +0100
+From:   Maxime Ripard <maxime@cerno.tech>
+To:     Ondrej Jirman <megous@megous.com>
+Cc:     linux-sunxi@googlegroups.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Luca Weiss <luca@z3ntu.xyz>, Tomas Novotny <tomas@novotny.cz>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 3/4] ARM: dts: sun8i-a83t-tbs-a711: Add support for the
+ vibrator motor
+Message-ID: <20200224091059.lljffogofbexhudt@gilmour.lan>
+References: <20200222231428.233621-1-megous@megous.com>
+ <20200222231428.233621-4-megous@megous.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <81245543.11565865.1582452554354.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15199 YMailNorrin Mozilla/5.0 (X11; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="rf2uuzktvcqtstk3"
+Content-Disposition: inline
+In-Reply-To: <20200222231428.233621-4-megous@megous.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-While debugging poor gesture (swipes etc.) performance for my touchpad I found this message in the boot log:
 
-> smouse serio1: synaptics: Your touchpad (PNP: LEN007a PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi are not used, you might want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org.
+--rf2uuzktvcqtstk3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-After setting psmouse.synaptics_intertouch=1 and rebooting the following appears:
+Hi,
 
-> kernel: rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3145-006, fw id: 2491763
-> kernel: input: Synaptics TM3145-006 as /devices/rmi4-00/input/input17
-> kernel: serio: RMI4 PS/2 pass-through port at rmi4-00.fn03
+On Sun, Feb 23, 2020 at 12:14:27AM +0100, Ondrej Jirman wrote:
+> The board has a vibrator mottor. Hook it to the input subsystem.
+>
+> Signed-off-by: Ondrej Jirman <megous@megous.com>
+> ---
+>  arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts b/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts
+> index 2fd31a0a0b344..a22920275e99b 100644
+> --- a/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts
+> +++ b/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts
+> @@ -99,6 +99,11 @@ panel_input: endpoint {
+>  		};
+>  	};
+>
+> +	vibrator {
+> +		compatible = "gpio-vibrator";
+> +		vcc-supply = <&reg_ldo_io1>;
+> +	};
+> +
 
-and gestures works much better :)
+LDO IO1 can also be muxed in as a GPIO iirc, why did you choose the
+regulator instead?
 
-I have not experienced issues with suspend etc. yet. (tested for a couple weeks)
+Maxime
 
-Output from /proc/bus/input/devices:
+--rf2uuzktvcqtstk3
+Content-Type: application/pgp-signature; name="signature.asc"
 
-I: Bus=001d Vendor=06cb Product=0000 Version=0000
-N: Name="Synaptics TM3145-006"
-P: Phys=rmi4-00/input0
-S: Sysfs=/devices/rmi4-00/input/input17
-U: Uniq=
-H: Handlers=event9 mouse1 
-B: PROP=5
-B: EV=b
-B: KEY=e520 10000 0 0 0 0
-B: ABS=6f3800001000003
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXlOTIwAKCRDj7w1vZxhR
+xVFTAQDQJHOWWsog4Y0l4mRxEOjNKPwakKZYlCWd4M50UL9jDAEArb1p2WwTIOaO
+jt5TR3xH+He9Bb3uaRGhWtWZpIcV9Aw=
+=/rlr
+-----END PGP SIGNATURE-----
+
+--rf2uuzktvcqtstk3--

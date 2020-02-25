@@ -7,44 +7,45 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6029EC35E09
-	for <linux-input@archiver.kernel.org>; Tue, 25 Feb 2020 16:12:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 432D6C35E0B
+	for <linux-input@archiver.kernel.org>; Tue, 25 Feb 2020 16:12:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4064120CC7
-	for <linux-input@archiver.kernel.org>; Tue, 25 Feb 2020 16:12:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 25DBF2084E
+	for <linux-input@archiver.kernel.org>; Tue, 25 Feb 2020 16:12:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731134AbgBYQMK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 25 Feb 2020 11:12:10 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:42722 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731125AbgBYQMJ (ORCPT
+        id S1730950AbgBYQMG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 25 Feb 2020 11:12:06 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:40239 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729206AbgBYQMG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 Feb 2020 11:12:09 -0500
-Received: by mail-wr1-f68.google.com with SMTP id p18so11750019wre.9;
-        Tue, 25 Feb 2020 08:12:08 -0800 (PST)
+        Tue, 25 Feb 2020 11:12:06 -0500
+Received: by mail-wm1-f68.google.com with SMTP id t14so3713545wmi.5;
+        Tue, 25 Feb 2020 08:12:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=5iVYMAf3KBBmBN8bPXGHIYJDp6KSir9PCdvRV/c4buI=;
-        b=ZzuHnvjK7FAcHFoPikOh3iLCFksYqEx1slSgUTeOgKbeVFIevGLfaotmeEgZ2FJmWL
-         MVFMUnn/KjtHAm5uGnsn7ITF3knLkMuH0x2oSe6zNWXj8Mxdp4ySYzm3304M54G2UbPV
-         STfticLkpBHNF4IX1+ukvxoiMDmHoJlFL6S+Ift7G49JGYJb0I7Z6T8692YK237Srnpi
-         ebMVSXaxOVEvVw+FOuAIEOHHnIaQUhl4wAg4no2Te7zRMjBGU22PoPnu67uR+02zeccq
-         igN+khRIkvbl9RoHG+h77Cskdlnr8Z9A7cMeaj1rhv4KugcYON6+IJ28r210xbDQm0Hq
-         fXAg==
-X-Gm-Message-State: APjAAAX8urQfgenqaKTKJXOHGYQKnD4ubgd6pBYNnY4NghBYYOuq1ios
-        punWasO0zwckrppBhT4Mg2YWEqHjZYY=
-X-Google-Smtp-Source: APXvYqwVFbTeK+gtM5LGRrDz4P5JBGZYNZnTL7U+Ql1eq5kiHsrnuyxsnSA9ZxfS5KEcA0Yx+tY6xw==
-X-Received: by 2002:a5d:5647:: with SMTP id j7mr74240686wrw.265.1582647127853;
-        Tue, 25 Feb 2020 08:12:07 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=g6DQBCL1J6m7CoP9ENl+OA6l5n10vKz1KQp1E0CCoWY=;
+        b=sRciTubcIEThZ+RT5lykhenWNNSKXJxdptKckXJNiyMWkzy+iJSlzCVPwHZQr6nWM+
+         9hJVEl6NlnZ4iLv+a2bpHBABvfsJ2K//ZR8PH/Jpa9wosMRjh+KvnF1jyzsPke+0/92o
+         YH9frIGUBdp5AD0+x1cTrtMfKdUru+Kn3HIDJSHPEKBMBzQybr7dAEInRIXSnIzMLL86
+         oqbybIkTGK/uUH9nAHmsecbpF4HjPFY1ialbZ+EORUBx3XSjYcuZHOAEKF2K2aXor84I
+         GIk7hEP0xpFPUEHz71MBS66uGPnpY9bH0JBezpjau9zwghggzGWfsLOwbhWU+pDIoW8U
+         Y+QA==
+X-Gm-Message-State: APjAAAVB7sHGtFBLJXfKoqXZ8sB8vHl9BOQmsdEG3Lt9bcoPIBx4cLN/
+        NfM97FdD3EiD7SGOp0Y2F1VG+bXYfXw=
+X-Google-Smtp-Source: APXvYqz2GddcSqaJtZUCCRWuAVNSfLkFf7wKPo8DHL8CvjqQTROqeO/fxgFpdv9+VIUsyHizZWLqZQ==
+X-Received: by 2002:a05:600c:1009:: with SMTP id c9mr30312wmc.162.1582647124463;
+        Tue, 25 Feb 2020 08:12:04 -0800 (PST)
 Received: from 1aq-andre.garage.tyco.com ([77.107.218.170])
-        by smtp.gmail.com with ESMTPSA id h10sm4757339wml.18.2020.02.25.08.12.06
+        by smtp.gmail.com with ESMTPSA id h10sm4757339wml.18.2020.02.25.08.12.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Feb 2020 08:12:07 -0800 (PST)
+        Tue, 25 Feb 2020 08:12:03 -0800 (PST)
 From:   =?UTF-8?q?Andr=C3=A9=20Draszik?= <git@andred.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     =?UTF-8?q?Andr=C3=A9=20Draszik?= <git@andred.net>,
+        Rob Herring <robh@kernel.org>,
         =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
         Aymen Sghaier <aymen.sghaier@nxp.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
@@ -61,12 +62,10 @@ Cc:     =?UTF-8?q?Andr=C3=A9=20Draszik?= <git@andred.net>,
         Robin Gong <yibin.gong@nxp.com>, linux-crypto@vger.kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-input@vger.kernel.org
-Subject: [PATCH v2 4/6] arm64: dts: imx8mq: add snvs clock to pwrkey
-Date:   Tue, 25 Feb 2020 16:11:59 +0000
-Message-Id: <20200225161201.1975-4-git@andred.net>
+Subject: [PATCH v2 1/6] dt-bindings: crypto: fsl-sec4: add snvs clock to pwrkey
+Date:   Tue, 25 Feb 2020 16:11:56 +0000
+Message-Id: <20200225161201.1975-1-git@andred.net>
 X-Mailer: git-send-email 2.23.0.rc1
-In-Reply-To: <20200225161201.1975-1-git@andred.net>
-References: <20200225161201.1975-1-git@andred.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -75,9 +74,9 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On i.MX8MM, the SNVS requires a clock. This is similar to the clock
-bound to the SNVS RTC node, but if the SNVS RTC driver isn't enabled,
-then SNVS doesn't work, and as such the pwrkey driver doesn't
+On i.MX7 and i.MX8M, the SNVS requires a clock. This is similar to the
+clock bound to the SNVS RTC node, but if the SNVS RTC driver isn't
+enabled, then SNVS doesn't work, and as such the pwrkey driver doesn't
 work (i.e. hangs the kernel, as the clock isn't enabled).
 
 Also see commit ec2a844ef7c1
@@ -85,6 +84,7 @@ Also see commit ec2a844ef7c1
 for a similar fix.
 
 Signed-off-by: André Draszik <git@andred.net>
+Acked-by: Rob Herring <robh@kernel.org>
 Cc: "Horia Geantă" <horia.geanta@nxp.com>
 Cc: Aymen Sghaier <aymen.sghaier@nxp.com>
 Cc: Herbert Xu <herbert@gondor.apana.org.au>
@@ -105,24 +105,55 @@ Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-input@vger.kernel.org
 
 ---
-v2: new patch
+v2:
+* split documentation and i.MX7 dts update into two patches
+* remove stray RTC references from documentation (copy/paste error)
 ---
- arch/arm64/boot/dts/freescale/imx8mq.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ .../devicetree/bindings/crypto/fsl-sec4.txt     | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-index 7f9319452b58..e4ab037183d7 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-@@ -501,6 +501,8 @@
- 					compatible = "fsl,sec-v4.0-pwrkey";
- 					regmap = <&snvs>;
- 					interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-+					clocks = <&clk IMX8MQ_CLK_SNVS_ROOT>;
-+					clock-names = "snvs-pwrkey";
- 					linux,keycode = <KEY_POWER>;
- 					wakeup-source;
- 					status = "disabled";
+diff --git a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+index 2fe245ca816a..a73722c58fab 100644
+--- a/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
++++ b/Documentation/devicetree/bindings/crypto/fsl-sec4.txt
+@@ -449,6 +449,19 @@ System ON/OFF key driver
+       Value type: <phandle>
+       Definition: this is phandle to the register map node.
+ 
++   - clocks
++      Usage: optional, required if SNVS LP requires explicit
++          enablement of clocks
++      Value type: <prop_encoded-array>
++      Definition:  a clock specifier describing the clock required for
++          enabling and disabling SNVS LP.
++
++   - clock-names
++      Usage: optional, required if SNVS LP requires explicit
++          enablement of clocks
++      Value type: <string>
++      Definition: clock name string should be "snvs-pwrkey".
++
+ EXAMPLE:
+ 	snvs-pwrkey@020cc000 {
+ 		compatible = "fsl,sec-v4.0-pwrkey";
+@@ -456,6 +469,8 @@ EXAMPLE:
+ 		interrupts = <0 4 0x4>
+ 	        linux,keycode = <116>; /* KEY_POWER */
+ 		wakeup-source;
++		clocks = <&clks IMX7D_SNVS_CLK>;
++		clock-names = "snvs-pwrkey";
+ 	};
+ 
+ =====================================================================
+@@ -547,6 +562,8 @@ FULL EXAMPLE
+ 			interrupts = <0 4 0x4>;
+ 			linux,keycode = <116>; /* KEY_POWER */
+ 			wakeup-source;
++			clocks = <&clks IMX7D_SNVS_CLK>;
++			clock-names = "snvs-pwrkey";
+ 		};
+ 	};
+ 
 -- 
 2.23.0.rc1
 

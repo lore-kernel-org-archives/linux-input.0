@@ -2,189 +2,107 @@ Return-Path: <SRS0=dHTn=4P=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04569C35E0E
-	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 16:16:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEC81C3567B
+	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 17:07:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D0B2D2469F
-	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 16:16:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92666246A6
+	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 17:07:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=aosc.io header.i=@aosc.io header.b="Co6bzQ6F"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="QR4MXkAe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729258AbgB0QQD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Feb 2020 11:16:03 -0500
-Received: from hermes.aosc.io ([199.195.250.187]:55143 "EHLO hermes.aosc.io"
+        id S1729172AbgB0RHj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Feb 2020 12:07:39 -0500
+Received: from mout.gmx.net ([212.227.15.19]:50063 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728059AbgB0QQD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Feb 2020 11:16:03 -0500
-X-Greylist: delayed 440 seconds by postgrey-1.27 at vger.kernel.org; Thu, 27 Feb 2020 11:16:02 EST
-Received: from localhost (localhost [127.0.0.1]) (Authenticated sender: icenowy@aosc.io)
-        by hermes.aosc.io (Postfix) with ESMTPSA id AFE494B2ED;
-        Thu, 27 Feb 2020 16:09:10 +0000 (UTC)
-From:   Icenowy Zheng <icenowy@aosc.io>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        id S1729382AbgB0RHi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Feb 2020 12:07:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1582823252;
+        bh=Zb0cpGY5979XVir3SW4/XvgaLWpiRVc0awjhmaXpE38=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=QR4MXkAemQqcaKG57/JmvWW5uqe8rp2HgSaaPb1MpKx9CDf0IljrCRVkK0ZfA5ud2
+         ocoMXyDYrHyMUw6dAP/ETnhEe3xEkTFSAfl2em05LmGceS3CAiagcqOv8+kFCxzye7
+         UEuJ1Ltvgddl5QVADZG51WpdTjs6kpil6RTjr90U=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from longitude ([5.146.195.162]) by mail.gmx.com (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1Md6Qr-1jfb3X2zAp-00aGpS; Thu, 27
+ Feb 2020 18:07:32 +0100
+From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+To:     devicetree@vger.kernel.org
+Cc:     =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Bastien Nocera <hadess@hadess.net>,
-        Ondrej Jirman <megous@megous.com>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>
-Subject: [PATCH v2 2/3] Input: goodix - use string-based chip ID
-Date:   Fri, 28 Feb 2020 00:08:01 +0800
-Message-Id: <20200227160802.7043-3-icenowy@aosc.io>
-In-Reply-To: <20200227160802.7043-1-icenowy@aosc.io>
-References: <20200227160802.7043-1-icenowy@aosc.io>
+        Mark Rutland <mark.rutland@arm.com>,
+        Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] dt-bindings: mfd: Fix typo in file name of twl-familly.txt
+Date:   Thu, 27 Feb 2020 18:07:01 +0100
+Message-Id: <20200227170702.4582-1-j.neuschaefer@gmx.net>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aosc.io; s=dkim;
-        t=1582819756;
-        h=from:subject:date:message-id:to:cc:mime-version:content-transfer-encoding:in-reply-to:references;
-        bh=0iDpNGq6IRp8gcDFfkwBhK68bKjQJBn92umR+xGbvCg=;
-        b=Co6bzQ6FiD5JH6Gd/UbVp/L8hASBcHWNrb5syERRx6Hf/ssVEyGUmM/KA5CR1QdvdQC/we
-        CbCWsxfC3Cz0NgfW+G5jlezSM3Zkk94MzFk7ZAQyXRMW/ZVT+3tbTHeXdNOqVB/PKDLYBi
-        hXHP2+oE2sei26oD67VLUnOP6WD9uTo=
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:tIcRwH00gj+4vKzcC1Ct9adpzROq1V35GkFIucElVSbqgod5Mqe
+ 0+1GjTfQQR8VG+YH8a79ByQEsstpHDdrkPQv++D4SqKlb8LgGyRl0gBbXuq4C0gKyzUo88C
+ et/M8/5TGvgqb1W6tTCThLNRguFIJiwuQMvoj+lL9rigd6QGvklsPqk9Vbdz6MUI5bXm933
+ /wVx7EwSe/8WMCho5GvbA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:7i6SF/cOIBk=:yTQ2KJ8n+TE2ntZtfO97t1
+ JN3eSKl8ljhj8iKnheTkUY5iMHxLl952hEQnU139MxPFMBNktOyOa5Pl/caDffmBBM4upmSWd
+ waZRalC9phCIVu704YtdYuQaWlbt9/kbiTmbvp+g3tnWfeXUZMgaibZH79vhVtQDbbnrxLHDh
+ thBoiWqOl2+WQeEvmFu1QcAXdo+Dw4PqDLs3CjWEtBlhed+uPb641YEZ23qY5K//6XzMdhgQR
+ dbKdLfaZ7kZen0TBJwNe4tizu72wKQWkBsEkpwxU87VkKIjL49M3FMUqC+qh728QiHDM9xSD+
+ F8ZCfnUY8RnWG+Se4XzalejWbacFums1OA5hMyrjyXx32HdGW+gDBwjcB982hpIkZo+7QmbVz
+ EUP0cKpipaX5po7aibWhtvTKXOAJdqpinK6leO5OH/poxide73ezZOfFaQa1eTJxyMa8HBK9E
+ Wnm3sNBIym9GKVdeW6DszMSnsWHUGGGJmj5F/ZTBseYORg7PvriWvr1JdymrnP120fM5dGzf5
+ sDRucq6ywKWZC0gRO4q4ppP5nbwKiqrC4Ky9DRMdayLJ7k8Qu+iuizGtDTr19I5ThXg4coBFZ
+ uQB5Vi50Uol5Av0wvmju7IyZVUByTRhinmkE6ZXmyRh40rIJGggsWhkB6lcTR84jqV9UPNLdQ
+ fdH4+Iy9KmA+G5shyAVYV9RGIHP2iSnFhJYfbUmstd5NhbO0Z5atyHne2ga6uXtiF1nhgMWba
+ DUG1Kg3OxikyZLserKaCVAz6EmDZqXgEd1ckmuy/07hxaI5xiCBkKh9lDzqlgnDUqDZFFA2HU
+ Qc1kDaXuUWXtwsjpQyRc1ZTg/mm6POqyDnX7enXzVJAHrbhQ+8eMADFBKcddUmcsgpw0HWLcW
+ Y6QlthymNSHgUYj/gDa50nc4dCKLbn0f66/6XAtsJMOeVsyxg+nh4ILMPjxe2zszX1iNYx2ju
+ vDBY3RxCA44uGONloGdY9mAZISVn8m3HyTkkDpFoUGxI0jJ3DkKpahHyH4snW/A6DJqti4Quc
+ nDdraBUzgpXFjhH9RQCv1j1jmUFIJwOYddHtm18pQZScmOoROzT496KSVgmTKZYG0+UuFTpT2
+ 7nGgTEoCA4TwRExZWDFPQ9f4M7HWDAvE2JdEyoYaQkwRn20MFnqZrRYzUypAXtfTaMBK+pOiq
+ 1gkkDeMJ9GJJrAD3aae4FlaoiVCJz4Fjhs107C1YUXypWbEZ76dZiNHcS6oYEsxvnmnqSmKHx
+ 8E+air0/Z/PjdfHf0
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-For Goodix GT917S chip, the chip ID string is "917S", which contains not
-only numbers now.
+Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
+=2D--
+ Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt   | 2 +-
+ .../devicetree/bindings/mfd/{twl-familly.txt =3D> twl-family.txt} | 0
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+ rename Documentation/devicetree/bindings/mfd/{twl-familly.txt =3D> twl-fa=
+mily.txt} (100%)
 
-Use string-based chip ID in the driver to support this chip and further
-chips with alphanumber ID.
+diff --git a/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt=
+ b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+index c864a46cddcf..f5021214edec 100644
+=2D-- a/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
++++ b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+@@ -1,7 +1,7 @@
+ Texas Instruments TWL family (twl4030) pwrbutton module
 
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
----
-Changes in v2:
-- Used a table to save ID and chip data info.
-- Use strscpy().
+ This module is part of the TWL4030. For more details about the whole
+-chip see Documentation/devicetree/bindings/mfd/twl-familly.txt.
++chip see Documentation/devicetree/bindings/mfd/twl-family.txt.
 
- drivers/input/touchscreen/goodix.c | 61 +++++++++++++++++-------------
- 1 file changed, 35 insertions(+), 26 deletions(-)
+ This module provides a simple power button event via an Interrupt.
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 0403102e807e..dde85b894ca4 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -37,6 +37,11 @@ struct goodix_chip_data {
- 	int (*check_config)(struct goodix_ts_data *, const struct firmware *);
- };
- 
-+struct goodix_chip_id {
-+	const char *id;
-+	const struct goodix_chip_data *data;
-+};
-+
- struct goodix_ts_data {
- 	struct i2c_client *client;
- 	struct input_dev *input_dev;
-@@ -48,7 +53,7 @@ struct goodix_ts_data {
- 	struct regulator *vddio;
- 	struct gpio_desc *gpiod_int;
- 	struct gpio_desc *gpiod_rst;
--	u16 id;
-+	char id[5];
- 	u16 version;
- 	const char *cfg_name;
- 	struct completion firmware_loading_complete;
-@@ -115,6 +120,22 @@ static const struct goodix_chip_data gt9x_chip_data = {
- 	.check_config		= goodix_check_cfg_8,
- };
- 
-+static const struct goodix_chip_id goodix_chip_ids[] = {
-+	{ .id = "1151", .data = &gt1x_chip_data },
-+	{ .id = "5663", .data = &gt1x_chip_data },
-+	{ .id = "5688", .data = &gt1x_chip_data },
-+
-+	{ .id = "911", .data = &gt911_chip_data },
-+	{ .id = "9271", .data = &gt911_chip_data },
-+	{ .id = "9110", .data = &gt911_chip_data },
-+	{ .id = "927", .data = &gt911_chip_data },
-+	{ .id = "928", .data = &gt911_chip_data },
-+
-+	{ .id = "912", .data = &gt967_chip_data },
-+	{ .id = "967", .data = &gt967_chip_data },
-+	{ }
-+};
-+
- static const unsigned long goodix_irq_flags[] = {
- 	IRQ_TYPE_EDGE_RISING,
- 	IRQ_TYPE_EDGE_FALLING,
-@@ -235,28 +256,16 @@ static int goodix_i2c_write_u8(struct i2c_client *client, u16 reg, u8 value)
- 	return goodix_i2c_write(client, reg, &value, sizeof(value));
- }
- 
--static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
-+static const struct goodix_chip_data *goodix_get_chip_data(const char *id)
- {
--	switch (id) {
--	case 1151:
--	case 5663:
--	case 5688:
--		return &gt1x_chip_data;
--
--	case 911:
--	case 9271:
--	case 9110:
--	case 927:
--	case 928:
--		return &gt911_chip_data;
--
--	case 912:
--	case 967:
--		return &gt967_chip_data;
--
--	default:
--		return &gt9x_chip_data;
-+	unsigned int i;
-+
-+	for (i = 0; goodix_chip_ids[i].id; i++) {
-+		if (!strcmp(goodix_chip_ids[i].id, id))
-+			return goodix_chip_ids[i].data;
- 	}
-+
-+	return &gt9x_chip_data;
- }
- 
- static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
-@@ -673,12 +682,11 @@ static int goodix_read_version(struct goodix_ts_data *ts)
- 
- 	memcpy(id_str, buf, 4);
- 	id_str[4] = 0;
--	if (kstrtou16(id_str, 10, &ts->id))
--		ts->id = 0x1001;
-+	strscpy(ts->id, id_str, 5);
- 
- 	ts->version = get_unaligned_le16(&buf[4]);
- 
--	dev_info(&ts->client->dev, "ID %d, version: %04x\n", ts->id,
-+	dev_info(&ts->client->dev, "ID %s, version: %04x\n", ts->id,
- 		 ts->version);
- 
- 	return 0;
-@@ -736,7 +744,8 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
- 	ts->input_dev->phys = "input/ts";
- 	ts->input_dev->id.bustype = BUS_I2C;
- 	ts->input_dev->id.vendor = 0x0416;
--	ts->input_dev->id.product = ts->id;
-+	if (kstrtou16(ts->id, 10, &ts->input_dev->id.product))
-+		ts->input_dev->id.product = 0x1001;
- 	ts->input_dev->id.version = ts->version;
- 
- 	/* Capacitive Windows/Home button on some devices */
-@@ -915,7 +924,7 @@ static int goodix_ts_probe(struct i2c_client *client,
- 	if (ts->gpiod_int && ts->gpiod_rst) {
- 		/* update device config */
- 		ts->cfg_name = devm_kasprintf(&client->dev, GFP_KERNEL,
--					      "goodix_%d_cfg.bin", ts->id);
-+					      "goodix_%s_cfg.bin", ts->id);
- 		if (!ts->cfg_name)
- 			return -ENOMEM;
- 
--- 
-2.24.1
+diff --git a/Documentation/devicetree/bindings/mfd/twl-familly.txt b/Docum=
+entation/devicetree/bindings/mfd/twl-family.txt
+similarity index 100%
+rename from Documentation/devicetree/bindings/mfd/twl-familly.txt
+rename to Documentation/devicetree/bindings/mfd/twl-family.txt
+=2D-
+2.20.1
 

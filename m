@@ -2,83 +2,96 @@ Return-Path: <SRS0=dHTn=4P=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=0.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8EFAC4BA24
-	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 10:42:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA5FAC4BA3B
+	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 11:28:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8BCAC24691
-	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 10:42:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A374C24695
+	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 11:28:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728858AbgB0KmZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Feb 2020 05:42:25 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:33742 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728844AbgB0KmZ (ORCPT
+        id S1728901AbgB0L22 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Feb 2020 06:28:28 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:49513 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728846AbgB0L21 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Feb 2020 05:42:25 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 2949D1C0311; Thu, 27 Feb 2020 11:42:23 +0100 (CET)
-Date:   Thu, 27 Feb 2020 11:42:22 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Andrea.Ho@advantech.com.tw
-Cc:     linux-input@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>, Luca Weiss <luca@z3ntu.xyz>,
-        linux-kernel@vger.kernel.org, voyandrea@gmail.com,
-        amy.shih@advantech.com.tw, oakley.ding@advantech.com.tw
-Subject: Re: [V2,1/1] Input/misc: add support for Advantech software defined
- button
-Message-ID: <20200227104222.GA25104@duo.ucw.cz>
-References: <20200227101738.22389-1-Andrea.Ho@advantech.com.tw>
+        Thu, 27 Feb 2020 06:28:27 -0500
+Received: from dude02.hi.pengutronix.de ([2001:67c:670:100:1d::28] helo=dude02.lab.pengutronix.de)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1j7HL4-0000p5-Gt; Thu, 27 Feb 2020 12:28:22 +0100
+Received: from mfe by dude02.lab.pengutronix.de with local (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1j7HL3-0001k4-9D; Thu, 27 Feb 2020 12:28:21 +0100
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     dmitry.torokhov@gmail.com, andriy.shevchenko@linux.intel.com,
+        hdegoede@redhat.com, LW@KARO-electronics.de
+Cc:     linux-input@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 1/4] Input: edt-ft5x06 - fix get_default register write access
+Date:   Thu, 27 Feb 2020 12:28:16 +0100
+Message-Id: <20200227112819.16754-2-m.felsch@pengutronix.de>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200227112819.16754-1-m.felsch@pengutronix.de>
+References: <20200227112819.16754-1-m.felsch@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
-Content-Disposition: inline
-In-Reply-To: <20200227101738.22389-1-Andrea.Ho@advantech.com.tw>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::28
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Since commit b6eba86030bf ("Input: edt-ft5x06 - add offset support for
+ev-ft5726") offset-x and offset-y is supported. Devices using those
+offset parameters don't support the offset parameter so we need to add
+the NO_REGISTER check for edt_ft5x06_ts_get_defaults().
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: b6eba86030bf ("Input: edt-ft5x06 - add offset support for ev-ft5726")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+---
+ drivers/input/touchscreen/edt-ft5x06.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-Hi!
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index d2587724c52a..9b8450794a8a 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -938,19 +938,25 @@ static void edt_ft5x06_ts_get_defaults(struct device *dev,
+ 
+ 	error = device_property_read_u32(dev, "offset", &val);
+ 	if (!error) {
+-		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset, val);
++		if (reg_addr->reg_offset != NO_REGISTER)
++			edt_ft5x06_register_write(tsdata,
++						  reg_addr->reg_offset, val);
+ 		tsdata->offset = val;
+ 	}
+ 
+ 	error = device_property_read_u32(dev, "offset-x", &val);
+ 	if (!error) {
+-		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset_x, val);
++		if (reg_addr->reg_offset_x != NO_REGISTER)
++			edt_ft5x06_register_write(tsdata,
++						  reg_addr->reg_offset_x, val);
+ 		tsdata->offset_x = val;
+ 	}
+ 
+ 	error = device_property_read_u32(dev, "offset-y", &val);
+ 	if (!error) {
+-		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset_y, val);
++		if (reg_addr->reg_offset_y != NO_REGISTER)
++			edt_ft5x06_register_write(tsdata,
++						  reg_addr->reg_offset_y, val);
+ 		tsdata->offset_y = val;
+ 	}
+ }
+-- 
+2.20.1
 
-> +/* Defined keycodes */
-> +static short swbtn_keycodes[]  =3D {
-> +	BTN_TRIGGER_HAPPY2, /* double click */
-> +	BTN_TRIGGER_HAPPY,  /* tick */
-> +	BTN_TRIGGER_HAPPY3, BTN_TRIGGER_HAPPY4, /* long press */
-> +	BTN_TRIGGER_HAPPY5, BTN_TRIGGER_HAPPY6, BTN_TRIGGER_HAPPY7,
-> +	BTN_TRIGGER_HAPPY8, BTN_TRIGGER_HAPPY9, BTN_TRIGGER_HAPPY10
-> +};
-
-NAK. See my prev email.
-								Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---ZPt4rx8FFjLCG7dd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXledDgAKCRAw5/Bqldv6
-8oV9AKCi6b7noclyjt7mj4GvMMIWU9Xo+wCeMjTPUj85fu6rwD5+0AVCXbnc62U=
-=AEx8
------END PGP SIGNATURE-----
-
---ZPt4rx8FFjLCG7dd--

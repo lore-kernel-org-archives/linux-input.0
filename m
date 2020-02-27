@@ -2,60 +2,67 @@ Return-Path: <SRS0=dHTn=4P=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE86BC35677
-	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 16:08:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A758C3567B
+	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 16:16:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BEFAA2469F
-	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 16:08:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 725FD246A8
+	for <linux-input@archiver.kernel.org>; Thu, 27 Feb 2020 16:16:03 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=aosc.io header.i=@aosc.io header.b="KvjohEZ1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729153AbgB0QIY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Feb 2020 11:08:24 -0500
-Received: from muru.com ([72.249.23.125]:58058 "EHLO muru.com"
+        id S1729487AbgB0QQC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Feb 2020 11:16:02 -0500
+Received: from hermes.aosc.io ([199.195.250.187]:55146 "EHLO hermes.aosc.io"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729134AbgB0QIY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Feb 2020 11:08:24 -0500
-Received: from atomide.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id 4F0E980C0;
-        Thu, 27 Feb 2020 16:09:08 +0000 (UTC)
-Date:   Thu, 27 Feb 2020 08:08:20 -0800
-From:   Tony Lindgren <tony@atomide.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-omap@vger.kernel.org,
-        Arthur Demchenkov <spinal.by@gmail.com>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH 2/2] Input: omap4-keypad - check state again for lost
- key-up interrupts
-Message-ID: <20200227160820.GF37466@atomide.com>
-References: <20200227020407.17276-1-tony@atomide.com>
- <20200227020407.17276-2-tony@atomide.com>
+        id S1729258AbgB0QQC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Feb 2020 11:16:02 -0500
+Received: from localhost (localhost [127.0.0.1]) (Authenticated sender: icenowy@aosc.io)
+        by hermes.aosc.io (Postfix) with ESMTPSA id 1074B4B2DD;
+        Thu, 27 Feb 2020 16:08:30 +0000 (UTC)
+From:   Icenowy Zheng <icenowy@aosc.io>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Bastien Nocera <hadess@hadess.net>,
+        Ondrej Jirman <megous@megous.com>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>
+Subject: [PATCH v2 0/3] Add support for Goodix GT917S touch controller
+Date:   Fri, 28 Feb 2020 00:07:59 +0800
+Message-Id: <20200227160802.7043-1-icenowy@aosc.io>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200227020407.17276-2-tony@atomide.com>
+Content-Transfer-Encoding: 8bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aosc.io; s=dkim;
+        t=1582819721;
+        h=from:subject:date:message-id:to:cc:mime-version:content-transfer-encoding;
+        bh=FpRj0r9YXZ520UOqR7tl+VuCJUkCeKC7tvRB0u7eAwI=;
+        b=KvjohEZ1c4KgUwjgW1MUuLW66Wbg+BMWwEXG7FCHrhtM+IqbBIotsPCuEtEyfSbCkE2Mfs
+        4rY25BOhxEf5g//KkUSpixfjR7WKwBxig16gqcRh7l8aifYUys5WZYcehuoxpBqJxYAgFz
+        tpI/C8uUgz9u/C9aa+8oW8p/kyq1f1Y=
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-* Tony Lindgren <tony@atomide.com> [200227 02:05]:
-> +		/* Check once after debounce time when no more keys down */
-> +		if (!new_keys_pressed) {
-> +			usleep_range(OMAP4_DEBOUNCE_MS * 1000 * 2,
-> +				     OMAP4_DEBOUNCE_MS * 1000 * 3);
-> +			new_keys_pressed = omap4_keypad_scan_keys(keypad_data);
-> +		}
+This patchset introduces support for Goodix GT917S touch controller.
 
-So this can be outside the loop. And we actually need to clear
-the state looks like.
+The major difference with other touch controllers from Goodix is that
+the ID string is no longer number-only (it contains a 'S'), so an
+additional patch is introduced for migrating the ID to a string.
 
-I'll send out v2 series of these after some more debugging.
+Icenowy Zheng (3):
+  dt-bindings: input: touchscreen: add compatible string for Goodix
+    GT917S
+  Input: goodix - use string-based chip ID
+  Input: goodix - Add support for Goodix GT917S
 
-Regards,
+ .../bindings/input/touchscreen/goodix.yaml    |  1 +
+ drivers/input/touchscreen/goodix.c            | 63 +++++++++++--------
+ 2 files changed, 38 insertions(+), 26 deletions(-)
 
-Tony
+-- 
+2.24.1
+

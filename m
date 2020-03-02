@@ -2,180 +2,132 @@ Return-Path: <SRS0=OSNE=4T=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFA50C3F2D1
-	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 19:09:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0BB5C3F2D1
+	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 20:55:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9218C2166E
-	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 19:09:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 751AD2173E
+	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 20:55:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="brrDVe+9"
+	dkim=pass (1024-bit key) header.d=seznam.cz header.i=@seznam.cz header.b="NA++ZvB7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727126AbgCBTJE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Mar 2020 14:09:04 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:51421 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726451AbgCBTJE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 2 Mar 2020 14:09:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583176142;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=WmckbSg+HYyyI4kOSwe71WkfPgRWX5rCdwArN9MozOU=;
-        b=brrDVe+9JmkxzWRfYrESTPV3avWSdnc5Ndbg6x0vx2hPZFCISTt1RS2kx68ks0weVPadL5
-        RkW0cEoXPNO+vF9ezOHsSBWTEdKrPeYI9b4iSvvRg8iwiOlVqywLElE8emlKBXA2VwCWu0
-        3/5YiX5py4+d24pUEjcr1o6t5o6cyKQ=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-378-L_F0QyZFMZixhp-FCKek7A-1; Mon, 02 Mar 2020 14:08:58 -0500
-X-MC-Unique: L_F0QyZFMZixhp-FCKek7A-1
-Received: by mail-wr1-f69.google.com with SMTP id t14so114737wrs.12
-        for <linux-input@vger.kernel.org>; Mon, 02 Mar 2020 11:08:58 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=WmckbSg+HYyyI4kOSwe71WkfPgRWX5rCdwArN9MozOU=;
-        b=OhkMK6wDS0kwJvqGhWrcdyJ9DNy9AmpT12RXNlgoX+jZBOqf7ng5tYL1go2Rwb0F/w
-         W28RoVY3W1wOI6EIh7Wc0MPcEdq2kfB+UzUdy7L/+ddW5Mpg3yDGPJroZTIlVJApu/2A
-         IqGhxu10/gJTuoD7by6S4pPdaFq6msJqg05TnODb3rNusaz4lXMH4noH5/DdeSEV2e1Q
-         vLBku+JcrFnu1CgxeSae9yZPAGIOexzqQpvYDnhX+YAz+YzhM73kACkOIxfQa9h3X8Km
-         kzwsSM5VYSXpHav6J1v86yJfWcalJ2RqQE3IGY7WYYirVkvtJSVAWdcTGrKQeCnPSj86
-         G7Kg==
-X-Gm-Message-State: ANhLgQ3EIC+5L7Q3TRwzgciN9vaJB/4/nseIybgsHgnrSCCmGKfLwf3F
-        DG+4fGrXrATklYiZermo7GdK6hk3M9Z5y5nwT3+xO6n6GAlo4FchEePwlilEd6rRqV4ncolNK/B
-        bnW378IQT+uOpIXl0kO2d82o=
-X-Received: by 2002:a1c:a502:: with SMTP id o2mr7925wme.94.1583176137056;
-        Mon, 02 Mar 2020 11:08:57 -0800 (PST)
-X-Google-Smtp-Source: ADFU+vuQR2u0p5zBne+aCfMxUZ1B0kzVqblt7nTT/q5K7nk22apW17d0LFoeLFThjqo9qb4/VCcpWg==
-X-Received: by 2002:a1c:a502:: with SMTP id o2mr7913wme.94.1583176136777;
-        Mon, 02 Mar 2020 11:08:56 -0800 (PST)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-fc7e-fd47-85c1-1ab3.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:fc7e:fd47:85c1:1ab3])
-        by smtp.gmail.com with ESMTPSA id z14sm29746277wru.31.2020.03.02.11.08.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 02 Mar 2020 11:08:56 -0800 (PST)
-Subject: Re: [PATCH resend 10/10] Input: goodix - Restore config on resume if
- necessary
-To:     Bastien Nocera <hadess@hadess.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, Dmitry Mastykin <mastichi@gmail.com>
-References: <20200221164735.508324-1-hdegoede@redhat.com>
- <20200221164735.508324-10-hdegoede@redhat.com>
- <30842bb43aa29e8f1edeadc335e3f792a7a76092.camel@hadess.net>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <f4a2ea92-8733-3b3c-fe18-ec54d617336b@redhat.com>
-Date:   Mon, 2 Mar 2020 20:08:55 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1726740AbgCBUzZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Mar 2020 15:55:25 -0500
+Received: from mxa1.seznam.cz ([77.75.78.90]:42117 "EHLO mxa1.seznam.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726579AbgCBUzY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 2 Mar 2020 15:55:24 -0500
+Received: from email.seznam.cz
+        by email-smtpc11b.ko.seznam.cz (email-smtpc11b.ko.seznam.cz [10.53.14.75])
+        id 2b9617137098437a2a3fdb4d;
+        Mon, 02 Mar 2020 21:55:14 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seznam.cz; s=beta;
+        t=1583182514; bh=PrVyWKz+cStZKFUbfG88xeiAHpw+y5USeILJtHAAfcU=;
+        h=Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:
+         References:MIME-Version:Content-Transfer-Encoding;
+        b=NA++ZvB7/6OZBV1Cnxjlju81CR0v1UVWTJjLbPPZqXXugCLxpek+lEiueRwZcYT/R
+         xlv7qgvf7WNpvlGXhjkOWyqPmecLzkt6Y7zn6EGC4rxBXswA+etykz+JWcWwERl1qY
+         BEMH/f4V+1zC17eMS7SAoJJCVSgf6emiE9oXSlNo=
+Received: from localhost.localdomain (212.69.128.228 [212.69.128.228])
+        by email-relay4.ko.seznam.cz (Seznam SMTPD 1.3.108) with ESMTP;
+        Mon, 02 Mar 2020 21:55:11 +0100 (CET)  
+From:   michael.srba@seznam.cz
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        Michael Srba <Michael.Srba@seznam.cz>
+Subject: [PATCH v3 2/2][PATCH RESEND] dt-bindings: input/touchscreen: add bindings for zinitix
+Date:   Mon,  2 Mar 2020 21:12:16 +0100
+Message-Id: <20200302201216.12410-2-michael.srba@seznam.cz>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20200302201216.12410-1-michael.srba@seznam.cz>
+References: <20200302201216.12410-1-michael.srba@seznam.cz>
 MIME-Version: 1.0
-In-Reply-To: <30842bb43aa29e8f1edeadc335e3f792a7a76092.camel@hadess.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+From: Michael Srba <Michael.Srba@seznam.cz>
 
-On 3/2/20 12:35 PM, Bastien Nocera wrote:
-> On Fri, 2020-02-21 at 17:47 +0100, Hans de Goede wrote:
->> Some devices, e.g the Trekstor Primetab S11B, loose there config over
-> 
-> "lose".
-> 
->> a suspend/resume cycle (likely the controller looses power during
-> 
-> "loses".
-> 
->> suspend).
->>
->> This commit reads back the config version on resume and if matches
->> the
->> expected config version it resets the controller and resends the
->> config
->> we read back and saved at probe time.
->>
->> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1786317
->> BugLink: https://github.com/nexus511/gpd-ubuntu-packages/issues/10
->> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=199207
->> Cc: Dmitry Mastykin <mastichi@gmail.com>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> 
-> Looks fine apart from the nitpicks.
-> 
-> Reviewed-by: Bastien Nocera <hadess@hadess.net>
-> 
->> ---
->>   drivers/input/touchscreen/goodix.c | 22 ++++++++++++++++++++++
->>   1 file changed, 22 insertions(+)
->>
->> diff --git a/drivers/input/touchscreen/goodix.c
->> b/drivers/input/touchscreen/goodix.c
->> index 0f39c499e3a9..389d3e044f97 100644
->> --- a/drivers/input/touchscreen/goodix.c
->> +++ b/drivers/input/touchscreen/goodix.c
->> @@ -1232,6 +1232,7 @@ static int __maybe_unused goodix_resume(struct
->> device *dev)
->>   {
->>   	struct i2c_client *client = to_i2c_client(dev);
->>   	struct goodix_ts_data *ts = i2c_get_clientdata(client);
->> +	u8 config_ver;
->>   	int error;
->>   
->>   	if (ts->irq_pin_access_method == irq_pin_access_none) {
->> @@ -1253,6 +1254,27 @@ static int __maybe_unused goodix_resume(struct
->> device *dev)
->>   	if (error)
->>   		return error;
->>   
->> +	error = goodix_i2c_read(ts->client, ts->chip->config_addr,
->> +				&config_ver, 1);
->> +	if (error)
->> +		dev_warn(dev, "Error reading config version: %d,
->> resetting controller\n",
->> +			 error);
->> +	else if (config_ver != ts->config[0])
->> +		dev_warn(dev, "Config version mismatch %d != %d,
->> resetting controller\n",
->> +			 config_ver, ts->config[0]);
-> 
-> Should it really be a warning if it happens regularly?
+This patch adds dts bindings for the zinitix bt541 touchscreen.
 
-Good point, I've changed this to a dev_info for v2.
-
-Regards,
-
-Hans
+Signed-off-by: Michael Srba <Michael.Srba@seznam.cz>
+---
+ changes in v2: none
+ changes in v3: document zinitix,mode property
 
 
+ .../bindings/input/touchscreen/zinitix.txt    | 40 +++++++++++++++++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
+ 2 files changed, 42 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
 
-> 
->> +
->> +	if (error != 0 || config_ver != ts->config[0]) {
->> +		error = goodix_reset(ts);
->> +		if (error) {
->> +			dev_err(dev, "Controller reset failed.\n");
->> +			return error;
->> +		}
->> +
->> +		error = goodix_send_cfg(ts, ts->config, ts->chip-
->>> config_len);
->> +		if (error)
->> +			return error;
->> +	}
->> +
->>   	error = goodix_request_irq(ts);
->>   	if (error)
->>   		return error;
-> 
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/zinitix.txt b/Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
+new file mode 100644
+index 000000000000..446efb9f5f55
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
+@@ -0,0 +1,40 @@
++Device tree bindings for Zinitx BT541 touchscreen controller
++
++Required properties:
++
++ - compatible		: Should be "zinitix,bt541"
++ - reg			: I2C address of the chip. Should be 0x20
++ - interrupts		: Interrupt to which the chip is connected
++
++Optional properties:
++
++ - vdd-supply		: Analog power supply regulator on VCCA pin
++ - vddo-supply		: Digital power supply regulator on VDD pin
++ - zinitix,mode		: Mode of reporting touch points. Some modes may not work
++			  with a particular ts firmware for unknown reasons. Available
++			  modes are 1 and 2. Mode 2 is the default and preferred.
++
++The touchscreen-* properties are documented in touchscreen.txt in this
++directory.
++
++Example:
++
++	i2c@00000000 {
++		/* ... */
++
++		bt541@20 {
++			compatible = "zinitix,bt541";
++			reg = <0x20>;
++			interrupt-parent = <&msmgpio>;
++			interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&tsp_default>;
++			vdd-supply = <&reg_vdd_tsp>;
++			vddo-supply = <&pm8916_l6>;
++			touchscreen-size-x = <540>;
++			touchscreen-size-y = <960>;
++			zinitix,mode = <2>;
++		};
++
++		/* ... */
++	};
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index 967e78c5ec0a..1b0b5e23267d 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1066,6 +1066,8 @@ patternProperties:
+     description: Shenzhen Zidoo Technology Co., Ltd.
+   "^zii,.*":
+     description: Zodiac Inflight Innovations
++  "^zinitix,.*":
++    description: Zinitix Co., Ltd
+   "^zte,.*":
+     description: ZTE Corp.
+   "^zyxel,.*":
+-- 
+2.24.0

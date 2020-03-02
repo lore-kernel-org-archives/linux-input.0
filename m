@@ -2,122 +2,68 @@ Return-Path: <SRS0=OSNE=4T=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D62DDC3F2D4
-	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 08:24:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9077EC3F2D2
+	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 08:32:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B7804246A1
-	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 08:24:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D1B1246A1
+	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 08:32:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727335AbgCBIYn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Mar 2020 03:24:43 -0500
-Received: from emcscan.emc.com.tw ([192.72.220.5]:40493 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726887AbgCBIYn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2020 03:24:43 -0500
-X-Greylist: delayed 586 seconds by postgrey-1.27 at vger.kernel.org; Mon, 02 Mar 2020 03:24:42 EST
-X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
-   d="scan'208";a="34654535"
-Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
-  by emcscan.emc.com.tw with ESMTP; 02 Mar 2020 16:14:54 +0800
-Received: from 192.168.10.23
-        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(177026:0:AUTH_RELAY)
-        (envelope-from <johnny.chuang@emc.com.tw>); Mon, 02 Mar 2020 16:14:56 +0800 (CST)
-Received: from 192.168.55.71
-        by webmail.emc.com.tw with Mail2000 ESMTPA Server V7.00(2486:0:AUTH_LOGIN)
-        (envelope-from <johnny.chuang@emc.com.tw>); Mon, 02 Mar 2020 16:14:55 +0800 (CST)
-From:   "Johnny.Chuang" <johnny.chuang@emc.com.tw>
-To:     "'Peter Hutterer'" <peter.hutterer@who-t.net>,
-        "'Johnny Chuang'" <johnny.chuang.emc@gmail.com>
-Cc:     "'Dmitry Torokhov'" <dmitry.torokhov@gmail.com>,
-        "'Benjamin Tissoires'" <benjamin.tissoires@redhat.com>,
-        <linux-kernel@vger.kernel.org>, <linux-input@vger.kernel.org>,
-        "'Jennifer Tsai'" <jennifer.tsai@emc.com.tw>,
-        "'James Chen'" <james.chen@emc.com.tw>,
-        "'Paul Liang'" <paul.liang@emc.com.tw>,
-        "'Jeff Chuang'" <jeff.chuang@emc.com.tw>
-References: <1582766000-23023-1-git-send-email-johnny.chuang.emc@gmail.com> <20200227223608.GB1087116@jelly>
-In-Reply-To: <20200227223608.GB1087116@jelly>
-Subject: RE: [PATCH] Input: elants_i2c - Report resolution information for touch major
-Date:   Mon, 2 Mar 2020 16:14:51 +0800
-Message-ID: <007201d5f06a$a5f341c0$f1d9c540$@emc.com.tw>
-MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 14.0
-Thread-Index: AQKWH33oxoD7nuWwmg1Q/5rISp31bAHeLyTrpqWIE/A=
-Content-Language: zh-tw
-x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcMDUwMTBcYXBwZGF0YVxyb2FtaW5nXDA5ZDg0OWI2LTMyZDMtNGE0MC04NWVlLTZiODRiYTI5ZTM1Ylxtc2dzXG1zZy1lMGYxMjliOS01YzVkLTExZWEtODUyMC03YzVjZjg3NDk0NzhcYW1lLXRlc3RcZTBmMTI5YmItNWM1ZC0xMWVhLTg1MjAtN2M1Y2Y4NzQ5NDc4Ym9keS50eHQiIHN6PSIyMjc3IiB0PSIxMzIyNzYxMDQ5MTI5NDI1OTkiIGg9Ik9jTEovN3VSbFA2eE5CRjlCK3J2Z2J6WXZvcz0iIGlkPSIiIGJsPSIwIiBibz0iMSIvPjwvbWV0YT4=
-x-dg-rorf: true
+        id S1727131AbgCBIcW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Mar 2020 03:32:22 -0500
+Received: from inva020.nxp.com ([92.121.34.13]:38532 "EHLO inva020.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726758AbgCBIcV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 2 Mar 2020 03:32:21 -0500
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 046361A0F79;
+        Mon,  2 Mar 2020 09:32:20 +0100 (CET)
+Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 55B6C1A0F83;
+        Mon,  2 Mar 2020 09:32:14 +0100 (CET)
+Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id B3F78402A7;
+        Mon,  2 Mar 2020 16:32:07 +0800 (SGT)
+From:   Anson Huang <Anson.Huang@nxp.com>
+To:     dmitry.torokhov@gmail.com, m.felsch@pengutronix.de,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, robh@kernel.org,
+        ping.bai@nxp.com, ronald@innovation.ch, krzk@kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Linux-imx@nxp.com
+Subject: [PATCH] input: keyboard: imx_keypad: add COMPILE_TEST support
+Date:   Mon,  2 Mar 2020 16:26:13 +0800
+Message-Id: <1583137573-16628-1-git-send-email-Anson.Huang@nxp.com>
+X-Mailer: git-send-email 2.7.4
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-> -----Original Message-----
-> From: Peter Hutterer [mailto:peter.hutterer@who-t.net]
-> Sent: Friday, February 28, 2020 6:36 AM
-> To: Johnny Chuang
-> Cc: Dmitry Torokhov; Benjamin Tissoires; linux-kernel@vger.kernel.org;
-> linux-input@vger.kernel.org; Johnny Chuang; Jennifer Tsai; James Chen;
-Paul
-> Liang; Jeff Chuang
-> Subject: Re: [PATCH] Input: elants_i2c - Report resolution information for
-touch
-> major
-> 
-> On Thu, Feb 27, 2020 at 09:13:20AM +0800, Johnny Chuang wrote:
-> > From: Johnny Chuang <johnny.chuang@emc.com.tw>
-> >
-> > This patch supports reporting resolution for ABS_MT_TOUCH_MAJOR event.
-> > This information is needed in showing pressure/width radius.
-> >
-> > Signed-off-by: Johnny Chuang <johnny.chuang@emc.com.tw>
-> > ---
-> >  drivers/input/touchscreen/elants_i2c.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/drivers/input/touchscreen/elants_i2c.c
-> b/drivers/input/touchscreen/elants_i2c.c
-> > index 4911799..14c577c 100644
-> > --- a/drivers/input/touchscreen/elants_i2c.c
-> > +++ b/drivers/input/touchscreen/elants_i2c.c
-> > @@ -1309,6 +1309,7 @@ static int elants_i2c_probe(struct i2c_client
-> *client,
-> >  	input_set_abs_params(ts->input, ABS_MT_PRESSURE, 0, 255, 0, 0);
-> >  	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
-> >  	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
-> > +	input_abs_set_res(ts->input, ABS_MT_TOUCH_MAJOR, 1);
-> 
-> official resolution for absinfo is "units per mm", so a value of 3 would
-> mean 3mm, is that correct?
+Add COMPILE_TEST support to imx_keypad driver for better compile
+testing coverage.
 
-Correct.
-This resolution (1 unit/mm) is for all elan I2C touchscreen devices, 
-including the touchscreen devices in the future.
-This information is from our firmware members.
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+---
+ drivers/input/keyboard/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> 
-> Not that it matters too much, since touch major is already all over the
-> place and needs userspace overrides for every device but it'd be nice to
-at
-> least make this useful out of the box on one device class.
-> 
-> Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
-> 
-> otherwise
-> 
-> Cheers,
->    Peter
-> 
-> >
-> >  	error = input_register_device(ts->input);
-> >  	if (error) {
-> > --
-> > 2.7.4
-> >
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 4706ff0..9709137 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -457,7 +457,7 @@ config KEYBOARD_SNVS_PWRKEY
+ 
+ config KEYBOARD_IMX
+ 	tristate "IMX keypad support"
+-	depends on ARCH_MXC
++	depends on ARCH_MXC || COMPILE_TEST
+ 	select INPUT_MATRIXKMAP
+ 	help
+ 	  Enable support for IMX keypad port.
+-- 
+2.7.4
 

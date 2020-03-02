@@ -2,199 +2,124 @@ Return-Path: <SRS0=OSNE=4T=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CBB1C3F2D7
-	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 14:13:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49AB6C3F2D7
+	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 14:23:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1CE6E2173E
-	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 14:13:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 22BFB214DB
+	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 14:23:34 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="QvDQCiU/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727111AbgCBONf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Mar 2020 09:13:35 -0500
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:41668 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726884AbgCBONf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2020 09:13:35 -0500
-Received: by mail-oi1-f196.google.com with SMTP id i1so10373737oie.8;
-        Mon, 02 Mar 2020 06:13:34 -0800 (PST)
+        id S1727104AbgCBOXc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Mar 2020 09:23:32 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:46008 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727209AbgCBOXb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2020 09:23:31 -0500
+Received: by mail-wr1-f65.google.com with SMTP id v2so12736468wrp.12
+        for <linux-input@vger.kernel.org>; Mon, 02 Mar 2020 06:23:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=yonDHdolWIn4SkNmhlWY3OpANSyLF2GFYrxdHSqeb9w=;
+        b=QvDQCiU/yurtIg2JwzVi0YpwzRuFU8FubtbkpGmE2n7WqnSj+hf9tgluwRK/k/cKiW
+         vXKVsSg1+rQxejo/pYFnHp29/+7mkl6IWY7bhnGiCkchBa6IdwSoB1BKPoCF3ODhGigh
+         D8pscJdUblkW/z9EXAas93wLsX2c//xvse2VevDfxtUI5hnInCwH0VUDuCaE5g8esAY1
+         9iMOmr9DAt2fqerGCi08uCYIm3ce0DNkE2K/tdFxcfRqVKheOMgWYjz4p+efrPfyxLpB
+         qWkBQGgKJ2+rcg6WeJmAoCUGqll0n1+KsCStNG2K6coxHyJRhzh0l8LaNJ5UjckNpTlx
+         V7Gw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ws2B6l6NIJSFRXDPIqA5jSMWVs7TmLxkRxy3tQa87pU=;
-        b=dmtTA6Aya7x6bFPVvcNOrR04oXA2P2k1XJ0hOGU4StZS5CGenvFNd083gK2DF42Mke
-         +BVMpjHSoGfxfRLJBJeDstRhl9l0CoEXM27TMRg0Y69h544kIPgir+py+plKCLRXrZAC
-         Vo3yZI56HkCnXpwhHMguhXc29+HIkbqWjHqAWX4mtej8AorOvJFe3sPAU0pKEYIvzrfF
-         cMutkxJLJByC+Xv1518Co0IrBKLUlvMIDxCLbe5adLaIeFHHs3zf1kivXvFx87V5gIQF
-         O7usWTxbtA4g7w91JghcgHSC+uQOAYl2vyuV4Xz/EIf5gMPEyFbyxU8k2wfF5Lwz9xHt
-         3JLg==
-X-Gm-Message-State: APjAAAUR4YvLHclFjvMVjdZg6W4wECpKUWElUgAtaTr9bidnzYzX3Uku
-        UgGtFqh0yq9HdihQ2J806soU2X4j6ikr2Zf9XlE=
-X-Google-Smtp-Source: APXvYqxc30QQ9pF6wru8kNRGnSUWQtitDVWX70yYiEahlGuWpiD550st9Aj0VJTOK9dZ5LHS2cvequPflqzhHL793jk=
-X-Received: by 2002:aca:ed04:: with SMTP id l4mr11923714oih.54.1583158414290;
- Mon, 02 Mar 2020 06:13:34 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=yonDHdolWIn4SkNmhlWY3OpANSyLF2GFYrxdHSqeb9w=;
+        b=VSlQYom48fnYqG5hMwGQOhP4wLz+91Ufy6X0ee3qivZGqCO8YmfajT6Z5cAAUIj9La
+         EZiuJFNJXpgCo3mQcoKH4W/mtCIG9aaS+Tb658Mnp9bYWTgAcT7h81qz/FKhJHawaIHL
+         Yu2ya2Krj9cTq8TzwFZzsv4xw7LXs3FgXNIxCQzdPd+j6PjSCh80lLW08rm/L0cYGKeA
+         Jo5+E9DZBDE1FTeLeQU/QmTIqcdtgdqCISRUqaqBV0lGEBIBeQ+k6AV5pnliSDHxVteA
+         dquNDfjWsrKLOLEIYFQpGegLHRV/CKRc0rjEs/Ox4cEoQM0WzGQFhg0qneO06AYsknqi
+         AeIA==
+X-Gm-Message-State: APjAAAWos3NY/L2vi+4RXKP+w6pNUVtz8CftHUJoM5FqRgTt71KztJau
+        Vip59e9qHghPAssWKniXQyil5g==
+X-Google-Smtp-Source: APXvYqwVggDQ245XI7AoDjZd00PfYJ6yqqfBMylCMd3P7eml55z+AJsZT6lp0LjvWqaJ5MfjypJrog==
+X-Received: by 2002:adf:cc85:: with SMTP id p5mr22348852wrj.196.1583159009498;
+        Mon, 02 Mar 2020 06:23:29 -0800 (PST)
+Received: from dell ([2.31.163.122])
+        by smtp.gmail.com with ESMTPSA id a9sm15947351wmm.15.2020.03.02.06.23.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Mar 2020 06:23:28 -0800 (PST)
+Date:   Mon, 2 Mar 2020 14:24:05 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Jeff LaBundy <jeff@labundy.com>
+Cc:     dmitry.torokhov@gmail.com, thierry.reding@gmail.com,
+        jic23@kernel.org, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org, u.kleine-koenig@pengutronix.de,
+        linux-pwm@vger.kernel.org, knaack.h@gmx.de, lars@metafoo.de,
+        pmeerw@pmeerw.net, linux-iio@vger.kernel.org, robh+dt@kernel.org,
+        mark.rutland@arm.com
+Subject: Re: [PATCH v5 2/7] mfd: Add support for Azoteq
+ IQS620A/621/622/624/625
+Message-ID: <20200302142405.GA3494@dell>
+References: <1581895931-6056-1-git-send-email-jeff@labundy.com>
+ <1581895931-6056-3-git-send-email-jeff@labundy.com>
+ <20200224111448.GS3494@dell>
+ <20200228034220.GA3510@labundy.com>
+ <20200302120458.GY3494@dell>
+ <20200302141117.GA11787@labundy.com>
 MIME-Version: 1.0
-References: <1580808174-11289-1-git-send-email-marian-cristian.rotariu.rb@bp.renesas.com>
-In-Reply-To: <1580808174-11289-1-git-send-email-marian-cristian.rotariu.rb@bp.renesas.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 2 Mar 2020 15:13:23 +0100
-Message-ID: <CAMuHMdVmsDVJRWp2uzVs0BKp-CjAcc6PS-1wBPT8J+UZr1O7CA@mail.gmail.com>
-Subject: Re: [PATCH] ARM: dts: iwg22d-sodimm: Enable touchscreen
-To:     Marian-Cristian Rotariu 
-        <marian-cristian.rotariu.rb@bp.renesas.com>
-Cc:     Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Chris Paterson <chris.paterson2@renesas.com>,
-        "Lad, Prabhakar" <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200302141117.GA11787@labundy.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Marian-Cristian,
+On Mon, 02 Mar 2020, Jeff LaBundy wrote:
 
-On Tue, Feb 4, 2020 at 10:23 AM Marian-Cristian Rotariu
-<marian-cristian.rotariu.rb@bp.renesas.com> wrote:
-> In one of the iWave-G22D development board variants, called Generic SODIMM
-> Development Platform, we have an LCD with touchscreen. The resistive touch
-> controller, STMPE811 is on the development board and is connected through
-> the i2c5 of the RZ-G1E.
->
-> Additionally, this controller should generate an interrupt to the CPU and
-> it is connected through GPIO4,4 to the GIC.
->
-> Touch was tested with one of our iW-RainboW-G22D-SODIMM RZ/G1E development
-> platforms.
->
-> More details on the iWave website:
-> https://www.iwavesystems.com/rz-g1e-sodimm-development-kit.html
->
-> Signed-off-by: Marian-Cristian Rotariu <marian-cristian.rotariu.rb@bp.renesas.com>
-> Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> Hi Lee,
+> 
+> On Mon, Mar 02, 2020 at 12:04:58PM +0000, Lee Jones wrote:
+> > On Thu, 27 Feb 2020, Jeff LaBundy wrote:
+> > 
+> > > Hi Lee,
+> > > 
+> > > On Mon, Feb 24, 2020 at 11:14:48AM +0000, Lee Jones wrote:
+> > > 
+> > > [...]
+> > > 
+> > > > 
+> > > > Well done Jeff.  Good job.
+> > > > 
+> > > > Applied, thanks.
+> > > > 
+> > > 
+> > > Thank you for your kind words as well as your support in fleshing out this
+> > > series.
+> > > 
+> > > Just to confirm, does your offer to take the remainder (once everything is
+> > > approved) through immutable branches still stand?
+> > 
+> > Depends how quickly you can get the other drivers turned around.
+> 
+> With Uwe's approval from Friday, all five drivers are complete. Dmitry and
+> Jonathan's approvals were given in previous review cycles and were carried
+> forward with their permission. If anything else is required, please let me
+> know.
 
-Thanks for your patch!
-
-> --- a/arch/arm/boot/dts/r8a7745-iwg22d-sodimm.dts
-> +++ b/arch/arm/boot/dts/r8a7745-iwg22d-sodimm.dts
-> @@ -128,6 +128,47 @@
->         status = "okay";
->         clock-frequency = <400000>;
->
-> +       stmpe811@44 {
-> +               compatible = "st,stmpe811";
-
-According to the DT bindings, this must be "st,stmpe-ts", but the example
-also uses "st,stmpe811"?
-
-> +               #address-cells = <1>;
-> +               #size-cells = <0>;
-
-Not documented in the DT bindings (but used in the example).
-
-> +               reg = <0x44>;
-> +               interrupt-parent = <&gpio4>;
-> +               interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-
-This should be "<4 IRQ_TYPE_LEVEL_LOW>", to refer to GP4_4.
-
-> +               irq-gpio = <&gpio4 4 IRQ_TYPE_LEVEL_LOW>;
-
-"irq-gpio" is not documented in the DT bindings.
-
-> +               pinctrl-0 = <&touch>;
-> +               pinctrl-names = "default";
-> +               id = <0>;
-> +               blocks = <0x5>;
-> +               irq-trigger = <0x1>;
-
-Above 3 are not documented.
-
-> +
-> +               stmpe_touchscreen {
-
-Missing unit-address.
-
-> +                       compatible = "st,stmpe-ts";
-> +                       reg = <0>;
-> +                       /* 3.25 MHz ADC clock speed */
-> +                       st,adc-freq = <3>;
-> +                       /* 8 sample average control */
-> +                       st,ave-ctrl = <2>;
-> +                       /* 7 length fractional part in z */
-> +                       st,fraction-z = <7>;
-> +                       /*
-> +                        * 50 mA typical 80 mA max touchscreen drivers
-> +                        * current limit value
-> +                        */
-> +                       st,i-drive = <0>;
-
-Bindings say <0> corresponds to 20 mA.
-Either the comment is wrong, or this should be <1>.
-
-> +                       /* 12-bit ADC */
-> +                       st,mod-12b = <1>;
-> +                       /* internal ADC reference */
-> +                       st,ref-sel = <0>;
-> +                       /* ADC converstion time: 80 clocks */
-> +                       st,sample-time = <4>;
-> +                       /* 1 ms panel driver settling time */
-> +                       st,settling = <3>;
-> +                       /* 5 ms touch detect interrupt delay */
-> +                       st,touch-det-delay = <4>;
-
-Bindings say <4> corresponds to 1 ms.
-Either the comment is wrong, or this should be <5>.
-
-> +               };
-> +       };
-> +
->         sgtl5000: codec@a {
->                 compatible = "fsl,sgtl5000";
->                 #sound-dai-cells = <0>;
-> @@ -181,6 +222,11 @@
->                 function = "ssi";
->         };
->
-> +       touch: stmpe811 {
-> +               groups = "intc_irq0";
-> +               function = "intc";
-
-This does not match using GP4_4 for the interrupt.
-
-Either you use GP4_4:
-
-    interrupt-parent = <&gpio4>;
-    interrupts = <4 IRQ_TYPE_LEVEL_LOW>;
-
-which doesn't require any explicit pin control setup (the gpio-rcar
-driver takes care of that),
-or you use IRQ0:
-
-    interrupt-parent = <&irqc>;
-    interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-
-The latter does require explicit pin control setup.
-
-> +       };
-> +
->         usb0_pins: usb0 {
->                 groups = "usb0";
->                 function = "usb0";
-
-Gr{oetje,eeting}s,
-
-                        Geert
+Does Uwe's review mean that Thierry's is not required?
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

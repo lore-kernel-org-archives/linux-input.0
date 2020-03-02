@@ -2,50 +2,48 @@ Return-Path: <SRS0=OSNE=4T=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF14BC3F2D1
-	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 10:18:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60E32C3F2D1
+	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 10:18:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C71782166E
-	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 10:18:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2CE8921775
+	for <linux-input@archiver.kernel.org>; Mon,  2 Mar 2020 10:18:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="MLjyrgYA"
+	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="tVz5UR0e"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727406AbgCBKSm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Mar 2020 05:18:42 -0500
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:46850 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726654AbgCBKSm (ORCPT
+        id S1727468AbgCBKSp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Mar 2020 05:18:45 -0500
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:38490 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727386AbgCBKSn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 2 Mar 2020 05:18:42 -0500
-Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 022AHPre029337;
-        Mon, 2 Mar 2020 11:18:35 +0100
+        Mon, 2 Mar 2020 05:18:43 -0500
+Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 022AHfjG004585;
+        Mon, 2 Mar 2020 11:18:34 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : subject :
- date : message-id : in-reply-to : references : mime-version :
- content-type; s=STMicroelectronics;
- bh=lVNZlW2TEVzdSx5uY5AV+8wsV6wkYAOCEPlhpaxFhqE=;
- b=MLjyrgYA4M86XIJV8V7CqZt4mKdphl5A8zC7n7GdYWWo/M8so1U+8ZgLWDXQzUc0MZav
- edN/c6ChqRYWX8ssrxtoN2DFg6W2YS7WEszimG4CYm8LHyfDKZxwZ+q3em7TeWZoyM4F
- M7Ut6WWdNQvzW3DUsVXy64iQgihAn41cbBc2DW36eKgEHOCX39fJCrCK13+S/6SrO98c
- 6hT42Ffzs7eW/ZukXB1oCVRS73NiqT9W7yx7dIdIUDYSuxSjAgNW29boqB4EWcAIeDwH
- d2nnDfleC7Nv3w798YPN5tnc13vYQ7dIHb+z/RZHIAA4cH/FP8YJ9EAuhLyONf6uggp/ EQ== 
+ date : message-id : mime-version : content-type; s=STMicroelectronics;
+ bh=+puGmu9zlwbaFpGqLpx72PUlCRVhOg5intWmOG3EzJo=;
+ b=tVz5UR0eB1Vd0bh8hUu0/qoHnPR5nrN7149Gvrz6EZX+LkWQ5gEN1DrJ2Q4+UAoioPZo
+ 64i6Qw6Z3ahX/M6P6SJBoP/2cST70WMNDHL1bnu+A2vbByqaTC+pzO6AfMVbRLbj0j/l
+ E413PshJd8YPL55ee+q7xhXQPiYU4ETvP5Y2NZcWij+ZxPbMRdZtPeoWAHsnATDIHMYd
+ QjCfDT7JrI+eZ4ed0G/XPx0rPDncsN3ORA97xy5lzFkHhp5tji1tFCEjqQxgpW3jQhoE
+ 4+Go3gw1uOXuccMeHYPCwVBQ/UGx3ypIylUjKn5kFNkcw0b8vMsnKi+n2XwSk+RY0gLb sw== 
 Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 2yffqpjqat-1
+        by mx07-00178001.pphosted.com with ESMTP id 2yfea6jv53-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 Mar 2020 11:18:35 +0100
+        Mon, 02 Mar 2020 11:18:34 +0100
 Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 3008C10003A;
-        Mon,  2 Mar 2020 11:18:31 +0100 (CET)
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id E3617100034;
+        Mon,  2 Mar 2020 11:18:29 +0100 (CET)
 Received: from Webmail-eu.st.com (sfhdag6node1.st.com [10.75.127.16])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 243CF2B62F5;
-        Mon,  2 Mar 2020 11:18:31 +0100 (CET)
-Received: from localhost (10.75.127.46) by SFHDAG6NODE1.st.com (10.75.127.16)
- with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 2 Mar 2020 11:18:30
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id B36D52B62F6;
+        Mon,  2 Mar 2020 11:18:29 +0100 (CET)
+Received: from localhost (10.75.127.44) by SFHDAG6NODE1.st.com (10.75.127.16)
+ with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 2 Mar 2020 11:18:29
  +0100
 From:   Yannick Fertre <yannick.fertre@st.com>
 To:     Bastien Nocera <hadess@hadess.net>,
@@ -56,15 +54,13 @@ To:     Bastien Nocera <hadess@hadess.net>,
         Yannick Fertre <yannick.fertre@st.com>,
         <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>
-Subject: [PATCH v1 2/2] Input: goodix - support gt9147 touchpanel
-Date:   Mon, 2 Mar 2020 11:18:28 +0100
-Message-ID: <1583144308-3781-3-git-send-email-yannick.fertre@st.com>
+Subject: [PATCH v1 0/2] goodix: support of gt9147
+Date:   Mon, 2 Mar 2020 11:18:26 +0100
+Message-ID: <1583144308-3781-1-git-send-email-yannick.fertre@st.com>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1583144308-3781-1-git-send-email-yannick.fertre@st.com>
-References: <1583144308-3781-1-git-send-email-yannick.fertre@st.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Originating-IP: [10.75.127.46]
+X-Originating-IP: [10.75.127.44]
 X-ClientProxiedBy: SFHDAG1NODE3.st.com (10.75.127.3) To SFHDAG6NODE1.st.com
  (10.75.127.16)
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
@@ -74,38 +70,21 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add support for it by adding compatible and supported chip data
-(default settings used).
+Add support of GT9147 for Goodix touchscreen.
 The chip data on GT9147 is similar to GT912, like
 - config data register has 0x8047 address
 - config data register max len is 240
 - config data checksum has 8-bit
 
-Signed-off-by: Yannick Fertre <yannick.fertre@st.com>
----
- drivers/input/touchscreen/goodix.c | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 0403102..8851a35 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -251,6 +251,7 @@ static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
- 		return &gt911_chip_data;
- 
- 	case 912:
-+	case 9147:
- 	case 967:
- 		return &gt967_chip_data;
- 
-@@ -1054,6 +1055,7 @@ static const struct of_device_id goodix_of_match[] = {
- 	{ .compatible = "goodix,gt9271" },
- 	{ .compatible = "goodix,gt928" },
- 	{ .compatible = "goodix,gt967" },
-+	{ .compatible = "goodix,gt9147",},
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, goodix_of_match);
--- 
+Yannick Fertre (2):
+  dt-bindings: touchscreen: goodix: support of gt9147
+  Input: goodix - support gt9147 touchpanel
+
+ Documentation/devicetree/bindings/input/touchscreen/goodix.yaml | 1 +
+ drivers/input/touchscreen/goodix.c                              | 2 ++
+ 2 files changed, 3 insertions(+)
+
+--
 2.7.4
 

@@ -6,36 +6,36 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6592C3F2DA
-	for <linux-input@archiver.kernel.org>; Tue,  3 Mar 2020 18:09:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE01EC3F2D1
+	for <linux-input@archiver.kernel.org>; Tue,  3 Mar 2020 18:09:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9CCCC208C3
-	for <linux-input@archiver.kernel.org>; Tue,  3 Mar 2020 18:09:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B2D3A208C3
+	for <linux-input@archiver.kernel.org>; Tue,  3 Mar 2020 18:09:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732284AbgCCSJW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 3 Mar 2020 13:09:22 -0500
-Received: from mga18.intel.com ([134.134.136.126]:24363 "EHLO mga18.intel.com"
+        id S1732248AbgCCSJX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 3 Mar 2020 13:09:23 -0500
+Received: from mga06.intel.com ([134.134.136.31]:42392 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732643AbgCCSJV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1732629AbgCCSJV (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Tue, 3 Mar 2020 13:09:21 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Mar 2020 10:09:21 -0800
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Mar 2020 10:09:20 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.70,511,1574150400"; 
-   d="scan'208";a="274315512"
+   d="scan'208";a="351889942"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga002.fm.intel.com with ESMTP; 03 Mar 2020 10:09:19 -0800
+  by fmsmga001.fm.intel.com with ESMTP; 03 Mar 2020 10:09:19 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id A0C29321; Tue,  3 Mar 2020 20:09:18 +0200 (EET)
+        id 81CBB107; Tue,  3 Mar 2020 20:09:18 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>
 Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 5/5] Input: edt-ft5x06 - allocate buffer once for debugging
-Date:   Tue,  3 Mar 2020 20:09:17 +0200
-Message-Id: <20200303180917.12563-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 2/5] Input: edt-ft5x06 - refactor condition in edt_ft5x06_debugfs_mode_set()
+Date:   Tue,  3 Mar 2020 20:09:14 +0200
+Message-Id: <20200303180917.12563-2-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200303180917.12563-1-andriy.shevchenko@linux.intel.com>
 References: <20200303180917.12563-1-andriy.shevchenko@linux.intel.com>
@@ -46,77 +46,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-There is no need to allocate buffer each time we switch modes. First of all,
-the code is protected by checking the factory_mode state. The size of the
-buffer is static and can't be changed after ->probe() anyway.
+For better reading unroll nested conditions to simple if-else-if.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
+ drivers/input/touchscreen/edt-ft5x06.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 1023d4134b8d..3895e194006a 100644
+index d2587724c52a..cb67104c6934 100644
 --- a/drivers/input/touchscreen/edt-ft5x06.c
 +++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -544,16 +544,6 @@ static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
- 
- 	disable_irq(client->irq);
- 
--	if (!tsdata->raw_buffer) {
--		tsdata->raw_bufsize = tsdata->num_x * tsdata->num_y *
--				      sizeof(u16);
--		tsdata->raw_buffer = kzalloc(tsdata->raw_bufsize, GFP_KERNEL);
--		if (!tsdata->raw_buffer) {
--			error = -ENOMEM;
--			goto err_out;
--		}
--	}
--
- 	/* mode register is 0x3c when in the work mode */
- 	error = edt_ft5x06_register_write(tsdata, WORK_REGISTER_OPMODE, 0x03);
- 	if (error) {
-@@ -581,8 +571,6 @@ static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
- 	return 0;
- 
- err_out:
--	kfree(tsdata->raw_buffer);
--	tsdata->raw_buffer = NULL;
- 	tsdata->factory_mode = false;
- 	enable_irq(client->irq);
- 
-@@ -622,9 +610,6 @@ static int edt_ft5x06_work_mode(struct edt_ft5x06_ts_data *tsdata)
- 		return -EIO;
- 	}
- 
--	kfree(tsdata->raw_buffer);
--	tsdata->raw_buffer = NULL;
--
- 	/* restore parameters */
- 	edt_ft5x06_register_write(tsdata, reg_addr->reg_threshold,
- 				  tsdata->threshold);
-@@ -697,7 +682,7 @@ static ssize_t edt_ft5x06_debugfs_raw_data_read(struct file *file,
+@@ -666,10 +666,10 @@ static int edt_ft5x06_debugfs_mode_set(void *data, u64 mode)
  
  	mutex_lock(&tsdata->mutex);
  
--	if (!tsdata->factory_mode || !tsdata->raw_buffer) {
-+	if (!tsdata->factory_mode) {
- 		error = -EIO;
- 		goto out;
- 	}
-@@ -774,6 +759,12 @@ edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
+-	if (mode != tsdata->factory_mode) {
+-		retval = mode ? edt_ft5x06_factory_mode(tsdata) :
+-				edt_ft5x06_work_mode(tsdata);
+-	}
++	if (mode && !tsdata->factory_mode)
++		retval = edt_ft5x06_factory_mode(tsdata);
++	else if (!mode && tsdata->factory_mode)
++		retval = edt_ft5x06_work_mode(tsdata);
  
- 	debugfs_create_file("mode", S_IRUSR | S_IWUSR,
- 			    tsdata->debug_dir, tsdata, &debugfs_mode_fops);
-+
-+	tsdata->raw_bufsize = tsdata->num_x * tsdata->num_y * sizeof(u16);
-+	tsdata->raw_buffer = kzalloc(tsdata->raw_bufsize, GFP_KERNEL);
-+	if (!tsdata->raw_buffer)
-+		return;
-+
- 	debugfs_create_file("raw_data", S_IRUSR,
- 			    tsdata->debug_dir, tsdata, &debugfs_raw_data_fops);
- }
+ 	mutex_unlock(&tsdata->mutex);
+ 
 -- 
 2.25.1
 

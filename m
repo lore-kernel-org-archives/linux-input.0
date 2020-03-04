@@ -2,642 +2,181 @@ Return-Path: <SRS0=A95p=4V=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4372FC3F2CD
-	for <linux-input@archiver.kernel.org>; Wed,  4 Mar 2020 09:43:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A41B4C3F2D7
+	for <linux-input@archiver.kernel.org>; Wed,  4 Mar 2020 12:38:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 098F82146E
-	for <linux-input@archiver.kernel.org>; Wed,  4 Mar 2020 09:43:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C98621775
+	for <linux-input@archiver.kernel.org>; Wed,  4 Mar 2020 12:38:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="hlXhHnDb"
+	dkim=pass (1024-bit key) header.d=renesasgroup.onmicrosoft.com header.i=@renesasgroup.onmicrosoft.com header.b="rIHWSvAg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729138AbgCDJnC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Mar 2020 04:43:02 -0500
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:58385 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728387AbgCDJnC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 4 Mar 2020 04:43:02 -0500
-Received: from pps.filterd (m0046037.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0249E4NE011815;
-        Wed, 4 Mar 2020 10:42:31 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type; s=STMicroelectronics;
- bh=xTAUbZgzzObrdlT6XJnXg3/PAUo5cKiPBTLGO0YruFg=;
- b=hlXhHnDbQJxP6dASolVJe0dZAbU211etYavIVMwzJ1KoweX9QigDvPrTsfmZxz0CoBpw
- IcN68SMkFZgDoVNbcq42E0PypcbBwzWFy/mq3AtFroc+urJch3zu9QaB2THUFZzoJki8
- Fcptc6XwZ+vfoagCOgTXsWmktJZxSK4FAMC94M/jSCJe76of4Jkq1SSUk3v++wdShlDn
- jaUY4F13SmSRbrCBIQBQ+GKYlCa+NGxVZLjEZPse29iK9KM3OuoKlD9JsDcuwkaBEOsf
- lBE7jSUiY/kgbWmRyPSd69DGfLS+l86zeRiLGx1YQXCUOnk8NUCGTqO3IAHV7nGmXjp7 Bg== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 2yfem0yy1n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 Mar 2020 10:42:31 +0100
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id D375D10002A;
-        Wed,  4 Mar 2020 10:42:30 +0100 (CET)
-Received: from Webmail-eu.st.com (sfhdag3node3.st.com [10.75.127.9])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 96C652A59B8;
-        Wed,  4 Mar 2020 10:42:30 +0100 (CET)
-Received: from localhost (10.75.127.46) by SFHDAG3NODE3.st.com (10.75.127.9)
- with Microsoft SMTP Server (TLS) id 15.0.1347.2; Wed, 4 Mar 2020 10:42:29
- +0100
-From:   Benjamin Gaignard <benjamin.gaignard@st.com>
-To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
-        <mark.rutland@arm.com>, <lee.jones@linaro.org>,
-        <lgirdwood@gmail.com>, <broonie@kernel.org>,
-        <wim@linux-watchdog.org>, <linux@roeck-us.net>, <p.paillet@st.com>
-CC:     <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-        Benjamin Gaignard <benjamin.gaignard@st.com>
-Subject: [PATCH v5] dt-bindings: mfd: Convert stpmic1 bindings to json-schema
-Date:   Wed, 4 Mar 2020 10:42:20 +0100
-Message-ID: <20200304094220.28156-1-benjamin.gaignard@st.com>
-X-Mailer: git-send-email 2.15.0
+        id S2387966AbgCDMiW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Mar 2020 07:38:22 -0500
+Received: from mail-eopbgr1410139.outbound.protection.outlook.com ([40.107.141.139]:49507
+        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726440AbgCDMiW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 4 Mar 2020 07:38:22 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TLdb+mdeYuFKPE9Zk2weeUE3Y8+ZKlov+JAYHOonV8sIir93BqhO0vhNis4gz7waOo0MKB/vvq61LIC3rHUuSC8KhXecXvHgM2diWrTFnRPzRh6Hwfe5uqNj1RagbIRVVbEmt14In28pUl8q6/OfOqIZkjc5Fiw2aMcy/TBb+5LcNbF0GIOe5JohmnSR4qu+837/jF/ycHZUwPoHYPUEplCBoNpi7RGp+e6PU9McrksDnW+jzhubWtrHDgh7HkN7fYAmnR8wTphgFNuUMqHp4UB1qU88jlO0LgIen2uEcpc0CeJs9LdxbVWeOeR1zPXsaIcooqfbeZvA5l8prrHStg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=YI7Mzh4yrKAjOPRCpn8cvCfjsnTGW/qgPn8tBqSlMzI=;
+ b=cCo9xk0VouaGrsJbrcR00bAyCQVk4MdjlLPA3swGXldccaiVqL2moy1ysXTHY8MKld5wg7zLYsD6CIdxvakSCqwZrM54U/Lm0ubOFy+zAGjtytmETcRB3UFmZMe1yg+0v2WaZKHUP8W//rpwNiXDFobQ9tpZnHRhf/uw+58QuWaU/c1KSg7y5nI1vjv7Vuf2J1E6HujwE1dXwqjCFa6EcRb26nDD0dOYsAvHRyFfOpB+uuB5bBsIfXP+f3P08a9J0Rtkv2RYTX6yVvtMhncGMpAnlGGVsd09FFsaxJ/jBJrjs2Lrf+KpVNDHK8OmOo2Bhf9iXNvSpJ0wIboj/5rCKQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=bp.renesas.com; dmarc=pass action=none
+ header.from=bp.renesas.com; dkim=pass header.d=bp.renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=YI7Mzh4yrKAjOPRCpn8cvCfjsnTGW/qgPn8tBqSlMzI=;
+ b=rIHWSvAgdMnG0KONw8IUeASbduV8ZJS4OD/3xMmYx0uFQJnpta5XfjWteuDe+BoQ39KhOhwPbOyZTTfF4j0oVAwYP2Rg1jGdBY52T8aO9a04V78aB//Qtz0GNDB2idT92K5gejXOPa9CByRQ/EwMhbKUSory7tgS2tEaAMmd9lE=
+Received: from OSAPR01MB5028.jpnprd01.prod.outlook.com (20.179.179.149) by
+ OSAPR01MB3729.jpnprd01.prod.outlook.com (20.178.103.205) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2772.15; Wed, 4 Mar 2020 12:38:16 +0000
+Received: from OSAPR01MB5028.jpnprd01.prod.outlook.com
+ ([fe80::50c1:d043:233d:2092]) by OSAPR01MB5028.jpnprd01.prod.outlook.com
+ ([fe80::50c1:d043:233d:2092%7]) with mapi id 15.20.2772.019; Wed, 4 Mar 2020
+ 12:38:16 +0000
+From:   Marian-Cristian Rotariu 
+        <marian-cristian.rotariu.rb@bp.renesas.com>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+CC:     Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>
+Subject: RE: [PATCH] ARM: dts: iwg22d-sodimm: Enable touchscreen
+Thread-Topic: [PATCH] ARM: dts: iwg22d-sodimm: Enable touchscreen
+Thread-Index: AQHV2zyxdFprAZ+aikeI+eBmLQnm7Kg1gv2AgAMEh3A=
+Date:   Wed, 4 Mar 2020 12:38:15 +0000
+Message-ID: <OSAPR01MB502876C5213B528A95A5B912AEE50@OSAPR01MB5028.jpnprd01.prod.outlook.com>
+References: <1580808174-11289-1-git-send-email-marian-cristian.rotariu.rb@bp.renesas.com>
+ <CAMuHMdVmsDVJRWp2uzVs0BKp-CjAcc6PS-1wBPT8J+UZr1O7CA@mail.gmail.com>
+In-Reply-To: <CAMuHMdVmsDVJRWp2uzVs0BKp-CjAcc6PS-1wBPT8J+UZr1O7CA@mail.gmail.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=marian-cristian.rotariu.rb@bp.renesas.com; 
+x-originating-ip: [193.141.220.21]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 69c5e6da-a39e-47d6-b20e-08d7c038e94e
+x-ms-traffictypediagnostic: OSAPR01MB3729:|OSAPR01MB3729:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <OSAPR01MB37290609589641A2CD55BCC4AEE50@OSAPR01MB3729.jpnprd01.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-forefront-prvs: 0332AACBC3
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(366004)(39860400002)(136003)(396003)(376002)(346002)(189003)(199004)(71200400001)(5660300002)(33656002)(52536014)(6916009)(55016002)(54906003)(86362001)(9686003)(316002)(6506007)(4326008)(7696005)(26005)(66476007)(66946007)(64756008)(76116006)(66556008)(66446008)(8936002)(81156014)(478600001)(81166006)(2906002)(186003)(8676002);DIR:OUT;SFP:1102;SCL:1;SRVR:OSAPR01MB3729;H:OSAPR01MB5028.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:0;
+received-spf: None (protection.outlook.com: bp.renesas.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: CcQy18N6+yrgdZ5hPc6WCgNzXxoCuuVIuZcwFQta/VENqXdCQ7AUlN0ZUqjNHkcIJsiw53nrFeCR2x7f4DzE+igaBFPRy3ds4yNyNvz/NGuebmGNuD2aBiFzY33qfX11774t0LDEQ50dP/jM6bnAdtisGR2fXo9cJOGdtKjnwqe5W158nLK1jxAxc8gY6WzbaaBY/iF1Bu7QLY/DdGf8WHypQFmxsoCViMEdhvmMS1mkALCn/chkzNX6Eu8Ulf47eq4WbBwep3NXdHonWHNhA911e1Ktlc+M8Q+jG+DFcrAjGJIuGyBpjTw6czZyQUTnuB4bc2Oh25VNIk2qtAj8y5RmVCyCPfcc3wgt0ZGdxRC2bR6zU9dXtoBTl1mg6G1vrgOTFSyf3jqzO884AbFPYVeNUdtzQBT/L4AoMQ0+mfaOE8Hvst8zQ1FH61xsgkzw
+x-ms-exchange-antispam-messagedata: DSWpP/1Mohqi1MvRwVPI7NB0cipAz+ReD1l/EPqJFR8L3XXCmKLZcvFVDlOUSJKXOqbRF3rEtZPYS5ofYCWFjTZus7fH6LvAwzGVbI2GWS9bbTljqpGpTbYnvTFG/h6YyVwtkYBZnwZITKHBeuXBIA==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.75.127.46]
-X-ClientProxiedBy: SFHDAG1NODE1.st.com (10.75.127.1) To SFHDAG3NODE3.st.com
- (10.75.127.9)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-03-04_01:2020-03-03,2020-03-04 signatures=0
+X-OriginatorOrg: bp.renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 69c5e6da-a39e-47d6-b20e-08d7c038e94e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Mar 2020 12:38:15.9105
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: gDMHRC7ofbAWnzk8BxBZ0Q1L8xzKEy68aix6ImVoErgugkDwXs2QWTSmMQqKPgYz7uE3sNYTIYWNY64YCBHkm9sR8taY7gUU6YodfqEwIVGXCgcjP6eW6jEyBohTzjmCEII0sMunB8xMi6ooku4EbQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OSAPR01MB3729
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Convert stpmic1 bindings to json-schema.
-
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
----
-version 5:
-- move $ref regulator.yaml under a patternProperties
-- move remain fixed strings under properties field
-
-version 4:
-- move on uppder node $ref: ../regulator/regulator.yaml 
-- move fixed strings under properties field
-- remove unneeded () in patternProperties
-- keep ldo3 separate from other ldo properties
-Note:
-- 'st,mask-reset' property stay in each subnode, I don't find
-  the syntax to avoid dupliquate it. 
-- ldo6-supply and all possible *-supply are describe by this regular
-  expression: ^(buck[1-4]|ldo[1-6]|boost|pwr_sw[1-2])-supply$":
-
-version 3:
-- put $ref under allOf keyword
-- for each regulator node add the list of supported regulator properties
-
- .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 --
- .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ----
- .../devicetree/bindings/mfd/st,stpmic1.yaml        | 339 +++++++++++++++++++++
- .../bindings/regulator/st,stpmic1-regulator.txt    |  64 ----
- .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 -
- 5 files changed, 339 insertions(+), 164 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
- delete mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.yaml
- delete mode 100644 Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
- delete mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
-
-diff --git a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-deleted file mode 100644
-index eb8e83736c02..000000000000
---- a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-+++ /dev/null
-@@ -1,28 +0,0 @@
--STMicroelectronics STPMIC1 Onkey
--
--Required properties:
--
--- compatible = "st,stpmic1-onkey";
--- interrupts: interrupt line to use
--- interrupt-names = "onkey-falling", "onkey-rising"
--	onkey-falling: happens when onkey is pressed; IT_PONKEY_F of pmic
--	onkey-rising: happens when onkey is released; IT_PONKEY_R of pmic
--
--Optional properties:
--
--- st,onkey-clear-cc-flag: onkey is able power on after an
--  over-current shutdown event.
--- st,onkey-pu-inactive: onkey pull up is not active
--- power-off-time-sec: Duration in seconds which the key should be kept
--        pressed for device to power off automatically (from 1 to 16 seconds).
--        see See Documentation/devicetree/bindings/input/input.yaml
--
--Example:
--
--onkey {
--	compatible = "st,stpmic1-onkey";
--	interrupt-parent = <&pmic>;
--	interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
--	interrupt-names = "onkey-falling", "onkey-rising";
--	power-off-time-sec = <10>;
--};
-diff --git a/Documentation/devicetree/bindings/mfd/st,stpmic1.txt b/Documentation/devicetree/bindings/mfd/st,stpmic1.txt
-deleted file mode 100644
-index afd45c089585..000000000000
---- a/Documentation/devicetree/bindings/mfd/st,stpmic1.txt
-+++ /dev/null
-@@ -1,61 +0,0 @@
--* STMicroelectronics STPMIC1 Power Management IC
--
--Required properties:
--- compatible:		: "st,stpmic1"
--- reg:			: The I2C slave address for the STPMIC1 chip.
--- interrupts:		: The interrupt line the device is connected to.
--- #interrupt-cells:	: Should be 1.
--- interrupt-controller:	: Marks the device node as an interrupt controller.
--			    Interrupt numbers are defined at
--			    dt-bindings/mfd/st,stpmic1.h.
--
--STPMIC1 consists in a varied group of sub-devices.
--Each sub-device binding is be described in own documentation file.
--
--Device			 Description
--------			------------
--st,stpmic1-onkey	: Power on key, see ../input/st,stpmic1-onkey.txt
--st,stpmic1-regulators	: Regulators, see ../regulator/st,stpmic1-regulator.txt
--st,stpmic1-wdt		: Watchdog, see ../watchdog/st,stpmic1-wdt.txt
--
--Example:
--
--#include <dt-bindings/mfd/st,stpmic1.h>
--
--pmic: pmic@33 {
--	compatible = "st,stpmic1";
--	reg = <0x33>;
--	interrupt-parent = <&gpioa>;
--	interrupts = <0 2>;
--
--	interrupt-controller;
--	#interrupt-cells = <2>;
--
--	onkey {
--		compatible = "st,stpmic1-onkey";
--		interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
--		interrupt-names = "onkey-falling", "onkey-rising";
--		power-off-time-sec = <10>;
--	};
--
--	watchdog {
--		compatible = "st,stpmic1-wdt";
--	};
--
--	regulators {
--		compatible = "st,stpmic1-regulators";
--
--		vdd_core: buck1 {
--			regulator-name = "vdd_core";
--			regulator-boot-on;
--			regulator-min-microvolt = <700000>;
--			regulator-max-microvolt = <1200000>;
--		};
--		vdd: buck3 {
--			regulator-name = "vdd";
--			regulator-min-microvolt = <3300000>;
--			regulator-max-microvolt = <3300000>;
--			regulator-boot-on;
--			regulator-pull-down;
--		};
--	};
-diff --git a/Documentation/devicetree/bindings/mfd/st,stpmic1.yaml b/Documentation/devicetree/bindings/mfd/st,stpmic1.yaml
-new file mode 100644
-index 000000000000..d9ad9260e348
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/st,stpmic1.yaml
-@@ -0,0 +1,339 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/st,stpmic1.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: STMicroelectonics STPMIC1 Power Management IC bindings
-+
-+description: STMicroelectronics STPMIC1 Power Management IC
-+
-+maintainers:
-+  - pascal Paillet <p.paillet@st.com>
-+
-+properties:
-+  compatible:
-+    const: st,stpmic1
-+
-+  reg:
-+    const: 0x33
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  "#interrupt-cells":
-+    const: 2
-+
-+  interrupt-controller: true
-+
-+  onkey:
-+    type: object
-+
-+    allOf:
-+      - $ref: ../input/input.yaml
-+
-+    properties:
-+      compatible:
-+        const: st,stpmic1-onkey
-+
-+      interrupts:
-+        items:
-+          - description: onkey-falling, happens when onkey is pressed. IT_PONKEY_F of pmic
-+          - description: onkey-rising, happens when onkey is released. IT_PONKEY_R of pmic
-+
-+      interrupt-names:
-+        items:
-+          - const: onkey-falling
-+          - const: onkey-rising
-+
-+      st,onkey-clear-cc-flag:
-+        description: onkey is able power on after an over-current shutdown event.
-+        $ref: /schemas/types.yaml#/definitions/flag
-+
-+      st,onkey-pu-inactive:
-+        description: onkey pull up is not active
-+        $ref: /schemas/types.yaml#/definitions/flag
-+
-+      power-off-time-sec:
-+        minimum: 1
-+        maximum: 16
-+
-+    required:
-+      - compatible
-+      - interrupts
-+      - interrupt-names
-+
-+    additionalProperties: false
-+
-+  watchdog:
-+    type: object
-+
-+    allOf:
-+      - $ref: ../watchdog/watchdog.yaml
-+
-+    properties:
-+      compatible:
-+        const: st,stpmic1-wdt
-+
-+      timeout-sec: true
-+
-+    required:
-+      - compatible
-+
-+    additionalProperties: false
-+
-+  regulators:
-+    type: object
-+
-+    description: |
-+      Available Regulators in STPMIC1 device are:
-+        - buck1 for Buck BUCK1
-+        - buck2 for Buck BUCK2
-+        - buck3 for Buck BUCK3
-+        - buck4 for Buck BUCK4
-+        - ldo1 for LDO LDO1
-+        - ldo2 for LDO LDO2
-+        - ldo3 for LDO LDO3
-+        - ldo4 for LDO LDO4
-+        - ldo5 for LDO LDO5
-+        - ldo6 for LDO LDO6
-+        - vref_ddr for LDO Vref DDR
-+        - boost for Buck BOOST
-+        - pwr_sw1 for VBUS_OTG switch
-+        - pwr_sw2 for SW_OUT switch
-+      Switches are fixed voltage regulators with only enable/disable capability.
-+
-+    properties:
-+      compatible:
-+        const: st,stpmic1-regulators
-+
-+      ldo3:
-+        type: object
-+
-+        properties:
-+          interrupts:
-+            maxItems: 1
-+
-+          st,mask-reset:
-+            description: mask reset for this regulator,
-+                         the regulator configuration is maintained during pmic reset.
-+            $ref: /schemas/types.yaml#/definitions/flag
-+
-+          regulator-name: true
-+          regulator-boot-on: true
-+          regulator-always-on: true
-+          regulator-min-microvolt: true
-+          regulator-max-microvolt: true
-+          regulator-allow-bypass: true
-+          regulator-over-current-protection: true
-+
-+        additionalProperties: false
-+
-+      ldo4:
-+        type: object
-+
-+        properties:
-+          interrupts:
-+            maxItems: 1
-+
-+          st,mask-reset:
-+            description: mask reset for this regulator,
-+                         the regulator configuration is maintained during pmic reset.
-+            $ref: /schemas/types.yaml#/definitions/flag
-+
-+          regulator-name: true
-+          regulator-boot-on: true
-+          regulator-always-on: true
-+          regulator-over-current-protection: true
-+
-+        additionalProperties: false
-+
-+      vref_ddr:
-+        type: object
-+
-+        properties:
-+          interrupts:
-+            maxItems: 1
-+
-+          st,mask-reset:
-+            description: mask reset for this regulator,
-+                         the regulator configuration is maintained during pmic reset.
-+            $ref: /schemas/types.yaml#/definitions/flag
-+
-+          regulator-name: true
-+          regulator-boot-on: true
-+          regulator-always-on: true
-+
-+        additionalProperties: false
-+
-+      boost:
-+        type: object
-+
-+        properties:
-+          interrupts:
-+            maxItems: 1
-+
-+          st,mask-reset:
-+            description: mask reset for this regulator,
-+                         the regulator configuration is maintained during pmic reset.
-+            $ref: /schemas/types.yaml#/definitions/flag
-+
-+          regulator-name: true
-+          regulator-boot-on: true
-+          regulator-always-on: true
-+          regulator-over-current-protection: true
-+
-+        additionalProperties: false
-+
-+    patternProperties:
-+      "^(buck[1-4]|ldo[1-6]|boost|pwr_sw[1-2])-supply$":
-+        description: STPMIC1 voltage regulators supplies
-+
-+      "^(buck[1-4]|ldo[1-6]|boost|vref_ddr|pwr_sw[1-2])$":
-+        allOf:
-+          - $ref: ../regulator/regulator.yaml
-+
-+      "^ldo[1-2,5-6]$":
-+        type: object
-+
-+        properties:
-+          interrupts:
-+            maxItems: 1
-+
-+          st,mask-reset:
-+            description: mask reset for this regulator,
-+                         the regulator configuration is maintained during pmic reset.
-+            $ref: /schemas/types.yaml#/definitions/flag
-+
-+          regulator-name: true
-+          regulator-boot-on: true
-+          regulator-always-on: true
-+          regulator-min-microvolt: true
-+          regulator-max-microvolt: true
-+          regulator-over-current-protection: true
-+          regulator-enable-ramp-delay: true
-+
-+        additionalProperties: false
-+
-+      "^buck[1-4]$":
-+        type: object
-+
-+        properties:
-+          interrupts:
-+            maxItems: 1
-+
-+          st,mask-reset:
-+            description: mask reset for this regulator,
-+                         the regulator configuration is maintained during pmic reset.
-+            $ref: /schemas/types.yaml#/definitions/flag
-+
-+          regulator-name: true
-+          regulator-boot-on: true
-+          regulator-always-on: true
-+          regulator-min-microvolt: true
-+          regulator-max-microvolt: true
-+          regulator-initial-mode: true
-+          regulator-pull-down: true
-+          regulator-over-current-protection: true
-+          regulator-enable-ramp-delay: true
-+
-+        additionalProperties: false
-+
-+      "^pwr_sw[1-2]$":
-+        type: object
-+
-+        properties:
-+          interrupts:
-+            maxItems: 1
-+
-+          regulator-name: true
-+          regulator-boot-on: true
-+          regulator-always-on: true
-+          regulator-over-current-protection: true
-+          regulator-active-discharge: true
-+
-+        additionalProperties: false
-+
-+    required:
-+      - compatible
-+
-+    additionalProperties: false
-+
-+  additionalProperties: false
-+
-+additionalProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - "#interrupt-cells"
-+  - interrupt-controller
-+
-+examples:
-+  - |
-+    #include <dt-bindings/mfd/st,stpmic1.h>
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    i2c@0 {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+      pmic@33 {
-+        compatible = "st,stpmic1";
-+        reg = <0x33>;
-+        interrupt-parent = <&gpioa>;
-+        interrupts = <0 2>;
-+
-+        interrupt-controller;
-+        #interrupt-cells = <2>;
-+
-+        onkey {
-+          compatible = "st,stpmic1-onkey";
-+          interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
-+          interrupt-names = "onkey-falling", "onkey-rising";
-+          power-off-time-sec = <10>;
-+        };
-+
-+        watchdog {
-+          compatible = "st,stpmic1-wdt";
-+        };
-+
-+        regulators {
-+          compatible = "st,stpmic1-regulators";
-+
-+          ldo6-supply = <&v3v3>;
-+
-+          buck1 {
-+            regulator-name = "vdd_core";
-+            interrupts = <IT_CURLIM_BUCK1 0>;
-+            st,mask-reset;
-+            regulator-boot-on;
-+            regulator-min-microvolt = <700000>;
-+            regulator-max-microvolt = <1200000>;
-+          };
-+
-+          buck3 {
-+            regulator-name = "vdd";
-+            regulator-min-microvolt = <3300000>;
-+            regulator-max-microvolt = <3300000>;
-+            regulator-boot-on;
-+            regulator-pull-down;
-+          };
-+
-+          buck4 {
-+            regulator-name = "v3v3";
-+            interrupts = <IT_CURLIM_BUCK4 0>;
-+            regulator-min-microvolt = <3300000>;
-+            regulator-max-microvolt = <3300000>;
-+          };
-+
-+          ldo6 {
-+            regulator-name = "v1v8";
-+            regulator-min-microvolt = <1800000>;
-+            regulator-max-microvolt = <1800000>;
-+            regulator-over-current-protection;
-+          };
-+        };
-+      };
-+    };
-+
-+...
-diff --git a/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt b/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
-deleted file mode 100644
-index 6189df71ea98..000000000000
---- a/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
-+++ /dev/null
-@@ -1,64 +0,0 @@
--STMicroelectronics STPMIC1 Voltage regulators
--
--Regulator Nodes are optional depending on needs.
--
--Available Regulators in STPMIC1 device are:
--  - buck1 for Buck BUCK1
--  - buck2 for Buck BUCK2
--  - buck3 for Buck BUCK3
--  - buck4 for Buck BUCK4
--  - ldo1 for LDO LDO1
--  - ldo2 for LDO LDO2
--  - ldo3 for LDO LDO3
--  - ldo4 for LDO LDO4
--  - ldo5 for LDO LDO5
--  - ldo6 for LDO LDO6
--  - vref_ddr for LDO Vref DDR
--  - boost for Buck BOOST
--  - pwr_sw1 for VBUS_OTG switch
--  - pwr_sw2 for SW_OUT switch
--
--Switches are fixed voltage regulators with only enable/disable capability.
--
--Optional properties:
--- st,mask-reset: mask reset for this regulator: the regulator configuration
--  is maintained during pmic reset.
--- regulator-over-current-protection:
--    if set, all regulators are switched off in case of over-current detection
--    on this regulator,
--    if not set, the driver only sends an over-current event.
--- interrupts: index of current limit detection interrupt
--- <regulator>-supply: phandle to the parent supply/regulator node
--	each regulator supply can be described except vref_ddr.
--- regulator-active-discharge: can be used on pwr_sw1 and pwr_sw2.
--
--Example:
--regulators {
--	compatible = "st,stpmic1-regulators";
--
--	ldo6-supply = <&v3v3>;
--
--	vdd_core: buck1 {
--		regulator-name = "vdd_core";
--		interrupts = <IT_CURLIM_BUCK1 0>;
--		st,mask-reset;
--		regulator-pull-down;
--		regulator-min-microvolt = <700000>;
--		regulator-max-microvolt = <1200000>;
--	};
--
--	v3v3: buck4 {
--		regulator-name = "v3v3";
--		interrupts = <IT_CURLIM_BUCK4 0>;
--
--		regulator-min-microvolt = <3300000>;
--		regulator-max-microvolt = <3300000>;
--	};
--
--	v1v8: ldo6 {
--		regulator-name = "v1v8";
--		regulator-min-microvolt = <1800000>;
--		regulator-max-microvolt = <1800000>;
--		regulator-over-current-protection;
--	};
--};
-diff --git a/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt b/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
-deleted file mode 100644
-index 7cc1407f15cb..000000000000
---- a/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
-+++ /dev/null
-@@ -1,11 +0,0 @@
--STMicroelectronics STPMIC1 Watchdog
--
--Required properties:
--
--- compatible : should be "st,stpmic1-wdt"
--
--Example:
--
--watchdog {
--	compatible = "st,stpmic1-wdt";
--};
--- 
-2.15.0
-
+SGkgR2VlcnQsDQoNClRoYW5rIHlvdSBmb3IgdGhlIHJldmlldy4NCg0KPiA+IC0tLSBhL2FyY2gv
+YXJtL2Jvb3QvZHRzL3I4YTc3NDUtaXdnMjJkLXNvZGltbS5kdHMNCj4gPiArKysgYi9hcmNoL2Fy
+bS9ib290L2R0cy9yOGE3NzQ1LWl3ZzIyZC1zb2RpbW0uZHRzDQo+ID4gQEAgLTEyOCw2ICsxMjgs
+NDcgQEANCj4gPiAgICAgICAgIHN0YXR1cyA9ICJva2F5IjsNCj4gPiAgICAgICAgIGNsb2NrLWZy
+ZXF1ZW5jeSA9IDw0MDAwMDA+Ow0KPiA+DQo+ID4gKyAgICAgICBzdG1wZTgxMUA0NCB7DQo+ID4g
+KyAgICAgICAgICAgICAgIGNvbXBhdGlibGUgPSAic3Qsc3RtcGU4MTEiOw0KPiANCj4gQWNjb3Jk
+aW5nIHRvIHRoZSBEVCBiaW5kaW5ncywgdGhpcyBtdXN0IGJlICJzdCxzdG1wZS10cyIsIGJ1dCB0
+aGUgZXhhbXBsZQ0KPiBhbHNvIHVzZXMgInN0LHN0bXBlODExIj8NCg0KVGhlIGRldmljZSBpcyBh
+IE1GRCBhbmQgdGhlIGJpbmRpbmdzIGRvYyBpcyBoZXJlOg0KRG9jdW1lbnRhdGlvbi9kZXZpY2V0
+cmVlL2JpbmRpbmdzL21mZC9zdG1wZS50eHQNCg0KWW91IG5lZWQgdG8gYWRkIGl0cyBzcGVjaWZp
+YyBmdW5jdGlvbiBhcyBhIGNoaWxkIG5vZGUgb2YgdGhlIG1mZCBkdCBub2RlLiBJbiBvdXINCmNh
+c2UgaXQgaXMgYSB0b3VjaHNjcmVlbjoNCkRvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5n
+cy9pbnB1dC90b3VjaHNjcmVlbi9zdG1wZS50eHQNCg0KPiANCj4gPiArICAgICAgICAgICAgICAg
+I2FkZHJlc3MtY2VsbHMgPSA8MT47DQo+ID4gKyAgICAgICAgICAgICAgICNzaXplLWNlbGxzID0g
+PDA+Ow0KPiANCj4gTm90IGRvY3VtZW50ZWQgaW4gdGhlIERUIGJpbmRpbmdzIChidXQgdXNlZCBp
+biB0aGUgZXhhbXBsZSkuDQoNCkluIHRoZSBjaGlsZCBub2RlIHlvdSBkbyBub3QgbmVlZCB0aGUg
+cmVnIHByb3BlcnR5LCB0aGVyZWZvcmUgdGhlIGV4YW1wbGUgaXMgbm90DQphcHBsaWNhYmxlLiBJ
+IHdpbGwgcmVtb3ZlIHRoZSBhYm92ZSBpbiB0aGUgdjIgcGF0Y2guDQoNCj4gDQo+ID4gKyAgICAg
+ICAgICAgICAgIHJlZyA9IDwweDQ0PjsNCj4gPiArICAgICAgICAgICAgICAgaW50ZXJydXB0LXBh
+cmVudCA9IDwmZ3BpbzQ+Ow0KPiA+ICsgICAgICAgICAgICAgICBpbnRlcnJ1cHRzID0gPDAgSVJR
+X1RZUEVfTEVWRUxfTE9XPjsNCj4gDQo+IFRoaXMgc2hvdWxkIGJlICI8NCBJUlFfVFlQRV9MRVZF
+TF9MT1c+IiwgdG8gcmVmZXIgdG8gR1A0XzQuDQoNCkluZGVlZCwgSSB3aWxsIGZpeCBpdCBpbiB2
+Mi4NCg0KPiANCj4gPiArICAgICAgICAgICAgICAgaXJxLWdwaW8gPSA8JmdwaW80IDQgSVJRX1RZ
+UEVfTEVWRUxfTE9XPjsNCj4gDQo+ICJpcnEtZ3BpbyIgaXMgbm90IGRvY3VtZW50ZWQgaW4gdGhl
+IERUIGJpbmRpbmdzLg0KDQpTZWUgIkRvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9t
+ZmQvc3RtcGUudHh0Ig0KDQo+IA0KPiA+ICsgICAgICAgICAgICAgICBwaW5jdHJsLTAgPSA8JnRv
+dWNoPjsNCj4gPiArICAgICAgICAgICAgICAgcGluY3RybC1uYW1lcyA9ICJkZWZhdWx0IjsNCj4g
+PiArICAgICAgICAgICAgICAgaWQgPSA8MD47DQo+ID4gKyAgICAgICAgICAgICAgIGJsb2NrcyA9
+IDwweDU+Ow0KPiA+ICsgICAgICAgICAgICAgICBpcnEtdHJpZ2dlciA9IDwweDE+Ow0KPiANCj4g
+QWJvdmUgMyBhcmUgbm90IGRvY3VtZW50ZWQuDQoNClRoZXNlIG11c3QgYmUgcmVsaWNzIGZyb20g
+YW4gb2xkIGRyaXZlciB0aGF0IHdlIGhhdmUgZm9yIGFuIG9sZGVyIGtlcm5lbA0KdmVyc2lvbi4g
+SSB3aWxsIHJlbW92ZSBhbGwgMyBhcyB0aGUgY3VycmVudCBkcml2ZXIgaXMgbm90IHVzaW5nIHRo
+ZW0uDQoNCj4gDQo+ID4gKw0KPiA+ICsgICAgICAgICAgICAgICBzdG1wZV90b3VjaHNjcmVlbiB7
+DQo+IA0KPiBNaXNzaW5nIHVuaXQtYWRkcmVzcy4NCg0KSSB3aWxsIHJlbW92ZSB0aGUgcmVnIHBy
+b3BlcnR5LCB0aGVyZWZvcmUgbm8gdW5pdC1hZGRyZXNzIHJlcXVpcmVtZW50Lg0KDQo+IA0KPiA+
+ICsgICAgICAgICAgICAgICAgICAgICAgIGNvbXBhdGlibGUgPSAic3Qsc3RtcGUtdHMiOw0KPiA+
+ICsgICAgICAgICAgICAgICAgICAgICAgIHJlZyA9IDwwPjsNCj4gPiArICAgICAgICAgICAgICAg
+ICAgICAgICAvKiAzLjI1IE1IeiBBREMgY2xvY2sgc3BlZWQgKi8NCj4gPiArICAgICAgICAgICAg
+ICAgICAgICAgICBzdCxhZGMtZnJlcSA9IDwzPjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAg
+ICAvKiA4IHNhbXBsZSBhdmVyYWdlIGNvbnRyb2wgKi8NCj4gPiArICAgICAgICAgICAgICAgICAg
+ICAgICBzdCxhdmUtY3RybCA9IDwyPjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAvKiA3
+IGxlbmd0aCBmcmFjdGlvbmFsIHBhcnQgaW4geiAqLw0KPiA+ICsgICAgICAgICAgICAgICAgICAg
+ICAgIHN0LGZyYWN0aW9uLXogPSA8Nz47DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgLyoN
+Cj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgKiA1MCBtQSB0eXBpY2FsIDgwIG1BIG1heCB0
+b3VjaHNjcmVlbiBkcml2ZXJzDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICogY3VycmVu
+dCBsaW1pdCB2YWx1ZQ0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAqLw0KPiA+ICsgICAg
+ICAgICAgICAgICAgICAgICAgIHN0LGktZHJpdmUgPSA8MD47DQo+IA0KPiBCaW5kaW5ncyBzYXkg
+PDA+IGNvcnJlc3BvbmRzIHRvIDIwIG1BLg0KPiBFaXRoZXIgdGhlIGNvbW1lbnQgaXMgd3Jvbmcs
+IG9yIHRoaXMgc2hvdWxkIGJlIDwxPi4NCg0KSSB3aWxsIGFkZCB0aGUgdmFsdWUgdGhhdCBtYXRj
+aGVzIHRoZSBvbmUgZnJvbSB0aGUgY29tbWVudC4NCg0KPiANCj4gPiArICAgICAgICAgICAgICAg
+ICAgICAgICAvKiAxMi1iaXQgQURDICovDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgc3Qs
+bW9kLTEyYiA9IDwxPjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAvKiBpbnRlcm5hbCBB
+REMgcmVmZXJlbmNlICovDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgc3QscmVmLXNlbCA9
+IDwwPjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAvKiBBREMgY29udmVyc3Rpb24gdGlt
+ZTogODAgY2xvY2tzICovDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgc3Qsc2FtcGxlLXRp
+bWUgPSA8ND47DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgLyogMSBtcyBwYW5lbCBkcml2
+ZXIgc2V0dGxpbmcgdGltZSAqLw0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIHN0LHNldHRs
+aW5nID0gPDM+Ow0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIC8qIDUgbXMgdG91Y2ggZGV0
+ZWN0IGludGVycnVwdCBkZWxheSAqLw0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIHN0LHRv
+dWNoLWRldC1kZWxheSA9IDw0PjsNCj4gDQo+IEJpbmRpbmdzIHNheSA8ND4gY29ycmVzcG9uZHMg
+dG8gMSBtcy4NCj4gRWl0aGVyIHRoZSBjb21tZW50IGlzIHdyb25nLCBvciB0aGlzIHNob3VsZCBi
+ZSA8NT4uDQoNCkFzIGFib3ZlLg0KDQo+IA0KPiA+ICsgICAgICAgICAgICAgICB9Ow0KPiA+ICsg
+ICAgICAgfTsNCj4gPiArDQo+ID4gICAgICAgICBzZ3RsNTAwMDogY29kZWNAYSB7DQo+ID4gICAg
+ICAgICAgICAgICAgIGNvbXBhdGlibGUgPSAiZnNsLHNndGw1MDAwIjsNCj4gPiAgICAgICAgICAg
+ICAgICAgI3NvdW5kLWRhaS1jZWxscyA9IDwwPjsgQEAgLTE4MSw2ICsyMjIsMTEgQEANCj4gPiAg
+ICAgICAgICAgICAgICAgZnVuY3Rpb24gPSAic3NpIjsNCj4gPiAgICAgICAgIH07DQo+ID4NCj4g
+PiArICAgICAgIHRvdWNoOiBzdG1wZTgxMSB7DQo+ID4gKyAgICAgICAgICAgICAgIGdyb3VwcyA9
+ICJpbnRjX2lycTAiOw0KPiA+ICsgICAgICAgICAgICAgICBmdW5jdGlvbiA9ICJpbnRjIjsNCj4g
+DQo+IFRoaXMgZG9lcyBub3QgbWF0Y2ggdXNpbmcgR1A0XzQgZm9yIHRoZSBpbnRlcnJ1cHQuDQo+
+IA0KPiBFaXRoZXIgeW91IHVzZSBHUDRfNDoNCj4gDQo+ICAgICBpbnRlcnJ1cHQtcGFyZW50ID0g
+PCZncGlvND47DQo+ICAgICBpbnRlcnJ1cHRzID0gPDQgSVJRX1RZUEVfTEVWRUxfTE9XPjsNCj4g
+DQo+IHdoaWNoIGRvZXNuJ3QgcmVxdWlyZSBhbnkgZXhwbGljaXQgcGluIGNvbnRyb2wgc2V0dXAg
+KHRoZSBncGlvLXJjYXIgZHJpdmVyDQo+IHRha2VzIGNhcmUgb2YgdGhhdCksIG9yIHlvdSB1c2Ug
+SVJRMDoNCj4gDQo+ICAgICBpbnRlcnJ1cHQtcGFyZW50ID0gPCZpcnFjPjsNCj4gICAgIGludGVy
+cnVwdHMgPSA8MCBJUlFfVFlQRV9MRVZFTF9MT1c+Ow0KPiANCj4gVGhlIGxhdHRlciBkb2VzIHJl
+cXVpcmUgZXhwbGljaXQgcGluIGNvbnRyb2wgc2V0dXAuDQoNCkkgd2lsbCB1c2UgdGhlIGZpcnN0
+IGFwcHJvYWNoIGFzIHRoZSBwYXRjaCBsb29rcyBtb3JlIGNvbXBhY3QuDQoNCkJlc3QgcmVnYXJk
+cywNCk1hcmlhbg0K

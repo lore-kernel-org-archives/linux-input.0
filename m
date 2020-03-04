@@ -6,40 +6,47 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E7BCC3F2D1
-	for <linux-input@archiver.kernel.org>; Wed,  4 Mar 2020 02:25:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E5F1C3F2D1
+	for <linux-input@archiver.kernel.org>; Wed,  4 Mar 2020 04:02:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F39EE208C3
-	for <linux-input@archiver.kernel.org>; Wed,  4 Mar 2020 02:25:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D67120842
+	for <linux-input@archiver.kernel.org>; Wed,  4 Mar 2020 04:02:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387400AbgCDCZC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 3 Mar 2020 21:25:02 -0500
-Received: from aclms1.advantech.com.tw ([61.58.41.199]:14714 "EHLO
+        id S1725892AbgCDECH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 3 Mar 2020 23:02:07 -0500
+Received: from aclms1.advantech.com.tw ([61.58.41.199]:20298 "EHLO
         ACLMS1.advantech.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387398AbgCDCZC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2020 21:25:02 -0500
+        with ESMTP id S1725796AbgCDECH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2020 23:02:07 -0500
 Received: from taipei08.ADVANTECH.CORP (unverified [172.20.0.235]) by ACLMS1.advantech.com.tw
- (Clearswift SMTPRS 5.6.0) with ESMTP id <Tddb17c849aac14014bd38@ACLMS1.advantech.com.tw>;
- Wed, 4 Mar 2020 10:25:00 +0800
-Received: from mail-ot1-f54.google.com (209.85.210.54) by
+ (Clearswift SMTPRS 5.6.0) with ESMTP id <Tddb1d555c4ac14014bd38@ACLMS1.advantech.com.tw>;
+ Wed, 4 Mar 2020 12:02:00 +0800
+Received: from mail-oi1-f171.google.com (209.85.167.171) by
  taipei08.ADVANTECH.CORP (172.20.0.235) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Wed, 4 Mar 2020 10:24:58 +0800
-Received: by mail-ot1-f54.google.com with SMTP id v10so553234otp.2;
-        Tue, 03 Mar 2020 18:24:58 -0800 (PST)
-X-Gm-Message-State: ANhLgQ3ZKRdDso39NwAdDWogTiCyYViHevXLcixvvkPKzTvNu/pIaQMU
-        WuJNwA0aEwGrFkqZleP74Hw1wC4jklMlS5c/a0A=
-X-Google-Smtp-Source: ADFU+vtlctne6blA9aClNHENbOQS87DU627SIWKVMpXL/ES4k0iVY79mTOru/gpzy93PcT4YOBKIO3zR/ZND0igtghE=
-X-Received: by 2002:a9d:282:: with SMTP id 2mr680006otl.178.1583288696558;
- Tue, 03 Mar 2020 18:24:56 -0800 (PST)
+ 15.0.1395.4; Wed, 4 Mar 2020 12:01:59 +0800
+Received: by mail-oi1-f171.google.com with SMTP id a22so667500oid.13;
+        Tue, 03 Mar 2020 20:01:59 -0800 (PST)
+X-Gm-Message-State: ANhLgQ1uvrArWfVHd8wVDvbvF3yMyDy1wuHtNcR0lhLUW3VbasvToEGW
+        V6SlWpE/Uta2PVJkFkGQmVa90CxsNArsEFXdQJU=
+X-Google-Smtp-Source: ADFU+vsvLdTUn8kSKeBQqDk120p17ftIj5h4cQo9sQ7Hh4eBvnfJcREK1xcdgdBI8xz5gBtJtyv57zp0DdPxFI10SGc=
+X-Received: by 2002:aca:4d47:: with SMTP id a68mr450765oib.145.1583294516798;
+ Tue, 03 Mar 2020 20:01:56 -0800 (PST)
 MIME-Version: 1.0
 From:   Andrea Ho <andrea.ho@advantech.com.tw>
-Date:   Wed, 4 Mar 2020 10:24:30 +0800
-X-Gmail-Original-Message-ID: <CAGBRx8PzDmugZALw_rnKKv7ut0XVCgn5-sOD=+t-WM0Um84Vpg@mail.gmail.com>
-Message-ID: <CAGBRx8PzDmugZALw_rnKKv7ut0XVCgn5-sOD=+t-WM0Um84Vpg@mail.gmail.com>
-Subject: [V3,1/1] Input/misc: add support for Advantech software defined button
-To:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Date:   Wed, 4 Mar 2020 12:01:30 +0800
+X-Gmail-Original-Message-ID: <CAGBRx8Ne6t9TAKPgdkeFurJRR8p+hBkofFGOWn6m-Ym23epXMg@mail.gmail.com>
+Message-ID: <CAGBRx8Ne6t9TAKPgdkeFurJRR8p+hBkofFGOWn6m-Ym23epXMg@mail.gmail.com>
+Subject: [RESEND,V3,1/1] Input/misc: add support for Advantech software
+ defined button
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>, Luca Weiss <luca@z3ntu.xyz>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Andrea Ho <andrea.ho@advantech.com.tw>
 Content-Type: text/plain; charset="UTF-8"
-X-Originating-IP: [209.85.210.54]
+X-Originating-IP: [209.85.167.171]
 X-ClientProxiedBy: taipei08.ADVANTECH.CORP (172.20.0.235) To
  taipei08.ADVANTECH.CORP (172.20.0.235)
 X-StopIT: No

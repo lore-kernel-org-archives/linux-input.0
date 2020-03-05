@@ -7,46 +7,47 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C14CC3F2D1
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA6AFC3F2D8
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 751F521775
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9D1B207FD
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583428895;
-	bh=3FrZdYvpqhFybQqlRH77rhrJ/OHxk2sMndBLGH2KYyY=;
+	s=default; t=1583428902;
+	bh=hmXOjy2k2WuVXfJkljl/hOavvSMDuPfcrUAqlQP2Vrg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=Yyemgf4+PhyI1Pa6p2oDN8+81Pr/JmeLUl9R+8VNhqM2M0FPsCN7vSwlCBfPcghRh
-	 O+CrkpPxQRUvcxxB4KLIhprruRnpfq5vgL14qNuj+Sq4WP287tM8v7YeGmVK6JgZvZ
-	 doH5pzq4DL/rpIr/EVdl6qBBTwA3g65ngclMrNuo=
+	b=BjEwVrqbeKW1NMqWKYQ28dxTvR8acUj35Ent5D8YDvBzWXJ8Qz0pwUXBWsZMPqbJC
+	 FEapmotu6tAYrdzPWUjAzHiK/6l6OMXAYCLFXc3dWQDNrLgqyQQYYS9cT0wAsFE2HS
+	 DvdWSGfSySVCxGnCg2f3RjAgOhKMKrIphusu1I0E=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727710AbgCEROd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Mar 2020 12:14:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40734 "EHLO mail.kernel.org"
+        id S1727684AbgCERO3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Mar 2020 12:14:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726273AbgCEROc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:14:32 -0500
+        id S1727671AbgCERO2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:14:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A6BC21744;
-        Thu,  5 Mar 2020 17:14:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 146E2208CD;
+        Thu,  5 Mar 2020 17:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428471;
-        bh=3FrZdYvpqhFybQqlRH77rhrJ/OHxk2sMndBLGH2KYyY=;
+        s=default; t=1583428467;
+        bh=hmXOjy2k2WuVXfJkljl/hOavvSMDuPfcrUAqlQP2Vrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TjtMonUBqkUQuEQjeZ0z4pazc6on071fXRqYpG+N6UBi1Zm0CzLDneHs+Nc+vGvFj
-         tPbp0P0joz/jvDhYRKhW+Ze+qD/yJCFUZAw2FGERP7MJCSEgJnSAeYtrZPxhuKoXSn
-         eVpsyrrVWiEFjk8zp5bXQwsm0HpmIv+ah8oqvy3o=
+        b=p1BL6T0bJZ1Dq8sRXuWhp10kydkdiqJ86z3wjCibTA453ZRhvgRkPf8treKIhZmjF
+         CKqefeOCn+JKERGp9pSXULjExeQgllFIxY1YJ9HqB8rkLPf5Sj9ZG3FifQWuqz4moG
+         y9mV91iEYfVk0nwdb9WBqPcA2w7TtpIIuB/KnMs0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/58] HID: i2c-hid: add Trekstor Surfbook E11B to descriptor override
-Date:   Thu,  5 Mar 2020 12:13:30 -0500
-Message-Id: <20200305171420.29595-9-sashal@kernel.org>
+Cc:     "dan.carpenter@oracle.com" <dan.carpenter@oracle.com>,
+        syzbot+784ccb935f9900cc7c9e@syzkaller.appspotmail.com,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 05/58] HID: hiddev: Fix race in in hiddev_disconnect()
+Date:   Thu,  5 Mar 2020 12:13:26 -0500
+Message-Id: <20200305171420.29595-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171420.29595-1-sashal@kernel.org>
 References: <20200305171420.29595-1-sashal@kernel.org>
@@ -59,41 +60,41 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: "dan.carpenter@oracle.com" <dan.carpenter@oracle.com>
 
-[ Upstream commit be0aba826c4a6ba5929def1962a90d6127871969 ]
+[ Upstream commit 5c02c447eaeda29d3da121a2e17b97ccaf579b51 ]
 
-The Surfbook E11B uses the SIPODEV SP1064 touchpad, which does not supply
-descriptors, so it has to be added to the override list.
+Syzbot reports that "hiddev" is used after it's free in hiddev_disconnect().
+The hiddev_disconnect() function sets "hiddev->exist = 0;" so
+hiddev_release() can free it as soon as we drop the "existancelock"
+lock.  This patch moves the mutex_unlock(&hiddev->existancelock) until
+after we have finished using it.
 
-BugLink: https://bugs.launchpad.net/bugs/1858299
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Reported-by: syzbot+784ccb935f9900cc7c9e@syzkaller.appspotmail.com
+Fixes: 7f77897ef2b6 ("HID: hiddev: fix potential use-after-free")
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/usbhid/hiddev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index d31ea82b84c17..a66f08041a1aa 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -341,6 +341,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Trekstor SURFBOOK E11B",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SURFBOOK E11B"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{
- 		.ident = "Direkt-Tek DTLAPY116-2",
- 		.matches = {
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index c879b214a4797..35b1fa6d962ec 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -941,9 +941,9 @@ void hiddev_disconnect(struct hid_device *hid)
+ 	hiddev->exist = 0;
+ 
+ 	if (hiddev->open) {
+-		mutex_unlock(&hiddev->existancelock);
+ 		hid_hw_close(hiddev->hid);
+ 		wake_up_interruptible(&hiddev->wait);
++		mutex_unlock(&hiddev->existancelock);
+ 	} else {
+ 		mutex_unlock(&hiddev->existancelock);
+ 		kfree(hiddev);
 -- 
 2.20.1
 

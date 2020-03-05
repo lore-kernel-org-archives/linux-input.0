@@ -7,48 +7,49 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 588DBC3F2D1
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:18:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 026F9C3F2D2
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:18:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 262E620848
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:18:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C4A39207FD
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583428683;
-	bh=mtnlBCmHerKf8Q879eLnDJEOQK8W1BiYUPGGqs279ZE=;
+	s=default; t=1583428721;
+	bh=+IjVORKh/seQrNgXksEThu2KTYNq7FzrhANnMv4hTSA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=e61fsNUV63z5bHsMWhuyjGzny3jWc/6teySMLrzF1OijE6ULpBcMtBTuANx/q8SwX
-	 jek5zTnnpr6eGoMlJUmJKMHsiZ1w+m4rbe46u48n/iU8LPP195XOK/ZsbyiXlpBi9q
-	 RIjnKAOGH4W/6CZt5sC0d8F/2Y3f6ushm7xsTes8=
+	b=xAZW/wTTP7qSYgY0iq6VByrQaFHncS/5kQkxoEGxfHfbccw+hf8i/0bNJ3bxCj6yz
+	 zgRBY/FebzEOwCUSme7FmNJ6VgfB8SVlB0GYZaZs+drxW+grJQzhJMYKKkicWeBVAq
+	 aV6ecxjs7miSL6h0rHkF/3Vz3CjB5AtezeHBY86w=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727822AbgCERR6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Mar 2020 12:17:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42538 "EHLO mail.kernel.org"
+        id S1728074AbgCERP1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Mar 2020 12:15:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728212AbgCERPo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:15:44 -0500
+        id S1728069AbgCERP1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:15:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 349802146E;
-        Thu,  5 Mar 2020 17:15:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F3862146E;
+        Thu,  5 Mar 2020 17:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428543;
-        bh=mtnlBCmHerKf8Q879eLnDJEOQK8W1BiYUPGGqs279ZE=;
+        s=default; t=1583428526;
+        bh=+IjVORKh/seQrNgXksEThu2KTYNq7FzrhANnMv4hTSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Znflrc9hibjkRvGdutaffncv8JW26YNyCc3YPdqDGP5Krg7sFaFiKPLxkERCAuLJ5
-         +ylQs4xgPQMc2Qo8qJ3CkXYEsf3A3O5IwiMN2bsSzdu0dA4ScO//vrN8zMg5CcLPsx
-         tIQbcSChqbxN9TGssa3HE5GRq/g0vxwQM3LU84+M=
+        b=iCX8cIjyFKjAJufkczJxTWgtfr2LD1eQUu1G682DekQb+ZxaPIVRFiHlEew4WF2y1
+         gMe1kF7rs3ZZ0FQmL1DoBJcvjeJINjzqbf4IWaJBXH5Z96VANoHa4N4ajKP9L9DQI5
+         kp7dTkUrFqviX2JZigsiix4ldY8Lc0M37b88SrME=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mansour Behabadi <mansour@oxplot.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/19] HID: apple: Add support for recent firmware on Magic Keyboards
-Date:   Thu,  5 Mar 2020 12:15:23 -0500
-Message-Id: <20200305171540.30250-2-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 08/31] HID: i2c-hid: add Trekstor Surfbook E11B to descriptor override
+Date:   Thu,  5 Mar 2020 12:14:52 -0500
+Message-Id: <20200305171516.30028-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200305171540.30250-1-sashal@kernel.org>
-References: <20200305171540.30250-1-sashal@kernel.org>
+In-Reply-To: <20200305171516.30028-1-sashal@kernel.org>
+References: <20200305171516.30028-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,35 +59,41 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Mansour Behabadi <mansour@oxplot.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit e433be929e63265b7412478eb7ff271467aee2d7 ]
+[ Upstream commit be0aba826c4a6ba5929def1962a90d6127871969 ]
 
-Magic Keyboards with more recent firmware (0x0100) report Fn key differently.
-Without this patch, Fn key may not behave as expected and may not be
-configurable via hid_apple fnmode module parameter.
+The Surfbook E11B uses the SIPODEV SP1064 touchpad, which does not supply
+descriptors, so it has to be added to the override list.
 
-Signed-off-by: Mansour Behabadi <mansour@oxplot.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+BugLink: https://bugs.launchpad.net/bugs/1858299
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index d0a81a03ddbdd..8ab8f2350bbcd 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -343,7 +343,8 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		unsigned long **bit, int *max)
- {
- 	if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
--			usage->hid == (HID_UP_MSVENDOR | 0x0003)) {
-+			usage->hid == (HID_UP_MSVENDOR | 0x0003) ||
-+			usage->hid == (HID_UP_HPVENDOR2 | 0x0003)) {
- 		/* The fn key on Apple USB keyboards */
- 		set_bit(EV_REP, hi->input->evbit);
- 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index 10af8585c820d..95052373a8282 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -341,6 +341,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Trekstor SURFBOOK E11B",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SURFBOOK E11B"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{
+ 		.ident = "Direkt-Tek DTLAPY116-2",
+ 		.matches = {
 -- 
 2.20.1
 

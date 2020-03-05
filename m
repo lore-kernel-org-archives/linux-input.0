@@ -7,45 +7,45 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB633C3F2D7
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:14:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F02C2C3F2D2
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:14:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 79A83208CD
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:14:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8AF3208CD
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583428470;
-	bh=Rcpuoua5mmJzEl3RbXML86RqG0/4QTit1QasTIw5ZQY=;
+	s=default; t=1583428481;
+	bh=1hBIVFpHKaOoRiF23bBVj2jf5aYyVhOa1BFzrADUCNs=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=tZ3qSx1KcfAQi+aPVmsafG57ZtExc5WeJ5c9fRSVw3LhVSg96zGA/9ysC3rlbZf83
-	 wv3/CJgIsSUNt9MnC26qhyoT6tSwzEbbASggM+6f5ov2CYCpAD7zrHjQUm2R0Jd1Ou
-	 DQkYfpH5o9hCrgoBgd3l5XwLXPGM01tXwkjqWdlg=
+	b=S5ZxTR+BQk0zk1zUOPrB6Aeys81l9UvCfW+LdX4LS5FjtGnQv0ch6Psf4zOFYEStd
+	 MhnXYG5+XrEJw3T9QUabXN1RYrfDvTgM2PkcSyUuc11ZVSeTthxvZOQKxb5jDpZStn
+	 SQ4k3//UUK5dmdOOblfbd0H74oNi7WpGNw35/utA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727687AbgCERO3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Mar 2020 12:14:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40628 "EHLO mail.kernel.org"
+        id S1727743AbgCEROk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Mar 2020 12:14:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727678AbgCERO2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:14:28 -0500
+        id S1727738AbgCEROj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:14:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D91621556;
-        Thu,  5 Mar 2020 17:14:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8221F21739;
+        Thu,  5 Mar 2020 17:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428468;
-        bh=Rcpuoua5mmJzEl3RbXML86RqG0/4QTit1QasTIw5ZQY=;
+        s=default; t=1583428479;
+        bh=1hBIVFpHKaOoRiF23bBVj2jf5aYyVhOa1BFzrADUCNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixU/DRWwlFaqTM7b5YVjZ7usRmPwcZ0fXE+UX1g+dhz452KkvNcQq6RN6TLuWGsGm
-         n1DoXqAzwRSyt7PgKfHmgDEXSNQG/7HScdSjDmo8kYqdxL+AhVv0WPOCGYIUHojlAH
-         HIoWRnKgE2elcR7qztkC3daIDWqibn94NlTm1PdY=
+        b=OXo7Ec8ve10hfeTlGavWaYwyQVtwuNZ7uRga1dILBTAuIYaGY8bKqtdTQsHGHOW4V
+         lq6acVWHxJb5V1kz00x9niQYi7LdZgB/iE9TkSuqiLHhn4nffhK9f/lMfQkl7DOdFm
+         oCqQjpK5XH5jKFPatoXeYGUxdhj1XmTFoGQbWc2I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 06/58] HID: alps: Fix an error handling path in 'alps_input_configured()'
-Date:   Thu,  5 Mar 2020 12:13:27 -0500
-Message-Id: <20200305171420.29595-6-sashal@kernel.org>
+Cc:     Hanno Zulla <kontakt@hanno.de>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 15/58] HID: hid-bigbenff: call hid_hw_stop() in case of error
+Date:   Thu,  5 Mar 2020 12:13:36 -0500
+Message-Id: <20200305171420.29595-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171420.29595-1-sashal@kernel.org>
 References: <20200305171420.29595-1-sashal@kernel.org>
@@ -58,38 +58,75 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Hanno Zulla <kontakt@hanno.de>
 
-[ Upstream commit 8d2e77b39b8fecb794e19cd006a12f90b14dd077 ]
+[ Upstream commit 976a54d0f4202cb412a3b1fc7f117e1d97db35f3 ]
 
-They are issues:
-   - if 'input_allocate_device()' fails and return NULL, there is no need
-     to free anything and 'input_free_device()' call is a no-op. It can
-     be axed.
-   - 'ret' is known to be 0 at this point, so we must set it to a
-     meaningful value before returning
+It's required to call hid_hw_stop() once hid_hw_start() was called
+previously, so error cases need to handle this. Also, hid_hw_close() is
+not necessary during removal.
 
-Fixes: 2562756dde55 ("HID: add Alps I2C HID Touchpad-Stick support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Hanno Zulla <kontakt@hanno.de>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-alps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-bigbenff.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index ae79a7c667372..fa704153cb00d 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -730,7 +730,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 	if (data->has_sp) {
- 		input2 = input_allocate_device();
- 		if (!input2) {
--			input_free_device(input2);
-+			ret = -ENOMEM;
- 			goto exit;
- 		}
+diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
+index f7e85bacb6889..f8c552b64a899 100644
+--- a/drivers/hid/hid-bigbenff.c
++++ b/drivers/hid/hid-bigbenff.c
+@@ -305,7 +305,6 @@ static void bigben_remove(struct hid_device *hid)
+ 	struct bigben_device *bigben = hid_get_drvdata(hid);
  
+ 	cancel_work_sync(&bigben->worker);
+-	hid_hw_close(hid);
+ 	hid_hw_stop(hid);
+ }
+ 
+@@ -350,7 +349,7 @@ static int bigben_probe(struct hid_device *hid,
+ 	error = input_ff_create_memless(hidinput->input, NULL,
+ 		hid_bigben_play_effect);
+ 	if (error)
+-		return error;
++		goto error_hw_stop;
+ 
+ 	name_sz = strlen(dev_name(&hid->dev)) + strlen(":red:bigben#") + 1;
+ 
+@@ -360,8 +359,10 @@ static int bigben_probe(struct hid_device *hid,
+ 			sizeof(struct led_classdev) + name_sz,
+ 			GFP_KERNEL
+ 		);
+-		if (!led)
+-			return -ENOMEM;
++		if (!led) {
++			error = -ENOMEM;
++			goto error_hw_stop;
++		}
+ 		name = (void *)(&led[1]);
+ 		snprintf(name, name_sz,
+ 			"%s:red:bigben%d",
+@@ -375,7 +376,7 @@ static int bigben_probe(struct hid_device *hid,
+ 		bigben->leds[n] = led;
+ 		error = devm_led_classdev_register(&hid->dev, led);
+ 		if (error)
+-			return error;
++			goto error_hw_stop;
+ 	}
+ 
+ 	/* initial state: LED1 is on, no rumble effect */
+@@ -389,6 +390,10 @@ static int bigben_probe(struct hid_device *hid,
+ 	hid_info(hid, "LED and force feedback support for BigBen gamepad\n");
+ 
+ 	return 0;
++
++error_hw_stop:
++	hid_hw_stop(hid);
++	return error;
+ }
+ 
+ static __u8 *bigben_report_fixup(struct hid_device *hid, __u8 *rdesc,
 -- 
 2.20.1
 

@@ -2,151 +2,97 @@ Return-Path: <SRS0=Ma1V=4W=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 357D7C3F2D7
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 13:11:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27D95C3F2D1
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 13:29:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 13E2621775
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 13:11:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC22B20848
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 13:29:50 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Vpb8WWf7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726275AbgCENLa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Mar 2020 08:11:30 -0500
-Received: from mx0a-00128a01.pphosted.com ([148.163.135.77]:12486 "EHLO
-        mx0a-00128a01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726259AbgCENL2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Mar 2020 08:11:28 -0500
-Received: from pps.filterd (m0167088.ppops.net [127.0.0.1])
-        by mx0a-00128a01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 025Cp1YO022457;
-        Thu, 5 Mar 2020 08:11:16 -0500
-Received: from nwd2mta3.analog.com ([137.71.173.56])
-        by mx0a-00128a01.pphosted.com with ESMTP id 2ygm52f469-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Mar 2020 08:11:15 -0500
-Received: from SCSQMBX10.ad.analog.com (scsqmbx10.ad.analog.com [10.77.17.5])
-        by nwd2mta3.analog.com (8.14.7/8.14.7) with ESMTP id 025DBEgq037326
-        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=FAIL);
-        Thu, 5 Mar 2020 08:11:14 -0500
-Received: from SCSQCASHYB7.ad.analog.com (10.77.17.133) by
- SCSQMBX10.ad.analog.com (10.77.17.5) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1779.2; Thu, 5 Mar 2020 05:11:13 -0800
-Received: from SCSQMBX11.ad.analog.com (10.77.17.10) by
- SCSQCASHYB7.ad.analog.com (10.77.17.133) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1779.2; Thu, 5 Mar 2020 05:11:13 -0800
-Received: from zeus.spd.analog.com (10.64.82.11) by SCSQMBX11.ad.analog.com
- (10.77.17.10) with Microsoft SMTP Server id 15.1.1779.2 via Frontend
- Transport; Thu, 5 Mar 2020 05:11:12 -0800
-Received: from saturn.ad.analog.com ([10.48.65.112])
-        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 025DB78A029497;
-        Thu, 5 Mar 2020 08:11:09 -0500
-From:   Alexandru Ardelean <alexandru.ardelean@analog.com>
-To:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <dmitry.torokhov@gmail.com>, <lars@metafoo.de>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>
-Subject: [PATCH v4 2/4] Input: adp5589: Add basic devicetree support
-Date:   Thu, 5 Mar 2020 15:14:03 +0200
-Message-ID: <20200305131405.6598-2-alexandru.ardelean@analog.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200305131405.6598-1-alexandru.ardelean@analog.com>
+        id S1725912AbgCEN3u (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Mar 2020 08:29:50 -0500
+Received: from userp2120.oracle.com ([156.151.31.85]:38450 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725880AbgCEN3u (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Mar 2020 08:29:50 -0500
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 025DTZJU142167;
+        Thu, 5 Mar 2020 13:29:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=kQZF8mt3je26TVHWHBg0ACWv3oE6PtGwqyzyfEjsppM=;
+ b=Vpb8WWf7rsVvSubbRu9kq1q5foSqt3ZwDrFmx+RrZiDTDpWPQG44C9bo4JtSbh55oail
+ DpLy6IBvkHsWOVkbp4FpPLVYbL8rnw9D1vXqsUYC6m6jUxDTOuv67DMu0QQvwEZdjDVY
+ CAUGOz3usCY3gHNvNrFA4bPXegm1xoGRQ9MnAJ1EG6AOQ09R9MU0Ep++kMaBzrfdcAfr
+ D1A0oZZ1gzQ6rIe2+u6TGpBvrVpWmQFFiQSLhxUUn0RK+ACaJ5gRV51+9LDHtRFuuk/v
+ UAHsO4yah4TygUrm49yl5VMMbprWVaOZCIOeY6gq4Tih9IdkfWgpxE/pX10DtepYRXWi 5Q== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by userp2120.oracle.com with ESMTP id 2yghn3gw46-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 05 Mar 2020 13:29:35 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 025DR8w7150179;
+        Thu, 5 Mar 2020 13:29:19 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by userp3020.oracle.com with ESMTP id 2yg1pakebx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 05 Mar 2020 13:29:19 +0000
+Received: from abhmp0011.oracle.com (abhmp0011.oracle.com [141.146.116.17])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 025DTH86012877;
+        Thu, 5 Mar 2020 13:29:18 GMT
+Received: from kadam (/41.210.146.162)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 05 Mar 2020 05:29:16 -0800
+Date:   Thu, 5 Mar 2020 16:29:09 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        dmitry.torokhov@gmail.com, lars@metafoo.de
+Subject: Re: [PATCH v4 3/4] Input: adp5589: unify ret & error variables
+Message-ID: <20200305132908.GI4118@kadam>
 References: <20200305131405.6598-1-alexandru.ardelean@analog.com>
+ <20200305131405.6598-3-alexandru.ardelean@analog.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-ADIRoutedOnPrem: True
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-03-05_03:2020-03-05,2020-03-05 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 mlxscore=0 lowpriorityscore=0 clxscore=1015 adultscore=0
- impostorscore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2001150001 definitions=main-2003050083
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200305131405.6598-3-alexandru.ardelean@analog.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9550 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 malwarescore=0
+ mlxlogscore=999 mlxscore=0 spamscore=0 adultscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2001150001 definitions=main-2003050086
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9550 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 phishscore=0 spamscore=0
+ impostorscore=0 mlxscore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
+ priorityscore=1501 bulkscore=0 clxscore=1015 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2003050086
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+On Thu, Mar 05, 2020 at 03:14:04PM +0200, Alexandru Ardelean wrote:
+> Both variables are used mostly in the same way in the probe function.
+> Having both means that we need to copy 'ret' to 'error' before exiting, so
+> just use 'ret' everywhere.
+> 
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+> ---
 
-Add very basic devicetree suppport to the adp5589 allowing the device to be
-registered from devicetree.
+Looks good.
 
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
----
- drivers/input/keyboard/adp5589-keys.c | 33 ++++++++++++++++++++++++++-
- 1 file changed, 32 insertions(+), 1 deletion(-)
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
-index c6a801bcdf90..56f4ff7fa9c3 100644
---- a/drivers/input/keyboard/adp5589-keys.c
-+++ b/drivers/input/keyboard/adp5589-keys.c
-@@ -1008,6 +1008,25 @@ static void adp5589_keypad_remove(struct adp5589_kpad *kpad)
- 	}
- }
- 
-+static int adp5589_i2c_get_driver_data(struct i2c_client *i2c,
-+				       const struct i2c_device_id *id)
-+{
-+	const struct of_device_id *match;
-+
-+	if (id)
-+		return id->driver_data;
-+
-+	if (!IS_ENABLED(CONFIG_OF) || !i2c->dev.of_node)
-+		return -ENODEV;
-+
-+	match = of_match_node(i2c->dev.driver->of_match_table,
-+			      i2c->dev.of_node);
-+	if (match)
-+		return (uintptr_t)match->data;
-+
-+	return -ENODEV;
-+}
-+
- static int adp5589_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
-@@ -1029,7 +1048,11 @@ static int adp5589_probe(struct i2c_client *client,
- 
- 	kpad->client = client;
- 
--	switch (id->driver_data) {
-+	ret = adp5589_i2c_get_driver_data(client, id);
-+	if (ret < 0)
-+		return ret;
-+
-+	switch (ret) {
- 	case ADP5585_02:
- 		kpad->support_row5 = true;
- 		/* fall through */
-@@ -1129,6 +1152,13 @@ static int adp5589_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(adp5589_dev_pm_ops, adp5589_suspend, adp5589_resume);
- 
-+static const struct of_device_id adp5589_of_match[] = {
-+	{ .compatible = "adi,adp5585", .data = (void *)ADP5585_01 },
-+	{ .compatible = "adi,adp5585-02", .data = (void *)ADP5585_02 },
-+	{ .compatible = "adi,adp5589", .data = (void *)ADP5589 },
-+	{}
-+};
-+
- static const struct i2c_device_id adp5589_id[] = {
- 	{"adp5589-keys", ADP5589},
- 	{"adp5585-keys", ADP5585_01},
-@@ -1142,6 +1172,7 @@ static struct i2c_driver adp5589_driver = {
- 	.driver = {
- 		.name = KBUILD_MODNAME,
- 		.pm = &adp5589_dev_pm_ops,
-+		.of_match_table = adp5589_of_match,
- 	},
- 	.probe = adp5589_probe,
- 	.remove = adp5589_remove,
--- 
-2.20.1
+regards,
+dan carpenter
 

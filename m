@@ -4,50 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4B0BC3F2D1
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F16DC3F2D1
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A31CD207FD
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 369142072D
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583428904;
-	bh=lPR4tM2lxTRYCqhAC1uOU15vHUXtv4mO9yS8yOPjzbI=;
+	s=default; t=1583428913;
+	bh=YAFvu5ij+AyAowyPL31UII9ZhMcFpurD7oRq4jnXm+Q=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=RqinyACvRpcBBlX8vHIxid1CR//DSo1o+9q7L+rPFBqUfy3bvdANJd6RqBGNdlIKL
-	 ls9vhqdrKpLt8w1kqHAedPbeKwkLkiVwsSmi2tjVMQXwTJ62qpAstsk84q8cS4miRO
-	 yHSAwRgWyFXlyiHV91X++ngaTpsFB6ia5946XSsE=
+	b=HEAAVUa5Wwi/FmYvZDp8AhBjei0uVCuM9taxwQiX/+p1DYQXj9N4UWRvY8cV4YChj
+	 sWWV/ADWaD7Vt5bFxNejFcCbNNlx+Ic8RfsTFWzwlophT1IRrVX3i0YupRmtL75/fn
+	 GyvDYuw2DCJizhqUEplgNdcK66W2Qd8CNSQyRX+I=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726378AbgCERVn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Mar 2020 12:21:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40566 "EHLO mail.kernel.org"
+        id S1727534AbgCERVo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Mar 2020 12:21:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726222AbgCERO0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:14:26 -0500
+        id S1727659AbgCEROX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:14:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6C94217F4;
-        Thu,  5 Mar 2020 17:14:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 572D321556;
+        Thu,  5 Mar 2020 17:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428465;
-        bh=lPR4tM2lxTRYCqhAC1uOU15vHUXtv4mO9yS8yOPjzbI=;
+        s=default; t=1583428463;
+        bh=YAFvu5ij+AyAowyPL31UII9ZhMcFpurD7oRq4jnXm+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zx6y8Ktu2dTkR9Ux40Ax9AefSBr4/rfMuzfB6RzoWOU842IVGQ8Du0N8qPqhPOUzj
-         PtBF/QfRkyekWGhk972qfVWXWRmcBPvwKrvUcKHTkx4MQzzVwZKMDKn5xGT/+khZ3A
-         xASg5ahrHX+ydUui8DHVNSbKTQF99mLatVTj0UZo=
+        b=ll8Qr1BNTqphKTjwZQSRjnbDtqdWVSGGUoCP529MupUk2uzd2qDCuvJ6voMDnFduL
+         Rm0q+kaNV1GbRwhH2UD5MoVLqTOGHbE+77QsIf8U+dp/hBVmPP3Fmv8PACTo6134Vj
+         1hx0DCNugw8kuUhEvB01hPsN+Lef4AaeVoO1VbyQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Korsnes <jkorsnes@cisco.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Armando Visconti <armando.visconti@st.com>,
+Cc:     Mansour Behabadi <mansour@oxplot.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 04/58] HID: core: increase HID report buffer size to 8KiB
-Date:   Thu,  5 Mar 2020 12:13:25 -0500
-Message-Id: <20200305171420.29595-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 02/58] HID: apple: Add support for recent firmware on Magic Keyboards
+Date:   Thu,  5 Mar 2020 12:13:23 -0500
+Message-Id: <20200305171420.29595-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171420.29595-1-sashal@kernel.org>
 References: <20200305171420.29595-1-sashal@kernel.org>
@@ -60,39 +58,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Johan Korsnes <jkorsnes@cisco.com>
+From: Mansour Behabadi <mansour@oxplot.com>
 
-[ Upstream commit 84a4062632462c4320704fcdf8e99e89e94c0aba ]
+[ Upstream commit e433be929e63265b7412478eb7ff271467aee2d7 ]
 
-We have a HID touch device that reports its opens and shorts test
-results in HID buffers of size 8184 bytes. The maximum size of the HID
-buffer is currently set to 4096 bytes, causing probe of this device to
-fail. With this patch we increase the maximum size of the HID buffer to
-8192 bytes, making device probe and acquisition of said buffers succeed.
+Magic Keyboards with more recent firmware (0x0100) report Fn key differently.
+Without this patch, Fn key may not behave as expected and may not be
+configurable via hid_apple fnmode module parameter.
 
-Signed-off-by: Johan Korsnes <jkorsnes@cisco.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Armando Visconti <armando.visconti@st.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Mansour Behabadi <mansour@oxplot.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hid.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-apple.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index cd41f209043f6..875f71132b142 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -492,7 +492,7 @@ struct hid_report_enum {
- };
- 
- #define HID_MIN_BUFFER_SIZE	64		/* make sure there is at least a packet size of space */
--#define HID_MAX_BUFFER_SIZE	4096		/* 4kb */
-+#define HID_MAX_BUFFER_SIZE	8192		/* 8kb */
- #define HID_CONTROL_FIFO_SIZE	256		/* to init devices with >100 reports */
- #define HID_OUTPUT_FIFO_SIZE	64
- 
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 6ac8becc2372e..d732d1d10cafb 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -340,7 +340,8 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		unsigned long **bit, int *max)
+ {
+ 	if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
+-			usage->hid == (HID_UP_MSVENDOR | 0x0003)) {
++			usage->hid == (HID_UP_MSVENDOR | 0x0003) ||
++			usage->hid == (HID_UP_HPVENDOR2 | 0x0003)) {
+ 		/* The fn key on Apple USB keyboards */
+ 		set_bit(EV_REP, hi->input->evbit);
+ 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
 -- 
 2.20.1
 

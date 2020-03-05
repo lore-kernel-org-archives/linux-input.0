@@ -7,45 +7,45 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F26E3C3F2D2
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1560C3F2D7
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C2A5F20870
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8051920637
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583428868;
-	bh=MdM4dmvB1NrI3FG6lrkvPkf35G6mA0uFNk6ScnH/2ew=;
+	s=default; t=1583428879;
+	bh=F1D0R/proQlgrCAIHqb84XFSvyT3s+JQd9HSM/5D7iQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=HHJgPgahSvh7R/4E0+SaCwPppoK+Ge0DcBMx+EePniAWFR/tMmfOYghWmMqTp7yP/
-	 qcM/tuoot0l7ukfSrt9dD4K6GvvApciFotGUMK70tBc4qdLCIMdJOie5dL1qPZ3dUQ
-	 1CN9CQjIQPcnly+1P4/vJYKeHGNy5lqzkzcI0waY=
+	b=zEVcVekqBYy4leiNm7aRKhWmXiSWtrpknFsUfLqv5+jPyzzbMtGfW/Cvi59nl+/h4
+	 +ejFT4Rq+1qCZJMVasB4+4SXTcHuIoA1DhxHGGLF8mCYhHzV6BqHNe7gUo3BD0UXdX
+	 +G2OxEdQCGE+SRK4+r/e4jkihWVloIOQMyPpf8g4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727756AbgCEROl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Mar 2020 12:14:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41012 "EHLO mail.kernel.org"
+        id S1727682AbgCERVL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Mar 2020 12:21:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727749AbgCEROl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:14:41 -0500
+        id S1727733AbgCEROi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Mar 2020 12:14:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCF2721556;
-        Thu,  5 Mar 2020 17:14:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EEFF217F4;
+        Thu,  5 Mar 2020 17:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428480;
-        bh=MdM4dmvB1NrI3FG6lrkvPkf35G6mA0uFNk6ScnH/2ew=;
+        s=default; t=1583428478;
+        bh=F1D0R/proQlgrCAIHqb84XFSvyT3s+JQd9HSM/5D7iQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SdwYnAHCMb3/c+eQ43ulpZb3dX+x9vMgAgZXY6XQuJzcBwqqg+He5Hahry1GhpTSp
-         kyU1GQVJj5HnPzjyCgyP8sVu0zNUaB/+LeuxR90hG5lAvG7ghBxphQ/ikXb/Dh7ihn
-         5Zt2mdRZv0wDFO2l2iDbONCF861vsj7kBWpWxBbQ=
+        b=W7SxEQF1mVAhLZYqDoXn5ssVdZaLqQNO9LM1HWM+YVe67nKu/2YGWXXOIXpMf1eqe
+         VifwgCXt7JBPzkrEjfiNNNBxgLPh5RZRy1sjHI07KmnpOOpSWZlJnZ14/RO1vGUl8Z
+         dDV+5CQT4z5oO8w5LWOt8lBXCGkbATereQfrNQ7k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hanno Zulla <kontakt@hanno.de>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/58] HID: hid-bigbenff: fix race condition for scheduled work during removal
-Date:   Thu,  5 Mar 2020 12:13:37 -0500
-Message-Id: <20200305171420.29595-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 14/58] HID: hid-bigbenff: fix general protection fault caused by double kfree
+Date:   Thu,  5 Mar 2020 12:13:35 -0500
+Message-Id: <20200305171420.29595-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200305171420.29595-1-sashal@kernel.org>
 References: <20200305171420.29595-1-sashal@kernel.org>
@@ -60,57 +60,51 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Hanno Zulla <kontakt@hanno.de>
 
-[ Upstream commit 4eb1b01de5b9d8596d6c103efcf1a15cfc1bedf7 ]
+[ Upstream commit 789a2c250340666220fa74bc6c8f58497e3863b3 ]
 
-It's possible that there is scheduled work left while the device is
-already being removed, which can cause a kernel crash. Adding a flag
-will avoid this.
+The struct *bigben was allocated via devm_kzalloc() and then used as a
+parameter in input_ff_create_memless(). This caused a double kfree
+during removal of the device, since both the managed resource API and
+ml_ff_destroy() in drivers/input/ff-memless.c would call kfree() on it.
 
 Signed-off-by: Hanno Zulla <kontakt@hanno.de>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-bigbenff.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hid/hid-bigbenff.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index f8c552b64a899..db6da21ade063 100644
+index 3f6abd190df43..f7e85bacb6889 100644
 --- a/drivers/hid/hid-bigbenff.c
 +++ b/drivers/hid/hid-bigbenff.c
-@@ -174,6 +174,7 @@ static __u8 pid0902_rdesc_fixed[] = {
- struct bigben_device {
- 	struct hid_device *hid;
- 	struct hid_report *report;
-+	bool removed;
- 	u8 led_state;         /* LED1 = 1 .. LED4 = 8 */
- 	u8 right_motor_on;    /* right motor off/on 0/1 */
- 	u8 left_motor_force;  /* left motor force 0-255 */
-@@ -190,6 +191,9 @@ static void bigben_worker(struct work_struct *work)
- 		struct bigben_device, worker);
- 	struct hid_field *report_field = bigben->report->field[0];
- 
-+	if (bigben->removed)
-+		return;
-+
- 	if (bigben->work_led) {
- 		bigben->work_led = false;
- 		report_field->value[0] = 0x01; /* 1 = led message */
-@@ -304,6 +308,7 @@ static void bigben_remove(struct hid_device *hid)
+@@ -220,10 +220,16 @@ static void bigben_worker(struct work_struct *work)
+ static int hid_bigben_play_effect(struct input_dev *dev, void *data,
+ 			 struct ff_effect *effect)
  {
- 	struct bigben_device *bigben = hid_get_drvdata(hid);
+-	struct bigben_device *bigben = data;
++	struct hid_device *hid = input_get_drvdata(dev);
++	struct bigben_device *bigben = hid_get_drvdata(hid);
+ 	u8 right_motor_on;
+ 	u8 left_motor_force;
  
-+	bigben->removed = true;
- 	cancel_work_sync(&bigben->worker);
- 	hid_hw_stop(hid);
- }
-@@ -324,6 +329,7 @@ static int bigben_probe(struct hid_device *hid,
- 		return -ENOMEM;
- 	hid_set_drvdata(hid, bigben);
- 	bigben->hid = hid;
-+	bigben->removed = false;
++	if (!bigben) {
++		hid_err(hid, "no device data\n");
++		return 0;
++	}
++
+ 	if (effect->type != FF_RUMBLE)
+ 		return 0;
  
- 	error = hid_parse(hid);
- 	if (error) {
+@@ -341,7 +347,7 @@ static int bigben_probe(struct hid_device *hid,
+ 
+ 	INIT_WORK(&bigben->worker, bigben_worker);
+ 
+-	error = input_ff_create_memless(hidinput->input, bigben,
++	error = input_ff_create_memless(hidinput->input, NULL,
+ 		hid_bigben_play_effect);
+ 	if (error)
+ 		return error;
 -- 
 2.20.1
 

@@ -2,91 +2,273 @@ Return-Path: <SRS0=Ma1V=4W=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDFF6C3F2D8
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:24:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 161F4C3F2D1
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 22:01:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BD10E20848
-	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 17:24:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1583429066;
-	bh=YAFvu5ij+AyAowyPL31UII9ZhMcFpurD7oRq4jnXm+Q=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=vFdTbDSuIchwT8gU+9sCDH5egMk7csg624ShujzDC26J/3hB01g5KsnPvwpns/1cW
-	 omC0rSB7utDj03tE2ZQTeoOxO282kwDbcuHv5BE4Jt9wFnfx4LkksAVv077y3jP6yy
-	 F4KL/Zgdp5LusUv9Yj6WATwJuQ5zO4GDRizuCHF4=
+	by mail.kernel.org (Postfix) with ESMTP id C9A4A206E2
+	for <linux-input@archiver.kernel.org>; Thu,  5 Mar 2020 22:01:43 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bfWOspk5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726131AbgCERNN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Mar 2020 12:13:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38498 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725938AbgCERNM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Mar 2020 12:13:12 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726184AbgCEWBn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Mar 2020 17:01:43 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:40931 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726177AbgCEWBn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Mar 2020 17:01:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583445701;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=MGn3sS5Coc011eZD68ygqWoytHfSDgGTKJeqUj3CCa0=;
+        b=bfWOspk5IOpNcj38gShjpmUOaExdOIg4ezFRjCF2LRuIxh3fwfaA5/zoT+3Ua+8mOdU/80
+        7/qcvXaG5p+OGsTumcgZznkVi2IlPQfvaqt8t8bOBQ718M/WpV/KlN42sik/1YokfYSrG6
+        3IbwhS/qRfa5iikVSCtDNK4gSU/auPg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-72-FQ-MrzMgOiqOX5NYZopFhA-1; Thu, 05 Mar 2020 17:01:36 -0500
+X-MC-Unique: FQ-MrzMgOiqOX5NYZopFhA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB45A20870;
-        Thu,  5 Mar 2020 17:13:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1583428392;
-        bh=YAFvu5ij+AyAowyPL31UII9ZhMcFpurD7oRq4jnXm+Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hAzfVeDjAx0et3c3+5lt2O8lthkddmejoBBfcr/mDnHXVQYbEZkg0dNM5+Anyvyc
-         sNUtZlQz8Rqd2BgEXyCL5UO6Ymp4dit1z9h4ic6sqHiJ+7Yf8YdO3vKUNYSRqH0p6P
-         DrSi6Jr26HYIVMhe6Gl17ZgQMlyRwIXOM3mDTbhE=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mansour Behabadi <mansour@oxplot.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 02/67] HID: apple: Add support for recent firmware on Magic Keyboards
-Date:   Thu,  5 Mar 2020 12:12:03 -0500
-Message-Id: <20200305171309.29118-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200305171309.29118-1-sashal@kernel.org>
-References: <20200305171309.29118-1-sashal@kernel.org>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9BCBA140D;
+        Thu,  5 Mar 2020 22:01:35 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-116-27.ams2.redhat.com [10.36.116.27])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5A471272D3;
+        Thu,  5 Mar 2020 22:01:34 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Bastien Nocera <hadess@hadess.net>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
+        Dmitry Mastykin <mastichi@gmail.com>
+Subject: [PATCH v2 01/11] Input: goodix - Refactor IRQ pin GPIO accesses
+Date:   Thu,  5 Mar 2020 23:01:22 +0100
+Message-Id: <20200305220132.228722-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Mansour Behabadi <mansour@oxplot.com>
+Suspending Goodix touchscreens requires changing the interrupt pin to
+output before sending them a power-down command. Followed by wiggling
+the interrupt pin to wake the device up, after which it is put back
+in input mode.
 
-[ Upstream commit e433be929e63265b7412478eb7ff271467aee2d7 ]
+So far we have only effectively supported this on devices which use
+devicetree. On X86 ACPI platforms both looking up the pins; and using a
+pin as both IRQ and GPIO is a bit more complicated. E.g. on some devices
+we cannot directly access the IRQ pin as GPIO and we need to call ACPI
+methods to control it instead.
 
-Magic Keyboards with more recent firmware (0x0100) report Fn key differently.
-Without this patch, Fn key may not behave as expected and may not be
-configurable via hid_apple fnmode module parameter.
+This commit adds a new irq_pin_access_method field to the goodix_chip_dat=
+a
+struct and adds goodix_irq_direction_output and goodix_irq_direction_inpu=
+t
+helpers which together abstract the GPIO accesses to the IRQ pin.
 
-Signed-off-by: Mansour Behabadi <mansour@oxplot.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is a preparation patch for adding support for properly suspending th=
+e
+touchscreen on X86 ACPI platforms.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1786317
+BugLink: https://github.com/nexus511/gpd-ubuntu-packages/issues/10
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D199207
+Cc: Dmitry Mastykin <mastichi@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-apple.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Changes in v2:
+- Make enum member names upper-case
+---
+ drivers/input/touchscreen/goodix.c | 62 ++++++++++++++++++++++++------
+ 1 file changed, 51 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 6ac8becc2372e..d732d1d10cafb 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -340,7 +340,8 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		unsigned long **bit, int *max)
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscre=
+en/goodix.c
+index 0403102e807e..9cfbcf3cbca8 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -31,6 +31,11 @@
+=20
+ struct goodix_ts_data;
+=20
++enum goodix_irq_pin_access_method {
++	IRQ_PIN_ACCESS_NONE,
++	IRQ_PIN_ACCESS_GPIO,
++};
++
+ struct goodix_chip_data {
+ 	u16 config_addr;
+ 	int config_len;
+@@ -53,6 +58,7 @@ struct goodix_ts_data {
+ 	const char *cfg_name;
+ 	struct completion firmware_loading_complete;
+ 	unsigned long irq_flags;
++	enum goodix_irq_pin_access_method irq_pin_access_method;
+ 	unsigned int contact_size;
+ };
+=20
+@@ -502,17 +508,48 @@ static int goodix_send_cfg(struct goodix_ts_data *t=
+s,
+ 	return 0;
+ }
+=20
++static int goodix_irq_direction_output(struct goodix_ts_data *ts,
++				       int value)
++{
++	switch (ts->irq_pin_access_method) {
++	case IRQ_PIN_ACCESS_NONE:
++		dev_err(&ts->client->dev,
++			"%s called without an irq_pin_access_method set\n",
++			__func__);
++		return -EINVAL;
++	case IRQ_PIN_ACCESS_GPIO:
++		return gpiod_direction_output(ts->gpiod_int, value);
++	}
++
++	return -EINVAL; /* Never reached */
++}
++
++static int goodix_irq_direction_input(struct goodix_ts_data *ts)
++{
++	switch (ts->irq_pin_access_method) {
++	case IRQ_PIN_ACCESS_NONE:
++		dev_err(&ts->client->dev,
++			"%s called without an irq_pin_access_method set\n",
++			__func__);
++		return -EINVAL;
++	case IRQ_PIN_ACCESS_GPIO:
++		return gpiod_direction_input(ts->gpiod_int);
++	}
++
++	return -EINVAL; /* Never reached */
++}
++
+ static int goodix_int_sync(struct goodix_ts_data *ts)
  {
- 	if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
--			usage->hid == (HID_UP_MSVENDOR | 0x0003)) {
-+			usage->hid == (HID_UP_MSVENDOR | 0x0003) ||
-+			usage->hid == (HID_UP_HPVENDOR2 | 0x0003)) {
- 		/* The fn key on Apple USB keyboards */
- 		set_bit(EV_REP, hi->input->evbit);
- 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
--- 
-2.20.1
+ 	int error;
+=20
+-	error =3D gpiod_direction_output(ts->gpiod_int, 0);
++	error =3D goodix_irq_direction_output(ts, 0);
+ 	if (error)
+ 		return error;
+=20
+ 	msleep(50);				/* T5: 50ms */
+=20
+-	error =3D gpiod_direction_input(ts->gpiod_int);
++	error =3D goodix_irq_direction_input(ts);
+ 	if (error)
+ 		return error;
+=20
+@@ -536,7 +573,7 @@ static int goodix_reset(struct goodix_ts_data *ts)
+ 	msleep(20);				/* T2: > 10ms */
+=20
+ 	/* HIGH: 0x28/0x29, LOW: 0xBA/0xBB */
+-	error =3D gpiod_direction_output(ts->gpiod_int, ts->client->addr =3D=3D=
+ 0x14);
++	error =3D goodix_irq_direction_output(ts, ts->client->addr =3D=3D 0x14)=
+;
+ 	if (error)
+ 		return error;
+=20
+@@ -617,6 +654,9 @@ static int goodix_get_gpio_config(struct goodix_ts_da=
+ta *ts)
+=20
+ 	ts->gpiod_rst =3D gpiod;
+=20
++	if (ts->gpiod_int && ts->gpiod_rst)
++		ts->irq_pin_access_method =3D IRQ_PIN_ACCESS_GPIO;
++
+ 	return 0;
+ }
+=20
+@@ -889,7 +929,7 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+=20
+-	if (ts->gpiod_int && ts->gpiod_rst) {
++	if (ts->irq_pin_access_method =3D=3D IRQ_PIN_ACCESS_GPIO) {
+ 		/* reset the controller */
+ 		error =3D goodix_reset(ts);
+ 		if (error) {
+@@ -912,7 +952,7 @@ static int goodix_ts_probe(struct i2c_client *client,
+=20
+ 	ts->chip =3D goodix_get_chip_data(ts->id);
+=20
+-	if (ts->gpiod_int && ts->gpiod_rst) {
++	if (ts->irq_pin_access_method =3D=3D IRQ_PIN_ACCESS_GPIO) {
+ 		/* update device config */
+ 		ts->cfg_name =3D devm_kasprintf(&client->dev, GFP_KERNEL,
+ 					      "goodix_%d_cfg.bin", ts->id);
+@@ -943,7 +983,7 @@ static int goodix_ts_remove(struct i2c_client *client=
+)
+ {
+ 	struct goodix_ts_data *ts =3D i2c_get_clientdata(client);
+=20
+-	if (ts->gpiod_int && ts->gpiod_rst)
++	if (ts->irq_pin_access_method =3D=3D IRQ_PIN_ACCESS_GPIO)
+ 		wait_for_completion(&ts->firmware_loading_complete);
+=20
+ 	return 0;
+@@ -956,7 +996,7 @@ static int __maybe_unused goodix_suspend(struct devic=
+e *dev)
+ 	int error;
+=20
+ 	/* We need gpio pins to suspend/resume */
+-	if (!ts->gpiod_int || !ts->gpiod_rst) {
++	if (ts->irq_pin_access_method =3D=3D IRQ_PIN_ACCESS_NONE) {
+ 		disable_irq(client->irq);
+ 		return 0;
+ 	}
+@@ -967,7 +1007,7 @@ static int __maybe_unused goodix_suspend(struct devi=
+ce *dev)
+ 	goodix_free_irq(ts);
+=20
+ 	/* Output LOW on the INT pin for 5 ms */
+-	error =3D gpiod_direction_output(ts->gpiod_int, 0);
++	error =3D goodix_irq_direction_output(ts, 0);
+ 	if (error) {
+ 		goodix_request_irq(ts);
+ 		return error;
+@@ -979,7 +1019,7 @@ static int __maybe_unused goodix_suspend(struct devi=
+ce *dev)
+ 				    GOODIX_CMD_SCREEN_OFF);
+ 	if (error) {
+ 		dev_err(&ts->client->dev, "Screen off command failed\n");
+-		gpiod_direction_input(ts->gpiod_int);
++		goodix_irq_direction_input(ts);
+ 		goodix_request_irq(ts);
+ 		return -EAGAIN;
+ 	}
+@@ -999,7 +1039,7 @@ static int __maybe_unused goodix_resume(struct devic=
+e *dev)
+ 	struct goodix_ts_data *ts =3D i2c_get_clientdata(client);
+ 	int error;
+=20
+-	if (!ts->gpiod_int || !ts->gpiod_rst) {
++	if (ts->irq_pin_access_method =3D=3D IRQ_PIN_ACCESS_NONE) {
+ 		enable_irq(client->irq);
+ 		return 0;
+ 	}
+@@ -1008,7 +1048,7 @@ static int __maybe_unused goodix_resume(struct devi=
+ce *dev)
+ 	 * Exit sleep mode by outputting HIGH level to INT pin
+ 	 * for 2ms~5ms.
+ 	 */
+-	error =3D gpiod_direction_output(ts->gpiod_int, 1);
++	error =3D goodix_irq_direction_output(ts, 1);
+ 	if (error)
+ 		return error;
+=20
+--=20
+2.25.1
 

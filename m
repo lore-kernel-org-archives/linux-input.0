@@ -2,108 +2,157 @@ Return-Path: <SRS0=QVpx=4X=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=0.4 required=3.0 tests=DATE_IN_PAST_06_12,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5652C3F2D9
-	for <linux-input@archiver.kernel.org>; Fri,  6 Mar 2020 00:17:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E958C3F2C6
+	for <linux-input@archiver.kernel.org>; Fri,  6 Mar 2020 03:55:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9FC8620848
-	for <linux-input@archiver.kernel.org>; Fri,  6 Mar 2020 00:17:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7053D2073D
+	for <linux-input@archiver.kernel.org>; Fri,  6 Mar 2020 03:55:47 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h3JAWvIp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726769AbgCFARA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Mar 2020 19:17:00 -0500
-Received: from mail1.bemta26.messagelabs.com ([85.158.142.1]:57677 "EHLO
-        mail1.bemta26.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726317AbgCFARA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Mar 2020 19:17:00 -0500
-Received: from [100.113.1.43] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
-        by server-1.bemta.az-a.eu-central-1.aws.symcld.net id C6/C5-28499-576916E5; Fri, 06 Mar 2020 00:16:53 +0000
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrAIsWRWlGSWpSXmKPExsVy8MN7Xd3SaYl
-  xBqv6+SzmnG9hsZh/5ByrxeFFLxgtmhevZ7O4//Uoo8XNT99YLS7vmsNm0b5xNqvF0usXmSze
-  f+pksmjde4Td4v+eHewWP3fNY7G4PXEyowOfx5p5axg9tqy8yeSxc9Zddo9NqzrZPO5c28Pms
-  X/uGnaP/r8GHp83yQVwRLFm5iXlVySwZhzbfJax4At7xf5jnUwNjO9Zuxi5OIQE1jBKLDn5na
-  WLkRPIqZTY+u05I4jNK2AqMePxEjCbTUBH4tHM9UwgNouAisS0M/fB6oUFrCTubGgGGyQicJJ
-  ZovPeVxYQh1lgGqPEno+HmSEmCUqcnPkErINZQELi4IsXzBDbtCTOrVnFOIGRexaSsllIyhYw
-  Mq1itEwqykzPKMlNzMzRNTQw0DU0NNYFkkZmeolVuol6qaW6yal5JUWJQFm9xPJiveLK3OScF
-  L281JJNjMDATylkqNvB+GfNe71DjJIcTEqivDviE+OE+JLyUyozEosz4otKc1KLDzHKcHAoSf
-  BaTwHKCRalpqdWpGXmAKMQJi3BwaMkwhs9FSjNW1yQmFucmQ6ROsWoy3H9/d6lzEIsefl5qVL
-  ivKkgRQIgRRmleXAjYAnhEqOslDAvIwMDgxBPQWpRbmYJqvwrRnEORiVhXm+QS3gy80rgNr0C
-  OoIJ6Ij7d+JBjihJREhJNTDZydlM7Z63IW3tSQbjpS1Hbf2sJNo6z5fwHFTNX5oel+WmeulGV
-  Z7r1Fh/T96j18Q4HARjbFNPLz+dIFGZ9T9k3+2tiZffezW/+7DV6Kf6ma0F01x7J2TESbmE2B
-  7jZLrU03pT5+SKpPyVJ2c9eX221rq4Vl94hegW6+NiV0o+l/ZbzE54+vBK1KNVSo7z8q38GJo
-  lz7WUv82NVzVs/8TMlKxWtEplK9NhkWnSdyaXscxV/5m++Hxc6YMmu3n/7izTuXX2QPz9E/9u
-  3AtZtpbhi/Cv7Madsxs+zP9buq5117aaxeyPAs9clf15JCwk8uKJf4ofXKa63tdYIuQRZNk29
-  8XsytUV7YuFOPb3ZvMqsRRnJBpqMRcVJwIAriHUA4MDAAA=
-X-Env-Sender: roy.im.opensource@diasemi.com
-X-Msg-Ref: server-31.tower-229.messagelabs.com!1583453812!553913!1
-X-Originating-IP: [193.240.239.45]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.50.1; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 9156 invoked from network); 6 Mar 2020 00:16:53 -0000
-Received: from unknown (HELO NB-EX-CASHUB01.diasemi.com) (193.240.239.45)
-  by server-31.tower-229.messagelabs.com with ECDHE-RSA-AES256-SHA384 encrypted SMTP; 6 Mar 2020 00:16:53 -0000
-Received: from krsrvapps-03.diasemi.com (10.95.17.51) by
- NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
- 14.3.468.0; Fri, 6 Mar 2020 01:16:51 +0100
-Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
- 4FEDE13F671; Fri,  6 Mar 2020 09:16:50 +0900 (KST)
-Message-ID: <cover.1583425388.git.Roy.Im@diasemi.com>
-From:   Roy Im <roy.im.opensource@diasemi.com>
-Date:   Fri, 6 Mar 2020 01:23:08 +0900
-Subject: [PATCH V10 0/3]  da7280: haptic driver submission
-To:     "David S. Miller" <davem@davemloft.net>,
-        Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>
-CC:     Support Opensource <support.opensource@diasemi.com>,
-        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
+        id S1726251AbgCFDzr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Mar 2020 22:55:47 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:42835 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726243AbgCFDzq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Mar 2020 22:55:46 -0500
+Received: by mail-pl1-f196.google.com with SMTP id u3so290755plr.9
+        for <linux-input@vger.kernel.org>; Thu, 05 Mar 2020 19:55:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=jae25/DFv01s6LjqjIIVIxgtx15JtO9Ql5rpEWzRIZM=;
+        b=h3JAWvIpP/IyQqrvh3yuuRQanWSwM1MdOn8IdpwtHsfoP8Hc65Pim9Qi13MFrWzWbm
+         tSuF8VZCEGj1fPXnmMtxt6mNLrrI5guf30YB8fMT49KTcZ4h0E8/XZnvdeYXxk5cmFhA
+         o3Oso4wJTcfwOPK3O+DuY9vLFx/9q4+L5pmj7pq7Co6huUl8t7duPt3sZ5UlkRJ3Xq85
+         x8tfhvTIZVBRTLKvHwdJhJ9QleNHboMEFrH/Ap/XFwqHEq4ecs9zbW5DrshD8g3rsYxN
+         sMMsXn2+mGNUH/w9IC+eE5CdCAEQ+vD8YKoIehLFSpCdql9wGcYxtkyZiJtKt93hFAJh
+         2LMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=jae25/DFv01s6LjqjIIVIxgtx15JtO9Ql5rpEWzRIZM=;
+        b=lv/SKHs/QvBdq7/T16mAMl6aOkwIX47A+v4kRTenAQQrj6PgEW43Za0h2G4fPAdW5u
+         Se1T/xXBYP32w3zv3kK0pH1uOT3E12en2bkM+Xw4qSLcSrjLulemcGaWFWOf4cnL8jMv
+         SanmfmCxPiGVrYWsOlrZEtdZ3bjiPsgiAtKksLqOxKS+VaIwaC5kgJUogvCec8i58xFr
+         60yN7po+iMcnkFV12UlvMBenEH5adnV/v8cThy6poX9R42mAe2owrtovw2uucK+FAMLL
+         bII/QWF42B4vYtUiWnLZF+tp9i8xSF5r4UOplC5Dw2RqjPqGrNiBnOSTS7OuIWcTea2H
+         s1CA==
+X-Gm-Message-State: ANhLgQ2WPDgmymobMwIJrG65a0LpXUwTl27UDIZJU9v7l8IX0/5w8OVk
+        8Q/zDi5Mqgs8Mug6MSgBJ9k=
+X-Google-Smtp-Source: ADFU+vvyuIIDg+k5qdimgU2Pj4zpfJYo5c4jwOhxV3Kw0GSr1DzfCGiW+Wj5gf/7hIvy/ToB6R2Wiw==
+X-Received: by 2002:a17:902:864a:: with SMTP id y10mr1149664plt.2.1583466945795;
+        Thu, 05 Mar 2020 19:55:45 -0800 (PST)
+Received: from dtor-ws ([2620:15c:202:201:3c2a:73a9:c2cf:7f45])
+        by smtp.gmail.com with ESMTPSA id i6sm7460948pjt.3.2020.03.05.19.55.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Mar 2020 19:55:45 -0800 (PST)
+Date:   Thu, 5 Mar 2020 19:55:42 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Bastien Nocera <hadess@hadess.net>
+Cc:     "Sergei A. Trusov" <sergei.a.trusov@ya.ru>,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH v2] Input: goodix: fix touch coordinates on Cube I15-TC
+Message-ID: <20200306035542.GA217608@dtor-ws>
+References: <e39e5cca-fec5-512f-0a33-f3dd20a33ff9@ya.ru>
+ <5835e5f3c2a5e1ed525f0aaa4dbcac581fa47afc.camel@hadess.net>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5835e5f3c2a5e1ed525f0aaa4dbcac581fa47afc.camel@hadess.net>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch adds support for the Dialog DA7280 Haptic driver IC.
+On Mon, Mar 02, 2020 at 12:45:24PM +0100, Bastien Nocera wrote:
+> On Fri, 2018-08-31 at 15:44 +1000, Sergei A. Trusov wrote:
+> > The touchscreen on the Cube I15-TC don't match the default display,
+> > with 0,0 touches being reported when touching at the top-right of
+> > the screen.
+> > 
+> > Add a quirk to invert the x coordinate.
+> > 
+> > Reported-and-tested-by: Arkadiy <arkan49@yandex.ru>
+> > Cc: Hans de Goede <hdegoede@redhat.com>
+> > Signed-off-by: Sergei A. Trusov <sergei.a.trusov@ya.ru>
+> 
+> Some patch queue draining/grave digging. Sorry for taking so long to
+> get back to you.
+> 
+> 
+> If that still applies, please add my:
+> 
+> Reviewed-by: Bastien Nocera <hadess@hadess.net>
 
-In this patch set the following is provided:
+Applied, thank you.
 
-[PATCH V10 1/3] MAINTAINERS file update for DA7280
-[PATCH V10 2/3] DA7280 DT Binding
-[PATCH V10 3/3] DA7280 Driver
-
-This patch applies against linux-next and v5.5
-
-Thank you,
-Roy Im, Dialog Semiconductor Ltd.
-
-Roy Im (3):
-  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
-  dt-bindings: input: Add document bindings for DA7280
-  Input: new da7280 haptic driver
-
- .../devicetree/bindings/input/dlg,da7280.txt       |  109 ++
- MAINTAINERS                                        |    2 +
- drivers/input/misc/Kconfig                         |   13 +
- drivers/input/misc/Makefile                        |    1 +
- drivers/input/misc/da7280.c                        | 1892 ++++++++++++++++++++
- 5 files changed, 2017 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
- create mode 100644 drivers/input/misc/da7280.c
+> 
+> > ---
+> > 
+> > Changes in v2:
+> >  - Commit message fix
+> >  - Removed extra linefeeds
+> > 
+> >  drivers/input/touchscreen/goodix.c | 22 ++++++++++++++++++++++
+> >  1 file changed, 22 insertions(+)
+> > 
+> > diff --git a/drivers/input/touchscreen/goodix.c
+> > b/drivers/input/touchscreen/goodix.c
+> > index f2d9c2c41885..27adf216f230 100644
+> > --- a/drivers/input/touchscreen/goodix.c
+> > +++ b/drivers/input/touchscreen/goodix.c
+> > @@ -145,6 +145,22 @@ static const struct dmi_system_id
+> > rotated_screen[] = {
+> >  	{}
+> >  };
+> >  
+> > +/*
+> > + * Those tablets have their x coordinate inverted
+> > + */
+> > +static const struct dmi_system_id inverted_x_screen[] = {
+> > +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
+> > +	{
+> > +		.ident = "Cube I15-TC",
+> > +		.matches = {
+> > +			DMI_MATCH(DMI_SYS_VENDOR, "Cube"),
+> > +			DMI_MATCH(DMI_PRODUCT_NAME, "I15-TC")
+> > +		},
+> > +	},
+> > +#endif
+> > +	{}
+> > +};
+> > +
+> >  /**
+> >   * goodix_i2c_read - read data from a register of the i2c slave
+> > device.
+> >   *
+> > @@ -709,6 +725,12 @@ static int goodix_configure_dev(struct
+> > goodix_ts_data *ts)
+> >  			"Applying '180 degrees rotated screen'
+> > quirk\n");
+> >  	}
+> >  
+> > +	if (dmi_check_system(inverted_x_screen)) {
+> > +		ts->prop.invert_x = true;
+> > +		dev_dbg(&ts->client->dev,
+> > +			"Applying 'inverted x screen' quirk\n");
+> > +	}
+> > +
+> >  	error = input_mt_init_slots(ts->input_dev, ts->max_touch_num,
+> >  				    INPUT_MT_DIRECT |
+> > INPUT_MT_DROP_UNUSED);
+> >  	if (error) {
+> 
 
 -- 
-end-of-patch for PATCH V10
-
+Dmitry

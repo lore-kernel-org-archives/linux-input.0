@@ -2,69 +2,35 @@ Return-Path: <SRS0=QVpx=4X=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73342C10F25
-	for <linux-input@archiver.kernel.org>; Fri,  6 Mar 2020 20:05:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A846C10F00
+	for <linux-input@archiver.kernel.org>; Fri,  6 Mar 2020 21:15:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 44ADD206CC
-	for <linux-input@archiver.kernel.org>; Fri,  6 Mar 2020 20:05:57 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BVmVik9d"
+	by mail.kernel.org (Postfix) with ESMTP id 4891A20709
+	for <linux-input@archiver.kernel.org>; Fri,  6 Mar 2020 21:15:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726171AbgCFUF4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 6 Mar 2020 15:05:56 -0500
-Received: from mail-io1-f66.google.com ([209.85.166.66]:45981 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726083AbgCFUF4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2020 15:05:56 -0500
-Received: by mail-io1-f66.google.com with SMTP id w9so3282945iob.12;
-        Fri, 06 Mar 2020 12:05:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=LdHJwrkU78nb5BuTKVZ6D/qa0v1tI9iVbXcfDOAUWuU=;
-        b=BVmVik9dEamfXCKxb1sLMxZf1hIIA5pfcOZWjfAX/DioN021Z0EsuQfByfA3W9RI8X
-         udxDHDvpvOug6ueLZrkWnFyWB9Keq/z6Q99PFzJxvsrKRnimpJE67CLnoBQqfwrb/v/b
-         IzF0H7MmpNEXuPCyqhOpE6eecf9yq31mP+K+Lvpwr46nTPY8kavB9VYVFS0VfwsQdbQi
-         5ToS7dkAWfgy6I2w/gPi+DCF/2bNoxx3Mz/EMHxC4Jp4AwWM3JmnleU8JyEiOvxAoENL
-         41t2XgsspS8B6Wuvu/RlgYJ0gvo7Y9Zt6i8jw2zBxixJzUD0kMkIl9x8CNv9hencif4m
-         lBHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=LdHJwrkU78nb5BuTKVZ6D/qa0v1tI9iVbXcfDOAUWuU=;
-        b=ARFcdYZMX/BYTNIm3MsTacIboc0a6Pcb1vJyGTmSCzqPAMbAFix74DDv5l2nB8pSjA
-         3E0uo/ZMgqcp3X2d/XsSZj+lv2dzxUHhPFIGdLdHmase5kwdCKxO0FSbzHcLTA1PfNCB
-         yRY0XBSIH3IaQuw6PBo5V7fS03OZ6ZHISGaG1IAQrdLGaJEGivqSreXna7cObJSD2SrM
-         qfvaDDvmd5YG0qptMDeQ8x0VEM8DeXxz+MWnOLpcD3ICG4cabtpEPjilBkLEaYFdI0GU
-         OjS3HDs/C5Ncb0VoShUdveNmuIO1v5unkG+xQOfdhmzmDLHb2cKHHmRZaE8UP4GKsmtZ
-         9Yqw==
-X-Gm-Message-State: ANhLgQ1eNVXL91HTDS1lfwA9POkDPe4Y+cU9QuO8UDj5UUCHtKMX4CyV
-        GBRnuWNzPz6D0t1mjxu+xoPd95GDB0K0gxjTp0w=
-X-Google-Smtp-Source: ADFU+vsGjBjSrVYdatEoW+ATr/qixFBpxQ+PrizOrE4IkcNicUVbWIuaSYnV3CVB0PtynC6ROLYZ1+L0CjdsBSoYE0Y=
-X-Received: by 2002:a02:c942:: with SMTP id u2mr4773355jao.49.1583525154366;
- Fri, 06 Mar 2020 12:05:54 -0800 (PST)
-MIME-Version: 1.0
-References: <1583509356-8265-1-git-send-email-Anson.Huang@nxp.com>
- <1583509356-8265-3-git-send-email-Anson.Huang@nxp.com> <20200306193310.GI217608@dtor-ws>
-In-Reply-To: <20200306193310.GI217608@dtor-ws>
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date:   Fri, 6 Mar 2020 12:05:42 -0800
-Message-ID: <CAKdAkRRhXE6Hviqx90_5hWmP7YQnKO2QLJgDYnzt_CPjeH7D0A@mail.gmail.com>
-Subject: Re: [PATCH 3/5] input: keyboard: add COMPILE_TEST support for KEYBOARD_IMX_SC_KEY
-To:     Anson Huang <Anson.Huang@nxp.com>
-Cc:     Shawn Guo <shawnguo@kernel.org>,
+        id S1726237AbgCFVPp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 6 Mar 2020 16:15:45 -0500
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:8137 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726185AbgCFVPp (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2020 16:15:45 -0500
+X-Originating-IP: 86.202.105.35
+Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id BAEA6240006;
+        Fri,  6 Mar 2020 21:15:38 +0000 (UTC)
+Date:   Fri, 6 Mar 2020 22:15:38 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Anson Huang <Anson.Huang@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
         Sascha Hauer <s.hauer@pengutronix.de>,
         Sascha Hauer <kernel@pengutronix.de>,
         Fabio Estevam <festevam@gmail.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Zhang Rui <rui.zhang@intel.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         amit.kucheria@verdurent.com, wim@linux-watchdog.org,
@@ -77,7 +43,7 @@ Cc:     Shawn Guo <shawnguo@kernel.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Arnd Bergmann <arnd@arndb.de>,
         Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        =?UTF-8?Q?Ronald_Tschal=C3=A4r?= <ronald@innovation.ch>,
+        Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>,
         Krzysztof Kozlowski <krzk@kernel.org>,
         linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
         lkml <linux-kernel@vger.kernel.org>,
@@ -85,40 +51,62 @@ Cc:     Shawn Guo <shawnguo@kernel.org>,
         linux-rtc@vger.kernel.org, Linux PM <linux-pm@vger.kernel.org>,
         LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
         NXP Linux Team <Linux-imx@nxp.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 3/5] input: keyboard: add COMPILE_TEST support for
+ KEYBOARD_IMX_SC_KEY
+Message-ID: <20200306211538.GA8060@piout.net>
+References: <1583509356-8265-1-git-send-email-Anson.Huang@nxp.com>
+ <1583509356-8265-3-git-send-email-Anson.Huang@nxp.com>
+ <20200306193310.GI217608@dtor-ws>
+ <CAKdAkRRhXE6Hviqx90_5hWmP7YQnKO2QLJgDYnzt_CPjeH7D0A@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKdAkRRhXE6Hviqx90_5hWmP7YQnKO2QLJgDYnzt_CPjeH7D0A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Mar 6, 2020 at 11:33 AM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> On Fri, Mar 06, 2020 at 11:42:34PM +0800, Anson Huang wrote:
-> > Add COMPILE_TEST support to i.MX SC keyboard driver for better compile
-> > testing coverage.
+On 06/03/2020 12:05:42-0800, Dmitry Torokhov wrote:
+> On Fri, Mar 6, 2020 at 11:33 AM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
 > >
-> > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
->
-> Applied, thank you.
+> > On Fri, Mar 06, 2020 at 11:42:34PM +0800, Anson Huang wrote:
+> > > Add COMPILE_TEST support to i.MX SC keyboard driver for better compile
+> > > testing coverage.
+> > >
+> > > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+> >
+> > Applied, thank you.
+> 
+> Actually, not:
+> 
+> ERROR: "imx_scu_irq_register_notifier"
+> [drivers/input/keyboard/imx_sc_key.ko] undefined!
+> ERROR: "imx_scu_get_handle" [drivers/input/keyboard/imx_sc_key.ko] undefined!
+> ERROR: "imx_scu_call_rpc" [drivers/input/keyboard/imx_sc_key.ko] undefined!
+> ERROR: "imx_scu_irq_unregister_notifier"
+> [drivers/input/keyboard/imx_sc_key.ko] undefined!
+> ERROR: "imx_scu_irq_group_enable"
+> [drivers/input/keyboard/imx_sc_key.ko] undefined!
+> make[1]: *** [scripts/Makefile.modpost:94: __modpost] Error 1
+> make: *** [Makefile:1282: modules] Error 2
+> 
+> If you want to enable compile test coverage you need to provide stubs
+> for the above functions.
+> 
 
-Actually, not:
+or select IMX_SCU
 
-ERROR: "imx_scu_irq_register_notifier"
-[drivers/input/keyboard/imx_sc_key.ko] undefined!
-ERROR: "imx_scu_get_handle" [drivers/input/keyboard/imx_sc_key.ko] undefined!
-ERROR: "imx_scu_call_rpc" [drivers/input/keyboard/imx_sc_key.ko] undefined!
-ERROR: "imx_scu_irq_unregister_notifier"
-[drivers/input/keyboard/imx_sc_key.ko] undefined!
-ERROR: "imx_scu_irq_group_enable"
-[drivers/input/keyboard/imx_sc_key.ko] undefined!
-make[1]: *** [scripts/Makefile.modpost:94: __modpost] Error 1
-make: *** [Makefile:1282: modules] Error 2
+or leave out COMPILE_TEST from the individual drivers as having
+COMPILE_TEST for IMX_SCU is enough to be able to select the drivers.
 
-If you want to enable compile test coverage you need to provide stubs
-for the above functions.
-
-Thanks.
+> Thanks.
+> 
+> -- 
+> Dmitry
 
 -- 
-Dmitry
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com

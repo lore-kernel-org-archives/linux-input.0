@@ -4,29 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9366BC10F00
-	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 01:32:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71F43C10F00
+	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 01:32:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6C97F20709
-	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 01:32:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4BE1A2067C
+	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 01:32:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726231AbgCGBct (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 6 Mar 2020 20:32:49 -0500
-Received: from inva020.nxp.com ([92.121.34.13]:41166 "EHLO inva020.nxp.com"
+        id S1727076AbgCGBc4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 6 Mar 2020 20:32:56 -0500
+Received: from inva021.nxp.com ([92.121.34.21]:60926 "EHLO inva021.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726891AbgCGBcs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 6 Mar 2020 20:32:48 -0500
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id B27141A0DCB;
-        Sat,  7 Mar 2020 02:32:46 +0100 (CET)
+        id S1726635AbgCGBcz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 6 Mar 2020 20:32:55 -0500
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 4144B200D87;
+        Sat,  7 Mar 2020 02:32:54 +0100 (CET)
 Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 3AEFA1A0DD5;
-        Sat,  7 Mar 2020 02:32:27 +0100 (CET)
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 49AAB200D9B;
+        Sat,  7 Mar 2020 02:32:34 +0100 (CET)
 Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id CB08340294;
-        Sat,  7 Mar 2020 09:32:13 +0800 (SGT)
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id DD145402DA;
+        Sat,  7 Mar 2020 09:32:20 +0800 (SGT)
 From:   Anson Huang <Anson.Huang@nxp.com>
 To:     shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
         festevam@gmail.com, dmitry.torokhov@gmail.com,
@@ -43,9 +44,9 @@ To:     shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
         linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
         linux-watchdog@vger.kernel.org
 Cc:     Linux-imx@nxp.com
-Subject: [PATCH V2 4/7] input: keyboard: add COMPILE_TEST support for KEYBOARD_IMX_SC_KEY
-Date:   Sat,  7 Mar 2020 09:25:56 +0800
-Message-Id: <1583544359-515-4-git-send-email-Anson.Huang@nxp.com>
+Subject: [PATCH V2 7/7] thermal: add COMPILE_TEST support for IMX_SC_THERMAL
+Date:   Sat,  7 Mar 2020 09:25:59 +0800
+Message-Id: <1583544359-515-7-git-send-email-Anson.Huang@nxp.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1583544359-515-1-git-send-email-Anson.Huang@nxp.com>
 References: <1583544359-515-1-git-send-email-Anson.Huang@nxp.com>
@@ -55,29 +56,30 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add COMPILE_TEST support to i.MX SC keyboard driver for better compile
+Add COMPILE_TEST support to i.MX SC thermal driver for better compile
 testing coverage.
 
 Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
 ---
 no change.
 ---
- drivers/input/keyboard/Kconfig | 2 +-
+ drivers/thermal/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 4706ff0..81e26f6 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -467,7 +467,7 @@ config KEYBOARD_IMX
+diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
+index 91af271..55c7641 100644
+--- a/drivers/thermal/Kconfig
++++ b/drivers/thermal/Kconfig
+@@ -254,7 +254,7 @@ config IMX_THERMAL
  
- config KEYBOARD_IMX_SC_KEY
- 	tristate "IMX SCU Key Driver"
+ config IMX_SC_THERMAL
+ 	tristate "Temperature sensor driver for NXP i.MX SoCs with System Controller"
 -	depends on IMX_SCU
 +	depends on IMX_SCU || COMPILE_TEST
+ 	depends on OF
  	help
- 	  This is the system controller key driver for NXP i.MX SoCs with
- 	  system controller inside.
+ 	  Support for Temperature Monitor (TEMPMON) found on NXP i.MX SoCs with
 -- 
 2.7.4
 

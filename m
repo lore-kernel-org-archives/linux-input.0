@@ -2,77 +2,96 @@ Return-Path: <SRS0=jwhq=4Y=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C792C10F28
-	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 21:06:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0A40C10F00
+	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 21:43:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0C2532075A
-	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 21:06:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A936320684
+	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 21:43:48 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=pp3345.net header.i=@pp3345.net header.b="Z3v853wD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726139AbgCGVGb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 7 Mar 2020 16:06:31 -0500
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:52153 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726098AbgCGVGa (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 7 Mar 2020 16:06:30 -0500
-X-Originating-IP: 195.189.32.242
-Received: from pc.localdomain (unknown [195.189.32.242])
-        (Authenticated sender: contact@artur-rojek.eu)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 6B27240003;
-        Sat,  7 Mar 2020 21:06:26 +0000 (UTC)
-From:   Artur Rojek <contact@artur-rojek.eu>
+        id S1726139AbgCGVnr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 7 Mar 2020 16:43:47 -0500
+Received: from saul.pp3345.net ([163.172.111.124]:48280 "EHLO saul.pp3345.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725911AbgCGVnr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 7 Mar 2020 16:43:47 -0500
+X-Greylist: delayed 359 seconds by postgrey-1.27 at vger.kernel.org; Sat, 07 Mar 2020 16:43:47 EST
+Received: from localhost (localhost [127.0.0.1]) (Authenticated sender: dev@pp3345.net)
+        by saul.pp3345.net (Postcow) with ESMTPSA id 0C4859A4476;
+        Sat,  7 Mar 2020 22:37:20 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pp3345.net; s=saul;
+        t=1583617041; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:references:openpgp:autocrypt;
+        bh=eMd+3S034ujloizLSEGn5fFGkqYDsgwRJjOC/E8Yefc=;
+        b=Z3v853wDFqTxKkaJhWj6sIsnuw2pU72+gSmTI6p63iaE9T8N7lY/Gz5nOGP1dAiUtWfVVf
+        WDdbvKYu34epYZMCLSRzWGH4/nhKtKMOB36NErHmmDXIO6NJM4KveqKfQ27Rdv9wDDBOrz
+        0yOFnz8jORrDegafBgykz07b4TbPRkUaJ3Sr7lWJwrfIKermBuEdZTdw9j2A9KjcdBMP4P
+        aX9/4c4XfuthgSeYKSV1SF/FD+NrZ5LXkLKUx3zD19E4vNNMXD1TQdLAMcGdEJHowNHDQy
+        K8IzpLSTlRQs/AxqZ0beIbvj8TxwZXVZ2CWbzzh8SA+89oQP4tUzu3qVWF7VWw==
+From:   Yussuf Khalil <dev@pp3345.net>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Paul Cercueil <paul@crapouillou.net>
-Cc:     Heiko Stuebner <heiko@sntech.de>, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-iio@vger.kernel.org, Artur Rojek <contact@artur-rojek.eu>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v4 2/5] dt-bindings: iio/adc: Add touchscreen idx for JZ47xx SoC ADC
-Date:   Sat,  7 Mar 2020 22:14:09 +0100
-Message-Id: <20200307211412.44148-2-contact@artur-rojek.eu>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200307211412.44148-1-contact@artur-rojek.eu>
-References: <20200307211412.44148-1-contact@artur-rojek.eu>
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Yussuf Khalil <dev@pp3345.net>
+Subject: [PATCH] Input: synaptics - Enable RMI on HP Envy 13-ad105ng
+Date:   Sat,  7 Mar 2020 22:35:08 +0100
+Message-Id: <20200307213508.267187-1-dev@pp3345.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pp3345.net;
+        s=saul; t=1583617041; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:references:openpgp:autocrypt;
+        bh=eMd+3S034ujloizLSEGn5fFGkqYDsgwRJjOC/E8Yefc=;
+        b=PkUK/vNTCjXp2KnTUZDaHfTjfrI+p1ZBESrQx2Yi72BOn2dblXZ+3xQLk1p8EUCZp5ihhD
+        kp9kR9WlCGUS/ippOi27MxZG4sptegqEbL6WF/zzHKDE/MQGn5i6isPCC7Z7iJWqfVHP+m
+        k7IYzE5RlDOeCWGKcmqcTJsIzRkAkIhScC+FrL1pztUwLZnd2Y3BhZz5DGd/RM4dhMh5QG
+        qOTG899mzd+DjdjCucqXa3XWT7HBrSRrKE3tsayEmY8yxL6y+U/VOIlhBm96pgsOWwzPkr
+        mpOuNOfUeYzRBdey51Jm84w4diMOMDZE68Ej/8wfGDKWVSagnNYpn4mBapV9Fg==
+ARC-Seal: i=1; s=saul; d=pp3345.net; t=1583617041; a=rsa-sha256; cv=none;
+        b=Ju1+Se+VmqZWSES//MjMLDPNtfSyZgm0cSu1ageTz9DcGfx+QbJpcvnOsnvKtKTsoSgTfP
+        ZBkoxA0g0gP/ZhLIUm7N5+MGODCPSt8fKlwjK2FozJos1gI/PeFUr8O1kLgNo/kFepCH8R
+        KokSP6didlnX86dSXQkwl1XqUImm8TfOiYsEsmT3bh9m5tlW0Zah94cmsefWHeUb64AwDV
+        AJKLCjqYF5/CUWY3sF2tmdupwdtPt6EIr9TmvFuEevq+xK7xD0KbV53uP/UPQLcDtyJ4yK
+        7rphQJXud9e14EXu6q3mzPa53xo2ct80UxD4dUuOJtMEGVTppnj69mxZ1MsFeQ==
+ARC-Authentication-Results: i=1;
+        saul.pp3345.net;
+        auth=pass smtp.auth=dev@pp3345.net smtp.mailfrom=dev@pp3345.net
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Introduce support for touchscreen channels found in JZ47xx SoCs.
+This laptop (and perhaps other variants of the same model) reports an
+SMBus-capable Synaptics touchpad. Everything (including suspend and
+resume) works fine when RMI is enabled via the kernel command line, so
+let's add it to the whitelist.
 
-Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
-Tested-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Yussuf Khalil <dev@pp3345.net>
 ---
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- Changes:
-
- v2-v4: no change
-
- include/dt-bindings/iio/adc/ingenic,adc.h | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/include/dt-bindings/iio/adc/ingenic,adc.h b/include/dt-bindings/iio/adc/ingenic,adc.h
-index 42f871ab3272..95e20a8d6dc8 100644
---- a/include/dt-bindings/iio/adc/ingenic,adc.h
-+++ b/include/dt-bindings/iio/adc/ingenic,adc.h
-@@ -7,5 +7,7 @@
- #define INGENIC_ADC_AUX		0
- #define INGENIC_ADC_BATTERY	1
- #define INGENIC_ADC_AUX2	2
-+#define INGENIC_ADC_TOUCH_XP	3
-+#define INGENIC_ADC_TOUCH_YP	4
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 2c666fb34625..4d2036209b45 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -186,6 +186,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"SYN3052", /* HP EliteBook 840 G4 */
+ 	"SYN3221", /* HP 15-ay000 */
+ 	"SYN323d", /* HP Spectre X360 13-w013dx */
++	"SYN3257", /* HP Envy 13-ad105ng */
+ 	NULL
+ };
  
- #endif
 -- 
-2.25.1
+2.24.1
 

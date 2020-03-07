@@ -7,27 +7,27 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AB1FC10F27
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F220DC3F2C6
 	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 01:33:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DD23020848
-	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 01:33:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C24BE20705
+	for <linux-input@archiver.kernel.org>; Sat,  7 Mar 2020 01:33:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727066AbgCGBc4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 6 Mar 2020 20:32:56 -0500
-Received: from inva020.nxp.com ([92.121.34.13]:41276 "EHLO inva020.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726891AbgCGBcw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1727023AbgCGBcw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Fri, 6 Mar 2020 20:32:52 -0500
+Received: from inva020.nxp.com ([92.121.34.13]:41214 "EHLO inva020.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726956AbgCGBcv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 6 Mar 2020 20:32:51 -0500
 Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 653D01A0DC3;
-        Sat,  7 Mar 2020 02:32:51 +0100 (CET)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 1BDB41A0DCE;
+        Sat,  7 Mar 2020 02:32:49 +0100 (CET)
 Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 619C91A0DB1;
-        Sat,  7 Mar 2020 02:32:32 +0100 (CET)
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 24E7B1A0DC3;
+        Sat,  7 Mar 2020 02:32:29 +0100 (CET)
 Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 870F0402D5;
-        Sat,  7 Mar 2020 09:32:18 +0800 (SGT)
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 2EC1A4029B;
+        Sat,  7 Mar 2020 09:32:16 +0800 (SGT)
 From:   Anson Huang <Anson.Huang@nxp.com>
 To:     shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
         festevam@gmail.com, dmitry.torokhov@gmail.com,
@@ -44,41 +44,49 @@ To:     shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
         linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
         linux-watchdog@vger.kernel.org
 Cc:     Linux-imx@nxp.com
-Subject: [PATCH V2 6/7] watchdog: add COMPILE_TEST support for IMX_SC_WDT
-Date:   Sat,  7 Mar 2020 09:25:58 +0800
-Message-Id: <1583544359-515-6-git-send-email-Anson.Huang@nxp.com>
+Subject: [PATCH V2 5/7] input: keyboard: imx_sc_key: Fix build warning for !CONFIG_IMX_SCU case
+Date:   Sat,  7 Mar 2020 09:25:57 +0800
+Message-Id: <1583544359-515-5-git-send-email-Anson.Huang@nxp.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1583544359-515-1-git-send-email-Anson.Huang@nxp.com>
 References: <1583544359-515-1-git-send-email-Anson.Huang@nxp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add COMPILE_TEST support to i.MX SC watchdog driver for better compile
-testing coverage.
+Fix below build warning when COMPILE_TEST is enabled while IMX_SCU is not:
+
+drivers/input/keyboard/imx_sc_key.c: In function ‘imx_sc_check_for_events’:
+drivers/input/keyboard/imx_sc_key.c:87:27: warning: ‘msg.state’ is used
+uninitialized in this function [-Wuninitialized]
+state = (bool)(msg.state & 0xff);
+                             ^
+AR      drivers/input/keyboard/built-in.a
 
 Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
-no change.
+new patch.
 ---
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/keyboard/imx_sc_key.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 9ea2b43..6388154 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -712,7 +712,7 @@ config IMX2_WDT
- config IMX_SC_WDT
- 	tristate "IMX SC Watchdog"
- 	depends on HAVE_ARM_SMCCC
--	depends on IMX_SCU
-+	depends on IMX_SCU || COMPILE_TEST
- 	select WATCHDOG_CORE
- 	help
- 	  This is the driver for the system controller watchdog
+diff --git a/drivers/input/keyboard/imx_sc_key.c b/drivers/input/keyboard/imx_sc_key.c
+index 9f809ae..26a12fb 100644
+--- a/drivers/input/keyboard/imx_sc_key.c
++++ b/drivers/input/keyboard/imx_sc_key.c
+@@ -72,6 +72,7 @@ static void imx_sc_check_for_events(struct work_struct *work)
+ 	hdr->func = IMX_SC_MISC_FUNC_GET_BUTTON_STATUS;
+ 	hdr->size = 1;
+ 
++	msg.state = 0;
+ 	error = imx_scu_call_rpc(priv->key_ipc_handle, &msg, true);
+ 	if (error) {
+ 		dev_err(&input->dev, "read imx sc key failed, error %d\n", error);
 -- 
 2.7.4
 

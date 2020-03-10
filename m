@@ -2,125 +2,126 @@ Return-Path: <SRS0=z83X=43=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CCEEC18E7A
-	for <linux-input@archiver.kernel.org>; Tue, 10 Mar 2020 13:27:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D08DDC10F27
+	for <linux-input@archiver.kernel.org>; Tue, 10 Mar 2020 13:49:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 566E324694
-	for <linux-input@archiver.kernel.org>; Tue, 10 Mar 2020 13:27:39 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XkznGvka"
+	by mail.kernel.org (Postfix) with ESMTP id B222B20637
+	for <linux-input@archiver.kernel.org>; Tue, 10 Mar 2020 13:49:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728989AbgCJMyZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Mar 2020 08:54:25 -0400
-Received: from mail-qk1-f193.google.com ([209.85.222.193]:36029 "EHLO
-        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729350AbgCJMyX (ORCPT
+        id S1726402AbgCJNtA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Mar 2020 09:49:00 -0400
+Received: from orion.archlinux.org ([88.198.91.70]:53686 "EHLO
+        orion.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726390AbgCJNtA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Mar 2020 08:54:23 -0400
-Received: by mail-qk1-f193.google.com with SMTP id u25so12557091qkk.3;
-        Tue, 10 Mar 2020 05:54:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4gPRUE/8c5unfeblSQvhYpKxeSuVZhZNXJJMTut3+xc=;
-        b=XkznGvkaYBTUY217XQ+/JcQlXuOsrjWrLd6qvYVsRlLicZNCjg+d1sTOEeWvFDBjed
-         ZUQFiYxNYCClkr65W3vIB7yabWXsorUCj9aoLmomRhnyGmNzS97zSfSpHywipgu2WlML
-         5GQjtgI93aBcWLFmFWtro9CmlXquwSClaP6pI8JhmVxxHoD+ywnBhYIi0tL5byG53uHe
-         HOh3OK35wClm2ks6crxtZTJmPM1XzoHgk/pmQ3S/3FEKsFWVaHcUpEs4Li1XwIw9Eij7
-         l3eZfqtzF8TEb9w+VUtY2cK+IIlD/WcB23bnYGWkxIH/bCgp91JtqG+n3saW1kbB6HGz
-         07jw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4gPRUE/8c5unfeblSQvhYpKxeSuVZhZNXJJMTut3+xc=;
-        b=NCOg7YCbAvKQHwGhs0qvOzf8I6su65P9a+E50imI6lUwlMGid9USmjS/APlZTv8ryO
-         /Hqr4Xey0NxaRPqZ36fvuaccNRHFNDrxsTW5fk8wpwkjwf7fMskYucrWRQwkhhm+fNmz
-         FV5zpvm5f9kO8sFTNTGwfnTNPhRAH2OdMiCHF/N+9xzas4BHvucVLUcMQxpX7KTJqDCz
-         WyG5UUC5pp+XFDgiYWkwsh/b+8tkclRvSvoVUBBk7diP9/SnbwqrexK7jXksmUvlxKkW
-         /b4Z2jflslLdcAvgX2U58uooGyKdXcrN6XdFJtUXE9w+OOpEAJO+diuVUE0stslIptNi
-         PwrQ==
-X-Gm-Message-State: ANhLgQ1nKO/VtkW8wHApSt5FV8XxvnIp7vwnkHYiOgl/sxeW3uEpW1J8
-        UxrRV73nXNdp4X78621mjbjYSpoYjm8Nfa37+Pg=
-X-Google-Smtp-Source: ADFU+vvDgu6r2lvGrzD+aENtSuJiR4ntDHyMa/Gp9A1Gub6RnDjugtxTlXjHNfyjGwMDnaqFEam8O6u6HzvTy4j0zEU=
-X-Received: by 2002:a05:620a:22cd:: with SMTP id o13mr10800851qki.160.1583844862180;
- Tue, 10 Mar 2020 05:54:22 -0700 (PDT)
+        Tue, 10 Mar 2020 09:49:00 -0400
+Received: from orion.archlinux.org (localhost [127.0.0.1])
+        by orion.archlinux.org (Postfix) with ESMTP id 8833519E7731B5;
+        Tue, 10 Mar 2020 13:48:56 +0000 (UTC)
+Received: from genesis (unknown [IPv6:2001:8a0:f254:2300:dad6:8c60:8394:88da])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: ffy00)
+        by orion.archlinux.org (Postfix) with ESMTPSA;
+        Tue, 10 Mar 2020 13:48:56 +0000 (UTC)
+Message-ID: <6c58685f039d329615d84e2df1cd2a155db73c61.camel@archlinux.org>
+Subject: Re: [PATCH] add ALWAYS_POLL quirk to lenovo pixart mouse
+From:   Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
+To:     Tony Fischetti <tony.fischetti@gmail.com>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20200304164700.11574-1-tony.fischetti@gmail.com>
+References: <20200304164700.11574-1-tony.fischetti@gmail.com>
+Organization: Archlinux
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-D18kH6Rv4f+uoa9OdL5O"
+Date:   Tue, 10 Mar 2020 13:48:54 +0000
 MIME-Version: 1.0
-References: <1580185137-11255-1-git-send-email-gupt21@gmail.com> <20200310122934.GA13896@ninjato>
-In-Reply-To: <20200310122934.GA13896@ninjato>
-From:   rishi gupta <gupt21@gmail.com>
-Date:   Tue, 10 Mar 2020 18:24:10 +0530
-Message-ID: <CALUj-guKqkRKVKDa1U+gv0rLx23zc5cFT3Qnakp4muk9LSUYfQ@mail.gmail.com>
-Subject: Re: [PATCH v3] HID: mcp2221: add usb to i2c-smbus host bridge
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        wsa+renesas@sang-engineering.com,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.0 
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-I will send two more patches in sometime.
 
-Patch 1: Define i2c_adapter_quirks to let i2c core check msg's order,
-type and length
-              As of now this driver itself is doing this sanity.
+--=-D18kH6Rv4f+uoa9OdL5O
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Patch 2: Add support for GPIO functionality
+On Wed, 2020-03-04 at 11:47 -0500, Tony Fischetti wrote:
+> A lenovo pixart mouse (17ef:608d) is afflicted common the the malfunction
+> where it disconnects and reconnects every minute--each time incrementing
+> the device number. This patch adds the device id of the device and
+> specifies that it needs the HID_QUIRK_ALWAYS_POLL quirk in order to
+> work properly.
+> ---
+>  drivers/hid/hid-ids.h    | 1 +
+>  drivers/hid/hid-quirks.c | 1 +
+>  2 files changed, 2 insertions(+)
+>=20
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 3a400ce603c4..9e1dfc714ea8 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -726,6 +726,7 @@
+>  #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
+>  #define USB_DEVICE_ID_LENOVO_X1_TAB	0x60a3
+>  #define USB_DEVICE_ID_LENOVO_X1_TAB3	0x60b5
+> +#define USB_DEVICE_ID_LENOVO_PIXART_USB_OPTICAL_MOUSE	0x608d
 
-On Tue, Mar 10, 2020 at 5:59 PM Wolfram Sang <wsa@the-dreams.de> wrote:
->
->
-> > +     if (num == 1) {
-> > +             if (msgs->flags & I2C_M_RD) {
-> > +                     ret = mcp_i2c_smbus_read(mcp, msgs, MCP2221_I2C_RD_DATA,
-> > +                                                     0, 0, NULL);
-> > +             } else {
-> > +                     ret = mcp_i2c_write(mcp, msgs, MCP2221_I2C_WR_DATA, 1);
-> > +             }
-> > +             if (ret)
-> > +                     goto exit;
-> > +             ret = num;
-> > +     } else if (num == 2) {
-> > +             /* Ex transaction; send reg address and read its contents */
-> > +             if (msgs[0].addr == msgs[1].addr &&
-> > +                     !(msgs[0].flags & I2C_M_RD) &&
-> > +                      (msgs[1].flags & I2C_M_RD)) {
-> > +
-> > +                     ret = mcp_i2c_write(mcp, &msgs[0],
-> > +                                             MCP2221_I2C_WR_NO_STOP, 0);
-> > +                     if (ret)
-> > +                             goto exit;
-> > +
-> > +                     ret = mcp_i2c_smbus_read(mcp, &msgs[1],
-> > +                                             MCP2221_I2C_RD_RPT_START,
-> > +                                             0, 0, NULL);
-> > +                     if (ret)
-> > +                             goto exit;
-> > +                     ret = num;
-> > +             } else {
-> > +                     dev_err(&adapter->dev,
-> > +                             "unsupported multi-msg i2c transaction\n");
-> > +                     ret = -EOPNOTSUPP;
-> > +             }
-> > +     } else {
-> > +             dev_err(&adapter->dev,
-> > +                     "unsupported multi-msg i2c transaction\n");
-> > +             ret = -EOPNOTSUPP;
-> > +     }
->
-> Have a look at struct i2c_adapter_quirks and especially the flags to let
-> the I2C core do the sanity checks from here.
->
+This ID is really ambiguous. Pixart makes the sensors for the big
+majority of devices. Isn't there any other identifier you could use? If
+there isn't, you could do USB_DEVICE_ID_LENOVO_MOUSE_608D.
+
+>  #define USB_VENDOR_ID_LG		0x1fd2
+>  #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
+> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> index 0e7b2d998395..247747d6d8cf 100644
+> --- a/drivers/hid/hid-quirks.c
+> +++ b/drivers/hid/hid-quirks.c
+> @@ -103,6 +103,7 @@ static const struct hid_device_id hid_quirks[] =3D {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_PENSKETCH_M912), =
+HID_QUIRK_MULTI_INPUT },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M406XE), =
+HID_QUIRK_MULTI_INPUT },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MO=
+USE_ID2), HID_QUIRK_ALWAYS_POLL },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_=
+OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C007), =
+HID_QUIRK_ALWAYS_POLL },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077), =
+HID_QUIRK_ALWAYS_POLL },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KEYBOAR=
+D_G710_PLUS), HID_QUIRK_NOGET },
+
+--=20
+Filipe La=C3=ADns
+
+--=-D18kH6Rv4f+uoa9OdL5O
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl5nmsIACgkQ+JPGdIFq
+qV23mA//dSEx+nA96yLuiFEk1Qwyrsy9Zd7whEkUTLEXu5KFGfVl5htHPaMTBAw7
+CgfR/w/sxnGjLgq3XRyDRjuPhyICNCkBuAb+X+bCXkFfA1ID+93dW/rEA5P+ZHvS
+aSl6q2XuG7pKwpqBwlojm5tVMapo/QgKsOI6cBBD4pO3EehMBDc7/0TIeURkYUwx
+vu1sLaF5yQZ8VdgNSRLm91NBPItRpPpY4txzBqAk87imfczF4AOPYjh58U1pvrz0
+xJ/4HAC0zBrADYuc0BScXAiFLgfYOHEURPRuNnQjaULU6bY2icfc+dYMCvtQshaP
+4UqXDDQ/d/cB89PazumCehSYOIMFUOQ6FEfFIGSc+doUqVoCze6W8nIa/r+B/+Py
+kdv8Q1mZz70JXsoWzEQblK9q5cpKRkh7ZGV3RcCyjGreOjkD+g6LySsXW76nRCNc
+r4h9jMoReILVQ0XAwUKq6p1qYbGxL7iege+C7bAs9rv/H1hBnt6cPNRBhU6nwwaw
+pFLb6DSM00rjCaBtbp23x9I1ytymXYBmLJ4lbtzId/E/q3ZLGVGL7EL9733K0mbK
+7okqPDppHrF8LDrk89aX840hzn7vxe4phfoD+4jElVeBO7HoHpY66FCLB2ScFZIF
+ebBCzuGweSZAGTHm5SEvHAnu78rBIUA6+sFtkOBK+jeoy3JrFi8=
+=p4bC
+-----END PGP SIGNATURE-----
+
+--=-D18kH6Rv4f+uoa9OdL5O--

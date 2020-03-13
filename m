@@ -4,33 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34FEEC5ACC1
-	for <linux-input@archiver.kernel.org>; Fri, 13 Mar 2020 14:33:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA29C5ACD3
+	for <linux-input@archiver.kernel.org>; Fri, 13 Mar 2020 14:33:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 17BD320746
-	for <linux-input@archiver.kernel.org>; Fri, 13 Mar 2020 14:33:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A9DF206B7
+	for <linux-input@archiver.kernel.org>; Fri, 13 Mar 2020 14:33:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726767AbgCMOdr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 13 Mar 2020 10:33:47 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:48221 "EHLO
+        id S1726715AbgCMOds (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 13 Mar 2020 10:33:48 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:42025 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726741AbgCMOdr (ORCPT
+        with ESMTP id S1726754AbgCMOdr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Fri, 13 Mar 2020 10:33:47 -0400
 Received: from dude02.hi.pengutronix.de ([2001:67c:670:100:1d::28] helo=dude02.pengutronix.de.)
         by metis.ext.pengutronix.de with esmtp (Exim 4.92)
         (envelope-from <l.stach@pengutronix.de>)
-        id 1jClNh-0007u2-NY; Fri, 13 Mar 2020 15:33:45 +0100
+        id 1jClNh-0007u2-PS; Fri, 13 Mar 2020 15:33:45 +0100
 From:   Lucas Stach <l.stach@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-input@vger.kernel.org, kernel@pengutronix.de,
         patchwork-lst@pengutronix.de
-Subject: [PATCH v2 1/4] Input: exc3000: split MT event handling from IRQ handler
-Date:   Fri, 13 Mar 2020 15:33:42 +0100
-Message-Id: <20200313143345.28565-1-l.stach@pengutronix.de>
+Subject: [PATCH v2 3/4] Input: exc3000: expose type, model and firmware revision as sysfs attributes
+Date:   Fri, 13 Mar 2020 15:33:44 +0100
+Message-Id: <20200313143345.28565-3-l.stach@pengutronix.de>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200313143345.28565-1-l.stach@pengutronix.de>
+References: <20200313143345.28565-1-l.stach@pengutronix.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::28
@@ -42,149 +44,89 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Split out the multitouch event handling into it's own function to allow other
-events to be handled in the IRQ handler without disturbing the MT handling.
+This can be used by userspace to determine if a firmware update should be
+started.
 
 Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 ---
- drivers/input/touchscreen/exc3000.c | 92 +++++++++++++++++------------
- 1 file changed, 54 insertions(+), 38 deletions(-)
+v2:
+- use devm_device_add_group
+---
+ drivers/input/touchscreen/exc3000.c | 47 +++++++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
 
 diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
-index e007e2e8f626..3458d02310dd 100644
+index 8d170bac182d..28621389917c 100644
 --- a/drivers/input/touchscreen/exc3000.c
 +++ b/drivers/input/touchscreen/exc3000.c
-@@ -58,6 +58,11 @@ static void exc3000_timer(struct timer_list *t)
- 	input_sync(data->input);
- }
+@@ -209,6 +209,48 @@ static int exc3000_vendor_data_request(struct exc3000_data *data, u8 *request,
  
-+static inline void exc3000_schedule_timer(struct exc3000_data *data)
+ 	return ret;
+ }
++
++static ssize_t exc3000_sysfs_type_show(struct device *dev,
++				       struct device_attribute *dattr,
++				       char *buf)
 +{
-+	mod_timer(&data->timer, jiffies + msecs_to_jiffies(EXC3000_TIMEOUT_MS));
++	struct exc3000_data *data = dev_get_drvdata(dev);
++
++	return scnprintf(buf, PAGE_SIZE, "%s\n", data->type);
 +}
++static DEVICE_ATTR(type, 0444, exc3000_sysfs_type_show, NULL);
 +
- static int exc3000_read_frame(struct i2c_client *client, u8 *buf)
- {
- 	int ret;
-@@ -76,54 +81,35 @@ static int exc3000_read_frame(struct i2c_client *client, u8 *buf)
- 	if (ret != EXC3000_LEN_FRAME)
- 		return -EIO;
- 
--	if (get_unaligned_le16(buf) != EXC3000_LEN_FRAME ||
--			buf[2] != EXC3000_MT_EVENT)
-+	if (get_unaligned_le16(buf) != EXC3000_LEN_FRAME)
- 		return -EINVAL;
- 
- 	return 0;
- }
- 
--static int exc3000_read_data(struct i2c_client *client,
--			     u8 *buf, int *n_slots)
-+static int exc3000_handle_mt_event(struct exc3000_data *data)
- {
--	int error;
--
--	error = exc3000_read_frame(client, buf);
--	if (error)
--		return error;
-+	struct input_dev *input = data->input;
-+	int ret, total_slots;
-+	u8 *buf = data->buf;
- 
--	*n_slots = buf[3];
--	if (!*n_slots || *n_slots > EXC3000_NUM_SLOTS)
--		return -EINVAL;
-+	total_slots = buf[3];
-+	if (!total_slots || total_slots > EXC3000_NUM_SLOTS) {
-+		ret = -EINVAL;
-+		goto out_fail;
-+	}
- 
--	if (*n_slots > EXC3000_SLOTS_PER_FRAME) {
-+	if (total_slots > EXC3000_SLOTS_PER_FRAME) {
- 		/* Read 2nd frame to get the rest of the contacts. */
--		error = exc3000_read_frame(client, buf + EXC3000_LEN_FRAME);
--		if (error)
--			return error;
-+		ret = exc3000_read_frame(data->client, buf + EXC3000_LEN_FRAME);
-+		if (ret)
-+			goto out_fail;
- 
- 		/* 2nd chunk must have number of contacts set to 0. */
--		if (buf[EXC3000_LEN_FRAME + 3] != 0)
--			return -EINVAL;
--	}
--
--	return 0;
--}
--
--static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
--{
--	struct exc3000_data *data = dev_id;
--	struct input_dev *input = data->input;
--	u8 *buf = data->buf;
--	int slots, total_slots;
--	int error;
--
--	error = exc3000_read_data(data->client, buf, &total_slots);
--	if (error) {
--		/* Schedule a timer to release "stuck" contacts */
--		mod_timer(&data->timer,
--			  jiffies + msecs_to_jiffies(EXC3000_TIMEOUT_MS));
--		goto out;
-+		if (buf[EXC3000_LEN_FRAME + 3] != 0) {
-+			ret = -EINVAL;
-+			goto out_fail;
-+		}
- 	}
- 
- 	/*
-@@ -132,7 +118,7 @@ static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
- 	del_timer_sync(&data->timer);
- 
- 	while (total_slots > 0) {
--		slots = min(total_slots, EXC3000_SLOTS_PER_FRAME);
-+		int slots = min(total_slots, EXC3000_SLOTS_PER_FRAME);
- 		exc3000_report_slots(input, &data->prop, buf + 4, slots);
- 		total_slots -= slots;
- 		buf += EXC3000_LEN_FRAME;
-@@ -141,6 +127,36 @@ static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
- 	input_mt_sync_frame(input);
- 	input_sync(input);
- 
-+	return 0;
-+
-+out_fail:
-+	/* Schedule a timer to release "stuck" contacts */
-+	exc3000_schedule_timer(data);
-+
-+	return ret;
-+}
-+
-+static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
++static ssize_t exc3000_sysfs_model_show(struct device *dev,
++					struct device_attribute *dattr,
++					char *buf)
 +{
-+	struct exc3000_data *data = dev_id;
-+	u8 *buf = data->buf;
-+	int ret;
++	struct exc3000_data *data = dev_get_drvdata(dev);
 +
-+	ret = exc3000_read_frame(data->client, buf);
-+	if (ret) {
-+		/* Schedule a timer to release "stuck" contacts */
-+		exc3000_schedule_timer(data);
-+		goto out;
-+	}
++	return scnprintf(buf, PAGE_SIZE, "%s\n", data->model);
++}
++static DEVICE_ATTR(model, 0444, exc3000_sysfs_model_show, NULL);
 +
-+	switch (buf[2]) {
-+		case EXC3000_MT_EVENT:
-+			exc3000_handle_mt_event(data);
-+			break;
-+		default:
-+			break;
-+	}
++static ssize_t exc3000_sysfs_fw_rev_show(struct device *dev,
++					 struct device_attribute *dattr,
++					 char *buf)
++{
++	struct exc3000_data *data = dev_get_drvdata(dev);
 +
- out:
- 	return IRQ_HANDLED;
- }
++	return scnprintf(buf, PAGE_SIZE, "%s\n", data->fw_rev);
++}
++static DEVICE_ATTR(fw_rev, 0444, exc3000_sysfs_fw_rev_show, NULL);
++
++static struct attribute *exc3000_fw_info_attrs[] = {
++	&dev_attr_type.attr,
++	&dev_attr_model.attr,
++	&dev_attr_fw_rev.attr,
++	NULL
++};
++
++static const struct attribute_group exc3000_fw_info_attr_group = {
++	.attrs = exc3000_fw_info_attrs,
++};
++
+ static int exc3000_populate_device_info(struct exc3000_data *data)
+ {
+ 	struct device *dev = &data->client->dev;
+@@ -263,6 +305,10 @@ static int exc3000_populate_device_info(struct exc3000_data *data)
+ 	if (!data->fw_rev)
+ 		return -ENOMEM;
+ 
++	ret = devm_device_add_group(dev, &exc3000_fw_info_attr_group);
++	if (ret)
++		return ret;
++
+ 	dev_info(&data->client->dev,
+ 		 "found type %s, model %s, firmware revision %s",
+ 		 data->type, data->model, data->fw_rev);
+@@ -314,6 +360,7 @@ static int exc3000_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
++	dev_set_drvdata(&client->dev, data);
+ 	error = exc3000_populate_device_info(data);
+ 	if (error)
+ 		return error;
 -- 
 2.20.1
 

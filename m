@@ -2,103 +2,137 @@ Return-Path: <SRS0=eYNa=5A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC443C1975A
-	for <linux-input@archiver.kernel.org>; Sun, 15 Mar 2020 01:31:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A8DFC2BB1D
+	for <linux-input@archiver.kernel.org>; Sun, 15 Mar 2020 09:28:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9F64620637
-	for <linux-input@archiver.kernel.org>; Sun, 15 Mar 2020 01:31:30 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IT3icGRK"
+	by mail.kernel.org (Postfix) with ESMTP id 53F5A20736
+	for <linux-input@archiver.kernel.org>; Sun, 15 Mar 2020 09:28:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1584264539;
+	bh=a3TDzGbEzkSLeXinw82ULYy0g3/qKx/I5ol4xjHP/jo=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:List-ID:From;
+	b=sjLEXFQAVgFNo65o4L9jZb4pNitDC3RFl4muuLp5VQF1x+dydGad2YnYH+zrue1w7
+	 ZHlBpYaljjlGRql1hrMo3iK6Qj8FmUCliiUVlpwdpklZQZVk+Gis2dmnnqu9dRkaEC
+	 S2bRZ0DxcSDpmv3hcamjg7Mz+3Qsr54z2gb8OS54=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726593AbgCOBba (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 14 Mar 2020 21:31:30 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:37143 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725962AbgCOBba (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 14 Mar 2020 21:31:30 -0400
-Received: by mail-oi1-f194.google.com with SMTP id w13so13920583oih.4;
-        Sat, 14 Mar 2020 18:31:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=VXyJJa4oBQQ+uT+JNHNMnu1aQ1PPRYgU53MpHacnB7c=;
-        b=IT3icGRKBm9ic21ACgD6K3BR5Ki512PXjI8zdm9gI1P5+KExSZzXQwsWDYK7nAlbqa
-         7cux/ZEByz8CaAhEWvMekA+85IBKIpdk5vj5sdjmK3jXeHSS4LBH97AOMtXA9uFgaC9p
-         6vzFN2lflyUQDb00gvVNW8TrM14naGifClbL1duQZVSbGBZwfjyuGwV66JUbdlmepzjY
-         uhwhCMbRDPk47o1/bo/wzkqtIl3e8OGEnoUWonrlMHZ1oA4AdOiQ0XTRp+bC3KMixUrN
-         lF/VVFIW8nXvleXSYeegLD14+G0uZq0E62vhAJlevFlG9CrASB6HwVx/P0iqG9B/jW9z
-         8Dxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=VXyJJa4oBQQ+uT+JNHNMnu1aQ1PPRYgU53MpHacnB7c=;
-        b=ofMxecK8TXi8pvAgpcU4437k4dI/KdSqiUz2Ck3cSaZzicIczcwj3YmxRRiPCWIFsg
-         92UNIcus/qMNby1f3ygGXf3U0bgKlqb2sqtlLtvacKRS7CCYsa4osPfdF+gwJ63MLejF
-         ePCX2BjzBdJEE8+KEDyjbghvH47l6iIbA3kXjW7246h0qqz6IX95L6ZArsKAwiXuvAA/
-         /zzV25n/HcsycYb+DkqL1ZWoBmVdmXoHinfKRXppPuX3v9h8hgfz94DiJuWp9SthDK5F
-         oLCUpha76DGWOqAPJVp9HzvmlNATwrvDzCWkjWKjA6KXyYXk+reVXlurhVusVudF5Gwf
-         apXg==
-X-Gm-Message-State: ANhLgQ2/lx0P1oPF52yh1wjbiGZpHnzVx7s6r8tKtAk5nkB04qvFjMCp
-        IoR89fqg4fyn9cWmnLu0nn37DaC84hoiSQbqukeDDVwng5s=
-X-Google-Smtp-Source: ADFU+vtg+w1KKGgnLsXrURgTNcshIGy36gF0ch/IG3LaOgW1UuDSzmI1mtZ3NDBJUL3AozKVHuZTjqhsLxytZoBjUls=
-X-Received: by 2002:aca:3f09:: with SMTP id m9mr11970001oia.55.1584234462459;
- Sat, 14 Mar 2020 18:07:42 -0700 (PDT)
+        id S1728167AbgCOJ26 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 15 Mar 2020 05:28:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40708 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726521AbgCOJ26 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 15 Mar 2020 05:28:58 -0400
+Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 201A6206B1;
+        Sun, 15 Mar 2020 09:28:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584264537;
+        bh=a3TDzGbEzkSLeXinw82ULYy0g3/qKx/I5ol4xjHP/jo=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=FfBA9KivPcq2i/xkl3X4fU7JAbz8h0yxx+oZqKHJQ5x7jhklsgxMuE/2WvFgDiDBF
+         o7pdSPWOsANpZFUiHJvKEQwTSbzIyjb1W1C4fGD8h5sY3pHDt+HBI+v9WXsl+WrQ9x
+         ZyIDeRFLkXWNBlDSNIV+zjywyMF69vj0Bi3mF12w=
+Date:   Sun, 15 Mar 2020 09:28:52 +0000
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Artur Rojek <contact@artur-rojek.eu>
+Cc:     Rob Herring <robh@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Heiko Stuebner <heiko@sntech.de>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-iio@vger.kernel.org
+Subject: Re: [PATCH v4 4/5] dt-bindings: input: Add docs for ADC driven
+ joystick.
+Message-ID: <20200315092852.2d2ecebb@archlinux>
+In-Reply-To: <bb188a58f29dfedcf56bb420f07a6813@artur-rojek.eu>
+References: <20200307211412.44148-1-contact@artur-rojek.eu>
+        <20200307211412.44148-4-contact@artur-rojek.eu>
+        <20200309203814.GA29255@bogus>
+        <bb188a58f29dfedcf56bb420f07a6813@artur-rojek.eu>
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-References: <20200304164700.11574-1-tony.fischetti@gmail.com>
- <6c58685f039d329615d84e2df1cd2a155db73c61.camel@archlinux.org>
- <CAOMV6SVxL=DLP6yWa+jHzu5A+PUJTJi4bk_1ZW-kXXwnaCBT5Q@mail.gmail.com> <nycvar.YFH.7.76.2003131222470.19500@cbobk.fhfr.pm>
-In-Reply-To: <nycvar.YFH.7.76.2003131222470.19500@cbobk.fhfr.pm>
-From:   Tony Fischetti <tony.fischetti@gmail.com>
-Date:   Sat, 14 Mar 2020 21:07:31 -0400
-Message-ID: <CAOMV6SV-_A_vAXQ7y=vZheE9A6+Aye0xjst_Zdwk6Y--W3JEmA@mail.gmail.com>
-Subject: Re: [PATCH] add ALWAYS_POLL quirk to lenovo pixart mouse
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Before I got your email, I sent the patch again, separately.
-I'm terribly sorry but I'm new to kernel development=E2=80=94how do I send =
-it
-instead as a followup patch? Do you mean just responding to this
-thread with the new patch?
+On Mon, 09 Mar 2020 22:41:00 +0100
+Artur Rojek <contact@artur-rojek.eu> wrote:
 
-On Fri, Mar 13, 2020 at 7:23 AM Jiri Kosina <jikos@kernel.org> wrote:
->
-> On Thu, 12 Mar 2020, Tony Fischetti wrote:
->
-> > Thanks for the feedback, y'all.
-> > I will rename the device and add the signed-off field and resubmit.
-> > Thanks again
->
-> Please do it as a followup patch on top of your previous one, as I've
-> already pushed that one out and we are generally not rebasing live
-> branches in hid.git.
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+> Hi Rob,
+> 
+> On 2020-03-09 21:38, Rob Herring wrote:
+> > On Sat,  7 Mar 2020 22:14:11 +0100, Artur Rojek wrote:  
+> >> Add documentation for the adc-joystick driver, used to provide support
+> >> for joysticks connected over ADC.
+> >> 
+> >> Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
+> >> Tested-by: Paul Cercueil <paul@crapouillou.net>
+> >> ---
+> >> 
+> >>  Changes:
+> >> 
+> >>  v2: - Add `reg` property to axis subnode in order to enumerate the 
+> >> axes,
+> >>      - rename `linux,abs-code` property to `linux,code`,
+> >>      - drop `linux,` prefix from the remaining properties of axis 
+> >> subnode
+> >> 
+> >>  v3: no change
+> >> 
+> >>  v4: - remove "bindings" from the unique identifier string,
+> >>      - replace `|` with `>` for all description properties,
+> >>      - specify the number of items for `io-channels`,
+> >>      - correct the regex pattern of `axis` property,
+> >>      - specify the value range of `reg` property for each axis,
+> >>      - put `abs-range` properties under `allOf`
+> >> 
+> >>  .../bindings/input/adc-joystick.yaml          | 121 
+> >> ++++++++++++++++++
+> >>  1 file changed, 121 insertions(+)
+> >>  create mode 100644 
+> >> Documentation/devicetree/bindings/input/adc-joystick.yaml
+> >>   
+> > 
+> > My bot found errors running 'make dt_binding_check' on your patch:  
+> Like with the previous versions of this patch set, the DTS example 
+> requires that
+> patch [2/5] is applied first. When that is done, the DT check does 
+> succeed here.
 
+Fair enough as far as I am concerned.   There were enough comments
+from Rob in the previous version though that I'd definitely like
+him to take another look before I pick this series up.
 
---=20
---
-Tony Fischetti
-tony.fischetti@gmail.com
-(718) 431-4597
+Thanks,
+
+Jonathan
+
+> 
+> Regards,
+> Artur
+> > 
+> > Error:
+> > Documentation/devicetree/bindings/input/adc-joystick.example.dts:22.31-32
+> > syntax error
+> > FATAL ERROR: Unable to parse input tree
+> > scripts/Makefile.lib:311: recipe for target
+> > 'Documentation/devicetree/bindings/input/adc-joystick.example.dt.yaml'
+> > failed
+> > make[1]: ***
+> > [Documentation/devicetree/bindings/input/adc-joystick.example.dt.yaml]
+> > Error 1
+> > Makefile:1262: recipe for target 'dt_binding_check' failed
+> > make: *** [dt_binding_check] Error 2
+> > 
+> > See https://patchwork.ozlabs.org/patch/1250951
+> > Please check and re-submit.  
+

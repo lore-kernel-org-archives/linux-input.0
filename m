@@ -2,147 +2,245 @@ Return-Path: <SRS0=5of2=5E=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAEB2C4332D
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 02:23:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18251C4332B
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:00:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9969420724
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 02:23:41 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=who-t.net header.i=@who-t.net header.b="FdtRg9aC";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="1ilLJKOH"
+	by mail.kernel.org (Postfix) with ESMTP id DECEF2072D
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:00:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726623AbgCSCXl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Mar 2020 22:23:41 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:59757 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726596AbgCSCXl (ORCPT
+        id S1727461AbgCSPA0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 19 Mar 2020 11:00:26 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:32104 "EHLO
+        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727279AbgCSPA0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Mar 2020 22:23:41 -0400
-Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
-        by mailout.west.internal (Postfix) with ESMTP id B4164731;
-        Wed, 18 Mar 2020 22:23:39 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute7.internal (MEProxy); Wed, 18 Mar 2020 22:23:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=who-t.net; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=Q
-        J6VgA9GCMrQDzsqr9+ykTR/nUPvG0fbwxidI4X0tLM=; b=FdtRg9aCnX1I9InM4
-        VVdeu3YFDXCBgOJlO4nqW+gwggY/MxecYBZdk2a8cYRCwsVcWA1d518IZVcQ92dn
-        2pzFvXAFEHF3uyer8vZJhW3xF9AX1DpLTVqLjtWmo3e+90vlebJeft/y6nnbWXBD
-        CWZmcFUOwSscd4VuQXTQmMScQpF1Fw32FiYoPGXo8fMWaodyExy8EETUXdovh67p
-        bC7gDoHaBKDE/aRuz6eTZGTp+aLFBsWbA5+PByMr10nQLZu0Quko9lMsVpHgUwsj
-        a6kAkzbMt/75UfDfB0OIYx5wSjzKQu+h6i7zj3txtv9PY4JRiRd4Pi3/8m7+2IO5
-        18M7g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=QJ6VgA9GCMrQDzsqr9+ykTR/nUPvG0fbwxidI4X0t
-        LM=; b=1ilLJKOHYLMFzD/cXAvNgy+EAXggg+angcm5t7egRpBPnG1TTr4EUlRZq
-        LFgLGuqeLj601lVN4vRyyi2xzIToHx7U2GhZeOf6Ddhl5Cu45TIcqseoACv9w342
-        OBF0ILomIA+f721pD5iZos4tUVaszRqTooL+ERdQFoGiDU5ybRNgcqVnSK7u+26/
-        qw+EfZPE6IXf1YaxBkX4gb7kzOjo4WhliT9yD/Z6qIuFLfvpozuOqFJ7xVBjkYQx
-        R2HVJLhZNa2O8qQfxQ4NcME51G3F2nTNxrcr/yRg3BgAL99fBxeCbqVcIlqNkPZo
-        l0C6griq2aKZ4Tb8KD8Q6L9I4Zsew==
-X-ME-Sender: <xms:qtdyXkPtRTT-401mCiXYbAgwZnkspmW6o1-mGW1y7cX714Su_w37FQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefkedggeejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtudenucfhrhhomheprfgvthgv
-    rhcujfhuthhtvghrvghruceophgvthgvrhdrhhhuthhtvghrvghrseifhhhoqdhtrdhnvg
-    htqeenucfkphepuddujedrvddtrdejuddruddtleenucevlhhushhtvghrufhiiigvpedt
-    necurfgrrhgrmhepmhgrihhlfhhrohhmpehpvghtvghrrdhhuhhtthgvrhgvrhesfihhoh
-    dqthdrnhgvth
-X-ME-Proxy: <xmx:qtdyXmaFSjfk_wBQYjeYZ_AOLLKNCRvdtHZ_3Tc3HPLWpYoLrIBFqQ>
-    <xmx:qtdyXuyDh3TjnyNtBZrsaLoeJH90SS3ZFqjtx7WfoCV0QV-SWf3c8g>
-    <xmx:qtdyXhIa9r5gFnOPksFfEiBtNHvNGUiuLkzmVa24UNeCwjylberAcQ>
-    <xmx:q9dyXo6ZfZrFnzD7jeQE4cBwoElB4ITuwjwq9jQhnlqlPHrJKyY4lA>
-Received: from jelly (117-20-71-109.751447.bne.nbn.aussiebb.net [117.20.71.109])
-        by mail.messagingengine.com (Postfix) with ESMTPA id ECC3F328005A;
-        Wed, 18 Mar 2020 22:23:35 -0400 (EDT)
-Date:   Thu, 19 Mar 2020 12:23:31 +1000
-From:   Peter Hutterer <peter.hutterer@who-t.net>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Mario Limonciello <superm1@gmail.com>,
-        Filipe =?iso-8859-1?Q?La=EDns?= <lains@archlinux.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peter Hutterer <peter.hutterer@redhat.com>,
-        Richard Hughes <hughsient@gmail.com>
-Subject: Re: [PATCH] HID: logitech-dj: issue udev change event on device
- connection
-Message-ID: <20200319022331.GA2384843@jelly>
-References: <20200318161906.3340959-1-lains@archlinux.org>
- <CA+EcB1MoTXMaueJfRHf51A5PU4oiKSJXrHazfTEvifZK54OrLQ@mail.gmail.com>
- <e8ea0c2e-445f-21e2-a248-3368f26bf391@redhat.com>
+        Thu, 19 Mar 2020 11:00:26 -0400
+IronPort-SDR: FzlqOduFFC9lzpIIBacsSSXUeQdBpNyPFBJe29g5NzTY9YhU1mkYrVgGpwnPbqRoGUIFivfE9n
+ +HeuM9JQ8MbsxxDNDtnzD3NsAyq21ZkSbOFN4Ibw+O963VGzr+svFIq3DfRiWIRqEIQAJP1DX3
+ 1nSwxkCE2QkRnd23ibSSK0uxRATX+lyLlIFPFkXBA3sT2urXn6B2ExSXVAL/4DdB+5h70KZUla
+ l/MaKPHgbq5WspIVjPIzFwWnVJs48rt9EOqQIoyIIzxx9OvctnokDYYlxbZH438w7VXyk5d/hB
+ K4Y=
+X-IronPort-AV: E=Sophos;i="5.70,572,1574150400"; 
+   d="scan'208";a="46890681"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa3.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:00:22 -0800
+IronPort-SDR: AsIXG9EgEXEeAmRwrAGlhkiF09waf8ZUcdRduNzlv3k/VIzPHd0CQx30ZPBbA4OZ4OFQP+GFKk
+ GShQDf6zzXoKX4YStCFo/K6SFvfXLDN+F4S7NT5ZMnRxbwP1lTbKEWh/Z6ZDCBw2Royt4IY0X1
+ NNMswdwdpuljeTaZQCAfE/ga0jTtXkk6bizy6/XBNJryAYaCoqeJxiQRU27DIRgSxyQ0a0QW6O
+ VaquyLc73a/JEU/Qv3pKJZ5jbT/Dcsd3//oH/zejIkWqrUGRSmLXFMqrFQ8jhc87v9V7eUeHwx
+ eBE=
+From:   Jiada Wang <jiada_wang@mentor.com>
+To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
+        <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
+        <bsz@semihalf.com>, <rydberg@bitmath.org>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
+        <jiada_wang@mentor.com>
+Subject: [PATCH v8 00/52] atmel_mxt_ts misc
+Date:   Thu, 19 Mar 2020 07:59:24 -0700
+Message-ID: <20200319150016.61398-1-jiada_wang@mentor.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <e8ea0c2e-445f-21e2-a248-3368f26bf391@redhat.com>
+Content-Type: text/plain
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Mar 18, 2020 at 06:20:03PM +0100, Hans de Goede wrote:
-> Hi,
-> 
-> On 3/18/20 6:15 PM, Mario Limonciello wrote:
-> > On Wed, Mar 18, 2020 at 11:19 AM Filipe Laíns <lains@archlinux.org> wrote:
-> > > 
-> > > As discussed in the mailing list:
-> > > 
-> > > > Right now the hid-logitech-dj driver will export one node for each
-> > > > connected device, even when the device is not connected. That causes
-> > > > some trouble because in userspace we don't have have any way to know if
-> > > > the device is connected or not, so when we try to communicate, if the
-> > > > device is disconnected it will fail.
-> > > 
-> > > The solution reached to solve this issue is to trigger an udev change
-> > > event when the device connects, this way userspace can just wait on
-> > > those connections instead of trying to ping the device.
-> > > 
-> > > Signed-off-by: Filipe Laíns <lains@archlinux.org>
-> > > ---
-> > >   drivers/hid/hid-logitech-dj.c | 2 ++
-> > >   1 file changed, 2 insertions(+)
-> > > 
-> > > diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> > > index 48dff5d6b605..fcd481a0be1f 100644
-> > > --- a/drivers/hid/hid-logitech-dj.c
-> > > +++ b/drivers/hid/hid-logitech-dj.c
-> > > @@ -1464,6 +1464,8 @@ static int logi_dj_dj_event(struct hid_device *hdev,
-> > >                  if (dj_report->report_params[CONNECTION_STATUS_PARAM_STATUS] ==
-> > >                      STATUS_LINKLOSS) {
-> > >                          logi_dj_recv_forward_null_report(djrcv_dev, dj_report);
-> > > +               } else {
-> > > +                       kobject_uevent(&hdev->dev.kobj, KOBJ_CHANGE);
-> > >                  }
-> > >                  break;
-> > >          default:
-> > > --
-> > > 2.25.1
-> > 
-> > The problem that will remain here is the transition period for
-> > userspace to start to rely upon
-> > this.  It will have no idea whether the kernel is expected to send
-> > events or not.  What do you
-> > think about adding a syfs attribute to indicate that events are being
-> > sent?  Or something similar?
-> 
-> Then we would need to support that attribute forever. IMHO the best
-> option is to just make a uname call and check the kernel version, with
-> the code marked to be removed in the future when kernels older then
-> $version are no longer something we want to support.
+This patch-set forward ports Nick Dyer's work in ndyer/linux github
+repository as long as some other features and fixes
 
-Also note that we may not have access to /sys.
+Balasubramani Vivekanandan (2):
+  Input: atmel_mxt_ts: Limit the max bytes transferred in an i2c
+    transaction
+  Input: atmel_mxt_ts: use gpiod_set_value_cansleep for reset pin
 
-Cheers,
-   Peter
+Dean Jenkins (1):
+  Input: atmel_mxt_ts: return error from
+    mxt_process_messages_until_invalid()
+
+Deepak Das (6):
+  Input: Atmel: improve error handling in mxt_start()
+  Input: Atmel: improve error handling in mxt_initialize()
+  Input: Atmel: improve error handling in mxt_update_cfg()
+  Input: Atmel: Improve error handling in mxt_initialize_input_device()
+  Input: Atmel: handle ReportID "0x00" while processing T5 messages
+  Input: Atmel: use T44 object to process T5 messages
+
+George G. Davis (1):
+  input: atmel_mxt_ts: export GPIO reset line via sysfs
+
+Jiada Wang (7):
+  Input: introduce input_mt_report_slot_inactive
+  dt-bindings: input: atmel: add suspend mode support
+  dt-bindings: input: atmel: provide name of configuration file
+  dt-bindings: input: atmel: support to specify input name
+  Input: atmel_mxt_ts - eliminate data->raw_info_block
+  dt-bindings: input: atmel: support to set max bytes transferred
+  Input: atmel_mxt_ts - Fix compilation warning
+
+Karl Tsou (1):
+  Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msgs
+
+Kautuk Consul (2):
+  Input: atmel_mxt_ts - Change call-points of mxt_free_* functions
+  Input: atmel_mxt_ts - rely on calculated_crc rather than file
+    config_crc
+
+Naveen Chakka (2):
+  input: touchscreen: atmel_mxt_ts: Added sysfs entry for touchscreen
+    status
+  input: atmel_mxt_ts: added sysfs interface to update atmel T38 data
+
+Nick Dyer (26):
+  Input: atmel_mxt_ts - rework sysfs init/remove
+  Input: atmel_mxt_ts - only read messages in mxt_acquire_irq() when
+    necessary
+  Input: atmel_mxt_ts - split large i2c transfers into blocks
+  Input: atmel_mxt_ts - output status from T48 Noise Supression
+  Input: atmel_mxt_ts - output status from T42 Touch Suppression
+  Input: atmel_mxt_ts - implement T9 vector/orientation support
+  Input: atmel_mxt_ts - implement T15 Key Array support
+  Input: atmel_mxt_ts - handle reports from T47 Stylus object
+  Input: atmel_mxt_ts - implement support for T107 active stylus
+  Input: atmel_mxt_ts - release touch state during suspend
+  Input: atmel_mxt_ts - add regulator control support
+  Input: atmel_mxt_ts - report failures in suspend/resume
+  Input: atmel_mxt_ts - allow specification of firmware file name
+  Input: atmel_mxt_ts - handle cfg filename via pdata/sysfs
+  Input: atmel_mxt_ts - allow input name to be specified in platform
+    data
+  Input: atmel_mxt_ts - refactor firmware flash to extract context into
+    struct
+  Input: atmel_mxt_ts - refactor code to enter bootloader into separate
+    func
+  Input: atmel_mxt_ts - combine bootloader version query with probe
+  Input: atmel_mxt_ts - improve bootloader state machine handling
+  Input: atmel_mxt_ts - rename bl_completion to chg_completion
+  Input: atmel_mxt_ts - make bootloader interrupt driven
+  Input: atmel_mxt_ts - delay enabling IRQ when not using regulators
+  Input: atmel_mxt_ts - implement I2C retries
+  Input: atmel_mxt_ts - orientation is not present in hover
+  Input: atmel_mxt_ts - implement debug output for messages
+  Input: atmel_mxt_ts - implement improved debug message interface
+
+Nikhil Ravindran (1):
+  Input: atmel_mxt_ts: Add support for run self-test routine.
+
+Sanjeev Chugh (1):
+  Input: atmel_mxt_ts: Implement synchronization during various
+    operation
+
+karl tsou (1):
+  Input: atmel_mxt_ts - add config checksum attribute to sysfs
+
+keerthikumarp (1):
+  input: atmel_mxt_ts: Add Missing Delay for reset handling of Atmel
+    touch panel controller in detachable displays.
+
+---
+v8:
+Fix checkpatch errors and warnings
+
+Fix issue in commit (" Input: atmel_mxt_ts - only read messages in
+mxt_acquire_irq() when necessary")
+reported by Dmitry Osipenko
+
+Cleanup coding style for commits
+Input: atmel_mxt_ts - add regulator control support
+Input: atmel_mxt_ts - improve bootloader state machine handling
+
+v7:
+Fix regression found when updating firmware
+Following commits have been updated to fix regression found when
+updating firmware
+Input: atmel_mxt_ts - improve bootloader state machine handling
+Input: atmel_mxt_ts - make bootloader interrupt driven
+input: touchscreen: atmel_mxt_ts: Added sysfs entry for touchscreen
+status
+Input: atmel_mxt_ts: Implement synchronization during various operation
+
+v6:
+Fix issue in commit ("Input: introduce input_mt_report_slot_inactive")
+reported by kernel test robot
+
+v5:
+Following commits have been updated to address warnings & errors
+reported by kbuild test robot
+Input: atmel_mxt_ts - make bootloader interrupt driven
+Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msgs
+
+Following commit has been updated
+Input: introduce input_mt_report_slot_inactive
+
+v4:
+Following commit in v3 patch-set has been removed
+Input: switch to use return value of input_mt_report_slot_state
+
+Following commit has been updated to address checkpatch warning
+Input: atmel_mxt_ts: Implement synchronization during various operation
+
+v3:
+Following commits have been updated compared to v2 patchset
+Input: atmel_mxt_ts - implement debug output for messages
+- added inline comment
+Input: atmel_mxt_ts - add debug for T92 gesture and T93 touch seq msg
+- changed dev_info() to dev_dbg()
+
+v2:
+Following commit in v1 patchset has been split into two commits
+Input: introduce input_mt_report_slot_inactive
+
+Following commits have been updated compared to v1 patchset
+Input: atmel_mxt_ts - split large i2c transfers into blocks
+Input: atmel_mxt_ts - output status from T42 Touch Suppression
+
+Following commits in v1 patchset have been squashed
+Input: touchscreen: Atmel: Add device tree support for T15 key array
+objects
+Input: atmel_mxt_ts - check data->input_dev is not null in
+mxt_input_sync()
+Input: atmel_mxt_ts - check firmware format before entering bootloader
+Input: atmel_mxt_ts: update stale use_retrigen_workaround flag
+input: atmel_mxt_ts: move bootloader probe from mxt_initialize()
+input: Atmel: limit the max bytes transferred while reading T5 messages
+Input: atmel_mxt_ts: Use msecs_to_jiffies() instead of HZ
+Input: atmel_mxt_ts: Use complete when in_bootloader true
+Input: atmel_mxt_ts: Prevent crash due to freeing of input device
+input: atmel_mxt_ts: Add NULL check for sysfs attribute debug_msg_attr
+
+Following commits in v1 patchset have been dropped:
+Input: atmel_mxt_ts - configure and use gpios as real gpios
+Input: touchscreen: Atmel: Enable IRQ_DISABLE_UNLAZY flag for interrupt
+Input: atmel_mxt_ts - add memory access interface via sysfs
+Input: atmel_mxt_ts: Remove sysfs attributes during driver detach
+Input: atmel_mxt_ts: Avoid race condition in freeing of input device
+
+
+v1: initial version
+---
+ .../bindings/input/atmel,maxtouch.txt         |   14 +
+ MAINTAINERS                                   |    1 +
+ drivers/hid/hid-alps.c                        |    3 +-
+ drivers/hid/hid-multitouch.c                  |    6 +-
+ drivers/input/misc/xen-kbdfront.c             |    2 +-
+ drivers/input/mouse/elan_i2c_core.c           |    2 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c      | 2269 ++++++++++++++---
+ drivers/input/touchscreen/cyttsp4_core.c      |    5 +-
+ drivers/input/touchscreen/cyttsp_core.c       |    2 +-
+ drivers/input/touchscreen/melfas_mip4.c       |    4 +-
+ drivers/input/touchscreen/mms114.c            |    2 +-
+ drivers/input/touchscreen/raspberrypi-ts.c    |    2 +-
+ drivers/input/touchscreen/stmfts.c            |    2 +-
+ include/dt-bindings/input/atmel_mxt_ts.h      |   23 +
+ include/linux/input/mt.h                      |    5 +
+ 15 files changed, 1987 insertions(+), 355 deletions(-)
+ create mode 100644 include/dt-bindings/input/atmel_mxt_ts.h
+
+-- 
+2.17.1
+

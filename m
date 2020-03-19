@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19F42C4332D
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:03:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72AFDC4332B
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:03:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EE0FB20B1F
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:03:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52D672072D
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:03:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728548AbgCSPDh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 19 Mar 2020 11:03:37 -0400
+        id S1728568AbgCSPDj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 19 Mar 2020 11:03:39 -0400
 Received: from esa3.mentor.iphmx.com ([68.232.137.180]:32457 "EHLO
         esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728521AbgCSPDb (ORCPT
+        with ESMTP id S1728557AbgCSPDj (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Mar 2020 11:03:31 -0400
-IronPort-SDR: IZuMOuB/mqutYeX9ljraj9pFBJVWklUyBh3gigyKEDfEkWkDzmSubFFhxzOwdrs5KEzxe+Wd1l
- nm98rUhFU4tpqATqI2QkI4fnnKa35WQCWDU2hgH8waS5mp3G7KzGIYZvH9nojKq2VGL3DDkz9B
- 8E4/BJ4Yx2oPYrpT5QHvzPsrgcoVxGBXedCRHaiwxHxCwlC90ATgiLf8eeFPlYjRw87LOfWOoE
- m68EwCqXWiEsQiRj2HsmDOcpDichDhuv06jILwwZeY12+sl0OYvpOl0OWij8qHF+OL52WbX0Px
- kfQ=
+        Thu, 19 Mar 2020 11:03:39 -0400
+IronPort-SDR: Or07yC/Eowb8qlGVB/6Cf/JUYv1qPy+miL14lv0yrBEk2oQJcKx7HNz33N6SFNh9Kyt14HgHxF
+ Ot+bstdxI6Jo6tu/83La4qSZcAYXY16EciCuoy8CMkjqhotGUbrCP7tHWDyirJdLzq9GQppkOU
+ aV2iVHkO854dzcqcRwhQSWGh1jBqDRPEUYT2BhG+rI5sK5rgZ3X46x3ww8KtDm70RZ7QtF4LAa
+ wDG1ERTHj0LnlbJsT0W647MEq5WyzeSHpPYMONmrJP5hRN3u8Zm9+IeaFkTlg/vvYlM+SNlO9A
+ fpY=
 X-IronPort-AV: E=Sophos;i="5.70,572,1574150400"; 
-   d="scan'208";a="46891124"
+   d="scan'208";a="46891153"
 Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa3.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:03:30 -0800
-IronPort-SDR: CV6LiE4d6KH0ffSNGiX0cpuawVrzHcSJVS/u3kWOuJmR9vDrMLqESFT/fJKdVLChcMasWxt5ho
- 7ODM8gNvYAvyCSUz67rCLGIZzi9qiMm0WGb5OHaBTMjiBAjYQbVmGXfmOFQSOYvuWfYZvZxuKb
- 0xF9CyL23HsSlYZFor2Wl5ZO719L4EAsblA+QShO7lfjWDWRioMXMR3sVvOEND43nmvsSF8/F4
- tlL3NWlg0PGUC29h/HyskxbAdGHNGy3Lch81CcPBcPx15/1FWb5lx8GAjFRUiLxzSQhDOPXf/6
- xzk=
+  by esa3.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:03:38 -0800
+IronPort-SDR: tTdy9z1UjJ75ZkK/hix1SV8rftCDx2ifYZ8MFd6bbGBErur0oETmnma8In0xky0Mxu7hmlX2zG
+ HkU6DWywk1odNl8uSa0ymI7VTAIsjwCliTPqad8qZI/k3GTtb+sQYPsXti6cPVj7f4vuzM51nB
+ ZnWhO/ZB+rriz45UFZOHjBeCXW/388ZUKHQOHBFLvWmN/MzBdpfLXEDMWPuD426xSYxKHW+TZO
+ 0exRWnz+6SLQrELL8C/tPCCAjgliDhn9J2PvHBoBayTkih5geJWz3rjQRMdunBn1zpit4xkXcL
+ swA=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -40,9 +40,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v8 48/52] Input: atmel_mxt_ts: use gpiod_set_value_cansleep for reset pin
-Date:   Thu, 19 Mar 2020 08:00:12 -0700
-Message-ID: <20200319150016.61398-49-jiada_wang@mentor.com>
+Subject: [PATCH v8 50/52] input: atmel_mxt_ts: added sysfs interface to update atmel T38 data
+Date:   Thu, 19 Mar 2020 08:00:14 -0700
+Message-ID: <20200319150016.61398-51-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200319150016.61398-1-jiada_wang@mentor.com>
 References: <20200319150016.61398-1-jiada_wang@mentor.com>
@@ -53,67 +53,166 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
+From: Naveen Chakka <Naveen.Chakka@in.bosch.com>
 
-In case of remote display, touch controller will be also remote.
-In such cases, the reset pin of the touch controller will be
-controlled through bridging ICs like Deserilizer and Serializer.
-Therefore accessing the gpio pins require transactions with the
-external IC. Using the function gpiod_set_value will print a
-warning like below
+Atmel touch controller contains T38 object where a user can store its own
+data of length 64 bytes. T38 data will not be part of checksum
+calculation on executing T6 BACKUP command.
 
-WARNING: CPU: 0 PID: 576 at drivers/gpio/gpiolib.c:1441 gpiod_set_value+0x34/0x60()
-CPU: 0 PID: 576 Comm: modprobe Not tainted 3.14.79-08377-g84ea22f-dirty #4
-Backtrace:
-[<80011c58>] (dump_backtrace) from [<80011e60>] (show_stack+0x18/0x1c)
-[<80011e48>] (show_stack) from [<8052d7ac>] (dump_stack+0x7c/0x9c)
-[<8052d730>] (dump_stack) from [<800241bc>] (warn_slowpath_common+0x74/0x9c)
-[<80024148>] (warn_slowpath_common) from [<80024288>] (warn_slowpath_null+0x24/0x2c)
-[<80024264>] (warn_slowpath_null) from [<8029e070>] (gpiod_set_value+0x34/0x60)
-[<8029e03c>] (gpiod_set_value) from [<7f492e98>] (mxt_probe+0x1e0/0x718 [atmel_mxt_ts])
-[<7f492cb8>] (mxt_probe [atmel_mxt_ts]) from [<803c4d34>] (i2c_device_probe+0xcc/0xec)
-[<803c4c68>] (i2c_device_probe) from [<803252a0>] (driver_probe_device+0xc0/0x200)
+format used to update the T38 data is given below:
 
-Signed-off-by: Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+<offset> <length> <actual_data>
+
+offset: offset address of the data to be written in the t38 object
+	(in decimal)
+
+length: length of the data to be written into the t38 object(in decimal)
+
+data: actual data bytes to be written into the t38 object
+      (values should be in hex)
+
+Ex:
+1. 0 2 10 20
+updates first two bytes of the t38 data with values 10 and 20
+
+2. 19 6 10 2f 30 4a 50 60
+updates 6 bytes of t38 data from the index 19-24 with hex values
+
+Signed-off-by: Naveen Chakka <Naveen.Chakka@in.bosch.com>
 Signed-off-by: Sanjeev Chugh <sanjeev_chugh@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 102 +++++++++++++++++++++++
+ 1 file changed, 102 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 0ca8308e2e8d..9d2636567513 100644
+index a0f90113a98d..50b3cc194196 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2489,7 +2489,7 @@ static void mxt_regulator_enable(struct mxt_data *data)
- 	if (!data->reg_vdd || !data->reg_avdd)
- 		return;
+@@ -4029,6 +4029,106 @@ static ssize_t mxt_touch_device_status(struct device *dev, struct
+ 	return ret;
+ }
  
--	gpiod_set_value(data->reset_gpio, 0);
-+	gpiod_set_value_cansleep(data->reset_gpio, 0);
++static ssize_t mxt_t38_data_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	struct mxt_object *object;
++	size_t count = 0, size;
++	u8 i, *t38_buf;
++
++	if (!data->object_table)
++		return -ENXIO;
++
++	object = mxt_get_object(data, MXT_SPT_USERDATA_T38);
++	size = mxt_obj_size(object);
++
++	/* Pre-allocate buffer large enough to hold max size of t38 object.*/
++	t38_buf = kmalloc(size, GFP_KERNEL);
++	if (!t38_buf)
++		return -ENOMEM;
++
++	count = __mxt_read_reg(data->client, object->start_address,
++			       size, t38_buf);
++	if (count)
++		goto end;
++
++	for (i = 0; i < size; i++)
++		count += scnprintf(buf + count, PAGE_SIZE - count,
++				   "[%2u]: %02x\n", i, t38_buf[i]);
++	count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
++end:
++	kfree(t38_buf);
++	return count;
++}
++
++static ssize_t mxt_t38_data_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	struct mxt_object *object;
++	ssize_t ret = 0, pos, offset;
++	unsigned int i, len, index;
++	u8 *t38_buf;
++
++	if (!data->object_table)
++		return -ENXIO;
++
++	object = mxt_get_object(data, MXT_SPT_USERDATA_T38);
++
++	/* Pre-allocate buffer large enough to hold max size of t38 object.*/
++	t38_buf = kmalloc(mxt_obj_size(object), GFP_KERNEL);
++	if (!t38_buf)
++		return -ENOMEM;
++
++	ret = sscanf(buf, "%zd %d%zd", &offset, &len, &pos);
++	if (ret != 2) {
++		dev_err(dev, "Bad format: Invalid parameter to update t38\n");
++		ret = -EINVAL;
++		goto end;
++	}
++
++	if (len == 0) {
++		dev_err(dev,
++			"Bad format: Data length should not be equal to 0\n");
++		ret = -EINVAL;
++		goto end;
++	}
++
++	if (offset < 0 || ((offset + len) > 64)) {
++		dev_err(dev, "Invalid offset value to update t38\n");
++		ret = -EINVAL;
++		goto end;
++	}
++
++	index = pos;
++	for (i = 0; i < len; i++) {
++		ret = sscanf(buf + index, "%hhx%zd", t38_buf + i, &pos);
++		if (ret != 1) {
++			dev_err(dev, "Bad format: Invalid Data\n");
++			ret = -EINVAL;
++			goto end;
++		}
++		index += pos;
++	}
++
++	ret = __mxt_write_reg(data->client, object->start_address + offset,
++			      len, t38_buf);
++	if (ret)
++		goto end;
++
++	ret = mxt_t6_command(data, MXT_COMMAND_BACKUPNV, MXT_BACKUP_VALUE,
++			     true);
++	if (ret)
++		dev_err(dev, "backup command failed\n");
++	else
++		ret = count;
++end:
++	kfree(t38_buf);
++	return ret;
++}
++
+ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+@@ -4041,6 +4141,7 @@ static DEVICE_ATTR(debug_v2_enable, 0600, NULL,
+ static DEVICE_ATTR(debug_notify, 0444, mxt_debug_notify_show, NULL);
+ static DEVICE_ATTR(t25, 0600, mxt_t25_selftest_show, mxt_t25_selftest_store);
+ static DEVICE_ATTR(touch_dev_stat, 0444, mxt_touch_device_status, NULL);
++static DEVICE_ATTR(t38_data, 0600, mxt_t38_data_show, mxt_t38_data_store);
  
- 	error = regulator_enable(data->reg_vdd);
- 	if (error)
-@@ -2507,7 +2507,7 @@ static void mxt_regulator_enable(struct mxt_data *data)
- 	 * voltage
- 	 */
- 	msleep(MXT_REGULATOR_DELAY);
--	gpiod_set_value(data->reset_gpio, 1);
-+	gpiod_set_value_cansleep(data->reset_gpio, 1);
- 	msleep(MXT_CHG_DELAY);
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+@@ -4053,6 +4154,7 @@ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_debug_notify.attr,
+ 	&dev_attr_t25.attr,
+ 	&dev_attr_touch_dev_stat.attr,
++	&dev_attr_t38_data.attr,
+ 	NULL
+ };
  
- retry_wait:
-@@ -4313,7 +4313,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		disable_irq(data->irq);
- 	} else if (data->reset_gpio) {
- 		msleep(MXT_RESET_GPIO_TIME);
--		gpiod_set_value(data->reset_gpio, 1);
-+		gpiod_set_value_cansleep(data->reset_gpio, 1);
- 		msleep(MXT_RESET_INVALID_CHG);
- 	} else {
- 		dev_dbg(&client->dev,
 -- 
 2.17.1
 

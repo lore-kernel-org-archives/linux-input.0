@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0406EC4332D
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:06:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 074F0C4332D
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:06:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DADD120BED
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:06:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9D252072D
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:06:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727879AbgCSPG1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 19 Mar 2020 11:06:27 -0400
-Received: from esa4.mentor.iphmx.com ([68.232.137.252]:5803 "EHLO
+        id S1727425AbgCSPGw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 19 Mar 2020 11:06:52 -0400
+Received: from esa4.mentor.iphmx.com ([68.232.137.252]:5833 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727858AbgCSPG1 (ORCPT
+        with ESMTP id S1727183AbgCSPGw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Mar 2020 11:06:27 -0400
-IronPort-SDR: dyBhasTIP4xAvkPQjy4XzWktdg0cjcjW/uXVrM6WgRmIZJ7ebsxKSSIN9V6y6kEaZVfxore488
- NFgKFDnFR/iWWjBczAgSmkagFnc9XU7Rfy9NEuzDK8Tkh7zGLw/Bw776b7JD8TbPrre0rU+C8P
- DR4STE0EQG17A1YyY7crbhUGLeIiBiSCIMaKs7fOnMbVAp8FPTLeNqmUT9VP6poICfrGB8BKcw
- Dbv4LmY6i2bkV966PFnQyAJuGDrRXtfVAYmcnWdwMsT9lkyb5/fVC7XPyrDEvteMrXQPEgIR0k
- xpg=
+        Thu, 19 Mar 2020 11:06:52 -0400
+IronPort-SDR: frHQI7gmou2DTYNl0SN9ICJNA/fa6VE4RSZ7FCwFgWGaCHe9WcYhpuK4dNO97ni09SeDupanRc
+ Jq9vo/ZIg///D2XAuBwdQDLibR4lZqhhjyOvWlPhqL9sWPtwuW5p7flch3KP8svku67PoR0UU8
+ 2IGMwwbjru0JBV4Z7D0r2J6SgCKBGiHWjNorZHNWl2UnkS107jiL1k40v4jezDrS+BcE+qMVtd
+ b0rmAXFWIPIaBqLaUANdSgw+NFQbm+6TdqiEmRx4AZFWh3N2HakCYxXMkwxEUYHciA4VXp8CKn
+ o6s=
 X-IronPort-AV: E=Sophos;i="5.70,572,1574150400"; 
-   d="scan'208";a="46927060"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa4.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:03:22 -0800
-IronPort-SDR: zaOb566Jh7wRAf/JNK7/8EMUwTtcK+da1BnPD+80152hVdLeVfxLObvn4+dK1EzA+GYQM4aUH3
- d6R9vGtF4tuWrf1NbIEQZ6KRLo2gMh2sF3OD95Aw+53XP08p8+SmrbPK1GiVao9quqvcMCyAdx
- Pon1Ml+KYwHstuqkQZdNXw5HjBqTjLs1odB7N8fUxaZMAacuD76RIj9A7e6uP5E5lYFtIiRaTX
- QMlzad6znJtuHHg8EQCBVc3DAZlJE8vkBRvSdw9iicl3xfoz7uHdTYPxSEa3PGLPoWfdJL3l/9
- vws=
+   d="scan'208";a="46927151"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa4.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:03:46 -0800
+IronPort-SDR: a8I4DIKisE09+xItcWC9u5+rEINlZH9hGL9eUge0z0yPQei6GkZeDE1rwGTjZYLMKqHARP7bvr
+ S/2p1m+rHzmxKWOhRmV6RemAepiJzMMNdiUJgNiWOmMOlWTueJXRnGd2vfAuhc2lTSa4qsAB/p
+ Q+6weqw0FZ9OAL0H9SqXK4K+4fCfp97K+fABWFK8zkZ6So82MvO8sfwCFENcV84nqpHPqQqFT3
+ iAvVQHqj7AguFrTC1IekVM8Y1241lvEtHyG+gbrzugjZeyd+B5ckjI8+j4FT4UWKdkzGfEsgTX
+ UJU=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -40,9 +40,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v8 46/52] Input: Atmel: handle ReportID "0x00" while processing T5 messages
-Date:   Thu, 19 Mar 2020 08:00:10 -0700
-Message-ID: <20200319150016.61398-47-jiada_wang@mentor.com>
+Subject: [PATCH v8 52/52] Input: atmel_mxt_ts - Fix compilation warning
+Date:   Thu, 19 Mar 2020 08:00:16 -0700
+Message-ID: <20200319150016.61398-53-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200319150016.61398-1-jiada_wang@mentor.com>
 References: <20200319150016.61398-1-jiada_wang@mentor.com>
@@ -53,58 +53,27 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Deepak Das <deepak_das@mentor.com>
+fix "make W=1" compilation warnings from Atmel driver
+as per the compilation logs.
 
-ReportID "0x00" is reserved by Atmel and should not be used by any
-Atmel touch controller.
-
-reportID is the first byte retrieved from T5 message payload.
-Currently Atmel driver continues to process the T5 messages even if
-the reportID "0x00" is returned by Touch Controller.
-
-This commit modifies Atmel touch driver to return -EINVAL if ReportID
-"0x00" is received while processing T5 messages.
-
-Signed-off-by: Deepak Das <deepak_das@mentor.com>
-Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 994232c43554..6b4809903ee8 100644
+index a8e80e77624d..b1e27a07de6a 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -76,6 +76,7 @@
- #define MXT_PROCI_TOUCHSEQUENCELOGGER	93
- #define MXT_TOUCH_MULTITOUCHSCREEN_T100 100
- #define MXT_PROCI_ACTIVESTYLUS_T107	107
-+#define MXT_RPTID_RESERVED		0
+@@ -2048,7 +2048,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data, struct mxt_cfg *cfg)
  
- /* MXT_GEN_MESSAGE_T5 object */
- #define MXT_RPTID_NOMSG		0xff
-@@ -1381,6 +1382,11 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	u8 report_id = message[0];
- 	bool dump = data->debug_enabled;
+ 			byte_offset = reg + i - cfg->start_ofs;
  
-+	if (report_id == MXT_RPTID_RESERVED) {
-+		dev_err(&data->client->dev,
-+			"Received Reserved ReportID 0x00\n");
-+		return -EINVAL;
-+	}
- 	if (report_id == MXT_RPTID_NOMSG)
- 		return 0;
- 
-@@ -1451,6 +1457,8 @@ static int mxt_read_and_process_messages(struct mxt_data *data, u8 count)
- 		ret = mxt_proc_message(data,
- 			data->msg_buf + data->T5_msg_size * i);
- 
-+		if (ret < 0)
-+			return ret;
- 		if (ret == 1)
- 			num_valid++;
- 	}
+-			if (byte_offset >= 0 && byte_offset < cfg->mem_size) {
++			if (byte_offset < cfg->mem_size) {
+ 				*(cfg->mem + byte_offset) = val;
+ 			} else {
+ 				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
 -- 
 2.17.1
 

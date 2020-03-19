@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21947C43332
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8376C4332E
 	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:03:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 03F7D20CC7
+	by mail.kernel.org (Postfix) with ESMTP id AA68020B1F
 	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:03:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728464AbgCSPDU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 19 Mar 2020 11:03:20 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:32379 "EHLO
+        id S1728059AbgCSPCJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 19 Mar 2020 11:02:09 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:32318 "EHLO
         esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728435AbgCSPDT (ORCPT
+        with ESMTP id S1727102AbgCSPCJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Mar 2020 11:03:19 -0400
-IronPort-SDR: pnEWoouqL2/muF07ofLVYUyUy/HQD2rYos/wwYYyrndkTUgTbtuXEzf3b9yRBrSktuokXqiVg5
- qIt4KkVYLTSeH+5ZkVMKURu6W2Eubs8SoD6beJirL/wjCgccRJoVQ/ai3n4mB74BaE8njYSvQN
- NH9jYB+zKNFvvzgfSCqTs+s9/jHYZ++qbOS7Hm5W8Pgi9DyR2FD4uQtEBoh1AP46hIou5nFWXB
- lWVR8vYNrJL8ztRpjg8g38N4fo8/lLhamOE9DQo2QOImh1TdWISsxPpvEoH0sCPY5wwkQjuxsv
- oSU=
+        Thu, 19 Mar 2020 11:02:09 -0400
+IronPort-SDR: wsBm9OJ5BrWEUx9FXRVEk3wNI5zEgNhs8MJ9EJbHUHIyD2xE2wsS7It1qWygHYDFvcZVdrvQ2/
+ kneeP7d2A3VKWe/gX2OJe6PbITp+Dn10sNyUDu4dHwOiwPuy7pdFHAHDqvO30Ys7Xo4kr2gwoj
+ 1/QpcIfCrkao7mU+XQer+X+sDCu+zxtg1FHuhjqbDGl+5YNVa6qKnBqdK8u7DD3w660bqQIEC2
+ t8kx2nA8emmPx49SUB1yvAOrgnjfpHulRVxnSMOfz/FFGadk+lKtZfttRlG/lHPPFW3vkD6vW5
+ ZVQ=
 X-IronPort-AV: E=Sophos;i="5.70,572,1574150400"; 
-   d="scan'208";a="46891070"
+   d="scan'208";a="46890925"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:03:18 -0800
-IronPort-SDR: lESiGKohi5ReR/Powo1gz/WoWbBgQye/3KGJ/7wruXSWk6WRigfNw3CAeaW67MWmNF2aQQ1xQB
- y/85Sj0dYMPz8OnFyZs9S1UDw+eQtjIKThNmseDfy6DdO4JsEkyjRl3W2RpUlF9jutWawaQzjI
- p0fE348BY5FK6gN5N9pI2Q+N6uo2Dv7WTnvTF/wZUK5NqEodlr0l2PzBeNn7QCbPvK+bILCLri
- aYY1mDdiES5NHL+BKqixwOR80kT4wOWbStRlQ7FWdLXUutemTvYAdEyJEvSso5+STfiGQWb7G3
- P64=
+  by esa3.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:01:56 -0800
+IronPort-SDR: vDMOe30BYfCDN4tGoOf0E9kdQwP7uuCn9nI+QgAIHeWL6QXCnI2bVIgF7ZD39SA1O20pHzet6s
+ T2bYDg6u9bl7wU0sRHyzloPxjkXPjMCgzQ/UADCJulsMe0fKDEHulj68cCLNNAGmcNmYEzaTbG
+ f5e1rjzwr7l15CF24hcVpFXYqw6PTRKkPljE7MywNs6uutq0uA+Gags2AQHH4DhSBMQUkGzrpg
+ B5h0PERcB8DTeJ5TKH6Kiuu4dOz0a7k8/OTVzed5MqzVVxdQp+yKP6yFB8nL5lVvA9G3cg8LnS
+ wzA=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v8 45/52] Input: Atmel: Improve error handling in mxt_initialize_input_device()
-Date:   Thu, 19 Mar 2020 08:00:09 -0700
-Message-ID: <20200319150016.61398-46-jiada_wang@mentor.com>
+Subject: [PATCH v8 24/52] Input: atmel_mxt_ts - combine bootloader version query with probe
+Date:   Thu, 19 Mar 2020 07:59:48 -0700
+Message-ID: <20200319150016.61398-25-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200319150016.61398-1-jiada_wang@mentor.com>
 References: <20200319150016.61398-1-jiada_wang@mentor.com>
@@ -54,55 +54,103 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Deepak Das <deepak_das@mentor.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Currently Driver probe continues with a warning message when it
-fails to get the proper multitouch object configurations like
-TouchScreen resolution.
+This removes some complexity from the bootloader state machine, and means
+that we always output some debug about the version as soon as we start
+talking to the bootloader.
 
-But Driver probe should fail in case of above scneario because it
-will not behave as expected without the proper touchscreen
-configurations.
-
-This commit modifies mxt_initialize_input_device() to return error
-when it fails to get the proper touch screen configurations.
-
-Signed-off-by: Deepak Das <deepak_das@mentor.com>
-Signed-off-by: Dean Jenkins <Dean_Jenkins@mentor.com>
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+(cherry picked from ndyer/linux/for-upstream commit a2d141f170c80fea6663af98aab0be32abc0ddb0)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 45 +++++++-----------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index edab65337061..994232c43554 100644
+index b4d0835ba196..d3d6e4e60f67 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2761,15 +2761,19 @@ static int mxt_initialize_input_device(struct mxt_data *data)
- 	case MXT_TOUCH_MULTI_T9:
- 		num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
- 		error = mxt_read_t9_resolution(data);
--		if (error)
--			dev_warn(dev, "Failed to initialize T9 resolution\n");
-+		if (error) {
-+			dev_err(dev, "Failed to initialize T9 resolution\n");
-+			return error;
-+		}
- 		break;
+@@ -558,47 +558,31 @@ static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
+ {
+ 	struct device *dev = &data->client->dev;
+ 	int error;
+-	u8 val;
+-	bool crc_failure;
++	u8 buf[3];
++	bool crc_failure, extended_id;
  
- 	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
- 		num_mt_slots = data->num_touchids;
- 		error = mxt_read_t100_config(data);
--		if (error)
--			dev_warn(dev, "Failed to read T100 config\n");
-+		if (error) {
-+			dev_err(dev, "Failed to read T100 config\n");
-+			return error;
-+		}
- 		break;
+ 	error = mxt_lookup_bootloader_address(data, alt_address);
+ 	if (error)
+ 		return error;
  
- 	default:
+-	error = mxt_bootloader_read(data, &val, 1);
++	/* Check bootloader status and version information */
++	error = mxt_bootloader_read(data, buf, sizeof(buf));
+ 	if (error)
+ 		return error;
+ 
+-	/* Check app crc fail mode */
+-	crc_failure = (val & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
++	crc_failure = (buf[0] & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
++	extended_id = buf[0] & MXT_BOOT_EXTENDED_ID;
+ 
+-	dev_err(dev, "Detected bootloader, status:%02X%s\n",
+-			val, crc_failure ? ", APP_CRC_FAIL" : "");
++	dev_info(dev, "Found bootloader addr:%02x ID:%u%s%u%s\n",
++		 data->bootloader_addr,
++		 extended_id ? (buf[1] & MXT_BOOT_ID_MASK) : buf[0],
++		 extended_id ? " version:" : "",
++		 extended_id ? buf[2] : 0,
++		 crc_failure ? ", APP_CRC_FAIL" : "");
+ 
+ 	return 0;
+ }
+ 
+-static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
+-{
+-	struct device *dev = &data->client->dev;
+-	u8 buf[3];
+-
+-	if (val & MXT_BOOT_EXTENDED_ID) {
+-		if (mxt_bootloader_read(data, &buf[0], 3) != 0) {
+-			dev_err(dev, "%s: i2c failure\n", __func__);
+-			return val;
+-		}
+-
+-		dev_dbg(dev, "Bootloader ID:%d Version:%d\n", buf[1], buf[2]);
+-
+-		return buf[0];
+-	} else {
+-		dev_dbg(dev, "Bootloader ID:%d\n", val & MXT_BOOT_ID_MASK);
+-
+-		return val;
+-	}
+-}
+-
+ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
+ 				bool wait)
+ {
+@@ -632,9 +616,6 @@ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
+ 	if (ret)
+ 		return ret;
+ 
+-	if (state == MXT_WAITING_BOOTLOAD_CMD)
+-		val = mxt_get_bootloader_version(data, val);
+-
+ 	switch (state) {
+ 	case MXT_WAITING_BOOTLOAD_CMD:
+ 	case MXT_WAITING_FRAME_DATA:
+@@ -3283,7 +3264,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
+ 		msleep(MXT_RESET_TIME);
+ 
+ 		/* Do not need to scan since we know family ID */
+-		ret = mxt_lookup_bootloader_address(data, 0);
++		ret = mxt_probe_bootloader(data, 0);
+ 		if (ret)
+ 			return ret;
+ 
 -- 
 2.17.1
 

@@ -4,35 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC784C4332B
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:02:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52C18C4332D
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:02:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B38F320BED
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:02:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35A6C20B1F
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:02:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727690AbgCSPCJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 19 Mar 2020 11:02:09 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:32318 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726912AbgCSPCI (ORCPT
+        id S1728112AbgCSPCQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 19 Mar 2020 11:02:16 -0400
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:16097 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728129AbgCSPCQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Mar 2020 11:02:08 -0400
-IronPort-SDR: OyItQqcIyCP/SBzqXQJCiP0w+FrwGmauM2MFaD9XlSQn98S4nBc/vqxwHA5wWBMcTmHQ05TKUK
- oRc0W63LN56vaAd7msQcM2+hYubbIX14JC4J0VZYudqZKvIs2awgQiTEhE+szhuQI4c8viBkcz
- bPhDeoPGiQKAY9YSGFYwxLg27VEqkxMi7sls27S2ynFRlLKxQAZrUUvIZQiyuwX603QQR7IHMw
- yiy1OyR2LHVebqPafF2XFFtJeNQ/dE8k+YtUnOsCFly4vu3kaardv24sIDNixubvwrD+eBPUnw
- POk=
+        Thu, 19 Mar 2020 11:02:16 -0400
+IronPort-SDR: DDqhPAIgi65i0UbSP7JQ1AM3sPclp2C2kGTvBVe8Z0+dWglERdvX5/OmCPN6hLww43yblged7V
+ 5dCJq9unJBYgKK4I9R1sKlvFBTiAriKZmvhCqYp2L8xaRWU/sZCOrAoM7xClfQwWVSkJTPefi+
+ +D6c4OK/wsLzclKfhHLwaoepKPxDM84U8RdJWi0goiXDhJe+E9NYI/V5LtIGXcLFuil0ESMh97
+ 9feytIIZ7yXAXU+T1ZNjkl1PxhHUjHNKXCFN/7vbQyP4y89oSdKTed+eGnhC8ICeVqs7J27HLr
+ HVg=
 X-IronPort-AV: E=Sophos;i="5.70,572,1574150400"; 
-   d="scan'208";a="46890921"
+   d="scan'208";a="48850336"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:01:52 -0800
-IronPort-SDR: 0fluhvLogtlYw42cqS6Gs1FsUeJQ1gp22+Esg0fqFlplIcZEx8eExGTbrVOYRazaKQvOsiBZ3f
- U6TPLB6V28YvHEjWv1CAeCLsEPCi9MI0s+QWo5+Aobgqa607IxACY7pGnQaudZBwIGaE0q9jAl
- 7PcK+4frl7Lus6QfYyckzmZ30yImRmliYSIrSuoiAN9TGiJIBw1oA1OcqGoP1RTBeDdVW1Y4k3
- Bz460MkebPFIYxniJVOAdWWurBrtnsBFWMyahuEDOhxVy8WS0n1kXmJVmIJn66LVa63sOIn1Bb
- plE=
+  by esa1.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:02:15 -0800
+IronPort-SDR: 8AHbllqAEXjVKi7pyS7LCzE63lgnJpSwq1IaOWeCJgxcLDCznpIgfnKRvj5DnXiZO9hTXLlcYQ
+ qgjbNCS6UvuYyilE3IT3ka0GKGTBg6t2bIi/SL+jITUJFK4aIWIEtrFTkJOm/xGqoTm8z/eWwI
+ lYT72GVel+K5MBm68fs9eytdzxQ4mgMZXEo0kaW/wzx0PeDdTjDOd9V+kGXLpJRJwUaHXHnLHb
+ pNS2IwyISlfAbU1FE+lRyOmx67bNSALtEacWbDk26YxWrQI+xWCYZyy4ScCHkv98zD/v5kjSSJ
+ 90E=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -40,9 +40,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v8 23/52] Input: atmel_mxt_ts - refactor code to enter bootloader into separate func
-Date:   Thu, 19 Mar 2020 07:59:47 -0700
-Message-ID: <20200319150016.61398-24-jiada_wang@mentor.com>
+Subject: [PATCH v8 29/52] Input: atmel_mxt_ts - implement I2C retries
+Date:   Thu, 19 Mar 2020 07:59:53 -0700
+Message-ID: <20200319150016.61398-30-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200319150016.61398-1-jiada_wang@mentor.com>
 References: <20200319150016.61398-1-jiada_wang@mentor.com>
@@ -55,100 +55,108 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Refactor code to enter bootloader into separate func
+Some maXTouch chips (eg mXT1386) will not respond on the first I2C request
+when they are in a sleep state. It must be retried after a delay for the
+chip to wake up.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit bedd706a32522b946467e15f4f4f24de86a1b4d7)
-[gdavis: Resolve forward port conflicts due to applying upstream
-	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
-	 data support").]
+Acked-by: Yufeng Shen <miletus@chromium.org>
+(cherry picked from ndyer/linux/for-upstream commit 63fd7a2cd03c3a572a5db39c52f4856819e1835d)
+[gdavis: Forward port and fix conflicts.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Squash change from ndyer/linux/for-upstream commit d691d3ee6c6de84b38464a42
-3207b3e23cb9dc3a
-	- Input: atmel_mxt_ts - check firmware format before entering bootloader
-	Add commit description]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 43 +++++++++++++++---------
- 1 file changed, 27 insertions(+), 16 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 45 ++++++++++++++++--------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index e5dc554a0845..b4d0835ba196 100644
+index a1a322f41f9e..670159c2f218 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3257,23 +3257,10 @@ static int mxt_check_firmware_format(struct device *dev,
- 	return -EINVAL;
+@@ -216,6 +216,7 @@ enum t100_type {
+ #define MXT_CRC_TIMEOUT		1000	/* msec */
+ #define MXT_FW_RESET_TIME	3000	/* msec */
+ #define MXT_FW_CHG_TIMEOUT	300	/* msec */
++#define MXT_WAKEUP_TIME		25	/* msec */
+ #define MXT_REGULATOR_DELAY	150	/* msec */
+ #define MXT_CHG_DELAY		100	/* msec */
+ #define MXT_POWERON_DELAY	150	/* msec */
+@@ -720,6 +721,7 @@ static int __mxt_read_chunk(struct i2c_client *client,
+ 	struct i2c_msg xfer[2];
+ 	u8 buf[2];
+ 	int ret;
++	bool retry = false;
+ 
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+@@ -736,17 +738,22 @@ static int __mxt_read_chunk(struct i2c_client *client,
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
+ 
+-	ret = i2c_transfer(client->adapter, xfer, 2);
+-	if (ret == 2) {
+-		ret = 0;
+-	} else {
+-		if (ret >= 0)
+-			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
+-			__func__, ret);
++retry_read:
++	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
++	if (ret != ARRAY_SIZE(xfer)) {
++		if (!retry) {
++			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
++			msleep(MXT_WAKEUP_TIME);
++			retry = true;
++			goto retry_read;
++		} else {
++			dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
++				__func__, ret);
++			return -EIO;
++		}
+ 	}
+ 
+-	return ret;
++	return 0;
  }
  
--static int mxt_load_fw(struct device *dev)
-+static int mxt_enter_bootloader(struct mxt_data *data)
- {
--	struct mxt_data *data = dev_get_drvdata(dev);
--	struct mxt_flash f = { 0, };
+ static int __mxt_read_reg(struct i2c_client *client,
+@@ -777,6 +784,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	u8 *buf;
+ 	size_t count;
  	int ret;
++	bool retry = false;
  
--	ret = request_firmware(&f.fw, data->fw_name, dev);
--	if (ret) {
--		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
--		return ret;
--	}
--
--	/* Check for incorrect enc file */
--	ret = mxt_check_firmware_format(dev, f.fw);
--	if (ret)
--		goto release_firmware;
--
- 	if (data->suspended) {
- 		if (data->suspend_mode == MXT_SUSPEND_REGULATOR)
- 			mxt_regulator_enable(data);
-@@ -3291,14 +3278,14 @@ static int mxt_load_fw(struct device *dev)
- 		ret = mxt_t6_command(data, MXT_COMMAND_RESET,
- 				     MXT_BOOT_VALUE, false);
- 		if (ret)
--			goto release_firmware;
-+			return ret;
+ 	count = len + 2;
+ 	buf = kmalloc(count, GFP_KERNEL);
+@@ -787,14 +795,21 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	buf[1] = (reg >> 8) & 0xff;
+ 	memcpy(&buf[2], val, len);
  
- 		msleep(MXT_RESET_TIME);
++retry_write:
+ 	ret = i2c_master_send(client, buf, count);
+-	if (ret == count) {
+-		ret = 0;
+-	} else {
+-		if (ret >= 0)
++	if (ret != count) {
++		if (!retry) {
++			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
++			msleep(MXT_WAKEUP_TIME);
++			retry = true;
++			goto retry_write;
++		} else {
++			dev_err(&client->dev, "%s: i2c send failed (%d)\n",
++				__func__, ret);
+ 			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
+-			__func__, ret);
++		}
++	} else {
++		ret = 0;
+ 	}
  
- 		/* Do not need to scan since we know family ID */
- 		ret = mxt_lookup_bootloader_address(data, 0);
- 		if (ret)
--			goto release_firmware;
-+			return ret;
- 
- 		mxt_sysfs_remove(data);
- 		mxt_free_input_device(data);
-@@ -3309,6 +3296,30 @@ static int mxt_load_fw(struct device *dev)
- 
- 	reinit_completion(&data->bl_completion);
- 
-+	return 0;
-+}
-+
-+static int mxt_load_fw(struct device *dev)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	struct mxt_flash f = { 0, };
-+	int ret;
-+
-+	ret = request_firmware(&f.fw, data->fw_name, dev);
-+	if (ret) {
-+		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
-+		return ret;
-+	}
-+
-+	/* Check for incorrect enc file */
-+	ret = mxt_check_firmware_format(dev, f.fw);
-+	if (ret)
-+		goto release_firmware;
-+
-+	ret = mxt_enter_bootloader(data);
-+	if (ret)
-+		goto release_firmware;
-+
- 	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD, false);
- 	if (ret) {
- 		/* Bootloader may still be unlocked from previous attempt */
+ 	kfree(buf);
 -- 
 2.17.1
 

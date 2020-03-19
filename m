@@ -4,35 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21028C4332B
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:02:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31B18C4332D
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:02:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0338A20CC7
-	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:02:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 091B52072D
+	for <linux-input@archiver.kernel.org>; Thu, 19 Mar 2020 15:02:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727828AbgCSPCo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 19 Mar 2020 11:02:44 -0400
-Received: from esa2.mentor.iphmx.com ([68.232.141.98]:5502 "EHLO
-        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728287AbgCSPCn (ORCPT
+        id S1727725AbgCSPC6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 19 Mar 2020 11:02:58 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:32318 "EHLO
+        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727755AbgCSPCJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Mar 2020 11:02:43 -0400
-IronPort-SDR: vlsjRHpcXiLoa3gqLqNLp/lDS8T+cj+P/9dzLE+M9v5SFZZUW1a5a2p6SaLa1Bcz84QdYqQPBY
- 2PWRHGrLGjtoX/ONQa7e3aOUFAAhYoXItRVjVz6XdgEvbJUUli9rqCWub9mgLmvhX1SRpbVakM
- NIFEFzG94QoxrMfSPkaQCiAMtUiry09iEMyuh0fj5Kh/XAeyYedFEZ1Pv6ca/YEPrttOYVKEgD
- vFiv5c3AN/lgVxmsA4soIYrVBEZJg1R3aK5Sg9/NOcnMKTHbTepTfyfYPa3XYo6RNXQ2EfMBYM
- 7L8=
+        Thu, 19 Mar 2020 11:02:09 -0400
+IronPort-SDR: cj+kJ7WwwbDNnRmAbytJyGJueg4MWyKgXToi8mHW1SBtdMu/r8xVePixQWNCHPFqL4xKR7qLKU
+ llCrKqmIemAdIDXRhMvIy5E9VbZ1Vy3hp+o2MrzhYS3cVJRs2l0p7obtuVUZK0IV3D3zTwxJkA
+ j1CFSs6jO2rGZKFy+iinVVN0DCtLHncn4zqjNiOsSezl1lQDzsNAuTpsv3BlPPrC4DZbK2JQ/M
+ F3tJwbCCBCi08G9mKUFpEi6UJiJuPig9MPboFE3QrUGH+lxF5CoAx9bzPyJ0ET5YDJTo0olcnu
+ 22M=
 X-IronPort-AV: E=Sophos;i="5.70,572,1574150400"; 
-   d="scan'208";a="46818860"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa2.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:02:43 -0800
-IronPort-SDR: CKCIL9tpA0XvZJErtxAM/Y2cQM+DlSH5z4UWVmX/DRvwv0KMdlF+J2Ais3BczfXUIUVrZBhYJj
- 0Jr0VGPgyIkxuJ/mwPBK4GWjT+ufMXga7jRoHCERclxlG/kUM0eZKCzr6x2ZA8h/EhvK6cl34l
- sK6+EgHRLpKbYsKgvVRu0OH/r1esUX/ygoJsec3lSeL6j5L0EjJmtM/1dhqnW8aGdAJXP0hAaj
- TGvdIMspGANEWyWkQb/77GmIlFCL+bvnjF4Ayc7ayCtPenykgQMSEr4JpqPvXoHa9rov+rIdYT
- 9hk=
+   d="scan'208";a="46890933"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa3.mentor.iphmx.com with ESMTP; 19 Mar 2020 07:02:00 -0800
+IronPort-SDR: 00fadSNKOcGanxNOgACkAJ5jAfils4q1yKVSXJLCPt9jTO5eUXU17ifmDkUMWdN1++X0ars9ja
+ jBPBWnOmPFy3ubdxdPxPYQXFLa7fd/9rWVuXMvE6bQWxubVM72IIBDHj7EFwVpyQUtiLeyXV93
+ yyNIV8cqp6XlQrHpHCJ30MIHW1g77AFS5wlzJ4hSxu/vOJoI3Q1AuqCiezXcgGIyQ1cbvV63au
+ HTJYw6lZ9cYUndRG8vuSJg/T/zc+5e+WuAFiKLy3vaglL6RlkjkOmZqjWrD4+gFDRBv4loIv2N
+ 1dQ=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -40,9 +40,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v8 36/52] input: atmel_mxt_ts: export GPIO reset line via sysfs
-Date:   Thu, 19 Mar 2020 08:00:00 -0700
-Message-ID: <20200319150016.61398-37-jiada_wang@mentor.com>
+Subject: [PATCH v8 25/52] Input: atmel_mxt_ts - improve bootloader state machine handling
+Date:   Thu, 19 Mar 2020 07:59:49 -0700
+Message-ID: <20200319150016.61398-26-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200319150016.61398-1-jiada_wang@mentor.com>
 References: <20200319150016.61398-1-jiada_wang@mentor.com>
@@ -53,67 +53,262 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: "George G. Davis" <george_davis@mentor.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-N.B. Modifying the atmel_mxt_ts GPIO reset line during operation will
-cause problems with normal driver operation.  This feature is provided
-as a diagnostic debug aid.  It does not take into consideration any
-pending operations which may be in progress.  Modifying the atmel_mxt_ts
-GPIO reset line at any time will inevitably cause the driver to fail.
+The code is much clearer if we switch on the actual state the bootloader
+is in, rather than the state we want it to be in, and allows the removal
+of a goto retry tangle.
 
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+(cherry picked from ndyer/linux/for-upstream commit 463e15ee95ee6e6274017ff645839dbe34d75c99)
+[gdavis: Squash fix from George G. Davis:
+	 - input: atmel_mxt_ts - Fix 'mxt_send_bootloader_cmd' was not
+	   declared warning]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-Signed-off-by: Rajeev Kumar <rajeev_kumar@mentor.com>
+[jiada: only wait on some status change,
+	cleanup code style]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 165 +++++++++++++----------
+ 1 file changed, 95 insertions(+), 70 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 18372e8d1ef2..fd3db4f8d55d 100644
+index d3d6e4e60f67..c287ab3ebeac 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -4083,6 +4083,19 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return error;
- 	}
+@@ -305,6 +305,9 @@ struct mxt_flash {
+ 	size_t frame_size;
+ 	unsigned int count;
+ 	unsigned int retry;
++	u8 previous;
++	bool complete;
++	bool wait;
+ };
  
-+	if (data->reset_gpio) {
-+		error = gpiod_export(data->reset_gpio, 0);
-+		if (error)
-+			return error;
-+
-+		error = gpiod_export_link(&client->dev, "reset",
-+					  data->reset_gpio);
-+		if (error) {
-+			gpiod_unexport(data->reset_gpio);
-+			return error;
-+		}
-+	}
-+
- 	if (data->suspend_mode == MXT_SUSPEND_REGULATOR) {
- 		error = mxt_acquire_irq(data);
- 		if (error)
-@@ -4115,6 +4128,10 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- err_free_object:
- 	mxt_free_input_device(data);
- 	mxt_free_object_table(data);
-+	if (data->reset_gpio) {
-+		sysfs_remove_link(&client->dev.kobj, "reset");
-+		gpiod_unexport(data->reset_gpio);
-+	}
- 	return error;
+ /* Each client has this additional data */
+@@ -583,15 +586,27 @@ static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
+ 	return 0;
  }
  
-@@ -4124,6 +4141,10 @@ static int mxt_remove(struct i2c_client *client)
+-static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
+-				bool wait)
++static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock);
++
++static int mxt_write_firmware_frame(struct mxt_data *data, struct mxt_flash *f)
++{
++	f->frame = (struct mxt_fw_frame *)(f->fw->data + f->pos);
++
++	/* Take account of CRC bytes */
++	f->frame_size = __be16_to_cpu(f->frame->size) + 2U;
++
++	/* Write one frame to device */
++	return mxt_bootloader_write(data, f->fw->data + f->pos,
++				   f->frame_size);
++}
++
++static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
+ {
+ 	struct device *dev = &data->client->dev;
+-	u8 val;
++	u8 state;
+ 	int ret;
  
+-recheck:
+-	if (wait) {
++	if (f->wait) {
+ 		/*
+ 		 * In application update mode, the interrupt
+ 		 * line signals state transitions. We must wait for the
+@@ -607,40 +622,96 @@ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
+ 			 * by writing length 0x000 to device (iff we are in
+ 			 * WAITING_FRAME_DATA state).
+ 			 */
+-			dev_err(dev, "Update wait error %d\n", ret);
++			dev_warn(dev, "Update wait error %d\n", ret);
+ 			return ret;
+ 		}
+ 	}
+ 
+-	ret = mxt_bootloader_read(data, &val, 1);
++	f->wait = false;
++
++	ret = mxt_bootloader_read(data, &state, 1);
+ 	if (ret)
+ 		return ret;
+ 
++	/* Remove don't care bits */
++	if (state & ~MXT_BOOT_STATUS_MASK)
++		state &= ~MXT_BOOT_STATUS_MASK;
++
+ 	switch (state) {
+ 	case MXT_WAITING_BOOTLOAD_CMD:
++		dev_info(dev, "Unlocking bootloader\n");
++		ret = mxt_send_bootloader_cmd(data, true);
++		if (ret)
++			return ret;
++		f->wait = true;
++
++		break;
++
+ 	case MXT_WAITING_FRAME_DATA:
+-	case MXT_APP_CRC_FAIL:
+-		val &= ~MXT_BOOT_STATUS_MASK;
++		if (f->previous != MXT_WAITING_BOOTLOAD_CMD &&
++		    f->previous != MXT_FRAME_CRC_PASS &&
++		    f->previous != MXT_FRAME_CRC_FAIL)
++			goto unexpected;
++
++		ret = mxt_write_firmware_frame(data, f);
++		if (ret)
++			return ret;
++
++		f->wait = true;
++
++		break;
++
++	case MXT_FRAME_CRC_CHECK:
++		if (f->previous != MXT_WAITING_FRAME_DATA)
++			goto unexpected;
++		f->wait = true;
+ 		break;
++
+ 	case MXT_FRAME_CRC_PASS:
+-		if (val == MXT_FRAME_CRC_CHECK) {
+-			goto recheck;
+-		} else if (val == MXT_FRAME_CRC_FAIL) {
+-			dev_err(dev, "Bootloader CRC fail\n");
+-			return -EINVAL;
++		if (f->previous != MXT_FRAME_CRC_CHECK)
++			goto unexpected;
++
++		/* Next frame */
++		f->retry = 0;
++		f->pos += f->frame_size;
++		f->count++;
++		f->wait = true;
++
++		if (f->pos >= f->fw->size) {
++			f->complete = true;
++			dev_info(dev, "Sent %u frames, %zu bytes\n",
++				f->count, f->fw->size);
++		} else if (f->count % 50 == 0) {
++			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
++				f->count, f->pos, f->fw->size);
++		}
++
++		break;
++
++	case MXT_FRAME_CRC_FAIL:
++		if (f->retry > 20) {
++			dev_err(dev, "Retry count exceeded\n");
++			return -EIO;
+ 		}
++
++		/* Back off by 20ms per retry */
++		dev_dbg(dev, "Bootloader frame CRC failure\n");
++		f->retry++;
++		f->wait = true;
++		msleep(f->retry * 20);
+ 		break;
++
+ 	default:
+ 		return -EINVAL;
+ 	}
+ 
+-	if (val != state) {
+-		dev_err(dev, "Invalid bootloader state %02X != %02X\n",
+-			val, state);
+-		return -EINVAL;
+-	}
++	f->previous = state;
+ 
+ 	return 0;
++
++unexpected:
++	dev_err(dev, "Unexpected state transition\n");
++	return -EINVAL;
+ }
+ 
+ static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
+@@ -3301,57 +3372,13 @@ static int mxt_load_fw(struct device *dev)
+ 	if (ret)
+ 		goto release_firmware;
+ 
+-	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD, false);
+-	if (ret) {
+-		/* Bootloader may still be unlocked from previous attempt */
+-		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, false);
+-		if (ret)
+-			goto disable_irq;
+-	} else {
+-		dev_info(dev, "Unlocking bootloader\n");
+-
+-		/* Unlock bootloader */
+-		ret = mxt_send_bootloader_cmd(data, true);
++	while (true) {
++		ret = mxt_check_bootloader(data, &f);
+ 		if (ret)
+-			goto disable_irq;
+-	}
+-
+-	while (f.pos < f.fw->size) {
+-		f.frame = (struct mxt_fw_frame *)(f.fw->data + f.pos);
+-
+-		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, true);
+-		if (ret)
+-			goto disable_irq;
+-
+-		/* Take account of CRC bytes */
+-		f.frame_size = __be16_to_cpu(f.frame->size) + 2U;
+-
+-		/* Write one frame to device */
+-		ret = mxt_bootloader_write(data, f.fw->data + f.pos,
+-					   f.frame_size);
+-		if (ret)
+-			goto disable_irq;
+-
+-		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS, true);
+-		if (ret) {
+-			f.retry++;
+-
+-			/* Back off by 20ms per retry */
+-			msleep(f.retry * 20);
+-
+-			if (f.retry > 20) {
+-				dev_err(dev, "Retry count exceeded\n");
+-				goto disable_irq;
+-			}
+-		} else {
+-			f.retry = 0;
+-			f.pos += f.frame_size;
+-			f.count++;
+-		}
++			return ret;
+ 
+-		if (f.count % 50 == 0)
+-			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
+-				f.count, f.pos, f.fw->size);
++		if (f.complete)
++			break;
+ 	}
+ 
+ 	/* Wait for flash. */
+@@ -3360,7 +3387,6 @@ static int mxt_load_fw(struct device *dev)
+ 	if (ret)
+ 		goto disable_irq;
+ 
+-	dev_dbg(dev, "Sent %u frames, %lld bytes\n", f.count, f.pos);
+ 
+ 	/*
+ 	 * Wait for device to reset. Some bootloader versions do not assert
+@@ -3370,7 +3396,6 @@ static int mxt_load_fw(struct device *dev)
+ 	mxt_wait_for_completion(data, &data->bl_completion, MXT_FW_RESET_TIME);
+ 
+ 	data->in_bootloader = false;
+-
+ disable_irq:
  	disable_irq(data->irq);
- 	sysfs_remove_group(&client->dev.kobj, &mxt_fw_attr_group);
-+	if (data->reset_gpio) {
-+		sysfs_remove_link(&client->dev.kobj, "reset");
-+		gpiod_unexport(data->reset_gpio);
-+	}
- 	mxt_debug_msg_remove(data);
- 	mxt_sysfs_remove(data);
- 	mxt_free_input_device(data);
+ release_firmware:
 -- 
 2.17.1
 

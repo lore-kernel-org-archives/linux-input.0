@@ -2,45 +2,66 @@ Return-Path: <SRS0=LU4O=5J=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1D72C43331
-	for <linux-input@archiver.kernel.org>; Tue, 24 Mar 2020 11:51:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85ED0C4332B
+	for <linux-input@archiver.kernel.org>; Tue, 24 Mar 2020 12:20:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A024320870
-	for <linux-input@archiver.kernel.org>; Tue, 24 Mar 2020 11:51:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1585050664;
-	bh=GbjME65ILfkmi8zJstR/SFqAkxmeGRJlOv2QSmeTsWg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=CCmYExgvyZYV3AfY12Hlj0xg+tsQLtf0jYh+oRX3h0T1Pm8ZTm+H7mUGdR4BhhdoS
-	 qMIwc6ctc6R4gywvlfioUh89oEUq5v/SYEtyLclhEALmBnsEaB6BfGIpAUetq/C5t9
-	 7nWagWiiVJOUynJITeV4bSpt1AK5XQqY95hrJbtc=
+	by mail.kernel.org (Postfix) with ESMTP id 58FFC2080C
+	for <linux-input@archiver.kernel.org>; Tue, 24 Mar 2020 12:20:55 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XS7FO5qu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726802AbgCXLvE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 24 Mar 2020 07:51:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49514 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727066AbgCXLvE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 24 Mar 2020 07:51:04 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2FB1208C3;
-        Tue, 24 Mar 2020 11:51:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585050663;
-        bh=GbjME65ILfkmi8zJstR/SFqAkxmeGRJlOv2QSmeTsWg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SelyDidDQxeilzoIowIkSureeYmuqpKBdTJT15rQEZ/Fu5q6pCoTIkPiCgt2REO5W
-         uR1PkqKJRSfa7aEEpJQNpyCQjlng6o6oeL4X5t5M0vp+sy6k/0FhNIUsM1iHa4K50h
-         Bu2+mDmKg/hHaOCjvvTGgPVLXrq3yMd+tw/w0GOY=
-Date:   Tue, 24 Mar 2020 12:50:59 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Rajat Jain <rajatja@google.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com,
+        id S1727529AbgCXMUy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 24 Mar 2020 08:20:54 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:44614 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727333AbgCXMUy (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 24 Mar 2020 08:20:54 -0400
+Received: by mail-lf1-f67.google.com with SMTP id j188so9147755lfj.11
+        for <linux-input@vger.kernel.org>; Tue, 24 Mar 2020 05:20:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=xE4MP5AqUCPd9XtoEWD/FK2YPE6NfLNz1ySPK/KUqcg=;
+        b=XS7FO5quXRQMzlcU6oLgb0XC3ZGpFmBkGVb2+urTxc0RoXE+LhQwMcjmE1iMAOa4zj
+         5PDAtVRds458I1ZL9d59wLIw4CZpPrU4m4igICIiVAXvDor0bsq0DssE4nmVlA1PDTlr
+         9Juvmpsk6zwiXtmO5tbpYKysU5GPTSeag89VuFevHBL8HovL4xeC2CptKa/9avBarldI
+         TNKRCuIdtZyWoZlwAcrKcb4Cq5dHK9UKgDmiunIO8+8Ty4coajwPeKXNmvWqU9OBiiIQ
+         YkQFBoINbMMKzAyLh7/C9VyRE7zFm2KikI2U9i1pS66meUqbKQlBhvdRAOHMPTiLB293
+         udYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=xE4MP5AqUCPd9XtoEWD/FK2YPE6NfLNz1ySPK/KUqcg=;
+        b=tC13E8LdG8nCUljZO4fvDjb9KIM3Em7amXkAPxKq4moZuc1gcYTs9kW5YY24MdjS7V
+         tgeIYZrF9CvRjUdoilBeDxsv/keANwWwd4Co5nVqL4LoY92HFB6MpvTT4kVexjlxioXn
+         W9jLaCosACzU0FVY3gLuYT2zukY+1IziKNoQOM5d+PPaYMrywUE+CP+uBC3+dZpwKXIy
+         3t3DdF8XV+690iIS3MIj7+hpZ8pNCFFrAfLEsPzIwq9z8kVbIHg0wRLzlXiI/GB2Vdpf
+         z6NO+M0w3vbwARYLN+IyLYIDLRbPONdvS6fftNVcXWJUFVan4Nc9/FHT9W6Jk4NspqPN
+         PdRw==
+X-Gm-Message-State: ANhLgQ3QKV7NMQ5iQX43DnC+2z4pSGeC+KgnNzjtVw0aXkiO4ygJa2Cs
+        DRHqjqMQjZ//V+PkttbAHlKMIymMR8amKS9A+WM0gg==
+X-Google-Smtp-Source: ADFU+vvOwzEWB/KB6v68gGlAUeCZXrHF76lOWQJ2agZ6yCYIP2gtQNst0yT5ZM3f+idvKa0KVyZTDM7DqQh+3t9vivQ=
+X-Received: by 2002:ac2:5b49:: with SMTP id i9mr2148928lfp.21.1585052452258;
+ Tue, 24 Mar 2020 05:20:52 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200323234505.226919-1-rajatja@google.com> <20200324115059.GA2333340@kroah.com>
+In-Reply-To: <20200324115059.GA2333340@kroah.com>
+From:   Rajat Jain <rajatja@google.com>
+Date:   Tue, 24 Mar 2020 05:20:14 -0700
+Message-ID: <CACK8Z6EHAv03XGXT0sY2H3TSjS4-yQtCscbHG_o1qCuG94zb6g@mail.gmail.com>
+Subject: Re: [PATCH RESEND 1/5] input/serio/i8042: Attach fwnode to serio
+ i8042 kbd device
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Dmitry Torokhov <dtor@google.com>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Kate Stewart <kstewart@linuxfoundation.org>,
@@ -49,33 +70,69 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com,
         Allison Randal <allison@lohutok.net>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Stephen Boyd <swboyd@chromium.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, furquan@google.com,
-        dlaurie@google.com, bleung@google.com, zentaro@google.com,
-        dbehr@google.com, rajatxjain@gmail.com
-Subject: Re: [PATCH RESEND 1/5] input/serio/i8042: Attach fwnode to serio
- i8042 kbd device
-Message-ID: <20200324115059.GA2333340@kroah.com>
-References: <20200323234505.226919-1-rajatja@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200323234505.226919-1-rajatja@google.com>
+        linux-input <linux-input@vger.kernel.org>,
+        devicetree@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Furquan Shaikh <furquan@google.com>,
+        Duncan Laurie <dlaurie@google.com>,
+        Benson Leung <bleung@google.com>,
+        Zentaro Kavanagh <zentaro@google.com>,
+        Dominik Behr <dbehr@google.com>,
+        Rajat Jain <rajatxjain@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Mar 23, 2020 at 04:45:01PM -0700, Rajat Jain wrote:
-> Attach the firmware node to the serio i8042 kbd device so that device
-> properties can be passed from the firmware.
-> 
-> Signed-off-by: Rajat Jain <rajatja@google.com>
-> Change-Id: I36032f4bdee1dc52f26b57734068fd0ee7a6db0b
+Hello,
 
-Didn't you run checkpatch.pl on your patches which told you to remove
-all of these Change-Id: values?
+On Tue, Mar 24, 2020 at 4:51 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Mar 23, 2020 at 04:45:01PM -0700, Rajat Jain wrote:
+> > Attach the firmware node to the serio i8042 kbd device so that device
+> > properties can be passed from the firmware.
+> >
+> > Signed-off-by: Rajat Jain <rajatja@google.com>
+> > Change-Id: I36032f4bdee1dc52f26b57734068fd0ee7a6db0b
+>
+> Didn't you run checkpatch.pl on your patches which told you to remove
+> all of these Change-Id: values?
 
-Please do so...
+My apologies. However I did run checkpatch.pl on my patches before
+sending (also checked just now again) and it did not complain about
+the Change-Id values in the commit log. Not sure if I'm running the
+command incorrectly?
 
-greg k-h
+rajatja@rajat2:~/stock_kernel/linux$ ./scripts/checkpatch.pl
+../patches/input_atkbd/v1/000*
+-----------------------------------------------------------------------------------------
+../patches/input_atkbd/v1/0001-input-serio-i8042-Attach-fwnode-to-serio-i8042-kbd-d.patch
+-----------------------------------------------------------------------------------------
+total: 0 errors, 0 warnings, 28 lines checked
+
+../patches/input_atkbd/v1/0001-input-serio-i8042-Attach-fwnode-to-serio-i8042-kbd-d.patch
+has no obvious style problems and is ready for submission.
+-----------------------------------------------------------------------------------------
+../patches/input_atkbd/v1/0002-Input-atkbd-Expose-function-row-physical-map-to-user.patch
+-----------------------------------------------------------------------------------------
+total: 0 errors, 0 warnings, 106 lines checked
+../patches/input_atkbd/v1/0002-Input-atkbd-Expose-function-row-physical-map-to-user.patch
+has no obvious style problems and is ready for submission.
+......
+<snip>
+......
+
+I will now resubmit the patches removing the Change-Id(s).
+
+Thanks & Best Regards,
+
+Rajat
+
+
+
+>
+> Please do so...
+>
+> greg k-h

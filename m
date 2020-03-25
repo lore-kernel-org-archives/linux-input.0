@@ -4,35 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9E12C54FD0
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A830EC43331
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B76ED2080C
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 887092077D
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727527AbgCYNg5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Mar 2020 09:36:57 -0400
-Received: from esa4.mentor.iphmx.com ([68.232.137.252]:34650 "EHLO
-        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727400AbgCYNg5 (ORCPT
+        id S1727921AbgCYNgG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Mar 2020 09:36:06 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:53226 "EHLO
+        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727924AbgCYNgE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Mar 2020 09:36:57 -0400
-IronPort-SDR: unT5YIObJSHVrTm+wc76Jn5EZYYp74kpDDpIrMdtgmPMiK5cOLJxAAfJV0RN8BODbbrO9+N2ZP
- QmUDnhWbO98TIauS1p9Ohl+jMqYVicJs8GlW2I3Z9fI8scONy0yyrHWDxBJULxFzUQBhxvND/P
- racTNUME+jufTLy5YNM6UqgO21bjDXJ/HD52GTTetVO5NoNCEbVEuVuzM7eILC9v18kilPyi5l
- mINRqABStfLUF/BFg1vb2i8CjNVsT9/whdJV69gt6pVdp26RaM01p813K6zzd1VgbhUsAjkcCY
- Lg4=
+        Wed, 25 Mar 2020 09:36:04 -0400
+IronPort-SDR: eXPkiR2SqMGcynKU6yrFjwf2tKOW43Ld4mKR7gsqSXxgCryPX1J+Af3n+ikofrqiQPJnlJJyF5
+ CVKkcQCpX5iJ2lXvE0N5mQ597jauj5c62NfXCSlEqHO5B0BAPYhdHI/akKdCTgXgiceTxeqRMv
+ GlKGPZHHbeEUrkP69hqzJnjO1Ve8CzowV9pkvV9oEXvyo+7ZJXbzpY0mfeAksNgt9onkTS57aA
+ 2PHa8qfep0GbezIWU2jsPA1h7YoS04pgiJWUmRA1LZ2P/IHxxK3Fd2JgRjiUDFB/w5CYNgYJuc
+ Xtg=
 X-IronPort-AV: E=Sophos;i="5.72,304,1580803200"; 
-   d="scan'208";a="47143551"
+   d="scan'208";a="47099750"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:36:56 -0800
-IronPort-SDR: ZAze9VTvt6dkJ8/VryZkJEunYH4WXywWfmZOOV1dfPjpAriGxEcEvElO9h2qd/yT2mQL5pzaNo
- AlPwBliLsrM81ZzPTLqvgalUHbHbMBw9iofZNsNxIc6kWbV5sZeUxUyX/MZlgHUVT3rN4JV25e
- Vv0a4R8VT4x0rbwsMDzoZFSZzluv/g5Nm81h+DLryYx0sp/P0P9LCvS0FgSr852scws4JsBSax
- X5ob9zr4uxl+M7dxtmaOIjfx0av8i32hdW0qZuRv0rknofGZth9xIDN7wGxdS8y5XtrUeOfykt
- Gb0=
+  by esa3.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:35:52 -0800
+IronPort-SDR: W0C88yslZHCLrS6DGsvAoxd+os8Ca0DQ0x7qHtAIdIkxRofOE3UQ514OlZZdjbp9mlS8eHNSSQ
+ OFIOpFIsT6xZP1sXNDwhCxpXKWVMF/hsX6JbGtceXVyIOT4Ek28hesiI5qSXWzFbfBDiByZGV6
+ kSZQpLgyPAGoKaAFBQcH300cO7aN9n2Wy47xfrN4VPeDCxe7DwIp38j0ag4Iyz7RVebuXATAWe
+ dQQgQay4eMbP4UuGwmABU0Gt0G2mZk3hHMbRYbr2EbuXUFTGmBghd7JJoodEGqKnqiDoZkTROC
+ Rfs=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -40,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v9 49/55] Input: Atmel: handle ReportID "0x00" while processing T5 messages
-Date:   Wed, 25 Mar 2020 06:33:28 -0700
-Message-ID: <20200325133334.19346-50-jiada_wang@mentor.com>
+Subject: [PATCH v9 33/55] Input: atmel_mxt_ts - orientation is not present in hover
+Date:   Wed, 25 Mar 2020 06:33:12 -0700
+Message-ID: <20200325133334.19346-34-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200325133334.19346-1-jiada_wang@mentor.com>
 References: <20200325133334.19346-1-jiada_wang@mentor.com>
@@ -53,58 +54,33 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Deepak Das <deepak_das@mentor.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-ReportID "0x00" is reserved by Atmel and should not be used by any
-Atmel touch controller.
+When in hover, the orientation information is not sent
 
-reportID is the first byte retrieved from T5 message payload.
-Currently Atmel driver continues to process the T5 messages even if
-the reportID "0x00" is returned by Touch Controller.
-
-This commit modifies Atmel touch driver to return -EINVAL if ReportID
-"0x00" is received while processing T5 messages.
-
-Signed-off-by: Deepak Das <deepak_das@mentor.com>
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+(cherry picked from ndyer/linux/for-upstream commit 0c885d5bd276bd9240c43aa046fc407cbe2ae864)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ed357e958f07..496b1f67d9a5 100644
+index daa77eb9561b..b1f54bf207b8 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -76,6 +76,7 @@
- #define MXT_PROCI_TOUCHSEQUENCELOGGER	93
- #define MXT_TOUCH_MULTITOUCHSCREEN_T100 100
- #define MXT_PROCI_ACTIVESTYLUS_T107	107
-+#define MXT_RPTID_RESERVED		0
+@@ -1026,10 +1026,6 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
+ 			distance = MXT_DISTANCE_HOVERING;
+ 			hover = true;
+ 			active = true;
+-
+-			if (data->t100_aux_vect)
+-				orientation = message[data->t100_aux_vect];
+-
+ 			break;
  
- /* MXT_GEN_MESSAGE_T5 object */
- #define MXT_RPTID_NOMSG		0xff
-@@ -1381,6 +1382,11 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	u8 report_id = message[0];
- 	bool dump = data->debug_enabled;
- 
-+	if (report_id == MXT_RPTID_RESERVED) {
-+		dev_err(&data->client->dev,
-+			"Received Reserved ReportID 0x00\n");
-+		return -EINVAL;
-+	}
- 	if (report_id == MXT_RPTID_NOMSG)
- 		return 0;
- 
-@@ -1451,6 +1457,8 @@ static int mxt_read_and_process_messages(struct mxt_data *data, u8 count)
- 		ret = mxt_proc_message(data,
- 			data->msg_buf + data->T5_msg_size * i);
- 
-+		if (ret < 0)
-+			return ret;
- 		if (ret == 1)
- 			num_valid++;
- 	}
+ 		case MXT_T100_TYPE_FINGER:
 -- 
 2.17.1
 

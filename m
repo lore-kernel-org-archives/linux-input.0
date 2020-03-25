@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFDCCC43331
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F03E6C54FD0
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9107820658
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8A4820658
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727965AbgCYNhC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1727400AbgCYNhC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 25 Mar 2020 09:37:02 -0400
 Received: from esa4.mentor.iphmx.com ([68.232.137.252]:34650 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727493AbgCYNgy (ORCPT
+        with ESMTP id S1727832AbgCYNhB (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Mar 2020 09:36:54 -0400
-IronPort-SDR: mgM6mspTB2LAyvtUDGLASdHEiRIr3JQvuD0AJHztcHf02pZ1S9ZX8cfmRME8NdVdm2p71/dSvZ
- bi3su1sxN+qonhD7VQOSnmLdYH+nZZa3gpwVqWfBv1nuWnCNELrutml2SxVuG1G0qQPMqPWmpw
- phOTXUidqEvu+hYtCWnmsg6gx3kMmVQGgemhZvytbwJP0wxeI/1Hwfe3aawfJxYA+XQ62UDSS9
- sryY2zQnUN9BmF1u6QmbVxMFNmdJv9qYBa1AdL8IkHkyiAGWiH8smFwLQlx8zxL85TXYohqbs4
- +yg=
+        Wed, 25 Mar 2020 09:37:01 -0400
+IronPort-SDR: 6uqZ8J79Ez16n5pCgprnOrlTpoWaq2HrTgXaGXzaczsyzlleyRgzl/RCtHEqtqwiaLCTLoabJF
+ 7+kSL4IACykhgHTuBl+3kKU8TrgwvGONQTFLt2XryFyBpG8Rz7sI37Z25hX5of6S9r3fz3ri8N
+ uG2vycqTdrT8mcpvMczgRuvyinOXKt2Dy6RTFSFAd9+at8XysHIERbS+Aghc9aSJ+B7ZBQPAvc
+ TnmeKIbR7LlzP+C9sUQf8i5tA5DHK6K50FdEk67bgSeKQxS0yNWS1REhrBLPlpMSnQbENIOtv4
+ qVE=
 X-IronPort-AV: E=Sophos;i="5.72,304,1580803200"; 
-   d="scan'208";a="47143548"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa4.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:36:53 -0800
-IronPort-SDR: uKU0k0TN8UuNPZp9DSgb1Pcp5hCjvHtFnX0ZX8mOAffjWLqzb9g0BV4NYIyfsJfTgbTG1Yxa/q
- d9bYtUNf1UnnAwbRePM5UWHPtax7U5GMcOEYi4jLaMLms+A3vUmF9oeGtVAJvlKazyvMXXWwib
- K8LwWquF24VoiKoJW839kOEPQfwcU+1VU5m6VkX6lPWoJ7J7jxvxOR4zZQPltGLO1pSPXo/J0c
- 1ijwDPkMpCwR+O72gHHEVKN7el8onVm5+IE3sNcycsgpkQdhEbIEu/UO0Ki/tVFqaB3Bj2kAxt
- CO0=
+   d="scan'208";a="47143560"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa4.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:37:00 -0800
+IronPort-SDR: W/xhl2TWEPCXUp0gWdakczBGWvvCUkztkDXW1aBHm/rw2ydewTKKc60wB/IM3YWjE16odFPDGY
+ lbNJ++aCPC62NGu5MlcVpRCxJ/2vInOPgE3YVK34RjyFz5xNTQTg3394oSyJ+0oh7QL2BXQiWq
+ ylwHaKdHRlFrk7RvefKuUFpFmL0SRLD1OzSHX6zz1d2AW81NP4J2JnSoaj2zZtE706wzfl4YUW
+ HmkURmAgaGaoDss+tuZXWO/ekHrVyP5kgfBXhl1mLhfiMJpauxVJM90bzdxoYaaLh0NoaxMl3N
+ sEs=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v9 48/55] Input: Atmel: Improve error handling in mxt_initialize_input_device()
-Date:   Wed, 25 Mar 2020 06:33:27 -0700
-Message-ID: <20200325133334.19346-49-jiada_wang@mentor.com>
+Subject: [PATCH v9 50/55] Input: Atmel: use T44 object to process T5 messages
+Date:   Wed, 25 Mar 2020 06:33:29 -0700
+Message-ID: <20200325133334.19346-51-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200325133334.19346-1-jiada_wang@mentor.com>
 References: <20200325133334.19346-1-jiada_wang@mentor.com>
@@ -56,53 +56,187 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Deepak Das <deepak_das@mentor.com>
 
-Currently Driver probe continues with a warning message when it
-fails to get the proper multitouch object configurations like
-TouchScreen resolution.
+T44 object returns the count of valid T5 messages in the buffer. According
+to atmel, this count should be the main criteria to read the number of T5
+messages.
 
-But Driver probe should fail in case of above scneario because it
-will not behave as expected without the proper touchscreen
-configurations.
+Following is the statement from atmel confirming the same :-
+"For the readout of messages we recommend to stop after the last message
+is read out from the buffer. One way to identify the amount of new messages
+is to read T44. The other way is to monitor the /CHG line which indicates
+independent of mode 0 or mode 1 if there are still data in the buffer.
+0xFF indicates that there is no message pending anymore, but it is not
+recommended to use this as the main criteria to control the
+data transfer."
 
-This commit modifies mxt_initialize_input_device() to return error
-when it fails to get the proper touch screen configurations.
+This commit modifies the logic to readout the T5 messages on the basis
+of T44 object.
 
 Signed-off-by: Deepak Das <deepak_das@mentor.com>
-Signed-off-by: Dean Jenkins <Dean_Jenkins@mentor.com>
+Signed-off-by: Sanjeev Chugh <sanjeev_chugh@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 55 +++++++++++++++---------
+ 1 file changed, 35 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 069a532bd0b2..ed357e958f07 100644
+index 496b1f67d9a5..1cabe75df562 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2761,15 +2761,19 @@ static int mxt_initialize_input_device(struct mxt_data *data)
- 	case MXT_TOUCH_MULTI_T9:
- 		num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
- 		error = mxt_read_t9_resolution(data);
--		if (error)
--			dev_warn(dev, "Failed to initialize T9 resolution\n");
-+		if (error) {
-+			dev_err(dev, "Failed to initialize T9 resolution\n");
-+			return error;
-+		}
- 		break;
+@@ -1486,7 +1486,7 @@ static u8 mxt_max_msg_read_count(struct mxt_data *data, u8 max_T5_msg_count)
+ 	return min(T5_msg_count_limit, max_T5_msg_count);
+ }
  
- 	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
- 		num_mt_slots = data->num_touchids;
- 		error = mxt_read_t100_config(data);
--		if (error)
--			dev_warn(dev, "Failed to read T100 config\n");
-+		if (error) {
-+			dev_err(dev, "Failed to read T100 config\n");
-+			return error;
-+		}
- 		break;
+-static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
++static int mxt_process_messages_t44(struct mxt_data *data)
+ {
+ 	struct device *dev = &data->client->dev;
+ 	int ret;
+@@ -1499,7 +1499,7 @@ static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
+ 		data->T5_msg_size + 1, data->msg_buf);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to read T44 and T5 (%d)\n", ret);
+-		return IRQ_NONE;
++		return ret;
+ 	}
  
- 	default:
+ 	T5_msg_count = data->msg_buf[0];
+@@ -1509,7 +1509,7 @@ static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
+ 	 * Mode 0. It results in unnecessary I2C operations but it is benign.
+ 	 */
+ 	if (!T5_msg_count)
+-		return IRQ_NONE;
++		return processed_valid;
+ 
+ 	if (T5_msg_count > data->max_reportid) {
+ 		dev_warn(dev, "T44 count %d exceeded max report id\n",
+@@ -1521,12 +1521,14 @@ static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
+ 	ret = mxt_proc_message(data, data->msg_buf + 1);
+ 	if (ret < 0) {
+ 		dev_warn(dev, "Unexpected invalid message\n");
+-		return IRQ_NONE;
++		return ret;
+ 	}
+ 
+ 	total_pending = T5_msg_count - 1;
+-	if (!total_pending)
++	if (!total_pending) {
++		processed_valid = 1;
+ 		goto end;
++	}
+ 
+ 	/* Process remaining messages if necessary */
+ 	T5_msg_count = mxt_max_msg_read_count(data, total_pending);
+@@ -1550,7 +1552,7 @@ static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
+ 		data->update_input = false;
+ 	}
+ 
+-	return IRQ_HANDLED;
++	return processed_valid;
+ }
+ 
+ static int mxt_process_messages_until_invalid(struct mxt_data *data)
+@@ -1580,7 +1582,7 @@ static int mxt_process_messages_until_invalid(struct mxt_data *data)
+ 	return -EBUSY;
+ }
+ 
+-static irqreturn_t mxt_process_messages(struct mxt_data *data)
++static int mxt_process_messages(struct mxt_data *data)
+ {
+ 	int total_handled, num_handled;
+ 	u8 count = data->last_message_count;
+@@ -1591,7 +1593,7 @@ static irqreturn_t mxt_process_messages(struct mxt_data *data)
+ 	/* include final invalid message */
+ 	total_handled = mxt_read_and_process_messages(data, count + 1);
+ 	if (total_handled < 0)
+-		return IRQ_NONE;
++		return total_handled;
+ 	/* if there were invalid messages, then we are done */
+ 	else if (total_handled <= count)
+ 		goto update_count;
+@@ -1600,7 +1602,7 @@ static irqreturn_t mxt_process_messages(struct mxt_data *data)
+ 	do {
+ 		num_handled = mxt_read_and_process_messages(data, 2);
+ 		if (num_handled < 0)
+-			return IRQ_NONE;
++			return num_handled;
+ 
+ 		total_handled += num_handled;
+ 
+@@ -1616,12 +1618,13 @@ static irqreturn_t mxt_process_messages(struct mxt_data *data)
+ 		data->update_input = false;
+ 	}
+ 
+-	return IRQ_HANDLED;
++	return total_handled;
+ }
+ 
+ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ {
+ 	struct mxt_data *data = dev_id;
++	int ret;
+ 
+ 	if (data->in_bootloader) {
+ 		complete(&data->chg_completion);
+@@ -1629,17 +1632,22 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 		if (data->flash)
+ 			cancel_delayed_work_sync(&data->flash->work);
+ 
+-		return IRQ_RETVAL(mxt_check_bootloader(data));
++		ret = mxt_check_bootloader(data);
++		return IRQ_RETVAL(ret);
+ 	}
+ 
+ 	if (!data->object_table)
+ 		return IRQ_HANDLED;
+ 
+-	if (data->T44_address) {
+-		return mxt_process_messages_t44(data);
+-	} else {
+-		return mxt_process_messages(data);
+-	}
++	if (data->T44_address)
++		ret = mxt_process_messages_t44(data);
++	else
++		ret = mxt_process_messages(data);
++
++	if (ret <= 0)
++		return IRQ_NONE;
++	else
++		return IRQ_HANDLED;
+ }
+ 
+ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
+@@ -1776,8 +1784,11 @@ static int mxt_acquire_irq(struct mxt_data *data)
+ 	}
+ 
+ 	if (data->object_table && data->use_retrigen_workaround) {
+-		error = mxt_process_messages_until_invalid(data);
+-		if (error)
++		if (data->T44_address)
++			error = mxt_process_messages_t44(data);
++		else
++			error = mxt_process_messages_until_invalid(data);
++		if (error < 0)
+ 			return error;
+ 	}
+ 
+@@ -4039,8 +4050,12 @@ static int mxt_start(struct mxt_data *data)
+ 		 * Discard any touch messages still in message buffer
+ 		 * from before chip went to sleep
+ 		 */
+-		ret = mxt_process_messages_until_invalid(data);
+-		if (ret)
++
++		if (data->T44_address)
++			ret = mxt_process_messages_t44(data);
++		else
++			ret = mxt_process_messages_until_invalid(data);
++		if (ret < 0)
+ 			break;
+ 
+ 		ret = mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
 -- 
 2.17.1
 

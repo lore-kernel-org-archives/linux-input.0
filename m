@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 863E8C43331
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFDCCC43331
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 67E4420658
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9107820658
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727558AbgCYNhV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Mar 2020 09:37:21 -0400
-Received: from esa4.mentor.iphmx.com ([68.232.137.252]:34681 "EHLO
+        id S1727965AbgCYNhC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Mar 2020 09:37:02 -0400
+Received: from esa4.mentor.iphmx.com ([68.232.137.252]:34650 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727841AbgCYNhU (ORCPT
+        with ESMTP id S1727493AbgCYNgy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Mar 2020 09:37:20 -0400
-IronPort-SDR: EnQ15c651USx5bSveWBlSwn4rviqqjOGj7Y2ileG/lXeq+m3rv5Aum/9jfMiWNC0QAxcf7ckf4
- CdPbKK/GddCdZo7myDml14d0nk12kXX7gXFFtFAhwOf7H7Hqo43PU3WSABja9IQZ/T1jHdGHai
- 2u7EMScla6hsGc97NNvg80vFovSdd0vVaOLUEa8a66QZSpkVAZl06fUHMzikQfEMG5j+7Wl66O
- k8obzPnYf7QI8K23I6e1HK0SFLdp+VQLzrL1k4Gp0IxFga82CSwa91evzyVfG0imkyroBU7FbI
- pkI=
+        Wed, 25 Mar 2020 09:36:54 -0400
+IronPort-SDR: mgM6mspTB2LAyvtUDGLASdHEiRIr3JQvuD0AJHztcHf02pZ1S9ZX8cfmRME8NdVdm2p71/dSvZ
+ bi3su1sxN+qonhD7VQOSnmLdYH+nZZa3gpwVqWfBv1nuWnCNELrutml2SxVuG1G0qQPMqPWmpw
+ phOTXUidqEvu+hYtCWnmsg6gx3kMmVQGgemhZvytbwJP0wxeI/1Hwfe3aawfJxYA+XQ62UDSS9
+ sryY2zQnUN9BmF1u6QmbVxMFNmdJv9qYBa1AdL8IkHkyiAGWiH8smFwLQlx8zxL85TXYohqbs4
+ +yg=
 X-IronPort-AV: E=Sophos;i="5.72,304,1580803200"; 
-   d="scan'208";a="47143580"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:37:20 -0800
-IronPort-SDR: ljHn8vTxJIQ5G1NvGM0TNMXytrpYp25TluGS9uV2rvLzawDAXvssAyDyhFzzxf4O0g0yyT3C4Q
- TFXjMfWMU9Cuuzhs63iTMJSqdfBWbGN5xYacCVljiTks5bTEaXAyq6BDysJ/pOr3mzutLAPgl/
- XDOYtFelgnf7+9HieaVd6Xhfq2fuPkHEYLS14u5tztzPFCQU91Nxbhg88DPeur4LvM7B56rVrG
- sCkcdaneJ0G/dFnlHz3JSAjBpx6TOyVsxAGO5O6yYbhsIXpdiGHKjwSN1nu6YQL/pmw6MVUF5q
- phQ=
+   d="scan'208";a="47143548"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa4.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:36:53 -0800
+IronPort-SDR: uKU0k0TN8UuNPZp9DSgb1Pcp5hCjvHtFnX0ZX8mOAffjWLqzb9g0BV4NYIyfsJfTgbTG1Yxa/q
+ d9bYtUNf1UnnAwbRePM5UWHPtax7U5GMcOEYi4jLaMLms+A3vUmF9oeGtVAJvlKazyvMXXWwib
+ K8LwWquF24VoiKoJW839kOEPQfwcU+1VU5m6VkX6lPWoJ7J7jxvxOR4zZQPltGLO1pSPXo/J0c
+ 1ijwDPkMpCwR+O72gHHEVKN7el8onVm5+IE3sNcycsgpkQdhEbIEu/UO0Ki/tVFqaB3Bj2kAxt
+ CO0=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v9 55/55] Input: atmel_mxt_ts - Fix compilation warning
-Date:   Wed, 25 Mar 2020 06:33:34 -0700
-Message-ID: <20200325133334.19346-56-jiada_wang@mentor.com>
+Subject: [PATCH v9 48/55] Input: Atmel: Improve error handling in mxt_initialize_input_device()
+Date:   Wed, 25 Mar 2020 06:33:27 -0700
+Message-ID: <20200325133334.19346-49-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200325133334.19346-1-jiada_wang@mentor.com>
 References: <20200325133334.19346-1-jiada_wang@mentor.com>
@@ -54,27 +54,55 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-fix "make W=1" compilation warnings from Atmel driver
-as per the compilation logs.
+From: Deepak Das <deepak_das@mentor.com>
 
+Currently Driver probe continues with a warning message when it
+fails to get the proper multitouch object configurations like
+TouchScreen resolution.
+
+But Driver probe should fail in case of above scneario because it
+will not behave as expected without the proper touchscreen
+configurations.
+
+This commit modifies mxt_initialize_input_device() to return error
+when it fails to get the proper touch screen configurations.
+
+Signed-off-by: Deepak Das <deepak_das@mentor.com>
+Signed-off-by: Dean Jenkins <Dean_Jenkins@mentor.com>
+Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 7bd926f04e9f..c6e3905bb50f 100644
+index 069a532bd0b2..ed357e958f07 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2048,7 +2048,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data, struct mxt_cfg *cfg)
+@@ -2761,15 +2761,19 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	case MXT_TOUCH_MULTI_T9:
+ 		num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
+ 		error = mxt_read_t9_resolution(data);
+-		if (error)
+-			dev_warn(dev, "Failed to initialize T9 resolution\n");
++		if (error) {
++			dev_err(dev, "Failed to initialize T9 resolution\n");
++			return error;
++		}
+ 		break;
  
- 			byte_offset = reg + i - cfg->start_ofs;
+ 	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 		num_mt_slots = data->num_touchids;
+ 		error = mxt_read_t100_config(data);
+-		if (error)
+-			dev_warn(dev, "Failed to read T100 config\n");
++		if (error) {
++			dev_err(dev, "Failed to read T100 config\n");
++			return error;
++		}
+ 		break;
  
--			if (byte_offset >= 0 && byte_offset < cfg->mem_size) {
-+			if (byte_offset < cfg->mem_size) {
- 				*(cfg->mem + byte_offset) = val;
- 			} else {
- 				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
+ 	default:
 -- 
 2.17.1
 

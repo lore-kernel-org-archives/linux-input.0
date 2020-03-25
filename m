@@ -4,35 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F449C54FD0
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C80EC43331
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6F6DF2077D
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3DEFA2076A
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727316AbgCYNgq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Mar 2020 09:36:46 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:53226 "EHLO
+        id S1727720AbgCYNgt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Mar 2020 09:36:49 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:53281 "EHLO
         esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727656AbgCYNgK (ORCPT
+        with ESMTP id S1727656AbgCYNgt (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Mar 2020 09:36:10 -0400
-IronPort-SDR: RZ0w/qKXn0vF/UW12Dyd/e6+O0Qsc3bGjij9LLQ7Mu1Dpw6bgGVCDgur9qhIGRdtKMT/5L+ulb
- jADv18A6QvJtx8MSOvAx8jdDsgctx3ZOzNM9S/UeiGAoKYvWgZkOTHzN9Ns/q3uIIZOAMTGyGd
- 2n2oRibB9yD2PBNF5paEVAytJEWC/La/rNsG7hNh9xcTtKL0ljTdaO6DzcB2WG7Nxxm2xPqAjD
- uwIKOoGwaBFy5tfjlJc1VczDHcHhN/LptwDZL7DHvDPfcbh4he0/Rtso9TOooUOQUYKoFeFJ+u
- 6ts=
+        Wed, 25 Mar 2020 09:36:49 -0400
+IronPort-SDR: BBLp2cZZVJA3Tprc9xsnZHKF40uzrZ5qKXYNOYmlU/rJqJmPvAACKUzzgCl8lHqVZXVLrkkMxQ
+ SkOnky6dLxKEj9Dg7J/8v6cGu41vQzB9bfeV6iaTFuwkYyYqysO6zLq1InYnomRX9r6qnjRM7y
+ d09sUd6oOkpJdn3xpTnBZMgHCa7Ve9uCJx1+GHotG9swvuEXgFWVNFVPqJ/uPDnBnYH4kYzFLl
+ GYF3Rwo9q+WkpRTikJCAnHEJomX1Ijf4uONo3bKirbdp9pWoF4jPsqE4AxTWtpsh9s06az0qsA
+ NLk=
 X-IronPort-AV: E=Sophos;i="5.72,304,1580803200"; 
-   d="scan'208";a="47099765"
+   d="scan'208";a="47099827"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:36:04 -0800
-IronPort-SDR: ICFDlk+3X/KxgUMcPk9uzWIT7VFtkzczqGXU9VV4R8ntE3yN0AsJThCzcEjjhNcEseQUJP/HsS
- 9MMBA7teWTHST+AIq9o9oOffmvUvXjTwjyb7j/Vb2DYQzRjaqrdywz8irdVn4ZtSoJH3KCokdU
- NF5CW4CB9GaYD48mK1J91Px+uxM6eF1julZO5AWlpIajmI4Wdc5SGWXCsZEv3D/Whq3R8xYY/J
- M7gpLtrmOQ4KD8W0ljZVosnDZew/VH1S6a9w4Uhg2Jz+Eia2HKCC+YsLBNQgB+RYZwtSr+Sv+B
- Rkk=
+  by esa3.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:36:48 -0800
+IronPort-SDR: OG6R1QgU6QCRNZYh6/i9lD0NZki/HC/AUdRIqzmnDjXG3G3h6sDjxQ8Y2kfNj47S9vyhm0cOdR
+ 9Wpf3Uv8gVTjWaaKMbdRLsHsr/fpA71eREV0T6XgsxYrPqkekbm7WwDcLwfmFokRONO3xOfdFe
+ qrifl1QI6TCwZgsP0c1UcRp4V9WxTa3kM4H5gPIn5ejyhKj1JoydcQqzsaaTvuyFXlaZIBo28K
+ j94JUSJOeIK9rVluQMrKXIxxgYHAuB+K6b9hdOF1XByVxjhlO2iz4MOcyI/helCRMu5U1HF2yV
+ lyI=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -40,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v9 36/55] Input: atmel_mxt_ts - eliminate data->raw_info_block
-Date:   Wed, 25 Mar 2020 06:33:15 -0700
-Message-ID: <20200325133334.19346-37-jiada_wang@mentor.com>
+Subject: [PATCH v9 47/55] Input: Atmel: improve error handling in mxt_update_cfg()
+Date:   Wed, 25 Mar 2020 06:33:26 -0700
+Message-ID: <20200325133334.19346-48-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200325133334.19346-1-jiada_wang@mentor.com>
 References: <20200325133334.19346-1-jiada_wang@mentor.com>
@@ -53,59 +54,33 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dynamically allocated in mxt_read_info_block() buffer buf is assigned
-both to data->info and data->raw_info_block, having both data->info
-and data->raw_info_block is redundant and confusing.
+From: Deepak Das <deepak_das@mentor.com>
 
-This patch eliminates data->raw_info_block.
+mxt_update_cfg() failed to propagate the error
+code from mxt_init_t7_power_cfg() so return the error code.
 
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+Signed-off-by: Deepak Das <deepak_das@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 9476326596d9..36a87d9b9c83 100644
+index 258dcd8a68e5..069a532bd0b2 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -323,7 +323,6 @@ struct mxt_data {
- 	char phys[64];		/* device physical location */
- 	struct mxt_object *object_table;
- 	struct mxt_info *info;
--	void *raw_info_block;
- 	unsigned int irq;
- 	unsigned int max_x;
- 	unsigned int max_y;
-@@ -2067,9 +2066,8 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	v4l2_device_unregister(&data->dbg.v4l2);
- #endif
- 	data->object_table = NULL;
-+	kfree(data->info);
- 	data->info = NULL;
--	kfree(data->raw_info_block);
--	data->raw_info_block = NULL;
- 	kfree(data->msg_buf);
- 	data->msg_buf = NULL;
- 	data->T5_address = 0;
-@@ -2238,7 +2236,7 @@ static int mxt_read_info_block(struct mxt_data *data)
- 	u8 *crc_ptr;
+@@ -2185,7 +2185,9 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	dev_info(dev, "Config successfully updated\n");
  
- 	/* If info block already allocated, free it */
--	if (data->raw_info_block)
-+	if (data->info)
- 		mxt_free_object_table(data);
+ 	/* T7 config may have changed */
+-	mxt_init_t7_power_cfg(data);
++	ret = mxt_init_t7_power_cfg(data);
++	if (ret)
++		dev_warn(dev, "Power Config failed to update\n");
  
- 	/* Read 7-byte ID information block starting at address 0 */
-@@ -2289,7 +2287,6 @@ static int mxt_read_info_block(struct mxt_data *data)
- 		goto err_free_mem;
- 	}
- 
--	data->raw_info_block = id_buf;
- 	data->info = (struct mxt_info *)id_buf;
- 
- 	dev_info(&client->dev,
+ release_mem:
+ 	kfree(cfg.mem);
 -- 
 2.17.1
 

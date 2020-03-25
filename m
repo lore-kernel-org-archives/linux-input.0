@@ -2,121 +2,111 @@ Return-Path: <SRS0=lJJv=5K=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DB35C54FD6
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 16:14:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21221C2D0E5
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 19:05:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6D30820740
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 16:14:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1585152853;
-	bh=wVeCzzQOe5s2fJsmGoK1DwiiQhm+yokBIBkbN7cjDrM=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=o3PSpiIdP/GjEDeVn0HjIW9CL9vqdVFerysqGDgpPahJ15vPe57rZyjy/ZrFMnvw/
-	 lmB+PwRRgovcu0YiQtlyc/2SVIDt2NkvpcUVErIqCUyAuU0MShbDczCG3tOyReJHgo
-	 CJXWkTYo3CmMpB6xC7gG/dJ/WshXYBjNFFE4FtME=
+	by mail.kernel.org (Postfix) with ESMTP id D450520714
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 19:05:43 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jOsvlDmA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728140AbgCYQOJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Mar 2020 12:14:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58152 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728132AbgCYQOI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Mar 2020 12:14:08 -0400
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A8A420836;
-        Wed, 25 Mar 2020 16:14:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585152847;
-        bh=wVeCzzQOe5s2fJsmGoK1DwiiQhm+yokBIBkbN7cjDrM=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Jt+Nhvu8WR2HB5LMtLsy+AMnWzMEv6EzjEMwZuYpiXU2HNY24cKyilbtS7gsEo0Dl
-         p9IVkN8+X5tLMau7Si6f2OCiMpQEloPAdwIzCLi8GV2dTWmn9EiLWMRPYI6WaHiQMJ
-         UVoXm6rL2REa+wWrMiprolfN7XJt5C+XRUsgMQ0k=
-Received: by mail-qk1-f172.google.com with SMTP id c145so3090196qke.12;
-        Wed, 25 Mar 2020 09:14:07 -0700 (PDT)
-X-Gm-Message-State: ANhLgQ3jHmTjbPypnmDthRX2himDcnnDXq5gl9x9GbZo3fj/ytAyh9yG
-        l38cgXpE0LRIPS2cK8RgwvH6TIGejh0rHJy4JQ==
-X-Google-Smtp-Source: ADFU+vtZfZlg/qTdAzpY920OXOLDt+yCqLosSPRhFxeYgvrlPS+oV459gEy5edJtvAOkVIBuySDN240c6NQffSPyDT8=
-X-Received: by 2002:a37:4a85:: with SMTP id x127mr3744966qka.152.1585152846283;
- Wed, 25 Mar 2020 09:14:06 -0700 (PDT)
+        id S1727306AbgCYTFn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Mar 2020 15:05:43 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:39064 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727279AbgCYTFn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Mar 2020 15:05:43 -0400
+Received: by mail-lj1-f193.google.com with SMTP id i20so3740233ljn.6;
+        Wed, 25 Mar 2020 12:05:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=pcRErvm2Q518gCbI05/42E3zgrQBPnKUjsE254rV4i8=;
+        b=jOsvlDmAnsWF8Zgi1Kc+OAsbG3gWnfkPWsVsEAuywtsKrez7awraN/gAflS+VbGpgi
+         lTb+NL7GMqfRW6s9+bLM4tq5JXPaRTnpJQJmzpbZMUsMKaLogF/62JoIQws11Q2bz4Q3
+         kN/q/qbygHS9gbZrwgeP3stxTlSaXTAQB2tLTdVrTk5AZISotzbrm9fUhQddE8Qhp57Q
+         vmcrjRIT5KEr16szoVRPVX9XZpfEia+hbwv14K9xL0XSS116ExAvKiJVMqzwNUOhj3U4
+         Ehspp7hOpL4MalroyZbd3HkMeCw2OmCrO1o/WDTFKkxu9nDrazlcmxDwFmTMOraeEopO
+         kANQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=pcRErvm2Q518gCbI05/42E3zgrQBPnKUjsE254rV4i8=;
+        b=CpSO9ng2HxSRENHsqLi8NeR7p2tOMWk6Di29Lz0CCpwaZGPxMSfhnLqPHBUbHVgAfS
+         MMka3msRsHyt+cE8WAVfAyWCQ28EGbXR7JJwZ2SbLuPDB3VqtC1x8xvq3JAqkkf3InWp
+         qgtrM+DIt8WwY2wKSpO5l9jV35zA3BTUOSM8WvnqR1dbYulCakueBLw+lUIxh0ZeTX9R
+         mdNzguAxgn42y5/QfHOZlkUoQ3sLIRXn2urtT68FnvxZIZHeoWFu+XkuzhJXW9+4XeMO
+         TuiRoSiRFSmhTwVXGPW1gIB7Nxbo/AZNoXmvOV8X/cPN/oIj3mP6V7zBE0iiGNumSbn4
+         E0tg==
+X-Gm-Message-State: ANhLgQ2Pjc9+c6fSvjGVF9h0fyXw0mU0ritWV+gc9gVKqAlkIWNh37LA
+        g3oGCremauC8pWoDk6ZQ74U=
+X-Google-Smtp-Source: ADFU+vtNtlANgH6ZU/SxscTh0o9bgRwziu95+xWxmtzh+N/lwSGsvM5yQMpXh/Hd6K53fTv+dhxjBg==
+X-Received: by 2002:a2e:854e:: with SMTP id u14mr2793589ljj.95.1585163140593;
+        Wed, 25 Mar 2020 12:05:40 -0700 (PDT)
+Received: from [192.168.2.145] (ppp91-78-208-152.pppoe.mtu-net.ru. [91.78.208.152])
+        by smtp.googlemail.com with ESMTPSA id t23sm4927602lfq.4.2020.03.25.12.05.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Mar 2020 12:05:39 -0700 (PDT)
+Subject: Re: [PATCH v9 13/55] Input: atmel_mxt_ts - add regulator control
+ support
+To:     Jiada Wang <jiada_wang@mentor.com>, nick@shmanahar.org,
+        dmitry.torokhov@gmail.com, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, bsz@semihalf.com,
+        rydberg@bitmath.org
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        erosca@de.adit-jv.com, Andrew_Gabbasov@mentor.com
+References: <20200325133334.19346-1-jiada_wang@mentor.com>
+ <20200325133334.19346-14-jiada_wang@mentor.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <672615bc-adce-213f-9e44-864163c0a770@gmail.com>
+Date:   Wed, 25 Mar 2020 22:05:39 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-References: <20200304094220.28156-1-benjamin.gaignard@st.com>
- <20200310211849.GA13562@bogus> <20200325092004.GF442973@dell>
-In-Reply-To: <20200325092004.GF442973@dell>
-From:   Rob Herring <robh@kernel.org>
-Date:   Wed, 25 Mar 2020 10:13:54 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqLW-5=T0p85M9ZurywdNj_nFwj0VJyxHSJGrdzZGkQcJQ@mail.gmail.com>
-Message-ID: <CAL_JsqLW-5=T0p85M9ZurywdNj_nFwj0VJyxHSJGrdzZGkQcJQ@mail.gmail.com>
-Subject: Re: [PATCH v5] dt-bindings: mfd: Convert stpmic1 bindings to json-schema
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Pascal PAILLET-LME <p.paillet@st.com>,
-        Linux Input <linux-input@vger.kernel.org>,
-        devicetree@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200325133334.19346-14-jiada_wang@mentor.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Mar 25, 2020 at 3:19 AM Lee Jones <lee.jones@linaro.org> wrote:
->
-> On Tue, 10 Mar 2020, Rob Herring wrote:
->
-> > On Wed, 4 Mar 2020 10:42:20 +0100, Benjamin Gaignard wrote:
-> > > Convert stpmic1 bindings to json-schema.
-> > >
-> > > Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
-> > > ---
-> > > version 5:
-> > > - move $ref regulator.yaml under a patternProperties
-> > > - move remain fixed strings under properties field
-> > >
-> > > version 4:
-> > > - move on uppder node $ref: ../regulator/regulator.yaml
-> > > - move fixed strings under properties field
-> > > - remove unneeded () in patternProperties
-> > > - keep ldo3 separate from other ldo properties
-> > > Note:
-> > > - 'st,mask-reset' property stay in each subnode, I don't find
-> > >   the syntax to avoid dupliquate it.
-> > > - ldo6-supply and all possible *-supply are describe by this regular
-> > >   expression: ^(buck[1-4]|ldo[1-6]|boost|pwr_sw[1-2])-supply$":
-> > >
-> > > version 3:
-> > > - put $ref under allOf keyword
-> > > - for each regulator node add the list of supported regulator properties
-> > >
-> > >  .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 --
-> > >  .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ----
-> > >  .../devicetree/bindings/mfd/st,stpmic1.yaml        | 339 +++++++++++++++++++++
-> > >  .../bindings/regulator/st,stpmic1-regulator.txt    |  64 ----
-> > >  .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 -
-> > >  5 files changed, 339 insertions(+), 164 deletions(-)
-> > >  delete mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> > >  delete mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
-> > >  create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.yaml
-> > >  delete mode 100644 Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
-> > >  delete mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
-> > >
-> >
-> > Reviewed-by: Rob Herring <robh@kernel.org>
->
-> Can you take this please Rob?
+25.03.2020 16:32, Jiada Wang пишет:
+> From: Nick Dyer <nick.dyer@itdev.co.uk>
+> 
+> Allow the driver to optionally manage enabling/disable power to the touch
+> controller itself. If the regulators are not present then use the deep
+> sleep power mode instead.
+> 
+> For a correct power on sequence, it is required that we have control over
+> the RESET line.
 
-Yes, done.
+...
+> +	data->reg_vdd = devm_regulator_get(dev, "vdd");
+> +	if (IS_ERR(data->reg_vdd)) {
+> +		error = PTR_ERR(data->reg_vdd);
+> +		dev_err(dev, "Error %d getting vdd regulator\n", error);
+> +		goto fail;
+> +	}
+> +
+> +	data->reg_avdd = devm_regulator_get(dev, "avdd");
+> +	if (IS_ERR(data->reg_avdd)) {
+> +		error = PTR_ERR(data->reg_avdd);
+> +		dev_err(dev, "Error %d getting avdd regulator\n", error);
+> +		goto fail_release;
+> +	}
 
-Rob
+Hello Jiada,
+
+The new regulator properties should be documented in the device-tree
+binding.

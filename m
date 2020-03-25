@@ -2,38 +2,37 @@ Return-Path: <SRS0=lJJv=5K=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AC24C1975A
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55F07C43331
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 67AC220870
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 31BB2207FC
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727950AbgCYNgJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Mar 2020 09:36:09 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:53226 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727544AbgCYNgI (ORCPT
+        id S1727955AbgCYNgK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Mar 2020 09:36:10 -0400
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:4463 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727948AbgCYNgK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Mar 2020 09:36:08 -0400
-IronPort-SDR: /z5pA4r/pg2NS3AF4zaz10hMWqAfS5vqDvQQlxsfJ+7gaG4+VM1SBmzS8ZbO75fSzjrMfbKcpm
- tNPWqRE1R2bPhnwdQnjyFsRFpj02O5K3Vafo/BvDFDvfb1ilFb61RHTof3Bgys/zuVnikNxog2
- veSKKnoqEYBF/XbQ+fZV5Xk3Bgn1nUxX/kFQzjMP7CAungETBgaehn0aKo8T0s4oYUv+T2DMvv
- UBUiDCWz8wm4bHy3crT4YcwWu+7s9VkOZSUNq3cFkr0lgM/aO4diLoUMYc+L0YTkOy2ecUJobR
- pnw=
+        Wed, 25 Mar 2020 09:36:10 -0400
+IronPort-SDR: VnlIIkIznCUr4o5T+oseVSnWa8G1KUj/OtBqIA2zppijgv4fwhSoG6zRR9JCKVTxkv3nyIh7jR
+ DrXur5RoZColw9VHTpL/oEXm85TFyt2AFVTpUT0WtZ2pd7ck0rGR4sAEZQlu/bO2QJc1lvld2r
+ 1zR48u+FwrFh8pLqQqmKfaewJcaTLsglGEYCxsUCTilb8ldsZjg98WRCoAtzgN0lzjI+DKBcvC
+ iCsXpxmbzDxASjYBEAK56AmZhi0zwVlaamff6pq1xDSpaK8vicsaPhV9888cmk5d7vP4UI52FF
+ sKc=
 X-IronPort-AV: E=Sophos;i="5.72,304,1580803200"; 
-   d="scan'208";a="47099757"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:35:56 -0800
-IronPort-SDR: Z3uc42m8b8mGimkxQj08t8SFPCT2N/JR8MYjvPdQKOICx31m/XJkCDas3JHklnqsvjiGEohV/o
- 8Av6V6VT2nfalhdwZtB5eZlelSfVwrk74UnuAYsc3QQow2BcbOTHw6Wr3f+fuhCP29AftHKciX
- iEix/e47tMEk1sC/qjNx+h8CZRluTF/5CHtle2a9PWZbxRHWEO+90TmQ2Y3O/Z0bwZAAKMhWKB
- ZtjIpI5Dp/GoAwOQx2omZYyXVay+0yBsX/STYM/WQiyTShJuhnGPpGts2+pQVrWKReQC3MiJlq
- dEE=
+   d="scan'208";a="49060139"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa1.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:36:08 -0800
+IronPort-SDR: LAF+UUivNXHcV3L+e0zxYfQOcHfbT4ndWu4Ml54qCbV/K54szAccifGT9f+E9LPMBnxuTdio3n
+ M+ASexPnDUvo6TeIfiFcuwW62Q3SK6jaucPluU2mKvkkP9K59uH/69JIllDYTQKW6wtBa8HrHu
+ pwv9BrOvWuUci8oqYKVfNFvAnO1ruSJoMl9TJpnkbxMU+5LeSYH3bkL5yFWWUT5uG/L3iRzdky
+ VOo3ANldjD3FjdAmbfP073aShFZvtUruWjnlAMAjXn96DCpUGaQSyRrTnrgGCopvFwfqeQ5NwH
+ tt4=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +40,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v9 34/55] Input: atmel_mxt_ts - implement debug output for messages
-Date:   Wed, 25 Mar 2020 06:33:13 -0700
-Message-ID: <20200325133334.19346-35-jiada_wang@mentor.com>
+Subject: [PATCH v9 37/55] Input: atmel_mxt_ts - Change call-points of mxt_free_* functions
+Date:   Wed, 25 Mar 2020 06:33:16 -0700
+Message-ID: <20200325133334.19346-38-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200325133334.19346-1-jiada_wang@mentor.com>
 References: <20200325133334.19346-1-jiada_wang@mentor.com>
@@ -54,126 +53,96 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+From: Kautuk Consul <kautuk_consul@mentor.com>
 
-Add a debug switch which causes all messages from the touch controller to
-be dumped to the dmesg log with a set prefix "MXT MSG:". This is used by
-Atmel user-space utilities to debug touch operation. Enabling this output
-does impact touch performance.
+Revamping the code to call mxt_free_object_table and mxt_free_input_device
+functions only in the following scenarios and code paths:
+1) The error path of the mxt_probe() entry point
+2) The mxt_remove de-init path entry point
+3) All paths which definitely expect to populate the object table
+   like:
+   - the mxt_update_fw_store path which first calls
+     mxt_load_fw and then resorts to calling mxt_initialize itself.
+   - the mxt_read_info_block function which attempts to fill in the
+     object table itself as the main non-error part of the logic.
+4) All paths in the code expected to definitely allocate and register
+   the input device such as:
+   - the mxt_update_fw_store path which first calls
+     mxt_load_fw and then resorts to calling mxt_initialize itself.
+   - the mxt_update_cfg_store function which will call
+     mxt_configure_objects.
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 3c3fcfdd4889dfeb1c80ae8cd94a622c6342b06a)
-[gdavis: Forward port and fix conflicts.]
+Signed-off-by: Kautuk Consul <kautuk_consul@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Rename mxt_debug_enable_store to debug_enable_store
-	Rename mxt_debug_enable_show to debug_enable_show
-	Replace DEVICE_ATTR with DEVICE_ATTR_RW]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 46 ++++++++++++++++++++++--
- 1 file changed, 43 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index b1f54bf207b8..656d956f9c93 100644
+index 36a87d9b9c83..860e8ddd4c6b 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -335,6 +335,7 @@ struct mxt_data {
- 	u8 t100_aux_ampl;
- 	u8 t100_aux_area;
- 	u8 t100_aux_vect;
-+	bool debug_enabled;
- 	u8 max_reportid;
- 	u32 config_crc;
- 	u32 info_crc;
-@@ -460,8 +461,11 @@ static bool mxt_object_readable(unsigned int type)
- 
- static void mxt_dump_message(struct mxt_data *data, u8 *message)
- {
--	dev_dbg(&data->client->dev, "message: %*ph\n",
--		data->T5_msg_size, message);
-+	/* debug message with prefix 'MXT MSG:' used by
-+	 * Atmel user-space utilities to debug touch operation
-+	 */
-+	dev_dbg(&data->client->dev, "MXT MSG: %*ph\n",
-+		       data->T5_msg_size, message);
- }
- 
- static int mxt_wait_for_completion(struct mxt_data *data,
-@@ -1211,6 +1215,7 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
- static int mxt_proc_message(struct mxt_data *data, u8 *message)
- {
- 	u8 report_id = message[0];
-+	bool dump = data->debug_enabled;
- 
- 	if (report_id == MXT_RPTID_NOMSG)
- 		return 0;
-@@ -1245,9 +1250,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	} else if (report_id == data->T93_reportid) {
- 		mxt_proc_t93_messages(data, message);
- 	} else {
--		mxt_dump_message(data, message);
-+		dump = true;
+@@ -3336,21 +3336,21 @@ static int mxt_configure_objects(struct mxt_data *data,
+ 	error = mxt_init_t7_power_cfg(data);
+ 	if (error) {
+ 		dev_err(dev, "Failed to initialize power cfg\n");
+-		goto err_free_object_table;
++		return error;
  	}
  
-+	if (dump)
-+		mxt_dump_message(data, message);
-+
- 	return 1;
+ 	if (cfg) {
+ 		error = mxt_update_cfg(data, cfg);
+ 		if (error) {
+ 			dev_warn(dev, "Error %d updating config\n", error);
+-			goto err_free_object_table;
++			return error;
+ 		}
+ 	}
+ 
+ 	if (data->multitouch) {
+ 		error = mxt_initialize_input_device(data);
+ 		if (error)
+-			goto err_free_object_table;
++			return error;
+ 	} else {
+ 		dev_warn(dev, "No touch object detected\n");
+ 	}
+@@ -3358,10 +3358,6 @@ static int mxt_configure_objects(struct mxt_data *data,
+ 	mxt_debug_init(data);
+ 
+ 	return 0;
+-
+-err_free_object_table:
+-	mxt_free_object_table(data);
+-	return error;
  }
  
-@@ -3519,6 +3527,36 @@ static ssize_t update_cfg_store(struct device *dev,
- 	return ret;
+ /* Configuration crc check sum is returned as hex xxxxxx */
+@@ -4106,16 +4102,21 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	error = mxt_initialize(data);
+ 	if (error)
+-		return error;
++		goto err_free_object;
+ 
+ 	error = sysfs_create_group(&client->dev.kobj, &mxt_fw_attr_group);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failure %d creating fw sysfs group\n",
+ 			error);
+-		return error;
++		goto err_free_object;
+ 	}
+ 
+ 	return 0;
++
++err_free_object:
++	mxt_free_input_device(data);
++	mxt_free_object_table(data);
++	return error;
  }
  
-+static ssize_t debug_enable_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	char c;
-+
-+	c = data->debug_enabled ? '1' : '0';
-+	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
-+}
-+
-+static ssize_t debug_enable_store(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	u8 i;
-+	ssize_t ret;
-+
-+	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
-+		data->debug_enabled = (i == 1);
-+
-+		dev_dbg(dev, "%s\n", i ? "debug enabled" : "debug disabled");
-+		ret = count;
-+	} else {
-+		dev_dbg(dev, "debug_enabled write error\n");
-+		ret = -EINVAL;
-+	}
-+
-+	return ret;
-+}
-+
- static DEVICE_ATTR_WO(update_fw);
- 
- static struct attribute *mxt_fw_attrs[] = {
-@@ -3535,6 +3573,7 @@ static DEVICE_ATTR_RO(hw_version);
- static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
- static DEVICE_ATTR_WO(update_cfg);
- static DEVICE_ATTR_RO(config_crc);
-+static DEVICE_ATTR_RW(debug_enable);
- 
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
-@@ -3542,6 +3581,7 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_object.attr,
- 	&dev_attr_update_cfg.attr,
- 	&dev_attr_config_crc.attr,
-+	&dev_attr_debug_enable.attr,
- 	NULL
- };
- 
+ static int mxt_remove(struct i2c_client *client)
 -- 
 2.17.1
 

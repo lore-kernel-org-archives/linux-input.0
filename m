@@ -4,36 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8079BC1975A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9E12C54FD0
 	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6068C2080C
+	by mail.kernel.org (Postfix) with ESMTP id B76ED2080C
 	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:36:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727656AbgCYNgy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Mar 2020 09:36:54 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:53281 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727527AbgCYNgo (ORCPT
+        id S1727527AbgCYNg5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Mar 2020 09:36:57 -0400
+Received: from esa4.mentor.iphmx.com ([68.232.137.252]:34650 "EHLO
+        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727400AbgCYNg5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Mar 2020 09:36:44 -0400
-IronPort-SDR: Btp99gpcD2bKpcySLP4eanx+w8zJ2xhBcuQB0PzNIjeGLsjSPDmGVESARhu7B/NSLNo5vNZpZ2
- 9mMq+yie32HP39h0aHfdOTPUPWZRRQXlcp5c/WFH7mMq8drlD+fkOku3H6CydC/a5bbnoGNgyQ
- gozEB26N4M4JfnS5Kr5sN2i1QCYXDEuYeeT17sMIMtfS/RW9w/v0+c+eVwp2K1H2bV278PJkOT
- OLxqUVAwaontSvhqXJZwavflJonzbwOVCZf1LMj8DZJ7pC3hsfStFepIybpr7H6mrhyEnVWI3k
- gUs=
+        Wed, 25 Mar 2020 09:36:57 -0400
+IronPort-SDR: unT5YIObJSHVrTm+wc76Jn5EZYYp74kpDDpIrMdtgmPMiK5cOLJxAAfJV0RN8BODbbrO9+N2ZP
+ QmUDnhWbO98TIauS1p9Ohl+jMqYVicJs8GlW2I3Z9fI8scONy0yyrHWDxBJULxFzUQBhxvND/P
+ racTNUME+jufTLy5YNM6UqgO21bjDXJ/HD52GTTetVO5NoNCEbVEuVuzM7eILC9v18kilPyi5l
+ mINRqABStfLUF/BFg1vb2i8CjNVsT9/whdJV69gt6pVdp26RaM01p813K6zzd1VgbhUsAjkcCY
+ Lg4=
 X-IronPort-AV: E=Sophos;i="5.72,304,1580803200"; 
-   d="scan'208";a="47099819"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa3.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:36:44 -0800
-IronPort-SDR: 0LR80d/+mAreiEo2IDTNyvIZx2sdYdd/9yB4dVH18zU+Pa+/YRPjWk+yEJRos22PJZm4xjhwgn
- OyhEd8xKK/m8tsigbtcxqZhZjNKx3CSJRwSNi9rby2GZ+IdUMHCkOMPJwXrVKlRjmBE3P+MBGY
- 0+2Of82bhRWEfXjOE0NS+m9KMtXWp7iWkIkDaLEze8JoOPoaedHrqzW9cyPbg39uPNU4ot14Ww
- c6hv5kh8Vr9H1lzlCYnhE0agEwKA1l9E0i8lWrQSUXh0oepk5D0505kn6sf79/zBtiiixA6CTR
- QSw=
+   d="scan'208";a="47143551"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa4.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:36:56 -0800
+IronPort-SDR: ZAze9VTvt6dkJ8/VryZkJEunYH4WXywWfmZOOV1dfPjpAriGxEcEvElO9h2qd/yT2mQL5pzaNo
+ AlPwBliLsrM81ZzPTLqvgalUHbHbMBw9iofZNsNxIc6kWbV5sZeUxUyX/MZlgHUVT3rN4JV25e
+ Vv0a4R8VT4x0rbwsMDzoZFSZzluv/g5Nm81h+DLryYx0sp/P0P9LCvS0FgSr852scws4JsBSax
+ X5ob9zr4uxl+M7dxtmaOIjfx0av8i32hdW0qZuRv0rknofGZth9xIDN7wGxdS8y5XtrUeOfykt
+ Gb0=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +40,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v9 46/55] Input: Atmel: improve error handling in mxt_initialize()
-Date:   Wed, 25 Mar 2020 06:33:25 -0700
-Message-ID: <20200325133334.19346-47-jiada_wang@mentor.com>
+Subject: [PATCH v9 49/55] Input: Atmel: handle ReportID "0x00" while processing T5 messages
+Date:   Wed, 25 Mar 2020 06:33:28 -0700
+Message-ID: <20200325133334.19346-50-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200325133334.19346-1-jiada_wang@mentor.com>
 References: <20200325133334.19346-1-jiada_wang@mentor.com>
@@ -56,127 +55,56 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Deepak Das <deepak_das@mentor.com>
 
-Currently mxt_initialize() tries to probe bootloader mode
-even if valid bootloader address is not specified.
+ReportID "0x00" is reserved by Atmel and should not be used by any
+Atmel touch controller.
 
-This commit modifies mxt_initialize() to return error
-if Device is not in appmode and bootloader address is
-not specified.
+reportID is the first byte retrieved from T5 message payload.
+Currently Atmel driver continues to process the T5 messages even if
+the reportID "0x00" is returned by Touch Controller.
 
-This commit also returns error code from mxt_send_bootloader_cmd()
-in mxt_initialize().
+This commit modifies Atmel touch driver to return -EINVAL if ReportID
+"0x00" is received while processing T5 messages.
 
 Signed-off-by: Deepak Das <deepak_das@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 58 +++++++++++++++++-------
- 1 file changed, 41 insertions(+), 17 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 0f7ee987a9c5..258dcd8a68e5 100644
+index ed357e958f07..496b1f67d9a5 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -716,17 +716,13 @@ static int mxt_lookup_bootloader_address(struct mxt_data *data, bool retry)
- 	return 0;
- }
+@@ -76,6 +76,7 @@
+ #define MXT_PROCI_TOUCHSEQUENCELOGGER	93
+ #define MXT_TOUCH_MULTITOUCHSCREEN_T100 100
+ #define MXT_PROCI_ACTIVESTYLUS_T107	107
++#define MXT_RPTID_RESERVED		0
  
--static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
-+static int mxt_probe_bootloader(struct mxt_data *data)
- {
- 	struct device *dev = &data->client->dev;
- 	int error;
- 	u8 buf[3];
- 	bool crc_failure, extended_id;
+ /* MXT_GEN_MESSAGE_T5 object */
+ #define MXT_RPTID_NOMSG		0xff
+@@ -1381,6 +1382,11 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	u8 report_id = message[0];
+ 	bool dump = data->debug_enabled;
  
--	error = mxt_lookup_bootloader_address(data, alt_address);
--	if (error)
--		return error;
--
- 	/* Check bootloader status and version information */
- 	error = mxt_bootloader_read(data, buf, sizeof(buf));
- 	if (error)
-@@ -2922,6 +2918,32 @@ static void mxt_config_cb(const struct firmware *cfg, void *ctx)
- 	release_firmware(cfg);
- }
- 
-+static int mxt_bootloader_status(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	int error;
-+
-+	error = mxt_lookup_bootloader_address(data, false);
-+	if (error) {
-+		dev_info(&client->dev,
-+			 "Bootloader address is not specified\n");
-+		return error;
++	if (report_id == MXT_RPTID_RESERVED) {
++		dev_err(&data->client->dev,
++			"Received Reserved ReportID 0x00\n");
++		return -EINVAL;
 +	}
-+	/* Check bootloader state */
-+	error = mxt_probe_bootloader(data);
-+	if (error) {
-+		dev_info(&client->dev, "Trying alternate bootloader address\n");
-+		mxt_lookup_bootloader_address(data, true);
-+		error = mxt_probe_bootloader(data);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"Chip is not in appmode or bootloader mode\n");
-+			return error;
-+		}
-+	}
-+	return 0;
-+}
-+
- static int mxt_initialize(struct mxt_data *data)
- {
- 	struct i2c_client *client = data->client;
-@@ -2933,16 +2955,13 @@ static int mxt_initialize(struct mxt_data *data)
- 		if (!error)
- 			break;
+ 	if (report_id == MXT_RPTID_NOMSG)
+ 		return 0;
  
--		/* Check bootloader state */
--		error = mxt_probe_bootloader(data, false);
--		if (error) {
--			dev_info(&client->dev, "Trying alternate bootloader address\n");
--			error = mxt_probe_bootloader(data, true);
--			if (error) {
--				/* Chip is not in appmode or bootloader mode */
--				return error;
--			}
--		}
-+		dev_info(&client->dev,
-+			 "info block read failed (%d), so try bootloader method\n",
-+			 error);
-+
-+		error = mxt_bootloader_status(data);
-+		if (error)
-+			return error;
+@@ -1451,6 +1457,8 @@ static int mxt_read_and_process_messages(struct mxt_data *data, u8 count)
+ 		ret = mxt_proc_message(data,
+ 			data->msg_buf + data->T5_msg_size * i);
  
- 		/* OK, we are in bootloader, see if we can recover */
- 		if (++recovery_attempts > 1) {
-@@ -2956,7 +2975,9 @@ static int mxt_initialize(struct mxt_data *data)
- 		}
- 
- 		/* Attempt to exit bootloader into app mode */
--		mxt_send_bootloader_cmd(data, false);
-+		error = mxt_send_bootloader_cmd(data, false);
-+		if (error)
-+			return error;
- 		msleep(MXT_FW_RESET_TIME);
- 	}
- 
-@@ -3648,8 +3669,11 @@ static int mxt_enter_bootloader(struct mxt_data *data)
- 
- 		msleep(MXT_RESET_TIME);
- 
-+		ret = mxt_lookup_bootloader_address(data, false);
-+		if (ret)
++		if (ret < 0)
 +			return ret;
- 		/* Do not need to scan since we know family ID */
--		ret = mxt_probe_bootloader(data, 0);
-+		ret = mxt_probe_bootloader(data);
- 		if (ret)
- 			return ret;
- 
+ 		if (ret == 1)
+ 			num_valid++;
+ 	}
 -- 
 2.17.1
 

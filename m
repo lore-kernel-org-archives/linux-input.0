@@ -2,162 +2,347 @@ Return-Path: <SRS0=lJJv=5K=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5196CC54FD3
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D704DC43331
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:55:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 331C720658
-	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:37:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0B8720663
+	for <linux-input@archiver.kernel.org>; Wed, 25 Mar 2020 13:55:56 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JBxJmlDd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727569AbgCYNgE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Mar 2020 09:36:04 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:53226 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727374AbgCYNgD (ORCPT
+        id S1727617AbgCYNz4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Mar 2020 09:55:56 -0400
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:41747 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727277AbgCYNzz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Mar 2020 09:36:03 -0400
-IronPort-SDR: iIyXCBWeZGSH31SeqMZIVAf/Sy4Ym1RYQ8tU3o/3fRsMgwSUYmuItXT4WIOeilmAOhSsJ6PiWL
- vGtuhwiPTkppjyFHCn6ZZTDCtjxhSww+vD5gSKedQm+fNpKBcE+nGqXS/a3ZcZJ4vaFhdu2PHW
- JbyOFvSAhMC7JlctYQsq6U7wS2KCM6p5oo5PkoeEiOLdJP3Ir84/Jl/R0JBHMH9pL1Bhkh0zQJ
- F93rstDBfmV/oggX48RKIyhT7Hy6Um3OID8tAgJPGMwRaJHpLj7/tD5JtXoSSa2PFIjDLdeDA4
- snI=
-X-IronPort-AV: E=Sophos;i="5.72,304,1580803200"; 
-   d="scan'208";a="47099743"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa3.mentor.iphmx.com with ESMTP; 25 Mar 2020 05:35:48 -0800
-IronPort-SDR: c/DdIk8+ezoDdajc/bw9ue6o53e3SwkO4tBrNFchrcac48aD/9SLuSy6X0oz+wYUSDvao0wZrS
- dDtolKRyGG/YGWOZIQJfdd+YVPc19wlELaLhjXaH+6wH9cJuVuYST0qFG6Nt+QVvxefnzc0CoL
- NucYjkavP912Zze3gyiAUNkcfi1a/cDvxowrfZ+4yx3s6xww68hTnoz5GB7Jjqye2I5iuCzgpr
- o5xZQMq7gRkuJWxMIJKxvksGu8tnrhpRoVzO5+4IuEGSOjv9nd/bLb6iViKJkiD1azt2o/A6Ts
- MSM=
-From:   Jiada Wang <jiada_wang@mentor.com>
-To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
-        <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
-        <bsz@semihalf.com>, <rydberg@bitmath.org>
-CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
-        <jiada_wang@mentor.com>
-Subject: [PATCH v9 32/55] Input: atmel_mxt_ts - implement I2C retries
-Date:   Wed, 25 Mar 2020 06:33:11 -0700
-Message-ID: <20200325133334.19346-33-jiada_wang@mentor.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200325133334.19346-1-jiada_wang@mentor.com>
-References: <20200325133334.19346-1-jiada_wang@mentor.com>
+        Wed, 25 Mar 2020 09:55:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1585144553;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xDstPSipOMUudtaYQpWfwkduPt3X8LuZd7RA1XdiirA=;
+        b=JBxJmlDdSVRKFOV+LT69C3a2a5HfdngVnmBOHDnnoOPaQ3dS+k3VX21nDcnSZURAaI5z6B
+        86od3f7T/gIyZNcgkIgGd0GihghqEYASvt8CN4y9RC5CGTD3Z/9Wm/qtHVWPTZPUKuhPxP
+        AmLfb49RipbUC4q69YSjifVpCEDqXnM=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-416-rWTbjeAHNy6BxRA0eOYNfw-1; Wed, 25 Mar 2020 09:55:50 -0400
+X-MC-Unique: rWTbjeAHNy6BxRA0eOYNfw-1
+Received: by mail-wr1-f72.google.com with SMTP id m15so1197686wrb.0
+        for <linux-input@vger.kernel.org>; Wed, 25 Mar 2020 06:55:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=xDstPSipOMUudtaYQpWfwkduPt3X8LuZd7RA1XdiirA=;
+        b=Gk/MnkO2pxrEbGDeCbe2ETGuxX3fNYPPWZWj+0Xxl0iXVjCypNNUTsRoGy2Zaz/rPM
+         XNYGQ8p+B1QrWvaS+6sdwQq9+stInwv+Lqs4Qc3WKsogr3iVHdD24+F5z5+0ropeapvZ
+         DaydTYxNsy4OhhxqT6LcKtc5ORCY1r9Wr2LJmkiXetE26W6BAsLJm8PHprThNPZFv43G
+         VIH/v25jxioJxEqlH8870lQt88fp4W3jXTSDEviXc0RJQgdg0Fz/JeXMtt+sqwOSNAcN
+         KU3pQ31bw+D+Tcm9NNHblV28XA00H+av1dh+4bf3tg565Qcuzo+G49wD47saV3UEpBm0
+         czxQ==
+X-Gm-Message-State: ANhLgQ1affVS8crJ6kaEFqLkj3oyGl0OsDtXMWGYr7Ryhk6hM8Hgz9jR
+        YL2QjRiQvCxJS4F9yuR/RpkZZRDU6buwhe16P1DziuMxXh3mPgAcay5tCOuCPQi9ReY2e9Lf1cz
+        PyRzle7MzkogZlngmOlcOzUw=
+X-Received: by 2002:adf:f042:: with SMTP id t2mr3760977wro.255.1585144548577;
+        Wed, 25 Mar 2020 06:55:48 -0700 (PDT)
+X-Google-Smtp-Source: ADFU+vsg49BFabLkpfsb/9KRceC/P4N3hxHepiAIbHUZCsS6BkRcXvk/l4MqV0fkDOe6UCD1HGz5Yw==
+X-Received: by 2002:adf:f042:: with SMTP id t2mr3760947wro.255.1585144548251;
+        Wed, 25 Mar 2020 06:55:48 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-fc7e-fd47-85c1-1ab3.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:fc7e:fd47:85c1:1ab3])
+        by smtp.gmail.com with ESMTPSA id l8sm9286029wmj.2.2020.03.25.06.55.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Mar 2020 06:55:47 -0700 (PDT)
+Subject: Re: [PATCH] Input: goodix - Fix compilation when ACPI support is
+ disabled
+To:     Bastien Nocera <hadess@hadess.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org, kbuild test robot <lkp@intel.com>
+References: <20200325103348.108792-1-hdegoede@redhat.com>
+ <9f4df3fdc54448728582ea35f4d3a08411f6aba5.camel@hadess.net>
+ <6611fe58-8e3d-d443-9dd1-6ed9086fa752@redhat.com>
+ <1db6a35732a2c191ff56043f1ae357d8ae1b5b10.camel@hadess.net>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <5aca9fe9-3751-f0f6-9851-5d9a0c048388@redhat.com>
+Date:   Wed, 25 Mar 2020 14:55:46 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <1db6a35732a2c191ff56043f1ae357d8ae1b5b10.camel@hadess.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+Hi,
 
-Some maXTouch chips (eg mXT1386) will not respond on the first I2C request
-when they are in a sleep state. It must be retried after a delay for the
-chip to wake up.
+On 3/25/20 1:11 PM, Bastien Nocera wrote:
+> On Wed, 2020-03-25 at 12:49 +0100, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 3/25/20 11:47 AM, Bastien Nocera wrote:
+>>> On Wed, 2020-03-25 at 11:33 +0100, Hans de Goede wrote:
+>>>> acpi_execute_simple_method() is not part of the group of ACPI
+>>>
+>>> Could we not stub acpi_execute_simple_method() either in acpi.h or
+>>> in
+>>> this driver, and make it return -EINVAL?
+>>
+>> We have 2 troublesome calls:
+>>
+>> acpi_execute_simple_method() in goodix_irq_direction_output()
+>> acpi_evaluate_object() in goodix_irq_direction_input()
+>>
+>> The second one was not in the build-bot output because the
+>> build-bot never got around to linking and its prototype is
+>> brought in even when CONFIG_ACPI is not set.
+>>
+>> This also immediately introduces a problem with adding
+>> a stub for this one. We cannot have a static stub in
+>> goodix.c for it because that will trigger warnings after
+>> include/acpi/acpixf.h first having it declared public.
+>>
+>> We could add a non static stub, but that just feels wrong.
+>>
+>> Doing a static inline stub in include/linux/acpi.h also is
+>> not possible for the same reason.  That would leave adding
+>> #ifdef with a stub to include/acpi/acpixf.h, but that is
+>> not going to fly either because the headers under include/acpi
+>> are part of the ACPICA project:
+>> https://github.com/acpica/acpica
+>>
+>> Which is OS independent and the kernel syncs the files from
+>> it once each cycle, so we cannot make Linux specific changes
+>> to those headers.
+> 
+> And we can't do something like that?
+> 
+> static acpi_status
+> goodix_acpi_execute_simple_method (...)
+> {
+> #ifdef whatever
+>    return acpi_execute_simple_method(....);
+> #else
+>    return -EINVAL;
+> #endif
+> }
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 63fd7a2cd03c3a572a5db39c52f4856819e1835d)
-[gdavis: Forward port and fix conflicts.]
-Signed-off-by: George G. Davis <george_davis@mentor.com>
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 45 ++++++++++++++++--------
- 1 file changed, 30 insertions(+), 15 deletions(-)
+We could do something like that, but TBH I'm not a fan of that
+adding extra wrappers makes it harder to see what the code is
+actually doing.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c26470bcb38b..daa77eb9561b 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -216,6 +216,7 @@ enum t100_type {
- #define MXT_CRC_TIMEOUT		1000	/* msec */
- #define MXT_FW_RESET_TIME	3000	/* msec */
- #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-+#define MXT_WAKEUP_TIME		25	/* msec */
- #define MXT_REGULATOR_DELAY	150	/* msec */
- #define MXT_CHG_DELAY		100	/* msec */
- #define MXT_POWERON_DELAY	150	/* msec */
-@@ -720,6 +721,7 @@ static int __mxt_read_chunk(struct i2c_client *client,
- 	struct i2c_msg xfer[2];
- 	u8 buf[2];
- 	int ret;
-+	bool retry = false;
- 
- 	buf[0] = reg & 0xff;
- 	buf[1] = (reg >> 8) & 0xff;
-@@ -736,17 +738,22 @@ static int __mxt_read_chunk(struct i2c_client *client,
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
- 
--	ret = i2c_transfer(client->adapter, xfer, 2);
--	if (ret == 2) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
--			ret = -EIO;
--		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
--			__func__, ret);
-+retry_read:
-+	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
-+	if (ret != ARRAY_SIZE(xfer)) {
-+		if (!retry) {
-+			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
-+			msleep(MXT_WAKEUP_TIME);
-+			retry = true;
-+			goto retry_read;
-+		} else {
-+			dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
-+				__func__, ret);
-+			return -EIO;
-+		}
- 	}
- 
--	return ret;
-+	return 0;
- }
- 
- static int __mxt_read_reg(struct i2c_client *client,
-@@ -777,6 +784,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 	u8 *buf;
- 	size_t count;
- 	int ret;
-+	bool retry = false;
- 
- 	count = len + 2;
- 	buf = kmalloc(count, GFP_KERNEL);
-@@ -787,14 +795,21 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 	buf[1] = (reg >> 8) & 0xff;
- 	memcpy(&buf[2], val, len);
- 
-+retry_write:
- 	ret = i2c_master_send(client, buf, count);
--	if (ret == count) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
-+	if (ret != count) {
-+		if (!retry) {
-+			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
-+			msleep(MXT_WAKEUP_TIME);
-+			retry = true;
-+			goto retry_write;
-+		} else {
-+			dev_err(&client->dev, "%s: i2c send failed (%d)\n",
-+				__func__, ret);
- 			ret = -EIO;
--		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
--			__func__, ret);
-+		}
-+	} else {
-+		ret = 0;
- 	}
- 
- 	kfree(buf);
--- 
-2.17.1
+I understand your dislike for the extra braces I added and
+I'm fine with fixing that by adding __maybe_unused to the
+variable declarations at the top. I don't really see what
+the problem with the #ifdef-s is given how clean they are,
+with the braces thing fixed by using __maybe_unused things
+would look like e.g. this:
+
+	switch (ts->irq_pin_access_method) {
+	case IRQ_PIN_ACCESS_NONE:
+		dev_err(&ts->client->dev,
+			"%s called without an irq_pin_access_method set\n",
+			__func__);
+		return -EINVAL;
+	case IRQ_PIN_ACCESS_GPIO:
+		return gpiod_direction_input(ts->gpiod_int);
+#if defined CONFIG_X86 && defined CONFIG_ACPI
+	case IRQ_PIN_ACCESS_ACPI_GPIO:
+		return gpiod_direction_input(ts->gpiod_int);
+	case IRQ_PIN_ACCESS_ACPI_METHOD:
+		status = acpi_evaluate_object(ACPI_HANDLE(dev), "INTI",
+					      NULL, NULL);
+		return ACPI_SUCCESS(status) ? 0 : -EIO;
+#endif
+	}
+
+IMHO that looks just fine, it is not as if the #if makes it really
+hard to read things and / or if there are all sort of weird
+constructs necessary to make things work with the #if.
+
+Regards,
+
+Hans
+
+
+
+> 
+> 
+>> So all in all I believe that #ifdef is the best solution.
+>>
+>> Also note that all the #ifdef-s are in switch-case and cover
+>> whole cases, so they are pretty clean IMHO.
+>>
+>> As for the braces, alternatively we could keep the variables
+>> at the top of the goodix_irq_direction_[in|out]put functions
+>> and mark the as __maybe_unused, then the extra braces this
+>> change introduces goes away.
+>>
+>> Regards,
+>>
+>> Hans
+>>
+>>
+>>
+>>
+>>> There's already a stub to avoid those 2 access methods from being
+>>> used,
+>>> and I'd prefer a little more code to more ifdef-spaghetti, or
+>>> awkwardly
+>>> placed curly braces.
+>>>
+>>>> related functions which get stubbed by include/linux/acpi.h
+>>>> when ACPI support is disabled, so the IRQ_PIN_ACCESS_ACPI_METHOD
+>>>> handling code must be disabled through an #ifdef when ACPI
+>>>> support
+>>>> is not enabled.
+>>>>
+>>>> For consistency also #ifdef out the IRQ_PIN_ACCESS_ACPI_GPIO code
+>>>> and use the same #if condition as which is used to replace
+>>>> goodix_add_acpi_gpio_mappings with a stub.
+>>>>
+>>>> Fixes: c5fca485320e ("Input: goodix - add support for controlling
+>>>> the
+>>>> IRQ pin through ACPI methods")
+>>>> Reported-by: kbuild test robot <lkp@intel.com>
+>>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>>> ---
+>>>>    drivers/input/touchscreen/goodix.c | 27 +++++++++++++++++++--
+>>>> ------
+>>>>    1 file changed, 19 insertions(+), 8 deletions(-)
+>>>>
+>>>> diff --git a/drivers/input/touchscreen/goodix.c
+>>>> b/drivers/input/touchscreen/goodix.c
+>>>> index 2c9cd1bfb860..a593ca38b35b 100644
+>>>> --- a/drivers/input/touchscreen/goodix.c
+>>>> +++ b/drivers/input/touchscreen/goodix.c
+>>>> @@ -68,8 +68,10 @@ struct goodix_ts_data;
+>>>>    enum goodix_irq_pin_access_method {
+>>>>    	IRQ_PIN_ACCESS_NONE,
+>>>>    	IRQ_PIN_ACCESS_GPIO,
+>>>> +#if defined CONFIG_X86 && defined CONFIG_ACPI
+>>>>    	IRQ_PIN_ACCESS_ACPI_GPIO,
+>>>>    	IRQ_PIN_ACCESS_ACPI_METHOD,
+>>>> +#endif
+>>>>    };
+>>>>    
+>>>>    struct goodix_chip_data {
+>>>> @@ -572,9 +574,6 @@ static int goodix_send_cfg(struct
+>>>> goodix_ts_data
+>>>> *ts, const u8 *cfg, int len)
+>>>>    static int goodix_irq_direction_output(struct goodix_ts_data
+>>>> *ts,
+>>>>    				       int value)
+>>>>    {
+>>>> -	struct device *dev = &ts->client->dev;
+>>>> -	acpi_status status;
+>>>> -
+>>>>    	switch (ts->irq_pin_access_method) {
+>>>>    	case IRQ_PIN_ACCESS_NONE:
+>>>>    		dev_err(&ts->client->dev,
+>>>> @@ -583,26 +582,29 @@ static int
+>>>> goodix_irq_direction_output(struct
+>>>> goodix_ts_data *ts,
+>>>>    		return -EINVAL;
+>>>>    	case IRQ_PIN_ACCESS_GPIO:
+>>>>    		return gpiod_direction_output(ts->gpiod_int,
+>>>> value);
+>>>> +#if defined CONFIG_X86 && defined CONFIG_ACPI
+>>>>    	case IRQ_PIN_ACCESS_ACPI_GPIO:
+>>>>    		/*
+>>>>    		 * The IRQ pin triggers on a falling edge, so
+>>>> its gets
+>>>> marked
+>>>>    		 * as active-low, use output_raw to avoid the
+>>>> value
+>>>> inversion.
+>>>>    		 */
+>>>>    		return gpiod_direction_output_raw(ts-
+>>>>> gpiod_int,
+>>>> value);
+>>>> -	case IRQ_PIN_ACCESS_ACPI_METHOD:
+>>>> +	case IRQ_PIN_ACCESS_ACPI_METHOD: {
+>>>> +		struct device *dev = &ts->client->dev;
+>>>> +		acpi_status status;
+>>>> +
+>>>>    		status =
+>>>> acpi_execute_simple_method(ACPI_HANDLE(dev),
+>>>>    						    "INTO",
+>>>> value);
+>>>>    		return ACPI_SUCCESS(status) ? 0 : -EIO;
+>>>>    	}
+>>>> +#endif
+>>>> +	}
+>>>>    
+>>>>    	return -EINVAL; /* Never reached */
+>>>>    }
+>>>>    
+>>>>    static int goodix_irq_direction_input(struct goodix_ts_data
+>>>> *ts)
+>>>>    {
+>>>> -	struct device *dev = &ts->client->dev;
+>>>> -	acpi_status status;
+>>>> -
+>>>>    	switch (ts->irq_pin_access_method) {
+>>>>    	case IRQ_PIN_ACCESS_NONE:
+>>>>    		dev_err(&ts->client->dev,
+>>>> @@ -610,13 +612,20 @@ static int
+>>>> goodix_irq_direction_input(struct
+>>>> goodix_ts_data *ts)
+>>>>    			__func__);
+>>>>    		return -EINVAL;
+>>>>    	case IRQ_PIN_ACCESS_GPIO:
+>>>> +		return gpiod_direction_input(ts->gpiod_int);
+>>>> +#if defined CONFIG_X86 && defined CONFIG_ACPI
+>>>>    	case IRQ_PIN_ACCESS_ACPI_GPIO:
+>>>>    		return gpiod_direction_input(ts->gpiod_int);
+>>>> -	case IRQ_PIN_ACCESS_ACPI_METHOD:
+>>>> +	case IRQ_PIN_ACCESS_ACPI_METHOD: {
+>>>> +		struct device *dev = &ts->client->dev;
+>>>> +		acpi_status status;
+>>>> +
+>>>>    		status = acpi_evaluate_object(ACPI_HANDLE(dev),
+>>>> "INTI",
+>>>>    					      NULL, NULL);
+>>>>    		return ACPI_SUCCESS(status) ? 0 : -EIO;
+>>>>    	}
+>>>> +#endif
+>>>> +	}
+>>>>    
+>>>>    	return -EINVAL; /* Never reached */
+>>>>    }
+>>>> @@ -862,6 +871,7 @@ static int goodix_get_gpio_config(struct
+>>>> goodix_ts_data *ts)
+>>>>    	ts->gpiod_rst = gpiod;
+>>>>    
+>>>>    	switch (ts->irq_pin_access_method) {
+>>>> +#if defined CONFIG_X86 && defined CONFIG_ACPI
+>>>>    	case IRQ_PIN_ACCESS_ACPI_GPIO:
+>>>>    		/*
+>>>>    		 * We end up here if
+>>>> goodix_add_acpi_gpio_mappings()
+>>>> has
+>>>> @@ -878,6 +888,7 @@ static int goodix_get_gpio_config(struct
+>>>> goodix_ts_data *ts)
+>>>>    		if (!ts->gpiod_rst)
+>>>>    			ts->irq_pin_access_method =
+>>>> IRQ_PIN_ACCESS_NONE;
+>>>>    		break;
+>>>> +#endif
+>>>>    	default:
+>>>>    		if (ts->gpiod_int && ts->gpiod_rst) {
+>>>>    			ts->reset_controller_at_probe = true;
+> 
 

@@ -7,58 +7,57 @@ X-Spam-Status: No, score=-17.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
 	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DA2C43331
-	for <linux-input@archiver.kernel.org>; Sat, 28 Mar 2020 18:59:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41D72C2D0EC
+	for <linux-input@archiver.kernel.org>; Sat, 28 Mar 2020 18:59:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0096D206F6
-	for <linux-input@archiver.kernel.org>; Sat, 28 Mar 2020 18:59:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C90820732
+	for <linux-input@archiver.kernel.org>; Sat, 28 Mar 2020 18:59:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="eaJepCUA"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="LsfvxAZT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727491AbgC1S7i (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 28 Mar 2020 14:59:38 -0400
-Received: from mail-yb1-f202.google.com ([209.85.219.202]:46146 "EHLO
-        mail-yb1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727447AbgC1S7g (ORCPT
+        id S1727356AbgC1S7b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 28 Mar 2020 14:59:31 -0400
+Received: from mail-pf1-f202.google.com ([209.85.210.202]:39592 "EHLO
+        mail-pf1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727193AbgC1S7a (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 28 Mar 2020 14:59:36 -0400
-Received: by mail-yb1-f202.google.com with SMTP id h185so7814659yba.13
-        for <linux-input@vger.kernel.org>; Sat, 28 Mar 2020 11:59:35 -0700 (PDT)
+        Sat, 28 Mar 2020 14:59:30 -0400
+Received: by mail-pf1-f202.google.com with SMTP id x189so11484729pfd.6
+        for <linux-input@vger.kernel.org>; Sat, 28 Mar 2020 11:59:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=SJTEeEKUV6TX+oPumalrivliTEZBzSn7PT5Yeqgsp2I=;
-        b=eaJepCUAwlimKsXKMAKNJjSZXgGfYYQs8q1MPuEmLZuJw6/LfxHDz+ro1ySSWGlI21
-         /Pdl3c/UX2EZI2gTIB9hMIGkxxtTXR2tDf5liLSZCSH0WSju8OySAWKjKmpyF4bohM3u
-         VZ2mHvAFx+oGS4BRTPiRJD9tkI000CowpLcYV7rmrU5RfDKamqS0bqhTvGKsNZXWJHYY
-         iosjHw+SyBn6u0qt0i+kUFlBLlYE74Lt/8FaXgzBMngDo6SeJ7FOb8MLu8D40v0jfGQW
-         5oDkRcEA5pDmTOTRN3LA9shC/eTPTryav0qiENQ/lpufgJ17FRYORPEZmJMTshC6RZCZ
-         Ff0g==
+        bh=RmZqFhOWmJfblEL39xHqmka8Tn/Hx8czxElVow6EI48=;
+        b=LsfvxAZTfx0EdEbqJrtv0QvW38sITdabmPyei4aZ2Hy3cyyWY8SsoAvWle9hPf5oDC
+         ioejvTsBSCiwQsSjc2tzw9uRHh5zKQM35MiR5Jdej0EAugnnFvynwQezlZKSIaFKf+La
+         nIHtqe5HTcqlUdFEb8uGC3sm6xVXOuKjYe9VctUSWq2rT40VMpsnwW1JlzqcHdJ/3ez7
+         Iqv4ChmXgPnGbUir4rlt7tTWuh4eaLA4hd2t5DdPvqYnkNloLEfog78LvamAkZV9W4++
+         wA5TR4ndSFw18N6W6nDejDarzS/aDW4vxFXuhtAkifBrNPgcvyAUmmDz7Cdr0CFTNk91
+         7fOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=SJTEeEKUV6TX+oPumalrivliTEZBzSn7PT5Yeqgsp2I=;
-        b=IxHg0alw4ybpRvOFveZPx4+iLGPZQP5wixV0mYW/j5FOJM9pCqhIeGDZZrHjkuNBUL
-         HIUjgW82rqLeOLgd8yNs9TIhTA1kjKLFP2TgUsGeB8yEMK5/x+smz3H5L0LXFmDa0HdC
-         w39A38PgHPkgmzW1plz9FguND8e1JVppoyw+QLllek37tBhyMvSeYqWziwR/o7jkkb3b
-         EEMLQaLT1mFiaKan1VZEK+EOSD/JnpsMBvLN0y7j09bYph8ZE2roJ7zX+/fTkCDq+oBw
-         wpr6TbO0oDU3sNyRRX3hnB540UXfjKyEZ3hGSzZ6IhUiOUQkj3YYlMI5L9KSBp58bl1C
-         9maA==
-X-Gm-Message-State: ANhLgQ1QhufPp9kp/j7lOXej0jBw8cFF6vb9tLm/A/LXr1d6k7UMioBL
-        sia0OWa7BYgB8/ZVIF8ibhzia8Uq4eqm
-X-Google-Smtp-Source: ADFU+vsI0cZ9NAw9lkP2sgVNhfkx3UtYksWw5uSv9BLEwzeRDk4wXySWY9En8Bk1kv5+Bl0QL15WbBbA35lf
-X-Received: by 2002:a25:38d2:: with SMTP id f201mr8070008yba.226.1585421974894;
- Sat, 28 Mar 2020 11:59:34 -0700 (PDT)
-Date:   Sat, 28 Mar 2020 11:59:16 -0700
+        bh=RmZqFhOWmJfblEL39xHqmka8Tn/Hx8czxElVow6EI48=;
+        b=NwBfv/Y45pep+3JUC4iTAjTkFg99OWcz+RswRNHA/OKeX9um8QxhsU0ZG3TmOjE5oM
+         /+tC/7rrVGsA+xhCnFEAkmassJse+aqmuS/iX+tpVNJfpelJK2djGxo8PW/UetpYRSUa
+         az4WQ2e1JTcz/Urq2ofHrZr/brg51IA+9L3P/NZbAR2VF+46v1uAuCtB2Dje6Hzny1CT
+         WQf//2QekRFW3JtvtU3epT/UiJFVnelVn5M8S+KFjYPACrp1KoLnlFbzVzBEm2srfp+d
+         c71iOS7nNb5XrBSX0H28OMh4W47nUbkPcDHZwSEEB334/JL4hUw9L83D1D2BqL5bUg7R
+         iyMw==
+X-Gm-Message-State: ANhLgQ2extK52ED4zFteAbCZe+kdivnP8nweH5HFgoAAZV9QZGqWv7ES
+        NbQ2S5MUAxpC0ytYzcfPyzxObKvENoZD
+X-Google-Smtp-Source: ADFU+vuoEMxULA3UhwesqVMltERLeDVP8XgmIuQ9z/hiaou45fh2RQVncRU3HyXUkshQHrnPQy2r2ato9pUj
+X-Received: by 2002:a63:4c0b:: with SMTP id z11mr5506572pga.385.1585421969560;
+ Sat, 28 Mar 2020 11:59:29 -0700 (PDT)
+Date:   Sat, 28 Mar 2020 11:59:14 -0700
 In-Reply-To: <20200328185916.98423-1-rajatja@google.com>
-Message-Id: <20200328185916.98423-5-rajatja@google.com>
+Message-Id: <20200328185916.98423-3-rajatja@google.com>
 Mime-Version: 1.0
 References: <20200328185916.98423-1-rajatja@google.com>
 X-Mailer: git-send-email 2.26.0.rc2.310.g2932bb562d-goog
-Subject: [PATCH v4 5/5] dt-bindings: input/atkbd.txt: Add binding info for
- "keymap" property
+Subject: [PATCH v4 3/5] dt-bindings: input/atkbd.txt: Add binding for "function-row-physmap"
 From:   Rajat Jain <rajatja@google.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com,
         Rob Herring <robh+dt@kernel.org>,
@@ -82,65 +81,59 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add the info for keymap property that allows firmware to specify the
-mapping from physical code to linux keycode, that the kernel should use.
+Create the documentation for the new introduced property, that
+describes the function-row keys physical positions.
 
 Signed-off-by: Rajat Jain <rajatja@google.com>
 ---
-v4: Property name "keymap" -> "linux,keymap"
+v4: Same as v3
 v3: same as v2
 v2: Remove the Change-Id from the commit log
 
- .../devicetree/bindings/input/atkbd.txt       | 27 ++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/input/atkbd.txt       | 34 +++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/atkbd.txt
 
 diff --git a/Documentation/devicetree/bindings/input/atkbd.txt b/Documentation/devicetree/bindings/input/atkbd.txt
-index 816653eb8e98d..8b6d7e2c55bb6 100644
---- a/Documentation/devicetree/bindings/input/atkbd.txt
+new file mode 100644
+index 0000000000000..816653eb8e98d
+--- /dev/null
 +++ b/Documentation/devicetree/bindings/input/atkbd.txt
-@@ -6,9 +6,15 @@ Optional properties:
- 			An ordered array of the physical codes for the function
- 			row keys. Arranged in order from left to right.
- 
-+	linux,keymap:
-+			An array of the u32 entries to specify mapping from the
-+			keyboard physcial codes to linux keycodes. The top 16
-+			bits of each entry are the physical code, and bottom
-+			16 bits are the	linux keycode.
+@@ -0,0 +1,34 @@
++Device tree bindings for AT / PS2 keyboard device
 +
- Example:
- 
--	This is a sample ACPI _DSD node describing the property:
-+	This is a sample ACPI _DSD node describing the properties:
- 
-         Name (_DSD, Package () {
-                 ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-@@ -29,6 +35,25 @@ Example:
-                                         0xAE, /* T12 VOL_DOWN */
-                                         0xB0, /* T13 VOL_UP */
-                                 }
-+                        },
-+                        Package () { "linux,keymap",
++Optional properties:
++
++	function-row-physmap:
++			An ordered array of the physical codes for the function
++			row keys. Arranged in order from left to right.
++
++Example:
++
++	This is a sample ACPI _DSD node describing the property:
++
++        Name (_DSD, Package () {
++                ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
++                Package () {
++                        Package () { "function-row-physmap",
 +                                Package () {
-+                                        0xEA009E, /* EA -> KEY_BACK */
-+                                        0xE700AD, /* E7 -> KEY_REFRESH */
-+                                        0x910174, /* 91 -> KEY_FULL_SCREEN */
-+                                        0x920078, /* 92 -> KEY_SCALE */
-+                                        0x930280, /* 93 -> 0x280 */
-+                                        0x9400E0, /* 94 -> KEY_BRIGHTNESS_DOWN*/
-+                                        0x9500E1, /* 95 -> KEY_BRIGHTNESS_UP */
-+                                        0x960279, /* 96 -> KEY_PRIVACY_SCRN_TOGGLE*/
-+                                        0x9700E5, /* 97 -> KEY_KBDILLUMDOWN */
-+                                        0x9800E6, /* 98 -> KEY_KBDILLUMUP */
-+                                        0xA00071, /* A0 -> KEY_MUTE */
-+                                        0xAE0072, /* AE -> KEY_VOLUMEDOWN */
-+                                        0xB00073, /* B0 -> KEY_VOLUMEUP */
-+					...
-+					<snip other entries>
++                                        0xEA, /* T1 BACK */
++                                        0xE7, /* T2 REFRESH */
++                                        0x91, /* T3 FULLSCREEN */
++                                        0x92, /* T4 SCALE */
++                                        0x93, /* T5 SNIP */
++                                        0x94, /* T6 BRIGHTNESS_DOWN */
++                                        0x95, /* T7 BRIGHTNESS_UP */
++                                        0x96, /* T8 PRIVACY_SCRN_TOGGLE */
++                                        0x97, /* T9 KBD_BKLIGHT_DOWN */
++                                        0x98, /* T10 KBD_BKLIGHT_UP */
++                                        0xA0, /* T11 VOL_MUTE */
++                                        0xAE, /* T12 VOL_DOWN */
++                                        0xB0, /* T13 VOL_UP */
 +                                }
-                         }
-                 }
-         })
++                        }
++                }
++        })
 -- 
 2.26.0.rc2.310.g2932bb562d-goog
 

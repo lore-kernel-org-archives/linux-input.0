@@ -4,35 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8ABCDC2D0E8
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD4CBC2D0E8
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 63B1D208E0
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B944320B80
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730781AbgCaKws (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 31 Mar 2020 06:52:48 -0400
+        id S1730815AbgCaKwy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 31 Mar 2020 06:52:54 -0400
 Received: from esa4.mentor.iphmx.com ([68.232.137.252]:43597 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730532AbgCaKwr (ORCPT
+        with ESMTP id S1730810AbgCaKwy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Mar 2020 06:52:47 -0400
-IronPort-SDR: 1EsqhI/tfSYIN+Y6N/WfKm12a0CqFzljTkzmfo0zPXkEyyiASEaUXuEdMAQGV6zpKOrldzwhbn
- V4xc1KO+fb0WGem13CE/0VQkVkAZUz5gMl7x3sIFTtHa9CSvyQPcKPUD4Vkgg0k8HV2QBSI7fa
- EtTnXCxHSvIhDQYe1nCZahYqgYLTl0Eah+XjAzNplKpkhutX0rkQaY+S2/fKYBk2pRFSCGWzpg
- dZeNVR2R5AP10CVUR4IqzzdORtgvrMZ0DpRbFLMuad3N6XhQEnX2RmecqtSevuIae1GvjSX1g2
- vgk=
+        Tue, 31 Mar 2020 06:52:54 -0400
+IronPort-SDR: uwjge014RS0QTx2uGcl9vbYp7rBHGc1iaHwtGpkGe1BQxkrEFw1I5bD13cNnG3Jd7MWIIkeYW5
+ pOjMTbDxrvbpEGW6pFe0MPatN2GBnz41n308TNbiRprrAtgYYTshDlnFj7N85iYrew2LulQOUn
+ 1vHArfVdHlu4adeeGMnDIM+gFWccyslAvKuvr99sdsjyD0fAOKJMn+P3QNJhn1c+gmzitPycjf
+ 7UPSjqlxM7ylKSqRej8cFQQKZI1KiOtEg2HInXn85rn5KI7C7t0C7ZcFb0ovo4dQCekXVSwFdO
+ UQQ=
 X-IronPort-AV: E=Sophos;i="5.72,327,1580803200"; 
-   d="scan'208";a="47330793"
+   d="scan'208";a="47330799"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:52:46 -0800
-IronPort-SDR: xej9MTSEmt/icaDIsI2NZdIC7MZM8pVA0PberYWe+3Tbkmvtq8sCFitMJNvYdwWJJLq6lG3UxC
- ph12KQKtwZY0Pvd5OLpJLmzr3hqTBSlPVFw9gRIs1p7+al5iqrsGbFvzQnGngrAK8Dqsi2syR8
- llwQnsJnYka+VnAa0TaJjUFdxg25T+sUR0ymTJvvadYUVjbcdk3JZ14zS3OHIP+PMgrU0LHGng
- RwugW4hv3DSisUXKvpjLFFLHy+/nKltWXNmolYfOtBuwSnYu6Y6FyJfyxn0qwoxzNPHBkqZ/s2
- wFM=
+  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:52:53 -0800
+IronPort-SDR: ohzFJPOinnaU7WizE5qg1+J0hl4ebvquRRFMAyhS2hSfZkfKe/PdUCVMKpYuzDKsgSKhVHwYnq
+ 6r6UGTmWluHF1lqsFEa7T9bbpJLXL0VdBzMemVphSeajtXywyWaWbhUwv3Cu/nXcDbf009Bf5F
+ L5poNBhHV3PgxpEbJcEHH2W8Sb1c7mCYgIEFCXLG9kFlmMaf/+ckZLS3hhhrpYUYOGN5AluzKV
+ MwM3Ezgqibf9jeTmCvKtImYCTIs9yONDHYrlUoRUy5EWqlXE3Il1FQHwFSm8k8CmNe2xLCKlqK
+ Msc=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -40,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v10 29/55] Input: atmel_mxt_ts - rename bl_completion to chg_completion
-Date:   Tue, 31 Mar 2020 03:50:25 -0700
-Message-ID: <20200331105051.58896-30-jiada_wang@mentor.com>
+Subject: [PATCH v10 31/55] Input: atmel_mxt_ts - delay enabling IRQ when not using regulators
+Date:   Tue, 31 Mar 2020 03:50:27 -0700
+Message-ID: <20200331105051.58896-32-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200331105051.58896-1-jiada_wang@mentor.com>
 References: <20200331105051.58896-1-jiada_wang@mentor.com>
@@ -55,112 +56,108 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Rename bl_completion to chg_completion
+The path of enabling the IRQ in the probe function is not safe in level
+triggered operation, if it was already powered up and there is a message
+waiting on the device (eg finger down) because the object table has not yet
+been read. This forces the ISR into a hard loop.
+
+Delay enabling the interrupt until it is first needed.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit dda8453bfb44216645ede798918a314d4fca2481)
-[gdavis: Resolve forward port conflicts due to applying upstream
-	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
-	 data support").]
+(cherry picked from ndyer/linux/for-upstream commit 64c9dadc4a3250a185baf06ab0f628be45d5d9a0)
+[gdavis: Resolve forward port conflicts due to v4.14-rc1 commit
+	 8cc8446b9b62 ("Input: atmel_mxt_ts - use more managed
+	 resources") and applying upstream commit 96a938aa214e ("Input:
+	 atmel_mxt_ts - remove platform data support").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: call complete(&data->chg_completion) only when in_bootloader is TRUE
-	Add commit description]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 40 +++++++++++++++---------
+ 1 file changed, 26 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 0f1c0e5c6169..ed142b24d12d 100644
+index 62f11afb26ae..c26470bcb38b 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -382,9 +382,6 @@ struct mxt_data {
- 	u8 T100_reportid_max;
- 	u16 T107_address;
+@@ -1448,9 +1448,24 @@ static int mxt_acquire_irq(struct mxt_data *data)
+ {
+ 	int error;
  
--	/* for fw update in bootloader */
--	struct completion bl_completion;
--
- 	/* for reset handling */
- 	struct completion reset_completion;
+-	enable_irq(data->irq);
++	if (!data->irq) {
++		error = devm_request_threaded_irq(&data->client->dev,
++						  data->client->irq,
++						  NULL, mxt_interrupt,
++						  IRQF_ONESHOT,
++						  data->client->name, data);
++		if (error) {
++			dev_err(&data->client->dev, "Error requesting irq\n");
++			return error;
++		}
  
-@@ -396,6 +393,9 @@ struct mxt_data {
- 
- 	enum mxt_suspend_mode suspend_mode;
- 
-+	/* for power up handling */
-+	struct completion chg_completion;
+-	if (data->use_retrigen_workaround) {
++		/* Presence of data->irq means IRQ initialised */
++		data->irq = data->client->irq;
++	} else {
++		enable_irq(data->irq);
++	}
 +
- 	/* Indicates whether device is in suspend */
- 	bool suspended;
- 
-@@ -613,7 +613,7 @@ static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
- 		 * CHG assertion before reading the status byte.
- 		 * Once the status byte has been read, the line is deasserted.
- 		 */
--		ret = mxt_wait_for_completion(data, &data->bl_completion,
-+		ret = mxt_wait_for_completion(data, &data->chg_completion,
- 					      MXT_FW_CHG_TIMEOUT);
- 		if (ret) {
- 			/*
-@@ -1414,8 +1414,7 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 	struct mxt_data *data = dev_id;
- 
- 	if (data->in_bootloader) {
--		/* bootloader state transition completion */
--		complete(&data->bl_completion);
-+		complete(&data->chg_completion);
- 		return IRQ_HANDLED;
++	if (data->object_table && data->use_retrigen_workaround) {
+ 		error = mxt_process_messages_until_invalid(data);
+ 		if (error)
+ 			return error;
+@@ -3370,7 +3385,9 @@ static int mxt_load_fw(struct device *dev)
+ 			goto release_firmware;
  	}
  
-@@ -2179,9 +2178,9 @@ static void mxt_regulator_enable(struct mxt_data *data)
- 	msleep(MXT_CHG_DELAY);
+-	enable_irq(data->irq);
++	ret = mxt_acquire_irq(data);
++	if (ret)
++		goto release_firmware;
  
- retry_wait:
--	reinit_completion(&data->bl_completion);
-+	reinit_completion(&data->chg_completion);
- 	data->in_bootloader = true;
--	error = mxt_wait_for_completion(data, &data->bl_completion,
-+	error = mxt_wait_for_completion(data, &data->chg_completion,
- 					MXT_POWERON_DELAY);
- 	if (error == -EINTR)
- 		goto retry_wait;
-@@ -3346,7 +3345,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
- 		enable_irq(data->irq);
- 	}
+ 	/* Poll after 0.1s if no interrupt received */
+ 	schedule_delayed_work(&data->flash->work, msecs_to_jiffies(100));
+@@ -3798,7 +3815,6 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		 client->adapter->nr, client->addr);
  
--	reinit_completion(&data->bl_completion);
-+	reinit_completion(&data->chg_completion);
- 
- 	return 0;
- }
-@@ -3382,7 +3381,7 @@ static int mxt_load_fw(struct device *dev)
- 	}
- 
- 	/* Wait for flash. */
--	ret = mxt_wait_for_completion(data, &data->bl_completion,
-+	ret = mxt_wait_for_completion(data, &data->chg_completion,
- 				      MXT_FW_RESET_TIME);
- 	if (ret)
- 		goto disable_irq;
-@@ -3393,7 +3392,7 @@ static int mxt_load_fw(struct device *dev)
- 	 * the CHG line after bootloading has finished, so ignore potential
- 	 * errors.
- 	 */
--	mxt_wait_for_completion(data, &data->bl_completion, MXT_FW_RESET_TIME);
-+	mxt_wait_for_completion(data, &data->chg_completion, MXT_FW_RESET_TIME);
- 
- 	data->in_bootloader = false;
- disable_irq:
-@@ -3815,7 +3814,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	data->irq = client->irq;
+ 	data->client = client;
+-	data->irq = client->irq;
  	i2c_set_clientdata(client, data);
  
--	init_completion(&data->bl_completion);
-+	init_completion(&data->chg_completion);
- 	init_completion(&data->reset_completion);
- 	init_completion(&data->crc_completion);
+ 	init_completion(&data->chg_completion);
+@@ -3826,26 +3842,22 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		return error;
+ 	}
  
+-	error = devm_request_threaded_irq(&client->dev, client->irq,
+-					  NULL, mxt_interrupt, IRQF_ONESHOT,
+-					  client->name, data);
+-	if (error) {
+-		dev_err(&client->dev, "Failed to register interrupt\n");
+-		return error;
+-	}
+-
+ 	if (data->suspend_mode == MXT_SUSPEND_REGULATOR) {
++		error = mxt_acquire_irq(data);
++		if (error)
++			return error;
++
+ 		error = mxt_probe_regulators(data);
+ 		if (error)
+ 			return error;
++
++		disable_irq(data->irq);
+ 	} else if (data->reset_gpio) {
+ 		msleep(MXT_RESET_GPIO_TIME);
+ 		gpiod_set_value(data->reset_gpio, 1);
+ 		msleep(MXT_RESET_INVALID_CHG);
+ 	}
+ 
+-	disable_irq(data->irq);
+-
+ 	error = mxt_initialize(data);
+ 	if (error)
+ 		return error;
 -- 
 2.17.1
 

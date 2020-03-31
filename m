@@ -2,38 +2,38 @@ Return-Path: <SRS0=RdzF=5Q=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52EFEC43331
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9328EC43331
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 28ABA208E0
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F4FF214DB
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730643AbgCaKxL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 31 Mar 2020 06:53:11 -0400
+        id S1730645AbgCaKxV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 31 Mar 2020 06:53:21 -0400
 Received: from esa4.mentor.iphmx.com ([68.232.137.252]:43597 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730766AbgCaKxK (ORCPT
+        with ESMTP id S1730598AbgCaKxU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Mar 2020 06:53:10 -0400
-IronPort-SDR: Ds65TfAuPeyb8ttfU7EnC9b6LerEgUpIwPQBrUbN4i/GZnm17p5I3ZnV8wChRd6IGSAAmWj3nv
- 3V6rV3lYV9a8EmszoE/TYomNNv6gr3XrtSHNHilvM0YLpr0GkT5x4Qmv/w0bBBcRtSDzUznktA
- RytFLDNllcBE2/ZVt1HvtdeOPaxNvr1f0oXmVxU4dc8Pxnpv/rwleTeZymu1snqV7G8BOv1Etf
- NBx2E0ELNC0InyytXsfjGQUTAaXOIw0FoQcZhJUtCJpwLuMyWWxS5+5CLejcOeGjXfhrViN7nj
- XV4=
+        Tue, 31 Mar 2020 06:53:20 -0400
+IronPort-SDR: MHBBYfaseZtE4A0L1dFpRXP8VRuCf+rSr8KVUlTQ7Er4BIMwbita81KnxXzD5AEJdPfpAldqOP
+ 5QW8QXBarFrQB4PYjVvWQkPMMAFXizLEQVuXGoyN58MQxBbnnBJddLmdzrrqNI0DyOPFXcdESU
+ 4bDZmqYqoKK9xuaBQrM+lTWMouV5Tb7NnwiOE01Xg9mWbRhMJjYpiOhGBmPRnfM1up9VhQ04BP
+ R7uR2POSqPSXmPQTFVrHFy0Sil7p5kqV/ggFdkMcS4YGKZPpywd38U8BRs9OcjoOophe/dYlPB
+ Pe8=
 X-IronPort-AV: E=Sophos;i="5.72,327,1580803200"; 
-   d="scan'208";a="47330809"
+   d="scan'208";a="47330818"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:53:09 -0800
-IronPort-SDR: 8vJxkwoK2Oi3tRJ0V0rDBvL951PtxCI/NVWu64VQg9E+XzDTLRqeiIkYBv9qHL+F8PS54SlPo6
- gvcx80cdo1+3w9L4BsevUqkiKtQ7lKF2oLuTM6z9wOcBvHavF+r2oZ09faB28djpyq7b4ibkb7
- sk2PZomxy2oAoABC3WPD0FJfwJo6CVXOldy4HExUJgOWnzOQNYnsm9lvJbEU0PW8xktKxd0di3
- UMY4veUt7mf1dYdQ8t29KKqsUS82tFuCxtoFG7eygkCOfsrZt1REzzSxKREqHBF789SLKtinRY
- 6aw=
+  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:53:20 -0800
+IronPort-SDR: hbJ35K90321e1qZKqCZeIqrAvJ3jNp9qATj24CTvxdzuhCmLgiFQmQG0JRSHGEak6eqevf5Xn+
+ TK8PIeZmqEuosLYDcsvkEBxnn7o6KLOoiW9CXBGpv3XYu1G4Jlcrt4tcdHSlHtsSLMbbc7DOZE
+ XybKvOm/WsWgmN8zTSznz+C8E6EdJAkIy8ZSR1hgFbZPYMgom1SodIkwFmOhqXhMrLSEeC7J5a
+ /HC1YOO+rCIxend2QtxoLGmIxtBDW2WnslFBOxNtYRs1/V4SggthmBK+p6t+w+GluavTCZuTZQ
+ NoM=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v10 35/55] Input: atmel_mxt_ts - implement improved debug message interface
-Date:   Tue, 31 Mar 2020 03:50:31 -0700
-Message-ID: <20200331105051.58896-36-jiada_wang@mentor.com>
+Subject: [PATCH v10 38/55] Input: atmel_mxt_ts - rely on calculated_crc rather than file config_crc
+Date:   Tue, 31 Mar 2020 03:50:34 -0700
+Message-ID: <20200331105051.58896-39-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200331105051.58896-1-jiada_wang@mentor.com>
 References: <20200331105051.58896-1-jiada_wang@mentor.com>
@@ -54,334 +54,120 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+From: Kautuk Consul <kautuk_consul@mentor.com>
 
-Implement improved debug message interface
+We now prefer to rely on the calculated CRC and not on the CRC stored in
+the file.
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 078569c13c88dcb6f8d882bfe17168587712df7d)
-[gdavis: Resolve forward port conflicts due to v4.14.51 commit
-	 960fe000b1d3 ("Input: atmel_mxt_ts - fix the firmware
-	 update").]
+The new logic is as follows:
+1) stored CRC of file != calculated CRC of file, then refuse the possible
+   corrupted file
+2) calculated CRC of file != CRC of configuration in controller, then
+   update configuration in controller
+3) calculated CRC of file == CRC of configuration in controller, then
+   ignore configuration file
+
+Signed-off-by: Kautuk Consul <kautuk_consul@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[gdavis: Squash fixes from Dirk Behme:
-	 - Input: atmel_mxt_ts - add missing unlock in error path
-	 - Input: atmel_mxt_ts - add missing unlock in error path
-	 - Input: atmel_mxt_ts - call mxt_debug_msg_remove() in error path
-	 - Input: atmel_mxt_ts - protect debug_v2_enabled by mutex
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-[gdavis: Squash fix from Vladimir Zapolskiy:
-	 - Input: atmel_mxt_ts - simplify debug_msg binary attribute
-	   handling]
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-[jiada: Rename mxt_debug_notify_show to debug_notify_show
-	Rename mxt_debug_v2_enable_store to debug_v2_enable_store
-	Add debug_v2_enable_show
-	Replace DEVICE_ATTR with DEVICE_ATTR_[RW|RO] ]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 203 ++++++++++++++++++++++-
- 1 file changed, 201 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 65 +++++++++++++-----------
+ 1 file changed, 36 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 656d956f9c93..9476326596d9 100644
+index 860e8ddd4c6b..11e65f32b1a2 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -242,6 +242,8 @@ enum t100_type {
+@@ -1905,7 +1905,7 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	int ret;
+ 	int offset;
+ 	int i;
+-	u32 info_crc, config_crc, calculated_crc;
++	u32 info_crc, config_crc, calculated_crc = 0;
+ 	u16 crc_start = 0;
  
- #define MXT_PIXELS_PER_MM	20
+ 	/* Make zero terminated copy of the OBP_RAW file */
+@@ -1968,30 +1968,6 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	}
+ 	cfg.raw_pos += offset;
  
-+#define DEBUG_MSG_MAX		200
-+
- struct mxt_info {
- 	u8 family_id;
- 	u8 variant_id;
-@@ -336,6 +338,11 @@ struct mxt_data {
- 	u8 t100_aux_area;
- 	u8 t100_aux_vect;
- 	bool debug_enabled;
-+	bool debug_v2_enabled;
-+	u8 *debug_msg_data;
-+	u16 debug_msg_count;
-+	struct bin_attribute *debug_msg_attr;
-+	struct mutex debug_msg_lock;
- 	u8 max_reportid;
- 	u32 config_crc;
- 	u32 info_crc;
-@@ -468,6 +475,144 @@ static void mxt_dump_message(struct mxt_data *data, u8 *message)
- 		       data->T5_msg_size, message);
- }
+-	/*
+-	 * The Info Block CRC is calculated over mxt_info and the object
+-	 * table. If it does not match then we are trying to load the
+-	 * configuration from a different chip or firmware version, so
+-	 * the configuration CRC is invalid anyway.
+-	 */
+-	if (info_crc == data->info_crc) {
+-		if (config_crc == 0 || data->config_crc == 0) {
+-			dev_info(dev, "CRC zero, attempting to apply config\n");
+-		} else if (config_crc == data->config_crc) {
+-			dev_dbg(dev, "Config CRC 0x%06X: OK\n",
+-				 data->config_crc);
+-			ret = 0;
+-			goto release_raw;
+-		} else {
+-			dev_info(dev, "Config CRC 0x%06X: does not match file 0x%06X\n",
+-				 data->config_crc, config_crc);
+-		}
+-	} else {
+-		dev_warn(dev,
+-			 "Warning: Info CRC error - device=0x%06X file=0x%06X\n",
+-			 data->info_crc, info_crc);
+-	}
+-
+ 	/* Malloc memory to store configuration */
+ 	cfg.start_ofs = MXT_OBJECT_START +
+ 			data->info->object_num * sizeof(struct mxt_object) +
+@@ -2015,14 +1991,45 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	else
+ 		dev_warn(dev, "Could not find CRC start\n");
  
-+static void mxt_debug_msg_enable(struct mxt_data *data)
-+{
-+	struct device *dev = &data->client->dev;
-+
-+	if (data->debug_v2_enabled)
-+		return;
-+
-+	mutex_lock(&data->debug_msg_lock);
-+
-+	data->debug_msg_data = kcalloc(DEBUG_MSG_MAX,
-+				data->T5_msg_size, GFP_KERNEL);
-+	if (!data->debug_msg_data) {
-+		mutex_unlock(&data->debug_msg_lock);
-+		return;
-+	}
-+
-+	data->debug_v2_enabled = true;
-+	mutex_unlock(&data->debug_msg_lock);
-+
-+	dev_dbg(dev, "Enabled message output\n");
-+}
-+
-+static void mxt_debug_msg_disable(struct mxt_data *data)
-+{
-+	struct device *dev = &data->client->dev;
-+
-+	if (!data->debug_v2_enabled)
-+		return;
-+
-+	mutex_lock(&data->debug_msg_lock);
-+
-+	data->debug_v2_enabled = false;
-+
-+	kfree(data->debug_msg_data);
-+	data->debug_msg_data = NULL;
-+	data->debug_msg_count = 0;
-+	mutex_unlock(&data->debug_msg_lock);
-+	dev_dbg(dev, "Disabled message output\n");
-+}
-+
-+static void mxt_debug_msg_add(struct mxt_data *data, u8 *msg)
-+{
-+	struct device *dev = &data->client->dev;
-+
-+	mutex_lock(&data->debug_msg_lock);
-+
-+	if (!data->debug_msg_data) {
-+		mutex_unlock(&data->debug_msg_lock);
-+		dev_err(dev, "No buffer!\n");
-+		return;
-+	}
-+
-+	if (data->debug_msg_count < DEBUG_MSG_MAX) {
-+		memcpy(data->debug_msg_data +
-+		       data->debug_msg_count * data->T5_msg_size,
-+		       msg,
-+		       data->T5_msg_size);
-+		data->debug_msg_count++;
-+	} else {
-+		dev_dbg(dev, "Discarding %u messages\n", data->debug_msg_count);
-+		data->debug_msg_count = 0;
-+	}
-+
-+	mutex_unlock(&data->debug_msg_lock);
-+
-+	sysfs_notify(&data->client->dev.kobj, NULL, "debug_notify");
-+}
-+
-+static ssize_t mxt_debug_msg_read(struct file *filp, struct kobject *kobj,
-+	struct bin_attribute *bin_attr, char *buf, loff_t off, size_t bytes)
-+{
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	int count;
-+	size_t bytes_read;
-+
-+	if (!data->debug_msg_data) {
-+		dev_err(dev, "No buffer!\n");
-+		return 0;
-+	}
-+
-+	count = bytes / data->T5_msg_size;
-+
-+	if (count > DEBUG_MSG_MAX)
-+		count = DEBUG_MSG_MAX;
-+
-+	mutex_lock(&data->debug_msg_lock);
-+
-+	if (count > data->debug_msg_count)
-+		count = data->debug_msg_count;
-+
-+	bytes_read = count * data->T5_msg_size;
-+
-+	memcpy(buf, data->debug_msg_data, bytes_read);
-+	data->debug_msg_count = 0;
-+
-+	mutex_unlock(&data->debug_msg_lock);
-+
-+	return bytes_read;
-+}
-+
-+static struct bin_attribute debug_msg_attr = {
-+	.attr = {
-+		.name = "debug_msg",
-+		.mode = 0444,
-+	},
-+	.read = mxt_debug_msg_read,
-+};
-+
-+static int mxt_debug_msg_init(struct mxt_data *data)
-+{
-+	/*
-+	 * Binary attribute is not used in callback, removal is done by name,
-+	 * so it is safe to update a single struct bin_attribute entity
+-	if (crc_start > cfg.start_ofs) {
++	if (crc_start > cfg.start_ofs)
+ 		calculated_crc = mxt_calculate_crc(cfg.mem,
+ 						   crc_start - cfg.start_ofs,
+ 						   cfg.mem_size);
+ 
+-		if (config_crc > 0 && config_crc != calculated_crc)
+-			dev_warn(dev, "Config CRC in file inconsistent, calculated=%06X, file=%06X\n",
+-				 calculated_crc, config_crc);
++	/* If the CRC stored in the file is not the same as what
++	 * was calculated by mxt_calculate_crc, this means we
++	 * have to refuse the config file and abort download.
 +	 */
-+	debug_msg_attr.size = data->T5_msg_size * DEBUG_MSG_MAX;
-+
-+	if (sysfs_create_bin_file(&data->client->dev.kobj,
-+				  &debug_msg_attr) < 0) {
-+		dev_err(&data->client->dev, "Failed to create %s\n",
-+			debug_msg_attr.attr.name);
-+		return -EINVAL;
++	if (config_crc != calculated_crc) {
++		dev_warn(dev,
++			 "Config CRC in file inconsistent, calculated=%06X, file=%06X\n",
++			 calculated_crc, config_crc);
++		ret = 0;
++		goto release_mem;
 +	}
 +
-+	data->debug_msg_attr = &debug_msg_attr;
-+
-+	return 0;
-+}
-+
-+static void mxt_debug_msg_remove(struct mxt_data *data)
-+{
-+	if (data->debug_msg_attr) {
-+		sysfs_remove_bin_file(&data->client->dev.kobj,
-+				      data->debug_msg_attr);
-+		data->debug_msg_attr = NULL;
-+	}
-+}
-+
- static int mxt_wait_for_completion(struct mxt_data *data,
- 				   struct completion *comp,
- 				   unsigned int timeout_ms)
-@@ -1256,6 +1401,9 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	if (dump)
- 		mxt_dump_message(data, message);
- 
-+	if (data->debug_v2_enabled)
-+		mxt_debug_msg_add(data, message);
-+
- 	return 1;
- }
- 
-@@ -2674,6 +2822,10 @@ static int mxt_initialize(struct mxt_data *data)
- 	if (error)
- 		return error;
- 
-+	error = mxt_debug_msg_init(data);
-+	if (error)
-+		goto err_free_sysfs;
-+
- 	if (data->cfg_name) {
- 		error = request_firmware_nowait(THIS_MODULE, true,
- 						data->cfg_name,
-@@ -2683,16 +2835,18 @@ static int mxt_initialize(struct mxt_data *data)
- 		if (error) {
- 			dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
- 				error);
--			goto err_free_sysfs;
-+			goto err_free_dbg_msg;
- 		}
- 	} else {
- 		error = mxt_configure_objects(data, NULL);
- 		if (error)
--			goto err_free_sysfs;
-+			goto err_free_dbg_msg;
++	/*
++	 * The Info Block CRC is calculated over mxt_info and the object
++	 * table. If it does not match then we are trying to load the
++	 * configuration from a different chip or firmware version, so
++	 * the configuration CRC is invalid anyway.
++	 */
++	if (info_crc == data->info_crc) {
++		if (config_crc == 0 || data->config_crc == 0) {
++			dev_info(dev, "CRC zero, attempting to apply config\n");
++		} else if (config_crc == data->config_crc) {
++			dev_dbg(dev, "Config CRC 0x%06X: OK\n",
++				data->config_crc);
++			ret = 0;
++			goto release_mem;
++		} else {
++			dev_info(dev, "Config CRC 0x%06X: does not match file 0x%06X\n",
++				 data->config_crc, config_crc);
++		}
++	} else {
++		dev_warn(dev,
++			 "Warning: Info CRC error - device=0x%06X file=0x%06X\n",
++			 data->info_crc, info_crc);
  	}
  
- 	return 0;
- 
-+err_free_dbg_msg:
-+	mxt_debug_msg_remove(data);
- err_free_sysfs:
- 	mxt_sysfs_remove(data);
- 	return error;
-@@ -3354,6 +3508,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
- 			return ret;
- 
- 		data->in_bootloader = true;
-+		mxt_debug_msg_remove(data);
- 		mxt_sysfs_remove(data);
- 		mxt_free_input_device(data);
- 		mxt_free_object_table(data);
-@@ -3527,6 +3682,44 @@ static ssize_t update_cfg_store(struct device *dev,
- 	return ret;
- }
- 
-+static ssize_t debug_notify_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	return sprintf(buf, "0\n");
-+}
-+
-+static ssize_t debug_v2_enable_store(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	u8 i;
-+	ssize_t ret;
-+
-+	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
-+		if (i == 1)
-+			mxt_debug_msg_enable(data);
-+		else
-+			mxt_debug_msg_disable(data);
-+
-+		ret = count;
-+	} else {
-+		dev_dbg(dev, "debug_enabled write error\n");
-+		ret = -EINVAL;
-+	}
-+
-+	return ret;
-+}
-+
-+static ssize_t debug_v2_enable_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	char c;
-+
-+	c = data->debug_v2_enabled ? '1' : '0';
-+	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
-+}
-+
- static ssize_t debug_enable_show(struct device *dev,
- 	struct device_attribute *attr, char *buf)
- {
-@@ -3574,6 +3767,8 @@ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
- static DEVICE_ATTR_WO(update_cfg);
- static DEVICE_ATTR_RO(config_crc);
- static DEVICE_ATTR_RW(debug_enable);
-+static DEVICE_ATTR_RW(debug_v2_enable);
-+static DEVICE_ATTR_RO(debug_notify);
- 
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
-@@ -3582,6 +3777,8 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_update_cfg.attr,
- 	&dev_attr_config_crc.attr,
- 	&dev_attr_debug_enable.attr,
-+	&dev_attr_debug_v2_enable.attr,
-+	&dev_attr_debug_notify.attr,
- 	NULL
- };
- 
-@@ -3871,6 +4068,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	init_completion(&data->chg_completion);
- 	init_completion(&data->reset_completion);
- 	init_completion(&data->crc_completion);
-+	mutex_init(&data->debug_msg_lock);
- 
- 	data->suspend_mode = dmi_check_system(chromebook_T9_suspend_dmi) ?
- 		MXT_SUSPEND_T9_CTRL : MXT_SUSPEND_DEEP_SLEEP;
-@@ -3929,6 +4127,7 @@ static int mxt_remove(struct i2c_client *client)
- 
- 	disable_irq(data->irq);
- 	sysfs_remove_group(&client->dev.kobj, &mxt_fw_attr_group);
-+	mxt_debug_msg_remove(data);
- 	mxt_sysfs_remove(data);
- 	mxt_free_input_device(data);
- 	mxt_free_object_table(data);
+ 	ret = mxt_upload_cfg_mem(data, &cfg);
 -- 
 2.17.1
 

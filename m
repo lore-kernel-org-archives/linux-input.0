@@ -2,38 +2,38 @@ Return-Path: <SRS0=RdzF=5Q=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98320C2D0EF
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52EFEC43331
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6E47A208E0
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28ABA208E0
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730532AbgCaKww (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 31 Mar 2020 06:52:52 -0400
+        id S1730643AbgCaKxL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 31 Mar 2020 06:53:11 -0400
 Received: from esa4.mentor.iphmx.com ([68.232.137.252]:43597 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730799AbgCaKwv (ORCPT
+        with ESMTP id S1730766AbgCaKxK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Mar 2020 06:52:51 -0400
-IronPort-SDR: Mh/9UWCrg97px4e3TZ3cK39kjE4R65MYk++NVbRlEZ1Tf8mg6+Nu3fQHDyPhsdprs9em5jgnsU
- qpaGG5kJZRGzEwFomARDdJu+iXMy/ivVZ7m8z26KZc8HtNx3NdljUTmJ6HzfX09fo9UUq36gDd
- aZcW6KWG66xe1YKikqPFszNRjkLAf7lYkiqY4NLE8Ir8oSoqKChWvmbot7QJyIBVs8zT7ieA2n
- us8HzgAT4gMUxTUKrxF4YVy1fzPJJhGvJefV/WTSUKF0Iopi8UPc6yUYZ7TYTC/mqeGhtpixUJ
- eoQ=
+        Tue, 31 Mar 2020 06:53:10 -0400
+IronPort-SDR: Ds65TfAuPeyb8ttfU7EnC9b6LerEgUpIwPQBrUbN4i/GZnm17p5I3ZnV8wChRd6IGSAAmWj3nv
+ 3V6rV3lYV9a8EmszoE/TYomNNv6gr3XrtSHNHilvM0YLpr0GkT5x4Qmv/w0bBBcRtSDzUznktA
+ RytFLDNllcBE2/ZVt1HvtdeOPaxNvr1f0oXmVxU4dc8Pxnpv/rwleTeZymu1snqV7G8BOv1Etf
+ NBx2E0ELNC0InyytXsfjGQUTAaXOIw0FoQcZhJUtCJpwLuMyWWxS5+5CLejcOeGjXfhrViN7nj
+ XV4=
 X-IronPort-AV: E=Sophos;i="5.72,327,1580803200"; 
-   d="scan'208";a="47330797"
+   d="scan'208";a="47330809"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:52:50 -0800
-IronPort-SDR: x4h9gm0LaMB3S3kcae4s4iEsM63QLi5ivHF7rv9DXsc0/qOmYAySRaYSuAESOk+0HAseTLOJix
- R/aK680gv7efy5cgmDaNyOe4MMZV7OBGyRcDjMof0nfVdjnrcgJ7747O3QLoZGYWzrNY3FvSUR
- TpZxqRcBXmByw8yMxArhdIT2bAB10iUwcOe9gCj2Jn7WiDmS2sUw+6IxDZEsmpc/aMzH+SYJtU
- B2VF44Y6N1nTWGpw5e6//f47Vn+8glnxViA+JIOX27S8JrWXMfCXH6GoYIAsQdBq/gqNObOdnY
- Cm0=
+  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:53:09 -0800
+IronPort-SDR: 8vJxkwoK2Oi3tRJ0V0rDBvL951PtxCI/NVWu64VQg9E+XzDTLRqeiIkYBv9qHL+F8PS54SlPo6
+ gvcx80cdo1+3w9L4BsevUqkiKtQ7lKF2oLuTM6z9wOcBvHavF+r2oZ09faB28djpyq7b4ibkb7
+ sk2PZomxy2oAoABC3WPD0FJfwJo6CVXOldy4HExUJgOWnzOQNYnsm9lvJbEU0PW8xktKxd0di3
+ UMY4veUt7mf1dYdQ8t29KKqsUS82tFuCxtoFG7eygkCOfsrZt1REzzSxKREqHBF789SLKtinRY
+ 6aw=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v10 30/55] Input: atmel_mxt_ts - make bootloader interrupt driven
-Date:   Tue, 31 Mar 2020 03:50:26 -0700
-Message-ID: <20200331105051.58896-31-jiada_wang@mentor.com>
+Subject: [PATCH v10 35/55] Input: atmel_mxt_ts - implement improved debug message interface
+Date:   Tue, 31 Mar 2020 03:50:31 -0700
+Message-ID: <20200331105051.58896-36-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200331105051.58896-1-jiada_wang@mentor.com>
 References: <20200331105051.58896-1-jiada_wang@mentor.com>
@@ -56,298 +56,332 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Make bootloader interrupt driven
+Implement improved debug message interface
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 67a3eea0cfc724c3c2a7410ac064f74227c7c6ef)
-[gdavis: Resolve forward port conflicts due to applying upstream
-	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
-	 data support").]
+(cherry picked from ndyer/linux/for-upstream commit 078569c13c88dcb6f8d882bfe17168587712df7d)
+[gdavis: Resolve forward port conflicts due to v4.14.51 commit
+	 960fe000b1d3 ("Input: atmel_mxt_ts - fix the firmware
+	 update").]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Replace two use msecs_to_jiffies() instead of HZ,
-	remove check of &data->flash->work
-	don't poll to call mxt_check_bootloader() in mxt_check_bootloader()]
-Reported-by: kbuild test robot <lkp@intel.com>
+[gdavis: Squash fixes from Dirk Behme:
+	 - Input: atmel_mxt_ts - add missing unlock in error path
+	 - Input: atmel_mxt_ts - add missing unlock in error path
+	 - Input: atmel_mxt_ts - call mxt_debug_msg_remove() in error path
+	 - Input: atmel_mxt_ts - protect debug_v2_enabled by mutex
+Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
+[gdavis: Squash fix from Vladimir Zapolskiy:
+	 - Input: atmel_mxt_ts - simplify debug_msg binary attribute
+	   handling]
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+[jiada: Rename mxt_debug_notify_show to debug_notify_show
+	Rename mxt_debug_v2_enable_store to debug_v2_enable_store
+	Add debug_v2_enable_show
+	Replace DEVICE_ATTR with DEVICE_ATTR_[RW|RO] ]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 127 ++++++++++-------------
- 1 file changed, 57 insertions(+), 70 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 203 ++++++++++++++++++++++-
+ 1 file changed, 201 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ed142b24d12d..62f11afb26ae 100644
+index 656d956f9c93..9476326596d9 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -27,6 +27,7 @@
- #include <linux/gpio/consumer.h>
- #include <asm/unaligned.h>
- #include <linux/regulator/consumer.h>
-+#include <linux/workqueue.h>
- #include <media/v4l2-device.h>
- #include <media/v4l2-ioctl.h>
- #include <media/videobuf2-v4l2.h>
-@@ -218,6 +219,7 @@ enum t100_type {
- #define MXT_REGULATOR_DELAY	150	/* msec */
- #define MXT_CHG_DELAY		100	/* msec */
- #define MXT_POWERON_DELAY	150	/* msec */
-+#define MXT_BOOTLOADER_WAIT	36E5	/* 1 minute */
+@@ -242,6 +242,8 @@ enum t100_type {
  
- /* Command to unlock bootloader */
- #define MXT_UNLOCK_CMD_MSB	0xaa
-@@ -299,6 +301,7 @@ struct mxt_fw_frame {
+ #define MXT_PIXELS_PER_MM	20
  
- /* Firmware update context */
- struct mxt_flash {
-+	struct mxt_data *data;
- 	const struct firmware *fw;
- 	struct mxt_fw_frame *frame;
- 	loff_t pos;
-@@ -306,8 +309,8 @@ struct mxt_flash {
- 	unsigned int count;
- 	unsigned int retry;
- 	u8 previous;
--	bool complete;
--	bool wait;
-+	struct completion flash_completion;
-+	struct delayed_work work;
- };
- 
- /* Each client has this additional data */
-@@ -356,6 +359,7 @@ struct mxt_data {
- 	char *cfg_name;
- 	const char *pcfg_name;
- 	const char *input_name;
-+	struct mxt_flash *flash;
- 
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -600,35 +604,19 @@ static int mxt_write_firmware_frame(struct mxt_data *data, struct mxt_flash *f)
- 				   f->frame_size);
++#define DEBUG_MSG_MAX		200
++
+ struct mxt_info {
+ 	u8 family_id;
+ 	u8 variant_id;
+@@ -336,6 +338,11 @@ struct mxt_data {
+ 	u8 t100_aux_area;
+ 	u8 t100_aux_vect;
+ 	bool debug_enabled;
++	bool debug_v2_enabled;
++	u8 *debug_msg_data;
++	u16 debug_msg_count;
++	struct bin_attribute *debug_msg_attr;
++	struct mutex debug_msg_lock;
+ 	u8 max_reportid;
+ 	u32 config_crc;
+ 	u32 info_crc;
+@@ -468,6 +475,144 @@ static void mxt_dump_message(struct mxt_data *data, u8 *message)
+ 		       data->T5_msg_size, message);
  }
  
--static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
-+static int mxt_check_bootloader(struct mxt_data *data)
- {
- 	struct device *dev = &data->client->dev;
-+	struct mxt_flash *f = data->flash;
- 	u8 state;
- 	int ret;
- 
--	if (f->wait) {
--		/*
--		 * In application update mode, the interrupt
--		 * line signals state transitions. We must wait for the
--		 * CHG assertion before reading the status byte.
--		 * Once the status byte has been read, the line is deasserted.
--		 */
--		ret = mxt_wait_for_completion(data, &data->chg_completion,
--					      MXT_FW_CHG_TIMEOUT);
--		if (ret) {
--			/*
--			 * TODO: handle -ERESTARTSYS better by terminating
--			 * fw update process before returning to userspace
--			 * by writing length 0x000 to device (iff we are in
--			 * WAITING_FRAME_DATA state).
--			 */
--			dev_warn(dev, "Update wait error %d\n", ret);
--			return ret;
--		}
-+	/* Handle interrupt after download/flash process */
-+	if (f->pos >= f->fw->size) {
-+		complete(&f->flash_completion);
++static void mxt_debug_msg_enable(struct mxt_data *data)
++{
++	struct device *dev = &data->client->dev;
++
++	if (data->debug_v2_enabled)
++		return;
++
++	mutex_lock(&data->debug_msg_lock);
++
++	data->debug_msg_data = kcalloc(DEBUG_MSG_MAX,
++				data->T5_msg_size, GFP_KERNEL);
++	if (!data->debug_msg_data) {
++		mutex_unlock(&data->debug_msg_lock);
++		return;
++	}
++
++	data->debug_v2_enabled = true;
++	mutex_unlock(&data->debug_msg_lock);
++
++	dev_dbg(dev, "Enabled message output\n");
++}
++
++static void mxt_debug_msg_disable(struct mxt_data *data)
++{
++	struct device *dev = &data->client->dev;
++
++	if (!data->debug_v2_enabled)
++		return;
++
++	mutex_lock(&data->debug_msg_lock);
++
++	data->debug_v2_enabled = false;
++
++	kfree(data->debug_msg_data);
++	data->debug_msg_data = NULL;
++	data->debug_msg_count = 0;
++	mutex_unlock(&data->debug_msg_lock);
++	dev_dbg(dev, "Disabled message output\n");
++}
++
++static void mxt_debug_msg_add(struct mxt_data *data, u8 *msg)
++{
++	struct device *dev = &data->client->dev;
++
++	mutex_lock(&data->debug_msg_lock);
++
++	if (!data->debug_msg_data) {
++		mutex_unlock(&data->debug_msg_lock);
++		dev_err(dev, "No buffer!\n");
++		return;
++	}
++
++	if (data->debug_msg_count < DEBUG_MSG_MAX) {
++		memcpy(data->debug_msg_data +
++		       data->debug_msg_count * data->T5_msg_size,
++		       msg,
++		       data->T5_msg_size);
++		data->debug_msg_count++;
++	} else {
++		dev_dbg(dev, "Discarding %u messages\n", data->debug_msg_count);
++		data->debug_msg_count = 0;
++	}
++
++	mutex_unlock(&data->debug_msg_lock);
++
++	sysfs_notify(&data->client->dev.kobj, NULL, "debug_notify");
++}
++
++static ssize_t mxt_debug_msg_read(struct file *filp, struct kobject *kobj,
++	struct bin_attribute *bin_attr, char *buf, loff_t off, size_t bytes)
++{
++	struct device *dev = container_of(kobj, struct device, kobj);
++	struct mxt_data *data = dev_get_drvdata(dev);
++	int count;
++	size_t bytes_read;
++
++	if (!data->debug_msg_data) {
++		dev_err(dev, "No buffer!\n");
 +		return 0;
- 	}
- 
--	f->wait = false;
--
- 	ret = mxt_bootloader_read(data, &state, 1);
- 	if (ret)
- 		return ret;
-@@ -643,7 +631,6 @@ static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
- 		ret = mxt_send_bootloader_cmd(data, true);
- 		if (ret)
- 			return ret;
--		f->wait = true;
- 
- 		break;
- 
-@@ -657,14 +644,11 @@ static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
- 		if (ret)
- 			return ret;
- 
--		f->wait = true;
--
- 		break;
- 
- 	case MXT_FRAME_CRC_CHECK:
- 		if (f->previous != MXT_WAITING_FRAME_DATA)
- 			goto unexpected;
--		f->wait = true;
- 		break;
- 
- 	case MXT_FRAME_CRC_PASS:
-@@ -675,16 +659,13 @@ static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
- 		f->retry = 0;
- 		f->pos += f->frame_size;
- 		f->count++;
--		f->wait = true;
- 
--		if (f->pos >= f->fw->size) {
--			f->complete = true;
-+		if (f->pos >= f->fw->size)
- 			dev_info(dev, "Sent %u frames, %zu bytes\n",
- 				f->count, f->fw->size);
--		} else if (f->count % 50 == 0) {
-+		else if (f->count % 50 == 0)
- 			dev_dbg(dev, "Sent %u frames, %lld/%zu bytes\n",
- 				f->count, f->pos, f->fw->size);
--		}
- 
- 		break;
- 
-@@ -697,7 +678,6 @@ static int mxt_check_bootloader(struct mxt_data *data, struct mxt_flash *f)
- 		/* Back off by 20ms per retry */
- 		dev_dbg(dev, "Bootloader frame CRC failure\n");
- 		f->retry++;
--		f->wait = true;
- 		msleep(f->retry * 20);
- 		break;
- 
-@@ -1415,7 +1395,11 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 
- 	if (data->in_bootloader) {
- 		complete(&data->chg_completion);
--		return IRQ_HANDLED;
++	}
 +
-+		if (data->flash)
-+			cancel_delayed_work_sync(&data->flash->work);
++	count = bytes / data->T5_msg_size;
 +
-+		return IRQ_RETVAL(mxt_check_bootloader(data));
++	if (count > DEBUG_MSG_MAX)
++		count = DEBUG_MSG_MAX;
++
++	mutex_lock(&data->debug_msg_lock);
++
++	if (count > data->debug_msg_count)
++		count = data->debug_msg_count;
++
++	bytes_read = count * data->T5_msg_size;
++
++	memcpy(buf, data->debug_msg_data, bytes_read);
++	data->debug_msg_count = 0;
++
++	mutex_unlock(&data->debug_msg_lock);
++
++	return bytes_read;
++}
++
++static struct bin_attribute debug_msg_attr = {
++	.attr = {
++		.name = "debug_msg",
++		.mode = 0444,
++	},
++	.read = mxt_debug_msg_read,
++};
++
++static int mxt_debug_msg_init(struct mxt_data *data)
++{
++	/*
++	 * Binary attribute is not used in callback, removal is done by name,
++	 * so it is safe to update a single struct bin_attribute entity
++	 */
++	debug_msg_attr.size = data->T5_msg_size * DEBUG_MSG_MAX;
++
++	if (sysfs_create_bin_file(&data->client->dev.kobj,
++				  &debug_msg_attr) < 0) {
++		dev_err(&data->client->dev, "Failed to create %s\n",
++			debug_msg_attr.attr.name);
++		return -EINVAL;
++	}
++
++	data->debug_msg_attr = &debug_msg_attr;
++
++	return 0;
++}
++
++static void mxt_debug_msg_remove(struct mxt_data *data)
++{
++	if (data->debug_msg_attr) {
++		sysfs_remove_bin_file(&data->client->dev.kobj,
++				      data->debug_msg_attr);
++		data->debug_msg_attr = NULL;
++	}
++}
++
+ static int mxt_wait_for_completion(struct mxt_data *data,
+ 				   struct completion *comp,
+ 				   unsigned int timeout_ms)
+@@ -1256,6 +1401,9 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	if (dump)
+ 		mxt_dump_message(data, message);
+ 
++	if (data->debug_v2_enabled)
++		mxt_debug_msg_add(data, message);
++
+ 	return 1;
+ }
+ 
+@@ -2674,6 +2822,10 @@ static int mxt_initialize(struct mxt_data *data)
+ 	if (error)
+ 		return error;
+ 
++	error = mxt_debug_msg_init(data);
++	if (error)
++		goto err_free_sysfs;
++
+ 	if (data->cfg_name) {
+ 		error = request_firmware_nowait(THIS_MODULE, true,
+ 						data->cfg_name,
+@@ -2683,16 +2835,18 @@ static int mxt_initialize(struct mxt_data *data)
+ 		if (error) {
+ 			dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
+ 				error);
+-			goto err_free_sysfs;
++			goto err_free_dbg_msg;
+ 		}
+ 	} else {
+ 		error = mxt_configure_objects(data, NULL);
+ 		if (error)
+-			goto err_free_sysfs;
++			goto err_free_dbg_msg;
  	}
  
- 	if (!data->object_table)
-@@ -3316,16 +3300,13 @@ static int mxt_enter_bootloader(struct mxt_data *data)
- 		if (data->suspend_mode == MXT_SUSPEND_REGULATOR)
- 			mxt_regulator_enable(data);
+ 	return 0;
  
--		if (data->suspend_mode == MXT_SUSPEND_DEEP_SLEEP)
--			enable_irq(data->irq);
--
- 		data->suspended = false;
- 	}
- 
- 	if (!data->in_bootloader) {
--		/* Change to the bootloader mode */
--		data->in_bootloader = true;
-+		disable_irq(data->irq);
- 
-+		/* Change to the bootloader mode */
- 		ret = mxt_t6_command(data, MXT_COMMAND_RESET,
- 				     MXT_BOOT_VALUE, false);
- 		if (ret)
-@@ -3338,67 +3319,73 @@ static int mxt_enter_bootloader(struct mxt_data *data)
- 		if (ret)
++err_free_dbg_msg:
++	mxt_debug_msg_remove(data);
+ err_free_sysfs:
+ 	mxt_sysfs_remove(data);
+ 	return error;
+@@ -3354,6 +3508,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
  			return ret;
  
-+		data->in_bootloader = true;
+ 		data->in_bootloader = true;
++		mxt_debug_msg_remove(data);
  		mxt_sysfs_remove(data);
  		mxt_free_input_device(data);
  		mxt_free_object_table(data);
--	} else {
--		enable_irq(data->irq);
- 	}
- 
--	reinit_completion(&data->chg_completion);
-+	dev_dbg(&data->client->dev, "Entered bootloader\n");
- 
- 	return 0;
- }
- 
-+static void mxt_fw_work(struct work_struct *work)
-+{
-+	struct mxt_flash *f =
-+		container_of(work, struct mxt_flash, work.work);
-+
-+	mxt_check_bootloader(f->data);
-+}
-+
- static int mxt_load_fw(struct device *dev)
- {
- 	struct mxt_data *data = dev_get_drvdata(dev);
--	struct mxt_flash f = { 0, };
- 	int ret;
- 
--	ret = request_firmware(&f.fw, data->fw_name, dev);
-+	data->flash = devm_kzalloc(dev, sizeof(struct mxt_flash), GFP_KERNEL);
-+	if (!data->flash)
-+		return -ENOMEM;
-+
-+	data->flash->data = data;
-+
-+	ret = request_firmware(&data->flash->fw, data->fw_name, dev);
- 	if (ret) {
- 		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
--		return ret;
-+		goto free;
- 	}
- 
- 	/* Check for incorrect enc file */
--	ret = mxt_check_firmware_format(dev, f.fw);
-+	ret = mxt_check_firmware_format(dev, data->flash->fw);
- 	if (ret)
- 		goto release_firmware;
- 
--	ret = mxt_enter_bootloader(data);
--	if (ret)
--		goto release_firmware;
-+	init_completion(&data->flash->flash_completion);
-+	INIT_DELAYED_WORK(&data->flash->work, mxt_fw_work);
-+	reinit_completion(&data->flash->flash_completion);
- 
--	while (true) {
--		ret = mxt_check_bootloader(data, &f);
-+	if (!data->in_bootloader) {
-+		ret = mxt_enter_bootloader(data);
- 		if (ret)
--			return ret;
--
--		if (f.complete)
--			break;
-+			goto release_firmware;
- 	}
- 
--	/* Wait for flash. */
--	ret = mxt_wait_for_completion(data, &data->chg_completion,
--				      MXT_FW_RESET_TIME);
--	if (ret)
--		goto disable_irq;
-+	enable_irq(data->irq);
- 
-+	/* Poll after 0.1s if no interrupt received */
-+	schedule_delayed_work(&data->flash->work, msecs_to_jiffies(100));
- 
--	/*
--	 * Wait for device to reset. Some bootloader versions do not assert
--	 * the CHG line after bootloading has finished, so ignore potential
--	 * errors.
--	 */
--	mxt_wait_for_completion(data, &data->chg_completion, MXT_FW_RESET_TIME);
-+	/* Wait for flash. */
-+	ret = mxt_wait_for_completion(data, &data->flash->flash_completion,
-+				      MXT_BOOTLOADER_WAIT);
- 
--	data->in_bootloader = false;
--disable_irq:
- 	disable_irq(data->irq);
-+	cancel_delayed_work_sync(&data->flash->work);
-+	data->in_bootloader = false;
- release_firmware:
--	release_firmware(f.fw);
-+	release_firmware(data->flash->fw);
-+free:
-+	devm_kfree(dev, data->flash);
+@@ -3527,6 +3682,44 @@ static ssize_t update_cfg_store(struct device *dev,
  	return ret;
  }
  
++static ssize_t debug_notify_show(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++	return sprintf(buf, "0\n");
++}
++
++static ssize_t debug_v2_enable_store(struct device *dev,
++	struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	u8 i;
++	ssize_t ret;
++
++	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
++		if (i == 1)
++			mxt_debug_msg_enable(data);
++		else
++			mxt_debug_msg_disable(data);
++
++		ret = count;
++	} else {
++		dev_dbg(dev, "debug_enabled write error\n");
++		ret = -EINVAL;
++	}
++
++	return ret;
++}
++
++static ssize_t debug_v2_enable_show(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	char c;
++
++	c = data->debug_v2_enabled ? '1' : '0';
++	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
++}
++
+ static ssize_t debug_enable_show(struct device *dev,
+ 	struct device_attribute *attr, char *buf)
+ {
+@@ -3574,6 +3767,8 @@ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR_WO(update_cfg);
+ static DEVICE_ATTR_RO(config_crc);
+ static DEVICE_ATTR_RW(debug_enable);
++static DEVICE_ATTR_RW(debug_v2_enable);
++static DEVICE_ATTR_RO(debug_notify);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+@@ -3582,6 +3777,8 @@ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_update_cfg.attr,
+ 	&dev_attr_config_crc.attr,
+ 	&dev_attr_debug_enable.attr,
++	&dev_attr_debug_v2_enable.attr,
++	&dev_attr_debug_notify.attr,
+ 	NULL
+ };
+ 
+@@ -3871,6 +4068,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	init_completion(&data->chg_completion);
+ 	init_completion(&data->reset_completion);
+ 	init_completion(&data->crc_completion);
++	mutex_init(&data->debug_msg_lock);
+ 
+ 	data->suspend_mode = dmi_check_system(chromebook_T9_suspend_dmi) ?
+ 		MXT_SUSPEND_T9_CTRL : MXT_SUSPEND_DEEP_SLEEP;
+@@ -3929,6 +4127,7 @@ static int mxt_remove(struct i2c_client *client)
+ 
+ 	disable_irq(data->irq);
+ 	sysfs_remove_group(&client->dev.kobj, &mxt_fw_attr_group);
++	mxt_debug_msg_remove(data);
+ 	mxt_sysfs_remove(data);
+ 	mxt_free_input_device(data);
+ 	mxt_free_object_table(data);
 -- 
 2.17.1
 

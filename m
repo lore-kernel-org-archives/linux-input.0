@@ -4,36 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 963CFC2D0EE
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:51:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35F0EC43331
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6CB2320B1F
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:51:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 136012137B
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730436AbgCaKvw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 31 Mar 2020 06:51:52 -0400
+        id S1730666AbgCaKwA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 31 Mar 2020 06:52:00 -0400
 Received: from esa4.mentor.iphmx.com ([68.232.137.252]:43515 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730433AbgCaKvu (ORCPT
+        with ESMTP id S1730684AbgCaKv6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Mar 2020 06:51:50 -0400
-IronPort-SDR: U3X0+ElcFdZO99sjuo/5i6gpf6OaDJT0iRfT4AdduUerUnpwLFJiXtLm8tyNI/rjOWefrbVByj
- 7/cfs8rr0Cib/gELZNtkKDlWcAA55hNLVlfDlBa0l66pSbpB8DSv2jT3W8fRWNMLMgV6Gr28nT
- 3Es8vt5rbHjBaqbu/T1vf0D1pvjam1CZPF8KOl7bA8DwilossogEiXbi3QyLuTPNcKWwhOSR7r
- 1BwK7N2utjGmdja7upGF6vvLAG0oBG3jKgQs34O2ZaPW9t56NW3l5VaA95QlAvW/cMpew2eOBu
- VXk=
+        Tue, 31 Mar 2020 06:51:58 -0400
+IronPort-SDR: 8vCeKGR31NetsJDRf8kDAhYQpJgj+JSffQptrZcmgTEeTBvcSdQeQABtTTvFy4jR25YBi30Erc
+ I/llmdyQVdAfz64jTBPpNn80ClBXzSmVlojPZWE/Qr4bPfZXnmg66Kn8cKx686dMuWeCoU/Fn8
+ VFEDoegnOokdrSihF0eYSni/d7ru+Gwy4rq++83LW4FPgTBTqxSVohpCsLmMgMe7J0Zqn9BX8E
+ es/d5UQSJeL6GN7Zm7WiyI8SbnXF2rLVE7QhwMicEfX+7Yzp0krPW9oNPrqL50WMayBO22KzBT
+ Kfo=
 X-IronPort-AV: E=Sophos;i="5.72,327,1580803200"; 
-   d="scan'208";a="47330748"
+   d="scan'208";a="47330752"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:51:50 -0800
-IronPort-SDR: 7I+4n7Dywgdg7JRZVzjzxmMKCj8CQmEAW8T+UIY8oHDQx+wBbh/b/4c7vi/X/j0cK08eOtHlEv
- Z8//VjmDYd20xr9vZFtt6HGdGtXXLkCx2ni9rq4xeHyXNVNfe+FoOFj8HkTausaY6VtmiK2YO6
- yqZRdmmnQEkZdjNMTW56izh/WKpaqXbESh5F3dPLA/UIW19zQIKq2VNQB5IjxcXTqqiyJw507b
- 7aPbt/e6vb0bACwF2VVCdD2GgRTaSkq8uDOWfF5dfa9k2KO8Jwx3fBsuHaD3mWbZOFIaZ4AqJa
- /3o=
+  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:51:57 -0800
+IronPort-SDR: /y1IIBwvHchPKSpluvbwTAmb/QFjiw6jMG2SJIs56Lcw3p+9InH0Tm/FJiNUU8BEAQ8ynkEeJr
+ yCyhelHJGWKyTKNucpMRiG4Hsi6iIQmmW4r/28w9as5j4so8VcnwfWfGSnzn3bLaDgldAeLUSD
+ SPUC4u+5lE42fR76L5ofcEck3AoI0T/Ge3M0/Q+a+jqfeH1eKalVZTu4DVbzCgsNoWP917x++5
+ HXxHVP7MkQI7SxR1W3CRM9h6DB98/SyBogFVVi5Or5CRwwXxURp56/rGxzdTHGOjyZBHY5XUmi
+ tgg=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +40,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v10 14/55] Input: atmel_mxt_ts - add regulator control support
-Date:   Tue, 31 Mar 2020 03:50:10 -0700
-Message-ID: <20200331105051.58896-15-jiada_wang@mentor.com>
+Subject: [PATCH v10 16/55] Input: atmel_mxt_ts - allow specification of firmware file name
+Date:   Tue, 31 Mar 2020 03:50:12 -0700
+Message-ID: <20200331105051.58896-17-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200331105051.58896-1-jiada_wang@mentor.com>
 References: <20200331105051.58896-1-jiada_wang@mentor.com>
@@ -56,247 +55,113 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Allow the driver to optionally manage enabling/disable power to the touch
-controller itself. If the regulators are not present then use the deep
-sleep power mode instead.
+On platforms which have multiple device instances using this driver, the
+firmware may be different on each device. This patch makes the user give
+the name of the firmware file when flashing.
 
-For a correct power on sequence, it is required that we have control over
-the RESET line.
+This also prevents accidental triggering of the firmware load process.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 14052b61bb66c2f2283c00e733e131be7a9b8bfc)
-[gdavis: Resolve forward port conflicts due to v4.14-rc1 commmit
-	 f657b00df22e ("Input: atmel_mxt_ts - add support for reset
-	 line") and applying upstream commit 96a938aa214e ("Input:
-	 atmel_mxt_ts - remove platform data support").]
+(cherry picked from ndyer/linux/for-upstream commit 76ebb7cee971cb42dfb0a3a9224403b8b09abcf1)
+[gdavis: Forward port and fix conflicts.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[gdavis: Squash fixes from Dirk Behme:
-	 - Input: atmel_mxt_ts - in failure case disable the regulator
-	 - Input: atmel_mxt_ts - disable only enabled regulators
-	 - Input: atmel_mxt_ts - use devm_regulator_get()]
-Signed-off-by: Dirk Behme <dirk.behme@de.bosch.com>
-[jiada: Replace white-spaces with tab for MXT_CHG_DELAY
-	separate Documentation/ and include/dt-bindings/ portion change to another commit]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 130 +++++++++++++++++++++--
- 1 file changed, 121 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 43 ++++++++++++++++++++----
+ 1 file changed, 37 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 9aafed92db9c..ef8baf64659e 100644
+index f8783e37436f..0e30ff372a43 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -26,10 +26,12 @@
- #include <linux/slab.h>
- #include <linux/gpio/consumer.h>
- #include <asm/unaligned.h>
-+#include <linux/regulator/consumer.h>
- #include <media/v4l2-device.h>
- #include <media/v4l2-ioctl.h>
- #include <media/videobuf2-v4l2.h>
+@@ -33,8 +33,7 @@
  #include <media/videobuf2-vmalloc.h>
-+#include <dt-bindings/input/atmel_mxt_ts.h>
+ #include <dt-bindings/input/atmel_mxt_ts.h>
  
- /* Firmware files */
- #define MXT_FW_NAME		"maxtouch.fw"
-@@ -215,6 +217,9 @@ enum t100_type {
- #define MXT_CRC_TIMEOUT		1000	/* msec */
- #define MXT_FW_RESET_TIME	3000	/* msec */
- #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-+#define MXT_REGULATOR_DELAY	150	/* msec */
-+#define MXT_CHG_DELAY		100	/* msec */
-+#define MXT_POWERON_DELAY	150	/* msec */
+-/* Firmware files */
+-#define MXT_FW_NAME		"maxtouch.fw"
++/* Configuration file */
+ #define MXT_CFG_NAME		"maxtouch.cfg"
+ #define MXT_CFG_MAGIC		"OBP_RAW V1"
  
- /* Command to unlock bootloader */
- #define MXT_UNLOCK_CMD_MSB	0xaa
-@@ -275,11 +280,6 @@ enum v4l_dbg_inputs {
- 	MXT_V4L_INPUT_MAX,
- };
- 
--enum mxt_suspend_mode {
--	MXT_SUSPEND_DEEP_SLEEP	= 0,
--	MXT_SUSPEND_T9_CTRL	= 1,
--};
--
- /* Config update context */
- struct mxt_cfg {
- 	u8 *raw;
-@@ -333,6 +333,8 @@ struct mxt_data {
- 	u8 stylus_aux_pressure;
- 	u8 stylus_aux_peak;
+@@ -335,6 +334,7 @@ struct mxt_data {
  	bool use_retrigen_workaround;
-+	struct regulator *reg_vdd;
-+	struct regulator *reg_avdd;
+ 	struct regulator *reg_vdd;
+ 	struct regulator *reg_avdd;
++	char *fw_name;
  
  	/* Cached parameters from object table */
  	u16 T5_address;
-@@ -2073,6 +2075,94 @@ static int mxt_read_info_block(struct mxt_data *data)
- 	return error;
+@@ -3207,7 +3207,7 @@ static int mxt_check_firmware_format(struct device *dev,
+ 	return -EINVAL;
  }
  
-+static void mxt_regulator_enable(struct mxt_data *data)
-+{
-+	int error;
-+
-+	if (!data->reg_vdd || !data->reg_avdd)
-+		return;
-+
-+	gpiod_set_value(data->reset_gpio, 0);
-+
-+	error = regulator_enable(data->reg_vdd);
-+	if (error)
-+		return;
-+
-+	error = regulator_enable(data->reg_avdd);
-+	if (error) {
-+		regulator_disable(data->reg_vdd);
-+		return;
-+	}
-+
-+	/*
-+	 * According to maXTouch power sequencing specification, RESET line
-+	 * must be kept low until some time after regulators come up to
-+	 * voltage
-+	 */
-+	msleep(MXT_REGULATOR_DELAY);
-+	gpiod_set_value(data->reset_gpio, 1);
-+	msleep(MXT_CHG_DELAY);
-+
-+retry_wait:
-+	reinit_completion(&data->bl_completion);
-+	data->in_bootloader = true;
-+	error = mxt_wait_for_completion(data, &data->bl_completion,
-+					MXT_POWERON_DELAY);
-+	if (error == -EINTR)
-+		goto retry_wait;
-+
-+	data->in_bootloader = false;
-+}
-+
-+static void mxt_regulator_disable(struct mxt_data *data)
-+{
-+	if (!data->reg_vdd || !data->reg_avdd)
-+		return;
-+
-+	if (regulator_is_enabled(data->reg_vdd))
-+		regulator_disable(data->reg_vdd);
-+	if (regulator_is_enabled(data->reg_avdd))
-+		regulator_disable(data->reg_avdd);
-+}
-+
-+static int mxt_probe_regulators(struct mxt_data *data)
-+{
-+	struct device *dev = &data->client->dev;
-+	int error;
-+
-+	/* Must have reset GPIO to use regulator support */
-+	if (!data->reset_gpio) {
-+		error = -EINVAL;
-+		goto fail;
-+	}
-+
-+	data->reg_vdd = devm_regulator_get(dev, "vdd");
-+	if (IS_ERR(data->reg_vdd)) {
-+		error = PTR_ERR(data->reg_vdd);
-+		dev_err(dev, "Error %d getting vdd regulator\n", error);
-+		goto fail;
-+	}
-+
-+	data->reg_avdd = devm_regulator_get(dev, "avdd");
-+	if (IS_ERR(data->reg_avdd)) {
-+		error = PTR_ERR(data->reg_avdd);
-+		dev_err(dev, "Error %d getting avdd regulator\n", error);
-+		goto fail_release;
-+	}
-+
-+	mxt_regulator_enable(data);
-+
-+	dev_dbg(dev, "Initialised regulators\n");
-+	return 0;
-+
-+fail_release:
-+	regulator_put(data->reg_vdd);
-+fail:
-+	data->reg_vdd = NULL;
-+	data->reg_avdd = NULL;
-+	return error;
-+}
-+
- static int mxt_read_t9_resolution(struct mxt_data *data)
+-static int mxt_load_fw(struct device *dev, const char *fn)
++static int mxt_load_fw(struct device *dev)
  {
- 	struct i2c_client *client = data->client;
-@@ -3139,7 +3229,12 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 		goto release_firmware;
+ 	struct mxt_data *data = dev_get_drvdata(dev);
+ 	const struct firmware *fw = NULL;
+@@ -3217,9 +3217,9 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	unsigned int frame = 0;
+ 	int ret;
  
- 	if (data->suspended) {
--		enable_irq(data->irq);
-+		if (data->suspend_mode == MXT_SUSPEND_REGULATOR)
-+			mxt_regulator_enable(data);
-+
-+		if (data->suspend_mode == MXT_SUSPEND_DEEP_SLEEP)
-+			enable_irq(data->irq);
-+
- 		data->suspended = false;
+-	ret = request_firmware(&fw, fn, dev);
++	ret = request_firmware(&fw, data->fw_name, dev);
+ 	if (ret) {
+-		dev_err(dev, "Unable to open firmware %s\n", fn);
++		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
+ 		return ret;
  	}
  
-@@ -3345,6 +3440,11 @@ static void mxt_start(struct mxt_data *data)
- 				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0x83);
- 		break;
- 
-+	case MXT_SUSPEND_REGULATOR:
-+		enable_irq(data->irq);
-+		mxt_regulator_enable(data);
-+		break;
-+
- 	case MXT_SUSPEND_DEEP_SLEEP:
- 	default:
- 		/*
-@@ -3377,6 +3477,12 @@ static void mxt_stop(struct mxt_data *data)
- 				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0);
- 		break;
- 
-+	case MXT_SUSPEND_REGULATOR:
-+		disable_irq(data->irq);
-+		mxt_regulator_disable(data);
-+		mxt_reset_slots(data);
-+		break;
-+
- 	case MXT_SUSPEND_DEEP_SLEEP:
- 	default:
- 		disable_irq(data->irq);
-@@ -3469,6 +3575,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
- 		data->t15_num_keys = n_keys;
- 	}
- 
-+	device_property_read_u32(dev, "atmel,suspend-mode",
-+				 &data->suspend_mode);
- 	return 0;
+@@ -3339,6 +3339,33 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	return ret;
  }
  
-@@ -3555,14 +3663,18 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return error;
- 	}
- 
--	disable_irq(client->irq);
--
--	if (data->reset_gpio) {
-+	if (data->suspend_mode == MXT_SUSPEND_REGULATOR) {
-+		error = mxt_probe_regulators(data);
-+		if (error)
-+			return error;
-+	} else if (data->reset_gpio) {
- 		msleep(MXT_RESET_GPIO_TIME);
- 		gpiod_set_value(data->reset_gpio, 1);
- 		msleep(MXT_RESET_INVALID_CHG);
- 	}
- 
-+	disable_irq(data->irq);
++static int mxt_update_file_name(struct device *dev, char **file_name,
++				const char *buf, size_t count)
++{
++	char *file_name_tmp;
 +
- 	error = mxt_initialize(data);
- 	if (error)
- 		return error;
++	/* Simple sanity check */
++	if (count > 64) {
++		dev_warn(dev, "File name too long\n");
++		return -EINVAL;
++	}
++
++	file_name_tmp = krealloc(*file_name, count + 1, GFP_KERNEL);
++	if (!file_name_tmp)
++		return -ENOMEM;
++
++	*file_name = file_name_tmp;
++	memcpy(*file_name, buf, count);
++
++	/* Echo into the sysfs entry may append newline at the end of buf */
++	if (buf[count - 1] == '\n')
++		(*file_name)[count - 1] = '\0';
++	else
++		(*file_name)[count] = '\0';
++
++	return 0;
++}
++
+ static ssize_t mxt_update_fw_store(struct device *dev,
+ 					struct device_attribute *attr,
+ 					const char *buf, size_t count)
+@@ -3346,7 +3373,11 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	struct mxt_data *data = dev_get_drvdata(dev);
+ 	int error;
+ 
+-	error = mxt_load_fw(dev, MXT_FW_NAME);
++	error = mxt_update_file_name(dev, &data->fw_name, buf, count);
++	if (error)
++		return error;
++
++	error = mxt_load_fw(dev);
+ 	if (error) {
+ 		dev_err(dev, "The firmware update failed(%d)\n", error);
+ 		count = error;
 -- 
 2.17.1
 

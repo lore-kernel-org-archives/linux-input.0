@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77500C2D0EE
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78CA6C43331
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 53DED208E4
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 50642208E4
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:52:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730482AbgCaKwS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 31 Mar 2020 06:52:18 -0400
+        id S1730719AbgCaKwK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 31 Mar 2020 06:52:10 -0400
 Received: from esa4.mentor.iphmx.com ([68.232.137.252]:43515 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730481AbgCaKwR (ORCPT
+        with ESMTP id S1730469AbgCaKwJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Mar 2020 06:52:17 -0400
-IronPort-SDR: KMeHU56svksp1Ud8CpIXFd3UYUJtlVGfDBV7DaD1b6O4ZOzNeC3LatiBuQePRxE+w1HwTB/oQH
- qmQdF09xopCLTxoNsfixP661gu+IqrmPnTpIfWRKy/qG9IGKKu8hhVyIpriKFozrtAIwohUS9c
- 37h4XyXFfDld7/ju3iBQFdDR5P01nsQvOA1/F42kZzvrnJHzQ5+gsAqA/zPAvyWg0Gnyo+fkho
- SRIpQQCj3pcvkO4FWbp91tnZquwhzsWmlIxj1vmA+SzwgF+sHYR6fRQZJ7jhSgFfo7zFVGZOP7
- 4hw=
+        Tue, 31 Mar 2020 06:52:09 -0400
+IronPort-SDR: 4mGRzcEZOm8xNMwDRwxPjTAED39H71lwAeJ+6O+P92X7FfQVegyLea6r1i1aPm3hJ7fdsjCEEJ
+ 53UVZ3oP0dXyPQZnTcoxcG9CsZvHNUqpewQNd71NItWxCZ1fCdxcxh3zzjiaEQ6D//y862FLze
+ R38qAm9LEskGhn9Lu6Uje2pYFBAxSoC1ki3eXCetf1hRBxCmuu0U0mauE2ZG21fUYdFJtKksue
+ nEI5G5HskEp4nqa3odn6UulG1afTJSt15A6zLMbUnZpJovIgOk7oclgdNUcDaE/eVHMZhmPCJ5
+ 6cw=
 X-IronPort-AV: E=Sophos;i="5.72,327,1580803200"; 
-   d="scan'208";a="47330772"
+   d="scan'208";a="47330762"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:52:16 -0800
-IronPort-SDR: R7OMOUh4sdEig5MGqfUA7b+V/vgTcBls5KVPQs60Sc2D+FxpdmlclfYXnJN6BRcKb8rt7MYLXr
- PzGf3xLQkvMpsUvihZB7yFu9ueoyXx+EpqHL2apl2B3XVro1CY7llEQNwbRhSJrUa0ebB8liSz
- uVGqTeDF3LabUG9tBf4A1uZhsvsEn2rDDIhpw+l3Qv2KSxYm+h+MHf3uw5xHQy9FIrI/XeEVnL
- v6ZnRUxUdMdXGgWXTzsiWKKdzLKYp3edI7Fi2r9HIj6xAwt4aF/2I2KMaPkYQ9dIfd7W+bXarS
- jkI=
+  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:52:08 -0800
+IronPort-SDR: GeUxREHjh+vkjVdH6iqbVKqfScfPGqbfSZNmIXkCSAwfQGuCm36cqnlhKdfquUsAAwxsxbatP9
+ 7Day4dmE2Lo/fhI1jorIut6LTBlF1PrJCeifiwL7oi2O+zD5fFbCNIGMu+t/vQZghfjRYgL6Wl
+ wxZNdr/NIsFzp4dWC60ZC1lBLD8FCuwP+b1YF3XQMP7xa1USk2kOYppKTE+WDNFtyPT6Kzd4Q8
+ TlzVnoJ2nrRWIQTYsH++GCl8wGxo4XJy6hyuXpG72gZ9IXl6ujsQB4LclNWhkZMyIzgXqfSOw3
+ 2qA=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v10 21/55] dt-bindings: input: atmel: provide name of configuration file
-Date:   Tue, 31 Mar 2020 03:50:17 -0700
-Message-ID: <20200331105051.58896-22-jiada_wang@mentor.com>
+Subject: [PATCH v10 19/55] Input: atmel_mxt_ts: rename mxt_update_fw_store to update_fw_store
+Date:   Tue, 31 Mar 2020 03:50:15 -0700
+Message-ID: <20200331105051.58896-20-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200331105051.58896-1-jiada_wang@mentor.com>
 References: <20200331105051.58896-1-jiada_wang@mentor.com>
@@ -54,27 +54,40 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add support to set name of configuration file
+Rename mxt_update_fw_store to update_fw_store, to address checkpatch
+warning.
 
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- Documentation/devicetree/bindings/input/atmel,maxtouch.txt | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-index 0307e7f7bb43..29bb84a920d6 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-@@ -40,6 +40,9 @@ Optional properties for main touchpad device:
- - vdd: Required supply regulator when MXT_SUSPEND_REGULATOR is used to suspend
- - avdd: Required supply regulator when MXT_SUSPEND_REGULATOR is used to suspend
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index cec823de4096..720574417219 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -3366,9 +3366,9 @@ static int mxt_update_file_name(struct device *dev, char **file_name,
+ 	return 0;
+ }
  
-+- atmel,cfg_name: Provide name of configuration file in OBP_RAW format. This
-+    will be downloaded from the firmware loader on probe to the device.
-+
- Example:
+-static ssize_t mxt_update_fw_store(struct device *dev,
+-					struct device_attribute *attr,
+-					const char *buf, size_t count)
++static ssize_t update_fw_store(struct device *dev,
++			       struct device_attribute *attr,
++			       const char *buf, size_t count)
+ {
+ 	struct mxt_data *data = dev_get_drvdata(dev);
+ 	int error;
+@@ -3392,7 +3392,7 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	return count;
+ }
  
- 	touch@4b {
+-static DEVICE_ATTR(update_fw, 0200, NULL, mxt_update_fw_store);
++static DEVICE_ATTR_WO(update_fw);
+ 
+ static struct attribute *mxt_fw_attrs[] = {
+ 	&dev_attr_update_fw.attr,
 -- 
 2.17.1
 

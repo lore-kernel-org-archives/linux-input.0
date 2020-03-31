@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1147C2D0F3
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0458C2D0E8
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A18E620772
-	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF26220772
+	for <linux-input@archiver.kernel.org>; Tue, 31 Mar 2020 10:53:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730846AbgCaKxT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 31 Mar 2020 06:53:19 -0400
+        id S1730619AbgCaKxn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 31 Mar 2020 06:53:43 -0400
 Received: from esa4.mentor.iphmx.com ([68.232.137.252]:43597 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730645AbgCaKxR (ORCPT
+        with ESMTP id S1730946AbgCaKxm (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Mar 2020 06:53:17 -0400
-IronPort-SDR: ycolXrOiDrHeEYW+zGwwcI3xVGUL9n/DBKwcb8Agzuq9VEJzZbzxm4wx5WFcPFGQhdXfuqcVw9
- 7gyarqsfi6Rz12UeiEmSMYRQeYxzhTbp6mZTVfp3GfMt0dXdS3mdgCw/KrLsfeyKik2KQUP0UD
- SkbTZr4S3ZRgS+HMUKeJ2xVaYc0o2iDW+xZqBpDliDTQndwgaik1ckHjyX6akT7i4loifIfdlW
- 0ovWWytwa9voy/VvB7kFjQttUVPiVx9qqCGta5Nm8jhz6jycXSyiATY0K9cPSYPsN7y7CVwgID
- xqk=
+        Tue, 31 Mar 2020 06:53:42 -0400
+IronPort-SDR: cs4m7RbYzpTVVfnPAxKfUQDAlJkAHFQqqDTBIwGhOVCG4Fee/1Ne8/A3JMfF/HAbr6970xsfwc
+ XHeQli4H6kpmY1dU5YNab0ITiyd64IOolSo90slStPlnd3Fy5RGds//9sevPKF0qpd8Ji5oYQ5
+ mMBgFD5mxTFVxLfbtr2QN2FA3DsjLap1PC8bCCaSutAhcQLWVgwp0hHjmO43mzt5VWSK6USztx
+ wm53Jne3+hRBOKvgtHpQB+JHOu5Lt7ZNiIOuWMLStyH1CdwDodW6Tk2kPo1MYs/d/KdzEtyQbk
+ qzQ=
 X-IronPort-AV: E=Sophos;i="5.72,327,1580803200"; 
-   d="scan'208";a="47330815"
+   d="scan'208";a="47330838"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:53:16 -0800
-IronPort-SDR: vzjY3A4F7Mo6I59wU6uExtWjiYCeqGGiIsmrI8Co4bJdWvkosbU0s5FthYXXVUmUHTW6NMlR3d
- VpQq54Dc9unwYyqdwLa0wwMdPmHOs9XYaKS2iZL7moC8dwMH81j5PxrFKX7XcmqeWyC6Yn+y0U
- h/14dI+sj2vXAGbxcPw67dszRPwzpYGKVZ+lSn1nQ58RNhdxpSL7G7UvTXXn70I09drVnOPCic
- ltmpAn7ogFq9nkERFF2igkPnv5+gR/Bhk7rBQAo1b2EFwrEg46N04OXL0t3Kt0ejxGVVZ12kZR
- DaY=
+  by esa4.mentor.iphmx.com with ESMTP; 31 Mar 2020 02:53:42 -0800
+IronPort-SDR: +bMCQJJLPyqQABm5RnUXGfLNY9Hj6Vn8Rgt5hxaSnEmP2wMyR4frc0uc8Wfk1nE2wYwkH6W45y
+ fNH8eckyDYA9xgoBi4n6uLU295Nhxjux1peD7SqJ1zzLtEgT0uw4dclDHtd37lVAF90JgjIY1G
+ gBrmKAdZKB92z+RZwDsnCfiRoHSHCmxf3SvzttomhG5/ijL6MFc1YwoOlLv8pHd//T+LluRGQn
+ W2+UWOTbenVP8qVFClPHDRak+gYf3DIx8Jwahvj+ubFfOll8kuGThmToKU0Z/3oJhVH26Waxd0
+ 7Hw=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -41,9 +41,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v10 37/55] Input: atmel_mxt_ts - Change call-points of mxt_free_* functions
-Date:   Tue, 31 Mar 2020 03:50:33 -0700
-Message-ID: <20200331105051.58896-38-jiada_wang@mentor.com>
+Subject: [PATCH v10 44/55] Input: atmel_mxt_ts: return error from mxt_process_messages_until_invalid()
+Date:   Tue, 31 Mar 2020 03:50:40 -0700
+Message-ID: <20200331105051.58896-45-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200331105051.58896-1-jiada_wang@mentor.com>
 References: <20200331105051.58896-1-jiada_wang@mentor.com>
@@ -54,96 +54,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Kautuk Consul <kautuk_consul@mentor.com>
+From: Dean Jenkins <Dean_Jenkins@mentor.com>
 
-Revamping the code to call mxt_free_object_table and mxt_free_input_device
-functions only in the following scenarios and code paths:
-1) The error path of the mxt_probe() entry point
-2) The mxt_remove de-init path entry point
-3) All paths which definitely expect to populate the object table
-   like:
-   - the mxt_update_fw_store path which first calls
-     mxt_load_fw and then resorts to calling mxt_initialize itself.
-   - the mxt_read_info_block function which attempts to fill in the
-     object table itself as the main non-error part of the logic.
-4) All paths in the code expected to definitely allocate and register
-   the input device such as:
-   - the mxt_update_fw_store path which first calls
-     mxt_load_fw and then resorts to calling mxt_initialize itself.
-   - the mxt_update_cfg_store function which will call
-     mxt_configure_objects.
+mxt_process_messages_until_invalid() failed to propagate the error
+code from mxt_read_and_process_messages() so return the error code.
 
-Signed-off-by: Kautuk Consul <kautuk_consul@mentor.com>
+Signed-off-by: Dean Jenkins <Dean_Jenkins@mentor.com>
+Signed-off-by: Deepak Das <deepak_das@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 36a87d9b9c83..860e8ddd4c6b 100644
+index 384b53717139..bbec5a8e0bb6 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3336,21 +3336,21 @@ static int mxt_configure_objects(struct mxt_data *data,
- 	error = mxt_init_t7_power_cfg(data);
- 	if (error) {
- 		dev_err(dev, "Failed to initialize power cfg\n");
--		goto err_free_object_table;
-+		return error;
- 	}
- 
- 	if (cfg) {
- 		error = mxt_update_cfg(data, cfg);
- 		if (error) {
- 			dev_warn(dev, "Error %d updating config\n", error);
--			goto err_free_object_table;
-+			return error;
- 		}
- 	}
- 
- 	if (data->multitouch) {
- 		error = mxt_initialize_input_device(data);
- 		if (error)
--			goto err_free_object_table;
-+			return error;
- 	} else {
- 		dev_warn(dev, "No touch object detected\n");
- 	}
-@@ -3358,10 +3358,6 @@ static int mxt_configure_objects(struct mxt_data *data,
- 	mxt_debug_init(data);
- 
- 	return 0;
--
--err_free_object_table:
--	mxt_free_object_table(data);
--	return error;
- }
- 
- /* Configuration crc check sum is returned as hex xxxxxx */
-@@ -4106,16 +4102,21 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	error = mxt_initialize(data);
- 	if (error)
--		return error;
-+		goto err_free_object;
- 
- 	error = sysfs_create_group(&client->dev.kobj, &mxt_fw_attr_group);
- 	if (error) {
- 		dev_err(&client->dev, "Failure %d creating fw sysfs group\n",
- 			error);
--		return error;
-+		goto err_free_object;
- 	}
- 
- 	return 0;
-+
-+err_free_object:
-+	mxt_free_input_device(data);
-+	mxt_free_object_table(data);
-+	return error;
- }
- 
- static int mxt_remove(struct i2c_client *client)
+@@ -1561,6 +1561,8 @@ static int mxt_process_messages_until_invalid(struct mxt_data *data)
+ 	/* Read messages until we force an invalid */
+ 	do {
+ 		read = mxt_read_and_process_messages(data, count);
++		if (read < 0)
++			return read;
+ 		if (read < count)
+ 			return 0;
+ 	} while (--tries);
 -- 
 2.17.1
 

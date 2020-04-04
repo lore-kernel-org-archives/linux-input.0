@@ -1,72 +1,61 @@
-Return-Path: <SRS0=Z7dL=5T=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=Z4d9=5U=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 703A1C43331
-	for <linux-input@archiver.kernel.org>; Fri,  3 Apr 2020 15:15:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36B43C2BA15
+	for <linux-input@archiver.kernel.org>; Sat,  4 Apr 2020 18:57:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 43EEA207FF
-	for <linux-input@archiver.kernel.org>; Fri,  3 Apr 2020 15:15:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 09163206C3
+	for <linux-input@archiver.kernel.org>; Sat,  4 Apr 2020 18:57:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QWtXPAyi"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g+BgP+y6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404125AbgDCPPT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 3 Apr 2020 11:15:19 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:27188 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728060AbgDCPPT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 3 Apr 2020 11:15:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585926918;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SRb6CsmI17uMNzLCPreryxqmrirK+0qj0zIO/GeumII=;
-        b=QWtXPAyiSMWjzvCiw3dgOe2gmdlR09/0AhGafeMNmrpQyt7h+R04S5gq7fzbPGtUkP6bkE
-        IxxSsHJOVehKTMb8Bm+Sic88pY6piGCwNOr4sZU9kk3rlq864fnXW7lfxS8QGePevMUD7m
-        gKp5q2K7pHYDWLE2FeVP/DgbUmyQGMk=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-133-z4TyO4SEMB6lTZGPEOo2Sw-1; Fri, 03 Apr 2020 11:15:16 -0400
-X-MC-Unique: z4TyO4SEMB6lTZGPEOo2Sw-1
-Received: by mail-qk1-f199.google.com with SMTP id d80so6623516qke.7
-        for <linux-input@vger.kernel.org>; Fri, 03 Apr 2020 08:15:16 -0700 (PDT)
+        id S1726207AbgDDS53 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 4 Apr 2020 14:57:29 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:46807 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726057AbgDDS53 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Apr 2020 14:57:29 -0400
+Received: by mail-qt1-f195.google.com with SMTP id g7so9379479qtj.13
+        for <linux-input@vger.kernel.org>; Sat, 04 Apr 2020 11:57:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=woYSdWQSg1xZ43FjqwNE5209gH0qPcBIZtwNdqgp24w=;
+        b=g+BgP+y6EnIvgDbA89SScUXtDefkVCbWVUjBT/WjbfQ/xTnM12PlrfWCKyhL//1Dpq
+         /aL+BwyeS3jO358fqU11hub2x7HL4DMYDqTIYjubm7iP8UqUD2ajJnRW3k7ZCPduyqNU
+         qBmPHgHun5nslCVI7IpyP6s12JNLf6+9TCQxgbr9E1x6S9nDBUW4JvDTPyN1zjo3u4Cy
+         yZCLex/dGx9Au5OuMh/AQ5z5yhXur3Y9ilj1vhrIndYtIUaVHGHAcNeAW9oQBti22TPN
+         +MlhoTyLf0kO9sIHyxHut8oZ0BZkEKfQXJa2EMmVjrUlPXOvnBxBYD/zWaL3qUudo7Qr
+         /u7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=SRb6CsmI17uMNzLCPreryxqmrirK+0qj0zIO/GeumII=;
-        b=SE8jy17CszT7wdLXAQ5a2PtgHHpwVcvI3yXwf+EOgKEMK+lqTz+KwWrmsq/f5kDgc3
-         Qnh/JPAEJGtZnMu+xlexsSjMkHO+Z2mXx7uk3olERQNUb4miVJITs9fc56A+KVMd5lnD
-         3TRyCCNzbRCN7wGDA1cVzJwVxcLzCYEqhlyWqQd+U6VETJa0PvbgagPH6NrMsqArPUwH
-         EfkjQfZ2lHHt1VFHwn1bK3uG6AsKcCzix9SVjxJitmt2pn0NdWu4rLDpTxdlhqUi5HtP
-         71/TIdgfE1H1MFELucsgcnJOq+iJItLwFjcTVIMUD/vplPwdw2vkGCtJ+SNwcAuoX27W
-         P5rA==
-X-Gm-Message-State: AGi0PuZ72g3/mpjvF5Z/SC/VX3uA9v04xLVrDo5pmM2ODf5GE1rwf2Gf
-        9sYIyOR7vzRMXXiaD3pfchKL0hsdzD/9UW8NbzMVQdd30dwUA66/lJ71vaKSpdcolwDpIVJvDGj
-        iNYEcaG8Vm4wgPoJvbj5hGSNAVGjKpVTAA51xVok=
-X-Received: by 2002:a37:4852:: with SMTP id v79mr8867483qka.459.1585926916383;
-        Fri, 03 Apr 2020 08:15:16 -0700 (PDT)
-X-Google-Smtp-Source: APiQypJUV2d7K2It0zrkL8C79HBnt1r3tN9WNQmjeddv/tPrQG2xyyWE8oxqPtbZqLWgqoyz+1oPB7uh1dY7LeRDiKI=
-X-Received: by 2002:a37:4852:: with SMTP id v79mr8867461qka.459.1585926916112;
- Fri, 03 Apr 2020 08:15:16 -0700 (PDT)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=woYSdWQSg1xZ43FjqwNE5209gH0qPcBIZtwNdqgp24w=;
+        b=TGdIoYC40J3F58JSWIVIOZx3pYmGDzxTl7kKdMKvLcxRNSBvEQrttxTTQkvLkecv8r
+         fJz0Y2SzecBlGy9gZMz87zEG72YUaJQS/d4xL21f9prZgqBs4SJN37zZwzqto+8TbocR
+         QeZNjme9QkoR48kTsvWKLytPbRkgnTzcCEIVVgZ4a3kkdU8yyA8bmbfZO3yDye/2YVUR
+         lQPK0LWqI+ZVZ3aO7nIhuNxvsQ4Ez+sMjM3bWu0ACIQ+cMCUjFuNl1AZFd/laPLdq66N
+         cno124zMjZlkxl94jCIb++SaV3DYNe43lwzPOEAP6wZE9nh2vNXA4ieJwkRPwPMYaYTM
+         36dQ==
+X-Gm-Message-State: AGi0PuZ0dN6D08/c/+76nJvR+WyhuNvtvGq1WVQ6NRVGeXJ305nst/nq
+        k88JiD5fWKVR/AX4gXypbbTsic9IjwqrQY4KzbB5qtRb/XU=
+X-Google-Smtp-Source: APiQypK7eQkPvk1W9YfrlA/lZD9CUWUjK377PNAeZu+RgaqjTfVwRnXdBotqYxdn0n3C0U801SwsJxlgo0so5HtjMKI=
+X-Received: by 2002:ac8:749a:: with SMTP id v26mr14520212qtq.182.1586026646709;
+ Sat, 04 Apr 2020 11:57:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200112235009.4074405-1-lains@archlinux.org> <nycvar.YFH.7.76.2004031531190.19713@cbobk.fhfr.pm>
-In-Reply-To: <nycvar.YFH.7.76.2004031531190.19713@cbobk.fhfr.pm>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Fri, 3 Apr 2020 17:15:04 +0200
-Message-ID: <CAO-hwJJwBUqSMj_E71YBYEfqY7hCsvgqexFvPyU5dnyCyLxtcg@mail.gmail.com>
-Subject: Re: [PATCH v2] HID: logitech: drop outdated references to unifying receivers
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>
+From:   =?UTF-8?B?RMSBdmlzIE1vc8SBbnM=?= <davispuh@gmail.com>
+Date:   Sat, 4 Apr 2020 19:57:15 +0100
+Message-ID: <CAOE4rSwYC3Uzex7cPFGFBeeGp=BhZX9KNe5T7dP8yN5mzHgOVg@mail.gmail.com>
+Subject: psmouse.synaptics_intertouch
+To:     linux-input@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
@@ -74,30 +63,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Apr 3, 2020 at 3:31 PM Jiri Kosina <jikos@kernel.org> wrote:
->
-> On Sun, 12 Jan 2020, Filipe La=C3=ADns wrote:
->
-> > The hid-logitech-{dj,hidpp} were originally developed for unifying
-> > receivers but since then they have evolved and now support other types
-> > of receivers and devices. This patch adjusts the original descriptions
-> > with this in mind.
->
-> Benjamin, I guess you are fine with this change ... ?
+Hi,
 
-Yes, work for me.
+I'm using Lenovo ThinkPad E585 with 5.5.13 kernel and in dmesg I saw
 
-[Sorry for being unresponsive for a while, got a bunch of things on my
-plate right now :( ]
+apr 03 23:46:05 localhost kernel: psmouse serio1: synaptics: queried
+max coordinates: x [..5676], y [..4690]
+apr 03 23:46:05 localhost kernel: psmouse serio1: synaptics: queried
+min coordinates: x [1266..], y [1162..]
+apr 03 23:46:05 localhost kernel: psmouse serio1: synaptics: Your
+touchpad (PNP: LEN2060 PNP0f13) says it can support a different bus.
+If i2c-hid and hid-rmi are not used, you might want to try setting
+psmouse.synaptics_intertouch to 1 and report this to
+linux-input@vger.kernel.org.
+apr 03 23:46:05 localhost kernel: psmouse serio1: synaptics: Touchpad
+model: 1, fw: 8.16, id: 0x1e2b1, caps:
+0xf02aa3/0x940300/0x12e800/0x400000, board id: 3383, fw id: 2731752
+apr 03 23:46:05 localhost kernel: psmouse serio1: synaptics: serio:
+Synaptics pass-through port at isa0060/serio1/input0
+apr 03 23:46:05 localhost kernel: input: SynPS/2 Synaptics TouchPad as
+/devices/platform/i8042/serio1/input/input20
 
-Cheers,
-Benjamin
+So I added psmouse.synaptics_intertouch=3D1 to kernel options and don't
+see any change regarding behavior, but that message is gone now.
 
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+Also by the way one time I added just "psmouse.synaptics_intertouch"
+and that made touchpad not working with message
+apr 04 13:59:45 localhost kernel: psmouse: `' invalid for parameter
+`synaptics_intertouch'
 
+
+Best regards,
+D=C4=81vis

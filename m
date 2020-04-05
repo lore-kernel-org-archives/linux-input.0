@@ -2,81 +2,96 @@ Return-Path: <SRS0=vTPc=5V=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5AF8C2BA15
-	for <linux-input@archiver.kernel.org>; Sun,  5 Apr 2020 16:05:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA87CC2BA1A
+	for <linux-input@archiver.kernel.org>; Sun,  5 Apr 2020 17:16:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 74F0B20644
-	for <linux-input@archiver.kernel.org>; Sun,  5 Apr 2020 16:05:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 97397206C3
+	for <linux-input@archiver.kernel.org>; Sun,  5 Apr 2020 17:16:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=alien8.de header.i=@alien8.de header.b="lBhPGgka"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gerhold.net header.i=@gerhold.net header.b="thOXkFwm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726667AbgDEQFo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 5 Apr 2020 12:05:44 -0400
-Received: from mail.skyhub.de ([5.9.137.197]:34166 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726452AbgDEQFo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 5 Apr 2020 12:05:44 -0400
-Received: from zn.tnic (p200300EC2F26B7000C5E3296959EF3E4.dip0.t-ipconnect.de [IPv6:2003:ec:2f26:b700:c5e:3296:959e:f3e4])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 4D42E1EC0C25;
-        Sun,  5 Apr 2020 18:05:43 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1586102743;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:references;
-        bh=BvWVoDSvyDU5IwC/rVzlp7lK2dIT+CdMbODaVhKoG4U=;
-        b=lBhPGgkaiT80te1e5wstWUF/+wCWbLivS03Tqk0hk3NDJuxWxxYfntJE4/W69ByyGMXd0C
-        rV8XGCuifuoZgeYyD4GvYSISKnc7yxENVvwCaurcIA9Qf4zmzp1LYdDb+greaBLYoaLl5i
-        h4ShByA2h+fFOHcKtmp0pRKMzFnGi14=
-Date:   Sun, 5 Apr 2020 18:05:38 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     linux-input@vger.kernel.org
-Subject: [bugzilla-daemon@bugzilla.kernel.org: [Bug 207039] Mouse button
- doesn't work]
-Message-ID: <20200405160538.GA17293@zn.tnic>
+        id S1726771AbgDERQz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 5 Apr 2020 13:16:55 -0400
+Received: from mo4-p02-ob.smtp.rzone.de ([85.215.255.80]:27408 "EHLO
+        mo4-p02-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727192AbgDERQz (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Apr 2020 13:16:55 -0400
+X-Greylist: delayed 357 seconds by postgrey-1.27 at vger.kernel.org; Sun, 05 Apr 2020 13:16:54 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1586107014;
+        s=strato-dkim-0002; d=gerhold.net;
+        h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=Be1YVcbsbQCiE2Oy1b4tp++StNE0IP1Y1QoF6p581vc=;
+        b=thOXkFwmsl0avg2eoeAC6KN2VHctkjiU00hVw9GDIO9PYgpHI4mVMmxWnkra/3PfCd
+        XpEnPt2n9iG2J7vb8/Om9wxwF06GivC+G8fmZp1IK0gYzoNQWHKrEH1S2ezuQUSkaqEn
+        Rqi9bjeGK4+XSLzIaeI0X642HT300i5h7cS/lxi9eDU62qw4yDOA+HdUyvzehDSiQ1wh
+        n/MELEkryymq6fnXs3mXD7MIQ/MlVaCEes/8hBJKB74OPYJTp/z7tp3gOXnkPiePmeOJ
+        4yCHP49C7JJrZ5P4FEkmZWUiF/mdye8xDv1Y3SzDQv0tSZFsj8kUzqLkjb2J870RfuS4
+        rt7A==
+X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVORvLd4SsytBXS7IYBkLahKxB526NfqU="
+X-RZG-CLASS-ID: mo00
+Received: from localhost.localdomain
+        by smtp.strato.de (RZmta 46.2.1 DYNA|AUTH)
+        with ESMTPSA id u043b8w35HAoxim
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Sun, 5 Apr 2020 19:10:50 +0200 (CEST)
+From:   Stephan Gerhold <stephan@gerhold.net>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Andi Shyti <andi@etezian.org>, linux-input@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH v2 2/2] dt-bindings: mms114: document melfas,mms345l binding
+Date:   Sun,  5 Apr 2020 19:09:04 +0200
+Message-Id: <20200405170904.61512-2-stephan@gerhold.net>
+X-Mailer: git-send-email 2.26.0
+In-Reply-To: <20200405170904.61512-1-stephan@gerhold.net>
+References: <20200405170904.61512-1-stephan@gerhold.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Builtin trackpad buttons on a Dell Latitude XT2 don't work.
+The mms114 driver now supports MMS345L; document the
+melfas,mms345l binding that is used for it.
 
-In case someone wants to take a look, dmesg is from 5.6.
+Acked-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Andi Shyti <andi@etezian.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+---
+Changes in v2:
+  - Pick up review tags
 
------ Forwarded message from bugzilla-daemon@bugzilla.kernel.org -----
+v1: https://patchwork.kernel.org/patch/11178503/
+---
+ Documentation/devicetree/bindings/input/touchscreen/mms114.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Date: Sun, 05 Apr 2020 15:05:08 +0000
-From: bugzilla-daemon@bugzilla.kernel.org
-To: bp@alien8.de
-Subject: [Bug 207039] Mouse button doesn't work
-Message-ID: <bug-207039-6385-cvbLeE9KzQ@https.bugzilla.kernel.org/>
-
-https://bugzilla.kernel.org/show_bug.cgi?id=207039
-
---- Comment #7 from eagleforce@gmx.ch ---
-Output of dmesg is listed here:
-https://pastebin.com/raw/HT7aZzKA
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/mms114.txt b/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
+index 2cd954051d29..707234cfd7e6 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
+@@ -1,9 +1,10 @@
+-* MELFAS MMS114/MMS152 touchscreen controller
++* MELFAS MMS114/MMS152/MMS345L touchscreen controller
+ 
+ Required properties:
+ - compatible: should be one of:
+ 	- "melfas,mms114"
+ 	- "melfas,mms152"
++	- "melfas,mms345l"
+ - reg: I2C address of the chip
+ - interrupts: interrupt to which the chip is connected
+ - touchscreen-size-x: See [1]
 -- 
-You are receiving this mail because:
-You are on the CC list for the bug.
-You are watching the assignee of the bug.
+2.26.0
 
------ End forwarded message -----
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette

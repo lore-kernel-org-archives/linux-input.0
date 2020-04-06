@@ -4,25 +4,25 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8559C2BA80
-	for <linux-input@archiver.kernel.org>; Mon,  6 Apr 2020 15:58:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6870C2BABC
+	for <linux-input@archiver.kernel.org>; Mon,  6 Apr 2020 15:58:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BE8CB248EC
-	for <linux-input@archiver.kernel.org>; Mon,  6 Apr 2020 15:58:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C4BB2248EA
+	for <linux-input@archiver.kernel.org>; Mon,  6 Apr 2020 15:58:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729231AbgDFP6b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Apr 2020 11:58:31 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:17995 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729202AbgDFP6a (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Apr 2020 11:58:30 -0400
-X-Originating-IP: 78.193.40.249
+        id S1729211AbgDFP6a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Apr 2020 11:58:30 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:36043 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729174AbgDFP63 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Apr 2020 11:58:29 -0400
 Received: from localhost (unknown [78.193.40.249])
         (Authenticated sender: kamel.bouhara@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 0936F240012;
-        Mon,  6 Apr 2020 15:58:27 +0000 (UTC)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id D216B20000E;
+        Mon,  6 Apr 2020 15:58:26 +0000 (UTC)
 From:   Kamel Bouhara <kamel.bouhara@bootlin.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         William Breathitt Gray <vilhelm.gray@gmail.com>,
@@ -36,9 +36,9 @@ Cc:     Nicolas Ferre <nicolas.ferre@microchip.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
         Kamel Bouhara <kamel.bouhara@bootlin.com>
-Subject: [PATCH 3/3] Input: add a rotary encoders based on counter devices
-Date:   Mon,  6 Apr 2020 17:58:06 +0200
-Message-Id: <20200406155806.1295169-4-kamel.bouhara@bootlin.com>
+Subject: [PATCH 2/3] Input: rotary-encoder-counter: add DT bindings
+Date:   Mon,  6 Apr 2020 17:58:05 +0200
+Message-Id: <20200406155806.1295169-3-kamel.bouhara@bootlin.com>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200406155806.1295169-1-kamel.bouhara@bootlin.com>
 References: <20200406155806.1295169-1-kamel.bouhara@bootlin.com>
@@ -49,207 +49,87 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This add support for rotary encoders that use the counter subsystem to
-expose an input device.
+Add dt binding for the counter variant of the rotary encoder driver.
 
 Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
 ---
- drivers/input/misc/Kconfig                  |   9 ++
- drivers/input/misc/Makefile                 |   1 +
- drivers/input/misc/rotary_encoder_counter.c | 152 ++++++++++++++++++++
- 3 files changed, 162 insertions(+)
- create mode 100644 drivers/input/misc/rotary_encoder_counter.c
+ .../input/rotary-encoder-counter.yaml         | 67 +++++++++++++++++++
+ 1 file changed, 67 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/rotary-encoder-counter.yaml
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7e2e658d551c..b91b4257e337 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -619,6 +619,15 @@ config INPUT_GPIO_ROTARY_ENCODER
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called rotary_encoder.
- 
-+config INPUT_COUNTER_ROTARY_ENCODER
-+       tristate "Rotary encoders connected to counter devices"
-+       depends on COUNTER || COMPILE_TEST
-+       help
-+         Say Y here to add support for rotary encoders connected to counter devices.
-+
-+         To compile this driver as a module, choose M here: the
-+         module will be called rotary_encoder_counter.
-+
- config INPUT_RB532_BUTTON
- 	tristate "Mikrotik Routerboard 532 button interface"
- 	depends on MIKROTIK_RB532
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 8fd187f314bd..74bbe6d400a3 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -68,6 +68,7 @@ obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
- obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
- obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
- obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
-+obj-$(CONFIG_INPUT_COUNTER_ROTARY_ENCODER) += rotary_encoder_counter.o
- obj-$(CONFIG_INPUT_RK805_PWRKEY)	+= rk805-pwrkey.o
- obj-$(CONFIG_INPUT_SC27XX_VIBRA)	+= sc27xx-vibra.o
- obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
-diff --git a/drivers/input/misc/rotary_encoder_counter.c b/drivers/input/misc/rotary_encoder_counter.c
+diff --git a/Documentation/devicetree/bindings/input/rotary-encoder-counter.yaml b/Documentation/devicetree/bindings/input/rotary-encoder-counter.yaml
 new file mode 100644
-index 000000000000..20017308f4f3
+index 000000000000..a59f7c1faf0c
 --- /dev/null
-+++ b/drivers/input/misc/rotary_encoder_counter.c
-@@ -0,0 +1,152 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * A rotary encoder driver using the generic counter interface.
-+ *
-+ * Author: Kamel Bouhara <kamel.bouhara@bootlin.com>
-+ *
-+ */
++++ b/Documentation/devicetree/bindings/input/rotary-encoder-counter.yaml
+@@ -0,0 +1,67 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/rotary-encoder-counter.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/device.h>
-+#include <linux/platform_device.h>
-+#include <linux/counter.h>
-+#include <linux/slab.h>
-+#include <linux/of.h>
-+#include <linux/pm.h>
-+#include <linux/property.h>
++title: Rotary Encoder Counter
 +
-+#define MAX_STEPS	24
++maintainers:
++  - Kamel Bouhara <kamel.bouhara@bootlin.com>
 +
-+struct rotary_encoder {
-+	struct input_dev *input;
-+	u32 steps;
-+	u32 axis;
-+	bool relative_axis;
-+	bool rollover;
-+	long last_pos;
-+	struct counter_device *counter;
-+};
++description:
++  Registers a Rotary encoder connected through a counter device.
 +
-+static void rotary_encoder_poll(struct input_dev *input)
-+{
-+	struct rotary_encoder *encoder = input_get_drvdata(input);
-+	long rotary_pos;
-+	int ret;
++properties:
++  compatible:
++    const: rotary-encoder-counter
 +
-+	ret = counter_count_get(encoder->counter, &rotary_pos);
-+	if (ret)
-+		return;
++  counter:
++    description: Phandle for the counter device providing rotary position.
 +
-+	if (encoder->relative_axis) {
-+		input_report_rel(encoder->input, encoder->axis,
-+				 rotary_pos - encoder->last_pos);
-+	} else {
-+		if (encoder->rollover)
-+			rotary_pos %= encoder->steps;
-+		input_report_abs(encoder->input, encoder->axis, rotary_pos);
-+	}
++  linux-axis:
++    description: The input subsystem axis to map to this rotary encoder.
++    type: boolean
 +
-+	encoder->last_pos = rotary_pos;
-+	input_sync(encoder->input);
-+}
++  qdec-mode:
++    description: |
++      Quadrature decoder function to set in the counter device.
++      3: x1-PHA
++      4: x1-PHB
++      5: x2-PHA
++      6: x2-PHB
++      7: x4-PHA and PHB
 +
-+static int rotary_encoder_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct counter_device *counter;
-+	struct rotary_encoder *encoder;
-+	struct input_dev *input;
-+	int qdec_mode;
-+	u32 poll_interval;
-+	int err;
++  steps:
++    description: Number of steps in a full turnaround of the encoder.
++      Only relevant for absolute axis. Defaults to 24 which is a typical
++      value for such devices.
 +
-+	encoder = devm_kzalloc(dev, sizeof(struct rotary_encoder), GFP_KERNEL);
-+	if (!encoder)
-+		return -ENOMEM;
++  relative-axis:
++    description: Register a relative axis rather than an absolute one.
++    type: boolean
 +
-+	encoder->rollover =
-+		device_property_read_bool(dev, "rollover");
++  rollover:
++    description: Automatic rollover when the rotary value becomes greater
++      than the specified steps or smaller than 0. For absolute axis only.
++    type: boolean
 +
-+	device_property_read_u32(dev, "steps", &encoder->steps);
++  poll-interval:
++    description: Poll interval at which the position is read from the counter
++      device (default 500ms).
 +
-+	device_property_read_u32(dev, "linux-axis", &encoder->axis);
++required:
++  - compatible
++  - counter
++  - qdec-mode
 +
-+	encoder->relative_axis =
-+		device_property_read_bool(dev, "relative-axis");
++examples:
++  - |
++    rotary@0 {
++        compatible = "rotary-encoder-counter";
 +
-+	counter = devm_counter_get(dev);
-+	if (IS_ERR(counter))
-+		return PTR_ERR(counter);
-+
-+	if (device_property_read_u32(dev, "qdec-mode", &qdec_mode)) {
-+		dev_err(dev, "Invalid or missing quadrature mode\n");
-+		return -EINVAL;
-+	}
-+
-+	err = counter_function_set(counter, qdec_mode);
-+	if (err) {
-+		dev_err(dev, "Failed to set quadrature mode %d\n",
-+			qdec_mode);
-+		return err;
-+	}
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input)
-+		return -ENOMEM;
-+
-+	input_set_drvdata(input, encoder);
-+	encoder->input = input;
-+	encoder->counter = counter;
-+	encoder->steps = (!encoder->steps) ? MAX_STEPS : encoder->steps;
-+	input->name = pdev->name;
-+	input->id.bustype = BUS_HOST;
-+	input->dev.parent = dev;
-+
-+	if (encoder->relative_axis)
-+		input_set_capability(input, EV_REL, encoder->axis);
-+	else
-+		input_set_abs_params(input, encoder->axis, 0,
-+				     encoder->steps, 0, 1);
-+
-+	err = input_setup_polling(input, rotary_encoder_poll);
-+	if (err)
-+		return err;
-+
-+	if (!device_property_read_u32(dev, "poll-interval",
-+				      &poll_interval))
-+		input_set_poll_interval(input, poll_interval);
-+
-+	err = input_register_device(input);
-+	if (err) {
-+		dev_err(dev, "failed to register device, err=%d\n", err);
-+		return err;
-+	}
-+
-+	platform_set_drvdata(pdev, encoder);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id rotary_encoder_of_match[] = {
-+	{ .compatible = "rotary-encoder-counter", },
-+	{ /* sentinel */ },
-+};
-+MODULE_DEVICE_TABLE(of, rotary_encoder_of_match);
-+#endif
-+
-+static struct platform_driver rotary_encoder_driver = {
-+	.probe		= rotary_encoder_probe,
-+	.driver		= {
-+		.name	= "rotary-encoder-counter",
-+		.of_match_table = of_match_ptr(rotary_encoder_of_match),
-+	}
-+};
-+module_platform_driver(rotary_encoder_driver);
-+
-+MODULE_DESCRIPTION("Counter rotary encoder driver");
-+MODULE_AUTHOR("Kamel Bouhara <kamel.bouhara@bootlin.com>");
-+MODULE_LICENSE("GPL v2");
++        counter =<&qdec>;
++        qdec-mode = <7>;
++        relative-axis;
++    };
++...
 -- 
 2.25.0
 

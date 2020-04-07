@@ -1,135 +1,107 @@
-Return-Path: <SRS0=9kzX=5W=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=U8lN=5X=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6870C2BABC
-	for <linux-input@archiver.kernel.org>; Mon,  6 Apr 2020 15:58:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2466C2BA2B
+	for <linux-input@archiver.kernel.org>; Tue,  7 Apr 2020 00:07:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C4BB2248EA
-	for <linux-input@archiver.kernel.org>; Mon,  6 Apr 2020 15:58:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7BE9E20768
+	for <linux-input@archiver.kernel.org>; Tue,  7 Apr 2020 00:07:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1586218030;
+	bh=lmDFwSRJINaEuNcm0imgBOH7qPo597f26/3MDbu0cUE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=xftypRFR23TY84P8RJ6Hi6qL8jHUPrdhT8MS+69GvOAomvUE+jQN2rrC3DHxggMyO
+	 Ff2qSC7+l7RqKhx0NghZB85ISqW2mdjIZPVD1bvtpArKPc3kGwsPSwQpdYLrPbwTaG
+	 wL44Gxro4VUZkEgkN0McmxyxinxYmXfmDJVcGZEs=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729211AbgDFP6a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Apr 2020 11:58:30 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:36043 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729174AbgDFP63 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Apr 2020 11:58:29 -0400
-Received: from localhost (unknown [78.193.40.249])
-        (Authenticated sender: kamel.bouhara@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id D216B20000E;
-        Mon,  6 Apr 2020 15:58:26 +0000 (UTC)
-From:   Kamel Bouhara <kamel.bouhara@bootlin.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-Cc:     Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
-        Kamel Bouhara <kamel.bouhara@bootlin.com>
-Subject: [PATCH 2/3] Input: rotary-encoder-counter: add DT bindings
-Date:   Mon,  6 Apr 2020 17:58:05 +0200
-Message-Id: <20200406155806.1295169-3-kamel.bouhara@bootlin.com>
-X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200406155806.1295169-1-kamel.bouhara@bootlin.com>
-References: <20200406155806.1295169-1-kamel.bouhara@bootlin.com>
+        id S1726708AbgDGAHF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Apr 2020 20:07:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35972 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727877AbgDGACF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Apr 2020 20:02:05 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29B0B2083E;
+        Tue,  7 Apr 2020 00:02:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586217724;
+        bh=lmDFwSRJINaEuNcm0imgBOH7qPo597f26/3MDbu0cUE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=KDlKJhvVgEWOPHE4BZhHk+IwL+X9hdB/ZbT4a68RY4IQ/1243GVwWhI74WVCBGy8a
+         NXvK1/Bue52Y6ZRpixuQZb1XbbDqJtXRZBkQJbngoHkcuKh54MfMjZGNPfupi/QolF
+         qyl2EXI3rgogbiHwa0x3cPpooFCFnTT+An7OhGAQ=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Nick Reitemeyer <nick.reitemeyer@web.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 10/32] Input: tm2-touchkey - add support for Coreriver TC360 variant
+Date:   Mon,  6 Apr 2020 20:01:28 -0400
+Message-Id: <20200407000151.16768-10-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200407000151.16768-1-sashal@kernel.org>
+References: <20200407000151.16768-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add dt binding for the counter variant of the rotary encoder driver.
+From: Nick Reitemeyer <nick.reitemeyer@web.de>
 
-Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+[ Upstream commit da3289044833769188c0da945d2cec90af35e87e ]
+
+The Coreriver TouchCore 360 is like the midas board touchkey, but it is
+using a fixed regulator.
+
+Signed-off-by: Nick Reitemeyer <nick.reitemeyer@web.de>
+Link: https://lore.kernel.org/r/20200121141525.3404-3-nick.reitemeyer@web.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../input/rotary-encoder-counter.yaml         | 67 +++++++++++++++++++
- 1 file changed, 67 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/rotary-encoder-counter.yaml
+ drivers/input/keyboard/tm2-touchkey.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/rotary-encoder-counter.yaml b/Documentation/devicetree/bindings/input/rotary-encoder-counter.yaml
-new file mode 100644
-index 000000000000..a59f7c1faf0c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/rotary-encoder-counter.yaml
-@@ -0,0 +1,67 @@
-+# SPDX-License-Identifier: GPL-2.0
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/rotary-encoder-counter.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboard/tm2-touchkey.c
+index 14b55bacdd0f1..fb078e049413f 100644
+--- a/drivers/input/keyboard/tm2-touchkey.c
++++ b/drivers/input/keyboard/tm2-touchkey.c
+@@ -75,6 +75,14 @@ static struct touchkey_variant aries_touchkey_variant = {
+ 	.cmd_led_off = ARIES_TOUCHKEY_CMD_LED_OFF,
+ };
+ 
++static const struct touchkey_variant tc360_touchkey_variant = {
++	.keycode_reg = 0x00,
++	.base_reg = 0x00,
++	.fixed_regulator = true,
++	.cmd_led_on = TM2_TOUCHKEY_CMD_LED_ON,
++	.cmd_led_off = TM2_TOUCHKEY_CMD_LED_OFF,
++};
 +
-+title: Rotary Encoder Counter
-+
-+maintainers:
-+  - Kamel Bouhara <kamel.bouhara@bootlin.com>
-+
-+description:
-+  Registers a Rotary encoder connected through a counter device.
-+
-+properties:
-+  compatible:
-+    const: rotary-encoder-counter
-+
-+  counter:
-+    description: Phandle for the counter device providing rotary position.
-+
-+  linux-axis:
-+    description: The input subsystem axis to map to this rotary encoder.
-+    type: boolean
-+
-+  qdec-mode:
-+    description: |
-+      Quadrature decoder function to set in the counter device.
-+      3: x1-PHA
-+      4: x1-PHB
-+      5: x2-PHA
-+      6: x2-PHB
-+      7: x4-PHA and PHB
-+
-+  steps:
-+    description: Number of steps in a full turnaround of the encoder.
-+      Only relevant for absolute axis. Defaults to 24 which is a typical
-+      value for such devices.
-+
-+  relative-axis:
-+    description: Register a relative axis rather than an absolute one.
-+    type: boolean
-+
-+  rollover:
-+    description: Automatic rollover when the rotary value becomes greater
-+      than the specified steps or smaller than 0. For absolute axis only.
-+    type: boolean
-+
-+  poll-interval:
-+    description: Poll interval at which the position is read from the counter
-+      device (default 500ms).
-+
-+required:
-+  - compatible
-+  - counter
-+  - qdec-mode
-+
-+examples:
-+  - |
-+    rotary@0 {
-+        compatible = "rotary-encoder-counter";
-+
-+        counter =<&qdec>;
-+        qdec-mode = <7>;
-+        relative-axis;
-+    };
-+...
+ static int tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
+ 					    enum led_brightness brightness)
+ {
+@@ -327,6 +335,9 @@ static const struct of_device_id tm2_touchkey_of_match[] = {
+ 	}, {
+ 		.compatible = "cypress,aries-touchkey",
+ 		.data = &aries_touchkey_variant,
++	}, {
++		.compatible = "coreriver,tc360-touchkey",
++		.data = &tc360_touchkey_variant,
+ 	},
+ 	{ },
+ };
 -- 
-2.25.0
+2.20.1
 

@@ -2,106 +2,76 @@ Return-Path: <SRS0=U8lN=5X=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AF80C2BA80
-	for <linux-input@archiver.kernel.org>; Tue,  7 Apr 2020 00:09:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 771D7C2BA16
+	for <linux-input@archiver.kernel.org>; Tue,  7 Apr 2020 05:39:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 44EB22076E
-	for <linux-input@archiver.kernel.org>; Tue,  7 Apr 2020 00:09:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1586218169;
-	bh=lmDFwSRJINaEuNcm0imgBOH7qPo597f26/3MDbu0cUE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=Xiei7dkOez18JIOqhNngfuUYFuzvAbLvHRHtJnTdUeNwohZvWDmD3TNPbT7oGAJaJ
-	 HEszTh0+32zH1Ef9koJn5lzciStxNB+fmX2Q2fMD+1p/jwKk6z0mlIAHrtfc8KoQx3
-	 XEm6pnVizJWC0WIuGHOZpjKWoKB4CbykpU+iOoZw=
+	by mail.kernel.org (Postfix) with ESMTP id 486DA206F5
+	for <linux-input@archiver.kernel.org>; Tue,  7 Apr 2020 05:39:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="YXRX/s27"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728021AbgDGAJT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Apr 2020 20:09:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33828 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726692AbgDGABN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Apr 2020 20:01:13 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 792E120768;
-        Tue,  7 Apr 2020 00:01:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586217673;
-        bh=lmDFwSRJINaEuNcm0imgBOH7qPo597f26/3MDbu0cUE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7vjnn88a06IFpTQDiNr8n6aYbqBBUfvK0etQFjsST2RGyB2KANGk1F3svjoENEp+
-         og+fNLumAtQs9y6DcEpygtWpEF8ighP3mUwYseKcjeUb4NcOMVZZ1eviYyZ16pxr5C
-         soNYNVyqV7vzAmZU/0Xgq4sBOW0C6bw869AZGXXY=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nick Reitemeyer <nick.reitemeyer@web.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 11/35] Input: tm2-touchkey - add support for Coreriver TC360 variant
-Date:   Mon,  6 Apr 2020 20:00:33 -0400
-Message-Id: <20200407000058.16423-11-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200407000058.16423-1-sashal@kernel.org>
-References: <20200407000058.16423-1-sashal@kernel.org>
+        id S1726232AbgDGFjk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Apr 2020 01:39:40 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:53383 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725802AbgDGFjk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Apr 2020 01:39:40 -0400
+X-UUID: d87fd0e9cee9446698661ea4fa27869b-20200407
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=O2o43k14xlejaS3ceaxlrwDivs/SbOA913cIeBStoZE=;
+        b=YXRX/s27LQjlY0SBhoQESXz6OnA1AelVMp/90tn8ITuFjnc+lxSW/FiN9+9LPBbhSxQYtXKB3ZVYF6BD8QaOHxAwwi+W522elAyF8bRa4doY4iDWmiN6fyZR1Nq1YbIshh1990tlTv78VztogwN/AgyvqKnPHvKBqOZFPUAqpTs=;
+X-UUID: d87fd0e9cee9446698661ea4fa27869b-20200407
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
+        (envelope-from <fengping.yu@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 744196807; Tue, 07 Apr 2020 13:39:32 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 7 Apr 2020 13:39:28 +0800
+Received: from localhost.localdomain (10.15.20.246) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 7 Apr 2020 13:39:30 +0800
+From:   Fengping yu <fengping.yu@mediatek.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Yingjoe Chen <yingjoe.chen@mediatek.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+CC:     <linux-kernel@vger.kernel.org>, <wsd_upstream@mediatek.com>,
+        <linux-mediatek@lists.infradead.org>, <linux-input@vger.kernel.org>
+Subject: [PATCH v3] drivers:input:keyboard: add mtk keypad driver 
+Date:   Tue, 7 Apr 2020 13:36:09 +0800
+Message-ID: <20200407053610.20996-1-fengping.yu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TM-SNTS-SMTP: 9C2F0DBEA935612CFC96B21F5282E409AABF91147DF33EF885EB4B82EDEFAFE82000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Reitemeyer <nick.reitemeyer@web.de>
-
-[ Upstream commit da3289044833769188c0da945d2cec90af35e87e ]
-
-The Coreriver TouchCore 360 is like the midas board touchkey, but it is
-using a fixed regulator.
-
-Signed-off-by: Nick Reitemeyer <nick.reitemeyer@web.de>
-Link: https://lore.kernel.org/r/20200121141525.3404-3-nick.reitemeyer@web.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/input/keyboard/tm2-touchkey.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboard/tm2-touchkey.c
-index 14b55bacdd0f1..fb078e049413f 100644
---- a/drivers/input/keyboard/tm2-touchkey.c
-+++ b/drivers/input/keyboard/tm2-touchkey.c
-@@ -75,6 +75,14 @@ static struct touchkey_variant aries_touchkey_variant = {
- 	.cmd_led_off = ARIES_TOUCHKEY_CMD_LED_OFF,
- };
- 
-+static const struct touchkey_variant tc360_touchkey_variant = {
-+	.keycode_reg = 0x00,
-+	.base_reg = 0x00,
-+	.fixed_regulator = true,
-+	.cmd_led_on = TM2_TOUCHKEY_CMD_LED_ON,
-+	.cmd_led_off = TM2_TOUCHKEY_CMD_LED_OFF,
-+};
-+
- static int tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
- 					    enum led_brightness brightness)
- {
-@@ -327,6 +335,9 @@ static const struct of_device_id tm2_touchkey_of_match[] = {
- 	}, {
- 		.compatible = "cypress,aries-touchkey",
- 		.data = &aries_touchkey_variant,
-+	}, {
-+		.compatible = "coreriver,tc360-touchkey",
-+		.data = &tc360_touchkey_variant,
- 	},
- 	{ },
- };
--- 
-2.20.1
+DQpUaGlzIHBhdGNoc2V0IGFkZCBzdXBwb3J0IHRvIE1lZGlhVGVrIG1hdHJpeCBrZXlwYWQuDQoN
+CkNoYW5nZSBzaW5jZSB2MjoNCi0gcmVtb3ZlIGV4dHJhIHNwYWNlIGFuZCByZWR1bmRhbnQgbGlu
+ZXMNCi0gcmVtb3ZlIHVzZWxlc3MgY29kZQ0KLSB1cGRhdGUga2V5cGFkIGRldmljZXRyZWUgZG9j
+dW1lbnQgZGVib3VuY2UgdGltZSB1bml0DQotIGNoYW5nZSB0byB1c2UgZGV2bV9wbGF0Zm9ybV9p
+b3JlbWFwX3Jlc291cmNlKCkgdG8gc2ltcGxpZnkgcmVzb3VyY2UgbWFuYWdlbWVudA0KLSB1c2Ug
+Yml0bWFwIHRvIHN0b3JlIGFuZCBjaGVjayBrZXlwYWQgc3RhdGUNCg0KZmVuZ3BpbmcueXUgKDIp
+Og0KICBhZGQgZHQtYmluZGluZyBkb2N1bWVudCBmb3IgTWVkaWFUZWsgS2V5cGFkDQogIGFkZCBN
+ZWRpYVRlayBrZXlwYWQgZHJpdmVyDQoNCiAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC9t
+dGsta3BkLnR4dCAgICAgfCAgNjEgKysrKysNCiBhcmNoL2FybTY0L2NvbmZpZ3MvZGVmY29uZmln
+ICAgICAgICAgICAgICAgICAgfCAgIDEgKw0KIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvS2NvbmZp
+ZyAgICAgICAgICAgICAgICB8ICAgNyArDQogZHJpdmVycy9pbnB1dC9rZXlib2FyZC9NYWtlZmls
+ZSAgICAgICAgICAgICAgIHwgICAxICsNCiBkcml2ZXJzL2lucHV0L2tleWJvYXJkL210ay1rcGQu
+YyAgICAgICAgICAgICAgfCAyNTggKysrKysrKysrKysrKysrKysrDQogNSBmaWxlcyBjaGFuZ2Vk
+LCAzMjggaW5zZXJ0aW9ucygrKQ0KIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2Rl
+dmljZXRyZWUvYmluZGluZ3MvaW5wdXQvbXRrLWtwZC50eHQNCiBjcmVhdGUgbW9kZSAxMDA2NDQg
+ZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tdGsta3BkLmMNCg0KLS0NCjIuMTguMA0KDQo=
 

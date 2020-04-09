@@ -4,25 +4,25 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4F4FC2BB55
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E732C2BB86
 	for <linux-input@archiver.kernel.org>; Thu,  9 Apr 2020 14:14:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BD0952083E
+	by mail.kernel.org (Postfix) with ESMTP id 3F15120857
 	for <linux-input@archiver.kernel.org>; Thu,  9 Apr 2020 14:14:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727464AbgDIOOJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Apr 2020 10:14:09 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:45465 "EHLO
-        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727235AbgDIOOJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Apr 2020 10:14:09 -0400
-X-Originating-IP: 78.193.40.249
+        id S1727441AbgDIOOI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Apr 2020 10:14:08 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:56889 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726552AbgDIOOI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Apr 2020 10:14:08 -0400
 Received: from localhost (unknown [78.193.40.249])
         (Authenticated sender: kamel.bouhara@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id B7EFAFF80E;
-        Thu,  9 Apr 2020 14:14:07 +0000 (UTC)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id D617D200004;
+        Thu,  9 Apr 2020 14:14:04 +0000 (UTC)
 From:   Kamel Bouhara <kamel.bouhara@bootlin.com>
 To:     William Breathitt Gray <vilhelm.gray@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -35,9 +35,9 @@ Cc:     Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-iio@vger.kernel.org,
         Kamel Bouhara <kamel.bouhara@bootlin.com>
-Subject: [PATCH v2 2/3] dt-bindings: counter: atmel-tcb-capture counter
-Date:   Thu,  9 Apr 2020 16:14:00 +0200
-Message-Id: <20200409141401.321222-3-kamel.bouhara@bootlin.com>
+Subject: [PATCH v2 1/3] ARM: at91: add atmel tcb capabilities
+Date:   Thu,  9 Apr 2020 16:13:59 +0200
+Message-Id: <20200409141401.321222-2-kamel.bouhara@bootlin.com>
 X-Mailer: git-send-email 2.25.0
 In-Reply-To: <20200409141401.321222-1-kamel.bouhara@bootlin.com>
 References: <20200409141401.321222-1-kamel.bouhara@bootlin.com>
@@ -48,60 +48,30 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Describe the devicetree binding for the ATMEL TCB counter. Each counter
-blocks exposes three independent counters.
-
-However, when configured in quadrature decoder, both channel <0> and <1>
-are required for speed/position and rotation capture (yet only the
-position is captured).
+Some atmel socs have extra tcb capabilities that allow using a generic
+clock source or enabling a quadrature decoder.
 
 Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
 ---
- .../bindings/counter/atmel-tcb-capture.yaml   | 35 +++++++++++++++++++
- 1 file changed, 35 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/counter/atmel-tcb-capture.yaml
+Changes from v2:
+ - Fixed first patch not applying on mainline
 
-diff --git a/Documentation/devicetree/bindings/counter/atmel-tcb-capture.yaml b/Documentation/devicetree/bindings/counter/atmel-tcb-capture.yaml
-new file mode 100644
-index 000000000000..ca8b31c1f869
---- /dev/null
-+++ b/Documentation/devicetree/bindings/counter/atmel-tcb-capture.yaml
-@@ -0,0 +1,35 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/counter/atmel-tcb-capture.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Atmel TCB Counter
-+
-+maintainers:
-+  - Kamel Bouhara <kamel.bouhara@bootlin.com>
-+
-+properties:
-+  compatible:
-+    const: "atmel,tcb-capture"
-+
-+  reg:
-+    description: TCB capture channel to register as counter device.
-+      Each channel is independent therefore only one channel is
-+      registered by default execpt for the QDEC mode where both TCB0's
-+      channels <0> and  <1> are required.
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    tcb0: timer@f800c000 {
-+        qdec: timer@0 {
-+            compatible = "atmel,tcb-capture";
-+            reg = <0>, <1>;
-+        };
-+    };
--- 
+ include/soc/at91/atmel_tcb.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/soc/at91/atmel_tcb.h b/include/soc/at91/atmel_tcb.h
+index c3c7200ce151..7e47ace9255c 100644
+--- a/include/soc/at91/atmel_tcb.h
++++ b/include/soc/at91/atmel_tcb.h
+@@ -39,6 +39,8 @@ struct clk;
+  */
+ struct atmel_tcb_config {
+ 	size_t	counter_width;
++	bool    has_gclk;
++	bool    has_qdec;
+ };
+
+ /**
+--
 2.25.0
 

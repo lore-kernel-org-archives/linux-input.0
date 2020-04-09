@@ -2,129 +2,214 @@ Return-Path: <SRS0=1/AT=52=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=DATE_IN_PAST_12_24,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E39F1C2BA19
-	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 02:03:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03220C2BB1D
+	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 02:07:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ABE3D20730
-	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 02:03:38 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=alpsgroup.onmicrosoft.com header.i=@alpsgroup.onmicrosoft.com header.b="L6MIVOTd"
+	by mail.kernel.org (Postfix) with ESMTP id D3B8E20769
+	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 02:07:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726327AbgDJCDh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Apr 2020 22:03:37 -0400
-Received: from mail-eopbgr1400040.outbound.protection.outlook.com ([40.107.140.40]:19904
-        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726082AbgDJCDh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Apr 2020 22:03:37 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=f0EKxy16AHzGvyg0ElIpw1AikmjVr6rFAGLOJM0rCx6mK4A7LkX+4OC2WzIbAZJ5Le2UlrSKIpfx+ip6zvMFzxripngJc1fvTSZJGhPwybITyGruX/gIRRykfXk+hOhFBKeWhTdzig9x3EX977A6r9Rj4+nklTLsk8npr3wuYBb+4iwAKkxRfCjCPbQah/UbFlZUIyEBwiqODAjhbex7qQsPAY6pdd09OGu81mw7FMDUx7o4x2gyw/x4bh++hOOdHtv0AKwWyQUfMUlxbcKw7gEyg8wx2WVUZuc7XDBhLt5pPIOo32/53XQ91nYpsdpECybvh/yI0M/UP8kKIBG3wQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9Yv54uSToHu3GXfl8o/Cbueuu8ycC+XZ4mfq2v44JiA=;
- b=i05BU8S5AS60KUCq0Y8pdANzfGe6wK+LrttkQHZk3yw9TFGjffCuL/BKed9jSA0Te1gXZlhntYO64mKBA2x53NJbVZBjOy+ZNL3XT37kwJ+kN0eaV7L74O3BmN4mDCa5GJJ+LnuLGMMuetDWJPbW3h9be0k5dGeii1AaZOImHSkUGtnWDuQjJlHeqcsas24itjjYGA+ICuqdfgBMzdicPk1nsE4vO1QJEdn38a2AGg7aMEJ/AM6ayQ9aMCMxOjgnbmvarcBPJ+chkdQHYtKNoNYUrYCRAkfjVUBU7AUvRyGtXoZITUneP5mbx6q2mwfO4s/7zM685YJg+FTTlU5W8A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cn.alps.com; dmarc=pass action=none header.from=cn.alps.com;
- dkim=pass header.d=cn.alps.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=alpsgroup.onmicrosoft.com; s=selector2-alpsgroup-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9Yv54uSToHu3GXfl8o/Cbueuu8ycC+XZ4mfq2v44JiA=;
- b=L6MIVOTdc9ljSjdjYiKc1M5BrUbcCxh1DBkActR4wxtAvs15/mvspaqPb/QF4fiEMv0yWaATcHyFZ77x0O7eE/rUlrxdQdAkEQLqchRMbGfWEISEKChjzP/onGdVGBRlvYCepInaq9cqZgcLjDgdRJNHlmvJDDaQ/LTJX/WeeBs=
-Received: from OSAPR01MB3057.jpnprd01.prod.outlook.com (52.134.248.141) by
- OSAPR01MB1955.jpnprd01.prod.outlook.com (52.134.235.140) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2878.17; Fri, 10 Apr 2020 02:03:34 +0000
-Received: from OSAPR01MB3057.jpnprd01.prod.outlook.com
- ([fe80::c41b:4bf7:2ad1:6fc7]) by OSAPR01MB3057.jpnprd01.prod.outlook.com
- ([fe80::c41b:4bf7:2ad1:6fc7%3]) with mapi id 15.20.2900.015; Fri, 10 Apr 2020
- 02:03:34 +0000
-From:   Xiaojian Cao <xiaojian.cao@cn.alps.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Masaki Ota <masaki.ota@alpsalpine.com>
-CC:     Artem Borisov <dedsa2002@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Tetsuya Nomura <tetsuya.nomura@alpsalpine.com>,
-        "vadim@cirque.com" <vadim@cirque.com>,
-        "pod.alcht@cn.alps.com" <pod.alcht@cn.alps.com>
-Subject: RE: [PATCH 2/2] HID: alps: Refactor axis resolution logic
-Thread-Topic: [PATCH 2/2] HID: alps: Refactor axis resolution logic
-Thread-Index: AQHWDr0x2NbbGmh+BEarMrC/TfssrKhxZ8AAgAAQo0CAAA1IgIAADdJg
-Date:   Fri, 10 Apr 2020 02:03:33 +0000
-Message-ID: <OSAPR01MB305721805C57AEC99D48F107C8DE0@OSAPR01MB3057.jpnprd01.prod.outlook.com>
-References: <nycvar.YFH.7.76.2004100019450.19713@cbobk.fhfr.pm>
- <20200409230009.22551-1-dedsa2002@gmail.com>
- <TYAPR01MB3871E974EFE06EBF40074470ECDE0@TYAPR01MB3871.jpnprd01.prod.outlook.com>
- <nycvar.YFH.7.76.2004100245260.19713@cbobk.fhfr.pm>
-In-Reply-To: <nycvar.YFH.7.76.2004100245260.19713@cbobk.fhfr.pm>
-Accept-Language: en-US, zh-CN
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=xiaojian.cao@cn.alps.com; 
-x-originating-ip: [58.247.0.86]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 50ce6a8a-5e3e-46c2-65e4-08d7dcf35ff5
-x-ms-traffictypediagnostic: OSAPR01MB1955:
-x-ld-processed: 57e76998-77bd-4b82-a424-198f46eb2254,ExtAddr
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <OSAPR01MB19553BAEB371A68EF9BD8F07C8DE0@OSAPR01MB1955.jpnprd01.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8273;
-x-forefront-prvs: 0369E8196C
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:OSAPR01MB3057.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10009020)(4636009)(376002)(136003)(39860400002)(346002)(366004)(396003)(4326008)(55016002)(52536014)(76116006)(966005)(66946007)(86362001)(66476007)(71200400001)(107886003)(8936002)(64756008)(66556008)(66446008)(5660300002)(186003)(2906002)(26005)(54906003)(110136005)(7696005)(478600001)(9686003)(6506007)(316002)(53546011)(8676002)(85182001)(81156014)(33656002);DIR:OUT;SFP:1101;
-received-spf: None (protection.outlook.com: cn.alps.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Z1hWjIUCsWV29y2bjce9VRSl3lDHZx0b0637rhYmHI+xSlFpNYumnT73Fm0FzPFXHV0JKq26M9T7NVAT679fwo0eajTQbZlAiVHWnL5G2wUscWB1F49+Qa+KYy4MIDxkP7WWqRZKFZ916aeIfg6A0yhO0vk2GwcYu9ri8M/S1dwHdqtgc88JT3w60nCfLzckRKfCc2gQc10ReLzfGHV5tGUKVEUOZtjohemK/UGjk9JJmGzfQRfDC/BR8Ntpn56vJgL+KP3XzbXUGMmo4Cu3fWm1TwcPvK6pBqSrSIr9HHdhtRhaKUJT8bhWNXCXB+IMkCOIhvFerCRp05pj1mFeCvTHN5AvAOg+l5FhfqM6Tb1LPjKvCC3tvIuyY11kKiYl+HvZM1kueoCR4Mpo6wrGdfIrC0/cpWuzOTfhEoUxjoj9GVuzqV3qSZJA411LWEiICEhorPKOXWAQ6R1lsUojsmB6pQmS8j/I1aexVL1p/fJalPaCfxeVtS3KM+c42AsDtT+NEVcxcgcsGF+26qrDHA==
-x-ms-exchange-antispam-messagedata: t82Aa5BEyr25orwuCh1Mv67UIwKoCPyAyOGbgXG+0o0vt+3v7sQoTf37L1dY8kg9Ea0SMGexGB2cIlU0zTMrkfQ5ZkRFHh1hw+1qPS6UsjCU2+6P/BvWknQIYfBYZ0nbn43UvFfSsw9j87hNQ4nExA==
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726679AbgDJCHn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Apr 2020 22:07:43 -0400
+Received: from mail1.bemta26.messagelabs.com ([85.158.142.115]:32506 "EHLO
+        mail1.bemta26.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725987AbgDJCHl (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Apr 2020 22:07:41 -0400
+Received: from [100.113.5.56] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
+        by server-4.bemta.az-b.eu-central-1.aws.symcld.net id 33/F6-46409-AE4DF8E5; Fri, 10 Apr 2020 02:07:38 +0000
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrAIsWRWlGSWpSXmKPExsVy8MN7Xd1XV/r
+  jDKYs5raYf+Qcq8XhRS8YLW5++sZqcXnXHDaLpdcvMlm07j3C7sDmsWbeGkaPnbPusntsWtXJ
+  5vF5k1wASxRrZl5SfkUCa8bbC+1sBQc0K952aDYw7lLqYuTiEBJYyyjx/WI7excjJ5BTKfH/9
+  zk2EJtXIELizeHXYDangJnEmbYeqBpTiUXt9xhBbDYBHYlHM9czgdgsAioSjU03mUFsYYFQiZ
+  2H3oP1igiUSxz4OJMVZBmzwDRGiT0fDzNDLBCUODnzCQuIzSwgIXHwxQtmiAVaEufWrGKcwMg
+  7C0nZLCRlCxiZVjFaJBVlpmeU5CZm5ugaGhjoGhoa65rompnpJVbpJumlluomp+aVFCUCJfUS
+  y4v1iitzk3NS9PJSSzYxAoM1pZDFaQfj3zXv9Q4xSnIwKYnynjzVHyfEl5SfUpmRWJwRX1Sak
+  1p8iFGGg0NJgrfgMlBOsCg1PbUiLTMHGDkwaQkOHiUR3neXgNK8xQWJucWZ6RCpU4zGHL83LF
+  nEzPHg6r1VzEIsefl5qVLivEEgkwRASjNK8+AGwSL6EqOslDAvIwMDgxBPQWpRbmYJqvwrRnE
+  ORiVhXgOQhTyZeSVw+14BncIEdMrhcLBTShIRUlINTOZLrQLN89tf91rpeATVzP/1cr/mDtv2
+  DX+zhMs3fpFOUl++5/ofPs3QdNHL5Ufefn4/YU2umV/bi/3lLSw+Aame2Z+u5i8xWOETO6d73
+  5d+UcHZTy4d3/v6Y19SSQTji6DYFa+CD+eIHpqRl/Lia+rOt8mJ/upPZ10utTd6zXo5dvrOxN
+  qnuhdUrse3Vy3I+fL7w5H8htNPTyVs6zKQ/u77vmXCFmXm7YXCd9WfZc/LPMO8zIq9dLF84/e
+  s4pvMWr222z/5fsoMSqwW3iUc8Nlu8+EzjDs+lBSdcT5TJfrlqIzmygATDQ01ffPsEJ2NkYeZ
+  V5sw7Orela4UZ/4nc+aELxqpm9iSInaySHnxKrEUZyQaajEXFScCAJt3cPFjAwAA
+X-Env-Sender: roy.im.opensource@diasemi.com
+X-Msg-Ref: server-24.tower-239.messagelabs.com!1586484457!2817432!3
+X-Originating-IP: [193.240.239.45]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.50.1; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 26357 invoked from network); 10 Apr 2020 02:07:38 -0000
+Received: from unknown (HELO NB-EX-CASHUB01.diasemi.com) (193.240.239.45)
+  by server-24.tower-239.messagelabs.com with ECDHE-RSA-AES256-SHA384 encrypted SMTP; 10 Apr 2020 02:07:38 -0000
+Received: from krsrvapps-03.diasemi.com (10.95.17.51) by
+ NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
+ 14.3.468.0; Fri, 10 Apr 2020 04:07:35 +0200
+Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
+ 7F43113F673; Fri, 10 Apr 2020 11:07:34 +0900 (KST)
+Message-ID: <510b69cad56ee655c07b2e5dbc6f8699f3b426dd.1586439647.git.Roy.Im@diasemi.com>
+In-Reply-To: <cover.1586439647.git.Roy.Im@diasemi.com>
+References: <cover.1586439647.git.Roy.Im@diasemi.com>
+From:   Roy Im <roy.im.opensource@diasemi.com>
+Date:   Thu, 9 Apr 2020 22:40:47 +0900
+Subject: [RESEND PATCH V11 2/3] dt-bindings: input: Add document bindings for
+ DA7280
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>
+CC:     Support Opensource <support.opensource@diasemi.com>,
+        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: cn.alps.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 50ce6a8a-5e3e-46c2-65e4-08d7dcf35ff5
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Apr 2020 02:03:33.9437
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 57e76998-77bd-4b82-a424-198f46eb2254
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: eX//MJ6uopyVbXy6+GRTE55iMgOsOIhTrD5h7qeE0vGdik5um8JHDpMyOKI/rp03vM7MaO8YaalIIQBtey2nnv4Q/1DyOC+Vvgnc8cxPLLw=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: OSAPR01MB1955
+Content-Type: text/plain
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-SGkgSmlyaS1zYW4sDQoNClRoYW5rcyBmb3IgeW91ciBpbmZvcm1hdGlvbi4gSSB3aWxsIGxvb2sg
-aW50byBpdC4NCg0KQmVzdCBSZWdhcmRzLA0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLQ0KSmFzb24gQ2FvKOabueaZk+W7uikNCg0KDQotLS0tLU9yaWdpbmFs
-IE1lc3NhZ2UtLS0tLQ0KRnJvbTogSmlyaSBLb3NpbmEgPGppa29zQGtlcm5lbC5vcmc+IA0KU2Vu
-dDogRnJpZGF5LCBBcHJpbCAxMCwgMjAyMCA4OjQ3IEFNDQpUbzog5aSq55SwIOecn+WWnCBNYXNh
-a2kgT3RhIDxtYXNha2kub3RhQGFscHNhbHBpbmUuY29tPg0KQ2M6IOabuSDmm4nlu7ogWGlhb2pp
-YW4gQ2FvIDx4aWFvamlhbi5jYW9AY24uYWxwcy5jb20+OyBBcnRlbSBCb3Jpc292IDxkZWRzYTIw
-MDJAZ21haWwuY29tPjsgQmVuamFtaW4gVGlzc29pcmVzIDxiZW5qYW1pbi50aXNzb2lyZXNAcmVk
-aGF0LmNvbT47IEhlbnJpayBSeWRiZXJnIDxyeWRiZXJnQGJpdG1hdGgub3JnPjsgbGludXgtaW5w
-dXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQpTdWJqZWN0
-OiBSRTogW1BBVENIIDIvMl0gSElEOiBhbHBzOiBSZWZhY3RvciBheGlzIHJlc29sdXRpb24gbG9n
-aWMNCg0KT24gRnJpLCAxMCBBcHIgMjAyMCwgTWFzYWtpIE90YSB3cm90ZToNCg0KPiBIaSwgQ2Fv
-LXNhbiwNCj4gDQo+IERvIHlvdSBrbm93IEFVSTE2NTcgZGV2aWNlPyBUaGlzIGRldmljZSBsb29r
-cyBVMS4gSSB0aGluayByZWNlbnQgYWxsIA0KPiBVMSBkZXZpY2VzIHdvcmsgYXMgUFRQLiBMaW51
-eCBhbHNvIHN1cHBvcnRzIFBUUCwgc28gSSB0aGluayB3ZSBzaG91bGQgDQo+IGFkZCBzb21ldGhp
-bmcgSUQgdG8gTGludXggc291cmNlIGNvZGUuIChJIHJlbWVtYmVyIGEgc29tZXRoaW5nIGZsYWcg
-aXMgDQo+IGFscmVhZHkgZXhpc3QuKQ0KDQpUaGF0J3MgYWN0dWFsbHkgcGFydGlhbGx5IGNvdmVy
-ZWQgYnkgQXJ0ZW0ncyAxLzEgcGF0Y2ggeW91IGhhdmUgbm90IGJlZW4gQ0NlZCBvbiAtLSBwbGVh
-c2Ugc2VlIGl0IGhlcmU6DQoNCglodHRwOi8vbG9yZS5rZXJuZWwub3JnL3IvMjAyMDA0MDUyMzU1
-MTcuMTgyMDMtMS1kZWRzYTIwMDJAZ21haWwuY29tDQoNCklmIHRoaXMgY291bGQgYmUgbWFkZSBt
-b3JlIGdlbmVyaWMgdG8gY292ZXIgYSBncm91cCBvZiBkZXZpY2VzIGFsbC1pbi1vbmUsIHRoYXQn
-ZCBiZSBldmVuIGJldHRlciBvZiBjb3Vyc2UuDQoNClRoYW5rcywNCg0KLS0NCkppcmkgS29zaW5h
-DQpTVVNFIExhYnMNCg0K
+Add device tree binding information for DA7280 haptic driver.
+Example bindings for DA7280 are added.
+
+Reviewed-by: Rob Herring <robh@kernel.org>.
+
+Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
+
+---
+v11: No changes.
+v10: No changes.
+v9: No changes.
+v8: Updated descriptions for new properties.
+v7: No changes.
+v6: No changes.
+v5: Updated descriptions and fixed errors.
+v4: Fixed commit message, properties.
+v3: Fixed subject format.
+v2: No changes
+
+
+ .../devicetree/bindings/input/dlg,da7280.txt       | 109 +++++++++++++++++++++
+ 1 file changed, 109 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+
+diff --git a/Documentation/devicetree/bindings/input/dlg,da7280.txt b/Documentation/devicetree/bindings/input/dlg,da7280.txt
+new file mode 100644
+index 0000000..e6b719d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/dlg,da7280.txt
+@@ -0,0 +1,109 @@
++Dialog Semiconductor DA7280 Haptics bindings
++
++Required properties:
++- compatible: Should be "dlg,da7280".
++- reg: Specifies the I2C slave address.
++
++- interrupt-parent : Specifies the phandle of the interrupt controller to
++  which the IRQs from DA7280 are delivered to.
++
++- dlg,actuator-type: Set Actuator type. it should be one of:
++  "LRA" - Linear Resonance Actuator type.
++  "ERM-bar" - Bar type Eccentric Rotating Mass.
++  "ERM-coin" - Coin type Eccentric Rotating Mass.
++
++- dlg,const-op-mode: Haptic operation mode for FF_CONSTANT.
++  Possible values:
++	1 - Direct register override(DRO) mode triggered by i2c(default),
++	2 - PWM data source mode controlled by PWM duty,
++- dlg,periodic-op-mode: Haptic operation mode for FF_PERIODIC.
++  Possible values:
++	1 - Register triggered waveform memory(RTWM) mode, the pattern
++	    assigned to the PS_SEQ_ID played as much times as PS_SEQ_LOOP,
++	2 - Edge triggered waveform memory(ETWM) mode, external GPI(N)
++	    control are required to enable/disable and it needs to keep
++	    device enabled by sending magnitude (X > 0),
++	    the pattern is assigned to the GPI(N)_SEQUENCE_ID below.
++	The default value is 1 for both of the operation modes.
++	For more details, please see the datasheet.
++
++- dlg,nom-microvolt: Nominal actuator voltage rating.
++  Valid values: 0 - 6000000.
++- dlg,abs-max-microvolt: Absolute actuator maximum voltage rating.
++  Valid values: 0 - 6000000.
++- dlg,imax-microamp: Actuator max current rating.
++  Valid values: 0 - 252000.
++  Default: 130000.
++- dlg,impd-micro-ohms: the impedance of the actuator in micro ohms.
++  Valid values: 0 - 1500000000.
++
++Optional properties:
++- pwms : phandle to the physical PWM(Pulse Width Modulation) device.
++  PWM properties should be named "pwms". And number of cell is different
++  for each pwm device.
++  (See Documentation/devicetree/bindings/pwm/pwm.txt
++   for further information relating to pwm properties)
++
++- dlg,ps-seq-id: the PS_SEQ_ID(pattern ID in waveform memory inside chip)
++  to play back when RTWM-MODE is enabled.
++  Valid range: 0 - 15.
++- dlg,ps-seq-loop: the PS_SEQ_LOOP, Number of times the pre-stored sequence
++  pointed to by PS_SEQ_ID or GPI(N)_SEQUENCE_ID is repeated.
++  Valid range: 0 - 15.
++- dlg,gpiN-seq-id: the GPI(N)_SEQUENCE_ID, pattern to play
++  when gpi0 is triggered, 'N' must be 0 - 2.
++  Valid range: 0 - 15.
++- dlg,gpiN-mode: the pattern mode which can select either
++  "Single-pattern" or "Multi-pattern", 'N' must be 0 - 2.
++- dlg,gpiN-polarity: gpiN polarity which can be chosen among
++  "Rising-edge", "Falling-edge" and "Both-edge",
++  'N' must be 0 - 2
++  Haptic will work by this edge option in case of ETWM mode.
++
++- dlg,resonant-freq-hz: use in case of LRA.
++  the frequency range: 50 - 300.
++  Default: 205.
++
++- dlg,bemf-sens-enable: Enable for internal loop computations.
++- dlg,freq-track-enable: Enable for resonant frequency tracking.
++- dlg,acc-enable: Enable for active acceleration.
++- dlg,rapid-stop-enable: Enable for rapid stop.
++- dlg,amp-pid-enable: Enable for the amplitude PID.
++- dlg,mem-array: Customized waveform memory(patterns) data downloaded to
++  the device during initialization. This is an array of 100 values(u8).
++
++For further information, see device datasheet.
++
++======
++
++Example:
++
++	haptics: da7280-haptics@4a {
++		compatible = "dlg,da7280";
++		reg = <0x4a>;
++		interrupt-parent = <&gpio6>;
++		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
++		dlg,actuator-type = "LRA";
++		dlg,dlg,const-op-mode = <1>;
++		dlg,dlg,periodic-op-mode = <1>;
++		dlg,nom-microvolt = <2000000>;
++		dlg,abs-max-microvolt = <2000000>;
++		dlg,imax-microamp = <170000>;
++		dlg,resonant-freq-hz = <180>;
++		dlg,impd-micro-ohms = <10500000>;
++		dlg,freq-track-enable;
++		dlg,rapid-stop-enable;
++		dlg,mem-array = <
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++		>;
++
++	};
+-- 
+end-of-patch for RESEND PATCH V11
+

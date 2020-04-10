@@ -2,135 +2,100 @@ Return-Path: <SRS0=1/AT=52=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C98F1C2BB1D
-	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 12:51:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB2A9C2BA2B
+	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 13:00:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A8C1620769
-	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 12:51:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FBF32078E
+	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 13:00:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OKaza5qV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725930AbgDJMvI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 10 Apr 2020 08:51:08 -0400
-Received: from inva021.nxp.com ([92.121.34.21]:40702 "EHLO inva021.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725926AbgDJMvI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Apr 2020 08:51:08 -0400
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 6295E2008E5;
-        Fri, 10 Apr 2020 14:51:06 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id CC0772008FF;
-        Fri, 10 Apr 2020 14:51:03 +0200 (CEST)
-Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 514BD402E4;
-        Fri, 10 Apr 2020 20:51:00 +0800 (SGT)
-From:   haibo.chen@nxp.com
-To:     dmitry.torokhov@gmail.com
-Cc:     linux-input@vger.kernel.org, linux-imx@nxp.com, haibo.chen@nxp.com
-Subject: [PATCH v2 1/2] input: egalax_ts: free irq resource before request the line as GPIO
-Date:   Fri, 10 Apr 2020 20:43:04 +0800
-Message-Id: <1586522585-14296-1-git-send-email-haibo.chen@nxp.com>
-X-Mailer: git-send-email 2.7.4
-X-Virus-Scanned: ClamAV using ClamSMTP
+        id S1726177AbgDJNAg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 10 Apr 2020 09:00:36 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:37615 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726080AbgDJNAg (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Apr 2020 09:00:36 -0400
+Received: by mail-lf1-f66.google.com with SMTP id t11so1315174lfe.4
+        for <linux-input@vger.kernel.org>; Fri, 10 Apr 2020 06:00:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kB9c0/2P/FhcRzBE8yeggFOyrymXPvbeIOGWw8BM2GU=;
+        b=OKaza5qVntHUspUXiHK60TpAgbZssnmtIhOfVHyxkqzyfO9QTB4XSrDsn1sX5mpdjl
+         Nk8SpwbHWRxul5K60Xkhxl8kr8nyzlN6g/r4qwnvNDqnQj9vzIdYj/uLxSCvj5CiUy6E
+         Yi5ze277+iKTsEg6OOYy+HMqkUYZ6JqSh0uEVGuTjL/q7dWCcQpfCW2cUjGoMSNDYI4T
+         Nkba6xeXlQqF8OD5iNgOMrs0Yk1eudHNaHzFh8SFE2vtGgOmaViCNhfEDYMoVlIXs0DZ
+         HBU2ajR2zGeM6IWXUqC5YWqM9K+zJ0zSj7N/3kgCPCx0ZImNLLcSEM8JBOBpBJw90LhK
+         nFFg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kB9c0/2P/FhcRzBE8yeggFOyrymXPvbeIOGWw8BM2GU=;
+        b=SqK36bsWTZRv4pTMrA88h1F0CE/HRpBiatOH+u2Rdlnv16CT1k8vxHX8X6U+iif3aI
+         0uBrtOW494qIQIvzPBawxrHbGsZs86ORliHXZN/5Hps205vc8e6Jftvah4RrWjsirMfR
+         Ce5viuszAFYzBaVCQvpI3AwoG2F9WnhTq0CtE3CvG5zqLEajiEZpISJugzb8bPmDKxy5
+         7dkbNcQZQ4duHrJSTRUlGum8AsgWHBCSMf4qgHdiGwJRmhZ8EPVOomAmPoSDozWUW3UB
+         F9RmUEomRPLWHnq9nn+dpPImn/XCDsr+/ex5RvOv3CnN7hJGyhW2T7eOEH0YrRAEG1Xt
+         AmxA==
+X-Gm-Message-State: AGi0PuZrfXWcUjc84i7Gv2mPW2lTDcBbJn1UuIaeYGBgPGJVMl5+1Twu
+        RBKqsK/1zt6yb+sido2GwDBegXWeH+jC/7AiNEU=
+X-Google-Smtp-Source: APiQypLNge3cgy1A2hJjxUqmMpoUz1z2yuHD3Z7Li3a/0BGhmCZKGUtL2OlN6rU8uOWm/rWGPMgNH3zIcbYSiID350U=
+X-Received: by 2002:ac2:4113:: with SMTP id b19mr2562582lfi.70.1586523635275;
+ Fri, 10 Apr 2020 06:00:35 -0700 (PDT)
+MIME-Version: 1.0
+References: <1586522585-14296-1-git-send-email-haibo.chen@nxp.com> <1586522585-14296-2-git-send-email-haibo.chen@nxp.com>
+In-Reply-To: <1586522585-14296-2-git-send-email-haibo.chen@nxp.com>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Fri, 10 Apr 2020 10:01:03 -0300
+Message-ID: <CAOMZO5BS4ZLd9__xhf+66h_y2-totNF-B3Hh_evotd_MYPK57g@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] input: egalax_ts: correct the get_firmware_command
+To:     Bough Chen <haibo.chen@nxp.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+Hi Haibo,
 
-If GPIO is connected to an IRQ then it should not request it as
-GPIO function only when free its IRQ resource.
+On Fri, Apr 10, 2020 at 9:51 AM <haibo.chen@nxp.com> wrote:
+>
+> From: Haibo Chen <haibo.chen@nxp.com>
+>
+> According to the User Guide, the get firmware command is
+> { 0x03, 0x03, 0xa, 0x01, 'D' }, ASCII value of 'D' is 0x44.
+>
+> Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+> ---
+>  drivers/input/touchscreen/egalax_ts.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+> index c816e03ba421..bb0a59d19f34 100644
+> --- a/drivers/input/touchscreen/egalax_ts.c
+> +++ b/drivers/input/touchscreen/egalax_ts.c
+> @@ -171,10 +171,10 @@ static int egalax_wake_up_device(struct i2c_client *client)
+>
+>  static int egalax_firmware_version(struct i2c_client *client)
+>  {
+> -       static const u8 cmd[MAX_I2C_DATA_LEN] = { 0x03, 0x03, 0xa, 0x01, 0x41 };
+> +       static const u8 get_firmware_cmd[MAX_I2C_DATA_LEN] = { 0x03, 0x03, 0xa, 0x01, 0x44 };
 
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
----
- drivers/input/touchscreen/egalax_ts.c | 46 ++++++++++++++++++++++-----
- 1 file changed, 38 insertions(+), 8 deletions(-)
+The rename from 'cmd' to 'get_firmware_cmd' is an unrelated change.
 
-diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
-index 83ac8c128192..c816e03ba421 100644
---- a/drivers/input/touchscreen/egalax_ts.c
-+++ b/drivers/input/touchscreen/egalax_ts.c
-@@ -116,6 +116,26 @@ static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+static int egalax_irq_request(struct egalax_ts *ts)
-+{
-+	int ret;
-+	struct i2c_client *client = ts->client;
-+
-+	ret = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+					egalax_ts_interrupt,
-+					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+					"egalax_ts", ts);
-+	if (ret < 0)
-+		dev_err(&client->dev, "Failed to register interrupt\n");
-+
-+	return ret;
-+}
-+
-+static void egalax_free_irq(struct egalax_ts *ts)
-+{
-+	devm_free_irq(&ts->client->dev, ts->client->irq, ts);
-+}
-+
- /* wake up controller by an falling edge of interrupt gpio.  */
- static int egalax_wake_up_device(struct i2c_client *client)
- {
-@@ -211,19 +231,16 @@ static int egalax_ts_probe(struct i2c_client *client,
- 			     ABS_MT_POSITION_Y, 0, EGALAX_MAX_Y, 0, 0);
- 	input_mt_init_slots(input_dev, MAX_SUPPORT_POINTS, 0);
- 
--	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
--					  egalax_ts_interrupt,
--					  IRQF_TRIGGER_LOW | IRQF_ONESHOT,
--					  "egalax_ts", ts);
--	if (error < 0) {
--		dev_err(&client->dev, "Failed to register interrupt\n");
-+	error = egalax_irq_request(ts);
-+	if (error)
- 		return error;
--	}
- 
- 	error = input_register_device(ts->input_dev);
- 	if (error)
- 		return error;
- 
-+	i2c_set_clientdata(client, ts);
-+
- 	return 0;
- }
- 
-@@ -251,11 +268,24 @@ static int __maybe_unused egalax_ts_suspend(struct device *dev)
- static int __maybe_unused egalax_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct egalax_ts *ts = i2c_get_clientdata(client);
-+	int error;
- 
- 	if (device_may_wakeup(dev))
- 		return disable_irq_wake(client->irq);
- 
--	return egalax_wake_up_device(client);
-+	/* Free IRQ as IRQ pin is used as output in the suspend sequence */
-+	egalax_free_irq(ts);
-+
-+	error = egalax_wake_up_device(client);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to wake up the controller\n");
-+		return error;
-+	}
-+
-+	error = egalax_irq_request(ts);
-+
-+	return error;
- }
- 
- static SIMPLE_DEV_PM_OPS(egalax_ts_pm_ops, egalax_ts_suspend, egalax_ts_resume);
--- 
-2.17.1
+The only change I would expect to see in this patch is 0x41 to 0x44.
 
+Since this is bug fix, please add a Fixes tag.
+
+Thanks

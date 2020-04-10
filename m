@@ -2,121 +2,115 @@ Return-Path: <SRS0=1/AT=52=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF3FC2D0EC
-	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 17:38:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5123C2D0EC
+	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 21:46:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 187A52082D
-	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 17:38:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1586540323;
-	bh=r7cATtmxOWJtimDmlIDjNP749vaGQOB+aFRbYk53J7A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=Ddjw1mt4eoLxbNzzojig37LVlHAenhaSyDyXZJyo0Q0KSS+5qIWiueiJAtEA3TO99
-	 DcBOkNjlMpr3hTsLH9rmeXLT+Q9ysBIGd3PtRPN6QEc77ZAuXbDGVvtw8zG7W8cgrW
-	 c/EXRWmhBdPWvoDPWfDO4twNDg4T2rRkMicNf3HU=
+	by mail.kernel.org (Postfix) with ESMTP id 97DE7207FF
+	for <linux-input@archiver.kernel.org>; Fri, 10 Apr 2020 21:46:59 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NIt+x5Eu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726712AbgDJRim (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 10 Apr 2020 13:38:42 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:45480 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726177AbgDJRil (ORCPT
+        id S1726671AbgDJVq6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 10 Apr 2020 17:46:58 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:39839 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726676AbgDJVq6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Apr 2020 13:38:41 -0400
-Received: by mail-ot1-f65.google.com with SMTP id 60so2477994otl.12;
-        Fri, 10 Apr 2020 10:38:40 -0700 (PDT)
+        Fri, 10 Apr 2020 17:46:58 -0400
+Received: by mail-lj1-f193.google.com with SMTP id i20so3256848ljn.6;
+        Fri, 10 Apr 2020 14:46:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=7DRxr8UXPXMC8ZZ6lywET8o4n8MINsf5hUII1rWJ+Io=;
+        b=NIt+x5EuT+0R01CG45BZ7hqAJFsmmCQTaDB4Kuc+WLsSIq5DqfYZa1I6NuC4Y5oKX1
+         ru0lnIL/RiBSN10StfSLpENKSFwqho1m8HE6LFCi6oEEfssGuM9QyyCGiIpHFtJ6a0DS
+         41tpl6dQlx8ssnX0ImUy6Gbqs3iLabRGcRF/89mT61LH7so6+ZLPxEdSwtgNuaL+WQnY
+         QLU1pQNaBRLRcnwYjA87QuuEjBuXbgL6XoKo8QKLhIMTSmBxh8Zsxe3Iaa8qR5nOuvgZ
+         5DzdYKAfamTR9pME5VwowbJ1OZnIPtbJgrxlqOVAHkYQUxBwDdFiDu45yp8f7F7TgYLh
+         rtBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=+An5MImq5aeSw1a7Ke7WjRjEzcBp/O4lsgep7Vw6+lM=;
-        b=VQ3+AVAVJOX4JutuR7KUpft8GWE3/6r5VVv2lPBzGnOwIujwIPMv0oiGN7Ke+5xElE
-         3DVfoB4PNOKZuTjWwHNam2QUh8j7wM66TFVUQEeM+9HJ94XFNEPVaa5bnyhhflWG70jG
-         27D6b5iLB3Bo49kMIY4ecJa5nUasF9weKPox0idchgcoeM/cN5trzL3ceTCdpc1SJbvG
-         tee6AgFwXtNeQFvcHDLq93kd1TStRGNFErCzRPW2eFm/xWgQ7s1GtZgn8+UGuAOigCbr
-         0lMF5W5vJW43IB/biIEufjmnfAxYuXyZe0qNGHDqVMSG37FJpZ47//zMENxJS/64nQG2
-         KHcw==
-X-Gm-Message-State: AGi0PuZjqTToUGZ7QTiozMbo3NcbLEgt3GN5hjkpH9BR7OVBOYKUpKHL
-        Zaph6bz5aEDSp1ssFkICTw==
-X-Google-Smtp-Source: APiQypIjp9l3nAyxjmSj439mH8Cdduvv9ZWqWXsJmNr/UkrYB46F62hCiPdO01c0cznvqiINDAqCxg==
-X-Received: by 2002:a9d:7409:: with SMTP id n9mr4694976otk.173.1586540320345;
-        Fri, 10 Apr 2020 10:38:40 -0700 (PDT)
-Received: from rob-hp-laptop (ip-99-203-29-27.pools.spcsdns.net. [99.203.29.27])
-        by smtp.gmail.com with ESMTPSA id k132sm1567671oih.9.2020.04.10.10.38.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Apr 2020 10:38:39 -0700 (PDT)
-Received: (nullmailer pid 29972 invoked by uid 1000);
-        Fri, 10 Apr 2020 16:41:40 -0000
-Date:   Fri, 10 Apr 2020 11:41:40 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Rajat Jain <rajatja@google.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com,
-        Mark Rutland <mark.rutland@arm.com>,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        Enrico Weigelt <info@metux.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Allison Randal <allison@lohutok.net>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, furquan@google.com,
-        dlaurie@google.com, bleung@google.com, zentaro@google.com,
-        dbehr@google.com, rajatxjain@gmail.com
-Subject: Re: [PATCH v4 3/5] dt-bindings: input/atkbd.txt: Add binding for
- "function-row-physmap"
-Message-ID: <20200410164140.GA25924@bogus>
-References: <20200328185916.98423-1-rajatja@google.com>
- <20200328185916.98423-3-rajatja@google.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=7DRxr8UXPXMC8ZZ6lywET8o4n8MINsf5hUII1rWJ+Io=;
+        b=bEpOL4ovKF24O/2MG8poCg7Bxbb5+jd9HbvEE9NDNZJFOC20N7YUT/rrI1Iifix2lN
+         2oa3v5AYol6806tNZP70xc5/OEWkyPED/afVc0s4K+OSrUjxG5coYEMqVHUVdZBckOFd
+         qkvJtdBW0baozzSz7dIxO7Is2z4049DAqsyWdqaRlVKOZgoP5YeeCeJd3SSyWVK8xGm9
+         Y+DdIeUYyq6kGZmScv6purGELb1sybJJ1y48JknPfOyo98u4S68aYnU5OwcqyzHohFNp
+         u4Rhot6Y+dq7fyxNNNhYLQduJIfn9Cs1sJWjtM0yZpae7LHdFB3pUGJ+IOQCfc6tc5Fu
+         iDrw==
+X-Gm-Message-State: AGi0PuYmsoyeP8nOT8zZhs0Uu274zaEHVGwa/QyxFJLdZEKdnPjYdyei
+        iJjXn49nuiKmXf7/DCR3OMI=
+X-Google-Smtp-Source: APiQypLaPwaeGLjp5KfZEURvyCJPwfq93DAW2oYcpxxSJ5CD45lDBZJa6FivhkxOkPSKwuhr/aY/qg==
+X-Received: by 2002:a2e:b558:: with SMTP id a24mr3895853ljn.56.1586555216468;
+        Fri, 10 Apr 2020 14:46:56 -0700 (PDT)
+Received: from [192.168.2.145] (ppp91-78-208-152.pppoe.mtu-net.ru. [91.78.208.152])
+        by smtp.googlemail.com with ESMTPSA id i25sm1860234ljg.82.2020.04.10.14.46.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Apr 2020 14:46:55 -0700 (PDT)
+Subject: Re: [PATCH v10 18/55] Input: atmel_mxt_ts: Rename mxt_hw_version_show
+ to hw_version_show
+To:     Jiada Wang <jiada_wang@mentor.com>, nick@shmanahar.org,
+        dmitry.torokhov@gmail.com, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, bsz@semihalf.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        erosca@de.adit-jv.com, Andrew_Gabbasov@mentor.com
+References: <20200331105051.58896-1-jiada_wang@mentor.com>
+ <20200331105051.58896-19-jiada_wang@mentor.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <aae29974-7a8f-404b-b115-59416021ff61@gmail.com>
+Date:   Sat, 11 Apr 2020 00:46:54 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200328185916.98423-3-rajatja@google.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200331105051.58896-19-jiada_wang@mentor.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, Mar 28, 2020 at 11:59:14AM -0700, Rajat Jain wrote:
-> Create the documentation for the new introduced property, that
-> describes the function-row keys physical positions.
+31.03.2020 13:50, Jiada Wang пишет:
+> Rename mxt_hw_version_show to hw_version_show to address checkpatch warning
 > 
-> Signed-off-by: Rajat Jain <rajatja@google.com>
+> Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 > ---
-> v4: Same as v3
-> v3: same as v2
-> v2: Remove the Change-Id from the commit log
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
->  .../devicetree/bindings/input/atkbd.txt       | 34 +++++++++++++++++++
->  1 file changed, 34 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/atkbd.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/atkbd.txt b/Documentation/devicetree/bindings/input/atkbd.txt
-> new file mode 100644
-> index 0000000000000..816653eb8e98d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/atkbd.txt
-> @@ -0,0 +1,34 @@
-> +Device tree bindings for AT / PS2 keyboard device
-> +
-> +Optional properties:
-> +
-> +	function-row-physmap:
-> +			An ordered array of the physical codes for the function
-> +			row keys. Arranged in order from left to right.
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index b2a37a9597f3..cec823de4096 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -3114,8 +3114,8 @@ static ssize_t fw_version_show(struct device *dev,
+>  }
+>  
+>  /* Hardware Version is returned as FamilyID.VariantID */
+> -static ssize_t mxt_hw_version_show(struct device *dev,
+> -				   struct device_attribute *attr, char *buf)
+> +static ssize_t hw_version_show(struct device *dev,
+> +			       struct device_attribute *attr, char *buf)
+>  {
+>  	struct mxt_data *data = dev_get_drvdata(dev);
+>  	struct mxt_info *info = data->info;
+> @@ -3404,7 +3404,7 @@ static const struct attribute_group mxt_fw_attr_group = {
+>  };
+>  
+>  static DEVICE_ATTR_RO(fw_version);
+> -static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+> +static DEVICE_ATTR_RO(hw_version);
+>  static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
 
-A single optional property doesn't constitute a DT binding.
-
-> +
-> +Example:
-> +
-> +	This is a sample ACPI _DSD node describing the property:
-
-Neither does this ACPI stuff.
-
-Rob
+What about to add a patch to convert the mxt_object_show to
+DEVICE_ATTR_RO(object_show)?

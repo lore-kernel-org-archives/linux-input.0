@@ -2,144 +2,201 @@ Return-Path: <SRS0=iUnu=55=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B78AEC2BA19
-	for <linux-input@archiver.kernel.org>; Mon, 13 Apr 2020 13:33:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A406C2BA19
+	for <linux-input@archiver.kernel.org>; Mon, 13 Apr 2020 13:33:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 977E020774
-	for <linux-input@archiver.kernel.org>; Mon, 13 Apr 2020 13:33:03 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="apo3TwEJ"
+	by mail.kernel.org (Postfix) with ESMTP id 69A6F2073E
+	for <linux-input@archiver.kernel.org>; Mon, 13 Apr 2020 13:33:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729984AbgDMNdC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Apr 2020 09:33:02 -0400
-Received: from rere.qmqm.pl ([91.227.64.183]:4930 "EHLO rere.qmqm.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729900AbgDMNcZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Apr 2020 09:32:25 -0400
-Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 4918gC1hpCzpX;
-        Mon, 13 Apr 2020 15:32:23 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1586784743; bh=s7KQlRyugBM05JaQhecEWkzu2aQ/yAHXfPNAOMMUGQg=;
-        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=apo3TwEJnAkhaezVmyVfMZ3izU+kYtJiysFyDuyDysezNYxuGFfIPPO/idsHhyYn9
-         njxglkUxRzn7o3vKDMHZramJ/0OjMJ7dCs/kFFc4ows+31vTjHeWzAcElyTXEvBl6S
-         5qGv3hGWWs1K52RQfz2/XRuA85zYTJIrEBE8gY4wh1y3bykLvYv9Hyyvma0UUrdJSU
-         6DHld9+QvCYpziABZMfbkZBLBVISfNbZPamvvGWDyNM6yFOY1Jw7Q96+ZeZNElOraF
-         QImPzWAU68SM0uSUaD6bLuSU0rWHEAvOzs4L+GkWWeX6TxCT/LjZznERq23uYuenEM
-         dCQNRTV6s8V0Q==
-X-Virus-Status: Clean
-X-Virus-Scanned: clamav-milter 0.102.2 at mail
-Date:   Mon, 13 Apr 2020 15:32:23 +0200
-Message-Id: <bdb4bb3721556835a70c53fd8cc9d329550126c9.1586784389.git.mirq-linux@rere.qmqm.pl>
-In-Reply-To: <cover.1586784389.git.mirq-linux@rere.qmqm.pl>
-References: <cover.1586784389.git.mirq-linux@rere.qmqm.pl>
-From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH v3 1/9] input: elants: document some registers and values
+        id S1730002AbgDMNdy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Apr 2020 09:33:54 -0400
+Received: from mout.kundenserver.de ([217.72.192.74]:40405 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730000AbgDMNdy (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Apr 2020 09:33:54 -0400
+Received: from envy ([82.207.195.83]) by mrelayeu.kundenserver.de (mreue109
+ [212.227.15.183]) with ESMTPSA (Nemesis) id 1M9WqY-1jIVZH2gIW-005XFe; Mon, 13
+ Apr 2020 15:33:39 +0200
+Message-ID: <7683f875aa617b3003a1949131ce79bd0e3c4dcb.camel@richard-neumann.de>
+Subject: Re: [PATCH v4 2/4] SFH: PCI driver to add support of AMD sensor
+ fusion Hub using HID framework
+From:   Richard Neumann <mail@richard-neumann.de>
+To:     "Shah, Nehal-bakulchandra" <nehal-bakulchandra.shah@amd.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Sandeep Singh <Sandeep.Singh@amd.com>, Shyam-sundar.S-k@amd.com,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-input <linux-input@vger.kernel.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        linux-iio <linux-iio@vger.kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>
+Date:   Mon, 13 Apr 2020 15:33:37 +0200
+In-Reply-To: <3ffc343e-c44b-1b4e-993e-179a13dc928c@amd.com>
+References: <1582779537-25662-1-git-send-email-Sandeep.Singh@amd.com>
+         <1582779537-25662-3-git-send-email-Sandeep.Singh@amd.com>
+         <4fe47b0323c1d65d429ee89b000e8bfcd984495f.camel@richard-neumann.de>
+         <896f84bc-f0d6-59a5-c894-809695aa348f@amd.com>
+         <CAHp75Vfr6q_H6z6tRFfaKedF7oR7nhmZvRWL4mxx3W7uypUFvA@mail.gmail.com>
+         <9aea760f9abdd2f90f36642af77de7bfae719485.camel@richard-neumann.de>
+         <3ffc343e-c44b-1b4e-993e-179a13dc928c@amd.com>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-Lic1xVuC6am9NOepDW9o"
+User-Agent: Evolution 3.36.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        James Chen <james.chen@emc.com.tw>,
-        Johnny Chuang <johnny.chuang@emc.com.tw>,
-        Rob Herring <robh+dt@kernel.org>,
-        Scott Liu <scott.liu@emc.com.tw>,
-        David Heidelberg <david@ixit.cz>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Provags-ID: V03:K1:R1qlNK3L8DeV4u5KSa3H1cOT/rnu2TOrZG7wEF5f+Em7c69dl6C
+ PgvPOCbB5opBzlzrhY7BLi71utTlICGQI7i8KwtmoANaOM1R2DieObIQey+mvamv1M9Rlzu
+ ZhGJ2/DF4Xsz1RKfzSSlPucw/dLBAYgDi6MqESKCy3Xb/xs5yP/Ba7X3Ju/zv0kdYqWJsvb
+ rpZhiBSdCgs7hIn65QEKg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:TXtNW1lc3kM=:8AprZdlWe6BlromzeB6BIS
+ mAUVf4lHadPgX0QzihzKz4ygMxnFcTqitKKLFO1/Hdscn7qTldwFTtk2pvDJk5IX0FIU3/2Cg
+ LYiif/hzeCZiohDo0V/jWMIAYlenXolwvNV8OhCvjUOPEOmgTeh2eY3v5TvbFa/Pi6K8QytJ/
+ iv8+oDcCMTTPpO8FhCa/EWlsryvLs4v9GNxfOu+9+yCR+LMPvA0VRwSnlLM7Q0W9UN9YpQY2H
+ 3/uMPCi99hNJl2xysbHoPKxU9kaTss4NXJp87HjtsTX9uzh9AFvW0OnodODntcLAvuQ+PoFne
+ t4feu+8baCkZhvmSvSB8J5dfU4hzPhKf348TUyHp47RpnNHU9i8ldzr0Tj8GDQuKB2txbq/IR
+ M7v/A9bg3Lbcipe3rOvHkuvmQwHOe+kvCsbNJ0hzDdtdo9enUdRX4KYPfBtqvSJYZJlsFfk1y
+ jXd+kqZup68IUS57fwP0dSH9e64hNSZINeU+rLGWwWNHV02k5h6y21VgS0Pi3oYWV9QY8Pk6S
+ xitjA7/zTy0Ae8QASuOcbgF9mgbLqs49nSosnaCdd7USkNwhz7TnoDoRugxCCU4bSlbay+gar
+ Ea1vQidsd+Qu38iF3/6m3njfm+tVfxai91qI/2XdMtWp3f5xwxj7oy71GVICx2zwb0RMO0FfP
+ +wNGnS/tKD/ZvGIFkepwpAIduGsa/8R4x28vRjTjLKcVZKsA1bOhHJV1Edm2KO58rEM6Ri8/h
+ q2/BKXxaXidf4E+TkvEXnNyOyEeUNgzDKKTx+0PbvlvdqrZyNswPatf/H12zrHdnf+zvxHJkD
+ /+2aS5IHlcVz5w/bY9/yTOVW7R90Qgypn6jTXYERJ3UPbvWZf3ZM3c3pfOX0Qu751s2ydZl
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add information found in downstream kernels, to make the code less
-magic.
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
----
- drivers/input/touchscreen/elants_i2c.c | 29 +++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+--=-Lic1xVuC6am9NOepDW9o
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 14c577c16b16..b528bd687cca 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -79,7 +79,11 @@
- 
- #define HEADER_REPORT_10_FINGER	0x62
- 
--/* Header (4 bytes) plus 3 fill 10-finger packets */
-+/* Power state */
-+#define PWR_STATE_DEEP_SLEEP	0
-+#define PWR_STATE_NORMAL	1
-+
-+/* Header (4 bytes) plus 3 full 10-finger packets */
- #define MAX_PACKET_SIZE		169
- 
- #define BOOT_TIME_DELAY_MS	50
-@@ -89,10 +93,21 @@
- #define E_ELAN_INFO_BC_VER	0x10
- #define E_ELAN_INFO_TEST_VER	0xE0
- #define E_ELAN_INFO_FW_ID	0xF0
-+#define E_POWER_MODE		0x40
-+#define E_POWER_STATE		0x50
-+#define E_INFO_X_RES		0x60
-+#define E_INFO_Y_RES		0x63
- #define E_INFO_OSR		0xD6
- #define E_INFO_PHY_SCAN		0xD7
- #define E_INFO_PHY_DRIVER	0xD8
- 
-+/* FW write command, 0x54 0x?? 0x0, 0x01 */
-+#define E_POWER_MODE_BATTERY	0x40
-+#define E_POWER_MODE_AC		0x41
-+#define E_POWER_MODE_USB	0x42
-+#define E_POWER_STATE_SLEEP	0x50
-+#define E_POWER_STATE_RESUME	0x58
-+
- #define MAX_RETRIES		3
- #define MAX_FW_UPDATE_RETRIES	30
- 
-@@ -237,8 +252,8 @@ static int elants_i2c_calibrate(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	int ret, error;
--	static const u8 w_flashkey[] = { 0x54, 0xC0, 0xE1, 0x5A };
--	static const u8 rek[] = { 0x54, 0x29, 0x00, 0x01 };
-+	static const u8 w_flashkey[] = { CMD_HEADER_WRITE, 0xC0, 0xE1, 0x5A };
-+	static const u8 rek[] = { CMD_HEADER_WRITE, 0x29, 0x00, 0x01 };
- 	static const u8 rek_resp[] = { CMD_HEADER_REK, 0x66, 0x66, 0x66 };
- 
- 	disable_irq(client->irq);
-@@ -1357,7 +1372,9 @@ static int __maybe_unused elants_i2c_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elants_data *ts = i2c_get_clientdata(client);
--	const u8 set_sleep_cmd[] = { 0x54, 0x50, 0x00, 0x01 };
-+	const u8 set_sleep_cmd[] = {
-+		CMD_HEADER_WRITE, E_POWER_STATE_SLEEP, 0x00, 0x01
-+	};
- 	int retry_cnt;
- 	int error;
- 
-@@ -1394,7 +1411,9 @@ static int __maybe_unused elants_i2c_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elants_data *ts = i2c_get_clientdata(client);
--	const u8 set_active_cmd[] = { 0x54, 0x58, 0x00, 0x01 };
-+	const u8 set_active_cmd[] = {
-+		CMD_HEADER_WRITE, E_POWER_STATE_RESUME, 0x00, 0x01
-+	};
- 	int retry_cnt;
- 	int error;
- 
--- 
-2.20.1
+Am Montag, den 06.04.2020, 10:56 +0530 schrieb Shah, Nehal-
+bakulchandra:
+> HI
+>=20
+> On 4/1/2020 9:58 PM, Richard Neumann wrote:
+> > Am Dienstag, den 31.03.2020, 20:24 +0300 schrieb Andy Shevchenko:
+> > > On Tue, Mar 31, 2020 at 4:26 PM Shah, Nehal-bakulchandra
+> > > <nehal-bakulchandra.shah@amd.com> wrote:
+> > > > On 3/31/2020 6:01 PM, Richard Neumann wrote:
+> > > > > Not a real review, but your patch series seems to be
+> > > > > repeating a
+> > > > > lot
+> > > > > from drivers/i2c/busses/i2c-amd-mp2*.
+> > > > > Is there any chance we could re-use the code?
+> > > > > E.g. the AMD_C2P_* definitions from drivers/i2c/busses/i2c-
+> > > > > amd-
+> > > > > mp2.h?
+> > > > Thanks for the mail. Yes there are some common structures,
+> > > > however
+> > > > as of now we have kept separately considering both
+> > > >=20
+> > > > are part of different sub systems. But may be will consider
+> > > > this
+> > > > input for future enhancement.
+> > > It can be done in a form of shared definitions at least in
+> > > include/linux/platform_data/x86/amd-mp2.h or alike ...
+> > >=20
+> > I managed to add support for the AMD SFH PCI device to i2c-amd-mp2*=20
+> > and
+> > outsourced the headers to include/linux/i2c-amd-mp2.h. [1]
+> > I also refactored the patch series (excluded the documentation) [2]
+> > to
+> > use the PCI device now provided by i2c_amd_mp2_pci and removed some
+> > duplicate and unncessary code.
+> > The driver now consist of just one module (amd_sfhtp_hid).
+> > Unfortunately I was not able to solve the problem, that I get AMD-
+> > Vi
+> > IO_PAGE_FAULT errors when not booted with amd_iommu=3Doff.
+> >=20
+> > [1]=20
+> > https://gist.githubusercontent.com/conqp/4d726f86da8a8397d6e70091a124de=
+67/raw/f97e88a0b44d98bfa1258cb73c8afe4dce7afa87/i2c-amd-mp2.patch
+> > [2]=20
+> > https://gist.githubusercontent.com/conqp/67036e690aca89d08b958971edac28=
+3d/raw/2a1ef122f9c8c8e07164b6d597962ce7bbad6d45/amd-sfhtp.patch
+>=20
+> Thanks for the patch and appreciate your efforts. At this point of
+> time, we would like to have our first patch for SFH to be upstreamed
+> and dont want to complicate the
+>=20
+> with two sub systems and maintainers. Surely will consider this input
+> for future enhancement. Thanks for your understanding.
+>=20
+> Thanks
+>=20
+>=20
+> Nehal
+>=20
+>=20
+Hi all,
+
+I spent the last two weeks learning the HID API and refactored [1] the
+patch series again. I also took into consideration Nehal's input
+regarding the two subsystems. After tinkering with the integration of
+the SFH PCI driver into the existing i2c-amd-mp2-pci driver, I realized
+that this was a futile effort at this point of time, since the SFH
+protocol, as far as I understand it, does not really implement the I2C
+protocol. Thusly I turned away from trying to integrate the two
+drivers. The core changes I did, is to refactor the PCI driver to use a
+similar initialization as the i2c-amd-mp2-pci driver. The registers are
+now mapped correctly on initial setup (1 << 2) and not mapped to zero
+(1 >> 2) and the ioremapped later. With this change, the AMD-Vi page
+faults when not booting with amd_iommu=3Doff also automagically
+disappeared.=20
+The second change is the HID device handling. I now implemented the
+hid_ll_driver API with the respective functions to process raw events
+as well device start / stop and open / close routines. I also
+refactored the platform driver wich is now solely responsible for
+spawning and despawning the HID devices. I also reduced the commonly
+used structures and constats to those that were actually being used by
+the driver and renamed the PCI registers to express what they are used
+for in this driver. I also commented most functions and shared
+structures. The only problem I keep having on my machine is, that the
+register for the bit-shifted active sensors mask 0x1068C keeps
+returning zero on readout and thusly I need to override it.
+I tried to get the sensor mask by sending the "dump_sensorinfo" and
+"number_of_sensors_discovered" commands to different C2P registers and
+dumping the corresponding P2C registers. But so far I could not get any
+information that could be interpreted as the sensor info and mask that
+I need. Maybe Nehal or Sandeep could provide the information, if and
+how it ts possible to get information about the amount, position and
+type of the connected sensors in another way. I also found out, by
+sweeping the SFH registers (from 0 to 31), that there seem to be other
+sensors connected on my machine, namely at positions 0, 1, 2, 3, 4, 7,
+8 and 9. The ALS at 19 does not seem to be present on my system. I
+suspect that at least one of those is an additional accelerometer,
+since the only one working right now ist the accelerometer at position
+0, which is located in the sceen / lid. I suspect that the other one is
+located in the chassis, allowing the use of both to perform tablet mode
+detection by processing their relative orientation. I'd appreciate a
+hint on this assumption as well. ;-)
+
+Sincere regards,
+
+Richard
+
+[1] https://gist.github.com/conqp/33baa079d9524914c4c0c196200e4f89
+
+--=-Lic1xVuC6am9NOepDW9o
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQT62wKwhMqSt8WaustMqNUjvThq9wUCXpRqMQAKCRBMqNUjvThq
+9/xTAP0fCC9iZ+L52+k77GfQ7si6y49pvUTd0dJVRQdC7qsEhQD+Jok81CLtvoou
+Fi5/ODmaKCGFTxeC0IqrNK7CXiRITw8=
+=aUOQ
+-----END PGP SIGNATURE-----
+
+--=-Lic1xVuC6am9NOepDW9o--
 

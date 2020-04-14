@@ -2,103 +2,74 @@ Return-Path: <SRS0=0BCR=56=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CB85C3815B
-	for <linux-input@archiver.kernel.org>; Tue, 14 Apr 2020 08:52:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEC30C2BA19
+	for <linux-input@archiver.kernel.org>; Tue, 14 Apr 2020 09:14:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B9892072D
-	for <linux-input@archiver.kernel.org>; Tue, 14 Apr 2020 08:52:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9887A206E9
+	for <linux-input@archiver.kernel.org>; Tue, 14 Apr 2020 09:14:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1586855685;
+	bh=vIPB95jP71/wZfkYY1Jl0maRvCI3/VPsvQxyrFC/qsU=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
+	b=qJBaqx46pKWQqX3REtH+mArpxthiKMKGB+1SfalR0Q/WaUF49yLg1OdAj2ZFOFZRY
+	 +Zh2TjgPGwZhNwy0pxX8TZTrjom/vKKNtCqCPTAWc9sNzclmiKX1wm0k2KYelPqsp1
+	 cIDwdhgPUPi8sl3k/Eji8P5eDiCqBSN8JeKbQmss=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437206AbgDNIwe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 14 Apr 2020 04:52:34 -0400
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:60025 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2437158AbgDNIv6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Apr 2020 04:51:58 -0400
-X-Originating-IP: 78.193.40.249
-Received: from kb-xps (unknown [78.193.40.249])
-        (Authenticated sender: kamel.bouhara@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 07CFBC0013;
-        Tue, 14 Apr 2020 08:51:54 +0000 (UTC)
-Date:   Tue, 14 Apr 2020 10:51:53 +0200
-From:   Kamel Bouhara <kamel.bouhara@bootlin.com>
-To:     Jonathan Cameron <jic23@kernel.org>
-Cc:     William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-iio@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] ARM: at91: add atmel tcb capabilities
-Message-ID: <20200414085153.GC161090@kb-xps>
-References: <20200409141401.321222-1-kamel.bouhara@bootlin.com>
- <20200409141401.321222-2-kamel.bouhara@bootlin.com>
- <20200412113137.1763f084@archlinux>
+        id S2437448AbgDNJOp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 14 Apr 2020 05:14:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59496 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2437356AbgDNJOn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 14 Apr 2020 05:14:43 -0400
+Received: from pobox.suse.cz (prg-ext-pat.suse.com [213.151.95.130])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B6BA20656;
+        Tue, 14 Apr 2020 09:14:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586855683;
+        bh=vIPB95jP71/wZfkYY1Jl0maRvCI3/VPsvQxyrFC/qsU=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=jSQiX6ifWi3Z0dKGh1AeVhQHX/hp5MRAG8zItVCaixLNSDqmY5FKN/kt4G8XHYPwH
+         XxFhWL+jPRo4IBC/e45PPI9U0u4qPa8Da2uHHMpi4DS/f/3KEKQD2gBmJs46Eg6VXy
+         flnY19xsmOxtUbEPgavch9KRStAiSqDDnbbCcr8M=
+Date:   Tue, 14 Apr 2020 11:14:40 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Sebastian Reichel <sebastian.reichel@collabora.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@collabora.com
+Subject: Re: [PATCH] HID: multitouch: add eGalaxTouch P80H84 support
+In-Reply-To: <20200413160237.610771-1-sebastian.reichel@collabora.com>
+Message-ID: <nycvar.YFH.7.76.2004141114310.19713@cbobk.fhfr.pm>
+References: <20200413160237.610771-1-sebastian.reichel@collabora.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200412113137.1763f084@archlinux>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Apr 12, 2020 at 11:31:37AM +0100, Jonathan Cameron wrote:
-> On Thu,  9 Apr 2020 16:13:59 +0200
-> Kamel Bouhara <kamel.bouhara@bootlin.com> wrote:
->
-> > Some atmel socs have extra tcb capabilities that allow using a generic
-> > clock source or enabling a quadrature decoder.
-> >
-> > Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
-> > ---
-> > Changes from v2:
-> >  - Fixed first patch not applying on mainline
-> >
-> >  include/soc/at91/atmel_tcb.h | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/include/soc/at91/atmel_tcb.h b/include/soc/at91/atmel_tcb.h
-> > index c3c7200ce151..7e47ace9255c 100644
-> > --- a/include/soc/at91/atmel_tcb.h
-> > +++ b/include/soc/at91/atmel_tcb.h
-> > @@ -39,6 +39,8 @@ struct clk;
-> >   */
-> >  struct atmel_tcb_config {
-> >  	size_t	counter_width;
->
-Hi,
+On Mon, 13 Apr 2020, Sebastian Reichel wrote:
 
-> This structure has existing kernel doc. Please add these new
-> elements and run ./scripts/kernel-doc over it check for any issues.
->
+> Add support for P80H84 touchscreen from eGalaxy:
+> 
+>   idVendor           0x0eef D-WAV Scientific Co., Ltd
+>   idProduct          0xc002
+>   iManufacturer           1 eGalax Inc.
+>   iProduct                2 eGalaxTouch P80H84 2019 vDIVA_1204_T01 k4.02.146
+> 
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-Its fixed, thanks.
+Applied, thanks.
 
-Kamel
+-- 
+Jiri Kosina
+SUSE Labs
 
-> > +	bool    has_gclk;
-> > +	bool    has_qdec;
-> >  };
-> >
-> >  /**
-> > --
-> > 2.25.0
-> >
->
-> Thanks,
->
-> Jonathan
-
---
-Kamel Bouhara, Bootlin
-Embedded Linux and kernel engineering
-https://bootlin.com

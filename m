@@ -2,111 +2,103 @@ Return-Path: <SRS0=mEKT=57=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71434C2BA19
-	for <linux-input@archiver.kernel.org>; Wed, 15 Apr 2020 13:05:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBFE7C2BA19
+	for <linux-input@archiver.kernel.org>; Wed, 15 Apr 2020 13:09:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52D4F20737
-	for <linux-input@archiver.kernel.org>; Wed, 15 Apr 2020 13:05:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA56820737
+	for <linux-input@archiver.kernel.org>; Wed, 15 Apr 2020 13:09:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504121AbgDONFx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 15 Apr 2020 09:05:53 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:47305 "EHLO
-        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2505896AbgDONFL (ORCPT
+        id S2441347AbgDONJA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 15 Apr 2020 09:09:00 -0400
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:10713 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730996AbgDONIy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Apr 2020 09:05:11 -0400
-X-Originating-IP: 78.193.40.249
-Received: from localhost (unknown [78.193.40.249])
-        (Authenticated sender: kamel.bouhara@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 9671DFF80A;
-        Wed, 15 Apr 2020 13:05:08 +0000 (UTC)
-From:   Kamel Bouhara <kamel.bouhara@bootlin.com>
-To:     William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-iio@vger.kernel.org,
-        Kamel Bouhara <kamel.bouhara@bootlin.com>
-Subject: [PATCH v3 2/3] dt-bindings: counter: microchip-tcb-capture counter
-Date:   Wed, 15 Apr 2020 15:04:54 +0200
-Message-Id: <20200415130455.2222019-3-kamel.bouhara@bootlin.com>
-X-Mailer: git-send-email 2.25.0
-In-Reply-To: <20200415130455.2222019-1-kamel.bouhara@bootlin.com>
-References: <20200415130455.2222019-1-kamel.bouhara@bootlin.com>
+        Wed, 15 Apr 2020 09:08:54 -0400
+IronPort-SDR: 6k2uFKYTgrJE0rhzjuRkpiJvuqgCWkuP7DCmMFrEkYZOaSoZqNwvgLqaRLl6+jxfOgjmQngmUR
+ XhxbBICcQjqxiwiYElZ8YuRw7VRqSs5fWKEeQy3rvZLoMUNOsoWFIvJcgnWP4TAZwUBkrhRts8
+ TiUyymwPgyawCFHrCv5Ct7HWPUW4PIeDvctokaPojl7gzfFu5C7jYFKf2l1TNPLJht8GWbepOi
+ qlg6uJB6vTejRYnHsUds5o1+DpqJV7IoFCcYx1BQ+4XkONifbvj7gdhXZ+wSPquiyXJ9sYBklE
+ B7k=
+X-IronPort-AV: E=Sophos;i="5.72,386,1580803200"; 
+   d="scan'208";a="49774491"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa1.mentor.iphmx.com with ESMTP; 15 Apr 2020 05:08:39 -0800
+IronPort-SDR: Y5LAQRItYnmMOn+DC8fv4yqie+YpKzOr+dWbCm+EKPE654a2TpX2guXwd4cB9WW/MCLh0d+iUY
+ BsB6XlVT70qdLBaCLeEYHRwjYjgBe3eIWVv8YIRhU9NjrQ/w3+xt5MQ0ltBSrpexPxctv5g/MD
+ ovOH9jODJaeC87HMj2+75S657YDnNIWlkshO1TmXod+gkzejCwOoNMfklbwSNVOv1j7mHVIWUt
+ LBA3bu7dBRUkvLi+U2GCBJ6RSSHY292pdULSFYiBo3veTcvtcazDamY2AiW4aXvFoQ/PKhZDzC
+ 5ew=
+Subject: Re: [PATCH v10 18/55] Input: atmel_mxt_ts: Rename mxt_hw_version_show
+ to hw_version_show
+To:     Dmitry Osipenko <digetx@gmail.com>, <nick@shmanahar.org>,
+        <dmitry.torokhov@gmail.com>, <jikos@kernel.org>,
+        <benjamin.tissoires@redhat.com>, <bsz@semihalf.com>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>
+References: <20200331105051.58896-1-jiada_wang@mentor.com>
+ <20200331105051.58896-19-jiada_wang@mentor.com>
+ <aae29974-7a8f-404b-b115-59416021ff61@gmail.com>
+From:   "Wang, Jiada" <jiada_wang@mentor.com>
+Message-ID: <620a300b-4aa4-efe6-20e4-4f44fd9a3fd0@mentor.com>
+Date:   Wed, 15 Apr 2020 22:08:34 +0900
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
+In-Reply-To: <aae29974-7a8f-404b-b115-59416021ff61@gmail.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: SVR-ORW-MBX-06.mgc.mentorg.com (147.34.90.206) To
+ svr-orw-mbx-03.mgc.mentorg.com (147.34.90.203)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Describe the devicetree binding for the Microchip TCB module.
-Each counter blocks exposes three independent counters.
+Hi Dmitry
 
-However, when configured in quadrature decoder, both channel <0> and <1>
-are required for speed/position and rotation capture (yet only the
-position is captured).
+On 2020/04/11 6:46, Dmitry Osipenko wrote:
+> 31.03.2020 13:50, Jiada Wang пишет:
+>> Rename mxt_hw_version_show to hw_version_show to address checkpatch warning
+>>
+>> Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+>> ---
+>>   drivers/input/touchscreen/atmel_mxt_ts.c | 6 +++---
+>>   1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> index b2a37a9597f3..cec823de4096 100644
+>> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+>> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> @@ -3114,8 +3114,8 @@ static ssize_t fw_version_show(struct device *dev,
+>>   }
+>>   
+>>   /* Hardware Version is returned as FamilyID.VariantID */
+>> -static ssize_t mxt_hw_version_show(struct device *dev,
+>> -				   struct device_attribute *attr, char *buf)
+>> +static ssize_t hw_version_show(struct device *dev,
+>> +			       struct device_attribute *attr, char *buf)
+>>   {
+>>   	struct mxt_data *data = dev_get_drvdata(dev);
+>>   	struct mxt_info *info = data->info;
+>> @@ -3404,7 +3404,7 @@ static const struct attribute_group mxt_fw_attr_group = {
+>>   };
+>>   
+>>   static DEVICE_ATTR_RO(fw_version);
+>> -static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+>> +static DEVICE_ATTR_RO(hw_version);
+>>   static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+> 
+> What about to add a patch to convert the mxt_object_show to
+> DEVICE_ATTR_RO(object_show)?
+> 
+sure, mxt_object, is the last attr not using DEVICE_ATTR_[RO|WO|RW],
+I will add another commit to update in next version
 
-Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
----
-Changes from v3:
- - Updated the brand name: s/atmel/microchip/.
-
-Changes from v2:
- - Fixed errors reported by dt_binding_check
-
- .../counter/microchip-tcb-capture.yaml        | 33 +++++++++++++++++++
- 1 file changed, 33 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/counter/microchip-tcb-capture.yaml
-
-diff --git a/Documentation/devicetree/bindings/counter/microchip-tcb-capture.yaml b/Documentation/devicetree/bindings/counter/microchip-tcb-capture.yaml
-new file mode 100644
-index 000000000000..183e9ee4c049
---- /dev/null
-+++ b/Documentation/devicetree/bindings/counter/microchip-tcb-capture.yaml
-@@ -0,0 +1,33 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/counter/microchip-tcb-capture.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Microchip TCB Counter
-+
-+maintainers:
-+  - Kamel Bouhara <kamel.bouhara@bootlin.com>
-+
-+properties:
-+  compatible:
-+    const: "microchip,tcb-capture"
-+
-+  reg:
-+    description: TCB capture channel to register as counter device.
-+      Each channel is independent therefore only one channel is
-+      registered by default execpt for the QDEC mode where both TCB0's
-+      channels <0> and  <1> are required.
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    tcb0: timer@f800c000 {
-+        compatible = "microchip,tcb-capture";
-+        reg = <0>, <1>;
-+    };
--- 
-2.25.0
-
+Thanks,
+Jiada

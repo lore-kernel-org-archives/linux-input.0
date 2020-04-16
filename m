@@ -2,169 +2,138 @@ Return-Path: <SRS0=d6Rb=6A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C2FFC2BB55
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 12:46:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9F0EC2BB55
+	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 14:09:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 05ECE208E4
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 12:46:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8811720656
+	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 14:09:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="wft9es95"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2636112AbgDPMoW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Apr 2020 08:44:22 -0400
-Received: from asavdk4.altibox.net ([109.247.116.15]:33886 "EHLO
-        asavdk4.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2636077AbgDPMoR (ORCPT
+        id S2393515AbgDPOJf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Apr 2020 10:09:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33854 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2393226AbgDPOJY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Apr 2020 08:44:17 -0400
-Received: from ravnborg.org (unknown [158.248.194.18])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by asavdk4.altibox.net (Postfix) with ESMTPS id 924AA80487;
-        Thu, 16 Apr 2020 14:44:00 +0200 (CEST)
-Date:   Thu, 16 Apr 2020 14:43:59 +0200
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     Rob Herring <robh@kernel.org>
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        Thu, 16 Apr 2020 10:09:24 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBCDEC061A10
+        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2020 07:09:23 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id z26so7907273ljz.11
+        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2020 07:09:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=2cSkXHmvUNwPdGeVkj60CCBpcqm/zp0JNhGGEDa8e6c=;
+        b=wft9es95d/UBAGc/gHlKWquJct6ZDPlxhqz8XVNlsJgUyYYFv5npGT+B8y/gb2HGy0
+         aArvOQ8QLLihF6z+o9Mr1VbiSkeCZCvx6YPqd4Fx+SlR21QJ1yIJ71LoUwwiJceqk7am
+         Eh1Vg5VKyxYOU3DuyC2r12+snGkI1UB9FWjWaONhVSHoNV5VcxFDD03Q6vN/XdkXAp8n
+         PNrbIkJCbO4h6tyu5T85Ga3rUXQI5+nV5gMZh8g4u++1ST/Va2e9SGpuXWxP0i4KXXBi
+         0KrveZGh2BzHhlx+MWOPz1dSOLDlippk34ejEelLvwpPmR3ZhlkoejoKr4wsTYzgWZWv
+         W7nA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=2cSkXHmvUNwPdGeVkj60CCBpcqm/zp0JNhGGEDa8e6c=;
+        b=rcXKMz8F2sq6LVm4buSxh/54Wrn085DNffWyfhIn3S3kI8H2Hc100ffmLx2Hb3XInb
+         StTFS7L3pWFZdWadptgovEfPTQLz9ct5eqJlH6ByZ6iFIo/dtj0rQMXUzs39try6LGTj
+         MdCfOk23BcF7ho4Fr9BDUcTjjT7UWLAp9P4Q7A7PWGKgV8lMy6QAIbgeRe5xMfkAFxyi
+         wZx6l9QdVO1k8gwKf6KyUOuTAWsQWWRBjr2r7NnV65MXQLw5VHmx1q6AjDOAY95EdYo4
+         4jg7R7ohgAQM4H8gnD+CDh1kVeS0zndjZzexZavP9/mADTMyeNq+81xUviRrbhWYFBwX
+         9y9Q==
+X-Gm-Message-State: AGi0PuYVZkyf1m5ntvV84wqXrIzRJfDlVcyppAxK/0FfRY3XJUuFmbCu
+        pqMbk322HDBYMKYJVd9ZKW9oAA==
+X-Google-Smtp-Source: APiQypIZv2NDJQmoyhSvQfPxfh+Eajh9UXVOuik6AHjDW0mBW1kGCsTWSVi6bzeVb0uVVVgXNP/Avw==
+X-Received: by 2002:a2e:3a0a:: with SMTP id h10mr6137225lja.54.1587046162057;
+        Thu, 16 Apr 2020 07:09:22 -0700 (PDT)
+Received: from localhost.bredbandsbolaget (c-f3d7225c.014-348-6c756e10.bbcust.telenor.se. [92.34.215.243])
+        by smtp.gmail.com with ESMTPSA id v12sm9744045ljd.85.2020.04.16.07.09.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Apr 2020 07:09:21 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org
+Cc:     Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        linux-input@vger.kernel.org,
         Linus Walleij <linus.walleij@linaro.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org
-Subject: Re: [PATCH 1/2] dt-bindings: Clean-up schema indentation formatting
-Message-ID: <20200416124359.GB5785@ravnborg.org>
-References: <20200416005549.9683-1-robh@kernel.org>
+        Nick Reitemeyer <nick.reitemeyer@web.de>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH 2/2 v2] iio: magnetometer: ak8974: Provide scaling
+Date:   Thu, 16 Apr 2020 16:09:17 +0200
+Message-Id: <20200416140917.8087-2-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.21.1
+In-Reply-To: <20200416140917.8087-1-linus.walleij@linaro.org>
+References: <20200416140917.8087-1-linus.walleij@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200416005549.9683-1-robh@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-CMAE-Score: 0
-X-CMAE-Analysis: v=2.3 cv=XpTUx2N9 c=1 sm=1 tr=0
-        a=UWs3HLbX/2nnQ3s7vZ42gw==:117 a=UWs3HLbX/2nnQ3s7vZ42gw==:17
-        a=jpOVt7BSZ2e4Z31A5e1TngXxSK0=:19 a=kj9zAlcOel0A:10
-        a=xJWM5Xtqm7-vkBAKM1YA:9 a=bxeknKLoBf6BnO7k:21 a=StjP_oZuoJ7ca4eH:21
-        a=CjuIK1q_8ugA:10
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Rob.
+The manual for the HSCDTD008A gives us a scaling for the
+three axis as +/- 2.4mT per axis.
 
-On Wed, Apr 15, 2020 at 07:55:48PM -0500, Rob Herring wrote:
-> Fix various inconsistencies in schema indentation. Most of these are
-> list indentation which should be 2 spaces more than the start of the
-> enclosing keyword. This doesn't matter functionally, but affects running
-> scripts which do transforms on the schema files.
+When I implement this the biggest axis indicates 0.59 Gauss
+which is a reasonable measurement for the earths magnetic
+which is in the range of 0.25 to 0.65 Gauss on the surface
+according to Wikipedia.
 
-Are there any plans to improve the tooling so we get warnigns for this?
-Otherwise I am afraid we will see a lot of patches that gets this wrong.
+Cc: Nick Reitemeyer <nick.reitemeyer@web.de>
+Cc: Stephan Gerhold <stephan@gerhold.net>
+Cc: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ChangeLog v1->v2:
+- Split out the measurement refactoring.
+---
+ drivers/iio/magnetometer/ak8974.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-As a follow-up patch it would be good if example-schema.yaml
-could gain some comments about the correct indentions.
+diff --git a/drivers/iio/magnetometer/ak8974.c b/drivers/iio/magnetometer/ak8974.c
+index 5361647b9054..effcdd93e650 100644
+--- a/drivers/iio/magnetometer/ak8974.c
++++ b/drivers/iio/magnetometer/ak8974.c
+@@ -603,6 +603,18 @@ static int ak8974_read_raw(struct iio_dev *indio_dev,
+ 		*val = outval;
+ 		ret = IIO_VAL_INT;
+ 		break;
++	case IIO_CHAN_INFO_SCALE:
++		/*
++		 * The datasheet for HSCDTF008A, page 3 specifies the
++		 * range of the sensor as +/- 2.4 mT per axis, which corresponds
++		 * to +/- 2400 uT = +/- 24 Gauss. So 0x7fff is 24 Gauss and
++		 * 0xffff is -24 Gauss. To account for the one missing value if
++		 * we multiply by 1/S16_MAX, instead multiply with 2/U16_MAX.
++		 */
++		*val = 24 * 2;
++		*val2 = U16_MAX;
++		ret = IIO_VAL_FRACTIONAL;
++		break;
+ 	}
+ out_err_read:
+ 	return ret;
+@@ -667,7 +679,8 @@ static const struct iio_chan_spec_ext_info ak8974_ext_info[] = {
+ 		.type = IIO_MAGN,					\
+ 		.modified = 1,						\
+ 		.channel2 = IIO_MOD_##axis,				\
+-		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),		\
++		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |		\
++			BIT(IIO_CHAN_INFO_SCALE),			\
+ 		.ext_info = ak8974_ext_info,				\
+ 		.address = index,					\
+ 		.scan_index = index,					\
+-- 
+2.21.1
 
-Some comments in the following.
-
-> diff --git a/Documentation/devicetree/bindings/arm/altera.yaml b/Documentation/devicetree/bindings/arm/altera.yaml
-> index 49e0362ddc11..b388c5aa7984 100644
-> --- a/Documentation/devicetree/bindings/arm/altera.yaml
-> +++ b/Documentation/devicetree/bindings/arm/altera.yaml
-> @@ -13,8 +13,8 @@ properties:
->    compatible:
->      items:
->        - enum:
-> -        - altr,socfpga-cyclone5
-> -        - altr,socfpga-arria5
-> -        - altr,socfpga-arria10
-> +          - altr,socfpga-cyclone5
-> +          - altr,socfpga-arria5
-> +          - altr,socfpga-arria10
->        - const: altr,socfpga
-
-So here "- enum" do not need the extra indent.
-Is it because this is not a list?
-
->  ...
-> diff --git a/Documentation/devicetree/bindings/arm/amlogic/amlogic,meson-gx-ao-secure.yaml b/Documentation/devicetree/bindings/arm/amlogic/amlogic,meson-gx-ao-secure.yaml
-> index 66213bd95e6e..6cc74523ebfd 100644
-> --- a/Documentation/devicetree/bindings/arm/amlogic/amlogic,meson-gx-ao-secure.yaml
-> +++ b/Documentation/devicetree/bindings/arm/amlogic/amlogic,meson-gx-ao-secure.yaml
-> @@ -25,7 +25,7 @@ select:
-> 
->  properties:
->    compatible:
-> -   items:
-> +    items:
->        - const: amlogic,meson-gx-ao-secure
->        - const: syscon
-
-This is something I had expected the tooling to notice.
-I had expected the two "- const" to be indented with 4 spaces, not two.
-So there is something I do not understand.
-
-
-> diff --git a/Documentation/devicetree/bindings/arm/nxp/lpc32xx.yaml b/Documentation/devicetree/bindings/arm/nxp/lpc32xx.yaml
-> index 07f39d3eee7e..f7f024910e71 100644
-> --- a/Documentation/devicetree/bindings/arm/nxp/lpc32xx.yaml
-> +++ b/Documentation/devicetree/bindings/arm/nxp/lpc32xx.yaml
-> @@ -17,9 +17,8 @@ properties:
->            - nxp,lpc3230
->            - nxp,lpc3240
->        - items:
-> -        - enum:
-> -            - ea,ea3250
-> -            - phytec,phy3250
-> -        - const: nxp,lpc3250
-> -
-> +          - enum:
-> +              - ea,ea3250
-> +              - phytec,phy3250
-> +          - const: nxp,lpc3250
->  ...
-
-And here "- enum" receive extra indent.
-
-I trust you know what you are doing - but I do not get it.
-
-Some pointers or examples for the correct indention would be great.
-I cannot review this patch as long as I do not know the rules.
-
-My request to update example-schema.yaml was one way to teach me.
-(Some people will say that is difficult/impossible to teach me,
-but thats another story:-) ).
-
-	Sam

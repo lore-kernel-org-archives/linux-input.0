@@ -2,128 +2,105 @@ Return-Path: <SRS0=d6Rb=6A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C3BAC352BE
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 09:17:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A60EC2BB85
+	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 11:25:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 460C420644
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 09:17:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1587028648;
-	bh=6kwbxJH2RDveXqsZesbfmy1W3FzqE56YVY6CxJmBpFo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=jmaZeGNM8JlS9RMjZwx/gS4sjRMcgcY6A/8oe61OMcbcmwbChi+Vof+VOlZvEbr54
-	 U8fNQxG0aIS9Yd8mVuwbyyLTq7E+fICSG1E4OuvjoT7dSpxXc9+h+N8yu3kA0D3Q9u
-	 NpVLs8ceep8orNE4ZN31rU04pob3uavivjh21krE=
+	by mail.kernel.org (Postfix) with ESMTP id 3BEE621D7F
+	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 11:25:16 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="pUm/dCpD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441442AbgDPJQW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Apr 2020 05:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38254 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441116AbgDPIHP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Apr 2020 04:07:15 -0400
-Received: from localhost (unknown [223.235.195.235])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69F85206E9;
-        Thu, 16 Apr 2020 08:07:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587024434;
-        bh=6kwbxJH2RDveXqsZesbfmy1W3FzqE56YVY6CxJmBpFo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O1d6NWlKFfnyKMYlp3FSfoZyP6WL58llnMOPAcukWE4NK15IAgUmTc9Oy1CJfBrQJ
-         FzFh77ntmk81ok6QNhBa7Fsxt0mRWxySPBmmQLISyBFjZXKruM2zAQoNUgGwtCZMXr
-         hATzQxclu6p7VFesf/GI28sOVbjEiU4zdOe4G2WA=
-Date:   Thu, 16 Apr 2020 13:37:10 +0530
-From:   Vinod Koul <vkoul@kernel.org>
-To:     Rob Herring <robh@kernel.org>
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org
-Subject: Re: [PATCH 1/2] dt-bindings: Clean-up schema indentation formatting
-Message-ID: <20200416080710.GI72691@vkoul-mobl>
-References: <20200416005549.9683-1-robh@kernel.org>
+        id S2633077AbgDPLZN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Apr 2020 07:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36506 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2633069AbgDPLYr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Apr 2020 07:24:47 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A3BC061A0C
+        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2020 04:24:45 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id l11so5316500lfc.5
+        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2020 04:24:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=91IoQt8MKAEQHzNhIomKMTipSgMe5lSxVgD3BjRS3II=;
+        b=pUm/dCpD1e2p3xp5gP2FxIaTOJYH0dKsBte/U1WzRr/sqJJwTvU48GZ1Hka/i50iXd
+         qtjfcbVtvHLKx1XrN94vL42DhN/4djLHGAUiQ5poHDIcSowJ443iu7reqIKF+ON22+gS
+         Y2NWQ06wB3tcXZq7wXxv8j6UfTyqFg3Ar5jehrqa1s0ETPFwDt4DA6rXO3d3p5W2yh5s
+         gSl/BFbmFQAJSUmGZd4GHYpEh869jkZu7qzgqocMT1j15y9uHq9Hfr2K1ZO69FmFxPFp
+         oxAyzQs5QM5P4B4ak5prGL/jnsvIWWmJE4hd7EEfjVMUtMwd1GH6SW70YOJSrqloA4gF
+         M0Xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=91IoQt8MKAEQHzNhIomKMTipSgMe5lSxVgD3BjRS3II=;
+        b=YFuukoU2LugFXxEPqKODqJrfilWFvIwt1sYCwibhUEcy8Tkm42+k3sNw1zNHuKP7KO
+         qSo+j5xdXVsSxb7haGlvvEUIG/KDO3QTUa+29McJ6IkTde9OqEXCPnPQacKNwynfm1Dn
+         chlzI28VXt1Om/OIvROAhZCVQaCaXCtGE8xNvJxC39GMbgDB2m0YDJ++Uu8wtn4bned6
+         vjYxQYuKbv2VwYbtRdA8s69MHonUmq9MI7asBABH09RYYWySbCV3B+4W1ZNxo2mHd6D2
+         9ocvRyoCCOf4bzV6lPCRdGHImg6qjMy1B3jIX0CZJzHArUMdxprxUtD3zBgZ1TJLfxci
+         q1yA==
+X-Gm-Message-State: AGi0PuYQ9F+Undw9qqvSntUHmrcIs59z5q4iFL4pM7Apzg1cjJE9V5M1
+        jOK0cZAY7e3gCz3ws314oaN3sJP1u8aBgPg3nOcaJg==
+X-Google-Smtp-Source: APiQypKER/2EB8Z5ELqVAMozkqwK3O4AQM7q+civrEIeHemg21DnYBd8b8x4Owji7jfW3OIAelN4bep/jvanKBdDm+A=
+X-Received: by 2002:a19:48c3:: with SMTP id v186mr5679216lfa.194.1587036284149;
+ Thu, 16 Apr 2020 04:24:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200416005549.9683-1-robh@kernel.org>
+References: <1586882894-19905-1-git-send-email-gupt21@gmail.com>
+In-Reply-To: <1586882894-19905-1-git-send-email-gupt21@gmail.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Thu, 16 Apr 2020 13:24:33 +0200
+Message-ID: <CACRpkdYZ1_EzPPFaiEUihnxuMB=9EquVPnRxf3pVeJfxn8AbcA@mail.gmail.com>
+Subject: Re: [PATCH 1/1] HID: mcp2221: add GPIO functionality support
+To:     Rishi Gupta <gupt21@gmail.com>
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Linux Input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 15-04-20, 19:55, Rob Herring wrote:
-> Fix various inconsistencies in schema indentation. Most of these are
-> list indentation which should be 2 spaces more than the start of the
-> enclosing keyword. This doesn't matter functionally, but affects running
-> scripts which do transforms on the schema files.
-> 
-> Signed-off-by: Rob Herring <robh@kernel.org>
-> ---
->  .../devicetree/bindings/arm/altera.yaml       |  6 +-
->  .../amlogic/amlogic,meson-gx-ao-secure.yaml   |  2 +-
->  .../devicetree/bindings/arm/bitmain.yaml      |  2 +-
->  .../devicetree/bindings/arm/nxp/lpc32xx.yaml  |  9 ++-
->  .../bindings/arm/socionext/uniphier.yaml      | 26 ++++----
->  .../bindings/arm/stm32/st,mlahb.yaml          |  2 +-
->  .../bindings/arm/stm32/st,stm32-syscon.yaml   |  6 +-
->  .../bindings/ata/faraday,ftide010.yaml        |  4 +-
->  .../bindings/bus/allwinner,sun8i-a23-rsb.yaml |  4 +-
->  .../clock/allwinner,sun4i-a10-gates-clk.yaml  |  8 +--
->  .../devicetree/bindings/clock/fsl,plldig.yaml | 17 +++--
->  .../devicetree/bindings/clock/qcom,mmcc.yaml  | 16 ++---
->  .../bindings/connector/usb-connector.yaml     |  6 +-
->  .../crypto/allwinner,sun4i-a10-crypto.yaml    | 14 ++--
->  .../bindings/crypto/allwinner,sun8i-ce.yaml   | 16 ++---
->  .../bindings/crypto/amlogic,gxl-crypto.yaml   |  2 +-
->  .../display/allwinner,sun4i-a10-hdmi.yaml     | 40 ++++++------
->  .../display/allwinner,sun4i-a10-tcon.yaml     | 58 ++++++++---------
->  .../display/allwinner,sun6i-a31-mipi-dsi.yaml | 28 ++++----
->  .../display/allwinner,sun8i-a83t-dw-hdmi.yaml | 10 +--
->  .../bindings/display/bridge/lvds-codec.yaml   | 18 +++---
->  .../display/panel/sony,acx424akp.yaml         |  2 +-
->  .../display/panel/xinpeng,xpp055c272.yaml     |  4 +-
->  .../bindings/display/renesas,cmm.yaml         | 16 ++---
->  .../devicetree/bindings/dma/ti/k3-udma.yaml   |  8 +--
+On Tue, Apr 14, 2020 at 6:48 PM Rishi Gupta <gupt21@gmail.com> wrote:
 
-Acked-By: Vinod Koul <vkoul@kernel.org>
+> MCP2221 has 4 pins that can be used as GPIO or configured
+> for alternate functionality such as clock generation and
+> IRQ detection. This patch adds support for GPIO functionality.
+>
+> To set direction of a pin or to toggle its state after it
+> has been configured as GPIO, driver sends command to mcp2221
+> and parses response received from mcp2221. Based on this
+> response either 0 or appropriate error code is returned to
+> GPIO framework.
+>
+> To get the direction or current state of a pin, driver
+> sends command and read response from the device. Based on
+> the response received from device direction or value
+> is sent to the GPIO framework.
+>
+> Command from driver to mcp2221 device are output report.
+> Response received from mcp2221 is input report.
+>
+> Datasheet (page 45-48) contains details about how to decode
+> the response received from device:
+> http://ww1.microchip.com/downloads/en/DeviceDoc/20005565B.pdf
+>
+> Signed-off-by: Rishi Gupta <gupt21@gmail.com>
 
--- 
-~Vinod
+This looks good to me.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij

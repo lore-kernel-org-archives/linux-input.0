@@ -2,185 +2,148 @@ Return-Path: <SRS0=d6Rb=6A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4E37C2BB85
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 14:09:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39605C3815B
+	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 15:35:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D54420786
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 14:09:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17C612223D
+	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 15:35:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="GN52HuCO"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gerhold.net header.i=@gerhold.net header.b="XByQx+1i"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393229AbgDPOJm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Apr 2020 10:09:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33848 "EHLO
+        id S2633363AbgDPPfO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Apr 2020 11:35:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2393138AbgDPOJW (ORCPT
+        by vger.kernel.org with ESMTP id S2503878AbgDPPfM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:09:22 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76560C061A0F
-        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2020 07:09:21 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id r7so7916798ljg.13
-        for <linux-input@vger.kernel.org>; Thu, 16 Apr 2020 07:09:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=EcwerKQQEP8j7nclGhrMgaoQqJ2z0i0teVUv4cSWNXE=;
-        b=GN52HuCOuJ1SswJKMaB3uMoT9Eb7waHxo5fPIzcXanb+uCFUuFV9TkhM4PjXVBZGM4
-         X9GP/WnyyF12vzcnEFCYv7gJiciOItxiplPtQ813fPjhHClqYVqTvgWqTEjiVLTU1bms
-         Og8XEEhsp2X6ua24ARy8T8XZfkqUsljn7IRGAqPB2qSXuTLw19sluh/ley6xJnCCtHMa
-         5n+QFWr4zT6kwQ63EfIZqBR2gzX30JHDRng2AYTzLQ4DWUxX1hK3yE+MV4XlG4P+ZGIY
-         Etp9hrQ43oR1+uOnq0nhUh/Sh5WqYlC1+h1IeKX4VIbxG9eqaoREpo81upE/SDpDDH+l
-         DiRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=EcwerKQQEP8j7nclGhrMgaoQqJ2z0i0teVUv4cSWNXE=;
-        b=EYslI2x/KRuXzZNU1jfmhhui+GnZc7hQYvw9ccOplijFThRcPnt196Bo5gkwPvOKpX
-         gjLiXEIvMTraE+1uEYy+oMLWIbqvo9kVb1oWIuUnTfb9DyveiHGIDRuPG/0bRw2b2p6S
-         zjTFRWj1EvZVexRR2JPYKc+9K3dPrBLscm7QARPaebjTW+k/S4GH0TR6WGaXxkeb1Ihe
-         MzgFfDaM1auoPzkQ11J5JiUg6vL3yAh+xWKmJKjsHurpbTMNUBScwUsA8I5f7TjfzXbd
-         oNDyyp6zwYWAGEFUZnIkClDrR1SzZ9N9Rcl5HHE2xLsryv5FogGoqLk4XoVODN9UOQwH
-         YKhw==
-X-Gm-Message-State: AGi0PuYdOOInWwnpMdZV5LB+YYBbSak2+FejrFIBc97T/l8XfuBYEBGX
-        6yzcMLumL5LCmjh3plVcC0uWyQ==
-X-Google-Smtp-Source: APiQypJcSV0LCNGO0pS1gyWwCMCoYh6wY2j+JWPGs+yObCYqdjzVp901POV40kM+hMkZGLw4VxCyCQ==
-X-Received: by 2002:a05:651c:39b:: with SMTP id e27mr6962616ljp.45.1587046159829;
-        Thu, 16 Apr 2020 07:09:19 -0700 (PDT)
-Received: from localhost.bredbandsbolaget (c-f3d7225c.014-348-6c756e10.bbcust.telenor.se. [92.34.215.243])
-        by smtp.gmail.com with ESMTPSA id v12sm9744045ljd.85.2020.04.16.07.09.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Apr 2020 07:09:19 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org
-Cc:     Hartmut Knaack <knaack.h@gmx.de>,
+        Thu, 16 Apr 2020 11:35:12 -0400
+X-Greylist: delayed 166 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 16 Apr 2020 08:35:11 PDT
+Received: from mo6-p01-ob.smtp.rzone.de (mo6-p01-ob.smtp.rzone.de [IPv6:2a01:238:20a:202:5301::6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDA5C061A0C;
+        Thu, 16 Apr 2020 08:35:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1587051310;
+        s=strato-dkim-0002; d=gerhold.net;
+        h=In-Reply-To:References:Message-ID:Subject:Cc:To:From:Date:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=BCeEOgm/2AQXBqZX9ijmy+r0/K/JKtbBfYXnVmRlUHc=;
+        b=XByQx+1ixlHQQE8yu+W3/vngSgai1b+W8DkbgtFUpifEXF3E6OzIrb79LL5JOJ17+d
+        aPxbHhSIj2Y8OMm81pOAZY+caFc9zdJZCBiavj7bpB7flcalyYF+XBf0c9HWtQ49fc6Q
+        bXwY2z+5RahT2pKIymSZimvmDkQee+P2n6ZxrsLMe2srVybC1kSps55b+itMU7TSdSim
+        +vg8zcVDp3ZS4Wlyk48NRsTzmW+ArGC/w/rNgAtBgYIVdN98yUGz9c8RevPzhQPbs4eV
+        5gcUbygAQ6h9n7AIT2ztyTktrr+p1jJX1wsSYNIs/Y0BxOsnnaIa69iOfeCEjt+0dG4N
+        S5pw==
+X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVOQ/OcYgojyw4j34+u26zEodhPgRDZ8j6IczFaoo="
+X-RZG-CLASS-ID: mo00
+Received: from gerhold.net
+        by smtp.strato.de (RZmta 46.4.0 DYNA|AUTH)
+        with ESMTPSA id k074e0w3GFW5BGq
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Thu, 16 Apr 2020 17:32:05 +0200 (CEST)
+Date:   Thu, 16 Apr 2020 17:32:00 +0200
+From:   Stephan Gerhold <stephan@gerhold.net>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org,
+        Hartmut Knaack <knaack.h@gmx.de>,
         Lars-Peter Clausen <lars@metafoo.de>,
         Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
         linux-input@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
         Nick Reitemeyer <nick.reitemeyer@web.de>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH 1/2 v2] iio: magnetometer: ak8974: Break out measurement
-Date:   Thu, 16 Apr 2020 16:09:16 +0200
-Message-Id: <20200416140917.8087-1-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.21.1
+        =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
+Subject: Re: [PATCH 2/2 v2] iio: magnetometer: ak8974: Provide scaling
+Message-ID: <20200416153200.GA897@gerhold.net>
+References: <20200416140917.8087-1-linus.walleij@linaro.org>
+ <20200416140917.8087-2-linus.walleij@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200416140917.8087-2-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This breaks out the measurement code to its own function
-so we can handle this without swirling it up with the
-bis switch() statement inside ak8974_read_raw().
+Hi Linus,
 
-Use an intermediary s16* variable since we read s16 but
-the external API required an int* so this way we get
-explicit casting.
+On Thu, Apr 16, 2020 at 04:09:17PM +0200, Linus Walleij wrote:
+> The manual for the HSCDTD008A gives us a scaling for the
+> three axis as +/- 2.4mT per axis.
+> 
 
-Cc: Nick Reitemeyer <nick.reitemeyer@web.de>
-Cc: Stephan Gerhold <stephan@gerhold.net>
-Cc: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-ChangeLog v1->v2:
-- Break out as a separate patch.
----
- drivers/iio/magnetometer/ak8974.c | 51 +++++++++++++++++++------------
- 1 file changed, 31 insertions(+), 20 deletions(-)
+I wonder if we can really assume that this applies to
+the other models (e.g. AK8974) as well?
 
-diff --git a/drivers/iio/magnetometer/ak8974.c b/drivers/iio/magnetometer/ak8974.c
-index ade4ed8f67d2..5361647b9054 100644
---- a/drivers/iio/magnetometer/ak8974.c
-+++ b/drivers/iio/magnetometer/ak8974.c
-@@ -554,46 +554,57 @@ static int ak8974_detect(struct ak8974 *ak8974)
- 	return 0;
- }
- 
-+static int ak8974_measure(struct ak8974 *ak8974, unsigned long address, s16 *val)
-+{
-+	__le16 hw_values[3];
-+	int ret;
-+
-+	pm_runtime_get_sync(&ak8974->i2c->dev);
-+	mutex_lock(&ak8974->lock);
-+
-+	ret = ak8974_trigmeas(ak8974);
-+	if (ret)
-+		goto out_unlock;
-+	ret = ak8974_getresult(ak8974, hw_values);
-+	if (ret)
-+		goto out_unlock;
-+	*val = (s16)le16_to_cpu(hw_values[address]);
-+out_unlock:
-+	mutex_unlock(&ak8974->lock);
-+	pm_runtime_mark_last_busy(&ak8974->i2c->dev);
-+	pm_runtime_put_autosuspend(&ak8974->i2c->dev);
-+
-+	return ret;
-+}
-+
- static int ak8974_read_raw(struct iio_dev *indio_dev,
- 			   struct iio_chan_spec const *chan,
- 			   int *val, int *val2,
- 			   long mask)
- {
- 	struct ak8974 *ak8974 = iio_priv(indio_dev);
--	__le16 hw_values[3];
- 	int ret = -EINVAL;
--
--	pm_runtime_get_sync(&ak8974->i2c->dev);
--	mutex_lock(&ak8974->lock);
-+	s16 outval;
- 
- 	switch (mask) {
- 	case IIO_CHAN_INFO_RAW:
- 		if (chan->address > 2) {
- 			dev_err(&ak8974->i2c->dev, "faulty channel address\n");
- 			ret = -EIO;
--			goto out_unlock;
-+			goto out_err_read;
- 		}
--		ret = ak8974_trigmeas(ak8974);
--		if (ret)
--			goto out_unlock;
--		ret = ak8974_getresult(ak8974, hw_values);
--		if (ret)
--			goto out_unlock;
--
- 		/*
- 		 * We read all axes and discard all but one, for optimized
- 		 * reading, use the triggered buffer.
- 		 */
--		*val = (s16)le16_to_cpu(hw_values[chan->address]);
--
-+		ret = ak8974_measure(ak8974, chan->address, &outval);
-+		if (ret)
-+			goto out_err_read;
-+		*val = outval;
- 		ret = IIO_VAL_INT;
-+		break;
- 	}
--
-- out_unlock:
--	mutex_unlock(&ak8974->lock);
--	pm_runtime_mark_last_busy(&ak8974->i2c->dev);
--	pm_runtime_put_autosuspend(&ak8974->i2c->dev);
--
-+out_err_read:
- 	return ret;
- }
- 
--- 
-2.21.1
+> When I implement this the biggest axis indicates 0.59 Gauss
+> which is a reasonable measurement for the earths magnetic
+> which is in the range of 0.25 to 0.65 Gauss on the surface
+> according to Wikipedia.
+> 
+> Cc: Nick Reitemeyer <nick.reitemeyer@web.de>
+> Cc: Stephan Gerhold <stephan@gerhold.net>
+> Cc: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - Split out the measurement refactoring.
+> ---
+>  drivers/iio/magnetometer/ak8974.c | 15 ++++++++++++++-
+>  1 file changed, 14 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iio/magnetometer/ak8974.c b/drivers/iio/magnetometer/ak8974.c
+> index 5361647b9054..effcdd93e650 100644
+> --- a/drivers/iio/magnetometer/ak8974.c
+> +++ b/drivers/iio/magnetometer/ak8974.c
+> @@ -603,6 +603,18 @@ static int ak8974_read_raw(struct iio_dev *indio_dev,
+>  		*val = outval;
+>  		ret = IIO_VAL_INT;
+>  		break;
+> +	case IIO_CHAN_INFO_SCALE:
+> +		/*
+> +		 * The datasheet for HSCDTF008A, page 3 specifies the
+> +		 * range of the sensor as +/- 2.4 mT per axis, which corresponds
+> +		 * to +/- 2400 uT = +/- 24 Gauss. So 0x7fff is 24 Gauss and
+> +		 * 0xffff is -24 Gauss. To account for the one missing value if
+> +		 * we multiply by 1/S16_MAX, instead multiply with 2/U16_MAX.
+> +		 */
 
+I just want to note that (according to the datasheet), HSCDTD008A
+produces either 14-bit or 15-bit measurements (depending on
+the HSCDTD008A_CTRL4_RANGE bit that we set by default).
+
+I think this isn't exposed correctly in the AK8974_AXIS_CHANNEL() macro
+(realbits is 16 instead of 15), so this might need special casing for
+hscdt008a?
+
+The reason I mention this is because I think it would also affect the
+scaling that you implement here. With 15-bit output it produces values
+from +16383 (0x3fff) (= 2.4 mT?) to -16384 (0xc000) (= -2.4 mT?).
+
+So it would never reach the 0x7fff and 0xffff you mention
+in your comment.
+
+> +		*val = 24 * 2;
+> +		*val2 = U16_MAX;
+> +		ret = IIO_VAL_FRACTIONAL;
+> +		break;
+>  	}
+>  out_err_read:
+>  	return ret;
+> @@ -667,7 +679,8 @@ static const struct iio_chan_spec_ext_info ak8974_ext_info[] = {
+>  		.type = IIO_MAGN,					\
+>  		.modified = 1,						\
+>  		.channel2 = IIO_MOD_##axis,				\
+> -		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),		\
+> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |		\
+> +			BIT(IIO_CHAN_INFO_SCALE),			\
+>  		.ext_info = ak8974_ext_info,				\
+>  		.address = index,					\
+>  		.scan_index = index,					\
+> -- 
+> 2.21.1
+> 

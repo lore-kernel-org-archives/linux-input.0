@@ -2,122 +2,89 @@ Return-Path: <SRS0=d6Rb=6A=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B5FDC2BB55
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 11:40:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EC9DC352BE
+	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 11:41:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4BAD21D94
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 11:40:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1587037218;
-	bh=u5fMQDNAUuXaPw+89dTTA0ZVG5dJuZz63WEnr/aWCsA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=Lj7/sTUUgGUjMHiZHX16ouG5qLmjso5Rijq5er0q8c8+Jx5pKdKeyMRTP0Wi4bScm
-	 BStB0AgjYdXy46od3RVzA7meO7mJjHXGGMq7V5kkGZy/m+eLEEoanP1Kecu4iqQja0
-	 BZDZs2KMvYy7KdaJ8PCas+zFyrfhE16T36WkgFtU=
+	by mail.kernel.org (Postfix) with ESMTP id 17D8621D95
+	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 11:41:21 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tudGTyZ+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505896AbgDPK73 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Apr 2020 06:59:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39426 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505871AbgDPK7V (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Apr 2020 06:59:21 -0400
-Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8860221E9;
-        Thu, 16 Apr 2020 10:41:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587033667;
-        bh=u5fMQDNAUuXaPw+89dTTA0ZVG5dJuZz63WEnr/aWCsA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xp/KXtyBC+AW47+w/EThPewPKJno4LpErrb9k/MShW8CSZOjoH/eQie3gyamQtAPZ
-         7+2VNJeLRNNDDKaVoGmzb7acrQ3F10p7zOFoaEDwJaxmNypi234utwSFrQnjNbswMB
-         9dE8DImjkqaSZMR+teMounUi1jKOEIZOXIrffOdk=
-Date:   Thu, 16 Apr 2020 11:41:04 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Rob Herring <robh@kernel.org>
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>, Vinod Koul <vkoul@kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org
-Subject: Re: [PATCH 2/2] dt-bindings: Remove cases of 'allOf' containing a
- '$ref'
-Message-ID: <20200416104104.GE5354@sirena.org.uk>
-References: <20200416005549.9683-1-robh@kernel.org>
- <20200416005549.9683-2-robh@kernel.org>
+        id S2505833AbgDPLlK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Apr 2020 07:41:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60454 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2505667AbgDPK6U (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Apr 2020 06:58:20 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F9C8C02C444;
+        Thu, 16 Apr 2020 03:57:21 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id a81so4313390wmf.5;
+        Thu, 16 Apr 2020 03:57:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1R+POzDb07QCuzG8dygmIi1RHIR7DIkd1sxfGgpHkcM=;
+        b=tudGTyZ+6A0/a3xr1gos5qcfxOw9o6PF/GllYmJ+A2LP2tj1EsjrygisBwOSQioQBM
+         DFTYxa6VmeG260A9c0jRGSs+qxc+FfVNExy40M0OWHE6vj0dpJiKtxVrCtjcOCYKP4QQ
+         EltaT8KWSNvrDnD1rIFhPSrPeF/geIgYoRd/D27UENo3kf4NhknOHusR/GWaCZnVsRY+
+         v1ZKOwoGPYv/B7gjGZJsaKi+iLGKQ2csheq8nRCU5cc0ubKRxpbKtDR4KryODgQQ2xI5
+         MUKvQ5MSMH5e56jkBvHHNuDAQTkMaofZagVR0ZtJuxeFlYQhjrrnKzsP/CQ8nf8hMy3n
+         Jzag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1R+POzDb07QCuzG8dygmIi1RHIR7DIkd1sxfGgpHkcM=;
+        b=OodDxfJwglJDatEZw3XulO4kZcwoRGu3RodtcCKVVyVjK9qv+nNgB69SPQGhQHTpGj
+         uUDD8tXUzgLwimz9r4zLT1gdQhkg5Qo2x5yDFdRUtqNJVM3GTJkCIn+xLIgUQBdP3Os5
+         Q+M3ENYSrTCuufe1lk3Fj0lcdtogrtcI8i+IZGP8VbyFBVbLtH6vg442qvaYYDUJuZ4h
+         VSTIELCWcNhJ8+sDetiuaPtlIobmOrm6PNADzCx9SxFjRdFnMsP18oENuXvwuc39afk8
+         +WrHhrdklujoNHXIMUby7BdViEwaj4QpINAZKYMRQaCVwwOdEytMjlwG+4pPxFmHP5U1
+         PBhQ==
+X-Gm-Message-State: AGi0PuaFJ0O9eJQKeTP5+yXNOJNPgPzr+NnCzoMirHbOd1pyr/hgdZeg
+        fjQmRLEgliNJP8SHiQLPA844Gu3sMxA5WAVhRJs=
+X-Google-Smtp-Source: APiQypJLarDf4u8sYmfZ2Gx2IfEXK9AMJIseyZedhiY2fzgofnoqNcFA0FU9PoNH4Ui4bnCDsjpUw9jCPPQ8cD9pgAo=
+X-Received: by 2002:a7b:c456:: with SMTP id l22mr4155568wmi.148.1587034639618;
+ Thu, 16 Apr 2020 03:57:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="/2994txjAzEdQwm5"
-Content-Disposition: inline
-In-Reply-To: <20200416005549.9683-2-robh@kernel.org>
-X-Cookie: Tempt me with a spoon!
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <nycvar.YFH.7.76.2004100019450.19713@cbobk.fhfr.pm>
+ <20200409230009.22551-1-dedsa2002@gmail.com> <TYAPR01MB3871E974EFE06EBF40074470ECDE0@TYAPR01MB3871.jpnprd01.prod.outlook.com>
+ <OSAPR01MB3057C2FB967974B98B224610C8DE0@OSAPR01MB3057.jpnprd01.prod.outlook.com>
+ <TYAPR01MB387100BC93864B0A93598BFBECDE0@TYAPR01MB3871.jpnprd01.prod.outlook.com>
+ <OSAPR01MB3057C914C96A8DCC47925502C8DE0@OSAPR01MB3057.jpnprd01.prod.outlook.com>
+ <CAMr=fxLXT2fMdhmnfj3ZH2Ptc50nvMVU0nAvW-3fw-wAKb9rYQ@mail.gmail.com>
+ <OSAPR01MB305753C5B0DD35DE7001436DC8DB0@OSAPR01MB3057.jpnprd01.prod.outlook.com>
+ <CAMr=fxKfJBWb45PuA-1t=-ZysyUVZZmXJH=D2bSacoh2akJ0Zw@mail.gmail.com>
+ <OSAPR01MB30571BF938FF882F7FB22853C8DB0@OSAPR01MB3057.jpnprd01.prod.outlook.com>
+ <CAMr=fxJK3=Ytna5WuMOWc=nNJ3ZvwSJRx4-epoktw_vULBm0Tw@mail.gmail.com> <TYAPR01MB3072BBC14F0F73BD0FCB3130C8D80@TYAPR01MB3072.jpnprd01.prod.outlook.com>
+In-Reply-To: <TYAPR01MB3072BBC14F0F73BD0FCB3130C8D80@TYAPR01MB3072.jpnprd01.prod.outlook.com>
+From:   Artem Borisov <dedsa2002@gmail.com>
+Date:   Thu, 16 Apr 2020 14:57:08 +0400
+Message-ID: <CAMr=fxJ17OO_R7Z4HoLAg=kJJcskN2otnz4-E_6uFjKYV8+_tQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] HID: alps: Refactor axis resolution logic
+To:     Xiaojian Cao <xiaojian.cao@cn.alps.com>
+Cc:     Masaki Ota <masaki.ota@alpsalpine.com>, jikos@kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Tetsuya Nomura <tetsuya.nomura@alpsalpine.com>,
+        "vadim@cirque.com" <vadim@cirque.com>,
+        "pod.alcht@cn.alps.com" <pod.alcht@cn.alps.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Hi.
 
---/2994txjAzEdQwm5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Apr 15, 2020 at 07:55:49PM -0500, Rob Herring wrote:
-> json-schema versions draft7 and earlier have a weird behavior in that
-> any keywords combined with a '$ref' are ignored (silently). The correct
-> form was to put a '$ref' under an 'allOf'. This behavior is now changed
-
-Acked-by: Mark Brown <broonie@kernel.org>
-
---/2994txjAzEdQwm5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl6YNkAACgkQJNaLcl1U
-h9B9Tgf/e6Ex42p5b/rjUYhiAhK+0T+nvTbdLGjxGyRfopnnVMMaYPWXmkdGdh0H
-/nGE0rn04EUyWfBkjgCeKuclbzRWJCfQBSl+4dlYbMuX1LKrybV3nRANP03o7A9y
-sqPsDL3Qq01Rgb8waJiwmXqcHjxKBbCZd5bzU8ff82hg8jGKMIDVzJdnYrzGJJm7
-wLygPWU+Nj65KniavgesiRhfwSLfveuWwAR6SsWCCiOhJOWgl0/KbhceiFTRLJ4c
-pQQeBPzy+/C5VH2sYPCZB3/MEQ4/6+CC1AchkSDqGwOooj4KsPXXCjiJtj4YZB86
-9wfRx0ePvlfgBQgHYw4LX6341lhYUw==
-=Rw7L
------END PGP SIGNATURE-----
-
---/2994txjAzEdQwm5--
+Right now I'm employed as a mobile OS engineer, if that matters.

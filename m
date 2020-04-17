@@ -1,93 +1,109 @@
-Return-Path: <SRS0=d6Rb=6A=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=mZiH=6B=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC14AC2BB55
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 20:15:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48845C38A29
+	for <linux-input@archiver.kernel.org>; Fri, 17 Apr 2020 10:12:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB00C21BE5
-	for <linux-input@archiver.kernel.org>; Thu, 16 Apr 2020 20:15:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1587068143;
-	bh=D1k4FGZwtqhoI1ElVs5JDDEH95csH4x4jdsRBKIrsUI=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=pOUVXCm3Cj0Loa+NbUo5POtUhmZNhhxh+0uPY1ZD0d3t0aer42kL5nwN+uNhI7HS6
-	 +pESfR3ztHNaTrW76knaAYOmaihxNHUswjQrKgAfrPw1qhQYJCEzOYQQy9QYEbCQmn
-	 PHeu2O/l6s9jgc+iI8JpYTFah8syH8SP5y47tDDI=
+	by mail.kernel.org (Postfix) with ESMTP id 2A88321D91
+	for <linux-input@archiver.kernel.org>; Fri, 17 Apr 2020 10:12:36 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="MlchuBUd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728131AbgDPUPe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Apr 2020 16:15:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42250 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726523AbgDPUPb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Apr 2020 16:15:31 -0400
-Received: from pobox.suse.cz (prg-ext-pat.suse.com [213.151.95.130])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DBCE2076D;
-        Thu, 16 Apr 2020 20:15:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587068130;
-        bh=D1k4FGZwtqhoI1ElVs5JDDEH95csH4x4jdsRBKIrsUI=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=pb1Aidbcr89YNzTHVpk+AyNMZbTkFc8vyI3afURRbjXDvFwV15/ymxbzA+qyRv2Yz
-         zkt3XEVweYahiTnIo3Fe5Z27TgbaQy1wyQI+t7pmfTd25UUanPeCULpZddV5Ht6h6E
-         mnFBpqnuRzUXcgTpoCGGyvNva9RmPVcpUddIvrBM=
-Date:   Thu, 16 Apr 2020 22:15:27 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Rishi Gupta <gupt21@gmail.com>
-cc:     linus.walleij@linaro.org, bgolaszewski@baylibre.com,
-        benjamin.tissoires@redhat.com, linux-gpio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH 1/1] HID: mcp2221: add GPIO functionality support
-In-Reply-To: <1586882894-19905-1-git-send-email-gupt21@gmail.com>
-Message-ID: <nycvar.YFH.7.76.2004162212080.19713@cbobk.fhfr.pm>
-References: <1586882894-19905-1-git-send-email-gupt21@gmail.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1725830AbgDQKMf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 17 Apr 2020 06:12:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51796 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728893AbgDQKMe (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Apr 2020 06:12:34 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44BBFC061A0F
+        for <linux-input@vger.kernel.org>; Fri, 17 Apr 2020 03:12:34 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id e26so2341596wmk.5
+        for <linux-input@vger.kernel.org>; Fri, 17 Apr 2020 03:12:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=YnzOyKxiPqTU4HRGOnE/2vSvqos+ev8HgXqi6MMPUKA=;
+        b=MlchuBUdauSRQyVE8Hbv9cCHUBQnKekE7cJzDwYcy4tfuZ7V+FMXj487UTXnEaG4Wd
+         UHYa9lDHkMYV1mIR6FDjbBX8wA2mZYxcUJM6jv8AbqtG96GWX2ARJenZlnxJKZmodbPd
+         T6RzR/dRTIc6jgCqNr/zKACA8xy7IVa3p+IruV02ORfvu3JbAvSYQaS8BoiHjRKjVu0O
+         JM+s3vuyiSEaT8LxUzfnLvNAc4BMJw1vrfdzfMosDz1f8ORavXpagIN1p8MxQW3vRrzP
+         xRHYHQGRfagXNnGlbN9e8Gk5VbVpRdh+YTrg52fvzk3HfMHrEgNVPyMH3WzaPGbvdosP
+         9L/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=YnzOyKxiPqTU4HRGOnE/2vSvqos+ev8HgXqi6MMPUKA=;
+        b=swrof6UlIKqB0/iOQJlWlk1Selrh07z5rvBp8GFHnZt+bZcSNILudS1qxvRmfeqNxy
+         1Sp5KEIbrxSwCdScqjqnISUAPlApQgrsx9NG4BWAbQHurc6IAdzGmX8nNWw36sLswnwX
+         vrgIjaFNzPhLtsk7VNw+cm4YxnABMLz6QdXT30TRzp0IOLjbdmirWrwho1/s4i/nMwXn
+         tunGzX+0w8HheCMNxwLiJ0mSki2no3oaRtH2cezvadkwmckD+k/dmW9drC4B1VldAXZW
+         0M0EHwB4K6NR1I8RzTHhR4u+hN1Vrr9LzgBZWz3mL/OWQNF1zTG8Uqg/QEoXOCJkStAL
+         udZw==
+X-Gm-Message-State: AGi0PuaaoKm9wxQvaXMj2ieRCxmzzixine5/oqEq4W23DAUBdesA2C/j
+        Rk8TF06WTocXfktwrybanQPg8w==
+X-Google-Smtp-Source: APiQypJmV0Jf3iT0zgAm2M3NypsATxn0J7ih2FYSnTAkimi9GQNwmKxabVorLTmViOtz5IsBr1LPBw==
+X-Received: by 2002:a1c:3105:: with SMTP id x5mr2735875wmx.51.1587118352876;
+        Fri, 17 Apr 2020 03:12:32 -0700 (PDT)
+Received: from dell ([95.149.164.124])
+        by smtp.gmail.com with ESMTPSA id s9sm20080119wrg.27.2020.04.17.03.12.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Apr 2020 03:12:32 -0700 (PDT)
+Date:   Fri, 17 Apr 2020 11:13:33 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Ikjoon Jang <ikjn@chromium.org>
+Cc:     devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Benson Leung <bleung@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Nicolas Boitchat <drinkcat@chromium.org>,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH v7] dt-bindings: mfd: Convert ChromeOS EC bindings to
+ json-schema
+Message-ID: <20200417101333.GA3737@dell>
+References: <20200306085513.76024-1-ikjn@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200306085513.76024-1-ikjn@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, 14 Apr 2020, Rishi Gupta wrote:
+On Fri, 06 Mar 2020, Ikjoon Jang wrote:
 
-> MCP2221 has 4 pins that can be used as GPIO or configured
-> for alternate functionality such as clock generation and
-> IRQ detection. This patch adds support for GPIO functionality.
+> Convert the ChromeOS EC bindings to json-schema.
 > 
-> To set direction of a pin or to toggle its state after it
-> has been configured as GPIO, driver sends command to mcp2221
-> and parses response received from mcp2221. Based on this
-> response either 0 or appropriate error code is returned to
-> GPIO framework.
-> 
-> To get the direction or current state of a pin, driver
-> sends command and read response from the device. Based on
-> the response received from device direction or value
-> is sent to the GPIO framework.
-> 
-> Command from driver to mcp2221 device are output report.
-> Response received from mcp2221 is input report.
-> 
-> Datasheet (page 45-48) contains details about how to decode
-> the response received from device:
-> http://ww1.microchip.com/downloads/en/DeviceDoc/20005565B.pdf
-> 
-> Signed-off-by: Rishi Gupta <gupt21@gmail.com>
+> Signed-off-by: Ikjoon Jang <ikjn@chromium.org>
+> Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 > ---
->  drivers/hid/hid-mcp2221.c | 169 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 169 insertions(+)
+>  .../devicetree/bindings/mfd/cros-ec.txt       |  76 -----------
+>  .../bindings/mfd/google,cros-ec.yaml          | 129 ++++++++++++++++++
+>  2 files changed, 129 insertions(+), 76 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/mfd/cros-ec.txt
+>  create mode 100644 Documentation/devicetree/bindings/mfd/google,cros-ec.yaml
 
 Applied, thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

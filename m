@@ -1,40 +1,70 @@
-Return-Path: <SRS0=mZiH=6B=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=a1lz=6C=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: *
-X-Spam-Status: No, score=1.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=1.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLACK autolearn=no autolearn_force=no version=3.4.0
+	URIBL_ABUSE_SURBL,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1FB7C2BB1D
-	for <linux-input@archiver.kernel.org>; Fri, 17 Apr 2020 21:18:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C816AC2D0EF
+	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 11:57:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BF89920857
-	for <linux-input@archiver.kernel.org>; Fri, 17 Apr 2020 21:18:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9BBFB221F4
+	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 11:57:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="sKr8AsmV"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TQt1XJ/L"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728064AbgDQVSX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 17 Apr 2020 17:18:23 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:60290 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726503AbgDQVSX (ORCPT
+        id S1725887AbgDRL5o (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 18 Apr 2020 07:57:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36164 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725869AbgDRL5o (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Apr 2020 17:18:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1587158300; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=5k83m+YQ/YjzGCYNL53EXy0Y9lSW9rtJnIlxD9H/TDA=;
-        b=sKr8AsmVcnP58PaG7Ml8U/UnEWO2S+S8NsYqW3PgRr40iK50euk4O6fUOjT1qSV+tEzetN
-        z//xT9wtdEkKLhs1xaAXXWgeTMbNd5f3xWKnZCiYhFYI2VhTEFacMTh9YJ9VqXwgANvOhn
-        zpR9n7Rq7LYOjf8HwU//sQMZsQmtkvE=
-Date:   Fri, 17 Apr 2020 23:18:08 +0200
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [RESEND PATCH v5 3/5] IIO: Ingenic JZ47xx: Add touchscreen mode.
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+        Sat, 18 Apr 2020 07:57:44 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66E2BC061A0C;
+        Sat, 18 Apr 2020 04:57:44 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id t16so2011671plo.7;
+        Sat, 18 Apr 2020 04:57:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=JmiC2uXHtR2fV4jcRb3MLojHtDU/Lt+48l8G1gdW4pk=;
+        b=TQt1XJ/LmDCzVPpYbHIgAtwOcv0IN+PJyZ7rRRdduFFG3Xd4a/d9TxeRnt7+Rr5q1x
+         XP4B+7fX3pjxV1n034fkSnVYfU5Dpnf6dz/OCAkfJ481soIXIdWvd4vrKxBHcKlojlrz
+         keQGStkoVc8svZAU889HjBeS0bsEMBsRK53PzxSL0RjVcaKXOABRHtTr0UDN6+kxZNDP
+         ctziZkG8W9U9uJtM857JK1YwRKBn/SIrK58kl07tpXlJIktMhUfRTpHAyXN17D/19bL5
+         7+lsS6C6AdTVGzml6Wla4yaxDOqD+FRDTUjevnICk4GnNNifHsfJPKoJRtAs3TgqR34W
+         keXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=JmiC2uXHtR2fV4jcRb3MLojHtDU/Lt+48l8G1gdW4pk=;
+        b=dVixjpAit8GoS0uw7Z77mDuqr6aWr7iGjNY4pOgRjdzzqrGnm4g12km/ropgFrp14z
+         DRTib9f0o6+WJ8PG2O3z4Jtgv9Ry2knASWZrVn9mYQ9EVeZHWQv5d07J73PGkzPhzLEL
+         QDMKRJ8YFazSk+uKQckIuFOb2GX7TlgbqEU1PMTdQKoHjGZmuVsJuTE5tnOSvbVhmDlp
+         2h06Il/6yxtcyvxDDoP3Mr+8mU3UeG6R64Xpt+AM54Voeh+9YF8dt6c/661lgzYhCDF7
+         1ePcMSLBpfF2TAZnPhq1visT2dFtt6MFvlxG3uwb66YpM256XtHGvqZlmZLY573MqaOv
+         vu8w==
+X-Gm-Message-State: AGi0PuZeGcu8DXgFdLjDtfj5euobYhYgnCZ4moy6QCfQS0CQptkCXcP1
+        3BQ3h38+siMSCc8KMvmRD4AhdYNtqyWFhNMvMCw=
+X-Google-Smtp-Source: APiQypIkRVqzXq895RV9hhPGbuM0W9MxE/rC5o4RLalyLhdj3OLmCHMZ8c7Ked3P4y/YyFrIg7si9CRwm17dYUECkRg=
+X-Received: by 2002:a17:90a:224b:: with SMTP id c69mr10131123pje.8.1587211063897;
+ Sat, 18 Apr 2020 04:57:43 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200417202859.35427-1-contact@artur-rojek.eu>
+ <20200417202859.35427-5-contact@artur-rojek.eu> <CAHp75VfRbnnuUhfyXpu+5dp4TutHSrHus=sX_vG_5F0dX4k0fQ@mail.gmail.com>
+ <UFBY8Q.ES4D59V22INC1@crapouillou.net> <CAHp75VfEAtqucMPdkygfBhojTJoHO5vFk_o0suiyf7i2JCMw9Q@mail.gmail.com>
+ <7CFY8Q.68YMS0V08F992@crapouillou.net>
+In-Reply-To: <7CFY8Q.68YMS0V08F992@crapouillou.net>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Sat, 18 Apr 2020 14:57:32 +0300
+Message-ID: <CAHp75VeVvE8LAO8f=-cwfgL6erFZACGwMnriNRaQnfnHw31wkg@mail.gmail.com>
+Subject: Re: [RESEND PATCH v5 5/5] input: joystick: Add ADC attached joystick driver.
+To:     Paul Cercueil <paul@crapouillou.net>
 Cc:     Artur Rojek <contact@artur-rojek.eu>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -45,64 +75,94 @@ Cc:     Artur Rojek <contact@artur-rojek.eu>,
         devicetree <devicetree@vger.kernel.org>,
         linux-iio <linux-iio@vger.kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-Id: <86BY8Q.C5XO8D57M7BI1@crapouillou.net>
-In-Reply-To: <CAHp75VfxQFFnVMhGvv0GCb3gv5jTPLDqLyhihRVc2earY=aYcg@mail.gmail.com>
-References: <20200417202859.35427-1-contact@artur-rojek.eu>
-        <20200417202859.35427-3-contact@artur-rojek.eu>
-        <CAHp75Vcwnu8tw92nMYc_5-x_iX+FY8_OhtaJkSYNehmNUDkHGQ@mail.gmail.com>
-        <3KAY8Q.NNI6X4F9QRIX1@crapouillou.net>
-        <CAHp75VfxQFFnVMhGvv0GCb3gv5jTPLDqLyhihRVc2earY=aYcg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Sat, Apr 18, 2020 at 1:48 AM Paul Cercueil <paul@crapouillou.net> wrote:
+>
+>
+>
+> Le sam. 18 avril 2020 =C3=A0 0:49, Andy Shevchenko
+> <andy.shevchenko@gmail.com> a =C3=A9crit :
+> > On Sat, Apr 18, 2020 at 12:24 AM Paul Cercueil <paul@crapouillou.net>
+> > wrote:
+> >>  Le sam. 18 avril 2020 =C3=A0 0:10, Andy Shevchenko
+> >>  <andy.shevchenko@gmail.com> a =C3=A9crit :
+> >>  > On Fri, Apr 17, 2020 at 11:21 PM Artur Rojek
+> >> <contact@artur-rojek.eu>
+> >>  > wrote:
+> >
+> > ...
+> >
+> >>  >>  +#include <linux/of.h>
+> >>  >
+> >>  > Do you really need this? (See below as well)
+> >
+> >>  >>  +static const struct of_device_id adc_joystick_of_match[] =3D {
+> >>  >>  +       { .compatible =3D "adc-joystick", },
+> >>  >>  +       { },
+> >>  >>  +};
+> >>  >>  +MODULE_DEVICE_TABLE(of, adc_joystick_of_match);
+> >>  >>  +
+> >>  >>  +static struct platform_driver adc_joystick_driver =3D {
+> >>  >>  +       .driver =3D {
+> >>  >>  +               .name =3D "adc-joystick",
+> >>  >
+> >>  >>  +               .of_match_table =3D
+> >>  >> of_match_ptr(adc_joystick_of_match),
+> >>  >
+> >>  > Drop this a bit harmful of_match_ptr() macro. It should go with
+> >> ugly
+> >>  > #ifdeffery. Here you simple introduced a compiler warning.
+> >>
+> >>  I assume you mean #ifdef around the of_device_id + module table
+> >> macro?
+> >
+> > Yes.
+> >
+> >>  > On top of that, you are using device property API, OF use in this
+> >> case
+> >>  > is contradictory (at lest to some extend).
+> >>
+> >>  I don't see why. The fact that the driver can work when probed from
+> >>  platform code
+> >
+> > Ha-ha, tell me how. I would like to be very surprised.
+>
+> iio_map_array_register(),
+> pinctrl_register_mappings(),
+> platform_add_devices(),
+>
+> you're welcome.
 
+I think above has no relation to what I'm talking about.
 
-Le sam. 18 avril 2020 =E0 0:13, Andy Shevchenko=20
-<andy.shevchenko@gmail.com> a =E9crit :
-> On Sat, Apr 18, 2020 at 12:05 AM Paul Cercueil <paul@crapouillou.net>=20
-> wrote:
->>  Le ven. 17 avril 2020 =E0 23:59, Andy Shevchenko
->>  <andy.shevchenko@gmail.com> a =E9crit :
->>  > On Fri, Apr 17, 2020 at 11:21 PM Artur Rojek=20
->> <contact@artur-rojek.eu>
->>  > wrote:
->=20
-> ...
->=20
->>  >>  +       irq =3D platform_get_irq(pdev, 0);
->>  >
->>  > Before it worked w/o IRQ, here is a regression you introduced.
->>=20
->>  Before it simply did not need the IRQ, which is provided by the
->>  devicetree anyway. No regression here.
->=20
-> Does it work without IRQ? Or it was a dead code till now?
-> For me it's clear regression. Otherwise something is really wrong in a
-> process of development of this driver.
+How *this* driver can work as a platform instantiated one?
+We seems have a conceptual misunderstanding here.
 
-Nothing wrong here. The IRQ was not used by the driver for the=20
-functionality it provided before. It is required now to support the=20
-touchscreen channels.
+For example, how can probe of this driver not fail, if it is not
+backed by a DT/ACPI properties?
 
--Paul
+> >>  doesn't mean that it shouldn't have a table to probe
+> >>  from devicetree.
+> >
+> > I didn't get what you are talking about here. The idea of _unified_
+> > device property API is to get rid of OF-centric code in favour of more
+> > generic approach. Mixing those two can be done only in specific cases
+> > (here is not the one).
+>
+> And how are we mixing those two here? The only OF-centric thing here is
+> the device table, which is required if we want the driver to probe from
+> devicetree.
 
+Table is fine(JFYI the types and sections are defined outside of OF
+stuff, though being [heavily] used by it) , API (of_match_ptr() macro
+use) is not.
 
->>  >>  +       if (irq < 0) {
->>  >
->>  >>  +               dev_err(dev, "Failed to get irq: %d\n", irq);
->>  >
->>  > Redundant message.
->>  >
->>  >>  +               return irq;
->>  >>  +       }
->=20
-> --
-> With Best Regards,
-> Andy Shevchenko
-
-
+--=20
+With Best Regards,
+Andy Shevchenko

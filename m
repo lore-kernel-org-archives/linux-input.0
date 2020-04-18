@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B46A7C352BE
-	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 18:42:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77EDDC3A5A0
+	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 18:42:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 979F0221E9
-	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 18:42:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59CCC221F7
+	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 18:42:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="j5q/SQ1+"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="qUPAX78G"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728164AbgDRSl6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 18 Apr 2020 14:41:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41214 "EHLO
+        id S1727913AbgDRSlU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 18 Apr 2020 14:41:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727936AbgDRSlV (ORCPT
+        by vger.kernel.org with ESMTP id S1726382AbgDRSlR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 18 Apr 2020 14:41:21 -0400
+        Sat, 18 Apr 2020 14:41:17 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C45C061A0C;
-        Sat, 18 Apr 2020 11:41:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A68C0610D5;
+        Sat, 18 Apr 2020 11:41:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
         Content-Type:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:
         To:From:Sender:Reply-To:Content-ID:Content-Description;
-        bh=RAwgh7dK6Aq2GUmD2z2q67RSpKe0Qba5fsNnenVzxMI=; b=j5q/SQ1+k3/+/NWSTV/WCIkHyr
-        zch6FAcwYZsrW1PmSwaW8sUH6ZWeOC45ea2Cw5ovOtRwJLJOkQhRg13tWis5r+icV/DhjmdEjwv79
-        s2h+fCIcRl3RnLCdtSGFczimDTd9m/8AzLPWV2hp+UzgF8z2XnH0R/f/a5DQg9nNd3Y73Ad9ZrO4P
-        SE8YtJq+oauVuVNS6MyEi2RLVp6TVtw40sWJHw1JEOXlVu7aGBz0X1bug3Vw49BLE3fO57MGGN/q0
-        Pmq5oXAMF6sIRcv8GgeZALDInNNSJ4NKJzYxSO84gAsonX87pABbmdSy94HL9m+wa0jkyxTrzud66
-        2h6YWfaA==;
+        bh=LOicRCPeL82g+7UhQ7W6knJ0Xcg7BEBtrZpHvQi2Xvs=; b=qUPAX78GmStmrzI/GjQeS30C2C
+        pf+JS26rMvDzwnc2Eicv/E6iYddiBqeB8nvkVcgSW2j/uHe3NwddNiMvUjPHgrYQrMTB6NBEJ6Q4j
+        Rmevyte62j1lID7vgkcJqqYHGR2MOeuzttD0VlNCXVRCcyTVd3GSoufQdGDlcNf+0ThcfvOl9CRWa
+        Ht+LS8ZEFX/rH894i3z4iad3ZPVXY1Udf3RqCd/qSxW56OPRStx5/BhopFFsaYXhXitaPPN84WLos
+        fDoyVBiGWJ7uO4FMNjLq8+6J2A3ZeS/prafMTg+o4HUDBJXsY7KFv8UjH8Xb/sVT1g7Gs5uV5n4n7
+        om//euPw==;
 Received: from [2601:1c0:6280:3f0::19c2] (helo=smtpauth.infradead.org)
         by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jPsP3-0007rZ-5p; Sat, 18 Apr 2020 18:41:21 +0000
+        id 1jPsOz-0007rZ-FM; Sat, 18 Apr 2020 18:41:17 +0000
 From:   Randy Dunlap <rdunlap@infradead.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Randy Dunlap <rdunlap@infradead.org>,
@@ -60,9 +60,9 @@ Cc:     Randy Dunlap <rdunlap@infradead.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
         Zzy Wysm <zzy@zzywysm.com>
-Subject: [PATCH 8/9] dax: fix empty-body warnings in bus.c
-Date:   Sat, 18 Apr 2020 11:41:10 -0700
-Message-Id: <20200418184111.13401-9-rdunlap@infradead.org>
+Subject: [PATCH 4/9] sound: fix empty-body warning in vx_core.c
+Date:   Sat, 18 Apr 2020 11:41:06 -0700
+Message-Id: <20200418184111.13401-5-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.16.4
 In-Reply-To: <20200418184111.13401-1-rdunlap@infradead.org>
 References: <20200418184111.13401-1-rdunlap@infradead.org>
@@ -76,42 +76,34 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fix gcc empty-body warning when -Wextra is used:
 
-../drivers/dax/bus.c:93:27: warning: suggest braces around empty body in an ‘else’ statement [-Wempty-body]
-../drivers/dax/bus.c:98:29: warning: suggest braces around empty body in an ‘else’ statement [-Wempty-body]
+../sound/drivers/vx/vx_core.c:515:3: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: linux-nvdimm@lists.01.org
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: alsa-devel@alsa-project.org
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/dax/bus.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/drivers/vx/vx_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- linux-next-20200417.orig/drivers/dax/bus.c
-+++ linux-next-20200417/drivers/dax/bus.c
-@@ -2,6 +2,7 @@
- /* Copyright(c) 2017-2018 Intel Corporation. All rights reserved. */
- #include <linux/memremap.h>
+--- linux-next-20200327.orig/sound/drivers/vx/vx_core.c
++++ linux-next-20200327/sound/drivers/vx/vx_core.c
+@@ -13,6 +13,7 @@
+ #include <linux/init.h>
  #include <linux/device.h>
+ #include <linux/firmware.h>
 +#include <linux/kernel.h>
- #include <linux/mutex.h>
- #include <linux/list.h>
- #include <linux/slab.h>
-@@ -90,12 +91,12 @@ static ssize_t do_id_store(struct device
- 			} else
- 				rc = -ENOMEM;
- 		} else
--			/* nothing to remove */;
-+			do_empty(); /* nothing to remove */
- 	} else if (action == ID_REMOVE) {
- 		list_del(&dax_id->list);
- 		kfree(dax_id);
- 	} else
--		/* dax_id already added */;
-+		do_empty(); /* dax_id already added */
- 	mutex_unlock(&dax_bus_lock);
+ #include <linux/module.h>
+ #include <linux/io.h>
+ #include <sound/core.h>
+@@ -512,7 +513,7 @@ irqreturn_t snd_vx_threaded_irq_handler(
+ 	 * received by the board is equal to one of those given to it).
+ 	 */
+ 	if (events & TIME_CODE_EVENT_PENDING)
+-		; /* so far, nothing to do yet */
++		do_empty(); /* so far, nothing to do yet */
  
- 	if (rc < 0)
+ 	/* The frequency has changed on the board (UER mode). */
+ 	if (events & FREQUENCY_CHANGE_EVENT_PENDING)

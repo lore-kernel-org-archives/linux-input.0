@@ -2,144 +2,102 @@ Return-Path: <SRS0=a1lz=6C=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5316AC3A5A0
-	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 18:24:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65A80C352BE
+	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 18:41:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3627B2223D
-	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 18:24:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1587234290;
-	bh=Eiw2FcEguTRJkOBXYe2RiFR5T2mMDxr5J0RGwGhG6fc=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:List-ID:From;
-	b=rlyEGb1hM52o7gV2c9rUobMAwbZ91oi9tzGs/ObasTKuo+oUou6FUYIqej91EtRnt
-	 nR8ie9tS7uxPGQBEUWtxIfrCFpz+6YGfq3ZNBrDxPU6ZTWdMEVBNXBZcwSMlOSbtMk
-	 bauN12RziAiTYHSALJdS6kEJpY60QYhCURM63RVg=
+	by mail.kernel.org (Postfix) with ESMTP id 2CCAA221F7
+	for <linux-input@archiver.kernel.org>; Sat, 18 Apr 2020 18:41:20 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="kQXoOERE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726036AbgDRSYt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 18 Apr 2020 14:24:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50250 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725824AbgDRSYt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 18 Apr 2020 14:24:49 -0400
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD51221BE5;
-        Sat, 18 Apr 2020 18:24:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587234288;
-        bh=Eiw2FcEguTRJkOBXYe2RiFR5T2mMDxr5J0RGwGhG6fc=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=oIG38DGXDITaJxY5mhXfozPYjDp5qVgzxBz2FaEUDhDUIDtJ8/LXkYtm0DCH2A5hi
-         oAqP0Lp7VtDQ92aeu9gmRxu7OyTQ6xhEWpeP1bBkthsCRnau6P7qayITlHJtAYNSF4
-         IVvwF00aGUuThd3pXs7B1gION9uSlHW8WhJ9oBAk=
-Date:   Sat, 18 Apr 2020 19:24:43 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     William Breathitt Gray <vilhelm.gray@gmail.com>
-Cc:     Kamel Bouhara <kamel.bouhara@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-iio@vger.kernel.org
-Subject: Re: [PATCH v3 2/3] dt-bindings: counter: microchip-tcb-capture
- counter
-Message-ID: <20200418192443.47322236@archlinux>
-In-Reply-To: <20200417135820.GB94725@icarus>
-References: <20200415130455.2222019-1-kamel.bouhara@bootlin.com>
-        <20200415130455.2222019-3-kamel.bouhara@bootlin.com>
-        <20200417135820.GB94725@icarus>
-X-Mailer: Claws Mail 3.17.5 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1727807AbgDRSlT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 18 Apr 2020 14:41:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41192 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726089AbgDRSlR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 18 Apr 2020 14:41:17 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87721C061A10;
+        Sat, 18 Apr 2020 11:41:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:
+        To:From:Sender:Reply-To:Content-ID:Content-Description;
+        bh=BNcb4DjvEal/26p9FFLHA1PNQV3UKc32zHdLl0ttKSE=; b=kQXoOERERzpS0IoQotzhrC17AM
+        BDqI0juPogoA1CutrU8uGOPsgmnH4QRxJkDAbfNciiSq0Z69PFmgx/TEZQgstSuVQf4s8ApWyZOIN
+        N0IbkOKt56gcF//A3Gy0d9YkRaR0LroHAHn9xHV3q9Bg5gPjWHvSwd3aZ1XMnWGalvGvI3KsnHTOi
+        PkF+38XbJVP04POPyWZMr+qjWfRfv/aYYUcvlXgcFpJEXyrtNbDsB0vSWbenyA4qfTd9ifIw7FyGe
+        xHv6sxTZM8XTMTEwomUpQxoXy67XId7pgN/x2b6xhXYuH0hEoT/2krPvePcGZYn4RwiePLRAa3KKE
+        lj06imMg==;
+Received: from [2601:1c0:6280:3f0::19c2] (helo=smtpauth.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jPsOx-0007rZ-5c; Sat, 18 Apr 2020 18:41:15 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        linux-nfs@vger.kernel.org,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+        Zzy Wysm <zzy@zzywysm.com>
+Subject: [PATCH 2/9] fs: fix empty-body warning in posix_acl.c
+Date:   Sat, 18 Apr 2020 11:41:04 -0700
+Message-Id: <20200418184111.13401-3-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20200418184111.13401-1-rdunlap@infradead.org>
+References: <20200418184111.13401-1-rdunlap@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 17 Apr 2020 09:58:20 -0400
-William Breathitt Gray <vilhelm.gray@gmail.com> wrote:
+Fix gcc empty-body warning when -Wextra is used:
 
-> On Wed, Apr 15, 2020 at 03:04:54PM +0200, Kamel Bouhara wrote:
-> > Describe the devicetree binding for the Microchip TCB module.
-> > Each counter blocks exposes three independent counters.
-> > 
-> > However, when configured in quadrature decoder, both channel <0> and <1>
-> > are required for speed/position and rotation capture (yet only the
-> > position is captured).
-> > 
-> > Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>  
-> 
-> Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Will let this sit a bit longer to let the DT maintainers have an opportunity
-to take a look.
+../fs/posix_acl.c: In function ‘get_acl’:
+../fs/posix_acl.c:127:22: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+   /* fall through */ ;
+                      ^
 
-Thanks,
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+---
+ fs/posix_acl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Jonathan
-
-> 
-> > ---
-> > Changes from v3:
-> >  - Updated the brand name: s/atmel/microchip/.
-> > 
-> > Changes from v2:
-> >  - Fixed errors reported by dt_binding_check
-> > 
-> >  .../counter/microchip-tcb-capture.yaml        | 33 +++++++++++++++++++
-> >  1 file changed, 33 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/counter/microchip-tcb-capture.yaml
-> > 
-> > diff --git a/Documentation/devicetree/bindings/counter/microchip-tcb-capture.yaml b/Documentation/devicetree/bindings/counter/microchip-tcb-capture.yaml
-> > new file mode 100644
-> > index 000000000000..183e9ee4c049
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/counter/microchip-tcb-capture.yaml
-> > @@ -0,0 +1,33 @@
-> > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/counter/microchip-tcb-capture.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Microchip TCB Counter
-> > +
-> > +maintainers:
-> > +  - Kamel Bouhara <kamel.bouhara@bootlin.com>
-> > +
-> > +properties:
-> > +  compatible:
-> > +    const: "microchip,tcb-capture"
-> > +
-> > +  reg:
-> > +    description: TCB capture channel to register as counter device.
-> > +      Each channel is independent therefore only one channel is
-> > +      registered by default execpt for the QDEC mode where both TCB0's
-> > +      channels <0> and  <1> are required.
-> > +
-> > +required:
-> > +  - compatible
-> > +  - reg
-> > +
-> > +additionalProperties: false
-> > +
-> > +examples:
-> > +  - |
-> > +    tcb0: timer@f800c000 {
-> > +        compatible = "microchip,tcb-capture";
-> > +        reg = <0>, <1>;
-> > +    };
-> > -- 
-> > 2.25.0
-> >   
-
+--- linux-next-20200327.orig/fs/posix_acl.c
++++ linux-next-20200327/fs/posix_acl.c
+@@ -124,7 +124,7 @@ struct posix_acl *get_acl(struct inode *
+ 	 * be an unlikely race.)
+ 	 */
+ 	if (cmpxchg(p, ACL_NOT_CACHED, sentinel) != ACL_NOT_CACHED)
+-		/* fall through */ ;
++		do_empty(); /* fall through */
+ 
+ 	/*
+ 	 * Normally, the ACL returned by ->get_acl will be cached.

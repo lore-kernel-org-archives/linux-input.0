@@ -2,92 +2,94 @@ Return-Path: <SRS0=ZRwI=6H=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F8B5C2BA19
-	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 09:59:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE248C55186
+	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 10:25:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EF43F20857
-	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 09:59:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1587635953;
-	bh=h0cEpFyyTV9DIslKZvNsTAoxOPb/8EK4/m+d0jhEsZw=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=d6ADZnxlAbVOYaC+Ulvw7rTkF5LYnvDKvrSSeVr1ayyOB7QOQLp2a/f2YLplApqRj
-	 7kBiBnbaRCVQ+368Uv4n5EyDU6lmwmIqkpO+ycfVsi2IB4VCHJzJffMkcjS8YxpYhc
-	 7gAPqqzNMR3IO1xf8Oo9bqlwCjR42/zd15mA1HBo=
+	by mail.kernel.org (Postfix) with ESMTP id 9510720781
+	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 10:25:25 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gerhold.net header.i=@gerhold.net header.b="Rc7JLUSQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726375AbgDWJ7M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Apr 2020 05:59:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59238 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726343AbgDWJ7M (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Apr 2020 05:59:12 -0400
-Received: from pobox.suse.cz (unknown [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2583320776;
-        Thu, 23 Apr 2020 09:59:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587635951;
-        bh=h0cEpFyyTV9DIslKZvNsTAoxOPb/8EK4/m+d0jhEsZw=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=mPzDOmfNMHch49qxZ6670ViWhek75QlHoYknXGyv0HzFtVpaMX6oSBnDFNvw+fOUv
-         faDBVd/Kp+qO8ntHsLErzLvOHMuvoZfmWouAXkrIzHnL2lsQwzdoCgH4EpqEfeDHee
-         YyB8W9SchtJ41Ny3gi+vPpE/WhC+kvXEd6VvxpeE=
-Date:   Thu, 23 Apr 2020 11:59:07 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Alan Stern <stern@rowland.harvard.edu>
-cc:     syzbot <syzbot+7bf5a7b0f0a1f9446f4c@syzkaller.appspotmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Julian Squires <julian@cipht.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, andreyknvl@google.com,
-        gregkh@linuxfoundation.org, ingrassia@epigenesys.com,
-        Kernel development list <linux-kernel@vger.kernel.org>,
-        USB list <linux-usb@vger.kernel.org>,
-        syzkaller-bugs@googlegroups.com, Ping Cheng <pingc@wacom.com>,
-        pinglinux@gmail.com, killertofu@gmail.com
-Subject: Re: KASAN: use-after-free Read in usbhid_close (3)
-In-Reply-To: <Pine.LNX.4.44L0.2004221058240.20574-100000@netrider.rowland.org>
-Message-ID: <nycvar.YFH.7.76.2004231157160.19713@cbobk.fhfr.pm>
-References: <Pine.LNX.4.44L0.2004221058240.20574-100000@netrider.rowland.org>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1726477AbgDWKZZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 23 Apr 2020 06:25:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34002 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725863AbgDWKZY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 23 Apr 2020 06:25:24 -0400
+Received: from mo6-p01-ob.smtp.rzone.de (mo6-p01-ob.smtp.rzone.de [IPv6:2a01:238:20a:202:5301::6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D539FC035493;
+        Thu, 23 Apr 2020 03:25:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1587637520;
+        s=strato-dkim-0002; d=gerhold.net;
+        h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=fHH3s50mbhR8q8N+Q4b54KKJBPxiB7cbCT4UniR/S4c=;
+        b=Rc7JLUSQGzS48TG6x0BLo02IO28cHEHlSrpYYOywbLgyGtOGt4O0xd5rCrXSFFAXup
+        wpdTpfyZ1AktOrCaRoar2gP4I11eg4axj94RADF5SNSYqarMwNi/CN1/GwCOezqKq1SG
+        Amlto29OXVw0d5ySPVOkGz+X+GGg7AhNd9rzTVak8U6FZnl4qnfo6IKAG2xmkAn5+aqP
+        h/XLR+vv/YeHQR0bFfwDjJzFKWUTQ7KSvhnhESKLewpQPjmba64UsJU6+1yPO47crLqR
+        o+PqBx4u8gKhNkBBsqpuzEcdPqMnRAgbbBLPjICNXL86rHI1jEhXZqdyIkqjfqXbjaSQ
+        CQEQ==
+X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVORvLd4SsytBXS7IYBkLahKxB4G6Nf3AC"
+X-RZG-CLASS-ID: mo00
+Received: from localhost.localdomain
+        by smtp.strato.de (RZmta 46.6.2 DYNA|AUTH)
+        with ESMTPSA id 60b02dw3NAPF8nV
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Thu, 23 Apr 2020 12:25:15 +0200 (CEST)
+From:   Stephan Gerhold <stephan@gerhold.net>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Andi Shyti <andi@etezian.org>, linux-input@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 2/2] dt-bindings: mms114: document melfas,mms345l binding
+Date:   Thu, 23 Apr 2020 12:24:31 +0200
+Message-Id: <20200423102431.2715-2-stephan@gerhold.net>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200423102431.2715-1-stephan@gerhold.net>
+References: <20200423102431.2715-1-stephan@gerhold.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 22 Apr 2020, Alan Stern wrote:
+The mms114 driver now supports MMS345L; document the
+melfas,mms345l binding that is used for it.
 
-> > Jiri, you should know: Are HID drivers supposed to work okay when the
-> > ->close callback is issued after (or concurrently with) the ->stop
-> > callback?
-> 
-> No response.  
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Andi Shyti <andi@etezian.org>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ Documentation/devicetree/bindings/input/touchscreen/mms114.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Sorry, I've been a bit swamped recently. Thanks a lot for taking care of 
-this.
-
-> I'll assume that strange callback orderings should be supported.  Let's 
-> see if the patch below fixes the race in usbhid.
-
-Unfortunately I don't believe the supportability of this is fully defined. 
-I have tried to quickly go over the few major drivers and didn't find 
-anything relying various orderings, but I might have easily missed some 
-case.
-
-So unless we have a programatic way to check it, the patch you created for 
-mutual exclusion is a good bandaid I believe.
-
-Thanks again Alan, I'll push it to Linus for 5.7.
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/mms114.txt b/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
+index 2cd954051d29..707234cfd7e6 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
+@@ -1,9 +1,10 @@
+-* MELFAS MMS114/MMS152 touchscreen controller
++* MELFAS MMS114/MMS152/MMS345L touchscreen controller
+ 
+ Required properties:
+ - compatible: should be one of:
+ 	- "melfas,mms114"
+ 	- "melfas,mms152"
++	- "melfas,mms345l"
+ - reg: I2C address of the chip
+ - interrupts: interrupt to which the chip is connected
+ - touchscreen-size-x: See [1]
 -- 
-Jiri Kosina
-SUSE Labs
+2.26.2
 

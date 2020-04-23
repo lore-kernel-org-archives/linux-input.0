@@ -2,154 +2,109 @@ Return-Path: <SRS0=ZRwI=6H=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC141C55192
-	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 10:25:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02853C2BA19
+	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 10:41:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BBF022074F
-	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 10:25:25 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gerhold.net header.i=@gerhold.net header.b="fNjqh2xt"
+	by mail.kernel.org (Postfix) with ESMTP id D71CD20776
+	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 10:41:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726864AbgDWKZZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Apr 2020 06:25:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34004 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726420AbgDWKZY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Apr 2020 06:25:24 -0400
-Received: from mo6-p00-ob.smtp.rzone.de (mo6-p00-ob.smtp.rzone.de [IPv6:2a01:238:20a:202:5300::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB614C035494;
-        Thu, 23 Apr 2020 03:25:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1587637520;
-        s=strato-dkim-0002; d=gerhold.net;
-        h=Message-Id:Date:Subject:Cc:To:From:X-RZG-CLASS-ID:X-RZG-AUTH:From:
-        Subject:Sender;
-        bh=p51RExXDzM8r8Gjav8uWWUQY9kiVhGtyvXKrvQxO//Q=;
-        b=fNjqh2xtp3AN3tcm7ZpP4uBBf4gq1+Mk0A7Rqblq79jkRsPwK/PlRfhe7tR8RSYaPG
-        E/zzM4HfBLvK9wOlVKn212IO78eHgGVCc/BhvX4+D2X8rFmd8615uxroBKKb8MynwbK0
-        6pzc76w4fbiNBOa4SgEE6ctriEaBPqPfHSW4Ri0AaOdQrIawZspE2Z+NIwfphkqV98Aa
-        ozUjTCW/e7Pvg62jYH/Zixv1We4U4kNXl+evEcfTpbkvuYsLXcMPmBhqIIsxSSr02OTY
-        48wd5pf3HKWPSMAz+fNVCafxtr6ud6I+7SVFUMmU24cxpzz5fUHT+19fOWadB3AeHQnx
-        KXmg==
-X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVORvLd4SsytBXS7IYBkLahKxB4G6Nf3AC"
-X-RZG-CLASS-ID: mo00
-Received: from localhost.localdomain
-        by smtp.strato.de (RZmta 46.6.2 DYNA|AUTH)
-        with ESMTPSA id 60b02dw3NAPE8nU
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-        Thu, 23 Apr 2020 12:25:14 +0200 (CEST)
-From:   Stephan Gerhold <stephan@gerhold.net>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Andi Shyti <andi@etezian.org>, linux-input@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        devicetree@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>
-Subject: [PATCH 1/2] Input: mms114 - add extra compatible for mms345l
-Date:   Thu, 23 Apr 2020 12:24:30 +0200
-Message-Id: <20200423102431.2715-1-stephan@gerhold.net>
-X-Mailer: git-send-email 2.26.2
+        id S1727002AbgDWKlH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 23 Apr 2020 06:41:07 -0400
+Received: from mga17.intel.com ([192.55.52.151]:8397 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725863AbgDWKlH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 23 Apr 2020 06:41:07 -0400
+IronPort-SDR: 91FP6AM55qA9ubi+Nw316rDmXsY1gcBi29KTMCJ+3mKIMuoJJOEC1wLJ9ACk1nSLXtjBC3te7J
+ /i53Wj89f4Zg==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2020 03:41:06 -0700
+IronPort-SDR: Kx7K6p4/N5TZr/15qVHfz7t/YfWa8qfU8ew8siy/+r4y7JvNcT3POh2yqW11AOx+oW2pMXXyru
+ ohidmBdCH2uA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,307,1583222400"; 
+   d="scan'208";a="291141993"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by fmsmga002.fm.intel.com with ESMTP; 23 Apr 2020 03:41:04 -0700
+Received: from andy by smile with local (Exim 4.93)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1jRZI3-002cOT-JJ; Thu, 23 Apr 2020 13:41:07 +0300
+Date:   Thu, 23 Apr 2020 13:41:07 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Fengping yu <fengping.yu@mediatek.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Yingjoe Chen <yingjoe.chen@mediatek.com>,
+        linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        wsd_upstream@mediatek.com, linux-input@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v5 3/3] drivers: input: keyboard: add mtk keypad driver
+Message-ID: <20200423104107.GO185537@smile.fi.intel.com>
+References: <20200423011958.30521-1-fengping.yu@mediatek.com>
+ <20200423011958.30521-4-fengping.yu@mediatek.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200423011958.30521-4-fengping.yu@mediatek.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-MMS345L is another first generation touch screen from Melfas,
-which uses mostly the same registers as MMS152.
+On Thu, Apr 23, 2020 at 09:20:02AM +0800, Fengping yu wrote:
+> From: "fengping.yu" <fengping.yu@mediatek.com>
+> 
 
-However, there is some garbage printed during initialization.
-Apparently MMS345L does not have the MMS152_COMPAT_GROUP register
-that is read+printed during initialization.
+This misses the commit message. It's a show stopper for such patches.
+Read this [1].
 
-  TSP FW Rev: bootloader 0x6 / core 0x26 / config 0x26, Compat group: \x06
+[1]: https://chris.beams.io/posts/git-commit/
 
-On earlier kernel versions the compat group was actually printed as
-an ASCII control character, seems like it gets escaped now.
+...
 
-But we probably shouldn't print something from a random register.
+> +#define KPD_DEBOUNCE_MASK	GENMASK(13, 0)
+> +#define KPD_DEBOUNCE_MAX	256000
 
-Add a separate "melfas,mms345l" compatible that avoids reading
-from the MMS152_COMPAT_GROUP register. This might also help in case
-there is some other device-specific quirk in the future.
+Is there any unit in which debounce time is being measured? Add it as a suffix
+to the definition, if it's possible.
 
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
----
-Adding an extra compatible just for a log message that looks weird
-might be a bit exaggerated, I'm not sure. But so far I got the impression
-that it's better to add separate compatibles if devices behave slightly
-different (in case more differences are discovered later).
+...
 
-Alternatively we could also:
+> +#define BITS_TO_U32(nr)	DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(u32))
 
-  - Remove the "Compat group:" from the log message
-    (I'm not sure how useful it is since it's just printed but nothing
-     is done with it...)
+This already defined in bits.h.
 
-  - Just accept that we might be reading from some invalid register
-    on MMS345L (It doesn't seem to affect functionality at the moment...)
+...
 
-I just thought we should discuss this before I upstream the patch
-that adds the touchscreen to the device tree of my board.
----
- drivers/input/touchscreen/mms114.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+> +	keypad->base = devm_platform_ioremap_resource(pdev, 0);
+> +	if (IS_ERR(keypad->base)) {
 
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 2ef1adaed9af..5bdf4ac1a303 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -54,6 +54,7 @@
- enum mms_type {
- 	TYPE_MMS114	= 114,
- 	TYPE_MMS152	= 152,
-+	TYPE_MMS345L	= 345,
- };
- 
- struct mms114_data {
-@@ -250,6 +251,15 @@ static int mms114_get_version(struct mms114_data *data)
- 	int error;
- 
- 	switch (data->type) {
-+	case TYPE_MMS345L:
-+		error = __mms114_read_reg(data, MMS152_FW_REV, 3, buf);
-+		if (error)
-+			return error;
-+
-+		dev_info(dev, "TSP FW Rev: bootloader 0x%x / core 0x%x / config 0x%x\n",
-+			 buf[0], buf[1], buf[2]);
-+		break;
-+
- 	case TYPE_MMS152:
- 		error = __mms114_read_reg(data, MMS152_FW_REV, 3, buf);
- 		if (error)
-@@ -287,8 +297,8 @@ static int mms114_setup_regs(struct mms114_data *data)
- 	if (error < 0)
- 		return error;
- 
--	/* MMS152 has no configuration or power on registers */
--	if (data->type == TYPE_MMS152)
-+	/* Only MMS114 has configuration and power on registers */
-+	if (data->type != TYPE_MMS114)
- 		return 0;
- 
- 	error = mms114_set_active(data, true);
-@@ -597,6 +607,9 @@ static const struct of_device_id mms114_dt_match[] = {
- 	}, {
- 		.compatible = "melfas,mms152",
- 		.data = (void *)TYPE_MMS152,
-+	}, {
-+		.compatible = "melfas,mms345l",
-+		.data = (void *)TYPE_MMS345L,
- 	},
- 	{ }
- };
+> +		dev_err(&pdev->dev, "Failed to get resource and iomap keypad\n");
+
+This is duplicate noisy message, please remove.
+
+> +		return PTR_ERR(keypad->base);
+> +	}
+
+...
+
+> +	writew(keypad->key_debounce * 32 / 1000 & KPD_DEBOUNCE_MASK,
+
+Perhaps one pair of parentheses is needed to make logic clear.
+
+(Yes, I remember I commented on this in earlier versions where it was many
+ parentheses around above calculations, but you have to use common sense as well)
+
+> +		keypad->base + KP_DEBOUNCE);
+
 -- 
-2.26.2
+With Best Regards,
+Andy Shevchenko
+
 

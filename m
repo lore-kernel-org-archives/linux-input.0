@@ -2,36 +2,35 @@ Return-Path: <SRS0=ZRwI=6H=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A04EC55191
-	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 05:28:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91CB4C54FD0
+	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 05:29:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 251522087E
-	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 05:28:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7BFE2206B9
+	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 05:29:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725562AbgDWF2M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Apr 2020 01:28:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44140 "EHLO
+        id S1726785AbgDWF3Y (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 23 Apr 2020 01:29:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726070AbgDWF2L (ORCPT
+        by vger.kernel.org with ESMTP id S1726027AbgDWF3Y (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Apr 2020 01:28:11 -0400
+        Thu, 23 Apr 2020 01:29:24 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B486C03C1AB
-        for <linux-input@vger.kernel.org>; Wed, 22 Apr 2020 22:28:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF84C03C1AF
+        for <linux-input@vger.kernel.org>; Wed, 22 Apr 2020 22:29:24 -0700 (PDT)
 Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
         by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <mfe@pengutronix.de>)
-        id 1jRUP5-00068Z-Fn; Thu, 23 Apr 2020 07:28:03 +0200
+        id 1jRUQG-0006GN-6K; Thu, 23 Apr 2020 07:29:16 +0200
 Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
         (envelope-from <mfe@pengutronix.de>)
-        id 1jRUP4-0004xb-Pk; Thu, 23 Apr 2020 07:28:02 +0200
-Date:   Thu, 23 Apr 2020 07:28:02 +0200
+        id 1jRUQF-0004xt-Pj; Thu, 23 Apr 2020 07:29:15 +0200
+Date:   Thu, 23 Apr 2020 07:29:15 +0200
 From:   Marco Felsch <m.felsch@pengutronix.de>
 To:     Fengping yu <fengping.yu@mediatek.com>
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -40,22 +39,20 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org,
         wsd_upstream@mediatek.com, linux-input@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v5 2/3] arm64: configs: defconfig: enable mtk keypad
- config
-Message-ID: <20200423052802.4ab3xfpgsi3lvqfq@pengutronix.de>
+Subject: Re: [PATCH v5] add mtk matrix keypad driver for keypad on MTK SoC
+Message-ID: <20200423052915.355mc7qvrofmv743@pengutronix.de>
 References: <20200423011958.30521-1-fengping.yu@mediatek.com>
- <20200423011958.30521-3-fengping.yu@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200423011958.30521-3-fengping.yu@mediatek.com>
+In-Reply-To: <20200423011958.30521-1-fengping.yu@mediatek.com>
 X-Sent-From: Pengutronix Hildesheim
 X-URL:  http://www.pengutronix.de/
 X-IRC:  #ptxdist @freenode
 X-Accept-Language: de,en
 X-Accept-Content-Type: text/plain
-X-Uptime: 07:26:40 up 159 days, 20:45, 157 users,  load average: 0.15, 0.08,
- 0.02
+X-Uptime: 07:28:26 up 159 days, 20:47, 157 users,  load average: 0.04, 0.06,
+ 0.01
 User-Agent: NeoMutt/20170113 (1.7.2)
 X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
 X-SA-Exim-Mail-From: mfe@pengutronix.de
@@ -66,36 +63,42 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 20-04-23 09:20, Fengping yu wrote:
-> From: "fengping.yu" <fengping.yu@mediatek.com>
-> 
-> Signed-off-by: fengping.yu <fengping.yu@mediatek.com>
+Hi Fengping,
 
-Nit, this should be the last patch in this series. Also you need to add
-a few comments wihtin the commit message. Empty commit messages are not
-allowed.
+On 20-04-23 09:19, Fengping yu wrote:
+> 
+> Change since v4:
+> - remove extra space and redundant lines
+> - remove disable_irq_nosync and enable_irq in irq handler
+> - put defconfig as a single patch
+> - unified device properties interface for ACPI and device trees
+
+This is a good changelog for reviewers.
+
+> - fixed other issue according reviewer comments
+
+This one is a bit useless..
 
 Regards,
   Marco
 
-> ---
->  arch/arm64/configs/defconfig | 1 +
->  1 file changed, 1 insertion(+)
+> fengping.yu (3):
+>   dt-bindings: add matrix keypad documentation
+>   arm64: configs: defconfig: enable mtk keypad config
+>   drivers: input: keyboard: add mtk keypad driver
 > 
-> diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-> index 0f212889c931..7863352521e5 100644
-> --- a/arch/arm64/configs/defconfig
-> +++ b/arch/arm64/configs/defconfig
-> @@ -316,6 +316,7 @@ CONFIG_KEYBOARD_GPIO=y
->  CONFIG_KEYBOARD_SNVS_PWRKEY=m
->  CONFIG_KEYBOARD_IMX_SC_KEY=m
->  CONFIG_KEYBOARD_CROS_EC=y
-> +CONFIG_KEYBOARD_MTK_KPD=y
->  CONFIG_INPUT_TOUCHSCREEN=y
->  CONFIG_TOUCHSCREEN_ATMEL_MXT=m
->  CONFIG_INPUT_MISC=y
-> -- 
+>  .../devicetree/bindings/input/mtk-kpd.txt     |  61 +++++
+>  arch/arm64/configs/defconfig                  |   1 +
+>  drivers/input/keyboard/Kconfig                |   9 +
+>  drivers/input/keyboard/Makefile               |   1 +
+>  drivers/input/keyboard/mtk-kpd.c              | 242 ++++++++++++++++++
+>  5 files changed, 314 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/mtk-kpd.txt
+>  create mode 100644 drivers/input/keyboard/mtk-kpd.c
+> 
+> --
 > 2.18.0
+> 
 
 -- 
 Pengutronix e.K.                           |                             |

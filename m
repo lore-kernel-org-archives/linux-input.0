@@ -1,180 +1,65 @@
-Return-Path: <SRS0=ZRwI=6H=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=Nr1y=6I=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D068CC55191
-	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 17:38:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83CAFC2BA1A
+	for <linux-input@archiver.kernel.org>; Fri, 24 Apr 2020 04:25:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B731D20736
-	for <linux-input@archiver.kernel.org>; Thu, 23 Apr 2020 17:38:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6657A2076C
+	for <linux-input@archiver.kernel.org>; Fri, 24 Apr 2020 04:25:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729973AbgDWRim (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Apr 2020 13:38:42 -0400
-Received: from ip-78-45-52-129.net.upcbroadband.cz ([78.45.52.129]:46432 "EHLO
-        ixit.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729908AbgDWRim (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Apr 2020 13:38:42 -0400
-X-Greylist: delayed 312 seconds by postgrey-1.27 at vger.kernel.org; Thu, 23 Apr 2020 13:38:40 EDT
-Received: from localhost.localdomain (227.146.230.94.awnet.cz [94.230.146.227])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ixit.cz (Postfix) with ESMTPSA id 58C6524E0F;
-        Thu, 23 Apr 2020 19:33:28 +0200 (CEST)
-From:   David Heidelberg <david@ixit.cz>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        James Chen <james.chen@emc.com.tw>,
-        Johnny Chuang <johnny.chuang@emc.com.tw>,
-        Rob Herring <robh+dt@kernel.org>,
-        Scott Liu <scott.liu@emc.com.tw>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Cc:     David Heidelberg <david@ixit.cz>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH 1/1] dt-bindings: input: touchscreen: elants_i2c: convert to YAML
-Date:   Thu, 23 Apr 2020 19:32:53 +0200
-Message-Id: <20200423173253.711725-2-david@ixit.cz>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200423173253.711725-1-david@ixit.cz>
-References: <20200423173253.711725-1-david@ixit.cz>
+        id S1725823AbgDXEZE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 24 Apr 2020 00:25:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32980 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725776AbgDXEZE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 24 Apr 2020 00:25:04 -0400
+Received: from vulcan.kevinlocke.name (vulcan.kevinlocke.name [IPv6:2001:19f0:5:727:1e84:17da:7c52:5ab4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583C1C09B045
+        for <linux-input@vger.kernel.org>; Thu, 23 Apr 2020 21:25:04 -0700 (PDT)
+Received: from kevinolos (host-69-145-60-23.bln-mt.client.bresnan.net [69.145.60.23])
+        (Authenticated sender: kevin@kevinlocke.name)
+        by vulcan.kevinlocke.name (Postfix) with ESMTPSA id C883A185F83E;
+        Fri, 24 Apr 2020 04:25:01 +0000 (UTC)
+Received: by kevinolos (Postfix, from userid 1000)
+        id 160F61300671; Thu, 23 Apr 2020 22:25:00 -0600 (MDT)
+Date:   Thu, 23 Apr 2020 22:25:00 -0600
+From:   Kevin Locke <kevin@kevinlocke.name>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org
+Subject: Re: [PATCH] Input: i8042 - add ThinkPad S230u to i8042 nomux list
+Message-ID: <20200424042500.GA107217@kevinolos.locke.internal>
+Mail-Followup-To: Kevin Locke <kevin@kevinlocke.name>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org
+References: <feb8a8339a67025dab3850e6377eb6f3a0e782ba.1587400635.git.kevin@kevinlocke.name>
+ <20200420170234.GN166864@dtor-ws>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200420170234.GN166864@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Convert elants_i2c.txt DT binding to YAML and put into correct directory.
+On Mon, 2020-04-20 at 10:02 -0700, Dmitry Torokhov wrote:
+> Applied, thank you.
 
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
- .../devicetree/bindings/input/elants_i2c.txt  | 34 ---------
- .../input/touchscreen/elan,elants_i2c.yaml    | 69 +++++++++++++++++++
- 2 files changed, 69 insertions(+), 34 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/elants_i2c.txt
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/elan,elants_i2c.yaml
+I believe I was in error and nomux only appeared to fix the issue
+because the controller continued working after warm reboots.  After
+more thorough testing from both warm and cold start, I now believe the
+entry should be added to i8042_dmi_reset_table rather than
+i8042_dmi_nomux_table as i8042.reset=1 alone is sufficient to avoid
+the issue from both states while i8042.nomux is not.
 
-diff --git a/Documentation/devicetree/bindings/input/elants_i2c.txt b/Documentation/devicetree/bindings/input/elants_i2c.txt
-deleted file mode 100644
-index 5edac8be0802..000000000000
---- a/Documentation/devicetree/bindings/input/elants_i2c.txt
-+++ /dev/null
-@@ -1,34 +0,0 @@
--Elantech I2C Touchscreen
--
--Required properties:
--- compatible: must be "elan,ekth3500".
--- reg: I2C address of the chip.
--- interrupts: interrupt to which the chip is connected (see interrupt
--  binding[0]).
--
--Optional properties:
--- wakeup-source: touchscreen can be used as a wakeup source.
--- pinctrl-names: should be "default" (see pinctrl binding [1]).
--- pinctrl-0: a phandle pointing to the pin settings for the device (see
--  pinctrl binding [1]).
--- reset-gpios: reset gpio the chip is connected to.
--- vcc33-supply: a phandle for the regulator supplying 3.3V power.
--- vccio-supply: a phandle for the regulator supplying IO power.
--
--[0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
--[1]: Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
--
--Example:
--	&i2c1 {
--		/* ... */
--
--		touchscreen@10 {
--			compatible = "elan,ekth3500";
--			reg = <0x10>;
--			interrupt-parent = <&gpio4>;
--			interrupts = <0x0 IRQ_TYPE_EDGE_FALLING>;
--			wakeup-source;
--		};
--
--		/* ... */
--	};
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/elan,elants_i2c.yaml b/Documentation/devicetree/bindings/input/touchscreen/elan,elants_i2c.yaml
-new file mode 100644
-index 000000000000..a792d6377b1d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/elan,elants_i2c.yaml
-@@ -0,0 +1,69 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: "http://devicetree.org/schemas/input/touchscreen/elan,elants_i2c.yaml#"
-+$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-+
-+title: Elantech I2C Touchscreen
-+
-+maintainers:
-+  - David Heidelberg <david@ixit.cz>
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - elan,ektf3624
-+      - elan,ekth3500
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  wakeup-source:
-+    type: boolean
-+    description: touchscreen can be used as a wakeup source.
-+
-+  reset-gpios:
-+    description: reset gpio the chip is connected to.
-+
-+  vcc33-supply:
-+    description: a phandle for the regulator supplying 3.3V power.
-+
-+  vccio-supply:
-+    description: a phandle for the regulator supplying IO power.
-+
-+  touchscreen-inverted-x: true
-+  touchscreen-inverted-y: true
-+  touchscreen-size-x: true
-+  touchscreen-size-y: true
-+  touchscreen-swapped-x-y: true
-+
-+additionalProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        touchscreen@10 {
-+            compatible = "elan,ekth3500";
-+            reg = <0x10>;
-+
-+            interrupt-parent = <&gpio4>;
-+            interrupts = <0x0 IRQ_TYPE_EDGE_FALLING>;
-+            wakeup-source;
-+        };
-+    };
--- 
-2.26.2
+Please drop or revert the previous patch, if possible.
+I will send a corrected and better-tested patch momentarily.
 
+My apologies for the confusion,
+Kevin

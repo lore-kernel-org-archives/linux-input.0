@@ -4,44 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8874CC54FCB
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 16:11:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDCE4C55199
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 16:11:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66E6720728
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 16:11:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CCD5120706
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 16:11:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="CQYO9mfn"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="pbhLM48I"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726281AbgDZQLS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Apr 2020 12:11:18 -0400
-Received: from rere.qmqm.pl ([91.227.64.183]:37638 "EHLO rere.qmqm.pl"
+        id S1726323AbgDZQLU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Apr 2020 12:11:20 -0400
+Received: from rere.qmqm.pl ([91.227.64.183]:45311 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726217AbgDZQLR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Apr 2020 12:11:17 -0400
+        id S1726284AbgDZQLU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 26 Apr 2020 12:11:20 -0400
 Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 499CZW4BdVzDY;
-        Sun, 26 Apr 2020 18:11:15 +0200 (CEST)
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 499CZZ2XMmzwy;
+        Sun, 26 Apr 2020 18:11:18 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1587917475; bh=3ZJYJwji4GFe5gxynVxKFtpPu5+djzYCZf9cg933BFY=;
+        t=1587917478; bh=pLd6gI8UsCtCyhmvOgm9x0+Kq3kK3Z23+Rp586y0csg=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=CQYO9mfnSZdIzJMfsSGAMqVSbpFlkOkSFf064/4kfmea9/yXhVlTh1z4dRW5gYY+v
-         FtYCtV7vqlYUfQQbNknEHIm/kY9KHyTEsxPxDMDvHQIui6PFLwJOAXRH6r4l1jJDk0
-         KfNb0LsdD8X80xxNSPMj7qDIdX+a4y3rO7amc3+myKjphGRKVrgJCb45sVtleW+ejh
-         Jp4vZTdUiM0Cxk1Wv47fZc5Vxg0KoTVqQFKf8y112iAXQJenM9uFfSaA6KTBt7kXyx
-         FqWa/bgsOO3U/ThcD8dzVKH/wX3aVJxLmazuJ/9YecFuvx/ZkTXibzY99x+CFHnN5K
-         rzLPicUDpgMOQ==
+        b=pbhLM48Il2zWD2AmWmcGIwyxS3T3gHFcj6K0SwXKJ0HWISgKXjNfaIJAAdr6ICR0h
+         yq57N9sZBSicMtNA7YcKuL27azSKnG8vJjGXJoEYF/fbUu0Ac2767y0WhctvuWe0pV
+         CcK0C7KVYsbPO9VJsB5wAV8CS+aHZQ6ePQOHnaUW0zwj0U0YrXuP+OFq3YfcrancG5
+         TKVHfYrIb8UK04zbDPRQiZnFXwLWSCBh2oGlEKbU0GhA0iyT113i1R2Wy0CM7qxALc
+         8HDGpgGpC+264OGk5M7xAhHbwgcpJrHYgyl2u3mkaq1ChOSb15d5mGq3m63nFjdVxk
+         sWAz68IS8GDAA==
 X-Virus-Status: Clean
 X-Virus-Scanned: clamav-milter 0.102.2 at mail
-Date:   Sun, 26 Apr 2020 18:11:14 +0200
-Message-Id: <38acf072e94d6f7fa9066495c2479bb35bfa42d1.1587916846.git.mirq-linux@rere.qmqm.pl>
+Date:   Sun, 26 Apr 2020 18:11:17 +0200
+Message-Id: <222105a9c09ac85f0c03224ef7acb8a6d6e237d5.1587916846.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1587916846.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1587916846.git.mirq-linux@rere.qmqm.pl>
 From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH v4 07/10] input: elants: support 0x66 reply opcode for
- reporting touches
+Subject: [PATCH v4 10/10] dt-bindings: input: touchscreen: elants_i2c: convert
+ to YAML
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,66 +59,136 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: David Heidelberg <david@ixit.cz>
 
-eKTF3624 touchscreen firmware uses two variants of the reply opcodes for
-reporting touch events: one is 0x63 (used by older firmware) and other is
-0x66 (used by newer firmware). The 0x66 variant is equal to 0x63 of
-eKTH3500, while 0x63 needs small adjustment of the touch pressure value.
+Convert elants_i2c.txt DT binding to YAML and put into correct directory.
 
-Nexus 7 tablet device has eKTF3624 touchscreen and it uses 0x66 opcode for
-reporting touch events, let's support it now. Other devices, eg. ASUS TF300T,
-use 0x63.
-
-Note: CMD_HEADER_REK is used for replying to calibration requests, it has
-the same 0x66 opcode number which eKTF3624 uses for reporting touches.
-The calibration replies are handled separately from the the rest of the
-commands in the driver by entering into ELAN_WAIT_RECALIBRATION state
-and thus this change shouldn't change the old behavior.
-
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: David Heidelberg <david@ixit.cz>
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 ---
- drivers/input/touchscreen/elants_i2c.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/input/elants_i2c.txt  | 38 ----------
+ .../input/touchscreen/elan,elants_i2c.yaml    | 69 +++++++++++++++++++
+ 2 files changed, 69 insertions(+), 38 deletions(-)
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 34d5c1fb5bea..ece14cb39d63 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -60,6 +60,15 @@
- #define QUEUE_HEADER_NORMAL	0X63
- #define QUEUE_HEADER_WAIT	0x64
- 
-+/*
-+ * Depending on firmware version, eKTF3624 touchscreens may utilize one of
-+ * these opcodes for the touch events: 0x63 and 0x66. The 0x63 is used by
-+ * older firmware version and differs from 0x66 such that touch pressure
-+ * value needs to be adjusted. The 0x66 opcode of newer firmware is equal
-+ * to 0x63 of eKTH3500.
-+ */
-+#define QUEUE_HEADER_NORMAL2	0x66
+diff --git a/Documentation/devicetree/bindings/input/elants_i2c.txt b/Documentation/devicetree/bindings/input/elants_i2c.txt
+deleted file mode 100644
+index 1bc60303f0ea..000000000000
+--- a/Documentation/devicetree/bindings/input/elants_i2c.txt
++++ /dev/null
+@@ -1,38 +0,0 @@
+-Elantech I2C Touchscreen
+-
+-Required properties:
+-- compatible: must be "elan,ekth3500" or "elan,ektf3624".
+-- reg: I2C address of the chip.
+-- interrupts: interrupt to which the chip is connected (see interrupt
+-  binding[0]).
+-
+-Optional properties:
+-- wakeup-source: touchscreen can be used as a wakeup source.
+-- pinctrl-names: should be "default" (see pinctrl binding [1]).
+-- pinctrl-0: a phandle pointing to the pin settings for the device (see
+-  pinctrl binding [1]).
+-- reset-gpios: reset gpio the chip is connected to.
+-- vcc33-supply: a phandle for the regulator supplying 3.3V power.
+-- vccio-supply: a phandle for the regulator supplying IO power.
+-- see [2] for additional properties
+-
+-For additional optional properties see: touchscreen.txt
+-
+-[0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+-[1]: Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
+-[2]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+-
+-Example:
+-	&i2c1 {
+-		/* ... */
+-
+-		touchscreen@10 {
+-			compatible = "elan,ekth3500";
+-			reg = <0x10>;
+-			interrupt-parent = <&gpio4>;
+-			interrupts = <0x0 IRQ_TYPE_EDGE_FALLING>;
+-			wakeup-source;
+-		};
+-
+-		/* ... */
+-	};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/elan,elants_i2c.yaml b/Documentation/devicetree/bindings/input/touchscreen/elan,elants_i2c.yaml
+new file mode 100644
+index 000000000000..a792d6377b1d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/elan,elants_i2c.yaml
+@@ -0,0 +1,69 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/input/touchscreen/elan,elants_i2c.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
 +
- /* Command header definition */
- #define CMD_HEADER_WRITE	0x54
- #define CMD_HEADER_READ		0x53
-@@ -1050,7 +1059,6 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
- 		switch (ts->buf[FW_HDR_TYPE]) {
- 		case CMD_HEADER_HELLO:
- 		case CMD_HEADER_RESP:
--		case CMD_HEADER_REK:
- 			break;
- 
- 		case QUEUE_HEADER_WAIT:
-@@ -1070,6 +1078,7 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
- 			break;
- 
- 		case QUEUE_HEADER_NORMAL:
-+		case QUEUE_HEADER_NORMAL2:
- 			report_count = ts->buf[FW_HDR_COUNT];
- 			if (report_count == 0 || report_count > 3) {
- 				dev_err(&client->dev,
++title: Elantech I2C Touchscreen
++
++maintainers:
++  - David Heidelberg <david@ixit.cz>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    enum:
++      - elan,ektf3624
++      - elan,ekth3500
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  wakeup-source:
++    type: boolean
++    description: touchscreen can be used as a wakeup source.
++
++  reset-gpios:
++    description: reset gpio the chip is connected to.
++
++  vcc33-supply:
++    description: a phandle for the regulator supplying 3.3V power.
++
++  vccio-supply:
++    description: a phandle for the regulator supplying IO power.
++
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-swapped-x-y: true
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        touchscreen@10 {
++            compatible = "elan,ekth3500";
++            reg = <0x10>;
++
++            interrupt-parent = <&gpio4>;
++            interrupts = <0x0 IRQ_TYPE_EDGE_FALLING>;
++            wakeup-source;
++        };
++    };
 -- 
 2.20.1
 

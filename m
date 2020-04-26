@@ -7,40 +7,41 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72A7BC54FCB
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E78C55194
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 58B5B20A8B
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7A2E206DD
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="UW5Kz2lw"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="kQuCp3wO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726327AbgDZRr4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Apr 2020 13:47:56 -0400
-Received: from rere.qmqm.pl ([91.227.64.183]:19424 "EHLO rere.qmqm.pl"
+        id S1726269AbgDZRry (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Apr 2020 13:47:54 -0400
+Received: from rere.qmqm.pl ([91.227.64.183]:6194 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726223AbgDZRrz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Apr 2020 13:47:55 -0400
+        id S1726199AbgDZRrx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 26 Apr 2020 13:47:53 -0400
 Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 499Fk05dQyzHm;
-        Sun, 26 Apr 2020 19:47:52 +0200 (CEST)
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 499Fjz3F62z11D;
+        Sun, 26 Apr 2020 19:47:51 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1587923272; bh=LHTF39wLY02gFhO0ZDu9P4kqo0mg8IQh107utvr9OeU=;
+        t=1587923271; bh=Ml7ML5grvVGYphuVKQi2NhHQLiMQjmo33iGw5j3sT0M=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=UW5Kz2lw5EQJn8dJlqsU8cwEtOCcth7gGfVwQpYXOIv5PmrZNAa2dQTOlJ5B/PCuJ
-         /4Ap2RExpspxk3Z5z1kjS7LIVLCWq708HPL4ZULB+Bn20Lopti+eYg7UK9i4hQbJ4g
-         4jTl4XoVV2lytR6tfwPP6aloB2OzPihGogWqRL2FiHnMRjK+6lzmjBR59uKsQId6l+
-         u5kxwa+ipr/xeHaXs0CJU4pTMDDxP1Zg14LQZZ6ImwUwBFkDVkNIBBj3fyGZU8tu4P
-         YR+ufhWUVJq23OfMAlaUQyIsoN3f/r6gb4iZJz3GTmzzVlaEW3X9zvmwmgglm+arst
-         Fj8gYvOe//4UA==
+        b=kQuCp3wOxtGqhU1zzCKLEef5oSX7yC9Oj/Hg//NfcvI34Px31dG4IZ1deGyY3OiyJ
+         v69DBDVS8FSpSd0dmPQ+0ntRxe8jnKj5hrrRAzc39AHrnKUv1E4JhnlRDT628dfNlE
+         3niNJpGII6v78EVO259Ij/7q/UHXLKSX3uSCmQ+mvgsecV+LE4JrmotuH32K182AsG
+         N84Ys7xxBbRkvM5Wq7i5uvLKdSwEsItRFrCn1n254Cu6iWJTiWXiq/aN/Di2Lxxv8J
+         ahJxUfq2PsTbAUKQYj20dOwW/ql//VS3ymv7Fm+xQuJoQ0Bo8JyG2sp6/dDjIkVk3Y
+         Dw+XdkUGuawMw==
 X-Virus-Status: Clean
 X-Virus-Scanned: clamav-milter 0.102.2 at mail
-Date:   Sun, 26 Apr 2020 19:47:52 +0200
-Message-Id: <79b982b774afcddf6a8ded8c7987b2f83aeb7ec5.1587923061.git.mirq-linux@rere.qmqm.pl>
+Date:   Sun, 26 Apr 2020 19:47:51 +0200
+Message-Id: <49ea996878264f7c8bde25204e4ddf4b1e85ae71.1587923061.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1587923061.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1587923061.git.mirq-linux@rere.qmqm.pl>
 From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH v5 06/10] input: elants: read touchscreen size for EKTF3624
+Subject: [PATCH v5 04/10] input: elants: override touchscreen info with DT
+ properties
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,151 +59,59 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-EKTF3624 as present in Asus TF300T tablet has touchscreen size encoded
-in different registers.
+Allow overriding of information from hardware and support additional
+common DT properties like axis inversion. This is required for eg.
+Nexus 7 and TF300T where the programmed values in firmware differ
+from reality.
 
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+[moved "prop" before DMA buffer]
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
 ---
- drivers/input/touchscreen/elants_i2c.c | 82 ++++++++++++++++++++++++--
- 1 file changed, 77 insertions(+), 5 deletions(-)
+v5: rebase against dtor/input/for-linus
+---
+ drivers/input/touchscreen/elants_i2c.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 74ece2091c76..88294bc491e8 100644
+index 61a9098f35d2..d2be61ae6722 100644
 --- a/drivers/input/touchscreen/elants_i2c.c
 +++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -35,7 +35,7 @@
+@@ -33,6 +33,7 @@
+ #include <linux/slab.h>
+ #include <linux/firmware.h>
  #include <linux/input/mt.h>
- #include <linux/input/touchscreen.h>
++#include <linux/input/touchscreen.h>
  #include <linux/acpi.h>
--#include <linux/of.h>
-+#include <linux/of_device.h>
+ #include <linux/of.h>
  #include <linux/gpio/consumer.h>
- #include <linux/regulator/consumer.h>
- #include <asm/unaligned.h>
-@@ -43,6 +43,10 @@
- /* Device, Driver information */
- #define DEVICE_NAME	"elants_i2c"
+@@ -152,6 +153,7 @@ struct elants_data {
+ 	unsigned int y_res;
+ 	unsigned int x_max;
+ 	unsigned int y_max;
++	struct touchscreen_properties prop;
  
-+/* Device IDs */
-+#define EKTH3500	0
-+#define EKTF3624	1
-+
- /* Convert from rows or columns into resolution */
- #define ELAN_TS_RESOLUTION(n, m)   (((n) - 1) * (m))
+ 	enum elants_state state;
+ 	enum elants_iap_mode iap_mode;
+@@ -901,8 +903,7 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf,
  
-@@ -166,6 +170,7 @@ struct elants_data {
+ 			input_mt_slot(input, i);
+ 			input_mt_report_slot_state(input, tool_type, true);
+-			input_event(input, EV_ABS, ABS_MT_POSITION_X, x);
+-			input_event(input, EV_ABS, ABS_MT_POSITION_Y, y);
++			touchscreen_report_pos(input, &ts->prop, x, y, true);
+ 			input_event(input, EV_ABS, ABS_MT_PRESSURE, p);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, w);
  
- 	bool wake_irq_enabled;
- 	bool keep_power_in_suspend;
-+	u8 chip_id;
+@@ -1331,6 +1332,8 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
+ 	input_abs_set_res(ts->input, ABS_MT_TOUCH_MAJOR, 1);
  
- 	/* Must be last to be used for DMA operations */
- 	u8 buf[MAX_PACKET_SIZE] ____cacheline_aligned;
-@@ -444,7 +449,58 @@ static int elants_i2c_query_bc_version(struct elants_data *ts)
- 	return 0;
- }
- 
--static int elants_i2c_query_ts_info(struct elants_data *ts)
-+static int elants_i2c_query_ts_info_ektf(struct elants_data *ts)
-+{
-+	struct i2c_client *client = ts->client;
-+	int error;
-+	u8 resp[4];
-+	u16 phy_x, phy_y;
-+	const u8 get_xres_cmd[] = {
-+		CMD_HEADER_READ, E_INFO_X_RES, 0x00, 0x00
-+	};
-+	const u8 get_yres_cmd[] = {
-+		CMD_HEADER_READ, E_INFO_Y_RES, 0x00, 0x00
-+	};
++	touchscreen_parse_properties(ts->input, true, &ts->prop);
 +
-+	/* Get X/Y size in mm */
-+	error = elants_i2c_execute_command(client, get_xres_cmd,
-+					   sizeof(get_xres_cmd),
-+					   resp, sizeof(resp), 1,
-+					   "get X size");
-+	if (error)
-+		return error;
-+
-+	phy_x = resp[2] | ((resp[3] & 0xF0) << 4);
-+
-+	error = elants_i2c_execute_command(client, get_yres_cmd,
-+					   sizeof(get_yres_cmd),
-+					   resp, sizeof(resp), 1,
-+					   "get Y size");
-+	if (error)
-+		return error;
-+
-+	phy_y = resp[2] | ((resp[3] & 0xF0) << 4);
-+
-+	if (!phy_x || !phy_y) {
-+		dev_warn(&client->dev,
-+			 "invalid size data: %d x %d mm\n",
-+			 phy_x, phy_y);
-+		return 0;
-+	}
-+
-+	dev_dbg(&client->dev, "phy_x=%d, phy_y=%d\n", phy_x, phy_y);
-+
-+	/* calculate resolution from size */
-+	ts->x_max = 2240-1;
-+	ts->x_res = DIV_ROUND_CLOSEST(ts->prop.max_x, phy_x);
-+
-+	ts->y_max = 1408-1;
-+	ts->y_res = DIV_ROUND_CLOSEST(ts->prop.max_y, phy_y);
-+
-+	return 0;
-+}
-+
-+static int elants_i2c_query_ts_info_ekth(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	int error;
-@@ -595,8 +651,20 @@ static int elants_i2c_initialize(struct elants_data *ts)
- 		error = elants_i2c_query_fw_version(ts);
- 	if (!error)
- 		error = elants_i2c_query_test_version(ts);
--	if (!error)
--		error = elants_i2c_query_ts_info(ts);
-+
-+	switch (ts->chip_id) {
-+	case EKTH3500:
-+		if (!error)
-+			error = elants_i2c_query_ts_info_ekth(ts);
-+		break;
-+	case EKTF3624:
-+		if (!error)
-+			error = elants_i2c_query_ts_info_ektf(ts);
-+		break;
-+	default:
-+		unreachable();
-+		break;
-+	}
- 
- 	if (error)
- 		ts->iap_mode = ELAN_IAP_RECOVERY;
-@@ -1252,6 +1320,9 @@ static int elants_i2c_probe(struct i2c_client *client,
- 	ts->client = client;
- 	i2c_set_clientdata(client, ts);
- 
-+	if (client->dev.of_node)
-+		ts->chip_id = (uintptr_t)of_device_get_match_data(&client->dev);
-+
- 	ts->vcc33 = devm_regulator_get(&client->dev, "vcc33");
- 	if (IS_ERR(ts->vcc33)) {
- 		error = PTR_ERR(ts->vcc33);
-@@ -1480,7 +1551,8 @@ MODULE_DEVICE_TABLE(acpi, elants_acpi_id);
- 
- #ifdef CONFIG_OF
- static const struct of_device_id elants_of_match[] = {
--	{ .compatible = "elan,ekth3500" },
-+	{ .compatible = "elan,ekth3500", .data = (void *)EKTH3500 },
-+	{ .compatible = "elan,ektf3624", .data = (void *)EKTF3624 },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, elants_of_match);
+ 	error = input_mt_init_slots(ts->input, MAX_CONTACT_NUM,
+ 				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+ 	if (error) {
 -- 
 2.20.1
 

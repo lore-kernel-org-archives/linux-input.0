@@ -7,41 +7,40 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E78C55194
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D24DC55199
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A7A2E206DD
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 02236206DD
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="kQuCp3wO"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="dQjlUsj2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726269AbgDZRry (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1726249AbgDZRry (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sun, 26 Apr 2020 13:47:54 -0400
-Received: from rere.qmqm.pl ([91.227.64.183]:6194 "EHLO rere.qmqm.pl"
+Received: from rere.qmqm.pl ([91.227.64.183]:35248 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726199AbgDZRrx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Apr 2020 13:47:53 -0400
+        id S1726163AbgDZRrw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 26 Apr 2020 13:47:52 -0400
 Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 499Fjz3F62z11D;
-        Sun, 26 Apr 2020 19:47:51 +0200 (CEST)
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 499Fjy6ZN8zwy;
+        Sun, 26 Apr 2020 19:47:50 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1587923271; bh=Ml7ML5grvVGYphuVKQi2NhHQLiMQjmo33iGw5j3sT0M=;
+        t=1587923271; bh=mskidBsclqFcBTsNzthkgNf+6hGPUgTRnXCBqGY/AR8=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=kQuCp3wOxtGqhU1zzCKLEef5oSX7yC9Oj/Hg//NfcvI34Px31dG4IZ1deGyY3OiyJ
-         v69DBDVS8FSpSd0dmPQ+0ntRxe8jnKj5hrrRAzc39AHrnKUv1E4JhnlRDT628dfNlE
-         3niNJpGII6v78EVO259Ij/7q/UHXLKSX3uSCmQ+mvgsecV+LE4JrmotuH32K182AsG
-         N84Ys7xxBbRkvM5Wq7i5uvLKdSwEsItRFrCn1n254Cu6iWJTiWXiq/aN/Di2Lxxv8J
-         ahJxUfq2PsTbAUKQYj20dOwW/ql//VS3ymv7Fm+xQuJoQ0Bo8JyG2sp6/dDjIkVk3Y
-         Dw+XdkUGuawMw==
+        b=dQjlUsj2NMurEWjE5Dhk5kAVgOGyX0o7vmTdFKJfTOz8SqeQ62PJB5I7gQUwrJb7Y
+         y7PcntVm+JhWNB8R/AvjMPm+DN3UnTv8A8iTTzBkS7kJTOykWeCZ3qlzGyNLExAGGI
+         QiSkTImsEW67JsQU0yuG3lQHLD7dODbD4zWr/7byIprTfzyFeSvM8V72eOp28trmEp
+         wj2tNEHyKPZAz12T0p135GaeVJ1FN5KJA5O+HPNkRevm5xZmQVwJnPX74sgSodcd2H
+         EPN44CXEuPDekaykwHFOWDUn9lR0ugIXjUcl//TngTTUfDIqJ3t2e2pSzA6aEVIv+J
+         xLpscAh6lANqQ==
 X-Virus-Status: Clean
 X-Virus-Scanned: clamav-milter 0.102.2 at mail
-Date:   Sun, 26 Apr 2020 19:47:51 +0200
-Message-Id: <49ea996878264f7c8bde25204e4ddf4b1e85ae71.1587923061.git.mirq-linux@rere.qmqm.pl>
+Date:   Sun, 26 Apr 2020 19:47:50 +0200
+Message-Id: <d5eee8cd305adb144a11264d70da94f7b6570366.1587923061.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1587923061.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1587923061.git.mirq-linux@rere.qmqm.pl>
 From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH v5 04/10] input: elants: override touchscreen info with DT
- properties
+Subject: [PATCH v5 03/10] input: elants: remove unused axes
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,59 +58,64 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Allow overriding of information from hardware and support additional
-common DT properties like axis inversion. This is required for eg.
-Nexus 7 and TF300T where the programmed values in firmware differ
-from reality.
+Driver only ever reports MT events and input_mt_init_slots() sets up
+emulated axes already.  Clear the capabilities not generated directly
+and move MT axes setup, so they are visible by input_mt_init_slots().
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-[moved "prop" before DMA buffer]
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
 ---
-v5: rebase against dtor/input/for-linus
+v4: reword commitmsg; reorder axis setup
 ---
- drivers/input/touchscreen/elants_i2c.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/elants_i2c.c | 26 ++++++++------------------
+ 1 file changed, 8 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 61a9098f35d2..d2be61ae6722 100644
+index 6c2b336d92bf..61a9098f35d2 100644
 --- a/drivers/input/touchscreen/elants_i2c.c
 +++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -33,6 +33,7 @@
- #include <linux/slab.h>
- #include <linux/firmware.h>
- #include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
- #include <linux/acpi.h>
- #include <linux/of.h>
- #include <linux/gpio/consumer.h>
-@@ -152,6 +153,7 @@ struct elants_data {
- 	unsigned int y_res;
- 	unsigned int x_max;
- 	unsigned int y_max;
-+	struct touchscreen_properties prop;
+@@ -1319,25 +1319,7 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	ts->input->name = "Elan Touchscreen";
+ 	ts->input->id.bustype = BUS_I2C;
  
- 	enum elants_state state;
- 	enum elants_iap_mode iap_mode;
-@@ -901,8 +903,7 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf,
+-	__set_bit(BTN_TOUCH, ts->input->keybit);
+-	__set_bit(EV_ABS, ts->input->evbit);
+-	__set_bit(EV_KEY, ts->input->evbit);
+-
+-	/* Single touch input params setup */
+-	input_set_abs_params(ts->input, ABS_X, 0, ts->x_max, 0, 0);
+-	input_set_abs_params(ts->input, ABS_Y, 0, ts->y_max, 0, 0);
+-	input_set_abs_params(ts->input, ABS_PRESSURE, 0, 255, 0, 0);
+-	input_abs_set_res(ts->input, ABS_X, ts->x_res);
+-	input_abs_set_res(ts->input, ABS_Y, ts->y_res);
+-
+ 	/* Multitouch input params setup */
+-	error = input_mt_init_slots(ts->input, MAX_CONTACT_NUM,
+-				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+-	if (error) {
+-		dev_err(&client->dev,
+-			"failed to initialize MT slots: %d\n", error);
+-		return error;
+-	}
  
- 			input_mt_slot(input, i);
- 			input_mt_report_slot_state(input, tool_type, true);
--			input_event(input, EV_ABS, ABS_MT_POSITION_X, x);
--			input_event(input, EV_ABS, ABS_MT_POSITION_Y, y);
-+			touchscreen_report_pos(input, &ts->prop, x, y, true);
- 			input_event(input, EV_ABS, ABS_MT_PRESSURE, p);
- 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, w);
- 
-@@ -1331,6 +1332,8 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0, ts->x_max, 0, 0);
+ 	input_set_abs_params(ts->input, ABS_MT_POSITION_Y, 0, ts->y_max, 0, 0);
+@@ -1349,6 +1331,14 @@ static int elants_i2c_probe(struct i2c_client *client,
  	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
  	input_abs_set_res(ts->input, ABS_MT_TOUCH_MAJOR, 1);
  
-+	touchscreen_parse_properties(ts->input, true, &ts->prop);
++	error = input_mt_init_slots(ts->input, MAX_CONTACT_NUM,
++				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to initialize MT slots: %d\n", error);
++		return error;
++	}
 +
- 	error = input_mt_init_slots(ts->input, MAX_CONTACT_NUM,
- 				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+ 	error = input_register_device(ts->input);
  	if (error) {
+ 		dev_err(&client->dev,
 -- 
 2.20.1
 

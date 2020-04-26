@@ -7,40 +7,41 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D24DC55199
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90909C55194
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 02236206DD
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6C6DC206DD
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 17:48:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="dQjlUsj2"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="SOnOHKnT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726249AbgDZRry (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Apr 2020 13:47:54 -0400
-Received: from rere.qmqm.pl ([91.227.64.183]:35248 "EHLO rere.qmqm.pl"
+        id S1726429AbgDZRsY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Apr 2020 13:48:24 -0400
+Received: from rere.qmqm.pl ([91.227.64.183]:41275 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726163AbgDZRrw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Apr 2020 13:47:52 -0400
+        id S1726306AbgDZRr4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 26 Apr 2020 13:47:56 -0400
 Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 499Fjy6ZN8zwy;
-        Sun, 26 Apr 2020 19:47:50 +0200 (CEST)
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 499Fk23htxzwy;
+        Sun, 26 Apr 2020 19:47:54 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1587923271; bh=mskidBsclqFcBTsNzthkgNf+6hGPUgTRnXCBqGY/AR8=;
+        t=1587923274; bh=e69dQImWAeV3iuPB2cdoooKHl0z18xRdJGsPXkuwYGo=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=dQjlUsj2NMurEWjE5Dhk5kAVgOGyX0o7vmTdFKJfTOz8SqeQ62PJB5I7gQUwrJb7Y
-         y7PcntVm+JhWNB8R/AvjMPm+DN3UnTv8A8iTTzBkS7kJTOykWeCZ3qlzGyNLExAGGI
-         QiSkTImsEW67JsQU0yuG3lQHLD7dODbD4zWr/7byIprTfzyFeSvM8V72eOp28trmEp
-         wj2tNEHyKPZAz12T0p135GaeVJ1FN5KJA5O+HPNkRevm5xZmQVwJnPX74sgSodcd2H
-         EPN44CXEuPDekaykwHFOWDUn9lR0ugIXjUcl//TngTTUfDIqJ3t2e2pSzA6aEVIv+J
-         xLpscAh6lANqQ==
+        b=SOnOHKnTUrHtuOYQVIhxmgYG30+ewvbQnnYfCZT2OyoLQcSVx6NmtlRGhm29Mp6iO
+         BThGN8V9lQRj5p4pQjNjnXwRsgpurSNyJ1RKfJHtb8u1fzcfOjsQn/f7YYGuKudSs3
+         1YW/RDAcAFFQWb9aNAKhKt6f0VwznT76JQtDaj3jOGwIdDLt6uYJgIhptjIUtKIWkZ
+         yKqc071Ky7hW8Err3x6YCj/151ltd+PhcKPaw0wSlNAql7Ghdr0KHPb6TicPuKeKaG
+         cCuP8Fv0ivob70H9F79ccKNEE4Z/I/fCC2h8/x3Kakw/ZYo/3OY84Mtauuk+86s/QD
+         BUmwVVFf86vzA==
 X-Virus-Status: Clean
 X-Virus-Scanned: clamav-milter 0.102.2 at mail
-Date:   Sun, 26 Apr 2020 19:47:50 +0200
-Message-Id: <d5eee8cd305adb144a11264d70da94f7b6570366.1587923061.git.mirq-linux@rere.qmqm.pl>
+Date:   Sun, 26 Apr 2020 19:47:53 +0200
+Message-Id: <90bef6c9f7dedb62161acf6d77a77e7d0e88f77b.1587923061.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1587923061.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1587923061.git.mirq-linux@rere.qmqm.pl>
 From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH v5 03/10] input: elants: remove unused axes
+Subject: [PATCH v5 08/10] dt-bindings: input: elants-i2c: Document common
+ touchscreen properties
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,64 +59,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Driver only ever reports MT events and input_mt_init_slots() sets up
-emulated axes already.  Clear the capabilities not generated directly
-and move MT axes setup, so they are visible by input_mt_init_slots().
+From: Dmitry Osipenko <digetx@gmail.com>
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
----
-v4: reword commitmsg; reorder axis setup
----
- drivers/input/touchscreen/elants_i2c.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+Document support of the common touchscreen properties.
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 6c2b336d92bf..61a9098f35d2 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -1319,25 +1319,7 @@ static int elants_i2c_probe(struct i2c_client *client,
- 	ts->input->name = "Elan Touchscreen";
- 	ts->input->id.bustype = BUS_I2C;
- 
--	__set_bit(BTN_TOUCH, ts->input->keybit);
--	__set_bit(EV_ABS, ts->input->evbit);
--	__set_bit(EV_KEY, ts->input->evbit);
--
--	/* Single touch input params setup */
--	input_set_abs_params(ts->input, ABS_X, 0, ts->x_max, 0, 0);
--	input_set_abs_params(ts->input, ABS_Y, 0, ts->y_max, 0, 0);
--	input_set_abs_params(ts->input, ABS_PRESSURE, 0, 255, 0, 0);
--	input_abs_set_res(ts->input, ABS_X, ts->x_res);
--	input_abs_set_res(ts->input, ABS_Y, ts->y_res);
--
- 	/* Multitouch input params setup */
--	error = input_mt_init_slots(ts->input, MAX_CONTACT_NUM,
--				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
--	if (error) {
--		dev_err(&client->dev,
--			"failed to initialize MT slots: %d\n", error);
--		return error;
--	}
- 
- 	input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0, ts->x_max, 0, 0);
- 	input_set_abs_params(ts->input, ABS_MT_POSITION_Y, 0, ts->y_max, 0, 0);
-@@ -1349,6 +1331,14 @@ static int elants_i2c_probe(struct i2c_client *client,
- 	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
- 	input_abs_set_res(ts->input, ABS_MT_TOUCH_MAJOR, 1);
- 
-+	error = input_mt_init_slots(ts->input, MAX_CONTACT_NUM,
-+				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"failed to initialize MT slots: %d\n", error);
-+		return error;
-+	}
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ Documentation/devicetree/bindings/input/elants_i2c.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/elants_i2c.txt b/Documentation/devicetree/bindings/input/elants_i2c.txt
+index 5edac8be0802..45fab32bbc19 100644
+--- a/Documentation/devicetree/bindings/input/elants_i2c.txt
++++ b/Documentation/devicetree/bindings/input/elants_i2c.txt
+@@ -14,9 +14,13 @@ Optional properties:
+ - reset-gpios: reset gpio the chip is connected to.
+ - vcc33-supply: a phandle for the regulator supplying 3.3V power.
+ - vccio-supply: a phandle for the regulator supplying IO power.
++- see [2] for additional properties
 +
- 	error = input_register_device(ts->input);
- 	if (error) {
- 		dev_err(&client->dev,
++For additional optional properties see: touchscreen.txt
+ 
+ [0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+ [1]: Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
++[2]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+ 
+ Example:
+ 	&i2c1 {
 -- 
 2.20.1
 

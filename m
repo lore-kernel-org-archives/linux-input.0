@@ -4,44 +4,43 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07CE3C55194
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 16:11:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4415C55194
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 16:11:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D9B63214D8
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 16:11:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B48B22078E
+	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 16:11:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="giPoO9Rt"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="k2yYQapo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726375AbgDZQLg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Apr 2020 12:11:36 -0400
-Received: from rere.qmqm.pl ([91.227.64.183]:1171 "EHLO rere.qmqm.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726259AbgDZQLS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1726272AbgDZQLS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sun, 26 Apr 2020 12:11:18 -0400
+Received: from rere.qmqm.pl ([91.227.64.183]:26745 "EHLO rere.qmqm.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726196AbgDZQLR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 26 Apr 2020 12:11:17 -0400
 Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 499CZX3hFFzHm;
-        Sun, 26 Apr 2020 18:11:16 +0200 (CEST)
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 499CZV4vR6z1qr;
+        Sun, 26 Apr 2020 18:11:14 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1587917476; bh=XWxiQ6jajvnMhjPTh+oRxLg2bSDp+rmdkahKN65j0ZY=;
+        t=1587917474; bh=ES5mrVpUOZunenMeuWR5BPMeVBmhaTYU6SnbH2hnqMc=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=giPoO9RtwE8Yqf77iyZhlznWWFJUFjpTapYs+Rq1ag/SdBN8ETkYuTbJNqbKAZc9A
-         Vp/hYrgSQiFcsEGIZ7TqqTWSNp9qfbZXO9dw/Celg2DV2QXJAk9xy7yXFcp/5Bfw/H
-         bTnj1M9DizgxjRrvIg/sVIRJ9pOGp2Z/BFWMOai3kNi/MOJG/hj4buQPG4mqg7BGBO
-         gI6zAH770TO06YSpYw+Q8iv7RiAKGW2RLi5VUEGCw6/1sNTjcZS6QoVepGa9UUrXFR
-         5GLDuBR7xfgEL9xrKStjQWNbDzHc4YPlRBPRU7UbKsIuo456LshY8IIDwFOiY4nQBR
-         LPspn/LHi5WiA==
+        b=k2yYQapoLbGX1QALmcLHTpsJL0kfIkLmikTVdkPt4UdlMkgWf6bw8HHpV+Cn1wrKl
+         RCZKwO0UoVnq6rNMT1dWg06Us7VWufnT9yEwjAGEabqk1hJEMKehVX8laTcyW079hC
+         BQJzb1O/xdtLFDLa766N54fFXyhHp0AoYLL+JOi2i2CKvuKDStaxuJ9teFOJAShE/G
+         25/NmbiDVfjEsrMHjDlnlyJFDDoqIhdSU51EqXvTHjCiAeYi95JavFca0R30enJTBN
+         xAhEsUPrZphple6OmhBY7aCu+/TY2/LFAEVZhISOsDh5hbGzpNP3TPGeq9tnqEHjc2
+         kxTTK35xD8Mow==
 X-Virus-Status: Clean
 X-Virus-Scanned: clamav-milter 0.102.2 at mail
-Date:   Sun, 26 Apr 2020 18:11:15 +0200
-Message-Id: <64d0244628a921c0aae5ffed8060c9c8938059d4.1587916846.git.mirq-linux@rere.qmqm.pl>
+Date:   Sun, 26 Apr 2020 18:11:13 +0200
+Message-Id: <28ca3d62c2c9ac38dd84759c927e14c231d2e721.1587916846.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1587916846.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1587916846.git.mirq-linux@rere.qmqm.pl>
 From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH v4 08/10] dt-bindings: input: elants-i2c: Document common
- touchscreen properties
+Subject: [PATCH v4 06/10] input: elants: read touchscreen size for EKTF3624
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,36 +58,151 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+EKTF3624 as present in Asus TF300T tablet has touchscreen size encoded
+in different registers.
 
-Document support of the common touchscreen properties.
-
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
 ---
- Documentation/devicetree/bindings/input/elants_i2c.txt | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/input/touchscreen/elants_i2c.c | 82 ++++++++++++++++++++++++--
+ 1 file changed, 77 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/elants_i2c.txt b/Documentation/devicetree/bindings/input/elants_i2c.txt
-index 5edac8be0802..45fab32bbc19 100644
---- a/Documentation/devicetree/bindings/input/elants_i2c.txt
-+++ b/Documentation/devicetree/bindings/input/elants_i2c.txt
-@@ -14,9 +14,13 @@ Optional properties:
- - reset-gpios: reset gpio the chip is connected to.
- - vcc33-supply: a phandle for the regulator supplying 3.3V power.
- - vccio-supply: a phandle for the regulator supplying IO power.
-+- see [2] for additional properties
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 71ffbc565d8e..34d5c1fb5bea 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -34,7 +34,7 @@
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
+ #include <linux/acpi.h>
+-#include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/regulator/consumer.h>
+ #include <asm/unaligned.h>
+@@ -42,6 +42,10 @@
+ /* Device, Driver information */
+ #define DEVICE_NAME	"elants_i2c"
+ 
++/* Device IDs */
++#define EKTH3500	0
++#define EKTF3624	1
 +
-+For additional optional properties see: touchscreen.txt
+ /* Convert from rows or columns into resolution */
+ #define ELAN_TS_RESOLUTION(n, m)   (((n) - 1) * (m))
  
- [0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
- [1]: Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
-+[2]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+@@ -164,6 +168,7 @@ struct elants_data {
  
- Example:
- 	&i2c1 {
+ 	bool wake_irq_enabled;
+ 	bool keep_power_in_suspend;
++	u8 chip_id;
+ 
+ 	/* Must be last to be used for DMA operations */
+ 	u8 buf[MAX_PACKET_SIZE] ____cacheline_aligned;
+@@ -442,7 +447,58 @@ static int elants_i2c_query_bc_version(struct elants_data *ts)
+ 	return 0;
+ }
+ 
+-static int elants_i2c_query_ts_info(struct elants_data *ts)
++static int elants_i2c_query_ts_info_ektf(struct elants_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	int error;
++	u8 resp[4];
++	u16 phy_x, phy_y;
++	const u8 get_xres_cmd[] = {
++		CMD_HEADER_READ, E_INFO_X_RES, 0x00, 0x00
++	};
++	const u8 get_yres_cmd[] = {
++		CMD_HEADER_READ, E_INFO_Y_RES, 0x00, 0x00
++	};
++
++	/* Get X/Y size in mm */
++	error = elants_i2c_execute_command(client, get_xres_cmd,
++					   sizeof(get_xres_cmd),
++					   resp, sizeof(resp), 1,
++					   "get X size");
++	if (error)
++		return error;
++
++	phy_x = resp[2] | ((resp[3] & 0xF0) << 4);
++
++	error = elants_i2c_execute_command(client, get_yres_cmd,
++					   sizeof(get_yres_cmd),
++					   resp, sizeof(resp), 1,
++					   "get Y size");
++	if (error)
++		return error;
++
++	phy_y = resp[2] | ((resp[3] & 0xF0) << 4);
++
++	if (!phy_x || !phy_y) {
++		dev_warn(&client->dev,
++			 "invalid size data: %d x %d mm\n",
++			 phy_x, phy_y);
++		return 0;
++	}
++
++	dev_dbg(&client->dev, "phy_x=%d, phy_y=%d\n", phy_x, phy_y);
++
++	/* calculate resolution from size */
++	ts->x_max = 2240-1;
++	ts->x_res = DIV_ROUND_CLOSEST(ts->prop.max_x, phy_x);
++
++	ts->y_max = 1408-1;
++	ts->y_res = DIV_ROUND_CLOSEST(ts->prop.max_y, phy_y);
++
++	return 0;
++}
++
++static int elants_i2c_query_ts_info_ekth(struct elants_data *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+ 	int error;
+@@ -593,8 +649,20 @@ static int elants_i2c_initialize(struct elants_data *ts)
+ 		error = elants_i2c_query_fw_version(ts);
+ 	if (!error)
+ 		error = elants_i2c_query_test_version(ts);
+-	if (!error)
+-		error = elants_i2c_query_ts_info(ts);
++
++	switch (ts->chip_id) {
++	case EKTH3500:
++		if (!error)
++			error = elants_i2c_query_ts_info_ekth(ts);
++		break;
++	case EKTF3624:
++		if (!error)
++			error = elants_i2c_query_ts_info_ektf(ts);
++		break;
++	default:
++		unreachable();
++		break;
++	}
+ 
+ 	if (error)
+ 		ts->iap_mode = ELAN_IAP_RECOVERY;
+@@ -1245,6 +1313,9 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	ts->client = client;
+ 	i2c_set_clientdata(client, ts);
+ 
++	if (client->dev.of_node)
++		ts->chip_id = (uintptr_t)of_device_get_match_data(&client->dev);
++
+ 	ts->vcc33 = devm_regulator_get(&client->dev, "vcc33");
+ 	if (IS_ERR(ts->vcc33)) {
+ 		error = PTR_ERR(ts->vcc33);
+@@ -1471,7 +1542,8 @@ MODULE_DEVICE_TABLE(acpi, elants_acpi_id);
+ 
+ #ifdef CONFIG_OF
+ static const struct of_device_id elants_of_match[] = {
+-	{ .compatible = "elan,ekth3500" },
++	{ .compatible = "elan,ekth3500", .data = (void *)EKTH3500 },
++	{ .compatible = "elan,ektf3624", .data = (void *)EKTF3624 },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, elants_of_match);
 -- 
 2.20.1
 

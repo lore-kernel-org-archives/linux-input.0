@@ -1,116 +1,105 @@
-Return-Path: <SRS0=b02c=6K=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=eqgI=6L=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BAA9C54FCB
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 22:31:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6567EC54FD0
+	for <linux-input@archiver.kernel.org>; Mon, 27 Apr 2020 04:59:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ECE8C20700
-	for <linux-input@archiver.kernel.org>; Sun, 26 Apr 2020 22:31:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 334D82084D
+	for <linux-input@archiver.kernel.org>; Mon, 27 Apr 2020 04:59:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FErjPNxX"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fji3j6fl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726200AbgDZWbb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Apr 2020 18:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726196AbgDZWbb (ORCPT
+        id S1726219AbgD0E7v (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 27 Apr 2020 00:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58324 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726172AbgD0E7v (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Apr 2020 18:31:31 -0400
-Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 202CDC061A0F
-        for <linux-input@vger.kernel.org>; Sun, 26 Apr 2020 15:31:31 -0700 (PDT)
-Received: by mail-qk1-x741.google.com with SMTP id q7so4180063qkf.3
-        for <linux-input@vger.kernel.org>; Sun, 26 Apr 2020 15:31:31 -0700 (PDT)
+        Mon, 27 Apr 2020 00:59:51 -0400
+Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06204C061A0F
+        for <linux-input@vger.kernel.org>; Sun, 26 Apr 2020 21:59:50 -0700 (PDT)
+Received: by mail-lf1-x143.google.com with SMTP id 131so12645443lfh.11
+        for <linux-input@vger.kernel.org>; Sun, 26 Apr 2020 21:59:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Rt68c2EqLz1g59uY27LQ1sf1pHv/YngA9vLG8cjHRS4=;
-        b=FErjPNxXWvyBq7GxkngpEMpj8JWCoOkULL+GbtFWS7/PZ/MbPBqNvl+RZnVPU+tdjz
-         MXtKhlEp+uLOWnyUL2D+J7QnrwhR/fD3IH6BmpjCmqgeaOyvEskLLKG2ZtKvXKAM1iyP
-         6lhClCBDLovC0n3tf2WS7o8grOdAzDGofeJWQNac2mPtSVVkZt9mAUWLmJCJ7LsbI4OA
-         fmtre6ot+FpBgiLozSwdHkyAqXvntFH5Xo7w8GbfpqnBA5Ngd/d2vfF93ZuapOUjjN9y
-         4vfH4meZKxl0FMGaXP07S9jknqe0CqHBPjhi5wQvRhWb4AGENRxTMi6/RbhZ36XXDa0c
-         VlDQ==
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
+        bh=8K5Qa62FBu38EvdinvLehlFDa5k8gfvLru8pabGFTTE=;
+        b=fji3j6flfH9V5lQupt0GaoTiKyTRxMZKTJvNyCm1YSoPsMxzzrU0eZrZiLue2P7xnY
+         vK00HYVMaMonIaCZXw0QXKFt4j1ZlGIVaj5yqph1/h0abu5JrVGFFnSwJoqBQoSzC8Kr
+         rSoIGBD7N4EzgzuS2PmMcA8NhN26jqf+vjSUSJsD1ufd7Mthf0fLC/3YPWdqNFKqlus0
+         I0ztOe4SvxCRKQo1CltXqaZzAyaJ+5XeocGo3m/IdJRuhtjDtcI2vE/pafRjr76Tgxlg
+         5UIjSkCP/THKhGcQ3p0OgXGO5fxm+Eo26Xlhgi+ErqnR5QKODzrGt6xsPWYVKQq3h9qx
+         dlmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Rt68c2EqLz1g59uY27LQ1sf1pHv/YngA9vLG8cjHRS4=;
-        b=PVVjwO9iDzzCLSy8ulDf75UQaLw5BxMt8U+04Fi0cfYAjj+uTf6V5CdamOg37Bsqzl
-         5TgSVLpx6HolJ2A3oe3dv479r+M6BahLegOcGuLOL0JCG6PEfyODlJrL7VMZ6X56hlaZ
-         WRdazvJf1O5d5btCoMy+Xg+5uxZcY8xuqE0npnibAmO14E/AvJhqwsvogPehc+fxPmPx
-         8cA1wuORLGHJGTo1vrV/1cZbkgiNGuKN5gNVUfI+ud0RDlgztR0zpNpeMXPTeGDM8qEK
-         pfaOcjgtcO5L01Q70evp5O+Bz1fppvxQQ4Ki2e2ZhxUjIJgXxZlYf0iwx3dpK3Ctisyr
-         f+9Q==
-X-Gm-Message-State: AGi0PuZQoZie4Yj9x3OuvYfWsdi9WCtmm7HT8b08zEFYqwXn6eZ0AmUl
-        NgHGL75Q8XVDCeqTcSYf1/9i6eapw7OoEpl6Aik=
-X-Google-Smtp-Source: APiQypIi6I+qUdWYIT7j7dVVFskyTYQFsGPH2D0IHpnM2QpWIh0bXJvlhMU9IrRQyiTkV6qeBSu1Ef74v9iIOqARYBE=
-X-Received: by 2002:a05:620a:844:: with SMTP id u4mr19617074qku.20.1587940290212;
- Sun, 26 Apr 2020 15:31:30 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=8K5Qa62FBu38EvdinvLehlFDa5k8gfvLru8pabGFTTE=;
+        b=FTlSrvWiCBeeG4ZeowNeTgsf/P4i6dPUCyRqaC7DcomTZpUVVGJder1RB+Z1RcPcTR
+         Hk8QbNOnhLUfgrV5qgJePAC4v1z61nNGxTOHx2JtH5iHymrotDKCwKDqyfyLtJQQCntk
+         ua/QFfTniWLNIFp4SA36abW0mqT2dfEvJ/c9zfB5NzR3gMCMxNfp9XuEmmlFfpGDuf/b
+         7a0mT0zTBuyNDoQ6Hk74zvlIDVCYdoRd8CbVkV0g1XteHqYnRRlxhYfjzl1fnBs6TI1S
+         41N7xmiuXTxw7wAidpjnM+NShxAzcnZ29FGTkBUoJLxdMoj6kn1/UOTW1SLt06JYOZyN
+         wYdg==
+X-Gm-Message-State: AGi0Pubzy3MnzzogpmlIwgsNIbq7hHtVEIE/tzCrZypoyY8xC4wKF42r
+        o03Wrh/Y0WhdtVhch2zkkNU=
+X-Google-Smtp-Source: APiQypKKRAhZOPOaJtxW1+D6meIERh1J/I0JAhDM5n+OIZtDmbElLGJsZUFHRIPOuAAwWLcFg1U+7g==
+X-Received: by 2002:a19:c78d:: with SMTP id x135mr13875303lff.151.1587963589404;
+        Sun, 26 Apr 2020 21:59:49 -0700 (PDT)
+Received: from hk.localdomain ([85.98.96.153])
+        by smtp.gmail.com with ESMTPSA id m13sm10324117lfk.12.2020.04.26.21.59.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Apr 2020 21:59:48 -0700 (PDT)
+Date:   Mon, 27 Apr 2020 07:59:32 +0300
+From:   Kutay Uner <husnukutay@gmail.com>
+To:     dmitry.torokhov@gmail.com
+Cc:     rydberg@bitmath.org, benjamin.tissoires@redhat.com,
+        kai.heng.feng@canonical.com, linux-input@vger.kernel.org
+Subject: [PATCH 1/1] input: update max sizes after setting to absolute mode
+Message-ID: <20200427045932.GA21183@hk.localdomain>
 MIME-Version: 1.0
-References: <20200317032928.546172-1-djogorchock@gmail.com>
- <64ed771ebdd6c47c11a94f4e0ae365c6106b93f6.camel@hadess.net>
- <CAEc3jaACUvyrP=9=JZeUZEC16zDJ2NByJzaPHVO24024jwKJoA@mail.gmail.com> <59a550594ac3824532a667c668bf1dcb80747599.camel@hadess.net>
-In-Reply-To: <59a550594ac3824532a667c668bf1dcb80747599.camel@hadess.net>
-From:   Roderick Colenbrander <thunderbird2k@gmail.com>
-Date:   Sun, 26 Apr 2020 15:31:18 -0700
-Message-ID: <CAEc3jaDsSmCB0-AQDrh4_Cw3WjAavfXSy6G_A+bEtBF0U5ydkQ@mail.gmail.com>
-Subject: Re: [PATCH v11 00/11] HID: nintendo
-To:     Bastien Nocera <hadess@hadess.net>
-Cc:     "Daniel J. Ogorchock" <djogorchock@gmail.com>,
-        linux-input <linux-input@vger.kernel.org>,
-        Billy Laws <blaws05@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>,
-        Siarhei Vishniakou <svv@google.com>, s.jegen@gmail.com,
-        Carl Mueller <carmueller@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Apr 26, 2020 at 2:14 PM Bastien Nocera <hadess@hadess.net> wrote:
->
-> On Sun, 2020-04-26 at 13:42 -0700, Roderick Colenbrander wrote:
-> >
-> <snip>
-> > I really wonder how a device like this should be handled. It looks
-> > like the device can also handle a bunch of other classic Nintendo
-> > controllers.
-> >
-> > Is there anyway of detection this adapter? It feels nasty to have to
-> > hack in quirks for this device...
->
-> The end game isn't very different from how we handle XBox 360, or
-> PS3/PS4 "clone" devices.
->
-> Those devices (the adapters) work on the actual Nintendo Switch
-> hardware, so should probably work with the driver that handles the same
-> type of hardware on Linux.
->
+x_max/y_max values change after we populate info struct. Using old
+values causes y scroll to be half of the size of pad area. Updating these
+values fixes that problem. This problem affects firmware 0x450f00 at least.
 
-(resend in plain text)
-
-I agree it probably makes sense to handle in this driver. I'm worried
-about the application level implications. We have been doing a lot of
-work e.g. on Android to try to make gamepads consistent. It is weird
-to have a "Switch controller" with different features as applications
-make assumptions and don't expect there to be multiple versions of a
-particular controller. Any button mapping files would potentially be
-wrong for those too, certain features are not there (e.g. no sensors
-or no lights or rumble) or if they are the behaviour is different
-(e.g. HD rumble vs a classic rumble motor).
-
-Ideally we would do some kind of "fixup" to change the device name and
-or replace the device ids to at least separate them.
-
-Roderick
+Signed-off-by: Kutay Uner <husnukutay@gmail.com>
+---
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1944,6 +1944,22 @@ static int elantech_setup_ps2(struct psmouse *psmouse,
+ 		goto init_fail;
+ 	}
+ 
++	/* elantech_set_absolute_mode(?) causes x_max/y_max to change
++	 * at least on models using this fw. Workaround that by requerying
++	 * and setting those values at both info struct to be safe.
++	 */
++	if (info->fw_version == 0x450f00) {
++		unsigned char param[3];
++
++		if (info->send_cmd(psmouse, ETP_FW_ID_QUERY, param))
++			goto init_fail;
++
++		info->x_max = (0x0f & param[0]) << 8 | param[1];
++		info->y_max = (0xf0 & param[0]) << 4 | param[2];
++		etd->info.x_max = info->x_max;
++		etd->info.y_max = info->y_max;
++	}
++
+ 	if (info->fw_version == 0x381f17) {
+ 		etd->original_set_rate = psmouse->set_rate;
+ 		psmouse->set_rate = elantech_set_rate_restore_reg_07;

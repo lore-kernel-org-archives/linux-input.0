@@ -7,56 +7,61 @@ X-Spam-Status: No, score=-17.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
 	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05C62C4CECD
-	for <linux-input@archiver.kernel.org>; Mon, 27 Apr 2020 21:03:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62D4BC54EEB
+	for <linux-input@archiver.kernel.org>; Mon, 27 Apr 2020 21:03:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D884E2074F
-	for <linux-input@archiver.kernel.org>; Mon, 27 Apr 2020 21:03:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 475452076A
+	for <linux-input@archiver.kernel.org>; Mon, 27 Apr 2020 21:03:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="uJ3Wv2mn"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bcE5NBfZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726602AbgD0VDE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 27 Apr 2020 17:03:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39782 "EHLO
+        id S1726817AbgD0VDI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 27 Apr 2020 17:03:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726442AbgD0VDE (ORCPT
+        by vger.kernel.org with ESMTP id S1726285AbgD0VDH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Apr 2020 17:03:04 -0400
-Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D741EC03C1A8
-        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2020 14:03:03 -0700 (PDT)
-Received: by mail-qt1-x849.google.com with SMTP id e44so21979950qta.9
-        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2020 14:03:03 -0700 (PDT)
+        Mon, 27 Apr 2020 17:03:07 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD1CBC03C1A8
+        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2020 14:03:07 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id b6so22083814ybo.8
+        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2020 14:03:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=23GGnMwKYvt3Cgj/lhkkh8PS8CBiboCjGVStVTQoV58=;
-        b=uJ3Wv2mn3Q1SH5G5z7pkpeKo+Y1QXqCq3ao34idnjbgsWSe8tTMKo/LZDfBDgSwvJ+
-         qKgsWq/UV2BvdfWYtfyu24Cylm6N4eRDHTln1it9IJvuHP1ObRvrToKe/rSJ2+l+alvv
-         9XkvWTgmrq0I6aQPz3sDLhld1zpVDIuSof8GyK70zVpvWSrELmm26BzrCygrOJbhaRDM
-         Fe8NAjYYDc9VLols4zdTrk+lQtU8GmMBjIifckAuIXoWc9YbRChsliWre51Z6BJ02IG9
-         HbzlR3xAR3wg1ypOCeT+s0AGDNR2lOTapxoHwLqXz782WROtbY/WwoXiRhQBmT6Peh4O
-         pUDg==
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=UenMHbf1Eki3ulS1NlD3HIa7ITU5SNKYGq9xAbGt/6U=;
+        b=bcE5NBfZAVrzbnAddyWS7c0iVSPd/JwzpbP4QwnsjnVArK/uRRruUd2axsbq+0TnN0
+         U/Azd5ePJ6WeL8AV44CNCYAkr+v9j1WOgH47+xiMyqeiUQ4LfauJL+KAPLNh/BqF3OaS
+         bhyMRXx1R5FpRY4ZmYwCxumUcHTiLg1KnsCm5CIgy+XQa3EmE94baxY70dFJkBGiUFae
+         V50w7uWX4DEXY33wE7/R2BnFuDb33r/JXiGhqmBpvXfW8QZ5vzxvleX0LBkcTquS4mBU
+         JrlPZO4YLbGLrLkBsk3WtdldLEvqZGfftlIfubPN1vR8ENtZqs2YV+kzcv4kKtGJJl75
+         MVBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=23GGnMwKYvt3Cgj/lhkkh8PS8CBiboCjGVStVTQoV58=;
-        b=XEwhB+8+0EHkFWL8Gud16Q//fupB7GKUMsFJKnQpmPK1w1uhjNOPkMuInffDPGfsoj
-         xS1mtXrTL35HhlxIDloRgE+1oQx6q45fEgPTH0JVr78WWhF+EQUv1fWJ5NocmCGbIDpL
-         b+sJ4cHLQvbMOu6mcOsmPfc2xL8E/UOej6c9imBlU6OcoPUIW6U7PPHYEz/3vqmb13j9
-         Iig5SwlZPj1e0ClmQjYGdf8KdGG5acYIqDFTqiAxlMtnzQ+EW1GNSgjpOR11DWy2+Cr4
-         XPR80NRoaAk8r+GSDc4cFydGF/BdXznmr/rUZL4l1OQfdynwQeZxiYhZjdXxkmZTJDUS
-         Alsg==
-X-Gm-Message-State: AGi0PuYzhsYZmTjyMmSPRcKlYSIIGwxxeZMgP0wB7CC5KF7XpbuY1sMJ
-        c8Q78B0wSM+ARKxOfKNFP7gUhXyUNZRs
-X-Google-Smtp-Source: APiQypKahN7ghxLa5ZMhrrRFTqL+QsRn5U1vupwEhsBNUqZHCzWOu1dqTKRMxgn9lK8zEQi9Upg4I8/GRiNS
-X-Received: by 2002:a0c:f8cf:: with SMTP id h15mr23168133qvo.22.1588021382826;
- Mon, 27 Apr 2020 14:03:02 -0700 (PDT)
-Date:   Mon, 27 Apr 2020 14:02:57 -0700
-Message-Id: <20200427210259.91330-1-rajatja@google.com>
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=UenMHbf1Eki3ulS1NlD3HIa7ITU5SNKYGq9xAbGt/6U=;
+        b=A7GEgqak76+2E3FX8G2G4b8NeG29cR4UiqRg6OpvFG0xIb9yVgONchJaswgxf7b/T1
+         M8iL0GS6heDF0vuk0TK/vXEDUd16jpYsTLzFDD2KGtqZfiE9ieEF45JPZpJW22u2//a+
+         zaWWEtjJ92fwjRSwEtUjo/m2y4AfqusQf3wvPEpeJTfIXPGklJQad7kCain7FkGz3KO7
+         ujG3KvTASTCdbwPUvgKD2kzewop3jFA83m4atEFia95VGgPQ75XrVAQKAfDtKWLdKxtf
+         XagR0f6QfwsJ3fIZM+bNuncfX27Gs8yP6zTlNolS2FF0juIyGrQ/FXeQyAq2VtuXnPA8
+         oKDA==
+X-Gm-Message-State: AGi0PuYdDxTyL37aSRMyhC5jND0Wh2g9qeIdlVzzRE8652mZ0ktCedLz
+        mwRWPqwWgnh8hanOJUys1Z/hNwRZBAls
+X-Google-Smtp-Source: APiQypLClia/FVip1IDfKvS3pnMgAelhu03KQxqvNpZqioUA8EOBX0jl45LmV2zoIB9uLpQlOd63SxmQVWHi
+X-Received: by 2002:a25:77d8:: with SMTP id s207mr37260773ybc.47.1588021386893;
+ Mon, 27 Apr 2020 14:03:06 -0700 (PDT)
+Date:   Mon, 27 Apr 2020 14:02:59 -0700
+In-Reply-To: <20200427210259.91330-1-rajatja@google.com>
+Message-Id: <20200427210259.91330-3-rajatja@google.com>
 Mime-Version: 1.0
+References: <20200427210259.91330-1-rajatja@google.com>
 X-Mailer: git-send-email 2.26.2.303.gf8c07b1a785-goog
-Subject: [PATCH v5 1/3] input/serio/i8042: Attach fwnode to serio i8042 kbd device
+Subject: [PATCH v5 3/3] Input: atkbd: Receive and use physcode->keycode
+ mapping from FW
 From:   Rajat Jain <rajatja@google.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com,
         Rob Herring <robh+dt@kernel.org>,
@@ -80,60 +85,100 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Attach the firmware node to the serio i8042 kbd device so that device
-properties can be passed from the firmware.
+Allow the firmware to specify the mapping between the physical
+code and the linux keycode. This takes the form of a "linux,keymap"
+property which is an array of u32 values, each value specifying
+mapping for a key.
 
 Signed-off-by: Rajat Jain <rajatja@google.com>
 ---
 v5: Same as v4
-v4: Same as v3
-v3: same as v2
+v4: Property name "keymap" -> "linux,keymap"
+v3: Don't save the FW mapping in atkbd device.
 v2: Remove the Change-Id from the commit log
 
- drivers/input/serio/i8042-x86ia64io.h | 1 +
- drivers/input/serio/i8042.c           | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/input/keyboard/atkbd.c | 41 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 08e919dbeb5d1..d0c39426ca2c8 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -938,6 +938,7 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 358e91f8888ff..9d7594dcc4a47 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -66,6 +66,9 @@ MODULE_PARM_DESC(terminal, "Enable break codes on an IBM Terminal keyboard conne
+ 
+ #define MAX_FUNCTION_ROW_KEYS	24
+ 
++#define PHYSCODE(keymap)	((keymap >> 16) & 0xFFFF)
++#define KEYCODE(keymap)		(keymap & 0xFFFF)
++
+ /*
+  * Scancode to keycode tables. These are just the default setting, and
+  * are loadable via a userland utility.
+@@ -1032,6 +1035,38 @@ static unsigned int atkbd_oqo_01plus_scancode_fixup(struct atkbd *atkbd,
+ 	return code;
+ }
+ 
++static int atkbd_get_keymap_from_fwnode(struct atkbd *atkbd)
++{
++	struct device *dev = &atkbd->ps2dev.serio->dev;
++	int i, n;
++	u32 *ptr;
++	u16 physcode, keycode;
++
++	/* Parse "linux,keymap" property */
++	n = device_property_count_u32(dev, "linux,keymap");
++	if (n <= 0 || n > ATKBD_KEYMAP_SIZE)
++		return -ENXIO;
++
++	ptr = kcalloc(n, sizeof(u32), GFP_KERNEL);
++	if (!ptr)
++		return -ENOMEM;
++
++	if (device_property_read_u32_array(dev, "linux,keymap", ptr, n)) {
++		dev_err(dev, "problem parsing FW keymap property\n");
++		kfree(ptr);
++		return -EINVAL;
++	}
++
++	memset(atkbd->keycode, 0, sizeof(atkbd->keycode));
++	for (i = 0; i < n; i++) {
++		physcode = PHYSCODE(ptr[i]);
++		keycode = KEYCODE(ptr[i]);
++		atkbd->keycode[physcode] = keycode;
++	}
++	kfree(ptr);
++	return 0;
++}
++
+ /*
+  * atkbd_set_keycode_table() initializes keyboard's keycode table
+  * according to the selected scancode set
+@@ -1039,13 +1074,16 @@ static unsigned int atkbd_oqo_01plus_scancode_fixup(struct atkbd *atkbd,
+ 
+ static void atkbd_set_keycode_table(struct atkbd *atkbd)
+ {
++	struct device *dev = &atkbd->ps2dev.serio->dev;
+ 	unsigned int scancode;
+ 	int i, j;
+ 
+ 	memset(atkbd->keycode, 0, sizeof(atkbd->keycode));
+ 	bitmap_zero(atkbd->force_release_mask, ATKBD_KEYMAP_SIZE);
+ 
+-	if (atkbd->translated) {
++	if (!atkbd_get_keymap_from_fwnode(atkbd)) {
++		dev_dbg(dev, "Using FW keymap\n");
++	} else if (atkbd->translated) {
+ 		for (i = 0; i < 128; i++) {
+ 			scancode = atkbd_unxlate_table[i];
+ 			atkbd->keycode[i] = atkbd_set2_keycode[scancode];
+@@ -1173,6 +1211,7 @@ static void atkbd_parse_fwnode_data(struct serio *serio)
+ 		atkbd->num_function_row_keys = n;
+ 		dev_dbg(dev, "FW reported %d function-row key locations\n", n);
  	}
- 	i8042_pnp_id_to_string(dev->id, i8042_kbd_firmware_id,
- 			       sizeof(i8042_kbd_firmware_id));
-+	i8042_kbd_fwnode = dev_fwnode(&dev->dev);
++
+ }
  
- 	/* Keyboard ports are always supposed to be wakeup-enabled */
- 	device_set_wakeup_enable(&dev->dev, true);
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 20ff2bed3917a..0dddf273afd94 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -21,6 +21,7 @@
- #include <linux/i8042.h>
- #include <linux/slab.h>
- #include <linux/suspend.h>
-+#include <linux/property.h>
- 
- #include <asm/io.h>
- 
-@@ -124,6 +125,7 @@ MODULE_PARM_DESC(unmask_kbd_data, "Unconditional enable (may reveal sensitive da
- static bool i8042_bypass_aux_irq_test;
- static char i8042_kbd_firmware_id[128];
- static char i8042_aux_firmware_id[128];
-+static struct fwnode_handle *i8042_kbd_fwnode;
- 
- #include "i8042.h"
- 
-@@ -1335,6 +1337,7 @@ static int __init i8042_create_kbd_port(void)
- 	strlcpy(serio->phys, I8042_KBD_PHYS_DESC, sizeof(serio->phys));
- 	strlcpy(serio->firmware_id, i8042_kbd_firmware_id,
- 		sizeof(serio->firmware_id));
-+	set_primary_fwnode(&serio->dev, i8042_kbd_fwnode);
- 
- 	port->serio = serio;
- 	port->irq = I8042_KBD_IRQ;
+ /*
 -- 
 2.26.2.303.gf8c07b1a785-goog
 

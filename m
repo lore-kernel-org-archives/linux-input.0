@@ -7,49 +7,52 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C294C83000
-	for <linux-input@archiver.kernel.org>; Tue, 28 Apr 2020 14:23:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D20DC83000
+	for <linux-input@archiver.kernel.org>; Tue, 28 Apr 2020 14:23:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4DE56206D7
-	for <linux-input@archiver.kernel.org>; Tue, 28 Apr 2020 14:23:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C244206D7
+	for <linux-input@archiver.kernel.org>; Tue, 28 Apr 2020 14:23:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PtZ+67qv"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g3zgau7P"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727856AbgD1OXD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 28 Apr 2020 10:23:03 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:33738 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726868AbgD1OXD (ORCPT
+        id S1727878AbgD1OXG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 28 Apr 2020 10:23:06 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:39553 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726868AbgD1OXG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Apr 2020 10:23:03 -0400
+        Tue, 28 Apr 2020 10:23:06 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588083782;
+        s=mimecast20190719; t=1588083785;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=jIX5CYKIQUN2lBh9opYogqEO4R8EycK8YMqe5/ZFfgw=;
-        b=PtZ+67qv8oQov9ptPJp9TRaRfrm/dlr1KvQDCw+ubUV6HCP+HOSmQB0qG2LmouLU9mgly6
-        zpVyGGqcttvskuhULcYtUqAG5OuUs+tOZIZ2ItKrYGYCzbwnYWhGlKn64mm/2Fwql9y1Cg
-        VNT3pAl+ADUxncmzlWBz5xWK4ITQhI8=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=J849IyjDD8ptEn8ZlcYvdLsp+5tVUGfiF7KemMlS0Yg=;
+        b=g3zgau7PNUfhSLYdNFHJ4TRa4nJVEooozjfQ3JRkAn4bVNScGql6Zb1oqdvUUg58lwVn9t
+        ze7yZjtwREJYA8rjoVo41i82cFc0m94YlEQHVxImgqkQL6/Orpg0S8kedZU6Y0vn8TQmpb
+        E7zkh7Mw5WsIoL7aBH1J9ageGOguO8c=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-118-byavXidDOV-TRLCE32bWdw-1; Tue, 28 Apr 2020 10:23:00 -0400
-X-MC-Unique: byavXidDOV-TRLCE32bWdw-1
+ us-mta-289-Gsu8H8SIN_2UrwsH8u0Eeg-1; Tue, 28 Apr 2020 10:23:03 -0400
+X-MC-Unique: Gsu8H8SIN_2UrwsH8u0Eeg-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C6DDF1895A2A;
-        Tue, 28 Apr 2020 14:22:59 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 68B9E1895A2A;
+        Tue, 28 Apr 2020 14:23:02 +0000 (UTC)
 Received: from x1.localdomain.com (ovpn-114-62.ams2.redhat.com [10.36.114.62])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 44E6E60300;
-        Tue, 28 Apr 2020 14:22:56 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6A104605CB;
+        Tue, 28 Apr 2020 14:23:01 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH 1/6] HID: asus: Only set EV_REP if we are adding a mapping
-Date:   Tue, 28 Apr 2020 16:22:49 +0200
-Message-Id: <20200428142254.252063-1-hdegoede@redhat.com>
+Subject: [PATCH 3/6] HID: asus: Add hid_is_using_ll_driver(usb_hid_driver) check
+Date:   Tue, 28 Apr 2020 16:22:51 +0200
+Message-Id: <20200428142254.252063-3-hdegoede@redhat.com>
+In-Reply-To: <20200428142254.252063-1-hdegoede@redhat.com>
+References: <20200428142254.252063-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Content-Transfer-Encoding: quoted-printable
@@ -58,59 +61,30 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Make asus_input_mapping() only set EV_REP if we are adding a mapping.
-
-The T100CHI bluetooth keyboard dock has a few input reports for which
-we do not create any mappings (these input-reports are present in the
-descriptors but never send).
-
-The hid-asus code relies on the HID core not creating input devices for
-input-reports without any mappings. But the present of the EV_REP but
-counts as a mapping causing 6 /dev/input/event# nodes to be created for
-the T100CHI bluetooth keyboard dock. This change brings the amount of
-created /dev/input/event# nodes / input-devices down to 4.
+Add a hid_is_using_ll_driver(usb_hid_driver) check to ensure that the
+parent device is an usb_interface, before casting the parent device
+pointer to an usb_interface pointer with to_usb_interface().
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-asus.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-asus.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index e6e4c841fb06..ac224c32eeb6 100644
+index b3292ff3f61a..719eff589f92 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -694,7 +694,6 @@ static int asus_input_mapping(struct hid_device *hdev=
-,
+@@ -842,7 +842,8 @@ static int asus_probe(struct hid_device *hdev, const =
+struct hid_device_id *id)
+ 	if (drvdata->quirks & QUIRK_IS_MULTITOUCH)
+ 		drvdata->tp =3D &asus_i2c_tp;
 =20
- 	/* ASUS-specific keyboard hotkeys */
- 	if ((usage->hid & HID_USAGE_PAGE) =3D=3D 0xff310000) {
--		set_bit(EV_REP, hi->input->evbit);
- 		switch (usage->hid & HID_USAGE) {
- 		case 0x10: asus_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
- 		case 0x20: asus_map_key_clear(KEY_BRIGHTNESSUP);		break;
-@@ -737,11 +736,11 @@ static int asus_input_mapping(struct hid_device *hd=
-ev,
- 		if (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT)
- 			drvdata->enable_backlight =3D true;
+-	if (drvdata->quirks & QUIRK_T100_KEYBOARD) {
++	if ((drvdata->quirks & QUIRK_T100_KEYBOARD) &&
++	    hid_is_using_ll_driver(hdev, &usb_hid_driver)) {
+ 		struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent);
 =20
-+		set_bit(EV_REP, hi->input->evbit);
- 		return 1;
- 	}
-=20
- 	if ((usage->hid & HID_USAGE_PAGE) =3D=3D HID_UP_MSVENDOR) {
--		set_bit(EV_REP, hi->input->evbit);
- 		switch (usage->hid & HID_USAGE) {
- 		case 0xff01: asus_map_key_clear(BTN_1);	break;
- 		case 0xff02: asus_map_key_clear(BTN_2);	break;
-@@ -764,6 +763,7 @@ static int asus_input_mapping(struct hid_device *hdev=
-,
- 			return 0;
- 		}
-=20
-+		set_bit(EV_REP, hi->input->evbit);
- 		return 1;
- 	}
-=20
+ 		if (intf->altsetting->desc.bInterfaceNumber =3D=3D T100_TPAD_INTF) {
 --=20
 2.26.0
 

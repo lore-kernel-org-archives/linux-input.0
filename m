@@ -2,156 +2,73 @@ Return-Path: <SRS0=4q52=6N=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFD7BC83000
-	for <linux-input@archiver.kernel.org>; Wed, 29 Apr 2020 18:41:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C98EC83000
+	for <linux-input@archiver.kernel.org>; Wed, 29 Apr 2020 19:45:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C03F62076B
-	for <linux-input@archiver.kernel.org>; Wed, 29 Apr 2020 18:41:40 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kl.wtf header.i=@kl.wtf header.b="BWhKfvaW"
+	by mail.kernel.org (Postfix) with ESMTP id 43B2D20B1F
+	for <linux-input@archiver.kernel.org>; Wed, 29 Apr 2020 19:45:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1588189531;
+	bh=wX/19Jsd3N7TN0rYMzq53H+g5FGfskexyD7KfL2ugN8=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
+	b=ic71bZoVCUvd/Vr9E+pUfL0EWjZ0jDIiXLFDgp0SjpWOx0D+hHIt1A4NxkeVNmzNA
+	 nqpSLqAR8Lhq2TdRfc6ty/0uI6PspZn7j65Xuj6JLrp0EMfScZda64GoEjeBXj+Sup
+	 Vta50BE7ClPCT9EpRhN0IGFvLgVHZ6C2yluJQhYo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726580AbgD2Slk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 29 Apr 2020 14:41:40 -0400
-Received: from out1.migadu.com ([91.121.223.63]:53860 "EHLO out1.migadu.com"
+        id S1726481AbgD2Tpa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 29 Apr 2020 15:45:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726481AbgD2Slj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 29 Apr 2020 14:41:39 -0400
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kl.wtf; s=default;
-        t=1588185695;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=0UPZBwn4U3oHUhbxw2H293dCX96+PteV6QKDoHbFu6k=;
-        b=BWhKfvaW3/y9YENimasWwHebk0abuEth3F3XBlie2wwIJKi5dZuGJX/jpPOuv3YY7RQib9
-        rpUK7PYAC/IGuln86Xx1a6DECScckm/dSqUqLb+cU0Q+hqiKhghIQwmczrdfaRd0r9oiMl
-        SSzPz8NmJ2GrcBmn1AXlj5tWtogXr+Q=
-From:   Kenny Levinsen <kl@kl.wtf>
-To:     linux-input@vger.kernel.org
-Cc:     dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org,
-        Kenny Levinsen <kl@kl.wtf>
-Subject: [PATCH] Input: evdev - per-client waitgroups
-Date:   Wed, 29 Apr 2020 20:41:26 +0200
-Message-Id: <20200429184126.2155-1-kl@kl.wtf>
+        id S1726456AbgD2Tpa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 29 Apr 2020 15:45:30 -0400
+Received: from pobox.suse.cz (unknown [195.250.132.148])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F70C206B8;
+        Wed, 29 Apr 2020 19:45:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588189530;
+        bh=wX/19Jsd3N7TN0rYMzq53H+g5FGfskexyD7KfL2ugN8=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=FIzj6h7wVJhM2hCXN9W50KI5kI6JRhnfcjgs4vRhV2OMAdqsBYqnimiL7jWZvedsf
+         Mkl4yP9mBeetjk/Z9FhErayDw2bXWo3pTgcmYRoFvIewzI0YDtjXgTNyyFcBzXpFAJ
+         cmWXsU3juIm4DSqJsXfQz59wZoP2BtQ5HVPYRRhQ=
+Date:   Wed, 29 Apr 2020 21:45:27 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Daniel Playfair Cal <daniel.playfair.cal@gmail.com>
+cc:     benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: Re: [PATCH] HID: i2c-hid: reset Synaptics SYNA2393 on resume
+In-Reply-To: <20200425105817.27084-1-daniel.playfair.cal@gmail.com>
+Message-ID: <nycvar.YFH.7.76.2004292145170.19713@cbobk.fhfr.pm>
+References: <20200425105817.27084-1-daniel.playfair.cal@gmail.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-All evdev clients share a common waitgroup. On new input events, this
-waitgroup is woken once for every client that did not filter the events,
-leading to duplicated and unwanted wakeups.
+On Sat, 25 Apr 2020, Daniel Playfair Cal wrote:
 
-Split the shared waitgroup into per-client waitgroups for more
-fine-grained wakeups.
+> On the Dell XPS 9570, the Synaptics SYNA2393 touchpad generates spurious
+> interrupts after resuming from suspend until it receives some input or
+> is reset. Add it to the quirk I2C_HID_QUIRK_RESET_ON_RESUME so that it
+> is reset when resuming from suspend.
+> 
+> More information about the bug can be found in this mailing list
+> discussion: https://www.spinics.net/lists/linux-input/msg59530.html
+> 
+> Signed-off-by: Daniel Playfair Cal <daniel.playfair.cal@gmail.com>
 
-Signed-off-by: Kenny Levinsen <kl@kl.wtf>
----
- drivers/input/evdev.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+Applied, thanks Daniel.
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index f54d3d31f61d..e9a8ba36e53e 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -28,7 +28,6 @@
- struct evdev {
- 	int open;
- 	struct input_handle handle;
--	wait_queue_head_t wait;
- 	struct evdev_client __rcu *grab;
- 	struct list_head client_list;
- 	spinlock_t client_lock; /* protects client_list */
-@@ -43,6 +42,7 @@ struct evdev_client {
- 	unsigned int tail;
- 	unsigned int packet_head; /* [future] position of the first element of next packet */
- 	spinlock_t buffer_lock; /* protects access to buffer, head and tail */
-+	wait_queue_head_t wait;
- 	struct fasync_struct *fasync;
- 	struct evdev *evdev;
- 	struct list_head node;
-@@ -245,7 +245,6 @@ static void evdev_pass_values(struct evdev_client *client,
- 			const struct input_value *vals, unsigned int count,
- 			ktime_t *ev_time)
- {
--	struct evdev *evdev = client->evdev;
- 	const struct input_value *v;
- 	struct input_event event;
- 	struct timespec64 ts;
-@@ -282,7 +281,7 @@ static void evdev_pass_values(struct evdev_client *client,
- 	spin_unlock(&client->buffer_lock);
- 
- 	if (wakeup)
--		wake_up_interruptible_poll(&evdev->wait,
-+		wake_up_interruptible_poll(&client->wait,
- 			EPOLLIN | EPOLLOUT | EPOLLRDNORM | EPOLLWRNORM);
- }
- 
-@@ -440,11 +439,11 @@ static void evdev_hangup(struct evdev *evdev)
- 	struct evdev_client *client;
- 
- 	spin_lock(&evdev->client_lock);
--	list_for_each_entry(client, &evdev->client_list, node)
-+	list_for_each_entry(client, &evdev->client_list, node) {
- 		kill_fasync(&client->fasync, SIGIO, POLL_HUP);
-+		wake_up_interruptible_poll(&client->wait, EPOLLHUP | EPOLLERR);
-+	}
- 	spin_unlock(&evdev->client_lock);
--
--	wake_up_interruptible_poll(&evdev->wait, EPOLLHUP | EPOLLERR);
- }
- 
- static int evdev_release(struct inode *inode, struct file *file)
-@@ -492,6 +491,7 @@ static int evdev_open(struct inode *inode, struct file *file)
- 	if (!client)
- 		return -ENOMEM;
- 
-+	init_waitqueue_head(&client->wait);
- 	client->bufsize = bufsize;
- 	spin_lock_init(&client->buffer_lock);
- 	client->evdev = evdev;
-@@ -608,7 +608,7 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
- 			break;
- 
- 		if (!(file->f_flags & O_NONBLOCK)) {
--			error = wait_event_interruptible(evdev->wait,
-+			error = wait_event_interruptible(client->wait,
- 					client->packet_head != client->tail ||
- 					!evdev->exist || client->revoked);
- 			if (error)
-@@ -626,7 +626,7 @@ static __poll_t evdev_poll(struct file *file, poll_table *wait)
- 	struct evdev *evdev = client->evdev;
- 	__poll_t mask;
- 
--	poll_wait(file, &evdev->wait, wait);
-+	poll_wait(file, &client->wait, wait);
- 
- 	if (evdev->exist && !client->revoked)
- 		mask = EPOLLOUT | EPOLLWRNORM;
-@@ -959,7 +959,7 @@ static int evdev_revoke(struct evdev *evdev, struct evdev_client *client,
- 	client->revoked = true;
- 	evdev_ungrab(evdev, client);
- 	input_flush_device(&evdev->handle, file);
--	wake_up_interruptible_poll(&evdev->wait, EPOLLHUP | EPOLLERR);
-+	wake_up_interruptible_poll(&client->wait, EPOLLHUP | EPOLLERR);
- 
- 	return 0;
- }
-@@ -1372,7 +1372,6 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
- 	INIT_LIST_HEAD(&evdev->client_list);
- 	spin_lock_init(&evdev->client_lock);
- 	mutex_init(&evdev->mutex);
--	init_waitqueue_head(&evdev->wait);
- 	evdev->exist = true;
- 
- 	dev_no = minor;
 -- 
-2.26.2
+Jiri Kosina
+SUSE Labs
 

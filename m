@@ -1,80 +1,74 @@
-Return-Path: <SRS0=4q52=6N=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=mPyT=6O=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24292C83000
-	for <linux-input@archiver.kernel.org>; Wed, 29 Apr 2020 19:48:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E08FBC28CBC
+	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 13:59:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F33A521D79
-	for <linux-input@archiver.kernel.org>; Wed, 29 Apr 2020 19:48:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1588189713;
-	bh=KvYlEUXkK+PUsHr1w5AnUqjWqIRHSUm9pdRu2b3JXSc=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=a3j14yf9p5M0v9qukmw9odLOk7e4XmC9VwNSDohbrVyJm8aHNkyYhy0+VJZ7ytbvV
-	 Zk2rxg8NjrwZAsOtFi3SXotYndp8cwxHS7dsMxeSIBJom6sWWNiMXxzDj5TggN5ilK
-	 h+B6lK2rYI0Jr2FwfT0ESQtNBUj6OJgRhiquorwY=
+	by mail.kernel.org (Postfix) with ESMTP id C994F20870
+	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 13:59:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727919AbgD2Tsc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 29 Apr 2020 15:48:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50974 "EHLO mail.kernel.org"
+        id S1728939AbgD3N7l (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 30 Apr 2020 09:59:41 -0400
+Received: from thoth.sbs.de ([192.35.17.2]:39009 "EHLO thoth.sbs.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726781AbgD2Tsc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 29 Apr 2020 15:48:32 -0400
-Received: from pobox.suse.cz (unknown [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2069B206D6;
-        Wed, 29 Apr 2020 19:43:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588189407;
-        bh=KvYlEUXkK+PUsHr1w5AnUqjWqIRHSUm9pdRu2b3JXSc=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=gNXMVZOKu20UOyMRlvh/WAl35MxB6IHcwHyLpY9sOlbaPdG7QyjXx25x3lore8L1T
-         5IwtTrRnVigu8MtSyDo2VwbabEkw4VBjfgokpOgvtJutM/puHjcBESu65EVXJsqOP1
-         OuPAvXfqOiGD29uI+ozGV92OkyPrRrIUrCcY27A8=
-Date:   Wed, 29 Apr 2020 21:43:24 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Jason Gerecke <killertofu@gmail.com>
-cc:     linux-input@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: wacom: Report 2nd-gen Intuos Pro S center button
- status over BT
-In-Reply-To: <20200424210400.220712-1-jason.gerecke@wacom.com>
-Message-ID: <nycvar.YFH.7.76.2004292142500.19713@cbobk.fhfr.pm>
-References: <20200424210400.220712-1-jason.gerecke@wacom.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1728236AbgD3N7l (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:59:41 -0400
+Received: from mail1.siemens.de (mail1.siemens.de [139.23.33.14])
+        by thoth.sbs.de (8.15.2/8.15.2) with ESMTPS id 03UDld6f001650
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 30 Apr 2020 15:47:39 +0200
+Received: from dev.vm7.ccp.siemens.com ([158.226.192.214])
+        by mail1.siemens.de (8.15.2/8.15.2) with ESMTP id 03UDlcbP025819;
+        Thu, 30 Apr 2020 15:47:39 +0200
+Received: from dev.vm7.ccp.siemens.com (localhost [127.0.0.1])
+        by dev.vm7.ccp.siemens.com (Postfix) with ESMTP id CE5577097C1;
+        Thu, 30 Apr 2020 15:40:12 +0200 (CEST)
+From:   Andrej Valek <andrej.valek@siemens.com>
+To:     linux-input@vger.kernel.org
+Cc:     hadess@hadess.net, andrej.valek@siemens.com
+Subject: [PATCH] Input: goodix - add option to disable firmware loading
+Date:   Thu, 30 Apr 2020 15:39:26 +0200
+Message-Id: <20200430133926.23393-1-andrej.valek@siemens.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 24 Apr 2020, Jason Gerecke wrote:
+Firmware file loadind for GT911 controller takes too much time (~60s).
+There is no check that configuration is the same which is already present.
+This happens always during boot, which makes touchscreen unusable.
 
-> The state of the center button was not reported to userspace for the
-> 2nd-gen Intuos Pro S when used over Bluetooth due to the pad handling
-> code not being updated to support its reduced number of buttons. This
-> patch uses the actual number of buttons present on the tablet to
-> assemble a button state bitmap.
-> 
-> Link: https://github.com/linuxwacom/xf86-input-wacom/issues/112
-> Fixes: cd47de45b855 ("HID: wacom: Add 2nd gen Intuos Pro Small support")
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Cc: stable@vger.kernel.org # v5.3+
+Add there an option to prevent firmware file loading, but keep it enabled
+by default.
 
-Applied, thanks Jason.
+Signed-off-by: Andrej Valek <andrej.valek@siemens.com>
+---
+ drivers/input/touchscreen/goodix.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 02c75ea385e0..7a75e5137547 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -941,7 +941,9 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+ 	default:
+ 		if (ts->gpiod_int && ts->gpiod_rst) {
+ 			ts->reset_controller_at_probe = true;
+-			ts->load_cfg_from_disk = true;
++			/* Prevent cfg loading for each start */
++			ts->load_cfg_from_disk = !device_property_read_bool(dev,
++							     "touchscreen-do-not-load-fw");
+ 			ts->irq_pin_access_method = IRQ_PIN_ACCESS_GPIO;
+ 		}
+ 	}
 -- 
-Jiri Kosina
-SUSE Labs
+2.20.1
 

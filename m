@@ -2,322 +2,320 @@ Return-Path: <SRS0=mPyT=6O=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-6.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C2CBC4724C
-	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 16:16:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB905C47247
+	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 18:02:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8004F20873
-	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 16:16:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8A84020731
+	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 18:02:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726405AbgD3QQw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 30 Apr 2020 12:16:52 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:49890 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728037AbgD3QQv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 30 Apr 2020 12:16:51 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: andrzej.p)
-        with ESMTPSA id F31DB2A2976
-From:   Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+        id S1726404AbgD3SC6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 30 Apr 2020 14:02:58 -0400
+Received: from mail.bugwerft.de ([46.23.86.59]:40872 "EHLO mail.bugwerft.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726377AbgD3SC6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 30 Apr 2020 14:02:58 -0400
+X-Greylist: delayed 565 seconds by postgrey-1.27 at vger.kernel.org; Thu, 30 Apr 2020 14:02:55 EDT
+Received: from zenbar.fritz.box (pD95EF368.dip0.t-ipconnect.de [217.94.243.104])
+        by mail.bugwerft.de (Postfix) with ESMTPSA id 85B28402AAC;
+        Thu, 30 Apr 2020 17:50:55 +0000 (UTC)
+From:   Daniel Mack <daniel@zonque.org>
 To:     linux-input@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        kernel@collabora.com, Patrik Fimml <patrikf@chromium.org>
-Subject: [PATCH 1/2] Input: Add "inhibited" property
-Date:   Thu, 30 Apr 2020 18:16:40 +0200
-Message-Id: <20200430161641.24503-2-andrzej.p@collabora.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200430161641.24503-1-andrzej.p@collabora.com>
-References: <20200430161641.24503-1-andrzej.p@collabora.com>
+Cc:     dmitry.torokhov@gmail.com, m.felsch@pengutronix.de,
+        kstewart@linuxfoundation.org, Daniel Mack <daniel@zonque.org>
+Subject: [PATCH] input: touch: ads7846: switch to devm initialization
+Date:   Thu, 30 Apr 2020 19:53:23 +0200
+Message-Id: <20200430175323.187870-1-daniel@zonque.org>
+X-Mailer: git-send-email 2.25.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Patrik Fimml <patrikf@chromium.org>
+This simplies the code a lot and fixes some potential resource leaks in
+the error return paths. It also ensures the input device is registered
+before the interrupt is requested, as the IRQ handler will commit events
+when it fires.
 
-Userspace might want to implement a policy to temporarily disregard input
-from certain devices, including not treating them as wakeup sources.
-
-An example use case is a laptop, whose keyboard can be folded under the
-screen to create tablet-like experience. The user then must hold the laptop
-in such a way that it is difficult to avoid pressing the keyboard keys. It
-is therefore desirable to temporarily disregard input from the keyboard,
-until it is folded back. This obviously is a policy which should be kept
-out of the kernel, but the kernel must provide suitable means to implement
-such a policy.
-
-This patch adds a sysfs interface for exactly this purpose.
-
-To implement the said interface it adds an "inhibited" property to struct
-input_dev and two optional methods - inhibit() and uninhibit(), and
-effectively creates four states a device can be in: closed uninhibited,
-closed inhibited, open uninhibited, open inhibited. It also defers calling
-driver's ->open() and ->close() to until they are actually needed, e.g. it
-makes no sense to prepare the underlying device for generating events
-(->open()) if the device is inhibited.
-
-              uninhibit
-closed      <------------ closed
-uninhibited ------------> inhibited
-      | ^     inhibit        | ^
- 1st  | |               1st  | |
- open | |               open | |
-      | |                    | |
-      | | last               | | last
-      | | close              | | close
-      v |     uninhibit      v |
-open        <------------ open
-uninhibited ------------> inhibited
-
-The top inhibit/uninhibit transition happens when users == 0.
-The bottom inhibit/uninhibit transition happens when users > 0.
-The left open/close transition happens when !inhibited.
-The right open/close transition happens when inhibited.
-Due to all transitions being serialized with dev->mutex, it is impossible
-to have "diagonal" transitions between closed uninhibited and open
-inhibited or between open uninhibited and closed inhibited.
-
-While open()/close() could be used in place of uninhibit()/inhibit(),
-underlying driver implementations have very different ideas of what it
-means to open/close, to suspend/resume or to pm runtime suspend/resume.
-On top of that close() does not return a code, so using close() there be
-no way to actually fail inhibiting.
-
-It is drivers' responsibility to implement their inhibiting capability in
-terms of whatever is suitable in their context, be it open/close,
-inhibit/uninhibit or a combination of both. The drivers should also ensure
-that they properly interact with suspend/resume and PM runtime, because
-most likely a side effect of inhibiting a device should be its going into
-low power mode. Properly inhibiting a device means to prevent it from being
-a wakeup source, so drivers should also take care of that.
-
-Signed-off-by: Patrik Fimml <patrikf@chromium.org>
-Co-developed-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Signed-off-by: Daniel Mack <daniel@zonque.org>
 ---
- drivers/input/input.c | 134 +++++++++++++++++++++++++++++++++++++++---
- include/linux/input.h |   8 +++
- 2 files changed, 133 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/ads7846.c | 137 +++++++++-------------------
+ 1 file changed, 45 insertions(+), 92 deletions(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 3cfd2c18eebd..ee1d17b23b54 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -367,8 +367,13 @@ static int input_get_disposition(struct input_dev *dev,
- static void input_handle_event(struct input_dev *dev,
- 			       unsigned int type, unsigned int code, int value)
- {
--	int disposition = input_get_disposition(dev, type, code, &value);
-+	int disposition;
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 8fd7fc39c4fd..acf736f5ddab 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -528,30 +528,19 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+ 		break;
+ 	}
  
-+	/* filter-out events from inhibited devices */
-+	if (dev->inhibited)
-+		return;
-+
-+	disposition = input_get_disposition(dev, type, code, &value);
- 	if (disposition != INPUT_IGNORE_EVENT && type != EV_SYN)
- 		add_input_randomness(type, code, value);
+-	ts->hwmon = hwmon_device_register_with_groups(&spi->dev, spi->modalias,
+-						      ts, ads7846_attr_groups);
++	ts->hwmon = devm_hwmon_device_register_with_groups(&spi->dev,
++							   spi->modalias, ts,
++							   ads7846_attr_groups);
  
-@@ -612,7 +617,7 @@ int input_open_device(struct input_handle *handle)
- 
- 	handle->open++;
- 
--	if (dev->users++) {
-+	if (dev->users++ || dev->inhibited) {
- 		/*
- 		 * Device is already opened, so we can exit immediately and
- 		 * report success.
-@@ -660,6 +665,14 @@ int input_flush_device(struct input_handle *handle, struct file *file)
+ 	return PTR_ERR_OR_ZERO(ts->hwmon);
  }
- EXPORT_SYMBOL(input_flush_device);
  
-+static inline void input_stop(struct input_dev *dev)
-+{
-+	if (dev->poller)
-+		input_dev_poller_stop(dev->poller);
-+	if (dev->close)
-+		dev->close(dev);
-+}
-+
- /**
-  * input_close_device - close input device
-  * @handle: handle through which device is being accessed
-@@ -675,13 +688,8 @@ void input_close_device(struct input_handle *handle)
- 
- 	__input_release_device(handle);
- 
--	if (!--dev->users) {
--		if (dev->poller)
--			input_dev_poller_stop(dev->poller);
+-static void ads784x_hwmon_unregister(struct spi_device *spi,
+-				     struct ads7846 *ts)
+-{
+-	if (ts->hwmon)
+-		hwmon_device_unregister(ts->hwmon);
+-}
 -
--		if (dev->close)
--			dev->close(dev);
--	}
-+	if (!dev->inhibited && !--dev->users)
-+		input_stop(dev);
- 
- 	if (!--handle->open) {
- 		/*
-@@ -1416,12 +1424,49 @@ static ssize_t input_dev_show_properties(struct device *dev,
- }
- static DEVICE_ATTR(properties, S_IRUGO, input_dev_show_properties, NULL);
- 
-+static int input_inhibit(struct input_dev *dev);
-+static int input_uninhibit(struct input_dev *dev);
-+
-+static ssize_t inhibited_show(struct device *dev,
-+			      struct device_attribute *attr,
-+			      char *buf)
-+{
-+	struct input_dev *input_dev = to_input_dev(dev);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", input_dev->inhibited);
-+}
-+
-+static ssize_t inhibited_store(struct device *dev,
-+			       struct device_attribute *attr, const char *buf,
-+			       size_t len)
-+{
-+	struct input_dev *input_dev = to_input_dev(dev);
-+	ssize_t rv;
-+	bool inhibited;
-+
-+	if (strtobool(buf, &inhibited))
-+		return -EINVAL;
-+
-+	if (inhibited)
-+		rv = input_inhibit(input_dev);
-+	else
-+		rv = input_uninhibit(input_dev);
-+
-+	if (rv != 0)
-+		return rv;
-+
-+	return len;
-+}
-+
-+static DEVICE_ATTR_RW(inhibited);
-+
- static struct attribute *input_dev_attrs[] = {
- 	&dev_attr_name.attr,
- 	&dev_attr_phys.attr,
- 	&dev_attr_uniq.attr,
- 	&dev_attr_modalias.attr,
- 	&dev_attr_properties.attr,
-+	&dev_attr_inhibited.attr,
- 	NULL
- };
- 
-@@ -1703,6 +1748,77 @@ void input_reset_device(struct input_dev *dev)
- }
- EXPORT_SYMBOL(input_reset_device);
- 
-+static int input_inhibit(struct input_dev *dev)
-+{
-+	int ret = 0;
-+
-+	mutex_lock(&dev->mutex);
-+
-+	if (dev->inhibited)
-+		goto out;
-+
-+	if (dev->users) {
-+		if (dev->inhibit) {
-+			ret = dev->inhibit(dev);
-+			if (ret)
-+				goto out;
-+		}
-+		input_stop(dev);
-+	}
-+
-+	spin_lock_irq(&dev->event_lock);
-+	input_dev_release_keys(dev);
-+	input_dev_toggle(dev, false);
-+	spin_unlock_irq(&dev->event_lock);
-+
-+	dev->inhibited = true;
-+
-+out:
-+	mutex_unlock(&dev->mutex);
-+	return ret;
-+}
-+
-+static int input_uninhibit(struct input_dev *dev)
-+{
-+	int ret = 0;
-+
-+	mutex_lock(&dev->mutex);
-+
-+	if (!dev->inhibited)
-+		goto out;
-+
-+	if (dev->users) {
-+		if (dev->open) {
-+			ret = dev->open(dev);
-+			if (ret)
-+				goto toggle;
-+		}
-+		if (dev->uninhibit) {
-+			ret = dev->uninhibit(dev);
-+			if (ret) {
-+				if (dev->close)
-+					dev->close(dev);
-+				goto toggle;
-+			}
-+		}
-+		if (dev->poller)
-+			input_dev_poller_start(dev->poller);
-+	}
-+
-+	dev->inhibited = false;
-+
-+toggle:
-+	if (!dev->inhibited) {
-+		spin_lock_irq(&dev->event_lock);
-+		input_dev_toggle(dev, true);
-+		spin_unlock_irq(&dev->event_lock);
-+	}
-+
-+out:
-+	mutex_unlock(&dev->mutex);
-+	return ret;
-+}
-+
- #ifdef CONFIG_PM_SLEEP
- static int input_dev_suspend(struct device *dev)
+ #else
+ static inline int ads784x_hwmon_register(struct spi_device *spi,
+ 					 struct ads7846 *ts)
  {
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 56f2fd32e609..a15839e3b808 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -127,6 +127,9 @@ enum input_clock_type {
-  *	and needs not be explicitly unregistered or freed.
-  * @timestamp: storage for a timestamp set by input_set_timestamp called
-  *  by a driver
-+ * @inhibit: makes the device ignore all input
-+ * @uninhibit: undoes the effect of inhibit
-+ * @inhibited: indicates that the input device is inhibited
-  */
- struct input_dev {
- 	const char *name;
-@@ -201,6 +204,11 @@ struct input_dev {
- 	bool devres_managed;
+ 	return 0;
+ }
+-
+-static inline void ads784x_hwmon_unregister(struct spi_device *spi,
+-					    struct ads7846 *ts)
+-{
+-}
+ #endif
  
- 	ktime_t timestamp[INPUT_CLK_MAX];
-+
-+	int (*inhibit)(struct input_dev *dev);
-+	int (*uninhibit)(struct input_dev *dev);
-+
-+	bool inhibited;
- };
- #define to_input_dev(d) container_of(d, struct input_dev, dev)
+ static ssize_t ads7846_pen_down_show(struct device *dev,
+@@ -944,8 +933,8 @@ static int ads7846_setup_pendown(struct spi_device *spi,
+ 		ts->get_pendown_state = pdata->get_pendown_state;
+ 	} else if (gpio_is_valid(pdata->gpio_pendown)) {
  
+-		err = gpio_request_one(pdata->gpio_pendown, GPIOF_IN,
+-				       "ads7846_pendown");
++		err = devm_gpio_request_one(&spi->dev, pdata->gpio_pendown,
++					    GPIOF_IN, "ads7846_pendown");
+ 		if (err) {
+ 			dev_err(&spi->dev,
+ 				"failed to request/setup pendown GPIO%d: %d\n",
+@@ -1264,6 +1253,7 @@ static const struct ads7846_platform_data *ads7846_probe_dt(struct device *dev)
+ static int ads7846_probe(struct spi_device *spi)
+ {
+ 	const struct ads7846_platform_data *pdata;
++	struct device *dev = &spi->dev;
+ 	struct ads7846 *ts;
+ 	struct ads7846_packet *packet;
+ 	struct input_dev *input_dev;
+@@ -1293,13 +1283,11 @@ static int ads7846_probe(struct spi_device *spi)
+ 	if (err < 0)
+ 		return err;
+ 
+-	ts = kzalloc(sizeof(struct ads7846), GFP_KERNEL);
+-	packet = kzalloc(sizeof(struct ads7846_packet), GFP_KERNEL);
+-	input_dev = input_allocate_device();
+-	if (!ts || !packet || !input_dev) {
+-		err = -ENOMEM;
+-		goto err_free_mem;
+-	}
++	ts = devm_kzalloc(dev, sizeof(struct ads7846), GFP_KERNEL);
++	packet = devm_kzalloc(dev, sizeof(struct ads7846_packet), GFP_KERNEL);
++	input_dev = devm_input_allocate_device(dev);
++	if (!ts || !packet || !input_dev)
++		return -ENOMEM;
+ 
+ 	spi_set_drvdata(spi, ts);
+ 
+@@ -1313,10 +1301,8 @@ static int ads7846_probe(struct spi_device *spi)
+ 	pdata = dev_get_platdata(&spi->dev);
+ 	if (!pdata) {
+ 		pdata = ads7846_probe_dt(&spi->dev);
+-		if (IS_ERR(pdata)) {
+-			err = PTR_ERR(pdata);
+-			goto err_free_mem;
+-		}
++		if (IS_ERR(pdata))
++			return PTR_ERR(pdata);
+ 	}
+ 
+ 	ts->model = pdata->model ? : 7846;
+@@ -1328,7 +1314,7 @@ static int ads7846_probe(struct spi_device *spi)
+ 		if (pdata->filter_init != NULL) {
+ 			err = pdata->filter_init(pdata, &ts->filter_data);
+ 			if (err < 0)
+-				goto err_free_mem;
++				return err;
+ 		}
+ 		ts->filter = pdata->filter;
+ 		ts->filter_cleanup = pdata->filter_cleanup;
+@@ -1354,12 +1340,12 @@ static int ads7846_probe(struct spi_device *spi)
+ 
+ 	ts->wait_for_sync = pdata->wait_for_sync ? : null_wait_for_sync;
+ 
+-	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(&spi->dev));
++	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(dev));
+ 	snprintf(ts->name, sizeof(ts->name), "ADS%d Touchscreen", ts->model);
+ 
+ 	input_dev->name = ts->name;
+ 	input_dev->phys = ts->phys;
+-	input_dev->dev.parent = &spi->dev;
++	input_dev->dev.parent = dev;
+ 
+ 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+ 	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+@@ -1391,94 +1377,80 @@ static int ads7846_probe(struct spi_device *spi)
+ 		ts->core_prop.swap_x_y = true;
+ 	}
+ 
++	err = input_register_device(input_dev);
++	if (err)
++		goto err_cleanup_filter;
++
+ 	ads7846_setup_spi_msg(ts, pdata);
+ 
+-	ts->reg = regulator_get(&spi->dev, "vcc");
++	ts->reg = devm_regulator_get(dev, "vcc");
+ 	if (IS_ERR(ts->reg)) {
+ 		err = PTR_ERR(ts->reg);
+-		dev_err(&spi->dev, "unable to get regulator: %d\n", err);
+-		goto err_free_gpio;
++		dev_err(dev, "unable to get regulator: %d\n", err);
++		goto err_cleanup_filter;
+ 	}
+ 
+ 	err = regulator_enable(ts->reg);
+ 	if (err) {
+-		dev_err(&spi->dev, "unable to enable regulator: %d\n", err);
+-		goto err_put_regulator;
++		dev_err(dev, "unable to enable regulator: %d\n", err);
++		goto err_cleanup_filter;
+ 	}
+ 
+ 	irq_flags = pdata->irq_flags ? : IRQF_TRIGGER_FALLING;
+ 	irq_flags |= IRQF_ONESHOT;
+ 
+-	err = request_threaded_irq(spi->irq, ads7846_hard_irq, ads7846_irq,
+-				   irq_flags, spi->dev.driver->name, ts);
++	err = devm_request_threaded_irq(dev, spi->irq,
++					ads7846_hard_irq, ads7846_irq,
++					irq_flags, dev->driver->name, ts);
+ 	if (err && !pdata->irq_flags) {
+-		dev_info(&spi->dev,
++		dev_info(dev,
+ 			"trying pin change workaround on irq %d\n", spi->irq);
+ 		irq_flags |= IRQF_TRIGGER_RISING;
+-		err = request_threaded_irq(spi->irq,
+-				  ads7846_hard_irq, ads7846_irq,
+-				  irq_flags, spi->dev.driver->name, ts);
++		err = devm_request_threaded_irq(dev, spi->irq,
++						ads7846_hard_irq, ads7846_irq,
++						irq_flags, dev->driver->name,
++						ts);
+ 	}
+ 
+ 	if (err) {
+-		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+-		goto err_disable_regulator;
++		dev_dbg(dev, "irq %d busy?\n", spi->irq);
++		goto err_cleanup_filter;
+ 	}
+ 
+ 	err = ads784x_hwmon_register(spi, ts);
+ 	if (err)
+-		goto err_free_irq;
++		goto err_cleanup_filter;
+ 
+-	dev_info(&spi->dev, "touchscreen, irq %d\n", spi->irq);
++	dev_info(dev, "touchscreen, irq %d\n", spi->irq);
+ 
+ 	/*
+ 	 * Take a first sample, leaving nPENIRQ active and vREF off; avoid
+ 	 * the touchscreen, in case it's not connected.
+ 	 */
+ 	if (ts->model == 7845)
+-		ads7845_read12_ser(&spi->dev, PWRDOWN);
++		ads7845_read12_ser(dev, PWRDOWN);
+ 	else
+-		(void) ads7846_read12_ser(&spi->dev, READ_12BIT_SER(vaux));
++		(void) ads7846_read12_ser(dev, READ_12BIT_SER(vaux));
+ 
+-	err = sysfs_create_group(&spi->dev.kobj, &ads784x_attr_group);
++	err = sysfs_create_group(&dev->kobj, &ads784x_attr_group);
+ 	if (err)
+-		goto err_remove_hwmon;
+-
+-	err = input_register_device(input_dev);
+-	if (err)
+-		goto err_remove_attr_group;
++		goto err_cleanup_filter;
+ 
+-	device_init_wakeup(&spi->dev, pdata->wakeup);
++	device_init_wakeup(dev, pdata->wakeup);
+ 
+ 	/*
+ 	 * If device does not carry platform data we must have allocated it
+ 	 * when parsing DT data.
+ 	 */
+-	if (!dev_get_platdata(&spi->dev))
+-		devm_kfree(&spi->dev, (void *)pdata);
++	if (!dev_get_platdata(dev))
++		devm_kfree(dev, (void *)pdata);
+ 
+ 	return 0;
+ 
+- err_remove_attr_group:
+-	sysfs_remove_group(&spi->dev.kobj, &ads784x_attr_group);
+- err_remove_hwmon:
+-	ads784x_hwmon_unregister(spi, ts);
+- err_free_irq:
+-	free_irq(spi->irq, ts);
+- err_disable_regulator:
+-	regulator_disable(ts->reg);
+- err_put_regulator:
+-	regulator_put(ts->reg);
+- err_free_gpio:
+-	if (!ts->get_pendown_state)
+-		gpio_free(ts->gpio_pendown);
+  err_cleanup_filter:
+ 	if (ts->filter_cleanup)
+ 		ts->filter_cleanup(ts->filter_data);
+- err_free_mem:
+-	input_free_device(input_dev);
+-	kfree(packet);
+-	kfree(ts);
++
+ 	return err;
+ }
+ 
+@@ -1487,30 +1459,11 @@ static int ads7846_remove(struct spi_device *spi)
+ 	struct ads7846 *ts = spi_get_drvdata(spi);
+ 
+ 	sysfs_remove_group(&spi->dev.kobj, &ads784x_attr_group);
+-
+ 	ads7846_disable(ts);
+-	free_irq(ts->spi->irq, ts);
+-
+-	input_unregister_device(ts->input);
+-
+-	ads784x_hwmon_unregister(spi, ts);
+-
+-	regulator_put(ts->reg);
+-
+-	if (!ts->get_pendown_state) {
+-		/*
+-		 * If we are not using specialized pendown method we must
+-		 * have been relying on gpio we set up ourselves.
+-		 */
+-		gpio_free(ts->gpio_pendown);
+-	}
+ 
+ 	if (ts->filter_cleanup)
+ 		ts->filter_cleanup(ts->filter_data);
+ 
+-	kfree(ts->packet);
+-	kfree(ts);
+-
+ 	dev_dbg(&spi->dev, "unregistered touchscreen\n");
+ 
+ 	return 0;
 -- 
-2.17.1
+2.25.2
 

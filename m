@@ -2,85 +2,198 @@ Return-Path: <SRS0=mPyT=6O=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCA95C47247
-	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 16:16:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E225C47254
+	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 16:16:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C278A20873
-	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 16:16:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16CD120873
+	for <linux-input@archiver.kernel.org>; Thu, 30 Apr 2020 16:16:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728074AbgD3QQv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 30 Apr 2020 12:16:51 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:49886 "EHLO
+        id S1728037AbgD3QQw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 30 Apr 2020 12:16:52 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:49898 "EHLO
         bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726405AbgD3QQu (ORCPT
+        with ESMTP id S1728059AbgD3QQw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 30 Apr 2020 12:16:50 -0400
+        Thu, 30 Apr 2020 12:16:52 -0400
 Received: from [127.0.0.1] (localhost [127.0.0.1])
         (Authenticated sender: andrzej.p)
-        with ESMTPSA id 9DDF82A28E5
+        with ESMTPSA id 5A6582A2987
 From:   Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 To:     linux-input@vger.kernel.org
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        kernel@collabora.com
-Subject: [PATCH 0/2] Support inhibiting input devices
-Date:   Thu, 30 Apr 2020 18:16:39 +0200
-Message-Id: <20200430161641.24503-1-andrzej.p@collabora.com>
+        kernel@collabora.com, Dmitry Torokhov <dtor@chromium.org>
+Subject: [PATCH 2/2] Input: elan_i2c: Support inhibiting
+Date:   Thu, 30 Apr 2020 18:16:41 +0200
+Message-Id: <20200430161641.24503-3-andrzej.p@collabora.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200430161641.24503-1-andrzej.p@collabora.com>
+References: <20200430161641.24503-1-andrzej.p@collabora.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Userspace might want to implement a policy to temporarily disregard input
-from certain devices, including not treating them as wakeup sources.
+From: Dmitry Torokhov <dtor@chromium.org>
 
-An example use case is a laptop, whose keyboard can be folded under the
-screen to create tablet-like experience. The user then must hold the laptop
-in such a way that it is difficult to avoid pressing the keyboard keys. It
-is therefore desirable to temporarily disregard input from the keyboard,
-until it is folded back. This obviously is a policy which should be kept
-out of the kernel, but the kernel must provide suitable means to implement
-such a policy.
+This also implies adjusting suspend/resume.
 
-PATCH 1/2 adds support for inhibiting input devices, while PATCH 2/2
-provides an example how to convert a driver to take advantage of this
-new feature.
+Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+---
+ drivers/input/mouse/elan_i2c_core.c | 108 ++++++++++++++++++++++------
+ 1 file changed, 85 insertions(+), 23 deletions(-)
 
-There are 
-
-$ git grep "input_allocate_device(" | grep -v ^Documentation | cut -f1 -d: \
-							| sort | uniq | wc
-    388     388   13425
-
-many input device drivers, so it is impossible to convert all of them
-in one go.
-
-This work is inspired by:
-
-https://chromium.googlesource.com/chromiumos/third_party/kernel/+/45c2d7bb398f74adfae0017e20b224152fde3822
-
-and
-
-https://chromium.googlesource.com/chromiumos/third_party/kernel/+/4ce0e8a3697edb8fd071110b3af65014512061c7
-
-Dmitry Torokhov (1):
-  Input: elan_i2c: Support inhibiting
-
-Patrik Fimml (1):
-  Input: Add "inhibited" property
-
- drivers/input/input.c               | 134 ++++++++++++++++++++++++++--
- drivers/input/mouse/elan_i2c_core.c | 108 +++++++++++++++++-----
- include/linux/input.h               |   8 ++
- 3 files changed, 218 insertions(+), 32 deletions(-)
-
-
-base-commit: 79799562bf087b30d9dd0fddf5bed2d3b038be08
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 8719da540383..5fd8bcb7f337 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -309,6 +309,71 @@ static int elan_initialize(struct elan_tp_data *data)
+ 	return error;
+ }
+ 
++static int elan_reactivate(struct elan_tp_data *data)
++{
++	struct device *dev = &data->client->dev;
++	int ret;
++
++	ret = elan_enable_power(data);
++	if (ret)
++		dev_err(dev, "failed to restore power: %d\n", ret);
++
++	ret = elan_initialize(data);
++	if (ret)
++		dev_err(dev, "failed to re-initialize touchpad: %d\n", ret);
++
++	return ret;
++}
++
++static int elan_uninhibit(struct input_dev *input)
++{
++	struct elan_tp_data *data = input_get_drvdata(input);
++	struct i2c_client *client = data->client;
++	int ret;
++
++	dev_dbg(&client->dev, "uninhibiting\n");
++
++	ret = mutex_lock_interruptible(&data->sysfs_mutex);
++	if (ret)
++		return ret;
++
++	ret = elan_reactivate(data);
++	if (ret == 0)
++		enable_irq(client->irq);
++
++	mutex_unlock(&data->sysfs_mutex);
++
++	return ret;
++}
++
++static int elan_inhibit(struct input_dev *input)
++{
++	struct elan_tp_data *data = input_get_drvdata(input);
++	struct i2c_client *client = data->client;
++	int ret;
++
++	dev_dbg(&client->dev, "closing\n");
++
++	/*
++	 * We are taking the mutex to make sure sysfs operations are
++	 * complete before we attempt to bring the device into low[er]
++	 * power mode.
++	 */
++	ret = mutex_lock_interruptible(&data->sysfs_mutex);
++	if (ret)
++		return ret;
++
++	disable_irq(client->irq);
++
++	ret = elan_disable_power(data);
++	if (ret)
++		enable_irq(client->irq);
++
++	mutex_unlock(&data->sysfs_mutex);
++
++	return ret;
++}
++
+ static int elan_query_device_info(struct elan_tp_data *data)
+ {
+ 	int error;
+@@ -1085,6 +1150,8 @@ static int elan_setup_input_device(struct elan_tp_data *data)
+ 	input->id.bustype = BUS_I2C;
+ 	input->id.vendor = ELAN_VENDOR_ID;
+ 	input->id.product = data->product_id;
++	input->uninhibit = elan_uninhibit;
++	input->inhibit = elan_inhibit;
+ 	input_set_drvdata(input, data);
+ 
+ 	error = input_mt_init_slots(input, ETP_MAX_FINGERS,
+@@ -1308,14 +1375,16 @@ static int __maybe_unused elan_suspend(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
+-	disable_irq(client->irq);
++	if (!data->input->inhibited) {
++		disable_irq(client->irq);
+ 
+-	if (device_may_wakeup(dev)) {
+-		ret = elan_sleep(data);
+-		/* Enable wake from IRQ */
+-		data->irq_wake = (enable_irq_wake(client->irq) == 0);
+-	} else {
+-		ret = elan_disable_power(data);
++		if (device_may_wakeup(dev)) {
++			ret = elan_sleep(data);
++			/* Enable wake from IRQ */
++			data->irq_wake = (enable_irq_wake(client->irq) == 0);
++		} else {
++			ret = elan_disable_power(data);
++		}
+ 	}
+ 
+ 	mutex_unlock(&data->sysfs_mutex);
+@@ -1326,26 +1395,19 @@ static int __maybe_unused elan_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elan_tp_data *data = i2c_get_clientdata(client);
+-	int error;
++	int ret = 0;
+ 
+-	if (device_may_wakeup(dev) && data->irq_wake) {
+-		disable_irq_wake(client->irq);
+-		data->irq_wake = false;
+-	}
++	if (!data->input->inhibited) {
++		if (data->irq_wake) {
++			disable_irq_wake(client->irq);
++			data->irq_wake = false;
++		}
+ 
+-	error = elan_enable_power(data);
+-	if (error) {
+-		dev_err(dev, "power up when resuming failed: %d\n", error);
+-		goto err;
++		ret = elan_reactivate(data);
++		enable_irq(data->client->irq);
+ 	}
+ 
+-	error = elan_initialize(data);
+-	if (error)
+-		dev_err(dev, "initialize when resuming failed: %d\n", error);
+-
+-err:
+-	enable_irq(data->client->irq);
+-	return error;
++	return ret;
+ }
+ 
+ static SIMPLE_DEV_PM_OPS(elan_pm_ops, elan_suspend, elan_resume);
 -- 
 2.17.1
 

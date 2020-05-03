@@ -2,143 +2,129 @@ Return-Path: <SRS0=LbEz=6R=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61585C47258
-	for <linux-input@archiver.kernel.org>; Sun,  3 May 2020 17:06:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EB58C47257
+	for <linux-input@archiver.kernel.org>; Sun,  3 May 2020 17:22:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44644206B9
-	for <linux-input@archiver.kernel.org>; Sun,  3 May 2020 17:06:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 26B5B2075A
+	for <linux-input@archiver.kernel.org>; Sun,  3 May 2020 17:22:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728753AbgECRFw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 3 May 2020 13:05:52 -0400
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:60595 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728783AbgECRFv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 3 May 2020 13:05:51 -0400
-X-Originating-IP: 195.189.32.242
-Received: from pc.localdomain (unknown [195.189.32.242])
-        (Authenticated sender: contact@artur-rojek.eu)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id C81144000F;
-        Sun,  3 May 2020 17:05:47 +0000 (UTC)
-From:   Artur Rojek <contact@artur-rojek.eu>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Heiko Stuebner <heiko@sntech.de>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Artur Rojek <contact@artur-rojek.eu>
-Subject: [PATCH v6 2/7] IIO: Ingenic JZ47xx: Error check clk_enable calls.
-Date:   Sun,  3 May 2020 19:14:46 +0200
-Message-Id: <20200503171451.44034-2-contact@artur-rojek.eu>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200503171451.44034-1-contact@artur-rojek.eu>
-References: <20200503171451.44034-1-contact@artur-rojek.eu>
+        id S1728968AbgECRW2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 3 May 2020 13:22:28 -0400
+Received: from mail-co1nam11olkn2043.outbound.protection.outlook.com ([40.92.18.43]:10184
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728859AbgECRW1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 3 May 2020 13:22:27 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZwJrMpv7fo9rtjyS/Q9zc+tQUOFRil+DxTzFglwurfdveIxzc/+H29f7JBtAmLqXoW40lc60d6C6CTzkyibahaYARR0Rlg/Eji1CDX04i7l0by6J/nwEVc+j7AwUo+/ev8e926ND49NTQouRNXGHz42vEvajoGA8oeHmUZmOqvCj3LlaP5o45jZ5yWD7iG8vGzND/4GY2tRF6plWSwcsOA0PtOu8Ybif8joiTuVkJUYMNwzcZGVWz97Q4jfOyzkVBozpab1hgoxPVilS2ElwFnsYBVPaXCufrVxd/mzt7dCJll7oHUOewfhN/xDlKHJdjlaGYFVuzIOV2kkknznIJg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QSR/dwvt++l2Oi733usiHVK2Wnj++y0bEjxSjwaF94Y=;
+ b=XkpIiOn6hEKO9Xpt3UBae7Xj9Fb98NG8YoxufuIgbb0khjBdD906q0TBcM77RJr6btkv7L90bWbjIwl9aaMysC7WLeiwr8n9EAfkUnYhd8jdpfJVBKpBOr0i3YjaTebkY5WD2uWFLxu8y5UIxOeIyqjcA3DRcTvqqC0SOe/c2rjwufmHjNJF5vRtvwLefuJowrYQoFzWO+geyOugBPQWHuDSYvMSSg3bxNyCFNzwHJPdm/e3pvmVTA/JFa55VVVk7M1nEzoMGayKs5YlBRAEJUja7q8lJ6OFLRBZVDfbmYPH8JfRNSDOfwZChmPOflcmqkGvLrHeQfNxDz3pYu765g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=live.ca; dmarc=pass action=none header.from=live.ca; dkim=pass
+ header.d=live.ca; arc=none
+Received: from BN8NAM11FT054.eop-nam11.prod.protection.outlook.com
+ (2a01:111:e400:fc4b::52) by
+ BN8NAM11HT065.eop-nam11.prod.protection.outlook.com (2a01:111:e400:fc4b::76)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2958.19; Sun, 3 May
+ 2020 17:22:24 +0000
+Received: from BN6PR04MB0660.namprd04.prod.outlook.com
+ (2a01:111:e400:fc4b::42) by BN8NAM11FT054.mail.protection.outlook.com
+ (2a01:111:e400:fc4b::358) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2958.19 via Frontend
+ Transport; Sun, 3 May 2020 17:22:24 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:B6EE349BD92D333ECC97541A81CD710523ECD37DDD0DCF701383AFCBB6EFCE12;UpperCasedChecksum:397A0D960BB03C25E65094B9F5F3B67BBD0C23249853D2BDF6FEF1FEBC407BEB;SizeAsReceived:7902;Count:48
+Received: from BN6PR04MB0660.namprd04.prod.outlook.com
+ ([fe80::ad10:4127:4bc8:76fc]) by BN6PR04MB0660.namprd04.prod.outlook.com
+ ([fe80::ad10:4127:4bc8:76fc%6]) with mapi id 15.20.2958.029; Sun, 3 May 2020
+ 17:22:24 +0000
+From:   Jonathan Bakker <xc-racer2@live.ca>
+To:     jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de,
+        pmeerw@pmeerw.net, robh+dt@kernel.org, linus.walleij@linaro.org,
+        linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com,
+        kstewart@linuxfoundation.org, gregkh@linuxfoundation.org,
+        tglx@linutronix.de, linux-input@vger.kernel.org
+Cc:     Jonathan Bakker <xc-racer2@live.ca>
+Subject: [PATCH 0/5] iio: accel: Add bma023 support to bma180
+Date:   Sun,  3 May 2020 10:22:01 -0700
+Message-ID: <BN6PR04MB0660046ABD79433EA94A85A9A3A90@BN6PR04MB0660.namprd04.prod.outlook.com>
+X-Mailer: git-send-email 2.20.1
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-ClientProxiedBy: MWHPR14CA0047.namprd14.prod.outlook.com
+ (2603:10b6:300:12b::33) To BN6PR04MB0660.namprd04.prod.outlook.com
+ (2603:10b6:404:d9::21)
+X-Microsoft-Original-Message-ID: <20200503172206.13782-1-xc-racer2@live.ca>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from jon-hp-6570b.telus (2001:569:fb68:9c00:8067:f823:1e15:7520) by MWHPR14CA0047.namprd14.prod.outlook.com (2603:10b6:300:12b::33) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2958.20 via Frontend Transport; Sun, 3 May 2020 17:22:22 +0000
+X-Mailer: git-send-email 2.20.1
+X-Microsoft-Original-Message-ID: <20200503172206.13782-1-xc-racer2@live.ca>
+X-TMN:  [EdMbrvaaOG+gsyVIbiZXMTT8s+9h73WbHNM15p+Fd7a/N7OevFswW7Bq0MqA1HBj]
+X-MS-PublicTrafficType: Email
+X-IncomingHeaderCount: 48
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-Correlation-Id: 4f2964f8-777d-4534-18f9-08d7ef868b37
+X-MS-TrafficTypeDiagnostic: BN8NAM11HT065:
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 4GXgfNIJMzs8tUAmV36GGEjHlYqVOBsg7V90IFjVbHeZGRsqsETlCaNF/GfDMcA57XpxfcVd3uG/KAiKhEIXjlw1qWTUyn05Qi1e5W4J7jWipccMVO0O+b7sf+fIFtgOYN5Apf8h1JyvnZMnrpw96aS4Y5ljoQHSYkAOLFu31qNYmZ+T4PkYGzm5mU/y/+bYz0ud1meOlBxPHDBEQnPP9A==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:0;SRV:;IPV:NLI;SFV:NSPM;H:BN6PR04MB0660.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:;DIR:OUT;SFP:1901;
+X-MS-Exchange-AntiSpam-MessageData: rz2n1nsLByM8AFdRhGML+9OsB3dLX+IuN8NcciOFbZsOd+pd6kppRmH6zOm9Ix2mNQV997aw+Yc6Fg3MyOGMGhrGnjkcgRLR2KYl3/z+ODColLXIAzFO6RdJGbjvSh8mSsaOzshpOGXpRdLgg8I/U7LO9dt/FiX+0JYBad/hxwPUnKsfqwdEr2ivtU9npcnMw8SqoW9CxaR3Q8nbvovEXQ==
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4f2964f8-777d-4534-18f9-08d7ef868b37
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2020 17:22:24.5930
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8NAM11HT065
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Introduce error checks for the clk_enable calls used in this driver.
-As part of the changes, move clk_enable/clk_disable calls out of
-ingenic_adc_set_config and into respective logic of its callers.
+This patchset adds support for the bma023 three axis accelerometer
+to the bma180 IIO driver.  The bma023 is found on several ~2010
+phones, including the first-gen Galaxy S series.
 
-Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
-Tested-by: Paul Cercueil <paul@crapouillou.net>
----
+The bma023 differs from later chips (bma180, bma25x) in that it
+has no low power but still working mode and no temperature
+channel.
 
-Changes:
+The bma023 is already supported by a misc input driver (bma150), so
+when both are enabled, the iio driver is preferred.  The bma150
+is very similar to the bma023, but has a temperature channel.
+Support for the bma150 is not added in this patchset.
 
-v6: new patch
+While I was at it, I noticed that the dt binding doc was missing
+the regulators, so I've added those in.
 
- drivers/iio/adc/ingenic-adc.c | 23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+The patches have been tested on a GT-i9000.  The interrupt pin
+is not connected on this board so the trigger was not tested.
 
-diff --git a/drivers/iio/adc/ingenic-adc.c b/drivers/iio/adc/ingenic-adc.c
-index 39c0a609fc94..6c3bbba7c44b 100644
---- a/drivers/iio/adc/ingenic-adc.c
-+++ b/drivers/iio/adc/ingenic-adc.c
-@@ -73,7 +73,6 @@ static void ingenic_adc_set_config(struct ingenic_adc *adc,
- {
- 	uint32_t cfg;
- 
--	clk_enable(adc->clk);
- 	mutex_lock(&adc->lock);
- 
- 	cfg = readl(adc->base + JZ_ADC_REG_CFG) & ~mask;
-@@ -81,7 +80,6 @@ static void ingenic_adc_set_config(struct ingenic_adc *adc,
- 	writel(cfg, adc->base + JZ_ADC_REG_CFG);
- 
- 	mutex_unlock(&adc->lock);
--	clk_disable(adc->clk);
- }
- 
- static void ingenic_adc_enable(struct ingenic_adc *adc,
-@@ -124,6 +122,8 @@ static int ingenic_adc_write_raw(struct iio_dev *iio_dev,
- 				 long m)
- {
- 	struct ingenic_adc *adc = iio_priv(iio_dev);
-+	struct device *dev = iio_dev->dev.parent;
-+	int ret;
- 
- 	switch (m) {
- 	case IIO_CHAN_INFO_SCALE:
-@@ -131,6 +131,14 @@ static int ingenic_adc_write_raw(struct iio_dev *iio_dev,
- 		case INGENIC_ADC_BATTERY:
- 			if (!adc->soc_data->battery_vref_mode)
- 				return -EINVAL;
-+
-+			ret = clk_enable(adc->clk);
-+			if (ret) {
-+				dev_err(dev, "Failed to enable clock: %d\n",
-+					ret);
-+				return ret;
-+			}
-+
- 			if (val > JZ_ADC_BATTERY_LOW_VREF) {
- 				ingenic_adc_set_config(adc,
- 						       JZ_ADC_REG_CFG_BAT_MD,
-@@ -142,6 +150,9 @@ static int ingenic_adc_write_raw(struct iio_dev *iio_dev,
- 						       JZ_ADC_REG_CFG_BAT_MD);
- 				adc->low_vref_mode = true;
- 			}
-+
-+			clk_disable(adc->clk);
-+
- 			return 0;
- 		default:
- 			return -EINVAL;
-@@ -317,6 +328,13 @@ static int ingenic_adc_read_chan_info_raw(struct ingenic_adc *adc,
- 					  int *val)
- {
- 	int bit, ret, engine = (chan->channel == INGENIC_ADC_BATTERY);
-+	struct device *dev = iio_priv_to_dev(adc)->dev.parent;
-+
-+	ret = clk_enable(adc->clk);
-+	if (ret) {
-+		dev_err(dev, "Failed to enable clock: %d\n", ret);
-+		return ret;
-+	}
- 
- 	/* We cannot sample AUX/AUX2 in parallel. */
- 	mutex_lock(&adc->aux_lock);
-@@ -325,7 +343,6 @@ static int ingenic_adc_read_chan_info_raw(struct ingenic_adc *adc,
- 		ingenic_adc_set_config(adc, JZ_ADC_REG_CFG_AUX_MD, bit);
- 	}
- 
--	clk_enable(adc->clk);
- 	ret = ingenic_adc_capture(adc, engine);
- 	if (ret)
- 		goto out;
+Jonathan Bakker (5):
+  iio: accel: bma180: Prepare for different reset values
+  input: misc: bma150: Conditionally disable bma023 support
+  dt-bindings: iio: accel: Add bma023 compatible to bma180
+  dt-bindings: iio: accel: Add required regulators to bma180
+  iio: accel: bma180: Add support for bma023
+
+ .../devicetree/bindings/iio/accel/bma180.txt  |   5 +-
+ drivers/iio/accel/Kconfig                     |   6 +-
+ drivers/iio/accel/bma180.c                    | 131 +++++++++++++++++-
+ drivers/input/misc/bma150.c                   |   3 +
+ 4 files changed, 135 insertions(+), 10 deletions(-)
+
 -- 
-2.26.2
+2.20.1
 

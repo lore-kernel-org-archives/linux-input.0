@@ -2,50 +2,50 @@ Return-Path: <SRS0=LbEz=6R=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EB58C47257
-	for <linux-input@archiver.kernel.org>; Sun,  3 May 2020 17:22:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9C09C47258
+	for <linux-input@archiver.kernel.org>; Sun,  3 May 2020 17:22:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 26B5B2075A
-	for <linux-input@archiver.kernel.org>; Sun,  3 May 2020 17:22:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9369B206F0
+	for <linux-input@archiver.kernel.org>; Sun,  3 May 2020 17:22:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728968AbgECRW2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 3 May 2020 13:22:28 -0400
-Received: from mail-co1nam11olkn2043.outbound.protection.outlook.com ([40.92.18.43]:10184
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        id S1729035AbgECRWm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 3 May 2020 13:22:42 -0400
+Received: from mail-dm6nam11olkn2090.outbound.protection.outlook.com ([40.92.19.90]:60384
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728859AbgECRW1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 3 May 2020 13:22:27 -0400
+        id S1729024AbgECRWl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 3 May 2020 13:22:41 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZwJrMpv7fo9rtjyS/Q9zc+tQUOFRil+DxTzFglwurfdveIxzc/+H29f7JBtAmLqXoW40lc60d6C6CTzkyibahaYARR0Rlg/Eji1CDX04i7l0by6J/nwEVc+j7AwUo+/ev8e926ND49NTQouRNXGHz42vEvajoGA8oeHmUZmOqvCj3LlaP5o45jZ5yWD7iG8vGzND/4GY2tRF6plWSwcsOA0PtOu8Ybif8joiTuVkJUYMNwzcZGVWz97Q4jfOyzkVBozpab1hgoxPVilS2ElwFnsYBVPaXCufrVxd/mzt7dCJll7oHUOewfhN/xDlKHJdjlaGYFVuzIOV2kkknznIJg==
+ b=AHGLTs9MXFfIWyThKlYuf9v6sn44rqgdVW+V+eL1ZXehDZjvSrAE9o5n+l6kqt0VvCwuSJ1pwqCJ/m4QSGLFR5EZykHZB9DwYgjEL4sBeYYBklDnDXjeOP1Cbu0NZnj+7QentvEN0098CwCGdo1FrEcyI/zzHzBxwU9eIZnqyT79B8FuO2os05VtlCwtzgQK7uc3+f2wq+xCatds2oNCNGWiAv2Tv9O7olGlhVISnVKmZuaYwthdCWUtOuDSnnES2HJNbTBkf4mv4lrJDL20xGU3H5yYMFsQoTosZt/izoR1Y6D0gN20ypfIjAGPoWEL1DI8wPujDCttC0sHKFr9qQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QSR/dwvt++l2Oi733usiHVK2Wnj++y0bEjxSjwaF94Y=;
- b=XkpIiOn6hEKO9Xpt3UBae7Xj9Fb98NG8YoxufuIgbb0khjBdD906q0TBcM77RJr6btkv7L90bWbjIwl9aaMysC7WLeiwr8n9EAfkUnYhd8jdpfJVBKpBOr0i3YjaTebkY5WD2uWFLxu8y5UIxOeIyqjcA3DRcTvqqC0SOe/c2rjwufmHjNJF5vRtvwLefuJowrYQoFzWO+geyOugBPQWHuDSYvMSSg3bxNyCFNzwHJPdm/e3pvmVTA/JFa55VVVk7M1nEzoMGayKs5YlBRAEJUja7q8lJ6OFLRBZVDfbmYPH8JfRNSDOfwZChmPOflcmqkGvLrHeQfNxDz3pYu765g==
+ bh=9eRxWgh7LKcjtFr5w4VvhR7gwYQN68bC1s2l8MuETE8=;
+ b=lomPgSNWUGFj4NaR/U44nRt5QGni80M6CClgkRrcNUbg0TpKZjPD7kYHd5l3/NGDPbq7vGb5/fty9YPbzC4Z79Ia+nb8ZFOnKvm5/s2YXO7HF0tWGctP4mC9ZXQge/pp3ycBJvs4pKTOnk5wpcPaVDtBbavzmegzpYfXoxUMhwpvV4EvOYfUmqWGxiyam6AlSOlX/uhtGg5e2IgRpGfcO3lEdKGAbGZ3URR8hbFqrUfjbSAkhKQVjKB15HYje2jjb6z2jT6fW9npCvTqKc58FizD/jI2pTrSFUInSYv2NBDQicpM85yPWTC8Pg29dSWZXriSi7sA605d1R0bvQGAbg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=live.ca; dmarc=pass action=none header.from=live.ca; dkim=pass
  header.d=live.ca; arc=none
 Received: from BN8NAM11FT054.eop-nam11.prod.protection.outlook.com
- (2a01:111:e400:fc4b::52) by
- BN8NAM11HT065.eop-nam11.prod.protection.outlook.com (2a01:111:e400:fc4b::76)
+ (2a01:111:e400:fc4b::4c) by
+ BN8NAM11HT050.eop-nam11.prod.protection.outlook.com (2a01:111:e400:fc4b::177)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2958.19; Sun, 3 May
- 2020 17:22:24 +0000
+ 2020 17:22:38 +0000
 Received: from BN6PR04MB0660.namprd04.prod.outlook.com
  (2a01:111:e400:fc4b::42) by BN8NAM11FT054.mail.protection.outlook.com
  (2a01:111:e400:fc4b::358) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2958.19 via Frontend
- Transport; Sun, 3 May 2020 17:22:24 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:B6EE349BD92D333ECC97541A81CD710523ECD37DDD0DCF701383AFCBB6EFCE12;UpperCasedChecksum:397A0D960BB03C25E65094B9F5F3B67BBD0C23249853D2BDF6FEF1FEBC407BEB;SizeAsReceived:7902;Count:48
+ Transport; Sun, 3 May 2020 17:22:38 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:CCA0B2BBF4270DE7710937906A791CE11FA4BE0660D53D0770BD574DA042BF7D;UpperCasedChecksum:1C0F01E0B3F65744F25782ABB286EDC601B4B1A66B46D2EEE782924FD37CC8B4;SizeAsReceived:8017;Count:50
 Received: from BN6PR04MB0660.namprd04.prod.outlook.com
  ([fe80::ad10:4127:4bc8:76fc]) by BN6PR04MB0660.namprd04.prod.outlook.com
  ([fe80::ad10:4127:4bc8:76fc%6]) with mapi id 15.20.2958.029; Sun, 3 May 2020
- 17:22:24 +0000
+ 17:22:38 +0000
 From:   Jonathan Bakker <xc-racer2@live.ca>
 To:     jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de,
         pmeerw@pmeerw.net, robh+dt@kernel.org, linus.walleij@linaro.org,
@@ -54,77 +54,69 @@ To:     jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de,
         kstewart@linuxfoundation.org, gregkh@linuxfoundation.org,
         tglx@linutronix.de, linux-input@vger.kernel.org
 Cc:     Jonathan Bakker <xc-racer2@live.ca>
-Subject: [PATCH 0/5] iio: accel: Add bma023 support to bma180
-Date:   Sun,  3 May 2020 10:22:01 -0700
-Message-ID: <BN6PR04MB0660046ABD79433EA94A85A9A3A90@BN6PR04MB0660.namprd04.prod.outlook.com>
+Subject: [PATCH 4/5] dt-bindings: iio: accel: Add required regulators to bma180
+Date:   Sun,  3 May 2020 10:22:05 -0700
+Message-ID: <BN6PR04MB06609033B2E0AB157A228989A3A90@BN6PR04MB0660.namprd04.prod.outlook.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200503172206.13782-1-xc-racer2@live.ca>
+References: <20200503172206.13782-1-xc-racer2@live.ca>
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
 X-ClientProxiedBy: MWHPR14CA0047.namprd14.prod.outlook.com
  (2603:10b6:300:12b::33) To BN6PR04MB0660.namprd04.prod.outlook.com
  (2603:10b6:404:d9::21)
-X-Microsoft-Original-Message-ID: <20200503172206.13782-1-xc-racer2@live.ca>
+X-Microsoft-Original-Message-ID: <20200503172206.13782-5-xc-racer2@live.ca>
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from jon-hp-6570b.telus (2001:569:fb68:9c00:8067:f823:1e15:7520) by MWHPR14CA0047.namprd14.prod.outlook.com (2603:10b6:300:12b::33) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2958.20 via Frontend Transport; Sun, 3 May 2020 17:22:22 +0000
+Received: from jon-hp-6570b.telus (2001:569:fb68:9c00:8067:f823:1e15:7520) by MWHPR14CA0047.namprd14.prod.outlook.com (2603:10b6:300:12b::33) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2958.20 via Frontend Transport; Sun, 3 May 2020 17:22:36 +0000
 X-Mailer: git-send-email 2.20.1
-X-Microsoft-Original-Message-ID: <20200503172206.13782-1-xc-racer2@live.ca>
-X-TMN:  [EdMbrvaaOG+gsyVIbiZXMTT8s+9h73WbHNM15p+Fd7a/N7OevFswW7Bq0MqA1HBj]
+X-Microsoft-Original-Message-ID: <20200503172206.13782-5-xc-racer2@live.ca>
+X-TMN:  [hjaUikFZWNubrA/C41NkCidd0DAwbksf3UHSDNhzzT56t0Q1ZoryHAwkSHdDZwu0]
 X-MS-PublicTrafficType: Email
-X-IncomingHeaderCount: 48
+X-IncomingHeaderCount: 50
 X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: 4f2964f8-777d-4534-18f9-08d7ef868b37
-X-MS-TrafficTypeDiagnostic: BN8NAM11HT065:
+X-MS-Office365-Filtering-Correlation-Id: a9a4080f-6f69-4ed3-8f23-08d7ef8693b0
+X-MS-TrafficTypeDiagnostic: BN8NAM11HT050:
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 4GXgfNIJMzs8tUAmV36GGEjHlYqVOBsg7V90IFjVbHeZGRsqsETlCaNF/GfDMcA57XpxfcVd3uG/KAiKhEIXjlw1qWTUyn05Qi1e5W4J7jWipccMVO0O+b7sf+fIFtgOYN5Apf8h1JyvnZMnrpw96aS4Y5ljoQHSYkAOLFu31qNYmZ+T4PkYGzm5mU/y/+bYz0ud1meOlBxPHDBEQnPP9A==
+X-Microsoft-Antispam-Message-Info: GqhL8/X6dgfc8xVnmjCsbZXy8CtnAxp3YfLRRAhevioBNRRzNxKPjgi6cMuu7b0GXPrgyZYu3bantF80v4v0OhQc1D2KMdms5yCilnhwTWvnhXX/7cy/U5WItyp6cjlKkFmOa3bfUQPI7nwNWLfzBW34zdJQqjQLXUk9J/MnztZSpUvIEGgZu8pOUcgOgs52bREhU/F8NnFjwSM9kaAsNQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:0;SRV:;IPV:NLI;SFV:NSPM;H:BN6PR04MB0660.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:;DIR:OUT;SFP:1901;
-X-MS-Exchange-AntiSpam-MessageData: rz2n1nsLByM8AFdRhGML+9OsB3dLX+IuN8NcciOFbZsOd+pd6kppRmH6zOm9Ix2mNQV997aw+Yc6Fg3MyOGMGhrGnjkcgRLR2KYl3/z+ODColLXIAzFO6RdJGbjvSh8mSsaOzshpOGXpRdLgg8I/U7LO9dt/FiX+0JYBad/hxwPUnKsfqwdEr2ivtU9npcnMw8SqoW9CxaR3Q8nbvovEXQ==
+X-MS-Exchange-AntiSpam-MessageData: RCmwKfly+V7JVxVGZGxYC/cOMePMKZbpsiRzezT//BiVftGGr7QOdqywrWXMG1C1210XhlwL4Ti+XP+K8mN+fxRhtdbMdXAfMaH8Cp10qtJXNcLHSyD++rVQ4Q0ktbRGVhQ7bSkiq8s7Tt4Y9cZ4QQRvrAWuy0yfhui5hpa5OaCpfgZaZP/DucLvRaVwv+JOpQFdPYvszo09CJ/ytOWb4Q==
 X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4f2964f8-777d-4534-18f9-08d7ef868b37
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2020 17:22:24.5930
+X-MS-Exchange-CrossTenant-Network-Message-Id: a9a4080f-6f69-4ed3-8f23-08d7ef8693b0
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2020 17:22:38.3900
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8NAM11HT065
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8NAM11HT050
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patchset adds support for the bma023 three axis accelerometer
-to the bma180 IIO driver.  The bma023 is found on several ~2010
-phones, including the first-gen Galaxy S series.
+The bma180 and related chips should have two registers attached to
+them.  The IIO driver currently uses them, document them here as
+well.
 
-The bma023 differs from later chips (bma180, bma25x) in that it
-has no low power but still working mode and no temperature
-channel.
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+---
+ Documentation/devicetree/bindings/iio/accel/bma180.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
-The bma023 is already supported by a misc input driver (bma150), so
-when both are enabled, the iio driver is preferred.  The bma150
-is very similar to the bma023, but has a temperature channel.
-Support for the bma150 is not added in this patchset.
-
-While I was at it, I noticed that the dt binding doc was missing
-the regulators, so I've added those in.
-
-The patches have been tested on a GT-i9000.  The interrupt pin
-is not connected on this board so the trigger was not tested.
-
-Jonathan Bakker (5):
-  iio: accel: bma180: Prepare for different reset values
-  input: misc: bma150: Conditionally disable bma023 support
-  dt-bindings: iio: accel: Add bma023 compatible to bma180
-  dt-bindings: iio: accel: Add required regulators to bma180
-  iio: accel: bma180: Add support for bma023
-
- .../devicetree/bindings/iio/accel/bma180.txt  |   5 +-
- drivers/iio/accel/Kconfig                     |   6 +-
- drivers/iio/accel/bma180.c                    | 131 +++++++++++++++++-
- drivers/input/misc/bma150.c                   |   3 +
- 4 files changed, 135 insertions(+), 10 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/iio/accel/bma180.txt b/Documentation/devicetree/bindings/iio/accel/bma180.txt
+index 48bec35f452a..af34f4fe410d 100644
+--- a/Documentation/devicetree/bindings/iio/accel/bma180.txt
++++ b/Documentation/devicetree/bindings/iio/accel/bma180.txt
+@@ -11,6 +11,8 @@ Required properties:
+     "bosch,bma250"
+     "bosch,bma254"
+   - reg : the I2C address of the sensor
++  - vdd-supply : regulator phandle connected to the VDD pin
++  - vddio-supply : regulator phandle connected to the VDDIO pin
+ 
+ Optional properties:
+ 
 -- 
 2.20.1
 

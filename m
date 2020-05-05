@@ -1,116 +1,129 @@
-Return-Path: <SRS0=FPR3=6S=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=vRrv=6T=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16F77C3A5A9
-	for <linux-input@archiver.kernel.org>; Mon,  4 May 2020 18:21:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BCEBC47247
+	for <linux-input@archiver.kernel.org>; Tue,  5 May 2020 04:05:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAD7A2087E
-	for <linux-input@archiver.kernel.org>; Mon,  4 May 2020 18:21:05 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="sUIdr5uo"
+	by mail.kernel.org (Postfix) with ESMTP id 4ADF3206B8
+	for <linux-input@archiver.kernel.org>; Tue,  5 May 2020 04:05:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1588651544;
+	bh=zF6sZRhsEgGpADrraSd7Rgy9rjEEJ9LkfiW61H42IdA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=TWA/o967NAj25S84hZ+ST5xVkpro6eg70hvG/HRGodrPiplhiD0qJBj0pWb0Ta/Me
+	 w+T8ms3BygbK7aQsoEt0inYUGMa6Aw+IFlDFnZ8FaDZKkzqwdwBMdYKl+fY9npVjYf
+	 HeqLpWcGFehZoLe2ZCoZdbH0ngSCeKcr/bNH8a0k=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730740AbgEDSVF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 4 May 2020 14:21:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60244 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729958AbgEDSVE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 4 May 2020 14:21:04 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A3EC061A0E;
-        Mon,  4 May 2020 11:21:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:Cc:References:To:
-        Subject:Sender:Reply-To:Content-ID:Content-Description;
-        bh=p2ee0uWm9T8Gzchj6ZhxPHc6i5laqcjVX3CZrQoFGpE=; b=sUIdr5uoTzu//3oDhmTqGrmIeE
-        PJPG5ZePoyAH17rhWTX/rGa3s0RufHAnwdIcBPvz8rw88HrhrgqllOqZAYsb21Wi+P+aQpy/7p97p
-        yFUQRdSkFMr2PcNyJoD+5QfZkqEzkE1S1UMIzv/I2zjXBWDEoiaOoh8dlXHQJFpDB6ZpBp2+T4ro2
-        i9kvDkAaHZuWeX5opL7YGJnf/Sddw0oAKYC3939ID6rP8YKdsZIDaToRQ1FfsdrkJJKgIdD3o42Ej
-        nha2BqyUQr3l6DEIKjwyxBw7LWhdZvh34KjwDND1cSxb0dyoGx7y6tYwB5fQWCoCESY3RlytQcNos
-        +Pyo47xw==;
-Received: from [2601:1c0:6280:3f0::19c2]
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jVfi8-0003p4-1N; Mon, 04 May 2020 18:21:00 +0000
-Subject: Re: [PATCH] Add support for Vinga Twizzle J116 Silead touchscreen
-To:     Andrew Dunai <a@dun.ai>, linux-kernel@vger.kernel.org,
-        Platform Driver <platform-driver-x86@vger.kernel.org>
-References: <20200504164514.18641-1-a@dun.ai>
-Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <72bd44ab-98a8-0cdc-b7e6-104a69ca3643@infradead.org>
-Date:   Mon, 4 May 2020 11:20:58 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1726704AbgEEEFk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 5 May 2020 00:05:40 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:35732 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725272AbgEEEFk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2020 00:05:40 -0400
+Received: by mail-oi1-f196.google.com with SMTP id o7so878066oif.2;
+        Mon, 04 May 2020 21:05:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=NxcXGsja0RqwbNvyBbTQG5dqInSaMyIr4W7PW6vbWV0=;
+        b=jXUnYvJQVStbcYVTkL/Jw2kaOFvCP7u+v3ywFtgA8TQGU3zsFXnaEw2OAbednQaVqX
+         PH9ZnqDZZA+/CyUVFDHQfpV9ZPRmci8Wq5EVmx0y0cccFOGVW5sCHG5+owNcMlXCs4Kr
+         1eS7IHfc92GWspuXCycdZkAflpRkiLstgPukUmTAcn7xZgQnfzT8KAyUYo2X1TbeIwPa
+         GlTZQRLzB5JjK7XBlMxWiU5Pg9ap9mGtFvubgXxF6iyY43mmd0fxtEoJknmzdHTE3QSl
+         n0/02lyeig+VmBhaJD5wtTZ+bZRAQjefDFjMiidM9dYZEfiPS+FNFBTqOqXN0WwlBVjg
+         1oPA==
+X-Gm-Message-State: AGi0PuaJomyo3ngPktiGF7onaBkbeHlJxK90lLJ0hq5ORsQ9CYCdSSno
+        brt0bjq5kkD6NT2lO9YvfQ==
+X-Google-Smtp-Source: APiQypIm6bJ2GYcUWnDrZJSKFY2MMrVaOZ5DgIjiUPpdrF0QvVmDwHdw5rjjHX4mQ/dYp0iumLOLcQ==
+X-Received: by 2002:aca:d441:: with SMTP id l62mr1244483oig.9.1588651539145;
+        Mon, 04 May 2020 21:05:39 -0700 (PDT)
+Received: from rob-hp-laptop (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id 61sm329855otp.13.2020.05.04.21.05.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 May 2020 21:05:38 -0700 (PDT)
+Received: (nullmailer pid 31439 invoked by uid 1000);
+        Tue, 05 May 2020 04:05:37 -0000
+Date:   Mon, 4 May 2020 23:05:37 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Artur Rojek <contact@artur-rojek.eu>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Artur Rojek <contact@artur-rojek.eu>
+Subject: Re: [PATCH v6 6/7] dt-bindings: input: Add docs for ADC driven
+ joystick.
+Message-ID: <20200505040537.GA30791@bogus>
+References: <20200503171451.44034-1-contact@artur-rojek.eu>
+ <20200503171451.44034-6-contact@artur-rojek.eu>
 MIME-Version: 1.0
-In-Reply-To: <20200504164514.18641-1-a@dun.ai>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200503171451.44034-6-contact@artur-rojek.eu>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
-
-Usually you need to send patches to a maintainer who could then
-merge/apply them.
-
-
-On 5/4/20 9:45 AM, Andrew Dunai wrote:
+On Sun,  3 May 2020 19:14:50 +0200, Artur Rojek wrote:
+> Add documentation for the adc-joystick driver, used to provide support
+> for joysticks connected over ADC.
+> 
+> Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
+> Tested-by: Paul Cercueil <paul@crapouillou.net>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 > ---
->  drivers/platform/x86/touchscreen_dmi.c | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
 > 
-> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-> index 93177e6e5..a3ab19ab0 100644
-> --- a/drivers/platform/x86/touchscreen_dmi.c
-> +++ b/drivers/platform/x86/touchscreen_dmi.c
-> @@ -640,6 +640,20 @@ static const struct ts_dmi_data trekstor_surftab_wintron70_data = {
->  	.properties	= trekstor_surftab_wintron70_props,
->  };
->  
-> +static const struct property_entry vinga_twizzle_j116_props[] = {
-> +	PROPERTY_ENTRY_U32("touchscreen-size-x", 1920),
-> +	PROPERTY_ENTRY_U32("touchscreen-size-y", 1280),
-> +	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-vinga-twizzle_j116.fw"),
-> +	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-> +	PROPERTY_ENTRY_BOOL("silead,home-button"),
-> +	{ }
-> +};
-> +
-> +static const struct ts_dmi_data vinga_twizzle_j116_data = {
-> +	.acpi_name	= "MSSL1680:00",
-> +	.properties	= vinga_twizzle_j116_props,
-> +};
-> +
->  /* NOTE: Please keep this table sorted alphabetically */
->  static const struct dmi_system_id touchscreen_dmi_table[] = {
->  	{
-> @@ -1054,6 +1068,13 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
->  			DMI_MATCH(DMI_PRODUCT_NAME, "Y8W81"),
->  		},
->  	},
-> +	{
-> +		/* Vinga Twizzle J116 */
-> +		.driver_data = (void *)&vinga_twizzle_j116_data,
-> +		.matches = {
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "VINGA Twizzle J116"),
-> +		},
-> +	},
->  	{ },
->  };
->  
+>  Changes:
+> 
+>  v2: - Add `reg` property to axis subnode in order to enumerate the axes,
+>      - rename `linux,abs-code` property to `linux,code`,
+>      - drop `linux,` prefix from the remaining properties of axis subnode
+> 
+>  v3: no change
+> 
+>  v4: - remove "bindings" from the unique identifier string,
+>      - replace `|` with `>` for all description properties,
+>      - specify the number of items for `io-channels`,
+>      - correct the regex pattern of `axis` property,
+>      - specify the value range of `reg` property for each axis,
+>      - put `abs-range` properties under `allOf` 
+> 
+>  v5: add `a-f` to the regex pattern of `axis` property
+> 
+>  v6: no change
+> 
+>  .../bindings/input/adc-joystick.yaml          | 121 ++++++++++++++++++
+>  1 file changed, 121 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/adc-joystick.yaml
 > 
 
-thanks.
--- 
-~Randy
+My bot found errors running 'make dt_binding_check' on your patch:
 
+Error: Documentation/devicetree/bindings/input/adc-joystick.example.dts:24.31-32 syntax error
+FATAL ERROR: Unable to parse input tree
+scripts/Makefile.lib:312: recipe for target 'Documentation/devicetree/bindings/input/adc-joystick.example.dt.yaml' failed
+make[1]: *** [Documentation/devicetree/bindings/input/adc-joystick.example.dt.yaml] Error 1
+make[1]: *** Waiting for unfinished jobs....
+Makefile:1300: recipe for target 'dt_binding_check' failed
+make: *** [dt_binding_check] Error 2
+
+See https://patchwork.ozlabs.org/patch/1282045
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure dt-schema is up to date:
+
+pip3 install git+https://github.com/devicetree-org/dt-schema.git@master --upgrade
+
+Please check and re-submit.

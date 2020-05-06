@@ -2,97 +2,108 @@ Return-Path: <SRS0=RGIC=6U=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D763BC28CBC
-	for <linux-input@archiver.kernel.org>; Wed,  6 May 2020 15:22:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D84FC47257
+	for <linux-input@archiver.kernel.org>; Wed,  6 May 2020 23:42:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B0B682080D
-	for <linux-input@archiver.kernel.org>; Wed,  6 May 2020 15:22:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 23D3620936
+	for <linux-input@archiver.kernel.org>; Wed,  6 May 2020 23:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1588778550;
-	bh=+pE8sGvSzhyzM1lmu2Si50vS5WEGHwFn5xiL0d50HMU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=DQYQMimXvjwuRatpZy+aVNnMQ2y/6FXR5iVTduB0PGt0tTqqjpJL6zHZbza5GtFRw
-	 3yGcfLFHqWgdNck2NL8mzLFCLrcY+dWFni0Vq4J3YOezS4wlvEoOPRAXOQyW6b5xji
-	 6fR8yyhchF0yhPUBzd2j1VYRTz27idxfZHF2I+bQ=
+	s=default; t=1588808529;
+	bh=rODOhhP48oDvPlU2Gdll8Paz0KB3qB8SejLcL6MQODo=;
+	h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
+	 List-ID:From;
+	b=IOXSMXond60x5xb8fRYwNxlKnARYoKss57UCOO35b0Gf5nl0tx9RlAGZf03YdgOPZ
+	 /3bT0JWKSpdSxnwzOzBjMLu+YxGFxgu7F4MdCcZzkdtjlW+yLGOtS5WxXdtCnCNvHG
+	 s8SPU3AtTHNbXQki2NyZhg1a0M8oYqIx485pTNrA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729551AbgEFPWW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 May 2020 11:22:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35962 "EHLO mail.kernel.org"
+        id S1728137AbgEFXmI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 May 2020 19:42:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729403AbgEFPWV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 May 2020 11:22:21 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1728105AbgEFXmI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 6 May 2020 19:42:08 -0400
+Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2EC6214D8;
-        Wed,  6 May 2020 15:22:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 847C620735;
+        Wed,  6 May 2020 23:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588778540;
-        bh=+pE8sGvSzhyzM1lmu2Si50vS5WEGHwFn5xiL0d50HMU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QfcNm0KpE/RtsiDqfDC8DOAWU86AMBX+DLRnNIy0jsPDWYLPOsRbP+Q1io4uXbRAf
-         0fJ3/8DRIsu5k6XLpH3O7giw5QGxPF6IYE4ufTAeV+SnpMKLQqcPiggoQH7S1VV8PY
-         S5VM95W/t0cxh9hCocfsUznQxCprtFM5fax2gZys=
-Date:   Wed, 6 May 2020 17:22:18 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Aishwarya Ramakrishnan <aishwaryarj100@gmail.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Ondrej Jirman <megous@megous.com>,
-        =?iso-8859-1?Q?Myl=E8ne?= Josserand 
-        <mylene.josserand@bootlin.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: edt-ft5x06: Use DEFINE_DEBUGFS_ATTRIBUTE to
- define debugfs fops
-Message-ID: <20200506152218.GA3447721@kroah.com>
-References: <20200505153325.20113-1-aishwaryarj100@gmail.com>
- <20200506150623.3841-1-raishwar@visteon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200506150623.3841-1-raishwar@visteon.com>
+        s=default; t=1588808527;
+        bh=rODOhhP48oDvPlU2Gdll8Paz0KB3qB8SejLcL6MQODo=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=cZEpJTdE/o3XHZfJSi111Npy6pcpzRu7Fk2gN4AedfhpMy2XqVluah8ZsFN7FmtDn
+         j+riWhmpHy8NPbuZUGe1Xcfl7pFbAiR+ZUoD3Po31e04y0p5VTHBNo3QoQbihRBMmG
+         OZP0X+Gol3yUC5vuMrxB6YET5D86kGk4Cs0iTW0Y=
+Date:   Wed, 06 May 2020 23:42:06 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Julian Sax <jsbc@gmx.de>
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] HID: i2c-hid: add Schneider SCL142ALM to descriptor override
+In-Reply-To: <20200505151042.122157-1-jsbc@gmx.de>
+References: <20200505151042.122157-1-jsbc@gmx.de>
+Message-Id: <20200506234207.847C620735@mail.kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, May 06, 2020 at 08:36:22PM +0530, Aishwarya Ramakrishnan wrote:
-> From: Aishwarya Ramakrishnan <aishwaryarj100@gmail.com>
-> 
-> On Tue, May 5, 2020 at 11:49 PM Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> > On Tue, May 05, 2020 at 09:03:24PM +0530, Aishwarya Ramakrishnan wrote:
-> >> It is more clear to use DEFINE_DEBUGFS_ATTRIBUTE to define debugfs file
-> >> operation rather than DEFINE_SIMPLE_ATTRIBUTE.
-> 
-> > No it is not, why do you think so?
-> 
-> This change is suggested by Coccinelle software.
-> Generated by: scripts/coccinelle/api/debugfs/debugfs_simple_attr.cocci
+Hi
 
-Not a good thing, I do not know why that was added :(
+[This is an automated email]
 
-> > The two defines do different things, that is why we have 2 different
-> > defines.  You can not just replace one with the other without
-> > understanding why one was used and not the other one.
-> 
-> > Did you test this change to verify that everything still works
-> > properly?  Why is it needed to be changed at all?
-> 
-> DEFINE_SIMPLE_ATTRIBUTE + debugfs_create_file()
-> imposes some significant overhead as compared to
-> DEFINE_DEBUGFS_ATTRIBUTE + debugfs_create_file_unsafe().
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-What kind of overhead?  Is it required?
+The bot has tested the following trees: v5.6.10, v5.4.38, v4.19.120, v4.14.178, v4.9.221, v4.4.221.
 
-> But I missed to use debugfs_create_file_unsafe() function in the patch.
+v5.6.10: Build OK!
+v5.4.38: Build OK!
+v4.19.120: Failed to apply! Possible dependencies:
+    eb6964fa6509 ("HID: i2c-hid: add iBall Aer3 to descriptor override")
 
-Yeah, don't use the unsafe stuff unless you know what is happening here
-please.
+v4.14.178: Failed to apply! Possible dependencies:
+    eb6964fa6509 ("HID: i2c-hid: add iBall Aer3 to descriptor override")
 
-greg k-h
+v4.9.221: Failed to apply! Possible dependencies:
+    eb6964fa6509 ("HID: i2c-hid: add iBall Aer3 to descriptor override")
+
+v4.4.221: Failed to apply! Possible dependencies:
+    00f7fea5da49 ("HID: i2c-hid: force the IRQ level trigger only when not set")
+    01714a6f5fa5 ("HID: i2c-hid: Fix suspend/resume when already runtime suspended")
+    070b9637dd8f ("HID: i2c-hid: Add RESEND_REPORT_DESCR quirk for Toshiba Click Mini L9W-B")
+    2dcc8197fefc ("HID: i2c-hid: Silently fail probe for CHPN0001 touchscreen")
+    3e83eda46705 ("HID: i2c-hid: Fix resume issue on Raydium touchscreen device")
+    402946a8ef71 ("HID: i2c-hid: Add no-irq-after-reset quirk for 0911:5288 device")
+    572d3c644497 ("HID: i2c-hid: support regulator power on/off")
+    71af01a8c85a ("HID: i2c-hid: add a simple quirk to fix device defects")
+    85ae91133152 ("HID: i2c-hid: remove custom locking from i2c_hid_open/close")
+    8cd16166b000 ("HID: fix missing irq field")
+    91b9ae48aadd ("HID: i2c-hid: move header file out of I2C realm")
+    94116f8126de ("ACPI: Switch to use generic guid_t in acpi_evaluate_dsm()")
+    9a327405014f ("HID: i2c-hid: Prevent sending reports from racing with device reset")
+    9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
+    b59dfdaef173 ("i2c-hid: properly terminate i2c_hid_dmi_desc_override_table[] array")
+    b7fe92999a98 ("ACPI / extlog: Switch to use new generic UUID API")
+    ba1660f1791f ("HID: i2c-hid: fix build")
+    ba18a9314a94 ("Revert "HID: i2c-hid: Add support for ACPI GPIO interrupts"")
+    d46ddc593f4d ("HID: i2c-hid: Disable IRQ before freeing buffers")
+    eb6964fa6509 ("HID: i2c-hid: add iBall Aer3 to descriptor override")
+    f8f807441eef ("HID: i2c-hid: Add Odys Winbook 13 to descriptor override")
+    fc2237a724a9 ("HID: introduce hid_is_using_ll_driver")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+-- 
+Thanks
+Sasha

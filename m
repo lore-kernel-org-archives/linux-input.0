@@ -2,74 +2,130 @@ Return-Path: <SRS0=FvaY=6V=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.8 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35232C38A2A
-	for <linux-input@archiver.kernel.org>; Thu,  7 May 2020 11:29:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CC20C38A24
+	for <linux-input@archiver.kernel.org>; Thu,  7 May 2020 13:53:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F13F20870
-	for <linux-input@archiver.kernel.org>; Thu,  7 May 2020 11:29:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1588850989;
-	bh=HgoUKpNDb+hWunlBZAHCaIfOGRsmlVOGyZr0E7MwtR4=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=kqeYHDtunVhT8LTpOrByhicGokklWmWoqPFCQSeCF3Fg4B5tEeKVS7HNefC6zdnvs
-	 75p25vHOf4gv0zTxPCueNPaoADMnyp4bzRFQ5X2MiXPjD2GaFDQY+5pEHudHVkmg4t
-	 uOJ7e6ZDi4A+tH4Iv0jfPjmqqq9Ff+VCiD5j0Gns=
+	by mail.kernel.org (Postfix) with ESMTP id 35B8C2073A
+	for <linux-input@archiver.kernel.org>; Thu,  7 May 2020 13:53:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726134AbgEGL3s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 7 May 2020 07:29:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54694 "EHLO mail.kernel.org"
+        id S1726134AbgEGNxj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 7 May 2020 09:53:39 -0400
+Received: from gofer.mess.org ([88.97.38.141]:34379 "EHLO gofer.mess.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725809AbgEGL3s (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 7 May 2020 07:29:48 -0400
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28AEC2084D;
-        Thu,  7 May 2020 11:29:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588850988;
-        bh=HgoUKpNDb+hWunlBZAHCaIfOGRsmlVOGyZr0E7MwtR4=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=q/nh+Ov0DWc2/jSGsGcF+urSQOgepDgSuxJe2O+VDwLBdCT3JSAtJObTt8gCxj/0C
-         15Sr7LBvAYqF+nBq1zVeHgYV/NI7doclxUK2NEeROKPs7Dw+YRojCO0HRxrxJazZZV
-         6nP9XQn6fCF1zWt0EyRTWC2PYw0WUU9l4xQCsK9s=
-Date:   Thu, 7 May 2020 13:29:45 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH] HID: asus: Add depends on USB_HID to HID_ASUS Kconfig
- option
-In-Reply-To: <20200507095334.11645-1-hdegoede@redhat.com>
-Message-ID: <nycvar.YFH.7.76.2005071329160.25812@cbobk.fhfr.pm>
-References: <20200507095334.11645-1-hdegoede@redhat.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1725939AbgEGNxj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 7 May 2020 09:53:39 -0400
+Received: by gofer.mess.org (Postfix, from userid 1000)
+        id D4542C6424; Thu,  7 May 2020 14:53:37 +0100 (BST)
+From:   Sean Young <sean@mess.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Subject: [PATCH 2/3] input: serio: allow more than one byte to be sent at once
+Date:   Thu,  7 May 2020 14:53:36 +0100
+Message-Id: <20200507135337.2343-2-sean@mess.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200507135337.2343-1-sean@mess.org>
+References: <20200507135337.2343-1-sean@mess.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 7 May 2020, Hans de Goede wrote:
+serio drivers can only send one byte at a time. If the underlying tty
+is a usb serial port, then each byte will be put into separate usb
+urbs, which is not efficient.
 
-> Since commit 4bc43a421218 ("HID: asus: Add
-> hid_is_using_ll_driver(usb_hid_driver) check") the hid-asus.c depends
-> on the usb_hid_driver symbol. Add a depends on USB_HID to Kconfig to
-> fix missing symbols errors in hid-asus when USB_HID is not enabled.
-> 
-> Fixes: 4bc43a421218 ("HID: asus: Add hid_is_using_ll_driver(usb_hid_driver) check")
-> Reported-by: kbuild test robot <lkp@intel.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Additionally, the Infrared Toy device refuses to transmit IR if the
+IR data is sent one byte at a time. IR data is formatted in u16 values,
+and the firmware expects complete u16 values in the packet.
 
-Applied on top of the for-5.8/asus queue. Thanks,
+https://github.com/DangerousPrototypes/USB_IR_Toy/blob/master/Firmware-main/IRs.c#L240
 
+Signed-off-by: Sean Young <sean@mess.org>
+---
+ drivers/input/serio/serport.c |  9 +++++++++
+ include/linux/serio.h         | 23 ++++++++++++++++++++++-
+ 2 files changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+index 8ac970a423de6..887801691dddc 100644
+--- a/drivers/input/serio/serport.c
++++ b/drivers/input/serio/serport.c
+@@ -47,6 +47,14 @@ static int serport_serio_write(struct serio *serio, unsigned char data)
+ 	return -(serport->tty->ops->write(serport->tty, &data, 1) != 1);
+ }
+ 
++static int serport_serio_write_buf(struct serio *serio, unsigned char *data,
++				   uint count)
++{
++	struct serport *serport = serio->port_data;
++
++	return -(serport->tty->ops->write(serport->tty, data, count) != count);
++}
++
+ static int serport_serio_open(struct serio *serio)
+ {
+ 	struct serport *serport = serio->port_data;
+@@ -173,6 +181,7 @@ static ssize_t serport_ldisc_read(struct tty_struct * tty, struct file * file, u
+ 	serio->id = serport->id;
+ 	serio->id.type = SERIO_RS232;
+ 	serio->write = serport_serio_write;
++	serio->write_buf = serport_serio_write_buf;
+ 	serio->open = serport_serio_open;
+ 	serio->close = serport_serio_close;
+ 	serio->port_data = serport;
+diff --git a/include/linux/serio.h b/include/linux/serio.h
+index 6c27d413da921..3918e56aec51c 100644
+--- a/include/linux/serio.h
++++ b/include/linux/serio.h
+@@ -32,6 +32,7 @@ struct serio {
+ 	spinlock_t lock;
+ 
+ 	int (*write)(struct serio *, unsigned char);
++	int (*write_buf)(struct serio *serio, unsigned char *buf, uint size);
+ 	int (*open)(struct serio *);
+ 	void (*close)(struct serio *);
+ 	int (*start)(struct serio *);
+@@ -121,12 +122,32 @@ void serio_unregister_driver(struct serio_driver *drv);
+ 
+ static inline int serio_write(struct serio *serio, unsigned char data)
+ {
+-	if (serio->write)
++	if (serio->write_buf)
++		return serio->write_buf(serio, &data, 1);
++	else if (serio->write)
+ 		return serio->write(serio, data);
+ 	else
+ 		return -1;
+ }
+ 
++static inline int serio_write_buf(struct serio *serio, unsigned char *data,
++				  uint size)
++{
++	if (serio->write_buf) {
++		return serio->write_buf(serio, data, size);
++	} else if (serio->write) {
++		int ret;
++
++		do {
++			ret = serio->write(serio, *data++);
++		} while (ret == 0 && --size);
++
++		return ret;
++	} else {
++		return -1;
++	}
++}
++
+ static inline void serio_drv_write_wakeup(struct serio *serio)
+ {
+ 	if (serio->drv && serio->drv->write_wakeup)
 -- 
-Jiri Kosina
-SUSE Labs
+2.26.2
 

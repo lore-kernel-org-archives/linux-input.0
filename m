@@ -2,74 +2,87 @@ Return-Path: <SRS0=FvaY=6V=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 261C5C38A2A
-	for <linux-input@archiver.kernel.org>; Thu,  7 May 2020 08:15:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A3CAC38A24
+	for <linux-input@archiver.kernel.org>; Thu,  7 May 2020 09:53:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0314B20753
-	for <linux-input@archiver.kernel.org>; Thu,  7 May 2020 08:15:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E187A20659
+	for <linux-input@archiver.kernel.org>; Thu,  7 May 2020 09:53:44 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c1MpC2kn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725879AbgEGIPh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 7 May 2020 04:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47100 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726235AbgEGIPc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 7 May 2020 04:15:32 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F3AC061A41
-        for <linux-input@vger.kernel.org>; Thu,  7 May 2020 01:15:32 -0700 (PDT)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1jWbgp-00011V-BU; Thu, 07 May 2020 10:15:31 +0200
-Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1jWbgp-0004Sh-1W; Thu, 07 May 2020 10:15:31 +0200
-Date:   Thu, 7 May 2020 10:15:31 +0200
-From:   Marco Felsch <m.felsch@pengutronix.de>
-To:     Daniel Mack <daniel@zonque.org>
-Cc:     linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Subject: Re: [PATCH v3 2/3] Input: ads7846: Remove custom filter handling
- functions from pdata
-Message-ID: <20200507081531.gu2gamtl4orvshd7@pengutronix.de>
-References: <20200507062014.1780360-1-daniel@zonque.org>
- <20200507062014.1780360-4-daniel@zonque.org>
+        id S1725939AbgEGJxo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 7 May 2020 05:53:44 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:33375 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725893AbgEGJxo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2020 05:53:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588845223;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ZnCANNtvRmIO0rCPc0iQgMmAvy5uNOHNsxyQ9QU3C08=;
+        b=c1MpC2knMH6DPWZlgw4zY6eIxRq1InlCq7AvoCZezDWJ8Eazt6BokgN9BtScuQeCx2WI/x
+        mrWqbg0XOXMhnehDTdSp2qyoSADwpmzALY/pWqdCjS+ECkspwjZKQOIfWPupRcE6ghVEjy
+        /40DHchwCl6gzL6xXYbMQFU387McQO4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-421-oCxOTnc8OTSesQ2UCW2oSw-1; Thu, 07 May 2020 05:53:41 -0400
+X-MC-Unique: oCxOTnc8OTSesQ2UCW2oSw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BFA19107ACF7;
+        Thu,  7 May 2020 09:53:40 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-115-120.ams2.redhat.com [10.36.115.120])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5B6695D9C5;
+        Thu,  7 May 2020 09:53:36 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
+        kbuild test robot <lkp@intel.com>
+Subject: [PATCH] HID: asus: Add depends on USB_HID to HID_ASUS Kconfig option
+Date:   Thu,  7 May 2020 11:53:34 +0200
+Message-Id: <20200507095334.11645-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200507062014.1780360-4-daniel@zonque.org>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-IRC:  #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-Uptime: 10:15:15 up 173 days, 23:33, 181 users,  load average: 0.18, 0.11,
- 0.09
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: mfe@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 20-05-07 08:20, Daniel Mack wrote:
-> The functions in the platform data struct to initialize, cleanup and
-> apply custom filters are not in use by any mainline board.
-> 
-> Remove support for them to pave the road for more cleanups to come.
-> 
-> The enum was moved as it has no users outside of the driver code
-> itself.
-> 
-> Signed-off-by: Daniel Mack <daniel@zonque.org>
+Since commit 4bc43a421218 ("HID: asus: Add
+hid_is_using_ll_driver(usb_hid_driver) check") the hid-asus.c depends
+on the usb_hid_driver symbol. Add a depends on USB_HID to Kconfig to
+fix missing symbols errors in hid-asus when USB_HID is not enabled.
 
-Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
+Fixes: 4bc43a421218 ("HID: asus: Add hid_is_using_ll_driver(usb_hid_drive=
+r) check")
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/hid/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 7c89edbd6c5a..9e54dd254613 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -149,6 +149,7 @@ config HID_APPLEIR
+=20
+ config HID_ASUS
+ 	tristate "Asus"
++	depends on USB_HID
+ 	depends on LEDS_CLASS
+ 	depends on ASUS_WMI || ASUS_WMI=3Dn
+ 	select POWER_SUPPLY
+--=20
+2.26.0
 

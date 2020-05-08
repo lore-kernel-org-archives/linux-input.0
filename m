@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D3ECC4724C
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:58:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C1CBC4724C
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:58:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8760A2070B
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:58:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1697B2070B
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:58:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727969AbgEHF6d (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 May 2020 01:58:33 -0400
+        id S1727964AbgEHF6j (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 May 2020 01:58:39 -0400
 Received: from esa1.mentor.iphmx.com ([68.232.129.153]:38715 "EHLO
         esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727917AbgEHF6a (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:58:30 -0400
-IronPort-SDR: 8J2n8sOBScXBMzr2JbISd2APSQOVuJR7j7PpnlAXbQqv3VUGqqunTJ4Qj4ygY2SETPsrzQGHhN
- kT0sjmLoSQlPDKuSCZBzE6xSCZAcnu7bfLnceuaMlZxCkqmNkkSvyoLKy5ygbwDGKs4V8iK00x
- 3bUkS0JoFnEGznIburhZ4/juwTB0NL6CYLO1JC/nJ/JsW8KRQYLCGiGMfhS2O2uyWcOco4UhcQ
- pE12/OSeDDyL5gZQT/4VVzSev5/hYfy4B47g/MB7zA6VLtK0IQUQeEdzuQK3ngEawjC8TZ0dFi
- hv0=
+        with ESMTP id S1726325AbgEHF6h (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:58:37 -0400
+IronPort-SDR: k4w5bE0IfG/9q0oozAj0dg7WD4gOnWpnkfigWXICqFYbIxaUxLAZwRkbIRFGIG1hFU3re9zq2F
+ tePF+0Ja51GQ/kthVrxNif6soi66qPSe8QNmQn4CkOim2PsFJ//TUhW2x4xfksoqMKIUSJulyz
+ JJQGsS+01X58W6oe/mpidjFm2YRUxTeFNruzvxcpMrTqCgw07OPokIV9T5oDiHyOoc8HoOtmT4
+ TlZ2xRxHzDBBodGUMYcMWbj7fABPWn6nxSmusOQduUyLK/ZXVICo7F/qZw3ucwoA8uzXeb4myw
+ v3A=
 X-IronPort-AV: E=Sophos;i="5.73,366,1583222400"; 
-   d="scan'208";a="50670088"
+   d="scan'208";a="50670094"
 Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa1.mentor.iphmx.com with ESMTP; 07 May 2020 21:58:27 -0800
-IronPort-SDR: ctqpM7UKBBCRvCgdbccvx9b28IutVdv0e2vDOz+kqyQTE9xOqdyikdV8DnKwXDF1Sghxg27jRk
- VoU6L5M8PA0F4c+HHc+kOuItG+nroRo8ozM7MwpGgLK6eKKRN6d0gP3tG3HZcDP0iXxVG9S5Vr
- QC6hKfjcEd9QjfndDf0ksLZo+cOYICoj2JStpq8C3Pew1p8meVAH7xJglVROGUcI8AJoEnql5r
- LsSC6y+Y3QYdHJUVM9bn1HufKKFeFgQi6MM445K8CehDj++aSX885p+iuJaGGWbntualo3HU/r
- voo=
+  by esa1.mentor.iphmx.com with ESMTP; 07 May 2020 21:58:35 -0800
+IronPort-SDR: gaOKQOPg0wMl4YVGAFmvieHGkAxL/K4e31nEbZnhxMELlNVcA/PHCoQw3xnAxpVQ33+mOFNxOl
+ qwOZFb6PMFRiUo3ZruP/yovJ4lbaJMF5bU3tFPIRE9f+yR3dZ5RWj6r+Nl9uT1ZvOGtxza+sVY
+ ebRIZGGoGcszokmqRxuSsVi+qpwsPfK89OkNHpNCsVgLv6tz/FmieTo/WZRcygmcpHJZF2y63K
+ 7TJdTElbWaoN0gDe0UwZgTpQuTgprnZcO9ZOaEMcxbQlKFMFjPQTgX8ZFDEqcwCxRxhVI9a80X
+ A9g=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -39,9 +39,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v11 23/56] Input: atmel_mxt_ts - allow input name to be specified in platform data
-Date:   Thu, 7 May 2020 22:56:23 -0700
-Message-ID: <20200508055656.96389-24-jiada_wang@mentor.com>
+Subject: [PATCH v11 25/56] Input: atmel_mxt_ts - add config checksum attribute to sysfs
+Date:   Thu, 7 May 2020 22:56:25 -0700
+Message-ID: <20200508055656.96389-26-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200508055656.96389-1-jiada_wang@mentor.com>
 References: <20200508055656.96389-1-jiada_wang@mentor.com>
@@ -52,58 +52,58 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+From: karl tsou <karl.funlab@gmail.com>
 
-Android systems identify the input device and map to IDC file by using the
-input device name. To avoid unnecessary deltas to the driver file, allow
-this to be set from the platform data.
+Add config checksum attribute to sysfs
 
+Signed-off-by: karl tsou <karl.funlab@gmail.com>
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit cbf94a7bda754d2e1899d9f50313a0bccc91422d)
-[gdavis: Resolve forward port conflicts due to applying upstream
-	 commit 96a938aa214e ("Input: atmel_mxt_ts - remove platform
-	 data support").]
+(cherry picked from ndyer/linux/for-upstream commit 03477477ddbe5dcad42853ab3f84166a8f807acf)
+[gdavis: Forward port and fix conflicts.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Separate Documentation/ portion change to another commit]
+[jiada: Add commit description
+	Rename mxt_config_crc_show to config_crc_show
+	Replace DEVICE_ATTR with DEVICE_ATTR_RO]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 85b903b8d5c9..affd2bf32969 100644
+index affd2bf32969..780850343089 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -337,6 +337,7 @@ struct mxt_data {
- 	char *fw_name;
- 	char *cfg_name;
- 	const char *pcfg_name;
-+	const char *input_name;
+@@ -3124,6 +3124,15 @@ static int mxt_configure_objects(struct mxt_data *data,
+ 	return error;
+ }
  
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -2413,7 +2414,11 @@ static int mxt_initialize_input_device(struct mxt_data *data)
- 	if (!input_dev)
- 		return -ENOMEM;
- 
--	input_dev->name = "Atmel maXTouch Touchscreen";
-+	if (data->input_name)
-+		input_dev->name = data->input_name;
-+	else
-+		input_dev->name = "Atmel maXTouch Touchscreen";
++/* Configuration crc check sum is returned as hex xxxxxx */
++static ssize_t config_crc_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
 +
- 	input_dev->phys = data->phys;
- 	input_dev->id.bustype = BUS_I2C;
- 	input_dev->dev.parent = dev;
-@@ -3649,6 +3654,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
- 
- 	device_property_read_string(dev, "atmel,cfg_name", &data->pcfg_name);
- 
-+	device_property_read_string(dev, "atmel,input_name", &data->input_name);
++	return scnprintf(buf, PAGE_SIZE, "%06x\n", data->config_crc);
++}
 +
- 	if (device_property_present(dev, keymap_property)) {
- 		n_keys = device_property_count_u32(dev, keymap_property);
- 		if (n_keys <= 0) {
+ /* Firmware Version is returned as Major.Minor.Build */
+ static ssize_t fw_version_show(struct device *dev,
+ 			       struct device_attribute *attr, char *buf)
+@@ -3477,12 +3486,14 @@ static DEVICE_ATTR_RO(fw_version);
+ static DEVICE_ATTR_RO(hw_version);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR_WO(update_cfg);
++static DEVICE_ATTR_RO(config_crc);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+ 	&dev_attr_hw_version.attr,
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_cfg.attr,
++	&dev_attr_config_crc.attr,
+ 	NULL
+ };
+ 
 -- 
 2.17.1
 

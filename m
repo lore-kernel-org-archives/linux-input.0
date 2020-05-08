@@ -6,32 +6,32 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2FA0C38A2A
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:00:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89BB7C47247
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:01:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C626E20870
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:00:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F79320736
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:01:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727869AbgEHGAv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 May 2020 02:00:51 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:21956 "EHLO
+        id S1726099AbgEHF5U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 May 2020 01:57:20 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:21951 "EHLO
         esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726083AbgEHF5V (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:57:21 -0400
-IronPort-SDR: VNTh+qtmXJ2y1073y4XPJZE0KiM5jVaXv4SYaF6e2vggFs3uf70IQu8IY6O5oKNdvw5XzBgY1Y
- 8x6sZqMgcDuR+N9Ce23TT4miPgx8UyJgUcSJ5+t4jyKHiax+mBkSpTqmRVgiwBo5vZRg8+2SqU
- bD23jlTxrjk7pSkiLQVi/duAYUl4MZyWz8K/7VrM3OLFPXgKyQOe+yYR9C3qra+62hQWmT9lqv
- xYCL6baj3q80h5bZq1ZIp6QvpeH+JNd55Zw/yKcL5e3/ZzeI75ZSBhtlnMAoRoPxlDHhQ+Cu/l
- fjI=
+        with ESMTP id S1725875AbgEHF5T (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:57:19 -0400
+IronPort-SDR: P2Qo1MpdLxqWs7ICMXluIFp6QtcRLCjGnUct7SA1p6Im8bVduiTI1fzuxukv4xW+IivT6T+nFG
+ Dfu2EBaxlWWJ7o2j/ziMtZugl/ZXSH8U7kFLs8yJfyec4ggfHGrnSBBS8hYJ8SkNvShBQpHXmJ
+ +hCyOzbz0v2oFj167uBBi2oXh5zodcBP5ItA3OqGhnwFPQVZ1J3NC2wbfCtNTwX0TfzsEND+7w
+ gERKQyxD+V5aaEm90swSAElhnT5aEDs9gpvyx7WpGoF5fOKqkBlHoZ6A59w1aW+fxO8Q5qm/Sz
+ GNs=
 X-IronPort-AV: E=Sophos;i="5.73,366,1583222400"; 
-   d="scan'208";a="48651902"
+   d="scan'208";a="48651890"
 Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa3.mentor.iphmx.com with ESMTP; 07 May 2020 21:57:18 -0800
-IronPort-SDR: ltE0ZwoC3R5bRPsD+OTehOiLRU8BsmP7rEb48qc7UPRFIWy3Hq3DItZMRwYCix/vOx837PJzjp
- H/mf3mLPXmMbxlQp3NfI+sH34+WV/Co8WFX28oOOy9sMY3Zl6xjRNO8b4KZUPJskI6JweXChit
- 5F0CYbN7G4qwG1QOW4KnMw0JVBhgWJwa+o0EBuhVk3IUXrqkh8kFIwypIjRIYfTP3tJ+0GjOEr
- gs34TjncMR4gLxe+JgD/QS2GeeGPgnKbyOe3HqpiQ3oreqqhSRy4Oy3ajSXyKbvWbgysKCA8Zn
- ZPI=
+  by esa3.mentor.iphmx.com with ESMTP; 07 May 2020 21:57:06 -0800
+IronPort-SDR: OpKNHbLPxedSfEsjC+awblXLTff3ppW/B+Bb3rRvYNBvt6Ozsq9x2JgwXiIcJpZxn32XobGwnP
+ PjUxsS7rSfGYz5gVl02wZeOkNpr5tINxRGV3uzkFxSxUNgSi+22Ob6NK15J7Nc2+Zb66SIMYNh
+ bOWU0olE7VKGDv+MD99LxUwjneBzQgKTF2uh4U6G42BHrZSuYEU3dk6uWBFtAUHtnpyxNBmUMF
+ H89bV6/w1NL5FC9fDdUM8phHEhYZXm6ciwzh9nSrVHC0Qou2DJYf0pJKZhgICVtOuiyBTY8Y5W
+ gIE=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -39,9 +39,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v11 04/56] Input: atmel_mxt_ts - split large i2c transfers into blocks
-Date:   Thu, 7 May 2020 22:56:04 -0700
-Message-ID: <20200508055656.96389-5-jiada_wang@mentor.com>
+Subject: [PATCH v11 01/56] Input: introduce input_mt_report_slot_inactive
+Date:   Thu, 7 May 2020 22:56:01 -0700
+Message-ID: <20200508055656.96389-2-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200508055656.96389-1-jiada_wang@mentor.com>
 References: <20200508055656.96389-1-jiada_wang@mentor.com>
@@ -52,77 +52,240 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+input_mt_report_slot_state() ignores the tool when the slot is closed.
+which has caused a bit of confusion.
+This patch introduces input_mt_report_slot_inactive() to report slot
+inactive state.
+replaces all input_mt_report_slot_state() with
+input_mt_report_slot_inactive() in case of close of slot.
 
-On some firmware variants, the size of the info block exceeds what can
-be read in a single transfer.
-
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 74c4f5277cfa403d43fafc404119dc57a08677db)
-[gdavis: Forward port and fix conflicts due to v4.14.51 commit
-	 960fe000b1d3 ("Input: atmel_mxt_ts - fix the firmware
-	 update").]
-Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Change mxt_read_blks() to __mxt_read_reg(), original __mxt_read_reg() to
-	__mxt_read_chunk()]
+Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: kernel test robot <rong.a.chen@intel.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 28 +++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ drivers/hid/hid-alps.c                     | 3 +--
+ drivers/hid/hid-multitouch.c               | 6 ++----
+ drivers/input/misc/xen-kbdfront.c          | 2 +-
+ drivers/input/mouse/elan_i2c_core.c        | 2 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c   | 7 +++----
+ drivers/input/touchscreen/cyttsp4_core.c   | 5 ++---
+ drivers/input/touchscreen/cyttsp_core.c    | 2 +-
+ drivers/input/touchscreen/melfas_mip4.c    | 4 ++--
+ drivers/input/touchscreen/mms114.c         | 2 +-
+ drivers/input/touchscreen/raspberrypi-ts.c | 2 +-
+ drivers/input/touchscreen/stmfts.c         | 2 +-
+ include/linux/input/mt.h                   | 5 +++++
+ 12 files changed, 21 insertions(+), 21 deletions(-)
 
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index ae79a7c66737..36ca1d815d53 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -387,8 +387,7 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
+ 				input_report_abs(hdata->input,
+ 					ABS_MT_PRESSURE, z);
+ 			} else {
+-				input_mt_report_slot_state(hdata->input,
+-					MT_TOOL_FINGER, 0);
++				input_mt_report_slot_inactive(hdata->input);
+ 			}
+ 		}
+ 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 362805ddf377..e2ce790ff4a4 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -896,7 +896,7 @@ static void mt_release_pending_palms(struct mt_device *td,
+ 		clear_bit(slotnum, app->pending_palm_slots);
+ 
+ 		input_mt_slot(input, slotnum);
+-		input_mt_report_slot_state(input, MT_TOOL_PALM, false);
++		input_mt_report_slot_inactive(input);
+ 
+ 		need_sync = true;
+ 	}
+@@ -1640,9 +1640,7 @@ static void mt_release_contacts(struct hid_device *hid)
+ 		if (mt) {
+ 			for (i = 0; i < mt->num_slots; i++) {
+ 				input_mt_slot(input_dev, i);
+-				input_mt_report_slot_state(input_dev,
+-							   MT_TOOL_FINGER,
+-							   false);
++				input_mt_report_slot_inactive(input_dev);
+ 			}
+ 			input_mt_sync_frame(input_dev);
+ 			input_sync(input_dev);
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 24bc5c5d876f..a1bba722b234 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -146,7 +146,7 @@ static void xenkbd_handle_mt_event(struct xenkbd_info *info,
+ 		break;
+ 
+ 	case XENKBD_MT_EV_UP:
+-		input_mt_report_slot_state(info->mtouch, MT_TOOL_FINGER, false);
++		input_mt_report_slot_inactive(info->mtouch);
+ 		break;
+ 
+ 	case XENKBD_MT_EV_SYN:
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 8719da540383..3f9354baac4b 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -938,7 +938,7 @@ static void elan_report_contact(struct elan_tp_data *data,
+ 		input_report_abs(input, ABS_MT_TOUCH_MINOR, minor);
+ 	} else {
+ 		input_mt_slot(input, contact_num);
+-		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
++		input_mt_report_slot_inactive(input);
+ 	}
+ }
+ 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 3f1ebe14802f..7e6a66e3e1e0 100644
+index ae60442efda0..a2189739e30f 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -40,7 +40,7 @@
- #define MXT_OBJECT_START	0x07
- #define MXT_OBJECT_SIZE		6
- #define MXT_INFO_CHECKSUM_SIZE	3
--#define MXT_MAX_BLOCK_WRITE	256
-+#define MXT_MAX_BLOCK_WRITE	255
+@@ -822,8 +822,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 		 * have happened.
+ 		 */
+ 		if (status & MXT_T9_RELEASE) {
+-			input_mt_report_slot_state(input_dev,
+-						   MT_TOOL_FINGER, 0);
++			input_mt_report_slot_inactive(input_dev);
+ 			mxt_input_sync(data);
+ 		}
  
- /* Object types */
- #define MXT_DEBUG_DIAGNOSTIC_T37	37
-@@ -624,8 +624,8 @@ static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
- 	return 0;
+@@ -839,7 +838,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
+ 	} else {
+ 		/* Touch no longer active, close out slot */
+-		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
++		input_mt_report_slot_inactive(input_dev);
+ 	}
+ 
+ 	data->update_input = true;
+@@ -947,7 +946,7 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
+ 		dev_dbg(dev, "[%u] release\n", id);
+ 
+ 		/* close out slot */
+-		input_mt_report_slot_state(input_dev, 0, 0);
++		input_mt_report_slot_inactive(input_dev);
+ 	}
+ 
+ 	data->update_input = true;
+diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
+index 6bcffc930384..02a73d9a4def 100644
+--- a/drivers/input/touchscreen/cyttsp4_core.c
++++ b/drivers/input/touchscreen/cyttsp4_core.c
+@@ -744,8 +744,7 @@ static void cyttsp4_report_slot_liftoff(struct cyttsp4_mt_data *md,
+ 
+ 	for (t = 0; t < max_slots; t++) {
+ 		input_mt_slot(md->input, t);
+-		input_mt_report_slot_state(md->input,
+-			MT_TOOL_FINGER, false);
++		input_mt_report_slot_inactive(md->input);
+ 	}
  }
  
--static int __mxt_read_reg(struct i2c_client *client,
--			       u16 reg, u16 len, void *val)
-+static int __mxt_read_chunk(struct i2c_client *client,
-+			    u16 reg, u16 len, void *val)
- {
- 	struct i2c_msg xfer[2];
- 	u8 buf[2];
-@@ -659,6 +659,28 @@ static int __mxt_read_reg(struct i2c_client *client,
- 	return ret;
- }
+@@ -845,7 +844,7 @@ static void cyttsp4_final_sync(struct input_dev *input, int max_slots, int *ids)
+ 		if (ids[t])
+ 			continue;
+ 		input_mt_slot(input, t);
+-		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
++		input_mt_report_slot_inactive(input);
+ 	}
  
-+static int __mxt_read_reg(struct i2c_client *client,
-+			  u16 reg, u16 len, void *buf)
+ 	input_sync(input);
+diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
+index 3f5d463dbeed..697aa2c158f7 100644
+--- a/drivers/input/touchscreen/cyttsp_core.c
++++ b/drivers/input/touchscreen/cyttsp_core.c
+@@ -340,7 +340,7 @@ static void cyttsp_report_tchdata(struct cyttsp *ts)
+ 			continue;
+ 
+ 		input_mt_slot(input, i);
+-		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
++		input_mt_report_slot_inactive(input);
+ 	}
+ 
+ 	input_sync(input);
+diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+index 247c3aaba2d8..f67efdd040b2 100644
+--- a/drivers/input/touchscreen/melfas_mip4.c
++++ b/drivers/input/touchscreen/melfas_mip4.c
+@@ -391,7 +391,7 @@ static void mip4_clear_input(struct mip4_ts *ts)
+ 	/* Screen */
+ 	for (i = 0; i < MIP4_MAX_FINGERS; i++) {
+ 		input_mt_slot(ts->input, i);
+-		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, 0);
++		input_mt_report_slot_inactive(ts->input);
+ 	}
+ 
+ 	/* Keys */
+@@ -534,7 +534,7 @@ static void mip4_report_touch(struct mip4_ts *ts, u8 *packet)
+ 	} else {
+ 		/* Release event */
+ 		input_mt_slot(ts->input, id);
+-		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, 0);
++		input_mt_report_slot_inactive(ts->input);
+ 	}
+ 
+ 	input_mt_sync_frame(ts->input);
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 69c6d559eeb0..776ed9e4629d 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -549,7 +549,7 @@ static int __maybe_unused mms114_suspend(struct device *dev)
+ 	/* Release all touch */
+ 	for (id = 0; id < MMS114_MAX_TOUCH; id++) {
+ 		input_mt_slot(input_dev, id);
+-		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, false);
++		input_mt_report_slot_inactive(input_dev);
+ 	}
+ 
+ 	input_mt_report_pointer_emulation(input_dev, true);
+diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
+index 0e2e08f3f433..ef6aaed217cf 100644
+--- a/drivers/input/touchscreen/raspberrypi-ts.c
++++ b/drivers/input/touchscreen/raspberrypi-ts.c
+@@ -100,7 +100,7 @@ static void rpi_ts_poll(struct input_dev *input)
+ 	released_ids = ts->known_ids & ~modified_ids;
+ 	for_each_set_bit(i, &released_ids, RPI_TS_MAX_SUPPORTED_POINTS) {
+ 		input_mt_slot(input, i);
+-		input_mt_report_slot_state(input, MT_TOOL_FINGER, 0);
++		input_mt_report_slot_inactive(input);
+ 		modified_ids &= ~(BIT(i));
+ 	}
+ 	ts->known_ids = modified_ids;
+diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+index b6f95f20f924..b54cc64e4ea6 100644
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -198,7 +198,7 @@ static void stmfts_report_contact_release(struct stmfts_data *sdata,
+ 	u8 slot_id = (event[0] & STMFTS_MASK_TOUCH_ID) >> 4;
+ 
+ 	input_mt_slot(sdata->input, slot_id);
+-	input_mt_report_slot_state(sdata->input, MT_TOOL_FINGER, false);
++	input_mt_report_slot_inactive(sdata->input);
+ 
+ 	input_sync(sdata->input);
+ }
+diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
+index 9e409bb13642..3b8580bd33c1 100644
+--- a/include/linux/input/mt.h
++++ b/include/linux/input/mt.h
+@@ -100,6 +100,11 @@ static inline bool input_is_mt_axis(int axis)
+ bool input_mt_report_slot_state(struct input_dev *dev,
+ 				unsigned int tool_type, bool active);
+ 
++static inline void input_mt_report_slot_inactive(struct input_dev *dev)
 +{
-+	u16 offset = 0;
-+	int error;
-+	u16 size;
-+
-+	while (offset < len) {
-+		size = min(MXT_MAX_BLOCK_WRITE, len - offset);
-+
-+		error = __mxt_read_chunk(client,
-+					 reg + offset,
-+					 size, buf + offset);
-+		if (error)
-+			return error;
-+
-+		offset += size;
-+	}
-+
-+	return 0;
++	input_mt_report_slot_state(dev, 0, false);
 +}
 +
- static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 			   const void *val)
- {
+ void input_mt_report_finger_count(struct input_dev *dev, int count);
+ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count);
+ void input_mt_drop_unused(struct input_dev *dev);
 -- 
 2.17.1
 

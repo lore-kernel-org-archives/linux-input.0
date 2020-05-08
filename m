@@ -2,290 +2,126 @@ Return-Path: <SRS0=TFIa=6W=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89BB7C47247
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:01:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03C6AC38A2A
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 08:22:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F79320736
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:01:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D8329208D6
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 08:22:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726099AbgEHF5U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 May 2020 01:57:20 -0400
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:21951 "EHLO
-        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725875AbgEHF5T (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:57:19 -0400
-IronPort-SDR: P2Qo1MpdLxqWs7ICMXluIFp6QtcRLCjGnUct7SA1p6Im8bVduiTI1fzuxukv4xW+IivT6T+nFG
- Dfu2EBaxlWWJ7o2j/ziMtZugl/ZXSH8U7kFLs8yJfyec4ggfHGrnSBBS8hYJ8SkNvShBQpHXmJ
- +hCyOzbz0v2oFj167uBBi2oXh5zodcBP5ItA3OqGhnwFPQVZ1J3NC2wbfCtNTwX0TfzsEND+7w
- gERKQyxD+V5aaEm90swSAElhnT5aEDs9gpvyx7WpGoF5fOKqkBlHoZ6A59w1aW+fxO8Q5qm/Sz
- GNs=
-X-IronPort-AV: E=Sophos;i="5.73,366,1583222400"; 
-   d="scan'208";a="48651890"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa3.mentor.iphmx.com with ESMTP; 07 May 2020 21:57:06 -0800
-IronPort-SDR: OpKNHbLPxedSfEsjC+awblXLTff3ppW/B+Bb3rRvYNBvt6Ozsq9x2JgwXiIcJpZxn32XobGwnP
- PjUxsS7rSfGYz5gVl02wZeOkNpr5tINxRGV3uzkFxSxUNgSi+22Ob6NK15J7Nc2+Zb66SIMYNh
- bOWU0olE7VKGDv+MD99LxUwjneBzQgKTF2uh4U6G42BHrZSuYEU3dk6uWBFtAUHtnpyxNBmUMF
- H89bV6/w1NL5FC9fDdUM8phHEhYZXm6ciwzh9nSrVHC0Qou2DJYf0pJKZhgICVtOuiyBTY8Y5W
- gIE=
-From:   Jiada Wang <jiada_wang@mentor.com>
-To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
-        <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
-        <bsz@semihalf.com>
-CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
-        <jiada_wang@mentor.com>
-Subject: [PATCH v11 01/56] Input: introduce input_mt_report_slot_inactive
-Date:   Thu, 7 May 2020 22:56:01 -0700
-Message-ID: <20200508055656.96389-2-jiada_wang@mentor.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200508055656.96389-1-jiada_wang@mentor.com>
-References: <20200508055656.96389-1-jiada_wang@mentor.com>
+        id S1726736AbgEHIWJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 May 2020 04:22:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47184 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726638AbgEHIWJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 04:22:09 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEA7BC05BD43
+        for <linux-input@vger.kernel.org>; Fri,  8 May 2020 01:22:08 -0700 (PDT)
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1jWyGf-0008Lb-Up; Fri, 08 May 2020 10:22:01 +0200
+Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1jWyGe-0005TL-OQ; Fri, 08 May 2020 10:22:00 +0200
+Date:   Fri, 8 May 2020 10:22:00 +0200
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     dmitry.torokhov@gmail.com, andriy.shevchenko@linux.intel.com,
+        hdegoede@redhat.com, LW@KARO-electronics.de
+Cc:     kernel@pengutronix.de, linux-input@vger.kernel.org
+Subject: Re: [PATCH 0/4] EDT-FT5x06 Fixes and improvments
+Message-ID: <20200508082200.wrkbsq2qkqxuadfz@pengutronix.de>
+References: <20200227112819.16754-1-m.felsch@pengutronix.de>
+ <20200309064422.k7o3eyvfqklflpt4@pengutronix.de>
+ <20200331075008.4t7kdqkwf5ebjwr7@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200331075008.4t7kdqkwf5ebjwr7@pengutronix.de>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 10:21:22 up 174 days, 23:39, 189 users,  load average: 0.08, 0.13,
+ 0.09
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-input_mt_report_slot_state() ignores the tool when the slot is closed.
-which has caused a bit of confusion.
-This patch introduces input_mt_report_slot_inactive() to report slot
-inactive state.
-replaces all input_mt_report_slot_state() with
-input_mt_report_slot_inactive() in case of close of slot.
+Hi Dmitry,
 
-Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
----
- drivers/hid/hid-alps.c                     | 3 +--
- drivers/hid/hid-multitouch.c               | 6 ++----
- drivers/input/misc/xen-kbdfront.c          | 2 +-
- drivers/input/mouse/elan_i2c_core.c        | 2 +-
- drivers/input/touchscreen/atmel_mxt_ts.c   | 7 +++----
- drivers/input/touchscreen/cyttsp4_core.c   | 5 ++---
- drivers/input/touchscreen/cyttsp_core.c    | 2 +-
- drivers/input/touchscreen/melfas_mip4.c    | 4 ++--
- drivers/input/touchscreen/mms114.c         | 2 +-
- drivers/input/touchscreen/raspberrypi-ts.c | 2 +-
- drivers/input/touchscreen/stmfts.c         | 2 +-
- include/linux/input/mt.h                   | 5 +++++
- 12 files changed, 21 insertions(+), 21 deletions(-)
+pls can you have a look on it?
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index ae79a7c66737..36ca1d815d53 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -387,8 +387,7 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
- 				input_report_abs(hdata->input,
- 					ABS_MT_PRESSURE, z);
- 			} else {
--				input_mt_report_slot_state(hdata->input,
--					MT_TOOL_FINGER, 0);
-+				input_mt_report_slot_inactive(hdata->input);
- 			}
- 		}
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 362805ddf377..e2ce790ff4a4 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -896,7 +896,7 @@ static void mt_release_pending_palms(struct mt_device *td,
- 		clear_bit(slotnum, app->pending_palm_slots);
- 
- 		input_mt_slot(input, slotnum);
--		input_mt_report_slot_state(input, MT_TOOL_PALM, false);
-+		input_mt_report_slot_inactive(input);
- 
- 		need_sync = true;
- 	}
-@@ -1640,9 +1640,7 @@ static void mt_release_contacts(struct hid_device *hid)
- 		if (mt) {
- 			for (i = 0; i < mt->num_slots; i++) {
- 				input_mt_slot(input_dev, i);
--				input_mt_report_slot_state(input_dev,
--							   MT_TOOL_FINGER,
--							   false);
-+				input_mt_report_slot_inactive(input_dev);
- 			}
- 			input_mt_sync_frame(input_dev);
- 			input_sync(input_dev);
-diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-index 24bc5c5d876f..a1bba722b234 100644
---- a/drivers/input/misc/xen-kbdfront.c
-+++ b/drivers/input/misc/xen-kbdfront.c
-@@ -146,7 +146,7 @@ static void xenkbd_handle_mt_event(struct xenkbd_info *info,
- 		break;
- 
- 	case XENKBD_MT_EV_UP:
--		input_mt_report_slot_state(info->mtouch, MT_TOOL_FINGER, false);
-+		input_mt_report_slot_inactive(info->mtouch);
- 		break;
- 
- 	case XENKBD_MT_EV_SYN:
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 8719da540383..3f9354baac4b 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -938,7 +938,7 @@ static void elan_report_contact(struct elan_tp_data *data,
- 		input_report_abs(input, ABS_MT_TOUCH_MINOR, minor);
- 	} else {
- 		input_mt_slot(input, contact_num);
--		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
-+		input_mt_report_slot_inactive(input);
- 	}
- }
- 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ae60442efda0..a2189739e30f 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -822,8 +822,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
- 		 * have happened.
- 		 */
- 		if (status & MXT_T9_RELEASE) {
--			input_mt_report_slot_state(input_dev,
--						   MT_TOOL_FINGER, 0);
-+			input_mt_report_slot_inactive(input_dev);
- 			mxt_input_sync(data);
- 		}
- 
-@@ -839,7 +838,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
- 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
- 	} else {
- 		/* Touch no longer active, close out slot */
--		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
-+		input_mt_report_slot_inactive(input_dev);
- 	}
- 
- 	data->update_input = true;
-@@ -947,7 +946,7 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
- 		dev_dbg(dev, "[%u] release\n", id);
- 
- 		/* close out slot */
--		input_mt_report_slot_state(input_dev, 0, 0);
-+		input_mt_report_slot_inactive(input_dev);
- 	}
- 
- 	data->update_input = true;
-diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
-index 6bcffc930384..02a73d9a4def 100644
---- a/drivers/input/touchscreen/cyttsp4_core.c
-+++ b/drivers/input/touchscreen/cyttsp4_core.c
-@@ -744,8 +744,7 @@ static void cyttsp4_report_slot_liftoff(struct cyttsp4_mt_data *md,
- 
- 	for (t = 0; t < max_slots; t++) {
- 		input_mt_slot(md->input, t);
--		input_mt_report_slot_state(md->input,
--			MT_TOOL_FINGER, false);
-+		input_mt_report_slot_inactive(md->input);
- 	}
- }
- 
-@@ -845,7 +844,7 @@ static void cyttsp4_final_sync(struct input_dev *input, int max_slots, int *ids)
- 		if (ids[t])
- 			continue;
- 		input_mt_slot(input, t);
--		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
-+		input_mt_report_slot_inactive(input);
- 	}
- 
- 	input_sync(input);
-diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index 3f5d463dbeed..697aa2c158f7 100644
---- a/drivers/input/touchscreen/cyttsp_core.c
-+++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -340,7 +340,7 @@ static void cyttsp_report_tchdata(struct cyttsp *ts)
- 			continue;
- 
- 		input_mt_slot(input, i);
--		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
-+		input_mt_report_slot_inactive(input);
- 	}
- 
- 	input_sync(input);
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 247c3aaba2d8..f67efdd040b2 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -391,7 +391,7 @@ static void mip4_clear_input(struct mip4_ts *ts)
- 	/* Screen */
- 	for (i = 0; i < MIP4_MAX_FINGERS; i++) {
- 		input_mt_slot(ts->input, i);
--		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, 0);
-+		input_mt_report_slot_inactive(ts->input);
- 	}
- 
- 	/* Keys */
-@@ -534,7 +534,7 @@ static void mip4_report_touch(struct mip4_ts *ts, u8 *packet)
- 	} else {
- 		/* Release event */
- 		input_mt_slot(ts->input, id);
--		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, 0);
-+		input_mt_report_slot_inactive(ts->input);
- 	}
- 
- 	input_mt_sync_frame(ts->input);
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 69c6d559eeb0..776ed9e4629d 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -549,7 +549,7 @@ static int __maybe_unused mms114_suspend(struct device *dev)
- 	/* Release all touch */
- 	for (id = 0; id < MMS114_MAX_TOUCH; id++) {
- 		input_mt_slot(input_dev, id);
--		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, false);
-+		input_mt_report_slot_inactive(input_dev);
- 	}
- 
- 	input_mt_report_pointer_emulation(input_dev, true);
-diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
-index 0e2e08f3f433..ef6aaed217cf 100644
---- a/drivers/input/touchscreen/raspberrypi-ts.c
-+++ b/drivers/input/touchscreen/raspberrypi-ts.c
-@@ -100,7 +100,7 @@ static void rpi_ts_poll(struct input_dev *input)
- 	released_ids = ts->known_ids & ~modified_ids;
- 	for_each_set_bit(i, &released_ids, RPI_TS_MAX_SUPPORTED_POINTS) {
- 		input_mt_slot(input, i);
--		input_mt_report_slot_state(input, MT_TOOL_FINGER, 0);
-+		input_mt_report_slot_inactive(input);
- 		modified_ids &= ~(BIT(i));
- 	}
- 	ts->known_ids = modified_ids;
-diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index b6f95f20f924..b54cc64e4ea6 100644
---- a/drivers/input/touchscreen/stmfts.c
-+++ b/drivers/input/touchscreen/stmfts.c
-@@ -198,7 +198,7 @@ static void stmfts_report_contact_release(struct stmfts_data *sdata,
- 	u8 slot_id = (event[0] & STMFTS_MASK_TOUCH_ID) >> 4;
- 
- 	input_mt_slot(sdata->input, slot_id);
--	input_mt_report_slot_state(sdata->input, MT_TOOL_FINGER, false);
-+	input_mt_report_slot_inactive(sdata->input);
- 
- 	input_sync(sdata->input);
- }
-diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
-index 9e409bb13642..3b8580bd33c1 100644
---- a/include/linux/input/mt.h
-+++ b/include/linux/input/mt.h
-@@ -100,6 +100,11 @@ static inline bool input_is_mt_axis(int axis)
- bool input_mt_report_slot_state(struct input_dev *dev,
- 				unsigned int tool_type, bool active);
- 
-+static inline void input_mt_report_slot_inactive(struct input_dev *dev)
-+{
-+	input_mt_report_slot_state(dev, 0, false);
-+}
-+
- void input_mt_report_finger_count(struct input_dev *dev, int count);
- void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count);
- void input_mt_drop_unused(struct input_dev *dev);
+Thanks,
+  Marco
+
+On 20-03-31 09:50, Marco Felsch wrote:
+> Hi Dmitry,
+> 
+> gentle ping..
+> 
+> On 20-03-09 07:44, Marco Felsch wrote:
+> > Hi,
+> > 
+> > gentle ping.
+> > 
+> > Regards,
+> >   Marco
+> > 
+> > On 20-02-27 12:28, Marco Felsch wrote:
+> > > Hi,
+> > > 
+> > > first this series fixes a possible undefined register access for
+> > > ev-ft5726 devices.
+> > > 
+> > > This series also includes the v4 of the improved pm ops. Please check
+> > > my notes I made on the patch.
+> > > 
+> > > Last but least it adds the support for async probe which is important
+> > > for fast booting because devices having a reset-pin specified sleeps
+> > > 300ms..
+> > > 
+> > > Regards,
+> > >   Marco
+> > > 
+> > > Ahmad Fatoum (1):
+> > >   Input: edt-ft5x06 - prefer asynchronous probe
+> > > 
+> > > Marco Felsch (3):
+> > >   Input: edt-ft5x06 - fix get_default register write access
+> > >   Input: edt-ft5x06 - move parameter restore into helper
+> > >   Input: edt-ft5x06 - improve power management operations
+> > > 
+> > >  drivers/input/touchscreen/edt-ft5x06.c | 179 ++++++++++++++++++++++---
+> > >  1 file changed, 157 insertions(+), 22 deletions(-)
+> > > 
+> > > -- 
+> > > 2.20.1
+> > 
+> > 
+> 
+> -- 
+> Pengutronix e.K.                           |                             |
+> Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+> 31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+> 
+> 
+
 -- 
-2.17.1
-
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

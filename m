@@ -2,37 +2,36 @@ Return-Path: <SRS0=TFIa=6W=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EE2FC38A2A
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C332DC38A2A
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:00:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A2E820736
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A5A7D2070B
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:00:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbgEHF76 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 May 2020 01:59:58 -0400
-Received: from esa2.mentor.iphmx.com ([68.232.141.98]:22062 "EHLO
-        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727104AbgEHF7S (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:59:18 -0400
-IronPort-SDR: Ef7ooS/g+dUBxga/7WSmWDbeAMsS/BZITWmQnYCoEU8Tu5FqQMogSADT9IrufU0VHPhoACSnic
- JcySAcnNnmhHsp85ER/xqzUhbaf5I7fUx/D7Wkjs+xRRIF2P6Rifcl/dSapiz21CmbRCiGmmwF
- BiCzQn5SejSRnxW8asn9POa5d0cY1cL2muKJ0YgFDAu+wcvr10tCh3/CPWJCu2ONQzH1H/Q2IX
- OtKkvHDB1v1CtSWblsA/tBuEfgquHdEfFmLl5liXbTZuLlK8FqhXDl5RsuAHMJK72WTAc+EBzf
- Peo=
+        id S1728295AbgEHGAB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 May 2020 02:00:01 -0400
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:38783 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728288AbgEHGAA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 02:00:00 -0400
+IronPort-SDR: LKH6uv88PjcuLwEAWUmiveyRI0K/+QZsDOZX4SyLno19vJh86R6nDqaUaAnhrfvQWiTNi996im
+ iPc2i+QxCNHC2Kjo+XnddvIOu+vs8DgR3H4DU739dARU8B2ZoARV2aeR9JKNZ8WEONO7ZCIM76
+ aczV+9UAfMdrUFk7SvwWl7W16Nec8KZL4etbmQJBLgEkaCp0t07JNaRhvy2YzarrQpvMjRi4di
+ DZV71mIyEDCvZ16YOpGmbsCG6NYBqX9+lL/Pplsy/lIqt2gz5q9XCMHBouAbhH9Vqm8z289aIc
+ jbE=
 X-IronPort-AV: E=Sophos;i="5.73,366,1583222400"; 
-   d="scan'208";a="48589120"
+   d="scan'208";a="50670145"
 Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa2.mentor.iphmx.com with ESMTP; 07 May 2020 21:59:17 -0800
-IronPort-SDR: /151iejCQ14UkWcq1PC2SpC2EGv6MEZlEhO+H4MrdNPMSdiDiKHosyb/L1NP2kFFslHfnf5NzY
- o4K28EdsRSpuIXVJLXmCxVt6X+kJ7hmO8FBlUrNX/HQ+8YLIlyJlFJbX13qknUJwkyNiWgrxql
- PS0rGM/trQPStR7NQ5VZCGGh+4a3tBeYjOsskeTzu00Yoajxak3tCyPGvDkBVYPGlUE8OYIDEj
- yJJWCb8jgY5bA9C3EGQsacxuAH+9CDRE++UkZJkVft7gEnNSDoJbW0iF4784neiZxj2LRvSue4
- ak4=
+  by esa1.mentor.iphmx.com with ESMTP; 07 May 2020 21:59:58 -0800
+IronPort-SDR: ZY1bo96TTNeDvMJvp82DgkEVsM1WLUZ+48EKGl7SnldCKCIpJ1S3FIfOGk/c2X9BclM4Hlax4q
+ cEAqbx80+OCtEZ2jb/ldypRj1SV+aadKTCSgO7cSqQK+5er+5kvRxMywUePBBo7D6HXErj/R2x
+ wrG4wwDUbee1nmwldKfFXNkVmgofFWqXRUDoTLNixNSxDOgiLUo065wiIVl/TRBj6Y50HZjOYk
+ e5NttOFnCoOqsAEuVhq0Jx505vE85yMqqwiP9x3QzaSyAuLNH3CghAqWoShi/rfvrnhESphLBx
+ O0w=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -40,9 +39,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v11 36/56] Input: atmel_mxt_ts - implement debug output for messages
-Date:   Thu, 7 May 2020 22:56:36 -0700
-Message-ID: <20200508055656.96389-37-jiada_wang@mentor.com>
+Subject: [PATCH v11 47/56] Input: Atmel: improve error handling in mxt_initialize()
+Date:   Thu, 7 May 2020 22:56:47 -0700
+Message-ID: <20200508055656.96389-48-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200508055656.96389-1-jiada_wang@mentor.com>
 References: <20200508055656.96389-1-jiada_wang@mentor.com>
@@ -53,125 +52,128 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+From: Deepak Das <deepak_das@mentor.com>
 
-Add a debug switch which causes all messages from the touch controller to
-be dumped to the dmesg log with a set prefix "MXT MSG:". This is used by
-Atmel user-space utilities to debug touch operation. Enabling this output
-does impact touch performance.
+Currently mxt_initialize() tries to probe bootloader mode
+even if valid bootloader address is not specified.
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit 3c3fcfdd4889dfeb1c80ae8cd94a622c6342b06a)
-[gdavis: Forward port and fix conflicts.]
+This commit modifies mxt_initialize() to return error
+if Device is not in appmode and bootloader address is
+not specified.
+
+This commit also returns error code from mxt_send_bootloader_cmd()
+in mxt_initialize().
+
+Signed-off-by: Deepak Das <deepak_das@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
-[jiada: Rename mxt_debug_enable_store to debug_enable_store
-	Rename mxt_debug_enable_show to debug_enable_show
-	Replace DEVICE_ATTR with DEVICE_ATTR_RW]
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 46 ++++++++++++++++++++++--
- 1 file changed, 43 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 58 +++++++++++++++++-------
+ 1 file changed, 41 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 1027ebbc3978..7d48c4d1f57d 100644
+index 906da438d5e8..c779cac565a8 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -336,6 +336,7 @@ struct mxt_data {
- 	u8 t100_aux_ampl;
- 	u8 t100_aux_area;
- 	u8 t100_aux_vect;
-+	bool debug_enabled;
- 	u8 max_reportid;
- 	u32 config_crc;
- 	u32 info_crc;
-@@ -461,8 +462,11 @@ static bool mxt_object_readable(unsigned int type)
- 
- static void mxt_dump_message(struct mxt_data *data, u8 *message)
- {
--	dev_dbg(&data->client->dev, "message: %*ph\n",
--		data->T5_msg_size, message);
-+	/* debug message with prefix 'MXT MSG:' used by
-+	 * Atmel user-space utilities to debug touch operation
-+	 */
-+	dev_dbg(&data->client->dev, "MXT MSG: %*ph\n",
-+		       data->T5_msg_size, message);
+@@ -716,17 +716,13 @@ static int mxt_lookup_bootloader_address(struct mxt_data *data, bool retry)
+ 	return 0;
  }
  
- static int mxt_wait_for_completion(struct mxt_data *data,
-@@ -1212,6 +1216,7 @@ static void mxt_proc_t93_messages(struct mxt_data *data, u8 *msg)
- static int mxt_proc_message(struct mxt_data *data, u8 *message)
+-static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
++static int mxt_probe_bootloader(struct mxt_data *data)
  {
- 	u8 report_id = message[0];
-+	bool dump = data->debug_enabled;
+ 	struct device *dev = &data->client->dev;
+ 	int error;
+ 	u8 buf[3];
+ 	bool crc_failure, extended_id;
  
- 	if (report_id == MXT_RPTID_NOMSG)
- 		return 0;
-@@ -1246,9 +1251,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	} else if (report_id == data->T93_reportid) {
- 		mxt_proc_t93_messages(data, message);
- 	} else {
--		mxt_dump_message(data, message);
-+		dump = true;
+-	error = mxt_lookup_bootloader_address(data, alt_address);
+-	if (error)
+-		return error;
+-
+ 	/* Check bootloader status and version information */
+ 	error = mxt_bootloader_read(data, buf, sizeof(buf));
+ 	if (error)
+@@ -2909,6 +2905,32 @@ static void mxt_config_cb(const struct firmware *cfg, void *ctx)
+ 	release_firmware(cfg);
+ }
+ 
++static int mxt_bootloader_status(struct mxt_data *data)
++{
++	struct i2c_client *client = data->client;
++	int error;
++
++	error = mxt_lookup_bootloader_address(data, false);
++	if (error) {
++		dev_info(&client->dev,
++			 "Bootloader address is not specified\n");
++		return error;
++	}
++	/* Check bootloader state */
++	error = mxt_probe_bootloader(data);
++	if (error) {
++		dev_info(&client->dev, "Trying alternate bootloader address\n");
++		mxt_lookup_bootloader_address(data, true);
++		error = mxt_probe_bootloader(data);
++		if (error) {
++			dev_err(&client->dev,
++				"Chip is not in appmode or bootloader mode\n");
++			return error;
++		}
++	}
++	return 0;
++}
++
+ static int mxt_initialize(struct mxt_data *data)
+ {
+ 	struct i2c_client *client = data->client;
+@@ -2920,16 +2942,13 @@ static int mxt_initialize(struct mxt_data *data)
+ 		if (!error)
+ 			break;
+ 
+-		/* Check bootloader state */
+-		error = mxt_probe_bootloader(data, false);
+-		if (error) {
+-			dev_info(&client->dev, "Trying alternate bootloader address\n");
+-			error = mxt_probe_bootloader(data, true);
+-			if (error) {
+-				/* Chip is not in appmode or bootloader mode */
+-				return error;
+-			}
+-		}
++		dev_info(&client->dev,
++			 "info block read failed (%d), so try bootloader method\n",
++			 error);
++
++		error = mxt_bootloader_status(data);
++		if (error)
++			return error;
+ 
+ 		/* OK, we are in bootloader, see if we can recover */
+ 		if (++recovery_attempts > 1) {
+@@ -2943,7 +2962,9 @@ static int mxt_initialize(struct mxt_data *data)
+ 		}
+ 
+ 		/* Attempt to exit bootloader into app mode */
+-		mxt_send_bootloader_cmd(data, false);
++		error = mxt_send_bootloader_cmd(data, false);
++		if (error)
++			return error;
+ 		msleep(MXT_FW_RESET_TIME);
  	}
  
-+	if (dump)
-+		mxt_dump_message(data, message);
-+
- 	return 1;
- }
+@@ -3630,8 +3651,11 @@ static int mxt_enter_bootloader(struct mxt_data *data)
  
-@@ -3498,6 +3506,36 @@ static ssize_t update_cfg_store(struct device *dev,
- 	return ret;
- }
+ 		msleep(MXT_RESET_TIME);
  
-+static ssize_t debug_enable_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	char c;
-+
-+	c = data->debug_enabled ? '1' : '0';
-+	return scnprintf(buf, PAGE_SIZE, "%c\n", c);
-+}
-+
-+static ssize_t debug_enable_store(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
-+	u8 i;
-+	ssize_t ret;
-+
-+	if (kstrtou8(buf, 0, &i) == 0 && i < 2) {
-+		data->debug_enabled = (i == 1);
-+
-+		dev_dbg(dev, "%s\n", i ? "debug enabled" : "debug disabled");
-+		ret = count;
-+	} else {
-+		dev_dbg(dev, "debug_enabled write error\n");
-+		ret = -EINVAL;
-+	}
-+
-+	return ret;
-+}
-+
- static DEVICE_ATTR_WO(update_fw);
- 
- static struct attribute *mxt_fw_attrs[] = {
-@@ -3514,6 +3552,7 @@ static DEVICE_ATTR_RO(hw_version);
- static DEVICE_ATTR_RO(object);
- static DEVICE_ATTR_WO(update_cfg);
- static DEVICE_ATTR_RO(config_crc);
-+static DEVICE_ATTR_RW(debug_enable);
- 
- static struct attribute *mxt_attrs[] = {
- 	&dev_attr_fw_version.attr,
-@@ -3521,6 +3560,7 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_object.attr,
- 	&dev_attr_update_cfg.attr,
- 	&dev_attr_config_crc.attr,
-+	&dev_attr_debug_enable.attr,
- 	NULL
- };
++		ret = mxt_lookup_bootloader_address(data, false);
++		if (ret)
++			return ret;
+ 		/* Do not need to scan since we know family ID */
+-		ret = mxt_probe_bootloader(data, 0);
++		ret = mxt_probe_bootloader(data);
+ 		if (ret)
+ 			return ret;
  
 -- 
 2.17.1

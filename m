@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F342C38A2A
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:00:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0228C38A2A
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:00:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1AE9820736
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:00:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A4B820870
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 06:00:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727121AbgEHGAO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 May 2020 02:00:14 -0400
+        id S1728341AbgEHGAU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 May 2020 02:00:20 -0400
 Received: from esa1.mentor.iphmx.com ([68.232.129.153]:38783 "EHLO
         esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728323AbgEHGAL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 02:00:11 -0400
-IronPort-SDR: sUl9fRF2fVoZs0RHja5c5kJMC8LDMYOJl/CeEYxHwLN6vljmpaZpZucAb+jLstHuGgSLtX9Z0V
- tF4S6SoW/w8wxPUSQroK4np71250S/wrBLz/tCbxj8dTu1k8pIUz/bPqCnC4Mb6KFy/KCCbzOu
- I+MJ10XLk36/90If1ZGCSSLmMmS+JyKd4RAvJI5Sb8H1ZyCvK9WSJJdi9jcPLOtyF9Spq1gqpB
- c1Ysl9KRmVEFwYZlHQhG5fdtPaWELaC1SHe1+Ho5Q+rQyoCIRXpitVGQgyCly2OUyQ2rzTHJb8
- P3Q=
+        with ESMTP id S1727801AbgEHGAS (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 02:00:18 -0400
+IronPort-SDR: enc+2YIacoKSQ0MflvY7GQwYfg5JC8NkPtN+0P7iXrRkeU8N3xh0yX3DqX1DZYP+zqyUQq+wGR
+ XrUkTUfnRoVb8Vmajs63hOZLxsauwYGzXswiLp+inN7/sWIHGdwgdBEy3rakhG5nzHK3bwk8LE
+ hDuzVGtiQta+2RoEGvAcqfQJzKHntiGCGyg1KJ9Dr0TlJ6lett4QJ6JpDscvOHPvvnQwVqZqTB
+ ddyt8dT04lj8Ft4BHqnRPcq2gC9OtpdmVT0ePJJi4iN9+EKZKWtM08JKcHxkh38hjIjcfq7IHw
+ VIY=
 X-IronPort-AV: E=Sophos;i="5.73,366,1583222400"; 
-   d="scan'208";a="50670168"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa1.mentor.iphmx.com with ESMTP; 07 May 2020 22:00:08 -0800
-IronPort-SDR: oZx0j2xcqYbijImYJojoAtAzZ+qTicxtGtQPPUvKpBLdY5tutC7BIXRd0PCT6o7dF8W0pt+7rU
- qSfQNzkTnOQEc3JxnFdIR4y2MxaXb836jgvB8p7QVfcwzL3exlwL38KMfYOSdJXlYWTMhF5POW
- +yGDpxvUu6qYoV9bLxSEf3wsKVLRw131aGPyxvo0nGqHXNOevCfdFRlADp3vPoelqfLmfjAOkQ
- g+DjWvEczzLHuxKTX2RihxjFeDm3voFRamh79qdstkWQjGXQnhZ8/lU1dDJqORXQEWjLH81Hr2
- 4GM=
+   d="scan'208";a="50670179"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa1.mentor.iphmx.com with ESMTP; 07 May 2020 22:00:16 -0800
+IronPort-SDR: S+uGaswKwNUwfZgUd4ZVN3StrEB+ElB7K608YOL3bzvDVeXxufi6kSH8w0HrKmSfTW3XIsDIk2
+ TmQ2AoYEd6/meblGfaMGrms1L63Q/ih5WwBfSKjUk2SnZY7M/CnZEVZK3fh/XY5DUugcMzL8Kp
+ 7Pw4YzszPdp3TNu7sSqX2T9CnQKY66kyHphzQH2ltIowXafEgZeRrTqYvxsIoeRSQ3SKwI/08h
+ NcMPBqk02bdYM39A9jUWRLwugwPGC44OLA081/v3sFLhRy8leTP/JZqPfKmP98wLUIbAAOFPIs
+ Pa8=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -39,9 +39,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v11 50/56] Input: Atmel: handle ReportID "0x00" while processing T5 messages
-Date:   Thu, 7 May 2020 22:56:50 -0700
-Message-ID: <20200508055656.96389-51-jiada_wang@mentor.com>
+Subject: [PATCH v11 52/56] Input: atmel_mxt_ts: use gpiod_set_value_cansleep for reset pin
+Date:   Thu, 7 May 2020 22:56:52 -0700
+Message-ID: <20200508055656.96389-53-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200508055656.96389-1-jiada_wang@mentor.com>
 References: <20200508055656.96389-1-jiada_wang@mentor.com>
@@ -52,58 +52,67 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Deepak Das <deepak_das@mentor.com>
+From: Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
 
-ReportID "0x00" is reserved by Atmel and should not be used by any
-Atmel touch controller.
+In case of remote display, touch controller will be also remote.
+In such cases, the reset pin of the touch controller will be
+controlled through bridging ICs like Deserilizer and Serializer.
+Therefore accessing the gpio pins require transactions with the
+external IC. Using the function gpiod_set_value will print a
+warning like below
 
-reportID is the first byte retrieved from T5 message payload.
-Currently Atmel driver continues to process the T5 messages even if
-the reportID "0x00" is returned by Touch Controller.
+WARNING: CPU: 0 PID: 576 at drivers/gpio/gpiolib.c:1441 gpiod_set_value+0x34/0x60()
+CPU: 0 PID: 576 Comm: modprobe Not tainted 3.14.79-08377-g84ea22f-dirty #4
+Backtrace:
+[<80011c58>] (dump_backtrace) from [<80011e60>] (show_stack+0x18/0x1c)
+[<80011e48>] (show_stack) from [<8052d7ac>] (dump_stack+0x7c/0x9c)
+[<8052d730>] (dump_stack) from [<800241bc>] (warn_slowpath_common+0x74/0x9c)
+[<80024148>] (warn_slowpath_common) from [<80024288>] (warn_slowpath_null+0x24/0x2c)
+[<80024264>] (warn_slowpath_null) from [<8029e070>] (gpiod_set_value+0x34/0x60)
+[<8029e03c>] (gpiod_set_value) from [<7f492e98>] (mxt_probe+0x1e0/0x718 [atmel_mxt_ts])
+[<7f492cb8>] (mxt_probe [atmel_mxt_ts]) from [<803c4d34>] (i2c_device_probe+0xcc/0xec)
+[<803c4c68>] (i2c_device_probe) from [<803252a0>] (driver_probe_device+0xc0/0x200)
 
-This commit modifies Atmel touch driver to return -EINVAL if ReportID
-"0x00" is received while processing T5 messages.
-
-Signed-off-by: Deepak Das <deepak_das@mentor.com>
+Signed-off-by: Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Signed-off-by: Sanjeev Chugh <sanjeev_chugh@mentor.com>
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 92701bf5291f..103881911acc 100644
+index d134a8b9b3ca..20d6ada778e5 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -77,6 +77,7 @@
- #define MXT_PROCI_TOUCHSEQUENCELOGGER	93
- #define MXT_TOUCH_MULTITOUCHSCREEN_T100 100
- #define MXT_PROCI_ACTIVESTYLUS_T107	107
-+#define MXT_RPTID_RESERVED		0
+@@ -2476,7 +2476,7 @@ static void mxt_regulator_enable(struct mxt_data *data)
+ 	if (!data->reg_vdd || !data->reg_avdd)
+ 		return;
  
- /* MXT_GEN_MESSAGE_T5 object */
- #define MXT_RPTID_NOMSG		0xff
-@@ -1381,6 +1382,11 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	u8 report_id = message[0];
- 	bool dump = data->debug_enabled;
+-	gpiod_set_value(data->reset_gpio, 0);
++	gpiod_set_value_cansleep(data->reset_gpio, 0);
  
-+	if (report_id == MXT_RPTID_RESERVED) {
-+		dev_err(&data->client->dev,
-+			"Received Reserved ReportID 0x00\n");
-+		return -EINVAL;
-+	}
- 	if (report_id == MXT_RPTID_NOMSG)
- 		return 0;
+ 	error = regulator_enable(data->reg_vdd);
+ 	if (error)
+@@ -2494,7 +2494,7 @@ static void mxt_regulator_enable(struct mxt_data *data)
+ 	 * voltage
+ 	 */
+ 	msleep(MXT_REGULATOR_DELAY);
+-	gpiod_set_value(data->reset_gpio, 1);
++	gpiod_set_value_cansleep(data->reset_gpio, 1);
+ 	msleep(MXT_CHG_DELAY);
  
-@@ -1451,6 +1457,8 @@ static int mxt_read_and_process_messages(struct mxt_data *data, u8 count)
- 		ret = mxt_proc_message(data,
- 			data->msg_buf + data->T5_msg_size * i);
- 
-+		if (ret < 0)
-+			return ret;
- 		if (ret == 1)
- 			num_valid++;
- 	}
+ retry_wait:
+@@ -4305,7 +4305,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		disable_irq(data->irq);
+ 	} else if (data->reset_gpio) {
+ 		msleep(MXT_RESET_GPIO_TIME);
+-		gpiod_set_value(data->reset_gpio, 1);
++		gpiod_set_value_cansleep(data->reset_gpio, 1);
+ 		msleep(MXT_RESET_INVALID_CHG);
+ 	} else {
+ 		dev_dbg(&client->dev,
 -- 
 2.17.1
 

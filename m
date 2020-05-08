@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B95AC47257
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1202BC54E4A
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 36E4A21841
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F00EB21974
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728055AbgEHF6w (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 May 2020 01:58:52 -0400
+        id S1728135AbgEHF7N (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 May 2020 01:59:13 -0400
 Received: from esa4.mentor.iphmx.com ([68.232.137.252]:45906 "EHLO
         esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728047AbgEHF6w (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:58:52 -0400
-IronPort-SDR: JHsLNhFGi8MNXYsrMJd73Wy/XwoktPaR/vaB7zBQfSZm0haCNSOp2cUGLwhalESKNy7L0/ujx7
- MA/8L6i/G6Js0K3R5WzxwsUN1+yC35XgtQeh1xV1BXjC6FvVIXInsU6Ak+2zQQFSlea7rSSZ3q
- 2P9PutKDLQ4noKr0OWMofFeShvGQX/Yy6KWP8/1in+Ar1+FuCtpczrSa5fGbzuTRXZCt8RZMMi
- j8j3uQjxsIxaKSDUxv0/IqXuj5GIfNBR7nKc/6q9sMEquxdi9pMfxH1ZxC0NMWiwF03I/8s0Rr
- dIA=
+        with ESMTP id S1727104AbgEHF7L (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:59:11 -0400
+IronPort-SDR: jfPRDni3ID5y+fB4XIX5JpaTu5nP9IcU1Tzn6Nl8Z1jz6xwHoLG+e4zAl6G+QkA8Uw/pLfQw7F
+ AW39tTuwP7mIYdEFOnxHGLdGJ3rUJFLYseUPSlhDe1C4ov1xXpgoLZanTMJAWzKTnKH1nBHL3H
+ T7ifeAqPYuu+amxZETj/Kx0rhQdEKvyA3symzMybA1JIn85PcY1EOUf+P91DpC0Kn9UYJeZZcN
+ azzJmI9h4cZgnu4zAqrBNum5SptwHVDitOGjlF3wQwrs0/5U2tAVR1eKxuOvpRaCvkzfpcpRnn
+ dGA=
 X-IronPort-AV: E=Sophos;i="5.73,366,1583222400"; 
-   d="scan'208";a="48710628"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa4.mentor.iphmx.com with ESMTP; 07 May 2020 21:58:51 -0800
-IronPort-SDR: Ykvrv/U4JQnt7VN16jBlVZVrYcobX2V/+g1n8xKJOq/jcicayp3vrUM9eRfVdMdg3n6t/eL5Ed
- zEnV6C4vsEulq4NdOAmfoJbEYCGE72aS0Aa1rNayWNdQOta+RAn8GxGDlhc5xy2kxSKb7C5qjG
- WeV4KEOMoo/l6St1GsS0DbRrw5ong1hsBHMyWZ0dK93XL3zVqlYI7TPe+pN/nlU3ECa2zVX354
- uor4A6uXPPIqf7yI+Tc2o13wcyCqmiUdGIMtCi3JEDr2rpwmX/FlHqh0w95jhp8J577YwSLYVG
- AFg=
+   d="scan'208";a="48710642"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa4.mentor.iphmx.com with ESMTP; 07 May 2020 21:59:10 -0800
+IronPort-SDR: UGKK+VPLcMG2JA7Uk25hVenxe0MD08k/t+6TNNmbFtN+bChXMlwXmswSa7dov9Hq0Dn5GnVM8e
+ ++Pe4gGn4WBoDOHrJS1c5BOvA655q3N3kZAfmlrlvwMvFhkurlkqPD1K2nmMqfZQjlSfyjviC2
+ o16yUWLqswnnAYiqH84k15mhEPvWilzxtRce9GPfwJ+2YJOKYY7xmkv+x2bwqBHnaEymeOA/lt
+ ctUjm8UxOAV4jS/bIAfTPOskgCqhcSeOW5igm8/lv0+YVnq2wZiPUWjebzC325OD9vZwJgCDE4
+ lIQ=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -39,9 +39,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v11 29/56] Input: atmel_mxt_ts - combine bootloader version query with probe
-Date:   Thu, 7 May 2020 22:56:29 -0700
-Message-ID: <20200508055656.96389-30-jiada_wang@mentor.com>
+Subject: [PATCH v11 34/56] Input: atmel_mxt_ts - implement I2C retries
+Date:   Thu, 7 May 2020 22:56:34 -0700
+Message-ID: <20200508055656.96389-35-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200508055656.96389-1-jiada_wang@mentor.com>
 References: <20200508055656.96389-1-jiada_wang@mentor.com>
@@ -54,101 +54,108 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-This removes some complexity from the bootloader state machine, and means
-that we always output some debug about the version as soon as we start
-talking to the bootloader.
+Some maXTouch chips (eg mXT1386) will not respond on the first I2C request
+when they are in a sleep state. It must be retried after a delay for the
+chip to wake up.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-(cherry picked from ndyer/linux/for-upstream commit a2d141f170c80fea6663af98aab0be32abc0ddb0)
+Acked-by: Yufeng Shen <miletus@chromium.org>
+(cherry picked from ndyer/linux/for-upstream commit 63fd7a2cd03c3a572a5db39c52f4856819e1835d)
+[gdavis: Forward port and fix conflicts.]
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 45 +++++++-----------------
- 1 file changed, 13 insertions(+), 32 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 45 ++++++++++++++++--------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 674763dddcd3..e2538c2dd3f7 100644
+index ab4eceac8fe7..152069c3e15d 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -559,47 +559,31 @@ static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
- {
- 	struct device *dev = &data->client->dev;
- 	int error;
--	u8 val;
--	bool crc_failure;
-+	u8 buf[3];
-+	bool crc_failure, extended_id;
+@@ -217,6 +217,7 @@ enum t100_type {
+ #define MXT_CRC_TIMEOUT		1000	/* msec */
+ #define MXT_FW_RESET_TIME	3000	/* msec */
+ #define MXT_FW_CHG_TIMEOUT	300	/* msec */
++#define MXT_WAKEUP_TIME		25	/* msec */
+ #define MXT_REGULATOR_DELAY	150	/* msec */
+ #define MXT_CHG_DELAY		100	/* msec */
+ #define MXT_POWERON_DELAY	150	/* msec */
+@@ -721,6 +722,7 @@ static int __mxt_read_chunk(struct i2c_client *client,
+ 	struct i2c_msg xfer[2];
+ 	u8 buf[2];
+ 	int ret;
++	bool retry = false;
  
- 	error = mxt_lookup_bootloader_address(data, alt_address);
- 	if (error)
- 		return error;
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+@@ -737,17 +739,22 @@ static int __mxt_read_chunk(struct i2c_client *client,
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
  
--	error = mxt_bootloader_read(data, &val, 1);
-+	/* Check bootloader status and version information */
-+	error = mxt_bootloader_read(data, buf, sizeof(buf));
- 	if (error)
- 		return error;
+-	ret = i2c_transfer(client->adapter, xfer, 2);
+-	if (ret == 2) {
+-		ret = 0;
+-	} else {
+-		if (ret >= 0)
+-			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
+-			__func__, ret);
++retry_read:
++	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
++	if (ret != ARRAY_SIZE(xfer)) {
++		if (!retry) {
++			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
++			msleep(MXT_WAKEUP_TIME);
++			retry = true;
++			goto retry_read;
++		} else {
++			dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
++				__func__, ret);
++			return -EIO;
++		}
+ 	}
  
--	/* Check app crc fail mode */
--	crc_failure = (val & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
-+	crc_failure = (buf[0] & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
-+	extended_id = buf[0] & MXT_BOOT_EXTENDED_ID;
- 
--	dev_err(dev, "Detected bootloader, status:%02X%s\n",
--			val, crc_failure ? ", APP_CRC_FAIL" : "");
-+	dev_info(dev, "Found bootloader addr:%02x ID:%u%s%u%s\n",
-+		 data->bootloader_addr,
-+		 extended_id ? (buf[1] & MXT_BOOT_ID_MASK) : buf[0],
-+		 extended_id ? " version:" : "",
-+		 extended_id ? buf[2] : 0,
-+		 crc_failure ? ", APP_CRC_FAIL" : "");
- 
- 	return 0;
+-	return ret;
++	return 0;
  }
  
--static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
--{
--	struct device *dev = &data->client->dev;
--	u8 buf[3];
--
--	if (val & MXT_BOOT_EXTENDED_ID) {
--		if (mxt_bootloader_read(data, &buf[0], 3) != 0) {
--			dev_err(dev, "%s: i2c failure\n", __func__);
--			return val;
--		}
--
--		dev_dbg(dev, "Bootloader ID:%d Version:%d\n", buf[1], buf[2]);
--
--		return buf[0];
+ static int __mxt_read_reg(struct i2c_client *client,
+@@ -778,6 +785,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	u8 *buf;
+ 	size_t count;
+ 	int ret;
++	bool retry = false;
+ 
+ 	count = len + 2;
+ 	buf = kmalloc(count, GFP_KERNEL);
+@@ -788,14 +796,21 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	buf[1] = (reg >> 8) & 0xff;
+ 	memcpy(&buf[2], val, len);
+ 
++retry_write:
+ 	ret = i2c_master_send(client, buf, count);
+-	if (ret == count) {
+-		ret = 0;
 -	} else {
--		dev_dbg(dev, "Bootloader ID:%d\n", val & MXT_BOOT_ID_MASK);
--
--		return val;
--	}
--}
--
- static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
- 				bool wait)
- {
-@@ -633,9 +617,6 @@ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
- 	if (ret)
- 		return ret;
+-		if (ret >= 0)
++	if (ret != count) {
++		if (!retry) {
++			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
++			msleep(MXT_WAKEUP_TIME);
++			retry = true;
++			goto retry_write;
++		} else {
++			dev_err(&client->dev, "%s: i2c send failed (%d)\n",
++				__func__, ret);
+ 			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
+-			__func__, ret);
++		}
++	} else {
++		ret = 0;
+ 	}
  
--	if (state == MXT_WAITING_BOOTLOAD_CMD)
--		val = mxt_get_bootloader_version(data, val);
--
- 	switch (state) {
- 	case MXT_WAITING_BOOTLOAD_CMD:
- 	case MXT_WAITING_FRAME_DATA:
-@@ -3279,7 +3260,7 @@ static int mxt_enter_bootloader(struct mxt_data *data)
- 		msleep(MXT_RESET_TIME);
- 
- 		/* Do not need to scan since we know family ID */
--		ret = mxt_lookup_bootloader_address(data, 0);
-+		ret = mxt_probe_bootloader(data, 0);
- 		if (ret)
- 			return ret;
- 
+ 	kfree(buf);
 -- 
 2.17.1
 

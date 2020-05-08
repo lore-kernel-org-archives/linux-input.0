@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF85AC4724C
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D4B8C47247
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A3E26208D6
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E492F20736
+	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:59:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727082AbgEHF7m (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 May 2020 01:59:42 -0400
-Received: from esa1.mentor.iphmx.com ([68.232.129.153]:38765 "EHLO
-        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728219AbgEHF7l (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:59:41 -0400
-IronPort-SDR: KdiCdzezZaBxyLhG/IRkyp8tax5lEXC0jm1F/wlimpaznFifHV8LlyENWgXNnhzjdhqTdZuGG0
- 3/21U82N95o2E/Bq9DDBSw7kbDUKF+vy+/SFts5sxJ3yokTPVsHLVGPe1WjNJXfWWWaoII+Fx6
- a7f37fIsT+jHtWvnR44CC2lcwLqhdX16mANSDfb2Fs/Us+OrdJfakdyzO0UlvcI5NMfvxOu9Xr
- OyBsmq0HFJF6w/wE77SKiOzyrw0DbnAH7rQSiWQvee3jZRAYtEbEJI1s+aeeceft9jCnPU1BpJ
- vLY=
+        id S1727097AbgEHF7t (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 May 2020 01:59:49 -0400
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:25985 "EHLO
+        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728267AbgEHF7s (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:59:48 -0400
+IronPort-SDR: 3kC+npUIcCFn2o0Gv74DBilveB910z9153q7l84Urd9LFClXNyRsCswrJ7DGecQVVJVV3UHNki
+ QRjBapsbUavufrdWcekUbYISq7ZUn5+Mxow1D+by2bl8xBKPPckrcGk1PUAY0g+EKW3cbWwd/A
+ Rku38pXNbXjqqpMF0t4ZtGvWusJ4G6fVw1JkuArtGNWyx0+PRstvrlAQo75A7v932fkBLO9DXr
+ OX4fmwmdAYxyPVrIoNl8L65q+pRXkMhNYuemJNwByIgnlX4ExKzu9OZ3LpwAYRZ0ICsA8tZbKn
+ Xdc=
 X-IronPort-AV: E=Sophos;i="5.73,366,1583222400"; 
-   d="scan'208";a="50670133"
+   d="scan'208";a="48589141"
 Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa1.mentor.iphmx.com with ESMTP; 07 May 2020 21:59:38 -0800
-IronPort-SDR: r/Rv/h0cRyyuPc29rcGtKYaaxVbI8fjHmNLO3O0xcDBznkKIV4SszxtVpm1089kNZ9o+7sjPcn
- CV/9/0w7MTJuWRNuOpjULMI0Pxy8hzps20cSoSHEOSCy3yQawoN9EwOMKD+UyN7u1TqlT5kcbP
- EFv5J+u+t0pl64ppMB5HbY8xfDbc0ZM+zudrW4UWjcvb1XXELstpdkqDbFU3UJPSF/s3018NMP
- VSphJ7hbndwrLpONmjm5HDcRu1ypKym4ky1sCtTtkqtW2U+OlnNypEknJ5R2dfRWw1C3hIEIAv
- 3GM=
+  by esa2.mentor.iphmx.com with ESMTP; 07 May 2020 21:59:48 -0800
+IronPort-SDR: BL+rksDyMqLbv0rrYYXZ0itjcWNA8Igy/csAxlJ5JGwHKmK11Eg5wRSXc9U9UDV9SudL6HyCiv
+ 1Tc2BWtsBURRvLM9SV7MJJL+fHl8vHXMz/AxFRBY8jgZmRoPCRwasB1vzj5LtiutnGgJA+wbKi
+ 7MevQKQygFLjZEsIBarOEpdkB8zb9z6Xo5WdW1gs0jinfG6KomdCVc88sNdx47oxnnTPO/Kkrp
+ fr9NtWUhPUvX8dZEHPLLMIarVZSHNBZzc8bPddeJaXKcOu0iQQVaAj1yAWam8OmGVvORH141AG
+ ax8=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -39,9 +39,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v11 42/56] input: atmel_mxt_ts: Add Missing Delay for reset handling of Atmel touch panel controller in detachable displays.
-Date:   Thu, 7 May 2020 22:56:42 -0700
-Message-ID: <20200508055656.96389-43-jiada_wang@mentor.com>
+Subject: [PATCH v11 44/56] Input: atmel_mxt_ts: Limit the max bytes transferred in an i2c transaction
+Date:   Thu, 7 May 2020 22:56:44 -0700
+Message-ID: <20200508055656.96389-45-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200508055656.96389-1-jiada_wang@mentor.com>
 References: <20200508055656.96389-1-jiada_wang@mentor.com>
@@ -52,42 +52,134 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: keerthikumarp <Keerthikumar.Padmanabha@in.bosch.com>
+From: Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
 
-In case of attached display, the touchpanel reset is controlled
-via imx gpio's from  atmel driver and the delay between
-touchpanel reset and the time at which the chip becomes capable to
-communicate with the host processor, has be taken care.
+Some I2C controllers constrain maximum transferred data in an I2C
+transaction by set max_[read|write]_len of i2c_adapter_quirk.
+Large i2c read transaction beyond this limitation may fail to complete,
+cause I2C controller driver aborts the transaction and returns failure.
 
-However in case of detachable displays, the touchpanel reset is
-controlled via a deserializer gpio which is triggered just before
-the atmel driver is probed.The delay between touchpanel reset and
-the time at which the chip becomes capable to communicate (as
-specified in datasheet) was not being accounted for. This patch
-introduces that delay.
+Therefore this patch was created to split the large i2c transaction into
+smaller chunks which can complete
+within the max_read_len defined by I2C controller driver.
 
-Signed-off-by: keerthikumarp <Keerthikumar.Padmanabha@in.bosch.com>
-Signed-off-by: George G. Davis <george_davis@mentor.com>
+Signed-off-by: Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+CC: Dmitry Osipenko <digetx@gmail.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 62 ++++++++++++++++++------
+ 1 file changed, 48 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index ceb14b4a8d4d..3ffd49b383f4 100644
+index c9ff450fa193..ed850a0bae69 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -4105,6 +4105,10 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		msleep(MXT_RESET_GPIO_TIME);
- 		gpiod_set_value(data->reset_gpio, 1);
- 		msleep(MXT_RESET_INVALID_CHG);
-+	} else {
-+		dev_dbg(&client->dev,
-+			"atmel reset pin not found in device tree");
-+		msleep(MXT_RESET_TIME);
+@@ -1463,11 +1463,34 @@ static int mxt_read_and_process_messages(struct mxt_data *data, u8 count)
+ 	return num_valid;
+ }
+ 
++static u8 mxt_max_msg_read_count(struct mxt_data *data, u8 max_T5_msg_count)
++{
++	struct i2c_client *client = data->client;
++	u16 max_read_len = client->adapter->quirks->max_read_len;
++	u8 T5_msg_count_limit = max_read_len / data->T5_msg_size;
++
++	if (!max_read_len)
++		return max_T5_msg_count;
++
++	if (max_read_len < data->T5_msg_size) {
++		WARN(1, "max read length is lesser than the T5 message size\n");
++		/* Return count of 1, as fallback */
++		return 1;
++	}
++	/*
++	 * Return maximum number of T5 messages in single i2c transaction
++	 * based on max read length.
++	 */
++	return min(T5_msg_count_limit, max_T5_msg_count);
++}
++
+ static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
+ {
+ 	struct device *dev = &data->client->dev;
+ 	int ret;
+-	u8 count, num_left;
++	u8 T5_msg_count, total_pending;
++	u8 total_processed = 0;
++	u8 processed_valid = 0;
+ 
+ 	/* Read T44 and T5 together */
+ 	ret = __mxt_read_reg(data->client, data->T44_address,
+@@ -1477,18 +1500,19 @@ static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
+ 		return IRQ_NONE;
  	}
  
- 	error = mxt_initialize(data);
+-	count = data->msg_buf[0];
++	T5_msg_count = data->msg_buf[0];
+ 
+ 	/*
+ 	 * This condition may be caused by the CHG line being configured in
+ 	 * Mode 0. It results in unnecessary I2C operations but it is benign.
+ 	 */
+-	if (count == 0)
++	if (!T5_msg_count)
+ 		return IRQ_NONE;
+ 
+-	if (count > data->max_reportid) {
+-		dev_warn(dev, "T44 count %d exceeded max report id\n", count);
+-		count = data->max_reportid;
++	if (T5_msg_count > data->max_reportid) {
++		dev_warn(dev, "T44 count %d exceeded max report id\n",
++			 T5_msg_count);
++		T5_msg_count = data->max_reportid;
+ 	}
+ 
+ 	/* Process first message */
+@@ -1498,16 +1522,25 @@ static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
+ 		return IRQ_NONE;
+ 	}
+ 
+-	num_left = count - 1;
++	total_pending = T5_msg_count - 1;
++	if (!total_pending)
++		goto end;
+ 
+ 	/* Process remaining messages if necessary */
+-	if (num_left) {
+-		ret = mxt_read_and_process_messages(data, num_left);
++	T5_msg_count = mxt_max_msg_read_count(data, total_pending);
++
++	do {
++		if ((total_pending - total_processed) < T5_msg_count)
++			T5_msg_count = total_pending - total_processed;
++		ret = mxt_read_and_process_messages(data, T5_msg_count);
+ 		if (ret < 0)
+ 			goto end;
+-		else if (ret != num_left)
+-			dev_warn(dev, "Unexpected invalid message\n");
+-	}
++		total_processed += T5_msg_count;
++		processed_valid += ret;
++	} while (total_processed < total_pending);
++
++	if (processed_valid != total_pending)
++		dev_warn(dev, "Unexpected invalid message\n");
+ 
+ end:
+ 	if (data->update_input) {
+@@ -1522,9 +1555,10 @@ static int mxt_process_messages_until_invalid(struct mxt_data *data)
+ {
+ 	struct device *dev = &data->client->dev;
+ 	int count, read;
+-	u8 tries = 2;
++	int tries;
+ 
+-	count = data->max_reportid;
++	count = mxt_max_msg_read_count(data, data->max_reportid);
++	tries = (data->max_reportid / count) + 1;
+ 
+ 	/* Read messages until we force an invalid */
+ 	do {
 -- 
 2.17.1
 

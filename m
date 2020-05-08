@@ -2,37 +2,36 @@ Return-Path: <SRS0=TFIa=6W=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DD24C38A2A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4DA3C47247
 	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:57:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F73C20870
+	by mail.kernel.org (Postfix) with ESMTP id AD02520CC7
 	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 05:57:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727030AbgEHF50 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 May 2020 01:57:26 -0400
-Received: from esa1.mentor.iphmx.com ([68.232.129.153]:38659 "EHLO
-        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726701AbgEHF5W (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:57:22 -0400
-IronPort-SDR: bBoIS3IKq9W+Oj3xAFbfubqCiAwS+aL1v2QLSN9HYX755pFKEh/xZtQE6sUrILGlsu/2kwObsH
- /wcD0D+ZtrnkEEsCGn2UiZpcTqRk1iu6B7obCSxI/6mBOzynE70Dyry6tBEUgKjpW8IvStj0e6
- Fxa0HbHKw+76zjqVBzUiqbjZvT4qvVNMW9wXMyO3insBYg7FFQTbZZsiAQoXo+oG+/fDORRoFI
- DWDWsekIp+0uhJW1iV0zBrZmZ9CgAH9vlshAp0Rg6HifXwlnS1L341GmMLIajtnLxY3trQaowU
- du0=
+        id S1727092AbgEHF5d (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 May 2020 01:57:33 -0400
+Received: from esa4.mentor.iphmx.com ([68.232.137.252]:45858 "EHLO
+        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726701AbgEHF5c (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 01:57:32 -0400
+IronPort-SDR: nOVsoYWfBGgfOnXTTd9YlLU1hkpZVQrg4ZQS0uRLajEcCPyLTkNOIGa0hSVMiwO8DSlpeh33pz
+ Jm0oW6FSeE72yKmtZyE7pRQ3VBIdy8HHfBdHZ+8t2Vq118n7iSWCH7aMC9M2gzTRTYbw4oFfBZ
+ ab/NJMXLxA2r28JlhCr18SoL1VoZM3r+ca91Lv44KPI/AL7sk4Wt9kN1yJ1dAcnp9vjpLqpDDA
+ j17d2bIEE3Xq0vvDb2J7oOHMRkgYfbrI7e6vd1o5J2ulih+LbKcX3Ck8QlryuplY1JghYVs7Ei
+ LPQ=
 X-IronPort-AV: E=Sophos;i="5.73,366,1583222400"; 
-   d="scan'208";a="50670041"
+   d="scan'208";a="48710560"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa1.mentor.iphmx.com with ESMTP; 07 May 2020 21:57:20 -0800
-IronPort-SDR: 10UfRW8WjvEQ7w6RKpaGzCmoEMw/gg0zqL/WAQP/MHa6Q1xLEJCNPCFth1HA3z+E4JdxmkJQMR
- kX+VSczTvm0PWft7kyoR2THK74F/fC/JaIVc63L5oO7uwD1RG+64sm8EchBlFfWJfd4dVE6QlO
- H3HJmInDdzLnKjShi1SlZ7lUowX6Q/XwkznBlttB0PTl0HW0JfspCB6toUyxrVt5hD/yJMbhHM
- 0uG4gySkx2D3x0R6RupvZW7Fbgf1yLD6lMndAKlkvxp78ofD8N5SBuBuA+K4V84btzoAMRCW/F
- B8c=
+  by esa4.mentor.iphmx.com with ESMTP; 07 May 2020 21:57:29 -0800
+IronPort-SDR: /1c6/32l0lRKDPvHVXozzktU2zipPl9jaIDsxFCqC5cXqEneB526law/WPyFoVUBckwt5ubvgd
+ GT9gDmeESXe/qERNrmA2R+yq3miF8llHvFJeDnQW1bXrP9Hef6yLWlb0g9B4VKWc6qdPNgllyO
+ altkADSa03lv/RzVs+8JRhGdjiY05BN4cFhqhCny/iq2O9FJ/oA730lPeI3OElQHjFRXPgzNhE
+ oTy0K6jBBl/HuQYqT+lP7oJyKeVe251RJCIaw85WOewVVUamVCUDmQ0FPQBPEq00rROSw0FGnv
+ Q48=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
         <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
@@ -40,9 +39,9 @@ To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>,
 CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v11 05/56] Input: atmel_mxt_ts - output status from T48 Noise Supression
-Date:   Thu, 7 May 2020 22:56:05 -0700
-Message-ID: <20200508055656.96389-6-jiada_wang@mentor.com>
+Subject: [PATCH v11 07/56] Input: atmel_mxt_ts - implement T9 vector/orientation support
+Date:   Thu, 7 May 2020 22:56:07 -0700
+Message-ID: <20200508055656.96389-8-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200508055656.96389-1-jiada_wang@mentor.com>
 References: <20200508055656.96389-1-jiada_wang@mentor.com>
@@ -55,82 +54,79 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-This patch outputs status from T48 Noise Supression
+The atmel touch messages contain orientation information as a byte in a
+packed format which can be passed straight on to Android if the input
+device configuration is correct.
+
+This requires vector reports to be enabled in maXTouch config (zero
+DISVECT bit 3 in T9 CTRL field)
+
+Android converts the format in InputReader.cpp, search for
+ORIENTATION_CALIBRATION_VECTOR.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 Acked-by: Yufeng Shen <miletus@chromium.org>
-(cherry picked from ndyer/linux/for-upstream commit 2895a6ff150a49f27a02938f8d262be238b296d8)
+(cherry picked from ndyer/linux/for-upstream commit a6f0ee919d2631678169b23fb18f55b6dbabcd4c)
 Signed-off-by: George G. Davis <george_davis@mentor.com>
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 25 ++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 7e6a66e3e1e0..a53985a7736f 100644
+index f6465edaa57e..df2e0ba76e63 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -324,6 +324,7 @@ struct mxt_data {
- 	u16 T18_address;
- 	u8 T19_reportid;
- 	u16 T44_address;
-+	u8 T48_reportid;
- 	u8 T100_reportid_min;
- 	u8 T100_reportid_max;
+@@ -817,6 +817,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 	int y;
+ 	int area;
+ 	int amplitude;
++	u8 vector;
  
-@@ -978,6 +979,24 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
- 	data->update_input = true;
- }
+ 	id = message[0] - data->T9_reportid_min;
+ 	status = message[1];
+@@ -831,9 +832,10 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
  
-+static int mxt_proc_t48_messages(struct mxt_data *data, u8 *msg)
-+{
-+	struct device *dev = &data->client->dev;
-+	u8 status, state;
-+
-+	status = msg[1];
-+	state  = msg[4];
-+
-+	dev_dbg(dev, "T48 state %d status %02X %s%s%s%s%s\n", state, status,
-+		status & 0x01 ? "FREQCHG " : "",
-+		status & 0x02 ? "APXCHG " : "",
-+		status & 0x04 ? "ALGOERR " : "",
-+		status & 0x10 ? "STATCHG " : "",
-+		status & 0x20 ? "NLVLCHG " : "");
-+
-+	return 0;
-+}
-+
- static int mxt_proc_message(struct mxt_data *data, u8 *message)
- {
- 	u8 report_id = message[0];
-@@ -987,6 +1006,8 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	area = message[5];
+ 	amplitude = message[6];
++	vector = message[7];
  
- 	if (report_id == data->T6_reportid) {
- 		mxt_proc_t6_messages(data, message);
-+	} else if (report_id == data->T48_reportid) {
-+		mxt_proc_t48_messages(data, message);
- 	} else if (!data->input_dev) {
- 		/*
- 		 * Do not report events if input device
-@@ -1666,6 +1687,7 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T18_address = 0;
- 	data->T19_reportid = 0;
- 	data->T44_address = 0;
-+	data->T48_reportid = 0;
- 	data->T100_reportid_min = 0;
- 	data->T100_reportid_max = 0;
- 	data->max_reportid = 0;
-@@ -1747,6 +1769,9 @@ static int mxt_parse_object_table(struct mxt_data *data,
- 		case MXT_SPT_GPIOPWM_T19:
- 			data->T19_reportid = min_id;
- 			break;
-+		case MXT_PROCG_NOISESUPPRESSION_T48:
-+			data->T48_reportid = min_id;
-+			break;
- 		case MXT_TOUCH_MULTITOUCHSCREEN_T100:
- 			data->multitouch = MXT_TOUCH_MULTITOUCHSCREEN_T100;
- 			data->T100_reportid_min = min_id;
+ 	dev_dbg(dev,
+-		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u\n",
++		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u vector: %02X\n",
+ 		id,
+ 		(status & MXT_T9_DETECT) ? 'D' : '.',
+ 		(status & MXT_T9_PRESS) ? 'P' : '.',
+@@ -843,7 +845,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 		(status & MXT_T9_AMP) ? 'A' : '.',
+ 		(status & MXT_T9_SUPPRESS) ? 'S' : '.',
+ 		(status & MXT_T9_UNGRIP) ? 'U' : '.',
+-		x, y, area, amplitude);
++		x, y, area, amplitude, vector);
+ 
+ 	input_mt_slot(input_dev, id);
+ 
+@@ -868,6 +870,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
+ 		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
+ 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
++		input_report_abs(input_dev, ABS_MT_ORIENTATION, vector);
+ 	} else {
+ 		/* Touch no longer active, close out slot */
+ 		input_mt_report_slot_inactive(input_dev);
+@@ -2180,8 +2183,9 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 				     0, 255, 0, 0);
+ 	}
+ 
+-	if (data->multitouch == MXT_TOUCH_MULTITOUCHSCREEN_T100 &&
+-	    data->t100_aux_vect) {
++	if (data->multitouch == MXT_TOUCH_MULTI_T9 ||
++	    (data->multitouch == MXT_TOUCH_MULTITOUCHSCREEN_T100 &&
++	    data->t100_aux_vect)) {
+ 		input_set_abs_params(input_dev, ABS_MT_ORIENTATION,
+ 				     0, 255, 0, 0);
+ 	}
 -- 
 2.17.1
 

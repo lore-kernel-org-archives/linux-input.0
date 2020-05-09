@@ -1,96 +1,82 @@
-Return-Path: <SRS0=TFIa=6W=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=9SzO=6X=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7583C38A2A
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 19:41:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 419E0C38A2A
+	for <linux-input@archiver.kernel.org>; Sat,  9 May 2020 02:09:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C435B24956
-	for <linux-input@archiver.kernel.org>; Fri,  8 May 2020 19:41:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB1E92192A
+	for <linux-input@archiver.kernel.org>; Sat,  9 May 2020 02:09:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="PJyrvR/+"
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="WVPofjpp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726922AbgEHTl3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 May 2020 15:41:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40316 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726817AbgEHTl3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 8 May 2020 15:41:29 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CB26C05BD09
-        for <linux-input@vger.kernel.org>; Fri,  8 May 2020 12:41:26 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id b26so2346827lfa.5
-        for <linux-input@vger.kernel.org>; Fri, 08 May 2020 12:41:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=o4LTBtkW42ncc3xQ7z7L3UptQlNLannjQiNWN85xz6s=;
-        b=PJyrvR/+6sIkZyAcKbhumskZG8NDstC0NjMWeWUa2gXrnapzGgrIUDv//WNM52ITv6
-         3Kgui9JoHsNvLQmzlOxVY1ZmU8LYVhjSAybWTonwvajI5Jg7mU7xhWVST6veGrCtgetF
-         5BAO33H/r1llfRPVsarse3bYf+Rg1HyVgxe4+u6FUlHGFy8BJh/U3lY8olz8RyIEeNGN
-         YZtn/yWuBKm3I/we0P8dnTRtpDU09oZBfP8rijonMrG4WEUiymNlOtNmdoVhtw+xUjQj
-         sR28pIYVmKqUYIQSMbVOXahn1Xez2Sgerb/+VPH7g+Tij5QkxyHn0/XbomfIiTZUv+8W
-         XrTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=o4LTBtkW42ncc3xQ7z7L3UptQlNLannjQiNWN85xz6s=;
-        b=rb17ytvptlckkbTGRu5JKH8RV7MiZX1Fexhljsi+phnazqnz2gdYdKPgYa7JnbZBx5
-         Q/pi8x3lppaUBuEr7v0DeXdB4aNwHBjQiW2QI+7+N7HBDmxQLBBl6OjfWwzAqmQt3/rG
-         J8T92TlgRmbauqaZdFT8obEEQy8FFP+5CW98NkkQGege+YJKNshbFQAZZ87txTgduhi9
-         279kD1e5VfPm70G0ejMJRfIfqHFgOczBivqc619uVUIff2hIlioRT7ZLEDQbC+woK3Ir
-         76H+EGJpA/KT5Fry+qyFJfZCBe/7cZsnrZeiqUdqxLPiX7RGqmsLov8iA2Y/biI0s5mI
-         yjqw==
-X-Gm-Message-State: AOAM531h79h9H26R9zgQ8erso87uxs2Xh4SsphWyut/4DoEET3yhbw5H
-        ekOFvtFDEfuC7LDUr+TvbhqcZXI/QX44aDQwl2uDLw==
-X-Google-Smtp-Source: ABdhPJzAjAstldzlrJ0KZee1gVua53zcjm+vjwc4UDwqEaPy842LDceP7toVn6P/HY7LTJK+cY0zCyMDWr1qXY8xY0g=
-X-Received: by 2002:ac2:414c:: with SMTP id c12mr2921938lfi.47.1588966884749;
- Fri, 08 May 2020 12:41:24 -0700 (PDT)
+        id S1728578AbgEICJ1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 May 2020 22:09:27 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:58238 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727828AbgEICJ0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2020 22:09:26 -0400
+X-UUID: c2515d0332a7409a8cc84976834fb513-20200509
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=1B+choKMEWf5xgsDH1Xvz4r98si4Toef2xxzNstIEMc=;
+        b=WVPofjpp0VLBguQpJu5sO7PG4xp585zhHL5kaY5GN4ax6yZyup7ckNf1CfzJCQp/XLQthBFtWydoIccdvERs23acVXpSpUglCYB8UH7mrTzk761XMMrKpPJbKs76zGETv/kNtGgEyB5KaCYcKNJXhpsh9zjT5mi3gzPS7/aqn4o=;
+X-UUID: c2515d0332a7409a8cc84976834fb513-20200509
+Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw01.mediatek.com
+        (envelope-from <fengping.yu@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 1759369874; Sat, 09 May 2020 10:09:24 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs02n1.mediatek.inc (172.21.101.77) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Sat, 9 May 2020 10:09:23 +0800
+Received: from localhost.localdomain (10.15.20.246) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Sat, 9 May 2020 10:09:17 +0800
+From:   Fengping Yu <fengping.yu@mediatek.com>
+To:     Marco Felsch <m.felsch@pengutronix.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Yingjoe Chen <yingjoe.chen@mediatek.com>
+CC:     <linux-input@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH v6] Add mtk matrix keypad driver for keypad on MTK SoC
+Date:   Sat, 9 May 2020 10:04:56 +0800
+Message-ID: <20200509020458.8359-1-fengping.yu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-References: <20200503172206.13782-1-xc-racer2@live.ca> <BN6PR04MB0660B420EFA83668BBF4F315A3A90@BN6PR04MB0660.namprd04.prod.outlook.com>
- <CACRpkdb3kG=7SQg8RGh1F=8=_mivV6p_zxpodFT=M-f3PmiyYQ@mail.gmail.com>
- <BN6PR04MB0660BA0E181869F866594E98A3A50@BN6PR04MB0660.namprd04.prod.outlook.com>
- <20200507042318.GD89269@dtor-ws> <BN6PR04MB0660FB7E230C514608743560A3A20@BN6PR04MB0660.namprd04.prod.outlook.com>
-In-Reply-To: <BN6PR04MB0660FB7E230C514608743560A3A20@BN6PR04MB0660.namprd04.prod.outlook.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 8 May 2020 21:41:13 +0200
-Message-ID: <CACRpkdaZtwVva0sqYgkyPzZNTTJRF3GjFUjhG0wDiOFqJHfniw@mail.gmail.com>
-Subject: Re: [PATCH 2/5] input: misc: bma150: Conditionally disable bma023 support
-To:     Jonathan Bakker <xc-racer2@live.ca>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald <pmeerw@pmeerw.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        linux-iio <linux-iio@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linux Input <linux-input@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, May 8, 2020 at 5:57 PM Jonathan Bakker <xc-racer2@live.ca> wrote:
+Q2hhbmdlIHNpbmNlIHY1Og0KLSByZW1vdmUgdW5uZWNlc3NhcnkgaW5jbHVkZSBmaWxlcw0KLSBy
+ZW1vdmUgcmVkdW5kYW50IGNvbW1lbnRzIGFuZCBuZXdsaW5lcw0KLSB1c2UgbG9jYWwgaXJxbnIg
+dmFyaWFibGUgaW5zdGVhZCBvZiBtZW1iZXIgdmFyaWFibGUgb2YgbXRrX2tleXBhZCBzdHJ1Y3QN
+Ci0gdXNlIHJlZ21hcCB0byByZWFkIGFuZCB3cml0ZSByZWdpc3RlcnMNCi0gZHJvcCBrcGRfZ2V0
+X2R0c19pbmZvIGRpcmVjdGx5IGludG8gcHJvYmUgZnVuY3Rpb24NCi0gdXNlIGRldm1fYWRkX2Fj
+dGlvbl9vcl9yZXNldCB0byBhdm9pZCBnb3RvIGVycm9yIGhhbmRsaW5nIHdoZW4gZG8gY2xrIHNl
+dHRpbmcNCi0gdXNlIGRldm1fcmVxdWVzdF90aHJlYWRlZF9pcnEgYXBpIHRvIHJlcXVlc3QgaXJx
+DQotIHJlbW92ZSBwbGF0Zm9ybV9zZXRfZHJ2ZGF0YQ0KDQpmZW5ncGluZy55dSAoMyk6DQogIGR0
+LWJpbmRpbmdzOiBDaGFuZ2Uga2V5cGFkIGRvY3VtZW50YXRpb24gc2NoZW1hDQogIGRyaXZlcnM6
+IGlucHV0OiBrZXlib2FyZDogQWRkIG10ayBrZXlwYWQgZHJpdmVyDQogIGNvbmZpZ3M6IGRlZmNv
+bmZpZzogQWRkIENPTkZJR19LRVlCT0FSRF9NVEtfS1BEPXkNCg0KIC4uLi9kZXZpY2V0cmVlL2Jp
+bmRpbmdzL2lucHV0L210ay1rcGQudHh0ICAgICB8ICA2MSAtLS0tLS0tDQogLi4uL2RldmljZXRy
+ZWUvYmluZGluZ3MvaW5wdXQvbXRrLWtwZC55YW1sICAgIHwgIDkzICsrKysrKysrKysrDQogYXJj
+aC9hcm02NC9jb25maWdzL2RlZmNvbmZpZyAgICAgICAgICAgICAgICAgIHwgICAxICsNCiBkcml2
+ZXJzL2lucHV0L2tleWJvYXJkL0tjb25maWcgICAgICAgICAgICAgICAgfCAgIDUgKy0NCiBkcml2
+ZXJzL2lucHV0L2tleWJvYXJkL210ay1rcGQuYyAgICAgICAgICAgICAgfCAxNTEgKysrKysrKyst
+LS0tLS0tLS0tDQogNSBmaWxlcyBjaGFuZ2VkLCAxNjMgaW5zZXJ0aW9ucygrKSwgMTQ4IGRlbGV0
+aW9ucygtKQ0KIGRlbGV0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmlu
+ZGluZ3MvaW5wdXQvbXRrLWtwZC50eHQNCiBjcmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1lbnRhdGlv
+bi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L210ay1rcGQueWFtbA0KDQotLQ0KMi4xOC4wDQoN
+Cg0K
 
-> It looks to me like the preferred method would be to also add IIO support for
-> smb380/bma150, add the exclusive Kconfig entries, and leave the input
-> driver in place.  Does this work for everyone?
-
-That's my preferred solution for sure, so go for it if I have a say.
-
-Yours,
-Linus Walleij

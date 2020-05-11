@@ -2,123 +2,222 @@ Return-Path: <SRS0=OZNg=6Z=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+X-Spam-Status: No, score=-10.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4102DC47255
-	for <linux-input@archiver.kernel.org>; Mon, 11 May 2020 18:09:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70D22C54E91
+	for <linux-input@archiver.kernel.org>; Mon, 11 May 2020 18:27:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C623206DB
-	for <linux-input@archiver.kernel.org>; Mon, 11 May 2020 18:09:50 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pCBQigc1"
+	by mail.kernel.org (Postfix) with ESMTP id 536B420836
+	for <linux-input@archiver.kernel.org>; Mon, 11 May 2020 18:27:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1589221651;
+	bh=n1BKRgC7KzQQA1J3HWD6sqr2Lm+wYt9aO1pUwoBvLuM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=KU6POpAWrGskvrzoPCxLi7YvauUSOFpv42xNS1iB1ZxDr+3BzjtZoDJMaXExJ9hGu
+	 YWDzrtctgllZ5CqZ91wEoVnW7eFwX/wy1d5cNKIsiLc8oxCM29zcieJXNCNa32ZWGs
+	 aWGDQxW15sAEkKA3sqwoqIZVsY06XFPS9VH65egg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729564AbgEKSJt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 11 May 2020 14:09:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45648 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726891AbgEKSJt (ORCPT
+        id S1731150AbgEKS1a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 11 May 2020 14:27:30 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:34300 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729772AbgEKS13 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 11 May 2020 14:09:49 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5735C061A0C
-        for <linux-input@vger.kernel.org>; Mon, 11 May 2020 11:09:48 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id r16so8813973edw.5
-        for <linux-input@vger.kernel.org>; Mon, 11 May 2020 11:09:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=axdoHiX9E6z9O7lAN4eJM1bsQRKBne5yAB3H/+h8jDM=;
-        b=pCBQigc11wtctQrhrddWxgcndnZShc+/z9OMf8T4VHMM+1cdAAkcOmWgtZAMcn66pu
-         zS8WA+SO43F1U2GypU0i5yTjnor1TFpf0+hpkPnOFAhH3FSWxGcb6HbiQJ4U43HDqAQu
-         B/jNL272IWxftvkP9u2s7BcdwiqSuwOH5OgnKWc3NLhsRVhevnJN1zXEo++88+OgkFnu
-         CWstudNpJXYqvIcm5Qyo6hjbwJeVAldAG1Kv0KWQL/Ua5vJh4ALBxJjISDNAwJQH2H2v
-         5wusuWH3fxNAUBTUTJPjgElHG6Rp4PEWQ62oh/LAQipdxRST2PgrxY5jlUB7FhypBaLN
-         AUCg==
+        Mon, 11 May 2020 14:27:29 -0400
+Received: by mail-oi1-f193.google.com with SMTP id c12so14963890oic.1;
+        Mon, 11 May 2020 11:27:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=axdoHiX9E6z9O7lAN4eJM1bsQRKBne5yAB3H/+h8jDM=;
-        b=YFkx6L/mjMxsjRPBwlqRpZkgTFY8ef+VTCLNZ5eA6pYNTpweTpSFGNanRzneJ+Kgcn
-         nnaSlCjfMLHyuOqBo78e5Sim2WSwc2vA4mOdAo/sCGM2vNnirgkevjooDpC1uFvnexeZ
-         wAnPsfScb7o9Diyzn3rIsSONrJSb2YpU7YHIHOfoVM+OhpO5vrI5MagZnardZd+UvHd9
-         wIsBFwfTAYynez/7GXS9mpVQGug+sjOwa9dgHzE/VWafImPl9sV5zQKduWojT1+SY5Jk
-         GWcpeWuieXSGms9HzY8S8K2Tr1S4ms46FCqi6TmKac9Kzb1S9EgNaBTiCd+phQhpSGs8
-         a5cw==
-X-Gm-Message-State: AGi0PuaLRqFlSS2vJ8WAZk6LTL2v21x096uYuu5KYDKkNG6n8ZGDdXgw
-        amXWapmjD8kBXTeeErOIJoj3r7i6vH+WTrixMnZ7ag==
-X-Google-Smtp-Source: APiQypIwWGJrvuX+5hzjHxYL8usxaDlkoTqXFooOIQIAKMfOcW2cvWbLbaiQq0aotOUuoXxCrU16dVTRcG/7RKrWNkM=
-X-Received: by 2002:aa7:c6cd:: with SMTP id b13mr9376377eds.314.1589220586234;
- Mon, 11 May 2020 11:09:46 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=7Dq6v2RgQ1NzWRtNWHz7ueSOJkRsa7ZUQ4A+tRGmEk0=;
+        b=IGtzoL25r7bVwaABBJlubOvf7v1TLCK4QhcxRsYXvSDFitGboO7IX6iVSlNHo668DZ
+         pNtUx9RiydiDih+N22JpuZzgUL3CmUGHnjBoGRraR6bXxx3kndy+9b8LWFnwb520uM59
+         xCf6rJGAw3QTh3ZCxbp2p4ud3boe9v/WM/+IcO35VoqAn41Yj5En7IMZ0Z6brFedDSXs
+         3tB/2SYlsAHV8TnQ+lYrC0sErOfzjnrNigMbZ36mL79g3VUa4fnpoAcKB78mv6ougpId
+         gYs4NcMrTW2RvQntRCnN7irFV4F0DjCJGIYfauuuxlPhTfSSIJhU2BpCNwWkiFCn0Tbz
+         wEdw==
+X-Gm-Message-State: AGi0PuYs0hoF7eHcCXC7VPalRiVfGnwYmBriSwDLohrP80n0TcmXI1W8
+        HZLRH+ZkeX8yLsijCS+xYg==
+X-Google-Smtp-Source: APiQypIddoKpSsY4vXjl9FBRpjHvq4vl8fRKeIJdFi0j9WY+HcG6j9RKFSXh8teT5bLZUpju5w9kTA==
+X-Received: by 2002:aca:cc0d:: with SMTP id c13mr12333340oig.125.1589221648092;
+        Mon, 11 May 2020 11:27:28 -0700 (PDT)
+Received: from rob-hp-laptop (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id k26sm2859224ots.3.2020.05.11.11.27.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 May 2020 11:27:27 -0700 (PDT)
+Received: (nullmailer pid 22174 invoked by uid 1000);
+        Mon, 11 May 2020 16:11:27 -0000
+Date:   Mon, 11 May 2020 11:11:27 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Kamel Bouhara <kamel.bouhara@bootlin.com>
+Cc:     Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        linux-iio@vger.kernel.org,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>
+Subject: Re: [PATCH v4 4/5] dt-bindings: counter: microchip-tcb-capture
+ counter
+Message-ID: <20200511161127.GA21385@bogus>
+References: <20200511140505.1649111-1-kamel.bouhara@bootlin.com>
+ <20200511140505.1649111-5-kamel.bouhara@bootlin.com>
 MIME-Version: 1.0
-References: <CAKF84v2gWnokoyhRe_feiWJcYOAPUcWwjaX93GkqmXqm8OzmYg@mail.gmail.com>
- <CAKF84v1yRUjvxdWUNXdKXFQw7=9rjR0+pwvXP1ORjq5JEijc4g@mail.gmail.com> <CAKF84v1R4xs3HKH8v-SnBrZ2eEVim2W9OPD+BWPQchpfVJTHXQ@mail.gmail.com>
-In-Reply-To: <CAKF84v1R4xs3HKH8v-SnBrZ2eEVim2W9OPD+BWPQchpfVJTHXQ@mail.gmail.com>
-From:   Siarhei Vishniakou <svv@google.com>
-Date:   Mon, 11 May 2020 11:09:35 -0700
-Message-ID: <CAKF84v3+qPu2pRgqmBOKNJqbkqKjJ8ihZXaK5JnNdu9Tn77EuA@mail.gmail.com>
-Subject: Re: behaviour change for keyboards introduced by "HID: generic:
- create one input report per application type"
-To:     Garfield Tan <xutan@google.com>,
-        linux-input <linux-input@vger.kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200511140505.1649111-5-kamel.bouhara@bootlin.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Bumping this back up, it would be awesome to receive a response on this.
+On Mon, 11 May 2020 16:05:04 +0200, Kamel Bouhara wrote:
+> Describe the devicetree binding for the Microchip TCB module.
+> Each counter blocks exposes three independent counters.
+> 
+> However, when configured in quadrature decoder, both channel <0> and <1>
+> are required for speed/position and rotation capture (yet only the
+> position is captured).
+> 
+> Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+> ---
+>  .../soc/microchip/atmel,at91rm9200-tcb.yaml   | 29 +++++++++++++++++--
+>  1 file changed, 26 insertions(+), 3 deletions(-)
+> 
 
-On Tue, Apr 21, 2020 at 2:37 PM Siarhei Vishniakou <svv@google.com> wrote:
->
-> Bringing this back.
->
-> Any thoughts on this Jiri and Benjamin?
->
-> On Wed, Apr 8, 2020 at 9:45 AM Siarhei Vishniakou <svv@google.com> wrote:
-> >
-> > Hi Benjamin and Jiri,
-> >
-> > Could you provide your thoughts on this?
-> >
-> > On Wed, Apr 1, 2020 at 1:02 PM Siarhei Vishniakou <svv@google.com> wrot=
-e:
-> > >
-> > > Hello linux-input,
-> > >
-> > > We have noticed a recent behavior change introduced by the commit:
-> > > https://github.com/torvalds/linux/commit/f07b3c1da92db108662f99417a21=
-2fc1eddc44d1
-> > > HID: generic: create one input report per application type.
-> > >
-> > > We have been looking into the behaviour of the Microsoft Designer
-> > > keyboard. Prior to these patches, the keyboard would report as a
-> > > single input_device to the user space. After these patches, the
-> > > keyboard is now split into 2 input devices: =E2=80=9CDesigner Keyboar=
-d
-> > > Consumer Control=E2=80=9D and =E2=80=9C"Designer Keyboard Keyboard". =
-We noticed that
-> > > this behavior also applies to the keyboard Dell KB216. In the Dell
-> > > case, it is split into 3 devices, which include =E2=80=9CConsumer Con=
-trol=E2=80=9D
-> > > (for some of the media keys) and =E2=80=9CSystem Control=E2=80=9D (fo=
-r the sleep
-> > > button).
-> > >
-> > > In both Microsoft and Dell cases, these are pretty standard keyboards=
-,
-> > > although they do contain media keys and power/sleep keys.
-> > >
-> > > Could you please confirm that this new behaviour is indeed
-> > > intentional, and that you wanted keyboards to be split in this
-> > > fashion?
-> > >
-> > > Thanks,
-> > > Siarhei
+
+My bot found errors running 'make dt_binding_check' on your patch:
+
+Traceback (most recent call last):
+  File "/usr/local/bin/dt-doc-validate", line 64, in <module>
+    ret = check_doc(args.yamldt)
+  File "/usr/local/bin/dt-doc-validate", line 25, in check_doc
+    testtree = dtschema.load(filename, line_number=line_number, duplicate_keys=False)
+  File "/usr/local/lib/python3.6/dist-packages/dtschema/lib.py", line 592, in load
+    return yaml.load(f.read())
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/main.py", line 343, in load
+    return constructor.get_single_data()
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 113, in get_single_data
+    return self.construct_document(node)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 123, in construct_document
+    for _dummy in generator:
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 723, in construct_yaml_map
+    value = self.construct_mapping(node)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 440, in construct_mapping
+    return BaseConstructor.construct_mapping(self, node, deep=deep)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 257, in construct_mapping
+    if self.check_mapping_key(node, key_node, mapping, key, value):
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 295, in check_mapping_key
+    raise DuplicateKeyError(*args)
+ruamel.yaml.constructor.DuplicateKeyError: while constructing a mapping
+  in "<unicode string>", line 4, column 1
+found duplicate key "examples" with value "[]" (original value: "[]")
+  in "<unicode string>", line 157, column 1
+
+To suppress this check see:
+    http://yaml.readthedocs.io/en/latest/api.html#duplicate-keys
+
+Duplicate keys will become an error in future releases, and are errors
+by default when using the new API.
+
+Documentation/devicetree/bindings/Makefile:12: recipe for target 'Documentation/devicetree/bindings/soc/microchip/atmel,at91rm9200-tcb.example.dts' failed
+make[1]: *** [Documentation/devicetree/bindings/soc/microchip/atmel,at91rm9200-tcb.example.dts] Error 1
+make[1]: *** Waiting for unfinished jobs....
+Traceback (most recent call last):
+  File "/usr/local/bin/dt-mk-schema", line 34, in <module>
+    schemas = dtschema.process_schemas(args.schemas, core_schema=(not args.useronly))
+  File "/usr/local/lib/python3.6/dist-packages/dtschema/lib.py", line 554, in process_schemas
+    sch = process_schema(os.path.abspath(filename))
+  File "/usr/local/lib/python3.6/dist-packages/dtschema/lib.py", line 507, in process_schema
+    schema = load_schema(filename)
+  File "/usr/local/lib/python3.6/dist-packages/dtschema/lib.py", line 123, in load_schema
+    return do_load(os.path.join(schema_basedir, schema))
+  File "/usr/local/lib/python3.6/dist-packages/dtschema/lib.py", line 108, in do_load
+    return yaml.load(tmp)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/main.py", line 343, in load
+    return constructor.get_single_data()
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 113, in get_single_data
+    return self.construct_document(node)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 123, in construct_document
+    for _dummy in generator:
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 723, in construct_yaml_map
+    value = self.construct_mapping(node)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 440, in construct_mapping
+    return BaseConstructor.construct_mapping(self, node, deep=deep)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 257, in construct_mapping
+    if self.check_mapping_key(node, key_node, mapping, key, value):
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 295, in check_mapping_key
+    raise DuplicateKeyError(*args)
+ruamel.yaml.constructor.DuplicateKeyError: while constructing a mapping
+  in "<unicode string>", line 4, column 1
+found duplicate key "examples" with value "[]" (original value: "[]")
+  in "<unicode string>", line 157, column 1
+
+To suppress this check see:
+    http://yaml.readthedocs.io/en/latest/api.html#duplicate-keys
+
+Duplicate keys will become an error in future releases, and are errors
+by default when using the new API.
+
+Traceback (most recent call last):
+  File "/usr/local/bin/dt-mk-schema", line 34, in <module>
+    schemas = dtschema.process_schemas(args.schemas, core_schema=(not args.useronly))
+  File "/usr/local/lib/python3.6/dist-packages/dtschema/lib.py", line 554, in process_schemas
+    sch = process_schema(os.path.abspath(filename))
+  File "/usr/local/lib/python3.6/dist-packages/dtschema/lib.py", line 507, in process_schema
+    schema = load_schema(filename)
+  File "/usr/local/lib/python3.6/dist-packages/dtschema/lib.py", line 123, in load_schema
+    return do_load(os.path.join(schema_basedir, schema))
+  File "/usr/local/lib/python3.6/dist-packages/dtschema/lib.py", line 108, in do_load
+    return yaml.load(tmp)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/main.py", line 343, in load
+    return constructor.get_single_data()
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 113, in get_single_data
+    return self.construct_document(node)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 123, in construct_document
+    for _dummy in generator:
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 723, in construct_yaml_map
+    value = self.construct_mapping(node)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 440, in construct_mapping
+    return BaseConstructor.construct_mapping(self, node, deep=deep)
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 257, in construct_mapping
+    if self.check_mapping_key(node, key_node, mapping, key, value):
+  File "/usr/local/lib/python3.6/dist-packages/ruamel/yaml/constructor.py", line 295, in check_mapping_key
+    raise DuplicateKeyError(*args)
+ruamel.yaml.constructor.DuplicateKeyError: while constructing a mapping
+  in "<unicode string>", line 4, column 1
+found duplicate key "examples" with value "[]" (original value: "[]")
+  in "<unicode string>", line 157, column 1
+
+To suppress this check see:
+    http://yaml.readthedocs.io/en/latest/api.html#duplicate-keys
+
+Duplicate keys will become an error in future releases, and are errors
+by default when using the new API.
+
+Documentation/devicetree/bindings/Makefile:41: recipe for target 'Documentation/devicetree/bindings/processed-schema-examples.yaml' failed
+make[1]: *** [Documentation/devicetree/bindings/processed-schema-examples.yaml] Error 123
+make[1]: *** Deleting file 'Documentation/devicetree/bindings/processed-schema-examples.yaml'
+Documentation/devicetree/bindings/Makefile:45: recipe for target 'Documentation/devicetree/bindings/processed-schema.yaml' failed
+make[1]: *** [Documentation/devicetree/bindings/processed-schema.yaml] Error 123
+make[1]: *** Deleting file 'Documentation/devicetree/bindings/processed-schema.yaml'
+Makefile:1300: recipe for target 'dt_binding_check' failed
+make: *** [dt_binding_check] Error 2
+
+See https://patchwork.ozlabs.org/patch/1287813
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure dt-schema is up to date:
+
+pip3 install git+https://github.com/devicetree-org/dt-schema.git@master --upgrade
+
+Please check and re-submit.
+

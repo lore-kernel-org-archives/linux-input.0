@@ -2,100 +2,115 @@ Return-Path: <SRS0=3AEP=62=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17042C2D0F7
-	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 20:51:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F9E3C2D0F7
+	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 20:54:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E86D920747
-	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 20:51:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F9EA20769
+	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 20:54:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dL2pYMsP"
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="x+9/A1Od";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="kepMPCCF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729029AbgELUvN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 May 2020 16:51:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41080 "EHLO
+        id S1727971AbgELUyz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 May 2020 16:54:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726661AbgELUvN (ORCPT
+        by vger.kernel.org with ESMTP id S1725938AbgELUyz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 May 2020 16:51:13 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF3CC061A0C;
-        Tue, 12 May 2020 13:51:13 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id u22so5905137plq.12;
-        Tue, 12 May 2020 13:51:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=oJng9dQJuQxPUtpR8DFqp83AWfODJEvg6OPBy2AJ0nA=;
-        b=dL2pYMsPCc2MhtRZyYEyonwcNSw+sbEft1mYQa086fd50ke6L9zDiJCGyyc9/PEqr5
-         FNTFry6mlEl+8LtK8THWFzgyEfQyJbKEomPx+g6UkvZwySQWdhLJ4KjU0Aem1GaiTFKV
-         V8JaKkKvApXbsniXVSTYzNIWLleljHs1z/VhIgp4Yzs+xka5OvuqA4gzCjt9ACTuCO6O
-         frzjMUov1/+kzPO/BxCd3FdVGfEAt6AbATNf/z8+N9NC4/++jpHZj/Sl6lEXr5JpJBia
-         SGJwbHXKR2KkLUDp69w232U960qHKD4w3HOdVt3P9UTNfngIqkcpDv5TGSrmrGkwlP9M
-         /IIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=oJng9dQJuQxPUtpR8DFqp83AWfODJEvg6OPBy2AJ0nA=;
-        b=MFGGTbrpBBSM4AkGEShvc88i073W0whdjcZmlofTVoqJtqQDIyZurBcDDRaF21XPEg
-         hax+elh9pib1KeIvfTRRFYsdaSwMZd2DYW9Tz+ptHJj1HogwAIr6OQhMI4l8ADVb7lDe
-         kJCm+GNZK31cdUFxXikAYPRx/tR+a4WD1ibvxNB+0zjnkue4LZvlEjzrVlGhGVZU0YV4
-         CbXpo1OgEZQ+dQvzg8VAAe0sm0nt2iCRwwAdw+juCf4IEDDxA5BsEPer1rWT7TRyBzrx
-         mt4Mbhu5KoMrpqDoonaxa/YHVQ+ubeU1LdmrXC+2379HBEBSfkcCDBbi4sl8xrc5GUaH
-         cq3A==
-X-Gm-Message-State: AGi0PuZ7wYcky9PUhR5jUED9BCoTBoQil9YscqP6+ZX+5NAIhFzc2P57
-        Cva312UPaO+38NHmNMv+sT9ILVVLhmLfJfQobYI=
-X-Google-Smtp-Source: APiQypKTeq1lB68VGWX4c5tYalRqzHPQM+TCExiYM+jApVYuNBs5tNJAXHSLc/i9/YwYfcEJftUgDWtOlWxQ/EqLwvI=
-X-Received: by 2002:a17:90b:374f:: with SMTP id ne15mr30222698pjb.181.1589316672701;
- Tue, 12 May 2020 13:51:12 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200512204009.4751-1-bernhardu@mailbox.org> <2656984b-3eec-c6d0-f992-8f1f8973fe3e@redhat.com>
-In-Reply-To: <2656984b-3eec-c6d0-f992-8f1f8973fe3e@redhat.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Tue, 12 May 2020 23:51:01 +0300
-Message-ID: <CAHp75Vfk+MU+XsPf4+upqzd7HyxBHgQBZ=BukUPxzd+8Bm9bOQ@mail.gmail.com>
-Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add info for the Trekstor
- Yourbook C11B
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     =?UTF-8?Q?Bernhard_=C3=9Cbelacker?= <bernhardu@mailbox.org>,
+        Tue, 12 May 2020 16:54:55 -0400
+X-Greylist: delayed 822 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 12 May 2020 13:54:55 PDT
+Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [IPv6:2001:67c:2050::465:201])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F7FC061A0C;
+        Tue, 12 May 2020 13:54:55 -0700 (PDT)
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
+        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
+        (No client certificate requested)
+        by mout-p-201.mailbox.org (Postfix) with ESMTPS id 49M8pb1h0QzQlJh;
+        Tue, 12 May 2020 22:41:11 +0200 (CEST)
+Authentication-Results: spamfilter02.heinlein-hosting.de (amavisd-new);
+        dkim=pass (2048-bit key) reason="pass (just generated, assumed good)"
+        header.d=mailbox.org
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+        t=1589316069;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=MHE5HDYUp4ziY4D8HlKdrvvV3+WoPULvfdhF5zVXVow=;
+        b=x+9/A1OdczhM/9J4mozc0t4zDAnMYC7w7Wy7n/vgpr9Ko3TnZGe26KcVhCDqVgynRnL48m
+        QlMlcr06l09187DMD8yfeT0ihABTolD9w9MajIeQhmOjKpTK/LpcXDC5r+j0Rpx3/IRg9v
+        55RxYBwjIszNsoF6qkcUlEc4xcu96dIIEt2uyH/lO4aa4z4b6jep+j87dfXZxQQbVTw+EL
+        9nf/Jf/5ooR3wrk/zzU/TBw+3gjl3ILdBD1BfdL7dr78aap4LqwAKfYX4WMsWJIbgZythV
+        azLqSF3mCaqrpTpIQ3RuuP0tEKaMqBK8hPmGKgS+VEbD6g6oiQxe1rFF38Il5w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mailbox.org; h=
+        content-transfer-encoding:content-type:content-type:mime-version
+        :message-id:date:date:subject:subject:from:from:received; s=
+        mail20150812; t=1589316068; bh=18gqh2bI5mRZ87cfRXk7+SQH6lRaU/Zej
+        e9HRPdkQ9E=; b=kepMPCCFDjoGSM0iJT622cLcScB2XDeCJqOLjllrJmV+P1pXQ
+        5BexN9QyP9WLbVOiQLDiuTr53VPQZHip0pgrCj7XD0zls4HnKaqq8y4rIPZz/Az+
+        DNdT/kF7Yd4+tclo4Yu4IQsi/EYB6FgZSgO/w7x24BoEUbj2ZehbnSdGdvDaUZVS
+        Jhcfr0nP2z7A2OFe0ofEJH5jYYmKEc0D+nr4RLYljZDjbC2aremYmsPC2VC2Qqki
+        VMAbumMJOOl8bolElT6ZcAwD0L8WmqLJkiWTQBfY1538qk3tGHg+EyPSYYOvOw8N
+        05iYCoxuD6pcPaoZRcs9bNOJOFAt4wikcYPGg==
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp1.mailbox.org ([80.241.60.240])
+        by spamfilter02.heinlein-hosting.de (spamfilter02.heinlein-hosting.de [80.241.56.116]) (amavisd-new, port 10030)
+        with ESMTP id g1Avzd_OYPJZ; Tue, 12 May 2020 22:41:08 +0200 (CEST)
+From:   =?UTF-8?q?Bernhard=20=C3=9Cbelacker?= <bernhardu@mailbox.org>
+To:     Hans de Goede <hdegoede@redhat.com>,
         Darren Hart <dvhart@infradead.org>,
         Andy Shevchenko <andy@infradead.org>,
-        linux-input <linux-input@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     =?UTF-8?q?Bernhard=20=C3=9Cbelacker?= <bernhardu@mailbox.org>,
         Otmar Meier <otmarjun.meier@nexgo.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: [PATCH] platform/x86: touchscreen_dmi: Add info for the Trekstor Yourbook C11B
+Date:   Tue, 12 May 2020 22:40:09 +0200
+Message-Id: <20200512204009.4751-1-bernhardu@mailbox.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 28EC51807
+X-Rspamd-Score: -4.38 / 15.00 / 15.00
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, May 12, 2020 at 11:44 PM Hans de Goede <hdegoede@redhat.com> wrote:
->
-> Hi,
->
-> On 5/12/20 10:40 PM, Bernhard =C3=9Cbelacker wrote:
-> > Add touchscreen info for the Trekstor Yourbook C11B. It seems to
-> > use the same touchscreen as the Primebook C11, so we only add a new DMI
-> > match.
-> >
-> > Cc: Otmar Meier <otmarjun.meier@nexgo.de>
-> > Reported-and-tested-by: Otmar Meier <otmarjun.meier@nexgo.de>
-> > Signed-off-by: Bernhard =C3=9Cbelacker <bernhardu@mailbox.org>
->
-> Thank you, patch looks good to me:
->
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Add touchscreen info for the Trekstor Yourbook C11B. It seems to
+use the same touchscreen as the Primebook C11, so we only add a new DMI
+match.
 
-I don't see it neither in our patchwork nor in Linux Input...
+Cc: Otmar Meier <otmarjun.meier@nexgo.de>
+Reported-and-tested-by: Otmar Meier <otmarjun.meier@nexgo.de>
+Signed-off-by: Bernhard Übelacker <bernhardu@mailbox.org>
+---
+ drivers/platform/x86/touchscreen_dmi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---=20
-With Best Regards,
-Andy Shevchenko
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 6ec8923dec1a..d87315892458 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -1106,6 +1106,14 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BIOS_VERSION, "TREK.G.WI71C.JGBMRBA05"),
+ 		},
+ 	},
++	{
++		/* Trekstor Yourbook C11B (same touchscreen as the Primebook C11) */
++		.driver_data = (void *)&trekstor_primebook_c11_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "YOURBOOK C11B"),
++		},
++	},
+ 	{
+ 		/* Yours Y8W81, same case and touchscreen as Chuwi Vi8 */
+ 		.driver_data = (void *)&chuwi_vi8_data,
+-- 
+2.20.1
+

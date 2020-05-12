@@ -2,241 +2,132 @@ Return-Path: <SRS0=3AEP=62=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACFC3C2D0F7
-	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 19:55:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BBD1C2D0F7
+	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 20:44:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F280206DD
-	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 19:55:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7006F20753
+	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 20:44:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KBPAojCI"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I3PIfKfB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725987AbgELTzK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 May 2020 15:55:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60590 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725950AbgELTzJ (ORCPT
+        id S1729029AbgELUo1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 May 2020 16:44:27 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:34437 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725950AbgELUo1 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 May 2020 15:55:09 -0400
-Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9855BC061A0C
-        for <linux-input@vger.kernel.org>; Tue, 12 May 2020 12:55:09 -0700 (PDT)
-Received: by mail-il1-x135.google.com with SMTP id r2so13669971ilo.6
-        for <linux-input@vger.kernel.org>; Tue, 12 May 2020 12:55:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xB6wHTqK2YXlIkZIpmhCDLStgZfFf4+wljPIomo9G7g=;
-        b=KBPAojCIKrMlR/3NpSdk+HA6c2PwJc5XM+RV/f0sHiibBRVEAAGvJNrUT7LuNI504F
-         u1rH24DMuwOcnGPtOkcVGW148feu4DTg5ZM0WgXX8JH3s86Q7O7/PAqjusDusRTtzt8y
-         74hqBXLbnE12i3qZvJlA/bMPJ4BWe/jmJbbhMWx0jC0GMMunFjebvEYfXyJ3B1jVcxcZ
-         HddBpiwBsTEj+M+iXOaDv1M6Ts5ZB/dT1RHTLCWlhK7GWJVV10rH5MiCraoulUkzH5K2
-         11/xwqecNXy1K547vSNO9Qcer5XbkQglu2AB74iiDds6+xW31W0np1ezsBaHosxKGO6h
-         71DQ==
+        Tue, 12 May 2020 16:44:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589316266;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JWD5Dd3qdnd3hR0WoRTP9cJneb70+5LZUFK7dC5hbdk=;
+        b=I3PIfKfBYJV1Mp+mh2vZD1oq8jiSM+7hxGkzosDHN17qAJAw28HSLw/of6w15hqj+gfkSN
+        +mOJyjLrxiqefHkSm+73usD9DnstHqyefwb41LbTj4mF71TrP/gex7x+UP8vasKJksSrwR
+        1QpzHMyhoEfykuBo73/IzG4K1w8FogI=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-261-9GB0dlxANIyTbnRjSPM1aw-1; Tue, 12 May 2020 16:44:24 -0400
+X-MC-Unique: 9GB0dlxANIyTbnRjSPM1aw-1
+Received: by mail-wm1-f71.google.com with SMTP id g10so3573024wme.0
+        for <linux-input@vger.kernel.org>; Tue, 12 May 2020 13:44:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xB6wHTqK2YXlIkZIpmhCDLStgZfFf4+wljPIomo9G7g=;
-        b=Et7QYbiIy+4bPUqbMhmYBXY9d8QYiLD1z1iRDtz+TaDtao4VYA8lwunLifK/m0gh2Y
-         bq4PRNZ5rfiPy1gcZA/VU7y3UNNe4IJPBUXJDnOio9Z4gBC0JhiPnXuA06ulA0SU3Y9f
-         LplUBcqL+mhuCmmbcZdTfWVbWaIzgFedAqHjm0sVDl8hNAH87Ob7j52LLm6r4G0FgUAS
-         Oi42//x+VRuJxXhqK9S9fKVdZHa9Nh/VRFEfPIx0JurCe4TAQWg75aWke08OIBaWVSbw
-         RMTJcmcK8vXORRbO2+lR8Cd09rEuytaqVjOU2w6jTbIZthyZLO1SF32kZyzff6Ri/Eh7
-         sbmg==
-X-Gm-Message-State: AGi0PuZG12LVoR+94ZAQ1f+d0rx/99JpoPKPIm91Gx7xerX121t//dmv
-        34Ei00rzRfWXnW8dqXwLchCgUoA8OSh9N7Y7w0A=
-X-Google-Smtp-Source: APiQypLA2sTL6YjpzDiOHQ8zqpEFsEMZjXGrhcBb72yQdaDc6ye43dDIXRb6Tz+kppGVoEAOUt523wPsCvcVVCaGtxo=
-X-Received: by 2002:a92:485c:: with SMTP id v89mr10138035ila.122.1589313308782;
- Tue, 12 May 2020 12:55:08 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=JWD5Dd3qdnd3hR0WoRTP9cJneb70+5LZUFK7dC5hbdk=;
+        b=cCqAcXvHt6Rtlup3IneVXiSizAvxFo2lEmobIhffQ9UFUc0dZ2bf/sHfQNG4peurht
+         oId6p6N3iuB11IjzbfxNdpODy8XeD0zO8gBDxeYv6G+4IVLol5Pn1TLWSdxWEuFf6RFv
+         YWMLAulW3vvS8waZM9qEFGxX68VYfPgkem74clJH8i5Wq5tNKubtJigfQwOrbWpmohDw
+         jl7pnIL+KsSZDVVjYg9YAXURAxi4EHUaLxCRYKVFXo7VN5V5dMu9CAU/Ex5tXpKnPFxg
+         +1yoxaHE/3K944EhX/tRWj/ehTMj0TB6Fr+zF8a5EwKAuXNhWqUdI1R2nzPu5CUcFZKD
+         NHLw==
+X-Gm-Message-State: AGi0PuZYDWrzcau885eYCm2B+5DmNYzcmvGWWaTl3460Gh1et1WEKnTB
+        ePUQRcVsdGzNgrTCjm7uY5htAa1A+rjwVd4i1dY53qz8wq6aojN1aoNGpkgOG+nNzbHazEsoCvo
+        2zd5BFUnds4scdc2U4K4OVbQ=
+X-Received: by 2002:a7b:c253:: with SMTP id b19mr18692131wmj.110.1589316263214;
+        Tue, 12 May 2020 13:44:23 -0700 (PDT)
+X-Google-Smtp-Source: APiQypLwik42iK8SvRPpjsRnKaBPvW26zAqILZ1Qo1F56XTIXKAVuSXkOjKmVqcugNiWhHKZ2KxiqQ==
+X-Received: by 2002:a7b:c253:: with SMTP id b19mr18692056wmj.110.1589316262043;
+        Tue, 12 May 2020 13:44:22 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id w10sm25328869wrg.52.2020.05.12.13.44.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 May 2020 13:44:21 -0700 (PDT)
+Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add info for the Trekstor
+ Yourbook C11B
+To:     =?UTF-8?Q?Bernhard_=c3=9cbelacker?= <bernhardu@mailbox.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Otmar Meier <otmarjun.meier@nexgo.de>
+References: <20200512204009.4751-1-bernhardu@mailbox.org>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <2656984b-3eec-c6d0-f992-8f1f8973fe3e@redhat.com>
+Date:   Tue, 12 May 2020 22:44:20 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-References: <CAEwx+QrfLk4SR=yn4Df3rD_Lm0Xht1hgAi4szmOTU1nkFhMwhw@mail.gmail.com>
- <20200511201118.GW89269@dtor-ws> <20200512051925.GA48688@koala>
-In-Reply-To: <20200512051925.GA48688@koala>
-From:   Yariv <oigevald+kernel@gmail.com>
-Date:   Tue, 12 May 2020 22:54:32 +0300
-Message-ID: <CAEwx+QpN7c4i4qRfaVAP6yPFoydQ+W_0DOsv-NfgwU8Zb1BVZQ@mail.gmail.com>
-Subject: Re: PROBLEM: Apple external Trackpad event timestamps are jittery (regression)
-To:     Peter Hutterer <peter.hutterer@who-t.net>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200512204009.4751-1-bernhardu@mailbox.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Thanks for following up!
+Hi,
 
-I took Peter's advice and used 'libinput recrod' to get some logs.
+On 5/12/20 10:40 PM, Bernhard Übelacker wrote:
+> Add touchscreen info for the Trekstor Yourbook C11B. It seems to
+> use the same touchscreen as the Primebook C11, so we only add a new DMI
+> match.
+> 
+> Cc: Otmar Meier <otmarjun.meier@nexgo.de>
+> Reported-and-tested-by: Otmar Meier <otmarjun.meier@nexgo.de>
+> Signed-off-by: Bernhard Übelacker <bernhardu@mailbox.org>
 
-I tested both a 1st gen as well as a 2nd gen Apple external trackpads.
-While the 1st gen is Bluetooth-only, the 2nd gen can be connected over
-both Bluetooth and USB.
+Thank you, patch looks good to me:
 
-The 2nd gen external trackpad had no jitter, regardless if used over
-Bluetooth or USB.
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-Following is a snippet of a 1st gen touchpad, showing only SYN_REPORT
-lines for brevity.
-This was taken on a kernel with the regression:
+Regards,
 
-    - [  7, 526745,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  7, 537376,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  7, 540141,   0,   0,       1] # ------------ SYN_REPORT (1)
----------- +3ms
-    - [  7, 540141,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +0ms
-    - [  7, 560065,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +20ms
-    - [  7, 571556,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  7, 580125,   0,   0,       1] # ------------ SYN_REPORT (1)
----------- +9ms
-    - [  7, 580125,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +0ms
-    - [  7, 594466,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +14ms
-    - [  7, 604987,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +10ms
-    - [  7, 616458,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +12ms
-    - [  7, 624124,   0,   0,       1] # ------------ SYN_REPORT (1)
----------- +8ms
-    - [  7, 624124,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +0ms
-    - [  7, 639259,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +15ms
-    - [  7, 650772,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  7, 660130,   0,   0,       1] # ------------ SYN_REPORT (1)
----------- +10ms
-    - [  7, 660130,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +0ms
+Hans
 
-Now a snippet of the 2nd gen trackpad, over Bluetooth, same kernel:
 
-    - [  9, 584965,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  9, 595860,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  9, 607147,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +12ms
-    - [  9, 618610,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  9, 630279,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +12ms
-    - [  9, 641047,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  9, 652429,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  9, 664148,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +12ms
-    - [  9, 674600,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +10ms
-    - [  9, 686040,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +12ms
-    - [  9, 697808,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  9, 709277,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +12ms
-    - [  9, 719649,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +10ms
+> ---
+>   drivers/platform/x86/touchscreen_dmi.c | 8 ++++++++
+>   1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+> index 6ec8923dec1a..d87315892458 100644
+> --- a/drivers/platform/x86/touchscreen_dmi.c
+> +++ b/drivers/platform/x86/touchscreen_dmi.c
+> @@ -1106,6 +1106,14 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+>   			DMI_MATCH(DMI_BIOS_VERSION, "TREK.G.WI71C.JGBMRBA05"),
+>   		},
+>   	},
+> +	{
+> +		/* Trekstor Yourbook C11B (same touchscreen as the Primebook C11) */
+> +		.driver_data = (void *)&trekstor_primebook_c11_data,
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "YOURBOOK C11B"),
+> +		},
+> +	},
+>   	{
+>   		/* Yours Y8W81, same case and touchscreen as Chuwi Vi8 */
+>   		.driver_data = (void *)&chuwi_vi8_data,
+> 
 
-I'm entirely clueless with regard to the input device protocols,
-however it is apparent that the 2nd gen trackpad has only SYN_REPORT
-(0) in its log, while the 1st gen has both SYN_REPORT (0) and
-SYN_REPORT (1).
-
-Last is a snippet of the 1st gen, this time on a kernel with my hack -
-so should behave as before the regression:
-
-    - [  6, 243965,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  6, 254576,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  6, 257637,   0,   0,       1] # ------------ SYN_REPORT (1)
----------- +3ms
-    - [  6, 265675,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +8ms
-    - [  6, 277512,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +12ms
-    - [  6, 288059,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  6, 297642,   0,   0,       1] # ------------ SYN_REPORT (1)
----------- +9ms
-    - [  6, 299646,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +2ms
-    - [  6, 310849,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  6, 322000,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +12ms
-    - [  6, 333265,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +11ms
-    - [  6, 337681,   0,   0,       1] # ------------ SYN_REPORT (1)
----------- +4ms
-    - [  6, 344588,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +7ms
-    - [  6, 356921,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +12ms
-    - [  6, 366979,   0,   0,       0] # ------------ SYN_REPORT (0)
----------- +10ms
-
-Here it seems that if we add the delta from each SYN_REPORT (1) to the
-delta of the following SYN_REPORT (0) we get sane timestamps.
-
-I also tested a USB mouse, and the timestamps were Ok.
-So to summarize my limited finding, only the 1st gen Apple external
-touchpad seems to be affected.
-
-Entire logs:
-
-https://drive.google.com/open?id=1nUNf2uOQPvFw_kE8h4mZB0c80kj3hu4F
-Gen1, after regression
-https://drive.google.com/open?id=1pr508bqeax1Csle2HQuLcuXwinWksdjo
-Gen2, after regression
-https://drive.google.com/open?id=1W0XekSNyf1i-Um-VqxDJuMmJoWAGXIG5
-Gen1, before regression
-
-Please let me know if I there is anything else I can do to help.
-
-Best regards,
-Yariv
-
-On Tue, May 12, 2020 at 8:19 AM Peter Hutterer <peter.hutterer@who-t.net> wrote:
->
-> On Mon, May 11, 2020 at 01:11:18PM -0700, Dmitry Torokhov wrote:
-> > Hi,
-> >
-> > On Mon, May 11, 2020 at 09:18:15AM +0300, Yariv wrote:
-> > > Using a vanilla installation of Ubuntu 20.04 (kernel v5.4), the
-> > > timestamps of input events from my Apple "Magic Trackpad" - 1st
-> > > generation, connected over Bluetooth - are jittery.
-> > > This is a kernel regression. I bisected the bug.
-> >
-> > Do you see the same jitter when connected over USB? Can you also see if
-> > there is similar jitter when you parse timestamps of SYN_RPEORT events
-> > from "evtest"?
-> >
-> > Could you post a sample of events generated by device (via evtest)?
->
-> unrelated, but I really recommend using 'libinput record' these days since
-> it can be replayed (libinput replay) or analysed easier (it's YAML).
-> Also, it prints delta times into the recording so you can immediately check
-> those without having to parse them, e.g.:
->
->   - evdev:
->     - [  0, 375974,   2,   0,       5] # EV_REL / REL_X                     5
->     - [  0, 375974,   2,   1,      -2] # EV_REL / REL_Y                    -2
->     - [  0, 375974,   0,   0,       0] # ------------ SYN_REPORT (0) ---------- +8ms
->
-> Cheers,
->    Peter
->

@@ -8,66 +8,66 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE210C54E4B
-	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 08:44:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95BC2C54E8B
+	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 08:44:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86EE120714
-	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 08:44:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 757222078E
+	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 08:44:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K+C/czIt"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eezuuE0g"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725868AbgELIod (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 May 2020 04:44:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40302 "EHLO
+        id S1729152AbgELIoe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 May 2020 04:44:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728990AbgELIoc (ORCPT
+        by vger.kernel.org with ESMTP id S1729081AbgELIod (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 May 2020 04:44:32 -0400
-Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA2FC061A0C
-        for <linux-input@vger.kernel.org>; Tue, 12 May 2020 01:44:31 -0700 (PDT)
-Received: by mail-qk1-x741.google.com with SMTP id b6so11648775qkh.11
-        for <linux-input@vger.kernel.org>; Tue, 12 May 2020 01:44:31 -0700 (PDT)
+        Tue, 12 May 2020 04:44:33 -0400
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BEF4C061A0C
+        for <linux-input@vger.kernel.org>; Tue, 12 May 2020 01:44:33 -0700 (PDT)
+Received: by mail-qt1-x842.google.com with SMTP id c24so3939603qtw.7
+        for <linux-input@vger.kernel.org>; Tue, 12 May 2020 01:44:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ZBg2JvBUuK9lhnmNPNdV7qJYa4iJD3u/t2MGwMiaIpA=;
-        b=K+C/czIteS41ccvjzXhfIzCqwcrnWoKXhBjyQv9WfnDoV7Ht1FXq1eeLowRajuYHWC
-         CEtpDhzpkHNexc+acU98HAPPRbwKD9uabvRwpK3AzzLu3EFT1Kc3XfarfnS+l9cTbHNg
-         I8gPbXNqWt9hyWphgGT+7j8kqaO7SmFBARWMr57lD11NNRSSZiGTQcHfCivgiH60Smn3
-         OLDarzr5yen8/c00d5IoM9KH6dWOjWfWUB0P4t2P7hYQpE2fBeMDxROYpSnEdCGon2le
-         n9IWqG3mqee2e3glkqzREKjQ6QUbnOuKFDuYFI3WWyJh+fb8fExE98Kw15yQAmxLeMDy
-         WnhA==
+        bh=1knqQDXtEJ5kXrNk6aN/d00f8DxBySu2hc2sGXn/2SA=;
+        b=eezuuE0g938wCvoqLUZSfnoEqlWoVorMH2TtHBb7hYUrff3WAZ+nBIS0ePKKpAhD0s
+         uLwxVXvfh+5qAC49bJG2HgViR0e14H1LxYy+hyqtNXhb2SnUl9dQ1bmkNZA8f5NF3QS9
+         CYRiLW/923xntNOAOA5fP4MI8cekAJiiLRG3iZJluURJ1eyJhKAntJ/L3YRu3s2iPx1j
+         5i974Z0+frRTCz1qrPWleCZgQrerDvWwrUCL7hPYz1WgmIucO2CHu1yN8fi2fuMbCBIi
+         FvB7ppzw3cCiH5sqFef+cRoFPthOabxFP7sl92Z0FoISefAfeoSM2AeY8FKCZ6VXLSZa
+         uAhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ZBg2JvBUuK9lhnmNPNdV7qJYa4iJD3u/t2MGwMiaIpA=;
-        b=Th3H4inYbD2KRtZUIHxhp7Y7Duj0d19UN9gpOyTt31ldxQQyI1rPINDbGKJ/DeVpDS
-         nnxdhhUsHqsO7HKk0Y+fnkB00thWXpXjeqv0uJ74XosmR1AIypY6m5H/LUYJ5ZXCkIvk
-         vQw6uwaYhwgG0GTL1k3ALW0DWmADuyAgRtTfY0DNRc1ixejN1m9CPGRNgIQZeGxC+NpC
-         7cCjYzpB/7PwLqptOe8IKTTuZN8KqWb/CB1g/7ejLwXlByYw0yeIl4yymDKCgsrkY4Us
-         GWkBuwQL2uqKOvX40e9b8GRnaWSA10X0L9RHRMdWiC2GCzMXS9Gb0x20tqzZkPIAwHCD
-         48vw==
-X-Gm-Message-State: AGi0PuZhj9inP/TYqnQnJ+jcO2ylC7TeZr2qOmC1Y6Y+yNSqqM9UN16n
-        46RX+OGpD79+FUDu5GAx6YlNOF0fdDw=
-X-Google-Smtp-Source: APiQypIOJlb/p/QoNfzGc+rEoNz6EAyxkcu5AKKkC0lmTsHgVUmIvKAuMeB9NjXHlsoMRHTHqiYo/g==
-X-Received: by 2002:a37:b44:: with SMTP id 65mr21096063qkl.368.1589273070132;
-        Tue, 12 May 2020 01:44:30 -0700 (PDT)
+        bh=1knqQDXtEJ5kXrNk6aN/d00f8DxBySu2hc2sGXn/2SA=;
+        b=I8iCn4I72oGgWWtf7iAuYc47eIc6K4OJUz+BW2Co8kmpsXpsstcxYmJTtHjYGJdVBa
+         RVoiXm2YMOidwvBLz21qQV8kU+w6RYPIQrddEgmLtTurdhlZy4XpzP4MxJILKNCdArM7
+         mBx5Os4vs4Zq4TB4Wr4hWRiLkPU0DV6o19cSsjx6DELXR7u8KnuoJrfgfcZ27R4tBd+K
+         5yJvy730eyRfEbs/pDU4+BFi86TdKm9TrVD4kuxXta9jeL9ITCadQGZRf2RIeccfYzu7
+         6CJRN5RUNT2MniugqfluFFY6BG/D9mkP8n2ImwrcKPIqj4Vf/fGGDL0FuvVP+Hco5zSZ
+         LBkw==
+X-Gm-Message-State: AOAM5314cBfu3myhRz1LSIAwAk/Wg4UqbqQyFG1Xac8q2Q6/ZeHPYFjr
+        e7CELwtCcnpoWET9KSsQHqUkezgocak=
+X-Google-Smtp-Source: ABdhPJz3FVHsquEYOUWNUnpXu3kkuuk9Rr42S9sEXwhY/QeBNPtXS1mkr2zuaEZQ9ZPk9CMmMyQpkQ==
+X-Received: by 2002:ac8:1967:: with SMTP id g36mr2069744qtk.332.1589273072493;
+        Tue, 12 May 2020 01:44:32 -0700 (PDT)
 Received: from localhost ([2601:483:4200:9113:fdae:121b:56a3:4870])
-        by smtp.gmail.com with ESMTPSA id 74sm10658643qke.71.2020.05.12.01.44.29
+        by smtp.gmail.com with ESMTPSA id a124sm10766311qkf.93.2020.05.12.01.44.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2020 01:44:29 -0700 (PDT)
+        Tue, 12 May 2020 01:44:32 -0700 (PDT)
 From:   =?UTF-8?q?Fran=C3=A7ois-Xavier=20Carton?= <fx.carton91@gmail.com>
 To:     linux-input@vger.kernel.org
 Cc:     Ethan Lee <flibitijibibo@gmail.com>,
         Bastien Nocera <hadess@hadess.net>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 2/4] HID: gamecube-adapter: add rumble support
-Date:   Tue, 12 May 2020 10:46:14 +0200
-Message-Id: <20200512084616.32158-2-fx.carton91@gmail.com>
+Subject: [PATCH v2 4/4] HID: gamecube-adapter: restore input after suspend
+Date:   Tue, 12 May 2020 10:46:16 +0200
+Message-Id: <20200512084616.32158-4-fx.carton91@gmail.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200512084616.32158-1-fx.carton91@gmail.com>
 References: <20200512084616.32158-1-fx.carton91@gmail.com>
@@ -79,164 +79,42 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add rumble support for the hid-gamecube-adapter driver. Rumble is
-reported with a single output report for all four controllers.
+Send the init command after suspend, so that we get input reports again.
 
 Signed-off-by: François-Xavier Carton <fx.carton91@gmail.com>
 ---
- drivers/hid/Kconfig                |  8 ++++
- drivers/hid/hid-gamecube-adapter.c | 75 +++++++++++++++++++++++++++++-
- 2 files changed, 82 insertions(+), 1 deletion(-)
+ drivers/hid/hid-gamecube-adapter.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index d49e261a74f6..324981308783 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -360,6 +360,14 @@ config HID_GAMECUBE_ADAPTER
- 	To compile this driver as a module, choose M here: the
- 	module will be called hid-gamecube-adapter.
- 
-+config HID_GAMECUBE_ADAPTER_FF
-+	bool "Nintendo Gamecube Controller Adapter force feedback"
-+	depends on HID_GAMECUBE_ADAPTER
-+	select INPUT_FF_MEMLESS
-+	---help---
-+	Say Y here if you want to enable force feedback support for Nintendo
-+	Gamecube Controller Adapters.
-+
- config HID_GEMBIRD
- 	tristate "Gembird Joypad"
- 	depends on HID
 diff --git a/drivers/hid/hid-gamecube-adapter.c b/drivers/hid/hid-gamecube-adapter.c
-index b1268339889e..028ce005c9e3 100644
+index efcbd8f27b67..11d3e483f0c1 100644
 --- a/drivers/hid/hid-gamecube-adapter.c
 +++ b/drivers/hid/hid-gamecube-adapter.c
-@@ -20,7 +20,8 @@
- #include "usbhid/usbhid.h"
- 
- enum gamecube_output {
--	GC_CMD_INIT = 0x13
-+	GC_CMD_INIT = 0x13,
-+	GC_CMD_RUMBLE = 0x11
- };
- 
- enum gamecube_input {
-@@ -54,14 +55,18 @@ enum gamecube_btn {
- struct gamecube_ctrl {
- 	struct input_dev __rcu *input;
- 	enum gamecube_ctrl_flags flags;
-+	u8 rumble;
- 	struct gamecube_adapter *adpt;
- 	struct work_struct work_connect;
- 	spinlock_t flags_lock;
-+	spinlock_t rumble_lock;
- };
- 
- struct gamecube_adapter {
- 	struct gamecube_ctrl ctrls[4];
- 	struct hid_device *hdev;
-+	struct work_struct work_rumble;
-+	u8 rumble;
- };
- 
- static int gamecube_hid_send(struct hid_device *hdev, const u8 *data, size_t n)
-@@ -83,6 +88,59 @@ static int gamecube_send_cmd_init(struct hid_device *hdev)
- 	return gamecube_hid_send(hdev, initcmd, sizeof(initcmd));
+@@ -441,6 +441,14 @@ static int gamecube_hid_probe(struct hid_device *hdev,
+ 	return ret;
  }
  
-+#ifdef CONFIG_HID_GAMECUBE_ADAPTER_FF
-+static int gamecube_send_cmd_rumble(struct gamecube_adapter *adpt)
++#ifdef CONFIG_PM
++static int gamecube_resume(struct hid_device *hdev)
 +{
-+	struct gamecube_ctrl *ctrls = adpt->ctrls;
-+	u8 cmd[5] = {GC_CMD_RUMBLE};
-+	unsigned long flags;
-+	unsigned int i;
-+	int rumble_ok;
-+	u8 rumble = 0;
-+
-+	for (i = 0; i < 4; i++) {
-+		spin_lock_irqsave(&ctrls[i].flags_lock, flags);
-+		rumble_ok = (ctrls[i].flags & GC_TYPES) && (ctrls[i].flags & GC_FLAG_EXTRAPOWER);
-+		spin_unlock_irqrestore(&ctrls[i].flags_lock, flags);
-+		if (!rumble_ok)
-+			continue;
-+		spin_lock_irqsave(&ctrls[i].rumble_lock, flags);
-+		cmd[i + 1] = ctrls[i].rumble;
-+		rumble |= (ctrls[i].rumble & 1U) << i;
-+		spin_unlock_irqrestore(&ctrls[i].rumble_lock, flags);
-+	}
-+	if (rumble == adpt->rumble)
-+		return 0;
-+	adpt->rumble = rumble;
-+	return gamecube_hid_send(adpt->hdev, cmd, sizeof(cmd));
-+}
-+
-+static void gamecube_rumble_worker(struct work_struct *work)
-+{
-+	struct gamecube_adapter *adpt = container_of(work, struct gamecube_adapter,
-+						  work_rumble);
-+
-+	gamecube_send_cmd_rumble(adpt);
-+}
-+
-+static int gamecube_rumble_play(struct input_dev *dev, void *data,
-+							 struct ff_effect *eff)
-+{
-+	struct gamecube_ctrl *ctrl = input_get_drvdata(dev);
-+	struct gamecube_adapter *adpt = ctrl->adpt;
-+	unsigned long flags;
-+
-+	if (eff->type != FF_RUMBLE)
-+		return 0;
-+
-+	spin_lock_irqsave(&ctrl->rumble_lock, flags);
-+	ctrl->rumble = (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude);
-+	spin_unlock_irqrestore(&ctrl->rumble_lock, flags);
-+	schedule_work(&adpt->work_rumble);
++	gamecube_send_cmd_init(hdev);
 +	return 0;
 +}
 +#endif
 +
- static const unsigned int gamecube_buttons[] = {
- 	BTN_START, BTN_TR2, BTN_TR, BTN_TL,
- 	BTN_SOUTH, BTN_WEST, BTN_EAST, BTN_NORTH,
-@@ -134,6 +192,13 @@ static int gamecube_ctrl_create(struct gamecube_ctrl *ctrl, u8 type)
- 		input_set_capability(input, EV_KEY, gamecube_buttons[i]);
- 	for (i = 0; i < ARRAY_SIZE(gamecube_axes); i++)
- 		input_set_abs_params(input, gamecube_axes[i], 0, 255, 0, 0);
-+#ifdef CONFIG_HID_GAMECUBE_ADAPTER_FF
-+	if (type == GC_TYPE_NORMAL) {
-+		input_set_capability(input, EV_FF, FF_RUMBLE);
-+		if (input_ff_create_memless(input, NULL, gamecube_rumble_play))
-+			hid_warn(hdev, "failed to create ff memless\n");
-+	}
+ static void gamecube_hid_remove(struct hid_device *hdev)
+ {
+ 	struct gamecube_adapter *adpt = hid_get_drvdata(hdev);
+@@ -462,6 +470,9 @@ static struct hid_driver gamecube_hid_driver = {
+ 	.probe		= gamecube_hid_probe,
+ 	.remove		= gamecube_hid_remove,
+ 	.raw_event	= gamecube_hid_event,
++#ifdef CONFIG_PM
++	.reset_resume	= gamecube_resume,
 +#endif
+ };
+ module_hid_driver(gamecube_hid_driver);
  
- 	ret = input_register_device(input);
- 	if (ret)
-@@ -269,7 +334,12 @@ static struct gamecube_adapter *gamecube_adpt_create(struct hid_device *hdev)
- 		adpt->ctrls[i].adpt = adpt;
- 		INIT_WORK(&adpt->ctrls[i].work_connect, gamecube_work_connect_cb);
- 		spin_lock_init(&adpt->ctrls[i].flags_lock);
-+		spin_lock_init(&adpt->ctrls[i].rumble_lock);
- 	}
-+#ifdef CONFIG_HID_GAMECUBE_ADAPTER_FF
-+	INIT_WORK(&adpt->work_rumble, gamecube_rumble_worker);
-+	adpt->rumble = 0;
-+#endif
- 
- 	return adpt;
- }
-@@ -281,6 +351,9 @@ static void gamecube_adpt_destroy(struct gamecube_adapter *adpt)
- 	for (i = 0; i < 4; i++) {
- 		gamecube_ctrl_destroy(adpt->ctrls + i);
- 	}
-+#ifdef CONFIG_HID_GAMECUBE_ADAPTER_FF
-+	cancel_work_sync(&adpt->work_rumble);
-+#endif
- 	hid_hw_close(adpt->hdev);
- 	hid_hw_stop(adpt->hdev);
- 	kfree(adpt);
 -- 
 2.26.2
 

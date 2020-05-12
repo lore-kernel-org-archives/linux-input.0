@@ -2,147 +2,130 @@ Return-Path: <SRS0=3AEP=62=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BE71C54E4A
-	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 08:44:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B13ABC54E8E
+	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 09:07:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 55B2620714
-	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 08:44:37 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mDpnNCEn"
+	by mail.kernel.org (Postfix) with ESMTP id 9830220575
+	for <linux-input@archiver.kernel.org>; Tue, 12 May 2020 09:07:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729047AbgELIod (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 May 2020 04:44:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40308 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725868AbgELIoc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 May 2020 04:44:32 -0400
-Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35CC5C061A0E
-        for <linux-input@vger.kernel.org>; Tue, 12 May 2020 01:44:32 -0700 (PDT)
-Received: by mail-qv1-xf41.google.com with SMTP id a4so2734128qvj.3
-        for <linux-input@vger.kernel.org>; Tue, 12 May 2020 01:44:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=00WvLbTJMjzGOjQ1qyn39xJkeLMGMArXryJMzS4F5zY=;
-        b=mDpnNCEnntbLPPOqEyH++3/v5S5J8wunGMhsoJVsL22OejsGVS546FRlpJ/VplJ8L3
-         jQjf2ybkjHeL+fLuOENkaACwE6kYLFbxCD1VOaxkW/7YP2187N+D3Zrg1ZmG2Gznetrs
-         0triVvO+pdFjxRZCL7dFF3wk7UvSvEl0SWXKK+6acharKJ/yWwpwINbT37aZUgkJFp+A
-         1o0Mh7DbjIkcOPLuo84/SFLFc7jILNhLNjvwcWVJ8Wjs+zCXodizzI6opo/s2dkE4NII
-         DRP0JCxi9ZxI1CXTgqzJvidc2gYJvWV45yVAR2wSiRpnz5gNJlyUnhdSmR6yihi2glrP
-         CSeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=00WvLbTJMjzGOjQ1qyn39xJkeLMGMArXryJMzS4F5zY=;
-        b=LtvCRgH7t2LPTDkqJX0macJk7iiU9sbS4khA6bHYdOF9UACSJ75yHMR0J341apBnIF
-         jY0J039tBYqN0MJWuDGjx/Y1asrqfapaL8rjH+i9VqDPACxoL4MDZgoQkvrm3KTlsxGv
-         re43A9wpA8o7KyT17PeidV4GzEKOp3SJyUJyZaMvdncwpgrDlYwPZe9MXg1yueQt82Qa
-         OC18DGYYvy2ksmcXIvyOBAx1BiXehzu5hQPqIdzErp7gSI+Nbt7aBIThO521O0v0EjLs
-         MUM5X/CvRJqAH6pCld/7TRA264468AbEbkTZH76Ng9FYLQffkaDG5uLzSTtrwfGlzSk+
-         sO8g==
-X-Gm-Message-State: AOAM5334S/l0C+SgOeN5hOecMZEeMOZo6I/uCMRYhjb7EAnJALKuXe95
-        KbE/JA6Smx7JVqBm/HArPhxGq1p6CPQ=
-X-Google-Smtp-Source: ABdhPJw+hkU5Uw33Fax9t1um9bR8Aezcnp4X/N3e/0iSeeNpvb/55SET58l46JiJuxzF+MK9K9EFzQ==
-X-Received: by 2002:a05:6214:18f3:: with SMTP id ep19mr832894qvb.45.1589273071364;
-        Tue, 12 May 2020 01:44:31 -0700 (PDT)
-Received: from localhost ([2601:483:4200:9113:fdae:121b:56a3:4870])
-        by smtp.gmail.com with ESMTPSA id d7sm10610990qkk.26.2020.05.12.01.44.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2020 01:44:31 -0700 (PDT)
-From:   =?UTF-8?q?Fran=C3=A7ois-Xavier=20Carton?= <fx.carton91@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Ethan Lee <flibitijibibo@gmail.com>,
-        Bastien Nocera <hadess@hadess.net>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 3/4] HID: gamecube-adapter: add auto calibration
-Date:   Tue, 12 May 2020 10:46:15 +0200
-Message-Id: <20200512084616.32158-3-fx.carton91@gmail.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200512084616.32158-1-fx.carton91@gmail.com>
-References: <20200512084616.32158-1-fx.carton91@gmail.com>
+        id S1729178AbgELJHa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 May 2020 05:07:30 -0400
+Received: from gofer.mess.org ([88.97.38.141]:38709 "EHLO gofer.mess.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728854AbgELJH3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 12 May 2020 05:07:29 -0400
+Received: by gofer.mess.org (Postfix, from userid 1000)
+        id 09A1EC63B0; Tue, 12 May 2020 10:07:24 +0100 (BST)
+Date:   Tue, 12 May 2020 10:07:24 +0100
+From:   Sean Young <sean@mess.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-media@vger.kernel.org
+Subject: Re: [PATCH 2/3] input: serio: allow more than one byte to be sent at
+ once
+Message-ID: <20200512090724.GA31990@gofer.mess.org>
+References: <20200507135337.2343-1-sean@mess.org>
+ <20200507135337.2343-2-sean@mess.org>
+ <20200507202546.GM89269@dtor-ws>
+ <20200507205918.GA13370@gofer.mess.org>
+ <20200511065118.GA1293993@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200511065118.GA1293993@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The axes do not cover the full 0-255 range, with different limit values
-for each axis. The minimal and maximal values are recorded for each axis
-and the values are remapped from that range to 0-255.
+On Mon, May 11, 2020 at 08:51:18AM +0200, Greg KH wrote:
+> On Thu, May 07, 2020 at 09:59:18PM +0100, Sean Young wrote:
+> > On Thu, May 07, 2020 at 01:25:46PM -0700, Dmitry Torokhov wrote:
+> > > On Thu, May 07, 2020 at 02:53:36PM +0100, Sean Young wrote:
+> > > > serio drivers can only send one byte at a time. If the underlying tty
+> > > > is a usb serial port, then each byte will be put into separate usb
+> > > > urbs, which is not efficient.
+> > > > 
+> > > > Additionally, the Infrared Toy device refuses to transmit IR if the
+> > > > IR data is sent one byte at a time. IR data is formatted in u16 values,
+> > > > and the firmware expects complete u16 values in the packet.
+> > > > 
+> > > > https://github.com/DangerousPrototypes/USB_IR_Toy/blob/master/Firmware-main/IRs.c#L240
+> > > 
+> > > Ummm, serial protocol data size is at most 9 bits so I have no earthly
+> > > idea how they expect to get 16.
+> > 
+> > serio is a layer on top several serial protocols, including ttys. ttys allow
+> > more than one byte to be written at a time, see struct tty_operations:
+> > 
+> >         int  (*write)(struct tty_struct * tty,
+> >                       const unsigned char *buf, int count);
+> > 
+> > ttys would be very inefficient if you could only write one byte at a time,
+> > and they are very serial.
+> > 
+> > This patch exposes the underlying tty write() functionality to serio. When
+> > the underlying tty is a usb serial port this makes for far fewer usb packets
+> > being used to send the same data, and fixes my driver problem, and it
+> > would reduce the number of calls in a few other cases too.
+> > 
+> > I'm happy to rework the patch if there are comments on the style or
+> > approach.
+> 
+> Why not just use the ir-usb.c driver for this device instead?
 
-Signed-off-by: François-Xavier Carton <fx.carton91@gmail.com>
----
- drivers/hid/hid-gamecube-adapter.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+So this device is the infrared kind which rc-core (in drivers/media/rc/)
+supports, remotes and such things (not for serial IR). So by using a 
+rc-core driver, it can use kernel IR decoding, BPF decoding, lirc chardev
+and rc keymaps, etc.
 
-diff --git a/drivers/hid/hid-gamecube-adapter.c b/drivers/hid/hid-gamecube-adapter.c
-index 028ce005c9e3..efcbd8f27b67 100644
---- a/drivers/hid/hid-gamecube-adapter.c
-+++ b/drivers/hid/hid-gamecube-adapter.c
-@@ -55,6 +55,8 @@ enum gamecube_btn {
- struct gamecube_ctrl {
- 	struct input_dev __rcu *input;
- 	enum gamecube_ctrl_flags flags;
-+	u8 axis_min[6];
-+	u8 axis_max[6];
- 	u8 rumble;
- 	struct gamecube_adapter *adpt;
- 	struct work_struct work_connect;
-@@ -258,6 +260,7 @@ static void gamecube_ctrl_handle_report(struct gamecube_ctrl *ctrl, u8 *data)
- 	u16 btns = data[1] << 8 | data[2];
- 	u8 old_flags, new_flags = data[0];
- 	unsigned long irq_flags;
-+	unsigned int i;
- 
- 	spin_lock_irqsave(&ctrl->flags_lock, irq_flags);
- 	old_flags = ctrl->flags;
-@@ -265,6 +268,11 @@ static void gamecube_ctrl_handle_report(struct gamecube_ctrl *ctrl, u8 *data)
- 	spin_unlock_irqrestore(&ctrl->flags_lock, irq_flags);
- 
- 	if ((new_flags & GC_TYPES) != (old_flags & GC_TYPES)) {
-+		// Reset min/max values. The default values were obtained empirically
-+		for (i = 0; i < 6; i++) {
-+			ctrl->axis_min[i] = 45; // max across all axes of min values
-+			ctrl->axis_max[i] = 215; // min across all axes of max values
-+		}
- 		schedule_work(&ctrl->work_connect);
- 		return;
- 	}
-@@ -288,12 +296,15 @@ static void gamecube_ctrl_handle_report(struct gamecube_ctrl *ctrl, u8 *data)
- 	input_report_key(dev, BTN_DPAD_RIGHT, btns & GC_BTN_DPAD_RIGHT);
- 	input_report_key(dev, BTN_DPAD_DOWN, btns & GC_BTN_DPAD_DOWN);
- 	input_report_key(dev, BTN_DPAD_UP, btns & GC_BTN_DPAD_UP);
--	input_report_abs(dev, ABS_X, data[3]);
--	input_report_abs(dev, ABS_Y, 255 - data[4]);
--	input_report_abs(dev, ABS_RX, data[5]);
--	input_report_abs(dev, ABS_RY, 255 - data[6]);
--	input_report_abs(dev, ABS_Z, data[7]);
--	input_report_abs(dev, ABS_RZ, data[8]);
-+	for (i = 0; i < 6; i++) {
-+		u8 a, b, v = data[3 + i];
-+		a = ctrl->axis_min[i] = min(ctrl->axis_min[i], v);
-+		b = ctrl->axis_max[i] = max(ctrl->axis_max[i], v);
-+		v = 255U * (v - a) / (b - a);
-+		if (gamecube_axes[i] == ABS_Y || gamecube_axes[i] == ABS_RY)
-+			v = 255U - v;
-+		input_report_abs(dev, gamecube_axes[i], v);
-+	}
- 	input_sync(dev);
- 
- unlock:
--- 
-2.26.2
+This device is a PIC18F2550 type device, which is a usb serial port
+microcontroller type with some firmware and IR diodes:
+	http://dangerousprototypes.com/docs/USB_IR_Toy_v2
 
+serio supports a whole bunch of usb serial devices which can be attached
+via inputattach(1). Not all of these are input devices, for example there
+are two cec devices too.
+
+Now, in many of these drivers, multiple bytes need to be written to the
+device in order to send it a command, for example in
+drivers/input/touchscreen/elo.c:
+
+        for (i = 0; i < ELO10_PACKET_LEN; i++) {
+                csum += packet[i];
+                if (serio_write(elo->serio, packet[i]))
+                        goto out;
+        }
+
+So if serio had an interface for sending a buffer, that would be less
+call overhead. In fact, if the underlying serio is a serial usb port,
+that would much more efficient on the usb layer too (one usb roundtrips in
+stead of ELO10_PACKET_LEN roundtrips), like so:
+
+	serio_write_buf(elo->serio, packet, ELO10_PACKET_LEN);
+
+So what I'm suggesting is extending the serio interface to allow sending
+a buffer of bytes. Of course serio isn't just usb serial ports. There quite
+a few instances of serio_register_port() in the kernel. Many of them
+can be extended to support sending a buffer rather than a single byte,
+if this makes sense. For example the ps2 serio port takes a mutex for every
+byte, so this could be more efficient by reducing it to one mutex lock
+per buffer.
+
+Now it would be nice to have a discussion about this rather than being
+dismissed with:
+
+> > > Ummm, serial protocol data size is at most 9 bits so I have no earthly
+> > > idea how they expect to get 16.
+
+Which is just a tad insulting.
+
+
+Sean

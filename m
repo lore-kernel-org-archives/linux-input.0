@@ -2,154 +2,101 @@ Return-Path: <SRS0=onHS=64=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA6DAC433DF
-	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 12:31:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE09AC433E6
+	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 18:52:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B876720728
-	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 12:31:31 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C4X3PJpg"
+	by mail.kernel.org (Postfix) with ESMTP id CED202065F
+	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 18:52:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1589482321;
+	bh=D0FuQN9EpjPbRLYbRTMAW25f4Tum4yNNVfrXcRSi5h8=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=ghlO9pTpobiz3if/fjmFIE5uaGp+bwZhIqwLJ/RWMzIT4tU5s8D2j4MQJ7rlDW5Zy
+	 RzjO2yjGLcSEFRqFHwfCg9BnousrzqqK4G/TNVanANJfgLg4y2k4DO7uw5XjquA8WE
+	 pgZppkPFfrEv3+AnlAeEFUu2UMZjEuPwUI4utsa8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726094AbgENMbb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 14 May 2020 08:31:31 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:28495 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726037AbgENMba (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 May 2020 08:31:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589459489;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=IC7wNvc1KoCN385ncv17shCU85JeTnTd4QoMBztI0Zs=;
-        b=C4X3PJpgavCFRlBhhFc8FvTRHf5H6dphbADxiAo/blNM+oLjNCY6GVYAMsOBObf1hp7V5s
-        T0fLN6zsq8u01MLPXRXKV/opY7TCzbcSm1XalI+DVoxbbykTMysNNsfHEJJbDzePOPLI91
-        chmjxXLUwkf3d4wtYO4uzoVab/Wlab0=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-305-4O3TBfemP_a3_oy72ToM_w-1; Thu, 14 May 2020 08:31:27 -0400
-X-MC-Unique: 4O3TBfemP_a3_oy72ToM_w-1
-Received: by mail-qv1-f71.google.com with SMTP id g15so2721393qvx.6
-        for <linux-input@vger.kernel.org>; Thu, 14 May 2020 05:31:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=IC7wNvc1KoCN385ncv17shCU85JeTnTd4QoMBztI0Zs=;
-        b=nrUcNahzVTYSCJ4KNRry+Vsu61PVIPLBO1tTKpEFzxLAkNOXfXkcuk0rCC0eIFR4nN
-         7vUCXqIi63yCMa1DSiorKmF0dSA/JkU3bxa8Yz59M50A+EGRG/S7OFrbSIF/ta6r0iG2
-         NSJXk2QoU3R5KKk0laC8L0tdAmwFk9quhhqTBnrcY4SN7Wibv1yY5i0V0jaEfqJWqh07
-         FeYZTi1hdZ+YFSr7N8a2Dv8tyn2T4q+aPzUeppNIvqLUJyuGh224MQd2N9NKAodVx4Jq
-         YAmjnzGShtV+0x9xZ48c5hEc5L7K8SDKEKJZaC2QMCha0QFs4ZxAY5t8vCSywPMWJaYQ
-         J+4A==
-X-Gm-Message-State: AOAM5305pYMV8CCQAXOCgdkshHEzo+EEIaMNjvHH1NAGtK5DBeskoG8L
-        24YVzzbxnXN+2tgVR0lzTu6OhA/eUxxyNV5pfRXIGV8eU2iCQAUC2iyLTG2sqfJ0t0XQ0euUKOD
-        DbLzkDsYhmqy9ohyJpWXQRD6Gb4I12nShHWrfFyI=
-X-Received: by 2002:ae9:f445:: with SMTP id z5mr4611463qkl.169.1589459487092;
-        Thu, 14 May 2020 05:31:27 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyk1B42zxQrUeJmu5JV1N3T+LBWqUNXdPbZWfwMHRdWpS6Wtm/WT8Uhcygn4Gg8AQsyb8LLXAkfGHHtK7HrX8A=
-X-Received: by 2002:ae9:f445:: with SMTP id z5mr4611433qkl.169.1589459486735;
- Thu, 14 May 2020 05:31:26 -0700 (PDT)
+        id S1727983AbgENSwB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 May 2020 14:52:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49928 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728040AbgENSv7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 14 May 2020 14:51:59 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2085206F1;
+        Thu, 14 May 2020 18:51:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589482318;
+        bh=D0FuQN9EpjPbRLYbRTMAW25f4Tum4yNNVfrXcRSi5h8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Skj8nNNugWuPxJGsYh8CBM+DRrG6cOjUgk0wlLusY43RTTlrM0rMtPsIkUY/ncaZF
+         IDyvuT+U4Ipe31s/3cz0OMjb86kfC4anfccoV8qQLJ4NjTrKTf1KWvTUD3v0uDIWvO
+         5s+YoixTcOaZQAxCoBeqUAGm5EgDQ5kpPkaNw7rY=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Artem Borisov <dedsa2002@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 07/62] HID: alps: Add AUI1657 device ID
+Date:   Thu, 14 May 2020 14:50:52 -0400
+Message-Id: <20200514185147.19716-7-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200514185147.19716-1-sashal@kernel.org>
+References: <20200514185147.19716-1-sashal@kernel.org>
 MIME-Version: 1.0
-References: <20200514111448.GA855579@jelly>
-In-Reply-To: <20200514111448.GA855579@jelly>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Thu, 14 May 2020 14:31:15 +0200
-Message-ID: <CAO-hwJJjoEyoKokK6DS_Kb0su2bkC2wzMx-gzaWQcG+dn5vVdw@mail.gmail.com>
-Subject: Re: [PATCH] HID: input: do not run GET_REPORT unless there's a
- Resolution Multiplier
-To:     Peter Hutterer <peter.hutterer@who-t.net>
-Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>, Wen He <wen.he_1@nxp.com>
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hey,
+From: Artem Borisov <dedsa2002@gmail.com>
 
-On Thu, May 14, 2020 at 1:14 PM Peter Hutterer <peter.hutterer@who-t.net> wrote:
->
-> hid-multitouch currently runs GET_REPORT for Contact Max and again to
-> retrieve the Win8 blob. If both are within the same report, the
-> Resolution Multiplier code calls GET_FEATURE again and this time,
-> possibly due to timing, it causes the ILITEK-TP device interpret the
-> GET_FEATURE as an instruction to change the mode and effectively stop
-> the device from functioning as expected.
->
-> Notably: the device doesn't even have a Resolution Multiplier so it
-> shouldn't be affected by any of this at all.
->
-> Fix this by making sure we only execute GET_REPORT if there is
-> a Resolution Multiplier in the respective report.
->
-> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-> Tested-by: Wen He <wen.he_1@nxp.com>
-> ---
->  drivers/hid/hid-input.c | 22 ++++++++++++----------
->  1 file changed, 12 insertions(+), 10 deletions(-)
->
-> diff --git drivers/hid/hid-input.c drivers/hid/hid-input.c
+[ Upstream commit 640e403b1fd24e7f31ac6f29f0b6a21d285ed729 ]
 
-Seems like you git format-patch is still busted, you are lacking the
-'a/' and 'b/' in front of the files, and so the patch fails to apply
-because 'hid/hid-input.c' is not in the tree.
+This device is used on Lenovo V130-15IKB variants and uses
+the same registers as U1.
 
-Cheers,
-Benjamin
+Signed-off-by: Artem Borisov <dedsa2002@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-alps.c | 1 +
+ drivers/hid/hid-ids.h  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-> index dea9cc65bf80..a54824d451bf 100644
-> --- drivers/hid/hid-input.c
-> +++ drivers/hid/hid-input.c
-> @@ -1560,21 +1560,12 @@ static bool __hidinput_change_resolution_multipliers(struct hid_device *hid,
->  {
->         struct hid_usage *usage;
->         bool update_needed = false;
-> +       bool get_report_completed = false;
->         int i, j;
->
->         if (report->maxfield == 0)
->                 return false;
->
-> -       /*
-> -        * If we have more than one feature within this report we
-> -        * need to fill in the bits from the others before we can
-> -        * overwrite the ones for the Resolution Multiplier.
-> -        */
-> -       if (report->maxfield > 1) {
-> -               hid_hw_request(hid, report, HID_REQ_GET_REPORT);
-> -               hid_hw_wait(hid);
-> -       }
-> -
->         for (i = 0; i < report->maxfield; i++) {
->                 __s32 value = use_logical_max ?
->                               report->field[i]->logical_maximum :
-> @@ -1593,6 +1584,17 @@ static bool __hidinput_change_resolution_multipliers(struct hid_device *hid,
->                         if (usage->hid != HID_GD_RESOLUTION_MULTIPLIER)
->                                 continue;
->
-> +                       /*
-> +                        * If we have more than one feature within this report we
-> +                        * need to fill in the bits from the others before we can
-> +                        * overwrite the ones for the Resolution Multiplier.
-> +                        */
-> +                       if (!get_report_completed && report->maxfield > 1) {
-> +                               hid_hw_request(hid, report, HID_REQ_GET_REPORT);
-> +                               hid_hw_wait(hid);
-> +                               get_report_completed = true;
-> +                       }
-> +
->                         report->field[i]->value[j] = value;
->                         update_needed = true;
->                 }
-> --
-> 2.26.2
->
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index fa704153cb00d..c2a2bd5288906 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -802,6 +802,7 @@ static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		break;
+ 	case HID_DEVICE_ID_ALPS_U1_DUAL:
+ 	case HID_DEVICE_ID_ALPS_U1:
++	case HID_DEVICE_ID_ALPS_1657:
+ 		data->dev_type = U1;
+ 		break;
+ 	default:
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 40697af0ca358..7d769ca864a7f 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -81,7 +81,7 @@
+ #define HID_DEVICE_ID_ALPS_U1		0x1215
+ #define HID_DEVICE_ID_ALPS_T4_BTNLESS	0x120C
+ #define HID_DEVICE_ID_ALPS_1222		0x1222
+-
++#define HID_DEVICE_ID_ALPS_1657         0x121E
+ 
+ #define USB_VENDOR_ID_AMI		0x046b
+ #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
+-- 
+2.20.1
 

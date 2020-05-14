@@ -4,51 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 206EDC433E5
-	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 18:53:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49D5DC433E1
+	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 18:58:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E97C9206A5
-	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 18:53:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F6212074A
+	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 18:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1589482418;
-	bh=GhghCcoDvbJQIGvjkJPA5Hu7V937m8QplLeAIJ30tjo=;
+	s=default; t=1589482696;
+	bh=Dpxlo7zgvXqki3/emE5wa7pFOsjVIK+w6rDKNfaGR60=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=gcbpXsHH6THezrbOgV5cE/9w95Ex77cerpzohq8XizVdDpzGG/RF8sXlKYy0mNiOL
-	 vw5wwikfnGyKqDrfCb0lu/axb/5kF+0KsuYKJ1opPXAL+8DCWKxNPJbbW/s0lgOQgX
-	 dm7Er5GGdYj/P+LD34QBErx7ktsi0fMoaJFCf5ZM=
+	b=O5MO3VT5zqMDVtimGFaWgVClYHjp5X3t5tbbSIH4+LGRqxSDH1WjSw/FmLocOdN6+
+	 UCKjefvJwOHNt5vVtBQO4APYRNBOPXeoAUKE4E39M/aXQ46YJX+nnHjFFTy3DdgbbC
+	 V2SvRMShYZd3FOhrKQmz6NM37aHx/3pGQ1xTYZts=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728768AbgENSxg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 14 May 2020 14:53:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52978 "EHLO mail.kernel.org"
+        id S1729714AbgENS4a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 May 2020 14:56:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728751AbgENSxf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 May 2020 14:53:35 -0400
+        id S1729707AbgENS42 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 14 May 2020 14:56:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3084F2065F;
-        Thu, 14 May 2020 18:53:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83CE7207F7;
+        Thu, 14 May 2020 18:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482414;
-        bh=GhghCcoDvbJQIGvjkJPA5Hu7V937m8QplLeAIJ30tjo=;
+        s=default; t=1589482588;
+        bh=Dpxlo7zgvXqki3/emE5wa7pFOsjVIK+w6rDKNfaGR60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YvJTCqQ41V4xO/c3vWLXVAuTVr1RckdCfv15Yh9rOaoLO4fOLLY3lteRcQ1ORblt/
-         DVELr12I8pCKV/uIDt6VoHkIWESOcsa1wgrVDnMkfsPiJLFYCQFjyyokY6tB8Dzn0T
-         eiVTY0sLhqhOjRCOo9CCTS6ZovbzUJpn3alurVzk=
+        b=UUEuB8+XEzUCobGTHfOcfNzVIEVnmL/GkUTlk/sDBOSyegewsChU/rs4hVsEsP5+7
+         FOjSeNnt8l+eJwJbyss7EVu9zQ1JRGghY1o7PmaXoxr7xpT6lt+9R3H7aniKzthnQU
+         36LlIz6H0tRbAZJnEQdw1ehQSi/D1ce/HC8g5KLE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Playfair Cal <daniel.playfair.cal@gmail.com>,
+Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 19/49] HID: i2c-hid: reset Synaptics SYNA2393 on resume
-Date:   Thu, 14 May 2020 14:52:40 -0400
-Message-Id: <20200514185311.20294-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 02/14] HID: multitouch: add eGalaxTouch P80H84 support
+Date:   Thu, 14 May 2020 14:56:13 -0400
+Message-Id: <20200514185625.21753-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200514185311.20294-1-sashal@kernel.org>
-References: <20200514185311.20294-1-sashal@kernel.org>
+In-Reply-To: <20200514185625.21753-1-sashal@kernel.org>
+References: <20200514185625.21753-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,53 +58,51 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Daniel Playfair Cal <daniel.playfair.cal@gmail.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit 538f67407e2c0e5ed2a46e7d7ffa52f2e30c7ef8 ]
+[ Upstream commit f9e82295eec141a0569649d400d249333d74aa91 ]
 
-On the Dell XPS 9570, the Synaptics SYNA2393 touchpad generates spurious
-interrupts after resuming from suspend until it receives some input or
-is reset. Add it to the quirk I2C_HID_QUIRK_RESET_ON_RESUME so that it
-is reset when resuming from suspend.
+Add support for P80H84 touchscreen from eGalaxy:
 
-More information about the bug can be found in this mailing list
-discussion: https://www.spinics.net/lists/linux-input/msg59530.html
+  idVendor           0x0eef D-WAV Scientific Co., Ltd
+  idProduct          0xc002
+  iManufacturer           1 eGalax Inc.
+  iProduct                2 eGalaxTouch P80H84 2019 vDIVA_1204_T01 k4.02.146
 
-Signed-off-by: Daniel Playfair Cal <daniel.playfair.cal@gmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h              | 3 +++
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
- 2 files changed, 5 insertions(+)
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 48eba9c4f39a4..3341133df3a8d 100644
+index e1807296a1a01..33d2b5948d7fc 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -1089,6 +1089,9 @@
- #define USB_DEVICE_ID_SYMBOL_SCANNER_2	0x1300
- #define USB_DEVICE_ID_SYMBOL_SCANNER_3	0x1200
+@@ -319,6 +319,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002	0xc002
  
-+#define I2C_VENDOR_ID_SYNAPTICS     0x06cb
-+#define I2C_PRODUCT_ID_SYNAPTICS_SYNA2393   0x7a13
-+
- #define USB_VENDOR_ID_SYNAPTICS		0x06cb
- #define USB_DEVICE_ID_SYNAPTICS_TP	0x0001
- #define USB_DEVICE_ID_SYNAPTICS_INT_TP	0x0002
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 479934f7d2411..b525b2715e074 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -179,6 +179,8 @@ static const struct i2c_hid_quirks {
- 		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ USB_VENDOR_ID_ALPS_JP, HID_ANY_ID,
- 		 I2C_HID_QUIRK_RESET_ON_RESUME },
-+	{ I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNAPTICS_SYNA2393,
-+		 I2C_HID_QUIRK_RESET_ON_RESUME },
- 	{ USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720,
- 		I2C_HID_QUIRK_BAD_INPUT_SIZE },
- 	{ 0, 0 }
+ #define USB_VENDOR_ID_ELAN		0x04f3
+ 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 9de379c1b3fd3..56c4a81d3ea24 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1300,6 +1300,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
++	{ .driver_data = MT_CLS_EGALAX,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
+ 
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
 -- 
 2.20.1
 

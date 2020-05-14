@@ -1,119 +1,155 @@
-Return-Path: <SRS0=6My6=63=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=onHS=64=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 488C6C433DF
-	for <linux-input@archiver.kernel.org>; Wed, 13 May 2020 18:40:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89490C433E0
+	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 22:49:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CF4CE205CB
-	for <linux-input@archiver.kernel.org>; Wed, 13 May 2020 18:40:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D901F20748
+	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 22:49:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WWSgjyrC"
+	dkim=pass (2048-bit key) header.d=who-t.net header.i=@who-t.net header.b="AiI4BYV7";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="lmnXegNp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389529AbgEMSka (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 13 May 2020 14:40:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47404 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1733166AbgEMSka (ORCPT
+        id S1728848AbgENWt0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 May 2020 18:49:26 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:33955 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728229AbgENWt0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 13 May 2020 14:40:30 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E722C061A0C;
-        Wed, 13 May 2020 11:40:30 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id 72so252855otu.1;
-        Wed, 13 May 2020 11:40:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:from:date:subject;
-        bh=UxFgBfxYrtbfoSRrOJwSR/jyUGAcjc3AvR5Q5DZlML4=;
-        b=WWSgjyrCoTbyAWUxcuhfmVBWMnDa/jr0mgszsCK06LeZ7T6hNUulr/inWZhSUl/Ezi
-         DyDQ6QCTwZSd2IpimRKqvKKFRPnlUgjbqcNI0f9vOZYB2S5HIud7LUGgnEKUT5QsZzT5
-         mpWRflLfR3jn7FdB6vKWgvRxda7/Yc0+H6U6cB/MRB2mm7ejQbWWRRaCBVSql9L6NhnK
-         PFn4eIV1VPXGbSj8l/qx4K47ZMOLNo1zRwgCa2n0C1CSqZao4YENbHVPdWaPT4MbQUpx
-         wek+nx01r+715FsDqJwkbCmrTXufoYYn2J2iBsxLDtZFsU/Z7Wg8l+AFOJxNXqRCDPMU
-         z0bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:from:date:subject;
-        bh=UxFgBfxYrtbfoSRrOJwSR/jyUGAcjc3AvR5Q5DZlML4=;
-        b=fryzC6BZw+ZEjKGDHgh+72sm8YU0f38zTsAUH76lEmV+kCirRQ5YcYemrSqNSKXfQl
-         awF2c7uwF1K1e6HC4xsr19vyl2WIgbuSfFW+dAkj3MfzTOz24YlAcHl5E9JvTCiCLXjm
-         PfHEMAcudYc/2vBEu0SuPjmsKQf4pYfifAghOwbaZnQkkuXdFxSo06ITDWOmgwl5UkHV
-         TnfFhmn82tGjoGpEHc6xzuHJpmEct8vfFc4x4hETk3fmwsaVmMVYhIKex1r+9Sd9/8zj
-         AF2CVOgYWbj7ZK2S8Cc6hNWFWUM9qDYb1zQ56oRhMTZChcWPHV+Tqx+sBRmwNkQjO0uW
-         vbfA==
-X-Gm-Message-State: AOAM533SD2cbFWPdNmNIH3o1J+nSzvdeH/aVfmaHi0YlSY53xBfWNj3b
-        JWQlmuYWIRepYF4p2x+wp+E=
-X-Google-Smtp-Source: ABdhPJzYMTolrbvJsxED0OyBKcnX7Ev6/+qqUrrtWH2tXqca0oe0DZLCUoeSbkoWWuokmgUcd9LVjw==
-X-Received: by 2002:a9d:4b18:: with SMTP id q24mr597103otf.31.1589395229593;
-        Wed, 13 May 2020 11:40:29 -0700 (PDT)
-Received: from localhost (cpe-70-112-70-240.austin.res.rr.com. [70.112.70.240])
-        by smtp.gmail.com with ESMTPSA id v17sm6222113oif.51.2020.05.13.11.39.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2020 11:40:28 -0700 (PDT)
-Message-ID: <5ebc3f1c.1c69fb81.772f9.7003@mx.google.com>
-From:   scott.shumate@gmail.com
-Date:   Wed, 13 May 2020 13:39:26 -0500
-Subject: [PATCH] HID: sony: Fix for broken buttons on DS3 USB dongles
-To:     unlisted-recipients:; (no To-header on input)
+        Thu, 14 May 2020 18:49:26 -0400
+Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
+        by mailout.nyi.internal (Postfix) with ESMTP id B6E1A5C0032;
+        Thu, 14 May 2020 18:49:24 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute7.internal (MEProxy); Thu, 14 May 2020 18:49:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=who-t.net; h=
+        date:from:to:cc:subject:message-id:mime-version:content-type
+        :in-reply-to; s=fm3; bh=Uu0LSaAeQPGfZddmxdXhswyxbnsQrZ3AYOkrJxax
+        WNI=; b=AiI4BYV7ekNlqn/s25gmsIpba5KsDc6JKPQpGv0SEGol3xkJAoQ12dmX
+        pAzE8QOlOllyp1zi72b7Cc1NHh10CYuf7d4IpJnCE6Klp3nxaN5yndAZNTjR3WwE
+        ye5tDf58Lu/HbeZQPAbjHXYZDIGcC5bRRKsU74uABbVvdTHIEN2C8NEEmEYQMdPO
+        5i03depepsZdyrgRIkuaewVjnuo2zTfpj2tJq483+lfmBRhjvbcJgn2+8n3ScIuF
+        d2W0S2DJiTFOP1ZZ3R3oa/CPomR5F6OMLu0+u8R8t7hyLiNTkTWBZCW1sZw30aTj
+        ipqFomHIWv6lYOaD27pMyR+6JzRASg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Uu0LSaAeQPGfZddmx
+        dXhswyxbnsQrZ3AYOkrJxaxWNI=; b=lmnXegNpcikzRGK5v8piD+zbZ5cSJfq3g
+        D4C+iBk0bU3AxN1KGBNH1RSf4FoQ7xDvnJNLDtx7ThRll8qOr0vx3ykObA8LZXl8
+        8/gPGUErQUUy5TL97I6tLxhdfQhDQ66y/VE18hKrz1Hds18e7r3DAy06VBrSRUoo
+        JG+H+V4ExtzjmNUfeljfWDCI4fyod/xtU8+WDNlLijf1yzaSFfSx2osLZ6CIXxcF
+        HRrirWYEqbwvffKpHJf54JL2DCHMnCofcSC6Bm2Z5nm9gOQvfYyTTUFz32nJ7Zd3
+        v0InACOfwk0LxU0rPJfHqMMjhvX8c850yhLYi5NyWw/iY92Fsls1Q==
+X-ME-Sender: <xms:88q9Xosf1WX5pBvLWmevC538974UFehUSvoQzxqecTOKtd0QeBh-Gw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrleejgddtkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkgggtuggjsehttdertddttddvnecuhfhrohhmpefrvghtvghrucfj
+    uhhtthgvrhgvrhcuoehpvghtvghrrdhhuhhtthgvrhgvrhesfihhohdqthdrnhgvtheqne
+    cuggftrfgrthhtvghrnhepheegveefieejhfdukeeuudetvdfhtdejffevvdeutdfgheff
+    fedthfdvffdtveeknecukfhppeduudejrddvtddrjedurddutdelnecuvehluhhsthgvrh
+    fuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepphgvthgvrhdrhhhuthhtvghr
+    vghrseifhhhoqdhtrdhnvght
+X-ME-Proxy: <xmx:9Mq9XldsL7zXesfeSoTC-kP4ZQETktYUbnDzihL7bocDLNbao7HDAQ>
+    <xmx:9Mq9XjyjGwXcWLX7J76iBccVLCoRzy37lXEbCzXjzAU7nlrrloNcYg>
+    <xmx:9Mq9XrPUn8kdkCbne_jqTPiQ55gA1QCvZOMd8i73R9aNN4_pQIg4nw>
+    <xmx:9Mq9XtFr69bJsXX2hJm7vXDs90RFkghiWYQCuGdKaMMrx-jYemrKbg>
+Received: from jelly (117-20-71-109.751447.bne.nbn.aussiebb.net [117.20.71.109])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6475E30611F2;
+        Thu, 14 May 2020 18:49:22 -0400 (EDT)
+Date:   Fri, 15 May 2020 08:49:29 +1000
+From:   Peter Hutterer <peter.hutterer@who-t.net>
+To:     linux-input@vger.kernel.org
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Wen He <wen.he_1@nxp.com>
+Subject: [PATCH RESEND] HID: input: do not run GET_REPORT unless there's a
+ Resolution Multiplier
+Message-ID: <20200514224929.GA1026616@jelly>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJJjoEyoKokK6DS_Kb0su2bkC2wzMx-gzaWQcG+dn5vVdw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Fix for non-working buttons on knock-off USB dongles for Sony
-controllers. These USB dongles are used to connect older Sony DA/DS1/DS2
-controllers via USB and are common on Amazon, AliExpress, etc.  Without
-the patch, the square, X, and circle buttons do not function.  These
-dongles used to work prior to kernel 4.10 but removing the global DS3
-report fixup in this commit exposed the problem:
+hid-multitouch currently runs GET_REPORT for Contact Max and again to
+retrieve the Win8 blob. If both are within the same report, the
+Resolution Multiplier code calls GET_FEATURE again and this time,
+possibly due to timing, it causes the ILITEK-TP device interpret the
+GET_FEATURE as an instruction to change the mode and effectively stop
+the device from functioning as expected.
 
-commit e19a267b9987 Author: Roderick Colenbrander
- <roderick.colenbrander@sony.com>
-Date:   Tue Mar 7 15:45:08 2017 -0800
+Notably: the device doesn't even have a Resolution Multiplier so it
+shouldn't be affected by any of this at all.
 
-    HID: sony: DS3 comply to Linux gamepad spec
+Fix this by making sure we only execute GET_REPORT if there is
+a Resolution Multiplier in the respective report.
 
-Many people reported the problem on the Ubuntu forums and are working
-around the problem by falling back to the 4.9 hid-sony driver.
-
-The problem stems from these dongles incorrectly reporting their button
-count as 13 instead of 16.  This patch fixes up the report descriptor by
-changing the button report count to 16 and removing 3 padding bits.
-
-Signed-off-by: Scott Shumate <scott.shumate@gmail.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Tested-by: Wen He <wen.he_1@nxp.com>
 ---
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 4c6ed6ef31f1..2f073f536070 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -867,6 +867,23 @@ static u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
- 	if (sc->quirks & PS3REMOTE)
- 		return ps3remote_fixup(hdev, rdesc, rsize);
+Same patch as before, but this time with diff.noprefix set to false again.
+Too bad that setting messes up format-patch :( Apologies for the broken
+one.
+
+ drivers/hid/hid-input.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index dea9cc65bf80..a54824d451bf 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1560,21 +1560,12 @@ static bool __hidinput_change_resolution_multipliers(struct hid_device *hid,
+ {
+ 	struct hid_usage *usage;
+ 	bool update_needed = false;
++	bool get_report_completed = false;
+ 	int i, j;
  
-+	/*
-+	 * Some knock-off USB dongles incorrectly report their button count
-+	 * as 13 instead of 16 causing three non-functional buttons.
-+	 */
-+	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) && *rsize >= 45 &&
-+		/* Report Count (13) */
-+		rdesc[23] == 0x95 && rdesc[24] == 0x0D &&
-+		/* Usage Maximum (13) */
-+		rdesc[37] == 0x29 && rdesc[38] == 0x0D &&
-+		/* Report Count (3) */
-+		rdesc[43] == 0x95 && rdesc[44] == 0x03) {
-+		hid_info(hdev, "Fixing up USB dongle report descriptor\n");
-+		rdesc[24] = 0x10;
-+		rdesc[38] = 0x10;
-+		rdesc[44] = 0x00;
-+	}
+ 	if (report->maxfield == 0)
+ 		return false;
+ 
+-	/*
+-	 * If we have more than one feature within this report we
+-	 * need to fill in the bits from the others before we can
+-	 * overwrite the ones for the Resolution Multiplier.
+-	 */
+-	if (report->maxfield > 1) {
+-		hid_hw_request(hid, report, HID_REQ_GET_REPORT);
+-		hid_hw_wait(hid);
+-	}
+-
+ 	for (i = 0; i < report->maxfield; i++) {
+ 		__s32 value = use_logical_max ?
+ 			      report->field[i]->logical_maximum :
+@@ -1593,6 +1584,17 @@ static bool __hidinput_change_resolution_multipliers(struct hid_device *hid,
+ 			if (usage->hid != HID_GD_RESOLUTION_MULTIPLIER)
+ 				continue;
+ 
++			/*
++			 * If we have more than one feature within this report we
++			 * need to fill in the bits from the others before we can
++			 * overwrite the ones for the Resolution Multiplier.
++			 */
++			if (!get_report_completed && report->maxfield > 1) {
++				hid_hw_request(hid, report, HID_REQ_GET_REPORT);
++				hid_hw_wait(hid);
++				get_report_completed = true;
++			}
 +
- 	return rdesc;
- }
- 
+ 			report->field[i]->value[j] = value;
+ 			update_needed = true;
+ 		}
+-- 
+2.26.2
+

@@ -4,49 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA694C433E3
-	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 19:06:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1357C433E1
+	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 19:08:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BA08320675
-	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 19:06:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B84642074A
+	for <linux-input@archiver.kernel.org>; Thu, 14 May 2020 19:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1589483192;
-	bh=luYS6nZhnYfPoPuRBeriezK2WomVKbkolapMTsl/qas=;
+	s=default; t=1589483301;
+	bh=RynSNIU6sbVrOBG5pwb//yZ0YoV84kck7xwd8Gr2kB4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=jyaD/r3mhlyAOp8Lrs0OSMp1myMB6Rwzd0oW+tT4MlOu0MMFdX9GJEJKAhqI1knwq
-	 G1Jb7LvvExPw2IB2VHeD1+c+NadGyIk4GihS3ZscSN6BrL06AweZUBQPqm3wuRctvM
-	 SqawX9hWSvB3KgCP+jzbKERflJnvQJMVQ2hhBFlg=
+	b=dsPVjci7VJtXcoeWzVPlTnNdolJbvtTh6NaaRDmxUaKQ+4zRwAbJ5D8QRiOcJpCAg
+	 mGpoverKZeqXNXPiLbpjT8xwOGD/FO6GJ7Tri78YFfZGznk7yncMv3PsHPTK4G9bDC
+	 wiKp8ct9p8O/KiufsMBC+C7TZuDi/4LZv5/WlO3k=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729159AbgENTGb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 14 May 2020 15:06:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53296 "EHLO mail.kernel.org"
+        id S1728656AbgENSxV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 May 2020 14:53:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728840AbgENSxt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 May 2020 14:53:49 -0400
+        id S1728648AbgENSxT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 14 May 2020 14:53:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E12A7207D8;
-        Thu, 14 May 2020 18:53:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D170820675;
+        Thu, 14 May 2020 18:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482428;
-        bh=luYS6nZhnYfPoPuRBeriezK2WomVKbkolapMTsl/qas=;
+        s=default; t=1589482399;
+        bh=RynSNIU6sbVrOBG5pwb//yZ0YoV84kck7xwd8Gr2kB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JooYJbpa2TyUhzzTsMOMAYPwYDo329IsoZStk9c8pBWLpZ0MFVbOOOiWstnPJV3aK
-         CXhGUE7fOhqzX5G/UZ7qpqzWtyArT9tVoGy+zSPBQyj4bLy+r4IcZXio2EGKsuBITk
-         Olb1h+iFTixkqfzK0CDWF9m8PiAouQT86nAuQFMI=
+        b=iw0cCK5yyXRR4un2Cwh7TJW9Azo0SrHfhH/FfbN4CqskHimb2X8OHI6gLZBtW+XrD
+         ULIOvwOO1M0HAnng585UtwG2+UxtGGBcCWYgAUPrJ2Dxq5ItPEG/jSCtN74d6LSsRP
+         D3h4fGtbOL4dkEK51iA2LouP7WUMwb9UOsSzpR8s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 30/49] HID: quirks: Add HID_QUIRK_NO_INIT_REPORTS quirk for Dell K12A keyboard-dock
-Date:   Thu, 14 May 2020 14:52:51 -0400
-Message-Id: <20200514185311.20294-30-sashal@kernel.org>
+Cc:     Artem Borisov <dedsa2002@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 06/49] HID: alps: Add AUI1657 device ID
+Date:   Thu, 14 May 2020 14:52:27 -0400
+Message-Id: <20200514185311.20294-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185311.20294-1-sashal@kernel.org>
 References: <20200514185311.20294-1-sashal@kernel.org>
@@ -59,50 +57,46 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Artem Borisov <dedsa2002@gmail.com>
 
-[ Upstream commit 1e189f267015a098bdcb82cc652d13fbf2203fa0 ]
+[ Upstream commit 640e403b1fd24e7f31ac6f29f0b6a21d285ed729 ]
 
-Add a HID_QUIRK_NO_INIT_REPORTS quirk for the Dell K12A keyboard-dock,
-which can be used with various Dell Venue 11 models.
+This device is used on Lenovo V130-15IKB variants and uses
+the same registers as U1.
 
-Without this quirk the keyboard/touchpad combo works fine when connected
-at boot, but when hotplugged 9 out of 10 times it will not work properly.
-Adding the quirk fixes this.
-
-Cc: Mario Limonciello <mario.limonciello@dell.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Artem Borisov <dedsa2002@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/hid/hid-alps.c | 1 +
+ drivers/hid/hid-ids.h  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index fa704153cb00d..c2a2bd5288906 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -802,6 +802,7 @@ static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		break;
+ 	case HID_DEVICE_ID_ALPS_U1_DUAL:
+ 	case HID_DEVICE_ID_ALPS_U1:
++	case HID_DEVICE_ID_ALPS_1657:
+ 		data->dev_type = U1;
+ 		break;
+ 	default:
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 3341133df3a8d..13b7222ef2c91 100644
+index ecb5ff8202ef3..cc2b6f497f539 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -1106,6 +1106,7 @@
- #define USB_DEVICE_ID_SYNAPTICS_LTS2	0x1d10
- #define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
- #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
-+#define USB_DEVICE_ID_SYNAPTICS_DELL_K12A	0x2819
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012	0x2968
- #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index ae64a286a68f4..90ec2390ef688 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -163,6 +163,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_LTS2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DELL_K12A), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
+@@ -81,7 +81,7 @@
+ #define HID_DEVICE_ID_ALPS_U1		0x1215
+ #define HID_DEVICE_ID_ALPS_T4_BTNLESS	0x120C
+ #define HID_DEVICE_ID_ALPS_1222		0x1222
+-
++#define HID_DEVICE_ID_ALPS_1657         0x121E
+ 
+ #define USB_VENDOR_ID_AMI		0x046b
+ #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
 -- 
 2.20.1
 

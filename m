@@ -2,96 +2,122 @@ Return-Path: <SRS0=rXP/=65=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31563C433DF
-	for <linux-input@archiver.kernel.org>; Fri, 15 May 2020 10:26:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 935CDC433DF
+	for <linux-input@archiver.kernel.org>; Fri, 15 May 2020 14:08:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F2D4F2074D
-	for <linux-input@archiver.kernel.org>; Fri, 15 May 2020 10:26:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1589538371;
-	bh=GjhxDA2RKzNeJYUxoTNiF+dY0Weh6A59Cpbsz/pBpIk=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=q6ejZbAegwEkwUtf3A1aGfy/9XESLZ5R5N9j5saFcmgOKROIabRCF7Y5g+piv4NQa
-	 WWIT54UrVnY7NIOUC1NWaykotcvkEuKbdUuOtdbOsrmP2EJCnvJHcKdcK+ko40MTo2
-	 7egT8273dD2xGcZfIuCEhIUKe0LiXCKWHc7fsSmA=
+	by mail.kernel.org (Postfix) with ESMTP id EA71920657
+	for <linux-input@archiver.kernel.org>; Fri, 15 May 2020 14:08:05 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="x7FsSMeR";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="yXZ59Xkm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728073AbgEOK0K (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 15 May 2020 06:26:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40838 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728053AbgEOK0K (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 May 2020 06:26:10 -0400
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726228AbgEOOIF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 15 May 2020 10:08:05 -0400
+Received: from mout-p-102.mailbox.org ([80.241.56.152]:17500 "EHLO
+        mout-p-102.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726016AbgEOOIE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 15 May 2020 10:08:04 -0400
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:105:465:1:2:0])
+        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21BA6206B6;
-        Fri, 15 May 2020 10:26:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589538370;
-        bh=GjhxDA2RKzNeJYUxoTNiF+dY0Weh6A59Cpbsz/pBpIk=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=u42J3Kar1lJV87G25ONXajxwDbeUaCc1+AaMMqWHhiuCHrTV5i6Vf6lPlhU1UDPv2
-         XUswIupYrY1FiN/Zn6MI6EpOtCiA2HCvobFLoOee0XTB4Buwha6dzTD9MhEnr0oVIv
-         sYRf1D0emfeF2nkcSEo9FpBGPsZrJJQZa130Mauo=
-Date:   Fri, 15 May 2020 12:26:07 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     free5lot <mail@free5lot.com>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5.7-rc5] HID: apple: Swap the Fn and Left Control keys
- on Apple keyboards
-In-Reply-To: <27588684-a25a-83fd-7204-df3d6c20aac1@free5lot.com>
-Message-ID: <nycvar.YFH.7.76.2005151221020.25812@cbobk.fhfr.pm>
-References: <27588684-a25a-83fd-7204-df3d6c20aac1@free5lot.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 49NqxY6pWBzKmcq;
+        Fri, 15 May 2020 16:08:01 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mailbox.org; h=
+        content-transfer-encoding:content-language:content-type
+        :content-type:in-reply-to:mime-version:date:date:message-id:from
+        :from:references:subject:subject:received; s=mail20150812; t=
+        1589551673; bh=qv1xNIRxXTkvkBNyyMVAn5b8Ba07+r3xwLtiauKCVTs=; b=x
+        7FsSMeRd62wU+YsfopNMCegjFBHtJ7kJ3eNOwzjhpT8yolYlJhLaBTzLvNikJnnc
+        kd4UdHWCocKdVIxTFKxKClv7D3NFs8XcVcSAiX7N11PvFGbpKcdp8gI67aZBbEl4
+        qv/gpK1wCUp/s8MXKZ8rQoCOkFKIzS6J5E5wmyqRpJFWfAA49MJLXBhUbzgHUbh3
+        +KTuxjV6T80Zn/WGPBMKqwmKRLoacEJslXkH78tCcJ+6vkmqJRxLMPU0zNXF2w0B
+        RA/4PnPj258OpnN/D/LlAui3/ehRIpChHKQl62r+sqwkuNmKV+Mp5rFudN7Yq8eJ
+        ezQqzSNG40SlnuEJ6eNBw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+        t=1589551677;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Rb+uR4nJRc2QwiNLGPRwPBQIIOQwboa4xHyF3v/J6GE=;
+        b=yXZ59Xkm/AR/Ooe4/n6DdvX+QWTLzpR4RD1cTDWYWA/vY2tDQt7XDEGHJRYROB0KEp5c82
+        shwwhXdcwO5sg7OGwo3WkIoKxjrO6PwgF65Y7jDJDrZOOU7cDZ2RoAXxtmffw5JGVQeqe1
+        5FSLrhsJFuJcpD9srQTmkFHPlbDlNNwNdQO686ZgZnqi77RCFrUpWB3sL0f6pzOBzw2coU
+        A+qTAMa239QWvW8obaamD+/pFR6zxy0fhjM/w1E5LXXLw9AfYjZobN3dqmDzwd9Ghvxypj
+        f73LvVKAXNw7aOxLeNCzzDBXRxPGCoOjO0pXpubcq66VM0D+nALv1O7N03wotg==
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp2.mailbox.org ([80.241.60.241])
+        by gerste.heinlein-support.de (gerste.heinlein-support.de [91.198.250.173]) (amavisd-new, port 10030)
+        with ESMTP id JoIvjFjp25qn; Fri, 15 May 2020 16:07:53 +0200 (CEST)
+Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add info for the Trekstor
+ Yourbook C11B
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        linux-input <linux-input@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Otmar Meier <otmarjun.meier@nexgo.de>
+References: <20200512204009.4751-1-bernhardu@mailbox.org>
+ <2656984b-3eec-c6d0-f992-8f1f8973fe3e@redhat.com>
+ <CAHp75VejzaZL26ztQMFGjAAMC3B8mkSnXSvGhyFeiHUbUUpp=w@mail.gmail.com>
+From:   =?UTF-8?Q?Bernhard_=c3=9cbelacker?= <bernhardu@mailbox.org>
+Message-ID: <4787d347-b761-6283-7f9d-34c1a11b909f@mailbox.org>
+Date:   Fri, 15 May 2020 16:07:52 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <CAHp75VejzaZL26ztQMFGjAAMC3B8mkSnXSvGhyFeiHUbUUpp=w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 8BA321778
+X-Rspamd-Score: -4.91 / 15.00 / 15.00
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 15 May 2020, free5lot wrote:
 
-> This patch allows users to swap the Fn and left Control keys on all Apple
-> keyboards: internal (e.g. Macbooks) and external (both wired and wireless).
-> The patch adds a new hid-apple module param: swap_fn_leftctrl (off by
-> default).
+Am 13.05.20 um 19:17 schrieb Andy Shevchenko:
+> On Tue, May 12, 2020 at 11:44 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>> Hi,
+>> On 5/12/20 10:40 PM, Bernhard Übelacker wrote:
+>>> Add touchscreen info for the Trekstor Yourbook C11B. It seems to
+>>> use the same touchscreen as the Primebook C11, so we only add a new DMI
+>>> match.
+>>>
+>>> Cc: Otmar Meier <otmarjun.meier@nexgo.de>
+>>> Reported-and-tested-by: Otmar Meier <otmarjun.meier@nexgo.de>
+>>> Signed-off-by: Bernhard Übelacker <bernhardu@mailbox.org>
+>>
+>> Thank you, patch looks good to me:
+>>
+>> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 > 
-> Signed-off-by: Zakhar Semenov <mail@free5lot.com>
-> ---
-> This patch was created to eliminate the inconvenience of having an unusual
-> order of 4 left-bottom keys on Apple keyboards for GNU+Linux users.
-> Now it's possible to swap the Fn and left Control keys on Macbooks and
-> external Apple keyboards and have the same experience as on usual PC layout.
-> 
-> The patch has been heavily tested for about 5 years by community at:
-> https://github.com/free5lot/hid-apple-patched
-> The patch is small and straightforward. The modified version of hid-apple
-> is currently mentioned in wiki-documentation of several major GNU/Linux
-> distributions (e.g. Ubuntu, Arch, openSUSE).
+> This doesn't apply to our for-next.
+> Please, rebase, add Hans' tag and resend, thanks!
 
-Hi,
 
-thanks for sending the patch.
+Hello Andy,
+I am not sure against which git tree I should rebase?
 
-The one in this mail was whitespace-corrupted by your mail client, but the 
-one you attached to the other mail was fine, so I've used that.
+I tried to rebase against the branch for-next in the git tree below.
+And tried to apply the patch saved from my
+thunderbird and got no error.
 
-> --- hid-apple.c.orig	2020-05-12 11:06:26.000000000 +0300
-> +++ hid-apple.c	2020-05-15 20:00:00.000000000 +0300
+Is this the right git tree?
 
-For any next submissions, pelase send the patch in -p ab format and with 
-full path in the kernel tree.
+Kind regards,
+Bernhard
 
-Thanks,
 
--- 
-Jiri Kosina
-SUSE Labs
-
+$ git clone -b for-next --single-branch --depth=10000  git://git.kernel.org/pub/scm/linux/kernel/git/andy/linux-gpio-intel.git
+$ cd linux-gpio-intel
+$ LANG=C git am ../'[PATCH] platform_x86: touchscreen_dmi: Add info for the Trekstor Yourbook C11B.eml'
+Applying: platform/x86: touchscreen_dmi: Add info for the Trekstor Yourbook C11B

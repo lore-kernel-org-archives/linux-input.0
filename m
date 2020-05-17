@@ -2,102 +2,119 @@ Return-Path: <SRS0=rVKj=67=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLACK,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E52B6C433E2
-	for <linux-input@archiver.kernel.org>; Sun, 17 May 2020 19:49:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79C9CC433E0
+	for <linux-input@archiver.kernel.org>; Sun, 17 May 2020 21:21:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C8C0F20758
-	for <linux-input@archiver.kernel.org>; Sun, 17 May 2020 19:49:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B4D220758
+	for <linux-input@archiver.kernel.org>; Sun, 17 May 2020 21:21:57 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=NETORG5796793.onmicrosoft.com header.i=@NETORG5796793.onmicrosoft.com header.b="WXxOTizN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726680AbgEQTtd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 17 May 2020 15:49:33 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:54159 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726639AbgEQTtc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 17 May 2020 15:49:32 -0400
-X-Originating-IP: 195.189.32.242
-Received: from pc.localdomain (unknown [195.189.32.242])
-        (Authenticated sender: contact@artur-rojek.eu)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id ACC601BF204;
-        Sun, 17 May 2020 19:49:28 +0000 (UTC)
-From:   Artur Rojek <contact@artur-rojek.eu>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Heiko Stuebner <heiko@sntech.de>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Artur Rojek <contact@artur-rojek.eu>
-Subject: [PATCH v7 3/7] IIO: Ingenic JZ47xx: Add xlate cb to retrieve correct channel idx
-Date:   Sun, 17 May 2020 21:49:00 +0200
-Message-Id: <20200517194904.34758-3-contact@artur-rojek.eu>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200517194904.34758-1-contact@artur-rojek.eu>
-References: <20200517194904.34758-1-contact@artur-rojek.eu>
+        id S1726444AbgEQVV5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 17 May 2020 17:21:57 -0400
+Received: from mail-bn8nam11on2050.outbound.protection.outlook.com ([40.107.236.50]:60993
+        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726372AbgEQVV4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 17 May 2020 17:21:56 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BAbQnHkrrw6JfHsgMUxCCOBzOKWdx270ejQF/PrwCLv0jO/hEEQJbOSuppnvA9AzUukIn8ZFNfNqWQeP8Ftzz2QpQKJTbgWvRUpmOCG8CqgDYnpVp6UTeOSKXO0HqRz0KdKTtn5AFYihLTfktr9HLjcQOrYUM3kQLH2398VLoXOMkug2CzBlewNcMPIwx/GTHbOJlBe5K6EYEhmMZGaG0Udt9nZxvF/aDjXeMjxRNgKT0UCBKktqGnHBcbtZIuokomExii2d7n+TwpB9rc3Hisa0sPxtjHKU+dJkGtunulA3070PBb3Hn51QTjV6CWpgS/7ByQKUEzb4Xwi4SssUSQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qdgNSkg+XAd8ZntpWnpynryqwUkQu8jQWf7gOa15Smk=;
+ b=odNgd8L1fyu4BcaELXaA9C1UMK42DTxElAFTSvh6T7Z/QTC1KGDrKTDr8GIM7XOlhf4354M5fNtChpHTXr/YCOu3I2M/Vdcjgon6LZXQK0xI8NqodF/AikfTos2Zkgn5Dk8plnvzLB2fEXMK+4q5DHVBJqgg/HljJvmp9aBKSZZDDFMCsVeCUtdz4Zn9D+eIrW/Img1T7agU2nALIR3jUju7/rOaoAt4QRPq7o41lT/DpMG7JFCqcdgLASfu/2yEt6Me56RnSAuarNbPxwmFw4Qf3t12kWkoeGxXXPre1iocR7YVCaVj8xbtKAEYNezt024nAjlJtTApJGqS1Ii2hw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
+ dkim=pass header.d=labundy.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qdgNSkg+XAd8ZntpWnpynryqwUkQu8jQWf7gOa15Smk=;
+ b=WXxOTizNRenxXrtnenC6SX9+2eHqlPtgRTfcGGEgmBXe79yAp7DtrwF8b96OPYmUz4DOzEArM0st6z/2fReAOmd7Qj66LfzFKaSs7ZtBJ7joOc+zoBKagtmRSbzdvpqxlFGX+eYKKPMzVJmDhiB/8yWUknrQnbZiCK193MZvy9A=
+Authentication-Results: gmail.com; dkim=none (message not signed)
+ header.d=none;gmail.com; dmarc=none action=none header.from=labundy.com;
+Received: from SN6PR08MB5517.namprd08.prod.outlook.com (2603:10b6:805:fb::32)
+ by SN6PR08MB5390.namprd08.prod.outlook.com (2603:10b6:805:94::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3000.20; Sun, 17 May
+ 2020 21:21:53 +0000
+Received: from SN6PR08MB5517.namprd08.prod.outlook.com
+ ([fe80::d1f2:9197:cd6:4823]) by SN6PR08MB5517.namprd08.prod.outlook.com
+ ([fe80::d1f2:9197:cd6:4823%7]) with mapi id 15.20.3000.022; Sun, 17 May 2020
+ 21:21:53 +0000
+Date:   Sun, 17 May 2020 16:21:47 -0500
+From:   Jeff LaBundy <jeff@labundy.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     robh+dt@kernel.org, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: Re: [PATCH 2/2] input: misc: Add support for Azoteq IQS269A
+Message-ID: <20200517212147.GA2158@labundy.com>
+References: <1587340068-2818-1-git-send-email-jeff@labundy.com>
+ <1587340068-2818-2-git-send-email-jeff@labundy.com>
+ <20200420170930.GO166864@dtor-ws>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200420170930.GO166864@dtor-ws>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-ClientProxiedBy: SN2PR01CA0023.prod.exchangelabs.com (2603:10b6:804:2::33)
+ To SN6PR08MB5517.namprd08.prod.outlook.com (2603:10b6:805:fb::32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from labundy.com (136.49.227.119) by SN2PR01CA0023.prod.exchangelabs.com (2603:10b6:804:2::33) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3000.26 via Frontend Transport; Sun, 17 May 2020 21:21:52 +0000
+X-Originating-IP: [136.49.227.119]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 02230e65-bb67-458e-6849-08d7faa851a7
+X-MS-TrafficTypeDiagnostic: SN6PR08MB5390:
+X-Microsoft-Antispam-PRVS: <SN6PR08MB5390B7209C93647DE71F4526D3BB0@SN6PR08MB5390.namprd08.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
+X-Forefront-PRVS: 040655413E
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: cnxKC7lZPrjXmbFxH3e9e7hZJ7gNJKYYkVL9OGpD1fDtjQUO8gVLMnrPSV3UZPnqsEnYD4b5XGVIvM9trwTJqI9w/Wl4JJOp7ZUrjmTbJ0f5nbyxcbyEIdw7t1zjy943O6wmeCCxNurqHpOi1CKSuv2h43b1syq3EJ/b8h5nbJm3FTiSnAWyxIOcYyN0N2PXpZsr2oC5pKa0TYcUTPuw5jZ5QN/qIi/0fSlkIdmV9usdpHH52D1JtMvJr1k8NwTy+aRuJ7RiOm3VjD38sRqMz/Yn6egNx3GWwXOkvaFLIju/vIb7y0ZuG/jxntXQ4BmxdpgClp/DtB0lJlr5JVOrtYjugN2F4o+yLu/dTiTzqFt8EFHv9dXrIIE60pvL7b8Dvo2Q7dVFP+NfcLFjBPHWchlaF0VjlazEdmrbDpPyCICJXtZBNjegK5DccMh/YwU5xWSRenSfYrXDvMjS9M4/BUa2rpz+aE02HIYhj0SWOUd2+C1jTF677iQ+MGlt2hm0THdhCBoEQG3GmM+TU9sMPw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR08MB5517.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(366004)(136003)(376002)(346002)(39830400003)(396003)(16526019)(86362001)(6916009)(956004)(186003)(316002)(2616005)(52116002)(7696005)(6666004)(8886007)(66556008)(66476007)(36756003)(66946007)(4326008)(55016002)(508600001)(33656002)(966005)(8936002)(26005)(2906002)(5660300002)(8676002)(1076003)(4744005);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: QTcFdbrjYz+hPK5oX4tyiPgAQdRmAz6Aqia7v9DUr9ebQjX3eROVb3ASy5obFiGKDANAVYdhyt0Tcfaxnem/13dF3MpEtakludBxIr9n2mktNH6a8KJxbipzdWDaUSqmNJNclp7QrEjDqpS4blmzT57j2VRhlhPD81OruN8G7B5r3k0eXCPvf1nqhFWm7FfHMCkBBIDgbjZJs6KWFut3XLiM28lrNTBLGWd+vxWRX64iVaDnyh+ZWMWMm8UpQqyBP9NC107vaTAw2l92cnUxGnr1eBujddfqa24heXyw79RVSh7qIr+0Z0nbvavvMUNdeOlJvZO2ufYWucvQ6SQDVOLEkdi5veIH8Bv5oBTC3ZCt6OT4kgA97N2E8kjTPAAS6B3rSFCPF0p3Mi8lm54ZBbH2OLPtM/c/6BoqD7rDa4D/vUSjDmZ42jFdYIMN1LYz7e7Z9BkE6DQkqZ2KjTZ4CiIQrGlhNgt8EvHwZ2uiNrM=
+X-OriginatorOrg: labundy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 02230e65-bb67-458e-6849-08d7faa851a7
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 May 2020 21:21:53.1157
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: NmKFN1Fcx4NNd/fJr7kIaerTWDQPUbgmjd8l2UHtvOXtjAClToNNNtMBALiwm/b1/pYutalRv3EYt6umlBAuIA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR08MB5390
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Provide an of_xlate callback in order to retrieve the correct channel
-specifier index from the IIO channels array.
+Hi Dmitry,
 
-Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
-Tested-by: Paul Cercueil <paul@crapouillou.net>
----
+On Mon, Apr 20, 2020 at 10:09:30AM -0700, Dmitry Torokhov wrote:
+> On Sun, Apr 19, 2020 at 06:47:48PM -0500, Jeff LaBundy wrote:
+> > This patch adds support for the Azoteq IQS269A capacitive touch
+> > controller.
+> > 
+> > Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+> 
+> This looks good, so just need to get Rob's take on the binding...
 
- Changes:
+Thank you for the quick turn-around. Last week Rob reviewed the
+binding for v2 [1]; the driver has not changed since your first
+review. Would you consider taking v2 for this cycle?
 
- v2-v7: no change
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
 
- drivers/iio/adc/ingenic-adc.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+[1] https://patchwork.kernel.org/patch/11522939/
 
-diff --git a/drivers/iio/adc/ingenic-adc.c b/drivers/iio/adc/ingenic-adc.c
-index 6c3bbba7c44b..0eee4b4fb96c 100644
---- a/drivers/iio/adc/ingenic-adc.c
-+++ b/drivers/iio/adc/ingenic-adc.c
-@@ -400,6 +400,21 @@ static int ingenic_adc_read_raw(struct iio_dev *iio_dev,
- 	}
- }
- 
-+static int ingenic_adc_of_xlate(struct iio_dev *iio_dev,
-+				const struct of_phandle_args *iiospec)
-+{
-+	int i;
-+
-+	if (!iiospec->args_count)
-+		return -EINVAL;
-+
-+	for (i = 0; i < iio_dev->num_channels; ++i)
-+		if (iio_dev->channels[i].channel == iiospec->args[0])
-+			return i;
-+
-+	return -EINVAL;
-+}
-+
- static void ingenic_adc_clk_cleanup(void *data)
- {
- 	clk_unprepare(data);
-@@ -409,6 +424,7 @@ static const struct iio_info ingenic_adc_info = {
- 	.write_raw = ingenic_adc_write_raw,
- 	.read_raw = ingenic_adc_read_raw,
- 	.read_avail = ingenic_adc_read_avail,
-+	.of_xlate = ingenic_adc_of_xlate,
- };
- 
- static const struct iio_chan_spec ingenic_channels[] = {
--- 
-2.26.2
-
+Kind regards,
+Jeff LaBundy

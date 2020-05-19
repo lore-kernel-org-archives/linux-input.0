@@ -2,233 +2,332 @@ Return-Path: <SRS0=xHC6=7B=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 718B4C433E0
-	for <linux-input@archiver.kernel.org>; Tue, 19 May 2020 09:03:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85385C433DF
+	for <linux-input@archiver.kernel.org>; Tue, 19 May 2020 09:18:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4BF2B2088E
-	for <linux-input@archiver.kernel.org>; Tue, 19 May 2020 09:03:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66A34206D4
+	for <linux-input@archiver.kernel.org>; Tue, 19 May 2020 09:18:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728477AbgESJDK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 May 2020 05:03:10 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:49894 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726333AbgESJDI (ORCPT
+        id S1726880AbgESJSo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 May 2020 05:18:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36416 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726412AbgESJSn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 May 2020 05:03:08 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: andrzej.p)
-        with ESMTPSA id 7A8D02A1ED2
-Subject: Re: [PATCHv2 0/7] Support inhibiting input devices
-To:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
-        linux-acpi@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
-        patches@opensource.cirrus.com,
-        ibm-acpi-devel@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Kukjin Kim <kgene@kernel.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Barry Song <baohua@kernel.org>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Nick Dyer <nick@shmanahar.org>,
-        Ferruh Yigit <fery@cypress.com>,
-        Sangwon Jee <jeesw@melfas.com>,
-        Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>,
-        kernel@collabora.com, Peter Hutterer <peter.hutterer@redhat.com>,
-        Benjamin Tissoires <btissoir@redhat.com>
-References: <20200506002746.GB89269@dtor-ws>
- <20200515164943.28480-1-andrzej.p@collabora.com>
- <842b95bb-8391-5806-fe65-be64b02de122@redhat.com>
- <e6030957-97dc-5b04-7855-bc14a78164c8@collabora.com>
- <6d9921fc-5c2f-beda-4dcd-66d6970a22fe@redhat.com>
- <09679de4-75d3-1f29-ec5f-8d42c84273dd@collabora.com>
- <f674ba4f-bd83-0877-c730-5dc6ea09ae4b@redhat.com>
-From:   Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Message-ID: <2d224833-3a7e-bc7c-af15-1f803f466697@collabora.com>
-Date:   Tue, 19 May 2020 11:02:58 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        Tue, 19 May 2020 05:18:43 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CFB5C061A0C
+        for <linux-input@vger.kernel.org>; Tue, 19 May 2020 02:18:43 -0700 (PDT)
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1jayOY-0004FG-6i; Tue, 19 May 2020 11:18:42 +0200
+Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1jayOX-0002Yw-Sy; Tue, 19 May 2020 11:18:41 +0200
+Date:   Tue, 19 May 2020 11:18:41 +0200
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     Daniel Mack <daniel@zonque.org>
+Cc:     linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Subject: Re: [PATCH v3 3/3] Input: ads7846: Switch to devm initialization
+Message-ID: <20200519091841.dlj3tumnvxolbbcy@pengutronix.de>
+References: <20200507062014.1780360-1-daniel@zonque.org>
+ <20200507062014.1780360-5-daniel@zonque.org>
 MIME-Version: 1.0
-In-Reply-To: <f674ba4f-bd83-0877-c730-5dc6ea09ae4b@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200507062014.1780360-5-daniel@zonque.org>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 11:15:05 up 186 days, 33 min, 195 users,  load average: 0.13, 0.11,
+ 0.05
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Hans, Hi Dmitry,
+Hi Daniel,
 
-W dniu 18.05.2020 o 16:23, Hans de Goede pisze:
-> Hi,
+sry for my late response.
 
-<snip>
-
->>>>>
->>>>> So I wonder what this series actually adds for functionality for
->>>>> userspace which can not already be achieved this way?
->>>>>
->>>>> I also noticed that you keep the device open (do not call the
->>>>> input_device's close callback) when inhibited and just throw away
->>>>
->>>> I'm not sure if I understand you correctly, it is called:
->>>>
->>>> +static inline void input_stop(struct input_dev *dev)
->>>> +{
->>>> +    if (dev->poller)
->>>> +        input_dev_poller_stop(dev->poller);
->>>> +    if (dev->close)
->>>> +        dev->close(dev);
->>>>                  ^^^^^^^^^^^^^^^^
->>>> +static int input_inhibit(struct input_dev *dev)
->>>> +{
->>>> +    int ret = 0;
->>>> +
->>>> +    mutex_lock(&dev->mutex);
->>>> +
->>>> +    if (dev->inhibited)
->>>> +        goto out;
->>>> +
->>>> +    if (dev->users) {
->>>> +        if (dev->inhibit) {
->>>> +            ret = dev->inhibit(dev);
->>>> +            if (ret)
->>>> +                goto out;
->>>> +        }
->>>> +        input_stop(dev);
->>>>                  ^^^^^^^^^^^^^^^^
->>>>
->>>> It will not be called when dev->users is zero, but if it is zero,
->>>> then nobody has opened the device yet so there is nothing to close.
->>>
->>> Ah, I missed that.
->>>
->>> So if the device implements the inhibit call back then on
->>> inhibit it will get both the inhibit and close callback called?
->>>
->>
->> That's right. And conversely, upon uninhibit open() and uninhibit()
->> callbacks will be invoked. Please note that just as with open()/close(),
->> providing inhibit()/uninhibit() is optional.
+On 20-05-07 08:20, Daniel Mack wrote:
+> This simplies the code a lot and fixes some potential resource leaks in
+> the error return paths.
 > 
-> Ack.
+> Signed-off-by: Daniel Mack <daniel@zonque.org>
+> ---
+>  drivers/input/touchscreen/ads7846.c | 123 ++++++++++------------------
+>  1 file changed, 45 insertions(+), 78 deletions(-)
 > 
->>> And what happens if the last user goes away and the device
->>> is not inhibited?
->>
->> close() is called as usually.
-> 
-> But not inhibit, hmm, see below.
-> 
->>> I'm trying to understand here what the difference between the 2
->>> is / what the goal of having a separate inhibit callback ?
->>>
->>
->> Drivers have very different ideas about what it means to suspend/resume
->> and open/close. The optional inhibit/uninhibit callbacks are meant for
->> the drivers to know that it is this particular action going on.
-> 
-> So the inhibit() callback triggers the "suspend" behavior ?
-> But shouldn't drivers which are capable of suspending the device
-> always do so on close() ?
-> 
-> Since your current proposal also calls close() on inhibit() I
-> really see little difference between an inhibit() and the last
-> user of the device closing it and IMHO unless there is a good
-> reason to actually differentiate the 2 it would be better
-> to only stick with the existing close() and in cases where
-> that does not put the device in a low-power mode yet, fix
-> the existing close() callback to do the low-power mode
-> setting instead of adding a new callback.
-> 
->> For inhibit() there's one more argument: close() does not return a value,
->> so its meaning is "do some last cleanup" and as such it is not allowed
->> to fail - whatever its effect is, we must deem it successful. inhibit()
->> does return a value and so it is allowed to fail.
-> 
-> Well, we could make close() return an error and at least in the inhibit()
-> case propagate that to userspace. I wonder if userspace is going to
-> do anything useful with that error though...
-> 
-> In my experience errors during cleanup/shutdown are best logged
-> (using dev_err) and otherwise ignored, so that we try to clean up
-> as much possible. Unless the very first step of the shutdown process
-> fails the device is going to be in some twilight zone state anyways
-> at this point we might as well try to cleanup as much as possible.
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+> index 4635e8867d10..1f496c4ca6ad 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -98,10 +98,6 @@ struct ads7846 {
+>  	struct spi_device	*spi;
+>  	struct regulator	*reg;
+>  
+> -#if IS_ENABLED(CONFIG_HWMON)
+> -	struct device		*hwmon;
+> -#endif
+> -
+>  	u16			model;
+>  	u16			vref_mv;
+>  	u16			vref_delay_usecs;
+> @@ -513,6 +509,8 @@ __ATTRIBUTE_GROUPS(ads7846_attr);
+>  
+>  static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+>  {
+> +	struct device *hwmon;
+> +
+>  	/* hwmon sensors need a reference voltage */
+>  	switch (ts->model) {
+>  	case 7846:
+> @@ -533,17 +531,11 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+>  		break;
+>  	}
+>  
+> -	ts->hwmon = hwmon_device_register_with_groups(&spi->dev, spi->modalias,
+> -						      ts, ads7846_attr_groups);
+> -
+> -	return PTR_ERR_OR_ZERO(ts->hwmon);
+> -}
+> +	hwmon = devm_hwmon_device_register_with_groups(&spi->dev,
+> +						       spi->modalias, ts,
+> +						       ads7846_attr_groups);
+>  
+> -static void ads784x_hwmon_unregister(struct spi_device *spi,
+> -				     struct ads7846 *ts)
+> -{
+> -	if (ts->hwmon)
+> -		hwmon_device_unregister(ts->hwmon);
+> +	return PTR_ERR_OR_ZERO(hwmon);
+>  }
+>  
+>  #else
+> @@ -552,11 +544,6 @@ static inline int ads784x_hwmon_register(struct spi_device *spi,
+>  {
+>  	return 0;
+>  }
+> -
+> -static inline void ads784x_hwmon_unregister(struct spi_device *spi,
+> -					    struct ads7846 *ts)
+> -{
+> -}
+>  #endif
+>  
+>  static ssize_t ads7846_pen_down_show(struct device *dev,
+> @@ -949,8 +936,8 @@ static int ads7846_setup_pendown(struct spi_device *spi,
+>  		ts->get_pendown_state = pdata->get_pendown_state;
+>  	} else if (gpio_is_valid(pdata->gpio_pendown)) {
+>  
+> -		err = gpio_request_one(pdata->gpio_pendown, GPIOF_IN,
+> -				       "ads7846_pendown");
+> +		err = devm_gpio_request_one(&spi->dev, pdata->gpio_pendown,
+> +					    GPIOF_IN, "ads7846_pendown");
+>  		if (err) {
+>  			dev_err(&spi->dev,
+>  				"failed to request/setup pendown GPIO%d: %d\n",
+> @@ -1266,6 +1253,11 @@ static const struct ads7846_platform_data *ads7846_probe_dt(struct device *dev)
+>  }
+>  #endif
+>  
+> +static void ads7846_regulator_disable(void *regulator)
+> +{
+> +	regulator_disable(regulator);
+> +}
+> +
+>  static int ads7846_probe(struct spi_device *spi)
+>  {
+>  	const struct ads7846_platform_data *pdata;
+> @@ -1299,13 +1291,17 @@ static int ads7846_probe(struct spi_device *spi)
+>  	if (err < 0)
+>  		return err;
+>  
+> -	ts = kzalloc(sizeof(struct ads7846), GFP_KERNEL);
+> -	packet = kzalloc(sizeof(struct ads7846_packet), GFP_KERNEL);
+> -	input_dev = input_allocate_device();
+> -	if (!ts || !packet || !input_dev) {
+> -		err = -ENOMEM;
+> -		goto err_free_mem;
+> -	}
+> +	ts = devm_kzalloc(dev, sizeof(struct ads7846), GFP_KERNEL);
+> +	if (!ts)
+> +		return -ENOMEM;
+> +
+> +	packet = devm_kzalloc(dev, sizeof(struct ads7846_packet), GFP_KERNEL);
+> +	if (!packet)
+> +		return -ENOMEM;
+> +
+> +	input_dev = devm_input_allocate_device(dev);
+> +	if (!input_dev)
+> +		return -ENOMEM;
+>  
+>  	spi_set_drvdata(spi, ts);
+>  
+> @@ -1319,10 +1315,8 @@ static int ads7846_probe(struct spi_device *spi)
+>  	pdata = dev_get_platdata(dev);
+>  	if (!pdata) {
+>  		pdata = ads7846_probe_dt(dev);
+> -		if (IS_ERR(pdata)) {
+> -			err = PTR_ERR(pdata);
+> -			goto err_free_mem;
+> -		}
+> +		if (IS_ERR(pdata))
+> +			return PTR_ERR(pdata);
+>  	}
+>  
+>  	ts->model = pdata->model ? : 7846;
+> @@ -1344,7 +1338,7 @@ static int ads7846_probe(struct spi_device *spi)
+>  
+>  	err = ads7846_setup_pendown(spi, ts, pdata);
+>  	if (err)
+> -		goto err_free_mem;
+> +		return err;
+>  
+>  	if (pdata->penirq_recheck_delay_usecs)
+>  		ts->penirq_recheck_delay_usecs =
+> @@ -1391,41 +1385,47 @@ static int ads7846_probe(struct spi_device *spi)
+>  
+>  	ads7846_setup_spi_msg(ts, pdata);
+>  
+> -	ts->reg = regulator_get(dev, "vcc");
+> +	ts->reg = devm_regulator_get(dev, "vcc");
+>  	if (IS_ERR(ts->reg)) {
+>  		err = PTR_ERR(ts->reg);
+>  		dev_err(dev, "unable to get regulator: %d\n", err);
+> -		goto err_free_gpio;
+> +		return err;
+>  	}
+>  
+>  	err = regulator_enable(ts->reg);
+>  	if (err) {
+>  		dev_err(dev, "unable to enable regulator: %d\n", err);
+> -		goto err_put_regulator;
+> +		return err;
+>  	}
+>  
+> +	err = devm_add_action_or_reset(dev, ads7846_regulator_disable, ts->reg);
+> +	if (err)
+> +		return err;
+> +
+>  	irq_flags = pdata->irq_flags ? : IRQF_TRIGGER_FALLING;
+>  	irq_flags |= IRQF_ONESHOT;
+>  
+> -	err = request_threaded_irq(spi->irq, ads7846_hard_irq, ads7846_irq,
+> -				   irq_flags, dev->driver->name, ts);
+> +	err = devm_request_threaded_irq(dev, spi->irq,
+> +					ads7846_hard_irq, ads7846_irq,
+> +					irq_flags, dev->driver->name, ts);
+>  	if (err && !pdata->irq_flags) {
+>  		dev_info(dev,
+>  			"trying pin change workaround on irq %d\n", spi->irq);
+>  		irq_flags |= IRQF_TRIGGER_RISING;
+> -		err = request_threaded_irq(spi->irq,
+> -				  ads7846_hard_irq, ads7846_irq,
+> -				  irq_flags, dev->driver->name, ts);
+> +		err = devm_request_threaded_irq(dev, spi->irq,
+> +						ads7846_hard_irq, ads7846_irq,
+> +						irq_flags, dev->driver->name,
+> +						ts);
+>  	}
+>  
+>  	if (err) {
+>  		dev_dbg(dev, "irq %d busy?\n", spi->irq);
+> -		goto err_disable_regulator;
+> +		return err;
+>  	}
+>  
+>  	err = ads784x_hwmon_register(spi, ts);
+>  	if (err)
+> -		goto err_free_irq;
+> +		return err;
+>  
+>  	dev_info(dev, "touchscreen, irq %d\n", spi->irq);
+>  
+> @@ -1440,7 +1440,7 @@ static int ads7846_probe(struct spi_device *spi)
+>  
+>  	err = sysfs_create_group(&dev->kobj, &ads784x_attr_group);
+>  	if (err)
+> -		goto err_remove_hwmon;
+> +		return err;
+>  
+>  	err = input_register_device(input_dev);
+>  	if (err)
+> @@ -1459,21 +1459,7 @@ static int ads7846_probe(struct spi_device *spi)
+>  
+>   err_remove_attr_group:
+>  	sysfs_remove_group(&dev->kobj, &ads784x_attr_group);
+> - err_remove_hwmon:
+> -	ads784x_hwmon_unregister(spi, ts);
+> - err_free_irq:
+> -	free_irq(spi->irq, ts);
+> - err_disable_regulator:
+> -	regulator_disable(ts->reg);
+> - err_put_regulator:
+> -	regulator_put(ts->reg);
+> - err_free_gpio:
+> -	if (!ts->get_pendown_state)
+> -		gpio_free(ts->gpio_pendown);
+> - err_free_mem:
+> -	input_free_device(input_dev);
+> -	kfree(packet);
+> -	kfree(ts);
+> +
+>  	return err;
+>  }
+>  
+> @@ -1482,26 +1468,7 @@ static int ads7846_remove(struct spi_device *spi)
+>  	struct ads7846 *ts = spi_get_drvdata(spi);
+>  
+>  	sysfs_remove_group(&spi->dev.kobj, &ads784x_attr_group);
+> -
+>  	ads7846_disable(ts);
 
-What you say makes sense to me.
-@Dmitry?
-
-> 
->> All in all, it is up to the drivers to decide which callback they
->> provide. Based on my work so far I would say that there are tens
->> of simple cases where open() and close() are sufficient, out of total
->> ~400 users of input_allocate_device():
->>
->> $ git grep "input_allocate_device(" | grep -v ^Documentation | \
->> cut -f1 -d: | sort | uniq | wc
->>      390     390   13496
-> 
-> So can you explain a bit more about the cases where only having
-> open/close is not sufficient?  So far I have the feeling that
-> those are all we need and that we really do not need separate
-> [un]inhibit callbacks.
-
-My primary concern was not being able to propagate inhibit() error
-to userspace, and then if we have inhibit(), uninhibit() should be
-there for completeness. If propagating the error to userspace can
-be neglected then yes, it seems open/close should be sufficient,
-even more because the real meaning of "open" is "prepare the device
-for generating input events".
-
-To validate the idea of not introducing inhibit()/uninhibit() callbacks
-to implement device inhibiting/uninhibiting let's look at
-drivers/input/mouse/elan_i2c_core.c (PATCH 7/7):
-
-static int elan_inhibit(struct input_dev *input)
-{
-[...]
-
-	ret = mutex_lock_interruptible(&data->sysfs_mutex);
-	if (ret)
-		return ret;
-
-	disable_irq(client->irq);
-
-	ret = elan_disable_power(data);
-	if (ret)
-		enable_irq(client->irq);
-[...]
-}
-
-First, close() does not exist in this driver. Of course this can be
-fixed. Then it doesn't return a value. Then, if either taking the
-mutex or disabling the power fails, the close() is still deemed
-successful. Is it ok?
-@Dmitry?
+Did you tested the bind/unbind path? I think we are getting troubles
+here because ads7846_disable calls ads7846_stop() and
+regulator_disable(). Since we are using the devm_action the regualtor
+gets disabled by this action and ads7846_disable(). This causes a
+refcount problem.
 
 Regards,
+  Marco
 
-Andrzej
+> -	free_irq(ts->spi->irq, ts);
+> -
+> -	input_unregister_device(ts->input);
+> -
+> -	ads784x_hwmon_unregister(spi, ts);
+> -
+> -	regulator_put(ts->reg);
+> -
+> -	if (!ts->get_pendown_state) {
+> -		/*
+> -		 * If we are not using specialized pendown method we must
+> -		 * have been relying on gpio we set up ourselves.
+> -		 */
+> -		gpio_free(ts->gpio_pendown);
+> -	}
+> -
+> -	kfree(ts->packet);
+> -	kfree(ts);
+>  
+>  	dev_dbg(&spi->dev, "unregistered touchscreen\n");
+>  
+> -- 
+> 2.26.2
+> 
+> 

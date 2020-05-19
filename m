@@ -2,165 +2,150 @@ Return-Path: <SRS0=xHC6=7B=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84B52C433E1
-	for <linux-input@archiver.kernel.org>; Tue, 19 May 2020 18:15:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEF24C433E0
+	for <linux-input@archiver.kernel.org>; Tue, 19 May 2020 18:25:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D20320674
-	for <linux-input@archiver.kernel.org>; Tue, 19 May 2020 18:15:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7D2A2075F
+	for <linux-input@archiver.kernel.org>; Tue, 19 May 2020 18:25:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726862AbgESSPk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 May 2020 14:15:40 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2230 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726447AbgESSPk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 May 2020 14:15:40 -0400
-Received: from lhreml710-chm.china.huawei.com (unknown [172.18.7.108])
-        by Forcepoint Email with ESMTP id 578699F2B73643D873E3;
-        Tue, 19 May 2020 19:15:39 +0100 (IST)
-Received: from localhost (10.47.86.149) by lhreml710-chm.china.huawei.com
- (10.201.108.61) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1913.5; Tue, 19 May
- 2020 19:15:38 +0100
-Date:   Tue, 19 May 2020 19:15:11 +0100
-From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To:     Artur Rojek <contact@artur-rojek.eu>
-CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        "Ezequiel Garcia" <ezequiel@vanguardiasur.com.ar>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-iio@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v7 2/7] IIO: Ingenic JZ47xx: Error check clk_enable
- calls.
-Message-ID: <20200519191511.00007c78@Huawei.com>
-In-Reply-To: <20200517194904.34758-2-contact@artur-rojek.eu>
-References: <20200517194904.34758-1-contact@artur-rojek.eu>
-        <20200517194904.34758-2-contact@artur-rojek.eu>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; i686-w64-mingw32)
+        id S1729148AbgESSZG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 May 2020 14:25:06 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:56176 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726059AbgESSZF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 May 2020 14:25:05 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: sre)
+        with ESMTPSA id 11C7F2A2604
+Received: by jupiter.universe (Postfix, from userid 1000)
+        id 995A3480100; Tue, 19 May 2020 20:25:01 +0200 (CEST)
+From:   Sebastian Reichel <sebastian.reichel@collabora.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Ahmet Inan <inan@distec.de>,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@collabora.com,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCHv2 1/5] dt-bindings: touchscreen: Convert EETI EXC3000 touchscreen to json-schema
+Date:   Tue, 19 May 2020 20:24:43 +0200
+Message-Id: <20200519182447.73405-2-sebastian.reichel@collabora.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200519182447.73405-1-sebastian.reichel@collabora.com>
+References: <20200519182447.73405-1-sebastian.reichel@collabora.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.47.86.149]
-X-ClientProxiedBy: lhreml705-chm.china.huawei.com (10.201.108.54) To
- lhreml710-chm.china.huawei.com (10.201.108.61)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 17 May 2020 21:48:59 +0200
-Artur Rojek <contact@artur-rojek.eu> wrote:
+Convert the EETI EXC3000 binding to DT schema format using json-schema
 
-> Introduce error checks for the clk_enable calls used in this driver.
-> As part of the changes, move clk_enable/clk_disable calls out of
-> ingenic_adc_set_config and into respective logic of its callers.
-> 
-> Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
-> Tested-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+---
+ .../bindings/input/touchscreen/exc3000.txt    | 26 ---------
+ .../bindings/input/touchscreen/exc3000.yaml   | 53 +++++++++++++++++++
+ 2 files changed, 53 insertions(+), 26 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/exc3000.yaml
 
-One trivial thing inline.
-
-> ---
-> 
->  Changes:
-> 
->  v6: new patch
-> 
->  v7: no change
-> 
->  drivers/iio/adc/ingenic-adc.c | 23 ++++++++++++++++++++---
->  1 file changed, 20 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/iio/adc/ingenic-adc.c b/drivers/iio/adc/ingenic-adc.c
-> index 39c0a609fc94..6c3bbba7c44b 100644
-> --- a/drivers/iio/adc/ingenic-adc.c
-> +++ b/drivers/iio/adc/ingenic-adc.c
-> @@ -73,7 +73,6 @@ static void ingenic_adc_set_config(struct ingenic_adc *adc,
->  {
->  	uint32_t cfg;
->  
-> -	clk_enable(adc->clk);
->  	mutex_lock(&adc->lock);
->  
->  	cfg = readl(adc->base + JZ_ADC_REG_CFG) & ~mask;
-> @@ -81,7 +80,6 @@ static void ingenic_adc_set_config(struct ingenic_adc *adc,
->  	writel(cfg, adc->base + JZ_ADC_REG_CFG);
->  
->  	mutex_unlock(&adc->lock);
-> -	clk_disable(adc->clk);
->  }
->  
->  static void ingenic_adc_enable(struct ingenic_adc *adc,
-> @@ -124,6 +122,8 @@ static int ingenic_adc_write_raw(struct iio_dev *iio_dev,
->  				 long m)
->  {
->  	struct ingenic_adc *adc = iio_priv(iio_dev);
-> +	struct device *dev = iio_dev->dev.parent;
-> +	int ret;
->  
->  	switch (m) {
->  	case IIO_CHAN_INFO_SCALE:
-> @@ -131,6 +131,14 @@ static int ingenic_adc_write_raw(struct iio_dev *iio_dev,
->  		case INGENIC_ADC_BATTERY:
->  			if (!adc->soc_data->battery_vref_mode)
->  				return -EINVAL;
-> +
-> +			ret = clk_enable(adc->clk);
-> +			if (ret) {
-> +				dev_err(dev, "Failed to enable clock: %d\n",
-> +					ret);
-> +				return ret;
-> +			}
-> +
->  			if (val > JZ_ADC_BATTERY_LOW_VREF) {
->  				ingenic_adc_set_config(adc,
->  						       JZ_ADC_REG_CFG_BAT_MD,
-> @@ -142,6 +150,9 @@ static int ingenic_adc_write_raw(struct iio_dev *iio_dev,
->  						       JZ_ADC_REG_CFG_BAT_MD);
->  				adc->low_vref_mode = true;
->  			}
-> +
-> +			clk_disable(adc->clk);
-> +
->  			return 0;
->  		default:
->  			return -EINVAL;
-> @@ -317,6 +328,13 @@ static int ingenic_adc_read_chan_info_raw(struct ingenic_adc *adc,
->  					  int *val)
->  {
->  	int bit, ret, engine = (chan->channel == INGENIC_ADC_BATTERY);
-> +	struct device *dev = iio_priv_to_dev(adc)->dev.parent;
-> +
-> +	ret = clk_enable(adc->clk);
-> +	if (ret) {
-> +		dev_err(dev, "Failed to enable clock: %d\n", ret);
-> +		return ret;
-> +	}
-
-It almost certainly doesn't matter, but if we are going to move the clk enable
-outside the lock, we should do the same with the disable.
-
->  
->  	/* We cannot sample AUX/AUX2 in parallel. */
->  	mutex_lock(&adc->aux_lock);
-> @@ -325,7 +343,6 @@ static int ingenic_adc_read_chan_info_raw(struct ingenic_adc *adc,
->  		ingenic_adc_set_config(adc, JZ_ADC_REG_CFG_AUX_MD, bit);
->  	}
->  
-> -	clk_enable(adc->clk);
->  	ret = ingenic_adc_capture(adc, engine);
->  	if (ret)
->  		goto out;
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt b/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+deleted file mode 100644
+index 68291b94fec2..000000000000
+--- a/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
++++ /dev/null
+@@ -1,26 +0,0 @@
+-* EETI EXC3000 Multiple Touch Controller
+-
+-Required properties:
+-- compatible: must be "eeti,exc3000"
+-- reg: i2c slave address
+-- interrupts: touch controller interrupt
+-- touchscreen-size-x: See touchscreen.txt
+-- touchscreen-size-y: See touchscreen.txt
+-
+-Optional properties:
+-- touchscreen-inverted-x: See touchscreen.txt
+-- touchscreen-inverted-y: See touchscreen.txt
+-- touchscreen-swapped-x-y: See touchscreen.txt
+-
+-Example:
+-
+-	touchscreen@2a {
+-		compatible = "eeti,exc3000";
+-		reg = <0x2a>;
+-		interrupt-parent = <&gpio1>;
+-		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+-		touchscreen-size-x = <4096>;
+-		touchscreen-size-y = <4096>;
+-		touchscreen-inverted-x;
+-		touchscreen-swapped-x-y;
+-	};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/exc3000.yaml b/Documentation/devicetree/bindings/input/touchscreen/exc3000.yaml
+new file mode 100644
+index 000000000000..5d2e7496d6dd
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/exc3000.yaml
+@@ -0,0 +1,53 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/exc3000.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: EETI EXC3000 series touchscreen controller
++
++maintainers:
++  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    const: eeti,exc3000
++  reg:
++    const: 0x2a
++  interrupts:
++    maxItems: 1
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-swapped-x-y: true
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - touchscreen-size-x
++  - touchscreen-size-y
++
++additionalProperties: false
++
++examples:
++  - |
++    #include "dt-bindings/interrupt-controller/irq.h"
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        touchscreen@2a {
++                compatible = "eeti,exc3000";
++                reg = <0x2a>;
++                interrupt-parent = <&gpio1>;
++                interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
++                touchscreen-size-x = <4096>;
++                touchscreen-size-y = <4096>;
++                touchscreen-inverted-x;
++                touchscreen-swapped-x-y;
++        };
++    };
+-- 
+2.26.2
 

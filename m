@@ -2,94 +2,116 @@ Return-Path: <SRS0=5/zS=7C=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39AECC433E0
-	for <linux-input@archiver.kernel.org>; Wed, 20 May 2020 17:02:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0D7DC433DF
+	for <linux-input@archiver.kernel.org>; Wed, 20 May 2020 17:13:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3C5020708
-	for <linux-input@archiver.kernel.org>; Wed, 20 May 2020 17:02:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A114420849
+	for <linux-input@archiver.kernel.org>; Wed, 20 May 2020 17:13:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mOFVaX5s"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eQ8ZueCA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726566AbgETRCk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 May 2020 13:02:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
+        id S1726691AbgETRNa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 May 2020 13:13:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726436AbgETRCk (ORCPT
+        with ESMTP id S1727044AbgETRN2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 May 2020 13:02:40 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1264DC061A0E;
-        Wed, 20 May 2020 10:02:39 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id k18so3992288ion.0;
-        Wed, 20 May 2020 10:02:39 -0700 (PDT)
+        Wed, 20 May 2020 13:13:28 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CBEEC061A0E;
+        Wed, 20 May 2020 10:13:28 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id 23so1866245pfy.8;
+        Wed, 20 May 2020 10:13:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RbtzaMFf7pW30QhNWNbIkxxpmi1TRj00OoVA+lD+dhA=;
-        b=mOFVaX5s6qRcKV+xyGlQ+sem0KZHuFDf6yrDBqunG9GQx49qCsmRUnOxqST+G9zs/v
-         dWKZ0Or5tmWZ0DDQ5brjtO8bCgt+6Wnuy+HuauNql4aORz75kO6Q7aBCNi3xyUfSVQ8B
-         DcKZaQlPeRyQrCCQa7sqheRa7UD50evYDZDeDdMYd96YNSYTbIloxqt+GtIIxcH6/df6
-         6krSZioMagemxcgUYvw/KZUNoM19B1W7S6Lk56nh1SEk+e/4WTNHaEOycmxYRQyMVd5L
-         Yet4SJ4g9oijUwKGmSMHD0lbBn+0nJeBJvsvolrdN59x7zEHrKvrWU+ZNf+EuxDozLv7
-         i5EA==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=arFxXWIilJc8yilr6THATlL+mM94NJsqQ+xYHRPI28o=;
+        b=eQ8ZueCAAmKF481dSsTzEfptXR3E56PhUUH9kEaE5lcwybZBOx13OC+Xi9wkqf8yJl
+         eMd1L2e88OjzLZqUwjft5kT4q1ykz42UQV6MVOEia2NuXW7QNNZ7A34YWkJl2fTeKnXd
+         x57lOvCSMymfWq5CIUCMSTFmCQ+QTFXWfQxGIl0MyJIAsxvIWaGoYNiaL9FYDbjjsASH
+         yrczDke/1e9q5QAzunll1NsU34AZd3fkwQAvuZ8SyOMsHhrXwdE+C5ocxHRWMG94nAuo
+         mFEYgVnx+pQB6bpLbpXdPCQm3xxHlbpl8IjeNyIIG5xyCXVHShY2DHAh3VorO1Fq2dCg
+         0CDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RbtzaMFf7pW30QhNWNbIkxxpmi1TRj00OoVA+lD+dhA=;
-        b=TsJHGMe6/p4FAlAo21FAZ2mOkZDF9H+KKXK8QA0AYWLJLzXIE3EAHChuUAk16Tkgj8
-         YooolQPOwLrzIGwKza2FngD/ZPZjtk6WKd2nMUQYe9OwOBWPFHDYULVomaB1A0ZLQpyX
-         VojctcgAwR+Z2fLQv2nqsZM1qJFmtRVTdHaKaemeTymBBIT7bRPpGY1GyQH4jU7bYR5b
-         +BlPBVc4X8XqwhzO/A7Uwq//WADumJY91HoVZuNd0sPJm/UOCThzOCruz45Co/MCZmts
-         OAPofzqJ+AN/I9Wl6/h+tkLXUTFvnnhPyxmii6C8NHhFTvgtvTr7yGma8nWmTBOJqjHb
-         Ecvg==
-X-Gm-Message-State: AOAM531Km7S31AI+kE5PPkBxGAdjk9QA7afgo80ZNhHbZeuSUDtQ9UrS
-        +o7xWugfnvLlzhbzQUI5OBt1cAgV4ac05XZLyDQ=
-X-Google-Smtp-Source: ABdhPJxCR1b4ZKgHAom8aTqNjNn7M3DNQKrWMjyk9IkbFxxqQZgfhaAbfsBle2YAKgxNo403mCsuKgoiDSW/Rlun5mc=
-X-Received: by 2002:a5d:824c:: with SMTP id n12mr4275005ioo.15.1589994158239;
- Wed, 20 May 2020 10:02:38 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200520133432.19738-1-dinghao.liu@zju.edu.cn>
-In-Reply-To: <20200520133432.19738-1-dinghao.liu@zju.edu.cn>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=arFxXWIilJc8yilr6THATlL+mM94NJsqQ+xYHRPI28o=;
+        b=P2vjEHQ9VpwPhDtvoFr5CY/Z/Uil7iUvKz0eU+UOO48q1oM+iWteBSQmDqzBOjIBw1
+         dxLbmqEBWWJsa6b7Psk+5GkQcGk4dY9m6wZIFDNFd2XmgxShF21VXw27C9ioXh6ZWFYn
+         iCFeuV2ykQXQE+mM9AieND7fQizRm+xX5NY1BUSxKeCS4h7GRdLwDBVO/kvGGPQpSUyk
+         tuL2Zp0AJuuREaoS34pnFB5jXBX8JXjZsYh8Uk6olVG0G5tKt+wzUep4PgDtGMmgjhqt
+         KrqVYd8ck39aj2OyQ9ZDhMEHQDF+agPPKw+fuNCt+nazZ121qIf7PDZSh6v669KPr9Aw
+         uOxA==
+X-Gm-Message-State: AOAM530wd0LcDgNuhXOoeRM0JhTm/wO5pLtGEA2sU4I34Z5465jafcO7
+        dXsO/xO0pAt8WLLqQyZ3sJg=
+X-Google-Smtp-Source: ABdhPJzPAJW/ATUYvu+6WYxM82y1cMxLnDMGV4gQ97nd84re0gsoxcS0Os/XSLxbUD3hZDiX3Ghrxw==
+X-Received: by 2002:a05:6a00:150e:: with SMTP id q14mr5106146pfu.325.1589994807327;
+        Wed, 20 May 2020 10:13:27 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:3c2a:73a9:c2cf:7f45])
+        by smtp.gmail.com with ESMTPSA id e1sm2512647pjv.54.2020.05.20.10.13.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 May 2020 10:13:26 -0700 (PDT)
+Date:   Wed, 20 May 2020 10:13:24 -0700
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date:   Wed, 20 May 2020 10:02:27 -0700
-Message-ID: <CAKdAkRTyVL0uV0dGxHoEgMyB9FP6b0m60CHy7C4QXeR5WTGAJw@mail.gmail.com>
-Subject: Re: [PATCH] Input: omap-keypad - fix runtime pm imbalance on error
-To:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Kangjie Lu <kjlu@umn.edu>, Richard Fontana <rfontana@redhat.com>,
-        Allison Randal <allison@lohutok.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+To:     Johan Jonker <jbx6244@gmail.com>
+Cc:     heiko@sntech.de, robh+dt@kernel.org, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: input: touchscreen: edt-ft5x06: change reg
+ property
+Message-ID: <20200520171324.GS89269@dtor-ws>
+References: <20200520073327.6016-1-jbx6244@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200520073327.6016-1-jbx6244@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Dinghao,
+Hi Johan,
 
-On Wed, May 20, 2020 at 6:35 AM Dinghao Liu <dinghao.liu@zju.edu.cn> wrote:
->
-> pm_runtime_get_sync() increments the runtime PM usage counter even
-> the call returns an error code. Thus a pairing decrement is needed
-> on the error handling path to keep the counter balanced.
+On Wed, May 20, 2020 at 09:33:27AM +0200, Johan Jonker wrote:
+> A test with the command below gives this error:
+> 
+> arch/arm/boot/dts/rk3188-bqedison2qc.dt.yaml:
+> touchscreen@3e: reg:0:0: 56 was expected
+> 
+> The touchscreen chip on 'rk3188-bqedison2qc' and other BQ models
+> was shipped with different addresses then the binding currently allows.
+> Change the reg property that any address will pass.
+> 
+> make ARCH=arm dtbs_check
+> DT_SCHEMA_FILES=Documentation/devicetree/bindings/input/touchscreen/
+> edt-ft5x06.yaml
+> 
+> Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> index 383d64a91..baa8e8f7e 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> @@ -42,7 +42,7 @@ properties:
+>        - focaltech,ft6236
+>  
+>    reg:
+> -    const: 0x38
+> +    maxItems: 1
 
-This is a very surprising behavior and I wonder if this should be
-fixed in the PM core (or the required cleanup steps need to be called
-out in the function description). I also see that a few drivers that
-handle this situation correctly (?) call pm_runtime_put_noidle()
-instead of pm_runtime_put_sync() in the error path.
-
-Rafael, do you have any guidance here?
+Should we have a list of valid addresses instead of allowing any
+address? Controllers usually have only a couple of addresses that they
+support.
 
 Thanks.
 

@@ -2,59 +2,74 @@ Return-Path: <SRS0=3/Wm=7D=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,TVD_SUBJ_WIPE_DEBT autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=0.3 required=3.0 tests=DATE_IN_PAST_03_06,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AB04C433E1
-	for <linux-input@archiver.kernel.org>; Thu, 21 May 2020 07:38:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE3B2C433E0
+	for <linux-input@archiver.kernel.org>; Thu, 21 May 2020 12:30:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D81B820759
-	for <linux-input@archiver.kernel.org>; Thu, 21 May 2020 07:38:58 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="J1Z4F9XG"
+	by mail.kernel.org (Postfix) with ESMTP id 7A24B2070A
+	for <linux-input@archiver.kernel.org>; Thu, 21 May 2020 12:30:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728375AbgEUHi6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 May 2020 03:38:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47460 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728300AbgEUHi6 (ORCPT
+        id S1728887AbgEUMaD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 May 2020 08:30:03 -0400
+Received: from mail1.bemta25.messagelabs.com ([195.245.230.66]:52187 "EHLO
+        mail1.bemta25.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728041AbgEUMaD (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 May 2020 03:38:58 -0400
-Received: from ozlabs.org (bilbo.ozlabs.org [IPv6:2401:3900:2:1::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27F6C061A0E;
-        Thu, 21 May 2020 00:38:57 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 49SM1p0SX0z9sRK;
-        Thu, 21 May 2020 17:38:54 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ellerman.id.au;
-        s=201909; t=1590046736;
-        bh=KRzHDOmfMwlaMt726UpqEu3b+oSfQAbmI4Tg50xYIik=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=J1Z4F9XG13Cdg81A5YXPatjOCGOJGjrbCIl7emvLoWP8hT7DNDtKVvXOT+CHC/N3A
-         AXVqHxKsBXPwydnwBJp37FU9sc2zHkZULjUVmqFv1I7ojLL661ZPnr70PLZHd2130Z
-         e8a8vn4ZYyJgD2x49ssPHCJepew46JI6a4fY6LnG/yRGNIe/ZXGU9nxBT7sj9Blhfp
-         V/ropzRK4CQxJtoGKKPgZa/Ws+fswwWoTOtK76R4sGayCKBGWz057AHKo4RxAyMqLr
-         7kOhBvAFPTb4UiiAnnojRx3Wb7YQCm3frLi/yHa7PgwjWvw7badmwtXv85jF82QtR+
-         HqJOBSC2Syl5g==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        clang-built-linux@googlegroups.com,
-        kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH] input: i8042: Remove special PowerPC handling
-In-Reply-To: <20200520171618.GT89269@dtor-ws>
-References: <87a7254bxd.fsf@mpe.ellerman.id.au> <20200518181043.3363953-1-natechancellor@gmail.com> <87ftbv87i3.fsf@mpe.ellerman.id.au> <20200520171618.GT89269@dtor-ws>
-Date:   Thu, 21 May 2020 17:39:13 +1000
-Message-ID: <87wo557n4u.fsf@mpe.ellerman.id.au>
+        Thu, 21 May 2020 08:30:03 -0400
+Received: from [100.112.199.17] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
+        by server-2.bemta.az-b.eu-west-1.aws.symcld.net id 8C/FC-40649-74476CE5; Thu, 21 May 2020 12:29:59 +0000
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrHIsWRWlGSWpSXmKPExsVy8MN7XV33kmN
+  xBlfvqFrMOd/CYjH/yDlWi8OLXjBaNC9ez2Zx/+tRRoubn76xWlzeNYfNon3jbFaLpdcvMlm8
+  /9TJZNG69wi7xf89O9gtfu6ax2Jxe+JkRgc+jzXz1jB6bFl5k8lj56y77B6bVnWyedy5tofNY
+  //cNewe/X8NPD5vkgvgiGLNzEvKr0hgzejZdICt4D97xbVDb1kaGH+ydjFycQgJrGWUmNj4DM
+  jhAHIqJbasCOpi5OTgFTCVODjpPCuIzSagI/Fo5nomEJtFQFXiQNtrdhBbWMBRonfmAmaQOSI
+  CJ5klOu99ZQFxmAWmMUrs+XiYGWKSoMTJmU9YQGxmAQmJgy9egMWFBLQkzq1ZxTiBkXsWkrJZ
+  SMoWMDKtYrRIKspMzyjJTczM0TU0MNA1NDTSNbQ00zU0NtdLrNJN0kst1S1PLS7RNdRLLC/WK
+  67MTc5J0ctLLdnECAz6lIIjnTsYf695r3eIUZKDSUmU94D/sTghvqT8lMqMxOKM+KLSnNTiQ4
+  wyHBxKErz5xUA5waLU9NSKtMwcYATCpCU4eJREeDcVAaV5iwsSc4sz0yFSpxh1Oa6/37uUWYg
+  lLz8vVUqcVxJkhgBIUUZpHtwIWDK4xCgrJczLyMDAIMRTkFqUm1mCKv+KUZyDUUmYNwNkCk9m
+  XgncpldARzABHSF97BDIESWJCCmpBqa8onVPVqk0eM3+YtMqMy/gzspANt609sIvV60efddMr
+  T7jPEnG4PRsF+YlCf2CWxadF2TNahbpql6QEfy0/+/z99f9S/tvcn49lfv6WZXWD51C3kjJjz
+  v9hPZt3f70f5ulTv/8D93qrZtuPGpzf/cjX3VmcKdcQnZA9gS2+z9FMru3LroeObn0rdijN6d
+  ubOsVzLrkm7KxourDxRnsew68jtZxyqrZu56X30Qk+MXyzN0Rh/ySNUrvnrhoIs55PqFoaljL
+  k677HZUCe/WiXz10Xvxp0QunC7GbDm+7fd/scVkiS9ituVsnup8/omcn3tBnuXSv2nkLl4UzD
+  wrqLn6wk9tM7LBZVmeDVitr7mQlluKMREMt5qLiRABrzc0mgQMAAA==
+X-Env-Sender: roy.im.opensource@diasemi.com
+X-Msg-Ref: server-21.tower-282.messagelabs.com!1590064199!5520835!1
+X-Originating-IP: [193.240.239.45]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.50.1; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 26010 invoked from network); 21 May 2020 12:29:59 -0000
+Received: from unknown (HELO NB-EX-CASHUB01.diasemi.com) (193.240.239.45)
+  by server-21.tower-282.messagelabs.com with ECDHE-RSA-AES256-SHA384 encrypted SMTP; 21 May 2020 12:29:59 -0000
+Received: from krsrvapps-03.diasemi.com (10.95.17.51) by
+ NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
+ 14.3.468.0; Thu, 21 May 2020 14:29:57 +0200
+Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
+ 8296D13F671; Thu, 21 May 2020 21:29:55 +0900 (KST)
+Message-ID: <cover.1590053093.git.Roy.Im@diasemi.com>
+From:   Roy Im <roy.im.opensource@diasemi.com>
+Date:   Thu, 21 May 2020 18:24:53 +0900
+Subject: [RESEND PATCH V13 0/3]  da7280: haptic driver submission
+To:     "David S. Miller" <davem@davemloft.net>,
+        Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>
+CC:     Support Opensource <support.opensource@diasemi.com>,
+        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-input-owner@vger.kernel.org
@@ -62,77 +77,33 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
-> Hi Michael,
->
-> On Wed, May 20, 2020 at 04:07:00PM +1000, Michael Ellerman wrote:
->> [ + Dmitry & linux-input ]
->> 
->> Nathan Chancellor <natechancellor@gmail.com> writes:
->> > This causes a build error with CONFIG_WALNUT because kb_cs and kb_data
->> > were removed in commit 917f0af9e5a9 ("powerpc: Remove arch/ppc and
->> > include/asm-ppc").
->> >
->> > ld.lld: error: undefined symbol: kb_cs
->> >> referenced by i8042-ppcio.h:28 (drivers/input/serio/i8042-ppcio.h:28)
->> >> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
->> >> referenced by i8042-ppcio.h:28 (drivers/input/serio/i8042-ppcio.h:28)
->> >> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
->> >> referenced by i8042-ppcio.h:28 (drivers/input/serio/i8042-ppcio.h:28)
->> >> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
->> >
->> > ld.lld: error: undefined symbol: kb_data
->> >> referenced by i8042.c:309 (drivers/input/serio/i8042.c:309)
->> >> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
->> >> referenced by i8042-ppcio.h:33 (drivers/input/serio/i8042-ppcio.h:33)
->> >> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
->> >> referenced by i8042.c:319 (drivers/input/serio/i8042.c:319)
->> >> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
->> >> referenced 15 more times
->> >
->> > Presumably since nobody has noticed this for the last 12 years, there is
->> > not anyone actually trying to use this driver so we can just remove this
->> > special walnut code and use the generic header so it builds for all
->> > configurations.
->> >
->> > Fixes: 917f0af9e5a9 ("powerpc: Remove arch/ppc and include/asm-ppc")
->> > Reported-by: kbuild test robot <lkp@intel.com>
->> > Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
->> > ---
->> >  drivers/input/serio/i8042-ppcio.h | 57 -------------------------------
->> >  drivers/input/serio/i8042.h       |  2 --
->> >  2 files changed, 59 deletions(-)
->> >  delete mode 100644 drivers/input/serio/i8042-ppcio.h
->> 
->> This LGTM.
->> 
->> Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
->> 
->> I assumed drivers/input/serio would be pretty quiet, but there's
->> actually some commits to it in linux-next. So perhaps this should go via
->> the input tree.
->> 
->> Dmitry do you want to take this, or should I take it via powerpc?
->> 
->> Original patch is here:
->>   https://lore.kernel.org/lkml/20200518181043.3363953-1-natechancellor@gmail.com
->
-> I'm fine with you taking it through powerpc.
->
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-Thanks.
+In this patch set the following is provided:
 
-> Also, while I have your attention ;), could you please ack or take
-> https://lore.kernel.org/lkml/20191002214854.GA114387@dtor-ws/ as I
-> believe this is the last user or input_polled_dev API and I would like
-> to drop it from the tree.
+[PATCH V13 1/3] MAINTAINERS file update for DA7280
+[PATCH V13 2/3] DA7280 DT Binding
+[PATCH V13 3/3] DA7280 Driver
 
-Ooof. Sorry, you are very patient :)
+This patch applies against linux-next and v5.7-rc4
 
-I have put it in my next-test.
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
 
-In future feel free to send me mail off-list, or ping me on irc, if I
-haven't picked something up after several months!
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
 
-cheers
+ .../devicetree/bindings/input/dlg,da7280.txt       |  109 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1898 ++++++++++++++++++++
+ 5 files changed, 2023 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+
+-- 
+end-of-patch for RESEND PATCH V13
+

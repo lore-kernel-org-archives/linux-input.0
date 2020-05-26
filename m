@@ -2,82 +2,155 @@ Return-Path: <SRS0=UvBs=7I=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6ECCC433DF
-	for <linux-input@archiver.kernel.org>; Tue, 26 May 2020 09:00:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CDADC433E1
+	for <linux-input@archiver.kernel.org>; Tue, 26 May 2020 15:07:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A3EDA20776
-	for <linux-input@archiver.kernel.org>; Tue, 26 May 2020 09:00:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1590483622;
-	bh=STAm2RC3mfBdgq2YxbuI9GIS/umeg4tqG1qVVqpD+Qc=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=QvvCjKiwvUFkag70RhE7rtFbYPZL1ZxcWypPShs0vJUVxprT0bGPcteRwJDRY5DiC
-	 wjrxi0Dt8DdM9ra3S0eGF4Ig6Fg+4UmeGoaJHySE1hNrAWhFS1H/b6DJ3SrLY5Hgdd
-	 vZEhJYzuDCl6ortX1GawvyA9929/7C2TlGjp6mWw=
+	by mail.kernel.org (Postfix) with ESMTP id 175F52070A
+	for <linux-input@archiver.kernel.org>; Tue, 26 May 2020 15:07:30 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZhOjvuuA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731618AbgEZJAW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 26 May 2020 05:00:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47786 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731428AbgEZJAV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 May 2020 05:00:21 -0400
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728442AbgEZPH3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 26 May 2020 11:07:29 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:45954 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728205AbgEZPH2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 26 May 2020 11:07:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590505647;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=80gBzVUfUjSNrL5/Z0KCUykiDhfwVHhwxfTTQc/kPNs=;
+        b=ZhOjvuuASohjL0xm5JsL0GPsrRlmNv6sFEE9+ubh5xeGwDRjAC5x/xYIq3EkdmspHRKjo5
+        fvrBk0ad0qVDNBBamat3R65YDwti5+deV/czz6dgLorUGI2pmnrA+D0+HRvLWvDN1szdle
+        kNXwbBfcQKSHYNyLOmaEHLobVhyDNmY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-294-H5emKm5INRa0_x_D_nK6aQ-1; Tue, 26 May 2020 11:07:25 -0400
+X-MC-Unique: H5emKm5INRa0_x_D_nK6aQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A8FF205CB;
-        Tue, 26 May 2020 09:00:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590483621;
-        bh=STAm2RC3mfBdgq2YxbuI9GIS/umeg4tqG1qVVqpD+Qc=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=rFtS0fkfRy69LGOWRVQpHK8QF6CywMnRxb8BNmzOD7oO+D2sFnZx26Yv4LLE26WHg
-         XH1oC2r08o8SNr4a6CP2Cu9VwBGjPb2A3/HVXr3dxXq1y6XLx4UQxS+zBVBNBkubum
-         Gb2VT0WizmOl+rRE1I2herp8JjPa+t/n3TfmROfw=
-Date:   Tue, 26 May 2020 11:00:18 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Scott Shumate <scott.shumate@gmail.com>
-cc:     "Colenbrander, Roderick" <Roderick.Colenbrander@sony.com>,
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2091F107ACF5;
+        Tue, 26 May 2020 15:07:24 +0000 (UTC)
+Received: from plouf.redhat.com (ovpn-112-129.ams2.redhat.com [10.36.112.129])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BED4760F88;
+        Tue, 26 May 2020 15:07:19 +0000 (UTC)
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>, kai.heng.feng@canonical.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] HID: sony: Fix for broken buttons on DS3 USB dongles
-In-Reply-To: <e3496a04-3a96-f833-955f-69912a76bdac@gmail.com>
-Message-ID: <nycvar.YFH.7.76.2005261059590.25812@cbobk.fhfr.pm>
-References: <46c1ab66-62d7-5dae-2f4d-7e722f1aff3a@gmail.com> <BY5PR13MB38264B60014D43193C53B38798BF0@BY5PR13MB3826.namprd13.prod.outlook.com> <e3496a04-3a96-f833-955f-69912a76bdac@gmail.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        stable@vger.kernel.org
+Subject: [PATCH] HID: multitouch: enable multi-input as a quirk for some devices
+Date:   Tue, 26 May 2020 17:07:17 +0200
+Message-Id: <20200526150717.324783-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 13 May 2020, Scott Shumate wrote:
+Two touchpad/trackstick combos are currently not behaving properly.
+They define a mouse emulation collection, as per Win8 requirements,
+but also define a separate mouse collection for the trackstick.
 
-> Hi Roderick,
-> 
-> The official DS3 has a Report Count(19) instead of Report Count(13) in the
-> exact same offset.  I have no idea what the silicon vendor for these dongles
-> was thinking but it's suspicious that the official count of 19 (0x13) turned
-> into 13 (0xd) in the knock-off.  It makes you wonder if the engineers confused
-> the decimal/hex numbers.
-> 
-> As buggy as all of these third-party devices are, I'm afraid relying on the
-> HID parser to get it right is only going to worse over time.  I do like your
-> idea of having each device register themselves.  It would be nice to have each
-> device provide a callback to decode its own report rather than handle a bunch
-> of special conditions and quirks in a unified report decoding function.  The
-> drawback of course is that its going to be a little more effort to maintain.
+The way the kernel currently treat the collections is that it
+merges both in one device. However, given that the first mouse
+collection already defines X,Y and left, right buttons, when
+mapping the events from the second mouse collection, hid-multitouch
+sees that these events are already mapped, and simply ignores them.
 
-I've added Cc: stable and Fixes: tag, and applied.
+To be able to report events from the tracktick, add a new quirked
+class for it, and manually add the 2 devices we know about.
 
-Thanks,
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=207235
+Cc: stable@vger.kernel.org
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-multitouch.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 03c720b47306..39e4da7468e1 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -69,6 +69,7 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
+ #define MT_QUIRK_WIN8_PTP_BUTTONS	BIT(18)
+ #define MT_QUIRK_SEPARATE_APP_REPORT	BIT(19)
++#define MT_QUIRK_FORCE_MULTI_INPUT	BIT(20)
+ 
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
+@@ -189,6 +190,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
+ #define MT_CLS_WIN_8				0x0012
+ #define MT_CLS_EXPORT_ALL_INPUTS		0x0013
+ #define MT_CLS_WIN_8_DUAL			0x0014
++#define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
+ 
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -279,6 +281,15 @@ static const struct mt_class mt_classes[] = {
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE |
+ 			MT_QUIRK_WIN8_PTP_BUTTONS,
+ 		.export_all_inputs = true },
++	{ .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_STICKY_FINGERS |
++			MT_QUIRK_WIN8_PTP_BUTTONS |
++			MT_QUIRK_FORCE_MULTI_INPUT,
++		.export_all_inputs = true },
+ 
+ 	/*
+ 	 * vendor specific classes
+@@ -1714,6 +1725,11 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (id->group != HID_GROUP_MULTITOUCH_WIN_8)
+ 		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+ 
++	if (mtclass->quirks & MT_QUIRK_FORCE_MULTI_INPUT) {
++		hdev->quirks &= ~HID_QUIRK_INPUT_PER_APP;
++		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++	}
++
+ 	timer_setup(&td->release_timer, mt_expired_timeout, 0);
+ 
+ 	ret = hid_parse(hdev);
+@@ -1926,6 +1942,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
+ 
++	/* Elan devices */
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_ELAN, 0x313a) },
++
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
+@@ -2056,6 +2077,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
+ 			USB_DEVICE_ID_MTP_STM)},
+ 
++	/* Synaptics devices */
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_SYNAPTICS, 0xce08) },
++
+ 	/* TopSeed panels */
+ 	{ .driver_data = MT_CLS_TOPSEED,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
 -- 
-Jiri Kosina
-SUSE Labs
+2.25.1
 

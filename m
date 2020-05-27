@@ -2,29 +2,29 @@ Return-Path: <SRS0=THGL=7J=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14C28C433DF
-	for <linux-input@archiver.kernel.org>; Wed, 27 May 2020 12:28:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9681EC433DF
+	for <linux-input@archiver.kernel.org>; Wed, 27 May 2020 12:29:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EBB42207D8
-	for <linux-input@archiver.kernel.org>; Wed, 27 May 2020 12:28:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79B8B20873
+	for <linux-input@archiver.kernel.org>; Wed, 27 May 2020 12:29:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728825AbgE0M2z convert rfc822-to-8bit (ORCPT
+        id S1728661AbgE0M3Z convert rfc822-to-8bit (ORCPT
         <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 27 May 2020 08:28:55 -0400
-Received: from mail.eclipso.de ([217.69.254.104]:52128 "EHLO mail.eclipso.de"
+        Wed, 27 May 2020 08:29:25 -0400
+Received: from mail.eclipso.de ([217.69.254.104]:55764 "EHLO mail.eclipso.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728143AbgE0M2z (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 27 May 2020 08:28:55 -0400
+        id S1728513AbgE0M3Z (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 27 May 2020 08:29:25 -0400
 Received: from mail.eclipso.de (www1.eclipso.de [217.69.254.102])
-        by mail.eclipso.de with ESMTP id 6BEFC110
-        for <linux-input@vger.kernel.org>; Wed, 27 May 2020 14:28:53 +0200 (CEST)
-Date:   Wed, 27 May 2020 14:28:53 +0200
+        by mail.eclipso.de with ESMTP id 65708121
+        for <linux-input@vger.kernel.org>; Wed, 27 May 2020 14:29:24 +0200 (CEST)
+Date:   Wed, 27 May 2020 14:29:24 +0200
 MIME-Version: 1.0
-Message-ID: <1751c082bc76cd9b82852a3f53d88f71@mail.eclipso.de>
+Message-ID: <b8944022e5733abf0910c6447bf47b47@mail.eclipso.de>
 X-Mailer: eclipso / 7.4.0
 From:   " " <denk@eclipso.email>
 Subject: Re: Re: Re: Re: Add a second working PNP_ID for a T470s
@@ -52,6 +52,7 @@ Regarding my additional question about the error message: Is it possible, to omi
 
 Thanks and best
 Dennis
+
 
 --- Ursprüngliche Nachricht ---
 Von: Dmitry Torokhov <dmitry.torokhov@gmail.com>

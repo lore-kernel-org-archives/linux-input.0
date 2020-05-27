@@ -2,90 +2,119 @@ Return-Path: <SRS0=THGL=7J=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9681EC433DF
-	for <linux-input@archiver.kernel.org>; Wed, 27 May 2020 12:29:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8528DC433E0
+	for <linux-input@archiver.kernel.org>; Wed, 27 May 2020 16:58:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 79B8B20873
-	for <linux-input@archiver.kernel.org>; Wed, 27 May 2020 12:29:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5EE2520787
+	for <linux-input@archiver.kernel.org>; Wed, 27 May 2020 16:58:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1590598692;
+	bh=Zgs3ccEsGbJs7QUjPvZSh9uNEyoqKDTE8+GbiCafCuw=;
+	h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
+	 List-ID:From;
+	b=YvXn59PXsPUdNKVEtY9bBHsLCW8ducXjcIQrMMx+9W9sGWhCjVxXkVm651E9GF5mh
+	 tPuGPCT1tko8NRPMhBwX7/FWklm02Ol2fY4Y/jB0m04GNh09hnj+YRAcJTyp38Pd65
+	 aH7rh0+dH348R3orE8bE5FCqp+WVzXNhyLdqAb1g=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728661AbgE0M3Z convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 27 May 2020 08:29:25 -0400
-Received: from mail.eclipso.de ([217.69.254.104]:55764 "EHLO mail.eclipso.de"
+        id S2389682AbgE0Q6E (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 27 May 2020 12:58:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728513AbgE0M3Z (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 27 May 2020 08:29:25 -0400
-Received: from mail.eclipso.de (www1.eclipso.de [217.69.254.102])
-        by mail.eclipso.de with ESMTP id 65708121
-        for <linux-input@vger.kernel.org>; Wed, 27 May 2020 14:29:24 +0200 (CEST)
-Date:   Wed, 27 May 2020 14:29:24 +0200
-MIME-Version: 1.0
-Message-ID: <b8944022e5733abf0910c6447bf47b47@mail.eclipso.de>
-X-Mailer: eclipso / 7.4.0
-From:   " " <denk@eclipso.email>
-Subject: Re: Re: Re: Re: Add a second working PNP_ID for a T470s
-Reply-To: " " <denk@eclipso.email>
-To:     "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc:     <linux-input@vger.kernel.org>
-In-Reply-To: <20200527061019.GI89269@dtor-ws>
-References: <ff770543cd53ae818363c0fe86477965@mail.eclipso.de>
-        <20200424222546.GK125362@dtor-ws>
-        <1a56dbaf4c20a4a375da9a6d281b865b@mail.eclipso.de>
-        <a6c89d6692bd551617dfaaf9275e7cea@mail.eclipso.de>
-        <20200527061019.GI89269@dtor-ws>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+        id S2387913AbgE0Q6D (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 27 May 2020 12:58:03 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACDBF20C09;
+        Wed, 27 May 2020 16:58:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590598682;
+        bh=Zgs3ccEsGbJs7QUjPvZSh9uNEyoqKDTE8+GbiCafCuw=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=BpZGYzEU29cupZ5FK7KTZC2fWtXMgxUf5U2xAX0ntrVIV7RT9cno2tuJt0keiKe+c
+         VwZVwbS1nZweYAO+/GPOuEXb4H2zMckszbWYdMrfyZOnSoUNNQHSlf/PQAC5Hu+l5V
+         sp+d2285PwykdpMP5lQh/M2VUUUkYIXlyYapGMjs=
+Date:   Wed, 27 May 2020 16:58:01 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>, kai.heng.feng@canonical.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] HID: multitouch: enable multi-input as a quirk for some devices
+In-Reply-To: <20200526150717.324783-1-benjamin.tissoires@redhat.com>
+References: <20200526150717.324783-1-benjamin.tissoires@redhat.com>
+Message-Id: <20200527165802.ACDBF20C09@mail.kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi
 
-thank you very much!
-Regarding my additional question about the error message: Is it possible, to omit this error on shutdown?
+[This is an automated email]
 
-Thanks and best
-Dennis
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
+
+The bot has tested the following trees: v5.6.14, v5.4.42, v4.19.124, v4.14.181, v4.9.224, v4.4.224.
+
+v5.6.14: Build OK!
+v5.4.42: Build OK!
+v4.19.124: Failed to apply! Possible dependencies:
+    69ecd44d68a7 ("HID: multitouch: add support for the Smart Tech panel")
+    7ffa13be4945 ("HID: multitouch: simplify the application retrieval")
+
+v4.14.181: Failed to apply! Possible dependencies:
+    127e71bd462b ("HID: multitouch: Combine all left-button events in a frame")
+    29cc309d8bf1 ("HID: hid-multitouch: forward MSC_TIMESTAMP")
+    69ecd44d68a7 ("HID: multitouch: add support for the Smart Tech panel")
+    7f81c8db5489 ("HID: multitouch: simplify the settings of the various features")
+    abb36fe691b2 ("HID: multitouch: fix calculation of last slot field in multi-touch reports")
+    af8dc4d09490 ("HID: multitouch: Properly deal with Win8 PTP reports with 0 touches")
+    d9c57a7090ba ("HID: multitouch: export a quirk for the button handling of touchpads")
+    f146d1c4d7ea ("HID: multitouch: Store per collection multitouch data")
+
+v4.9.224: Failed to apply! Possible dependencies:
+    0485b1ec280c ("HID: asus: ignore declared dummy usages")
+    1caccc2565a8 ("HID: asus: support Republic of Gamers special keys")
+    4f4001bc76fd ("HID: multitouch: fix rare Win 8 cases when the touch up event gets missing")
+    69ecd44d68a7 ("HID: multitouch: add support for the Smart Tech panel")
+    76dd1fbebbae ("HID: asus: Add support for T100 keyboard")
+    957b8dffa4e3 ("HID: multitouch: Support Asus T304UA media keys")
+    9ce12d8be12c ("HID: asus: Add i2c touchpad support")
+    a93913e1496d ("HID: asus: fix and generalize ambiguous preprocessor macros")
+    af22a610bc38 ("HID: asus: support backlight on USB keyboards")
+    c8b1b3dd89ea ("HID: asus: Fix keyboard support")
+    d9c57a7090ba ("HID: multitouch: export a quirk for the button handling of touchpads")
+    e9d0a26d3481 ("HID: multitouch: change for touch height/width")
+    f3287a995ac3 ("HID: multitouch: fix LG Melfas touchscreen")
+    fd91189654a3 ("HID: multitouch: use BIT macro")
+
+v4.4.224: Failed to apply! Possible dependencies:
+    0485b1ec280c ("HID: asus: ignore declared dummy usages")
+    1caccc2565a8 ("HID: asus: support Republic of Gamers special keys")
+    69ecd44d68a7 ("HID: multitouch: add support for the Smart Tech panel")
+    76dd1fbebbae ("HID: asus: Add support for T100 keyboard")
+    957b8dffa4e3 ("HID: multitouch: Support Asus T304UA media keys")
+    9ce12d8be12c ("HID: asus: Add i2c touchpad support")
+    a93913e1496d ("HID: asus: fix and generalize ambiguous preprocessor macros")
+    af22a610bc38 ("HID: asus: support backlight on USB keyboards")
+    b94f7d5ddf1b ("HID: asus: add support for VivoBook E200HA")
+    c8b1b3dd89ea ("HID: asus: Fix keyboard support")
+    d9c57a7090ba ("HID: multitouch: export a quirk for the button handling of touchpads")
+    eeb01a57921a ("HID: Asus X205TA keyboard driver")
 
 
---- Ursprüngliche Nachricht ---
-Von: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Datum: 27.05.2020 08:10:19
-An: <denk@eclipso.email>
-Betreff: Re: Re: Re: Add a second working PNP_ID for a T470s
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
-Hi Dennis,
-
-On Fri, May 22, 2020 at 01:42:35PM +0200,   wrote:
-> Hi Dmitry,
-> 
-> as far as I can see, there was no reply from you. If so, then I may
-have missed that, sorry for that.
-> As I said I am not aware of any issues when running the touchpad and
-trackpoint with RMI4. The only difference is the mentioned error message
-during shutdown, which I would like to get rid of, if possible.
-> Can the patch be merged? Anything missing for that?
-
-Sorry, my fault as I have been busy lately and my patch queue grew
-really long. The patch is applied, thank you for your work (and
-patience).
-
-Thanks.
+How should we proceed with this patch?
 
 -- 
-Dmitry
-
-
-
----
-
-________________________________________________________
-Ihre E-Mail-Postfächer sicher & zentral an einem Ort. Jetzt wechseln und alte E-Mail-Adresse mitnehmen! https://www.eclipso.de
-
-
+Thanks
+Sasha

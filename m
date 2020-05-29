@@ -1,114 +1,76 @@
-Return-Path: <SRS0=BKz7=7K=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=wqHz=7L=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DC9CC433E0
-	for <linux-input@archiver.kernel.org>; Thu, 28 May 2020 22:03:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9421BC433DF
+	for <linux-input@archiver.kernel.org>; Fri, 29 May 2020 01:56:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2FF852073B
-	for <linux-input@archiver.kernel.org>; Thu, 28 May 2020 22:03:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 465092078C
+	for <linux-input@archiver.kernel.org>; Fri, 29 May 2020 01:56:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="eGktl4MJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436841AbgE1WDA convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 May 2020 18:03:00 -0400
-Received: from gloria.sntech.de ([185.11.138.130]:60762 "EHLO gloria.sntech.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436834AbgE1WC4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 May 2020 18:02:56 -0400
-Received: from ip5f5aa64a.dynamic.kabel-deutschland.de ([95.90.166.74] helo=diego.localnet)
-        by gloria.sntech.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <heiko@sntech.de>)
-        id 1jeQbx-0005Eo-Rk; Fri, 29 May 2020 00:02:49 +0200
-From:   Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-To:     Rob Herring <robh@kernel.org>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Johan Jonker <jbx6244@gmail.com>, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: input: touchscreen: edt-ft5x06: change reg property
-Date:   Fri, 29 May 2020 00:02:49 +0200
-Message-ID: <12739492.Qs6HZxOyHu@diego>
-In-Reply-To: <20200528220136.GA748777@bogus>
-References: <20200520073327.6016-1-jbx6244@gmail.com> <4727344.YYj2SkWT1V@diego> <20200528220136.GA748777@bogus>
+        id S2390896AbgE2B4k (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 May 2020 21:56:40 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:8573 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2390018AbgE2B4j (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 28 May 2020 21:56:39 -0400
+X-UUID: 2b067c25a8224be88f8701d2e04d5b14-20200529
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=/qPJfesccbE8p4/Xig7xSfYSlwk0MldP3sImV7vtVY0=;
+        b=eGktl4MJdGiZwrYOoqAE7QTMwwJswsieNIjEIziuJFiczIPLvJI+xoKL5j/EGjSTR6Chy0YV85lnTGRFrzOvf2gsLTXZmAVqw6F00r7dssUUVTnI42Vhz6HfCjwj13mFeVbPcfxpJbQ+vtgj6JaNDpsftr7ETd2yL5g9yFUrAKw=;
+X-UUID: 2b067c25a8224be88f8701d2e04d5b14-20200529
+Received: from mtkcas08.mediatek.inc [(172.21.101.126)] by mailgw01.mediatek.com
+        (envelope-from <fengping.yu@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 68267096; Fri, 29 May 2020 09:56:36 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 29 May 2020 09:56:29 +0800
+Received: from localhost.localdomain (10.15.43.140) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 29 May 2020 09:56:33 +0800
+From:   Fengping Yu <fengping.yu@mediatek.com>
+To:     Yingjoe Chen <yingjoe.chen@mediatek.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Marco Felsch <m.felsch@pengutronix.de>
+CC:     <linux-input@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>
+Subject: [PATCH v12] Add matrix keypad driver support for Mediatek SoCs 
+Date:   Fri, 29 May 2020 09:56:16 +0800
+Message-ID: <20200529015618.128283-1-fengping.yu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain
+X-TM-SNTS-SMTP: 7ABF326F49CD9B8FAA5FD72CAEF456DFE587E5E34BB2F408B84BE2582E0802AE2000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Am Freitag, 29. Mai 2020, 00:01:36 CEST schrieb Rob Herring:
-> On Wed, May 20, 2020 at 08:41:59PM +0200, Heiko Stübner wrote:
-> > Hi Dmitry,
-> > 
-> > Am Mittwoch, 20. Mai 2020, 19:13:24 CEST schrieb Dmitry Torokhov:
-> > > Hi Johan,
-> > > 
-> > > On Wed, May 20, 2020 at 09:33:27AM +0200, Johan Jonker wrote:
-> > > > A test with the command below gives this error:
-> > > > 
-> > > > arch/arm/boot/dts/rk3188-bqedison2qc.dt.yaml:
-> > > > touchscreen@3e: reg:0:0: 56 was expected
-> > > > 
-> > > > The touchscreen chip on 'rk3188-bqedison2qc' and other BQ models
-> > > > was shipped with different addresses then the binding currently allows.
-> > > > Change the reg property that any address will pass.
-> > > > 
-> > > > make ARCH=arm dtbs_check
-> > > > DT_SCHEMA_FILES=Documentation/devicetree/bindings/input/touchscreen/
-> > > > edt-ft5x06.yaml
-> > > > 
-> > > > Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-> > > > ---
-> > > >  Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml | 2 +-
-> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > 
-> > > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
-> > > > index 383d64a91..baa8e8f7e 100644
-> > > > --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
-> > > > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
-> > > > @@ -42,7 +42,7 @@ properties:
-> > > >        - focaltech,ft6236
-> > > >  
-> > > >    reg:
-> > > > -    const: 0x38
-> > > > +    maxItems: 1
-> > > 
-> > > Should we have a list of valid addresses instead of allowing any
-> > > address? Controllers usually have only a couple of addresses that they
-> > > support.
-> > 
-> > from what I've read, the fdt touchscreen controllers are just a generic
-> > cpu with device-specific (or better panel-specific) firmware, which seems
-> > to include the address as well - so it looks to be variable.
-> > 
-> > But of course that is only 2nd hand knowledge for me ;-)
-> > 
-> > 
-> > But also, the i2c address is something you cannot really mess up,
-> > either it is correct and your touchscreen works, or it isn't and and
-> > adding entries to this list every time a new address variant pops up
-> > feels clumsy.
-> 
-> Is that an Ack?
-
-for the patch itself:
-Acked-by: Heiko Stuebner <heiko@sntech.de>
-
-
-> I'm fine either way. It's really only useful if there's a single 
-> address because with a list it could still be wrong just as any other 
-> data like an interrupt number could be wrong.
-> 
-> Rob
-> 
-
-
-
+DQpDaGFuZ2Ugc2luY2UgdjExOg0KLSByZW1vdmUgQ09ORklHXyBwcmVmaXggaW4gQ09ORklHX1JF
+R01BUF9NTUlPDQotIGtlZXAgZGV2bV9hZGRfYWN0aW9uX29yX3Jlc2V0IGFzIG9uZSBsaW5lDQoN
+CmZlbmdwaW5nLnl1ICgzKToNCiAgZHQtYmluZGluZ3M6IEFkZCBrZXlwYWQgZGV2aWNldHJlZSBk
+b2N1bWVudGF0aW9uDQogIGRyaXZlcnM6IGlucHV0OiBrZXlib2FyZDogQWRkIG10ayBrZXlwYWQg
+ZHJpdmVyDQogIGNvbmZpZ3M6IGRlZmNvbmZpZzogQWRkIENPTkZJR19LRVlCT0FSRF9NVEtfS1BE
+ICAgICAgID1tDQoNCiAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC9tdGsta3BkLnlhbWwg
+ICAgfCAgOTUgKysrKysrKysNCiBhcmNoL2FybTY0L2NvbmZpZ3MvZGVmY29uZmlnICAgICAgICAg
+ICAgICAgICAgfCAgIDEgKw0KIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvS2NvbmZpZyAgICAgICAg
+ICAgICAgICB8ICAxMSArDQogZHJpdmVycy9pbnB1dC9rZXlib2FyZC9NYWtlZmlsZSAgICAgICAg
+ICAgICAgIHwgICAxICsNCiBkcml2ZXJzL2lucHV0L2tleWJvYXJkL210ay1rcGQuYyAgICAgICAg
+ICAgICAgfCAyMDUgKysrKysrKysrKysrKysrKysrDQogNSBmaWxlcyBjaGFuZ2VkLCAzMTMgaW5z
+ZXJ0aW9ucygrKQ0KIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUv
+YmluZGluZ3MvaW5wdXQvbXRrLWtwZC55YW1sDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMv
+aW5wdXQva2V5Ym9hcmQvbXRrLWtwZC5jDQoNCi0tIA0KMi4xOC4wDQoNCg==
 

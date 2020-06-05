@@ -4,51 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E38D8C433E0
-	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:25:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00001C433DF
+	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:26:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C11A4207D0
-	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:25:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C3A0E207DF
+	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591359923;
-	bh=Z3DGRWOMQLerGZ/bOAAQDfRxRmJUKGSB4aII1yOLWlE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=mLTvyUVATUeqA3/7Jy927QTvDz3ktSrJInHiVcItSd0fwD1MyfTEcwQx9S7dejjPz
-	 MnkQL77pNqecxZ7Q1y/Tb9sVX5cJ4NJCLLh/CsMBOdvtbreWm+EDAhUsVt7t62FXzO
-	 JC1qFht2UaSIZY6A3BxOc+2qBBMt7MHki0cwgJi4=
+	s=default; t=1591359962;
+	bh=+/l/HKb94QJ1fLl/aY9Ci1ZVow5m6nAWV0fLci86yno=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=DD5rc1vh78Vf4wtUBac3JC2O6MATo7Wwj+3h9r3iD/ztgcEcoXPHc8FbIHZIPyYOB
+	 cHSj42LFNk4GwKwzbEpbTKt7jW+XuAgFYQhaw8pn+PEMVfG37OjXCwbmCGptYYu0ck
+	 pE9W1PJT+p/SEj+xCapG9Jo/GFznIV6ezy6PWaEY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726647AbgFEMZW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 5 Jun 2020 08:25:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56502 "EHLO mail.kernel.org"
+        id S1727023AbgFEM0B (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 5 Jun 2020 08:26:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726630AbgFEMZV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:25:21 -0400
+        id S1727017AbgFEM0A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:26:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4CF82074B;
-        Fri,  5 Jun 2020 12:25:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1013920820;
+        Fri,  5 Jun 2020 12:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359920;
-        bh=Z3DGRWOMQLerGZ/bOAAQDfRxRmJUKGSB4aII1yOLWlE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2lMUOfx6LUw6bs6Sw/St4yUxTA1OJnBssB8iEUxtuD2eYeI8PWHFd9Im52qTdzjE
-         ML+hY2l16AXtK/dFKowhzSnHaqIJD7g05oUHAt2CL71qoRoxdlWUeL/eNyenIZqVvc
-         1MShL2+0YJPRY/fwATzLNMtrt6tvDSW6S27tbOAs=
+        s=default; t=1591359959;
+        bh=+/l/HKb94QJ1fLl/aY9Ci1ZVow5m6nAWV0fLci86yno=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ai8AfOaRun5UtE8+K3s7ii5XJMsBhy584xcYCUEDfzBwykR7TGVqvlYBwWcYvvPhT
+         InI0aeWp6+n0y69FmfFo6Vx3ehtjUyI4kI9aUSTaKpmhO113/BcQ9O1pl+j3BVLBbU
+         uIGLueetq4xw39kG+Cai96bpI9LHy3KT+sObhPHo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>, Chen-Yu Tsai <wens@csie.org>,
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Andi Shyti <andi@etezian.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 02/17] Input: axp20x-pek - always register interrupt handlers
-Date:   Fri,  5 Jun 2020 08:25:01 -0400
-Message-Id: <20200605122517.2882338-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 1/9] Input: mms114 - fix handling of mms345l
+Date:   Fri,  5 Jun 2020 08:25:49 -0400
+Message-Id: <20200605122558.2882712-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200605122517.2882338-1-sashal@kernel.org>
-References: <20200605122517.2882338-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,167 +57,68 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 9747070c11d6ae021ed7a8e96e2950ed46cd53a9 ]
+[ Upstream commit 3f8f770575d911c989043d8f0fb8dec96360c41c ]
 
-On some X86 devices we do not register an input-device, because the
-power-button is also handled by the soc_button_array (GPIO) input driver,
-and we want to avoid reporting power-button presses to userspace twice.
+MMS345L is another first generation touch screen from Melfas,
+which uses the same registers as MMS152.
 
-Sofar when we did this we also did not register our interrupt handlers,
-since those were only necessary to report input events.
+However, using I2C_M_NOSTART for it causes errors when reading:
 
-But on at least 2 device models the Medion Akoya E1239T and the GPD win,
-the GPIO pin used by the soc_button_array driver for the power-button
-cannot wakeup the system from suspend. Why this does not work is not clear,
-I've tried comparing the value of all relevant registers on the Cherry
-Trail SoC, with those from models where this does work. I've checked:
-PMC registers: FUNC_DIS, FUNC_DIS2, SOIX_WAKE_EN, D3_STS_0, D3_STS_1,
-D3_STDBY_STS_0, D3_STDBY_STS_1; PMC ACPI I/O regs: PM1_STS_EN, GPE0a_EN
-and they all have identical contents in the working and non working cases.
-I suspect that the firmware either sets some unknown register to a value
-causing this, or that it turns off a power-plane which is necessary for
-GPIO wakeups to work during suspend.
+	i2c i2c-0: sendbytes: NAK bailout.
+	mms114 0-0048: __mms114_read_reg: i2c transfer failed (-5)
 
-What does work on the Medion Akoya E1239T is letting the AXP288 wakeup
-the system on a power-button press (the GPD win has a different PMIC).
+The driver works fine as soon as I2C_M_NOSTART is removed.
 
-Move the registering of the power-button press/release interrupt-handler
-from axp20x_pek_probe_input_device() to axp20x_pek_probe() so that the
-PMIC will wakeup the system on a power-button press, even if we do not
-register an input device.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://lore.kernel.org/r/20200426155757.297087-1-hdegoede@redhat.com
+Reviewed-by: Andi Shyti <andi@etezian.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200405170904.61512-1-stephan@gerhold.net
+[dtor: removed separate mms345l handling, made everyone use standard
+transfer mode, propagated the 10bit addressing flag to the read part of the
+transfer as well.]
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/axp20x-pek.c | 72 +++++++++++++++++----------------
- 1 file changed, 37 insertions(+), 35 deletions(-)
+ drivers/input/touchscreen/mms114.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index c8f87df93a50..9c6386b2af33 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -205,8 +205,11 @@ ATTRIBUTE_GROUPS(axp20x);
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index a5ab774da4cc..fca908ba4841 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -91,15 +91,15 @@ static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
+ 	if (reg <= MMS114_MODE_CONTROL && reg + len > MMS114_MODE_CONTROL)
+ 		BUG();
  
- static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
- {
--	struct input_dev *idev = pwr;
--	struct axp20x_pek *axp20x_pek = input_get_drvdata(idev);
-+	struct axp20x_pek *axp20x_pek = pwr;
-+	struct input_dev *idev = axp20x_pek->input;
-+
-+	if (!idev)
-+		return IRQ_HANDLED;
+-	/* Write register: use repeated start */
++	/* Write register */
+ 	xfer[0].addr = client->addr;
+-	xfer[0].flags = I2C_M_TEN | I2C_M_NOSTART;
++	xfer[0].flags = client->flags & I2C_M_TEN;
+ 	xfer[0].len = 1;
+ 	xfer[0].buf = &buf;
  
- 	/*
- 	 * The power-button is connected to ground so a falling edge (dbf)
-@@ -225,22 +228,9 @@ static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
- static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
- 					 struct platform_device *pdev)
- {
--	struct axp20x_dev *axp20x = axp20x_pek->axp20x;
- 	struct input_dev *idev;
+ 	/* Read data */
+ 	xfer[1].addr = client->addr;
+-	xfer[1].flags = I2C_M_RD;
++	xfer[1].flags = (client->flags & I2C_M_TEN) | I2C_M_RD;
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
+ 
+@@ -428,10 +428,8 @@ static int mms114_probe(struct i2c_client *client,
+ 	const void *match_data;
  	int error;
  
--	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
--	if (axp20x_pek->irq_dbr < 0)
--		return axp20x_pek->irq_dbr;
--	axp20x_pek->irq_dbr = regmap_irq_get_virq(axp20x->regmap_irqc,
--						  axp20x_pek->irq_dbr);
--
--	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
--	if (axp20x_pek->irq_dbf < 0)
--		return axp20x_pek->irq_dbf;
--	axp20x_pek->irq_dbf = regmap_irq_get_virq(axp20x->regmap_irqc,
--						  axp20x_pek->irq_dbf);
--
- 	axp20x_pek->input = devm_input_allocate_device(&pdev->dev);
- 	if (!axp20x_pek->input)
- 		return -ENOMEM;
-@@ -255,24 +245,6 @@ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
- 
- 	input_set_drvdata(idev, axp20x_pek);
- 
--	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbr,
--					     axp20x_pek_irq, 0,
--					     "axp20x-pek-dbr", idev);
--	if (error < 0) {
--		dev_err(&pdev->dev, "Failed to request dbr IRQ#%d: %d\n",
--			axp20x_pek->irq_dbr, error);
--		return error;
--	}
--
--	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbf,
--					  axp20x_pek_irq, 0,
--					  "axp20x-pek-dbf", idev);
--	if (error < 0) {
--		dev_err(&pdev->dev, "Failed to request dbf IRQ#%d: %d\n",
--			axp20x_pek->irq_dbf, error);
--		return error;
--	}
--
- 	error = input_register_device(idev);
- 	if (error) {
- 		dev_err(&pdev->dev, "Can't register input device: %d\n",
-@@ -280,8 +252,6 @@ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
- 		return error;
+-	if (!i2c_check_functionality(client->adapter,
+-				I2C_FUNC_PROTOCOL_MANGLING)) {
+-		dev_err(&client->dev,
+-			"Need i2c bus that supports protocol mangling\n");
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev, "Not supported I2C adapter\n");
+ 		return -ENODEV;
  	}
  
--	device_init_wakeup(&pdev->dev, true);
--
- 	return 0;
- }
- 
-@@ -339,6 +309,18 @@ static int axp20x_pek_probe(struct platform_device *pdev)
- 
- 	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
- 
-+	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
-+	if (axp20x_pek->irq_dbr < 0)
-+		return axp20x_pek->irq_dbr;
-+	axp20x_pek->irq_dbr = regmap_irq_get_virq(
-+			axp20x_pek->axp20x->regmap_irqc, axp20x_pek->irq_dbr);
-+
-+	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
-+	if (axp20x_pek->irq_dbf < 0)
-+		return axp20x_pek->irq_dbf;
-+	axp20x_pek->irq_dbf = regmap_irq_get_virq(
-+			axp20x_pek->axp20x->regmap_irqc, axp20x_pek->irq_dbf);
-+
- 	if (axp20x_pek_should_register_input(axp20x_pek, pdev)) {
- 		error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
- 		if (error)
-@@ -347,6 +329,26 @@ static int axp20x_pek_probe(struct platform_device *pdev)
- 
- 	axp20x_pek->info = (struct axp20x_info *)match->driver_data;
- 
-+	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbr,
-+					     axp20x_pek_irq, 0,
-+					     "axp20x-pek-dbr", axp20x_pek);
-+	if (error < 0) {
-+		dev_err(&pdev->dev, "Failed to request dbr IRQ#%d: %d\n",
-+			axp20x_pek->irq_dbr, error);
-+		return error;
-+	}
-+
-+	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbf,
-+					  axp20x_pek_irq, 0,
-+					  "axp20x-pek-dbf", axp20x_pek);
-+	if (error < 0) {
-+		dev_err(&pdev->dev, "Failed to request dbf IRQ#%d: %d\n",
-+			axp20x_pek->irq_dbf, error);
-+		return error;
-+	}
-+
-+	device_init_wakeup(&pdev->dev, true);
-+
- 	platform_set_drvdata(pdev, axp20x_pek);
- 
- 	return 0;
 -- 
 2.25.1
 

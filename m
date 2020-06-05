@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 532A0C433E1
-	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:28:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D888C433E1
+	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:28:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 24CBD2075B
-	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:28:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73B252075B
+	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591360080;
-	bh=rJ6qWfDyRHcxsYASqxaiCs+SO1NYI3B32WFsKYDkMbY=;
+	s=default; t=1591360103;
+	bh=x7c/AxKWn05LnkjEH4TGTp18ZTJFYDtquGB/20661eo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=e+Q7QchyJp32aT39moC8CTOj4EomUzbqWhgiQks9e1bRbhotW1FQcPUGL3m10D4YE
-	 9Ru3Sxscc9MKYQZEX5qKo3q0Aq2Pa0PaOXITuuWWXHkRsVqT99iVvzrU7qLN9QEA4r
-	 7FwP7oDIgSPnJVa0kTXbhyxui3ZoFkFG4s6aktb8=
+	b=uz/GHwnu9/nbV6k/RpML+TaJBF6Gnea9xIDxko+nsKzb6HZQmzDzTRzShxTuZgkQJ
+	 KJu9vt6E+Hy3qd08Mfw2fegUdtbIAv98D72JRROKZxE+rfS1LWyBEyu8oNiw92ouY8
+	 bv8JMAEk6a6ub4zIRdC2qX4OG2AaNhAAWCS7edtY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728036AbgFEM1s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 5 Jun 2020 08:27:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58442 "EHLO mail.kernel.org"
+        id S1726552AbgFEM0H (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 5 Jun 2020 08:26:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727768AbgFEM0Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:26:16 -0400
+        id S1727039AbgFEM0F (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:26:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76921207D3;
-        Fri,  5 Jun 2020 12:26:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCF6B208E4;
+        Fri,  5 Jun 2020 12:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359976;
-        bh=rJ6qWfDyRHcxsYASqxaiCs+SO1NYI3B32WFsKYDkMbY=;
+        s=default; t=1591359965;
+        bh=x7c/AxKWn05LnkjEH4TGTp18ZTJFYDtquGB/20661eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3MLaYPbDAbLExuvfaF268eZuwgMIgRUtfN7d0/y5itpqf0wVB0NOs9ewtg0XbYFq
-         eChgE+H+HrMT1MxY4P2BP5qT72WOtIU249Psp3K8G90nQYdobtjp665H/w8oKboqwf
-         F5MvQ3BaSZKAy4ZZ73oGFVkwag4mmWxEM+tqmLPc=
+        b=q2k1I3n25vevXS3G1353EXHNPlm+JzvE1zGqShj4O8xegJaZqmpLOdyTDzX5mwpV6
+         PJ1qar4IRQWOa8eW86VPHrZVvBoh/bwhy7NcIyWlwQCLlpn9xF05NR6lPhxc+A85RM
+         PkUGeNUWN7EJS61v67/Q/eHHmJAD7FuNVz+ywKoA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dennis Kadioglu <denk@eclipso.email>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 5/8] Input: synaptics - add a second working PNP_ID for Lenovo T470s
-Date:   Fri,  5 Jun 2020 08:26:06 -0400
-Message-Id: <20200605122609.2882841-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 6/9] Input: synaptics - add a second working PNP_ID for Lenovo T470s
+Date:   Fri,  5 Jun 2020 08:25:54 -0400
+Message-Id: <20200605122558.2882712-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200605122609.2882841-1-sashal@kernel.org>
-References: <20200605122609.2882841-1-sashal@kernel.org>
+In-Reply-To: <20200605122558.2882712-1-sashal@kernel.org>
+References: <20200605122558.2882712-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -76,7 +76,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 2bca84f4c2b2..85db184321f7 100644
+index d9042d0566ab..671e018eb363 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
 @@ -173,6 +173,7 @@ static const char * const smbus_pnp_ids[] = {

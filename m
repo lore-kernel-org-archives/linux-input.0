@@ -4,51 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D888C433E1
-	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:28:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51260C433DF
+	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:29:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 73B252075B
-	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:28:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2293F2075B
+	for <linux-input@archiver.kernel.org>; Fri,  5 Jun 2020 12:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591360103;
-	bh=x7c/AxKWn05LnkjEH4TGTp18ZTJFYDtquGB/20661eo=;
+	s=default; t=1591360173;
+	bh=FD53rO+fysM1m9xUdrgMsKK/8LhBRRYiQHHK8cczxf8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=uz/GHwnu9/nbV6k/RpML+TaJBF6Gnea9xIDxko+nsKzb6HZQmzDzTRzShxTuZgkQJ
-	 KJu9vt6E+Hy3qd08Mfw2fegUdtbIAv98D72JRROKZxE+rfS1LWyBEyu8oNiw92ouY8
-	 bv8JMAEk6a6ub4zIRdC2qX4OG2AaNhAAWCS7edtY=
+	b=mgjT8uwaaLuN/QVPWIGRYXybtMBGsdoRSOOYx4x1QWvaalEqYcszYbJBcYCv9C5gG
+	 +9xpa49q0SaCj6qaEpb3uQe1/JghVOLjBjPOITxw+Knayygr6affBuaUpGq386CWK/
+	 iPCRtYZlG6FWk+A8+DrFJD22Lji1qn82/+mPkxMQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726552AbgFEM0H (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 5 Jun 2020 08:26:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58098 "EHLO mail.kernel.org"
+        id S1726981AbgFEM3b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 5 Jun 2020 08:29:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727039AbgFEM0F (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:26:05 -0400
+        id S1726960AbgFEMZt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:25:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCF6B208E4;
-        Fri,  5 Jun 2020 12:26:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B93B208B6;
+        Fri,  5 Jun 2020 12:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359965;
-        bh=x7c/AxKWn05LnkjEH4TGTp18ZTJFYDtquGB/20661eo=;
+        s=default; t=1591359949;
+        bh=FD53rO+fysM1m9xUdrgMsKK/8LhBRRYiQHHK8cczxf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2k1I3n25vevXS3G1353EXHNPlm+JzvE1zGqShj4O8xegJaZqmpLOdyTDzX5mwpV6
-         PJ1qar4IRQWOa8eW86VPHrZVvBoh/bwhy7NcIyWlwQCLlpn9xF05NR6lPhxc+A85RM
-         PkUGeNUWN7EJS61v67/Q/eHHmJAD7FuNVz+ywKoA=
+        b=iYbDtDjW8LzTZykMHA1soBmbw1YKEdPwYj3xPQ7yD7RseKHLAZ/nfBZFCpLzX7D1b
+         l9n6WS7ej01U9IIGPuU0NtMMnD1zMAMw9EIWcjzOm8jtXAi2YuWpUS2hHpYZ38gHeh
+         5NoxjOanjrb2fjlGSJQskjkITEi/ZqqDUgrn2ryo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dennis Kadioglu <denk@eclipso.email>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 6/9] Input: synaptics - add a second working PNP_ID for Lenovo T470s
-Date:   Fri,  5 Jun 2020 08:25:54 -0400
-Message-Id: <20200605122558.2882712-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 07/14] Input: synaptics - add a second working PNP_ID for Lenovo T470s
+Date:   Fri,  5 Jun 2020 08:25:33 -0400
+Message-Id: <20200605122540.2882539-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200605122558.2882712-1-sashal@kernel.org>
-References: <20200605122558.2882712-1-sashal@kernel.org>
+In-Reply-To: <20200605122540.2882539-1-sashal@kernel.org>
+References: <20200605122540.2882539-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -76,10 +76,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index d9042d0566ab..671e018eb363 100644
+index 4d2036209b45..758dae8d6500 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -173,6 +173,7 @@ static const char * const smbus_pnp_ids[] = {
+@@ -170,6 +170,7 @@ static const char * const smbus_pnp_ids[] = {
  	"LEN005b", /* P50 */
  	"LEN005e", /* T560 */
  	"LEN006c", /* T470s */

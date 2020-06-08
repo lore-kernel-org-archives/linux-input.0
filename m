@@ -4,48 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A389C433DF
-	for <linux-input@archiver.kernel.org>; Mon,  8 Jun 2020 23:14:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB6C8C433E0
+	for <linux-input@archiver.kernel.org>; Mon,  8 Jun 2020 23:18:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E579420C09
-	for <linux-input@archiver.kernel.org>; Mon,  8 Jun 2020 23:14:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD64720884
+	for <linux-input@archiver.kernel.org>; Mon,  8 Jun 2020 23:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591658064;
-	bh=Py3+27fq+KilaCdz5w6bUQlZKu+dOEQXm4a/GCeSecM=;
+	s=default; t=1591658289;
+	bh=PWB2t7f58OTgQdOQWXKpGzdge1XV4v+1OvpmDWYEvUA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=0PagO0Ckh2UF96pFPuWspU8d/ZdAB3zjOuaq3NDJm0Nxwu/xc2dpG41m3OKMQ6ZaG
-	 DofDurqI5k1bKM+/DHmq3g1mYJgx+PlqPaW2sz6dGSqi93kXcwb89GdvKoO6FMlH76
-	 dGZh9CmlNb9/kzhVGL9SzsJGYQaIcH8JxYcqvGHU=
+	b=1/jZ/ZIdZMksGW7x+oGGnIsvscXzRPoKT4Sev6Rdpw/aeygmNQmTe0L4dGDd3qF6T
+	 nIuNpTrIPxsYe9GBBjXjYGoLExbUzajYbX9/dgRsvp++G1cEQw7IHiOx5KpGjFuu5R
+	 fRuj98sLakrEYIyPVeO5jXD8vWpMJOoTXySJ489Q=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729790AbgFHXOV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 8 Jun 2020 19:14:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34564 "EHLO mail.kernel.org"
+        id S1730573AbgFHXSF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 8 Jun 2020 19:18:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729782AbgFHXOU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:20 -0400
+        id S1729310AbgFHXSE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:18:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD33821501;
-        Mon,  8 Jun 2020 23:14:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0046E2089D;
+        Mon,  8 Jun 2020 23:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658060;
-        bh=Py3+27fq+KilaCdz5w6bUQlZKu+dOEQXm4a/GCeSecM=;
+        s=default; t=1591658284;
+        bh=PWB2t7f58OTgQdOQWXKpGzdge1XV4v+1OvpmDWYEvUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=apYM7flILDF3V3vBTVKV19qNemJuZDxZImEDO+GYsh/GyxPi2WPVfCi4hrYVqLIW0
-         dxFBR/zBCD30ziQemqG2CkzRqvn7R0DwFda4QJ/p8rYhv7xvSG9v5OCm9DJlccG/ca
-         vT1j/N9SAE7DkDI40HJqmWzNoCHoNlzFhAel7EXs=
+        b=N4fmsvgenQuY2IoUcE/sRJdhBQSSdd3l3VCjLGuYM7X2dga0Ima3QD+AEiLz6K0av
+         ILzZG4u6YYnuP03eaFc2MwPHRgnXHfuCUpNOyTclZnvYQT4r8xAZ1x+XMoWPwS0m+i
+         Aw9UAoeF/nNlZtpqITG/AyY3s0LTcFLHqb/KySN8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Kosina <jkosina@suse.cz>,
-        Xiaojian Cao <xiaojian.cao@cn.alps.com>,
+Cc:     James Hilliard <james.hilliard1@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 107/606] HID: alps: ALPS_1657 is too specific; use U1_UNICORN_LEGACY instead
-Date:   Mon,  8 Jun 2020 19:03:52 -0400
-Message-Id: <20200608231211.3363633-107-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 289/606] Input: usbtouchscreen - add support for BonXeon TP
+Date:   Mon,  8 Jun 2020 19:06:54 -0400
+Message-Id: <20200608231211.3363633-289-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -58,53 +58,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit 185af3e775b693f773d9a4b5a8c3cda69fc8ca0f ]
+[ Upstream commit e3b4f94ef52ae1592cbe199bd38dbdc0d58b2217 ]
 
-HID_DEVICE_ID_ALPS_1657 PID is too specific, as there are many other
-ALPS hardware IDs using this particular touchpad.
+Based on available information this uses the singletouch irtouch
+protocol. This is tested and confirmed to be fully functional on
+the BonXeon TP hardware I have.
 
-Rename the identifier to HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY in order
-to describe reality better.
-
-Fixes: 640e403b1fd24 ("HID: alps: Add AUI1657 device ID")
-Reported-by: Xiaojian Cao <xiaojian.cao@cn.alps.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Link: https://lore.kernel.org/r/20200413184217.55700-1-james.hilliard1@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-alps.c | 2 +-
- drivers/hid/hid-ids.h  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/usbtouchscreen.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index c2a2bd528890..b2ad319a74b9 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -802,7 +802,7 @@ static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		break;
- 	case HID_DEVICE_ID_ALPS_U1_DUAL:
- 	case HID_DEVICE_ID_ALPS_U1:
--	case HID_DEVICE_ID_ALPS_1657:
-+	case HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY:
- 		data->dev_type = U1;
- 		break;
- 	default:
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 7d769ca864a7..b3cc26ca375f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -79,9 +79,9 @@
- #define HID_DEVICE_ID_ALPS_U1_DUAL_PTP	0x121F
- #define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
- #define HID_DEVICE_ID_ALPS_U1		0x1215
-+#define HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY         0x121E
- #define HID_DEVICE_ID_ALPS_T4_BTNLESS	0x120C
- #define HID_DEVICE_ID_ALPS_1222		0x1222
--#define HID_DEVICE_ID_ALPS_1657         0x121E
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 16d70201de4a..397cb1d3f481 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -182,6 +182,7 @@ static const struct usb_device_id usbtouch_devices[] = {
+ #endif
  
- #define USB_VENDOR_ID_AMI		0x046b
- #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
+ #ifdef CONFIG_TOUCHSCREEN_USB_IRTOUCH
++	{USB_DEVICE(0x255e, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
+ 	{USB_DEVICE(0x595a, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
+ 	{USB_DEVICE(0x6615, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
+ 	{USB_DEVICE(0x6615, 0x0012), .driver_info = DEVTYPE_IRTOUCH_HIRES},
 -- 
 2.25.1
 

@@ -4,53 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD84EC433DF
-	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:20:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27A1FC433DF
+	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:20:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 96EEE20760
-	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:20:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EF31920760
+	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591662001;
-	bh=/7RX4q6YYNqEWB3Wt5oaa6aB5Yf3G9syPTpSwvuEWRA=;
+	s=default; t=1591662011;
+	bh=YJG+QxHdfvDN+V1qYF4g92kefyTXuZGoqW+2ecbTQKo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=DW3T62Vt2VimtY73E+h1rbL5yPWZuevTCwo8qfDAeM7nbV2NwxbC7CGVKeZXtnmrq
-	 bCBjJmlqQ5O2bkr/U1+P73WjldpNH+ZxoRg5zJXMwIjw8lHfq5YpKp0ozdDWuYiSs5
-	 JTvXLQjh0KN7PYyA9FknR2R+YtVzuI0H5NI6tmAQ=
+	b=Ty4zTWmDSiN8iCTF/MYDAtd5q81Sijhxbp83CGX9ga2Fk3eQXywAR7OruZfzVAium
+	 1BFXNBTeoOJmy6jFt3WPz2QDhjCazEiKstH04r30bUBK4XPdNYFTrPKLQWWRNCxQXU
+	 kNSbLPOZakUd+W8e1cxdteThCbpvs0r/RnXscUfA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728326AbgFIAT7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 8 Jun 2020 20:19:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
+        id S1732922AbgFIAUA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 8 Jun 2020 20:20:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730580AbgFHXSI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:18:08 -0400
+        id S1730579AbgFHXSH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:18:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53EE52086A;
-        Mon,  8 Jun 2020 23:18:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D7BE20842;
+        Mon,  8 Jun 2020 23:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658288;
-        bh=/7RX4q6YYNqEWB3Wt5oaa6aB5Yf3G9syPTpSwvuEWRA=;
+        s=default; t=1591658286;
+        bh=YJG+QxHdfvDN+V1qYF4g92kefyTXuZGoqW+2ecbTQKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CvtlLc88u9Z9lSNVTxlewZQZqioj1j8GpQu3VkW+l3pm6C+GTEiwqljRxasWqIxLp
-         XsMLHHBQRNAl16fIeXOZERNyIjAjmAFfi9eehwqR9Lro/bj8dZlyDTW+h6rDu1hefs
-         NQNBIbPVDL1oVL/zQKUFGP1npSfJKMgAORH/QYNc=
+        b=Nia37EDgAetpGr6fF/2V5Yj1i0PZIW/NWmZlsoJGdWNz/ToDKjLXKGDmtM56vQS6v
+         i+PmJlEfduLTsK3nGFBptlaMb7Go4oRLnPRpRZGYmoY++fmHeUefFIWVMg0EVvhjww
+         N20XncLIV8CfEMYJgkMuOksKPOFl9hvh/fOVKh6U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Linus Walleij <linus.walleij@linaro.org>,
+Cc:     =?UTF-8?q?=C5=81ukasz=20Patron?= <priv.luk@gmail.com>,
+        Cameron Gutman <aicommander@gmail.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 292/606] Input: dlink-dir685-touchkeys - fix a typo in driver name
-Date:   Mon,  8 Jun 2020 19:06:57 -0400
-Message-Id: <20200608231211.3363633-292-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 291/606] Input: xpad - add custom init packet for Xbox One S controllers
+Date:   Mon,  8 Jun 2020 19:06:56 -0400
+Message-Id: <20200608231211.3363633-291-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,36 +60,54 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Łukasz Patron <priv.luk@gmail.com>
 
-[ Upstream commit 38347374ae3f1ec4df56dd688bd603a64e79a0ed ]
+[ Upstream commit 764f7f911bf72450c51eb74cbb262ad9933741d8 ]
 
-According to the file name and Kconfig, a 'k' is missing in this driver
-name. It should be "dlink-dir685-touchkeys".
+Sending [ 0x05, 0x20, 0x00, 0x0f, 0x06 ] packet for Xbox One S controllers
+fixes an issue where controller is stuck in Bluetooth mode and not sending
+any inputs.
 
-Fixes: 131b3de7016b ("Input: add D-Link DIR-685 touchkeys driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20200412213937.5287-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Łukasz Patron <priv.luk@gmail.com>
+Reviewed-by: Cameron Gutman <aicommander@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200422075206.18229-1-priv.luk@gmail.com
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/dlink-dir685-touchkeys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/joystick/xpad.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/input/keyboard/dlink-dir685-touchkeys.c b/drivers/input/keyboard/dlink-dir685-touchkeys.c
-index b0ead7199c40..a69dcc3bd30c 100644
---- a/drivers/input/keyboard/dlink-dir685-touchkeys.c
-+++ b/drivers/input/keyboard/dlink-dir685-touchkeys.c
-@@ -143,7 +143,7 @@ MODULE_DEVICE_TABLE(of, dir685_tk_of_match);
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 6b40a1c68f9f..c77cdb3b62b5 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -458,6 +458,16 @@ static const u8 xboxone_fw2015_init[] = {
+ 	0x05, 0x20, 0x00, 0x01, 0x00
+ };
  
- static struct i2c_driver dir685_tk_i2c_driver = {
- 	.driver = {
--		.name	= "dlin-dir685-touchkeys",
-+		.name	= "dlink-dir685-touchkeys",
- 		.of_match_table = of_match_ptr(dir685_tk_of_match),
- 	},
- 	.probe		= dir685_tk_probe,
++/*
++ * This packet is required for Xbox One S (0x045e:0x02ea)
++ * and Xbox One Elite Series 2 (0x045e:0x0b00) pads to
++ * initialize the controller that was previously used in
++ * Bluetooth mode.
++ */
++static const u8 xboxone_s_init[] = {
++	0x05, 0x20, 0x00, 0x0f, 0x06
++};
++
+ /*
+  * This packet is required for the Titanfall 2 Xbox One pads
+  * (0x0e6f:0x0165) to finish initialization and for Hori pads
+@@ -516,6 +526,8 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
+ 	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
+ 	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
++	XBOXONE_INIT_PKT(0x045e, 0x02ea, xboxone_s_init),
++	XBOXONE_INIT_PKT(0x045e, 0x0b00, xboxone_s_init),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init1),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init2),
+ 	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
 -- 
 2.25.1
 

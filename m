@@ -1,51 +1,51 @@
-Return-Path: <SRS0=8jYR=7V=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=GK5G=7W=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 541E1C433E0
-	for <linux-input@archiver.kernel.org>; Mon,  8 Jun 2020 23:18:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DFC8C433E0
+	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:19:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E42E2086A
-	for <linux-input@archiver.kernel.org>; Mon,  8 Jun 2020 23:18:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 307DA2078D
+	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591658297;
-	bh=kMZ8z483ON/zTTVEyFoP7XJhnrafJFQO56c/L6OUIsY=;
+	s=default; t=1591661986;
+	bh=9/zpqtvcvi/aDsfbxPRxBceob0fFvjcGLgPlCn/Du6Y=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=tsebwjalEgHQ/syv3GK0UE+xRJjBI9lICQ+ATDsN0WQGu8UE3SCTFxWqfWtCAizvi
-	 OrTHLv3KRbbSWIizTQLAANoC+m0nNuxDMImd0RUXU3mo1CCvpQKwLPLQcpVrXo+74o
-	 nb5t1C5/z5Vvq7MvW0rC+tPEZN6eU5tawRgX92hY=
+	b=bk2+dtlBYtWlZEIdT/fVX8Er9yxmcEnuC1EhSmuQG4VGa0OeH0r6FAEkZNGlEdb1e
+	 CViTmsmM9OgfB8kWMFEvuxr29c23bKMwyOHfW81slEf5IGrUNjfd7trPy5MXfLhIXZ
+	 d3RJKq/cH5plsSsM3vdoxuCpMS2UKgo/MA79ny90=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729482AbgFHXSN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 8 Jun 2020 19:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40332 "EHLO mail.kernel.org"
+        id S1730196AbgFHXSP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 8 Jun 2020 19:18:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729779AbgFHXSM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:18:12 -0400
+        id S1729070AbgFHXSL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:18:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 120A220842;
-        Mon,  8 Jun 2020 23:18:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB5052083E;
+        Mon,  8 Jun 2020 23:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658292;
-        bh=kMZ8z483ON/zTTVEyFoP7XJhnrafJFQO56c/L6OUIsY=;
+        s=default; t=1591658291;
+        bh=9/zpqtvcvi/aDsfbxPRxBceob0fFvjcGLgPlCn/Du6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nl/G01bTyM4JCF2WaJ9D8OyhMHa5IxOqoWiebSo/oipOmB89ypbamcbOZTy6gugPa
-         RpnOSNuR2tQK/O+olskoAUzvsIHxYSPSJsxE31rshKLfZa8YS+HRx3vYZyeHfP/6LT
-         Ex/nDPEwUpKtVSCkwQsLntWXZYnJU/vbWF9KX/HU=
+        b=ksueB7PYm8KRNguIr9Q/tkdu0AOoxKY6JLEv3vNoOJbMQ3t226RBmsVNR97BvIMJn
+         lZxzOomoVWQfQYMiJzQ4YXK8x78tE4BGyRP/HPglS5nx/eGx96T6As0WX/z5bMvkZJ
+         KhYXMaQGGCCSOvDTBfWmgaVr8bEPIc506OgSg7ww=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
+Cc:     Evan Green <evgreen@chromium.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 296/606] Input: synaptics-rmi4 - fix error return code in rmi_driver_probe()
-Date:   Mon,  8 Jun 2020 19:07:01 -0400
-Message-Id: <20200608231211.3363633-296-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 295/606] Input: synaptics-rmi4 - really fix attn_data use-after-free
+Date:   Mon,  8 Jun 2020 19:07:00 -0400
+Message-Id: <20200608231211.3363633-295-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -58,36 +58,47 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Evan Green <evgreen@chromium.org>
 
-[ Upstream commit 5caab2da63207d6d631007f592f5219459e3454d ]
+[ Upstream commit d5a5e5b5fa7b86c05bf073acc0ba98fa280174ec ]
 
-Fix to return a negative error code from the input_register_device()
-error handling case instead of 0, as done elsewhere in this function.
+Fix a use-after-free noticed by running with KASAN enabled. If
+rmi_irq_fn() is run twice in a row, then rmi_f11_attention() (among
+others) will end up reading from drvdata->attn_data.data, which was
+freed and left dangling in rmi_irq_fn().
 
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20200428134948.78343-1-weiyongjun1@huawei.com
+Commit 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by
+KASAN") correctly identified and analyzed this bug. However the attempted
+fix only NULLed out a local variable, missing the fact that
+drvdata->attn_data is a struct, not a pointer.
+
+NULL out the correct pointer in the driver data to prevent the attention
+functions from copying from it.
+
+Fixes: 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by KASAN")
+Fixes: b908d3cd812a ("Input: synaptics-rmi4 - allow to add attention data")
+Signed-off-by: Evan Green <evgreen@chromium.org>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200427145537.1.Ic8f898e0147beeee2c005ee7b20f1aebdef1e7eb@changeid
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/rmi4/rmi_driver.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/rmi4/rmi_driver.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index c18e1a25bca6..258d5fe3d395 100644
+index 190b9974526b..c18e1a25bca6 100644
 --- a/drivers/input/rmi4/rmi_driver.c
 +++ b/drivers/input/rmi4/rmi_driver.c
-@@ -1210,7 +1210,8 @@ static int rmi_driver_probe(struct device *dev)
- 	if (data->input) {
- 		rmi_driver_set_input_name(rmi_dev, data->input);
- 		if (!rmi_dev->xport->input) {
--			if (input_register_device(data->input)) {
-+			retval = input_register_device(data->input);
-+			if (retval) {
- 				dev_err(dev, "%s: Failed to register input device.\n",
- 					__func__);
- 				goto err_destroy_functions;
+@@ -205,7 +205,7 @@ static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
+ 
+ 	if (count) {
+ 		kfree(attn_data.data);
+-		attn_data.data = NULL;
++		drvdata->attn_data.data = NULL;
+ 	}
+ 
+ 	if (!kfifo_is_empty(&drvdata->attn_fifo))
 -- 
 2.25.1
 

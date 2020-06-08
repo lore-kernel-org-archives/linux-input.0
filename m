@@ -4,49 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2DFAC433E0
-	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:35:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45D58C433DF
+	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:36:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5AEA2072F
-	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:35:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B90D206C3
+	for <linux-input@archiver.kernel.org>; Tue,  9 Jun 2020 00:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591662956;
-	bh=bo6hTaU0KUVde9fRpgkiN2cbwe68KbW08+C5HgKmd04=;
+	s=default; t=1591662968;
+	bh=JaCI0EjPvxTb7zB7hY+YRwycZ6E2oVyJSR+v7NnznEY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=Undggcx00xPxc19QVBHVHQlPvRDbGM2wLgfB1IwBEmDvKbXjY1SxnW6iyPCCSvLJe
-	 RHM7I0G7iO6OOdXcu+LU4JAk3XDsugGDman6S0DqlaCG6Bsf7AlDOV9oYrZym5hxxS
-	 aaY5SrVCUYgtPW3yuhxPA0/UdZsQYzxMm04VLtfU=
+	b=p8BOFj5aAyvDbyOfOtg3GLiHaeXCpcAtcXybWpY7OAyhmJX1kGKTETSV1Wbp0Vg/e
+	 1qgGIwuwhczhMUeQIR6ZIhSM05g2WlvI61Xm5W0MWTRwi+44nBAGESrq2tzER3LNWg
+	 5unbQsJ4NncQvIJXRvdyo4wD+koHvDU0ztt8uJRU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728573AbgFIAfw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 8 Jun 2020 20:35:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34524 "EHLO mail.kernel.org"
+        id S1729769AbgFIAf5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 8 Jun 2020 20:35:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729769AbgFHXOS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:18 -0400
+        id S1726874AbgFHXOR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:14:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85B9320B80;
-        Mon,  8 Jun 2020 23:14:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DE1921534;
+        Mon,  8 Jun 2020 23:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658058;
-        bh=bo6hTaU0KUVde9fRpgkiN2cbwe68KbW08+C5HgKmd04=;
+        s=default; t=1591658057;
+        bh=JaCI0EjPvxTb7zB7hY+YRwycZ6E2oVyJSR+v7NnznEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pa6IxtfXKEHoiaJXLj1jm43Dux7aDuBiUqzLEgR0LUsTitEarWhk41RxLgnFVk503
-         lPbWJx4fVQekrC0wkwXiXxST0+ZxAKNGI/YmgEg1c9uO24gixpBbA+TfEjOQQI8Yof
-         uj2AthcbpQxyTv9Wf9eT/OI3jBP46fpXvExOjS+Y=
+        b=kD4ppKztSoC8fXKSDsdvAc3hBXuCKArs1vwNLmF7U5j60xUsbXI6BRqpEyov0ymxk
+         gC9HF+xnhjKKeDjdSNsFH1DFoS3URseDSnL7pMjdwyXEfyz6IJNOT6bPyYq9CMrUqD
+         zFYJptrNExqH6T1tpzL2oNDdyL8xIZblkHhP1sIQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabian Schindlatz <fabian.schindlatz@fau.de>,
-        Hans de Goede <hdegoede@redhat.com>,
+Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 105/606] HID: logitech: Add support for Logitech G11 extra keys
-Date:   Mon,  8 Jun 2020 19:03:50 -0400
-Message-Id: <20200608231211.3363633-105-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 104/606] HID: multitouch: add eGalaxTouch P80H84 support
+Date:   Mon,  8 Jun 2020 19:03:49 -0400
+Message-Id: <20200608231211.3363633-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -59,53 +58,51 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Fabian Schindlatz <fabian.schindlatz@fau.de>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit b1bd0f75288f60e8d142a1b3e979ed0192c04931 ]
+[ Upstream commit f9e82295eec141a0569649d400d249333d74aa91 ]
 
-The Logitech G11 keyboard is a cheap variant of the G15 without the LCD
-screen. It uses the same layout for its extra and macro keys (G1 - G18,
-M1-M3, MR) and - from the input subsystem's perspective - behaves just
-like the G15, so we can treat it as such.
+Add support for P80H84 touchscreen from eGalaxy:
 
-Tested it with my own keyboard.
+  idVendor           0x0eef D-WAV Scientific Co., Ltd
+  idProduct          0xc002
+  iManufacturer           1 eGalax Inc.
+  iProduct                2 eGalaxTouch P80H84 2019 vDIVA_1204_T01 k4.02.146
 
-Signed-off-by: Fabian Schindlatz <fabian.schindlatz@fau.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-lg-g15.c | 4 ++++
- 2 files changed, 5 insertions(+)
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 309510a72c5e..40697af0ca35 100644
+index 9f2213426556..309510a72c5e 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -756,6 +756,7 @@
- #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
- #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2	0xc219
- #define USB_DEVICE_ID_LOGITECH_G15_LCD		0xc222
-+#define USB_DEVICE_ID_LOGITECH_G11		0xc225
- #define USB_DEVICE_ID_LOGITECH_G15_V2_LCD	0xc227
- #define USB_DEVICE_ID_LOGITECH_G510		0xc22d
- #define USB_DEVICE_ID_LOGITECH_G510_USB_AUDIO	0xc22e
-diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
-index ad4b5412a9f4..ef0cbcd7540d 100644
---- a/drivers/hid/hid-lg-g15.c
-+++ b/drivers/hid/hid-lg-g15.c
-@@ -872,6 +872,10 @@ static int lg_g15_probe(struct hid_device *hdev, const struct hid_device_id *id)
- }
+@@ -385,6 +385,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002	0xc002
  
- static const struct hid_device_id lg_g15_devices[] = {
-+	/* The G11 is a G15 without the LCD, treat it as a G15 */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-+		USB_DEVICE_ID_LOGITECH_G11),
-+		.driver_data = LG_G15 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- 			 USB_DEVICE_ID_LOGITECH_G15_LCD),
- 		.driver_data = LG_G15 },
+ #define USB_VENDOR_ID_ELAN		0x04f3
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 362805ddf377..03c720b47306 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1922,6 +1922,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
++	{ .driver_data = MT_CLS_EGALAX,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
+ 
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
 -- 
 2.25.1
 

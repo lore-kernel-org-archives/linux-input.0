@@ -2,181 +2,126 @@ Return-Path: <SRS0=CR59=7Z=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7AF4C433DF
-	for <linux-input@archiver.kernel.org>; Fri, 12 Jun 2020 11:43:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30047C433DF
+	for <linux-input@archiver.kernel.org>; Fri, 12 Jun 2020 12:53:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 893512065C
-	for <linux-input@archiver.kernel.org>; Fri, 12 Jun 2020 11:43:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0826320792
+	for <linux-input@archiver.kernel.org>; Fri, 12 Jun 2020 12:53:25 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wizzup.org header.i=@wizzup.org header.b="DMMaGp+k"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725791AbgFLLnV convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 12 Jun 2020 07:43:21 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:32841 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725805AbgFLLnU (ORCPT
+        id S1726253AbgFLMxY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 12 Jun 2020 08:53:24 -0400
+Received: from a80-127-99-228.adsl.xs4all.nl ([80.127.99.228]:52324 "EHLO
+        hetgrotebos.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726085AbgFLMxY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 12 Jun 2020 07:43:20 -0400
-Received: from mail-pl1-f199.google.com ([209.85.214.199])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <kai.heng.feng@canonical.com>)
-        id 1jji5d-00088M-Do
-        for linux-input@vger.kernel.org; Fri, 12 Jun 2020 11:43:17 +0000
-Received: by mail-pl1-f199.google.com with SMTP id s7so5994371plp.13
-        for <linux-input@vger.kernel.org>; Fri, 12 Jun 2020 04:43:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=tX6T036XKpQGxpEe93S96KsVk1SJ0qpeUi5sT/LTWg0=;
-        b=s5x8Ap9d48yjBVI8JSN5bP5M6flb08bHCwAjAuMRjti30TwSKqSFh1VfiAfGyLyw3O
-         FMOxK3C03FhZ8b1ZQK4MXf3ATtcDTThPF+0CfHh/nPFyAByrE3JEtogKKXFMKO9DoUEz
-         BhLSuozYrr4BBMijcxG3uecCn/uI56MRn2BRMpbWe21KpsF9VBhksPAapNW5vVpsi4Up
-         LLWWFEcLjQsu1GStR2mXwnaTd6iKNYz9dWKKkEyfo11xei5RrvEmi1M3BHU0Lq4Tbw7p
-         kEZZGElLgBYKcEP1827gUc5fI2GAPHj+yy4hzzqwJNVEvGxeRwjXD2E3bSFlB++Q39Bv
-         sDrw==
-X-Gm-Message-State: AOAM530DtydzY9XEtW4+taPziMFQaIFe8UbnwZvbZA9N05zntdEFdZqm
-        Se/7YOP85iRP+H3tuOSOZSVMLaHDXDRQ6TSLufGI0fxMQ9Pi4VsHpqok+g/HeKSjXtUOSjiMbqS
-        bIE8OTF48pUHaMAp+3vXQgTGvFps0bsnyhtQy0ZWI
-X-Received: by 2002:a05:6a00:1592:: with SMTP id u18mr7181386pfk.26.1591962195972;
-        Fri, 12 Jun 2020 04:43:15 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzNLrjKPMekm6EZDo957A/izfwCYUmN88T9k29qkhw1VSuhndg3IARKc8GvW7HriAbpIeY9pw==
-X-Received: by 2002:a05:6a00:1592:: with SMTP id u18mr7181362pfk.26.1591962195591;
-        Fri, 12 Jun 2020 04:43:15 -0700 (PDT)
-Received: from [192.168.1.208] (220-133-187-190.HINET-IP.hinet.net. [220.133.187.190])
-        by smtp.gmail.com with ESMTPSA id q22sm6124729pfg.192.2020.06.12.04.43.13
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 12 Jun 2020 04:43:15 -0700 (PDT)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Subject: Re: [PATCH] HID: intel-ish-hid: Replace PCI_DEV_FLAGS_NO_D3 with
- pci_save_state
-From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
-In-Reply-To: <7E88D4A8-8056-4E12-8B2C-27307A7C5E7D@canonical.com>
-Date:   Fri, 12 Jun 2020 19:43:11 +0800
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Zhang Lixu <lixu.zhang@intel.com>, Even Xu <even.xu@intel.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
+        Fri, 12 Jun 2020 08:53:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=wizzup.org;
+         s=mail; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=/oDe5myc/Ti4esVHRdNG0fK0PcMUaPBw4fimceYfdN4=; b=DMMaGp+kni2FpKPElUqBNLHjTg
+        GTB1aW+e1IiFfdnITjlbm0YPGo8GcLJKZvg5v75gXHMSvQa9ea/+rFMxZGXEdnkzGKMQnf6dix78w
+        MySNiAfbTYSNn9tc0nfxjiVWkP7jEdlfiPQsAwHYPzUZ4hBWc/7o9o62ZoWTtPJC1pWoQNW6/gbQY
+        Z+/Fndi7mhzNLHj7lDuybsySkzg2HqrQJL9eQkBSrcB1I90DkQUelgjs0JnGseEhj1ZhFoaNxJY17
+        5pAlLHrrAkWeUfiH/LoZpOfRDDUrCtGx+9UE3JZY69E7XrlZ5WhF22QrdtIAPPvBRR/8oxd5uzzMT
+        HcH9H4SA==;
+Received: from kgpe-d16.fritz.box ([192.168.178.62])
+        by hetgrotebos.org with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <merlijn@wizzup.org>)
+        id 1jjjBI-0007uZ-9c; Fri, 12 Jun 2020 12:53:12 +0000
+From:   Merlijn Wajer <merlijn@wizzup.org>
+Cc:     pavel@ucw.cz, Merlijn Wajer <merlijn@wizzup.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Tony Lindgren <tony@atomide.com>,
+        =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jeffrey Hugo <jhugo@codeaurora.org>,
+        Mattias Jacobsson <2pi@mok.nu>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Song Hongyan <hongyan.song@intel.com>,
-        "open list:INTEL INTEGRATED SENSOR HUB DRIVER" 
-        <linux-input@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 8BIT
-Message-Id: <68C336BB-C2E1-4DE4-8137-18F7FBEF140C@canonical.com>
-References: <20200505131730.22118-1-kai.heng.feng@canonical.com>
- <dd8033a053be145fd178a89dc362a25a22e17a42.camel@linux.intel.com>
- <7E88D4A8-8056-4E12-8B2C-27307A7C5E7D@canonical.com>
-To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-X-Mailer: Apple Mail (2.3608.80.23.2.2)
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Mark Gross <mgross@linux.intel.com>,
+        linux-omap@vger.kernel.org (open list:OMAP DEVICE TREE SUPPORT),
+        devicetree@vger.kernel.org (open list:OMAP DEVICE TREE SUPPORT),
+        linux-kernel@vger.kernel.org (open list),
+        linux-input@vger.kernel.org (open list:INPUT (KEYBOARD, MOUSE, JOYSTICK
+        , TOUCHSCREEN)...)
+Subject: [PATCH 2/2] ARM: dts: n900: remove mmc1 card detect gpio
+Date:   Fri, 12 Jun 2020 14:53:59 +0200
+Message-Id: <20200612125402.18393-3-merlijn@wizzup.org>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200612125402.18393-1-merlijn@wizzup.org>
+References: <20200612125402.18393-1-merlijn@wizzup.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Instead, expose the key via the input framework, as SW_MACHINE_COVER
 
+The chip-detect GPIO is actually detecting if the cover is closed.
+Technically it's possible to use the SD card with open cover. The
+only downside is risk of battery falling out and user being able
+to physically remove the card.
 
-> On May 21, 2020, at 12:43, Kai-Heng Feng <kai.heng.feng@canonical.com> wrote:
-> 
-> Hi Srinivas,
-> 
->> On May 9, 2020, at 01:45, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
->> 
->> On Tue, 2020-05-05 at 21:17 +0800, Kai-Heng Feng wrote:
->>> PCI_DEV_FLAGS_NO_D3 should not be used outside of PCI core.
->>> 
->>> Instead, we can use pci_save_state() to hint PCI core that the device
->>> should stay at D0 during suspend.
->> 
->> Your changes are doing more than just changing the flag. Can you
->> explain more about the other changes?
-> 
-> By using pci_save_state(), in addition to keep itself stay at D0, the parent bridge will also stay at D0.
-> So it's a better approach to achieve the same thing.
-> 
->> Also make sure that you test on both platforms which has regular S3 and
->> S0ix (modern standby system).
-> 
-> Actually I don't have any physical hardware to test the patch, I found the issue when I search for D3 quirks through the source code.
-> 
-> Can you guys do a quick smoketest for this patch?
+The behaviour of SD card not being available when the device is
+open is unexpected and creates more problems than it solves. There
+is a high chance, that more people accidently break their rootfs
+by opening the case without physically removing the card.
 
-Tested this patch on an S2idle system with intel-ish (Latitude 9510) and it works fine.
-Please consider merging this patch, thanks!
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Merlijn Wajer <merlijn@wizzup.org>
+---
+ arch/arm/boot/dts/omap3-n900.dts | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-Kai-Heng
-
-> 
-> Kai-Heng
-> 
->> 
->> Thanks,
->> Srinivas
->> 
->> 
->>> 
->>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
->>> ---
->>> drivers/hid/intel-ish-hid/ipc/pci-ish.c | 15 ++++++++++-----
->>> 1 file changed, 10 insertions(+), 5 deletions(-)
->>> 
->>> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
->>> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
->>> index f491d8b4e24c..ab588b9c8d09 100644
->>> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
->>> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
->>> @@ -106,6 +106,11 @@ static inline bool ish_should_enter_d0i3(struct
->>> pci_dev *pdev)
->>> 	return !pm_suspend_via_firmware() || pdev->device ==
->>> CHV_DEVICE_ID;
->>> }
->>> 
->>> +static inline bool ish_should_leave_d0i3(struct pci_dev *pdev)
->>> +{
->>> +	return !pm_resume_via_firmware() || pdev->device ==
->>> CHV_DEVICE_ID;
->>> +}
->>> +
->>> /**
->>> * ish_probe() - PCI driver probe callback
->>> * @pdev:	pci device
->>> @@ -215,9 +220,7 @@ static void __maybe_unused
->>> ish_resume_handler(struct work_struct *work)
->>> 	struct ishtp_device *dev = pci_get_drvdata(pdev);
->>> 	int ret;
->>> 
->>> -	/* Check the NO_D3 flag to distinguish the resume paths */
->>> -	if (pdev->dev_flags & PCI_DEV_FLAGS_NO_D3) {
->>> -		pdev->dev_flags &= ~PCI_DEV_FLAGS_NO_D3;
->>> +	if (ish_should_leave_d0i3(pdev) && !dev->suspend_flag) {
->>> 		disable_irq_wake(pdev->irq);
->>> 
->>> 		ishtp_send_resume(dev);
->>> @@ -281,8 +284,10 @@ static int __maybe_unused ish_suspend(struct
->>> device *device)
->>> 			 */
->>> 			ish_disable_dma(dev);
->>> 		} else {
->>> -			/* Set the NO_D3 flag, the ISH would enter D0i3
->>> */
->>> -			pdev->dev_flags |= PCI_DEV_FLAGS_NO_D3;
->>> +			/* Save state so PCI core will keep the device
->>> at D0,
->>> +			 * the ISH would enter D0i3
->>> +			 */
->>> +			pci_save_state(pdev);
->>> 
->> Did you test on some C
->> 
->> 
->>> 			enable_irq_wake(pdev->irq);
->>> 		}
-> 
+diff --git a/arch/arm/boot/dts/omap3-n900.dts b/arch/arm/boot/dts/omap3-n900.dts
+index 4089d97405c9..3dbcae3d60d2 100644
+--- a/arch/arm/boot/dts/omap3-n900.dts
++++ b/arch/arm/boot/dts/omap3-n900.dts
+@@ -105,6 +105,14 @@ proximity_sensor {
+ 			linux,code = <SW_FRONT_PROXIMITY>;
+ 			linux,can-disable;
+ 		};
++
++		machine_cover {
++			label = "Machine Cover";
++			gpios = <&gpio6 0 GPIO_ACTIVE_LOW>; /* 160 */
++			linux,input-type = <EV_SW>;
++			linux,code = <SW_MACHINE_COVER>;
++			linux,can-disable;
++		};
+ 	};
+ 
+ 	isp1707: isp1707 {
+@@ -819,10 +827,6 @@ &mmc1 {
+ 	pinctrl-0 = <&mmc1_pins>;
+ 	vmmc-supply = <&vmmc1>;
+ 	bus-width = <4>;
+-	/* For debugging, it is often good idea to remove this GPIO.
+-	   It means you can remove back cover (to reboot by removing
+-	   battery) and still use the MMC card. */
+-	cd-gpios = <&gpio6 0 GPIO_ACTIVE_LOW>; /* 160 */
+ };
+ 
+ /* most boards use vaux3, only some old versions use vmmc2 instead */
+-- 
+2.24.1
 

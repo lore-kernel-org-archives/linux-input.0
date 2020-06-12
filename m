@@ -2,116 +2,197 @@ Return-Path: <SRS0=CR59=7Z=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9DC2C433E2
-	for <linux-input@archiver.kernel.org>; Fri, 12 Jun 2020 12:53:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98C69C433E0
+	for <linux-input@archiver.kernel.org>; Fri, 12 Jun 2020 16:05:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8837C20792
-	for <linux-input@archiver.kernel.org>; Fri, 12 Jun 2020 12:53:34 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wizzup.org header.i=@wizzup.org header.b="n9xCzWBI"
+	by mail.kernel.org (Postfix) with ESMTP id 7848F2067B
+	for <linux-input@archiver.kernel.org>; Fri, 12 Jun 2020 16:05:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726353AbgFLMxd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 12 Jun 2020 08:53:33 -0400
-Received: from a80-127-99-228.adsl.xs4all.nl ([80.127.99.228]:52328 "EHLO
-        hetgrotebos.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726085AbgFLMxd (ORCPT
+        id S1726108AbgFLQF1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 12 Jun 2020 12:05:27 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:36564 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726053AbgFLQF0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 12 Jun 2020 08:53:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=wizzup.org;
-         s=mail; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=88k7VznXwntBsfIcECn4Bn66c20yCtluMZj15PpGTT0=; b=n9xCzWBIjUliFxUGk9LFXu+0OI
-        YO+hTAV3pbeJOqx1E/J+t+QR/aWWrM53GxZxn3vwpM++pNQs5gCRAFEfTujU2Y4TEjWU97pC7g8U3
-        75yXadbinIQ1SPyWdfFvnsDoU7SHKI4+HjsjwBPWwjvW1PVxj5eX7drsIz9HnNqrpE110LacAH23M
-        rrfrO8QhRQZmJC8zk2Kq63OHtFJpT8Ve7QOgmmFVcpIjOAncP1IYqEbinpBoGpLtCkl8NuJvs6o+T
-        8oegnvJ0UHmAT7+g+R4GWPxAkrQYv35/vtiZr5/NzhQDM2DGyxT/+3DCSl/sPI2Fp4sTy5KVwmFEP
-        aQLgaIVA==;
-Received: from kgpe-d16.fritz.box ([192.168.178.62])
-        by hetgrotebos.org with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <merlijn@wizzup.org>)
-        id 1jjjBF-0007uZ-7z; Fri, 12 Jun 2020 12:53:09 +0000
-From:   Merlijn Wajer <merlijn@wizzup.org>
-Cc:     pavel@ucw.cz, Merlijn Wajer <merlijn@wizzup.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Tony Lindgren <tony@atomide.com>,
-        =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mattias Jacobsson <2pi@mok.nu>,
-        Mark Gross <mgross@linux.intel.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        linux-omap@vger.kernel.org (open list:OMAP DEVICE TREE SUPPORT),
-        devicetree@vger.kernel.org (open list:OMAP DEVICE TREE SUPPORT),
-        linux-kernel@vger.kernel.org (open list),
-        linux-input@vger.kernel.org (open list:INPUT (KEYBOARD, MOUSE, JOYSTICK
-        , TOUCHSCREEN)...)
-Subject: [PATCH 1/2] Input: add `SW_MACHINE_COVER`
-Date:   Fri, 12 Jun 2020 14:53:58 +0200
-Message-Id: <20200612125402.18393-2-merlijn@wizzup.org>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200612125402.18393-1-merlijn@wizzup.org>
-References: <20200612125402.18393-1-merlijn@wizzup.org>
+        Fri, 12 Jun 2020 12:05:26 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: sre)
+        with ESMTPSA id 7E5FC2A56A5
+Received: by earth.universe (Postfix, from userid 1000)
+        id C11383C08C7; Fri, 12 Jun 2020 18:05:21 +0200 (CEST)
+Date:   Fri, 12 Jun 2020 18:05:21 +0200
+From:   Sebastian Reichel <sebastian.reichel@collabora.com>
+To:     Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel@collabora.com
+Subject: Re: [PATCHv3 1/5] dt-bindings: touchscreen: Convert EETI EXC3000
+ touchscreen to json-schema
+Message-ID: <20200612160521.gneedgeu4x4ml27c@earth.universe>
+References: <20200520153936.46869-1-sebastian.reichel@collabora.com>
+ <20200520153936.46869-2-sebastian.reichel@collabora.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="xnevn6eizwjclo62"
+Content-Disposition: inline
+In-Reply-To: <20200520153936.46869-2-sebastian.reichel@collabora.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This event code represents the state of a removable cover of a device.
-Value 0 means that the cover is open or removed, value 1 means that the
-cover is closed.
 
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Merlijn Wajer <merlijn@wizzup.org>
----
- include/linux/mod_devicetable.h        | 2 +-
- include/uapi/linux/input-event-codes.h | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+--xnevn6eizwjclo62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index 0754b8d71262..8a84f11bf124 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -318,7 +318,7 @@ struct pcmcia_device_id {
- #define INPUT_DEVICE_ID_LED_MAX		0x0f
- #define INPUT_DEVICE_ID_SND_MAX		0x07
- #define INPUT_DEVICE_ID_FF_MAX		0x7f
--#define INPUT_DEVICE_ID_SW_MAX		0x0f
-+#define INPUT_DEVICE_ID_SW_MAX		0x10
- #define INPUT_DEVICE_ID_PROP_MAX	0x1f
- 
- #define INPUT_DEVICE_ID_MATCH_BUS	1
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index b6a835d37826..0c2e27d28e0a 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -888,7 +888,8 @@
- #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
- #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
- #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
--#define SW_MAX			0x0f
-+#define SW_MACHINE_COVER	0x10  /* set = cover closed */
-+#define SW_MAX			0x10
- #define SW_CNT			(SW_MAX+1)
- 
- /*
--- 
-2.24.1
+Hi Rob,
 
+I justed noticed, that I forgot to have you in To/Cc. Can you please
+have a look at the patch? The full thread is available via Lore,
+please tell me if you need a resend.
+
+https://lore.kernel.org/linux-input/20200520153936.46869-1-sebastian.reiche=
+l@collabora.com/
+
+Sorry for the inconvenience,
+
+-- Sebastian
+
+On Wed, May 20, 2020 at 05:39:32PM +0200, Sebastian Reichel wrote:
+> Convert the EETI EXC3000 binding to DT schema format using json-schema
+>=20
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+> ---
+>  .../input/touchscreen/eeti,exc3000.yaml       | 53 +++++++++++++++++++
+>  .../bindings/input/touchscreen/exc3000.txt    | 26 ---------
+>  2 files changed, 53 insertions(+), 26 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/e=
+eti,exc3000.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/e=
+xc3000.txt
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/eeti,exc=
+3000.yaml b/Documentation/devicetree/bindings/input/touchscreen/eeti,exc300=
+0.yaml
+> new file mode 100644
+> index 000000000000..022aa69a5dfe
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.ya=
+ml
+> @@ -0,0 +1,53 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/input/touchscreen/eeti,exc3000.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: EETI EXC3000 series touchscreen controller
+> +
+> +maintainers:
+> +  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> +
+> +allOf:
+> +  - $ref: touchscreen.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: eeti,exc3000
+> +  reg:
+> +    const: 0x2a
+> +  interrupts:
+> +    maxItems: 1
+> +  touchscreen-size-x: true
+> +  touchscreen-size-y: true
+> +  touchscreen-inverted-x: true
+> +  touchscreen-inverted-y: true
+> +  touchscreen-swapped-x-y: true
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +  - touchscreen-size-x
+> +  - touchscreen-size-y
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include "dt-bindings/interrupt-controller/irq.h"
+> +    i2c {
+> +        #address-cells =3D <1>;
+> +        #size-cells =3D <0>;
+> +        touchscreen@2a {
+> +                compatible =3D "eeti,exc3000";
+> +                reg =3D <0x2a>;
+> +                interrupt-parent =3D <&gpio1>;
+> +                interrupts =3D <9 IRQ_TYPE_LEVEL_LOW>;
+> +                touchscreen-size-x =3D <4096>;
+> +                touchscreen-size-y =3D <4096>;
+> +                touchscreen-inverted-x;
+> +                touchscreen-swapped-x-y;
+> +        };
+> +    };
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/exc3000.=
+txt b/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+> deleted file mode 100644
+> index 68291b94fec2..000000000000
+> --- a/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+> +++ /dev/null
+> @@ -1,26 +0,0 @@
+> -* EETI EXC3000 Multiple Touch Controller
+> -
+> -Required properties:
+> -- compatible: must be "eeti,exc3000"
+> -- reg: i2c slave address
+> -- interrupts: touch controller interrupt
+> -- touchscreen-size-x: See touchscreen.txt
+> -- touchscreen-size-y: See touchscreen.txt
+> -
+> -Optional properties:
+> -- touchscreen-inverted-x: See touchscreen.txt
+> -- touchscreen-inverted-y: See touchscreen.txt
+> -- touchscreen-swapped-x-y: See touchscreen.txt
+> -
+> -Example:
+> -
+> -	touchscreen@2a {
+> -		compatible =3D "eeti,exc3000";
+> -		reg =3D <0x2a>;
+> -		interrupt-parent =3D <&gpio1>;
+> -		interrupts =3D <9 IRQ_TYPE_LEVEL_LOW>;
+> -		touchscreen-size-x =3D <4096>;
+> -		touchscreen-size-y =3D <4096>;
+> -		touchscreen-inverted-x;
+> -		touchscreen-swapped-x-y;
+> -	};
+> --=20
+> 2.26.2
+>=20
+
+--xnevn6eizwjclo62
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl7jp7sACgkQ2O7X88g7
++pp9EQ/7BhIOTvcurDFoYgC8ux4KZktjk79cpt9MTDeBQ1hlNEq0X0U4GeEbJTkO
+dl7CIGHs8J8rR+uHL7qRMPKkrW13pN1Uy4syd1dsWRl3ukO5uNrQvKU3x8InCWev
+sb/+AsSxMMU7hdum7qZqTNrKIGoXrQ+E0CWEE4Pvrujho1iU4o0eV/f7Z8N3Xg6/
+r7F0eip2UMBZDMkYjbtU7oWUJyYPIJRcXkS1c/jmHMAfQR2qxDJLblwL+c1QtLLM
+DyawUfDlf5XOAq0LNvy86lnZNi16v4yqrfy1zDVy654z3j2KwveiSTTG4L4i+sbR
+w/0MFQZav2hxBeDQYOIuMciis6G1+632N6J13g2wVbn5OYV1LNa4XvMkUc4YHv06
+QVyrSRPPvfDAnWtBexPeX76sm3/XnnoBfEmM7UKtHSTF7VLpNeN5F37MirkX5//V
+84HU9Orseqa8ymqdvgY0cc+7E80jVHe4OKfYVc57EMoT9v5+eUxSJcOpI9O34g4W
+zoR19VPVvTHXzHY/lClP8mA3c5Tg+CWIR8le+592RmUmPBcr/qg13+ee0TBEgkqN
+2vTOQhbtg2+E9x+Qe8iifxwjdj9jZgWl7oyAhO3y2f3Q9kx5u08wqw4ScKmZCyAg
+hJLzFNqPHUBp0QxVOU/wMFMzbHGe/C/0fsTH6W3zabRDSgxGofg=
+=+YBY
+-----END PGP SIGNATURE-----
+
+--xnevn6eizwjclo62--

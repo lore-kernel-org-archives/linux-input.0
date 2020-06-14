@@ -2,137 +2,126 @@ Return-Path: <SRS0=Z2sv=73=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CE85C433E1
-	for <linux-input@archiver.kernel.org>; Sun, 14 Jun 2020 21:03:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59AFBC433DF
+	for <linux-input@archiver.kernel.org>; Sun, 14 Jun 2020 23:58:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EBE4B206B7
-	for <linux-input@archiver.kernel.org>; Sun, 14 Jun 2020 21:03:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ED89C20747
+	for <linux-input@archiver.kernel.org>; Sun, 14 Jun 2020 23:58:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dRCJLEYO"
+	dkim=pass (2048-bit key) header.d=who-t.net header.i=@who-t.net header.b="NGW8bXCU";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="o1lG4zhJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727893AbgFNVDE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 14 Jun 2020 17:03:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46786 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726938AbgFNVDD (ORCPT
+        id S1727995AbgFNX5s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 14 Jun 2020 19:57:48 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59037 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728034AbgFNX5o (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 14 Jun 2020 17:03:03 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4738BC03E97C;
-        Sun, 14 Jun 2020 14:03:03 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id j1so6921148pfe.4;
-        Sun, 14 Jun 2020 14:03:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=2q2lkPFOE1HHvSqY9cZoSA6nGM3ktOf/xAtJkt4U/Uw=;
-        b=dRCJLEYOknC4Q65AQGXfeoeQt/C0O0Ubagurth12zIP89W8Ycx2CkZeL5O03eoQipT
-         8Vpk3C4QWR24/wtDHw8vc3WQBUd/LWygYtviJuzjg9mFUn8ODSrpnrr1D80pKPYB1qzg
-         cBTGYnR1ro24q9Gju96PgmjzySd9tR3rARoFGHlcQAOG+0WjIYWmkXSxYzb6iev+Y9ze
-         r1FpePsj96BJFvMkmODM0u2lrK0X91I/qt+TvpbVhQhC/YaxTfrpBVZNldeegg5Uauu1
-         XL4vflIlTJXobIA/EbNdPOgoyvliRejufvGdcsDXYv3q4FPtR36QVDsN48Sio7JpaybA
-         s8KQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=2q2lkPFOE1HHvSqY9cZoSA6nGM3ktOf/xAtJkt4U/Uw=;
-        b=fMEYXCMX+KYGA7LOHurXMHr4o+MzpPPJ9S94d656uX8YRcB92aOpNzOC59JLUilPsN
-         I/DWP01kgnwpMpE3HVi7BSl4TqNlPxgYQotNZR+c+bpv2lNKU1Wu9Qv5mmajHKWLXO4q
-         JBMFfX18egwHKWK6YOANz1871PHXOW0etfB357d6CJizNfUOohM2nsDf36gh3zD35N1K
-         JO5nSa9mOM78NDiBexg++qvwWh++xulmWZXWz4NNdW1+7hUL/c6tsJNp+m+nZ4Fp+R5X
-         36zm0MeT1G48nUmq1WFkU2cVD4YzcK3jU1mWk+J5b67RCWZ7v8Rlm+qY4yWNyg3WHszK
-         zdpw==
-X-Gm-Message-State: AOAM530qw/wxmYycNTajBH7MsoD5adRCmlU/EVRxUi8fypfuPoRTHxdi
-        42cnz1pIgaxs61G4ej3TV14=
-X-Google-Smtp-Source: ABdhPJzw9epsD325xpNNSKo3Fuu16DuLxdXw28bisO0FNwLCA2uutIGU8+3mhVda0Si6mHCnSm1j0Q==
-X-Received: by 2002:a62:8608:: with SMTP id x8mr8124633pfd.96.1592168582669;
-        Sun, 14 Jun 2020 14:03:02 -0700 (PDT)
-Received: from sultan-box.localdomain ([89.45.90.111])
-        by smtp.gmail.com with ESMTPSA id d184sm1827746pfd.85.2020.06.14.14.03.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Jun 2020 14:03:02 -0700 (PDT)
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-X-Google-Original-From: Sultan Alsawaf
-To:     Aaron Ma <aaron.ma@canonical.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        HungNien Chen <hn.chen@weidahitech.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Pavel Balan <admin@kryma.net>, Tin Huynh <tnhuynh@apm.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        You-Sheng Yang <vicamo.yang@canonical.com>
-Cc:     Sultan Alsawaf <sultan@kerneltoast.com>
-Subject: [PATCH 1/2] i2c: designware: Only check the first byte for SMBus block read length
-Date:   Sun, 14 Jun 2020 14:02:54 -0700
-Message-Id: <20200614210255.4641-2-sultan@kerneltoast.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200614210255.4641-1-sultan@kerneltoast.com>
-References: <20200614210255.4641-1-sultan@kerneltoast.com>
+        Sun, 14 Jun 2020 19:57:44 -0400
+Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
+        by mailout.nyi.internal (Postfix) with ESMTP id 7A2FC5C005F;
+        Sun, 14 Jun 2020 19:57:43 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute7.internal (MEProxy); Sun, 14 Jun 2020 19:57:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=who-t.net; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=aAUf8ZWtRuKYcWh/bNGV7WxxMMD
+        6waNEhYXD401M6pE=; b=NGW8bXCUSlx9FV1XlDsAtNbSPVjuPl/0AGvYVYKosU4
+        qUiZls7nxrcqTbY5ICbVcjOXnWs64zGxlKzt+7PV69NxiXB5jRz7Kp6xBuXq2V+R
+        29x9P/4xS7pdoSOLERDJH+N+WHdNpwZIscWmoOmzCi94lNFFRzi961CqcJ99IkYK
+        l+cTudEqi3MQUZKPTB6eOpTMqsSobHN3IHJUJcFULCPvCHLmBem3eduJHKOgf9Cc
+        AZF/83SKJAXLWCG+5VZ9t9axZbOWcnu1FHqionSWbOoteH8vbizj956zrEXFpU4o
+        fhUsZOCWQcjpHOBf/+VUBYof9ZO5edfZbdMNjzcWjeA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aAUf8Z
+        WtRuKYcWh/bNGV7WxxMMD6waNEhYXD401M6pE=; b=o1lG4zhJGIqjCytJytfuIU
+        LcPCFkDBgkSKtXAE7iEAqSPkjByhIkiEVnlH0iljY1Xkgt9+lucrw5CCbxRGHkUy
+        6MFPiPSrYibg1DFpQExJRW1Ab7uW5PtT8LkDD3asp8NzYo1u1xaXKRO+/P7JZV5L
+        cHYwjzJvx4uOqiBbHZa/a/sFX7HL/BbcXfOJBlUjJ+C1FE41rAPB3tCD/W7nJ2fZ
+        FkhFMbdWmiY5LQpa5rYdqMOxxdSklTKJQxX3m7reGYGCPQfS8hediEFZuX2Wdem4
+        CS6k8NdTl2QA8RuRaf5Fsd6//KTIEKoa/nIGHaAPBXPw5PFgTiqrOmq4+/7/d1jg
+        ==
+X-ME-Sender: <xms:drnmXkC3lE_7-MAYC2SiyzVwt9186hDB3MrYKTeKR69mA2JqQxY6LQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeijedgvdelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefrvghtvghr
+    ucfjuhhtthgvrhgvrhcuoehpvghtvghrrdhhuhhtthgvrhgvrhesfihhohdqthdrnhgvth
+    eqnecuggftrfgrthhtvghrnhephefhheffgfehleegueduleehgfdvfeevkeduveejveej
+    veevgfeggfduudefueevnecukfhppeduudejrddvtddrieekrddufedvnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepphgvthgvrhdrhhhuthht
+    vghrvghrseifhhhoqdhtrdhnvght
+X-ME-Proxy: <xmx:drnmXmii6zX1AqXMT3ItVL5bmOZZA141DwGZ6joX5Ng3_3l4LH6Avw>
+    <xmx:drnmXnnufYjcXBIxG_WcTCIbAjJpcTto6E-iMnEpP0yPhiwjl3iRnw>
+    <xmx:drnmXqyrTkwAdzOBF_14BW2ajzU0TFv42Anb1tTmnIUoOPR8JrAJ5Q>
+    <xmx:d7nmXrchMwPcGFoKkwXJQsK6d3FBlBlVE_UZvV269Piv9Y0sCTZ_Ow>
+Received: from koala (117-20-68-132.751444.bne.nbn.aussiebb.net [117.20.68.132])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 60ECB3061CB6;
+        Sun, 14 Jun 2020 19:57:40 -0400 (EDT)
+Date:   Mon, 15 Jun 2020 09:57:35 +1000
+From:   Peter Hutterer <peter.hutterer@who-t.net>
+To:     Denis 'GNUtoo' Carikli <GNUtoo@cyberdimension.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Andi Shyti <andi@etezian.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        linux-input@vger.kernel.org, Javi Ferrer <javi.f.o@gmail.com>
+Subject: Re: [PATCH] Input: mms114: don't report 0 pressure while still
+ tracking contact(s)
+Message-ID: <20200614235735.GA11069@koala>
+References: <20200606035017.7271-1-GNUtoo@cyberdimension.org>
+ <20200606181806.GR89269@dtor-ws>
+ <20200612194619.0ac97cf2@primarylaptop.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200612194619.0ac97cf2@primarylaptop.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Sultan Alsawaf <sultan@kerneltoast.com>
+On Fri, Jun 12, 2020 at 07:46:19PM +0200, Denis 'GNUtoo' Carikli wrote:
+> On Sat, 6 Jun 2020 11:18:06 -0700
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > Hi Denis,
+> Hi,
+> 
+> > Could you please post longer sequence from evtest leading to the
+> > packet with 0 pressure?
+> 
+> Here's the full sequence, of a slide from the botton to the top, I hope
+> that it's not too long:
 
-SMBus block reads can be broken because the read function will just skip
-over bytes it doesn't like until reaching a byte that conforms to the
-length restrictions for block reads. This is problematic when it isn't
-known if the incoming payload is indeed a conforming block read.
+[...]
 
-According to the SMBus specification, block reads will only send the
-payload length in the first byte, so we can fix this by only considering
-the first byte in a sequence for block read length purposes.
+> > Properties:
+> >   Property type 1 (INPUT_PROP_DIRECT)
+> > Testing ... (interrupt to exit)
+> > Event: time 1585880998.920994, type 3 (EV_ABS), code 57
+> > (ABS_MT_TRACKING_ID), value 0 Event: time 1585880998.920994, type 3
+> > (EV_ABS), code 53 (ABS_MT_POSITION_X), value 400 Event: time
+> > 1585880998.920994, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y),
+> > value 1262 Event: time 1585880998.920994, type 3 (EV_ABS), code 48
+> > (ABS_MT_TOUCH_MAJOR), value 6 Event: time 1585880998.920994, type 3
+> > (EV_ABS), code 58 (ABS_MT_PRESSURE), value 90 Event: time
+> > 1585880998.920994, type 1 (EV_KEY), code 330 (BTN_TOUCH), value 1
+> > Event: time 1585880998.920994, type 3 (EV_ABS), code 0 (ABS_X), value
+> > 400 Event: time 1585880998.920994, type 3 (EV_ABS), code 1 (ABS_Y),
+> > value 1262 Event: time 1585880998.920994, type 3 (EV_ABS), code 24
+> > (ABS_PRESSURE), value 90 Event: time 1585880998.920994,
+> > -------------- SYN_REPORT ------------ Event: time 1585880998.943145,
 
-Fixes: c3ae106050b9 ("i2c: designware: Implement support for SMBus block read and write")
-Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
----
- drivers/i2c/busses/i2c-designware-master.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+sorry, but this is completely unreadable. Please make sure it's in the
+originally formatting that evtest/evemu/libinput record spit out. Thanks.
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index d6425ad6e6a3..16d38b8fc19a 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -398,7 +398,6 @@ i2c_dw_recv_len(struct dw_i2c_dev *dev, u8 len)
- 	len += (flags & I2C_CLIENT_PEC) ? 2 : 1;
- 	dev->tx_buf_len = len - min_t(u8, len, dev->rx_outstanding);
- 	msgs[dev->msg_read_idx].len = len;
--	msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
- 
- 	return len;
- }
-@@ -430,10 +429,11 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 			u32 flags = msgs[dev->msg_read_idx].flags;
- 
- 			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
--			/* Ensure length byte is a valid value */
--			if (flags & I2C_M_RECV_LEN &&
--			    tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
--				len = i2c_dw_recv_len(dev, tmp);
-+			if (flags & I2C_M_RECV_LEN) {
-+				/* Ensure length byte is a valid value */
-+				if (tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0)
-+					len = i2c_dw_recv_len(dev, tmp);
-+				msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
- 			}
- 			*buf++ = tmp;
- 			dev->rx_outstanding--;
--- 
-2.27.0
+Cheers,
+   Peter
 

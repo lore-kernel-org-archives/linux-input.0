@@ -2,109 +2,100 @@ Return-Path: <SRS0=Bs9F=74=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A59BC433E1
-	for <linux-input@archiver.kernel.org>; Mon, 15 Jun 2020 20:50:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 728F0C433E1
+	for <linux-input@archiver.kernel.org>; Mon, 15 Jun 2020 23:41:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 32A402071A
-	for <linux-input@archiver.kernel.org>; Mon, 15 Jun 2020 20:50:34 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P6G/UUeB"
+	by mail.kernel.org (Postfix) with ESMTP id 4E7BE207D3
+	for <linux-input@archiver.kernel.org>; Mon, 15 Jun 2020 23:41:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1592264492;
+	bh=4B3zxx0t4t/cAMnTcb1CgWAE+WyO6z4UCRqXbi4xzFg=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject:List-ID:From;
+	b=eruvHbLelO4Fhx7WjJvt4YdBe8z1Xpg99kUHebempZhe6aC3N7S7+v4tAoxa2d5NA
+	 PGxFIKBOqgNaikm1tXB7BQGuzxFlWLjH0pEe/xFm9pspaVkHpNfnYVsX8qdBeBmfWu
+	 wlcN44MaFecFOCfCmhBWm80ItRSKuP8v9JSMWCe0=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731179AbgFOUud (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 15 Jun 2020 16:50:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731104AbgFOUud (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 15 Jun 2020 16:50:33 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F3CCC061A0E;
-        Mon, 15 Jun 2020 13:50:32 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id dr13so18904103ejc.3;
-        Mon, 15 Jun 2020 13:50:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Pq10EsF9ol16Ob8nLiU7XvO5q7sS1m52YcoGKQtf67Q=;
-        b=P6G/UUeBICwnSuIWd/pluNT30dbZXW7yFJLxp2llftYoOSmqqXBs8M/4mi6rMA0hdU
-         cDgHR8tZ2sJ1Smo8oVLkgIgtjKmcC1xIolgrw9DDPlyX23QpirIule48mVDATjqFCTE2
-         HxvHGvBQ1gK2k0SdxOcbi2D0w4OOAPy2e1ZsiZ9NTglSCpQQ8Ftrp1HPqRWxVY+ZnD7+
-         KcER8HsVAAUNyMYbaj7/FttZ0p1U1yY+GdeXH0qXAB8J8NRU1PtEkSbGPVWxnRIH4Xqq
-         wkHlMezhW/AX07mpPaphBWhYP8aFsclccEOEraIWjacp8FKlwh9CXjSZKcs6zgAsReNi
-         WtLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Pq10EsF9ol16Ob8nLiU7XvO5q7sS1m52YcoGKQtf67Q=;
-        b=CPsVZMfB83m6lahiDZg9NqnUGdyS26qAGqPwX3H2wE92qZY6WU+NX9CEQpNL6lcwpp
-         jiVIE2FyLxv6V4ozU0yoG4DivwxpDI6FAEnCk/kCme3VeGSy7k+3RGsnavLe/uisWxxa
-         K5btAVXGrJhn7jx6fPQzMN+7oXjeViquuKS0Dx7KSgwBXeCv60Yof2UxLqVnM6HL7ZJz
-         Vxa/oj+63WcbqCAjvDhxtbSU2s/dowtFpCV4Gk9PKoP1lRu+TVOc8LSJ3UtFrh7cJdw1
-         CUepVkzfaANnPsjOL8KxULsLWRKHUnq5/S/A8PDzyLff6CAcfnFzNvnABTQSBmpQDIhx
-         Ew0w==
-X-Gm-Message-State: AOAM531cPLdGoxoFs2uKOTytLFsYqQGPIFktZ6WgAvh54KDhCzVL4YFx
-        bfyL8EMAsaZy12GQH2N3e6g=
-X-Google-Smtp-Source: ABdhPJzbRyigEVX2RV4GNRa6In+aFjP2Tc9CR955VZnQB1YfKum3NDCekajoD0lXqFi++hB4zMBeQg==
-X-Received: by 2002:a17:906:1e92:: with SMTP id e18mr28515224ejj.254.1592254230936;
-        Mon, 15 Jun 2020 13:50:30 -0700 (PDT)
-Received: from flexbook-edge-13-m-fbe-13.lan ([2001:b07:2ee:c602:b951:df66:41b5:4c85])
-        by smtp.gmail.com with ESMTPSA id q3sm9028515eds.0.2020.06.15.13.50.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jun 2020 13:50:30 -0700 (PDT)
-From:   Federico Ricchiuto <fed.ricchiuto@gmail.com>
-To:     jikos@kernal.org
-Cc:     Federico Ricchiuto <fed.ricchiuto@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: i2c-hid: add Trekstor Surfbook E11B to descriptor override
-Date:   Mon, 15 Jun 2020 22:49:11 +0200
-Message-Id: <20200615204914.15549-1-fed.ricchiuto@gmail.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1727049AbgFOXlS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 15 Jun 2020 19:41:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54060 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725960AbgFOXlR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 15 Jun 2020 19:41:17 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B32D20714;
+        Mon, 15 Jun 2020 23:41:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592264477;
+        bh=4B3zxx0t4t/cAMnTcb1CgWAE+WyO6z4UCRqXbi4xzFg=;
+        h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
+        b=AxBMUE88327gyD7AWPGhve+Wh8ybmWBfw1Vr5OWesrVIVG7NxKRQswpbnAXtofFbO
+         sLu3+N4jgXfA/ewD0/dj0zcDJeqxyFwsdjQymufuXtNvL6JVXHeVeKRAOTHmv+8yXX
+         grzN41FYi/g6IrCDmey/eZzzF6h2ijQ5jvrYbNpA=
+Date:   Tue, 16 Jun 2020 00:41:15 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>
+Cc:     linux-gpio@vger.kernel.org, ath10k@lists.infradead.org,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-usb@vger.kernel.org, netdev@vger.kernel.org,
+        linux-scsi@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-rdma@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-renesas-soc@vger.kernel.org
+In-Reply-To: <20200609124610.3445662-1-kieran.bingham+renesas@ideasonboard.com>
+References: <20200609124610.3445662-1-kieran.bingham+renesas@ideasonboard.com>
+Subject: Re: [PATCH 00/17] spelling.txt: /decriptors/descriptors/
+Message-Id: <159226447507.27673.16785893373246037922.b4-ty@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The Mediacom FlexBook edge13 uses the SIPODEV SP1064 touchpad, which does
-not supply descriptors, so it has to be added to the override list.
+On Tue, 9 Jun 2020 13:45:53 +0100, Kieran Bingham wrote:
+> I wouldn't normally go through spelling fixes, but I caught sight of
+> this typo twice, and then foolishly grepped the tree for it, and saw how
+> pervasive it was.
+> 
+> so here I am ... fixing a typo globally... but with an addition in
+> scripts/spelling.txt so it shouldn't re-appear ;-)
+> 
+> [...]
 
-Signed-off-by: Federico Ricchiuto <fed.ricchiuto@gmail.com>
----
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Applied to
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index a66f08041a1a..bb3f802935cc 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -373,6 +373,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Mediacom FlexBook edge 13",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MEDIACOM"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "FlexBook_edge13-M-FBE13"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{
- 		.ident = "Odys Winbook 13",
- 		.matches = {
--- 
-2.25.1
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-next
 
+Thanks!
+
+[1/2] regulator: Fix trivial spelling
+      commit: d3f3723387f97118c337689fc73e4199fb4331ce
+[2/2] regulator: gpio: Fix trivial spelling
+      commit: 1f0b740004f09d2f1b716fd6c2fdca81004ded05
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark

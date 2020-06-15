@@ -2,115 +2,126 @@ Return-Path: <SRS0=Bs9F=74=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA7B6C433E0
-	for <linux-input@archiver.kernel.org>; Mon, 15 Jun 2020 06:36:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C4E0C433DF
+	for <linux-input@archiver.kernel.org>; Mon, 15 Jun 2020 09:40:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A61E8206E2
-	for <linux-input@archiver.kernel.org>; Mon, 15 Jun 2020 06:36:42 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JigDBEdI"
+	by mail.kernel.org (Postfix) with ESMTP id 857FC2065F
+	for <linux-input@archiver.kernel.org>; Mon, 15 Jun 2020 09:40:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728251AbgFOGgm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 15 Jun 2020 02:36:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728163AbgFOGgl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 15 Jun 2020 02:36:41 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CFDBC061A0E;
-        Sun, 14 Jun 2020 23:36:40 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id j19so10083271ilk.9;
-        Sun, 14 Jun 2020 23:36:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BzMeUKuUyJ2mfwS8ROotjoI9/ypgi2R999TrALWXqeM=;
-        b=JigDBEdIzzTTP3gqOGmhQ2GymQKEi0GO/RTGfMSGESgMQqnLGWK/yGPGULXIocnnoD
-         Xk7+zfMKvohfpxnUIyVwboiHbs6+HwRviv9P3hDPGKd4XehH5cunvpe7FOKkYeUDn00i
-         bmcK2FcJBHWexKKVt7pPkCwckGuyQhxFk/ErqKquNp0dQP9HNTk1EeNTrdI0xuzpBFx1
-         A6nCAlpNqmm7Gg4CnO3eg+6y/eTMrsg4VDXMoXxQTrdG73rfuzwtjF86//3inA7ilpeL
-         K+K4NEB5fK2Ye3ce0v7dBI2J8jzpVkChAI79oEmHsLDsm509MhCLN5Z6qvWyj5sowaxE
-         SZ+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BzMeUKuUyJ2mfwS8ROotjoI9/ypgi2R999TrALWXqeM=;
-        b=FMmGxC1flWDURnh+aWcGgWdAewjw8J9f7eUFtJtQPc+XtNoHD9coetjh/sVKjad2Dl
-         WQINeagoYOVeFPKf0eymFgfkaA8SfsB54HsNSenG8YKPrEh4Gewh8hrGQDxW6F0MnAxT
-         SeAVSuX9DpINPoGhw5scD48+Ea8gy3DXLjQrxjog7gW7XNRENdYIAorZ0urFcVsHbddi
-         kQilJm853L3IBsrOXYSfSJB1/dIJpt04GUY2LnHAN6KlcTyh48r9bsU7HvOEV+BvDacg
-         DQM9/BKFo5xXWeDErRpXCXxb6DKL+DXZ8NQHyrT9jSTFFM6Xi0p8leSw44NCotDmtrrx
-         HDEw==
-X-Gm-Message-State: AOAM5320nvpVJ97wjewtqJJ1ywOfaBm+y/avKR5/EmhRZJWPrUFXEjde
-        fWUaQMnT+taEExiQ1IuouFUKuQ4gzsjz8AoXajQ=
-X-Google-Smtp-Source: ABdhPJzcdxEnPC2YbZby/YnY8Zr3ZGHT3bnunhra2/DiGyRtelpJiiS0AQZNqRF4F4M6DEoaT29/UOqVg7mOU0JcbDg=
-X-Received: by 2002:a05:6e02:13f4:: with SMTP id w20mr25628332ilj.294.1592202999825;
- Sun, 14 Jun 2020 23:36:39 -0700 (PDT)
+        id S1729213AbgFOJk0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 15 Jun 2020 05:40:26 -0400
+Received: from mga14.intel.com ([192.55.52.115]:28925 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728411AbgFOJk0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 15 Jun 2020 05:40:26 -0400
+IronPort-SDR: MEy6tbFepUDj348cFVI4zdq+A2doPimbzZmpWRjWjw6vgo/k0snuPDunjRAGHvs+7cH6AXdKec
+ Jo9xc/WvPJWQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 02:40:23 -0700
+IronPort-SDR: LHQqZ76Fn7bIbBFT7Zn7EpEOpc4QRKtaF80t6uGidUtlRfn4y7YzJbrBh+rgoQ+f/DrYLdkEsI
+ sbi6SZmcyNeA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,514,1583222400"; 
+   d="scan'208";a="276501595"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga006.jf.intel.com with ESMTP; 15 Jun 2020 02:40:17 -0700
+Received: from andy by smile with local (Exim 4.94)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1jklbH-00DXN0-GZ; Mon, 15 Jun 2020 12:40:19 +0300
+Date:   Mon, 15 Jun 2020 12:40:19 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Sultan Alsawaf <sultan@kerneltoast.com>
+Cc:     Aaron Ma <aaron.ma@canonical.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        HungNien Chen <hn.chen@weidahitech.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Pavel Balan <admin@kryma.net>, Tin Huynh <tnhuynh@apm.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        You-Sheng Yang <vicamo.yang@canonical.com>
+Subject: Re: [PATCH 1/2] i2c: designware: Only check the first byte for SMBus
+ block read length
+Message-ID: <20200615094019.GP2428291@smile.fi.intel.com>
+References: <20200614210255.4641-1-sultan@kerneltoast.com>
+ <20200614210255.4641-2-sultan@kerneltoast.com>
 MIME-Version: 1.0
-References: <20200614055604.67969-1-navid.emamdoost@gmail.com> <CAHp75VcuRvaQwcTP0+Y+QJTvjoEzYTvV40coUxnsZPfWnwcNMg@mail.gmail.com>
-In-Reply-To: <CAHp75VcuRvaQwcTP0+Y+QJTvjoEzYTvV40coUxnsZPfWnwcNMg@mail.gmail.com>
-From:   Navid Emamdoost <navid.emamdoost@gmail.com>
-Date:   Mon, 15 Jun 2020 01:36:28 -0500
-Message-ID: <CAEkB2ES7SjV8JMb8MAO9CWhg=_VekQehF+NxxYs6e6=xySUEBw@mail.gmail.com>
-Subject: Re: [PATCH] Input: bma150: fix ref count leak in bma150_open
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Bakker <xc-racer2@live.ca>,
-        =?UTF-8?Q?Pawe=C5=82_Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
-        linux-input <linux-input@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Navid Emamdoost <emamd001@umn.edu>,
-        Qiushi Wu <wu000273@umn.edu>, Kangjie Lu <kjlu@umn.edu>,
-        Stephen McCamant <smccaman@umn.edu>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200614210255.4641-2-sultan@kerneltoast.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Jun 14, 2020 at 4:27 AM Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
->
-> On Sun, Jun 14, 2020 at 8:58 AM Navid Emamdoost
-> <navid.emamdoost@gmail.com> wrote:
-> >
-> > in bma150_open, pm_runtime_get_sync is called which
-> > increments the counter even in case of failure, leading to incorrect
-> > ref count. In case of failure, decrement the ref count before returning.
->
-> ...
->
-> >         error = pm_runtime_get_sync(&bma150->client->dev);
-> >         if (error < 0 && error != -ENOSYS)
-> > -               return error;
-> > +               goto out;
->
-> So, what will happen in case of -ENOSYS?
-I'm not sure!
+On Sun, Jun 14, 2020 at 02:02:54PM -0700, Sultan Alsawaf wrote:
+> From: Sultan Alsawaf <sultan@kerneltoast.com>
+> 
+> SMBus block reads can be broken because the read function will just skip
+> over bytes it doesn't like until reaching a byte that conforms to the
+> length restrictions for block reads. This is problematic when it isn't
+> known if the incoming payload is indeed a conforming block read.
+> 
+> According to the SMBus specification, block reads will only send the
+> payload length in the first byte, so we can fix this by only considering
+> the first byte in a sequence for block read length purposes.
 
->
-> ...
->
-> > +       pm_runtime_put(&bma150->client->dev);
->
-> Slightly better to use _put_noidle(). (More consistency with error path)
+I'm wondering if this overlaps with [1]. AFAIU that one is also makes sure that
+the length is not a garbage.
 
-v2 is sent.
+[1]: https://lore.kernel.org/linux-i2c/20200613104109.2989-1-mans@mansr.com/T/#u
 
->
-> --
-> With Best Regards,
-> Andy Shevchenko
-
-
+> Fixes: c3ae106050b9 ("i2c: designware: Implement support for SMBus block read and write")
+> Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-master.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+> index d6425ad6e6a3..16d38b8fc19a 100644
+> --- a/drivers/i2c/busses/i2c-designware-master.c
+> +++ b/drivers/i2c/busses/i2c-designware-master.c
+> @@ -398,7 +398,6 @@ i2c_dw_recv_len(struct dw_i2c_dev *dev, u8 len)
+>  	len += (flags & I2C_CLIENT_PEC) ? 2 : 1;
+>  	dev->tx_buf_len = len - min_t(u8, len, dev->rx_outstanding);
+>  	msgs[dev->msg_read_idx].len = len;
+> -	msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
+>  
+>  	return len;
+>  }
+> @@ -430,10 +429,11 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+>  			u32 flags = msgs[dev->msg_read_idx].flags;
+>  
+>  			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
+> -			/* Ensure length byte is a valid value */
+> -			if (flags & I2C_M_RECV_LEN &&
+> -			    tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
+> -				len = i2c_dw_recv_len(dev, tmp);
+> +			if (flags & I2C_M_RECV_LEN) {
+> +				/* Ensure length byte is a valid value */
+> +				if (tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0)
+> +					len = i2c_dw_recv_len(dev, tmp);
+> +				msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
+>  			}
+>  			*buf++ = tmp;
+>  			dev->rx_outstanding--;
+> -- 
+> 2.27.0
+> 
 
 -- 
-Navid.
+With Best Regards,
+Andy Shevchenko
+
+

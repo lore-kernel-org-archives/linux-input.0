@@ -2,78 +2,128 @@ Return-Path: <SRS0=d/dN=75=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CB33C433E0
-	for <linux-input@archiver.kernel.org>; Tue, 16 Jun 2020 15:35:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D368C433E2
+	for <linux-input@archiver.kernel.org>; Tue, 16 Jun 2020 16:03:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6CFFC2098B
-	for <linux-input@archiver.kernel.org>; Tue, 16 Jun 2020 15:35:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592321701;
-	bh=G7RNOAh0TjW7w/eqygx9XVsCddug7QF6AH+5CbfsSgg=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=TTgTSUSgMsDt40+iB1vvHWI8sBHjLuLj2aYNZCHfqA3kH9Nlw/ncSZTukYOyIT1DP
-	 bzxCqGwhdiHBV3ZbOiyZfhOhE9iOwNo0IgEJ3mcqoe3yJt0YcfL9QTfly23NmnOiiv
-	 OOzF1CpvDhZwhZ/45k33sRgSBs2TAZlqWQIR2GC8=
+	by mail.kernel.org (Postfix) with ESMTP id E791F208D5
+	for <linux-input@archiver.kernel.org>; Tue, 16 Jun 2020 16:03:50 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c3wGbVWH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728448AbgFPPfB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 16 Jun 2020 11:35:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45848 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729627AbgFPPfA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:35:00 -0400
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54BB6208B3;
-        Tue, 16 Jun 2020 15:34:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321700;
-        bh=G7RNOAh0TjW7w/eqygx9XVsCddug7QF6AH+5CbfsSgg=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=LF19z7hTW1lDiBcUVQDgYLm82BO8mZ2NY0EMiZ3vPDfsBr+CjhybZVIIRat6K9f5P
-         2FpRi3Y99SIAQLHrSWQbdku7VFuCnhyVvx8TnmE6FdTXHskNBJGIl5nTDmDQpGwlZh
-         sLL4/aINTJHuKnNqfEBX3BFqfKaCaix+zQDzE5Z4=
-Date:   Tue, 16 Jun 2020 17:34:57 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Yariv <oigevald+kernel@gmail.com>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: magicmouse: do not set up autorepeat
-In-Reply-To: <20200524235134.GA143513@dtor-ws>
-Message-ID: <nycvar.YFH.7.76.2006161734390.13242@cbobk.fhfr.pm>
-References: <20200524235134.GA143513@dtor-ws>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1732375AbgFPQDt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 16 Jun 2020 12:03:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46820 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730401AbgFPPt5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:57 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0821C061573;
+        Tue, 16 Jun 2020 08:49:57 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id l24so826410pgb.5;
+        Tue, 16 Jun 2020 08:49:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=pFrRHq1XVs88zCS7gViaAQplZ6MV/Otf8rLxL7f/kd8=;
+        b=c3wGbVWHycQTd3FhMQJMCIvSPCX0sIf914T+Ow7XL1zuxIkMnMSYQJRKeAI6P7O4bz
+         QhBd87rsmaMDXZAWD6iuH/j46lXMJZLUwHr7HHt1DlBZUJDOCqSK0eAGDB3b/OR5S7lI
+         Ph+hmGbbzUknIG2WIxhcxpeNNegn3zXHX7CvAd3aA2HfUXFScKDKoDgQGJ7Pd0ZqgEx+
+         ZDa4mWnWcmAA2LbL2DPXmPC3kwJto6HdzQ9hWclskR+XsLmz7mqcOUfQvs6N+qVZ4vu7
+         jyvbTjqlMx4N5lmyP6I6DZLOjWxmOionysqtJeqkdIRjhDxFM9Rvz9NSbp4tZvdXmod+
+         2agg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references:mime-version:content-transfer-encoding;
+        bh=pFrRHq1XVs88zCS7gViaAQplZ6MV/Otf8rLxL7f/kd8=;
+        b=dw7aYj7Lz1YNIXaydYr0cZHP1f1+sfHwUxOevahONR+UHP2CpAqOAfedV7COiR4REt
+         xmPgaf8S8Pj6TFle3GvgrUlFmLRwscJfT2JYCtknqkljfilRmfCYHOr7gz6mlfBKvmmK
+         S2fAIhktOLevPVykCUBP+xZyaDnY3ht3nZrpC3tLqv7fZ/g7rxrOBZIbs7AhrQOAJ1U5
+         q3HGCdgDgRlgTBKAZkzT8dAwNsCpyZDnNly1zo01YQ9qhoDEPu1O6umwsPmdXFVoVZz2
+         De0JjgcKkZFUE+CJGPZsMXS0VFCXfGblbJ/NPDhXImYEkZasGxZeAo1WtJqhGuyfuFIq
+         PxEw==
+X-Gm-Message-State: AOAM533MQLusfWIysWm/AOreoCXgKaxbSGogb5ujIebSTrbENY3ROxrD
+        48RGrD1cRkCOf3I/WJGs8vI=
+X-Google-Smtp-Source: ABdhPJzjW4M5H25XWj36B4KIDoaMuIoILtjuNNkLOrkVPia6lZUsEEbyXpd9lc/UEJ4gSid9U6elJA==
+X-Received: by 2002:a62:ddc4:: with SMTP id w187mr2616321pff.63.1592322597492;
+        Tue, 16 Jun 2020 08:49:57 -0700 (PDT)
+Received: from sultan-box.localdomain ([89.45.90.111])
+        by smtp.gmail.com with ESMTPSA id l195sm7668873pfd.18.2020.06.16.08.49.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jun 2020 08:49:56 -0700 (PDT)
+From:   Sultan Alsawaf <sultan@kerneltoast.com>
+X-Google-Original-From: Sultan Alsawaf
+To:     jarkko.nikula@linux.intel.com
+Cc:     aaron.ma@canonical.com, admin@kryma.net,
+        andriy.shevchenko@linux.intel.com, benjamin.tissoires@redhat.com,
+        hdegoede@redhat.com, hn.chen@weidahitech.com, jikos@kernel.org,
+        kai.heng.feng@canonical.com, linux-i2c@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        mika.westerberg@linux.intel.com, sultan@kerneltoast.com,
+        vicamo.yang@canonical.com, wsa@kernel.org
+Subject: [PATCH v2] HID: i2c-hid: Use block reads when possible to save power
+Date:   Tue, 16 Jun 2020 08:49:51 -0700
+Message-Id: <20200616154951.3050-1-sultan@kerneltoast.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <c4373272-e656-773c-dfd2-0efc4c53c92d@linux.intel.com>
+References: <c4373272-e656-773c-dfd2-0efc4c53c92d@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 24 May 2020, Dmitry Torokhov wrote:
+From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-> Neither the trackpad, nor the mouse want input core to generate autorepeat
-> events for their buttons, so let's reset the bit (as hid-input sets it for
-> these devices based on the usage vendor code).
-> 
-> Reported-by: Yariv <oigevald+kernel@gmail.com>
-> Tested-by: Yariv <oigevald+kernel@gmail.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
-> 
-> Jiri, Benjamin, this is fixes jitter in event packets that became
-> apparent when we moved the point at which timestamps are being
-> generated, so maybe mark for stable?
+We have no way of knowing how large an incoming payload is going to be,
+so the only strategy available up until now has been to always retrieve
+the maximum possible report length over i2c, which can be quite
+inefficient. For devices that send reports in block read format, the i2c
+controller driver can read the payload length on the fly and terminate
+the i2c transaction early, resulting in considerable power savings.
 
-I've marked it for stable, fixed the typo in the comment, and applied, 
-thanks.
+On a Dell Precision 15 5540 with an i9-9880H, resting my finger on the
+touchpad causes psys power readings to go up by about 4W and hover there
+until I remove my finger. With this patch, my psys readings go from 4.7W
+down to 3.1W, yielding about 1.6W in savings. This is because my
+touchpad's max report length is 60 bytes, but all of the regular reports
+it sends for touch events are only 32 bytes, so the i2c transfer is
+roughly halved for the common case.
 
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+Jarkko, could you try this?
+ drivers/hid/i2c-hid/i2c-hid-core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 294c84e136d7..739dccfc57e1 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -472,11 +472,14 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+ 	int ret;
+ 	u32 ret_size;
+ 	int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
++	u16 flags;
+ 
+ 	if (size > ihid->bufsize)
+ 		size = ihid->bufsize;
+ 
+-	ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
++	/* Try to do a block read if the size fits in one byte */
++	flags = size > 255 ? I2C_M_RD : I2C_M_RD | I2C_M_RECV_LEN;
++	ret = i2c_transfer_buffer_flags(ihid->client, ihid->inbuf, size, flags);
+ 	if (ret != size) {
+ 		if (ret < 0)
+ 			return;
 -- 
-Jiri Kosina
-SUSE Labs
+2.27.0
 

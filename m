@@ -2,139 +2,91 @@ Return-Path: <SRS0=d/dN=75=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-0.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98231C433DF
-	for <linux-input@archiver.kernel.org>; Tue, 16 Jun 2020 16:13:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BAAFC433E0
+	for <linux-input@archiver.kernel.org>; Tue, 16 Jun 2020 16:41:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7AE772071A
-	for <linux-input@archiver.kernel.org>; Tue, 16 Jun 2020 16:13:00 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ETBPxV/l"
+	by mail.kernel.org (Postfix) with ESMTP id 57B6520679
+	for <linux-input@archiver.kernel.org>; Tue, 16 Jun 2020 16:41:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731152AbgFPPnp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 16 Jun 2020 11:43:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731840AbgFPPnp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:43:45 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA55DC061573;
-        Tue, 16 Jun 2020 08:43:44 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id a127so9675096pfa.12;
-        Tue, 16 Jun 2020 08:43:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=w/Ciov9t0cTutzO4p633r2W+NbASpriMULdDl2xvMIs=;
-        b=ETBPxV/lHGvYByFysF/yMcA65AniTR6zZ9T49f5VlQX+ut3BMhgHsDD3Thg75xLWO/
-         ghmsqvPijrBOnLbVTeJTqE5URxBseYBquqfwJ3YtwsPpLA7037fNK7CvF9EPYew4dSwZ
-         PH2s8pDzIMkrmEj1GCF/v3P6EZUpYEcEbEaPh1Qqg5iKDK+nv4zuS5Hlmj4JAEQ7zFFD
-         FwK/1WVrh9TeGJn/d44S3QAklh9xdDf6wcQJ6ngVWdiACQJBTtzsOcpeMIDXSg0+ZTw5
-         n+qJTSTQohvZj0L2hd7/ftJLoZR7B3bSYU7SfcQkHis1uJsVrS9W1Detdr6RbQFJF+y5
-         PiyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=w/Ciov9t0cTutzO4p633r2W+NbASpriMULdDl2xvMIs=;
-        b=TT3PZ+CMkbUNhP7Pz2Hb43XeSaQbYMuKyVO92t86kxYagtqrp11OsIWYnqKszdAUtb
-         0TR7coLLzyxZdv1o4Cicixf/J+vBxKb0kfMZt2zSRtpe9XKk+TqRPBPrQUPL14ThZ8m/
-         6pJUfXpP4+y/jUblQe35E1coTNsaTRxgrr6ZXqlQSnjP/1Q6pwoFpq/jwd9gB6iaS/HM
-         BZMeXmPH9Y/gFeZaWgBlr71CRO5E/EM9+e1QnfdxtDhx0g6BjTaTWS8EelRw5Z/gJmiC
-         QnAreucsJw4pnSwyfB0zpYLOTo+RmCPbbTxvHZlMFq8gHJkP9tBUVI4eKqctqscxOrge
-         XRxA==
-X-Gm-Message-State: AOAM5315x+SIuE+o/Puq+bztuyJ24ykPg4ks2iySEwQ0NPMf+MMsZg9G
-        lvux9HdkorUm3F51NvimtRmvcy/Q
-X-Google-Smtp-Source: ABdhPJxv0IaKwMnUpXyDzneEw/MpLUyX/yRRHSZQW5/Fq5lXhvaDPw8QVhhoEQjI8jabz0B6vg+7NA==
-X-Received: by 2002:a63:3c16:: with SMTP id j22mr2611605pga.335.1592322224256;
-        Tue, 16 Jun 2020 08:43:44 -0700 (PDT)
-Received: from sultan-box.localdomain ([89.45.90.111])
-        by smtp.gmail.com with ESMTPSA id c194sm17199948pfc.212.2020.06.16.08.43.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2020 08:43:43 -0700 (PDT)
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-X-Google-Original-From: Sultan Alsawaf
-To:     jarkko.nikula@linux.intel.com
-Cc:     aaron.ma@canonical.com, admin@kryma.net,
-        andriy.shevchenko@linux.intel.com, benjamin.tissoires@redhat.com,
+        id S1729193AbgFPQlF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 16 Jun 2020 12:41:05 -0400
+Received: from mga07.intel.com ([134.134.136.100]:41184 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729128AbgFPQlF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 16 Jun 2020 12:41:05 -0400
+IronPort-SDR: qmZyRixgNGHyu/UWp921TM85C6Ta/qcy4FvXhNRQsSHMZUVjPC7/eAx2h0PtIOHBGzA026ox9D
+ 8ZraUZeuj3GQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2020 09:41:03 -0700
+IronPort-SDR: vOTL9Z9BRo/G3pbkgYs1YGSfddmO6CUcxYjGuz7mKVEO6WPdtEplFfuA7hAAj5snw1hRJWTyYh
+ KkAHxDxAyDCQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,518,1583222400"; 
+   d="scan'208";a="298972651"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by fmsmga004.fm.intel.com with ESMTP; 16 Jun 2020 09:40:59 -0700
+Received: from andy by smile with local (Exim 4.94)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1jlEdx-00DsI7-UL; Tue, 16 Jun 2020 19:41:01 +0300
+Date:   Tue, 16 Jun 2020 19:41:01 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Sultan Alsawaf <sultan@kerneltoast.com>,
+        Andi Shyti <andi.shyti@intel.com>
+Cc:     jarkko.nikula@linux.intel.com, aaron.ma@canonical.com,
+        admin@kryma.net, benjamin.tissoires@redhat.com,
         hdegoede@redhat.com, hn.chen@weidahitech.com, jikos@kernel.org,
         kai.heng.feng@canonical.com, linux-i2c@vger.kernel.org,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mika.westerberg@linux.intel.com, sultan@kerneltoast.com,
-        vicamo.yang@canonical.com, wsa@kernel.org
-Subject: [PATCH v2] i2c: designware: Only check the first byte for SMBus block read length
-Date:   Tue, 16 Jun 2020 08:43:28 -0700
-Message-Id: <20200616154328.2866-1-sultan@kerneltoast.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <9782f44e-4e01-4e5d-cc50-ab9e2219085c@linux.intel.com>
-References: <9782f44e-4e01-4e5d-cc50-ab9e2219085c@linux.intel.com>
+        mika.westerberg@linux.intel.com, vicamo.yang@canonical.com,
+        wsa@kernel.org
+Subject: Re: [PATCH v2] HID: i2c-hid: Use block reads when possible to save
+ power
+Message-ID: <20200616164101.GY2428291@smile.fi.intel.com>
+References: <c4373272-e656-773c-dfd2-0efc4c53c92d@linux.intel.com>
+ <20200616154951.3050-1-sultan@kerneltoast.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200616154951.3050-1-sultan@kerneltoast.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Sultan Alsawaf <sultan@kerneltoast.com>
+On Tue, Jun 16, 2020 at 08:49:51AM -0700, Sultan Alsawaf wrote:
+> From: Sultan Alsawaf <sultan@kerneltoast.com>
+> 
+> We have no way of knowing how large an incoming payload is going to be,
+> so the only strategy available up until now has been to always retrieve
+> the maximum possible report length over i2c, which can be quite
+> inefficient. For devices that send reports in block read format, the i2c
+> controller driver can read the payload length on the fly and terminate
+> the i2c transaction early, resulting in considerable power savings.
+> 
+> On a Dell Precision 15 5540 with an i9-9880H, resting my finger on the
+> touchpad causes psys power readings to go up by about 4W and hover there
+> until I remove my finger. With this patch, my psys readings go from 4.7W
+> down to 3.1W, yielding about 1.6W in savings. This is because my
+> touchpad's max report length is 60 bytes, but all of the regular reports
+> it sends for touch events are only 32 bytes, so the i2c transfer is
+> roughly halved for the common case.
 
-SMBus block reads can be broken because the read function will just skip
-over bytes it doesn't like until reaching a byte that conforms to the
-length restrictions for block reads. This is problematic when it isn't
-known if the incoming payload is indeed a conforming block read.
+> +	/* Try to do a block read if the size fits in one byte */
+> +	flags = size > 255 ? I2C_M_RD : I2C_M_RD | I2C_M_RECV_LEN;
 
-According to the SMBus specification, block reads will only send the
-payload length in the first byte, so we can fix this by only considering
-the first byte in a sequence for block read length purposes.
+AFAIR SMBus specification tells about 256. Why 255?
 
-Fixes: c3ae106050b9 ("i2c: designware: Implement support for SMBus block read and write")
-Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
----
- drivers/i2c/busses/i2c-designware-master.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+Andi, am I correct?
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index d6425ad6e6a3..d22271438869 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -391,14 +391,10 @@ i2c_dw_recv_len(struct dw_i2c_dev *dev, u8 len)
- 	struct i2c_msg *msgs = dev->msgs;
- 	u32 flags = msgs[dev->msg_read_idx].flags;
- 
--	/*
--	 * Adjust the buffer length and mask the flag
--	 * after receiving the first byte.
--	 */
-+	/* Adjust the buffer length */
- 	len += (flags & I2C_CLIENT_PEC) ? 2 : 1;
- 	dev->tx_buf_len = len - min_t(u8, len, dev->rx_outstanding);
- 	msgs[dev->msg_read_idx].len = len;
--	msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
- 
- 	return len;
- }
-@@ -430,10 +426,12 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 			u32 flags = msgs[dev->msg_read_idx].flags;
- 
- 			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
--			/* Ensure length byte is a valid value */
--			if (flags & I2C_M_RECV_LEN &&
--			    tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
--				len = i2c_dw_recv_len(dev, tmp);
-+			if (flags & I2C_M_RECV_LEN) {
-+				/* Ensure length byte is a valid value */
-+				if (tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0)
-+					len = i2c_dw_recv_len(dev, tmp);
-+				/* Mask the flag after receiving the first byte */
-+				msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
- 			}
- 			*buf++ = tmp;
- 			dev->rx_outstanding--;
 -- 
-2.27.0
+With Best Regards,
+Andy Shevchenko
+
 

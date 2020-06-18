@@ -2,53 +2,55 @@ Return-Path: <SRS0=+qu7=77=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,TVD_SUBJ_WIPE_DEBT,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16467C433E2
-	for <linux-input@archiver.kernel.org>; Thu, 18 Jun 2020 02:26:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CB8EC433E0
+	for <linux-input@archiver.kernel.org>; Thu, 18 Jun 2020 02:34:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DE0F3221EE
-	for <linux-input@archiver.kernel.org>; Thu, 18 Jun 2020 02:26:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07ADE20720
+	for <linux-input@archiver.kernel.org>; Thu, 18 Jun 2020 02:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592447192;
-	bh=1r1fw6u+sogIcOlFix7QL3YOSTMRICnyNQPQivxLnH4=;
+	s=default; t=1592447670;
+	bh=WIOl06bZZpaOxOAx2cufPtKtF9JXqxkQhq5wtIEVqNk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=f/MPUsL6XqaJFvCJ4SuqTnLgKuclsStMBWlFAQfr4BN1/bRwlgoT/ckZoeQSCHnQg
-	 WdNvuqwpAAKDBVNDiRJEBCt1KO+KNOM2VNNUV6X+RrSOLCZ2dPl8GSsgCdDpB7ypmi
-	 l7OS1nRZQA4ovn8NdlFeD5Md/qmzgfz2DsEfpaio=
+	b=ynKfP3qKdcAVDKOtDUERc2XHayzxzFWYXxALxCoC+HG2nRSilEPbQIQGDhhJitWIJ
+	 k/ILFvLxK1Hla5re4PzLznZTKRFhDAxkUp8aI4GcVO8CQGuy2VeOEZCZhAQHFsGbUt
+	 9J6yAUREfpGCBgxBszsZjCsZ4IB3pr5iRzb8QMeo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730434AbgFRC0b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 17 Jun 2020 22:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48150 "EHLO mail.kernel.org"
+        id S2387693AbgFRCeB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 17 Jun 2020 22:34:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729721AbgFRBRC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:17:02 -0400
+        id S1729336AbgFRBOg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:14:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 073FC221F1;
-        Thu, 18 Jun 2020 01:17:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E196421D7B;
+        Thu, 18 Jun 2020 01:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443022;
-        bh=1r1fw6u+sogIcOlFix7QL3YOSTMRICnyNQPQivxLnH4=;
+        s=default; t=1592442875;
+        bh=WIOl06bZZpaOxOAx2cufPtKtF9JXqxkQhq5wtIEVqNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iIEuIjG/RtAZUz5rLibp/jIjstSCSouFW8pkYYekm9tkxsliyuPOIYzkJ7I7r+AFa
-         boKd33dioAK95ZNXzZWKfDcGedjU2eQhn/z1Aa418w5KoAofl5sDMLkmz9DQKAcZd3
-         HW10esePDSvlMPHR4DgM49pO1lRYRp1IAeJf4znM=
+        b=kIReAiWj6IZINZHeN4qKp6fbpAUAj2T85JHOxaI79aFXDSrgHXu/fBso5uzwjR9s1
+         bLCr2Z+fIMvRGAz297Ygc8eB44uPDLfqmWYkSlrCEAzd9pONweGcH3ljFl3LyiTvVk
+         QHbmQLt+CogZ6jlAq0GS54tPaCyCxZ1UpCkNyrYM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marco Felsch <m.felsch@pengutronix.de>,
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        kbuild test robot <lkp@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 023/266] Input: edt-ft5x06 - fix get_default register write access
-Date:   Wed, 17 Jun 2020 21:12:28 -0400
-Message-Id: <20200618011631.604574-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 301/388] input: i8042 - Remove special PowerPC handling
+Date:   Wed, 17 Jun 2020 21:06:38 -0400
+Message-Id: <20200618010805.600873-301-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
-References: <20200618011631.604574-1-sashal@kernel.org>
+In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
+References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,57 +60,125 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 255cdaf73412de13608fb776101402dca68bed2b ]
+[ Upstream commit e4f4ffa8a98c24a4ab482669b1e2b4cfce3f52f4 ]
 
-Since commit b6eba86030bf ("Input: edt-ft5x06 - add offset support for
-ev-ft5726") offset-x and offset-y is supported. Devices using those
-offset parameters don't support the offset parameter so we need to add
-the NO_REGISTER check for edt_ft5x06_ts_get_defaults().
+This causes a build error with CONFIG_WALNUT because kb_cs and kb_data
+were removed in commit 917f0af9e5a9 ("powerpc: Remove arch/ppc and
+include/asm-ppc").
 
-Fixes: b6eba86030bf ("Input: edt-ft5x06 - add offset support for ev-ft5726")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Link: https://lore.kernel.org/r/20200227112819.16754-2-m.felsch@pengutronix.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+ld.lld: error: undefined symbol: kb_cs
+> referenced by i8042-ppcio.h:28 (drivers/input/serio/i8042-ppcio.h:28)
+> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
+> referenced by i8042-ppcio.h:28 (drivers/input/serio/i8042-ppcio.h:28)
+> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
+> referenced by i8042-ppcio.h:28 (drivers/input/serio/i8042-ppcio.h:28)
+> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
+
+ld.lld: error: undefined symbol: kb_data
+> referenced by i8042.c:309 (drivers/input/serio/i8042.c:309)
+> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
+> referenced by i8042-ppcio.h:33 (drivers/input/serio/i8042-ppcio.h:33)
+> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
+> referenced by i8042.c:319 (drivers/input/serio/i8042.c:319)
+> input/serio/i8042.o:(__i8042_command) in archive drivers/built-in.a
+> referenced 15 more times
+
+Presumably since nobody has noticed this for the last 12 years, there is
+not anyone actually trying to use this driver so we can just remove this
+special walnut code and use the generic header so it builds for all
+configurations.
+
+Fixes: 917f0af9e5a9 ("powerpc: Remove arch/ppc and include/asm-ppc")
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20200518181043.3363953-1-natechancellor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/input/serio/i8042-ppcio.h | 57 -------------------------------
+ drivers/input/serio/i8042.h       |  2 --
+ 2 files changed, 59 deletions(-)
+ delete mode 100644 drivers/input/serio/i8042-ppcio.h
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 240e8de24cd2..b41b97c962ed 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -935,19 +935,25 @@ static void edt_ft5x06_ts_get_defaults(struct device *dev,
- 
- 	error = device_property_read_u32(dev, "offset", &val);
- 	if (!error) {
--		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset, val);
-+		if (reg_addr->reg_offset != NO_REGISTER)
-+			edt_ft5x06_register_write(tsdata,
-+						  reg_addr->reg_offset, val);
- 		tsdata->offset = val;
- 	}
- 
- 	error = device_property_read_u32(dev, "offset-x", &val);
- 	if (!error) {
--		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset_x, val);
-+		if (reg_addr->reg_offset_x != NO_REGISTER)
-+			edt_ft5x06_register_write(tsdata,
-+						  reg_addr->reg_offset_x, val);
- 		tsdata->offset_x = val;
- 	}
- 
- 	error = device_property_read_u32(dev, "offset-y", &val);
- 	if (!error) {
--		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset_y, val);
-+		if (reg_addr->reg_offset_y != NO_REGISTER)
-+			edt_ft5x06_register_write(tsdata,
-+						  reg_addr->reg_offset_y, val);
- 		tsdata->offset_y = val;
- 	}
- }
+diff --git a/drivers/input/serio/i8042-ppcio.h b/drivers/input/serio/i8042-ppcio.h
+deleted file mode 100644
+index 391f94d9e47d..000000000000
+--- a/drivers/input/serio/i8042-ppcio.h
++++ /dev/null
+@@ -1,57 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-#ifndef _I8042_PPCIO_H
+-#define _I8042_PPCIO_H
+-
+-
+-#if defined(CONFIG_WALNUT)
+-
+-#define I8042_KBD_IRQ 25
+-#define I8042_AUX_IRQ 26
+-
+-#define I8042_KBD_PHYS_DESC "walnutps2/serio0"
+-#define I8042_AUX_PHYS_DESC "walnutps2/serio1"
+-#define I8042_MUX_PHYS_DESC "walnutps2/serio%d"
+-
+-extern void *kb_cs;
+-extern void *kb_data;
+-
+-#define I8042_COMMAND_REG (*(int *)kb_cs)
+-#define I8042_DATA_REG (*(int *)kb_data)
+-
+-static inline int i8042_read_data(void)
+-{
+-	return readb(kb_data);
+-}
+-
+-static inline int i8042_read_status(void)
+-{
+-	return readb(kb_cs);
+-}
+-
+-static inline void i8042_write_data(int val)
+-{
+-	writeb(val, kb_data);
+-}
+-
+-static inline void i8042_write_command(int val)
+-{
+-	writeb(val, kb_cs);
+-}
+-
+-static inline int i8042_platform_init(void)
+-{
+-	i8042_reset = I8042_RESET_ALWAYS;
+-	return 0;
+-}
+-
+-static inline void i8042_platform_exit(void)
+-{
+-}
+-
+-#else
+-
+-#include "i8042-io.h"
+-
+-#endif
+-
+-#endif /* _I8042_PPCIO_H */
+diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
+index 38dc27ad3c18..eb376700dfff 100644
+--- a/drivers/input/serio/i8042.h
++++ b/drivers/input/serio/i8042.h
+@@ -17,8 +17,6 @@
+ #include "i8042-ip22io.h"
+ #elif defined(CONFIG_SNI_RM)
+ #include "i8042-snirm.h"
+-#elif defined(CONFIG_PPC)
+-#include "i8042-ppcio.h"
+ #elif defined(CONFIG_SPARC)
+ #include "i8042-sparcio.h"
+ #elif defined(CONFIG_X86) || defined(CONFIG_IA64)
 -- 
 2.25.1
 

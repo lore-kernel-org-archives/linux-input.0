@@ -4,49 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8971C433E2
-	for <linux-input@archiver.kernel.org>; Thu, 18 Jun 2020 01:23:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68AA9C433E0
+	for <linux-input@archiver.kernel.org>; Thu, 18 Jun 2020 02:00:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A521F21D90
-	for <linux-input@archiver.kernel.org>; Thu, 18 Jun 2020 01:23:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 42FE921D94
+	for <linux-input@archiver.kernel.org>; Thu, 18 Jun 2020 02:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592443428;
-	bh=BsadBBKHMduPoUtjwsrBRPIOISPZDN5z2L7lqKeMfHQ=;
+	s=default; t=1592445633;
+	bh=/1Wn2oDkvoSs0umI9QOna5G4NVtlHTUEes0RmrJM/6Q=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=eZDylrHqO7wuJs5drP5OLwVJmAnkrvyFz/Iv7ejMB70TPuxm46487SPcbi4fmFxuE
-	 4xlxVcwRXXQi1KJsh9baQnQ4fz6XR9ST0DTwu8Kk7+SsYbqoZd5nkKavpkV5Go00bu
-	 WKhc8/ejSf3/jMVxxRaDKtG4OvKi43zihmae42LU=
+	b=IjdQ2RmU+K/xUiqwqriOjqRQ1TWhXDetQ3jA2/LwnfOxAV3R9L7vTguRFBWULfyjq
+	 2vTGKwjY2tnLWOgv9lwzfCDvqevNE6pkHFMNdduDQOO7K5S919YV3tQaPlYTUUm5Ie
+	 bGspCbJRGn+N/lgD9IVnlo3sLCJzV4NqbAkWJ4IM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731058AbgFRBXr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 17 Jun 2020 21:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57680 "EHLO mail.kernel.org"
+        id S1731171AbgFRBYU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 17 Jun 2020 21:24:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731053AbgFRBXr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:23:47 -0400
+        id S1731160AbgFRBYS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:24:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5632D20B1F;
-        Thu, 18 Jun 2020 01:23:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89EFF21D90;
+        Thu, 18 Jun 2020 01:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443426;
-        bh=BsadBBKHMduPoUtjwsrBRPIOISPZDN5z2L7lqKeMfHQ=;
+        s=default; t=1592443457;
+        bh=/1Wn2oDkvoSs0umI9QOna5G4NVtlHTUEes0RmrJM/6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJZsR2EBNiKSDzEEUg4RwGQxERRxHS/c8/AwgGpbXOBtBb66DLmVfU8fJLjHIdE0P
-         P5dE1F9oLd0ILW+zFpc8px6t0lxhya2RISfchS+U8N2xNEj85fGdOoCtSlx/P+ECIF
-         aHZEAE9dWphDZNyA/0YvnwURWWfpROMZf0lo1pQQ=
+        b=fV3Vc0WoRWB45Vm8m57xp1DMKlazk2JRyHt6zXr/YOIJhR2rDJ+ka9GDpDv7mbCoV
+         AAWqQ0r4X7ZZXnf8tXVzvO1MEyI+UaFiz02NLBJPCNK4WPoCORocOusUL01XDE8o+g
+         CDbWHSjbzjMi4NTVFtS0kjWydQ0aL8HG+pEPJI+I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Andi Shyti <andi@etezian.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 066/172] Input: mms114 - add extra compatible for mms345l
-Date:   Wed, 17 Jun 2020 21:20:32 -0400
-Message-Id: <20200618012218.607130-66-sashal@kernel.org>
+Cc:     Cristian Klein <cristian.klein@elastisys.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 091/172] HID: Add quirks for Trust Panora Graphic Tablet
+Date:   Wed, 17 Jun 2020 21:20:57 -0400
+Message-Id: <20200618012218.607130-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -59,86 +58,73 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Cristian Klein <cristian.klein@elastisys.com>
 
-[ Upstream commit 7842087b0196d674ed877d768de8f2a34d7fdc53 ]
+[ Upstream commit fb68ada81e65d593b51544fa43c284322107a742 ]
 
-MMS345L is another first generation touch screen from Melfas,
-which uses mostly the same registers as MMS152.
+The Trust Panora Graphic Tablet has two interfaces. Interface zero reports pen
+movement, pen pressure and pen buttons. Interface one reports tablet buttons
+and tablet scroll. Both use the mouse protocol.
 
-However, there is some garbage printed during initialization.
-Apparently MMS345L does not have the MMS152_COMPAT_GROUP register
-that is read+printed during initialization.
+Without these quirks, libinput gets confused about what device it talks to.
 
-  TSP FW Rev: bootloader 0x6 / core 0x26 / config 0x26, Compat group: \x06
+For completeness, here is the usbhid-dump:
 
-On earlier kernel versions the compat group was actually printed as
-an ASCII control character, seems like it gets escaped now.
+```
+$ sudo usbhid-dump -d 145f:0212
+003:013:001:DESCRIPTOR         1588949402.559961
+ 05 0D 09 01 A1 01 85 07 A1 02 09 00 75 08 95 07
+ 81 02 C0 C0 09 0E A1 01 85 05 09 23 A1 02 09 52
+ 09 53 25 0A 75 08 95 02 B1 02 C0 C0 05 0C 09 36
+ A1 00 85 06 05 09 19 01 29 20 15 00 25 01 95 20
+ 75 01 81 02 C0
 
-But we probably shouldn't print something from a random register.
+003:013:000:DESCRIPTOR         1588949402.563942
+ 05 01 09 02 A1 01 85 08 09 01 A1 00 05 09 19 01
+ 29 03 15 00 25 01 95 03 75 01 81 02 95 05 81 01
+ 05 01 09 30 09 31 09 38 09 00 15 81 25 7F 75 08
+ 95 04 81 06 C0 C0 05 01 09 02 A1 01 85 09 09 01
+ A1 00 05 09 19 01 29 03 15 00 25 01 95 03 75 01
+ 81 02 95 05 81 01 05 01 09 30 09 31 26 FF 7F 95
+ 02 75 10 81 02 05 0D 09 30 26 FF 03 95 01 75 10
+ 81 02 C0 C0 05 01 09 00 A1 01 85 04 A1 00 26 FF
+ 00 09 00 75 08 95 07 B1 02 C0 C0
+```
 
-Add a separate "melfas,mms345l" compatible that avoids reading
-from the MMS152_COMPAT_GROUP register. This might also help in case
-there is some other device-specific quirk in the future.
-
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Andi Shyti <andi@etezian.org>
-Link: https://lore.kernel.org/r/20200423102431.2715-1-stephan@gerhold.net
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Cristian Klein <cristian.klein@elastisys.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/mms114.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/hid/hid-ids.h    | 3 +++
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index a5ab774da4cc..a31b593f5b5f 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -54,6 +54,7 @@
- enum mms_type {
- 	TYPE_MMS114	= 114,
- 	TYPE_MMS152	= 152,
-+	TYPE_MMS345L	= 345,
- };
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c1fed1aaecdf..f8026c71e2e4 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1121,6 +1121,9 @@
+ #define USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882	0x8882
+ #define USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8883	0x8883
  
- struct mms114_data {
-@@ -250,6 +251,15 @@ static int mms114_get_version(struct mms114_data *data)
- 	int error;
- 
- 	switch (data->type) {
-+	case TYPE_MMS345L:
-+		error = __mms114_read_reg(data, MMS152_FW_REV, 3, buf);
-+		if (error)
-+			return error;
++#define USB_VENDOR_ID_TRUST             0x145f
++#define USB_DEVICE_ID_TRUST_PANORA_TABLET   0x0212
 +
-+		dev_info(dev, "TSP FW Rev: bootloader 0x%x / core 0x%x / config 0x%x\n",
-+			 buf[0], buf[1], buf[2]);
-+		break;
-+
- 	case TYPE_MMS152:
- 		error = __mms114_read_reg(data, MMS152_FW_REV, 3, buf);
- 		if (error)
-@@ -287,8 +297,8 @@ static int mms114_setup_regs(struct mms114_data *data)
- 	if (error < 0)
- 		return error;
- 
--	/* MMS152 has no configuration or power on registers */
--	if (data->type == TYPE_MMS152)
-+	/* Only MMS114 has configuration and power on registers */
-+	if (data->type != TYPE_MMS114)
- 		return 0;
- 
- 	error = mms114_set_active(data, true);
-@@ -600,6 +610,9 @@ static const struct of_device_id mms114_dt_match[] = {
- 	}, {
- 		.compatible = "melfas,mms152",
- 		.data = (void *)TYPE_MMS152,
-+	}, {
-+		.compatible = "melfas,mms345l",
-+		.data = (void *)TYPE_MMS345L,
- 	},
- 	{ }
- };
+ #define USB_VENDOR_ID_TURBOX		0x062a
+ #define USB_DEVICE_ID_TURBOX_KEYBOARD	0x0201
+ #define USB_DEVICE_ID_ASUS_MD_5110	0x5110
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index e5beee3e8582..f4bab7004aff 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -168,6 +168,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8883), HID_QUIRK_NOGET },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_TRUST, USB_DEVICE_ID_TRUST_PANORA_TABLET), HID_QUIRK_MULTI_INPUT | HID_QUIRK_HIDINPUT_FORCE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60), HID_QUIRK_MULTI_INPUT },
 -- 
 2.25.1
 

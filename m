@@ -1,113 +1,114 @@
-Return-Path: <SRS0=6LtV=AD=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=ECgZ=AE=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A460AC433DF
-	for <linux-input@archiver.kernel.org>; Mon, 22 Jun 2020 22:58:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2559FC433E0
+	for <linux-input@archiver.kernel.org>; Tue, 23 Jun 2020 13:35:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8CBA720767
-	for <linux-input@archiver.kernel.org>; Mon, 22 Jun 2020 22:58:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B62E20724
+	for <linux-input@archiver.kernel.org>; Tue, 23 Jun 2020 13:35:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731183AbgFVW6W (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 22 Jun 2020 18:58:22 -0400
-Received: from mail-qv1-f68.google.com ([209.85.219.68]:41933 "EHLO
-        mail-qv1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730785AbgFVW6W (ORCPT
+        id S1732681AbgFWNfW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 23 Jun 2020 09:35:22 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59518 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732616AbgFWNfW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Jun 2020 18:58:22 -0400
-Received: by mail-qv1-f68.google.com with SMTP id er17so8797357qvb.8;
-        Mon, 22 Jun 2020 15:58:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=L4Y8hD02oqZu+SaOfCPnfs+mi7sp7RC+va/DwYkp/jI=;
-        b=uTuIiRQvB4uyMU1H5dyzVAb2Cj13RdSzOMZfoP3E8J+RbSeGFZ1PlNCz/cpbGZMBQ8
-         xsxuemDA9eR0d57VfImYtBDaV1xuN2yLnwNO2gdpolJDWTPLW7TssPh4YrQq5tumKzeH
-         n3ln0TwjB1SPCAfF7PAJuuoBlKWFnF4mGXNtQiFRAWKt9+MNiD1DnGFyXK2MnPmxt532
-         AM1/2R0oZCGUw7f2eVGeqL39YKodh2yPV4tu/JDkx2E0Ge41byhUfaxN9mvVU9lWQvRn
-         Q8+9S/kFdetE88aFeYixslIiXhzyBH3r3/excn6CmfeYMzOULqwHw/rOtB5DGnCg23KV
-         axaA==
-X-Gm-Message-State: AOAM531Cn990jAad6jdjPlMmYojC/sghT9SGVdH+XNfiFviprfC+7NGV
-        ZT0MQdsTm8EMk4UoPVkL0QU=
-X-Google-Smtp-Source: ABdhPJzosPNj0FDkbrBMzhphyKJPb7ilUkHZtMoeFjZdiLNxE4eeQcfAqdINpPDfGpKXHeC03fzF+w==
-X-Received: by 2002:a0c:f80a:: with SMTP id r10mr7904974qvn.238.1592866701168;
-        Mon, 22 Jun 2020 15:58:21 -0700 (PDT)
-Received: from DEK-X230.gerbilsoft.gsft (pool-108-24-134-99.cmdnnj.fios.verizon.net. [108.24.134.99])
-        by smtp.googlemail.com with ESMTPSA id h52sm7583112qtb.88.2020.06.22.15.58.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2020 15:58:20 -0700 (PDT)
-From:   David Korth <gerbilsoft@gerbilsoft.com>
-To:     David Herrmann <dh.herrmann@googlemail.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        David Korth <gerbilsoft@gerbilsoft.com>
-Subject: [PATCH 2/2] HID: wiimote: Don't use device IDs for Wii Balance Boards.
-Date:   Mon, 22 Jun 2020 18:58:11 -0400
-Message-Id: <20200622225811.544-1-gerbilsoft@gerbilsoft.com>
-X-Mailer: git-send-email 2.27.0
+        Tue, 23 Jun 2020 09:35:22 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 5FFD01C0C0A; Tue, 23 Jun 2020 15:35:19 +0200 (CEST)
+Date:   Tue, 23 Jun 2020 15:35:12 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Cc:     linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-tegra@vger.kernel.org, patches@opensource.cirrus.com,
+        ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org,
+        "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Kukjin Kim <kgene@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Barry Song <baohua@kernel.org>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Nick Dyer <nick@shmanahar.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sangwon Jee <jeesw@melfas.com>,
+        Peter Hutterer <peter.hutterer@redhat.com>,
+        Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>,
+        Micha?? Miros??aw <mirq-linux@rere.qmqm.pl>,
+        kernel@collabora.com
+Subject: Re: [PATCH v2] Input: document inhibiting
+Message-ID: <20200623133512.GA2783@bug>
+References: <f9007f37-c526-5fa4-3188-a554d2434177@redhat.com>
+ <20200617101822.8558-1-andrzej.p@collabora.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200617101822.8558-1-andrzej.p@collabora.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Wii Balance Boards only have a single LED, so the player number can't
-be displayed on the board itself. Don't bother allocating a device ID
-in this case.
+Hi!
 
-Note that on the actual Wii system, only one board can usually be
-connected at a time, and it's listed as Player 4 on the HOME Menu.
+> +Inhibiting input devices
+> +~~~~~~~~~~~~~~~~~~~~~~~~
+> +
+> +Inhibiting a device means ignoring input events from it. As such it is about maintaining
+> +relationships with input handlers - either already existing relationships, or relationships
+> +to be established while the device is in inhibited state.
+> +
+> +If a device is inhibited, no input handler will receive events from it.
+> +
+> +The fact that nobody wants events from the device is exploited further, by calling device's
+> +close() (if there are users) and open() (if there are users) on inhibit and uninhibit
+> +operations, respectively. Indeed, the meaning of close() is to stop providing events
+> +to the input core and that of open() is to start providing events to the input core.
+> +
+> +Calling the device's close() method on inhibit (if there are users) allows the driver
+> +to save power. Either by directly powering down the device or by releasing the
+> +runtime-pm reference it got in open() when the driver is using runtime-pm.
+> +
+> +Inhibiting and uninhibiting are orthogonal to opening and closing the device by input
+> +handlers. Userspace might want to inhibit a device in anticipation before any handler is
+> +positively matched against it.
 
-Signed-off-by: David Korth <gerbilsoft@gerbilsoft.com>
----
- drivers/hid/hid-wiimote-core.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+Ok.
 
-diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index 9662c2ce5e99..fc25479028bf 100644
---- a/drivers/hid/hid-wiimote-core.c
-+++ b/drivers/hid/hid-wiimote-core.c
-@@ -834,7 +834,7 @@ static void wiimote_init_set_type(struct wiimote_data *wdata,
- 	__u8 leds;
- 	__u16 vendor, product;
- 	const char *name;
--	int device_id;
-+	int device_id = -1;
- 
- 	vendor = wdata->hdev->vendor;
- 	product = wdata->hdev->product;
-@@ -882,12 +882,18 @@ static void wiimote_init_set_type(struct wiimote_data *wdata,
- 
- 	wiimote_modules_load(wdata, devtype);
- 
--	/* set player number to stop initial LED-blinking */
--	device_id = ida_simple_get(&wiimote_device_id_allocator, 0, 0,
--				GFP_KERNEL);
-+	/* Set player number to stop initial LED blinking.
-+	 * Wii Balance Board has a single LED, so don't get
-+	 * a player ID for balance boards.
-+	 */
-+	if (devtype != WIIMOTE_DEV_BALANCE_BOARD)
-+		device_id = ida_simple_get(&wiimote_device_id_allocator,
-+					0, 0, GFP_KERNEL);
-+
- 	if (device_id < 0) {
--		/* Unable to get a device ID. */
--		/* Set LED1 anyway to stop the blinking. */
-+		/* Unable to get a device ID, or this is a Wii Balance Board.
-+		 * Set LED1 anyway to stop the blinking.
-+		 */
- 		leds = WIIPROTO_FLAG_LED1;
- 		wdata->device_id = -1;
- 	} else {
+> +Inhibiting and uninhibiting are orthogonal to device's being a wakeup source, too. 
+> Being a +wakeup source plays a role when the system is sleeping, not when the system is 
+> operating. +How drivers should program their interaction between inhibiting, sleeping 
+> and being a wakeup +source is driver-specific. + +Taking the analogy with the network 
+
+I don't believe making interaction driver-specific is good idea. We should decide
+what reasonable behaviour is and then make drivers implement that...
+
+Best regards,
+									Pavel
 -- 
-2.27.0
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

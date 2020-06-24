@@ -2,87 +2,140 @@ Return-Path: <SRS0=o5X5=AG=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.2 required=3.0 tests=DATE_IN_PAST_12_24,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CC4BC433E0
-	for <linux-input@archiver.kernel.org>; Thu, 25 Jun 2020 07:10:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EB84C433DF
+	for <linux-input@archiver.kernel.org>; Thu, 25 Jun 2020 10:28:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE85E2081A
-	for <linux-input@archiver.kernel.org>; Thu, 25 Jun 2020 07:09:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 154A720679
+	for <linux-input@archiver.kernel.org>; Thu, 25 Jun 2020 10:28:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ro4o+vRF"
+	dkim=pass (1024-bit key) header.d=dialogsemiconductor.onmicrosoft.com header.i=@dialogsemiconductor.onmicrosoft.com header.b="gP/8uj2l"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390063AbgFYHJ7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 25 Jun 2020 03:09:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35502 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390047AbgFYHJ6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Jun 2020 03:09:58 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6DC3C061573;
-        Thu, 25 Jun 2020 00:09:58 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id q8so4932727iow.7;
-        Thu, 25 Jun 2020 00:09:58 -0700 (PDT)
+        id S2403913AbgFYK2f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 25 Jun 2020 06:28:35 -0400
+Received: from mail-vi1eur05on2059.outbound.protection.outlook.com ([40.107.21.59]:35150
+        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2403810AbgFYK2d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 25 Jun 2020 06:28:33 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Lb45cpSMTzRp48zrRgdIygHTLkbxKvFLvO9W4cMA8d8rPoDIqHeeeigYWBTqPQhKjuHV25fv8bv4XXOgEhYN1o7BQtluGtw4HMuKGlNjxXx2gjp0vAM6Db7MpqSI/Ok22Y6MNbjtVAjr7NQD1RHj+fIvEdPZrCc3xDWTefF1iBl6kK2ol/4Hz+nmLcCifQ4S2v+LlmKQB6mwZx/+8blDrrGLzoRrHIl5NoSc50/QlG+wmUMR2bmITRX+IY2Q2L+cP2RgxSzDGSpz+qn0CsKdXsiSUa8CPxT1DbdxbZUfJR4qKD/L527FkfvFpqD/UHAMUMgQfxsgsMuhO6oLnaLdOQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8uZqx/J6gcNz90L8lNaJWmiAZJFzUjGU3aKVjrhu2I0=;
+ b=mRbyrDvfRROLco4FRvEq6wEDil+ipOV6Z/Qqcb1827i4dBwuG1MLqe4eddRLfJVo6KLkCPkAoTAA9NEfCoF5vsKbZR8FBbekZkL1JynuM24p4+0vfxvT30byXvzXiJqL18Oy5zPIcQwlNpF7J6Y4KUErEZ0Kbw0JmVd0zQWSPq3e0GxZ7EvJBVrXYIxfiWyvZERhFl2dtLVwxvaEMhJ+tb4AIHVcvzYZ9Ifu5DHupRkx6YTs1SPZwO6J1EwgEWJzLyXCwy4o20wm+XzuZvQW9mDVeRgbAWWaXWueDbHPyP92SeJlBFXWcm7VFki8U0xMlqiH336uy9nsafthcPHGkQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=softfail (sender ip
+ is 193.240.239.45) smtp.rcpttodomain=linuxfoundation.org
+ smtp.mailfrom=diasemi.com; dmarc=fail (p=none sp=none pct=100) action=none
+ header.from=diasemi.com; dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ILGl2P6gAZNjvhIqpYbpGLfnEmwTXhI5fPAT7cUr8bM=;
-        b=ro4o+vRFomBYL8c/AGXuhWfstMGZK/MDst51OfQu3CR55C5NL7DV0mkkxyOlLHleB2
-         D5spbjwJYiiYT+aB1Rrmbt4hdFo3rNQnbND4uAhT2fcSscdFvb3D8NMDShe3v9YmUsqP
-         +j3/0JmWFpTgFHnyYx9mRKkZaTAC6eScMR9xT7pcEM4bhp1D60+w/J98IWdBm1u6uA7f
-         xxYyCpr6U0ONVsSWrmIMwHld7sr1lza8SAoSPWxGrtq1oes4kyDD/RR8I5P3AlWSvM4c
-         wIvrL/b2S+hN6F/sR4sbZ8ozBAJB2vthBqm9btDHT7yYY8YVehsNK+tN8glciCkPmFvr
-         6YKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ILGl2P6gAZNjvhIqpYbpGLfnEmwTXhI5fPAT7cUr8bM=;
-        b=tvo45+yfUdOPcoNjNgwulFpnq845D2CyJMvIJhcfqY95u3z5CiRHan54PhtFl+UH/3
-         F4AvFMdiR6/lCIXD4SG8V97xAcGqgH81VamC6Bg8Smqj1nnkul1HXHBgwQf6+R5nXqOp
-         rzoa93oqss9/KkUglA4d39XDuR1jjwdcnRgrbvxmIP7VYBq/xHCG9eN+nqM4ztczkmy8
-         WcgsLbp3cOc4hBqPQbWUlazCFsKePxgeafcjo23oaCS3VTXuMznYhSOQsw5fEaesCukY
-         PSIazWIuqIHD27ZAi/buvhT8KbC3DPkH5kWXrlnPm6i+Odz19XBtXifpQOgPkV4Ykos7
-         K5tA==
-X-Gm-Message-State: AOAM533g7yPR7la/6YvuOXQEripzvAHOgSZdZphk4KmbS8FwoUwCThjt
-        NCh8gH/JZ+VCL+3Mh5TQ+Iys6p8L3fRYU52ClO4=
-X-Google-Smtp-Source: ABdhPJx+2pEPWZ0Fu1tups2ClfzQZQDXkhcbNDTKmvwtxL5cCnxdnjteu6Yb7ISA8mRm3DAXaIM1/L2fIbzucL0myTE=
-X-Received: by 2002:a05:6602:14d0:: with SMTP id b16mr35701728iow.5.1593068998044;
- Thu, 25 Jun 2020 00:09:58 -0700 (PDT)
+ d=dialogsemiconductor.onmicrosoft.com;
+ s=selector1-dialogsemiconductor-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8uZqx/J6gcNz90L8lNaJWmiAZJFzUjGU3aKVjrhu2I0=;
+ b=gP/8uj2lnIe/eZRVBnseXkiF3l+R/g+c//lBeP0W4zHuFZAs7FxZ8KXWsD/Pof1pXpkHAfkE//lz+aEWv2divY2i2HwWbsodWm0VmFVWLcbxJwgXrvlrHZ06uPqImxxTK4dg1AlbClTye00R5NTF/EOHoZFaxbmqG2saVYcLcVk=
+Received: from AM6PR01CA0072.eurprd01.prod.exchangelabs.com
+ (2603:10a6:20b:e0::49) by DB8PR10MB3193.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:10:114::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3131.23; Thu, 25 Jun
+ 2020 10:28:28 +0000
+Received: from HE1EUR02FT031.eop-EUR02.prod.protection.outlook.com
+ (2603:10a6:20b:e0:cafe::8f) by AM6PR01CA0072.outlook.office365.com
+ (2603:10a6:20b:e0::49) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3131.21 via Frontend
+ Transport; Thu, 25 Jun 2020 10:28:28 +0000
+X-MS-Exchange-Authentication-Results: spf=softfail (sender IP is
+ 193.240.239.45) smtp.mailfrom=diasemi.com; linuxfoundation.org; dkim=none
+ (message not signed) header.d=none;linuxfoundation.org; dmarc=fail
+ action=none header.from=diasemi.com;
+Received-SPF: SoftFail (protection.outlook.com: domain of transitioning
+ diasemi.com discourages use of 193.240.239.45 as permitted sender)
+Received: from mailrelay1.diasemi.com (193.240.239.45) by
+ HE1EUR02FT031.mail.protection.outlook.com (10.152.10.141) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.3131.20 via Frontend Transport; Thu, 25 Jun 2020 10:28:28 +0000
+Received: from krsrvapps-03.diasemi.com (10.95.17.51) by
+ NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
+ 14.3.468.0; Thu, 25 Jun 2020 12:28:27 +0200
+Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
+ A5E2913F671; Thu, 25 Jun 2020 19:28:25 +0900 (KST)
+Message-ID: <cover.1593017969.git.Roy.Im@diasemi.com>
+From:   Roy Im <roy.im.opensource@diasemi.com>
+Date:   Thu, 25 Jun 2020 01:59:29 +0900
+Subject: [PATCH v14 0/3]  da7280: haptic driver submission
+To:     "David S. Miller" <davem@davemloft.net>,
+        Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>
+CC:     Support Opensource <support.opensource@diasemi.com>,
+        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-References: <20200622225728.330-1-gerbilsoft@gerbilsoft.com>
- <CANq1E4T_SNUrewDQ59bonr7tTKFa=wRYwXLWHMCiNA0KN0H9Aw@mail.gmail.com> <2498150.lGaqSPkdTl@dek-x230>
-In-Reply-To: <2498150.lGaqSPkdTl@dek-x230>
-From:   David Rheinsberg <david.rheinsberg@gmail.com>
-Date:   Thu, 25 Jun 2020 09:09:46 +0200
-Message-ID: <CADyDSO7HKNP8ihsW2-qouG5SYpOJ1LfD2sAbDfRkJ3iSkHvGNg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] HID: wiimote: Initialize the controller LEDs with a
- device ID value
-To:     David Korth <gerbilsoft@gerbilsoft.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-Forefront-Antispam-Report: CIP:193.240.239.45;CTRY:GB;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mailrelay1.diasemi.com;PTR:InfoDomainNonexistent;CAT:NONE;SFTY:;SFS:(4636009)(136003)(39850400004)(346002)(396003)(376002)(46966005)(316002)(82740400003)(81166007)(110136005)(4744005)(36756003)(83380400001)(7416002)(33310700002)(36906005)(86362001)(356005)(82310400002)(2906002)(5660300002)(70206006)(26005)(186003)(70586007)(8676002)(426003)(478600001)(8936002)(42186006)(6266002)(54906003)(336012)(47076004)(2616005)(4326008)(921003);DIR:OUT;SFP:1101;
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 7c82ce1d-bfde-464c-3938-08d818f28042
+X-MS-TrafficTypeDiagnostic: DB8PR10MB3193:
+X-Microsoft-Antispam-PRVS: <DB8PR10MB3193BDBE40FEE9C00E954207A2920@DB8PR10MB3193.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-Forefront-PRVS: 0445A82F82
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Gbe8+Tj2Cl3bYCNYXbHnIa5XHiTNGVz0PfjlXpGOz1KaHZjzM9SPR2asouzDIVK/NPh0Olt/+J2ZaFVtdpxSe5BuwqArURFHJcC2Uu6DWWylDz9AYTw1iU/8+fPWqGflIW5BxL1kyIb+89c0rp1fgXCrvroPoTPDEiWDD465NOIllYECVg7NIFyLGUFMnbS25jaeRorwwtHf9pC0XvCmqQoPL6QSujB7PMhqtBPc+kz5ODYSDdjqJFKVlKd1YfY+jC3bl7rJlpnQD0x4XWgpmA33X7sOc8+BwHvdZhN+oIFjLnX+r2DU/lzuagRpUIEmM72Le7udS6D2s3YYObDSUpgsY82H5GiLCs0Ho+2aDi2exPAdAb5gLhnbtH93A0V9kHg505G1VMTPuVdalnu3k3+jpjNx/u8OFARxKLuy8weuNXLjm0rcmyGn25ifdQ6V
+X-OriginatorOrg: diasemi.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Jun 2020 10:28:28.3172
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7c82ce1d-bfde-464c-3938-08d818f28042
+X-MS-Exchange-CrossTenant-Id: 511e3c0e-ee96-486e-a2ec-e272ffa37b7c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=511e3c0e-ee96-486e-a2ec-e272ffa37b7c;Ip=[193.240.239.45];Helo=[mailrelay1.diasemi.com]
+X-MS-Exchange-CrossTenant-AuthSource: HE1EUR02FT031.eop-EUR02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR10MB3193
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-On Thu, 25 Jun 2020 at 00:09, David Korth <gerbilsoft@gerbilsoft.com> wrote:
-> I've been manually setting the player IDs on Wii controllers when running
-> multiplayer games by writing to the /sys/class/leds/ directory. Having the
-> hid-wiimote driver do this itself significantly reduces setup time.
+In this patch set the following is provided:
 
-What do you mean with "reduces setup time significantly"? Why would it
-take that long to set the LEDs?
+[PATCH v14 1/3] MAINTAINERS file update for DA7280
+[PATCH v14 2/3] DA7280 DT Binding
+[PATCH v14 3/3] DA7280 Driver
 
-Thanks
-David
+This patch applies against linux-next and v5.8-rc2
+
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
+
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |  109 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1880 ++++++++++++++++++++
+ 5 files changed, 2005 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+
+-- 
+end-of-patch for PATCH v14
+

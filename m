@@ -2,166 +2,696 @@ Return-Path: <SRS0=p2UN=AK=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-0.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,SUBJ_AS_SEEN
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 477C5C433DF
-	for <linux-input@archiver.kernel.org>; Mon, 29 Jun 2020 00:29:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 842D6C433E2
+	for <linux-input@archiver.kernel.org>; Mon, 29 Jun 2020 19:01:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 10FAE20768
-	for <linux-input@archiver.kernel.org>; Mon, 29 Jun 2020 00:29:30 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=dialogsemiconductor.onmicrosoft.com header.i=@dialogsemiconductor.onmicrosoft.com header.b="Jvnqd6NG"
+	by mail.kernel.org (Postfix) with ESMTP id 69CF720663
+	for <linux-input@archiver.kernel.org>; Mon, 29 Jun 2020 19:01:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726399AbgF2A33 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 28 Jun 2020 20:29:29 -0400
-Received: from mail-vi1eur05on2053.outbound.protection.outlook.com ([40.107.21.53]:64703
-        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726395AbgF2A32 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 28 Jun 2020 20:29:28 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LzjKM0kqJ6gSObphKK6Rq19m6pnwU42CFkrRR0MNP/CkoMyfmEmi7rUpuiP4NKyHQpoM5+w4gFr5nrcFnnRmZOwfLxzq6oRGSrnCCpyGs/nSdvAAQADQ/e98c9xM08wZ94TUJYWaTcO4Z9v6s+OqZei7rWnmer8tJwlI6rcwmixgFwwc2BhxJjL6QgM4ieigOMOSzqlAUAbE/ksl6wr7LB67bCAM07jA3aSNdQnqZtMxgxbuQQsSLzM9taiPZnm7b5P96Ukay8i/b1jqQ8k97EZdkA2h9hDN9iizAyhic/N+dMHFFBCvALXynvs6kTXmpyPjBlINK7zdx6W4dbX+Nw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zN0vR1oSSYIdNgzDbY+8GkQYgBVGYiavz98DhgwaHFA=;
- b=n8i3w/RHkfcLiKG1dJEqZeTQ9G2fK15KG+O9553kuYuQ0shYhn84HWOus2epOa7bEIJzYv6uA6nDo+NP3Oac0fL8DBjzsxnZZMAs9sob7N11f2LJeQd7/U8fHfPCjEbWB3QmeUjQSnbHTRA6dymhx65fpqnis2AUElclAR+/neK6klz2wLOMu6XS1MMMedxhlLF9Lvz89k1OLVo7CkJ497MojwDQqzlEEky4GCSU02DeWr/cbKFeqSEw8oP+FEMzNcr/Oj/Z5GdvypbcO1UCCO7A4/fT7TI7DG0WuAxeN7afKweRGvPDG/6kmzXIhnTu6gl5j87BUCvGrqt2nSQTKA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=diasemi.com; dmarc=pass action=none header.from=diasemi.com;
- dkim=pass header.d=diasemi.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=dialogsemiconductor.onmicrosoft.com;
- s=selector1-dialogsemiconductor-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zN0vR1oSSYIdNgzDbY+8GkQYgBVGYiavz98DhgwaHFA=;
- b=Jvnqd6NGM/qSRiDypPhhveLg8sk8/kDiRHySu0l+0fs43q5oyq9eRSeIY3xYZ83Biv2dJYEBv29vXZoU5D2N/KS2u7m5u+g1qbybwHGAGYecPaH90ET+CyGf1my817FUeiOlskZhWCK/YmMi2Sc5gTw6RGqAYTnWkSbXH37V7FM=
-Received: from DB8PR10MB3356.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:11c::13)
- by DB8PR10MB3418.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:eb::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3131.20; Mon, 29 Jun
- 2020 00:29:22 +0000
-Received: from DB8PR10MB3356.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::843a:1bdd:adc4:3a56]) by DB8PR10MB3356.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::843a:1bdd:adc4:3a56%8]) with mapi id 15.20.3131.026; Mon, 29 Jun 2020
- 00:29:21 +0000
-From:   Roy Im <roy.im.opensource@diasemi.com>
-To:     =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Roy Im <roy.im.opensource@diasemi.com>
-CC:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Brian Masney <masneyb@onstation.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Lee Jones <lee.jones@linaro.org>, Luca Weiss <luca@z3ntu.xyz>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Pascal PAILLET-LME <p.paillet@st.com>,
-        Rob Herring <robh@kernel.org>,
-        Samuel Ortiz <sameo@linux.intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Support Opensource <Support.Opensource@diasemi.com>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>
-Subject: RE: [PATCH v14 3/3] Input: new da7280 haptic driver
-Thread-Topic: [PATCH v14 3/3] Input: new da7280 haptic driver
-Thread-Index: AQHWSttjHK/j6/E1ykmZ1XiOSN6cvKjqbZ2AgAB09ICAACxPAIADrkvg
-Date:   Mon, 29 Jun 2020 00:29:21 +0000
-Message-ID: <DB8PR10MB33566ABB47A00C8A5F281BE1856E0@DB8PR10MB3356.EURPRD10.PROD.OUTLOOK.COM>
-References: <cover.1593017969.git.Roy.Im@diasemi.com>
- <8b05f5bd46eac415c628e965f59b2b57aff86bbe.1593017969.git.Roy.Im@diasemi.com>
- <20200626061853.hyb7dwta6ths2qo2@taurus.defre.kleine-koenig.org>
- <DB8PR10MB33563278561DFC2E50420F1C85930@DB8PR10MB3356.EURPRD10.PROD.OUTLOOK.COM>
- <20200626155604.poqryunm7fyqmgek@pengutronix.de>
-In-Reply-To: <20200626155604.poqryunm7fyqmgek@pengutronix.de>
-Accept-Language: ko-KR, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: pengutronix.de; dkim=none (message not signed)
- header.d=none;pengutronix.de; dmarc=none action=none header.from=diasemi.com;
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [1.234.57.66]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 5486bb98-7cd1-49f4-e07a-08d81bc37800
-x-ms-traffictypediagnostic: DB8PR10MB3418:
-x-ms-exchange-sharedmailbox-routingagent-processed: True
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <DB8PR10MB3418540EC439C1FA55095117A26E0@DB8PR10MB3418.EURPRD10.PROD.OUTLOOK.COM>
-x-ms-oob-tlc-oobclassifiers: OLM:7691;
-x-forefront-prvs: 044968D9E1
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 2DV0RDYfNnclPwGH8aBouSDFVqt3VgkS4kR31qdHI8mGFyOnMu9wfGEv9SNpvjJs/ohg6cFKxfS5Bw0vo598BSTiAHDNOLFpuCvGxlX1nkPr/gWgulOlYlpo7AFT+/ouEDFQeVa/Ns9XU8lUJpw/ygLUDm8ak/CA2otw8u3p3Kvx9bgnG7yjsnXViSqfF/olHo04p0iPYrQAopb1zkVqMT/7o74NOdQYDt6S8rP5RyVxABMCKjjPJzxajXVHXR8DJs7DyCqPpPYdd/ZC6gGFCP3lSxmuo63sBgvI3nayYeZu3T9XlWoZpH6TMtOBkLwbRNV08DcTR5dL73VUuLGpdBTDBBIY0XQ37bS/CzwrewRZnxY3qgVhflS/VaE9Fa0brYZ3WHM6TFaISBmB/LlyFg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB8PR10MB3356.EURPRD10.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(346002)(376002)(396003)(366004)(136003)(39850400004)(55016002)(7696005)(33656002)(5660300002)(6506007)(66946007)(76116006)(66556008)(71200400001)(66446008)(64756008)(110136005)(66476007)(53546011)(9686003)(2906002)(86362001)(966005)(186003)(52536014)(8676002)(83380400001)(4326008)(66574015)(54906003)(7416002)(8936002)(26005)(316002)(478600001)(83080400001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: wDKF4vZHlusa4+6uE5WQWnUDGx/Qo4+c+YtmXsGfjz/Gu0CxDjgmBfqbQrkJmWZ7P27am8VG5If3wgXb+MGmsn9TJuAlYpP+jRjwfp2GdkChbSNtxGNCc0LaG+wDQ53smfzcHWLhp2QFdYqhDagzykpZb3jPp3MfeoBwOrv8BShyfnWa4UwuA9tnQAKKbRotVf+tmBRFpg2o4iT6Mnxv9xWSKGiLXS5eG+3Gqcu4SerwJvtgyls6bkRpv80Kx0zkuF+C6Ricmc4jERqrlIU2MN+Kd3qO1kYv6G7XHp/B3tCWs8P6V3nCf9CFqQPylBsbXIcQUgPXwSU+KTUGNSZyAF7e9/RNEzjMc1SLUbzMY837kI8M7FLsPFyEkNzBvK+3NcTASMZMFuE3xsx9Q0g36kyu9LnCeCM+jBIUH+A5yXhac3I/1jcoMZNHIt5f3H3neudC7gKnEuVCdSOMw5S4lEuhiPrmadpMI5nzBv8oCkg=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: diasemi.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DB8PR10MB3356.EURPRD10.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5486bb98-7cd1-49f4-e07a-08d81bc37800
-X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Jun 2020 00:29:21.6750
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 511e3c0e-ee96-486e-a2ec-e272ffa37b7c
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ezceQSXo0amf4ZoUeHZ/Y7i6Qlt5rFvPHpI8C0DGp5cPAAMN9Tg8xvnSJsInAMlQaV66w8zYEscj9F66DgJJwQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR10MB3418
+        id S1729988AbgF2TBr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 29 Jun 2020 15:01:47 -0400
+Received: from sender11-of-o52.zoho.eu ([31.186.226.238]:21698 "EHLO
+        sender11-of-o52.zoho.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729042AbgF2TBp (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:01:45 -0400
+ARC-Seal: i=1; a=rsa-sha256; t=1593457296; cv=none; 
+        d=zohomail.eu; s=zohoarc; 
+        b=TUreP8ji9wj4YE7ykkPVHqGyRt03K0RCpWiwK9U76xVAtvC50itrwaMu5c9cweIO8LuDUfhYfiYqiKdmxQb005xF3TmpX5fKbqqlJg5LUNOfN58mf4IkHdKu72gcPlTiWMEBQ3eD+Iff6u9rQ2sL1bgYUVOcGsPhOGJHDBjLhZo=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+        t=1593457296; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
+        bh=L4w8jW33dauocRaB/4ZEBAU9sKrxd5Mxc4JKnuaXdOY=; 
+        b=OODIqVYcxGuRvZO4CRxkHYQDxgA70xNBJSWy8UUOLTKuc0Kd30mwHZvijusnAhMNA1xkGq1wBuWLrtLMXlTwsYekFWCOk8y2LR4ambaS8ietWGQ4m0+20YsI72wr14QxsDI1cMFxINXamiajsBbiT+7UUTb4aJNcZ76dwVDCyls=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+        spf=pass  smtp.mailfrom=devnull@uvos.xyz;
+        dmarc=pass header.from=<devnull@uvos.xyz> header.from=<devnull@uvos.xyz>
+Received: from localhost.localdomain (ip-95-222-212-254.hsi15.unitymediagroup.de [95.222.212.254]) by mx.zoho.eu
+        with SMTPS id 1593457294913773.3332249669186; Mon, 29 Jun 2020 21:01:34 +0200 (CEST)
+Date:   Mon, 29 Jun 2020 21:01:34 +0200
+From:   Dev Null <devnull@uvos.xyz>
+To:     linux-input@vger.kernel.org
+Cc:     linux-omap@vger.kernel.org
+Subject: [RFC PATCH] New driver to support permanent buttons on touchscreen
+ surfaces, sutch as seen on the Motorola Droid 4
+Message-Id: <20200629210134.203889d356422758d27244fd@uvos.xyz>
+Organization: UVOS Organization
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, June 27, 2020 12:56 AM, Uwe Kleine-K=F6nig wrote:
-> On Fri, Jun 26, 2020 at 01:17:29PM +0000, Roy Im wrote:
-> > > On Fri, June 26, 2020 3:19 PM, Uwe Kleine-K=F6nig wrote:
-> > > Hello,
-> > > from the PWM POV I'm happy now. Just a few minor comments that I noti=
-ced while checking the PWM details.
-> >
-> > Many thanks for your comments.
-> >
-> > >
-> > > On Thu, Jun 25, 2020 at 01:59:29AM +0900, Roy Im wrote:
-> > > > +		val =3D haptics->ps_seq_id << DA7280_PS_SEQ_ID_SHIFT |
-> > > > +			haptics->ps_seq_loop << DA7280_PS_SEQ_LOOP_SHIFT;
-> > >
-> > > If you write this as:
-> > >
-> > > 	val =3D FIELD_PREP(DA7280_PS_SEQ_ID_MASK, haptics->ps_seq_id) |
-> > > 		FIELD_PREP(DA7280_PS_SEQ_LOOP_MASK, haptics->ps_seq_loop);
-> > >
-> > > you get some additional checks for free and can drop all defines for =
-..._SHIFT .
-> >
-> > It is not difficult to update that as you advise, but I think having
-> > the shift there explicitly makes it more readable, so most of the
-> > drivers from my team have the defines(shift) up to now. I guess this
-> > is a kind of subjective thing.
-> > Do you think it is still necessary? Then I will update as you said.
->=20
-> No, from my side it's not a hard requirement (and after all I'm not the o=
-ne who will take your commit). I personally like it better
-> with FIELD_PREP, but I can still sleep if you don't agree :-)
->=20
-> What I don't like about having both ..._SHIFT and ..._MASK is that there =
-is some duplication as ..._SHIFT can be calculated
-> from ..._MASK:
->=20
-> 	#define LALA_SHIFT (ffs(LALA_MASK) - 1)
+Hi,
 
-OK, I got it and I will update.
+This driver for supporting permanent buttons on touchscreen surfaces, as in ones that have permanent labeles, maybe a backlight but no other hardware indpendant from the touch screen. This was very common in android phones designed with android 1.0 to 2.3 in mind. The dirver works by attaching to another input device and mirroring its events, while inserting key events and filtering for touches that land on the buttons. Buttons are arbitrary rectangles configurable via dts, the patch includes sample configureation for the Droid 4. 
 
->=20
-> Best regards
-> Uwe
->=20
-> --
-> Pengutronix e.K.                           | Uwe Kleine-K=F6nig          =
-  |
-> Industrial Linux Solutions                 | https://www.pengutronix.de/ =
-|
+Known current limitations:
+
+1. Driver is only multi touch aware in a limited capacity, i will pass and filter mt events but will not react to them on the buttons.
+2. Driver is dependant on the Touchscreen driver supporing BTN_TOUCH, drivers that only report proximity will not work at this time.
+3. Driver depends on the Touchscreen beeing on the i2c bus, a trival fix for this is in the pipeline.
+
+Driver below:
+
+diff --git a/arch/arm/boot/dts/motorola-mapphone-common.dtsi b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+index cef4d8abdaa1..33600e68076a 100644
+--- a/arch/arm/boot/dts/motorola-mapphone-common.dtsi
++++ b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+@@ -175,7 +175,40 @@ pwm9: dmtimer-pwm-9 {
+ 		ti,timers = <&timer9>;
+ 		ti,clock-source = <0x01>;
+ 	};
+
++	mapphone_touchscreen {
++			compatible = "touchscreen-buttons";
++			touchscreen_phandle = <&touchscreen>;
++			menu {
++				x-position = <0>;
++				y-position = <950>;
++				x-size = <256>;
++				y-size = <74>;
++				keycode = <KEY_MENU>;
++			};
++			home {
++				x-position = <256>;
++				y-position = <950>;
++				x-size = <256>;
++				y-size = <74>;
++				keycode = <KEY_HOME>;
++			};
++			back {
++				x-position = <512>;
++				y-position = <950>;
++				x-size = <256>;
++				y-size = <74>;
++				keycode = <KEY_BACK>;
++			};
++			search {
++				x-position = <768>;
++				y-position = <950>;
++				x-size = <256>;
++				y-size = <74>;
++				keycode = <KEY_SEARCH>;
++			};
++	};
++
+ 	vibrator {
+ 		compatible = "pwm-vibrator";
+ 		pwms = <&pwm9 0 10000000 0>, <&pwm8 0 10000000 0>;
+@@ -422,7 +455,7 @@ led@1 {
+ };
+ 
+ &i2c2 {
+-	touchscreen@4a {
++	touchscreen: touchscreen@4a {
+ 		compatible = "atmel,maxtouch";
+ 		reg = <0x4a>;
+ 		pinctrl-names = "default";
+diff --git a/arch/arm/configs/omap2plus_defconfig b/arch/arm/configs/omap2plus_defconfig
+index d397ad4006f2..bd15ad5278d9 100644
+--- a/arch/arm/configs/omap2plus_defconfig
++++ b/arch/arm/configs/omap2plus_defconfig
+@@ -249,6 +249,7 @@ CONFIG_TOUCHSCREEN_TSC2005=m
+ CONFIG_TOUCHSCREEN_TSC2007=m
+ CONFIG_INPUT_MISC=y
+ CONFIG_INPUT_CPCAP_PWRBUTTON=m
++CONFIG_INPUT_TOUCHSCREEN_BUTTONS=m
+ CONFIG_INPUT_TPS65218_PWRBUTTON=m
+ CONFIG_INPUT_TWL4030_PWRBUTTON=m
+ CONFIG_INPUT_UINPUT=m
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7e2e658d551c..2d55412eacd2 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -338,6 +338,14 @@ config INPUT_CPCAP_PWRBUTTON
+ 
+ 	  To compile this driver as a module, choose M here. The module will
+ 	  be called cpcap-pwrbutton.
++
++config INPUT_TOUCHSCREEN_BUTTONS
++	tristate "Touchscreen Buttons"
++	help
++	  Say Y here if you want to enable "virutal" buttons on touchscreen devices.
++
++	  To compile this driver as a module, choose M here. The module will
++	  be called touchscreen-buttons.
+ 
+ config INPUT_WISTRON_BTNS
+ 	tristate "x86 Wistron laptop button interface"
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 8fd187f314bd..3b34378cb79f 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -85,4 +85,5 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+ obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+ obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
++obj-$(CONFIG_INPUT_TOUCHSCREEN_BUTTONS)	+= touchscreen-buttons.o
+ 
+diff --git a/drivers/input/misc/touchscreen-buttons.c b/drivers/input/misc/touchscreen-buttons.c
+new file mode 100644
+index 000000000000..811fa98d12e6
+--- /dev/null
++++ b/drivers/input/misc/touchscreen-buttons.c
+@@ -0,0 +1,497 @@
++/**
++ * Touchscreen Virutal Button Input Driver
++ *
++ * Copyright (C) 2020 Carl Klemm <carl@uvos.xyz>
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of this
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/platform_device.h>
++#include <linux/errno.h>
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/of.h>
++#include <linux/of_platform.h>
++#include <linux/kernel.h>
++#include <linux/limits.h>
++#include <linux/input/touchscreen-buttons.h>
++#include <linux/input/mt.h>
++#include <linux/i2c.h>
++#include<linux/string.h>
++
++#define EVENT_QUEUE_SIZE 32
++
++struct event {
++	unsigned int type;
++	unsigned int code;
++	int value;
++};
++
++struct event_queue {
++	struct event events[EVENT_QUEUE_SIZE];
++	unsigned int lastindex;
++};
++
++struct touchscreen_buttons {
++	struct device *dev;
++	struct input_dev *idev;
++	struct touchscreen_button_map *map;
++	struct input_handler *handler;
++	struct input_handle *ts_handle;
++	struct event_queue queue;
++};
++
++static const struct input_device_id touchscreen_buttons_ids[] = {
++	{
++	 .flags = INPUT_DEVICE_ID_MATCH_EVBIT,
++	 .evbit = {BIT_MASK(EV_ABS)},
++	 },
++	{
++	 .flags = INPUT_DEVICE_ID_MATCH_EVBIT,
++	 .evbit = {BIT_MASK(EV_KEY)},
++	 },
++	{
++	 .flags = INPUT_DEVICE_ID_MATCH_EVBIT,
++	 .evbit = {BIT_MASK(EV_SYN)},
++	 },
++	{},
++};
++
++static int touchscreen_buttons_process_syn(const struct event_queue *queue,
++					   const struct touchscreen_button_map
++					   *map, struct input_dev *idev)
++{
++	u32 i;
++	int x, y, ret, pressed;
++
++	x = INT_MIN;
++	y = INT_MIN;
++	pressed = -1;
++	ret = 0;
++
++	for (i = 0; i < queue->lastindex; ++i) {
++		const struct event *ev;
++
++		ev = &queue->events[i];
++		if (ev->type == EV_ABS && ev->code == ABS_X)
++			x = ev->value;
++		else if (ev->type == EV_ABS && ev->code == ABS_Y)
++			y = ev->value;
++		else if (ev->type == EV_KEY && ev->code == BTN_TOUCH)
++			pressed = ev->value;
++	}
++
++	for (i = 0; i < map->count; ++i) {
++		struct touchscreen_button *button = &map->buttons[i];
++
++		if (pressed == 1 &&
++		    button->x <= x &&
++		    button->y <= y &&
++		    button->width + button->x >= x &&
++		    button->height + button->y >= y && button->depressed == 0) {
++			input_report_key(idev, button->keycode, 1);
++			button->depressed = 1;
++			ret = 1;
++		} else if (button->depressed == 1) {
++			if (pressed == 0) {
++				input_report_key(idev, button->keycode, 0);
++				button->depressed = 0;
++			}
++			ret = 2;
++		}
++	}
++
++	if (ret != 0)
++		input_event(idev, EV_SYN, SYN_REPORT, 0);
++
++	return ret;
++}
++
++static void touchscreen_buttons_resend_events(const struct event_queue *queue,
++					      struct input_dev *idev)
++{
++	__u32 i;
++	for (i = 0; i < queue->lastindex; ++i) {
++		input_event(idev, queue->events[i].type, queue->events[i].code,
++			    queue->events[i].value);
++	}
++	input_event(idev, EV_SYN, SYN_REPORT, 0);
++}
++
++static void touchscreen_buttons_copy_mt_slots(struct input_dev *target,
++					      struct input_dev *source)
++{
++	if (source->mt && target->mt
++	    && source->mt->num_slots == target->mt->num_slots) {
++		memcpy(target->mt->slots, source->mt->slots,
++		       sizeof(struct input_mt_slot) * source->mt->num_slots);
++	}
++}
++
++static void touchscreen_buttons_input_event(struct input_handle *handle,
++					    unsigned int type,
++					    unsigned int code, int value)
++{
++
++	struct touchscreen_buttons *buttons;
++
++	buttons = handle->private;
++
++	if (type == EV_SYN && code == SYN_REPORT) {
++		if (touchscreen_buttons_process_syn
++		    (&buttons->queue, buttons->map, buttons->idev) == 0) {
++			touchscreen_buttons_resend_events(&buttons->queue,
++							  buttons->idev);
++		}
++		buttons->queue.lastindex = 0;
++	} else if (buttons->queue.lastindex < EVENT_QUEUE_SIZE
++		   && buttons->queue.lastindex >= 0) {
++		buttons->queue.events[buttons->queue.lastindex].type = type;
++		buttons->queue.events[buttons->queue.lastindex].code = code;
++		buttons->queue.events[buttons->queue.lastindex].value = value;
++		++buttons->queue.lastindex;
++	} else {
++		dev_warn(buttons->dev,
++			 "event_qeue overrun, will not caputure events until next SYN_REPORT\n");
++	}
++}
++
++static void touchscreen_buttons_merge_capabilitys(struct input_dev *target,
++						  struct input_dev *source)
++{
++	unsigned int i;
++	for (i = 0; i < BITS_TO_LONGS(INPUT_PROP_CNT); ++i)
++		target->propbit[i] = target->propbit[i] | source->propbit[i];
++	for (i = 0; i < BITS_TO_LONGS(EV_CNT); ++i)
++		target->evbit[i] = target->evbit[i] | source->evbit[i];
++	for (i = 0; i < BITS_TO_LONGS(KEY_CNT); ++i)
++		target->keybit[i] = target->keybit[i] | source->keybit[i];
++	for (i = 0; i < BITS_TO_LONGS(REL_CNT); ++i)
++		target->relbit[i] = target->relbit[i] | source->relbit[i];
++	for (i = 0; i < BITS_TO_LONGS(ABS_CNT); ++i)
++		target->absbit[i] = target->absbit[i] | source->absbit[i];
++	for (i = 0; i < BITS_TO_LONGS(MSC_CNT); ++i)
++		target->mscbit[i] = target->mscbit[i] | source->mscbit[i];
++	for (i = 0; i < BITS_TO_LONGS(LED_CNT); ++i)
++		target->ledbit[i] = target->ledbit[i] | source->ledbit[i];
++	for (i = 0; i < BITS_TO_LONGS(SND_CNT); ++i)
++		target->sndbit[i] = target->sndbit[i] | source->sndbit[i];
++	for (i = 0; i < BITS_TO_LONGS(FF_CNT); ++i)
++		target->ffbit[i] = target->ffbit[i] | source->ffbit[i];
++	for (i = 0; i < BITS_TO_LONGS(SW_CNT); ++i)
++		target->swbit[i] = target->swbit[i] | source->swbit[i];
++
++	if (*source->evbit & (1 << EV_ABS)) {
++		input_alloc_absinfo(target);
++		for (i = 0; i < ABS_CNT; ++i)
++			target->absinfo[i] = source->absinfo[i];
++		if (source->mt) {
++			input_mt_init_slots(target, source->mt->num_slots,
++					    source->mt->flags);
++			touchscreen_buttons_copy_mt_slots(target, source);
++		}
++	}
++
++}
++
++static int touchscreen_buttons_input_connect(struct input_handler *handler,
++					     struct input_dev *dev,
++					     const struct input_device_id *id)
++{
++	struct touchscreen_buttons *buttons;
++
++	buttons = handler->private;
++
++	if (!buttons->ts_handle
++	    && (buttons->map->ts_dev == &dev->dev
++		|| (dev->dev.parent
++		    && buttons->map->ts_dev == dev->dev.parent))) {
++		int error;
++
++		dev_info(buttons->dev, "Binding to device: %s\n",
++			 dev_name(&dev->dev));
++
++		buttons->ts_handle =
++		    kzalloc(sizeof(*buttons->ts_handle), GFP_KERNEL);
++		if (!buttons->ts_handle)
++			return -ENOMEM;
++
++		buttons->ts_handle->dev = dev;
++		buttons->ts_handle->handler = handler;
++		buttons->ts_handle->name = "touchscreen-buttons";
++		buttons->ts_handle->private = handler->private;
++		buttons->queue.lastindex = 0;
++
++		touchscreen_buttons_merge_capabilitys(buttons->idev, dev);
++
++		error = input_register_handle(buttons->ts_handle);
++		if (error) {
++			dev_err(buttons->dev,
++				"Failed to register input handler, error %d\n",
++				error);
++			kfree(buttons->ts_handle);
++			buttons->ts_handle = NULL;
++			return error;
++		}
++		if (buttons->idev->users > 0 && buttons->ts_handle->open == 0) {
++			error = input_open_device(buttons->ts_handle);
++			if (error) {
++				dev_err(buttons->dev,
++					"Failed to open input device, error %d\n",
++					error);
++				input_unregister_handle(buttons->ts_handle);
++				kfree(buttons->ts_handle);
++				buttons->ts_handle = NULL;
++				return error;
++			}
++		}
++	}
++
++	return 0;
++}
++
++static void touchscreen_buttons_input_disconnect(struct input_handle *handle)
++{
++	struct touchscreen_buttons *buttons;
++
++	buttons = handle->private;
++
++	if (handle == buttons->ts_handle) {
++		input_close_device(handle);
++		input_unregister_handle(handle);
++		kfree(handle);
++		buttons->ts_handle = NULL;
++		dev_info(buttons->dev,
++			 "Touchscreen device disconnected, buttons disabled\n");
++	} else {
++		dev_err(buttons->dev,
++			"Unkown device disconnected, %p should be %p", handle,
++			buttons->ts_handle);
++	}
++}
++
++static struct touchscreen_button_map
++    *touchscreen_buttons_get_devtree_pdata(struct device *dev)
++{
++	struct touchscreen_button_map *map;
++	struct fwnode_handle *child_node;
++	struct device_node *touchscreen_node;
++	struct device *ts_dev;
++	struct device_node *node;
++	int i;
++
++	map = kzalloc(sizeof(*map), GFP_KERNEL);
++	if (!map)
++		return ERR_PTR(-ENOMEM);
++
++	map->count = device_get_child_node_count(dev);
++	if (map->count == 0)
++		return ERR_PTR(-ENODEV);
++
++	map->buttons = kzalloc(sizeof(*map->buttons) * map->count, GFP_KERNEL);
++	if (!map->buttons)
++		return ERR_PTR(-ENOMEM);
++
++	node = dev->of_node;
++	touchscreen_node = of_parse_phandle(node, "touchscreen_phandle", 0);
++	if (!touchscreen_node) {
++		dev_err(dev, "touchscreen_phandle node missing\n");
++		return ERR_PTR(-ENODEV);
++	}
++
++	dev_info(dev, "Device_node name: %s\n", touchscreen_node->name);
++
++	ts_dev = bus_find_device_by_of_node(&i2c_bus_type, touchscreen_node);
++	if (!ts_dev) {
++		dev_err(dev,
++			"touchscreen_phandle points to non exsisting device\n");
++		return ERR_PTR(-ENODEV);
++	}
++	map->ts_dev = ts_dev;
++
++	dev_info(dev, "Will bind to device: %s\n", dev_name(map->ts_dev));
++
++	i = 0;
++	device_for_each_child_node(dev, child_node) {
++		struct touchscreen_button *button;
++		button = &map->buttons[i];
++		fwnode_property_read_u32(child_node, "x-position", &button->x);
++		fwnode_property_read_u32(child_node, "y-position", &button->y);
++		fwnode_property_read_u32(child_node, "x-size", &button->width);
++		fwnode_property_read_u32(child_node, "y-size", &button->height);
++		fwnode_property_read_u32(child_node, "keycode",
++					 &button->keycode);
++		dev_info(dev,
++			 "Adding button at x=%u y=%u size %u x %u keycode=%u\n",
++			 button->x, button->y, button->width, button->height,
++			 button->keycode);
++		++i;
++	}
++	return map;
++}
++
++int touchscreen_buttons_idev_opened(struct input_dev *idev)
++{
++	struct touchscreen_buttons *buttons;
++	buttons = dev_get_drvdata(idev->dev.parent);
++	if (buttons && buttons->ts_handle) {
++		if (buttons->ts_handle->open == 0) {
++			int error;
++
++			error = input_open_device(buttons->ts_handle);
++			if (error) {
++				dev_err(idev->dev.parent,
++					"Failed to open input device, error %d\n",
++					error);
++				input_unregister_handle(buttons->ts_handle);
++				kfree(buttons->ts_handle);
++				buttons->ts_handle = NULL;
++				return error;
++			}
++			dev_info(idev->dev.parent, "idev opened\n");
++		} else {
++			dev_info(idev->dev.parent, "idev allready opened\n");
++		}
++	} else {
++		dev_warn(idev->dev.parent,
++			 "Input device opend but touchscreen not open. %p %p\n",
++			 buttons, buttons->ts_handle);
++	}
++	return 0;
++}
++
++void touchscreen_buttons_idev_closed(struct input_dev *idev)
++{
++	struct touchscreen_buttons *buttons;
++	buttons = dev_get_drvdata(idev->dev.parent);
++	if (buttons && buttons->ts_handle && buttons->ts_handle->open != 0) {
++		input_close_device(buttons->ts_handle);
++		dev_info(idev->dev.parent, "idev closed\n");
++	}
++}
++
++static int touchscreen_buttons_probe(struct platform_device *pdev)
++{
++	struct touchscreen_buttons *buttons;
++	int error, i;
++
++	buttons = kzalloc(sizeof(*buttons), GFP_KERNEL);
++	if (!buttons)
++		return -ENOMEM;
++
++	dev_set_drvdata(&pdev->dev, buttons);g
++
++	buttons->queue.lastindex = 0;
++
++	buttons->map = touchscreen_buttons_get_devtree_pdata(&pdev->dev);
++	if (IS_ERR(buttons->map))
++		return PTR_ERR(buttons->map);
++
++	/*input device */
++	buttons->idev = input_allocate_device();
++	if (!buttons->idev)
++		return -ENOMEM;
++
++	buttons->dev = &pdev->dev;
++
++	buttons->idev->name = "touchscreen-buttons";
++	buttons->idev->phys = "touchscreen-buttons/input0";
++	buttons->idev->dev.parent = buttons->dev;
++	buttons->idev->open = touchscreen_buttons_idev_opened;
++	buttons->idev->close = touchscreen_buttons_idev_closed;
++	for (i = 0; i < buttons->map->count; ++i) {
++		input_set_capability(buttons->idev, EV_KEY,
++				     buttons->map->buttons[i].keycode);
++	}
++
++	/*handler for touchscreen input device */
++	buttons->handler = kzalloc(sizeof(*buttons->handler), GFP_KERNEL);
++
++	buttons->handler->event = touchscreen_buttons_input_event;
++	buttons->handler->connect = touchscreen_buttons_input_connect;
++	buttons->handler->disconnect = touchscreen_buttons_input_disconnect;
++	buttons->handler->name = "touchscreen-buttons";
++	buttons->handler->id_table = touchscreen_buttons_ids;
++	buttons->handler->private = buttons;
++
++	error = input_register_handler(buttons->handler);
++	if (error) {
++		dev_err(&pdev->dev, "Input handler register failed: %d\n",
++			error);
++		return error;
++	}
++
++	error = input_register_device(buttons->idev);
++	if (error) {
++		dev_err(&pdev->dev, "Input device register failed: %d\n",
++			error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int touchscreen_buttons_remove(struct platform_device *pdev)
++{
++	struct touchscreen_buttons *buttons;
++
++	buttons = dev_get_drvdata(&pdev->dev);
++
++	input_unregister_handler(buttons->handler);
++	if (buttons->ts_handle) {
++		if (buttons->ts_handle->open != 0) {
++			input_close_device(buttons->ts_handle);
++		}
++		input_unregister_handle(buttons->ts_handle);
++	}
++
++	input_unregister_device(buttons->idev);
++
++	if (buttons->ts_handle)
++		kfree(buttons->ts_handle);
++
++	if (buttons->map) {
++		if (buttons->map->buttons)
++			kfree(buttons->map->buttons);
++		kfree(buttons->map);
++	}
++	kfree(buttons->handler);
++	kfree(buttons);
++
++	return 0;
++}
++
++#ifdef CONFIG_OF
++static const struct of_device_id touchscreen_buttons_dt_match_table[] = {
++	{.compatible = "touchscreen-buttons"},
++	{},
++};
++
++MODULE_DEVICE_TABLE(of, touchscreen_buttons_dt_match_table);
++#endif
++
++static struct platform_driver touchscreen_buttons_driver = {
++	.probe = touchscreen_buttons_probe,
++	.remove = touchscreen_buttons_remove,
++	.driver = {
++		   .name = "touchscreen-buttons",
++		   .of_match_table =
++		   of_match_ptr(touchscreen_buttons_dt_match_table),
++		   },
++};
++
++module_platform_driver(touchscreen_buttons_driver);
++
++MODULE_ALIAS("platform:touchscreen-buttons");
++MODULE_DESCRIPTION("touchscreen-buttons");
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Carl Klemm <carl@uvos.xyz>");
+diff --git a/include/linux/input/touchscreen-buttons.h b/include/linux/input/touchscreen-buttons.h
+new file mode 100644
+index 000000000000..1b2254254cd9
+--- /dev/null
++++ b/include/linux/input/touchscreen-buttons.h
+@@ -0,0 +1,26 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Copyright (c) 2020 Carl Klemm <carl@uvos.xyz>
++ */
++
++#ifndef _TOUCHSCREEN_BUTTONS_H
++#define _TOUCHSCREEN_BUTTONS_H
++
++#include <linux/types.h>
++
++struct touchscreen_button {
++	__u32 x;
++	__u32 y;
++	__u32 width;
++	__u32 height;
++	__u32 keycode;
++	__u8  depressed;
++};
++
++struct touchscreen_button_map {
++	struct touchscreen_button *buttons;
++	__u32 count;
++	struct device *ts_dev;
++};
++
++#endif
+
+
+-- 
+Dev Null <devnull@uvos.xyz>

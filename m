@@ -4,120 +4,126 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C516C433DF
-	for <linux-input@archiver.kernel.org>; Mon, 29 Jun 2020 19:08:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FB32C433DF
+	for <linux-input@archiver.kernel.org>; Mon, 29 Jun 2020 19:25:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 88AEE206E2
-	for <linux-input@archiver.kernel.org>; Mon, 29 Jun 2020 19:08:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3CCF0206F1
+	for <linux-input@archiver.kernel.org>; Mon, 29 Jun 2020 19:25:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729042AbgF2TIV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 29 Jun 2020 15:08:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41738 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729229AbgF2TCn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:02:43 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9E3C031C5D;
-        Mon, 29 Jun 2020 10:43:32 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id 35so7387270ple.0;
-        Mon, 29 Jun 2020 10:43:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=wwO/+1x3ujsY+tBQxjynuoHG+S+oW8bGQ0JEGfkKl18=;
-        b=q6VTKnjrIQ9GZwtHp6W8lnaBCt0D7cnVX6zRR8zbRsgPRvWzkckmhVQnxhqhf2SztQ
-         +rk54A5VZ9T4y8tgIPDQb2TK0x30Gc2bxIHNeCV0+k/5JB2Qr8S31+9nzkZBv4H8B1dZ
-         S7Nx4knFUO5IYs75LGDNQGVYwC5/HUd+5nFVLyNwxvBUTDWBLKcOMr+cfrw2308dlldI
-         WrqpGGQ1IqKJYywRAR3S7h1nqCGSB1qKSb+phXXH60lUsIejGQpbomdqL9cK9Pvyslbk
-         Bs7T7ZU5e11Xcs+YQNk7qBcKT8bG04FCbxH16bkFyZa/Mw58JAhLh7JMcLNIom4umbOz
-         8tYg==
-X-Gm-Message-State: AOAM531FeqTpQdRePUJND4B+dv1KI7Dv6qrhGRy6ZmJ4M4L9UEoNnusq
-        4lvR0Io1hgJZb7GOeKItGzSoD7l6
-X-Google-Smtp-Source: ABdhPJwBT8x6FA0IDZEkNk2enlT2SeUgMHnfKY6ICLSCwyeYI5Ca9yC95pTwUTqHMsvKBPHYnrf8pw==
-X-Received: by 2002:a17:90a:70c6:: with SMTP id a6mr16987836pjm.16.1593452612181;
-        Mon, 29 Jun 2020 10:43:32 -0700 (PDT)
-Received: from sultan-box.localdomain ([89.46.114.241])
-        by smtp.gmail.com with ESMTPSA id m14sm353976pgn.83.2020.06.29.10.43.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jun 2020 10:43:31 -0700 (PDT)
-Date:   Mon, 29 Jun 2020 10:43:28 -0700
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     aaron.ma@canonical.com, admin@kryma.net,
-        andriy.shevchenko@linux.intel.com, benjamin.tissoires@redhat.com,
-        hdegoede@redhat.com, hn.chen@weidahitech.com, jikos@kernel.org,
-        kai.heng.feng@canonical.com, linux-i2c@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mika.westerberg@linux.intel.com, vicamo.yang@canonical.com,
-        wsa@kernel.org
-Subject: Re: [PATCH v2] HID: i2c-hid: Use block reads when possible to save
- power
-Message-ID: <20200629174328.GB1646@sultan-box.localdomain>
-References: <c4373272-e656-773c-dfd2-0efc4c53c92d@linux.intel.com>
- <20200616154951.3050-1-sultan@kerneltoast.com>
- <37ceaf7a-3421-e305-4355-a6b40ae54843@linux.intel.com>
+        id S1731858AbgF2TYr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 29 Jun 2020 15:24:47 -0400
+Received: from mga11.intel.com ([192.55.52.93]:22498 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732144AbgF2TYM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:24:12 -0400
+IronPort-SDR: fugI7SEnECD8AcUrpPHl2Xm5xd7GVForJiOXr6uS0/Q6baUz9pxuSsaMfB0N2rtQJ703BA3CAR
+ mIqm26Bip02w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9666"; a="144218730"
+X-IronPort-AV: E=Sophos;i="5.75,295,1589266800"; 
+   d="scan'208";a="144218730"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2020 11:43:17 -0700
+IronPort-SDR: 2J4kH3ECOEn2x8rudw4qFHfxJNd+hi7C5BzkjhtJL2RgnSBmdXcfphgfQtu1zmq40tmcXCkTVQ
+ gfm3h3i66LWg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,295,1589266800"; 
+   d="scan'208";a="318924324"
+Received: from spandruv-mobl3.amr.corp.intel.com ([10.254.77.33])
+  by orsmga007.jf.intel.com with ESMTP; 29 Jun 2020 11:43:16 -0700
+Message-ID: <651b555b0723352ad5c624a68bf4ed76429314d8.camel@linux.intel.com>
+Subject: Re: [PATCH v3] HID: intel-ish-hid: Replace PCI_DEV_FLAGS_NO_D3 with
+ pci_save_state
+From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To:     Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Zhang Lixu <lixu.zhang@intel.com>, Even Xu <even.xu@intel.com>,
+        "open list:INTEL INTEGRATED SENSOR HUB DRIVER" 
+        <linux-input@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Date:   Mon, 29 Jun 2020 11:43:16 -0700
+In-Reply-To: <20200629041648.19113-1-kai.heng.feng@canonical.com>
+References: <20200629041648.19113-1-kai.heng.feng@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.3 (3.34.3-1.fc31) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <37ceaf7a-3421-e305-4355-a6b40ae54843@linux.intel.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Jun 17, 2020 at 02:17:19PM +0300, Jarkko Nikula wrote:
-> On 6/16/20 6:49 PM, Sultan Alsawaf wrote:
-> > From: Sultan Alsawaf <sultan@kerneltoast.com>
-> > 
-> > We have no way of knowing how large an incoming payload is going to be,
-> > so the only strategy available up until now has been to always retrieve
-> > the maximum possible report length over i2c, which can be quite
-> > inefficient. For devices that send reports in block read format, the i2c
-> > controller driver can read the payload length on the fly and terminate
-> > the i2c transaction early, resulting in considerable power savings.
-> > 
-> > On a Dell Precision 15 5540 with an i9-9880H, resting my finger on the
-> > touchpad causes psys power readings to go up by about 4W and hover there
-> > until I remove my finger. With this patch, my psys readings go from 4.7W
-> > down to 3.1W, yielding about 1.6W in savings. This is because my
-> > touchpad's max report length is 60 bytes, but all of the regular reports
-> > it sends for touch events are only 32 bytes, so the i2c transfer is
-> > roughly halved for the common case.
-> > 
-> > Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
-> > ---
-> > Jarkko, could you try this?
-> >   drivers/hid/i2c-hid/i2c-hid-core.c | 5 ++++-
-> >   1 file changed, 4 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-> > index 294c84e136d7..739dccfc57e1 100644
-> > --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> > +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> > @@ -472,11 +472,14 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
-> >   	int ret;
-> >   	u32 ret_size;
-> >   	int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
-> > +	u16 flags;
-> >   	if (size > ihid->bufsize)
-> >   		size = ihid->bufsize;
-> > -	ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
-> > +	/* Try to do a block read if the size fits in one byte */
-> > +	flags = size > 255 ? I2C_M_RD : I2C_M_RD | I2C_M_RECV_LEN;
-> > +	ret = i2c_transfer_buffer_flags(ihid->client, ihid->inbuf, size, flags);
-> >   	if (ret != size) {
-> >   		if (ret < 0)
-> >   			return;
+On Mon, 2020-06-29 at 12:16 +0800, Kai-Heng Feng wrote:
+> PCI_DEV_FLAGS_NO_D3 should not be used outside of PCI core.
 > 
-> This still causes a regression for me.
+> Instead, we can use pci_save_state() to hint PCI core that the device
+> should stay at D0 during suspend. By doing so, PCI core will let the
+> upstream bridges also stays at D0 so the entire hierarchy is in the
+> correct power state as PCI spec mandates.
+> 
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Hmm, for some reason in 5.8 I get the same problem, but 5.7 is fine. Could you
-try this on 5.7 and see if it works?
+> ---
+> v3:
+>  - Use multi-line comments.
+> v2:
+>  - Wording change.
+> 
+>  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 16 +++++++++++-----
+>  1 file changed, 11 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> index f491d8b4e24c..c6d48a8648b7 100644
+> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> @@ -106,6 +106,11 @@ static inline bool ish_should_enter_d0i3(struct
+> pci_dev *pdev)
+>  	return !pm_suspend_via_firmware() || pdev->device ==
+> CHV_DEVICE_ID;
+>  }
+>  
+> +static inline bool ish_should_leave_d0i3(struct pci_dev *pdev)
+> +{
+> +	return !pm_resume_via_firmware() || pdev->device ==
+> CHV_DEVICE_ID;
+> +}
+> +
+>  /**
+>   * ish_probe() - PCI driver probe callback
+>   * @pdev:	pci device
+> @@ -215,9 +220,7 @@ static void __maybe_unused
+> ish_resume_handler(struct work_struct *work)
+>  	struct ishtp_device *dev = pci_get_drvdata(pdev);
+>  	int ret;
+>  
+> -	/* Check the NO_D3 flag to distinguish the resume paths */
+> -	if (pdev->dev_flags & PCI_DEV_FLAGS_NO_D3) {
+> -		pdev->dev_flags &= ~PCI_DEV_FLAGS_NO_D3;
+> +	if (ish_should_leave_d0i3(pdev) && !dev->suspend_flag) {
+>  		disable_irq_wake(pdev->irq);
+>  
+>  		ishtp_send_resume(dev);
+> @@ -281,8 +284,11 @@ static int __maybe_unused ish_suspend(struct
+> device *device)
+>  			 */
+>  			ish_disable_dma(dev);
+>  		} else {
+> -			/* Set the NO_D3 flag, the ISH would enter D0i3
+> */
+> -			pdev->dev_flags |= PCI_DEV_FLAGS_NO_D3;
+> +			/*
+> +			 * Save state so PCI core will keep the device
+> at D0,
+> +			 * the ISH would enter D0i3
+> +			 */
+> +			pci_save_state(pdev);
+>  
+>  			enable_irq_wake(pdev->irq);
+>  		}
 
-In the meantime I'll bisect 5.8 to see why it's causing problems for me...
-
-Sultan

@@ -2,199 +2,118 @@ Return-Path: <SRS0=512g=AN=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52F42C433DF
-	for <linux-input@archiver.kernel.org>; Thu,  2 Jul 2020 09:17:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1C5CC433E0
+	for <linux-input@archiver.kernel.org>; Thu,  2 Jul 2020 11:26:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38BF920748
-	for <linux-input@archiver.kernel.org>; Thu,  2 Jul 2020 09:17:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AC8AB20675
+	for <linux-input@archiver.kernel.org>; Thu,  2 Jul 2020 11:26:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=megous.com header.i=@megous.com header.b="Nbj0ty8X"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726475AbgGBJRK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 2 Jul 2020 05:17:10 -0400
-Received: from emcscan.emc.com.tw ([192.72.220.5]:55136 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726462AbgGBJRK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Jul 2020 05:17:10 -0400
-X-Greylist: delayed 631 seconds by postgrey-1.27 at vger.kernel.org; Thu, 02 Jul 2020 05:17:09 EDT
-X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
-   d="scan'208";a="36257856"
-Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
-  by emcscan.emc.com.tw with ESMTP; 02 Jul 2020 17:06:31 +0800
-Received: from 192.168.10.23
-        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(43927:0:AUTH_RELAY)
-        (envelope-from <jingle.wu@emc.com.tw>); Thu, 02 Jul 2020 17:06:29 +0800 (CST)
-Received: from 101.12.40.229
-        by webmail.emc.com.tw with Mail2000 ESMTPA Server V7.00(2483:0:AUTH_LOGIN)
-        (envelope-from <jingle.wu@emc.com.tw>); Thu, 02 Jul 2020 17:06:28 +0800 (CST)
-From:   Jingle Wu <jingle.wu@emc.com.tw>
-To:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        dmitry.torokhov@gmail.com
-Cc:     phoenix@emc.com.tw, dave.wang@emc.com.tw, josh.chen@emc.com.tw,
-        Jingle Wu <jingle.wu@emc.com.tw>
-Subject: [PATCH] Input: elan_i2c - Add ic type 0x14, modify the iap method for all IC.
-Date:   Thu,  2 Jul 2020 05:06:23 -0400
-Message-Id: <20200702090623.4130-1-jingle.wu@emc.com.tw>
-X-Mailer: git-send-email 2.17.1
+        id S1728805AbgGBL0g (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 2 Jul 2020 07:26:36 -0400
+Received: from vps.xff.cz ([195.181.215.36]:43646 "EHLO vps.xff.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728710AbgGBL0g (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 2 Jul 2020 07:26:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
+        t=1593688846; bh=OH0uafqw3wiAiFdr3Xq7r48sm5oT4+qFhajRJjz8lvE=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=Nbj0ty8XPOyIPBt+Yk3OnUCyp8Vhl4W9EOcurV0TFZyviKtjf76Lv14HmUxOY34U4
+         iyCtX5sr8gWGwYgYpzmtjYbFuAQk0RhRsOQFTjy2xiUZswkMLaQeGA+GAdclfBN+5s
+         0tmbcBzmcczTBAMIiXert+DF/+3/JuX/+Y4KR5Lc=
+From:   Ondrej Jirman <megous@megous.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>
+Cc:     Ondrej Jirman <megous@megous.com>, Luca Weiss <luca@z3ntu.xyz>,
+        Tomas Novotny <tomas@novotny.cz>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v3 2/4] input: gpio-vibra: Allow to use vcc-supply alone to control the vibrator
+Date:   Thu,  2 Jul 2020 13:20:39 +0200
+Message-Id: <20200702112041.1942707-3-megous@megous.com>
+In-Reply-To: <20200702112041.1942707-1-megous@megous.com>
+References: <20200702112041.1942707-1-megous@megous.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The 0x14 is 512 page size.
+Make enable-gpio optional to allow using this driver with boards that
+have vibrator connected to a power supply without intermediate gpio
+based enable circuitry.
 
-Signed-off-by: Jingle Wu <jingle.wu@emc.com.tw>
+Also avoid a case where neither regulator nor enable gpio is specified,
+and bail out in probe in such a case.
+
+Signed-off-by: Ondrej Jirman <megous@megous.com>
 ---
- drivers/input/mouse/elan_i2c.h       |  3 ++-
- drivers/input/mouse/elan_i2c_core.c  | 16 ++++++++++++----
- drivers/input/mouse/elan_i2c_i2c.c   | 24 ++++++++++++------------
- drivers/input/mouse/elan_i2c_smbus.c |  2 +-
- 4 files changed, 27 insertions(+), 18 deletions(-)
+ drivers/input/misc/gpio-vibra.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
-index af1a8ee8f38a..71fff2cef8b5 100644
---- a/drivers/input/mouse/elan_i2c.h
-+++ b/drivers/input/mouse/elan_i2c.h
-@@ -34,6 +34,7 @@
- #define ETP_FW_IAP_INTF_ERR	(1 << 4)
- #define ETP_FW_PAGE_SIZE	64
- #define ETP_FW_PAGE_SIZE_128	128
-+#define ETP_FW_PAGE_SIZE_512	512
- #define ETP_FW_SIGNATURE_SIZE	6
+diff --git a/drivers/input/misc/gpio-vibra.c b/drivers/input/misc/gpio-vibra.c
+index f79f75595dd7..b3bb7e61ed1d 100644
+--- a/drivers/input/misc/gpio-vibra.c
++++ b/drivers/input/misc/gpio-vibra.c
+@@ -39,7 +39,7 @@ static int gpio_vibrator_start(struct gpio_vibrator *vibrator)
+ 	struct device *pdev = vibrator->input->dev.parent;
+ 	int err;
  
- struct i2c_client;
-@@ -73,7 +74,7 @@ struct elan_transport_ops {
- 	int (*iap_get_mode)(struct i2c_client *client, enum tp_mode *mode);
- 	int (*iap_reset)(struct i2c_client *client);
+-	if (!vibrator->vcc_on) {
++	if (vibrator->vcc && !vibrator->vcc_on) {
+ 		err = regulator_enable(vibrator->vcc);
+ 		if (err) {
+ 			dev_err(pdev, "failed to enable regulator: %d\n", err);
+@@ -57,7 +57,7 @@ static void gpio_vibrator_stop(struct gpio_vibrator *vibrator)
+ {
+ 	gpiod_set_value_cansleep(vibrator->gpio, 0);
  
--	int (*prepare_fw_update)(struct i2c_client *client);
-+	int (*prepare_fw_update)(struct i2c_client *client, u16 ic_type);
- 	int (*write_fw_block)(struct i2c_client *client, u16 fw_page_size,
- 			      const u8 *page, u16 checksum, int idx);
- 	int (*finish_fw_update)(struct i2c_client *client,
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 5f584bcf306e..d64d3016ab7b 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -133,6 +133,7 @@ static int elan_get_fwinfo(struct elan_tp_data *data,
- 		*validpage_count = 640;
- 		break;
- 	case 0x10:
-+	case 0x14:
- 		*validpage_count = 1024;
- 		break;
- 	case 0x11:
-@@ -152,12 +153,19 @@ static int elan_get_fwinfo(struct elan_tp_data *data,
- 	*signature_address =
- 		(*validpage_count * ETP_FW_PAGE_SIZE) - ETP_FW_SIGNATURE_SIZE;
- 
--	if ((data->pattern >= 0x01) && (data->iap_version == 1)) {
-+	if ((data->ic_type == 0x14) && (data->iap_version >= 2))
-+	{
-+		*validpage_count /= 8;
-+		*page_size = ETP_FW_PAGE_SIZE_512;
-+	}
-+	else if ((data->ic_type >= 0x0D) && (data->iap_version >= 1)) {
- 		*validpage_count /= 2;
- 		*page_size = ETP_FW_PAGE_SIZE_128;
--	} else
-+	}
-+	else
-+	{
- 		*page_size = ETP_FW_PAGE_SIZE;
--
-+	}
- 	return 0;
- }
- 
-@@ -486,7 +494,7 @@ static int __elan_update_firmware(struct elan_tp_data *data,
- 	u16 boot_page_count;
- 	u16 sw_checksum = 0, fw_checksum = 0;
- 
--	error = data->ops->prepare_fw_update(client);
-+	error = data->ops->prepare_fw_update(client, data->ic_type);
- 	if (error)
- 		return error;
- 
-diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
-index 6d0ee741308a..ef19fd5dacf6 100644
---- a/drivers/input/mouse/elan_i2c_i2c.c
-+++ b/drivers/input/mouse/elan_i2c_i2c.c
-@@ -254,7 +254,11 @@ static int elan_i2c_get_pattern(struct i2c_client *client, u8 *pattern)
- 		dev_err(&client->dev, "failed to get pattern: %d\n", error);
- 		return error;
+-	if (vibrator->vcc_on) {
++	if (vibrator->vcc && vibrator->vcc_on) {
+ 		regulator_disable(vibrator->vcc);
+ 		vibrator->vcc_on = false;
  	}
--	*pattern = val[1];
+@@ -112,7 +112,7 @@ static int gpio_vibrator_probe(struct platform_device *pdev)
+ 	if (!vibrator->input)
+ 		return -ENOMEM;
+ 
+-	vibrator->vcc = devm_regulator_get(&pdev->dev, "vcc");
++	vibrator->vcc = devm_regulator_get_optional(&pdev->dev, "vcc");
+ 	err = PTR_ERR_OR_ZERO(vibrator->vcc);
+ 	if (err) {
+ 		if (err != -EPROBE_DEFER)
+@@ -121,7 +121,8 @@ static int gpio_vibrator_probe(struct platform_device *pdev)
+ 		return err;
+ 	}
+ 
+-	vibrator->gpio = devm_gpiod_get(&pdev->dev, "enable", GPIOD_OUT_LOW);
++	vibrator->gpio = devm_gpiod_get_optional(&pdev->dev, "enable",
++						 GPIOD_OUT_LOW);
+ 	err = PTR_ERR_OR_ZERO(vibrator->gpio);
+ 	if (err) {
+ 		if (err != -EPROBE_DEFER)
+@@ -130,6 +131,11 @@ static int gpio_vibrator_probe(struct platform_device *pdev)
+ 		return err;
+ 	}
+ 
++	if (!vibrator->vcc && !vibrator->gpio) {
++		dev_err(&pdev->dev, "Neither gpio nor regulator provided\n");
++		return -EINVAL;
++	}
 +
-+	if((val[0]==0xFF)&&(val[1]==0xFF))
-+		*pattern = 0;
-+	else
-+		*pattern = val[1];
+ 	INIT_WORK(&vibrator->play_work, gpio_vibrator_play_work);
  
- 	return 0;
- }
-@@ -560,7 +564,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
- 	return -EIO;
- }
- 
--static int elan_i2c_prepare_fw_update(struct i2c_client *client)
-+static int elan_i2c_prepare_fw_update(struct i2c_client *client, u16 ic_type)
- {
- 	struct device *dev = &client->dev;
- 	int error;
-@@ -568,13 +572,6 @@ static int elan_i2c_prepare_fw_update(struct i2c_client *client)
- 	u8 val[3];
- 	u16 password;
- 	u8 iap_version;
--	u8 pattern_ver;
--
--	error = elan_i2c_get_pattern(client, &pattern_ver);
--	if (error) {
--		dev_err(&client->dev, "failed to get pattern version\n");
--		return error;
--	}
- 
- 	error = elan_i2c_get_version(client, true, &iap_version);
- 	if (error)
-@@ -611,8 +608,8 @@ static int elan_i2c_prepare_fw_update(struct i2c_client *client)
- 		dev_err(dev, "wrong mode: %d\n", mode);
- 		return -EIO;
- 	}
--
--	if ((pattern_ver >= 0x1) && (iap_version == 1)) {
-+	
-+	if ((ic_type >= 0x0D) && (iap_version >= 1)) {
- 		error = elan_read_write_iap_type(client);
- 		if (error)
- 			return error;
-@@ -666,7 +663,10 @@ static int elan_i2c_write_fw_block(struct i2c_client *client, u16 fw_page_size,
- 	}
- 
- 	/* Wait for F/W to update one page ROM data. */
--	msleep(35);
-+	if(fw_page_size==ETP_FW_PAGE_SIZE_512)
-+		msleep(50);
-+	else
-+		msleep(35);
- 
- 	error = elan_i2c_read_cmd(client, ETP_I2C_IAP_CTRL_CMD, val);
- 	if (error) {
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-index 0f441deef3cf..6d6090e7cb38 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -340,7 +340,7 @@ static int elan_smbus_set_flash_key(struct i2c_client *client)
- 	return 0;
- }
- 
--static int elan_smbus_prepare_fw_update(struct i2c_client *client)
-+static int elan_smbus_prepare_fw_update(struct i2c_client *client, u16 ic_type)
- {
- 	struct device *dev = &client->dev;
- 	int len;
+ 	vibrator->input->name = "gpio-vibrator";
 -- 
-2.17.1
+2.27.0
 

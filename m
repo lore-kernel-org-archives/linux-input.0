@@ -4,45 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0966C433DF
-	for <linux-input@archiver.kernel.org>; Mon,  6 Jul 2020 12:47:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1E4AC433E0
+	for <linux-input@archiver.kernel.org>; Mon,  6 Jul 2020 13:03:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D53BF20715
-	for <linux-input@archiver.kernel.org>; Mon,  6 Jul 2020 12:47:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF7252070C
+	for <linux-input@archiver.kernel.org>; Mon,  6 Jul 2020 13:03:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729110AbgGFMr1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Jul 2020 08:47:27 -0400
-Received: from orion.archlinux.org ([88.198.91.70]:46772 "EHLO
+        id S1729052AbgGFNDq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Jul 2020 09:03:46 -0400
+Received: from orion.archlinux.org ([88.198.91.70]:48224 "EHLO
         orion.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729016AbgGFMr1 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2020 08:47:27 -0400
-X-Greylist: delayed 422 seconds by postgrey-1.27 at vger.kernel.org; Mon, 06 Jul 2020 08:47:25 EDT
+        with ESMTP id S1728973AbgGFNDq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2020 09:03:46 -0400
 Received: from orion.archlinux.org (localhost [127.0.0.1])
-        by orion.archlinux.org (Postfix) with ESMTP id 9E11B1D358CA74;
-        Mon,  6 Jul 2020 12:40:21 +0000 (UTC)
+        by orion.archlinux.org (Postfix) with ESMTP id DB3691D358CC76;
+        Mon,  6 Jul 2020 13:03:42 +0000 (UTC)
 Received: from genesis (unknown [IPv6:2001:8a0:f254:2300:dad6:8c60:8394:88da])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits))
         (No client certificate requested)
         (Authenticated sender: ffy00)
         by orion.archlinux.org (Postfix) with ESMTPSA;
-        Mon,  6 Jul 2020 12:40:20 +0000 (UTC)
-Message-ID: <22e627b3b9ebef768c50ab6519278e61217b8575.camel@archlinux.org>
-Subject: Re: [PATCH] HID: logitech: Use HIDPP_RECEIVER_INDEX instead of 0xff
+        Mon,  6 Jul 2020 13:03:42 +0000 (UTC)
+Message-ID: <d462f3dc038548b09ced1a42973d767390e29635.camel@archlinux.org>
+Subject: Re: [PATCH] HID: logitech-hidpp: avoid repeated "multiplier = "
+ log messages
 From:   Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-To:     Mazin Rezk <mnrzk@protonmail.com>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "jikos@kernel.org" <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-In-Reply-To: <FW0Ps9vggIuA-9asmWgfQkNKSlcwuAhNfFXxK3QGSu4uJRAEykUGdoL5sbJsAlehWv__Eq4LKejp0QpxQRj5LYn5tOrVRDbjrcn3JVDGLAQ=@protonmail.com>
-References: <FW0Ps9vggIuA-9asmWgfQkNKSlcwuAhNfFXxK3QGSu4uJRAEykUGdoL5sbJsAlehWv__Eq4LKejp0QpxQRj5LYn5tOrVRDbjrcn3JVDGLAQ=@protonmail.com>
+To:     "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
+        Peter Hutterer <peter.hutterer@who-t.net>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Harry Cutts <hcutts@chromium.org>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <6202799b-f887-a867-94b3-915607956ceb@maciej.szmigiero.name>
+References: <7d2c980f071487cecfd1534adb7561b33d922af3.1593970340.git.mail@maciej.szmigiero.name>
+         <2f76f069f2078b3d51533f772f1094dcc03685a3.camel@gmail.com>
+         <6202799b-f887-a867-94b3-915607956ceb@maciej.szmigiero.name>
 Organization: Archlinux
 Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-/WyPnc9eaHFQuRQ9WKqk"
-Date:   Mon, 06 Jul 2020 13:40:09 +0100
+        protocol="application/pgp-signature"; boundary="=-UvB+gZ0CCUHXKiykjcZ8"
+Date:   Mon, 06 Jul 2020 14:03:31 +0100
 MIME-Version: 1.0
 User-Agent: Evolution 3.36.3 
 Sender: linux-input-owner@vger.kernel.org
@@ -51,86 +54,86 @@ List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 
---=-/WyPnc9eaHFQuRQ9WKqk
+--=-UvB+gZ0CCUHXKiykjcZ8
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, 2020-07-05 at 02:48 +0000, Mazin Rezk wrote:
-> Some parts of hid-logitech-dj explicitly referred to 0xff for the
-> receiver index. This patch changes those references to the
-> HIDPP_RECEIVER_INDEX definition.
+On Mon, 2020-07-06 at 14:41 +0200, Maciej S. Szmigiero wrote:
+> On 06.07.2020 14:38, Filipe La=C3=ADns wrote:
+> > On Sun, 2020-07-05 at 19:34 +0200, Maciej S. Szmigiero wrote:
+> > > These messages appear each time the mouse wakes from sleep, in my
+> > > case
+> > > (Logitech M705), every minute or so.
+> > > Let's downgrade them to the "debug" level so they don't fill the
+> > > kernel log
+> > > by default.
+> > >=20
+> > > While we are at it, let's make clear that this is a wheel multiplier
+> > > (and
+> > > not, for example, XY movement multiplier).
+> > >=20
+> > > Fixes: 4435ff2f09a2 ("HID: logitech: Enable high-resolution scrolling
+> > > on Logitech mice")
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
+> > > ---
+> > > Sending again since the previous message bounced for most recipients.
+> > >=20
+> > >  drivers/hid/hid-logitech-hidpp.c | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >=20
+> > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
+> > > logitech-hidpp.c
+> > > index 1e1cf8eae649..b8b53dc95e86 100644
+> > > --- a/drivers/hid/hid-logitech-hidpp.c
+> > > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > > @@ -3146,7 +3146,7 @@ static int hi_res_scroll_enable(struct
+> > > hidpp_device *hidpp)
+> > >  		multiplier =3D 1;
+> > > =20
+> > >  	hidpp->vertical_wheel_counter.wheel_multiplier =3D multiplier;
+> > > -	hid_info(hidpp->hid_dev, "multiplier =3D %d\n", multiplier);
+> > > +	hid_dbg(hidpp->hid_dev, "wheel multiplier =3D %d\n", multiplier);
+> > >  	return 0;
+> > >  }
+> > > =20
+> >=20
+> > I have seen this being useful in some cases, however I do not have a
+> > strong opinion on it. Peter would know better.
 >=20
-> Signed-off-by: Mazin Rezk <mnrzk@protonmail.com>
-> ---
->  drivers/hid/hid-logitech-dj.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> Well, the message is not being removed, only hidden by default, so
+> it doesn't fill the kernel log.
 >=20
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-
-> logitech-dj.c
-> index 48dff5d6b605..a78c13cc9f47 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -1153,7 +1153,7 @@ static int
-> logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
->  	if (!dj_report)
->  		return -ENOMEM;
->  	dj_report->report_id =3D REPORT_ID_DJ_SHORT;
-> -	dj_report->device_index =3D 0xFF;
-> +	dj_report->device_index =3D HIDPP_RECEIVER_INDEX;
->  	dj_report->report_type =3D REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
->  	retval =3D logi_dj_recv_send_report(djrcv_dev, dj_report);
->  	kfree(dj_report);
-> @@ -1175,7 +1175,7 @@ static int
-> logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
->=20
->  	if (djrcv_dev->type =3D=3D recvr_type_dj) {
->  		dj_report->report_id =3D REPORT_ID_DJ_SHORT;
-> -		dj_report->device_index =3D 0xFF;
-> +		dj_report->device_index =3D HIDPP_RECEIVER_INDEX;
->  		dj_report->report_type =3D REPORT_TYPE_CMD_SWITCH;
->  		dj_report->report_params[CMD_SWITCH_PARAM_DEVBITFIELD]
-> =3D 0x3F;
->  		dj_report-
-> >report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] =3D
-> @@ -1204,7 +1204,7 @@ static int
-> logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
->  	memset(buf, 0, HIDPP_REPORT_SHORT_LENGTH);
->=20
->  	buf[0] =3D REPORT_ID_HIDPP_SHORT;
-> -	buf[1] =3D 0xFF;
-> +	buf[1] =3D HIDPP_RECEIVER_INDEX;
->  	buf[2] =3D 0x80;
->  	buf[3] =3D 0x00;
->  	buf[4] =3D 0x00;
-> --
-> 2.27.0
+> One can still enable it at runtime if wanted.
 
-This is correct :)
+Of course, but instructing users to do that can be annoying, especially
+when you're handling a considerable volume of reports.
 
-Reviewed-by: Filipe La=C3=ADns <lains@archlinux.org>
+Anyway, I am fine with this patch, I just thought it was pertinent to
+raise this point and maybe get Peter's input on this, as he will likely
+be one most affected by it :)
 
-Cheers,
 Filipe La=C3=ADns
 
---=-/WyPnc9eaHFQuRQ9WKqk
+--=-UvB+gZ0CCUHXKiykjcZ8
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl8DG6kACgkQ+JPGdIFq
-qV1UBg//eqSKIXFbyMjShmQQySiGxq0hVM4CoIrhhOm7inq2j5LBiXXAdDOgkCHa
-jIxeN8hjrdkkt1wXNe0jq6jw2nPrhTCmocCuiWrQf0uzSYB3TLanQeoGr6JT05Rc
-Ngu7+PL+ZgdeZrDf69C/0iSwH/OkIsoZXZAUOOHFAkFNHj1Rvfa0aN615Fywusye
-f0DClrShi5P4NTjWbqwU3URCMAaQMg+/GpuuaZ/Txapel4WEX1Ky4EgjyHaYksWp
-wTfxb9HmkuEavhNqhyWnu17x3OTolBFmdGI+4SRo2mqr4ToS3Sdy4V/4RDNrJ37R
-/LS7cmqQyb0H+F4RY32OFLSW4prXURoaTzQDsvRdp1tsDwAykxZj91IgT9pDA2LK
-HPLCcR10RKgs5KLhXM/tpQOj9ebr6ejzX1+yE53tedTb993c6WlKAjlVNRY6GtJf
-gsnMAPBXHYfbBF19Zg+yNj1rMoByCPQ2KT/xing7bu7WkL0MkTLc8OQ1ZWh89yMK
-lA+G9cLXlZytUBCNgiUdIseqX218h8CQ+KNRnAfdzxjk5oVcioJ57Y1gRJWirioo
-hs3o0nXgJxkF2cwsVzhEaY03HVcvlwEpegSqMP+NuZY65hifbQnWuyOiTJHH8FcI
-a4EgqvCh/ScAzn9aeLGCZNA7+bDR/HZi34h1gUyn5K2kuPfRoEw=
-=16ci
+iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl8DIR0ACgkQ+JPGdIFq
+qV2UKxAAg8jwkNipXO2c7sfGp894+4Rzavgx98SVkf9l+zDXVaom+geZeh8ZX7Wg
+L5s1aWP1EnVJui7f/FxPQ3S5ETJwdgbxS6ZuR11ke/eMgcjY1nHJ1vgURAfDaEGR
+wdBp5rSwiGSWlNlkYvLaEjEV1ZD4s0LD9MxKKoLMIBp07/N/MxlQnPBJiOpy2nQE
+LtgXpApmChvFWfORNEvOLB+7PZxH84KWn+fAzdJhMpyRb9PBDeYEpI9rYDVlFQxh
+tz1T/mrVZKvWPhuicw250LNCsVP5lWPvGz4m8mEgsDNA0gDJ+L/VTpjDhdXd8b+/
+zfdtQHjP/7GXQL+JbfbpHf7oCTtmnykHQMP5NW7FNTviJMBKXGZrn36+YOTTKu9B
++uuM1oEZJut4geeotq3DIoqQ8xDOCL0LDtwS6EzysHWKoY9FPjYG1VfeWxnRhKuB
+I43n7L/O/UeF9F4NJHiuiUFXsdUiTriyToE3v5Z6mXtnf9dVoDY2DBH31JndBD0g
+drzOVtadIhnWSOxgMwniKLbU4MxS92a/O7OgOc+A/sj4o1tHII5EhhL9B6KylUSu
+Bu4MEoDpzY/OCId+yOwRJyKbWyaL6WKRpP53MypldPx4oW8wNjLmlk5Vf4FpL29l
+b8ZTmpGdTGlqWpZPVF+2U2uQkaw/SZ+iwj8zI3/R62D9LR7qQsY=
+=r1xm
 -----END PGP SIGNATURE-----
 
---=-/WyPnc9eaHFQuRQ9WKqk--
+--=-UvB+gZ0CCUHXKiykjcZ8--

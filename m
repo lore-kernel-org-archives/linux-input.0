@@ -2,90 +2,95 @@ Return-Path: <SRS0=nReV=AS=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5AE1C433E0
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jul 2020 00:55:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6FAAC433E0
+	for <linux-input@archiver.kernel.org>; Tue,  7 Jul 2020 01:13:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A7072206E2
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jul 2020 00:55:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A5D8F206F6
+	for <linux-input@archiver.kernel.org>; Tue,  7 Jul 2020 01:13:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nD6r2mxz"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LGNuOhRH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726763AbgGGAzN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Jul 2020 20:55:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39806 "EHLO
+        id S1726883AbgGGBNp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Jul 2020 21:13:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725892AbgGGAzN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2020 20:55:13 -0400
-Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F6BC061755
-        for <linux-input@vger.kernel.org>; Mon,  6 Jul 2020 17:55:12 -0700 (PDT)
-Received: by mail-io1-xd30.google.com with SMTP id a12so41412658ion.13
-        for <linux-input@vger.kernel.org>; Mon, 06 Jul 2020 17:55:12 -0700 (PDT)
+        with ESMTP id S1725892AbgGGBNo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2020 21:13:44 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2CDDC061755;
+        Mon,  6 Jul 2020 18:13:44 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id f2so16039218plr.8;
+        Mon, 06 Jul 2020 18:13:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MKx1Q2FFsNXcGu6Dnc+MWRz1PNALdfyXh74NraBmG7A=;
-        b=nD6r2mxzP6fLvBoOxN0V9LHFSyfeuqwj5NdKrPArBjyiJBiz3q4O0qWyzwEoW5G5GX
-         hBUY0zzttYWCQ5gZTRAGvhxUqu2cpaVgIFfMIzHamK+BMB41wNBkbTYPK7dCGE9dONWG
-         03tfOyHu2v6L8VF008Hg9Ta+sm1WLhZ4ANAZpeNCozoHg0Tf4BU3UwHLUqP15DbMaJ9v
-         iKBVWannjhPX8RqJ+tQOzQnAXPxk4z5pwRIXIryXRm35EL2j+OM0CHFYf3wy8LgHoNRK
-         a4t0sW3P0vRgyStlqMDo+va0Hew2hHTaGMTNbud99y8U/HUAE537rFcUF2I8fjc8fF1O
-         OAZA==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=b4eXM3PdRtpoGl6C3J7DoKJSy2Tqt4J8k5hDe5hOL3g=;
+        b=LGNuOhRHcQosoILXnDZpPx9x0m5FszxBBNLlmrW0XI5yMLsXLNz94njnsC6kPYRug+
+         RmmlzWeTkEmFCk5d5MVUTpQME4PMK7GPmBuaLE0+f/pYdbAYFTUbg96wU6BebeOgR+nO
+         iLpNwUmC6ZhEv9ZqbXkx0c/znISiy4ad/BH19Pvm0zxcoi5SEgPhy7Dgs5dxmj24KT4z
+         2G0XzipYTdyjQNqEKBYDb+6+qm2w/3CAQfH9A8N5hO3+yLDpLnIljEiXjMFTJpcnY4Df
+         7tyKPfYX9+lgsGPOq14AFG6Hu9Tkro2oyLEVWvkOyOSkaN//5sGOZPJoSwgb2X7mvJ0k
+         bsoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MKx1Q2FFsNXcGu6Dnc+MWRz1PNALdfyXh74NraBmG7A=;
-        b=bbjDOpJ9aDHmALdhd9+fsi0Bjbe6pBYhDrgxUpcn32nfRsPpDBfvp6Yqy1GviB5gzS
-         WhPxrNgpFvkbZDKXN/67eCgI9iIuN5eW7IX017XXxG2oPDf9KU+UBWsR4UcFcg8eTdro
-         ha6cgQNJpV1U3x53bijgaFCw9K/juMLPAzqO/7Rhg3DcMBZC+8lz7FKWCg5OXQHNH657
-         Ny/XPH7qq3CeWmFS3ZGwbGX2zJ+Z3kxCVtb05nKAvxq1eDPG9GzU/rLvrcLPlOqBZoJd
-         TWorIgBy+TbL7e+hwRxKqixHnaQHvvPdl60vjOZwbCr0btiLT0MDhlt4bBDoOxPa2ZQh
-         fkvg==
-X-Gm-Message-State: AOAM530QLqfB7COWCRd4cgAGjA+ewNg12cSHdrB+t/o2JhRZ3BocERwh
-        b967UJVPudf/YT6v6TJ2jIABxQ2V6Qk1g9Rruk4=
-X-Google-Smtp-Source: ABdhPJwKUwJCL0HMr/rkdBptPYAQRWOIqXW/POboio1v1wSmnuG2ltmTCIBVNRh3oT0cbPUQ8wn4lkPuXHjXm8iQs1o=
-X-Received: by 2002:a6b:3b46:: with SMTP id i67mr27675863ioa.205.1594083312007;
- Mon, 06 Jul 2020 17:55:12 -0700 (PDT)
-MIME-Version: 1.0
-References: <CA+jURctpKw3fDCWJCi_XrNaO=thyzk=AUqq=FWXaFSWfaYaSjw@mail.gmail.com>
-In-Reply-To: <CA+jURctpKw3fDCWJCi_XrNaO=thyzk=AUqq=FWXaFSWfaYaSjw@mail.gmail.com>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=b4eXM3PdRtpoGl6C3J7DoKJSy2Tqt4J8k5hDe5hOL3g=;
+        b=ERf+NtoynwimJ+4TrAmDd5VNGb5lZDKjpEm/8IwFuszxWtBKhNMIaF7oOx23xOszhn
+         +WX8lHbMamOL5bLmlISHBd0T6SfwT7EYIBZFYr4mtDgpUHhE5rE4djyguchvvsK8qSA6
+         7rA1t7QPoS6/ZeNvqhqyreIL3Mq5Ps1Ar/5X8jrRixQffB/zycV0aetdA8viXM8FoKQW
+         Vrv4pPwNNb1NJX3XNW3h3f/9yGgtd/A4IqnaKfbPuAajemQJkUmeI4KbQeDmfHxAu1ZU
+         wV/7tu+AotmPSSUlzhsVO/3wVSRNuLd+1BrFPMpXqlB0FYOTbTT8lS2b3F3j0jxtZroF
+         sFyw==
+X-Gm-Message-State: AOAM5325xRy7Pkv79uMVz+3soI+vmZC/QjIYpe6Cj3hNTlRKPVstjtU9
+        s+Egcu4V4Br90EDA49Yx7+U=
+X-Google-Smtp-Source: ABdhPJzsfzJ3c8lDJHUNPJMOZy/qJPxreLh3HU+bHDaA4cRbNyqsLdAbrsNflhlwddO5smJTsICbsg==
+X-Received: by 2002:a17:90a:348d:: with SMTP id p13mr1759397pjb.108.1594084423911;
+        Mon, 06 Jul 2020 18:13:43 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id a17sm590535pjh.31.2020.07.06.18.13.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jul 2020 18:13:43 -0700 (PDT)
+Date:   Mon, 6 Jul 2020 18:13:41 -0700
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date:   Mon, 6 Jul 2020 17:55:01 -0700
-Message-ID: <CAKdAkRSdKThNqjq=_kG3uaN=SoJe9eFscgVkYWibW=JxJrF4yg@mail.gmail.com>
-Subject: Re: Request to revert "Input: elants_i2c - Report resolution
- information for touch major"
-To:     Harry Cutts <hcutts@chromium.org>
-Cc:     linux-input <linux-input@vger.kernel.org>,
-        Johnny Chuang <johnny.chuang@emc.com.tw>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+To:     K900 <me@0upti.me>
+Cc:     Lyude Paul <lyude@redhat.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Gaurav Agrawal <agrawalgaurav@gnome.org>,
+        Yussuf Khalil <dev@pp3345.net>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Dennis Kadioglu <denk@eclipso.email>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Joe Perches <joe@perches.com>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] input/synaptics: enable InterTouch for ThinkPad X1E 1st
+ gen
+Message-ID: <20200707011341.GC3273837@dtor-ws>
+References: <20200703143457.132373-1-me@0upti.me>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200703143457.132373-1-me@0upti.me>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Jun 26, 2020 at 10:50 AM Harry Cutts <hcutts@chromium.org> wrote:
->
-> Hi,
->
-> We've been seeing a lot of issues with ELAN touch screens caused by
-> the patch "Input: elants_i2c - Report resolution information for touch
-> major". It turns out that the resolution of 1 unit per mm was not
-> correct for a number of touch screens, causing touch sizes to be
-> reported as way too large (e.g. in https://crbug.com/1085648). We've
-> reverted that patch in our Kernel branches, but request that it be
-> reverted upstream as well until ELAN can figure out a more accurate
-> way to report the touch major resolution.
+On Fri, Jul 03, 2020 at 05:34:55PM +0300, K900 wrote:
+> From: Ilya Katsnelson <me@0upti.me>
+> 
+> Tested on my own laptop, touchpad feels slightly more responsive with
+> this on, though it might just be placebo.
+> 
+> Signed-off-by: Ilya Katsnelson <me@0upti.me>
 
-Thanks for the notice Harry, I reverted the patch.
+Applied, thank you.
 
 -- 
 Dmitry

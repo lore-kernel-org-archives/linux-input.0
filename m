@@ -1,78 +1,111 @@
-Return-Path: <SRS0=nReV=AS=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=wed8=AT=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87F1BC433DF
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jul 2020 18:30:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BF0AC433E0
+	for <linux-input@archiver.kernel.org>; Wed,  8 Jul 2020 13:06:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66CEA20708
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jul 2020 18:30:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1594146622;
-	bh=xTRNX+tombqeYkaSwvGumK40pfLh5dWiBc6gh61ysqw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=ATAgiGTGHujUKJNKjbD1FLpth9yImE9RX8LXaP9p/t4BeMh7VbB2LCHpm/Za5kLPF
-	 ZJDvxQ60rvPJswv2rDcu9mjWHZKg6EhnTRsPuZvmfydKRGTaYPEeYSAfcWFRlKllQU
-	 leyiP+P1pTfKF6CxeGch84HNLiY9SRa+KPJD+MZs=
+	by mail.kernel.org (Postfix) with ESMTP id 4ACF020772
+	for <linux-input@archiver.kernel.org>; Wed,  8 Jul 2020 13:06:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728164AbgGGSaW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Jul 2020 14:30:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45138 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728149AbgGGSaV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 7 Jul 2020 14:30:21 -0400
-Received: from embeddedor (unknown [200.39.26.250])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41180206F6;
-        Tue,  7 Jul 2020 18:30:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594146621;
-        bh=xTRNX+tombqeYkaSwvGumK40pfLh5dWiBc6gh61ysqw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0YrtAj7tQ/yq/2V3gsl6Ih2gYIDovZiLEolwSX/XiOdfmF9uZ63hV0ipmstb1K+jt
-         WQsXiCGOQbtbEtlYZsEYtG28/Y5T27RMjPb6GRbnDJJIvn8sDGfJsPlUKtriUJbTMF
-         XqFUn8bzlgICV3qF40EiAbWfT5TODneOvdBlDJ2A=
-Date:   Tue, 7 Jul 2020 13:35:48 -0500
-From:   "Gustavo A. R. Silva" <gustavoars@kernel.org>
+        id S1729070AbgGHNGD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Jul 2020 09:06:03 -0400
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:46964 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729016AbgGHNGD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2020 09:06:03 -0400
+IronPort-SDR: EuY/f6T9Q0yMSk4FmAsthL52/Ao5DWeiOtEBVRO8oXiJ3djSVDd8M69klEMQJAAiIHyREX/aQ0
+ yhSQKbcpxQl1vTAyv2eqRWHA+Vs4prYJCm7J9kIx/8uZv29VSXHBgSQhrpufeQN6TJHr+oEtvy
+ Z97b4IluZoUBPdHAtPOBeLsZ3PBdTdzGTaWmMTZaU/XMP0QTlGwZm752ZERnGumsWgVX5A6Aij
+ u7pbSJZ6LD7gP2stDSE3AhDmm7vg6j7h1ZjkeJdcJ6PTAFRLuBHTWzxesDxzBYfs8IERmuo0Gc
+ 03s=
+X-IronPort-AV: E=Sophos;i="5.75,327,1589270400"; 
+   d="scan'208";a="52847563"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa1.mentor.iphmx.com with ESMTP; 08 Jul 2020 05:06:02 -0800
+IronPort-SDR: vQ91E3efLjDL/Pcel0FCEkydF1TkB0qRh//ggnUj8fAmF/M5ENyBuS9urX43DIufRqg4SA/Evd
+ GShtVaEPgWllaWEEdolheF9SzCCtVAneT8a8zWkR9XsqcVhGf07v+pYaEfBx312LupS6QBk3ke
+ FPAwYGB/PQfMv6mnBNGeZWnSIf0xjfQ/ghCixWBM0i3gadSpK10tOdmW58Dg4EfdsS2zoUEY8V
+ eXM5T3/Ce+ccWfNFBD8a6TrdvsBygalH3eCG0DyO7JXyqn5xSDBBTIpNi0IK49RsVIZ2aysUk9
+ r0U=
+Subject: Re: [PATCH v11 00/56] atmel_mxt_ts misc
+From:   "Wang, Jiada" <jiada_wang@mentor.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH][next] Input: Use fallthrough pseudo-keyword
-Message-ID: <20200707183548.GA1280@embeddedor>
-References: <20200707180857.GA30600@embeddedor>
- <20200707182654.GF3273837@dtor-ws>
+CC:     <nick@shmanahar.org>, <jikos@kernel.org>,
+        <benjamin.tissoires@redhat.com>, <bsz@semihalf.com>,
+        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>
+References: <20200508055656.96389-1-jiada_wang@mentor.com>
+ <20200527064307.GK89269@dtor-ws>
+ <2f7964da-0dca-2d13-3559-28b4582a3278@mentor.com>
+Message-ID: <80fc7a3e-efd5-fab8-8ba8-8aa011944ab1@mentor.com>
+Date:   Wed, 8 Jul 2020 22:05:56 +0900
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200707182654.GF3273837@dtor-ws>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <2f7964da-0dca-2d13-3559-28b4582a3278@mentor.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SVR-ORW-MBX-06.mgc.mentorg.com (147.34.90.206) To
+ svr-orw-mbx-03.mgc.mentorg.com (147.34.90.203)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Jul 07, 2020 at 11:26:54AM -0700, Dmitry Torokhov wrote:
-> On Tue, Jul 07, 2020 at 01:08:57PM -0500, Gustavo A. R. Silva wrote:
-> > Replace the existing /* fall through */ comments and its variants with
-> > the new pseudo-keyword macro fallthrough[1]. Also, remove unnecessary
-> > fall-through markings when it is the case.
-> > 
-> > [1] https://www.kernel.org/doc/html/latest/process/deprecated.html?highlight=fallthrough#implicit-switch-case-fall-through
-> > 
-> > Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-> 
-> Applied, thank you.
-> 
+Hello Dmitry
 
-Thanks, Dmitry.
+I am working on refining this series,
+regarding your comment about drop changes related to
+upload firmware and config during boot.
 
---
-Gustavo
+I found currently only config is uploaded during every boot.
+but firmware is only uploaded when userspace asks to do so via
+sysfs interface.
+
+Could you help to confirm if this is the case?
+
+Thanks,
+Jiada
+
+On 2020/06/25 22:50, Wang, Jiada wrote:
+> Hello Dmitry
+> 
+> sorry for the delay,
+> 
+> On 2020/05/27 15:43, Dmitry Torokhov wrote:
+>> Hi Jiada,
+>>
+>> On Thu, May 07, 2020 at 10:56:00PM -0700, Jiada Wang wrote:
+>>> This patch-set forward ports Nick Dyer's work in ndyer/linux github
+>>> repository as long as some other features and fixes
+>>
+>> Sorry for ignoring the series for quite a while. I guess my biggest
+>> issue with the series is that quite a bit of patches are trying to
+>> handle the fallout from a very unfortunate design decision in the
+>> driver: the fact that it attempts to automatically upload firmware and
+>> config on every boot/probe. This design was done at my urging because I
+>> did not have access to the technical documentation and did not realize
+>> that the controller has non-volatile memory for both firmware and
+>> configuration. We should only attempt to automatically load firmware
+>> where device does not have non-volatile memory and is unable function
+>> otherwise, in all other cases we better leave it to userspace to decide
+>> whether to execute firmware update and when. The kernel should only
+>> provide facilities so that userspace can initiate firmware update. This
+>> design has worked well for Chrome OS for many years (it used Atmel
+>> controllers in several products), and I would like to bring it to the
+>> mainline.
+> 
+> I agree with you, I will review the patch-set,
+> and only pick these not related to firmware/cfg upload
+> 
+> Thanks,
+> jiada
+>>
+>> Thanks.
+>>

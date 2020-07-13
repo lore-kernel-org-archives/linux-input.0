@@ -7,74 +7,121 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9C9CC433E7
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jul 2020 00:25:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D26F5C433EC
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jul 2020 00:25:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9BFEF20722
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jul 2020 00:25:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B192E2067D
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jul 2020 00:25:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="i0Xde1zH"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="k/No+edI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728816AbgGMAZE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 12 Jul 2020 20:25:04 -0400
-Received: from rere.qmqm.pl ([91.227.64.183]:55301 "EHLO rere.qmqm.pl"
+        id S1728523AbgGMAY4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 12 Jul 2020 20:24:56 -0400
+Received: from rere.qmqm.pl ([91.227.64.183]:63768 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728198AbgGMAY6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 12 Jul 2020 20:24:58 -0400
+        id S1728198AbgGMAY4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 12 Jul 2020 20:24:56 -0400
 Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 4B4ktc4MHzzwr;
-        Mon, 13 Jul 2020 02:24:56 +0200 (CEST)
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4B4ktY68XxzMK;
+        Mon, 13 Jul 2020 02:24:53 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1594599896; bh=2weffcFDLYZ+KKtI5FuHWep8Oh6R4G1C8jam17qttu0=;
+        t=1594599893; bh=reGzsv6o0SzGu0kgFqBp5wQTdWo8aH1udGsrZ3tTDzI=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=i0Xde1zHcW4bdV8nIJDb6Lux+3+IH2rlLXshhTqtYqaGofZaGUVbxlAhVpXvub8K1
-         5xRl3LcfbbSRpV3bdeevt1uYI1b2vizEZ9aRjgDU8LZ5ypMiTRI2wK/zheAe/ssaKV
-         o5dZBDfY5ngfRQTBI/L6TEPcM01g8bkmb95Nmzq71GezH5mnIPYuPVWoaWB5hpYuC1
-         eMQ5Qdja7Kh1uSwTnuolsmd+vZkQ8A7BYg1NAsoCDzxTgpYzpoV9lm0JtSPhbxKSEd
-         wwy4QuKE1HwgbrP/eUABz0RBFdw1+l2p/e7KBNljHelbFLf8ZH6Fw65qv3cM8dsmbg
-         sPWOrl9HF2W4w==
+        b=k/No+edIG1o08k2rPYLpVIdrL7iK7V6gB7NSAx7vTtPsbCkIQYwP15lBeiN6w8t+u
+         9RqJLid2ZxwNUjLFZNeayT4E6Tny8XPQH/4pKefUceNCPmbBs5b55iqcQPoPVY/LzF
+         uuv/t9n7yT4lVSV7DUo9qyI2bJYLFzOzZtSkCYbgAUJlM5vIVia7oeaedgMKVzLSJy
+         2+QKAP4WTTWek8RmKCcM+EF6SAiiqn9hWPrEbZdjcVhe2+yDraKS/wj0a5GQeQICmH
+         sK2sRUxURtDvSG+g31MfZVnU4osiYYU/SB9io/u9KlYVuegL3Kp5vb2oF8Wd3LrNnT
+         64lC2/yPgXT6w==
 X-Virus-Status: Clean
 X-Virus-Scanned: clamav-milter 0.102.3 at mail
-Date:   Mon, 13 Jul 2020 02:24:55 +0200
-Message-Id: <cf1dda3a372896cb01033ce084a7deb9620df7aa.1594599118.git.mirq-linux@rere.qmqm.pl>
+Date:   Mon, 13 Jul 2020 02:24:53 +0200
+Message-Id: <033014c56453b84d367dc6cd14f1dddabb057d9b.1594599118.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1594599118.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1594599118.git.mirq-linux@rere.qmqm.pl>
 From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH v6 5/5] input: mt: cleanup open-coded __set_bit()
+Subject: [PATCH v6 1/5] input: elants: document some registers and values
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-To:     Henrik Rydberg <rydberg@bitmath.org>,
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Dmitry Osipenko <digetx@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        James Chen <james.chen@emc.com.tw>,
         Johnny Chuang <johnny.chuang@emc.com.tw>,
-        Scott Liu <scott.liu@emc.com.tw>
+        James Chen <james.chen@emc.com.tw>,
+        Scott Liu <scott.liu@emc.com.tw>,
+        Henrik Rydberg <rydberg@bitmath.org>
 Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Replace open-coded __set_bit() with the function.
+Add information found in downstream kernels, to make the code less
+magic. Fix comment spelling along the way.
 
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
 ---
- drivers/input/input-mt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/elants_i2c.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index a81e14148407..f699538bdac4 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -16,7 +16,7 @@ static void copy_abs(struct input_dev *dev, unsigned int dst, unsigned int src)
- 	if (dev->absinfo && test_bit(src, dev->absbit)) {
- 		dev->absinfo[dst] = dev->absinfo[src];
- 		dev->absinfo[dst].fuzz = 0;
--		dev->absbit[BIT_WORD(dst)] |= BIT_MASK(dst);
-+		__set_bit(dst, dev->absbit);
- 	}
- }
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 5477a5718202..fa4a2f6b69c6 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -82,7 +82,7 @@
+ 
+ #define HEADER_REPORT_10_FINGER	0x62
+ 
+-/* Header (4 bytes) plus 3 fill 10-finger packets */
++/* Header (4 bytes) plus 3 full 10-finger packets */
+ #define MAX_PACKET_SIZE		169
+ 
+ #define BOOT_TIME_DELAY_MS	50
+@@ -97,6 +97,10 @@
+ #define E_INFO_PHY_SCAN		0xD7
+ #define E_INFO_PHY_DRIVER	0xD8
+ 
++/* FW write command, 0x54 0x?? 0x0, 0x01 */
++#define E_POWER_STATE_SLEEP	0x50
++#define E_POWER_STATE_RESUME	0x58
++
+ #define MAX_RETRIES		3
+ #define MAX_FW_UPDATE_RETRIES	30
+ 
+@@ -268,8 +272,8 @@ static int elants_i2c_calibrate(struct elants_data *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+ 	int ret, error;
+-	static const u8 w_flashkey[] = { 0x54, 0xC0, 0xE1, 0x5A };
+-	static const u8 rek[] = { 0x54, 0x29, 0x00, 0x01 };
++	static const u8 w_flashkey[] = { CMD_HEADER_WRITE, 0xC0, 0xE1, 0x5A };
++	static const u8 rek[] = { CMD_HEADER_WRITE, 0x29, 0x00, 0x01 };
+ 	static const u8 rek_resp[] = { CMD_HEADER_REK, 0x66, 0x66, 0x66 };
+ 
+ 	disable_irq(client->irq);
+@@ -1382,7 +1386,9 @@ static int __maybe_unused elants_i2c_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elants_data *ts = i2c_get_clientdata(client);
+-	const u8 set_sleep_cmd[] = { 0x54, 0x50, 0x00, 0x01 };
++	const u8 set_sleep_cmd[] = {
++		CMD_HEADER_WRITE, E_POWER_STATE_SLEEP, 0x00, 0x01
++	};
+ 	int retry_cnt;
+ 	int error;
+ 
+@@ -1419,7 +1425,9 @@ static int __maybe_unused elants_i2c_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elants_data *ts = i2c_get_clientdata(client);
+-	const u8 set_active_cmd[] = { 0x54, 0x58, 0x00, 0x01 };
++	const u8 set_active_cmd[] = {
++		CMD_HEADER_WRITE, E_POWER_STATE_RESUME, 0x00, 0x01
++	};
+ 	int retry_cnt;
+ 	int error;
  
 -- 
 2.20.1

@@ -1,60 +1,174 @@
-Return-Path: <SRS0=jc0I=AX=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=52+N=AY=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 544ABC433E3
-	for <linux-input@archiver.kernel.org>; Sun, 12 Jul 2020 21:02:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36FBEC433E3
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jul 2020 00:25:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 33E7820674
-	for <linux-input@archiver.kernel.org>; Sun, 12 Jul 2020 21:02:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 152212067D
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jul 2020 00:25:05 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="SiiW3Xen"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729422AbgGLVC3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 12 Jul 2020 17:02:29 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:59228 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729020AbgGLVC3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 12 Jul 2020 17:02:29 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 97C8D1C0BDE; Sun, 12 Jul 2020 23:02:23 +0200 (CEST)
-Date:   Sun, 12 Jul 2020 23:02:22 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Ondrej Jirman <megous@megous.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>, Luca Weiss <luca@z3ntu.xyz>,
-        Tomas Novotny <tomas@novotny.cz>, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v3 3/4] ARM: dts: sun8i-a83t-tbs-a711: Add support for
- the vibrator motor
-Message-ID: <20200712210222.GA983@bug>
-References: <20200702112041.1942707-1-megous@megous.com>
- <20200702112041.1942707-4-megous@megous.com>
+        id S1728738AbgGMAY6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 12 Jul 2020 20:24:58 -0400
+Received: from rere.qmqm.pl ([91.227.64.183]:37924 "EHLO rere.qmqm.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728225AbgGMAY5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 12 Jul 2020 20:24:57 -0400
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4B4ktZ3rLPzbX;
+        Mon, 13 Jul 2020 02:24:54 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1594599894; bh=DS7j2nESx27Z+IPXEJWh4A9sZjGNs/qXGuX2jAiyJKM=;
+        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
+        b=SiiW3Xen4cT28aIg9VJNnXDREALnqcNlPccJpcoSV9I8G6cmH89WcKEH+5WeywLyl
+         537XBRRAGi+XKoI+H90lfAJu814qfdNwbCDJqfF9hZGN/gRl4CGrN1ZA8KBBlXKl7/
+         g/B/hV/IRC6SPUeSSsbjzLvGigqHZUX2ptsGWbaLrcxR+1ZotwwivPOfQ/rtTx8iPM
+         G9fMFtKBkrifShx+jUjnok0q/1jwjDiuW+kbyQtMc9eF0OmSN11mAnOxodqyrrWXCp
+         xYqA20l0XujsNOkzFSx16QZb0D1ho02dPXIkorKoqr+G1zvnHOarTdSpRGudDdjbgO
+         JuwmhzRmGRfZA==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.102.3 at mail
+Date:   Mon, 13 Jul 2020 02:24:54 +0200
+Message-Id: <7acd9534663ec8c35390dbd938fd212327c3f05f.1594599118.git.mirq-linux@rere.qmqm.pl>
+In-Reply-To: <cover.1594599118.git.mirq-linux@rere.qmqm.pl>
+References: <cover.1594599118.git.mirq-linux@rere.qmqm.pl>
+From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH v6 2/5] input: elants: support old touch report format
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200702112041.1942707-4-megous@megous.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To:     Dmitry Osipenko <digetx@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        James Chen <james.chen@emc.com.tw>,
+        Johnny Chuang <johnny.chuang@emc.com.tw>,
+        Scott Liu <scott.liu@emc.com.tw>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi!
+Support ELAN touchpad sensor with older firmware as found on eg. Asus
+Transformer Pads.
 
-> The board has a vibrator mottor. Hook it to the input subsystem.
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+---
+ drivers/input/touchscreen/elants_i2c.c | 36 ++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 11 deletions(-)
 
-motor, I believe.
-
-Best regards,
-									Pavel
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index fa4a2f6b69c6..ba1816d08530 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -69,6 +69,7 @@
+ #define CMD_HEADER_REK		0x66
+ 
+ /* FW position data */
++#define PACKET_SIZE_OLD		40
+ #define PACKET_SIZE		55
+ #define MAX_CONTACT_NUM		10
+ #define FW_POS_HEADER		0
+@@ -849,7 +850,8 @@ static int elants_i2c_fw_update(struct elants_data *ts)
+  * Event reporting.
+  */
+ 
+-static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf)
++static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf,
++				size_t report_len)
+ {
+ 	struct input_dev *input = ts->input;
+ 	unsigned int n_fingers;
+@@ -862,7 +864,8 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf)
+ 			buf[FW_POS_STATE];
+ 
+ 	dev_dbg(&ts->client->dev,
+-		"n_fingers: %u, state: %04x\n",  n_fingers, finger_state);
++		"n_fingers: %u, state: %04x, report_len: %zu\n",
++		n_fingers, finger_state, report_len);
+ 
+ 	/* Note: all fingers have the same tool type */
+ 	tool_type = buf[FW_POS_TOOL_TYPE] & BIT(0) ?
+@@ -876,8 +879,16 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf)
+ 			pos = &buf[FW_POS_XY + i * 3];
+ 			x = (((u16)pos[0] & 0xf0) << 4) | pos[1];
+ 			y = (((u16)pos[0] & 0x0f) << 8) | pos[2];
+-			p = buf[FW_POS_PRESSURE + i];
+-			w = buf[FW_POS_WIDTH + i];
++			if (report_len == PACKET_SIZE_OLD) {
++				w = buf[FW_POS_WIDTH + i / 2];
++				w >>= 4 * (~i & 1);	// little-endian-nibbles
++				w |= w << 4;
++				w |= !w;
++				p = w;
++			} else {
++				p = buf[FW_POS_PRESSURE + i];
++				w = buf[FW_POS_WIDTH + i];
++			}
+ 
+ 			dev_dbg(&ts->client->dev, "i=%d x=%d y=%d p=%d w=%d\n",
+ 				i, x, y, p, w);
+@@ -909,7 +920,8 @@ static u8 elants_i2c_calculate_checksum(u8 *buf)
+ 	return checksum;
+ }
+ 
+-static void elants_i2c_event(struct elants_data *ts, u8 *buf)
++static void elants_i2c_event(struct elants_data *ts, u8 *buf,
++			     size_t report_len)
+ {
+ 	u8 checksum = elants_i2c_calculate_checksum(buf);
+ 
+@@ -923,7 +935,7 @@ static void elants_i2c_event(struct elants_data *ts, u8 *buf)
+ 			 "%s: unknown packet type: %02x\n",
+ 			 __func__, buf[FW_POS_HEADER]);
+ 	else
+-		elants_i2c_mt_event(ts, buf);
++		elants_i2c_mt_event(ts, buf, report_len);
+ }
+ 
+ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+@@ -981,7 +993,8 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+ 			break;
+ 
+ 		case QUEUE_HEADER_SINGLE:
+-			elants_i2c_event(ts, &ts->buf[HEADER_SIZE]);
++			elants_i2c_event(ts, &ts->buf[HEADER_SIZE],
++					 ts->buf[FW_HDR_LENGTH]);
+ 			break;
+ 
+ 		case QUEUE_HEADER_NORMAL:
+@@ -994,17 +1007,18 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+ 			}
+ 
+ 			report_len = ts->buf[FW_HDR_LENGTH] / report_count;
+-			if (report_len != PACKET_SIZE) {
++			if (report_len != PACKET_SIZE &&
++			    report_len != PACKET_SIZE_OLD) {
+ 				dev_err(&client->dev,
+-					"mismatching report length: %*ph\n",
++					"unsupported report length: %*ph\n",
+ 					HEADER_SIZE, ts->buf);
+ 				break;
+ 			}
+ 
+ 			for (i = 0; i < report_count; i++) {
+ 				u8 *buf = ts->buf + HEADER_SIZE +
+-							i * PACKET_SIZE;
+-				elants_i2c_event(ts, buf);
++					  i * report_len;
++				elants_i2c_event(ts, buf, report_len);
+ 			}
+ 			break;
+ 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+2.20.1
+

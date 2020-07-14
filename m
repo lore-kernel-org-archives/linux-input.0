@@ -2,82 +2,75 @@ Return-Path: <SRS0=TKna=AZ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA1B6C433F2
-	for <linux-input@archiver.kernel.org>; Tue, 14 Jul 2020 10:23:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8AAEC433E5
+	for <linux-input@archiver.kernel.org>; Tue, 14 Jul 2020 10:56:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 91F2C22201
-	for <linux-input@archiver.kernel.org>; Tue, 14 Jul 2020 10:23:55 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=megous.com header.i=@megous.com header.b="nhMYmZ3N"
+	by mail.kernel.org (Postfix) with ESMTP id D075822206
+	for <linux-input@archiver.kernel.org>; Tue, 14 Jul 2020 10:56:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726041AbgGNKXy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 14 Jul 2020 06:23:54 -0400
-Received: from vps.xff.cz ([195.181.215.36]:46176 "EHLO vps.xff.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725952AbgGNKXk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Jul 2020 06:23:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
-        t=1594722218; bh=XAdHa1hy943EkmZdCmSbORjRP3twqUeW2Bi627ZbOdE=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=nhMYmZ3NN+TH1TCTMYUDj5O0FumKLt1l2sRZrVSf1T/PKmHVj0VSujbZoDG6Mnzyu
-         epKX23Bl09/hGM7mGHoHRf2zR2mgICKTlpt9HfC2CFuFOClBvsyGLM/7e9QCIfZ+lT
-         Jkx51pFi8DTRE998eTRhk91+W9erJZAz9mBg3qMs=
-From:   Ondrej Jirman <megous@megous.com>
-To:     linux-sunxi@googlegroups.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>
-Cc:     Ondrej Jirman <megous@megous.com>, Luca Weiss <luca@z3ntu.xyz>,
-        Tomas Novotny <tomas@novotny.cz>, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, Rob Herring <robh@kernel.org>
-Subject: [PATCH v4 1/4] dt-bindings: input: gpio-vibrator: Don't require enable-gpios
-Date:   Tue, 14 Jul 2020 12:23:00 +0200
-Message-Id: <20200714102303.3007896-2-megous@megous.com>
-In-Reply-To: <20200714102303.3007896-1-megous@megous.com>
-References: <20200714102303.3007896-1-megous@megous.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1727821AbgGNK4q (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 14 Jul 2020 06:56:46 -0400
+Received: from emcscan.emc.com.tw ([192.72.220.5]:30348 "EHLO
+        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726534AbgGNK4p (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 14 Jul 2020 06:56:45 -0400
+X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
+   d="scan'208";a="36424498"
+Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
+  by emcscan.emc.com.tw with ESMTP; 14 Jul 2020 18:56:43 +0800
+Received: from 192.168.10.23
+        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(41847:0:AUTH_RELAY)
+        (envelope-from <jingle.wu@emc.com.tw>); Tue, 14 Jul 2020 18:56:43 +0800 (CST)
+Received: from 101.12.45.92
+        by webmail.emc.com.tw with Mail2000 ESMTPA Server V7.00(2477:1:AUTH_LOGIN)
+        (envelope-from <jingle.wu@emc.com.tw>); Tue, 14 Jul 2020 18:56:42 +0800 (CST)
+From:   Jingle Wu <jingle.wu@emc.com.tw>
+To:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        dmitry.torokhov@gmail.com
+Cc:     phoenix@emc.com.tw, josh.chen@emc.com.tw, jingle.wu@emc.com.tw,
+        kai.heng.feng@canonical.com
+Subject: [PATCH 1/2] Input: elan_i2c - Add ic type 0x11, 0x13, 0x14.
+Date:   Tue, 14 Jul 2020 06:56:33 -0400
+Message-Id: <20200714105633.15099-1-jingle.wu@emc.com.tw>
+X-Mailer: git-send-email 2.17.1
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-It is possible to turn the motor on/off just by enabling/disabling
-the vcc-supply. Change the binding to require either enable-gpios
-or vcc-supply or both.
+Add ic type 0x11, 0x13, 0x14 page sizes for update firmware.
 
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Jingle Wu <jingle.wu@emc.com.tw>.
 ---
- Documentation/devicetree/bindings/input/gpio-vibrator.yaml | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/input/mouse/elan_i2c_core.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-vibrator.yaml b/Documentation/devicetree/bindings/input/gpio-vibrator.yaml
-index 2384465eaa19..082ac06471db 100644
---- a/Documentation/devicetree/bindings/input/gpio-vibrator.yaml
-+++ b/Documentation/devicetree/bindings/input/gpio-vibrator.yaml
-@@ -24,7 +24,12 @@ properties:
- 
- required:
-   - compatible
--  - enable-gpios
-+
-+anyOf:
-+  - required:
-+    - enable-gpios
-+  - required:
-+    - vcc-supply
- 
- additionalProperties: false
- 
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 3f9354baac4b..e90beada0ecf 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -126,6 +126,15 @@ static int elan_get_fwinfo(u16 ic_type, u16 *validpage_count,
+ 	case 0x10:
+ 		*validpage_count = 1024;
+ 		break;
++	case 0x11:
++		*validpage_count = 1280;
++		break;
++	case 0x13:
++		*validpage_count = 2048;
++		break;
++	case 0x14:
++		*validpage_count = 1024;
++		break;
+ 	default:
+ 		/* unknown ic type clear value */
+ 		*validpage_count = 0;
 -- 
-2.27.0
+2.17.1
 

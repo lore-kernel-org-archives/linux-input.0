@@ -6,29 +6,29 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
 	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9467FC433E8
-	for <linux-input@archiver.kernel.org>; Fri, 17 Jul 2020 08:20:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B064C433E7
+	for <linux-input@archiver.kernel.org>; Fri, 17 Jul 2020 08:32:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 777A82071A
-	for <linux-input@archiver.kernel.org>; Fri, 17 Jul 2020 08:20:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C4742071A
+	for <linux-input@archiver.kernel.org>; Fri, 17 Jul 2020 08:32:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726233AbgGQIUV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 17 Jul 2020 04:20:21 -0400
-Received: from emcscan.emc.com.tw ([192.72.220.5]:49906 "EHLO
+        id S1726056AbgGQIcI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 17 Jul 2020 04:32:08 -0400
+Received: from emcscan.emc.com.tw ([192.72.220.5]:4798 "EHLO
         emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726056AbgGQIUU (ORCPT
+        with ESMTP id S1726210AbgGQIcH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Jul 2020 04:20:20 -0400
+        Fri, 17 Jul 2020 04:32:07 -0400
 X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
-   d="scan'208";a="36477954"
+   d="scan'208";a="36478204"
 Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
-  by emcscan.emc.com.tw with ESMTP; 17 Jul 2020 16:20:19 +0800
+  by emcscan.emc.com.tw with ESMTP; 17 Jul 2020 16:32:02 +0800
 Received: from 192.168.10.23
-        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(78053:0:AUTH_RELAY)
-        (envelope-from <jingle.wu@emc.com.tw>); Fri, 17 Jul 2020 16:20:16 +0800 (CST)
+        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(136099:0:AUTH_RELAY)
+        (envelope-from <jingle.wu@emc.com.tw>); Fri, 17 Jul 2020 16:32:01 +0800 (CST)
 Received: from 192.168.33.11
-        by webmail.emc.com.tw with Mail2000 ESMTP Server V7.00(2481:1:AUTH_RELAY)
-        (envelope-from <jingle.wu@emc.com.tw>); Fri, 17 Jul 2020 16:20:16 +0800 (CST)
+        by webmail.emc.com.tw with Mail2000 ESMTP Server V7.00(2484:0:AUTH_RELAY)
+        (envelope-from <jingle.wu@emc.com.tw>); Fri, 17 Jul 2020 16:31:59 +0800 (CST)
 From:   "jingle" <jingle.wu@emc.com.tw>
 To:     "'Dmitry Torokhov'" <dmitry.torokhov@gmail.com>
 Cc:     "'linux-kernel'" <linux-kernel@vger.kernel.org>,
@@ -36,19 +36,19 @@ Cc:     "'linux-kernel'" <linux-kernel@vger.kernel.org>,
         "'phoenix'" <phoenix@emc.com.tw>,
         "'josh.chen'" <josh.chen@emc.com.tw>,
         "'kai.heng.feng'" <kai.heng.feng@canonical.com>
-References: <20200714105641.15151-1-jingle.wu@emc.com.tw> <20200716053912.GB1665100@dtor-ws> <1594880123.69588.jingle.wu@emc.com.tw> <20200717012719.GC1665100@dtor-ws> <20200717061010.GD1665100@dtor-ws>
-In-Reply-To: <20200717061010.GD1665100@dtor-ws>
+References: <20200714105641.15151-1-jingle.wu@emc.com.tw> <20200716053912.GB1665100@dtor-ws> <1594880123.69588.jingle.wu@emc.com.tw> <20200717012719.GC1665100@dtor-ws> <20200717061010.GD1665100@dtor-ws> 
+In-Reply-To: 
 Subject: RE: [PATCH 2/2] Input: elan_i2c - Modify the IAP related functio n for page sizes 128, 512 bytes.
-Date:   Fri, 17 Jul 2020 16:20:16 +0800
-Message-ID: <002b01d65c13$1a19f0d0$4e4dd270$@emc.com.tw>
+Date:   Fri, 17 Jul 2020 16:31:58 +0800
+Message-ID: <002c01d65c14$bccb9c10$3662d430$@emc.com.tw>
 MIME-Version: 1.0
 Content-Type: text/plain;
         charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft Outlook 14.0
-Thread-Index: AQIjNBmL5Bem/gD5U/Wevzos9rHsvgFMELwpAblpFq8B/K6BpwFpUkutqD5gC9A=
+Thread-Index: AQIjNBmL5Bem/gD5U/Wevzos9rHsvgFMELwpAblpFq8B/K6BpwFpUkutqD5gC9CAAANZoA==
 Content-Language: zh-tw
-x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcMDYwMTFcYXBwZGF0YVxyb2FtaW5nXDA5ZDg0OWI2LTMyZDMtNGE0MC04NWVlLTZiODRiYTI5ZTM1Ylxtc2dzXG1zZy01N2EwNTFhZC1jODA2LTExZWEtODE5YS1mMDc5NTk2OWU3NWVcYW1lLXRlc3RcNTdhMDUxYWYtYzgwNi0xMWVhLTgxOWEtZjA3OTU5NjllNzVlYm9keS50eHQiIHN6PSIyNTE2IiB0PSIxMzIzOTQ0NzYxNjM4NjA4NzciIGg9IlIyNWphZVB5ZHhSbDdFeUU4N29pcE1PbUt6Yz0iIGlkPSIiIGJsPSIwIiBibz0iMSIvPjwvbWV0YT4=
+x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcMDYwMTFcYXBwZGF0YVxyb2FtaW5nXDA5ZDg0OWI2LTMyZDMtNGE0MC04NWVlLTZiODRiYTI5ZTM1Ylxtc2dzXG1zZy1mYTU0OTRmZC1jODA3LTExZWEtODE5YS1mMDc5NTk2OWU3NWVcYW1lLXRlc3RcZmE1NDk0ZmYtYzgwNy0xMWVhLTgxOWEtZjA3OTU5NjllNzVlYm9keS50eHQiIHN6PSIzNTY0IiB0PSIxMzIzOTQ0ODMxODg1NTA4NzciIGg9IkpxQjdpaXJjaFZQSDZMUFpUdjhudUFZZ2xvdz0iIGlkPSIiIGJsPSIwIiBibz0iMSIvPjwvbWV0YT4=
 x-dg-rorf: true
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
@@ -57,15 +57,51 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Hi Dmitry:
 
+1. 
+
+In this function elan_get_fwinfo().
+
++static int elan_get_fwinfo(u16 ic_type, u8 iap_version, u8 pattern,
++			   u16 *validpage_count, u32 *signature_address,
++			   u16 *page_size)
+ {
+-	switch (ic_type) {
++	u16 type = pattern >= 0x01 ? ic_type : iap_version;
++
++	switch (type) {
+
+This iap_version in pattern0 is read from this command
+ETP_I2C_IAP_VERSION_CMD_OLD ,it is not from this command
+ETP_I2C_IAP_VERSION.
+So u16 type = pattern >= 0x01 ? ic_type : iap_version; <- wrong
+
+2. In this "static int elan_i2c_prepare_fw_update(struct i2c_client *client,
+u16 ic_type, u8 iap_version)" function.
+The ic is old pattern must be modify correct ic_type. (cmd is
+ETP_I2C_IAP_VERSION)
+
+THANKS
+
+
+-----Original Message-----
+From: jingle [mailto:jingle.wu@emc.com.tw] 
+Sent: Friday, July 17, 2020 4:20 PM
+To: 'Dmitry Torokhov'
+Cc: 'linux-kernel'; 'linux-input'; 'phoenix'; 'josh.chen'; 'kai.heng.feng'
+Subject: RE: [PATCH 2/2] Input: elan_i2c - Modify the IAP related functio n
+for page sizes 128, 512 bytes.
+
+Hi Dmitry:
+
 In this "static int elan_i2c_prepare_fw_update(struct i2c_client *client,
-u16 ic_type, u8 iap_version)" function
-If IC is old_pattern, it must be modified to iap_version
+u16 ic_type, u8 iap_version)" function If IC is old_pattern, it must be
+modified to iap_version
 	-> u16 type = pattern >= 0x01 ? ic_type : iap_version;
 
 Thanks
 
 -----Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
 Sent: Friday, July 17, 2020 2:10 PM
 To: jingle.wu
 Cc: linux-kernel; linux-input; phoenix; josh.chen; kai.heng.feng
@@ -78,7 +114,7 @@ On Thu, Jul 16, 2020 at 06:27:19PM -0700, Dmitry Torokhov wrote:
 > On Thu, Jul 16, 2020 at 02:15:23PM +0800, jingle.wu wrote:
 > > HI Dmitry:
 > > 
-> > Just to confirm, the older devices (I assume that pattern 0 means 
+> > Just to confirm, the older devices (I assume that pattern 0 means
 > > older)  have version command that is numerically higher than the one 
 > > for the  newer (pattern >= 1) devices?
 > > 

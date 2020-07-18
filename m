@@ -1,81 +1,93 @@
-Return-Path: <SRS0=+jyi=A4=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=OG4G=A5=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C4F0C433E2
-	for <linux-input@archiver.kernel.org>; Fri, 17 Jul 2020 23:36:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C381CC433E1
+	for <linux-input@archiver.kernel.org>; Sat, 18 Jul 2020 10:33:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 37A2620717
-	for <linux-input@archiver.kernel.org>; Fri, 17 Jul 2020 23:36:30 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="d20CrNmx"
+	by mail.kernel.org (Postfix) with ESMTP id 9FFF720691
+	for <linux-input@archiver.kernel.org>; Sat, 18 Jul 2020 10:33:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728262AbgGQXg3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 17 Jul 2020 19:36:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43924 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726634AbgGQXg3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Jul 2020 19:36:29 -0400
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25307C0619D2;
-        Fri, 17 Jul 2020 16:36:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
-        MIME-Version:Date:Message-ID:To:Subject:From:Sender:Reply-To:Cc:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=RTYFbSXiEPN/J9TW3PTyS0OPHb2QtHWE24AA7f709vo=; b=d20CrNmx5ZkAzNyjQAmvYytmzC
-        9zWc2dfHDpWKsnjR712drdtVwukpdzzF5lCeobOFD8IIqLKUW9HSJKyIA1dB3ltdlFrALgqgGwvPt
-        BG17J7V2PP9oORI8UCiteBNKVZ9hXGel/hfb4WjB6gdJxonHpz5+u2rD7WDvbBHV0qa9sBpIlOTav
-        NKCsc7CTyocTgw8CEjM6dYJrcu55vZchmmbVZN/ohch+JPAU5bta6R0kVZ5wH3vBRVpftNPIyYKoe
-        pmol+beRIILiWIoR/0kX6BCYpS8l+3TjJOoByrqpGxz8RpJKkKze4MX611jU5Mkt3ahMjYUBJqkms
-        1PrDuMfw==;
-Received: from [2601:1c0:6280:3f0::19c2]
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jwZtz-0006WA-1Q; Fri, 17 Jul 2020 23:36:27 +0000
-From:   Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH] input: linux/input.h: drop duplicated word in a comment
-To:     LKML <linux-kernel@vger.kernel.org>,
-        "Dmitry Torokhov <dmitry.torokhov"@gmail.com,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Message-ID: <7c23db8d-5d7e-f738-7c88-4e3a74b3dc79@infradead.org>
-Date:   Fri, 17 Jul 2020 16:36:24 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
+        id S1726528AbgGRKdz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 18 Jul 2020 06:33:55 -0400
+Received: from smtp.al2klimov.de ([78.46.175.9]:37736 "EHLO smtp.al2klimov.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726490AbgGRKdy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 18 Jul 2020 06:33:54 -0400
+Received: from authenticated-user (PRIMARY_HOSTNAME [PUBLIC_IP])
+        by smtp.al2klimov.de (Postfix) with ESMTPA id 8FF46BC06F;
+        Sat, 18 Jul 2020 10:33:50 +0000 (UTC)
+From:   "Alexander A. Klimov" <grandmaster@al2klimov.de>
+To:     hadess@hadess.net, jikos@kernel.org, benjamin.tissoires@redhat.com,
+        mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
+        linux-input@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org
+Cc:     "Alexander A. Klimov" <grandmaster@al2klimov.de>
+Subject: [PATCH] HID: udraw-ps3: Replace HTTP links with HTTPS ones
+Date:   Sat, 18 Jul 2020 12:33:44 +0200
+Message-Id: <20200718103344.3407-1-grandmaster@al2klimov.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Spamd-Bar: +++++
+Authentication-Results: smtp.al2klimov.de;
+        auth=pass smtp.auth=aklimov@al2klimov.de smtp.mailfrom=grandmaster@al2klimov.de
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+Rationale:
+Reduces attack surface on kernel devs opening the links for MITM
+as HTTPS traffic is much harder to manipulate.
 
-Drop the doubled word "in" in a comment.
+Deterministic algorithm:
+For each file:
+  If not .svg:
+    For each line:
+      If doesn't contain `\bxmlns\b`:
+        For each link, `\bhttp://[^# \t\r\n]*(?:\w|/)`:
+	  If neither `\bgnu\.org/license`, nor `\bmozilla\.org/MPL\b`:
+            If both the HTTP and HTTPS versions
+            return 200 OK and serve the same content:
+              Replace HTTP with HTTPS.
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Signed-off-by: Alexander A. Klimov <grandmaster@al2klimov.de>
 ---
- include/uapi/linux/input.h |    2 +-
+ Continuing my work started at 93431e0607e5.
+ See also: git log --oneline '--author=Alexander A. Klimov <grandmaster@al2klimov.de>' v5.7..master
+
+ If there are any URLs to be removed completely
+ or at least not (just) HTTPSified:
+ Just clearly say so and I'll *undo my change*.
+ See also: https://lkml.org/lkml/2020/6/27/64
+
+ If there are any valid, but yet not changed URLs:
+ See: https://lkml.org/lkml/2020/6/26/837
+
+ If you apply the patch, please let me know.
+
+
+ drivers/hid/hid-udraw-ps3.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-next-20200714.orig/include/uapi/linux/input.h
-+++ linux-next-20200714/include/uapi/linux/input.h
-@@ -84,7 +84,7 @@ struct input_id {
-  * in units per radian.
-  * When INPUT_PROP_ACCELEROMETER is set the resolution changes.
-  * The main axes (ABS_X, ABS_Y, ABS_Z) are then reported in
-- * in units per g (units/g) and in units per degree per second
-+ * units per g (units/g) and in units per degree per second
-  * (units/deg/s) for rotational axes (ABS_RX, ABS_RY, ABS_RZ).
+diff --git a/drivers/hid/hid-udraw-ps3.c b/drivers/hid/hid-udraw-ps3.c
+index b0fbd11aa0fc..b2e17ef2ea27 100644
+--- a/drivers/hid/hid-udraw-ps3.c
++++ b/drivers/hid/hid-udraw-ps3.c
+@@ -16,7 +16,7 @@ MODULE_LICENSE("GPL");
+ 
+ /*
+  * Protocol information from:
+- * http://brandonw.net/udraw/
++ * https://brandonw.net/udraw/
+  * and the source code of:
+  * https://vvvv.org/contribution/udraw-hid
   */
- struct input_absinfo {
+-- 
+2.27.0
 

@@ -2,219 +2,116 @@ Return-Path: <SRS0=cYRE=A6=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7850DC433E5
-	for <linux-input@archiver.kernel.org>; Sun, 19 Jul 2020 22:12:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97541C433DF
+	for <linux-input@archiver.kernel.org>; Sun, 19 Jul 2020 22:57:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5FFA02177B
-	for <linux-input@archiver.kernel.org>; Sun, 19 Jul 2020 22:12:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77B2421744
+	for <linux-input@archiver.kernel.org>; Sun, 19 Jul 2020 22:57:00 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=hmh.eng.br header.i=@hmh.eng.br header.b="McO54vqP";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="p9REiXXD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726601AbgGSWM0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 19 Jul 2020 18:12:26 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:55959 "EHLO
-        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726156AbgGSWM0 (ORCPT
+        id S1726508AbgGSW45 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 19 Jul 2020 18:56:57 -0400
+Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:35049 "EHLO
+        wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726156AbgGSW45 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Jul 2020 18:12:26 -0400
-X-Originating-IP: 195.189.32.242
-Received: from pc.localdomain (unknown [195.189.32.242])
-        (Authenticated sender: contact@artur-rojek.eu)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 7DE2FFF806;
-        Sun, 19 Jul 2020 22:12:21 +0000 (UTC)
-From:   Artur Rojek <contact@artur-rojek.eu>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Heiko Stuebner <heiko@sntech.de>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Artur Rojek <contact@artur-rojek.eu>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v8 1/2] dt-bindings: input: Add docs for ADC driven joystick.
-Date:   Mon, 20 Jul 2020 00:11:02 +0200
-Message-Id: <20200719221103.91644-2-contact@artur-rojek.eu>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200719221103.91644-1-contact@artur-rojek.eu>
-References: <20200719221103.91644-1-contact@artur-rojek.eu>
+        Sun, 19 Jul 2020 18:56:57 -0400
+Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
+        by mailnew.west.internal (Postfix) with ESMTP id C49B062D;
+        Sun, 19 Jul 2020 18:56:55 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute7.internal (MEProxy); Sun, 19 Jul 2020 18:56:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hmh.eng.br; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=IwtTVMIULxX/8K188g/bQylmehW
+        oNdWkoM/BtdvK8s4=; b=McO54vqPKpp3i4TymYJyPzHE6suA/Ha+Gtm1pcuPyKd
+        OmzBb4cSbP2aLZvpWhSAit3VyKsiZk+iYAqV71kN26mOZmJLxIXMRcvX4gT/1l0K
+        D78xO72NkOcblsZuCLl3SYNR2Zpncbkp0ZJjxza8yVZCF9uKGgSizqNjKjVqC5lC
+        3QpGKistYD4Ws8D9e+tc9XE3vFWpgE9DeXMApyMClpwfQxIsNzM0/M7FBTBd02QW
+        1Gda/v+80dlESKRds6msxIlRT3TAfdd7cV2RFoWSl1SfF3868TuuYZHvO7ZofTzt
+        u4f/cC/DgEQOM05ucNFNfgnFDarwoAPl96IgakfE3Tw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=IwtTVM
+        IULxX/8K188g/bQylmehWoNdWkoM/BtdvK8s4=; b=p9REiXXDrvECxf/4tEloLp
+        +yuLotcZLXqfLuaBQhPWvR4UNITcmu5L70JHSvVPZYuRxSClmE4G2JCRoq7nZXvw
+        dPREyoLrEabJZFZCkJ3o2chv/aSCm3HtJTKrRy9wVN5Z9dJOnXFRdshMGlwa4gmC
+        CIU8PF7BIJckdvBqrbKv4fq6bTSqByPKp0mihB4u7mjntHWb3tolfLaVYg0+xti8
+        31qokuKawvnbkvYLJjmgmjPHmKI3Sst9CRTyf9iDtAGmSjuLTaGb3mC9pXQKGaaQ
+        GD2oqWeB6pMIbfgBYYf9s+ZpYG9OFRFdSJpliHbrq5NtAtzNpbhEm6CJ9fYRtIJg
+        ==
+X-ME-Sender: <xms:ts8UX57DyB59CZO1_9wfWwhpU55JAa_RpVhMKctuwGvDdAg__4fmyQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgedvgddujecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttddttddtredvnecuhfhrohhmpefjvghnrhhi
+    qhhuvgcuuggvucfoohhrrggvshcujfholhhstghhuhhhuceohhhmhheshhhmhhdrvghngh
+    drsghrqeenucggtffrrghtthgvrhhnpeevudetjeegiedufeeugfeiheeljeekfeduhfej
+    feegkeehkedvvdehheelgeevieenucfkphepudejjedrudelgedrjedrfedvnecuvehluh
+    hsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhmhheshhhmhhdr
+    vghnghdrsghr
+X-ME-Proxy: <xmx:ts8UX25a2Rxv-l3E6odDrb-GSpKcVCyBDi2uqt2zGT2VW3WWO5fcSg>
+    <xmx:ts8UXwetkkhLpObLgZj48LpI3rARhmNQ_4IZXJFFzMl6jRkvKkrKgQ>
+    <xmx:ts8UXyJiP4eB8UMlKJ9Le1lcloefVKc4KrMA5UpdwCbHqBypAmkTvA>
+    <xmx:t88UXypcJjK3c-SYqoOp-TZJnpATrawdAtCDUHUJ7X3xQmkqxYO57J672lA>
+Received: from khazad-dum.debian.net (unknown [177.194.7.32])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6CBD330600A3;
+        Sun, 19 Jul 2020 18:56:54 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by localhost.khazad-dum.debian.net (Postfix) with ESMTP id 8C2603400161;
+        Sun, 19 Jul 2020 19:56:52 -0300 (-03)
+X-Virus-Scanned: Debian amavisd-new at khazad-dum.debian.net
+Received: from khazad-dum.debian.net ([127.0.0.1])
+        by localhost (khazad-dum2.khazad-dum.debian.net [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id HREs72AK_48Y; Sun, 19 Jul 2020 19:56:49 -0300 (-03)
+Received: by khazad-dum.debian.net (Postfix, from userid 1000)
+        id D1B3D340015F; Sun, 19 Jul 2020 19:56:49 -0300 (-03)
+Date:   Sun, 19 Jul 2020 19:56:49 -0300
+From:   Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>,
+        linux-input@vger.kernel.org,
+        Marco Trevisan <marco.trevisan@canonical.com>,
+        Mark Pearson <mpearson@lenovo.com>,
+        Christian Kellner <ckellner@redhat.com>,
+        Benjamin Berg <bberg@redhat.com>,
+        ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Add 3 new keycodes and use them for 3 new hotkeys on
+ new Lenovo Thinkpads
+Message-ID: <20200719225649.GA4341@khazad-dum.debian.net>
+References: <20200717114155.56222-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200717114155.56222-1-hdegoede@redhat.com>
+X-GPG-Fingerprint1: 4096R/0x0BD9E81139CB4807: C467 A717 507B BAFE D3C1  6092
+ 0BD9 E811 39CB 4807
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add documentation for the adc-joystick driver, used to provide support
-for joysticks connected over ADC.
+On Fri, 17 Jul 2020, Hans de Goede wrote:
+> This is a simple patch-series adding support for 3 new hotkeys found
+> on various new Lenovo Thinkpad models.
 
-Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
-Tested-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
+For all three patches, pending an ack for the new keycodes by the input
+maintainers:
 
- Changes:
+Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 
- v2: - Add `reg` property to axis subnode in order to enumerate the axes,
-     - rename `linux,abs-code` property to `linux,code`,
-     - drop `linux,` prefix from the remaining properties of axis subnode
-
- v3: no change
-
- v4: - remove "bindings" from the unique identifier string,
-     - replace `|` with `>` for all description properties,
-     - specify the number of items for `io-channels`,
-     - correct the regex pattern of `axis` property,
-     - specify the value range of `reg` property for each axis,
-     - put `abs-range` properties under `allOf` 
-
- v5: add `a-f` to the regex pattern of `axis` property
-
- v6-v8: no change
-
- Notes:
-
- Rob, the bindings example in this patch depends on changes introduced
- in another patchset, still to be merged:
- https://lore.kernel.org/linux-iio/20200719205307.87385-4-contact@artur-rojek.eu/  
- Your scripts will most likely fail to validate this.
-
- .../bindings/input/adc-joystick.yaml          | 121 ++++++++++++++++++
- 1 file changed, 121 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/adc-joystick.yaml
-
-diff --git a/Documentation/devicetree/bindings/input/adc-joystick.yaml b/Documentation/devicetree/bindings/input/adc-joystick.yaml
-new file mode 100644
-index 000000000000..054406bbd22b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/adc-joystick.yaml
-@@ -0,0 +1,121 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+# Copyright 2019-2020 Artur Rojek
-+%YAML 1.2
-+---
-+$id: "http://devicetree.org/schemas/input/adc-joystick.yaml#"
-+$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-+
-+title: ADC attached joystick
-+
-+maintainers:
-+  - Artur Rojek <contact@artur-rojek.eu>
-+
-+description: >
-+  Bindings for joystick devices connected to ADC controllers supporting
-+  the Industrial I/O subsystem.
-+
-+properties:
-+  compatible:
-+    const: adc-joystick
-+
-+  io-channels:
-+    minItems: 1
-+    maxItems: 1024
-+    description: >
-+      List of phandle and IIO specifier pairs.
-+      Each pair defines one ADC channel to which a joystick axis is connected.
-+      See Documentation/devicetree/bindings/iio/iio-bindings.txt for details.
-+
-+  '#address-cells':
-+    const: 1
-+
-+  '#size-cells':
-+    const: 0
-+
-+required:
-+  - compatible
-+  - io-channels
-+  - '#address-cells'
-+  - '#size-cells'
-+
-+additionalProperties: false
-+
-+patternProperties:
-+  "^axis@[0-9a-f]+$":
-+    type: object
-+    description: >
-+      Represents a joystick axis bound to the given ADC channel.
-+      For each entry in the io-channels list, one axis subnode with a matching
-+      reg property must be specified.
-+
-+    properties:
-+      reg:
-+        minimum: 0
-+        maximum: 1023
-+        description: Index of an io-channels list entry bound to this axis.
-+
-+      linux,code:
-+        $ref: /schemas/types.yaml#/definitions/uint32
-+        description: EV_ABS specific event code generated by the axis.
-+
-+      abs-range:
-+        allOf:
-+          - $ref: /schemas/types.yaml#/definitions/uint32-array
-+          - items:
-+              - description: minimum value
-+              - description: maximum value
-+        description: >
-+          Minimum and maximum values produced by the axis.
-+          For an ABS_X axis this will be the left-most and right-most
-+          inclination of the joystick. If min > max, it is left to userspace to
-+          treat the axis as inverted.
-+          This property is interpreted as two signed 32 bit values.
-+
-+      abs-fuzz:
-+        $ref: /schemas/types.yaml#/definitions/uint32
-+        description: >
-+          Amount of noise in the input value.
-+          Omitting this property indicates the axis is precise.
-+
-+      abs-flat:
-+        $ref: /schemas/types.yaml#/definitions/uint32
-+        description: >
-+          Axial "deadzone", or area around the center position, where the axis
-+          is considered to be at rest.
-+          Omitting this property indicates the axis always returns to exactly
-+          the center position.
-+
-+    required:
-+      - reg
-+      - linux,code
-+      - abs-range
-+
-+    additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/iio/adc/ingenic,adc.h>
-+    #include <dt-bindings/input/input.h>
-+
-+    joystick: adc-joystick {
-+      compatible = "adc-joystick";
-+      io-channels = <&adc INGENIC_ADC_TOUCH_XP>,
-+                    <&adc INGENIC_ADC_TOUCH_YP>;
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      axis@0 {
-+              reg = <0>;
-+              linux,code = <ABS_X>;
-+              abs-range = <3300 0>;
-+              abs-fuzz = <4>;
-+              abs-flat = <200>;
-+      };
-+      axis@1 {
-+              reg = <1>;
-+              linux,code = <ABS_Y>;
-+              abs-range = <0 3300>;
-+              abs-fuzz = <4>;
-+              abs-flat = <200>;
-+      };
-+    };
 -- 
-2.27.0
-
+  Henrique Holschuh

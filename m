@@ -7,46 +7,48 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6CBFC388CB
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:41:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF52EC4346F
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:41:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A75B7206E9
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:41:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 842FA22C9D
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595281286;
-	bh=qdAfJnBJ7sjyxic7UNz+QaCPtfFw871DnQVRrHY+yCY=;
-	h=From:To:Cc:Subject:Date:List-ID:From;
-	b=radsDnIQje9U26FV38jemd2Beq08IpT0pMtOgyl+lnCtEn9CJBEMbpb9f74yz1Wxr
-	 HSyqcJSBQ0k7lfqrDZA9ESRWRpF2iiD0eHA9TBRCgxRfpVLbRzp+aI8aH1PeCg+RRF
-	 pj0RK4CWFalV42hSFZxceIDPC9mpruzZsTPtyR/U=
+	s=default; t=1595281302;
+	bh=YOEldPYJZAz74gN0FsnvGPJW3gx6+vxdlBeAMEtsElw=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=b5Zy5Bct/4B8EPrsI+qL7+wJechJJTwk+JtOIgF9Chh/xGC0rfJ7ZyBaJC3iM0N2E
+	 fAWJYEH4VpgqxuRnknx7OL8WKClgsCswgfO+LAskb4Ym+7fWmRMmEZhebNBsQ5TEh2
+	 U0pny/OJCTFbmSWh5ZugwZ7xmX3ut5MRMB70yzLo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727990AbgGTVlV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 20 Jul 2020 17:41:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59352 "EHLO mail.kernel.org"
+        id S1728133AbgGTVl3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 20 Jul 2020 17:41:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728481AbgGTVje (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:39:34 -0400
+        id S1728463AbgGTVj1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:39:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 440E222CB2;
-        Mon, 20 Jul 2020 21:39:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1919622BF5;
+        Mon, 20 Jul 2020 21:39:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281173;
-        bh=qdAfJnBJ7sjyxic7UNz+QaCPtfFw871DnQVRrHY+yCY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Fwrybm10H4XMelhaiEVj1x6OWsGrSjMOQn41OPy7MPz4Cyd9z0af+8DNcL9pN1/d6
-         Xj5b+9067fFLMaohfDVo5056nxObk8AFrSp4t6PEfahqZTNh/cLa32M2IfGsQjHSGy
-         M+PdecZV6A4nlPKVqArKiqqgxVgGfKBwkWCB20h4=
+        s=default; t=1595281166;
+        bh=YOEldPYJZAz74gN0FsnvGPJW3gx6+vxdlBeAMEtsElw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=B4/qRExMdy1lGDExI7RTqNRnhq1GwTeQa+vJOJG7SiO0SZdGtUvFjuHIabB2c4VK7
+         gqv0CypkD/7DXKcQ8oknwG6ZhlhcxqdzhrpnvpPM5qFK0VLTpzAQhI1sjTlKnpsLRD
+         RUUmm7oFp0lbkxYMAm0vmRHrFrlypzBTtaQclHfM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Federico Ricchiuto <fed.ricchiuto@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 1/9] HID: i2c-hid: add Mediacom FlexBook edge13 to descriptor override
-Date:   Mon, 20 Jul 2020 17:39:24 -0400
-Message-Id: <20200720213932.408089-1-sashal@kernel.org>
+Cc:     Ilya Katsnelson <me@0upti.me>, Lyude Paul <lyude@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 09/13] Input: synaptics - enable InterTouch for ThinkPad X1E 1st gen
+Date:   Mon, 20 Jul 2020 17:39:10 -0400
+Message-Id: <20200720213914.407919-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200720213914.407919-1-sashal@kernel.org>
+References: <20200720213914.407919-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,39 +58,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Federico Ricchiuto <fed.ricchiuto@gmail.com>
+From: Ilya Katsnelson <me@0upti.me>
 
-[ Upstream commit 43e666acb79f3d355dd89bf20f4d25d3b15da13e ]
+[ Upstream commit dcb00fc799dc03fd320e123e4c81b3278c763ea5 ]
 
-The Mediacom FlexBook edge13 uses the SIPODEV SP1064 touchpad, which does not
-supply descriptors, so it has to be added to the override list.
+Tested on my own laptop, touchpad feels slightly more responsive with
+this on, though it might just be placebo.
 
-Signed-off-by: Federico Ricchiuto <fed.ricchiuto@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Ilya Katsnelson <me@0upti.me>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://lore.kernel.org/r/20200703143457.132373-1-me@0upti.me
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index 681ac9bc68b3d..f98c1e1b1dbdc 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -373,6 +373,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Mediacom FlexBook edge 13",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MEDIACOM"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "FlexBook_edge13-M-FBE13"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{
- 		.ident = "Odys Winbook 13",
- 		.matches = {
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 85db184321f78..0714d572e49a3 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -182,6 +182,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0093", /* T480 */
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
++	"LEN0099", /* X1 Extreme 1st */
+ 	"LEN009b", /* T580 */
+ 	"LEN200f", /* T450s */
+ 	"LEN2044", /* L470  */
 -- 
 2.25.1
 

@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5722C2D0E2
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:44:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8ABB1C43469
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:45:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9BBE3208E4
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:44:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E29C206E9
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595281458;
-	bh=K/QnzBnxSz8nRtmvwhBj2GIp+N4PtdWh0qolEym6wG4=;
+	s=default; t=1595281515;
+	bh=kOVhulJk+pdwU88duSZrqzaEiuBdYU+NRWyGSP6HyBo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=T3Q/zpfivsCuk5o9o6br9g9F3xBemH+qMFGbsWNFKNDb4DTXOYqE7ozCd3MjjLXQ5
-	 F4/uto6DjnZw09AzFQFfZmMhU/wb/FMGsaboxm3+j5yHXqUUI3pXbKliOkXP8w3MPb
-	 eQ51yZnBudu2e6Utw5+kMGe7MHeKQ1+K77dt1pBs=
+	b=mp1ri9omgkuhMukLRpZvSQduhygzVOKJoxUh3pG56PgTAIOv2Rm2L+s5hX1vWVwVH
+	 wchzJrwKF41lbn3xUVNAJ28XkUefvwo4CZMrXy4yJ+z5kVREjARN67Mr0gQeMV3rXf
+	 o5soMD1n2nb3460cc0anePRRh/4hCmJ9VERjEH3c=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727914AbgGTVoN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 20 Jul 2020 17:44:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56560 "EHLO mail.kernel.org"
+        id S1729051AbgGTVpF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 20 Jul 2020 17:45:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727906AbgGTViK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:38:10 -0400
+        id S1727107AbgGTVhi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:37:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C92A22CF8;
-        Mon, 20 Jul 2020 21:38:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA89922CF7;
+        Mon, 20 Jul 2020 21:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281090;
-        bh=K/QnzBnxSz8nRtmvwhBj2GIp+N4PtdWh0qolEym6wG4=;
+        s=default; t=1595281058;
+        bh=kOVhulJk+pdwU88duSZrqzaEiuBdYU+NRWyGSP6HyBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUCoVSwu+8TeAppB80QXIm01ceQvLrLO8zSlemGDovOrCPwR5wVYcEfHtHptUu2E8
-         jyihYNj7pYUXKsLuhT/OEXau6N8rGhJ0hk2E6yqEKZsWs7jxmBtOfVce/jDqMKAcPZ
-         Q1R2PO/jwKt0EhyF5AYE4cWTdwEPJSt2jmk5a4v4=
+        b=lSI6WBQm5bu6GLlliKvJ5aBO4BgjfQc4VwOpAulO9DqE9WI2lsx91iIlSyecWi3/s
+         VftoFwXi4lt6OwE0q2IHOqUY1Etj3POIWLoJurY2QdC8NHhyeV/iYjhvJwmUNgvW+p
+         TSq4qqwt7KNqcj1cJv3l/2MlhBHb99/t7+flscsg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Caiyuan Xie <caiyuan.xie@cn.alps.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 02/34] HID: alps: support devices with report id 2
-Date:   Mon, 20 Jul 2020 17:37:35 -0400
-Message-Id: <20200720213807.407380-2-sashal@kernel.org>
+Cc:     Ilya Katsnelson <me@0upti.me>, Lyude Paul <lyude@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 18/40] Input: synaptics - enable InterTouch for ThinkPad X1E 1st gen
+Date:   Mon, 20 Jul 2020 17:36:53 -0400
+Message-Id: <20200720213715.406997-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200720213807.407380-1-sashal@kernel.org>
-References: <20200720213807.407380-1-sashal@kernel.org>
+In-Reply-To: <20200720213715.406997-1-sashal@kernel.org>
+References: <20200720213715.406997-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,39 +58,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Caiyuan Xie <caiyuan.xie@cn.alps.com>
+From: Ilya Katsnelson <me@0upti.me>
 
-[ Upstream commit aa3c439c144f0a465ed1f28f11c772886fb02b35 ]
+[ Upstream commit dcb00fc799dc03fd320e123e4c81b3278c763ea5 ]
 
-Add support for devices which that have reports with id == 2
+Tested on my own laptop, touchpad feels slightly more responsive with
+this on, though it might just be placebo.
 
-Signed-off-by: Caiyuan Xie <caiyuan.xie@cn.alps.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Ilya Katsnelson <me@0upti.me>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://lore.kernel.org/r/20200703143457.132373-1-me@0upti.me
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-alps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index b2ad319a74b9a..d33f5abc8f64d 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -25,6 +25,7 @@
- 
- #define U1_MOUSE_REPORT_ID			0x01 /* Mouse data ReportID */
- #define U1_ABSOLUTE_REPORT_ID		0x03 /* Absolute data ReportID */
-+#define U1_ABSOLUTE_REPORT_ID_SECD  0x02 /* FW-PTP Absolute data ReportID */
- #define U1_FEATURE_REPORT_ID		0x05 /* Feature ReportID */
- #define U1_SP_ABSOLUTE_REPORT_ID	0x06 /* Feature ReportID */
- 
-@@ -368,6 +369,7 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
- 	case U1_FEATURE_REPORT_ID:
- 		break;
- 	case U1_ABSOLUTE_REPORT_ID:
-+	case U1_ABSOLUTE_REPORT_ID_SECD:
- 		for (i = 0; i < hdata->max_fingers; i++) {
- 			u8 *contact = &data[i * 5];
- 
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 758dae8d65006..4b81b2d0fe067 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -179,6 +179,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0093", /* T480 */
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
++	"LEN0099", /* X1 Extreme 1st */
+ 	"LEN009b", /* T580 */
+ 	"LEN200f", /* T450s */
+ 	"LEN2044", /* L470  */
 -- 
 2.25.1
 

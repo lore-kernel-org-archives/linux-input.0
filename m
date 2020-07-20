@@ -7,45 +7,47 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81DCCC2D0A6
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:43:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74C79C4742F
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:44:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5B3A1206E9
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:43:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 491A522D01
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595281428;
-	bh=qR3qR1P8zCZPBL7I5aiHn7cQAkCbUrhl/7b8QvE1Xlo=;
+	s=default; t=1595281446;
+	bh=T91JMT8+ATmHZgGTjTGeIrl+abx5KOHBjY+EUmJFlaQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=rpZEc2CFjCcUAyrbWfL9d0ajaV4CgbKmCmBdOA35Cdt+sfQygyrjYetZB93osPnS6
-	 3Cf7auXP5beU4evLF58BHCr3TWacnKGnLj0s5Jzxi0EZWYWsKXXK+A6PZsF5pqwq46
-	 IQtt9OI+x+hiBUfgvmNPtnS2s8Q+mS1KANkil4No=
+	b=D7o4RUuT6cHFYPRpWD8nd3XVbrDNOCaadPdZhmrNMYbAftY1MMrHanEB+OwC+426+
+	 Clo6m9BytSrTE5GQwXPzibjdeaDTk2TgKqLex8a8x2NUGpdwGifOBtd+5Dqw5j/uM8
+	 g8rIihizwtjD0yuSDkA1UKo4+PhuTZiBx6S2udrU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728673AbgGTVng (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 20 Jul 2020 17:43:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56978 "EHLO mail.kernel.org"
+        id S1728061AbgGTViQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 20 Jul 2020 17:38:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728127AbgGTViZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:38:25 -0400
+        id S1728053AbgGTViP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:38:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6571F22BF5;
-        Mon, 20 Jul 2020 21:38:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56B46207FC;
+        Mon, 20 Jul 2020 21:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281105;
-        bh=qR3qR1P8zCZPBL7I5aiHn7cQAkCbUrhl/7b8QvE1Xlo=;
+        s=default; t=1595281095;
+        bh=T91JMT8+ATmHZgGTjTGeIrl+abx5KOHBjY+EUmJFlaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=06pGCm0S+Wk9MiJqHe5yAkTkfAHaJnSiH7O9QffxxiWweve3xIU3s4TiyxnvreRty
-         WZreNzxTJW23CUEQv3EqrC4plXq1sOARTvzwma96L28CXq4+2TQuhBgXpUWW3tMDif
-         b3hJSk58cIgzxXg6HfqMxRyMPxoSizsN7qQfPuxo=
+        b=Gbc5sBQ7VQ5v745zter+nH6Hza4j2h3iHBLHnL5YSc1Ak0Q1iQDdllqoB6HDWQlqI
+         b0CipZpkqe/niZEAhsIk/UuT6p5n8+BHNVu27COjTeTLD4YbxxYJ/u8gqQafGzLwn6
+         NmrLUv5IjDuR1EiMzs7OmxBfutWgpXacP7U87InU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Derek Basehore <dbasehore@chromium.org>,
+Cc:     Merlijn Wajer <merlijn@wizzup.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Tony Lindgren <tony@atomide.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 14/34] Input: elan_i2c - only increment wakeup count on touch
-Date:   Mon, 20 Jul 2020 17:37:47 -0400
-Message-Id: <20200720213807.407380-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 06/34] Input: add `SW_MACHINE_COVER`
+Date:   Mon, 20 Jul 2020 17:37:39 -0400
+Message-Id: <20200720213807.407380-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213807.407380-1-sashal@kernel.org>
 References: <20200720213807.407380-1-sashal@kernel.org>
@@ -58,71 +60,52 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Derek Basehore <dbasehore@chromium.org>
+From: Merlijn Wajer <merlijn@wizzup.org>
 
-[ Upstream commit 966334dfc472bdfa67bed864842943b19755d192 ]
+[ Upstream commit c463bb2a8f8d7d97aa414bf7714fc77e9d3b10df ]
 
-This moves the wakeup increment for elan devices to the touch report.
-This prevents the drivers from incorrectly reporting a wakeup when the
-resume callback resets then device, which causes an interrupt to
-occur.
+This event code represents the state of a removable cover of a device.
+Value 0 means that the cover is open or removed, value 1 means that the
+cover is closed.
 
-Signed-off-by: Derek Basehore <dbasehore@chromium.org>
-Link: https://lore.kernel.org/r/20200706235046.1984283-1-dbasehore@chromium.org
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Merlijn Wajer <merlijn@wizzup.org>
+Link: https://lore.kernel.org/r/20200612125402.18393-2-merlijn@wizzup.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/elan_i2c_core.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ include/linux/mod_devicetable.h        | 2 +-
+ include/uapi/linux/input-event-codes.h | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 8719da5403834..196e8505dd8d7 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -951,6 +951,8 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
- 	u8 hover_info = packet[ETP_HOVER_INFO_OFFSET];
- 	bool contact_valid, hover_event;
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 953d7ca01eb60..4c56404e53a76 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -318,7 +318,7 @@ struct pcmcia_device_id {
+ #define INPUT_DEVICE_ID_LED_MAX		0x0f
+ #define INPUT_DEVICE_ID_SND_MAX		0x07
+ #define INPUT_DEVICE_ID_FF_MAX		0x7f
+-#define INPUT_DEVICE_ID_SW_MAX		0x0f
++#define INPUT_DEVICE_ID_SW_MAX		0x10
+ #define INPUT_DEVICE_ID_PROP_MAX	0x1f
  
-+	pm_wakeup_event(&data->client->dev, 0);
-+
- 	hover_event = hover_info & 0x40;
- 	for (i = 0; i < ETP_MAX_FINGERS; i++) {
- 		contact_valid = tp_info & (1U << (3 + i));
-@@ -974,6 +976,8 @@ static void elan_report_trackpoint(struct elan_tp_data *data, u8 *report)
- 	u8 *packet = &report[ETP_REPORT_ID_OFFSET + 1];
- 	int x, y;
+ #define INPUT_DEVICE_ID_MATCH_BUS	1
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 85387c76c24f3..472cd5bc55676 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -808,7 +808,8 @@
+ #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+ #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+ #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+-#define SW_MAX			0x0f
++#define SW_MACHINE_COVER	0x10  /* set = cover closed */
++#define SW_MAX			0x10
+ #define SW_CNT			(SW_MAX+1)
  
-+	pm_wakeup_event(&data->client->dev, 0);
-+
- 	if (!data->tp_input) {
- 		dev_warn_once(&data->client->dev,
- 			      "received a trackpoint report while no trackpoint device has been created. Please report upstream.\n");
-@@ -998,7 +1002,6 @@ static void elan_report_trackpoint(struct elan_tp_data *data, u8 *report)
- static irqreturn_t elan_isr(int irq, void *dev_id)
- {
- 	struct elan_tp_data *data = dev_id;
--	struct device *dev = &data->client->dev;
- 	int error;
- 	u8 report[ETP_MAX_REPORT_LEN];
- 
-@@ -1016,8 +1019,6 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
- 	if (error)
- 		goto out;
- 
--	pm_wakeup_event(dev, 0);
--
- 	switch (report[ETP_REPORT_ID_OFFSET]) {
- 	case ETP_REPORT_ID:
- 		elan_report_absolute(data, report);
-@@ -1026,7 +1027,7 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
- 		elan_report_trackpoint(data, report);
- 		break;
- 	default:
--		dev_err(dev, "invalid report id data (%x)\n",
-+		dev_err(&data->client->dev, "invalid report id data (%x)\n",
- 			report[ETP_REPORT_ID_OFFSET]);
- 	}
- 
+ /*
 -- 
 2.25.1
 

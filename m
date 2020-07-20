@@ -7,46 +7,45 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24DB7C43464
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:38:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B27DC4346F
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:38:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E9A0422BEF
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:38:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B2CA22D01
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595281095;
-	bh=CNA2UcGDHuCk9lpCPB6VSEaq6G3lroCk8+yxTtXAEhs=;
+	s=default; t=1595281107;
+	bh=kOVhulJk+pdwU88duSZrqzaEiuBdYU+NRWyGSP6HyBo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=kOHf1rH5TfoGOP5ImS8PtvcIrqpGGrKUzcQKi4IV3escoie1iO1SPLZEQP0PIh2TG
-	 uqLtTgl8O/Ln+FKZjE0Hk1gydpB/mGH/BoDEku7iScIoxoE87LEgQJkR9iEGPPJaX0
-	 MZ8Xm8n2Z8eThG49fdYrK016ur9+8zmJZ1nVY3VE=
+	b=hJVMvV6zzGJCb29mxkn5ru+0Fs6YwX37qc5NaPntuh1/7WABCx1GVNmcmwzO3XsR9
+	 q6Psh/ggv6zTf7ULtdBqOn7KcmFTcY9X72Vc0GPOAJZbJTVZlX1jsZWVhKNtMy2dYa
+	 5h044raBG0g6jf/FvFSHt7KXHcLYfAm5t9/5uxLY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728037AbgGTViN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 20 Jul 2020 17:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56572 "EHLO mail.kernel.org"
+        id S1728131AbgGTViZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 20 Jul 2020 17:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728023AbgGTViL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:38:11 -0400
+        id S1728121AbgGTViY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:38:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A96D207FC;
-        Mon, 20 Jul 2020 21:38:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29F8E22BEF;
+        Mon, 20 Jul 2020 21:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281091;
-        bh=CNA2UcGDHuCk9lpCPB6VSEaq6G3lroCk8+yxTtXAEhs=;
+        s=default; t=1595281104;
+        bh=kOVhulJk+pdwU88duSZrqzaEiuBdYU+NRWyGSP6HyBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RzR8iDKMidKLH9HO1uVJa7muUoBbZ7IjyUNfbbY3FJ69TgP3dOkxhWdNfU3C79ciC
-         AFMfKRR6qG6gvOgabmDkX8LtecTBJzaNTKyT3mebFb3O1Ay3jO2fk4uxU7oEIJjZ/F
-         GC6Vt3oQtrxAnSogXnap9EJ5pfjxe3jGiVa6i4xY=
+        b=JCMi54f/2rJyiENWFJn/D90f9R+AxO4eCXLAzuXdR3HQdSa/ZlT8OiYj1PEEU//0W
+         ojm/ZEWiPwyEug5e63Kk20RHNywwfqvZDiflMecYJ3icJmYjGYZMq3hIHJoPSJru+A
+         L1L9jZ4jlVbBLofXmETODsYCA5ncwDAYN1USs1xg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
-        Siarhei Vishniakou <svv@google.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/34] HID: steam: fixes race in handling device list.
-Date:   Mon, 20 Jul 2020 17:37:36 -0400
-Message-Id: <20200720213807.407380-3-sashal@kernel.org>
+Cc:     Ilya Katsnelson <me@0upti.me>, Lyude Paul <lyude@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 13/34] Input: synaptics - enable InterTouch for ThinkPad X1E 1st gen
+Date:   Mon, 20 Jul 2020 17:37:46 -0400
+Message-Id: <20200720213807.407380-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200720213807.407380-1-sashal@kernel.org>
 References: <20200720213807.407380-1-sashal@kernel.org>
@@ -59,57 +58,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+From: Ilya Katsnelson <me@0upti.me>
 
-[ Upstream commit 2d3f53a80e4eed078669853a178ed96d88f74143 ]
+[ Upstream commit dcb00fc799dc03fd320e123e4c81b3278c763ea5 ]
 
-Using uhid and KASAN this driver crashed because it was getting
-several connection events where it only expected one. Then the
-device was added several times to the static device list and it got
-corrupted.
+Tested on my own laptop, touchpad feels slightly more responsive with
+this on, though it might just be placebo.
 
-This patch checks if the device is already in the list before adding
-it.
-
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Tested-by: Siarhei Vishniakou <svv@google.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Ilya Katsnelson <me@0upti.me>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://lore.kernel.org/r/20200703143457.132373-1-me@0upti.me
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-steam.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 6286204d4c560..a3b151b29bd71 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -526,7 +526,8 @@ static int steam_register(struct steam_device *steam)
- 			steam_battery_register(steam);
- 
- 		mutex_lock(&steam_devices_lock);
--		list_add(&steam->list, &steam_devices);
-+		if (list_empty(&steam->list))
-+			list_add(&steam->list, &steam_devices);
- 		mutex_unlock(&steam_devices_lock);
- 	}
- 
-@@ -552,7 +553,7 @@ static void steam_unregister(struct steam_device *steam)
- 		hid_info(steam->hdev, "Steam Controller '%s' disconnected",
- 				steam->serial_no);
- 		mutex_lock(&steam_devices_lock);
--		list_del(&steam->list);
-+		list_del_init(&steam->list);
- 		mutex_unlock(&steam_devices_lock);
- 		steam->serial_no[0] = 0;
- 	}
-@@ -738,6 +739,7 @@ static int steam_probe(struct hid_device *hdev,
- 	mutex_init(&steam->mutex);
- 	steam->quirks = id->driver_data;
- 	INIT_WORK(&steam->work_connect, steam_work_connect_cb);
-+	INIT_LIST_HEAD(&steam->list);
- 
- 	steam->client_hdev = steam_create_client_hid(hdev);
- 	if (IS_ERR(steam->client_hdev)) {
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 758dae8d65006..4b81b2d0fe067 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -179,6 +179,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0093", /* T480 */
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
++	"LEN0099", /* X1 Extreme 1st */
+ 	"LEN009b", /* T580 */
+ 	"LEN200f", /* T450s */
+ 	"LEN2044", /* L470  */
 -- 
 2.25.1
 

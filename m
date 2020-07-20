@@ -7,49 +7,46 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E51A4C2D0A2
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:39:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6CBFC388CB
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:41:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C116622CB2
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:39:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A75B7206E9
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595281178;
-	bh=4JzCQhAGnw2TNVm7WPrALwR6pRDjtp1IIAQIm09Db9U=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=cJQiRrs6oA819qSrIdaBbg7/psbIT19Lv23uV9rf62Fcrxq76rCnTWxbw9Qfn6pgK
-	 rCh5SZkt3KNii5Akiz8s26Q6XHdNRSXYYnuuTWbEEh1653xNHFgICFJyxEED8ijSH0
-	 0VHcSewGHRDsckjd7WIHfe/VLcYatcycKnjiITOE=
+	s=default; t=1595281286;
+	bh=qdAfJnBJ7sjyxic7UNz+QaCPtfFw871DnQVRrHY+yCY=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=radsDnIQje9U26FV38jemd2Beq08IpT0pMtOgyl+lnCtEn9CJBEMbpb9f74yz1Wxr
+	 HSyqcJSBQ0k7lfqrDZA9ESRWRpF2iiD0eHA9TBRCgxRfpVLbRzp+aI8aH1PeCg+RRF
+	 pj0RK4CWFalV42hSFZxceIDPC9mpruzZsTPtyR/U=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726888AbgGTVjg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 20 Jul 2020 17:39:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59388 "EHLO mail.kernel.org"
+        id S1727990AbgGTVlV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 20 Jul 2020 17:41:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728502AbgGTVjg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:39:36 -0400
+        id S1728481AbgGTVje (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:39:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 645F820717;
-        Mon, 20 Jul 2020 21:39:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 440E222CB2;
+        Mon, 20 Jul 2020 21:39:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281175;
-        bh=4JzCQhAGnw2TNVm7WPrALwR6pRDjtp1IIAQIm09Db9U=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=czfauCnyqpae6O78SB6/bTcR394x0tYh0asEf9RV8BQwVLm2ENRwLZJmU8cShLKlG
-         +FfdYmCwEGigBaEgxy5Kncin7fcEq7aDrWJ0LcAKlg3LdOc3IOyse+OX05teJsA/be
-         jTh7mLJh8DjwSaNTziGxVQwhjIYH8pV5mHfj+k0Q=
+        s=default; t=1595281173;
+        bh=qdAfJnBJ7sjyxic7UNz+QaCPtfFw871DnQVRrHY+yCY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Fwrybm10H4XMelhaiEVj1x6OWsGrSjMOQn41OPy7MPz4Cyd9z0af+8DNcL9pN1/d6
+         Xj5b+9067fFLMaohfDVo5056nxObk8AFrSp4t6PEfahqZTNh/cLa32M2IfGsQjHSGy
+         M+PdecZV6A4nlPKVqArKiqqgxVgGfKBwkWCB20h4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Joao Moreno <mail@joaomoreno.com>,
+Cc:     Federico Ricchiuto <fed.ricchiuto@gmail.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 2/9] HID: apple: Disable Fn-key key-re-mapping on clone keyboards
-Date:   Mon, 20 Jul 2020 17:39:25 -0400
-Message-Id: <20200720213932.408089-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 1/9] HID: i2c-hid: add Mediacom FlexBook edge13 to descriptor override
+Date:   Mon, 20 Jul 2020 17:39:24 -0400
+Message-Id: <20200720213932.408089-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200720213932.408089-1-sashal@kernel.org>
-References: <20200720213932.408089-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,98 +56,39 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Federico Ricchiuto <fed.ricchiuto@gmail.com>
 
-[ Upstream commit a5d81646fa294eed57786a9310b06ca48902adf8 ]
+[ Upstream commit 43e666acb79f3d355dd89bf20f4d25d3b15da13e ]
 
-The Maxxter KB-BT-001 Bluetooth keyboard, which looks somewhat like the
-Apple Wireless Keyboard, is using the vendor and product IDs (05AC:0239)
-of the Apple Wireless Keyboard (2009 ANSI version) <sigh>.
+The Mediacom FlexBook edge13 uses the SIPODEV SP1064 touchpad, which does not
+supply descriptors, so it has to be added to the override list.
 
-But its F1 - F10 keys are marked as sending F1 - F10, not the special
-functions hid-apple.c maps them too; and since its descriptors do not
-contain the HID_UP_CUSTOM | 0x0003 usage apple-hid looks for for the
-Fn-key, apple_setup_input() never gets called, so F1 - F6 are mapped
-to key-codes which have not been set in the keybit array causing them
-to not send any events at all.
-
-The lack of a usage code matching the Fn key in the clone is actually
-useful as this allows solving this problem in a generic way.
-
-This commits adds a fn_found flag and it adds a input_configured
-callback which checks if this flag is set once all usages have been
-mapped. If it is not set, then assume this is a clone and clear the
-quirks bitmap so that the hid-apple code does not add any special
-handling to this keyboard.
-
-This fixes F1 - F6 not sending anything at all and F7 - F12 sending
-the wrong codes on the Maxxter KB-BT-001 Bluetooth keyboard and on
-similar clones.
-
-Cc: Joao Moreno <mail@joaomoreno.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Federico Ricchiuto <fed.ricchiuto@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 197eb75d10ef2..959a9e38b4f54 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -55,6 +55,7 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
- struct apple_sc {
- 	unsigned long quirks;
- 	unsigned int fn_on;
-+	unsigned int fn_found;
- 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
- };
- 
-@@ -340,12 +341,15 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
- {
-+	struct apple_sc *asc = hid_get_drvdata(hdev);
-+
- 	if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
- 			usage->hid == (HID_UP_MSVENDOR | 0x0003) ||
- 			usage->hid == (HID_UP_HPVENDOR2 | 0x0003)) {
- 		/* The fn key on Apple USB keyboards */
- 		set_bit(EV_REP, hi->input->evbit);
- 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
-+		asc->fn_found = true;
- 		apple_setup_input(hi->input);
- 		return 1;
- 	}
-@@ -372,6 +376,19 @@ static int apple_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 	return 0;
- }
- 
-+static int apple_input_configured(struct hid_device *hdev,
-+		struct hid_input *hidinput)
-+{
-+	struct apple_sc *asc = hid_get_drvdata(hdev);
-+
-+	if ((asc->quirks & APPLE_HAS_FN) && !asc->fn_found) {
-+		hid_info(hdev, "Fn key not found (Apple Wireless Keyboard clone?), disabling Fn key handling\n");
-+		asc->quirks = 0;
-+	}
-+
-+	return 0;
-+}
-+
- static int apple_probe(struct hid_device *hdev,
- 		const struct hid_device_id *id)
- {
-@@ -593,6 +610,7 @@ static struct hid_driver apple_driver = {
- 	.event = apple_event,
- 	.input_mapping = apple_input_mapping,
- 	.input_mapped = apple_input_mapped,
-+	.input_configured = apple_input_configured,
- };
- module_hid_driver(apple_driver);
- 
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index 681ac9bc68b3d..f98c1e1b1dbdc 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -373,6 +373,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Mediacom FlexBook edge 13",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MEDIACOM"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "FlexBook_edge13-M-FBE13"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{
+ 		.ident = "Odys Winbook 13",
+ 		.matches = {
 -- 
 2.25.1
 

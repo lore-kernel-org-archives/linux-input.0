@@ -7,46 +7,49 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F022FC43466
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:38:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24DB7C43464
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:38:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3E0322CAF
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:38:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E9A0422BEF
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jul 2020 21:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1595281091;
-	bh=z2IM2Mu9HSt9sLr6cNZQIScq87Wopxln51FoHO14OGA=;
-	h=From:To:Cc:Subject:Date:List-ID:From;
-	b=pU7AWhcCVTbYSFutisMTSJ+G+4gbgOVZjJ/B/IaWaT00zQWf4OYut3ysAQyZFrnkl
-	 8b9Fh562DrF+ud3W7U1C6/Jg1meiCOs0pnzyUQMTay/vln/Y+GBtukn1P2c34bvAn6
-	 AL7lbOtXfTbbJPLvp3Qjzg5KQJouHIy/SDpVz5Qs=
+	s=default; t=1595281095;
+	bh=CNA2UcGDHuCk9lpCPB6VSEaq6G3lroCk8+yxTtXAEhs=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=kOHf1rH5TfoGOP5ImS8PtvcIrqpGGrKUzcQKi4IV3escoie1iO1SPLZEQP0PIh2TG
+	 uqLtTgl8O/Ln+FKZjE0Hk1gydpB/mGH/BoDEku7iScIoxoE87LEgQJkR9iEGPPJaX0
+	 MZ8Xm8n2Z8eThG49fdYrK016ur9+8zmJZ1nVY3VE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728008AbgGTViK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 20 Jul 2020 17:38:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56538 "EHLO mail.kernel.org"
+        id S1728037AbgGTViN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 20 Jul 2020 17:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727991AbgGTViJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Jul 2020 17:38:09 -0400
+        id S1728023AbgGTViL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Jul 2020 17:38:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C5FE22BEF;
-        Mon, 20 Jul 2020 21:38:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A96D207FC;
+        Mon, 20 Jul 2020 21:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1595281089;
-        bh=z2IM2Mu9HSt9sLr6cNZQIScq87Wopxln51FoHO14OGA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=XHPHkG76k7QWZ8XcfEl/zLCFEXr+0lTPIihOrn+tHvbYaBasNq4QZpX0zDIsR2MvY
-         qck7dD5ROTxOwZAWyR/SB3WET35HE8AWQTu+eqa9S+jx/Q7jAMuyaXhVnoBuK38UQA
-         pMM71yT/Js0gvFHfKKWpvWhmq6/EmXoLxcqVz1qU=
+        s=default; t=1595281091;
+        bh=CNA2UcGDHuCk9lpCPB6VSEaq6G3lroCk8+yxTtXAEhs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RzR8iDKMidKLH9HO1uVJa7muUoBbZ7IjyUNfbbY3FJ69TgP3dOkxhWdNfU3C79ciC
+         AFMfKRR6qG6gvOgabmDkX8LtecTBJzaNTKyT3mebFb3O1Ay3jO2fk4uxU7oEIJjZ/F
+         GC6Vt3oQtrxAnSogXnap9EJ5pfjxe3jGiVa6i4xY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Federico Ricchiuto <fed.ricchiuto@gmail.com>,
+Cc:     Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
+        Siarhei Vishniakou <svv@google.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 01/34] HID: i2c-hid: add Mediacom FlexBook edge13 to descriptor override
-Date:   Mon, 20 Jul 2020 17:37:34 -0400
-Message-Id: <20200720213807.407380-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 03/34] HID: steam: fixes race in handling device list.
+Date:   Mon, 20 Jul 2020 17:37:36 -0400
+Message-Id: <20200720213807.407380-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200720213807.407380-1-sashal@kernel.org>
+References: <20200720213807.407380-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,39 +59,57 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Federico Ricchiuto <fed.ricchiuto@gmail.com>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 
-[ Upstream commit 43e666acb79f3d355dd89bf20f4d25d3b15da13e ]
+[ Upstream commit 2d3f53a80e4eed078669853a178ed96d88f74143 ]
 
-The Mediacom FlexBook edge13 uses the SIPODEV SP1064 touchpad, which does not
-supply descriptors, so it has to be added to the override list.
+Using uhid and KASAN this driver crashed because it was getting
+several connection events where it only expected one. Then the
+device was added several times to the static device list and it got
+corrupted.
 
-Signed-off-by: Federico Ricchiuto <fed.ricchiuto@gmail.com>
+This patch checks if the device is already in the list before adding
+it.
+
+Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Tested-by: Siarhei Vishniakou <svv@google.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/hid-steam.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index ec142bc8c1daf..35f3bfc3e6f59 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -373,6 +373,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Mediacom FlexBook edge 13",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MEDIACOM"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "FlexBook_edge13-M-FBE13"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{
- 		.ident = "Odys Winbook 13",
- 		.matches = {
+diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+index 6286204d4c560..a3b151b29bd71 100644
+--- a/drivers/hid/hid-steam.c
++++ b/drivers/hid/hid-steam.c
+@@ -526,7 +526,8 @@ static int steam_register(struct steam_device *steam)
+ 			steam_battery_register(steam);
+ 
+ 		mutex_lock(&steam_devices_lock);
+-		list_add(&steam->list, &steam_devices);
++		if (list_empty(&steam->list))
++			list_add(&steam->list, &steam_devices);
+ 		mutex_unlock(&steam_devices_lock);
+ 	}
+ 
+@@ -552,7 +553,7 @@ static void steam_unregister(struct steam_device *steam)
+ 		hid_info(steam->hdev, "Steam Controller '%s' disconnected",
+ 				steam->serial_no);
+ 		mutex_lock(&steam_devices_lock);
+-		list_del(&steam->list);
++		list_del_init(&steam->list);
+ 		mutex_unlock(&steam_devices_lock);
+ 		steam->serial_no[0] = 0;
+ 	}
+@@ -738,6 +739,7 @@ static int steam_probe(struct hid_device *hdev,
+ 	mutex_init(&steam->mutex);
+ 	steam->quirks = id->driver_data;
+ 	INIT_WORK(&steam->work_connect, steam_work_connect_cb);
++	INIT_LIST_HEAD(&steam->list);
+ 
+ 	steam->client_hdev = steam_create_client_hid(hdev);
+ 	if (IS_ERR(steam->client_hdev)) {
 -- 
 2.25.1
 

@@ -2,185 +2,78 @@ Return-Path: <SRS0=KRpH=BA=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11EC8C433EB
-	for <linux-input@archiver.kernel.org>; Tue, 21 Jul 2020 01:43:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01A4FC433E0
+	for <linux-input@archiver.kernel.org>; Tue, 21 Jul 2020 02:25:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E59042077D
-	for <linux-input@archiver.kernel.org>; Tue, 21 Jul 2020 01:43:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB2CA207DD
+	for <linux-input@archiver.kernel.org>; Tue, 21 Jul 2020 02:25:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b6ayxuvJ"
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="bsiAFEmu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726636AbgGUBl5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 20 Jul 2020 21:41:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46936 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726046AbgGUBly (ORCPT
+        id S1726068AbgGUCZg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 20 Jul 2020 22:25:36 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:50592 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725862AbgGUCZf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Jul 2020 21:41:54 -0400
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC7FC061794;
-        Mon, 20 Jul 2020 18:41:54 -0700 (PDT)
-Received: by mail-qk1-x742.google.com with SMTP id l23so10009660qkk.0;
-        Mon, 20 Jul 2020 18:41:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=DERd1XiiQ1hJZ50JeiQZinchj1o74kAZdZmYC8ZQ8Zk=;
-        b=b6ayxuvJvQ/fwzYklty/r1lDrfj/p+90q0IYit9Tw5G260qDr+7RrojTXINlsDvYwu
-         UvOma4L5rMrdOt6OltvQ8udaHZUfww2Qx8gMqYVIbh+6VefcXfn01OLu69IGIq8Nhrad
-         iAY/ILDJu3mqcCVZ2ngEW3/v5SuXWfrainpdAQf24gq1UALtflzH2MoJ9dXOPursyB2F
-         azb780Az11GdtgsBmOoDbqmiTyAgRL0n65fvTnW1SRLzQPcVkRsSo19MkLxJ7iIMEQVS
-         H6m2FOP9mtv+AgiCy5MkYA8l7O+acI0rZE7jG13ucWT/WTE4epfVsWjMbrJ1j/toUM9L
-         IdyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=DERd1XiiQ1hJZ50JeiQZinchj1o74kAZdZmYC8ZQ8Zk=;
-        b=Rmfw+hyGhQvbhr26vvEPvzASbKMzBcJjJ/QfWko/zctzznJPR7M2CJ6zovIBAvX5sV
-         0ngIoDJcQpsgVepU7cDDf/PH5oTeBPCGVhmXkC1x7RB0Dn7moF9+ih9BozIhwU8IoBB6
-         TGZl3oxijRLKae9LFRmFtq1u6pXKOPU/u1wZHkQT2qzG8RLIq6yfWqXDKz0PxO5eW8Bc
-         7biV6kvV/je6QDGF3TiTfz08koIb3jla4Z5H/kW9QILQB1ZCx+Fj0Hyq2nMGCRowMS5f
-         dVWNWIawojPta7L9UJ6fs8YenWlEvmAgSX9HrzBwYa7mpoKCQENXjCVHctzjw9TzHU3V
-         omJg==
-X-Gm-Message-State: AOAM530OkTsKSdYQm0ki/C8NBL33IHbMai+4SYRTN6ZSJnYktN92Q/Re
-        iGqOq1p4iBvAckjCiM/70xY=
-X-Google-Smtp-Source: ABdhPJym/jbGQNmx1SvtqQBRSFf2Qj2m2dXDi4nVQwP+FAv+zQRFXu9Ux6dF6hMUE55+/1NAokC+Pg==
-X-Received: by 2002:a37:58c7:: with SMTP id m190mr25495224qkb.265.1595295713290;
-        Mon, 20 Jul 2020 18:41:53 -0700 (PDT)
-Received: from auth1-smtp.messagingengine.com (auth1-smtp.messagingengine.com. [66.111.4.227])
-        by smtp.gmail.com with ESMTPSA id i66sm907693qke.124.2020.07.20.18.41.52
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Jul 2020 18:41:52 -0700 (PDT)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailauth.nyi.internal (Postfix) with ESMTP id D9BF527C0058;
-        Mon, 20 Jul 2020 21:41:51 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 20 Jul 2020 21:41:51 -0400
-X-ME-Sender: <xms:30cWX9b_m0BjguJfvZ8ImFxPOf-DrPVLdikDUiyf24NDYvC4T9xQ3A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrgeehgdegjecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenog
-    fuohhrthgvugftvggtihhpvdculdegtddmnecujfgurhephffvufffkffojghfggfgsedt
-    keertdertddtnecuhfhrohhmpeeuohhquhhnucfhvghnghcuoegsohhquhhnrdhfvghngh
-    esghhmrghilhdrtghomheqnecuggftrfgrthhtvghrnhephedvveetfefgiedutedtfeev
-    vddvleekjeeuffffleeguefhhfejteekieeuueelnecukfhppeehvddrudehhedrudduud
-    drjedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
-    sghoqhhunhdomhgvshhmthhprghuthhhphgvrhhsohhnrghlihhthidqieelvdeghedtie
-    egqddujeejkeehheehvddqsghoqhhunhdrfhgvnhhgpeepghhmrghilhdrtghomhesfhhi
-    gihmvgdrnhgrmhgv
-X-ME-Proxy: <xmx:30cWX0ZOhF-ZUchQWaCL_AlTaJDvFfRsHpDF4a89Cn3yk0UxHLHrjw>
-    <xmx:30cWX_-PkF3O62FHCIPr_2vuKYfJxEZaOiZpJkYle0d2pqmTC-QJGA>
-    <xmx:30cWX7rV490yUE6i-wMByRiwQjutAftJVWBvzQjtY3QfTZiKMMMJaw>
-    <xmx:30cWXzCK_wXZWP2UXpCiet23XXfsm4lMO9HRigK9k3xNNYlGfNIncybYbF4>
-Received: from localhost (unknown [52.155.111.71])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 557E33280060;
-        Mon, 20 Jul 2020 21:41:51 -0400 (EDT)
-From:   Boqun Feng <boqun.feng@gmail.com>
-To:     linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Cc:     "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Mon, 20 Jul 2020 22:25:35 -0400
+X-UUID: b82cacbb97414d5596c3337b478f1a9f-20200721
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=s/3wonDz1KdEZ8pSKDFcXqt6/o4RelDaDAIyV791UxU=;
+        b=bsiAFEmu0UVLwBjX86OHEYBnYX/qx3/03L1N3xQ/zdXjfoWXXiv5Pf3RsbaVJx5HD0LSuUJpaY9LgJdMzKMA3YpDsXXpAXgba3GXRyUas9GJcJAgMljUf5pgkx0oy1aHIc2Cl9LR1CIpK04+mwUqhGN6CnFdz2tNFcqV+GvmnRw=;
+X-UUID: b82cacbb97414d5596c3337b478f1a9f-20200721
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
+        (envelope-from <fengping.yu@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 706762059; Tue, 21 Jul 2020 10:25:31 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 21 Jul 2020 10:25:29 +0800
+Received: from localhost.localdomain (10.15.20.246) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 21 Jul 2020 10:25:28 +0800
+From:   Fengping yu <fengping.yu@mediatek.com>
+To:     Yingjoe Chen <yingjoe.chen@mediatek.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Boqun Feng <boqun.feng@gmail.com>
-Subject: [RFC 01/11] Drivers: hv: vmbus: Always use HV_HYP_PAGE_SIZE for gpadl
-Date:   Tue, 21 Jul 2020 09:41:25 +0800
-Message-Id: <20200721014135.84140-2-boqun.feng@gmail.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200721014135.84140-1-boqun.feng@gmail.com>
-References: <20200721014135.84140-1-boqun.feng@gmail.com>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>
+CC:     <linux-input@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>
+Subject: [PATCH v15] Add matrix keypad driver support Mediatek SoCs 
+Date:   Tue, 21 Jul 2020 10:23:21 +0800
+Message-ID: <20200721022324.21898-1-fengping.yu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TM-SNTS-SMTP: 791BD00D05F3F631098B4F917B8A164A3A32B05A5D575B4CFDFE6764A7BD256E2000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Since the hypervisor always uses 4K as its page size, the size of PFNs
-used for gpadl should be HV_HYP_PAGE_SIZE rather than PAGE_SIZE, so
-adjust this accordingly as the preparation for supporting 16K/64K page
-size guests.
-
-Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
----
- drivers/hv/channel.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
-index 23f358cb7f49..b4378d9ae6ca 100644
---- a/drivers/hv/channel.c
-+++ b/drivers/hv/channel.c
-@@ -21,9 +21,6 @@
- 
- #include "hyperv_vmbus.h"
- 
--#define NUM_PAGES_SPANNED(addr, len) \
--((PAGE_ALIGN(addr + len) >> PAGE_SHIFT) - (addr >> PAGE_SHIFT))
--
- static unsigned long virt_to_hvpfn(void *addr)
- {
- 	phys_addr_t paddr;
-@@ -34,7 +31,7 @@ static unsigned long virt_to_hvpfn(void *addr)
- 	else
- 		paddr = __pa(addr);
- 
--	return  paddr >> PAGE_SHIFT;
-+	return  paddr >> HV_HYP_PAGE_SHIFT;
- }
- 
- /*
-@@ -305,7 +302,7 @@ static int create_gpadl_header(void *kbuffer, u32 size,
- 
- 	int pfnsum, pfncount, pfnleft, pfncurr, pfnsize;
- 
--	pagecount = size >> PAGE_SHIFT;
-+	pagecount = size >> HV_HYP_PAGE_SHIFT;
- 
- 	/* do we need a gpadl body msg */
- 	pfnsize = MAX_SIZE_CHANNEL_MESSAGE -
-@@ -335,7 +332,7 @@ static int create_gpadl_header(void *kbuffer, u32 size,
- 		gpadl_header->range[0].byte_count = size;
- 		for (i = 0; i < pfncount; i++)
- 			gpadl_header->range[0].pfn_array[i] = virt_to_hvpfn(
--				kbuffer + PAGE_SIZE * i);
-+				kbuffer + HV_HYP_PAGE_SIZE * i);
- 		*msginfo = msgheader;
- 
- 		pfnsum = pfncount;
-@@ -387,7 +384,7 @@ static int create_gpadl_header(void *kbuffer, u32 size,
- 			 */
- 			for (i = 0; i < pfncurr; i++)
- 				gpadl_body->pfn[i] = virt_to_hvpfn(
--					kbuffer + PAGE_SIZE * (pfnsum + i));
-+					kbuffer + HV_HYP_PAGE_SIZE * (pfnsum + i));
- 
- 			/* add to msg header */
- 			list_add_tail(&msgbody->msglistentry,
-@@ -416,7 +413,7 @@ static int create_gpadl_header(void *kbuffer, u32 size,
- 		gpadl_header->range[0].byte_count = size;
- 		for (i = 0; i < pagecount; i++)
- 			gpadl_header->range[0].pfn_array[i] = virt_to_hvpfn(
--				kbuffer + PAGE_SIZE * i);
-+				kbuffer + HV_HYP_PAGE_SIZE * i);
- 
- 		*msginfo = msgheader;
- 	}
--- 
-2.27.0
+DQpDaGFuZ2Ugc2luY2UgdjE0Og0KLSBhZGQgUFRSX0VSUiB0byByZXNvbHZlIGNvbXBpbGVyIHdh
+cm5pbmcNCi0gYWRkIElSUUZfT05FU0hPVCBmbGFnICB0byByZXF1ZXN0X2lycQ0KDQoNCmZlbmdw
+aW5nLnl1ICgzKToNCiAgZHQtYmluZGluZ3M6IEFkZCBrZXlwYWQgZGV2aWNldHJlZSBkb2N1bWVu
+dGF0aW9uDQogIGRyaXZlcnM6IGlucHV0OmtleWJvYXJkOiBBZGQgbXRrIGtleXBhZCBkcml2ZXIN
+CiAgY29uZmlnczogZGVmY29uZmlnOiBBZGQgQ09ORklHX0tFWUJPQVJEX01US19LUEQ9bQ0KDQog
+Li4uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQvbXRrLWtwZC55YW1sICAgIHwgIDk2ICsrKysr
+KysrDQogYXJjaC9hcm02NC9jb25maWdzL2RlZmNvbmZpZyAgICAgICAgICAgICAgICAgIHwgICAx
+ICsNCiBkcml2ZXJzL2lucHV0L2tleWJvYXJkL0tjb25maWcgICAgICAgICAgICAgICAgfCAgMTEg
+Kw0KIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvTWFrZWZpbGUgICAgICAgICAgICAgICB8ICAgMSAr
+DQogZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tdGsta3BkLmMgICAgICAgICAgICAgIHwgMjA5ICsr
+KysrKysrKysrKysrKysrKw0KIDUgZmlsZXMgY2hhbmdlZCwgMzE4IGluc2VydGlvbnMoKykNCiBj
+cmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0
+L210ay1rcGQueWFtbA0KIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL2lucHV0L2tleWJvYXJk
+L210ay1rcGQuYw0KDQotLQ0KMi4xOC4wDQoNCg==
 

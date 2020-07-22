@@ -2,129 +2,91 @@ Return-Path: <SRS0=K8d0=BB=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24F62C433DF
-	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 02:56:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B415EC433E7
+	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 05:34:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 01B4820792
-	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 02:55:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D27E207DD
+	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 05:34:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZjF9+TVn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731647AbgGVCz7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 21 Jul 2020 22:55:59 -0400
-Received: from emcscan.emc.com.tw ([192.72.220.5]:16735 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731641AbgGVCz7 (ORCPT
-        <rfc822;Linux-input@vger.kernel.org>);
-        Tue, 21 Jul 2020 22:55:59 -0400
-X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
-   d="scan'208";a="36534837"
-Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
-  by emcscan.emc.com.tw with ESMTP; 22 Jul 2020 10:55:56 +0800
-Received: from 192.168.10.23
-        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(78053:0:AUTH_RELAY)
-        (envelope-from <dave.wang@emc.com.tw>); Wed, 22 Jul 2020 10:55:55 +0800 (CST)
-Received: from 192.168.33.57
-        by webmail.emc.com.tw with Mail2000 ESMTP Server V7.00(2479:1:AUTH_RELAY)
-        (envelope-from <dave.wang@emc.com.tw>); Wed, 22 Jul 2020 10:55:53 +0800 (CST)
-From:   "Dave.Wang" <dave.wang@emc.com.tw>
-To:     "'Dmitry Torokhov'" <dmitry.torokhov@gmail.com>
-Cc:     <Linux-input@vger.kernel.org>, <Linux-kernel@vger.kernel.org>,
-        <phoenix@emc.com.tw>, <josh.chen@emc.com.tw>,
-        <jingle.wu@emc.com.tw>, <kai.heng.feng@canonical.com>
-References: <20191209111107.32239-1-dave.wang@emc.com.tw> <20200721161236.GI1665100@dtor-ws>
-In-Reply-To: <20200721161236.GI1665100@dtor-ws>
-Subject: RE: [PATCH 1/3] Input: elan_i2c - Do no operation for elan_smbus_set_mode function
-Date:   Wed, 22 Jul 2020 10:55:53 +0800
-Message-ID: <002801d65fd3$9d82edf0$d888c9d0$@emc.com.tw>
+        id S1727840AbgGVFey (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 22 Jul 2020 01:34:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53648 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726253AbgGVFex (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Jul 2020 01:34:53 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22F31C061794;
+        Tue, 21 Jul 2020 22:34:53 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id o1so403738plk.1;
+        Tue, 21 Jul 2020 22:34:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=eHvPGjWaZQ28bLiz1ZmIQtg8R6kb+fan9GkxYboAYfo=;
+        b=ZjF9+TVnOp59Feo51MZERSlj/aMtRYnAdf2W84YVC6dlBkNbEho465KcRXsf+oyJq5
+         fqt8sc5kW7dFCrrVJZIJeGdObLRFCFjk3q6PwhKv7QLrj35pTnIeg9KB/aR6Kwehrj+V
+         2tSVo5hl9rFHv7j1yU5srYWPfqhSFUCc+N24xlTdSP4BojizGO+snDJfS6hhp7bipcRJ
+         PfhhvfH6FS5TMsSArWgzAjnWhHatQzxKAa0Zn087e6fDv0rj75z1BPxNd027lkx2Oibv
+         477tzC8PwM2/XpTwCtOfBLAkQGMLbvwcL2GsAvhaMIkWsktP7XYqeMbxmHdzriiyJRvi
+         cEJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=eHvPGjWaZQ28bLiz1ZmIQtg8R6kb+fan9GkxYboAYfo=;
+        b=adswr2RSM/qhnccf6fOJQHizeeSFNO383RFMccy4ZuarkoWUNpuX2Zq59eiDdbu1k3
+         cRtfP3/hdkQsJ3XjhEEQRXa1AkLT2hg0DvIN1QLKTdLCfhk0yW4GsckREgo8Lq4UrRf7
+         ACNhqmoj384D+F+nMhWx1NHR667lnPHSpXK7+CcwWF7d9Eq31e4A8dFonKH7ACabqeYD
+         NQpEGGiOqzTJPLNvIruOxa2F55dosfQSplAbQh+veZNr9wHeyRm+sCuCimXlZuFptz60
+         I2HOxSFVXPmmubogjvI+kxt462epUaBQvWDePAoRrU6Il62xBvKkrKErUilXnvDCxr7k
+         s2cQ==
+X-Gm-Message-State: AOAM532scLjqtaIgnZfSu0GKqqHzRzYHEUXxVDIcDmdsAly+C5UjNmkK
+        3Ik4DP1iVd9PgMvXzaKiJv8v79yQUHk=
+X-Google-Smtp-Source: ABdhPJxia3Jv7L1rBV7mCR11MY2r1s1r/L6fKp4S3olC+B7ULrwy8fi5s3+9HbG6iFS1b0oF/SuvCw==
+X-Received: by 2002:a17:902:7605:: with SMTP id k5mr24618970pll.331.1595396092514;
+        Tue, 21 Jul 2020 22:34:52 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id m16sm22902732pfd.101.2020.07.21.22.34.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jul 2020 22:34:52 -0700 (PDT)
+Date:   Tue, 21 Jul 2020 22:34:50 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Cc:     syrjala@sci.fi, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: ati_remote2 - add missing newlines when printing
+ module parameters
+Message-ID: <20200722053450.GP1665100@dtor-ws>
+References: <20200720092148.9320-1-wangxiongfeng2@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 15.0
-Thread-Index: AQKMobxR7qDwdRZsC9ditFT1DgHVnAJCKYzFp5RNdQA=
-Content-Language: zh-tw
-x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcMDYxMjlcYXBwZGF0YVxyb2FtaW5nXDA5ZDg0OWI2LTMyZDMtNGE0MC04NWVlLTZiODRiYTI5ZTM1Ylxtc2dzXG1zZy1kYWU5ZTYwZC1jYmM2LTExZWEtYWE4Yy04OGQ3ZjY1NjczMzBcYW1lLXRlc3RcZGFlOWU2MGYtY2JjNi0xMWVhLWFhOGMtODhkN2Y2NTY3MzMwYm9keS50eHQiIHN6PSIyNjM5IiB0PSIxMzIzOTg2MDE1MzUwMjU5NDgiIGg9IjllUnEvbUhKSVFIK05ta1lDRDM5UUdiNFRGRT0iIGlkPSIiIGJsPSIwIiBibz0iMSIvPjwvbWV0YT4=
-x-dg-rorf: true
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200720092148.9320-1-wangxiongfeng2@huawei.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dear Dmitry,
-
-Should this be moved into core? Or we only plan on using this on SMbus?
-=> using on smbus.
-
-What will happen after firmware update? How can userspace verify that the
-firmware update completed successfully if we always return static data?
-=> FW modified the architecture that reading register cmd in P/S2 and then
-updating flow in SMbus.
-As a result, it would not get success result while updating firmware in
-SMbus driver.
-Elan will use the tool to update firmware.
-
-Can the device still be accessed via PS/2 while also using SMbus?
-=> Yes, the device could still be accessed via PS/2 while also using SMbus.
-However, we cannot use P/S2 driver and SMbus driver to read register
-simultaneously because of the limitation of driver (elantench (ps2) driver
-would be unmounted before loading into SMbus driver). So we use tool to
-update firmware in SMbus interface.
-
-Best regards,
-Dave
-
------Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
-Sent: Wednesday, July 22, 2020 12:13 AM
-To: Dave Wang <dave.wang@emc.com.tw>
-Cc: Linux-input@vger.kernel.org; Linux-kernel@vger.kernel.org;
-phoenix@emc.com.tw; josh.chen@emc.com.tw; jingle.wu@emc.com.tw;
-kai.heng.feng@canonical.com
-Subject: Re: [PATCH 1/3] Input: elan_i2c - Do no operation for
-elan_smbus_set_mode function
-
-Hi Dave,
-
-On Mon, Dec 09, 2019 at 06:11:07AM -0500, Dave Wang wrote:
-> Some touchpads might get error while triggerring the set_mode command 
-> in SMBus interface. Do no operation for elan_smbus_set_mode function.
-
-Are there devices that do not trigger errors? How do we put SMbus devices
-into low power mode?
-
+On Mon, Jul 20, 2020 at 05:21:48PM +0800, Xiongfeng Wang wrote:
+> When I cat some module parameters by sysfs, it displays as follows. It's
+> better to add a newline for easy reading.
 > 
-> Signed-off-by: Dave Wang <dave.wang@emc.com.tw>
-> ---
->  drivers/input/mouse/elan_i2c_smbus.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
+> root@syzkaller:~# cat /sys/module/ati_remote2/parameters/mode_mask
+> 0x1froot@syzkaller:~# cat /sys/module/ati_remote2/parameters/channel_mask
+> 0xffffroot@syzkaller:~#
 > 
-> diff --git a/drivers/input/mouse/elan_i2c_smbus.c 
-> b/drivers/input/mouse/elan_i2c_smbus.c
-> index 8c3185d54c73..bcb9ec4a7a6b 100644
-> --- a/drivers/input/mouse/elan_i2c_smbus.c
-> +++ b/drivers/input/mouse/elan_i2c_smbus.c
-> @@ -84,10 +84,7 @@ static int elan_smbus_initialize(struct i2c_client 
-> *client)
->  
->  static int elan_smbus_set_mode(struct i2c_client *client, u8 mode)  {
-> -	u8 cmd[4] = { 0x00, 0x07, 0x00, mode };
-> -
-> -	return i2c_smbus_write_block_data(client, ETP_SMBUS_IAP_CMD,
-> -					  sizeof(cmd), cmd);
-> +	return 0; /* A no-op */
->  }
->  
->  static int elan_smbus_sleep_control(struct i2c_client *client, bool 
-> sleep)
-> --
-> 2.17.1
-> 
+> Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-Thanks.
+Applied, thank you.
 
---
+-- 
 Dmitry
-

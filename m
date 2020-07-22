@@ -2,89 +2,103 @@ Return-Path: <SRS0=K8d0=BB=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76960C433E5
-	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 05:34:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0213CC433E0
+	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 05:41:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 48DB720792
-	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 05:34:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C843620792
+	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 05:41:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jBj9pV2J"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dEUQNOgG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727969AbgGVFeo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 22 Jul 2020 01:34:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53622 "EHLO
+        id S1726736AbgGVFlt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 22 Jul 2020 01:41:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727876AbgGVFeo (ORCPT
+        with ESMTP id S1726696AbgGVFlt (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Jul 2020 01:34:44 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20393C061794;
-        Tue, 21 Jul 2020 22:34:44 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id d7so379980plq.13;
-        Tue, 21 Jul 2020 22:34:44 -0700 (PDT)
+        Wed, 22 Jul 2020 01:41:49 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8A92C061794;
+        Tue, 21 Jul 2020 22:41:48 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id o22so579663pjw.2;
+        Tue, 21 Jul 2020 22:41:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=CqQzl9x6CoNQH4iSZy7+drapjLq7r03O/hTWPhkbmb4=;
-        b=jBj9pV2JBo1eQC4Pxy7mt7cRao9xVS6pBABuAGtx89kVOr6edNorEOc8C2Z94b/n5u
-         Z8cYB5NKkngbVdtg+REvUON+ZiTBbTp5NU5I/tdcUMj3UQkY7aU4axCn3P1KZEpTOKYA
-         hfMpuLWXb+ZRbYzImoCAmUUv0LnbIx9+m+RtnE7YZCMHze+zO7/Mn546BDWIAiaR7rie
-         tGJz2ji3XlT1hPbaqAcFoMTUY6WaJNPCTeI7h3WtLnleb3e60ZTnaqcMLwU7myR3J+VG
-         uyaSmsx+sa5BBlVNtNDegtTEP9j/qb/GZ3tjLfRpHG3/LCrWVXpgDcJAycF8qD3CRIDu
-         7H9w==
+        bh=JOXcjH3Ds2znsGQsPtT2U0WmJsXIq3lc+gYn1wfYnuU=;
+        b=dEUQNOgGUrX8oVxReZCZ/tx5vnWEETp9edbUaud/VSlLiopK4JeDzocnvain0FsLMw
+         7PICdvOjUghPVTCW0qjN7n6SnZ2H5nN1HMvs9uDK+IXA85ET0oBW15K8tQX8j6o617pN
+         q+l75VjFGRhh/avhzCvbSqMXcuvtlbi3DMXeui18+MwYxPLsjtIX2AZUZJiOAE/9flCV
+         ea2Fhc2rKiCCf9XkPrhipvLf0Mgp4dryjrLrNufZYZ0rIbtgYRwukhkD6F9yssQLC+fk
+         WRh6Y5nrhcl9JFV3K3uPb9dVFzvSPLWAr6x/D7HTFWahFrwb9QZUZWXQW/5qLx4TRohI
+         fmGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=CqQzl9x6CoNQH4iSZy7+drapjLq7r03O/hTWPhkbmb4=;
-        b=K9/ClYeXoEt8CgEX4s+fuKwWR6jLbMLv2r7risfHKiO2HdLEgmMHs+tGONfSsTjiq4
-         ROwjsdtn46sOdNLuHGoNgktFkdnS5GSt7QbUGWGULKmYxqg0C05FnE0MEFplevOJVkx/
-         pMha69uLAbfLai5+u+oSO9DpuJ5zEPC06EQka5zSDrk60J3H3eX4mqSfxzCmtPOgivyR
-         huOgzubWsAyQitnR2aordB3ZW62TUBO+1y6DlJ4u1VkpeHTF5q9t49t+hyIY83FD0JBM
-         kFPdeYgqSFqnPndPqmqs2lhTsI/rbdUXmfC1Up2TKbDBP/Rtp8oWqGcVeSrhcoKIhy+Q
-         YzwQ==
-X-Gm-Message-State: AOAM531O60g/ANF8+5vzOk/C4ruYbEXJMxw6UtmfnLT76/aU1xrxTatf
-        akGyX4tuSHerW0mR0xCdMgD9Lqqfa38=
-X-Google-Smtp-Source: ABdhPJyu+CzemnTp/p5r21Cwez2GpFQC9UPZTsSq0YHnO6GaMZIUTugw0PqCfpU/S3v+TqBrbl98lw==
-X-Received: by 2002:a17:90a:ba05:: with SMTP id s5mr7648643pjr.132.1595396083459;
-        Tue, 21 Jul 2020 22:34:43 -0700 (PDT)
+        bh=JOXcjH3Ds2znsGQsPtT2U0WmJsXIq3lc+gYn1wfYnuU=;
+        b=uH0Yaikdy5yTVcvHRWVq4LPlk17Z/mc+iAZo4a9tkefIyHCi6qS3v86+0hSWv4kTqE
+         Wh4OFI8Ly4S4pj9xSRUPBUC7kLXRlgA3NB/PW+pKUHqL4vaNhw4duf8H3PRHky+A+8Io
+         NkgOlWJ85LoL8tZFiOCAPy5Km+G7qiLSSXwasjdcqyl4r/jUD3FP26SSpTgoohClTPXK
+         RWd0nXlw68oE3Flz7AciFyK4aaBdiYN8wIaEVue+L+gu5lu28AZTo+boyuIcbvdQJRbG
+         HTYEs8Xtp9HWZVVzu7swCspr6FO0yxjoM4Xel7Ti88ooEkLmp5lmmp6tg9/8OJBXp9fH
+         7BuQ==
+X-Gm-Message-State: AOAM531PQunOIab32ET/EYs2RtrCn0RZICuofunhWuASlJYauchVCe5P
+        kLJrKAFF17zoz7CfzuROGHY=
+X-Google-Smtp-Source: ABdhPJwyZCXr57OI4rRNX0FltpSSmzGxpQFnQXUcYXlI0UFD0tljQn5BhDndhCziMb1aAG5xOB3eAQ==
+X-Received: by 2002:a17:902:684e:: with SMTP id f14mr26597687pln.166.1595396508374;
+        Tue, 21 Jul 2020 22:41:48 -0700 (PDT)
 Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id r8sm22358883pfg.147.2020.07.21.22.34.42
+        by smtp.gmail.com with ESMTPSA id d16sm22280079pfo.156.2020.07.21.22.41.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jul 2020 22:34:42 -0700 (PDT)
-Date:   Tue, 21 Jul 2020 22:34:40 -0700
+        Tue, 21 Jul 2020 22:41:47 -0700 (PDT)
+Date:   Tue, 21 Jul 2020 22:41:44 -0700
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: psmouse: add a newline when printing 'proto' by
- sysfs
-Message-ID: <20200722053440.GO1665100@dtor-ws>
-References: <20200720073846.120724-1-wangxiongfeng2@huawei.com>
+To:     Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>,
+        linux-input@vger.kernel.org,
+        Marco Trevisan <marco.trevisan@canonical.com>,
+        Mark Pearson <mpearson@lenovo.com>,
+        Christian Kellner <ckellner@redhat.com>,
+        Benjamin Berg <bberg@redhat.com>,
+        ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Add 3 new keycodes and use them for 3 new hotkeys on
+ new Lenovo Thinkpads
+Message-ID: <20200722054144.GQ1665100@dtor-ws>
+References: <20200717114155.56222-1-hdegoede@redhat.com>
+ <20200719225649.GA4341@khazad-dum.debian.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200720073846.120724-1-wangxiongfeng2@huawei.com>
+In-Reply-To: <20200719225649.GA4341@khazad-dum.debian.net>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Jul 20, 2020 at 03:38:46PM +0800, Xiongfeng Wang wrote:
-> When I cat parameter 'proto' by sysfs, it displays as follows. It's
-> better to add a newline for easy reading.
+On Sun, Jul 19, 2020 at 07:56:49PM -0300, Henrique de Moraes Holschuh wrote:
+> On Fri, 17 Jul 2020, Hans de Goede wrote:
+> > This is a simple patch-series adding support for 3 new hotkeys found
+> > on various new Lenovo Thinkpad models.
 > 
-> root@syzkaller:~# cat /sys/module/psmouse/parameters/proto
-> autoroot@syzkaller:~#
+> For all three patches, pending an ack for the new keycodes by the input
+> maintainers:
 > 
-> Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+> Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 
-Applied, thank you.
+Do you want me to merge all 3 through input tree?
+
+Thanks.
 
 -- 
 Dmitry

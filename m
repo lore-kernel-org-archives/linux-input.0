@@ -2,103 +2,141 @@ Return-Path: <SRS0=K8d0=BB=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0213CC433E0
-	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 05:41:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA83CC433E2
+	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 07:58:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C843620792
-	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 05:41:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A3083207BB
+	for <linux-input@archiver.kernel.org>; Wed, 22 Jul 2020 07:58:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dEUQNOgG"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="EjDgkA/6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726736AbgGVFlt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 22 Jul 2020 01:41:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54750 "EHLO
+        id S1726161AbgGVH6h (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 22 Jul 2020 03:58:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726696AbgGVFlt (ORCPT
+        with ESMTP id S1726153AbgGVH6g (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Jul 2020 01:41:49 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8A92C061794;
-        Tue, 21 Jul 2020 22:41:48 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id o22so579663pjw.2;
-        Tue, 21 Jul 2020 22:41:48 -0700 (PDT)
+        Wed, 22 Jul 2020 03:58:36 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 926C1C0619DC
+        for <linux-input@vger.kernel.org>; Wed, 22 Jul 2020 00:58:36 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id z24so1469213ljn.8
+        for <linux-input@vger.kernel.org>; Wed, 22 Jul 2020 00:58:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=JOXcjH3Ds2znsGQsPtT2U0WmJsXIq3lc+gYn1wfYnuU=;
-        b=dEUQNOgGUrX8oVxReZCZ/tx5vnWEETp9edbUaud/VSlLiopK4JeDzocnvain0FsLMw
-         7PICdvOjUghPVTCW0qjN7n6SnZ2H5nN1HMvs9uDK+IXA85ET0oBW15K8tQX8j6o617pN
-         q+l75VjFGRhh/avhzCvbSqMXcuvtlbi3DMXeui18+MwYxPLsjtIX2AZUZJiOAE/9flCV
-         ea2Fhc2rKiCCf9XkPrhipvLf0Mgp4dryjrLrNufZYZ0rIbtgYRwukhkD6F9yssQLC+fk
-         WRh6Y5nrhcl9JFV3K3uPb9dVFzvSPLWAr6x/D7HTFWahFrwb9QZUZWXQW/5qLx4TRohI
-         fmGA==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=QbAV89qrrKIACpY0C/Mhq61biM+O6+R6Lj7W2yCr7hE=;
+        b=EjDgkA/6Lu/0hNTaBhbuYESga8oUhfGm8xhz9KLlnfXT4czTKSTkMgTbZqw0JFBGqU
+         JbKxSd7MlZyg4/weQYKftlDihDF4oapNklC6ruSOvEyLI4c4YpVXjfkBLuR0aMtRFdwt
+         O9zMif53znpncvq6j1jVErNrJBXxW0a1yKkZlcofjNVGI2NWRoa96s1SbuLU2hqanFYJ
+         x6drfG/w766jim4YwOjIEWDjRUqgf4hxFzDyJ9yrLb2ewWJbApCq+KO6uk/Rk4nLIW2z
+         OkvcsbHpSinnHWhGs//GZz1+SlIHNdEMIcCKQHJsAxZFY+hgpp7T+hVxgAqwudqi3mcs
+         IQxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=JOXcjH3Ds2znsGQsPtT2U0WmJsXIq3lc+gYn1wfYnuU=;
-        b=uH0Yaikdy5yTVcvHRWVq4LPlk17Z/mc+iAZo4a9tkefIyHCi6qS3v86+0hSWv4kTqE
-         Wh4OFI8Ly4S4pj9xSRUPBUC7kLXRlgA3NB/PW+pKUHqL4vaNhw4duf8H3PRHky+A+8Io
-         NkgOlWJ85LoL8tZFiOCAPy5Km+G7qiLSSXwasjdcqyl4r/jUD3FP26SSpTgoohClTPXK
-         RWd0nXlw68oE3Flz7AciFyK4aaBdiYN8wIaEVue+L+gu5lu28AZTo+boyuIcbvdQJRbG
-         HTYEs8Xtp9HWZVVzu7swCspr6FO0yxjoM4Xel7Ti88ooEkLmp5lmmp6tg9/8OJBXp9fH
-         7BuQ==
-X-Gm-Message-State: AOAM531PQunOIab32ET/EYs2RtrCn0RZICuofunhWuASlJYauchVCe5P
-        kLJrKAFF17zoz7CfzuROGHY=
-X-Google-Smtp-Source: ABdhPJwyZCXr57OI4rRNX0FltpSSmzGxpQFnQXUcYXlI0UFD0tljQn5BhDndhCziMb1aAG5xOB3eAQ==
-X-Received: by 2002:a17:902:684e:: with SMTP id f14mr26597687pln.166.1595396508374;
-        Tue, 21 Jul 2020 22:41:48 -0700 (PDT)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id d16sm22280079pfo.156.2020.07.21.22.41.46
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=QbAV89qrrKIACpY0C/Mhq61biM+O6+R6Lj7W2yCr7hE=;
+        b=hQhl0CzoIRaIEHUzgTX+SHDMDo5X1LQTbs/TY4hQUbEoy/je/7Xh08lJp++YXygZHb
+         35GWfioKIvhwu2hnjfNwbKDSgdXL+hnGMWUlUr0vqS3oddni+GzYSZpirM8Ca5eo1tHF
+         Zod/ChLOkK7Hgv0T5oEx369wFQ0wgCbOh+s0Gdc3StnkofgHa7vSEWOQS3cvWdt5SSxN
+         CLnsLUtnvD6c+vsGHGdkPLcZwxfw8J471AfHKWgupmHfHdj7JtajsP3xKWif/97wGGgM
+         xL/OirZ69JByw1M0bGAE+Za4PirVoPbB2nN6geIj6Fzp0vWtk3beYUCwDAT5sH6bePNq
+         wV/A==
+X-Gm-Message-State: AOAM533hfYswHN5iIqr1JIjsBSMGp1cKFbWbaeXO822BxCfqlZFaCu+1
+        KgAxCKrvbfB177T6VPzdW8UkGw==
+X-Google-Smtp-Source: ABdhPJzLnS1C+cYDICXQhydYgEAy6QBOg2MQluGJGPIi2S0FgGVgpeBunpNHuZ8o1bSnFrEcK2pfNg==
+X-Received: by 2002:a2e:9207:: with SMTP id k7mr14228507ljg.120.1595404715023;
+        Wed, 22 Jul 2020 00:58:35 -0700 (PDT)
+Received: from localhost.localdomain (c-92d7225c.014-348-6c756e10.bbcust.telenor.se. [92.34.215.146])
+        by smtp.gmail.com with ESMTPSA id h15sm6184322ljj.105.2020.07.22.00.58.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jul 2020 22:41:47 -0700 (PDT)
-Date:   Tue, 21 Jul 2020 22:41:44 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>,
-        linux-input@vger.kernel.org,
-        Marco Trevisan <marco.trevisan@canonical.com>,
-        Mark Pearson <mpearson@lenovo.com>,
-        Christian Kellner <ckellner@redhat.com>,
-        Benjamin Berg <bberg@redhat.com>,
-        ibm-acpi-devel@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Add 3 new keycodes and use them for 3 new hotkeys on
- new Lenovo Thinkpads
-Message-ID: <20200722054144.GQ1665100@dtor-ws>
-References: <20200717114155.56222-1-hdegoede@redhat.com>
- <20200719225649.GA4341@khazad-dum.debian.net>
+        Wed, 22 Jul 2020 00:58:34 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Eudean Sun <eudean@arista.com>,
+        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
+        <sebastien.szymanski@armadeus.com>
+Subject: [PATCH] HID: cp2112: Use irqchip template
+Date:   Wed, 22 Jul 2020 09:56:32 +0200
+Message-Id: <20200722075632.57962-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200719225649.GA4341@khazad-dum.debian.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Jul 19, 2020 at 07:56:49PM -0300, Henrique de Moraes Holschuh wrote:
-> On Fri, 17 Jul 2020, Hans de Goede wrote:
-> > This is a simple patch-series adding support for 3 new hotkeys found
-> > on various new Lenovo Thinkpad models.
-> 
-> For all three patches, pending an ack for the new keycodes by the input
-> maintainers:
-> 
-> Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+This makes the driver use the irqchip template to assign
+properties to the gpio_irq_chip instead of using the
+explicit calls to gpiochip_irqchip_add(). The irqchip is
+instead added while adding the gpiochip.
 
-Do you want me to merge all 3 through input tree?
+Cc: Eudean Sun <eudean@arista.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/hid/hid-cp2112.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index db1b55df0d13..222340e27e5f 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1235,6 +1235,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct cp2112_device *dev;
+ 	u8 buf[3];
+ 	struct cp2112_smbus_config_report config;
++	struct gpio_irq_chip *girq;
+ 	int ret;
+ 
+ 	dev = devm_kzalloc(&hdev->dev, sizeof(*dev), GFP_KERNEL);
+@@ -1338,6 +1339,15 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	dev->gc.can_sleep		= 1;
+ 	dev->gc.parent			= &hdev->dev;
+ 
++	girq = &dev->gc.irq;
++	girq->chip = &cp2112_gpio_irqchip;
++	/* The event comes from the outside so no parent handler */
++	girq->parent_handler = NULL;
++	girq->num_parents = 0;
++	girq->parents = NULL;
++	girq->default_type = IRQ_TYPE_NONE;
++	girq->handler = handle_simple_irq;
++
+ 	ret = gpiochip_add_data(&dev->gc, dev);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "error registering gpio chip\n");
+@@ -1353,17 +1363,8 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	chmod_sysfs_attrs(hdev);
+ 	hid_hw_power(hdev, PM_HINT_NORMAL);
+ 
+-	ret = gpiochip_irqchip_add(&dev->gc, &cp2112_gpio_irqchip, 0,
+-				   handle_simple_irq, IRQ_TYPE_NONE);
+-	if (ret) {
+-		dev_err(dev->gc.parent, "failed to add IRQ chip\n");
+-		goto err_sysfs_remove;
+-	}
+-
+ 	return ret;
+ 
+-err_sysfs_remove:
+-	sysfs_remove_group(&hdev->dev.kobj, &cp2112_attr_group);
+ err_gpiochip_remove:
+ 	gpiochip_remove(&dev->gc);
+ err_free_i2c:
 -- 
-Dmitry
+2.26.2
+

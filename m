@@ -2,108 +2,139 @@ Return-Path: <SRS0=K1fF=BC=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21CFEC433E5
-	for <linux-input@archiver.kernel.org>; Thu, 23 Jul 2020 14:51:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58C61C433E3
+	for <linux-input@archiver.kernel.org>; Thu, 23 Jul 2020 17:20:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 028D022B40
-	for <linux-input@archiver.kernel.org>; Thu, 23 Jul 2020 14:51:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F958207BB
+	for <linux-input@archiver.kernel.org>; Thu, 23 Jul 2020 17:20:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Ny+VE1/0"
+	dkim=pass (1024-bit key) header.d=dialogsemiconductor.onmicrosoft.com header.i=@dialogsemiconductor.onmicrosoft.com header.b="PB2ohY9m"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727108AbgGWOvi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Jul 2020 10:51:38 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:42206 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726761AbgGWOvi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Jul 2020 10:51:38 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 06NEpOne183308;
-        Thu, 23 Jul 2020 14:51:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=UVrd0dvtpq4Ts0ES1WmJVk4CRHzFgNiih/Z08HeKfdc=;
- b=Ny+VE1/0UAr8PLABJpV7zTl/cnINTVy9DOxtSXKoFowavcD47xgA2M/Z7hraFY5ujCgR
- UZKI+TWGMBcl6eSm+cTM6EZNg+IEbaz90+tNvy8INq3TaVsUC/4bx+tVfVq0ppawe+Fz
- 6rcojvz4Z34Tn+Au5sNnE4HdRVU5T5JF74H5y74p7n61P63ekBJ33GnHLXNbc+a6PSC/
- h/Q+/AdBPsULRCKgH6XetWoYp04hoQTwJ3LehFl8GhRpUiETZiJc9v7RPwvxy7M3c4LB
- D3HSrio1+XeR/HWnRFN1by39yTe+o2J82005h5IsGE2bWefgRk8eyvzoaksTl7YfwoGN 6g== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2120.oracle.com with ESMTP id 32bs1mstfx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 23 Jul 2020 14:51:31 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 06NEhB3h051179;
-        Thu, 23 Jul 2020 14:51:30 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3030.oracle.com with ESMTP id 32fb8gx3ex-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 23 Jul 2020 14:51:30 +0000
-Received: from abhmp0008.oracle.com (abhmp0008.oracle.com [141.146.116.14])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 06NEpSgX017197;
-        Thu, 23 Jul 2020 14:51:29 GMT
-Received: from kadam (/41.57.98.10)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 23 Jul 2020 07:51:28 -0700
-Date:   Thu, 23 Jul 2020 17:51:21 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Peilin Ye <yepeilin.cs@gmail.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        syzkaller-bugs@googlegroups.com,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        linux-usb@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Linux-kernel-mentees] [PATCH v2] usbhid: Fix slab-out-of-bounds
- write in hiddev_ioctl_usage()
-Message-ID: <20200723145121.GR2549@kadam>
-References: <20200718231218.170730-1-yepeilin.cs@gmail.com>
- <20200720195209.4365-1-yepeilin.cs@gmail.com>
+        id S1728139AbgGWRU4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 23 Jul 2020 13:20:56 -0400
+Received: from mail-eopbgr10065.outbound.protection.outlook.com ([40.107.1.65]:41280
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727044AbgGWRU4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 23 Jul 2020 13:20:56 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SkadnWytPMKaqWUqE/hNBbXIdmlkUv/3PBQWZxdEAodDO5t7MaPJLEVlThk0Ld91qcUrR47QzRKo6LAGGZisPdmNcQe+4+82QRe+zIJypBvRduYIlHNBOhIwYEKnxWujluItsg7OBqub1NJrQqw4YFDqt+73Zk94zabzI9JeLM3AiHNgz/OPnh7v5HloeTtfeMggjRJ9MZHv7EjtnkwHkOIHYUrZ3zib8DigBr98czVy0UKaUrj4vOfveYLbsy9PfiPcfn+yFie4cvFJhCF2iNPzvHSQO8EiacKsRPeQjzF0iZyuTcFhc1mCKZ7/k8K1Di63pk3prrxkaZPrvsvlEw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+44xVhRCa9KxkG5uPst6GMEsSVkgIiFEgCsYek+7Crk=;
+ b=cKWzaTuqVVmDvJiUrIrC5y84VWPUlkPmG94w6mkw4zK3nvfy+tqPnshluMm5ZWoHaA2bL/S3e5U9qLZMSC4iw3/92/W2PYEHDTwQV7Ism9a9k6he/no+q0eGjgc7r6xm9WmPt4bkRmdn3bJKQ3gGyvVY34rtY2N/V70i/oCmksSvWkn0yCKK1l4gixKtY4HXLRMkXEHM8jKceSDKruJT3Dzm5dZN5K92D+v32Ztkz6DnesEnGHxvsPsKLFW9qS3Q3fJZ+EO5o40P1nrs6txOXNWGEsBwvlV3/AQaNimy0AcjqlHs3nmbehZlxDfWbqwzPjIfhA9J/qXQtJfDqb+tsQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=softfail (sender ip
+ is 193.240.239.45) smtp.rcpttodomain=linuxfoundation.org
+ smtp.mailfrom=diasemi.com; dmarc=fail (p=none sp=none pct=100) action=none
+ header.from=diasemi.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=dialogsemiconductor.onmicrosoft.com;
+ s=selector1-dialogsemiconductor-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+44xVhRCa9KxkG5uPst6GMEsSVkgIiFEgCsYek+7Crk=;
+ b=PB2ohY9mdpD/uUbeqzq9PVYBKIksrenf5rl6LZkKuqA/Vuk2lperonIcnUW5g7MpQRVluw3gotYQdueQvrDSNqdgjBSlTB+zuhccV0V8f1FFWh8uodVpQ6y8XKGhheyXsu63xrF+RpGiWKa9+CohppxPhqFHas/QT4kdfW58s7U=
+Received: from AM5PR0701CA0012.eurprd07.prod.outlook.com
+ (2603:10a6:203:51::22) by AM0PR10MB2868.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:208:15d::12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3216.24; Thu, 23 Jul
+ 2020 17:20:52 +0000
+Received: from HE1EUR02FT049.eop-EUR02.prod.protection.outlook.com
+ (2603:10a6:203:51:cafe::a6) by AM5PR0701CA0012.outlook.office365.com
+ (2603:10a6:203:51::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3239.9 via Frontend
+ Transport; Thu, 23 Jul 2020 17:20:52 +0000
+X-MS-Exchange-Authentication-Results: spf=softfail (sender IP is
+ 193.240.239.45) smtp.mailfrom=diasemi.com; linuxfoundation.org; dkim=none
+ (message not signed) header.d=none;linuxfoundation.org; dmarc=fail
+ action=none header.from=diasemi.com;
+Received-SPF: SoftFail (protection.outlook.com: domain of transitioning
+ diasemi.com discourages use of 193.240.239.45 as permitted sender)
+Received: from mailrelay1.diasemi.com (193.240.239.45) by
+ HE1EUR02FT049.mail.protection.outlook.com (10.152.11.8) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.3216.10 via Frontend Transport; Thu, 23 Jul 2020 17:20:52 +0000
+Received: from krsrvapps-03.diasemi.com (10.95.17.51) by
+ NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
+ 14.3.468.0; Thu, 23 Jul 2020 19:20:49 +0200
+Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
+ 9FFEB13F672; Fri, 24 Jul 2020 02:20:47 +0900 (KST)
+Message-ID: <cover.1595516501.git.Roy.Im@diasemi.com>
+From:   Roy Im <roy.im.opensource@diasemi.com>
+Date:   Fri, 24 Jul 2020 00:01:41 +0900
+Subject: [PATCH v17 0/3]  da7280: haptic driver submission
+To:     "David S. Miller" <davem@davemloft.net>,
+        Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>
+CC:     Support Opensource <support.opensource@diasemi.com>,
+        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200720195209.4365-1-yepeilin.cs@gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9690 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 mlxlogscore=999
- bulkscore=0 malwarescore=0 mlxscore=0 spamscore=0 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2007230110
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9691 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 bulkscore=0 adultscore=0
- lowpriorityscore=0 mlxlogscore=999 malwarescore=0 clxscore=1015
- spamscore=0 mlxscore=0 impostorscore=0 phishscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2007230111
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 21a6e378-507f-4227-f271-08d82f2cc066
+X-MS-TrafficTypeDiagnostic: AM0PR10MB2868:
+X-Microsoft-Antispam-PRVS: <AM0PR10MB2868013D41ABB324AE2C16B0A2760@AM0PR10MB2868.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: vJ7M/LVDfzQ9QIJvxstlMNInIomNL+wCh8cC/hH85x4kWs/JzZssNUn0oobfUP1wZfH3IaA5w+9gvy7TmHfzBwN2PgtXlRyktKnW6eBEazH7PFkx9uEV/VhMWRbn3qGb0NAQT+UqTurnAyCwIokvDTBZvNsTrhXXAyFHeoAI1iRlvw8QwkYesWBUZW95jhIhaKGQWPUBe+2sV0apREsDHH5Ml32MAHpG/q+vHaLxxjVq5FQp/VN6YywzouhYwhgn3jmVs1GJZykYjofnk0fR+eA1zoGOp6M+VjJYsyELYDPhf4kmA+Ca2JaW9FBBeUrC2E6HIT0g+ad+CjH2qZPueCL77/hT5RnS8Vg0aHGUTGN2cNL/jF7ovm74RSApbcyhEHlqfDsP5Yv2b6WVPWklLbqp4o6eIUQaK1XAD0S+Ac7HM6fzdEIKwaz8lEOD7mpb
+X-Forefront-Antispam-Report: CIP:193.240.239.45;CTRY:GB;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mailrelay1.diasemi.com;PTR:InfoDomainNonexistent;CAT:NONE;SFTY:;SFS:(4636009)(136003)(346002)(39860400002)(396003)(376002)(46966005)(6666004)(36756003)(36906005)(8936002)(2616005)(6266002)(4326008)(5660300002)(70206006)(426003)(8676002)(336012)(86362001)(26005)(83380400001)(478600001)(186003)(47076004)(2906002)(4744005)(42186006)(82310400002)(82740400003)(33310700002)(316002)(54906003)(81166007)(356005)(70586007)(110136005)(7416002)(921003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: diasemi.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jul 2020 17:20:52.2835
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 21a6e378-507f-4227-f271-08d82f2cc066
+X-MS-Exchange-CrossTenant-Id: 511e3c0e-ee96-486e-a2ec-e272ffa37b7c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=511e3c0e-ee96-486e-a2ec-e272ffa37b7c;Ip=[193.240.239.45];Helo=[mailrelay1.diasemi.com]
+X-MS-Exchange-CrossTenant-AuthSource: HE1EUR02FT049.eop-EUR02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR10MB2868
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Jul 20, 2020 at 03:52:09PM -0400, Peilin Ye wrote:
-> `uref->usage_index` is not always being properly checked, causing
-> hiddev_ioctl_usage() to go out of bounds under some cases. Fix it.
-> 
-> Reported-by: syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com
-> Link: https://syzkaller.appspot.com/bug?id=f2aebe90b8c56806b050a20b36f51ed6acabe802
-> Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-> ---
-> Change in v2:
->     - Add the same check for the `HIDIOCGUSAGE` case. (Suggested by
->       Dan Carpenter <dan.carpenter@oracle.com>)
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-Looks good to me.  Thanks!
+In this patch set the following is provided:
 
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+[PATCH v17 1/3] MAINTAINERS file update for DA7280
+[PATCH v17 2/3] DA7280 DT Binding
+[PATCH v17 3/3] DA7280 Driver
 
-regards,
-dan carpenter
+This patch applies against linux-next and v5.8-rc6
+
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
+
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |  109 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1840 ++++++++++++++++++++
+ 5 files changed, 1965 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+
+-- 
+end-of-patch for PATCH v17
 

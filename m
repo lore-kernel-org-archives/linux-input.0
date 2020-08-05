@@ -2,31 +2,31 @@ Return-Path: <SRS0=QjMs=BP=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 523AAC433E3
-	for <linux-input@archiver.kernel.org>; Wed,  5 Aug 2020 20:13:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82DC8C433E1
+	for <linux-input@archiver.kernel.org>; Wed,  5 Aug 2020 20:15:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2579E22B42
-	for <linux-input@archiver.kernel.org>; Wed,  5 Aug 2020 20:13:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6DA7B22B42
+	for <linux-input@archiver.kernel.org>; Wed,  5 Aug 2020 20:15:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726709AbgHEUMt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 5 Aug 2020 16:12:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42976 "EHLO
+        id S1729874AbgHEUOp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 5 Aug 2020 16:14:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726963AbgHEQZe (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2020 12:25:34 -0400
+        with ESMTP id S1726797AbgHEQXZ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2020 12:23:25 -0400
 Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88938C001FD7;
-        Wed,  5 Aug 2020 09:05:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B760AC001FDB;
+        Wed,  5 Aug 2020 09:10:29 -0700 (PDT)
 Received: from [127.0.0.1] (localhost [127.0.0.1])
         (Authenticated sender: sre)
-        with ESMTPSA id 7A21D299003
+        with ESMTPSA id 64C2F298FFC
 Received: by jupiter.universe (Postfix, from userid 1000)
-        id 4024148011B; Wed,  5 Aug 2020 18:05:21 +0200 (CEST)
+        id 3A939480117; Wed,  5 Aug 2020 18:05:21 +0200 (CEST)
 From:   Sebastian Reichel <sebastian.reichel@collabora.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Ahmet Inan <inan@distec.de>,
@@ -34,11 +34,10 @@ To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, kernel@collabora.com,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCHv4 3/4] Input: EXC3000: Add reset gpio support
-Date:   Wed,  5 Aug 2020 18:05:19 +0200
-Message-Id: <20200805160520.456570-4-sebastian.reichel@collabora.com>
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCHv4 1/4] dt-bindings: touchscreen: Convert EETI EXC3000 touchscreen to json-schema
+Date:   Wed,  5 Aug 2020 18:05:17 +0200
+Message-Id: <20200805160520.456570-2-sebastian.reichel@collabora.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200805160520.456570-1-sebastian.reichel@collabora.com>
 References: <20200805160520.456570-1-sebastian.reichel@collabora.com>
@@ -49,78 +48,107 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add basic support for an optional reset gpio.
+Convert the EETI EXC3000 binding to DT schema format using json-schema
 
-Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 ---
- .../input/touchscreen/eeti,exc3000.yaml         |  2 ++
- drivers/input/touchscreen/exc3000.c             | 17 +++++++++++++++++
- 2 files changed, 19 insertions(+)
+ .../input/touchscreen/eeti,exc3000.yaml       | 53 +++++++++++++++++++
+ .../bindings/input/touchscreen/exc3000.txt    | 26 ---------
+ 2 files changed, 53 insertions(+), 26 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.yaml
+ delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
 
 diff --git a/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.yaml b/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.yaml
-index 7e6e23f8fa00..007adbc89c14 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.yaml
+new file mode 100644
+index 000000000000..022aa69a5dfe
+--- /dev/null
 +++ b/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.yaml
-@@ -22,6 +22,8 @@ properties:
-     const: 0x2a
-   interrupts:
-     maxItems: 1
-+  reset-gpios:
+@@ -0,0 +1,53 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/eeti,exc3000.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: EETI EXC3000 series touchscreen controller
++
++maintainers:
++  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    const: eeti,exc3000
++  reg:
++    const: 0x2a
++  interrupts:
 +    maxItems: 1
-   touchscreen-size-x: true
-   touchscreen-size-y: true
-   touchscreen-inverted-x: true
-diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
-index b497bd2ae41d..203f50acaab7 100644
---- a/drivers/input/touchscreen/exc3000.c
-+++ b/drivers/input/touchscreen/exc3000.c
-@@ -8,7 +8,9 @@
-  */
- 
- #include <linux/bitops.h>
-+#include <linux/delay.h>
- #include <linux/device.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- #include <linux/input.h>
- #include <linux/input/mt.h>
-@@ -30,6 +32,9 @@
- 
- #define EXC3000_TIMEOUT_MS		100
- 
-+#define EXC3000_RESET_MS		10
-+#define EXC3000_READY_MS		100
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-swapped-x-y: true
 +
- static const struct i2c_device_id exc3000_id[];
- 
- struct eeti_dev_info {
-@@ -63,6 +68,7 @@ struct exc3000_data {
- 	const struct eeti_dev_info *info;
- 	struct input_dev *input;
- 	struct touchscreen_properties prop;
-+	struct gpio_desc *reset;
- 	struct timer_list timer;
- 	u8 buf[2 * EXC3000_LEN_FRAME];
- };
-@@ -204,6 +210,17 @@ static int exc3000_probe(struct i2c_client *client)
- 	}
- 	timer_setup(&data->timer, exc3000_timer, 0);
- 
-+	data->reset = devm_gpiod_get_optional(&client->dev, "reset",
-+					      GPIOD_OUT_HIGH);
-+	if (IS_ERR(data->reset))
-+		return PTR_ERR(data->reset);
++required:
++  - compatible
++  - reg
++  - interrupts
++  - touchscreen-size-x
++  - touchscreen-size-y
 +
-+	if (data->reset) {
-+		msleep(EXC3000_RESET_MS);
-+		gpiod_set_value_cansleep(data->reset, 0);
-+		msleep(EXC3000_READY_MS);
-+	}
++additionalProperties: false
 +
- 	input = devm_input_allocate_device(&client->dev);
- 	if (!input)
- 		return -ENOMEM;
++examples:
++  - |
++    #include "dt-bindings/interrupt-controller/irq.h"
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        touchscreen@2a {
++                compatible = "eeti,exc3000";
++                reg = <0x2a>;
++                interrupt-parent = <&gpio1>;
++                interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
++                touchscreen-size-x = <4096>;
++                touchscreen-size-y = <4096>;
++                touchscreen-inverted-x;
++                touchscreen-swapped-x-y;
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt b/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+deleted file mode 100644
+index 68291b94fec2..000000000000
+--- a/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
++++ /dev/null
+@@ -1,26 +0,0 @@
+-* EETI EXC3000 Multiple Touch Controller
+-
+-Required properties:
+-- compatible: must be "eeti,exc3000"
+-- reg: i2c slave address
+-- interrupts: touch controller interrupt
+-- touchscreen-size-x: See touchscreen.txt
+-- touchscreen-size-y: See touchscreen.txt
+-
+-Optional properties:
+-- touchscreen-inverted-x: See touchscreen.txt
+-- touchscreen-inverted-y: See touchscreen.txt
+-- touchscreen-swapped-x-y: See touchscreen.txt
+-
+-Example:
+-
+-	touchscreen@2a {
+-		compatible = "eeti,exc3000";
+-		reg = <0x2a>;
+-		interrupt-parent = <&gpio1>;
+-		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+-		touchscreen-size-x = <4096>;
+-		touchscreen-size-y = <4096>;
+-		touchscreen-inverted-x;
+-		touchscreen-swapped-x-y;
+-	};
 -- 
 2.27.0
 

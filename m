@@ -2,273 +2,96 @@ Return-Path: <SRS0=BDWM=BQ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D1D5C433E0
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 18:40:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC046C433E0
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 21:34:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A30F0221E2
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 18:40:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1596739228;
-	bh=msjJ9dPDN0Y/EID8M3/b0UU21TuitT2pnikvDbyHE2I=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=pnQy0NrT1ftL3V4MN8IXTXJzDrs2b/FHWi3A2SrH8r2gOSuf/J3tvIXPs5hXcpw5s
-	 Zj/CjuFS8GLew7NJbfQGAbS2OBiCyrNxfuTnoz0/YAiu3UU3Ywz66MTvKhCrE0vTNj
-	 fqfRjsPCT//2iiOUFhl6XFUSQVHra8OnUj+bP+og=
+	by mail.kernel.org (Postfix) with ESMTP id 9C59D221E2
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 21:34:23 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="mWogffXa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729998AbgHFSk0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 6 Aug 2020 14:40:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33606 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729024AbgHFSkW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 6 Aug 2020 14:40:22 -0400
-Received: from localhost.localdomain (unknown [194.230.155.117])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 916D922CBB;
-        Thu,  6 Aug 2020 18:23:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1596738186;
-        bh=msjJ9dPDN0Y/EID8M3/b0UU21TuitT2pnikvDbyHE2I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5HIa1FWzUMOhPyfIDYDI25KWmtk1D7XH6Z79jaL17bIBByHjnR6f8OuI9p2xO/Y3
-         89Nw//ycbSIyAIeNCAPkamI44NO299QkJWU0nz36vWUsChudZzxos81ecEdxXQezpJ
-         N6ssZyc4M6ezes6C03+BpUu065M0AknG0cwdI5Yc=
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Kukjin Kim <kgene@kernel.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        id S1726232AbgHFVeR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 6 Aug 2020 17:34:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59036 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726226AbgHFVeQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2020 17:34:16 -0400
+Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78F71C061575
+        for <linux-input@vger.kernel.org>; Thu,  6 Aug 2020 14:34:16 -0700 (PDT)
+Received: by mail-qv1-xf42.google.com with SMTP id a19so17208027qvy.3
+        for <linux-input@vger.kernel.org>; Thu, 06 Aug 2020 14:34:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=d+76LXO14aNsx8i1gnsECIsp+iH10M2aik6HmT5GQNM=;
+        b=mWogffXazu8aVcQxrtz2BpdyrkCKOBfTzr9EAQaCeetZCb3M0J/y901nI1OnHvRvzS
+         Ban/20sVtB3RPaygay2NwTeW7yzd2JJwp4ETi01vtqE5Z7ZS5pxr/9pe8h+n0g2hqiSQ
+         6FVcv1v5O9PkmJizhozW8gSa0sSBZH1cuPWzw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=d+76LXO14aNsx8i1gnsECIsp+iH10M2aik6HmT5GQNM=;
+        b=ROzfVkSABNirm9Fvl8AdzKSgPfWSt2aD3y3WBWixcFcw1iDmn6dRznoxuhiBuFZQsL
+         /21pYfslbMtw1ZV9WBOjxKghsgIwNviyhc0/SVomCHwdToNLQ9RpEX+Kkns6g1x4+Jal
+         OwZMKQ0q63WyzdY8VQuWNxjNqcnh3fN9VBMJ+YX4emlxAyTcv+hSSm6JkNtynxo9TH/z
+         XdNuyNGMumPUrGz03ZC81z82b60aaTx2W5C9LWIDcMqRV7RqgYgKZtoO09JB8FX8lPPn
+         ZlFezzVxChpz9ULhURYQJkCARLrmuFezDE9Eqif9hHrJyZVV6uYVxV6Dtzo9zyGEv5fv
+         hW8g==
+X-Gm-Message-State: AOAM531F2lk+c6hKAbOqbPScAE095jue61tMSF2eHgK1W761c8mCFg0G
+        F2AmGpTYe403Pj/SmYrxseBPRKAKhyY=
+X-Google-Smtp-Source: ABdhPJzQTXIoJ2fwhrP/A9gZ9es46zs/BG6JBC0JcN4vAnSqj/DVZNy2M0DUsJljJL+NfhVL5asLbw==
+X-Received: by 2002:ad4:560f:: with SMTP id ca15mr6235744qvb.144.1596749654853;
+        Thu, 06 Aug 2020 14:34:14 -0700 (PDT)
+Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com. [209.85.222.172])
+        by smtp.gmail.com with ESMTPSA id o21sm4970732qkk.94.2020.08.06.14.34.11
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Aug 2020 14:34:12 -0700 (PDT)
+Received: by mail-qk1-f172.google.com with SMTP id p25so5900503qkp.2
+        for <linux-input@vger.kernel.org>; Thu, 06 Aug 2020 14:34:11 -0700 (PDT)
+X-Received: by 2002:a05:620a:1424:: with SMTP id k4mr10651380qkj.2.1596749651000;
+ Thu, 06 Aug 2020 14:34:11 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200806153308.204605-1-linux@roeck-us.net> <20200806153308.204605-8-linux@roeck-us.net>
+In-Reply-To: <20200806153308.204605-8-linux@roeck-us.net>
+From:   Brian Norris <briannorris@chromium.org>
+Date:   Thu, 6 Aug 2020 14:33:58 -0700
+X-Gmail-Original-Message-ID: <CA+ASDXPkQKfXGzP3kr150VKDE0eGc+2CALEvbU+LGv3zwGyWLQ@mail.gmail.com>
+Message-ID: <CA+ASDXPkQKfXGzP3kr150VKDE0eGc+2CALEvbU+LGv3zwGyWLQ@mail.gmail.com>
+Subject: Re: [PATCH v4 7/7] pwm: cros-ec: Simplify EC error handling
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Benson Leung <bleung@chromium.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: [PATCH v2 22/41] ARM: s3c: adc: move header to linux/soc/samsung
-Date:   Thu,  6 Aug 2020 20:20:39 +0200
-Message-Id: <20200806182059.2431-22-krzk@kernel.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200806181932.2253-1-krzk@kernel.org>
-References: <20200806181932.2253-1-krzk@kernel.org>
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Lee Jones <lee.jones@linaro.org>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-pwm <linux-pwm@vger.kernel.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Thu, Aug 6, 2020 at 8:33 AM Guenter Roeck <linux@roeck-us.net> wrote:
+>
+> With enhanced error reporting from cros_ec_cmd_xfer_status() in place,
+> we can fully use it and no longer rely on EC error codes.
+>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-There are multiple drivers using the private adc interface.
-It seems unlikely that they would ever get converted to iio,
-so make the current state official by making the header file
-global.
-
-The s3c2410_ts driver needs a couple of register definitions
-as well.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Acked-by: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
----
- arch/arm/mach-s3c64xx/mach-crag6410.c         |  2 +-
- arch/arm/mach-s3c64xx/mach-mini6410.c         |  2 +-
- arch/arm/mach-s3c64xx/mach-real6410.c         |  2 +-
- arch/arm/mach-s3c64xx/mach-smdk6410.c         |  2 +-
- arch/arm/plat-samsung/adc.c                   |  2 +-
- arch/arm/plat-samsung/devs.c                  |  2 +-
- drivers/hwmon/s3c-hwmon.c                     |  2 +-
- drivers/input/touchscreen/s3c2410_ts.c        | 37 ++++++++++++++++++-
- drivers/power/supply/s3c_adc_battery.c        |  2 +-
- .../linux/soc/samsung/s3c-adc.h               |  6 +--
- 10 files changed, 46 insertions(+), 13 deletions(-)
- rename arch/arm/plat-samsung/include/plat/adc.h => include/linux/soc/samsung/s3c-adc.h (85%)
-
-diff --git a/arch/arm/mach-s3c64xx/mach-crag6410.c b/arch/arm/mach-s3c64xx/mach-crag6410.c
-index a2fefb2609e7..ca9a346056ed 100644
---- a/arch/arm/mach-s3c64xx/mach-crag6410.c
-+++ b/arch/arm/mach-s3c64xx/mach-crag6410.c
-@@ -57,7 +57,7 @@
- #include <plat/keypad.h>
- #include <plat/devs.h>
- #include <plat/cpu.h>
--#include <plat/adc.h>
-+#include <linux/soc/samsung/s3c-adc.h>
- #include <linux/platform_data/i2c-s3c2410.h>
- #include <plat/pm.h>
- 
-diff --git a/arch/arm/mach-s3c64xx/mach-mini6410.c b/arch/arm/mach-s3c64xx/mach-mini6410.c
-index 636d312add81..cbf6a1696a6d 100644
---- a/arch/arm/mach-s3c64xx/mach-mini6410.c
-+++ b/arch/arm/mach-s3c64xx/mach-mini6410.c
-@@ -27,7 +27,7 @@
- #include <mach/regs-gpio.h>
- #include <mach/gpio-samsung.h>
- 
--#include <plat/adc.h>
-+#include <linux/soc/samsung/s3c-adc.h>
- #include <plat/cpu.h>
- #include <plat/devs.h>
- #include <plat/fb.h>
-diff --git a/arch/arm/mach-s3c64xx/mach-real6410.c b/arch/arm/mach-s3c64xx/mach-real6410.c
-index 56fc21f02c7b..e2aa7c0998bd 100644
---- a/arch/arm/mach-s3c64xx/mach-real6410.c
-+++ b/arch/arm/mach-s3c64xx/mach-real6410.c
-@@ -29,7 +29,7 @@
- #include <mach/gpio-samsung.h>
- #include <mach/irqs.h>
- 
--#include <plat/adc.h>
-+#include <linux/soc/samsung/s3c-adc.h>
- #include <plat/cpu.h>
- #include <plat/devs.h>
- #include <plat/fb.h>
-diff --git a/arch/arm/mach-s3c64xx/mach-smdk6410.c b/arch/arm/mach-s3c64xx/mach-smdk6410.c
-index 7b931e7a7913..febeacc476c8 100644
---- a/arch/arm/mach-s3c64xx/mach-smdk6410.c
-+++ b/arch/arm/mach-s3c64xx/mach-smdk6410.c
-@@ -60,7 +60,7 @@
- 
- #include <plat/devs.h>
- #include <plat/cpu.h>
--#include <plat/adc.h>
-+#include <linux/soc/samsung/s3c-adc.h>
- #include <linux/platform_data/touchscreen-s3c2410.h>
- #include <plat/keypad.h>
- 
-diff --git a/arch/arm/plat-samsung/adc.c b/arch/arm/plat-samsung/adc.c
-index 55b1925f65d7..e35e04417cce 100644
---- a/arch/arm/plat-samsung/adc.c
-+++ b/arch/arm/plat-samsung/adc.c
-@@ -20,7 +20,7 @@
- #include <linux/regulator/consumer.h>
- 
- #include <plat/regs-adc.h>
--#include <plat/adc.h>
-+#include <linux/soc/samsung/s3c-adc.h>
- 
- /* This driver is designed to control the usage of the ADC block between
-  * the touchscreen and any other drivers that may need to use it, such as
-diff --git a/arch/arm/plat-samsung/devs.c b/arch/arm/plat-samsung/devs.c
-index 0ed3a4b9fc12..c42e4a272cc7 100644
---- a/arch/arm/plat-samsung/devs.c
-+++ b/arch/arm/plat-samsung/devs.c
-@@ -46,7 +46,7 @@
- 
- #include <plat/cpu.h>
- #include <plat/devs.h>
--#include <plat/adc.h>
-+#include <linux/soc/samsung/s3c-adc.h>
- #include <linux/platform_data/ata-samsung_cf.h>
- #include <plat/fb.h>
- #include <plat/fb-s3c2410.h>
-diff --git a/drivers/hwmon/s3c-hwmon.c b/drivers/hwmon/s3c-hwmon.c
-index b490fe3d2ee8..f2703c5460d0 100644
---- a/drivers/hwmon/s3c-hwmon.c
-+++ b/drivers/hwmon/s3c-hwmon.c
-@@ -20,7 +20,7 @@
- #include <linux/hwmon.h>
- #include <linux/hwmon-sysfs.h>
- 
--#include <plat/adc.h>
-+#include <linux/soc/samsung/s3c-adc.h>
- #include <linux/platform_data/hwmon-s3c.h>
- 
- struct s3c_hwmon_attr {
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index 82920ff46f72..2e70c0b79444 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -20,10 +20,43 @@
- #include <linux/clk.h>
- #include <linux/io.h>
- 
--#include <plat/adc.h>
--#include <plat/regs-adc.h>
-+#include <linux/soc/samsung/s3c-adc.h>
- #include <linux/platform_data/touchscreen-s3c2410.h>
- 
-+#define	S3C2410_ADCCON			(0x00)
-+#define	S3C2410_ADCTSC			(0x04)
-+#define	S3C2410_ADCDLY			(0x08)
-+#define	S3C2410_ADCDAT0			(0x0C)
-+#define	S3C2410_ADCDAT1			(0x10)
-+#define	S3C64XX_ADCUPDN			(0x14)
-+#define	S3C2443_ADCMUX			(0x18)
-+#define	S3C64XX_ADCCLRINT		(0x18)
-+#define	S5P_ADCMUX			(0x1C)
-+#define	S3C64XX_ADCCLRINTPNDNUP		(0x20)
-+
-+/* ADCTSC Register Bits */
-+#define S3C2443_ADCTSC_UD_SEN		(1 << 8)
-+#define S3C2410_ADCTSC_YM_SEN		(1<<7)
-+#define S3C2410_ADCTSC_YP_SEN		(1<<6)
-+#define S3C2410_ADCTSC_XM_SEN		(1<<5)
-+#define S3C2410_ADCTSC_XP_SEN		(1<<4)
-+#define S3C2410_ADCTSC_PULL_UP_DISABLE	(1<<3)
-+#define S3C2410_ADCTSC_AUTO_PST		(1<<2)
-+#define S3C2410_ADCTSC_XY_PST(x)	(((x)&0x3)<<0)
-+
-+/* ADCDAT0 Bits */
-+#define S3C2410_ADCDAT0_UPDOWN		(1<<15)
-+#define S3C2410_ADCDAT0_AUTO_PST	(1<<14)
-+#define S3C2410_ADCDAT0_XY_PST		(0x3<<12)
-+#define S3C2410_ADCDAT0_XPDATA_MASK	(0x03FF)
-+
-+/* ADCDAT1 Bits */
-+#define S3C2410_ADCDAT1_UPDOWN		(1<<15)
-+#define S3C2410_ADCDAT1_AUTO_PST	(1<<14)
-+#define S3C2410_ADCDAT1_XY_PST		(0x3<<12)
-+#define S3C2410_ADCDAT1_YPDATA_MASK	(0x03FF)
-+
-+
- #define TSC_SLEEP  (S3C2410_ADCTSC_PULL_UP_DISABLE | S3C2410_ADCTSC_XY_PST(0))
- 
- #define INT_DOWN	(0)
-diff --git a/drivers/power/supply/s3c_adc_battery.c b/drivers/power/supply/s3c_adc_battery.c
-index 3d00b35cafc9..60b7f41ab063 100644
---- a/drivers/power/supply/s3c_adc_battery.c
-+++ b/drivers/power/supply/s3c_adc_battery.c
-@@ -22,7 +22,7 @@
- #include <linux/init.h>
- #include <linux/module.h>
- 
--#include <plat/adc.h>
-+#include <linux/soc/samsung/s3c-adc.h>
- 
- #define BAT_POLL_INTERVAL		10000 /* ms */
- #define JITTER_DELAY			500 /* ms */
-diff --git a/arch/arm/plat-samsung/include/plat/adc.h b/include/linux/soc/samsung/s3c-adc.h
-similarity index 85%
-rename from arch/arm/plat-samsung/include/plat/adc.h
-rename to include/linux/soc/samsung/s3c-adc.h
-index 74d1a46408c1..591c94ef957d 100644
---- a/arch/arm/plat-samsung/include/plat/adc.h
-+++ b/include/linux/soc/samsung/s3c-adc.h
-@@ -7,8 +7,8 @@
-  * S3C ADC driver information
-  */
- 
--#ifndef __ASM_PLAT_ADC_H
--#define __ASM_PLAT_ADC_H __FILE__
-+#ifndef __LINUX_SOC_SAMSUNG_S3C_ADC_H
-+#define __LINUX_SOC_SAMSUNG_S3C_ADC_H __FILE__
- 
- struct s3c_adc_client;
- struct platform_device;
-@@ -29,4 +29,4 @@ extern struct s3c_adc_client *
- 
- extern void s3c_adc_release(struct s3c_adc_client *client);
- 
--#endif /* __ASM_PLAT_ADC_H */
-+#endif /* __LINUX_SOC_SAMSUNG_S3C_ADC_H */
--- 
-2.17.1
-
+Reviewed-by: Brian Norris <briannorris@chromium.org>

@@ -2,86 +2,117 @@ Return-Path: <SRS0=BDWM=BQ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EFD1C433E0
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 17:40:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 636DBC433E0
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 18:37:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C7153206B2
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 17:40:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1596735641;
-	bh=U3uBfWioJUPDgcwJ6XPtT9d1vDxgz5hfwnpBBHafS8Y=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=BUV3VAtFAOMXFY0QQecOPebVZI3nTjj/WMnl7Sydq8dq4yHOWIxoI9Yg41GR5I+62
-	 1B60c2nF9vFglVPcXAzOoHUP8gJN+Pw/HgRoPjZwr1OnpZeBkvSc9Y7V8fsBDGni8s
-	 fAlvvPoYbJ6PIzNnGKOoqCToqAgQT9D0ckppECos=
+	by mail.kernel.org (Postfix) with ESMTP id A8EB322C9F
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 18:37:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727103AbgHFRkj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 6 Aug 2020 13:40:39 -0400
-Received: from mail-qk1-f170.google.com ([209.85.222.170]:39842 "EHLO
-        mail-qk1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729994AbgHFRkf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2020 13:40:35 -0400
-Received: by mail-qk1-f170.google.com with SMTP id l6so45697416qkc.6
-        for <linux-input@vger.kernel.org>; Thu, 06 Aug 2020 10:40:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Gc23MbsN7Py2AbboYagkFP2z88M/HrX+ProFw+VbFVM=;
-        b=Q1b4C/2a5menQT2Fc6LZjS36vCKzfoHUTJOUEJHZulO9jZLzUp+vjfzQDIgaPKzM+7
-         9UjqbeFi+xBpiB6ZNggQsaMr3c/zdkAz7vNnoscFNOZhYNStCgANY5/+/oOEoLUVuWn7
-         LEtRZ1ckF6+3PrS5eu0QMzQeu1daN+y/j0CLXRHOJOGYj39xJYQ4cksCeKLaHnRmHskp
-         ghgtnADDELPufqXdKMktFhFtotVB7bqkwoea86JXJwR3yonoHJakDkSCBhFgAJffrinw
-         yssseJuCFxoPvK6phU73MwQAN+nO9x6kds1NnjlAy3baVRk+sPe0zTg/C5bYlYMqKZJY
-         yLyg==
-X-Gm-Message-State: AOAM5326ipirfzi1px4y/EPhVvACvJbSjMgS9cndUujxY/PyQg3RiuGB
-        iY+LL1bOQb64SdIBABX7Lojt3XM=
-X-Google-Smtp-Source: ABdhPJyL1DZXcZGnPUV+B06ZfrnB9Tblb5Z4e91WZYwHydSuUfJe04oo3xFTp2utb9Cfoqi/+eTqGA==
-X-Received: by 2002:a02:3445:: with SMTP id z5mr12031366jaz.134.1596725365863;
-        Thu, 06 Aug 2020 07:49:25 -0700 (PDT)
-Received: from xps15 ([64.188.179.252])
-        by smtp.gmail.com with ESMTPSA id n10sm4371029ila.2.2020.08.06.07.49.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Aug 2020 07:49:25 -0700 (PDT)
-Received: (nullmailer pid 838369 invoked by uid 1000);
-        Thu, 06 Aug 2020 14:49:23 -0000
-Date:   Thu, 6 Aug 2020 08:49:23 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc:     linux-input@vger.kernel.org, Ahmet Inan <inan@distec.de>,
-        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        id S1729722AbgHFShy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 6 Aug 2020 14:37:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59606 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726965AbgHFSfj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2020 14:35:39 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F28C061290
+        for <linux-input@vger.kernel.org>; Thu,  6 Aug 2020 11:35:22 -0700 (PDT)
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1k3kjS-0004BS-94; Thu, 06 Aug 2020 20:35:14 +0200
+Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1k3kjR-0007aU-Sj; Thu, 06 Aug 2020 20:35:13 +0200
+Date:   Thu, 6 Aug 2020 20:35:13 +0200
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Benson Leung <bleung@chromium.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        kernel@collabora.com, devicetree@vger.kernel.org
-Subject: Re: [PATCHv4 1/4] dt-bindings: touchscreen: Convert EETI EXC3000
- touchscreen to json-schema
-Message-ID: <20200806144923.GA838296@bogus>
-References: <20200805160520.456570-1-sebastian.reichel@collabora.com>
- <20200805160520.456570-2-sebastian.reichel@collabora.com>
+        Thierry Reding <thierry.reding@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 4/7] pwm: cros-ec: Accept more error codes from
+ cros_ec_cmd_xfer_status
+Message-ID: <20200806183513.nbaeonm5sevjvxkb@pengutronix.de>
+References: <20200806153308.204605-1-linux@roeck-us.net>
+ <20200806153308.204605-5-linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="prp6ta2dfdqjn5v6"
 Content-Disposition: inline
-In-Reply-To: <20200805160520.456570-2-sebastian.reichel@collabora.com>
+In-Reply-To: <20200806153308.204605-5-linux@roeck-us.net>
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 05 Aug 2020 18:05:17 +0200, Sebastian Reichel wrote:
-> Convert the EETI EXC3000 binding to DT schema format using json-schema
-> 
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-> ---
->  .../input/touchscreen/eeti,exc3000.yaml       | 53 +++++++++++++++++++
->  .../bindings/input/touchscreen/exc3000.txt    | 26 ---------
->  2 files changed, 53 insertions(+), 26 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.yaml
->  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
-> 
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+--prp6ta2dfdqjn5v6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hello,
+
+On Thu, Aug 06, 2020 at 08:33:05AM -0700, Guenter Roeck wrote:
+> Since commit c5cd2b47b203 ("platform/chrome: cros_ec_proto: Report command
+> not supported") we can no longer assume that cros_ec_cmd_xfer_status()
+> reports -EPROTO for all errors returned by the EC itself. A follow-up
+> patch will change cros_ec_cmd_xfer_status() to report additional errors
+> reported by the EC as distinguished Linux error codes.
+>=20
+> Handle this change by no longer assuming that only -EPROTO is used
+> to report all errors returned by the EC itself. Instead, support both
+> the old and the new error codes.
+>=20
+> Add a comment describing cros_ec_num_pwms() to explain its functionality.
+>=20
+> Cc: Gwendal Grignou <gwendal@chromium.org>
+> Cc: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+> Cc: Prashant Malani <pmalani@chromium.org>
+> Cc: Brian Norris <briannorris@chromium.org>
+> Acked-by: Thierry Reding <thierry.reding@gmail.com>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+
+Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--prp6ta2dfdqjn5v6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAl8sTV4ACgkQwfwUeK3K
+7Ak7Xwf/bIpQ0ms3aJzAL2lKasQAGjulu7pJpdL40M8US0eyiWsAEWMEbxFoO7Ha
+W2ICAFrAFn6KUTuSPzSOIWOxqcxKE4uDxXKTvh98I9FkFXAY7VKFn32Dbshh+hhZ
+7NxJfdO7YM1evP67JxWrADaNlKbRij0KSGRPFnJ3mzt4XaiDCdUJX3opo9cyDglP
+rX8m/vpdUF8GDgCyh9YjskLqEV56kEzb0WNEVc9jqwkuMEQ6g2silpvtmFnbPpa3
+ZmCPcH2eOqz61dAOdjPdCGAeQmTY7zrXBkw2I4zXWButDK4/9q7yelYOISMMkrO1
+qohHip3HBU5CTDOp52IMtEWlkZauTw==
+=x1Y7
+-----END PGP SIGNATURE-----
+
+--prp6ta2dfdqjn5v6--

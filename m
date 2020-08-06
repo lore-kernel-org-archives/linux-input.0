@@ -2,161 +2,86 @@ Return-Path: <SRS0=BDWM=BQ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47ECCC433EA
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:55:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EFD1C433E0
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 17:40:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B9112086A
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:55:58 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JCj3+hs4"
+	by mail.kernel.org (Postfix) with ESMTP id C7153206B2
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 17:40:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1596735641;
+	bh=U3uBfWioJUPDgcwJ6XPtT9d1vDxgz5hfwnpBBHafS8Y=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=BUV3VAtFAOMXFY0QQecOPebVZI3nTjj/WMnl7Sydq8dq4yHOWIxoI9Yg41GR5I+62
+	 1B60c2nF9vFglVPcXAzOoHUP8gJN+Pw/HgRoPjZwr1OnpZeBkvSc9Y7V8fsBDGni8s
+	 fAlvvPoYbJ6PIzNnGKOoqCToqAgQT9D0ckppECos=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729798AbgHFQzD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 6 Aug 2020 12:55:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43230 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729554AbgHFQuN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2020 12:50:13 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A0BC0086B2;
-        Thu,  6 Aug 2020 08:33:16 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id g33so9518713pgb.4;
-        Thu, 06 Aug 2020 08:33:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=wbIsF0VLsKUr8Tej9AFYCB19/bMe4rzU8gFPkziuHvo=;
-        b=JCj3+hs4MeM4Y8N/fkjufH6uSDwWznQ1cfTMj/EsBOwwvbvsngbaF7Cza2d42jxyWo
-         hrUSth33RnfjZk5AA3DtvqrwxM4YMkHj7w4rBK1MCdKE/9Z3F63YVHwE2KADtkn/84IN
-         PWyPdf9bzMNFnKmqkTUnioD/OW+S6ym3ftdNufwGuCIGKE42HNyTKuOWXIBz4x2qwYUC
-         fdb39rku1peh2wbvzf0SGzHdbMJA62FuikzTNxzs84r3LpqHyBl8eB66Y/dURXoAqqNN
-         nSG53VvoHFMD2lR1OHkvAEFuLjRI2wxTBgcLyc7ElECjaCB6qDu8pwjHI15ZlczP7bOo
-         9fXA==
+        id S1727103AbgHFRkj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 6 Aug 2020 13:40:39 -0400
+Received: from mail-qk1-f170.google.com ([209.85.222.170]:39842 "EHLO
+        mail-qk1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729994AbgHFRkf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2020 13:40:35 -0400
+Received: by mail-qk1-f170.google.com with SMTP id l6so45697416qkc.6
+        for <linux-input@vger.kernel.org>; Thu, 06 Aug 2020 10:40:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=wbIsF0VLsKUr8Tej9AFYCB19/bMe4rzU8gFPkziuHvo=;
-        b=c/FwikFFlp19YLkBcYI+R8Nor9EF1+2G9v7MJTNA758tZlk6twB+m2N1zxgGAYthBH
-         frCEK+rIOUBC7paACWnlTumFyY2EUT7kCiKT/vE7ae6MDIOEyMf2OIFRANS+GPWYDkg8
-         xyxVNcuNFySrz7tjXKIixK8iWcLnhSUZnaEo2YNguSCM27q/YXHAAafly2CY21dDcMHE
-         mHyRqvUTfwYPDPwmcPluqeOUBXDkf1WoTe0XQRWYSlnqqB27nPLCn2JA9Z1SjzD3eIRs
-         rjfe3xKyXAne0uTba2cGcI95L8YOkh4G8XodZkzyKGDox0Jcbq2jv2GL/WaelkURplBx
-         aSUA==
-X-Gm-Message-State: AOAM533htQkOX+q0BSn0FaeR5R0WD2W1UCZrerMSPUfSNkZRkd4o8Zbm
-        Y3BQCkAqln9xTl0/xTDt5jW6rg3j
-X-Google-Smtp-Source: ABdhPJyn794NZYAgFqY9nmQ+9/1tVgHMyAZ8QEEnwMHUeShu2+Cw2pfEsM2aMhvDieYUsedWmN0r7Q==
-X-Received: by 2002:a63:5049:: with SMTP id q9mr8046158pgl.219.1596727996482;
-        Thu, 06 Aug 2020 08:33:16 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y79sm2975001pfb.65.2020.08.06.08.33.15
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 06 Aug 2020 08:33:15 -0700 (PDT)
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc:     Jonathan Cameron <jic23@kernel.org>,
-        Benson Leung <bleung@chromium.org>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Gc23MbsN7Py2AbboYagkFP2z88M/HrX+ProFw+VbFVM=;
+        b=Q1b4C/2a5menQT2Fc6LZjS36vCKzfoHUTJOUEJHZulO9jZLzUp+vjfzQDIgaPKzM+7
+         9UjqbeFi+xBpiB6ZNggQsaMr3c/zdkAz7vNnoscFNOZhYNStCgANY5/+/oOEoLUVuWn7
+         LEtRZ1ckF6+3PrS5eu0QMzQeu1daN+y/j0CLXRHOJOGYj39xJYQ4cksCeKLaHnRmHskp
+         ghgtnADDELPufqXdKMktFhFtotVB7bqkwoea86JXJwR3yonoHJakDkSCBhFgAJffrinw
+         yssseJuCFxoPvK6phU73MwQAN+nO9x6kds1NnjlAy3baVRk+sPe0zTg/C5bYlYMqKZJY
+         yLyg==
+X-Gm-Message-State: AOAM5326ipirfzi1px4y/EPhVvACvJbSjMgS9cndUujxY/PyQg3RiuGB
+        iY+LL1bOQb64SdIBABX7Lojt3XM=
+X-Google-Smtp-Source: ABdhPJyL1DZXcZGnPUV+B06ZfrnB9Tblb5Z4e91WZYwHydSuUfJe04oo3xFTp2utb9Cfoqi/+eTqGA==
+X-Received: by 2002:a02:3445:: with SMTP id z5mr12031366jaz.134.1596725365863;
+        Thu, 06 Aug 2020 07:49:25 -0700 (PDT)
+Received: from xps15 ([64.188.179.252])
+        by smtp.gmail.com with ESMTPSA id n10sm4371029ila.2.2020.08.06.07.49.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Aug 2020 07:49:25 -0700 (PDT)
+Received: (nullmailer pid 838369 invoked by uid 1000);
+        Thu, 06 Aug 2020 14:49:23 -0000
+Date:   Thu, 6 Aug 2020 08:49:23 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc:     linux-input@vger.kernel.org, Ahmet Inan <inan@distec.de>,
+        linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Lee Jones <lee.jones@linaro.org>,
-        Gwendal Grignou <gwendal@chromium.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>,
-        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4 3/7] platform/chrome: cros_ec_sysfs: Report range of error codes from EC
-Date:   Thu,  6 Aug 2020 08:33:04 -0700
-Message-Id: <20200806153308.204605-4-linux@roeck-us.net>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200806153308.204605-1-linux@roeck-us.net>
-References: <20200806153308.204605-1-linux@roeck-us.net>
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        kernel@collabora.com, devicetree@vger.kernel.org
+Subject: Re: [PATCHv4 1/4] dt-bindings: touchscreen: Convert EETI EXC3000
+ touchscreen to json-schema
+Message-ID: <20200806144923.GA838296@bogus>
+References: <20200805160520.456570-1-sebastian.reichel@collabora.com>
+ <20200805160520.456570-2-sebastian.reichel@collabora.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200805160520.456570-2-sebastian.reichel@collabora.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Since commit c5cd2b47b203 ("platform/chrome: cros_ec_proto: Report command
-not supported") we can no longer assume that cros_ec_cmd_xfer_status()
-reports -EPROTO for all errors returned by the EC itself. A follow-up
-patch will change cros_ec_cmd_xfer_status() to report additional errors
-reported by the EC as distinguished Linux error codes.
+On Wed, 05 Aug 2020 18:05:17 +0200, Sebastian Reichel wrote:
+> Convert the EETI EXC3000 binding to DT schema format using json-schema
+> 
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+> ---
+>  .../input/touchscreen/eeti,exc3000.yaml       | 53 +++++++++++++++++++
+>  .../bindings/input/touchscreen/exc3000.txt    | 26 ---------
+>  2 files changed, 53 insertions(+), 26 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+> 
 
-Prepare for this change by always reporting both the Linux error code
-and the EC error code in sysfs attributes.
-
-Cc: Gwendal Grignou <gwendal@chromium.org>
-Cc: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Cc: Prashant Malani <pmalani@chromium.org>
-Cc: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v4: No change
-v3: No change
-v2: Added patch
-
- drivers/platform/chrome/cros_ec_sysfs.c | 24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/platform/chrome/cros_ec_sysfs.c b/drivers/platform/chrome/cros_ec_sysfs.c
-index d45ea5d5bfa4..9c1e0998a721 100644
---- a/drivers/platform/chrome/cros_ec_sysfs.c
-+++ b/drivers/platform/chrome/cros_ec_sysfs.c
-@@ -150,12 +150,10 @@ static ssize_t version_show(struct device *dev,
- 	msg->command = EC_CMD_GET_BUILD_INFO + ec->cmd_offset;
- 	msg->insize = EC_HOST_PARAM_SIZE;
- 	ret = cros_ec_cmd_xfer_status(ec->ec_dev, msg);
--	if (ret == -EPROTO) {
--		count += scnprintf(buf + count, PAGE_SIZE - count,
--				   "Build info:    EC error %d\n", msg->result);
--	} else if (ret < 0) {
-+	if (ret < 0) {
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
--				   "Build info:    XFER ERROR %d\n", ret);
-+				   "Build info:    XFER / EC ERROR %d / %d\n",
-+				   ret, msg->result);
- 	} else {
- 		msg->data[EC_HOST_PARAM_SIZE - 1] = '\0';
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
-@@ -166,12 +164,10 @@ static ssize_t version_show(struct device *dev,
- 	msg->command = EC_CMD_GET_CHIP_INFO + ec->cmd_offset;
- 	msg->insize = sizeof(*r_chip);
- 	ret = cros_ec_cmd_xfer_status(ec->ec_dev, msg);
--	if (ret == -EPROTO) {
--		count += scnprintf(buf + count, PAGE_SIZE - count,
--				   "Chip info:     EC error %d\n", msg->result);
--	} else if (ret < 0) {
-+	if (ret < 0) {
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
--				   "Chip info:     XFER ERROR %d\n", ret);
-+				   "Chip info:     XFER / EC ERROR %d / %d\n",
-+				   ret, msg->result);
- 	} else {
- 		r_chip = (struct ec_response_get_chip_info *)msg->data;
- 
-@@ -190,12 +186,10 @@ static ssize_t version_show(struct device *dev,
- 	msg->command = EC_CMD_GET_BOARD_VERSION + ec->cmd_offset;
- 	msg->insize = sizeof(*r_board);
- 	ret = cros_ec_cmd_xfer_status(ec->ec_dev, msg);
--	if (ret == -EPROTO) {
--		count += scnprintf(buf + count, PAGE_SIZE - count,
--				   "Board version: EC error %d\n", msg->result);
--	} else if (ret < 0) {
-+	if (ret < 0) {
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
--				   "Board version: XFER ERROR %d\n", ret);
-+				   "Board version: XFER / EC ERROR %d / %d\n",
-+				   ret, msg->result);
- 	} else {
- 		r_board = (struct ec_response_board_version *)msg->data;
- 
--- 
-2.17.1
-
+Reviewed-by: Rob Herring <robh@kernel.org>

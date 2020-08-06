@@ -2,86 +2,166 @@ Return-Path: <SRS0=BDWM=BQ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 462F6C433E4
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:51:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FB20C433DF
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:52:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93D562086A
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:51:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1596732715;
-	bh=fxAUHU38Dome2oqkJ2OMoLQk7Jbs65JYMcjwb81Auq8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=0yqKtzaJmxedgSxvzHg7uBZoJPVmwl5snWJuue+k7r4FuIQe1n+0WdacJeJNC0Kze
-	 ogbAh674wCEeMRs+SeNVrgiFumsGlsX7eKHpKMKNqMMbqYeOayHS14j0Z5ScMOQCtB
-	 liOPe5mvjmQBXtUnRhSWlhTdgs1guZzqNYDBywX4=
+	by mail.kernel.org (Postfix) with ESMTP id BCA522086A
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:52:15 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m7aHHurS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729226AbgHFQvx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 6 Aug 2020 12:51:53 -0400
-Received: from mail-pg1-f171.google.com ([209.85.215.171]:46023 "EHLO
-        mail-pg1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729382AbgHFQvw (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2020 12:51:52 -0400
-Received: by mail-pg1-f171.google.com with SMTP id x6so11972822pgx.12;
-        Thu, 06 Aug 2020 09:51:52 -0700 (PDT)
+        id S1729339AbgHFQwB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 6 Aug 2020 12:52:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43414 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729516AbgHFQvD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2020 12:51:03 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73218C0086B3;
+        Thu,  6 Aug 2020 08:33:18 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id r11so17255581pfl.11;
+        Thu, 06 Aug 2020 08:33:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=OB49z5mjW0LWW4JF1oLw/U9qGTQogmAmaaexYlsEeUw=;
+        b=m7aHHurSz7uvNcMNReeucg84mWKcscHNcmgJuLIIEgFG4hxSY6p8emZ8iiBLZU/SjU
+         hnpDSG6rOqZL5ObYwMcDzUPqcKMrVziaFBtLZEyIGIPaKBYhG/nCZFPxWmaHFLTey134
+         B+Y45WUbfnQa99OlAw+RhZgOe7H+WYQwrwwu4UyqG8OZN+UMxfOagz/oO4Ip9YekWoH0
+         zuew55ms00TRlcuHveJKjLHunhcFXF/IhdiG7UuGivLBYZy8ShKzchCJUTkZ1C0DW8uG
+         KHFjJYWhwx15gMR1fMcEwMoLLLPtsztdq/zWKAor2CJGnH8q7XibLdKD7IyKA7XZD6T/
+         B4HQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=9WzP/qX68qYJ2hNsWrKZ2UF/VOiRo1FGiV7mEAPI4o8=;
-        b=UBAj31rUkVHghDVXtjZ0/wVOUkN+aCkneYrWizAVydvO8QkGyrwIoMxW8J4J494VnX
-         0F/W/hz5G46lcCNR5mh2esaxXsZfe/Yb6S+ehVdjyIyXZCr4Uucyih7yKFQb+/L8MPHk
-         vPB3mQPmGo03pva1ntFRFYrTwSi0YJs/RfWAAoCDcfPgDmlpLPAukJn/i6fJ+O3wC9H4
-         MdyzjnOR+WPv6btxeiwiT5Ufhi9zdKXcW/fndA4OXgiblzVhKbz7zO7rxPbMdl9lRPQx
-         6BcRY3/MpLxxftaeFYbd0DCz2zgchDN3u4J7OGjgXASG+kH4Dao+XTKuvrJ+58kIIHXW
-         cyBQ==
-X-Gm-Message-State: AOAM530BAB8rQ0hzlRrkDOIg6rVJ0o2jUrh4FQNIkQaFy94eDjUZWESo
-        jrthlPvvf+lL6qyM+eOLTNtqLZw=
-X-Google-Smtp-Source: ABdhPJzSi7X3jBLpEqD8SZQol0aayJ75PVEkC6cgKrEGtbOTZR9JvyOCv2zvr0+d+NIejU2BAtVvgQ==
-X-Received: by 2002:a92:ba02:: with SMTP id o2mr10384602ili.3.1596725420911;
-        Thu, 06 Aug 2020 07:50:20 -0700 (PDT)
-Received: from xps15 ([64.188.179.252])
-        by smtp.gmail.com with ESMTPSA id p20sm3847903iod.27.2020.08.06.07.50.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Aug 2020 07:50:20 -0700 (PDT)
-Received: (nullmailer pid 840060 invoked by uid 1000);
-        Thu, 06 Aug 2020 14:50:19 -0000
-Date:   Thu, 6 Aug 2020 08:50:19 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Ahmet Inan <inan@distec.de>, kernel@collabora.com,
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references;
+        bh=OB49z5mjW0LWW4JF1oLw/U9qGTQogmAmaaexYlsEeUw=;
+        b=dJ6HTEaIrc13Nx6W3KAj73IzHkIf8Gx4zrD7YHdWZCKvLFAvWVsP5I9KOTUt1EOXpA
+         Hg6bbicmgIZ9xOJFhQULl/Tky5IjkA9ZDKJW9uaay9UPdr/fgo8KonK1dyFMAJY9NX9+
+         Q5U23auz/RE1enMF/KQDG60FKcjVvPg9fGoanqaim9ALhG1UG5/koNtGnNjR25DbSC85
+         6SOF/zhA+t50Ryi4ND+i3CAx77+l4vPUA5u9+ntnfN3K0icJqwC0q53mhf0d0LIzHJlv
+         PBSJSKlgD3eaiYrTC5FMs2YxFV6OBgXEpH7pJfOAGSApOC+lUaHhLw6pKzjsQTyk/bQo
+         KN/Q==
+X-Gm-Message-State: AOAM5322hHHkmylZQawG3M74Geau7u2AhPdce9D+e3Dhr7VidwxGdWTx
+        5oY06ZiV9l+W22yazmnZ/2I=
+X-Google-Smtp-Source: ABdhPJxiJvfAbC9f+jE+gjdTyrvBQXJFfHAlNRMm9oer2udDGpn+6J5NittGKv7K821x1r9QYXU9bA==
+X-Received: by 2002:a63:1a49:: with SMTP id a9mr7834508pgm.110.1596727998029;
+        Thu, 06 Aug 2020 08:33:18 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 207sm8479732pfz.203.2020.08.06.08.33.17
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 06 Aug 2020 08:33:17 -0700 (PDT)
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc:     Jonathan Cameron <jic23@kernel.org>,
+        Benson Leung <bleung@chromium.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv4 3/4] Input: EXC3000: Add reset gpio support
-Message-ID: <20200806145019.GA840006@bogus>
-References: <20200805160520.456570-1-sebastian.reichel@collabora.com>
- <20200805160520.456570-4-sebastian.reichel@collabora.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200805160520.456570-4-sebastian.reichel@collabora.com>
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Lee Jones <lee.jones@linaro.org>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v4 4/7] pwm: cros-ec: Accept more error codes from cros_ec_cmd_xfer_status
+Date:   Thu,  6 Aug 2020 08:33:05 -0700
+Message-Id: <20200806153308.204605-5-linux@roeck-us.net>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200806153308.204605-1-linux@roeck-us.net>
+References: <20200806153308.204605-1-linux@roeck-us.net>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 05 Aug 2020 18:05:19 +0200, Sebastian Reichel wrote:
-> Add basic support for an optional reset gpio.
-> 
-> Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-> ---
->  .../input/touchscreen/eeti,exc3000.yaml         |  2 ++
->  drivers/input/touchscreen/exc3000.c             | 17 +++++++++++++++++
->  2 files changed, 19 insertions(+)
-> 
+Since commit c5cd2b47b203 ("platform/chrome: cros_ec_proto: Report command
+not supported") we can no longer assume that cros_ec_cmd_xfer_status()
+reports -EPROTO for all errors returned by the EC itself. A follow-up
+patch will change cros_ec_cmd_xfer_status() to report additional errors
+reported by the EC as distinguished Linux error codes.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Handle this change by no longer assuming that only -EPROTO is used
+to report all errors returned by the EC itself. Instead, support both
+the old and the new error codes.
+
+Add a comment describing cros_ec_num_pwms() to explain its functionality.
+
+Cc: Gwendal Grignou <gwendal@chromium.org>
+Cc: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+Cc: Prashant Malani <pmalani@chromium.org>
+Cc: Brian Norris <briannorris@chromium.org>
+Acked-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+v4: Added comments describing cros_ec_num_pwms() in more detail
+    Added Thierry's Acked-by: tag
+v3: Added patch
+
+ drivers/pwm/pwm-cros-ec.c | 29 ++++++++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/pwm/pwm-cros-ec.c b/drivers/pwm/pwm-cros-ec.c
+index 09c08dee099e..94d3dff9b0e5 100644
+--- a/drivers/pwm/pwm-cros-ec.c
++++ b/drivers/pwm/pwm-cros-ec.c
+@@ -204,6 +204,11 @@ static const struct pwm_ops cros_ec_pwm_ops = {
+ 	.owner		= THIS_MODULE,
+ };
+ 
++/*
++ * Determine the number of supported PWMs. The EC does not return the number
++ * of PWMs it supports directly, so we have to read the pwm duty cycle for
++ * subsequent channels until we get an error.
++ */
+ static int cros_ec_num_pwms(struct cros_ec_device *ec)
+ {
+ 	int i, ret;
+@@ -213,20 +218,30 @@ static int cros_ec_num_pwms(struct cros_ec_device *ec)
+ 		u32 result = 0;
+ 
+ 		ret = __cros_ec_pwm_get_duty(ec, i, &result);
+-		/* We want to parse EC protocol errors */
+-		if (ret < 0 && !(ret == -EPROTO && result))
+-			return ret;
+-
+ 		/*
+ 		 * We look for SUCCESS, INVALID_COMMAND, or INVALID_PARAM
+ 		 * responses; everything else is treated as an error.
++		 * The EC error codes either map to -EOPNOTSUPP / -EINVAL,
++		 * or -EPROTO is returned and the EC error is in the result
++		 * field. Check for both.
+ 		 */
+-		if (result == EC_RES_INVALID_COMMAND)
++		switch (ret) {
++		case -EOPNOTSUPP:	/* invalid command */
+ 			return -ENODEV;
+-		else if (result == EC_RES_INVALID_PARAM)
++		case -EINVAL:		/* invalid parameter */
+ 			return i;
+-		else if (result)
++		case -EPROTO:
++			/* Old or new error return code: Handle both */
++			if (result == EC_RES_INVALID_COMMAND)
++				return -ENODEV;
++			else if (result == EC_RES_INVALID_PARAM)
++				return i;
+ 			return -EPROTO;
++		default:
++			if (ret < 0)
++				return ret;
++			break;
++		}
+ 	}
+ 
+ 	return U8_MAX;
+-- 
+2.17.1
+

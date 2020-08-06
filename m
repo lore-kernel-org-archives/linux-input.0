@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BEAE7C433E0
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:52:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FC09C433E1
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:53:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 155A323119
-	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:52:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95F332311A
+	for <linux-input@archiver.kernel.org>; Thu,  6 Aug 2020 16:53:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bzDR8/m7"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qtmrG/B/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729514AbgHFQwl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 6 Aug 2020 12:52:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43336 "EHLO
+        id S1729559AbgHFQxX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 6 Aug 2020 12:53:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728618AbgHFQvC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2020 12:51:02 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D064C0086B0;
-        Thu,  6 Aug 2020 08:33:13 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id g33so9518531pgb.4;
-        Thu, 06 Aug 2020 08:33:13 -0700 (PDT)
+        with ESMTP id S1729365AbgHFQu7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2020 12:50:59 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E6FC0086B7;
+        Thu,  6 Aug 2020 08:33:22 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id o13so26959041pgf.0;
+        Thu, 06 Aug 2020 08:33:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=CN7uHlPIi8/iD7OlGD8kFHlcRvOdmfTdi7G7UlWQ4cQ=;
-        b=bzDR8/m7lhxxuexHxN8XtssGQWJGqBJsSmWiN7jtIMtLvoVdn94DwJr9Su2QJRQGZs
-         k29+mHOG9x2wsoA5CWruJlqxflFi2bQ36Fb4xCsxBDz0a4ERJHPuU3xI02EXlQ+SkaZH
-         78yOyQGOyE48KySnZY/Sy1Y+focpKatwdt9yJashzTjxCyZTHB9YC1HUnzEEgYE92HoS
-         FDTceYg/sfB8KHsQ17SJtCKTQPWE45ziA2Wv+u9hJyWiyfogXran7AefBZ+tUZFHswWp
-         wbomNsX73S4/jwlA9GAGPqMzo5hMGGlvNrBxKIqRHvjIV9uG588ZV3PUV18kEvbugH7f
-         1uCg==
+        bh=NXM7oKIqExo6jQUCEcqG7gsdReCWsat1fidWX99SIu0=;
+        b=qtmrG/B/x58Madbk7LLC7WKbj2mBIkC1GmyA7WafBLX+ZoV6WYIRo1bU1eavNX5Odx
+         H7cx7siSu0FEcpEG2ucdbQh8uMSgyJr3m/zq34an/vJzcmGC7ug1STJRw2wYoPazPWX3
+         TBZCJdqoyqyzJhoHsFQkqguml/jS1jLMWrcpfXAo1/LjQZa9WLmgoCG77PRUFZw8W8k1
+         A/MAfASV7jEhnvtYzFzzxlanVOh+iy0XW5b/BflcA14wgsmEFuXTkzOWpE74LxS4I4BL
+         gwRxBfJbn5omiFoDDdm1r7IJHL8wf2cKCRw1mKh8WRS+dagMNRS1v5jr6fOWnfWBq/8t
+         1zhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=CN7uHlPIi8/iD7OlGD8kFHlcRvOdmfTdi7G7UlWQ4cQ=;
-        b=tPGtnioMhCujeNsvzRD1tjq6+2uVbE6hwa48hqFAYZbPb+//R4vA9Co5x/TSZ7nMzm
-         iCW0rAXQm6DV/dluzj8XnljQMkIK/016MWYsYw6/X9rNQ2U862iEyn1VQizWJ4hiu8OY
-         P4wHuOL24PIKKh8srutLGJYjkv817+BV/ZWewg4W6iC+p5/i7h5rZJ66irNh81uZ6eso
-         OZZSYDsRuX69mRhD5cr5tLZ+quyJMovmyl9W/2gb/Yh5ZDQO8PhJrgFBxBZTNXVUdB8i
-         nE38A345n8E/RYp+FkYL38ShwOWkW7FPMfNyNu+RaYcsPAoZXPNtj3RCXIy55ymFpqv8
-         kopw==
-X-Gm-Message-State: AOAM530TZiAhp8WmeHY9GgGvMSf773eoiP3TjBmJaj6v+6Y9rIPtIn7h
-        gJU2pne7QKMCk9ami0+jGSo=
-X-Google-Smtp-Source: ABdhPJxhsDhjaMYsKZs6gAAdwc4LekHYCqv+Ibr7AR7BKYdy6R2x5nFLfZMsGjMySWEvo48m78m2Zg==
-X-Received: by 2002:a63:f24a:: with SMTP id d10mr7739694pgk.4.1596727992856;
-        Thu, 06 Aug 2020 08:33:12 -0700 (PDT)
+        bh=NXM7oKIqExo6jQUCEcqG7gsdReCWsat1fidWX99SIu0=;
+        b=dVf//0zjvqXYIg6M0m+pXTnQGf6rRBpRFoXxc1ye615zEoKj17MtWKMd0HMYBFBwt8
+         IgYwjOyzRA24hBWiRPPCW3N4IgjcvTxXiA1pdHVI3E/vgZAXvVd/F4Jzo/oTxYN/bzy3
+         TNV4u1Pcu3Y7TIxe/on3KEKwe48TZgp99pk/Cpca2HmGaOT7kUsIqOzeeUOGni8f98B4
+         OZhoa5ZrBzbzAczuOh8C6l44/r3AEiG+VbxIGCSOWaPrrJIuLxRVNWQV08+7D67gGc0y
+         eIOfJQEsSdwxG/ZfgzW9ynmB1kxqSEZ4B84Jng5Ib8F/LzuCkVp1VNNemnjgBm44dKoe
+         AsUw==
+X-Gm-Message-State: AOAM531vWQ8K+/fV/tqgitgQE93kMwMGOmIr6NIsV7vkod+qV9lEXZD6
+        EzM6YLr8cYD55zmuEvNis6k=
+X-Google-Smtp-Source: ABdhPJxPgUkkRVp7LsuLLycjHy7G09Nd7fR2ySbGBe+ceuVccLylbMsZBpLGEhRshGy64Vbl4JwA2A==
+X-Received: by 2002:a63:d143:: with SMTP id c3mr7775779pgj.306.1596728002409;
+        Thu, 06 Aug 2020 08:33:22 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id g12sm8159035pfb.190.2020.08.06.08.33.12
+        by smtp.gmail.com with ESMTPSA id 12sm8379264pfn.173.2020.08.06.08.33.21
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 06 Aug 2020 08:33:12 -0700 (PDT)
+        Thu, 06 Aug 2020 08:33:21 -0700 (PDT)
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Cc:     Jonathan Cameron <jic23@kernel.org>,
@@ -71,9 +71,9 @@ Cc:     Jonathan Cameron <jic23@kernel.org>,
         linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
         linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4 1/7] iio: cros_ec: Accept -EOPNOTSUPP as 'not supported' error code
-Date:   Thu,  6 Aug 2020 08:33:02 -0700
-Message-Id: <20200806153308.204605-2-linux@roeck-us.net>
+Subject: [PATCH v4 7/7] pwm: cros-ec: Simplify EC error handling
+Date:   Thu,  6 Aug 2020 08:33:08 -0700
+Message-Id: <20200806153308.204605-8-linux@roeck-us.net>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200806153308.204605-1-linux@roeck-us.net>
 References: <20200806153308.204605-1-linux@roeck-us.net>
@@ -82,38 +82,80 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-A follow-up patch will extend the number of errors reported by
-cros_ec_cmd_xfer_status(). Specifically, the function will return
--EOPNOTSUPP if a command is not supported by the EC. Prepare for it.
+With enhanced error reporting from cros_ec_cmd_xfer_status() in place,
+we can fully use it and no longer rely on EC error codes.
 
-Cc: Gwendal Grignou <gwendal@chromium.org>
-Cc: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Cc: Prashant Malani <pmalani@chromium.org>
-Cc: Brian Norris <briannorris@chromium.org>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-v4: No change
-v3: No change
-v2: No change
+ drivers/pwm/pwm-cros-ec.c | 26 ++++----------------------
+ 1 file changed, 4 insertions(+), 22 deletions(-)
 
- drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
-index a66941fdb385..e3aff95493dd 100644
---- a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
-+++ b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
-@@ -73,7 +73,7 @@ static int cros_ec_sensors_read(struct iio_dev *indio_dev,
- 		st->core.param.sensor_offset.flags = 0;
+diff --git a/drivers/pwm/pwm-cros-ec.c b/drivers/pwm/pwm-cros-ec.c
+index 94d3dff9b0e5..c1c337969e4e 100644
+--- a/drivers/pwm/pwm-cros-ec.c
++++ b/drivers/pwm/pwm-cros-ec.c
+@@ -81,8 +81,7 @@ static int cros_ec_pwm_set_duty(struct cros_ec_device *ec, u8 index, u16 duty)
+ 	return cros_ec_cmd_xfer_status(ec, msg);
+ }
  
- 		ret = cros_ec_motion_send_host_cmd(&st->core, 0);
--		if (ret == -EPROTO) {
-+		if (ret == -EPROTO || ret == -EOPNOTSUPP) {
- 			/* Reading calibscale is not supported on older EC. */
- 			*val = 1;
- 			*val2 = 0;
+-static int __cros_ec_pwm_get_duty(struct cros_ec_device *ec, u8 index,
+-				  u32 *result)
++static int cros_ec_pwm_get_duty(struct cros_ec_device *ec, u8 index)
+ {
+ 	struct {
+ 		struct cros_ec_command msg;
+@@ -107,19 +106,12 @@ static int __cros_ec_pwm_get_duty(struct cros_ec_device *ec, u8 index,
+ 	params->index = index;
+ 
+ 	ret = cros_ec_cmd_xfer_status(ec, msg);
+-	if (result)
+-		*result = msg->result;
+ 	if (ret < 0)
+ 		return ret;
+ 
+ 	return resp->duty;
+ }
+ 
+-static int cros_ec_pwm_get_duty(struct cros_ec_device *ec, u8 index)
+-{
+-	return __cros_ec_pwm_get_duty(ec, index, NULL);
+-}
+-
+ static int cros_ec_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 			     const struct pwm_state *state)
+ {
+@@ -215,28 +207,18 @@ static int cros_ec_num_pwms(struct cros_ec_device *ec)
+ 
+ 	/* The index field is only 8 bits */
+ 	for (i = 0; i <= U8_MAX; i++) {
+-		u32 result = 0;
+-
+-		ret = __cros_ec_pwm_get_duty(ec, i, &result);
++		ret = cros_ec_pwm_get_duty(ec, i);
+ 		/*
+ 		 * We look for SUCCESS, INVALID_COMMAND, or INVALID_PARAM
+ 		 * responses; everything else is treated as an error.
+-		 * The EC error codes either map to -EOPNOTSUPP / -EINVAL,
+-		 * or -EPROTO is returned and the EC error is in the result
+-		 * field. Check for both.
++		 * The EC error codes map to -EOPNOTSUPP and -EINVAL,
++		 * so check for those.
+ 		 */
+ 		switch (ret) {
+ 		case -EOPNOTSUPP:	/* invalid command */
+ 			return -ENODEV;
+ 		case -EINVAL:		/* invalid parameter */
+ 			return i;
+-		case -EPROTO:
+-			/* Old or new error return code: Handle both */
+-			if (result == EC_RES_INVALID_COMMAND)
+-				return -ENODEV;
+-			else if (result == EC_RES_INVALID_PARAM)
+-				return i;
+-			return -EPROTO;
+ 		default:
+ 			if (ret < 0)
+ 				return ret;
 -- 
 2.17.1
 

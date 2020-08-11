@@ -1,67 +1,94 @@
-Return-Path: <SRS0=guqd=BU=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=vKcb=BV=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A402C433E0
-	for <linux-input@archiver.kernel.org>; Mon, 10 Aug 2020 23:39:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05AD1C433E0
+	for <linux-input@archiver.kernel.org>; Tue, 11 Aug 2020 01:48:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 23C6D20734
-	for <linux-input@archiver.kernel.org>; Mon, 10 Aug 2020 23:39:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1597102796;
-	bh=Lqj2FkHw8bO0w3Dr4l9ij4v95Nm7vhZMhIf5vyNJERc=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=sa/n6J3W6XCGHd+cjnb0BHV2sml27mooYhOyUsYPlkC2f5zK3OAYxCt5F45vzJV/D
-	 nvguONM7mHFKus4dke1DkeM3QOTCK7Q0xtoiM8a2wNwMXlrcLADhXWLZ35eyv1gG5I
-	 kXtbuqvpqK/E3zjZ5XY5XLrWa2LtFjyfspueGFxQ=
+	by mail.kernel.org (Postfix) with ESMTP id D77712078B
+	for <linux-input@archiver.kernel.org>; Tue, 11 Aug 2020 01:48:26 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="D5xe5xHA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726978AbgHJXjz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 Aug 2020 19:39:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33024 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726913AbgHJXjy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Aug 2020 19:39:54 -0400
-Subject: Re: [git pull] Input updates for v5.9-rc0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597102794;
-        bh=Lqj2FkHw8bO0w3Dr4l9ij4v95Nm7vhZMhIf5vyNJERc=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=0D6t5IvIjeeEXpwrJDJMMSew1fTgu67hhsyWSJtf9Xu8r7fmd2/fb3oew9fPyroXk
-         b7sYZhoP/FPBvQbHVNjgwCWgK/Wz9kkhnJ+1fV1FzVZe8TqxMn7kvsx+7lmKtPD9u1
-         qMEcl1UxklD+PboMofgzfxbk2BOnokDE0GxwdOgY=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20200810181235.GA929203@dtor-ws>
-References: <20200810181235.GA929203@dtor-ws>
-X-PR-Tracked-List-Id: <linux-input.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20200810181235.GA929203@dtor-ws>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-X-PR-Tracked-Commit-Id: 9e8238020c5beba64e7ffafbb7ea0fb02fe68270
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 4bcf69e57063c9b1b15df1a293c969e80a1c97e6
-Message-Id: <159710279452.26236.17600376947073007403.pr-tracker-bot@kernel.org>
-Date:   Mon, 10 Aug 2020 23:39:54 +0000
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+        id S1727987AbgHKBsZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 Aug 2020 21:48:25 -0400
+Received: from Mailgw01.mediatek.com ([1.203.163.78]:38721 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727985AbgHKBsY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 10 Aug 2020 21:48:24 -0400
+X-UUID: e0bcfdbec32f4749bb90bb0cdf6668f2-20200811
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=wWsrLG80qkuNgSA4gGuAfus81URferVVdJm10Q2FyI0=;
+        b=D5xe5xHA5gYU4RjvI4svlu2vpiIEvWNSbxoNBMxV6fsBFEh7XUnCIzEhcxit2gjbmLb/SoG7QG199yCWvAiQ6iuLaXw/n65SADtIe80VB8oBog3MAKzSvAg1ncAtGNYPi5ZUkRBevl/4QRRai+erZaaYa1TFh1sXUnrG2mKdBK8=;
+X-UUID: e0bcfdbec32f4749bb90bb0cdf6668f2-20200811
+Received: from mtkcas32.mediatek.inc [(172.27.4.253)] by mailgw01.mediatek.com
+        (envelope-from <yingjoe.chen@mediatek.com>)
+        (mailgw01.mediatek.com ESMTP with TLS)
+        with ESMTP id 855901188; Tue, 11 Aug 2020 09:48:21 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ MTKMBS32N1.mediatek.inc (172.27.4.71) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 11 Aug 2020 09:48:18 +0800
+Received: from [172.21.77.4] (172.21.77.4) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 11 Aug 2020 09:47:23 +0800
+Message-ID: <1597110443.22273.5.camel@mtksdaap41>
+Subject: Re: [PATCH v17 1/3] dt-bindings: Add bindings for Mediatek matrix
+ keypad
+From:   Yingjoe Chen <yingjoe.chen@mediatek.com>
+To:     Fengping Yu <fengping.yu@mediatek.com>
+CC:     Rob Herring <robh+dt@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>
+Date:   Tue, 11 Aug 2020 09:47:23 +0800
+In-Reply-To: <20200810064058.6467-2-fengping.yu@mediatek.com>
+References: <20200810064058.6467-1-fengping.yu@mediatek.com>
+         <20200810064058.6467-2-fengping.yu@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.10.4-0ubuntu2 
+MIME-Version: 1.0
+X-TM-SNTS-SMTP: B2CD043487BC2843B3826AD6DB0F9EC3DC55BA7D3B4D9836D2D5FCFBC9953D792000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The pull request you sent on Mon, 10 Aug 2020 11:12:35 -0700:
+SGksDQoNCg0KT24gTW9uLCAyMDIwLTA4LTEwIGF0IDE0OjQwICswODAwLCBGZW5ncGluZyBZdSB3
+cm90ZToNCj4gRnJvbTogImZlbmdwaW5nLnl1IiA8ZmVuZ3BpbmcueXVAbWVkaWF0ZWsuY29tPg0K
+PiANCj4gVGhpcyBwYXRjaCBhZGQgZGV2aWNldHJlZSBiaW5kaW5ncyBmb3IgTWVkaWF0ZWsgbWF0
+cml4IGtleXBhZCBkcml2ZXIuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBmZW5ncGluZy55dSA8ZmVu
+Z3BpbmcueXVAbWVkaWF0ZWsuY29tPg0KPiAtLS0NCj4gIC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdz
+L2lucHV0L210ay1rcGQueWFtbCAgICB8IDg3ICsrKysrKysrKysrKysrKysrKysNCj4gIDEgZmls
+ZSBjaGFuZ2VkLCA4NyBpbnNlcnRpb25zKCspDQo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1l
+bnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L210ay1rcGQueWFtbA0KPiANCj4gZGlm
+ZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC9tdGsta3Bk
+LnlhbWwgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQvbXRrLWtwZC55
+YW1sDQo+IG5ldyBmaWxlIG1vZGUgMTAwNjQ0DQo+IGluZGV4IDAwMDAwMDAwMDAwMC4uZDc0ZGQ4
+YTZmYmRlDQoNCjwuLi4+DQoNCg0KPiArICBrZXlwYWQsbnVtLWNvbHVtbnM6DQo+ICsgICAgZGVz
+Y3JpcHRpb246IE51bWJlciBvZiBjb2x1bW4gbGluZXMgY29ubmVjdGVkIHRvIHRoZSBrZXlwYWQg
+Y29udHJvbGxlciwNCj4gKyAgICBpdCBpcyBub3QgZXF1YWwgdG8gUENCIGNvbHVtbnMgbnVtYmVy
+LCBpbnN0ZWFkIHlvdSBzaG91bGQgYWRkIHJlcXVpcmVkIHZhbHVlDQo+ICsgICAgZm9yIGVhY2gg
+SUMuIElmIG5vdCBzcGVjaWZpZWQsIHRoZSBkZWZhdWx0IHZhbHVlIGlzIDEuDQo+ICsNCj4gKyAg
+a2V5cGFkLG51bS1yb3dzOg0KPiArICAgIGRlc2NyaXB0aW9uOiBOdW1iZXIgb2Ygcm93IGxpbmVz
+IGNvbm5lY3RlZCB0byB0aGUga2V5cGFkIGNvbnRyb2xsZXIsIGl0IGlzDQo+ICsgICAgbm90IGVx
+dWFsIHRvIFBDQiByb3dzIG51bWJlciwgaW5zdGVhZCB5b3Ugc2hvdWxkIGFkZCByZXF1aXJlZCB2
+YWx1ZSBmb3IgZWFjaCBJQy4NCj4gKyAgICBJZiBub3Qgc3BlY2lmaWVkLCB0aGUgZGVmYXVsdCB2
+YWx1ZSBpcyAxLg0KDQpZb3VyIHNvdXJjZSBjb2RlIGNhbid0IHJlYWxseSBoYW5kbGUgZHRzIHdp
+dGhvdXQgcm93cy9jb2x1bW5zDQpwcm9wZXJ0aWVzLiBBbHNvLCB0aGUgZGVmYXVsdCB2YWx1ZSBk
+b2Vzbid0IG1ha2UgYW55IHNlbnNlLiBObyBJQyB3aWxsDQpoYXZlIHJvd3Mgb3IgY29sdW1ucyBz
+ZXQgdG8gMS4NCg0KU2luY2UgdGhlc2UgYXJlIElDIHNwZWNpZmllZCwgbm90IGJvYXJkIHNwZWNp
+ZmllZCwgSSB0aGluayB5b3Ugc2hvdWxkDQpqdXN0IGhhdmUgdGhlIGNvcnJlY3QgbnVtYmVycyBp
+biBkcml2ZXIuDQoNCkpvZS5DDQoNCg==
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/4bcf69e57063c9b1b15df1a293c969e80a1c97e6
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html

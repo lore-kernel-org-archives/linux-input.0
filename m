@@ -2,209 +2,125 @@ Return-Path: <SRS0=iVS7=BW=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68EA9C433E0
-	for <linux-input@archiver.kernel.org>; Wed, 12 Aug 2020 10:11:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9A9EC433DF
+	for <linux-input@archiver.kernel.org>; Wed, 12 Aug 2020 11:28:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1E06020781
-	for <linux-input@archiver.kernel.org>; Wed, 12 Aug 2020 10:11:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8188E207F7
+	for <linux-input@archiver.kernel.org>; Wed, 12 Aug 2020 11:28:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727822AbgHLKLl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Aug 2020 06:11:41 -0400
-Received: from esa1.mentor.iphmx.com ([68.232.129.153]:41936 "EHLO
-        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726453AbgHLKLl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Aug 2020 06:11:41 -0400
-IronPort-SDR: /Na1TFej3rwiPwoC1wHSsVWyqg8mBfRNNKikqZtVeJbnGno3FTf6RS9/91eSmLsOUdqXqGfkrZ
- xklOvFu4aTCGiHTYnDrC/M1/loka+fxD+kz8Ux5P5k5fAkPRJmYjaWVTu9b9c4mjVypj+Jqpgv
- tCW9gmUB1dCHiYDrpgXvpWpCkBFPXocPpUkS0/3M8uW56mLbZHiSvQN4usOHNk5svcYqYBWM2s
- 9/oGABz5EiVBXIqkjetY5cjzEBggPK7u/cAyEn5VEwHSf4yMZPkBSH3ZsiF+dUg8M38vUTkaQ/
- 54M=
-X-IronPort-AV: E=Sophos;i="5.76,303,1592899200"; 
-   d="scan'208";a="54015934"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa1.mentor.iphmx.com with ESMTP; 12 Aug 2020 02:11:39 -0800
-IronPort-SDR: mejU22uvxz4tPtEmuQVl+kgGTP6+w3XIrqzSRUEJ3wk6N9HFD8BTMKhpOGk4heBQ6DFlmQK5Pl
- CU1sQayIa9Lj/pywUGTwoXtJ3yH+Y6uXQFhhhmsCvMpe8S8kekB2yux3VQhswVS/I08P0Jz8XP
- gHpGWyzwhdgnYSBufiBuqyq2xp87MKjk7xSiJ5IoHu2uBeXzNWGXkILD9CGSTl/cu+c2Xu7m3Q
- 2NjQvK+qlxaRDcVHWDJuSZrGqXLxo1U8G5tsOZVrKzu1xAku7+NNW5Ohi2cDzjvzADA73g8Ik8
- WmM=
-Subject: Re: [PATCH 1/1] Input: atmel_mxt_ts - allow specification of firmware
- file name
-To:     Dmitry Osipenko <digetx@gmail.com>,
-        "nick@shmanahar.org" <nick@shmanahar.org>,
-        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-CC:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "erosca@de.adit-jv.com" <erosca@de.adit-jv.com>,
-        "Gabbasov, Andrew" <Andrew_Gabbasov@mentor.com>
-References: <20200731075714.10608-1-jiada_wang@mentor.com>
- <e5da9e03-8156-39f6-c78b-0226c95690c6@gmail.com>
-From:   "Wang, Jiada" <jiada_wang@mentor.com>
-Message-ID: <a0af72eb-11d9-cab1-c79a-0c42c3eb0e19@mentor.com>
-Date:   Wed, 12 Aug 2020 19:11:34 +0900
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+        id S1726846AbgHLL2b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Aug 2020 07:28:31 -0400
+Received: from mx2.suse.de ([195.135.220.15]:55712 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726453AbgHLL2a (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 Aug 2020 07:28:30 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 191A1B6D5;
+        Wed, 12 Aug 2020 11:28:50 +0000 (UTC)
+Subject: Re: [PATCH 1/2] tty/sysrq: Extend the sysrq_key_table to cover
+ capital letters
+To:     Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, kernel@collabora.com
+References: <20200804162402.2087-1-andrzej.p@collabora.com>
+ <20200804162402.2087-2-andrzej.p@collabora.com>
+From:   Jiri Slaby <jslaby@suse.com>
+Autocrypt: addr=jslaby@suse.com; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <bf903783-af28-98cb-dee1-75ba185d0a61@suse.com>
+Date:   Wed, 12 Aug 2020 13:28:27 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <e5da9e03-8156-39f6-c78b-0226c95690c6@gmail.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
+In-Reply-To: <20200804162402.2087-2-andrzej.p@collabora.com>
+Content-Type: text/plain; charset=iso-8859-2
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SVR-ORW-MBX-06.mgc.mentorg.com (147.34.90.206) To
- svr-orw-mbx-01.mgc.mentorg.com (147.34.90.201)
+Content-Transfer-Encoding: 7bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Dmitry
+On 04. 08. 20, 18:24, Andrzej Pietrasiewicz wrote:
+> All slots in sysrq_key_table[] are either used, reserved or at least
+> commented with their intended use. This patch adds capital letter versions
+> available, which means adding 26 more entries.
+> 
+> For already existing SysRq operations the user presses Alt-SysRq-<key>, and
+> for the newly added ones Alt-Shift-SysRq-<key>.
 
-On 2020/08/10 5:11, Dmitry Osipenko wrote:
-> 31.07.2020 10:57, Jiada Wang пишет:
->> From: Nick Dyer <nick.dyer@itdev.co.uk>
->>
->> On platforms which have multiple device instances using this driver, the
->> firmware may be different on each device. This patch makes the user give
->> the name of the firmware file when flashing.
->>
->> This also prevents accidental triggering of the firmware load process.
->>
->> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
->> Acked-by: Benson Leung <bleung@chromium.org>
->> Acked-by: Yufeng Shen <miletus@chromium.org>
->> (cherry picked from ndyer/linux/for-upstream commit 76ebb7cee971cb42dfb0a3a9224403b8b09abcf1)
->> [gdavis: Forward port and fix conflicts.]
->> Signed-off-by: George G. Davis <george_davis@mentor.com>
->> Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
->> ---
->>   drivers/input/touchscreen/atmel_mxt_ts.c | 42 ++++++++++++++++++++----
->>   1 file changed, 36 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
->> index a2189739e30f..024dee7a3571 100644
->> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
->> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
->> @@ -30,8 +30,6 @@
->>   #include <media/videobuf2-v4l2.h>
->>   #include <media/videobuf2-vmalloc.h>
->>   
->> -/* Firmware files */
->> -#define MXT_FW_NAME		"maxtouch.fw"
->>   #define MXT_CFG_NAME		"maxtouch.cfg"
->>   #define MXT_CFG_MAGIC		"OBP_RAW V1"
->>   
->> @@ -308,6 +306,7 @@ struct mxt_data {
->>   	struct t7_config t7_cfg;
->>   	struct mxt_dbg dbg;
->>   	struct gpio_desc *reset_gpio;
->> +	char *fw_name;
-> 
-> Hello, Jiada!
-> 
-> Have you decided to abandon the patch which allowed to specify firmware
-> name in a device tree?
-> 
-In v11 patch-set, there is a patch allows user to specify config file 
-name via device-tree and sysfs, I will drop device-tree part, since 
-Dmitry Torokhov commented he would like to change the behavior of 
-firmware loading during boot time,
-but I will keep sysfs interface part, which is similar to this patch but 
-for configuration file.
+And on some keyboards Alt-Fn-Shift-SysRq-<key>. Ugh.
 
->>   	/* Cached parameters from object table */
->>   	u16 T5_address;
->> @@ -2766,7 +2765,7 @@ static int mxt_check_firmware_format(struct device *dev,
->>   	return -EINVAL;
->>   }
->>   
->> -static int mxt_load_fw(struct device *dev, const char *fn)
->> +static int mxt_load_fw(struct device *dev)
->>   {
->>   	struct mxt_data *data = dev_get_drvdata(dev);
->>   	const struct firmware *fw = NULL;
->> @@ -2776,9 +2775,9 @@ static int mxt_load_fw(struct device *dev, const char *fn)
->>   	unsigned int frame = 0;
->>   	int ret;
->>   
->> -	ret = request_firmware(&fw, fn, dev);
->> +	ret = request_firmware(&fw, data->fw_name, dev);
->>   	if (ret) {
->> -		dev_err(dev, "Unable to open firmware %s\n", fn);
->> +		dev_err(dev, "Unable to open firmware %s\n", data->fw_name);
->>   		return ret;
->>   	}
->>   
->> @@ -2887,6 +2886,33 @@ static int mxt_load_fw(struct device *dev, const char *fn)
->>   	return ret;
->>   }
->>   
->> +static int mxt_update_file_name(struct device *dev, char **file_name,
->> +				const char *buf, size_t count)
->> +{
->> +	char *file_name_tmp;
->> +
->> +	/* Simple sanity check */
->> +	if (count > 64) {
->> +		dev_warn(dev, "File name too long\n");
->> +		return -EINVAL;
->> +	}
->> +
->> +	file_name_tmp = krealloc(*file_name, count + 1, GFP_KERNEL);
->> +	if (!file_name_tmp)
->> +		return -ENOMEM;
-> 
-> The allocated string is never release, this is not good.
-> 
-> Wouldn't it be nicer to make data->fw_name a fixed-size string?
+...
+> @@ -833,8 +873,13 @@ static bool sysrq_handle_keypress(struct sysrq_state *sysrq,
+>  
+>  	default:
+>  		if (sysrq->active && value && value != 2) {
+> +			unsigned char c = sysrq_xlate[code];
+> +
+>  			sysrq->need_reinject = false;
+> -			__handle_sysrq(sysrq_xlate[code], true);
+> +			if (sysrq->shift_use != KEY_RESERVED)
+> +				if (c >= 'a' && c <= 'z')
+> +					c &= ~(1 << 5); /* to uppercase */
 
-OK, I will change to a fixed-size string
+c = toupper(c);
+instead of the whole if.
 
+> +			__handle_sysrq(c, true);
+>  		}
+>  		break;
+>  	}
 > 
->> +	*file_name = file_name_tmp;
->> +	memcpy(*file_name, buf, count);
->> +
->> +	/* Echo into the sysfs entry may append newline at the end of buf */
->> +	if (buf[count - 1] == '\n')
->> +		(*file_name)[count - 1] = '\0';
->> +	else
->> +		(*file_name)[count] = '\0';
-> 
-> What about to use strscpy?
-> 
-Thanks for the advice, I will replace with strscpy
 
->> +	return 0;
->> +}
->> +
->>   static ssize_t mxt_update_fw_store(struct device *dev,
->>   					struct device_attribute *attr,
->>   					const char *buf, size_t count)
->> @@ -2894,7 +2920,11 @@ static ssize_t mxt_update_fw_store(struct device *dev,
->>   	struct mxt_data *data = dev_get_drvdata(dev);
->>   	int error;
->>   
->> -	error = mxt_load_fw(dev, MXT_FW_NAME);
->> +	error = mxt_update_file_name(dev, &data->fw_name, buf, count);
->> +	if (error)
->> +		return error;
-> 
-> This change breaks old behavior, I'm not sure that it's acceptable. The
-> default name should remain to be "maxtouch.fw", IMO.
-
-it makes sense, I will update to write default "maxtouch.fw",
-in case user doesn't specify a file name in sysfs write operation
-
-Thanks,
-Jiada
-> 
->> +	error = mxt_load_fw(dev);
->>   	if (error) {
->>   		dev_err(dev, "The firmware update failed(%d)\n", error);
->>   		count = error;
->>
-> 
+thanks,
+-- 
+js
+suse labs

@@ -7,38 +7,38 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97FD9C433E3
-	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 00:57:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C994C433E0
+	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 00:57:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7497F20774
-	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 00:57:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3667B207F7
+	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 00:57:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726529AbgHMA5W (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Aug 2020 20:57:22 -0400
+        id S1726735AbgHMA52 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Aug 2020 20:57:28 -0400
 Received: from mga09.intel.com ([134.134.136.24]:41031 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726615AbgHMA5I (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Aug 2020 20:57:08 -0400
-IronPort-SDR: 2RMATZ0g7LVTtPUCCfJBLweYPmnNQ4MUDwRKlLQl73mAEARcuDUShybx0GhHa2HDJZpR27rVzs
- soOLkT9YpvcQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9711"; a="155260405"
+        id S1726596AbgHMA5G (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 Aug 2020 20:57:06 -0400
+IronPort-SDR: xVb1GHZGF0hWtXAbjm0hUOVrrJPiXq8pDTSaxQOptXEA2XeonGsb/KJ6UaBMO2VTawdqowm96R
+ q9xbqtUYguaQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9711"; a="155260403"
 X-IronPort-AV: E=Sophos;i="5.76,306,1592895600"; 
-   d="scan'208";a="155260405"
+   d="scan'208";a="155260403"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
   by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Aug 2020 17:57:06 -0700
-IronPort-SDR: VjWjXekWGu3e6iSwzLhuySzDCmL181erhxsKWC4zlbYHMFezB+gecwOdwJ2F2FSNicHzvnOr7c
- yZgqepBVo9gQ==
+IronPort-SDR: Je8WnfWGNc/6DHz15AlJdsHnHnEzEJr7FpZoBmUL3xMC5RO0KHOPG/zlhvGULtfN/gGAUOnicz
+ zoDN7Ddf/dnA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.76,306,1592895600"; 
-   d="scan'208";a="369439810"
+   d="scan'208";a="495693449"
 Received: from lkp-server01.sh.intel.com (HELO 7f1ebb311643) ([10.239.97.150])
-  by orsmga001.jf.intel.com with ESMTP; 12 Aug 2020 17:57:04 -0700
+  by fmsmga005.fm.intel.com with ESMTP; 12 Aug 2020 17:57:04 -0700
 Received: from kbuild by 7f1ebb311643 with local (Exim 4.92)
         (envelope-from <lkp@intel.com>)
-        id 1k61YF-0000LY-BC; Thu, 13 Aug 2020 00:57:03 +0000
-Date:   Thu, 13 Aug 2020 08:56:10 +0800
+        id 1k61YF-0000Ll-J3; Thu, 13 Aug 2020 00:57:03 +0000
+Date:   Thu, 13 Aug 2020 08:56:07 +0800
 From:   kernel test robot <lkp@intel.com>
 To:     Denis Efremov <efremov@linux.com>
 Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
@@ -48,7 +48,7 @@ Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
 Subject: [PATCH] coccinelle: api: fix device_attr_show.cocci warnings
-Message-ID: <20200813005610.GA85132@8851f5375e5a>
+Message-ID: <20200813005607.GA84958@8851f5375e5a>
 References: <202008130840.TWLDLwLA%lkp@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -63,12 +63,9 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: kernel test robot <lkp@intel.com>
 
-drivers/hid/hid-roccat-kone.c:406:8-16: WARNING: use scnprintf or sprintf
-drivers/hid/hid-roccat-kone.c:397:8-16: WARNING: use scnprintf or sprintf
-drivers/hid/hid-roccat-kone.c:438:8-16: WARNING: use scnprintf or sprintf
-drivers/hid/hid-roccat-kone.c:550:8-16: WARNING: use scnprintf or sprintf
-drivers/hid/hid-roccat-kone.c:448:8-16: WARNING: use scnprintf or sprintf
-drivers/hid/hid-roccat-kone.c:429:8-16: WARNING: use scnprintf or sprintf
+drivers/hid/hid-roccat-arvo.c:149:8-16: WARNING: use scnprintf or sprintf
+drivers/hid/hid-roccat-arvo.c:95:8-16: WARNING: use scnprintf or sprintf
+drivers/hid/hid-roccat-arvo.c:45:8-16: WARNING: use scnprintf or sprintf
 
 
  From Documentation/filesystems/sysfs.txt:
@@ -90,62 +87,35 @@ commit: abfc19ff202d287742483e15fd478ddd6ada2187 coccinelle: api: add device_att
 
 Please take the patch only if it's a positive warning. Thanks!
 
- hid-roccat-kone.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ hid-roccat-arvo.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -394,7 +394,7 @@ static ssize_t kone_sysfs_show_actual_pr
- {
- 	struct kone_device *kone =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kone->actual_profile);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", kone->actual_profile);
- }
- static DEVICE_ATTR(actual_profile, 0440, kone_sysfs_show_actual_profile, NULL);
- 
-@@ -403,7 +403,7 @@ static ssize_t kone_sysfs_show_actual_dp
- {
- 	struct kone_device *kone =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kone->actual_dpi);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", kone->actual_dpi);
- }
- static DEVICE_ATTR(actual_dpi, 0440, kone_sysfs_show_actual_dpi, NULL);
- 
-@@ -426,7 +426,7 @@ static ssize_t kone_sysfs_show_weight(st
- 
+--- a/drivers/hid/hid-roccat-arvo.c
++++ b/drivers/hid/hid-roccat-arvo.c
+@@ -42,7 +42,7 @@ static ssize_t arvo_sysfs_show_mode_key(
  	if (retval)
  		return retval;
--	return snprintf(buf, PAGE_SIZE, "%d\n", weight);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", weight);
- }
- static DEVICE_ATTR(weight, 0440, kone_sysfs_show_weight, NULL);
  
-@@ -435,7 +435,7 @@ static ssize_t kone_sysfs_show_firmware_
- {
- 	struct kone_device *kone =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kone->firmware_version);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", kone->firmware_version);
- }
- static DEVICE_ATTR(firmware_version, 0440, kone_sysfs_show_firmware_version,
- 		   NULL);
-@@ -445,7 +445,7 @@ static ssize_t kone_sysfs_show_tcu(struc
- {
- 	struct kone_device *kone =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kone->settings.tcu);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", kone->settings.tcu);
+-	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.state);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", temp_buf.state);
  }
  
- static int kone_tcu_command(struct usb_device *usb_dev, int number)
-@@ -547,7 +547,7 @@ static ssize_t kone_sysfs_show_startup_p
- {
- 	struct kone_device *kone =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kone->settings.startup_profile);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", kone->settings.startup_profile);
+ static ssize_t arvo_sysfs_set_mode_key(struct device *dev,
+@@ -92,7 +92,7 @@ static ssize_t arvo_sysfs_show_key_mask(
+ 	if (retval)
+ 		return retval;
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.key_mask);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", temp_buf.key_mask);
  }
  
- static ssize_t kone_sysfs_set_startup_profile(struct device *dev,
+ static ssize_t arvo_sysfs_set_key_mask(struct device *dev,
+@@ -146,7 +146,7 @@ static ssize_t arvo_sysfs_show_actual_pr
+ 	struct arvo_device *arvo =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", arvo->actual_profile);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", arvo->actual_profile);
+ }
+ 
+ static ssize_t arvo_sysfs_set_actual_profile(struct device *dev,

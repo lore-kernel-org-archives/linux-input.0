@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C994C433E0
-	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 00:57:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC26CC433DF
+	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 00:57:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3667B207F7
-	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 00:57:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A318320774
+	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 00:57:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726735AbgHMA52 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1726615AbgHMA52 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 12 Aug 2020 20:57:28 -0400
-Received: from mga09.intel.com ([134.134.136.24]:41031 "EHLO mga09.intel.com"
+Received: from mga06.intel.com ([134.134.136.31]:34243 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726596AbgHMA5G (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Aug 2020 20:57:06 -0400
-IronPort-SDR: xVb1GHZGF0hWtXAbjm0hUOVrrJPiXq8pDTSaxQOptXEA2XeonGsb/KJ6UaBMO2VTawdqowm96R
- q9xbqtUYguaQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9711"; a="155260403"
+        id S1726600AbgHMA5H (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 Aug 2020 20:57:07 -0400
+IronPort-SDR: XGhaCRP7vGB5RMZaJzEsK5Hz0SnP2vcnZzK1Tl7/pJ2gPxoJNAyAIDnbMrW+Rjlhu0EpPWOKH9
+ SBu7MzNO6YHw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9711"; a="215661597"
 X-IronPort-AV: E=Sophos;i="5.76,306,1592895600"; 
-   d="scan'208";a="155260403"
+   d="scan'208";a="215661597"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Aug 2020 17:57:06 -0700
-IronPort-SDR: Je8WnfWGNc/6DHz15AlJdsHnHnEzEJr7FpZoBmUL3xMC5RO0KHOPG/zlhvGULtfN/gGAUOnicz
- zoDN7Ddf/dnA==
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Aug 2020 17:57:06 -0700
+IronPort-SDR: Ww6phYdl4DavHzAKYO4oZabFzTFLKHea7RXU+8CsXAprC67xJYkKo8yxineIQoY2YwGas5Jr6n
+ iBMPV+dbFGHw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.76,306,1592895600"; 
-   d="scan'208";a="495693449"
+   d="scan'208";a="327404805"
 Received: from lkp-server01.sh.intel.com (HELO 7f1ebb311643) ([10.239.97.150])
-  by fmsmga005.fm.intel.com with ESMTP; 12 Aug 2020 17:57:04 -0700
+  by fmsmga002.fm.intel.com with ESMTP; 12 Aug 2020 17:57:04 -0700
 Received: from kbuild by 7f1ebb311643 with local (Exim 4.92)
         (envelope-from <lkp@intel.com>)
-        id 1k61YF-0000Ll-J3; Thu, 13 Aug 2020 00:57:03 +0000
-Date:   Thu, 13 Aug 2020 08:56:07 +0800
+        id 1k61YF-0000Lj-Ig; Thu, 13 Aug 2020 00:57:03 +0000
+Date:   Thu, 13 Aug 2020 08:56:13 +0800
 From:   kernel test robot <lkp@intel.com>
 To:     Denis Efremov <efremov@linux.com>
 Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
@@ -48,7 +48,7 @@ Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
 Subject: [PATCH] coccinelle: api: fix device_attr_show.cocci warnings
-Message-ID: <20200813005607.GA84958@8851f5375e5a>
+Message-ID: <20200813005613.GA85395@8851f5375e5a>
 References: <202008130840.TWLDLwLA%lkp@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -63,9 +63,9 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: kernel test robot <lkp@intel.com>
 
-drivers/hid/hid-roccat-arvo.c:149:8-16: WARNING: use scnprintf or sprintf
-drivers/hid/hid-roccat-arvo.c:95:8-16: WARNING: use scnprintf or sprintf
-drivers/hid/hid-roccat-arvo.c:45:8-16: WARNING: use scnprintf or sprintf
+drivers/hid/hid-roccat-pyra.c:289:8-16: WARNING: use scnprintf or sprintf
+drivers/hid/hid-roccat-pyra.c:306:8-16: WARNING: use scnprintf or sprintf
+drivers/hid/hid-roccat-pyra.c:327:8-16: WARNING: use scnprintf or sprintf
 
 
  From Documentation/filesystems/sysfs.txt:
@@ -87,35 +87,35 @@ commit: abfc19ff202d287742483e15fd478ddd6ada2187 coccinelle: api: add device_att
 
 Please take the patch only if it's a positive warning. Thanks!
 
- hid-roccat-arvo.c |    6 +++---
+ hid-roccat-pyra.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/hid/hid-roccat-arvo.c
-+++ b/drivers/hid/hid-roccat-arvo.c
-@@ -42,7 +42,7 @@ static ssize_t arvo_sysfs_show_mode_key(
- 	if (retval)
- 		return retval;
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.state);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", temp_buf.state);
- }
- 
- static ssize_t arvo_sysfs_set_mode_key(struct device *dev,
-@@ -92,7 +92,7 @@ static ssize_t arvo_sysfs_show_key_mask(
- 	if (retval)
- 		return retval;
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.key_mask);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", temp_buf.key_mask);
- }
- 
- static ssize_t arvo_sysfs_set_key_mask(struct device *dev,
-@@ -146,7 +146,7 @@ static ssize_t arvo_sysfs_show_actual_pr
- 	struct arvo_device *arvo =
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -286,7 +286,7 @@ static ssize_t pyra_sysfs_show_actual_cp
+ {
+ 	struct pyra_device *pyra =
  			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", arvo->actual_profile);
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", arvo->actual_profile);
+-	return snprintf(buf, PAGE_SIZE, "%d\n", pyra->actual_cpi);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", pyra->actual_cpi);
  }
+ static DEVICE_ATTR(actual_cpi, 0440, pyra_sysfs_show_actual_cpi, NULL);
  
- static ssize_t arvo_sysfs_set_actual_profile(struct device *dev,
+@@ -303,7 +303,7 @@ static ssize_t pyra_sysfs_show_actual_pr
+ 			&settings, PYRA_SIZE_SETTINGS);
+ 	mutex_unlock(&pyra->pyra_lock);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", settings.startup_profile);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", settings.startup_profile);
+ }
+ static DEVICE_ATTR(actual_profile, 0440, pyra_sysfs_show_actual_profile, NULL);
+ static DEVICE_ATTR(startup_profile, 0440, pyra_sysfs_show_actual_profile, NULL);
+@@ -324,7 +324,7 @@ static ssize_t pyra_sysfs_show_firmware_
+ 			&info, PYRA_SIZE_INFO);
+ 	mutex_unlock(&pyra->pyra_lock);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
+ }
+ static DEVICE_ATTR(firmware_version, 0440, pyra_sysfs_show_firmware_version,
+ 		   NULL);

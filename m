@@ -1,113 +1,126 @@
-Return-Path: <SRS0=1ZjA=BX=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=g2rk=BY=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3D70C433E1
-	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 18:33:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A56F2C433DF
+	for <linux-input@archiver.kernel.org>; Fri, 14 Aug 2020 00:22:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B073E2078B
-	for <linux-input@archiver.kernel.org>; Thu, 13 Aug 2020 18:33:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82AC9207DA
+	for <linux-input@archiver.kernel.org>; Fri, 14 Aug 2020 00:22:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qiDYdQnu"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZumkdZ3K"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726244AbgHMSdY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 13 Aug 2020 14:33:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51774 "EHLO
+        id S1726621AbgHNAWK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 13 Aug 2020 20:22:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726167AbgHMSdX (ORCPT
+        with ESMTP id S1726623AbgHNAWI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Aug 2020 14:33:23 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ACADC061757;
-        Thu, 13 Aug 2020 11:33:23 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id h8so3548275lfp.9;
-        Thu, 13 Aug 2020 11:33:22 -0700 (PDT)
+        Thu, 13 Aug 2020 20:22:08 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE9FC061757;
+        Thu, 13 Aug 2020 17:22:08 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id v9so8141363ljk.6;
+        Thu, 13 Aug 2020 17:22:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=sIbcE5ODjfrhDYPnzvl33BGmc5yNcFjg9cy67ZxLYb0=;
-        b=qiDYdQnu5JW6I3kVj6Zc2O7cgctSak2P8gJSzLteZd8tmtwLPc2Ce+eNpfLha8OaVK
-         tiThwyNMddL1zgmyiYU118jJJRBtAquzNdqtsVlAKHxoCSh/wEvb3+pP3hZmctEq1lXn
-         F6LLnQwhpn1zb+ef9J6wzl/FHQ4XndA+jgVqER+Wi4o5n6EvirvQ/skMPY0C3XLs3jx3
-         zp5IXAsyxLu1VtPK00SFCKg1NkdXGlrrXF25AuyGr2YdLt4hEL8vRk/UezAJFyK6z8tV
-         ZZ/cyPQhYA4FHiVIVjcZV/Ux8nL88Phx9u9DQWDzy8WkdCs/ya20LW1ewTUmvCai0msf
-         3alg==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pcpd+KNb5xtd9pjvQD7elKImQhfYhC75p/jJAbTUb9g=;
+        b=ZumkdZ3KzaRt6gHFPo7YXpGrlROBenP5kH35gcrX8xlz5Rq4HUBCRj/NuYwyy7h2xu
+         F1bdS6SRures1YCar5nn5DkoyvJEywiiaOBd94KrvojWSIaSx4T8AFlschdtCQyrsCMz
+         JbHg9vKPk+HNEzwICyKMKT4ERbzhUBS801CuidvjTecIo4tbNznYHBISWOf7rXr0/MVQ
+         g09b/vv/StTyUhnEsmuGsy3wOQ4PitTp0dQhiMQd/kozDZ6lqhP++mC0CFW994e4n8Au
+         7ALkhWWE0DmskR7gXa61ltLab7dUAf/a81+ge3x0SMV5nl3BUVFOudjTzB3WAFpVaD8L
+         zMuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=sIbcE5ODjfrhDYPnzvl33BGmc5yNcFjg9cy67ZxLYb0=;
-        b=XK/Oyl5U2GzmRCKboHR2OEIt+qoOzdgGBTcZY2IJn8+vKvRUVkZUDff97BVXqOKoTT
-         Fdo2s/H9JAja8ef4+mhjgkWV3HVZjOhMLMYGP0bofOxTjkNEp6bwToMflSWKr5n6aCdx
-         MX0TMFMzkQUgeeXsR4tQ+inloIzrXV+IyceUNL5q4lC8lrBhHXRCQAlwVwz/HQrLovUU
-         IR4T5c8ZS7aQdeQSnIQ7vqvCR4MTTShKIL7MzoHL5WofybmqUeH9+eOSE75XfmUpi5Kg
-         CrErNbxxrx5jKI0vrdbS2tqtyZLNgpFfyMm6Z60Md7r2xa+DKzpXu5OeNgRjUA32Bosr
-         KTMg==
-X-Gm-Message-State: AOAM532jCdqMGSsH3c/iftkHTV3isKDQGbfKv10B8+kvP8Nw3WLf5xj/
-        4yWvQOwr+4ImM7aufzbpd4/MVEm2
-X-Google-Smtp-Source: ABdhPJyFi7uYvAVNZzf4OFvdyC4AV38HSkoRdisRnK6CknK8QmcqYiOyXvGK65vmVDII8vs4f4XbIw==
-X-Received: by 2002:a19:24c2:: with SMTP id k185mr2838964lfk.120.1597343601268;
-        Thu, 13 Aug 2020 11:33:21 -0700 (PDT)
-Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
-        by smtp.googlemail.com with ESMTPSA id o25sm1285044ljg.45.2020.08.13.11.33.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Aug 2020 11:33:20 -0700 (PDT)
-Subject: Re: [PATCH v6 5/5] input: mt: cleanup open-coded __set_bit()
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
-Cc:     Henrik Rydberg <rydberg@bitmath.org>,
-        James Chen <james.chen@emc.com.tw>,
-        Johnny Chuang <johnny.chuang@emc.com.tw>,
-        Scott Liu <scott.liu@emc.com.tw>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <cover.1594599118.git.mirq-linux@rere.qmqm.pl>
- <cf1dda3a372896cb01033ce084a7deb9620df7aa.1594599118.git.mirq-linux@rere.qmqm.pl>
- <20200716003047.GA1665100@dtor-ws>
+        bh=pcpd+KNb5xtd9pjvQD7elKImQhfYhC75p/jJAbTUb9g=;
+        b=Stjg5NX9dAkF/nkdgVOKeCqWzoBmuQeKUBapklg9qpENk/l1sipArI5v2Rwc0rozrO
+         ipHk7FifrxNz601UzfgEv3OZyo0V4KgS8OubbVgYS0B4RYBtPmYp4U4j4lPmsi8zk54F
+         C65Be2bBTxm1hRMVVfCUkHO9U92Ng4yZL0lGTKTqU0ipPq3jVRUBKSuihlc5krRiDcrM
+         toYI4ldVJOmxliGHXfd9Hppz1KzWdFAHCeIIMJigpOWsI6JXqmlrE9VjP36KkcAF6SKZ
+         nHuEhtafENIfzmbvgEJDQe2s7pHb+2Q+dsS0PmUo0XVJGpfRA1B2NM3+alKJKGJQI9NS
+         wniw==
+X-Gm-Message-State: AOAM533RRgMjnzuTp0IGTuxaCYTQkSPsCN9+UKUzHMpan05CQoR8iAK9
+        i2GIUSDKWCfRAPd1HuAz/S4=
+X-Google-Smtp-Source: ABdhPJwDnhMQjz6l2L8o4oL0k8QLS9wzK83gQxizL3BVMAvVpDkAZo7SCojxRzHQD3Y1T3stVW9Y/Q==
+X-Received: by 2002:a2e:581c:: with SMTP id m28mr104036ljb.413.1597364526486;
+        Thu, 13 Aug 2020 17:22:06 -0700 (PDT)
+Received: from localhost.localdomain (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
+        by smtp.gmail.com with ESMTPSA id b18sm1549506lfp.36.2020.08.13.17.22.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Aug 2020 17:22:05 -0700 (PDT)
 From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <eddb596c-dfd0-b32f-344f-7a494e78a43f@gmail.com>
-Date:   Thu, 13 Aug 2020 21:33:19 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+To:     Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        David Heidelberg <david@ixit.cz>
+Cc:     linux-input@vger.kernel.org, linux-tegra@vger.kernel.org
+Subject: [PATCH v1] ARM: tegra: nexus7: Add touchscreen
+Date:   Fri, 14 Aug 2020 03:21:38 +0300
+Message-Id: <20200814002138.12312-1-digetx@gmail.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-In-Reply-To: <20200716003047.GA1665100@dtor-ws>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-16.07.2020 03:30, Dmitry Torokhov пишет:
-> On Mon, Jul 13, 2020 at 02:24:55AM +0200, Michał Mirosław wrote:
->> Replace open-coded __set_bit() with the function.
->>
->> Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-> 
-> Applied, thank you.
-> 
+Nexus 7 2012 has Elantech EKTF3624 touchscreen, this patch adds TS node to
+the device-tree.
 
-Hello, Dmitry!
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+---
 
-Could you please let us know how we could proceed with applying the rest
-of the patches?
+Please note that EKTF3624 is already supported by the elan,elants_i2c.yaml
+binding, but elants_i2c driver doesn't support it yet becasue some of the
+patches [1] are still under review.
 
-The device-tree for Nexus 7 2012 [1] has been merged into upcoming v5.9
-and I'd want to add the touchscreen support.
+[1] https://patchwork.kernel.org/project/linux-input/list/?series=316905
 
-[1]
-https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=2720008f4239cf36d57b8d0b3cb2a49d4368a378
+ .../tegra30-asus-nexus7-grouper-common.dtsi    | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-The missing elants_i2c driver functionality doesn't really block making
-a device-tree change since elants_i2c.yaml DT binding already supports
-the ektf3624 TS model, but will be nice to get a full featured support.
+diff --git a/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-common.dtsi b/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-common.dtsi
+index 3922517145e7..e2d5fbacf9b4 100644
+--- a/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-common.dtsi
++++ b/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-common.dtsi
+@@ -836,6 +836,24 @@ pwm: pwm@7000a000 {
+ 	i2c@7000c400 {
+ 		clock-frequency = <400000>;
+ 		status = "okay";
++
++		touchscreen@10 {
++			compatible ="elan,ektf3624";
++			reg = <0x10>;
++
++			interrupt-parent = <&gpio>;
++			interrupts = <TEGRA_GPIO(H, 4) IRQ_TYPE_LEVEL_LOW>;
++
++			reset-gpios = <&gpio TEGRA_GPIO(H, 6) GPIO_ACTIVE_LOW>;
++
++			vcc33-supply = <&vcc_3v3_ts>;
++			vccio-supply = <&vcc_3v3_ts>;
++
++			touchscreen-size-x = <2112>;
++			touchscreen-size-y = <1280>;
++			touchscreen-swapped-x-y;
++			touchscreen-inverted-x;
++		};
+ 	};
+ 
+ 	i2c@7000c500 {
+-- 
+2.27.0
 
-Thanks in advance!

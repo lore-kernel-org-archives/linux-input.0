@@ -2,117 +2,105 @@ Return-Path: <SRS0=Hjjs=B2=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A079C433DF
-	for <linux-input@archiver.kernel.org>; Sun, 16 Aug 2020 10:25:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BF7FC433DF
+	for <linux-input@archiver.kernel.org>; Sun, 16 Aug 2020 16:31:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 503B0206C0
-	for <linux-input@archiver.kernel.org>; Sun, 16 Aug 2020 10:25:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 50639206F4
+	for <linux-input@archiver.kernel.org>; Sun, 16 Aug 2020 16:31:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JTAmv8ul"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mlurn4Y1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727930AbgHPKZX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 16 Aug 2020 06:25:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48198 "EHLO
+        id S1728167AbgHPQbz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 16 Aug 2020 12:31:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727927AbgHPKZV (ORCPT
+        with ESMTP id S1726847AbgHPQbx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 16 Aug 2020 06:25:21 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7792C061786;
-        Sun, 16 Aug 2020 03:25:20 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id t10so6071893plz.10;
-        Sun, 16 Aug 2020 03:25:20 -0700 (PDT)
+        Sun, 16 Aug 2020 12:31:53 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129BBC061786;
+        Sun, 16 Aug 2020 09:31:53 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id d2so7171241lfj.1;
+        Sun, 16 Aug 2020 09:31:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=yD1QVUv3mtoKE5t+lYQTnKLDU4/LcFxV4PWvOkQyGzY=;
-        b=JTAmv8ulavefnGnEQG4bh+CTRpsQHhv4andYvl+37OKWOjdXwi1p1CWxkLCFgoapKD
-         jnX2mEzkLaae0pPj0Y8XrBHJkac+70LUHbypwto09OTUUt086qda2/CkjoYFLGJdVDUG
-         gX8lVApXOzUo/ho/U8xm2ctW1Z5TEkiLOZe8jwLQtwMmGsnQhedsSuspikKOCICpenr3
-         y2gMZaXN60ShLim7lLpyzY05EFAuSasopbQIx6ZkGAWNw224X37ArxZ8qx4Kxa9NrJZ2
-         ks1PxCG6uikW7V8+iCbKkrnmvEKCI3or5bVKn5hMeKoP8T4NxaI4FbdmFF+H190sIPWe
-         zufw==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2wv1WZYWnZqUYuy5daGO2mFT0CBCIh8Qm4hC8CQxQFU=;
+        b=Mlurn4Y1LLKDyXimOcadPEv1DSjh3MGR0eCcaPWourEdJTuMnrEhEoWAWAwyMV7yQk
+         FLtkQzSzQsyLOjyE0R/x/8bpAjZEPyOUHRx3H3IYecS8M87qtcSjHjiAdwJ1vmCsHAIP
+         i7hoqCqfGurg2t213fkmj1KkVCQQvXdbHSsPx1AnhEJMEDQuPtt+R2dx52HvY2ClPJs4
+         mxHgItL7O/6xe3qdVIzx556ycgnPaICj5xNA/bxXrNbbSPywjlC5KDEA+FUfxk/AvpSM
+         RfskPu0+b5zoOz42I3tBlRaZgS0eNTJ+G6aUz9qie1ir1WKQLBeib00zVB9fOwl2KoKh
+         IP/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=yD1QVUv3mtoKE5t+lYQTnKLDU4/LcFxV4PWvOkQyGzY=;
-        b=F5QKSkAWRawdmGgP3dlH/3Pe+UDWHaDkJsVgvCWqXp5xNoX0Fxw4JfpJVCsEeFXx/r
-         /+CrVSrewkB/vq+QyVVyn2V9tYJogCoXV6Q8SMYt9pCueFzoRarZ7F3HJ2cqPdRLltK5
-         Y+H71XAzWgxbiqjUzDRIlDidXc2CxDhOs1PEvIw6Rh6jkGDQtMmTC4V8ZO7jyGRRnFdY
-         MKqJ+eQBZYWN7JunppZC/MgAAhX5AvqMpMFow36zNYdto5Kxn+5ZRqaVI82sCRPzBQEF
-         nV41B9QLvonCZmnpXtylGJh3WUYjBVPL5yymlhAHJ6TuoRTazg8My9Y7YIaUOysDEqUg
-         VCMw==
-X-Gm-Message-State: AOAM533kmIh63CT/amfxC+wo1gCChAP21vtQTF4S3CID8SHeKkPAFqw3
-        hNNdZbPOCwUomyQPJ3s8k9E=
-X-Google-Smtp-Source: ABdhPJwsJfIMjmPAswx3mX6QJyO+kUzVwgQZ7ZZ/25KpU9ZCFSbnqpr9sYe2sOXcowm09AhTT2LGsg==
-X-Received: by 2002:a17:90b:164a:: with SMTP id il10mr8983149pjb.2.1597573519652;
-        Sun, 16 Aug 2020 03:25:19 -0700 (PDT)
-Received: from localhost.localdomain (c-73-231-197-145.hsd1.ca.comcast.net. [73.231.197.145])
-        by smtp.gmail.com with ESMTPSA id m15sm9135780pgr.2.2020.08.16.03.25.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 Aug 2020 03:25:18 -0700 (PDT)
-From:   Nirenjan Krishnan <nirenjan@gmail.com>
-To:     jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        nirenjan@gmail.com
-Subject: [PATCH] HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for all Saitek X52 devices
-Date:   Sun, 16 Aug 2020 03:24:45 -0700
-Message-Id: <20200816102445.4928-1-nirenjan@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        bh=2wv1WZYWnZqUYuy5daGO2mFT0CBCIh8Qm4hC8CQxQFU=;
+        b=F+vthVz9Gc6jVjCDk57VpcSkilAsSHVt/syAL2ixbW7WRBA3z0cw2icInSamZiCopP
+         P49tiGyakVBGORQ6sIzMGlAQOWU9PHKDiD8tdrQbkJkrgrZ8hdZYR+4VAo1R8Swoorfb
+         b8QUcLm8jXu273JGBRS5iZ6hUfwR2rpYeZ3Pfp4jUs/fhQwWM8CEdqKbltO2U8Sp1i6o
+         vDFUDutWwN5cXSzbzlAplw9dMEyUaibFkKaJAPTt0qA3aBbrJPP/A6OS5C6hdEn1ev8X
+         II6tPBP4059T51usDa3Me5knMI/CqTRyia61nKyCerlzRNXxZShkjS8PhZWdQGf1S/l6
+         9v1A==
+X-Gm-Message-State: AOAM533w2aIoK1lsUHeQhPXHZfgcWTZhW0w6/f/ib4dOFTwl0LDO+qbr
+        zHmOmO0oed1u1YWaA3LUr9o=
+X-Google-Smtp-Source: ABdhPJxA7t5nG3a82vhuuEwlrGGq8x9c2Bcu2pzpEaWHa662axpyEXfmFQVgDkjvJM87aW+ySiWWkQ==
+X-Received: by 2002:ac2:5223:: with SMTP id i3mr5653219lfl.57.1597595511363;
+        Sun, 16 Aug 2020 09:31:51 -0700 (PDT)
+Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
+        by smtp.googlemail.com with ESMTPSA id z15sm4255580lfg.81.2020.08.16.09.31.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 16 Aug 2020 09:31:50 -0700 (PDT)
+Subject: Re: [PATCH 1/1] Input: atmel_mxt_ts - allow specification of firmware
+ file name
+To:     "Wang, Jiada" <jiada_wang@mentor.com>,
+        "nick@shmanahar.org" <nick@shmanahar.org>,
+        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "erosca@de.adit-jv.com" <erosca@de.adit-jv.com>,
+        "Gabbasov, Andrew" <Andrew_Gabbasov@mentor.com>
+References: <20200731075714.10608-1-jiada_wang@mentor.com>
+ <e5da9e03-8156-39f6-c78b-0226c95690c6@gmail.com>
+ <a0af72eb-11d9-cab1-c79a-0c42c3eb0e19@mentor.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <affa0525-2543-b121-2793-b8dc022e98f1@gmail.com>
+Date:   Sun, 16 Aug 2020 19:31:50 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <a0af72eb-11d9-cab1-c79a-0c42c3eb0e19@mentor.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The Saitek X52 family of joysticks has a pair of axes that were
-originally (by the Windows driver) used as mouse pointer controls. The
-corresponding usage page is the Game Controls page, which is not
-recognized by the generic HID driver, and therefore, both axes get
-mapped to ABS_MISC. The quirk makes the second axis get mapped to
-ABS_MISC+1, and therefore made available separately.
+12.08.2020 13:11, Wang, Jiada пишет:
+>> Have you decided to abandon the patch which allowed to specify firmware
+>> name in a device tree?
+>>
+> In v11 patch-set, there is a patch allows user to specify config file
+> name via device-tree and sysfs, I will drop device-tree part, since
+> Dmitry Torokhov commented he would like to change the behavior of
+> firmware loading during boot time,
+> but I will keep sysfs interface part, which is similar to this patch but
+> for configuration file.
 
-Signed-off-by: Nirenjan Krishnan <nirenjan@gmail.com>
----
- drivers/hid/hid-ids.h    | 2 ++
- drivers/hid/hid-quirks.c | 2 ++
- 2 files changed, 4 insertions(+)
+Okay!
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6f370e020..bc62537c4 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1010,6 +1010,8 @@
- #define USB_DEVICE_ID_SAITEK_RAT9	0x0cfa
- #define USB_DEVICE_ID_SAITEK_MMO7	0x0cd0
- #define USB_DEVICE_ID_SAITEK_X52	0x075c
-+#define USB_DEVICE_ID_SAITEK_X52_2	0x0255
-+#define USB_DEVICE_ID_SAITEK_X52_PRO	0x0762
- 
- #define USB_VENDOR_ID_SAMSUNG		0x0419
- #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 934fc0a79..6b82eda26 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -147,6 +147,8 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_RETROUSB, USB_DEVICE_ID_RETROUSB_SNES_RETROPORT), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_PRO), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
--- 
-2.25.1
-
+BTW, looking forward to the "I2C retrying" patch, which is needed for
+the mxt1386 controller. The Acer A500 device-tree has been merged into
+upstream, but some pieces are still missing in the kernel which are
+needed to get that device fully functional, the mxt1386 controller
+support is one of those pieces.

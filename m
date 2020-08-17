@@ -2,125 +2,121 @@ Return-Path: <SRS0=nOvE=B3=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0487C433E1
-	for <linux-input@archiver.kernel.org>; Mon, 17 Aug 2020 15:35:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F8ABC433E1
+	for <linux-input@archiver.kernel.org>; Mon, 17 Aug 2020 18:40:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B6C3E20789
-	for <linux-input@archiver.kernel.org>; Mon, 17 Aug 2020 15:35:56 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o431zZI4"
+	by mail.kernel.org (Postfix) with ESMTP id 5FEAA20786
+	for <linux-input@archiver.kernel.org>; Mon, 17 Aug 2020 18:40:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730473AbgHQPfy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 17 Aug 2020 11:35:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34734 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729898AbgHQPfg (ORCPT
+        id S2391413AbgHQSkr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 17 Aug 2020 14:40:47 -0400
+Received: from sender11-of-o53.zoho.eu ([31.186.226.239]:21857 "EHLO
+        sender11-of-o53.zoho.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730825AbgHQP5u (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 Aug 2020 11:35:36 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05CBC061389;
-        Mon, 17 Aug 2020 08:35:35 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id 17so8403602pfw.9;
-        Mon, 17 Aug 2020 08:35:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=qx0UgAyO31lB16ri2FAAv37Ke5Db93tL9Cirv4pO0kc=;
-        b=o431zZI4Z4wYsFST0x2SnXiEPkksHTQ+dOAdm8gRieOnxyyxp01sb1RLR5O38Cu/6t
-         H3bEAVxEGlWjyxd0hji+v8UhrBbIGyw+GlUf1BwzgB6Xv3N+ngARXXM16sw3fdfJQWUu
-         7BajSr1mWMXSknJElJK3iuffY4hNaWcNN6k8J/9J/La0UsQLAsKscnyV7z/kyNSndyE9
-         Bd51eb1uShyDLgvUqmBBpKOdN0dZgXcF8PdKLunnXfmIINRSHli+z5//cbOBNhiKXLJF
-         e4+/FQpdVpk9qg5XTc0AvN99KLliacf1/kOTBh3fcYNc+lo4cE2L0rtJ3MxVOYJVNOVt
-         oyHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=qx0UgAyO31lB16ri2FAAv37Ke5Db93tL9Cirv4pO0kc=;
-        b=SEbOs87AFNWZqZcZ24nrTw/jqsJgB4VivDY2yPpRwyMSkNnBouUTlpy8VVxLgcgIsu
-         5rE2mVZICNh0Zp5NDYD8HNjMiZetTea/kotlklt4fzmao/tfmF+bGqMFUOx2/I4unYRU
-         AcnPfTxP1OL0GxXrET/aKN+D7wy2c9bnF3yjXLLUpv10haJMUpWhaJeJU7lsybBSnVgz
-         Yn3H6dk+r1Qay2FzwK/KKElpBfG1IcwlKFuanlEQTjT9+fVhOnmlT/FiO7pTT/U9neuc
-         rYPlku7ztczDYV8VD2iAjoTEX8A5rx6vuOUz2G3nQP08PI75eBMclA+oToNAa67xWEHD
-         92Rw==
-X-Gm-Message-State: AOAM532ZHwIjcGXQTdzY2Ka7oaZZeLnYnHgaZ1lJgvcI6cUYdDrs7qgb
-        8Ma+KR+Mk0kPnsIe3LbGJtwuccqSB58=
-X-Google-Smtp-Source: ABdhPJwVRyGdL6gLtzFuisuLJ1+/NAQhGlfbnRyE0ODAwYYAtuW5w1BFkXs9/iLcFnEYbZXnZeRnPQ==
-X-Received: by 2002:a63:615:: with SMTP id 21mr10417354pgg.383.1597678535192;
-        Mon, 17 Aug 2020 08:35:35 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id q2sm20745484pfc.40.2020.08.17.08.35.33
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 17 Aug 2020 08:35:34 -0700 (PDT)
-Date:   Mon, 17 Aug 2020 08:35:33 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Marius Zachmann <mail@mariuszachmann.de>
-Cc:     Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-Subject: Re: [PATCH v2] hwmon: corsair-cpro: fix ccp_probe, add delay [HID
- related]
-Message-ID: <20200817153533.GA243558@roeck-us.net>
-References: <20200817070040.7952-1-mail@mariuszachmann.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200817070040.7952-1-mail@mariuszachmann.de>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        Mon, 17 Aug 2020 11:57:50 -0400
+ARC-Seal: i=1; a=rsa-sha256; t=1597678928; cv=none; 
+        d=zohomail.eu; s=zohoarc; 
+        b=lkv1/CzyRzokpV5P362lTkMGPTcbdNkHtO4VR+mndGq8p1w/9JjBzzVHVPqoGnWVoVfzAqXXaNFY7OxdPFiRPFnNnmPStGMsotJv7v3fsznf72L9wRMJz10WuhW+8Kd3hZkZ/dRhLY5BfNRvhDuGCePbHgNjVzxMeNN1hEpJMXw=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+        t=1597678928; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
+        bh=zFq0cwIqpAd0SCMBlmuzmsuIgtncaqbmV+L/FCcGivk=; 
+        b=Y4ZQQfoIkXyw13ls8XLRkUbVLMYc4k6PAXkHsVwvPt8BSKofMu7Vk32LnvkCbwlOM5GuWtthez0sf6CbclMgxPY7fycjKtaXq8API8QuEpcAPd56u5HURIbrScN2tXRb+4IT3mrNvtsm4w5e3lFkNt/qXxVr2GaG5/UGISfv+vo=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+        spf=pass  smtp.mailfrom=devnull@uvos.xyz;
+        dmarc=pass header.from=<devnull@uvos.xyz> header.from=<devnull@uvos.xyz>
+Received: from localhost.localdomain (ip-95-222-214-71.hsi15.unitymediagroup.de [95.222.214.71]) by mx.zoho.eu
+        with SMTPS id 1597678926806512.0089999106973; Mon, 17 Aug 2020 17:42:06 +0200 (CEST)
+Date:   Mon, 17 Aug 2020 17:41:37 +0200
+From:   Dev Null <devnull@uvos.xyz>
+To:     linux-omap@vger.kernel.org
+Cc:     linux-input@vger.kernel.org
+Subject: ARM: dts: motorola-mapphone-common: Add dts configureation for the
+ android buttons beneath the screen
+Message-Id: <20200817174137.554be5c0589e535b71f4d753@uvos.xyz>
+Organization: UVOS Organization
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Aug 17, 2020 at 09:00:40AM +0200, Marius Zachmann wrote:
-> Possibly because of the changes in usbhid/hid-core.c the first
-> raw input report is not received during ccp_probe function and it will
-> timeout. I am not sure, whether this behaviour is expected after
-> hid_device_io_start or if I am missing something.
-> As a solution this adds msleep(50) to ccp_probe so that all initial
-> input reports can be received.
-> 
-> Signed-off-by: Marius Zachmann <mail@mariuszachmann.de>
+Uses the touchscreen-buttons driver for the android buttons on the droid 4
 
-Let's just ask the HID maintainers. Is this expected, and the correct fix ?
+diff --git a/arch/arm/boot/dts/motorola-mapphone-common.dtsi b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+index cef4d8abdaa1..455e6b624802 100644
+--- a/arch/arm/boot/dts/motorola-mapphone-common.dtsi
++++ b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+@@ -176,6 +176,40 @@ pwm9: dmtimer-pwm-9 {
+ 		ti,clock-source = <0x01>;
+ 	};
+ 
++	mapphone_touchscreen {
++			/* keycodes must be >255 or the kernel vt will hold the device open wasteing power */
++			compatible = "touchscreen-buttons";
++			touchscreen_phandle = <&touchscreen>;
++			menu {
++				x-position = <0>;
++				y-position = <950>;
++				x-size = <256>;
++				y-size = <74>;
++				keycode = <KEY_KBD_LCD_MENU1>;
++			};
++			home {
++				x-position = <256>;
++				y-position = <950>;
++				x-size = <256>;
++				y-size = <74>;
++				keycode = <KEY_KBD_LCD_MENU2>;
++			};
++			back {
++				x-position = <512>;
++				y-position = <950>;
++				x-size = <256>;
++				y-size = <74>;
++				keycode = <KEY_KBD_LCD_MENU3>;
++			};
++			search {
++				x-position = <768>;
++				y-position = <950>;
++				x-size = <256>;
++				y-size = <74>;
++				keycode = <KEY_KBD_LCD_MENU4>;
++			};
++	};
++
+ 	vibrator {
+ 		compatible = "pwm-vibrator";
+ 		pwms = <&pwm9 0 10000000 0>, <&pwm8 0 10000000 0>;
+@@ -422,7 +456,7 @@ led@1 {
+ };
+ 
+ &i2c2 {
+-	touchscreen@4a {
++	touchscreen: touchscreen@4a {
+ 		compatible = "atmel,maxtouch";
+ 		reg = <0x4a>;
+ 		pinctrl-names = "default";
+diff --git a/arch/arm/configs/omap2plus_defconfig b/arch/arm/configs/omap2plus_defconfig
+index d397ad4006f2..bd15ad5278d9 100644
+--- a/arch/arm/configs/omap2plus_defconfig
++++ b/arch/arm/configs/omap2plus_defconfig
+@@ -249,6 +249,7 @@ CONFIG_TOUCHSCREEN_TSC2005=m
+ CONFIG_TOUCHSCREEN_TSC2007=m
+ CONFIG_INPUT_MISC=y
+ CONFIG_INPUT_CPCAP_PWRBUTTON=m
++CONFIG_INPUT_TOUCHSCREEN_BUTTONS=m
+ CONFIG_INPUT_TPS65218_PWRBUTTON=m
+ CONFIG_INPUT_TWL4030_PWRBUTTON=m
+ CONFIG_INPUT_UINPUT=m
 
-Thanks,
-Guenter
-
-> ---
-> v2:
-> - fix accidentally deleted comment
-> 
-> ---
->  drivers/hwmon/corsair-cpro.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/hwmon/corsair-cpro.c b/drivers/hwmon/corsair-cpro.c
-> index 591929ec217a..c04fac1d820f 100644
-> --- a/drivers/hwmon/corsair-cpro.c
-> +++ b/drivers/hwmon/corsair-cpro.c
-> @@ -10,6 +10,7 @@
-> 
->  #include <linux/bitops.h>
->  #include <linux/completion.h>
-> +#include <linux/delay.h>
->  #include <linux/hid.h>
->  #include <linux/hwmon.h>
->  #include <linux/kernel.h>
-> @@ -513,6 +514,7 @@ static int ccp_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	init_completion(&ccp->wait_input_report);
-> 
->  	hid_device_io_start(hdev);
-> +	msleep(50); /* wait before events can be received */
-> 
->  	/* temp and fan connection status only updates when device is powered on */
->  	ret = get_temp_cnct(ccp);
-> --
-> 2.28.0
+-- 
+Dev Null <devnull@uvos.xyz>

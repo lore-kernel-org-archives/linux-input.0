@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77CBAC433E1
-	for <linux-input@archiver.kernel.org>; Thu, 20 Aug 2020 00:05:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE3CEC433E1
+	for <linux-input@archiver.kernel.org>; Thu, 20 Aug 2020 00:06:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4CA27207FB
-	for <linux-input@archiver.kernel.org>; Thu, 20 Aug 2020 00:05:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B1F8B208E4
+	for <linux-input@archiver.kernel.org>; Thu, 20 Aug 2020 00:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1597881904;
-	bh=zzPswJhfQd/4W/b2P8W2qrcTfu+qr2gLdqmk0us4tzs=;
+	s=default; t=1597881983;
+	bh=lw1yL5+D0GFS7k/22hM9f0lnHRnDEgM0C2akrp065PU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=oRnk9XcyZ+dzHw3gAh96dO/MdD2ym8xD2VQH6HssH7v/mbNWeOWHaOC+GjNNX6N1e
-	 oP1ehZvwKIAA2i8HQtMhzFkKQ3p8w4TLtqC+MJwqZ1Udxckr9heh+6D1Pq0V/1OcYo
-	 xAzuldl/2Xj7BmWrk5k68DS/cXhooNUC3rZLdzos=
+	b=mMJ9EFcs+Fiht3/xiXjSS2HabS7Kz9Hb1SJyv6OPlB8fDJDreVqwAw8NbHga4OxHh
+	 pD/nyFPq0pykdqWhx71Xls6VUT86wrmI8t8wMdsAblLFxQ1u+Ve7ASFPHNauO1IIh8
+	 T/nsrL/R1dLw1e50aJLLZJxnYix3sTQglb0usrr0=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728502AbgHTAEo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 19 Aug 2020 20:04:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34470 "EHLO mail.kernel.org"
+        id S1727125AbgHTAGJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 19 Aug 2020 20:06:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728420AbgHTAEM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:04:12 -0400
+        id S1728380AbgHTADz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:03:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71B4C2184D;
-        Thu, 20 Aug 2020 00:04:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EDEF21775;
+        Thu, 20 Aug 2020 00:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881851;
-        bh=zzPswJhfQd/4W/b2P8W2qrcTfu+qr2gLdqmk0us4tzs=;
+        s=default; t=1597881835;
+        bh=lw1yL5+D0GFS7k/22hM9f0lnHRnDEgM0C2akrp065PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWPLof0mUWqoTxzuNl6xTMUK/S5QAutenDfK5ZaVwPK5hBLJ1EsyP0xJ76LweuhCz
-         DFDudgq9ci2qNXri36R4FFvWkGprguHlwdCZ3Kg8UNWE99rRLB4v/vNPyO+2Sw1NJ3
-         eLziqsYClIypTpT+bKzDaO5V17dqLCQjbLn0rb0o=
+        b=nYZJtHWHi3a3qGb8bI0ETDleH/SxRcQOjc8EMfVx+2hCp8QeL6Xmhxc317FTriLms
+         wZCvtluoCMZhSxnmeo0XbdFkOgpkI9/T8vOFkn0ot//GspC72eWR146lXSnaNMFLpt
+         GijgnQINZGPN+eYtvyQiEQ5aoDqD6YwkK3h+NfTM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Xiongfeng Wang <wangxiongfeng2@huawei.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 03/10] Input: psmouse - add a newline when printing 'proto' by sysfs
-Date:   Wed, 19 Aug 2020 20:03:59 -0400
-Message-Id: <20200820000406.216050-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 04/11] Input: psmouse - add a newline when printing 'proto' by sysfs
+Date:   Wed, 19 Aug 2020 20:03:41 -0400
+Message-Id: <20200820000348.215911-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200820000406.216050-1-sashal@kernel.org>
-References: <20200820000406.216050-1-sashal@kernel.org>
+In-Reply-To: <20200820000348.215911-1-sashal@kernel.org>
+References: <20200820000348.215911-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -77,10 +77,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index ad18dab0ac476..5bd9633541b07 100644
+index 5cbf17aa84439..597ecae02c405 100644
 --- a/drivers/input/mouse/psmouse-base.c
 +++ b/drivers/input/mouse/psmouse-base.c
-@@ -1911,7 +1911,7 @@ static int psmouse_get_maxproto(char *buffer, const struct kernel_param *kp)
+@@ -1909,7 +1909,7 @@ static int psmouse_get_maxproto(char *buffer, const struct kernel_param *kp)
  {
  	int type = *((unsigned int *)kp->arg);
  

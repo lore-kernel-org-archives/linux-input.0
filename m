@@ -4,50 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32B65C433DF
-	for <linux-input@archiver.kernel.org>; Fri, 21 Aug 2020 16:56:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98FEEC433E1
+	for <linux-input@archiver.kernel.org>; Fri, 21 Aug 2020 17:07:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 009AB20702
-	for <linux-input@archiver.kernel.org>; Fri, 21 Aug 2020 16:56:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73C4420656
+	for <linux-input@archiver.kernel.org>; Fri, 21 Aug 2020 17:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598029006;
-	bh=Bzvll3pCe1AMYSUjL6S0uyx9RSHYFXoynJQi99sQQyc=;
+	s=default; t=1598029678;
+	bh=SzdQ5UM/VjXFBBCT5u3KqWdfzCRrN+x5JpHCAPpSp2g=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=bD5/c0cHzuN38Ld1AOJhRqlM70tWJA67xERIoHrNIEZ2xQihjxvnhQfw2vaqx0iN/
-	 cERkzwu+Tk2S9sMfGn23b6SXbmKvOUnHnUTpFElxes0fIQkXajO3NQ3eaQ+K9ulHXa
-	 4acbvCc+RU26O239lILKIGncZml++kkiKHW0jwac=
+	b=T/YCLPxw5FW7v9OfUFkACPfl5Q8G2UOU1eubGrDn8qd4pld6PNhP/GFwVu15aZyrD
+	 EU/kxUNkcEnafs6c2tbRkab1U1DJNGKXo9Q+FVyRZ1XIsiRof3MD5dStZUwUcai+Ya
+	 i5+KuIHNxakGlylh9JKRPkaNF0qKCsYT/XEjGDL4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728146AbgHUQ4j (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 21 Aug 2020 12:56:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49910 "EHLO mail.kernel.org"
+        id S1728254AbgHURHh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 21 Aug 2020 13:07:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728290AbgHUQTb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Aug 2020 12:19:31 -0400
+        id S1728211AbgHUQSD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 21 Aug 2020 12:18:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3918F22D0B;
-        Fri, 21 Aug 2020 16:18:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EA9122B49;
+        Fri, 21 Aug 2020 16:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598026723;
-        bh=Bzvll3pCe1AMYSUjL6S0uyx9RSHYFXoynJQi99sQQyc=;
+        s=default; t=1598026668;
+        bh=SzdQ5UM/VjXFBBCT5u3KqWdfzCRrN+x5JpHCAPpSp2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtT9/L3A9WXmC+eFn9UiBCuWzAaeyaOtKrjmAY0pbcXf+Bnf3acMgcstkbSwNeYEU
-         5GE/72pqaJPgLbuniZpA/DWhPn6v49+wJK/lih60xnwtiT24zmgn82oaiwy4gV0fhc
-         VkLhDmHv4o7h5XBnBITDc2GXgfeqiSIr04Z7C3Y8=
+        b=IGw+rhUqvqYXRYAuS0MsqWJ4HVInupRhp5Q4hUsIUic77VuxAGn39O3HoErfShfrQ
+         gxuJNrZ2rSOasyz/MMmn9HOkERyd9Zo2rT/ORFnAjmpJ4AXOqZfajGkEixA9R6pdqA
+         d+fyJXx9Kkus4ZnKDhvr5R+VQtQ6Wllk/LxEIPwc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ikjoon Jang <ikjn@chromium.org>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 28/38] HID: quirks: add NOGET quirk for Logitech GROUP
-Date:   Fri, 21 Aug 2020 12:17:57 -0400
-Message-Id: <20200821161807.348600-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 34/48] HID: quirks: add NOGET quirk for Logitech GROUP
+Date:   Fri, 21 Aug 2020 12:16:50 -0400
+Message-Id: <20200821161704.348164-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200821161807.348600-1-sashal@kernel.org>
-References: <20200821161807.348600-1-sashal@kernel.org>
+In-Reply-To: <20200821161704.348164-1-sashal@kernel.org>
+References: <20200821161704.348164-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -78,10 +78,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 2 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 20530d8adfbb8..2c100b73d3fc1 100644
+index 73e4590ea9c94..09df5ecc2c79b 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -756,6 +756,7 @@
+@@ -771,6 +771,7 @@
  #define USB_DEVICE_ID_LOGITECH_G27_WHEEL	0xc29b
  #define USB_DEVICE_ID_LOGITECH_WII_WHEEL	0xc29c
  #define USB_DEVICE_ID_LOGITECH_ELITE_KBD	0xc30a
@@ -90,7 +90,7 @@ index 20530d8adfbb8..2c100b73d3fc1 100644
  #define USB_DEVICE_ID_S510_RECEIVER_2	0xc517
  #define USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500	0xc512
 diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index bdde16395b2ce..62f87f8bd9720 100644
+index a49fa2b047cba..b3dd60897ffda 100644
 --- a/drivers/hid/hid-quirks.c
 +++ b/drivers/hid/hid-quirks.c
 @@ -179,6 +179,7 @@ static const struct hid_device_id hid_quirks[] = {

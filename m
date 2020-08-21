@@ -5,60 +5,60 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD95FC433DF
-	for <linux-input@archiver.kernel.org>; Fri, 21 Aug 2020 22:20:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4C64C433DF
+	for <linux-input@archiver.kernel.org>; Fri, 21 Aug 2020 22:20:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B0DFC207DA
-	for <linux-input@archiver.kernel.org>; Fri, 21 Aug 2020 22:20:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95FFE207DA
+	for <linux-input@archiver.kernel.org>; Fri, 21 Aug 2020 22:20:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k8/7fJ17"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KCKHNZrw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727011AbgHUWUK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 21 Aug 2020 18:20:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
+        id S1727050AbgHUWUX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 21 Aug 2020 18:20:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726991AbgHUWUD (ORCPT
+        with ESMTP id S1726996AbgHUWUF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Aug 2020 18:20:03 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8ED9C061575;
-        Fri, 21 Aug 2020 15:20:01 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id t10so4288804ejs.8;
-        Fri, 21 Aug 2020 15:20:01 -0700 (PDT)
+        Fri, 21 Aug 2020 18:20:05 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E171C0613ED;
+        Fri, 21 Aug 2020 15:20:04 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id g19so4279854ejc.9;
+        Fri, 21 Aug 2020 15:20:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Fhh3ourzHmhVLH1ln9oScZ/YWyJaRap92ziW8DQPBmY=;
-        b=k8/7fJ17HHsGWU6RD7GXlyd2DmN8NKrm7Oei9gqboMHnQQLn7m29QqUzqRQZZ3W21r
-         9b7C1i3SafTA9yyDLeeMVY5un0ngqV8HWjE2K48723MLeu4S9HClItTh9YHQFCvrCu2C
-         0MmrfsRwNx5nZ6NWZLp9a+MYLZtCeoJW3rG2qi6kgX5AT2+oSbmHm1alXsmObIUJnWYp
-         c983seSd11CeH22fQzgLyxJOC4Sazfa5rBOoYcj5Vn3PURMvHq3oPda5jAXCZq/aISq+
-         rr8y8ap+IMXuKi7IGeFsoAfJLW+qfVPhL+dGxkLhWycLVtSfCQ0SRkpgc3iNCMvjql7P
-         u66Q==
+        bh=k7vQF+OxfgOKk0npVS0VvNYm6+7r6keuyTTIR2ujT+U=;
+        b=KCKHNZrwbEg94W23Rxj8Q1KBSJ8mNYqRfdIwfa2pVOfhPhfVlU/rlxlzSixkZxy+7W
+         6Z6nr9ReeguiAiv/b4UwP+9ysmd0auq70UoVifpEpYRqmr4gpdvZd7Znwi6tIMm/ceGZ
+         zeTK5ybOXuyQASvf3ZczSEWEk0f2ZiRLVJisD5zRYQfQBtgMQj/VbdkXflZTuoa82M3G
+         U1C2ecD6mBIQ24cB+/BnvW6SmpUtdPaTH09hlVvJB09QmHPmey2wae4qWe/quo5inCLr
+         /LpmZsHKjrBVw7qE2BergJgROMi3epNGOsNbUbsIxDjDnXzsHhy5GZnTrOkfK6Sm/7Of
+         +nNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Fhh3ourzHmhVLH1ln9oScZ/YWyJaRap92ziW8DQPBmY=;
-        b=FFjrZ52bO0N0kN/Y/26NTlY/SS2LUqViEeYA1lolmm01Ttz7ssHC+jKkzgrzLFuwpP
-         Q8v4T+Q+WdCcU3nm/ypnMRsV0Y1TGmvfuBh3xEZ1iXIjDSLdSkesI4acsdyijWo0wiS2
-         0jYaCKqbKEDsDRUSpZn495EbsQrb6IJBAC9PUT1aBeubUGb+d//2C08476an8qNZ3BXD
-         QvRpm7EsM2WQwA8hl+F6+tonWIZ1TZd2epN47OsknzhiSENJicfhGJ0YTrPJ4STt6+za
-         WQ11z7+cfPztpE3LOUwzQ7uHafulL74nK91Et0mnCqD0g2gssQoiOMnYXooOgMM5niqh
-         QvJg==
-X-Gm-Message-State: AOAM531EdbmdI5ZhqELRBuaFOmxrFNjduIJMeMiGCUcWqdq6GpaKQjcK
-        ZzlYV2mJlsEWJQIvjZh8j0EcWLr8H0YdHQ==
-X-Google-Smtp-Source: ABdhPJw8dq/iCbN8UC4WwA8Fkk7irf65uTYdN1gFpXhqXtWlxLTTgMI5rrq1B2bPSDKW5yKuqBF3jw==
-X-Received: by 2002:a17:906:6146:: with SMTP id p6mr5155236ejl.211.1598048400363;
-        Fri, 21 Aug 2020 15:20:00 -0700 (PDT)
+        bh=k7vQF+OxfgOKk0npVS0VvNYm6+7r6keuyTTIR2ujT+U=;
+        b=TeJNEFBlUWQzCj8KjJhCU2UXsS/NMGQFgIRN6EmqhrAu5hh+w8agbfTiWStdU+qOvJ
+         E/YFn3g5rJnQI0TslmfhQSS+o7EG1H8AADrDD0J+0OpE99LhJacWB+Hf5It+VzH7mgPC
+         hsGM4CzOFh76So1mrrb9BaxMBZ+hkFF6vvLWIq565ftVvuKxjdaE8O+doUAOAElnoE/K
+         tzIy7HXPMrr7LLAVqy5Io6Dv/RTLJF0VOqUDm6AcYz/KM4cX0cUd/09C49adCcLiup2H
+         ywE6TVvUDWMLMhZvCKkjNuKhitQCwHP92opBmYBWvW+iysw2Qy756LAFbGxzXnskoDkQ
+         LbbA==
+X-Gm-Message-State: AOAM532CaPjSl9MS/C8+o+nR0eozeaHH0ixBREthDfRqi5KNjXJX8Z0a
+        B907GpQ/0RlSaGHfUuWIqmQ=
+X-Google-Smtp-Source: ABdhPJwE3p74e1G3s8fppsaS1ne3bDVk4xRiz7QIHEk0U4INmIbyzz7mWUEm2Cwbe6F+UPhpN+nffA==
+X-Received: by 2002:a17:906:af51:: with SMTP id ly17mr4897233ejb.81.1598048402972;
+        Fri, 21 Aug 2020 15:20:02 -0700 (PDT)
 Received: from localhost.localdomain ([188.24.159.61])
-        by smtp.gmail.com with ESMTPSA id p23sm1780147edm.31.2020.08.21.15.19.59
+        by smtp.gmail.com with ESMTPSA id p23sm1780147edm.31.2020.08.21.15.20.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Aug 2020 15:19:59 -0700 (PDT)
+        Fri, 21 Aug 2020 15:20:02 -0700 (PDT)
 From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -70,9 +70,9 @@ Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
         linux-actions@lists.infradead.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         linux-pm@vger.kernel.org
-Subject: [PATCH v2 4/6] power: reset: Add poweroff driver for ATC260x PMICs
-Date:   Sat, 22 Aug 2020 01:19:50 +0300
-Message-Id: <1c83a46ac8c39edceee1d98da2cd9e7c6eae35e8.1598043782.git.cristian.ciocaltea@gmail.com>
+Subject: [PATCH v2 6/6] MAINTAINERS: Add entry for ATC260x PMIC
+Date:   Sat, 22 Aug 2020 01:19:52 +0300
+Message-Id: <dcadc77041fafe425c0bad219d55437671cd205a.1598043782.git.cristian.ciocaltea@gmail.com>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <cover.1598043782.git.cristian.ciocaltea@gmail.com>
 References: <cover.1598043782.git.cristian.ciocaltea@gmail.com>
@@ -83,333 +83,39 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This driver provides poweroff and reboot support for a system through
-the ATC2603C and ATC2609A chip variants of the Actions Semi ATC260x
-family of PMICs.
+Add MAINTAINERS entry for ATC260x PMIC.
 
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+[cristian: change binding doc file path, add file patterns for onkey and
+           poweroff drivers, fix ordering, add myself as co-maintainer]
 Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 ---
- drivers/power/reset/Kconfig            |   8 +-
- drivers/power/reset/Makefile           |   1 +
- drivers/power/reset/atc260x-poweroff.c | 274 +++++++++++++++++++++++++
- 3 files changed, 282 insertions(+), 1 deletion(-)
- create mode 100644 drivers/power/reset/atc260x-poweroff.c
+ MAINTAINERS | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/power/reset/Kconfig b/drivers/power/reset/Kconfig
-index 0a1fb5c74f83..df6c3676b892 100644
---- a/drivers/power/reset/Kconfig
-+++ b/drivers/power/reset/Kconfig
-@@ -39,6 +39,13 @@ config POWER_RESET_AT91_SAMA5D2_SHDWC
- 	  This driver supports the alternate shutdown controller for some Atmel
- 	  SAMA5 SoCs. It is present for example on SAMA5D2 SoC.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e28d8ad47d03..b57ac4e9aa11 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2899,6 +2899,18 @@ W:	http://www.openaoe.org/
+ F:	Documentation/admin-guide/aoe/
+ F:	drivers/block/aoe/
  
-+config POWER_RESET_ATC260X
-+	tristate "Actions Semi ATC260x PMIC power-off driver"
-+	depends on MFD_ATC260X
-+	help
-+	  This driver provides power-off and restart support for a system
-+	  through Actions Semi ATC260x series PMICs.
++ATC260X PMIC MFD DRIVER
++M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
++M:	Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
++L:	linux-actions@lists.infradead.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/mfd/actions,atc260x.yaml
++F:	drivers/input/misc/atc260x-onkey.c
++F:	drivers/mfd/atc260*
++F:	drivers/power/reset/atc260x-poweroff.c
++F:	drivers/regulator/atc260x-regulator.c
++F:	include/linux/mfd/atc260x/*
 +
- config POWER_RESET_AXXIA
- 	bool "LSI Axxia reset driver"
- 	depends on ARCH_AXXIA
-@@ -285,4 +292,3 @@ config NVMEM_REBOOT_MODE
- 	  action according to the mode.
- 
- endif
--
-diff --git a/drivers/power/reset/Makefile b/drivers/power/reset/Makefile
-index c51eceba9ea3..829df1157540 100644
---- a/drivers/power/reset/Makefile
-+++ b/drivers/power/reset/Makefile
-@@ -3,6 +3,7 @@ obj-$(CONFIG_POWER_RESET_AS3722) += as3722-poweroff.o
- obj-$(CONFIG_POWER_RESET_AT91_POWEROFF) += at91-poweroff.o
- obj-$(CONFIG_POWER_RESET_AT91_RESET) += at91-reset.o
- obj-$(CONFIG_POWER_RESET_AT91_SAMA5D2_SHDWC) += at91-sama5d2_shdwc.o
-+obj-$(CONFIG_POWER_RESET_ATC260X) += atc260x-poweroff.o
- obj-$(CONFIG_POWER_RESET_AXXIA) += axxia-reset.o
- obj-$(CONFIG_POWER_RESET_BRCMKONA) += brcm-kona-reset.o
- obj-$(CONFIG_POWER_RESET_BRCMSTB) += brcmstb-reboot.o
-diff --git a/drivers/power/reset/atc260x-poweroff.c b/drivers/power/reset/atc260x-poweroff.c
-new file mode 100644
-index 000000000000..81a99e7e4a91
---- /dev/null
-+++ b/drivers/power/reset/atc260x-poweroff.c
-@@ -0,0 +1,274 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * Poweroff & reset driver for Actions Semi ATC260x PMICs
-+ *
-+ * Copyright (c) 2020 Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/mfd/atc260x/core.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/power_supply.h>
-+#include <linux/reboot.h>
-+#include <linux/regmap.h>
-+
-+struct atc260x_pwrc {
-+	struct device *dev;
-+	struct regmap *regmap;
-+	struct notifier_block restart_nb;
-+	int (*do_poweroff)(const struct atc260x_pwrc *pwrc, bool restart);
-+};
-+
-+/* Global variable needed only for pm_power_off */
-+static struct atc260x_pwrc *atc260x_pwrc_data;
-+
-+static int atc2603c_do_poweroff(const struct atc260x_pwrc *pwrc, bool restart)
-+{
-+	int ret, deep_sleep = 0;
-+	uint reg_mask, reg_val;
-+
-+	/* S4-Deep Sleep Mode is NOT available for WALL/USB power */
-+	if (!restart && !power_supply_is_system_supplied()) {
-+		deep_sleep = 1;
-+		dev_info(pwrc->dev, "Enabling S4-Deep Sleep Mode");
-+	}
-+
-+	/* Update wakeup sources */
-+	reg_val = ATC2603C_PMU_SYS_CTL0_ONOFF_LONG_WK_EN |
-+		  (restart ? ATC2603C_PMU_SYS_CTL0_RESET_WK_EN
-+			   : ATC2603C_PMU_SYS_CTL0_ONOFF_SHORT_WK_EN);
-+
-+	ret = regmap_update_bits(pwrc->regmap, ATC2603C_PMU_SYS_CTL0,
-+				 ATC2603C_PMU_SYS_CTL0_WK_ALL, reg_val);
-+	if (ret)
-+		dev_warn(pwrc->dev, "failed to write SYS_CTL0: %d\n", ret);
-+
-+	/* Update power mode */
-+	reg_mask = ATC2603C_PMU_SYS_CTL3_EN_S2 | ATC2603C_PMU_SYS_CTL3_EN_S3;
-+
-+	ret = regmap_update_bits(pwrc->regmap, ATC2603C_PMU_SYS_CTL3, reg_mask,
-+				 deep_sleep ? 0 : ATC2603C_PMU_SYS_CTL3_EN_S3);
-+	if (ret) {
-+		dev_err(pwrc->dev, "failed to write SYS_CTL3: %d\n", ret);
-+		return ret;
-+	}
-+
-+	/* Trigger poweroff / restart sequence */
-+	reg_mask = restart ? ATC2603C_PMU_SYS_CTL0_RESTART_EN
-+			   : ATC2603C_PMU_SYS_CTL1_EN_S1;
-+	reg_val = restart ? ATC2603C_PMU_SYS_CTL0_RESTART_EN : 0;
-+
-+	ret = regmap_update_bits(pwrc->regmap,
-+				 restart ? ATC2603C_PMU_SYS_CTL0 : ATC2603C_PMU_SYS_CTL1,
-+				 reg_mask, reg_val);
-+	if (ret) {
-+		dev_err(pwrc->dev, "failed to write SYS_CTL%d: %d\n",
-+			restart ? 0 : 1, ret);
-+		return ret;
-+	}
-+
-+	/* Wait for trigger completion */
-+	mdelay(200);
-+
-+	return 0;
-+}
-+
-+static int atc2609a_do_poweroff(const struct atc260x_pwrc *pwrc, bool restart)
-+{
-+	int ret, deep_sleep = 0;
-+	uint reg_mask, reg_val;
-+
-+	/* S4-Deep Sleep Mode is NOT available for WALL/USB power */
-+	if (!restart && !power_supply_is_system_supplied()) {
-+		deep_sleep = 1;
-+		dev_info(pwrc->dev, "Enabling S4-Deep Sleep Mode");
-+	}
-+
-+	/* Update wakeup sources */
-+	reg_val = ATC2609A_PMU_SYS_CTL0_ONOFF_LONG_WK_EN |
-+		  (restart ? ATC2609A_PMU_SYS_CTL0_RESET_WK_EN
-+			   : ATC2609A_PMU_SYS_CTL0_ONOFF_SHORT_WK_EN);
-+
-+	ret = regmap_update_bits(pwrc->regmap, ATC2609A_PMU_SYS_CTL0,
-+				 ATC2609A_PMU_SYS_CTL0_WK_ALL, reg_val);
-+	if (ret)
-+		dev_warn(pwrc->dev, "failed to write SYS_CTL0: %d\n", ret);
-+
-+	/* Update power mode */
-+	reg_mask = ATC2609A_PMU_SYS_CTL3_EN_S2 | ATC2609A_PMU_SYS_CTL3_EN_S3;
-+
-+	ret = regmap_update_bits(pwrc->regmap, ATC2609A_PMU_SYS_CTL3, reg_mask,
-+				 deep_sleep ? 0 : ATC2609A_PMU_SYS_CTL3_EN_S3);
-+	if (ret) {
-+		dev_err(pwrc->dev, "failed to write SYS_CTL3: %d\n", ret);
-+		return ret;
-+	}
-+
-+	/* Trigger poweroff / restart sequence */
-+	reg_mask = restart ? ATC2609A_PMU_SYS_CTL0_RESTART_EN
-+			   : ATC2609A_PMU_SYS_CTL1_EN_S1;
-+	reg_val = restart ? ATC2609A_PMU_SYS_CTL0_RESTART_EN : 0;
-+
-+	ret = regmap_update_bits(pwrc->regmap,
-+				 restart ? ATC2609A_PMU_SYS_CTL0 : ATC2609A_PMU_SYS_CTL1,
-+				 reg_mask, reg_val);
-+	if (ret) {
-+		dev_err(pwrc->dev, "failed to write SYS_CTL%d: %d\n",
-+			restart ? 0 : 1, ret);
-+		return ret;
-+	}
-+
-+	/* Wait for trigger completion */
-+	mdelay(200);
-+
-+	return 0;
-+}
-+
-+static int atc2603c_init(const struct atc260x_pwrc *pwrc)
-+{
-+	int ret;
-+
-+	/*
-+	 * Delay transition from S2/S3 to S1 in order to avoid
-+	 * DDR init failure in Bootloader.
-+	 */
-+	ret = regmap_update_bits(pwrc->regmap, ATC2603C_PMU_SYS_CTL3,
-+				 ATC2603C_PMU_SYS_CTL3_S2S3TOS1_TIMER_EN,
-+				 ATC2603C_PMU_SYS_CTL3_S2S3TOS1_TIMER_EN);
-+	if (ret)
-+		dev_warn(pwrc->dev, "failed to write SYS_CTL3: %d\n", ret);
-+
-+	/* Set wakeup sources */
-+	ret = regmap_update_bits(pwrc->regmap, ATC2603C_PMU_SYS_CTL0,
-+				 ATC2603C_PMU_SYS_CTL0_WK_ALL,
-+				 ATC2603C_PMU_SYS_CTL0_HDSW_WK_EN |
-+				 ATC2603C_PMU_SYS_CTL0_ONOFF_LONG_WK_EN);
-+	if (ret)
-+		dev_warn(pwrc->dev, "failed to write SYS_CTL0: %d\n", ret);
-+
-+	return ret;
-+}
-+
-+static int atc2609a_init(const struct atc260x_pwrc *pwrc)
-+{
-+	int ret;
-+
-+	/* Set wakeup sources */
-+	ret = regmap_update_bits(pwrc->regmap, ATC2609A_PMU_SYS_CTL0,
-+				 ATC2609A_PMU_SYS_CTL0_WK_ALL,
-+				 ATC2609A_PMU_SYS_CTL0_HDSW_WK_EN |
-+				 ATC2609A_PMU_SYS_CTL0_ONOFF_LONG_WK_EN);
-+	if (ret)
-+		dev_warn(pwrc->dev, "failed to write SYS_CTL0: %d\n", ret);
-+
-+	return ret;
-+}
-+
-+static void atc260x_pwrc_pm_handler(void)
-+{
-+	atc260x_pwrc_data->do_poweroff(atc260x_pwrc_data, false);
-+
-+	WARN_ONCE(1, "Unable to power off system\n");
-+}
-+
-+static int atc260x_pwrc_restart_handler(struct notifier_block *nb,
-+					unsigned long mode, void *cmd)
-+{
-+	struct atc260x_pwrc *pwrc = container_of(nb, struct atc260x_pwrc,
-+						 restart_nb);
-+	pwrc->do_poweroff(pwrc, true);
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static int atc260x_pwrc_probe(struct platform_device *pdev)
-+{
-+	struct atc260x *atc260x = dev_get_drvdata(pdev->dev.parent);
-+	struct atc260x_pwrc *priv;
-+	int ret;
-+
-+	if (!pdev->dev.of_node)
-+		return -ENXIO;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->dev = &pdev->dev;
-+	priv->regmap = atc260x->regmap;
-+	priv->restart_nb.notifier_call = atc260x_pwrc_restart_handler;
-+	priv->restart_nb.priority = 192;
-+
-+	switch (atc260x->ic_type) {
-+	case ATC2603C:
-+		priv->do_poweroff = atc2603c_do_poweroff;
-+		ret = atc2603c_init(priv);
-+		break;
-+	case ATC2609A:
-+		priv->do_poweroff = atc2609a_do_poweroff;
-+		ret = atc2609a_init(priv);
-+		break;
-+	default:
-+		dev_err(priv->dev,
-+			"Poweroff not supported for ATC260x PMIC type: %u\n",
-+			atc260x->ic_type);
-+		return -EINVAL;
-+	}
-+
-+	if (ret)
-+		return ret;
-+
-+	platform_set_drvdata(pdev, priv);
-+
-+	if (!pm_power_off) {
-+		atc260x_pwrc_data = priv;
-+		pm_power_off = atc260x_pwrc_pm_handler;
-+	} else {
-+		dev_warn(priv->dev, "Poweroff callback already assigned\n");
-+	}
-+
-+	ret = register_restart_handler(&priv->restart_nb);
-+	if (ret)
-+		dev_err(priv->dev, "failed to register restart handler: %d\n",
-+			ret);
-+
-+	return ret;
-+}
-+
-+static int atc260x_pwrc_remove(struct platform_device *pdev)
-+{
-+	struct atc260x_pwrc *priv = platform_get_drvdata(pdev);
-+
-+	if (atc260x_pwrc_data == priv) {
-+		pm_power_off = NULL;
-+		atc260x_pwrc_data = NULL;
-+	}
-+
-+	unregister_restart_handler(&priv->restart_nb);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id atc260x_pwrc_of_match[] = {
-+	{ .compatible = "actions,atc2603c-pwrc" },
-+	{ .compatible = "actions,atc2609a-pwrc" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, atc260x_pwrc_of_match);
-+
-+static struct platform_driver atc260x_pwrc_driver = {
-+	.probe = atc260x_pwrc_probe,
-+	.remove = atc260x_pwrc_remove,
-+	.driver = {
-+		.name = "atc260x-pwrc",
-+		.of_match_table = of_match_ptr(atc260x_pwrc_of_match),
-+	},
-+};
-+
-+module_platform_driver(atc260x_pwrc_driver);
-+
-+MODULE_DESCRIPTION("Poweroff & reset driver for ATC260x PMICs");
-+MODULE_AUTHOR("Cristian Ciocaltea <cristian.ciocaltea@gmail.com>");
-+MODULE_LICENSE("GPL");
+ ATHEROS 71XX/9XXX GPIO DRIVER
+ M:	Alban Bedel <albeu@free.fr>
+ S:	Maintained
 -- 
 2.28.0
 

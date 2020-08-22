@@ -2,120 +2,206 @@ Return-Path: <SRS0=6Zyk=CA=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A316C433DF
-	for <linux-input@archiver.kernel.org>; Sat, 22 Aug 2020 15:09:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31AF1C433DF
+	for <linux-input@archiver.kernel.org>; Sat, 22 Aug 2020 23:24:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 643502072D
-	for <linux-input@archiver.kernel.org>; Sat, 22 Aug 2020 15:09:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 08096214F1
+	for <linux-input@archiver.kernel.org>; Sat, 22 Aug 2020 23:24:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l41Zzxas"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mh5dbrQU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728385AbgHVPJr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 22 Aug 2020 11:09:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46574 "EHLO
+        id S1728453AbgHVXYN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 22 Aug 2020 19:24:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728106AbgHVPJE (ORCPT
+        with ESMTP id S1728019AbgHVXYL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 22 Aug 2020 11:09:04 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 329E8C061573;
-        Sat, 22 Aug 2020 08:09:04 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id g6so179633pjl.0;
-        Sat, 22 Aug 2020 08:09:04 -0700 (PDT)
+        Sat, 22 Aug 2020 19:24:11 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F6AC061573;
+        Sat, 22 Aug 2020 16:24:09 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id di22so4980170edb.12;
+        Sat, 22 Aug 2020 16:24:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=4x4afjEuVHn+zEV5wCvJkjFDf4xgBLyslqYhfcwaoFI=;
-        b=l41ZzxasALiq3GtUf+YfngG6SFwClg2LAvtO+OAqXoDeM+gGfG7u1b/NBUwK8yUgrG
-         xaWZrgfoG3HxZbUY+aFcVTAVTL7f/xpmFJiFlu5BnqaE7cBcQVw8BF1KswxXK76S3MG7
-         O36kzQeRMnXOoYfcBJbeNx0L5P0SDyNFqcpSniZjxkHb2I40T9MRtL3pEYYOSk3o0OTv
-         NJPNdWH7VSBwlvlB/4uLmDTNXZwuegPMl8TTm5IigkevbnQVlZ+F90q1tfjxAYkSK922
-         CoIV64vzCNEZzDk4AIBpIMkcWNF+k6kb8jcT4aQpawp2KtZK+FOVid7ma646wLi17mVg
-         KKoQ==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=/Y7f9Xm7v0nGDpdXPmRW8vOuI1YSbNsKgcTvjCP8tEM=;
+        b=mh5dbrQUG/l3CZ6OUbTiw9PTjkn0qWtJDHWBegMmFjIY4jZNgDxAi8yQA3rPug4OiB
+         zy2MCNHhdjBTCQIxN8Qfk6yybwXNnjKICphLXpv/V/yMcdUaCCYTvY9i/8rBQ1k6ofcG
+         MkIyJi3e1GIOHaKhZhYyEak5VEzvK1A3jAsjPPc+K6HgjfjUFG5bh5t9sqXHyM27i4Vy
+         jPufr2UnVxxNuXa20KQV8/EAZjrty6zLvyeeEFbxvhh5TtRe8WSAZxti6pbqA9atHqmM
+         EQFybR6TH/XH++l6dTTHL9UfJV11eAsfiQCXoYqEV1Tdf/V2JxPczJg7MxcEVpu7UbpL
+         +/pQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=4x4afjEuVHn+zEV5wCvJkjFDf4xgBLyslqYhfcwaoFI=;
-        b=lyqG+Gt3Mj24urYZDwofSv8/9OI7Q6AoQsI0dA4lxwSo38ujq6CWmvFa1B2v30mUg9
-         kWqVvPyFIEZ82keUNIIcq7gQhzwtZpwfkjg9gql81+a9/B7b/Bgjesa29e5ZQaNRANEW
-         kvtCyhL83aWrx1rY6ajUMocB7qYyATX64byo/Y7JQDy4QmrYhaUCrriphPdTjsS3zkB0
-         KmCtUtpY/ceYsI5TfM+MCZcuKG8Bfvg1o2tQSWVcsBTzQmlvWCnvjf0bGoEBnVIyvpLU
-         5BsHZsyDX5gpVbwxXVACiQJ3mGUIi3Vq2kazBkMscYdInSNpqFiVjgU36o0dLvzwps2d
-         Lqmw==
-X-Gm-Message-State: AOAM530peTg5DursNGLuXKHIHdMHEIS6hdU/KSxscvYlR+Cyfh5u/z4c
-        K4i5lG9KdgHuTU31NbCwxUk=
-X-Google-Smtp-Source: ABdhPJzWAsGWaIN7KhDuWtE9gvakScLvPA2dDboXnoFZwHCggj3iIeyZj2k6IEnIm87gMJKfS1/lqw==
-X-Received: by 2002:a17:902:c244:: with SMTP id 4mr66765plg.93.1598108943728;
-        Sat, 22 Aug 2020 08:09:03 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id mp3sm11405445pjb.0.2020.08.22.08.09.03
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sat, 22 Aug 2020 08:09:03 -0700 (PDT)
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc:     Jonathan Cameron <jic23@kernel.org>,
-        Benson Leung <bleung@chromium.org>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/Y7f9Xm7v0nGDpdXPmRW8vOuI1YSbNsKgcTvjCP8tEM=;
+        b=Jwqmafgbn/xHO866A2KKPGvDr4b4KPd8jrf1lXPPPZLFX2Dl6PfSvol5BnxfTSExuE
+         PGmPsBP8j0idHUWtkhm2rpw2oMxen+PhzzOSPqfvzo8eq3Ac3ME627qE16AzJZLrAv0c
+         P92geOX0AKHDu830de429THA6qzjfpSFwaUeSQvtwrwgXoff2vK45V80UE8T72G/lmxD
+         kudqFh/iv15/qA7q5sPIkKBrqbkeAvicDJnhe8Zi1fEJQ6vt16TqMeehYxTXRsLQvWbq
+         OygZgXcIPtSDxFXUSQjlcvy/ilivbx1WQqtq0zv9PgurTnceTaWTwRFp+H91Xps1GPjT
+         bBdw==
+X-Gm-Message-State: AOAM532WialMHilLfs/QZtS4C/RpH5GaPDOuIP+CULbeQdz9G1WJQsoL
+        9qXzcf8RLGK5FMiraDFzBSI=
+X-Google-Smtp-Source: ABdhPJx8dvKf7ZC5W+KduDx+/c1sFm5WWOWbntchk1xRMi5Sr8P6+Tu2VlVxDyE4m1YjQ/xfzFRxaw==
+X-Received: by 2002:a05:6402:3193:: with SMTP id di19mr9110918edb.224.1598138648402;
+        Sat, 22 Aug 2020 16:24:08 -0700 (PDT)
+Received: from BV030612LT ([188.24.159.61])
+        by smtp.gmail.com with ESMTPSA id dr21sm4518213ejc.112.2020.08.22.16.24.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 22 Aug 2020 16:24:07 -0700 (PDT)
+Date:   Sun, 23 Aug 2020 02:24:05 +0300
+From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Lee Jones <lee.jones@linaro.org>,
-        Gwendal Grignou <gwendal@chromium.org>,
-        Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>,
-        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Brian Norris <briannorris@chromium.org>
-Subject: [PATCH v5 1/7] iio: cros_ec: Accept -EOPNOTSUPP as 'not supported' error code
-Date:   Sat, 22 Aug 2020 08:08:51 -0700
-Message-Id: <20200822150857.205775-2-linux@roeck-us.net>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200822150857.205775-1-linux@roeck-us.net>
-References: <20200822150857.205775-1-linux@roeck-us.net>
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
+        linux-actions@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: Re: [PATCH v2 0/6] Add initial support for ATC260x PMICs
+Message-ID: <20200822232405.GA2261833@BV030612LT>
+References: <cover.1598043782.git.cristian.ciocaltea@gmail.com>
+ <20200821222653.GA2255465@BV030612LT>
+ <20200822131343.GA5954@Mani-XPS-13-9360>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200822131343.GA5954@Mani-XPS-13-9360>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-A follow-up patch will extend the number of errors reported by
-cros_ec_cmd_xfer_status(). Specifically, the function will return
--EOPNOTSUPP if a command is not supported by the EC. Prepare for it.
+Hi Mani,
 
-Cc: Gwendal Grignou <gwendal@chromium.org>
-Cc: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Cc: Prashant Malani <pmalani@chromium.org>
-Cc: Brian Norris <briannorris@chromium.org>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v5: No change
-v4: No change
-v3: No change
-v2: No change
+On Sat, Aug 22, 2020 at 06:43:43PM +0530, Manivannan Sadhasivam wrote:
+> Hi Cristi,
+> 
+> Thanks for the series! I'll take a look soon but there is a quick comment
+> below.
+> 
+> On Sat, Aug 22, 2020 at 01:26:53AM +0300, Cristian Ciocaltea wrote:
+> > I have just realized I had omitted the changelog - sorry:
+> > 
+> > Changes in v2:
+> > - Reworked MFD core & I2C driver
+> >   * Integrated Lee's feedback
+> >   * Added support for using the regmap within atomic contexts
+> >   * Added support for ATC2603C chip variant
+> >   * Reorganized KConfig entries
+> > - Improved regulator driver
+> >   * Added support for ATC2603C variant
+> >   * Used helper macros for more compact specification of regulator_desc items
+> >   * Added more regulator capabilities
+> > - Added power controller driver
+> >   * Provides system poweroff/reboot functionalities
+> >   * Requires support for I2C Atomic transfers in the Owl driver (already submitted)
+> > - Added onkey driver: exposes the power button as an input device
+> > - Added yaml binding doc
+> > - Rebased patchset on kernel v5.9-rc1
+> > 
+> > Kind regards,
+> > Cristi
+> > 
+> > On Sat, Aug 22, 2020 at 01:19:46AM +0300, Cristian Ciocaltea wrote:
+> > > This is re-spin of the patch series submitted some time ago by Mani,
+> > > who added initial support (MFD core and regulators) for the Actions
+> > > Semi ATC260x PMICs:
+> > > https://lore.kernel.org/lkml/20190617155011.15376-1-manivannan.sadhasivam@linaro.org/
+> > > 
+> > > The ATC260x family of PMICs integrates Audio Codec, Power management,
+> > > Clock generation and GPIO controller blocks. There are currently 3
+> > > variants: ATC2603A, ATC2603C and ATC2609A.
+> > > 
+> > > In addition to the ATC2609A regulator functionality provided that time,
+> > > this patchset adds support for the ATC2603C variant, together with some
+> > > new functionalities for both chips: power controller and onkey input.
+> > > The ATC2603A variant remains unsupported for the moment.
+> > > 
+> > > This has been tested on RoseapplePi, a SBC based on the Action Semi S500
+> > > SoC, which integrates ATC2603C PMIC. An initial support for this board
+> > > has been already submitted:
+> > > https://lore.kernel.org/lkml/cover.1592123160.git.cristian.ciocaltea@gmail.com/
+> > > 
+> > > Please note that enabling the ATC260x PMICs on the compatible Actions
+> > > Semi Owl SoC based boards depends on the following:
+> > > 
+> > > * Actions Semi SIRQ driver (for PMIC DTS setup):
+> > >   https://lore.kernel.org/lkml/cover.1597852360.git.cristian.ciocaltea@gmail.com/
+> > > 
+> > > * I2C Atomic transfers in Actions Semi Owl driver (for proper operation
+> > >   of the power controller driver):
+> > >   https://lore.kernel.org/lkml/b086ef6d355d9730c839359e15eb06175283e323.1596485741.git.cristian.ciocaltea@gmail.com/
+> > >   
+> > > Thanks,
+> > > Cristi
+> > > 
+> > > Cristian Ciocaltea (6):
+> > >   dt-bindings: mfd: Add Actions Semi ATC260x PMIC binding
+> > >   mfd: Add MFD driver for ATC260x PMICs
+> > >   regulator: Add regulator driver for ATC260x PMICs
+> 
+> You need to preserve my authorship for above two patches. Adding the signed-off-by
+> is not enough.
 
- drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I'm very sorry for the mistake, I was not aware of the correct reposting
+procedure. Should I resend the series now or could we handle a first round
+of review before?
 
-diff --git a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
-index 130ab8ce0269..d71e9064c789 100644
---- a/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
-+++ b/drivers/iio/common/cros_ec_sensors/cros_ec_sensors.c
-@@ -73,7 +73,7 @@ static int cros_ec_sensors_read(struct iio_dev *indio_dev,
- 		st->core.param.sensor_offset.flags = 0;
- 
- 		ret = cros_ec_motion_send_host_cmd(&st->core, 0);
--		if (ret == -EPROTO) {
-+		if (ret == -EPROTO || ret == -EOPNOTSUPP) {
- 			/* Reading calibscale is not supported on older EC. */
- 			*val = 1;
- 			*val2 = 0;
--- 
-2.17.1
+Thanks,
+Cristi
 
+> > >   power: reset: Add poweroff driver for ATC260x PMICs
+> > >   input: atc260x: Add onkey driver for ATC260x PMICs
+> > >   MAINTAINERS: Add entry for ATC260x PMIC
+> 
+> I think this one too.
+> 
+> Thanks,
+> Mani
+> 
+> > > 
+> > >  .../bindings/mfd/actions,atc260x.yaml         | 221 ++++++++
+> > >  MAINTAINERS                                   |  12 +
+> > >  drivers/input/misc/Kconfig                    |  11 +
+> > >  drivers/input/misc/Makefile                   |   2 +-
+> > >  drivers/input/misc/atc260x-onkey.c            | 304 +++++++++++
+> > >  drivers/mfd/Kconfig                           |  18 +
+> > >  drivers/mfd/Makefile                          |   3 +
+> > >  drivers/mfd/atc260x-core.c                    | 290 ++++++++++
+> > >  drivers/mfd/atc260x-i2c.c                     |  73 +++
+> > >  drivers/power/reset/Kconfig                   |   8 +-
+> > >  drivers/power/reset/Makefile                  |   1 +
+> > >  drivers/power/reset/atc260x-poweroff.c        | 274 ++++++++++
+> > >  drivers/regulator/Kconfig                     |   8 +
+> > >  drivers/regulator/Makefile                    |   1 +
+> > >  drivers/regulator/atc260x-regulator.c         | 511 ++++++++++++++++++
+> > >  include/linux/mfd/atc260x/atc2603c.h          | 281 ++++++++++
+> > >  include/linux/mfd/atc260x/atc2609a.h          | 308 +++++++++++
+> > >  include/linux/mfd/atc260x/core.h              |  86 +++
+> > >  18 files changed, 2410 insertions(+), 2 deletions(-)
+> > >  create mode 100644 Documentation/devicetree/bindings/mfd/actions,atc260x.yaml
+> > >  create mode 100644 drivers/input/misc/atc260x-onkey.c
+> > >  create mode 100644 drivers/mfd/atc260x-core.c
+> > >  create mode 100644 drivers/mfd/atc260x-i2c.c
+> > >  create mode 100644 drivers/power/reset/atc260x-poweroff.c
+> > >  create mode 100644 drivers/regulator/atc260x-regulator.c
+> > >  create mode 100644 include/linux/mfd/atc260x/atc2603c.h
+> > >  create mode 100644 include/linux/mfd/atc260x/atc2609a.h
+> > >  create mode 100644 include/linux/mfd/atc260x/core.h
+> > > 
+> > > -- 
+> > > 2.28.0
+> > > 

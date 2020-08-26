@@ -2,105 +2,139 @@ Return-Path: <SRS0=eR53=CE=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 115B8C433E1
-	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 14:36:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C161C433DF
+	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 15:06:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E79A8214F1
-	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 14:36:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EAB592078A
+	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 15:06:09 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Th3a5pwP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726514AbgHZOgI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 26 Aug 2020 10:36:08 -0400
-Received: from mga09.intel.com ([134.134.136.24]:23263 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726125AbgHZOfr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Aug 2020 10:35:47 -0400
-IronPort-SDR: MN/NY1PSzHT0FMSWfpX14wA3epohMBYxMcbCNudZZhLK+VFeAvlqA0WJK67J4IfrTujnZgryL6
- 8NB34j9E72ww==
-X-IronPort-AV: E=McAfee;i="6000,8403,9725"; a="157334197"
-X-IronPort-AV: E=Sophos;i="5.76,355,1592895600"; 
-   d="scan'208";a="157334197"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2020 07:35:46 -0700
-IronPort-SDR: ERO3Vp223nHcwzMdJu2q8LBV95WtT65p2adjpKW7iXxrfjdtOKBAMMu135xURYqyiifn+VXH4+
- HA9aIRmjQBmA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,355,1592895600"; 
-   d="scan'208";a="403080252"
-Received: from kuha.fi.intel.com ([10.237.72.162])
-  by fmsmga001.fm.intel.com with SMTP; 26 Aug 2020 07:35:44 -0700
-Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Wed, 26 Aug 2020 17:35:43 +0300
-Date:   Wed, 26 Aug 2020 17:35:43 +0300
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Linus Walleij <linus.walleij@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Linux Input <linux-input@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH 0/5] Make gpio_keys accept board descriptors
-Message-ID: <20200826143543.GC813478@kuha.fi.intel.com>
-References: <20171124093045.5961-1-linus.walleij@linaro.org>
- <20171125233324.afdt4netamvkrkm2@dtor-ws>
- <CACRpkdb6kt8Bb0FnPoixw97R9oktK9h3uTS7JfdxoCKfLo4yhA@mail.gmail.com>
+        id S1727840AbgHZPGJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 26 Aug 2020 11:06:09 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:54009 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727768AbgHZPGJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 26 Aug 2020 11:06:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1598454367;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cCE4jjTrNdrqjAR6LB+loCcV9zAqeGt9msfDUyeGNhw=;
+        b=Th3a5pwPnVHiA9tSPS5bVfZUu33DfIUF3qRHLhvRwZ7URZPNq1zneAb7rsb0Mo1S520bdi
+        TvRCqsiWc2dZlJXDOvMzqCGw2QD5+RJXR6BN0r+0ApZBrSn7WHBc5pplifF3XI1TNQO8Ll
+        P3pPodLcaKwCk+X3uvAg/bd4PJ//1M4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-558-tFdNwRQgPnuEBkwLtwjg0A-1; Wed, 26 Aug 2020 11:06:05 -0400
+X-MC-Unique: tFdNwRQgPnuEBkwLtwjg0A-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BB5DB8030DF;
+        Wed, 26 Aug 2020 15:06:04 +0000 (UTC)
+Received: from x1.localdomain (ovpn-112-219.ams2.redhat.com [10.36.112.219])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F009D60CC0;
+        Wed, 26 Aug 2020 15:06:03 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Subject: [PATCH resend 1/2] Input: soc_button_array - Add active_low setting to soc_button_info
+Date:   Wed, 26 Aug 2020 17:06:00 +0200
+Message-Id: <20200826150601.12137-2-hdegoede@redhat.com>
+In-Reply-To: <20200826150601.12137-1-hdegoede@redhat.com>
+References: <20200826150601.12137-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACRpkdb6kt8Bb0FnPoixw97R9oktK9h3uTS7JfdxoCKfLo4yhA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Aug 26, 2020 at 03:20:14PM +0200, Linus Walleij wrote:
-> Hi Dmitry,
-> 
-> On Sun, Nov 26, 2017 at 12:33 AM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Fri, Nov 24, 2017 at 10:30:40AM +0100, Linus Walleij wrote:
-> 
-> > > The goal I'm working toward is to rid the kernel of the global
-> > > GPIO numberspace.
-> > >
-> > > This means GPIO lines should be references by the local offset
-> > > on the GPIO chip.
-> > >
-> > > This patch set starts to move gpio_keys toward using GPIO
-> > > look-up tables instead of global GPIO numbers to find their
-> > > GPIOs.
-> > >
-> > > As an example I did (I think) the necessary patches to
-> > > convert DaVinci and i.MX to use this. There are several users
-> > > also x86 platform devices.
-> (...)
-> > I think this is a worthy goal, but I wonder if we could get static GPIO
-> > descriptors work with fwnode_get_named_gpiod() so we could retire the
-> > platform data parsing altogether. We'd need to extend static device
-> > properties to have notion of children though.
-> 
-> Do we have this now? I've looked at Heikki's et al work
-> on software nodes but I cannot see whether we are there now.
-> 
-> We have fwnode_create_software_node() and friends, but
-> I haven't seen if this can be used with input and GPIO descriptors
-> are still a bit on the side. I can create a lot of properties but
-> not really add a descriptor table as a software node as far as
-> I can tell. I'm also a bit lost on whether it will be possible
-> to get there sadly :/
+This is a preparation patch for adding support for Intel INT33D3
+ACPI devices. These INT33D3 devices follow yet another Intel defined
+(but not documented) ACPI GPIO button standard.
 
-I'm sorry but I'm not completely sure what is this about? Are software
-nodes still missing something that would prevent us from for example
-using them to describe the GPIO information exactly the same way it is
-described in DT? I don't know if that is what we want, but I'm just
-trying to understand what is still missing? Dmitry?
+Unlike the ACPI GPIO button devices supported so far, the GPIO used in
+the INT33D3 devices is active-high, rather then active-low.
 
-If there is still something missing, then let's fix that.
+This commit makes setting the gpio_keys_button.active_low flag
+configurable through the soc_button_info struct and enables it for all
+currently supported devices.
 
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/misc/soc_button_array.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-thanks,
-
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index 08520b3a18b8..e3a22a61f5d9 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -23,6 +23,7 @@ struct soc_button_info {
+ 	unsigned int event_code;
+ 	bool autorepeat;
+ 	bool wakeup;
++	bool active_low;
+ };
+ 
+ struct soc_device_data {
+@@ -110,7 +111,7 @@ soc_button_device_create(struct platform_device *pdev,
+ 		gpio_keys[n_buttons].type = info->event_type;
+ 		gpio_keys[n_buttons].code = info->event_code;
+ 		gpio_keys[n_buttons].gpio = gpio;
+-		gpio_keys[n_buttons].active_low = 1;
++		gpio_keys[n_buttons].active_low = info->active_low;
+ 		gpio_keys[n_buttons].desc = info->name;
+ 		gpio_keys[n_buttons].wakeup = info->wakeup;
+ 		/* These devices often use cheap buttons, use 50 ms debounce */
+@@ -173,6 +174,7 @@ static int soc_button_parse_btn_desc(struct device *dev,
+ 	}
+ 
+ 	info->event_type = EV_KEY;
++	info->active_low = true;
+ 	info->acpi_index =
+ 		soc_button_get_acpi_object_int(&desc->package.elements[1]);
+ 	upage = soc_button_get_acpi_object_int(&desc->package.elements[3]);
+@@ -383,11 +385,11 @@ static int soc_button_probe(struct platform_device *pdev)
+  * Platforms"
+  */
+ static const struct soc_button_info soc_button_PNP0C40[] = {
+-	{ "power", 0, EV_KEY, KEY_POWER, false, true },
+-	{ "home", 1, EV_KEY, KEY_LEFTMETA, false, true },
+-	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false },
+-	{ "volume_down", 3, EV_KEY, KEY_VOLUMEDOWN, true, false },
+-	{ "rotation_lock", 4, EV_KEY, KEY_ROTATE_LOCK_TOGGLE, false, false },
++	{ "power", 0, EV_KEY, KEY_POWER, false, true, true },
++	{ "home", 1, EV_KEY, KEY_LEFTMETA, false, true, true },
++	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false, true },
++	{ "volume_down", 3, EV_KEY, KEY_VOLUMEDOWN, true, false, true },
++	{ "rotation_lock", 4, EV_KEY, KEY_ROTATE_LOCK_TOGGLE, false, false, true },
+ 	{ }
+ };
+ 
+@@ -444,9 +446,9 @@ static int soc_device_check_MSHW0040(struct device *dev)
+  * Obtained from DSDT/testing.
+  */
+ static const struct soc_button_info soc_button_MSHW0040[] = {
+-	{ "power", 0, EV_KEY, KEY_POWER, false, true },
+-	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false },
+-	{ "volume_down", 4, EV_KEY, KEY_VOLUMEDOWN, true, false },
++	{ "power", 0, EV_KEY, KEY_POWER, false, true, true },
++	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false, true },
++	{ "volume_down", 4, EV_KEY, KEY_VOLUMEDOWN, true, false, true },
+ 	{ }
+ };
+ 
 -- 
-heikki
+2.28.0
+

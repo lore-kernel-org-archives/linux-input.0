@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27667C433DF
-	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 18:18:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE6DEC433DF
+	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 18:18:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E39CE2083B
-	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 18:18:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E30C20737
+	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 18:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598465906;
-	bh=aDmvqHlQZkrMxJWIZ3K/qfQvR2zitB02kM6hwU97zPg=;
+	s=default; t=1598465914;
+	bh=QRZ2bQQtheOypVoyAK/PzaZmjf1dQjEQJxQMbx49de0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=GesbRufqEJNRNZSWBJFph6iDL1SlmMd60w2sVWVmSrizByIhd62KSpHXrqu27L/IZ
-	 tlJp4RQLm/TwI0ljpWkBjY1rkhMrTDdBN2HoyODnJKa2Db8XRbMjEuRHpKeFV3ppVQ
-	 KEJhVgke3P4EYJgWo+tDrVKvWlw3V/Tsx6BbjeCk=
+	b=bbQS75jDSPCGkXZcIIIApH20GYgvCLmljnzN5Aj8XnIC+CrW2C+t0SbonSS/mpV4D
+	 5nq7RbJ7QuxQY9tj57h8QOor1BR43k5Wv0TCd54r0AKUIRg3t9SZeMgLrNoCMkSPW5
+	 ZNILzFlZ/8f/XJ/w2f3cnvN7f+A87Y8iadyvX95Q=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727786AbgHZSSS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 26 Aug 2020 14:18:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41704 "EHLO mail.kernel.org"
+        id S1727813AbgHZSS1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 26 Aug 2020 14:18:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727772AbgHZSSQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Aug 2020 14:18:16 -0400
+        id S1726858AbgHZSSZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 26 Aug 2020 14:18:25 -0400
 Received: from kozik-lap.mshome.net (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EA76207BC;
-        Wed, 26 Aug 2020 18:18:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C2BC20737;
+        Wed, 26 Aug 2020 18:18:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598465896;
-        bh=aDmvqHlQZkrMxJWIZ3K/qfQvR2zitB02kM6hwU97zPg=;
+        s=default; t=1598465904;
+        bh=QRZ2bQQtheOypVoyAK/PzaZmjf1dQjEQJxQMbx49de0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xsiumwCLu2SlMtdlk+MK3PTQ2NzSAgquDGVZLE1MAaGAIz0G3kswIPur0kr7hpe1T
-         X1dsyEb0pmVZAmL2HFrv7oAE4BR53+PwzLSs7f7KdhWfz6yh2og9PJNOVUbR8GYBy7
-         bydwX79WwjbYLTQyZZg1JiVrcAKd4wr/0pOho1uc=
+        b=iSQPH1+qnOXJ0r+evYR/XNlyyX6uhSA9ICStJXZYAQXDQdweY/fk9JiHJtdf32PKk
+         dl6TmIZkqdXjlP1a0leJusa0M8zSHwRJm3ZVEpP9Q9cN6NswKF+ESkhUBAfaOJr0e9
+         VF+95zhHhI3Z83hPqJoxaukZUuzuO7pCvcuCSmoE=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
@@ -50,9 +50,9 @@ To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         platform-driver-x86@vger.kernel.org
 Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 12/24] Input: cy8ctma140 - Simplify with dev_err_probe()
-Date:   Wed, 26 Aug 2020 20:16:54 +0200
-Message-Id: <20200826181706.11098-12-krzk@kernel.org>
+Subject: [PATCH 14/24] Input: ektf2127 - Simplify with dev_err_probe()
+Date:   Wed, 26 Aug 2020 20:16:56 +0200
+Message-Id: <20200826181706.11098-14-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200826181706.11098-1-krzk@kernel.org>
 References: <20200826181706.11098-1-krzk@kernel.org>
@@ -66,28 +66,28 @@ dev_err_probe().  Less code and also it prints the error value.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- drivers/input/touchscreen/cy8ctma140.c | 8 ++------
+ drivers/input/touchscreen/ektf2127.c | 8 ++------
  1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/cy8ctma140.c b/drivers/input/touchscreen/cy8ctma140.c
-index a9be29139cbf..23da5bb00ead 100644
---- a/drivers/input/touchscreen/cy8ctma140.c
-+++ b/drivers/input/touchscreen/cy8ctma140.c
-@@ -259,12 +259,8 @@ static int cy8ctma140_probe(struct i2c_client *client,
- 	ts->regulators[1].supply = "vdd";
- 	error = devm_regulator_bulk_get(dev, ARRAY_SIZE(ts->regulators),
- 				      ts->regulators);
--	if (error) {
+diff --git a/drivers/input/touchscreen/ektf2127.c b/drivers/input/touchscreen/ektf2127.c
+index eadd389cf81f..cd41483cfae5 100644
+--- a/drivers/input/touchscreen/ektf2127.c
++++ b/drivers/input/touchscreen/ektf2127.c
+@@ -237,12 +237,8 @@ static int ektf2127_probe(struct i2c_client *client,
+ 
+ 	/* This requests the gpio *and* turns on the touchscreen controller */
+ 	ts->power_gpios = devm_gpiod_get(dev, "power", GPIOD_OUT_HIGH);
+-	if (IS_ERR(ts->power_gpios)) {
+-		error = PTR_ERR(ts->power_gpios);
 -		if (error != -EPROBE_DEFER)
--			dev_err(dev, "Failed to get regulators %d\n",
--				error);
+-			dev_err(dev, "Error getting power gpio: %d\n", error);
 -		return error;
 -	}
-+	if (error)
-+		return dev_err_probe(dev, error, "Failed to get regulators\n");
++	if (IS_ERR(ts->power_gpios))
++		return dev_err_probe(dev, PTR_ERR(ts->power_gpios), "Error getting power gpio\n");
  
- 	error = cy8ctma140_power_up(ts);
- 	if (error)
+ 	input = devm_input_allocate_device(dev);
+ 	if (!input)
 -- 
 2.17.1
 

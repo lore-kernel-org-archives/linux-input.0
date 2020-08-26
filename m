@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50847C433DF
-	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 18:18:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 977C6C433E1
+	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 18:19:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1DBBF20737
-	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 18:18:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 654F420737
+	for <linux-input@archiver.kernel.org>; Wed, 26 Aug 2020 18:19:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598465930;
-	bh=DAJ4IK0T3bYzcNbVBNiI+Vu9Q4UxL1+YwJDRQtT/cUQ=;
+	s=default; t=1598465943;
+	bh=IUvTqqXBFc4hRe8hE39JcMQiPU85dhjMfKQTxHNFxas=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=CNIMMjobEgttgxmLJapex2krlX2hcmX8aZNLxlNDBy1rIGEtyS94aDSy/VRjqW3hr
-	 qhYJXD0UvYkPk/wtCa1TfQkrP8JZSq0Wmtk9ortA7EcmeiZ2/+uDOU0c87Gawv8P1B
-	 tKIef5r/DLGnCnm0WlujN3NRf9Ukkrb/ykM+3/Wg=
+	b=zx0XwGLKcJmDCgEonC2C0FvYDk3PwtVEIn8DPMbRJFlGOPjcjOIIEbKhk6/KwXDrb
+	 UMmKgnCfa4T1JTD2J1U+0bla2C1P2sdMNJ2aM4Jbzgq7izPCrHCVkUw/Rp6bmEUfuW
+	 1W/cpoOjaQM9fi4WNizJ49qlv6Ciusye5jjJxNes=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726858AbgHZSSt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 26 Aug 2020 14:18:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42916 "EHLO mail.kernel.org"
+        id S1727944AbgHZSTB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 26 Aug 2020 14:19:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727881AbgHZSSp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Aug 2020 14:18:45 -0400
+        id S1727937AbgHZSS5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 26 Aug 2020 14:18:57 -0400
 Received: from kozik-lap.mshome.net (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2237320737;
-        Wed, 26 Aug 2020 18:18:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66921214F1;
+        Wed, 26 Aug 2020 18:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598465924;
-        bh=DAJ4IK0T3bYzcNbVBNiI+Vu9Q4UxL1+YwJDRQtT/cUQ=;
+        s=default; t=1598465937;
+        bh=IUvTqqXBFc4hRe8hE39JcMQiPU85dhjMfKQTxHNFxas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xi7x5aqOUP5FpsDQ38MnGbVt+nIQx7FmM4kLD0OEKTs+oY0REYpQ1krT3q5OgonML
-         4YTzELWJpn5wldO2Q93XCvCJjGFWkqPymXeVXuyeSpK/TmATtoGHfpLuScbizBmGyh
-         a84AEQBcmfVgZ6LkVKAXN8WNRLhUYIC6X6TzrdTo=
+        b=WfADOt/TlUwzElF8vASKklglMVOxWZhclG0AOj7/fTodFk6dogEnDdIvtp/4g4bnv
+         nEhaXLlXSZe/gB4AOMS5FVFjL/3KpSonsWT9JLBivFJYWSNa2HYazJHuLm6q5QbwUB
+         6yBSk+sK1pU/Oxb0ir9kS8sicymtREOp73Wkcxkw=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
@@ -50,9 +50,9 @@ To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         platform-driver-x86@vger.kernel.org
 Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 20/24] Input: resistive-adc-touch - Simplify with dev_err_probe()
-Date:   Wed, 26 Aug 2020 20:17:02 +0200
-Message-Id: <20200826181706.11098-20-krzk@kernel.org>
+Subject: [PATCH 24/24] Input: sx8643 - Simplify with dev_err_probe()
+Date:   Wed, 26 Aug 2020 20:17:06 +0200
+Message-Id: <20200826181706.11098-24-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200826181706.11098-1-krzk@kernel.org>
 References: <20200826181706.11098-1-krzk@kernel.org>
@@ -66,28 +66,30 @@ dev_err_probe().  Less code and also it prints the error value.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- drivers/input/touchscreen/resistive-adc-touch.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/sx8654.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/touchscreen/resistive-adc-touch.c b/drivers/input/touchscreen/resistive-adc-touch.c
-index cfc8bb4553f7..46b5a6caef84 100644
---- a/drivers/input/touchscreen/resistive-adc-touch.c
-+++ b/drivers/input/touchscreen/resistive-adc-touch.c
-@@ -108,12 +108,8 @@ static int grts_probe(struct platform_device *pdev)
+diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
+index de85e57b2486..d2ed9be64c3a 100644
+--- a/drivers/input/touchscreen/sx8654.c
++++ b/drivers/input/touchscreen/sx8654.c
+@@ -323,13 +323,9 @@ static int sx8654_probe(struct i2c_client *client,
  
- 	/* get the channels from IIO device */
- 	st->iio_chans = devm_iio_channel_get_all(dev);
--	if (IS_ERR(st->iio_chans)) {
--		error = PTR_ERR(st->iio_chans);
+ 	sx8654->gpio_reset = devm_gpiod_get_optional(&client->dev, "reset",
+ 						     GPIOD_OUT_HIGH);
+-	if (IS_ERR(sx8654->gpio_reset)) {
+-		error = PTR_ERR(sx8654->gpio_reset);
 -		if (error != -EPROBE_DEFER)
--			dev_err(dev, "can't get iio channels.\n");
+-			dev_err(&client->dev, "unable to get reset-gpio: %d\n",
+-				error);
 -		return error;
 -	}
-+	if (IS_ERR(st->iio_chans))
-+		return dev_err_probe(dev, PTR_ERR(st->iio_chans), "can't get iio channels\n");
++	if (IS_ERR(sx8654->gpio_reset))
++		return dev_err_probe(&client->dev, PTR_ERR(sx8654->gpio_reset),
++				     "unable to get reset-gpio\n");
+ 	dev_dbg(&client->dev, "got GPIO reset pin\n");
  
- 	chan = &st->iio_chans[0];
- 	st->pressure = false;
+ 	sx8654->data = device_get_match_data(&client->dev);
 -- 
 2.17.1
 

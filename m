@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F304C433E3
-	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 18:59:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE125C433E3
+	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:00:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69D6822CB3
-	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 18:59:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9CA1022BEA
+	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598554799;
-	bh=uuRqkmEQUfrTFVyLKREdckixX1+af1YgVze1b7IwB/M=;
+	s=default; t=1598554811;
+	bh=dE13Onak/Gc/uQ/d4IanKlkvwyIbI6kr1ICwDOnvWk8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=nv0YAFRI7qbbbhiTkRKB3YkzzB40lVsptv0lY0P9r4lmAknkwIp3jmb0Vncu/mgxw
-	 /Ve13k5DdeGiPUL1amoaIh0zGT1nVPEfX8o4sIclHRd+ZQKTJ9pt1xXckLyggX6VQe
-	 Mm0b/NL8JyAjcipj0CnH0ZHrGjROP1b9ySftQkqY=
+	b=2tc8UgAz/0UtYlmVwd5Q0kvZLW8fmJrs4juCwT67fHV8GWRwblLlO2edOuoFBQ+yY
+	 awtUC+RCt0V+E98CRo+CmjTR5cxxejtskYAViYuQdzLBU/uuw1Hf+yiZvFy7/9Um2q
+	 pcebTfkdS6X+9UoFlBufpjmWe//31uL+0U0uP/1k=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728250AbgH0S75 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Aug 2020 14:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50604 "EHLO mail.kernel.org"
+        id S1728266AbgH0TAL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Aug 2020 15:00:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728227AbgH0S74 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Aug 2020 14:59:56 -0400
+        id S1728327AbgH0TAK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Aug 2020 15:00:10 -0400
 Received: from localhost.localdomain (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12FA422BEA;
-        Thu, 27 Aug 2020 18:59:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7497222BEB;
+        Thu, 27 Aug 2020 19:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598554795;
-        bh=uuRqkmEQUfrTFVyLKREdckixX1+af1YgVze1b7IwB/M=;
+        s=default; t=1598554809;
+        bh=dE13Onak/Gc/uQ/d4IanKlkvwyIbI6kr1ICwDOnvWk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKPFcFkSX0ci8UuDDGQh/QU7DazBDmgvPMk2uABsqU1ddu0Ncm1yFZm3PesMQZ8WL
-         BDiv8KVM41hh7UNoGs7CIfc2BXK/aa9d6zGR71rd07NBeLrFtRpU19sFLcS8Jq9urg
-         cN8hXbkjf6yFnwKx84VaaOxGeuAi2FsMU9m7DbFM=
+        b=taTq6e50W1h8zl1+4Wxnw9s6UcVHzZEHdlADQe/14qMsD1ymbSI6riRj7Az61yoPi
+         iaI0+RWYCCSNqrZGLjnSbkHpXP7GM087R5y3c2BvmFJv2V2MWg8Wk8ex2fmKFTgbN2
+         v8NPEBKOnK1H+sWJF88Y8ER2Z+cMopMkomXDpse4=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>,
@@ -51,9 +51,9 @@ To:     Linus Walleij <linus.walleij@linaro.org>,
         linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
         clang-built-linux@googlegroups.com
 Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v3 22/27] Input: sx8643 - Simplify with dev_err_probe()
-Date:   Thu, 27 Aug 2020 20:58:24 +0200
-Message-Id: <20200827185829.30096-23-krzk@kernel.org>
+Subject: [PATCH v3 26/27] Input: bu21013_ts - Use local 'client->dev' variable in probe()
+Date:   Thu, 27 Aug 2020 20:58:28 +0200
+Message-Id: <20200827185829.30096-27-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200827185829.30096-1-krzk@kernel.org>
 References: <20200827185829.30096-1-krzk@kernel.org>
@@ -62,37 +62,183 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Common pattern of handling deferred probe can be simplified with
-dev_err_probe().  Less code and also it prints the error value.
+'dev' is shorter and simpler than '&client->dev' and in few cases it
+allows to skip line wrapping. Probe function uses '&client->dev' a lot,
+so this improves readability slightly.
 
+Andy Shevchenko <andy.shevchenko@gmail.com>
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
- drivers/input/touchscreen/sx8654.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
-index de85e57b2486..d2ed9be64c3a 100644
---- a/drivers/input/touchscreen/sx8654.c
-+++ b/drivers/input/touchscreen/sx8654.c
-@@ -323,13 +323,9 @@ static int sx8654_probe(struct i2c_client *client,
+---
+
+Changes since v2:
+1. New patch
+---
+ drivers/input/touchscreen/bu21013_ts.c | 61 ++++++++++++--------------
+ 1 file changed, 28 insertions(+), 33 deletions(-)
+
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+index 86bd38243d6c..f09204091ba5 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -411,31 +411,32 @@ static int bu21013_probe(struct i2c_client *client,
+ 	struct input_dev *in_dev;
+ 	struct input_absinfo *info;
+ 	u32 max_x = 0, max_y = 0;
++	struct device *dev = &client->dev;
+ 	int error;
  
- 	sx8654->gpio_reset = devm_gpiod_get_optional(&client->dev, "reset",
- 						     GPIOD_OUT_HIGH);
--	if (IS_ERR(sx8654->gpio_reset)) {
--		error = PTR_ERR(sx8654->gpio_reset);
--		if (error != -EPROBE_DEFER)
--			dev_err(&client->dev, "unable to get reset-gpio: %d\n",
--				error);
--		return error;
--	}
-+	if (IS_ERR(sx8654->gpio_reset))
-+		return dev_err_probe(&client->dev, PTR_ERR(sx8654->gpio_reset),
-+				     "unable to get reset-gpio\n");
- 	dev_dbg(&client->dev, "got GPIO reset pin\n");
+ 	if (!i2c_check_functionality(client->adapter,
+ 				     I2C_FUNC_SMBUS_BYTE_DATA)) {
+-		dev_err(&client->dev, "i2c smbus byte data not supported\n");
++		dev_err(dev, "i2c smbus byte data not supported\n");
+ 		return -EIO;
+ 	}
  
- 	sx8654->data = device_get_match_data(&client->dev);
+ 	if (!client->irq) {
+-		dev_err(&client->dev, "No IRQ set up\n");
++		dev_err(dev, "No IRQ set up\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	ts = devm_kzalloc(&client->dev, sizeof(*ts), GFP_KERNEL);
++	ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
+ 	if (!ts)
+ 		return -ENOMEM;
+ 
+ 	ts->client = client;
+ 
+-	ts->x_flip = device_property_read_bool(&client->dev, "rohm,flip-x");
+-	ts->y_flip = device_property_read_bool(&client->dev, "rohm,flip-y");
++	ts->x_flip = device_property_read_bool(dev, "rohm,flip-x");
++	ts->y_flip = device_property_read_bool(dev, "rohm,flip-y");
+ 
+-	in_dev = devm_input_allocate_device(&client->dev);
++	in_dev = devm_input_allocate_device(dev);
+ 	if (!in_dev) {
+-		dev_err(&client->dev, "device memory alloc failed\n");
++		dev_err(dev, "device memory alloc failed\n");
+ 		return -ENOMEM;
+ 	}
+ 	ts->in_dev = in_dev;
+@@ -445,8 +446,8 @@ static int bu21013_probe(struct i2c_client *client,
+ 	in_dev->name = DRIVER_TP;
+ 	in_dev->id.bustype = BUS_I2C;
+ 
+-	device_property_read_u32(&client->dev, "rohm,touch-max-x", &max_x);
+-	device_property_read_u32(&client->dev, "rohm,touch-max-y", &max_y);
++	device_property_read_u32(dev, "rohm,touch-max-x", &max_x);
++	device_property_read_u32(dev, "rohm,touch-max-y", &max_y);
+ 
+ 	input_set_abs_params(in_dev, ABS_MT_POSITION_X, 0, max_x, 0, 0);
+ 	input_set_abs_params(in_dev, ABS_MT_POSITION_Y, 0, max_y, 0, 0);
+@@ -455,14 +456,14 @@ static int bu21013_probe(struct i2c_client *client,
+ 
+ 	/* Adjust for the legacy "flip" properties, if present */
+ 	if (!ts->props.invert_x &&
+-	    device_property_read_bool(&client->dev, "rohm,flip-x")) {
++	    device_property_read_bool(dev, "rohm,flip-x")) {
+ 		info = &in_dev->absinfo[ABS_MT_POSITION_X];
+ 		info->maximum -= info->minimum;
+ 		info->minimum = 0;
+ 	}
+ 
+ 	if (!ts->props.invert_y &&
+-	    device_property_read_bool(&client->dev, "rohm,flip-y")) {
++	    device_property_read_bool(dev, "rohm,flip-y")) {
+ 		info = &in_dev->absinfo[ABS_MT_POSITION_Y];
+ 		info->maximum -= info->minimum;
+ 		info->minimum = 0;
+@@ -472,50 +473,46 @@ static int bu21013_probe(struct i2c_client *client,
+ 				    INPUT_MT_DIRECT | INPUT_MT_TRACK |
+ 					INPUT_MT_DROP_UNUSED);
+ 	if (error) {
+-		dev_err(&client->dev, "failed to initialize MT slots");
++		dev_err(dev, "failed to initialize MT slots");
+ 		return error;
+ 	}
+ 
+-	ts->regulator = devm_regulator_get(&client->dev, "avdd");
++	ts->regulator = devm_regulator_get(dev, "avdd");
+ 	if (IS_ERR(ts->regulator)) {
+-		dev_err(&client->dev, "regulator_get failed\n");
++		dev_err(dev, "regulator_get failed\n");
+ 		return PTR_ERR(ts->regulator);
+ 	}
+ 
+ 	error = regulator_enable(ts->regulator);
+ 	if (error) {
+-		dev_err(&client->dev, "regulator enable failed\n");
++		dev_err(dev, "regulator enable failed\n");
+ 		return error;
+ 	}
+ 
+-	error = devm_add_action_or_reset(&client->dev, bu21013_power_off, ts);
++	error = devm_add_action_or_reset(dev, bu21013_power_off, ts);
+ 	if (error) {
+-		dev_err(&client->dev, "failed to install power off handler\n");
++		dev_err(dev, "failed to install power off handler\n");
+ 		return error;
+ 	}
+ 
+ 	/* Named "CS" on the chip, DT binding is "reset" */
+-	ts->cs_gpiod = devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_HIGH);
++	ts->cs_gpiod = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(ts->cs_gpiod))
+-		return dev_err_probe(&client->dev, PTR_ERR(ts->cs_gpiod),
+-				     "failed to get CS GPIO\n");
++		return dev_err_probe(dev, PTR_ERR(ts->cs_gpiod), "failed to get CS GPIO\n");
+ 
+ 	gpiod_set_consumer_name(ts->cs_gpiod, "BU21013 CS");
+ 
+-	error = devm_add_action_or_reset(&client->dev,
+-					 bu21013_disable_chip, ts);
++	error = devm_add_action_or_reset(dev, bu21013_disable_chip, ts);
+ 	if (error) {
+-		dev_err(&client->dev,
+-			"failed to install chip disable handler\n");
++		dev_err(dev, "failed to install chip disable handler\n");
+ 		return error;
+ 	}
+ 
+ 	/* Named "INT" on the chip, DT binding is "touch" */
+-	ts->int_gpiod = devm_gpiod_get_optional(&client->dev,
+-						"touch", GPIOD_IN);
++	ts->int_gpiod = devm_gpiod_get_optional(dev, "touch", GPIOD_IN);
+ 	error = PTR_ERR_OR_ZERO(ts->int_gpiod);
+ 	if (error)
+-		return dev_err_probe(&client->dev, error, "failed to get INT GPIO\n");
++		return dev_err_probe(dev, error, "failed to get INT GPIO\n");
+ 
+ 	if (ts->int_gpiod)
+ 		gpiod_set_consumer_name(ts->int_gpiod, "BU21013 INT");
+@@ -523,22 +520,20 @@ static int bu21013_probe(struct i2c_client *client,
+ 	/* configure the touch panel controller */
+ 	error = bu21013_init_chip(ts);
+ 	if (error) {
+-		dev_err(&client->dev, "error in bu21013 config\n");
++		dev_err(dev, "error in bu21013 config\n");
+ 		return error;
+ 	}
+ 
+-	error = devm_request_threaded_irq(&client->dev, client->irq,
+-					  NULL, bu21013_gpio_irq,
++	error = devm_request_threaded_irq(dev, client->irq, NULL, bu21013_gpio_irq,
+ 					  IRQF_ONESHOT, DRIVER_TP, ts);
+ 	if (error) {
+-		dev_err(&client->dev, "request irq %d failed\n",
+-			client->irq);
++		dev_err(dev, "request irq %d failed\n", client->irq);
+ 		return error;
+ 	}
+ 
+ 	error = input_register_device(in_dev);
+ 	if (error) {
+-		dev_err(&client->dev, "failed to register input device\n");
++		dev_err(dev, "failed to register input device\n");
+ 		return error;
+ 	}
+ 
 -- 
 2.17.1
 

@@ -7,60 +7,61 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14BF7C433E3
-	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:40:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64B00C433DF
+	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:43:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB8CF22BEA
-	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:40:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 477C1207DF
+	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:43:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LbdSMOEN"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fjahp8++"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727001AbgH0TkX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Aug 2020 15:40:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50288 "EHLO
+        id S1726291AbgH0Tnm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Aug 2020 15:43:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726120AbgH0TkW (ORCPT
+        with ESMTP id S1726120AbgH0Tnm (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Aug 2020 15:40:22 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA48BC061264;
-        Thu, 27 Aug 2020 12:40:22 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id y206so4283042pfb.10;
-        Thu, 27 Aug 2020 12:40:22 -0700 (PDT)
+        Thu, 27 Aug 2020 15:43:42 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8ED5C061264;
+        Thu, 27 Aug 2020 12:43:41 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id i13so3189950pjv.0;
+        Thu, 27 Aug 2020 12:43:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=NNNdt/4IjrgeOPMBhjOnJXYG1tUOBVWjd9cyVGLK4Nk=;
-        b=LbdSMOENXvFM9Vf8hMQa1ALOjAVqgPlRFgCgAzQErHfM/ZWavrBZ0jLg3IfENhqGI6
-         fAxGkQyDyPfFBQoQ/aQS0jCiMsS9kjiseaKHJc1Omx+li9hsqFGQcngFD8nVyweKMW6M
-         7uUdyX3+djuVN3TlXt68eCbNxpa3ZvppO1E7B71QrFBu34zRZoSpt2AVZM9UJdxJFVBr
-         iu2D6pM4Ijhe3nQRHK8JY7J1K4wVPC5gnAgRlEryBtqCv1BIamlzQBFP2/KVjgtf5R11
-         jbfMJ5wCMmHLevsNsE0Rhm6D0BuPk1/9LPAtgv23S8ipSXAvBUoS+BYjAc+w8grWMFTY
-         vK2A==
+        bh=+ukOJMscVMuC/waiDIGxLQ8Pst4V6VyjiGsP3dACBfk=;
+        b=Fjahp8++ZL6p+IkFfsRDgc5qo36c5R8d2DFfaMKfaZEpBwk9+pPfAU+8rPUda+PUQA
+         8Lpa8jcjB9b5K98Rv5CrrAXXF/V971Q6u0jpUIdvvn4aVKxoEUluNkfQ+HC4BWzTEUTL
+         AzxekxPPg9Clj8RksLME8qc39fk+LtLdnRQoixleMyJTvtk3no5/+ih2hjUBU4iLOfib
+         pY8OkeXGWVnttVNmDw1OfBSX613KRpHetB9twSeSjRDSsSPcZSMqMvIG/Cm/AQLMkerB
+         DVoh60+EVHs7WRh2EkJlZI2Xdwmlj5+y6A2YIX+UfyClGob6zRMKhFAJwWeol6yHv42Y
+         2qpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=NNNdt/4IjrgeOPMBhjOnJXYG1tUOBVWjd9cyVGLK4Nk=;
-        b=GAUHazf/r6vLV6A/n6GIiHoqwFWbS1QRDtoNGRZOQQWNiiV636VM4sj1vjhTF8f+4b
-         EyYlRi4QYUCCdHTnPBCtgU29X2OZAhggiybMF/0B1IInA0nJDxPiaYbjj03P/WUuqqZd
-         nYa/sVYoDotJSkLooca6hWVJAuYLsg4MscsxC+kdN9B4DdkT7dyrqYR92zhGrjRK5CQe
-         RmD3kZ+F/kdVb8lHqYE+Tr+j0DY42RlpPzZNxdrKlToZcBgpgZqc1zeGiTm+MGDp1LjV
-         xcmtdEfvVY3ICFi3JugrDWPhseHN3q6Zczath5AwCQnMCL+3wPPBtzSv+1MSTPVKkEo7
-         6jyQ==
-X-Gm-Message-State: AOAM531u0rPbmtM+N2zBRL8WoJDPd9WUsYqIacRCVJ0NaZ3Yz9aAzDe9
-        WRnvUEjpYuESED0kJExJBeTeThJaxUo7Px7au/4=
-X-Google-Smtp-Source: ABdhPJzgixu1vjkCNUr2jBeexjL3Lla0KqgLVgu2GOiUo2aGg+shPIPNzlSqdusuUrrHVo6T8NYqCpbdRKbtzA3DXTE=
-X-Received: by 2002:a63:c543:: with SMTP id g3mr8366423pgd.203.1598557173833;
- Thu, 27 Aug 2020 12:39:33 -0700 (PDT)
+        bh=+ukOJMscVMuC/waiDIGxLQ8Pst4V6VyjiGsP3dACBfk=;
+        b=rJaxB/02OOICJKeOEVkBOfAWZE9DvQmIdEfaBzWqittRqXbTbQ59ADTqFoW/HKYCFz
+         AfO453szP07F/oLvDqR/qoo6/kdLj9Q9zUg5MFVtxY//2470rkbFNpxv3Uy2zmtasp18
+         SCTutv1VBd7o99RD8vzlLbbzrSO2GfVStGXabNBzyBZG2haiG47Qp5g4CDy0xJe9OBpW
+         WZiJeYW3XxnHKwChvO3RNEWIFi16KhwnHz3MUH32BoHEQjcB1RpJdt/sxMtU3XAQ7Dsb
+         5cALl1gC8w3qyWsvJ+WCnM26aJVMqUmcH1zmz/AHJXwb+erOGVCRc6VBd7wyxeSWYJJV
+         YPrA==
+X-Gm-Message-State: AOAM531ibc+dH6f+N+8A21QyyEPxY7HphFfWZYXRHI9GmB8mTodu1ZD7
+        qmPNmjNDJZM+A3wUaicAVJGGBDqAgiaOiCcaPII=
+X-Google-Smtp-Source: ABdhPJyTwTbMkZGni0aMaet9TZfDLiE5fpHe45SwSjGhLeMxJyTKfOvtLx1u8hTDvHgvHXFUJT9sK9mLHgkCGEslHvU=
+X-Received: by 2002:a17:90a:2c06:: with SMTP id m6mr383495pjd.129.1598557421274;
+ Thu, 27 Aug 2020 12:43:41 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200827185829.30096-1-krzk@kernel.org> <20200827185829.30096-5-krzk@kernel.org>
-In-Reply-To: <20200827185829.30096-5-krzk@kernel.org>
+References: <20200827185829.30096-1-krzk@kernel.org> <20200827185829.30096-27-krzk@kernel.org>
+In-Reply-To: <20200827185829.30096-27-krzk@kernel.org>
 From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Thu, 27 Aug 2020 22:39:17 +0300
-Message-ID: <CAHp75VfAn8oCqgXOWhsixZSs4FTkDACP3+3CgDdmQkPKQJg1aw@mail.gmail.com>
-Subject: Re: [PATCH v3 04/27] Input: pwm-vibra - Simplify with dev_err_probe()
+Date:   Thu, 27 Aug 2020 22:43:24 +0300
+Message-ID: <CAHp75VfyoVN2DdwGpi9_58_v9c+ksHjYmvmeGbz64OAyhjEhsg@mail.gmail.com>
+Subject: Re: [PATCH v3 26/27] Input: bu21013_ts - Use local 'client->dev'
+ variable in probe()
 To:     Krzysztof Kozlowski <krzk@kernel.org>
 Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>,
@@ -80,56 +81,189 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Aug 27, 2020 at 9:58 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
+On Thu, Aug 27, 2020 at 10:00 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
 >
-> Common pattern of handling deferred probe can be simplified with
-> dev_err_probe().  Less code and also it prints the error value.
+> 'dev' is shorter and simpler than '&client->dev' and in few cases it
+> allows to skip line wrapping. Probe function uses '&client->dev' a lot,
+> so this improves readability slightly.
 
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
+> Andy Shevchenko <andy.shevchenko@gmail.com>
+
+Suggested-by: (I suppose)
+
 > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 >
 > ---
 >
-> Changes since v1:
-> 1. Remove unneeded PTR_ERR_OR_ZERO, as pointed by Andy.
+> Changes since v2:
+> 1. New patch
 > ---
->  drivers/input/misc/pwm-vibra.c | 20 ++++++--------------
->  1 file changed, 6 insertions(+), 14 deletions(-)
+>  drivers/input/touchscreen/bu21013_ts.c | 61 ++++++++++++--------------
+>  1 file changed, 28 insertions(+), 33 deletions(-)
 >
-> diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
-> index 81e777a04b88..45c4f6a02177 100644
-> --- a/drivers/input/misc/pwm-vibra.c
-> +++ b/drivers/input/misc/pwm-vibra.c
-> @@ -134,22 +134,14 @@ static int pwm_vibrator_probe(struct platform_device *pdev)
+> diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+> index 86bd38243d6c..f09204091ba5 100644
+> --- a/drivers/input/touchscreen/bu21013_ts.c
+> +++ b/drivers/input/touchscreen/bu21013_ts.c
+> @@ -411,31 +411,32 @@ static int bu21013_probe(struct i2c_client *client,
+>         struct input_dev *in_dev;
+>         struct input_absinfo *info;
+>         u32 max_x = 0, max_y = 0;
+> +       struct device *dev = &client->dev;
+>         int error;
+>
+>         if (!i2c_check_functionality(client->adapter,
+>                                      I2C_FUNC_SMBUS_BYTE_DATA)) {
+> -               dev_err(&client->dev, "i2c smbus byte data not supported\n");
+> +               dev_err(dev, "i2c smbus byte data not supported\n");
+>                 return -EIO;
+>         }
+>
+>         if (!client->irq) {
+> -               dev_err(&client->dev, "No IRQ set up\n");
+> +               dev_err(dev, "No IRQ set up\n");
+>                 return -EINVAL;
+>         }
+>
+> -       ts = devm_kzalloc(&client->dev, sizeof(*ts), GFP_KERNEL);
+> +       ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
+>         if (!ts)
 >                 return -ENOMEM;
 >
->         vibrator->vcc = devm_regulator_get(&pdev->dev, "vcc");
-> -       err = PTR_ERR_OR_ZERO(vibrator->vcc);
-> -       if (err) {
-> -               if (err != -EPROBE_DEFER)
-> -                       dev_err(&pdev->dev, "Failed to request regulator: %d",
-> -                               err);
-> -               return err;
-> -       }
-> +       if (IS_ERR(vibrator->vcc))
-> +               return dev_err_probe(&pdev->dev, PTR_ERR(vibrator->vcc),
-> +                                    "Failed to request regulator\n");
+>         ts->client = client;
 >
->         vibrator->pwm = devm_pwm_get(&pdev->dev, "enable");
-> -       err = PTR_ERR_OR_ZERO(vibrator->pwm);
-> -       if (err) {
-> -               if (err != -EPROBE_DEFER)
-> -                       dev_err(&pdev->dev, "Failed to request main pwm: %d",
-> -                               err);
-> -               return err;
-> -       }
-> +       if (IS_ERR(vibrator->pwm))
-> +               return dev_err_probe(&pdev->dev, PTR_ERR(vibrator->pwm),
-> +                                    "Failed to request main pwm\n");
+> -       ts->x_flip = device_property_read_bool(&client->dev, "rohm,flip-x");
+> -       ts->y_flip = device_property_read_bool(&client->dev, "rohm,flip-y");
+> +       ts->x_flip = device_property_read_bool(dev, "rohm,flip-x");
+> +       ts->y_flip = device_property_read_bool(dev, "rohm,flip-y");
 >
->         INIT_WORK(&vibrator->play_work, pwm_vibrator_play_work);
+> -       in_dev = devm_input_allocate_device(&client->dev);
+> +       in_dev = devm_input_allocate_device(dev);
+>         if (!in_dev) {
+> -               dev_err(&client->dev, "device memory alloc failed\n");
+> +               dev_err(dev, "device memory alloc failed\n");
+>                 return -ENOMEM;
+>         }
+>         ts->in_dev = in_dev;
+> @@ -445,8 +446,8 @@ static int bu21013_probe(struct i2c_client *client,
+>         in_dev->name = DRIVER_TP;
+>         in_dev->id.bustype = BUS_I2C;
+>
+> -       device_property_read_u32(&client->dev, "rohm,touch-max-x", &max_x);
+> -       device_property_read_u32(&client->dev, "rohm,touch-max-y", &max_y);
+> +       device_property_read_u32(dev, "rohm,touch-max-x", &max_x);
+> +       device_property_read_u32(dev, "rohm,touch-max-y", &max_y);
+>
+>         input_set_abs_params(in_dev, ABS_MT_POSITION_X, 0, max_x, 0, 0);
+>         input_set_abs_params(in_dev, ABS_MT_POSITION_Y, 0, max_y, 0, 0);
+> @@ -455,14 +456,14 @@ static int bu21013_probe(struct i2c_client *client,
+>
+>         /* Adjust for the legacy "flip" properties, if present */
+>         if (!ts->props.invert_x &&
+> -           device_property_read_bool(&client->dev, "rohm,flip-x")) {
+> +           device_property_read_bool(dev, "rohm,flip-x")) {
+>                 info = &in_dev->absinfo[ABS_MT_POSITION_X];
+>                 info->maximum -= info->minimum;
+>                 info->minimum = 0;
+>         }
+>
+>         if (!ts->props.invert_y &&
+> -           device_property_read_bool(&client->dev, "rohm,flip-y")) {
+> +           device_property_read_bool(dev, "rohm,flip-y")) {
+>                 info = &in_dev->absinfo[ABS_MT_POSITION_Y];
+>                 info->maximum -= info->minimum;
+>                 info->minimum = 0;
+> @@ -472,50 +473,46 @@ static int bu21013_probe(struct i2c_client *client,
+>                                     INPUT_MT_DIRECT | INPUT_MT_TRACK |
+>                                         INPUT_MT_DROP_UNUSED);
+>         if (error) {
+> -               dev_err(&client->dev, "failed to initialize MT slots");
+> +               dev_err(dev, "failed to initialize MT slots");
+>                 return error;
+>         }
+>
+> -       ts->regulator = devm_regulator_get(&client->dev, "avdd");
+> +       ts->regulator = devm_regulator_get(dev, "avdd");
+>         if (IS_ERR(ts->regulator)) {
+> -               dev_err(&client->dev, "regulator_get failed\n");
+> +               dev_err(dev, "regulator_get failed\n");
+>                 return PTR_ERR(ts->regulator);
+>         }
+>
+>         error = regulator_enable(ts->regulator);
+>         if (error) {
+> -               dev_err(&client->dev, "regulator enable failed\n");
+> +               dev_err(dev, "regulator enable failed\n");
+>                 return error;
+>         }
+>
+> -       error = devm_add_action_or_reset(&client->dev, bu21013_power_off, ts);
+> +       error = devm_add_action_or_reset(dev, bu21013_power_off, ts);
+>         if (error) {
+> -               dev_err(&client->dev, "failed to install power off handler\n");
+> +               dev_err(dev, "failed to install power off handler\n");
+>                 return error;
+>         }
+>
+>         /* Named "CS" on the chip, DT binding is "reset" */
+> -       ts->cs_gpiod = devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_HIGH);
+> +       ts->cs_gpiod = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
+>         if (IS_ERR(ts->cs_gpiod))
+> -               return dev_err_probe(&client->dev, PTR_ERR(ts->cs_gpiod),
+> -                                    "failed to get CS GPIO\n");
+> +               return dev_err_probe(dev, PTR_ERR(ts->cs_gpiod), "failed to get CS GPIO\n");
+>
+>         gpiod_set_consumer_name(ts->cs_gpiod, "BU21013 CS");
+>
+> -       error = devm_add_action_or_reset(&client->dev,
+> -                                        bu21013_disable_chip, ts);
+> +       error = devm_add_action_or_reset(dev, bu21013_disable_chip, ts);
+>         if (error) {
+> -               dev_err(&client->dev,
+> -                       "failed to install chip disable handler\n");
+> +               dev_err(dev, "failed to install chip disable handler\n");
+>                 return error;
+>         }
+>
+>         /* Named "INT" on the chip, DT binding is "touch" */
+> -       ts->int_gpiod = devm_gpiod_get_optional(&client->dev,
+> -                                               "touch", GPIOD_IN);
+> +       ts->int_gpiod = devm_gpiod_get_optional(dev, "touch", GPIOD_IN);
+>         error = PTR_ERR_OR_ZERO(ts->int_gpiod);
+>         if (error)
+> -               return dev_err_probe(&client->dev, error, "failed to get INT GPIO\n");
+> +               return dev_err_probe(dev, error, "failed to get INT GPIO\n");
+>
+>         if (ts->int_gpiod)
+>                 gpiod_set_consumer_name(ts->int_gpiod, "BU21013 INT");
+> @@ -523,22 +520,20 @@ static int bu21013_probe(struct i2c_client *client,
+>         /* configure the touch panel controller */
+>         error = bu21013_init_chip(ts);
+>         if (error) {
+> -               dev_err(&client->dev, "error in bu21013 config\n");
+> +               dev_err(dev, "error in bu21013 config\n");
+>                 return error;
+>         }
+>
+> -       error = devm_request_threaded_irq(&client->dev, client->irq,
+> -                                         NULL, bu21013_gpio_irq,
+> +       error = devm_request_threaded_irq(dev, client->irq, NULL, bu21013_gpio_irq,
+>                                           IRQF_ONESHOT, DRIVER_TP, ts);
+>         if (error) {
+> -               dev_err(&client->dev, "request irq %d failed\n",
+> -                       client->irq);
+> +               dev_err(dev, "request irq %d failed\n", client->irq);
+>                 return error;
+>         }
+>
+>         error = input_register_device(in_dev);
+>         if (error) {
+> -               dev_err(&client->dev, "failed to register input device\n");
+> +               dev_err(dev, "failed to register input device\n");
+>                 return error;
+>         }
 >
 > --
 > 2.17.1

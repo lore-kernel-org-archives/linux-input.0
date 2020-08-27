@@ -2,95 +2,141 @@ Return-Path: <SRS0=z9W1=CF=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 360DBC433E4
-	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:00:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01EA4C433DF
+	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:36:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F04B2087C
-	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:00:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598554853;
-	bh=lTP4eUtATnmEnI0HqNZwmrnqoYep1G5LOirB6UKLfcQ=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=D3QKY3lPOpxxYimVIeXL7HM89TMzanT4mxu5cWPxOQerauMFP6dq0oOxIWRO6JSo3
-	 OdizjtVRwSd0L84nQ0Yw0kZ8cmTRZkFnvDE5kof/NJDRPYQH0VsdawpcIMMnE3kfZQ
-	 j6RXgqAKc4MY6UyvSRkV/3IOOgPXVjLgc10k244M=
+	by mail.kernel.org (Postfix) with ESMTP id C074A22BEA
+	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:36:49 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YpIanO7z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727930AbgH0S67 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Aug 2020 14:58:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49014 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727913AbgH0S67 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Aug 2020 14:58:59 -0400
-Received: from localhost.localdomain (unknown [194.230.155.216])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC8A322BF3;
-        Thu, 27 Aug 2020 18:58:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598554738;
-        bh=lTP4eUtATnmEnI0HqNZwmrnqoYep1G5LOirB6UKLfcQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGQrB7o+DQa7HKDbYBD5iqkM+vGnWt1nyGK8SB27tPLOd4u8CNu0vxDZgAGsiTo6q
-         aCz1Qu5ZrCiI95OA4ysL+qHlnkb3TQLH5mraFpVAqiYNDt3YTfZnjWTd2oC9O//RtZ
-         CRj0ExTo/FleloV5trX1FTw5OzA+3HBelFryAbTo=
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Linus Walleij <linus.walleij@linaro.org>,
+        id S1726706AbgH0Tgs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Aug 2020 15:36:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49748 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726250AbgH0Tgs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Aug 2020 15:36:48 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A051C061264;
+        Thu, 27 Aug 2020 12:36:48 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id ls14so3126459pjb.3;
+        Thu, 27 Aug 2020 12:36:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Ke5yyqqtl8us0ow8oEZVTNWbvOyB/nHqrjexBTWQnvA=;
+        b=YpIanO7zFbItXLB7EaPN8bX+JDw32avJcuxnnDdI8RenvwGApz79MPkWlV+VZStUmp
+         jdbD352fFm7O99X6u1nNSDC6oMi37hQeLeV1AvrpBPBt4ZFez++eiUsiQyHkPIqR6QUm
+         txg+MqbWo1S/KYeoy2IRwZtG28dCCyrTfaLkU/g3x/tLOMCRsUY6AC6ZiOC5EsEUtoeV
+         g3uRsRonaNcd5Vt8CTouOei/6kZvi4AwSUKAAXxdcNc0Wi3sQ811TRDG+xFYR0wYoNt/
+         NouIZ939qAN9TEiUlNF8440L1ph4zVTzP0eIxxfHpDBcuqubZJMo8Io3WqX34CQymBU3
+         kiaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Ke5yyqqtl8us0ow8oEZVTNWbvOyB/nHqrjexBTWQnvA=;
+        b=YnO+FKehftDkbGLbAPO5cOOooEWpmx5IU39kn8uBr/jOj7J664Zeq6rVqlEJjO9zLj
+         /VPPMcNF8Beyn/kXtEmA9JwAIC3ZjV1H+xCXGBaCjwQNGBS8dVuK+s7Ff+nBAH7F0M5h
+         49QwjPI4Y07wYXkEvSiMnFS84MZp0f7ZuGIZO3EkaQ5O6y263Q3gq11hXGGnAVXilRGs
+         g5vRkpiIpa5XFcJYauhHu7cwYFbWAdKt/eMyHhILK2Gn0qzGn+K3lT39C7eKr07oewx1
+         olMIMYq8NF8zmFepWlJQkGD5tdjmsLj4e3aop8alCKuK1qIrysGN9QxyWVOrA7ct5ezH
+         Fa+g==
+X-Gm-Message-State: AOAM533E3chxELR4G+RyY0A81Qf9hxjsBe0B6oPJF8zibjTCIRbS+yyE
+        ESiZw0xaO0sgV/gMA+4A8acNaubOOXFKuWeqMRY=
+X-Google-Smtp-Source: ABdhPJyYZeRTQpQ9QXlOyza2ROrAzb0tXRZL6K3ZZ9+7+uei4M2kCgIieIeLEOWP+hSDa5/wO+lGXUxjpNUqnNOLJAA=
+X-Received: by 2002:a17:90a:e7cb:: with SMTP id kb11mr327752pjb.181.1598557007584;
+ Thu, 27 Aug 2020 12:36:47 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200827185829.30096-1-krzk@kernel.org> <20200827185829.30096-3-krzk@kernel.org>
+In-Reply-To: <20200827185829.30096-3-krzk@kernel.org>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Thu, 27 Aug 2020 22:36:31 +0300
+Message-ID: <CAHp75VfFMv9kMi0skDmNVm2kdqh+PvvXJOeZzePuPfvLpGNiHQ@mail.gmail.com>
+Subject: Re: [PATCH v3 02/27] Input: gpio-vibra - Simplify with dev_err_probe()
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Bastien Nocera <hadess@hadess.net>,
         Sangwon Jee <jeesw@melfas.com>,
         Eugen Hristev <eugen.hristev@microchip.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v3 05/27] Input: rotary_encoder - Simplify with dev_err_probe()
-Date:   Thu, 27 Aug 2020 20:58:07 +0200
-Message-Id: <20200827185829.30096-6-krzk@kernel.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200827185829.30096-1-krzk@kernel.org>
-References: <20200827185829.30096-1-krzk@kernel.org>
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-input <linux-input@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Common pattern of handling deferred probe can be simplified with
-dev_err_probe().  Less code and also it prints the error value.
+On Thu, Aug 27, 2020 at 9:58 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
+>
+> Common pattern of handling deferred probe can be simplified with
+> dev_err_probe().  Less code and also it prints the error value.
+>
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
- drivers/input/misc/rotary_encoder.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index 6d613f2a017c..ea56c9f4975a 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -236,12 +236,8 @@ static int rotary_encoder_probe(struct platform_device *pdev)
- 		device_property_read_bool(dev, "rotary-encoder,relative-axis");
- 
- 	encoder->gpios = devm_gpiod_get_array(dev, NULL, GPIOD_IN);
--	if (IS_ERR(encoder->gpios)) {
--		err = PTR_ERR(encoder->gpios);
--		if (err != -EPROBE_DEFER)
--			dev_err(dev, "unable to get gpios: %d\n", err);
--		return err;
--	}
-+	if (IS_ERR(encoder->gpios))
-+		return dev_err_probe(dev, PTR_ERR(encoder->gpios), "unable to get gpios\n");
- 	if (encoder->gpios->ndescs < 2) {
- 		dev_err(dev, "not enough gpios found\n");
- 		return -EINVAL;
+>
+> ---
+>
+> Changes since v1:
+> 1. Remove unneeded PTR_ERR_OR_ZERO, as pointed by Andy.
+> ---
+>  drivers/input/misc/gpio-vibra.c | 20 ++++++--------------
+>  1 file changed, 6 insertions(+), 14 deletions(-)
+>
+> diff --git a/drivers/input/misc/gpio-vibra.c b/drivers/input/misc/gpio-vibra.c
+> index f79f75595dd7..13c69f173620 100644
+> --- a/drivers/input/misc/gpio-vibra.c
+> +++ b/drivers/input/misc/gpio-vibra.c
+> @@ -113,22 +113,14 @@ static int gpio_vibrator_probe(struct platform_device *pdev)
+>                 return -ENOMEM;
+>
+>         vibrator->vcc = devm_regulator_get(&pdev->dev, "vcc");
+> -       err = PTR_ERR_OR_ZERO(vibrator->vcc);
+> -       if (err) {
+> -               if (err != -EPROBE_DEFER)
+> -                       dev_err(&pdev->dev, "Failed to request regulator: %d\n",
+> -                               err);
+> -               return err;
+> -       }
+> +       if (IS_ERR(vibrator->vcc))
+> +               return dev_err_probe(&pdev->dev, PTR_ERR(vibrator->vcc),
+> +                                    "Failed to request regulator\n");
+>
+>         vibrator->gpio = devm_gpiod_get(&pdev->dev, "enable", GPIOD_OUT_LOW);
+> -       err = PTR_ERR_OR_ZERO(vibrator->gpio);
+> -       if (err) {
+> -               if (err != -EPROBE_DEFER)
+> -                       dev_err(&pdev->dev, "Failed to request main gpio: %d\n",
+> -                               err);
+> -               return err;
+> -       }
+> +       if (IS_ERR(vibrator->gpio))
+> +               return dev_err_probe(&pdev->dev, PTR_ERR(vibrator->gpio),
+> +                                    "Failed to request main gpio\n");
+>
+>         INIT_WORK(&vibrator->play_work, gpio_vibrator_play_work);
+>
+> --
+> 2.17.1
+>
+
+
 -- 
-2.17.1
-
+With Best Regards,
+Andy Shevchenko

@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0E5AC433E4
-	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:00:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1944C433E1
+	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:00:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B58CE20786
-	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:00:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A6A2320786
+	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 19:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598554837;
-	bh=AHh04oEDvUq+tXVnWK9UVr7jNcvZEi5a77snM2minWo=;
+	s=default; t=1598554844;
+	bh=E/Nqu7k08v69pmYNgRfgpit87lGs45F9vZiVl/29fKk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=IxmMThYY02QIRt7bmmisib0kJ23akGZkaP2QgNF540ywAnGWeSFOb7v5OyqqFQttr
-	 VGiC61+7sy3+hOjcTnfXxNe+d6i21fY5VizU0eQqh8wvdStBwvlnDC7isbi3wW290Y
-	 WzwblRww5xyyR+0hjl62EYGuYZS0uuqJ0VbZ8cdo=
+	b=jssYWQeQk+PZIbpwTZFE+SRQ63E0cgu/d1TQM2svJQBx3I/aTukfniaBPTPNfpuPr
+	 qh+jWLG3yiC45u2QsEYNUvpwVt5lg1ovBlcKRkORwhThXm4Vn5c1VNTmHv9pKKQBSj
+	 auaXly+esQwz1PmAC1zmG7bRlpkbBg/dZN4d90wo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728074AbgH0S70 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Aug 2020 14:59:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49710 "EHLO mail.kernel.org"
+        id S1728054AbgH0S7U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Aug 2020 14:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728092AbgH0S70 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Aug 2020 14:59:26 -0400
+        id S1728051AbgH0S7T (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Aug 2020 14:59:19 -0400
 Received: from localhost.localdomain (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2A1922BEA;
-        Thu, 27 Aug 2020 18:59:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DF6522BEA;
+        Thu, 27 Aug 2020 18:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598554765;
-        bh=AHh04oEDvUq+tXVnWK9UVr7jNcvZEi5a77snM2minWo=;
+        s=default; t=1598554758;
+        bh=E/Nqu7k08v69pmYNgRfgpit87lGs45F9vZiVl/29fKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1+KnT1PxVsXRGW10lrukFNu9QXdoZZkurTwmLXHL6A0k12Dm0i5LLG3Mk3scr5Ct
-         iPhllP3f2cE+FGW7StRGOdNTiKsGOXdiy6dQq4jkwXNEdAX0+3maTaqNbOId+a/wC1
-         wssJ6KvWGbCyjHbYC4nbE4A62QCfMZS//CYq88Mk=
+        b=Hadf1zyBhyuvwF6HlnRT6CWcw3uccgLCRNPwEn/21cy/oAfLzxahL6ff10c3qh/TU
+         kfcqCx3hdEm1oPPWznU0kyRcJXR04ZBldWzEFS54dBplZPC5x4k7G3soobrkuMjsYY
+         VKFl8b5cN8mLjcSzxlLq3oTMVsfG1SHBmKquMLGI=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>,
@@ -51,9 +51,9 @@ To:     Linus Walleij <linus.walleij@linaro.org>,
         linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
         clang-built-linux@googlegroups.com
 Cc:     Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v3 13/27] Input: elants_i2c - Simplify with dev_err_probe()
-Date:   Thu, 27 Aug 2020 20:58:15 +0200
-Message-Id: <20200827185829.30096-14-krzk@kernel.org>
+Subject: [PATCH v3 11/27] Input: edf-ft5x06 - Simplify with dev_err_probe()
+Date:   Thu, 27 Aug 2020 20:58:13 +0200
+Message-Id: <20200827185829.30096-12-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200827185829.30096-1-krzk@kernel.org>
 References: <20200827185829.30096-1-krzk@kernel.org>
@@ -69,44 +69,30 @@ Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/input/touchscreen/elants_i2c.c | 22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+ drivers/input/touchscreen/edt-ft5x06.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index b0bd5bb079be..ad299eb333f1 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -1245,24 +1245,14 @@ static int elants_i2c_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, ts);
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 6ff81d48da86..d4827ac963b0 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -1098,13 +1098,9 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 	tsdata->max_support_points = chip_data->max_support_points;
  
- 	ts->vcc33 = devm_regulator_get(&client->dev, "vcc33");
--	if (IS_ERR(ts->vcc33)) {
--		error = PTR_ERR(ts->vcc33);
+ 	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
+-	if (IS_ERR(tsdata->vcc)) {
+-		error = PTR_ERR(tsdata->vcc);
 -		if (error != -EPROBE_DEFER)
 -			dev_err(&client->dev,
--				"Failed to get 'vcc33' regulator: %d\n",
--				error);
+-				"failed to request regulator: %d\n", error);
 -		return error;
 -	}
-+	if (IS_ERR(ts->vcc33))
-+		return dev_err_probe(&client->dev, PTR_ERR(ts->vcc33),
-+				     "Failed to get 'vcc33' regulator\n");
++	if (IS_ERR(tsdata->vcc))
++		return dev_err_probe(&client->dev, PTR_ERR(tsdata->vcc),
++				     "failed to request regulator\n");
  
- 	ts->vccio = devm_regulator_get(&client->dev, "vccio");
--	if (IS_ERR(ts->vccio)) {
--		error = PTR_ERR(ts->vccio);
--		if (error != -EPROBE_DEFER)
--			dev_err(&client->dev,
--				"Failed to get 'vccio' regulator: %d\n",
--				error);
--		return error;
--	}
-+	if (IS_ERR(ts->vccio))
-+		return dev_err_probe(&client->dev, PTR_ERR(ts->vccio),
-+				     "Failed to get 'vccio' regulator\n");
- 
- 	ts->reset_gpio = devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_LOW);
- 	if (IS_ERR(ts->reset_gpio)) {
+ 	error = regulator_enable(tsdata->vcc);
+ 	if (error < 0) {
 -- 
 2.17.1
 

@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32B16C433DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59AC9C433E3
 	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 07:24:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F2B7722BEA
-	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 07:24:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27BA222CAF
+	for <linux-input@archiver.kernel.org>; Thu, 27 Aug 2020 07:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=default; t=1598513075;
-	bh=BAre5Tw2oDhiNLdO1XwfLZXiLzknbF3rmthL41mUOJU=;
+	bh=21SE16AO2Es2A0sU9De9UcqocFt/7Hk8g8DosPEVjfY=;
 	h=From:To:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=pCZ3S6V8vNfvh2W0K1UjDJzVvG8cHH+ZyJ6x8/GYVA8NJ/d95hifBofFNRlO6AbH+
-	 PRwDMrdPnhX8F1YTlTfRkiOnKfnBRbqPkMjfjwSFH+mrsMIz14ElZkwm5x0AXJuIcP
-	 jvgmstKYhBU4bZYAv82cveY9xg6wi0OAzmDIrT6I=
+	b=eLZxcVUDKDkCw3QeBIEWzquazVSvSqLr6PNmWsrOM1pOwUkIw5990GCwLaDP+zoZ9
+	 Y1hbwiaogpgKyK9ssre0BLO3HbchIK79mieyR8t0BWEJjZqFxwr3FtGsXO6Mx9qksz
+	 5AtIm0vdsAZabciLCo4iS8hAoECjv6/k15Ju77Io=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728081AbgH0HYe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1728145AbgH0HYe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 27 Aug 2020 03:24:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32960 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726882AbgH0HY3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Aug 2020 03:24:29 -0400
+        id S1728079AbgH0HYe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Aug 2020 03:24:34 -0400
 Received: from kozik-lap.mshome.net (unknown [194.230.155.216])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E4BE22CB2;
-        Thu, 27 Aug 2020 07:24:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99D8322CAE;
+        Thu, 27 Aug 2020 07:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598513068;
-        bh=BAre5Tw2oDhiNLdO1XwfLZXiLzknbF3rmthL41mUOJU=;
+        s=default; t=1598513073;
+        bh=21SE16AO2Es2A0sU9De9UcqocFt/7Hk8g8DosPEVjfY=;
         h=From:To:Subject:Date:In-Reply-To:References:From;
-        b=oYzjjtiseQtNWnGGOsgK7YAtZMOolN4ZF0lL9tr+mMeNr85khRXUPx3eoPJA+Z0d+
-         eREGXEEqk6f/GmjNkcpudOunQ8CmaRaJQTiULu0VmbQz9zpIBNeO2ntVtHofsqiVoI
-         oC/t4BnDwVDunWSZFGgoA8dwE643pv3dgbm9wRhs=
+        b=Xw9u5SeO93ZZx+JOSuMX/gbqTO3X6kMuoQYc4Ye86pEPZIiWSEzt9kYa0u7NxqBM2
+         lwH7M3bbO0srhU4CLwJFw0EZAE0+2oV9FdfNFqtd3My5plcK27QVjNggTHDeC3u//o
+         EQhIzI+1E5r2YQ3Kgem8UfhIDztvYAUatAMPfUFQ=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Maxime Ripard <mripard@kernel.org>,
@@ -47,9 +47,9 @@ To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sebastian Reichel <sre@kernel.org>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 2/4] Input: omap4-keypad - Fix handling of platform_get_irq() error
-Date:   Thu, 27 Aug 2020 09:24:18 +0200
-Message-Id: <20200827072420.22848-2-krzk@kernel.org>
+Subject: [PATCH 4/4] Input: sun4i-ps2 - Fix handling of platform_get_irq() error
+Date:   Thu, 27 Aug 2020 09:24:20 +0200
+Message-Id: <20200827072420.22848-4-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200827072420.22848-1-krzk@kernel.org>
 References: <20200827072420.22848-1-krzk@kernel.org>
@@ -61,29 +61,28 @@ X-Mailing-List: linux-input@vger.kernel.org
 platform_get_irq() returns -ERRNO on error.  In such case comparison
 to 0 would pass the check.
 
-Fixes: f3a1ba60dbdb ("Input: omap4-keypad - use platform device helpers")
+Fixes: e443631d20f5 ("Input: serio - add support for Alwinner A10/A20 PS/2 controller")
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- drivers/input/keyboard/omap4-keypad.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/input/serio/sun4i-ps2.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index 94c94d7f5155..b075f1af0305 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -240,10 +240,8 @@ static int omap4_keypad_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/input/serio/sun4i-ps2.c b/drivers/input/serio/sun4i-ps2.c
+index a681a2c04e39..7da1ea8741fc 100644
+--- a/drivers/input/serio/sun4i-ps2.c
++++ b/drivers/input/serio/sun4i-ps2.c
+@@ -265,9 +265,8 @@ static int sun4i_ps2_probe(struct platform_device *pdev)
  
+ 	/* Get IRQ for the device */
  	irq = platform_get_irq(pdev, 0);
 -	if (!irq) {
--		dev_err(&pdev->dev, "no keyboard irq assigned\n");
--		return -EINVAL;
--	}
-+	if (irq < 0)
-+		return -irq;
+-		dev_err(dev, "no IRQ found\n");
+-		error = -ENXIO;
++	if (irq < 0) {
++		error = irq;
+ 		goto err_disable_clk;
+ 	}
  
- 	keypad_data = kzalloc(sizeof(struct omap4_keypad), GFP_KERNEL);
- 	if (!keypad_data) {
 -- 
 2.17.1
 

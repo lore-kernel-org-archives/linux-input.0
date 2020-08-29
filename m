@@ -2,106 +2,120 @@ Return-Path: <SRS0=EvQP=CH=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E24BC433E2
-	for <linux-input@archiver.kernel.org>; Sat, 29 Aug 2020 07:48:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FD66C433E6
+	for <linux-input@archiver.kernel.org>; Sat, 29 Aug 2020 11:37:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 199D120838
-	for <linux-input@archiver.kernel.org>; Sat, 29 Aug 2020 07:48:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12E2320776
+	for <linux-input@archiver.kernel.org>; Sat, 29 Aug 2020 11:37:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1598701037;
+	bh=B9VCR1gc3mVExEe2V499pC1prwSxp/+jhKu43FvTLNU=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=U7mgIhgI2vz8FvJtJArxoTBaS5w0HckG9PyDq8jJldyJYzLHHm8D0784uaJJioP0A
+	 t4uJEMYk0OYr7J7zkU659MGkcxKrQFKBEGwNggJ6uMwrYdNpJ0F1+EeA+zAqjBAR4O
+	 j9Z0+SUF3Pgxud0PKjnLJ+rSu7uPdZPB0qlzASBI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726170AbgH2HsD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 29 Aug 2020 03:48:03 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:54852 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726056AbgH2HsC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 29 Aug 2020 03:48:02 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id C36621C0B80; Sat, 29 Aug 2020 09:47:59 +0200 (CEST)
-Date:   Sat, 29 Aug 2020 09:47:58 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Raul E Rangel <rrangel@chromium.org>
-Cc:     linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
-        Shirish.S@amd.com, Andy Shevchenko <andy@infradead.org>,
-        Dan Murphy <dmurphy@ti.com>,
-        Darren Hart <dvhart@infradead.org>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        "Lee, Chun-Yi" <jlee@suse.com>, Rajat Jain <rajatja@google.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: Re: [PATCH 1/2] Input: i8042 - Prevent intermixing i8042 commands
-Message-ID: <20200829074758.GA16838@amd>
-References: <20200827135205.1.I6981f9a9f0c12e60f8038f3b574184f8ffc1b9b5@changeid>
+        id S1727075AbgH2Lgt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 29 Aug 2020 07:36:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49864 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728035AbgH2LgG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 29 Aug 2020 07:36:06 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D427F214DB;
+        Sat, 29 Aug 2020 11:26:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598700369;
+        bh=B9VCR1gc3mVExEe2V499pC1prwSxp/+jhKu43FvTLNU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=zYwTfmnLzGYjYC7cBwL7UWSG8ImGKC3qfcDFucsRDuTTUP+MyQbSwuPojkS94jtBk
+         mQsz9/czKDf45ZLMs/uyQ42zTe3k7muKVy41rHIhwzRi3k+fA6irRUjjL6fJKHwhLH
+         v2NToLsTGTK2FN1AB+sRkSDYJA/BnetkQhQIJRPc=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1kByzm-007dRY-Ra; Sat, 29 Aug 2020 12:26:07 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, kernel-team@android.com
+Subject: [PATCH] HID: core: Correctly handle ReportSize being zero
+Date:   Sat, 29 Aug 2020 12:26:01 +0100
+Message-Id: <20200829112601.1060527-1-maz@kernel.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-In-Reply-To: <20200827135205.1.I6981f9a9f0c12e60f8038f3b574184f8ffc1b9b5@changeid>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@android.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+It appears that a ReportSize value of zero is legal, even if a bit
+non-sensical. Most of the HID code seems to handle that gracefully,
+except when computing the total size in bytes. When fed as input to
+memset, this leads to some funky outcomes.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Detect the corner case and correctly compute the size.
 
-On Thu 2020-08-27 13:52:22, Raul E Rangel wrote:
-> The i8042_mutex must be held by writers of the AUX and KBD ports, as
-> well as users of i8042_command. There were a lot of users of
-> i8042_command that were not calling i8042_lock_chip/i8042_unlock_chip.
-> This resulted in i8042_commands being issues in between PS/2
-> transactions.
->=20
-> This change moves the mutex lock into i8042_command and removes the
-> burden of locking the mutex from the callers.
->=20
-> It is expected that the i8042_mutex is locked before calling
-> i8042_aux_write or i8042_kbd_write. This is currently done by the PS/2
-> layer via ps2_begin_command and ps2_end_command. Other modules
-> (serio_raw) do not currently lock the mutex, so there is still a
-> possibility for intermixed commands.
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+---
+ drivers/hid/hid-core.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 359616e3efbb..d2ecc9c45255 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1597,6 +1597,17 @@ static void hid_output_field(const struct hid_device *hid,
+ 	}
+ }
+ 
++/*
++ * Compute the size of a report.
++ */
++static size_t hid_compute_report_size(struct hid_report *report)
++{
++	if (report->size)
++		return ((report->size - 1) >> 3) + 1;
++
++	return 0;
++}
++
+ /*
+  * Create a report. 'data' has to be allocated using
+  * hid_alloc_report_buf() so that it has proper size.
+@@ -1609,7 +1620,7 @@ void hid_output_report(struct hid_report *report, __u8 *data)
+ 	if (report->id > 0)
+ 		*data++ = report->id;
+ 
+-	memset(data, 0, ((report->size - 1) >> 3) + 1);
++	memset(data, 0, hid_compute_report_size(report));
+ 	for (n = 0; n < report->maxfield; n++)
+ 		hid_output_field(report->device, report->field[n], data);
+ }
+@@ -1739,7 +1750,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
+ 		csize--;
+ 	}
+ 
+-	rsize = ((report->size - 1) >> 3) + 1;
++	rsize = hid_compute_report_size(report);
+ 
+ 	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
+ 		rsize = HID_MAX_BUFFER_SIZE - 1;
+-- 
+2.27.0
 
-> @@ -343,10 +330,14 @@ int i8042_command(unsigned char *param, int command)
->  	unsigned long flags;
->  	int retval;
-> =20
-> +	mutex_lock(&i8042_mutex);
-> +
->  	spin_lock_irqsave(&i8042_lock, flags);
->  	retval =3D __i8042_command(param, command);
->  	spin_unlock_irqrestore(&i8042_lock, flags);
-> =20
-> +	 mutex_unlock(&i8042_mutex);
-> +
->  	return retval;
-
-There's something wrong with whitespace here. Checkpatch?
-									Pavel
-								=09
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl9KCC4ACgkQMOfwapXb+vLRLQCZAVRSNB7AWmLMpShfbIqQb9g7
-e2kAn0k5vjeRzWluElrV5q2QcU+nhqJy
-=TVRR
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--

@@ -1,131 +1,82 @@
-Return-Path: <SRS0=8xV7=CI=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=K583=CJ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9425FC433E6
-	for <linux-input@archiver.kernel.org>; Sun, 30 Aug 2020 08:11:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94957C433E2
+	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 00:49:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7179920CC7
-	for <linux-input@archiver.kernel.org>; Sun, 30 Aug 2020 08:11:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 70FBA207BB
+	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 00:49:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Zi2+8CdF"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZhqAeCdV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728685AbgH3ILH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 30 Aug 2020 04:11:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46542 "EHLO
+        id S1726388AbgHaAtM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 30 Aug 2020 20:49:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728621AbgH3IKd (ORCPT
+        with ESMTP id S1726179AbgHaAtL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 30 Aug 2020 04:10:33 -0400
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F7CDC061573
-        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2020 01:10:25 -0700 (PDT)
-Received: by mail-wm1-x333.google.com with SMTP id e17so2555061wme.0
-        for <linux-input@vger.kernel.org>; Sun, 30 Aug 2020 01:10:25 -0700 (PDT)
+        Sun, 30 Aug 2020 20:49:11 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83709C061573;
+        Sun, 30 Aug 2020 17:49:11 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id kx11so2106138pjb.5;
+        Sun, 30 Aug 2020 17:49:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=message-id:subject:from:to:cc:date:user-agent:mime-version
+        h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=IViE7P9mSzzTYC1GDCHXSUNnU7l4L1m8MMr/le26oqQ=;
-        b=Zi2+8CdF13maAIsEhQNpPOiMSqOV9rsiWcTew7+Qdm5Qh6l8tVgCKfT+RQFT33n8tA
-         nybH3WwxG6Hkxd9+3B7N3Aiw6HT5mW5PX3JNSq6Q/dFauz6D8IO6fitHzzKSsZ92K+if
-         4784pxC54t1mlOR+v6cxKCIBRboZeZ8U0EadUACmEuoLWrs+8ZossoHj7i5SREYOR11T
-         16zWyUv13qHtKgKWAit2+KPv0vOsNmYDCZnKOH0Y3i/tC2xs8X1mRm+5rDPNz8kOf0fi
-         BW+l59XvKtACnrBull2efv7RLWvuwCqx26wbU8cCD1Fr94emPy8N9hkgaAOVdjFaQv/l
-         IYpg==
+        bh=zM8H7Z3glzIjzn0hJ89OOErP7vLMcgPSqm3FjbGvbrI=;
+        b=ZhqAeCdVUnD0ML+YwAxTvkFvSaRbQBtI1pMbOjfF5NylLNwVE8D0VitYmmxjVD9Nrj
+         IF2/iDQeKs8qzzfHxTlMpGpDYYaMpZv9nxzoB6ioBvgOGuGBTwb0Ne44k/O0qtsHbfcH
+         udgoyru4QB4Vswkn09celQ129hl1z7r9KImmUem9hDjRwVHY1a5JUyn/186ttc6XTA5T
+         /SE4bSTTSDTUlb3R9BK+MFh24a21BjZP3BIibYGrPn2gqgJftH2z/XtWIS4KJnt9ncld
+         vOBzDblHlo7HmU28927VgBZr49xKx0qKrYzzwONOibQWxysLUQs0ENwmJZvHiwLV6f/U
+         gFFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:user-agent
-         :mime-version:content-transfer-encoding;
-        bh=IViE7P9mSzzTYC1GDCHXSUNnU7l4L1m8MMr/le26oqQ=;
-        b=RPcak5V1CoCz91gynWd8DD6kONq/XG0vPwnuBmwNLZONSlj8J5q1bkV9u93eRUtaO3
-         /2GhMQNARY10hIXpS4QlBmIqCpgLljIA13CSDmUs4+CYHLvBgD5H4PjaodCvK0r0SSGp
-         ISIid52aFjbcrvAAcZ559floYJDfoO3uUdKwzK+j6TLQsUBjboB3fg3bx11LnmQF2CB9
-         uLZ3HTLevuEdpc3s+c6ANAg/o6KT1LtzVdGJtbaUuf+9pUOUHq3NRCpwtV54XavasNir
-         XtjBLNiSKVOf4M2p/S47XLaIhLltZ4kkWCdpto3wlEl8EQpNH75MEC6O7StghTKp+6cT
-         Fgcw==
-X-Gm-Message-State: AOAM530macInbDE94qHQNz1Wh+8/5oDo44aQzFSYhWduuzJwlk6aOxDR
-        c4FoTkAU0EqwothwdkvzPJzJLrHIupnrqw==
-X-Google-Smtp-Source: ABdhPJxp1kgEs5jctWMg+a7qUE6FRYaloD+bu6pT4JFTGpS/xJ7JArGbESi5T5ejp6Yt/y1p5DdF5g==
-X-Received: by 2002:a1c:dd87:: with SMTP id u129mr6079185wmg.172.1598775022148;
-        Sun, 30 Aug 2020 01:10:22 -0700 (PDT)
-Received: from [192.168.1.113] ([83.240.60.89])
-        by smtp.gmail.com with ESMTPSA id q6sm5993598wmq.19.2020.08.30.01.10.21
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=zM8H7Z3glzIjzn0hJ89OOErP7vLMcgPSqm3FjbGvbrI=;
+        b=hoAXE5/R6Ue/vR6kDF60Zwmj8abTALizrI9xMOuu9nIKZoHsXWcTgVaCVYBJRUuzqJ
+         THBzk/yOPTxZoB/HlbZ2PbtEURlUSwpzQWtdjhO/rCy5+e6rWirgeJlyJbxErMdIqi/t
+         cxUATKds89WkLy3XBjoVRxroy9ib3O6xb/tpzL5axVpMCt8gC2TiznLQUnwN1JXKd+UR
+         Skv/RKc+FXARQvxv4qG81XJh2Tcmp5rlXYVyp2V6xndbKQd/eTbZTV7LmoE26SumiOmU
+         092rJb7AaV5oMMIO96ZEQbprT3G0/939i6YY9ZqvkazfFM+CumBF3vSrh0u2dDdK5rtK
+         omBA==
+X-Gm-Message-State: AOAM533CS6kyXZgvaPhKPXqunZ/mV/CwjU+3aGVQeXKAaJvcmSHIpm/9
+        6BSOCLtskqxAcUci8BMliwB+wKwWcpO+6g==
+X-Google-Smtp-Source: ABdhPJz0G3t8ycKIW+omakebqNhiudvuczNPaHQsjyduCMIwMzzZetqL5/TdibpANI5UszzfAmOZ7Q==
+X-Received: by 2002:a17:902:8bc1:: with SMTP id r1mr6863999plo.328.1598834951040;
+        Sun, 30 Aug 2020 17:49:11 -0700 (PDT)
+Received: from billa.force10networks.com (c-73-231-197-145.hsd1.ca.comcast.net. [73.231.197.145])
+        by smtp.gmail.com with ESMTPSA id u2sm5161140pjj.57.2020.08.30.17.49.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 30 Aug 2020 01:10:21 -0700 (PDT)
-Message-ID: <1e4e728832dc53439e95753e2ae101526084b3e9.camel@gmail.com>
-Subject: logitech-hidpp-device 0003:046D:406F.0006: item fetching failed at
- offset 0/0
-From:   Igor Raits <igor.raits@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Jiri Kosina <jikos@kernel.org>,
+        Sun, 30 Aug 2020 17:49:10 -0700 (PDT)
+From:   Nirenjan Krishnan <nirenjan@gmail.com>
+To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Sun, 30 Aug 2020 10:10:20 +0200
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.37.90 (3.37.90-1.fc33) 
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH resend v1] HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for all Saitek X52 devices
+Date:   Sun, 30 Aug 2020 17:48:58 -0700
+Message-Id: <20200831004859.493827-1-nirenjan@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+This patch seems to have fallen through the cracks. Sending it again for
+review.
 
-Hello,
+Thanks and regards,
+Nirenjan Krishnan
 
-I've hit some weird issue when upgrading from 5.8 to 5.9-rc2 in Fedora.
-My Logitech MX Ergo is not working anymore after update. Moving trackball does not move cursor.
-
-In the logs I see following:
-
-Aug 30 09:44:51 kernel: logitech-hidpp-device: probe of 0003:046D:406F.0006 failed with error -22
-Aug 30 09:44:51 kernel: logitech-hidpp-device 0003:046D:406F.0006: hidpp_probe:parse failed
-Aug 30 09:44:51 kernel: logitech-hidpp-device 0003:046D:406F.0006: item fetching failed at offset 0/0
-Aug 30 09:44:51 kernel: hid-generic: probe of 0003:046D:406F.0006 failed with error -22
-Aug 30 09:44:51 kernel: hid-generic 0003:046D:406F.0006: item fetching failed at offset 0/0
-Aug 30 09:44:41 kernel: apple 0003:05AC:024F.0005: input,hiddev97,hidraw2: USB HID v1.11 Keyboard [Keytron Keychron K2] on usb-0000:3c:00.0-1.4/input1
-Aug 30 09:44:41 kernel: apple 0003:05AC:024F.0004: input,hidraw1: USB HID v1.11 Keyboard [Keytron Keychron K2] on usb-0000:3c:00.0-1.4/input0
-Aug 30 09:44:40 kernel: logitech-djreceiver 0003:046D:C52B.0003: hiddev96,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:3c:00.0-1.1/input2
-Aug 30 09:44:39 kernel: hid-generic 0003:046D:C52B.0003: hiddev97,hidraw2: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:3c:00.0-1.1/input2
-Aug 30 09:44:39 kernel: hid-generic 0003:046D:C52B.0002: input,hiddev96,hidraw1: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-0000:3c:00.0-1.1/input1
-Aug 30 09:44:39 kernel: hid-generic 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Keyboard [Logitech USB Receiver] on usb-0000:3c:00.0-1.1/input0
-
-Looking into the git-log does not show anything suspicious on a first glance in the drivers/hid/. On the working kernel I see:
-
-Aug 30 09:46:08 kernel: apple 0003:05AC:024F.0006: input,hiddev97,hidraw3: USB HID v1.11 Keyboard [Keytron Keychron K2] on usb-0000:3c:00.0-1.4/input1
-Aug 30 09:46:08 kernel: apple 0003:05AC:024F.0005: input,hidraw2: USB HID v1.11 Keyboard [Keytron Keychron K2] on usb-0000:3c:00.0-1.4/input0
-Aug 30 09:46:08 kernel: logitech-hidpp-device 0003:046D:406F.0004: input,hidraw1: USB HID v1.11 Keyboard [Logitech MX Ergo] on usb-0000:3c:00.0-1.1/input2:1
-Aug 30 09:46:07 kernel: logitech-hidpp-device 0003:046D:406F.0004: HID++ 4.5 device connected.
-Aug 30 09:46:07 kernel: hid-generic 0003:046D:406F.0004: input,hidraw1: USB HID v1.11 Keyboard [Logitech Wireless Device PID:406f] on usb-0000:3c:00.0-1.1/input2:1
-Aug 30 09:46:07 kernel: logitech-djreceiver 0003:046D:C52B.0003: hiddev96,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:3c:00.0-1.1/input2
-Aug 30 09:46:07 kernel: hid-generic 0003:046D:C52B.0003: hiddev97,hidraw2: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:3c:00.0-1.1/input2
-Aug 30 09:46:07 kernel: hid-generic 0003:046D:C52B.0002: input,hiddev96,hidraw1: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-0000:3c:00.0-1.1/input1
-Aug 30 09:46:07 kernel: hid-generic 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Keyboard [Logitech USB Receiver] on usb-0000:3c:00.0-1.1/input0
-
-Anybody knows what might be the problem? I'll try to revert commits 1 by 1 to see which one could help.
-- -- 
-Igor Raits <igor.raits@gmail.com>
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEcwgJ58gsbV5f5dMcEV1auJxcHh4FAl9LXuwACgkQEV1auJxc
-Hh5XRg/+J9Pn5ZagpBeryDxQUF10+Mf/j0iTmfyDtDcL3upKhWA8HFKsL2ueJpjv
-ztp6BT6qFE2aiA5yyH4RL02VnPYdVip3FjesOv+4wp0m6IfDRc60qc4gDo3FxhaV
-Dd2YgxrkU7XkoFxNFYIQ1MKI9P04+p9yXtfF/sbjlok705vNDMEYpLOVTZuyljeB
-PjoxxBN6mwl/csTr3sDJFvk8oIhMdS2pvw1GSQ+09a6VvxFuDrfEbXxM6TMFUCgY
-m5Gi3pCm/R+6cx+OKx9NA+VQPc5MH+wQL7qvwi9FfxIg+oPNdy8NsldGi2F2qGZZ
-8bylgWa80Df53UBb1twu/yqf4UY7tfup0C7z+CEIBeRNK4iTuhH1STihe5vNvn0P
-yasI+0T7RPTudek8SHpLb9it1grNcUdmkaP7w4tkTNOhkbWdjS5+SOc8Xe2QWiBg
-+54pGkdh4eG2+L00WWKx3iQv2ngp78G8y4owdsH//PECU4HW0Xp/9VxzfSW8tFsp
-wYStpXM7iJwx9oDGmla/Rk6RN1cPUMTImqbV4RrQPSdxr5TqZiYN/QnI9Pa2yNks
-adiIgME2V4PYwJXpGvun/XEX/9fV7QayvxCsflru4oQkrrz3i/SZ+RSxc73y9kxO
-MmjV+QYtWOXk/+hoznPLvDREhLNWi0QbQ0rnKxDMp3sPFhEc5zI=
-=QyvR
------END PGP SIGNATURE-----
 

@@ -2,53 +2,53 @@ Return-Path: <SRS0=K583=CJ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7587CC43461
-	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 15:29:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5BC7C433E7
+	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 15:31:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5575C20866
-	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 15:29:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77AA421707
+	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 15:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598887785;
-	bh=heEBb8MpOxbMsYU7JsQ/L2aJhoEd8G5kwJWv4Ec04jY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=2aDT1IfzmVCCf++46tJDVHw+m+/Q0Y0En9p2qQU9LvgcMbOVfnrQdkFiz0/HPPHIS
-	 j6nrhT1hFGGW86FdvTt2kozn/kX+mT7HiOX2RF0I1r7oUIrUoLqkkIShkv2gew1gxy
-	 iFYn1I8QcUpGgmJGmUH/LQdql+PK6EGSp/HEOdHI=
+	s=default; t=1598887901;
+	bh=21dXZEn0O1G96r2416vRzRVa6C2P3RoJxIOadJDE+Tc=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=lmMfp6zxuKWwevnJnkw+tk0o+op35snigloy3GbPUpjUPYGzufIXCAEKyVgYr4i9S
+	 PzWAgRz8Ru+XoVQHCtTGw47bhQ2qwvCC/OgT1Kk1v0T6QDsW/w8RQrjgK7MSL7UKQl
+	 LjrJALYo9o8BZQzipEvg/Bqw4oRi6RK9A3woYk74=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728361AbgHaP3l (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 31 Aug 2020 11:29:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38172 "EHLO mail.kernel.org"
+        id S1728955AbgHaPbj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 31 Aug 2020 11:31:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726755AbgHaP3j (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 31 Aug 2020 11:29:39 -0400
+        id S1728941AbgHaPbi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:31:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 884C02083E;
-        Mon, 31 Aug 2020 15:29:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62DD1214D8;
+        Mon, 31 Aug 2020 15:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598887778;
-        bh=heEBb8MpOxbMsYU7JsQ/L2aJhoEd8G5kwJWv4Ec04jY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F6ZmBeHLBgQ0r/1TLiXD2NtwSZXx6yA6Gh/kfd47EvCin6ootJL29qcN2KTcvAguV
-         hps+xToWeKYl/cy97JkEuLjbU9YGYGETkMCJe37x6JEa5rhUkkV0d9SdHuBZFLf4UG
-         JxAgOZfe3IyxOoKsrB+14VpIPDAjEC55k88oD8L4=
+        s=default; t=1598887898;
+        bh=21dXZEn0O1G96r2416vRzRVa6C2P3RoJxIOadJDE+Tc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Jz2YNJ2Uu9QmDShASf17E/4JUGi0I54FYimTjzm4xzJpW0ukTxH2PK3FD7yjnUx9Z
+         V/5LT4FpCEZ8fxe53kAzWSQR79kUP9lMN2shuL5oXBvmtTMtfM0zAYPaSK6dg5PXzt
+         xwHExx9O/pNnUFe0rvS/nLKv70CvyVAqdzV9QA2k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Parschauer <s.parschauer@gmx.de>,
+Cc:     Peilin Ye <yepeilin.cs@gmail.com>,
+        syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 02/42] HID: quirks: Always poll three more Lenovo PixArt mice
-Date:   Mon, 31 Aug 2020 11:28:54 -0400
-Message-Id: <20200831152934.1023912-2-sashal@kernel.org>
+        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/9] HID: hiddev: Fix slab-out-of-bounds write in hiddev_ioctl_usage()
+Date:   Mon, 31 Aug 2020 11:31:28 -0400
+Message-Id: <20200831153136.1024676-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200831152934.1023912-1-sashal@kernel.org>
-References: <20200831152934.1023912-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,54 +58,44 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Sebastian Parschauer <s.parschauer@gmx.de>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit 627a49975bdc3220f360a8237603a6344ee6a588 ]
+[ Upstream commit 25a097f5204675550afb879ee18238ca917cba7a ]
 
-The PixArt OEM mice are known for disconnecting every minute in
-runlevel 1 or 3 if they are not always polled. One Lenovo PixArt
-mouse is already fixed. Got two references for 17ef:602e and three
-references for 17ef:6019 misbehaving like this. Got one direct bug
-report for 17ef:6093 from Wyatt Ward (wyatt8740). So add
-HID_QUIRK_ALWAYS_POLL for all of them.
+`uref->usage_index` is not always being properly checked, causing
+hiddev_ioctl_usage() to go out of bounds under some cases. Fix it.
 
-Link: https://github.com/sriemer/fix-linux-mouse issue 22
-Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
+Reported-by: syzbot+34ee1b45d88571c2fa8b@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=f2aebe90b8c56806b050a20b36f51ed6acabe802
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 3 +++
- drivers/hid/hid-quirks.c | 3 +++
- 2 files changed, 6 insertions(+)
+ drivers/hid/usbhid/hiddev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6f370e020feb3..1f42318a137fb 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -727,6 +727,9 @@
- #define USB_DEVICE_ID_LENOVO_TPPRODOCK	0x6067
- #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
-+#define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019	0x6019
-+#define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E	0x602e
-+#define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6093	0x6093
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index d9602f3a359e1..5f56feb468c15 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -532,12 +532,16 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
  
- #define USB_VENDOR_ID_LG		0x1fd2
- #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 934fc0a798d4d..87b57514b92e1 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -105,6 +105,9 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M406XE), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6093), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C007), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS), HID_QUIRK_NOGET },
+ 		switch (cmd) {
+ 		case HIDIOCGUSAGE:
++			if (uref->usage_index >= field->report_count)
++				goto inval;
+ 			uref->value = field->value[uref->usage_index];
+ 			if (copy_to_user(user_arg, uref, sizeof(*uref)))
+ 				goto fault;
+ 			goto goodreturn;
+ 
+ 		case HIDIOCSUSAGE:
++			if (uref->usage_index >= field->report_count)
++				goto inval;
+ 			field->value[uref->usage_index] = uref->value;
+ 			goto goodreturn;
+ 
 -- 
 2.25.1
 

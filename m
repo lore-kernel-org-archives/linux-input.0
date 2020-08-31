@@ -2,85 +2,127 @@ Return-Path: <SRS0=K583=CJ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CE35C433E6
-	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 13:22:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34975C433E2
+	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 13:40:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 195C92083E
-	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 13:22:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 139DC21473
+	for <linux-input@archiver.kernel.org>; Mon, 31 Aug 2020 13:40:11 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="gBplDfQq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbgHaNWr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 31 Aug 2020 09:22:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35336 "EHLO
+        id S1726714AbgHaNkG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 31 Aug 2020 09:40:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726144AbgHaNWq (ORCPT
+        with ESMTP id S1726489AbgHaNkC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 31 Aug 2020 09:22:46 -0400
-X-Greylist: delayed 622 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 31 Aug 2020 06:22:46 PDT
-Received: from mail.bugwerft.de (mail.bugwerft.de [IPv6:2a03:6000:1011::59])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8557BC061573
-        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2020 06:22:46 -0700 (PDT)
-Received: from [192.168.178.183] (pd95ef01a.dip0.t-ipconnect.de [217.94.240.26])
-        by mail.bugwerft.de (Postfix) with ESMTPSA id BD5B245793B;
-        Mon, 31 Aug 2020 13:12:11 +0000 (UTC)
-Subject: Re: [PATCH v4 0/3] Input: ads7846: pdata cleanups and devm init
-To:     linux-input@vger.kernel.org
-Cc:     dmitry.torokhov@gmail.com, m.felsch@pengutronix.de
-References: <20200519182540.219027-1-daniel@zonque.org>
-From:   Daniel Mack <daniel@zonque.org>
-Message-ID: <484c21b1-592e-c71c-cf36-84af2afa0f53@zonque.org>
-Date:   Mon, 31 Aug 2020 15:12:07 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+        Mon, 31 Aug 2020 09:40:02 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0C78C061575
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2020 06:40:01 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id o18so8538958eje.7
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2020 06:40:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lddw3bdok3hAy1F/tQ2gv6hGO+6x8VFGDH1TfahaMjg=;
+        b=gBplDfQqLrkZ52/3bG7dQRrqKdekFZEh45gXZ5MsUHY486B3HK7oI65JYt4l0R3ldF
+         GNHW/tXR1MVsKES6Wqf1COb7UnAT3ZaQw63tIRNa5/T4qs0h8OMmXCsfgazVyJK79l8t
+         jn385EO8CLCYrRbQ23bb6Sth0ZtPsuO6k4k7A=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lddw3bdok3hAy1F/tQ2gv6hGO+6x8VFGDH1TfahaMjg=;
+        b=Rqo1zJNujhYt4rnErke1WfuJwvbejTguIeV6mOhQF8VF9trFAHUFsRkkB/a/ChGZ0n
+         9a/hqFmWm3nWaSyaDyXB0+xgtjufT7rPNjpODwSrrN57R8auGAAY4fFJWlxaer9lBLN/
+         nXjGgAr3AL7iUS/Cd7HSAFLBkhKzU1XXR+TSnRG+d0r6QlGtxzveMvCjzzDD6pGcYlFR
+         eFCjoLSdz+cfAvA4WFZ/5XGTmzZSJHya/NV2CWstAbgfwJru8XsaFNUHuj0Tu17yX1uU
+         6nWE1eLnYc2cV4wQTp4MKFPwdpn4vS5+Yom0jCw8vlBzPzjH4PeDcR8ML6XA0nNu1GII
+         hcaQ==
+X-Gm-Message-State: AOAM533oAbLYw/c8jOCGi02rL7FwCfDRjjBkz+F0GQGAVPXBElMDk9m+
+        6JDUjtjs04b6Uz49Q0ccsGzmdNZBVHsYeA==
+X-Google-Smtp-Source: ABdhPJyI9vCR2pKLez5+UodPWfz9DjMJn60kKFFyi3YZUXD+JJiGz3ZsB4NszZDELW9m/U7pICe+BQ==
+X-Received: by 2002:a17:906:fb84:: with SMTP id lr4mr1309509ejb.282.1598881200094;
+        Mon, 31 Aug 2020 06:40:00 -0700 (PDT)
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com. [209.85.218.45])
+        by smtp.gmail.com with ESMTPSA id oz4sm8096238ejb.106.2020.08.31.06.39.56
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 31 Aug 2020 06:39:58 -0700 (PDT)
+Received: by mail-ej1-f45.google.com with SMTP id bo3so8518253ejb.11
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2020 06:39:56 -0700 (PDT)
+X-Received: by 2002:a17:907:7292:: with SMTP id dt18mr1291762ejc.512.1598881195924;
+ Mon, 31 Aug 2020 06:39:55 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200519182540.219027-1-daniel@zonque.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200827135205.1.I6981f9a9f0c12e60f8038f3b574184f8ffc1b9b5@changeid>
+ <20200829074758.GA16838@amd>
+In-Reply-To: <20200829074758.GA16838@amd>
+From:   Raul Rangel <rrangel@chromium.org>
+Date:   Mon, 31 Aug 2020 07:39:44 -0600
+X-Gmail-Original-Message-ID: <CAHQZ30CuWSzaMNYSfh6Zr12Q1=GA_Yqpg0jaePDkFQjgsDDBPg@mail.gmail.com>
+Message-ID: <CAHQZ30CuWSzaMNYSfh6Zr12Q1=GA_Yqpg0jaePDkFQjgsDDBPg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] Input: i8042 - Prevent intermixing i8042 commands
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     linux-input <linux-input@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "S, Shirish" <Shirish.S@amd.com>,
+        Andy Shevchenko <andy@infradead.org>,
+        Dan Murphy <dmurphy@ti.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        "Lee, Chun-Yi" <jlee@suse.com>, Rajat Jain <rajatja@google.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Linux LED Subsystem <linux-leds@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+On Sat, Aug 29, 2020 at 1:48 AM Pavel Machek <pavel@ucw.cz> wrote:
+>
+> On Thu 2020-08-27 13:52:22, Raul E Rangel wrote:
+> > The i8042_mutex must be held by writers of the AUX and KBD ports, as
+> > well as users of i8042_command. There were a lot of users of
+> > i8042_command that were not calling i8042_lock_chip/i8042_unlock_chip.
+> > This resulted in i8042_commands being issues in between PS/2
+> > transactions.
+> >
+> > This change moves the mutex lock into i8042_command and removes the
+> > burden of locking the mutex from the callers.
+> >
+> > It is expected that the i8042_mutex is locked before calling
+> > i8042_aux_write or i8042_kbd_write. This is currently done by the PS/2
+> > layer via ps2_begin_command and ps2_end_command. Other modules
+> > (serio_raw) do not currently lock the mutex, so there is still a
+> > possibility for intermixed commands.
+>
+>
+> > @@ -343,10 +330,14 @@ int i8042_command(unsigned char *param, int command)
+> >       unsigned long flags;
+> >       int retval;
+> >
+> > +     mutex_lock(&i8042_mutex);
+> > +
+> >       spin_lock_irqsave(&i8042_lock, flags);
+> >       retval = __i8042_command(param, command);
+> >       spin_unlock_irqrestore(&i8042_lock, flags);
+> >
+> > +      mutex_unlock(&i8042_mutex);
+> > +
+> >       return retval;
+>
+> There's something wrong with whitespace here. Checkpatch?
+>                                                                         Pavel
+It's fixed in the v2 patch: https://patchwork.kernel.org/patch/11741855/
 
-This series never got merged, but it still applies cleanly on top v5.8.
-
-Should I resend it once more?
-
-
-Thanks,
-Daniel
-
-
-On 5/19/20 8:25 PM, Daniel Mack wrote:
-> Hi,
-> 
-> This is v4 of the patches to bring devm initialization to the ads7846
-> driver. I left the gpiod conversion patch out for now as it needs more
-> work, and it's also independent of the other changes.
-> 
-> v3:
-> 
-> * Added a patch to remove custom filter handling from pdata
-> * Added devm_add_action_or_reset() for regulator state maintaining
-> * Addressed minor nits pointed out by Marco Felsch
-> 
-> v4:
-> 
-> * Call ads7846_stop() rather than ads7846_disable() in the unbind
->   path to avoid regulator refcount confusion, Thanks to Marco Felsch.
-> 
-> Daniel Mack (3):
->   Input: ads7846: Add short-hand for spi->dev in probe() function
->   Input: ads7846: Remove custom filter handling functions from pdata
->   Input: ads7846: Switch to devm initialization
-> 
->  drivers/input/touchscreen/ads7846.c | 187 +++++++++++-----------------
->  include/linux/spi/ads7846.h         |  15 ---
->  2 files changed, 73 insertions(+), 129 deletions(-)
-> 
-
+Thanks

@@ -1,229 +1,141 @@
-Return-Path: <SRS0=3Vn4=CK=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=66DI=CL=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 728D6C433E6
-	for <linux-input@archiver.kernel.org>; Tue,  1 Sep 2020 10:32:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5145EC433E6
+	for <linux-input@archiver.kernel.org>; Wed,  2 Sep 2020 03:01:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4AC8021527
-	for <linux-input@archiver.kernel.org>; Tue,  1 Sep 2020 10:32:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F8B6206CD
+	for <linux-input@archiver.kernel.org>; Wed,  2 Sep 2020 03:01:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QkJFG6pK"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OZppQQjH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726139AbgIAKcR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 1 Sep 2020 06:32:17 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:35523 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726078AbgIAKcK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 1 Sep 2020 06:32:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1598956328;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=orjqWGMPGIbjs2BtW1dTTBT2WpkyFXIf8RMOJhYRAHc=;
-        b=QkJFG6pKAdn4uxyipDElOg31+cVJecZs4VrczWrtuCysQihsfDGGznb6wFqnNOuSciX6nA
-        dFCkCTO32teaH9TwzfHp5v+YTquT29piBtShq/pWAsQXTL/Dm71BPhe2TkDN2UY1OsbFBR
-        7OvxHxGE5q6U6/fhi9fLOhryEe1X3Vk=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-252-nUzkfxCLMxCb7KyhfZXA0g-1; Tue, 01 Sep 2020 06:32:06 -0400
-X-MC-Unique: nUzkfxCLMxCb7KyhfZXA0g-1
-Received: by mail-pj1-f69.google.com with SMTP id a20so308352pjo.4
-        for <linux-input@vger.kernel.org>; Tue, 01 Sep 2020 03:32:06 -0700 (PDT)
+        id S1727872AbgIBDBn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 1 Sep 2020 23:01:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48116 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727853AbgIBDBc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Sep 2020 23:01:32 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4E28C061249;
+        Tue,  1 Sep 2020 20:01:31 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id w16so617183qkj.7;
+        Tue, 01 Sep 2020 20:01:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=HbcXYxfwsiuTEtFnozpwnac7NHrDPEIjX3Balg7ij5I=;
+        b=OZppQQjHnQptu/cGNYQh/AGEcitJ6KxnMzHWsU7aNkmW39VUtuPg3Ehe32ShlgQPUR
+         8XLvNA9kg+GoTn4qsKjpd1PhSSxNG6HTBaJAV25yJ+Ciht7CzdISw2xbvNd4nBh1McoT
+         wvcPhooNqXxdG4BG+nG2RccuLZbkG9JY+lZ6GlN24PaAsF5SaOspTqSbJyMDsYJdNzak
+         8DmgTGoG0tnXVwaHtTYEnyYku9+Ya8u6Noj8mXwYc6WV2GHpTdlrUWv/2CqnAEM9DcC5
+         d6L9wx6g1Kbrqy9ahw661EUaeFdVItKMJrjGSvUDLgfZv0xVM/52CwYW8D5LcZwyubZb
+         oAhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=orjqWGMPGIbjs2BtW1dTTBT2WpkyFXIf8RMOJhYRAHc=;
-        b=eWQnDhoiwwuoeTy6foVtXH+Gg/ldkeK/cd4sO0N8oDEr82l3wfjaPmxLj69oIgcNz3
-         hAayidEg0R6Qf5CYj0bIOzNGyDb2TEVtpq7axwkEISDlADgxVR0oHbTjuv3cSHrmSO/4
-         41H0lt+DtEUnkSDXFgkY+G4nAft1Q5iWOI7km/GgSwAOtIQKW1nGF0eADkIZzo5kTB8W
-         ySuSpJuX3yebM+pJO34g1b4SUI/Yiw91N66jej3LMpdDqUkr3FkOr0h8qNbvtQxmOKg5
-         J7ZKrpuZawmjh/4/xkVbzjBbSb9KGJzGiO0//cawbktu4xQVZaa2nVC2FVcIX0/reG9f
-         npvQ==
-X-Gm-Message-State: AOAM532fFB+KP5tZhsnwifNzMDDlZZqXh62Qpaal+dCu4RJnuAcuK8VO
-        cR0LU3ugVPWVTdhiSd8HUwnDBEHg5KIvw2HV1oeOVCvEltrsV9ifQMQAz3uinnbqHBc9ue5yUJC
-        sBu+0wxaPsC9DAf5/LTUMR4Ce0Xb8F4tPe3sHKr8=
-X-Received: by 2002:a63:df13:: with SMTP id u19mr922835pgg.275.1598956325498;
-        Tue, 01 Sep 2020 03:32:05 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxVwFAW9GZ1QG4XY5sg1uzFq7QM+YlerG0MXjXNQpchgXwjU1ooxwkmQFnZFwmnjAmHFtXFzORi6Wi9FOJZcGg=
-X-Received: by 2002:a63:df13:: with SMTP id u19mr922814pgg.275.1598956325157;
- Tue, 01 Sep 2020 03:32:05 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=HbcXYxfwsiuTEtFnozpwnac7NHrDPEIjX3Balg7ij5I=;
+        b=gIuL3pf+grW9YLY+vCHauxnFITk2Ao9bEWoSwDSCAEYFn1dl1IpTi8iPDgYkrtd4FB
+         XLvHVnnCDPscD7gYZFNC2wNd8RwQFGcknpwRCAT5Ijrd0pr79/aTtc0hBKNgVog1c20L
+         DpaHJY9JCcNvd+ATxru7xPiYCX0/hz0O7Vj2KMdfeVha/fSmc+Whd2XTMV2NYS8lFobR
+         o0dXkjZAsodK8cQsEPZQFd9h2yhI9WJTG1VA05f1bU75A7iKLPBi5hM48p6dbkFKANTB
+         Y/lInFhDprq/JZRUIirmSnqPtwPdAVDOgqhCTEDwU2EojTaeuPNRRtDUmILy6eacW/vq
+         CuPQ==
+X-Gm-Message-State: AOAM530fBIE+2xMYt97rsyuaItxxjwBYvGQ+NSJ8rtF0wdzm0UwL1QWJ
+        cmvpEPqPMsYhFrL2L3DIRYk=
+X-Google-Smtp-Source: ABdhPJyzODGst4eI+hBA2eZYxWwagr/jeIoIBUTb8AsSf9e8AJzFnvQn8JPc5R1ddRQJ8zIki2AlSg==
+X-Received: by 2002:a37:78b:: with SMTP id 133mr4940375qkh.107.1599015691159;
+        Tue, 01 Sep 2020 20:01:31 -0700 (PDT)
+Received: from auth2-smtp.messagingengine.com (auth2-smtp.messagingengine.com. [66.111.4.228])
+        by smtp.gmail.com with ESMTPSA id i14sm4450941qkn.53.2020.09.01.20.01.29
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 01 Sep 2020 20:01:30 -0700 (PDT)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailauth.nyi.internal (Postfix) with ESMTP id 861D527C005A;
+        Tue,  1 Sep 2020 23:01:29 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Tue, 01 Sep 2020 23:01:29 -0400
+X-ME-Sender: <xms:CQtPX85rgvIkKxbvRsPctQZ6d5QC7d3xHMnPuBmG7SSlMqd7Ahr0wA>
+    <xme:CQtPX94WQbzvvU8lMuVZxIdAcBy-klwjzwXzrRCUTd3i2VK-N-NmiuDMER5wwbmlK
+    1oNPKP-i72SUXfebw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudefkedgieeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    goufhorhhtvggutfgvtghiphdvucdlgedtmdenucfjughrpefhvffufffkofgjfhgggfes
+    tdekredtredttdenucfhrhhomhepuehoqhhunhcuhfgvnhhguceosghoqhhunhdrfhgvnh
+    hgsehgmhgrihhlrdgtohhmqeenucggtffrrghtthgvrhhnpeehvdevteefgfeiudettdef
+    vedvvdelkeejueffffelgeeuhffhjeetkeeiueeuleenucfkphephedvrdduheehrdduud
+    durdejudenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhm
+    pegsohhquhhnodhmvghsmhhtphgruhhthhhpvghrshhonhgrlhhithihqdeiledvgeehtd
+    eigedqudejjeekheehhedvqdgsohhquhhnrdhfvghngheppehgmhgrihhlrdgtohhmsehf
+    ihigmhgvrdhnrghmvg
+X-ME-Proxy: <xmx:CQtPX7eISjL73HC2QXxvV8SOuk5ROiwWtU3dqgPySREYf_8SSbegWA>
+    <xmx:CQtPXxIMKGAI40-XxBMVciO1Xcw3qmalFUi-VN8ECsaI-lLCDNmHXw>
+    <xmx:CQtPXwIUweSQVIhm1PJdd9KwUpytPNfk6hQNiMN2ZZxbCbjfcQHA-g>
+    <xmx:CQtPX95ZZFPXyfCgIA31FId6PzAd0CzDV2LKOVOkOVYBEcFNx-TFNae2VZk>
+Received: from localhost (unknown [52.155.111.71])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E92653280059;
+        Tue,  1 Sep 2020 23:01:28 -0400 (EDT)
+From:   Boqun Feng <boqun.feng@gmail.com>
+To:     linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Cc:     "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Boqun Feng <boqun.feng@gmail.com>
+Subject: [RFC v2 06/11] hv: hyperv.h: Introduce some hvpfn helper functions
+Date:   Wed,  2 Sep 2020 11:01:02 +0800
+Message-Id: <20200902030107.33380-7-boqun.feng@gmail.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200902030107.33380-1-boqun.feng@gmail.com>
+References: <20200902030107.33380-1-boqun.feng@gmail.com>
 MIME-Version: 1.0
-References: <20200901095233.1069194-1-maz@kernel.org>
-In-Reply-To: <20200901095233.1069194-1-maz@kernel.org>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Tue, 1 Sep 2020 12:31:53 +0200
-Message-ID: <CAO-hwJ+L5HyamPm4DGfzJx9iUyvHJTAks8KA5bmu-Fgq2ABFHQ@mail.gmail.com>
-Subject: Re: [PATCH v4] HID: core: Sanitize event code and type when mapping input
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "3.8+" <stable@vger.kernel.org>, kernel-team@android.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Sep 1, 2020 at 11:52 AM Marc Zyngier <maz@kernel.org> wrote:
->
-> When calling into hid_map_usage(), the passed event code is
-> blindly stored as is, even if it doesn't fit in the associated bitmap.
->
-> This event code can come from a variety of sources, including devices
-> masquerading as input devices, only a bit more "programmable".
->
-> Instead of taking the event code at face value, check that it actually
-> fits the corresponding bitmap, and if it doesn't:
-> - spit out a warning so that we know which device is acting up
-> - NULLify the bitmap pointer so that we catch unexpected uses
->
-> Code paths that can make use of untrusted inputs can now check
-> that the mapping was indeed correct and bail out if not.
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> ---
+When a guest communicate with the hypervisor, it must use HV_HYP_PAGE to
+calculate PFN, so introduce a few hvpfn helper functions as the
+counterpart of the page helper functions. This is the preparation for
+supporting guest whose PAGE_SIZE is not 4k.
 
-Pushed to for-5.9/upstream-fixes
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+---
+ include/linux/hyperv.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Cheers,
-Benjamin
-
-> * From v3:
->   - Drop totally unrelated mfd/syscon change from the patch
->
-> * From v2:
->   - Don't prematurely narrow the event code so that hid_map_usage()
->     catches illegal values beyond the 16bit limit.
->
-> * From v1:
->   - Dropped the input.c changes, and turned hid_map_usage() into
->     the validation primitive.
->   - Handle mapping failures in hidinput_configure_usage() and
->     mt_touch_input_mapping() (on top of hid_map_usage_clear() which
->     was already handled)
->
->  drivers/hid/hid-input.c      |  4 ++++
->  drivers/hid/hid-multitouch.c |  2 ++
->  include/linux/hid.h          | 42 +++++++++++++++++++++++++-----------
->  3 files changed, 35 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index b8eabf206e74..88e19996427e 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1132,6 +1132,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->         }
->
->  mapped:
-> +       /* Mapping failed, bail out */
-> +       if (!bit)
-> +               return;
-> +
->         if (device->driver->input_mapped &&
->             device->driver->input_mapped(device, hidinput, field, usage,
->                                          &bit, &max) < 0) {
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 3f94b4954225..e3152155c4b8 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -856,6 +856,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->                         code = BTN_0  + ((usage->hid - 1) & HID_USAGE);
->
->                 hid_map_usage(hi, usage, bit, max, EV_KEY, code);
-> +               if (!*bit)
-> +                       return -1;
->                 input_set_capability(hi->input, EV_KEY, code);
->                 return 1;
->
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 875f71132b14..c7044a14200e 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -959,34 +959,49 @@ static inline void hid_device_io_stop(struct hid_device *hid) {
->   * @max: maximal valid usage->code to consider later (out parameter)
->   * @type: input event type (EV_KEY, EV_REL, ...)
->   * @c: code which corresponds to this usage and type
-> + *
-> + * The value pointed to by @bit will be set to NULL if either @type is
-> + * an unhandled event type, or if @c is out of range for @type. This
-> + * can be used as an error condition.
->   */
->  static inline void hid_map_usage(struct hid_input *hidinput,
->                 struct hid_usage *usage, unsigned long **bit, int *max,
-> -               __u8 type, __u16 c)
-> +               __u8 type, unsigned int c)
->  {
->         struct input_dev *input = hidinput->input;
-> -
-> -       usage->type = type;
-> -       usage->code = c;
-> +       unsigned long *bmap = NULL;
-> +       unsigned int limit = 0;
->
->         switch (type) {
->         case EV_ABS:
-> -               *bit = input->absbit;
-> -               *max = ABS_MAX;
-> +               bmap = input->absbit;
-> +               limit = ABS_MAX;
->                 break;
->         case EV_REL:
-> -               *bit = input->relbit;
-> -               *max = REL_MAX;
-> +               bmap = input->relbit;
-> +               limit = REL_MAX;
->                 break;
->         case EV_KEY:
-> -               *bit = input->keybit;
-> -               *max = KEY_MAX;
-> +               bmap = input->keybit;
-> +               limit = KEY_MAX;
->                 break;
->         case EV_LED:
-> -               *bit = input->ledbit;
-> -               *max = LED_MAX;
-> +               bmap = input->ledbit;
-> +               limit = LED_MAX;
->                 break;
->         }
-> +
-> +       if (unlikely(c > limit || !bmap)) {
-> +               pr_warn_ratelimited("%s: Invalid code %d type %d\n",
-> +                                   input->name, c, type);
-> +               *bit = NULL;
-> +               return;
-> +       }
-> +
-> +       usage->type = type;
-> +       usage->code = c;
-> +       *max = limit;
-> +       *bit = bmap;
->  }
->
->  /**
-> @@ -1000,7 +1015,8 @@ static inline void hid_map_usage_clear(struct hid_input *hidinput,
->                 __u8 type, __u16 c)
->  {
->         hid_map_usage(hidinput, usage, bit, max, type, c);
-> -       clear_bit(c, *bit);
-> +       if (*bit)
-> +               clear_bit(usage->code, *bit);
->  }
->
->  /**
-> --
-> 2.27.0
->
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 6f4831212979..54e84ba6b554 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -1687,4 +1687,8 @@ static inline unsigned long virt_to_hvpfn(void *addr)
+ 	return  paddr >> HV_HYP_PAGE_SHIFT;
+ }
+ 
++#define offset_in_hvpage(ptr)	((unsigned long)(ptr) & ~HV_HYP_PAGE_MASK)
++#define HVPFN_UP(x)	(((x) + HV_HYP_PAGE_SIZE-1) >> HV_HYP_PAGE_SHIFT)
++#define page_to_hvpfn(page)	((page_to_pfn(page) << PAGE_SHIFT) >> HV_HYP_PAGE_SHIFT)
++
+ #endif /* _HYPERV_H */
+-- 
+2.28.0
 

@@ -2,101 +2,120 @@ Return-Path: <SRS0=wy78=CN=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10479C43461
-	for <linux-input@archiver.kernel.org>; Fri,  4 Sep 2020 02:52:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71758C43461
+	for <linux-input@archiver.kernel.org>; Fri,  4 Sep 2020 08:17:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D96EE20737
-	for <linux-input@archiver.kernel.org>; Fri,  4 Sep 2020 02:52:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 49CC4206CA
+	for <linux-input@archiver.kernel.org>; Fri,  4 Sep 2020 08:17:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729572AbgIDCwM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 3 Sep 2020 22:52:12 -0400
-Received: from emcscan.emc.com.tw ([192.72.220.5]:30058 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729538AbgIDCwL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Sep 2020 22:52:11 -0400
-X-Greylist: delayed 579 seconds by postgrey-1.27 at vger.kernel.org; Thu, 03 Sep 2020 22:52:10 EDT
-X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
-   d="scan'208";a="37169781"
-Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
-  by emcscan.emc.com.tw with ESMTP; 04 Sep 2020 10:42:30 +0800
-Received: from 192.168.10.23
-        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(78053:0:AUTH_RELAY)
-        (envelope-from <jingle.wu@emc.com.tw>); Fri, 04 Sep 2020 10:42:30 +0800 (CST)
-Received: from 101.12.41.239
-        by webmail.emc.com.tw with Mail2000 ESMTPA Server V7.00(2486:2:AUTH_LOGIN)
-        (envelope-from <jingle.wu@emc.com.tw>); Fri, 04 Sep 2020 10:42:27 +0800 (CST)
-From:   "jingle.wu" <jingle.wu@emc.com.tw>
-To:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        dmitry.torokhov@gmail.com
-Cc:     phoenix@emc.com.tw,
-        "jingle.wu" <jingle.wu@elan.corp-partner.google.com>
-Subject: [PATCH] Input: trackpoint - Add Suspend mode for Elan TrackPoint
-Date:   Fri,  4 Sep 2020 10:42:31 +0800
-Message-Id: <20200904024231.26812-1-jingle.wu@emc.com.tw>
-X-Mailer: git-send-email 2.17.1
+        id S1728112AbgIDIRH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 4 Sep 2020 04:17:07 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:22753 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726811AbgIDIRG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 4 Sep 2020 04:17:06 -0400
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-350-O3Lo5IiGN6eUvf7BVTU4LA-1; Fri, 04 Sep 2020 04:17:03 -0400
+X-MC-Unique: O3Lo5IiGN6eUvf7BVTU4LA-1
+Received: by mail-pl1-f199.google.com with SMTP id x11so770421pll.0
+        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2020 01:17:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=A7PJpPwsMtzBefMR1CLruzb/xgu5bpsDYQYJhcYPypU=;
+        b=HsfuhqLjNsOoZS0Oajg5LGNSQFrbhNJshaLdWFVw+71+LNytKvWekJT4BNT1SugE+c
+         UIlRwaVXwyV9AVIpEcjACD3gV3XBTjwT/1VscZ1bBK+FhjjC6jxG1GnfXFUJIcXrUsbj
+         0Jxnyb8/AkItVTDp1TnyY/ema0ryNIC6ugP49xhy3Ros11hUo11IuM8aX/dymyIEF03I
+         KaAYPib1Ea6z0DXqdFr5F4KdKOmwRdUUd7PrZ52ACMCz+2iuYuXFzcOvAuXY1IQhvck7
+         1h8B1cGNXw0/hV7zt1iw1dlXyFWv48Nv6neZ7VQardHWiABU/G0jk7Gclrzvi2hCrz3n
+         5THQ==
+X-Gm-Message-State: AOAM530NVzi+6OViO41PwSHThQbwq7jjR88blitmyHAef6+fVL9Y9Qmk
+        1ZxFzLQZZw5jIdiial4zYM8rdPAEGfI2xhgQHaozbZaxRqf6uvjpQgidWMAmDt9UWMeh6bQ5klB
+        V6xyGRiZzXtZU0VUn7HV79Tva45Exj4WMBJVJdgw=
+X-Received: by 2002:a62:d456:0:b029:13c:1611:66c2 with SMTP id u22-20020a62d4560000b029013c161166c2mr5630513pfl.13.1599207422483;
+        Fri, 04 Sep 2020 01:17:02 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyPSOGzY4hDYW8kAPmNPd3DYQ6NQ29GYTwuJV+5YB+XTVEKct/9nkHpz7EwlAGV00TYhYyFXjmr21j/frdgRcY=
+X-Received: by 2002:a62:d456:0:b029:13c:1611:66c2 with SMTP id
+ u22-20020a62d4560000b029013c161166c2mr5630491pfl.13.1599207422196; Fri, 04
+ Sep 2020 01:17:02 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200811091445.erp2b23xmx3ceyzp@Rk>
+In-Reply-To: <20200811091445.erp2b23xmx3ceyzp@Rk>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Fri, 4 Sep 2020 10:16:51 +0200
+Message-ID: <CAO-hwJ+3LTUviWxDGQoXaBO-USwP4n6LRscJEzHJShqBEJ3oBg@mail.gmail.com>
+Subject: Re: Advice on fixing the bug of MSFT0001:00 04F3:Touchpad being
+ handled by hid_multitouch by mistake
+To:     Coiby Xu <coiby.xu@gmail.com>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        linux-kernel-mentees@lists.linuxfoundation.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: "jingle.wu" <jingle.wu@elan.corp-partner.google.com>
+Hi,
 
-Add suspend command for elan trackpoint
----
- drivers/input/mouse/trackpoint.c | 16 ++++++++++++++++
- drivers/input/mouse/trackpoint.h |  1 +
- 2 files changed, 17 insertions(+)
+On Tue, Aug 11, 2020 at 11:15 AM Coiby Xu <coiby.xu@gmail.com> wrote:
+>
+> Hi,
+>
+> I'm working on a touchpad device issue as reported on
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190.
+>
+> This touchpad device MSFT0001:00 04F3:Touchpad should be handled by
+> hid_rmi. But currently hid-core.c chooses hid_multitouch by mistake,
+>
+>      1. When scanning this device's report descriptor, HID_DG_CONTACTID
+>         usage is found. Thus group HID_GROUP_MULTITOUCH is assigned to
+>         the device.
+>      2. The flag HID_SCAN_FLAG_MT_WIN_8 is also found. Thus group
+>         HID_GROUP_MULTITOUCH_WIN_8 is assigned to the device.
+>      3. hid-multitouch.c claims handling devices with the group of
+>         HID_GROUP_MULTITOUCH_WIN_8
+>
+>          static const struct hid_device_id mt_devices[] = {
+>                 /* Generic MT device */
+>                 { HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
+>
+>                 /* Generic Win 8 certified MT device */
+>                 {  .driver_data = MT_CLS_WIN_8,
+>                         HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
+>                                 HID_ANY_ID, HID_ANY_ID) },
+>                 { }
+>          };
+>
+> There are several potential solutions,
+>      - Let the device vendor fix this problem since this device's report
+>        descriptor shouldn't have the HID_DG_CONTACTID usage.
+>      - Make it a special case by setting the device's group to
+>        HID_GROUP_RMI in hid_scan_report when vendor id and product ID
+>        are matched.
+>      - hid-quirks.c seems to be designed to handle special cases, is it
+>        suitable for this case?
 
-diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-index 3eefee2ee2a1..b3cba973a4eb 100644
---- a/drivers/input/mouse/trackpoint.c
-+++ b/drivers/input/mouse/trackpoint.c
-@@ -389,6 +389,20 @@ static int trackpoint_reconnect(struct psmouse *psmouse)
- 	return 0;
- }
- 
-+static void trackpoint_cleanup(struct psmouse *psmouse)
-+{
-+	struct trackpoint_data *tp = psmouse->private;
-+	u8 param[3] = { TP_TOGGLE, TP_TOGGLE_BURST, TP_TOGGLE_ELAN_SLEEP };
-+
-+	if (tp->variant_id == TP_VARIANT_ELAN) {
-+		if (ps2_command(&psmouse->ps2dev, param,
-+				MAKE_PS2_CMD(3, 0, TP_COMMAND))) {
-+			psmouse_err(psmouse,
-+				    "failed to suspend trackpont.\n");
-+		}
-+	}
-+}
-+
- int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
-@@ -421,6 +435,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
- 	psmouse->reconnect = trackpoint_reconnect;
- 	psmouse->disconnect = trackpoint_disconnect;
- 
-+	psmouse->cleanup = trackpoint_cleanup;
-+
- 	if (variant_id != TP_VARIANT_IBM) {
- 		/* Newer variants do not support extended button query. */
- 		button_info = 0x33;
-diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
-index 5cb93ed26085..c7fa75452976 100644
---- a/drivers/input/mouse/trackpoint.h
-+++ b/drivers/input/mouse/trackpoint.h
-@@ -107,6 +107,7 @@
- #define TP_TOGGLE_EXT_TAG	0x22	/* Bit 3 of the first packet coming from the
- 					   external device will be forced to 1 */
- #define TP_MASK_EXT_TAG			0x04
-+#define TP_TOGGLE_ELAN_SLEEP	0x8
- 
- 
- /* Power on Self Test Results */
--- 
-2.17.1
+AFAIU, the touchpad doesn't work at all with hid-multitouch. So I
+guess the best is to add the VID/PID to hid-quirks.c in
+hid_have_special_driver[], and add it to the hid-rmi driver too.
+This way, you will ensure hid-rmi will pick up the device all the time.
+
+Cheers,
+Benjamin
+
+>
+> Can anyone give an advice on which direction I should take? Thank you!
+>
+> --
+> Best regards,
+> Coiby
+>
 

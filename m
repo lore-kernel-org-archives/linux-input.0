@@ -2,120 +2,94 @@ Return-Path: <SRS0=wy78=CN=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71758C43461
-	for <linux-input@archiver.kernel.org>; Fri,  4 Sep 2020 08:17:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFD3CC2BB84
+	for <linux-input@archiver.kernel.org>; Fri,  4 Sep 2020 13:47:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 49CC4206CA
-	for <linux-input@archiver.kernel.org>; Fri,  4 Sep 2020 08:17:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A5457204FD
+	for <linux-input@archiver.kernel.org>; Fri,  4 Sep 2020 13:47:46 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=g001.emailsrvr.com header.i=@g001.emailsrvr.com header.b="eYKsJWfO";
+	dkim=pass (1024-bit key) header.d=mev.co.uk header.i=@mev.co.uk header.b="PExss+wQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728112AbgIDIRH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 4 Sep 2020 04:17:07 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:22753 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726811AbgIDIRG (ORCPT
+        id S1730550AbgIDNrn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 4 Sep 2020 09:47:43 -0400
+Received: from smtp119.ord1d.emailsrvr.com ([184.106.54.119]:60930 "EHLO
+        smtp119.ord1d.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730642AbgIDNrO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 4 Sep 2020 04:17:06 -0400
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-350-O3Lo5IiGN6eUvf7BVTU4LA-1; Fri, 04 Sep 2020 04:17:03 -0400
-X-MC-Unique: O3Lo5IiGN6eUvf7BVTU4LA-1
-Received: by mail-pl1-f199.google.com with SMTP id x11so770421pll.0
-        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2020 01:17:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=A7PJpPwsMtzBefMR1CLruzb/xgu5bpsDYQYJhcYPypU=;
-        b=HsfuhqLjNsOoZS0Oajg5LGNSQFrbhNJshaLdWFVw+71+LNytKvWekJT4BNT1SugE+c
-         UIlRwaVXwyV9AVIpEcjACD3gV3XBTjwT/1VscZ1bBK+FhjjC6jxG1GnfXFUJIcXrUsbj
-         0Jxnyb8/AkItVTDp1TnyY/ema0ryNIC6ugP49xhy3Ros11hUo11IuM8aX/dymyIEF03I
-         KaAYPib1Ea6z0DXqdFr5F4KdKOmwRdUUd7PrZ52ACMCz+2iuYuXFzcOvAuXY1IQhvck7
-         1h8B1cGNXw0/hV7zt1iw1dlXyFWv48Nv6neZ7VQardHWiABU/G0jk7Gclrzvi2hCrz3n
-         5THQ==
-X-Gm-Message-State: AOAM530NVzi+6OViO41PwSHThQbwq7jjR88blitmyHAef6+fVL9Y9Qmk
-        1ZxFzLQZZw5jIdiial4zYM8rdPAEGfI2xhgQHaozbZaxRqf6uvjpQgidWMAmDt9UWMeh6bQ5klB
-        V6xyGRiZzXtZU0VUn7HV79Tva45Exj4WMBJVJdgw=
-X-Received: by 2002:a62:d456:0:b029:13c:1611:66c2 with SMTP id u22-20020a62d4560000b029013c161166c2mr5630513pfl.13.1599207422483;
-        Fri, 04 Sep 2020 01:17:02 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyPSOGzY4hDYW8kAPmNPd3DYQ6NQ29GYTwuJV+5YB+XTVEKct/9nkHpz7EwlAGV00TYhYyFXjmr21j/frdgRcY=
-X-Received: by 2002:a62:d456:0:b029:13c:1611:66c2 with SMTP id
- u22-20020a62d4560000b029013c161166c2mr5630491pfl.13.1599207422196; Fri, 04
- Sep 2020 01:17:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200811091445.erp2b23xmx3ceyzp@Rk>
-In-Reply-To: <20200811091445.erp2b23xmx3ceyzp@Rk>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Fri, 4 Sep 2020 10:16:51 +0200
-Message-ID: <CAO-hwJ+3LTUviWxDGQoXaBO-USwP4n6LRscJEzHJShqBEJ3oBg@mail.gmail.com>
-Subject: Re: Advice on fixing the bug of MSFT0001:00 04F3:Touchpad being
- handled by hid_multitouch by mistake
-To:     Coiby Xu <coiby.xu@gmail.com>
-Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Fri, 4 Sep 2020 09:47:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=g001.emailsrvr.com;
+        s=20190322-9u7zjiwi; t=1599225716;
+        bh=5SJnI8WDnM0hEpvsccPY+yQSaaqaRJ06uiCw7yBDmlg=;
+        h=From:To:Subject:Date:From;
+        b=eYKsJWfOiinOZwOPFa1lPI3lop0cBdFq6UdYRd7zYzVaKaThjIeNVkz/qOz4zWixa
+         J2RDMNmQr7D1LkUQyg0utINYinplmS5imXbuNsey67xPNJq6J40ATGE6HQzghG9/Hk
+         zM1JEbeUJo+oz4E4OKgz+hMmVqTDfGMcrs359B6E=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
+        s=20190130-41we5z8j; t=1599225716;
+        bh=5SJnI8WDnM0hEpvsccPY+yQSaaqaRJ06uiCw7yBDmlg=;
+        h=From:To:Subject:Date:From;
+        b=PExss+wQoqgJVlLurQZLNPXcgP0OwsxACB1jdFkaomusbvHYp7Qp7A2KZBpkI/KuA
+         6rzFTvGrXN45mBHNEOpsWTT+CAduuHShwkifgbJ2K/5NNNOQxyjY2Jgs4IqETOJ8cf
+         f2gf7x88pavZQ27MhqhbfoSy5mN6MRsgILy9/ny8=
+X-Auth-ID: abbotti@mev.co.uk
+Received: by smtp23.relay.ord1d.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 54E47200E6;
+        Fri,  4 Sep 2020 09:21:55 -0400 (EDT)
+From:   Ian Abbott <abbotti@mev.co.uk>
+To:     linux-input@vger.kernel.org
+Cc:     David Rheinsberg <david.rheinsberg@gmail.com>,
         Jiri Kosina <jikos@kernel.org>,
-        linux-kernel-mentees@lists.linuxfoundation.org
-Content-Type: text/plain; charset="UTF-8"
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Ian Abbott <abbotti@mev.co.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] HID: wiimote: make handlers[] const
+Date:   Fri,  4 Sep 2020 14:21:42 +0100
+Message-Id: <20200904132143.9496-2-abbotti@mev.co.uk>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200904132143.9496-1-abbotti@mev.co.uk>
+References: <20200904132143.9496-1-abbotti@mev.co.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Classification-ID: ee464daf-2bdc-4db4-9ef3-697c4738b247-2-1
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+The `handlers[]` array contents are never modified, so use the `const`
+qualifier.
 
-On Tue, Aug 11, 2020 at 11:15 AM Coiby Xu <coiby.xu@gmail.com> wrote:
->
-> Hi,
->
-> I'm working on a touchpad device issue as reported on
-> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190.
->
-> This touchpad device MSFT0001:00 04F3:Touchpad should be handled by
-> hid_rmi. But currently hid-core.c chooses hid_multitouch by mistake,
->
->      1. When scanning this device's report descriptor, HID_DG_CONTACTID
->         usage is found. Thus group HID_GROUP_MULTITOUCH is assigned to
->         the device.
->      2. The flag HID_SCAN_FLAG_MT_WIN_8 is also found. Thus group
->         HID_GROUP_MULTITOUCH_WIN_8 is assigned to the device.
->      3. hid-multitouch.c claims handling devices with the group of
->         HID_GROUP_MULTITOUCH_WIN_8
->
->          static const struct hid_device_id mt_devices[] = {
->                 /* Generic MT device */
->                 { HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
->
->                 /* Generic Win 8 certified MT device */
->                 {  .driver_data = MT_CLS_WIN_8,
->                         HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
->                                 HID_ANY_ID, HID_ANY_ID) },
->                 { }
->          };
->
-> There are several potential solutions,
->      - Let the device vendor fix this problem since this device's report
->        descriptor shouldn't have the HID_DG_CONTACTID usage.
->      - Make it a special case by setting the device's group to
->        HID_GROUP_RMI in hid_scan_report when vendor id and product ID
->        are matched.
->      - hid-quirks.c seems to be designed to handle special cases, is it
->        suitable for this case?
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+---
+ drivers/hid/hid-wiimote-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-AFAIU, the touchpad doesn't work at all with hid-multitouch. So I
-guess the best is to add the VID/PID to hid-quirks.c in
-hid_have_special_driver[], and add it to the hid-rmi driver too.
-This way, you will ensure hid-rmi will pick up the device all the time.
-
-Cheers,
-Benjamin
-
->
-> Can anyone give an advice on which direction I should take? Thank you!
->
-> --
-> Best regards,
-> Coiby
->
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index e484c3618dec..e03a0ba5611a 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -1586,7 +1586,7 @@ struct wiiproto_handler {
+ 	void (*func)(struct wiimote_data *wdata, const __u8 *payload);
+ };
+ 
+-static struct wiiproto_handler handlers[] = {
++static const struct wiiproto_handler handlers[] = {
+ 	{ .id = WIIPROTO_REQ_STATUS, .size = 6, .func = handler_status },
+ 	{ .id = WIIPROTO_REQ_STATUS, .size = 2, .func = handler_status_K },
+ 	{ .id = WIIPROTO_REQ_DATA, .size = 21, .func = handler_data },
+@@ -1618,7 +1618,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+ 							u8 *raw_data, int size)
+ {
+ 	struct wiimote_data *wdata = hid_get_drvdata(hdev);
+-	struct wiiproto_handler *h;
++	const struct wiiproto_handler *h;
+ 	int i;
+ 	unsigned long flags;
+ 
+-- 
+2.28.0
 

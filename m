@@ -7,47 +7,47 @@ X-Spam-Status: No, score=-13.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58062C2D0A8
-	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 16:56:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 384E9C2D0A8
+	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 17:05:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1BDFB2080A
-	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 16:56:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F0E68215A4
+	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 17:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599497811;
-	bh=fnPDZGazy7dePG1Y/RVbT2mn1L1k+YkslfriBNg8rmw=;
+	s=default; t=1599498332;
+	bh=7kfMXVWrXLnU/OBvt23uMLhrzPlBrRM7MJEEVR6nPs8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=wP48ZZD/la5m3ipPoBbryy3Rb0XXxMsG9Rkvo4urk5Fqnig4+fOXyi7Tm8wg1FUPM
-	 T/pVtRa6nGhAdejltFQ+KDw9BwLWMurKaf5Swjv0Sh+ZbnjMyV6R7nMeGW4Qg+rDaK
-	 QzvD+c/cCd99+qwKNhw98siLwFRk2kz/6+MYogJA=
+	b=zEdVg/QE20eGDzLU+g+I3HMY2bxHJz+bd+IC0H7jPxPrBP4SQcHCWcutK0ky9WTg/
+	 Y7O1SUopJPaPnajwpcyFL65d5knHSAFLenPy1ZeDoTQN4XBsDDXtCgDZtBWVqKqBJU
+	 2vxUkVpAhEdHAYuNyS9yFVO4QtWM6cZaHe80WxrA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730693AbgIGQzw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 7 Sep 2020 12:55:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
+        id S1730685AbgIGREo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Sep 2020 13:04:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729962AbgIGQeL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:34:11 -0400
+        id S1730623AbgIGQdJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:33:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C05E721D40;
-        Mon,  7 Sep 2020 16:34:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F220A21775;
+        Mon,  7 Sep 2020 16:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496449;
-        bh=fnPDZGazy7dePG1Y/RVbT2mn1L1k+YkslfriBNg8rmw=;
+        s=default; t=1599496388;
+        bh=7kfMXVWrXLnU/OBvt23uMLhrzPlBrRM7MJEEVR6nPs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g8xj2DKTKwuAtyM5EWfllYM2itTLJ4lGiCnWZ47KvdtAo/KN0nw45zsqacaPUqzOf
-         mfzVJGmN4UZ19h1nB9TOdeyc+2ta8en8JfNvXqBtoBXO68gL8c7q3D6rTFM9HB32iy
-         m/C7LSLKeax1m3/DzWndl4Oaagxbf0ouNmtrwWlw=
+        b=pZ/By3KSSPlUNDICFOG+ekSagJDyZCTwSJPmXRawDXEJH9nNWYEk+/tnDrWeR1C5b
+         YKs5mHsNs/HpilW8UccCscMFudXJdH1W52IfZ7wBWvqfCKvGbB6FRioAbmyY2NdneU
+         r5e3WLqeCZynhM1+m9D8QqVoI7rLsCrpzFI+7XzI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nicholas Miell <nmiell@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 31/43] HID: microsoft: Add rumble support for the 8bitdo SN30 Pro+ controller
-Date:   Mon,  7 Sep 2020 12:33:17 -0400
-Message-Id: <20200907163329.1280888-31-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 38/53] HID: microsoft: Add rumble support for the 8bitdo SN30 Pro+ controller
+Date:   Mon,  7 Sep 2020 12:32:04 -0400
+Message-Id: <20200907163220.1280412-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200907163329.1280888-1-sashal@kernel.org>
-References: <20200907163329.1280888-1-sashal@kernel.org>
+In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
+References: <20200907163220.1280412-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -77,10 +77,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 3 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a9d59ac8d76f5..f3ba0b40c2d9b 100644
+index 476cb99bd61b7..95f9d285b3c6b 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -843,6 +843,7 @@
+@@ -846,6 +846,7 @@
  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
  #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
  #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb

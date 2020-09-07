@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-13.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB56FC43461
-	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 16:52:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0DABC43461
+	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 16:56:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B32782080A
-	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 16:52:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A88DC207DE
+	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 16:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599497520;
-	bh=rZxwYDHjK3qI25qdiskJGXz3d9ftzvsrU/pwOlWWUA4=;
+	s=default; t=1599497810;
+	bh=/OZybrrzqK8aQ6PDv5XBPVzax1nNxCN5rAOsHIq++Ts=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=mIJe3vfg1lbu44n0bEgIMeSryo2RNGiqd/PQPFQPwz/Nmns3bjpWKbINAcxHvi9IW
-	 NiEbPWQFzQy8pdoifrNwu/jtd4W9vF+1JCJtJxiWRcCBV8yBY99o6WuCeYm+5PTBeH
-	 Zvlr0BKt3AHKvUf+MbfVS5y6iN9oHonRs7xLXfY4=
+	b=EyJzewHYRNXDdnTekU2GyxymvxD2HLOoWGOMSVMBhNCgRrvK/Xyt2fUG6kTz40AkC
+	 AKNSH9fY/nWyl4JWCeHbZ6vN0iKdczT2qw2XuGxIZ+BNVNs6YCEcgmy9w1B6cnlcZs
+	 fj4iyWvuZdTzV/Xa9EDHXpWGy1RQc5M0xSb0XJAs=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730877AbgIGQvS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 7 Sep 2020 12:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48574 "EHLO mail.kernel.org"
+        id S1730873AbgIGQzy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Sep 2020 12:55:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730766AbgIGQeu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:34:50 -0400
+        id S1729928AbgIGQeI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 7 Sep 2020 12:34:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15DAC21D82;
-        Mon,  7 Sep 2020 16:34:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94AA421927;
+        Mon,  7 Sep 2020 16:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496486;
-        bh=rZxwYDHjK3qI25qdiskJGXz3d9ftzvsrU/pwOlWWUA4=;
+        s=default; t=1599496448;
+        bh=/OZybrrzqK8aQ6PDv5XBPVzax1nNxCN5rAOsHIq++Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G2v2ohngZ3DW8g0U74EfAKfmzMpUydaiU58URJv+Kmh+JE+GtcDWy0YabU2oVwQiw
-         S+xlEJD+boESPWmYFILnH73laijEFMswB8DnDdi88xn72T4W2N4M/aIbTqejAhDoni
-         36ycPMBSQwFe3Q9mp09ZsJ5rUivKFKiRDPPNUiVA=
+        b=igITfMVLDgqCQVEZxkiCmYo4Etqc3qY1tpEP22xxVgHJmCacTRkw6QIrdy7c1TyLd
+         xxxuSk8WPD2t4lOH8vbhHR+GJA8X7wpitVDPY1Up1cCAQFkDoJaymclTC5DgAy3wTc
+         c8QgzoQHArCqDQuzv8XD9KeZjO2BNi0O/exYSw8I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nirenjan Krishnan <nirenjan@gmail.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 16/26] HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for all Saitek X52 devices
-Date:   Mon,  7 Sep 2020 12:34:16 -0400
-Message-Id: <20200907163426.1281284-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 30/43] HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for all Saitek X52 devices
+Date:   Mon,  7 Sep 2020 12:33:16 -0400
+Message-Id: <20200907163329.1280888-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200907163426.1281284-1-sashal@kernel.org>
-References: <20200907163426.1281284-1-sashal@kernel.org>
+In-Reply-To: <20200907163329.1280888-1-sashal@kernel.org>
+References: <20200907163329.1280888-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -81,10 +81,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 4 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 2c100b73d3fc1..e18d796d985f8 100644
+index 09df5ecc2c79b..a9d59ac8d76f5 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -985,6 +985,8 @@
+@@ -1008,6 +1008,8 @@
  #define USB_DEVICE_ID_SAITEK_RAT9	0x0cfa
  #define USB_DEVICE_ID_SAITEK_MMO7	0x0cd0
  #define USB_DEVICE_ID_SAITEK_X52	0x075c
@@ -94,7 +94,7 @@ index 2c100b73d3fc1..e18d796d985f8 100644
  #define USB_VENDOR_ID_SAMSUNG		0x0419
  #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
 diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 62f87f8bd9720..2d8d20a7f4574 100644
+index b3dd60897ffda..e12df8c15155b 100644
 --- a/drivers/hid/hid-quirks.c
 +++ b/drivers/hid/hid-quirks.c
 @@ -147,6 +147,8 @@ static const struct hid_device_id hid_quirks[] = {

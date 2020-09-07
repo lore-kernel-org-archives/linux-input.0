@@ -2,31 +2,31 @@ Return-Path: <SRS0=pnPe=CQ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63C81C43461
-	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 20:41:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22F2DC433E2
+	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 20:41:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 325262177B
+	by mail.kernel.org (Postfix) with ESMTP id ED70021556
 	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 20:41:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727048AbgIGUky (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1728085AbgIGUky (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 7 Sep 2020 16:40:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44514 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728081AbgIGUkx (ORCPT
+        with ESMTP id S1728078AbgIGUkx (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Mon, 7 Sep 2020 16:40:53 -0400
 Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41DD2C061575;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B40AC061755;
         Mon,  7 Sep 2020 13:40:51 -0700 (PDT)
 Received: from [127.0.0.1] (localhost [127.0.0.1])
         (Authenticated sender: sre)
-        with ESMTPSA id 797D7290D19
+        with ESMTPSA id 7F83A2911A7
 Received: by jupiter.universe (Postfix, from userid 1000)
-        id 05CA448010D; Mon,  7 Sep 2020 22:40:47 +0200 (CEST)
+        id 0E8EA480118; Mon,  7 Sep 2020 22:40:47 +0200 (CEST)
 From:   Sebastian Reichel <sebastian.reichel@collabora.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         =?UTF-8?q?Myl=C3=A8ne=20Josserand?= 
@@ -34,191 +34,148 @@ To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, kernel@collabora.com,
         Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCHv2 1/4] dt-bindings: input: Convert rotary-encoder bindings to schema
-Date:   Mon,  7 Sep 2020 22:40:42 +0200
-Message-Id: <20200907204045.95530-2-sebastian.reichel@collabora.com>
+Subject: [PATCHv2 4/4] Input: rotary-encoder - Add gpio as push button
+Date:   Mon,  7 Sep 2020 22:40:45 +0200
+Message-Id: <20200907204045.95530-5-sebastian.reichel@collabora.com>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907204045.95530-1-sebastian.reichel@collabora.com>
 References: <20200907204045.95530-1-sebastian.reichel@collabora.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Convert rotary-encoder bindings to YAML schema.
+From: Mylène Josserand <mylene.josserand@collabora.com>
 
+Add the support of a gpio that can be defined as a push button.
+Thanks to that, it is possible to emit a keycode in case of a
+"push" event, if the rotary supports that.
+
+The keycode to emit is defined using "linux,code" property
+(such as in gpio-keys).
+
+Signed-off-by: Mylène Josserand <mylene.josserand@collabora.com>
+[code cleanup to current standards and renamed some properties]
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 ---
- .../bindings/input/rotary-encoder.txt         |  50 ---------
- .../bindings/input/rotary-encoder.yaml        | 100 ++++++++++++++++++
- 2 files changed, 100 insertions(+), 50 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/rotary-encoder.txt
- create mode 100644 Documentation/devicetree/bindings/input/rotary-encoder.yaml
+ .../bindings/input/rotary-encoder.yaml        | 21 +++++++++
+ drivers/input/misc/rotary_encoder.c           | 43 +++++++++++++++++++
+ 2 files changed, 64 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-deleted file mode 100644
-index a644408b33b8..000000000000
---- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-+++ /dev/null
-@@ -1,50 +0,0 @@
--Rotary encoder DT bindings
--
--Required properties:
--- gpios: a spec for at least two GPIOs to be used, most significant first
--
--Optional properties:
--- linux,axis: the input subsystem axis to map to this rotary encoder.
--  Defaults to 0 (ABS_X / REL_X)
--- rotary-encoder,steps: Number of steps in a full turnaround of the
--  encoder. Only relevant for absolute axis. Defaults to 24 which is a
--  typical value for such devices.
--- rotary-encoder,relative-axis: register a relative axis rather than an
--  absolute one. Relative axis will only generate +1/-1 events on the input
--  device, hence no steps need to be passed.
--- rotary-encoder,rollover: Automatic rollover when the rotary value becomes
--  greater than the specified steps or smaller than 0. For absolute axis only.
--- rotary-encoder,steps-per-period: Number of steps (stable states) per period.
--  The values have the following meaning:
--  1: Full-period mode (default)
--  2: Half-period mode
--  4: Quarter-period mode
--- wakeup-source: Boolean, rotary encoder can wake up the system.
--- rotary-encoder,encoding: String, the method used to encode steps.
--  Supported are "gray" (the default and more common) and "binary".
--
--Deprecated properties:
--- rotary-encoder,half-period: Makes the driver work on half-period mode.
--  This property is deprecated. Instead, a 'steps-per-period ' value should
--  be used, such as "rotary-encoder,steps-per-period = <2>".
--
--See Documentation/input/devices/rotary-encoder.rst for more information.
--
--Example:
--
--		rotary@0 {
--			compatible = "rotary-encoder";
--			gpios = <&gpio 19 1>, <&gpio 20 0>; /* GPIO19 is inverted */
--			linux,axis = <0>; /* REL_X */
--			rotary-encoder,encoding = "gray";
--			rotary-encoder,relative-axis;
--		};
--
--		rotary@1 {
--			compatible = "rotary-encoder";
--			gpios = <&gpio 21 0>, <&gpio 22 0>;
--			linux,axis = <1>; /* ABS_Y */
--			rotary-encoder,steps = <24>;
--			rotary-encoder,encoding = "binary";
--			rotary-encoder,rollover;
--		};
 diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.yaml b/Documentation/devicetree/bindings/input/rotary-encoder.yaml
-new file mode 100644
-index 000000000000..5b60ea86bd62
---- /dev/null
+index 5b60ea86bd62..682fee104004 100644
+--- a/Documentation/devicetree/bindings/input/rotary-encoder.yaml
 +++ b/Documentation/devicetree/bindings/input/rotary-encoder.yaml
-@@ -0,0 +1,100 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/rotary-encoder.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+@@ -74,6 +74,24 @@ properties:
+       need to be passed.
+     type: boolean
+ 
++  push-gpios:
++    description: GPIO used as a detection of a push from the rotary-encoder.
++    maxItems: 1
 +
-+title: Generic Rotary Encoder
-+
-+maintainers:
-+  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
-+
-+description:
-+  See Documentation/input/devices/rotary-encoder.rst for more information.
-+
-+properties:
-+  compatible:
-+    const: rotary-encoder
-+
-+  gpios:
-+    minItems: 2
-+    description: GPIOs for the rotation signals, most significant first
-+
-+  linux,axis:
++  linux,push-code:
 +    description:
-+      The input subsystem axis to map to this rotary encoder.
-+      Defaults to (ABS_X / REL_X).
++      keycode to emit with the push-gpio of this rotary encoder.
++      If not specified defaults to <28> == KEY_ENTER.
 +    $ref: /schemas/types.yaml#/definitions/uint32
-+    default: 0
++    default: 28
 +
-+  rotary-encoder,rollover:
++  linux,push-type:
 +    description:
-+      Automatic rollover when the rotary value becomes greater than the
-+      specified steps or smaller than 0. For absolute axis only.
-+    type: boolean
-+
-+  rotary-encoder,steps-per-period:
-+    description: The values have the following meaning
-+      1 - Full-period mode
-+      2 - Half-period mode
-+      4 - Quarter-period mode
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    enum: [1, 2, 4]
++      Specify event type this button/key generates.
++      If not specified defaults to <1> == EV_KEY.
++    $ref: /schemas/types.yaml#definitions/uint32
 +    default: 1
 +
-+  wakeup-source:
-+    description: Rotary encoder can wake up the system.
-+    type: boolean
+ required:
+   - compatible
+   - gpios
+@@ -97,4 +115,7 @@ examples:
+             linux,axis = <ABS_Y>;
+             rotary-encoder,encoding = "binary";
+             rotary-encoder,rollover;
++            push-gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
++            linux,push-code = <KEY_ENTER>;
++            linux,push-type = <EV_KEY>;
+     };
+diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+index 16ad86fad7cb..484042a5afa0 100644
+--- a/drivers/input/misc/rotary_encoder.c
++++ b/drivers/input/misc/rotary_encoder.c
+@@ -47,12 +47,33 @@ struct rotary_encoder {
+ 
+ 	unsigned int *irq;
+ 
++	struct gpio_desc *push_gpio;
++	unsigned int push_code;
++	unsigned int push_type;
 +
-+  rotary-encoder,encoding:
-+    description:
-+      Method used to encode steps. Gray code is more common.
-+    $ref: /schemas/types.yaml#/definitions/string
-+    enum: ["gray", "binary"]
-+    default: "gray"
+ 	bool armed;
+ 	signed char dir;	/* 1 - clockwise, -1 - CCW */
+ 
+ 	unsigned int last_stable;
+ };
+ 
++static irqreturn_t rotary_push_irq(int irq, void *dev_id)
++{
++	struct rotary_encoder *encoder = dev_id;
++	int val;
 +
-+  rotary-encoder,half-period:
-+    description:
-+      Deprecated, use "rotary-encoder,steps-per-period = <2>" instead.
-+    type: boolean
-+    deprecated: True
++	mutex_lock(&encoder->access_mutex);
 +
-+  rotary-encoder,steps:
-+    description:
-+      Number of steps in a full turnaround of the encoder. Only relevant
-+      for absolute axis. Defaults to 24 which is a typical value for such
-+      devices.
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    default: 24
++	val = gpiod_get_value_cansleep(encoder->push_gpio);
 +
-+  rotary-encoder,relative-axis:
-+    description:
-+      register a relative axis rather than an absolute one. Relative axis
-+      will only generate +1/-1 events on the input device, hence no steps
-+      need to be passed.
-+    type: boolean
++	input_report_key(encoder->input, encoder->push_code, val);
++	input_sync(encoder->input);
 +
-+required:
-+  - compatible
-+  - gpios
++	mutex_unlock(&encoder->access_mutex);
 +
-+additionalProperties: false
++	return IRQ_HANDLED;
++}
 +
-+examples:
-+  - |
-+    #include "dt-bindings/gpio/gpio.h"
-+    #include "dt-bindings/input/input.h"
-+    rotary-encoder0 {
-+            compatible = "rotary-encoder";
-+            gpios = <&gpio 19 GPIO_ACTIVE_LOW>, <&gpio 20 GPIO_ACTIVE_HIGH>;
-+            linux,axis = <REL_X>;
-+            rotary-encoder,encoding = "gray";
-+            rotary-encoder,relative-axis;
-+    };
-+    rotary-encoder1 {
-+            compatible = "rotary-encoder";
-+            gpios = <&gpio 21 GPIO_ACTIVE_HIGH>, <&gpio 22 GPIO_ACTIVE_HIGH>;
-+            linux,axis = <ABS_Y>;
-+            rotary-encoder,encoding = "binary";
-+            rotary-encoder,rollover;
-+    };
+ static unsigned int rotary_encoder_get_state(struct rotary_encoder *encoder)
+ {
+ 	int i;
+@@ -248,6 +269,16 @@ static int rotary_encoder_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
++	encoder->push_gpio = devm_gpiod_get_optional(dev, "push", GPIOD_IN);
++	if (IS_ERR(encoder->push_gpio))
++		return dev_err_probe(dev, PTR_ERR(encoder->push_gpio), "failed to get push-gpio\n");
++
++	encoder->push_code = KEY_ENTER;
++	device_property_read_u32(dev, "linux,push-code", &encoder->push_code);
++
++	encoder->push_type = EV_KEY;
++	device_property_read_u32(dev, "linux,push-type", &encoder->push_type);
++
+ 	input = devm_input_allocate_device(dev);
+ 	if (!input)
+ 		return -ENOMEM;
+@@ -304,6 +335,18 @@ static int rotary_encoder_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
++	if (encoder->push_gpio) {
++		input_set_capability(encoder->input, encoder->push_type, encoder->push_code);
++		err = devm_request_threaded_irq(dev, gpiod_to_irq(encoder->push_gpio),
++						NULL, rotary_push_irq,
++						IRQF_TRIGGER_RISING |
++						IRQF_TRIGGER_FALLING |
++						IRQF_ONESHOT,
++						DRV_NAME, encoder);
++		if (err)
++			return dev_err_probe(dev, err, "unable to request push IRQ\n");
++	}
++
+ 	err = input_register_device(input);
+ 	if (err) {
+ 		dev_err(dev, "failed to register input device\n");
 -- 
 2.28.0
 

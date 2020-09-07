@@ -2,110 +2,78 @@ Return-Path: <SRS0=pnPe=CQ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE613C433E2
-	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 17:05:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E4D2C433E2
+	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 20:41:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8FF1D20768
-	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 17:05:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599498337;
-	bh=d4MCGwCqQlcYJhFyTu2YWQpqUFTmOLbIk17fsT39at8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=t27NsGj8VIrvPk8ZSCI/bSGJuMPyKC0opJj2sg6OYBzDFD0d/eAtHXEKlDfTy38PN
-	 a93bbrARGW8SLgjfyosCsh+obtg0Q3sKQfJ+sJTt8pQOOWH6Cw6cyppot6VzbLJQ+l
-	 KoigmQPkgGUkGS1grnZUQv6YQoMdjqsuy78/oGl8=
+	by mail.kernel.org (Postfix) with ESMTP id 38FFA21582
+	for <linux-input@archiver.kernel.org>; Mon,  7 Sep 2020 20:41:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729826AbgIGRFe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 7 Sep 2020 13:05:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46892 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730505AbgIGQdI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 7 Sep 2020 12:33:08 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C671F21927;
-        Mon,  7 Sep 2020 16:33:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599496387;
-        bh=d4MCGwCqQlcYJhFyTu2YWQpqUFTmOLbIk17fsT39at8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quiC/+VjjcMIfECPZ9nTCToGFyOaw1B1x5u5gQZXHhhNHjHBIAfP7LPg1q2G0FE5G
-         8pRHRZPVFSnmlmyr8Q7CVgllKP7Bhw11Z94F3GEs9nZ/aI7CrQc2VGuk52tLkkYYAz
-         VgTAS8e+bmBC2rTEY1Mfb/kvVewPaM/U2OjHErlU=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nirenjan Krishnan <nirenjan@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 37/53] HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for all Saitek X52 devices
-Date:   Mon,  7 Sep 2020 12:32:03 -0400
-Message-Id: <20200907163220.1280412-37-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200907163220.1280412-1-sashal@kernel.org>
-References: <20200907163220.1280412-1-sashal@kernel.org>
+        id S1726732AbgIGUky (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Sep 2020 16:40:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44512 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728073AbgIGUkx (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Sep 2020 16:40:53 -0400
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D05C061573;
+        Mon,  7 Sep 2020 13:40:51 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: sre)
+        with ESMTPSA id 6F9B5285353
+Received: by jupiter.universe (Postfix, from userid 1000)
+        id 08765480115; Mon,  7 Sep 2020 22:40:47 +0200 (CEST)
+From:   Sebastian Reichel <sebastian.reichel@collabora.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        =?UTF-8?q?Myl=C3=A8ne=20Josserand?= 
+        <mylene.josserand@collabora.com>, Rob Herring <robh+dt@kernel.org>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kernel@collabora.com,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCHv2 2/4] Input: rotary-encoder - Fix steps property reading
+Date:   Mon,  7 Sep 2020 22:40:43 +0200
+Message-Id: <20200907204045.95530-3-sebastian.reichel@collabora.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200907204045.95530-1-sebastian.reichel@collabora.com>
+References: <20200907204045.95530-1-sebastian.reichel@collabora.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nirenjan Krishnan <nirenjan@gmail.com>
+The DT binding specifies 24 being used by default, but driver
+initializes to 0. The steps variable will be used for a modulo
+operation at a later step, so do not allow 0 (does not make
+sense in any case).
 
-[ Upstream commit 77df710ba633dfb6c65c65cf99ea9e084a1c9933 ]
-
-The Saitek X52 family of joysticks has a pair of axes that were
-originally (by the Windows driver) used as mouse pointer controls. The
-corresponding usage page is the Game Controls page, which is not
-recognized by the generic HID driver, and therefore, both axes get
-mapped to ABS_MISC. The quirk makes the second axis get mapped to
-ABS_MISC+1, and therefore made available separately.
-
-One Saitek X52 device is already fixed. This patch fixes the other two
-known devices with VID/PID 06a3:0255 and 06a3:0762.
-
-Signed-off-by: Nirenjan Krishnan <nirenjan@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 ---
- drivers/hid/hid-ids.h    | 2 ++
- drivers/hid/hid-quirks.c | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/input/misc/rotary_encoder.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 7cfa9785bfbb0..476cb99bd61b7 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1011,6 +1011,8 @@
- #define USB_DEVICE_ID_SAITEK_RAT9	0x0cfa
- #define USB_DEVICE_ID_SAITEK_MMO7	0x0cd0
- #define USB_DEVICE_ID_SAITEK_X52	0x075c
-+#define USB_DEVICE_ID_SAITEK_X52_2	0x0255
-+#define USB_DEVICE_ID_SAITEK_X52_PRO	0x0762
+diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+index 6d613f2a017c..e9a5dbb10513 100644
+--- a/drivers/input/misc/rotary_encoder.c
++++ b/drivers/input/misc/rotary_encoder.c
+@@ -198,7 +198,12 @@ static int rotary_encoder_probe(struct platform_device *pdev)
  
- #define USB_VENDOR_ID_SAMSUNG		0x0419
- #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index c242150d35a3a..5247147f5cc7c 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -147,6 +147,8 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_RETROUSB, USB_DEVICE_ID_RETROUSB_SNES_RETROPORT), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_PRO), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
+ 	mutex_init(&encoder->access_mutex);
+ 
++	encoder->steps = 24;
+ 	device_property_read_u32(dev, "rotary-encoder,steps", &encoder->steps);
++	if (!encoder->steps) {
++		dev_err(dev, "invalid steps setting\n");
++		return -EINVAL;
++	}
+ 
+ 	err = device_property_read_u32(dev, "rotary-encoder,steps-per-period",
+ 				       &steps_per_period);
 -- 
-2.25.1
+2.28.0
 

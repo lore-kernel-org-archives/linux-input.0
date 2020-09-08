@@ -2,75 +2,98 @@ Return-Path: <SRS0=yERA=CR=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FCD7C2BBD0
-	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 14:09:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1775DC433E2
+	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 16:05:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 249E4221F0
-	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 14:09:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C879B20738
+	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 16:05:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="VCGknq3m"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ILFU4OnP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729455AbgIHOJ2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 8 Sep 2020 10:09:28 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:9127 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729642AbgIHN6d (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Sep 2020 09:58:33 -0400
-X-UUID: 7452759587824b3d8d3fe1f5ec98c1d7-20200908
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=vqJfUyZ61K5wUVep/8CK7J7IXpwgsdenG4ghaUblgmg=;
-        b=VCGknq3mUj0O4y7WVhvPLD4IVolpHdv7mo+QkPc9b/3fuxbSN2zC36WrwQX/xCU6bdXmtv+gOfkpxXYGK3s4YyxlZcKVAldQ/JiIvrn/DJZObJMCCGqZ+lT+nHvGJ0GXNBMy+lV3R3MyN4gdj+uEUKJgdWckKCDSysYMIq3ObVA=;
-X-UUID: 7452759587824b3d8d3fe1f5ec98c1d7-20200908
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <fengping.yu@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 930332970; Tue, 08 Sep 2020 20:00:52 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs02n1.mediatek.inc (172.21.101.77) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Tue, 8 Sep 2020 20:00:50 +0800
-Received: from localhost.localdomain (10.15.20.246) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 8 Sep 2020 20:00:50 +0800
-From:   Fengping Yu <fengping.yu@mediatek.com>
-To:     Yingjoe Chen <yingjoe.chen@mediatek.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Rob Herring <robh+dt@kernel.org>
-CC:     <linux-input@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>
-Subject: [PATCH v18] Add matrix keypad driver support for Mediatek SoCs 
-Date:   Tue, 8 Sep 2020 19:56:11 +0800
-Message-ID: <20200908115614.29061-1-fengping.yu@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        id S1730924AbgIHQFV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 8 Sep 2020 12:05:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47624 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731192AbgIHQEv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 8 Sep 2020 12:04:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1599581086;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=1rC655iJP/0msIRrgIzespKhWDIIyrJTtWvObqbgi+Q=;
+        b=ILFU4OnP3fFiCvHbs3L2/LGcjY6kkGQ73TyHAGxD6B02QldDvLfHaHNL3QGJUT11Pe8A/f
+        JkUo/dcNx+p06/jlcbOpoqk418taLmKLcf6a+/Sr5LAPHe13rixII/9vzITJnOmsDIxhSD
+        LzpyNnC++Z74qMOielS94QCIczWh0Mw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-46-xDM-QLQzO7e3X-q4nx8w9g-1; Tue, 08 Sep 2020 09:51:58 -0400
+X-MC-Unique: xDM-QLQzO7e3X-q4nx8w9g-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2CA601007474;
+        Tue,  8 Sep 2020 13:51:57 +0000 (UTC)
+Received: from x1.localdomain (ovpn-114-188.ams2.redhat.com [10.36.114.188])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C665B27CC5;
+        Tue,  8 Sep 2020 13:51:54 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Henrique de Moraes Holschuh <ibm-acpi@hmh.eng.br>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
+        Mark Pearson <mpearson@lenovo.com>,
+        ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH v2 2/4] Input: allocate keycode for Fn + right shift
+Date:   Tue,  8 Sep 2020 15:51:45 +0200
+Message-Id: <20200908135147.4044-3-hdegoede@redhat.com>
+In-Reply-To: <20200908135147.4044-1-hdegoede@redhat.com>
+References: <20200908135147.4044-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-DQpDaGFuZ2Ugc2luY2UgdjE3Og0KLSBtb2RpZnkgaG93IHRvIGdldCBrZXljb2RlIGluIGtleXBh
-ZCBpc3IgZnVuY3Rpb24NCi0gdXBkYXRlIGtleXBhZCwgbnVtLWNvbHVtbnMgYW5kIGtleXBhZCwg
-bnVtLXJvd3MgZGVzY3JpcHRpb25zDQotIHJlcGxhY2UgdmFyaWFibGUgcmV0IGFzIGVycm9yIGlu
-IHByb2JlIGZ1bmN0aW9uDQoNCmZlbmdwaW5nLnl1ICgzKToNCiAgZHQtYmluZGluZ3M6IEFkZCBi
-aW5kaW5ncyBmb3IgTWVkaWF0ZWsgbWF0cml4IGtleXBhZA0KICBkcml2ZXJzOiBpbnB1dDprZXli
-b2FyZDogQWRkIG10ayBrZXlwYWQgZHJpdmVyDQogIGNvbmZpZ3M6IGRlZmNvbmZpZzogQWRkIENP
-TkZJR19LRVlCT0FSRF9NVEtfS1BEPW0NCg0KIC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0
-L210ay1rcGQueWFtbCAgICB8ICA4MyArKysrKysrDQogYXJjaC9hcm02NC9jb25maWdzL2RlZmNv
-bmZpZyAgICAgICAgICAgICAgICAgIHwgICAxICsNCiBkcml2ZXJzL2lucHV0L2tleWJvYXJkL0tj
-b25maWcgICAgICAgICAgICAgICAgfCAgMTEgKw0KIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvTWFr
-ZWZpbGUgICAgICAgICAgICAgICB8ICAgMSArDQogZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tdGst
-a3BkLmMgICAgICAgICAgICAgIHwgMjE4ICsrKysrKysrKysrKysrKysrKw0KIDUgZmlsZXMgY2hh
-bmdlZCwgMzE0IGluc2VydGlvbnMoKykNCiBjcmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1lbnRhdGlv
-bi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L210ay1rcGQueWFtbA0KIGNyZWF0ZSBtb2RlIDEw
-MDY0NCBkcml2ZXJzL2lucHV0L2tleWJvYXJkL210ay1rcGQuYw0KDQotLQ0KMi4xOC4wDQoNCg==
+The last 2 generations of Lenovo Thinkpads send an acpi_thinkpad event when
+Fn + right shift is pressed.  This is intended for use with "Lenovo Quick
+Clean" software, which disables the touchpad + kbd for 2 minutes on this
+key-combo so that healthcare workes can disinfect it.
+
+But there is no silkscreen print on the right-keyboard to indicate this,
+so add a KEY_FN_RIGHT_SHIFT keycode define to use for this key-combo.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+- New patch in v2 of this patch-set
+---
+ include/uapi/linux/input-event-codes.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index b74821d09145..ee93428ced9a 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -545,6 +545,7 @@
+ #define KEY_FN_F		0x1e2
+ #define KEY_FN_S		0x1e3
+ #define KEY_FN_B		0x1e4
++#define KEY_FN_RIGHT_SHIFT	0x1e5
+ 
+ #define KEY_BRL_DOT1		0x1f1
+ #define KEY_BRL_DOT2		0x1f2
+-- 
+2.28.0
 

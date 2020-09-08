@@ -2,47 +2,48 @@ Return-Path: <SRS0=yERA=CR=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2568C2BC11
-	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 19:14:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE3D3C43461
+	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 19:14:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 90F6E2087D
-	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 19:14:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 714F02087D
+	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 19:14:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OFFILiba"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c7atnnJ1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731862AbgIHTOM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 8 Sep 2020 15:14:12 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:45665 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731194AbgIHQEv (ORCPT
+        id S1731277AbgIHTOj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 8 Sep 2020 15:14:39 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:60482 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731190AbgIHQEv (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Tue, 8 Sep 2020 12:04:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1599581086;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=stommPcGntVxv45E3mEbKDsC4N/Rcgt4n/IKo8h4j7E=;
-        b=OFFILibabahcaEdDl1YVuxzxkyA7ux0sZE+DJah+b4oUSNgyU7CjaIp7I4/6OmpfWXvVZf
-        rtPGJfXGxs+rXX4/+pXbljgHkMw0NLCIgw/UvY2MB9t/AE/5fiHjD00zQaFId5O8QETula
-        pvkFk1+KxSHh0Mg2JUqzQxtSfWJuFEc=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DQErEVpu4UJOznG1YWtaIGHIF5xOzLeZwIotf5rYavI=;
+        b=c7atnnJ14SIenlYUklZUvpRc8VWHmvRRmSuEaZuV92HrQdPFqxrMuxLhpu2Z2AtOPE1/99
+        jqI+sSX4lSXO6U4+NIRoAmF0Xdqe8SByTQjEyxUi9unsSfq0gydGI8pwVTQ2bEg42TmNrg
+        zzOmnnsTQm/uhBcZ4cOz9crX681xskU=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-257-hMeKEd9aNr6YJPhkobpLEQ-1; Tue, 08 Sep 2020 09:51:53 -0400
-X-MC-Unique: hMeKEd9aNr6YJPhkobpLEQ-1
+ us-mta-110-Bra26V38P2On8YcFvIc7Ig-1; Tue, 08 Sep 2020 09:52:02 -0400
+X-MC-Unique: Bra26V38P2On8YcFvIc7Ig-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A37B418B9F0A;
-        Tue,  8 Sep 2020 13:51:51 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 55265425CD;
+        Tue,  8 Sep 2020 13:51:59 +0000 (UTC)
 Received: from x1.localdomain (ovpn-114-188.ams2.redhat.com [10.36.114.188])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C436B27CC7;
-        Tue,  8 Sep 2020 13:51:48 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 73FAE28564;
+        Tue,  8 Sep 2020 13:51:57 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Darren Hart <dvhart@infradead.org>,
@@ -52,10 +53,12 @@ Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
         Mark Pearson <mpearson@lenovo.com>,
         ibm-acpi-devel@lists.sourceforge.net,
         platform-driver-x86@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v2 0/4] Add 4 new keycodes and use them for 4 new hotkeys on new Lenovo Thinkpads
-Date:   Tue,  8 Sep 2020 15:51:43 +0200
-Message-Id: <20200908135147.4044-1-hdegoede@redhat.com>
+        Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: [PATCH v2 3/4] platform/x86: thinkpad_acpi: Add support for new hotkeys found on X1C8 / T14
+Date:   Tue,  8 Sep 2020 15:51:46 +0200
+Message-Id: <20200908135147.4044-4-hdegoede@redhat.com>
+In-Reply-To: <20200908135147.4044-1-hdegoede@redhat.com>
+References: <20200908135147.4044-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
@@ -64,31 +67,68 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi All,
+New Lenovo Thinkpad models, e.g. the X1 Carbon 8th gen and the new T14 gen1
+models have 3 new symbols / shortcuts on their F9-F11 keys (and the
+thinkpad_acpi driver receives 3 new hkey events for these):
 
-Here is a v2 of my series to get a couple of new hotkeys, and matching
-thinkpad_acpi hkey event codes seen on the last 2 generations of
-Thinkpads supported.
+F9:  Has a symbol resembling a rectangular speech balloon, the manual says
+     the hotkey functions shows or hides the notification center
+F10: Has a symbol of a telephone horn which has been picked up from the
+     receiver, the manual says: "Answer incoming calls"
+F11: Has a symbol of a telephone horn which is resting on the receiver,
+     the manual says: "Decline incoming calls"
 
-New in this version that Lenovo got back to me and explained that the 0x1316
-hkey event belongs to Fn + right Shift, so that is mapped now too.
+And these Thinkpad models also send a new 0x1316 hkey events when the
+Fn + right Shift key-combo is pressed.
 
-Since these make both include/uapi/linux/input-event-codes.h and
-drivers/platform/x86 changes one open question with this series is how to
-merge it.
+This commit adds support for these 4 new hkey events.
 
-Dmitry, for v1 of this series you suggested you could merge them all
-through the input tree ? Andy, one of the drivers/platform/x86 maintainers
-gave his Acked-by for this:
+Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+- Map 0x1316 to KEY_FN_RIGHT_SHIFT instead of to KEY_UNKNOWN (now that we
+  know what it does)
+---
+ drivers/platform/x86/thinkpad_acpi.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
-Alternatively the entire series could be merged through the
-linux-platform-drivers-x86 repo:
-
-https://git.infradead.org/users/dvhart/linux-platform-drivers-x86.git/shortlog/refs/heads/review-andy
-
-Regards,
-
-Hans
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 9c4df41687a3..4b701e9a0392 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -1913,6 +1913,10 @@ enum {	/* hot key scan codes (derived from ACPI DSDT) */
+ 	TP_ACPI_HOTKEYSCAN_CALCULATOR,
+ 	TP_ACPI_HOTKEYSCAN_BLUETOOTH,
+ 	TP_ACPI_HOTKEYSCAN_KEYBOARD,
++	TP_ACPI_HOTKEYSCAN_FN_RIGHT_SHIFT, /* Used by "Lenovo Quick Clean" */
++	TP_ACPI_HOTKEYSCAN_NOTIFICATION_CENTER,
++	TP_ACPI_HOTKEYSCAN_PICKUP_PHONE,
++	TP_ACPI_HOTKEYSCAN_HANGUP_PHONE,
+ 
+ 	/* Hotkey keymap size */
+ 	TPACPI_HOTKEY_MAP_LEN
+@@ -3429,11 +3433,15 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
+ 		KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN, KEY_UNKNOWN,
+ 		KEY_UNKNOWN,
+ 
+-		KEY_BOOKMARKS,       /* Favorite app, 0x311 */
+-		KEY_RESERVED,        /* Clipping tool */
+-		KEY_CALC,            /* Calculator (above numpad, P52) */
+-		KEY_BLUETOOTH,       /* Bluetooth */
+-		KEY_KEYBOARD         /* Keyboard, 0x315 */
++		KEY_BOOKMARKS,			/* Favorite app, 0x311 */
++		KEY_RESERVED,			/* Clipping tool */
++		KEY_CALC,			/* Calculator (above numpad, P52) */
++		KEY_BLUETOOTH,			/* Bluetooth */
++		KEY_KEYBOARD,			/* Keyboard, 0x315 */
++		KEY_FN_RIGHT_SHIFT,		/* Fn + right Shift */
++		KEY_NOTIFICATION_CENTER,	/* Notification Center */
++		KEY_PICKUP_PHONE,		/* Answer incoming call */
++		KEY_HANGUP_PHONE,		/* Decline incoming call */
+ 		},
+ 	};
+ 
+-- 
+2.28.0
 

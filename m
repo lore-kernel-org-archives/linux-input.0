@@ -2,127 +2,159 @@ Return-Path: <SRS0=yERA=CR=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7A49C433E2
-	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 20:02:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1EFDC433E2
+	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 20:04:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93A4C21D41
-	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 20:02:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AZYAF+r/"
+	by mail.kernel.org (Postfix) with ESMTP id 8A38320768
+	for <linux-input@archiver.kernel.org>; Tue,  8 Sep 2020 20:04:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731056AbgIHUCM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 8 Sep 2020 16:02:12 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51112 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730993AbgIHUCK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 8 Sep 2020 16:02:10 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 088K1gjJ130525;
-        Tue, 8 Sep 2020 16:01:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=RCWfza78E0GJe4XRsge2lB3xIYQ/dfHU4o560gh/5Fc=;
- b=AZYAF+r/zzFm1JuUabkiYrUhnpR0giqWm8smqe5EWvjkxFhJYCAUDTgpdT34cfcG/I6k
- xIUmAWyPc0ah8VLYHCjIE5lVPZaS1dQxi5atjbWm3gNYoQBY4Vq9zMwtAbkXeOJjMxmi
- oDH+zIAlLJo4RVAzmSwVVCKqCI4OdcoNerhQHcrSdRGxt2GziJbCi20FhSNIrxxgiHLW
- UpP5Q634NWO4Ak0Q+5gl39fhhq8IWKV2NmNX8H2oBYPnUGFWqE7PzUm3P6O9oHOF2Iq8
- Uf4gNx7ZGV9ID0Z6hJvkKkJlg0hulQQagdLPjzt7K3VH413AvHsThfNQJ+dkYcvN0p2v Xg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 33ef12b65j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Sep 2020 16:01:55 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 088K1mrW131001;
-        Tue, 8 Sep 2020 16:01:48 -0400
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 33ef12b5tc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Sep 2020 16:01:47 -0400
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 088JvoAh008549;
-        Tue, 8 Sep 2020 20:01:07 GMT
-Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
-        by ppma01dal.us.ibm.com with ESMTP id 33d46mk596-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Sep 2020 20:01:06 +0000
-Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
-        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 088K15Vc43123132
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Sep 2020 20:01:05 GMT
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C7156A04D;
-        Tue,  8 Sep 2020 20:01:05 +0000 (GMT)
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B45E96A047;
-        Tue,  8 Sep 2020 20:01:04 +0000 (GMT)
-Received: from SHADE6A.ibmuc.com (unknown [9.163.24.203])
-        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue,  8 Sep 2020 20:01:04 +0000 (GMT)
-From:   Eddie James <eajames@linux.ibm.com>
-To:     linux-input@vger.kernel.org
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-aspeed@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-        joel@jms.id.au, andrew@aj.id.au, benh@kernel.crashing.org,
-        brendanhiggins@google.com, dmitry.torokhov@gmail.com,
-        robh+dt@kernel.org, wsa@kernel.org, rentao.bupt@gmail.com,
-        ryan_chen@aspeedtech.com
-Subject: [PATCH v2 3/5] i2c: aspeed: Mask IRQ status to relevant bits
-Date:   Tue,  8 Sep 2020 15:00:59 -0500
-Message-Id: <20200908200101.64974-4-eajames@linux.ibm.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200908200101.64974-1-eajames@linux.ibm.com>
-References: <20200908200101.64974-1-eajames@linux.ibm.com>
+        id S1730403AbgIHUEn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 8 Sep 2020 16:04:43 -0400
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:33732 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730394AbgIHPXq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Sep 2020 11:23:46 -0400
+IronPort-SDR: A73xvdNyxsY1l7xwjxJRzrRhOuzXupkcYc7ZnS9I/MNbCnhE9r2NMD/gVfWfXdzVty37py88yS
+ NsXtFfY/Muyg63BxZjpYbBXfRFG04MmYT57C+RXVz3+GCiQompLecUbPTf3XMslGO9QxZutYcm
+ up9zpP34cHyNIjuEQb4bmnArGmKRsAqVQJeEEjoI6qmG7OD/+5r+/46QfuanAknkowz+r4WEmX
+ IZEhD2jPoyRil9+uKahwsYvK6FCYApCTsqvO7emc+uIJe8z/xQdKmOenGmv46BKG+QbiRE3Vrk
+ YjI=
+X-IronPort-AV: E=Sophos;i="5.76,406,1592899200"; 
+   d="scan'208";a="54874117"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa1.mentor.iphmx.com with ESMTP; 08 Sep 2020 07:16:21 -0800
+IronPort-SDR: znhbrejcoFm31kQaQGxCn2w+iduSV/IKA2TT4r1XS0EBSjw2Pr5fv1wQumrikkaJ1hSuarFb4s
+ GV3qBM/i3FpkYx6cmzVbLKW8qjXfCZ8k6zSdKu0b+ABC5WveJ1o2d4k8gvxQ8QXOtB/wbotcBs
+ TW68eAoAHaXsXVvjJ5x/aQYwqluOE83Bsgh0GFK6EXUY8UrxELnM5osWO7dmkESPBhEN7a/eXg
+ uKiZ33eIxolrJL0wGX6LZatW/wPKcNJABrnVbCSAQZ3EMQr24R8ZRk+x0sKCoQbgj/DHNUh1oV
+ Hsk=
+From:   Jiada Wang <jiada_wang@mentor.com>
+To:     <nick@shmanahar.org>, <dmitry.torokhov@gmail.com>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <Andrew_Gabbasov@mentor.com>, <erosca@de.adit-jv.com>,
+        <digetx@gmail.com>, <jiada_wang@mentor.com>
+Subject: [PATCH v3 1/1] Input: atmel_mxt_ts - implement I2C retries
+Date:   Wed, 9 Sep 2020 00:16:17 +0900
+Message-ID: <20200908151617.12199-1-jiada_wang@mentor.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-08_09:2020-09-08,2020-09-08 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
- lowpriorityscore=0 spamscore=0 phishscore=0 adultscore=0 mlxlogscore=905
- priorityscore=1501 impostorscore=0 mlxscore=0 suspectscore=1 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2009080179
+Content-Type: text/plain
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Mask the IRQ status to only the bits that the driver checks. This
-prevents excessive driver warnings when operating in slave mode
-when additional bits are set that the driver doesn't handle.
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Some maXTouch chips (eg mXT1386) will not respond on the first I2C request
+when they are in a sleep state. It must be retried after a delay for the
+chip to wake up.
+
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Yufeng Shen <miletus@chromium.org>
+(cherry picked from ndyer/linux/for-upstream commit 63fd7a2cd03c3a572a5db39c52f4856819e1835d)
+[gdavis: Forward port and fix conflicts.]
+Signed-off-by: George G. Davis <george_davis@mentor.com>
+[jiada: return exact errno when i2c_transfer & i2c_master_send fails,
+	add "_MS" suffix MXT_WAKEUP_TIME]
+Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/i2c/busses/i2c-aspeed.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 45 ++++++++++++++++--------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 31268074c422..2a388911038a 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -69,6 +69,7 @@
-  * These share bit definitions, so use the same values for the enable &
-  * status bits.
-  */
-+#define ASPEED_I2CD_INTR_ALL				0xf000ffff
- #define ASPEED_I2CD_INTR_SDA_DL_TIMEOUT			BIT(14)
- #define ASPEED_I2CD_INTR_BUS_RECOVER_DONE		BIT(13)
- #define ASPEED_I2CD_INTR_SLAVE_MATCH			BIT(7)
-@@ -604,6 +605,7 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
- 	writel(irq_received & ~ASPEED_I2CD_INTR_RX_DONE,
- 	       bus->base + ASPEED_I2C_INTR_STS_REG);
- 	readl(bus->base + ASPEED_I2C_INTR_STS_REG);
-+	irq_received &= ASPEED_I2CD_INTR_ALL;
- 	irq_remaining = irq_received;
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index a2189739e30f..145780f78122 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -196,6 +196,7 @@ enum t100_type {
+ #define MXT_CRC_TIMEOUT		1000	/* msec */
+ #define MXT_FW_RESET_TIME	3000	/* msec */
+ #define MXT_FW_CHG_TIMEOUT	300	/* msec */
++#define MXT_WAKEUP_TIME_MS	25	/* msec */
  
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
+ /* Command to unlock bootloader */
+ #define MXT_UNLOCK_CMD_MSB	0xaa
+@@ -626,6 +627,7 @@ static int __mxt_read_reg(struct i2c_client *client,
+ 	struct i2c_msg xfer[2];
+ 	u8 buf[2];
+ 	int ret;
++	bool retry = false;
+ 
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+@@ -642,17 +644,22 @@ static int __mxt_read_reg(struct i2c_client *client,
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
+ 
+-	ret = i2c_transfer(client->adapter, xfer, 2);
+-	if (ret == 2) {
+-		ret = 0;
+-	} else {
+-		if (ret >= 0)
+-			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
+-			__func__, ret);
++retry_read:
++	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
++	if (ret != ARRAY_SIZE(xfer)) {
++		if (!retry) {
++			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
++			msleep(MXT_WAKEUP_TIME_MS);
++			retry = true;
++			goto retry_read;
++		} else {
++			dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
++				__func__, ret);
++			return ret < 0 ? ret : -EIO;
++		}
+ 	}
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+@@ -661,6 +668,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	u8 *buf;
+ 	size_t count;
+ 	int ret;
++	bool retry = false;
+ 
+ 	count = len + 2;
+ 	buf = kmalloc(count, GFP_KERNEL);
+@@ -671,14 +679,21 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	buf[1] = (reg >> 8) & 0xff;
+ 	memcpy(&buf[2], val, len);
+ 
++retry_write:
+ 	ret = i2c_master_send(client, buf, count);
+-	if (ret == count) {
+-		ret = 0;
++	if (ret != count) {
++		if (!retry) {
++			dev_dbg(&client->dev, "%s: i2c retry\n", __func__);
++			msleep(MXT_WAKEUP_TIME_MS);
++			retry = true;
++			goto retry_write;
++		} else {
++			dev_err(&client->dev, "%s: i2c send failed (%d)\n",
++				__func__, ret);
++			ret = ret < 0 ? ret : -EIO;
++		}
+ 	} else {
+-		if (ret >= 0)
+-			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
+-			__func__, ret);
++		ret = 0;
+ 	}
+ 
+ 	kfree(buf);
 -- 
-2.26.2
+2.17.1
 

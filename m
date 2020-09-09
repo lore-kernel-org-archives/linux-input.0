@@ -2,69 +2,69 @@ Return-Path: <SRS0=+NLB=CS=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34881C433E2
-	for <linux-input@archiver.kernel.org>; Wed,  9 Sep 2020 20:31:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 760FFC433E2
+	for <linux-input@archiver.kernel.org>; Wed,  9 Sep 2020 20:32:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F204521D46
-	for <linux-input@archiver.kernel.org>; Wed,  9 Sep 2020 20:31:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3C18B21D46
+	for <linux-input@archiver.kernel.org>; Wed,  9 Sep 2020 20:32:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="d+u0LgPY"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jQyZ+YoU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729691AbgIIUbR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 9 Sep 2020 16:31:17 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63536 "EHLO
+        id S1729741AbgIIUb4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 9 Sep 2020 16:31:56 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63504 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729413AbgIIUbR (ORCPT
+        by vger.kernel.org with ESMTP id S1728954AbgIIUbR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 9 Sep 2020 16:31:17 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 089K3DEV041924;
-        Wed, 9 Sep 2020 16:31:04 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 089K3Axk012169;
+        Wed, 9 Sep 2020 16:31:05 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=uI6c8baewyLaCehDUE6mOXnhmffSjxnHmAwxUykDyNg=;
- b=d+u0LgPYSLb1PDSGvwQYwOfzWPtonR4JG4cicBeEWx4oDvaFy0yYYPkw9ay6FbUNEmcD
- 1V5jOvMFqOe9WfOpUrLySde/OUA9aoRjkrOK4aUqDINH9CUz05NY8+YP8qoU8mOA3PGI
- LaMHyZANxc8tLg+X23NJLKCI5II2u6Fflw/tcWufmWee45t7AoK7myk1J17SpkUmJhsv
- eklz2chbhUoOLsv5IwR//T8+pkOCxrp29pg+Dz/7vRTeI6iVIBpWP7KOc9aTZSRvxgeK
- HzutnmfjIPVHq2LctswXwBwBtkwgJ8KRHXkJOzfKZOngyk8hbWMsnTmCEQQV01oSEnv3 zw== 
+ bh=uZTwxRGiybMVxcdn181C6LPfRk1d8cI/lPlb4AZOy18=;
+ b=jQyZ+YoUUjD8i/ge0gXUaNH010nG1v9T3h3TixhBEMLEgx2rcsybCKodrutghtL0nh/P
+ Cu61mx5iP1vAat99fGfi0IXmv8hJIvz3GZ8VS/tui+7m+Lt2B0C5Jf7t4oBI45RfmtZo
+ 4zqEDiv9YzfF7oNrDGmP59YNsEuK24eOY+0mL1DjvDWpVBO6A7gEUA6I53a1qA1hb4GL
+ YY98nXiOQ0Nbq69cnc2Q1b+MWC7l/oabLkThDfn+Lv8XZfhKJX4irqRcdW5gjoOzBtv5
+ 1l3yfE2/49Q7OhaS0XwaX+5fiXOtqK0FmwMRg4QDpt9+VukoHFvLclJQtxHgk4vlLJVD fQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33f3xj45ek-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33f5nnrsss-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Sep 2020 16:31:05 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 089K3u2Y014703;
+        Wed, 9 Sep 2020 16:31:04 -0400
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33f5nnrss9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 09 Sep 2020 16:31:04 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 089K47C4044912;
-        Wed, 9 Sep 2020 16:31:04 -0400
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33f3xj45ds-1
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 089KQU2s024423;
+        Wed, 9 Sep 2020 20:31:03 GMT
+Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
+        by ppma02dal.us.ibm.com with ESMTP id 33c2a9jnfu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Sep 2020 16:31:03 -0400
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 089KSId1008986;
-        Wed, 9 Sep 2020 20:31:02 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma03dal.us.ibm.com with ESMTP id 33c2a9ar1b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Sep 2020 20:31:02 +0000
+        Wed, 09 Sep 2020 20:31:03 +0000
 Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 089KUt1o41746774
+        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 089KV2se17760678
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 9 Sep 2020 20:30:55 GMT
+        Wed, 9 Sep 2020 20:31:02 GMT
 Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CFDF478060;
-        Wed,  9 Sep 2020 20:31:00 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 5F02F78064;
+        Wed,  9 Sep 2020 20:31:02 +0000 (GMT)
 Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3FCFF7805E;
-        Wed,  9 Sep 2020 20:31:00 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B0F9178066;
+        Wed,  9 Sep 2020 20:31:01 +0000 (GMT)
 Received: from SHADE6A.ibmuc.com (unknown [9.163.76.239])
         by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Wed,  9 Sep 2020 20:31:00 +0000 (GMT)
+        Wed,  9 Sep 2020 20:31:01 +0000 (GMT)
 From:   Eddie James <eajames@linux.ibm.com>
 To:     linux-input@vger.kernel.org
 Cc:     devicetree@vger.kernel.org, linux-aspeed@lists.ozlabs.org,
@@ -73,9 +73,9 @@ Cc:     devicetree@vger.kernel.org, linux-aspeed@lists.ozlabs.org,
         andrew@aj.id.au, benh@kernel.crashing.org,
         brendanhiggins@google.com, wsa@kernel.org, rentao.bupt@gmail.com,
         ryan_chen@aspeedtech.com
-Subject: [PATCH v3 1/5] dt-bindings: input: Add documentation for IBM Operation Panel
-Date:   Wed,  9 Sep 2020 15:30:55 -0500
-Message-Id: <20200909203059.23427-2-eajames@linux.ibm.com>
+Subject: [PATCH v3 3/5] i2c: aspeed: Mask IRQ status to relevant bits
+Date:   Wed,  9 Sep 2020 15:30:57 -0500
+Message-Id: <20200909203059.23427-4-eajames@linux.ibm.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200909203059.23427-1-eajames@linux.ibm.com>
 References: <20200909203059.23427-1-eajames@linux.ibm.com>
@@ -84,94 +84,46 @@ Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
  definitions=2020-09-09_16:2020-09-09,2020-09-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 suspectscore=1 adultscore=0 mlxlogscore=999
- bulkscore=0 priorityscore=1501 impostorscore=0 malwarescore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2009090178
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1015
+ mlxscore=0 lowpriorityscore=0 phishscore=0 priorityscore=1501
+ mlxlogscore=932 malwarescore=0 spamscore=0 suspectscore=1 bulkscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2009090178
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Document the bindings for the IBM Operation Panel, which provides
-a simple interface to control a server. It has a display and three
-buttons.
-Also update MAINTAINERS for the new file.
+Mask the IRQ status to only the bits that the driver checks. This
+prevents excessive driver warnings when operating in slave mode
+when additional bits are set that the driver doesn't handle.
 
 Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Tao Ren <rentao.bupt@gmail.com>
 ---
- .../bindings/input/ibm,op-panel.yaml          | 41 +++++++++++++++++++
- MAINTAINERS                                   |  6 +++
- 2 files changed, 47 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/ibm,op-panel.yaml
+ drivers/i2c/busses/i2c-aspeed.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/ibm,op-panel.yaml b/Documentation/devicetree/bindings/input/ibm,op-panel.yaml
-new file mode 100644
-index 000000000000..52c4a6275a77
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/ibm,op-panel.yaml
-@@ -0,0 +1,41 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/ibm,op-panel.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: IBM Operation Panel
-+
-+maintainers:
-+  - Eddie James <eajames@linux.ibm.com>
-+
-+description: |
-+  The IBM Operation Panel provides a simple interface to control the connected
-+  server. It has a display and three buttons: two directional arrows and one
-+  'Enter' button.
-+
-+properties:
-+  compatible:
-+    const: ibm,op-panel
-+
-+  reg:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/i2c/i2c.h>
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        ibm-op-panel@62 {
-+            compatible = "ibm,op-panel";
-+            reg = <(0x62 | I2C_OWN_SLAVE_ADDRESS)>;
-+        };
-+    };
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3c0692404907..28408d29d873 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8346,6 +8346,12 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux.git
- F:	Documentation/ia64/
- F:	arch/ia64/
+diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+index 31268074c422..724bf30600d6 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -69,6 +69,7 @@
+  * These share bit definitions, so use the same values for the enable &
+  * status bits.
+  */
++#define ASPEED_I2CD_INTR_RECV_MASK			0xf000ffff
+ #define ASPEED_I2CD_INTR_SDA_DL_TIMEOUT			BIT(14)
+ #define ASPEED_I2CD_INTR_BUS_RECOVER_DONE		BIT(13)
+ #define ASPEED_I2CD_INTR_SLAVE_MATCH			BIT(7)
+@@ -604,6 +605,7 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
+ 	writel(irq_received & ~ASPEED_I2CD_INTR_RX_DONE,
+ 	       bus->base + ASPEED_I2C_INTR_STS_REG);
+ 	readl(bus->base + ASPEED_I2C_INTR_STS_REG);
++	irq_received &= ASPEED_I2CD_INTR_RECV_MASK;
+ 	irq_remaining = irq_received;
  
-+IBM Operation Panel Input Driver
-+M:	Eddie James <eajames@linux.ibm.com>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/input/ibm,op-panel.yaml
-+
- IBM Power 842 compression accelerator
- M:	Haren Myneni <haren@us.ibm.com>
- S:	Supported
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
 -- 
 2.26.2
 

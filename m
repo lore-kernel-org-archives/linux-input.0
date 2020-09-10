@@ -4,41 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08DA4C2D0E0
-	for <linux-input@archiver.kernel.org>; Thu, 10 Sep 2020 06:14:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00281C43461
+	for <linux-input@archiver.kernel.org>; Thu, 10 Sep 2020 06:18:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C267621941
-	for <linux-input@archiver.kernel.org>; Thu, 10 Sep 2020 06:14:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 953ED207EA
+	for <linux-input@archiver.kernel.org>; Thu, 10 Sep 2020 06:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599718455;
-	bh=aFC77LTk6EMTYaeAvM5v439HmVwSiuNIs3x+iO6HGkg=;
+	s=default; t=1599718702;
+	bh=Yb+E0PRlu6XWp+SFCdFVy2QdpRJHcT0DRIae7I/j2nU=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=bqpl+BtitdzS35wDyPUL118VzzjHJolgyYwLQ3I3QqXTOwLMXe7Jv7Gb2qbfkd/82
-	 0gCP9nglzkiaPpRBRFEc3iAGx4PmoB28ZND/pLfNlFmaRgCFW/aphbMkPOQgcb2tLE
-	 cGraBR11f/8lAnfem5F24acw1/8jgr4ReAQ+3gls=
+	b=QT4MRjxOnTH1fdltvfnNbj1bmmePeOETJhDDjVHM9GBkCeit/PrkHekCqC0M0q3vv
+	 VB2+7VdYKYm+DZLh9l4r1waEU0GxA2HzZgBlyjFQJfGtdwabv5ZfwaJxiUYsLc4ALr
+	 DLong6pLauGpK9CsVyktA1RpzMVoHZQdCzHoq+Z4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726345AbgIJGOK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 10 Sep 2020 02:14:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43668 "EHLO mail.kernel.org"
+        id S1727830AbgIJGSU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 10 Sep 2020 02:18:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726160AbgIJGOG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Sep 2020 02:14:06 -0400
+        id S1727087AbgIJGSR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 10 Sep 2020 02:18:17 -0400
 Received: from localhost (p5486ceec.dip0.t-ipconnect.de [84.134.206.236])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 927E320795;
-        Thu, 10 Sep 2020 06:14:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2E2F207DE;
+        Thu, 10 Sep 2020 06:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599718445;
-        bh=aFC77LTk6EMTYaeAvM5v439HmVwSiuNIs3x+iO6HGkg=;
+        s=default; t=1599718696;
+        bh=Yb+E0PRlu6XWp+SFCdFVy2QdpRJHcT0DRIae7I/j2nU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Y0jH3hJVYg4vKviF52V5Za+Ia1rVnIOnmyRhsn5dJxaEagRwxBcbEDlq4/Jl4ZXy4
-         plUoNrWz4+Sxq3pxzPg7F9YhPZAc6oZABgg3U7bYommZMQqKkIVyqL3HiETgxMKRxk
-         rp/wdCn5n04kokyAHgAncOz/k5YsZ80gFmeGjR28=
-Date:   Thu, 10 Sep 2020 08:13:59 +0200
+        b=ypEc5ZDDVu4Jqu+/NmndRj9tWWySD60+6jffn47aHxMEJQ34N4cl3EAvUrfCpZvm/
+         pSVMLC3N59ozyXKy2DtvxdSH5Tmk2sTbYbdpQI0DD2jLUmlvEBDXMMbyTPIjR2/lWU
+         Ctun7fviFDUDrBFo8iukZrJb68jtd1tlkbpDYrvk=
+Date:   Thu, 10 Sep 2020 08:18:13 +0200
 From:   Wolfram Sang <wsa@kernel.org>
 To:     Eddie James <eajames@linux.ibm.com>
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
@@ -47,15 +47,15 @@ Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         dmitry.torokhov@gmail.com, joel@jms.id.au, andrew@aj.id.au,
         benh@kernel.crashing.org, brendanhiggins@google.com,
         rentao.bupt@gmail.com, ryan_chen@aspeedtech.com
-Subject: Re: [PATCH v3 2/5] input: misc: Add IBM Operation Panel driver
-Message-ID: <20200910061359.GA1031@ninjato>
+Subject: Re: [PATCH v3 3/5] i2c: aspeed: Mask IRQ status to relevant bits
+Message-ID: <20200910061813.GB1031@ninjato>
 References: <20200909203059.23427-1-eajames@linux.ibm.com>
- <20200909203059.23427-3-eajames@linux.ibm.com>
+ <20200909203059.23427-4-eajames@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+        protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
 Content-Disposition: inline
-In-Reply-To: <20200909203059.23427-3-eajames@linux.ibm.com>
+In-Reply-To: <20200909203059.23427-4-eajames@linux.ibm.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
@@ -63,42 +63,41 @@ List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 
---M9NhX3UHpAaciwkO
+--CdrF4e02JqNVZeln
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 09, 2020 at 03:30:56PM -0500, Eddie James wrote:
-> Add a driver to get the button events from the panel and provide
-> them to userspace with the input subsystem. The panel is
-> connected with I2C and controls the bus, so the driver registers
-> as an I2C slave device.
+On Wed, Sep 09, 2020 at 03:30:57PM -0500, Eddie James wrote:
+> Mask the IRQ status to only the bits that the driver checks. This
+> prevents excessive driver warnings when operating in slave mode
+> when additional bits are set that the driver doesn't handle.
 >=20
 > Signed-off-by: Eddie James <eajames@linux.ibm.com>
-> Reviewed-by: Joel Stanley <joel@jms.id.au>
+> Reviewed-by: Tao Ren <rentao.bupt@gmail.com>
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com> # I2C slave pa=
-rts
+I reconsidered and applied it now because this helps whenever slave mode
+is used. So, applied to for-current, thanks!
 
 
---M9NhX3UHpAaciwkO
+--CdrF4e02JqNVZeln
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9ZxCEACgkQFA3kzBSg
-KbaItA/+KArp0AcYWSxj1IIj3GMN3RvqqFm3utx62fNdSHyQTyRI5yR/zPtsRWGg
-KZQa3NZ+DtzaWNl8lReH9PC0EB6+/ouqOQQ9cqj+o4u0Uj4wCtZgap1Oiu8jYBC7
-kGHLT43Nh/Cs7YLvcNP7cpDlW+pP3FCxDKahc5vUCoNlQAR97/6v4fHiWL3LvB+c
-h2IBIiVXj8ObIe8HBeC0JJ2nT08nVrINSeQZGhP6pz/fjnRpn6q3m5rPngm+8gAV
-KQpOU7DA1XsIQI+Dmgf4j68uduXHHCYTfU39RDPAWfZoW6dN1BaGMGH3R/CNRT0K
-T04HFqrwyun5g3Ea7e5BjRY5THnLRiDXBn5UenfVCbiCThljV8Yc8a/Rq3Xu7zFr
-DcKFfQu8TDcOV6GHWqjFn0O6FAlcbLOYUVlR9Akf2WzMBX5qycurcojsu9y48OVv
-KtOyNd1LqvWiSzo7G/PNW/jNfouSp6o3n2UVbu9tbyHkp2HZN2m7x02IY7azLzNE
-nB2CpjIpRhXuTixV9OyLBYx0kyBb/KzjgC478EAWMc5/HD3ZCSGg6nlLyjsmCONY
-jDYqOKWC4XjG+rWgKXCm2Pa7hOwRuATtL3hgLKjAGMrxMBxG8auX0jcpBX1kddP7
-M67KqTPmaoa5iRDXc6Hyr9ymBIzBz7cvEhTNcYy36rQtom2Vw24=
-=bz+x
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9ZxSUACgkQFA3kzBSg
+KbY4lA/7BPR/KKPe3DlbFxWjisVzVubyppY3DMDQn/HM5WbyLRuMQN0Szncjq0TS
+dQyx/bBDZSUtxRL7P+IXHPJW+4LdR/kkl9Cd5uruSnD5gy2wlgpUeNu7Ox7EoTJ4
+GQU76iXiCKwwLr+LXO3FUinO7CV3Q6Id1oItp0i0GaYnkN1BEU612x674yoC0TLg
+szWdRfum2fEFik2wH1OONrtQLiua7RxrOAQ8IrW9vuba0ArztdYiioupM/Sph2as
+PFnvXEZNZ4Lqag9Yu7RTZ69umjjsvQ0PCMGmyW6gPdXWUt+9erKFlCUpo2APnjHQ
+hLz+d1zY6VI57Xy7vM5eVaBXAADLf1p4EtviUHQK2YnBuKt7dvEQkkSzCowShcxS
+ykWscCRrAw2cMl6uXZATUQwV71XI8QOotXr0Do76FEuzlLTUWIxtfPsdvj4qVfW4
+HkgvnVnUgMINM2WPx910RAi5QxskMuzbqLEgSrSNapUa6xrev3y2cgEvkSe34+fE
+6tkdMMtFbXV7opN7JW9xj8iG04p/OzBKvXEG2g4rdZyLnwPziIOc88IexLB/dbej
+mAOQjBVwndmjroCqjeTB7G94KQe16y9nh0fHt24driD/txSzPjSAM2qWDhbJWbCE
+1M7fIH5V55rFJVtP8BhVGzzcpVzEaF4ATg4KG78srwnwxe9K0ho=
+=Eqed
 -----END PGP SIGNATURE-----
 
---M9NhX3UHpAaciwkO--
+--CdrF4e02JqNVZeln--

@@ -2,141 +2,144 @@ Return-Path: <SRS0=MdzI=CT=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 598BEC2D0A7
-	for <linux-input@archiver.kernel.org>; Thu, 10 Sep 2020 20:59:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93F1EC43461
+	for <linux-input@archiver.kernel.org>; Thu, 10 Sep 2020 21:03:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 11D2B221E3
-	for <linux-input@archiver.kernel.org>; Thu, 10 Sep 2020 20:59:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4AF7D20829
+	for <linux-input@archiver.kernel.org>; Thu, 10 Sep 2020 21:03:42 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PLMSr5mh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727070AbgIJU6e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 10 Sep 2020 16:58:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60498 "EHLO
+        id S1731193AbgIJOiJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 10 Sep 2020 10:38:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727927AbgIJU6L (ORCPT
+        with ESMTP id S1731019AbgIJOfX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Sep 2020 16:58:11 -0400
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E6AC061756;
-        Thu, 10 Sep 2020 13:58:10 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: sre)
-        with ESMTPSA id D5E5029BB25
-Received: by earth.universe (Postfix, from userid 1000)
-        id 35C1A3C0C84; Thu, 10 Sep 2020 22:58:06 +0200 (CEST)
-Date:   Thu, 10 Sep 2020 22:58:05 +0200
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Rob Herring <robh+dt@kernel.org>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        =?utf-8?Q?Myl=C3=A8ne?= Josserand 
-        <mylene.josserand@collabora.com>,
-        Linux Input <linux-input@vger.kernel.org>,
-        devicetree@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Collabora Kernel ML <kernel@collabora.com>
-Subject: Re: [PATCHv2 3/4] Input: rotary-encoder - Use dev_err_probe
-Message-ID: <20200910205805.dxtg2ugq25cr5bhx@earth.universe>
-References: <20200907204045.95530-1-sebastian.reichel@collabora.com>
- <20200907204045.95530-4-sebastian.reichel@collabora.com>
- <CAL_JsqJ8E4Y-kaksCXBC=_sEf4Nz8bZr-4=_g5_PjWtQJm8jsA@mail.gmail.com>
+        Thu, 10 Sep 2020 10:35:23 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A10ECC0617A3;
+        Thu, 10 Sep 2020 07:35:19 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id nw23so9063267ejb.4;
+        Thu, 10 Sep 2020 07:35:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=KCYaWwcvDjz/OmO+LXtbRJ6LszuyteB8m/JYCI1W1Mk=;
+        b=PLMSr5mhrZi80kquG3UTKc10L5Ed+nu36WWw+z2lZB7jY2NtSZwMDvRpv3TuwllizR
+         7wpc1iofk2ZoyyDJwpWceFzTiHn90TWZgiZ045Rqz/ctDq5xo9epE09YznVy4EY1BmCs
+         l2St/n4EQLGLl4Irlj/CjiNUTGWsQjI0pEg6F+baJPziJDFYBOwuCCOyMb+xCs9CEFvu
+         9KFGfkT69xlzT78AdIbRIVXoCrdn7bCNxNeWDPtg/woOLBOGoZLIKsWAlBjbsXvCsg9/
+         +ESlgsmFyeGx507Da/rJqBOVrFWssFaCbV59079oaLVMMMb6jhwsRiqhXjYp00Drq8eS
+         JdWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=KCYaWwcvDjz/OmO+LXtbRJ6LszuyteB8m/JYCI1W1Mk=;
+        b=UFEPDaW6+yZMFx6m0VsNz3MGpAwL6M01lCF9AbqLIjFd63jnlOiw5djUQvdTIPokW3
+         VHmxa+Vyv/WzdOTxr2SEOnyD7j43evAls5fS/lI86MXSaDa0UJ4YQZtQIWxiRD6THmWN
+         bAJLAf2VKkdvTOG53mLFImXh7ZuiLo3x+AllljfJ05YnflmrDrNHPaHgqRjD8b9mplFw
+         qNA8sImuiwgO9O/xK4HaS71jXLVHsGygYDog/+ooCpxRm+5AKKYfhIISJKs5CzDrL72/
+         7RdEVaio6ZEY4Oz+W2hQfcrkPv+OP8EXky2dFoJPf1j6s82Z5lRnX/+bbaLC4AHaJthY
+         KAfA==
+X-Gm-Message-State: AOAM532OKeSERX9CGPVjdviG55sYo/xPyfeuQYo69cztuMbQJwywpaeQ
+        iwII9gjap6tv8/JWgpadtTA=
+X-Google-Smtp-Source: ABdhPJzWHmRORR4s5GPtiMxYzRL7RIeJHACIEt31sw6plEpoQQDbSHFzrwWgxYbTiAiLDLiHODRGHA==
+X-Received: by 2002:a17:906:e4f:: with SMTP id q15mr9640896eji.155.1599748518392;
+        Thu, 10 Sep 2020 07:35:18 -0700 (PDT)
+Received: from auth2-smtp.messagingengine.com (auth2-smtp.messagingengine.com. [66.111.4.228])
+        by smtp.gmail.com with ESMTPSA id ot19sm6825559ejb.121.2020.09.10.07.35.14
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 10 Sep 2020 07:35:17 -0700 (PDT)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailauth.nyi.internal (Postfix) with ESMTP id CE39C27C00A2;
+        Thu, 10 Sep 2020 10:35:13 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Thu, 10 Sep 2020 10:35:13 -0400
+X-ME-Sender: <xms:oTlaX8LSfERbecu5P4Y3VnX8QDSTfUIGezI8Hipxv2LnPtz7F4DBPg>
+    <xme:oTlaX8IkTh1tJF26F5X221FUudtaV7u56qa6z1D_VKOQW2Lmh0L4mwdo_h5rkdvG_
+    ECZe3GDzwCWnxUEXg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehjedgjedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    goufhorhhtvggutfgvtghiphdvucdlgedtmdenucfjughrpefhvffufffkofgjfhgggfes
+    tdekredtredttdenucfhrhhomhepuehoqhhunhcuhfgvnhhguceosghoqhhunhdrfhgvnh
+    hgsehgmhgrihhlrdgtohhmqeenucggtffrrghtthgvrhhnpeehvdevteefgfeiudettdef
+    vedvvdelkeejueffffelgeeuhffhjeetkeeiueeuleenucfkphephedvrdduheehrdduud
+    durdejudenucevlhhushhtvghrufhiiigvpeehnecurfgrrhgrmhepmhgrihhlfhhrohhm
+    pegsohhquhhnodhmvghsmhhtphgruhhthhhpvghrshhonhgrlhhithihqdeiledvgeehtd
+    eigedqudejjeekheehhedvqdgsohhquhhnrdhfvghngheppehgmhgrihhlrdgtohhmsehf
+    ihigmhgvrdhnrghmvg
+X-ME-Proxy: <xmx:oTlaX8tKhMX0KlXUF85wFnPzW9q02D2iV3z0nFlfNh75RGMaWwXWZw>
+    <xmx:oTlaX5amjTY7Rkksn5WCySfesXGC-eH8Vs3Dz60JGqN1ty073ZFy0Q>
+    <xmx:oTlaXzZ2hmDQiNVFuEI1gHCMoz1HeGK-QKZrR6fgxUOJ1Lq-hcO6gw>
+    <xmx:oTlaXwJ27AAct8MQcnQ5XmCc0ME2n0zxJ-szRB9WVJWXntdGTOzVGz5uryA>
+Received: from localhost (unknown [52.155.111.71])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 106293280059;
+        Thu, 10 Sep 2020 10:35:13 -0400 (EDT)
+From:   Boqun Feng <boqun.feng@gmail.com>
+To:     linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc:     "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Michael Kelley <mikelley@microsoft.com>, will@kernel.org,
+        ardb@kernel.org, arnd@arndb.de, catalin.marinas@arm.com,
+        mark.rutland@arm.com, maz@kernel.org,
+        Boqun Feng <boqun.feng@gmail.com>
+Subject: [PATCH v3 06/11] hv: hyperv.h: Introduce some hvpfn helper functions
+Date:   Thu, 10 Sep 2020 22:34:50 +0800
+Message-Id: <20200910143455.109293-7-boqun.feng@gmail.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200910143455.109293-1-boqun.feng@gmail.com>
+References: <20200910143455.109293-1-boqun.feng@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="nx2r6g6udosrjx7z"
-Content-Disposition: inline
-In-Reply-To: <CAL_JsqJ8E4Y-kaksCXBC=_sEf4Nz8bZr-4=_g5_PjWtQJm8jsA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+When a guest communicate with the hypervisor, it must use HV_HYP_PAGE to
+calculate PFN, so introduce a few hvpfn helper functions as the
+counterpart of the page helper functions. This is the preparation for
+supporting guest whose PAGE_SIZE is not 4k.
 
---nx2r6g6udosrjx7z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+---
+ include/linux/hyperv.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Hi Rob,
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 6f4831212979..00c09d2ff9ad 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -1687,4 +1687,9 @@ static inline unsigned long virt_to_hvpfn(void *addr)
+ 	return  paddr >> HV_HYP_PAGE_SHIFT;
+ }
+ 
++#define NR_HV_HYP_PAGES_IN_PAGE	(PAGE_SIZE / HV_HYP_PAGE_SIZE)
++#define offset_in_hvpage(ptr)	((unsigned long)(ptr) & ~HV_HYP_PAGE_MASK)
++#define HVPFN_UP(x)	(((x) + HV_HYP_PAGE_SIZE-1) >> HV_HYP_PAGE_SHIFT)
++#define page_to_hvpfn(page)	(page_to_pfn(page) * NR_HV_HYP_PAGES_IN_PAGE)
++
+ #endif /* _HYPERV_H */
+-- 
+2.28.0
 
-On Wed, Sep 09, 2020 at 01:48:49PM -0600, Rob Herring wrote:
-> On Mon, Sep 7, 2020 at 2:40 PM Sebastian Reichel
-> <sebastian.reichel@collabora.com> wrote:
-> >
-> > Simplify driver a bit by making use of dev_err_probe.
-> >
-> > Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-> > ---
-> >  drivers/input/misc/rotary_encoder.c | 8 ++------
-> >  1 file changed, 2 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/r=
-otary_encoder.c
-> > index e9a5dbb10513..16ad86fad7cb 100644
-> > --- a/drivers/input/misc/rotary_encoder.c
-> > +++ b/drivers/input/misc/rotary_encoder.c
-> > @@ -241,12 +241,8 @@ static int rotary_encoder_probe(struct platform_de=
-vice *pdev)
-> >                 device_property_read_bool(dev, "rotary-encoder,relative=
--axis");
-> >
-> >         encoder->gpios =3D devm_gpiod_get_array(dev, NULL, GPIOD_IN);
-> > -       if (IS_ERR(encoder->gpios)) {
-> > -               err =3D PTR_ERR(encoder->gpios);
-> > -               if (err !=3D -EPROBE_DEFER)
-> > -                       dev_err(dev, "unable to get gpios: %d\n", err);
-> > -               return err;
-> > -       }
-> > +       if (IS_ERR(encoder->gpios))
-> > +               return dev_err_probe(dev, PTR_ERR(encoder->gpios), "una=
-ble to get gpios\n");
->=20
-> I hadn't seen dev_err_probe...
-
-It got added in 5.8.
-
-> Just FYI, I'm working on a different fix here which is to print errors
-> in the subsystems instead. We already do this for IRQs, so why not
-> everything else? The original reason was no resource is sometimes not
-> an error, but now we have *_optional calls to handle this case for
-> most all subsystems. It's a coccinelle script (hacked up from
-> platform_get_irq.cocci) to convert all the drivers.
-
-Makes sense. I suppose dev_err_probe could be used within the
-framework(s) and is still useful for those resource frameworks not
-having _optional variants.
-
-FYI: There is a bunch of dev_err_probe for all kind of drivers
-being send out at the moment. I already received quite a few
-for the power-supply subsystem. Be prepared for conflicts.
-
-If this is about this specific instance: No hard feelings, I
-only cleaned up the driver a bit while adding new features
-and being able to easily test the cleanups on real HW. With
-some luck patch 4/4 applies without this one.
-
--- Sebastian
-
---nx2r6g6udosrjx7z
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl9ak1cACgkQ2O7X88g7
-+pp3QQ/9F5JQmMwmQUV7a6kriYUD4bNkjhdlp4k+y5+pPYKbFlN+UA6kF5aeKOZW
-YiYDTqPbtNfTxeYdwkky/Hq7fCigzwBpq+bunhTaMkEKHEqWTafozJS6sVP5lHTw
-ZW9asjTUqHYb8FHJF9Az6k5hMpdNO1sFGBQqLIYJS38ogryLowNkodqyQB08B+Sr
-wIWJ5YbqgmwAZR3ALkkwpmnIKGaPrNWXU9EEOmiQD/gfA7+/q1xFdCTyp55TJDzl
-boX9ilTkXmMsAiwjEimMLqCwJWoHwBrQ7pEKS2VldVvzX1Rw967d9xO61UNa+1W/
-g6XKghVfVxdzKs40AL9YoHHjwHyOQucFYy0zaGx3zTSzgAeXLO3mw69OTtxkTaya
-Ed0Sd/qUT0wBizM+pub/0RT4PHvaUnSnugBq/kSRu34GEFOnKB7ekeEeW4O8P7Pl
-TDKca0CNFEkW3/zSIflI5Gi1FO2hKR4ExK+sdZg9qzPHT5KHapjPpnTZHtX2BnyK
-PqJ0CvPZwNzQZwrFNB7a6E+ATesCko+58Vf5SSKwgYHxCRqpvL9xV3yz6/L/4Nlh
-C46/EqWha26v9QAWv6ppyokBOpSRPM1BJHaGv4iY9T775iYAHNKcVCmmNup032OX
-LpUUQNly2CD0cKg5nDHkxJn5C6I0tRadu1Pu2+2zzt3VME9iUXI=
-=2zx5
------END PGP SIGNATURE-----
-
---nx2r6g6udosrjx7z--

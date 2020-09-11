@@ -2,92 +2,111 @@ Return-Path: <SRS0=Bp3N=CU=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43542C43461
-	for <linux-input@archiver.kernel.org>; Fri, 11 Sep 2020 16:15:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FC43C43461
+	for <linux-input@archiver.kernel.org>; Fri, 11 Sep 2020 16:41:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04CAC20659
-	for <linux-input@archiver.kernel.org>; Fri, 11 Sep 2020 16:15:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599840941;
-	bh=HMBcymtk77RYwGv4d9Wm4/VkWxcFFMRQguW6QFOqV+A=;
-	h=Date:From:To:Subject:References:In-Reply-To:List-ID:From;
-	b=yn1GCqu+eIL2L1gyH2XAV68UEG5YhSGmlc0QlSBYO954Ir3prgWAe+sbX/a5bODTj
-	 p/LKXAZ4383bITAnusTn+0BEN8hf/Hogm/sjFyRjPhnTAU6SmknZEot99LTibiLtLp
-	 nrE9mlPd233IewDsYp8kHLj04p5jRV861+/v3u+0=
+	by mail.kernel.org (Postfix) with ESMTP id 35BAD221ED
+	for <linux-input@archiver.kernel.org>; Fri, 11 Sep 2020 16:41:55 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YwFZrLxE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726074AbgIKQPh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Sep 2020 12:15:37 -0400
-Received: from mail-ej1-f67.google.com ([209.85.218.67]:44838 "EHLO
-        mail-ej1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726492AbgIKPb7 (ORCPT
+        id S1726242AbgIKQle (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 11 Sep 2020 12:41:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59390 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726404AbgIKPKu (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:31:59 -0400
-Received: by mail-ej1-f67.google.com with SMTP id r7so14320810ejs.11;
-        Fri, 11 Sep 2020 08:31:58 -0700 (PDT)
+        Fri, 11 Sep 2020 11:10:50 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 562DDC061757;
+        Fri, 11 Sep 2020 08:10:40 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id z19so6198575lfr.4;
+        Fri, 11 Sep 2020 08:10:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Kv9oMQQFyLAZk1SItD7ecip/eYagD8o/JxuoFQE0OoQ=;
+        b=YwFZrLxEEvRdg2NhApHcQg4xFnmm2xoIOA2btQCY2882iW09CG5O6Qztv5mU8dm9hm
+         vFOUulAFD/55SkmKDyZQlX1idzqhY211NPAROG6hpUGi7XAX4+Yjiu1Vml1XtpmpRPaG
+         KdOyHOKgW5ODx/YdV5HI8M2B1LySYpmiAD0fco7EyayBjIwfFA1nAs4arDLNZVgUAfUo
+         RtMipJ5GGEjynewXmSEnjhs05a4cUXfa8iPhgn/c/vrxGMeqOkebh4IJ4yh3m4v78Ys8
+         SYg9lI4gzAtWffjOxivLYyRSKJSSL8qziJca8GTXJz7Kzz0WA5d1yvpOxm3/Rfo2Hgix
+         hJIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=7GFfCvow/YG2PC4PNBavqBdXR1kQF0CV+iI3Qu1eqX0=;
-        b=I89XRvtihi1LZe6mAXmx21WHa2vE2/ZO8otgupGS2QXH8DTyKUcw+Q0kgwpwIueA4W
-         pcWOiA80F+BpYg6Op52gn+b5EzFmret5z06CGKVQkZ+czlXSgMfId698fpaX/DyqB5kK
-         w/Jk/Dlte5Nz/Q5rURzkkYHvcCxxoGfHC8L0HwgFXwRD8iKmucehEwWXFhXu7/+4XCcG
-         wqe9A3FMJtKbGjVptyltt46FFgxIl9IV5lymh077QVuMMklXwRF4BwqndvylH4lIcBzY
-         X2axWpnpYhweehyHT/5s104A/MHm2wKQE81jX1hrM16xWhxaXrF3hgwYLMre8k0cgmpk
-         hKAw==
-X-Gm-Message-State: AOAM531GX/W+DQYVRSyVwN6rbfiRluVgFVdBnqBh55Dd3qjAlknF73v3
-        TxsVOmr0qC/VRSdHL+iPeB4=
-X-Google-Smtp-Source: ABdhPJzDn5Wly6uwRoIOHH+dj9CVJvOVyEn3ZbrNf8ZH0nahm2X7W9H9Osv6jT+VeStW/xhQuu62Gg==
-X-Received: by 2002:a17:906:1787:: with SMTP id t7mr2699547eje.173.1599838317355;
-        Fri, 11 Sep 2020 08:31:57 -0700 (PDT)
-Received: from kozik-lap ([194.230.155.174])
-        by smtp.googlemail.com with ESMTPSA id y9sm1890741edo.37.2020.09.11.08.31.55
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 11 Sep 2020 08:31:56 -0700 (PDT)
-Date:   Fri, 11 Sep 2020 17:31:53 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 1/4] Input: ep93xx_keypad - Fix handling of
- platform_get_irq() error
-Message-ID: <20200911153153.GA18022@kozik-lap>
-References: <20200828145744.3636-1-krzk@kernel.org>
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Kv9oMQQFyLAZk1SItD7ecip/eYagD8o/JxuoFQE0OoQ=;
+        b=KoFAKkhaEI9ySDXaZP7ktw/hM4Dj+L32lnDamCzajAvhGVoFMfanN+3z9K9kfye0J/
+         /owGONs7MW2+3osAct2x4xccel9SpRZWs/2+UOpWjpywC5zGV2VXRHQNRQVRvbmedk/x
+         SlTTj+kfeHWYEoi0sXOmQN3CQbkft+XMRJ14l4P8ObQ1fQ+yBAmm8AGqDl8jqxbCk9CV
+         wF5nqbo0UNzIvm0MsGKXksYaoAmUhNF/+ecC2LJiY9feh+cZmO2+wePZATQW82RgrAxg
+         9pXWfj6kgycfkIySsm++QZTSUx1avCNL+rC9g51jWlsMrBZ/vj9NSPTigx2+G8lz2RuX
+         OMSg==
+X-Gm-Message-State: AOAM533lSoDqoeIngFzW/mRFe13JCyZ0/rnkq2RVDr30/D1rm0HlXD3z
+        YNwQ16/i8PpC0NsgAraIEyE=
+X-Google-Smtp-Source: ABdhPJzccNXoF0TS9Rv7GinnsHNZqtZT9JD1LRXkodmJIUt3mQ92dWXjPb+iQwBcJBhilh9HIiggqw==
+X-Received: by 2002:a19:ad46:: with SMTP id s6mr457284lfd.576.1599837038689;
+        Fri, 11 Sep 2020 08:10:38 -0700 (PDT)
+Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
+        by smtp.googlemail.com with ESMTPSA id a3sm557263ljk.6.2020.09.11.08.10.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 11 Sep 2020 08:10:38 -0700 (PDT)
+Subject: Re: [PATCH v3 1/1] Input: atmel_mxt_ts - implement I2C retries
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Jiada Wang <jiada_wang@mentor.com>, nick@shmanahar.org,
+        dmitry.torokhov@gmail.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andrew_Gabbasov@mentor.com, erosca@de.adit-jv.com
+References: <20200908151617.12199-1-jiada_wang@mentor.com>
+ <6041c677-592b-388e-2eb6-3287a3d92e4b@gmail.com>
+ <ec77e42c-ea72-bbae-e1b8-1e11cca17f87@gmail.com>
+Message-ID: <0cd9055e-3ad5-f573-be39-3f999d9d461c@gmail.com>
+Date:   Fri, 11 Sep 2020 18:10:37 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <ec77e42c-ea72-bbae-e1b8-1e11cca17f87@gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200828145744.3636-1-krzk@kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Aug 28, 2020 at 04:57:41PM +0200, Krzysztof Kozlowski wrote:
-> platform_get_irq() returns -ERRNO on error.  In such case comparison
-> to 0 would pass the check.
+11.09.2020 18:05, Dmitry Osipenko пишет:
+> 11.09.2020 17:50, Dmitry Osipenko пишет:
+> ...
+>>> @@ -626,6 +627,7 @@ static int __mxt_read_reg(struct i2c_client *client,
+>>>  	struct i2c_msg xfer[2];
+>>>  	u8 buf[2];
+>>>  	int ret;
+>>> +	bool retry = false;
 > 
-> Fixes: 60214f058f44 ("Input: ep93xx_keypad - update driver to new core support")
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> Andy suggested to write this hunk like this:
 > 
-> ---
+> 	struct i2c_msg xfer[2];
+> 	bool retry = false;
+> 	u8 buf[2];
+> 	int ret;
 > 
-> Changes since v1:
-> 1. None
-> ---
->  drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> This is not a mandatory request at all, but it will make this particular
+> piece of code to look a bit nicer.
+> 
+> There is also an opportunity to improve formatting of all variables by
+> sorting them by-length across the whole driver, this will improve
+> readability of the code. But of course it should be a separate patch.
+> Please note that I'm *not* saying that you should create this separate
+> patch!
+> 
 
-Hi Dmitry,
-
-Any comments on the series?
-
-Best regards,
-Krzysztof
-
+I'd also recommend to rename the "retry" variable to "retried", which
+will be a more logical name (more proper English).

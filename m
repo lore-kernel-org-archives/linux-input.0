@@ -7,94 +7,86 @@ X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFF18C2BC11
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE622C2D0F6
 	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 06:10:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86F1220756
+	by mail.kernel.org (Postfix) with ESMTP id ADDE5207BB
 	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 06:10:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ACRDT6zk"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LxgLXaJH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726214AbgINGKD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 14 Sep 2020 02:10:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45238 "EHLO
+        id S1726080AbgINGKE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 14 Sep 2020 02:10:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726080AbgINGJ7 (ORCPT
+        with ESMTP id S1726190AbgINGJm (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Sep 2020 02:09:59 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D910C06174A;
-        Sun, 13 Sep 2020 23:09:59 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id j34so10672426pgi.7;
-        Sun, 13 Sep 2020 23:09:59 -0700 (PDT)
+        Mon, 14 Sep 2020 02:09:42 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C180C06174A
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2020 23:09:41 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id n14so11703493pff.6
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2020 23:09:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=7vc2Xuz/xnpKNW4iK8EMpd8c+mevxs6dRK7EymBsDeg=;
-        b=ACRDT6zkaFoSMO+7GjohbJlTcQ1IxOfJSEHKxDHFONmN3FE6LMSJFYjh5xkCQ4EoE/
-         QYddZZaTM3V8hDYv51qMRuVePoMUSsGK7Ec9ezrYT8iPALuuruAXhP02HHZt0O/erQgn
-         J58vj5hGrCImYjI/uwGAM0E2eHoW7Cak06t16Wu5XHSnLzcolGC2BA8kZVb0+hs0QHTA
-         A3MeuZ6EvU7BitGh1Nj7K2QVpbMYYENpRqvTeSS27jXgZnDzlfbP6eG5heRoDzoOHBiV
-         EPH2EUMAg303iJqrEyxjNGtjWtJqj3nZ8aguutVOCKzs0bp7Vyd4e+prQ1jixT0T2YNt
-         u6rQ==
+        bh=uaZjPjqWCQD/Ed1RGqIWbprfEMwWlt2j5KsiFs+XGh0=;
+        b=LxgLXaJHRKl6kgNI+KfGTTHHE0bCOWOSlMnJDqN9r7cyLxk6vP5eX/ECvHEbeUJZjE
+         nRZgmBt3OQ7BXkuFzfrXpCCcBCUEVho/kZHlllT9A/Hk/V33uJM2IEOzoZitD5HB4Gyi
+         vSKdc3gK+t5wmeVQWfinj5ecrujnA7XOc2IyiGaruD8yN5HGmpDYTuAKGKfH/dM40oDT
+         1AqyL98rUjzUuuwuxu6qSvFvMWOdh7GcxXrIjbC0NykKcgL8DgqOchTxJqY91QaonKRX
+         h2Y62YKJGcwlB9qkueF4zCkGW9gD8naorVwU84SrjvUNaKKC+cacIwC+zdftOvNTQ+K6
+         o4IQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=7vc2Xuz/xnpKNW4iK8EMpd8c+mevxs6dRK7EymBsDeg=;
-        b=qeTcdard0A3AH6mqbgs3yULZsoHsxBBdBaduMR6njwZVHLRrZ1QH9ltJGaJe0JgyTU
-         N1ZAP/Etzd8rolIFqvcderGBTGSL4McGLp65HlN/cxS/gymA3yZDcdeJ3c37sRTHnseE
-         dBRCXDgmJjh6jllT2i92sVzq1p8UhvqXR2K11qG/DuCDqrR1OJbIb7jphIc25Lr8F3Jy
-         9CMq91xqJABzTFSNhJeS5URwqy3SYe7kQGOm+Hci7JdF2GsyO5F5akhDgY/0RFXAK1Jz
-         BOF5Nlp5Rbhkvlnm0Ww1oR4TGndeNyUJCyzmIX/Us6IDjgAFFhOC34VAD/5aYhRFtL1c
-         3fzw==
-X-Gm-Message-State: AOAM53146esXFY9F5oU7/6CtGK60XnWLTQhldzGl1lNMV5+GLUWyUwtf
-        6ZPcN9O4Snle/ZZiXlCdlus=
-X-Google-Smtp-Source: ABdhPJyrUB638HtfVTguOqRhU3+BefLJgUk2JM8FRPUZCu5TjMIA6jdeg8fkio5DCvdWxxnZXWAlMg==
-X-Received: by 2002:a63:5420:: with SMTP id i32mr10044004pgb.149.1600063799017;
-        Sun, 13 Sep 2020 23:09:59 -0700 (PDT)
+        bh=uaZjPjqWCQD/Ed1RGqIWbprfEMwWlt2j5KsiFs+XGh0=;
+        b=Y+5lOxwaaTlrI7AB2fLV+2cBvmjnH3reSUpIN+izmcuezRlF/JKywr/akfcuL/2mxl
+         x1cPtOpzBOkLmHHAjbv1HAs0NFy14Q2juqtoGkUS9yOt+ZfdBFNmc/eT1CVVTUbxExRy
+         neACO+xBDt53qwgfJo3Qdx47pgBK4eQHJq8hdm2E93OwRIHvoo7YDyS3bY38jkAb8/Er
+         VuD1sAq11EsnBdL4IbWjZ9oNMoOZ7JdwaYhprty+T7ckuC7zBr4F6mrCfWxlh+fAXg+q
+         wwd7qWoIIx2LbgjvshjI6+06lE9g+VWAj8AXqhfLuXoucEMkzSCo6Myjt+eoF7zrLPAL
+         l85Q==
+X-Gm-Message-State: AOAM533h+R/uiZPZmFNk7l7uEp8wgejz8xUCeWYWBhpb6Duyo3Dpv4GF
+        XxDImv9c/3Yh6fbmRBopDRs=
+X-Google-Smtp-Source: ABdhPJwMGl18TRILvErOQ1fK9hgAVrBlZZnSEbeVLtW2RnZIlewTXAcHcO/b3ZtU1kuN7hpDAlbWVw==
+X-Received: by 2002:a63:1342:: with SMTP id 2mr9533368pgt.214.1600063780927;
+        Sun, 13 Sep 2020 23:09:40 -0700 (PDT)
 Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id e17sm8677219pff.6.2020.09.13.23.09.58
+        by smtp.gmail.com with ESMTPSA id 84sm9079892pfw.14.2020.09.13.23.09.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Sep 2020 23:09:58 -0700 (PDT)
-Date:   Sun, 13 Sep 2020 23:09:56 -0700
+        Sun, 13 Sep 2020 23:09:40 -0700 (PDT)
+Date:   Sun, 13 Sep 2020 23:09:38 -0700
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        linux-input@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: Re: [PATCH] Input: soc_button_array - Work around DSDTs which modify
- the irqflags
-Message-ID: <20200914060956.GN1665100@dtor-ws>
-References: <20200906122016.4628-1-hdegoede@redhat.com>
- <20200906122016.4628-2-hdegoede@redhat.com>
+Cc:     linux-input@vger.kernel.org
+Subject: Re: [PATCH resend 1/2] Input: soc_button_array - Add active_low
+ setting to soc_button_info
+Message-ID: <20200914060938.GL1665100@dtor-ws>
+References: <20200826150601.12137-1-hdegoede@redhat.com>
+ <20200826150601.12137-2-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200906122016.4628-2-hdegoede@redhat.com>
+In-Reply-To: <20200826150601.12137-2-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Sep 06, 2020 at 02:20:16PM +0200, Hans de Goede wrote:
-> Some 2-in-1s which use the soc_button_array driver have this ugly issue in
-> their DSDT where the _LID method modifies the irq-type settings of the
-> GPIOs used for the power and home buttons. The intend of this AML code is
-> to disable these buttons when the lid is closed.
+On Wed, Aug 26, 2020 at 05:06:00PM +0200, Hans de Goede wrote:
+> This is a preparation patch for adding support for Intel INT33D3
+> ACPI devices. These INT33D3 devices follow yet another Intel defined
+> (but not documented) ACPI GPIO button standard.
 > 
-> The AML does this by directly poking the GPIO controllers registers. This
-> is problematic because when re-enabling the irq, which happens whenever
-> _LID gets called with the lid open (e.g. on boot and on resume), it sets
-> the irq-type to IRQ_TYPE_LEVEL_LOW. Where as the gpio-keys driver programs
-> the type to, and expects it to be, IRQ_TYPE_EDGE_BOTH.
+> Unlike the ACPI GPIO button devices supported so far, the GPIO used in
+> the INT33D3 devices is active-high, rather then active-low.
 > 
-> This commit adds a workaround for this which (on affected devices) does
-> not set gpio_keys_button.gpio on these 2-in-1s, instead it gets the irq for
-> the GPIO, configures it as IRQ_TYPE_LEVEL_LOW (to match how the _LID AML
-> code configures it) and passes the irq in gpio_keys_button.irq.
+> This commit makes setting the gpio_keys_button.active_low flag
+> configurable through the soc_button_info struct and enables it for all
+> currently supported devices.
 > 
 > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 

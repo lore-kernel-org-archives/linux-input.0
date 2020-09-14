@@ -2,68 +2,70 @@ Return-Path: <SRS0=Qnav=CX=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-12.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4754C433E2
-	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 13:53:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 333ABC2D0E1
+	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 14:08:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8F953214F1
-	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 13:53:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E6C63216C4
+	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 14:08:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S+2ej9R+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GsXPKXrC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726708AbgINNwp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 14 Sep 2020 09:52:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:49394 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726794AbgINNwW (ORCPT
+        id S1726776AbgINOId (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 14 Sep 2020 10:08:33 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:45566 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725979AbgINOIY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Sep 2020 09:52:22 -0400
+        Mon, 14 Sep 2020 10:08:24 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1600091529;
+        s=mimecast20190719; t=1600092502;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=7Um8tCX9YwmvI/46vYWXlvrLavmk2Mm7vU3FQ5RmK4k=;
-        b=S+2ej9R+emKFoGC+wfBcdU7LcfOsfk9m3E7ri6tGl+zocyB7o6aOGE4nzy1MGqLllwk8Xt
-        D/Awaii3ovwosI5dVcMP+moSLkTSyXwGcaMi9Zhf/sPLGt9+8kLFc6j76hU9rnxSi9icj/
-        ow+CH+4pLORvUhPqCNTk5RuHeqUIkHo=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-219-6NMaSOGKPdyvlGsiOQeK_A-1; Mon, 14 Sep 2020 09:52:07 -0400
-X-MC-Unique: 6NMaSOGKPdyvlGsiOQeK_A-1
-Received: by mail-wm1-f72.google.com with SMTP id p20so37673wmg.0
-        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2020 06:52:07 -0700 (PDT)
+        bh=k0dgbRo+RDvZ3UA4+CQF8a3dBnr9tvYgpawTPvfNleQ=;
+        b=GsXPKXrCIto3rDM7DDioGAg2E7jYXPPlPfAOiWbx/Ohab6FQu7TkrPvgMtsdBVU0UGIEfE
+        apyouhMDGzl2HoMMxWJxtIMeGhC6aTQUPwlKLmAh3/w50HHjQshL4u3cZssN4wLXxtWGSE
+        lZkbt95JH7ledWprZgQWK4m+namn8Oc=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-284-HBmmfDHEMrSHfyWoBxqcjw-1; Mon, 14 Sep 2020 10:08:11 -0400
+X-MC-Unique: HBmmfDHEMrSHfyWoBxqcjw-1
+Received: by mail-wm1-f71.google.com with SMTP id y18so45707wma.4
+        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2020 07:08:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=7Um8tCX9YwmvI/46vYWXlvrLavmk2Mm7vU3FQ5RmK4k=;
-        b=t1NfYDtMcDG1uTIZ4fxqCW3b6M97dHYJoZ9fehEQkojMvHCgkLf80/jHSHh/8xzOQW
-         nsKPbLOdPUqdG5Yn/nN7yy8kRXyrNYGSTuYLi0sM22iVSqYmssa8RlX44cw+3n+BL0Yx
-         Lmsi7mVCjC3+EEQKFa0fyXOYaFNSQ3iaIEJ04aNqqlsOqUHRgkUgR100TaDqUbBhUHtS
-         xkUtgVGBMj60kMYZXlGOBIBu2fa6l2vPFlUDHYfVM8HKDxCqfUIRm0QkIWgqM2XIGuz/
-         itqIJsEOGjqH38+WKk06DXnibUIZhtrS42YKgB7ULUO1FBYmiZPgYg8SjoTt4I/vh+lz
-         XGDQ==
-X-Gm-Message-State: AOAM533D7io8GVj6nPjgg3vmWmZn0LVnf3Zsf1NQa+Dc+/v9yFBI7e83
-        MBZUaPd/S5ImlxSk58WN9CEzHFPF8p8ByQO8y4etiV30xcqpPPMX2Kfynqx2jQueNJcumpPO77B
-        HsEk50HOYzPdZRBf+m3/cojI=
-X-Received: by 2002:a1c:2543:: with SMTP id l64mr14427396wml.96.1600091526412;
-        Mon, 14 Sep 2020 06:52:06 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzt2FETo366O9EcczySLGiVdopF7Gk02mT+yreGZEBLgG14oYmnYiTX/HRz15WrDVmKYPNwWg==
-X-Received: by 2002:a1c:2543:: with SMTP id l64mr14427382wml.96.1600091526173;
-        Mon, 14 Sep 2020 06:52:06 -0700 (PDT)
+        bh=k0dgbRo+RDvZ3UA4+CQF8a3dBnr9tvYgpawTPvfNleQ=;
+        b=QPZZ6c+Fw0jWc/Mltl9TMeD59gAgS7b9TXPGn86xzi8/CHbbWStABER87uIirt6VlC
+         osi4/XrCDFX6MT9oDz/DaVwJIAIArS2Gfo17uizScqkuu2kQMNfdV31lyIDIHebL8LWI
+         iwmoqz6fPV1jiKXbphGp5v+5+P5+8lf9C+5M4hYVHY0kQjaGeAtbKWZdf+cG+ecEzy3N
+         rT67+h2zVcT2XKO7yiyvQz6SgMa9VEBuO2xtRUyB2/+5rIG/kLf2fiWHUzggrIpE1F1F
+         bcesjV3a8wvN0nMaNKchqnIfWCZQPADB4GFTLlf6fN3CoFnNC8af35g2dL1Nc2guhlI6
+         RkOw==
+X-Gm-Message-State: AOAM5305TWlJKOdo3qLHsGr1MCIj2WE00iFYiA16QdhpKH9Rd68BG05J
+        UyBa6VUfz3XAoAaau3nQzoIyN9cLAqbOIJKNCgeZH4mb5ofwpd10zrti/f4zM8RqLOrHLGLyYY5
+        6nxLQYt7WyjNOauOL3iIcCzk=
+X-Received: by 2002:a1c:9d07:: with SMTP id g7mr16116162wme.144.1600092490360;
+        Mon, 14 Sep 2020 07:08:10 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzZ27kSa58tJiiyuMmAIiHYwij6veZwR4h++7Q0qwgfWPIXQ2wHhOeRx22P6H/r1LA7F616zw==
+X-Received: by 2002:a1c:9d07:: with SMTP id g7mr16116137wme.144.1600092490142;
+        Mon, 14 Sep 2020 07:08:10 -0700 (PDT)
 Received: from x1.localdomain ([78.108.130.193])
-        by smtp.gmail.com with ESMTPSA id m10sm18956882wmi.9.2020.09.14.06.52.05
+        by smtp.gmail.com with ESMTPSA id i6sm22688978wra.1.2020.09.14.07.08.09
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Sep 2020 06:52:05 -0700 (PDT)
+        Mon, 14 Sep 2020 07:08:09 -0700 (PDT)
 Subject: Re: [PATCH 0/1] Input: soc_button_array - Work around DSDTs which
  modify the irqflags
+From:   Hans de Goede <hdegoede@redhat.com>
 To:     Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -75,13 +77,13 @@ References: <20200906122016.4628-1-hdegoede@redhat.com>
  <20200914061246.GO1665100@dtor-ws>
  <61dfb476-2d55-116c-21d6-bf5972929cd3@redhat.com>
  <CAHp75VemDbswE9+yXMut1vbYvWwcTAd+b_Ry05_0QWbfnCSv9g@mail.gmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <897df830-4806-0118-6a27-0025268da1f5@redhat.com>
-Date:   Mon, 14 Sep 2020 15:52:05 +0200
+ <897df830-4806-0118-6a27-0025268da1f5@redhat.com>
+Message-ID: <ead6b6f3-5fb7-d986-1bba-4f4a9350a369@redhat.com>
+Date:   Mon, 14 Sep 2020 16:08:09 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VemDbswE9+yXMut1vbYvWwcTAd+b_Ry05_0QWbfnCSv9g@mail.gmail.com>
+In-Reply-To: <897df830-4806-0118-6a27-0025268da1f5@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -92,45 +94,68 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Hi,
 
-On 9/14/20 10:00 AM, Andy Shevchenko wrote:
-> On Mon, Sep 14, 2020 at 10:45 AM Hans de Goede <hdegoede@redhat.com> wrote:
->> On 9/14/20 8:12 AM, Dmitry Torokhov wrote:
->>> On Sun, Sep 06, 2020 at 02:20:15PM +0200, Hans de Goede wrote:
+On 9/14/20 3:52 PM, Hans de Goede wrote:
+> Hi,
 > 
-> ...
+> On 9/14/20 10:00 AM, Andy Shevchenko wrote:
+>> On Mon, Sep 14, 2020 at 10:45 AM Hans de Goede <hdegoede@redhat.com> wrote:
+>>> On 9/14/20 8:12 AM, Dmitry Torokhov wrote:
+>>>> On Sun, Sep 06, 2020 at 02:20:15PM +0200, Hans de Goede wrote:
+>>
+>> ...
+>>
+>>>>> The soc_button_array code really is x86 specific glue code to translate
+>>>>> various incarnations of gpio-keys in ACPI tables to gpio_keys_platform_data.
+>>>>> As such I wonder if it would not be better to move this driver to
+>>>>> drivers/platform/x86?
+>>
+>> AFAIU the above is a justification why PDx86 suits better to host it.
 > 
->>>> The soc_button_array code really is x86 specific glue code to translate
->>>> various incarnations of gpio-keys in ACPI tables to gpio_keys_platform_data.
->>>> As such I wonder if it would not be better to move this driver to
->>>> drivers/platform/x86?
+> Correct.
 > 
-> AFAIU the above is a justification why PDx86 suits better to host it.
-
-Correct.
-
->>>> I seem to be doing most if not all of the recent work on soc_button_array,
->>>> and soon I will be a co-maintainer of drivers/platform/x86. So having it
->>>> there and adding me in MAINTAINERS as maintaining it seems to be best?
+>>>>> I seem to be doing most if not all of the recent work on soc_button_array,
+>>>>> and soon I will be a co-maintainer of drivers/platform/x86. So having it
+>>>>> there and adding me in MAINTAINERS as maintaining it seems to be best?
+>>>>>
+>>>>> If you want I can do a patch moving soc_button_array to drivers/platform/x86
+>>>>> and then add the other 3 patches on top and then we can merge all of this
+>>>>> through drivers/platform/x86?
 >>>>
->>>> If you want I can do a patch moving soc_button_array to drivers/platform/x86
->>>> and then add the other 3 patches on top and then we can merge all of this
->>>> through drivers/platform/x86?
+>>>> Sorry, misread this first time through, so already merged the 3 patches,
+>>>> but I to not mind at all moving the driver to platform tree. If you send
+>>>> me such a patch I will apply it.
 >>>
->>> Sorry, misread this first time through, so already merged the 3 patches,
->>> but I to not mind at all moving the driver to platform tree. If you send
->>> me such a patch I will apply it.
+>>> Ok.
+>>>
+>>> Andy are you ok with moving the driver to the pdx86 tree too?
 >>
->> Ok.
->>
->> Andy are you ok with moving the driver to the pdx86 tree too?
+>> Taking into consideration the above, if I read it correctly, I agree.
+>> Feel free to add my Ack.
 > 
-> Taking into consideration the above, if I read it correctly, I agree.
-> Feel free to add my Ack.
+> Ok, since Dmitry's tree currently has some changes to soc_button_array.c,
+> the plan is to merge the patch through Dmitry's tree.
+> 
+> I will prepare a patch with your Acked-by and submit it.
 
-Ok, since Dmitry's tree currently has some changes to soc_button_array.c,
-the plan is to merge the patch through Dmitry's tree.
+So to make sure that there won't be any merge issues,
+I was comparing bases for
+{drivers/input/misc,drivers/platform/x86}/{Makefile,Kconfig}
+looking at the versions in:
+https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/log/?h=next
+http://git.infradead.org/linux-platform-drivers-x86.git/shortlog/refs/heads/for-next (which atm is just 5.9-rc1)
 
-I will prepare a patch with your Acked-by and submit it.
+And the latter has a couple of commits to
+drivers/platform/x86/Kconfig which the input tree is missing;
+and these commits touch part of the file which moving the driver
+over will also be touching.
+
+Dmitry, it seems that your for next-tree is based on 5.7 + 2
+large merges and as such does not have all the commits from
+5.9-rc1 ?
+
+Anyways this is not urgent, given the conflict I think it
+might be best if I send out the patch after 5.10-rc1, using
+5.10-rc1 as a base for it.
 
 Regards,
 

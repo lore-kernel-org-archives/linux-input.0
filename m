@@ -2,293 +2,107 @@ Return-Path: <SRS0=Qnav=CX=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E09EC433E2
-	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 06:05:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DBC8C433E2
+	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 06:09:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C46C4206F4
-	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 06:05:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 34EA42192A
+	for <linux-input@archiver.kernel.org>; Mon, 14 Sep 2020 06:09:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="kXbEqqTV"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FBGEz7mJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726033AbgINGFI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 14 Sep 2020 02:05:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44494 "EHLO
+        id S1726208AbgINGJy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 14 Sep 2020 02:09:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726003AbgINGFG (ORCPT
+        with ESMTP id S1726204AbgINGJu (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Sep 2020 02:05:06 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30FBCC06174A
-        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2020 23:05:06 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id c13so16641636oiy.6
-        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2020 23:05:06 -0700 (PDT)
+        Mon, 14 Sep 2020 02:09:50 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10334C06174A
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2020 23:09:50 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id d6so11697473pfn.9
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2020 23:09:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=qAx/Xl6xLLzU19riQGQ9AtN2R9xJ1KkVkswkcVhORMY=;
-        b=kXbEqqTVejMUd+H1mcmG6lI1KY2Q8qTcO66lxQtxXbPnCHUmwiMPVi0xRssVlKCmqy
-         orq60Mpv6wBuGxn6ijmENQVWuZ7OvJxRQls6bXTPH5SnW0LvMWXrrlG8bA8ydiKdn4Y4
-         6PPvkS+TGT1W7Zr8NlPrLMgKMHaJkrl5QD0sgkvrZX0vnocYyrnYfw0SBzPmsKrrKSAz
-         ZnyyBp+1choyYbGQv98ktuJ+1rZWtED+PSYQqIdo6Fbj15iHTuxFhHa5Na1DZGttkMaq
-         0oO/W6NY6wYuwbqhNUlMNNIROHsZdi3f+bUfFPL5+3vl9VI9CcvKk/Ub3esnu8XabzW9
-         MFCA==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=1ABMc75YjWKsVtFv8SIjf3kyAwZ4Ud1IQ/XDxaPYCaY=;
+        b=FBGEz7mJ7cyWfVWwqlAkA3yHIC4K8NN38xPZ92LhWuvj9P+/o/vxA9Frf95VGLVw/6
+         hOm2MWWImR+p5nyPPl5F3XwtcAbdU+p8qdi/3gMZ06RIasoOAgZM6jqVCmugTlZLgDM7
+         jOlmnJwhyXqO7nnkJ7qOf39gwhh1Aey3ihv8/9KJcdk4KF+F18yPbyQ/VwJY2kFPDlnW
+         WUNilo4LG+aEmJa+kpoxbNIWXvwGKwUD7fn4LXagigeHDaYTWDz4jBx0oppdNplnYaOd
+         zbSwk8Rb6Qzf3Je55kUGLzrkeUNU+I+iBE7SS3QmKjDz/6cLQvvzpbiDxpdlpwjtNuba
+         W2Cg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qAx/Xl6xLLzU19riQGQ9AtN2R9xJ1KkVkswkcVhORMY=;
-        b=nOQ4ulN6gSLr3a6xNSmCGLBhwCxQ4fVtZ2XZHwY+nkkWOVMelyTAVJknrShYS+/H6g
-         WPw7KDAgEh3QMSrh9dPCMdyJJFMax0GbnqXH7SyzXTX7TgB5x6HrsoKPECvyYLmS7DZs
-         q4udUyEdRYCYwPVKGFM+dahISCJ28cfHl7v4yu99wyyFXgXReyYXRwJn7HRSxVvQyspU
-         yFVny11fi+6OXVWwE1TVH+QNCpxk05xKdw6vgWR5FdWSF+KuyU1GNL1NkCFVhpdYyXs4
-         V15qYGTnldVP9NjkXjgBZ2wfNIBWgrlsaG+VDk8MxqpQOQfkOMHaf3WnZQM1SEDrCdKT
-         +rfQ==
-X-Gm-Message-State: AOAM533Dbv5x3QNavTFdmqF0tMjdylmBRiN2Obj/JnOCsju4S434z+Zc
-        qiEMaK8iz1l2XVeKlh93A/71by+mrsgYltJG0a7qyg==
-X-Google-Smtp-Source: ABdhPJzdkZSgFKaB9QXHAwvns9n1PoTy5GpaTJh0SrW7fqIMPsuZJaVXmiQaO6ITD93uaGtmSKKVTcjgeyF4xF6MVW4=
-X-Received: by 2002:aca:6546:: with SMTP id j6mr7793056oiw.17.1600063505244;
- Sun, 13 Sep 2020 23:05:05 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=1ABMc75YjWKsVtFv8SIjf3kyAwZ4Ud1IQ/XDxaPYCaY=;
+        b=rdjP8mROwppj/i9qjym9G23vR+3YAGeaa4duojrFX1naqOO8uVT/TRZRJxSrMoHCMd
+         GRI6ZhJ+PUejEtHRX0nX8+tA5sUDo1nab3z8wwsrNZsWVE8x31Uyg0yjGbUNu8Ci/AWa
+         m8DKumFa5qK0r3iOQXX9QonjYLZWztieLx6SQea7YxWXWSwZbROGW7QnI1burdbqdLDc
+         PJ3BYJCTt0LnX2qUHX7+2QcFb303IUc01ljdWsCdqp4ZHf8q6PZ4rWUt9YQOUtVLIY5N
+         DAAeUrldzvcuvMN4xj/2aWBNJHXW2D1HD6XyD3T+EcQYnKmZaWp4/5vWvb/Jz5xqp3V1
+         rIRw==
+X-Gm-Message-State: AOAM532PLxupgGOnhLzacZVD+Q+4BfasUgPYD1T6vNizzqJbeeZ4bghF
+        P6fU8EQNoH7sxgNM1rWLIH0=
+X-Google-Smtp-Source: ABdhPJzIhzoTcQZfNR3a3+k/2ceDad0LDaWrBUYuN4YuC3ZrLAKq7QGj1q02/c8ZMRp2zXX/+618WA==
+X-Received: by 2002:a17:902:d909:b029:d0:cbe1:e716 with SMTP id c9-20020a170902d909b02900d0cbe1e716mr13052707plz.36.1600063789484;
+        Sun, 13 Sep 2020 23:09:49 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id s20sm8889493pfu.112.2020.09.13.23.09.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 13 Sep 2020 23:09:48 -0700 (PDT)
+Date:   Sun, 13 Sep 2020 23:09:47 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     linux-input@vger.kernel.org
+Subject: Re: [PATCH resend 2/2] Input: soc_button_array - Add support for
+ INT33D3 tablet-mode switch devices
+Message-ID: <20200914060947.GM1665100@dtor-ws>
+References: <20200826150601.12137-1-hdegoede@redhat.com>
+ <20200826150601.12137-3-hdegoede@redhat.com>
 MIME-Version: 1.0
-References: <20200820224551.GX1665100@dtor-ws> <20200821024006.3399663-1-furquan@google.com>
- <20200909004424.GD1665100@dtor-ws>
-In-Reply-To: <20200909004424.GD1665100@dtor-ws>
-From:   Furquan Shaikh <furquan@google.com>
-Date:   Sun, 13 Sep 2020 23:04:48 -0700
-Message-ID: <CAEGmHFEC+873xzoG8eav1mHJk6mShknr2YeDWc5DwsviHoeYAw@mail.gmail.com>
-Subject: Re: [PATCH v2] drivers: input: Use single i2c_transfer transaction
- when using RM_CMD_BANK_SWITCH
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        linux-input@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Aaron Durbin <adurbin@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200826150601.12137-3-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Wed, Aug 26, 2020 at 05:06:01PM +0200, Hans de Goede wrote:
+> According to the Microsoft documentation for Windows 8 convertible
+> devices, these devices should implement a PNP0C60 "laptop/slate mode state
+> indicator" ACPI device.
+> 
+> This device can work in 2 ways, if there is a GPIO which directly
+> indicates the device is in tablet-mode or not then the direct-gpio mode
+> should be used. If there is no such GPIO, but instead the events are
+> coming from e.g. the embedded-controller, then there should still be
+> a PNP0C60 ACPI device and event-injection should be used to send the
+> events. The drivers/platform/x86/intel-vbtn.c code is an example from
+> a standardized manner of doing the latter.
+> 
+> On various 2-in-1s with either a detachable keyboard, or with 360°
+> hinges, the direct GPIO mode is indicated by an ACPI device with a
+> HID of INT33D3, which contains a single GpioInt in its ACPI resource
+> table, which directly indicates if the device is in tablet-mode or not.
+> 
+> This commit adds support for this to the soc_button_array code, as
+> well as for the alternative ID9001 HID which some devices use
+> instead of the INT33D3 HID.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-On Tue, Sep 8, 2020 at 5:44 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Furquan,
->
-> On Thu, Aug 20, 2020 at 07:40:06PM -0700, Furquan Shaikh wrote:
-> > On an AMD chromebook, where the same I2C bus is shared by both Raydium
-> > touchscreen and a trackpad device, it is observed that interleaving of
-> > I2C messages when `raydium_i2c_read_message()` is called leads to the
-> > Raydium touch IC reporting incorrect information. This is the sequence
-> > that was observed to result in the above issue:
-> >
-> > * I2C write to Raydium device for RM_CMD_BANK_SWITCH
-> > * I2C write to trackpad device
-> > * I2C read from trackpad device
-> > * I2C write to Raydium device for setting address
-> > * I2C read from Raydium device >>>> This provides incorrect
-> >   information
-> >
-> > This change adds a new helper function `raydium_i2c_xfer()` that
-> > performs I2C transactions to the Raydium device. It uses the register
-> > address to decide if RM_CMD_BANK_SWITCH header needs to be sent to the
-> > device (i.e. if register address is greater than 255, then bank switch
-> > header is sent before the rest of the transaction). Additionally, it
-> > ensures that all the I2C operations performed as part of
-> > `raydium_i2c_xfer()` are done as a single i2c_transfer. This
-> > guarantees that no other transactions are initiated to any other
-> > device on the same bus in between. Additionally,
-> > `raydium_i2c_{send|read}*` functions are refactored to use this new
-> > helper function.
-> >
-> > Verified with the patch across multiple reboots (>100) that the
-> > information reported by the Raydium  touchscreen device during probe
-> > is correct.
-> >
-> > Signed-off-by: Furquan Shaikh <furquan@google.com>
-> >
-> > ---
-> > v2: Added a new helper function raydium_i2c_xfer so that all read and
-> > send transfers are handled using the same path. This helper function
-> > uses register address > 255 to decide whether to send
-> > RM_CMD_BANK_SWITCH command. Additionally, __packed keyword is moved
-> > to be placed after the structure defintion.
-> >
-> >  drivers/input/touchscreen/raydium_i2c_ts.c | 132 +++++++++------------
-> >  1 file changed, 58 insertions(+), 74 deletions(-)
-> >
-> > diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-> > index fe245439adee..261e4a290836 100644
-> > --- a/drivers/input/touchscreen/raydium_i2c_ts.c
-> > +++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-> > @@ -51,6 +51,7 @@
-> >
-> >  /* Touch relative info */
-> >  #define RM_MAX_RETRIES               3
-> > +#define RM_RETRY_DELAY_MS    20
-> >  #define RM_MAX_TOUCH_NUM     10
-> >  #define RM_BOOT_DELAY_MS     100
-> >
-> > @@ -136,114 +137,98 @@ struct raydium_data {
-> >       bool wake_irq_enabled;
-> >  };
-> >
-> > -static int raydium_i2c_send(struct i2c_client *client,
-> > -                         u8 addr, const void *data, size_t len)
-> > +static int raydium_i2c_xfer(struct i2c_client *client, u32 addr, void *data,
-> > +                             size_t len, bool is_read)
-> >  {
-> > -     u8 *buf;
-> > -     int tries = 0;
-> > -     int ret;
-> > -
-> > -     buf = kmalloc(len + 1, GFP_KERNEL);
-> > -     if (!buf)
-> > -             return -ENOMEM;
-> > -
-> > -     buf[0] = addr;
-> > -     memcpy(buf + 1, data, len);
-> > -
-> > -     do {
-> > -             ret = i2c_master_send(client, buf, len + 1);
-> > -             if (likely(ret == len + 1))
-> > -                     break;
-> > -
-> > -             msleep(20);
-> > -     } while (++tries < RM_MAX_RETRIES);
-> > -
-> > -     kfree(buf);
-> > -
-> > -     if (unlikely(ret != len + 1)) {
-> > -             if (ret >= 0)
-> > -                     ret = -EIO;
-> > -             dev_err(&client->dev, "%s failed: %d\n", __func__, ret);
-> > -             return ret;
-> > -     }
-> > +     struct raydium_bank_switch_header {
-> > +             u8 cmd;
-> > +             __be32 be_addr;
-> > +     } __packed header = {
-> > +             .cmd = RM_CMD_BANK_SWITCH,
-> > +             .be_addr = cpu_to_be32(addr),
-> > +     };
-> >
-> > -     return 0;
-> > -}
-> > +     u8 reg_addr = addr & 0xff;
-> >
-> > -static int raydium_i2c_read(struct i2c_client *client,
-> > -                         u8 addr, void *data, size_t len)
-> > -{
-> >       struct i2c_msg xfer[] = {
-> > +             {
-> > +                     .addr = client->addr,
-> > +                     .len = sizeof(header),
-> > +                     .buf = (u8 *)&header,
-> > +             },
-> >               {
-> >                       .addr = client->addr,
-> >                       .len = 1,
-> > -                     .buf = &addr,
-> > +                     .buf = &reg_addr,
-> >               },
-> >               {
-> >                       .addr = client->addr,
-> > -                     .flags = I2C_M_RD,
-> >                       .len = len,
-> >                       .buf = data,
-> > +                     .flags = is_read ? I2C_M_RD : 0,
-> >               }
-> >       };
-> > +
-> > +     /*
-> > +      * If address is greater than 255, then RM_CMD_BANK_SWITCH needs to be
-> > +      * sent first. Else, skip the header i.e. xfer[0].
-> > +      */
-> > +     int xfer_start_idx = (addr > 0xff) ? 0 : 1;
-> > +     size_t xfer_count = ARRAY_SIZE(xfer) - xfer_start_idx;
-> >       int ret;
-> >
-> > -     ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
-> > -     if (unlikely(ret != ARRAY_SIZE(xfer)))
-> > -             return ret < 0 ? ret : -EIO;
-> > +     ret = i2c_transfer(client->adapter, &xfer[xfer_start_idx], xfer_count);
-> > +     if (likely(ret == xfer_count))
-> > +             return 0;
-> >
-> > -     return 0;
-> > +     return -EIO;
->
-> We are losing real error here, I'll change this to
->
->         return ret < 0 ? ret : -EIO;
->
-> >  }
+Applied, thank you.
 
-Looks good.
-
-> >
-> > -static int raydium_i2c_read_message(struct i2c_client *client,
-> > -                                 u32 addr, void *data, size_t len)
-> > +static int raydium_i2c_send(struct i2c_client *client, u32 addr,
-> > +                             const void *data, size_t len)
-> >  {
-> > -     __be32 be_addr;
-> > +     int tries = 0;
-> > +     int ret;
-> > +
-> > +     do {
-> > +             ret = raydium_i2c_xfer(client, addr, (void *)data, len, false);
-> > +             if (likely(ret == 0))
-> > +                     return 0;
-> > +
-> > +             msleep(RM_RETRY_DELAY_MS);
-> > +     } while (++tries < RM_MAX_RETRIES);
-> > +
-> > +     dev_err(&client->dev, "%s failed\n", __func__);
-> > +     return -EIO;
->
-> Again losing real error here, I'll rename ret to error and do
->
->         return error;
->
-> here.
-
-Looks good.
-
->
-> > +}
-> > +
-> > +static int raydium_i2c_read(struct i2c_client *client, u32 addr, void *data,
-> > +                             size_t len)
-> > +{
-> > +     int ret;
-> >       size_t xfer_len;
-> > -     int error;
-> >
-> >       while (len) {
-> >               xfer_len = min_t(size_t, len, RM_MAX_READ_SIZE);
-> > +             ret = raydium_i2c_xfer(client, addr, data, len, true);
->
-> I think this needs to be xfer_len, not len.
-
-Good catch. Yes, this needs to be xfer_len.
-
->
-> I can fix it up locally if you agree.
-
-The suggestions look good to me. Thank you!
-
-- Furquan
-
->
-> Thanks.
->
-> --
-> Dmitry
+-- 
+Dmitry

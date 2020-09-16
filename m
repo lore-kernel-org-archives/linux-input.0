@@ -1,96 +1,121 @@
-Return-Path: <SRS0=5+t2=CY=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=PhcK=CZ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B982EC433E2
-	for <linux-input@archiver.kernel.org>; Tue, 15 Sep 2020 22:34:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F352BC433E2
+	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 00:54:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BA0B20809
-	for <linux-input@archiver.kernel.org>; Tue, 15 Sep 2020 22:34:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600209260;
-	bh=apJ6xfFPLtD/enGKVD+ouYf+3+tRbBMfKdo0DKHobW4=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=Q+VOCNNHQb8tH5ca7aco0hpKAR/an0CIeY7Qrl+QX2AbekEVzQhm0+OJ6y9Bk4zno
-	 d79grjUwZjHEuO7u/dcoxaNRtIy8HLp4lTs3nZQF6797F9iBKVAKxcyf9jtCYJUesu
-	 uMmXoVe+XXqeiIknQUWxsS94zcfC78CDjpmShdmw=
+	by mail.kernel.org (Postfix) with ESMTP id A8F1720936
+	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 00:54:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dGUV5VEW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727557AbgIOWdw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 15 Sep 2020 18:33:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58874 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727595AbgIOQQy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Sep 2020 12:16:54 -0400
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08923206DC;
-        Tue, 15 Sep 2020 16:05:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600185936;
-        bh=apJ6xfFPLtD/enGKVD+ouYf+3+tRbBMfKdo0DKHobW4=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=MU0rdIL/zQpDofx458SsRkTlNDwMo4m/+GQWxJr4Qsy37eo4yaHLC6MR5kms1oJfj
-         TIuBFkzG5hvz3cynKiIl0Utl0ADUTfn310aslizOqhbTWpSPCstAlpPU4WSAVahPsM
-         lyj7Q05o5tOCgxVjkxk8BMt2gePSCi0RhYD1jP88=
-Received: by mail-ej1-f49.google.com with SMTP id nw23so5867196ejb.4;
-        Tue, 15 Sep 2020 09:05:35 -0700 (PDT)
-X-Gm-Message-State: AOAM531yPTMfRW2PthYRHdariDC1StPeZ0iDS/uvvTAcCPTBU9yKD0am
-        Phf7Wd8CbvSQ0o5VGGXVah99RVvi9edewdyVObE=
-X-Google-Smtp-Source: ABdhPJzA1QDOacTeudZOMLy8RzFmbPdLzCUxEPDmd+44fc9VCCRNW4MzBgx+PB8CdPflH1EkJZk+VxDpKenD4lRZUg8=
-X-Received: by 2002:a17:906:af53:: with SMTP id ly19mr20249111ejb.503.1600185934597;
- Tue, 15 Sep 2020 09:05:34 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200828145744.3636-1-krzk@kernel.org> <20200914065120.GR1665100@dtor-ws>
-In-Reply-To: <20200914065120.GR1665100@dtor-ws>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-Date:   Tue, 15 Sep 2020 18:05:22 +0200
-X-Gmail-Original-Message-ID: <CAJKOXPd0=oe0vZyxTJ0sF7U4THk3B=UPofKdKdXm_4s3td13Uw@mail.gmail.com>
-Message-ID: <CAJKOXPd0=oe0vZyxTJ0sF7U4THk3B=UPofKdKdXm_4s3td13Uw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/4] Input: ep93xx_keypad - Fix handling of
- platform_get_irq() error
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        id S1726303AbgIPAyL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 15 Sep 2020 20:54:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47144 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726202AbgIPAyD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 15 Sep 2020 20:54:03 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5377C06174A;
+        Tue, 15 Sep 2020 17:54:02 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id u9so2242765plk.4;
+        Tue, 15 Sep 2020 17:54:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=UAVBoDevT9l3v6Yq4HsTsFUpmF8NbevOuwC5bYWFSWQ=;
+        b=dGUV5VEWPWhr5mJT3YsFt0mypb70SiBUfT6WRyUlMnHR6QFR6KbB9Zw8l6LmrwqTHX
+         OjLN1WQ8SVaWNfEBXKyEUOp0bDsvmhadnkpiL/u3CtHzYTjpNedISDfC0dD5U0kukwLG
+         w9ZGsc3TTGs4xAHyM514WU5A9wxTgvHzb+/9eTQqo4KPsyvZlBP5z6bmvpKXAJWt3KTH
+         BDuzxsqeGIWqlrmBFFcgtjFqA4XnOELFCGASG/mBZZP5ftQLpj/XhO+L/fcTEihSMpcl
+         7pyq3XfpF5BaK3VR+DiCrxjsyTQlTSS+P31p+Cdvrxb/R/BsJXYBXMBGHmVJS4OLWAAw
+         EiSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=UAVBoDevT9l3v6Yq4HsTsFUpmF8NbevOuwC5bYWFSWQ=;
+        b=Dv7nKtOso/CNh4aYdbC4Omn0NaIrsNN8t8qWrSQdKMr75NnZhwhifC7wWRZKKkHcML
+         EN+6C36bWjfLpX6Svd7g4OfE9kdkE4xwHZjtt07D09VUQv5jk1budC02cQc6lcNHZmvm
+         R6V51Ocqzn030Z938m5ulQUaXxL/whWMLBdp7j83n8+EaZfJBbRi3M8/+8MZL04dk5Mt
+         hlb1RUbC7TeTYz0V4mnnDwGSq9Kp0kACHVnjupg+XVaZOQjKc5yfEtzj6KgsA6bGafJd
+         JRXekbWuvGSNsNj8L3thPWlanEiJN6of5ZO1FfsNm03TgGWT30vdgFUjovJ15IOBLuE4
+         I6+Q==
+X-Gm-Message-State: AOAM531AOdHOtuAk5zQgR62Kmv5kE5AhzD1bUsmf1ey2c0u/+gby7bOI
+        poE8X45gVRoZr4H3LJoi8Mk=
+X-Google-Smtp-Source: ABdhPJy19jYEOl6sx7SJm2Wm3Wdy/XAVvcrykV+8Mej2tLYRkj8qz6QC2RlptrTKGELkrQs2E9tFfA==
+X-Received: by 2002:a17:90a:e287:: with SMTP id d7mr1821541pjz.170.1600217642302;
+        Tue, 15 Sep 2020 17:54:02 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id u22sm12458883pgi.85.2020.09.15.17.54.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Sep 2020 17:54:01 -0700 (PDT)
+Date:   Tue, 15 Sep 2020 17:53:59 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Krzysztof Kozlowski <krzk@kernel.org>
 Cc:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
-        linux-input@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v2 2/4] Input: omap4-keypad - Fix handling of
+ platform_get_irq() error
+Message-ID: <20200916005359.GE1681290@dtor-ws>
+References: <20200828145744.3636-1-krzk@kernel.org>
+ <20200828145744.3636-2-krzk@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200828145744.3636-2-krzk@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 14 Sep 2020 at 08:51, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->
-> Hi Krzysztof,
->
-> On Fri, Aug 28, 2020 at 04:57:41PM +0200, Krzysztof Kozlowski wrote:
-> > platform_get_irq() returns -ERRNO on error.  In such case comparison
-> > to 0 would pass the check.
->
-> platform_get_irq() is a bit of a mess. Historically we allowed defining
-> interrupt resource with r->start == 0 and for such cases non-OF non-ACPI
-> code will return 0 from platform_get_irq() to indicate that IRQ is not
-> assigned.
->
-> We either need to stop doing this in platform_get_irq(), or the
-> conditions in this patch and followups should be "irq <= 0" and we need
-> to make sure we do not accidentally return 0 from probe ...
+On Fri, Aug 28, 2020 at 04:57:42PM +0200, Krzysztof Kozlowski wrote:
+> platform_get_irq() returns -ERRNO on error.  In such case comparison
+> to 0 would pass the check.
+> 
+> Fixes: f3a1ba60dbdb ("Input: omap4-keypad - use platform device helpers")
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> 
+> ---
+> 
+> Changes since v1:
+> 1. None
+> ---
+>  drivers/input/keyboard/omap4-keypad.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+> index 94c94d7f5155..b075f1af0305 100644
+> --- a/drivers/input/keyboard/omap4-keypad.c
+> +++ b/drivers/input/keyboard/omap4-keypad.c
+> @@ -240,10 +240,8 @@ static int omap4_keypad_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	irq = platform_get_irq(pdev, 0);
+> -	if (!irq) {
+> -		dev_err(&pdev->dev, "no keyboard irq assigned\n");
+> -		return -EINVAL;
+> -	}
+> +	if (irq < 0)
+> +		return -irq;
 
-Hi,
+You must have meant just "irq", right?
 
-It's then contradictory to platform_get_irq documentation which
-explicitly says - zero will not be returned on error. This was also
-clarified in commit e330b9a6bb35 ("platform: don't return 0 from
-platform_get_irq[_byname]() on error").
+>  
+>  	keypad_data = kzalloc(sizeof(struct omap4_keypad), GFP_KERNEL);
+>  	if (!keypad_data) {
+> -- 
+> 2.17.1
+> 
 
-As I understood the input drivers code, they check for errors so the
-coe in my patch is correct. Any "<=0" is not correct with current
-documentation and implementation.
-
-Best regards,
-Krzysztof
+-- 
+Dmitry

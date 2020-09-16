@@ -2,125 +2,101 @@ Return-Path: <SRS0=PhcK=CZ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32AABC43461
-	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 17:26:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5DABC433E2
+	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 18:06:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8576222E7
-	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 17:26:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 65DC42083B
+	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 18:06:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VKY/Ob4L"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cTa6gKMf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727038AbgIPR0U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 16 Sep 2020 13:26:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60362 "EHLO
+        id S1727729AbgIPSEl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 16 Sep 2020 14:04:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726995AbgIPR0I (ORCPT
+        with ESMTP id S1727743AbgIPSDl (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 16 Sep 2020 13:26:08 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A79C061A31
-        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2020 10:26:02 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id o16so1965747pjr.2
-        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2020 10:26:02 -0700 (PDT)
+        Wed, 16 Sep 2020 14:03:41 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76DB1C06174A;
+        Wed, 16 Sep 2020 11:03:39 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id b124so4403497pfg.13;
+        Wed, 16 Sep 2020 11:03:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=dcORvUSHFuc/2G/iXoWa782Eeu9E2gpD8olFsrn/RK8=;
-        b=VKY/Ob4LxHr3rmxWJlHhtQhz0isrEucUui3fwW7dFbUF5iZnBtOXcc6hyrHl5W3CBT
-         +sKGFn0CKkv2IK1v8VBbjZLzFCiVg9xXM+1RGkFY8t8npBK7xUw9bQOIE7tt44dW1T80
-         LoYUe2ZKYh50iwWsvaA8mZ5R4mqzkEotz6AFiuEoqoxUePT4W1PFXloVQ01UV1dNQXo0
-         wVNbr9RfBWBOM7/bb8qZuylSUZQ/zWXJWXJwTM9oEvh4LAFw6D50dcBvUOwwudfmPJkn
-         +pwB5kwg1ibM7Vzt9EBKSsP4iYXKMphzgWoGjpDxAD4STZNRi88k0VHBsuA5fgesdczo
-         FZqg==
+        bh=Jtd+v1r7yFCDwGBOouA+wJLSIZj7EYucgtKvBQ472aI=;
+        b=cTa6gKMf5MByKmHhZnSkM165n0VLREb/jbRMq8LQhka3+P4oYALaD9q/ao3GBhxdPH
+         jMQtMEyj++4c4PcPHf2tNjhuDehBXfWdJa/PVgAie/cEkbei5QezHTpWA8XDwOhDoGxO
+         PKMZqwBZYVXbHW1wP5ArC6O8PbTAGrIF1Ksrc15a9JKmdWSZH0Y4HPUrDWuzeSPt481X
+         PA+m20QNakZcTsNdFxTU4HQSxHKLcpQ50e97YngIQsBoKvV/aCGh30orHF+vk43INisd
+         J5kXpp3EkwpI2KXVDtEk52iYJ+jS3gTH6yb/oqI5D0rjKQ4PoOXcJBfj1f5Paqtcjxm/
+         dKGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=dcORvUSHFuc/2G/iXoWa782Eeu9E2gpD8olFsrn/RK8=;
-        b=FEKr4BdaKqXo+uRC1nN94TnkDO+wPdLTG4Df5/laBqyLySPbaSmS/411sqvnIq/reE
-         jeSKopyxCd3u38+NX3LzVte4rq/kuMd6/cVuamT57N9Q/2I/2MzEAaXRUkBc9QFFVvbw
-         wiQzs7mVNo7uLrWAjqIKBYNxPvhBBGQDcJLPZTfw6pq14VM75PolP2g8dK/sAdwt9Y25
-         B2+GG9picGFCn/Yx5ABwboCkZNvKmQmAbqfFTENkUPwmI887ZVlbFKnG2mroDQnT8GLL
-         CEwQn8i9Zf+PrQ34QV//AxTNMUr/wpvz5WSg9YYkOtXYag3vN/m0XarXtzRQTGxvwFK0
-         vnhA==
-X-Gm-Message-State: AOAM532zRJV/E7VJTTWFQvU2fyFraLyuV06jSOBgutDiF9kAPdZwkR0f
-        pMYVO8SIe/EZXe0WrrFCiC9LkZSrMEo=
-X-Google-Smtp-Source: ABdhPJzGnBNT9KwwY6fLde4sYW7IYBeGJk5ZxamnK0nB6z5oKXysBS114AYJ+WNNbmwVVcch38oiqg==
-X-Received: by 2002:a17:90a:cc17:: with SMTP id b23mr4958178pju.32.1600277162054;
-        Wed, 16 Sep 2020 10:26:02 -0700 (PDT)
+        bh=Jtd+v1r7yFCDwGBOouA+wJLSIZj7EYucgtKvBQ472aI=;
+        b=eGzVsxdpN4L2SiRQN3zZI3EfPqi0XYib8tK4TmWiCBve93bwY3mBOyiUikFLzxQjJ5
+         amW5FrPUm+gIQW1kMXOApwuZC1gu6Oh5tflZ+b4xDR6Le3YM10XIwr/aWhWJMPtpr2mH
+         uAEY7HWYOwfIhzKYyzZyMH/I3POanA63RPJLks3xB4wj56SGouHNuZpRxrg92Rq05ABf
+         sl6BlybBrvjUZ3aQr24cSKZaEXo+mo1g+w98Qu6stUCGHojWPz2Ake3gGVhuII3glccn
+         r9TrYhQ4Nbx27m57aeYJCpQ+ZJUImQAtGnnGNhfrPtH6CNxHydTdCE5jcZaTuXoC9Diq
+         yqaA==
+X-Gm-Message-State: AOAM530HV8MQFSzd+Y8/PmoX3vxndpXo03JTuZVsq8+3NBHgSRcudx/r
+        x3maPMGxW77x4SuymYjOB+U=
+X-Google-Smtp-Source: ABdhPJzuB1Va430uunETuDeXzaGyqFT1vMNiu49dAXULQmwVIvgIvYQAP7lQURIkJDjMsJggSKN96w==
+X-Received: by 2002:a65:66c6:: with SMTP id c6mr19860991pgw.206.1600279418834;
+        Wed, 16 Sep 2020 11:03:38 -0700 (PDT)
 Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id z127sm9193621pfb.34.2020.09.16.10.26.01
+        by smtp.gmail.com with ESMTPSA id v5sm17634372pfv.199.2020.09.16.11.03.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 10:26:01 -0700 (PDT)
-Date:   Wed, 16 Sep 2020 10:25:59 -0700
+        Wed, 16 Sep 2020 11:03:38 -0700 (PDT)
+Date:   Wed, 16 Sep 2020 11:03:35 -0700
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Jeff LaBundy <jeff@labundy.com>
-Cc:     linux-input@vger.kernel.org
-Subject: Re: [RESEND] input: iqs62x-keys: Remove superfluous function
- parameter
-Message-ID: <20200916172559.GJ1681290@dtor-ws>
-References: <1600276053-3336-1-git-send-email-jeff@labundy.com>
+To:     Johnny Chuang <johnny.chuang.emc@gmail.com>
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        Harry Cutts <hcutts@chromium.org>,
+        Johnny Chuang <johnny.chuang@emc.com.tw>,
+        James Chen <james.chen@emc.com.tw>,
+        Jennifer Tsai <jennifer.tsai@emc.com.tw>,
+        Paul Liang <paul.liang@emc.com.tw>,
+        Jeff Chuang <jeff.chuang@emc.com.tw>
+Subject: Re: [PATCH] Input: elants_i2c - fix typo for an attribute to show
+ calibration count
+Message-ID: <20200916180335.GL1681290@dtor-ws>
+References: <1600238783-32303-1-git-send-email-johnny.chuang.emc@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1600276053-3336-1-git-send-email-jeff@labundy.com>
+In-Reply-To: <1600238783-32303-1-git-send-email-johnny.chuang.emc@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Jeff,
-
-On Wed, Sep 16, 2020 at 12:07:33PM -0500, Jeff LaBundy wrote:
-> It is not necessary to pass iqs62x_keys to iqs62x_keys_parse_prop,
-> because it can already be derived from the platform_device cookie.
-
-Yes, it can be derived, but why is better to have it derived rather than
-passed in? Is the code smaller this way?
-
+On Wed, Sep 16, 2020 at 02:46:23PM +0800, Johnny Chuang wrote:
+> Fixed typo for command from 0xE0 to 0xD0.
 > 
-> Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-> ---
->  drivers/input/keyboard/iqs62x-keys.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> commit cf520c643012 ("Input: elants_i2c - provide an attribute
+> to show calibration count")
 > 
-> diff --git a/drivers/input/keyboard/iqs62x-keys.c b/drivers/input/keyboard/iqs62x-keys.c
-> index 93446b2..e2a2b38 100644
-> --- a/drivers/input/keyboard/iqs62x-keys.c
-> +++ b/drivers/input/keyboard/iqs62x-keys.c
-> @@ -42,9 +42,9 @@ struct iqs62x_keys_private {
->  	u8 interval;
->  };
->  
-> -static int iqs62x_keys_parse_prop(struct platform_device *pdev,
-> -				  struct iqs62x_keys_private *iqs62x_keys)
-> +static int iqs62x_keys_parse_prop(struct platform_device *pdev)
->  {
-> +	struct iqs62x_keys_private *iqs62x_keys = platform_get_drvdata(pdev);
->  	struct fwnode_handle *child;
->  	unsigned int val;
->  	int ret, i;
-> @@ -258,7 +258,7 @@ static int iqs62x_keys_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, iqs62x_keys);
->  
-> -	ret = iqs62x_keys_parse_prop(pdev, iqs62x_keys);
-> +	ret = iqs62x_keys_parse_prop(pdev);
->  	if (ret)
->  		return ret;
->  
-> -- 
-> 2.7.4
+> There is an non-touch case by non-calibration after update firmware.
+> Elan could know calibrate or not by calibration count.
+> The value of '0xffff' means we didn't calibrate after update firmware.
+> If calibrate success, it will plus one and change to '0x0000'.
 > 
+> Signed-off-by: Johnny Chuang <johnny.chuang.emc@gmail.com>
 
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

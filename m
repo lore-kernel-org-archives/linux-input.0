@@ -2,90 +2,127 @@ Return-Path: <SRS0=PhcK=CZ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 980C1C433E2
-	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 20:22:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3EE5C43461
+	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 20:38:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3DE9721973
-	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 20:22:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6484021941
+	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 20:38:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nkIZ1Yz1"
+	dkim=pass (1024-bit key) header.d=NETORG5796793.onmicrosoft.com header.i=@NETORG5796793.onmicrosoft.com header.b="VvTLmYTI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727862AbgIPUWI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 16 Sep 2020 16:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60716 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726896AbgIPR3O (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 16 Sep 2020 13:29:14 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469FCC06174A;
-        Wed, 16 Sep 2020 10:29:11 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id l126so4388244pfd.5;
-        Wed, 16 Sep 2020 10:29:11 -0700 (PDT)
+        id S1726904AbgIPUiA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 16 Sep 2020 16:38:00 -0400
+Received: from mail-mw2nam10on2085.outbound.protection.outlook.com ([40.107.94.85]:20054
+        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726850AbgIPRJU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 16 Sep 2020 13:09:20 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=U+kbP05Hj+MGkkN0VMIew22BrATOvrM2ayKeMMX0Xy7Q2KD6ZwB2FIWFWsvxOvhmWFuf/iE9Dj212ighDUP8C2hqi3gfIvwPSeHicCXDx3W9tXiUKiudim35Uscy4l1sgKdi9c3X428+Oo3RE3Y5noJU2zX1CEOmogz65bmlkCGqF3l6VBuhwyV3Kg+PW1DbPebJ1hWBaXc90TV8PNvnsRWg7gdugGihpjznKDKVEW6FRVPJIRYSxFA13OW+kQbRQpPXj4LJM67EL4Yi9thWN5pbBjjQufxnFoV31bqU+3/n9fjtkQkgs0e3BJoBRrHkKw57i8QgAqAAK/jA2eLV2A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Q9/eTZBlaPJEzAej8lbwEHc61Kn6Pi6rN+lShHZFG6I=;
+ b=H7R76/vuABPcnlQlt4aWBsEK2cJwtXaDKCw4MDlvnWHifYUEIXYqwCrdeSrk5zf+UlF+sTnT8kY7HAt4H7CgHFbKH+FVyGNoSdhsLUwUKGyJ5UAo8qUid7BnC0oxWQTgYJL/SYeEJfu2hWw5rYZBZ5Py4p2v9Nl6UY6V4+0P2dxgRHRwlLzmWwOk/xU3jJJH07jQOWUVsLsS+OVC0Ij4/mW5Qnos+ur8UKA9aI1oPi7DPoqJyfg5UWjg8pqBMbVZd8odmTjyhEMs2IDc/x99fVV8MzbqwtNiggQQQPehpW6hM9cjUPbQQOxX6PzZ1xJvsTLUqvSHcwGNusk/em2IrQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
+ dkim=pass header.d=labundy.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=l5QENNkdAGMuTC5nW+iy9KsmDtcHDjxhRO+rPJdPpPM=;
-        b=nkIZ1Yz1wfmopDGdAEt3hWupDEXkUSS2QDMSF+v9DPARbfQn6vsqnk8bCov1jPMn0g
-         4pa8QZzKZdN88lkxxeCOw5BlWjiXdOJgAL0RThOFEVSPu0mUFsbo54bWePy/sGrnNSKl
-         ZN5e8Y8mcrfC7NfnclUreQzj9thUQRob/6UsGMSvhRk3NDf2oBLZFxd8GjDN9RjmrljZ
-         YxkLzqD/3RcS73PZWRjcWZZ6EoDdKYg0S4c1o+Fd6nYe0V1vir9f0Mz+XJm8TcKtDxSH
-         S3Rr82PuU/NL59rs9DU0VBgx2qTeMy4yHtcANIrc7//6jaARjy49MtCEi3tYS1DpKXJD
-         BINw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=l5QENNkdAGMuTC5nW+iy9KsmDtcHDjxhRO+rPJdPpPM=;
-        b=laWEl8iCtcmCzPnn6z9qfOn0e0C+jGnw2w7l12Akg1rYEuEXIpLHosbIGLAi2k4cjI
-         dmTuAyTT9XAseGKwExEkEOygUrxLWXnOGwb2X9uaGs3kLvxoo5D5Zwy4dtNpIStvdArg
-         ADF+/RBLpGVHswegXwSkM3KuBWmlNFa9Pd6LJFk5jIliEDZMDEweHIjp8148InsTDydr
-         +9xX2eEU7PYaJzDVZXFuCeVV9DpnICpe2JTQu8YPofC7O8CDLz0dGHeDTXFeJb49gK/K
-         YOr8LkQXIRm81NYN3I7Tbc26uGfeociHfSwyrpkojXMQ4G/WsvG80GZJf10Db9Yphkta
-         E1bQ==
-X-Gm-Message-State: AOAM530P099OAEYnYVmS04LF4Ub+HEsx3QC9kp1cbyhLMEd+TmpJdTkc
-        W2e17lto6+w4InisZ5Of1hVfEfUJqvM=
-X-Google-Smtp-Source: ABdhPJxmtmqYNX393z5XpwmaQERqHPEt7Mlp1Syuz6+p5V+ykLZgZDqJP1FGN2p2enupG+I2XQqgeQ==
-X-Received: by 2002:a63:6881:: with SMTP id d123mr19452899pgc.370.1600277350575;
-        Wed, 16 Sep 2020 10:29:10 -0700 (PDT)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id gd17sm3230369pjb.6.2020.09.16.10.29.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 10:29:10 -0700 (PDT)
-Date:   Wed, 16 Sep 2020 10:29:07 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     YueHaibing <yuehaibing@huawei.com>
-Cc:     mcoquelin.stm32@gmail.com, alexandre.torgue@st.com,
-        andi@etezian.org, javier@osg.samsung.com, robh@kernel.org,
-        linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -next] Input: stmfts - Fix a & vs && typo
-Message-ID: <20200916172907.GK1681290@dtor-ws>
-References: <20200916141941.16684-1-yuehaibing@huawei.com>
+ d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Q9/eTZBlaPJEzAej8lbwEHc61Kn6Pi6rN+lShHZFG6I=;
+ b=VvTLmYTIW0kF+44uA9eqG83qFbEMGG2P1WtEDR2zz8BDMxhajRW/xkMGiYfthpsqAq9GsKtYb+IaiCYElO/UOorpsNRv+k6FCl2D3Rf3wxO5cXVTKrVC+dCbwZA4iGE3T6y9Mesm/YUn6GbDd440QucaMs+EjjJvWrlevVCJeXM=
+Authentication-Results: gmail.com; dkim=none (message not signed)
+ header.d=none;gmail.com; dmarc=none action=none header.from=labundy.com;
+Received: from SN6PR08MB5517.namprd08.prod.outlook.com (2603:10b6:805:fb::32)
+ by SN6PR08MB4848.namprd08.prod.outlook.com (2603:10b6:805:6d::33) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3370.16; Wed, 16 Sep
+ 2020 17:08:58 +0000
+Received: from SN6PR08MB5517.namprd08.prod.outlook.com
+ ([fe80::d19a:589c:d9e8:b5e2]) by SN6PR08MB5517.namprd08.prod.outlook.com
+ ([fe80::d19a:589c:d9e8:b5e2%7]) with mapi id 15.20.3391.014; Wed, 16 Sep 2020
+ 17:08:58 +0000
+From:   Jeff LaBundy <jeff@labundy.com>
+To:     dmitry.torokhov@gmail.com
+Cc:     linux-input@vger.kernel.org, Jeff LaBundy <jeff@labundy.com>
+Subject: [RESEND] input: iqs62x-keys: Remove superfluous function parameter
+Date:   Wed, 16 Sep 2020 12:07:33 -0500
+Message-Id: <1600276053-3336-1-git-send-email-jeff@labundy.com>
+X-Mailer: git-send-email 2.7.4
+Content-Type: text/plain
+X-ClientProxiedBy: SN2PR01CA0082.prod.exchangelabs.com (2603:10b6:800::50) To
+ SN6PR08MB5517.namprd08.prod.outlook.com (2603:10b6:805:fb::32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200916141941.16684-1-yuehaibing@huawei.com>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from localhost.localdomain (136.49.227.119) by SN2PR01CA0082.prod.exchangelabs.com (2603:10b6:800::50) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.20.3391.11 via Frontend Transport; Wed, 16 Sep 2020 17:08:58 +0000
+X-Mailer: git-send-email 2.7.4
+X-Originating-IP: [136.49.227.119]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: b77ff112-dfa0-4515-bac1-08d85a63336d
+X-MS-TrafficTypeDiagnostic: SN6PR08MB4848:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <SN6PR08MB4848F74EBD1E0EBDB6DB1655D3210@SN6PR08MB4848.namprd08.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:551;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: R0Ugd8lOy+G513JDvidDePdy2juIMd6jhhHBQDuFfeALU8NWjL+cC3r8hhN++xOdtDxbdSwKASuU4VEPMfLkEY6L3VciE07lbNKvyhSujlTM8GYf7zv+Tmr/NkPwR6iQW1+kbq5Rfb4Wv5/m2BcKdPaZzu/5VbQQyCcGDRDp4GjyPQt8IcKlAGPSO6ysURcYRKb5FzhiK4cA5Ee09xa1O7RPkQOFb5l1ICBF2CWyblTMn0zaa5AE/wRYuiWESAUQFWbbVnPfLA2xMLQTiqLlyZ4aNn/rqb/KL4GtOjHmXC8qSub3IvzjpX+QowacdardjsnHpP2v3dp25eXB6JePPnvQ0sVcGJQrimWhKBY/J61b8pB8A2XrLEHTnQMFhkCbw29s0B5eY1QQ0U7ExY8hJYGSD2n8cVZbIfTW+2+TrZK0nBrinTmNv67jav6zYMZ7
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR08MB5517.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(39830400003)(396003)(346002)(366004)(376002)(136003)(956004)(186003)(316002)(4326008)(107886003)(2906002)(2616005)(26005)(8936002)(83380400001)(478600001)(16526019)(6666004)(69590400008)(86362001)(6512007)(5660300002)(66946007)(8676002)(6506007)(66556008)(6916009)(52116002)(36756003)(66476007)(6486002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: 71vod8TtW3DMEwD/jm5L6zbEvvLmeZo6cQZWmlr1uwIvx+DKmVfEOC876O31UlY0d1gtxBdPzx5Q6rSuj12CEW9yxgspFOmBUK9OARLV3wld+MkqVch/JNPv9RCao/2YUsx09MIKait9EPWRt82GlY+YbWMzTjazxpo60AW9dp6NwS0nB//TvToO0fDXrZuacX4bdG8l0hXWaIO5AqVN0VaE/cpHIkAB7r6EDELb0wtuzrOyUCQ+F7qYY2EQW/MnH/2TPMDfAPEPjJMzMi9SX5Zrvgr2FHUhVigm39pxaWg/Ajh6Y3c4/HF3Fovgjhfm7MgVKrTNlp/eM3CDLHAIjNr2S/xl9nbUSmm2AHdraTh2mOY8jXooJvIdKacU310kZ+QVucM9ni+I8t4f9d4OBqPWbfB57BfIppYXjIlT8hMMC++pgPhEsZJkNpVYHrOQRoxfGtSinHK89aECm5+b0tLb4ZRDRquEGcP+hWcmP43md9nC69y04wmO9UzxLrPB/Sife4lrgcTgeAfFums1tyfjRuPzNE1fELVYQ3YbxFRwyj3wQ5SkzIsw2OelbpaTulTtcyhNDCIr8/jsnEs23/QWmPb23HUP0wG/GoeqOncQVK6lI6WbHlQ0I6WxSWDMrlVyqTejTDpL6n3Baj8XLg==
+X-OriginatorOrg: labundy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b77ff112-dfa0-4515-bac1-08d85a63336d
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR08MB5517.namprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Sep 2020 17:08:58.5745
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: kULfHg6Xp0/pLXt6DVWZc5nwTqyrufWdWx5HAllwboS9gs15InQKpjl/uqfnHKqbat1KU5ng9b6cIEQZandWEA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR08MB4848
 Sender: linux-input-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Sep 16, 2020 at 10:19:41PM +0800, YueHaibing wrote:
-> In stmfts_sysfs_hover_enable_write(), we should check
-> value and sdata->hover_enabled is all true.
-> 
-> Fixes: 78bcac7b2ae1 ("Input: add support for the STMicroelectronics FingerTip touchscreen")
-> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+It is not necessary to pass iqs62x_keys to iqs62x_keys_parse_prop,
+because it can already be derived from the platform_device cookie.
 
-Applied, thank you.
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+---
+ drivers/input/keyboard/iqs62x-keys.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/input/keyboard/iqs62x-keys.c b/drivers/input/keyboard/iqs62x-keys.c
+index 93446b2..e2a2b38 100644
+--- a/drivers/input/keyboard/iqs62x-keys.c
++++ b/drivers/input/keyboard/iqs62x-keys.c
+@@ -42,9 +42,9 @@ struct iqs62x_keys_private {
+ 	u8 interval;
+ };
+ 
+-static int iqs62x_keys_parse_prop(struct platform_device *pdev,
+-				  struct iqs62x_keys_private *iqs62x_keys)
++static int iqs62x_keys_parse_prop(struct platform_device *pdev)
+ {
++	struct iqs62x_keys_private *iqs62x_keys = platform_get_drvdata(pdev);
+ 	struct fwnode_handle *child;
+ 	unsigned int val;
+ 	int ret, i;
+@@ -258,7 +258,7 @@ static int iqs62x_keys_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, iqs62x_keys);
+ 
+-	ret = iqs62x_keys_parse_prop(pdev, iqs62x_keys);
++	ret = iqs62x_keys_parse_prop(pdev);
+ 	if (ret)
+ 		return ret;
+ 
 -- 
-Dmitry
+2.7.4
+

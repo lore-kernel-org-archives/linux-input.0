@@ -5,68 +5,68 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6ACBC43461
-	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 03:48:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9623C2D0E3
+	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 03:50:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 80A6C221E8
-	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 03:48:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85580221E7
+	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 03:50:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SyPh8HCf"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="haKl8fBK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726383AbgIPDsf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 15 Sep 2020 23:48:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45934 "EHLO
+        id S1726331AbgIPDtz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 15 Sep 2020 23:49:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726353AbgIPDse (ORCPT
+        with ESMTP id S1726421AbgIPDsq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Sep 2020 23:48:34 -0400
-Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70C9CC06174A;
-        Tue, 15 Sep 2020 20:48:29 -0700 (PDT)
-Received: by mail-qt1-x843.google.com with SMTP id k25so5135286qtu.4;
-        Tue, 15 Sep 2020 20:48:29 -0700 (PDT)
+        Tue, 15 Sep 2020 23:48:46 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A573BC06178A;
+        Tue, 15 Sep 2020 20:48:45 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id q63so6830459qkf.3;
+        Tue, 15 Sep 2020 20:48:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=PJ9e6Lnx2tmGYFTXB18lW6Q/T2L4hGhgFpf65EdTl/E=;
-        b=SyPh8HCfJQSDOnywtJxJmO6NaYLkNy6C55k2YGYIOxVGCi4s6BlgzE5jxpkNGR+LAk
-         d3jeVlWLpdjG9e9YsHUdXSmlq4W9Xd+kyMeIF4R52efTr9n1Z3YFnQhvsQaCd6jfCgsr
-         iQBPS915XsMh5D4SNTt7W/vWMOszkbjtd6nzLoQXECjLMuzh1ftv290OiuyQ2zfWglrL
-         Ni/XAu34n1dJnLz2GDm9CdXREFCPQKudb81FEnxxYaAs7LE8lcKnNHFUVkPjrcvdc3Un
-         KS77FNtkTWf96dvDvxrZ4zL33+i/F3eVBHye/FMRSkc9JXBNRUEXT1mwM51p5z7uzjAp
-         JrcQ==
+        bh=O4H82gItvXsuYW5jJfzm4UzNO1dqSANo/WeqLh46S/o=;
+        b=haKl8fBKAWHbKvPgFv/YznINeUm7GWb4TybvmZrzIzJD+OVLlD82t/hRidSfgGMqNa
+         Wevqedezby/Zx2yr6JWcrtuJXPun+YtgBGYhi8fUY0ikc/aF8ag5LwDDKKiD01RRhid3
+         0YFoFFSIFTZFYne2dpyD2wHgxakEo39CDeGmoSA2AuBbanRuhuRMlBjyaL+9aJEdOCE1
+         UyIfgYjBGBRqebjc3OZNvM5LuqsfUNfVpORcDN09jPE933JpiYUdTIIDY9HF4FqJzCg6
+         jn9lg2aL1/h+8gu2p6x8uH90QoHCKsuPHwsEiV6dd3oVbMvuAfFLBmKYnm6ASO4BKR/O
+         hvXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=PJ9e6Lnx2tmGYFTXB18lW6Q/T2L4hGhgFpf65EdTl/E=;
-        b=j7RUEZSqLErpJy0wqDCZkx9GfHAorSQyk/jfqqgw5NVgBV5Z4z/vDb8wXqj4svqwt8
-         JsWS+c1qNyoL/fmiutZC99V+i2kOzBqPvZqzJYowJs+ztyfkdI1bB0Vn+rLqjRhrDiQV
-         EAP/lNmhJKohYuB3BcJIS+ZGdU8gSPIDCKCAA5BrcEp3dEn1vACtDANo6ybmNiPLgpWz
-         uUYD7Qs6BK1KdEQKyaIEh32yQ2MsnOg+1jxndQG9aUq7QZtoNzqYG10BZAs0EKrNMXPE
-         A3nkBcPR+P/Bvh+tKtQkEaM37OhC7+7EMWZq75PlVGOCmz9eKnHuYpVkWREiuKjp9H3a
-         iisA==
-X-Gm-Message-State: AOAM532I+3DlLd33SABB5C69dcfs0a3PuJLfmKNpSX+ZdWffWCyKnVp2
-        EnREy3zvTg+97UJNKfu/3Zs=
-X-Google-Smtp-Source: ABdhPJz819QUoub5h3GLv9XmGiNmrHIu5QktlrV3HvLFkdNq29L/DfxrUWUPIvMtSrPUxdTyO2/HPQ==
-X-Received: by 2002:ac8:157:: with SMTP id f23mr21159633qtg.273.1600228108647;
-        Tue, 15 Sep 2020 20:48:28 -0700 (PDT)
+        bh=O4H82gItvXsuYW5jJfzm4UzNO1dqSANo/WeqLh46S/o=;
+        b=oUNieWN8kUeVsC0dc++ECf94O8AEd1Wvkoa25iJ/yzP1FrjdJe6a9UGqZnZI8AxABK
+         WUDLKGUITFgkv7q1jnasRuEENPvXBDmI2B0RbnnPCEOnF3C+TQ8jIH1aor/R9EcpyQ+s
+         cVCBiotgK12WLPT+UFinbk3K/KMlT8ncF+DPghaMpR18APOioYWC6fNoAM9o7UPRm9hC
+         LCPE4/WKeB1qXKfRGWVp5pjAWDma1BzNXqIyMG3JWKCsPvvD24h0uDreyBKHryYVAFyJ
+         asqcCx9LdinNXbVYopUrZNBBKUOqYNU/1xqh3D2R3eER9lDNummlBdNsaWgFilOkI/V8
+         Xi/Q==
+X-Gm-Message-State: AOAM5327LeA7tjStAHlqGGBDUVImq8VhQIiGC/uWzZ5oYuMC4gjr73YZ
+        QDs9H98SexE6DSXRBxPmQ0A=
+X-Google-Smtp-Source: ABdhPJzuLBp5jXkuB9HZIlQcHs4aGKyg3m421lOq53ZrBST3VLy0Slu3ZIzy2hkg6Ozp7N5u/GZ1EQ==
+X-Received: by 2002:a05:620a:1341:: with SMTP id c1mr20286325qkl.460.1600228124936;
+        Tue, 15 Sep 2020 20:48:44 -0700 (PDT)
 Received: from auth1-smtp.messagingengine.com (auth1-smtp.messagingengine.com. [66.111.4.227])
-        by smtp.gmail.com with ESMTPSA id t43sm19160580qtc.54.2020.09.15.20.48.26
+        by smtp.gmail.com with ESMTPSA id z29sm18606041qtj.79.2020.09.15.20.48.43
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 15 Sep 2020 20:48:27 -0700 (PDT)
+        Tue, 15 Sep 2020 20:48:44 -0700 (PDT)
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailauth.nyi.internal (Postfix) with ESMTP id 4E8A527C005A;
-        Tue, 15 Sep 2020 23:48:26 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Tue, 15 Sep 2020 23:48:26 -0400
-X-ME-Sender: <xms:CothX-PX1W2vpaHZP_bl5wz5929pVhgZSF7Zl8X6kYfbKxzDeNwrzw>
-    <xme:CothX8_5PAs_4Dt_pN6px8o7kYGve0WyJqQBUovRIAM55FbuSPL-v4UgXHBsYVZtT
-    4gkQYOpY6FkZcLNEA>
+        by mailauth.nyi.internal (Postfix) with ESMTP id A42DA27C0054;
+        Tue, 15 Sep 2020 23:48:43 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Tue, 15 Sep 2020 23:48:43 -0400
+X-ME-Sender: <xms:G4thX1uxuO02wZ3pnuP4YYE7thr3gQyZIxa02MFRyzhufuFtMKhvlg>
+    <xme:G4thX-dh1djB0D7w8PN09gTUVRcT0Mppv5bt91Q5MThH2YvFyMWYndJ_gLCDwEGce
+    dvb0BqcwgAOV5EqJw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrtddugdeikecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenog
@@ -74,17 +74,17 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrtddugdeikecutefuodetggdote
     keertdertddtnecuhfhrohhmpeeuohhquhhnucfhvghnghcuoegsohhquhhnrdhfvghngh
     esghhmrghilhdrtghomheqnecuggftrfgrthhtvghrnhephedvveetfefgiedutedtfeev
     vddvleekjeeuffffleeguefhhfejteekieeuueelnecukfhppeehvddrudehhedrudduud
-    drjedunecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhep
+    drjedunecuvehluhhsthgvrhfuihiivgepkeenucfrrghrrghmpehmrghilhhfrhhomhep
     sghoqhhunhdomhgvshhmthhprghuthhhphgvrhhsohhnrghlihhthidqieelvdeghedtie
     egqddujeejkeehheehvddqsghoqhhunhdrfhgvnhhgpeepghhmrghilhdrtghomhesfhhi
     gihmvgdrnhgrmhgv
-X-ME-Proxy: <xmx:CothX1SvmlVPwcP5uc_Gj673yFTLizZvlWrwlCtShI-cT4IibxOEWA>
-    <xmx:CothX-uKtSoraeG15n3ajAqH0thovE0RBx4Pr8C2bebBfwXmKNHIxg>
-    <xmx:CothX2cMA2F_cGjMkvA9nAvpR3_L3AFc7QRlxlpyXinwWHaqH5BxjQ>
-    <xmx:CothX6Ofu5TcbttYtcp0KvsL5Bd4rFO0OJT1uA-rl16V3IMZx9bXuuZxXh8>
+X-ME-Proxy: <xmx:G4thX4yRJJNK8iiUq4ar7RK4zw6lX6Scs4XsZJpQB3AcrJgqvVO5Uw>
+    <xmx:G4thX8MsSVurwqaBgWJo_SMWLa4PsorzM0iyC3jTouQYNXi5ZK9uiw>
+    <xmx:G4thX18FZza6-7zB4llPrZfrvhacE2YgYAxefXM7oZNpQ6tZXy5WzA>
+    <xmx:G4thXxuVIMNjTT7qoqg_QbguidS-1tleNR8MQNo_fQy0mNQ_u7HbTXWUjP0>
 Received: from localhost (unknown [52.155.111.71])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8D0AA3280059;
-        Tue, 15 Sep 2020 23:48:25 -0400 (EDT)
+        by mail.messagingengine.com (Postfix) with ESMTPA id E2CE53064682;
+        Tue, 15 Sep 2020 23:48:42 -0400 (EDT)
 From:   Boqun Feng <boqun.feng@gmail.com>
 To:     linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
@@ -103,9 +103,9 @@ Cc:     "K. Y. Srinivasan" <kys@microsoft.com>,
         ardb@kernel.org, arnd@arndb.de, catalin.marinas@arm.com,
         mark.rutland@arm.com, maz@kernel.org,
         Boqun Feng <boqun.feng@gmail.com>
-Subject: [PATCH v4 02/11] Drivers: hv: vmbus: Move __vmbus_open()
-Date:   Wed, 16 Sep 2020 11:48:08 +0800
-Message-Id: <20200916034817.30282-3-boqun.feng@gmail.com>
+Subject: [PATCH v4 11/11] scsi: storvsc: Support PAGE_SIZE larger than 4K
+Date:   Wed, 16 Sep 2020 11:48:17 +0800
+Message-Id: <20200916034817.30282-12-boqun.feng@gmail.com>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200916034817.30282-1-boqun.feng@gmail.com>
 References: <20200916034817.30282-1-boqun.feng@gmail.com>
@@ -116,345 +116,100 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Pure function movement, no functional changes. The move is made, because
-in a later change, __vmbus_open() will rely on some static functions
-afterwards, so we separate the move and the modification of
-__vmbus_open() in two patches to make it easy to review.
+Hyper-V always use 4k page size (HV_HYP_PAGE_SIZE), so when
+communicating with Hyper-V, a guest should always use HV_HYP_PAGE_SIZE
+as the unit for page related data. For storvsc, the data is
+vmbus_packet_mpb_array. And since in scsi_cmnd, sglist of pages (in unit
+of PAGE_SIZE) is used, we need convert pages in the sglist of scsi_cmnd
+into Hyper-V pages in vmbus_packet_mpb_array.
+
+This patch does the conversion by dividing pages in sglist into Hyper-V
+pages, offset and indexes in vmbus_packet_mpb_array are recalculated
+accordingly.
 
 Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
 Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 ---
- drivers/hv/channel.c | 309 ++++++++++++++++++++++---------------------
- 1 file changed, 155 insertions(+), 154 deletions(-)
+ drivers/scsi/storvsc_drv.c | 56 +++++++++++++++++++++++++++++++++-----
+ 1 file changed, 49 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
-index 4d0f8e5a88d6..1cbe8fc931fc 100644
---- a/drivers/hv/channel.c
-+++ b/drivers/hv/channel.c
-@@ -109,160 +109,6 @@ int vmbus_alloc_ring(struct vmbus_channel *newchannel,
- }
- EXPORT_SYMBOL_GPL(vmbus_alloc_ring);
+diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+index 8f5f5dc863a4..0c65fbd41035 100644
+--- a/drivers/scsi/storvsc_drv.c
++++ b/drivers/scsi/storvsc_drv.c
+@@ -1739,23 +1739,65 @@ static int storvsc_queuecommand(struct Scsi_Host *host, struct scsi_cmnd *scmnd)
+ 	payload_sz = sizeof(cmd_request->mpb);
  
--static int __vmbus_open(struct vmbus_channel *newchannel,
--		       void *userdata, u32 userdatalen,
--		       void (*onchannelcallback)(void *context), void *context)
--{
--	struct vmbus_channel_open_channel *open_msg;
--	struct vmbus_channel_msginfo *open_info = NULL;
--	struct page *page = newchannel->ringbuffer_page;
--	u32 send_pages, recv_pages;
--	unsigned long flags;
--	int err;
--
--	if (userdatalen > MAX_USER_DEFINED_BYTES)
--		return -EINVAL;
--
--	send_pages = newchannel->ringbuffer_send_offset;
--	recv_pages = newchannel->ringbuffer_pagecount - send_pages;
--
--	if (newchannel->state != CHANNEL_OPEN_STATE)
--		return -EINVAL;
--
--	newchannel->state = CHANNEL_OPENING_STATE;
--	newchannel->onchannel_callback = onchannelcallback;
--	newchannel->channel_callback_context = context;
--
--	err = hv_ringbuffer_init(&newchannel->outbound, page, send_pages);
--	if (err)
--		goto error_clean_ring;
--
--	err = hv_ringbuffer_init(&newchannel->inbound,
--				 &page[send_pages], recv_pages);
--	if (err)
--		goto error_clean_ring;
--
--	/* Establish the gpadl for the ring buffer */
--	newchannel->ringbuffer_gpadlhandle = 0;
--
--	err = vmbus_establish_gpadl(newchannel,
--				    page_address(newchannel->ringbuffer_page),
--				    (send_pages + recv_pages) << PAGE_SHIFT,
--				    &newchannel->ringbuffer_gpadlhandle);
--	if (err)
--		goto error_clean_ring;
--
--	/* Create and init the channel open message */
--	open_info = kmalloc(sizeof(*open_info) +
--			   sizeof(struct vmbus_channel_open_channel),
--			   GFP_KERNEL);
--	if (!open_info) {
--		err = -ENOMEM;
--		goto error_free_gpadl;
--	}
--
--	init_completion(&open_info->waitevent);
--	open_info->waiting_channel = newchannel;
--
--	open_msg = (struct vmbus_channel_open_channel *)open_info->msg;
--	open_msg->header.msgtype = CHANNELMSG_OPENCHANNEL;
--	open_msg->openid = newchannel->offermsg.child_relid;
--	open_msg->child_relid = newchannel->offermsg.child_relid;
--	open_msg->ringbuffer_gpadlhandle = newchannel->ringbuffer_gpadlhandle;
--	open_msg->downstream_ringbuffer_pageoffset = newchannel->ringbuffer_send_offset;
--	open_msg->target_vp = hv_cpu_number_to_vp_number(newchannel->target_cpu);
--
--	if (userdatalen)
--		memcpy(open_msg->userdata, userdata, userdatalen);
--
--	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
--	list_add_tail(&open_info->msglistentry,
--		      &vmbus_connection.chn_msg_list);
--	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
--
--	if (newchannel->rescind) {
--		err = -ENODEV;
--		goto error_free_info;
--	}
--
--	err = vmbus_post_msg(open_msg,
--			     sizeof(struct vmbus_channel_open_channel), true);
--
--	trace_vmbus_open(open_msg, err);
--
--	if (err != 0)
--		goto error_clean_msglist;
--
--	wait_for_completion(&open_info->waitevent);
--
--	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
--	list_del(&open_info->msglistentry);
--	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
--
--	if (newchannel->rescind) {
--		err = -ENODEV;
--		goto error_free_info;
--	}
--
--	if (open_info->response.open_result.status) {
--		err = -EAGAIN;
--		goto error_free_info;
--	}
--
--	newchannel->state = CHANNEL_OPENED_STATE;
--	kfree(open_info);
--	return 0;
--
--error_clean_msglist:
--	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
--	list_del(&open_info->msglistentry);
--	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
--error_free_info:
--	kfree(open_info);
--error_free_gpadl:
--	vmbus_teardown_gpadl(newchannel, newchannel->ringbuffer_gpadlhandle);
--	newchannel->ringbuffer_gpadlhandle = 0;
--error_clean_ring:
--	hv_ringbuffer_cleanup(&newchannel->outbound);
--	hv_ringbuffer_cleanup(&newchannel->inbound);
--	newchannel->state = CHANNEL_OPEN_STATE;
--	return err;
--}
--
--/*
-- * vmbus_connect_ring - Open the channel but reuse ring buffer
-- */
--int vmbus_connect_ring(struct vmbus_channel *newchannel,
--		       void (*onchannelcallback)(void *context), void *context)
--{
--	return  __vmbus_open(newchannel, NULL, 0, onchannelcallback, context);
--}
--EXPORT_SYMBOL_GPL(vmbus_connect_ring);
--
--/*
-- * vmbus_open - Open the specified channel.
-- */
--int vmbus_open(struct vmbus_channel *newchannel,
--	       u32 send_ringbuffer_size, u32 recv_ringbuffer_size,
--	       void *userdata, u32 userdatalen,
--	       void (*onchannelcallback)(void *context), void *context)
--{
--	int err;
--
--	err = vmbus_alloc_ring(newchannel, send_ringbuffer_size,
--			       recv_ringbuffer_size);
--	if (err)
--		return err;
--
--	err = __vmbus_open(newchannel, userdata, userdatalen,
--			   onchannelcallback, context);
--	if (err)
--		vmbus_free_ring(newchannel);
--
--	return err;
--}
--EXPORT_SYMBOL_GPL(vmbus_open);
--
- /* Used for Hyper-V Socket: a guest client's connect() to the host */
- int vmbus_send_tl_connect_request(const guid_t *shv_guest_servie_id,
- 				  const guid_t *shv_host_servie_id)
-@@ -556,6 +402,161 @@ int vmbus_establish_gpadl(struct vmbus_channel *channel, void *kbuffer,
- }
- EXPORT_SYMBOL_GPL(vmbus_establish_gpadl);
+ 	if (sg_count) {
+-		if (sg_count > MAX_PAGE_BUFFER_COUNT) {
++		unsigned int hvpgoff = 0;
++		unsigned long offset_in_hvpg = sgl->offset & ~HV_HYP_PAGE_MASK;
++		unsigned int hvpg_count = HVPFN_UP(offset_in_hvpg + length);
++		u64 hvpfn;
  
-+static int __vmbus_open(struct vmbus_channel *newchannel,
-+		       void *userdata, u32 userdatalen,
-+		       void (*onchannelcallback)(void *context), void *context)
-+{
-+	struct vmbus_channel_open_channel *open_msg;
-+	struct vmbus_channel_msginfo *open_info = NULL;
-+	struct page *page = newchannel->ringbuffer_page;
-+	u32 send_pages, recv_pages;
-+	unsigned long flags;
-+	int err;
+-			payload_sz = (sg_count * sizeof(u64) +
++		if (hvpg_count > MAX_PAGE_BUFFER_COUNT) {
 +
-+	if (userdatalen > MAX_USER_DEFINED_BYTES)
-+		return -EINVAL;
++			payload_sz = (hvpg_count * sizeof(u64) +
+ 				      sizeof(struct vmbus_packet_mpb_array));
+ 			payload = kzalloc(payload_sz, GFP_ATOMIC);
+ 			if (!payload)
+ 				return SCSI_MLQUEUE_DEVICE_BUSY;
+ 		}
+ 
++		/*
++		 * sgl is a list of PAGEs, and payload->range.pfn_array
++		 * expects the page number in the unit of HV_HYP_PAGE_SIZE (the
++		 * page size that Hyper-V uses, so here we need to divide PAGEs
++		 * into HV_HYP_PAGE in case that PAGE_SIZE > HV_HYP_PAGE_SIZE.
++		 * Besides, payload->range.offset should be the offset in one
++		 * HV_HYP_PAGE.
++		 */
+ 		payload->range.len = length;
+-		payload->range.offset = sgl[0].offset;
++		payload->range.offset = offset_in_hvpg;
++		hvpgoff = sgl->offset >> HV_HYP_PAGE_SHIFT;
+ 
+ 		cur_sgl = sgl;
+-		for (i = 0; i < sg_count; i++) {
+-			payload->range.pfn_array[i] =
+-				page_to_pfn(sg_page((cur_sgl)));
+-			cur_sgl = sg_next(cur_sgl);
++		for (i = 0; i < hvpg_count; i++) {
++			/*
++			 * 'i' is the index of hv pages in the payload and
++			 * 'hvpgoff' is the offset (in hv pages) of the first
++			 * hv page in the the first page. The relationship
++			 * between the sum of 'i' and 'hvpgoff' and the offset
++			 * (in hv pages) in a payload page ('hvpgoff_in_page')
++			 * is as follow:
++			 *
++			 * |------------------ PAGE -------------------|
++			 * |   NR_HV_HYP_PAGES_IN_PAGE hvpgs in total  |
++			 * |hvpg|hvpg| ...              |hvpg|... |hvpg|
++			 * ^         ^                                 ^                 ^
++			 * +-hvpgoff-+                                 +-hvpgoff_in_page-+
++			 *           ^                                                   |
++			 *           +--------------------- i ---------------------------+
++			 */
++			unsigned int hvpgoff_in_page =
++				(i + hvpgoff) % NR_HV_HYP_PAGES_IN_PAGE;
 +
-+	send_pages = newchannel->ringbuffer_send_offset;
-+	recv_pages = newchannel->ringbuffer_pagecount - send_pages;
++			/*
++			 * Two cases that we need to fetch a page:
++			 * 1) i == 0, the first step or
++			 * 2) hvpgoff_in_page == 0, when we reach the boundary
++			 *    of a page.
++			 */
++			if (hvpgoff_in_page == 0 || i == 0) {
++				hvpfn = page_to_hvpfn(sg_page(cur_sgl));
++				cur_sgl = sg_next(cur_sgl);
++			}
 +
-+	if (newchannel->state != CHANNEL_OPEN_STATE)
-+		return -EINVAL;
-+
-+	newchannel->state = CHANNEL_OPENING_STATE;
-+	newchannel->onchannel_callback = onchannelcallback;
-+	newchannel->channel_callback_context = context;
-+
-+	err = hv_ringbuffer_init(&newchannel->outbound, page, send_pages);
-+	if (err)
-+		goto error_clean_ring;
-+
-+	err = hv_ringbuffer_init(&newchannel->inbound,
-+				 &page[send_pages], recv_pages);
-+	if (err)
-+		goto error_clean_ring;
-+
-+	/* Establish the gpadl for the ring buffer */
-+	newchannel->ringbuffer_gpadlhandle = 0;
-+
-+	err = vmbus_establish_gpadl(newchannel,
-+				    page_address(newchannel->ringbuffer_page),
-+				    (send_pages + recv_pages) << PAGE_SHIFT,
-+				    &newchannel->ringbuffer_gpadlhandle);
-+	if (err)
-+		goto error_clean_ring;
-+
-+	/* Create and init the channel open message */
-+	open_info = kmalloc(sizeof(*open_info) +
-+			   sizeof(struct vmbus_channel_open_channel),
-+			   GFP_KERNEL);
-+	if (!open_info) {
-+		err = -ENOMEM;
-+		goto error_free_gpadl;
-+	}
-+
-+	init_completion(&open_info->waitevent);
-+	open_info->waiting_channel = newchannel;
-+
-+	open_msg = (struct vmbus_channel_open_channel *)open_info->msg;
-+	open_msg->header.msgtype = CHANNELMSG_OPENCHANNEL;
-+	open_msg->openid = newchannel->offermsg.child_relid;
-+	open_msg->child_relid = newchannel->offermsg.child_relid;
-+	open_msg->ringbuffer_gpadlhandle = newchannel->ringbuffer_gpadlhandle;
-+	open_msg->downstream_ringbuffer_pageoffset = newchannel->ringbuffer_send_offset;
-+	open_msg->target_vp = hv_cpu_number_to_vp_number(newchannel->target_cpu);
-+
-+	if (userdatalen)
-+		memcpy(open_msg->userdata, userdata, userdatalen);
-+
-+	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
-+	list_add_tail(&open_info->msglistentry,
-+		      &vmbus_connection.chn_msg_list);
-+	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
-+
-+	if (newchannel->rescind) {
-+		err = -ENODEV;
-+		goto error_free_info;
-+	}
-+
-+	err = vmbus_post_msg(open_msg,
-+			     sizeof(struct vmbus_channel_open_channel), true);
-+
-+	trace_vmbus_open(open_msg, err);
-+
-+	if (err != 0)
-+		goto error_clean_msglist;
-+
-+	wait_for_completion(&open_info->waitevent);
-+
-+	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
-+	list_del(&open_info->msglistentry);
-+	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
-+
-+	if (newchannel->rescind) {
-+		err = -ENODEV;
-+		goto error_free_info;
-+	}
-+
-+	if (open_info->response.open_result.status) {
-+		err = -EAGAIN;
-+		goto error_free_info;
-+	}
-+
-+	newchannel->state = CHANNEL_OPENED_STATE;
-+	kfree(open_info);
-+	return 0;
-+
-+error_clean_msglist:
-+	spin_lock_irqsave(&vmbus_connection.channelmsg_lock, flags);
-+	list_del(&open_info->msglistentry);
-+	spin_unlock_irqrestore(&vmbus_connection.channelmsg_lock, flags);
-+error_free_info:
-+	kfree(open_info);
-+error_free_gpadl:
-+	vmbus_teardown_gpadl(newchannel, newchannel->ringbuffer_gpadlhandle);
-+	newchannel->ringbuffer_gpadlhandle = 0;
-+error_clean_ring:
-+	hv_ringbuffer_cleanup(&newchannel->outbound);
-+	hv_ringbuffer_cleanup(&newchannel->inbound);
-+	newchannel->state = CHANNEL_OPEN_STATE;
-+	return err;
-+}
-+
-+/*
-+ * vmbus_connect_ring - Open the channel but reuse ring buffer
-+ */
-+int vmbus_connect_ring(struct vmbus_channel *newchannel,
-+		       void (*onchannelcallback)(void *context), void *context)
-+{
-+	return  __vmbus_open(newchannel, NULL, 0, onchannelcallback, context);
-+}
-+EXPORT_SYMBOL_GPL(vmbus_connect_ring);
-+
-+/*
-+ * vmbus_open - Open the specified channel.
-+ */
-+int vmbus_open(struct vmbus_channel *newchannel,
-+	       u32 send_ringbuffer_size, u32 recv_ringbuffer_size,
-+	       void *userdata, u32 userdatalen,
-+	       void (*onchannelcallback)(void *context), void *context)
-+{
-+	int err;
-+
-+	err = vmbus_alloc_ring(newchannel, send_ringbuffer_size,
-+			       recv_ringbuffer_size);
-+	if (err)
-+		return err;
-+
-+	err = __vmbus_open(newchannel, userdata, userdatalen,
-+			   onchannelcallback, context);
-+	if (err)
-+		vmbus_free_ring(newchannel);
-+
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(vmbus_open);
-+
-+
- /*
-  * vmbus_teardown_gpadl -Teardown the specified GPADL handle
-  */
++			payload->range.pfn_array[i] = hvpfn + hvpgoff_in_page;
+ 		}
+ 	}
+ 
 -- 
 2.28.0
 

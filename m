@@ -2,62 +2,62 @@ Return-Path: <SRS0=yHBe=C2=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98BE5C43461
-	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 962D7C2BBD1
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 591A320936
-	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E89C20936
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DOZ3yizR"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bxnFO5n3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726191AbgIQFXG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Sep 2020 01:23:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58716 "EHLO
+        id S1726149AbgIQFXB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Sep 2020 01:23:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726185AbgIQFXE (ORCPT
+        with ESMTP id S1726112AbgIQFXA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Sep 2020 01:23:04 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F895C06174A;
-        Wed, 16 Sep 2020 22:23:04 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id l71so680294pge.4;
-        Wed, 16 Sep 2020 22:23:04 -0700 (PDT)
+        Thu, 17 Sep 2020 01:23:00 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95930C06174A;
+        Wed, 16 Sep 2020 22:22:59 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id v196so496097pfc.1;
+        Wed, 16 Sep 2020 22:22:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=m1D0o1H2R+Sauu9vaW7hv3HhUwelHNtIl/gUcqmOKIE=;
-        b=DOZ3yizRJb0zGyGIthPbPkYOMjI9b5lcmvm/pATc/12B+ttb/W764so3l1jQN5DGrZ
-         1gyikWe/cuL52lEpzHerQ6maxn0TE2PO1y4AqwQD/3rydpYkMWzKEU0lApTIK40nCs1q
-         r8fsBTXK9vtLLV/jv9QDO2g5juxwOb3QJcAgNnIL6HMnZHmxg4Snoz6BYhwcHRUAdoE0
-         xREILatfI0mUW0mZISLsHTmwHibgBaEbnlC21zUsReDh/jhQUSsTm6p5WPZGJrjDEOqG
-         9QaZ3GmGtBVRNUSBp0gbfxqkx5vQkwY2qS8FbG+lJDPPFXQIu4bxwSJimVusE05PSoJS
-         nF1w==
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DuzvDrmcmFUROMahjXsaIv677k9LWQoyjXqdmtsaBMI=;
+        b=bxnFO5n3SkFWMS85cU1DAcdMSzGE74ZVXiqLcUxw0HX/4GRXpamomB+nOSVo9HrVZO
+         VCCGSiJaDrANpunvM0OnKdpJdrG/hO0wacQLUJld32pbqlO/1I/ZwxrdMvL78U+DYG4a
+         JOI3KN1qvSsDPTz0RAmAChw9LLzUmEiX29wwz3X4W1BsnuWpQgqVHNLfkQnoFADtfgcZ
+         Q9tcmR8UmiJxOY/VaGHd+TnpVje0AF0gBc9/R9YJHfevBxXVE+LSijTnI4N1TrnRW5hK
+         s6m7oXrx8FECohNau2O8zzXk4NeN9AUueXOo1ksvIvN5VozIEp8puXbi2AuxLFjA/kF7
+         Fz1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=m1D0o1H2R+Sauu9vaW7hv3HhUwelHNtIl/gUcqmOKIE=;
-        b=cTCLQx3vAIUSSfsgomWJqTG64MkuNqGwAdhaPHwZQTmLjy1p0o2DOOCy9ow3RLP4qN
-         l/SBG7Xei5JJakewv77YH874ex4528OFgAITPVyKDpWus5e8Pk+T3UyiyoMZs5bIkjOk
-         zGSfDFV0QSxtQJrPFE8eNgVuK6qID+LXgJ/8EFhdCofRFsAxytYJAJUcTNaNrd8st1zm
-         WqDC5ql6BCRNqB7W7lyTx06TmS8zG+fz5vbb2L9pVMls8TBStQhrRusgp8F0iox2b1yA
-         rQugE84dCGL6gVdyZj5Qskh+yxfo7/D64w8bjUSG8kcXxyFBG9PdzBIZaFpOQOxy3jkV
-         wIyA==
-X-Gm-Message-State: AOAM532dTZWeVmseA8V8Et2yXmkaztbtvkQ1NvzHehvmLQxu4OIYXrM5
-        r6IuMs4eObTTVJLp54QgxsFRHTj3pw394w==
-X-Google-Smtp-Source: ABdhPJx+jY1AqwMdKGjuu5DjZw2rWg53c7FLzz03VBoukncRje4/3N6NDoIEHMaM8Fwcy9SjZLvP6g==
-X-Received: by 2002:a62:828b:0:b029:142:2501:35d6 with SMTP id w133-20020a62828b0000b0290142250135d6mr9861750pfd.54.1600320183895;
-        Wed, 16 Sep 2020 22:23:03 -0700 (PDT)
+         :mime-version:content-transfer-encoding;
+        bh=DuzvDrmcmFUROMahjXsaIv677k9LWQoyjXqdmtsaBMI=;
+        b=Xm0R924xKsFYZ8nhiRWzulaekhcM4Jt4t+w4q+H7wGi7q8puDnHv+9gJtIFzmh46kl
+         vq+u62zjb7V8v3rt8FkTupevyDsCnC8gKgFnHH7Aq63ytz7itcDVgIA6ufsn0UMP4tYx
+         N9wCsAfgIZXX6sN/ZFMW1MF+IhELyGKgSHvqv7ELeO60LQhJJcnz6VkG/2CqizgxnmZJ
+         dyLVY7uo2sSbG0HYO8RPaaE992bvYji91ua8b8YUiZJT80d5Fdv4IQbgrYMJJPA5jhh4
+         VVpHKCJ/UrRragzjYbga878DSSXrBZvJNk8HjRHQ2T6TAp1nICByqe82Vkc3pQRFcnS1
+         xo7A==
+X-Gm-Message-State: AOAM533WPrrJqdKahWA5Gw0aMe5I6RrWzDbm2WbjPghRnIHFlmsQGUDV
+        IqmDAKqJhq1FItk0Iw8pEf8nE7PGQblTLg==
+X-Google-Smtp-Source: ABdhPJw7MI5v8hAUH6Yv8ZDHRjeZDtK2cRkFfnZbkBrXlzKA87WIhoC1VJMzv7dTLP1azOz3LGE4VA==
+X-Received: by 2002:a62:545:0:b029:142:2501:35db with SMTP id 66-20020a6205450000b0290142250135dbmr9550209pff.59.1600320178779;
+        Wed, 16 Sep 2020 22:22:58 -0700 (PDT)
 Received: from sultan-book.localdomain ([104.200.129.212])
-        by smtp.gmail.com with ESMTPSA id i62sm18705619pfe.140.2020.09.16.22.23.02
+        by smtp.gmail.com with ESMTPSA id i62sm18705619pfe.140.2020.09.16.22.22.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 22:23:03 -0700 (PDT)
+        Wed, 16 Sep 2020 22:22:58 -0700 (PDT)
 From:   Sultan Alsawaf <sultan@kerneltoast.com>
 X-Google-Original-From: Sultan Alsawaf
 To:     linux-i2c@vger.kernel.org
@@ -67,14 +67,11 @@ Cc:     jikos@kernel.org, aaron.ma@canonical.com, admin@kryma.net,
         jarkko.nikula@linux.intel.com, kai.heng.feng@canonical.com,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         mika.westerberg@linux.intel.com, vicamo.yang@canonical.com,
-        wsa@kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH v2 4/4] HID: i2c-hid: Use block reads when possible to save power
-Date:   Wed, 16 Sep 2020 22:22:56 -0700
-Message-Id: <20200917052256.5770-5-sultan@kerneltoast.com>
+        wsa@kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>
+Subject: [PATCH v2 0/4] i2c-hid: Save power by reducing i2c xfers with block reads
+Date:   Wed, 16 Sep 2020 22:22:52 -0700
+Message-Id: <20200917052256.5770-1-sultan@kerneltoast.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200917052256.5770-1-sultan@kerneltoast.com>
-References: <20200917052256.5770-1-sultan@kerneltoast.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -83,47 +80,48 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-We have no way of knowing how large an incoming payload is going to be,
-so the only strategy available up until now has been to always retrieve
-the maximum possible report length over i2c, which can be quite
-inefficient. For devices that send reports in block read format, the i2c
-controller driver can read the payload length on the fly and terminate
-the i2c transaction early, resulting in considerable power savings.
+This is a fixed resubmission of "[PATCH 0/2] i2c-hid: Save power by reducing i2c
+xfers with block reads". That original patchset did not have enough fixes for
+the designware i2c adapter's I2C_M_RECV_LEN feature, which is documented
+extensively in the original email thread.
 
-On a Dell Precision 15 5540 with an i9-9880H, resting my finger on the
-touchpad causes psys power readings to go up by about 4W and hover there
-until I remove my finger. With this patch, my psys readings go from 4.7W
-down to 3.1W, yielding about 1.6W in savings. This is because my
-touchpad's max report length is 60 bytes, but all of the regular reports
-it sends for touch events are only 32 bytes, so the i2c transfer is
-roughly halved for the common case.
+Here is the original cover letter, which still applies:
+"I noticed on my Dell Precision 15 5540 with an i9-9880H that simply putting my
+finger on the touchpad would increase my system's power consumption by 4W, which
+is quite considerable. Resting my finger on the touchpad would generate roughly
+4000 i2c irqs per second, or roughly 20 i2c irqs per touchpad irq.
 
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
----
- drivers/hid/i2c-hid/i2c-hid-core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Upon closer inspection, I noticed that the i2c-hid driver would always transfer
+the maximum report size over i2c (which is 60 bytes for my touchpad), but all of
+my touchpad's normal touch events are only 32 bytes long according to the length
+byte contained in the buffer sequence.
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index dbd04492825d..66950f472122 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -476,11 +476,14 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
- 	int ret;
- 	u32 ret_size;
- 	int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
-+	u16 flags;
- 
- 	if (size > ihid->bufsize)
- 		size = ihid->bufsize;
- 
--	ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
-+	/* Try to do a block read if the size fits in one byte */
-+	flags = size > 255 ? I2C_M_RD : I2C_M_RD | I2C_M_RECV_LEN;
-+	ret = i2c_transfer_buffer_flags(ihid->client, ihid->inbuf, size, flags);
- 	if (ret != size) {
- 		if (ret < 0)
- 			return;
+Therefore, I was able to save about 2W of power by passing the I2C_M_RECV_LEN
+flag in i2c-hid, which says to look for the payload length in the first byte of
+the transfer buffer and adjust the i2c transaction accordingly. The only problem
+though is that my i2c controller's driver allows bytes other than the first one
+to be used to retrieve the payload length, which is incorrect according to the
+SMBus spec, and would break my i2c-hid change since not *all* of the reports
+from my touchpad are conforming SMBus block reads.
+
+This patchset fixes the I2C_M_RECV_LEN behavior in the designware i2c driver and
+modifies i2c-hid to use I2C_M_RECV_LEN to save quite a bit of power. Even if the
+peripheral controlled by i2c-hid doesn't support block reads, the i2c controller
+drivers should cope with this and proceed with the i2c transfer using the
+original requested length."
+
+Sultan
+
+Sultan Alsawaf (4):
+  i2c: designware: Fix transfer failures for invalid SMBus block reads
+  i2c: designware: Ensure tx_buf_len is nonzero for SMBus block reads
+  i2c: designware: Allow SMBus block reads up to 255 bytes in length
+  HID: i2c-hid: Use block reads when possible to save power
+
+ drivers/hid/i2c-hid/i2c-hid-core.c         |  5 ++++-
+ drivers/i2c/busses/i2c-designware-master.c | 15 +++++++++------
+ 2 files changed, 13 insertions(+), 7 deletions(-)
+
 -- 
 2.28.0
 

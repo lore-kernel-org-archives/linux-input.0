@@ -1,109 +1,114 @@
-Return-Path: <SRS0=PhcK=CZ=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=yHBe=C2=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1ED3C2BB84
-	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 20:57:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01A3EC433E2
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 00:13:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E91E221EB
-	for <linux-input@archiver.kernel.org>; Wed, 16 Sep 2020 20:57:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 98E622220D
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 00:13:00 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kEwlFG2m"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728515AbgIPU5C (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 16 Sep 2020 16:57:02 -0400
-Received: from mga09.intel.com ([134.134.136.24]:3712 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726293AbgIPQwh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 16 Sep 2020 12:52:37 -0400
-IronPort-SDR: gJC9KQrGz7PNLfiRC6j6+O5xRPn2eAsOz2+Ubns7jvVjezTjWDXLx4gYMVSKDI6BDw+u3be1Vj
- FxG6LtUuZoGQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9745"; a="160395369"
-X-IronPort-AV: E=Sophos;i="5.76,433,1592895600"; 
-   d="scan'208";a="160395369"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2020 07:09:23 -0700
-IronPort-SDR: f6lEK6rr61QfJLrKixbHM2tY184hPKA3gqXtKYIaZE5f5CnutmwPYL/Q6k3e7bQNOdG3KM3B+e
- IkN1W1Swyaug==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,433,1592895600"; 
-   d="scan'208";a="331700580"
-Received: from mylly.fi.intel.com (HELO [10.237.72.153]) ([10.237.72.153])
-  by fmsmga004.fm.intel.com with ESMTP; 16 Sep 2020 07:09:19 -0700
-Subject: Re: [PATCH v3] i2c: Squash of SMBus block read patchset to save power
-To:     Sultan Alsawaf <sultan@kerneltoast.com>
-Cc:     aaron.ma@canonical.com, admin@kryma.net,
-        andriy.shevchenko@linux.intel.com, benjamin.tissoires@redhat.com,
-        hdegoede@redhat.com, hn.chen@weidahitech.com, jikos@kernel.org,
-        kai.heng.feng@canonical.com, linux-i2c@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mika.westerberg@linux.intel.com, vicamo.yang@canonical.com,
-        wsa@kernel.org
-References: <b3b751fc-668d-91e2-220b-0d7edd231e01@linux.intel.com>
- <20200914001523.3878-1-sultan@kerneltoast.com>
- <bcf9cd02-13d1-8f87-8ef9-2f05f0b54808@linux.intel.com>
- <20200915174844.GA16807@sultan-box.localdomain>
-From:   Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Message-ID: <796a23d2-cb98-c431-3494-b59044189468@linux.intel.com>
-Date:   Wed, 16 Sep 2020 17:09:18 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S1726064AbgIQAM7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 16 Sep 2020 20:12:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39136 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726009AbgIQAM7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 16 Sep 2020 20:12:59 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA5AEC06178C;
+        Wed, 16 Sep 2020 17:03:34 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id w7so68795pfi.4;
+        Wed, 16 Sep 2020 17:03:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=WDzQsVS9IxLNF3a+IIFjupoxMQ40am4ig/tBs3wzfu4=;
+        b=kEwlFG2m5pCDaYGbbtTtnYIyYqO1ztsPI09BZ1U5X1UfrDPbOeQrg0TXNGP4/LsuMM
+         imdSTTSQ7Ec7QkJm8tFV3FAmroMAZD5axt4FpFTv0ZXo3MgD1H4x6cYm1lW/t1o6V88X
+         qOVn5izr6Ro566Mzpcg80cJguAXEINXS3fF/rB9xKCzyUvKsTxAHTZUd6Dht15a9fIQ2
+         xQjLwmP9bWijjMJrUl37qOccxiR44ODLbsN4vaDiZFzWy4Pp2k+jann0ZL4SceqaLtsm
+         8x3PIVXo42qniJJqUrdQKk+zas5DuGgyR6x1sTC++3bVhv8QX8e/dv8fu/tfpArKP718
+         Mkhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=WDzQsVS9IxLNF3a+IIFjupoxMQ40am4ig/tBs3wzfu4=;
+        b=G/mFzpbURKWJi02b1Kx7srD3Msv2BF3UPMFlwdWzlzZfxFTFJKM0yN8jeIOOibfu4A
+         Ry7RRZYCQNuR4fwGsvoaDZGc67EL1HPq5GBM8Mt81h6KXP+S0Ltxj7nlG463rKpyVf8C
+         aw7qVOtN38Td11Gdiba6tvFlFbU5wm4YLennM92PAAr2dU+2Q4oyHm8l4Y6XpEr7/c0T
+         0glkn2QtZ3K/SHPtcfhzlrx1sJIjOhJRuerC7wNzpRQkCetgmUIi4RgJOJ6k2LJQfiLF
+         T8KyRLTgmhVDs9wStZEP9heFz49pMNLaMh1YPpvmQQoOGDeBSYoqPWAStRWZODaL+k7a
+         dVag==
+X-Gm-Message-State: AOAM533Y+vgHBKVJzpAvxpnN/gNwM5wydUMgdhDNtooGZqIKZJZtRMQz
+        cs286oBFMsgAzr+whfK/wd4=
+X-Google-Smtp-Source: ABdhPJxepajcywx1ktmFwK416v92g15gvuSqTod09R8Me1XPElkUaNL/SnecEbQpdetmhlVCNNZAIw==
+X-Received: by 2002:a63:fd03:: with SMTP id d3mr19647881pgh.201.1600301014308;
+        Wed, 16 Sep 2020 17:03:34 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id s22sm19372865pfd.90.2020.09.16.17.03.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Sep 2020 17:03:32 -0700 (PDT)
+Date:   Wed, 16 Sep 2020 17:03:29 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Jeff LaBundy <jeff@labundy.com>
+Cc:     robh+dt@kernel.org, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: Re: [RESEND 5/5] input: iqs269a: Make sliders two-dimensional
+Message-ID: <20200917000329.GM1681290@dtor-ws>
+References: <1600289400-27632-1-git-send-email-jeff@labundy.com>
+ <1600289400-27632-6-git-send-email-jeff@labundy.com>
 MIME-Version: 1.0
-In-Reply-To: <20200915174844.GA16807@sultan-box.localdomain>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1600289400-27632-6-git-send-email-jeff@labundy.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 9/15/20 8:48 PM, Sultan Alsawaf wrote:
-> On Tue, Sep 15, 2020 at 02:55:48PM +0300, Jarkko Nikula wrote:
->> I tested this on top of fc4f28bb3daf ("Merge tag 'for-5.9-rc5-tag' of
->> git://git.kernel.org/pub/scm/linux/kernel/git/kdave/linux") and seems to be
->> working fine. What was the key change compared to previous version that was
->> regressing for me?
+On Wed, Sep 16, 2020 at 03:50:00PM -0500, Jeff LaBundy wrote:
+> libinput rejects devices that define one axis without the orthogonal
+> axis, as well as devices for which either axis's resolution is zero.
 > 
-> This change fixed your issue (and my issue with 5.8):
-> --- a/drivers/i2c/busses/i2c-designware-master.c
-> +++ b/drivers/i2c/busses/i2c-designware-master.c
-> @@ -395,8 +395,9 @@ i2c_dw_recv_len(struct dw_i2c_dev *dev, u8 len)
->   	 * Adjust the buffer length and mask the flag
->   	 * after receiving the first byte.
->   	 */
-> -	len += (flags & I2C_CLIENT_PEC) ? 2 : 1;
-> -	dev->tx_buf_len = len - min_t(u8, len, dev->rx_outstanding);
-> +	if (flags & I2C_CLIENT_PEC)
-> +		len++;
-> +	dev->tx_buf_len = len - min_t(u8, len - 1, dev->rx_outstanding);
->   	msgs[dev->msg_read_idx].len = len;
->   	msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
-> 
-> I've attributed this change with the following commit message:
-> "i2c: designware: Ensure tx_buf_len is nonzero for SMBus block reads
-> 
-> The point of adding a byte to len in i2c_dw_recv_len() is to make sure
-> that tx_buf_len is nonzero, so that i2c_dw_xfer_msg() can let the i2c
-> controller know that the i2c transaction can end. Otherwise, the i2c
-> controller will think that the transaction can never end for block
-> reads, which results in the stop-detection bit never being set and thus
-> the transaction timing out.
-> 
-> Adding a byte to len is not a reliable way to do this though; sometimes
-> it lets tx_buf_len become zero, which results in the scenario described
-> above. Therefore, just directly ensure tx_buf_len cannot be zero to fix
-> the issue."
-> 
-Ok, nice that you found it.
+> To solve this problem, present a thin y-axis with a resolution equal
+> to one.
 
-> Does the patch series look good to submit?
-> 
-Yes, go ahead.
+No, let's fix this in libinput please.
 
-Jarkko
+> 
+> Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+> ---
+>  drivers/input/misc/iqs269a.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/input/misc/iqs269a.c b/drivers/input/misc/iqs269a.c
+> index 04947f1..4a0e4ec 100644
+> --- a/drivers/input/misc/iqs269a.c
+> +++ b/drivers/input/misc/iqs269a.c
+> @@ -1377,6 +1377,8 @@ static int iqs269_input_init(struct iqs269_private *iqs269)
+>  					     EV_KEY, BTN_TOUCH);
+>  			input_set_abs_params(iqs269->slider[i],
+>  					     ABS_X, 0, 255, 0, 0);
+> +			input_set_abs_params(iqs269->slider[i],
+> +					     ABS_Y, 0, 1, 0, 0);
+>  		}
+>  
+>  		error = input_register_device(iqs269->slider[i]);
+> -- 
+> 2.7.4
+> 
+
+Thanks.
+
+-- 
+Dmitry

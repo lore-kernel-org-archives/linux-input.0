@@ -2,120 +2,138 @@ Return-Path: <SRS0=yHBe=C2=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA794C43461
-	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A4F8C433E2
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 08:11:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A7CA0208E4
-	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BDFDE2075B
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 08:11:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jfykg3GQ"
+	dkim=pass (2048-bit key) header.d=netronome-com.20150623.gappssmtp.com header.i=@netronome-com.20150623.gappssmtp.com header.b="Xm9muXpL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725267AbgIQFXm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Sep 2020 01:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58708 "EHLO
+        id S1726442AbgIQILP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Sep 2020 04:11:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726169AbgIQFXD (ORCPT
+        with ESMTP id S1726334AbgIQIFJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Sep 2020 01:23:03 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19171C06174A;
-        Wed, 16 Sep 2020 22:23:02 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id l71so680247pge.4;
-        Wed, 16 Sep 2020 22:23:02 -0700 (PDT)
+        Thu, 17 Sep 2020 04:05:09 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8551DC061354
+        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2020 01:03:39 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id a9so1049393wmm.2
+        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2020 01:03:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=H9VSuNM4l/40vayIg5SAmxrV3Ky0F4a/ev4/YbXR38I=;
-        b=jfykg3GQwbbnkRd4mHs2T0pRUdzz6Qg04xQDWonYE+62vUyPxk2CSLjNyOuwQCK0wQ
-         kUaQ8/9tGinqIg9HVGsDRNH6jabj28nmPIwstqFlvS6NsEZ/loOvs/JlEfSnQrlt0TUv
-         riOpGWHsnRPnO1Dht3mtFK6Ge7oJALV93RpiDKnage3a9TapArQxpoR9EkToOJwoZGmg
-         kkEAiBqlnuCdonIX3vCrWzrli6uuZdrpxpmBW/pxRXWNcnMB6YpNk/E5lVt/7rO+TqRm
-         uLSMc4LtD9P2wavTLkjV+i3S0Nd3eQnJDFKgmPEc0HHyoCP+C1lS8QSTHxhlgomcEzNj
-         oXUw==
+        d=netronome-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=TUShtxADeMIRUv08jDyFnIdO2h4AVdi1g89uLOtrWXw=;
+        b=Xm9muXpLMfdw+3JTaQ5+6nxJDSneO0K8th2wgQ0VLh2VI2BmK+XWoQ9cDtIn8+KaRJ
+         B45Xbntr5JjNU8mF7nIZd8VP+CTHviEtF1Um5VazOhr6GEQCgh9bbRNIM6C+XWioNjmk
+         ImuOo8Gi8eD0FtSQ7hHZ1yPAo82BLFHJwGGg0UxKCYs0oMSSpMWIe45dJUN+DzUELaKQ
+         JzvvcS8KVPQMZJTfgm/lLBewbBl9UGKGHM3XV6hYGQwunOqgCSfJKO8sQaLl1M6X9BRD
+         K+XM2hJttDJQqNZl5Xftk9yd2fnhmTZR2ol6vfSH0itoQkT2+o/FcX7saxpuLl0f47l5
+         EzpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=H9VSuNM4l/40vayIg5SAmxrV3Ky0F4a/ev4/YbXR38I=;
-        b=FXoiZMlyebz0KIAfDUWB3Qgcy/xKvQwMRYdSn+NEEuQUhPCJXr74M8XQsI3+9ElhpT
-         NIhXECTpQuz+aJY/xRyPquq5/m5UJOEs1mGIEaJmGKdvwgjiGYCEKJIKoiqm8PAHRu7Q
-         4Z86Tcqu1Y49EI4jV9kz51XXlG4Z+ItSF84Feut9fPvMJ6sHLBBnCQyO5FvrKm62/YgT
-         b6c6xsUGtVGN4vQjEc1zCmiikHMsYQwVJZ/lqAa5bj+IAhKg11yUlJGLoOMJwZ7QtY+U
-         m2z5l54//8O0Z2q1sxIZMojCcB/+LZZL2YyYZJHv0kaLJYDNZOO2TCbTj9Z0WFzrCLn8
-         1Dgw==
-X-Gm-Message-State: AOAM5323ifwaT3cRS6jfMKodiDbWoCv2/roSNP+pe27a8cZ4Uh98fKJQ
-        clVzq516dvPCnBlWYRtsIlmsvKO5dDxTVQ==
-X-Google-Smtp-Source: ABdhPJyQj2W93OVJdgG0z4BQfii7Jc+Bx08sqfPo7FS4qcFN/sVD4CD3GQSjhe2kx8kuKnZazAVFgg==
-X-Received: by 2002:a62:fb1a:0:b029:142:2501:39f9 with SMTP id x26-20020a62fb1a0000b0290142250139f9mr9134883pfm.72.1600320181402;
-        Wed, 16 Sep 2020 22:23:01 -0700 (PDT)
-Received: from sultan-book.localdomain ([104.200.129.212])
-        by smtp.gmail.com with ESMTPSA id i62sm18705619pfe.140.2020.09.16.22.23.00
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=TUShtxADeMIRUv08jDyFnIdO2h4AVdi1g89uLOtrWXw=;
+        b=XbFmzuPjoCixqfLRrGhCR2+Garkym5+IxDVrktRMSDvmy8qZEtc8veL0heUvTUqHzb
+         gOy8pRJojQw32fJodOfeSLRYRwFxOXMazfl6k/az+t3v2uyEVrixEZnH9btSK/3yGjVc
+         YAapqdY9xzgjjbSBpgbSAcpsg854H88Bqht8tB/Eu4sznAMQ2XBgxwL2e6GJSQjzxMz+
+         Wxu+OsGozzMW/lEvNPPvtlVGkBsgkTWEBd1n942sX3/yKR1RI1uKg0REKmY4dIrweAT0
+         1doanX8QQlpIKkBS7Sl08juSKhSjvbanqGylBRQEWCbeQbe8gWys+r4xGYtfnwHM+63F
+         huSg==
+X-Gm-Message-State: AOAM530c15L/fd2y1xpMAkQZOPh1NEqIGXb0mSv70f0c6z/Vy8kAGyib
+        ZlAsu74HPwo4g1a85Mtc0HPj2Q==
+X-Google-Smtp-Source: ABdhPJzTwzfeJOnCQh65prZummqH9JR09Yxja+zvv2OTSAZpPcom4k7xuvXSyH3Yv50qn/8+2aIWyQ==
+X-Received: by 2002:a1c:e256:: with SMTP id z83mr8793930wmg.33.1600329817598;
+        Thu, 17 Sep 2020 01:03:37 -0700 (PDT)
+Received: from netronome.com ([2001:982:756:703:d63d:7eff:fe99:ac9d])
+        by smtp.gmail.com with ESMTPSA id a13sm9836030wme.26.2020.09.17.01.03.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 22:23:00 -0700 (PDT)
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-X-Google-Original-From: Sultan Alsawaf
-To:     linux-i2c@vger.kernel.org
-Cc:     jikos@kernel.org, aaron.ma@canonical.com, admin@kryma.net,
-        andriy.shevchenko@linux.intel.com, benjamin.tissoires@redhat.com,
-        hdegoede@redhat.com, hn.chen@weidahitech.com,
-        jarkko.nikula@linux.intel.com, kai.heng.feng@canonical.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mika.westerberg@linux.intel.com, vicamo.yang@canonical.com,
-        wsa@kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>
-Subject: [PATCH v2 2/4] i2c: designware: Ensure tx_buf_len is nonzero for SMBus block reads
-Date:   Wed, 16 Sep 2020 22:22:54 -0700
-Message-Id: <20200917052256.5770-3-sultan@kerneltoast.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200917052256.5770-1-sultan@kerneltoast.com>
-References: <20200917052256.5770-1-sultan@kerneltoast.com>
+        Thu, 17 Sep 2020 01:03:36 -0700 (PDT)
+Date:   Thu, 17 Sep 2020 10:03:35 +0200
+From:   Simon Horman <simon.horman@netronome.com>
+To:     Joe Perches <joe@perches.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Jiri Kosina <trivial@kernel.org>,
+        Kees Cook <kees.cook@canonical.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        linux-mips@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-ide@vger.kernel.org,
+        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        nouveau@lists.freedesktop.org, linux-input@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-rdma@vger.kernel.org,
+        iommu@lists.linux-foundation.org, dm-devel@redhat.com,
+        linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, intel-wired-lan@lists.osuosl.org,
+        oss-drivers@netronome.com, linux-usb@vger.kernel.org,
+        linux-wireless@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-nvme@lists.infradead.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-scsi@vger.kernel.org,
+        storagedev@microchip.com, sparclinux@vger.kernel.org,
+        linux-serial@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-parisc@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-afs@lists.infradead.org, ceph-devel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, bpf@vger.kernel.org,
+        dccp@vger.kernel.org, netfilter-devel@vger.kernel.org,
+        coreteam@netfilter.org, linux-sctp@vger.kernel.org,
+        alsa-devel <alsa-devel@alsa-project.org>
+Subject: Re: [oss-drivers] [trivial PATCH] treewide: Convert switch/case
+ fallthrough; to break;
+Message-ID: <20200917080334.GB5769@netronome.com>
+References: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Sultan Alsawaf <sultan@kerneltoast.com>
+On Wed, Sep 09, 2020 at 01:06:39PM -0700, Joe Perches wrote:
+> fallthrough to a separate case/default label break; isn't very readable.
+> 
+> Convert pseudo-keyword fallthrough; statements to a simple break; when
+> the next label is case or default and the only statement in the next
+> label block is break;
+> 
+> Found using:
+> 
+> $ grep-2.5.4 -rP --include=*.[ch] -n "fallthrough;(\s*(case\s+\w+|default)\s*:\s*){1,7}break;" *
+> 
+> Miscellanea:
+> 
+> o Move or coalesce a couple label blocks above a default: block.
+> 
+> Signed-off-by: Joe Perches <joe@perches.com>
 
-The point of adding a byte to len in i2c_dw_recv_len() is to make sure
-that tx_buf_len is nonzero, so that i2c_dw_xfer_msg() can let the i2c
-controller know that the i2c transaction can end. Otherwise, the i2c
-controller will think that the transaction can never end for block
-reads, which results in the stop-detection bit never being set and thus
-the transaction timing out.
+...
 
-Adding a byte to len is not a reliable way to do this though; sometimes
-it lets tx_buf_len become zero, which results in the scenario described
-above. Therefore, just directly ensure tx_buf_len cannot be zero to fix
-the issue.
+> diff --git a/drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c b/drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c
+> index 252fe06f58aa..1d5b87079104 100644
+> --- a/drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c
+> +++ b/drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c
+> @@ -345,7 +345,7 @@ static int matching_bar(struct nfp_bar *bar, u32 tgt, u32 act, u32 tok,
+>  		baract = NFP_CPP_ACTION_RW;
+>  		if (act == 0)
+>  			act = NFP_CPP_ACTION_RW;
+> -		fallthrough;
+> +		break;
+>  	case NFP_PCIE_BAR_PCIE2CPP_MapType_FIXED:
+>  		break;
+>  	default:
 
-Fixes: c3ae106050b9 ("i2c: designware: Implement support for SMBus block read and write")
-Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
----
- drivers/i2c/busses/i2c-designware-master.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+This is a cascading fall-through handling all map types.
+I don't think this change improves readability.
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index d78f48ca4886..22f28516bca7 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -395,8 +395,9 @@ i2c_dw_recv_len(struct dw_i2c_dev *dev, u8 len)
- 	 * Adjust the buffer length and mask the flag
- 	 * after receiving the first byte.
- 	 */
--	len += (flags & I2C_CLIENT_PEC) ? 2 : 1;
--	dev->tx_buf_len = len - min_t(u8, len, dev->rx_outstanding);
-+	if (flags & I2C_CLIENT_PEC)
-+		len++;
-+	dev->tx_buf_len = len - min_t(u8, len - 1, dev->rx_outstanding);
- 	msgs[dev->msg_read_idx].len = len;
- 	msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
- 
--- 
-2.28.0
-
+...

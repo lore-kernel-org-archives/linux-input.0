@@ -4,60 +4,60 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01C2CC2BBD1
-	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7177C433E2
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B14C320936
-	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D5E4208E4
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="csZiyQVY"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="teYJl6x5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726156AbgIQFXB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Sep 2020 01:23:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58700 "EHLO
+        id S1726199AbgIQFXG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Sep 2020 01:23:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726126AbgIQFXB (ORCPT
+        with ESMTP id S1726180AbgIQFXE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Sep 2020 01:23:01 -0400
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40D4C06174A;
-        Wed, 16 Sep 2020 22:23:00 -0700 (PDT)
-Received: by mail-pf1-x443.google.com with SMTP id d9so491131pfd.3;
-        Wed, 16 Sep 2020 22:23:00 -0700 (PDT)
+        Thu, 17 Sep 2020 01:23:04 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5817FC061756;
+        Wed, 16 Sep 2020 22:23:03 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id z19so475171pfn.8;
+        Wed, 16 Sep 2020 22:23:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=S8OVV1mZhFttZGVKsQ9JByMqrc+T8zXoOJFR2iwsG4g=;
-        b=csZiyQVYfnEgwlEZ9kS/DEtPg3WS1RIfpF0DBEL8GWXMXfDDMCPigCDbhzVUmQy9Z3
-         +Xyf+LdqcXV8ZYAPetqHUqpn4AIZB9eLImehPcHNvpWRa4jbnkBZESrua7BZ6DiO0HnR
-         NwIUXrYkCNtyR0lf+t4pCmxMdY5piTPrlIavN9hbVxnf1YGtCqhVgUBRR5fIT9iqAg2Y
-         Wv/9zGTUNHSTUhjGtnsGdRUFXd4nVwPZdEbqEvxkGlhU7UTV2S2uTafqBI3M698XVbJd
-         cBfwkRqUQq2Bzzqc7DJtO0tdBoorLPLRuWKTH0JH4KuUfNc5hKqIBEn73Adr7yxKtCBe
-         hqLA==
+        bh=WDZd8tsRsFWv5ihYfraNwY2+UbRPuk2ibJ4Vl5wi/pY=;
+        b=teYJl6x5RIDP4Alc+XCeMh7yCiyF2cARRceeq+i17641JSN7U0OU5n93u8IZZtVpJi
+         V2T8CjpZl28JlqCE/md0a60Fc4F1MUqdbbOd8RyT9Fjb3iInQaQ+nP2PGD3DFov4eQgm
+         szNGCpEZP9y2rz/kQYi4+zO8MtYmsa46IejNRPhHEonc5QafOS7lMBNXddTMN4XuG3TG
+         DicSWOAGXyj26lPRmeeWAdwUK7ju/GZIBSVnl4pqIK2Uy/Q8mJnjo+EFWeMSCgEVVoVt
+         M8O44yIcPN4YWe+Ag1eNNQOepmbttBhMPdFOm0SKY4syLzTEisqvHcHqWo+Komajk2cP
+         dEog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=S8OVV1mZhFttZGVKsQ9JByMqrc+T8zXoOJFR2iwsG4g=;
-        b=gRXWwJkghLrglLr6Wrxar1CjbtBzJoMSotfyLgWc2fpP/MmAarldo+AQkMUHvfO/yM
-         SWcw5zIw7zvvbaJrYbIARSq/Guh4TOJK1jkSlq1z+6hdisCwNnb8MTXPt5fxCkZGIc0N
-         ERLyAR8H/Z8CsGhrCr2/Vnsg8spWMcKJV1Z/3xO3CcDlVwVFXy7xU/gwPRVb7VB7HccO
-         f5fU8GTeTxCmwaSyTI0nb/4JPs+D4mX9QColFPyWPAnALyOIxFMwQkWiukdL9vHwuXok
-         KyHjbqDfyQexhsNfm8rVdczWZFoWvdyksBOcSMpD8IqcprjoaqjYY69QJ0+H9zMdfc4B
-         TV+A==
-X-Gm-Message-State: AOAM530VduBSYJ8ZMxLNttxPxwJriWES14G2IMjhNATPi1QcG0VUqVz5
-        uwDayBIFw/1I2602qCkUO1fTH17QFGEvyQ==
-X-Google-Smtp-Source: ABdhPJwRiiZC9FoLVuFtA6sythUYEh5Tocm0uFHYXvuvsa86NUhl1m2QIEbHD1xVx6udreMMVpi04Q==
-X-Received: by 2002:a62:52d3:0:b029:142:2501:3a00 with SMTP id g202-20020a6252d30000b029014225013a00mr9360192pfb.79.1600320180046;
-        Wed, 16 Sep 2020 22:23:00 -0700 (PDT)
+        bh=WDZd8tsRsFWv5ihYfraNwY2+UbRPuk2ibJ4Vl5wi/pY=;
+        b=gCxElnuDQ2Ua8QBQQ0xMi7w+vBMFuvWAbdZN/0+oHLNyCzUwIWBiNnmOPuIp7IbbGg
+         kI2aM3kU+5TVCAtQzC05Wi92e5fZ86nOLVxgGn7ckyaSn9+oQ7ePcd6mG/BrkzizfFdc
+         kc9rbNEZLtY4X4FyJNRNKZGPQAD69jAmdBUSGIiwmSbesPGKu0wXSJFzyaf/KYkrwG1z
+         pBPGdG5qd4dKGSZCBgOBxIuRmuqgAFFTFmHkWMeRfs/qJeQItWUkfizF05WiWooXUDt8
+         GR0AxXyipknN4tH1053bDFzlh7ge1fcegV7m8n6ZAyT+71yjEW8XFAMXfc39ozyOA5gw
+         tFzw==
+X-Gm-Message-State: AOAM530fJiuwp/EZx9CrfweUPSUTSXq3pUSquXyW2D1gwWVa7wiZIXZp
+        s4tw5TECTAI6N7gjVjvJ8v03tSwtxT6xsg==
+X-Google-Smtp-Source: ABdhPJy2yKyMB98G1d9fOVe9cyIU4MU6rtz+y+tWiJJCWV9cCeeHDV1+2ZamQ2v/ihfI1xB0w2VS9A==
+X-Received: by 2002:a63:516:: with SMTP id 22mr21793976pgf.316.1600320182593;
+        Wed, 16 Sep 2020 22:23:02 -0700 (PDT)
 Received: from sultan-book.localdomain ([104.200.129.212])
-        by smtp.gmail.com with ESMTPSA id i62sm18705619pfe.140.2020.09.16.22.22.59
+        by smtp.gmail.com with ESMTPSA id i62sm18705619pfe.140.2020.09.16.22.23.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 22:22:59 -0700 (PDT)
+        Wed, 16 Sep 2020 22:23:02 -0700 (PDT)
 From:   Sultan Alsawaf <sultan@kerneltoast.com>
 X-Google-Original-From: Sultan Alsawaf
 To:     linux-i2c@vger.kernel.org
@@ -68,9 +68,9 @@ Cc:     jikos@kernel.org, aaron.ma@canonical.com, admin@kryma.net,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         mika.westerberg@linux.intel.com, vicamo.yang@canonical.com,
         wsa@kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>
-Subject: [PATCH v2 1/4] i2c: designware: Fix transfer failures for invalid SMBus block reads
-Date:   Wed, 16 Sep 2020 22:22:53 -0700
-Message-Id: <20200917052256.5770-2-sultan@kerneltoast.com>
+Subject: [PATCH v2 3/4] i2c: designware: Allow SMBus block reads up to 255 bytes in length
+Date:   Wed, 16 Sep 2020 22:22:55 -0700
+Message-Id: <20200917052256.5770-4-sultan@kerneltoast.com>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200917052256.5770-1-sultan@kerneltoast.com>
 References: <20200917052256.5770-1-sultan@kerneltoast.com>
@@ -82,45 +82,28 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-SMBus block reads can be broken because the read function will just skip
-over bytes it doesn't like until reaching a byte that conforms to the
-length restrictions for block reads. This is problematic when it isn't
-known if the incoming payload is indeed a conforming block read.
+According to the SMBus 3.0 protocol specification, block transfer limits
+were increased from 32 bytes to 255 bytes. Remove the obsolete 32-byte
+limitation.
 
-According to the SMBus specification, block reads will only send the
-payload length in the first byte, so we can fix this by only considering
-the first byte in a sequence for block read length purposes.
-
-In addition, when the length byte is invalid, the original transfer
-length still needs to be adjusted to avoid a controller timeout.
-
-Fixes: c3ae106050b9 ("i2c: designware: Implement support for SMBus block read and write")
 Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 ---
- drivers/i2c/busses/i2c-designware-master.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-designware-master.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index d6425ad6e6a3..d78f48ca4886 100644
+index 22f28516bca7..5bd64bd17d94 100644
 --- a/drivers/i2c/busses/i2c-designware-master.c
 +++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -430,10 +430,12 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 			u32 flags = msgs[dev->msg_read_idx].flags;
- 
+@@ -433,7 +433,7 @@ i2c_dw_read(struct dw_i2c_dev *dev)
  			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
--			/* Ensure length byte is a valid value */
--			if (flags & I2C_M_RECV_LEN &&
--			    tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
--				len = i2c_dw_recv_len(dev, tmp);
-+			if (flags & I2C_M_RECV_LEN) {
-+				/* Ensure length byte is a valid value */
-+				if (tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0)
-+					len = i2c_dw_recv_len(dev, tmp);
-+				else
-+					len = i2c_dw_recv_len(dev, len);
- 			}
- 			*buf++ = tmp;
- 			dev->rx_outstanding--;
+ 			if (flags & I2C_M_RECV_LEN) {
+ 				/* Ensure length byte is a valid value */
+-				if (tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0)
++				if (tmp > 0)
+ 					len = i2c_dw_recv_len(dev, tmp);
+ 				else
+ 					len = i2c_dw_recv_len(dev, len);
 -- 
 2.28.0
 

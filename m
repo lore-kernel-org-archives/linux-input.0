@@ -2,113 +2,125 @@ Return-Path: <SRS0=yHBe=C2=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01A3EC433E2
-	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 00:13:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01C2CC2BBD1
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 98E622220D
-	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 00:13:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B14C320936
+	for <linux-input@archiver.kernel.org>; Thu, 17 Sep 2020 05:23:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kEwlFG2m"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="csZiyQVY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726064AbgIQAM7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 16 Sep 2020 20:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39136 "EHLO
+        id S1726156AbgIQFXB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Sep 2020 01:23:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726009AbgIQAM7 (ORCPT
+        with ESMTP id S1726126AbgIQFXB (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 16 Sep 2020 20:12:59 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA5AEC06178C;
-        Wed, 16 Sep 2020 17:03:34 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id w7so68795pfi.4;
-        Wed, 16 Sep 2020 17:03:34 -0700 (PDT)
+        Thu, 17 Sep 2020 01:23:01 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40D4C06174A;
+        Wed, 16 Sep 2020 22:23:00 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id d9so491131pfd.3;
+        Wed, 16 Sep 2020 22:23:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=WDzQsVS9IxLNF3a+IIFjupoxMQ40am4ig/tBs3wzfu4=;
-        b=kEwlFG2m5pCDaYGbbtTtnYIyYqO1ztsPI09BZ1U5X1UfrDPbOeQrg0TXNGP4/LsuMM
-         imdSTTSQ7Ec7QkJm8tFV3FAmroMAZD5axt4FpFTv0ZXo3MgD1H4x6cYm1lW/t1o6V88X
-         qOVn5izr6Ro566Mzpcg80cJguAXEINXS3fF/rB9xKCzyUvKsTxAHTZUd6Dht15a9fIQ2
-         xQjLwmP9bWijjMJrUl37qOccxiR44ODLbsN4vaDiZFzWy4Pp2k+jann0ZL4SceqaLtsm
-         8x3PIVXo42qniJJqUrdQKk+zas5DuGgyR6x1sTC++3bVhv8QX8e/dv8fu/tfpArKP718
-         Mkhg==
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=S8OVV1mZhFttZGVKsQ9JByMqrc+T8zXoOJFR2iwsG4g=;
+        b=csZiyQVYfnEgwlEZ9kS/DEtPg3WS1RIfpF0DBEL8GWXMXfDDMCPigCDbhzVUmQy9Z3
+         +Xyf+LdqcXV8ZYAPetqHUqpn4AIZB9eLImehPcHNvpWRa4jbnkBZESrua7BZ6DiO0HnR
+         NwIUXrYkCNtyR0lf+t4pCmxMdY5piTPrlIavN9hbVxnf1YGtCqhVgUBRR5fIT9iqAg2Y
+         Wv/9zGTUNHSTUhjGtnsGdRUFXd4nVwPZdEbqEvxkGlhU7UTV2S2uTafqBI3M698XVbJd
+         cBfwkRqUQq2Bzzqc7DJtO0tdBoorLPLRuWKTH0JH4KuUfNc5hKqIBEn73Adr7yxKtCBe
+         hqLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=WDzQsVS9IxLNF3a+IIFjupoxMQ40am4ig/tBs3wzfu4=;
-        b=G/mFzpbURKWJi02b1Kx7srD3Msv2BF3UPMFlwdWzlzZfxFTFJKM0yN8jeIOOibfu4A
-         Ry7RRZYCQNuR4fwGsvoaDZGc67EL1HPq5GBM8Mt81h6KXP+S0Ltxj7nlG463rKpyVf8C
-         aw7qVOtN38Td11Gdiba6tvFlFbU5wm4YLennM92PAAr2dU+2Q4oyHm8l4Y6XpEr7/c0T
-         0glkn2QtZ3K/SHPtcfhzlrx1sJIjOhJRuerC7wNzpRQkCetgmUIi4RgJOJ6k2LJQfiLF
-         T8KyRLTgmhVDs9wStZEP9heFz49pMNLaMh1YPpvmQQoOGDeBSYoqPWAStRWZODaL+k7a
-         dVag==
-X-Gm-Message-State: AOAM533Y+vgHBKVJzpAvxpnN/gNwM5wydUMgdhDNtooGZqIKZJZtRMQz
-        cs286oBFMsgAzr+whfK/wd4=
-X-Google-Smtp-Source: ABdhPJxepajcywx1ktmFwK416v92g15gvuSqTod09R8Me1XPElkUaNL/SnecEbQpdetmhlVCNNZAIw==
-X-Received: by 2002:a63:fd03:: with SMTP id d3mr19647881pgh.201.1600301014308;
-        Wed, 16 Sep 2020 17:03:34 -0700 (PDT)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id s22sm19372865pfd.90.2020.09.16.17.03.31
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references:mime-version:content-transfer-encoding;
+        bh=S8OVV1mZhFttZGVKsQ9JByMqrc+T8zXoOJFR2iwsG4g=;
+        b=gRXWwJkghLrglLr6Wrxar1CjbtBzJoMSotfyLgWc2fpP/MmAarldo+AQkMUHvfO/yM
+         SWcw5zIw7zvvbaJrYbIARSq/Guh4TOJK1jkSlq1z+6hdisCwNnb8MTXPt5fxCkZGIc0N
+         ERLyAR8H/Z8CsGhrCr2/Vnsg8spWMcKJV1Z/3xO3CcDlVwVFXy7xU/gwPRVb7VB7HccO
+         f5fU8GTeTxCmwaSyTI0nb/4JPs+D4mX9QColFPyWPAnALyOIxFMwQkWiukdL9vHwuXok
+         KyHjbqDfyQexhsNfm8rVdczWZFoWvdyksBOcSMpD8IqcprjoaqjYY69QJ0+H9zMdfc4B
+         TV+A==
+X-Gm-Message-State: AOAM530VduBSYJ8ZMxLNttxPxwJriWES14G2IMjhNATPi1QcG0VUqVz5
+        uwDayBIFw/1I2602qCkUO1fTH17QFGEvyQ==
+X-Google-Smtp-Source: ABdhPJwRiiZC9FoLVuFtA6sythUYEh5Tocm0uFHYXvuvsa86NUhl1m2QIEbHD1xVx6udreMMVpi04Q==
+X-Received: by 2002:a62:52d3:0:b029:142:2501:3a00 with SMTP id g202-20020a6252d30000b029014225013a00mr9360192pfb.79.1600320180046;
+        Wed, 16 Sep 2020 22:23:00 -0700 (PDT)
+Received: from sultan-book.localdomain ([104.200.129.212])
+        by smtp.gmail.com with ESMTPSA id i62sm18705619pfe.140.2020.09.16.22.22.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 17:03:32 -0700 (PDT)
-Date:   Wed, 16 Sep 2020 17:03:29 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Jeff LaBundy <jeff@labundy.com>
-Cc:     robh+dt@kernel.org, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: Re: [RESEND 5/5] input: iqs269a: Make sliders two-dimensional
-Message-ID: <20200917000329.GM1681290@dtor-ws>
-References: <1600289400-27632-1-git-send-email-jeff@labundy.com>
- <1600289400-27632-6-git-send-email-jeff@labundy.com>
+        Wed, 16 Sep 2020 22:22:59 -0700 (PDT)
+From:   Sultan Alsawaf <sultan@kerneltoast.com>
+X-Google-Original-From: Sultan Alsawaf
+To:     linux-i2c@vger.kernel.org
+Cc:     jikos@kernel.org, aaron.ma@canonical.com, admin@kryma.net,
+        andriy.shevchenko@linux.intel.com, benjamin.tissoires@redhat.com,
+        hdegoede@redhat.com, hn.chen@weidahitech.com,
+        jarkko.nikula@linux.intel.com, kai.heng.feng@canonical.com,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        mika.westerberg@linux.intel.com, vicamo.yang@canonical.com,
+        wsa@kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>
+Subject: [PATCH v2 1/4] i2c: designware: Fix transfer failures for invalid SMBus block reads
+Date:   Wed, 16 Sep 2020 22:22:53 -0700
+Message-Id: <20200917052256.5770-2-sultan@kerneltoast.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200917052256.5770-1-sultan@kerneltoast.com>
+References: <20200917052256.5770-1-sultan@kerneltoast.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1600289400-27632-6-git-send-email-jeff@labundy.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Sep 16, 2020 at 03:50:00PM -0500, Jeff LaBundy wrote:
-> libinput rejects devices that define one axis without the orthogonal
-> axis, as well as devices for which either axis's resolution is zero.
-> 
-> To solve this problem, present a thin y-axis with a resolution equal
-> to one.
+From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-No, let's fix this in libinput please.
+SMBus block reads can be broken because the read function will just skip
+over bytes it doesn't like until reaching a byte that conforms to the
+length restrictions for block reads. This is problematic when it isn't
+known if the incoming payload is indeed a conforming block read.
 
-> 
-> Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-> ---
->  drivers/input/misc/iqs269a.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/input/misc/iqs269a.c b/drivers/input/misc/iqs269a.c
-> index 04947f1..4a0e4ec 100644
-> --- a/drivers/input/misc/iqs269a.c
-> +++ b/drivers/input/misc/iqs269a.c
-> @@ -1377,6 +1377,8 @@ static int iqs269_input_init(struct iqs269_private *iqs269)
->  					     EV_KEY, BTN_TOUCH);
->  			input_set_abs_params(iqs269->slider[i],
->  					     ABS_X, 0, 255, 0, 0);
-> +			input_set_abs_params(iqs269->slider[i],
-> +					     ABS_Y, 0, 1, 0, 0);
->  		}
->  
->  		error = input_register_device(iqs269->slider[i]);
-> -- 
-> 2.7.4
-> 
+According to the SMBus specification, block reads will only send the
+payload length in the first byte, so we can fix this by only considering
+the first byte in a sequence for block read length purposes.
 
-Thanks.
+In addition, when the length byte is invalid, the original transfer
+length still needs to be adjusted to avoid a controller timeout.
 
+Fixes: c3ae106050b9 ("i2c: designware: Implement support for SMBus block read and write")
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ drivers/i2c/busses/i2c-designware-master.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index d6425ad6e6a3..d78f48ca4886 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -430,10 +430,12 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+ 			u32 flags = msgs[dev->msg_read_idx].flags;
+ 
+ 			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
+-			/* Ensure length byte is a valid value */
+-			if (flags & I2C_M_RECV_LEN &&
+-			    tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0) {
+-				len = i2c_dw_recv_len(dev, tmp);
++			if (flags & I2C_M_RECV_LEN) {
++				/* Ensure length byte is a valid value */
++				if (tmp <= I2C_SMBUS_BLOCK_MAX && tmp > 0)
++					len = i2c_dw_recv_len(dev, tmp);
++				else
++					len = i2c_dw_recv_len(dev, len);
+ 			}
+ 			*buf++ = tmp;
+ 			dev->rx_outstanding--;
 -- 
-Dmitry
+2.28.0
+

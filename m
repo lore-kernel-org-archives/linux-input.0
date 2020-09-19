@@ -2,112 +2,129 @@ Return-Path: <SRS0=rMy9=C4=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBC9CC43464
-	for <linux-input@archiver.kernel.org>; Sat, 19 Sep 2020 20:04:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3215BC433DB
+	for <linux-input@archiver.kernel.org>; Sat, 19 Sep 2020 21:49:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8A8D421D42
-	for <linux-input@archiver.kernel.org>; Sat, 19 Sep 2020 20:04:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5A9B222BB
+	for <linux-input@archiver.kernel.org>; Sat, 19 Sep 2020 21:49:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kskcrheT"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="puozsXpu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726575AbgISUE5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 19 Sep 2020 16:04:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47792 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726511AbgISUE5 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 19 Sep 2020 16:04:57 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C554C0613CE;
-        Sat, 19 Sep 2020 13:04:57 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id n22so9264024edt.4;
-        Sat, 19 Sep 2020 13:04:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=VNdVm0qjWANV+k8o/qFZrx8yrtDDDYIfNRixrZTkFtI=;
-        b=kskcrheTxsjTIrQVeP6MdQi4U5gZ/ntOTUiAAnZlvSwJADnMKFK4DlxPR1Xhyy+Zu+
-         PMQgTNzkZBRJ9+T4tIfQ8WNrAdJrjZ+zfC4lvEjZmSW/Fn0vy0Kn9NBTSLCVpVbLlC25
-         pkLT21r2ucwZsAiAsl11SZpR6ygnqgWwWc04fqtRT8fyK9XdpPkp9L5fv9kEF9j5ZD83
-         pMtMFva23ct8DQGw2o1fKLuIpLYj4DpjBJtXutr+2CsZpqVkuQuM8uGty4A823sGV1Nr
-         VGolbaVRUYi145kKu8Y+HzWvsUzxyUzD0esZot13I5bw9SxFpJjHykcvMGf4LL+ayDn4
-         xNug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=VNdVm0qjWANV+k8o/qFZrx8yrtDDDYIfNRixrZTkFtI=;
-        b=DK0AOe/ugO7Oxc+Jy3+Z3RkxoR3BRZ2CT37KBYsbfbanwKm4MJxNECVMt/kGX3c61F
-         fNlX6XhcODQlxhHOQQpcShy/g+M0VNlQrXMoJ48gNXoo+V26HH77/M2EurPljXP6liaI
-         Hn+a6H2/BqZW9SApRfrBE//nN8eccIBs89hL7G/wbtahpDuDlDmf5Tg1dyx1shgQL+6K
-         SYFYEhqTT2bh1a6MZESbVzg1bvlVScUZ6lAa2G9RTwJ29KldDmk1BPG94Q4xjPBAnuIC
-         eS31oYvIARqhDriWLxw5gEA2J0uXJnwaCYVLTS7tdTSvj7l8ThkpExc/Vywzu6CIg7ON
-         8VLA==
-X-Gm-Message-State: AOAM532dyKz60RxLoNFTnVQV5h2m6oV+ZPQEKgu6oSEQIdlwGOp4+SIj
-        htfxmDARIgtcVG/YYlQ+s4uXYImWUNJ3Pqdv4dPT1yRQW+i9Iw==
-X-Google-Smtp-Source: ABdhPJzHKwVw+CxCv0ZligwmUeji7ZCv31u0VbhT9/h/+ebgnwuR0WCpOqOdSOlIQSTIOmt3TeykAg2ugseJGbyoEiA=
-X-Received: by 2002:aa7:cad3:: with SMTP id l19mr43047942edt.352.1600545895900;
- Sat, 19 Sep 2020 13:04:55 -0700 (PDT)
+        id S1726730AbgISVtu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 19 Sep 2020 17:49:50 -0400
+Received: from rere.qmqm.pl ([91.227.64.183]:5170 "EHLO rere.qmqm.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726722AbgISVtu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 19 Sep 2020 17:49:50 -0400
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4Bv4012VnPzHm;
+        Sat, 19 Sep 2020 23:41:21 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1600551681; bh=3doK0FUutvkvWAsR9+JjynwPIbyNyVd+O7Di1WbQwyM=;
+        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
+        b=puozsXpuo7xKpssaq0FGYBcxdO7aTszp1cIztgTJdzTmlGR1uMJV3//Ei8DC+bBEy
+         LI1ZxzKvqOthkbAywHEinoTuA0s/FjED6sCzYGjjt+yfdesHPFJU5DoDBc979+jh8N
+         VJ2fp8wILLw9RuUn1+hZkLeFaMDxhhgcu1r9NORWb6uNPIAy75SmL2GKyi1nevmhWv
+         9qbna6WoElMtGtDRBX/Y00pS7plT0iVkdiYJvpn8kpdmRyOf5VitRwNG7Z/dLK2eec
+         A1QIZH5XjYPwhvVVMR2bm6Vd6J5c9b9wmCNqiuqGWUQWMYjpfa5OyC8mFqN7ggGgIy
+         c9hq/bLC48XGA==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.102.4 at mail
+Date:   Sat, 19 Sep 2020 23:41:21 +0200
+Message-Id: <1d2d6d628c00a292a2fc230ab6f274fd22ad78e1.1600551334.git.mirq-linux@rere.qmqm.pl>
+In-Reply-To: <cover.1600551334.git.mirq-linux@rere.qmqm.pl>
+References: <cover.1600551334.git.mirq-linux@rere.qmqm.pl>
+From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH v7 1/4] input: elants: document some registers and values
 MIME-Version: 1.0
-From:   =?UTF-8?Q?Mikael_Wikstr=C3=B6m?= <leakim.wikstrom@gmail.com>
-Date:   Sat, 19 Sep 2020 22:04:45 +0200
-Message-ID: <CADGsf-Gs9EM770jTVX=yABBLAT1rdfBYb5jam720yqez=D3VHg@mail.gmail.com>
-Subject: [PATCH] HID: multitouch: Lenovo X1 Tablet Gen3 trackpoint and buttons
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        James Chen <james.chen@emc.com.tw>,
+        Johnny Chuang <johnny.chuang@emc.com.tw>,
+        Scott Liu <scott.liu@emc.com.tw>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Harry Cutts <hcutts@chromium.org>,
+        Peter Hutterer <peter.hutterer@who-t.net>
 Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-One more device that needs 40d5bb87 to resolve regression for the trackpoin=
-t
-and three mouse buttons on the type cover of the Lenovo X1 Tablet Gen3.
+Add information found in downstream kernels, to make the code less
+magic.
 
-It is probably also needed for the Lenovo X1 Tablet Gen2 with PID 0x60a3
-
-Signed-off-by: Mikael Wikstr=C3=B6m <leakim.wikstrom@gmail.com>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
 ---
- drivers/hid/hid-ids.h        | 1 +
- drivers/hid/hid-multitouch.c | 6 ++++++
- 2 files changed, 7 insertions(+)
+ drivers/input/touchscreen/elants_i2c.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 74fc1df6e3c2..6a6e2c1b6090 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -727,6 +727,7 @@
- #define USB_DEVICE_ID_LENOVO_TP10UBKBD 0x6062
- #define USB_DEVICE_ID_LENOVO_TPPRODOCK 0x6067
- #define USB_DEVICE_ID_LENOVO_X1_COVER 0x6085
-+#define USB_DEVICE_ID_LENOVO_X1_TAB3 0x60b5
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D 0x608d
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019 0x6019
- #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E 0x602e
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index e3152155c4b8..99f041afd5c0 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1973,6 +1973,12 @@ static const struct hid_device_id mt_devices[] =3D {
-  HID_DEVICE(BUS_I2C, HID_GROUP_GENERIC,
-  USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_7010) },
-
-+ /* Lenovo X1 TAB Gen 3 */
-+ { .driver_data =3D MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+ HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
-+    USB_VENDOR_ID_LENOVO,
-+    USB_DEVICE_ID_LENOVO_X1_TAB3) },
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 50c348297e38..d51cb910fba1 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -82,7 +82,7 @@
+ 
+ #define HEADER_REPORT_10_FINGER	0x62
+ 
+-/* Header (4 bytes) plus 3 fill 10-finger packets */
++/* Header (4 bytes) plus 3 full 10-finger packets */
+ #define MAX_PACKET_SIZE		169
+ 
+ #define BOOT_TIME_DELAY_MS	50
+@@ -97,6 +97,10 @@
+ #define E_INFO_PHY_SCAN		0xD7
+ #define E_INFO_PHY_DRIVER	0xD8
+ 
++/* FW write command, 0x54 0x?? 0x0, 0x01 */
++#define E_POWER_STATE_SLEEP	0x50
++#define E_POWER_STATE_RESUME	0x58
 +
-  /* MosArt panels */
-  { .driver_data =3D MT_CLS_CONFIDENCE_MINUS_ONE,
-  MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
---=20
-2.26.2
+ #define MAX_RETRIES		3
+ #define MAX_FW_UPDATE_RETRIES	30
+ 
+@@ -269,8 +273,8 @@ static int elants_i2c_calibrate(struct elants_data *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+ 	int ret, error;
+-	static const u8 w_flashkey[] = { 0x54, 0xC0, 0xE1, 0x5A };
+-	static const u8 rek[] = { 0x54, 0x29, 0x00, 0x01 };
++	static const u8 w_flashkey[] = { CMD_HEADER_WRITE, 0xC0, 0xE1, 0x5A };
++	static const u8 rek[] = { CMD_HEADER_WRITE, 0x29, 0x00, 0x01 };
+ 	static const u8 rek_resp[] = { CMD_HEADER_REK, 0x66, 0x66, 0x66 };
+ 
+ 	disable_irq(client->irq);
+@@ -1388,7 +1392,9 @@ static int __maybe_unused elants_i2c_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elants_data *ts = i2c_get_clientdata(client);
+-	const u8 set_sleep_cmd[] = { 0x54, 0x50, 0x00, 0x01 };
++	const u8 set_sleep_cmd[] = {
++		CMD_HEADER_WRITE, E_POWER_STATE_SLEEP, 0x00, 0x01
++	};
+ 	int retry_cnt;
+ 	int error;
+ 
+@@ -1425,7 +1431,9 @@ static int __maybe_unused elants_i2c_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elants_data *ts = i2c_get_clientdata(client);
+-	const u8 set_active_cmd[] = { 0x54, 0x58, 0x00, 0x01 };
++	const u8 set_active_cmd[] = {
++		CMD_HEADER_WRITE, E_POWER_STATE_RESUME, 0x00, 0x01
++	};
+ 	int retry_cnt;
+ 	int error;
+ 
+-- 
+2.20.1
+

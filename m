@@ -4,79 +4,73 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92F84C43463
-	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 13:13:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 525AEC43465
+	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:01:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66DF7218AC
-	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 13:13:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2329B20756
+	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:01:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727299AbgIUNKU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 21 Sep 2020 09:10:20 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:42694 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727295AbgIUNKU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Sep 2020 09:10:20 -0400
-Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id E839D3FFEA6E6DE235F6;
-        Mon, 21 Sep 2020 21:10:17 +0800 (CST)
-Received: from localhost.localdomain.localdomain (10.175.113.25) by
- DGGEMS409-HUB.china.huawei.com (10.3.19.209) with Microsoft SMTP Server id
- 14.3.487.0; Mon, 21 Sep 2020 21:10:09 +0800
-From:   Qinglang Miao <miaoqinglang@huawei.com>
-To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        "Qinglang Miao" <miaoqinglang@huawei.com>
-Subject: [PATCH -next] HID: intel-ish-hid: simplify the return expression of ishtp_bus_remove_device()
-Date:   Mon, 21 Sep 2020 21:10:33 +0800
-Message-ID: <20200921131033.92017-1-miaoqinglang@huawei.com>
-X-Mailer: git-send-email 2.20.1
+        id S1726808AbgIUOBA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 21 Sep 2020 10:01:00 -0400
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:55479 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726688AbgIUOBA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:01:00 -0400
+IronPort-SDR: YqBQv/eA7RessGcWYZtqZJDPC77SPefAQ61LM53Cb+1haU4HZkTDsQHuSUb7tjnZJaX6TGXIvL
+ w2vJCDyVOnYu6UPBCNCyz0sSin12R6X0ZwCDu9jHjVQDegh3pus3KurkxsFXlcHsjLAfEs8Kji
+ GnqcR16p26x+1T8o+99IjqNyCCskz43sA0HGi6w1N4sKyK2H/xTKWar7DV1eCGtSER2CEFbsPL
+ u5KGibz4hHNm2gm7IfkA/MIPoL1WvTkY+Urqam1nw5IhQiJiv5msWpwr/klRV5dANLdXJsxj9Z
+ U34=
+X-IronPort-AV: E=Sophos;i="5.77,286,1596528000"; 
+   d="scan'208";a="55324397"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa1.mentor.iphmx.com with ESMTP; 21 Sep 2020 06:00:59 -0800
+IronPort-SDR: H2DawD3NCdyoPkZsVFF2GiE++ULvq+D92chuTH4mdaA/mlQjVuDKIbkZWywmDebP2Pzwgn/vQL
+ 5ZarG8uq1Bo/adXyyw9MTGmQmvUreHxXm5Tb/zsYZPbMkJuX1CXpjeQYNAqqitteYc8QaIi5gi
+ GTC3/6z3EkgU2Dvyp6Ub4fnVDD8d2Q+ympOm0Xi2TnZo+XYqvzKVN+tc7Y5YZw3u75tBPo7Foy
+ ZtXU7hB2qIxSA4oj84eyoz9QUdeXbDq8B0Ih0tea3b0B/ANcJlFY2kv47VP/HzH8MOWVMU+Jdo
+ s1E=
+From:   Jiada Wang <jiada_wang@mentor.com>
+To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
+        <thierry.reding@gmail.com>, <digetx@gmail.com>,
+        <jonathanh@nvidia.com>
+CC:     <nick@shmanahar.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
+        <jiada_wang@mentor.com>
+Subject: [PATCH v1 1/3] dt-bindings: input: atmel: add compatible for mXT1386
+Date:   Mon, 21 Sep 2020 23:00:52 +0900
+Message-ID: <20200921140054.2389-1-jiada_wang@mentor.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.113.25]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Simplify the return expression.
+Document the mXT1386 compatible string.
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- drivers/hid/intel-ish-hid/ishtp/bus.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ Documentation/devicetree/bindings/input/atmel,maxtouch.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index c47c3328a..bba29cd36 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -502,8 +502,6 @@ static void ishtp_bus_remove_device(struct ishtp_cl_device *device)
- int ishtp_cl_driver_register(struct ishtp_cl_driver *driver,
- 			     struct module *owner)
- {
--	int err;
--
- 	if (!ishtp_device_ready)
- 		return -ENODEV;
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+index c88919480d37..c13fc0f3f00b 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+@@ -3,6 +3,7 @@ Atmel maXTouch touchscreen/touchpad
+ Required properties:
+ - compatible:
+     atmel,maxtouch
++    atmel,mXT1386
  
-@@ -511,11 +509,7 @@ int ishtp_cl_driver_register(struct ishtp_cl_driver *driver,
- 	driver->driver.owner = owner;
- 	driver->driver.bus = &ishtp_cl_bus_type;
- 
--	err = driver_register(&driver->driver);
--	if (err)
--		return err;
--
--	return 0;
-+	return driver_register(&driver->driver);
- }
- EXPORT_SYMBOL(ishtp_cl_driver_register);
- 
+     The following compatibles have been used in various products but are
+     deprecated:
 -- 
-2.23.0
+2.17.1
 

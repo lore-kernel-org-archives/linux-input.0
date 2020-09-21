@@ -4,36 +4,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 525AEC43465
-	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:01:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6F5BC43466
+	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:01:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2329B20756
-	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:01:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B047A20C09
+	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:01:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726808AbgIUOBA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 21 Sep 2020 10:01:00 -0400
+        id S1727473AbgIUOBI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 21 Sep 2020 10:01:08 -0400
 Received: from esa1.mentor.iphmx.com ([68.232.129.153]:55479 "EHLO
         esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726688AbgIUOBA (ORCPT
+        with ESMTP id S1727278AbgIUOBH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:01:00 -0400
-IronPort-SDR: YqBQv/eA7RessGcWYZtqZJDPC77SPefAQ61LM53Cb+1haU4HZkTDsQHuSUb7tjnZJaX6TGXIvL
- w2vJCDyVOnYu6UPBCNCyz0sSin12R6X0ZwCDu9jHjVQDegh3pus3KurkxsFXlcHsjLAfEs8Kji
- GnqcR16p26x+1T8o+99IjqNyCCskz43sA0HGi6w1N4sKyK2H/xTKWar7DV1eCGtSER2CEFbsPL
- u5KGibz4hHNm2gm7IfkA/MIPoL1WvTkY+Urqam1nw5IhQiJiv5msWpwr/klRV5dANLdXJsxj9Z
- U34=
+        Mon, 21 Sep 2020 10:01:07 -0400
+IronPort-SDR: n8pD20GNLffWzboRLDbRzCVNE4W4pLX6WaB7dZcD9UZ4veeAqCMWjSQzRpOB3maAWYIoD0tXmj
+ 0zcPqVIe1Fc0HTfVH7n4fiT1kWGB/KhPJRf78RnMPV0cNZidjPBWgILW9poFu52NlQtxcS8Avw
+ P0T8Ge6gTIQ+pgZ9GA2/rSDeuKhdOidm/qMoO0y0+Zna18HKDzL+XMF9Nld/BE0wfVqOsX0u4t
+ sFSM87J+qn6ec/uiV7VPmJFaOkFtQwirGGrVrZUnwV6CwM8I3U9r7RrhwNyf6lIMboqC+EefJG
+ gOw=
 X-IronPort-AV: E=Sophos;i="5.77,286,1596528000"; 
-   d="scan'208";a="55324397"
+   d="scan'208";a="55324410"
 Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa1.mentor.iphmx.com with ESMTP; 21 Sep 2020 06:00:59 -0800
-IronPort-SDR: H2DawD3NCdyoPkZsVFF2GiE++ULvq+D92chuTH4mdaA/mlQjVuDKIbkZWywmDebP2Pzwgn/vQL
- 5ZarG8uq1Bo/adXyyw9MTGmQmvUreHxXm5Tb/zsYZPbMkJuX1CXpjeQYNAqqitteYc8QaIi5gi
- GTC3/6z3EkgU2Dvyp6Ub4fnVDD8d2Q+ympOm0Xi2TnZo+XYqvzKVN+tc7Y5YZw3u75tBPo7Foy
- ZtXU7hB2qIxSA4oj84eyoz9QUdeXbDq8B0Ih0tea3b0B/ANcJlFY2kv47VP/HzH8MOWVMU+Jdo
- s1E=
+  by esa1.mentor.iphmx.com with ESMTP; 21 Sep 2020 06:01:06 -0800
+IronPort-SDR: 6EZw5DvP9srZuzLxpq1xgqQ8Ucli4Lwnj9bIiu2OAO5DMPI5q2bKomkfweljQfQaMOto63AbBs
+ quYizmIEq6xgNsBkdhY0kQFanejCQldWSiZpmfRI/qiv14qHd8sVq4OgnsNToXOGI8KNvyEJSv
+ /mCCpCWcq+y1BYW7g+nXXR0AqY0WwEvB53FwmIoHkXW2bf5O1fT+V/5qQ8vAQ3icbM0d8FBiDa
+ kuz+CVZfqAP/E6qoLMrJNn0n+HkIYN4N+YGpNRd8Ua8zOxEKsv6DGyRMPjCMCA4qhWNFpgI+oy
+ gts=
 From:   Jiada Wang <jiada_wang@mentor.com>
 To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
         <thierry.reding@gmail.com>, <digetx@gmail.com>,
@@ -42,35 +42,38 @@ CC:     <nick@shmanahar.org>, <linux-input@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
         <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
         <jiada_wang@mentor.com>
-Subject: [PATCH v1 1/3] dt-bindings: input: atmel: add compatible for mXT1386
-Date:   Mon, 21 Sep 2020 23:00:52 +0900
-Message-ID: <20200921140054.2389-1-jiada_wang@mentor.com>
+Subject: [PATCH v1 3/3] ARM: tegra: add mXT1386 compatible
+Date:   Mon, 21 Sep 2020 23:00:54 +0900
+Message-ID: <20200921140054.2389-3-jiada_wang@mentor.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200921140054.2389-1-jiada_wang@mentor.com>
+References: <20200921140054.2389-1-jiada_wang@mentor.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Document the mXT1386 compatible string.
+Add mXT1386 compatible for "touchscreen@4c".
 
 Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
 ---
- Documentation/devicetree/bindings/input/atmel,maxtouch.txt | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/tegra20-acer-a500-picasso.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-index c88919480d37..c13fc0f3f00b 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-@@ -3,6 +3,7 @@ Atmel maXTouch touchscreen/touchpad
- Required properties:
- - compatible:
-     atmel,maxtouch
-+    atmel,mXT1386
+diff --git a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
+index 2d683c9a1a5d..7915b6e9190e 100644
+--- a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
++++ b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
+@@ -428,7 +428,7 @@
+ 		};
  
-     The following compatibles have been used in various products but are
-     deprecated:
+ 		touchscreen@4c {
+-			compatible = "atmel,maxtouch";
++			compatible = "atmel,mXT1386", "atmel,maxtouch";
+ 			reg = <0x4c>;
+ 
+ 			atmel,cfg_name = "maxtouch-acer-iconia-tab-a500.cfg";
 -- 
 2.17.1
 

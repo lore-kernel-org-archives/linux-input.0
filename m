@@ -2,180 +2,98 @@ Return-Path: <SRS0=6bYf=C6=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5814EC43465
-	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:01:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8877C43465
+	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:45:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2AF1520756
-	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:01:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A70762311D
+	for <linux-input@archiver.kernel.org>; Mon, 21 Sep 2020 14:45:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727424AbgIUOBG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 21 Sep 2020 10:01:06 -0400
-Received: from esa1.mentor.iphmx.com ([68.232.129.153]:55479 "EHLO
-        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727278AbgIUOBE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:01:04 -0400
-IronPort-SDR: EDEfynIPo8BQ1myc8piFf/FNXmyHV/96Q6PUjZXd8PWDObxSuIOR6Ilg/QsArOnUzJM5jz+yfB
- /yQL7+iOM0pbHQGEkogP2NJn6t0M8UoAx1/2cQ8P64dbxAlvuUvjg/g0SyW53x5owkzk/sQAbN
- ro1HUX08sZHtFxn8ALcax9xOkU8CaVAyECgIv2Rdy+dFtMGNp4yhSkZ+6+F3FRUSZIAUPw8kSU
- KEMBTF0vEJ5/Ehcxhf2iEWZ7fgAmlAARN5iG5MWmVglDHS0nyVyclXyru+5/c2b8LLwUPTojvt
- txM=
-X-IronPort-AV: E=Sophos;i="5.77,286,1596528000"; 
-   d="scan'208";a="55324404"
-Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
-  by esa1.mentor.iphmx.com with ESMTP; 21 Sep 2020 06:01:03 -0800
-IronPort-SDR: 6Jv8tg2LZPrFi05WR+y2c1rK/iPtWUT7s8N6/6w5chFfy9GsK9154o9FI7K0CcLJy2BtDn8q9V
- Zz//7YuU+d2qnXUsCFq9mHCHr8ovhfmopTcW9rRmT2uWzkT50VvxFnKMmOjeHU2oAtHxhNNVs1
- 9lRJgazpLEt5IsHN37ycYG29/Qaz69fApGtZNnqhzjOr9Dgc39Y4zZygGBl1ST1R5kxNqR5fuc
- KEL/lzxwOdZ6OaJDuicPAid3oLh5nDvaUXKKyWCthzEEHK05NfeXaa+a0lZWEsUVSmSMFm6sk4
- GA8=
-From:   Jiada Wang <jiada_wang@mentor.com>
-To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
-        <thierry.reding@gmail.com>, <digetx@gmail.com>,
-        <jonathanh@nvidia.com>
-CC:     <nick@shmanahar.org>, <linux-input@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        <erosca@de.adit-jv.com>, <Andrew_Gabbasov@mentor.com>,
-        <jiada_wang@mentor.com>
-Subject: [PATCH v1 2/3] Input: atmel_mxt_ts - implement I2C retries for mXT1368
-Date:   Mon, 21 Sep 2020 23:00:53 +0900
-Message-ID: <20200921140054.2389-2-jiada_wang@mentor.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200921140054.2389-1-jiada_wang@mentor.com>
-References: <20200921140054.2389-1-jiada_wang@mentor.com>
+        id S1728050AbgIUOpQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 21 Sep 2020 10:45:16 -0400
+Received: from mga04.intel.com ([192.55.52.120]:47344 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727782AbgIUOpK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:45:10 -0400
+IronPort-SDR: phKSgqcMCRQBHIWLg6j96d9u8k9YxBFlfVclbQ3tmX8rdY2x2AZgD5LxzCUaGSRPzqAaF75Bwk
+ wln5/2Li8zmQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9751"; a="157777807"
+X-IronPort-AV: E=Sophos;i="5.77,286,1596524400"; 
+   d="scan'208";a="157777807"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Sep 2020 07:45:06 -0700
+IronPort-SDR: 8DUjGiPnGeN6AciKCMuyeW3uwQeJCvcnqGdo9BhLjLd7/UHqoR3F3GyMBZaI6aCKOLaWDPfq4y
+ hohn7jr1z1+A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.77,286,1596524400"; 
+   d="scan'208";a="341604466"
+Received: from orsmsx604.amr.corp.intel.com ([10.22.229.17])
+  by fmsmga002.fm.intel.com with ESMTP; 21 Sep 2020 07:45:05 -0700
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX604.amr.corp.intel.com (10.22.229.17) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Mon, 21 Sep 2020 07:45:04 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Mon, 21 Sep 2020 07:45:04 -0700
+Received: from orsmsx610.amr.corp.intel.com ([10.22.229.23]) by
+ ORSMSX610.amr.corp.intel.com ([10.22.229.23]) with mapi id 15.01.1713.004;
+ Mon, 21 Sep 2020 07:45:04 -0700
+From:   "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+To:     "jikos@kernel.org" <jikos@kernel.org>,
+        "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>,
+        "miaoqinglang@huawei.com" <miaoqinglang@huawei.com>
+CC:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -next] HID: intel-ish-hid: simplify the return expression
+ of ishtp_bus_remove_device()
+Thread-Topic: [PATCH -next] HID: intel-ish-hid: simplify the return expression
+ of ishtp_bus_remove_device()
+Thread-Index: AQHWkCXKtK5BXobwTUa9QkzzJLpciQ==
+Date:   Mon, 21 Sep 2020 14:45:04 +0000
+Message-ID: <ca452e8f61c2e828bc3ec2dc5993f87d251e5e38.camel@intel.com>
+References: <20200921131033.92017-1-miaoqinglang@huawei.com>
+In-Reply-To: <20200921131033.92017-1-miaoqinglang@huawei.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+x-originating-ip: [10.22.254.132]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <001ABCCBE88C0340A153033F12F751DB@intel.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-According to datasheet, mXT1386 chip has a WAKE line, it is used
-to wake the chip up from deep sleep mode before communicating with
-it via the I2C-compatible interface.
-
-if the WAKE line is connected to a GPIO line, the line must be
-asserted 25 ms before the host attempts to communicate with the mXT1386.
-If the WAKE line is connected to the SCL pin, the mXT1386 will send a
-NACK on the first attempt to address it, the host must then retry 25 ms
-later.
-
-This patch adds compatible string "atmel,mXT1386" for mXT1386 controller,
-when I2C transfer on mXT1386 fails, retry the transfer once after a 25 ms
-sleep.
-
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 44 +++++++++++++++++-------
- 1 file changed, 32 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 98f17fa3a892..96d5f4d64cb0 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -198,6 +198,7 @@ enum t100_type {
- #define MXT_CRC_TIMEOUT		1000	/* msec */
- #define MXT_FW_RESET_TIME	3000	/* msec */
- #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-+#define MXT_WAKEUP_TIME		25	/* msec */
- 
- /* Command to unlock bootloader */
- #define MXT_UNLOCK_CMD_MSB	0xaa
-@@ -627,7 +628,9 @@ static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
- static int __mxt_read_reg(struct i2c_client *client,
- 			       u16 reg, u16 len, void *val)
- {
-+	struct device_node *np = client->dev.of_node;
- 	struct i2c_msg xfer[2];
-+	bool retried = false;
- 	u8 buf[2];
- 	int ret;
- 
-@@ -646,22 +649,30 @@ static int __mxt_read_reg(struct i2c_client *client,
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
- 
--	ret = i2c_transfer(client->adapter, xfer, 2);
--	if (ret == 2) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
--			ret = -EIO;
-+retry_read:
-+	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
-+	if (ret != ARRAY_SIZE(xfer)) {
-+		if (of_device_is_compatible(np, "atmel,mXT1386") && !retried) {
-+			dev_dbg(&client->dev, "i2c retry\n");
-+			/* TODO: add WAKE-GPIO support */
-+			msleep(MXT_WAKEUP_TIME);
-+			retried = true;
-+			goto retry_read;
-+		}
-+		ret = ret < 0 ? ret : -EIO;
- 		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
- 			__func__, ret);
-+		return ret;
- 	}
- 
--	return ret;
-+	return 0;
- }
- 
- static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 			   const void *val)
- {
-+	struct device_node *np = client->dev.of_node;
-+	bool retried = false;
- 	u8 *buf;
- 	size_t count;
- 	int ret;
-@@ -675,14 +686,21 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 	buf[1] = (reg >> 8) & 0xff;
- 	memcpy(&buf[2], val, len);
- 
-+retry_write:
- 	ret = i2c_master_send(client, buf, count);
--	if (ret == count) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
--			ret = -EIO;
-+	if (ret != count) {
-+		if (of_device_is_compatible(np, "atmel,mXT1386") && !retried) {
-+			dev_dbg(&client->dev, "i2c retry\n");
-+			/* TODO: add WAKE-GPIO support */
-+			msleep(MXT_WAKEUP_TIME);
-+			retried = true;
-+			goto retry_write;
-+		}
-+		ret = ret < 0 ? ret : -EIO;
- 		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
- 			__func__, ret);
-+	} else {
-+		ret = 0;
- 	}
- 
- 	kfree(buf);
-@@ -3235,6 +3253,7 @@ static SIMPLE_DEV_PM_OPS(mxt_pm_ops, mxt_suspend, mxt_resume);
- 
- static const struct of_device_id mxt_of_match[] = {
- 	{ .compatible = "atmel,maxtouch", },
-+	{ .compatible = "atmel,mXT1386", },
- 	/* Compatibles listed below are deprecated */
- 	{ .compatible = "atmel,qt602240_ts", },
- 	{ .compatible = "atmel,atmel_mxt_ts", },
-@@ -3259,6 +3278,7 @@ static const struct i2c_device_id mxt_id[] = {
- 	{ "atmel_mxt_tp", 0 },
- 	{ "maxtouch", 0 },
- 	{ "mXT224", 0 },
-+	{ "mXT1386", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, mxt_id);
--- 
-2.17.1
-
+T24gTW9uLCAyMDIwLTA5LTIxIGF0IDIxOjEwICswODAwLCBRaW5nbGFuZyBNaWFvIHdyb3RlOg0K
+PiBTaW1wbGlmeSB0aGUgcmV0dXJuIGV4cHJlc3Npb24uDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBR
+aW5nbGFuZyBNaWFvIDxtaWFvcWluZ2xhbmdAaHVhd2VpLmNvbT4NCkFja2VkLWJ5OiBTcmluaXZh
+cyBQYW5kcnV2YWRhIDxzcmluaXZhcy5wYW5kcnV2YWRhQGxpbnV4LmludGVsLmNvbT4NCg0KPiAt
+LS0NCj4gIGRyaXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXNodHAvYnVzLmMgfCA4ICstLS0tLS0t
+DQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDcgZGVsZXRpb25zKC0pDQo+IA0K
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaW50ZWwtaXNoLWhpZC9pc2h0cC9idXMuYw0KPiBi
+L2RyaXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXNodHAvYnVzLmMNCj4gaW5kZXggYzQ3YzMzMjhh
+Li5iYmEyOWNkMzYgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXNo
+dHAvYnVzLmMNCj4gKysrIGIvZHJpdmVycy9oaWQvaW50ZWwtaXNoLWhpZC9pc2h0cC9idXMuYw0K
+PiBAQCAtNTAyLDggKzUwMiw2IEBAIHN0YXRpYyB2b2lkIGlzaHRwX2J1c19yZW1vdmVfZGV2aWNl
+KHN0cnVjdA0KPiBpc2h0cF9jbF9kZXZpY2UgKmRldmljZSkNCj4gIGludCBpc2h0cF9jbF9kcml2
+ZXJfcmVnaXN0ZXIoc3RydWN0IGlzaHRwX2NsX2RyaXZlciAqZHJpdmVyLA0KPiAgCQkJICAgICBz
+dHJ1Y3QgbW9kdWxlICpvd25lcikNCj4gIHsNCj4gLQlpbnQgZXJyOw0KPiAtDQo+ICAJaWYgKCFp
+c2h0cF9kZXZpY2VfcmVhZHkpDQo+ICAJCXJldHVybiAtRU5PREVWOw0KPiAgDQo+IEBAIC01MTEs
+MTEgKzUwOSw3IEBAIGludCBpc2h0cF9jbF9kcml2ZXJfcmVnaXN0ZXIoc3RydWN0DQo+IGlzaHRw
+X2NsX2RyaXZlciAqZHJpdmVyLA0KPiAgCWRyaXZlci0+ZHJpdmVyLm93bmVyID0gb3duZXI7DQo+
+ICAJZHJpdmVyLT5kcml2ZXIuYnVzID0gJmlzaHRwX2NsX2J1c190eXBlOw0KPiAgDQo+IC0JZXJy
+ID0gZHJpdmVyX3JlZ2lzdGVyKCZkcml2ZXItPmRyaXZlcik7DQo+IC0JaWYgKGVycikNCj4gLQkJ
+cmV0dXJuIGVycjsNCj4gLQ0KPiAtCXJldHVybiAwOw0KPiArCXJldHVybiBkcml2ZXJfcmVnaXN0
+ZXIoJmRyaXZlci0+ZHJpdmVyKTsNCj4gIH0NCj4gIEVYUE9SVF9TWU1CT0woaXNodHBfY2xfZHJp
+dmVyX3JlZ2lzdGVyKTsNCj4gIA0K

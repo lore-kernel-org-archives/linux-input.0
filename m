@@ -2,87 +2,119 @@ Return-Path: <SRS0=uQL6=C7=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16670C4727E
-	for <linux-input@archiver.kernel.org>; Tue, 22 Sep 2020 09:20:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 000C1C2D0E2
+	for <linux-input@archiver.kernel.org>; Tue, 22 Sep 2020 09:48:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BBAE1239A1
-	for <linux-input@archiver.kernel.org>; Tue, 22 Sep 2020 09:20:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600766426;
-	bh=0MfcHhXtP8JiNN9/AMI9Jl5Lclh6cKs+ndIWK/DvBLw=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=p1GvZX+s/5dZUBRZPo0MVpNy4F3c0bRPv8YTSxUWOu1k+XiEQLNCscvitGWfWeeMb
-	 tzuYAW1jgBzz/BNq2XCjmiDKRYiaFX9PCkWNTtsLiQ7bfiMCB+AZ0rLX0B7PJ6GCqi
-	 RlrE/azH7yvHS8dJrwGqMh3vgep+305HJ9YPpJbg=
+	by mail.kernel.org (Postfix) with ESMTP id 9EC552145D
+	for <linux-input@archiver.kernel.org>; Tue, 22 Sep 2020 09:48:21 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z2QqPHDa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726526AbgIVJU0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 22 Sep 2020 05:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37320 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726489AbgIVJU0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Sep 2020 05:20:26 -0400
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C6BB2075E;
-        Tue, 22 Sep 2020 09:20:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600766425;
-        bh=0MfcHhXtP8JiNN9/AMI9Jl5Lclh6cKs+ndIWK/DvBLw=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=C51WulBYUHQyklzgLrWfYXJCRFSi2+CwVQOZu4ev9wKB+OOYqxWv2QBnnuAhkj4mk
-         N78COOMMRsiZOl4KM06Q0hqhrpypmA+ImqWKq8z5b/uueDdFKLqpAJbyZRC5W4qeZy
-         pRltxqynA+jAKJk/lU2z6N3UEhPTs6lVVrVNQ6Ts=
-Date:   Tue, 22 Sep 2020 11:20:22 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Colin King <colin.king@canonical.com>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH] HID: alps: clean up indentation issue
-In-Reply-To: <20200920141716.32919-1-colin.king@canonical.com>
-Message-ID: <nycvar.YFH.7.76.2009221119570.3336@cbobk.fhfr.pm>
-References: <20200920141716.32919-1-colin.king@canonical.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1726419AbgIVJsV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 22 Sep 2020 05:48:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50862 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726341AbgIVJsV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 22 Sep 2020 05:48:21 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A17FDC061755;
+        Tue, 22 Sep 2020 02:48:20 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id r24so13584181ljm.3;
+        Tue, 22 Sep 2020 02:48:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=BUG1AkXVLi/EB3zDpgh2q5YX6SiXzdzs/YFnBtCctl8=;
+        b=Z2QqPHDaaaWDthdvW6GpnyGgX6MstMlIsfGwkBDkXgumtgBy18vvmAc3+VRZQxgRhH
+         crc6Ngg+uohhiWRVzzoRxZ0MvJjTbBHMIKrMqIpAxlEhmHR+2cxb0ID2fIheBCYJtOUw
+         gQi6f0EM66BDdl68WNCvEKZ/w9cUmNick1hlVhnc6Yl7GUdvk4bJqGb6BdRuzhLyQ4xw
+         GBZ5+LPuGKrIbDBVdbjkUn6YJZrfUiqXXozuQaoOYAONxABgCzg4dUJe7+y9+Tl9SNMh
+         lDlkCcU69Xgpso03mPolhLvJy52NA1UPWNh6sg1WBCDp5jiMOvd2ytgO8A7VTLBnUupJ
+         Pifg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=BUG1AkXVLi/EB3zDpgh2q5YX6SiXzdzs/YFnBtCctl8=;
+        b=mQGZKZp2xdv1dBMSP3OMROLWiqK6+rOw9C43lY4+slV7Iln/O6EbdzheXUnt4a3SkJ
+         eiCsQLLWPsXb9Lfw9Z3rxtHnGnX8E/ip74dY17GRWm60FoGQDSknc+hV8lcGnOhFnbjp
+         dWDBfPND2aDQbvB+ASrnW59yf9k624y7c2Pg1x+Lb4VzJaOCBFzgXd5dUgIe+lAYYFVF
+         cZvURghCCgtVs9ahVzfHI18dwgGVAnJu2uWe+AxaJDme7N+NZt+ZPKmJ8CFw+mLcQTxW
+         96K2sGLSgDDMuYdtyFNd3Q1kiYkHrUbkw780ssG5KzJREIT6VMyN5pWeFrXIlALy6B5R
+         NUUA==
+X-Gm-Message-State: AOAM533jNgm+RWrxBEqXQSpl4Z+OVYgpsuV6dYI4WrotJ6UuDHnrM8wo
+        ICo4fVH1Ov2MjiNL04Qhebg=
+X-Google-Smtp-Source: ABdhPJxczWsDqrlHRjwoW4Zw8wGakjZs2/7+pchjW0iAV52h7bPQHvDODucviFt58OXRu/1e2LAmfw==
+X-Received: by 2002:a2e:9655:: with SMTP id z21mr1218017ljh.410.1600768099049;
+        Tue, 22 Sep 2020 02:48:19 -0700 (PDT)
+Received: from localhost.localdomain (c80-217-156-226.bredband.comhem.se. [80.217.156.226])
+        by smtp.gmail.com with ESMTPSA id v25sm3582777ljh.102.2020.09.22.02.48.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Sep 2020 02:48:18 -0700 (PDT)
+From:   =?UTF-8?q?Mikael=20Wikstr=C3=B6m?= <leakim.wikstrom@gmail.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?q?Mikael=20Wikstr=C3=B6m?= <leakim.wikstrom@gmail.com>
+Subject: [PATCH 1/2] HID: multitouch: Lenovo X1 Tablet Gen3 trackpoint and buttons
+Date:   Tue, 22 Sep 2020 11:48:10 +0200
+Message-Id: <20200922094810.3669-1-leakim.wikstrom@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 20 Sep 2020, Colin King wrote:
+One more device that needs 40d5bb87 to resolve regression for the trackpoint
+and three mouse buttons on the type cover of the Lenovo X1 Tablet Gen3.
 
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> There is an if statement that is indented too deeply, fix
-> this by removing the extraneous tab.
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  drivers/hid/hid-alps.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-> index a9c2de95c5e2..3feaece13ade 100644
-> --- a/drivers/hid/hid-alps.c
-> +++ b/drivers/hid/hid-alps.c
-> @@ -526,7 +526,7 @@ static int u1_init(struct hid_device *hdev, struct alps_dev *pri_data)
->  
->  	ret = u1_read_write_register(hdev, ADDRESS_U1_NUM_SENS_Y,
->  			&sen_line_num_y, 0, true);
-> -		if (ret < 0) {
-> +	if (ret < 0) {
->  		dev_err(&hdev->dev, "failed U1_NUM_SENS_Y (%d)\n", ret);
+It is probably also needed for the Lenovo X1 Tablet Gen2 with PID 0x60a3
 
-I am usually not taking whitespace fixes, but this one actually really 
-does improve code readability, so I am taking this one. Thanks,
+Signed-off-by: Mikael Wikström <leakim.wikstrom@gmail.com>
+---
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 74fc1df6e3c2..6a6e2c1b6090 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -727,6 +727,7 @@
+ #define USB_DEVICE_ID_LENOVO_TP10UBKBD	0x6062
+ #define USB_DEVICE_ID_LENOVO_TPPRODOCK	0x6067
+ #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
++#define USB_DEVICE_ID_LENOVO_X1_TAB3	0x60b5
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019	0x6019
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E	0x602e
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index e3152155c4b8..99f041afd5c0 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1973,6 +1973,12 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_DEVICE(BUS_I2C, HID_GROUP_GENERIC,
+ 			USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_7010) },
+ 
++	/* Lenovo X1 TAB Gen 3 */
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
++			   USB_VENDOR_ID_LENOVO,
++			   USB_DEVICE_ID_LENOVO_X1_TAB3) },
++
+ 	/* MosArt panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
 -- 
-Jiri Kosina
-SUSE Labs
+2.25.1
 

@@ -1,173 +1,255 @@
-Return-Path: <SRS0=uQL6=C7=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=chxs=DA=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58981C2D0E2
-	for <linux-input@archiver.kernel.org>; Tue, 22 Sep 2020 23:21:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68C9DC4727F
+	for <linux-input@archiver.kernel.org>; Wed, 23 Sep 2020 02:20:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F168221F0
-	for <linux-input@archiver.kernel.org>; Tue, 22 Sep 2020 23:21:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A79D20838
+	for <linux-input@archiver.kernel.org>; Wed, 23 Sep 2020 02:20:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ID8iAlY4"
+	dkim=pass (1024-bit key) header.d=dialogsemiconductor.onmicrosoft.com header.i=@dialogsemiconductor.onmicrosoft.com header.b="ITeX/o2g"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726640AbgIVXVU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 22 Sep 2020 19:21:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34876 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726448AbgIVXVT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Sep 2020 19:21:19 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323FAC061755;
-        Tue, 22 Sep 2020 16:21:19 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id b19so15564824lji.11;
-        Tue, 22 Sep 2020 16:21:19 -0700 (PDT)
+        id S1727210AbgIWCUC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 22 Sep 2020 22:20:02 -0400
+Received: from mail-eopbgr20048.outbound.protection.outlook.com ([40.107.2.48]:27011
+        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727183AbgIWCUB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 22 Sep 2020 22:20:01 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=N6ieFnbSde+ZSiYsP7JTiNQc1HX8+iaMI+KDibkydnp6bJnjaHVzYXblR6GvDfO04RK7CPnuLHaj1XjnXMRVXgG3axz5n2AG233R0kOA6tvyjZrzCJ3NjvWkOdVBPH1dQ+ITT0mwLw4HGX2VoUrXE0+HaQuy3xuYzOogzjLhX+A/n9CB5CiBpyUH2WDHkoqxyEcCdkI4//mbHOYVW9TikR3qXZczLt35XC9pGhArnb12d7CFryThIachMB1TZ2PtuKljk9s0Tj/ZQLDMrh7/wG/Lb1mAvH6uJ5UdKl44mBXDF+YHuV3Alhbmhrk1Q9mu6oN1aI+pTSyS7MBuhnI3rQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CcukXc2vkH9srXDWhKcqBwmkltPiZabEluoGvtVOTFY=;
+ b=NHz+cZya1P660JjFEB4PaVmcpcyZN+2/MykPgpR6rFDVd6rzYWmgmP1fpXDY7hNfoHr2a8luSksqDj1YPL8Jxeych5GTcxUJZ3bC8qQ0fSk2XO/9yNMyFINEmcrF2wVS3kVr7a46vYL4yZP7y7She+k7WrrizSloOlP11Tnqg+hueUKM55wGGjNPt8SC2cJEeGv4DSUBp0Kbnm0zWuu/99roxy4yDAd6r03/lU/EoG9yHe0+CcW9SxpN0bPDQzxW4y4K69WEtNm8zSQiwC/XTwk53GUOtK4UVxbJzllTRznssJsiGqQR4X4dTctRvi4f23tU/PfKm1/NdSZIf+AO8g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=softfail (sender ip
+ is 193.240.239.45) smtp.rcpttodomain=vger.kernel.org
+ smtp.mailfrom=diasemi.com; dmarc=fail (p=none sp=none pct=100) action=none
+ header.from=diasemi.com; dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=wto1lfSHBTmfREetyWLDZnc6AY7l78uuUDVKMqaUTyE=;
-        b=ID8iAlY4ls9D/QjT0mUgVU9OdN2PG9hI9yj5d/6o0kdBfSGxQl19P7WCagqvhDm9K0
-         JjwwlnEQM73tlCtBEsV1bO7votjB6wEFN+wSw0d5GA/cl3kRE9e7pQMEPep7k6g1z9mM
-         OiPGa+ZridNOyQPlReXoSkAcZxpBdy8COxWgdhaU+7RqRCpX3XmTcO2pcHfzgfVIi8cR
-         de3H4evSX5N9wwiWEesfYeE3LKLUsUa2hDJ4X/JeH/Zk9GNNHUT/tctvG2VzDjbRqLWi
-         QeGjxz5A0YRTegUQuD3/lc/h6KhwQ4FVcAY21DNzobRBWy0KVnhbW0X7OvfGz6ROFk+5
-         gMdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=wto1lfSHBTmfREetyWLDZnc6AY7l78uuUDVKMqaUTyE=;
-        b=lGBaiHIuj5mDwSMEIo4FAa8Zg0FfSSrNrbD7nG3/TcNRml+g5m9eB+Cm3tU8W3YTK7
-         EVY1mwBDyWxJrw8vW0zRnNipDwbIrJM9xqYGGubt4xWaAtCtWFy8nqh0qYQZuViX/7az
-         U1Mx+s9q6sO/YbBkBagJjIZaL17AXvWky6d4lW/razmWIgz3KsPi+g9HeGR5Y2kISbiJ
-         YdjbHBKNHr1zzTOYrcqwk/w0qFcGGuCpMrWjbqQf+94p4y0f/lrM5+UJcuPPbEL58FZs
-         XhwhwqIP94GzHkYYqlHhrzrtj9RXVWC9VlDGbY2SEmDqVHCxtHGcoYa+Q6ScLSmH9skP
-         J6xw==
-X-Gm-Message-State: AOAM531QXwUuZxPUYzTPtXBNZqOW0LPXa+69AnuvZCCdXFP4ARENOcKT
-        u9bZSEqLcbJx2vGAEXpp2zo=
-X-Google-Smtp-Source: ABdhPJwCwb0txemQccr9IvfcvZNgCRr0ozV2cVM5l12Fx+BFOlmogtc32aMjAJCgPKiG0X49BZ/ddA==
-X-Received: by 2002:a2e:a411:: with SMTP id p17mr753838ljn.282.1600816877662;
-        Tue, 22 Sep 2020 16:21:17 -0700 (PDT)
-Received: from [192.168.2.145] (109-252-170-211.dynamic.spd-mgts.ru. [109.252.170.211])
-        by smtp.googlemail.com with ESMTPSA id 13sm3933886lfn.239.2020.09.22.16.21.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Sep 2020 16:21:17 -0700 (PDT)
-Subject: Re: [PATCH v1 2/3] Input: atmel_mxt_ts - implement I2C retries for
- mXT1368
-To:     Jiada Wang <jiada_wang@mentor.com>, dmitry.torokhov@gmail.com,
-        robh+dt@kernel.org, thierry.reding@gmail.com, jonathanh@nvidia.com
-Cc:     nick@shmanahar.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
-        erosca@de.adit-jv.com, Andrew_Gabbasov@mentor.com
-References: <20200921140054.2389-1-jiada_wang@mentor.com>
- <20200921140054.2389-2-jiada_wang@mentor.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <e8c700b5-93f3-4069-1b9e-a85934a52515@gmail.com>
-Date:   Wed, 23 Sep 2020 02:21:16 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ d=dialogsemiconductor.onmicrosoft.com;
+ s=selector1-dialogsemiconductor-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CcukXc2vkH9srXDWhKcqBwmkltPiZabEluoGvtVOTFY=;
+ b=ITeX/o2gmvpW6EMK+poGi3/YB7qECSyqdnuMJS2h5zG/vQbf+UOurVlwtOsz2mGfyo6HlEjBgPdz5H4ySzUnBm42WcBLbWVHEo6GyJx4ObhobLQn9nnmBeUApQXYrrTgs57Eq7TARSIrEsUpnJxdCAjcCnOlN5bGpH1RWvPi4G0=
+Received: from FR2P281CA0021.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10:14::8) by
+ AM7PR10MB3224.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:10c::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3412.21; Wed, 23 Sep
+ 2020 02:19:56 +0000
+Received: from HE1EUR02FT044.eop-EUR02.prod.protection.outlook.com
+ (2603:10a6:d10:14:cafe::37) by FR2P281CA0021.outlook.office365.com
+ (2603:10a6:d10:14::8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3412.7 via Frontend
+ Transport; Wed, 23 Sep 2020 02:19:56 +0000
+X-MS-Exchange-Authentication-Results: spf=softfail (sender IP is
+ 193.240.239.45) smtp.mailfrom=diasemi.com; vger.kernel.org; dkim=none
+ (message not signed) header.d=none;vger.kernel.org; dmarc=fail action=none
+ header.from=diasemi.com;
+Received-SPF: SoftFail (protection.outlook.com: domain of transitioning
+ diasemi.com discourages use of 193.240.239.45 as permitted sender)
+Received: from mailrelay1.diasemi.com (193.240.239.45) by
+ HE1EUR02FT044.mail.protection.outlook.com (10.152.11.75) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.3412.21 via Frontend Transport; Wed, 23 Sep 2020 02:19:55 +0000
+Received: from krsrvapps-03.diasemi.com (10.93.17.2) by
+ NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
+ 14.3.468.0; Wed, 23 Sep 2020 04:19:51 +0200
+Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
+ 91A3013F673; Wed, 23 Sep 2020 11:19:49 +0900 (KST)
+Message-ID: <44cc5840781a7840dcac23af88fd7dd119d4a6fe.1600823131.git.Roy.Im@diasemi.com>
+In-Reply-To: <cover.1600823131.git.Roy.Im@diasemi.com>
+References: <cover.1600823131.git.Roy.Im@diasemi.com>
+From:   Roy Im <roy.im.opensource@diasemi.com>
+Date:   Wed, 23 Sep 2020 10:05:31 +0900
+Subject: [PATCH v20 2/3] dt-bindings: input: Add document bindings for DA7280
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>
+CC:     Support Opensource <support.opensource@diasemi.com>,
+        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20200921140054.2389-2-jiada_wang@mentor.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1afdba5c-dd0d-44fd-ee65-08d85f6729dc
+X-MS-TrafficTypeDiagnostic: AM7PR10MB3224:
+X-Microsoft-Antispam-PRVS: <AM7PR10MB32245AF318CAEA79BE6BA579A2380@AM7PR10MB3224.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: HhDREd73AehGuGNIkVn0wuDzWSp09vBLQjzneHapYrHY3vS1k5WDB2NnrKugpDR1cNYPUO8pAbtEKOPpg6oaeSIerh+YKENE074z6+HsDANAgOpN/BBXD3EUbqmTdZgBXyoZ3UpNDvK6dnFGf6I/KHRxsNgDA+JFn2WnTPqDRTw853PmTPSzUB13/lUq2Rd8qrzWFsiaFt/VYWlIdaFzVQwp8w/n1X4QusY9wltW1UNcyNHeqLIR2Q4l7eBqsRSh9RNVBCogKRLbxFk9pOsf/rJwW0DLqVMVOzAbHgnj1xybEDso1LCg955kQ7IbhXAvBIJpHXr3V6b/qAGn66YeppPhhXlfqWnlYNfPBWmIC4txx81qMzu8rcL3ZYXeBax09FTZOuo/JJ+B//JgAVXdVgqEhd/cY53IVNrZdIZ9TzexMWr/VED6uakN0jVGeBWsPdgqO0ZiyaLaLRUPGlh/mDkUe/s8/730qVNFtXHjL4A=
+X-Forefront-Antispam-Report: CIP:193.240.239.45;CTRY:GB;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mailrelay1.diasemi.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(39860400002)(346002)(396003)(136003)(376002)(46966005)(4326008)(42186006)(6666004)(83380400001)(82310400003)(110136005)(36906005)(81166007)(33310700002)(356005)(82740400003)(26005)(478600001)(6266002)(47076004)(54906003)(8676002)(86362001)(36756003)(5660300002)(336012)(2616005)(316002)(426003)(8936002)(70586007)(70206006)(2906002)(186003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: diasemi.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Sep 2020 02:19:55.8741
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1afdba5c-dd0d-44fd-ee65-08d85f6729dc
+X-MS-Exchange-CrossTenant-Id: 511e3c0e-ee96-486e-a2ec-e272ffa37b7c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=511e3c0e-ee96-486e-a2ec-e272ffa37b7c;Ip=[193.240.239.45];Helo=[mailrelay1.diasemi.com]
+X-MS-Exchange-CrossTenant-AuthSource: HE1EUR02FT044.eop-EUR02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM7PR10MB3224
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-21.09.2020 17:00, Jiada Wang пишет:
-> According to datasheet, mXT1386 chip has a WAKE line, it is used
-> to wake the chip up from deep sleep mode before communicating with
-> it via the I2C-compatible interface.
-> 
-> if the WAKE line is connected to a GPIO line, the line must be
-> asserted 25 ms before the host attempts to communicate with the mXT1386.
-> If the WAKE line is connected to the SCL pin, the mXT1386 will send a
-> NACK on the first attempt to address it, the host must then retry 25 ms
-> later.
-> 
-> This patch adds compatible string "atmel,mXT1386" for mXT1386 controller,
-> when I2C transfer on mXT1386 fails, retry the transfer once after a 25 ms
-> sleep.
-> 
-> Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 44 +++++++++++++++++-------
->  1 file changed, 32 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 98f17fa3a892..96d5f4d64cb0 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -198,6 +198,7 @@ enum t100_type {
->  #define MXT_CRC_TIMEOUT		1000	/* msec */
->  #define MXT_FW_RESET_TIME	3000	/* msec */
->  #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-> +#define MXT_WAKEUP_TIME		25	/* msec */
->  
->  /* Command to unlock bootloader */
->  #define MXT_UNLOCK_CMD_MSB	0xaa
-> @@ -627,7 +628,9 @@ static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
->  static int __mxt_read_reg(struct i2c_client *client,
->  			       u16 reg, u16 len, void *val)
->  {
-> +	struct device_node *np = client->dev.of_node;
->  	struct i2c_msg xfer[2];
-> +	bool retried = false;
->  	u8 buf[2];
->  	int ret;
->  
-> @@ -646,22 +649,30 @@ static int __mxt_read_reg(struct i2c_client *client,
->  	xfer[1].len = len;
->  	xfer[1].buf = val;
->  
-> -	ret = i2c_transfer(client->adapter, xfer, 2);
-> -	if (ret == 2) {
-> -		ret = 0;
-> -	} else {
-> -		if (ret >= 0)
-> -			ret = -EIO;
-> +retry_read:
-> +	ret = i2c_transfer(client->adapter, xfer, ARRAY_SIZE(xfer));
-> +	if (ret != ARRAY_SIZE(xfer)) {
-> +		if (of_device_is_compatible(np, "atmel,mXT1386") && !retried) {
+Add device tree binding information for DA7280 haptic driver.
+Example bindings for DA7280 are added.
 
-Hello, Jiada!
+Reviewed-by: Rob Herring <robh@kernel.org>.
 
-This looks almost good to me! But I think we should add "bool
-retry_i2c_transfers" to the struct mxt_data and then set it to true for
-atmel,mXT1386 because of_device_is_compatible() looks a bit too bulky
-and this is usually discouraged to have in the code.
+Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
 
-Secondly, we should also add a clarifying comment to the code, telling
-why retries are needed for 1386, something like this:
+---
+v20: No changes.
+v19: No changes.
+v18: No changes.
+v17: No changes.
+v16: No changes.
+v15: No changes.
+v14: No changes.
+v13: No changes.
+v12: No changes.
+v11: No changes.
+v10: No changes.
+v9: No changes.
+v8: Updated descriptions for new properties.
+v7: No changes.
+v6: No changes.
+v5: Updated descriptions and fixed errors.
+v4: Fixed commit message, properties.
+v3: Fixed subject format.
+v2: No changes
 
-static int mxt_probe(struct i2c_client *client, const struct
-i2c_device_id *id)
-{
-...
 
-/*
- * The mXT1386 has a dedicated WAKE-line that could be connected to a
- * dedicated GPIO, or to the I2C SCL pin, or permanently asserted LOW.
- * It's used for waking controller from a deep-sleep and it needs to be
- * asserted LOW for 25 milliseconds before issuing I2C transfer if
-controller
- * was in a deep-sleep mode. If WAKE-line is connected to I2C SCL pin, then
- * the first I2C transfer will get an instant NAK and transfer needs to be
- * retried after 25ms. There are too many places in the code where the
-wake-up
- * needs to be inserted, hence it's much easier to add a retry to the common
- * I2C accessors, also given that the WAKE-GPIO is unsupported by the
-driver.
- */
-if (of_device_is_compatible(np, "atmel,mXT1386")
-	data->retry_i2c_transfers = true;
+ .../devicetree/bindings/input/dlg,da7280.txt       | 109 +++++++++++++++++++++
+ 1 file changed, 109 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+
+diff --git a/Documentation/devicetree/bindings/input/dlg,da7280.txt b/Documentation/devicetree/bindings/input/dlg,da7280.txt
+new file mode 100644
+index 0000000..e6b719d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/dlg,da7280.txt
+@@ -0,0 +1,109 @@
++Dialog Semiconductor DA7280 Haptics bindings
++
++Required properties:
++- compatible: Should be "dlg,da7280".
++- reg: Specifies the I2C slave address.
++
++- interrupt-parent : Specifies the phandle of the interrupt controller to
++  which the IRQs from DA7280 are delivered to.
++
++- dlg,actuator-type: Set Actuator type. it should be one of:
++  "LRA" - Linear Resonance Actuator type.
++  "ERM-bar" - Bar type Eccentric Rotating Mass.
++  "ERM-coin" - Coin type Eccentric Rotating Mass.
++
++- dlg,const-op-mode: Haptic operation mode for FF_CONSTANT.
++  Possible values:
++	1 - Direct register override(DRO) mode triggered by i2c(default),
++	2 - PWM data source mode controlled by PWM duty,
++- dlg,periodic-op-mode: Haptic operation mode for FF_PERIODIC.
++  Possible values:
++	1 - Register triggered waveform memory(RTWM) mode, the pattern
++	    assigned to the PS_SEQ_ID played as much times as PS_SEQ_LOOP,
++	2 - Edge triggered waveform memory(ETWM) mode, external GPI(N)
++	    control are required to enable/disable and it needs to keep
++	    device enabled by sending magnitude (X > 0),
++	    the pattern is assigned to the GPI(N)_SEQUENCE_ID below.
++	The default value is 1 for both of the operation modes.
++	For more details, please see the datasheet.
++
++- dlg,nom-microvolt: Nominal actuator voltage rating.
++  Valid values: 0 - 6000000.
++- dlg,abs-max-microvolt: Absolute actuator maximum voltage rating.
++  Valid values: 0 - 6000000.
++- dlg,imax-microamp: Actuator max current rating.
++  Valid values: 0 - 252000.
++  Default: 130000.
++- dlg,impd-micro-ohms: the impedance of the actuator in micro ohms.
++  Valid values: 0 - 1500000000.
++
++Optional properties:
++- pwms : phandle to the physical PWM(Pulse Width Modulation) device.
++  PWM properties should be named "pwms". And number of cell is different
++  for each pwm device.
++  (See Documentation/devicetree/bindings/pwm/pwm.txt
++   for further information relating to pwm properties)
++
++- dlg,ps-seq-id: the PS_SEQ_ID(pattern ID in waveform memory inside chip)
++  to play back when RTWM-MODE is enabled.
++  Valid range: 0 - 15.
++- dlg,ps-seq-loop: the PS_SEQ_LOOP, Number of times the pre-stored sequence
++  pointed to by PS_SEQ_ID or GPI(N)_SEQUENCE_ID is repeated.
++  Valid range: 0 - 15.
++- dlg,gpiN-seq-id: the GPI(N)_SEQUENCE_ID, pattern to play
++  when gpi0 is triggered, 'N' must be 0 - 2.
++  Valid range: 0 - 15.
++- dlg,gpiN-mode: the pattern mode which can select either
++  "Single-pattern" or "Multi-pattern", 'N' must be 0 - 2.
++- dlg,gpiN-polarity: gpiN polarity which can be chosen among
++  "Rising-edge", "Falling-edge" and "Both-edge",
++  'N' must be 0 - 2
++  Haptic will work by this edge option in case of ETWM mode.
++
++- dlg,resonant-freq-hz: use in case of LRA.
++  the frequency range: 50 - 300.
++  Default: 205.
++
++- dlg,bemf-sens-enable: Enable for internal loop computations.
++- dlg,freq-track-enable: Enable for resonant frequency tracking.
++- dlg,acc-enable: Enable for active acceleration.
++- dlg,rapid-stop-enable: Enable for rapid stop.
++- dlg,amp-pid-enable: Enable for the amplitude PID.
++- dlg,mem-array: Customized waveform memory(patterns) data downloaded to
++  the device during initialization. This is an array of 100 values(u8).
++
++For further information, see device datasheet.
++
++======
++
++Example:
++
++	haptics: da7280-haptics@4a {
++		compatible = "dlg,da7280";
++		reg = <0x4a>;
++		interrupt-parent = <&gpio6>;
++		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
++		dlg,actuator-type = "LRA";
++		dlg,dlg,const-op-mode = <1>;
++		dlg,dlg,periodic-op-mode = <1>;
++		dlg,nom-microvolt = <2000000>;
++		dlg,abs-max-microvolt = <2000000>;
++		dlg,imax-microamp = <170000>;
++		dlg,resonant-freq-hz = <180>;
++		dlg,impd-micro-ohms = <10500000>;
++		dlg,freq-track-enable;
++		dlg,rapid-stop-enable;
++		dlg,mem-array = <
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++		>;
++
++	};
+-- 
+end-of-patch for PATCH v20
+

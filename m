@@ -2,99 +2,76 @@ Return-Path: <SRS0=chxs=DA=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CAC7C4727D
-	for <linux-input@archiver.kernel.org>; Wed, 23 Sep 2020 06:02:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11850C2D0A8
+	for <linux-input@archiver.kernel.org>; Wed, 23 Sep 2020 11:11:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 392012371F
-	for <linux-input@archiver.kernel.org>; Wed, 23 Sep 2020 06:02:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CBF52235FD
+	for <linux-input@archiver.kernel.org>; Wed, 23 Sep 2020 11:11:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1600859484;
+	bh=hkQAUNzoIZDlIOnSqsIjT4FANxzRdAr5tRKOTda18yA=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
+	b=vRzxx6bikVR6esIa+9nohxnykjmbVKMhfZEF9U6BT9wF9SE+NCeiSbm02DbpuX5u0
+	 XqsLve1zm6cwqQW68pe4FuqeFc8UzDKuPEFXr3UzicFvngpLEhj47xvMzExl/bLx2X
+	 xeXCKGMizTyL2s21JEBTDcoq4CCTRyb7AtKd6aTs=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726448AbgIWGCe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 23 Sep 2020 02:02:34 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:40394 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726179AbgIWGCe (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Sep 2020 02:02:34 -0400
-Received: by mail-pg1-f193.google.com with SMTP id k133so8958808pgc.7;
-        Tue, 22 Sep 2020 23:02:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Ha3VgyENu2LPnU4f1A3oqsIg+lYCf7TaXiKbXhQt3Ik=;
-        b=UqF0vpz1a6rAGHjVbwwfK8DiJwKxd/fKlaWgRASaWmCrwfvH4jKLYd32wiJsCOHEcx
-         XHJn9SCyfzq5bLXu1l5ET4W8twVx2bOYKnrN42krP7J/OEfaPn0TR+cjCzamjGZzt0DD
-         AsV8Bq/4rzj3ykHOj6bkwcRa3O5SUWAqvQRmHw9emhR/0h4haRQoSu9R5jYJQV4kTdOO
-         mmeg70l38c0JMo2R+c+GEymdd/WL/zBF6/1XUCuZ9V60bPTMrkyIcBuezd8THs2lCVnW
-         JvoUTN1SkSuQIS14O6ijztX9P7arem2H2257JANlk3JwkPmI0knhy9BN/iqydXuWZ8wC
-         xaUg==
-X-Gm-Message-State: AOAM5328U+uHDStouCwQY3SdP36DTjnt6T9hlTnXSqlBZ5HVGlK2qiWW
-        qXCJE+4lblbus/vc6oP9Asc=
-X-Google-Smtp-Source: ABdhPJzdVWj4XNg5O2lI84ywNTWglHvxl/eykGJ8JHab6N1wy7LLoGa28Sw3gOkGY/BztnBQugk+tw==
-X-Received: by 2002:a63:4e0a:: with SMTP id c10mr6306841pgb.369.1600840953864;
-        Tue, 22 Sep 2020 23:02:33 -0700 (PDT)
-Received: from sultan-box.localdomain ([104.200.129.212])
-        by smtp.gmail.com with ESMTPSA id w6sm17114601pgf.72.2020.09.22.23.02.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2020 23:02:32 -0700 (PDT)
-Date:   Tue, 22 Sep 2020 23:02:28 -0700
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        aaron.ma@canonical.com, admin@kryma.net,
-        andriy.shevchenko@linux.intel.com, benjamin.tissoires@redhat.com,
-        hdegoede@redhat.com, hn.chen@weidahitech.com,
-        jarkko.nikula@linux.intel.com, kai.heng.feng@canonical.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mika.westerberg@linux.intel.com, vicamo.yang@canonical.com
-Subject: Re: [PATCH v2 0/4] i2c-hid: Save power by reducing i2c xfers with
- block reads
-Message-ID: <20200923060228.GA1515@sultan-box.localdomain>
-References: <20200917052256.5770-1-sultan@kerneltoast.com>
- <nycvar.YFH.7.76.2009221118150.3336@cbobk.fhfr.pm>
- <20200922113646.GA6731@ninjato>
- <nycvar.YFH.7.76.2009222159170.3336@cbobk.fhfr.pm>
+        id S1726472AbgIWLLY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 23 Sep 2020 07:11:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38670 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726332AbgIWLLX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 23 Sep 2020 07:11:23 -0400
+Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83DDD2145D;
+        Wed, 23 Sep 2020 11:11:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600859483;
+        bh=hkQAUNzoIZDlIOnSqsIjT4FANxzRdAr5tRKOTda18yA=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=SlZuamR/U7BgydtmHUtuaSPvgzv+Od8Q6GLABJnNb6z3l7R3XiZ4E0+/wm3IO2NCc
+         XEOBK0eIVR123zmzN3Rn4Wv4iOsPD8gS9bcyatjpxmo28bdwu8NOM1ND3aBIQ+EJCc
+         U5+5H1vU1LxZ+b4kn6p70XXEL86k4/dDJqKwcPM8=
+Date:   Wed, 23 Sep 2020 13:11:20 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Xiaofei Tan <tanxiaofei@huawei.com>
+cc:     benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linuxarm@huawei.com
+Subject: Re: [PATCH] HID: core: fix some doc warnings in hid-core.c
+In-Reply-To: <1600776012-7663-1-git-send-email-tanxiaofei@huawei.com>
+Message-ID: <nycvar.YFH.7.76.2009231311110.3336@cbobk.fhfr.pm>
+References: <1600776012-7663-1-git-send-email-tanxiaofei@huawei.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.2009222159170.3336@cbobk.fhfr.pm>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Sep 22, 2020 at 09:59:44PM +0200, Jiri Kosina wrote:
-> On Tue, 22 Sep 2020, Wolfram Sang wrote:
-> 
-> > > Hans, Benjamin, could you please give this patchset some smoke-testing? It 
-> > > looks good to me, but I'd like it to get some testing from your testing 
-> > > machinery before merging.
-> > 
-> > Please give me some more days. I am not fully convinced yet that this
-> > use of I2C_M_RECV_LEN is not broken on some controllers.
-> > 
-> > Plus, I'd favor if this could go via I2C tree. It is within I2C where
-> > the non-trivial changes are. The HID part is just the final bit. Can we
-> > agree on that?
-> 
-> Absolutely no problem with that. But I'd like to have this ran through 
-> Benjamin/Hans first too.
-> 
-> Thanks,
-> 
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> 
+On Tue, 22 Sep 2020, Xiaofei Tan wrote:
 
-I suppose the HID part does need to be held off until all the adapters are
-updated with functional I2C_M_RECV_LEN bits.
+> Fix following warnings caused by mismatch bewteen function parameters
+> and comments.
+> drivers/hid/hid-core.c:931: warning: Function parameter or member 'hid' not described in 'hid_parse_report'
+> drivers/hid/hid-core.c:931: warning: Excess function parameter 'device' description in 'hid_parse_report'
+> drivers/hid/hid-core.c:961: warning: Function parameter or member 'hid' not described in 'hid_validate_values'
+> drivers/hid/hid-core.c:961: warning: Excess function parameter 'device' description in 'hid_validate_values'
+> drivers/hid/hid-core.c:1452: warning: Function parameter or member 'report' not described in 'hid_match_report'
+> drivers/hid/hid-core.c:1452: warning: Excess function parameter 'report_type' description in 'hid_match_report'
+> drivers/hid/hid-core.c:2132: warning: Function parameter or member 'drv' not described in 'new_id_store'
+> drivers/hid/hid-core.c:2132: warning: Excess function parameter 'driver' description in 'new_id_store'
+> 
+> Signed-off-by: Xiaofei Tan <tanxiaofei@huawei.com>
 
-I just got a Ryzen laptop which panics when using I2C_M_RECV_LEN.
+Applied, thanks.
 
-So it looks like only the designware changes can be considered for merging now.
+-- 
+Jiri Kosina
+SUSE Labs
 
-Sultan

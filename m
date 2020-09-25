@@ -2,103 +2,88 @@ Return-Path: <SRS0=XHg4=DC=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D888C4727C
-	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 11:15:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96527C4363D
+	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 13:53:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0DB8B208B6
-	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 11:15:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1601032517;
-	bh=pJom88A0bi1RdO+KCgx4Zz7zv2oiMPcqlDl14hZcJTc=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=0KFkohqq9ELLSlGV1Djsl7eZ4FTLnEmbmLvALVGT0epQhrmc0sAoURLW28UajgfQt
-	 d9RXqJv7C+ScaNBqHYf+7Nvc42qNWqGhnyPzQgnommSjti2gZL7j1WN9PPQiR802X7
-	 B5svyP5m/6DriKEk937aRlMkAnk0k8foCoKbEj3c=
+	by mail.kernel.org (Postfix) with ESMTP id 62EA12086A
+	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 13:53:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727733AbgIYLPQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 25 Sep 2020 07:15:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35974 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727132AbgIYLPQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Sep 2020 07:15:16 -0400
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02CEF221E5;
-        Fri, 25 Sep 2020 11:15:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601032515;
-        bh=pJom88A0bi1RdO+KCgx4Zz7zv2oiMPcqlDl14hZcJTc=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=ZRFi3B3peB0lwaeLfeYuy8+6ToP0Xp1TV4/k6i8uICo2upYIGmp4lN/s8/VLRFQgr
-         6oG6E8kMg1LWujltFG9o3SuOS3RtRRTYhffd/S7BnE7Fp2iV2ggXngK7uERN+YSeKj
-         n+OteMPYYjpgZArK0bfh7o2KNyqiQnT5CFY+2LRc=
-Date:   Fri, 25 Sep 2020 13:15:10 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     "Gerecke, Jason" <killertofu@gmail.com>
-cc:     linux-input@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
-Subject: Re: [PATCH] HID: wacom: Avoid entering wacom_wac_pen_report for pad
- / battery
-In-Reply-To: <20200923201456.25912-1-jason.gerecke@wacom.com>
-Message-ID: <nycvar.YFH.7.76.2009251314520.3336@cbobk.fhfr.pm>
-References: <20200923201456.25912-1-jason.gerecke@wacom.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1728775AbgIYNxD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Sep 2020 09:53:03 -0400
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:19050 "EHLO
+        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727290AbgIYNxD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Sep 2020 09:53:03 -0400
+IronPort-SDR: c8wUFhdR6K6QGNG3SREYP8N0uOorI4VcCH0yVQrUMdbbqdDOcYoR+h4YMjqcTtMBcCmsvVsQDp
+ UyJP5jVfbH8ZqnrAg4QwqxMmzEFeL2mA7P+dS/7nA8nkaeGcJnyNQJ2Ou/bj4FgMlAIu4Js5yD
+ OW18WqJsaO0sGUDT7GcLINU45+0oI71yxWOmJcXk17MbN7xAs7nNMqPRUCI9C6DCTTcV8QfWBp
+ D/IxTCtPSt2Yk6HJuqrmgJPJXpsnDA13gXZNzxskIaCNkLBowmCNI19BZ0lQH3zLvaNBAZdJ2F
+ xSI=
+X-IronPort-AV: E=Sophos;i="5.77,302,1596528000"; 
+   d="scan'208";a="53316549"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa2.mentor.iphmx.com with ESMTP; 25 Sep 2020 05:53:02 -0800
+IronPort-SDR: rdOEOuP9sZLVfj/gP4M2edaea4IT4kA/lU7bg7nEzuxt8UG6F/rnwDx4BOrYk84A8bzqUys1g7
+ x3yexRdtFo/W/eXzwA8zAhWrgEw/sY4MMTBfuLvoUXnOL/4ONQN2Tgy3bzQN3RWMHxOskva6Jq
+ Jcq2gcixwfIBRYQnDqD9HsYexlgPWp3gfuc/10rWT5OjkaXLN0f29oewY1DFSsOFDfciNvBgmX
+ G1rnT5yVWB7xUR7J9c1xbng3Eo7SSoQIztzVujCVdX7oPGlLLaW5FwdPHX5rXILlsxXKCubLO7
+ SB8=
+From:   Jiada Wang <jiada_wang@mentor.com>
+To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
+        <thierry.reding@gmail.com>, <digetx@gmail.com>,
+        <jonathanh@nvidia.com>
+CC:     <nick@shmanahar.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        <erosca@de.adit-jv.com>, <andrew_gabbasov@mentor.com>,
+        <jiada_wang@mentor.com>
+Subject: [PATCH v2 0/3] implement I2C retries for mXT1368
+Date:   Fri, 25 Sep 2020 22:52:54 +0900
+Message-ID: <20200925135257.21138-1-jiada_wang@mentor.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 23 Sep 2020, Gerecke, Jason wrote:
+According to datasheet, mXT1386 chip has a WAKE line, it is used
+to wake the chip up from deep sleep mode before communicating with
+it via the I2C-compatible interface.
+    
+if the WAKE line is connected to a GPIO line, the line must be
+asserted 25 ms before the host attempts to communicate with the
+mXT1386.
+If the WAKE line is connected to the SCL pin, the mXT1386 will send
+a NACK on the first attempt to address it, the host must then retry
+25 ms later.
+    
+This patch adds compatible string "atmel,mXT1386" for mXT1386 controller,
+when I2C transfer on mXT1386 fails, retry the transfer once after a
+25 ms sleep.
 
-> From: Jason Gerecke <jason.gerecke@wacom.com>
-> 
-> It has recently been reported that the "heartbeat" report from devices
-> like the 2nd-gen Intuos Pro (PTH-460, PTH-660, PTH-860) or the 2nd-gen
-> Bluetooth-enabled Intuos tablets (CTL-4100WL, CTL-6100WL) can cause the
-> driver to send a spurious BTN_TOUCH=0 once per second in the middle of
-> drawing. This can result in broken lines while drawing on Chrome OS.
-> 
-> The source of the issue has been traced back to a change which modified
-> the driver to only call `wacom_wac_pad_report()` once per report instead
-> of once per collection. As part of this change, pad-handling code was
-> removed from `wacom_wac_collection()` under the assumption that the
-> `WACOM_PEN_FIELD` and `WACOM_TOUCH_FIELD` checks would not be satisfied
-> when a pad or battery collection was being processed.
-> 
-> To be clear, the macros `WACOM_PAD_FIELD` and `WACOM_PEN_FIELD` do not
-> currently check exclusive conditions. In fact, most "pad" fields will
-> also appear to be "pen" fields simply due to their presence inside of
-> a Digitizer application collection. Because of this, the removal of
-> the check from `wacom_wac_collection()` just causes pad / battery
-> collections to instead trigger a call to `wacom_wac_pen_report()`
-> instead. The pen report function in turn resets the tip switch state
-> just prior to exiting, resulting in the observed BTN_TOUCH=0 symptom.
-> 
-> To correct this, we restore a version of the `WACOM_PAD_FIELD` check
-> in `wacom_wac_collection()` and return early. This effectively prevents
-> pad / battery collections from being reported until the very end of the
-> report as originally intended.
-> 
-> Fixes: d4b8efeb46d9 ("HID: wacom: generic: Correct pad syncing")
-> Cc: stable@vger.kernel.org # v4.17+
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
-> Tested-by: Ping Cheng <ping.cheng@wacom.com>
 
-Applied.
+Jiada Wang (3):
+  dt-bindings: input: atmel: add compatible for mXT1386
+  Input: atmel_mxt_ts - implement I2C retries for mXT1368
+  ARM: tegra: add mXT1386 compatible
+
+---
+v2:
+add bool retry_i2c_transfers to struct mxt_data,
+to indicate whether retry is needed when i2c transfer fails
+
+v1: initial version
+---
+ .../bindings/input/atmel,maxtouch.txt         |  1 +
+ .../boot/dts/tegra20-acer-a500-picasso.dts    |  2 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c      | 62 +++++++++++++++----
+ 3 files changed, 52 insertions(+), 13 deletions(-)
 
 -- 
-Jiri Kosina
-SUSE Labs
+2.17.1
 

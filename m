@@ -2,87 +2,148 @@ Return-Path: <SRS0=XHg4=DC=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF0CAC4363D
-	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 16:42:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7D2BC4741F
+	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 20:48:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6BCA922B2D
-	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 16:42:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6113123718
+	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 20:48:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="cmU/Jifr"
+	dkim=pass (1024-bit key) header.d=seznam.cz header.i=@seznam.cz header.b="O9ebucLD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727402AbgIYQmx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 25 Sep 2020 12:42:53 -0400
-Received: from mail.zx2c4.com ([192.95.5.64]:45231 "EHLO mail.zx2c4.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727324AbgIYQmx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Sep 2020 12:42:53 -0400
-X-Greylist: delayed 399 seconds by postgrey-1.27 at vger.kernel.org; Fri, 25 Sep 2020 12:42:52 EDT
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 9e5dd1a0;
-        Fri, 25 Sep 2020 16:05:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=from:to:cc
-        :subject:date:message-id:mime-version:content-transfer-encoding;
-         s=mail; bh=JWMY4uyRC4SFiDM35+MshVIEj8U=; b=cmU/JifrnG2NmOSf9tu/
-        Kr2F3+3xB8yKlCcsVeU24BLNyC0rL37ho0i2XstujCLtGXoPGl9wrKA43eNVn0xY
-        2eL3oOSVAGcO/QYV3GgI79q20DcoWdQk9mpvz9eR7pYGXbD4B58NmJiht/fZoTYs
-        /k1DGWjkJJZ0ic3BA+9X0Bsld0cVlerwqMuDC6WcznoIIvM6g3BLMLCYDDhg8Fgf
-        60gHZTdjNJfTOXhWL8hBV44W157Orp6K3n9bFOoXsw+iKl5W4K32/3ffD1jBUOuh
-        A6p1v3f+nMCQNzaBWMS56iIj5AGNS9ZTDERn9EQ/oxs+RVWNakP9Sbf13YgdMEV7
-        /g==
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id eb7d8412 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Fri, 25 Sep 2020 16:05:06 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     linux-input@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Vincent Huang <vincent.huang@tw.synaptics.com>
-Subject: [PATCH] Input: synaptics - enable InterTouch for ThinkPad X1E/P1 2nd gen
-Date:   Fri, 25 Sep 2020 18:36:02 +0200
-Message-Id: <20200925163602.204047-1-Jason@zx2c4.com>
+        id S1726316AbgIYUsf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Sep 2020 16:48:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56320 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727961AbgIYUsf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Sep 2020 16:48:35 -0400
+Received: from mxa1.seznam.cz (mxa1.seznam.cz [IPv6:2a02:598:a::78:90])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED309C0613A8;
+        Fri, 25 Sep 2020 12:29:01 -0700 (PDT)
+Received: from email.seznam.cz
+        by email-smtpc5a.ko.seznam.cz (email-smtpc5a.ko.seznam.cz [10.53.10.135])
+        id 2433966a7f3dc203259a5a34;
+        Fri, 25 Sep 2020 21:28:56 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seznam.cz; s=beta;
+        t=1601062136; bh=l93/D6Gdiay39pYtBCQRrfnfEuM4nPGLzsoyq5BS9Yg=;
+        h=Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:
+         References:MIME-Version:Content-Transfer-Encoding;
+        b=O9ebucLD48hc+lPhGLcEwLyA/YoOS3weE1cKPULYEVkidoU7EbLEQIz51L2U1LLSr
+         4oGYNJYK1WnofKV2ogyNZKt7pfeEfEXbPDBkB9CJQMMKtGiSrij3llCnPtkKNlxzhB
+         iILOFCbIFHNLiE1Cx8dpH/shFKOALg4avZGT4aN4=
+Received: from localhost.localdomain (ip-228-128.dynamic.ccinternet.cz [212.69.128.228])
+        by email-relay7.ko.seznam.cz (Seznam SMTPD 1.3.120) with ESMTP;
+        Fri, 25 Sep 2020 21:24:38 +0200 (CEST)  
+From:   michael.srba@seznam.cz
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Paul Burton <paulburton@kernel.org>,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        ~postmarketos/upstreaming@lists.sr.ht,
+        Michael Srba <Michael.Srba@seznam.cz>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH v4 2/2] dt-bindings: input/touchscreen: add bindings for zinitix
+Date:   Fri, 25 Sep 2020 21:22:04 +0200
+Message-Id: <20200925192204.12631-2-michael.srba@seznam.cz>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200925192204.12631-1-michael.srba@seznam.cz>
+References: <20200925192204.12631-1-michael.srba@seznam.cz>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-With the new RMI4 F3A support posted yesterday, this appears to maybe
-work, with a bootloader warning in dmesg:
+From: Michael Srba <Michael.Srba@seznam.cz>
 
-    psmouse serio1: synaptics: queried max coordinates: x [..5678], y [..4690]
-    psmouse serio1: synaptics: queried min coordinates: x [1266..], y [1160..]
-    psmouse serio1: synaptics: Trying to set up SMBus access
-    rmi4_smbus 0-002c: registering SMbus-connected sensor
---> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
---> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
-    rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3512-010, fw id: 2956703
-    input: Synaptics TM3512-010 as /devices/rmi4-00/input/input91
-    serio: RMI4 PS/2 pass-through port at rmi4-00.fn03
-    psmouse serio4: trackpoint: Elan TrackPoint firmware: 0x11, buttons: 3/3
-    input: TPPS/2 Elan TrackPoint as /devices/rmi4-00/rmi4-00.fn03/serio4/input/input92
+This patch adds dts bindings for the zinitix bt541 touchscreen.
 
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Vincent Huang <vincent.huang@tw.synaptics.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Michael Srba <Michael.Srba@seznam.cz>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- drivers/input/mouse/synaptics.c | 1 +
- 1 file changed, 1 insertion(+)
+ changes in v2: none
+ changes in v3: document zinitix,mode property
+ changes in v4: none
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 8a54efd6eb95..9d6fec84047b 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -180,6 +180,7 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN0096", /* X280 */
- 	"LEN0097", /* X280 -> ALPS trackpoint */
- 	"LEN0099", /* X1 Extreme 1st */
-+	"LEN0402", /* X1 Extreme 2nd */
- 	"LEN009b", /* T580 */
- 	"LEN200f", /* T450s */
- 	"LEN2044", /* L470  */
+
+ .../bindings/input/touchscreen/zinitix.txt    | 40 +++++++++++++++++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
+ 2 files changed, 42 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/zinitix.txt b/Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
+new file mode 100644
+index 000000000000..446efb9f5f55
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
+@@ -0,0 +1,40 @@
++Device tree bindings for Zinitx BT541 touchscreen controller
++
++Required properties:
++
++ - compatible		: Should be "zinitix,bt541"
++ - reg			: I2C address of the chip. Should be 0x20
++ - interrupts		: Interrupt to which the chip is connected
++
++Optional properties:
++
++ - vdd-supply		: Analog power supply regulator on VCCA pin
++ - vddo-supply		: Digital power supply regulator on VDD pin
++ - zinitix,mode		: Mode of reporting touch points. Some modes may not work
++			  with a particular ts firmware for unknown reasons. Available
++			  modes are 1 and 2. Mode 2 is the default and preferred.
++
++The touchscreen-* properties are documented in touchscreen.txt in this
++directory.
++
++Example:
++
++	i2c@00000000 {
++		/* ... */
++
++		bt541@20 {
++			compatible = "zinitix,bt541";
++			reg = <0x20>;
++			interrupt-parent = <&msmgpio>;
++			interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&tsp_default>;
++			vdd-supply = <&reg_vdd_tsp>;
++			vddo-supply = <&pm8916_l6>;
++			touchscreen-size-x = <540>;
++			touchscreen-size-y = <960>;
++			zinitix,mode = <2>;
++		};
++
++		/* ... */
++	};
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index 967e78c5ec0a..1b0b5e23267d 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1066,6 +1066,8 @@ patternProperties:
+     description: Shenzhen Zidoo Technology Co., Ltd.
+   "^zii,.*":
+     description: Zodiac Inflight Innovations
++  "^zinitix,.*":
++    description: Zinitix Co., Ltd
+   "^zte,.*":
+     description: ZTE Corp.
+   "^zyxel,.*":
 -- 
-2.28.0
-
+2.24.0

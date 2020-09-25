@@ -1,57 +1,57 @@
-Return-Path: <SRS0=nOC9=DB=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=XHg4=DC=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94B6BC4363D
-	for <linux-input@archiver.kernel.org>; Thu, 24 Sep 2020 14:53:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D888C4727C
+	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 11:15:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 438252311B
-	for <linux-input@archiver.kernel.org>; Thu, 24 Sep 2020 14:53:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DB8B208B6
+	for <linux-input@archiver.kernel.org>; Fri, 25 Sep 2020 11:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600959181;
-	bh=x/UiVkDrbxTj+emBP7iWoafHZgoeH3lVYV0w1Grnozk=;
+	s=default; t=1601032517;
+	bh=pJom88A0bi1RdO+KCgx4Zz7zv2oiMPcqlDl14hZcJTc=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=0BrUGv72EZ9dRVuK+lZAhlVlY+ixCcurezQBzn6a2TYryPNJS2YpKJO0q1hyZmkCA
-	 3kozbQINiFDnw5UR06JiEeo5FPNHQ5c7D1b6A5NPnp5I9t5lfWTLDPeeA3q+XD4wGt
-	 xsT+WlJTHqNFZbO7HZeXXwVXTBvpV7Dmk6rxe43o=
+	b=0KFkohqq9ELLSlGV1Djsl7eZ4FTLnEmbmLvALVGT0epQhrmc0sAoURLW28UajgfQt
+	 d9RXqJv7C+ScaNBqHYf+7Nvc42qNWqGhnyPzQgnommSjti2gZL7j1WN9PPQiR802X7
+	 B5svyP5m/6DriKEk937aRlMkAnk0k8foCoKbEj3c=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727889AbgIXOxA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 24 Sep 2020 10:53:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35500 "EHLO mail.kernel.org"
+        id S1727733AbgIYLPQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Sep 2020 07:15:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727859AbgIXOxA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Sep 2020 10:53:00 -0400
+        id S1727132AbgIYLPQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Sep 2020 07:15:16 -0400
 Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6130B2074B;
-        Thu, 24 Sep 2020 14:52:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02CEF221E5;
+        Fri, 25 Sep 2020 11:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600959180;
-        bh=x/UiVkDrbxTj+emBP7iWoafHZgoeH3lVYV0w1Grnozk=;
+        s=default; t=1601032515;
+        bh=pJom88A0bi1RdO+KCgx4Zz7zv2oiMPcqlDl14hZcJTc=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=xvdoTTUs/U1QUBxcAL5QGbrhHPi82TsZ7OxBNfd+QGwBHFIIGl4zfoZiUK6iFtNAW
-         pfcvPyvN6rkGIdhSo55fqYXKZamE8Nlvum/IBvbNJRiOcvaa6jeLs1LX/j545+CUfO
-         ONdghCRuVX8Lj/ApfYIgW7BQXKHulP33KV4HDI3E=
-Date:   Thu, 24 Sep 2020 16:52:56 +0200 (CEST)
+        b=ZRFi3B3peB0lwaeLfeYuy8+6ToP0Xp1TV4/k6i8uICo2upYIGmp4lN/s8/VLRFQgr
+         6oG6E8kMg1LWujltFG9o3SuOS3RtRRTYhffd/S7BnE7Fp2iV2ggXngK7uERN+YSeKj
+         n+OteMPYYjpgZArK0bfh7o2KNyqiQnT5CFY+2LRc=
+Date:   Fri, 25 Sep 2020 13:15:10 +0200 (CEST)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Vincent Huang <vincent.huang@tw.synaptics.com>
-cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Andrew Duggan <aduggan@synaptics.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <btissoir@redhat.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Chris Heiny <chris.heiny@synaptics.com>
-Subject: Re: [PATCH 2/3] HID: rmi - rename f30_data to gpio_data
-In-Reply-To: <20200924094628.1085000-3-vincent.huang@tw.synaptics.com>
-Message-ID: <nycvar.YFH.7.76.2009241652270.3336@cbobk.fhfr.pm>
-References: <20200924094628.1085000-1-vincent.huang@tw.synaptics.com> <20200924094628.1085000-3-vincent.huang@tw.synaptics.com>
+To:     "Gerecke, Jason" <killertofu@gmail.com>
+cc:     linux-input@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
+Subject: Re: [PATCH] HID: wacom: Avoid entering wacom_wac_pen_report for pad
+ / battery
+In-Reply-To: <20200923201456.25912-1-jason.gerecke@wacom.com>
+Message-ID: <nycvar.YFH.7.76.2009251314520.3336@cbobk.fhfr.pm>
+References: <20200923201456.25912-1-jason.gerecke@wacom.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -59,33 +59,44 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 24 Sep 2020, Vincent Huang wrote:
+On Wed, 23 Sep 2020, Gerecke, Jason wrote:
 
-> f30_data in rmi_device_platform_data could be also referenced by RMI
-> function 3A, so rename it and the structure name to avoid confusion.
+> From: Jason Gerecke <jason.gerecke@wacom.com>
 > 
-> Signed-off-by: Vincent Huang <vincent.huang@tw.synaptics.com>
-> ---
->  drivers/hid/hid-rmi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> It has recently been reported that the "heartbeat" report from devices
+> like the 2nd-gen Intuos Pro (PTH-460, PTH-660, PTH-860) or the 2nd-gen
+> Bluetooth-enabled Intuos tablets (CTL-4100WL, CTL-6100WL) can cause the
+> driver to send a spurious BTN_TOUCH=0 once per second in the middle of
+> drawing. This can result in broken lines while drawing on Chrome OS.
 > 
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index 9ce22acdfaca..62315e31d520 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -722,7 +722,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	}
->  
->  	if (data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS)
-> -		rmi_hid_pdata.f30_data.disable = true;
-> +		rmi_hid_pdata.gpio_data.disable = true;
->  
->  	data->xport.dev = hdev->dev.parent;
->  	data->xport.pdata = rmi_hid_pdata;
+> The source of the issue has been traced back to a change which modified
+> the driver to only call `wacom_wac_pad_report()` once per report instead
+> of once per collection. As part of this change, pad-handling code was
+> removed from `wacom_wac_collection()` under the assumption that the
+> `WACOM_PEN_FIELD` and `WACOM_TOUCH_FIELD` checks would not be satisfied
+> when a pad or battery collection was being processed.
+> 
+> To be clear, the macros `WACOM_PAD_FIELD` and `WACOM_PEN_FIELD` do not
+> currently check exclusive conditions. In fact, most "pad" fields will
+> also appear to be "pen" fields simply due to their presence inside of
+> a Digitizer application collection. Because of this, the removal of
+> the check from `wacom_wac_collection()` just causes pad / battery
+> collections to instead trigger a call to `wacom_wac_pen_report()`
+> instead. The pen report function in turn resets the tip switch state
+> just prior to exiting, resulting in the observed BTN_TOUCH=0 symptom.
+> 
+> To correct this, we restore a version of the `WACOM_PAD_FIELD` check
+> in `wacom_wac_collection()` and return early. This effectively prevents
+> pad / battery collections from being reported until the very end of the
+> report as originally intended.
+> 
+> Fixes: d4b8efeb46d9 ("HID: wacom: generic: Correct pad syncing")
+> Cc: stable@vger.kernel.org # v4.17+
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+> Tested-by: Ping Cheng <ping.cheng@wacom.com>
 
-Please fold this into the first patch; this way you break bisectability.
-
-Thanks,
+Applied.
 
 -- 
 Jiri Kosina

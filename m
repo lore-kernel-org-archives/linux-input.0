@@ -2,1038 +2,827 @@ Return-Path: <SRS0=Jlzd=DF=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2316C4741F
-	for <linux-input@archiver.kernel.org>; Mon, 28 Sep 2020 09:48:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF655C2D0A8
+	for <linux-input@archiver.kernel.org>; Mon, 28 Sep 2020 21:17:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9F6BB22262
-	for <linux-input@archiver.kernel.org>; Mon, 28 Sep 2020 09:48:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F5EB2193E
+	for <linux-input@archiver.kernel.org>; Mon, 28 Sep 2020 21:17:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="blEXyIsA"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VQT+ilBA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726815AbgI1Js5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 28 Sep 2020 05:48:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53078 "EHLO
+        id S1726656AbgI1VRA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 28 Sep 2020 17:17:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726565AbgI1Js5 (ORCPT
+        with ESMTP id S1726565AbgI1VQ7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Sep 2020 05:48:57 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A71FC0613CF
-        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2020 02:48:56 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id x23so441953wmi.3
-        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2020 02:48:56 -0700 (PDT)
+        Mon, 28 Sep 2020 17:16:59 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98DEAC061755;
+        Mon, 28 Sep 2020 14:16:59 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id m34so2009243pgl.9;
+        Mon, 28 Sep 2020 14:16:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ej7Upz6K0Jt91vSYGBUguqvub7FmTn9hlctcNENocso=;
-        b=blEXyIsAe8BqFL373Zv0q8V/8saLPxD6OleesnPEMZqWLsaCKI3fkC3vhPr9jsKQuh
-         YOYHbqtJbqoEpbEIyWQbt6zCPyaJe5mPmhWlwTs8/feErRcfaE0f9J8Vmz3qGb1XyJl7
-         rI/xtMpk7HgiJROU+6xtJ1dFpdldbFpt87hx+6LwN154n8SHGmDv+7OOMnA9Kb0uaxHy
-         dADnDIahM8d9GbUoL82aTBfgyLbtyxofczN6E7nOujpMuTeGVclP0AkWClTrX3N4uVFs
-         AXka/rXvWX/fp4U9JkitxHrIGc4AId8Np7VBubQc9DonISIUJNzscQ8QkDpr6zJyZf3a
-         0ktQ==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=PdbpncyktU6K6oHnZmiPdcutOfwe/EwVczfOz/cZmB8=;
+        b=VQT+ilBAk76c5pyk47P1Nqsy/gI0UwDAycvPL4dhv3iyO47/EQYsA4NhRiLL1f2xh2
+         2QX5WsCmVIAlTKbfXQSuBftOydavcVxzLrC5tPc4ok89f3Fs1ofk7bhUnXItkD5oD9Wy
+         CZaW41LpnR/6Ex+BOTbIahXPsU7t3HoDrd87ES6pvraA0BDHxR102p3w3uPNW36zwfLk
+         3PA+DF3Anit5xdKPb8VDOygIBOoV9rWq4ydPZMizbhiu8FiP6LJJvy3shgerrL7ZU6JX
+         +wFcY9tzTfpaN5W6feIb2GcZIxZ0UwgVfQ3Rfz4Ptm7QRXrO8VRDu5YM4hNt78KKVO2j
+         O6LA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ej7Upz6K0Jt91vSYGBUguqvub7FmTn9hlctcNENocso=;
-        b=AxYe+AcfGVjwcm6ksCunPQcGuOV3z9RX5wNfyGIkMZv/xv+dyC0mhDc7Ec3mbFmwS0
-         uozr66DgjspCnITej2YL7rnjVnkfQWkqOtQZbgbUrZfi8MxGBmBm6WrLjG+5/CBNdv/t
-         gQhkNYrveqvC3XD+on0e5ArTaEUJph4NrMHJ4uN6777CU7GnM00DvXJNkG3DYv8Kda3r
-         Wb51MQ+olo2Wl/s2BafkJBCbELJpcmvNQ0S+Ulyy+8TvQds3VkCOZ/iB+1yzgqqYmMK4
-         1BGeivteX8LXdfA4S++SUdis8LSy0UT3g2CiY/QezEYPpLXWRPceneZMSkMNyal1X5ws
-         pOKg==
-X-Gm-Message-State: AOAM530WTsbRaNlp4heZnlxJOI1Kyz/i+CQDw8mK5jhWKUYa6XC5ldo6
-        htAG80+cQliG7Ai16JMZjiBGCLXfeSOXmSeRGaj75A==
-X-Google-Smtp-Source: ABdhPJwG9Mr3Qycqx1cwgLUDS3Gkb9YI1kC9j5s/5LlKNH/Dm8p1DaSdwJ0g6kYeuCimDerheYggBxToO6vtUZ7mLB8=
-X-Received: by 2002:a1c:f415:: with SMTP id z21mr755416wma.88.1601286534881;
- Mon, 28 Sep 2020 02:48:54 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=PdbpncyktU6K6oHnZmiPdcutOfwe/EwVczfOz/cZmB8=;
+        b=UX/eES/zzo/wTeI4XGsGljNirvPbI1P06OSLo0FQIsep528j/tFSIvoSGwVdwC0Hd6
+         557K8FNQKrC722LyGicNV3Vou39hNlLWm9LkERApZMPESTcZOdPe84byq5//p1Mzkr6v
+         RPpju/YZIiEgOfxvPMWSSKOwH+j8iu/IPelvHUatgijTW+3fgdON5tgD/EPZnLaWGHzZ
+         iq4mTPaCZG/UuEgQo4iHpjk8lTfock7kxRnx6Op4cDPPAbqJey5hzzP8e81ith6jfjx4
+         3bWWW4t0NJMP57KOC33p7vQblU3VtrDbMhNOTvAVo7uYPF+F6rSg7bTK2LNC8+oXNpAn
+         Pc3A==
+X-Gm-Message-State: AOAM531BLjYfIi7p1plxcvA0Yyl7gL7G/fdy9MZRIsAyApUczFqmV81N
+        XOExe61Bxbcsfh9dFvPcwhw=
+X-Google-Smtp-Source: ABdhPJzFDDM9LSQJuclTg7Ntd17lLVJksjSa3T+roEy+PatJKty6Y6snboe/FdmcAmPgFs+KKjfDiQ==
+X-Received: by 2002:a63:e709:: with SMTP id b9mr695072pgi.425.1601327818636;
+        Mon, 28 Sep 2020 14:16:58 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id hg16sm2174310pjb.37.2020.09.28.14.16.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Sep 2020 14:16:57 -0700 (PDT)
+Date:   Mon, 28 Sep 2020 14:16:55 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     michael.srba@seznam.cz
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Paul Burton <paulburton@kernel.org>,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        ~postmarketos/upstreaming@lists.sr.ht
+Subject: Re: [PATCH v5 1/2] Input: add zinitix touchscreen driver
+Message-ID: <20200928211655.GO1681290@dtor-ws>
+References: <20200928091017.6614-1-michael.srba@seznam.cz>
 MIME-Version: 1.0
-References: <20200927123542.553852-1-kholk11@gmail.com> <20200927123542.553852-3-kholk11@gmail.com>
-In-Reply-To: <20200927123542.553852-3-kholk11@gmail.com>
-From:   Amit Pundir <amit.pundir@linaro.org>
-Date:   Mon, 28 Sep 2020 15:18:18 +0530
-Message-ID: <CAMi1Hd1A-nRD57ETMnCbtKTFpQZ1f9-3D1SPx===BRx0f1FX7A@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] Input: Add Novatek NT36xxx touchscreen driver
-To:     kholk11@gmail.com
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>, rydberg@bitmath.org,
-        priv.luk@gmail.com, linux-input@vger.kernel.org,
-        lkml <linux-kernel@vger.kernel.org>, marijns95@gmail.com,
-        Konrad Dybcio <konradybcio@gmail.com>, martin.botka1@gmail.com,
-        phone-devel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200928091017.6614-1-michael.srba@seznam.cz>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 27 Sep 2020 at 18:06, <kholk11@gmail.com> wrote:
->
-> From: AngeloGioacchino Del Regno <kholk11@gmail.com>
->
-> This is a driver for the Novatek in-cell touch controller and
-> supports various chips from the NT36xxx family, currently
-> including NT36525, NT36672A, NT36676F, NT36772 and NT36870.
->
-> Functionality like wake gestures and firmware flashing is not
-> included: I am not aware of any of these DrIC+Touch combo
-> chips not including a non-volatile memory and it should be
-> highly unlikely to find one, since the touch firmware is
-> embedded into the DriverIC one, which is obviously necessary
-> to drive the display unit.
->
-> However, the necessary address for the firmware update
-> procedure was included into the address table in this driver
-> so, in the event that someone finds the need to implement it
-> for a reason or another, it will be pretty straightforward to.
->
-> This driver is lightly based on the downstream implementation [1].
-> [1] https://github.com/Rasenkai/caf-tsoft-Novatek-nt36xxx
->
+Hi Michael,
 
-This is so cool!
-
-Xiaomi PocoF1 phone uses same family touchscreen IC and I could
-test this series on that phone as well.
-
-However I do have to make a minor change to get it working. The
-downstream driver and even the github code you linked above use
-GPIO mapped IRQ, and I had to switch to that to get touchscreen
-working with your driver
-https://github.com/pundiramit/linux/commit/0a73eb656c1e80787dc195641ce7b0076fddb38e.
-I wonder if I'm missing any devicetree property other than interrupts?
-
-Regards,
-Amit Pundir
-
-
-> Signed-off-by: AngeloGioacchino Del Regno <kholk11@gmail.com>
+On Mon, Sep 28, 2020 at 11:10:16AM +0200, michael.srba@seznam.cz wrote:
+> From: Michael Srba <Michael.Srba@seznam.cz>
+> 
+> Add support for the bt541 touchscreen IC from zinitix, loosely based on
+> downstream driver. The driver currently supports multitouch (5 touch points).
+> The bt541 seems to support touch keys, but the support was not added because
+> that functionality is not being utilized by the touchscreen used for testing.
+> Based on the similartities between downstream drivers, it seems likely that
+> other similar touchscreen ICs can be supported with this driver in the future.
+> 
+> Signed-off-by: Michael Srba <Michael.Srba@seznam.cz>
 > ---
+>  changes in v2: applied fixes per recommendation, added support for suspend/resume handling
+>  changes in v3: added support for working in different touch point report modes 
+>  		(modes 1 and 2 are now supported). mode 2 seems to work just fine
+>  		on Samsung Galaxy A3 (2015), and also works on Samsung Galaxy S4 
+>  		Mini Value Edition (where mode 1 doesn't seem to work because 
+>  		of different firmware version). It is expected that other fw 
+>  		versions, and models other than bt541, may have either mode broken
+>  		(vendor doesn't use it -> they don't care) .
+>  changes in v4: - removed mode 1 for now to simplify the code and improve it's chances 
+>  		to get accepted.
+>  		- added runtime pm to save power while not using the ts
+>  		- refactored i2c helper functions
+> 		-  
+>  changes in v5: - send the actual intended V4 (sorry)
+> 
+>  bt541 is used in the Samsung Galaxy A3 (2015) that has recently gained 
+>  mainline support [1].
+> 
+>  The downstream driver this is loosely based on: 
+>  https://github.com/msm8916-mainline/android_kernel_qcom_msm8916/tree/SM-A300FU/drivers/input/touchscreen/zinitix
+> 
+>  [1]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1329c1ab0730b521e6cd3051c56a2ff3d55f21e6
+> 
 >  drivers/input/touchscreen/Kconfig   |  12 +
 >  drivers/input/touchscreen/Makefile  |   1 +
->  drivers/input/touchscreen/nt36xxx.c | 742 ++++++++++++++++++++++++++++
->  drivers/input/touchscreen/nt36xxx.h | 122 +++++
->  4 files changed, 877 insertions(+)
->  create mode 100644 drivers/input/touchscreen/nt36xxx.c
->  create mode 100644 drivers/input/touchscreen/nt36xxx.h
->
+>  drivers/input/touchscreen/zinitix.c | 589 ++++++++++++++++++++++++++++
+>  3 files changed, 602 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/zinitix.c
+> 
 > diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 35c867b2d9a7..6d118b967021 100644
+> index 35c867b2d9a7..f012fe746df0 100644
 > --- a/drivers/input/touchscreen/Kconfig
 > +++ b/drivers/input/touchscreen/Kconfig
-> @@ -605,6 +605,18 @@ config TOUCHSCREEN_MTOUCH
->           To compile this driver as a module, choose M here: the
->           module will be called mtouch.
->
-> +config TOUCHSCREEN_NT36XXX
-> +       tristate "Novatek NT36XXX In-Cell I2C touchscreen controller"
-> +       depends on I2C
-> +       help
-> +         Say Y here if you have a Novatek NT36xxx series In-Cell
-> +         touchscreen connected to your system over I2C.
+> @@ -1322,4 +1322,16 @@ config TOUCHSCREEN_IQS5XX
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called iqs5xx.
+>  
+> +config TOUCHSCREEN_ZINITIX
+> +	tristate "Zinitix touchscreen support"
+> +	depends on I2C
+> +	help
+> +	  Say Y here if you have a touchscreen using Zinitix bt541,
+> +	  or something similar enough.
 > +
-> +         If unsure, say N.
+> +	  If unsure, say N.
 > +
-> +         To compile this driver as a module, choose M here: the
-> +         module will be called nt36xxx.
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called zinitix.
 > +
->  config TOUCHSCREEN_IMX6UL_TSC
->         tristate "Freescale i.MX6UL touchscreen controller"
->         depends on (OF && GPIOLIB) || COMPILE_TEST
+>  endif
 > diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-> index 30d1e1b42492..424a555e03d5 100644
+> index 30d1e1b42492..6233541e9173 100644
 > --- a/drivers/input/touchscreen/Makefile
 > +++ b/drivers/input/touchscreen/Makefile
-> @@ -61,6 +61,7 @@ obj-$(CONFIG_TOUCHSCREEN_MIGOR)               += migor_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_MMS114)       += mms114.o
->  obj-$(CONFIG_TOUCHSCREEN_MTOUCH)       += mtouch.o
->  obj-$(CONFIG_TOUCHSCREEN_MK712)                += mk712.o
-> +obj-$(CONFIG_TOUCHSCREEN_NT36XXX)      += nt36xxx.o
->  obj-$(CONFIG_TOUCHSCREEN_HP600)                += hp680_ts_input.o
->  obj-$(CONFIG_TOUCHSCREEN_HP7XX)                += jornada720_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_IPAQ_MICRO)   += ipaq-micro-ts.o
-> diff --git a/drivers/input/touchscreen/nt36xxx.c b/drivers/input/touchscreen/nt36xxx.c
+> @@ -111,3 +111,4 @@ obj-$(CONFIG_TOUCHSCREEN_COLIBRI_VF50)	+= colibri-vf50-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
+>  obj-$(CONFIG_TOUCHSCREEN_RASPBERRYPI_FW)	+= raspberrypi-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_IQS5XX)	+= iqs5xx.o
+> +obj-$(CONFIG_TOUCHSCREEN_ZINITIX)	+= zinitix.o
+> diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
 > new file mode 100644
-> index 000000000000..57e189938d12
+> index 000000000000..650d7e8c4255
 > --- /dev/null
-> +++ b/drivers/input/touchscreen/nt36xxx.c
-> @@ -0,0 +1,742 @@
+> +++ b/drivers/input/touchscreen/zinitix.c
+> @@ -0,0 +1,589 @@
 > +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * Copyright (C) 2010 - 2017 Novatek, Inc.
-> + * Copyright (C) 2020 AngeloGioacchino Del Regno <kholk11@gmail.com>
-> + */
 > +
-> +#include <linux/delay.h>
+> +#include <linux/kernel.h>
 > +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/module.h>
-> +#include <linux/of_gpio.h>
+> +#include <linux/input.h>
 > +#include <linux/input/mt.h>
+> +#include <linux/input/touchscreen.h>
+> +#include <linux/module.h>
+> +#include <linux/delay.h>
+> +#include <linux/irq.h>
+> +#include <linux/interrupt.h>
 > +#include <linux/regulator/consumer.h>
+> +#include <linux/slab.h>
+> +#include <linux/of.h>
+> +#include <asm/unaligned.h>
+
+What is using this?
+
 > +
-> +#include "nt36xxx.h"
+> +/* Register Map */
 > +
-> +static const struct nt36xxx_mem_map nt36xxx_memory_maps[] = {
-> +       [NT36525_IC]  = { 0x11a00, 0x10000, 0x12000, 0x14000, 0x14002 },
-> +       [NT36672A_IC] = { 0x21c00, 0x20000, 0x23000, 0x24000, 0x24002 },
-> +       [NT36676F_IC] = { 0x11a00, 0x10000, 0x12000, 0x14000, 0x14002 },
-> +       [NT36772_IC]  = { 0x11e00, 0x10000, 0x12000, 0x14000, 0x14002 },
-> +       [NT36870_IC]  = { 0x25000, 0x20000, 0x23000, 0x24000, 0x24002 },
+> +#define BT541_SWRESET_CMD			0x0000
+> +#define BT541_WAKEUP_CMD			0x0001
+> +
+> +#define BT541_IDLE_CMD				0x0004
+> +#define BT541_SLEEP_CMD				0x0005
+> +
+> +#define BT541_CLEAR_INT_STATUS_CMD		0x0003
+> +#define BT541_CALIBRATE_CMD			0x0006
+> +#define BT541_SAVE_STATUS_CMD			0x0007
+> +#define BT541_SAVE_CALIBRATION_CMD		0x0008
+> +#define BT541_RECALL_FACTORY_CMD		0x000f
+> +
+> +#define BT541_THRESHOLD				0x0020
+> +
+> +#define BT541_LARGE_PALM_REJECT_AREA_TH		0x003F
+> +
+> +#define BT541_DEBUG_REG				0x0115 /* 0~7 */
+> +
+> +#define BT541_TOUCH_MODE			0x0010
+> +#define BT541_CHIP_REVISION			0x0011
+> +#define BT541_FIRMWARE_VERSION			0x0012
+> +
+> +#define ZINITIX_USB_DETECT			0x116
+
+What does this do?
+
+> +
+> +#define BT541_MINOR_FW_VERSION			0x0121
+> +
+> +#define BT541_VENDOR_ID				0x001C
+> +#define BT541_HW_ID				0x0014
+> +
+> +#define BT541_DATA_VERSION_REG			0x0013
+> +#define BT541_SUPPORTED_FINGER_NUM		0x0015
+> +#define BT541_EEPROM_INFO			0x0018
+> +#define BT541_INITIAL_TOUCH_MODE		0x0019
+> +
+> +#define BT541_TOTAL_NUMBER_OF_X			0x0060
+> +#define BT541_TOTAL_NUMBER_OF_Y			0x0061
+> +
+> +#define BT541_DELAY_RAW_FOR_HOST		0x007f
+> +
+> +#define BT541_BUTTON_SUPPORTED_NUM		0x00B0
+> +#define BT541_BUTTON_SENSITIVITY		0x00B2
+> +#define BT541_DUMMY_BUTTON_SENSITIVITY		0X00C8
+> +
+> +#define BT541_X_RESOLUTION			0x00C0
+> +#define BT541_Y_RESOLUTION			0x00C1
+> +
+> +#define BT541_POINT_STATUS_REG			0x0080
+> +#define BT541_ICON_STATUS_REG			0x00AA
+> +
+> +#define BT541_POINT_COORD_REG			(BT541_POINT_STATUS_REG + 2)
+> +
+> +#define BT541_AFE_FREQUENCY			0x0100
+> +#define BT541_DND_N_COUNT			0x0122
+> +#define BT541_DND_U_COUNT			0x0135
+> +
+> +#define BT541_RAWDATA_REG			0x0200
+> +
+> +#define BT541_EEPROM_INFO_REG			0x0018
+> +
+> +#define BT541_INT_ENABLE_FLAG			0x00f0
+> +#define BT541_PERIODICAL_INTERRUPT_INTERVAL	0x00f1
+> +
+> +#define BT541_BTN_WIDTH				0x016d
+> +
+> +#define BT541_CHECKSUM_RESULT			0x012c
+> +
+> +#define BT541_INIT_FLASH			0x01d0
+> +#define BT541_WRITE_FLASH			0x01d1
+> +#define BT541_READ_FLASH			0x01d2
+> +
+> +#define ZINITIX_INTERNAL_FLAG_02		0x011e
+> +#define ZINITIX_INTERNAL_FLAG_03		0x011f
+> +
+> +#define ZINITIX_I2C_CHECKSUM_WCNT		0x016a
+> +#define ZINITIX_I2C_CHECKSUM_RESULT		0x016c
+> +
+> +/* Interrupt & status register flags */
+> +
+> +#define BIT_PT_CNT_CHANGE	BIT(0)
+> +#define BIT_DOWN		BIT(1)
+> +#define BIT_MOVE		BIT(2)
+> +#define BIT_UP			BIT(3)
+> +#define BIT_PALM		BIT(4)
+> +#define BIT_PALM_REJECT		BIT(5)
+> +#define BIT_RESERVED_0		BIT(6)
+> +#define BIT_RESERVED_1		BIT(7)
+> +#define BIT_WEIGHT_CHANGE	BIT(8)
+> +#define BIT_PT_NO_CHANGE	BIT(9)
+> +#define BIT_REJECT		BIT(10)
+> +#define BIT_PT_EXIST		BIT(11)
+> +#define BIT_RESERVED_2		BIT(12)
+> +#define BIT_ERROR		BIT(13)
+> +#define BIT_DEBUG		BIT(14)
+> +#define BIT_ICON_EVENT		BIT(15)
+> +
+> +#define SUB_BIT_EXIST		BIT(0)
+> +#define SUB_BIT_DOWN		BIT(1)
+> +#define SUB_BIT_MOVE		BIT(2)
+> +#define SUB_BIT_UP		BIT(3)
+> +#define SUB_BIT_UPDATE		BIT(4)
+> +#define SUB_BIT_WAIT		BIT(5)
+> +
+> +#define DEFAULT_TOUCH_POINT_MODE	2
+> +#define MAX_SUPPORTED_FINGER_NUM	5
+> +
+> +#define CHIP_ON_DELAY		15 // ms
+> +#define FIRMWARE_ON_DELAY	40 // ms
+> +
+> +struct point_coord {
+> +	__le16	x;
+> +	__le16	y;
+> +	u8	width;
+> +	u8	sub_status;
+> +	// currently unused, but needed as padding:
+> +	u8	minor_width;
+> +	u8	angle;
 > +};
 > +
-> +static const struct nt36xxx_trim_table trim_id_table[] = {
-> +       {
-> +        .id = { 0x0A, 0xFF, 0xFF, 0x72, 0x66, 0x03 },
-> +        .mask = { 1, 0, 0, 1, 1, 1 },
-> +        .mapid = NT36672A_IC,
-> +       },
-> +       {
-> +        .id = { 0x55, 0x00, 0xFF, 0x00, 0x00, 0x00 },
-> +        .mask = { 1, 1, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0x55, 0x72, 0xFF, 0x00, 0x00, 0x00 },
-> +        .mask = { 1, 1, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0xAA, 0x00, 0xFF, 0x00, 0x00, 0x00 },
-> +        .mask = { 1, 1, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0xAA, 0x72, 0xFF, 0x00, 0x00, 0x00 },
-> +        .mask = { 1, 1, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0xFF, 0xFF, 0xFF, 0x72, 0x67, 0x03 },
-> +        .mask = { 0, 0, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0xFF, 0xFF, 0xFF, 0x70, 0x66, 0x03 },
-> +        .mask = { 0, 0, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0xFF, 0xFF, 0xFF, 0x70, 0x67, 0x03 },
-> +        .mask = { 0, 0, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0xFF, 0xFF, 0xFF, 0x72, 0x66, 0x03 },
-> +        .mask = { 0, 0, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0xFF, 0xFF, 0xFF, 0x25, 0x65, 0x03 },
-> +        .mask = { 0, 0, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0xFF, 0xFF, 0xFF, 0x70, 0x68, 0x03 },
-> +        .mask = { 0, 0, 0, 1, 1, 1 },
-> +        .mapid = NT36772_IC,
-> +       },
-> +       {
-> +        .id = { 0xFF, 0xFF, 0xFF, 0x76, 0x66, 0x03 },
-> +        .mask = { 0, 0, 0, 1, 1, 1 },
-> +        .mapid = NT36676F_IC,
-> +       },
+> +struct touch_event {
+> +	__le16	status;
+> +	u8	finger_cnt;
+> +	u8	time_stamp;
+> +	struct point_coord point_coord[MAX_SUPPORTED_FINGER_NUM];
 > +};
 > +
-> +static int nt36xxx_read(struct i2c_client *client, uint16_t address,
-> +                       u8 *buf, uint16_t len)
+> +struct bt541_ts_data {
+> +	struct i2c_client *client;
+> +	struct input_dev *input_dev;
+> +	struct touchscreen_properties prop;
+> +	struct regulator_bulk_data supplies[2];
+> +	u32 zinitix_mode;
+> +};
+> +
+> +static int zinitix_read_data(struct i2c_client *client, u16 reg, u8 *values, size_t length)
 > +{
-> +       int ret, retry = NT36XXX_MAX_RETRIES;
-> +       struct i2c_msg msg[] = {
-> +               /* Write slave position to i2c devices */
-> +               {
-> +                       .addr = address,
-> +                       .len = 1,
-> +                       .buf = &buf[0]
-> +               },
-> +               /* Read data from position */
-> +               {
-> +                       .addr = address,
-> +                       .flags = I2C_M_RD,
-> +                       .len = len - 1,
-> +                       .buf = &buf[1]
-> +               }
-> +       };
+> +	int error;
+> +	__le16 reg_le = cpu_to_le16(reg);
 > +
-> +       do {
-> +               ret = i2c_transfer(client->adapter, msg, ARRAY_SIZE(msg));
-> +               if (likely(ret == ARRAY_SIZE(msg)))
-> +                       return 0;
-> +       } while (--retry);
+> +	error = i2c_master_send(client, (u8 *)&reg_le, sizeof(reg_le));
+> +	if (error < 0)
+> +		return error;
 > +
-> +       return ret < 0 ? ret : -EIO;
+> +	error = i2c_master_recv(client, values, length);
+> +	if (error != length)
+> +		return error;
+
+Can this be a single i2c_transfer() with 2 messages?
+
+> +
+> +	return 0;
 > +}
 > +
-> +static int nt36xxx_write(struct i2c_client *client, uint16_t address,
-> +                        u8 *buf, uint16_t len)
+> +static int zinitix_write_u16(struct i2c_client *client, u16 reg, u16 value)
 > +{
-> +       int ret, retry = NT36XXX_MAX_RETRIES;
-> +       struct i2c_msg msg[] = {
-> +               {
-> +                       .addr = address,
-> +                       .flags = 0,
-> +                       .len = len,
-> +                       .buf = buf,
-> +               },
-> +       };
+> +	int error;
+> +	__le16 packet[2] = {cpu_to_le16(reg), cpu_to_le16(value)};
 > +
-> +       do {
-> +               ret = i2c_transfer(client->adapter, msg, ARRAY_SIZE(msg));
-> +               if (likely(ret == ARRAY_SIZE(msg)))
-> +                       return 0;
+> +	error = i2c_master_send(client, (u8 *)packet, sizeof(packet));
+> +	if (error < 0)
+> +		return error;
+
+	if (ret != sizeof(packet))
+		return ret < 0 ? ret : -EIO;
+
 > +
-> +               usleep_range(100, 200);
-> +       } while (--retry);
-> +
-> +       return ret < 0 ? ret : -EIO;
+> +	return 0;
 > +}
 > +
-> +static int nt36xxx_set_page(struct nt36xxx_i2c *ts, uint32_t pageaddr)
+> +static int zinitix_write_cmd(struct i2c_client *client, u16 reg)
 > +{
-> +       u8 buf[3];
+> +	int error;
+> +	__le16 reg_le = cpu_to_le16(reg);
 > +
-> +       buf[0] = NT36XXX_CMD_SET_PAGE;
-> +       buf[1] = (pageaddr >> 16) & 0xFF;
-> +       buf[2] = (pageaddr >> 8) & 0xFF;
+> +	error = i2c_master_send(client, (u8 *)&reg_le, sizeof(reg_le));
+> +	if (error < 0)
+> +		return error;
+
+	if (ret != sizeof(packet))
+		return ret < 0 ? ret : -EIO;
+
 > +
-> +       return nt36xxx_write(ts->client, NT36XXX_BLDR_ADDR, buf, 3);
+> +	return 0;
 > +}
 > +
-> +static int nt36xxx_sw_reset_idle(struct nt36xxx_i2c *ts)
+> +static bool zinitix_init_touch(struct bt541_ts_data *bt541)
 > +{
-> +       u8 buf[] = { 0x00, NT36XXX_CMD_SW_RESET };
-> +       int ret;
+> +	struct i2c_client *client = bt541->client;
+> +	int i;
+> +	int error;
 > +
-> +       ret = nt36xxx_write(ts->client, ts->client->addr,
-> +                           buf, ARRAY_SIZE(buf));
+> +	error = zinitix_write_cmd(client, BT541_SWRESET_CMD);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to write reset command\n");
+> +		return error;
+> +	}
 > +
-> +       usleep_range(15000, 16000);
-> +       return ret;
+> +	error = zinitix_write_u16(client, BT541_INT_ENABLE_FLAG, 0x0);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to reset interrupt enable flag\n");
+> +		return error;
+> +	}
+> +
+> +	/* initialize */
+> +	error = zinitix_write_u16(client, BT541_X_RESOLUTION, (u16)bt541->prop.max_x);
+> +	if (error)
+> +		return error;
+> +
+> +	error = zinitix_write_u16(client, BT541_Y_RESOLUTION, (u16)bt541->prop.max_y);
+> +	if (error)
+> +		return error;
+> +
+> +	error = zinitix_write_u16(client, BT541_SUPPORTED_FINGER_NUM,
+> +				  (u16)MAX_SUPPORTED_FINGER_NUM);
+> +	if (error)
+> +		return error;
+> +
+> +	error = zinitix_write_u16(client, BT541_INITIAL_TOUCH_MODE, bt541->zinitix_mode);
+> +	if (error)
+> +		return error;
+> +
+> +	error = zinitix_write_u16(client, BT541_TOUCH_MODE, bt541->zinitix_mode);
+> +	if (error)
+> +		return error;
+> +
+> +	error = zinitix_write_u16(client, BT541_INT_ENABLE_FLAG,
+> +				  BIT_PT_CNT_CHANGE | BIT_DOWN | BIT_MOVE | BIT_UP);
+> +	if (error)
+> +		return error;
+> +
+> +	/* clear queue */
+> +	for (i = 0; i < 10; i++) {
+> +		zinitix_write_cmd(client, BT541_CLEAR_INT_STATUS_CMD);
+> +		udelay(10);
+> +	}
+> +
+> +	return 0;
 > +}
 > +
-> +static int nt36xxx_bootloader_reset(struct nt36xxx_i2c *ts)
+> +static int zinitix_init_regulators(struct bt541_ts_data *bt541)
 > +{
-> +       u8 buf[] = { 0x00, NT36XXX_CMD_BOOTLOADER_RESET };
-> +       int ret;
+> +	struct i2c_client *client = bt541->client;
+> +	int error;
 > +
-> +       ret = nt36xxx_write(ts->client, ts->client->addr,
-> +                           buf, ARRAY_SIZE(buf));
+> +	bt541->supplies[0].supply = "vdd";
+> +	bt541->supplies[1].supply = "vddo";
+> +	error = devm_regulator_bulk_get(&client->dev, ARRAY_SIZE(bt541->supplies),
+> +					bt541->supplies);
+> +	if (error < 0) {
+> +		dev_err(&client->dev, "Failed to get regulators: %d\n", error);
+> +		return error;
+> +	}
 > +
-> +       msleep(35);
-> +       return ret;
+> +	return 0;
 > +}
 > +
-> +static int nt36xxx_check_reset_state(struct nt36xxx_i2c *ts,
-> +                                    enum nt36xxx_fw_state fw_state)
+> +static int zinitix_send_power_on_sequence(struct bt541_ts_data *bt541)
 > +{
-> +       u8 buf[6] = { NT36XXX_EVT_RESET_COMPLETE, 0x00, 0x00,
-> +                          0x00, 0x00, 0x00 };
-> +       int ret, retry = NT36XXX_MAX_FW_RST_RETRY;
+> +	int error;
+> +	struct i2c_client *client = bt541->client;
 > +
-> +       do {
-> +               ret = nt36xxx_read(ts->client, NT36XXX_BLDR_ADDR, buf, 6);
-> +               if (likely(ret != -EIO) &&
-> +                   (buf[1] >= fw_state) &&
-> +                   (buf[1] <= NT36XXX_STATE_MAX)) {
-> +                       ret = 0;
-> +                       break;
-> +               }
-> +               usleep_range(10000, 11000);
-> +       } while (--retry);
+> +	error = zinitix_write_u16(client, 0xc000, 0x0001);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to send power sequence(vendor cmd enable)\n");
+> +		return error;
+> +	}
+> +	udelay(10);
 > +
-> +       if (!retry) {
-> +               dev_err(&ts->client->dev, "Firmware reset failed.\n");
-> +               ret = -EBUSY;
-> +       }
+> +	error = zinitix_write_cmd(client, 0xc004);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to send power sequence(intn clear)\n");
+> +		return error;
+> +	}
+> +	udelay(10);
 > +
-> +       return ret;
+> +	error = zinitix_write_u16(client, 0xc002, 0x0001);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to send power sequence(nvm init)\n");
+> +		return error;
+> +	}
+> +	mdelay(2);
+> +
+> +	error = zinitix_write_u16(client, 0xc001, 0x0001);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to send power sequence(program start)\n");
+> +		return error;
+> +	}
+> +	msleep(FIRMWARE_ON_DELAY);
+> +
+> +	return 0;
 > +}
 > +
-> +static int nt36xxx_read_pid(struct nt36xxx_i2c *ts)
+> +static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
 > +{
-> +       u8 buf[] = { NT36XXX_EVT_PROJECTID, 0x00, 0x00 };
-> +       int ret = 0;
+> +	struct bt541_ts_data *bt541 = (struct bt541_ts_data *)bt541_handler;
+> +	struct i2c_client *client = bt541->client;
+> +	struct input_dev *input_dev = bt541->input_dev;
+> +	int i;
+> +	int error;
+> +	struct touch_event touch_event;
 > +
-> +       ret = nt36xxx_set_page(ts, ts->mmap->evtbuf_addr);
-> +       if (unlikely(ret < 0))
-> +               return ret;
+> +	mutex_lock(&input_dev->mutex);
+> +	if (!input_dev->users) {
+> +		mutex_unlock(&input_dev->mutex);
+> +		return IRQ_HANDLED;
+> +	}
+> +	mutex_unlock(&input_dev->mutex);
+
+This is not needed as you use disable_irq_sync() in close(), so when
+it returns interrupt will be done processing.
+
 > +
-> +       /* Read project id */
-> +       ret = nt36xxx_read(ts->client, NT36XXX_BLDR_ADDR,
-> +                          buf, ARRAY_SIZE(buf));
-> +       if (unlikely(ret < 0))
-> +               return ret;
+> +	memset(&touch_event, 0, sizeof(struct touch_event));
 > +
-> +       ts->fw_info.nvt_pid = (buf[2] << 8) + buf[1];
+> +	error = zinitix_read_data(bt541->client, BT541_POINT_STATUS_REG,
+> +				  (u8 *)&touch_event, sizeof(struct touch_event));
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to read in touchpoint struct\n");
+
+		goto out;
+
 > +
-> +       return 0;
+> +		zinitix_write_cmd(bt541->client, BT541_CLEAR_INT_STATUS_CMD);
+> +		return IRQ_HANDLED;
+> +	}
+> +
+> +	for (i = 0; i < MAX_SUPPORTED_FINGER_NUM; i++) {
+> +		if (!(touch_event.point_coord[i].sub_status & SUB_BIT_EXIST))
+> +			continue;
+> +
+> +		input_mt_slot(bt541->input_dev, i);
+> +		input_mt_report_slot_state(bt541->input_dev, MT_TOOL_FINGER, true);
+> +		touchscreen_report_pos(bt541->input_dev, &bt541->prop,
+> +				       le16_to_cpu(touch_event.point_coord[i].x),
+> +				       le16_to_cpu(touch_event.point_coord[i].y), true);
+> +		input_report_abs(bt541->input_dev, ABS_MT_TOUCH_MAJOR,
+> +				 touch_event.point_coord[i].width);
+> +	}
+> +
+> +	input_mt_sync_frame(bt541->input_dev);
+> +	input_sync(bt541->input_dev);
+> +
+
+out:
+
+> +	zinitix_write_cmd(bt541->client, BT541_CLEAR_INT_STATUS_CMD);
+> +
+> +	return IRQ_HANDLED;
 > +}
 > +
-> +static int __nt36xxx_get_fw_info(struct nt36xxx_i2c *ts)
+> +static int zinitix_start(struct bt541_ts_data *bt541)
 > +{
-> +       struct nt36xxx_fw_info *fwi = &ts->fw_info;
-> +       u8 buf[17] = { 0 };
-> +       int ret = 0;
+> +	int error;
 > +
-> +       ret = nt36xxx_set_page(ts, ts->mmap->evtbuf_addr);
-> +       if (unlikely(ret < 0))
-> +               return ret;
+> +	error = regulator_bulk_enable(ARRAY_SIZE(bt541->supplies), bt541->supplies);
+> +	if (error < 0) {
+> +		dev_err(&bt541->client->dev, "Failed to enable regulators: %d\n", error);
+> +		return error;
+> +	}
 > +
-> +       /* Read fw info */
-> +       buf[0] = NT36XXX_EVT_FWINFO;
-> +       nt36xxx_read(ts->client, NT36XXX_BLDR_ADDR, buf, 17);
-> +       fwi->fw_ver = buf[1];
-> +       fwi->x_num = buf[3];
-> +       fwi->y_num = buf[4];
-> +       fwi->abs_x_max = (uint16_t)((buf[5] << 8) | buf[6]);
-> +       fwi->abs_y_max = (uint16_t)((buf[7] << 8) | buf[8]);
-> +       fwi->max_buttons = buf[11];
+> +	msleep(CHIP_ON_DELAY);
 > +
-> +       /* Check fw info integrity and clear x_num, y_num if broken */
-> +       if ((buf[1] + buf[2]) != 0xFF) {
-> +               dev_dbg(&ts->client->dev,
-> +                       "FW info is broken! fw_ver=0x%02X, ~fw_ver=0x%02X\n",
-> +                       buf[1], buf[2]);
-> +               fwi->fw_ver = 0;
-> +               fwi->x_num = 18;
-> +               fwi->y_num = 32;
-> +               fwi->abs_x_max = TOUCH_DEFAULT_MAX_WIDTH;
-> +               fwi->abs_y_max = TOUCH_DEFAULT_MAX_HEIGHT;
-> +               fwi->max_buttons = 0;
-> +               return -EINVAL;
-> +       }
+> +	error = zinitix_send_power_on_sequence(bt541);
+> +	if (error) {
+> +		dev_err(&bt541->client->dev, "Error while sending power-on sequence: %d\n", error);
+> +		return error;
+> +	}
 > +
-> +       /* Get Novatek ProjectID */
-> +       return nt36xxx_read_pid(ts);
+> +	error = zinitix_init_touch(bt541);
+> +	if (error) {
+> +		dev_err(&bt541->client->dev, "Error while configuring touch IC\n");
+> +		return error;
+> +	}
+> +
+> +	enable_irq(bt541->client->irq);
+> +
+> +	return 0;
 > +}
 > +
-> +static int nt36xxx_get_fw_info(struct nt36xxx_i2c *ts)
+> +static int zinitix_stop(struct bt541_ts_data *bt541)
 > +{
-> +       struct nt36xxx_fw_info *fwi = &ts->fw_info;
-> +       int i, ret = 0;
+> +	int error;
 > +
-> +       for (i = 0; i < NT36XXX_MAX_RETRIES; i++) {
-> +               ret = __nt36xxx_get_fw_info(ts);
-> +               if (ret == 0)
-> +                       break;
-> +       }
+> +	disable_irq(bt541->client->irq);
 > +
-> +       dev_dbg(&ts->client->dev,
-> +               "Firmware Info: ver=0x%x res=%ux%u max=%ux%u buttons=%u",
-> +               fwi->fw_ver, fwi->x_num, fwi->y_num,
-> +               fwi->abs_x_max, fwi->abs_y_max, fwi->max_buttons);
+> +	error = regulator_bulk_disable(ARRAY_SIZE(bt541->supplies), bt541->supplies);
+> +	if (error) {
+> +		dev_err(&bt541->client->dev, "Failed to disable regulators: %d\n", error);
+> +		return error;
+> +	}
 > +
-> +       return ret;
+> +	return 0;
 > +}
 > +
-> +static void nt36xxx_i2c_work_func(struct work_struct *work)
+> +static void zinitix_graceful_shutdown(void *arg)
 > +{
-> +       struct nt36xxx_i2c *ts = container_of(work, struct nt36xxx_i2c, ts_work);
-> +       struct nt36xxx_abs_object *obj = &ts->abs_obj;
-> +       struct input_dev *input = ts->input;
-> +       u8 input_id = 0;
-> +       u8 press_id[TOUCH_MAX_FINGER_NUM] = { 0 };
-> +       u8 point[POINT_DATA_LEN + 1] = { 0 };
-> +       unsigned int ppos = 0;
-> +       int i, ret, finger_cnt = 0;
+> +	struct bt541_ts_data *bt541 = arg;
 > +
-> +       mutex_lock(&ts->lock);
-> +
-> +       ret = nt36xxx_read(ts->client, NT36XXX_BLDR_ADDR, point,
-> +                          POINT_DATA_LEN + 1);
-> +       if (unlikely(ret < 0)) {
-> +               dev_dbg(&ts->client->dev,
-> +                       "Cannot read touch point data: %d\n", ret);
-> +               goto xfer_error;
-> +       }
-> +
-> +       for (i = 0; i < ts->max_fingers; i++) {
-> +               ppos = 1 + 6 * i;
-> +               input_id = point[ppos + 0] >> 3;
-> +               if ((input_id == 0) || (input_id > ts->max_fingers))
-> +                       continue;
-> +
-> +               if (((point[ppos] & 0x07) == 0x01) ||
-> +                   ((point[ppos] & 0x07) == 0x02)) {
-> +                       obj->x = (point[ppos + 1] << 4) +
-> +                                (point[ppos + 3] >> 4);
-> +                       obj->y = (point[ppos + 2] << 4) +
-> +                                (point[ppos + 3] & 0xf);
-> +                       if ((obj->x > ts->fw_info.abs_x_max) ||
-> +                           (obj->y > ts->fw_info.abs_y_max))
-> +                               continue;
-> +
-> +                       obj->tm = point[ppos + 4];
-> +                       if (obj->tm == 0)
-> +                               obj->tm = 1;
-> +
-> +                       obj->z = point[ppos + 5];
-> +                       if (i < 2) {
-> +                               obj->z += point[i + 63] << 8;
-> +                               if (obj->z > TOUCH_MAX_PRESSURE)
-> +                                       obj->z = TOUCH_MAX_PRESSURE;
-> +                       }
-> +
-> +                       if (obj->z == 0)
-> +                               obj->z = 1;
-> +
-> +                       press_id[input_id - 1] = 1;
-> +                       input_mt_slot(input, input_id - 1);
-> +                       input_mt_report_slot_state(input,
-> +                                                  MT_TOOL_FINGER, true);
-> +
-> +                       input_report_abs(input, ABS_MT_POSITION_X, obj->x);
-> +                       input_report_abs(input, ABS_MT_POSITION_Y, obj->y);
-> +                       input_report_abs(input, ABS_MT_TOUCH_MAJOR, obj->tm);
-> +                       input_report_abs(input, ABS_MT_PRESSURE, obj->z);
-> +
-> +                       finger_cnt++;
-> +               }
-> +       }
-> +
-> +       for (i = 0; i < ts->max_fingers; i++) {
-> +               if (press_id[i] != 1) {
-> +                       input_mt_slot(input, i);
-> +                       input_report_abs(input, ABS_MT_TOUCH_MAJOR, 0);
-> +                       input_report_abs(input, ABS_MT_PRESSURE, 0);
-> +                       input_mt_report_slot_state(input,
-> +                                                  MT_TOOL_FINGER, false);
-> +               }
-> +       }
-> +
-> +       input_report_key(input, BTN_TOUCH, (finger_cnt > 0));
-> +
-> +       input_sync(input);
-> +
-> +xfer_error:
-> +       enable_irq(ts->client->irq);
-> +
-> +       mutex_unlock(&ts->lock);
+> +	zinitix_stop(bt541);
 > +}
 > +
-> +static irqreturn_t nt36xxx_i2c_irq_handler(int irq, void *dev_id)
+> +static int zinitix_input_open(struct input_dev *dev)
 > +{
-> +       struct nt36xxx_i2c *ts = dev_id;
+> +	struct bt541_ts_data *bt541 = input_get_drvdata(dev);
 > +
-> +       disable_irq_nosync(ts->client->irq);
-> +       queue_work(ts->ts_workq, &ts->ts_work);
-> +
-> +       return IRQ_HANDLED;
+> +	return zinitix_start(bt541);
 > +}
 > +
-> +static int nvt_stop_crc_reboot(struct nt36xxx_i2c *ts)
+> +static void zinitix_input_close(struct input_dev *dev)
 > +{
-> +       u8 buf[4] = { 0 };
-> +       int ret, retry = NT36XXX_MAX_RETRIES;
+> +	struct bt541_ts_data *bt541 = input_get_drvdata(dev);
 > +
-> +       /* Read dummy buffer to check CRC fail reboot is happening or not */
-> +
-> +       /* Change I2C index to prevent geting 0xFF, but not 0xFC */
-> +       ret = nt36xxx_set_page(ts, NT36XXX_PAGE_CHIP_INFO);
-> +       if (ret < 0) {
-> +               dev_dbg(&ts->client->dev,
-> +                       "CRC reset failed: Cannot select page.\n");
-> +               return ret;
-> +       }
-> +
-> +       /* Read to check if buf is 0xFC which means IC is in CRC reboot */
-> +       buf[0] = 0x4E;
-> +       ret = nt36xxx_read(ts->client, NT36XXX_BLDR_ADDR, buf, 3);
-> +       if (ret < 0)
-> +               return ret;
-> +
-> +       if (((buf[1] == 0xFC) && (buf[2] == 0xFC) && (buf[3] == 0xFC)) ||
-> +           ((buf[1] == 0xFF) && (buf[2] == 0xFF) && (buf[3] == 0xFF))) {
-> +               /* IC is in CRC fail reboot loop, needs to be stopped! */
-> +               do {
-> +                       /* Write i2c cmds to reset idle - part #1 */
-> +                       buf[0] = 0x00;
-> +                       buf[1] = 0xA5;
-> +                       nt36xxx_write(ts->client, ts->client->addr,
-> +                                     buf, 2);
-> +
-> +                       /* Write i2c cmds to reset idle - part #2 */
-> +                       buf[0] = 0x00;
-> +                       buf[1] = 0xA5;
-> +                       nt36xxx_write(ts->client, ts->client->addr,
-> +                                     buf, 2);
-> +                       usleep_range(1000, 1100);
-> +
-> +                       /* Clear CRC_ERR_FLAG */
-> +                       ret = nt36xxx_set_page(ts, NT36XXX_PAGE_CRC);
-> +                       if (ret < 0)
-> +                               continue;
-> +
-> +                       buf[0] = 0x35;
-> +                       buf[1] = 0xA5;
-> +                       nt36xxx_write(ts->client, NT36XXX_BLDR_ADDR, buf, 2);
-> +
-> +                       /* Check CRC_ERR_FLAG */
-> +                       ret = nt36xxx_set_page(ts, NT36XXX_PAGE_CRC);
-> +                       if (ret < 0)
-> +                               continue;
-> +
-> +                       buf[0] = 0x35;
-> +                       buf[1] = 0x00;
-> +                       nt36xxx_read(ts->client, NT36XXX_BLDR_ADDR, buf, 2);
-> +
-> +                       if (buf[1] == 0xA5)
-> +                               break;
-> +               } while (--retry);
-> +
-> +               if (retry == 0) {
-> +                       dev_err(&ts->client->dev,
-> +                               "CRC reset failed: buf[1]=0x%02X\n", buf[1]);
-> +               }
-> +       }
-> +
-> +       return 0;
+> +	zinitix_stop(bt541);
 > +}
 > +
-> +static int nt36xxx_i2c_chip_version_init(struct nt36xxx_i2c *ts)
+> +static int zinitix_init_input_dev(struct bt541_ts_data *bt541)
 > +{
-> +       u8 buf[7] = { 0 };
-> +       int retry = NT36XXX_MAX_RETRIES;
-> +       int sz = sizeof(trim_id_table) / sizeof(struct nt36xxx_trim_table);
-> +       int i, list, mapid, ret;
+> +	int error;
 > +
-> +       ret = nt36xxx_bootloader_reset(ts);
-> +       if (ret < 0) {
-> +               dev_err(&ts->client->dev, "Can't reset the nvt IC\n");
-> +               return ret;
-> +       }
+> +	bt541->input_dev = devm_input_allocate_device(&bt541->client->dev);
+> +	if (!bt541->input_dev) {
+> +		dev_err(&bt541->client->dev, "Failed to allocate input device.");
+> +		return -ENOMEM;
+> +	}
 > +
-> +       do {
-> +               ret = nt36xxx_sw_reset_idle(ts);
-> +               if (ret < 0)
-> +                       continue;
+> +	bt541->input_dev->name = "Zinitix Capacitive TouchScreen";
+> +	bt541->input_dev->phys = "input/ts";
+> +	bt541->input_dev->id.bustype = BUS_I2C;
+> +	bt541->input_dev->open = zinitix_input_open;
+> +	bt541->input_dev->close = zinitix_input_close;
 > +
-> +               buf[0] = 0x00;
-> +               buf[1] = NT36XXX_CMD_UNLOCK;
-> +               nt36xxx_write(ts->client, ts->client->addr, buf, 2);
-> +               usleep_range(10000, 11000);
+> +	input_set_capability(bt541->input_dev, EV_ABS, ABS_MT_POSITION_X);
+> +	input_set_capability(bt541->input_dev, EV_ABS, ABS_MT_POSITION_Y);
+> +	input_set_abs_params(bt541->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
+> +	input_set_abs_params(bt541->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
 > +
-> +               ret = nt36xxx_set_page(ts, NT36XXX_PAGE_CHIP_INFO);
-> +               if (ret < 0)
-> +                       continue;
+> +	touchscreen_parse_properties(bt541->input_dev, true, &bt541->prop);
 > +
-> +               memset(buf, 0, ARRAY_SIZE(buf));
-> +               buf[0] = NT36XXX_EVT_CHIPID;
-> +               nt36xxx_read(ts->client, NT36XXX_BLDR_ADDR, buf, 7);
+> +	if (!bt541->prop.max_x || !bt541->prop.max_y) {
+> +		dev_err(&bt541->client->dev,
+> +			"Touchscreen-size-x and/or touchscreen-size-y not set in dts\n");
+> +		return -EINVAL;
+> +	}
 > +
-> +               /* Compare read chip id with trim list */
-> +               for (list = 0; list < sz; list++) {
-> +                       /* Compare each not masked byte */
-> +                       for (i = 0; i < NT36XXX_ID_LEN_MAX; i++) {
-> +                               if (trim_id_table[list].mask[i] &&
-> +                                   buf[i + 1] != trim_id_table[list].id[i])
-> +                                       break;
-> +                       }
+> +	error = input_mt_init_slots(bt541->input_dev, MAX_SUPPORTED_FINGER_NUM,
+> +				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+> +	if (error) {
+> +		dev_err(&bt541->client->dev,
+> +			"Failed to initialize MT slots: %d", error);
+> +		return error;
+> +	}
 > +
-> +                       if (i == NT36XXX_ID_LEN_MAX) {
-> +                               mapid = trim_id_table[list].mapid;
-> +                               ts->mmap = &nt36xxx_memory_maps[mapid];
-> +                               return 0;
-> +                       }
+> +	error = input_register_device(bt541->input_dev);
+> +	if (error) {
+> +		dev_err(&bt541->client->dev,
+> +			"Failed to register input device: %d", error);
+> +		return error;
+> +	}
 > +
-> +                       ts->mmap = NULL;
-> +                       ret = -ENOENT;
-> +               }
+> +	input_set_drvdata(bt541->input_dev, bt541);
 > +
-> +               /* Stop CRC check to prevent IC auto reboot */
-> +               if (((buf[1] == 0xFC) && (buf[2] == 0xFC) &&
-> +                    (buf[3] == 0xFC)) ||
-> +                   ((buf[1] == 0xFF) && (buf[2] == 0xFF) &&
-> +                    (buf[3] == 0xFF))) {
-> +                       ret = nvt_stop_crc_reboot(ts);
-> +                       if (ret < 0)
-> +                               continue;
-> +               }
-> +
-> +               usleep_range(10000, 11000);
-> +       } while (--retry);
-> +
-> +       return ret;
+> +	return 0;
 > +}
 > +
-> +static int nt36xxx_i2c_probe(struct i2c_client *client,
-> +                            const struct i2c_device_id *id)
+> +static int zinitix_ts_probe(struct i2c_client *client, const struct i2c_device_id *id)
 > +{
-> +       struct nt36xxx_i2c *ts;
-> +       struct input_dev *input;
-> +       int ret;
+> +	struct bt541_ts_data *bt541;
+> +	int error;
 > +
-> +       if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-> +               dev_err(&client->dev, "i2c_check_functionality error\n");
-> +               return -EIO;
-> +       }
+> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+> +		dev_err(&client->dev, "Failed to assert adapter's support for plain I2C.\n");
+> +		return -ENXIO;
+> +	}
 > +
-> +       if (!client->irq) {
-> +               dev_err(&client->dev, "No irq specified\n");
-> +               return -EINVAL;
-> +       }
+> +	bt541 = devm_kzalloc(&client->dev, sizeof(*bt541), GFP_KERNEL);
+> +	if (!bt541)
+> +		return -ENOMEM;
 > +
-> +       ts = devm_kzalloc(&client->dev, sizeof(struct nt36xxx_i2c), GFP_KERNEL);
-> +       if (!ts)
-> +               return -ENOMEM;
+> +	bt541->client = client;
+> +	i2c_set_clientdata(client, bt541);
 > +
-> +       ts->supplies = devm_kcalloc(&client->dev,
-> +                                   NT36XXX_NUM_SUPPLIES,
-> +                                   sizeof(struct regulator_bulk_data),
-> +                                   GFP_KERNEL);
-> +       if (!ts->supplies)
-> +               return -ENOMEM;
+> +	error = zinitix_init_regulators(bt541);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to initialize regulators: %d\n", error);
+> +		return error;
+> +	}
 > +
-> +       input = devm_input_allocate_device(&client->dev);
-> +       if (!input)
-> +               return -ENOMEM;
+> +	error = zinitix_init_input_dev(bt541);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to initialize input device: %d\n", error);
+> +		return error;
+> +	}
 > +
-> +       ts->client = client;
-> +       ts->input = input;
-> +       i2c_set_clientdata(client, ts);
+> +	error = device_property_read_u32(&client->dev, "zinitix,mode", &bt541->zinitix_mode);
+> +	if (error < 0) {
+> +		// fall back to mode 2
+> +		bt541->zinitix_mode = DEFAULT_TOUCH_POINT_MODE;
+> +	}
 > +
-> +       ts->ts_workq = alloc_ordered_workqueue("nt36xxx", 0);
-> +       if (!ts->ts_workq)
-> +               return -EINVAL;
+> +	if (bt541->zinitix_mode != 2) {
+> +		// if devices are found which don't support mode 2, support for other modes (0, 1)
+> +		// may be needed.
+> +		dev_err(&client->dev, "Malformed zinitix,mode property, must be 2 (supplied: %d)\n",
+> +			bt541->zinitix_mode);
+> +		return -EINVAL;
+> +	}
 > +
-> +       ts->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
-> +                                                GPIOD_OUT_HIGH);
-> +       if (IS_ERR(ts->reset_gpio))
-> +               return PTR_ERR(ts->reset_gpio);
-> +       if (ts->reset_gpio)
-> +               gpiod_set_consumer_name(ts->reset_gpio, "nt36xxx reset");
+> +	error = devm_add_action_or_reset(&client->dev,
+> +					 zinitix_graceful_shutdown, bt541);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to install poweroff handler: %d\n", error);
+> +		return error;
+> +	}
+
+I do not think you need this. You will gracefully shut down the
+controller in close(), which is only called if open) was called earlier.
+Otherwise the regulators are disabled anyways.
+
+
 > +
-> +       /* These supplies are optional */
-> +       ts->supplies[0].supply = "vdd";
-> +       ts->supplies[1].supply = "vio";
-> +       ret = devm_regulator_bulk_get(&client->dev,
-> +                                     NT36XXX_NUM_SUPPLIES,
-> +                                     ts->supplies);
-> +       if (ret != 0) {
-> +               if (ret != -EPROBE_DEFER)
-> +                       dev_err(&client->dev, "Cannot get supplies: %d\n", ret);
-> +               return ret;
-> +       }
+> +	error = devm_request_threaded_irq(&bt541->client->dev, bt541->client->irq,
+> +					  NULL, zinitix_ts_irq_handler,
+> +					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+
+Let's rely on DTS to configure trigger properly. Also instead of
+disable_irq() below maybe use
+
+	irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
+
+before calling into devm_request_threaded_irq()?
+
+> +					  bt541->client->name, bt541);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to request IRQ: %d\n", error);
+> +		return error;
+> +	}
 > +
-> +       ret = regulator_bulk_enable(NT36XXX_NUM_SUPPLIES, ts->supplies);
-> +       if (ret)
-> +               return ret;
+> +	disable_irq(client->irq); // disable the irq until userspace actually tries to use the TS
 > +
-> +       usleep_range(10000, 11000);
+> +	dev_info(&client->dev, "Initialized a zinitix touchscreen\n");
+
+Please drop.
+
 > +
-> +       mutex_init(&ts->lock);
-> +
-> +       ret = nt36xxx_i2c_chip_version_init(ts);
-> +       if (ret) {
-> +               dev_err(&client->dev, "Failed to check chip version\n");
-> +               goto error;
-> +       }
-> +
-> +       mutex_lock(&ts->lock);
-> +       ret = nt36xxx_bootloader_reset(ts);
-> +       ret += nt36xxx_check_reset_state(ts, NT36XXX_STATE_INIT);
-> +       ret += nt36xxx_get_fw_info(ts);
-> +       mutex_unlock(&ts->lock);
-> +       if (unlikely(ret < 0))
-> +               goto error;
-> +
-> +       ts->max_fingers = TOUCH_MAX_FINGER_NUM;
-> +       INIT_WORK(&ts->ts_work, nt36xxx_i2c_work_func);
-> +
-> +       input->phys = devm_kasprintf(&client->dev, GFP_KERNEL,
-> +                                    "%s/input0", dev_name(&client->dev));
-> +
-> +       input->name = NT36XXX_INPUT_DEVICE_NAME;
-> +       input->id.bustype = BUS_I2C;
-> +       input->dev.parent = &client->dev;
-> +
-> +       input->evbit[0] =
-> +               BIT_MASK(EV_SYN) | BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> +       input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> +       input->propbit[0] = BIT(INPUT_PROP_DIRECT);
-> +
-> +       input_mt_init_slots(input, ts->max_fingers, 0);
-> +       input_set_abs_params(input, ABS_MT_PRESSURE, 0,
-> +                            TOUCH_MAX_PRESSURE, 0, 0);
-> +
-> +       if (ts->max_fingers > 1) {
-> +               input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
-> +
-> +               input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-> +                                    ts->fw_info.abs_x_max - 1, 0, 0);
-> +               input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-> +                                    ts->fw_info.abs_y_max - 1, 0, 0);
-> +       }
-> +
-> +       input_set_drvdata(input, ts);
-> +
-> +       ret = input_register_device(ts->input);
-> +       if (ret) {
-> +               dev_err(&client->dev, "Failed to register input device: %d\n",
-> +                       ret);
-> +               goto error;
-> +       }
-> +
-> +       ret = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +                                       nt36xxx_i2c_irq_handler, IRQF_ONESHOT,
-> +                                       client->name, ts);
-> +       if (ret != 0) {
-> +               dev_err(&client->dev, "request irq failed: %d\n", ret);
-> +               goto intr_error;
-> +       }
-> +
-> +       disable_irq(client->irq);
-> +       device_init_wakeup(&client->dev, 1);
-> +       enable_irq(client->irq);
-> +
-> +       return 0;
-> +
-> +intr_error:
-> +       input_unregister_device(ts->input);
-> +error:
-> +       regulator_bulk_disable(NT36XXX_NUM_SUPPLIES, ts->supplies);
-> +       return ret;
+> +	return 0;
 > +}
 > +
-> +static int nt36xxx_i2c_remove(struct i2c_client *client)
+> +static int __maybe_unused zinitix_suspend(struct device *dev)
 > +{
-> +       struct nt36xxx_i2c *ts = i2c_get_clientdata(client);
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct bt541_ts_data *bt541 = i2c_get_clientdata(client);
 > +
-> +       free_irq(client->irq, ts);
-> +       regulator_bulk_disable(NT36XXX_NUM_SUPPLIES, ts->supplies);
-> +       mutex_destroy(&ts->lock);
-> +       input_unregister_device(ts->input);
+> +	/* Release all fingers */
+> +	input_mt_sync_frame(bt541->input_dev);
+> +	input_sync(bt541->input_dev);
+
+Is this really needed? if we need to drop contacts, then it should be
+done in input core, but userspace should be already frozen at this
+point, so release events will reach userspace only after resume and I
+think userspace knows how to discard events older than X anyways.
+
 > +
-> +       return 0;
+> +	mutex_lock(&bt541->input_dev->mutex);
+> +
+> +	if (bt541->input_dev->users)
+> +		zinitix_stop(bt541);
+> +
+> +	mutex_unlock(&bt541->input_dev->mutex);
+> +
+> +	return 0;
 > +}
 > +
-> +static int __maybe_unused nt36xxx_i2c_suspend(struct device *dev)
+> +static int __maybe_unused zinitix_resume(struct device *dev)
 > +{
-> +       struct nt36xxx_i2c *ts = i2c_get_clientdata(to_i2c_client(dev));
-> +       u8 buf[] = { NT36XXX_EVT_HOST_CMD, NT36XXX_CMD_ENTER_SLEEP };
-> +       int i, ret;
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct bt541_ts_data *bt541 = i2c_get_clientdata(client);
+> +	int error;
 > +
-> +       disable_irq(ts->client->irq);
+> +	mutex_lock(&bt541->input_dev->mutex);
 > +
-> +       ret = nt36xxx_write(ts->client, NT36XXX_BLDR_ADDR,
-> +                           buf, ARRAY_SIZE(buf));
-> +       if (unlikely(ret < 0)) {
-> +               dev_err(&ts->client->dev, "Cannot enter suspend!!\n");
-> +               return ret;
-> +       }
+> +	if (bt541->input_dev->users) {
+> +		error = zinitix_start(bt541);
+> +		if (error) {
+> +			mutex_unlock(&bt541->input_dev->mutex);
+> +			return error;
+
+Use single mutex_unlock() please. so:
+
+	int retval = 0;
+
+	mutex_lock(...);
+
+	if (bt541->input_dev->users)
+		retval = zinitix_start(bt541);
+
+	mutex_unlock(...);
+	return retval;
+
+
+> +		}
+> +	}
 > +
-> +       /* Release all touches */
-> +       for (i = 0; i < ts->max_fingers; i++) {
-> +               input_mt_slot(ts->input, i);
-> +               input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR, 0);
-> +               input_report_abs(ts->input, ABS_MT_PRESSURE, 0);
-> +               input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, 0);
-> +       }
-> +       input_sync(ts->input);
+> +	mutex_unlock(&bt541->input_dev->mutex);
 > +
-> +       return 0;
+> +	return 0;
 > +}
 > +
-> +static int __maybe_unused nt36xxx_i2c_resume(struct device *dev)
-> +{
-> +       struct nt36xxx_i2c *ts = i2c_get_clientdata(to_i2c_client(dev));
-> +       int ret;
-> +
-> +       mutex_lock(&ts->lock);
-> +
-> +       if (ts->reset_gpio)
-> +               gpiod_set_value(ts->reset_gpio, 1);
-> +
-> +       ret = nt36xxx_bootloader_reset(ts);
-> +       if (ret < 0)
-> +               goto end;
-> +
-> +       ret = nt36xxx_check_reset_state(ts, NT36XXX_STATE_REK);
-> +       if (ret < 0)
-> +               goto end;
-> +
-> +       enable_irq(ts->client->irq);
-> +end:
-> +       mutex_unlock(&ts->lock);
-> +       return ret;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(nt36xxx_i2c_pm,
-> +                        nt36xxx_i2c_suspend, nt36xxx_i2c_resume);
+> +static SIMPLE_DEV_PM_OPS(zinitix_pm_ops, zinitix_suspend, zinitix_resume);
 > +
 > +#ifdef CONFIG_OF
-> +static const struct of_device_id nt36xxx_of_match[] = {
-> +       { .compatible = "novatek,nt36xxx" },
-> +       { }
+> +static const struct of_device_id zinitix_of_match[] = {
+> +	{ .compatible = "zinitix,bt541" },
+> +	{ }
 > +};
-> +MODULE_DEVICE_TABLE(of, nt36xxx_of_match);
+> +MODULE_DEVICE_TABLE(of, zinitix_of_match);
 > +#endif
 > +
-> +static const struct i2c_device_id nt36xxx_i2c_ts_id[] = {
-> +       { "NVT-ts", 0 },
-> +       { }
+> +static struct i2c_driver zinitix_ts_driver = {
+> +	.probe = zinitix_ts_probe,
+> +	.driver = {
+> +		.name = "Zinitix-TS",
+> +		.pm = &zinitix_pm_ops,
+> +		.of_match_table = of_match_ptr(zinitix_of_match),
+> +	},
 > +};
-> +MODULE_DEVICE_TABLE(i2c, nt36xxx_i2c_ts_id);
+> +module_i2c_driver(zinitix_ts_driver);
 > +
-> +static struct i2c_driver nt36xxx_i2c_ts_driver = {
-> +       .driver = {
-> +               .name   = "nt36xxx_ts",
-> +               .of_match_table = of_match_ptr(nt36xxx_of_match),
-> +               .pm     = &nt36xxx_i2c_pm,
-> +       },
-> +       .probe          = nt36xxx_i2c_probe,
-> +       .remove         = nt36xxx_i2c_remove,
-> +       .id_table       = nt36xxx_i2c_ts_id,
-> +};
-> +module_i2c_driver(nt36xxx_i2c_ts_driver);
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_DESCRIPTION("Novatek NT36XXX Touchscreen Driver");
-> +
-> diff --git a/drivers/input/touchscreen/nt36xxx.h b/drivers/input/touchscreen/nt36xxx.h
-> new file mode 100644
-> index 000000000000..6f03dfb45656
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/nt36xxx.h
-> @@ -0,0 +1,122 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Copyright (C) 2010 - 2017 Novatek, Inc.
-> + * Copyright (C) 2020 AngeloGioacchino Del Regno <kholk11@gmail.com>
-> + */
-> +
-> +#ifndef NT36XXX_H
-> +#define NT36XXX_H
-> +
-> +#define NT36XXX_INPUT_DEVICE_NAME      "Novatek NT36XXX Touch Sensor"
-> +
-> +/* These chips have this fixed address when in bootloader :( */
-> +#define NT36XXX_BLDR_ADDR 0x01
-> +
-> +/* Input device info */
-> +#define NVT_TS_NAME "NVTCapacitiveTouchScreen"
-> +
-> +/* Number of bytes for chip identification */
-> +#define NT36XXX_ID_LEN_MAX     6
-> +
-> +/* Touch info */
-> +#define TOUCH_DEFAULT_MAX_WIDTH  1080
-> +#define TOUCH_DEFAULT_MAX_HEIGHT 2246
-> +#define TOUCH_MAX_FINGER_NUM    10
-> +#define TOUCH_MAX_PRESSURE      1000
-> +
-> +/* Point data length */
-> +#define POINT_DATA_LEN         65
-> +
-> +/* Global pages */
-> +#define NT36XXX_PAGE_CHIP_INFO 0x0001f64e
-> +#define NT36XXX_PAGE_CRC       0x0003f135
-> +
-> +/* Misc */
-> +#define NT36XXX_NUM_SUPPLIES    2
-> +#define NT36XXX_MAX_RETRIES     5
-> +#define NT36XXX_MAX_FW_RST_RETRY 50
-> +
-> +struct nt36xxx_abs_object {
-> +       u16 x;
-> +       u16 y;
-> +       u16 z;
-> +       u8 tm;
-> +};
-> +
-> +struct nt36xxx_fw_info {
-> +       u8 fw_ver;
-> +       u8 x_num;
-> +       u8 y_num;
-> +       u8 max_buttons;
-> +       u16 abs_x_max;
-> +       u16 abs_y_max;
-> +       u16 nvt_pid;
-> +};
-> +
-> +struct nt36xxx_mem_map {
-> +       u32 evtbuf_addr;
-> +       u32 pipe0_addr;
-> +       u32 pipe1_addr;
-> +       u32 flash_csum_addr;
-> +       u32 flash_data_addr;
-> +};
-> +
-> +struct nt36xxx_i2c {
-> +       struct i2c_client *client;
-> +       struct input_dev *input;
-> +       struct regulator_bulk_data *supplies;
-> +       struct gpio_desc *reset_gpio;
-> +
-> +       struct work_struct ts_work;
-> +       struct workqueue_struct *ts_workq;
-> +       struct mutex lock;
-> +
-> +       struct nt36xxx_fw_info fw_info;
-> +       struct nt36xxx_abs_object abs_obj;
-> +
-> +       const struct nt36xxx_mem_map *mmap;
-> +       u8 max_fingers;
-> +};
-> +
-> +enum nt36xxx_chips {
-> +       NT36525_IC = 0,
-> +       NT36672A_IC,
-> +       NT36676F_IC,
-> +       NT36772_IC,
-> +       NT36870_IC,
-> +       NTMAX_IC,
-> +};
-> +
-> +struct nt36xxx_trim_table {
-> +       u8 id[NT36XXX_ID_LEN_MAX];
-> +       u8 mask[NT36XXX_ID_LEN_MAX];
-> +       enum nt36xxx_chips mapid;
-> +};
-> +
-> +enum nt36xxx_cmds {
-> +       NT36XXX_CMD_ENTER_SLEEP = 0x11,
-> +       NT36XXX_CMD_ENTER_WKUP_GESTURE = 0x13,
-> +       NT36XXX_CMD_UNLOCK = 0x35,
-> +       NT36XXX_CMD_BOOTLOADER_RESET = 0x69,
-> +       NT36XXX_CMD_SW_RESET = 0xa5,
-> +       NT36XXX_CMD_SET_PAGE = 0xff,
-> +};
-> +
-> +enum nt36xxx_fw_state {
-> +       NT36XXX_STATE_INIT = 0xa0,      /* IC reset */
-> +       NT36XXX_STATE_REK,              /* ReK baseline */
-> +       NT36XXX_STATE_REK_FINISH,       /* Baseline is ready */
-> +       NT36XXX_STATE_NORMAL_RUN,       /* Normal run */
-> +       NT36XXX_STATE_MAX = 0xaf
-> +};
-> +
-> +enum nt36xxx_i2c_events {
-> +       NT36XXX_EVT_CHIPID = 0x4e,
-> +       NT36XXX_EVT_HOST_CMD = 0x50,
-> +       NT36XXX_EVT_HS_OR_SUBCMD = 0x51,   /* Handshake or subcommand byte */
-> +       NT36XXX_EVT_RESET_COMPLETE = 0x60,
-> +       NT36XXX_EVT_FWINFO = 0x78,
-> +       NT36XXX_EVT_PROJECTID = 0x9a,
-> +};
-> +
-> +#endif
-> --
+> +MODULE_AUTHOR("Michael Srba <Michael.Srba@seznam.cz>");
+> +MODULE_DESCRIPTION("Zinitix touchscreen driver");
+> +MODULE_LICENSE("GPL v2");
+> -- 
 > 2.28.0
->
+> 
+
+Thanks.
+
+-- 
+Dmitry

@@ -2,124 +2,69 @@ Return-Path: <SRS0=VgpC=DH=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47A34C4727E
-	for <linux-input@archiver.kernel.org>; Wed, 30 Sep 2020 20:17:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB989C4363D
+	for <linux-input@archiver.kernel.org>; Wed, 30 Sep 2020 20:45:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ED3DF20739
-	for <linux-input@archiver.kernel.org>; Wed, 30 Sep 2020 20:17:40 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ea6r84Vf"
+	by mail.kernel.org (Postfix) with ESMTP id 79CE52075F
+	for <linux-input@archiver.kernel.org>; Wed, 30 Sep 2020 20:45:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1601498719;
+	bh=D+1bk/wAr+qIfP3UhPKHRaPdFXP0h8evABPoqNnET+g=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
+	b=D7uDu4KpS1xnF4qOV7gTjGrKcQfipknGjD/lhEhhcPGp7auXw+avqXn95DupwSjCN
+	 DKyady8vYMLt8qchur8kAntrwGBfiJzGobpeAKWH6wv32shXWPEm+1J6vIPq4HiaUw
+	 WnR8BgdNcVHn2U3ax+yayQUX0oVUrvJm2ExeQ9Os=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728270AbgI3URi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 30 Sep 2020 16:17:38 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24618 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725799AbgI3URi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 30 Sep 2020 16:17:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1601497056;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qR0BZGseTHbNL/WE5CgD2uGFUcNr181CvLX3hUZ/yRQ=;
-        b=Ea6r84Vf0xCjaG3RP8D8kovVbUp6dJIbO4L2U2sF6T6OXWUvrdOHHMRYpAs/EbMx1Y1G6K
-        uqNsbULv7gDHmkKh1pGqajwAbY9qBmb2Wp5sZTF7iZ45R7YNeevmFX0fghEx14bO/SB9de
-        yEZ4I4DMkPddAyd7WjGTQrmqrnflX9U=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-59-NCRFT1OcOlmzucBTwvrRVw-1; Wed, 30 Sep 2020 16:17:33 -0400
-X-MC-Unique: NCRFT1OcOlmzucBTwvrRVw-1
-Received: by mail-qt1-f197.google.com with SMTP id g1so2025130qtc.22
-        for <linux-input@vger.kernel.org>; Wed, 30 Sep 2020 13:17:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:reply-to:to:cc:date
-         :in-reply-to:references:organization:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=qR0BZGseTHbNL/WE5CgD2uGFUcNr181CvLX3hUZ/yRQ=;
-        b=ncBqrXJsjqXKDSpi4Q4kO2bUR/emljZMxKZbzDz/oXH7xTaZWQyuUFyUAxS9+BpIB1
-         m2Rgdywi6Toq123BGHW3G1kPx2qKDadSa42XJ2T/zyZk388o8O8q7dqD4LkaapKL2sU6
-         +RyJlviW2kd3iIHKZGMI5Jv6f/6TeZbRKDIVKu+ypZzHxCOwfs6xAjRuLb40MdOZS8d+
-         2AVzRp2p6AycLOwbIgd9mTZ3a7diugth8A+0gx0IiWSkPZE7CD59avP0TSpDud6u6PWT
-         YZG/UadsN9UV7hoGETzydTAo7+xYBOzZ77JiDFr/WOOGejnMPYhVFifIMZ66wu7WSbiJ
-         v7lQ==
-X-Gm-Message-State: AOAM530LueJ+1cVxKxAXPWZbv0pGj299KiReMrlR2vtaGWEM+1xXeXSS
-        ktUvnE3eG/ZDgCdQQFMloiZ2eBIYWhOLdSfGB6qLkOUs7GCTnPVTK/Vm9W0PaKy/2BPB9Udecmq
-        6FUEQLEfr+RDPZG4kc17C4sU=
-X-Received: by 2002:a0c:b78c:: with SMTP id l12mr4413974qve.38.1601497053272;
-        Wed, 30 Sep 2020 13:17:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzQ3TC8GL+vzyZ+qTkdpfJhop1qjyPMIEgoMqTXUpuiVjfkcAJXMiqXJAMYGyyIpkiq4xWXXQ==
-X-Received: by 2002:a0c:b78c:: with SMTP id l12mr4413964qve.38.1601497053064;
-        Wed, 30 Sep 2020 13:17:33 -0700 (PDT)
-Received: from Whitewolf.lyude.net (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
-        by smtp.gmail.com with ESMTPSA id 85sm3324528qkn.64.2020.09.30.13.17.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Sep 2020 13:17:32 -0700 (PDT)
-Message-ID: <e347d9fbd20a778a5610b33e1dfb9966a14dfd8a.camel@redhat.com>
-Subject: Re: [PATCH v3 0/2] Add support for F3A
-From:   Lyude Paul <lyude@redhat.com>
-Reply-To: lyude@redhat.com
-To:     Vincent Huang <vincent.huang@tw.synaptics.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Andrew Duggan <aduggan@synaptics.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <btissoir@redhat.com>,
-        Chris Heiny <chris.heiny@synaptics.com>
-Date:   Wed, 30 Sep 2020 16:17:31 -0400
-In-Reply-To: <20200930094147.635556-1-vincent.huang@tw.synaptics.com>
-References: <20200930094147.635556-1-vincent.huang@tw.synaptics.com>
-Organization: Red Hat
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-1.fc32) 
+        id S1728721AbgI3UpT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 30 Sep 2020 16:45:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725872AbgI3UpT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 30 Sep 2020 16:45:19 -0400
+Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE43F2064E;
+        Wed, 30 Sep 2020 20:45:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601498718;
+        bh=D+1bk/wAr+qIfP3UhPKHRaPdFXP0h8evABPoqNnET+g=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=zr+nBP2MNv41tehTe8SNFAcg6NScFHaKSFwZMpivRCMYTGI+0jywYtsQYvH71oOb5
+         XFOcUZ/DAeh8C2yBQZ6n+r6zr9U8bUm8hmQMy6yT+geHDlh8bQtbHH5/yttfeRqBZ+
+         EGyj37ioAKXtXJXwNFxvCZHV2xxq0ABBsmr0OC7E=
+Date:   Wed, 30 Sep 2020 22:45:15 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Sean O'Brien <seobrien@chromium.org>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3] HID: add vivaldi HID driver
+In-Reply-To: <20200909150254.1.I170489c0c2ac1538b3890abb5a92b95ad4f04d01@changeid>
+Message-ID: <nycvar.YFH.7.76.2009302245040.3336@cbobk.fhfr.pm>
+References: <20200909150254.1.I170489c0c2ac1538b3890abb5a92b95ad4f04d01@changeid>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-For the whole series:
+On Wed, 9 Sep 2020, Sean O'Brien wrote:
 
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+> Add vivaldi HID driver. This driver allows us to read and report the top
+> row layout of keyboards which provide a vendor-defined (Google) HID
+> usage.
+> 
+> Signed-off-by: Sean O'Brien <seobrien@chromium.org>
 
-On Wed, 2020-09-30 at 17:41 +0800, Vincent Huang wrote:
-> RMI4 F3A supports the touchpad GPIO function, it's designed to support
-> more GPIOs and used on newer touchpads. The patches add support of
-> touchpad buttons and rename f30_data to avoid confusion.
-> 
-> Changes in v2:
-> - Combined patch 1 and 2 of v1 to fix bisectability.
-> 
-> Changes in v3:
-> - Fix indentations pointed out by Lyude Paul.
-> 
-> Vincent Huang (2):
->   Input: synaptics-rmi4 - rename f30_data to gpio_data
->   Input: synaptics-rmi4 - add support for F3A
-> 
->  drivers/hid/hid-rmi.c           |   2 +-
->  drivers/input/mouse/synaptics.c |   2 +-
->  drivers/input/rmi4/Kconfig      |   8 ++
->  drivers/input/rmi4/Makefile     |   1 +
->  drivers/input/rmi4/rmi_bus.c    |   3 +
->  drivers/input/rmi4/rmi_driver.h |   1 +
->  drivers/input/rmi4/rmi_f30.c    |  14 +-
->  drivers/input/rmi4/rmi_f3a.c    | 240 ++++++++++++++++++++++++++++++++
->  include/linux/rmi.h             |  11 +-
->  9 files changed, 268 insertions(+), 14 deletions(-)
->  create mode 100644 drivers/input/rmi4/rmi_f3a.c
-> 
+Queued in hid.git#for-5.10/vivaldi. Thanks,
+
 -- 
-Sincerely,
-      Lyude Paul (she/her)
-      Software Engineer at Red Hat
+Jiri Kosina
+SUSE Labs
 

@@ -2,29 +2,44 @@ Return-Path: <SRS0=ejGl=DJ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74E18C4363D
-	for <linux-input@archiver.kernel.org>; Fri,  2 Oct 2020 13:42:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 907F5C4363D
+	for <linux-input@archiver.kernel.org>; Fri,  2 Oct 2020 14:02:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 39E55206E3
-	for <linux-input@archiver.kernel.org>; Fri,  2 Oct 2020 13:42:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35301206DB
+	for <linux-input@archiver.kernel.org>; Fri,  2 Oct 2020 14:02:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1601647356;
+	bh=7mcTQgDWOtJnBVSbqdjsF917iDbLlax02nmVJNarDGc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=fkpwQvy5q53sd5vSm/iM/ROttKqQi8FjjWodvkTZTgT4lRf14EE34ZmCoEV16zHNX
+	 4JNPpnvArFQMLRH1AnD0kJPo6Z5D/LlS8FSFwPnBqusvuanDNUuffb7Wq3DCWS8xM8
+	 UIVVY5GTL67VRR06aAjciOhtz+Gli5INvs2bCR34=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726569AbgJBNm6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 2 Oct 2020 09:42:58 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:49958 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726282AbgJBNm6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Oct 2020 09:42:58 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: andrzej.p)
-        with ESMTPSA id 7E7E629DCF4
-Subject: Re: [PATCH v3 2/2] tty/sysrq: Add configurable handler to execute a
- compound action
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S2387869AbgJBOCf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 2 Oct 2020 10:02:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48886 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726176AbgJBOCf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 2 Oct 2020 10:02:35 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6335D206CD;
+        Fri,  2 Oct 2020 14:02:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601647355;
+        bh=7mcTQgDWOtJnBVSbqdjsF917iDbLlax02nmVJNarDGc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sW++Yg9WhnPHK3hiOfg6ugibvA5KBRUa4bTSQqM/2jFPntVet/W4HmT4y3Ob/6xTN
+         BPoDcS9HdCedWycnvZhDXoM+x6pzRUB29m6x5jmE8hbpBqAZVcK5Ff/jh+VZd2ZOT9
+         29rLfivzZPY7q67012thrjkfNoL8Me/mSMdoruFA=
+Date:   Fri, 2 Oct 2020 16:02:33 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 Cc:     linux-kernel@vger.kernel.org,
         Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Maxime Ripard <mripard@kernel.org>,
@@ -34,60 +49,68 @@ Cc:     linux-kernel@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org,
         kernel@collabora.com
+Subject: Re: [PATCH v3 2/2] tty/sysrq: Add configurable handler to execute a
+ compound action
+Message-ID: <20201002140233.GB3475053@kroah.com>
 References: <20200818112825.6445-1-andrzej.p@collabora.com>
  <20200818112825.6445-3-andrzej.p@collabora.com>
  <20201002125429.GA3350322@kroah.com>
-From:   Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Message-ID: <db7fe4ed-19a4-3303-a544-eb789badb8a1@collabora.com>
-Date:   Fri, 2 Oct 2020 15:42:52 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ <db7fe4ed-19a4-3303-a544-eb789badb8a1@collabora.com>
 MIME-Version: 1.0
-In-Reply-To: <20201002125429.GA3350322@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <db7fe4ed-19a4-3303-a544-eb789badb8a1@collabora.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
-
-W dniu 02.10.2020 oÂ 14:54, Greg Kroah-Hartman pisze:
-> On Tue, Aug 18, 2020 at 01:28:25PM +0200, Andrzej Pietrasiewicz wrote:
->> Userland might want to execute e.g. 'w' (show blocked tasks), followed
->> by 's' (sync), followed by 1000 ms delay and then followed by 'c' (crash)
->> upon a single magic SysRq. Or one might want to execute the famous "Raising
->> Elephants Is So Utterly Boring" action. This patch adds a configurable
->> handler, triggered with 'C', for this exact purpose. The user specifies the
->> composition of the compound action using syntax similar to getopt, where
->> each letter corresponds to an individual action and a colon followed by a
->> number corresponds to a delay of that many milliseconds, e.g.:
->>
->> ws:1000c
->>
->> or
->>
->> r:100eis:1000ub
+On Fri, Oct 02, 2020 at 03:42:52PM +0200, Andrzej Pietrasiewicz wrote:
+> Hi,
 > 
-> A macro language for sysrq commands, who would have thought...
+> W dniu 02.10.2020 o 14:54, Greg Kroah-Hartman pisze:
+> > On Tue, Aug 18, 2020 at 01:28:25PM +0200, Andrzej Pietrasiewicz wrote:
+> > > Userland might want to execute e.g. 'w' (show blocked tasks), followed
+> > > by 's' (sync), followed by 1000 ms delay and then followed by 'c' (crash)
+> > > upon a single magic SysRq. Or one might want to execute the famous "Raising
+> > > Elephants Is So Utterly Boring" action. This patch adds a configurable
+> > > handler, triggered with 'C', for this exact purpose. The user specifies the
+> > > composition of the compound action using syntax similar to getopt, where
+> > > each letter corresponds to an individual action and a colon followed by a
+> > > number corresponds to a delay of that many milliseconds, e.g.:
+> > > 
+> > > ws:1000c
+> > > 
+> > > or
+> > > 
+> > > r:100eis:1000ub
+> > 
+> > A macro language for sysrq commands, who would have thought...
+> > 
+> > Anyway, _why_ would userland want to do something so crazy as this?
+> > What is the use-case here?
+> > 
 > 
-> Anyway, _why_ would userland want to do something so crazy as this?
-> What is the use-case here?
-> 
+> A use-case is Chromebooks which do want to execute 'w', 's',
+> wait 1000ms and then 'c' under one key combination. Having that supported
+> upstream brings us one little step closer to those machines running
+> upstream kernel.
 
-A use-case is Chromebooks which do want to execute 'w', 's',
-wait 1000ms and then 'c' under one key combination. Having that supported
-upstream brings us one little step closer to those machines running
-upstream kernel.
+Who is causing that to "execute"?  Some daemon/program?
 
-Another argument for such a "macro language" is when a machine's system
-keeps degrading over time, possibly degrading (relatively) fast.
-"Raising Elephants Is So Utterly Boring" consists of 6 actions, each
-of which requires pressing several keys. The user might be unable
-to complete all the 6 steps, while a "macro" requires user's involvement
-for carrying out just one step.
+> Another argument for such a "macro language" is when a machine's system
+> keeps degrading over time, possibly degrading (relatively) fast.
+> "Raising Elephants Is So Utterly Boring" consists of 6 actions, each
+> of which requires pressing several keys. The user might be unable
+> to complete all the 6 steps, while a "macro" requires user's involvement
+> for carrying out just one step.
 
-Regards,
+So you want to "preload" some commands ahead of time, for when you get
+in trouble?
 
-Andrzej
+These should just be debugging / last resort types of things, how
+regular are they being used in your systems?
+
+thanks,
+
+greg k-h

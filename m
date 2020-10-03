@@ -1,54 +1,66 @@
 Return-Path: <SRS0=lL7o=DK=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: *
-X-Spam-Status: No, score=1.1 required=3.0 tests=BAYES_50,
-	HEADER_FROM_DIFFERENT_DOMAINS,HK_NAME_MR_MRS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Level: 
+X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1233FC4363D
-	for <linux-input@archiver.kernel.org>; Sat,  3 Oct 2020 08:59:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FD1CC41604
+	for <linux-input@archiver.kernel.org>; Sat,  3 Oct 2020 19:58:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DAABA206F8
-	for <linux-input@archiver.kernel.org>; Sat,  3 Oct 2020 08:59:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46B8D206DD
+	for <linux-input@archiver.kernel.org>; Sat,  3 Oct 2020 19:58:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1601755103;
+	bh=zvawnXGMy+1m8Gt+Jw6q0TEIecCQtYmRsFgeL+Lap3Y=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
+	b=dqeJwFHvuH8jc9slkBBZY8tiqCDelVFQ/yzx6sPBdWRyA/d3d+skUqAbY5HMXhqo2
+	 0bsIDQsh7XRhsZhlwa5lLLk+yqpQuPquPO6De7h4qlzBBkH1LbZk20EM20NYgz2N6D
+	 qBvMS+teDG2fem+I0hB32c8LKEBWuo/oTzARmVHk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725730AbgJCI7x convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 3 Oct 2020 04:59:53 -0400
-Received: from [5.8.93.113] ([5.8.93.113]:58824 "EHLO mail.huclangia.tk"
-        rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-        id S1725648AbgJCI7w (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 3 Oct 2020 04:59:52 -0400
-X-Greylist: delayed 1165 seconds by postgrey-1.27 at vger.kernel.org; Sat, 03 Oct 2020 04:59:52 EDT
-Received: from huclangia.tk (unknown [139.64.247.249])
-        by mail.huclangia.tk (Postfix) with ESMTPA id B1105CEE43A
-        for <linux-input@vger.kernel.org>; Sat,  3 Oct 2020 08:35:46 +0000 (UTC)
-Reply-To: mariabdullah101@taxrag.com
-From:   Mrs Maria Abdullah <admin@huclangia.tk>
-To:     linux-input@vger.kernel.org
-Subject: Hello!
-Date:   3 Oct 2020 04:35:41 -0400
-Message-ID: <20201003043541.089EA2368394B7FF@huclangia.tk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1725905AbgJCT6T (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 3 Oct 2020 15:58:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40626 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725807AbgJCT6T (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 3 Oct 2020 15:58:19 -0400
+Subject: Re: [git pull] Input updates for v5.9-rc7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601755098;
+        bh=zvawnXGMy+1m8Gt+Jw6q0TEIecCQtYmRsFgeL+Lap3Y=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=rE+Yyy0bhA18JzHUE/hXLv+2/wajTvkJGadLmDfDkWiHICWwKyQAN325hpAghwrds
+         uSdLx47b8N0oUGLho0WQ9zHSxSnCuImuTFTLYg8nCH3nFRybWAGWAxLWlasQa3Jyqw
+         qE0iEtvlZ3eKIGxkotL0FT49eXqZeTuKhW2nk2QU=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20201003045003.GA1936980@dtor-ws>
+References: <20201003045003.GA1936980@dtor-ws>
+X-PR-Tracked-List-Id: <linux-input.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20201003045003.GA1936980@dtor-ws>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+X-PR-Tracked-Commit-Id: 5fc27b098dafb8e30794a9db0705074c7d766179
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 72af7b411d50eddcfed7611c4510a62dfac3fcb9
+Message-Id: <160175509888.27812.7528091599666931958.pr-tracker-bot@kernel.org>
+Date:   Sat, 03 Oct 2020 19:58:18 +0000
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello,
+The pull request you sent on Fri, 2 Oct 2020 21:50:03 -0700:
 
-My Name is Mrs.Maria Abdullah from Wales United Kingdom,
+> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-I would like to work with you to carry out a promise i made to 
-God by willing all that i have to the charity because i am very 
-sick now (Covid-19 Virus Infection)
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/72af7b411d50eddcfed7611c4510a62dfac3fcb9
 
-Get back to me for more details via my private email.
+Thank you!
 
-Email: mariabdullah101@taxrag.com
-
-Thanks and God bless you.
-
-Maria
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html

@@ -2,76 +2,77 @@ Return-Path: <SRS0=TGA1=DO=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ED4EC41604
-	for <linux-input@archiver.kernel.org>; Wed,  7 Oct 2020 15:55:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 089C9C41604
+	for <linux-input@archiver.kernel.org>; Wed,  7 Oct 2020 17:01:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5215216C4
-	for <linux-input@archiver.kernel.org>; Wed,  7 Oct 2020 15:55:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="CQwQZKzn"
+	by mail.kernel.org (Postfix) with ESMTP id 9AB0B215A4
+	for <linux-input@archiver.kernel.org>; Wed,  7 Oct 2020 17:01:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728222AbgJGPzS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 7 Oct 2020 11:55:18 -0400
-Received: from mail.zx2c4.com ([192.95.5.64]:32799 "EHLO mail.zx2c4.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726129AbgJGPzS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 7 Oct 2020 11:55:18 -0400
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 20c8e6c1
-        for <linux-input@vger.kernel.org>;
-        Wed, 7 Oct 2020 15:22:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
-        :references:in-reply-to:from:date:message-id:subject:to
-        :content-type; s=mail; bh=IzkKBgkAYb2SjNahiWJ7BabZwlg=; b=CQwQZK
-        znfgG+lLHfROf0qBtaZVjm3u6X+jRcZsO1MVz50QaYJDFMdIo0liy7shw8Ex+ID/
-        bszSsAGG9PkC4XbajgEQtfpN+LPzUsELfJBLpuCQdsb0MtLOISG3ELh2rTDNilKX
-        eVYeSBtVD4D7JQye0g2X5pi/d9Ld1aO2a53SSUIyBuwNY9AqXVmY/KkHltGodqnI
-        cqqD4DnHBOncu5WZU79TbILa2kBYAymFn4GYDjTCsRXOylqkbhB3/e3YXLQw7UO5
-        fkTyDxdJVbhrHzD4ueniS643/0LfmEwox3A5Kqr7Ai9pj2IBhHa+GwWUPeuOnLU8
-        fmB4LD0e56y7CaHw==
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 3ab80e33 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO)
-        for <linux-input@vger.kernel.org>;
-        Wed, 7 Oct 2020 15:22:36 +0000 (UTC)
-Received: by mail-io1-f43.google.com with SMTP id n6so2828199ioc.12
-        for <linux-input@vger.kernel.org>; Wed, 07 Oct 2020 08:55:15 -0700 (PDT)
-X-Gm-Message-State: AOAM530ItwJh5eGWwMMe9ZRlyDeiyiSkCljWFNn+eURjASZXmywqowHS
-        YO6+aEyCDVXdloGYGUKoR2ZxSNVVlROxdSo/wIA=
-X-Google-Smtp-Source: ABdhPJzBTQC9Ja1J0AfMdiYWxLJlnNn5p9MR4dmSFwd4hQQJhKfzCk2xre4E91IFXuIVNRBlM/iSgsDtmJfWs62Nx2A=
-X-Received: by 2002:a5d:8787:: with SMTP id f7mr2807973ion.79.1602086114464;
- Wed, 07 Oct 2020 08:55:14 -0700 (PDT)
+        id S1727862AbgJGRBP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 7 Oct 2020 13:01:15 -0400
+Received: from mail-io1-f80.google.com ([209.85.166.80]:39894 "EHLO
+        mail-io1-f80.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726138AbgJGRBK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Oct 2020 13:01:10 -0400
+Received: by mail-io1-f80.google.com with SMTP id s135so1902413ios.6
+        for <linux-input@vger.kernel.org>; Wed, 07 Oct 2020 10:01:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=+o4BZuu/0OdIHH6om63thYUeqrY8yyf+OMPBpQX6xY4=;
+        b=XG9Mi/g7areY2QdRay502VxP+4SwYQmgSs96kGjJR4CzTt8/DEBKQzOhmEkcS82aKG
+         XnKf/SHyBws5Q3PUj/M5ORTbOyrrKI2vRIf8c606VDOftPp/teaPbE9VERE6jnrzrQ88
+         8ZF0SOxizFZcWKQ5gX4MY71KQJ7BLjqFEYShtrFSZQ30ylz1JJpaoqym0Eh/6e2gIi3V
+         rV0UthClpPUkneFbuJmNbNtVgRCLQO6Il05q43ZT5iS6GqO9okD9cxDn424VyVtE3+3Y
+         slWvmTI+M8X2My0XlVK2AC31xIuvsPl6ngZRx1IcfjwcdpcCGtmU0TVfDItP0tYkpjmr
+         X5TQ==
+X-Gm-Message-State: AOAM531Z1ATO37vbNQODxNShOaK4PTDO2XG+L+kgGmI8PpccOHflUO3X
+        khAjTImRJ5SBHq96b69/MofwSrE4bdhxLbvF8cZo5v2bym1m
+X-Google-Smtp-Source: ABdhPJyoIOJDTcvlbIzi1zdUoLG+t6AoTPXU1AL58wlSRpAKdpWohslxu5jIIwXR2ywYUB1QrvwAApjesJPBI94hpaq3jvanJVxB
 MIME-Version: 1.0
-References: <5bd2bb9d925cfc81392bd9bf93b31ce4fd81e107.camel@redhat.com>
- <20200930225046.173190-1-Jason@zx2c4.com> <20200930225046.173190-3-Jason@zx2c4.com>
-In-Reply-To: <20200930225046.173190-3-Jason@zx2c4.com>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Wed, 7 Oct 2020 17:55:03 +0200
-X-Gmail-Original-Message-ID: <CAHmME9rAu0nVTGaQK84MxODuR9Ym3Q1FTyw_sVStmUTs9kmifQ@mail.gmail.com>
-Message-ID: <CAHmME9rAu0nVTGaQK84MxODuR9Ym3Q1FTyw_sVStmUTs9kmifQ@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] Input: synaptics - enable InterTouch for ThinkPad
- P1/X1E gen 2
-To:     linux-input@vger.kernel.org,
-        Vincent Huang <vincent.huang@tw.synaptics.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Andrew Duggan <aduggan@synaptics.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <btissoir@redhat.com>,
-        Chris Heiny <chris.heiny@synaptics.com>,
-        Sultan Alsawaf <sultan@kerneltoast.com>
+X-Received: by 2002:a92:c0cf:: with SMTP id t15mr3403899ilf.216.1602090068238;
+ Wed, 07 Oct 2020 10:01:08 -0700 (PDT)
+Date:   Wed, 07 Oct 2020 10:01:08 -0700
+In-Reply-To: <000000000000ce8d2305a03b0988@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000006a67f005b117a94a@google.com>
+Subject: Re: INFO: trying to register non-static key in uhid_char_release
+From:   syzbot <syzbot+8357fbef0d7bb602de45@syzkaller.appspotmail.com>
+To:     benjamin.tissoires@gmail.com, benjamin.tissoires@redhat.com,
+        brookebasile@gmail.com, david.rheinsberg@gmail.com,
+        dh.herrmann@googlemail.com, ebiggers@kernel.org, hdanton@sina.com,
+        jikos@kernel.org, jkorsnes@cisco.com, jkosina@suse.cz,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        maz@kernel.org, syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Oddly, CPU usage seems exceedingly high when using the trackpoint, in
-the rmi4 irq handler. Running perf-top indicates a hotspot in
-i801_access calling "in     (%dx),%al", which makes sense. I wonder:
-is this a culprit of expensive accesses in general, which Sultan
-(CC'd) has been working on? Or are we hitting something different
-here? Improper IRQ masking in the i801 code?
+syzbot suspects this issue was fixed by commit:
 
-Jason
+commit bce1305c0ece3dc549663605e567655dd701752c
+Author: Marc Zyngier <maz@kernel.org>
+Date:   Sat Aug 29 11:26:01 2020 +0000
+
+    HID: core: Correctly handle ReportSize being zero
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=12d19370500000
+start commit:   1127b219 Merge tag 'fallthrough-fixes-5.9-rc3' of git://gi..
+git tree:       upstream
+kernel config:  https://syzkaller.appspot.com/x/.config?x=891ca5711a9f1650
+dashboard link: https://syzkaller.appspot.com/bug?extid=8357fbef0d7bb602de45
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=102c472e900000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=13081056900000
+
+If the result looks correct, please mark the issue as fixed by replying with:
+
+#syz fix: HID: core: Correctly handle ReportSize being zero
+
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection

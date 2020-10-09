@@ -2,513 +2,245 @@ Return-Path: <SRS0=YdK7=DQ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C67EC433DF
-	for <linux-input@archiver.kernel.org>; Fri,  9 Oct 2020 14:22:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E68C3C9DC91
+	for <linux-input@archiver.kernel.org>; Fri,  9 Oct 2020 20:02:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 248142222F
-	for <linux-input@archiver.kernel.org>; Fri,  9 Oct 2020 14:22:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 89BBA2226B
+	for <linux-input@archiver.kernel.org>; Fri,  9 Oct 2020 20:02:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eAX93cna"
+	dkim=pass (1024-bit key) header.d=amdcloud.onmicrosoft.com header.i=@amdcloud.onmicrosoft.com header.b="r3Qv8GHx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387988AbgJIOWR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 9 Oct 2020 10:22:17 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:36442 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729280AbgJIOWR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Oct 2020 10:22:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602253334;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=sgNGfaYGaSR6Lp9G5olM0QD1YXdp3Z4kmC/2DWs49H8=;
-        b=eAX93cna9iMndcTvNOrZtJijm/xXRs4ZhL7JjtpvFIz+RYhzXEoxadcSdWKKTCNwna+aC0
-        VWgCYQWf1wskLCO4XhF942tdQ67GBiKVEWVGyv0CNgoM17S5W2UHslx7PlFTW6hxwIfiJg
-        G0RJAMSaRoyavZuu81LzJ0bpeBLYg6E=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-408-MoN-0fbwPYKaW-kJ6OAEsw-1; Fri, 09 Oct 2020 10:22:12 -0400
-X-MC-Unique: MoN-0fbwPYKaW-kJ6OAEsw-1
-Received: by mail-ed1-f72.google.com with SMTP id dc23so3646638edb.13
-        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2020 07:22:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=sgNGfaYGaSR6Lp9G5olM0QD1YXdp3Z4kmC/2DWs49H8=;
-        b=GrC/73kqslf+M/KqUtDDUbD4o0+TDbtA5MOWqS5cKjJBu7rb1lkhn9jrvF3cVPX6Nw
-         atbcMxrTr5Tpt/moVxw8bz0usnureGbx6sE9pc97hqBUIoQNo34qI4pwovyG6WLffHMO
-         l8HsMZVaIZf23tybzQtYUB/NxY2YFuo9pVSEK4/TGzrxjFPjXpRTJmIl9g9V5CqvZOLl
-         FlvXwBiVFci3b9nX9toejqFTtMyXrI3O84iqrhSM594YpVOE6zgRZ5hzUHuB1WDpmMM4
-         lKKIax030JRNhRCRK493qN9bc2B8XjjihKOSV+O0GJv4XqMkbAPqhbMyj4j2iiz8MqKP
-         uRkQ==
-X-Gm-Message-State: AOAM533tm5hozA1PMwnpqraSYLMxaw4M4YRWcS3HPkA5L8tuAzUajxfp
-        rucWm3TRrRw9QeU0tP+NferdKbOLs4SQTWH9lqW8fE+sUPz8QNdoeOWhDCQS8BNIq2CHUKYYzzU
-        XRReuWD4gXfDy1II0VDgZ0N0=
-X-Received: by 2002:a17:906:a95:: with SMTP id y21mr15043050ejf.410.1602253330620;
-        Fri, 09 Oct 2020 07:22:10 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzVvROqvNSCs6jDQcUvvv02QBO0fAOw+r3986sspJ/GkQQi/OaDS+fCZzcqcYqCbMQX3MtolA==
-X-Received: by 2002:a17:906:a95:: with SMTP id y21mr15043020ejf.410.1602253330255;
-        Fri, 09 Oct 2020 07:22:10 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id i14sm6499544ejp.2.2020.10.09.07.22.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 09 Oct 2020 07:22:09 -0700 (PDT)
-Subject: Re: [PATCH V6 RESEND] HID: ASUS: Add support for ASUS N-Key keyboard
-To:     Luke D Jones <luke@ljones.dev>, jikos@kernel.org
-Cc:     benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org, Andy Shevchenko <andy@infradead.org>
-References: <20200923215633.209724-1-luke@ljones.dev>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <119d6a2e-275b-e6b9-0130-edd653ecd4fa@redhat.com>
-Date:   Fri, 9 Oct 2020 16:22:09 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1732933AbgJIUCi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 9 Oct 2020 16:02:38 -0400
+Received: from mail-mw2nam12on2050.outbound.protection.outlook.com ([40.107.244.50]:43745
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2387717AbgJIUCW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 9 Oct 2020 16:02:22 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dbYSvUiEF4aw1D/6qZg5gtErs6BsjXIzzRVAK6nXNB6oXTAreIFpeaHTS1coDxU7VP2VyXUgi0PHpNHlSBHZhbgtz44MdcwS27xYUqtrQd0cA72IfFWfJeafBNaH9pqu087BTo2BjHVVyYXDBZHbbRT0njfkxrcVtv0B7eXrhS+a+gVxRtSapIDlIUfN3UEdAW9sqHUR2H4wDV5Zx5hxKVR+o6/t7FfT7vT+jM4BqB1v13kVcmKTJduGJc/otYUSHB8W+Iq7NbwPhF9JwKXq6LMiuf3vqGoJKRThJKgJQ0eQPd7wiY0fAvppLvqdOUwrcTI8OHwJUXV9OaH+iq9vyw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6okwF4mwLom/pFuSu1nYWJusJ3bk4LFuBMxAlRU7eMA=;
+ b=iBLHtnZ9lpX8vKQHD/GpaXQRR/ogpIjfuaXISKnlmD/AyVT8Wmiwmmj2UceWRdFlLKXEUiwZJvqQM080HjG5PBa4T9+zUYUDj+T78mW8pvRolbrcSPZYD5rgKovJsFgPN8Q+RbfpWsTatPHIQPNok4P03v6zdsCOSRuNWrTKpXsTLdTMs9+1TEi1rogRThtTIDAfbvKxW+GeDSoZU8YjqgitesCVF6+gmPNWrdrZ1g+U0Xqy2MtD9n5TOmT2YWNOIcKTtYcyfWBjkmgka05EE/l0OtcMgydkcx2Tegg/1y2DPY95BXMACcZtgQwnXIzy4bw4sUg+rNvKI2KNTSKxcA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6okwF4mwLom/pFuSu1nYWJusJ3bk4LFuBMxAlRU7eMA=;
+ b=r3Qv8GHxkvpNodFa11IEk8nww7q4Axn0HG+lgea+J7OU/0MCYMqJCEf275bxg4CY3efqk8M+rNewlrIef1oE77qKGzFk9BqcLnlANC3Io+1trVi1kLpZ7ysNYPVkJJn98PfNhyBfnfv2AWU90AfUalrZJthNuFA1C8ULhv/DcWY=
+Authentication-Results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=amd.com;
+Received: from CH2PR12MB4101.namprd12.prod.outlook.com (2603:10b6:610:a8::22)
+ by CH2PR12MB4859.namprd12.prod.outlook.com (2603:10b6:610:62::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3455.24; Fri, 9 Oct
+ 2020 20:02:16 +0000
+Received: from CH2PR12MB4101.namprd12.prod.outlook.com
+ ([fe80::a110:b7c8:73bd:d60]) by CH2PR12MB4101.namprd12.prod.outlook.com
+ ([fe80::a110:b7c8:73bd:d60%8]) with mapi id 15.20.3455.027; Fri, 9 Oct 2020
+ 20:02:16 +0000
+From:   Sandeep Singh <Sandeep.Singh@amd.com>
+To:     jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        srinivas.pandruvada@linux.intel.com, jic23@kernel.org,
+        linux-iio@vger.kernel.org, hdegoede@redhat.com,
+        Nehal-bakulchandra.Shah@amd.com, andy.shevchenko@gmail.com,
+        mail@richard-neumann.de, m.felsch@pengutronix.de,
+        rdunlap@infradead.org
+Cc:     Shyam-sundar.S-k@amd.com, Sandeep Singh <sandeep.singh@amd.com>
+Subject: [PATCH v8 0/4] SFH: Add Support for AMD Sensor Fusion Hub
+Date:   Sat, 10 Oct 2020 01:31:34 +0530
+Message-Id: <20201009200138.1847317-1-Sandeep.Singh@amd.com>
+X-Mailer: git-send-email 2.25.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [165.204.156.251]
+X-ClientProxiedBy: MAXPR0101CA0038.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a00:d::24) To CH2PR12MB4101.namprd12.prod.outlook.com
+ (2603:10b6:610:a8::22)
 MIME-Version: 1.0
-In-Reply-To: <20200923215633.209724-1-luke@ljones.dev>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from jatayu.amd.com (165.204.156.251) by MAXPR0101CA0038.INDPRD01.PROD.OUTLOOK.COM (2603:1096:a00:d::24) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3455.23 via Frontend Transport; Fri, 9 Oct 2020 20:02:11 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: f7aeca7d-1b2f-4a68-f85a-08d86c8e3847
+X-MS-TrafficTypeDiagnostic: CH2PR12MB4859:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <CH2PR12MB4859EBE98C92D24A5BA77E9CE0080@CH2PR12MB4859.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: SDOcEnRgeQbQKeLdhpJS/7Q9+s14/JVjsT045Q4w4XySB4/p1nWNuoMAmMEioN4lyJWP3xOmxyhJZ6aEobI13Q7fBMkIthqLGupz7+tC5GkWeNL+/jQYdreqoB+TWOh0WoT7uTl+z6JNsr7AKHEyyf6Y5nojBrAHjm4ieXzs6lT+pxONqbkzRTgkgcpvH9V7K43CCM3w0/v2TPyEY72rjdu0V5p/qo3DREKUgICtj1hIlzfHWAlVSeywnSv5noTMvx6YbzDNAx4MIFEmMF65Z+lOhKAs61hdEBP9olcmKE/YsfS8BLF9Uk9HgVOdwLrrhZ8X2elIDK8WcywzNUT/gu4shKY1Hjqkiz6gu7NhpmgDXUobXe0t8ovUTwSpCdO8Zz04exOyKWtcrGEeC3THqmprfNUtKYmqKpD07LhaohzU2FjjpymfthhkoBCVLW/2oBEKhea1G1k5pcgqNqO4Pw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR12MB4101.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(39860400002)(396003)(376002)(346002)(366004)(16526019)(86362001)(956004)(83080400001)(7696005)(52116002)(6486002)(26005)(186003)(2616005)(4326008)(83380400001)(66476007)(6666004)(36756003)(5660300002)(66946007)(316002)(8936002)(478600001)(66556008)(966005)(8676002)(1076003)(7416002)(2906002)(921003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: GBzal0+K314DTKoG7U8HjZvgvxr4jHj7Pdeoz68AlC0SD5wmeNEtKWWKD3NmNf3V1h3DaU8BQubzt2ZN4Jg3Z7S8gPijRGkqQ/ka4MeM6eL1yHBANx89kcEKnK4anN0BvpF1Z+3RyaxCpjOP263wn8t18ugZX7Kpuu61F7nL9q2M2w8hWgjBBPHW5NK34U/a0HaBHYvCvgVhEIIWEjoQ7Su3cSexA/orzoDOyEVIkFOzBUiDSa1n3OvTWde5YC/DvC7yJHhzZaen8bTbMHvQSsx+Kwdklkm+eXNdK1Z+B3pKSswurbyxC++NbVur0RM9yw3D+4r9bf7N7avM5cH4ectA9UK64JqA7eH9Mwhy5duLiY8V7srJUs3OP180P0LpLrhb3gGnI6MI0+wPLmI4HuLZ1xHHBOBlfW4nKizSUcK1XaIfrEvniPopOu+QuVxcygnf10O/OHW8ZNrzkNbWWSUtE+w8LlkH8dH8Oae3xlJal44TqPYUGol2P81u+z5/iUdIHrqOPQ8aj659CJ7lAz654xJcw4v2henDWPWGdfBo/5cyUeSrtLFa47DbnV0Rk2PS26ymoLM4bl7L4Qe+TMt9QirxW5F2KquLii+x6gFIGeT07WjOMtNKCVCJ56pOA+3d+F5xwQuCuWCGd++Qmw==
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f7aeca7d-1b2f-4a68-f85a-08d86c8e3847
+X-MS-Exchange-CrossTenant-AuthSource: CH2PR12MB4101.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Oct 2020 20:02:16.0322
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: PdMdEezEai1Og5XrEhdXKGJApgGaQcr48MAQexTZOM10Uc5QIdRawSEw4zDuFSgf
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4859
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+From: Sandeep Singh <sandeep.singh@amd.com>
 
-On 9/23/20 11:56 PM, Luke D Jones wrote:
-> The ASUS N-Key keyboard uses the productId of 0x1866 and is used in
-> almost all modern ASUS gaming laptops with slight changes to the
-> firmware. This patch enables: Fn+key hotkeys, keyboard backlight
-> brightness control, and notify asus-wmi to toggle "fan-mode".
-> 
-> The keyboard has many of the same key outputs as the existing G752
-> keyboard including a few extras, and varies a little between laptop
-> models. The key-sets have been split and sub-grouped so that there
-> will not be conflict between key event codes used.
-> 
-> An existing key event used across some keyboards for "Mic Toggle"
-> has been changed to emit "F20" as this is what all the main
-> desktop environments are using.
-> 
-> Additionally this keyboard requires the LED interface to be
-> intitialised before such things as keyboard backlight control work.
-> 
-> Misc changes in scope: update some hardcoded comparisons to use an
-> available define.
-> 
-> Signed-off-by: Luke D Jones <luke@ljones.dev>
-> ---
->   drivers/hid/hid-asus.c                     | 188 ++++++++++++++++++---
->   drivers/hid/hid-ids.h                      |   1 +
->   include/linux/platform_data/x86/asus-wmi.h |   2 +
->   3 files changed, 166 insertions(+), 25 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index c183caf89d49..541c92a7f108 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-> @@ -26,6 +26,8 @@
->   #include <linux/dmi.h>
->   #include <linux/hid.h>
->   #include <linux/module.h>
-> +
-> +#include <linux/acpi.h>
->   #include <linux/platform_data/x86/asus-wmi.h>
->   #include <linux/input/mt.h>
->   #include <linux/usb.h> /* For to_usb_interface for T100 touchpad intf check */
-> @@ -48,6 +50,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
->   #define INPUT_REPORT_ID 0x5d
->   #define FEATURE_KBD_REPORT_ID 0x5a
->   #define FEATURE_KBD_REPORT_SIZE 16
-> +#define FEATURE_KBD_LED_REPORT_ID1 0x5d
-> +#define FEATURE_KBD_LED_REPORT_ID2 0x5e
-> 
->   #define SUPPORT_KBD_BACKLIGHT BIT(0)
-> 
-> @@ -80,6 +84,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
->   #define QUIRK_T101HA_DOCK		BIT(9)
->   #define QUIRK_T90CHI			BIT(10)
->   #define QUIRK_MEDION_E1239T		BIT(11)
-> +#define QUIRK_ROG_NKEY_KEYBOARD		BIT(12)
-> 
->   #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
->   						 QUIRK_NO_INIT_REPORTS | \
-> @@ -305,10 +310,33 @@ static int asus_e1239t_event(struct asus_drvdata *drvdat, u8 *data, int size)
->   	return 0;
->   }
-> 
-> +/*
-> + * This enables triggering events in asus-wmi
-> + */
-> +static int asus_wmi_send_event(struct asus_drvdata *drvdat, u8 code)
-> +{
-> +	int err;
-> +	u32 retval;
-> +
-> +	err = asus_wmi_evaluate_method(ASUS_WMI_METHODID_DEVS,
-> +		ASUS_WMI_METHODID_NOTIF, code, &retval);
-> +	if (err) {
-> +		pr_warn("Failed to notify asus-wmi: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	if (retval != 0) {
-> +		pr_warn("Failed to notify asus-wmi (retval): 0x%x\n", retval);
-> +		return -EIO;
-> +	}
+AMD SFH(Sensor Fusion Hub) is HID based driver.SFH FW is part of MP2
+processor (MP2 which is an ARM core connected to x86 for processing 
+sensor data) and it runs on MP2 where in the driver resides on X86.
+The driver functionalities are divided into three parts:-
 
-2 remarks here:
+1: amd-mp2-pcie:- This part of the module will communicate with MP2
+		  firmware. MP2 which is exposed as a PCI device to the 
+		  X86, uses mailboxes to talk to MP2 firmware to 
+		  send/receive commands.
+2: Client Layer:- This part of the driver will use DRAM  data and convert
+                  the  data into HID format based on HID reports.
+3: Transport layer :- This part of the driver the will communicate with HID
+                  core.Communication between devices and HID core is
+                  mostly done via HID reports
 
-1. Why do you not propogate the error returned by asus_wmi_evaluate_method()?
-2. When CONFIG_ASUS_WMI is not set asus_wmi_evaluate_method() is a stub which
-    always return -ENODEV. I guess that that counts as a broken kernel-config
-    if a N-Key kbd is use, so printing an error then is probably fine...
+In terms of architecture, it resembles like ISH (Intel Integrated Sensor
+Hub). However the major difference is all the hid reports are generated
+as part of the kernel driver.
 
+AMD SFH is integrated as a part of SoC, starting from 17h family of
+processors. The solution is working well on several OEM products.
+AMD SFH uses HID over PCIe bus.
 
-> +
-> +	return 0;
-> +}
-> +
->   static int asus_event(struct hid_device *hdev, struct hid_field *field,
->   		      struct hid_usage *usage, __s32 value)
->   {
-> -	if ((usage->hid & HID_USAGE_PAGE) == 0xff310000 &&
-> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR &&
->   	    (usage->hid & HID_USAGE) != 0x00 &&
->   	    (usage->hid & HID_USAGE) != 0xff && !usage->type) {
->   		hid_warn(hdev, "Unmapped Asus vendor usagepage code 0x%02x\n",
-> @@ -321,6 +349,7 @@ static int asus_event(struct hid_device *hdev, struct hid_field *field,
->   static int asus_raw_event(struct hid_device *hdev,
->   		struct hid_report *report, u8 *data, int size)
->   {
-> +	int ret;
->   	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-> 
->   	if (drvdata->battery && data[0] == BATTERY_REPORT_ID)
-> @@ -332,6 +361,35 @@ static int asus_raw_event(struct hid_device *hdev,
->   	if (drvdata->quirks & QUIRK_MEDION_E1239T)
->   		return asus_e1239t_event(drvdata, data, size);
-> 
-> +	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
-> +		/*
-> +		 * Skip these report ID, the device emits a continuous stream associated
-> +		 * with the AURA mode it is in which looks like an 'echo'
-> +		*/
-> +		if (report->id == FEATURE_KBD_LED_REPORT_ID1 ||
-> +				report->id == FEATURE_KBD_LED_REPORT_ID2) {
-> +			return -1;
-> +		/* Additional report filtering */
-> +		} else if (report->id == FEATURE_KBD_REPORT_ID) {
-> +			/* Fn+F5 "fan" symbol, trigger WMI event to toggle next mode */
-> +			if (data[1] == 0xae) {
-> +				ret = asus_wmi_send_event(drvdata, 0xae);
-> +				if (ret < 0) {
-> +					hid_warn(hdev, "Asus failed to trigger fan control event");
-> +				}
-> +				return -1;
-> +			/*
-> +			 * G14 and G15 send these codes on some keypresses with no
-> +			 * discernable reason for doing so. We'll filter them out to avoid
-> +			 * unmapped warning messages later
-> +			*/
-> +			} else if (data[1] == 0xea || data[1] == 0xec || data[1] == 0x02 ||
-> +					data[1] == 0x8a || data[1] == 0x9e) {
-> +				return -1;
-> +			}
-> +		}
-> +	}
-> +
->   	return 0;
->   }
-> 
-> @@ -344,7 +402,11 @@ static int asus_kbd_set_report(struct hid_device *hdev, u8 *buf, size_t buf_size
->   	if (!dmabuf)
->   		return -ENOMEM;
-> 
-> -	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, dmabuf,
-> +	/*
-> +	 * The report ID should be set from the incoming buffer due to LED and key
-> +	 * interfaces having different pages
-> +	*/
-> +	ret = hid_hw_raw_request(hdev, buf[0], dmabuf,
->   				 buf_size, HID_FEATURE_REPORT,
->   				 HID_REQ_SET_REPORT);
->   	kfree(dmabuf);
-> @@ -397,6 +459,44 @@ static int asus_kbd_get_functions(struct hid_device *hdev,
->   	return ret;
->   }
-> 
-> +static int asus_kbd_led_init(struct hid_device *hdev)
+Changes since v1:
+        -> Fix auto build test warnings
+        -> Fix smatch warnings "possible memory leak" -Reported by Dan
+carpenter
 
-Maybe put rog_nkey in the function name here? This sounds very generic,
-while it actually is rog_nkey specific.
+Links of the review comments for v1:
+        [1] https://patchwork.kernel.org/patch/11325163/
+        [2] https://patchwork.kernel.org/patch/11325167/
+        [3] https://patchwork.kernel.org/patch/11325171/
+        [4] https://patchwork.kernel.org/patch/11325187/
 
-> +{
-> +	u8 buf_init_start[] = { FEATURE_KBD_LED_REPORT_ID1, 0xB9 };
-> +	u8 buf_init2[] = { FEATURE_KBD_LED_REPORT_ID1, 0x41, 0x53, 0x55, 0x53, 0x20,
-> +				0x54, 0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e, 0x00 };
-> +	u8 buf_init3[] = { FEATURE_KBD_LED_REPORT_ID1,
-> +						0x05, 0x20, 0x31, 0x00, 0x08 };
-> +	int ret;
-> +
-> +	hid_warn(hdev, "Asus initialise N-KEY Device");
-> +	/* The first message is an init start */
-> +	ret = asus_kbd_set_report(hdev, buf_init_start, sizeof(buf_init_start));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init start command: %d\n", ret);
-> +	/* Followed by a string */
-> +	ret = asus_kbd_set_report(hdev, buf_init2, sizeof(buf_init2));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init command 1.0: %d\n", ret);
-> +	/* Followed by a string */
-> +	ret = asus_kbd_set_report(hdev, buf_init3, sizeof(buf_init3));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init command 1.1: %d\n", ret);
-> +
-> +	/* begin second report ID with same data */
-> +	buf_init2[0] = FEATURE_KBD_LED_REPORT_ID2;
-> +	buf_init3[0] = FEATURE_KBD_LED_REPORT_ID2;
-> +
-> +	ret = asus_kbd_set_report(hdev, buf_init2, sizeof(buf_init2));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init command 2.0: %d\n", ret);
-> +
-> +	ret = asus_kbd_set_report(hdev, buf_init3, sizeof(buf_init3));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init command 2.1: %d\n", ret);
-> +
-> +	return ret;
-> +}
-> +
->   static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
->   				   enum led_brightness brightness)
->   {
-> @@ -460,19 +560,28 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
->   	unsigned char kbd_func;
->   	int ret;
-> 
-> -	/* Initialize keyboard */
-> -	ret = asus_kbd_init(hdev);
-> -	if (ret < 0)
-> -		return ret;
-> +	if (drvdata->quirks & QUIRK_G752_KEYBOARD) {
-> +		/* Initialize keyboard */
-> +		ret = asus_kbd_init(hdev);
-> +		if (ret < 0)
-> +			return ret;
+Changes since v2:
+	-> Debugfs divided into another patch
+        -> Fix some cosmetic changes
+        -> Fix for review comments
+           Reported and Suggested by:-  Srinivas Pandruvada
 
-Why are you all of a sudden making the existing code-path
-depend on the G752_KEYBOARD quirk?
+Links of the review comments for v2:
+        [1] https://patchwork.kernel.org/patch/11355491/
+        [2] https://patchwork.kernel.org/patch/11355495/
+        [3] https://patchwork.kernel.org/patch/11355499/
+        [4] https://patchwork.kernel.org/patch/11355503/
 
-In the current hid-asus.c code asus_kbd_register_leds()
-gets called if drvdata->enable_backlight is set, which
-gets set on the interface with the HID_UP_ASUSVENDOR
-usage-page when the USE_KBD_BACKLIGHT quirk is set.
+Changes since v3:
+        -> Removed debugfs suggested by - Benjamin Tissoires
 
-That quirk currently is set on the
-ASUSTEK_ROG_KEYBOARD1, ASUSTEK_ROG_KEYBOARD2 and
-ASUSTEK_FX503VD_KEYBOARD
+Links of the review comments for v3:
+        [1] https://lkml.org/lkml/2020/2/11/1256
+        [2] https://lkml.org/lkml/2020/2/11/1257
+        [3] https://lkml.org/lkml/2020/2/11/1258
+        [4] https://lkml.org/lkml/2020/2/11/1259
+        [5] https://lkml.org/lkml/2020/2/11/1260
 
-And you even set it on the new id-table entry
-you add (which makes sense because otherwise
-this entire function would not get called for the
-N-keys kbd at all).
+Changes since v4:
+        -> use PCI managed calls.
+        -> use kernel APIs
 
-Notice that the G752_KEYBOARD is missing from the list
-of usb-ids for which we set USE_KBD_BACKLIGHT so by making
-the old code-path check for that you are essentially
-breaking kbd-backlight support on all the models where
-it currently already works!
+Links of the review comments for v4:
+        [1] https://lkml.org/lkml/2020/2/26/1360
+        [2] https://lkml.org/lkml/2020/2/26/1361
+        [3] https://lkml.org/lkml/2020/2/26/1362
+        [4] https://lkml.org/lkml/2020/2/26/1363
+        [5] https://lkml.org/lkml/2020/2/27/1
+Changes since v5
+        -> Fix for review comments by: Andy Shevchenko
+        -> Fix for indentations erros, NULL pointer,Redundant assignment
+        -> Drop LOCs in many location
+        -> Create as a single driver module instead of two modules.
 
-Instead please do:
+Links of the review comments for v5:
+        [1] https://lkml.org/lkml/2020/5/29/589
+        [2] https://lkml.org/lkml/2020/5/29/590
+        [3] https://lkml.org/lkml/2020/5/29/606
+        [4] https://lkml.org/lkml/2020/5/29/632
+        [5] https://lkml.org/lkml/2020/5/29/633
 
-	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
-		/* your new stuff */
-	} else {
-		/* old code path */
-	}
+Changes since v6
+        -> fix Kbuild warning "warning: ignoring return value of
+	   'pcim_enable_device',
+        -> Removed select HID and add depends on HID
 
-So that you do not change behavior for existing kbds.
+Links of the review comments for v6:
+        [1] https://lkml.org/lkml/2020/8/9/58
+        [2] https://lkml.org/lkml/2020/8/9/59
+        [3] https://lkml.org/lkml/2020/8/9/125
+        [4] https://lkml.org/lkml/2020/8/9/61
+        [5] https://lkml.org/lkml/2020/8/9/91
 
-> -	/* Get keyboard functions */
-> -	ret = asus_kbd_get_functions(hdev, &kbd_func);
-> -	if (ret < 0)
-> -		return ret;
-> +		/* Get keyboard functions */
-> +		ret = asus_kbd_get_functions(hdev, &kbd_func);
-> +		if (ret < 0)
-> +			return ret;
-> 
-> -	/* Check for backlight support */
-> -	if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
-> -		return -ENODEV;
-> +		/* Check for backlight support */
-> +		if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
-> +			return -ENODEV;
-> +	}
-> +
-> +	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
-> +		/* Initialize keyboard LED interface and Vendor keys on 0x1866 */
-> +		ret = asus_kbd_led_init(hdev);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
-> 
->   	drvdata->kbd_backlight = devm_kzalloc(&hdev->dev,
->   					      sizeof(struct asus_kbd_leds),
-> @@ -751,14 +860,14 @@ static int asus_input_mapping(struct hid_device *hdev,
->   	     usage->hid == (HID_UP_GENDEVCTRLS | 0x0026)))
->   		return -1;
-> 
-> -	/* ASUS-specific keyboard hotkeys */
-> -	if ((usage->hid & HID_USAGE_PAGE) == 0xff310000) {
-> +	/* ASUS-specific keyboard hotkeys and led backlight */
-> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR) {
->   		switch (usage->hid & HID_USAGE) {
->   		case 0x10: asus_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
->   		case 0x20: asus_map_key_clear(KEY_BRIGHTNESSUP);		break;
->   		case 0x35: asus_map_key_clear(KEY_DISPLAY_OFF);		break;
->   		case 0x6c: asus_map_key_clear(KEY_SLEEP);		break;
-> -		case 0x7c: asus_map_key_clear(KEY_MICMUTE);		break;
-> +		case 0x7c: asus_map_key_clear(KEY_F20);		break;
->   		case 0x82: asus_map_key_clear(KEY_CAMERA);		break;
->   		case 0x88: asus_map_key_clear(KEY_RFKILL);			break;
->   		case 0xb5: asus_map_key_clear(KEY_CALC);			break;
-> @@ -771,16 +880,42 @@ static int asus_input_mapping(struct hid_device *hdev,
->   		/* ROG key */
->   		case 0x38: asus_map_key_clear(KEY_PROG1);		break;
-> 
-> -		/* Fn+C ASUS Splendid */
-> -		case 0xba: asus_map_key_clear(KEY_PROG2);		break;
-> -
-> -		/* Fn+Space Power4Gear Hybrid */
-> -		case 0x5c: asus_map_key_clear(KEY_PROG3);		break;
-> -
-> -		/* Fn+F5 "fan" symbol on FX503VD */
-> -		case 0x99: asus_map_key_clear(KEY_PROG4);		break;
-> -
-> +		/* The keyboard ID's in this section don't share key events */
->   		default:
-> +			if (drvdata->quirks & QUIRK_G752_KEYBOARD) {
-> +				switch (usage->hid & HID_USAGE) {
-> +				/* Fn+C ASUS Splendid */
-> +				case 0xba: asus_map_key_clear(KEY_PROG2);		break;
-> +
-> +				/* Fn+Space Power4Gear Hybrid */
-> +				case 0x5c: asus_map_key_clear(KEY_PROG3);		break;
-> +
-> +				/* Fn+F5 "fan" symbol on FX503VD */
-> +				case 0x99: asus_map_key_clear(KEY_PROG4);		break;
-> +
-> +				default:
-> +					return -1;
-> +				}
-> +				break;
-> +			}
+Changes since v7
+        -> Add Co-deveploed-by
+        -> Build the Documentation
+        -> Fix cosmatic changes
+        -> Add init function inside probe function
+        -> Use devm_add_action_or_reset() to avoids the remove()
+	   callback.
 
-Same thing again, who says that these 3 usage-ids in the asus-page are only
-found on the QUIRK_G752_KEYBOARD ?
+Links of the review comments for v7:
+        [1] https://lkml.org/lkml/2020/8/10/1221
+        [2] https://lkml.org/lkml/2020/8/10/1222
+        [3] https://lkml.org/lkml/2020/8/10/1223
+        [4] https://lkml.org/lkml/2020/8/10/1224
+        [5] https://lkml.org/lkml/2020/8/10/1225
 
-Also I see no conflict between these 3 usage ids and the 3 new ones which you add,
-so why not just add those 3 new ones to the normal switch-case and be done with
-it, without any quirk checking at all ?
+Sandeep Singh (4):
+  SFH: Add maintainers and documentation for AMD SFH based on HID
+    framework
+  SFH: PCIe driver to add support of AMD sensor fusion hub
+  SFH:Transport Driver to add support of AMD Sensor Fusion Hub (SFH)
+  SFH: Create HID report to Enable support of AMD sensor fusion Hub
+    (SFH)
 
-That has worked well for all previous Asus kbd models ...
+ Documentation/hid/amd-sfh-hid.rst             | 145 ++++
+ Documentation/hid/index.rst                   |   1 +
+ MAINTAINERS                                   |   8 +
+ drivers/hid/Kconfig                           |   2 +
+ drivers/hid/Makefile                          |   2 +
+ drivers/hid/amd-sfh-hid/Kconfig               |  18 +
+ drivers/hid/amd-sfh-hid/Makefile              |  13 +
+ drivers/hid/amd-sfh-hid/amd_sfh_client.c      | 246 +++++++
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.c         | 174 +++++
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.h         |  67 ++
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c        | 152 +++++
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.h        |  79 +++
+ .../hid_descriptor/amd_sfh_hid_desc.c         | 224 ++++++
+ .../hid_descriptor/amd_sfh_hid_desc.h         | 121 ++++
+ .../hid_descriptor/amd_sfh_hid_report_desc.h  | 645 ++++++++++++++++++
+ 15 files changed, 1897 insertions(+)
+ create mode 100644 Documentation/hid/amd-sfh-hid.rst
+ create mode 100644 drivers/hid/amd-sfh-hid/Kconfig
+ create mode 100644 drivers/hid/amd-sfh-hid/Makefile
+ create mode 100644 drivers/hid/amd-sfh-hid/amd_sfh_client.c
+ create mode 100644 drivers/hid/amd-sfh-hid/amd_sfh_hid.c
+ create mode 100644 drivers/hid/amd-sfh-hid/amd_sfh_hid.h
+ create mode 100644 drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+ create mode 100644 drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
+ create mode 100644 drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
+ create mode 100644 drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
+ create mode 100644 drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
 
-> +			/* device 0x1866, N-KEY Device specific */
-> +			else if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
-> +				switch (usage->hid & HID_USAGE) {
-> +				/* Fn+Ret "Calc" symbol on device 0x1866, N-KEY Device */
-> +				case 0x92: asus_map_key_clear(KEY_CALC);		break;
-> +
-> +				/* Fn+Left Aura mode previous */
-> +				case 0xb2: asus_map_key_clear(KEY_PROG2);	break;
-> +
-> +				/* Fn+Right Aura mode next */
-> +				case 0xb3: asus_map_key_clear(KEY_PROG3);	break;
-> +
-> +				default:
-> +					return -1;
-> +				}
-> +				break;
-
-If you drop the default: return -1 and the break after the switch-case here, then
-you will just fall through to the return -1 below, which has a nice comment why
-this is done.
-
-Note as said please just add the 3 new usage-ids directly to the main switch case instead
-of checking for a quirk and having a nested switch-case just for the N-key kbd, then
-this all goes away and my remark here can be ignored.
-
-> +			}
-> +
->   			/* ASUS lazily declares 256 usages, ignore the rest,
->   			 * as some make the keyboard appear as a pointer device. */
->   			return -1;
-> @@ -1126,6 +1261,9 @@ static const struct hid_device_id asus_devices[] = {
->   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
->   		USB_DEVICE_ID_ASUSTEK_FX503VD_KEYBOARD),
->   	  QUIRK_USE_KBD_BACKLIGHT },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-> +	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD),
-> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
->   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
->   		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
->   	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 74fc1df6e3c2..ce5ca078b232 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -190,6 +190,7 @@
->   #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
->   #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2 0x1837
->   #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3 0x1822
-> +#define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD	0x1866
->   #define USB_DEVICE_ID_ASUSTEK_FX503VD_KEYBOARD	0x1869
-> 
->   #define USB_VENDOR_ID_ATEN		0x0557
-> diff --git a/include/linux/platform_data/x86/asus-wmi.h b/include/linux/platform_data/x86/asus-wmi.h
-> index 897b8332a39f..05253cfe786c 100644
-> --- a/include/linux/platform_data/x86/asus-wmi.h
-> +++ b/include/linux/platform_data/x86/asus-wmi.h
-> @@ -27,6 +27,8 @@
->   #define ASUS_WMI_METHODID_INIT		0x54494E49 /* INITialize */
->   #define ASUS_WMI_METHODID_HKEY		0x59454B48 /* Hot KEY ?? */
-> 
-> +#define ASUS_WMI_METHODID_NOTIF		0x00100021 /* Notify method ?? */
-> +
->   #define ASUS_WMI_UNSUPPORTED_METHOD	0xFFFFFFFE
-> 
->   /* Wireless */
-
-This new define is passed as second argument to the
-asus_wmi_evaluate_method call, that means that it is not
-a METHODID but a DEVID and we already have a bunch of
-0x0010002x  DEVID defines:
-
-/* Input */
-#define ASUS_WMI_DEVID_TOUCHPAD         0x00100011
-#define ASUS_WMI_DEVID_TOUCHPAD_LED     0x00100012
-#define ASUS_WMI_DEVID_FNLOCK           0x00100023
-
-So I suggest that you add a new:
-
-#define ASUS_WMI_DEVID_FAN_MODE         0x00100021
-
-define for this in this list instead.
-
-Regards,
-
-Hans
-
-
+-- 
+2.25.1
 

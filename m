@@ -2,126 +2,192 @@ Return-Path: <SRS0=Cw7O=DT=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8763C43457
-	for <linux-input@archiver.kernel.org>; Mon, 12 Oct 2020 11:39:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D772C433DF
+	for <linux-input@archiver.kernel.org>; Mon, 12 Oct 2020 12:13:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F36A2145D
-	for <linux-input@archiver.kernel.org>; Mon, 12 Oct 2020 11:39:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0EDAE208D5
+	for <linux-input@archiver.kernel.org>; Mon, 12 Oct 2020 12:13:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="fGv2d15x"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MgQf2pTD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388290AbgJLLjS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 12 Oct 2020 07:39:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40408 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388283AbgJLLiz (ORCPT
+        id S2388429AbgJLMNl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 12 Oct 2020 08:13:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45867 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388361AbgJLMNl (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 12 Oct 2020 07:38:55 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2943DC0613CE
-        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2020 04:38:53 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id n18so18803540wrs.5
-        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2020 04:38:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=er1O3yHYE2dfZAtg9MYR2G3dWLGNVrruH1edHcefbnw=;
-        b=fGv2d15x8t8FMuQO7gEdPG/kMbWbRe2GCYErOzN+qYTexuoeqeQ13RVl4Re6jAm4/J
-         R/mnTWb0U/1ir7iJE4eP5u0riKeXNPrnIlPiW9uVzgL8zlRNCbx1GC4xqtjjWSHjMZvT
-         FvIYfcncwoTVI0IOtaNH62YzTzByGH0FsXiLvWIgOuKidnowQlD03XWFPxJQppPrE4AW
-         T85FGuPH5Z0bZnZgABhqdtXBDCZeIglD6Y5W94LxvC7B3mLwHHq4vVGtajSovmxFOYfV
-         9FC1DbUH+aLAU5IIsbtI9OeoIkudCr9gSMicBLbZfmgzX+W4plZn95pIsa/RvzK8qvAF
-         BnPw==
+        Mon, 12 Oct 2020 08:13:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1602504819;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5HU91LHnQTKR2yQDGosbdEj8ORh/GmI6UcUCZ5/zDmA=;
+        b=MgQf2pTDCD8pyvfX1RZjI3Xk1PLdpQzeiRypN9doGnsY9K6ujMswWmXoHcp91QI5FX+EMu
+        kV2WjhuDctCgERxAIgJ/60//mln9FdpmLrlAS6AUxobWtPJOI65Y3OkKniftZtzRqi5H4F
+        lLwX7LUCRBvjHxMQHMs6/XwJVv0jwwM=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-253-32d2h-TdOuqXEmJ3Ov4cmA-1; Mon, 12 Oct 2020 08:13:38 -0400
+X-MC-Unique: 32d2h-TdOuqXEmJ3Ov4cmA-1
+Received: by mail-ej1-f70.google.com with SMTP id z18so1160117eji.1
+        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2020 05:13:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=er1O3yHYE2dfZAtg9MYR2G3dWLGNVrruH1edHcefbnw=;
-        b=coVgGtpt3PMh3Tc3izQyGZ1EIzQW7UJqH3ra0bxFY90yAnugDefskJJ2KoB2D4IaZi
-         gCG/Ry+ByXp+XR/gGemrfg09b/cUuPs+SeDWcmIPvICdUO7sLpa4lOj3j4y9LIdoWlXB
-         2g0dPwT7izff2susoXX0N6Gx9jkK0BA5XzGCNRHZpYzRiIypZF34e3ZuFphcAmLiIpq+
-         fkxU2AppLZ+ZXDLIBikWGHXMgA927G8YPlFVic3RLDHKom3RhBYoqcwCmIMpYHw2R4do
-         4VF55GBhe1hK1az/eanKJgmSJD8cCmjZs5dJtmeTCQIvjNlsQ+CdaTVmmpc681y2h//I
-         6grA==
-X-Gm-Message-State: AOAM531VZYrPmjkCIaVuz02JEUCUuT3IuGrsa7UdQrTZkhhHHjc6Kvi2
-        R6Vd3gI+ZmKn7Mi+muFqCpaofQ==
-X-Google-Smtp-Source: ABdhPJziaYfK5ROz2ZhqIXhTGzXACuyMOEE9XE8nlHbMcsWpb1lIfGcTo1l9oqBQueuCIUPQxQaDAg==
-X-Received: by 2002:adf:9e06:: with SMTP id u6mr29835150wre.208.1602502731842;
-        Mon, 12 Oct 2020 04:38:51 -0700 (PDT)
-Received: from localhost.localdomain (170.175.185.81.rev.sfr.net. [81.185.175.170])
-        by smtp.gmail.com with ESMTPSA id o194sm22378065wme.24.2020.10.12.04.38.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2020 04:38:51 -0700 (PDT)
-From:   Fabien Parent <fparent@baylibre.com>
-To:     linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-input@vger.kernel.org, matthias.bgg@gmail.com
-Cc:     hsin-hsiung.wang@mediatek.com, lee.jones@linaro.org,
-        robh+dt@kernel.org, dmitry.torokhov@gmail.com,
-        Fabien Parent <fparent@baylibre.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v6 1/3] dt-bindings: mfd: mt6397: Add bindings for MT6392 PMIC
-Date:   Mon, 12 Oct 2020 13:38:38 +0200
-Message-Id: <20201012113840.396358-1-fparent@baylibre.com>
-X-Mailer: git-send-email 2.28.0
+        bh=5HU91LHnQTKR2yQDGosbdEj8ORh/GmI6UcUCZ5/zDmA=;
+        b=L5bw172uaqVpso1FumU44XlFmW1ELJB3gouz9T5DlmwkQ76GZ8dtq9Ee7kfXzaXEbI
+         ZVw9xRDIZS1har4Igrk5bZbOAuYq+ut2QO6rN7OBt9V+0Aa4+q9GrsrtGNXfmQA2oZEZ
+         ubFF27BCQfHrGfHvubvnZrSIaZKJBUCqNWYDvaLd5mn+U2Eqk7NdYpA3IyTAFlAxOeZt
+         eo6eA5Y7FsctTnD9v9II0Yy5D6wl5jnqvMf6g5GozP3O63B2taeKIwBPLmmMpDIvyv/M
+         Zx7DhYrPCewrubVXKSVYOJUu+rB7W8Pdq3TJAlwTSO3+01bMlmGKHxlHcuLBOEGSUT4M
+         GVGQ==
+X-Gm-Message-State: AOAM532y7NXl9xnuVAu/2YyHY5qHHUqQvlZQdBjEZc2gfdYrqvcSL05k
+        mAsLaZ5NJyrXAVGy9hnzYBlv+NIJDqKmfnmGQFdSQo6c9W0u3YXOFkmruQv6O387zilg+TTy+v5
+        lv2EuzD+vIo6gcjcaCzDR5b4=
+X-Received: by 2002:aa7:de06:: with SMTP id h6mr13743875edv.31.1602504816762;
+        Mon, 12 Oct 2020 05:13:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw1pGP3YmjRYLrr2z+ODGXwKFMGo9xoGCpv3tIVimfcq47P6z2EG4I+0wu9XIX+ZAwzLDd9mg==
+X-Received: by 2002:aa7:de06:: with SMTP id h6mr13743846edv.31.1602504816454;
+        Mon, 12 Oct 2020 05:13:36 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id a10sm10516044ejs.11.2020.10.12.05.13.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 12 Oct 2020 05:13:35 -0700 (PDT)
+Subject: Re: [External] Using IIO to export laptop palm-sensor and lap-mode
+ info to userspace?
+To:     Jeff LaBundy <jeff@labundy.com>
+Cc:     Bastien Nocera <hadess@hadess.net>,
+        Jonathan Cameron <Jonathan.Cameron@Huawei.com>,
+        Mark Pearson <markpearson@lenovo.com>,
+        linux-iio@vger.kernel.org, Nitin Joshi1 <njoshi1@lenovo.com>,
+        linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+References: <9f9b0ff6-3bf1-63c4-eb36-901cecd7c4d9@redhat.com>
+ <5a646527-7a1f-2fb9-7c09-8becdbff417b@lenovo.com>
+ <20201007083602.00006b7e@Huawei.com>
+ <218be284-4a37-e9f9-749d-c126ef1d098b@redhat.com>
+ <b400b6956270a2433373dd6cbdae3332aa683f4f.camel@hadess.net>
+ <cadabe4d-7cce-281e-75fe-fcc2099848da@redhat.com>
+ <5273a1de9db682cd41e58553fe57707c492a53b7.camel@hadess.net>
+ <272074b5-b28e-1b74-8574-3dc2d614269a@redhat.com>
+ <20201008001424.GA3713@labundy.com>
+ <9893a32c-02c8-f00c-7f00-6287d55043ab@redhat.com>
+ <20201009021949.GA3629@labundy.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <961aeee6-22e9-75dc-9fcf-45cee00ab62c@redhat.com>
+Date:   Mon, 12 Oct 2020 14:13:35 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201009021949.GA3629@labundy.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add the currently supported bindings for the MT6392 PMIC.
+Hi,
 
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
----
+On 10/9/20 4:19 AM, Jeff LaBundy wrote:
+> Hi Hans,
+> 
+> On Thu, Oct 08, 2020 at 09:10:19AM +0200, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 10/8/20 2:14 AM, Jeff LaBundy wrote:
+>>> Hi all,
+>>>
+>>> On Wed, Oct 07, 2020 at 03:32:07PM +0200, Hans de Goede wrote:
+>>>> Hi,
+>>>>
+>>>> On 10/7/20 3:29 PM, Bastien Nocera wrote:
+>>>>> On Wed, 2020-10-07 at 15:08 +0200, Hans de Goede wrote:
+>>>>>> Hi,
+>>>>>>
+>>>>>> On 10/7/20 1:35 PM, Bastien Nocera wrote:
+>>>>>>> On Wed, 2020-10-07 at 11:51 +0200, Hans de Goede wrote:
+>>>>>>>> <snip>
+>>>>>>>>> Dmitry, any existing stuff like this in input?
+>>>
+>>> It seems we are talking about "specific absorption rate" (SAR) type
+>>> devices that signal the WLAN controller to reduce transmitted power
+>>> while a user is nearby.
+>>
+>> Yes and no. At least the lap-mode detection (laptop on someones
+>> lap rather then sitting on a table) is currently used by the
+>> embedded-controller for thermal management decisions, basically
+>> when on someones lap the configurable TPD of the CPU is set lower
+>> to keep the laptop's bottom skin temperate < 45 degrees Celsius
+>> (I think it is 45 but the exact number does not matter).
+> 
+> This is a much-appreciated feature. :)
+> 
+>>
+>> The lap-mode info is currently exported with a thinkpad_acpi specific
+>> sysfs attribute with the idea that userspace could potentially use
+>> this to indicate to the user that turbo clocks will be lower
+>> because of this.
+>>
+>> With upcoming WLAN cards with configurable transmit power,
+>> this will also be used as what you call a SAR device.
+>>
+>> AFAIK the palmrest case is mostly a SAR device.
+>>
+>> Note I'm explaining the alternative lap-mode use-case to make
+>> sure everyone is on the same page. I completely agree with the
+>> gist of your email :)
+> 
+> Acknowledged on all counts; thank you for this additional background
+> information.
+> 
+>>
+>>> I just wanted to chime in and confirm that we do have at least one
+>>> precedent for these being in input (keyboard/iqs62x-keys) and not
+>>> iio so I agree with Jonathan here. My argument is that we want to
+>>> signal binary events (user grabbed onto or let go of the handset)
+>>> rather than deliver continuous data.
+>>
+>> I was curious what keycode you are using for this, but I see
+>> that the keycodes come from devicetree, so I guess I should
+>> just ask: what keycode are you using for this ?
+> 
+> The idea here was that a vendor might implement their own daemon
+> that interprets any keycode of their choice, hence leaving the
+> keycodes assignable via devicetree.
+> 
+> This particular device also acts as a capacitive/inductive button
+> sensor, and these applications were the primary motivation for it
+> landing in input with its status bits mapped to keycodes.
+> 
+> I don't think there are any keycodes that exist today that would
+> universally work for this application. The couple that seem most
+> closely related (e.g. KEY_WLAN or KEY_RFKILL) are typically used
+> for disabling the adapter entirely or for airplane mode (please
+> correct me if I'm wrong).
 
-V6:
-	* No changes
-V5:
-	* Rebased, removed regulator documentation because it will be send later
-	on in another patch series
-V4:
-	* No change
-V3:
-	* No change
-V2:
-	* New patch
+You're right (aka not wrong), KEY_WLAN and KEY_RFKILL are used to
+toggle wireless radios on/off and re-using them for some SAR
+purpose would lead to nothing but confusion. We really need to
+define some standard *new* event-codes for this, such as e.g.
+the proposed SW_LAP_PROXIMITY and SW_PALMREST_PROXIMITY.
 
- Documentation/devicetree/bindings/mfd/mt6397.txt | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+> To that end, I'm keen to see how this interface unfolds because
+> SAR detection tends to be an available mode of operation for
+> several of the capacitive touch devices I've been working with.
 
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index 2661775a3825..f051a951ba72 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -21,6 +21,7 @@ Required properties:
- compatible:
- 	"mediatek,mt6323" for PMIC MT6323
- 	"mediatek,mt6358" for PMIC MT6358
-+	"mediatek,mt6392" for PMIC MT6392
- 	"mediatek,mt6397" for PMIC MT6397
- 
- Optional subnodes:
-@@ -52,7 +53,10 @@ Optional subnodes:
- 
- - keys
- 	Required properties:
--		- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-+		- compatible:
-+			- "mediatek,mt6323-keys"
-+			- "mediatek,mt6392-keys", "mediatek,mt6397-keys"
-+			- "mediatek,mt6397-keys"
- 	see ../input/mtk-pmic-keys.txt
- 
- - power-controller
--- 
-2.28.0
+I guess that for touchscreens at least (which are on the front),
+using the existing SW_FRONT_PROXIMITY would make the most sense.
+
+Regards,
+
+Hans
 

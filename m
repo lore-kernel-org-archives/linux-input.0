@@ -2,391 +2,138 @@ Return-Path: <SRS0=O1U5=DU=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D90B6C433E7
-	for <linux-input@archiver.kernel.org>; Tue, 13 Oct 2020 07:37:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E71CC433DF
+	for <linux-input@archiver.kernel.org>; Tue, 13 Oct 2020 08:21:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 703AB2073A
-	for <linux-input@archiver.kernel.org>; Tue, 13 Oct 2020 07:37:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E8EA021D7F
+	for <linux-input@archiver.kernel.org>; Tue, 13 Oct 2020 08:21:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=dialogsemiconductor.onmicrosoft.com header.i=@dialogsemiconductor.onmicrosoft.com header.b="jIEPxpNI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390349AbgJMHhi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 13 Oct 2020 03:37:38 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:49053 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390105AbgJMHhh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Oct 2020 03:37:37 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 8FB1B99D;
-        Tue, 13 Oct 2020 03:37:36 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 13 Oct 2020 03:37:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=C/WKYa
-        bBtAj7UQ+UNrpKXawYSttnXBVAlJWWpTWmXic=; b=PqEMgWSPiA5iqGjssgocPt
-        l89fNlTkHiSsBEbjIslh0YS8uvpkFnkxXd31Da5hVr9eBtzOkrJxckTnKZjCw9ZW
-        QW1tm3KZcQCrIArt/CKU//YODcNtUtmk6ewBwM3pTbpVw8qbVqZ+MDDcqM18goLg
-        wLT5WTZ4xl8FR8uATkla/eTe9rRHSat1ueZKqK2aJYY2WygPqcKF60De2IxcEeaJ
-        z1ZOnj3muIMSoZKvWYchcYVqCy5ZAO7ZWs/N7AQmpAp7zN37hHFFcq57zVQjMBPV
-        oOja+tToYkcID2c+rOjrLtV15xPHLNCQCCwzW5y5B3KWwc6jKBaKSe70jIRGLPsg
-        ==
-X-ME-Sender: <xms:P1mFX2WMGuWdUmFklztFdKy_IRUQgI2cl5pjcVvfRFH79C2Mw7jwZg>
-    <xme:P1mFXymhgrGeJJmgVCSLo9VHTRtZSLOEvSl63abgbWJZAqfHFFaEI3MTMRZ0ED3Tb
-    v3LB6tIb5myFZ5JGW8>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrheekgdduvdegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffuvffkjghfofggtgesthdtre
-    dtredtvdenucfhrhhomhepnfhukhgvucflohhnvghsuceolhhukhgvsehljhhonhgvshdr
-    uggvvheqnecuggftrfgrthhtvghrnhepgfeffedufffhgfeuheegffffgeegveeifeeute
-    fhieejffetudfgueevteehtdetnecukfhppedvtdefrdduudegrddugedurdduieenucev
-    lhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehluhhkvgeslh
-    hjohhnvghsrdguvghv
-X-ME-Proxy: <xmx:P1mFX6bMlQgjeNXoaz3uBbZVK8TMJ26KECwjrxYEhETNUVLs3elDyw>
-    <xmx:P1mFX9WykB__Aqlk6MkluVxO3JkB9E9EGhi0AE1k3-eRRAykzx3UyA>
-    <xmx:P1mFXwlH5z9ARwdR314KT-wE7W5iq8o_-2frNSvsInh17mTvrbzEdg>
-    <xmx:QFmFX8tj2S9FkoeZk9V9t3U8lw-muDrcd57b2h6oL3RPOXWnVptqiA>
-Received: from [192.168.20.20] (203-114-141-16.sta.inspire.net.nz [203.114.141.16])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 501C13064682;
-        Tue, 13 Oct 2020 03:37:31 -0400 (EDT)
-Date:   Tue, 13 Oct 2020 20:37:19 +1300
-From:   Luke Jones <luke@ljones.dev>
-Subject: Re: [PATCH V8] HID: ASUS: Add support for ASUS N-Key keyboard
-To:     linux-input@vger.kernel.org
-Cc:     hdegoede@redhat.com, jikos@kernel.org, andy@infradead.org,
-        benjamin.tissoires@redhat.com
-Message-Id: <7IQ4IQ.JQN3B5D9ZN42@ljones.dev>
-In-Reply-To: <20201013073508.10476-1-luke@ljones.dev>
-References: <20201013073508.10476-1-luke@ljones.dev>
-X-Mailer: geary/3.38.1
+        id S2391350AbgJMIVN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 13 Oct 2020 04:21:13 -0400
+Received: from mail-eopbgr10049.outbound.protection.outlook.com ([40.107.1.49]:50389
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727744AbgJMIVJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 13 Oct 2020 04:21:09 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=aeUAQqoHgDaqLneeGwtPpqnW78js6Q3idE+lx7eA2i8qnp+8iecwAg7XU75HmTvoPy6KrUirY5y/kt280uG800myJ/U7Zy4X+kD7sukCHlTNkAyPsDnVMwJhCqC9Te9qNIqPAcPBY/edYO/cvAtNMnPxgRs+KeSxYJbZror5sL6DzYrxtxIe+/8KxAbP3VjIbq/rsDuBvvq7hnuyPKfLowpQ/NYDG5w6XWsB1lphHLTa+dvivw2lP64mSGOm53QxdqZODpm0bl7/RBvqTpix6SChvQgiqiSsZtieere8Y7lEWB4I8WOyWxypBkDCqUWCgXRtn4unf2QEJv3HZaP1HQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rgtbqbYxmvpPNuBpU35IFEsVGMMKuevzn+k6Qa7Gebk=;
+ b=RGL1gTFHfkjL9ZICxebf7a/CeDzu0HZTKmTHXHLRg3Z6k6GGmFHlbt9KQ1VVqQnBBllcUl3FQBkCVsyJaOv1W5UsJj9I/OlcG7ueBtU+8xpahG7JrvLlKO9bgIP1PIhy027dLpdmWL5GTqdGfRj/9HoWUcc+a7jAXtKe47j1Frfa+1I8EHyrThEU90JOg3iM4jFMhxTNaakgVt0Nf+OtYzuLoqRj4DQL0Y14uNxyaKvrmOdB+s7qCZdPb0YKjISILj/srKmAHcYUfSUDUoG5R795b+K/v6Q5Rf0fkJVyBbbUAIv94wxfxFB7Gzsm8MTmub/HbD8/nLYOATajo25ROg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=softfail (sender ip
+ is 193.240.239.45) smtp.rcpttodomain=linuxfoundation.org
+ smtp.mailfrom=diasemi.com; dmarc=fail (p=none sp=none pct=100) action=none
+ header.from=diasemi.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=dialogsemiconductor.onmicrosoft.com;
+ s=selector1-dialogsemiconductor-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rgtbqbYxmvpPNuBpU35IFEsVGMMKuevzn+k6Qa7Gebk=;
+ b=jIEPxpNIV5DISK3x1gu4rkcWox5/mbY38HdJJba4081+Hg4qAtDh1gXSRGqXsTB0zpi328ezjiFkokEzpWi9rYBmjsSLu3089ybhw121TRwHYHpeJsL0Id3lUOLoTIuaCZD8UYJsDoxezE9UYxmT/pOQ8OAYo8PTMZBohEUHiWE=
+Received: from AM7PR03CA0010.eurprd03.prod.outlook.com (2603:10a6:20b:130::20)
+ by DB7PR10MB2266.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:4c::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3455.28; Tue, 13 Oct
+ 2020 08:21:05 +0000
+Received: from HE1EUR02FT012.eop-EUR02.prod.protection.outlook.com
+ (2603:10a6:20b:130:cafe::2e) by AM7PR03CA0010.outlook.office365.com
+ (2603:10a6:20b:130::20) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3455.21 via Frontend
+ Transport; Tue, 13 Oct 2020 08:21:04 +0000
+X-MS-Exchange-Authentication-Results: spf=softfail (sender IP is
+ 193.240.239.45) smtp.mailfrom=diasemi.com; linuxfoundation.org; dkim=none
+ (message not signed) header.d=none;linuxfoundation.org; dmarc=fail
+ action=none header.from=diasemi.com;
+Received-SPF: SoftFail (protection.outlook.com: domain of transitioning
+ diasemi.com discourages use of 193.240.239.45 as permitted sender)
+Received: from mailrelay1.diasemi.com (193.240.239.45) by
+ HE1EUR02FT012.mail.protection.outlook.com (10.152.10.75) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.3455.23 via Frontend Transport; Tue, 13 Oct 2020 08:21:04 +0000
+Received: from krsrvapps-03.diasemi.com (10.93.17.2) by
+ NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
+ 14.3.468.0; Tue, 13 Oct 2020 10:21:03 +0200
+Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
+ DAC6213F671; Tue, 13 Oct 2020 17:21:01 +0900 (KST)
+Message-ID: <cover.1602570380.git.Roy.Im@diasemi.com>
+From:   Roy Im <roy.im.opensource@diasemi.com>
+Date:   Tue, 13 Oct 2020 15:26:20 +0900
+Subject: [RESEND PATCH v20 0/3]  da7280: haptic driver submission
+To:     "David S. Miller" <davem@davemloft.net>,
+        Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>
+CC:     Support Opensource <support.opensource@diasemi.com>,
+        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c94b9b06-d64a-471b-995a-08d86f50ed8d
+X-MS-TrafficTypeDiagnostic: DB7PR10MB2266:
+X-Microsoft-Antispam-PRVS: <DB7PR10MB2266F62967E5F6DBD16EC715A2040@DB7PR10MB2266.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: DOSekNAMVnInNW9Ec2322z3tFLe3OduB+JLS7u4fsxn0wB2RS/a4amt35OnDIw4aamkNuSc+4afkbt9YDl02cnP8WBL1saaQ2JeYS8fwzSlUpW4GqAs6khb/LsxfeIhF2qzWxM2izNV2if73bGtwQDmesK52yOOTtW5hYldVb+FTcP9nBmMrO8UeiRWLEuws0f2fkoDKi8gJDaVLME4+7O/+Fl0BgLWt2UT30S9GuB1g1T1lGIOYh1FUJH36kGFceZFIuyOMpe6cX73DlQGE7wZTJ4R6KX4g0SOCx4gp0L/XJ70ylDY7mZy6xLJgP6FWl8E14jopgsycuDstFxFAac/XDBf2rR678BuLTTJxC4lx8kWBpzUWk6AIcekZOYMwBggB6vEm+V98PD1Qi/cIskQmDkvqXYdD8cCqolAl7pz771l/mZvvai9LKk7eNY6o
+X-Forefront-Antispam-Report: CIP:193.240.239.45;CTRY:GB;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mailrelay1.diasemi.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(396003)(136003)(346002)(39850400004)(376002)(46966005)(82310400003)(8676002)(478600001)(42186006)(70586007)(4326008)(186003)(6266002)(6666004)(8936002)(70206006)(54906003)(86362001)(110136005)(36906005)(5660300002)(7416002)(316002)(2906002)(426003)(356005)(26005)(336012)(83380400001)(36756003)(82740400003)(33310700002)(47076004)(2616005)(4744005)(81166007)(921003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: diasemi.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Oct 2020 08:21:04.5792
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: c94b9b06-d64a-471b-995a-08d86f50ed8d
+X-MS-Exchange-CrossTenant-Id: 511e3c0e-ee96-486e-a2ec-e272ffa37b7c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=511e3c0e-ee96-486e-a2ec-e272ffa37b7c;Ip=[193.240.239.45];Helo=[mailrelay1.diasemi.com]
+X-MS-Exchange-CrossTenant-AuthSource: HE1EUR02FT012.eop-EUR02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB7PR10MB2266
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Very sorry all, I hadn't edited the commit message in the V7 patch.
-This version contains correct commit message and all previous
-requested fixes or changes.
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-Kind regards,
-Luke.
+In this patch set the following is provided:
 
-On Tue, Oct 13, 2020 at 20:35, Luke D Jones <luke@ljones.dev> wrote:
-> The ASUS N-Key keyboard uses the productId of 0x1866 and is used in
-> almost all modern ASUS gaming laptops with slight changes to the
-> firmware. This patch enables: Fn+key hotkeys, keyboard backlight
-> brightness control, and notify asus-wmi to toggle "fan-mode".
-> 
-> The keyboard has many of the same key outputs as the existing ASUS
-> keyboard including a few extras, and varies a little between laptop
-> models.
-> 
-> Additionally this keyboard requires the LED interface to be
-> intitialised before such things as keyboard backlight control work.
-> 
-> Misc changes in scope: update some hardcoded comparisons to use an
-> available define.
-> 
-> Signed-off-by: Luke D Jones <luke@ljones.dev>
-> ---
->  drivers/hid/hid-asus.c                     | 148 
-> ++++++++++++++++++---
->  drivers/hid/hid-ids.h                      |   1 +
->  include/linux/platform_data/x86/asus-wmi.h |   1 +
->  3 files changed, 135 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index c183caf89d49..a2f5469da0e6 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-> @@ -26,6 +26,8 @@
->  #include <linux/dmi.h>
->  #include <linux/hid.h>
->  #include <linux/module.h>
-> +
-> +#include <linux/acpi.h>
->  #include <linux/platform_data/x86/asus-wmi.h>
->  #include <linux/input/mt.h>
->  #include <linux/usb.h> /* For to_usb_interface for T100 touchpad 
-> intf check */
-> @@ -48,6 +50,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and 
-> TouchPad");
->  #define INPUT_REPORT_ID 0x5d
->  #define FEATURE_KBD_REPORT_ID 0x5a
->  #define FEATURE_KBD_REPORT_SIZE 16
-> +#define FEATURE_KBD_LED_REPORT_ID1 0x5d
-> +#define FEATURE_KBD_LED_REPORT_ID2 0x5e
-> 
->  #define SUPPORT_KBD_BACKLIGHT BIT(0)
-> 
-> @@ -80,6 +84,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and 
-> TouchPad");
->  #define QUIRK_T101HA_DOCK		BIT(9)
->  #define QUIRK_T90CHI			BIT(10)
->  #define QUIRK_MEDION_E1239T		BIT(11)
-> +#define QUIRK_ROG_NKEY_KEYBOARD		BIT(12)
-> 
->  #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
->  						 QUIRK_NO_INIT_REPORTS | \
-> @@ -305,10 +310,33 @@ static int asus_e1239t_event(struct 
-> asus_drvdata *drvdat, u8 *data, int size)
->  	return 0;
->  }
-> 
-> +/*
-> + * This enables triggering events in asus-wmi
-> + */
-> +static int asus_wmi_send_event(struct asus_drvdata *drvdat, u8 code)
-> +{
-> +	int err;
-> +	u32 retval;
-> +
-> +	err = asus_wmi_evaluate_method(ASUS_WMI_METHODID_DEVS,
-> +		ASUS_WMI_DEVID_NOTIF, code, &retval);
-> +	if (err) {
-> +		pr_warn("Failed to notify asus-wmi: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	if (retval != 0) {
-> +		pr_warn("Failed to notify asus-wmi (retval): 0x%x\n", retval);
-> +		return -EIO;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  static int asus_event(struct hid_device *hdev, struct hid_field 
-> *field,
->  		      struct hid_usage *usage, __s32 value)
->  {
-> -	if ((usage->hid & HID_USAGE_PAGE) == 0xff310000 &&
-> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR &&
->  	    (usage->hid & HID_USAGE) != 0x00 &&
->  	    (usage->hid & HID_USAGE) != 0xff && !usage->type) {
->  		hid_warn(hdev, "Unmapped Asus vendor usagepage code 0x%02x\n",
-> @@ -321,6 +349,7 @@ static int asus_event(struct hid_device *hdev, 
-> struct hid_field *field,
->  static int asus_raw_event(struct hid_device *hdev,
->  		struct hid_report *report, u8 *data, int size)
->  {
-> +	int ret;
->  	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-> 
->  	if (drvdata->battery && data[0] == BATTERY_REPORT_ID)
-> @@ -332,6 +361,35 @@ static int asus_raw_event(struct hid_device 
-> *hdev,
->  	if (drvdata->quirks & QUIRK_MEDION_E1239T)
->  		return asus_e1239t_event(drvdata, data, size);
-> 
-> +	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
-> +		/*
-> +		 * Skip these report ID, the device emits a continuous stream 
-> associated
-> +		 * with the AURA mode it is in which looks like an 'echo'
-> +		*/
-> +		if (report->id == FEATURE_KBD_LED_REPORT_ID1 ||
-> +				report->id == FEATURE_KBD_LED_REPORT_ID2) {
-> +			return -1;
-> +		/* Additional report filtering */
-> +		} else if (report->id == FEATURE_KBD_REPORT_ID) {
-> +			/* Fn+F5 "fan" symbol, trigger WMI event to toggle next mode */
-> +			if (data[1] == 0xae) {
-> +				ret = asus_wmi_send_event(drvdata, 0xae);
-> +				if (ret < 0) {
-> +					hid_warn(hdev, "Asus failed to trigger fan control event");
-> +				}
-> +				return -1;
-> +			/*
-> +			 * G14 and G15 send these codes on some keypresses with no
-> +			 * discernable reason for doing so. We'll filter them out to avoid
-> +			 * unmapped warning messages later
-> +			*/
-> +			} else if (data[1] == 0xea || data[1] == 0xec || data[1] == 0x02 
-> ||
-> +					data[1] == 0x8a || data[1] == 0x9e) {
-> +				return -1;
-> +			}
-> +		}
-> +	}
-> +
->  	return 0;
->  }
-> 
-> @@ -344,7 +402,11 @@ static int asus_kbd_set_report(struct hid_device 
-> *hdev, u8 *buf, size_t buf_size
->  	if (!dmabuf)
->  		return -ENOMEM;
-> 
-> -	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, dmabuf,
-> +	/*
-> +	 * The report ID should be set from the incoming buffer due to LED 
-> and key
-> +	 * interfaces having different pages
-> +	*/
-> +	ret = hid_hw_raw_request(hdev, buf[0], dmabuf,
->  				 buf_size, HID_FEATURE_REPORT,
->  				 HID_REQ_SET_REPORT);
->  	kfree(dmabuf);
-> @@ -397,6 +459,44 @@ static int asus_kbd_get_functions(struct 
-> hid_device *hdev,
->  	return ret;
->  }
-> 
-> +static int rog_nkey_led_init(struct hid_device *hdev)
-> +{
-> +	u8 buf_init_start[] = { FEATURE_KBD_LED_REPORT_ID1, 0xB9 };
-> +	u8 buf_init2[] = { FEATURE_KBD_LED_REPORT_ID1, 0x41, 0x53, 0x55, 
-> 0x53, 0x20,
-> +				0x54, 0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e, 0x00 };
-> +	u8 buf_init3[] = { FEATURE_KBD_LED_REPORT_ID1,
-> +						0x05, 0x20, 0x31, 0x00, 0x08 };
-> +	int ret;
-> +
-> +	hid_info(hdev, "Asus initialise N-KEY Device");
-> +	/* The first message is an init start */
-> +	ret = asus_kbd_set_report(hdev, buf_init_start, 
-> sizeof(buf_init_start));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init start command: %d\n", ret);
-> +	/* Followed by a string */
-> +	ret = asus_kbd_set_report(hdev, buf_init2, sizeof(buf_init2));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init command 1.0: %d\n", ret);
-> +	/* Followed by a string */
-> +	ret = asus_kbd_set_report(hdev, buf_init3, sizeof(buf_init3));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init command 1.1: %d\n", ret);
-> +
-> +	/* begin second report ID with same data */
-> +	buf_init2[0] = FEATURE_KBD_LED_REPORT_ID2;
-> +	buf_init3[0] = FEATURE_KBD_LED_REPORT_ID2;
-> +
-> +	ret = asus_kbd_set_report(hdev, buf_init2, sizeof(buf_init2));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init command 2.0: %d\n", ret);
-> +
-> +	ret = asus_kbd_set_report(hdev, buf_init3, sizeof(buf_init3));
-> +	if (ret < 0)
-> +		hid_err(hdev, "Asus failed to send init command 2.1: %d\n", ret);
-> +
-> +	return ret;
-> +}
-> +
->  static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
->  				   enum led_brightness brightness)
->  {
-> @@ -460,19 +560,25 @@ static int asus_kbd_register_leds(struct 
-> hid_device *hdev)
->  	unsigned char kbd_func;
->  	int ret;
-> 
-> -	/* Initialize keyboard */
-> -	ret = asus_kbd_init(hdev);
-> -	if (ret < 0)
-> -		return ret;
-> +	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
-> +		ret = rog_nkey_led_init(hdev);
-> +		if (ret < 0)
-> +			return ret;
-> +	} else {
-> +		/* Initialize keyboard */
-> +		ret = asus_kbd_init(hdev);
-> +		if (ret < 0)
-> +			return ret;
-> 
-> -	/* Get keyboard functions */
-> -	ret = asus_kbd_get_functions(hdev, &kbd_func);
-> -	if (ret < 0)
-> -		return ret;
-> +		/* Get keyboard functions */
-> +		ret = asus_kbd_get_functions(hdev, &kbd_func);
-> +		if (ret < 0)
-> +			return ret;
-> 
-> -	/* Check for backlight support */
-> -	if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
-> -		return -ENODEV;
-> +		/* Check for backlight support */
-> +		if (!(kbd_func & SUPPORT_KBD_BACKLIGHT))
-> +			return -ENODEV;
-> +	}
-> 
->  	drvdata->kbd_backlight = devm_kzalloc(&hdev->dev,
->  					      sizeof(struct asus_kbd_leds),
-> @@ -751,8 +857,8 @@ static int asus_input_mapping(struct hid_device 
-> *hdev,
->  	     usage->hid == (HID_UP_GENDEVCTRLS | 0x0026)))
->  		return -1;
-> 
-> -	/* ASUS-specific keyboard hotkeys */
-> -	if ((usage->hid & HID_USAGE_PAGE) == 0xff310000) {
-> +	/* ASUS-specific keyboard hotkeys and led backlight */
-> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR) {
->  		switch (usage->hid & HID_USAGE) {
->  		case 0x10: asus_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
->  		case 0x20: asus_map_key_clear(KEY_BRIGHTNESSUP);		break;
-> @@ -780,6 +886,15 @@ static int asus_input_mapping(struct hid_device 
-> *hdev,
->  		/* Fn+F5 "fan" symbol on FX503VD */
->  		case 0x99: asus_map_key_clear(KEY_PROG4);		break;
-> 
-> +		/* Fn+Ret "Calc" symbol on device 0x1866, N-KEY Device */
-> +		case 0x92: asus_map_key_clear(KEY_CALC);		break;
-> +
-> +		/* Fn+Left Aura mode previous */
-> +		case 0xb2: asus_map_key_clear(KEY_PROG2);		break;
-> +
-> +		/* Fn+Right Aura mode next */
-> +		case 0xb3: asus_map_key_clear(KEY_PROG3);		break;
-> +
->  		default:
->  			/* ASUS lazily declares 256 usages, ignore the rest,
->  			 * as some make the keyboard appear as a pointer device. */
-> @@ -1126,6 +1241,9 @@ static const struct hid_device_id 
-> asus_devices[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
->  		USB_DEVICE_ID_ASUSTEK_FX503VD_KEYBOARD),
->  	  QUIRK_USE_KBD_BACKLIGHT },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-> +	    USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD),
-> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
->  		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
->  	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 6f370e020feb..c9f930ddcfd7 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -190,6 +190,7 @@
->  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
->  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2 0x1837
->  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3 0x1822
-> +#define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD	0x1866
->  #define USB_DEVICE_ID_ASUSTEK_FX503VD_KEYBOARD	0x1869
-> 
->  #define USB_VENDOR_ID_ATEN		0x0557
-> diff --git a/include/linux/platform_data/x86/asus-wmi.h 
-> b/include/linux/platform_data/x86/asus-wmi.h
-> index 897b8332a39f..ddf72cfe721a 100644
-> --- a/include/linux/platform_data/x86/asus-wmi.h
-> +++ b/include/linux/platform_data/x86/asus-wmi.h
-> @@ -69,6 +69,7 @@
->  /* Input */
->  #define ASUS_WMI_DEVID_TOUCHPAD		0x00100011
->  #define ASUS_WMI_DEVID_TOUCHPAD_LED	0x00100012
-> +#define ASUS_WMI_DEVID_NOTIF		0x00100021 /* Emit keyboard event */
->  #define ASUS_WMI_DEVID_FNLOCK		0x00100023
-> 
->  /* Fan, Thermal */
-> --
-> 2.28.0
-> 
+[PATCH v20 1/3] MAINTAINERS file update for DA7280
+[PATCH v20 2/3] DA7280 DT Binding
+[PATCH v20 3/3] DA7280 Driver
 
+This patch applies against linux-mainline and v5.9
+
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
+
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |  109 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   12 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1375 ++++++++++++++++++++
+ 5 files changed, 1499 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+
+-- 
+end-of-patch for RESEND PATCH v20
 

@@ -2,234 +2,123 @@ Return-Path: <SRS0=POmM=DV=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23D4DC433E7
-	for <linux-input@archiver.kernel.org>; Wed, 14 Oct 2020 08:16:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ABA9C43457
+	for <linux-input@archiver.kernel.org>; Wed, 14 Oct 2020 09:20:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ABB5520BED
-	for <linux-input@archiver.kernel.org>; Wed, 14 Oct 2020 08:16:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 161D920878
+	for <linux-input@archiver.kernel.org>; Wed, 14 Oct 2020 09:20:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CQknKCrf"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C+Dm1U3+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726596AbgJNIQn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 14 Oct 2020 04:16:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60056 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726583AbgJNIQk (ORCPT
+        id S1730755AbgJNJUP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 14 Oct 2020 05:20:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39950 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730749AbgJNJUJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Oct 2020 04:16:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602663397;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=NEuzfJp3kLFJYoyFS4yjEaw3Qu/nOPM379Heem1cvIY=;
-        b=CQknKCrfD59IftUl1Q2hry/i9inqQsjZVw0FYAaj/M6nEOMW1cDV/EYRW2Hmg86iS19qfd
-        eoG/21QYHQKB1nmI7nRSy+TUQGJR4d56MY/7sE0f58p98eyXMu4w7nyWOHlH+k+6Sf8yiD
-        hUbi6MwxIIAvxj/Zf7XvzmOMyatFL4s=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-271--TyEr8O8PgCLKA5O0sKu9g-1; Wed, 14 Oct 2020 04:16:36 -0400
-X-MC-Unique: -TyEr8O8PgCLKA5O0sKu9g-1
-Received: by mail-ej1-f71.google.com with SMTP id p19so860413ejy.11
-        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2020 01:16:35 -0700 (PDT)
+        Wed, 14 Oct 2020 05:20:09 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A44C004586
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2020 18:31:10 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id h7so1751534wre.4
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2020 18:31:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ftbix09uwDhbmk/tHnvoMIDN5VJWY3gqHN6AK2D9zq8=;
+        b=C+Dm1U3+yDrtEhOy2Mtk86b+BdbNo9PnE48VXsKvtl0pxJfSoC8HB1CIO4kKsRPed9
+         tCaHRyIhIQz1uYTdGTrb9hGKoW9RhHI32vlH87J2vho4nBdhO5SkTebHXSTARvxJRDKV
+         GgxIi+vARPrz+VD6Y0DvFFLY8Zt631JslACyq84jP63//hKstOcAXkS8+X9XZuKsgai3
+         BKMkZGwKC/DTzII5gv3Bn0IwyR2ZLnGi1nYwmxvTOjYFK8AaSXnZGlnRpEyOOgjtrmL2
+         9t/4fdfx0PHX+dgDMRFIIPb0pr/xp4uy8auyWHkHHTzyz0hs0cdBiedyiRjg4ti+GAl/
+         0AVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=NEuzfJp3kLFJYoyFS4yjEaw3Qu/nOPM379Heem1cvIY=;
-        b=YCX8U32vD1fpa6RksC+2HOT32cnC70yPH+w3a2HDd9lrmRjaBq/qvrKEX3P+6+xhBe
-         SVz6ss3Y3K2VSZ4/e/MrUaWWx6BdVkv9KqSsna6fkOWWt3ho/QR2g/cLMoC8syNlhj7N
-         i1WHIef/L8FAggjo199YXYcKT3VRpEZb2dTc88lr5nvXbej3VBzvXFfJU2Id3QPiae+I
-         gBymcKrgvBdPBAhj7wKR24oamIKY5Mht0AlJeCMD1nZJRmAfZYUeWIP1qglUMQEZoy7A
-         bRUSaymK5tcK/LMRY76flcDf9WXDkMhjLlRBUbiG/A7N3ohUvBtGOTGuyCt4sajg5P7E
-         DJFA==
-X-Gm-Message-State: AOAM530hQYRn9OEBrXBOydK/9xcrbwm934K0vXz0Mu3mY+YtkcOnELsS
-        ek0BCkDyBu49SJRuvs+QbJSAezOev0+gwSzsvW3urADFzYQlnzfbp701vljriu2NrCMNGjwjm0k
-        nollpnNK7GfUMFCQhLO1Rq28=
-X-Received: by 2002:a17:906:16c6:: with SMTP id t6mr3888373ejd.453.1602663394862;
-        Wed, 14 Oct 2020 01:16:34 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxfABKskznyFPovKXzHLmivfv/H+1LjLqnuqwzcIuE8BplwylF+q5MWWFOsIXAUcxJX4yy9+A==
-X-Received: by 2002:a17:906:16c6:: with SMTP id t6mr3888356ejd.453.1602663394612;
-        Wed, 14 Oct 2020 01:16:34 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id a10sm1235250ejs.11.2020.10.14.01.16.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Oct 2020 01:16:34 -0700 (PDT)
-Subject: Re: [External] Using IIO to export laptop palm-sensor and lap-mode
- info to userspace?
-To:     Mark Pearson <markpearson@lenovo.com>,
-        Jeff LaBundy <jeff@labundy.com>
-Cc:     Bastien Nocera <hadess@hadess.net>,
-        Jonathan Cameron <Jonathan.Cameron@Huawei.com>,
-        Nitin Joshi1 <njoshi1@lenovo.com>, linux-input@vger.kernel.org,
-        dmitry.torokhov@gmail.com
-References: <9f9b0ff6-3bf1-63c4-eb36-901cecd7c4d9@redhat.com>
- <5a646527-7a1f-2fb9-7c09-8becdbff417b@lenovo.com>
- <20201007083602.00006b7e@Huawei.com>
- <218be284-4a37-e9f9-749d-c126ef1d098b@redhat.com>
- <b400b6956270a2433373dd6cbdae3332aa683f4f.camel@hadess.net>
- <cadabe4d-7cce-281e-75fe-fcc2099848da@redhat.com>
- <5273a1de9db682cd41e58553fe57707c492a53b7.camel@hadess.net>
- <272074b5-b28e-1b74-8574-3dc2d614269a@redhat.com>
- <20201008001424.GA3713@labundy.com>
- <9893a32c-02c8-f00c-7f00-6287d55043ab@redhat.com>
- <20201009021949.GA3629@labundy.com>
- <961aeee6-22e9-75dc-9fcf-45cee00ab62c@redhat.com>
- <075a5f57-3330-78fe-669b-01570d43d9c0@lenovo.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <a7ba6f8b-a321-013b-b4e5-c9e270eb3df5@redhat.com>
-Date:   Wed, 14 Oct 2020 10:16:33 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        bh=Ftbix09uwDhbmk/tHnvoMIDN5VJWY3gqHN6AK2D9zq8=;
+        b=BSIQPXYzbmIyJBtb3mHycQ+oXlRUIhO+xlJ6qgPLy3qP9L84UHCIva76vXSWJ67xx6
+         KutSDXEMm9sO2SeLh10kzd9VSg790xJZiu+eSS6sWyERW3bimTDJFDX768hoe47YhWsd
+         gupkN4xt3hk+/rM9zdi9WYMvuqhmiGSIB0NBjSFOfoQ2gUbJ7gTRLzAb784gx/psLTt7
+         srWC1NmwSconux64nwH1SxbMRlG6KOocMLQ7t7J+nIq7dqmjDnHZQQZtGF6WctxhZtTq
+         dhlYZkDQSQnkHm3MA7TcE3DHRzT/CwLN4VNdiyrwyxbu0yJBTzcw+CWHG7CN9aQJnojL
+         ID0A==
+X-Gm-Message-State: AOAM531Md0VllxkFCpgVajipsYYRXgfZvqDT9unSvus6/flJ6VoVIKW4
+        JZECHcq8q2vQIBkfCm9b7R5yKMmV3M88wg==
+X-Google-Smtp-Source: ABdhPJy99OWQAFyvoSgHQRTWkqlGyUnoel/cJWvz+Hgzsx5FdNvKDtIww6bcw/EQYUgVejEPXhcsHg==
+X-Received: by 2002:a5d:6a0a:: with SMTP id m10mr2546679wru.189.1602639069277;
+        Tue, 13 Oct 2020 18:31:09 -0700 (PDT)
+Received: from localhost (242.19.86.79.rev.sfr.net. [79.86.19.242])
+        by smtp.gmail.com with ESMTPSA id t83sm1189532wmf.39.2020.10.13.18.31.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Oct 2020 18:31:08 -0700 (PDT)
+From:   =?UTF-8?q?Fran=C3=A7ois-Xavier=20Carton?= <fx.carton91@gmail.com>
+To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     =?UTF-8?q?Fran=C3=A7ois-Xavier=20Carton?= <fx.carton91@gmail.com>,
+        Ethan Lee <flibitijibibo@gmail.com>,
+        Bastien Nocera <hadess@hadess.net>
+Subject: [PATCH v3 0/4] HID: gamecube-adapter
+Date:   Wed, 14 Oct 2020 03:30:19 +0200
+Message-Id: <20201014013023.23078-1-fx.carton91@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-In-Reply-To: <075a5f57-3330-78fe-669b-01570d43d9c0@lenovo.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Mark,
+Hi all,
 
-On 10/13/20 11:59 PM, Mark Pearson wrote:
-> Hi
-> 
-> On 2020-10-12 8:13 a.m., Hans de Goede wrote:
->> Hi,
->>
->> On 10/9/20 4:19 AM, Jeff LaBundy wrote:
->>> Hi Hans,
->>>
-> <snip>
->>>>
->>>>> I just wanted to chime in and confirm that we do have at least one
->>>>> precedent for these being in input (keyboard/iqs62x-keys) and not
->>>>> iio so I agree with Jonathan here. My argument is that we want to
->>>>> signal binary events (user grabbed onto or let go of the handset)
->>>>> rather than deliver continuous data.
->>>>
->>>> I was curious what keycode you are using for this, but I see
->>>> that the keycodes come from devicetree, so I guess I should
->>>> just ask: what keycode are you using for this ?
->>>
->>> The idea here was that a vendor might implement their own daemon
->>> that interprets any keycode of their choice, hence leaving the
->>> keycodes assignable via devicetree.
->>>
->>> This particular device also acts as a capacitive/inductive button
->>> sensor, and these applications were the primary motivation for it
->>> landing in input with its status bits mapped to keycodes.
->>>
->>> I don't think there are any keycodes that exist today that would
->>> universally work for this application. The couple that seem most
->>> closely related (e.g. KEY_WLAN or KEY_RFKILL) are typically used
->>> for disabling the adapter entirely or for airplane mode (please
->>> correct me if I'm wrong).
->>
->> You're right (aka not wrong), KEY_WLAN and KEY_RFKILL are used to
->> toggle wireless radios on/off and re-using them for some SAR
->> purpose would lead to nothing but confusion. We really need to
->> define some standard *new* event-codes for this, such as e.g.
->> the proposed SW_LAP_PROXIMITY and SW_PALMREST_PROXIMITY.
->>
->>> To that end, I'm keen to see how this interface unfolds because
->>> SAR detection tends to be an available mode of operation for
->>> several of the capacitive touch devices I've been working with.
->>
->> I guess that for touchscreens at least (which are on the front),
->> using the existing SW_FRONT_PROXIMITY would make the most sense.
->>
-> 
-> I've been looking at implementing this and I'm missing something - and I think it's probably something obvious so hoping someone can short cut me to the answer. Hope it's OK to do that in this thread (I removed the linux-iio list as I'm assuming they won't be interested)
-> 
-> I've added the new event codes to input-event-codes.h and updated mode_devicetable.h
-> 
-> In the thinkpad_acpi.c driver I initialise the device:
-> 
->     tpacpi_sw_dev = input_allocate_device();
->     if (!tpacpi_sw_dev)
->             return -ENOMEM;
->     tpacpi_sw_dev->name = "Thinkpad proximity switches";
->     tpacpi_sw_dev->phys = TPACPI_DRVR_NAME "/input1";
->     tpacpi_sw_dev->id.bustype = BUS_HOST;
->     tpacpi_sw_dev->id.vendor = thinkpad_id.vendor;
->     tpacpi_sw_dev->id.product = TPACPI_HKEY_INPUT_PRODUCT;
->     tpacpi_sw_dev->id.version = TPACPI_HKEY_INPUT_VERSION;
->     tpacpi_sw_dev->dev.parent = &tpacpi_pdev->dev;
-> 
->     if (has_palmsensor) {
->        input_set_capability(tpacpi_sw_dev, EV_SW, SW_PALMREST_PROXIMITY);
->        input_report_switch(tpacpi_sw_dev,SW_PALMREST_PROXIMITY, palmsensor_state);
->     }
-> 
->     if (has_lapsensor) {
->          input_set_capability(tpacpi_sw_dev, EV_SW, SW_LAP_PROXIMITY);
->          input_report_switch(tpacpi_sw_dev, SW_LAP_PROXIMITY, lapsensor_state);
->     }
->     err = input_register_device(tpacpi_sw_dev);
-> 
-> If the sensor triggers I update the inputdevice with:
->     input_report_switch(tpacpi_sw_dev, SW_PALMREST_PROXIMITY, new_state);
->     input_sync(tpacpi_sw_dev);
-> <similar for lapmode>
-> 
-> However I'm not seeing the change when I look under evtest, though I do see the new sensors show up:
-> 
->     [banther@localhost linux]$ sudo evtest
->     No device specified, trying to scan all of /dev/input/event*
->     Available devices:
->     /dev/input/event0:    Sleep Button
->     /dev/input/event1:    Lid Switch
->     /dev/input/event2:    Power Button
->     /dev/input/event3:    AT Translated Set 2 keyboard
->     /dev/input/event4:    TPPS/2 Elan TrackPoint
->     /dev/input/event5:    SYNA8004:00 06CB:CD8B Mouse
->     /dev/input/event6:    SYNA8004:00 06CB:CD8B Touchpad
->     /dev/input/event7:    Video Bus
->     /dev/input/event8:    Thinkpad proximity switches
->     /dev/input/event9:    PC Speaker
->     /dev/input/event10:    Integrated Camera: Integrated C
->     /dev/input/event11:    sof-hda-dsp Headset Jack
->     /dev/input/event12:    sof-hda-dsp Mic
->     /dev/input/event13:    sof-hda-dsp Headphone
->     /dev/input/event14:    sof-hda-dsp HDMI/DP,pcm=3
->     /dev/input/event15:    sof-hda-dsp HDMI/DP,pcm=4
->     /dev/input/event16:    sof-hda-dsp HDMI/DP,pcm=5
->     /dev/input/event17:    ThinkPad Extra Buttons
->     Select the device event number [0-17]: 8
->     Input driver version is 1.0.1
->     Input device ID: bus 0x19 vendor 0x17aa product 0x5054 version 0x4101
->     Input device name: "Thinkpad proximity switches"
->     Supported events:
->       Event type 0 (EV_SYN)
->       Event type 5 (EV_SW)
->         Event code 17 (?) state 0
->         Event code 18 (?) state 0
->     Properties:
->     Testing ... (interrupt to exit)
-> 
-> The state for both sensors is supposed to be 1.
-> I did download and rebuild evtest and fixed the (?), but haven't figured out why the state is wrong. It seemed related to the number of keys which I found odd.
-> 
-> Any suggestions from what I'm missing, or have done wrong, or where I should dig next? What's the recommended way of testing my implementation?
+This series adds a driver for Nintendo gamecube controller USB adapters.
+I've only done minor coding style edits since v2, to better conform to
+the kernel guidelines.
 
-A couple suggestions:
+I'd greatly appreciate a review of the code (especially since this is my
+first contribution to the kernel). I've been applying this patch series
+to several 5.4 kernels, the latest being 5.9.66.
 
-1. What Jeff said, add a printf to make sure that the input_report_switch + sync actually get called.
-2. Did you rebuild your entire kernel after adding the new SW_ definitions to input-event-codes.h ?  The core may very well be using a check for SW_MAX / SW_CNT
-3. Did you rebuild the evtest tool against the latest headers, including an updated SW_MAX / SW_CNT.
+Many thanks,
+François-Xavier
 
-To rule out issues with evtest still using an old SW_MAX somewhere you could (as a hack) replace the 2 new SW_... codes with 2 existing ones and see if that makes things work.
+---
 
-Regards,
+Changelog:
 
-Hans
+v3:
+- minor coding style edits
+
+v2:
+- Replaced calibration parameters by auto calibration using saved
+  min/max values.
+- Only send rumble output reports if the value changed.
+- Only set rumble capability for normal controllers; wavebird
+  controllers do not support rumble.
+- Send init command after suspend to get input reports again.
+
+---
+
+François-Xavier Carton (4):
+  HID: gamecube-adapter: add nintendo gamecube adapter
+  HID: gamecube-adapter: add rumble support
+  HID: gamecube-adapter: add auto calibration
+  HID: gamecube-adapter: restore input after suspend
+
+ MAINTAINERS                        |   6 +
+ drivers/hid/Kconfig                |  18 ++
+ drivers/hid/Makefile               |   1 +
+ drivers/hid/hid-gamecube-adapter.c | 492 +++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h              |   1 +
+ 5 files changed, 518 insertions(+)
+ create mode 100644 drivers/hid/hid-gamecube-adapter.c
+
+-- 
+2.26.2
 

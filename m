@@ -2,132 +2,110 @@ Return-Path: <SRS0=CZzJ=DW=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04435C4363A
-	for <linux-input@archiver.kernel.org>; Thu, 15 Oct 2020 02:09:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCA7DC433DF
+	for <linux-input@archiver.kernel.org>; Thu, 15 Oct 2020 10:34:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AA97D22258
-	for <linux-input@archiver.kernel.org>; Thu, 15 Oct 2020 02:09:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E25CF22249
+	for <linux-input@archiver.kernel.org>; Thu, 15 Oct 2020 10:34:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="N8IGdTig"
+	dkim=pass (1024-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="YI2wAXus"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728294AbgJOCJ5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 14 Oct 2020 22:09:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55610 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728875AbgJOCJh (ORCPT
+        id S1731167AbgJOKeA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 15 Oct 2020 06:34:00 -0400
+Received: from mail-03.mail-europe.com ([91.134.188.129]:48904 "EHLO
+        mail-03.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731165AbgJOKeA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Oct 2020 22:09:37 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6097AC025247
-        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2020 16:42:53 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id n9so639823pgf.9
-        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2020 16:42:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=UFheJw6XVQO5isnDiFQR+xrCu7msKsOYw9OYk1rLMK0=;
-        b=N8IGdTigzihNqkAyPolGmtVpC/VuZ2GtitBdeBYF6g+CQD2Rlv3lnEY6Wl+kbYtcCC
-         PvI3COWqViJ/dNjYhYzhaSvwGVmctTK8TlXDI3oJpspOJZvMMugyesKKKvqFOYL7b66a
-         5zI356jrVZvFtSVXyMLanfGw9/+06KWWqN7vA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=UFheJw6XVQO5isnDiFQR+xrCu7msKsOYw9OYk1rLMK0=;
-        b=CtFBmy1xu5sc6TS6ESZqYGJM/OBEN5EHMMGU0xEgAUEbs/YCW4dEOta7vS8VQgqEZu
-         //QQ8aYzVDMf+7IY0zaEsgJTIUaiV7bC4Vhd5cdjyxIOcarfwYxnWbBsB22b3iX4/ExW
-         NKG3QZxiJoH+h0WBPFD6nC3cFU+Dfz3sXewMO97yqEOpdMR7h0TYs5D5iOySx4HIKieL
-         XCPenQOWViSaplrMoGFUw6WcH53cR0PWCanjT9foB6wqfvC69Uv1Emjsd3kvv4wiGpWV
-         hXVQ8nFcWAtnIovMCaZjQUpQsM/Nyy+u8/oxBQcibe+MOcnB/5JkqjR9Ro7hG6f/0dAl
-         OpmQ==
-X-Gm-Message-State: AOAM531eq2m8v7Kocsq2HYVnLjV+6DDATxTg74vrKYEmVg39spZ8QHzN
-        L8fD0nB82hgZnkw7GMA59hTi275DrAHBEQ==
-X-Google-Smtp-Source: ABdhPJyE77i9Lzw2HZDV09mx6eVpDdKG4unVyuuvO8MZz7RKVFf77G7hx4sJuUbtEGOOT4Hd5lZvLw==
-X-Received: by 2002:a63:4459:: with SMTP id t25mr1115407pgk.104.1602718972789;
-        Wed, 14 Oct 2020 16:42:52 -0700 (PDT)
-Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
-        by smtp.gmail.com with ESMTPSA id d145sm808331pfd.136.2020.10.14.16.42.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Oct 2020 16:42:52 -0700 (PDT)
-From:   Douglas Anderson <dianders@chromium.org>
-To:     jkosina@suse.cz, benjamin.tissoires@redhat.com,
-        gregkh@linuxfoundation.org
-Cc:     kai.heng.feng@canonical.com, linux-input@vger.kernel.org,
-        hdegoede@redhat.com, andrea@borgia.bo.it, swboyd@chromium.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] dt-bindings: HID: i2c-hid: Add the ability to control a reset GPIO
-Date:   Wed, 14 Oct 2020 16:42:20 -0700
-Message-Id: <20201014164203.1.I1c2d6236990449717b861539a2234354153b1656@changeid>
-X-Mailer: git-send-email 2.28.0.1011.ga647a8990f-goog
+        Thu, 15 Oct 2020 06:34:00 -0400
+Date:   Thu, 15 Oct 2020 10:33:50 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1602758036;
+        bh=LmKMfbM7Hkdq+2pNRnuptrCxbTHKyZc4+lIHOhhd0oc=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=YI2wAXusKjmgO/3QlwNAbO5kcl95jZbDDF9Mx7+1C06FP2QBrSwUIP3ZQFV7b6HEE
+         C4aA04BWM+070lhYyjxe5ZD4YFmThIq5IvgAxfniUIndgXsxtk3hyp6J+tnL7DZYKO
+         JF+fjW04QWCV/jinBEYE6zIfT4weD2ql71BPDbIY=
+To:     Coiby Xu <coiby.xu@gmail.com>
+From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Subject: Re: [PATCH] HID: i2c-hid: add polling mode based on connected GPIO chip's pin status
+Message-ID: <t_cZwIcdajFYTSx2_B2UCOxOZLfPVBz3goQ7mtcy1g1lyok_u0sGB5nKWhZ2AX0p4-_EhwMwjGzp50wv3SYfNa3PJQWrhkk3AN5MisD9TJg=@protonmail.com>
+In-Reply-To: <20201009081100.3154-1-coiby.xu@gmail.com>
+References: <20201009081100.3154-1-coiby.xu@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Apparently some devices connected via i2c-hid have timing requirements
-around when a reset GPIO should be asserted to them.  The diagram I
-have seen, which I believe is from a Goodix device, looked like this:
+Hi,
 
-         +----------------------------------
-         |
-AVDD ----+
-               +------------------------------
-         | (a) |
-RESET ---------+
-                     +-------------
-               | (b) |
-I2C comm OK ---------+
+I believe this patch causes I2C HID devices not to work with IRQs after res=
+uming
+from suspend.
 
-Where (a) is 10 ms and (b) is 120 ms.
 
-Let's add the ability to specify these timings to the devicetree
-bindings.
+> [...]
+>  #ifdef CONFIG_PM_SLEEP
+> @@ -1183,7 +1292,8 @@ static int i2c_hid_suspend(struct device *dev)
+>  =09/* Save some power */
+>  =09i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+>
+> -=09disable_irq(client->irq);
+> +=09if (polling_mode =3D=3D I2C_POLLING_DISABLED)
+> +=09=09disable_irq(client->irq);
+>
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
----
-I notice this bindings file is still a ".txt" file.  Some searching on
-The Internets(TM) shows that Rob has maybe started a conversion 5
-years ago [1], but that looks ancient.  I can try to put something
-together if need be, or we can just land this fix.  ;-)
+The IRQ is disabled when suspending if polling is *off*.
 
-Note that the .txt version of the bindings seems to indicate that
-anyone using one of the optional properties is supposed to declare
-their special compatible string.  I'm not sure if that's still
-considered important or not?  Once you manage to get these devices
-powered on and talking i2c they self-describe themselves...
 
-[1] https://kernel.googlesource.com/pub/scm/linux/kernel/git/robh/linux/+/refs/heads/dt-yaml/Documentation/devicetree/bindings/hid/hid-over-i2c.yaml
+>  =09if (device_may_wakeup(&client->dev)) {
+>  =09=09wake_status =3D enable_irq_wake(client->irq);
+> @@ -1216,7 +1326,7 @@ static int i2c_hid_resume(struct device *dev)
+>
+>  =09=09if (ihid->pdata.post_power_delay_ms)
+>  =09=09=09msleep(ihid->pdata.post_power_delay_ms);
+> -=09} else if (ihid->irq_wake_enabled) {
+> +=09} else if (ihid->irq_wake_enabled && polling_mode !=3D I2C_POLLING_DI=
+SABLED) {
 
- Documentation/devicetree/bindings/input/hid-over-i2c.txt | 5 +++++
- 1 file changed, 5 insertions(+)
+As a side note, I'm not sure if the 'polling_mode !=3D I2C_POLLING_DISABLED=
+' part
+is necessary (or that it's necessary *here*). It causes 'i2c_hid_resume' an=
+d
+'i2c_hid_suspend' to be "asymmetric" which - I believe - may cause problems=
+.
 
-diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-index c76bafaf98d2..6fca39aa8cc6 100644
---- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-+++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-@@ -32,6 +32,11 @@ device-specific compatible properties, which should be used in addition to the
- - vdd-supply: phandle of the regulator that provides the supply voltage.
- - post-power-on-delay-ms: time required by the device after enabling its regulators
-   or powering it on, before it is ready for communication.
-+- reset-gpios: GPIOs to assert to reset the device. This GPIO is asserted when
-+  the device is powered off and released post-power-on-delay-ms after
-+  enabling the regulators.
-+- post-gpio-reset-delay-ms: After deasserting reset we'll delay for this many
-+  more milliseconds.
- 
- Example:
- 
--- 
-2.28.0.1011.ga647a8990f-goog
 
+>  =09=09wake_status =3D disable_irq_wake(client->irq);
+>  =09=09if (!wake_status)
+>  =09=09=09ihid->irq_wake_enabled =3D false;
+> @@ -1225,7 +1335,8 @@ static int i2c_hid_resume(struct device *dev)
+>  =09=09=09=09wake_status);
+>  =09}
+>
+> -=09enable_irq(client->irq);
+> +=09if (polling_mode !=3D I2C_POLLING_DISABLED)
+> +=09=09enable_irq(client->irq);
+>
+
+The IRQ is enabled when resuming if polling is *on*. It should be enabled i=
+f polling is *off*
+in my opinion.
+
+
+> [...]
+
+
+Regards,
+Barnab=C3=A1s P=C5=91cze

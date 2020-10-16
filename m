@@ -1,237 +1,98 @@
-Return-Path: <SRS0=CZzJ=DW=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=+Exv=DX=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31E59C43457
-	for <linux-input@archiver.kernel.org>; Thu, 15 Oct 2020 13:58:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A264C433E7
+	for <linux-input@archiver.kernel.org>; Fri, 16 Oct 2020 06:44:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D9AAE2222B
-	for <linux-input@archiver.kernel.org>; Thu, 15 Oct 2020 13:58:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 570EE20829
+	for <linux-input@archiver.kernel.org>; Fri, 16 Oct 2020 06:44:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730360AbgJON6H (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 15 Oct 2020 09:58:07 -0400
-Received: from mail1.bemta23.messagelabs.com ([67.219.246.116]:58952 "EHLO
-        mail1.bemta23.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730142AbgJON6G (ORCPT
+        id S2404222AbgJPGob (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 16 Oct 2020 02:44:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38550 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404220AbgJPGob (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Oct 2020 09:58:06 -0400
-Received: from [100.112.7.19] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
-        by server-5.bemta.az-c.us-east-1.aws.symcld.net id 05/55-63275-C65588F5; Thu, 15 Oct 2020 13:58:04 +0000
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrFIsWRWlGSWpSXmKPExsWSLveKTTcntCP
-  e4ECPoMWhcweYLQ4vesFo8fXbbXaLN8enM1mcub2QyeLmp2+sFqv3vGB2YPeY1dDL5rFz1l12
-  j1/b1rB4LD84jcnj/b6rbB6fN8kFsEWxZuYl5VcksGZM3nuIreCcasWdyRsYGxivy3cxcnEIC
-  fxnlPhwayEzhPOaUaLh9FP2LkZODjYBbYktW36xdTFycIgIyEh8WOsJUsMscJtR4vmuBrC4sI
-  CZxMUb9SDlLAKqEv8ndIC18grYSLzZv5kFxJYQkJd42rucGcTmFLCVePfwOitIq5BAmMTrTek
-  Q5YISJ2c+AStnBipv3jqbGcKWkDj44gUzzJi/T56wQtgJEste3mGewCgwC0n7LCTts5C0L2Bk
-  XsVollSUmZ5RkpuYmaNraGCga2hopGuma2RgopdYpZusV1qsm5pYXKJrqJdYXqxXXJmbnJOil
-  5dasokRGCUpBWxndjBuf/NB7xCjJAeTkihvdFBHvBBfUn5KZUZicUZ8UWlOavEhRhkODiUJXv
-  FgoJxgUWp6akVaZg4wYmHSEhw8SiK8h0KA0rzFBYm5xZnpEKlTjIpS4ryzQBICIImM0jy4Nli
-  SuMQoKyXMy8jAwCDEU5BalJtZgir/ilGcg1FJmDcIZApPZl4J3PRXQIuZgBbbL2kBWVySiJCS
-  amBiuvJ/wsRDGllZb1f/max6gDln2ekP165NixPInFXfO00g2/yVg6SO24TDts77t3bEzj4Zm
-  3pT9cgE5XTjDypfhPxtvjfJxC4waHOvKLeZIvzn2apzVrrfjdiXMJx3e1g+a5/PbcVvvfNyH/
-  IZf/zSXSDw976c02NDg9fJKjtTS5+Fhz3cVnS0w/ffvCmSfQ8W3nwyoSGn4bdl3qEPrM93nyr
-  8e8Thvoplenr/zIsNEzIeLzteV2ry19vQumbx4bTfKmkJ/LbB3E8ezXkSbvXkubmD9qGWVTEH
-  Th99wu8s8sqolsnF2HXRfEv9y1P8q3XuT7GIP5/YfbP8+QOfhHsiH15m/djpIW67Nmv5jIvVS
-  izFGYmGWsxFxYkAgp2t0Y0DAAA=
-X-Env-Sender: markpearson@lenovo.com
-X-Msg-Ref: server-11.tower-415.messagelabs.com!1602770281!158452!1
-X-Originating-IP: [103.30.234.6]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.60.3; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 32675 invoked from network); 15 Oct 2020 13:58:04 -0000
-Received: from unknown (HELO lenovo.com) (103.30.234.6)
-  by server-11.tower-415.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 15 Oct 2020 13:58:04 -0000
-Received: from reswpmail04.lenovo.com (unknown [10.62.32.23])
-        (using TLSv1.2 with cipher AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by Forcepoint Email with ESMTPS id A7B7E8A2CCC0E6A83FC8;
-        Thu, 15 Oct 2020 21:57:59 +0800 (CST)
-Received: from localhost.localdomain.com (10.64.83.59) by
- reswpmail04.lenovo.com (10.62.32.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2044.4; Thu, 15 Oct 2020 06:57:56 -0700
-From:   Mark Pearson <markpearson@lenovo.com>
-To:     <markpearson@lenovo.com>
-CC:     <njoshi1@lenovo.com>, <hdegoede@redhat.com>,
-        <dmitry.torokhov@gmail.com>, <platform-driver-x86@vger.kernel.org>,
-        <linux-input@vger.kernel.org>, <jeff@labundy.com>,
-        <anthony.wong@canonical.com>, <hadess@hadess.net>
-Subject: [PATCH 3/3] Add support for Lenovo lap sensor
-Date:   Thu, 15 Oct 2020 09:57:17 -0400
-Message-ID: <20201015135717.384610-4-markpearson@lenovo.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201015135717.384610-1-markpearson@lenovo.com>
-References: <markpearson@lenovo.com>
- <20201015135717.384610-1-markpearson@lenovo.com>
+        Fri, 16 Oct 2020 02:44:31 -0400
+X-Greylist: delayed 309 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 15 Oct 2020 23:44:30 PDT
+Received: from thuis.zeewinde.xyz (unknown [IPv6:2001:985:bd79:8:5054:ff:fe8a:e8ef])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BF1E0C061755;
+        Thu, 15 Oct 2020 23:44:30 -0700 (PDT)
+Received: from nas.zeewinde.xyz (nas.zeewinde.xyz [10.130.8.16])
+        by thuis.zeewinde.xyz (Postfix) with ESMTP id AC0EC20B;
+        Fri, 16 Oct 2020 08:39:18 +0200 (CEST)
+From:   Martijn van de Streek <martijn@zeewinde.xyz>
+Cc:     martijn@zeewinde.xyz, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: uclogic: Add ID for Trust Flex Design Tablet
+Date:   Fri, 16 Oct 2020 08:38:05 +0200
+Message-Id: <20201016063805.4059-1-martijn@zeewinde.xyz>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.64.83.59]
-X-ClientProxiedBy: reswpmail04.lenovo.com (10.62.32.23) To
- reswpmail04.lenovo.com (10.62.32.23)
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This adds the Lenovo lap sensor to the input_sw_dev event sensor
-alongside the previously added palmsensor.
+The Trust Flex Design Tablet has an UGTizer USB ID and requires the same
+initialization as the UGTizer GP0610 to be detected as a graphics tablet
+instead of a mouse.
 
-Signed-off-by: Nitin Joshi <njoshi1@lenovo.com>
-Signed-off-by: Mark Pearson <markpearson@lenovo.com>
+Signed-off-by: Martijn van de Streek <martijn@zeewinde.xyz>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 75 ++++++++++++++++++++++------
- 1 file changed, 59 insertions(+), 16 deletions(-)
+ drivers/hid/hid-ids.h            | 1 +
+ drivers/hid/hid-uclogic-core.c   | 2 ++
+ drivers/hid/hid-uclogic-params.c | 2 ++
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 5ddf2775fb06..c20b9902270b 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -4013,7 +4013,7 @@ static bool hotkey_notify_usrevent(const u32 hkey,
- }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 74fc1df6e3c2..b0056c1bba56 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1295,6 +1295,7 @@
  
- static void thermal_dump_all_sensors(void);
--static void proxsensor_refresh(void);
-+static void proxsensor_refresh(bool palm, bool lap);
+ #define USB_VENDOR_ID_UGTIZER			0x2179
+ #define USB_DEVICE_ID_UGTIZER_TABLET_GP0610	0x0053
++#define USB_DEVICE_ID_UGTIZER_TABLET_GT5040	0x0077
  
- static bool hotkey_notify_6xxx(const u32 hkey,
- 				 bool *send_acpi_ev,
-@@ -4081,7 +4081,7 @@ static bool hotkey_notify_6xxx(const u32 hkey,
- 	case TP_HKEY_EV_PALM_DETECTED:
- 	case TP_HKEY_EV_PALM_UNDETECTED:
- 		/* palm detected  - pass on to event handler */
--		proxsensor_refresh();
-+		proxsensor_refresh(true /* palm */, false /* lap */);
- 		return true;
- 
- 	default:
-@@ -9929,6 +9929,23 @@ static struct ibm_struct dytc_driver_data = {
- struct input_dev *tpacpi_sw_dev;
- bool has_palmsensor;
- bool palmsensor_state;
-+bool has_lapsensor;
-+bool lapsensor_state;
-+
-+static int lapsensor_get(bool *present, bool *state)
-+{
-+	acpi_handle dytc_handle;
-+	int output;
-+
-+	*present = false;
-+	if (ACPI_FAILURE(acpi_get_handle(hkey_handle, "DYTC", &dytc_handle)))
-+		return -ENODEV;
-+	if (!acpi_evalf(dytc_handle, &output, NULL, "dd", DYTC_CMD_GET))
-+		return -EIO;
-+	*present = true; /* If we get his far, we have lapmode support */
-+	*state = output & BIT(DYTC_GET_LAPMODE_BIT) ? true : false;
-+	return 0;
-+}
- 
- static int palmsensor_get(bool *present, bool *state)
- {
-@@ -9945,36 +9962,56 @@ static int palmsensor_get(bool *present, bool *state)
- 	return 0;
- }
- 
--static void proxsensor_refresh(void)
-+static void proxsensor_refresh(bool palm, bool lap)
- {
- 	bool new_state;
- 	int err;
- 
--	if (has_palmsensor) {
-+	if (palm && has_palmsensor) {
- 		err = palmsensor_get(&has_palmsensor, &new_state);
--		if (err)
--			return;
--		if (new_state != palmsensor_state) {
-+		if (!err && (new_state != palmsensor_state)) {
- 			input_report_switch(tpacpi_sw_dev, SW_PALMREST_PROXIMITY, new_state);
- 			input_sync(tpacpi_sw_dev);
- 			palmsensor_state = new_state;
- 		}
- 	}
-+
-+	if (lap && has_lapsensor) {
-+		err = lapsensor_get(&has_lapsensor, &new_state);
-+		if (!err && (new_state != lapsensor_state)) {
-+			input_report_switch(tpacpi_sw_dev, SW_LAP_PROXIMITY, new_state);
-+			input_sync(tpacpi_sw_dev);
-+			lapsensor_state = new_state;
-+		}
-+	}
- }
- 
- static int tpacpi_proxsensor_init(struct ibm_init_struct *iibm)
- {
--	int palm_err;
-+	int palm_err, lap_err, err;
- 
-+	/* Make sure globals are set to a sensible initial value */
-+	has_palmsensor = false;
-+	has_lapsensor = false;
- 	palm_err = palmsensor_get(&has_palmsensor, &palmsensor_state);
-+	lap_err = lapsensor_get(&has_lapsensor, &lapsensor_state);
-+
- 	/* If support isn't available (ENODEV) then don't return an error */
--	if (palm_err == -ENODEV)
-+	if ((palm_err == -ENODEV) && (lap_err == -ENODEV))
- 		return 0;
--	/* For all other errors we can flag the failure */
-+	/* If both sensors error out - return an error */
-+	if (palm_err && lap_err)
-+		return palm_err ? palm_err : lap_err;
-+	/*
-+	 * If just one sensor not available, we still want the input device,
-+	 * so just flag it and carry on
-+	 */
- 	if (palm_err)
--		return palm_err;
-+		pr_info("Palm sensor returned error %d", palm_err);
-+	if (lap_err)
-+		pr_info("Lap sensor returned error %d", lap_err);
- 
--	if (has_palmsensor) {
-+	if (has_palmsensor || has_lapsensor) {
- 		tpacpi_sw_dev = input_allocate_device();
- 		if (!tpacpi_sw_dev)
- 			return -ENOMEM;
-@@ -9990,10 +10027,14 @@ static int tpacpi_proxsensor_init(struct ibm_init_struct *iibm)
- 			input_set_capability(tpacpi_sw_dev, EV_SW, SW_PALMREST_PROXIMITY);
- 			input_report_switch(tpacpi_sw_dev, SW_PALMREST_PROXIMITY, palmsensor_state);
- 		}
--		palm_err = input_register_device(tpacpi_sw_dev);
--		if (palm_err) {
-+		if (has_lapsensor) {
-+			input_set_capability(tpacpi_sw_dev, EV_SW, SW_LAP_PROXIMITY);
-+			input_report_switch(tpacpi_sw_dev, SW_LAP_PROXIMITY, lapsensor_state);
-+		}
-+		err = input_register_device(tpacpi_sw_dev);
-+		if (err) {
- 			input_free_device(tpacpi_sw_dev);
--			return palm_err;
-+			return err;
- 		}
- 	}
- 	return 0;
-@@ -10057,8 +10098,10 @@ static void tpacpi_driver_event(const unsigned int hkey_event)
- 		mutex_unlock(&kbdlight_mutex);
- 	}
- 
--	if (hkey_event == TP_HKEY_EV_THM_CSM_COMPLETED)
-+	if (hkey_event == TP_HKEY_EV_THM_CSM_COMPLETED) {
- 		dytc_lapmode_refresh();
-+		proxsensor_refresh(false /* palm */, true /* lap */);
-+	}
- 
- }
- 
+ #define USB_VENDOR_ID_VIEWSONIC			0x0543
+ #define USB_DEVICE_ID_VIEWSONIC_PD1011		0xe621
+diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+index 86b568037cb8..8e9c9e646cb7 100644
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -385,6 +385,8 @@ static const struct hid_device_id uclogic_devices[] = {
+ 				USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER,
+ 				USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER,
++				USB_DEVICE_ID_UGTIZER_TABLET_GT5040) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+ 				USB_DEVICE_ID_UGEE_TABLET_G5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index 7d20d1fcf8d2..d26d8cd98efc 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -997,6 +997,8 @@ int uclogic_params_init(struct uclogic_params *params,
+ 		break;
+ 	case VID_PID(USB_VENDOR_ID_UGTIZER,
+ 		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
++	case VID_PID(USB_VENDOR_ID_UGTIZER,
++		     USB_DEVICE_ID_UGTIZER_TABLET_GT5040):
+ 	case VID_PID(USB_VENDOR_ID_UGEE,
+ 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540):
+ 	case VID_PID(USB_VENDOR_ID_UGEE,
+
+base-commit: c48b75b7271db23c1b2d1204d6e8496d91f27711
 -- 
-2.28.0
+2.20.1
 

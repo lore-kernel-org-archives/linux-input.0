@@ -5,49 +5,49 @@ X-Spam-Level:
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CBFFC433DF
-	for <linux-input@archiver.kernel.org>; Sun, 18 Oct 2020 19:42:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFAFBC43457
+	for <linux-input@archiver.kernel.org>; Sun, 18 Oct 2020 19:48:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 20E8E206ED
-	for <linux-input@archiver.kernel.org>; Sun, 18 Oct 2020 19:42:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9EB6822269
+	for <linux-input@archiver.kernel.org>; Sun, 18 Oct 2020 19:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1603050168;
-	bh=mzKnN9/77JyM4zThwiss97RjQWHqBe2bRWXFQNB+de4=;
+	s=default; t=1603050500;
+	bh=EAbCYDz6YDC95oB7HKoEmKZmH2Hq0DdAYj4a/tUNj/o=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=G4KqF5LOQP7GcoMeFUT6BW7D1OKFDjgOWQ/scD/2Rcyqfc/M1HFwjKvAahm7X125o
-	 8HNwpL4P6A0RNGwa9J2HQKyMxiUAOdfEL7YL5EhCWJbOcOFTNPFUgwibJdPXNXMC1q
-	 xqK/oryWeKpnoX9zXCuYGUkjgc+HtAerigOAc02A=
+	b=yDsPvDGMPEhuwt/m6a7G5QS78G6lCCwnea7oPP63RxWhF9/SWsiTED/5Dhn/TwHRV
+	 qL9NYDfgOLmGsvshhkPxx5Yf9NYZF2EK1T76a5Ib5wL1WFUfhh9WGy4dqKjMWBRhdp
+	 L4jWwrv5vKLpMmukZu8xRnq1+jv/butLsGRuufLA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732542AbgJRTmq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 18 Oct 2020 15:42:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37378 "EHLO mail.kernel.org"
+        id S2387459AbgJRTsO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 18 Oct 2020 15:48:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730468AbgJRTXt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:23:49 -0400
+        id S1727912AbgJRTWA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 18 Oct 2020 15:22:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05AE1207DE;
-        Sun, 18 Oct 2020 19:23:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C614E222EA;
+        Sun, 18 Oct 2020 19:21:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1603049028;
-        bh=mzKnN9/77JyM4zThwiss97RjQWHqBe2bRWXFQNB+de4=;
+        s=default; t=1603048919;
+        bh=EAbCYDz6YDC95oB7HKoEmKZmH2Hq0DdAYj4a/tUNj/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9rSF9FcPbMi7wtORZgl5AxOtbejhpSzWUKyVFw5Zn92SuoFfxwcIb7JCC+dNNFzs
-         B90lT6GfYxYAcW9+t+ZQeShAVXO9hLUeFZBqeWbhyxpEtPbWQcdxcuG2nvRkeUEWmQ
-         5tYo8AAy9ViLnrUM2OA0GeWCZbynXfTnx+WdtMyg=
+        b=agf7jPIT71mIXgHzhhf3YyBeVe3VxmSxt/CsKIOfKWGMCoLdRcQX8WY8VLcDD3fJE
+         OMdGx2vCbGplLe+aNghdPI0bveQ8LMLy00roNOHSq6d28XA2Sf5t3SE67OhfBcRDAp
+         PNRfvflS+WGbYV4B7bamLqKna1iHU5AKiL2xBi74=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 61/80] HID: ite: Add USB id match for Acer One S1003 keyboard dock
-Date:   Sun, 18 Oct 2020 15:22:12 -0400
-Message-Id: <20201018192231.4054535-61-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 077/101] HID: ite: Add USB id match for Acer One S1003 keyboard dock
+Date:   Sun, 18 Oct 2020 15:20:02 -0400
+Message-Id: <20201018192026.4053674-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201018192231.4054535-1-sashal@kernel.org>
-References: <20201018192231.4054535-1-sashal@kernel.org>
+In-Reply-To: <20201018192026.4053674-1-sashal@kernel.org>
+References: <20201018192026.4053674-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -83,10 +83,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 5 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e03a4d794240c..7363d0b488bd8 100644
+index 0ca8906a6f839..b269c792d25dc 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -1119,6 +1119,7 @@
+@@ -1123,6 +1123,7 @@
  #define USB_DEVICE_ID_SYNAPTICS_DELL_K12A	0x2819
  #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012	0x2968
  #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710

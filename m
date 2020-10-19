@@ -2,121 +2,131 @@ Return-Path: <SRS0=RHiL=D2=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74C34C433E7
-	for <linux-input@archiver.kernel.org>; Mon, 19 Oct 2020 08:04:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DF54C433E7
+	for <linux-input@archiver.kernel.org>; Mon, 19 Oct 2020 09:54:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 284652225F
-	for <linux-input@archiver.kernel.org>; Mon, 19 Oct 2020 08:04:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FFE622263
+	for <linux-input@archiver.kernel.org>; Mon, 19 Oct 2020 09:54:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M3oCgOl3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728398AbgJSIEA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 19 Oct 2020 04:04:00 -0400
-Received: from ivanoab7.miniserver.com ([37.128.132.42]:44146 "EHLO
-        www.kot-begemot.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727505AbgJSIEA (ORCPT
+        id S1727380AbgJSJyh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Oct 2020 05:54:37 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:55906 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727088AbgJSJyg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Oct 2020 04:04:00 -0400
-X-Greylist: delayed 1456 seconds by postgrey-1.27 at vger.kernel.org; Mon, 19 Oct 2020 04:03:58 EDT
-Received: from tun252.jain.kot-begemot.co.uk ([192.168.18.6] helo=jain.kot-begemot.co.uk)
-        by www.kot-begemot.co.uk with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1kUPl5-0003bi-LB; Mon, 19 Oct 2020 07:39:07 +0000
-Received: from jain.kot-begemot.co.uk ([192.168.3.3])
-        by jain.kot-begemot.co.uk with esmtp (Exim 4.92)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1kUPl3-00080t-CR; Mon, 19 Oct 2020 08:39:07 +0100
-Subject: Re: [PATCH] arch: um: convert tasklets to use new tasklet_setup() API
-To:     Allen Pais <allen.cryptic@gmail.com>, jdike@addtoit.com,
-        richard@nod.at, 3chas3@gmail.com, axboe@kernel.dk,
-        stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch,
-        sre@kernel.org, James.Bottomley@HansenPartnership.com,
-        kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com,
-        jassisinghbrar@gmail.com, shawnguo@kernel.org,
-        s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com,
-        ulf.hansson@linaro.org, mporter@kernel.crashing.org,
-        alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk,
-        manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     devel@driverdev.osuosl.org, linux-s390@vger.kernel.org,
-        linux-hyperv@vger.kernel.org,
-        Romain Perier <romain.perier@gmail.com>, keescook@chromium.org,
-        linux-parisc@vger.kernel.org, linux-ntb@googlegroups.com,
-        netdev@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        linux-atm-general@lists.sourceforge.net,
-        linux-um@lists.infradead.org, linux-kernel@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-spi@vger.kernel.org,
-        linux-block@vger.kernel.org, Allen Pais <allen.lkml@gmail.com>,
-        linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
-        openipmi-developer@lists.sourceforge.net,
-        linux1394-devel@lists.sourceforge.net,
-        linux-arm-kernel@lists.infradead.org
-References: <20200817091617.28119-1-allen.cryptic@gmail.com>
-From:   Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Message-ID: <3359192b-8f02-feb4-a9a7-a13b5d876998@cambridgegreys.com>
-Date:   Mon, 19 Oct 2020 08:39:05 +0100
+        Mon, 19 Oct 2020 05:54:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1603101274;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=6iKrWxZFguKiC3/FAGY5esxaLrM4e5HmYodMvmzfCMU=;
+        b=M3oCgOl3iXjaRxrkXo9Cva/YoEHjUegWspQaHK1+EyY3PN6fcpktY8bDLN5k17FwJhJHN7
+        T/GcwqlYOZncRYg4nOFV7fhHwOcaSPwEIikKYjmxkh1M/YrWoJriWSg9/CaI1p5SoRYbAe
+        hH6bTY0Ar7NoY3ba4ZkkO08J0UIIJgc=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-434-puJBifkVNvSYlbtQE0-fOA-1; Mon, 19 Oct 2020 05:54:33 -0400
+X-MC-Unique: puJBifkVNvSYlbtQE0-fOA-1
+Received: by mail-ed1-f71.google.com with SMTP id dc23so4375338edb.13
+        for <linux-input@vger.kernel.org>; Mon, 19 Oct 2020 02:54:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=6iKrWxZFguKiC3/FAGY5esxaLrM4e5HmYodMvmzfCMU=;
+        b=irhqM9xmKZTA6P4k+TTHL9rfBsGybqnvc2rLVMlIywo/Lq7Ft19l8+b/q/rMKiZU/E
+         fHIaTmu5SVtvDqWcfqTJt0xgrDbZ1khzobIuVgO6HwYatXiuZP/wWV1G7IRhfFJ+ie4D
+         i+fOuUPgWVOJmSz4unkd16a9oEKvKIp06iNIU1S8IpM1oNbQq0xOhX3DWIPFoS+DRh+9
+         aZPpeGIgZO9TWy5QiJUF8ff+y4F7Sj6FDsecwnGCGJgtWSgHg3ojELjvcY8Td09rrnJd
+         Om5mEMd1dOavt/jlEfGGDV92KK8f+TyV9S5//OSmOmiUsKRIoKSwI3ldmsO5oojJeokX
+         pRZQ==
+X-Gm-Message-State: AOAM533XEpxjLAGkMMfeV6WFScaDXxwVvDc2kZFFBj5xwRu0FCg8oyhe
+        OXE8hssLFwY4cwSKmN0ZHNH0od5BSrgTcI+zfb7Go7pjMqnk3mHl/JfkEjb10jU2qdu3YDrigoM
+        SeitZkHXcKgF3sWHo0Jh+Kns=
+X-Received: by 2002:aa7:d394:: with SMTP id x20mr17284562edq.14.1603101271809;
+        Mon, 19 Oct 2020 02:54:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwr9mpKi1NmMLNAQgXsoC3zDASSIZ4FzR/uvnykbi6jqtELuZQHtlvt8YdM6abje48UQka1MQ==
+X-Received: by 2002:aa7:d394:: with SMTP id x20mr17284550edq.14.1603101271636;
+        Mon, 19 Oct 2020 02:54:31 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id q10sm10158518ejb.117.2020.10.19.02.54.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Oct 2020 02:54:30 -0700 (PDT)
+Subject: Re: [PATCH V8] HID: ASUS: Add support for ASUS N-Key keyboard
+To:     Luke Jones <luke@ljones.dev>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     linux-input <linux-input@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+References: <20201013073508.10476-1-luke@ljones.dev>
+ <CAHp75VfOV2DvngsO87PLXwNKQtR-RaC4XzbBk_7wDVSEaBMrzw@mail.gmail.com>
+ <8P2FIQ.M2MLXE7M40153@ljones.dev>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <b95839dc-82eb-7413-9000-17939f21b35b@redhat.com>
+Date:   Mon, 19 Oct 2020 11:54:30 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.3.1
 MIME-Version: 1.0
-In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <8P2FIQ.M2MLXE7M40153@ljones.dev>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Clacks-Overhead: GNU Terry Pratchett
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Hi,
 
+On 10/18/20 11:36 PM, Luke Jones wrote:
+> 
+> 
+>>>  +               */
+>>>  +               if (report->id == FEATURE_KBD_LED_REPORT_ID1 ||
+>>>  +                               report->id == FEATURE_KBD_LED_REPORT_ID2) {
+>>
+>>>  +                       return -1;
+>>
+>> is -1 a good return code? (this Q for all cases)
+>>
+>>>  +               /* Additional report filtering */
+>>>  +               } else if (report->id == FEATURE_KBD_REPORT_ID) {
+>>>  +                       /* Fn+F5 "fan" symbol, trigger WMI event to toggle next mode */
+>>>  +                       if (data[1] == 0xae) {
+>>>  +                               ret = asus_wmi_send_event(drvdata, 0xae);
+>>>  +                               if (ret < 0) {
+>>>  +                                       hid_warn(hdev, "Asus failed to trigger fan control event");
+>>>  +                               }
+>>
+>>>  +                               return -1;
+>>>
+> 
+> In the case of this block I really don't have any idea how
+> to handle it. I want to stop these particular keycodes from
+> being evaluated elsewhere. Returning -1 seemed to be the only
+> way to do this, unless my understanding is very incorrect.
+> 
+> Any help or guidance on how to handle this is definitely
+> appreciated.
 
-On 17/08/2020 10:15, Allen Pais wrote:
-> From: Allen Pais <allen.lkml@gmail.com>
-> 
-> In preparation for unconditionally passing the
-> struct tasklet_struct pointer to all tasklet
-> callbacks, switch to using the new tasklet_setup()
-> and from_tasklet() to pass the tasklet pointer explicitly.
-> 
-> Signed-off-by: Romain Perier <romain.perier@gmail.com>
-> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
-> ---
->   arch/um/drivers/vector_kern.c | 6 +++---
->   1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
-> index 8735c468230a..06980870ae23 100644
-> --- a/arch/um/drivers/vector_kern.c
-> +++ b/arch/um/drivers/vector_kern.c
-> @@ -1196,9 +1196,9 @@ static int vector_net_close(struct net_device *dev)
->   
->   /* TX tasklet */
->   
-> -static void vector_tx_poll(unsigned long data)
-> +static void vector_tx_poll(struct tasklet_struct *t)
->   {
-> -	struct vector_private *vp = (struct vector_private *)data;
-> +	struct vector_private *vp = from_tasklet(vp, t, tx_poll);
->   
->   	vp->estats.tx_kicks++;
->   	vector_send(vp->tx_queue);
-> @@ -1629,7 +1629,7 @@ static void vector_eth_configure(
->   	});
->   
->   	dev->features = dev->hw_features = (NETIF_F_SG | NETIF_F_FRAGLIST);
-> -	tasklet_init(&vp->tx_poll, vector_tx_poll, (unsigned long)vp);
-> +	tasklet_setup(&vp->tx_poll, vector_tx_poll);
->   	INIT_WORK(&vp->reset_tx, vector_reset_tx);
->   
->   	timer_setup(&vp->tl, vector_timer_expire, 0);
-> 
+Sorry, I missed that Andy's comment on this where for the raw-event handler,
+in this case -1 has the special meaning of don't process this event further,
+rather then being an error code.
 
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+So, since in this case -1 has a special meaning and it is NOT an error
+code, using -1 is fine. IOW you can keep this part as is.
 
--- 
-Anton R. Ivanov
-Cambridgegreys Limited. Registered in England. Company Number 10273661
-https://www.cambridgegreys.com/
+Regards,
+
+Hans
+

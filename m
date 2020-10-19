@@ -2,184 +2,177 @@ Return-Path: <SRS0=RHiL=D2=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5183CC433DF
-	for <linux-input@archiver.kernel.org>; Mon, 19 Oct 2020 00:55:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B42BAC433DF
+	for <linux-input@archiver.kernel.org>; Mon, 19 Oct 2020 07:48:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 120CD22272
-	for <linux-input@archiver.kernel.org>; Mon, 19 Oct 2020 00:55:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5CDEB22243
+	for <linux-input@archiver.kernel.org>; Mon, 19 Oct 2020 07:48:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kD5/mWhk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NJW8PS30"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730173AbgJSAzS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 18 Oct 2020 20:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55718 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726698AbgJSAzR (ORCPT
+        id S1727915AbgJSHsZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Oct 2020 03:48:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:24496 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727864AbgJSHsZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Oct 2020 20:55:17 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BC22C061755;
-        Sun, 18 Oct 2020 17:55:16 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id t4so1511942plq.13;
-        Sun, 18 Oct 2020 17:55:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=+Rt56BOJl/bRW3wLKniwJW7cXJ9hWnw6gYa/kUVuwSc=;
-        b=kD5/mWhkowA2pgqZNgdK7l9xxePyAZyXwGV1X+zM9Ioz+N7wLSW4TPdxvJJ21i6HsT
-         oqq5siaFUuyhaYJZcCrnvsvMjAqSjosXD4HKxICovb20aO0RTDcv6mGLozRujN5d8eBH
-         qNpDAF2hqdEXaIlnUoudG3c/F7DgjCshsonws0f5TkV3659dUETU544ww9FFfIfrOG87
-         Ep7hCGxCIS0gRsUK1VN3tMdRyz6jHpEYq7jm+0hReNmpdkanoNxPlxixLbl+iExHF5M6
-         nbTWRhV1QxVP/F1YYtSIWYltBJNkXvgKrbTr6+982+mAUp0aUomiI/+xyKnBT3ZlD/vt
-         klBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=+Rt56BOJl/bRW3wLKniwJW7cXJ9hWnw6gYa/kUVuwSc=;
-        b=aa39mkVZYKkcoOo/D4ikBDp+fjEtPA/2948MCAhORGfVG9hilySQuI7fHtOxp7o0T+
-         f+9mtrC5Ckm/nMf8jdlf/9CNvk8xsg0us918K4bt7sEMvT5t/N1w0LmGsIcTM62IHvjw
-         t8178Y6LxFetvjBDU0/4Ei7WnlCZC7aBraZUmNNYHrGeqkJhAwOfSpzjdpQBTei0cx6B
-         HW0bv5yvHOoSTW0Wi/3RSF9ATdsL1udl2s9Qpcpa11d0ZYirAytXyN34T0cAikdskYOz
-         o4Bpyv8BRgDD77t5NqMkgPTvK7MgKTL+QTWsEmsiajh49KsndAy7WynFsos0zkarq+qz
-         LXkQ==
-X-Gm-Message-State: AOAM531M+L5lEoRBn89HQGXYYYJivNB9gWxK4pWdgF5pGUoUE4SobjvC
-        2JfYGqNXakEAwNaQF+y3Lb0=
-X-Google-Smtp-Source: ABdhPJwtBh0pw3ZFUZm8ksceFnJOezgtN1JWySkFktYidxEioc0v1efLNTaDMS9uD7RnzQg2Rgu9Jg==
-X-Received: by 2002:a17:90a:400e:: with SMTP id u14mr15103805pjc.118.1603068915729;
-        Sun, 18 Oct 2020 17:55:15 -0700 (PDT)
-Received: from localhost ([2001:e42:102:1532:160:16:113:140])
-        by smtp.gmail.com with ESMTPSA id l199sm9906039pfd.73.2020.10.18.17.55.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Oct 2020 17:55:15 -0700 (PDT)
-From:   Coiby Xu <coiby.xu@gmail.com>
-X-Google-Original-From: Coiby Xu <Coiby.Xu@gmail.com>
-Date:   Mon, 19 Oct 2020 08:54:52 +0800
-To:     =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        Helmut Stult <helmut.stult@schinfo.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] HID: i2c-hid: add polling mode based on connected
- GPIO chip's pin status
-Message-ID: <20201019005452.uqqwq7xrusvsptmz@Rk>
-References: <20201016131335.8121-1-coiby.xu@gmail.com>
- <T2SIcFVxZ81NUwKLDbSESA7Wpm7DYowEiii8ZaxTPtrdXZZeHLq5iZPkN5BLlp-9C6PLwUZOVwNpMdEdPSRZcAG4MmDt-tfyKZoQYJ0KHOA=@protonmail.com>
- <20201017004556.kuoxzmbvef4yr3kg@Rk>
- <FWsXxqGztJgszUpmNtKli8eOyeKP-lxFeTsjs2nQAxgYZBkT3JNTU3VdHF4GbQVS_PvKiqbfrZXI7vaUHA_lXTxjPX-WjkNEOdiMUetO8IQ=@protonmail.com>
- <20201017140541.fggujaz2klpv3cd5@Rk>
- <fRxQJHWq9ZL950ZPGFFm_LfSlMjsjrpG7Y63gd7V7iV647KR8WIfZ4-ljLeo0n4X3Gpu1KIEsMVLxQnzAtJdUdMydi_b0-vjIVb304Da1bQ=@protonmail.com>
- <BXoa8IFE81mt8sW2luHnqgFoZUBIDxRGg8SzTxqCuBMm0PPopB98-w7u1ckq77Gtj2bJCVSFFA83zOPVdP_kynQ8Zkys3B96lFTV6fUCJHM=@protonmail.com>
+        Mon, 19 Oct 2020 03:48:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1603093703;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=yLUl2UEG5uxm7VbNvyY/oa+0hPu9UGUuZW2RfTBx7Zw=;
+        b=NJW8PS30GsoVcfBiVSnjPDVLslo5dJSqQxn0uMRq4IXUGSDgMoWnapzStUQpJAmK12yXEx
+        stBqyIW1GDl3/mmu0xHXhaoBqG30TvMvdnIYKARKJ7dUUQmw20/LN6wDkfehIHEXaZMccK
+        /aMpe/U/BappzGocB2o9WeAuBphnGYg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-58-yUktvYwXNM2FnPuXfMbd5w-1; Mon, 19 Oct 2020 03:48:21 -0400
+X-MC-Unique: yUktvYwXNM2FnPuXfMbd5w-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 17C58835B49;
+        Mon, 19 Oct 2020 07:48:20 +0000 (UTC)
+Received: from x1.localdomain (ovpn-114-62.ams2.redhat.com [10.36.114.62])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3EC7261983;
+        Mon, 19 Oct 2020 07:48:15 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Subject: [PATCH] HID: ite: Replace ABS_MISC 120/121 events with touchpad on/off keypresses
+Date:   Mon, 19 Oct 2020 09:48:14 +0200
+Message-Id: <20201019074814.17722-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <BXoa8IFE81mt8sW2luHnqgFoZUBIDxRGg8SzTxqCuBMm0PPopB98-w7u1ckq77Gtj2bJCVSFFA83zOPVdP_kynQ8Zkys3B96lFTV6fUCJHM=@protonmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Oct 18, 2020 at 12:23:14PM +0000, Barnabás Pőcze wrote:
->> [...]
->> > > > > > +static int i2c_hid_polling_thread(void *i2c_hid)
->> > > > > > +{
->> > > > > >
->> > > > > > -   struct i2c_hid *ihid = i2c_hid;
->> > > > > > -   struct i2c_client *client = ihid->client;
->> > > > > > -   unsigned int polling_interval_idle;
->> > > > > > -
->> > > > > > -   while (1) {
->> > > > > > -       /*
->> > > > > >
->> > > > > >
->> > > > > > -        * re-calculate polling_interval_idle
->> > > > > >
->> > > > > >
->> > > > > > -        * so the module parameters polling_interval_idle_ms can be
->> > > > > >
->> > > > > >
->> > > > > > -        * changed dynamically through sysfs as polling_interval_active_us
->> > > > > >
->> > > > > >
->> > > > > > -        */
->> > > > > >
->> > > > > >
->> > > > > > -       polling_interval_idle = polling_interval_idle_ms * 1000;
->> > > > > >
->> > > > > >
->> > > > > > -       if (test_bit(I2C_HID_READ_PENDING, &ihid->flags))
->> > > > > >
->> > > > > >
->> > > > > > -       	usleep_range(50000, 100000);
->> > > > > >
->> > > > > >
->> > > > > > -
->> > > > > > -       if (kthread_should_stop())
->> > > > > >
->> > > > > >
->> > > > > > -       	break;
->> > > > > >
->> > > > > >
->> > > > > > -
->> > > > > > -       while (interrupt_line_active(client)) {
->> > > > > >
->> > > > > >
->> > > > >
->> > > > > I realize it's quite unlikely, but can't this be a endless loop if data is coming
->> > > > > in at a high enough rate? Maybe the maximum number of iterations could be limited here?
->> > > >
->> > > > If we find HID reports are constantly read and send to front-end
->> > > > application like libinput, won't it help expose the problem of the I2C
->> > > > HiD device?
->> > > >
->> > > > >
->> > >
->> > > I'm not sure I completely understand your point. The reason why I wrote what I wrote
->> > > is that this kthread could potentially could go on forever (since `kthread_should_stop()`
->> > > is not checked in the inner while loop) if the data is supplied at a high enough rate.
->> > > That's why I said, to avoid this problem, only allow a certain number of iterations
->> > > for the inner loop, to guarantee that the kthread can stop in any case.
->> >
->> > I mean if "data is supplied at a high enough rate" does happen, this is
->> > an abnormal case and indicates a bug. So we shouldn't cover it up. We
->> > expect the user to report it to us.
->> >
->> > >
->>
->> I agree in principle, but if this abnormal case ever occurs, that'll prevent
->> this module from being unloaded since `kthread_stop()` will hang because the
->> thread is "stuck" in the inner loop, never checking `kthread_should_stop()`.
->> That's why I think it makes sense to only allow a certain number of operations
->> for the inner loop, and maybe show a warning if that's exceeded:
->>
->> for (i = 0; i < max_iter && interrupt_line_active(...); i++) {
->> ....
->> }
->>
->> WARN_ON[CE](i == max_iter[, "data is coming in at an unreasonably high rate"]);
->>
->
->I now realize that WARN_ON[CE] is probably not the best fit here, `hid_warn()` is possibly better.
->
-Thank you for the suggestion!
->
->> or something like this, where `max_iter` could possibly be some value dependent on
->> `polling_interval_active_us`, or even just a constant.
->> [...]
->
->
->Regards,
->Barnabás Pőcze
+The usb-hid keyboard-dock for the Acer Switch 10 SW5-012 model declares
+an application and hid-usage page of 0x0088 for the INPUT(4) report which
+it sends. This reports contains 2 8-bit fields which are declared as
+HID_MAIN_ITEM_VARIABLE.
 
---
-Best regards,
-Coiby
+The keyboard-touchpad combo never actually generates this report, except
+when the touchpad is toggled on/off with the Fn + F7 hotkey combo. The
+toggle on/off is handled inside the keyboard-dock, when the touchpad is
+toggled off it simply stops sending events.
+
+When the touchpad is toggled on/off an INPUT(4) report is generated with
+the first content byte set to 120/121, before this commit the kernel
+would report this as ABS_MISC 120/121 events.
+
+Patch the descriptor to replace the HID_MAIN_ITEM_VARIABLE with
+HID_MAIN_ITEM_RELATIVE (because no key-presss release events are send)
+and add mappings for the 0x00880078 and 0x00880079 usages to generate
+touchpad on/off key events when the touchpad is toggled on/off.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/hid/hid-ite.c | 61 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 60 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+index 044a93f3c117..742c052b0110 100644
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -11,6 +11,48 @@
+ 
+ #include "hid-ids.h"
+ 
++#define QUIRK_TOUCHPAD_ON_OFF_REPORT		BIT(0)
++
++static __u8 *ite_report_fixup(struct hid_device *hdev, __u8 *rdesc, unsigned int *rsize)
++{
++	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
++
++	if (quirks & QUIRK_TOUCHPAD_ON_OFF_REPORT) {
++		if (*rsize == 188 && rdesc[162] == 0x81 && rdesc[163] == 0x02) {
++			hid_info(hdev, "Fixing up ITE keyboard report descriptor\n");
++			rdesc[163] = HID_MAIN_ITEM_RELATIVE;
++		}
++	}
++
++	return rdesc;
++}
++
++static int ite_input_mapping(struct hid_device *hdev,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit,
++		int *max)
++{
++
++	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
++
++	if ((quirks & QUIRK_TOUCHPAD_ON_OFF_REPORT) &&
++	    (usage->hid & HID_USAGE_PAGE) == 0x00880000) {
++		if (usage->hid == 0x00880078) {
++			/* Touchpad on, userspace expects F22 for this */
++			hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_F22);
++			return 1;
++		}
++		if (usage->hid == 0x00880079) {
++			/* Touchpad off, userspace expects F23 for this */
++			hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_F23);
++			return 1;
++		}
++		return -1;
++	}
++
++	return 0;
++}
++
+ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+ 		     struct hid_usage *usage, __s32 value)
+ {
+@@ -37,13 +79,27 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+ 	return 0;
+ }
+ 
++static int ite_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++
++	hid_set_drvdata(hdev, (void *)id->driver_data);
++
++	ret = hid_open_report(hdev);
++	if (ret)
++		return ret;
++
++	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++}
++
+ static const struct hid_device_id ite_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
+ 	/* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_SYNAPTICS,
+-		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
++		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012),
++	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
+ 	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_SYNAPTICS,
+@@ -55,6 +111,9 @@ MODULE_DEVICE_TABLE(hid, ite_devices);
+ static struct hid_driver ite_driver = {
+ 	.name = "itetech",
+ 	.id_table = ite_devices,
++	.probe = ite_probe,
++	.report_fixup = ite_report_fixup,
++	.input_mapping = ite_input_mapping,
+ 	.event = ite_event,
+ };
+ module_hid_driver(ite_driver);
+-- 
+2.28.0
+

@@ -7,22 +7,22 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C74CAC56202
-	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F299C55179
+	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7E01624641
-	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD3862417D
+	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368903AbgJVP7O (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Oct 2020 11:59:14 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48528 "EHLO mx2.suse.de"
+        id S368928AbgJVP7T (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Oct 2020 11:59:19 -0400
+Received: from mx2.suse.de ([195.135.220.15]:48734 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368882AbgJVP7N (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Oct 2020 11:59:13 -0400
+        id S368908AbgJVP7R (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 22 Oct 2020 11:59:17 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 71B73AFCF;
-        Thu, 22 Oct 2020 15:59:11 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 36ECDADF5;
+        Thu, 22 Oct 2020 15:59:15 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org
 Cc:     f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
@@ -35,9 +35,9 @@ Cc:     f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
         linux-clk@vger.kernel.org, sboyd@kernel.org,
         linux-rpi-kernel@lists.infradead.org,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v2 05/10] soc: bcm: raspberrypi-power: Release firmware handle on unbind
-Date:   Thu, 22 Oct 2020 17:58:52 +0200
-Message-Id: <20201022155858.20867-6-nsaenzjulienne@suse.de>
+Subject: [PATCH v2 07/10] input: raspberrypi-ts: Release firmware handle when not needed
+Date:   Thu, 22 Oct 2020 17:58:54 +0200
+Message-Id: <20201022155858.20867-8-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201022155858.20867-1-nsaenzjulienne@suse.de>
 References: <20201022155858.20867-1-nsaenzjulienne@suse.de>
@@ -47,46 +47,26 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Upon unbinding the device make sure we release RPi's firmware interface.
+After passing the DMA buffer address through the firmware interface,
+release the firmware handle, we won't need it anymore.
 
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 ---
- drivers/soc/bcm/raspberrypi-power.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/input/touchscreen/raspberrypi-ts.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soc/bcm/raspberrypi-power.c b/drivers/soc/bcm/raspberrypi-power.c
-index 5d1aacdd84ef..a0b38db5886c 100644
---- a/drivers/soc/bcm/raspberrypi-power.c
-+++ b/drivers/soc/bcm/raspberrypi-power.c
-@@ -225,6 +225,20 @@ static int rpi_power_probe(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
+index ef6aaed217cf..29c878a00018 100644
+--- a/drivers/input/touchscreen/raspberrypi-ts.c
++++ b/drivers/input/touchscreen/raspberrypi-ts.c
+@@ -165,6 +165,7 @@ static int rpi_ts_probe(struct platform_device *pdev)
+ 		dev_warn(dev, "Failed to set touchbuf, %d\n", error);
+ 		return error;
+ 	}
++	rpi_firmware_put(fw);
  
-+static int rpi_power_remove(struct platform_device *pdev)
-+{
-+	struct rpi_power_domains *rpi_domains = platform_get_drvdata(pdev);
-+
-+	of_genpd_del_provider(dev->of_node);
-+
-+	for (i = 0; i < RPI_POWER_DOMAIN_COUNT; i++)
-+		pm_genpd_remove(&rpi_domains->domains[i].base);
-+
-+	rpi_firmware_put(rpi_domaina->fw);
-+
-+	return 0;
-+}
-+
- static const struct of_device_id rpi_power_of_match[] = {
- 	{ .compatible = "raspberrypi,bcm2835-power", },
- 	{},
-@@ -237,6 +251,7 @@ static struct platform_driver rpi_power_driver = {
- 		.of_match_table = rpi_power_of_match,
- 	},
- 	.probe		= rpi_power_probe,
-+	.remove		= rpi_power_remove,
- };
- builtin_platform_driver(rpi_power_driver);
- 
+ 	input = devm_input_allocate_device(dev);
+ 	if (!input) {
 -- 
 2.28.0
 

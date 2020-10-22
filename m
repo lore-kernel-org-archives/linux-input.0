@@ -7,41 +7,38 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10A9AC61DD8
-	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF386C56202
+	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BCF4224654
-	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 792EE21707
+	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368971AbgJVP7g (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Oct 2020 11:59:36 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48766 "EHLO mx2.suse.de"
+        id S368884AbgJVP7M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Oct 2020 11:59:12 -0400
+Received: from mx2.suse.de ([195.135.220.15]:48528 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368920AbgJVP7T (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Oct 2020 11:59:19 -0400
+        id S368870AbgJVP7L (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 22 Oct 2020 11:59:11 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 32E0BAC48;
-        Thu, 22 Oct 2020 15:59:17 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id DC564ADF5;
+        Thu, 22 Oct 2020 15:59:08 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc:     f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
         bcm-kernel-feedback-list@broadcom.com,
-        Eric Anholt <eric@anholt.net>, Stefan Wahren <wahrenst@gmx.net>
-Cc:     linux-pwm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        wahrenst@gmx.net, linux-input@vger.kernel.org,
         dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
         devel@driverdev.osuosl.org, p.zabel@pengutronix.de,
-        linux-gpio@vger.kernel.org, linus.walleij@linaro.org,
-        linux-clk@vger.kernel.org, sboyd@kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        Rob Herring <robh+dt@kernel.org>
-Subject: [PATCH v2 08/10] dt-bindings: pwm: Add binding for RPi firmware PWM bus
-Date:   Thu, 22 Oct 2020 17:58:55 +0200
-Message-Id: <20201022155858.20867-9-nsaenzjulienne@suse.de>
+        linux-gpio@vger.kernel.org, linux-clk@vger.kernel.org,
+        sboyd@kernel.org, linux-rpi-kernel@lists.infradead.org,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH v2 03/10] gpio: raspberrypi-exp: Release firmware handle on unbind
+Date:   Thu, 22 Oct 2020 17:58:50 +0200
+Message-Id: <20201022155858.20867-4-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201022155858.20867-1-nsaenzjulienne@suse.de>
 References: <20201022155858.20867-1-nsaenzjulienne@suse.de>
@@ -51,76 +48,46 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The PWM bus controlling the fan in RPi's official PoE hat can only be
-controlled by the board's co-processor.
+Upon unbinding the device make sure we release RPi's firmware interface.
 
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-
 ---
-Changes since v1:
- - Update bindings to use 2 #pwm-cells
+ drivers/gpio/gpio-raspberrypi-exp.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
- .../arm/bcm/raspberrypi,bcm2835-firmware.yaml | 20 +++++++++++++++++++
- .../pwm/raspberrypi,firmware-pwm.h            | 13 ++++++++++++
- 2 files changed, 33 insertions(+)
- create mode 100644 include/dt-bindings/pwm/raspberrypi,firmware-pwm.h
-
-diff --git a/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml b/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
-index a2c63c8b1d10..8029ce958c48 100644
---- a/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
-+++ b/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
-@@ -64,6 +64,21 @@ properties:
-       - compatible
-       - "#reset-cells"
+diff --git a/drivers/gpio/gpio-raspberrypi-exp.c b/drivers/gpio/gpio-raspberrypi-exp.c
+index bb100e0124e6..c008336e1131 100644
+--- a/drivers/gpio/gpio-raspberrypi-exp.c
++++ b/drivers/gpio/gpio-raspberrypi-exp.c
+@@ -231,8 +231,19 @@ static int rpi_exp_gpio_probe(struct platform_device *pdev)
+ 	rpi_gpio->gc.get = rpi_exp_gpio_get;
+ 	rpi_gpio->gc.set = rpi_exp_gpio_set;
+ 	rpi_gpio->gc.can_sleep = true;
++	platform_set_drvdata(pdev, rpi_gpio);
  
-+  pwm:
-+    type: object
+-	return devm_gpiochip_add_data(dev, &rpi_gpio->gc, rpi_gpio);
++	return gpiochip_add_data(&rpi_gpio->gc, rpi_gpio);
++}
 +
-+    properties:
-+      compatible:
-+        const: raspberrypi,firmware-pwm
++static int rpi_exp_gpio_remove(struct platform_device *pdev)
++{
++	struct rpi_exp_gpio *rpi_gpio = platform_get_drvdata(pdev);
 +
-+      "#pwm-cells":
-+        # See pwm.yaml in this directory for a description of the cells format.
-+        const: 2
++	gpiochip_remove(&rpi_gpio->gc);
++	rpi_firmware_put(rpi_gpio->fw);
 +
-+    required:
-+      - compatible
-+      - "#pwm-cells"
-+
-     additionalProperties: false
++	return 0;
+ }
  
- required:
-@@ -87,5 +102,10 @@ examples:
-             compatible = "raspberrypi,firmware-reset";
-             #reset-cells = <1>;
-         };
-+
-+        pwm: pwm {
-+            compatible = "raspberrypi,firmware-pwm";
-+            #pwm-cells = <1>;
-+        };
-     };
- ...
-diff --git a/include/dt-bindings/pwm/raspberrypi,firmware-pwm.h b/include/dt-bindings/pwm/raspberrypi,firmware-pwm.h
-new file mode 100644
-index 000000000000..27c5ce68847b
---- /dev/null
-+++ b/include/dt-bindings/pwm/raspberrypi,firmware-pwm.h
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Copyright (c) 2020 Nicolas Saenz Julienne
-+ * Author: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-+ */
-+
-+#ifndef _DT_BINDINGS_RASPBERRYPI_FIRMWARE_PWM_H
-+#define _DT_BINDINGS_RASPBERRYPI_FIRMWARE_PWM_H
-+
-+#define RASPBERRYPI_FIRMWARE_PWM_POE		0
-+#define RASPBERRYPI_FIRMWARE_PWM_NUM		1
-+
-+#endif
+ static const struct of_device_id rpi_exp_gpio_ids[] = {
+@@ -247,6 +258,7 @@ static struct platform_driver rpi_exp_gpio_driver = {
+ 		.of_match_table	= of_match_ptr(rpi_exp_gpio_ids),
+ 	},
+ 	.probe	= rpi_exp_gpio_probe,
++	.remove = rpi_exp_gpio_remove,
+ };
+ module_platform_driver(rpi_exp_gpio_driver);
+ 
 -- 
 2.28.0
 

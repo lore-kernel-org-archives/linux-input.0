@@ -4,40 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FF1FC5DF9D
-	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9619BC388F7
+	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 16:00:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 09EAC21707
-	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 15:59:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 514692417D
+	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 16:00:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369040AbgJVP7w (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Oct 2020 11:59:52 -0400
-Received: from mx2.suse.de ([195.135.220.15]:48562 "EHLO mx2.suse.de"
+        id S368874AbgJVP7K (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Oct 2020 11:59:10 -0400
+Received: from mx2.suse.de ([195.135.220.15]:48500 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S368878AbgJVP7M (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Oct 2020 11:59:12 -0400
+        id S368861AbgJVP7K (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 22 Oct 2020 11:59:10 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 41DD3AC23;
-        Thu, 22 Oct 2020 15:59:10 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id B5922ADFF;
+        Thu, 22 Oct 2020 15:59:07 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org,
-        Philipp Zabel <p.zabel@pengutronix.de>
+To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org
 Cc:     f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
         bcm-kernel-feedback-list@broadcom.com,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         wahrenst@gmx.net, linux-input@vger.kernel.org,
         dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
-        devel@driverdev.osuosl.org, linux-gpio@vger.kernel.org,
-        linus.walleij@linaro.org, linux-clk@vger.kernel.org,
-        sboyd@kernel.org, linux-rpi-kernel@lists.infradead.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v2 04/10] reset: raspberrypi: Release firmware handle on unbind
-Date:   Thu, 22 Oct 2020 17:58:51 +0200
-Message-Id: <20201022155858.20867-5-nsaenzjulienne@suse.de>
+        devel@driverdev.osuosl.org, p.zabel@pengutronix.de,
+        linux-gpio@vger.kernel.org, linus.walleij@linaro.org,
+        linux-clk@vger.kernel.org, sboyd@kernel.org,
+        linux-rpi-kernel@lists.infradead.org,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Michael Turquette <mturquette@baylibre.com>
+Subject: [PATCH v2 02/10] clk: bcm: rpi: Release firmware handle on unbind
+Date:   Thu, 22 Oct 2020 17:58:49 +0200
+Message-Id: <20201022155858.20867-3-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201022155858.20867-1-nsaenzjulienne@suse.de>
 References: <20201022155858.20867-1-nsaenzjulienne@suse.de>
@@ -47,44 +48,26 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Upon unbinding the device make sure we release RPi's firmware interface.
+Upon unbinding the clock device make sure we release RPi's firmware
+interface.
 
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 ---
- drivers/reset/reset-raspberrypi.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/clk/bcm/clk-raspberrypi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/reset/reset-raspberrypi.c b/drivers/reset/reset-raspberrypi.c
-index 02f59c06f69b..29311192e2c9 100644
---- a/drivers/reset/reset-raspberrypi.c
-+++ b/drivers/reset/reset-raspberrypi.c
-@@ -99,7 +99,17 @@ static int rpi_reset_probe(struct platform_device *pdev)
- 	priv->rcdev.ops = &rpi_reset_ops;
- 	priv->rcdev.of_node = dev->of_node;
+diff --git a/drivers/clk/bcm/clk-raspberrypi.c b/drivers/clk/bcm/clk-raspberrypi.c
+index f89b9cfc4309..845510ff7514 100644
+--- a/drivers/clk/bcm/clk-raspberrypi.c
++++ b/drivers/clk/bcm/clk-raspberrypi.c
+@@ -353,6 +353,7 @@ static int raspberrypi_clk_remove(struct platform_device *pdev)
+ 	struct raspberrypi_clk *rpi = platform_get_drvdata(pdev);
  
--	return devm_reset_controller_register(dev, &priv->rcdev);
-+	return reset_controller_register(&priv->rcdev);
-+}
-+
-+static int rpi_reset_remove(struct platform_device *pdev)
-+{
-+	struct rpi_reset *priv = platform_get_drvdata(pdev);
-+
-+	reset_controller_unregister(&priv->rcdev);
-+	rpi_firmware_put(priv->fw);
-+
-+	return 0;
+ 	platform_device_unregister(rpi->cpufreq);
++	rpi_firmware_put(rpi->firmware);
+ 
+ 	return 0;
  }
- 
- static const struct of_device_id rpi_reset_of_match[] = {
-@@ -110,6 +120,7 @@ MODULE_DEVICE_TABLE(of, rpi_reset_of_match);
- 
- static struct platform_driver rpi_reset_driver = {
- 	.probe	= rpi_reset_probe,
-+	.remove	= rpi_reset_remove,
- 	.driver	= {
- 		.name = "raspberrypi-reset",
- 		.of_match_table = rpi_reset_of_match,
 -- 
 2.28.0
 

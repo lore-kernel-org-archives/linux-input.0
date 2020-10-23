@@ -1,178 +1,196 @@
-Return-Path: <SRS0=1TPC=D5=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=ILDG=D6=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C2CEC56202
-	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 18:52:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0A7BC4363A
+	for <linux-input@archiver.kernel.org>; Fri, 23 Oct 2020 04:54:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE06124630
-	for <linux-input@archiver.kernel.org>; Thu, 22 Oct 2020 18:52:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 705B820936
+	for <linux-input@archiver.kernel.org>; Fri, 23 Oct 2020 04:54:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VtKxX388"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ci+XUqtt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369765AbgJVSwr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Oct 2020 14:52:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
+        id S2896667AbgJWEyZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 23 Oct 2020 00:54:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S369695AbgJVSwr (ORCPT
+        with ESMTP id S2896662AbgJWEyZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Oct 2020 14:52:47 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E27C0613CE;
-        Thu, 22 Oct 2020 11:52:47 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id 144so1732850pfb.4;
-        Thu, 22 Oct 2020 11:52:47 -0700 (PDT)
+        Fri, 23 Oct 2020 00:54:25 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190A2C0613CE;
+        Thu, 22 Oct 2020 21:54:25 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id n9so255709pgt.8;
+        Thu, 22 Oct 2020 21:54:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=UPboJfWy2G3Fl7hwjyzYX4I9qIst4Uk/OLfG5LU/e2E=;
-        b=VtKxX3880Ktn0xTFSYzIwEDHPTS945FNbgy5Gr9ePYlOcjKHowJfessighc9v6F0en
-         LuknoiQUlSBxsAQPLJLt/drziu0AAwrOEzyhUcwmwHsfzlAgokLQ53YfZOV0mJ1FzJeD
-         V/RcTixiSCbFKJCyLRQHl4yc2COxVriX0ZwYQmav4pYgvvT+EjnkpaVicrejbnDloVIk
-         X69NaHzfPbEZYDyIKTszJJWoesjJRt/Mfyo263Y91yBXzQopSm8wFrQjL6KANAn1UNJ9
-         np8MAbILaQqiWKg9w2R6c4aSkw1MLko9EBT4X7A/ELdcmFYyNndVmSZdwaD+9LAAHuWE
-         zOiQ==
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :content-transfer-encoding;
+        bh=lsMim9fhx/TyK1uqD12rhdUeqHwdc89oDJ4SLQK8XTo=;
+        b=ci+XUqtt7/D+3YehXSxHeS1FbEqQdnjNh5F0slCdBHwu3ARWVSDINiN6zv6yWrdjv9
+         v9cPebqdONMGDANGucmxq+nUgYskiLgAg9HX+S4t2TkrrO1KtRA2vSSI+Ab21v3f4cv8
+         LRezbCwQQUDJFvWjAxjXjUj52viYR7OTKVA85R2+B4pZCHZ+jG1hj+c8FDxbs7xit4mI
+         QNzjREv8ejvCAOfrryIMNfpRdT1zZyFVY+mUjG15ilHynimMBUrOZOkgr0X/kTY8YXvq
+         wjQU6DsJZSw4fymv5K3vj8QhgCCMke9OBzkoeTRwtjyLA4CSCAEtIQXEykhrJJ0Y6Muc
+         DUWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=UPboJfWy2G3Fl7hwjyzYX4I9qIst4Uk/OLfG5LU/e2E=;
-        b=QCHyybLgWy+uSZjDMOQfwQ9xYEzADSD75z5wEMBomOjtmm9r/b+C26EwGLXP/wI7nO
-         xDgwK7OGpq9vOQlQr7+S5GEadS33taigGK9huM7HEN7ELvm+TH3kgMYhD+kfticC++I5
-         H9qN9tUCez4zfgZH1cuMQVrwRXsKbwlm883NMfJ9CjHG1FKmpW9qKzt88dreAFF1jVBd
-         YgNxDgUFGH8X0GvhsuQpDR1hui0XVKSir8rUuGIhl64hS6nhrm1HJwge+W+43yCZ6YuK
-         PlPT/KX+4/xzbChG4PWUHjxzpDfagGME5JoVbrvO5ubE+BdQ48DB5jd0K82jTtXcv5fV
-         SRyw==
-X-Gm-Message-State: AOAM533Ej2/Bk1d6zWrsO7HFpPnOcNpULMFogtjhxHSP6Vv39xp/8IEU
-        FOXukWDUmZQgpiyVz2ML4wJqXmPvMOF8ibruUUM=
-X-Google-Smtp-Source: ABdhPJxuxwguwZIz0oJ2B/3sUWcXzpnVtRm/MOSafV+Mdym/oG+j6niWLg7KAllKTq7L+Rkez2tw5MM5pbQzsafKqk0=
-X-Received: by 2002:a05:6a00:22c2:b029:156:543:7c1d with SMTP id
- f2-20020a056a0022c2b029015605437c1dmr3771716pfj.40.1603392766581; Thu, 22 Oct
- 2020 11:52:46 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:content-transfer-encoding;
+        bh=lsMim9fhx/TyK1uqD12rhdUeqHwdc89oDJ4SLQK8XTo=;
+        b=Luo097MXrfSlxl7rcnE0XdDfr6S7oFfE/adrMkzBeZoatLDDHRzaUtUPdJnq+MlrGM
+         HsTXFZcv+sZbA5cRBppwSOuYgBmsaEaVxhG9mvEi9sMuKFMHnmTI8xl4UqdfvXEvLJ6T
+         bGGBMxdsnD7qOrTdG2DoaEPDNdTdnUYy0b/szfP/I2e/pi5se3JJoCyYw7oJMpCd9UH8
+         WvFPh9v68xcbt7nTXEqZ3p2N0k7XNAisy87aK+T1q2RyLtMreRZLlnC/w83eTKXEBhTb
+         TF2bD/B4oMb3XhOXVcd4y+iOHa0Tx+tAOL+8GMwCIe1lE6ILDP3ia5xIvM9eCTA8IdbV
+         tP+A==
+X-Gm-Message-State: AOAM533uF6gXonkljTHx+w4WvMzvRIMBbSY0vpbjbBrCmvD4b06E0H6M
+        u581YF2oV6JlMEXHOQfeYQk=
+X-Google-Smtp-Source: ABdhPJyXgQS06ImeWOM4aCtlY+CgCGEAw1LdssRNzPw7wnD213f71eQqs4MrWFKcz0hqtDoESdp0Jg==
+X-Received: by 2002:a17:90a:e50e:: with SMTP id t14mr495028pjy.118.1603428864397;
+        Thu, 22 Oct 2020 21:54:24 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id kc21sm332267pjb.36.2020.10.22.21.54.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Oct 2020 21:54:23 -0700 (PDT)
+Date:   Thu, 22 Oct 2020 21:54:21 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [git pull] Input updates for v5.10-rc0
+Message-ID: <20201023045421.GA2205724@dtor-ws>
 MIME-Version: 1.0
-References: <20201022155858.20867-1-nsaenzjulienne@suse.de> <20201022155858.20867-11-nsaenzjulienne@suse.de>
-In-Reply-To: <20201022155858.20867-11-nsaenzjulienne@suse.de>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Thu, 22 Oct 2020 21:53:35 +0300
-Message-ID: <CAHp75VcB5oxXs38UH5taVGj21wUi3sHYdRPOj3wxa3yXg0vmUA@mail.gmail.com>
-Subject: Re: [PATCH v2 10/10] pwm: Add Raspberry Pi Firmware based PWM bus
-To:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc:     =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-pwm@vger.kernel.org,
-        bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        Stefan Wahren <wahrenst@gmx.net>,
-        linux-input <linux-input@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "open list:STAGING SUBSYSTEM" <devel@driverdev.osuosl.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        linux-rpi-kernel <linux-rpi-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Oct 22, 2020 at 9:05 PM Nicolas Saenz Julienne
-<nsaenzjulienne@suse.de> wrote:
->
-> Adds support to control the PWM bus available in official Raspberry Pi
-> PoE HAT. Only RPi's co-processor has access to it, so commands have to
-> be sent through RPi's firmware mailbox interface.
+Hi Linus,
 
->  drivers/pwm/pwm-raspberrypi.c | 221 ++++++++++++++++++++++++++++++++++
+Please pull from:
 
-Name is completely confusing.
-Please, make it unique enough to understand that this is exactly the
-device it serves for.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-For example, pwm-rpi-poe is better.
+to receive updates for the input subsystem. You will get:
 
-...
+- a new driver for ADC driven joysticks
+- a new Zintix touchscreen driver
+- enhancements to Intel SoC button array driver
+- support for F3A "function" in Synaptics RMI4 driver
+- assorted driver fixups
 
-> + *  - Only normal polarity
+Changelog:
+---------
 
-Can't it be emulated? Isn't it 100% - duty cycle % ?
+Artur Rojek (2):
+      dt-bindings: input: Add docs for ADC driven joystick
+      Input: joystick - add ADC attached joystick driver.
 
+Dan Carpenter (1):
+      Input: imx6ul_tsc - clean up some errors in imx6ul_tsc_resume()
 
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/pwm.h>
+Dmitry Torokhov (1):
+      Input: imx6ul_tsc - unify open/close and PM paths
 
-...
+Furquan Shaikh (1):
+      Input: raydium_i2c_ts - use single i2c_transfer transaction when using RM_CMD_BANK_SWITCH
 
-> +       ret = rpi_firmware_property(firmware, RPI_FIRMWARE_SET_POE_HAT_VAL,
-> +                                   &msg, sizeof(msg));
-> +       if (ret)
-> +               return ret;
+Hans de Goede (8):
+      Input: allocate keycodes for notification-center, pickup-phone and hangup-phone
+      Input: allocate keycode for Fn + right shift
+      platform/x86: thinkpad_acpi: Add support for new hotkeys found on X1C8 / T14
+      platform/x86: thinkpad_acpi: Map Clipping tool hotkey to KEY_SELECTIVE_SCREENSHOT
+      Input: soc_button_array - add active_low setting to soc_button_info
+      Input: soc_button_array - add support for INT33D3 tablet-mode switch devices
+      Input: soc_button_array - work around DSDTs which modify the irqflags
+      Input: synaptics - enable InterTouch for ThinkPad T14 Gen 1
 
-> +       else if (msg.ret)
+Jason A. Donenfeld (2):
+      Input: synaptics-rmi4 - support bootloader v8 in f34v7
+      Input: synaptics - enable InterTouch for ThinkPad P1/X1E gen 2
 
-Redundant 'else'
+Joe Perches (1):
+      Input: MT - avoid comma separated statements
 
-> +               return -EIO;
+Johnny Chuang (2):
+      Input: elants_i2c - report resolution of ABS_MT_TOUCH_MAJOR by FW information.
+      Input: elants_i2c - fix typo for an attribute to show calibration count
 
-...
+Kenny Levinsen (1):
+      Input: evdev - per-client waitgroups
 
-> +       ret = rpi_firmware_property(firmware, RPI_FIRMWARE_GET_POE_HAT_VAL,
-> +                                   &msg, sizeof(msg));
-> +       if (ret)
-> +               return ret;
+Krzysztof Kozlowski (4):
+      Input: ep93xx_keypad - fix handling of platform_get_irq() error
+      Input: omap4-keypad - fix handling of platform_get_irq() error
+      Input: twl4030_keypad - fix handling of platform_get_irq() error
+      Input: sun4i-ps2 - fix handling of platform_get_irq() error
 
-> +       else if (msg.ret)
+Michael Srba (2):
+      dt-bindings: input/touchscreen: add bindings for zinitix
+      Input: add zinitix touchscreen driver
 
-Ditto.
+Mika Penttilä (1):
+      Input: Add MAINTAINERS entry for SiS i2c touch input driver
 
-> +               return -EIO;
+Vincent Huang (2):
+      Input: synaptics-rmi4 - rename f30_data to gpio_data
+      Input: synaptics-rmi4 - add support for F3A
 
-...
+YueHaibing (1):
+      Input: stmfts - fix a & vs && typo
 
-> +       firmware_node = of_get_parent(dev->of_node);
-> +       if (!firmware_node) {
-> +               dev_err(dev, "Missing firmware node\n");
-> +               return -ENOENT;
-> +       }
-> +
-> +       firmware = rpi_firmware_get(firmware_node);
-> +       of_node_put(firmware_node);
-> +       if (!firmware)
-> +               return -EPROBE_DEFER;
+Diffstat:
+--------
 
-Looks like a hack.
+ .../devicetree/bindings/input/adc-joystick.yaml    | 121 +++++
+ .../bindings/input/touchscreen/zinitix.txt         |  40 ++
+ .../devicetree/bindings/vendor-prefixes.yaml       |   2 +
+ MAINTAINERS                                        |   7 +
+ drivers/hid/hid-rmi.c                              |   2 +-
+ drivers/input/evdev.c                              |  19 +-
+ drivers/input/input-mt.c                           |  11 +-
+ drivers/input/joystick/Kconfig                     |  10 +
+ drivers/input/joystick/Makefile                    |   1 +
+ drivers/input/joystick/adc-joystick.c              | 264 ++++++++++
+ drivers/input/keyboard/ep93xx_keypad.c             |   4 +-
+ drivers/input/keyboard/omap4-keypad.c              |   6 +-
+ drivers/input/keyboard/twl4030_keypad.c            |   8 +-
+ drivers/input/misc/soc_button_array.c              | 100 +++-
+ drivers/input/mouse/synaptics.c                    |   6 +-
+ drivers/input/rmi4/Kconfig                         |   8 +
+ drivers/input/rmi4/Makefile                        |   1 +
+ drivers/input/rmi4/rmi_bus.c                       |   3 +
+ drivers/input/rmi4/rmi_driver.h                    |   1 +
+ drivers/input/rmi4/rmi_f30.c                       |  14 +-
+ drivers/input/rmi4/rmi_f34v7.c                     |   9 +-
+ drivers/input/rmi4/rmi_f3a.c                       | 241 +++++++++
+ drivers/input/serio/sun4i-ps2.c                    |   9 +-
+ drivers/input/touchscreen/Kconfig                  |  12 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/elants_i2c.c             |   8 +-
+ drivers/input/touchscreen/imx6ul_tsc.c             |  47 +-
+ drivers/input/touchscreen/raydium_i2c_ts.c         | 131 ++---
+ drivers/input/touchscreen/stmfts.c                 |   2 +-
+ drivers/input/touchscreen/zinitix.c                | 581 +++++++++++++++++++++
+ drivers/platform/x86/thinkpad_acpi.c               |  18 +-
+ include/linux/rmi.h                                |  11 +-
+ include/uapi/linux/input-event-codes.h             |   4 +
+ 33 files changed, 1531 insertions(+), 171 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/adc-joystick.yaml
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/zinitix.txt
+ create mode 100644 drivers/input/joystick/adc-joystick.c
+ create mode 100644 drivers/input/rmi4/rmi_f3a.c
+ create mode 100644 drivers/input/touchscreen/zinitix.c
 
-...
+Thanks.
 
-> +       ret = pwmchip_remove(&rpipwm->chip);
-> +       if (!ret)
-> +               rpi_firmware_put(rpipwm->firmware);
-> +
-> +       return ret;
-
-Can't you use the usual pattern?
-
-  ret = ...
-  if (ret)
-    return ret;
-  ...
-  return 0;
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Dmitry

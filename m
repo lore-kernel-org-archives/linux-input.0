@@ -5,60 +5,60 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C3D3C4363A
-	for <linux-input@archiver.kernel.org>; Fri, 23 Oct 2020 16:33:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59EA6C55179
+	for <linux-input@archiver.kernel.org>; Fri, 23 Oct 2020 16:33:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0A18322210
-	for <linux-input@archiver.kernel.org>; Fri, 23 Oct 2020 16:33:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B4A222460
+	for <linux-input@archiver.kernel.org>; Fri, 23 Oct 2020 16:33:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R8QmoUmp"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EKBrqd+P"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1750783AbgJWQdN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 23 Oct 2020 12:33:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48876 "EHLO
+        id S1750794AbgJWQdR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 23 Oct 2020 12:33:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750763AbgJWQdM (ORCPT
+        with ESMTP id S460890AbgJWQdP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 23 Oct 2020 12:33:12 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7497DC0613CE;
-        Fri, 23 Oct 2020 09:33:12 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id c194so2251285wme.2;
-        Fri, 23 Oct 2020 09:33:12 -0700 (PDT)
+        Fri, 23 Oct 2020 12:33:15 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C588C0613CE;
+        Fri, 23 Oct 2020 09:33:15 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id g12so2671128wrp.10;
+        Fri, 23 Oct 2020 09:33:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=M7Vqgqp5RCTym5rMfv9j6RqUwYhfreT6N/fOFNGIusQ=;
-        b=R8QmoUmpZjCNFBouSsZKSZ2eq+g0hxxSC9+PovyXbiOErqwLeBzvjjU3nLqwh3wz0r
-         qvS14BtGEefVNUyJePcsaX8kvoP2MB7iHRVNuZCTYJRqCGyMIM+BVAlF2UCs+U/G/mps
-         DlTX1o1ZukG5YCaG7ZJTIU/AhrHP53hx7V12OT77u6JGgXOP+GgiFIAeHavs7juwOHNS
-         VLfk9404NiVsnBx460rjHPyByKoLWssjd264F9VmQUBuz2/AKLlpxOPFYxmLAoJ+20Fn
-         JeazATaFa2QqnqIe37/PwfDNWbfSQJtKLIkI6hBkmlLnPbxto/ZHf8UiklKPYiGoCwOo
-         wuvQ==
+        bh=Sq/g3QntWZKliuSV9V54j9Wg1RchEoNv9jy29pYMN/E=;
+        b=EKBrqd+PLm4bbuJx7BQuD7BkZFToxcOjYG/fkPh1R8AhVH5S6Ozh1D0xjpl6a43/dr
+         RAFENfo8DmbPGZplVWiDQeISOV0BNHj/Fd3D0LPdzeupB+JRFyK8UFwrauO9rtdGwhoC
+         kZUTe47nUNN+guqFtu84tN4lrKcIi057zxzz/Wa1t+PZMrajAE9D+1zIjOoS+QVPtfh3
+         ZXW80MmJ60p0Tc48qGNYn4OM6sFdcOELyfA8bdG37ZNVUbs1vkDVeRlEVHzLcGzfbUu/
+         RvI6/ehsllyITJBZU2bC0xeSByAcOyam1SgrZ4uNhtkQUwnbYx3ZNImSvbLK9CmC3qyK
+         Q1Hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=M7Vqgqp5RCTym5rMfv9j6RqUwYhfreT6N/fOFNGIusQ=;
-        b=RDe2lRkLDX4eJKxgQ/QvFeCot8gh09qLbmCiWuJYgltnWNtoAJYe6MiJGLDlSIrJHz
-         Uz0qUyHdTrgmAsLjDMuXCpQSMddqJOlLdKX46IpnQB61z8iRtLLP/6H//0as3kz3x3dY
-         IJaGaQBA/MKee4wbPldslaxAXKaGore/vEZdxqQ62iEyJGPVnvOrx2i0SY/yHH1s4NPL
-         3bKKn6LnyrLJIMwcIBao7gbdTTwSs/Z6P56ee8H4eaun3BE6ZmELPK94x3LG0/km/mhC
-         R0P79qC2ZbP72j+vM2Lo9+zlxBssAc8OaEIA9upbc/a0RH72HPpuOQo9+daiwiIYxi/o
-         UoyQ==
-X-Gm-Message-State: AOAM530hq7h4PULodr0UHOe7BaFq0+dZXwAmvyHCt0m0Xfs4HnXWmULc
-        JRB5HfKuwiBjS5dsIZafqY/jvpF9o0dhMgsK
-X-Google-Smtp-Source: ABdhPJwMJqrZL0F4WJEj2YrKlKil2Seu8HlteUdBIL1PwSOM9Awl620jYQQct0gooYZpwQoGjUPhow==
-X-Received: by 2002:a7b:c189:: with SMTP id y9mr3023201wmi.141.1603470791148;
-        Fri, 23 Oct 2020 09:33:11 -0700 (PDT)
+        bh=Sq/g3QntWZKliuSV9V54j9Wg1RchEoNv9jy29pYMN/E=;
+        b=Xwf33nSa7SnbcbYgs2fecqsNjB87K8IGlOiJtEXGhBrFNr7zzQPJ1QZs6qKlw4hL7I
+         Z0DIyZd8jQbS7LVZyTojKQrF9enO/zfDvRWFHcQpw05XyKDckDn/otoiS90dz9lGmQRm
+         LUIBonDy/4gjbODHc0XuzwAegfGq6yMS4Lj6zxKI0AegobjTakfBCPg9pQd7eX1LgQrd
+         xMBpYRxBZVYj62iu0anu1stUPmcolcZAHCWKNJpbARvNUaH+fc35xxM7I3Yt4IwUUvRR
+         rwesoPHlHlZhH1/UZZh7o1p0OCpfOpb9AeDMonS+c+Ctd1WRXhaocdc9jc9Park4yxvN
+         dmRw==
+X-Gm-Message-State: AOAM531VWZUjC8XqH+rgUTY2oh0gX701SFifrvz95vlmpFPPylQNOwSS
+        /A35WsChzhYI3N2IMwO5LRI=
+X-Google-Smtp-Source: ABdhPJyjw14LkSCmfH9h0UQNf4VxXTyn4j1iRBH8nvcaFay3INl44MsKdkBKcIvVGJM9aWJQahycyA==
+X-Received: by 2002:adf:e942:: with SMTP id m2mr3446606wrn.123.1603470794154;
+        Fri, 23 Oct 2020 09:33:14 -0700 (PDT)
 Received: from IcarusMOD.eternityproject.eu ([2.237.20.237])
-        by smtp.gmail.com with ESMTPSA id u15sm4334808wrm.77.2020.10.23.09.33.09
+        by smtp.gmail.com with ESMTPSA id u15sm4334808wrm.77.2020.10.23.09.33.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2020 09:33:10 -0700 (PDT)
+        Fri, 23 Oct 2020 09:33:13 -0700 (PDT)
 From:   kholk11@gmail.com
 To:     dmitry.torokhov@gmail.com
 Cc:     robh+dt@kernel.org, rydberg@bitmath.org, priv.luk@gmail.com,
@@ -66,10 +66,10 @@ Cc:     robh+dt@kernel.org, rydberg@bitmath.org, priv.luk@gmail.com,
         kholk11@gmail.com, marijns95@gmail.com, konradybcio@gmail.com,
         martin.botka1@gmail.com, phone-devel@vger.kernel.org,
         devicetree@vger.kernel.org, krzk@kernel.org,
-        andy.shevchenko@gmail.com, Rob Herring <robh@kernel.org>
-Subject: [PATCH v6 1/3] dt-bindings: Add vendor prefix for Novatek Microelectronics Corp.
-Date:   Fri, 23 Oct 2020 18:32:54 +0200
-Message-Id: <20201023163256.96000-2-kholk11@gmail.com>
+        andy.shevchenko@gmail.com
+Subject: [PATCH v6 3/3] dt-bindings: touchscreen: Add binding for Novatek NT36xxx series driver
+Date:   Fri, 23 Oct 2020 18:32:56 +0200
+Message-Id: <20201023163256.96000-4-kholk11@gmail.com>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201023163256.96000-1-kholk11@gmail.com>
 References: <20201023163256.96000-1-kholk11@gmail.com>
@@ -81,27 +81,79 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: AngeloGioacchino Del Regno <kholk11@gmail.com>
 
-Add prefix for Novatek Microelectronics Corp.
+Add binding for the Novatek NT36xxx series touchscreen driver.
 
 Signed-off-by: AngeloGioacchino Del Regno <kholk11@gmail.com>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ .../bindings/input/touchscreen/nt36xxx.yaml   | 59 +++++++++++++++++++
+ 1 file changed, 59 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-index 66e45112a8d7..f98ea0af487d 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-@@ -740,6 +740,8 @@ patternProperties:
-     description: Nokia
-   "^nordic,.*":
-     description: Nordic Semiconductor
-+  "^novatek,.*":
-+    description: Novatek Microelectronics Corp.
-   "^novtech,.*":
-     description: NovTech, Inc.
-   "^nutsboard,.*":
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml b/Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
+new file mode 100644
+index 000000000000..1486b20d6c49
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
+@@ -0,0 +1,59 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/nt36xxx.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Novatek NT36xxx series touchscreen controller Bindings
++
++maintainers:
++  - AngeloGioacchino Del Regno <kholk11@gmail.com>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    const: novatek,nt36525
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  vdd-supply:
++    description: Power supply regulator for VDD pin
++
++  vio-supply:
++    description: Power supply regulator on VDD-IO pin
++
++unevaluatedProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/gpio/gpio.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      touchscreen@62 {
++        compatible = "novatek,nt36525";
++        reg = <0x62>;
++        interrupt-parent = <&tlmm>;
++        interrupts = <45 IRQ_TYPE_EDGE_RISING>;
++        reset-gpio = <&tlmm 102 GPIO_ACTIVE_HIGH>;
++      };
++    };
++
++...
 -- 
 2.28.0
 

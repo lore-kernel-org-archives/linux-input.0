@@ -2,125 +2,124 @@ Return-Path: <SRS0=9xTa=D7=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B9B6C4363A
-	for <linux-input@archiver.kernel.org>; Sat, 24 Oct 2020 12:47:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2B59C4363A
+	for <linux-input@archiver.kernel.org>; Sat, 24 Oct 2020 12:57:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4376A2225E
-	for <linux-input@archiver.kernel.org>; Sat, 24 Oct 2020 12:47:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B53AF21D43
+	for <linux-input@archiver.kernel.org>; Sat, 24 Oct 2020 12:57:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="LAv9rMRZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ik50iFFi"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1761535AbgJXMq6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 24 Oct 2020 08:46:58 -0400
-Received: from rere.qmqm.pl ([91.227.64.183]:29500 "EHLO rere.qmqm.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1761485AbgJXMqm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 24 Oct 2020 08:46:42 -0400
-Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 4CJLSw2kmYzFY;
-        Sat, 24 Oct 2020 14:46:40 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1603543600; bh=3doK0FUutvkvWAsR9+JjynwPIbyNyVd+O7Di1WbQwyM=;
-        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=LAv9rMRZezTUF3S7jbYtko9VUCFjEoDToryCItvKM4cNcdq+/5Dbdo57pIOU3eAaE
-         yII1VeMcpxL+mxrQM9NG5Ml2hAi3y8kfW8tIt4uiklk4f9u3Xg37wV1R7lzDx1g2Up
-         YL4JwpACqeEM4A4lJ0plFRN28efLXHG1/2vzfNmjfjR36TnB4F41iB3YuU6xRzTzQC
-         b9i+jD4v4dlPSwopEkIaiy51SZJ3N1JO6qzJCwkyAjCvI1eYnXjmHq7tA4tqv1Xon5
-         IQVNB7gzeeXCNCyZqHrRZUJ3BEZ0c/VsR3sQ9eklBTzfTnCW4E8SoYmQGi7MpVIDh8
-         3mYyCmZPN9fyg==
-X-Virus-Status: Clean
-X-Virus-Scanned: clamav-milter 0.102.4 at mail
-Date:   Sat, 24 Oct 2020 14:46:40 +0200
-Message-Id: <36596e65f85d3ee3ac5f35b108ab10dd462de097.1603543323.git.mirq-linux@rere.qmqm.pl>
-In-Reply-To: <cover.1603543323.git.mirq-linux@rere.qmqm.pl>
-References: <cover.1603543323.git.mirq-linux@rere.qmqm.pl>
-From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH v8 1/4] input: elants: document some registers and values
+        id S1761653AbgJXM5m (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 24 Oct 2020 08:57:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:33976 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1761652AbgJXM53 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 24 Oct 2020 08:57:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1603544247;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=gY6nxF6D69YYbbi8jJl1XX8/TD5XM0jzforV4QGjRvc=;
+        b=Ik50iFFiMzgKsPLxSC988WTbQ78rjTTkZ6r9jayegqWaCqyRAwLmZPTTCq8y/DdRs1/3Tc
+        5Ux1MjZnV8VXq9g9taMe31C6Wkvm54Ndo8+XDrY/PExysuelNgnooSH6UEU3M1d4MGyrkq
+        3DDfDu0QQENGF0eGtyVEQ+Pfn2Vo0iM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-308-V_v0JFzJOv2GoluPTgQuWw-1; Sat, 24 Oct 2020 08:57:22 -0400
+X-MC-Unique: V_v0JFzJOv2GoluPTgQuWw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 27D5F1842175;
+        Sat, 24 Oct 2020 12:57:21 +0000 (UTC)
+Received: from x1.localdomain (ovpn-112-23.ams2.redhat.com [10.36.112.23])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AED67277DA;
+        Sat, 24 Oct 2020 12:57:16 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH] HID: i2c-hid: Put ACPI enumerated devices in D3 on shutdown
+Date:   Sat, 24 Oct 2020 14:57:15 +0200
+Message-Id: <20201024125715.16683-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-To:     Dmitry Osipenko <digetx@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Johnny Chuang <johnny.chuang.emc@gmail.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add information found in downstream kernels, to make the code less
-magic.
+The i2c-hid driver would quietly fail to probe the i2c-hid sensor-hub
+with an ACPI device-id of SMO91D0 every other boot.
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Specifically, the i2c_smbus_read_byte() "Make sure there is something at
+this address" check would fail every other boot.
+
+It seems that the BIOS does not properly reset/power-cycle the device
+leaving it in a confused state where it refuses to respond to i2c-xfers.
+On boots where probing the device failed, the driver-core puts the device
+in D3 after the probe-failure, which causes the probe to succeed the next
+boot.
+
+Putting the device in D3 from the shutdown-handler fixes the sensors not
+working every other boot.
+
+This has been tested on both a Lenovo Miix 2-10 and a Dell Venue 8 Pro 5830
+both of which use an i2c-hid sensor-hub with an ACPI id of SMO91D0.
+
+Note that it is safe to call acpi_device_set_power() with a NULL pointer
+as first argument, so on none ACPI enumerated devices this change is a
+no-op.
+
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/elants_i2c.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 50c348297e38..d51cb910fba1 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -82,7 +82,7 @@
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index dbd04492825d..b303a1dd0e3f 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -935,6 +935,11 @@ static void i2c_hid_acpi_fix_up_power(struct device *dev)
+ 		acpi_device_fix_up_power(adev);
+ }
  
- #define HEADER_REPORT_10_FINGER	0x62
- 
--/* Header (4 bytes) plus 3 fill 10-finger packets */
-+/* Header (4 bytes) plus 3 full 10-finger packets */
- #define MAX_PACKET_SIZE		169
- 
- #define BOOT_TIME_DELAY_MS	50
-@@ -97,6 +97,10 @@
- #define E_INFO_PHY_SCAN		0xD7
- #define E_INFO_PHY_DRIVER	0xD8
- 
-+/* FW write command, 0x54 0x?? 0x0, 0x01 */
-+#define E_POWER_STATE_SLEEP	0x50
-+#define E_POWER_STATE_RESUME	0x58
++static void i2c_hid_acpi_shutdown(struct device *dev)
++{
++	acpi_device_set_power(ACPI_COMPANION(dev), ACPI_STATE_D3_COLD);
++}
 +
- #define MAX_RETRIES		3
- #define MAX_FW_UPDATE_RETRIES	30
+ static const struct acpi_device_id i2c_hid_acpi_match[] = {
+ 	{"ACPI0C50", 0 },
+ 	{"PNP0C50", 0 },
+@@ -949,6 +954,7 @@ static inline int i2c_hid_acpi_pdata(struct i2c_client *client,
+ }
  
-@@ -269,8 +273,8 @@ static int elants_i2c_calibrate(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	int ret, error;
--	static const u8 w_flashkey[] = { 0x54, 0xC0, 0xE1, 0x5A };
--	static const u8 rek[] = { 0x54, 0x29, 0x00, 0x01 };
-+	static const u8 w_flashkey[] = { CMD_HEADER_WRITE, 0xC0, 0xE1, 0x5A };
-+	static const u8 rek[] = { CMD_HEADER_WRITE, 0x29, 0x00, 0x01 };
- 	static const u8 rek_resp[] = { CMD_HEADER_REK, 0x66, 0x66, 0x66 };
+ static inline void i2c_hid_acpi_fix_up_power(struct device *dev) {}
++static inline void i2c_hid_acpi_shutdown(struct device *dev) {}
+ #endif
  
- 	disable_irq(client->irq);
-@@ -1388,7 +1392,9 @@ static int __maybe_unused elants_i2c_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elants_data *ts = i2c_get_clientdata(client);
--	const u8 set_sleep_cmd[] = { 0x54, 0x50, 0x00, 0x01 };
-+	const u8 set_sleep_cmd[] = {
-+		CMD_HEADER_WRITE, E_POWER_STATE_SLEEP, 0x00, 0x01
-+	};
- 	int retry_cnt;
- 	int error;
+ #ifdef CONFIG_OF
+@@ -1163,6 +1169,8 @@ static void i2c_hid_shutdown(struct i2c_client *client)
  
-@@ -1425,7 +1431,9 @@ static int __maybe_unused elants_i2c_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elants_data *ts = i2c_get_clientdata(client);
--	const u8 set_active_cmd[] = { 0x54, 0x58, 0x00, 0x01 };
-+	const u8 set_active_cmd[] = {
-+		CMD_HEADER_WRITE, E_POWER_STATE_RESUME, 0x00, 0x01
-+	};
- 	int retry_cnt;
- 	int error;
+ 	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+ 	free_irq(client->irq, ihid);
++
++	i2c_hid_acpi_shutdown(&client->dev);
+ }
  
+ #ifdef CONFIG_PM_SLEEP
 -- 
-2.20.1
+2.28.0
 

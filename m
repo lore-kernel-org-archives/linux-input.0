@@ -2,205 +2,156 @@ Return-Path: <SRS0=b+LQ=EB=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EC8FC4363A
-	for <linux-input@archiver.kernel.org>; Mon, 26 Oct 2020 14:49:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A472EC4363A
+	for <linux-input@archiver.kernel.org>; Mon, 26 Oct 2020 14:58:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52EE322265
-	for <linux-input@archiver.kernel.org>; Mon, 26 Oct 2020 14:49:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 506782076B
+	for <linux-input@archiver.kernel.org>; Mon, 26 Oct 2020 14:58:01 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ccDVJpdU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1782043AbgJZOtx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 26 Oct 2020 10:49:53 -0400
-Received: from mail1.bemta23.messagelabs.com ([67.219.246.3]:51819 "EHLO
-        mail1.bemta23.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1782039AbgJZOtx (ORCPT
+        id S1782626AbgJZO6B (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 26 Oct 2020 10:58:01 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:55297 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1782368AbgJZO6A (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 26 Oct 2020 10:49:53 -0400
-Received: from [100.112.3.43] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
-        by server-3.bemta.az-b.us-east-1.aws.symcld.net id ED/98-43594-E02E69F5; Mon, 26 Oct 2020 14:49:50 +0000
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrFIsWRWlGSWpSXmKPExsWSLveKTZfv0bR
-  4g/adKhaHzh1gtji86AWjxddvt9kt3hyfzmRx5vZCJoubn76xWqze84LZgd1jVkMvm8fOWXfZ
-  PX5tW8PisfzgNCaP9/uusnl83iQXwBbFmpmXlF+RwJpxaf5u5oL/MhXdO2cxNjDekOhi5OIQE
-  vjPKNH8ZyUThPOGUaKx/SJ7FyMnB5uAtsSWLb/Yuhg5OEQEZCQ+rPUEqWEWeMUosePlVxaQGm
-  EBf4lD+3uZQGwWAVWJ4+t/MYLYvAI2EpeWPQabIyEgL/G0dzkziM0pYCsx+8JsMFtIIExiwup
-  lLBD1ghInZz4Bs5mB6pu3QtQwC0hIHHzxghnkBgkBBYkHV5ghRiZILHt5h3kCo8AsJN2zkHTP
-  QtK9gJF5FaNpUlFmekZJbmJmjq6hgYGuoaGRrpGumaVeYpVukl5psW5qYnGJrqFeYnmxXnFlb
-  nJOil5easkmRmCUpBQwue5g/P36g94hRkkOJiVR3mP7psUL8SXlp1RmJBZnxBeV5qQWH2KU4e
-  BQkuAteQCUEyxKTU+tSMvMAUYsTFqCg0dJhHc1SJq3uCAxtzgzHSJ1ilFRSpz3NEhCACSRUZo
-  H1wZLEpcYZaWEeRkZGBiEeApSi3IzS1DlXzGKczAqCfP+ApnCk5lXAjcdGF1AN4vwtlVMAVlc
-  koiQkmpgatjuHfrrc9e3oKedrdWijwUdJR5t7vmWfHvr/LiyZZ++mbx407dXeqlxqL9Xg9riz
-  91m6scfqUy5rpEuVc7zxPG9UGfCrgr2u4pW/g3ZJ/5efrrV+vL3iKzeLwVHS+Y3eilbf9m2gC
-  2o8eApxxwlxm1L9cs37D1StDR+LW/x03zOz1Jc/4x9/+1de+Gp5S7Bd69uhHfM173Qs3wXwxN
-  fyVlTVhp+1bl4zcG1MmfH94Bj1d/UjojlLnayEb5SsnLxusbbMyazHFP8slPX2bn12ftkLVlZ
-  l1UPk+KDuDNiaxPTeHYwbtL74PeLP2mWmmlE4zOJt4YJhz85TG8x6ZvpskmR0/2M3+yOSN6nd
-  +c7KbEUZyQaajEXFScCAKr3KKGNAwAA
-X-Env-Sender: markpearson@lenovo.com
-X-Msg-Ref: server-16.tower-395.messagelabs.com!1603723787!862649!1
-X-Originating-IP: [103.30.234.6]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.60.3; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 12103 invoked from network); 26 Oct 2020 14:49:50 -0000
-Received: from unknown (HELO lenovo.com) (103.30.234.6)
-  by server-16.tower-395.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 26 Oct 2020 14:49:50 -0000
-Received: from reswpmail04.lenovo.com (unknown [10.62.32.23])
-        (using TLSv1.2 with cipher AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by Forcepoint Email with ESMTPS id 01A5D85408E67CAF4860;
-        Mon, 26 Oct 2020 22:49:45 +0800 (CST)
-Received: from localhost.localdomain.com (10.64.83.193) by
- reswpmail04.lenovo.com (10.62.32.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2044.4; Mon, 26 Oct 2020 07:49:42 -0700
-From:   Mark Pearson <markpearson@lenovo.com>
-To:     <markpearson@lenovo.com>
-CC:     <dmitry.torokhov@gmail.com>, <hdegoede@redhat.com>,
-        <platform-driver-x86@vger.kernel.org>,
-        <linux-input@vger.kernel.org>, <jeff@labundy.com>,
-        <anthony.wong@canonical.com>, <hadess@hadess.net>,
-        "Nitin Joshi" <njoshi1@lenovo.com>
-Subject: [PATCH v3 3/3] platform/x86: thinkpad_acpi: Add support for lap sensor
-Date:   Mon, 26 Oct 2020 10:45:12 -0400
-Message-ID: <20201026144512.621479-3-markpearson@lenovo.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201026144512.621479-1-markpearson@lenovo.com>
+        Mon, 26 Oct 2020 10:58:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1603724278;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ggR7nXs6vIGQ0hf64bcClqY2uGlUYrgDILb/HS3RbR0=;
+        b=ccDVJpdUEtOh8ZCkqjQHrz/zl/a76oJSNzEZAdPirXXss9g7sutgNnFjS0D3xfq6s+tuWh
+        tLIcSPj3MhUjl1KCaDY/oI8fBWQeljnabUmpbUqscTe5VO8GvC/QeKq3y+UQGVlW8PfKpn
+        UnwhBo1/MUven+oZp8ld6vrT0hUhTlQ=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-498-nxXtIxhBN22P3K0JtLDy1g-1; Mon, 26 Oct 2020 10:57:57 -0400
+X-MC-Unique: nxXtIxhBN22P3K0JtLDy1g-1
+Received: by mail-ed1-f69.google.com with SMTP id i9so4457649edx.10
+        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2020 07:57:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ggR7nXs6vIGQ0hf64bcClqY2uGlUYrgDILb/HS3RbR0=;
+        b=dWqoph/yrLQ0ufsNu6ppDPOXgY4BB0amsX3VaTSqcW2ezZbu5RDtkc296oLCKgzSfc
+         bX3htDLovkSf9Rp47iLQdSDVkltnOw9asHcipyxi0PrXBFttBCkMQ38PRnJ/zPji04jE
+         got0cMJ2ttlBZkxHjcYNAnZSksqUtn+bYlg61QHs3dVKfUwnEAuGnNAHoqaW0UbqZ5/A
+         rl2U1TrHdfFtzp3jGdQfZdzrkkELd0JU5ZVEthrJX5o//iIcMkvb5rVrED4Aja0SIMij
+         hKv8LpX/ujP+5B86eVEulJJHlHueJqOMq26LDF3b+8eJfP/aFXD17knkfVPzMC1pFTDr
+         3elA==
+X-Gm-Message-State: AOAM531XfOC68ghdi5hkj3KkPFg+fqGuNLjK922EsUz3GKXTnb4VoR98
+        WdZ0UJ8N4RvCbSUn6344p8LpF+41QwYjbM/hO/RM8Ob3wDjDwax75H8ld7tBLXDQIKcm+DquH2H
+        SaockFZO0vtRRzvZYUUtxhM0=
+X-Received: by 2002:a17:906:4d03:: with SMTP id r3mr15004449eju.364.1603724275289;
+        Mon, 26 Oct 2020 07:57:55 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzODTXxY3/e+mQFlcVuOFI/H1Wxzk4Yk6iRiXII2XR3P5YMcpD2IUndHpp4JWdlTFYkUBDv9g==
+X-Received: by 2002:a17:906:4d03:: with SMTP id r3mr15004435eju.364.1603724275057;
+        Mon, 26 Oct 2020 07:57:55 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id v21sm5296124edt.80.2020.10.26.07.57.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Oct 2020 07:57:54 -0700 (PDT)
+Subject: Re: [PATCH v3 1/3] Input: add event codes for lap and palmreset
+ proximity switches
+To:     Mark Pearson <markpearson@lenovo.com>
+Cc:     dmitry.torokhov@gmail.com, platform-driver-x86@vger.kernel.org,
+        linux-input@vger.kernel.org, jeff@labundy.com,
+        anthony.wong@canonical.com, hadess@hadess.net,
+        Nitin Joshi <njoshi1@lenovo.com>
 References: <markpearson@lenovo.com>
  <20201026144512.621479-1-markpearson@lenovo.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <bc1f2cde-c50e-8704-2fa7-bb7f1b5d6405@redhat.com>
+Date:   Mon, 26 Oct 2020 15:57:53 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.64.83.193]
-X-ClientProxiedBy: reswpmail04.lenovo.com (10.62.32.23) To
- reswpmail04.lenovo.com (10.62.32.23)
+In-Reply-To: <20201026144512.621479-1-markpearson@lenovo.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Use input device event support for notifying userspace of lap mode sensor
-state changes.
+Hi,
 
-Reviewed-by: Nitin Joshi <njoshi1@lenovo.com>
-Signed-off-by: Mark Pearson <markpearson@lenovo.com>
----
-Changes in V2:
- - Update commit message to be correct
+On 10/26/20 3:45 PM, Mark Pearson wrote:
+> Add infrastructure needed to support lap and palmrest proximity sensors.
+> 
+> These sensors are used for identifying thermal mode changes and modifying
+> WWAN transmitter power.
+> 
+> Reviewed-by: Nitin Joshi <njoshi1@lenovo.com>
+> Signed-off-by: Mark Pearson <markpearson@lenovo.com>
 
-Changes in V3:
- - Update lap sensor code with same fixes applied to palm sensor code.
- - Correct error handling in init so returns an error if one
-   encountered.
+The entire series looks good to me and is:
 
- drivers/platform/x86/thinkpad_acpi.c | 61 ++++++++++++++++++++++++----
- 1 file changed, 52 insertions(+), 9 deletions(-)
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 3cb07c12a705..fe438a5e1dbe 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -9928,6 +9928,22 @@ static struct ibm_struct dytc_driver_data = {
- 
- struct input_dev *tpacpi_sw_dev;
- bool has_palmsensor;
-+bool has_lapsensor;
-+
-+static int lapsensor_get(bool *present, bool *state)
-+{
-+	acpi_handle dytc_handle;
-+	int output;
-+
-+	*present = false;
-+	if (ACPI_FAILURE(acpi_get_handle(hkey_handle, "DYTC", &dytc_handle)))
-+		return -ENODEV;
-+	if (!acpi_evalf(dytc_handle, &output, NULL, "dd", DYTC_CMD_GET))
-+		return -EIO;
-+	*present = true; /*If we get his far, we have lapmode support*/
-+	*state = output & BIT(DYTC_GET_LAPMODE_BIT) ? true : false;
-+	return 0;
-+}
- 
- static int palmsensor_get(bool *present, bool *state)
- {
-@@ -9958,21 +9974,40 @@ static void palmsensor_refresh(void)
- 	}
- }
- 
-+static void lapsensor_refresh(void)
-+{
-+	bool state;
-+	int err;
-+
-+	if (has_lapsensor) {
-+		err = lapsensor_get(&has_lapsensor, &state);
-+		if (err)
-+			return;
-+		input_report_switch(tpacpi_sw_dev, SW_LAP_PROXIMITY, state);
-+		input_sync(tpacpi_sw_dev);
-+	}
-+}
-+
- static int tpacpi_proxsensor_init(struct ibm_init_struct *iibm)
- {
--	int palm_err, err;
--	bool palm_state;
-+	int palm_err, lap_err, err;
-+	bool palm_state, lap_state;
- 
- 	palm_err = palmsensor_get(&has_palmsensor, &palm_state);
--	/* If support isn't available (ENODEV) then quit, but don't return an error */
--	if (palm_err == -ENODEV)
-+	lap_err = lapsensor_get(&has_lapsensor, &lap_state);
-+	/*
-+	 * If support isn't available (ENODEV) for both devices then quit, but
-+	 * don't return an error.
-+	 */
-+	if ((palm_err == -ENODEV) && (lap_err == -ENODEV))
- 		return 1;
--
- 	/* Otherwise, if there was an error return it */
- 	if (palm_err && (palm_err != ENODEV))
- 		return palm_err;
-+	if (lap_err && (lap_err != ENODEV))
-+		return lap_err;
- 
--	if (has_palmsensor) {
-+	if (has_palmsensor || has_lapsensor) {
- 		tpacpi_sw_dev = input_allocate_device();
- 		if (!tpacpi_sw_dev)
- 			return -ENOMEM;
-@@ -9984,8 +10019,14 @@ static int tpacpi_proxsensor_init(struct ibm_init_struct *iibm)
- 		tpacpi_sw_dev->id.version = TPACPI_HKEY_INPUT_VERSION;
- 		tpacpi_sw_dev->dev.parent = &tpacpi_pdev->dev;
- 
--		input_set_capability(tpacpi_sw_dev, EV_SW, SW_PALMREST_PROXIMITY);
--		input_report_switch(tpacpi_sw_dev, SW_PALMREST_PROXIMITY, palm_state);
-+		if (has_palmsensor) {
-+			input_set_capability(tpacpi_sw_dev, EV_SW, SW_PALMREST_PROXIMITY);
-+			input_report_switch(tpacpi_sw_dev, SW_PALMREST_PROXIMITY, palm_state);
-+		}
-+		if (has_lapsensor) {
-+			input_set_capability(tpacpi_sw_dev, EV_SW, SW_LAP_PROXIMITY);
-+			input_report_switch(tpacpi_sw_dev, SW_LAP_PROXIMITY, lap_state);
-+		}
- 		err = input_register_device(tpacpi_sw_dev);
- 		if (err) {
- 			input_free_device(tpacpi_sw_dev);
-@@ -10053,8 +10094,10 @@ static void tpacpi_driver_event(const unsigned int hkey_event)
- 		mutex_unlock(&kbdlight_mutex);
- 	}
- 
--	if (hkey_event == TP_HKEY_EV_THM_CSM_COMPLETED)
-+	if (hkey_event == TP_HKEY_EV_THM_CSM_COMPLETED) {
- 		dytc_lapmode_refresh();
-+		lapsensor_refresh();
-+	}
- 
- }
- 
--- 
-2.28.0
+Dmitry: FYI I have take over drivers/platform/x86
+maintainership from Andy.
+
+Dmitry, since the first patch adds new evdev switch event-codes,
+it is probably best if you merge this entire series through
+the input tree. You hereby have my ack (as the new pdx86 maintainer)
+for doing this.
+
+Regards,
+
+Hans
+
+
+
+> ---
+> Changes in v2:
+>  - Update Input message
+> Changes in v3:
+>  - Added missing patch history notes
+> 
+>  include/linux/mod_devicetable.h        | 2 +-
+>  include/uapi/linux/input-event-codes.h | 4 +++-
+>  2 files changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> index 5b08a473cdba..897f5a3e7721 100644
+> --- a/include/linux/mod_devicetable.h
+> +++ b/include/linux/mod_devicetable.h
+> @@ -320,7 +320,7 @@ struct pcmcia_device_id {
+>  #define INPUT_DEVICE_ID_LED_MAX		0x0f
+>  #define INPUT_DEVICE_ID_SND_MAX		0x07
+>  #define INPUT_DEVICE_ID_FF_MAX		0x7f
+> -#define INPUT_DEVICE_ID_SW_MAX		0x10
+> +#define INPUT_DEVICE_ID_SW_MAX		0x12
+>  #define INPUT_DEVICE_ID_PROP_MAX	0x1f
+>  
+>  #define INPUT_DEVICE_ID_MATCH_BUS	1
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 0c2e27d28e0a..26f71a9a6936 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -889,7 +889,9 @@
+>  #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+>  #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+>  #define SW_MACHINE_COVER	0x10  /* set = cover closed */
+> -#define SW_MAX			0x10
+> +#define SW_LAP_PROXIMITY        0x11  /* set = lap proximity sensor active */
+> +#define SW_PALMREST_PROXIMITY   0x12  /* set = palmrest proximity sensor active */
+> +#define SW_MAX			0x12
+>  #define SW_CNT			(SW_MAX+1)
+>  
+>  /*
+> 
 

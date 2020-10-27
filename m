@@ -2,31 +2,32 @@ Return-Path: <SRS0=1svl=EC=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98755C388F9
-	for <linux-input@archiver.kernel.org>; Tue, 27 Oct 2020 09:58:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7D9FC4363A
+	for <linux-input@archiver.kernel.org>; Tue, 27 Oct 2020 09:58:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E27421D24
-	for <linux-input@archiver.kernel.org>; Tue, 27 Oct 2020 09:58:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 71D0F22281
+	for <linux-input@archiver.kernel.org>; Tue, 27 Oct 2020 09:58:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896555AbgJ0J63 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S2896554AbgJ0J63 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 27 Oct 2020 05:58:29 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:48741 "EHLO
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:60057 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2896553AbgJ0J5b (ORCPT
+        with ESMTP id S2896552AbgJ0J5b (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Tue, 27 Oct 2020 05:57:31 -0400
 Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ore@pengutronix.de>)
-        id 1kXLjK-0004UK-D8; Tue, 27 Oct 2020 10:57:26 +0100
+        id 1kXLjK-0004UL-D8; Tue, 27 Oct 2020 10:57:26 +0100
 Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
         (envelope-from <ore@pengutronix.de>)
-        id 1kXLjJ-0004rp-Ow; Tue, 27 Oct 2020 10:57:25 +0100
+        id 1kXLjJ-0004ry-Pr; Tue, 27 Oct 2020 10:57:25 +0100
 From:   Oleksij Rempel <o.rempel@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Alexandru Ardelean <alexandru.ardelean@analog.com>,
@@ -34,10 +35,12 @@ To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 Cc:     Oleksij Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         linux-spi@vger.kernel.org, David Jander <david@protonic.nl>
-Subject: [PATCH v2 0/2] SPI/ Input: ads7846: properly handle spi->mode flags
-Date:   Tue, 27 Oct 2020 10:57:22 +0100
-Message-Id: <20201027095724.18654-1-o.rempel@pengutronix.de>
+Subject: [PATCH v2 1/2] spi: introduce SPI_MODE_X_MASK macro
+Date:   Tue, 27 Oct 2020 10:57:23 +0100
+Message-Id: <20201027095724.18654-2-o.rempel@pengutronix.de>
 X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201027095724.18654-1-o.rempel@pengutronix.de>
+References: <20201027095724.18654-1-o.rempel@pengutronix.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
@@ -48,18 +51,36 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-changes v2:
-- add SPI_MODE_X_MASK macro
-- ads7846: clear SPI_MODE_X_MASK bits to set driver specific mode.
+Provide a macro to filter all SPI_MODE_0,1,2,3 mode in one run.
 
-Oleksij Rempel (2):
-  spi: introduce SPI_MODE_X_MASK macro
-  Input: ads7846: do not overwrite spi->mode flags set by spi framework
+The latest SPI framework will parse the devicetree in following call
+sequence: of_register_spi_device() -> of_spi_parse_dt()
+So, driver do not need to pars the devicetree and will get prepared
+flags in the probe.
 
- drivers/input/touchscreen/ads7846.c | 3 ++-
- include/linux/spi/spi.h             | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+On one hand it is good far most drivers. On other hand some drivers need to
+filter flags provide by SPI framework and apply know to work flags. This drivers
+may use SPI_MODE_X_MASK to filter MODE flags and set own, known flags:
+  spi->flags &= ~SPI_MODE_X_MASK;
+  spi->flags |= SPI_MODE_0;
 
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+---
+ include/linux/spi/spi.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
+index 99380c0825db..8097f27702f3 100644
+--- a/include/linux/spi/spi.h
++++ b/include/linux/spi/spi.h
+@@ -171,6 +171,7 @@ struct spi_device {
+ #define	SPI_MODE_1	(0|SPI_CPHA)
+ #define	SPI_MODE_2	(SPI_CPOL|0)
+ #define	SPI_MODE_3	(SPI_CPOL|SPI_CPHA)
++#define	SPI_MODE_X_MASK	(SPI_CPOL|SPI_CPHA)
+ #define	SPI_CS_HIGH	0x04			/* chipselect active high? */
+ #define	SPI_LSB_FIRST	0x08			/* per-word bits-on-wire */
+ #define	SPI_3WIRE	0x10			/* SI/SO signals shared */
 -- 
 2.28.0
 

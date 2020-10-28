@@ -2,160 +2,108 @@ Return-Path: <SRS0=64J9=ED=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5483C55179
-	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:13:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12845C56201
+	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:22:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 493FE24724
-	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:13:16 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DlatPnFt"
+	by mail.kernel.org (Postfix) with ESMTP id BD7AC206D9
+	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:22:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731009AbgJ1WNO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 28 Oct 2020 18:13:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52744 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731022AbgJ1WNM (ORCPT
+        id S1731661AbgJ1WV6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 28 Oct 2020 18:21:58 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:55244 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732583AbgJ1WV4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:13:12 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9AEC0613D3;
-        Wed, 28 Oct 2020 15:13:11 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id t3so696048wmi.3;
-        Wed, 28 Oct 2020 15:13:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=UQeIb9S6fRyX5SRt2bDKlf1jyr9GKEnfhYagOSnTM3M=;
-        b=DlatPnFtHJrfJ07LWvkl9+nsvhNwx+orArQF7h6O2RJSm7XI44ONw8VlqpEbhEMT0M
-         6Wq+lpKTWAVNnf7Bj6QMm1J/33sTXoUaLeLhmbMqoNRmXrXlGS8iS62Zhr8V0yGDz2lQ
-         w5VsN4sMlVmScHmpj1XKy7YYFiOT3e34th+9xIPx6uCF0PnG8p1xHTmebu8w7m/KJ4CV
-         2O9N57kTqJSw4K8GnZWP9cl42YR+TfjNF9TBsKK/FUdBMcRZr6dm4yKRE+kDUTnTryHI
-         9odrtv/iBcPWIsh3jxWrbNifLAJaS7QnsvFjNkQ1bC2vGLjTbmyiWlQCBlG30xLIe/Ym
-         Ti6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=UQeIb9S6fRyX5SRt2bDKlf1jyr9GKEnfhYagOSnTM3M=;
-        b=F6pmHbrM6IpkHC2rMjuecC+Iw8R1+s/Eg/y74iNIhgYxM6PADIvrus+ABecjiQxUvo
-         RrtfmhoMCuAJ+dbemEgf3DiSl4wc9+QqZF4vRoP1i+PGtjv5y+OTnS4M/rx6ppnRppje
-         J0Ei+DA0ZGl2/zigQ9PiPuR1JPymQ3pY/KKm+bLtjPYw+FF4B0zRNb2A2coQxU3wqPON
-         1Nj0H/KvqA5trTk4i3qzIa6lS5LfVoNLot3kJ9HTVDJEQW0w+p4lc7VlTQENw9n/1UiH
-         YoDnb8Fe3PAFWqj7P3tO4QAAXNPpuV2g+9/hF2iqzW/7VnqQvXOqqVuohtoyOe1Y0nQQ
-         DpVQ==
-X-Gm-Message-State: AOAM533Y1WwtY+VENDz66MrlvUt5uxQ4QG5piKvtnI6nrap7OCKfRVWA
-        KKlzgTC8OW0eSDtwyt1R2Pqt3HzM63OiR6s/
-X-Google-Smtp-Source: ABdhPJxdhm6P6d9+9M90lpfBiEoEfY8zosAdgCLm46HLBQ5WD9A+r5LCSE+7/tfvSXPlOzLo2ml11g==
-X-Received: by 2002:a1c:740e:: with SMTP id p14mr1044002wmc.34.1603923190036;
-        Wed, 28 Oct 2020 15:13:10 -0700 (PDT)
-Received: from IcarusMOD.eternityproject.eu ([2.237.20.237])
-        by smtp.gmail.com with ESMTPSA id x1sm1318928wrl.41.2020.10.28.15.13.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2020 15:13:09 -0700 (PDT)
-From:   kholk11@gmail.com
-To:     dmitry.torokhov@gmail.com
-Cc:     robh+dt@kernel.org, rydberg@bitmath.org, priv.luk@gmail.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kholk11@gmail.com, marijns95@gmail.com, konradybcio@gmail.com,
-        martin.botka1@gmail.com, phone-devel@vger.kernel.org,
-        devicetree@vger.kernel.org, krzk@kernel.org,
-        andy.shevchenko@gmail.com, Rob Herring <robh@kernel.org>
-Subject: [PATCH v9 3/3] dt-bindings: touchscreen: Add binding for Novatek NT36xxx series driver
-Date:   Wed, 28 Oct 2020 23:13:02 +0100
-Message-Id: <20201028221302.66583-4-kholk11@gmail.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201028221302.66583-1-kholk11@gmail.com>
-References: <20201028221302.66583-1-kholk11@gmail.com>
+        Wed, 28 Oct 2020 18:21:56 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 277111C0BAF; Wed, 28 Oct 2020 17:26:22 +0100 (CET)
+Date:   Wed, 28 Oct 2020 17:26:21 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     dmitry.torokhov@gmail.com, vojtech@suse.cz,
+        linux-input@vger.kernel.org,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Proper support for Saitek X36F joystick
+Message-ID: <20201028162621.GA18184@amd>
+References: <20201027124235.GA27148@duo.ucw.cz>
+ <nycvar.YFH.7.76.2010272006490.18859@cbobk.fhfr.pm>
+ <20201027210732.GA4479@amd>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
+Content-Disposition: inline
+In-Reply-To: <20201027210732.GA4479@amd>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <kholk11@gmail.com>
 
-Add binding for the Novatek NT36xxx series touchscreen driver.
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: AngeloGioacchino Del Regno <kholk11@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
- .../bindings/input/touchscreen/nt36xxx.yaml   | 59 +++++++++++++++++++
- 1 file changed, 59 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
+Hi!
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml b/Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
-new file mode 100644
-index 000000000000..a360a9f5d43b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
-@@ -0,0 +1,59 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/nt36xxx.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Novatek NT36xxx series touchscreen controller Bindings
-+
-+maintainers:
-+  - AngeloGioacchino Del Regno <kholk11@gmail.com>
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    const: novatek,nt36525
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  reset-gpios:
-+    maxItems: 1
-+
-+  vdd-supply:
-+    description: Power supply regulator for VDD pin
-+
-+  vio-supply:
-+    description: Power supply regulator on VDD-IO pin
-+
-+unevaluatedProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      touchscreen@62 {
-+        compatible = "novatek,nt36525";
-+        reg = <0x62>;
-+        interrupt-parent = <&tlmm>;
-+        interrupts = <45 IRQ_TYPE_EDGE_RISING>;
-+        reset-gpios = <&tlmm 102 GPIO_ACTIVE_HIGH>;
-+      };
-+    };
-+
-+...
--- 
-2.28.0
+> > > This is from 4.19, but I doubt this changed recently.
+> > >=20
+> > > Saitek X36F+X35T combination is detected like this... in short one
+> > > hat, no switches, and lot of buttons.
+> > >=20
+> > > In reality, combination has 4 four-way switches (hats?), 2 slider
+> > > switches (three positions) and lot less buttons. Sliders and 3 of 4
+> > > hats are detected as groups of buttons. Last hat is strange, I can't
+> > > see anything that corresponds to it on evtest, and as long as it is
+> > > pushed in any direction, all the other events stop. (It is also one
+> > > I'd like to use).
+> > >=20
+> > > What needs to be done to get more useful mapping for userspace?
+> >=20
+> > It wouldn't be the first device produced by Saitek that has completely=
+=20
+> > bogus report descriptor.
+> >=20
+> > The most straightforward way would be to let hid-saitek module claim th=
+e=20
+> > device, and fix the report descriptor (saitek_report_fixup()) before it=
+'s=20
+> > passed to hid parser so that it actually describes the events produced.
+> >=20
+> > You can either patch individual bytes (that's what saitek_report_fixup(=
+)=20
+> > is currently doing for another device), or replace the whole descriptor=
+=20
+> > completely (see e.g. hid-kye for inspiration how this is done).
+>=20
+> Thank you... replacing whole descriptors is rather easy.
+>=20
+> Coming up with descriptors that works ... not so :-(. I can replace
+> descriptor with equivalent one, but things get horribly confused as
+> soon as I really try to change anything.
 
+So no, I can't even replace it with equivalent one. Perhaps hrdc got
+decompilation wrong, or I'm doing something else wrong.
+
+Best regards,
+								Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl+Zm60ACgkQMOfwapXb+vKeoQCglfgu5nuSf3JaWDFX9ScEnLSw
+GFQAn3Qiithsq1pt5hqlmHTehlQxPaPn
+=gDX8
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--

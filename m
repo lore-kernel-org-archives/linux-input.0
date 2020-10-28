@@ -2,256 +2,1177 @@ Return-Path: <SRS0=X7PX=EE=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B7F6C56202
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 00:06:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C802C55179
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 01:02:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C24A320825
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 00:05:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 31619207E8
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 01:02:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="CCVxFxGm"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xi8tPFYz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389264AbgJ2AEQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 28 Oct 2020 20:04:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42684 "EHLO
+        id S1731089AbgJ1WN1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 28 Oct 2020 18:13:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389390AbgJ2ACd (ORCPT
+        with ESMTP id S1731018AbgJ1WNK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Oct 2020 20:02:33 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC551C0613CF
-        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2020 17:02:32 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id dn5so1278657edb.10
-        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2020 17:02:32 -0700 (PDT)
+        Wed, 28 Oct 2020 18:13:10 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70CA6C0613D2;
+        Wed, 28 Oct 2020 15:13:10 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id h22so729288wmb.0;
+        Wed, 28 Oct 2020 15:13:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6uS0r7y6biXYa9U4d4/PAE9n89ZvBxgMX312oRTh6lg=;
-        b=CCVxFxGmfy05Q68akXSjQsCJFHYqa+w34YILpnkF6uWLOR1JVX3zVzQAJ09p/D0SNU
-         yaRazFZb/HzW5pt2hhCSd9T9zrUglfJqPd/3iMBDS9/FTaCAp7pAAOZzE1wbX8irW3Bl
-         iHWBdBqdyMV/GAnLlNrq/8iIcWCTcRSpc1w6C/XPODtf0BkG48hyVb5ICDUEJPK5ZHY0
-         VD09tvGnmncQdfN4AJOFm5ll5Fl3tc5HIw8yZ18CpR+BLVSrjmldEids37qAg1Mjb3DV
-         N6clHFsGF0VuqcKva8oB+E2XWD6uEwdLcDAFDkt96dzJYWc9DhyeedHFlsZokT+NnilL
-         +7AQ==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Kzzaw2JLNrKIrkXkBNAUpIJgRcwxBfjeWMF9DAp8eWY=;
+        b=Xi8tPFYzS96V9ieKu2SG0z0Q7sjww6/wS71HzskZ8V36W51+PQLdRJla6Tjwi8xh65
+         1IFAVmYxg5MrGhrF7hP2/1bxd1rGIrj6X9udUlBRwrPrkBbUBm/1s/tc8uWTT8QzEsVm
+         cc1pw7UiHoBextPTNN+fvMMwEghaURACo6/kjs5oyzftBJL5qFWVKVghyEgrI3PEaUuh
+         KQjSMa1UwGcH/wI4K6Lkqfpvpi/61zWgkA7Fc/kpZ6vcuqQ6nTmpHUHpkI2hFVOnKsRV
+         g4FueR0zthmzTyKFhPPEJEAKy5yuPjP7ztsIvUzvAdAYlHnNpcPUAw1aZEgbEY4zXEVa
+         2Fhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6uS0r7y6biXYa9U4d4/PAE9n89ZvBxgMX312oRTh6lg=;
-        b=jlegUGwrha+7qPlOa2h2blWYY5DeU7WKVcwdkp5BAS3NYClx1eYs2NOoCAvYB1ohtP
-         8cNQjNwo5fsXEEwb2PrYhbRigqLiXJl0Yz6SKzvGQli55Gk+Z3U/+bDX5JZk6Q9e6TP/
-         THRxIhF4EJLEwxvgeKvMtunFL/TxpUA4mWTPdUve6uC+7Wbn4ub3Qm2r0ZNJdzrjjATi
-         e6HCI8eskFOXYDmiJWipzlaIEpYijONFCpSlc7sApA6cyzxvnjV9/vIpz5w3rn33HzHD
-         z18Aef7QDnTaD3Jzg8r2v8bmaPBY64g5NP07/mMUGdm1Ik9LaSdmqPCBdkZNR+lReJyX
-         Q9/Q==
-X-Gm-Message-State: AOAM532o29pdERuQreEocxvxLPzbV1E8wKCQfEsPQxfb2rPCTYdkojBM
-        yfKeWMvGii5groa4Ur7y6ys2q3meNNO0qMD2
-X-Google-Smtp-Source: ABdhPJwX9hHG1DBF/vrwPA04qfIX4Usd1mJ95bLF2KJvyhKPLYcFMFc73JombKwmPQcjeBlKxSuh6g==
-X-Received: by 2002:a2e:3c10:: with SMTP id j16mr558726lja.236.1603880237980;
-        Wed, 28 Oct 2020 03:17:17 -0700 (PDT)
-Received: from localhost.bredbandsbolaget (c-92d7225c.014-348-6c756e10.bbcust.telenor.se. [92.34.215.146])
-        by smtp.gmail.com with ESMTPSA id b12sm478741lfo.177.2020.10.28.03.17.16
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Kzzaw2JLNrKIrkXkBNAUpIJgRcwxBfjeWMF9DAp8eWY=;
+        b=SvYNztM2iIEXdH6Y/Gl64VFFwCAD+HIXxvez0FYMPk7SvHgNGFW8BWKd5B1sIQhrNV
+         lcjs5lzN4tu6WJ5GXr71qByDdOXpPHBD3JFkbpwToOcYGEaXV8deYfwib+9zf7q4CH6B
+         SCGnIrOETvjhhjLWvJboB07zCgmK7R0J45opt51XvilxgNe9lhVHDzaabqEptE8+dv9N
+         gp+KY/reFqYbX/CjVeLcItCIJ+Tzr7V2hII7XGGIhAwrsAXkMtp9w1jJ0ZvQqsdB/kYD
+         +3/hGDjQc7nyoL6AFDB8nzy909u5+X+n8HRYVrO1VV3SKTfV+2O3Jv/XyEegVaUCeqBA
+         PS6Q==
+X-Gm-Message-State: AOAM532i+1PBGISrH3FL9J3SjeizekDA6y7dxU5mbBKN8OObDQsT8plj
+        zopxqmAcIMARRpHDGo3PMi4=
+X-Google-Smtp-Source: ABdhPJzBcQv0h3wE93wFQzBK+w80/vvkzGXlieO6fBxHmF/qK19jq3wbZb6GNyp/60tc03sU2ZaeUA==
+X-Received: by 2002:a7b:c92c:: with SMTP id h12mr1042555wml.134.1603923188838;
+        Wed, 28 Oct 2020 15:13:08 -0700 (PDT)
+Received: from IcarusMOD.eternityproject.eu ([2.237.20.237])
+        by smtp.gmail.com with ESMTPSA id x1sm1318928wrl.41.2020.10.28.15.13.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2020 03:17:17 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Nick Dyer <nick@shmanahar.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        devicetree@vger.kernel.org
-Subject: [PATCH 1/2] Input: atmel_mxt_ts: Convert bindings to YAML and extend
-Date:   Wed, 28 Oct 2020 11:17:10 +0100
-Message-Id: <20201028101711.696423-1-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.26.2
+        Wed, 28 Oct 2020 15:13:08 -0700 (PDT)
+From:   kholk11@gmail.com
+To:     dmitry.torokhov@gmail.com
+Cc:     robh+dt@kernel.org, rydberg@bitmath.org, priv.luk@gmail.com,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kholk11@gmail.com, marijns95@gmail.com, konradybcio@gmail.com,
+        martin.botka1@gmail.com, phone-devel@vger.kernel.org,
+        devicetree@vger.kernel.org, krzk@kernel.org,
+        andy.shevchenko@gmail.com
+Subject: [PATCH v9 2/3] Input: Add Novatek NT36xxx touchscreen driver
+Date:   Wed, 28 Oct 2020 23:13:01 +0100
+Message-Id: <20201028221302.66583-3-kholk11@gmail.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201028221302.66583-1-kholk11@gmail.com>
+References: <20201028221302.66583-1-kholk11@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This converts the Armel MXT touchscreen bindings to YAML
-format and extends them with the following two properties:
+From: AngeloGioacchino Del Regno <kholk11@gmail.com>
 
-- vdda-supply: the optional analog supply voltage
-- vdd-supply: the optional digital supply voltage
+This is a driver for the Novatek in-cell touch controller and
+supports various chips from the NT36xxx family, currently
+including NT36525, NT36672A, NT36676F, NT36772 and NT36870.
 
-I also explained about the reset-gpios property that this
-better be flagged as active high (0) despite actually
-being active low, because all current device trees and
-drivers assume that this is the case and will actively
-drive the line low to assert RESET.
+Functionality like wake gestures and firmware flashing is not
+included: I am not aware of any of these DrIC+Touch combo
+chips not including a non-volatile memory and it should be
+highly unlikely to find one, since the touch firmware is
+embedded into the DriverIC one, which is obviously necessary
+to drive the display unit.
 
-Tested the schema with all in-tree users and they verify
-fine.
+However, the necessary address for the firmware update
+procedure was included into the address table in this driver
+so, in the event that someone finds the need to implement it
+for a reason or another, it will be pretty straightforward to.
 
-Cc: Nick Dyer <nick@shmanahar.org>
-Cc: Stephan Gerhold <stephan@gerhold.net>
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This driver is lightly based on the downstream implementation [1].
+[1] https://github.com/Rasenkai/caf-tsoft-Novatek-nt36xxx
+
+Signed-off-by: AngeloGioacchino Del Regno <kholk11@gmail.com>
 ---
- .../bindings/input/atmel,maxtouch.txt         | 41 ---------
- .../bindings/input/atmel,maxtouch.yaml        | 83 +++++++++++++++++++
- MAINTAINERS                                   |  2 +-
- 3 files changed, 84 insertions(+), 42 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/atmel,maxtouch.txt
- create mode 100644 Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
+ drivers/input/touchscreen/Kconfig   |  12 +
+ drivers/input/touchscreen/Makefile  |   1 +
+ drivers/input/touchscreen/nt36xxx.c | 894 ++++++++++++++++++++++++++++
+ drivers/input/touchscreen/nt36xxx.h | 122 ++++
+ 4 files changed, 1029 insertions(+)
+ create mode 100644 drivers/input/touchscreen/nt36xxx.c
+ create mode 100644 drivers/input/touchscreen/nt36xxx.h
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-deleted file mode 100644
-index c88919480d37..000000000000
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+++ /dev/null
-@@ -1,41 +0,0 @@
--Atmel maXTouch touchscreen/touchpad
--
--Required properties:
--- compatible:
--    atmel,maxtouch
--
--    The following compatibles have been used in various products but are
--    deprecated:
--	atmel,qt602240_ts
--	atmel,atmel_mxt_ts
--	atmel,atmel_mxt_tp
--	atmel,mXT224
--
--- reg: The I2C address of the device
--
--- interrupts: The sink for the touchpad's IRQ output
--    See ../interrupt-controller/interrupts.txt
--
--Optional properties for main touchpad device:
--
--- linux,gpio-keymap: When enabled, the SPT_GPIOPWN_T19 object sends messages
--    on GPIO bit changes. An array of up to 8 entries can be provided
--    indicating the Linux keycode mapped to each bit of the status byte,
--    starting at the LSB. Linux keycodes are defined in
--    <dt-bindings/input/input.h>.
--
--    Note: the numbering of the GPIOs and the bit they start at varies between
--    maXTouch devices. You must either refer to the documentation, or
--    experiment to determine which bit corresponds to which input. Use
--    KEY_RESERVED for unused padding values.
--
--- reset-gpios: GPIO specifier for the touchscreen's reset pin (active low)
--
--Example:
--
--	touch@4b {
--		compatible = "atmel,maxtouch";
--		reg = <0x4b>;
--		interrupt-parent = <&gpio>;
--		interrupts = <TEGRA_GPIO(W, 3) IRQ_TYPE_LEVEL_LOW>;
--	};
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-new file mode 100644
-index 000000000000..6173562f328a
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-@@ -0,0 +1,83 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/atmel,maxtouch.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Atmel maXTouch touchscreen/touchpad
-+
-+maintainers:
-+  - Nick Dyer <nick@shmanahar.org>
-+  - Linus Walleij <linus.walleij@linaro.org>
-+
-+description: |
-+  Atmel maXTouch touchscreen or touchpads such as the mXT244
-+  and similar devices.
-+
-+properties:
-+  compatible:
-+    const: atmel,maxtouch
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  vdda-supply:
-+    description:
-+      Optional regulator for the AVDD analog voltage.
-+
-+  vdd-supply:
-+    description:
-+      Optional regulator for the VDD digital voltage.
-+
-+  reset-gpios:
-+    maxItems: 1
-+    description:
-+      Optional GPIO specifier for the touchscreen's reset pin
-+      (active low). The operating system should actively drive
-+      the line low to assert reset, so the line must NOT be
-+      flagged with GPIO_ACTIVE_LOW, it should (counterintuitively)
-+      be set to GPIO_ACTIVE_HIGH.
-+
-+  linux,gpio-keymap:
-+    $ref: /schemas/types.yaml#/definitions/uint32-array
-+    description: |
-+      When enabled, the SPT_GPIOPWN_T19 object sends messages
-+      on GPIO bit changes. An array of up to 8 entries can be provided
-+      indicating the Linux keycode mapped to each bit of the status byte,
-+      starting at the LSB. Linux keycodes are defined in
-+      <dt-bindings/input/input.h>.
-+
-+      Note: the numbering of the GPIOs and the bit they start at varies
-+      between maXTouch devices. You must either refer to the documentation,
-+      or experiment to determine which bit corresponds to which input. Use
-+      KEY_RESERVED for unused padding values.
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+      touchscreen@4a {
-+        compatible = "atmel,maxtouch";
-+        reg = <0x4a>;
-+        interrupt-parent = <&gpio>;
-+        interrupts = <26 IRQ_TYPE_EDGE_FALLING>;
-+        reset-gpios = <&gpio 27 GPIO_ACTIVE_HIGH>;
-+        vdda-supply = <&ab8500_ldo_aux2_reg>;
-+        vdd-supply = <&ab8500_ldo_aux5_reg>;
-+      };
-+    };
-+
-+...
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e73636b75f29..b4b46fcb82db 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2966,7 +2966,7 @@ ATMEL MAXTOUCH DRIVER
- M:	Nick Dyer <nick@shmanahar.org>
- S:	Maintained
- T:	git git://github.com/ndyer/linux.git
--F:	Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+F:	Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
- F:	drivers/input/touchscreen/atmel_mxt_ts.c
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 35c867b2d9a7..6d118b967021 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -605,6 +605,18 @@ config TOUCHSCREEN_MTOUCH
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called mtouch.
  
- ATMEL WIRELESS DRIVER
++config TOUCHSCREEN_NT36XXX
++	tristate "Novatek NT36XXX In-Cell I2C touchscreen controller"
++	depends on I2C
++	help
++	  Say Y here if you have a Novatek NT36xxx series In-Cell
++	  touchscreen connected to your system over I2C.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called nt36xxx.
++
+ config TOUCHSCREEN_IMX6UL_TSC
+ 	tristate "Freescale i.MX6UL touchscreen controller"
+ 	depends on (OF && GPIOLIB) || COMPILE_TEST
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 30d1e1b42492..424a555e03d5 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -61,6 +61,7 @@ obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_MMS114)	+= mms114.o
+ obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
+ obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
++obj-$(CONFIG_TOUCHSCREEN_NT36XXX)	+= nt36xxx.o
+ obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
+ obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_IPAQ_MICRO)	+= ipaq-micro-ts.o
+diff --git a/drivers/input/touchscreen/nt36xxx.c b/drivers/input/touchscreen/nt36xxx.c
+new file mode 100644
+index 000000000000..a572d2b87464
+--- /dev/null
++++ b/drivers/input/touchscreen/nt36xxx.c
+@@ -0,0 +1,894 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Driver for Novatek NT36xxx series touchscreens
++ *
++ * Copyright (C) 2010 - 2017 Novatek, Inc.
++ * Copyright (C) 2020 AngeloGioacchino Del Regno <kholk11@gmail.com>
++ */
++
++#include <linux/delay.h>
++#include <linux/gpio/consumer.h>
++#include <linux/i2c.h>
++#include <linux/input/mt.h>
++#include <linux/input/touchscreen.h>
++#include <linux/interrupt.h>
++#include <linux/mod_devicetable.h>
++#include <linux/module.h>
++#include <linux/regmap.h>
++#include <linux/regulator/consumer.h>
++#include <asm/unaligned.h>
++
++/* FW Param address */
++#define NT36XXX_FW_ADDR 0x01
++
++/* Number of bytes for chip identification */
++#define NT36XXX_ID_LEN_MAX	6
++
++/* Touch info */
++#define TOUCH_DEFAULT_MAX_WIDTH  1080
++#define TOUCH_DEFAULT_MAX_HEIGHT 2246
++#define TOUCH_MAX_FINGER_NUM	 10
++#define TOUCH_MAX_PRESSURE	 1000
++
++/* Point data length */
++#define POINT_DATA_LEN		65
++
++/* Global pages */
++#define NT36XXX_PAGE_CHIP_INFO	0x0001f64e
++#define NT36XXX_PAGE_CRC	0x0003f135
++
++/* Misc */
++#define NT36XXX_NUM_SUPPLIES	 2
++#define NT36XXX_MAX_RETRIES	 5
++#define NT36XXX_MAX_FW_RST_RETRY 50
++
++struct nt36xxx_abs_object {
++	u16 x;
++	u16 y;
++	u16 z;
++	u8 tm;
++};
++
++struct nt36xxx_fw_info {
++	u8 fw_ver;
++	u8 x_num;
++	u8 y_num;
++	u8 max_buttons;
++	u16 abs_x_max;
++	u16 abs_y_max;
++	u16 nvt_pid;
++};
++
++struct nt36xxx_mem_map {
++	u32 evtbuf_addr;
++	u32 pipe0_addr;
++	u32 pipe1_addr;
++	u32 flash_csum_addr;
++	u32 flash_data_addr;
++};
++
++struct nt36xxx_i2c {
++	struct i2c_client *hw_client;
++	struct i2c_client *fw_client;
++	struct regmap *regmap;
++	struct regmap *fw_regmap;
++	struct input_dev *input;
++	struct regulator_bulk_data *supplies;
++	struct gpio_desc *reset_gpio;
++
++	struct mutex lock;
++
++	struct touchscreen_properties prop;
++	struct nt36xxx_fw_info fw_info;
++	struct nt36xxx_abs_object abs_obj;
++
++	const struct nt36xxx_mem_map *mmap;
++};
++
++enum nt36xxx_chips {
++	NT36525_IC = 0,
++	NT36672A_IC,
++	NT36676F_IC,
++	NT36772_IC,
++	NT36870_IC,
++	NTMAX_IC,
++};
++
++struct nt36xxx_trim_table {
++	u8 id[NT36XXX_ID_LEN_MAX];
++	u8 mask[NT36XXX_ID_LEN_MAX];
++	enum nt36xxx_chips mapid;
++};
++
++enum nt36xxx_cmds {
++	NT36XXX_CMD_ENTER_SLEEP = 0x11,
++	NT36XXX_CMD_ENTER_WKUP_GESTURE = 0x13,
++	NT36XXX_CMD_UNLOCK = 0x35,
++	NT36XXX_CMD_BOOTLOADER_RESET = 0x69,
++	NT36XXX_CMD_SW_RESET = 0xa5,
++	NT36XXX_CMD_SET_PAGE = 0xff,
++};
++
++/**
++ * enum nt36xxx_fw_state - Firmware state
++ * @NT36XXX_STATE_INIT: IC Reset
++ * @NT36XXX_STATE_REK: ReK baseline
++ * @NT36XXX_STATE_REK_FINISH: Baseline is ready
++ * @NT36XXX_STATE_NORMAL_RUN: Firmware is running
++ */
++enum nt36xxx_fw_state {
++	NT36XXX_STATE_INIT = 0xa0,
++	NT36XXX_STATE_REK,
++	NT36XXX_STATE_REK_FINISH,
++	NT36XXX_STATE_NORMAL_RUN,
++	NT36XXX_STATE_MAX = 0xaf
++};
++
++enum nt36xxx_i2c_events {
++	NT36XXX_EVT_REPORT = 0x00,
++	NT36XXX_EVT_CRC = 0x35,
++	NT36XXX_EVT_CHIPID = 0x4e,
++	NT36XXX_EVT_HOST_CMD = 0x50,
++	NT36XXX_EVT_HS_OR_SUBCMD = 0x51,   /* Handshake or subcommand byte */
++	NT36XXX_EVT_RESET_COMPLETE = 0x60,
++	NT36XXX_EVT_FWINFO = 0x78,
++	NT36XXX_EVT_PROJECTID = 0x9a,
++};
++
++static const struct nt36xxx_mem_map nt36xxx_memory_maps[] = {
++	[NT36525_IC]  = { 0x11a00, 0x10000, 0x12000, 0x14000, 0x14002 },
++	[NT36672A_IC] = { 0x21c00, 0x20000, 0x23000, 0x24000, 0x24002 },
++	[NT36676F_IC] = { 0x11a00, 0x10000, 0x12000, 0x14000, 0x14002 },
++	[NT36772_IC]  = { 0x11e00, 0x10000, 0x12000, 0x14000, 0x14002 },
++	[NT36870_IC]  = { 0x25000, 0x20000, 0x23000, 0x24000, 0x24002 },
++};
++
++static const struct nt36xxx_trim_table trim_id_table[] = {
++	{
++	 .id = { 0x0A, 0xFF, 0xFF, 0x72, 0x66, 0x03 },
++	 .mask = { 1, 0, 0, 1, 1, 1 },
++	 .mapid = NT36672A_IC,
++	},
++	{
++	 .id = { 0x55, 0x00, 0xFF, 0x00, 0x00, 0x00 },
++	 .mask = { 1, 1, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0x55, 0x72, 0xFF, 0x00, 0x00, 0x00 },
++	 .mask = { 1, 1, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0xAA, 0x00, 0xFF, 0x00, 0x00, 0x00 },
++	 .mask = { 1, 1, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0xAA, 0x72, 0xFF, 0x00, 0x00, 0x00 },
++	 .mask = { 1, 1, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0xFF, 0xFF, 0xFF, 0x72, 0x67, 0x03 },
++	 .mask = { 0, 0, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0xFF, 0xFF, 0xFF, 0x70, 0x66, 0x03 },
++	 .mask = { 0, 0, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0xFF, 0xFF, 0xFF, 0x70, 0x67, 0x03 },
++	 .mask = { 0, 0, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0xFF, 0xFF, 0xFF, 0x72, 0x66, 0x03 },
++	 .mask = { 0, 0, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0xFF, 0xFF, 0xFF, 0x25, 0x65, 0x03 },
++	 .mask = { 0, 0, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0xFF, 0xFF, 0xFF, 0x70, 0x68, 0x03 },
++	 .mask = { 0, 0, 0, 1, 1, 1 },
++	 .mapid = NT36772_IC,
++	},
++	{
++	 .id = { 0xFF, 0xFF, 0xFF, 0x76, 0x66, 0x03 },
++	 .mask = { 0, 0, 0, 1, 1, 1 },
++	 .mapid = NT36676F_IC,
++	},
++};
++
++/**
++ * nt36xxx_set_page - Set page number for read/write
++ * @ts: Main driver structure
++ *
++ * Return: Always zero for success, negative number for error
++ */
++static int nt36xxx_set_page(struct nt36xxx_i2c *ts, u32 pageaddr)
++{
++	u32 data = cpu_to_be32(pageaddr) >> 8;
++	int ret;
++
++	ret = regmap_noinc_write(ts->fw_regmap, NT36XXX_CMD_SET_PAGE,
++				 &data, sizeof(data));
++	if (ret)
++		return ret;
++
++	usleep_range(100, 200);
++	return ret;
++}
++
++/**
++ * nt36xxx_sw_reset_idle - Warm restart the firmware
++ * @ts: Main driver structure
++ *
++ * This function restarts the running firmware without rebooting to
++ * the bootloader (warm restart)
++ *
++ * Return: Always zero for success, negative number for error
++ */
++static int nt36xxx_sw_reset_idle(struct nt36xxx_i2c *ts)
++{
++	int ret;
++
++	ret = regmap_write(ts->regmap, ts->hw_client->addr,
++			   NT36XXX_CMD_SW_RESET);
++	if (ret)
++		return ret;
++
++	/* Wait until the MCU resets the fw state */
++	usleep_range(15000, 16000);
++	return ret;
++}
++
++/**
++ * nt36xxx_bootloader_reset - Reset MCU to bootloader
++ * @ts: Main driver structure
++ *
++ * Return: Always zero for success, negative number for error
++ */
++static int nt36xxx_bootloader_reset(struct nt36xxx_i2c *ts)
++{
++	int ret;
++
++	ret = regmap_write(ts->regmap, ts->hw_client->addr,
++			   NT36XXX_CMD_BOOTLOADER_RESET);
++	if (ret)
++		return ret;
++
++	/* MCU has to reboot from bootloader: this is the typical boot time */
++	msleep(35);
++	return ret;
++}
++
++/**
++ * nt36xxx_check_reset_state - Check the boot state during reset
++ * @ts: Main driver structure
++ * @fw_state: Enumeration containing firmware states
++ *
++ * Return: Always zero for success, negative number for error
++ */
++static int nt36xxx_check_reset_state(struct nt36xxx_i2c *ts,
++				     enum nt36xxx_fw_state fw_state)
++{
++	u8 buf[2] = { 0 };
++	int ret, retry = NT36XXX_MAX_FW_RST_RETRY;
++
++	do {
++		ret = regmap_noinc_read(ts->fw_regmap,
++					NT36XXX_EVT_RESET_COMPLETE,
++					buf, sizeof(buf));
++		if (likely(ret == 0) &&
++		    (buf[0] >= fw_state) &&
++		    (buf[0] <= NT36XXX_STATE_MAX)) {
++			ret = 0;
++			break;
++		}
++		usleep_range(10000, 11000);
++	} while (--retry);
++
++	if (!retry) {
++		dev_err(&ts->hw_client->dev, "Firmware reset failed.\n");
++		ret = -EBUSY;
++	}
++
++	return ret;
++}
++
++/**
++ * nt36xxx_read_pid - Read Novatek Project ID
++ * @ts: Main driver structure
++ *
++ * Return: Always zero for success, negative number for error
++ */
++static int nt36xxx_read_pid(struct nt36xxx_i2c *ts)
++{
++	__be16 pid;
++	int ret;
++
++	ret = nt36xxx_set_page(ts, ts->mmap->evtbuf_addr);
++	if (ret)
++		return ret;
++
++	ret = regmap_noinc_read(ts->fw_regmap, NT36XXX_EVT_PROJECTID,
++				&pid, sizeof(pid));
++	if (ret < 0)
++		return ret;
++
++	ts->fw_info.nvt_pid = be16_to_cpu(pid);
++	return 0;
++}
++
++/**
++ * __nt36xxx_get_fw_info - Get working params from firmware
++ * @ts: Main driver structure
++ *
++ * Return: Always zero for success, negative number for error
++ */
++static int __nt36xxx_get_fw_info(struct nt36xxx_i2c *ts)
++{
++	struct nt36xxx_fw_info *fwi = &ts->fw_info;
++	u8 buf[11] = { 0 };
++	int ret = 0;
++
++	ret = nt36xxx_set_page(ts, ts->mmap->evtbuf_addr);
++	if (ret)
++		return ret;
++
++	ret = regmap_noinc_read(ts->fw_regmap, NT36XXX_EVT_FWINFO,
++				buf, sizeof(buf));
++	if (ret)
++		return ret;
++
++	fwi->fw_ver = buf[0];
++	fwi->x_num = buf[2];
++	fwi->y_num = buf[3];
++	fwi->abs_x_max = get_unaligned_be16(&buf[4]);
++	fwi->abs_y_max = get_unaligned_be16(&buf[6]);
++	fwi->max_buttons = buf[10];
++
++	/* Check fw info integrity and clear x_num, y_num if broken */
++	if ((buf[0] + buf[1]) != 0xFF) {
++		dev_err(&ts->hw_client->dev,
++			"FW info is broken! fw_ver=0x%02X, ~fw_ver=0x%02X\n",
++			buf[0], buf[1]);
++		fwi->fw_ver = 0;
++		fwi->x_num = 18;
++		fwi->y_num = 32;
++		fwi->abs_x_max = TOUCH_DEFAULT_MAX_WIDTH;
++		fwi->abs_y_max = TOUCH_DEFAULT_MAX_HEIGHT;
++		fwi->max_buttons = 0;
++		return -EINVAL;
++	}
++
++	/* Get Novatek ProjectID */
++	return nt36xxx_read_pid(ts);
++}
++
++static int nt36xxx_get_fw_info(struct nt36xxx_i2c *ts)
++{
++	struct nt36xxx_fw_info *fwi = &ts->fw_info;
++	int i, ret = 0;
++
++	for (i = 0; i < NT36XXX_MAX_RETRIES; i++) {
++		ret = __nt36xxx_get_fw_info(ts);
++		if (ret == 0)
++			break;
++	}
++
++	dev_dbg(&ts->hw_client->dev,
++		"FW Info: PID=0x%x, ver=0x%x res=%ux%u max=%ux%u buttons=%u",
++		fwi->nvt_pid, fwi->fw_ver, fwi->x_num, fwi->y_num,
++		fwi->abs_x_max, fwi->abs_y_max, fwi->max_buttons);
++
++	return ret;
++}
++
++/**
++ * nt36xxx_report - Report touch events
++ * @ts: Main driver structure
++ *
++ * Return: Always zero for success, negative number for error
++ */
++static void nt36xxx_report(struct nt36xxx_i2c *ts)
++{
++	struct nt36xxx_abs_object *obj = &ts->abs_obj;
++	struct input_dev *input = ts->input;
++	u8 input_id = 0;
++	u8 point[POINT_DATA_LEN + 1] = { 0 };
++	unsigned int ppos = 0;
++	int i, ret, finger_cnt = 0;
++
++	mutex_lock(&ts->lock);
++
++	ret = regmap_noinc_read(ts->fw_regmap, NT36XXX_EVT_REPORT,
++				point, sizeof(point));
++	if (ret < 0) {
++		dev_err(&ts->hw_client->dev,
++			"Cannot read touch point data: %d\n", ret);
++		goto xfer_error;
++	}
++
++	for (i = 0; i < TOUCH_MAX_FINGER_NUM; i++) {
++		ppos = 6 * i;
++		input_id = point[ppos + 0] >> 3;
++		if ((input_id == 0) || (input_id > TOUCH_MAX_FINGER_NUM))
++			continue;
++
++		if (((point[ppos] & 0x07) == 0x01) ||
++		    ((point[ppos] & 0x07) == 0x02)) {
++			obj->x = (point[ppos + 1] << 4) +
++				 (point[ppos + 3] >> 4);
++			obj->y = (point[ppos + 2] << 4) +
++				 (point[ppos + 3] & 0xf);
++			if ((obj->x > ts->prop.max_x) ||
++			    (obj->y > ts->prop.max_y))
++				continue;
++
++			obj->tm = point[ppos + 4];
++			if (obj->tm == 0)
++				obj->tm = 1;
++
++			obj->z = point[ppos + 5];
++			if (i < 2) {
++				obj->z += point[i + 63] << 8;
++				if (obj->z > TOUCH_MAX_PRESSURE)
++					obj->z = TOUCH_MAX_PRESSURE;
++			}
++
++			if (obj->z == 0)
++				obj->z = 1;
++
++			input_mt_slot(input, input_id - 1);
++			input_mt_report_slot_state(input,
++						   MT_TOOL_FINGER, true);
++			touchscreen_report_pos(input, &ts->prop, obj->x,
++					       obj->y, true);
++
++			input_report_abs(input, ABS_MT_TOUCH_MAJOR, obj->tm);
++			input_report_abs(input, ABS_MT_PRESSURE, obj->z);
++
++			finger_cnt++;
++		}
++	}
++	input_mt_sync_frame(input);
++	input_sync(input);
++
++xfer_error:
++	enable_irq(ts->hw_client->irq);
++
++	mutex_unlock(&ts->lock);
++}
++
++static irqreturn_t nt36xxx_i2c_irq_handler(int irq, void *dev_id)
++{
++	struct nt36xxx_i2c *ts = dev_id;
++
++	disable_irq_nosync(ts->hw_client->irq);
++	nt36xxx_report(ts);
++
++	return IRQ_HANDLED;
++}
++
++static bool nt36xxx_in_crc_reboot_loop(u8 *buf)
++{
++	return ((buf[0] == 0xFC) && (buf[1] == 0xFC) && (buf[2] == 0xFC)) ||
++	       ((buf[0] == 0xFF) && (buf[1] == 0xFF) && (buf[2] == 0xFF));
++}
++
++/**
++ * nt36xxx_stop_crc_reboot - Stop CRC reboot loop and warm-reboot the firmware
++ * @ts: Main driver structure
++ *
++ * Return: Always zero for success, negative number for error
++ */
++static int nt36xxx_stop_crc_reboot(struct nt36xxx_i2c *ts)
++{
++	u8 buf[3] = { 0 };
++	u8 val;
++	int ret, retry = NT36XXX_MAX_RETRIES;
++
++	/* Read dummy buffer to check CRC fail reboot is happening or not */
++
++	/* Change I2C index to prevent getting 0xFF, but not 0xFC */
++	ret = nt36xxx_set_page(ts, NT36XXX_PAGE_CHIP_INFO);
++	if (ret) {
++		dev_dbg(&ts->hw_client->dev,
++			"CRC reset failed: Cannot select page.\n");
++		return ret;
++	}
++
++	/* If ChipID command returns 0xFC or 0xFF, the MCU is in CRC reboot */
++	ret = regmap_noinc_read(ts->fw_regmap, NT36XXX_EVT_CHIPID,
++				buf, sizeof(buf));
++	if (ret)
++		return ret;
++
++	if (!nt36xxx_in_crc_reboot_loop(buf))
++		return 0;
++
++	/* IC is in CRC fail reboot loop, needs to be stopped! */
++	do {
++		/* Special reset-idle sequence for CRC failure */
++		ret = regmap_write(ts->regmap, ts->hw_client->addr,
++				   NT36XXX_CMD_SW_RESET);
++		if (ret)
++			dev_dbg(&ts->hw_client->dev,
++				"SW Reset 1 failed: may not recover\n");
++
++		ret = regmap_write(ts->regmap, ts->hw_client->addr,
++				   NT36XXX_CMD_SW_RESET);
++		if (ret)
++			dev_dbg(&ts->hw_client->dev,
++				"SW Reset 2 failed: may not recover\n");
++		usleep_range(1000, 1100);
++
++		/* Clear CRC_ERR_FLAG */
++		ret = nt36xxx_set_page(ts, NT36XXX_PAGE_CRC);
++		if (ret)
++			continue;
++
++		val = 0xA5;
++		ret = regmap_raw_write(ts->fw_regmap, NT36XXX_EVT_CRC,
++				       &val, sizeof(val));
++		if (ret)
++			continue;
++
++		/* Check CRC_ERR_FLAG */
++		ret = nt36xxx_set_page(ts, NT36XXX_PAGE_CRC);
++		if (ret)
++			continue;
++
++		ret = regmap_noinc_read(ts->fw_regmap, NT36XXX_EVT_CRC,
++					&buf, sizeof(buf));
++		if (ret)
++			continue;
++
++		if (buf[0] == 0xA5)
++			break;
++	} while (--retry);
++
++	if (retry == 0) {
++		dev_err(&ts->hw_client->dev,
++			"CRC reset failed: buf=0x%2ph\n", buf);
++	}
++
++	return ret;
++}
++
++/**
++ * nt36xxx_i2c_chip_version_init - Detect Novatek NT36xxx family IC
++ * @ts: Main driver structure
++ *
++ * This function reads the ChipID from the IC and sets the right
++ * memory map for the detected chip.
++ *
++ * Return: Always zero for success, negative number for error
++ */
++static int nt36xxx_i2c_chip_version_init(struct nt36xxx_i2c *ts)
++{
++	u8 buf[7] = { 0 };
++	int retry = NT36XXX_MAX_RETRIES;
++	int sz = sizeof(trim_id_table) / sizeof(struct nt36xxx_trim_table);
++	int i, list, mapid, ret;
++
++	ret = nt36xxx_bootloader_reset(ts);
++	if (ret) {
++		dev_err(&ts->hw_client->dev, "Can't reset the nvt IC\n");
++		return ret;
++	}
++
++	do {
++		ret = nt36xxx_sw_reset_idle(ts);
++		if (ret)
++			continue;
++
++		ret = regmap_write(ts->regmap, ts->hw_client->addr, NT36XXX_CMD_UNLOCK);
++		if (ret)
++			continue;
++		usleep_range(10000, 11000);
++
++		ret = nt36xxx_set_page(ts, NT36XXX_PAGE_CHIP_INFO);
++		if (ret)
++			continue;
++
++		memset(buf, 0, ARRAY_SIZE(buf));
++		ret = regmap_noinc_read(ts->fw_regmap, NT36XXX_EVT_CHIPID,
++					buf, sizeof(buf));
++		if (ret)
++			continue;
++
++		/* Compare read chip id with trim list */
++		for (list = 0; list < sz; list++) {
++			/* Compare each not masked byte */
++			for (i = 0; i < NT36XXX_ID_LEN_MAX; i++) {
++				if (trim_id_table[list].mask[i] &&
++				    buf[i] != trim_id_table[list].id[i])
++					break;
++			}
++
++			if (i == NT36XXX_ID_LEN_MAX) {
++				mapid = trim_id_table[list].mapid;
++				ts->mmap = &nt36xxx_memory_maps[mapid];
++				return 0;
++			}
++
++			ts->mmap = NULL;
++			ret = -ENOENT;
++		}
++
++		/* Stop CRC check to prevent IC auto reboot */
++		if (nt36xxx_in_crc_reboot_loop(buf)) {
++			ret = nt36xxx_stop_crc_reboot(ts);
++			if (ret)
++				continue;
++		}
++
++		usleep_range(10000, 11000);
++	} while (--retry);
++
++	return ret;
++}
++
++static const struct regmap_config nt36xxx_i2c_regmap_hw_config = {
++	.name = "nt36xxx_i2c_hw",
++	.reg_bits = 8,
++	.val_bits = 8,
++	.cache_type = REGCACHE_NONE,
++};
++
++static const struct regmap_config nt36xxx_i2c_regmap_fw_config = {
++	.name = "nt36xxx_i2c_fw",
++	.reg_bits = 8,
++	.val_bits = 8,
++	.cache_type = REGCACHE_NONE,
++};
++
++static void nt36xxx_disable_regulators(void *data)
++{
++	struct nt36xxx_i2c *ts = data;
++
++	regulator_bulk_disable(NT36XXX_NUM_SUPPLIES, ts->supplies);
++}
++
++static int nt36xxx_i2c_probe(struct i2c_client *hw_client,
++			     const struct i2c_device_id *id)
++{
++	struct nt36xxx_i2c *ts;
++	struct input_dev *input;
++	int ret;
++
++	if (!i2c_check_functionality(hw_client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&hw_client->dev, "i2c_check_functionality error\n");
++		return -EIO;
++	}
++
++	if (!hw_client->irq) {
++		dev_err(&hw_client->dev, "No irq specified\n");
++		return -EINVAL;
++	}
++
++	ts = devm_kzalloc(&hw_client->dev, sizeof(*ts), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
++
++	ts->supplies = devm_kcalloc(&hw_client->dev,
++				    NT36XXX_NUM_SUPPLIES,
++				    sizeof(*ts->supplies),
++				    GFP_KERNEL);
++	if (!ts->supplies)
++		return -ENOMEM;
++
++	input = devm_input_allocate_device(&hw_client->dev);
++	if (!input)
++		return -ENOMEM;
++
++	ts->fw_client = i2c_new_dummy_device(hw_client->adapter,
++					     NT36XXX_FW_ADDR);
++	if (IS_ERR(ts->fw_client)) {
++		dev_err(&hw_client->dev, "Cannot add FW I2C device\n");
++		return PTR_ERR(ts->fw_client);
++	}
++
++	ts->hw_client = hw_client;
++	ts->input = input;
++	i2c_set_clientdata(ts->hw_client, ts);
++	i2c_set_clientdata(ts->fw_client, ts);
++
++	ts->reset_gpio = devm_gpiod_get_optional(&hw_client->dev, "reset",
++						 GPIOD_OUT_HIGH);
++	if (IS_ERR(ts->reset_gpio))
++		return PTR_ERR(ts->reset_gpio);
++	gpiod_set_consumer_name(ts->reset_gpio, "nt36xxx reset");
++
++	/* These supplies are optional */
++	ts->supplies[0].supply = "vdd";
++	ts->supplies[1].supply = "vio";
++	ret = devm_regulator_bulk_get(&hw_client->dev,
++				      NT36XXX_NUM_SUPPLIES,
++				      ts->supplies);
++	if (ret)
++		return dev_err_probe(&hw_client->dev, ret,
++				     "Cannot get supplies: %d\n", ret);
++
++	ts->regmap = devm_regmap_init_i2c(ts->hw_client,
++					  &nt36xxx_i2c_regmap_hw_config);
++	if (IS_ERR(ts->regmap)) {
++		dev_err(&hw_client->dev, "regmap (hw-addr) init failed\n");
++		return PTR_ERR(ts->regmap);
++	}
++
++	ts->fw_regmap = devm_regmap_init_i2c(ts->fw_client,
++					     &nt36xxx_i2c_regmap_fw_config);
++	if (IS_ERR(ts->fw_regmap)) {
++		dev_err(&hw_client->dev, "regmap (fw-addr) init failed\n");
++		return PTR_ERR(ts->fw_regmap);
++	}
++
++	ret = regulator_bulk_enable(NT36XXX_NUM_SUPPLIES, ts->supplies);
++	if (ret)
++		return ret;
++
++	usleep_range(10000, 11000);
++
++	ret = devm_add_action_or_reset(&hw_client->dev,
++				       nt36xxx_disable_regulators, ts);
++	if (ret)
++		return ret;
++
++	mutex_init(&ts->lock);
++
++	/* Set memory maps for the specific chip version */
++	ret = nt36xxx_i2c_chip_version_init(ts);
++	if (ret) {
++		dev_err(&hw_client->dev, "Failed to check chip version\n");
++		return ret;
++	}
++
++	/* Reset the MCU */
++	ret = nt36xxx_bootloader_reset(ts);
++	if (ret < 0)
++		return ret;
++
++	/* Check and eventually wait until the MCU goes in reset state */
++	ret = nt36xxx_check_reset_state(ts, NT36XXX_STATE_INIT);
++	if (ret < 0)
++		return ret;
++
++	/* Get informations from the TS firmware */
++	ret = nt36xxx_get_fw_info(ts);
++	if (ret < 0)
++		return ret;
++
++	input->phys = devm_kasprintf(&hw_client->dev, GFP_KERNEL,
++				     "%s/input0", dev_name(&hw_client->dev));
++	if (!input->phys)
++		return -ENOMEM;
++
++	input->name = "Novatek NT36XXX Touchscreen";
++	input->id.bustype = BUS_I2C;
++	input->dev.parent = &hw_client->dev;
++
++	__set_bit(EV_KEY, input->evbit);
++	__set_bit(EV_ABS, input->evbit);
++	input_set_capability(input, EV_KEY, BTN_TOUCH);
++
++	ret = input_mt_init_slots(input, TOUCH_MAX_FINGER_NUM,
++				  INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	if (ret) {
++		dev_err(&hw_client->dev, "Cannot init MT slots (%d)\n", ret);
++		return ret;
++	}
++
++	input_set_abs_params(input, ABS_MT_PRESSURE, 0,
++			     TOUCH_MAX_PRESSURE, 0, 0);
++	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
++
++	input_set_abs_params(input, ABS_MT_POSITION_X, 0,
++			     ts->fw_info.abs_x_max - 1, 0, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
++			     ts->fw_info.abs_y_max - 1, 0, 0);
++
++	/* Override the firmware defaults, if needed */
++	touchscreen_parse_properties(input, true, &ts->prop);
++
++	input_set_drvdata(input, ts);
++
++	ret = input_register_device(ts->input);
++	if (ret) {
++		dev_err(&hw_client->dev, "Failed to register input device: %d\n",
++			ret);
++		return ret;
++	}
++
++	ret = devm_request_threaded_irq(&hw_client->dev, hw_client->irq, NULL,
++					nt36xxx_i2c_irq_handler, IRQF_ONESHOT,
++					hw_client->name, ts);
++	if (ret) {
++		dev_err(&hw_client->dev, "request irq failed: %d\n", ret);
++		return ret;
++	}
++
++	return ret;
++}
++
++static int __maybe_unused nt36xxx_i2c_suspend(struct device *dev)
++{
++	struct nt36xxx_i2c *ts = i2c_get_clientdata(to_i2c_client(dev));
++	int ret;
++
++	disable_irq(ts->hw_client->irq);
++
++	ret = regmap_write(ts->fw_regmap, NT36XXX_EVT_HOST_CMD,
++			   NT36XXX_CMD_ENTER_SLEEP);
++	if (ret) {
++		dev_err(&ts->hw_client->dev, "Cannot enter suspend!!\n");
++		return ret;
++	}
++
++	gpiod_set_value(ts->reset_gpio, 1);
++
++	return 0;
++}
++
++static int __maybe_unused nt36xxx_i2c_resume(struct device *dev)
++{
++	struct nt36xxx_i2c *ts = i2c_get_clientdata(to_i2c_client(dev));
++	int ret;
++
++	mutex_lock(&ts->lock);
++
++	gpiod_set_value(ts->reset_gpio, 0);
++
++	/* Reboot the MCU (also recalibrates the TS) */
++	ret = nt36xxx_bootloader_reset(ts);
++	if (ret < 0)
++		goto end;
++
++	ret = nt36xxx_check_reset_state(ts, NT36XXX_STATE_REK);
++	if (ret < 0)
++		goto end;
++
++	enable_irq(ts->hw_client->irq);
++end:
++	mutex_unlock(&ts->lock);
++	return ret;
++}
++
++static SIMPLE_DEV_PM_OPS(nt36xxx_i2c_pm,
++			 nt36xxx_i2c_suspend, nt36xxx_i2c_resume);
++
++static const struct of_device_id nt36xxx_of_match[] = {
++	{ .compatible = "novatek,nt36525" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, nt36xxx_of_match);
++
++static const struct i2c_device_id nt36xxx_i2c_ts_id[] = {
++	{ "NVT-ts", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, nt36xxx_i2c_ts_id);
++
++static struct i2c_driver nt36xxx_i2c_ts_driver = {
++	.driver = {
++		.name	= "nt36xxx_ts",
++		.pm	= &nt36xxx_i2c_pm,
++		.of_match_table = nt36xxx_of_match,
++	},
++	.id_table	= nt36xxx_i2c_ts_id,
++	.probe		= nt36xxx_i2c_probe,
++};
++module_i2c_driver(nt36xxx_i2c_ts_driver);
++
++MODULE_LICENSE("GPL v2");
++MODULE_DESCRIPTION("Novatek NT36XXX Touchscreen Driver");
++MODULE_AUTHOR("AngeloGioacchino Del Regno <kholk11@gmail.com>");
+diff --git a/drivers/input/touchscreen/nt36xxx.h b/drivers/input/touchscreen/nt36xxx.h
+new file mode 100644
+index 000000000000..6f03dfb45656
+--- /dev/null
++++ b/drivers/input/touchscreen/nt36xxx.h
+@@ -0,0 +1,122 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Copyright (C) 2010 - 2017 Novatek, Inc.
++ * Copyright (C) 2020 AngeloGioacchino Del Regno <kholk11@gmail.com>
++ */
++
++#ifndef NT36XXX_H
++#define NT36XXX_H
++
++#define NT36XXX_INPUT_DEVICE_NAME	"Novatek NT36XXX Touch Sensor"
++
++/* These chips have this fixed address when in bootloader :( */
++#define NT36XXX_BLDR_ADDR 0x01
++
++/* Input device info */
++#define NVT_TS_NAME "NVTCapacitiveTouchScreen"
++
++/* Number of bytes for chip identification */
++#define NT36XXX_ID_LEN_MAX	6
++
++/* Touch info */
++#define TOUCH_DEFAULT_MAX_WIDTH  1080
++#define TOUCH_DEFAULT_MAX_HEIGHT 2246
++#define TOUCH_MAX_FINGER_NUM	 10
++#define TOUCH_MAX_PRESSURE	 1000
++
++/* Point data length */
++#define POINT_DATA_LEN		65
++
++/* Global pages */
++#define NT36XXX_PAGE_CHIP_INFO	0x0001f64e
++#define NT36XXX_PAGE_CRC	0x0003f135
++
++/* Misc */
++#define NT36XXX_NUM_SUPPLIES	 2
++#define NT36XXX_MAX_RETRIES	 5
++#define NT36XXX_MAX_FW_RST_RETRY 50
++
++struct nt36xxx_abs_object {
++	u16 x;
++	u16 y;
++	u16 z;
++	u8 tm;
++};
++
++struct nt36xxx_fw_info {
++	u8 fw_ver;
++	u8 x_num;
++	u8 y_num;
++	u8 max_buttons;
++	u16 abs_x_max;
++	u16 abs_y_max;
++	u16 nvt_pid;
++};
++
++struct nt36xxx_mem_map {
++	u32 evtbuf_addr;
++	u32 pipe0_addr;
++	u32 pipe1_addr;
++	u32 flash_csum_addr;
++	u32 flash_data_addr;
++};
++
++struct nt36xxx_i2c {
++	struct i2c_client *client;
++	struct input_dev *input;
++	struct regulator_bulk_data *supplies;
++	struct gpio_desc *reset_gpio;
++
++	struct work_struct ts_work;
++	struct workqueue_struct *ts_workq;
++	struct mutex lock;
++
++	struct nt36xxx_fw_info fw_info;
++	struct nt36xxx_abs_object abs_obj;
++
++	const struct nt36xxx_mem_map *mmap;
++	u8 max_fingers;
++};
++
++enum nt36xxx_chips {
++	NT36525_IC = 0,
++	NT36672A_IC,
++	NT36676F_IC,
++	NT36772_IC,
++	NT36870_IC,
++	NTMAX_IC,
++};
++
++struct nt36xxx_trim_table {
++	u8 id[NT36XXX_ID_LEN_MAX];
++	u8 mask[NT36XXX_ID_LEN_MAX];
++	enum nt36xxx_chips mapid;
++};
++
++enum nt36xxx_cmds {
++	NT36XXX_CMD_ENTER_SLEEP = 0x11,
++	NT36XXX_CMD_ENTER_WKUP_GESTURE = 0x13,
++	NT36XXX_CMD_UNLOCK = 0x35,
++	NT36XXX_CMD_BOOTLOADER_RESET = 0x69,
++	NT36XXX_CMD_SW_RESET = 0xa5,
++	NT36XXX_CMD_SET_PAGE = 0xff,
++};
++
++enum nt36xxx_fw_state {
++	NT36XXX_STATE_INIT = 0xa0,	/* IC reset */
++	NT36XXX_STATE_REK,		/* ReK baseline */
++	NT36XXX_STATE_REK_FINISH,	/* Baseline is ready */
++	NT36XXX_STATE_NORMAL_RUN,	/* Normal run */
++	NT36XXX_STATE_MAX = 0xaf
++};
++
++enum nt36xxx_i2c_events {
++	NT36XXX_EVT_CHIPID = 0x4e,
++	NT36XXX_EVT_HOST_CMD = 0x50,
++	NT36XXX_EVT_HS_OR_SUBCMD = 0x51,   /* Handshake or subcommand byte */
++	NT36XXX_EVT_RESET_COMPLETE = 0x60,
++	NT36XXX_EVT_FWINFO = 0x78,
++	NT36XXX_EVT_PROJECTID = 0x9a,
++};
++
++#endif
 -- 
-2.26.2
+2.28.0
 

@@ -2,108 +2,126 @@ Return-Path: <SRS0=64J9=ED=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DATE_IN_PAST_03_06,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12845C56201
-	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:22:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2FB6C61DD8
+	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:27:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BD7AC206D9
-	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:22:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB2CC206F4
+	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:27:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731661AbgJ1WV6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 28 Oct 2020 18:21:58 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:55244 "EHLO
+        id S1733025AbgJ1WYo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 28 Oct 2020 18:24:44 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:55240 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732583AbgJ1WV4 (ORCPT
+        with ESMTP id S1732579AbgJ1WV4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 28 Oct 2020 18:21:56 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 277111C0BAF; Wed, 28 Oct 2020 17:26:22 +0100 (CET)
-Date:   Wed, 28 Oct 2020 17:26:21 +0100
+        id EE19D1C0BB3; Wed, 28 Oct 2020 18:32:17 +0100 (CET)
+Date:   Wed, 28 Oct 2020 18:32:17 +0100
 From:   Pavel Machek <pavel@ucw.cz>
 To:     Jiri Kosina <jikos@kernel.org>
 Cc:     dmitry.torokhov@gmail.com, vojtech@suse.cz,
         linux-input@vger.kernel.org,
         kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: Proper support for Saitek X36F joystick
-Message-ID: <20201028162621.GA18184@amd>
+Message-ID: <20201028173217.GA25456@amd>
 References: <20201027124235.GA27148@duo.ucw.cz>
  <nycvar.YFH.7.76.2010272006490.18859@cbobk.fhfr.pm>
  <20201027210732.GA4479@amd>
+ <20201028162621.GA18184@amd>
+ <nycvar.YFH.7.76.2010281728260.18859@cbobk.fhfr.pm>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
+        protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
 Content-Disposition: inline
-In-Reply-To: <20201027210732.GA4479@amd>
+In-Reply-To: <nycvar.YFH.7.76.2010281728260.18859@cbobk.fhfr.pm>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 
---9jxsPFA5p3P2qPhR
+--1yeeQ81UyVL57Vl7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
-
-> > > This is from 4.19, but I doubt this changed recently.
-> > >=20
-> > > Saitek X36F+X35T combination is detected like this... in short one
-> > > hat, no switches, and lot of buttons.
-> > >=20
-> > > In reality, combination has 4 four-way switches (hats?), 2 slider
-> > > switches (three positions) and lot less buttons. Sliders and 3 of 4
-> > > hats are detected as groups of buttons. Last hat is strange, I can't
-> > > see anything that corresponds to it on evtest, and as long as it is
-> > > pushed in any direction, all the other events stop. (It is also one
-> > > I'd like to use).
-> > >=20
-> > > What needs to be done to get more useful mapping for userspace?
-> >=20
-> > It wouldn't be the first device produced by Saitek that has completely=
-=20
-> > bogus report descriptor.
-> >=20
-> > The most straightforward way would be to let hid-saitek module claim th=
-e=20
-> > device, and fix the report descriptor (saitek_report_fixup()) before it=
-'s=20
-> > passed to hid parser so that it actually describes the events produced.
-> >=20
-> > You can either patch individual bytes (that's what saitek_report_fixup(=
-)=20
-> > is currently doing for another device), or replace the whole descriptor=
-=20
-> > completely (see e.g. hid-kye for inspiration how this is done).
+On Wed 2020-10-28 17:29:23, Jiri Kosina wrote:
+> On Wed, 28 Oct 2020, Pavel Machek wrote:
 >=20
-> Thank you... replacing whole descriptors is rather easy.
+> > So no, I can't even replace it with equivalent one. Perhaps hrdc got
+> > decompilation wrong, or I'm doing something else wrong.
 >=20
-> Coming up with descriptors that works ... not so :-(. I can replace
-> descriptor with equivalent one, but things get horribly confused as
-> soon as I really try to change anything.
+> You don't need to do any decompilation -- the descriptor can be obtained=
+=20
+> from /sys/kernel/debug/hid/<device>/rdesc (also lsusb in verbose enough=
+=20
+> mode should present it in case no driver is bound to the device).
 
-So no, I can't even replace it with equivalent one. Perhaps hrdc got
-decompilation wrong, or I'm doing something else wrong.
+I discovered problem in the meantime. hrdc (I was using to de-compile
+and re-compile hid descriptors) was adding padding.
+
+But thanks for the pointer. That is very useful:
+
+This device has four hat switches... I declared two so far
+
+     0x0b, 0x39, 0x00, 0x01, 0x00,  //     Usage (desktop.HatSwitch)
+     0x35, 0x00,                    //     PhysicalMinimum (0)
+     0x46, 0x3b, 0x01,              //     PhysicalMaximum (315)
+     0x15, 0x01,                    //     LogicalMinimum (1)
+     0x25, 0x08,                    //     LogicalMaximum (8)
+     0x65, 0x14,                    //     Unit (Degree)
+     0x55, 0x00,                    //     UnitExponent (0)
+     0x95, 0x01,                    //     ReportCount (1)
+     0x75, 0x04,                    //     ReportSize (4)
+     0x81, 0x42,                    //     Input (Variable|NullState)
+
+     0x95, 0x01,                    //     ReportCount (1)
+     0x75, 0x02,                    //     ReportSize (2)
+     0x81, 0x03,                    //     Input (Constant|Variable)
+     0x0b, 0x39, 0x00, 0x01, 0x00,  //     Usage (desktop.HatSwitch)
+     0x35, 0x00,                    //     PhysicalMinimum (0)
+     0x46, 0x3b, 0x01,              //     PhysicalMaximum (315)
+     0x15, 0x01,                    //     LogicalMinimum (1)
+     0x25, 0x08,                    //     LogicalMaximum (8)
+     0x65, 0x14,                    //     Unit (Degree)
+     0x55, 0x00,                    //     UnitExponent (0)
+     0x95, 0x01,                    //     ReportCount (1)
+     0x75, 0x04,                    //     ReportSize (4)
+     0x81, 0x42,                    //     Input (Variable|NullState)
+     0xc0,                          // EndCollection
+
+=2E..but Linux seems to only recognize first of them:
+
+GenericDesktop.HatSwitch ---> Absolute.Hat0X
+GenericDesktop.HatSwitch ---> Sync.Report
+
+Is there way to get extra hats mapped as Hat1X, Hat2X and Hat3X?
+
+(Plus, they may have different bit orders than hid expects...?)
+
+I'm thinking that maybe I should ignore this hid stuff and just do
+"normal" driver in C? Is there precedent/example for that?
 
 Best regards,
 								Pavel
 --=20
 http://www.livejournal.com/~pavelmachek
 
---9jxsPFA5p3P2qPhR
+--1yeeQ81UyVL57Vl7
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAl+Zm60ACgkQMOfwapXb+vKeoQCglfgu5nuSf3JaWDFX9ScEnLSw
-GFQAn3Qiithsq1pt5hqlmHTehlQxPaPn
-=gDX8
+iEYEARECAAYFAl+ZqyEACgkQMOfwapXb+vLxTACgmvMmM5SOmT2oxn4z9VHx2PTt
+ndMAn3gIvY7zXJbVeyIiRlJQBcJlZuuf
+=3dCK
 -----END PGP SIGNATURE-----
 
---9jxsPFA5p3P2qPhR--
+--1yeeQ81UyVL57Vl7--

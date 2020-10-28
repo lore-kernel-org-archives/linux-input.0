@@ -2,99 +2,160 @@ Return-Path: <SRS0=64J9=ED=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 700F2C55179
-	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 21:53:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5483C55179
+	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:13:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 12E4C24724
-	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 21:53:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 493FE24724
+	for <linux-input@archiver.kernel.org>; Wed, 28 Oct 2020 22:13:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EwliCZb7"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DlatPnFt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728238AbgJ1VxV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 28 Oct 2020 17:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49254 "EHLO
+        id S1731009AbgJ1WNO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 28 Oct 2020 18:13:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725379AbgJ1VxS (ORCPT
+        with ESMTP id S1731022AbgJ1WNM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Oct 2020 17:53:18 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C70CCC0613CF;
-        Wed, 28 Oct 2020 14:53:18 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id r10so605584pgb.10;
-        Wed, 28 Oct 2020 14:53:18 -0700 (PDT)
+        Wed, 28 Oct 2020 18:13:12 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9AEC0613D3;
+        Wed, 28 Oct 2020 15:13:11 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id t3so696048wmi.3;
+        Wed, 28 Oct 2020 15:13:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=6ik2GKgZ+Q4Z7qsn1+Na4NKxNj7mlIQNoHCJBRIVKMc=;
-        b=EwliCZb71i5/DbjlKhXNpify6cUiqeYAdqYKm/YBUk5m+2qb9E5VgFsFqRAMBVszAt
-         Xhx5gX792ZGJ6u7bLL2gRf/q/tEmTedWDSgFszCsUuXLDtW6Y39hDC05JnCcxfW/Bp5f
-         4AsrnPXyWURSrrDtYxSDlvYSpaDeqi5yhAL+ljYdXgWYZFPb719/7Fkxg4ILYDxJuDzk
-         RJYxJYS97ZgIDcSSJsQ5LEe/co57odSQfnlREKrCs7Fj+nw0DC16WUp0GxjN/LUx41JW
-         cZn+dNI3DgTZzvST177ZcIW7MoSsDeoPQy2NELW2k3Wiwb7+dSo43/bl8yMq/N8dR/Hi
-         Xh5g==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=UQeIb9S6fRyX5SRt2bDKlf1jyr9GKEnfhYagOSnTM3M=;
+        b=DlatPnFtHJrfJ07LWvkl9+nsvhNwx+orArQF7h6O2RJSm7XI44ONw8VlqpEbhEMT0M
+         6Wq+lpKTWAVNnf7Bj6QMm1J/33sTXoUaLeLhmbMqoNRmXrXlGS8iS62Zhr8V0yGDz2lQ
+         w5VsN4sMlVmScHmpj1XKy7YYFiOT3e34th+9xIPx6uCF0PnG8p1xHTmebu8w7m/KJ4CV
+         2O9N57kTqJSw4K8GnZWP9cl42YR+TfjNF9TBsKK/FUdBMcRZr6dm4yKRE+kDUTnTryHI
+         9odrtv/iBcPWIsh3jxWrbNifLAJaS7QnsvFjNkQ1bC2vGLjTbmyiWlQCBlG30xLIe/Ym
+         Ti6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=6ik2GKgZ+Q4Z7qsn1+Na4NKxNj7mlIQNoHCJBRIVKMc=;
-        b=QNwVIEao/lhb+nA0UsgfpV/P7MVDkHwDRxcft4Jj7cWjq7bzOUhzp2UtV6RxjdHH6f
-         lbrWYHR+QQgDYL9CEsu0h4espU1a9U8OxJkPlO148SEzL7B1+JAdOLNCMS5ljye/WzuB
-         z4bx7DSp+VNWdkirtHyjhNCrQJijDWey0oq9UB4GNgieLNjUe9r2PJR4NL7QWJlaLber
-         HlP7reD3CJyeMWOfLhryG9/GWvg/2D0aJbXYmV/YFKtN+jj41pGSC7sw6zalycOwbHQr
-         VYh+7giPkfn/272dw/ahCCOLq7v4y7PyGwXx3tovQXvIo2PfKpyGz/7D3HOFaddYJ7ua
-         X5Pw==
-X-Gm-Message-State: AOAM530vVzKi+HmAg7Ezt8JkXcNhtMw19me9k3WELhO6dVcqJpPQMLUT
-        BCoLovyu3+559RCw1R/SHKO5+GBv37w=
-X-Google-Smtp-Source: ABdhPJwuUsSMZsTNLKlVcxiwhvE1+NkOW2B8Md3IDEP3n+SbAJ5rlVM+lk+b9jS7kSFGyY7VbSxuww==
-X-Received: by 2002:a63:5819:: with SMTP id m25mr491910pgb.398.1603908062998;
-        Wed, 28 Oct 2020 11:01:02 -0700 (PDT)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id i123sm266934pfc.13.2020.10.28.11.01.01
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=UQeIb9S6fRyX5SRt2bDKlf1jyr9GKEnfhYagOSnTM3M=;
+        b=F6pmHbrM6IpkHC2rMjuecC+Iw8R1+s/Eg/y74iNIhgYxM6PADIvrus+ABecjiQxUvo
+         RrtfmhoMCuAJ+dbemEgf3DiSl4wc9+QqZF4vRoP1i+PGtjv5y+OTnS4M/rx6ppnRppje
+         J0Ei+DA0ZGl2/zigQ9PiPuR1JPymQ3pY/KKm+bLtjPYw+FF4B0zRNb2A2coQxU3wqPON
+         1Nj0H/KvqA5trTk4i3qzIa6lS5LfVoNLot3kJ9HTVDJEQW0w+p4lc7VlTQENw9n/1UiH
+         YoDnb8Fe3PAFWqj7P3tO4QAAXNPpuV2g+9/hF2iqzW/7VnqQvXOqqVuohtoyOe1Y0nQQ
+         DpVQ==
+X-Gm-Message-State: AOAM533Y1WwtY+VENDz66MrlvUt5uxQ4QG5piKvtnI6nrap7OCKfRVWA
+        KKlzgTC8OW0eSDtwyt1R2Pqt3HzM63OiR6s/
+X-Google-Smtp-Source: ABdhPJxdhm6P6d9+9M90lpfBiEoEfY8zosAdgCLm46HLBQ5WD9A+r5LCSE+7/tfvSXPlOzLo2ml11g==
+X-Received: by 2002:a1c:740e:: with SMTP id p14mr1044002wmc.34.1603923190036;
+        Wed, 28 Oct 2020 15:13:10 -0700 (PDT)
+Received: from IcarusMOD.eternityproject.eu ([2.237.20.237])
+        by smtp.gmail.com with ESMTPSA id x1sm1318928wrl.41.2020.10.28.15.13.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2020 11:01:02 -0700 (PDT)
-Date:   Wed, 28 Oct 2020 11:00:59 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts: Convert bindings to YAML and
- extend
-Message-ID: <20201028180059.GA2547185@dtor-ws>
-References: <20201028101711.696423-1-linus.walleij@linaro.org>
+        Wed, 28 Oct 2020 15:13:09 -0700 (PDT)
+From:   kholk11@gmail.com
+To:     dmitry.torokhov@gmail.com
+Cc:     robh+dt@kernel.org, rydberg@bitmath.org, priv.luk@gmail.com,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kholk11@gmail.com, marijns95@gmail.com, konradybcio@gmail.com,
+        martin.botka1@gmail.com, phone-devel@vger.kernel.org,
+        devicetree@vger.kernel.org, krzk@kernel.org,
+        andy.shevchenko@gmail.com, Rob Herring <robh@kernel.org>
+Subject: [PATCH v9 3/3] dt-bindings: touchscreen: Add binding for Novatek NT36xxx series driver
+Date:   Wed, 28 Oct 2020 23:13:02 +0100
+Message-Id: <20201028221302.66583-4-kholk11@gmail.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201028221302.66583-1-kholk11@gmail.com>
+References: <20201028221302.66583-1-kholk11@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201028101711.696423-1-linus.walleij@linaro.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Linus,
+From: AngeloGioacchino Del Regno <kholk11@gmail.com>
 
-On Wed, Oct 28, 2020 at 11:17:10AM +0100, Linus Walleij wrote:
-> This converts the Armel MXT touchscreen bindings to YAML
-> format and extends them with the following two properties:
-> 
-> - vdda-supply: the optional analog supply voltage
-> - vdd-supply: the optional digital supply voltage
-> 
-> I also explained about the reset-gpios property that this
-> better be flagged as active high (0) despite actually
-> being active low, because all current device trees and
-> drivers assume that this is the case and will actively
-> drive the line low to assert RESET.
+Add binding for the Novatek NT36xxx series touchscreen driver.
 
-I wonder if we should fix that in driver and in DTs instead of doing
-this cludge...
+Signed-off-by: AngeloGioacchino Del Regno <kholk11@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+ .../bindings/input/touchscreen/nt36xxx.yaml   | 59 +++++++++++++++++++
+ 1 file changed, 59 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
 
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml b/Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
+new file mode 100644
+index 000000000000..a360a9f5d43b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
+@@ -0,0 +1,59 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/nt36xxx.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Novatek NT36xxx series touchscreen controller Bindings
++
++maintainers:
++  - AngeloGioacchino Del Regno <kholk11@gmail.com>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    const: novatek,nt36525
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  vdd-supply:
++    description: Power supply regulator for VDD pin
++
++  vio-supply:
++    description: Power supply regulator on VDD-IO pin
++
++unevaluatedProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/gpio/gpio.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      touchscreen@62 {
++        compatible = "novatek,nt36525";
++        reg = <0x62>;
++        interrupt-parent = <&tlmm>;
++        interrupts = <45 IRQ_TYPE_EDGE_RISING>;
++        reset-gpios = <&tlmm 102 GPIO_ACTIVE_HIGH>;
++      };
++    };
++
++...
 -- 
-Dmitry
+2.28.0
+

@@ -2,105 +2,106 @@ Return-Path: <SRS0=X7PX=EE=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D84B1C55179
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 01:02:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4221AC63697
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 07:53:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8519720791
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 01:02:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E77D320EDD
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 07:53:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A2QmttkI"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="t5ghjlIe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731049AbgJ2BCE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 28 Oct 2020 21:02:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52732 "EHLO
+        id S1731087AbgJ2Hxa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 29 Oct 2020 03:53:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730534AbgJ1WNJ (ORCPT
+        with ESMTP id S1732500AbgJ2HxM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:13:09 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F37EAC0613CF;
-        Wed, 28 Oct 2020 15:13:08 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id g12so669792wrp.10;
-        Wed, 28 Oct 2020 15:13:08 -0700 (PDT)
+        Thu, 29 Oct 2020 03:53:12 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCF15C0613D5;
+        Thu, 29 Oct 2020 00:53:11 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id x23so914846plr.6;
+        Thu, 29 Oct 2020 00:53:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=cGK0y4DdjN+ht1VXSEDsJItbDCIWKoPEWxNpiJk8/U4=;
-        b=A2QmttkI2fe6dA/2YZGL64pX8xVnqR6evtzrPGT+ldsFPQcVmv1JwRorV+t51DAGQk
-         gGOhIou6GLz7/wQpic/qi0h/5wxwyYmluu2JJQ5DOsbSMm8oTfmOg4Qb8vcZsUFlE7H1
-         y3Yf26m+/4UUHX2zheGb6YiHC+km8BUKiPxcct3iK04Q5OPp8TJVTcTk+jZyo9e6zdHB
-         MVcMVjkkSRulUgoNbPIU8+pQN7bxJjifv3L5K+DinD0VbLGa45KtADz0NTsaNUKjON2R
-         iMJ3m35zbIyNJL7Rvmuf5G9vM6QPoj4qVCIGM2FkFyYnlD0zVwAJq7qsNbT13hRuFKlM
-         Zr1A==
+        bh=POqi5GI8PXCAEIumwbfgkVMeF0jFDXuMARK3jktwUMo=;
+        b=t5ghjlIe1x+GGwGk6PMTTunm8mYIrUZqTLDRcRKy6WoRSwIWR/vdzeMfQIHMDE6OFC
+         tzKahgXXCWi58P92eiKvyET5OWr8U1SyiGs+kItcteNBEcwB/ZpH1zXATilrHxwuzdXG
+         venOMuw7WGvN5wHh1p2mjLljCYNxBeISo7fosRQR9sNXn571OhCOsPGMeH8hQtckAf98
+         qoe6GWi12ouIrfwSZ6mcdAeAniHEcieXbBUhr58e8dYBTSVDj4j2+6kRXIhd7PnhbHi9
+         PDmROUg8LSzpV2e6Q1Ysza9E1cdsT/ClPqkCYx5Qnqja18mrnKwxszQHIILUBaJU9d2W
+         CXrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=cGK0y4DdjN+ht1VXSEDsJItbDCIWKoPEWxNpiJk8/U4=;
-        b=oMn6d5UfWQ1dJTxaaE4ACTXTj5YYglJdfX/ryLSd8W946rnKFlqND1d75mOnV47fpc
-         psS8t991pSOMdQYeWIlR8YGecH28sop5RyuP9OhraoHAyiMonK81Kp+XRLwQyLLtIlvx
-         1n3GAlJbchsVgygG6sCCBgcnbHILptBqg/BHYLwOk+DF4ueojgG3J2ZRPpLcDBbOVon0
-         rl6gqSejd6VFsgSbNgPJ+Cna0UnqaW1ya5Rnmu393QNzuhKkvtF1VdQTVpOQVSRsof0w
-         EKEfkXImnzBBa67dOkaJ5/4zOVJ30TeDP3flwK30v50kdyIfGbMfdjSrZ/Xt/mm19P2e
-         78jg==
-X-Gm-Message-State: AOAM531TAzAYqC3Rgw8f/P4HtAb0tcoA2Hi08pZtjqFLJsMtNU4yRuED
-        Tte+72mIVZkx/kZrl2j0jn06RINN4sATMyem
-X-Google-Smtp-Source: ABdhPJxm6cfbG6QjUkuAqgjbUqmYmPAAy0t2sdXju04r3h0/YH3Fuj3gbcmR6HtqNnJfop1leFoS2g==
-X-Received: by 2002:adf:bd86:: with SMTP id l6mr1665232wrh.205.1603923187610;
-        Wed, 28 Oct 2020 15:13:07 -0700 (PDT)
-Received: from IcarusMOD.eternityproject.eu ([2.237.20.237])
-        by smtp.gmail.com with ESMTPSA id x1sm1318928wrl.41.2020.10.28.15.13.06
+        bh=POqi5GI8PXCAEIumwbfgkVMeF0jFDXuMARK3jktwUMo=;
+        b=jcJJXQRZmc3CDFCBjHvTx5+wcIr++3rNXtcXnjDUKxeEpAATnA/xtZq6/a5LoXGoBD
+         3vm5Te1DxNJWkZR/h7zaPz+vTZ6ZhdOPZEY5cyc//0mzUDKSnF2uk9AzUDFqN8ZI5AgZ
+         aduepgYqTljHxcW4bs7iTzr87L2kvYfLq2kft9V/lTnWwljijdXzJbwdJ+8OLYv/yyWR
+         wTqSF00diy1XJxP6dZCKtKsaqdtcs12aCOY60QDhfeJx33KK14zO+KhaYR58YD+JhNSP
+         LNZusbEiqoq79gEj/iISGA3p6MIWAeru2yXJ5HmWj2+7JSV0kFQeZCZoPa52giGoBnYo
+         ol6A==
+X-Gm-Message-State: AOAM533ZWHKmlTq4xj1Ah0tmJzaux0TapIwro1C5leqvxBPltT+rJ9Cv
+        cDKTMZtKG9Kqyah1MbsHWNVL8FWsf4E2bn74
+X-Google-Smtp-Source: ABdhPJzycuJcoGnnb21OCUbDPFd7vpKcuT91sTtQLPEuuPzWngueUd5Uql+OpvkfM1wi036LsEiPzA==
+X-Received: by 2002:a17:902:7088:b029:d6:8072:9ce1 with SMTP id z8-20020a1709027088b02900d680729ce1mr3150919plk.11.1603957991256;
+        Thu, 29 Oct 2020 00:53:11 -0700 (PDT)
+Received: from localhost ([2409:8a28:3c42:6840:9efc:e8ff:fef2:1cdc])
+        by smtp.gmail.com with ESMTPSA id d26sm1873937pfo.82.2020.10.29.00.53.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2020 15:13:07 -0700 (PDT)
-From:   kholk11@gmail.com
-To:     dmitry.torokhov@gmail.com
-Cc:     robh+dt@kernel.org, rydberg@bitmath.org, priv.luk@gmail.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kholk11@gmail.com, marijns95@gmail.com, konradybcio@gmail.com,
-        martin.botka1@gmail.com, phone-devel@vger.kernel.org,
-        devicetree@vger.kernel.org, krzk@kernel.org,
-        andy.shevchenko@gmail.com
-Subject: [PATCH v9 1/3] dt-bindings: Add vendor prefix for Novatek Microelectronics Corp.
-Date:   Wed, 28 Oct 2020 23:13:00 +0100
-Message-Id: <20201028221302.66583-2-kholk11@gmail.com>
+        Thu, 29 Oct 2020 00:53:10 -0700 (PDT)
+From:   Coiby Xu <coiby.xu@gmail.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org (open list:INPUT (KEYBOARD, MOUSE, JOYSTICK
+        , TOUCHSCREEN)...), linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH 3/3] Input: nomadik-ske-keypad: remove unnecessary CONFIG_PM_SLEEP
+Date:   Thu, 29 Oct 2020 15:52:36 +0800
+Message-Id: <20201029075236.228335-3-coiby.xu@gmail.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201028221302.66583-1-kholk11@gmail.com>
-References: <20201028221302.66583-1-kholk11@gmail.com>
+In-Reply-To: <20201029075236.228335-1-coiby.xu@gmail.com>
+References: <20201029075236.228335-1-coiby.xu@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <kholk11@gmail.com>
+SIMPLE_DEV_PM_OPS has already took good care of CONFIG_PM_CONFIG.
 
-Add prefix for Novatek Microelectronics Corp.
-
-Signed-off-by: AngeloGioacchino Del Regno <kholk11@gmail.com>
+Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
 ---
- Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/keyboard/nomadik-ske-keypad.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-index 66e45112a8d7..f98ea0af487d 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-@@ -740,6 +740,8 @@ patternProperties:
-     description: Nokia
-   "^nordic,.*":
-     description: Nordic Semiconductor
-+  "^novatek,.*":
-+    description: Novatek Microelectronics Corp.
-   "^novtech,.*":
-     description: NovTech, Inc.
-   "^nutsboard,.*":
+diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
+index 608446e14614..b3052c8fa5d2 100644
+--- a/drivers/input/keyboard/nomadik-ske-keypad.c
++++ b/drivers/input/keyboard/nomadik-ske-keypad.c
+@@ -386,7 +386,6 @@ static int ske_keypad_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM_SLEEP
+ static int ske_keypad_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+@@ -414,7 +413,6 @@ static int ske_keypad_resume(struct device *dev)
+ 
+ 	return 0;
+ }
+-#endif
+ 
+ static SIMPLE_DEV_PM_OPS(ske_keypad_dev_pm_ops,
+ 			 ske_keypad_suspend, ske_keypad_resume);
 -- 
 2.28.0
 

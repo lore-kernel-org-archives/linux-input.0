@@ -2,98 +2,86 @@ Return-Path: <SRS0=X7PX=EE=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 171E2C4363A
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 14:37:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3703C2D0A3
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 15:03:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7181620825
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 14:37:02 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="xMcf3Hkf"
+	by mail.kernel.org (Postfix) with ESMTP id 6DE9720838
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 15:03:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1603983801;
+	bh=/m0ZiVrVXr02jrgeLf967OYFWeg3Z/wgT9FSdLb1gHY=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
+	b=sOowCenOVGtvItDrqids4V6CaTtIz36lnmmIyxOwXc2/rNr4qEAiw6lnu3d8kq/6v
+	 Q77I5aFgiPXMUrfa+lkKGBsma8hz3qJGkTAxxCWuhINKMGf8MG9ySESM1qJ/3+D4jF
+	 DX0wpsXrpj3VhhCQuG5KjDhfbRsyKpxVkV5gA340=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726521AbgJ2OhC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 29 Oct 2020 10:37:02 -0400
-Received: from mail-03.mail-europe.com ([91.134.188.129]:39864 "EHLO
-        mail-03.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726029AbgJ2OhB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Oct 2020 10:37:01 -0400
-Date:   Thu, 29 Oct 2020 14:36:51 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail; t=1603982218;
-        bh=kXRaeNvaCmQH2VeUBzDabkr/fRY1SIHCsnhlrezOIP4=;
-        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=xMcf3HkfGEjU8Xvf7JJCjEXO0w1zUcqbBYZRaJVfJn6oMKF4vUSUc6ldi50W4twFA
-         cjjIHv0FZApDZ2G/XZi2+/qfp3pESK89HwC6U13UwL3qTOCWy/FXk1QaqMSpfk8SXf
-         jBUk3injLDg4q0qLeoYQqucX8YkSKzUhDL/1xLyg=
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Cc:     "hj2.im@samsung.com" <hj2.im@samsung.com>,
-        "manivannan.sadhasivam@linaro.org" <manivannan.sadhasivam@linaro.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "rydberg@bitmath.org" <rydberg@bitmath.org>,
-        Jungrae Kim <jryu.kim@samsung.com>
-Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Subject: Re: [PATCH v2] input: add 2 kind of switch
-Message-ID: <Y8lswhvitTRIuUmvccVHbI2zTCGbh44XnkszUcl2qG2mT93vWVcnovbN8UsBOnXkE-gnRB6jLLnOaNWLgf8B9Pn6R2uGgv7pV-vqj4RdiUk=@protonmail.com>
-In-Reply-To: <20201029135415.GA3470996@kroah.com>
-References: <CGME20201029132747epcms1p8fae559dff47bf0eebdcc9f94efd9a1bf@epcms1p8> <20201029132747epcms1p8fae559dff47bf0eebdcc9f94efd9a1bf@epcms1p8> <j4-zngLfuvM3x15SD8ezJ__FTdOdLCudaTGBvuotwzYwnYFusBe655vH3UahNgtBzB8n6VpfoV7iS1tPXvv-0R8T7-RsvMDxnTZ-Zo-xs4o=@protonmail.com> <20201029135415.GA3470996@kroah.com>
+        id S1727936AbgJ2PDV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 29 Oct 2020 11:03:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36944 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727933AbgJ2PDU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 29 Oct 2020 11:03:20 -0400
+Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5388B20759;
+        Thu, 29 Oct 2020 15:03:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603983800;
+        bh=/m0ZiVrVXr02jrgeLf967OYFWeg3Z/wgT9FSdLb1gHY=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=rLdHk0B15Ub9uwiUgJADmNDEUlI63bB4qu8+zpDBxhsQyoVJUy7HaI0epNvclKgMg
+         U+l2vmyugIiWdSbSdNrcdMsTSiDLzp3P/kzVcF357zfxDKwVSEAN23MnmRUDA3XdZP
+         wQ9pUtfQrDaNE1rB0bg2AP9q1pSIgaRWKtXByHio=
+Date:   Thu, 29 Oct 2020 16:03:16 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Sandeep Singh <Sandeep.Singh@amd.com>
+cc:     benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org,
+        linux-input@vger.kernel.org, jic23@kernel.org,
+        Nehal-bakulchandra.Shah@amd.com, mail@richard-neumann.de,
+        Shyam-sundar.S-k@amd.com, lipheng@hanmail.net
+Subject: Re: [PATCH v3] AMD_SFH: Fix for incorrect Sensor index
+In-Reply-To: <20201028090010.2689060-1-Sandeep.Singh@amd.com>
+Message-ID: <nycvar.YFH.7.76.2010291602550.18859@cbobk.fhfr.pm>
+References: <20201028090010.2689060-1-Sandeep.Singh@amd.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi
+On Wed, 28 Oct 2020, Sandeep Singh wrote:
 
-> [...]
-> > > diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devi=
-cetable.h
-> > > index 5b08a473cdba..897f5a3e7721 100644
-> > > --- a/include/linux/mod_devicetable.h
-> > > +++ b/include/linux/mod_devicetable.h
-> > > @@ -320,7 +320,7 @@ struct pcmcia_device_id {
-> > >  #define INPUT_DEVICE_ID_LED_MAX=09=090x0f
-> > >  #define INPUT_DEVICE_ID_SND_MAX=09=090x07
-> > >  #define INPUT_DEVICE_ID_FF_MAX=09=090x7f
-> > > -#define INPUT_DEVICE_ID_SW_MAX=09=090x10
-> > > +#define INPUT_DEVICE_ID_SW_MAX=09=090x12
-> > >  #define INPUT_DEVICE_ID_PROP_MAX=090x1f
-> > >
-> > >  #define INPUT_DEVICE_ID_MATCH_BUS=091
-> > > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/li=
-nux/input-event-codes.h
-> > > index 0c2e27d28e0a..8ca2acee1f92 100644
-> > > --- a/include/uapi/linux/input-event-codes.h
-> > > +++ b/include/uapi/linux/input-event-codes.h
-> > > @@ -889,7 +889,9 @@
-> > >  #define SW_MUTE_DEVICE=09=090x0e  /* set =3D device disabled */
-> > >  #define SW_PEN_INSERTED=09=090x0f  /* set =3D pen inserted */
-> > >  #define SW_MACHINE_COVER=090x10  /* set =3D cover closed */
-> > > -#define SW_MAX=09=09=090x10
-> > > +#define SW_COVER_ATTACHED=090x11  /* set =3D cover attached */
-> > > +#define SW_EXT_PEN_ATTACHED=090x12  /* set =3D external pen attached=
- */
-> > > +#define SW_MAX=09=09=090x12
-> > >  #define SW_CNT=09=09=09(SW_MAX+1)
-> > > [...]
-> >
-> > This part of the patch conflicts with another one:
-> > https://lore.kernel.org/linux-input/20201026144512.621479-1-markpearson=
-@lenovo.com/
->
-> Is that merged?  If not, it's fine as-is until then, and someone has to
-> pick to go first :)
+> From: Sandeep Singh <sandeep.singh@amd.com>
+> 
+> It appears like the accelerometer/magnetometer and gyroscope
+> indices were interchanged in the patch series which got into
+> for-5.11/amd-sfh-hid until Mandoli/Richard reported to us.
+> Ideally sensor indices should be 0,1,2 for the accelerometer,
+> Gyroscope, Magnetometer respectively, but this interchanged
+> possibly could be because i was using a test MP2 firmware
+> on my machine.
+> 
+> This patch fixes the earlier commit with the right sensor
+> indices and also removing unused structures
+> _hid_report_descriptor,
+> _hid_device_descriptor as reported by Richard.
+> 
+> Reported-by: Mandoli <lipheng@hanmail.net>
+> Reported-by: Richard Neumann <mail@richard-neumann.de>
+> Signed-off-by: Sandeep Singh <sandeep.singh@amd.com>
+> Fixes: SFH: PCIe driver to add support of AMD sensor fusion hub (4f567b9f8141)
 
-It is not, to my knowledge. Nonetheless I figured the information may be re=
-levant.
+I've modified the Fixes: tag so that it has proper format and applied, 
+thanks.
 
+-- 
+Jiri Kosina
+SUSE Labs
 
-Regards,
-Barnab=C3=A1s P=C5=91cze

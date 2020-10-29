@@ -2,105 +2,124 @@ Return-Path: <SRS0=X7PX=EE=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16B79C4363A
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 17:22:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7CC0C4363A
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 17:22:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BA28520838
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 17:22:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cpKWHh/n"
+	by mail.kernel.org (Postfix) with ESMTP id 90B6220796
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 17:22:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726037AbgJ2RWu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 29 Oct 2020 13:22:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36032 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725730AbgJ2RWt (ORCPT
+        id S1727354AbgJ2RWz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 29 Oct 2020 13:22:55 -0400
+Received: from sender11-of-o52.zoho.eu ([31.186.226.238]:21351 "EHLO
+        sender11-of-o52.zoho.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725730AbgJ2RWy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Oct 2020 13:22:49 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8EDC0613CF;
-        Thu, 29 Oct 2020 10:22:49 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id a9so3614766wrg.12;
-        Thu, 29 Oct 2020 10:22:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=FgiZbK6pWCFNNx9QFeZngzu7fh5OqvaG7wkwgkOFjSU=;
-        b=cpKWHh/noLvJenv/13DypTzJLrHma44Acp5C9pOHg6D3H7IFNvJnp0zTiuqvH9C2QF
-         mz8XA29iaaASTJ2RMZR7Uy8GZ+Za9cW65iG7rVFQOl4n+jJ5oZTIyhCvYjttlx4YdtNF
-         mbVNpDTFS7Qy9/JQM2MaY5Mx1Cai/NXG2z1Ssg1kITEdnHUIYuN/9UXZa9rJHRwNKQpo
-         L7aIVN0lBeXhSaAww99pKrbIsEZxwmNT8+wUZ4mGiVj/7lXzKBv41/XMvRStA1Ts4IOT
-         1R59FKz1O9s+lrPtw3Od2T1sBWxxN5RVQAdsSpsOuABB+3M0+lkV6zekSTUkzp0/FsHM
-         JAAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FgiZbK6pWCFNNx9QFeZngzu7fh5OqvaG7wkwgkOFjSU=;
-        b=gwTzWkPNh9+XxEmNyrK3/eMkE+weUQZYI4cWM1XOlarSPNvEFST2G3lERcV/qlAtQ5
-         Wbf5Yjz3QzHO9G58LTxDv45XbPYECtqOvpx7o6fHSdNQ2WXT9x+g0XW57wfu/pKQLqJh
-         dyn0lNk2jmQ1mBu6LjrUFMussk+/5U15oXKDSS7//t6y030bdbYIeAcFBdMGrKS53zcZ
-         62WmO22ze1RV6av4udJ5QM84H4Sxoq/TM1nODdGfL6fmOyAJChkV5+l1TkvFNWqSCF8E
-         zj7cuMqs3n1y928pmhp4giQgskkf6xDHwynbMTTqU5WeKfwi6I/yCAtwBXQ4xPYb5WvT
-         qNfA==
-X-Gm-Message-State: AOAM532mIiMIAoA+dDvDcVgtlX5iieeqsSI0ulk0Ea1F6zsmZnBVgJsh
-        K8QaLWanjcHcI4a4YXZDb4MLZK5N5MEqkScy1Mfeoo7Rq6gqlg==
-X-Google-Smtp-Source: ABdhPJzQqF47WuTZrrAWUm6UKRHFxSNxk2UxPVzZmh961NjEWLxLE1pT8IuMdscuOyDzwnx3gGWJapGFwC0H5g6Eni8=
-X-Received: by 2002:adf:81e5:: with SMTP id 92mr6842917wra.411.1603992168004;
- Thu, 29 Oct 2020 10:22:48 -0700 (PDT)
-MIME-Version: 1.0
-References: <20201028221302.66583-1-kholk11@gmail.com> <20201028221302.66583-2-kholk11@gmail.com>
- <20201029155053.GA1936493@bogus>
-In-Reply-To: <20201029155053.GA1936493@bogus>
-From:   AngeloGioacchino Del Regno <kholk11@gmail.com>
-Date:   Thu, 29 Oct 2020 18:22:36 +0100
-Message-ID: <CAK7fi1aRTKkA2ouidjB4tyPoCyfTa2-POhUM_9Y2DNphL7=W2A@mail.gmail.com>
-Subject: Re: [PATCH v9 1/3] dt-bindings: Add vendor prefix for Novatek
- Microelectronics Corp.
-To:     Rob Herring <robh@kernel.org>
-Cc:     Rob Herring <robh+dt@kernel.org>, konradybcio@gmail.com,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        dmitry.torokhov@gmail.com, priv.luk@gmail.com, marijns95@gmail.com,
-        phone-devel@vger.kernel.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, andy.shevchenko@gmail.com,
-        rydberg@bitmath.org, martin.botka1@gmail.com,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Thu, 29 Oct 2020 13:22:54 -0400
+ARC-Seal: i=1; a=rsa-sha256; t=1603991262; cv=none; 
+        d=zohomail.eu; s=zohoarc; 
+        b=DrWCjd8A8I8VOg6blkoDCgjv/XygCbazkfN4WIxCz4ti8B0grxvOa4sJT4aUBLjJlh3p/W7ZdX4O7K1WU+KMX9OBE063oxcbzDK/iEOOWt+a3LQbFQAIBwWT1NTFHe8jNnQ9w9D2084aEsoGbG1XcHgcR25bm0Nxow2bBovlv+E=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+        t=1603991262; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
+        bh=hUmFdMI9FUlbejonFGqmp5zK0uMqmROebKXKG1VfQhU=; 
+        b=E7jsdI3qzF46NKw+dwZFF8J12lcL3YagK6NaQqm18c08zCojvP2zVAC1Ja9cwaZjG+eWHt2M+fx4HwWM7Dvzz+4BBhTJYbeQ2zoTs62ydM9ZPq81s8Y/NcQOHLPtbkMwh93gjbsAmozoYpCL8hUNw/MKPQkxZ1ZE/huFZsmJi3Q=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+        spf=pass  smtp.mailfrom=philipp@uvos.xyz;
+        dmarc=pass header.from=<philipp@uvos.xyz> header.from=<philipp@uvos.xyz>
+Received: from localhost.localdomain (ip-95-222-213-32.hsi15.unitymediagroup.de [95.222.213.32]) by mx.zoho.eu
+        with SMTPS id 160399126084676.2687301924716; Thu, 29 Oct 2020 18:07:40 +0100 (CET)
+Date:   Thu, 29 Oct 2020 18:07:40 +0100
+From:   Carl Philipp Klemm <philipp@uvos.xyz>
+To:     tony@atomide.com
+Cc:     linux-omap@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH v2] ARM: dts: motorola-mapphone-common: Add dts
+ configureation for the android buttons beneath the screen
+Message-Id: <20201029180740.2646dfd6b97fb14a48c309b0@uvos.xyz>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Il giorno gio 29 ott 2020 alle ore 16:50 Rob Herring <robh@kernel.org>
-ha scritto:
->
-> On Wed, 28 Oct 2020 23:13:00 +0100, kholk11@gmail.com wrote:
-> > From: AngeloGioacchino Del Regno <kholk11@gmail.com>
-> >
-> > Add prefix for Novatek Microelectronics Corp.
-> >
-> > Signed-off-by: AngeloGioacchino Del Regno <kholk11@gmail.com>
-> > ---
-> >  Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
->
->
-> Please add Acked-by/Reviewed-by tags when posting new versions. However,
-> there's no need to repost patches *only* to add the tags. The upstream
-> maintainer will do that for acks received on the version they apply.
->
-> If a tag was not added on purpose, please state why and what changed.
->
-The intention was to add the tag and I even recall adding it... probably
-my finger slipped and the changes didn't get saved, my bad disattention.
-I should probably stop developing when I'm overtired.
+Uses the touchscreen-buttons driver for the android buttons on the droid 4 / XT894 and droid bionic / XT875
 
-I'm sorry for that.
+Signed-off-by: Carl Philipp Klemm <carl@uvos.xyz>
+
+---
+
+diff --git a/arch/arm/boot/dts/motorola-mapphone-common.dtsi b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+index cef4d8abdaa1..2f78583619b1 100644
+--- a/arch/arm/boot/dts/motorola-mapphone-common.dtsi
++++ b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+@@ -176,6 +176,39 @@ pwm9: dmtimer-pwm-9 {
+ 		ti,clock-source = <0x01>;
+ 	};
+ 
++	mapphone_touchscreen {
++			compatible = "touchscreen-buttons";
++			touchscreen_phandle = <&touchscreen>;
++			menu {
++				x-position = <0>;
++				y-position = <959>;
++				x-size = <256>;
++				y-size = <65>;
++				keycode = <KEY_F9>;
++			};
++			home {
++				x-position = <256>;
++				y-position = <959>;
++				x-size = <256>;
++				y-size = <65>;
++				keycode = <KEY_F10>;
++			};
++			back {
++				x-position = <512>;
++				y-position = <959>;
++				x-size = <256>;
++				y-size = <65>;
++				keycode = <KEY_F11>;
++			};
++			search {
++				x-position = <768>;
++				y-position = <959>;
++				x-size = <256>;
++				y-size = <65>;
++				keycode = <KEY_SEARCH>;
++			};
++	};
++
+ 	vibrator {
+ 		compatible = "pwm-vibrator";
+ 		pwms = <&pwm9 0 10000000 0>, <&pwm8 0 10000000 0>;
+@@ -422,7 +455,7 @@ led@1 {
+ };
+ 
+ &i2c2 {
+-	touchscreen@4a {
++	touchscreen: touchscreen@4a {
+ 		compatible = "atmel,maxtouch";
+ 		reg = <0x4a>;
+ 		pinctrl-names = "default";
+diff --git a/arch/arm/configs/omap2plus_defconfig b/arch/arm/configs/omap2plus_defconfig
+index 80926c919240..aeb79ade844c 100644
+--- a/arch/arm/configs/omap2plus_defconfig
++++ b/arch/arm/configs/omap2plus_defconfig
+@@ -248,6 +248,7 @@ CONFIG_TOUCHSCREEN_TSC2005=m
+ CONFIG_TOUCHSCREEN_TSC2007=m
+ CONFIG_INPUT_MISC=y
+ CONFIG_INPUT_CPCAP_PWRBUTTON=m
++CONFIG_INPUT_TOUCHSCREEN_BUTTONS=m
+ CONFIG_INPUT_TPS65218_PWRBUTTON=m
+ CONFIG_INPUT_TWL4030_PWRBUTTON=m
+ CONFIG_INPUT_UINPUT=m
+
+
+-- 
+Carl Philipp Klemm <philipp@uvos.xyz> <carl@uvos.xyz>

@@ -2,104 +2,90 @@ Return-Path: <SRS0=X7PX=EE=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 470F6C2D0A3
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 07:55:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83065C55178
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 11:50:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DB95A21534
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 07:55:02 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pWwyVCfc"
+	by mail.kernel.org (Postfix) with ESMTP id 27B40207BC
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 11:50:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1603972245;
+	bh=/ukxgWymwdalEMAGTnI3Q15CVWaQiEo4N4EBb/Pw6Y4=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
+	b=fnFzNUBuq5obCdIqQCkwTGgGPcw1Jxv+R4wjK79XktSF9NsNHNYHZqNS4GhlJgGk7
+	 OSdrHpqv2JoTg21yQ9TJVRI6WmliZkOUGI86NvDND4v0ZiUZneISBhgda7q0OkngdT
+	 7vFPt23vlyvVzuUuOdu9WVAq3d8MqAodbyGeChCc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731229AbgJ2Hw6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 29 Oct 2020 03:52:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59976 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731164AbgJ2Hw4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Oct 2020 03:52:56 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC77C0613D5;
-        Thu, 29 Oct 2020 00:52:55 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id x13so1663208pgp.7;
-        Thu, 29 Oct 2020 00:52:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=A6ZAU5wa9ktX7c0HRJNZhphUVL9FdXUzKFXAk/wiNZE=;
-        b=pWwyVCfcqtvuuSvNpcb3W905YuK6YN4Vs0GmSelVFFzIYqY7r+8kpqouaKp34xOsz/
-         vG3VPU7cyL3uzNkb6zDxsKPoXawhXS+N2Em60JBvP/pazRB2OVOO5uPWthZ1ber4XWe2
-         uFUKdGro/DCp87x0M2PwHoCsY9a5s9gsjjD/7lnuQQ/ughA6pvU8L9QNR9cklVHVo5/c
-         3ozVn+sj5I7U2y6YC4/YjJGFExpWrmnwywxQDD/ouDu3yAvAfab+qP49j78xFgWbttwl
-         bVKvyqF3GSNiQCMHlNUmTQxERO7g1JOPrqyoQi6eVfTkPlwUr4VET0pR4AZgN4pB6rNk
-         CUUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=A6ZAU5wa9ktX7c0HRJNZhphUVL9FdXUzKFXAk/wiNZE=;
-        b=JQTvzG8+Gw3zz0odlDZ45HqkDzI3l23sUAbjV2uGjXZ/MOzw/YcYe0I6y1ftWp2o94
-         /KmKPCcmAOgJin9SWE61AXU5uVTVHIuzgqn5NaqUkpPXR44Xhc/iyc7s6o6oHvOjDW8g
-         aL+HMQJrAaygV+OsB8kZPG59U3MGDdjXN7SxkufKlDd+OA4NUWOMxNqCVp1IYDbZ8FhI
-         nosqIJ9+Jhg54nNFHZFmjYIYGLUiHXt5jGC6L6ZjnWuBvuZweJALO5rMKcklgSawrS//
-         M2M1HAgrBmlk30CiyEXh5Of/k4D69daSYqHsM0a63Yznq/lUUNauF5DfHigwX4AO7bg3
-         hBYQ==
-X-Gm-Message-State: AOAM533Amc/h/3k3hkGM2ciq5TGWqgPVejftpOkgr7rT4qjTebGJiqdc
-        h6LjO4qPSmaSm7er+WKFr69LOGiSquhRjA1x
-X-Google-Smtp-Source: ABdhPJz+UxQ1qQpxbyFfwZ0co2YJt3B91TFCx7Ov0UnSgqOpkyvuwRwJ5MilZjvbxQqBA4NjBU8O7A==
-X-Received: by 2002:a63:4c5b:: with SMTP id m27mr3040343pgl.211.1603957975477;
-        Thu, 29 Oct 2020 00:52:55 -0700 (PDT)
-Received: from localhost ([2409:8a28:3c42:6840:9efc:e8ff:fef2:1cdc])
-        by smtp.gmail.com with ESMTPSA id n7sm1627259pgk.70.2020.10.29.00.52.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2020 00:52:55 -0700 (PDT)
-From:   Coiby Xu <coiby.xu@gmail.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org (open list:INPUT (KEYBOARD, MOUSE, JOYSTICK
-        , TOUCHSCREEN)...), linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 1/3] Input: pmic8xxx-keypad: remove unnecessary CONFIG_PM_SLEEP
-Date:   Thu, 29 Oct 2020 15:52:34 +0800
-Message-Id: <20201029075236.228335-1-coiby.xu@gmail.com>
-X-Mailer: git-send-email 2.28.0
+        id S1725797AbgJ2Luo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 29 Oct 2020 07:50:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56440 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725613AbgJ2Luo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 29 Oct 2020 07:50:44 -0400
+Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6AE820796;
+        Thu, 29 Oct 2020 11:50:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1603972243;
+        bh=/ukxgWymwdalEMAGTnI3Q15CVWaQiEo4N4EBb/Pw6Y4=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=Oqam8c8CE/bzz2LawNIvMduP36RlBq+ZTYRtaXOquu7PYfCEih7pA2+hyVD40V32p
+         M6r2JQ+j39eNBXR50OoW1Z1B5D6d86udMJgSjZB28WXBahQEgZ3tH66+Wj2Juxqux1
+         Tx8qhIQCeuAWJ55HPy5VWlgQYfEyC8N2JRLPzJsU=
+Date:   Thu, 29 Oct 2020 12:50:40 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH v2] HID: i2c-hid: Put ACPI enumerated devices in D3 on
+ shutdown
+In-Reply-To: <20201026154606.10409-1-hdegoede@redhat.com>
+Message-ID: <nycvar.YFH.7.76.2010291250310.18859@cbobk.fhfr.pm>
+References: <20201026154606.10409-1-hdegoede@redhat.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-SIMPLE_DEV_PM_OPS has already took good care of CONFIG_PM_CONFIG.
+On Mon, 26 Oct 2020, Hans de Goede wrote:
 
-Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
----
- drivers/input/keyboard/pmic8xxx-keypad.c | 2 --
- 1 file changed, 2 deletions(-)
+> The i2c-hid driver would quietly fail to probe the i2c-hid sensor-hub
+> with an ACPI device-id of SMO91D0 every other boot.
+> 
+> Specifically, the i2c_smbus_read_byte() "Make sure there is something at
+> this address" check would fail every other boot.
+> 
+> It seems that the BIOS does not properly reset/power-cycle the device
+> leaving it in a confused state where it refuses to respond to i2c-xfers.
+> On boots where probing the device failed, the driver-core puts the device
+> in D3 after the probe-failure, which causes the probe to succeed the next
+> boot.
+> 
+> Putting the device in D3 from the shutdown-handler fixes the sensors not
+> working every other boot.
+> 
+> This has been tested on both a Lenovo Miix 2-10 and a Dell Venue 8 Pro 5830
+> both of which use an i2c-hid sensor-hub with an ACPI id of SMO91D0.
+> 
+> Note that it is safe to call acpi_device_set_power() with a NULL pointer
+> as first argument, so on none ACPI enumerated devices this change is a
+> no-op.
+> 
+> Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
-index 91d5811d6f0e..c04ab04331b2 100644
---- a/drivers/input/keyboard/pmic8xxx-keypad.c
-+++ b/drivers/input/keyboard/pmic8xxx-keypad.c
-@@ -621,7 +621,6 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_PM_SLEEP
- static int pmic8xxx_kp_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
-@@ -661,7 +660,6 @@ static int pmic8xxx_kp_resume(struct device *dev)
- 
- 	return 0;
- }
--#endif
- 
- static SIMPLE_DEV_PM_OPS(pm8xxx_kp_pm_ops,
- 			 pmic8xxx_kp_suspend, pmic8xxx_kp_resume);
+Applied, thanks.
+
 -- 
-2.28.0
+Jiri Kosina
+SUSE Labs
 

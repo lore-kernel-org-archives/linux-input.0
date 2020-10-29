@@ -2,134 +2,95 @@ Return-Path: <SRS0=X7PX=EE=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74089C55179
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 16:25:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25F3AC55179
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 16:46:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C9F220838
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 16:25:37 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KrN1BkAH"
+	by mail.kernel.org (Postfix) with ESMTP id 7831C20EDD
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 16:46:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725784AbgJ2QZg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 29 Oct 2020 12:25:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55004 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725764AbgJ2QZg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Oct 2020 12:25:36 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFBC4C0613D2;
-        Thu, 29 Oct 2020 09:25:35 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id k9so1072782pgt.9;
-        Thu, 29 Oct 2020 09:25:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=3Sus15uWA6w8qigrNG43zUpD+rV5kcttYLaM0yd967o=;
-        b=KrN1BkAHZbSipbqNIWGbwhF4zxjgjhsy08N+pJi+hZbbDtFU4nn9kK3GIv5gQR/ULO
-         y4dDXNJ21GgknMb3nO+FugCWOB8D0ylkEjjXywgzygZsVinzFWx8lekm4WbYHxhEejlL
-         m9B7b+nPxt/aFX6d9fYNt1s7Teynf+bB7tCY8OuxdS8tCy66l9/ztA9UxzawfqqEcqxd
-         xRJRWGUHXHdw3zvfzWf9w3sNVg38qWJLvLvt0keighGwSae2Ot6U40yhSnxV0liES50N
-         UbmY+BwT6SKkodEL9Ig/8JMGAaVTThM8AK3uao8aiTPcXOfx/R4ayTeNaLZUMWTYwQ2J
-         wGPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=3Sus15uWA6w8qigrNG43zUpD+rV5kcttYLaM0yd967o=;
-        b=Tmloj5KrKQUSGi/GfYWPCFLF6cmtFsr+k96e3eL2Q4ObbWW66ShHTfEv/ex9/bc0+O
-         prdo2800+GK6bDutqX/ZY+eJ7zbIxFTphd4iwxgl5vI8hamg4Bs2X/5NNQoXmdVNdGmT
-         SDgcSSGvEn7ZupBunTySsBxy78VdardO77CT6yO5aU4l3+mPusQF5YEnZColycS5GcLO
-         kAAL57RKDB7h3A65COQ8hdeU4DqMtjCJ6XcIN1yTf9rHhA/NqVqDxKYA6BsuvmwzJFet
-         tHEQGqs9EqI1Nrm/y2jbIO2NVyHYx2hxlvqrjq6Vz99SDgiRnuTUTtTuV7mLcNdXpFLa
-         fH5A==
-X-Gm-Message-State: AOAM530u9oydzWv8gVNVKjempF/qzzfOLEu/rdb4SOLyu7F0epZpp6jF
-        T4XPiD6Y3lcOwnQpg/1GVjQ=
-X-Google-Smtp-Source: ABdhPJykD7pCjW9SNhGlSP9mIjxhvJzD4H32iRjUBNl/l0hRhQG2Ij7TwRjSS9Nl/UWc68JBSAspbg==
-X-Received: by 2002:a17:90a:1188:: with SMTP id e8mr566544pja.61.1603988735197;
-        Thu, 29 Oct 2020 09:25:35 -0700 (PDT)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id x7sm3534070pfr.61.2020.10.29.09.25.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2020 09:25:34 -0700 (PDT)
-Date:   Thu, 29 Oct 2020 09:25:31 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     Linux Input <linux-input@vger.kernel.org>,
-        Nick Dyer <nick@shmanahar.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>
-Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts: Convert bindings to YAML and
- extend
-Message-ID: <20201029162531.GB2547185@dtor-ws>
-References: <20201028101711.696423-1-linus.walleij@linaro.org>
- <20201028180059.GA2547185@dtor-ws>
- <CACRpkdaieExkEyjE=+GbQTVKsk21ifH9mm+q4vengqgbQ=Jd_A@mail.gmail.com>
+        id S1726626AbgJ2Qqk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 29 Oct 2020 12:46:40 -0400
+Received: from mx3.molgen.mpg.de ([141.14.17.11]:44835 "EHLO mx1.molgen.mpg.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726105AbgJ2QqU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 29 Oct 2020 12:46:20 -0400
+Received: from [192.168.0.2] (ip5f5af455.dynamic.kabel-deutschland.de [95.90.244.85])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 6408120643C72;
+        Thu, 29 Oct 2020 17:46:18 +0100 (CET)
+Subject: Re: Dell XPS 13 9310: PNP: DLL0991 PNP0f13 supports different bus
+To:     Mario Limonciello <Mario.Limonciello@dell.com>
+Cc:     it+linux-input@molgen.mpg.de, linux-input@vger.kernel.org
+References: <22fc1c31-3fcc-c029-1fc5-26859a68da0d@molgen.mpg.de>
+ <DM6PR19MB26367B8BBE1FE7912ABABC14FA140@DM6PR19MB2636.namprd19.prod.outlook.com>
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+Message-ID: <d9c42be7-8678-d4e7-48f3-533aef54c829@molgen.mpg.de>
+Date:   Thu, 29 Oct 2020 17:46:18 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACRpkdaieExkEyjE=+GbQTVKsk21ifH9mm+q4vengqgbQ=Jd_A@mail.gmail.com>
+In-Reply-To: <DM6PR19MB26367B8BBE1FE7912ABABC14FA140@DM6PR19MB2636.namprd19.prod.outlook.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Oct 29, 2020 at 02:47:36PM +0100, Linus Walleij wrote:
-> On Wed, Oct 28, 2020 at 7:01 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Wed, Oct 28, 2020 at 11:17:10AM +0100, Linus Walleij wrote:
+Dear Mario,
+
+
+Am 29.10.20 um 17:21 schrieb Limonciello, Mario:
+
+>> From: Paul Menzel <pmenzel@molgen.mpg.de>
+>> Sent: Thursday, October 29, 2020 11:16
+
+>> [EXTERNAL EMAIL]
+
+>> On a Dell XPS 13 9310, Linux 5.9.1 from Debian Sid/unstable displays the
+>> message below.
+>>
+>>       [    2.218614] psmouse serio1: synaptics: Your touchpad (PNP: DLL0991 PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi are not used, you might want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org.
+>>
+>> I am going to ask the user for a test of
+>> `psmouse.synaptics_intertouch=1`, so the ID can be added to the force
+>> list, but until know no Dell DLLXXXX ids show up there.
 > 
-> > > This converts the Armel MXT touchscreen bindings to YAML
-> > > format and extends them with the following two properties:
-> > >
-> > > - vdda-supply: the optional analog supply voltage
-> > > - vdd-supply: the optional digital supply voltage
-> > >
-> > > I also explained about the reset-gpios property that this
-> > > better be flagged as active high (0) despite actually
-> > > being active low, because all current device trees and
-> > > drivers assume that this is the case and will actively
-> > > drive the line low to assert RESET.
-> >
-> > I wonder if we should fix that in driver and in DTs instead of doing
-> > this cludge...
+> I happen to have one of these on my desk and on 5.10-rc1 I don't see this behavior:
 > 
-> Unfortunately I think there are deployed systems with flashed-in
-> system descriptions depending on this bug in the system
-> description already.
+> $ sudo dmesg | grep DLL0945
+> [    1.244165] i2c_hid i2c-DLL0945:00: supply vdd not found, using dummy regulator
+> [    1.244201] i2c_hid i2c-DLL0945:00: supply vddl not found, using dummy regulator
+> [    1.404053] input: DLL0945:00 06CB:CDE6 Mouse as /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-2/i2c-DLL0945:00/0018:06CB:CDE6.0001/input/input6
+> [    1.404134] input: DLL0945:00 06CB:CDE6 Touchpad as /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-2/i2c-DLL0945:00/0018:06CB:CDE6.0001/input/input7
+> [    1.404196] hid-generic 0018:06CB:CDE6.0001: input,hidraw0: I2C HID v1.00 Mouse [DLL0945:00 06CB:CDE6] on i2c-DLL094
+> :00
+> [   42.971148] input: DLL0945:00 06CB:CDE6 Mouse as /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-2/i2c-DLL0945:00/0018:06CB:CDE6.0001/input/input12
+> [   42.972073] input: DLL0945:00 06CB:CDE6 Touchpad as /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-2/i2c-DLL0945:00/0018:06CB:CDE6.0001/input/input13
+> [   42.972182] hid-multitouch 0018:06CB:CDE6.0001: input,hidraw0: I2C HID v1.00 Mouse [DLL0945:00 06CB:CDE6] on i2c-DLL0945:00
 > 
-> I am not thinking about device trees now, but instead ACPI
-> chromebooks, that have their reset line flagged as whatever
-> ACPI or DT-to-ACPI use to indicate an active high line.
-> Despite being active low.
+> Can you please make sure that pinctrl_tigerlake is loaded?
 
-The only ARM Chromebook that exposed reset line to the kernel was RK3288
-Asus Chromebook "Minnie". DTS specifies correct polarity (active low),
-but uses different binding (atmel,reset-gpios) from the driver found
-upstream (I have never reconciled Atmel driver we ship with Chromebooks
-with the upstream one). DT there is also part of the kernel, not flashed
-separately.
+Debian’s Linux configuration does not build the driver.
 
-x86 Chromebooks do not export reset line or regulators to the kernel but
-rather handle power up/down sequence in firmware (either at boot or
-exposing ACPI power control methods that kernel invokes form ACPI power
-domain code).
+     # CONFIG_PINCTRL_TIGERLAKE is not set
 
-> 
-> I could fix all the in-tree devicetrees and do it the natural way
-> (I have certainly done so before) and then add a quirk if used
-> with ACPI. But it's really risky. I'm afraid of regressions here.
+I reported bug *linux: Select PINCTRL_TIGERLAKE to support current 
+hardware* to Debian bug tracking system [1].
 
-Unless there are unofficial firmwares that rework power handling on some
-x86 Chromebooks and we want to support them I'd rather we did not quirk.
+Thank you very much.
 
-Thanks.
 
--- 
-Dmitry
+Kind regards,
+
+Paul
+
+
+[1]: https://bugs.debian.org/973372

@@ -2,114 +2,127 @@ Return-Path: <SRS0=X7PX=EE=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8F03C4363A
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 17:24:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04753C2D0A3
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 17:45:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8CAD020790
-	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 17:24:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8ECE720790
+	for <linux-input@archiver.kernel.org>; Thu, 29 Oct 2020 17:45:39 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="keZVC2nC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726811AbgJ2RYz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 29 Oct 2020 13:24:55 -0400
-Received: from sender11-of-o52.zoho.eu ([31.186.226.238]:21355 "EHLO
-        sender11-of-o52.zoho.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727368AbgJ2RYz (ORCPT
+        id S1727697AbgJ2Rpa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 29 Oct 2020 13:45:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39682 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725777AbgJ2Rpa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Oct 2020 13:24:55 -0400
-ARC-Seal: i=1; a=rsa-sha256; t=1603991362; cv=none; 
-        d=zohomail.eu; s=zohoarc; 
-        b=B8Z0XYdSYl9TWLWxFpqfxqD7JRDj+4iQ+8sqZgwZrRar+6pjIce817o7sYgDq9kv4heTQbb9HLe+h6cECRyyZj+MJ+AUZupcVw5rCZwDetV/Mly2JjdoGarbJqQ7XDPZIMkr0K73dia0CO72E9ormwVFwaBGlg+Q4JgVLVDISDc=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
-        t=1603991362; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
-        bh=9Tr2P9DR36UFNpHv3c8ZcdoeNbs4qYkslgkrMEyGCwU=; 
-        b=FtoVUAVoau79YXgLLDK/ZvHMx0DDlp81eqdNojW/Atr5tYT2AXWuZU4JZOZLFkcd/FpOQupEyewBdjeb3YTMuoeSLr7o1hRODDtryj4ZgGulgbI+mKpWqA/agO4J+EIy3gM3YnXuKeMjqHgP4woua51YjFCHdmPUL+yRGGEvudE=
-ARC-Authentication-Results: i=1; mx.zohomail.eu;
-        spf=pass  smtp.mailfrom=philipp@uvos.xyz;
-        dmarc=pass header.from=<philipp@uvos.xyz> header.from=<philipp@uvos.xyz>
-Received: from localhost.localdomain (ip-95-222-213-32.hsi15.unitymediagroup.de [95.222.213.32]) by mx.zoho.eu
-        with SMTPS id 1603991359354993.3246506194793; Thu, 29 Oct 2020 18:09:19 +0100 (CET)
-Date:   Thu, 29 Oct 2020 18:09:18 +0100
-From:   Carl Philipp Klemm <philipp@uvos.xyz>
-To:     tony@atomide.com
-Cc:     linux-omap@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH] documentation: dts documentation for touchscreen-buttons
-Message-Id: <20201029180918.4f0d8a256ce4fc2890def5ac@uvos.xyz>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+        Thu, 29 Oct 2020 13:45:30 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAF36C0613CF;
+        Thu, 29 Oct 2020 10:45:28 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id i7so1021254pgh.6;
+        Thu, 29 Oct 2020 10:45:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=5f7qhadfWduXYz6g9qMehuuDkBNh1i8FL4UUvnf55YI=;
+        b=keZVC2nCFfiWp+UAImpguKdH/WBVPGsrcpnD6Dh6qIcJ535Ze10ngriIhch0MFkPha
+         Op2tUVv112FypuPXjD9Wu7BMr3KrU0f7u2HgWnTvOd9WwfvRS4QGRnEOt6SHxbqN3+Z+
+         kYwitz5ypqB3FpanujsCutUeTwbwExBHbCCtZCP0Vsi//+X7H15gRQqEbMVX9blwDrwq
+         thlS/klE5vI7p5MHpkW5CtGX4cRCwJhU9cvx5QB0X2zETYiJXEaXjxdiFuWTlcv1OJZI
+         8NnXRqTynKh99K+SNpZB+tYhe6w7Vcr1du85COGdNyyHzYHP07bi3xeoVMjpxwQouCo2
+         j5hQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=5f7qhadfWduXYz6g9qMehuuDkBNh1i8FL4UUvnf55YI=;
+        b=FRe67+cmpYPNkFASuyqR6CQgOv6GC3jgtK6dbqOW/27KFgy5Uyifek9JYdEzE974dD
+         gkiij4rlplv9aaKBG3+tmwdQk8FhGLSpDRbXlSgAbdhq3KYf4c/fI5/McQdPiy7/il03
+         Udwa/ptLqHgL9j3NRe1nDtwyPgx6gNXJlfS8iuDzJ6p2Lx7qBTAN3q5io6XK0JTYCX0Y
+         7J6jY/Zeo7WJ1aTJ4ihfycNMr+7N4mjnBy3BgykIUKkf+oZSxr2Qi5d9rRTKJu3gfMtM
+         zvtbviziRKdQnbO3gEx6X6dzeVoPjQlmsv5YbaVMsvorX2XW0NdsMFRN420vtIfBe3Op
+         6r5g==
+X-Gm-Message-State: AOAM533BZx0vHAZs1iREuLIWEEg0jpxl5+BEFJce01a3zsx63mx6f6r3
+        t2k7Az0C8Lifhwd76j3hTd/56PalMOo=
+X-Google-Smtp-Source: ABdhPJx5CnzFgnh3jVSCvERAlDXMwpRX4IPdJZehJnsRFjWmI4GZt0EKtYCRUvxXLoF89xOxOLrryw==
+X-Received: by 2002:a63:1649:: with SMTP id 9mr4773894pgw.91.1603993528137;
+        Thu, 29 Oct 2020 10:45:28 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id y137sm3514219pfc.77.2020.10.29.10.45.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Oct 2020 10:45:27 -0700 (PDT)
+Date:   Thu, 29 Oct 2020 10:45:24 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc:     HyungJae Im <hj2.im@samsung.com>,
+        "manivannan.sadhasivam@linaro.org" <manivannan.sadhasivam@linaro.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "rydberg@bitmath.org" <rydberg@bitmath.org>,
+        Jungrae Kim <jryu.kim@samsung.com>
+Subject: Re: [PATCH v2] input: add 2 kind of switch
+Message-ID: <20201029174524.GC2547185@dtor-ws>
+References: <CGME20201029132747epcms1p8fae559dff47bf0eebdcc9f94efd9a1bf@epcms1p8>
+ <20201029132747epcms1p8fae559dff47bf0eebdcc9f94efd9a1bf@epcms1p8>
+ <20201029135715.GB3470996@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201029135715.GB3470996@kroah.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dts documentation for touchscreen-buttons
+On Thu, Oct 29, 2020 at 02:57:15PM +0100, gregkh@linuxfoundation.org wrote:
+> On Thu, Oct 29, 2020 at 10:27:47PM +0900, HyungJae Im wrote:
+> > From: "hj2.im" <hj2.im@samsung.com>
+> > Date: Thu, 29 Oct 2020 22:11:24 +0900
+> > Subject: [PATCH v2] input: add 2 kind of switch
+> 
+> Why is this in the body of that patch?
+> 
+> > 
+> > We need support to various accessories on the device,
+> > some switch does not exist in switch list.
+> > So added switch for the following purpose.
+> > 
+> > SW_COVER_ATTACHED is for the checking the cover
+> > attached or not on the device. SW_EXT_PEN_ATTACHED is for the
+> > checking the external pen attached or not on the device
+> 
+> You didn't answer the previous question as to why the existing values do
+> not work for you instead of having to create new ones?
+> 
+> 
+> > 
+> > Signed-off-by: Hyungjae Im <hj2.im@samsung.com>
+> > ---
+> >  drivers/input/Kconfig                  |  20 ++
+> >  drivers/input/Makefile                 |   3 +
+> >  drivers/input/cover_detect.c           | 242 ++++++++++++++++++++++++
+> >  drivers/input/ext_pen_detect.c         | 243 +++++++++++++++++++++++++
+> >  include/linux/mod_devicetable.h        |   2 +-
+> >  include/uapi/linux/input-event-codes.h |   4 +-
+> >  6 files changed, 512 insertions(+), 2 deletions(-)
+> >  create mode 100644 drivers/input/cover_detect.c
+> >  create mode 100644 drivers/input/ext_pen_detect.c
+> 
+> If this is v2, what changed from v1?
+> 
+> And this is 2 different drivers, it should be 2 different patches at the
+> least, right?>
 
-Signed-off-by: Carl Philipp Klemm <carl@uvos.xyz>
+Actually the should simply use gpio-keys.c for this and dispense with
+the custom drivers.
 
----
-
-diff --git a/Documentation/devicetree/bindings/input/misc/touchscreen-buttons.txt b/Documentation/devicetree/bindings/input/misc/touchscreen-buttons.txt
-new file mode 100644
-index 000000000000..5ca2fdb73ebc
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/misc/touchscreen-buttons.txt
-@@ -0,0 +1,50 @@
-+Phyiscal buttons on touchscreen surfaces
-+
-+This module provides a driver for buttons with phyiscal labels on touchscreen surfaces.
-+
-+Required properties:
-+- compatible: should be one of the following
-+   - "touchscreen-buttons"
-+- touchscreen_phandle: a handle to the touschreen device where the buttons are located
-+- an arbitrary number of child_nodes containing:
-+   - x-position: position of the button on the x-axis in touchscreen coordinates
-+   - y-position: position of the button on the y-axis in touchscreen coordinates
-+   - x-size: size of the button in x-axis direction in touchscreen coordinates
-+   - y-size: size of the button in y-axis direction in touchscreen coordinates
-+   - keycode: the keycode to be activated when the button is pressed
-+
-+
-+Example:
-+
-+mapphone_touchscreen {
-+		compatible = "touchscreen-buttons";
-+		touchscreen_phandle = <&touchscreen>;
-+		menu {
-+			x-position = <0>;
-+			y-position = <959>;
-+			x-size = <256>;
-+			y-size = <65>;
-+			keycode = <KEY_F9>;
-+		};
-+		home {
-+			x-position = <256>;
-+			y-position = <959>;
-+			x-size = <256>;
-+			y-size = <65>;
-+			keycode = <KEY_F10>;
-+		};
-+		back {
-+			x-position = <512>;
-+			y-position = <959>;
-+			x-size = <256>;
-+			y-size = <65>;
-+			keycode = <KEY_F11>;
-+		};
-+		search {
-+			x-position = <768>;
-+			y-position = <959>;
-+			x-size = <256>;
-+			y-size = <65>;
-+			keycode = <KEY_SEARCH>;
-+		};
-+};
-
+Thanks.
 
 -- 
-Carl Philipp Klemm <philipp@uvos.xyz> <carl@uvos.xyz>
+Dmitry

@@ -7,62 +7,63 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CCAEC4741F
-	for <linux-input@archiver.kernel.org>; Fri, 30 Oct 2020 10:52:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94DE6C00A89
+	for <linux-input@archiver.kernel.org>; Fri, 30 Oct 2020 11:01:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFE682231B
-	for <linux-input@archiver.kernel.org>; Fri, 30 Oct 2020 10:52:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B06422227
+	for <linux-input@archiver.kernel.org>; Fri, 30 Oct 2020 11:01:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DsuxCjZp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KyX2m6PT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726430AbgJ3Kwy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 30 Oct 2020 06:52:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:32085 "EHLO
+        id S1726230AbgJ3LBZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 30 Oct 2020 07:01:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:46130 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726199AbgJ3Kwx (ORCPT
+        by vger.kernel.org with ESMTP id S1726276AbgJ3LBX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 30 Oct 2020 06:52:53 -0400
+        Fri, 30 Oct 2020 07:01:23 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1604055128;
+        s=mimecast20190719; t=1604055680;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=Z1EL/9Be6tly17XVpcb5msTAyiBBVJln1M0uiO+xToM=;
-        b=DsuxCjZp88feQ3fzLFFEagswBtCbft7QSmKNHyEUd4Av8cUxahKiYn9cBH9g+Q6XDCtT5P
-        ZgcT20JJIDZel4ZtnkZ1udnrqjCke1l72h7pei9Mtd2VOeRTTd4HyDxWxxd6LQp70Hud2+
-        aGhk8GYOdLRpW/SzjW+PZXn9mdLyy5Q=
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
- [209.85.214.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-64-FoxSuwBGOPWDOex14KSAYA-1; Fri, 30 Oct 2020 06:52:05 -0400
-X-MC-Unique: FoxSuwBGOPWDOex14KSAYA-1
-Received: by mail-pl1-f197.google.com with SMTP id 97so4232837plb.4
-        for <linux-input@vger.kernel.org>; Fri, 30 Oct 2020 03:52:05 -0700 (PDT)
+        bh=S5QGM5P6b9ARkEdABLTK/zb8A9b8E1Yedm8BuogwyYA=;
+        b=KyX2m6PTwrwYPhBbuQ/4ffYT3XeUjzjKxX5EqqPGmcllVBlLYiB4MIqunJyEXZF0qjfUXb
+        9U7FxQ6BiBTznlPIZOQWg5NoJAwSbOCU9jMHSJN61aMp1qN4NKOF0UNub9KpWaXbiPR2dj
+        sHNMKfvwYF1dksqxI1x9d1rJxcOgzqM=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-298-wQ-vh07VMfKI4VVrc1Jb5g-1; Fri, 30 Oct 2020 07:01:16 -0400
+X-MC-Unique: wQ-vh07VMfKI4VVrc1Jb5g-1
+Received: by mail-pl1-f200.google.com with SMTP id q4so4218886plr.11
+        for <linux-input@vger.kernel.org>; Fri, 30 Oct 2020 04:01:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Z1EL/9Be6tly17XVpcb5msTAyiBBVJln1M0uiO+xToM=;
-        b=PFqjZN3Jr7WFIneiR9VefxB4dFZKQ+IJ7An9mLm/WimDFZ82SAqJQGzmFWZYpf3Y6b
-         08fJzoDaHS+5/wYgB5EP6QYkC3NK+wA+mZCbXtvFzLchC1EVlw3UEtKACTIo+N8ocV9+
-         mL598qsMNO8n2GDOftp0erk+UQQsfvtuQbCk1P3Sk56rssf59+DbS1ZeymTsrVF4+kjZ
-         r3qfbSTQnXhmk1sDWgT17DPUCfiRkah9OmqG/ZCYwpebC2+DixDFqMdn+Ws2AbQZ/H+E
-         UiJhgwLfbgJMVnEjFUuema0P4wAzCUqX+Q5iOBzFc5m+dxYBjqP+eHt2ckOHl8Fnvx84
-         uHoA==
-X-Gm-Message-State: AOAM531ZjwWj95Wh+3yy3PlpUkBTjkWp4LUzaOeY5DxoqKHIKmCTk7TE
-        wHAPg08TgE+axYSV2uF0lUmZsb8FJK/zKZF64SiGL0Fw1FmN5eKVcnpvR8z8jW+V0Eb0qkHhZ9S
-        4PDa30cgMmGqCk6XGjOTDPV7sGO/P3qIQZmWyIls=
-X-Received: by 2002:a17:90a:3d0f:: with SMTP id h15mr2123544pjc.234.1604055124705;
-        Fri, 30 Oct 2020 03:52:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyZm8Jjrt7RwQSmEXD6n0EGanX49bnWzOOT4SJxESfA9P6Q0Zin/X974quyCTlaFgiQZ0aiYXBGx0kCgB58FOk=
-X-Received: by 2002:a17:90a:3d0f:: with SMTP id h15mr2123522pjc.234.1604055124441;
- Fri, 30 Oct 2020 03:52:04 -0700 (PDT)
+        bh=S5QGM5P6b9ARkEdABLTK/zb8A9b8E1Yedm8BuogwyYA=;
+        b=OcpLDQ4pu08SeL/hDhsgFRqWymnWSL2jWVgNH+Xm1rWoxY2zbJNdq4VBIQ9rBasWb5
+         cHofFouoXLwCuKTPmy8XmWcnFxBI/vOwbj+a/V8KZGYReh+84lfPZaGqPO8hgu8r5j6o
+         goyNCyE3KnIBYJbj0eTXRX/9HNqx3IoovfOtr80ipEXDascuBIhWsUbjYRBb9mjMGPbE
+         nHCT0NDQiTxItTH3R7DJ35mLkGcV4BihSGFxEDj5veSrl9s2Uua47ihtFc8rQvm8MkHp
+         rrwMhy5jNgKCVEWnkXtf6JlxqvkbrWbo9PvQUf/uE3+YLTNcdGADOBD1Mt2XEZ3Kk3eT
+         7e6A==
+X-Gm-Message-State: AOAM533U7/bAaoO1AcN0GB/Rv89625r4qyasMmqoufxFYc2w5h94AHXy
+        ndTniA6xY2cDalGAN9kIwIih+kvjBtgFlbVUjgijGbkQrK/sLErD3pgJSBGup2UIXhzLjYJZb5L
+        aRbydkA8T+iJ/igUtKKGqNHK10nh8P9QaIm7MwGI=
+X-Received: by 2002:a17:90a:3d0f:: with SMTP id h15mr2165816pjc.234.1604055675462;
+        Fri, 30 Oct 2020 04:01:15 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxCoz4UgkfUvLFKuUDZUK1pZfx793wwOva7KOR4Dsj6XiL9iruQJKlXna7TJNdtO560pzRNC5AF0RMIkMfqIak=
+X-Received: by 2002:a17:90a:3d0f:: with SMTP id h15mr2165755pjc.234.1604055675036;
+ Fri, 30 Oct 2020 04:01:15 -0700 (PDT)
 MIME-Version: 1.0
 References: <20201023162220.v2.1.I45b53fe84e2215946f900f5b28bab1aa9d029ac7@changeid>
-In-Reply-To: <20201023162220.v2.1.I45b53fe84e2215946f900f5b28bab1aa9d029ac7@changeid>
+ <20201023162220.v2.3.Ied4ce10d229cd7c69abf13a0361ba0b8d82eb9c4@changeid>
+In-Reply-To: <20201023162220.v2.3.Ied4ce10d229cd7c69abf13a0361ba0b8d82eb9c4@changeid>
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Fri, 30 Oct 2020 11:51:53 +0100
-Message-ID: <CAO-hwJLn5XKV+cp+fCRY395uBWuX=JrxgiGSHUnJXFpTzFWu4w@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] dt-bindings: HID: i2c-hid: Label this binding as deprecated
+Date:   Fri, 30 Oct 2020 12:01:04 +0100
+Message-ID: <CAO-hwJ+TovXt6aTqcNeXY5nmSk7WHHb_mh+uKkM_zQjFqXWqng@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] HID: i2c-hid: Support the Goodix GT7375P touchscreen
 To:     Douglas Anderson <dianders@chromium.org>
 Cc:     Jiri Kosina <jkosina@suse.cz>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -70,9 +71,11 @@ Cc:     Jiri Kosina <jkosina@suse.cz>,
         "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
         Stephen Boyd <swboyd@chromium.org>,
         Hans De Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        DTML <devicetree@vger.kernel.org>,
+        Aaron Ma <aaron.ma@canonical.com>,
+        Daniel Playfair Cal <daniel.playfair.cal@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>, Pavel Balan <admin@kryma.net>,
+        Xiaofei Tan <tanxiaofei@huawei.com>,
+        You-Sheng Yang <vicamo.yang@canonical.com>,
         lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
@@ -81,90 +84,222 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Hi Doug,
 
-Foreword: I was about to say "yeah, whatever" to please Rob for once.
-But after re-reading this and more specifically patch 3 of the series,
-that won't do. More comments inlined.
-
 On Sat, Oct 24, 2020 at 1:23 AM Douglas Anderson <dianders@chromium.org> wrote:
 >
-> As pointed out by Rob Herring [1], we should have a device-specific
-> compatible string.  This means people shouldn't be using the
-> "i2c-over-hid" compatible string anymore, or at least not without a
-> more specific compatible string before it.  Specifically:
+> The Goodix GT7375P touchscreen uses i2c-hid so we can support it with
+> just a few changes to the i2c-hid driver.  Specifically this
+> touchscreen needs to control a reset GPIO during its power sequencing.
 >
-> 1. For newly added devices we should just have the device-specific
->    device string (no "hid-over-i2c" fallback) and infer the timings
->    and hid-descr-addr from there.
+> The Goodix timing diagram shows this:
+>
+>          +----------------------------------
+>          |
+> AVDD ----+
+>                +------------------------------
+>          | (a) |
+> RESET ---------+
+>                      +-------------
+>                | (b) |
+> I2C comm OK ---------+
+>
+> Where (a) is 10 ms and (b) is 120 ms.
 
-And that's a big NACK from a maintainer point of view. I know in the
-device tree world these strings are important so that people can just
-say "I have a device compatible with X", and go on, but in the HID
-world that means we will have to implement one compatible struct per
-vendor/device, which is not something I want to do.
-
-You can think of it as if you are suddenly saying that because it
-would be easier for a few particular USB devices that need a quirk,
-you "just" need to add the list of *all* USB HID devices that are
-around. i2c-hid should be a driver that doesn't change unless 2 things
-happen:
-- there is a change in the spec
-- there is a specific quirk required for a device that doesn't follow the spec.
-
-So if having device tree support for these means we suddenly need to
-add every single device around in the compatible table, I would be
-tempted to just drop the support for those new devices.
-
-Again, you (or anyone else) have to understand that the descriptor
-address is just a parameter which is known at the manufacturing time,
-but that can vary with different vendors and or products. In the ACPI
-world, this parameter is provided in the DSDT, and there is no reason
-for it to not be provided in the DT.
-
-The last thing I want to see is people using device tree having to
-recompile i2c-hid to register their own device.
-
-If this part of the Device Tree binding is so important for the DT
-world, then we should split up the DT bindings from i2c-hid, and have
-some platform driver that would handle a conversion between devicetree
-and platform data. But this driver won't be maintained by me.
-
-I agree adding the various sleep parameters in the platform data is
-not good, but I prefer that over having to maintain an endless table
-of parameters for every single i2c-hid device out there.
-
-Cheers,
-Benjamin
-
+These timing issues always bother me. Is there any hint that this
+particular touchscreen model is "certified" for a Windows usage?
+Because if so, then we might as well mimic the timings the Windows
+driver is doing instead of adding parameters for every single device.
 
 >
-> 2. If there's a need for a device tree to be backward compatible, we
->    should list the device-specific compatible string and add the
->    "hid-over-i2c" fallback and the various timings.
->
-> [1] https://lore.kernel.org/r/20201019211036.GA3595039@bogus
+> While we could just add some properties and specify this generically
+> in the device tree, the guidance from the device tree maintainer is
+> that it's better to list the specific model and infer everything from
+> there.  Thus that's what this patch implements.
 >
 > Signed-off-by: Douglas Anderson <dianders@chromium.org>
 > ---
 >
 > Changes in v2:
-> - ("dt-bindings: HID: i2c-hid: Label this binding as deprecated") new in v2.
+> - Use a separate compatible string for this new touchscreen.
+> - Get timings based on the compatible string.
 >
->  Documentation/devicetree/bindings/input/hid-over-i2c.txt | 3 +++
->  1 file changed, 3 insertions(+)
+>  drivers/hid/i2c-hid/i2c-hid-core.c    | 50 ++++++++++++++++++++++++++-
+>  include/linux/platform_data/i2c-hid.h |  5 +++
+>  2 files changed, 54 insertions(+), 1 deletion(-)
 >
-> diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> index c76bafaf98d2..733a5f053280 100644
-> --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> @@ -1,5 +1,8 @@
->  * HID over I2C Device-Tree bindings
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 786e3e9af1c9..0b2cd78b05e1 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -71,6 +71,12 @@ do {                                                                   \
+>                 dev_printk(KERN_DEBUG, &(ihid)->client->dev, fmt, ##arg); \
+>  } while (0)
 >
-> +WARNING: this binding is deprecated.  Instead of using this, create specific
-> +bindings for each hid-over-i2c device.
+> +struct i2c_hid_match_data {
+> +       u16 hid_descriptor_address;
+> +       int post_power_delay_ms;
+> +       int post_gpio_reset_delay_ms;
+> +};
 > +
->  HID over I2C provides support for various Human Interface Devices over the
->  I2C bus. These devices can be for example touchpads, keyboards, touch screens
->  or sensors.
+>  struct i2c_hid_desc {
+>         __le16 wHIDDescLength;
+>         __le16 bcdVersion;
+> @@ -962,6 +968,21 @@ static inline void i2c_hid_acpi_enable_wakeup(struct device *dev) {}
+>  #endif
+>
+>  #ifdef CONFIG_OF
+> +static bool i2c_hid_init_from_of_match(struct device *dev,
+> +                                      struct i2c_hid_platform_data *pdata)
+> +{
+> +       const struct i2c_hid_match_data *match_data = device_get_match_data(dev);
+> +
+> +       if (!match_data)
+> +               return false;
+> +
+> +       pdata->hid_descriptor_address = match_data->hid_descriptor_address;
+> +       pdata->post_power_delay_ms = match_data->post_power_delay_ms;
+> +       pdata->post_gpio_reset_delay_ms = match_data->post_gpio_reset_delay_ms;
+> +
+> +       return true;
+> +}
+> +
+>  static int i2c_hid_of_probe(struct i2c_client *client,
+>                 struct i2c_hid_platform_data *pdata)
+>  {
+> @@ -969,6 +990,11 @@ static int i2c_hid_of_probe(struct i2c_client *client,
+>         u32 val;
+>         int ret;
+>
+> +       /* Try getting everything based on the compatible string first */
+> +       if (i2c_hid_init_from_of_match(&client->dev, pdata))
+> +               return 0;
+> +
+> +       /* Fallback to getting hid-descr-addr from a property */
+>         ret = of_property_read_u32(dev->of_node, "hid-descr-addr", &val);
+>         if (ret) {
+>                 dev_err(&client->dev, "HID register address not provided\n");
+> @@ -984,8 +1010,15 @@ static int i2c_hid_of_probe(struct i2c_client *client,
+>         return 0;
+>  }
+>
+> +static const struct i2c_hid_match_data goodix_gt7375p_match_data = {
+> +       .hid_descriptor_address = 0x0001,
+
+Nah, please don't. See 1/3 of this series.
+
+> +       .post_power_delay_ms = 10,
+> +       .post_gpio_reset_delay_ms = 120,
+> +};
+> +
+>  static const struct of_device_id i2c_hid_of_match[] = {
+> -       { .compatible = "hid-over-i2c" },
+> +       { .compatible = "goodix,gt7375p", .data = &goodix_gt7375p_match_data },
+> +       { .compatible = "hid-over-i2c" }, /* Deprecated */
+>         {},
+>  };
+>  MODULE_DEVICE_TABLE(of, i2c_hid_of_match);
+> @@ -1053,6 +1086,12 @@ static int i2c_hid_probe(struct i2c_client *client,
+>         ihid->pdata.supplies[0].supply = "vdd";
+>         ihid->pdata.supplies[1].supply = "vddl";
+>
+> +       /* Start out with reset asserted */
+> +       ihid->pdata.reset_gpio =
+> +               devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_HIGH);
+> +       if (IS_ERR(ihid->pdata.reset_gpio))
+> +               return PTR_ERR(ihid->pdata.reset_gpio);
+> +
+
+That gpio change should go into its own commit. The commit briefly
+mentioned this, but we could get more information on it, because this
+is modifying the common probe path.
+
+
+[... re-reading, thinking later ...]
+
+Well, the whole point of this patch is for that specific GPIO. And I
+am really not happy having that merged here:
+what if suddenly we have another device that has a reset line that
+requires a different "protocol" (i.e. low instead of high, or need to
+switch it 3 times from high to low before the sleep)?
+ACPI integrated devices don't need that reset line. Or if they do, it
+is integrated at the ACPI level. So can we have something similar
+here? Either force Goodix not to use a reset line, either have a
+platform driver (well, platform might not be the correct place) that
+would handle those compatible strings and reset lines before i2c-hid?
+
+The more I think of it, the more I think we should have another piece
+in front of i2c-hid, to emulate somehow what ACPI is capable of doing
+behind our back. That might require a little bit of work in i2c-hid,
+but if in the end we can remove the regulator specifics, reset
+specifics and any DT specifics that were added in the past and have
+i2c-hid being just the spec it follows, that will surely help us
+moving forward.
+
+Cheers,
+Benjamin
+
+>         ret = devm_regulator_bulk_get(&client->dev,
+>                                       ARRAY_SIZE(ihid->pdata.supplies),
+>                                       ihid->pdata.supplies);
+> @@ -1067,6 +1106,10 @@ static int i2c_hid_probe(struct i2c_client *client,
+>         if (ihid->pdata.post_power_delay_ms)
+>                 msleep(ihid->pdata.post_power_delay_ms);
+>
+> +       gpiod_set_value_cansleep(ihid->pdata.reset_gpio, 0);
+> +       if (ihid->pdata.post_gpio_reset_delay_ms)
+> +               msleep(ihid->pdata.post_gpio_reset_delay_ms);
+> +
+>         i2c_set_clientdata(client, ihid);
+>
+>         ihid->client = client;
+> @@ -1163,6 +1206,7 @@ static int i2c_hid_remove(struct i2c_client *client)
+>         if (ihid->bufsize)
+>                 i2c_hid_free_buffers(ihid);
+>
+> +       gpiod_set_value_cansleep(ihid->pdata.reset_gpio, 1);
+>         regulator_bulk_disable(ARRAY_SIZE(ihid->pdata.supplies),
+>                                ihid->pdata.supplies);
+>
+> @@ -1228,6 +1272,10 @@ static int i2c_hid_resume(struct device *dev)
+>
+>                 if (ihid->pdata.post_power_delay_ms)
+>                         msleep(ihid->pdata.post_power_delay_ms);
+> +
+> +               gpiod_set_value_cansleep(ihid->pdata.reset_gpio, 0);
+> +               if (ihid->pdata.post_gpio_reset_delay_ms)
+> +                       msleep(ihid->pdata.post_gpio_reset_delay_ms);
+>         } else if (ihid->irq_wake_enabled) {
+>                 wake_status = disable_irq_wake(client->irq);
+>                 if (!wake_status)
+> diff --git a/include/linux/platform_data/i2c-hid.h b/include/linux/platform_data/i2c-hid.h
+> index c628bb5e1061..b2150223ffa6 100644
+> --- a/include/linux/platform_data/i2c-hid.h
+> +++ b/include/linux/platform_data/i2c-hid.h
+> @@ -12,6 +12,7 @@
+>  #ifndef __LINUX_I2C_HID_H
+>  #define __LINUX_I2C_HID_H
+>
+> +#include <linux/gpio/consumer.h>
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/types.h>
+>
+> @@ -20,6 +21,8 @@
+>   * @hid_descriptor_address: i2c register where the HID descriptor is stored.
+>   * @supplies: regulators for powering on the device.
+>   * @post_power_delay_ms: delay after powering on before device is usable.
+> + * @post_gpio_reset_delay_ms: delay after reset via GPIO.
+> + * @reset_gpio: optional gpio to de-assert after post_power_delay_ms.
+>   *
+>   * Note that it is the responsibility of the platform driver (or the acpi 5.0
+>   * driver, or the flattened device tree) to setup the irq related to the gpio in
+> @@ -36,6 +39,8 @@ struct i2c_hid_platform_data {
+>         u16 hid_descriptor_address;
+>         struct regulator_bulk_data supplies[2];
+>         int post_power_delay_ms;
+> +       int post_gpio_reset_delay_ms;
+> +       struct gpio_desc *reset_gpio;
+>  };
+>
+>  #endif /* __LINUX_I2C_HID_H */
 > --
 > 2.29.0.rc1.297.gfa9743e501-goog
 >

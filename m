@@ -8,53 +8,53 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D08EC388F2
-	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 00:13:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5CD8C00A89
+	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 00:13:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 22ADE223EA
-	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 00:13:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CCB92231B
+	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 00:13:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="jY5Q8Jcl"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="aDVU2nzb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726778AbgKCANG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Nov 2020 19:13:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55648 "EHLO
+        id S1727201AbgKCANL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Nov 2020 19:13:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726492AbgKCANG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2020 19:13:06 -0500
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C959C061A48
-        for <linux-input@vger.kernel.org>; Mon,  2 Nov 2020 16:13:06 -0800 (PST)
-Received: by mail-pf1-x444.google.com with SMTP id j18so12659702pfa.0
-        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2020 16:13:06 -0800 (PST)
+        with ESMTP id S1727194AbgKCANK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2020 19:13:10 -0500
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36BE5C061A47
+        for <linux-input@vger.kernel.org>; Mon,  2 Nov 2020 16:13:10 -0800 (PST)
+Received: by mail-pl1-x642.google.com with SMTP id b12so7698557plr.4
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2020 16:13:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Ul60m8IIifIpsjtzly1RX3b0Mhagmr0FW1v0DBlxPWM=;
-        b=jY5Q8JclUFiAoBChIhkGBbS90jE7o3/dAeA4p/e4qn6P8SsrmXG0w4skVppW/BQhvv
-         khKSjL5cxTk2wXIFMFwT8yUv1FGUiFUx/Q+4ju+c0Lo+4AtlPvaABFgeW7ad3CMb6zue
-         1jtGTjxHgxkCEG1rPtWPqErqxD9TbxvNGbA9g=
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=97UEiB822+bqf5cp9dtnLiwnHYdHrQTsb2r4ia6eYtA=;
+        b=aDVU2nzb2iKQxsov5JiAryU6VsMoZwDbY3EnI6IjFtjZEIEJjKAkEkssfGbDo3tXNi
+         33bfUPC0/YjtRi5EuPAZZUH7ooyT0pXvS2gtymCaZ1b2/HDZEUscDmt2idjXF5rhkRBj
+         x1AAezfDTresNl0hzFvsrrwlsxysOyySx+IsQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Ul60m8IIifIpsjtzly1RX3b0Mhagmr0FW1v0DBlxPWM=;
-        b=KMTvIckGriCZU4o/SBJKSe7pjgP6ti087p8gIS9DRbnXHWm+XsdUvvhb4HBIPvkGPt
-         Wa2IYpwuvAwOimzShkpLvzLszN8k8EB8xAP9k3cUPWPIGMHDI11Pz990TAon6bhFxR12
-         tY6d8Id4bG3JB7MSxLQG7shknDbjOpQLp9CqiO58ifpx7+5MmYrtNqA5FDEg2iUUF4qA
-         UhgG22d7gT5s0hU2adMAkqSvMBG7nqiiZyvfyg6JbrThHb5U9mLPz76OPc4D7O9uRjOH
-         ZzsiztSqRVIzRMAM/RhRfTm+IniHV8CTBf7prMAVnk+QcvqI9ntC2gQh0jdG2/joI+hd
-         /tgw==
-X-Gm-Message-State: AOAM532W/5kT91AYA99fq7cVmkMJIdc95UyexGAB8lrM1nSmW277//26
-        oxKhlK+EwGkrs7qkSMWFEbSY0g==
-X-Google-Smtp-Source: ABdhPJxkQVlo9EYqQ/2jCNcyo/uISGLN7g69m9FLLkoR3y97vih5lpL8suUZi0POIuEfbRffv3skrw==
-X-Received: by 2002:a63:4707:: with SMTP id u7mr14396862pga.358.1604362385897;
-        Mon, 02 Nov 2020 16:13:05 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=97UEiB822+bqf5cp9dtnLiwnHYdHrQTsb2r4ia6eYtA=;
+        b=RRHXZJbI+h6BCMQdtX3zhYJCliPllZm0Mtk1ZyI8Nv4OSMSe0jd+LWksISFG6dWV2/
+         wL8ga9Jz2YDj6VgVHQN6MlLTIFE0UAGREVEE/MbHvrh+YgGQeOlb0JbJZlq5ZOAmatKu
+         qPdNbURHO1sp8PvpfC9VQ/vPTxPPn0eWAStL1GqjQLQWF0pJb5sfcxuq/lx3VokZT5hm
+         iGzrxQayKB+AXeztOgIlw2HmfdV6sffeugPiV1+4udFfBTy2AZOJz8ukqTyGloG+yZok
+         1wjQ5VNHm2uhtBONwI+uRyoi/jzrUyRg/aOXKYj59BHHnKUsQJjjUf1IfHy/dnrQgMrs
+         zvbg==
+X-Gm-Message-State: AOAM530Yw7VmXLBA2EeDZtL1rkvUt/9oxlKLePPrFf3Ncznhf19LOHaH
+        +0XS4LAmCOskMztmlbBy+v4z+g==
+X-Google-Smtp-Source: ABdhPJyQMaFVKP/JVrDd7qFFIFAJNqE7LOR3R6jgdcD/jZC/RstC2B1bNRiN5YSLqjnkisQ1/NKapA==
+X-Received: by 2002:a17:902:c383:b029:d6:991c:671b with SMTP id g3-20020a170902c383b02900d6991c671bmr18366735plg.51.1604362389743;
+        Mon, 02 Nov 2020 16:13:09 -0800 (PST)
 Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
-        by smtp.gmail.com with ESMTPSA id v16sm13244295pgk.26.2020.11.02.16.13.04
+        by smtp.gmail.com with ESMTPSA id v16sm13244295pgk.26.2020.11.02.16.13.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Nov 2020 16:13:05 -0800 (PST)
+        Mon, 02 Nov 2020 16:13:09 -0800 (PST)
 From:   Douglas Anderson <dianders@chromium.org>
 To:     jkosina@suse.cz, benjamin.tissoires@redhat.com,
         gregkh@linuxfoundation.org,
@@ -63,106 +63,197 @@ Cc:     linux-input@vger.kernel.org, hdegoede@redhat.com,
         swboyd@chromium.org, kai.heng.feng@canonical.com,
         robh+dt@kernel.org, andrea@borgia.bo.it,
         Douglas Anderson <dianders@chromium.org>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 1/3] dt-bindings: HID: i2c-hid: Introduce bindings for the Goodix GT7375P
-Date:   Mon,  2 Nov 2020 16:12:39 -0800
-Message-Id: <20201102161210.v3.1.Ibb28033c81d87fcc13a6ba28c6ea7ac154d65f93@changeid>
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Michael Srba <Michael.Srba@seznam.cz>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3 3/3] Input: Introduce goodix-i2c-hid as a subclass of i2c-hid
+Date:   Mon,  2 Nov 2020 16:12:41 -0800
+Message-Id: <20201102161210.v3.3.If41b7d621633b94d56653c6d53f5f89c5274de7b@changeid>
 X-Mailer: git-send-email 2.29.1.341.ge80a0c044ae-goog
+In-Reply-To: <20201102161210.v3.1.Ibb28033c81d87fcc13a6ba28c6ea7ac154d65f93@changeid>
+References: <20201102161210.v3.1.Ibb28033c81d87fcc13a6ba28c6ea7ac154d65f93@changeid>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This adds new bindings for the Goodix GT7375P touchscreen.  While this
-touchscreen's communications are based on the generic "i2c-over-hid"
-protocol, it needs special power sequencing and thus gets its own
-compatible and bindings.
+Goodix i2c-hid touchscreens are mostly i2c-hid compliant but have some
+special power sequencing requirements, including the need to drive a
+reset line during the sequencing.
+
+Let's use the new ability of i2c-hid to have subclasses for power
+sequencing to support the first Goodix i2c-hid touchscreen: GT7375P
 
 Signed-off-by: Douglas Anderson <dianders@chromium.org>
 ---
 
 Changes in v3:
-- Removed Benjamin as a maintainer.
-- Fixed compatible in example.
-- Updated description.
+- Rework to use subclassing.
 
-Changes in v2:
-- ("dt-bindings: HID: i2c-hid: Introduce bindings for the Goodix GT7375P") new in v2.
+ drivers/input/touchscreen/Kconfig          |  12 +++
+ drivers/input/touchscreen/Makefile         |   1 +
+ drivers/input/touchscreen/goodix-i2c-hid.c | 115 +++++++++++++++++++++
+ 3 files changed, 128 insertions(+)
+ create mode 100644 drivers/input/touchscreen/goodix-i2c-hid.c
 
- .../bindings/input/goodix,gt7375p.yaml        | 63 +++++++++++++++++++
- 1 file changed, 63 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-
-diff --git a/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml b/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index f012fe746df0..64d481101917 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -403,6 +403,18 @@ config TOUCHSCREEN_GOODIX
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called goodix.
+ 
++config TOUCHSCREEN_GOODIX_I2C_HID
++	tristate "Goodix I2C-HID touchscreen"
++	depends on I2C_HID
++	help
++	  Say Y here if you have a Goodix touchscreen that uses i2c-hid
++	  to communicate.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called goodix-i2c-hid.
++
+ config TOUCHSCREEN_HIDEEP
+ 	tristate "HiDeep Touch IC"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 6233541e9173..32b1a768aa06 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -45,6 +45,7 @@ obj-$(CONFIG_TOUCHSCREEN_EGALAX_SERIAL)	+= egalax_ts_serial.o
+ obj-$(CONFIG_TOUCHSCREEN_EXC3000)	+= exc3000.o
+ obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
++obj-$(CONFIG_TOUCHSCREEN_GOODIX_I2C_HID)	+= goodix-i2c-hid.o
+ obj-$(CONFIG_TOUCHSCREEN_HIDEEP)	+= hideep.o
+ obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
+ obj-$(CONFIG_TOUCHSCREEN_IMX6UL_TSC)	+= imx6ul_tsc.o
+diff --git a/drivers/input/touchscreen/goodix-i2c-hid.c b/drivers/input/touchscreen/goodix-i2c-hid.c
 new file mode 100644
-index 000000000000..15a38516e594
+index 000000000000..a2cc4f923d8a
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-@@ -0,0 +1,63 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/goodix,gt7375p.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++++ b/drivers/input/touchscreen/goodix-i2c-hid.c
+@@ -0,0 +1,115 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Driver for Goodix touchscreens that use the i2c-hid protocol.
++ *
++ * Copyright 2020 Google LLC
++ */
 +
-+title: Goodix GT7375P touchscreen
++#include <linux/delay.h>
++#include <linux/gpio/consumer.h>
++#include <linux/i2c.h>
++#include <linux/input/i2c-hid-core.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_data/i2c-hid.h>
++#include <linux/platform_device.h>
++#include <linux/regulator/consumer.h>
 +
-+maintainers:
-+  - Douglas Anderson <dianders@chromium.org>
++struct goodix_i2c_hid_timing_data {
++	unsigned int post_gpio_reset_delay_ms;
++	unsigned int post_power_delay_ms;
++};
 +
-+description:
-+  Supports the Goodix GT7375P touchscreen.
++static const struct goodix_i2c_hid_timing_data goodix_gt7375p_timing_data = {
++	.post_power_delay_ms = 10,
++	.post_gpio_reset_delay_ms = 120,
++};
 +
-+properties:
-+  compatible:
-+    items:
-+      - const: goodix,gt7375p
++struct goodix_i2c_hid_plat_data {
++	struct gpio_desc *reset_gpio;
++	const struct goodix_i2c_hid_timing_data *timings;
 +
-+  reg:
-+    enum:
-+      - 0x5d
-+      - 0x14
++	struct i2c_hid_platform_data ihid_pdata;
++};
 +
-+  interrupts:
-+    maxItems: 1
++static int goodix_i2c_hid_power_up_device(struct i2c_hid_platform_data *ihid_pdata)
++{
++	struct goodix_i2c_hid_plat_data *pdata = ihid_pdata->power_data;
++	int ret;
 +
-+  reset-gpios:
-+    true
++	ret = regulator_bulk_enable(ARRAY_SIZE(ihid_pdata->supplies),
++				    ihid_pdata->supplies);
++	if (ret)
++		return ret;
 +
-+  vdd-supply:
-+    description: The 3.3V supply to the touchscreen.
++	if (pdata->timings->post_power_delay_ms)
++		msleep(pdata->timings->post_power_delay_ms);
 +
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+  - vdd-supply
++	gpiod_set_value_cansleep(pdata->reset_gpio, 0);
++	if (pdata->timings->post_gpio_reset_delay_ms)
++		msleep(pdata->timings->post_gpio_reset_delay_ms);
 +
-+additionalProperties: false
++	return 0;
++}
 +
-+examples:
-+  - |
-+    #include <dt-bindings/clock/qcom,rpmh.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
++static void goodix_i2c_hid_power_down_device(struct i2c_hid_platform_data *ihid_pdata)
++{
++	struct goodix_i2c_hid_plat_data *pdata = ihid_pdata->power_data;
 +
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
++	gpiod_set_value_cansleep(pdata->reset_gpio, 1);
++	regulator_bulk_disable(ARRAY_SIZE(ihid_pdata->supplies),
++			       ihid_pdata->supplies);
++}
 +
-+      ap_ts: touchscreen@5d {
-+        compatible = "goodix,gt7375p";
-+        reg = <0x5d>;
++static int goodix_i2c_hid_ts_probe(struct i2c_client *client,
++				   const struct i2c_device_id *id)
++{
++	struct goodix_i2c_hid_plat_data *pdata;
 +
-+        interrupt-parent = <&tlmm>;
-+        interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
++	pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
 +
-+        reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
-+        vdd-supply = <&pp3300_ts>;
-+      };
-+    };
++	/* Start out with reset asserted */
++	pdata->reset_gpio =
++		devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_HIGH);
++	if (IS_ERR(pdata->reset_gpio))
++		return PTR_ERR(pdata->reset_gpio);
++
++	pdata->timings = device_get_match_data(&client->dev);
++
++	pdata->ihid_pdata.hid_descriptor_address = 0x0001;
++	pdata->ihid_pdata.power_data = pdata;
++	pdata->ihid_pdata.power_up_device = goodix_i2c_hid_power_up_device;
++	pdata->ihid_pdata.power_down_device = goodix_i2c_hid_power_down_device;
++
++	client->dev.platform_data = &pdata->ihid_pdata;
++
++	return i2c_hid_probe(client, id);
++}
++
++static const struct of_device_id goodix_i2c_hid_of_match[] = {
++	{ .compatible = "goodix,gt7375p", .data = &goodix_gt7375p_timing_data },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, goodix_i2c_hid_of_match);
++
++static const struct dev_pm_ops goodix_i2c_hid_pm = {
++	SET_SYSTEM_SLEEP_PM_OPS(i2c_hid_suspend, i2c_hid_resume)
++};
++
++static struct i2c_driver goodix_i2c_hid_ts_driver = {
++	.driver = {
++		.name	= "goodix-i2c-hid",
++		.pm	= &goodix_i2c_hid_pm,
++		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
++		.of_match_table = of_match_ptr(goodix_i2c_hid_of_match),
++	},
++	.probe		= goodix_i2c_hid_ts_probe,
++	.remove		= i2c_hid_remove,
++	.shutdown	= i2c_hid_shutdown,
++};
++module_i2c_driver(goodix_i2c_hid_ts_driver);
++
++MODULE_AUTHOR("Douglas Anderson <dianders@chromium.org>");
++MODULE_DESCRIPTION("Goodix i2c-hid touchscreen driver");
++MODULE_LICENSE("GPL v2");
 -- 
 2.29.1.341.ge80a0c044ae-goog
 

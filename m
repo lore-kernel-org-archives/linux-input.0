@@ -2,336 +2,121 @@ Return-Path: <SRS0=fPDO=EJ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77075C388F2
-	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 00:13:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 445CBC55178
+	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 00:16:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3E40222268
-	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 00:13:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 042342225E
+	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 00:16:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="agVBUbm3"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="kSydRRrN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727122AbgKCANJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Nov 2020 19:13:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55654 "EHLO
+        id S1727140AbgKCAQ0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Nov 2020 19:16:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725940AbgKCANI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2020 19:13:08 -0500
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64753C0617A6
-        for <linux-input@vger.kernel.org>; Mon,  2 Nov 2020 16:13:08 -0800 (PST)
-Received: by mail-pg1-x544.google.com with SMTP id g12so12229595pgm.8
-        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2020 16:13:08 -0800 (PST)
+        with ESMTP id S1726546AbgKCAQ0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Nov 2020 19:16:26 -0500
+Received: from mail-vs1-xe42.google.com (mail-vs1-xe42.google.com [IPv6:2607:f8b0:4864:20::e42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E0F6C061A48
+        for <linux-input@vger.kernel.org>; Mon,  2 Nov 2020 16:16:26 -0800 (PST)
+Received: by mail-vs1-xe42.google.com with SMTP id t8so5699544vsr.2
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2020 16:16:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=hsUR+IJfVilqvnHIzzYdaBtqA1fDgSipkH/UXQ1BFKs=;
-        b=agVBUbm3+3pjD+GZcDiZO5GujBuzjLwBCryM5LYevPYck5UpPlOZqOKL1sQWhe/FhF
-         KsVmsThU+206GzoOZevjmoEmtIe6XIQ1nKmMCruL9FgpMR+/2KuOYNRfjOhPoMAIr/Ah
-         oM08BzHV8XeTNqmO9zxAJqLeC5zK++Scv/ijo=
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=p7j2MkqbzfmNDffUUJc2UA/rAd92pXTAvHkKX+n2Ey0=;
+        b=kSydRRrNnUb20Ij+6fkK3MbRCz5KLiSa0VZqCZtc+WNLyQf/+BUD3QYq9V0bXFh7l2
+         sQemKcpvArm+0zAmqI9hD1Z0ZJsZIdh2WO6Weucj/evPtWOjZNAhJjpHg29trekQqWXN
+         vIzoI/n6ew5YlKlM68cPh+TdcsN3T/lelf++I=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=hsUR+IJfVilqvnHIzzYdaBtqA1fDgSipkH/UXQ1BFKs=;
-        b=FBMjV3erLEIfTj1TDPP/lR//+pOBgN8pS78biBe3dGkIel6bV+/h57qliLJFOgjEEX
-         +n9yfh0ioi32QRlB9WzjZqcOk2fzhlViPOmSDnXKEuxLRzswO4fZVMQWYNZ7X774wsh6
-         ifcIZ8PSYp2GVu8/ciREQaxjuSrz/zsPpHPUjLSxe02SXXbqFjYff5lzSbBzpJLeUzRL
-         V0jf8rBl6SgA9S5m2sbB2MFkIlZ294H6c04BKIsMSUpu4FG1DhREpI8uei7dF91NZnrx
-         ZOz60Ku3vaLYPmiEs2u1gSUkYB4kB6NuBK+olef9bkly3x/5PSOcmd3tOnxPFjSbyENo
-         1WgQ==
-X-Gm-Message-State: AOAM531w1MMUc3KY5iUOlyPeQ8l2leYGuUb+Ks50E3LXJeBU//GpBnHY
-        XV8WslaLJy3eZ+tBLLJJEJhzvA==
-X-Google-Smtp-Source: ABdhPJz1lBGe88mxRYFA8if5wEzy7QU/P/qRjYyGINKOvbcj7gWucSaldAbnfnaQCSs4WCfA472i2g==
-X-Received: by 2002:a62:62c2:0:b029:164:563a:b2c with SMTP id w185-20020a6262c20000b0290164563a0b2cmr22912661pfb.16.1604362387909;
-        Mon, 02 Nov 2020 16:13:07 -0800 (PST)
-Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
-        by smtp.gmail.com with ESMTPSA id v16sm13244295pgk.26.2020.11.02.16.13.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Nov 2020 16:13:07 -0800 (PST)
-From:   Douglas Anderson <dianders@chromium.org>
-To:     jkosina@suse.cz, benjamin.tissoires@redhat.com,
-        gregkh@linuxfoundation.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, hdegoede@redhat.com,
-        swboyd@chromium.org, kai.heng.feng@canonical.com,
-        robh+dt@kernel.org, andrea@borgia.bo.it,
-        Douglas Anderson <dianders@chromium.org>,
-        Aaron Ma <aaron.ma@canonical.com>,
-        Daniel Playfair Cal <daniel.playfair.cal@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>, Pavel Balan <admin@kryma.net>,
-        You-Sheng Yang <vicamo.yang@canonical.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v3 2/3] HID: i2c-hid: Allow subclasses of i2c-hid for power sequencing
-Date:   Mon,  2 Nov 2020 16:12:40 -0800
-Message-Id: <20201102161210.v3.2.Ied4ce10d229cd7c69abf13a0361ba0b8d82eb9c4@changeid>
-X-Mailer: git-send-email 2.29.1.341.ge80a0c044ae-goog
-In-Reply-To: <20201102161210.v3.1.Ibb28033c81d87fcc13a6ba28c6ea7ac154d65f93@changeid>
-References: <20201102161210.v3.1.Ibb28033c81d87fcc13a6ba28c6ea7ac154d65f93@changeid>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=p7j2MkqbzfmNDffUUJc2UA/rAd92pXTAvHkKX+n2Ey0=;
+        b=cBsZCZW7AvLj4RoPobUoRKjP114fmbqbD+eUiQcoklybuz8ueYcAFFANssR3BYyp7c
+         sJw0vete0hqY2R3DgZS+z3DJ0bBCKdMSYoXuvh0Hwa/z1NW1H6n+IjxzfNq/NdlyiLwr
+         MiFGlXIlk5epEzmeaLf0JArMYdW6lFKUiTIdnrDbJNXM+Rwfb83UOhWwVFHckxvudMHC
+         gPm165Lc6HSaa0vFOXnSPI73PUFkzaNcp3OF85T8rpeguxboQHDEyGyvSw6Wc2EYFcFS
+         d5jdDLWGrqeLEB1QaegF/j/YW0FlDAFhRnefM4xUuQ5ElZMpzl+9UK/Dh9eWL/nZqtsR
+         8jdA==
+X-Gm-Message-State: AOAM531R4cTUU9PygMDOGVlKTf9Oh9YkaMRCFIHLLhv7N9+BrbP/Zacx
+        BonPrSXv81X8xOcMOazI3QUIQMFRpih6Cg==
+X-Google-Smtp-Source: ABdhPJzdfNJzOJMBLlUUVUU0rVCMjNBwA8a5ECvb0VLNM1AlF+VGS7JII71KMaIuwP8rj92Cube7eg==
+X-Received: by 2002:a67:fd64:: with SMTP id h4mr16266023vsa.38.1604362584709;
+        Mon, 02 Nov 2020 16:16:24 -0800 (PST)
+Received: from mail-ua1-f43.google.com (mail-ua1-f43.google.com. [209.85.222.43])
+        by smtp.gmail.com with ESMTPSA id c21sm1773762vsh.31.2020.11.02.16.16.22
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Nov 2020 16:16:22 -0800 (PST)
+Received: by mail-ua1-f43.google.com with SMTP id w3so1408433uau.2
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2020 16:16:22 -0800 (PST)
+X-Received: by 2002:a9f:2f15:: with SMTP id x21mr9142861uaj.104.1604362582272;
+ Mon, 02 Nov 2020 16:16:22 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201023162220.v2.1.I45b53fe84e2215946f900f5b28bab1aa9d029ac7@changeid>
+ <20201030164743.GA3967106@bogus>
+In-Reply-To: <20201030164743.GA3967106@bogus>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Mon, 2 Nov 2020 16:16:04 -0800
+X-Gmail-Original-Message-ID: <CAD=FV=UoDUVyUakJGL=Pmedjj7DFexbi=WHeEkkD9XNhay64JQ@mail.gmail.com>
+Message-ID: <CAD=FV=UoDUVyUakJGL=Pmedjj7DFexbi=WHeEkkD9XNhay64JQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] dt-bindings: HID: i2c-hid: Label this binding as deprecated
+To:     Rob Herring <robh@kernel.org>
+Cc:     Jiri Kosina <jkosina@suse.cz>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrea Borgia <andrea@borgia.bo.it>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        linux-input@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This exports some things from i2c-hid so that we can have a driver
-that's effectively a subclass of it and that can do its own power
-sequencing.
+Hi,
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
----
+On Fri, Oct 30, 2020 at 9:47 AM Rob Herring <robh@kernel.org> wrote:
+>
+> On Fri, Oct 23, 2020 at 04:22:52PM -0700, Douglas Anderson wrote:
+> > As pointed out by Rob Herring [1], we should have a device-specific
+> > compatible string.  This means people shouldn't be using the
+> > "i2c-over-hid" compatible string anymore, or at least not without a
+> > more specific compatible string before it.  Specifically:
+> >
+> > 1. For newly added devices we should just have the device-specific
+> >    device string (no "hid-over-i2c" fallback) and infer the timings
+> >    and hid-descr-addr from there.
+>
+> I wouldn't go that far. Having a fallback is perfectly acceptible. And
+> hopefully there are at least some devices where that's good enough for
+> drivers to use.
+>
+> If we have cases of only 'i2c-over-hid' being used (in DT), then the
+> solution is making this a schema so we can enforce that as not valid.
 
-Changes in v3:
-- Rework to use subclassing.
+OK, fair enough.  I think in the case of the Goodix touchscreen I'm
+trying to support, though, it's not useful to have the fallback since
+it really doesn't seem to work without all the delays.  :(  I sent my
+v3 without touching anything about "i2c-over-hid" as far as bindings
+goes.
 
-Changes in v2:
-- Use a separate compatible string for this new touchscreen.
-- Get timings based on the compatible string.
+For my edification, though, when do you believe "i2c-over-hid" should
+be the fallback?  Presumably you would advocate for
+"post-power-on-delay-ms" being marked as deprecated, right?  That
+should have been inferred by the compatible string, right?  So, in
+theory, anyone who needed this delay couldn't have ever taken
+advantage of the fallback, right?  They wouldn't have worked without
+the delay?
 
- drivers/hid/i2c-hid/i2c-hid-core.c    | 78 +++++++++++++++++----------
- include/linux/input/i2c-hid-core.h    | 19 +++++++
- include/linux/platform_data/i2c-hid.h |  9 ++++
- 3 files changed, 79 insertions(+), 27 deletions(-)
- create mode 100644 include/linux/input/i2c-hid-core.h
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 786e3e9af1c9..910e9089fcf8 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -22,6 +22,7 @@
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/input.h>
-+#include <linux/input/i2c-hid-core.h>
- #include <linux/irq.h>
- #include <linux/delay.h>
- #include <linux/slab.h>
-@@ -1007,8 +1008,33 @@ static void i2c_hid_fwnode_probe(struct i2c_client *client,
- 		pdata->post_power_delay_ms = val;
- }
- 
--static int i2c_hid_probe(struct i2c_client *client,
--			 const struct i2c_device_id *dev_id)
-+static int i2c_hid_power_up_device(struct i2c_hid_platform_data *pdata)
-+{
-+	struct i2c_hid *ihid = container_of(pdata, struct i2c_hid, pdata);
-+	struct hid_device *hid = ihid->hid;
-+	int ret;
-+
-+	ret = regulator_bulk_enable(ARRAY_SIZE(pdata->supplies),
-+				    pdata->supplies);
-+	if (ret) {
-+		if (hid)
-+			hid_warn(hid, "Failed to enable supplies: %d\n", ret);
-+		return ret;
-+	}
-+
-+	if (pdata->post_power_delay_ms)
-+		msleep(pdata->post_power_delay_ms);
-+
-+	return 0;
-+}
-+
-+static void i2c_hid_power_down_device(struct i2c_hid_platform_data *pdata)
-+{
-+	regulator_bulk_disable(ARRAY_SIZE(pdata->supplies), pdata->supplies);
-+}
-+
-+int i2c_hid_probe(struct i2c_client *client,
-+		  const struct i2c_device_id *dev_id)
- {
- 	int ret;
- 	struct i2c_hid *ihid;
-@@ -1035,6 +1061,9 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	if (!ihid)
- 		return -ENOMEM;
- 
-+	if (platform_data)
-+		ihid->pdata = *platform_data;
-+
- 	if (client->dev.of_node) {
- 		ret = i2c_hid_of_probe(client, &ihid->pdata);
- 		if (ret)
-@@ -1043,13 +1072,16 @@ static int i2c_hid_probe(struct i2c_client *client,
- 		ret = i2c_hid_acpi_pdata(client, &ihid->pdata);
- 		if (ret)
- 			return ret;
--	} else {
--		ihid->pdata = *platform_data;
- 	}
- 
- 	/* Parse platform agnostic common properties from ACPI / device tree */
- 	i2c_hid_fwnode_probe(client, &ihid->pdata);
- 
-+	if (!ihid->pdata.power_up_device)
-+		ihid->pdata.power_up_device = i2c_hid_power_up_device;
-+	if (!ihid->pdata.power_down_device)
-+		ihid->pdata.power_down_device = i2c_hid_power_down_device;
-+
- 	ihid->pdata.supplies[0].supply = "vdd";
- 	ihid->pdata.supplies[1].supply = "vddl";
- 
-@@ -1059,14 +1091,10 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	if (ret)
- 		return ret;
- 
--	ret = regulator_bulk_enable(ARRAY_SIZE(ihid->pdata.supplies),
--				    ihid->pdata.supplies);
--	if (ret < 0)
-+	ret = ihid->pdata.power_up_device(&ihid->pdata);
-+	if (ret)
- 		return ret;
- 
--	if (ihid->pdata.post_power_delay_ms)
--		msleep(ihid->pdata.post_power_delay_ms);
--
- 	i2c_set_clientdata(client, ihid);
- 
- 	ihid->client = client;
-@@ -1144,13 +1172,13 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	free_irq(client->irq, ihid);
- 
- err_regulator:
--	regulator_bulk_disable(ARRAY_SIZE(ihid->pdata.supplies),
--			       ihid->pdata.supplies);
-+	ihid->pdata.power_down_device(&ihid->pdata);
- 	i2c_hid_free_buffers(ihid);
- 	return ret;
- }
-+EXPORT_SYMBOL_GPL(i2c_hid_probe);
- 
--static int i2c_hid_remove(struct i2c_client *client)
-+int i2c_hid_remove(struct i2c_client *client)
- {
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	struct hid_device *hid;
-@@ -1163,22 +1191,23 @@ static int i2c_hid_remove(struct i2c_client *client)
- 	if (ihid->bufsize)
- 		i2c_hid_free_buffers(ihid);
- 
--	regulator_bulk_disable(ARRAY_SIZE(ihid->pdata.supplies),
--			       ihid->pdata.supplies);
-+	ihid->pdata.power_down_device(&ihid->pdata);
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(i2c_hid_remove);
- 
--static void i2c_hid_shutdown(struct i2c_client *client)
-+void i2c_hid_shutdown(struct i2c_client *client)
- {
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 
- 	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
- 	free_irq(client->irq, ihid);
- }
-+EXPORT_SYMBOL_GPL(i2c_hid_shutdown);
- 
- #ifdef CONFIG_PM_SLEEP
--static int i2c_hid_suspend(struct device *dev)
-+int i2c_hid_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
-@@ -1205,14 +1234,14 @@ static int i2c_hid_suspend(struct device *dev)
- 			hid_warn(hid, "Failed to enable irq wake: %d\n",
- 				wake_status);
- 	} else {
--		regulator_bulk_disable(ARRAY_SIZE(ihid->pdata.supplies),
--				       ihid->pdata.supplies);
-+		ihid->pdata.power_down_device(&ihid->pdata);
- 	}
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(i2c_hid_suspend);
- 
--static int i2c_hid_resume(struct device *dev)
-+int i2c_hid_resume(struct device *dev)
- {
- 	int ret;
- 	struct i2c_client *client = to_i2c_client(dev);
-@@ -1221,13 +1250,7 @@ static int i2c_hid_resume(struct device *dev)
- 	int wake_status;
- 
- 	if (!device_may_wakeup(&client->dev)) {
--		ret = regulator_bulk_enable(ARRAY_SIZE(ihid->pdata.supplies),
--					    ihid->pdata.supplies);
--		if (ret)
--			hid_warn(hid, "Failed to enable supplies: %d\n", ret);
--
--		if (ihid->pdata.post_power_delay_ms)
--			msleep(ihid->pdata.post_power_delay_ms);
-+		ihid->pdata.power_up_device(&ihid->pdata);
- 	} else if (ihid->irq_wake_enabled) {
- 		wake_status = disable_irq_wake(client->irq);
- 		if (!wake_status)
-@@ -1262,6 +1285,7 @@ static int i2c_hid_resume(struct device *dev)
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(i2c_hid_resume);
- #endif
- 
- static const struct dev_pm_ops i2c_hid_pm = {
-diff --git a/include/linux/input/i2c-hid-core.h b/include/linux/input/i2c-hid-core.h
-new file mode 100644
-index 000000000000..da7b0475f6f4
---- /dev/null
-+++ b/include/linux/input/i2c-hid-core.h
-@@ -0,0 +1,19 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+
-+#ifndef I2C_HID_CORE_H
-+#define I2C_HID_CORE_H
-+
-+#include <linux/i2c.h>
-+
-+int i2c_hid_probe(struct i2c_client *client,
-+		  const struct i2c_device_id *dev_id);
-+int i2c_hid_remove(struct i2c_client *client);
-+
-+void i2c_hid_shutdown(struct i2c_client *client);
-+
-+#ifdef CONFIG_PM_SLEEP
-+int i2c_hid_suspend(struct device *dev);
-+int i2c_hid_resume(struct device *dev);
-+#endif
-+
-+#endif
-diff --git a/include/linux/platform_data/i2c-hid.h b/include/linux/platform_data/i2c-hid.h
-index c628bb5e1061..db567463d43e 100644
---- a/include/linux/platform_data/i2c-hid.h
-+++ b/include/linux/platform_data/i2c-hid.h
-@@ -21,6 +21,11 @@
-  * @supplies: regulators for powering on the device.
-  * @post_power_delay_ms: delay after powering on before device is usable.
-  *
-+ * @power_up_device: do sequencing to power up the device; may use the above
-+ *                   supplies / post_power_delay_ms or ignore.
-+ * @power_down_device: do sequencing to power down the device.
-+ * @power_data: opaque pointer that power_up and power_down can use.
-+ *
-  * Note that it is the responsibility of the platform driver (or the acpi 5.0
-  * driver, or the flattened device tree) to setup the irq related to the gpio in
-  * the struct i2c_board_info.
-@@ -36,6 +41,10 @@ struct i2c_hid_platform_data {
- 	u16 hid_descriptor_address;
- 	struct regulator_bulk_data supplies[2];
- 	int post_power_delay_ms;
-+
-+	int (*power_up_device)(struct i2c_hid_platform_data *pdata);
-+	void (*power_down_device)(struct i2c_hid_platform_data *pdata);
-+	void *power_data;
- };
- 
- #endif /* __LINUX_I2C_HID_H */
--- 
-2.29.1.341.ge80a0c044ae-goog
-
+-Doug

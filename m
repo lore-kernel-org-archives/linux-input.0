@@ -2,57 +2,51 @@ Return-Path: <SRS0=fPDO=EJ=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCEB5C82630
-	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 10:36:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB0B0C2D0A3
+	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 10:55:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 72F192072C
-	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 10:36:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5483122384
+	for <linux-input@archiver.kernel.org>; Tue,  3 Nov 2020 10:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1604399796;
-	bh=Eg2L7GMc+D/grmQRd+uDIOy1N1FwECV5+z+rWhgWBGQ=;
+	s=default; t=1604400927;
+	bh=Gx/xjl1lJ2zVpy4vXYoDX8bz9kjv23h23jTvE3/Hxbg=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=YolY0Jw+CufpDjSbqNOAH4vrM40rKlyF+vbuAZ0SCFCByxWhA6I3yK5zroLiCfqj7
-	 fCA/yAlWPQBUrHXtG6VvfT6nKh9aIMZ2QiwMPxESe5ESbnoK0ZxL1/E0LmYhIA7Hxq
-	 Lkm7iZKn9ko+mev4e3SEkdbD+hG2P1oM/FQ6tQzI=
+	b=p2QpgardXnGQOeQ0SdPt/Qx/OsyYUzZVwTShQxm5cGv930iQ1pgtvuDzijq/rxDrL
+	 Q+OH04j1ZnYtUAFy9zmuCirYqpPsY6kh7eYccBL7otguhAdcnWy2UykJnM7gfz6DtR
+	 WjkKyZygr77Qrw9Wley5gtqTvINLUzM3MKX88iO0=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727186AbgKCKgb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 3 Nov 2020 05:36:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53836 "EHLO mail.kernel.org"
+        id S1728138AbgKCKz0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 3 Nov 2020 05:55:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728410AbgKCKdp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 3 Nov 2020 05:33:45 -0500
+        id S1728248AbgKCKz0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 3 Nov 2020 05:55:26 -0500
 Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2547206F1;
-        Tue,  3 Nov 2020 10:33:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3FFC223BD;
+        Tue,  3 Nov 2020 10:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604399624;
-        bh=Eg2L7GMc+D/grmQRd+uDIOy1N1FwECV5+z+rWhgWBGQ=;
+        s=default; t=1604400925;
+        bh=Gx/xjl1lJ2zVpy4vXYoDX8bz9kjv23h23jTvE3/Hxbg=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=lpRPtrFVwYxL28XMFETMMxsPcUfVkgyNCQIQ8OpGteT5bulqB2GAnBJe7sO4JaVpX
-         0JskbgnRi3JlwQPsrtXdRdaGSk8QE/dRmM6zZuwJkopHgHaFgOMy1Qxf2XX2EnpRGB
-         OvlcPvCdlX4NoR2TrUxlUXgB3ngwvrirPz+DjiXg=
-Date:   Tue, 3 Nov 2020 11:33:39 +0100 (CET)
+        b=2sEeylef5AtEFxa+uyhscnSV6SoxvnPd4MSyfVxYTzKxNFoH0FbBX+085E6KdkwwP
+         4vV8ZWaOIEwHSTPKOmq8PFRXoe+pcvjYqj/HdrYTsDDnFQke3cisQ+0KvJUx2qYnLz
+         mWIhbwbEF6BRJDWLFqQWq+e9aeJsKvHlXBqVdyrM=
+Date:   Tue, 3 Nov 2020 11:55:22 +0100 (CET)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Lukas Bulwahn <lukas.bulwahn@gmail.com>
-cc:     Sandeep Singh <Sandeep.Singh@amd.com>,
-        benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org, srinivas.pandruvada@linux.intel.com,
-        jic23@kernel.org, linux-iio@vger.kernel.org, hdegoede@redhat.com,
-        Nehal-bakulchandra.Shah@amd.com, andy.shevchenko@gmail.com,
-        mail@richard-neumann.de, m.felsch@pengutronix.de,
-        rdunlap@infradead.org, Shyam-sundar.S-k@amd.com
-Subject: Re: [PATCH v8 1/4] SFH: Add maintainers and documentation for AMD
- SFH based on HID framework
-In-Reply-To: <alpine.DEB.2.21.2010300902220.16621@felia>
-Message-ID: <nycvar.YFH.7.76.2011031133080.18859@cbobk.fhfr.pm>
-References: <20201009200138.1847317-1-Sandeep.Singh@amd.com> <20201009200138.1847317-2-Sandeep.Singh@amd.com> <alpine.DEB.2.21.2010300902220.16621@felia>
+To:     Pascal Giard <pascal.giard@etsmtl.ca>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Sanjay Govind <sanjay.govind9@gmail.com>
+Subject: Re: [PATCH] HID: ghlive: support for ghlive ps3/wii u dongles
+In-Reply-To: <CAJNNDmn1OBzRouNUcAmWSfj4piSHRFfc6V6gvb2D+2qYO1Ob7g@mail.gmail.com>
+Message-ID: <nycvar.YFH.7.76.2011031152270.18859@cbobk.fhfr.pm>
+References: <20201009022722.123943-1-pascal.giard@etsmtl.ca> <nycvar.YFH.7.76.2010291622380.18859@cbobk.fhfr.pm> <CAJNNDmn1OBzRouNUcAmWSfj4piSHRFfc6V6gvb2D+2qYO1Ob7g@mail.gmail.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -60,31 +54,64 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 30 Oct 2020, Lukas Bulwahn wrote:
+On Thu, 29 Oct 2020, Pascal Giard wrote:
 
-> > From: Sandeep Singh <sandeep.singh@amd.com>
-> > 
-> > Add Maintainers for AMD SFH(SENSOR FUSION HUB) Solution and work flow
-> > document.
-> > 
-> > Co-developed-by: Nehal Shah <Nehal-bakulchandra.Shah@amd.com>
-> > Signed-off-by: Nehal Shah <Nehal-bakulchandra.Shah@amd.com>
-> > Signed-off-by: Sandeep Singh <sandeep.singh@amd.com>
-> > ---
-> >  Documentation/hid/amd-sfh-hid.rst | 145 ++++++++++++++++++++++++++++++
-> >  Documentation/hid/index.rst       |   1 +
-> >  MAINTAINERS                       |   8 ++
-> >  3 files changed, 154 insertions(+)
-> >  create mode 100644 Documentation/hid/amd-sfh-hid.rst
+> > >  drivers/hid/Kconfig      |   6 ++
+> > >  drivers/hid/Makefile     |   1 +
+> > >  drivers/hid/hid-ghlive.c | 220 +++++++++++++++++++++++++++++++++++++++
+> >
+> > Would it make more sense (with respect to how we are structuring/naming
+> > the hid drivers) to incorporate this into hid-sony (irrespective of
+> > currently ongoing discussions about actually splitting that driver :) )?
 > >
 > 
-> I do not know where something went wrong here, but it seems that
-> the git commit 302f0dad8c97 ("SFH: Add maintainers and 
-> documentation for AMD SFH based on HID framework") on next-20201030 
-> dropped the addition of the rst file compared to this patch v8 here.
+> I think it would be most appropriate, yes.
+> 
+> Note that there are 3 other dongles out there:
+> - the xbox360 dongle does not need any special treatment, it just
+> works with hid-generic;
+> - the ps4 dongle obviously makes sense to go into hid-sony (although
+> no one has reversed engineered that one (yet));
+> - the xboxone dongle: that's an unknown one to me. I don't have any
+> information about that one unfortunately and do not own one.
+> 
+> I wrote this as a separate hid driver as I saw that email [1] from
+> Roderick Colenbrander in which he expressed a preference for a
+> seperate driver in cases where the device is not from Sony proper.
 
-Thanks for spotting this, that was me fat-fingering conflict resolution. 
-I've now pushed out a fix.
+Yeah, but before that happens, I think we should just continue with status 
+quo, meaning putting the support into hid-sony, if noone has any 
+objections.
+
+> > So if one of the allocations above succeeds and a subsequent one fails,
+> > you're going to try re-allocate all of them next time again, leaking the
+> > ones that previously succeeded, right?
+> >
+> 
+> I attempted to avoid such a case. IIUC there are 4 possible scenarios
+> tied to those 3 allocs (cr, databuf, and urb):
+> 1) alloc of cr fails. nothing to be freed, we reschedule;
+> 2) alloc of cr succeeds, alloc of databuf fails. we free cr and we reschedule;
+> 3) allocs of cr and databuf succeed, alloc of urb fails. we free cr
+> and databuf, and we reschedule;
+> 4) all allocs succeed, we submit the urb, and free urb. once the
+> control packet is sent, the callback is called and we free cr and
+> databuf.
+> 
+> Am I missing something? 
+
+No, I probably didn't have my first coffee of the day when looking at your 
+patch, sorry.
+
+Still, the way it tries to allocate the buffers is sub-optimal, as if 
+either (not necessarily the first one) fails, it retries the next 
+iteration with attempting to allocate from scratch.
+
+If the system really is in tight memory condition, it'd make more sense to 
+keep the ones for which the allocation succeeded already allocated, and 
+retry only the failed one(s).
+
+Thanks,
 
 -- 
 Jiri Kosina

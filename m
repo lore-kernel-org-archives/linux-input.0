@@ -7,40 +7,38 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 997BBC388F7
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 10:40:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2318C56201
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 10:40:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 51B0F2072C
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 10:40:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D7E920786
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 10:40:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729659AbgKDKke (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Nov 2020 05:40:34 -0500
-Received: from mx2.suse.de ([195.135.220.15]:58606 "EHLO mx2.suse.de"
+        id S1729770AbgKDKj6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Nov 2020 05:39:58 -0500
+Received: from mx2.suse.de ([195.135.220.15]:58646 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729752AbgKDKj7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 4 Nov 2020 05:39:59 -0500
+        id S1729440AbgKDKjz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 4 Nov 2020 05:39:55 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 6B3D1ABAE;
-        Wed,  4 Nov 2020 10:39:57 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id B0E6AAD77;
+        Wed,  4 Nov 2020 10:39:53 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
+To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org
+Cc:     f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
         bcm-kernel-feedback-list@broadcom.com,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        wahrenst@gmx.net, linux-input@vger.kernel.org,
+        dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
+        devel@driverdev.osuosl.org, p.zabel@pengutronix.de,
+        linux-gpio@vger.kernel.org, linus.walleij@linaro.org,
+        linux-clk@vger.kernel.org, sboyd@kernel.org,
+        linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
+        andy.shevchenko@gmail.com,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc:     linux-pwm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        devicetree@vger.kernel.org, wahrenst@gmx.net,
-        linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
-        gregkh@linuxfoundation.org, devel@driverdev.osuosl.org,
-        p.zabel@pengutronix.de, linux-gpio@vger.kernel.org,
-        linus.walleij@linaro.org, linux-clk@vger.kernel.org,
-        sboyd@kernel.org, linux-rpi-kernel@lists.infradead.org,
-        bgolaszewski@baylibre.com, andy.shevchenko@gmail.com
-Subject: [PATCH v3 08/11] firmware: raspberrypi: Get rid of rpi_firmware_get()
-Date:   Wed,  4 Nov 2020 11:39:34 +0100
-Message-Id: <20201104103938.1286-9-nsaenzjulienne@suse.de>
+Subject: [PATCH v3 05/11] soc: bcm: raspberrypi-power: Release firmware handle on unbind
+Date:   Wed,  4 Nov 2020 11:39:31 +0100
+Message-Id: <20201104103938.1286-6-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201104103938.1286-1-nsaenzjulienne@suse.de>
 References: <20201104103938.1286-1-nsaenzjulienne@suse.de>
@@ -50,67 +48,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-There a no users left to the function as they all converted to
-devm_rpi_firmware_get(). Just get rid of it.
+Use devm_rpi_firmware_get() so as to make sure we release RPi's firmware
+interface when unbinding the device.
 
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
----
- drivers/firmware/raspberrypi.c             | 17 -----------------
- include/soc/bcm2835/raspberrypi-firmware.h |  6 ------
- 2 files changed, 23 deletions(-)
 
-diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberrypi.c
-index 74bdb3bde9dc..67f7105f3fd2 100644
---- a/drivers/firmware/raspberrypi.c
-+++ b/drivers/firmware/raspberrypi.c
-@@ -297,23 +297,6 @@ static void rpi_firmware_put(void *data)
- 	wake_up(&fw->wait);
- }
+---
+
+Changes since v2:
+ - Use devm_rpi_firmware_get(), instead of remove function
+
+ drivers/soc/bcm/raspberrypi-power.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/soc/bcm/raspberrypi-power.c b/drivers/soc/bcm/raspberrypi-power.c
+index 5d1aacdd84ef..068715d6e66d 100644
+--- a/drivers/soc/bcm/raspberrypi-power.c
++++ b/drivers/soc/bcm/raspberrypi-power.c
+@@ -177,7 +177,7 @@ static int rpi_power_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
  
--/**
-- * rpi_firmware_get - Get pointer to rpi_firmware structure.
-- * @firmware_node:    Pointer to the firmware Device Tree node.
-- *
-- * Returns NULL is the firmware device is not ready.
-- */
--struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
--{
--	struct platform_device *pdev = of_find_device_by_node(firmware_node);
--
--	if (!pdev)
--		return NULL;
--
--	return platform_get_drvdata(pdev);
--}
--EXPORT_SYMBOL_GPL(rpi_firmware_get);
--
- /**
-  * devm_rpi_firmware_get - Get pointer to rpi_firmware structure.
-  * @firmware_node:    Pointer to the firmware Device Tree node.
-diff --git a/include/soc/bcm2835/raspberrypi-firmware.h b/include/soc/bcm2835/raspberrypi-firmware.h
-index 8fe64f53a394..eaa4e516e4c6 100644
---- a/include/soc/bcm2835/raspberrypi-firmware.h
-+++ b/include/soc/bcm2835/raspberrypi-firmware.h
-@@ -140,7 +140,6 @@ int rpi_firmware_property(struct rpi_firmware *fw,
- 			  u32 tag, void *data, size_t len);
- int rpi_firmware_property_list(struct rpi_firmware *fw,
- 			       void *data, size_t tag_size);
--struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node);
- struct rpi_firmware *devm_rpi_firmware_get(struct device *dev,
- 					   struct device_node *firmware_node);
- #else
-@@ -156,11 +155,6 @@ static inline int rpi_firmware_property_list(struct rpi_firmware *fw,
- 	return -ENOSYS;
- }
- 
--static inline struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
--{
--	return NULL;
--}
--
- static inline struct rpi_firmware *devm_rpi_firmware_get(struct device *dev,
- 					struct device_node *firmware_node)
- {
+-	rpi_domains->fw = rpi_firmware_get(fw_np);
++	rpi_domains->fw = devm_rpi_firmware_get(&pdev->dev, fw_np);
+ 	of_node_put(fw_np);
+ 	if (!rpi_domains->fw)
+ 		return -EPROBE_DEFER;
 -- 
 2.29.1
 

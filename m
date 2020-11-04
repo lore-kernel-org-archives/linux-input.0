@@ -5,66 +5,67 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81125C388F9
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:26:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DEB6C2D0A3
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:26:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2BD4F206D4
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:26:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F5D5206D4
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:26:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="wfZOJTrn"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="i/SMHsMT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731128AbgKDQZ7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Nov 2020 11:25:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35748 "EHLO
+        id S1730900AbgKDQ0F (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Nov 2020 11:26:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730976AbgKDQZD (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2020 11:25:03 -0500
+        with ESMTP id S1730928AbgKDQY4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2020 11:24:56 -0500
 Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8E8C0401C3
-        for <linux-input@vger.kernel.org>; Wed,  4 Nov 2020 08:24:59 -0800 (PST)
-Received: by mail-wr1-x441.google.com with SMTP id n15so22750933wrq.2
-        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2020 08:24:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D73C0613D4
+        for <linux-input@vger.kernel.org>; Wed,  4 Nov 2020 08:24:54 -0800 (PST)
+Received: by mail-wr1-x441.google.com with SMTP id g12so22667301wrp.10
+        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2020 08:24:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=msuLefrZcEgx331/KYpWGgm3TBHNpr52u7dLtV0zqps=;
-        b=wfZOJTrnJLcGlYWEG9B+GhDqsHkblvuFsfWhIGXyFjshWYHWR4vtXpsCVcTSbmVkAt
-         oxZ4bOxM0fIV8AbbwoIkF1EnPmnlgGZYsQS5pID2zK7Tabthi6BONKDAbjiuNUy2eYal
-         NMr6y+NvM+aeRXDTHIfFQRC2JqjikLBItk8Fr9UBD/3PloBYg7qMTloSAkweE+wDx3ak
-         dcl9jOKsDuFTjE5uvUBCL4HfzV+K/V0Sy1c/Peh9K060HUY3KJ85bnTI5sjEpa4sCvoq
-         ovgD+NsiBwUCq3HGH7W4sKf7tsfAsOrvdrWeyN4eKNB2Ff8X7EwtQ2hjfnJuslsGgnEr
-         7aDQ==
+        bh=JM2T5gVY6mQCYq3pa3CtVVdmUuOhZqTmm7j89dYLWQU=;
+        b=i/SMHsMT00YS2lCynxMmugbtsc2/7yy4xnA5bc0ana2gO2cCL2SEp/JMla/n126zZh
+         NPYH+jLh1YN4Df7mt2FAvaVYe/s8DxEH/mgQkK7E5j8pI/BNv9nCagofcEoikxhSYI0p
+         YvxYFpnOfvtlbnHs7mK7pwZrCRaBdb2n9YLw2dnLGay6Ue4hHFG9/u+QGNEG1KQUmu3D
+         2Zj5Mg/DCXSLILCkeHP45dbLiZou4OR+z/6QP9ZfoF5AhABxuTFVSWs7gCU1TgcevrDr
+         KjzhgM4jNrN/wCGCTgWun7Wd+xpKH0kGa3RhPPk+UjfPccndKb1dom1VZk3WoRnu+fgM
+         Zpbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=msuLefrZcEgx331/KYpWGgm3TBHNpr52u7dLtV0zqps=;
-        b=DIm5rcSiaWIwUkAITOFz3BSsBqnU7UIIS5Bc9ALmIsfY73xdGvYkXFozEo5CKR/S9j
-         Eqzb5Zviyw6vlcq0IZA+qU17Zwh7gboNXxJwJI0tbUelG4XcmaphicI6QB7HKb0ipc8q
-         aChShjFwFzIScfCTIkWKnutvLufYQ8VuSzRvlu7mzeoxrjeT6SaZPh+jG7qcXpp01yY0
-         uEBFUzs36ao4PmazI2ZQ6ic1Ppj23GbER2nvBKPXSmeV7MzLIFbaofHBvbsUQBmLyDVl
-         NWEhUiHmIwSN4muWG0yHbhNbeVaM1CBWWoLy0fpE4kFwzA6o6u9H9DOTi8Gl3dvnmhXq
-         VTBQ==
-X-Gm-Message-State: AOAM532dH8avseCL4HJMwqgxzbfPkPE2UTlC9ff+xfL5HWuj0YDFNlOS
-        GOQP5UHeBS9vb85zrRDKZOYyOPpnGZPcRrs6
-X-Google-Smtp-Source: ABdhPJyHBpgiYezebevIEOeTys2mcAT0d8aCDxyMKil5oGa56dkB4VMa0DUUUu9MiJzU6eU3OB8/Cw==
-X-Received: by 2002:a5d:6ca8:: with SMTP id a8mr18741943wra.319.1604507098189;
-        Wed, 04 Nov 2020 08:24:58 -0800 (PST)
+        bh=JM2T5gVY6mQCYq3pa3CtVVdmUuOhZqTmm7j89dYLWQU=;
+        b=hzVg/uGJz+yuzTBnNCbGtG34UulazzIy4Nj5qRduhjLWUoFfHAQvw7Cpcmd3Sjcit1
+         UO48EaTeMKTSc3JnWJkH/lG6OaLQu5+ofv/HeymN66HZJNap1EUhdaKqYGZDaKFACnGz
+         rAOCqbezcJprGS3tfRHf73I/dvnst1ZmxyAbRbROh1hBOU834r9goFjJrqNl3x5H56Mi
+         Eu1CXnRJu8DpUPW7DBgYmj8whMkPc4Gk5LcV7UI50ZpyOBzYVKQFk6NVd26S5tDVyqEb
+         MFJW8Waz2qRTVqYnO70HsndAM8Kw+qyUC7QnF5yNYRzo6SvNMR/tO7ft8AtjvRRuhL74
+         EZAw==
+X-Gm-Message-State: AOAM533ubay4M42CSqjc2RUVank+X9ArRHDynAwPaiDO+WVnyrvAcs6w
+        NVwCAv43+8FV+12VKzq8ee1/Cw==
+X-Google-Smtp-Source: ABdhPJzdjlS/LhhU7HXjUaKMzpL+Law5xU6ARfYwU1WOJ3TBZddsJ93/Gm+k8L5S/PJ71zU7Xo2rGA==
+X-Received: by 2002:a05:6000:3:: with SMTP id h3mr31862922wrx.215.1604507093262;
+        Wed, 04 Nov 2020 08:24:53 -0800 (PST)
 Received: from dell.default ([91.110.221.242])
-        by smtp.gmail.com with ESMTPSA id o129sm3008564wmb.25.2020.11.04.08.24.56
+        by smtp.gmail.com with ESMTPSA id o129sm3008564wmb.25.2020.11.04.08.24.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 08:24:57 -0800 (PST)
+        Wed, 04 Nov 2020 08:24:52 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 13/20] input: rmi4: rmi_f54: Provide some missing 'REPORT_TYPE' enums
-Date:   Wed,  4 Nov 2020 16:24:20 +0000
-Message-Id: <20201104162427.2984742-14-lee.jones@linaro.org>
+Subject: [PATCH 09/20] input: touchscreen: resistive-adc-touch: Struct headers should start with 'struct <name>'
+Date:   Wed,  4 Nov 2020 16:24:16 +0000
+Message-Id: <20201104162427.2984742-10-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201104162427.2984742-1-lee.jones@linaro.org>
 References: <20201104162427.2984742-1-lee.jones@linaro.org>
@@ -76,40 +77,29 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/input/rmi4/rmi_f54.c:77: warning: Enum value 'F54_REPORT_NONE' not described in enum 'rmi_f54_report_type'
- drivers/input/rmi4/rmi_f54.c:77: warning: Enum value 'F54_MAX_REPORT_TYPE' not described in enum 'rmi_f54_report_type'
+ drivers/input/touchscreen/resistive-adc-touch.c:34: warning: cannot understand function prototype: 'struct grts_state '
 
+Cc: Eugen Hristev <eugen.hristev@microchip.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/input/rmi4/rmi_f54.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/input/touchscreen/resistive-adc-touch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-index 6b23e679606ee..93b328c796c64 100644
---- a/drivers/input/rmi4/rmi_f54.c
-+++ b/drivers/input/rmi4/rmi_f54.c
-@@ -42,6 +42,8 @@
+diff --git a/drivers/input/touchscreen/resistive-adc-touch.c b/drivers/input/touchscreen/resistive-adc-touch.c
+index cfc8bb4553f78..e50af30183f4e 100644
+--- a/drivers/input/touchscreen/resistive-adc-touch.c
++++ b/drivers/input/touchscreen/resistive-adc-touch.c
+@@ -23,7 +23,7 @@
+ #define GRTS_MAX_POS_MASK				GENMASK(11, 0)
+ 
  /**
-  * enum rmi_f54_report_type - RMI4 F54 report types
-  *
-+ * @F54_REPORT_NONE:	No Image Report.
-+ *
-  * @F54_8BIT_IMAGE:	Normalized 8-Bit Image Report. The capacitance variance
-  *			from baseline for each pixel.
-  *
-@@ -64,6 +66,10 @@
-  *			Report. Set Low reference to its minimum value and high
-  *			references to its maximum value, then report the raw
-  *			capacitance for each pixel.
-+ *
-+ * @F54_MAX_REPORT_TYPE:
-+ *			Maximum number of Report Types.  Used for sanity
-+ *			checking.
-  */
- enum rmi_f54_report_type {
- 	F54_REPORT_NONE = 0,
+- * grts_state - generic resistive touch screen information struct
++ * struct grts_state - generic resistive touch screen information struct
+  * @pressure_min:	number representing the minimum for the pressure
+  * @pressure:		are we getting pressure info or not
+  * @iio_chans:		list of channels acquired
 -- 
 2.25.1
 

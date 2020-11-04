@@ -5,76 +5,72 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEF06C4741F
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:26:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93ECDC2D0A3
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:26:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7E565206D4
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:26:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D2642074B
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:26:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Zo4HwqwM"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="dVxYiVWa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730922AbgKDQ0F (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Nov 2020 11:26:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
+        id S1730871AbgKDQYs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Nov 2020 11:24:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730933AbgKDQY4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2020 11:24:56 -0500
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA951C061A4A
-        for <linux-input@vger.kernel.org>; Wed,  4 Nov 2020 08:24:55 -0800 (PST)
-Received: by mail-wr1-x443.google.com with SMTP id c17so3339713wrc.11
-        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2020 08:24:55 -0800 (PST)
+        with ESMTP id S1730862AbgKDQYq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2020 11:24:46 -0500
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43DD1C0613D3
+        for <linux-input@vger.kernel.org>; Wed,  4 Nov 2020 08:24:46 -0800 (PST)
+Received: by mail-wr1-x442.google.com with SMTP id c17so3339125wrc.11
+        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2020 08:24:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=hwyOazzO/GQzyuqblzZOtq9SwXpd1xEL9uFxk2jvFF4=;
-        b=Zo4HwqwMwEFUkSUixNvB41J5S0n/ImVso05y2fPLD//YtKZoVyJZRsOIzRR15+ueRx
-         f+08bnoAreTE/Zhg0kiSmLb9NGmSpPepV3WbxvG25tFxr8hZY+2DXSiR/7G1CbDxKFCH
-         5Rh3XQPBQwgHFwpUMdOCKhh8KLCZ6GJmjmlJ+CEOorScoa38PZNA9lMcnrnW35kBIpwY
-         gcwdgojBD4Wr0Dn9cK4xJIBEY7xsPsBvA4A0CwgtBn5Ar7grsTDoz1y/ut5c0yhecUMu
-         seB5bdhJBBHk53BYEVQf0k3NfMQfu/Y3onv5oGbMVcXYkFJqpVThXv50LoLr1hgJfNc6
-         xZjQ==
+        bh=/pehohWmuys5loht7+WPpBg1h/OEijt9BJT+2ot7pfE=;
+        b=dVxYiVWaB+e22PzDGjiCKLziltetH04dfjkI+LnDpCbnMDbROwELo9sbj6ZmUz7I4L
+         X4bkKlWYlir2FkUNvuvrelWNtkT80hFmcvtwjO2e0fmYFwsZZDyHxjLxgA47LR+CU0Ln
+         7GH+BbJ5K8r4m6dbmAT/hn6wKTCy5YA49tU7VvMNCayhNufnEp+1DNvZaAElf7AdJokj
+         wbus3avuX0tzWICtlHvx/hqwOiXYreKlPghHbyrkoTWPnbONJ5XN4LED9zbglKVcz0hd
+         xNJzEGTwBT1n0i43ax7hPLy9oCq0pY706p+uDeSATC4s1Kg+UgDAVH/DnJ49HhbY09dn
+         BjLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=hwyOazzO/GQzyuqblzZOtq9SwXpd1xEL9uFxk2jvFF4=;
-        b=lW0x2fuf5kAglMzX9QGjH5FLoguUMjG8NVQ35Yaz+mQ7pPvxRR7kr9eMdS9h/tEfPz
-         pJESoijOi69MzPg09hsmdFW22G8/gEk4ff5GVtGpuCx5iiuqLECBxfgExb/vNXngFJdh
-         qqJN871sab7xq9iku8jJ/UOmvihwEjbTBu0aa+rxvnJwEYm8V1hoDUSbu6pwC+qgHwnJ
-         Oe1o8m4wc/tsWgXPELhgiAivOAlwQ6ADtpH3qGFJuabeEHdFZ0qMQrB/MVzPYnSMMxnl
-         EHt/zm879tUNuVeKy2C/5ITxOX2aZFb3TUhY5P399dxWNXhaIYwFzAhx+T6SVcRz4YFa
-         jLNw==
-X-Gm-Message-State: AOAM532UwuVbJbi+vI8WCnlCq7xMlfWLcpDOpWkJVgiLw8p6EtuP3I0b
-        bkWyfGRybe9VG/z7ajkWyGCLEPRKDY+jkOab
-X-Google-Smtp-Source: ABdhPJwfuLiHj0uKdmCYgiPrFNhlKN1rGUHif2OjsyPaTaeOm2RMx7PaLn6wchUSsYtqNqeNBPpnrQ==
-X-Received: by 2002:adf:80eb:: with SMTP id 98mr7667239wrl.101.1604507094427;
-        Wed, 04 Nov 2020 08:24:54 -0800 (PST)
+        bh=/pehohWmuys5loht7+WPpBg1h/OEijt9BJT+2ot7pfE=;
+        b=qKcuMok5mPFavKQ/+grNuvwuydOfvZnFY8PyNU/w6D4oqe2C2T7h/3I+3jAp7QMvF7
+         w/sGuBoylh/Cz2cYAT3UGhKTnxA/uD5oTOvamIeIWUS1Y6inDX1RU/26D56r4xmZgr6K
+         XcZz8H0XbPz3NWax0e2ac5fGnSBqjpTYcaZc0DsZLAaSpbi/xLocNx0OaFES9csNs45j
+         6FVZ7dPRbiHx0QREUMmORl88F0GH+f7maeICBWTT0wiIg4gOmAxK1ObEs3tmbau/mDRD
+         D2fvtrRun2Vuebw0RYSjEsz4oacScC96xNrJAkD7pBRgE9VWDYZ+f3p9dz2WyjOUTU8A
+         k0uQ==
+X-Gm-Message-State: AOAM531O5KBZiZ9c+6iAqfzUZ0ymzutR0+O3/2E0PR5BOKZsnO8nL89n
+        f/a28qqrhW7nx2i04RJzqSiyXg==
+X-Google-Smtp-Source: ABdhPJynzGjvNfjtDsR1OdF+T/RCHr9NwfmXJKx5i8AjRSc0LoIT5yzEJwy09a3I4ZDlVEwovymnrg==
+X-Received: by 2002:adf:e610:: with SMTP id p16mr27404083wrm.302.1604507085026;
+        Wed, 04 Nov 2020 08:24:45 -0800 (PST)
 Received: from dell.default ([91.110.221.242])
-        by smtp.gmail.com with ESMTPSA id o129sm3008564wmb.25.2020.11.04.08.24.53
+        by smtp.gmail.com with ESMTPSA id o129sm3008564wmb.25.2020.11.04.08.24.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 08:24:53 -0800 (PST)
+        Wed, 04 Nov 2020 08:24:44 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Henrik Rydberg <rydberg@bitmath.org>,
-        Peter Osterlund <petero2@telia.com>,
-        Stefan Gmeiner <riddlebox@freesurf.ch>,
-        "C. Scott Ananian" <cananian@alumni.priceton.edu>,
-        Bruce Kalk <kall@compass.com>,
-        this to <linux-input@vger.kernel.org>
-Subject: [PATCH 10/20] input: mouse: synaptics: Place braces around empty if() body
-Date:   Wed,  4 Nov 2020 16:24:17 +0000
-Message-Id: <20201104162427.2984742-11-lee.jones@linaro.org>
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Dudley Du <dudl@cypress.com>, linux-input@vger.kernel.org
+Subject: [PATCH 03/20] input: mouse: cyapa_gen5: Fix obvious abuse of kernel-doc format
+Date:   Wed,  4 Nov 2020 16:24:10 +0000
+Message-Id: <20201104162427.2984742-4-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201104162427.2984742-1-lee.jones@linaro.org>
 References: <20201104162427.2984742-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -82,37 +78,46 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/input/mouse/synaptics.c: In function ‘synaptics_process_packet’:
- drivers/input/mouse/synaptics.c:1110:6: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+ drivers/input/mouse/cyapa_gen5.c:392: warning: Function parameter or member 'cyapa' not described in 'cyapa_i2c_pip_write'
+ drivers/input/mouse/cyapa_gen5.c:392: warning: Function parameter or member 'buf' not described in 'cyapa_i2c_pip_write'
+ drivers/input/mouse/cyapa_gen5.c:392: warning: Function parameter or member 'size' not described in 'cyapa_i2c_pip_write'
+ drivers/input/mouse/cyapa_gen5.c:444: warning: Function parameter or member 'cyapa' not described in 'cyapa_empty_pip_output_data'
+ drivers/input/mouse/cyapa_gen5.c:444: warning: Function parameter or member 'buf' not described in 'cyapa_empty_pip_output_data'
+ drivers/input/mouse/cyapa_gen5.c:444: warning: Function parameter or member 'len' not described in 'cyapa_empty_pip_output_data'
+ drivers/input/mouse/cyapa_gen5.c:444: warning: Function parameter or member 'func' not described in 'cyapa_empty_pip_output_data'
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Peter Osterlund <petero2@telia.com>
-Cc: Stefan Gmeiner <riddlebox@freesurf.ch>
-Cc: "C. Scott Ananian" <cananian@alumni.priceton.edu>
-Cc: Bruce Kalk <kall@compass.com>
-Cc: this to <linux-input@vger.kernel.org>
+Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: Dudley Du <dudl@cypress.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/input/mouse/synaptics.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/mouse/cyapa_gen5.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 82577095e175e..07835939d83b9 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1106,8 +1106,9 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 					num_fingers = hw.w + 2;
- 				break;
- 			case 2:
--				if (SYN_MODEL_PEN(info->model_id))
-+				if (SYN_MODEL_PEN(info->model_id)) {
- 					;   /* Nothing, treat a pen as a single finger */
-+				}
- 				break;
- 			case 4 ... 15:
- 				if (SYN_CAP_PALMDETECT(info->capabilities))
+diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
+index bb3a63d1268d1..5c37af994b5b5 100644
+--- a/drivers/input/mouse/cyapa_gen5.c
++++ b/drivers/input/mouse/cyapa_gen5.c
+@@ -385,7 +385,7 @@ ssize_t cyapa_i2c_pip_read(struct cyapa *cyapa, u8 *buf, size_t size)
+ 	return size;
+ }
+ 
+-/**
++/*
+  * Return a negative errno code else zero on success.
+  */
+ ssize_t cyapa_i2c_pip_write(struct cyapa *cyapa, u8 *buf, size_t size)
+@@ -435,7 +435,7 @@ static enum cyapa_pm_stage cyapa_get_pip_pm_state(struct cyapa *cyapa)
+ 	return pm_stage;
+ }
+ 
+-/**
++/*
+  * This function is aimed to dump all not read data in Gen5 trackpad
+  * before send any command, otherwise, the interrupt line will be blocked.
+  */
 -- 
 2.25.1
 

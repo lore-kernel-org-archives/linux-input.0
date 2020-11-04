@@ -2,57 +2,31 @@ Return-Path: <SRS0=fHkP=EK=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E1A5C2D0A3
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 19:06:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE5AFC4741F
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 19:55:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D296620704
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 19:06:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1604516782;
-	bh=ilpBQ/1VyjpcQkzbM+hgn4u6GF48OPRDT7Xjs8PVOt4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=zDQsIkwqSCFx10hyGcj7yKRO3ziLywK4fUJLB/EzmSh3Z1OuMAmYyUHvp3B2sRGSb
-	 ySbbjieLJOQIR+R9Le6rhPdfElWXqNj3S8RZHuNkO66K2s1dsgbgs2ccEewYH7wVrP
-	 a2xRW47Jy1RCZsT22tZ2hma/n73oM3xgGw4S5hyk=
+	by mail.kernel.org (Postfix) with ESMTP id 626A120759
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 19:55:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730389AbgKDTGQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Nov 2020 14:06:16 -0500
-Received: from mail-oi1-f173.google.com ([209.85.167.173]:33081 "EHLO
-        mail-oi1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729946AbgKDTGQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2020 14:06:16 -0500
-Received: by mail-oi1-f173.google.com with SMTP id k26so17738oiw.0;
-        Wed, 04 Nov 2020 11:06:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=cFN5h9yGsHsZOKXv8QOHIY58GxPhGQOkwRhjB/ZiBHY=;
-        b=FbgnidgIt7VLNJxNMEbNFFm3S6Chuc1G5n+V3jGI0MuARAkpiyEI7DJ5nrwuyKBV+1
-         +b/CeVSjHeQTcahov28fS48DD66ZAH45QhIvynqnHNcTWf/C3Z1xoNO39Dqmmp/IDbP5
-         m78PeMkk9jNAD/YWAl5++rdd53RYRW/PoICBxwiKSV2IdcbJR0r6eqYoEawlYgJQQe+T
-         NkDIhhN2OFtaNrXYFdLUEwc9ajb+WliISCgIZQfg7nS8z6AIZp6fEXUmA2hOD8Qhf9wb
-         CvjPal0ojb2LFyHc4uVW94NaKThwCkwS8Gyr3fOxuOb6zWV+dT5Gl5fZDiVKO0Db3Qwq
-         me6w==
-X-Gm-Message-State: AOAM531ZkwxqpnjizheeyfySpTfR6RiqNtQFqeYWdMpnPuvmmshrhMQW
-        SiuGu4Evcud2upH65DPiHw==
-X-Google-Smtp-Source: ABdhPJxg0zwV09ldz2969D3HBuxab6u1/Ts/gJbn+JECdctdgUFKh5ZxAEiWT0cSOANiSBHnw3BhhA==
-X-Received: by 2002:aca:a951:: with SMTP id s78mr3577208oie.114.1604516775469;
-        Wed, 04 Nov 2020 11:06:15 -0800 (PST)
-Received: from xps15 (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id r188sm658438oia.13.2020.11.04.11.06.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 11:06:14 -0800 (PST)
-Received: (nullmailer pid 3960013 invoked by uid 1000);
-        Wed, 04 Nov 2020 19:06:12 -0000
-Date:   Wed, 4 Nov 2020 13:06:12 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+        id S1730008AbgKDTzY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Nov 2020 14:55:24 -0500
+Received: from mx2.suse.de ([195.135.220.15]:33184 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727013AbgKDTzY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 4 Nov 2020 14:55:24 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 15DE6AC53;
+        Wed,  4 Nov 2020 19:55:22 +0000 (UTC)
+Message-ID: <4debc77f5c72e1f4eff36a700231493bf9fbf404.camel@suse.de>
+Subject: Re: [PATCH v3 09/11] dt-bindings: pwm: Add binding for RPi firmware
+ PWM bus
+From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+To:     Rob Herring <robh@kernel.org>
 Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         linux-kernel@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
         Ray Jui <rjui@broadcom.com>, u.kleine-koenig@pengutronix.de,
@@ -66,57 +40,74 @@ Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         linux-gpio@vger.kernel.org, Scott Branden <sbranden@broadcom.com>,
         linus.walleij@linaro.org, linux-clk@vger.kernel.org,
         andy.shevchenko@gmail.com
-Subject: Re: [PATCH v3 09/11] dt-bindings: pwm: Add binding for RPi firmware
- PWM bus
-Message-ID: <20201104190612.GA3959462@bogus>
+Date:   Wed, 04 Nov 2020 20:55:19 +0100
+In-Reply-To: <20201104190612.GA3959462@bogus>
 References: <20201104103938.1286-1-nsaenzjulienne@suse.de>
- <20201104103938.1286-10-nsaenzjulienne@suse.de>
+         <20201104103938.1286-10-nsaenzjulienne@suse.de>
+         <20201104190612.GA3959462@bogus>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-cU9/G+WYZ+w+iySzg6LF"
+User-Agent: Evolution 3.36.5 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201104103938.1286-10-nsaenzjulienne@suse.de>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 04 Nov 2020 11:39:35 +0100, Nicolas Saenz Julienne wrote:
-> The PWM bus controlling the fan in RPi's official PoE hat can only be
-> controlled by the board's co-processor.
-> 
-> Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> 
-> ---
-> 
-> Changes since v1:
->  - Update bindings to use 2 #pwm-cells
-> 
->  .../arm/bcm/raspberrypi,bcm2835-firmware.yaml | 20 +++++++++++++++++++
->  .../pwm/raspberrypi,firmware-pwm.h            | 13 ++++++++++++
->  2 files changed, 33 insertions(+)
->  create mode 100644 include/dt-bindings/pwm/raspberrypi,firmware-pwm.h
-> 
+
+--=-cU9/G+WYZ+w+iySzg6LF
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2020-11-04 at 13:06 -0600, Rob Herring wrote:
+> On Wed, 04 Nov 2020 11:39:35 +0100, Nicolas Saenz Julienne wrote:
+> > The PWM bus controlling the fan in RPi's official PoE hat can only be
+> > controlled by the board's co-processor.
+> >=20
+> > Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+> >=20
+> > ---
+> >=20
+> > Changes since v1:
+> >  - Update bindings to use 2 #pwm-cells
+> >=20
+> >  .../arm/bcm/raspberrypi,bcm2835-firmware.yaml | 20 +++++++++++++++++++
+> >  .../pwm/raspberrypi,firmware-pwm.h            | 13 ++++++++++++
+> >  2 files changed, 33 insertions(+)
+> >  create mode 100644 include/dt-bindings/pwm/raspberrypi,firmware-pwm.h
+> >=20
+>=20
+> My bot found errors running 'make dt_binding_check' on your patch:
+>=20
+> yamllint warnings/errors:
+>=20
+> dtschema/dtc warnings/errors:
+> /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/arm/=
+bcm/raspberrypi,bcm2835-firmware.example.dt.yaml: firmware: pwm:#pwm-cells:=
+0:0: 2 was expected
+
+Yes I forgot to update the example...
+
+Regards,
+Nicolas
 
 
-My bot found errors running 'make dt_binding_check' on your patch:
+--=-cU9/G+WYZ+w+iySzg6LF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
 
-yamllint warnings/errors:
+-----BEGIN PGP SIGNATURE-----
 
-dtschema/dtc warnings/errors:
-/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.example.dt.yaml: firmware: pwm:#pwm-cells:0:0: 2 was expected
-	From schema: /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
+iQEzBAABCAAdFiEErOkkGDHCg2EbPcGjlfZmHno8x/4FAl+jBycACgkQlfZmHno8
+x/4lqwf+LNqmKYmR+D64RymsZ5v7t1WD9DkM2AcOluMdjU13iiD8I+U2KdCc2R8Y
+KhH9mNARA0Kd5JtfEzifsT4G3OqWIac7V/abpwHwrS7ilQjx2gLCACaBO87JwzK0
+R5uOO0FWqaEoLK5GknPO2HGn8ez34EPHU3cu4SXBBFqEnaEbEMr9cEl0ou+vdrYS
+3JnsvkWGZO7LY9vh05c9I/L2pyFg1JieOLU46BYJxAPvlqeILLwWvJ0oq4iiFM7I
+ZFjf/7VhrNk92HLeRMTgPt6/LuVsvnDBJXzAEknYiZt4Taa99Y11MxauWIIqAsk+
+LBfmYrGtxl88K4eRkxCDzH4wnYm/qQ==
+=Ei+W
+-----END PGP SIGNATURE-----
 
-
-See https://patchwork.ozlabs.org/patch/1393804
-
-The base for the patch is generally the last rc1. Any dependencies
-should be noted.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit.
+--=-cU9/G+WYZ+w+iySzg6LF--
 

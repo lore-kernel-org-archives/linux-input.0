@@ -7,64 +7,65 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5618C2D0A3
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:25:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82A21C388F9
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:25:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 52D6C206DB
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:25:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 38C63206A5
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 16:25:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="r3DtYquA"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="TgpHBxyd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731089AbgKDQZo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Nov 2020 11:25:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35766 "EHLO
+        id S1730983AbgKDQZz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Nov 2020 11:25:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730987AbgKDQZE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2020 11:25:04 -0500
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F556C061A4D
-        for <linux-input@vger.kernel.org>; Wed,  4 Nov 2020 08:25:04 -0800 (PST)
-Received: by mail-wm1-x344.google.com with SMTP id e2so2901848wme.1
-        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2020 08:25:03 -0800 (PST)
+        with ESMTP id S1730973AbgKDQZD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2020 11:25:03 -0500
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E3DDC0401C1
+        for <linux-input@vger.kernel.org>; Wed,  4 Nov 2020 08:24:58 -0800 (PST)
+Received: by mail-wm1-x341.google.com with SMTP id k18so2872360wmj.5
+        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2020 08:24:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=gEEnx9N3Q6ff4TorTnZ32g1gwXsaI47EH/IMR+WZidg=;
-        b=r3DtYquA9eQDmSD8EW1+bhREgzlV6LvrBBEaMbs2ZbGnZsxd0B7Ny0INQFWdj3D7Na
-         +4/kMzSys6PKK6/3Q+brrOCiFFXgVcRSS0g9J2h0BRu2LesSSz1RTSA6+EwH+1kOdqOL
-         NGVUxj8cRbOkhi5UKo572NgzFqy3prqW+s9PkrrTH+dcoZ/YvXouI43w3qeH7oyL2qPy
-         yP22JD5q8Qa07DTRK/ia+yqxjglgJ/SbUkZqBEszmFT99IykGP8hrbG7yRBlqGoxQKNf
-         MWz0D5Y3JJhf0fKqQvLr/bEdd3+B8Vx/B0sVnb0oBhHFDwDhBpdsdsIPV5Gv03+lAu19
-         J8bQ==
+        bh=wqV2KeQMP/jFy3p+xfQ20dH54ZYHRrmQaU4ia2enM0c=;
+        b=TgpHBxydiK0xY7RBNvsdU9Yu+j5Ha0R/S+kR6gjh3E260ncOOfUtbuIQQj/zGA/fIs
+         a6c9rBGWZAi3x1dKcHK9Tbg9ZrTA45/6eE/PfJTwxNRM8jWIzBvUqt0MEs9SgWke2w9Z
+         Qf9ncIivi1Kn9I5VipWCLMyXFcYVBEmFNq/m1qiYpLu4MR3PjuBdObyOWZdNk8BE88mY
+         Eq5HaISwXddNkG3Gyx/OT+xYWjqivnvpJY0n5uCVIKRRYlE8ylLREiW4uNUHxnZTnhr+
+         mY0A+J/5780uburyheUsfTypAVqbyDVV9KOABCawsljanzyVoPJF7h/wyXMQE2w4CccC
+         rkQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gEEnx9N3Q6ff4TorTnZ32g1gwXsaI47EH/IMR+WZidg=;
-        b=eKRbEvadLFvvZa7oKytk+Ph84rPBIhKzFKySVQReuitUD/QOFbyTlFiffNDEYQdSAs
-         mV8bX/r9PH8oSHxFfG0HdqxgF/wCC1YbdHmjo91pzlTJga9shtkN+xbhV/YNAM+OF37h
-         tzH47ycK7ulRqfwJy0OBI5PGTwOdQUuA4bkiG+rVHBee9mqOmrUxLLMnK8Oi8MW4+enC
-         r2PQbOJ3ksMFPne/4CQ6RO3zs1FshKdAoXhl5j6/HBgEss/CFt6mXlzXaofjP1pZw6+w
-         Ztd8SG9YgYUQrvQ3Ta2E4Qvk015zD8x74J17sx8yIr6SB5Ba43Sz4UAOwj9+LehM+BTG
-         42Ww==
-X-Gm-Message-State: AOAM532Tn6VHpX9gNbYqih8bo05v9cs3wjElE9cVZ/rJWWEvCso/yH7+
-        0ATikHiuXoixCewqOGwHTtnnQA==
-X-Google-Smtp-Source: ABdhPJxGqzrZnMIGaRg5z6soxSJjVletd47ti4DjCQzkqa4Lt8eafXod2NPLJ+2rqaagHZWPvAoFRw==
-X-Received: by 2002:a1c:2d5:: with SMTP id 204mr5624113wmc.181.1604507102814;
-        Wed, 04 Nov 2020 08:25:02 -0800 (PST)
+        bh=wqV2KeQMP/jFy3p+xfQ20dH54ZYHRrmQaU4ia2enM0c=;
+        b=Q2xdp2GbqfCkXtmPuZS1rNPXLq2BVNMBY0wnmQkLiHPIz0IK1XkxrUQzHMqUYjBZeJ
+         9mscnCpTjVI6/1OOYJZFVrJzLevqfL3kGL8AjxTiZLgAbclXnmtu+9NUEXJyzqJW3h0E
+         v/xlD2KkHe/b9immAbg4iofNswNwfJx3/0D2NfkgKxi0n1jEyhRSwAVgtHYoXtO6UzMR
+         MXyY/IyFree64ae9GBUqD4WRfvNGVlR5BdNH9iIGUkMbRfMjTi52+qd1PWFNx12okbaw
+         5GbBEVCEStsZZf735qEHL/dbm0cqHcJdRKuP96nxsYjbx2vIhILbnCV9mQs634WKsKw3
+         EPDg==
+X-Gm-Message-State: AOAM530pq6wVGrV/AnQ7ZCroeHZYMfF6/mUkv8v+HU6ERkhO/gse1e+i
+        hxOuVl4+kgipu8J6VDPG53R0ug==
+X-Google-Smtp-Source: ABdhPJw8fPHgbe9/qhRL11vvZZ1bNdDlY920DUkgfl4LgerotHnx/SYgDgtZu2uk1jR8JBUCEWkwjw==
+X-Received: by 2002:a1c:9cc1:: with SMTP id f184mr5351092wme.5.1604507096858;
+        Wed, 04 Nov 2020 08:24:56 -0800 (PST)
 Received: from dell.default ([91.110.221.242])
-        by smtp.gmail.com with ESMTPSA id o129sm3008564wmb.25.2020.11.04.08.25.01
+        by smtp.gmail.com with ESMTPSA id o129sm3008564wmb.25.2020.11.04.08.24.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2020 08:25:02 -0800 (PST)
+        Wed, 04 Nov 2020 08:24:56 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Dan Murphy <dmurphy@ti.com>, linux-input@vger.kernel.org
-Subject: [PATCH 17/20] input: misc: drv2665: Fix formatting expected by kernel-doc
-Date:   Wed,  4 Nov 2020 16:24:24 +0000
-Message-Id: <20201104162427.2984742-18-lee.jones@linaro.org>
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Arjan Opmeer <arjan@opmeer.net>, linux-input@vger.kernel.org
+Subject: [PATCH 12/20] input: mouse: elantech: Demote obvious abuse of kernel-doc header
+Date:   Wed,  4 Nov 2020 16:24:19 +0000
+Message-Id: <20201104162427.2984742-13-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201104162427.2984742-1-lee.jones@linaro.org>
 References: <20201104162427.2984742-1-lee.jones@linaro.org>
@@ -76,41 +77,32 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/input/misc/drv2665.c:59: warning: Function parameter or member 'input_dev' not described in 'drv2665_data'
- drivers/input/misc/drv2665.c:59: warning: Function parameter or member 'client' not described in 'drv2665_data'
- drivers/input/misc/drv2665.c:59: warning: Function parameter or member 'regmap' not described in 'drv2665_data'
- drivers/input/misc/drv2665.c:59: warning: Function parameter or member 'work' not described in 'drv2665_data'
- drivers/input/misc/drv2665.c:59: warning: Function parameter or member 'regulator' not described in 'drv2665_data'
+ drivers/input/mouse/elantech.c:1837: warning: Function parameter or member 'psmouse' not described in 'elantech_setup_smbus'
+ drivers/input/mouse/elantech.c:1837: warning: Function parameter or member 'info' not described in 'elantech_setup_smbus'
+ drivers/input/mouse/elantech.c:1837: warning: Function parameter or member 'leave_breadcrumbs' not described in 'elantech_setup_smbus'
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dan Murphy <dmurphy@ti.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Arjan Opmeer <arjan@opmeer.net>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/input/misc/drv2665.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/input/mouse/elantech.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/drv2665.c b/drivers/input/misc/drv2665.c
-index 918ad9c3fa812..0e65ab180f499 100644
---- a/drivers/input/misc/drv2665.c
-+++ b/drivers/input/misc/drv2665.c
-@@ -44,11 +44,11 @@
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 90f8765f9efc8..47cd0e7f79bd1 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1827,7 +1827,7 @@ static int elantech_create_smbus(struct psmouse *psmouse,
+ 				  leave_breadcrumbs);
+ }
  
- /**
-  * struct drv2665_data -
-- * @input_dev - Pointer to the input device
-- * @client - Pointer to the I2C client
-- * @regmap - Register map of the device
-- * @work - Work item used to off load the enable/disable of the vibration
-- * @regulator - Pointer to the regulator for the IC
-+ * @input_dev: Pointer to the input device
-+ * @client: Pointer to the I2C client
-+ * @regmap: Register map of the device
-+ * @work: Work item used to off load the enable/disable of the vibration
-+ * @regulator: Pointer to the regulator for the IC
+-/**
++/*
+  * elantech_setup_smbus - called once the PS/2 devices are enumerated
+  * and decides to instantiate a SMBus InterTouch device.
   */
- struct drv2665_data {
- 	struct input_dev *input_dev;
 -- 
 2.25.1
 

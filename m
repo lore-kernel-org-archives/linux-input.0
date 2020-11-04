@@ -2,143 +2,192 @@ Return-Path: <SRS0=fHkP=EK=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B06D3C2D0A3
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 07:18:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8014C4741F
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 10:39:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 400E42224E
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 07:18:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9785A2072C
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 10:39:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727323AbgKDHSP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Nov 2020 02:18:15 -0500
-Received: from emcscan.emc.com.tw ([192.72.220.5]:44167 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726844AbgKDHSP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2020 02:18:15 -0500
-X-Greylist: delayed 600 seconds by postgrey-1.27 at vger.kernel.org; Wed, 04 Nov 2020 02:18:13 EST
-X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
-   d="scan'208";a="38001739"
-Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
-  by emcscan.emc.com.tw with ESMTP; 04 Nov 2020 15:08:12 +0800
-Received: from 192.168.10.23
-        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(2864:0:AUTH_RELAY)
-        (envelope-from <jingle.wu@emc.com.tw>); Wed, 04 Nov 2020 15:08:09 +0800 (CST)
-Received: from 101.12.7.47
-        by webmail.emc.com.tw with Mail2000 ESMTPA Server V7.00(2477:0:AUTH_LOGIN)
-        (envelope-from <jingle.wu@emc.com.tw>); Wed, 04 Nov 2020 15:08:06 +0800 (CST)
-From:   "jingle.wu" <jingle.wu@emc.com.tw>
-To:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        dmitry.torokhov@gmail.com
-Cc:     phoenix@emc.com.tw, dave.wang@emc.com.tw, josh.chen@emc.com.tw,
-        "jingle.wu" <jingle.wu@emc.com.tw>
-Subject: [PATCH] Input: elan_i2c - Modify the correct input of the iap page type command.
-Date:   Wed,  4 Nov 2020 15:08:04 +0800
-Message-Id: <20201104070804.32044-1-jingle.wu@emc.com.tw>
-X-Mailer: git-send-email 2.17.1
+        id S1726344AbgKDKjv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Nov 2020 05:39:51 -0500
+Received: from mx2.suse.de ([195.135.220.15]:58490 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727001AbgKDKjv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 4 Nov 2020 05:39:51 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id EF2D3AD76;
+        Wed,  4 Nov 2020 10:39:48 +0000 (UTC)
+From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        bcm-kernel-feedback-list@broadcom.com
+Cc:     linux-pwm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        devicetree@vger.kernel.org, wahrenst@gmx.net,
+        linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
+        gregkh@linuxfoundation.org, devel@driverdev.osuosl.org,
+        p.zabel@pengutronix.de, linux-gpio@vger.kernel.org,
+        linus.walleij@linaro.org, linux-clk@vger.kernel.org,
+        sboyd@kernel.org, linux-rpi-kernel@lists.infradead.org,
+        bgolaszewski@baylibre.com, andy.shevchenko@gmail.com
+Subject: [PATCH v3 01/11] firmware: raspberrypi: Introduce devm_rpi_firmware_get()
+Date:   Wed,  4 Nov 2020 11:39:27 +0100
+Message-Id: <20201104103938.1286-2-nsaenzjulienne@suse.de>
+X-Mailer: git-send-email 2.29.1
+In-Reply-To: <20201104103938.1286-1-nsaenzjulienne@suse.de>
+References: <20201104103938.1286-1-nsaenzjulienne@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The iap page type command of the parameter is page_size.
----
- drivers/input/mouse/elan_i2c.h       |  2 +-
- drivers/input/mouse/elan_i2c_core.c  |  3 ++-
- drivers/input/mouse/elan_i2c_i2c.c   | 10 +++++-----
- drivers/input/mouse/elan_i2c_smbus.c |  2 +-
- 4 files changed, 9 insertions(+), 8 deletions(-)
+When unbinding the firmware device we need to make sure it has no
+consumers left. Otherwise we'd leave them with a firmware handle
+pointing at freed memory.
 
-diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
-index c75b00c45d75..36e3cd908671 100644
---- a/drivers/input/mouse/elan_i2c.h
-+++ b/drivers/input/mouse/elan_i2c.h
-@@ -78,7 +78,7 @@ struct elan_transport_ops {
- 	int (*iap_reset)(struct i2c_client *client);
+Keep a reference count of all consumers and introduce
+devm_rpi_firmware_get() which will automatically decrease the reference
+count upon unbinding consumer drivers.
+
+Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+
+---
+
+Changes since v2:
+ - Create devm_rpi_firmware_get()
+
+ drivers/firmware/raspberrypi.c             | 46 ++++++++++++++++++++++
+ include/soc/bcm2835/raspberrypi-firmware.h |  8 ++++
+ 2 files changed, 54 insertions(+)
+
+diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberrypi.c
+index 2371d08bdd17..74bdb3bde9dc 100644
+--- a/drivers/firmware/raspberrypi.c
++++ b/drivers/firmware/raspberrypi.c
+@@ -11,7 +11,9 @@
+ #include <linux/module.h>
+ #include <linux/of_platform.h>
+ #include <linux/platform_device.h>
++#include <linux/refcount.h>
+ #include <linux/slab.h>
++#include <linux/wait.h>
+ #include <soc/bcm2835/raspberrypi-firmware.h>
  
- 	int (*prepare_fw_update)(struct i2c_client *client, u16 ic_type,
--				 u8 iap_version);
-+				 u8 iap_version, u16 fw_page_size);
- 	int (*write_fw_block)(struct i2c_client *client, u16 fw_page_size,
- 			      const u8 *page, u16 checksum, int idx);
- 	int (*finish_fw_update)(struct i2c_client *client,
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index c599e21a8478..61ed3f5ca219 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -497,7 +497,8 @@ static int __elan_update_firmware(struct elan_tp_data *data,
- 	u16 sw_checksum = 0, fw_checksum = 0;
+ #define MBOX_MSG(chan, data28)		(((data28) & ~0xf) | ((chan) & 0xf))
+@@ -27,6 +29,9 @@ struct rpi_firmware {
+ 	struct mbox_chan *chan; /* The property channel. */
+ 	struct completion c;
+ 	u32 enabled;
++
++	refcount_t consumers;
++	wait_queue_head_t wait;
+ };
  
- 	error = data->ops->prepare_fw_update(client, data->ic_type,
--					     data->iap_version);
-+					     data->iap_version,
-+					     data->fw_page_size);
- 	if (error)
- 		return error;
+ static DEFINE_MUTEX(transaction_lock);
+@@ -247,6 +252,8 @@ static int rpi_firmware_probe(struct platform_device *pdev)
+ 	}
  
-diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
-index 5a496d4ffa49..13dc097eb6c6 100644
---- a/drivers/input/mouse/elan_i2c_i2c.c
-+++ b/drivers/input/mouse/elan_i2c_i2c.c
-@@ -517,7 +517,7 @@ static int elan_i2c_set_flash_key(struct i2c_client *client)
+ 	init_completion(&fw->c);
++	refcount_set(&fw->consumers, 1);
++	init_waitqueue_head(&fw->wait);
+ 
+ 	platform_set_drvdata(pdev, fw);
+ 
+@@ -275,11 +282,21 @@ static int rpi_firmware_remove(struct platform_device *pdev)
+ 	rpi_hwmon = NULL;
+ 	platform_device_unregister(rpi_clk);
+ 	rpi_clk = NULL;
++
++	wait_event(fw->wait, refcount_dec_if_one(&fw->consumers));
+ 	mbox_free_channel(fw->chan);
+ 
  	return 0;
  }
  
--static int elan_read_write_iap_type(struct i2c_client *client)
-+static int elan_read_write_iap_type(struct i2c_client *client, u16 fw_page_size)
- {
- 	int error;
- 	u16 constant;
-@@ -526,7 +526,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
- 
- 	do {
- 		error = elan_i2c_write_cmd(client, ETP_I2C_IAP_TYPE_CMD,
--					   ETP_I2C_IAP_TYPE_REG);
-+					   fw_page_size / 2);
- 		if (error) {
- 			dev_err(&client->dev,
- 				"cannot write iap type: %d\n", error);
-@@ -543,7 +543,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
- 		constant = le16_to_cpup((__le16 *)val);
- 		dev_dbg(&client->dev, "iap type reg: 0x%04x\n", constant);
- 
--		if (constant == ETP_I2C_IAP_TYPE_REG)
-+		if (constant == fw_page_size / 2)
- 			return 0;
- 
- 	} while (--retry > 0);
-@@ -553,7 +553,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
++static void rpi_firmware_put(void *data)
++{
++	struct rpi_firmware *fw = data;
++
++	refcount_dec(&fw->consumers);
++	wake_up(&fw->wait);
++}
++
+ /**
+  * rpi_firmware_get - Get pointer to rpi_firmware structure.
+  * @firmware_node:    Pointer to the firmware Device Tree node.
+@@ -297,6 +314,35 @@ struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
  }
+ EXPORT_SYMBOL_GPL(rpi_firmware_get);
  
- static int elan_i2c_prepare_fw_update(struct i2c_client *client, u16 ic_type,
--				      u8 iap_version)
-+				      u8 iap_version, u16 fw_page_size)
++/**
++ * devm_rpi_firmware_get - Get pointer to rpi_firmware structure.
++ * @firmware_node:    Pointer to the firmware Device Tree node.
++ *
++ * Returns NULL is the firmware device is not ready.
++ */
++struct rpi_firmware *devm_rpi_firmware_get(struct device *dev,
++					   struct device_node *firmware_node)
++{
++	struct platform_device *pdev = of_find_device_by_node(firmware_node);
++	struct rpi_firmware *fw;
++
++	if (!pdev)
++		return NULL;
++
++	fw = platform_get_drvdata(pdev);
++	if (!fw)
++		return NULL;
++
++	if (!refcount_inc_not_zero(&fw->consumers))
++		return NULL;
++
++	if (devm_add_action_or_reset(dev, rpi_firmware_put, fw))
++		return NULL;
++
++	return fw;
++}
++EXPORT_SYMBOL_GPL(devm_rpi_firmware_get);
++
+ static const struct of_device_id rpi_firmware_of_match[] = {
+ 	{ .compatible = "raspberrypi,bcm2835-firmware", },
+ 	{},
+diff --git a/include/soc/bcm2835/raspberrypi-firmware.h b/include/soc/bcm2835/raspberrypi-firmware.h
+index cc9cdbc66403..8fe64f53a394 100644
+--- a/include/soc/bcm2835/raspberrypi-firmware.h
++++ b/include/soc/bcm2835/raspberrypi-firmware.h
+@@ -141,6 +141,8 @@ int rpi_firmware_property(struct rpi_firmware *fw,
+ int rpi_firmware_property_list(struct rpi_firmware *fw,
+ 			       void *data, size_t tag_size);
+ struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node);
++struct rpi_firmware *devm_rpi_firmware_get(struct device *dev,
++					   struct device_node *firmware_node);
+ #else
+ static inline int rpi_firmware_property(struct rpi_firmware *fw, u32 tag,
+ 					void *data, size_t len)
+@@ -158,6 +160,12 @@ static inline struct rpi_firmware *rpi_firmware_get(struct device_node *firmware
  {
- 	struct device *dev = &client->dev;
- 	int error;
-@@ -594,7 +594,7 @@ static int elan_i2c_prepare_fw_update(struct i2c_client *client, u16 ic_type,
- 	}
- 
- 	if (ic_type >= 0x0D && iap_version >= 1) {
--		error = elan_read_write_iap_type(client);
-+		error = elan_read_write_iap_type(client, fw_page_size);
- 		if (error)
- 			return error;
- 	}
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-index 8ff823751f3b..1820f1cfc1dc 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -340,7 +340,7 @@ static int elan_smbus_set_flash_key(struct i2c_client *client)
+ 	return NULL;
  }
++
++static inline struct rpi_firmware *devm_rpi_firmware_get(struct device *dev,
++					struct device_node *firmware_node)
++{
++	return NULL;
++}
+ #endif
  
- static int elan_smbus_prepare_fw_update(struct i2c_client *client, u16 ic_type,
--					u8 iap_version)
-+					u8 iap_version, u16 fw_page_size)
- {
- 	struct device *dev = &client->dev;
- 	int len;
+ #endif /* __SOC_RASPBERRY_FIRMWARE_H__ */
 -- 
-2.17.1
+2.29.1
 

@@ -2,171 +2,138 @@ Return-Path: <SRS0=fHkP=EK=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=BAYES_00,DATE_IN_PAST_03_06,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44E02C388F7
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 01:30:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CE9EC2D0A3
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 04:22:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAA1B223C7
-	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 01:30:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B1BA2223AC
+	for <linux-input@archiver.kernel.org>; Wed,  4 Nov 2020 04:22:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="NFHyO+eA"
+	dkim=pass (1024-bit key) header.d=dialogsemiconductor.onmicrosoft.com header.i=@dialogsemiconductor.onmicrosoft.com header.b="VlzCDisI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730012AbgKDBaJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 3 Nov 2020 20:30:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37600 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729701AbgKDBaA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Nov 2020 20:30:00 -0500
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87831C040203
-        for <linux-input@vger.kernel.org>; Tue,  3 Nov 2020 17:29:59 -0800 (PST)
-Received: by mail-pg1-x543.google.com with SMTP id x13so15138500pgp.7
-        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2020 17:29:59 -0800 (PST)
+        id S1728225AbgKDEWK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 3 Nov 2020 23:22:10 -0500
+Received: from mail-db8eur05on2088.outbound.protection.outlook.com ([40.107.20.88]:41537
+        "EHLO EUR05-DB8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726008AbgKDEWK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 3 Nov 2020 23:22:10 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UaHy60htxHtKQy2VxuSO6qwggS1Ko9jAJorsMvt6fELpTa0UuwfKqpdj32TabeOUvcPC19eKXbyykmfnkrGJ0xzMcBRbc8KhPSwy3IxlD43xEKLiAczwzCWNfPhi4okL8KJbm5stJ+US1r0CMho8R/h/92h/wurLBy0mksoCO99YBLqR8cI2aOQeirbhBN2ZT78NCw6RSr4BtLpDhLAowR1zaez2SOkWzvmZgudixUuzEosCaN47FiK0RuSAPD3RUDLzROA2skkM8VTURas7AqE7+aotU/UC5wfFJj/dTTYxoRh77paQQKEkOGUWCgZNuNvmc6MIJr4KZsqe/i0cYg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MbuI1pIpv1IPnn3r4S61Nz6DzPBJy7HlhWi58ccW2jc=;
+ b=OmEMybsebxFTrkqu5XX+zZ64jHFzPTk8hA0Z3ZuQcpKIHDTBK0U+fvF4xc1YnlRfSBnjLb2VnTXFcyHLxOW1RoFbcz5Yxge+71GmN5Iw3dKdXTxW/+xN8WgehkjlBzJrlQAWMJMzw6EyoH3c0ITRzYcFfedHik3JYKjvSru1aCzGsMzO8L5CRCuHXTAOy1KXlsFk8D3bTzFlaozyi7t7hYi8MfQ79wdQT7GofT8+CVbi8PCOnWDQRazxTTO0A/oRZL8jJ62vDCd8LWVnnUETWrDCgz6momqmyn68DNdMCmg5dO0HkQsjYZ+4zruw7/hdBsn/T+GoLHR8VRN7lGotZA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=softfail (sender ip
+ is 193.240.239.45) smtp.rcpttodomain=linuxfoundation.org
+ smtp.mailfrom=diasemi.com; dmarc=fail (p=none sp=none pct=100) action=none
+ header.from=diasemi.com; dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=9RtCLgP117LqdDLRX3UH1IzVtOTV8WLG1PPvChWmE/o=;
-        b=NFHyO+eAi1A7Bx6bMiuUJTG1ic8g1wN7sAGWFyzSzJk+qvFdhvSaIV7Ibre/afNyiv
-         6LpsEJzUjFIXiMVwT9LKaZdvLd8KxNLOvW+GLqcvHRZtqF65vEjayKBIJUcLmWW16ynF
-         FyJVqRXvmnFYYTC59t1HkfuWf+r45mIrPBZ0E=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=9RtCLgP117LqdDLRX3UH1IzVtOTV8WLG1PPvChWmE/o=;
-        b=QIszSJdE70+5AHxWnbqOq0qnhJSGifi+uoq7pI9BVq6mjrQ9kAzfkH5KcCW3D6nQob
-         7S2M292gxaUtnUoZTx66VRGqipdsbgYpmnnERljgNKMdlTFiicG6fHCbxXquAVihiuwu
-         OAo+04oWchgnDAU/bybHheQIRbUEhUbkbQ/1UHIHwEfXKoH9mjQPBCH0Mp37UF9whTdf
-         kbWth+VnCsd+WzZRYpXjv00c8n+lKQo9gAu67kQxdgC9tPNqu1WK40zMD+vZcMMHFsPT
-         4P3u1mlIlbndghLVqCNfh2ONECQShLMmTFryHBHC60m6D6uyUIVApGWIXWO5cP8Fh28o
-         AlTQ==
-X-Gm-Message-State: AOAM531Knh4HCIqTyqrjbBU1tYWxDa4mkt9XPK111bMfzvSdwpCi0Mu3
-        Z7rl8aVp4S0DohcXodLHezojVQ==
-X-Google-Smtp-Source: ABdhPJyiEOe8O7LHoSxYLr4fPY+iyZzJmSz8Iayqlv5QrC3kxsgyMWPy4OS8tPCJBNCtPYz1YAxRHg==
-X-Received: by 2002:a17:90a:d796:: with SMTP id z22mr2140569pju.2.1604453399053;
-        Tue, 03 Nov 2020 17:29:59 -0800 (PST)
-Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
-        by smtp.gmail.com with ESMTPSA id m3sm347424pjv.52.2020.11.03.17.29.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2020 17:29:58 -0800 (PST)
-From:   Douglas Anderson <dianders@chromium.org>
-To:     jkosina@suse.cz, benjamin.tissoires@redhat.com,
-        gregkh@linuxfoundation.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, swboyd@chromium.org,
-        andrea@borgia.bo.it, kai.heng.feng@canonical.com,
-        hdegoede@redhat.com, robh+dt@kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v4 3/4] dt-bindings: HID: i2c-hid: Introduce bindings for the Goodix GT7375P
-Date:   Tue,  3 Nov 2020 17:29:28 -0800
-Message-Id: <20201103172824.v4.3.Ibb28033c81d87fcc13a6ba28c6ea7ac154d65f93@changeid>
-X-Mailer: git-send-email 2.29.1.341.ge80a0c044ae-goog
-In-Reply-To: <20201104012929.3850691-1-dianders@chromium.org>
-References: <20201104012929.3850691-1-dianders@chromium.org>
+ d=dialogsemiconductor.onmicrosoft.com;
+ s=selector1-dialogsemiconductor-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MbuI1pIpv1IPnn3r4S61Nz6DzPBJy7HlhWi58ccW2jc=;
+ b=VlzCDisIQfc20jIIUpHaTgGqUIiFD9a1qV4TdR5o1TdwtshLnQ26OeS7rVlCc6JQmpVAQ70E0jNYSCQfvnjGDECbzrnZuS6PsuM+UpEF16YFpfjN5PfD59lymZJqnEueyjZ0ueSgq6X70QSh7LMiJxjHo8hDtGH2vtbRD/B4pfE=
+Received: from AM5PR04CA0023.eurprd04.prod.outlook.com (2603:10a6:206:1::36)
+ by DB7PR10MB2203.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:41::27) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3499.22; Wed, 4 Nov
+ 2020 04:22:06 +0000
+Received: from HE1EUR02FT057.eop-EUR02.prod.protection.outlook.com
+ (2603:10a6:206:1:cafe::11) by AM5PR04CA0023.outlook.office365.com
+ (2603:10a6:206:1::36) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3499.18 via Frontend
+ Transport; Wed, 4 Nov 2020 04:22:06 +0000
+X-MS-Exchange-Authentication-Results: spf=softfail (sender IP is
+ 193.240.239.45) smtp.mailfrom=diasemi.com; linuxfoundation.org; dkim=none
+ (message not signed) header.d=none;linuxfoundation.org; dmarc=fail
+ action=none header.from=diasemi.com;
+Received-SPF: SoftFail (protection.outlook.com: domain of transitioning
+ diasemi.com discourages use of 193.240.239.45 as permitted sender)
+Received: from mailrelay1.diasemi.com (193.240.239.45) by
+ HE1EUR02FT057.mail.protection.outlook.com (10.152.11.220) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.3520.15 via Frontend Transport; Wed, 4 Nov 2020 04:22:04 +0000
+Received: from krsrvapps-03.diasemi.com (10.93.17.2) by
+ NB-EX-CASHUB01.diasemi.com (10.1.16.140) with Microsoft SMTP Server id
+ 14.3.468.0; Wed, 4 Nov 2020 05:22:02 +0100
+Received: by krsrvapps-03.diasemi.com (Postfix, from userid 22266)      id
+ 5EDAE13F671; Wed,  4 Nov 2020 13:22:01 +0900 (KST)
+Message-ID: <cover.1604451966.git.Roy.Im@diasemi.com>
+From:   Roy Im <roy.im.opensource@diasemi.com>
+Date:   Wed, 4 Nov 2020 10:06:06 +0900
+Subject: [RESEND PATCH v20 0/3]  da7280: haptic driver submission
+To:     "David S. Miller" <davem@davemloft.net>,
+        Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>
+CC:     Support Opensource <support.opensource@diasemi.com>,
+        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 682de7d0-023f-4662-1f2f-08d880792f7b
+X-MS-TrafficTypeDiagnostic: DB7PR10MB2203:
+X-Microsoft-Antispam-PRVS: <DB7PR10MB22036197A4045E84CF503D78A2EF0@DB7PR10MB2203.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: NW8rooPo43AhcV5AyaoeJ3tCBpj8xllr7N1PeeEjp1ZkNT7OIXmf1c7YTKG84JNHHB/SmnPz7NOhs1BwIjZTM71zzolhbrcFdyoApqUB+4tWfdlq/WcSQ/SEl1lg2O2xWlFVvFv97aMvmUp8WL/3Bo5DZrp9R57zr4/pkcmBPS1GctlPplEh+UxAj9Tf4xNh/lxYsNEjuXBEk5nTniYfG6umqqOTLauf8+fHGSfUjuiy6HCg61E7O902DvbTaU/o95rx//K38y0oH3GJJdL2zHB4DGLCB9kbhWBT8mjFDfmD3APzmBdwdUmV1sUMPYra5+f3UJJWlq799/aR870uun4NqvxBt4TgLOxBrVLqC96A3eAZR5UhOn+Ag9iI7ppYPetn7zv3BtlqVs8W+i8pE7zNVdB0daniHdAw9KNae39L1j7Vq8/XbKQ3XExuQ1HW
+X-Forefront-Antispam-Report: CIP:193.240.239.45;CTRY:GB;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mailrelay1.diasemi.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(136003)(376002)(346002)(396003)(39850400004)(46966005)(8676002)(4326008)(70586007)(70206006)(54906003)(42186006)(83380400001)(36906005)(478600001)(110136005)(82310400003)(316002)(4744005)(26005)(186003)(82740400003)(5660300002)(2616005)(336012)(426003)(86362001)(36756003)(33310700002)(7416002)(356005)(81166007)(6266002)(2906002)(8936002)(47076004)(921003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: diasemi.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Nov 2020 04:22:04.6052
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 682de7d0-023f-4662-1f2f-08d880792f7b
+X-MS-Exchange-CrossTenant-Id: 511e3c0e-ee96-486e-a2ec-e272ffa37b7c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=511e3c0e-ee96-486e-a2ec-e272ffa37b7c;Ip=[193.240.239.45];Helo=[mailrelay1.diasemi.com]
+X-MS-Exchange-CrossTenant-AuthSource: HE1EUR02FT057.eop-EUR02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB7PR10MB2203
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This adds new bindings for the Goodix GT7375P touchscreen.  While this
-touchscreen's communications are based on the generic "i2c-over-hid"
-protocol, it needs special power sequencing and thus gets its own
-compatible and bindings.
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
----
+In this patch set the following is provided:
 
-(no changes since v3)
+[PATCH v20 1/3] MAINTAINERS file update for DA7280
+[PATCH v20 2/3] DA7280 DT Binding
+[PATCH v20 3/3] DA7280 Driver
 
-Changes in v3:
-- Removed Benjamin as a maintainer.
-- Fixed compatible in example.
-- Updated description.
+This patch applies against linux-mainline and v5.10-rc2
 
-Changes in v2:
-- ("dt-bindings: HID: i2c-hid: Introduce bindings for the Goodix GT7375P") new in v2.
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
 
- .../bindings/input/goodix,gt7375p.yaml        | 63 +++++++++++++++++++
- 1 file changed, 63 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
 
-diff --git a/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml b/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-new file mode 100644
-index 000000000000..15a38516e594
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-@@ -0,0 +1,63 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/goodix,gt7375p.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Goodix GT7375P touchscreen
-+
-+maintainers:
-+  - Douglas Anderson <dianders@chromium.org>
-+
-+description:
-+  Supports the Goodix GT7375P touchscreen.
-+
-+properties:
-+  compatible:
-+    items:
-+      - const: goodix,gt7375p
-+
-+  reg:
-+    enum:
-+      - 0x5d
-+      - 0x14
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  reset-gpios:
-+    true
-+
-+  vdd-supply:
-+    description: The 3.3V supply to the touchscreen.
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+  - vdd-supply
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/clock/qcom,rpmh.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      ap_ts: touchscreen@5d {
-+        compatible = "goodix,gt7375p";
-+        reg = <0x5d>;
-+
-+        interrupt-parent = <&tlmm>;
-+        interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
-+
-+        reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
-+        vdd-supply = <&pp3300_ts>;
-+      };
-+    };
+ .../devicetree/bindings/input/dlg,da7280.txt       |  109 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   12 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1375 ++++++++++++++++++++
+ 5 files changed, 1499 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+
 -- 
-2.29.1.341.ge80a0c044ae-goog
+end-of-patch for RESEND PATCH v20
 

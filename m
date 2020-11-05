@@ -2,148 +2,90 @@ Return-Path: <SRS0=hd2M=EL=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC35CC388F7
-	for <linux-input@archiver.kernel.org>; Thu,  5 Nov 2020 09:43:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FFD0C00A89
+	for <linux-input@archiver.kernel.org>; Thu,  5 Nov 2020 10:10:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 631CD20936
-	for <linux-input@archiver.kernel.org>; Thu,  5 Nov 2020 09:43:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="CyY1MxxZ"
+	by mail.kernel.org (Postfix) with ESMTP id 29C8620A8B
+	for <linux-input@archiver.kernel.org>; Thu,  5 Nov 2020 10:10:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1604571005;
+	bh=e43ACLiVYQ1Ky7TXvo0FuFcYIPUjkV4Wu4xAqv0GG0k=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
+	b=1/Eyd/7StvKw8+l7ak2BKwPRTFN149Q4SKUTkl7IaxBS7xsFIUWrTVtRtsdjIqMs9
+	 cAzsyLL+8IMZe0KjfhOSLXjOgeKcgILIPxy5ckra5Uh/QXaxop2G4pkve5gMXq4WwL
+	 9BmkmT2XA56K1HBwHZUWzczeEcpy0ZHJWEIF251E=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727379AbgKEJnG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Nov 2020 04:43:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56138 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726665AbgKEJnC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Nov 2020 04:43:02 -0500
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B37FC0613D3
-        for <linux-input@vger.kernel.org>; Thu,  5 Nov 2020 01:43:02 -0800 (PST)
-Received: by mail-ed1-x541.google.com with SMTP id o20so833025eds.3
-        for <linux-input@vger.kernel.org>; Thu, 05 Nov 2020 01:43:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=DeOBs8//T4JC8W2v/41RF/aONDtKGyNLXtxBMCRNHss=;
-        b=CyY1MxxZtzoUExDGbmpfCTNbv0CVGls7p0kDIFJHKIwdCk8Bd4QEzlmsBdJkefe5kF
-         bDVViaItqLXwHDLbA+q9Fr5dnVgW/1XDyTeTaEGjy3Dr6pOaBaYVENiOk6ilsVbG0/HL
-         xeFbvtqJO3blOzIuCgaSSkafRYQolKoH227e+GB3iGCLhm5zzOLXRXW5GdbDuLploRFF
-         FqXsj+CadpLYKdBoFr13XOn5hQRujYHvQqPzQkdCdrmCwaKQKlw9Ba8ZQB5ctigIBhSw
-         tB7ZNrEGerTHA3/IxDKAXDu6f3oUcxTz8A/mJaAdvwYjPMhFzhGJbODSNOIOvro3aJbF
-         ipug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=DeOBs8//T4JC8W2v/41RF/aONDtKGyNLXtxBMCRNHss=;
-        b=W5owF9WpAYk8TjzQ7EOWyAX8gayrTI6o5/Z3N6oPRpu+HVyIXrlzk59rOU+tIMNNEf
-         9kuyyXB5bDast3qfxfYgaB/dg+ibo0Ftgrg7f68ebx4Yn8u/oqmc5dDr14aUa86zZmbO
-         dawnat8nJm1St58DqmvzU8CkM1/RepcyGM1a4U/CajeDofGe1JYdBZgnZOlP321i9Tw7
-         nnaCq6vsMK02YaYkEpJ5X66H2GynVahhpOPeuwdgJMLN1WKarPPMGihgfdvEEsRe3t3b
-         +VvN9buUsFWy+HEKZPh5b2ewxmlfEOCgksotn2qDBJCFII2h1bwOtXurab0T4I7WsIdn
-         fHBg==
-X-Gm-Message-State: AOAM530gWIrT+4n4nq8KG1Rhj5gicl+wOZ9s8VOnrtRc8DyNQyHkzQm4
-        oIKSSKM2eLg8lQFWVZAPe6RCFde/65cEei0zioGyIA==
-X-Google-Smtp-Source: ABdhPJybud6FTPvTcrbvBWnuDfmJGrn2QRie046seVglh3JPax7rANBITFnA8FFir54MK6PUKO/kndp9C8T8y77d14o=
-X-Received: by 2002:a50:e442:: with SMTP id e2mr1738064edm.186.1604569380861;
- Thu, 05 Nov 2020 01:43:00 -0800 (PST)
+        id S1726884AbgKEKKB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Nov 2020 05:10:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38352 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725827AbgKEKKB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Nov 2020 05:10:01 -0500
+Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D61C52087D;
+        Thu,  5 Nov 2020 10:09:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1604571000;
+        bh=e43ACLiVYQ1Ky7TXvo0FuFcYIPUjkV4Wu4xAqv0GG0k=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=zAlqXIRZwXtAkg5sz4m0NxeUq0913n0GkEVZAhdoArsrXMNochB9HMCSZ1IvWm+vt
+         g02d7RFEuc/coS2s5hTrOv78vwAYkPrIB4T0Pc5g5de18R070hSKd5QKM7oZPXuqSV
+         3jh9kYDKhPfjRQRyTbzH/wJY/fCwLJpV11IJWBOo=
+Date:   Thu, 5 Nov 2020 11:09:56 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Pablo Ceballos <pceballos@google.com>
+cc:     Jonathan Cameron <jic23@kernel.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: hid-sensor-hub: Fix issue with devices with no
+ report ID
+In-Reply-To: <20201103002939.688690-1-pceballos@google.com>
+Message-ID: <nycvar.YFH.7.76.2011051109490.18859@cbobk.fhfr.pm>
+References: <20201103002939.688690-1-pceballos@google.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-References: <20201104103938.1286-1-nsaenzjulienne@suse.de> <20201104103938.1286-2-nsaenzjulienne@suse.de>
- <CAMpxmJWJRcQQiLitJCLWKmhQVQWr3bMDY=td5FEn5uy2YZfwkA@mail.gmail.com> <47eaba0bc71c6e23bff87b8a01cebf0c6d12efd0.camel@suse.de>
-In-Reply-To: <47eaba0bc71c6e23bff87b8a01cebf0c6d12efd0.camel@suse.de>
-From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date:   Thu, 5 Nov 2020 10:42:50 +0100
-Message-ID: <CAMpxmJUZ23uYM3+_L2XvTXzvA48JWrxrhZaLnGAxTpJjFiERRA@mail.gmail.com>
-Subject: Re: [PATCH v3 01/11] firmware: raspberrypi: Introduce devm_rpi_firmware_get()
-To:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc:     =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com, linux-pwm@vger.kernel.org,
-        arm-soc <linux-arm-kernel@lists.infradead.org>,
-        linux-devicetree <devicetree@vger.kernel.org>, wahrenst@gmx.net,
-        Linux Input <linux-input@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        devel@driverdev.osuosl.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        linux-gpio <linux-gpio@vger.kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        linux-rpi-kernel@lists.infradead.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Nov 5, 2020 at 10:28 AM Nicolas Saenz Julienne
-<nsaenzjulienne@suse.de> wrote:
->
-> Hi Bartosz, thanks for the review.
->
-> On Thu, 2020-11-05 at 10:13 +0100, Bartosz Golaszewski wrote:
-> > > +/**
-> > > + * devm_rpi_firmware_get - Get pointer to rpi_firmware structure.
-> > > + * @firmware_node:    Pointer to the firmware Device Tree node.
-> > > + *
-> > > + * Returns NULL is the firmware device is not ready.
-> > > + */
-> > > +struct rpi_firmware *devm_rpi_firmware_get(struct device *dev,
-> > > +                                          struct device_node *firmware_node)
-> > > +{
-> > > +       struct platform_device *pdev = of_find_device_by_node(firmware_node);
-> > > +       struct rpi_firmware *fw;
-> > > +
-> > > +       if (!pdev)
-> > > +               return NULL;
-> > > +
-> > > +       fw = platform_get_drvdata(pdev);
-> > > +       if (!fw)
-> > > +               return NULL;
-> > > +
-> > > +       if (!refcount_inc_not_zero(&fw->consumers))
-> > > +               return NULL;
-> > > +
-> > > +       if (devm_add_action_or_reset(dev, rpi_firmware_put, fw))
-> > > +               return NULL;
-> > > +
-> > > +       return fw;
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(devm_rpi_firmware_get);
-> >
-> > Usually I'd expect the devres variant to simply call
-> > rpi_firmware_get() and then schedule a release callback which would
-> > call whatever function is the release counterpart for it currently.
-> > Devres actions are for drivers which want to schedule some more
-> > unusual tasks at driver detach. Any reason for designing it this way?
->
-> Yes, see patch #8 where I get rid of rpi_firmware_get() altogether after
-> converting all users to devres. Since there is no use for the vanilla version
-> of the function anymore, I figured it'd be better to merge everything into
-> devm_rpi_firmware_get(). That said it's not something I have strong feelings
-> about.
->
+On Mon, 2 Nov 2020, Pablo Ceballos wrote:
 
-I see. So the previous version didn't really have any reference
-counting and it leaked the reference returned by
-of_find_device_by_node(), got it. Could you just clarify for me the
-logic behind the wait_queue in rpi_firmware_remove()? If the firmware
-driver gets detached and remove() stops on the wait_queue - it will be
-stuck until the last user releases the firmware. I'm not sure this is
-correct. I'd prefer to see a kref with a release callback and remove
-would simply decrease the kref and return. Each user would do the same
-and then after the last user is detached the firmware would be
-destroyed.
+> Some HID devices don't use a report ID because they only have a single
+> report. In those cases, the report ID in struct hid_report will be zero
+> and the data for the report will start at the first byte, so don't skip
+> over the first byte.
+> 
+> Signed-off-by: Pablo Ceballos <pceballos@google.com>
+> ---
+>  drivers/hid/hid-sensor-hub.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 94c7398b5c27..3dd7d3246737 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -483,7 +483,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+>  		return 1;
+>  
+>  	ptr = raw_data;
+> -	ptr++; /* Skip report id */
+> +	if (report->id)
+> +		ptr++; /* Skip report id */
+>  
 
-Don't we really have some centralized firmware subsystem that would handle this?
+Applied, thank you.
 
-Bartosz
+-- 
+Jiri Kosina
+SUSE Labs
+

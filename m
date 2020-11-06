@@ -2,121 +2,190 @@ Return-Path: <SRS0=gGDZ=EM=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37760C2D0A3
-	for <linux-input@archiver.kernel.org>; Fri,  6 Nov 2020 08:18:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E2D1C388F2
+	for <linux-input@archiver.kernel.org>; Fri,  6 Nov 2020 10:12:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC1EA208FE
-	for <linux-input@archiver.kernel.org>; Fri,  6 Nov 2020 08:18:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="UUdGwICv"
+	by mail.kernel.org (Postfix) with ESMTP id 6BB27206DC
+	for <linux-input@archiver.kernel.org>; Fri,  6 Nov 2020 10:12:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726419AbgKFISN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 6 Nov 2020 03:18:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41976 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725616AbgKFISL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Nov 2020 03:18:11 -0500
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CA3FC0613D2
-        for <linux-input@vger.kernel.org>; Fri,  6 Nov 2020 00:18:10 -0800 (PST)
-Received: by mail-wm1-x341.google.com with SMTP id h2so493852wmm.0
-        for <linux-input@vger.kernel.org>; Fri, 06 Nov 2020 00:18:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=VZi03rWrzOkUnSyfJZ+vwUW9tbFc2lklDx4bHNIXLyI=;
-        b=UUdGwICvCNYXNGOjMwpeK0MG9Tb077dmS33Ae98D9q0IuA9QDinLQxZtsdc7VbQcKA
-         xmvcnREdQ83ITw6/7QP4ftSY5tm8Lfp6rhA/iyLrHqP3yxZ7uiBDJ7GSkMJMuSTWHFzw
-         zzmuKU9dnXzCEU5vvE4gO9xi/HD51YuYGG8tf6tOeXpObvfzeFeApvKlYD6aMtHeopL1
-         n+XF76nwh+dlWGiQhV7e8ssNNwUtCnN5qeUqCYAO/f0rqGlkvlwslRFwkvx2baJc/eyW
-         V8NmMfCwBMRKgEzpijH0lIkARz9Ekr+M0qlesXdNfgoB6KvYU0t678QDN19DDmQe7J39
-         n9kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=VZi03rWrzOkUnSyfJZ+vwUW9tbFc2lklDx4bHNIXLyI=;
-        b=DgBSvUibKKP+6I8n9cF8Iq641aBqfy+QSVkI73INdJOaSKRZNxX8mxFlDV4w5mDV8J
-         JW0iI5v7vlMuN3xZaAYWdjE4m1dXs18uarpVBuNC9PkKB9ZscGT/qKVMS+7APagTV1fD
-         tHOsI1F3cWQxx/3a8uP1LwL3o4Il6l2K1+lIfZtNuRsBF9avnQT9FTTlHFfLayjjgWJt
-         cBLVFN6R/qGr2DSaanRD4QjRavpQnK+PsVMAM/FGC05D5r5tJBIc13uE8Glq/K4jNI+7
-         52Yqg+KJ5WkWYtO0qj0MEGVz+4dmQlEBhZVDDckXnvNgnbu3MwuGNwG/n8jeQvUxgfxW
-         blMw==
-X-Gm-Message-State: AOAM532BOc8WodtD+FWxDB6fdbWH3Y9m3NEb2G7ytz2fzdvblHLe+8i5
-        QW+z7hn7XUdVq/yy+UpAv81k8Q==
-X-Google-Smtp-Source: ABdhPJxba+JSnY+vFe/CSWDSAnKlFEH+f82v0kw+X0HfLS2M/YQ/O9p0OBzUgW3dd8i+ZdZPdx8uoA==
-X-Received: by 2002:a1c:e3d4:: with SMTP id a203mr1141356wmh.177.1604650688735;
-        Fri, 06 Nov 2020 00:18:08 -0800 (PST)
-Received: from dell ([91.110.221.242])
-        by smtp.gmail.com with ESMTPSA id c64sm1018539wmd.41.2020.11.06.00.18.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2020 00:18:07 -0800 (PST)
-Date:   Fri, 6 Nov 2020 08:18:06 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Joe Perches <joe@perches.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>,
-        Peter Osterlund <petero2@telia.com>,
-        Stefan Gmeiner <riddlebox@freesurf.ch>,
-        "C. Scott Ananian" <cananian@alumni.priceton.edu>,
-        Bruce Kalk <kall@compass.com>,
-        this to <linux-input@vger.kernel.org>
-Subject: Re: [PATCH 10/20] input: mouse: synaptics: Place braces around empty
- if() body
-Message-ID: <20201106081806.GW4488@dell>
-References: <20201104162427.2984742-1-lee.jones@linaro.org>
- <20201104162427.2984742-11-lee.jones@linaro.org>
- <20201106072630.GD1003057@dtor-ws>
- <b2cb1fc8aca53ef9ff5d3ff913f2ad4a5e95b1f9.camel@perches.com>
+        id S1726447AbgKFKMa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 6 Nov 2020 05:12:30 -0500
+Received: from goliath.siemens.de ([192.35.17.28]:44741 "EHLO
+        goliath.siemens.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726010AbgKFKMa (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Nov 2020 05:12:30 -0500
+Received: from mail1.siemens.de (mail1.siemens.de [139.23.33.14])
+        by goliath.siemens.de (8.15.2/8.15.2) with ESMTPS id 0A6ACIPv023943
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 6 Nov 2020 11:12:18 +0100
+Received: from dev.vm7.ccp.siemens.com ([139.22.40.104])
+        by mail1.siemens.de (8.15.2/8.15.2) with ESMTP id 0A6ACHg9025432;
+        Fri, 6 Nov 2020 11:12:17 +0100
+Received: from dev.vm7.ccp.siemens.com (localhost [127.0.0.1])
+        by dev.vm7.ccp.siemens.com (Postfix) with ESMTP id 1BAD870FF87;
+        Fri,  6 Nov 2020 11:06:56 +0100 (CET)
+From:   Andrej Valek <andrej.valek@siemens.com>
+To:     robh@kernel.org, nick@shmanahar.org, hadess@hadess.net,
+        dmitry.torokhov@gmail.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, Andrej Valek <andrej.valek@siemens.com>
+Subject: [PATCH v2 1/3] Input: st1232 - add support resolution reading
+Date:   Fri,  6 Nov 2020 11:05:37 +0100
+Message-Id: <20201106100539.6646-2-andrej.valek@siemens.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20201029170313.25529-1-andrej.valek@siemens.com>
+References: <20201029170313.25529-1-andrej.valek@siemens.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <b2cb1fc8aca53ef9ff5d3ff913f2ad4a5e95b1f9.camel@perches.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 05 Nov 2020, Joe Perches wrote:
+Hard-coding resolution for st1633 device was wrong. Some of LCDs like
+YTS700TLBC-02-100C has assembled Sitronix st1633 touchcontroller too. But
+the resolution is not 320x480 as was hard-coded.
+Add new function which reads correct resolution directly from register.
 
-> On Thu, 2020-11-05 at 23:26 -0800, Dmitry Torokhov wrote:
-> > On Wed, Nov 04, 2020 at 04:24:17PM +0000, Lee Jones wrote:
-> > > Fixes the following W=1 kernel build warning(s):
-> > > 
-> > >  drivers/input/mouse/synaptics.c: In function ‘synaptics_process_packet’:
-> > >  drivers/input/mouse/synaptics.c:1110:6: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
-> []
-> > > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> []
-> > > @@ -1106,8 +1106,9 @@ static void synaptics_process_packet(struct psmouse *psmouse)
-> > >  					num_fingers = hw.w + 2;
-> > >  				break;
-> > >  			case 2:
-> > > -				if (SYN_MODEL_PEN(info->model_id))
-> > > +				if (SYN_MODEL_PEN(info->model_id)) {
-> > >  					;   /* Nothing, treat a pen as a single finger */
-> > > +				}
-> > 
-> > This gives me:
-> > 
-> > WARNING: braces {} are not necessary for single statement blocks
-> > 
-> > from checkpatch.
-> 
-> As the entire case 2 is effectively a noop, why not just comment it better
-> and remove the if (SYN_MODEL_PEN(...)) test altogether.
+Signed-off-by: Andrej Valek <andrej.valek@siemens.com>
+---
+ drivers/input/touchscreen/st1232.c | 52 +++++++++++++++++++++---------
+ 1 file changed, 36 insertions(+), 16 deletions(-)
 
-Happy to do that if that's okay with Dmitry.
-
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+index 63b29c7279e2..1b4b139c8533 100644
+--- a/drivers/input/touchscreen/st1232.c
++++ b/drivers/input/touchscreen/st1232.c
+@@ -26,15 +26,14 @@
+ #define ST1232_TS_NAME	"st1232-ts"
+ #define ST1633_TS_NAME	"st1633-ts"
+ 
++#define REG_XY_RESOLUTION	0x04
++#define REG_XY_COORDINATES	0x12
+ #define ST_TS_MAX_FINGERS	10
+ 
+ struct st_chip_info {
+ 	bool	have_z;
+-	u16	max_x;
+-	u16	max_y;
+ 	u16	max_area;
+ 	u16	max_fingers;
+-	u8	start_reg;
+ };
+ 
+ struct st1232_ts_data {
+@@ -48,15 +47,14 @@ struct st1232_ts_data {
+ 	u8 *read_buf;
+ };
+ 
+-static int st1232_ts_read_data(struct st1232_ts_data *ts)
++static int st1232_ts_read_data(struct st1232_ts_data *ts, u8 reg)
+ {
+ 	struct i2c_client *client = ts->client;
+-	u8 start_reg = ts->chip_info->start_reg;
+ 	struct i2c_msg msg[] = {
+ 		{
+ 			.addr	= client->addr,
+-			.len	= sizeof(start_reg),
+-			.buf	= &start_reg,
++			.len	= sizeof(reg),
++			.buf	= &reg,
+ 		},
+ 		{
+ 			.addr	= client->addr,
+@@ -74,6 +72,25 @@ static int st1232_ts_read_data(struct st1232_ts_data *ts)
+ 	return 0;
+ }
+ 
++static int st1232_ts_read_resolution(struct st1232_ts_data *ts, u16 *max_x,
++				     u16 *max_y)
++{
++	u8 *buf;
++	int error;
++
++	/* select resolution register */
++	error = st1232_ts_read_data(ts, REG_XY_RESOLUTION);
++	if (error)
++		return error;
++
++	buf = ts->read_buf;
++
++	*max_x = ((buf[0] & 0x0070) << 4) | buf[1];
++	*max_y = ((buf[0] & 0x0007) << 8) | buf[2];
++
++	return 0;
++}
++
+ static int st1232_ts_parse_and_report(struct st1232_ts_data *ts)
+ {
+ 	struct input_dev *input = ts->input_dev;
+@@ -123,7 +140,7 @@ static irqreturn_t st1232_ts_irq_handler(int irq, void *dev_id)
+ 	int count;
+ 	int error;
+ 
+-	error = st1232_ts_read_data(ts);
++	error = st1232_ts_read_data(ts, REG_XY_COORDINATES);
+ 	if (error)
+ 		goto out;
+ 
+@@ -157,20 +174,14 @@ static void st1232_ts_power_off(void *data)
+ 
+ static const struct st_chip_info st1232_chip_info = {
+ 	.have_z		= true,
+-	.max_x		= 0x31f, /* 800 - 1 */
+-	.max_y		= 0x1df, /* 480 -1 */
+ 	.max_area	= 0xff,
+ 	.max_fingers	= 2,
+-	.start_reg	= 0x12,
+ };
+ 
+ static const struct st_chip_info st1633_chip_info = {
+ 	.have_z		= false,
+-	.max_x		= 0x13f, /* 320 - 1 */
+-	.max_y		= 0x1df, /* 480 -1 */
+ 	.max_area	= 0x00,
+ 	.max_fingers	= 5,
+-	.start_reg	= 0x12,
+ };
+ 
+ static int st1232_ts_probe(struct i2c_client *client,
+@@ -179,6 +190,7 @@ static int st1232_ts_probe(struct i2c_client *client,
+ 	const struct st_chip_info *match;
+ 	struct st1232_ts_data *ts;
+ 	struct input_dev *input_dev;
++	u16 max_x, max_y;
+ 	int error;
+ 
+ 	match = device_get_match_data(&client->dev);
+@@ -239,14 +251,22 @@ static int st1232_ts_probe(struct i2c_client *client,
+ 	input_dev->name = "st1232-touchscreen";
+ 	input_dev->id.bustype = BUS_I2C;
+ 
++	/* read resolution from chip */
++	error = st1232_ts_read_resolution(ts, &max_x, &max_y);
++	if (error) {
++		dev_err(&client->dev,
++			"Failed to read resolution: %d\n", error);
++		return error;
++	}
++
+ 	if (ts->chip_info->have_z)
+ 		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0,
+ 				     ts->chip_info->max_area, 0, 0);
+ 
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+-			     0, ts->chip_info->max_x, 0, 0);
++			     0, max_x, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+-			     0, ts->chip_info->max_y, 0, 0);
++			     0, max_y, 0, 0);
+ 
+ 	touchscreen_parse_properties(input_dev, true, &ts->prop);
+ 
 -- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.20.1
+

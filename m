@@ -2,125 +2,97 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BCD6C56202
-	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 17:29:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEFBEC2D0A3
+	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 17:30:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4493820E65
-	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 17:29:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="dTrxN2xJ"
+	by mail.kernel.org (Postfix) with ESMTP id 83D30216C4
+	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 17:30:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731664AbgKIR2s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 9 Nov 2020 12:28:48 -0500
-Received: from rere.qmqm.pl ([91.227.64.183]:14655 "EHLO rere.qmqm.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731112AbgKIR2r (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 9 Nov 2020 12:28:47 -0500
-Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 4CVHz141lVzC4;
-        Mon,  9 Nov 2020 18:28:45 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1604942925; bh=3doK0FUutvkvWAsR9+JjynwPIbyNyVd+O7Di1WbQwyM=;
-        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=dTrxN2xJGLOqz/iCzZU8NkaV6/9Wr5hTNhEFFyldNrypE0gsiLkmvJEmxVPjMuI/c
-         n5/AsZrkZ07gzk0MoGEKSm5CnTjU4j1FLvlefi+mDTO+yx0oV11i5sQQ3G6wWSmWu3
-         AjtRtyD5Pctqh2Md7F4uQgbIqZRDGVfr58qy/+xmTlgZ2ZDPhRUzDdlAwEeIHi4dl6
-         /qK1D5rDnwpwJG8lmdSR9gCtKuCdhl5xXNs6KiGLTVIFMhIc8lQBGEiB4sOoZh3gDS
-         f8Sw0rcm5irgFeARXNCh2UWSZNAF74fvPRZcIroYVg20VH8uuu9/xHnZQX6dZDvNbc
-         F63PzFmuGr3Mw==
-X-Virus-Status: Clean
-X-Virus-Scanned: clamav-milter 0.102.4 at mail
-Date:   Mon, 09 Nov 2020 18:28:45 +0100
-Message-Id: <38eaa55540d62898fdf7e17c541e916663b9b24e.1604942771.git.mirq-linux@rere.qmqm.pl>
-In-Reply-To: <cover.1604942771.git.mirq-linux@rere.qmqm.pl>
-References: <cover.1604942771.git.mirq-linux@rere.qmqm.pl>
-From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH RESEND v8 1/4] input: elants: document some registers and
- values
+        id S1731942AbgKIRaT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 9 Nov 2020 12:30:19 -0500
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:33209 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731605AbgKIRaT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2020 12:30:19 -0500
+Received: by mail-ot1-f66.google.com with SMTP id i18so9739070ots.0;
+        Mon, 09 Nov 2020 09:30:19 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=By0PfcwclbGGWqIdY33FlSgGR3U94IawXT/xMqBW40E=;
+        b=CGjWpAFE7vay4WNnUocso3+HVf8UavlRxWyAUnHcYYGFpA11axGrd2PrvXXtMY0xjs
+         yIs9GZaozkD3xbuPGXAku8tKoTuDGH/1xBS/R6sx/Xx91nlGPrF3dazeJUX4KkwlFN0q
+         QWPffsC0/q5ydVdcgqqdmeBnpi60VVmfzLFAFRUPAPTkiMZVl+3Nvo6QIh1kf73ww5A5
+         3DizGahAlil8E9heoz1P2aa30iamVhd53GkM3Y+QdAlcHtNKPK6QGcGhBxodEsBuiDFz
+         BJUel1OqQtEl7fsPyTnRNG5HR/avDKB9b0VV528bUvr0LLHOnGiuc9w25vtdivkJAjEG
+         q5Tw==
+X-Gm-Message-State: AOAM530+d83N3J6QVQTTfqedOAwrfXILK00sTsY+miJCyJTAnVSlgmRP
+        vV4r2OZwHbIJHi72iumY7SzQ4L6Tyg==
+X-Google-Smtp-Source: ABdhPJw8uESyxkiXU8hrlZbactHbSu5LN58qs7p49yMnLuL/T3mgUR7DZIbagysRkiCCZviHxpRSDg==
+X-Received: by 2002:a9d:6189:: with SMTP id g9mr2191501otk.231.1604943018638;
+        Mon, 09 Nov 2020 09:30:18 -0800 (PST)
+Received: from xps15 (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id t20sm2561274oic.1.2020.11.09.09.30.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Nov 2020 09:30:18 -0800 (PST)
+Received: (nullmailer pid 1473175 invoked by uid 1000);
+        Mon, 09 Nov 2020 17:30:17 -0000
+Date:   Mon, 9 Nov 2020 11:30:17 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        devicetree@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Nick Dyer <nick@shmanahar.org>
+Subject: Re: [PATCH 2/3 v2] Input: atmel_mxt_ts - Convert bindings to YAML
+ and extend
+Message-ID: <20201109173017.GA1473085@bogus>
+References: <20201104153032.1387747-1-linus.walleij@linaro.org>
+ <20201104153032.1387747-2-linus.walleij@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Johnny Chuang <johnny.chuang.emc@gmail.com>
-Cc:     Peter Hutterer <peter.hutterer@who-t.net>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201104153032.1387747-2-linus.walleij@linaro.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add information found in downstream kernels, to make the code less
-magic.
+On Wed, 04 Nov 2020 16:30:31 +0100, Linus Walleij wrote:
+> This converts the Armel MXT touchscreen bindings to YAML
+> format and extends them with the following two properties:
+> 
+> - vdda-supply: the optional analog supply voltage
+> - vdd-supply: the optional digital supply voltage
+> 
+> I also explained about the reset-gpios property that this
+> better be flagged as active high (0) despite actually
+> being active low, because all current device trees and
+> drivers assume that this is the case and will actively
+> drive the line low to assert RESET.
+> 
+> Tested the schema with all in-tree users and they verify
+> fine.
+> 
+> Cc: Nick Dyer <nick@shmanahar.org>
+> Cc: Stephan Gerhold <stephan@gerhold.net>
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - State that the GPIO lines shall be flagged as active low.
+>   We will fix all users.
+> ---
+>  .../bindings/input/atmel,maxtouch.txt         | 41 ----------
+>  .../bindings/input/atmel,maxtouch.yaml        | 81 +++++++++++++++++++
+>  MAINTAINERS                                   |  2 +-
+>  3 files changed, 82 insertions(+), 42 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+>  create mode 100644 Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
+> 
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
----
- drivers/input/touchscreen/elants_i2c.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 50c348297e38..d51cb910fba1 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -82,7 +82,7 @@
- 
- #define HEADER_REPORT_10_FINGER	0x62
- 
--/* Header (4 bytes) plus 3 fill 10-finger packets */
-+/* Header (4 bytes) plus 3 full 10-finger packets */
- #define MAX_PACKET_SIZE		169
- 
- #define BOOT_TIME_DELAY_MS	50
-@@ -97,6 +97,10 @@
- #define E_INFO_PHY_SCAN		0xD7
- #define E_INFO_PHY_DRIVER	0xD8
- 
-+/* FW write command, 0x54 0x?? 0x0, 0x01 */
-+#define E_POWER_STATE_SLEEP	0x50
-+#define E_POWER_STATE_RESUME	0x58
-+
- #define MAX_RETRIES		3
- #define MAX_FW_UPDATE_RETRIES	30
- 
-@@ -269,8 +273,8 @@ static int elants_i2c_calibrate(struct elants_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	int ret, error;
--	static const u8 w_flashkey[] = { 0x54, 0xC0, 0xE1, 0x5A };
--	static const u8 rek[] = { 0x54, 0x29, 0x00, 0x01 };
-+	static const u8 w_flashkey[] = { CMD_HEADER_WRITE, 0xC0, 0xE1, 0x5A };
-+	static const u8 rek[] = { CMD_HEADER_WRITE, 0x29, 0x00, 0x01 };
- 	static const u8 rek_resp[] = { CMD_HEADER_REK, 0x66, 0x66, 0x66 };
- 
- 	disable_irq(client->irq);
-@@ -1388,7 +1392,9 @@ static int __maybe_unused elants_i2c_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elants_data *ts = i2c_get_clientdata(client);
--	const u8 set_sleep_cmd[] = { 0x54, 0x50, 0x00, 0x01 };
-+	const u8 set_sleep_cmd[] = {
-+		CMD_HEADER_WRITE, E_POWER_STATE_SLEEP, 0x00, 0x01
-+	};
- 	int retry_cnt;
- 	int error;
- 
-@@ -1425,7 +1431,9 @@ static int __maybe_unused elants_i2c_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elants_data *ts = i2c_get_clientdata(client);
--	const u8 set_active_cmd[] = { 0x54, 0x58, 0x00, 0x01 };
-+	const u8 set_active_cmd[] = {
-+		CMD_HEADER_WRITE, E_POWER_STATE_RESUME, 0x00, 0x01
-+	};
- 	int retry_cnt;
- 	int error;
- 
--- 
-2.20.1
-
+Reviewed-by: Rob Herring <robh@kernel.org>

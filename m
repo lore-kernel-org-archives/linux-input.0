@@ -7,40 +7,41 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 718D9C5517A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F4132C55ABD
 	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 17:28:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C05320E65
-	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 17:28:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 967D72083B
+	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 17:28:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="HbZHP74t"
+	dkim=pass (2048-bit key) header.d=rere.qmqm.pl header.i=@rere.qmqm.pl header.b="HxjM3Q0h"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731757AbgKIR2t (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1731841AbgKIR2t (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 9 Nov 2020 12:28:49 -0500
-Received: from rere.qmqm.pl ([91.227.64.183]:23066 "EHLO rere.qmqm.pl"
+Received: from rere.qmqm.pl ([91.227.64.183]:1381 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731617AbgKIR2s (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 9 Nov 2020 12:28:48 -0500
+        id S1731634AbgKIR2t (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 9 Nov 2020 12:28:49 -0500
 Received: from remote.user (localhost [127.0.0.1])
-        by rere.qmqm.pl (Postfix) with ESMTPSA id 4CVHz21wmFzSq;
-        Mon,  9 Nov 2020 18:28:46 +0100 (CET)
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4CVHz3362MzTg;
+        Mon,  9 Nov 2020 18:28:47 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
-        t=1604942926; bh=SuKYXjpw/qBWpC6YXxydUVb5w6cLmNOjpgdbQogN4GI=;
+        t=1604942927; bh=nLwavT2NA5+jIA2IuW6zD/l5oswZ/ngNahOWEbWGrOQ=;
         h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=HbZHP74te9RAyrdgUc+rFmB25dSZw4IIglP1kx5Hv5G8RuY2SDLVzx8pyNVFQgeka
-         9JCQLhcioh+6wCDA4yoYMQtjy1l9txNmcgRlP+nZZ95AeOB2CDB0u5s0u+2JOBhc1U
-         roCqWyPQinhc91yB9yZPTjcxIpFug+9lfgKoBee1PLdt4Zgmz1kARrRLaUIg1ktS3B
-         TlB/4yOVTZJMDedtW0JwaVQkxP3q1/4B9Uf5iYOfW3obxEKEahlFjyjUSQiTJrrWLn
-         EG4uu806HnXZ1s2hBE8jCyJoSjfN5fov5N4p7r5BYjteRkhXInDJm4ogNkOsGBtk3j
-         mYPEHwBafkdcA==
+        b=HxjM3Q0hwLScDtmMX5LDO2s9nm2aLpP5C7QYWaj1PdAilcDhAq6UH2PgfdaBw7qTg
+         ji3goqS3TNJ+W9q2Ysic2XhMjjTtnEpJm8akqUnXE+Hg4QNx31NdURbIPpiQxpSlz9
+         3Ute+7OMramr9SM81XzQeOnXcjDu+YhMRtJupNCrXxtBXDwbsPeK5r7rUIR9vpPd99
+         7K6JGTDAcjIY8GI2mi16MqZvJxBTl64XUDBjzC5T3xGnKjBt6QkZToK8BqimBuzgGZ
+         Go+HzgAHmcA5CA2CrV8uRhErw+Ftzo8nQdVNjCdT+zWVCVilPoRGh8ncVpvoDu+uRc
+         JspujQ7dmzTzg==
 X-Virus-Status: Clean
 X-Virus-Scanned: clamav-milter 0.102.4 at mail
-Date:   Mon, 09 Nov 2020 18:28:45 +0100
-Message-Id: <83d08e62a58cc7dff1f5a36bca690ff4198be21c.1604942771.git.mirq-linux@rere.qmqm.pl>
+Date:   Mon, 09 Nov 2020 18:28:46 +0100
+Message-Id: <76ce45c4a488036f94547d45fc4a964b83c6e381.1604942771.git.mirq-linux@rere.qmqm.pl>
 In-Reply-To: <cover.1604942771.git.mirq-linux@rere.qmqm.pl>
 References: <cover.1604942771.git.mirq-linux@rere.qmqm.pl>
 From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH RESEND v8 2/4] input: elants: support old touch report format
+Subject: [PATCH RESEND v8 4/4] input: elants: support 0x66 reply opcode for
+ reporting touches
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,119 +54,66 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Support ELAN touchpad sensor with older firmware as found on eg. Asus
-Transformer Pads.
+From: Dmitry Osipenko <digetx@gmail.com>
 
+eKTF3624 touchscreen firmware uses two variants of the reply opcodes for
+reporting touch events: one is 0x63 (used by older firmware) and other is
+0x66 (used by newer firmware). The 0x66 variant is equal to 0x63 of
+eKTH3500, while 0x63 needs small adjustment of the touch pressure value.
+
+Nexus 7 tablet device has eKTF3624 touchscreen and it uses 0x66 opcode for
+reporting touch events, let's support it now. Other devices, eg. ASUS TF300T,
+use 0x63.
+
+Note: CMD_HEADER_REK is used for replying to calibration requests, it has
+the same 0x66 opcode number which eKTF3624 uses for reporting touches.
+The calibration replies are handled separately from the the rest of the
+commands in the driver by entering into ELAN_WAIT_RECALIBRATION state
+and thus this change shouldn't change the old behavior.
+
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
 ---
- drivers/input/touchscreen/elants_i2c.c | 36 ++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 11 deletions(-)
+ drivers/input/touchscreen/elants_i2c.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index d51cb910fba1..f1bf3e000e96 100644
+index c24d8cdc4251..1cbda6f20d07 100644
 --- a/drivers/input/touchscreen/elants_i2c.c
 +++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -69,6 +69,7 @@
- #define CMD_HEADER_REK		0x66
+@@ -61,6 +61,15 @@
+ #define QUEUE_HEADER_NORMAL	0X63
+ #define QUEUE_HEADER_WAIT	0x64
  
- /* FW position data */
-+#define PACKET_SIZE_OLD		40
- #define PACKET_SIZE		55
- #define MAX_CONTACT_NUM		10
- #define FW_POS_HEADER		0
-@@ -853,7 +854,8 @@ static int elants_i2c_fw_update(struct elants_data *ts)
-  * Event reporting.
-  */
- 
--static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf)
-+static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf,
-+				size_t report_len)
- {
- 	struct input_dev *input = ts->input;
- 	unsigned int n_fingers;
-@@ -866,7 +868,8 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf)
- 			buf[FW_POS_STATE];
- 
- 	dev_dbg(&ts->client->dev,
--		"n_fingers: %u, state: %04x\n",  n_fingers, finger_state);
-+		"n_fingers: %u, state: %04x, report_len: %zu\n",
-+		n_fingers, finger_state, report_len);
- 
- 	/* Note: all fingers have the same tool type */
- 	tool_type = buf[FW_POS_TOOL_TYPE] & BIT(0) ?
-@@ -880,8 +883,16 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf)
- 			pos = &buf[FW_POS_XY + i * 3];
- 			x = (((u16)pos[0] & 0xf0) << 4) | pos[1];
- 			y = (((u16)pos[0] & 0x0f) << 8) | pos[2];
--			p = buf[FW_POS_PRESSURE + i];
--			w = buf[FW_POS_WIDTH + i];
-+			if (report_len == PACKET_SIZE_OLD) {
-+				w = buf[FW_POS_WIDTH + i / 2];
-+				w >>= 4 * (~i & 1);	// little-endian-nibbles
-+				w |= w << 4;
-+				w |= !w;
-+				p = w;
-+			} else {
-+				p = buf[FW_POS_PRESSURE + i];
-+				w = buf[FW_POS_WIDTH + i];
-+			}
- 
- 			dev_dbg(&ts->client->dev, "i=%d x=%d y=%d p=%d w=%d\n",
- 				i, x, y, p, w);
-@@ -913,7 +924,8 @@ static u8 elants_i2c_calculate_checksum(u8 *buf)
- 	return checksum;
- }
- 
--static void elants_i2c_event(struct elants_data *ts, u8 *buf)
-+static void elants_i2c_event(struct elants_data *ts, u8 *buf,
-+			     size_t report_len)
- {
- 	u8 checksum = elants_i2c_calculate_checksum(buf);
- 
-@@ -927,7 +939,7 @@ static void elants_i2c_event(struct elants_data *ts, u8 *buf)
- 			 "%s: unknown packet type: %02x\n",
- 			 __func__, buf[FW_POS_HEADER]);
- 	else
--		elants_i2c_mt_event(ts, buf);
-+		elants_i2c_mt_event(ts, buf, report_len);
- }
- 
- static irqreturn_t elants_i2c_irq(int irq, void *_dev)
-@@ -985,7 +997,8 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
++/*
++ * Depending on firmware version, eKTF3624 touchscreens may utilize one of
++ * these opcodes for the touch events: 0x63 and 0x66. The 0x63 is used by
++ * older firmware version and differs from 0x66 such that touch pressure
++ * value needs to be adjusted. The 0x66 opcode of newer firmware is equal
++ * to 0x63 of eKTH3500.
++ */
++#define QUEUE_HEADER_NORMAL2	0x66
++
+ /* Command header definition */
+ #define CMD_HEADER_WRITE	0x54
+ #define CMD_HEADER_READ		0x53
+@@ -1052,7 +1061,6 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+ 		switch (ts->buf[FW_HDR_TYPE]) {
+ 		case CMD_HEADER_HELLO:
+ 		case CMD_HEADER_RESP:
+-		case CMD_HEADER_REK:
  			break;
  
- 		case QUEUE_HEADER_SINGLE:
--			elants_i2c_event(ts, &ts->buf[HEADER_SIZE]);
-+			elants_i2c_event(ts, &ts->buf[HEADER_SIZE],
-+					 ts->buf[FW_HDR_LENGTH]);
+ 		case QUEUE_HEADER_WAIT:
+@@ -1072,6 +1080,7 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
  			break;
  
  		case QUEUE_HEADER_NORMAL:
-@@ -998,17 +1011,18 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
- 			}
- 
- 			report_len = ts->buf[FW_HDR_LENGTH] / report_count;
--			if (report_len != PACKET_SIZE) {
-+			if (report_len != PACKET_SIZE &&
-+			    report_len != PACKET_SIZE_OLD) {
++		case QUEUE_HEADER_NORMAL2:
+ 			report_count = ts->buf[FW_HDR_COUNT];
+ 			if (report_count == 0 || report_count > 3) {
  				dev_err(&client->dev,
--					"mismatching report length: %*ph\n",
-+					"unsupported report length: %*ph\n",
- 					HEADER_SIZE, ts->buf);
- 				break;
- 			}
- 
- 			for (i = 0; i < report_count; i++) {
- 				u8 *buf = ts->buf + HEADER_SIZE +
--							i * PACKET_SIZE;
--				elants_i2c_event(ts, buf);
-+					  i * report_len;
-+				elants_i2c_event(ts, buf, report_len);
- 			}
- 			break;
- 
 -- 
 2.20.1
 

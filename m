@@ -2,97 +2,145 @@ Return-Path: <SRS0=uY0c=EP=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96DFEC2D0A3
-	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 11:55:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63008C2D0A3
+	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 14:29:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3FAC720731
-	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 11:55:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1604922951;
-	bh=+JM9kGHHQbd+vs2uJhphVKhVEtGbzZBEFY8N/jcVdGg=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:List-ID:From;
-	b=TOtwU52hrFUhakkXHZLS44PZASTwmDEdCvsPJQAtdL+SC6rnUmu6eke2+08QG3wkd
-	 WzDR887tK5qjYJOf6nwvDs2YuTG6gPGqsE2TZ0z02Yw+3t/64TjSNQbRxTGeNJxSGx
-	 PPojr59TWEzDIBYazIFq35fDeEBP3uxJr9+dUCgM=
+	by mail.kernel.org (Postfix) with ESMTP id 1E9C420674
+	for <linux-input@archiver.kernel.org>; Mon,  9 Nov 2020 14:29:36 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MsBJzihp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729134AbgKILzu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 9 Nov 2020 06:55:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37030 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729038AbgKILzu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 9 Nov 2020 06:55:50 -0500
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E1FE206ED;
-        Mon,  9 Nov 2020 11:55:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1604922949;
-        bh=+JM9kGHHQbd+vs2uJhphVKhVEtGbzZBEFY8N/jcVdGg=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=SP2uREV97IEiFPFcvTkOPiL2gN/rSlaZV+JbK/VwXTpsJqi3X8qXgAgi1EX3sEsrp
-         C9Dlyn61/XzEC0s/j2+/K6QhPnA+E/maneSO9EDUrE/rzAI+csUQgKYEw4mMzz1/iV
-         u6H79N4JZvsScCrTPOrbjDbJo2XWS9kzjyKJXgXU=
-Date:   Mon, 9 Nov 2020 12:55:46 +0100 (CET)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Chris Ye <lzye@google.com>
-cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        linzhao.ye@gmail.com
-Subject: Re: [PATCH v2] Input: Add devices for
- HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE
-In-Reply-To: <20201101193452.678628-1-lzye@google.com>
-Message-ID: <nycvar.YFH.7.76.2011091255280.18859@cbobk.fhfr.pm>
-References: <20201101193452.678628-1-lzye@google.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1729454AbgKIO3f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 9 Nov 2020 09:29:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34806 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726961AbgKIO3f (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2020 09:29:35 -0500
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E08DDC0613CF;
+        Mon,  9 Nov 2020 06:29:34 -0800 (PST)
+Received: by mail-pg1-x52e.google.com with SMTP id f38so7305272pgm.2;
+        Mon, 09 Nov 2020 06:29:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=omX9+EeJ0qhLTi+kUhz0Bp/5ZreuL86fDrkgxVovth0=;
+        b=MsBJzihps6zADb78PiQDjYZt1v1fYXXLvWzhkuEbwvv86Jxp40cAfW/ueRQqH8p9HA
+         AO18NW0sbd+7ic9zB+JhYrI9LZ5Q88iG3tAtFqD5ZkJH8+rbIfK/sfwMY0clQ3yaD509
+         sEY0pgmjRRClBLjXYhMexsdXNzsvgnvLBWEX256bQaX+rw0PqT6gl27Os3pVHSWrWVu4
+         EaMMYPXYBZb/RKZ7wMOdeZ8xGXlnlYS54Wif3mSmJHXEPSUXQzq8GrV+u/UvVaNcsw/b
+         t3gr5qx5ziUN+/jXOzbGzgfPSCgAQEVF/c1rVoA9TVtrqip7czdYmkXBQwky2PmcAIjC
+         FQ8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=omX9+EeJ0qhLTi+kUhz0Bp/5ZreuL86fDrkgxVovth0=;
+        b=kWJhUiLtI/qz4/In5pTL6pqYh/o+6gg3GhOFL1iNzpRdEYdagQWtiDixBeiZn61JSw
+         viVHzdbQGD9VRmBWl94YaCpmDQ7d73tes1+3dO7uqKhXD7iofWEadB75jRykYuFDqRtu
+         N6DqbafdhAWM+Ul6HGpClnleikH2yeUF1chLSillB2hMJRWlpC6Iy66H1fSrw32KkZsY
+         r8N+nWtBlVeXv55Use+22NvpTD03qchq++VT6T+hmOqgXQzBbSnoc6CYGhOYoRrYaTTp
+         Lvh0HpNNStJ7obtaQsdNsDqOci9SVqJ4N47GYCJ1p7JUN7R4h65sBf5YfW2XvbO6CpWN
+         yA+A==
+X-Gm-Message-State: AOAM530Ncellf4/v06+5+626jEWVYnWuu7sbnoUNCagmZwuD+Fw5BsLO
+        o5j0h4+HXZR58qbE8yIRN0JqUR10R5x0Y8QtE4GGSE+O4mE=
+X-Google-Smtp-Source: ABdhPJzZ42EpAH5I/T7a9F93sS4vDsMyrazBhE++GYn/cLY+pBtPWEoHIhGDJT3SgR4alvP0f86gVIC+NDEJrpbxrxU=
+X-Received: by 2002:aa7:942a:0:b029:164:a853:f0fc with SMTP id
+ y10-20020aa7942a0000b0290164a853f0fcmr13581934pfo.40.1604932174349; Mon, 09
+ Nov 2020 06:29:34 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <a491261f-8463-474d-a6b3-d674670c7bb7@www.fastmail.com>
+In-Reply-To: <a491261f-8463-474d-a6b3-d674670c7bb7@www.fastmail.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Mon, 9 Nov 2020 16:30:23 +0200
+Message-ID: <CAHp75VcBB9wGdrBKXXSnCeHRwS1uEEz9TSrnbxzZ5g+yGdXaiA@mail.gmail.com>
+Subject: Re: How to handle a level-triggered interrupt that is slow to
+ de-assert itself
+To:     Jamie McClymont <jamie@kwiius.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        linux-input <linux-input@vger.kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 1 Nov 2020, Chris Ye wrote:
+On Mon, Nov 9, 2020 at 2:57 PM Jamie McClymont <jamie@kwiius.com> wrote:
 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 74be76e848bf..cf55dca494f3 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -449,6 +449,10 @@
->  #define USB_VENDOR_ID_FRUCTEL	0x25B6
->  #define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
->  
-> +#define USB_VENDOR_ID_GAMEVICE	0x27F8
-> +#define USB_DEVICE_ID_GAMEVICE_GV186	0x0BBE
-> +#define USB_DEVICE_ID_GAMEVICE_KISHI	0x0BBF
-> +
->  #define USB_VENDOR_ID_GAMERON		0x0810
->  #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
->  #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
-> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> index 0440e2f6e8a3..36d94e3485e3 100644
-> --- a/drivers/hid/hid-quirks.c
-> +++ b/drivers/hid/hid-quirks.c
-> @@ -84,6 +84,10 @@ static const struct hid_device_id hid_quirks[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
-> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_GV186),
-> +		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
-> +		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+Looking into the problem I think the better people to answer are ones
+from the input subsystem (or closer), so I have added a few to the Cc
+list.
 
-Applied for 5.10, thanks.
+> Background context:
+>
+> I'm continuing my efforts to reverse-engineer and write a driver for the =
+Goodix GXFP5187 fingerprint sensor in my Huawei Matebook X Pro (the host is=
+ an Intel i5-8250U).
+>
+> The device is connected via SPI plus a GPIO Interrupt pin, defined like s=
+o in the ACPI tables:
+>
+>     GpioInt (Level, ActiveLow, ExclusiveAndWake, PullUp, 0x0000,
+>         "\\_SB.PCI0.GPI0", 0x00, ResourceConsumer, ,) { 0x0000 }
+>
+> This line is held down by the device when it has a message for the host, =
+and stays held down until the host finishes reading the message out over SP=
+I.
+>
+> I'm handling this with a devm_request_threaded_irq-type handler, where th=
+e irq part is just "return IRQ_WAKE_THREAD", and the threaded part does all=
+ the work. My understanding is that this is a reasonable approach since I d=
+on't have tight latency requirements (and the sleeping spi functions are co=
+nvenient, plus I don't want to introduce any unnecessary jitter to the syst=
+em) -- please correct me if I shouldn't actually be using a threaded handle=
+r here.
+>
+> ---
+>
+> Here's my problem:
+>
+> the IRQ line actually stays held down for roughly 180us after I've finish=
+ed reading out the message over SPI. That means that as soon as the handler=
+ finishes, a new one starts, and it reads out corrupted data, since the sen=
+sor doesn't have anything to say.
+>
+> This is okay in theory -- the corrupted message header can be detected by=
+ its checksum, and disregarded. However, this leads to a race condition whe=
+re the chip can decide it DOES have something to say to the host, WHILE the=
+ host is reading out the corrupted header. At that point, the two sides de-=
+sync in their ideas of what needs to be read, and everything stops working.
+>
+> So, I'd like some way to pause interrupt handling for 200us+, and only re=
+-run the handler if the line is still held down after that time.
+>
+> My first approach was to add a sleep (usleep_range) at the end of the thr=
+eaded handler, right before returning IRQ_HANDLED. However, it appears that=
+ after the sleep finishes, the IRQ is triggered one more time -- presumably=
+ it has been set as pending before/during the sleep?
+>
+> My new workaround is to save a ktime_get_ns timestamp at the end of the h=
+andler, and check it against the current ktime at the start, returning earl=
+y if not enough time has yet elapsed. This is unsatisfactory, as it is effe=
+ctively a 180us busy-wait, and gets in the way of whatever the core could b=
+etter be doing (presumably idling and saving power :).
+>
+> Is it possible to return to the first approach, but prevent that one spur=
+ious interrupt from firing after the handler ends?
+>
+> Thanks
+> -- Jamie McClymont
 
--- 
-Jiri Kosina
-SUSE Labs
 
+
+--=20
+With Best Regards,
+Andy Shevchenko

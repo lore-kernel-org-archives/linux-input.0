@@ -2,43 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F414C4741F
-	for <linux-input@archiver.kernel.org>; Tue, 10 Nov 2020 18:16:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF526C388F7
+	for <linux-input@archiver.kernel.org>; Tue, 10 Nov 2020 18:16:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 084CA20797
-	for <linux-input@archiver.kernel.org>; Tue, 10 Nov 2020 18:16:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CD49207D3
+	for <linux-input@archiver.kernel.org>; Tue, 10 Nov 2020 18:16:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726690AbgKJSQh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Nov 2020 13:16:37 -0500
-Received: from thoth.sbs.de ([192.35.17.2]:52719 "EHLO thoth.sbs.de"
+        id S1731371AbgKJSQj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Nov 2020 13:16:39 -0500
+Received: from david.siemens.de ([192.35.17.14]:58909 "EHLO david.siemens.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726307AbgKJSQh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1726400AbgKJSQh (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Tue, 10 Nov 2020 13:16:37 -0500
-Received: from mail2.siemens.de (mail2.siemens.de [139.25.208.11])
-        by thoth.sbs.de (8.15.2/8.15.2) with ESMTPS id 0AAIGQgJ021454
+Received: from mail1.siemens.de (mail1.siemens.de [139.23.33.14])
+        by david.siemens.de (8.15.2/8.15.2) with ESMTPS id 0AAIGLNN019030
         (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 Nov 2020 19:16:26 +0100
+        Tue, 10 Nov 2020 19:16:21 +0100
 Received: from dev.vm7.ccp.siemens.com ([167.87.14.175])
-        by mail2.siemens.de (8.15.2/8.15.2) with ESMTP id 0AAIGQVM032432;
-        Tue, 10 Nov 2020 19:16:26 +0100
+        by mail1.siemens.de (8.15.2/8.15.2) with ESMTP id 0AAIGKKn021055;
+        Tue, 10 Nov 2020 19:16:20 +0100
 Received: from mail3.siemens.de (localhost [127.0.0.1])
-        by dev.vm7.ccp.siemens.com (Postfix) with ESMTP id 1102870BAB5;
-        Tue, 10 Nov 2020 19:16:26 +0100 (CET)
+        by dev.vm7.ccp.siemens.com (Postfix) with ESMTP id 741DA70BAB5;
+        Tue, 10 Nov 2020 19:16:20 +0100 (CET)
 From:   Andrej Valek <andrej.valek@siemens.com>
 To:     robh@kernel.org, nick@shmanahar.org, hadess@hadess.net,
         dmitry.torokhov@gmail.com
 Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         devicetree@vger.kernel.org, Andrej Valek <andrej.valek@siemens.com>
-Subject: [PATCH v4 3/4] Input: atmel_mxt_ts - add option to disable firmware loading
-Date:   Tue, 10 Nov 2020 19:15:49 +0100
-Message-Id: <20201110181550.23853-4-andrej.valek@siemens.com>
+Subject: [PATCH v4 0/4] Firmware loading option
+Date:   Tue, 10 Nov 2020 19:15:46 +0100
+Message-Id: <20201110181550.23853-1-andrej.valek@siemens.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20201029170313.25529-4-andrej.valek@siemens.com>
+In-Reply-To: <20201029170313.25529-1-andrej.valek@siemens.com>
 References: <20201029170313.25529-1-andrej.valek@siemens.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -46,60 +45,20 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Firmware file loadind for mXT336U controller takes too much time (~60s).
-There is no check that configuration is the same which is already present.
-This happens always during boot, which makes touchscreen unusable.
+Add option to prevent firmware/configuration loading during each boot.
 
-Add there an option to prevent firmware file loading, but keep it enabled
-by default.
+Andrej Valek (4):
+  Input: goodix - add option to disable firmware loading
+  dt-bindings: touchscreen: goodix: add info about disabling FW loading
+  Input: atmel_mxt_ts - add option to disable firmware loading
+  Input: st1232 - add support resolution reading
 
-Signed-off-by: Andrej Valek <andrej.valek@siemens.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ .../bindings/input/touchscreen/goodix.yaml    |  4 ++
+ drivers/input/touchscreen/atmel_mxt_ts.c      | 17 ++++--
+ drivers/input/touchscreen/goodix.c            |  4 +-
+ drivers/input/touchscreen/st1232.c            | 52 +++++++++++++------
+ 4 files changed, 57 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 98f17fa3a8926..491d5088d2826 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -311,6 +311,7 @@ struct mxt_data {
- 	struct mxt_dbg dbg;
- 	struct gpio_desc *reset_gpio;
- 	bool use_retrigen_workaround;
-+	bool cfg_loading_disabled;
- 
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -2191,9 +2192,15 @@ static int mxt_initialize(struct mxt_data *data)
- 	if (error)
- 		return error;
- 
--	error = request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
--					&client->dev, GFP_KERNEL, data,
--					mxt_config_cb);
-+	/* Load firmware if enabled */
-+	if (!data->cfg_loading_disabled) {
-+		error = request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
-+						&client->dev, GFP_KERNEL, data,
-+						mxt_config_cb);
-+	} else {
-+		mxt_config_cb(NULL, data);
-+	}
-+
- 	if (error) {
- 		dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
- 			error);
-@@ -3158,6 +3165,10 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		msleep(MXT_RESET_INVALID_CHG);
- 	}
- 
-+	/* prevent firmware flashing for each start */
-+	data->cfg_loading_disabled = device_property_read_bool(&client->dev,
-+						"atmel,do-not-load-fw");
-+
- 	error = mxt_initialize(data);
- 	if (error)
- 		return error;
 -- 
 2.20.1
 

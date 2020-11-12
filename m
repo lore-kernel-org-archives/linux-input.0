@@ -5,76 +5,74 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0578C2D0A3
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:04:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16575C55ABD
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:04:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 62A4022201
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:04:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A57E2222A
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:04:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="c7s4GoHs"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="VhQygiOo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726061AbgKLLEe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1726969AbgKLLEe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 12 Nov 2020 06:04:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55140 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728060AbgKLLCZ (ORCPT
+        with ESMTP id S1727942AbgKLLCW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Nov 2020 06:02:25 -0500
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2163C061A4A
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:24 -0800 (PST)
-Received: by mail-wr1-x443.google.com with SMTP id 23so5514036wrc.8
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:24 -0800 (PST)
+        Thu, 12 Nov 2020 06:02:22 -0500
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CA6C0613D4
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:22 -0800 (PST)
+Received: by mail-wr1-x441.google.com with SMTP id c17so5485225wrc.11
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=WvY9te180OdLZG/3R+1QDjkO+/n4VFTObKYg6zpyjpg=;
-        b=c7s4GoHslhO/5aCEeC2U2ciigs2PdRNSMMwlCmib4jNWifhZmO1CFfJbD4xOudP/kE
-         5Ws5YrVtmAruR8/ODKtauM1baSmvH8vir2NhiFzQj/Z70TRSUCxHnIec1am/9lFysr6Y
-         i0/DgPPjfaXRkL6sBt2jPZkMJxNONSVlzsgiQ006DQ8KNthJqrmiPSDK7mu4KPRf6UB/
-         7jScF55NzDiGUdWzutACSRrnlQNm7v80Dwgj6nctNY2LwUERaSqF41L0FXoFMwDCzT3D
-         8jgIDRNxDggKa35OsNoDn2eQdIM3dQ4whwXqZBTt9Ibi6GzP+tqJfR77bBuRvUFr6oui
-         2l3A==
+        bh=ZQVGs5MUcX5FGl2B0GSyWePcq4JNp/6FjWRufhPjYcY=;
+        b=VhQygiOoSK+sK6f7HkMc+o9zkzRaUN+FSCWD/crO0V8nHR27+xLSjUbKSc7ltAkPPF
+         rKj75y4G0aMj+ioqRWIGJh3F+bT/AD+09bJhZbAB96sZxXR/Crg81ZwIGo5zsGerQWBA
+         eIYAOm5DgjWp+COQ6NBzaN/KucO3rUnUxAeENnEm8gy98aPkLD3Xo/C88T8/t4IBcAIM
+         lgRvlS/F4PFpNaNjjEumIbmGtiJucF4sKa1D44J24lhAAz3vzUYyeGRQYe1haqmg+Gxv
+         EY8KDPXq2mAuPrplhkjUh9QrE5J8/mpjUTn/IlBeZ0kPqKXZg6HRI2kTL2tU+veHFUME
+         hrRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=WvY9te180OdLZG/3R+1QDjkO+/n4VFTObKYg6zpyjpg=;
-        b=VVOJGKZAedDdI2EPxODzhsZxIINa1zfLe/sjlj6BsGtE2legMbu1nqnohEg3r3Iy5U
-         oOOwqJ95b3VPUBqKJORyLj0w749eleT5GJVgklfddIXSZ5yysJa0JrE/0TQLO4OE0sVK
-         AxO2I5B/UOyED2kyxleGrfOOEJdk5kmZhln1OBaBM3PoLgj+ZnpbJhGxMapOXnkLUaTK
-         yuIw/QM0sKeiSO/lV+DokEcrKw5KmLl6Xo0cs0k+B9B8KKmagaf0Icu/x6S9W/S3f1VY
-         coK7uWgI3pSTZzwzUUwzmZYJ24AfyZvFw0SekWd5z6gpnLonn2BNASdhx2q6Vk4pPjxm
-         YoDg==
-X-Gm-Message-State: AOAM532ec1CQX3D2VLO9/v6caAAlTLjWBtBnjl9AODqlRpae9USYjhPx
-        JNildjLiwMtGj9dtpbnerGOHGQ==
-X-Google-Smtp-Source: ABdhPJypb4Z4PS8wkRi6qUquNvkk/2vA3NoJBB2bf6GPSLoYbfV/3+LRiUE184gwcRldEGTcpv3jRg==
-X-Received: by 2002:a5d:5686:: with SMTP id f6mr8330558wrv.329.1605178943669;
-        Thu, 12 Nov 2020 03:02:23 -0800 (PST)
+        bh=ZQVGs5MUcX5FGl2B0GSyWePcq4JNp/6FjWRufhPjYcY=;
+        b=lsgs634L2XC56hSNXMoBotcncBVIFcKq7yvKPs8IxsB8DPYnf6cG8XgC88KZAmchHl
+         RqWLKrgdV2SxysHPUiPGeEQKEcL1rf/BnIN6dnnxFl3vVOqPu5UFdtCvqqVEYIBXN03F
+         kcU/mXL3if/lxJVHyHrmo5nfE0RYp/DpdFximFupS3HpW5XvNiBZ5mwNNqtTlI0jpyPl
+         49dA/4DZZNfh8Qzs3gMWNudpwQ03u/HdNQV4eYQunSe+cXhMMdhDUvamzuTM2rtfnmbb
+         TP9oskpGzJI/CCfVY053y4fqpWuqbffRWoOPj8iWXoypsY+v56A9DXmiilaMG+yfRvYL
+         9Crw==
+X-Gm-Message-State: AOAM5313A5Usx8yDG0Unh1KK38RFy3ex5lXCPi646QBk4fpFKr0Q91fj
+        PohpYeYw0QvnNNp7inr46TsC/g==
+X-Google-Smtp-Source: ABdhPJwYLGSBuyC85zWYlngJC+Pi/QkUTlnPMLHlWOimyhWy+xhqiTpOPwSU0SIRVvfPM06uTF+WLQ==
+X-Received: by 2002:adf:e544:: with SMTP id z4mr1114555wrm.83.1605178941187;
+        Thu, 12 Nov 2020 03:02:21 -0800 (PST)
 Received: from dell.default ([91.110.221.159])
-        by smtp.gmail.com with ESMTPSA id x81sm6515329wmg.5.2020.11.12.03.02.22
+        by smtp.gmail.com with ESMTPSA id x81sm6515329wmg.5.2020.11.12.03.02.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2020 03:02:23 -0800 (PST)
+        Thu, 12 Nov 2020 03:02:20 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Henrik Rydberg <rydberg@bitmath.org>,
-        Peter Osterlund <petero2@telia.com>,
-        Stefan Gmeiner <riddlebox@freesurf.ch>,
-        "C. Scott Ananian" <cananian@alumni.priceton.edu>,
-        Bruce Kalk <kall@compass.com>,
-        this to <linux-input@vger.kernel.org>
-Subject: [PATCH 12/15] input: mouse: synaptics: Demote non-conformant kernel-doc header
-Date:   Thu, 12 Nov 2020 11:02:01 +0000
-Message-Id: <20201112110204.2083435-13-lee.jones@linaro.org>
+        Benjamin Tissoires <benjamin.tissoires@gmail.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH 10/15] input: touchscreen: surface3_spi: Fix naming issue with 'surface3_spi_get_gpio_config's header
+Date:   Thu, 12 Nov 2020 11:01:59 +0000
+Message-Id: <20201112110204.2083435-11-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201112110204.2083435-1-lee.jones@linaro.org>
 References: <20201112110204.2083435-1-lee.jones@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -82,36 +80,34 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/input/mouse/synaptics.c:1781: warning: Function parameter or member 'psmouse' not described in 'synaptics_setup_intertouch'
- drivers/input/mouse/synaptics.c:1781: warning: Function parameter or member 'info' not described in 'synaptics_setup_intertouch'
- drivers/input/mouse/synaptics.c:1781: warning: Function parameter or member 'leave_breadcrumbs' not described in 'synaptics_setup_intertouch'
+ drivers/input/touchscreen/surface3_spi.c: In function ‘surface3_spi_process_touch’:
+ drivers/input/touchscreen/surface3_spi.c:97:6: warning: variable ‘timestamp’ set but not used [-Wunused-but-set-variable]
+ drivers/input/touchscreen/surface3_spi.c:225: warning: Function parameter or member 'data' not described in 'surface3_spi_get_gpio_config'
+ drivers/input/touchscreen/surface3_spi.c:225: warning: Excess function parameter 'ts' description in 'surface3_spi_get_gpio_config'
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Peter Osterlund <petero2@telia.com>
-Cc: Stefan Gmeiner <riddlebox@freesurf.ch>
-Cc: "C. Scott Ananian" <cananian@alumni.priceton.edu>
-Cc: Bruce Kalk <kall@compass.com>
-Cc: this to <linux-input@vger.kernel.org>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/input/mouse/synaptics.c | 2 +-
+ drivers/input/touchscreen/surface3_spi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 07835939d83b9..403d0ce0e8bd2 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1771,7 +1771,7 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
- 				  leave_breadcrumbs);
- }
- 
--/**
-+/*
-  * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
-  * and decides to instantiate a SMBus InterTouch device.
+diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
+index 72dc4c562a4e1..1da23e5585a0d 100644
+--- a/drivers/input/touchscreen/surface3_spi.c
++++ b/drivers/input/touchscreen/surface3_spi.c
+@@ -217,7 +217,7 @@ static void surface3_spi_power(struct surface3_ts_data *data, bool on)
+ /**
+  * surface3_spi_get_gpio_config - Get GPIO config from ACPI/DT
+  *
+- * @ts: surface3_spi_ts_data pointer
++ * @data: surface3_spi_ts_data pointer
   */
+ static int surface3_spi_get_gpio_config(struct surface3_ts_data *data)
+ {
 -- 
 2.25.1
 

@@ -2,114 +2,91 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A8FDC388F9
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:34:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B5BEC56201
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:45:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DBE2320791
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:34:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A0F920791
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:45:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eto9zKDw"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jGX4gTpi"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728131AbgKLBeP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 11 Nov 2020 20:34:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51316 "EHLO
+        id S1728104AbgKLBeD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 11 Nov 2020 20:34:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728251AbgKLB1s (ORCPT
+        with ESMTP id S1728107AbgKLAhn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Nov 2020 20:27:48 -0500
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08E0C0613D6;
-        Wed, 11 Nov 2020 17:27:46 -0800 (PST)
-Received: by mail-pg1-x544.google.com with SMTP id m13so2750053pgl.7;
-        Wed, 11 Nov 2020 17:27:46 -0800 (PST)
+        Wed, 11 Nov 2020 19:37:43 -0500
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA34DC0613D4;
+        Wed, 11 Nov 2020 16:37:42 -0800 (PST)
+Received: by mail-pf1-x443.google.com with SMTP id w6so2904879pfu.1;
+        Wed, 11 Nov 2020 16:37:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
-        bh=lAFsArA7fE4is9x6CJ3p1673X0PbVTAs5Dj2zRg5Pm4=;
-        b=eto9zKDwyga3/h2Txgxeooyil+/9etbAU6Ynpn74oWO8s2SqlkQ+pAVnlZ1k3yTPOv
-         X3JxIVsS7XMWUHJOatBVJc70J71YTplofTMP6HLAqAZ2s55f3d5JilQK7/EVWrwd2BgM
-         MBcPYQYO0gCS7Hc/ZFUDE1hKuPnSevZ2szz74CHxnXgXsLw40k2zTf2iO90Eq1j69sQD
-         CXHGGA/V9i4lZabVwchE8U0AalmqI3+hFpIegg+AaTjEnkrwTOnPw1xjGv7cpMMY85rS
-         8fHb6GsqCy7KIiD2nbIyuOSGVgWn/TLNvD+dmQj+XbyK4urC4pHCNfmgWKf/bQt0IjAd
-         XBNw==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=mM9QG86V38tLRA60VPmwtkAR+Znxn+9PIF+rI2nOlIY=;
+        b=jGX4gTpi4pVihMOdKX/6tH9in1Jo9ery0yzFMEOf9KQeAMg4w0zuUmGry5KNXGY+DS
+         04SEIGtu3FHUVZ6Q3i2LH5+qYvg6ngXGkw8/n/0444hh8Tds2uQuWuHC+etuLeqx4Rqo
+         Gx1hocfoBTGU3MppVZsrOilc/9ivXc0ebxNzbooY4b23l/e9bjE2Jgqfd05zepO3CFUp
+         bmbGpHI9DllMRTvm1gQtiCnvExv9REVyLB/jylkxMW30fQDP2JasZrbFWBOavW8YdT/t
+         uxFOuwEoK49xH2cdhfAb0F/dK7zbOXo48nid9QZqIzXhaI1UcdW7/I2+xZGQHVsqOQYN
+         m96Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=lAFsArA7fE4is9x6CJ3p1673X0PbVTAs5Dj2zRg5Pm4=;
-        b=dnVAVmK6D1Uyb/jIbDCTx+sM5FuI3WtxsS/BgS2/hNKAASBrfUMwJ4gkzFgvNfv/an
-         h3BVrieyC+W/Lqzx2J6q4r4aL9xpy5reKKTrZ7a7pil1BqgS1nlYfxTei0CI5IpwQ/61
-         Bh2dDeust+wVBP3dp0PUDj8nE7vcEq/oIe0XbVwLeQl5L2wUjO1VMJ7RcFTm0IMQdK+F
-         VB4B8/aTUWbkCa0ZzfTk+xcmLsPccRF1raVtj0F1fdvaOwdA/Buj/oDpyIQJmF2G+n1z
-         MhMBEJQcjMIo/aqVhdKNQoqWa55nTpZIq3krIJVjYFwz7y3iKe5V4ECgp2pG1JlqaZ6o
-         SQkw==
-X-Gm-Message-State: AOAM531FqaxJrYGXM04+aK1ghhyn9c7syldKaBNcJY4eMGFja6ulCrrl
-        qKCOpzoGxb7p4Z8P3wjnhlvmjtwXAKc=
-X-Google-Smtp-Source: ABdhPJz7aTCOGTeqSG5vlpQfA+LDp6YM615OAMbuqOLp1J8N4w03FFJCRdPj/JGkqmJGZG+0JX/uUw==
-X-Received: by 2002:aa7:824d:0:b029:18b:ad77:1a2b with SMTP id e13-20020aa7824d0000b029018bad771a2bmr25914111pfn.25.1605144465981;
-        Wed, 11 Nov 2020 17:27:45 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=mM9QG86V38tLRA60VPmwtkAR+Znxn+9PIF+rI2nOlIY=;
+        b=i6zlC1S/grXKbxKO1q10qlD0UWMx+j+8QPsGFNfNnHfpK3n7+txYwBxHodZwHDVOiX
+         It+/rltAqtab1gJtwOskuzOWjb0DfW17gipgCl9TF7+rTMaCcFP2iay5LFXaAoUb7FLk
+         cHgGSYcAWvd5dOhHvemis/OwoNenJLePZbV8BFhoXFdLnNKIbbf2JVTMBy6qwcxpJCCH
+         8EZhetObrB1WcUqYAoJ33XZzq/0UW57sEN+qWZeDZjtsAtcfljcLUpt+HcUKobvWzyte
+         uPi078YUSq46gAUhJogp4OTR6dM02l9D7Zd0jn17Dnoc9/cf+ItK11fhMqujyZUm/BVv
+         s9rQ==
+X-Gm-Message-State: AOAM532iMSgnIef3+4PXPq8Nu/wyLwnwUYVK1iqFKIDJLco1ERuZo/Wp
+        qVdYFOk73b7fNm4HU/C/W+A=
+X-Google-Smtp-Source: ABdhPJwwUP/3YiRKPA/36oGI5gQoClu23rc118P24HOIH+2zQqSYwKLzEPkhy2rbrWyHL4lTpKzL2w==
+X-Received: by 2002:aa7:8518:0:b029:18b:cc9c:efab with SMTP id v24-20020aa785180000b029018bcc9cefabmr21951853pfn.39.1605141462317;
+        Wed, 11 Nov 2020 16:37:42 -0800 (PST)
 Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id h16sm3697694pjz.10.2020.11.11.17.27.44
+        by smtp.gmail.com with ESMTPSA id b80sm4047441pfb.40.2020.11.11.16.37.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 17:27:45 -0800 (PST)
-Date:   Wed, 11 Nov 2020 17:27:42 -0800
+        Wed, 11 Nov 2020 16:37:41 -0800 (PST)
+Date:   Wed, 11 Nov 2020 16:37:38 -0800
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Oleksij Rempel <linux@rempel-privat.de>,
-        Anatolij Gustschin <agust@denx.de>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: ads7846 - fix unaligned access on 7845
-Message-ID: <20201112012742.GA3608551@dtor-ws>
+To:     Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] Input: adp5589: use a single variable for error in
+ probe
+Message-ID: <20201112003738.GZ1003057@dtor-ws>
+References: <20201111084833.40995-1-alexandru.ardelean@analog.com>
+ <20201111084833.40995-2-alexandru.ardelean@analog.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20201111084833.40995-2-alexandru.ardelean@analog.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-req->sample[1] is not naturally aligned at word boundary, and therefore
-we should use get_unaligned_be16() when accessing it.
+Hi Alexandru,
 
-Fixes: 3eac5c7e44f3 ("Input: ads7846 - extend the driver for ads7845 controller support")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
+On Wed, Nov 11, 2020 at 10:48:28AM +0200, Alexandru Ardelean wrote:
+> The 'error' & 'ret' variables are used. This is a bit of duplication.
+> This change replaces the use of error with the 'ret' variable since the
+> name is a bit more generic.
 
-Not tested on hardware, so if somebody has the controller and can verify
-that would be great.
+I really prefer variables that carry error codes/success and are used in
+error paths to be called "error", and "ret" or "retval" to be used in
+cases where we may return actual data.
 
-
- drivers/input/touchscreen/ads7846.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 95e89f675ad5..35d14bc44aff 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -33,6 +33,7 @@
- #include <linux/regulator/consumer.h>
- #include <linux/module.h>
- #include <asm/irq.h>
-+#include <asm/unaligned.h>
- 
- /*
-  * This code has been heavily tested on a Nokia 770, and lightly
-@@ -443,7 +444,7 @@ static int ads7845_read12_ser(struct device *dev, unsigned command)
- 
- 	if (status == 0) {
- 		/* BE12 value, then padding */
--		status = be16_to_cpu(*((u16 *)&req->sample[1]));
-+		status = get_unaligned_be16(&req->sample[1]);
- 		status = status >> 3;
- 		status &= 0x0fff;
- 	}
--- 
-2.29.2.222.g5d2a92d10f8-goog
-
+Thanks.
 
 -- 
 Dmitry

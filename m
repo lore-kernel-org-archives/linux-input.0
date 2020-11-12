@@ -7,38 +7,39 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39AEEC63697
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 16:44:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A721CC5519F
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 16:44:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8CB422240
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 16:44:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6282C21D7F
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 16:44:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729195AbgKLQoV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Nov 2020 11:44:21 -0500
-Received: from mx2.suse.de ([195.135.220.15]:49880 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729107AbgKLQoG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1729116AbgKLQoG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 12 Nov 2020 11:44:06 -0500
+Received: from mx2.suse.de ([195.135.220.15]:49678 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729090AbgKLQoF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 12 Nov 2020 11:44:05 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 7FCB9B016;
-        Thu, 12 Nov 2020 16:44:04 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 744C8AFD8;
+        Thu, 12 Nov 2020 16:44:03 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org
+To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Cc:     f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
         bcm-kernel-feedback-list@broadcom.com,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         wahrenst@gmx.net, linux-input@vger.kernel.org,
         dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
         devel@driverdev.osuosl.org, p.zabel@pengutronix.de,
-        linux-gpio@vger.kernel.org, linus.walleij@linaro.org,
-        linux-clk@vger.kernel.org, sboyd@kernel.org,
-        linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
+        linux-gpio@vger.kernel.org, linux-clk@vger.kernel.org,
+        sboyd@kernel.org, linux-rpi-kernel@lists.infradead.org,
         andy.shevchenko@gmail.com,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v4 07/11] staging: vchiq: Release firmware handle on unbind
-Date:   Thu, 12 Nov 2020 17:36:25 +0100
-Message-Id: <20201112163630.17177-8-nsaenzjulienne@suse.de>
+Subject: [PATCH v4 04/11] gpio: raspberrypi-exp: Release firmware handle on unbind
+Date:   Thu, 12 Nov 2020 17:36:22 +0100
+Message-Id: <20201112163630.17177-5-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201112163630.17177-1-nsaenzjulienne@suse.de>
 References: <20201112163630.17177-1-nsaenzjulienne@suse.de>
@@ -52,26 +53,27 @@ Use devm_rpi_firmware_get() so as to make sure we release RPi's firmware
 interface when unbinding the device.
 
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Acked-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
 
 Changes since v2:
  - Use devm_rpi_firmware_get(), instead of remove function
 
- drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c | 2 +-
+ drivers/gpio/gpio-raspberrypi-exp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-index f500a7043805..6c196cade4a0 100644
---- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-+++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-@@ -2732,7 +2732,7 @@ static int vchiq_probe(struct platform_device *pdev)
+diff --git a/drivers/gpio/gpio-raspberrypi-exp.c b/drivers/gpio/gpio-raspberrypi-exp.c
+index bb100e0124e6..64a552ecc2ad 100644
+--- a/drivers/gpio/gpio-raspberrypi-exp.c
++++ b/drivers/gpio/gpio-raspberrypi-exp.c
+@@ -208,7 +208,7 @@ static int rpi_exp_gpio_probe(struct platform_device *pdev)
  		return -ENOENT;
  	}
  
--	drvdata->fw = rpi_firmware_get(fw_node);
-+	drvdata->fw = devm_rpi_firmware_get(&pdev->dev, fw_node);
+-	fw = rpi_firmware_get(fw_node);
++	fw = devm_rpi_firmware_get(&pdev->dev, fw_node);
  	of_node_put(fw_node);
- 	if (!drvdata->fw)
+ 	if (!fw)
  		return -EPROBE_DEFER;
 -- 
 2.29.2

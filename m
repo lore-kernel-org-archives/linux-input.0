@@ -2,118 +2,105 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 448C9C2D0A3
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 10:44:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6A97C55ABD
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:02:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DEF3120674
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 10:44:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 564162053B
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:02:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="I6ogObdQ"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Lc1AYuZ+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727940AbgKLKo0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Nov 2020 05:44:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52246 "EHLO
+        id S1728035AbgKLLCP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Nov 2020 06:02:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726107AbgKLKoZ (ORCPT
+        with ESMTP id S1727903AbgKLLCN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Nov 2020 05:44:25 -0500
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEAA6C0613D1
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 02:44:23 -0800 (PST)
-Received: by mail-wm1-x342.google.com with SMTP id 19so4845523wmf.1
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 02:44:23 -0800 (PST)
+        Thu, 12 Nov 2020 06:02:13 -0500
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F34C061A47
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:13 -0800 (PST)
+Received: by mail-wr1-x441.google.com with SMTP id s8so5503285wrw.10
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=date:from:to:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=ygXEyC17mmqkLuT+LSwnv8yANRbLqR9DFVnrEPXtZ4M=;
-        b=I6ogObdQP+1zd9NhSXGSnPGJAG4gcJxrpgTyuCCN5IYGW5plCifjhj9ca2dMhtwJBj
-         +jAJIokPCuZDcPcoK16EIoxoHBrIJcm5KCT1lZwZfpyso0Cr0bQqsB/PbW+chwaIIN7Q
-         RIwBigEbiHi8+MKGZwG4/OfPhr5JXtoTtf4CE+AYu4I9Ae7J9/Y8FnL481pzNwSw4pWj
-         iQCws3HhM81hlBYKDbsuiZZ5xEDoXR1TUo2SghQx9hNtGb6eDUaMjD5cbffC888x6Le+
-         f7CEDPIPfSVSLFTAXpgXbi2/jAYDOlXH3AthoEzNKrCI/VO4t4DkhcO6vjbsCkRK0+SO
-         /Drw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=knWXj4Bg/0Bo5izs2YIZY2Umz4PY59EXUTTl8Cf1P4k=;
+        b=Lc1AYuZ+Lt5588xyeZsCG++rT/I7ubH93uSjAHwJnPjdMQnzpRLxajJM9Xr2AaGqzA
+         C37QdDmT4ivjUZfUqD8/MjbALgf6jVX+pBW1g3WaSoQRRi0ppqakLKAyo7aquZEWTL7j
+         qncBK+yduN/EnLr9iWXnxKX9vy/3ywYlnp507pI3/QQwjyYaoJVKSkTJtvgYhsyG/G0W
+         0PAUMPfyeMhGXla5NHn9GHMAKKi4XhKOIWIU03Dgag94jCSeVXciOKDpdz4EXkT7LEZ2
+         QvXH09NxbKb+QnX6u1GBLFGs+8u9Iz11523salzrvZvIgay9khf16XSQCe6KjKSxRoab
+         1P9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=ygXEyC17mmqkLuT+LSwnv8yANRbLqR9DFVnrEPXtZ4M=;
-        b=Q+q01OCaEVX1iXiedkPXOlLDDL2WG52YOa2UnK7ZqBp5H3zUhOb1M597Qc6cR99Pam
-         s9HQ6v2O0G+aRMQlP544vWWhaHYsChI4dr1EHyQ6x5zxuwfoV/XxNeiV3E5wWxE5iROL
-         Lh9TAGj7ZOmlcNQyMgWYCPpzCyggauuSWxTmyxkfabbO06VqBDZ4Y2yzF8jtW9cOxF3z
-         lh9FTnbWF8dzA03pMWJM7h5NHlMmzOseXE6vy22DvC4eWI3Z7/l768efDpQhGLgvdN9Z
-         uzUXP6T4x1QBdEowKlosZCjKfXRGXysoNQVZJupX8dU408rqN/o8PVpyiFJCqIEDT6Zq
-         s5JA==
-X-Gm-Message-State: AOAM533Nhp4gQa9DeZzmjTpBEWg11ooMh2c9M/c2ZMyd5b0CIEMr66Px
-        83w5wB6YhrAkAMWDj9w7MpmdUQ==
-X-Google-Smtp-Source: ABdhPJxxSp68T0y9TRXVHc8JIto9ZdMg6AEEVOoiRgdoeOZ7uP+qT6GcEu2n8vbhXI9PC5geDUUPmA==
-X-Received: by 2002:a1c:7d12:: with SMTP id y18mr8856951wmc.103.1605177862562;
-        Thu, 12 Nov 2020 02:44:22 -0800 (PST)
-Received: from dell ([91.110.221.159])
-        by smtp.gmail.com with ESMTPSA id h62sm6060487wrh.82.2020.11.12.02.44.21
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=knWXj4Bg/0Bo5izs2YIZY2Umz4PY59EXUTTl8Cf1P4k=;
+        b=tFuYgdHpYL980f9XExPtJ1DzbOmUZI7mVFqkdfeiHseE9ng9VLHECrsiqFKtH3pQ6q
+         Wj9wdKTixbZpSddmIkCHWn6Se2dxeBrpeCIByk2lJ1IMsJvWLOKSuK4pLjjChZzVLD2z
+         hqEuZ90qFqnR2QTm+81YljFYw8zLzJnFMFNI0DZquQlnBz41HMfNGTp/NL3qIXlkqDhP
+         ukm6NpeJTISzvdvWpgpCy/LIOS/1vd56QeUw4J4M/Z8i5VQORjegA8nqB4L5j6mLPSdy
+         lrVb4vfDfZkUQB86UETmU6YvlMvJmmnuKbVCUHJvjSSgry6YDd4DYNXwJYYQnEu7CKrM
+         obBw==
+X-Gm-Message-State: AOAM5326JtA3CrbFcCCnv3XBSZiuEtJoDN6QylVUrU6K141H+GgoXoZZ
+        aAwN/hwF0qlBhOYyE+rhi1QhAw==
+X-Google-Smtp-Source: ABdhPJyqyjes+BCgN06bC6HN+6GqsK+QWE28xLMVhslNDqpJesu8OVJHftKabKrCdKMpivjUocb94A==
+X-Received: by 2002:a5d:5405:: with SMTP id g5mr3726618wrv.350.1605178932058;
+        Thu, 12 Nov 2020 03:02:12 -0800 (PST)
+Received: from dell.default ([91.110.221.159])
+        by smtp.gmail.com with ESMTPSA id x81sm6515329wmg.5.2020.11.12.03.02.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2020 02:44:21 -0800 (PST)
-Date:   Thu, 12 Nov 2020 10:44:20 +0000
+        Thu, 12 Nov 2020 03:02:11 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
-To:     linux-kernel@vger.kernel.org,
+To:     lee.jones@linaro.org
+Cc:     linux-kernel@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        dusonlin@emc.com.tw, KT Liao <kt.liao@emc.com.tw>,
+        De Schrijver <peter.de-schrijver@nokia.com>,
+        Felipe Balbi <felipe.balbi@nokia.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH] input: mouse: elan_i2c_core: Move header inclusion inside
-Message-ID: <20201112104420.GG1997862@dell>
-References: <20201104162427.2984742-1-lee.jones@linaro.org>
- <20201104162427.2984742-7-lee.jones@linaro.org>
+Subject: [PATCH 03/15] input: misc: mc13783-pwrbutton: File headers are not good candidates for kernel-doc
+Date:   Thu, 12 Nov 2020 11:01:52 +0000
+Message-Id: <20201112110204.2083435-4-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201112110204.2083435-1-lee.jones@linaro.org>
+References: <20201112110204.2083435-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201104162427.2984742-7-lee.jones@linaro.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The same clause as its use.
-
 Fixes the following W=1 kernel build warning(s):
 
- include/linux/input/elan-i2c-ids.h:26:36: warning: ‘elan_acpi_id’ defined but not used [-Wunused-const-variable=]
+ drivers/input/misc/mc13783-pwrbutton.c:32: warning: cannot understand function prototype: 'struct mc13783_pwrb '
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Jingle Wu <jingle.wu@emc.com.tw>
-Cc: dusonlin@emc.com.tw
-Cc: KT Liao <kt.liao@emc.com.tw>
+Cc: De Schrijver <peter.de-schrijver@nokia.com>
+Cc: Felipe Balbi <felipe.balbi@nokia.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/input/mouse/elan_i2c_core.c | 2 +-
+ drivers/input/misc/mc13783-pwrbutton.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index c599e21a84784..65d21a050cea0 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -34,7 +34,6 @@
- #include <linux/completion.h>
- #include <linux/of.h>
- #include <linux/property.h>
--#include <linux/input/elan-i2c-ids.h>
- #include <linux/regulator/consumer.h>
- #include <asm/unaligned.h>
- 
-@@ -1413,6 +1412,7 @@ static const struct i2c_device_id elan_id[] = {
- MODULE_DEVICE_TABLE(i2c, elan_id);
- 
- #ifdef CONFIG_ACPI
-+#include <linux/input/elan-i2c-ids.h>
- MODULE_DEVICE_TABLE(acpi, elan_acpi_id);
- #endif
- 
+diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
+index afdf8ef25ee86..0636eee4bb6ce 100644
+--- a/drivers/input/misc/mc13783-pwrbutton.c
++++ b/drivers/input/misc/mc13783-pwrbutton.c
+@@ -1,4 +1,4 @@
+-/**
++/*
+  * Copyright (C) 2011 Philippe Rétornaz
+  *
+  * Based on twl4030-pwrbutton driver by:
 -- 
 2.25.1
+

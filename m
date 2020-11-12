@@ -2,91 +2,101 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B5BEC56201
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:45:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72074C2D0A3
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 05:37:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A0F920791
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:45:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 15C932168B
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 05:37:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jGX4gTpi"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZVZSEme2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728104AbgKLBeD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 11 Nov 2020 20:34:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43604 "EHLO
+        id S1729128AbgKLFhQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Nov 2020 00:37:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728107AbgKLAhn (ORCPT
+        with ESMTP id S1728021AbgKLBtH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Nov 2020 19:37:43 -0500
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA34DC0613D4;
-        Wed, 11 Nov 2020 16:37:42 -0800 (PST)
-Received: by mail-pf1-x443.google.com with SMTP id w6so2904879pfu.1;
-        Wed, 11 Nov 2020 16:37:42 -0800 (PST)
+        Wed, 11 Nov 2020 20:49:07 -0500
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1B47C061A04;
+        Wed, 11 Nov 2020 17:49:07 -0800 (PST)
+Received: by mail-pf1-x441.google.com with SMTP id e7so2991941pfn.12;
+        Wed, 11 Nov 2020 17:49:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=mM9QG86V38tLRA60VPmwtkAR+Znxn+9PIF+rI2nOlIY=;
-        b=jGX4gTpi4pVihMOdKX/6tH9in1Jo9ery0yzFMEOf9KQeAMg4w0zuUmGry5KNXGY+DS
-         04SEIGtu3FHUVZ6Q3i2LH5+qYvg6ngXGkw8/n/0444hh8Tds2uQuWuHC+etuLeqx4Rqo
-         Gx1hocfoBTGU3MppVZsrOilc/9ivXc0ebxNzbooY4b23l/e9bjE2Jgqfd05zepO3CFUp
-         bmbGpHI9DllMRTvm1gQtiCnvExv9REVyLB/jylkxMW30fQDP2JasZrbFWBOavW8YdT/t
-         uxFOuwEoK49xH2cdhfAb0F/dK7zbOXo48nid9QZqIzXhaI1UcdW7/I2+xZGQHVsqOQYN
-         m96Q==
+        bh=tss6wQP1XzwIz1UFhRrC2d4Vh1ljAS8ZjFmnOwc4WV0=;
+        b=ZVZSEme25BmUqO7wKcITnNPB+SepinSR8NA4Rq0N7yHh5tDnxNKXGkBsvOOArZD2YG
+         H/pZjGivwVsTHNCg3YkZVIl5UmWW27FWSdKIP6dKWuHEkqX/TxQLFod+cPMaOsuUljoz
+         pwYmoqLSfxV5NzIDkNqWbi7MP4SAqrtaKEvFxp6mjNbKkBdoTTLTOzg3/lnNkxt59U+h
+         t+mkhewKtIkZt/tv1iB2OblWl6nW+d0D5IimfhpSjqMQ26J0635tfott8XO7tgs4uK1p
+         UkWNhdKg4ojF861VgWIyC76rz3taLv6fXWHVyiWR7nt614fBpvUHqNpdYZZfbNJc/H+X
+         1IRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=mM9QG86V38tLRA60VPmwtkAR+Znxn+9PIF+rI2nOlIY=;
-        b=i6zlC1S/grXKbxKO1q10qlD0UWMx+j+8QPsGFNfNnHfpK3n7+txYwBxHodZwHDVOiX
-         It+/rltAqtab1gJtwOskuzOWjb0DfW17gipgCl9TF7+rTMaCcFP2iay5LFXaAoUb7FLk
-         cHgGSYcAWvd5dOhHvemis/OwoNenJLePZbV8BFhoXFdLnNKIbbf2JVTMBy6qwcxpJCCH
-         8EZhetObrB1WcUqYAoJ33XZzq/0UW57sEN+qWZeDZjtsAtcfljcLUpt+HcUKobvWzyte
-         uPi078YUSq46gAUhJogp4OTR6dM02l9D7Zd0jn17Dnoc9/cf+ItK11fhMqujyZUm/BVv
-         s9rQ==
-X-Gm-Message-State: AOAM532iMSgnIef3+4PXPq8Nu/wyLwnwUYVK1iqFKIDJLco1ERuZo/Wp
-        qVdYFOk73b7fNm4HU/C/W+A=
-X-Google-Smtp-Source: ABdhPJwwUP/3YiRKPA/36oGI5gQoClu23rc118P24HOIH+2zQqSYwKLzEPkhy2rbrWyHL4lTpKzL2w==
-X-Received: by 2002:aa7:8518:0:b029:18b:cc9c:efab with SMTP id v24-20020aa785180000b029018bcc9cefabmr21951853pfn.39.1605141462317;
-        Wed, 11 Nov 2020 16:37:42 -0800 (PST)
+        bh=tss6wQP1XzwIz1UFhRrC2d4Vh1ljAS8ZjFmnOwc4WV0=;
+        b=sj5uoDwOtoMLbQh+ji8yxl8Xv5oh59kBk3tnOgu4zF4dY95wTRaT7iDj90cDqa72E6
+         xGvPxZRafirFbJTq8VZK1LPFJlI/IujQIhA1EiXVnAVyTmYFrErWATQsWOQylR0uP6i4
+         M9RxftTkoW6S90D46ri4ab9yhb25VlJSAWqTNYLn9fX+ojxEd2Wb67xL7VjeJb0cppm4
+         lTA1EuDqJphKv8nlovEI4AE5QAhvkr/uyTyFo8mNuZPAFk4Zj5rNEqYTpDw4mW1/GTvB
+         L4wkJ90Ml5Q1WieKMQl2Lad9FTfwW5Q2NRsSWSm0VUzBouPMUGVjOPs76ba5BSd7fSn+
+         nLgw==
+X-Gm-Message-State: AOAM530BAr+OjJm+Bh+kCmSsQ4qVlrL4b+L2Ay9+F7yXX36UMUoQL+Ws
+        T5LcrLi7nzQYIkhBjxoLOq0=
+X-Google-Smtp-Source: ABdhPJwkYqM2mbK1nkwgtQX0enByeR+7yZhs8McprLLOfOJtixjG2L004/coyDxaupooFqmnkq10uQ==
+X-Received: by 2002:a17:90a:dc01:: with SMTP id i1mr6651000pjv.195.1605145747505;
+        Wed, 11 Nov 2020 17:49:07 -0800 (PST)
 Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id b80sm4047441pfb.40.2020.11.11.16.37.40
+        by smtp.gmail.com with ESMTPSA id i2sm3735710pjk.12.2020.11.11.17.49.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 16:37:41 -0800 (PST)
-Date:   Wed, 11 Nov 2020 16:37:38 -0800
+        Wed, 11 Nov 2020 17:49:06 -0800 (PST)
+Date:   Wed, 11 Nov 2020 17:49:03 -0800
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] Input: adp5589: use a single variable for error in
- probe
-Message-ID: <20201112003738.GZ1003057@dtor-ws>
-References: <20201111084833.40995-1-alexandru.ardelean@analog.com>
- <20201111084833.40995-2-alexandru.ardelean@analog.com>
+To:     Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Cc:     Jonathan.Cameron@huawei.com, eugen.hristev@microchip.com,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        paul@pgazz.com, jeho@cs.utexas.edu
+Subject: Re: [PATCH] Input: touchscreen: fix kconfig dependency bug for
+ TOUCHSCREEN_ADC
+Message-ID: <20201112014903.GC1003057@dtor-ws>
+References: <20201102221504.541279-1-fazilyildiran@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201111084833.40995-2-alexandru.ardelean@analog.com>
+In-Reply-To: <20201102221504.541279-1-fazilyildiran@gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Alexandru,
+On Tue, Nov 03, 2020 at 01:15:05AM +0300, Necip Fazil Yildiran wrote:
+> When TOUCHSCREEN_ADC is enabled and IIO_BUFFER is disabled, it results
+> in the following Kbuild warning:
+> 
+> WARNING: unmet direct dependencies detected for IIO_BUFFER_CB
+>   Depends on [n]: IIO [=y] && IIO_BUFFER [=n]
+>   Selected by [y]:
+>   - TOUCHSCREEN_ADC [=y] && !UML && INPUT [=y] && INPUT_TOUCHSCREEN [=y] && IIO [=y]
+> 
+> The reason is that TOUCHSCREEN_ADC selects IIO_BUFFER_CB without depending
+> on or selecting IIO_BUFFER while IIO_BUFFER_CB depends on IIO_BUFFER. This
+> can also fail building the kernel.
+> 
+> Honor the kconfig dependency to remove unmet direct dependency warnings
+> and avoid any potential build failures.
+> 
+> Fixes: aa132ffb6b0a ("input: touchscreen: resistive-adc-touch: add generic resistive ADC touchscreen")
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=209881
+> Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-On Wed, Nov 11, 2020 at 10:48:28AM +0200, Alexandru Ardelean wrote:
-> The 'error' & 'ret' variables are used. This is a bit of duplication.
-> This change replaces the use of error with the 'ret' variable since the
-> name is a bit more generic.
-
-I really prefer variables that carry error codes/success and are used in
-error paths to be called "error", and "ret" or "retval" to be used in
-cases where we may return actual data.
-
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

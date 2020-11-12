@@ -5,70 +5,70 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A614C56201
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:02:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6660FC56202
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:03:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04A032223F
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:02:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 10E4D2220B
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:03:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="rU/IcTCB"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="DWfYoEQO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728097AbgKLLCn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Nov 2020 06:02:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55100 "EHLO
+        id S1728091AbgKLLC7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Nov 2020 06:02:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728076AbgKLLCb (ORCPT
+        with ESMTP id S1728069AbgKLLCa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Nov 2020 06:02:31 -0500
+        Thu, 12 Nov 2020 06:02:30 -0500
 Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD83C061A51
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:28 -0800 (PST)
-Received: by mail-wr1-x442.google.com with SMTP id r17so5564933wrw.1
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1017CC061A4C
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:26 -0800 (PST)
+Received: by mail-wr1-x442.google.com with SMTP id 33so5526825wrl.7
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=8MisLbkhVndMxAYlMMQCECnSCP8aKALlPxLYJrYPFes=;
-        b=rU/IcTCBOxXpCF1frEkmqXpRoww8BjSck635mcTOuRRaR78RPkefsPcpxTaHf+nN+F
-         UTE+hSY3XHGgiM0GjDai4t5IvRCseHH0zgBAl9Ot25jtjDa8iOEmwSd9yiNlPoj84y5b
-         ZqU71TIbWFEmTcinsyFwIYsUaRgJKhET4hRiXqTAWiXqiJIXyDuPwR3XzMHLGeGKXrKx
-         EI2bBamtj/0ppOHe6dllilPq5CY7hRD7AGrKVvZwJ+DVTgjpzZj8bRZhUPmpSQjTi2IQ
-         Dm+XpK9I+5KmmtTURMXCA2Tp5bmL4jDkRulk6wHTTfXshpmoG7wYxsExQcJ0Y/eu3TAW
-         bYlg==
+        bh=q13pa3CA8d60JdSrIfIwRLUNzuOKQhVdzs81KgY0XSs=;
+        b=DWfYoEQOFtYfEfTrbiPpgx57N/JlSCJ4huAeQqgq82lHGI1NufzVJnXkKJqaq11vhZ
+         VeVA+N/eSqojHUStJDRxrwCigWwv7eCMz96KSzsB3kuV3Eb2EIpzmBlQPTjxc9AL/lHK
+         s+wc8M/Gny52NsLM7ku0PMgtRiQI2PNxzKG296xutecMHWAPLJOmX4/tMlx+TyuAw7pw
+         HZKZzPeBkIh9zahDlOl/ds1QHXCL+w5s12NU8J2bm5SIhbUrpuIoE/SVdyQ/gvM+JogP
+         SsJVUNIUB1fcFJC3p0azo28xfLbEAbskV8+BqaVJhFx/2Yd1n5m4qVAfn2hWJ4nbaiRx
+         97rw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=8MisLbkhVndMxAYlMMQCECnSCP8aKALlPxLYJrYPFes=;
-        b=GPypziXVOKcMtY8gNOaMysXZFkvGTEZL/vI0oRz75sCgbbHDWUDg7EIjiy8hiH7dYD
-         8Fqet2fftc6yIclGdCZkMsr6/jyLkLkj83Yy5IJ8UVuQ7cJRsdPv1thz+rkA+K8EXXbf
-         HkeRVbmabo/NoPs0bHfn9NRpMKwC+sTsCJKcDj2LcRcdTvCnDkkUnjVMvo67+/o47GFP
-         sDxULfypF5ixs3J9VgLFpsjH96afVnWK6o8pwaOcJPFKyrhJIqtTXv1fqpYpRiFmpvlS
-         voDFGOmfaduHYnEI9jRvDimriGO013B018egDAdAqlIZgDX56el14Xu0miRNczaj75yQ
-         FJwg==
-X-Gm-Message-State: AOAM5307v4UiEt5qq+ljQ1l8sPUd1UOinoKUlhKGO1prxr07B3wyyfGa
-        D8OV6r7fcMBzRGfBEXA4/qlOng==
-X-Google-Smtp-Source: ABdhPJzr/VdtNa9Zb16JJ7e23so/+DGmq9whZymA6z78Hcm8qBaRiICDoKfj+yOLKMot9J7amF2uJQ==
-X-Received: by 2002:adf:b78b:: with SMTP id s11mr27388775wre.42.1605178947411;
-        Thu, 12 Nov 2020 03:02:27 -0800 (PST)
+        bh=q13pa3CA8d60JdSrIfIwRLUNzuOKQhVdzs81KgY0XSs=;
+        b=M5bunCqrKM8haN6lBuP1HJj6ADkByMRkCwid3sJzSU8Byc3e4JJoS4yP76b160aOm0
+         yeKfjukNAW2eYauull5AiYl0gVcFEuRLpL9tfkGk/kZkzm8e49P1n8uVIug246LlW+Rk
+         5+J3V20mn9TEnuEnPsYzj999UDh/FqJ9DwKAn8e07BjRmrymugClVWLeDQoAZQsmqgVJ
+         R4+AJZSTTO0dN/v+ZrZpseaZ+3zO9iyuqmz+h78x+jvE+Lgov5uf1jlJFB2OGL3aho9z
+         CdiRhHZkUcXGoLxOVnhfRDSnb/lerNNniZ+TBMOxEHSdwtJ+ZDLlikXa0v0IAIM/mk9e
+         4vfg==
+X-Gm-Message-State: AOAM531hvLavIvp8akrcd37h/dlcW0Mh6u5aaqQW1V8SXHPAbVKpJNCy
+        z2Mfs5FQ9XEtlfO8eOjpL42BMw==
+X-Google-Smtp-Source: ABdhPJyAuKsKG1ycPinw+5lG50HywDicLjWaFxJdXUPWgC4SSmqOhYseu9rK8+5tlKw8O7CXlS8EVg==
+X-Received: by 2002:adf:f24a:: with SMTP id b10mr19242197wrp.352.1605178944840;
+        Thu, 12 Nov 2020 03:02:24 -0800 (PST)
 Received: from dell.default ([91.110.221.159])
-        by smtp.gmail.com with ESMTPSA id x81sm6515329wmg.5.2020.11.12.03.02.26
+        by smtp.gmail.com with ESMTPSA id x81sm6515329wmg.5.2020.11.12.03.02.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2020 03:02:26 -0800 (PST)
+        Thu, 12 Nov 2020 03:02:24 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org,
-        VMware Graphics <linux-graphics-maintainer@vmware.com>,
-        "VMware, Inc." <pv-drivers@vmware.com>,
+Cc:     linux-kernel@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        "K. Merker" <merker@debian.org>, authored by <andrew@goodix.com>,
+        Benjamin Tissoires <benjamin.tissoires@gmail.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 15/15] input: mouse: vmmouse: Demote obvious abuse of kernel-doc header
-Date:   Thu, 12 Nov 2020 11:02:04 +0000
-Message-Id: <20201112110204.2083435-16-lee.jones@linaro.org>
+Subject: [PATCH 13/15] input: touchscreen: goodix: Fix misspelling of 'ctx'
+Date:   Thu, 12 Nov 2020 11:02:02 +0000
+Message-Id: <20201112110204.2083435-14-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201112110204.2083435-1-lee.jones@linaro.org>
 References: <20201112110204.2083435-1-lee.jones@linaro.org>
@@ -80,36 +80,34 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/input/mouse/vmmouse.c:99: warning: Function parameter or member 'cmd' not described in 'VMMOUSE_CMD'
- drivers/input/mouse/vmmouse.c:99: warning: Function parameter or member 'in1' not described in 'VMMOUSE_CMD'
- drivers/input/mouse/vmmouse.c:99: warning: Function parameter or member 'out1' not described in 'VMMOUSE_CMD'
- drivers/input/mouse/vmmouse.c:99: warning: Function parameter or member 'out2' not described in 'VMMOUSE_CMD'
- drivers/input/mouse/vmmouse.c:99: warning: Function parameter or member 'out3' not described in 'VMMOUSE_CMD'
- drivers/input/mouse/vmmouse.c:99: warning: Function parameter or member 'out4' not described in 'VMMOUSE_CMD'
+ drivers/input/touchscreen/goodix.c:1168: warning: Function parameter or member 'ctx' not described in 'goodix_config_cb'
+ drivers/input/touchscreen/goodix.c:1168: warning: Excess function parameter 'ts' description in 'goodix_config_cb'
 
-Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
-Cc: "VMware, Inc." <pv-drivers@vmware.com>
+Cc: Bastien Nocera <hadess@hadess.net>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Thomas Hellstrom <thellstrom@vmware.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>
+Cc: "K. Merker" <merker@debian.org>
+Cc: authored by <andrew@goodix.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/input/mouse/vmmouse.c | 2 +-
+ drivers/input/touchscreen/goodix.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
-index 148245c69be75..42443ffba7c4d 100644
---- a/drivers/input/mouse/vmmouse.c
-+++ b/drivers/input/mouse/vmmouse.c
-@@ -76,7 +76,7 @@ struct vmmouse_data {
- 	char dev_name[128];
- };
- 
--/**
-+/*
-  * Hypervisor-specific bi-directional communication channel
-  * implementing the vmmouse protocol. Should never execute on
-  * bare metal hardware.
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 80a82a66a0f3b..c1b728e47827f 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -1159,7 +1159,7 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
+  * goodix_config_cb - Callback to finish device init
+  *
+  * @cfg: firmware config
+- * @ts: our goodix_ts_data pointer
++ * @ctx: our goodix_ts_data pointer
+  *
+  * request_firmware_wait callback that finishes
+  * initialization of the device.
 -- 
 2.25.1
 

@@ -7,72 +7,72 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16575C55ABD
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:04:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60C55C55ABD
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:05:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9A57E2222A
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:04:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D60572220B
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:05:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="VhQygiOo"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="FvWUQgKM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726969AbgKLLEe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Nov 2020 06:04:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55090 "EHLO
+        id S1728054AbgKLLCR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Nov 2020 06:02:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727942AbgKLLCW (ORCPT
+        with ESMTP id S1728031AbgKLLCP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Nov 2020 06:02:22 -0500
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CA6C0613D4
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:22 -0800 (PST)
-Received: by mail-wr1-x441.google.com with SMTP id c17so5485225wrc.11
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:22 -0800 (PST)
+        Thu, 12 Nov 2020 06:02:15 -0500
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC10DC0613D1
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:14 -0800 (PST)
+Received: by mail-wm1-x341.google.com with SMTP id h2so4912511wmm.0
+        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ZQVGs5MUcX5FGl2B0GSyWePcq4JNp/6FjWRufhPjYcY=;
-        b=VhQygiOoSK+sK6f7HkMc+o9zkzRaUN+FSCWD/crO0V8nHR27+xLSjUbKSc7ltAkPPF
-         rKj75y4G0aMj+ioqRWIGJh3F+bT/AD+09bJhZbAB96sZxXR/Crg81ZwIGo5zsGerQWBA
-         eIYAOm5DgjWp+COQ6NBzaN/KucO3rUnUxAeENnEm8gy98aPkLD3Xo/C88T8/t4IBcAIM
-         lgRvlS/F4PFpNaNjjEumIbmGtiJucF4sKa1D44J24lhAAz3vzUYyeGRQYe1haqmg+Gxv
-         EY8KDPXq2mAuPrplhkjUh9QrE5J8/mpjUTn/IlBeZ0kPqKXZg6HRI2kTL2tU+veHFUME
-         hrRQ==
+        bh=CMYg6E1kdXm+yD+hzGnKjz5iwy/O1uttWSB8VdrwJX0=;
+        b=FvWUQgKMGClbxDUBdDyFjYlNDA1equD1xQMofMZntHFfIbfP4hqtgwFLYvsptlVHFp
+         Aa1NGY3qFY0Jl10yCtnWfMq+ZoBMV4QLooxXfoCOy7mnrXWc7Urytan4kp5KKKwb9Usu
+         LQCmz5T/bOg/MxxcYK5bq/HlGRONtHdo8DdjAsIf/gWDsqyENToN6DlsU+BL9Ol4Y5xO
+         zTz9QsOGi30CLJ7jVaoddpKsC1cxoevAlUDfazrWUQs+TKJ+JJH56sepfrWKDi31VXiI
+         qE5yzjYN3ApWdzebtlLXQ96ZKNunUjbulNfTxUr4TA0fAT6M3Ar/VFNlIBuOfXBC0PrH
+         pIsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ZQVGs5MUcX5FGl2B0GSyWePcq4JNp/6FjWRufhPjYcY=;
-        b=lsgs634L2XC56hSNXMoBotcncBVIFcKq7yvKPs8IxsB8DPYnf6cG8XgC88KZAmchHl
-         RqWLKrgdV2SxysHPUiPGeEQKEcL1rf/BnIN6dnnxFl3vVOqPu5UFdtCvqqVEYIBXN03F
-         kcU/mXL3if/lxJVHyHrmo5nfE0RYp/DpdFximFupS3HpW5XvNiBZ5mwNNqtTlI0jpyPl
-         49dA/4DZZNfh8Qzs3gMWNudpwQ03u/HdNQV4eYQunSe+cXhMMdhDUvamzuTM2rtfnmbb
-         TP9oskpGzJI/CCfVY053y4fqpWuqbffRWoOPj8iWXoypsY+v56A9DXmiilaMG+yfRvYL
-         9Crw==
-X-Gm-Message-State: AOAM5313A5Usx8yDG0Unh1KK38RFy3ex5lXCPi646QBk4fpFKr0Q91fj
-        PohpYeYw0QvnNNp7inr46TsC/g==
-X-Google-Smtp-Source: ABdhPJwYLGSBuyC85zWYlngJC+Pi/QkUTlnPMLHlWOimyhWy+xhqiTpOPwSU0SIRVvfPM06uTF+WLQ==
-X-Received: by 2002:adf:e544:: with SMTP id z4mr1114555wrm.83.1605178941187;
-        Thu, 12 Nov 2020 03:02:21 -0800 (PST)
+        bh=CMYg6E1kdXm+yD+hzGnKjz5iwy/O1uttWSB8VdrwJX0=;
+        b=r6TGMPO6/dfm8pUPLD+DevITOawpa0NvoX547LpeIh91T904e7ZfFb+NqtYPuz/m6X
+         BQpRJwis0m9nOQGd4QCVIgaZhW1x2029b/uM39BUGpEXJeeCnhcHQaVwlOppXu/eAqnq
+         qVUb4LK/XXPOhLVfnpUInA7QXqC31MhC6SgHTbZv2Us4KJbGozxHuIA3w4mT6XX5P4gU
+         jZnNYkbOmO3j+7mdNQ9iHR1rbh97f00fKSQM6aa3LKpjgiWuMDS/8G3WRIzEmp1j9B/v
+         kRtY4lzbNi7oUwJ+P/9eb9a1aEW8sUoTLaIdPaGNVvg7YX1MoA/xK2T/KWL7HnPNtt2w
+         BopQ==
+X-Gm-Message-State: AOAM533FmT2XI2DgKETfE96CZ0XBgaRRpXt0oFtR18sm4avOA69PPybj
+        p7tqAdazxTNvLbU8OWuqAFLrGDiTD8ygaZFd
+X-Google-Smtp-Source: ABdhPJwBy4vJJPHYddsslHAtikZiVZvUMKoIPiPFJReFQlJnDyFpYrjp1YGMR4WyhQAI+S+Zth578w==
+X-Received: by 2002:a1c:df04:: with SMTP id w4mr8918637wmg.3.1605178933396;
+        Thu, 12 Nov 2020 03:02:13 -0800 (PST)
 Received: from dell.default ([91.110.221.159])
-        by smtp.gmail.com with ESMTPSA id x81sm6515329wmg.5.2020.11.12.03.02.19
+        by smtp.gmail.com with ESMTPSA id x81sm6515329wmg.5.2020.11.12.03.02.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2020 03:02:20 -0800 (PST)
+        Thu, 12 Nov 2020 03:02:12 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org,
+Cc:     linux-kernel@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Henrik Rydberg <rydberg@bitmath.org>,
+        "K. Merker" <merker@debian.org>, authored by <andrew@goodix.com>,
         Benjamin Tissoires <benjamin.tissoires@gmail.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 10/15] input: touchscreen: surface3_spi: Fix naming issue with 'surface3_spi_get_gpio_config's header
-Date:   Thu, 12 Nov 2020 11:01:59 +0000
-Message-Id: <20201112110204.2083435-11-lee.jones@linaro.org>
+Subject: [PATCH 04/15] input: touchscreen: goodix: Provide some missing function parameter descriptions
+Date:   Thu, 12 Nov 2020 11:01:53 +0000
+Message-Id: <20201112110204.2083435-5-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201112110204.2083435-1-lee.jones@linaro.org>
 References: <20201112110204.2083435-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -80,34 +80,52 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/input/touchscreen/surface3_spi.c: In function ‘surface3_spi_process_touch’:
- drivers/input/touchscreen/surface3_spi.c:97:6: warning: variable ‘timestamp’ set but not used [-Wunused-but-set-variable]
- drivers/input/touchscreen/surface3_spi.c:225: warning: Function parameter or member 'data' not described in 'surface3_spi_get_gpio_config'
- drivers/input/touchscreen/surface3_spi.c:225: warning: Excess function parameter 'ts' description in 'surface3_spi_get_gpio_config'
+ drivers/input/touchscreen/goodix.c:569: warning: Function parameter or member 'len' not described in 'goodix_check_cfg'
+ drivers/input/touchscreen/goodix.c:587: warning: Function parameter or member 'len' not described in 'goodix_send_cfg'
+ drivers/input/touchscreen/goodix.c:1165: warning: Function parameter or member 'cfg' not described in 'goodix_config_cb'
+ drivers/input/touchscreen/goodix.c:1165: warning: Function parameter or member 'ctx' not described in 'goodix_config_cb'
+ drivers/input/touchscreen/goodix.c:1165: warning: Excess function parameter 'ts' description in 'goodix_config_cb'
 
+Cc: Bastien Nocera <hadess@hadess.net>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Lee Jones <lee.jones@linaro.org>
+Cc: "K. Merker" <merker@debian.org>
+Cc: authored by <andrew@goodix.com>
 Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/input/touchscreen/surface3_spi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/goodix.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
-index 72dc4c562a4e1..1da23e5585a0d 100644
---- a/drivers/input/touchscreen/surface3_spi.c
-+++ b/drivers/input/touchscreen/surface3_spi.c
-@@ -217,7 +217,7 @@ static void surface3_spi_power(struct surface3_ts_data *data, bool on)
- /**
-  * surface3_spi_get_gpio_config - Get GPIO config from ACPI/DT
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 02c75ea385e08..80a82a66a0f3b 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -564,6 +564,7 @@ static void goodix_calc_cfg_checksum_16(struct goodix_ts_data *ts)
   *
-- * @ts: surface3_spi_ts_data pointer
-+ * @data: surface3_spi_ts_data pointer
+  * @ts: goodix_ts_data pointer
+  * @cfg: firmware config data
++ * @len: config data length
   */
- static int surface3_spi_get_gpio_config(struct surface3_ts_data *data)
+ static int goodix_check_cfg(struct goodix_ts_data *ts, const u8 *cfg, int len)
  {
+@@ -582,6 +583,7 @@ static int goodix_check_cfg(struct goodix_ts_data *ts, const u8 *cfg, int len)
+  *
+  * @ts: goodix_ts_data pointer
+  * @cfg: config firmware to write to device
++ * @len: config data length
+  */
+ static int goodix_send_cfg(struct goodix_ts_data *ts, const u8 *cfg, int len)
+ {
+@@ -1156,6 +1158,7 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
+ /**
+  * goodix_config_cb - Callback to finish device init
+  *
++ * @cfg: firmware config
+  * @ts: our goodix_ts_data pointer
+  *
+  * request_firmware_wait callback that finishes
 -- 
 2.25.1
 

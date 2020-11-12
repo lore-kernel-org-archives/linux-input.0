@@ -2,99 +2,164 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9541C388F9
-	for <linux-input@archiver.kernel.org>; Wed, 11 Nov 2020 19:07:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EE6DC388F9
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:34:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5170B206F1
-	for <linux-input@archiver.kernel.org>; Wed, 11 Nov 2020 19:07:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B2AAF20809
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:34:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yu2vAQry"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="R2s1M0pm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725900AbgKKTHp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 11 Nov 2020 14:07:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49482 "EHLO
+        id S1728229AbgKLBeE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 11 Nov 2020 20:34:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725860AbgKKTHp (ORCPT
+        with ESMTP id S1728120AbgKLAll (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Nov 2020 14:07:45 -0500
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05996C0613D1;
-        Wed, 11 Nov 2020 11:07:43 -0800 (PST)
-Received: by mail-pg1-x543.google.com with SMTP id h6so2007543pgk.4;
-        Wed, 11 Nov 2020 11:07:43 -0800 (PST)
+        Wed, 11 Nov 2020 19:41:41 -0500
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D082C0617A7
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2020 16:41:39 -0800 (PST)
+Received: by mail-pf1-x441.google.com with SMTP id 10so2896933pfp.5
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2020 16:41:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=IY7N9iGWYBPna6KqtMU+4Rp0xK0puoTYkTmvj2+4IAA=;
-        b=Yu2vAQry9EtgtWKGx3ayH616HV05qvTTScaVWd4IHkZTBwOUDpEBKfbBXFE8KCm9Se
-         iTUI3AETJJaVvVNdAE3cTxdUpxgLQqlZ+xuoxw9tZVY1MvM0G7zXrhNTdX9A2g5oowkC
-         +ZFNl1t7Es9/HUqg7t3yXBsiwEzAyjoN1aL3f7RrWz+Xo2+E/mQWfD0NbDC8KIrMy95J
-         zPx1NSBUWpDhIOjhxkzrNWB066Hjjme96Axm8xJcoBlzLHCTA7KuxezZsKDhk6t8Z1x/
-         1nCtzl1dffl6Ol0pRAOoC11F9AAlQKRoyrTtD7OnbYFfy9W1WEapXFj41eJy3Uu0VepV
-         eZ8g==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Utwe4xR8J8QGLdCImujYGLQlNTOgzBqC1iHA5Eyo1w4=;
+        b=R2s1M0pmReZg68qwieY3zSp8emiSgL1YMPaMVa32i0hE9tK60LpmUBVrpNiinG6vQJ
+         i07E5AMD14YR0zSnIE9S1JJyVleGMI+Zcjm77YA/Ddmh6xWeMK+51bUDesZWNZ9XKRY1
+         YGLn+bz3iMLkZu6zhEs8FfLq3CY4Ml06aoXVo=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=IY7N9iGWYBPna6KqtMU+4Rp0xK0puoTYkTmvj2+4IAA=;
-        b=tdbaxuMmoD4+HMPORgiTCo+LcVXlMlNu88ByuJNM+z3oUnxhk6YIW5u9UsO6Poqu/2
-         2/abNaF2muSAaFGHsjYPQgilLOISudnbi8g0pA8kkZnYge7iktWJ/9ACPBk/i4dvocBC
-         YQuN3cWXoaFLjfaPqMkpLASa2NiAs00vmoDWMQIHVOn/pbu/gdVAqbHMtuqortQ1AcSz
-         rixH9qWx4AzP3hexqGvfF/GCmR3EYaBaA1L1FUJyfKUIg305PNodkna0FwxlaAyM1u8j
-         mD8shd2g32dutAP7Jnn5jlYqiQeiZd6Welv4brqVHi94MpBJjCIuLX5xpvaQDNjQ8LSV
-         QQhQ==
-X-Gm-Message-State: AOAM5326xK2SgFd+d6kPnsmPsTWWtcajq7T1mGOYxBH+fmlGDtMHoWWW
-        jTTMvwxWS6qIDN8BsizXNEw=
-X-Google-Smtp-Source: ABdhPJxyMP9fLg3isJqD/J28Qy8W7osiODmLq1cwex5/cCncdRQLz+l/O1V2loHZYxuqcNsKDLrcbA==
-X-Received: by 2002:a63:f74c:: with SMTP id f12mr22538253pgk.434.1605121663425;
-        Wed, 11 Nov 2020 11:07:43 -0800 (PST)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id v23sm3108284pjh.46.2020.11.11.11.07.42
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Utwe4xR8J8QGLdCImujYGLQlNTOgzBqC1iHA5Eyo1w4=;
+        b=SQv9Y594HQ5CE+8SICZosr0Xaj8k1n5U3F4ptc/7Lgu1VERqlPT2Ba6YAirAJJgOkQ
+         XH0uWvSuEsRSm388PknxWKwp55Hq7Pkdz1I5s7QsFL4DhULSaGnVA/OlJOfym+E2j8Dy
+         3f9+fEIDfTVmIPdazzKCQ5Rceb5CGLlLZpGBkCZ/tC64hbo+hvJSTKSAgKevXfUBHSjq
+         Hw/SvmpEcS+MDOxR+Y2b2DaHKxeDIvVN5GlgHgYog6uyXaoUVrOkr+9pRVK8kd16LOcI
+         TCrCfOym2vVG74jkjDSrSAZJ2hOWZOsBJA1Qh1fdlKahxzqtSihlga85OOuv052pvo05
+         hJPQ==
+X-Gm-Message-State: AOAM533vhK6mRhMV5tTBgZ3+fjx3vNoGkeuEpuxfazhO5g/cDYKntqAH
+        VXAYJGHsDQSYc2EA1KFS+H+lyw==
+X-Google-Smtp-Source: ABdhPJyVp3nagtjEa+HXLXT+UNnpG/bMPWN3BscAh7XrhLgMKsFjUAPbrXErc++yKAhQWjX5SqM88A==
+X-Received: by 2002:a17:90a:df15:: with SMTP id gp21mr6542210pjb.37.1605141698821;
+        Wed, 11 Nov 2020 16:41:38 -0800 (PST)
+Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
+        by smtp.gmail.com with ESMTPSA id t26sm4265522pfl.72.2020.11.11.16.41.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 11:07:42 -0800 (PST)
-Date:   Wed, 11 Nov 2020 11:07:40 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Oleksij Rempel <o.rempel@pengutronix.de>
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        David Jander <david@protonic.nl>, kernel@pengutronix.de,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v2] Input: touchscreen: ads7846.c: Fix race that causes
- missing releases
-Message-ID: <20201111190740.GY1003057@dtor-ws>
-References: <20201027105416.18773-1-o.rempel@pengutronix.de>
+        Wed, 11 Nov 2020 16:41:38 -0800 (PST)
+From:   Douglas Anderson <dianders@chromium.org>
+To:     jkosina@suse.cz, benjamin.tissoires@redhat.com,
+        gregkh@linuxfoundation.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     andrea@borgia.bo.it, robh+dt@kernel.org,
+        kai.heng.feng@canonical.com, swboyd@chromium.org,
+        linux-input@vger.kernel.org, hdegoede@redhat.com,
+        Douglas Anderson <dianders@chromium.org>,
+        Aaron Ma <aaron.ma@canonical.com>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jiri Kosina <jikos@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Li Yang <leoyang.li@nxp.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michael Walle <michael@walle.cc>,
+        Olof Johansson <olof@lixom.net>, Pavel Balan <admin@kryma.net>,
+        Shawn Guo <shawnguo@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Xiaofei Tan <tanxiaofei@huawei.com>,
+        You-Sheng Yang <vicamo.yang@canonical.com>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v6 0/4] HID: i2c-hid: Reorganize to allow supporting goodix,gt7375p
+Date:   Wed, 11 Nov 2020 16:41:26 -0800
+Message-Id: <20201112004130.17290-1-dianders@chromium.org>
+X-Mailer: git-send-email 2.29.2.222.g5d2a92d10f8-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201027105416.18773-1-o.rempel@pengutronix.de>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Oleksij,
 
-On Tue, Oct 27, 2020 at 11:54:16AM +0100, Oleksij Rempel wrote:
-> From: David Jander <david@protonic.nl>
-> 
-> If touchscreen is released while busy reading HWMON device, the release
-> can be missed. The IRQ thread is not started because no touch is active
-> and BTN_TOUCH release event is never sent.
-> 
-> Fixes: f5a28a7d4858f94a ("Input: ads7846 - avoid pen up/down when reading hwmon")
-> Co-Developed-by: David Jander <david@protonic.nl>
+The goal of this series is to support the Goodix GT7375P touchscreen.
+This touchscreen is special because it has power sequencing
+requirements that necessitate driving a reset GPIO.
 
-Since the patch is nominally attributed to David (via the From: tag)
-I'll be changing Co-developed-by tag to your name, OK?
+To do this, we totally rejigger the way i2c-hid is organized so that
+it's easier to jam the Goodix support in there.
 
-> Signed-off-by: David Jander <david@protonic.nl>
-> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+This series was:
+- Tested on a device that uses normal i2c-hid.
+- Tested on a device that has a Goodix i2c-hid device.
+- Tested on an ACPI device, but an earlier version of the series.
 
-Thanks.
+Changes in v6:
+- ACPI probe function should have been "static"
+- Don't export suspend/resume, just export dev_pm_ops from core.
+- Fixed crash in ACPI module (missing init of "client")
+- No need for regulator include in the core.
+- Removed i2c_device_id table from ACPI module.
+- Suspend/resume are no longer exported from the core.
+
+Changes in v5:
+- Add shutdown_tail op and use it in ACPI.
+- Added mention of i2c-hid in the yaml itself as per Rob.
+- Adjusted subject as per Rob.
+- i2chid_subclass_data => i2chid_ops.
+- power_up_device => power_up (same with power_down).
+- subclass => ops.
+
+Changes in v4:
+- ("arm64: defconfig: Update config names for i2c-hid rejigger") new for v4.
+- Fully rejigger so ACPI and OF are full subclasses.
+- Totally redid based on the new subclass system.
+
+Changes in v3:
+- Fixed compatible in example.
+- Removed Benjamin as a maintainer.
+- Rework to use subclassing.
+- Updated description.
+
+Changes in v2:
+- ("dt-bindings: HID: i2c-hid: Introduce bindings for the Goodix GT7375P") new in v2.
+- Get timings based on the compatible string.
+- Use a separate compatible string for this new touchscreen.
+
+Douglas Anderson (4):
+  HID: i2c-hid: Reorganize so ACPI and OF are separate modules
+  arm64: defconfig: Update config names for i2c-hid rejigger
+  dt-bindings: input: HID: i2c-hid: Introduce bindings for the Goodix
+    GT7375P
+  HID: i2c-hid: Introduce goodix-i2c-hid using i2c-hid core
+
+ .../bindings/input/goodix,gt7375p.yaml        |  65 +++++
+ arch/arm64/configs/defconfig                  |   3 +-
+ drivers/hid/Makefile                          |   2 +-
+ drivers/hid/i2c-hid/Kconfig                   |  47 +++-
+ drivers/hid/i2c-hid/Makefile                  |   6 +-
+ drivers/hid/i2c-hid/i2c-hid-acpi.c            | 159 +++++++++++
+ drivers/hid/i2c-hid/i2c-hid-core.c            | 254 +++---------------
+ drivers/hid/i2c-hid/i2c-hid-of-goodix.c       | 116 ++++++++
+ drivers/hid/i2c-hid/i2c-hid-of.c              | 143 ++++++++++
+ drivers/hid/i2c-hid/i2c-hid.h                 |  22 ++
+ include/linux/platform_data/i2c-hid.h         |  41 ---
+ 11 files changed, 596 insertions(+), 262 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
+ create mode 100644 drivers/hid/i2c-hid/i2c-hid-acpi.c
+ create mode 100644 drivers/hid/i2c-hid/i2c-hid-of-goodix.c
+ create mode 100644 drivers/hid/i2c-hid/i2c-hid-of.c
+ delete mode 100644 include/linux/platform_data/i2c-hid.h
 
 -- 
-Dmitry
+2.29.2.222.g5d2a92d10f8-goog
+

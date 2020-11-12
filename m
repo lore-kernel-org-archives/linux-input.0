@@ -2,127 +2,104 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C77EC55ABD
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:07:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88411C2D0A3
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:20:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 199112220B
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:07:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DFEE22228
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 11:20:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="E+asLefU"
+	dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b="WS9K866d"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728060AbgKLLGl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Nov 2020 06:06:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55080 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727928AbgKLLCK (ORCPT
+        id S1727147AbgKLLUK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Nov 2020 06:20:10 -0500
+Received: from mx0a-001ae601.pphosted.com ([67.231.149.25]:22700 "EHLO
+        mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725966AbgKLLUJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Nov 2020 06:02:10 -0500
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79288C0617A6
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:10 -0800 (PST)
-Received: by mail-wm1-x342.google.com with SMTP id 10so4884154wml.2
-        for <linux-input@vger.kernel.org>; Thu, 12 Nov 2020 03:02:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=iidsrVG04+5OGr655Fc8AmVNociMTMEvIzPILgRtw34=;
-        b=E+asLefU30g7IYG4PNqJ8WU7ULw0KGKd3Nvvtu5XudTRmWOs6n4eTJWI2sC8OUzJp/
-         r7IaUlq23l7mKA5kbznzkvEYjNaiPAZ80v1JEmtiRXDHAQqErWeWqenoe3i2cwzG75XZ
-         QsODJG8B7hlzonxu6fSrDoPbNuZvcgO+xAYXzlNdaLiBsQKK+od82u3WYx7AqKLzDumg
-         b+Ptb+TJL0kBvKqaSU3ieFtlaDx706S2pKe1+VQrsLEBsC16svAj+BHtd4gtTXzfPAm6
-         lhrE0pCir21AHHe5x9kpw0PcLgGNTNH2CCXr9iSd5l5c6mCbEUqHqA9hVLQGQgzEfmuB
-         fWkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=iidsrVG04+5OGr655Fc8AmVNociMTMEvIzPILgRtw34=;
-        b=hma5mRGeaGLOYwsdiGdbI4CK8g9A6xD303XDCcKyoE79189eWNUiUaUp9VRJQYnDRy
-         q9xBbl5Fgnh4SpBQnbmciM8qtKBnQgjnZ4VtZXPhzIfixAGF4G2FpbK3v6vTyqQs1Ul8
-         bZCLzCdy4mB0HrgAsqxiOLd8ZTCmQCoJLs7ipTr8Bji3wqs9goraSfS68a5Aq73SYeoo
-         1RYQKrVlWdenv7TghREFAOWpA5rK7M25UHo+/LTlJNcyuqd1fho2JinbEMdAGWrSCvQd
-         fWlXqSZH49PI43KbkpmfMvujiPuLIDqmFSqecCE5+cyo+71WwqhJlFRTCoUHCTYMRRHA
-         U60Q==
-X-Gm-Message-State: AOAM5300SuY8MPY4+oLD0I7Ed+t36BPslEyBd+1mSrrUgLQkMj38dqvJ
-        81Heq7OOJ9qyqO6L3FzOyz2RHA==
-X-Google-Smtp-Source: ABdhPJyFdXj837v2Sh4ImKatYRrWp+MMXle8DcPiD4par8LADB9Lp4CuXqbHSw8Jw3EHCeetVMvO0w==
-X-Received: by 2002:a1c:1f05:: with SMTP id f5mr8763569wmf.98.1605178929098;
-        Thu, 12 Nov 2020 03:02:09 -0800 (PST)
-Received: from dell.default ([91.110.221.159])
-        by smtp.gmail.com with ESMTPSA id x81sm6515329wmg.5.2020.11.12.03.02.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2020 03:02:08 -0800 (PST)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org,
+        Thu, 12 Nov 2020 06:20:09 -0500
+Received: from pps.filterd (m0077473.ppops.net [127.0.0.1])
+        by mx0a-001ae601.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 0ACB6gaO011863;
+        Thu, 12 Nov 2020 05:20:08 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=PODMain02222019;
+ bh=Gl5anvkay0Hl8K+gE6/jsdsHDasXe+rW/+AkdTfGKLA=;
+ b=WS9K866dYZpbeogjugRPvD5jN4Z/saez1Z5CobZ5mN6X5WNOF1rBKRJ3z8G5boKiL4AA
+ mJHAtphoLIuRnT+exWuMUJf3Id1b6MfjphBiMDOZMXbbKP2kyRXvtXA5DmvPFW0j9k95
+ 8/GXrx+phdYc1EFarDYkEYGI0RJlRivmgsDVTGdgbgTQaJ28wZIBX07U580dXkNtCxc2
+ puIG5/pQxkxcRoIiaAVg6or6by6I8GbGIp2U52X5Sxl5V3huEPql3trsPoOJTslmcZHT
+ whA0N/34fx8D7y3DpbGjvLyXeLOVnCOuMk61nNDY4twIjTfHbPiAVjJF/+857s9TsXGm OQ== 
+Received: from ediex02.ad.cirrus.com ([5.172.152.52])
+        by mx0a-001ae601.pphosted.com with ESMTP id 34rn2yh4wa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+        Thu, 12 Nov 2020 05:20:08 -0600
+Received: from EDIEX01.ad.cirrus.com (198.61.84.80) by EDIEX02.ad.cirrus.com
+ (198.61.84.81) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Thu, 12 Nov
+ 2020 11:20:05 +0000
+Received: from ediswmail.ad.cirrus.com (198.61.86.93) by EDIEX01.ad.cirrus.com
+ (198.61.84.80) with Microsoft SMTP Server id 15.1.1913.5 via Frontend
+ Transport; Thu, 12 Nov 2020 11:20:05 +0000
+Received: from [10.0.2.15] (ausnpc0lsnw1.ad.cirrus.com [198.61.64.168])
+        by ediswmail.ad.cirrus.com (Postfix) with ESMTP id 9FE622D1;
+        Thu, 12 Nov 2020 11:20:05 +0000 (UTC)
+Subject: Re: [PATCH 09/15] input: misc: wm831x-on: Source file headers are not
+ good candidates for kernel-doc
+To:     Lee Jones <lee.jones@linaro.org>
+CC:     <linux-kernel@vger.kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        =?UTF-8?q?=C5=81ukasz=20Patron?= <priv.luk@gmail.com>,
-        Cameron Gutman <aicommander@gmail.com>,
-        Marko Friedemann <mfr@bmx-chemnitz.de>,
-        Oliver Schwartz <Oliver.Schwartz@gmx.de>,
-        Steven Toth <steve@toth.demon.co.uk>,
-        Franz Lehner <franz@caos.at>,
-        Ivan Hawkes <blackhawk@ivanhawkes.com>,
-        Dominic Cerquetti <binary1230@yahoo.com>,
-        Adam Buchbinder <adam.buchbinder@gmail.com>,
-        Jan Kratochvil <honza@jikos.cz>,
-        Christoph Fritz <chf.fritz@googlemail.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 01/15] input: joystick: xpad: Demote non-conformant kernel-doc header
-Date:   Thu, 12 Nov 2020 11:01:50 +0000
-Message-Id: <20201112110204.2083435-2-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201112110204.2083435-1-lee.jones@linaro.org>
+        Mark Brown <broonie@opensource.wolfsonmicro.com>,
+        <patches@opensource.cirrus.com>, <linux-input@vger.kernel.org>
 References: <20201112110204.2083435-1-lee.jones@linaro.org>
+ <20201112110204.2083435-10-lee.jones@linaro.org>
+From:   Richard Fitzgerald <rf@opensource.cirrus.com>
+Message-ID: <fef4bf59-c28c-b838-e9c3-73bfad8429d1@opensource.cirrus.com>
+Date:   Thu, 12 Nov 2020 11:20:05 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201112110204.2083435-10-lee.jones@linaro.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 lowpriorityscore=0 spamscore=0
+ mlxscore=0 priorityscore=1501 bulkscore=0 impostorscore=0 phishscore=0
+ malwarescore=0 clxscore=1011 adultscore=0 mlxlogscore=999 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2011120067
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Fixes the following W=1 kernel build warning(s):
+On 12/11/2020 11:01, Lee Jones wrote:
+> Fixes the following W=1 kernel build warning(s):
+> 
+>   drivers/input/misc/wm831x-on.c:30: warning: cannot understand function prototype: 'struct wm831x_on '
+> 
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> Cc: patches@opensource.cirrus.com
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>   drivers/input/misc/wm831x-on.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/misc/wm831x-on.c b/drivers/input/misc/wm831x-on.c
+> index 1b44de265a0ad..a42fe041b73c6 100644
+> --- a/drivers/input/misc/wm831x-on.c
+> +++ b/drivers/input/misc/wm831x-on.c
+> @@ -1,4 +1,4 @@
+> -/**
+> +/*
+>    * wm831x-on.c - WM831X ON pin driver
+>    *
+>    * Copyright (C) 2009 Wolfson Microelectronics plc
+> 
 
- drivers/input/joystick/xpad.c:1361: warning: Function parameter or member 'xpad' not described in 'xpad_send_led_command'
- drivers/input/joystick/xpad.c:1361: warning: Function parameter or member 'command' not described in 'xpad_send_led_command'
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Łukasz Patron" <priv.luk@gmail.com>
-Cc: Cameron Gutman <aicommander@gmail.com>
-Cc: Marko Friedemann <mfr@bmx-chemnitz.de>
-Cc: Oliver Schwartz <Oliver.Schwartz@gmx.de>
-Cc: Steven Toth <steve@toth.demon.co.uk>
-Cc: Franz Lehner <franz@caos.at>
-Cc: Ivan Hawkes <blackhawk@ivanhawkes.com>
-Cc: Dominic Cerquetti <binary1230@yahoo.com>
-Cc: Adam Buchbinder <adam.buchbinder@gmail.com>
-Cc: Jan Kratochvil <honza@jikos.cz>
-Cc: Christoph Fritz <chf.fritz@googlemail.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/input/joystick/xpad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index c77cdb3b62b5b..2cd4296c2d082 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1337,7 +1337,7 @@ struct xpad_led {
- 	struct usb_xpad *xpad;
- };
- 
--/**
-+/*
-  * set the LEDs on Xbox360 / Wireless Controllers
-  * @param command
-  *  0: off
--- 
-2.25.1
-
+Acked-by: Richard Fitzgerald <rf@opensource.cirrus.com>

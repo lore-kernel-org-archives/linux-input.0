@@ -2,101 +2,146 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72074C2D0A3
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 05:37:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40F1CC56202
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 05:37:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 15C932168B
+	by mail.kernel.org (Postfix) with ESMTP id ED867208FE
 	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 05:37:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZVZSEme2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729128AbgKLFhQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Nov 2020 00:37:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54636 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728021AbgKLBtH (ORCPT
+        id S1729321AbgKLFhR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Nov 2020 00:37:17 -0500
+Received: from emcscan.emc.com.tw ([192.72.220.5]:54802 "EHLO
+        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726698AbgKLB6W (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Nov 2020 20:49:07 -0500
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1B47C061A04;
-        Wed, 11 Nov 2020 17:49:07 -0800 (PST)
-Received: by mail-pf1-x441.google.com with SMTP id e7so2991941pfn.12;
-        Wed, 11 Nov 2020 17:49:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=tss6wQP1XzwIz1UFhRrC2d4Vh1ljAS8ZjFmnOwc4WV0=;
-        b=ZVZSEme25BmUqO7wKcITnNPB+SepinSR8NA4Rq0N7yHh5tDnxNKXGkBsvOOArZD2YG
-         H/pZjGivwVsTHNCg3YkZVIl5UmWW27FWSdKIP6dKWuHEkqX/TxQLFod+cPMaOsuUljoz
-         pwYmoqLSfxV5NzIDkNqWbi7MP4SAqrtaKEvFxp6mjNbKkBdoTTLTOzg3/lnNkxt59U+h
-         t+mkhewKtIkZt/tv1iB2OblWl6nW+d0D5IimfhpSjqMQ26J0635tfott8XO7tgs4uK1p
-         UkWNhdKg4ojF861VgWIyC76rz3taLv6fXWHVyiWR7nt614fBpvUHqNpdYZZfbNJc/H+X
-         1IRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=tss6wQP1XzwIz1UFhRrC2d4Vh1ljAS8ZjFmnOwc4WV0=;
-        b=sj5uoDwOtoMLbQh+ji8yxl8Xv5oh59kBk3tnOgu4zF4dY95wTRaT7iDj90cDqa72E6
-         xGvPxZRafirFbJTq8VZK1LPFJlI/IujQIhA1EiXVnAVyTmYFrErWATQsWOQylR0uP6i4
-         M9RxftTkoW6S90D46ri4ab9yhb25VlJSAWqTNYLn9fX+ojxEd2Wb67xL7VjeJb0cppm4
-         lTA1EuDqJphKv8nlovEI4AE5QAhvkr/uyTyFo8mNuZPAFk4Zj5rNEqYTpDw4mW1/GTvB
-         L4wkJ90Ml5Q1WieKMQl2Lad9FTfwW5Q2NRsSWSm0VUzBouPMUGVjOPs76ba5BSd7fSn+
-         nLgw==
-X-Gm-Message-State: AOAM530BAr+OjJm+Bh+kCmSsQ4qVlrL4b+L2Ay9+F7yXX36UMUoQL+Ws
-        T5LcrLi7nzQYIkhBjxoLOq0=
-X-Google-Smtp-Source: ABdhPJwkYqM2mbK1nkwgtQX0enByeR+7yZhs8McprLLOfOJtixjG2L004/coyDxaupooFqmnkq10uQ==
-X-Received: by 2002:a17:90a:dc01:: with SMTP id i1mr6651000pjv.195.1605145747505;
-        Wed, 11 Nov 2020 17:49:07 -0800 (PST)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id i2sm3735710pjk.12.2020.11.11.17.49.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 17:49:06 -0800 (PST)
-Date:   Wed, 11 Nov 2020 17:49:03 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Cc:     Jonathan.Cameron@huawei.com, eugen.hristev@microchip.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        paul@pgazz.com, jeho@cs.utexas.edu
-Subject: Re: [PATCH] Input: touchscreen: fix kconfig dependency bug for
- TOUCHSCREEN_ADC
-Message-ID: <20201112014903.GC1003057@dtor-ws>
-References: <20201102221504.541279-1-fazilyildiran@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201102221504.541279-1-fazilyildiran@gmail.com>
+        Wed, 11 Nov 2020 20:58:22 -0500
+X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
+   d="scan'208";a="38118509"
+Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
+  by emcscan.emc.com.tw with ESMTP; 12 Nov 2020 09:58:20 +0800
+Received: from 192.168.10.23
+        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(2862:0:AUTH_RELAY)
+        (envelope-from <jingle.wu@emc.com.tw>); Thu, 12 Nov 2020 09:58:19 +0800 (CST)
+Received: from 49.216.112.142
+        by webmail.emc.com.tw with Mail2000 ESMTPA Server V7.00(2475:0:AUTH_LOGIN)
+        (envelope-from <jingle.wu@emc.com.tw>); Thu, 12 Nov 2020 09:58:18 +0800 (CST)
+From:   "jingle.wu" <jingle.wu@emc.com.tw>
+To:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        dmitry.torokhov@gmail.com
+Cc:     phoenix@emc.com.tw, dave.wang@emc.com.tw, josh.chen@emc.com.tw,
+        "jingle.wu" <jingle.wu@emc.com.tw>
+Subject: [PATCH] Input: elan_i2c - Modify the correct input of the iap page type command.
+Date:   Thu, 12 Nov 2020 09:58:10 +0800
+Message-Id: <20201112015810.9559-1-jingle.wu@emc.com.tw>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 01:15:05AM +0300, Necip Fazil Yildiran wrote:
-> When TOUCHSCREEN_ADC is enabled and IIO_BUFFER is disabled, it results
-> in the following Kbuild warning:
-> 
-> WARNING: unmet direct dependencies detected for IIO_BUFFER_CB
->   Depends on [n]: IIO [=y] && IIO_BUFFER [=n]
->   Selected by [y]:
->   - TOUCHSCREEN_ADC [=y] && !UML && INPUT [=y] && INPUT_TOUCHSCREEN [=y] && IIO [=y]
-> 
-> The reason is that TOUCHSCREEN_ADC selects IIO_BUFFER_CB without depending
-> on or selecting IIO_BUFFER while IIO_BUFFER_CB depends on IIO_BUFFER. This
-> can also fail building the kernel.
-> 
-> Honor the kconfig dependency to remove unmet direct dependency warnings
-> and avoid any potential build failures.
-> 
-> Fixes: aa132ffb6b0a ("input: touchscreen: resistive-adc-touch: add generic resistive ADC touchscreen")
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=209881
-> Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+The iap page type command of the parameter is page_size.
 
-Applied, thank you.
+Signed-off-by: Jingle Wu <jingle.wu@emc.com.tw>
+---
+ drivers/input/mouse/elan_i2c.h       |  2 +-
+ drivers/input/mouse/elan_i2c_core.c  |  3 ++-
+ drivers/input/mouse/elan_i2c_i2c.c   | 10 +++++-----
+ drivers/input/mouse/elan_i2c_smbus.c |  2 +-
+ 4 files changed, 9 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
+index c75b00c45d75..36e3cd908671 100644
+--- a/drivers/input/mouse/elan_i2c.h
++++ b/drivers/input/mouse/elan_i2c.h
+@@ -78,7 +78,7 @@ struct elan_transport_ops {
+ 	int (*iap_reset)(struct i2c_client *client);
+ 
+ 	int (*prepare_fw_update)(struct i2c_client *client, u16 ic_type,
+-				 u8 iap_version);
++				 u8 iap_version, u16 fw_page_size);
+ 	int (*write_fw_block)(struct i2c_client *client, u16 fw_page_size,
+ 			      const u8 *page, u16 checksum, int idx);
+ 	int (*finish_fw_update)(struct i2c_client *client,
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index c599e21a8478..61ed3f5ca219 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -497,7 +497,8 @@ static int __elan_update_firmware(struct elan_tp_data *data,
+ 	u16 sw_checksum = 0, fw_checksum = 0;
+ 
+ 	error = data->ops->prepare_fw_update(client, data->ic_type,
+-					     data->iap_version);
++					     data->iap_version,
++					     data->fw_page_size);
+ 	if (error)
+ 		return error;
+ 
+diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
+index 5a496d4ffa49..13dc097eb6c6 100644
+--- a/drivers/input/mouse/elan_i2c_i2c.c
++++ b/drivers/input/mouse/elan_i2c_i2c.c
+@@ -517,7 +517,7 @@ static int elan_i2c_set_flash_key(struct i2c_client *client)
+ 	return 0;
+ }
+ 
+-static int elan_read_write_iap_type(struct i2c_client *client)
++static int elan_read_write_iap_type(struct i2c_client *client, u16 fw_page_size)
+ {
+ 	int error;
+ 	u16 constant;
+@@ -526,7 +526,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
+ 
+ 	do {
+ 		error = elan_i2c_write_cmd(client, ETP_I2C_IAP_TYPE_CMD,
+-					   ETP_I2C_IAP_TYPE_REG);
++					   fw_page_size / 2);
+ 		if (error) {
+ 			dev_err(&client->dev,
+ 				"cannot write iap type: %d\n", error);
+@@ -543,7 +543,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
+ 		constant = le16_to_cpup((__le16 *)val);
+ 		dev_dbg(&client->dev, "iap type reg: 0x%04x\n", constant);
+ 
+-		if (constant == ETP_I2C_IAP_TYPE_REG)
++		if (constant == fw_page_size / 2)
+ 			return 0;
+ 
+ 	} while (--retry > 0);
+@@ -553,7 +553,7 @@ static int elan_read_write_iap_type(struct i2c_client *client)
+ }
+ 
+ static int elan_i2c_prepare_fw_update(struct i2c_client *client, u16 ic_type,
+-				      u8 iap_version)
++				      u8 iap_version, u16 fw_page_size)
+ {
+ 	struct device *dev = &client->dev;
+ 	int error;
+@@ -594,7 +594,7 @@ static int elan_i2c_prepare_fw_update(struct i2c_client *client, u16 ic_type,
+ 	}
+ 
+ 	if (ic_type >= 0x0D && iap_version >= 1) {
+-		error = elan_read_write_iap_type(client);
++		error = elan_read_write_iap_type(client, fw_page_size);
+ 		if (error)
+ 			return error;
+ 	}
+diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
+index 8ff823751f3b..1820f1cfc1dc 100644
+--- a/drivers/input/mouse/elan_i2c_smbus.c
++++ b/drivers/input/mouse/elan_i2c_smbus.c
+@@ -340,7 +340,7 @@ static int elan_smbus_set_flash_key(struct i2c_client *client)
+ }
+ 
+ static int elan_smbus_prepare_fw_update(struct i2c_client *client, u16 ic_type,
+-					u8 iap_version)
++					u8 iap_version, u16 fw_page_size)
+ {
+ 	struct device *dev = &client->dev;
+ 	int len;
 -- 
-Dmitry
+2.17.1
+

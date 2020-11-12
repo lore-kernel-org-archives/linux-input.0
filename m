@@ -2,142 +2,122 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36889C2D0A3
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 07:38:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F237C2D0A3
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 08:04:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E571622228
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 07:38:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 137EA20870
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 08:04:35 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="U740AVZt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbgKLHis (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Nov 2020 02:38:48 -0500
-Received: from mx0a-00128a01.pphosted.com ([148.163.135.77]:32234 "EHLO
-        mx0a-00128a01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726107AbgKLHia (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Nov 2020 02:38:30 -0500
-Received: from pps.filterd (m0167089.ppops.net [127.0.0.1])
-        by mx0a-00128a01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AC7cUQg024894;
-        Thu, 12 Nov 2020 02:38:30 -0500
-Received: from nwd2mta3.analog.com ([137.71.173.56])
-        by mx0a-00128a01.pphosted.com with ESMTP id 34nsc989cn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Nov 2020 02:38:29 -0500
-Received: from SCSQMBX11.ad.analog.com (SCSQMBX11.ad.analog.com [10.77.17.10])
-        by nwd2mta3.analog.com (8.14.7/8.14.7) with ESMTP id 0AC7cSQt018451
-        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=FAIL);
-        Thu, 12 Nov 2020 02:38:28 -0500
-Received: from SCSQCASHYB7.ad.analog.com (10.77.17.133) by
- SCSQMBX11.ad.analog.com (10.77.17.10) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1779.2; Wed, 11 Nov 2020 23:38:27 -0800
-Received: from SCSQMBX11.ad.analog.com (10.77.17.10) by
- SCSQCASHYB7.ad.analog.com (10.77.17.133) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1779.2; Wed, 11 Nov 2020 23:38:26 -0800
-Received: from zeus.spd.analog.com (10.66.68.11) by SCSQMBX11.ad.analog.com
- (10.77.17.10) with Microsoft SMTP Server id 15.1.1779.2 via Frontend
- Transport; Wed, 11 Nov 2020 23:38:26 -0800
-Received: from localhost.localdomain ([10.48.65.12])
-        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 0AC7cLL7024474;
-        Thu, 12 Nov 2020 02:38:24 -0500
-From:   Alexandru Ardelean <alexandru.ardelean@analog.com>
-To:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <dmitry.torokhov@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>
-Subject: [PATCH v2 3/5] Input: adp5589: remove setup/teardown hooks for gpios
-Date:   Thu, 12 Nov 2020 09:43:06 +0200
-Message-ID: <20201112074308.71351-4-alexandru.ardelean@analog.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201112074308.71351-1-alexandru.ardelean@analog.com>
-References: <20201112074308.71351-1-alexandru.ardelean@analog.com>
+        id S1725966AbgKLIEc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Nov 2020 03:04:32 -0500
+Received: from mout.gmx.net ([212.227.15.18]:41657 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725898AbgKLIEa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 12 Nov 2020 03:04:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1605168264;
+        bh=gwhiVaxOEIeukBVgU+3WoDcm8giOfCiMV4D3MYQS5Zs=;
+        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=U740AVZtq2ABWskhx40zYT5ZXcmMYxYVH1OTdcazEzxZnsp0wyjQdLYvgunJnFUtg
+         fgvEylOexdhUKU0IfMCxgT0w2v2wfeElCx86QO9dVQUeLneZCs1LRDFNhr8kL2C2IX
+         jCwC2nVxGxBpYjAEAo8C7XstgrB4yUgFjuUDFblg=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.178.55] ([95.91.192.147]) by mail.gmx.com (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MrhQ6-1jyGTc14uS-00ngxn; Thu, 12
+ Nov 2020 09:04:24 +0100
+Subject: Re: [PATCH] Input: ads7846 - fix unaligned access on 7845
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org
+Cc:     Anatolij Gustschin <agust@denx.de>, linux-kernel@vger.kernel.org,
+        Oleksij Rempel <o.rempel@pengutronix.de>
+References: <20201112012742.GA3608551@dtor-ws>
+From:   Oleksij Rempel <linux@rempel-privat.de>
+Message-ID: <de67681c-b392-198c-f73e-4c9073d8f1e3@rempel-privat.de>
+Date:   Thu, 12 Nov 2020 09:04:23 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.2
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.312,18.0.737
- definitions=2020-11-12_02:2020-11-10,2020-11-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- priorityscore=1501 bulkscore=0 clxscore=1015 lowpriorityscore=0
- impostorscore=0 adultscore=0 phishscore=0 mlxlogscore=999 malwarescore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2011120045
+In-Reply-To: <20201112012742.GA3608551@dtor-ws>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:PiPo1pUv5Ey0Jy+o7aMWxpBMWlvIOOe9bwB4Gyk8pFi0DZGjx2z
+ hbnzFN5u/CTCiETc7vZqgmjK6MqK6QG0ZrD9YImfUgQUNbpLB70vq0sxs5+/CfANhrW+eu5
+ MgMnw9UfgpP8zvHD3Zs+GPm56/PeiwAzEjZF2Qs+o515oezykNAS2ISrggt1bXk/MxMCPw4
+ Liy/QzjugR6+219590CDQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:eUiVD8qYYUk=:LXcFSEaKaNX1fdc98Dxqif
+ 7yfU9RavMaTUJoW53wDj5eC/GmPhuvuCjPE+xwbeadwrVL3sswT2+Mpl9+8C4zQAMQEuvnZ7U
+ y/kdmsixoOIhBBKBOPbh0XTxSel6TwtEw4LwQoWL+kmeWd8mG7NhZqNed3lTRf9UU0DQCeCBf
+ NbzTh+OCmM2NjTgOH72CVva/iYf+Dm0gdQhsGWgGSD9lkvjfwADjW1kws8wW5YSkGARC3lt5s
+ Dpl7UABjA2CWLvd7C9QwzwlKXKTvTGO6gM229AvHYQmzCn2Wb6vCDB9zzJpqy8BaW/vtrWlH8
+ 3DuCi+WYyNbhRxCj29QC8J+nINYIntv5JpXVyVUHFyAte7Lq4ZF94WPPOq3zpdqPK4mZEzZBG
+ Naa7p/r8Z/cc9K8vIewrOVeINiTVBCg0wSNfG/buBlKsKnyp+PPWk+BXOtZkp/ctlznDg/m/r
+ 6g/hcSdSBvO66konq6b6bMNsbKmIsbaNSoxekjw9Y0inrczQVhFh6k0E5litW6iRRnK1ZNbxB
+ IQxLSjenSZ4bGSd10dcWNKi0cJuJkOwomEhgFk0VPyLFfnwQ+TCDkqNWFJ26YeC2/hiVpYuZ2
+ /SxQo9zyUZCtmy+R3lu7euZpuq0a5weHt1LorxJAsp0dCWbsT7mfzr65xyRJKS1HeI+CCvhCp
+ fPaeOqbw00afx6ih9PF6ZopSIC/lhES4Fardrw4Co96Lp1dhcbrfO72TtHHPWze0RCqFwTpbD
+ eFJkt2QLG8/FTjA4m9RM+mCBhoK9aS+Mny8YX/g2BX5rDRo0mpvnIgszC8NlSAG5Q6e1ydbRQ
+ hmXNhSQacbAjGPQE3aBoVr2bVnZPXSBOsg0RYTy66mE8eUqMYFEldcSFCIHKsta1g7KjPwV1B
+ UrRzel5lAAcfkmXj3ITg==
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is currently just dead code. It's from around a time when
-platform-data was used, and a board could hook it's own special callback
-for setup/teardown, and a private object (via 'context').
+Hello Dmitry,
 
-This change removes it, as there are no more users in mainline for this.
+Am 12.11.20 um 02:27 schrieb Dmitry Torokhov:
+> req->sample[1] is not naturally aligned at word boundary, and therefore
+> we should use get_unaligned_be16() when accessing it.
+>
+> Fixes: 3eac5c7e44f3 ("Input: ads7846 - extend the driver for ads7845 con=
+troller support")
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
----
- drivers/input/keyboard/adp5589-keys.c | 21 ---------------------
- include/linux/input/adp5589.h         |  7 -------
- 2 files changed, 28 deletions(-)
+I do not have ads7845, but i  assume i need to resend my patch with the sa=
+me fix. Correct?
 
-diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
-index e96ffd5ed69e..cc91a47931bd 100644
---- a/drivers/input/keyboard/adp5589-keys.c
-+++ b/drivers/input/keyboard/adp5589-keys.c
-@@ -539,35 +539,14 @@ static int adp5589_gpio_add(struct adp5589_kpad *kpad)
- 					    ADP5589_GPIO_DIRECTION_A) + i);
- 	}
- 
--	if (gpio_data->setup) {
--		error = gpio_data->setup(kpad->client,
--					 kpad->gc.base, kpad->gc.ngpio,
--					 gpio_data->context);
--		if (error)
--			dev_warn(dev, "setup failed, %d\n", error);
--	}
--
- 	return 0;
- }
- 
- static void adp5589_gpio_remove(struct adp5589_kpad *kpad)
- {
--	struct device *dev = &kpad->client->dev;
--	const struct adp5589_kpad_platform_data *pdata = dev_get_platdata(dev);
--	const struct adp5589_gpio_platform_data *gpio_data = pdata->gpio_data;
--	int error;
--
- 	if (!kpad->export_gpio)
- 		return;
- 
--	if (gpio_data->teardown) {
--		error = gpio_data->teardown(kpad->client,
--					    kpad->gc.base, kpad->gc.ngpio,
--					    gpio_data->context);
--		if (error)
--			dev_warn(dev, "teardown failed %d\n", error);
--	}
--
- 	gpiochip_remove(&kpad->gc);
- }
- #else
-diff --git a/include/linux/input/adp5589.h b/include/linux/input/adp5589.h
-index c0523af96893..0e4742c8c81e 100644
---- a/include/linux/input/adp5589.h
-+++ b/include/linux/input/adp5589.h
-@@ -175,13 +175,6 @@ struct i2c_client; /* forward declaration */
- 
- struct adp5589_gpio_platform_data {
- 	int	gpio_start;	/* GPIO Chip base # */
--	int	(*setup)(struct i2c_client *client,
--				int gpio, unsigned ngpio,
--				void *context);
--	int	(*teardown)(struct i2c_client *client,
--				int gpio, unsigned ngpio,
--				void *context);
--	void	*context;
- };
- 
- #endif
--- 
-2.17.1
+> ---
+>
+> Not tested on hardware, so if somebody has the controller and can verify
+> that would be great.
+>
+>
+>  drivers/input/touchscreen/ads7846.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchsc=
+reen/ads7846.c
+> index 95e89f675ad5..35d14bc44aff 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -33,6 +33,7 @@
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/module.h>
+>  #include <asm/irq.h>
+> +#include <asm/unaligned.h>
+>
+>  /*
+>   * This code has been heavily tested on a Nokia 770, and lightly
+> @@ -443,7 +444,7 @@ static int ads7845_read12_ser(struct device *dev, un=
+signed command)
+>
+>  	if (status =3D=3D 0) {
+>  		/* BE12 value, then padding */
+> -		status =3D be16_to_cpu(*((u16 *)&req->sample[1]));
+> +		status =3D get_unaligned_be16(&req->sample[1]);
+>  		status =3D status >> 3;
+>  		status &=3D 0x0fff;
+>  	}
+>
 
+
+=2D-
+Regards,
+Oleksij

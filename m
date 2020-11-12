@@ -2,59 +2,59 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EE6DC388F9
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:34:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACEEDC61DD8
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:34:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2AAF20809
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:34:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4EFDF206F1
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 01:34:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="R2s1M0pm"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oYREcqIj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728229AbgKLBeE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 11 Nov 2020 20:34:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44208 "EHLO
+        id S1728167AbgKLBeK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 11 Nov 2020 20:34:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728120AbgKLAll (ORCPT
+        with ESMTP id S1728129AbgKLAnQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Nov 2020 19:41:41 -0500
+        Wed, 11 Nov 2020 19:43:16 -0500
 Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D082C0617A7
-        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2020 16:41:39 -0800 (PST)
-Received: by mail-pf1-x441.google.com with SMTP id 10so2896933pfp.5
-        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2020 16:41:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63375C061A4A
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2020 16:41:43 -0800 (PST)
+Received: by mail-pf1-x441.google.com with SMTP id z3so2868899pfb.10
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2020 16:41:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Utwe4xR8J8QGLdCImujYGLQlNTOgzBqC1iHA5Eyo1w4=;
-        b=R2s1M0pmReZg68qwieY3zSp8emiSgL1YMPaMVa32i0hE9tK60LpmUBVrpNiinG6vQJ
-         i07E5AMD14YR0zSnIE9S1JJyVleGMI+Zcjm77YA/Ddmh6xWeMK+51bUDesZWNZ9XKRY1
-         YGLn+bz3iMLkZu6zhEs8FfLq3CY4Ml06aoXVo=
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=mjmuykYc+6IRfxhnFcBNshn4ZYHI8kwWAl9SmNJjnjo=;
+        b=oYREcqIjRfeGgYSa+Ns0rz8Tfd1HDvVS0d5qrfnZXJnQVf5ySnqni8KSmbneWQMwWK
+         TYgeRiLAAauZXt5IWSADfbMND/cBsxhNO1rcZPgNHImCUbOxmiPVJaapXKwXDh3VtaYl
+         Hyh6GxKxYABOE9tfSgxuAEatQxAx1bcVBA1Gc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Utwe4xR8J8QGLdCImujYGLQlNTOgzBqC1iHA5Eyo1w4=;
-        b=SQv9Y594HQ5CE+8SICZosr0Xaj8k1n5U3F4ptc/7Lgu1VERqlPT2Ba6YAirAJJgOkQ
-         XH0uWvSuEsRSm388PknxWKwp55Hq7Pkdz1I5s7QsFL4DhULSaGnVA/OlJOfym+E2j8Dy
-         3f9+fEIDfTVmIPdazzKCQ5Rceb5CGLlLZpGBkCZ/tC64hbo+hvJSTKSAgKevXfUBHSjq
-         Hw/SvmpEcS+MDOxR+Y2b2DaHKxeDIvVN5GlgHgYog6uyXaoUVrOkr+9pRVK8kd16LOcI
-         TCrCfOym2vVG74jkjDSrSAZJ2hOWZOsBJA1Qh1fdlKahxzqtSihlga85OOuv052pvo05
-         hJPQ==
-X-Gm-Message-State: AOAM533vhK6mRhMV5tTBgZ3+fjx3vNoGkeuEpuxfazhO5g/cDYKntqAH
-        VXAYJGHsDQSYc2EA1KFS+H+lyw==
-X-Google-Smtp-Source: ABdhPJyVp3nagtjEa+HXLXT+UNnpG/bMPWN3BscAh7XrhLgMKsFjUAPbrXErc++yKAhQWjX5SqM88A==
-X-Received: by 2002:a17:90a:df15:: with SMTP id gp21mr6542210pjb.37.1605141698821;
-        Wed, 11 Nov 2020 16:41:38 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=mjmuykYc+6IRfxhnFcBNshn4ZYHI8kwWAl9SmNJjnjo=;
+        b=IN6xG8ycjhULSaLDTmsAzwycfHoApdCQgnh86iJVOFTJN9QQ0qjQmYQB4fQFDANpxc
+         8XLW1aYkN5hmOiZ95yUiLMcRW4rGApPGS4BZCc2pSr6RkORsbDvQYknWNu02CQyI95Ra
+         T+JGoUPUJuA9y5mb7iz3nPVNcvcU7T+e/xB3NM2YRRRxG4rmJk8aYQ2anRnWpkNNX17e
+         E+o5JS3o4y080CTNVXlr+nOX0jHLA3GMHrErPiZt6EQj51mxbMPbx9mXC1ewXbg4wxo6
+         ynJKmw55LvLo2jRKNLCh9YR7QUm3qjsS+6Gn/B5PgHz7dAZhvgz0WBSM7MHAlt6hjPjS
+         KYaQ==
+X-Gm-Message-State: AOAM532pZu/mzQyD/PO7a8v3dRV8Aqh7vIIvKi7wdgoNKk2oZezIUNda
+        j5amr8pcN3iT67mm3gywFBUHOw==
+X-Google-Smtp-Source: ABdhPJxNiNr76eWFWPlZHLuQbAmuo6F5QkCNJ1QV8I9Pl2aPhpzBTSc7Kfd7HnXMo21gM8r5jGxEWg==
+X-Received: by 2002:a63:6a82:: with SMTP id f124mr270270pgc.236.1605141702977;
+        Wed, 11 Nov 2020 16:41:42 -0800 (PST)
 Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
-        by smtp.gmail.com with ESMTPSA id t26sm4265522pfl.72.2020.11.11.16.41.36
+        by smtp.gmail.com with ESMTPSA id t26sm4265522pfl.72.2020.11.11.16.41.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 16:41:38 -0800 (PST)
+        Wed, 11 Nov 2020 16:41:42 -0800 (PST)
 From:   Douglas Anderson <dianders@chromium.org>
 To:     jkosina@suse.cz, benjamin.tissoires@redhat.com,
         gregkh@linuxfoundation.org,
@@ -63,103 +63,55 @@ Cc:     andrea@borgia.bo.it, robh+dt@kernel.org,
         kai.heng.feng@canonical.com, swboyd@chromium.org,
         linux-input@vger.kernel.org, hdegoede@redhat.com,
         Douglas Anderson <dianders@chromium.org>,
-        Aaron Ma <aaron.ma@canonical.com>,
         Anson Huang <Anson.Huang@nxp.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
-        Jiri Kosina <jikos@kernel.org>,
         Krzysztof Kozlowski <krzk@kernel.org>,
-        Li Yang <leoyang.li@nxp.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michael Walle <michael@walle.cc>,
-        Olof Johansson <olof@lixom.net>, Pavel Balan <admin@kryma.net>,
+        Li Yang <leoyang.li@nxp.com>, Michael Walle <michael@walle.cc>,
+        Olof Johansson <olof@lixom.net>,
         Shawn Guo <shawnguo@kernel.org>, Vinod Koul <vkoul@kernel.org>,
         Will Deacon <will@kernel.org>,
-        Xiaofei Tan <tanxiaofei@huawei.com>,
-        You-Sheng Yang <vicamo.yang@canonical.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v6 0/4] HID: i2c-hid: Reorganize to allow supporting goodix,gt7375p
-Date:   Wed, 11 Nov 2020 16:41:26 -0800
-Message-Id: <20201112004130.17290-1-dianders@chromium.org>
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v6 2/4] arm64: defconfig: Update config names for i2c-hid rejigger
+Date:   Wed, 11 Nov 2020 16:41:28 -0800
+Message-Id: <20201111164027.v6.2.Ic9788bdfc4cce7569f8d25e7fb52a208fb643eac@changeid>
 X-Mailer: git-send-email 2.29.2.222.g5d2a92d10f8-goog
+In-Reply-To: <20201112004130.17290-1-dianders@chromium.org>
+References: <20201112004130.17290-1-dianders@chromium.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+The i2c-hid driver has been split in two.  Let's enable both halves.
 
-The goal of this series is to support the Goodix GT7375P touchscreen.
-This touchscreen is special because it has power sequencing
-requirements that necessitate driving a reset GPIO.
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+---
 
-To do this, we totally rejigger the way i2c-hid is organized so that
-it's easier to jam the Goodix support in there.
-
-This series was:
-- Tested on a device that uses normal i2c-hid.
-- Tested on a device that has a Goodix i2c-hid device.
-- Tested on an ACPI device, but an earlier version of the series.
-
-Changes in v6:
-- ACPI probe function should have been "static"
-- Don't export suspend/resume, just export dev_pm_ops from core.
-- Fixed crash in ACPI module (missing init of "client")
-- No need for regulator include in the core.
-- Removed i2c_device_id table from ACPI module.
-- Suspend/resume are no longer exported from the core.
-
-Changes in v5:
-- Add shutdown_tail op and use it in ACPI.
-- Added mention of i2c-hid in the yaml itself as per Rob.
-- Adjusted subject as per Rob.
-- i2chid_subclass_data => i2chid_ops.
-- power_up_device => power_up (same with power_down).
-- subclass => ops.
+(no changes since v4)
 
 Changes in v4:
 - ("arm64: defconfig: Update config names for i2c-hid rejigger") new for v4.
-- Fully rejigger so ACPI and OF are full subclasses.
-- Totally redid based on the new subclass system.
 
-Changes in v3:
-- Fixed compatible in example.
-- Removed Benjamin as a maintainer.
-- Rework to use subclassing.
-- Updated description.
+ arch/arm64/configs/defconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Changes in v2:
-- ("dt-bindings: HID: i2c-hid: Introduce bindings for the Goodix GT7375P") new in v2.
-- Get timings based on the compatible string.
-- Use a separate compatible string for this new touchscreen.
-
-Douglas Anderson (4):
-  HID: i2c-hid: Reorganize so ACPI and OF are separate modules
-  arm64: defconfig: Update config names for i2c-hid rejigger
-  dt-bindings: input: HID: i2c-hid: Introduce bindings for the Goodix
-    GT7375P
-  HID: i2c-hid: Introduce goodix-i2c-hid using i2c-hid core
-
- .../bindings/input/goodix,gt7375p.yaml        |  65 +++++
- arch/arm64/configs/defconfig                  |   3 +-
- drivers/hid/Makefile                          |   2 +-
- drivers/hid/i2c-hid/Kconfig                   |  47 +++-
- drivers/hid/i2c-hid/Makefile                  |   6 +-
- drivers/hid/i2c-hid/i2c-hid-acpi.c            | 159 +++++++++++
- drivers/hid/i2c-hid/i2c-hid-core.c            | 254 +++---------------
- drivers/hid/i2c-hid/i2c-hid-of-goodix.c       | 116 ++++++++
- drivers/hid/i2c-hid/i2c-hid-of.c              | 143 ++++++++++
- drivers/hid/i2c-hid/i2c-hid.h                 |  22 ++
- include/linux/platform_data/i2c-hid.h         |  41 ---
- 11 files changed, 596 insertions(+), 262 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
- create mode 100644 drivers/hid/i2c-hid/i2c-hid-acpi.c
- create mode 100644 drivers/hid/i2c-hid/i2c-hid-of-goodix.c
- create mode 100644 drivers/hid/i2c-hid/i2c-hid-of.c
- delete mode 100644 include/linux/platform_data/i2c-hid.h
-
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index 5cfe3cf6f2ac..9258d623331e 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -725,7 +725,8 @@ CONFIG_SND_SOC_WM8904=m
+ CONFIG_SND_SOC_WSA881X=m
+ CONFIG_SND_SIMPLE_CARD=m
+ CONFIG_SND_AUDIO_GRAPH_CARD=m
+-CONFIG_I2C_HID=m
++CONFIG_I2C_HID_ACPI=m
++CONFIG_I2C_HID_OF=m
+ CONFIG_USB_CONN_GPIO=m
+ CONFIG_USB=y
+ CONFIG_USB_OTG=y
 -- 
 2.29.2.222.g5d2a92d10f8-goog
 

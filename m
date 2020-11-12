@@ -2,128 +2,149 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DA66C61DD8
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 05:41:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C62C3C56201
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 06:23:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C79B0216C4
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 05:41:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A8CD20870
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 06:23:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RMJgpf9a"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rmaJp67N"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729018AbgKLFhP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Nov 2020 00:37:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54106 "EHLO
+        id S1725966AbgKLGXy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Nov 2020 01:23:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729576AbgKLBq1 (ORCPT
+        with ESMTP id S1725941AbgKLGXx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Nov 2020 20:46:27 -0500
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BD36C0613D1;
-        Wed, 11 Nov 2020 17:45:47 -0800 (PST)
-Received: by mail-pf1-x444.google.com with SMTP id g7so3039246pfc.2;
-        Wed, 11 Nov 2020 17:45:47 -0800 (PST)
+        Thu, 12 Nov 2020 01:23:53 -0500
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C8EC0613D1;
+        Wed, 11 Nov 2020 22:23:52 -0800 (PST)
+Received: by mail-pg1-x530.google.com with SMTP id 34so38021pgp.10;
+        Wed, 11 Nov 2020 22:23:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=nOQD+47l1Vj9tZi/oOhEDued5DuJRPNMgWRyqUdj0hA=;
-        b=RMJgpf9aRvHsm7kXTPn6A4QHZjITSTMgFpSPAsMIDsD9Vq2FGlymCQ2Uy9WLTcLgud
-         qcvZWqtPn4jtyWomXgZOZuaGMlO2WRVM66OJ58RyU+8tB4/Z6t+5kyb1la/bFNvIQPNy
-         +gfGfVHSsGC88lwyTHYBVOldd5dkmJ8zNnfGN4wdGKkvtA5U/ZgbYHYAtXazC6yUv6G6
-         18AKV5PhQRuc9McMOPXFn4enN6RsZ6bzrUeznvRv50DulrL8Df1nad3nFKi4ygo6hi1F
-         vr6MAnGzpjH0q2duju6VUxCCWNB57QbzNbWKojxTfKCMb8p803FeYeAomZ9dfOGjw0HX
-         nzmg==
+        bh=OIhd3mPHGXUKi53MawqoYGKb0TVJcQxotMsgj9HyU3M=;
+        b=rmaJp67NJIvoDowN01zns2CXI4p1V5e3Y/ZhTDgsE+mr7du3aeLnh/lYwFgssYkcJN
+         LCCZjyY/h6HZ6l1kLWeCxLUHK76wf7tPH7BA3PLXChvPpXlwn9NEbm04BOPQMJqAYp7W
+         2bUAUZu7xfvxFhA8BuEBwbgB5tFGppcHh1tkb5KUHWy6tfEKx2dE89Vq6pNVNUfrccO5
+         +m/38Ix4uUAQGlSQAyCXm9f73Hn0NTkNKt0rNm9MDLY8Brxd7zrFdFQBolKxkoSNbAym
+         RGTBl36T8nkWBI15GPvmEjTDqK5EdMqoKkA/6A3h+Sd/s3CMzO4lZqBRngF3dIa7YA1t
+         kFcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=nOQD+47l1Vj9tZi/oOhEDued5DuJRPNMgWRyqUdj0hA=;
-        b=jYx9+7oQNHxjIczMKy+rlhs69F/hQVvDHWD3hcQLkKyTda97o7M6xeuCDi47Uns4CY
-         0RNu+bafh24ndLckrf7ZHqyzQwvGD/UV4Q9b6t+9w8ODtbk+lU1UCEjOjlMD81ZbXz34
-         CnoTAcPQE8D72kX+VIzn4SNNEBYI/qLfsEL4iAVJX6ZjN+XSNfixOhcLiNWl7QD6dTrl
-         ug6lEEue1pByYaowcQGVBm3It4Z5Y4QIADeFfr6UAxwNxYTDcWxDWblQTUVmKxFPhjHG
-         MigEfXb/XyjOrdBI+y9uuB7ckRmIKUFFr1FCF2nv5fihJX7PKp6fu+FMjP1QVOctnb/z
-         BEVw==
-X-Gm-Message-State: AOAM532kZ7itmJKepXN7HHXIh+SSxMGn8UbmRztJoL4iQO9/Tf2bUcRx
-        wtXzAhtqTL1s++PNDEjjQsI=
-X-Google-Smtp-Source: ABdhPJw49jebosLeBcZ1ZsqKR3LnVI8Mxnm8v5sWdo+ropNNGLFnXAlwpDz5nWxUdwGFQZE5kJbwXQ==
-X-Received: by 2002:a17:90a:fd0d:: with SMTP id cv13mr4600504pjb.124.1605145546448;
-        Wed, 11 Nov 2020 17:45:46 -0800 (PST)
+        bh=OIhd3mPHGXUKi53MawqoYGKb0TVJcQxotMsgj9HyU3M=;
+        b=S479k2XwkQUwIt9EYd+ZxIoVi+7JQD65r+BN/s1jDWXdMqSHTx0fadphmY9TSmjWgU
+         VgZBM1xeO+FndXkJXqHjaQHrsjQ/Ih9w7gB9PrXyvu8NT75AfV4CIWL3R1yLYizWzGuN
+         PJ6iHCdYumo//b9+gEvYWlv7fZczudVoZ7+eeVOJ1drYjVIazNXVcpMSwPArMWliI+y8
+         hIXbEnO00WFXp5kHGwFbgbNef6HYYMR+Sf18S/d5TEPaFyCxdgsE0FNBILzg5adBVWef
+         R4ppP1B9J0JibEF9yaZWSgnRukDo3UZbKD2NTbRv6qd9XSB1aGXWcXBDg0+oqb0XIlHS
+         Dt5w==
+X-Gm-Message-State: AOAM533zBoA75ieXnUQz8ANIvlbsy1MBJUEfe/EItj5+245Yg/yzJ4aX
+        Wuip/dkq2Zi42mCRleqqZ5w=
+X-Google-Smtp-Source: ABdhPJzv1ETbt4VnaBCJ1YTAAiAmkqrE5DAiBoPrj2v8rlyV9lIT6qAZ1KqHlrgQsM8mY7PctQ2sHw==
+X-Received: by 2002:a63:d542:: with SMTP id v2mr4322235pgi.250.1605162231399;
+        Wed, 11 Nov 2020 22:23:51 -0800 (PST)
 Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id d11sm3944079pjm.18.2020.11.11.17.45.44
+        by smtp.gmail.com with ESMTPSA id ce19sm5443034pjb.53.2020.11.11.22.23.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2020 17:45:45 -0800 (PST)
-Date:   Wed, 11 Nov 2020 17:45:42 -0800
+        Wed, 11 Nov 2020 22:23:50 -0800 (PST)
+Date:   Wed, 11 Nov 2020 22:23:48 -0800
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org,
-        f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        wahrenst@gmx.net, linux-input@vger.kernel.org,
-        gregkh@linuxfoundation.org, devel@driverdev.osuosl.org,
-        p.zabel@pengutronix.de, linux-gpio@vger.kernel.org,
-        linus.walleij@linaro.org, linux-clk@vger.kernel.org,
-        sboyd@kernel.org, linux-rpi-kernel@lists.infradead.org,
-        bgolaszewski@baylibre.com, andy.shevchenko@gmail.com
-Subject: Re: [PATCH v3 07/11] input: raspberrypi-ts: Release firmware handle
- when not needed
-Message-ID: <20201112014542.GA1003057@dtor-ws>
-References: <20201104103938.1286-1-nsaenzjulienne@suse.de>
- <20201104103938.1286-8-nsaenzjulienne@suse.de>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Mark Pearson <markpearson@lenovo.com>,
+        linux-iio@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
+        Nitin Joshi1 <njoshi1@lenovo.com>, linux-input@vger.kernel.org
+Subject: Re: [External] Using IIO to export laptop palm-sensor and lap-mode
+ info to userspace?
+Message-ID: <20201112062348.GF1003057@dtor-ws>
+References: <9f9b0ff6-3bf1-63c4-eb36-901cecd7c4d9@redhat.com>
+ <5a646527-7a1f-2fb9-7c09-8becdbff417b@lenovo.com>
+ <20201007083602.00006b7e@Huawei.com>
+ <218be284-4a37-e9f9-749d-c126ef1d098b@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201104103938.1286-8-nsaenzjulienne@suse.de>
+In-Reply-To: <218be284-4a37-e9f9-749d-c126ef1d098b@redhat.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Nicolas,
+On Wed, Oct 07, 2020 at 11:51:05AM +0200, Hans de Goede wrote:
+> Hi,
+> 
+> On 10/7/20 10:36 AM, Jonathan Cameron wrote:
+> > On Mon, 5 Oct 2020 22:04:27 -0400
+> > Mark Pearson <markpearson@lenovo.com> wrote:
+> > 
+> > > Adding Nitin, lead for this feature, to the thread
+> > 
+> > +CC linux-input and Dmitry for reasons that will become clear below.
+> > > 
+> > > On 2020-10-03 10:02 a.m., Hans de Goede wrote:
+> > > > Hi All,
+> > > > 
+> > > > Modern laptops can have various sensors which are kinda
+> > > > like proximity sensors, but not really (they are more
+> > > > specific in which part of the laptop the user is
+> > > > proximate to).
+> > > > 
+> > > > Specifically modern Thinkpad's have 2 readings which we
+> > > > want to export to userspace, and I'm wondering if we
+> > > > could use the IIO framework for this since these readings
+> > > > are in essence sensor readings:
+> > > > 
+> > > > 1. These laptops have a sensor in the palm-rests to
+> > > > check if a user is physically proximate to the device's
+> > > > palm-rests. This info will be used by userspace for WWAN
+> > > > functionality to control the transmission level safely.
+> > > > 
+> > > > A patch adding a thinkpad_acpi specific sysfs API for this
+> > > > is currently pending:
+> > > > https://patchwork.kernel.org/patch/11722127/
+> > > > 
+> > > > But I'm wondering if it would not be better to use
+> > > > IIO to export this info.
+> > 
+> > My first thought on this is it sounds more like a key than a sensor
+> > (simple proximity sensors fall into this category as well.)
 
-On Wed, Nov 04, 2020 at 11:39:33AM +0100, Nicolas Saenz Julienne wrote:
-> Use devm_rpi_firmware_get() so as to make sure we release RPi's firmware
-> interface when unbinding the device.
+[ sorry for sitting on this thread for so long ]
 
-Unless I am mistaken this driver does not really need the firmware
-structure past rpi_ts_probe(), and will be fine if it disappears earlier
-than unbind time.
+So I think the important question here is if we only ever want yes/no
+answer, or if we can consider adjusting behavior of the system based on
+the "closeness" of an object to the device, in which case I think IIO is
+more flexible.
+
+FWIW in Chrome OS land we name IIO proximity sensors using a scheme
+"proximity-lte", "proximity-wifi", "proximity-wifi-left",
+"proximity-wifi-right", etc, and then userspace implements various
+policies (SAR, etc) based off it.
+
+> 
+> That is an interesting suggestion. Using the input/evdev API
+> would have some advantages such as being able to have a single
+> event node for all the proximity switches and then being able
+> to pass a fd to that from a privileged process to a non
+> privileged one, something which userspace already has
+> various infrastructure for.
+
+I am not sure if multiplexing all proximity switches into one evdev node
+is that great option, as I am sure we'll soon have devices with 2x
+palmrest switches and being capable finely adjusting transmit power,
+etc.
 
 Thanks.
-
-> 
-> Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-> 
-> ---
-> 
-> Changes since v2:
->  - Use devm_rpi_firmware_get(), instead of remove function
-> 
->  drivers/input/touchscreen/raspberrypi-ts.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
-> index ef6aaed217cf..efed0efa91d9 100644
-> --- a/drivers/input/touchscreen/raspberrypi-ts.c
-> +++ b/drivers/input/touchscreen/raspberrypi-ts.c
-> @@ -134,7 +134,7 @@ static int rpi_ts_probe(struct platform_device *pdev)
->  		return -ENOENT;
->  	}
->  
-> -	fw = rpi_firmware_get(fw_node);
-> +	fw = devm_rpi_firmware_get(&pdev->dev, fw_node);
->  	of_node_put(fw_node);
->  	if (!fw)
->  		return -EPROBE_DEFER;
-> -- 
-> 2.29.1
-> 
 
 -- 
 Dmitry

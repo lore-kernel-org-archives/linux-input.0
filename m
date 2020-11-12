@@ -2,26 +2,27 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBF03C5519F
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 16:38:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 343CCC63697
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 16:38:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 71B32216C4
-	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 16:38:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF1A0216C4
+	for <linux-input@archiver.kernel.org>; Thu, 12 Nov 2020 16:38:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729077AbgKLQhu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Nov 2020 11:37:50 -0500
-Received: from mx2.suse.de ([195.135.220.15]:41908 "EHLO mx2.suse.de"
+        id S1729035AbgKLQhp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Nov 2020 11:37:45 -0500
+Received: from mx2.suse.de ([195.135.220.15]:41794 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729063AbgKLQhu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Nov 2020 11:37:50 -0500
+        id S1728685AbgKLQho (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 12 Nov 2020 11:37:44 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 715CAAB95;
-        Thu, 12 Nov 2020 16:37:47 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 99AF8AFC8;
+        Thu, 12 Nov 2020 16:37:42 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org
 Cc:     f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
@@ -34,115 +35,47 @@ Cc:     f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
         linux-clk@vger.kernel.org, sboyd@kernel.org,
         linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
         andy.shevchenko@gmail.com,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Eric Anholt <eric@anholt.net>
-Subject: [PATCH v4 00/11] Raspberry Pi PoE HAT fan support
-Date:   Thu, 12 Nov 2020 17:36:18 +0100
-Message-Id: <20201112163630.17177-1-nsaenzjulienne@suse.de>
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH v4 08/11] input: raspberrypi-ts: Release firmware handle when not needed
+Date:   Thu, 12 Nov 2020 17:36:26 +0100
+Message-Id: <20201112163630.17177-9-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201112163630.17177-1-nsaenzjulienne@suse.de>
+References: <20201112163630.17177-1-nsaenzjulienne@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The aim of this series is to add support to the fan found on RPi's PoE
-HAT. Some commentary on the design can be found below. But the imporant
-part to the people CC'd here not involved with PWM is that, in order to
-achieve this properly, we also have to fix the firmware interface the
-driver uses to communicate with the PWM bus (and many other low level
-functions). Specifically, we have to make sure the firmware interface
-isn't unbound while consumers are still up. So, patch #1 & #2 introduce
-reference counting in the firwmware interface driver and patches #3 to
-#8 update all firmware users. Patches #9 to #11 introduce the new PWM
-driver.
+Use devm_rpi_firmware_get() so as to make sure we release RPi's firmware
+interface when unbinding the device.
 
-I sent everything as a single series as the final version of the PWM
-drivers depends on the firwmare fixes, but I'll be happy to split this
-into two separate series if you think it's better.
-
---- Original cover letter below ---
-
-This series aims at adding support to RPi's official PoE HAT fan[1].
-
-The HW setup is the following:
-
-| Raspberry Pi                               | PoE HAT                    |
- arm core -> Mailbox -> RPi co-processor -> I2C -> Atmel MCU -> PWM -> FAN
-
-The arm cores have only access to the mailbox interface, as i2c0, even if
-physically accessible, is to be used solely by the co-processor
-(VideoCore 4/6).
-
-This series implements a PWM bus, and has pwm-fan sitting on top of it as per
-this discussion: https://lkml.org/lkml/2018/9/2/486. Although this design has a
-series of shortcomings:
-
-- It depends on a DT binding: it's not flexible if a new hat shows up with new
-  functionality, we're not 100% sure we'll be able to expand it without
-  breaking backwards compatibility. But without it we can't make use of DT
-  thermal-zones, which IMO is overkill.
-
-- We're using pwm-fan, writing a hwmon driver would, again, give us more
-  flexibility, but it's not really needed at the moment.
-
-I personally think that it's not worth the effort, it's unlikely we'll get
-things right in advance. And ultimately, if the RPi people come up with
-something new, we can always write a new driver/bindings from scratch (as in
-not reusing previous code).
-
-That said, I'm more than happy to change things if there is a consensus that
-another design will do the trick.
-
-[1] https://www.raspberrypi.org/blog/introducing-power-over-ethernet-poe-hat/
-
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 ---
 
 Changes since v3:
- - Split first patch, #1 introduces refcount, then #2 the devm function
- - Fix touchscreen function
- - Use kref
+ - Release firmware handle in probe function
 
 Changes since v2:
- - Introduce devm_rpi_firmware_get()
- - Small cleanups in PWM driver
+ - Use devm_rpi_firmware_get(), instead of remove function
 
-Changes since v1:
- - Address PWM driver changes
- - Fix binding, now with 2 cells
+ drivers/input/touchscreen/raspberrypi-ts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Nicolas Saenz Julienne (11):
-  firmware: raspberrypi: Keep count of all consumers
-  firmware: raspberrypi: Introduce devm_rpi_firmware_get()
-  clk: bcm: rpi: Release firmware handle on unbind
-  gpio: raspberrypi-exp: Release firmware handle on unbind
-  reset: raspberrypi: Release firmware handle on unbind
-  soc: bcm: raspberrypi-power: Release firmware handle on unbind
-  staging: vchiq: Release firmware handle on unbind
-  input: raspberrypi-ts: Release firmware handle when not needed
-  dt-bindings: pwm: Add binding for RPi firmware PWM bus
-  DO NOT MERGE: ARM: dts: Add RPi's official PoE hat support
-  pwm: Add Raspberry Pi Firmware based PWM bus
-
- .../arm/bcm/raspberrypi,bcm2835-firmware.yaml |  20 ++
- arch/arm/boot/dts/bcm2711-rpi-4-b.dts         |  54 +++++
- drivers/clk/bcm/clk-raspberrypi.c             |   2 +-
- drivers/firmware/raspberrypi.c                |  66 +++++-
- drivers/gpio/gpio-raspberrypi-exp.c           |   2 +-
- drivers/input/touchscreen/raspberrypi-ts.c    |   2 +-
- drivers/pwm/Kconfig                           |   9 +
- drivers/pwm/Makefile                          |   1 +
- drivers/pwm/pwm-raspberrypi-poe.c             | 216 ++++++++++++++++++
- drivers/reset/reset-raspberrypi.c             |   2 +-
- drivers/soc/bcm/raspberrypi-power.c           |   2 +-
- .../interface/vchiq_arm/vchiq_arm.c           |   2 +-
- .../pwm/raspberrypi,firmware-pwm.h            |  13 ++
- include/soc/bcm2835/raspberrypi-firmware.h    |  10 +
- 14 files changed, 391 insertions(+), 10 deletions(-)
- create mode 100644 drivers/pwm/pwm-raspberrypi-poe.c
- create mode 100644 include/dt-bindings/pwm/raspberrypi,firmware-pwm.h
-
+diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
+index ef6aaed217cf..5000f5fd9ec3 100644
+--- a/drivers/input/touchscreen/raspberrypi-ts.c
++++ b/drivers/input/touchscreen/raspberrypi-ts.c
+@@ -160,7 +160,7 @@ static int rpi_ts_probe(struct platform_device *pdev)
+ 	touchbuf = (u32)ts->fw_regs_phys;
+ 	error = rpi_firmware_property(fw, RPI_FIRMWARE_FRAMEBUFFER_SET_TOUCHBUF,
+ 				      &touchbuf, sizeof(touchbuf));
+-
++	rpi_firmware_put(fw);
+ 	if (error || touchbuf != 0) {
+ 		dev_warn(dev, "Failed to set touchbuf, %d\n", error);
+ 		return error;
 -- 
 2.29.2
 

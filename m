@@ -2,99 +2,155 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.5 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B14D0C63697
-	for <linux-input@archiver.kernel.org>; Wed, 18 Nov 2020 00:33:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA756C63697
+	for <linux-input@archiver.kernel.org>; Wed, 18 Nov 2020 09:24:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6E0B424198
-	for <linux-input@archiver.kernel.org>; Wed, 18 Nov 2020 00:33:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RbwMkj2q"
+	by mail.kernel.org (Postfix) with ESMTP id 67599246B2
+	for <linux-input@archiver.kernel.org>; Wed, 18 Nov 2020 09:24:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727391AbgKRAdc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 17 Nov 2020 19:33:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51310 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725767AbgKRAdb (ORCPT
+        id S1726158AbgKRJXm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Nov 2020 04:23:42 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:35709 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725804AbgKRJXm (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 17 Nov 2020 19:33:31 -0500
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0922C0613CF;
-        Tue, 17 Nov 2020 16:33:31 -0800 (PST)
-Received: by mail-pl1-x641.google.com with SMTP id l11so47267plt.1;
-        Tue, 17 Nov 2020 16:33:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=3YnzFhuriT1u2qd6o9Ro/pkfTVdzzLt9x8ZF1CF/qnA=;
-        b=RbwMkj2q24avAvO2XuXCvO8epPCvLzPfZP/LcZ1gPnGBLQVrsk0LsiCIZw2cIZbBOW
-         d5OrTpWePJKIr4vlpjf/fr8FLIiFMSqB5W6cSgR0jjD5ovsa1EGH7YBEE0k7ihwV0oDP
-         jmAzLtgGMiW1hWj5lttPYZxSfNeoLH/QYgaPLIhQES9BoRprFrssQxqpyntYkOadzSht
-         dvNBmN5zmaq9Uw6SIHdLxL8k8F6eNMNkzd0Jt15YY/h8nR5G4P41nhtPgMpIUvoWgMyO
-         dBISMLQhnc2f7wtVTfHCb5j6S1vkaVJAEMYgwrv34XL95Vmf4wX+HOrnA9QYxhkgbv4H
-         HcoQ==
+        Wed, 18 Nov 2020 04:23:42 -0500
+Received: by mail-wm1-f66.google.com with SMTP id w24so2019444wmi.0;
+        Wed, 18 Nov 2020 01:23:40 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=3YnzFhuriT1u2qd6o9Ro/pkfTVdzzLt9x8ZF1CF/qnA=;
-        b=RNpHEKCEnDUguGjhQZAetdFG7oGSvDPrl6ryrvtErPiSbZqtxWiwdCJfrl+FeqjQyz
-         IcPds4ajDgjfoY0lpT4uykrlyAnzlzzMnd7R/Od8V6jRaEy7FzR1XjkNV5pu9K3+9VKd
-         9uu4i2ryvMqie7jf5RBMpHRp3jsZXMEqWcxHsZii+0Tj4vZtLSThYw131Vo6b0cgFgE8
-         yXLlkvOUvDz/hAhS1if4r1+HLVCpCav3eDb9N7VDLm+CZhaAuPi1FqfMDxaO1pvjfRsM
-         G31QFp2LtjS793FblZESCFuXzcczsnwnrPZLhdAFSNehYPtgOwj39ARflXX0epw+FHki
-         nGhw==
-X-Gm-Message-State: AOAM532D5l2yCCcmr1xSb+pdGFgLpgZdLFP/FBPIzUEabMJmh/jMoKIX
-        4F4XwUgEf0d4ratdoDH/hgA=
-X-Google-Smtp-Source: ABdhPJyGZ+JLGwJCDJEd+EbRlOJ25ksG6eM+ifOdNHUswDpdJXjRlObDRc6txkig7tryqi9LaAv1IA==
-X-Received: by 2002:a17:90a:5291:: with SMTP id w17mr1443869pjh.129.1605659611167;
-        Tue, 17 Nov 2020 16:33:31 -0800 (PST)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id s6sm24016830pfh.9.2020.11.17.16.33.29
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=2nsnjnOqDV6WPzahzgOv8VDTMdt+UU18h3NLzAQiSpA=;
+        b=X5DWRRpLxLa2YwmpnxCDdJ9m2LJqPGahM/mvYxyBmEzouI6woOAdiclOXCRDK+/Ckv
+         g/fBPyVpajhQ/8IdIVgnrq2DkTHQLbIltySYpK6SNrsi4rL6urTRYnF58ovnu9W8kRhP
+         5akmkcElDDpyjwbI9iBQTZtvQmtpSY5GTLTYxd358utefNb+N4+JvC1ModI61825yr6r
+         yeEzcwaSbeiE47oHOoMU72yrUMm28l1Knyt62GCkhyQbqI+mObM+8Spu4fCi++gy3UU5
+         7dDmvcPMyd/pKdWXmMaB645OohHZcXNV9JMVkxYwVPaZPkgzxfkqRfNxTo3Oe6bhkZmw
+         69OA==
+X-Gm-Message-State: AOAM532xzEUwHnoW/fAmZyRrL/eotorSELX22CYYGbjdJeljfqmNYXxG
+        BEMtHHfP9zpYeP54o6hxKZVL3tBGSGk=
+X-Google-Smtp-Source: ABdhPJxckaDRo8U42uknkQAN3d1oqdfUPR8JMwF4vNreh318c5rq4YB0kqkTqeFa5f4PE6gRlLM59w==
+X-Received: by 2002:a7b:c2ef:: with SMTP id e15mr3585111wmk.180.1605691419662;
+        Wed, 18 Nov 2020 01:23:39 -0800 (PST)
+Received: from liuwe-devbox-debian-v2 ([51.145.34.42])
+        by smtp.gmail.com with ESMTPSA id g4sm32723173wrp.0.2020.11.18.01.23.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2020 16:33:30 -0800 (PST)
-Date:   Tue, 17 Nov 2020 16:33:28 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, dusonlin@emc.com.tw,
-        KT Liao <kt.liao@emc.com.tw>, linux-input@vger.kernel.org
-Subject: Re: [PATCH] input: mouse: elan_i2c_core: Move header inclusion inside
-Message-ID: <20201118003328.GG2009714@dtor-ws>
-References: <20201104162427.2984742-1-lee.jones@linaro.org>
- <20201104162427.2984742-7-lee.jones@linaro.org>
- <20201112104420.GG1997862@dell>
+        Wed, 18 Nov 2020 01:23:39 -0800 (PST)
+Date:   Wed, 18 Nov 2020 09:23:37 +0000
+From:   Wei Liu <wei.liu@kernel.org>
+To:     "Enrico Weigelt, metux IT consult" <info@metux.net>
+Cc:     linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, x86@kernel.org, hpa@zytor.com,
+        dmitry.torokhov@gmail.com, derek.kiernan@xilinx.com,
+        dragan.cvetic@xilinx.com, richardcochran@gmail.com,
+        linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org,
+        netdev@vger.kernel.org, Wei Liu <wei.liu@kernel.org>
+Subject: Re: [PATCH 2/2] x86: make hyperv support optional
+Message-ID: <20201118092337.k4inzcaqxygrnqc3@liuwe-devbox-debian-v2>
+References: <20201117202308.7568-1-info@metux.net>
+ <20201117202308.7568-2-info@metux.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201112104420.GG1997862@dell>
+In-Reply-To: <20201117202308.7568-2-info@metux.net>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Nov 12, 2020 at 10:44:20AM +0000, Lee Jones wrote:
-> The same clause as its use.
+On Tue, Nov 17, 2020 at 09:23:08PM +0100, Enrico Weigelt, metux IT consult wrote:
+> Make it possible to opt-out from hyperv support.
 > 
-> Fixes the following W=1 kernel build warning(s):
-> 
->  include/linux/input/elan-i2c-ids.h:26:36: warning: ‘elan_acpi_id’ defined but not used [-Wunused-const-variable=]
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Henrik Rydberg <rydberg@bitmath.org>
-> Cc: Jingle Wu <jingle.wu@emc.com.tw>
-> Cc: dusonlin@emc.com.tw
-> Cc: KT Liao <kt.liao@emc.com.tw>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-Applied, thank you.
+"Hyper-V support".
 
--- 
-Dmitry
+Have you tested this patch? If so, how?
+
+> Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+> ---
+>  arch/x86/Kconfig                 | 7 +++++++
+>  arch/x86/kernel/cpu/Makefile     | 4 ++--
+>  arch/x86/kernel/cpu/hypervisor.c | 2 ++
+>  drivers/hv/Kconfig               | 2 +-
+>  4 files changed, 12 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index c227c1fa0091..60aab344d6ab 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -808,6 +808,13 @@ config VMWARE_GUEST
+>  	  This option enables several optimizations for running under the
+>  	  VMware hypervisor.
+>  
+> +config HYPERV_GUEST
+> +	bool "HyperV Guest support"
+
+Hyper-V here.
+
+> +	default y
+> +	help
+> +	  This option enables several optimizations for running under the
+> +	  HyperV hypervisor.
+> +
+
+"for running under Hyper-V".
+
+>  config KVM_GUEST
+>  	bool "KVM Guest support (including kvmclock)"
+>  	depends on PARAVIRT
+> diff --git a/arch/x86/kernel/cpu/Makefile b/arch/x86/kernel/cpu/Makefile
+> index a615b0152bf0..5536b801cb44 100644
+> --- a/arch/x86/kernel/cpu/Makefile
+> +++ b/arch/x86/kernel/cpu/Makefile
+> @@ -51,9 +51,9 @@ obj-$(CONFIG_X86_CPU_RESCTRL)		+= resctrl/
+>  
+>  obj-$(CONFIG_X86_LOCAL_APIC)		+= perfctr-watchdog.o
+>  
+> -obj-$(CONFIG_HYPERVISOR_GUEST)		+= hypervisor.o mshyperv.o
+> +obj-$(CONFIG_HYPERVISOR_GUEST)		+= hypervisor.o
+>  obj-$(CONFIG_VMWARE_GUEST)		+= vmware.o
+> -
+> +obj-$(CONFIG_HYPERV_GUEST)		+= mshyperv.o
+>  obj-$(CONFIG_ACRN_GUEST)		+= acrn.o
+>  
+>  ifdef CONFIG_X86_FEATURE_NAMES
+> diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
+> index c0e770a224aa..32d6b2084d05 100644
+> --- a/arch/x86/kernel/cpu/hypervisor.c
+> +++ b/arch/x86/kernel/cpu/hypervisor.c
+> @@ -37,7 +37,9 @@ static const __initconst struct hypervisor_x86 * const hypervisors[] =
+>  #ifdef CONFIG_VMWARE_GUEST
+>  	&x86_hyper_vmware,
+>  #endif
+> +#ifdef CONFIG_HYPERV_GUEST
+>  	&x86_hyper_ms_hyperv,
+> +#endif
+>  #ifdef CONFIG_KVM_GUEST
+>  	&x86_hyper_kvm,
+>  #endif
+> diff --git a/drivers/hv/Kconfig b/drivers/hv/Kconfig
+> index 79e5356a737a..7b3094c59a81 100644
+> --- a/drivers/hv/Kconfig
+> +++ b/drivers/hv/Kconfig
+> @@ -4,7 +4,7 @@ menu "Microsoft Hyper-V guest support"
+>  
+>  config HYPERV
+>  	tristate "Microsoft Hyper-V client drivers"
+> -	depends on X86 && ACPI && X86_LOCAL_APIC && HYPERVISOR_GUEST
+> +	depends on X86 && ACPI && X86_LOCAL_APIC && HYPERV_GUEST
+>  	select PARAVIRT
+>  	select X86_HV_CALLBACK_VECTOR
+>  	help
+
+Maybe that one should be moved to x86/Kconfig and used instead?
+
+Wei.
+
+> -- 
+> 2.11.0
+> 

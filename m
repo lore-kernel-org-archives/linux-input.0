@@ -7,52 +7,50 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30203C6379D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61A74C64E69
 	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 09:50:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E55D4246E8
-	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 09:50:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 221AD246EB
+	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 09:50:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726908AbgKSJt6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1726894AbgKSJt6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 19 Nov 2020 04:49:58 -0500
-Received: from mx0a-00128a01.pphosted.com ([148.163.135.77]:42884 "EHLO
+Received: from mx0a-00128a01.pphosted.com ([148.163.135.77]:43732 "EHLO
         mx0a-00128a01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726073AbgKSJt5 (ORCPT
+        by vger.kernel.org with ESMTP id S1726853AbgKSJt5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Thu, 19 Nov 2020 04:49:57 -0500
 Received: from pps.filterd (m0167089.ppops.net [127.0.0.1])
-        by mx0a-00128a01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AJ9lG48021616;
-        Thu, 19 Nov 2020 04:49:43 -0500
-Received: from nwd2mta4.analog.com ([137.71.173.58])
-        by mx0a-00128a01.pphosted.com with ESMTP id 34td19h43w-1
+        by mx0a-00128a01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AJ9l1QY021572;
+        Thu, 19 Nov 2020 04:49:46 -0500
+Received: from nwd2mta3.analog.com ([137.71.173.56])
+        by mx0a-00128a01.pphosted.com with ESMTP id 34td19h442-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Nov 2020 04:49:43 -0500
-Received: from SCSQMBX11.ad.analog.com (SCSQMBX11.ad.analog.com [10.77.17.10])
-        by nwd2mta4.analog.com (8.14.7/8.14.7) with ESMTP id 0AJ9nflV025366
+        Thu, 19 Nov 2020 04:49:46 -0500
+Received: from SCSQMBX10.ad.analog.com (SCSQMBX10.ad.analog.com [10.77.17.5])
+        by nwd2mta3.analog.com (8.14.7/8.14.7) with ESMTP id 0AJ9nixg010210
         (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=FAIL);
-        Thu, 19 Nov 2020 04:49:42 -0500
-Received: from SCSQCASHYB6.ad.analog.com (10.77.17.132) by
- SCSQMBX11.ad.analog.com (10.77.17.10) with Microsoft SMTP Server
+        Thu, 19 Nov 2020 04:49:45 -0500
+Received: from SCSQMBX11.ad.analog.com (10.77.17.10) by
+ SCSQMBX10.ad.analog.com (10.77.17.5) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1779.2; Thu, 19 Nov 2020 01:49:40 -0800
-Received: from SCSQMBX10.ad.analog.com (10.77.17.5) by
- SCSQCASHYB6.ad.analog.com (10.77.17.132) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1779.2; Thu, 19 Nov 2020 01:48:32 -0800
-Received: from zeus.spd.analog.com (10.66.68.11) by SCSQMBX10.ad.analog.com
- (10.77.17.5) with Microsoft SMTP Server id 15.1.1779.2 via Frontend
- Transport; Thu, 19 Nov 2020 01:49:40 -0800
+ 15.1.1779.2; Thu, 19 Nov 2020 01:49:44 -0800
+Received: from zeus.spd.analog.com (10.66.68.11) by SCSQMBX11.ad.analog.com
+ (10.77.17.10) with Microsoft SMTP Server id 15.1.1779.2 via Frontend
+ Transport; Thu, 19 Nov 2020 01:49:43 -0800
 Received: from localhost.localdomain ([10.48.65.12])
-        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 0AJ9nbw4017439;
-        Thu, 19 Nov 2020 04:49:38 -0500
+        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 0AJ9nbw6017439;
+        Thu, 19 Nov 2020 04:49:41 -0500
 From:   Alexandru Ardelean <alexandru.ardelean@analog.com>
 To:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 CC:     <lars@metafoo.de>, <dmitry.torokhov@gmail.com>,
         Alexandru Ardelean <alexandru.ardelean@analog.com>
-Subject: [PATCH 1/3] Input: adp5589-keys - add default platform data
-Date:   Thu, 19 Nov 2020 11:54:52 +0200
-Message-ID: <20201119095454.48631-1-alexandru.ardelean@analog.com>
+Subject: [PATCH 3/3] Input: adp5589-keys - add basic devicetree support
+Date:   Thu, 19 Nov 2020 11:54:54 +0200
+Message-ID: <20201119095454.48631-3-alexandru.ardelean@analog.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20201119095454.48631-1-alexandru.ardelean@analog.com>
+References: <20201119095454.48631-1-alexandru.ardelean@analog.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-ADIRuleOP-NewSCL: Rule Triggered
@@ -69,96 +67,86 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Lars-Peter Clausen <lars@metafoo.de>
 
-If no platform data is supplied use a dummy platform data that configures
-the device in GPIO only mode. This change adds a adp5589_kpad_pdata_get()
-helper that returns the default platform-data. This can be later extended
-to load configuration from device-trees or ACPI.
+Add very basic devicetree suppport to the adp5589 allowing the device to be
+registered from devicetree and ACPI via PRP0001.
 
 Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
 ---
- drivers/input/keyboard/adp5589-keys.c | 33 +++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/input/keyboard/adp5589-keys.c | 30 ++++++++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
-index 31145a85c819..8e559be24bda 100644
+index daa6d3cdbac5..4321bad10269 100644
 --- a/drivers/input/keyboard/adp5589-keys.c
 +++ b/drivers/input/keyboard/adp5589-keys.c
-@@ -368,6 +368,25 @@ static const struct adp_constants const_adp5585 = {
- 	.reg			= adp5585_reg,
- };
+@@ -985,9 +985,25 @@ static void adp5589_clear_config(void *data)
+ 	adp5589_write(client, kpad->var->reg(ADP5589_GENERAL_CFG), 0);
+ }
  
-+static const struct adp5589_gpio_platform_data adp5589_default_gpio_pdata = {
-+	.gpio_start = -1,
-+};
-+
-+static const struct adp5589_kpad_platform_data adp5589_default_pdata = {
-+	.gpio_data = &adp5589_default_gpio_pdata,
-+};
-+
-+static const struct adp5589_kpad_platform_data *adp5589_kpad_pdata_get(
-+	struct device *dev)
++static const struct adp5589_chip_info *adp5589_get_chip_info(struct device *dev,
++							     const struct i2c_device_id *id)
 +{
-+	const struct adp5589_kpad_platform_data *pdata = dev_get_platdata(dev);
++	const struct adp5589_chip_info *info;
 +
-+	if (!pdata)
-+		pdata = &adp5589_default_pdata;
++	info = device_get_match_data(dev);
++	if (info)
++		return info;
 +
-+	return pdata;
++	if (id)
++		return &adp5589_chip_info_tbl[id->driver_data];
++
++	return NULL;
 +}
 +
- static int adp5589_read(struct i2c_client *client, u8 reg)
+ static int adp5589_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
  {
- 	int ret = i2c_smbus_read_byte_data(client, reg);
-@@ -497,7 +516,8 @@ static int adp5589_build_gpiomap(struct adp5589_kpad *kpad,
- static int adp5589_gpio_add(struct adp5589_kpad *kpad)
- {
- 	struct device *dev = &kpad->client->dev;
--	const struct adp5589_kpad_platform_data *pdata = dev_get_platdata(dev);
-+	const struct adp5589_kpad_platform_data *pdata =
-+		adp5589_kpad_pdata_get(dev);
- 	const struct adp5589_gpio_platform_data *gpio_data = pdata->gpio_data;
- 	int i, error;
- 
-@@ -618,7 +638,7 @@ static int adp5589_setup(struct adp5589_kpad *kpad)
- {
- 	struct i2c_client *client = kpad->client;
- 	const struct adp5589_kpad_platform_data *pdata =
--		dev_get_platdata(&client->dev);
-+		adp5589_kpad_pdata_get(&client->dev);
- 	u8 (*reg) (u8) = kpad->var->reg;
- 	unsigned char evt_mode1 = 0, evt_mode2 = 0, evt_mode3 = 0;
- 	unsigned char pull_mask = 0;
-@@ -823,7 +843,7 @@ static int adp5589_keypad_add(struct adp5589_kpad *kpad, unsigned int revid)
- {
- 	struct i2c_client *client = kpad->client;
- 	const struct adp5589_kpad_platform_data *pdata =
--		dev_get_platdata(&client->dev);
-+		adp5589_kpad_pdata_get(&client->dev);
- 	struct input_dev *input;
- 	unsigned int i;
- 	int error;
-@@ -947,7 +967,7 @@ static int adp5589_probe(struct i2c_client *client,
- {
++	const struct adp5589_chip_info *info;
  	struct adp5589_kpad *kpad;
  	const struct adp5589_kpad_platform_data *pdata =
--		dev_get_platdata(&client->dev);
-+		adp5589_kpad_pdata_get(&client->dev);
- 	unsigned int revid;
- 	int error, ret;
- 
-@@ -957,11 +977,6 @@ static int adp5589_probe(struct i2c_client *client,
+ 		adp5589_kpad_pdata_get(&client->dev);
+@@ -1000,13 +1016,17 @@ static int adp5589_probe(struct i2c_client *client,
  		return -EIO;
  	}
  
--	if (!pdata) {
--		dev_err(&client->dev, "no platform data?\n");
--		return -EINVAL;
--	}
--
++	info = adp5589_get_chip_info(&client->dev, id);
++	if (!info)
++		return -ENODEV;
++
  	kpad = devm_kzalloc(&client->dev, sizeof(*kpad), GFP_KERNEL);
  	if (!kpad)
  		return -ENOMEM;
+ 
+ 	kpad->client = client;
+ 
+-	kpad->info = &adp5589_chip_info_tbl[id->driver_data];
++	kpad->info = info;
+ 	kpad->var = kpad->info->constants;
+ 
+ 	error = devm_add_action_or_reset(&client->dev, adp5589_clear_config,
+@@ -1079,6 +1099,13 @@ static int adp5589_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(adp5589_dev_pm_ops, adp5589_suspend, adp5589_resume);
+ 
++static const struct of_device_id adp5589_of_match[] = {
++	{ .compatible = "adi,adp5585", .data = &adp5589_chip_info_tbl[ADP5585_01] },
++	{ .compatible = "adi,adp5585-02", .data = &adp5589_chip_info_tbl[ADP5585_02] },
++	{ .compatible = "adi,adp5589", .data = &adp5589_chip_info_tbl[ADP5589] },
++	{}
++};
++
+ static const struct i2c_device_id adp5589_id[] = {
+ 	{"adp5589-keys", ADP5589},
+ 	{"adp5585-keys", ADP5585_01},
+@@ -1092,6 +1119,7 @@ static struct i2c_driver adp5589_driver = {
+ 	.driver = {
+ 		.name = KBUILD_MODNAME,
+ 		.pm = &adp5589_dev_pm_ops,
++		.of_match_table = adp5589_of_match,
+ 	},
+ 	.probe = adp5589_probe,
+ 	.id_table = adp5589_id,
 -- 
 2.17.1
 

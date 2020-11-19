@@ -2,348 +2,86 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FF34C8300C
-	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 10:03:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E72D9C2D0E4
+	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 13:27:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1875E2080A
-	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 10:03:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C0CB246B0
+	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 13:27:38 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DpU8DbH5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726485AbgKSKDC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 19 Nov 2020 05:03:02 -0500
-Received: from mga14.intel.com ([192.55.52.115]:10879 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727043AbgKSKCo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Nov 2020 05:02:44 -0500
-IronPort-SDR: tZztjJJHFJBLLHI6UnKviYwQ6BmE2hy0oscY1brrXFk/mvPeHFUrZoonaBBTl1vIC0t+MPIBCW
- F7GjAn33kI6A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9809"; a="170482234"
-X-IronPort-AV: E=Sophos;i="5.77,490,1596524400"; 
-   d="scan'208";a="170482234"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2020 02:02:43 -0800
-IronPort-SDR: D/4rYw+xDrOE3Iin81zWHpGGf5dJ2jK4raMrMnad+c27XCkDubwdcxNoKacY0HYCwI02vKppml
- Wr2eAOfYuPJg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,490,1596524400"; 
-   d="scan'208";a="359909761"
-Received: from host.sh.intel.com ([10.239.154.115])
-  by fmsmga004.fm.intel.com with ESMTP; 19 Nov 2020 02:02:41 -0800
-From:   Ye Xiang <xiang.ye@intel.com>
-To:     jikos@kernel.org, jic23@kernel.org,
-        srinivas.pandruvada@linux.intel.com
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH v2 1/4] HID: hid-sensor-custom: Add custom sensor iio support
-Date:   Thu, 19 Nov 2020 18:03:28 +0800
-Message-Id: <20201119100331.2594-2-xiang.ye@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201119100331.2594-1-xiang.ye@intel.com>
-References: <20201119100331.2594-1-xiang.ye@intel.com>
+        id S1726791AbgKSN1h (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 19 Nov 2020 08:27:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:46444 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726719AbgKSN1h (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 19 Nov 2020 08:27:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1605792456;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=qbjekbf1q2T7pqIQKL2cYfzI7qwKgB3NTigEY/Sr9sA=;
+        b=DpU8DbH5kWxk56WIWNgdoo14i79NL/e0d4VpjSVnl9pbjgBTILO75XlmWuSabqKH2Zrzss
+        +IXdADQkx5nm5Baxz+Okcb9TjJeCRWgGMYQMZG7Jiua729FeQB4M3n5xVwjG3VDKwCjllI
+        jFStcGpclOrCM/p2fD79X6WcYLM+Gzk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-432-zBSejgEqNP-HuSR9WWAhwg-1; Thu, 19 Nov 2020 08:27:34 -0500
+X-MC-Unique: zBSejgEqNP-HuSR9WWAhwg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5CA7018C43C1;
+        Thu, 19 Nov 2020 13:27:33 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-115-169.ams2.redhat.com [10.36.115.169])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 93D205D6AB;
+        Thu, 19 Nov 2020 13:27:28 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Subject: [PATCH] HID: logitech-hidpp: Add hid_device_id for V470 bluetooth mouse
+Date:   Thu, 19 Nov 2020 14:27:27 +0100
+Message-Id: <20201119132727.32036-1-hdegoede@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Currently custom sensors properties are not decoded and it is up to
-user space to interpret.
+The Logitech V470 bluetooth mouse supports HID++-1.0 over bluetooth,
+add its id to the hidpp driver so that it handles it.
 
-Some manufacturers already standardized the meaning of some custom sensors.
-They can be presented as a proper IIO sensor. We can identify these sensors
-based on manufacturer and serial number property in the report.
+This enables battery monitoring support.
 
-This change is identifying hinge sensor when the manufacturer is "INTEL".
-This creates a platform device so that a sensor driver can be loaded to
-process these sensors.
+Note this mouse does not support hi-resolution scroll-wheel events.
 
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-sensor-custom.c | 170 ++++++++++++++++++++++++++++++++
- include/linux/hid-sensor-ids.h  |  39 ++++++++
- 2 files changed, 209 insertions(+)
+ drivers/hid/hid-logitech-hidpp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
-index 4d25577a8573..bb96d9c09daf 100644
---- a/drivers/hid/hid-sensor-custom.c
-+++ b/drivers/hid/hid-sensor-custom.c
-@@ -4,6 +4,7 @@
-  * Copyright (c) 2015, Intel Corporation.
-  */
- 
-+#include <linux/ctype.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-@@ -21,6 +22,7 @@
- #define HID_CUSTOM_TOTAL_ATTRS		(HID_CUSTOM_MAX_CORE_ATTRS + 1)
- #define HID_CUSTOM_FIFO_SIZE		4096
- #define HID_CUSTOM_MAX_FEATURE_BYTES	64
-+#define HID_SENSOR_USAGE_LENGTH (4 + 1)
- 
- struct hid_sensor_custom_field {
- 	int report_id;
-@@ -50,6 +52,8 @@ struct hid_sensor_custom {
- 	struct kfifo data_fifo;
- 	unsigned long misc_opened;
- 	wait_queue_head_t wait;
-+	struct platform_device *custom_pdev;
-+	bool custom_pdev_exposed;
- };
- 
- /* Header for each sample to user space via dev interface */
-@@ -746,11 +750,159 @@ static void hid_sensor_custom_dev_if_remove(struct hid_sensor_custom
- 
- }
- 
-+/*
-+ * use sensors luid which is defined in FW, such as ISH,
-+ * to identify sensor.
-+ */
-+static char *known_sensor_luid[] = { "020B000000000000" };
-+
-+static int get_luid_table_index(unsigned char *usage_str)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(known_sensor_luid); i++) {
-+		if (!strncmp(usage_str, known_sensor_luid[i],
-+			     strlen(known_sensor_luid[i])))
-+			return i;
-+	}
-+
-+	return -1;
-+}
-+
-+static int get_known_custom_sensor_index(struct hid_sensor_hub_device *hsdev)
-+{
-+	struct hid_sensor_hub_attribute_info sensor_manufacturer = { 0 };
-+	struct hid_sensor_hub_attribute_info sensor_luid_info = { 0 };
-+	int report_size;
-+	int ret;
-+	u16 *w_buf;
-+	int w_buf_len;
-+	char *buf;
-+	int buf_len;
-+	int i;
-+	int index;
-+
-+	w_buf_len = sizeof(u16) * HID_CUSTOM_MAX_FEATURE_BYTES;
-+	buf_len = sizeof(char) * HID_CUSTOM_MAX_FEATURE_BYTES;
-+	w_buf = kzalloc(w_buf_len, GFP_KERNEL);
-+	if (!w_buf)
-+		return -1;
-+
-+	buf = kzalloc(buf_len, GFP_KERNEL);
-+	if (!buf) {
-+		kfree(w_buf);
-+		return -1;
-+	}
-+
-+	/* get manufacturer info */
-+	ret = sensor_hub_input_get_attribute_info(
-+		hsdev, HID_FEATURE_REPORT, hsdev->usage,
-+		HID_USAGE_SENSOR_PROP_MANUFACTURER, &sensor_manufacturer);
-+	if (ret < 0)
-+		goto err_out;
-+
-+	report_size =
-+		sensor_hub_get_feature(hsdev, sensor_manufacturer.report_id,
-+				       sensor_manufacturer.index, w_buf_len,
-+				       w_buf);
-+	if (report_size <= 0) {
-+		hid_err(hsdev->hdev,
-+			"Failed to get sensor manufacturer info %d\n",
-+			report_size);
-+		goto err_out;
-+	}
-+
-+	/* convert from wide char to char */
-+	for (i = 0; i < buf_len - 1 && w_buf[i]; i++)
-+		buf[i] = (char)w_buf[i];
-+
-+	/* ensure it's ISH sensor */
-+	if (strncmp(buf, "INTEL", strlen("INTEL")))
-+		goto err_out;
-+
-+	memset(w_buf, 0, w_buf_len);
-+	memset(buf, 0, buf_len);
-+
-+	/* get real usage id */
-+	ret = sensor_hub_input_get_attribute_info(
-+		hsdev, HID_FEATURE_REPORT, hsdev->usage,
-+		HID_USAGE_SENSOR_PROP_SERIAL_NUM, &sensor_luid_info);
-+	if (ret < 0)
-+		goto err_out;
-+
-+	report_size = sensor_hub_get_feature(hsdev, sensor_luid_info.report_id,
-+					     sensor_luid_info.index, w_buf_len,
-+					     w_buf);
-+	if (report_size <= 0) {
-+		hid_err(hsdev->hdev, "Failed to get real usage info %d\n",
-+			report_size);
-+		goto err_out;
-+	}
-+
-+	/* convert from wide char to char */
-+	for (i = 0; i < buf_len - 1 && w_buf[i]; i++)
-+		buf[i] = (char)w_buf[i];
-+
-+	if (strlen(buf) != strlen(known_sensor_luid[0]) + 5) {
-+		hid_err(hsdev->hdev,
-+			"%s luid length not match %zu != (%zu + 5)\n", __func__,
-+			strlen(buf), strlen(known_sensor_luid[0]));
-+		goto err_out;
-+	}
-+
-+	/* get table index with luid (not matching 'LUID: ' in luid) */
-+	index = get_luid_table_index(&buf[5]);
-+	kfree(w_buf);
-+	kfree(buf);
-+	return index;
-+
-+err_out:
-+	kfree(w_buf);
-+	kfree(buf);
-+	return -1;
-+}
-+
-+static struct platform_device *
-+register_platform_device(struct platform_device *pdev,
-+			 struct hid_sensor_hub_device *hsdev, int index)
-+{
-+	char real_usage[HID_SENSOR_USAGE_LENGTH] = { 0 };
-+	struct platform_device *custom_pdev;
-+	const char *dev_name;
-+	char *c;
-+	int ret;
-+
-+	/* copy real usage id */
-+	memcpy(real_usage, known_sensor_luid[index], 4);
-+
-+	/* usage id are all lowcase */
-+	for (c = real_usage; *c != '\0'; c++)
-+		*c = tolower(*c);
-+
-+	/* HID-SENSOR-INT-REAL_USAGE_ID */
-+	dev_name = kasprintf(GFP_KERNEL, "HID-SENSOR-INT-%s", real_usage);
-+	if (!dev_name)
-+		return NULL;
-+
-+	custom_pdev = platform_device_register_data(pdev->dev.parent, dev_name,
-+					     PLATFORM_DEVID_NONE, hsdev,
-+					     sizeof(*hsdev));
-+	kfree(dev_name);
-+	ret = PTR_ERR_OR_ZERO(custom_pdev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "platform_device_register_data failed ret:%d\n", ret);
-+		return NULL;
-+	}
-+
-+	return custom_pdev;
-+}
-+
- static int hid_sensor_custom_probe(struct platform_device *pdev)
- {
- 	struct hid_sensor_custom *sensor_inst;
- 	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
- 	int ret;
-+	int index;
- 
- 	sensor_inst = devm_kzalloc(&pdev->dev, sizeof(*sensor_inst),
- 				   GFP_KERNEL);
-@@ -764,6 +916,19 @@ static int hid_sensor_custom_probe(struct platform_device *pdev)
- 	sensor_inst->pdev = pdev;
- 	mutex_init(&sensor_inst->mutex);
- 	platform_set_drvdata(pdev, sensor_inst);
-+
-+	index = get_known_custom_sensor_index(hsdev);
-+	if (index >= 0) {
-+		sensor_inst->custom_pdev =
-+			register_platform_device(pdev, hsdev, index);
-+		if (sensor_inst->custom_pdev) {
-+			sensor_inst->custom_pdev_exposed = true;
-+			return 0;
-+		}
-+
-+		dev_err(&pdev->dev, "register_platform_device failed\n");
-+	}
-+
- 	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
- 					   &sensor_inst->callbacks);
- 	if (ret < 0) {
-@@ -802,6 +967,11 @@ static int hid_sensor_custom_remove(struct platform_device *pdev)
- 	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
- 	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
- 
-+	if (sensor_inst->custom_pdev_exposed) {
-+		platform_device_unregister(sensor_inst->custom_pdev);
-+		return 0;
-+	}
-+
- 	hid_sensor_custom_dev_if_remove(sensor_inst);
- 	hid_sensor_custom_remove_attributes(sensor_inst);
- 	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
-diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-index 530c09f3e64a..46db3056f04b 100644
---- a/include/linux/hid-sensor-ids.h
-+++ b/include/linux/hid-sensor-ids.h
-@@ -128,6 +128,10 @@
- #define HID_USAGE_SENSOR_UNITS_DEGREES_PER_SECOND		0x15
- 
- /* Common selectors */
-+#define HID_USAGE_SENSOR_PROP_DESC				0x200300
-+#define HID_USAGE_SENSOR_PROP_FRIENDLY_NAME			0x200301
-+#define HID_USAGE_SENSOR_PROP_SERIAL_NUM			0x200307
-+#define HID_USAGE_SENSOR_PROP_MANUFACTURER			0x200305
- #define HID_USAGE_SENSOR_PROP_REPORT_INTERVAL			0x20030E
- #define HID_USAGE_SENSOR_PROP_SENSITIVITY_ABS			0x20030F
- #define HID_USAGE_SENSOR_PROP_SENSITIVITY_RANGE_PCT		0x200310
-@@ -159,4 +163,39 @@
- #define HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM	0x200840
- #define HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM	0x200841
- 
-+/* Custom Sensor (2000e1) */
-+#define HID_USAGE_SENSOR_HINGE				        0x20020B
-+#define HID_USAGE_SENSOR_DATA_FIELD_LOCATION			0x200400
-+#define HID_USAGE_SENSOR_DATA_FIELE_TIME_SINCE_SYS_BOOT		0x20052B
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_USAGE		0x200541
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE		0x200543
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_1		0x200544
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_2		0x200545
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_3		0x200546
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_4		0x200547
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_5		0x200548
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_6		0x200549
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_7		0x20054A
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_8		0x20054B
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_9		0x20054C
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_10		0x20054D
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_11		0x20054E
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_12		0x20054F
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_13		0x200550
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_14		0x200551
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_15		0x200552
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_16		0x200553
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_17		0x200554
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_18		0x200555
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_19		0x200556
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_20		0x200557
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_21		0x200558
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_22		0x200559
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_23		0x20055A
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_24		0x20055B
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_25		0x20055C
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_26		0x20055D
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_27		0x20055E
-+#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_28		0x20055F
-+
- #endif
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index d062fffc6ebb..9cf8e7b440bc 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4057,6 +4057,8 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	{ /* MX5500 keyboard over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+ 	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
++	{ /* M-RCQ142 V470 Cordless Laser Mouse over Bluetooth */
++	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb008) },
+ 	{ /* MX Master mouse over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
+ 	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
 -- 
-2.17.1
+2.28.0
 

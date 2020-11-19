@@ -2,80 +2,78 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AFC7C6369E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E8EBC63798
 	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 10:03:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D31932083B
-	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 10:03:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A8B72083B
+	for <linux-input@archiver.kernel.org>; Thu, 19 Nov 2020 10:03:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727016AbgKSKCl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 19 Nov 2020 05:02:41 -0500
+        id S1726503AbgKSKCr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 19 Nov 2020 05:02:47 -0500
 Received: from mga14.intel.com ([192.55.52.115]:10879 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726995AbgKSKCl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Nov 2020 05:02:41 -0500
-IronPort-SDR: lD+bOX7DJLR88sAEcmbPghNuQNX9QB1g1hAvyCySleaJZLi8o7dmWvCPDM3pl8sv37KYiffOMm
- HXNW6MTZrO3w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9809"; a="170482230"
+        id S1727058AbgKSKCq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 19 Nov 2020 05:02:46 -0500
+IronPort-SDR: PAUFLMMmENz6CgUxHPAK6bAlcS8mrSp6wLWHgXvY4AN2drEUpJ2X2hif3pnwgNVz44uJmcEh/P
+ muZknd6kRdzQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9809"; a="170482240"
 X-IronPort-AV: E=Sophos;i="5.77,490,1596524400"; 
-   d="scan'208";a="170482230"
+   d="scan'208";a="170482240"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2020 02:02:40 -0800
-IronPort-SDR: cTX1HOqcgeoNj3FYRN2M3vITG/2KHztCISZWkOHxjseL6vncF1c2Ezp1qY4O6RdfqABbDqf8ih
- 73S+cezSMlOQ==
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2020 02:02:46 -0800
+IronPort-SDR: 4rP8QmvTHyGMSLXW+TaqC3wxA+tat2EQI+ouizZ472FCyqqkQLDL32IzmH0v6Rk+IyDqVeCNqB
+ yBR2uzPwKlJg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.77,490,1596524400"; 
-   d="scan'208";a="359909707"
+   d="scan'208";a="359909776"
 Received: from host.sh.intel.com ([10.239.154.115])
-  by fmsmga004.fm.intel.com with ESMTP; 19 Nov 2020 02:02:38 -0800
+  by fmsmga004.fm.intel.com with ESMTP; 19 Nov 2020 02:02:44 -0800
 From:   Ye Xiang <xiang.ye@intel.com>
 To:     jikos@kernel.org, jic23@kernel.org,
         srinivas.pandruvada@linux.intel.com
 Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
         linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH v2 0/4] add custom hinge sensor support
-Date:   Thu, 19 Nov 2020 18:03:27 +0800
-Message-Id: <20201119100331.2594-1-xiang.ye@intel.com>
+Subject: [PATCH v2 2/4] iio: hid-sensor-trigger: Decrement runtime pm enable count on driver removal
+Date:   Thu, 19 Nov 2020 18:03:29 +0800
+Message-Id: <20201119100331.2594-3-xiang.ye@intel.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20201119100331.2594-1-xiang.ye@intel.com>
+References: <20201119100331.2594-1-xiang.ye@intel.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Here three separate iio devices are presented which presents angle for
-hinge, keyboard and screen.
+To avoid pm_runtime_disable called repeatedly by hid sensor drivers,
+decrease runtime pm enable count after call it.
 
-This driver works on devices with Intel integrated sensor hub, where
-hinge sensor is presented using a custom sensor usage id.
+Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+---
+ drivers/iio/common/hid-sensors/hid-sensor-trigger.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Here the angle is presented in degrees, which is converted to radians.
-
-Changes since v1:
-  - fixed errors reported by lkp
-
-Ye Xiang (4):
-  HID: hid-sensor-custom: Add custom sensor iio support
-  iio: hid-sensor-trigger: Decrement runtime pm enable count on driver
-    removal
-  iio: hid-sensor-trigger: Use iio->trig instead trig field internal
-    structure
-  iio: hid-sensors: Add hinge sensor driver
-
- drivers/hid/hid-sensor-custom.c               | 170 ++++++++
- .../hid-sensors/hid-sensor-attributes.c       |   2 +
- .../common/hid-sensors/hid-sensor-trigger.c   |   8 +-
- drivers/iio/position/Kconfig                  |  16 +
- drivers/iio/position/Makefile                 |   3 +
- .../iio/position/hid-sensor-custom-hinge.c    | 412 ++++++++++++++++++
- include/linux/hid-sensor-ids.h                |  39 ++
- 7 files changed, 647 insertions(+), 3 deletions(-)
- create mode 100644 drivers/iio/position/hid-sensor-custom-hinge.c
-
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index ff375790b7e8..30340abcbc8d 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -227,8 +227,10 @@ static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
+ void hid_sensor_remove_trigger(struct iio_dev *indio_dev,
+ 			       struct hid_sensor_common *attrb)
+ {
+-	if (atomic_read(&attrb->runtime_pm_enable))
++	if (atomic_read(&attrb->runtime_pm_enable)) {
+ 		pm_runtime_disable(&attrb->pdev->dev);
++		atomic_dec(&attrb->runtime_pm_enable);
++	}
+ 
+ 	pm_runtime_set_suspended(&attrb->pdev->dev);
+ 	pm_runtime_put_noidle(&attrb->pdev->dev);
 -- 
 2.17.1
 

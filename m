@@ -2,231 +2,232 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AF70C63777
-	for <linux-input@archiver.kernel.org>; Fri, 20 Nov 2020 19:17:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3A57C56201
+	for <linux-input@archiver.kernel.org>; Fri, 20 Nov 2020 19:30:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8D8422254
-	for <linux-input@archiver.kernel.org>; Fri, 20 Nov 2020 19:17:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8404322264
+	for <linux-input@archiver.kernel.org>; Fri, 20 Nov 2020 19:30:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=konsulko.com header.i=@konsulko.com header.b="BvvYqyJh"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b="RC17bKQE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732299AbgKTTRW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 20 Nov 2020 14:17:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48666 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732281AbgKTTRW (ORCPT
+        id S1732389AbgKTTaG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 20 Nov 2020 14:30:06 -0500
+Received: from gateway33.websitewelcome.com ([192.185.145.4]:37575 "EHLO
+        gateway33.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732366AbgKTTaF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 20 Nov 2020 14:17:22 -0500
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64B44C061A04
-        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2020 11:17:20 -0800 (PST)
-Received: by mail-il1-x142.google.com with SMTP id w10so9515571ilq.5
-        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2020 11:17:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=n72QtqxwvMxLCx1CU/CeXC/nwzGmQTMNnKWTylUj9HA=;
-        b=BvvYqyJhvp0WkLBJ0Zd+GJ51me9Hv41gxzxpDRWj4y+ecErZ51cEg9e8l2TRlCJq33
-         jCGJ54LzHnaHMMI655yLzdstOnV6003l/fNT7/hZEthsoUp1tJkPVzB58A8xqXY379l6
-         dYgBLT+8oJir4k7sYVH2TvcdrYbgNRvK9xpNY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=n72QtqxwvMxLCx1CU/CeXC/nwzGmQTMNnKWTylUj9HA=;
-        b=ua1h37sjt+l72dQDpPABQISyNhgO36LN+e5uoiIepSO4Z44kPiXmxzFhjXBPdF18AT
-         K6OrlHQcfEf96zCHQrfGeQ/gnSnFTI4YkfV75mDCkucVfhDeFha0kYtyAfLFA+9di87i
-         oKQAzGKw8wLblf3T8+tt+rOYct3QydQkODWWM8AMQiTtP38KHnV53iC73z01S253sFRa
-         jEuALP2LHJEbCl4UVMPvYBsytYTMwKbqZz5vbamWfx82fzcmE/IemWCcQOXSGsFL3DUV
-         7eBDUeELmESprenrDVAWYbd3fM2keYvhYuMOUEjbYmlKF978QTlUaCVtQpsH9V7aM29E
-         eDLg==
-X-Gm-Message-State: AOAM532cjzABJxkbgVq1sM5OdIqh8qNASeZ1q5t3OCU/tSfhC34uU7jP
-        Upmb2F5RMbrtfZlDV0QIzSezhW3LXfQLzG7MF8SFlA==
-X-Google-Smtp-Source: ABdhPJyrgCfV8zWO65OhrRScNT1yfRDIROgX3hTXf8/a+y8PDb2MofLyUfW4zJbzuJcv45Sx69/c2wiEAFeFOlJPZn8=
-X-Received: by 2002:a92:5f03:: with SMTP id t3mr28675217ilb.25.1605899839781;
- Fri, 20 Nov 2020 11:17:19 -0800 (PST)
+        Fri, 20 Nov 2020 14:30:05 -0500
+Received: from cm13.websitewelcome.com (cm13.websitewelcome.com [100.42.49.6])
+        by gateway33.websitewelcome.com (Postfix) with ESMTP id 27E1F58F663
+        for <linux-input@vger.kernel.org>; Fri, 20 Nov 2020 13:04:52 -0600 (CST)
+Received: from gator4166.hostgator.com ([108.167.133.22])
+        by cmsmtp with SMTP
+        id gBiGkQkeCYLDngBiGkQzaN; Fri, 20 Nov 2020 13:04:52 -0600
+X-Authority-Reason: nr=8
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=o6HouBgCeARvPDycxq+DQL9GTuV0FZaznhFf+B5lvvQ=; b=RC17bKQEy60oNUOsP9/+FoFba3
+        7IOvK7tatxfYFulfXrzo1R1inJiR70+fGm96EOiyxuGoF10JW8F/HPs+jPpuI495euTAFQHufGSAV
+        KFk2OzUW7hWgtf7v4LM6Poy7NupLGz6fEDbexZ2hS8wrxAWAlGQM9lxjgUTuzQh4+AEwwhtM/J+sO
+        AoW8/bIYU33TR8wm0Dkj1ZL5b4OT77sQWi2RWgP14r2tlNn5M1PdILrguUL1Nl2Hy0yV5KIqCCVAo
+        j0nfxV1qHzIcwVylK9t1AWmoK15QajwvXxprFA+S9YfES+wOdY+ET5oNf4zzGyJ24cDNT8LjZrCcC
+        nhh+2ALA==;
+Received: from 187-162-31-110.static.axtel.net ([187.162.31.110]:52360 helo=[192.168.15.4])
+        by gator4166.hostgator.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <gustavo@embeddedor.com>)
+        id 1kgBiD-00024G-7d; Fri, 20 Nov 2020 13:04:49 -0600
+Subject: Re: [PATCH 000/141] Fix fall-through warnings for Clang
+To:     Jakub Kicinski <kuba@kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+        amd-gfx@lists.freedesktop.org, bridge@lists.linux-foundation.org,
+        ceph-devel@vger.kernel.org, cluster-devel@redhat.com,
+        coreteam@netfilter.org, devel@driverdev.osuosl.org,
+        dm-devel@redhat.com, drbd-dev@lists.linbit.com,
+        dri-devel@lists.freedesktop.org, GR-everest-linux-l2@marvell.com,
+        GR-Linux-NIC-Dev@marvell.com, intel-gfx@lists.freedesktop.org,
+        intel-wired-lan@lists.osuosl.org, keyrings@vger.kernel.org,
+        linux1394-devel@lists.sourceforge.net, linux-acpi@vger.kernel.org,
+        linux-afs@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org,
+        linux-atm-general@lists.sourceforge.net,
+        linux-block@vger.kernel.org, linux-can@vger.kernel.org,
+        linux-cifs@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-decnet-user@lists.sourceforge.net,
+        linux-ext4@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-geode@lists.infradead.org, linux-gpio@vger.kernel.org,
+        linux-hams@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-i3c@lists.infradead.org, linux-ide@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-media@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-sctp@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        netfilter-devel@vger.kernel.org, nouveau@lists.freedesktop.org,
+        op-tee@lists.trustedfirmware.org, oss-drivers@netronome.com,
+        patches@opensource.cirrus.com, rds-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org, samba-technical@lists.samba.org,
+        selinux@vger.kernel.org, target-devel@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net,
+        usb-storage@lists.one-eyed-alien.net,
+        virtualization@lists.linux-foundation.org,
+        wcn36xx@lists.infradead.org, x86@kernel.org,
+        xen-devel@lists.xenproject.org, linux-hardening@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Miguel Ojeda <ojeda@kernel.org>, Joe Perches <joe@perches.com>,
+        Kees Cook <keescook@chromium.org>
+References: <cover.1605896059.git.gustavoars@kernel.org>
+ <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Autocrypt: addr=gustavo@embeddedor.com; keydata=
+ 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
+ AP7RWS474w==
+Message-ID: <4609d49b-4dd3-c017-b76e-a8a536871c05@embeddedor.com>
+Date:   Fri, 20 Nov 2020 13:04:55 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20201120030103.36138-1-matt.ranostay@konsulko.com> <CALUj-guTNWK9m-bwmkRC3st9VExhFkXPiUevXw_EA9xamR6BYA@mail.gmail.com>
-In-Reply-To: <CALUj-guTNWK9m-bwmkRC3st9VExhFkXPiUevXw_EA9xamR6BYA@mail.gmail.com>
-From:   Matt Ranostay <matt.ranostay@konsulko.com>
-Date:   Fri, 20 Nov 2020 11:17:08 -0800
-Message-ID: <CAJCx=gn=jAeYkVtLQ8Ou7P9xRpvSaXpuUk5XWDxMD_HPMTzH+Q@mail.gmail.com>
-Subject: Re: [PATCH] HID: mcp2221: add ADC support
-To:     rishi gupta <gupt21@gmail.com>
-Cc:     "open list:IIO SUBSYSTEM AND DRIVERS" <linux-iio@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - embeddedor.com
+X-BWhitelist: no
+X-Source-IP: 187.162.31.110
+X-Source-L: No
+X-Exim-ID: 1kgBiD-00024G-7d
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 187-162-31-110.static.axtel.net ([192.168.15.4]) [187.162.31.110]:52360
+X-Source-Auth: gustavo@embeddedor.com
+X-Email-Count: 116
+X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
+X-Local-Domain: yes
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Nov 20, 2020 at 5:15 AM rishi gupta <gupt21@gmail.com> wrote:
->
-> On Fri, Nov 20, 2020 at 8:31 AM Matt Ranostay
-> <matt.ranostay@konsulko.com> wrote:
-> >
-> > Add support for the three 10-bit ADC channels registered via
-> > the IIO subsystem.
-> >
-> > Cc: linux-input@vger.kernel.org
-> > Cc: linux-iio@vger.kernel.org
-> > CC: Rishi Gupta <gupt21@gmail.com>
-> > Signed-off-by: Matt Ranostay <matt.ranostay@konsulko.com>
-> > ---
-> >  drivers/hid/Kconfig       |  1 +
-> >  drivers/hid/hid-mcp2221.c | 65 ++++++++++++++++++++++++++++++++++++++-
-> >  2 files changed, 65 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> > index 05315b434276..4795744d9979 100644
-> > --- a/drivers/hid/Kconfig
-> > +++ b/drivers/hid/Kconfig
-> > @@ -1157,6 +1157,7 @@ config HID_MCP2221
-> >         tristate "Microchip MCP2221 HID USB-to-I2C/SMbus host support"
-> >         depends on USB_HID && I2C
-> >         depends on GPIOLIB
-> > +       depends on IIO
-> I am wondering what will happen on systems which do not enable IIO.
-> This driver can not be used there.
-> Is my understanding correct?
 
-Actually yeah this should be "select IIO" to avoid that issue.
+Hi,
 
-- Matt
+On 11/20/20 12:53, Jakub Kicinski wrote:
+> On Fri, 20 Nov 2020 12:21:39 -0600 Gustavo A. R. Silva wrote:
+>> This series aims to fix almost all remaining fall-through warnings in
+>> order to enable -Wimplicit-fallthrough for Clang.
+>>
+>> In preparation to enable -Wimplicit-fallthrough for Clang, explicitly
+>> add multiple break/goto/return/fallthrough statements instead of just
+>> letting the code fall through to the next case.
+>>
+>> Notice that in order to enable -Wimplicit-fallthrough for Clang, this
+>> change[1] is meant to be reverted at some point. So, this patch helps
+>> to move in that direction.
+>>
+>> Something important to mention is that there is currently a discrepancy
+>> between GCC and Clang when dealing with switch fall-through to empty case
+>> statements or to cases that only contain a break/continue/return
+>> statement[2][3][4].
+> 
+> Are we sure we want to make this change? Was it discussed before?
+> 
+> Are there any bugs Clangs puritanical definition of fallthrough helped
+> find?
+> 
+> IMVHO compiler warnings are supposed to warn about issues that could
+> be bugs. Falling through to default: break; can hardly be a bug?!
 
-> >         help
-> >         Provides I2C and SMBUS host adapter functionality over USB-HID
-> >         through MCP2221 device.
-> > diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-> > index 0d27ccb55dd9..7e62f1dc54d3 100644
-> > --- a/drivers/hid/hid-mcp2221.c
-> > +++ b/drivers/hid/hid-mcp2221.c
-> > @@ -18,6 +18,9 @@
-> >  #include <linux/gpio/driver.h>
-> >  #include "hid-ids.h"
-> >
-> > +#include <linux/iio/iio.h>
-> > +#include <linux/iio/sysfs.h>
-> > +
-> >  /* Commands codes in a raw output report */
-> >  enum {
-> >         MCP2221_I2C_WR_DATA = 0x90,
-> > @@ -56,6 +59,7 @@ enum {
-> >   */
-> >  struct mcp2221 {
-> >         struct hid_device *hdev;
-> > +       struct iio_dev *indio_dev;
-> >         struct i2c_adapter adapter;
-> >         struct mutex lock;
-> >         struct completion wait_in_report;
-> > @@ -67,6 +71,11 @@ struct mcp2221 {
-> >         struct gpio_chip *gc;
-> >         u8 gp_idx;
-> >         u8 gpio_dir;
-> > +       u16 adc_values[3];
-> > +};
-> > +
-> > +struct mcp2221_iio {
-> > +       struct mcp2221 *mcp;
-> >  };
-> >
-> >  /*
-> > @@ -712,6 +721,7 @@ static int mcp2221_raw_event(struct hid_device *hdev,
-> >                                 break;
-> >                         }
-> >                         mcp->status = mcp_get_i2c_eng_state(mcp, data, 8);
-> > +                       memcpy(&mcp->adc_values, &data[50], 6);
-> >                         break;
-> >                 default:
-> >                         mcp->status = -EIO;
-> > @@ -791,11 +801,54 @@ static int mcp2221_raw_event(struct hid_device *hdev,
-> >         return 1;
-> >  }
-> >
-> > +static int mcp2221_read_raw(struct iio_dev *indio_dev,
-> > +                           struct iio_chan_spec const *channel, int *val,
-> > +                           int *val2, long mask)
-> > +{
-> > +
-> > +       struct mcp2221_iio *priv = iio_priv(indio_dev);
-> > +       struct mcp2221 *mcp = priv->mcp;
-> > +       int ret;
-> > +
-> > +       mutex_lock(&mcp->lock);
-> > +
-> > +       /* Read ADC values */
-> > +       ret = mcp_chk_last_cmd_status(mcp);
-> > +       if (ret < 0)
-> > +               return ret;
-> > +
-> > +       *val = le16_to_cpu(mcp->adc_values[channel->channel]);
-> > +
-> > +       mutex_unlock(&mcp->lock);
-> > +
-> > +       return IIO_VAL_INT;
-> > +}
-> > +
-> > +static const struct iio_info mcp2221_info = {
-> > +       .read_raw = &mcp2221_read_raw,
-> > +};
-> > +
-> > +#define MCP2221_ADC_CHANNEL(idx) \
-> > +       { \
-> > +               .type = IIO_VOLTAGE, \
-> > +               .indexed = 1, \
-> > +               .channel = idx, \
-> > +               .info_mask_separate = BIT(IIO_CHAN_INFO_RAW), \
-> > +               .scan_index = -1, \
-> > +       }
-> > +
-> > +static const struct iio_chan_spec mcp2221_channels[] = {
-> > +       MCP2221_ADC_CHANNEL(0),
-> > +       MCP2221_ADC_CHANNEL(1),
-> > +       MCP2221_ADC_CHANNEL(2),
-> > +};
-> > +
-> >  static int mcp2221_probe(struct hid_device *hdev,
-> >                                         const struct hid_device_id *id)
-> >  {
-> >         int ret;
-> >         struct mcp2221 *mcp;
-> > +       struct mcp2221_iio *iio;
-> >
-> >         mcp = devm_kzalloc(&hdev->dev, sizeof(*mcp), GFP_KERNEL);
-> >         if (!mcp)
-> > @@ -869,8 +922,17 @@ static int mcp2221_probe(struct hid_device *hdev,
-> >         if (ret)
-> >                 goto err_gc;
-> >
-> > -       return 0;
-> > +       mcp->indio_dev = devm_iio_device_alloc(&hdev->dev, sizeof(*iio));
-> > +       iio = iio_priv(mcp->indio_dev);
-> > +       iio->mcp = mcp;
-> > +
-> > +       mcp->indio_dev->name = "mcp2221_adc";
-> > +       mcp->indio_dev->modes = INDIO_DIRECT_MODE;
-> > +       mcp->indio_dev->info = &mcp2221_info;
-> > +       mcp->indio_dev->channels = mcp2221_channels;
-> > +       mcp->indio_dev->num_channels = ARRAY_SIZE(mcp2221_channels);
-> >
-> > +       return iio_device_register(mcp->indio_dev);
-> >  err_gc:
-> >         i2c_del_adapter(&mcp->adapter);
-> >  err_i2c:
-> > @@ -884,6 +946,7 @@ static void mcp2221_remove(struct hid_device *hdev)
-> >  {
-> >         struct mcp2221 *mcp = hid_get_drvdata(hdev);
-> >
-> > +       iio_device_unregister(mcp->indio_dev);
-> >         i2c_del_adapter(&mcp->adapter);
-> >         hid_hw_close(mcp->hdev);
-> >         hid_hw_stop(mcp->hdev);
-> > --
-> > 2.20.1
-> >
+The justification for this is explained in this same changelog text:
+
+Now that the -Wimplicit-fallthrough option has been globally enabled[5],
+any compiler should really warn on missing either a fallthrough annotation
+or any of the other case-terminating statements (break/continue/return/
+goto) when falling through to the next case statement. Making exceptions
+to this introduces variation in case handling which may continue to lead
+to bugs, misunderstandings, and a general lack of robustness. The point
+of enabling options like -Wimplicit-fallthrough is to prevent human error
+and aid developers in spotting bugs before their code is even built/
+submitted/committed, therefore eliminating classes of bugs. So, in order
+to really accomplish this, we should, and can, move in the direction of
+addressing any error-prone scenarios and get rid of the unintentional
+fallthrough bug-class in the kernel, entirely, even if there is some minor
+redundancy. Better to have explicit case-ending statements than continue to
+have exceptions where one must guess as to the right result. The compiler
+will eliminate any actual redundancy.
+
+Note that there is already a patch in mainline that addresses almost
+40,000 of these issues[6].
+
+[1] commit e2079e93f562c ("kbuild: Do not enable -Wimplicit-fallthrough for clang for now")
+[2] ClangBuiltLinux#636
+[3] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91432
+[4] https://godbolt.org/z/xgkvIh
+[5] commit a035d552a93b ("Makefile: Globally enable fall-through warning")
+[6] commit 4169e889e588 ("include: jhash/signal: Fix fall-through warnings for Clang")
+
+Thanks
+--
+Gustavo

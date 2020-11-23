@@ -7,38 +7,39 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F38BC83014
-	for <linux-input@archiver.kernel.org>; Mon, 23 Nov 2020 18:39:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 915C8C8301B
+	for <linux-input@archiver.kernel.org>; Mon, 23 Nov 2020 18:39:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3653320658
-	for <linux-input@archiver.kernel.org>; Mon, 23 Nov 2020 18:39:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 48CB820658
+	for <linux-input@archiver.kernel.org>; Mon, 23 Nov 2020 18:39:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729702AbgKWSjI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 23 Nov 2020 13:39:08 -0500
-Received: from mx2.suse.de ([195.135.220.15]:59350 "EHLO mx2.suse.de"
+        id S2388776AbgKWSjQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 23 Nov 2020 13:39:16 -0500
+Received: from mx2.suse.de ([195.135.220.15]:59432 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387834AbgKWSiw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 23 Nov 2020 13:38:52 -0500
+        id S2387563AbgKWSir (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 23 Nov 2020 13:38:47 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 12AA5AC91;
-        Mon, 23 Nov 2020 18:38:50 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 6EA51AC91;
+        Mon, 23 Nov 2020 18:38:45 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org
+To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Cc:     f.fainelli@gmail.com, linux-pwm@vger.kernel.org,
         bcm-kernel-feedback-list@broadcom.com,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
         wahrenst@gmx.net, linux-input@vger.kernel.org,
         dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
         devel@driverdev.osuosl.org, p.zabel@pengutronix.de,
-        linux-gpio@vger.kernel.org, linus.walleij@linaro.org,
-        linux-clk@vger.kernel.org, sboyd@kernel.org,
-        linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
+        linux-gpio@vger.kernel.org, linux-clk@vger.kernel.org,
+        sboyd@kernel.org, linux-rpi-kernel@lists.infradead.org,
         andy.shevchenko@gmail.com,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v5 08/11] input: raspberrypi-ts: Release firmware handle when not needed
-Date:   Mon, 23 Nov 2020 19:38:29 +0100
-Message-Id: <20201123183833.18750-9-nsaenzjulienne@suse.de>
+Subject: [PATCH v5 04/11] gpio: raspberrypi-exp: Release firmware handle on unbind
+Date:   Mon, 23 Nov 2020 19:38:25 +0100
+Message-Id: <20201123183833.18750-5-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201123183833.18750-1-nsaenzjulienne@suse.de>
 References: <20201123183833.18750-1-nsaenzjulienne@suse.de>
@@ -52,31 +53,29 @@ Use devm_rpi_firmware_get() so as to make sure we release RPi's firmware
 interface when unbinding the device.
 
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Acked-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
 ---
-
-Changes since v3:
- - Release firmware handle in probe function
 
 Changes since v2:
  - Use devm_rpi_firmware_get(), instead of remove function
 
- drivers/input/touchscreen/raspberrypi-ts.c | 2 +-
+ drivers/gpio/gpio-raspberrypi-exp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
-index ef6aaed217cf..5000f5fd9ec3 100644
---- a/drivers/input/touchscreen/raspberrypi-ts.c
-+++ b/drivers/input/touchscreen/raspberrypi-ts.c
-@@ -160,7 +160,7 @@ static int rpi_ts_probe(struct platform_device *pdev)
- 	touchbuf = (u32)ts->fw_regs_phys;
- 	error = rpi_firmware_property(fw, RPI_FIRMWARE_FRAMEBUFFER_SET_TOUCHBUF,
- 				      &touchbuf, sizeof(touchbuf));
--
-+	rpi_firmware_put(fw);
- 	if (error || touchbuf != 0) {
- 		dev_warn(dev, "Failed to set touchbuf, %d\n", error);
- 		return error;
+diff --git a/drivers/gpio/gpio-raspberrypi-exp.c b/drivers/gpio/gpio-raspberrypi-exp.c
+index bb100e0124e6..64a552ecc2ad 100644
+--- a/drivers/gpio/gpio-raspberrypi-exp.c
++++ b/drivers/gpio/gpio-raspberrypi-exp.c
+@@ -208,7 +208,7 @@ static int rpi_exp_gpio_probe(struct platform_device *pdev)
+ 		return -ENOENT;
+ 	}
+ 
+-	fw = rpi_firmware_get(fw_node);
++	fw = devm_rpi_firmware_get(&pdev->dev, fw_node);
+ 	of_node_put(fw_node);
+ 	if (!fw)
+ 		return -EPROBE_DEFER;
 -- 
 2.29.2
 

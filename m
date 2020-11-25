@@ -4,43 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 407A7C8301A
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:40:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62E84C64E8A
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:41:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D838321D91
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:40:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 13F5420872
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:41:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="IksaNElV"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="oXwp8mHl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730941AbgKYPkp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 10:40:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55308 "EHLO mail.kernel.org"
+        id S1730266AbgKYPlc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Nov 2020 10:41:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730974AbgKYPhP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:37:15 -0500
+        id S1730796AbgKYPgu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:36:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED8C121D91;
-        Wed, 25 Nov 2020 15:37:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8708621D7A;
+        Wed, 25 Nov 2020 15:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318634;
-        bh=4J/xFUW6f43gLFA/3m2TEkp+3KqYjcoXS7kTkFRi+lc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=IksaNElVnblGfkXekkaBgPhSkLctluVADPNFmSY2IFclYlhHptx1G3KbCmIFn1RfO
-         o9xps/tS2U++Mz7NtrUKdGf8/RPC2qJYsfvBDA65iEFCkyNlGo1uUJ1I5+Lvw4WaTK
-         h8br6ukWyf3IDgEkJT7EzkOJVLBbnmM9bdwD7mgk=
+        s=default; t=1606318610;
+        bh=kJKwS4GsTZmni+0jTLCZD40IeNVZuyZ27b/reR4p9AQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=oXwp8mHlzHFpu16IfQDSxR1OqVVQB8RxrgnDDrVcSQtENpMfZ6MI+m6Hb/EvoDbJ6
+         hCgIzO44G+iEHyaoCyCeW4Sj0BdhLWLy5EmqvATUK4r8zC8WVaWdzrXlU5qxMoQPGR
+         oASM9YXpxypzibSH+Z1aaRCKB0wn8PG9081sPswA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frank Yang <puilp0502@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+Cc:     Chris Ye <lzye@google.com>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 01/15] HID: cypress: Support Varmilo Keyboards' media hotkeys
-Date:   Wed, 25 Nov 2020 10:36:58 -0500
-Message-Id: <20201125153712.810655-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 08/23] HID: add HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE for Gamevice devices
+Date:   Wed, 25 Nov 2020 10:36:23 -0500
+Message-Id: <20201125153638.810419-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
+References: <20201125153638.810419-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -49,133 +51,51 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Frank Yang <puilp0502@gmail.com>
+From: Chris Ye <lzye@google.com>
 
-[ Upstream commit 652f3d00de523a17b0cebe7b90debccf13aa8c31 ]
+[ Upstream commit f59ee399de4a8ca4d7d19cdcabb4b63e94867f09 ]
 
-The Varmilo VA104M Keyboard (04b4:07b1, reported as Varmilo Z104M)
-exposes media control hotkeys as a USB HID consumer control device, but
-these keys do not work in the current (5.8-rc1) kernel due to the
-incorrect HID report descriptor. Fix the problem by modifying the
-internal HID report descriptor.
+Kernel 5.4 introduces HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, devices need to
+be set explicitly with this flag.
 
-More specifically, the keyboard report descriptor specifies the
-logical boundary as 572~10754 (0x023c ~ 0x2a02) while the usage
-boundary is specified as 0~10754 (0x00 ~ 0x2a02). This results in an
-incorrect interpretation of input reports, causing inputs to be ignored.
-By setting the Logical Minimum to zero, we align the logical boundary
-with the Usage ID boundary.
-
-Some notes:
-
-* There seem to be multiple variants of the VA104M keyboard. This
-  patch specifically targets 04b4:07b1 variant.
-
-* The device works out-of-the-box on Windows platform with the generic
-  consumer control device driver (hidserv.inf). This suggests that
-  Windows either ignores the Logical Minimum/Logical Maximum or
-  interprets the Usage ID assignment differently from the linux
-  implementation; Maybe there are other devices out there that only
-  works on Windows due to this problem?
-
-Signed-off-by: Frank Yang <puilp0502@gmail.com>
+Signed-off-by: Chris Ye <lzye@google.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-cypress.c | 44 ++++++++++++++++++++++++++++++++++-----
- drivers/hid/hid-ids.h     |  2 ++
- 2 files changed, 41 insertions(+), 5 deletions(-)
+ drivers/hid/hid-ids.h    | 4 ++++
+ drivers/hid/hid-quirks.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/hid/hid-cypress.c b/drivers/hid/hid-cypress.c
-index 1689568b597d4..12c5d7c96527a 100644
---- a/drivers/hid/hid-cypress.c
-+++ b/drivers/hid/hid-cypress.c
-@@ -26,19 +26,17 @@
- #define CP_2WHEEL_MOUSE_HACK		0x02
- #define CP_2WHEEL_MOUSE_HACK_ON		0x04
- 
-+#define VA_INVAL_LOGICAL_BOUNDARY	0x08
-+
- /*
-  * Some USB barcode readers from cypress have usage min and usage max in
-  * the wrong order
-  */
--static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+static __u8 *cp_rdesc_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
- 	unsigned int i;
- 
--	if (!(quirks & CP_RDESC_SWAPPED_MIN_MAX))
--		return rdesc;
--
- 	if (*rsize < 4)
- 		return rdesc;
- 
-@@ -51,6 +49,40 @@ static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	return rdesc;
- }
- 
-+static __u8 *va_logical_boundary_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	/*
-+	 * Varmilo VA104M (with VID Cypress and device ID 07B1) incorrectly
-+	 * reports Logical Minimum of its Consumer Control device as 572
-+	 * (0x02 0x3c). Fix this by setting its Logical Minimum to zero.
-+	 */
-+	if (*rsize == 25 &&
-+			rdesc[0] == 0x05 && rdesc[1] == 0x0c &&
-+			rdesc[2] == 0x09 && rdesc[3] == 0x01 &&
-+			rdesc[6] == 0x19 && rdesc[7] == 0x00 &&
-+			rdesc[11] == 0x16 && rdesc[12] == 0x3c && rdesc[13] == 0x02) {
-+		hid_info(hdev,
-+			 "fixing up varmilo VA104M consumer control report descriptor\n");
-+		rdesc[12] = 0x00;
-+		rdesc[13] = 0x00;
-+	}
-+	return rdesc;
-+}
-+
-+static __u8 *cp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+
-+	if (quirks & CP_RDESC_SWAPPED_MIN_MAX)
-+		rdesc = cp_rdesc_fixup(hdev, rdesc, rsize);
-+	if (quirks & VA_INVAL_LOGICAL_BOUNDARY)
-+		rdesc = va_logical_boundary_fixup(hdev, rdesc, rsize);
-+
-+	return rdesc;
-+}
-+
- static int cp_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -131,6 +163,8 @@ static const struct hid_device_id cp_devices[] = {
- 		.driver_data = CP_RDESC_SWAPPED_MIN_MAX },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE),
- 		.driver_data = CP_2WHEEL_MOUSE_HACK },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1),
-+		.driver_data = VA_INVAL_LOGICAL_BOUNDARY },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, cp_devices);
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e18d796d985f8..e9155f7c8c51c 100644
+index d173badafcf1f..6b1c26e6fa4a3 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -330,6 +330,8 @@
- #define USB_DEVICE_ID_CYPRESS_BARCODE_4	0xed81
- #define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
+@@ -451,6 +451,10 @@
+ #define USB_VENDOR_ID_FRUCTEL	0x25B6
+ #define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
  
-+#define USB_DEVICE_ID_CYPRESS_VARMILO_VA104M_07B1   0X07b1
++#define USB_VENDOR_ID_GAMEVICE	0x27F8
++#define USB_DEVICE_ID_GAMEVICE_GV186	0x0BBE
++#define USB_DEVICE_ID_GAMEVICE_KISHI	0x0BBF
 +
- #define USB_VENDOR_ID_DATA_MODUL	0x7374
- #define USB_VENDOR_ID_DATA_MODUL_EASYMAXTOUCH	0x1201
- 
+ #define USB_VENDOR_ID_GAMERON		0x0810
+ #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
+ #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index abee4e950a4ee..60d188a704e5e 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -85,6 +85,10 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_GV186),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 -- 
 2.27.0
 

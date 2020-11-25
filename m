@@ -4,43 +4,42 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B8B9C6379D
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:42:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7349CC6379D
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:44:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3A450206CA
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:42:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 14A7120872
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:44:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="LeZKwcBI"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ldl1U5fH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730445AbgKYPgJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 10:36:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53518 "EHLO mail.kernel.org"
+        id S1730115AbgKYPfy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Nov 2020 10:35:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730420AbgKYPgJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:36:09 -0500
+        id S1725792AbgKYPfy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:35:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5979320BED;
-        Wed, 25 Nov 2020 15:36:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF4FF20872;
+        Wed, 25 Nov 2020 15:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318568;
-        bh=yHSAuWvarhHnzBKfK31tOI4gNfsowSUP5J5DKDVzLzg=;
+        s=default; t=1606318553;
+        bh=PhV5uaDhmqHw5CUW204MCd55v6G2ULGtBNvW9ZgaP6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LeZKwcBIp1NoB7l5f4KLbjHLH9AnPuB3X/DhRZuACjcmbhYKkjDuik+BtBFxHkTwz
-         BeAOpp0dmcrp6iYzhyk9y/pZFHY+F0GWejnfZbr517XUBR0baJBCjMAdZuwvvk9f7M
-         gJ+zYih3uFYSLAbQVmGSI2YcWXWyb5mOcWgQYhtY=
+        b=Ldl1U5fH3xTw4bhORhKW8VxwOU9NZnDT5QymhCqlIfyBbbtnttmljH0xIuG+7h5p+
+         ROChHTDmpNGyjP0vuBed0CJV6pErrv5uiYHN8EgoGfyFKpcSu15t2x83jic6FeuJru
+         oWupqEcIWegnV2q3QJgf522d48JVlaiIjnwhDGmw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 13/33] HID: Add Logitech Dinovo Edge battery quirk
-Date:   Wed, 25 Nov 2020 10:35:30 -0500
-Message-Id: <20201125153550.810101-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 02/33] HID: ite: Replace ABS_MISC 120/121 events with touchpad on/off keypresses
+Date:   Wed, 25 Nov 2020 10:35:19 -0500
+Message-Id: <20201125153550.810101-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153550.810101-1-sashal@kernel.org>
 References: <20201125153550.810101-1-sashal@kernel.org>
@@ -54,51 +53,126 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 7940fb035abd88040d56be209962feffa33b03d0 ]
+[ Upstream commit 3c785a06dee99501a17f8e8cf29b2b7e3f1e94ea ]
 
-The battery status is also being reported by the logitech-hidpp driver,
-so ignore the standard HID battery status to avoid reporting the same
-info twice.
+The usb-hid keyboard-dock for the Acer Switch 10 SW5-012 model declares
+an application and hid-usage page of 0x0088 for the INPUT(4) report which
+it sends. This reports contains 2 8-bit fields which are declared as
+HID_MAIN_ITEM_VARIABLE.
 
-Note the logitech-hidpp battery driver provides more info, such as properly
-differentiating between charging and discharging. Also the standard HID
-battery info seems to be wrong, reporting a capacity of just 26% after
-fully charging the device.
+The keyboard-touchpad combo never actually generates this report, except
+when the touchpad is toggled on/off with the Fn + F7 hotkey combo. The
+toggle on/off is handled inside the keyboard-dock, when the touchpad is
+toggled off it simply stops sending events.
+
+When the touchpad is toggled on/off an INPUT(4) report is generated with
+the first content byte set to 120/121, before this commit the kernel
+would report this as ABS_MISC 120/121 events.
+
+Patch the descriptor to replace the HID_MAIN_ITEM_VARIABLE with
+HID_MAIN_ITEM_RELATIVE (because no key-presss release events are send)
+and add mappings for the 0x00880078 and 0x00880079 usages to generate
+touchpad on/off key events when the touchpad is toggled on/off.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/hid/hid-ite.c | 61 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 60 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 96e84a51f6b2c..a6d63a7590434 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -749,6 +749,7 @@
- #define USB_VENDOR_ID_LOGITECH		0x046d
- #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
- #define USB_DEVICE_ID_LOGITECH_T651	0xb00c
-+#define USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD	0xb309
- #define USB_DEVICE_ID_LOGITECH_C007	0xc007
- #define USB_DEVICE_ID_LOGITECH_C077	0xc077
- #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 9770db624bfaf..4dca113924593 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -319,6 +319,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 		USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
-+		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
+diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+index 044a93f3c1178..742c052b0110a 100644
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -11,6 +11,48 @@
  
+ #include "hid-ids.h"
+ 
++#define QUIRK_TOUCHPAD_ON_OFF_REPORT		BIT(0)
++
++static __u8 *ite_report_fixup(struct hid_device *hdev, __u8 *rdesc, unsigned int *rsize)
++{
++	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
++
++	if (quirks & QUIRK_TOUCHPAD_ON_OFF_REPORT) {
++		if (*rsize == 188 && rdesc[162] == 0x81 && rdesc[163] == 0x02) {
++			hid_info(hdev, "Fixing up ITE keyboard report descriptor\n");
++			rdesc[163] = HID_MAIN_ITEM_RELATIVE;
++		}
++	}
++
++	return rdesc;
++}
++
++static int ite_input_mapping(struct hid_device *hdev,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit,
++		int *max)
++{
++
++	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
++
++	if ((quirks & QUIRK_TOUCHPAD_ON_OFF_REPORT) &&
++	    (usage->hid & HID_USAGE_PAGE) == 0x00880000) {
++		if (usage->hid == 0x00880078) {
++			/* Touchpad on, userspace expects F22 for this */
++			hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_F22);
++			return 1;
++		}
++		if (usage->hid == 0x00880079) {
++			/* Touchpad off, userspace expects F23 for this */
++			hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_F23);
++			return 1;
++		}
++		return -1;
++	}
++
++	return 0;
++}
++
+ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+ 		     struct hid_usage *usage, __s32 value)
+ {
+@@ -37,13 +79,27 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+ 	return 0;
+ }
+ 
++static int ite_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++
++	hid_set_drvdata(hdev, (void *)id->driver_data);
++
++	ret = hid_open_report(hdev);
++	if (ret)
++		return ret;
++
++	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++}
++
+ static const struct hid_device_id ite_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
+ 	/* ITE8595 USB kbd ctlr, with Synaptics touchpad connected to it. */
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_SYNAPTICS,
+-		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012) },
++		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012),
++	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
+ 	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_SYNAPTICS,
+@@ -55,6 +111,9 @@ MODULE_DEVICE_TABLE(hid, ite_devices);
+ static struct hid_driver ite_driver = {
+ 	.name = "itetech",
+ 	.id_table = ite_devices,
++	.probe = ite_probe,
++	.report_fixup = ite_report_fixup,
++	.input_mapping = ite_input_mapping,
+ 	.event = ite_event,
+ };
+ module_hid_driver(ite_driver);
 -- 
 2.27.0
 

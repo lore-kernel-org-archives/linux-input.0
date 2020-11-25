@@ -4,47 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CD26C71156
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:39:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F2E7C64E75
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:40:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D5DB221EB
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:39:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE45F21D91
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:40:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="CGi/ivRu"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="vp1SWhb7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726039AbgKYPjK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 10:39:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56676 "EHLO mail.kernel.org"
+        id S1731244AbgKYPh6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Nov 2020 10:37:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731348AbgKYPiM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:38:12 -0500
+        id S1731235AbgKYPh5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4226821D81;
-        Wed, 25 Nov 2020 15:38:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFCDD221F9;
+        Wed, 25 Nov 2020 15:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318692;
+        s=default; t=1606318676;
         bh=VvoB9O3rvgqVIAQwDatIjWbfAN0MypYcrzKss5mVpEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CGi/ivRuH+rkY9RZjgiZ54kbhBEfVJMhw1aLIdLlAQK86CGBHPLu1FPBJCHHwxGgy
-         +0Ck7bi4ulzAE1yuMLJSW7lurvuIuwl9D6To4zQVkqC4U5qAZvtWOPaChSmlDGciTj
-         d43QxT3nkfMY7kGZj1rqHZFFqk/JKRHD9TwSoEaE=
+        b=vp1SWhb7gTSVwYlB5vsQH9ZLBwWhodOnrvUQ6+dByw0VM/uaiurAe3u5eVXsZVYp8
+         rb6fP9WcggzZRJA1aDHt4yWJoOOOXKfPOTBScxrUcHSzDjEAq71wr4Lo3tKP8JJE//
+         uwjOLpD095/AwiT2vilI1BmpugfaOv157Rb6bAq8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Marius Iacob <themariusus@gmail.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 2/8] Input: i8042 - allow insmod to succeed on devices without an i8042 controller
-Date:   Wed, 25 Nov 2020 10:38:02 -0500
-Message-Id: <20201125153808.811104-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 02/10] Input: i8042 - allow insmod to succeed on devices without an i8042 controller
+Date:   Wed, 25 Nov 2020 10:37:45 -0500
+Message-Id: <20201125153753.810973-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201125153808.811104-1-sashal@kernel.org>
-References: <20201125153808.811104-1-sashal@kernel.org>
+In-Reply-To: <20201125153753.810973-1-sashal@kernel.org>
+References: <20201125153753.810973-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore

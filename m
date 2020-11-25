@@ -4,48 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC78CC8301A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 670ECC83019
 	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:41:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9453220BED
+	by mail.kernel.org (Postfix) with ESMTP id 22C0820872
 	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:41:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="ueFSlCq9"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="kraAifBk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730767AbgKYPlk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 10:41:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54694 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730773AbgKYPgs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1730775AbgKYPgs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 25 Nov 2020 10:36:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54570 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730754AbgKYPgp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:36:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 886EC21D81;
-        Wed, 25 Nov 2020 15:36:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 094F221D40;
+        Wed, 25 Nov 2020 15:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318607;
-        bh=uOekAwoa5nNQ8ROk2QR8D+nSv/F4MyHfZEL3hys9E8s=;
+        s=default; t=1606318604;
+        bh=Yj/2xpRPlrshjqL8YeXDyOvWc/YshrQaPA0IU4meP64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ueFSlCq988sD1WQH29qcwGtxZp/+7PYoitWS9dxcvOFhlA2wWY/3s3zCkof9Zhp+F
-         WsOesdHxWCL5+yes+Uq+HXY+HzTc+9etr97SE5Wf4A79je3n9qrCCtO8+/CRyza4D5
-         YT4hLEe36L1FwpvfXAlYUa+c36s9cNKew4jF7+xo=
+        b=kraAifBkZ/1j3mnG3nfNb8JvhulQcJwCEWlBqs5xs1gmMhzi0+0wvqGHu8uvhBXbq
+         gzFAt8r1ryjj/7Oz4Bz0HL2uaPKl7E/XY0NpZE+p9Th9qTCrtX+yKDZlcYXzM6g7A6
+         wK3dgBz84x9JUfGqvgj62GCGRuEgNyous0efsKd4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Ceballos <pceballos@google.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 06/23] HID: hid-sensor-hub: Fix issue with devices with no report ID
-Date:   Wed, 25 Nov 2020 10:36:21 -0500
-Message-Id: <20201125153638.810419-6-sashal@kernel.org>
+Cc:     Jiri Kosina <jkosina@suse.cz>,
+        =?UTF-8?q?David=20G=C3=A1miz=20Jim=C3=A9nez?= 
+        <david.gamiz@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 04/23] HID: add support for Sega Saturn
+Date:   Wed, 25 Nov 2020 10:36:19 -0500
+Message-Id: <20201125153638.810419-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
 References: <20201125153638.810419-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,37 +54,45 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Pablo Ceballos <pceballos@google.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit 34a9fa2025d9d3177c99351c7aaf256c5f50691f ]
+[ Upstream commit 1811977cb11354aef8cbd13e35ff50db716728a4 ]
 
-Some HID devices don't use a report ID because they only have a single
-report. In those cases, the report ID in struct hid_report will be zero
-and the data for the report will start at the first byte, so don't skip
-over the first byte.
+This device needs HID_QUIRK_MULTI_INPUT in order to be presented to userspace
+in a consistent way.
 
-Signed-off-by: Pablo Ceballos <pceballos@google.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Reported-and-tested-by: David Gámiz Jiménez <david.gamiz@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sensor-hub.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 94c7398b5c279..3dd7d32467378 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -483,7 +483,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 		return 1;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b2c86403e43b1..d173badafcf1f 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -489,6 +489,7 @@
+ #define USB_DEVICE_ID_PENPOWER		0x00f4
  
- 	ptr = raw_data;
--	ptr++; /* Skip report id */
-+	if (report->id)
-+		ptr++; /* Skip report id */
+ #define USB_VENDOR_ID_GREENASIA		0x0e8f
++#define USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR 0x3010
+ #define USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD	0x3013
  
- 	spin_lock_irqsave(&pdata->lock, flags);
- 
+ #define USB_VENDOR_ID_GRETAGMACBETH	0x0971
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 0440e2f6e8a3c..abee4e950a4ee 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -83,6 +83,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 -- 
 2.27.0
 

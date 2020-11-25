@@ -4,45 +4,49 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3292DC6379D
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:35:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 462E1C56202
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:36:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE073208CA
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:35:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DACFB21D81
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:36:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="OxEhw3GA"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="gW1G1qWL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729153AbgKYPfx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 10:35:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53280 "EHLO mail.kernel.org"
+        id S1730345AbgKYPf5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Nov 2020 10:35:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725792AbgKYPfx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:35:53 -0500
+        id S1725792AbgKYPf5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:35:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A94C7206CA;
-        Wed, 25 Nov 2020 15:35:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74634206CA;
+        Wed, 25 Nov 2020 15:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318552;
-        bh=tCPauijckKAUxxrQpZinVNNIqmG0cK/SIAZLG7Y4xcQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=OxEhw3GABRWCadfzNOTF0TamDwcnY1Zz1XtF9hKoWTMs57mR79L6Gl4C8osjtwimK
-         iBCVNGMvJKh3TyvOXDRbj9i+pe/GUNgTMXjh5UTlPWilUYp/OHaHA0AIHXgnnbV+D2
-         VIlfGy1VmYVaIP1XWcx0uZdnmCJQIJT7cuvE8PpQ=
+        s=default; t=1606318556;
+        bh=nSBE3Dt+yeKZiY7pyF6JCSn3M6CDq0UbIes3scnlkg0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gW1G1qWLJ+TPhzZC8+w1uuYTjTNcTWL+3kyVyedr4d3gargCcVLxlskOUSGzjrECw
+         f2m18b2xTGf42DrD2QlPA8EWOrwGbbyRPHNGDnZ5IVshvKP9T7pFE7g0d5p8wrEcvz
+         ZAzJIYrfZidia1M2qCUdFQu3QI1OpxbO/F5A64mc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martijn van de Streek <martijn@zeewinde.xyz>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+Cc:     Jiri Kosina <jkosina@suse.cz>,
+        =?UTF-8?q?David=20G=C3=A1miz=20Jim=C3=A9nez?= 
+        <david.gamiz@gmail.com>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 01/33] HID: uclogic: Add ID for Trust Flex Design Tablet
-Date:   Wed, 25 Nov 2020 10:35:18 -0500
-Message-Id: <20201125153550.810101-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 04/33] HID: add support for Sega Saturn
+Date:   Wed, 25 Nov 2020 10:35:21 -0500
+Message-Id: <20201125153550.810101-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201125153550.810101-1-sashal@kernel.org>
+References: <20201125153550.810101-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,61 +54,45 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Martijn van de Streek <martijn@zeewinde.xyz>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit 022fc5315b7aff69d3df2c953b892a6232642d50 ]
+[ Upstream commit 1811977cb11354aef8cbd13e35ff50db716728a4 ]
 
-The Trust Flex Design Tablet has an UGTizer USB ID and requires the same
-initialization as the UGTizer GP0610 to be detected as a graphics tablet
-instead of a mouse.
+This device needs HID_QUIRK_MULTI_INPUT in order to be presented to userspace
+in a consistent way.
 
-Signed-off-by: Martijn van de Streek <martijn@zeewinde.xyz>
+Reported-and-tested-by: David Gámiz Jiménez <david.gamiz@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h            | 1 +
- drivers/hid/hid-uclogic-core.c   | 2 ++
- drivers/hid/hid-uclogic-params.c | 2 ++
- 3 files changed, 5 insertions(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 79495e218b7fc..6b7f90a4721f0 100644
+index 8e7bd9f1b029c..6d6c961f8fee7 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -1297,6 +1297,7 @@
+@@ -487,6 +487,7 @@
+ #define USB_DEVICE_ID_PENPOWER		0x00f4
  
- #define USB_VENDOR_ID_UGTIZER			0x2179
- #define USB_DEVICE_ID_UGTIZER_TABLET_GP0610	0x0053
-+#define USB_DEVICE_ID_UGTIZER_TABLET_GT5040	0x0077
+ #define USB_VENDOR_ID_GREENASIA		0x0e8f
++#define USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR 0x3010
+ #define USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD	0x3013
  
- #define USB_VENDOR_ID_VIEWSONIC			0x0543
- #define USB_DEVICE_ID_VIEWSONIC_PD1011		0xe621
-diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index 86b568037cb8a..8e9c9e646cb7d 100644
---- a/drivers/hid/hid-uclogic-core.c
-+++ b/drivers/hid/hid-uclogic-core.c
-@@ -385,6 +385,8 @@ static const struct hid_device_id uclogic_devices[] = {
- 				USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER,
- 				USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER,
-+				USB_DEVICE_ID_UGTIZER_TABLET_GT5040) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
- 				USB_DEVICE_ID_UGEE_TABLET_G5) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 7d20d1fcf8d20..d26d8cd98efcf 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -997,6 +997,8 @@ int uclogic_params_init(struct uclogic_params *params,
- 		break;
- 	case VID_PID(USB_VENDOR_ID_UGTIZER,
- 		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
-+	case VID_PID(USB_VENDOR_ID_UGTIZER,
-+		     USB_DEVICE_ID_UGTIZER_TABLET_GT5040):
- 	case VID_PID(USB_VENDOR_ID_UGEE,
- 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540):
- 	case VID_PID(USB_VENDOR_ID_UGEE,
+ #define USB_VENDOR_ID_GRETAGMACBETH	0x0971
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 7a2be0205dfd1..b154e11d43bfa 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -83,6 +83,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 -- 
 2.27.0
 

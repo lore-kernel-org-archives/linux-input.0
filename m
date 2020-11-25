@@ -2,107 +2,127 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97D01C64E7A
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 22:40:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B3A7C56202
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 22:42:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5762A206B5
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 22:40:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A1EF3206C0
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 22:42:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=fourwalledcubicle-com.20150623.gappssmtp.com header.i=@fourwalledcubicle-com.20150623.gappssmtp.com header.b="ZBdyOg8q"
+	dkim=pass (2048-bit key) header.d=fourwalledcubicle-com.20150623.gappssmtp.com header.i=@fourwalledcubicle-com.20150623.gappssmtp.com header.b="iJNUyqW4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726802AbgKYWkI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 17:40:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60164 "EHLO
+        id S1727742AbgKYWmX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Nov 2020 17:42:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725836AbgKYWkI (ORCPT
+        with ESMTP id S1727736AbgKYWmX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Nov 2020 17:40:08 -0500
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A61BC0613D4
-        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2020 14:39:50 -0800 (PST)
-Received: by mail-pl1-x644.google.com with SMTP id s2so122578plr.9
-        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2020 14:39:50 -0800 (PST)
+        Wed, 25 Nov 2020 17:42:23 -0500
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC7CC0613D4
+        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2020 14:42:11 -0800 (PST)
+Received: by mail-pg1-x542.google.com with SMTP id t37so3682370pga.7
+        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2020 14:42:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=fourwalledcubicle-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=IW0lJQ7bFIC6blTN8rxreqjzLbzcm4ylipUCl3e68EY=;
-        b=ZBdyOg8qOIu/DHEq9f5yh38NvQGZQZo/0OC7/COfsjQqNfxZnXtSim7O1ST9xdFHkE
-         WqCUMUXW+MHNGw4SWoN0r8uCr/CnOvpAaE3KwsHY27+9ryjBsZTsdAsuAsBFr2tUR5EQ
-         kf+c5QF5Q4j5nHSQBIVH2WhGuRVJfWjJIpvjBDaAsI8k1knwJ3vXDrQwD2/yQgMrOrGp
-         d9xRXNRAZPpZZ4iVdQ4CkKm6VOHOE20nE2L1H9QnMuTHkwxo/DSIt7ydnRVBaLR+2EUm
-         bpYpV4SuYZ3ey8FdYQz14egow/x+TsZ5LYWwZKcQXZRtPw1NOumNCTKoFb0AUHGPPgqx
-         Ltcg==
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=atGY8NqASiaGygUZ+69zYOZlPyFLaORocERIPi5FmfQ=;
+        b=iJNUyqW4JvKBfOggU/cFp2s0qZ3BNtmP+S/HFTBbdGu/TkuHP58USpB5xepFhD1ZCG
+         qyuEzF3kZiIlag606wT/rpmCZqMwgjkj9WlInvERfXdFsRoWFHjktneghd8xlVVXjcq/
+         bntlb+6qY+8rQUaSyl/d/R9VnhkbGD5Nc5rPlSgQ8UZvY/C/zvD8+q69a+dGOfToytbp
+         47UEdAy4Qx1f6Qmsy6rYOw0m6ENGwh6wG9Ccl6ceP6TZlvJOBeuarkArGsNYex6pDnIS
+         f/te0/crkEKH7e5sXhRvDOG4gsAYv82SPLpiQ8U3A5V+ESk6q3xkPggvQ/dKiycT4C1i
+         lvbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=IW0lJQ7bFIC6blTN8rxreqjzLbzcm4ylipUCl3e68EY=;
-        b=o1FndC2xPmEA7DaAtJimaQUNfFi96JiBlUv8Js9vJqLKb7sh1sbSWPpWJncriCDexu
-         up6Sg7+Zx7ALiu6iBeiy9Z82cLckJXX57Tf9ycRjXgaNno6Y5NOaWDq9gJVoTvCrvfZD
-         zPynKq2RIHe8ajhi1YZNA53Q3+y//oy8I6yZdqXKUDdrpsH78nGFNOmee55sg/6G5VXZ
-         6OadLulN3VX1PoOf55195puxl0KGGEj4FzfTfsSrKtC2fqRyC16VJRvo45IYK7aSXvkw
-         GG6kyf1+6V3QFV2umAQpvgkZdJguZG1TuUR1YJ2w4DP1njOXlpSc9Jy4DsxJcUxm9nJN
-         oOTQ==
-X-Gm-Message-State: AOAM531I4WieGNg7TOgwImf1bOe3ktvb9qplHxDrRarzEPY2FMAEeb7a
-        EtEGHXbnDeLSq6KcnLb3QtTi8NKeigoyO0DG
-X-Google-Smtp-Source: ABdhPJyVBVwv6y7/pi3iWiPUuLzkhF18UkqnnB9EpNoxbtZYEsT2Isp+oyAk1G+8VZGpt/lpxn4FTg==
-X-Received: by 2002:a17:902:bd41:b029:d8:f07f:4815 with SMTP id b1-20020a170902bd41b02900d8f07f4815mr37374plx.70.1606343989294;
-        Wed, 25 Nov 2020 14:39:49 -0800 (PST)
-Received: from localhost.localdomain (203-123-108-233.ip4.superloop.com. [203.123.108.233])
-        by smtp.googlemail.com with ESMTPSA id j10sm2987474pgc.85.2020.11.25.14.39.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Nov 2020 14:39:48 -0800 (PST)
+        bh=atGY8NqASiaGygUZ+69zYOZlPyFLaORocERIPi5FmfQ=;
+        b=IL5VT4BKZJ/qR7WMi/1SjYRIFJgLY8v/yKgPUprKsVniR7cv39OJ2Mw8S2P0sWm70/
+         UkBykVsZwBf/4dy+nwSXPwsqNQbLQRpliCnQx01zEkHYlLzHK2rLvBIZG+IDHnNhud2C
+         NpLbYNEnWVXd+8C5cYbmtkIKp6/uj725wfmobhDNmeyi5bK220/qg2jq6vJbS2u7UN6z
+         8TeQ1lwdwY/a8TOk7MmdE9PoRgNn3uCRO1q+jdy0t4COHnDFALpTlLjtwGUXGYv9Om/i
+         5UO0xZ3579E8m3baK6whRtYZ799IgleY+TDEsfx/uVoU46D3nOwF2lIbiOXFhBsp0hCy
+         /Bfw==
+X-Gm-Message-State: AOAM530CRT6eoIBT75/1eOiVtIhehF5W0VuEPl2+SWst3bYzWjhUyYLh
+        KCc/Xx3rIs136GKAKPVcNuXkvZ4fiLEkJwcR
+X-Google-Smtp-Source: ABdhPJxRlHHQ2CZrI/+/1LN55LgYH3ZNr2A4tEjxR51GTOg1e6AC/i6M8CyJbwGUCccFkLFFMBn+ww==
+X-Received: by 2002:a17:90a:d249:: with SMTP id o9mr7031256pjw.158.1606344130417;
+        Wed, 25 Nov 2020 14:42:10 -0800 (PST)
+Received: from [10.0.0.4] (203-123-108-233.ip4.superloop.com. [203.123.108.233])
+        by smtp.gmail.com with ESMTPSA id gb4sm3943562pjb.30.2020.11.25.14.42.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Nov 2020 14:42:09 -0800 (PST)
+Subject: Re: [PATCH 1/2] Increase HID_MAX_BUFFER_SIZE to 8KB to support
+ additional, devices.
 From:   Dean Camera <dean@fourwalledcubicle.com>
-To:     linux-input@vger.kernel.org, jikos@kernel.org,
-        benjamin.tissoires@redhat.com
-Cc:     Dean Camera <dean@fourwalledcubicle.com>
-Subject: [V3, PATCH] Increase HID maximum packet size to 16KB.
-Date:   Thu, 26 Nov 2020 09:39:34 +1100
-Message-Id: <20201125223934.5861-1-dean@fourwalledcubicle.com>
-X-Mailer: git-send-email 2.25.1
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org
+References: <acdda6f0-3675-7e8b-b57c-711fe8199ce9@fourwalledcubicle.com>
+ <nycvar.YFH.7.76.2011251412230.3441@cbobk.fhfr.pm>
+ <74873fa6-0234-b642-adb3-62683671222a@fourwalledcubicle.com>
+Message-ID: <a0413872-9649-ed63-0915-2162d5fde9fb@fourwalledcubicle.com>
+Date:   Thu, 26 Nov 2020 09:42:05 +1100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <74873fa6-0234-b642-adb3-62683671222a@fourwalledcubicle.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Currently the maximum HID report size which can be buffered by the
-kernel is 8KB. This is sufficient for the vast majority of HID
-devices on the market, as most HID reports are fairly small.
+Argh, and of course I forgot I hadn't added the requisite cover letter 
+and descriptions for those patches on that machine.
 
-However, some unusual devices such as the Elgate Stream Deck exist
-which use a report size slightly over 8KB for the image data that
-is sent to the device. Reports these large cannot be buffered by
-the regular HID subsystem currently, thus the only way to use such
-device is to bypass the HID subsystem entirely.
+Sorry for the noise - I've sent V3 of both which should now be formatted 
+correctly, and have the correct description.
 
-This increases the maximum HID report size to 16KB, which should
-cover all sanely designed HID devices.
+- Dean
 
-Signed-off-by: Dean Camera <dean@fourwalledcubicle.com>
----
- include/linux/hid.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 58684657960b..2faa7aba67ed 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -494,7 +494,7 @@ struct hid_report_enum {
- };
- 
- #define HID_MIN_BUFFER_SIZE	64		/* make sure there is at least a packet size of space */
--#define HID_MAX_BUFFER_SIZE	8192		/* 8kb */
-+#define HID_MAX_BUFFER_SIZE	16384		/* 16kb */
- #define HID_CONTROL_FIFO_SIZE	256		/* to init devices with >100 reports */
- #define HID_OUTPUT_FIFO_SIZE	64
- 
--- 
-2.25.1
-
+On 26/11/2020 9:26 am, Dean Camera wrote:
+> Sure, I'll do that now (and do the same for my other unreviewed patch, 
+> which adds additional ioctls(). It's suprisingly frustratingly difficult 
+> to get Thunderbird to send a one-time unformatted plain-text email, as 
+> it seems to be a global setting that has to be changed.
+> 
+> I've given up on that and just set up git-send-email, which I've never 
+> used before but hope doesn't mangle anything.
+> 
+> Cheers!
+> - Dean
+> 
+> On 26/11/2020 12:12 am, Jiri Kosina wrote:
+>> On Wed, 18 Nov 2020, Dean Camera wrote:
+>>
+>>> Currently the maximum HID report size which can be buffered by the
+>>> kernel is 8KB. This is sufficient for the vast majority of HID
+>>> devices on the market, as most HID reports are fairly small.
+>>>
+>>> However, some unusual devices such as the Elgate Stream Deck exist
+>>> which use a report size slightly over 8KB for the image data that
+>>> is sent to the device. Reports these large cannot be buffered by
+>>> the regular HID subsystem currently, thus the only way to use such
+>>> device is to bypass the HID subsystem entirely.
+>>>
+>>> This increases the maximum HID report size to 16KB, which should
+>>> cover all sanely designed HID devices.
+>>>
+>>> Signed-off-by: Dean Camera <dean@fourwalledcubicle.com>
+>>
+>> Dean,
+>>
+>> thanks for the patch.
+>>
+>> It has been whitespace-damaged by your mail client though. Could you
+>> please fix that and resubmit?
+>>

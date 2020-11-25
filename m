@@ -5,45 +5,48 @@ X-Spam-Level:
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73929C63798
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:40:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B5ECC83018
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:40:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 20824221EB
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:40:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1EAAE21D81
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:40:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="mrpFGzJI"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="fnA4XHE+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730293AbgKYPki (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 10:40:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55364 "EHLO mail.kernel.org"
+        id S1730947AbgKYPhR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Nov 2020 10:37:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730994AbgKYPhU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:37:20 -0500
+        id S1730988AbgKYPhR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35C3021D81;
-        Wed, 25 Nov 2020 15:37:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AB9A221F7;
+        Wed, 25 Nov 2020 15:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318640;
-        bh=ZeIzVfLco/GLm6tYbOevg3JIWmsCYliTX+lwwVPA2uE=;
+        s=default; t=1606318636;
+        bh=csn/Hk+YBhchIph27lvMqOAt+Ne57dazRGG/PH73ALY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mrpFGzJIaxniWz05DQavSMvAEhWpVRmCTNcwhChdrqlLW/r47Zm/F8oKVJD74rfj0
-         5rbwdwgYJqsMVTTrwZbHSdZ9omE5iwgjenUNIwZffK9s+5TL4CVWd++QfqBVxfkL1f
-         UBIdR0EyySF4bsly2+2GNjWqyE22wffBF+Fj3khA=
+        b=fnA4XHE+njS5IAa+2KaNGJKmVdDsJz2TxUHCd8c/2by3OlxPJp1k5UcddYcnBltNv
+         ght5/KgCToH1X0lhKBN6kpiLpbMiWrCGnBsQfvLN0xLJipb94cQPSqTFmbhOM9hBnp
+         JJzirP9WkCHLthh0/65TbY3e71jlK/mgXpEzdm8Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Ye <lzye@google.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 05/15] HID: add HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE for Gamevice devices
-Date:   Wed, 25 Nov 2020 10:37:02 -0500
-Message-Id: <20201125153712.810655-5-sashal@kernel.org>
+Cc:     Jiri Kosina <jkosina@suse.cz>,
+        =?UTF-8?q?David=20G=C3=A1miz=20Jim=C3=A9nez?= 
+        <david.gamiz@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 02/15] HID: add support for Sega Saturn
+Date:   Wed, 25 Nov 2020 10:36:59 -0500
+Message-Id: <20201125153712.810655-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153712.810655-1-sashal@kernel.org>
 References: <20201125153712.810655-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,51 +54,45 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Chris Ye <lzye@google.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit f59ee399de4a8ca4d7d19cdcabb4b63e94867f09 ]
+[ Upstream commit 1811977cb11354aef8cbd13e35ff50db716728a4 ]
 
-Kernel 5.4 introduces HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, devices need to
-be set explicitly with this flag.
+This device needs HID_QUIRK_MULTI_INPUT in order to be presented to userspace
+in a consistent way.
 
-Signed-off-by: Chris Ye <lzye@google.com>
+Reported-and-tested-by: David Gámiz Jiménez <david.gamiz@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 4 ++++
- drivers/hid/hid-quirks.c | 4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4d2a1d540a821..ad079aca68898 100644
+index e9155f7c8c51c..4d2a1d540a821 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -444,6 +444,10 @@
- #define USB_VENDOR_ID_FRUCTEL	0x25B6
- #define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
+@@ -479,6 +479,7 @@
+ #define USB_DEVICE_ID_PENPOWER		0x00f4
  
-+#define USB_VENDOR_ID_GAMEVICE	0x27F8
-+#define USB_DEVICE_ID_GAMEVICE_GV186	0x0BBE
-+#define USB_DEVICE_ID_GAMEVICE_KISHI	0x0BBF
-+
- #define USB_VENDOR_ID_GAMERON		0x0810
- #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
- #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
+ #define USB_VENDOR_ID_GREENASIA		0x0e8f
++#define USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR 0x3010
+ #define USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD	0x3013
+ 
+ #define USB_VENDOR_ID_GRETAGMACBETH	0x0971
 diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 493e2e7e12de0..10cb42a00fe87 100644
+index 2d8d20a7f4574..493e2e7e12de0 100644
 --- a/drivers/hid/hid-quirks.c
 +++ b/drivers/hid/hid-quirks.c
-@@ -87,6 +87,10 @@ static const struct hid_device_id hid_quirks[] = {
+@@ -85,6 +85,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_GV186),
-+		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
-+		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 -- 
 2.27.0
 

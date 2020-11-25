@@ -4,46 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2849C83010
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:37:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82B95C8301E
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:37:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8847E221F9
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:37:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F4E621D91
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:37:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="rZ5lBz/5"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="dmZQjVlU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730857AbgKYPg6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 10:36:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55060 "EHLO mail.kernel.org"
+        id S1731015AbgKYPhU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Nov 2020 10:37:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730845AbgKYPg4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:36:56 -0500
+        id S1730988AbgKYPhT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:37:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B067521D1A;
-        Wed, 25 Nov 2020 15:36:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4F12221EB;
+        Wed, 25 Nov 2020 15:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318615;
-        bh=eBUn6N6HB56fq/YgtUfd+rCXKb8wTBrpe4QwH0vJWvU=;
+        s=default; t=1606318638;
+        bh=oyAliAb+r1d1FgAbyRqcN+imWJ8VIKhFjlTvOEeWGmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZ5lBz/5OuxSBvunkdJMI7rvVshllaiyEASI/cLQZ3oNapoq0ohpOXk5xSpMdRS4h
-         30nh/vvgRKYOTxsvQ3PSlkJsIxAZhtvR9EHwzi1YWCyxgBQbZsZyKxfPxcpRbk0l/c
-         wMR8P56puro7Aeh9rfp09VqYIP2Dw7C9LtFGHYDU=
+        b=dmZQjVlUWDi23GsZFcJX6jH57ir3VxqIW8WpgZT3t6mwdwoINh5E77E7UkX4monMP
+         12gDuVauuAcEPLBWF9B5Wahp4HZqFtc4klsbI1gbMVLRXUVNv8/G+jWhi+f9488R1q
+         /osHNocoA5rGqf03j0wIVKxKL8Roa3LDy2Gj0jFs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 12/23] HID: Add Logitech Dinovo Edge battery quirk
-Date:   Wed, 25 Nov 2020 10:36:27 -0500
-Message-Id: <20201125153638.810419-12-sashal@kernel.org>
+Cc:     Pablo Ceballos <pceballos@google.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 04/15] HID: hid-sensor-hub: Fix issue with devices with no report ID
+Date:   Wed, 25 Nov 2020 10:37:01 -0500
+Message-Id: <20201125153712.810655-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
-References: <20201125153638.810419-1-sashal@kernel.org>
+In-Reply-To: <20201125153712.810655-1-sashal@kernel.org>
+References: <20201125153712.810655-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -52,52 +53,36 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Pablo Ceballos <pceballos@google.com>
 
-[ Upstream commit 7940fb035abd88040d56be209962feffa33b03d0 ]
+[ Upstream commit 34a9fa2025d9d3177c99351c7aaf256c5f50691f ]
 
-The battery status is also being reported by the logitech-hidpp driver,
-so ignore the standard HID battery status to avoid reporting the same
-info twice.
+Some HID devices don't use a report ID because they only have a single
+report. In those cases, the report ID in struct hid_report will be zero
+and the data for the report will start at the first byte, so don't skip
+over the first byte.
 
-Note the logitech-hidpp battery driver provides more info, such as properly
-differentiating between charging and discharging. Also the standard HID
-battery info seems to be wrong, reporting a capacity of just 26% after
-fully charging the device.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Pablo Ceballos <pceballos@google.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/hid/hid-sensor-hub.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6b1c26e6fa4a3..2aa810665a78c 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -750,6 +750,7 @@
- #define USB_VENDOR_ID_LOGITECH		0x046d
- #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
- #define USB_DEVICE_ID_LOGITECH_T651	0xb00c
-+#define USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD	0xb309
- #define USB_DEVICE_ID_LOGITECH_C007	0xc007
- #define USB_DEVICE_ID_LOGITECH_C077	0xc077
- #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index b2bff932c524f..b2da8476d0d30 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -319,6 +319,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 		USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
-+		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 4256fdc5cd6d5..21fbdcde1faa1 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -496,7 +496,8 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 		return 1;
+ 
+ 	ptr = raw_data;
+-	ptr++; /* Skip report id */
++	if (report->id)
++		ptr++; /* Skip report id */
+ 
+ 	spin_lock_irqsave(&pdata->lock, flags);
  
 -- 
 2.27.0

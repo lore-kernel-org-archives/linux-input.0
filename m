@@ -4,44 +4,42 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8769DC64E7D
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:44:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FD0DC64E8A
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:44:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 484D420872
+	by mail.kernel.org (Postfix) with ESMTP id BD5AA20872
 	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 15:44:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="APGt027R"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="XeiKjFG1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730364AbgKYPgA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 10:36:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
+        id S1730393AbgKYPgE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Nov 2020 10:36:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730354AbgKYPf6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Nov 2020 10:35:58 -0500
+        id S1730376AbgKYPgC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Nov 2020 10:36:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADF9020872;
-        Wed, 25 Nov 2020 15:35:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2CF22087C;
+        Wed, 25 Nov 2020 15:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606318557;
-        bh=JSZvPBfK4+zCBkiRFC8rx9kLIeN4qNLYFSnGYkiTKek=;
+        s=default; t=1606318561;
+        bh=T5rnfp3F3wYg2Pn8TDnxMX2cqai5pwu2xJg82n5oltc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APGt027RGWNwZjFWhaHFgl+qSCum1s31yjfuOUIBvJ2//LtEPC17FZEgYqy9KuzWn
-         qbaFexOkZPvC9rd11G318lkRJmo3U4uJALRfr3GZNR7XsQgSLOdKAIA4MYE5gWlxM6
-         IsknyjsLQmpD1q/GHjidKYZflgF/i5BmfA2OfyTs=
+        b=XeiKjFG1zSeJZyeN9TPKsBtLskXzL/TBJVUJs4YhKmSzQ7Bi6b9lzqazY5pPG/9Tt
+         y7cZpvuLh+YPi75/uHaWC+cUJWkqMOfFFry2rTCdYbm+KTyZ6LxO4kBq4H8Eo0Lvxh
+         18OPVa/7hjPZ0kAtCWIwyT8aXrZXbfWC8+7OcH6Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Marius Iacob <themariusus@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+Cc:     Chris Ye <lzye@google.com>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 05/33] Input: i8042 - allow insmod to succeed on devices without an i8042 controller
-Date:   Wed, 25 Nov 2020 10:35:22 -0500
-Message-Id: <20201125153550.810101-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 08/33] HID: add HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE for Gamevice devices
+Date:   Wed, 25 Nov 2020 10:35:25 -0500
+Message-Id: <20201125153550.810101-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153550.810101-1-sashal@kernel.org>
 References: <20201125153550.810101-1-sashal@kernel.org>
@@ -53,95 +51,51 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Chris Ye <lzye@google.com>
 
-[ Upstream commit b1884583fcd17d6a1b1bba94bbb5826e6b5c6e17 ]
+[ Upstream commit f59ee399de4a8ca4d7d19cdcabb4b63e94867f09 ]
 
-The i8042 module exports several symbols which may be used by other
-modules.
+Kernel 5.4 introduces HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, devices need to
+be set explicitly with this flag.
 
-Before this commit it would refuse to load (when built as a module itself)
-on systems without an i8042 controller.
-
-This is a problem specifically for the asus-nb-wmi module. Many Asus
-laptops support the Asus WMI interface. Some of them have an i8042
-controller and need to use i8042_install_filter() to filter some kbd
-events. Other models do not have an i8042 controller (e.g. they use an
-USB attached kbd).
-
-Before this commit the asus-nb-wmi driver could not be loaded on Asus
-models without an i8042 controller, when the i8042 code was built as
-a module (as Arch Linux does) because the module_init function of the
-i8042 module would fail with -ENODEV and thus the i8042_install_filter
-symbol could not be loaded.
-
-This commit fixes this by exiting from module_init with a return code
-of 0 if no controller is found.  It also adds a i8042_present bool to
-make the module_exit function a no-op in this case and also adds a
-check for i8042_present to the exported i8042_command function.
-
-The latter i8042_present check should not really be necessary because
-when builtin that function can already be used on systems without
-an i8042 controller, but better safe then sorry.
-
-Reported-and-tested-by: Marius Iacob <themariusus@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201008112628.3979-2-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Chris Ye <lzye@google.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ids.h    | 4 ++++
+ drivers/hid/hid-quirks.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index d3eda48032e39..944cbb519c6d7 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -122,6 +122,7 @@ module_param_named(unmask_kbd_data, i8042_unmask_kbd_data, bool, 0600);
- MODULE_PARM_DESC(unmask_kbd_data, "Unconditional enable (may reveal sensitive data) of normally sanitize-filtered kbd data traffic debug log [pre-condition: i8042.debug=1 enabled]");
- #endif
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6d6c961f8fee7..96e84a51f6b2c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -445,6 +445,10 @@
+ #define USB_VENDOR_ID_FRUCTEL	0x25B6
+ #define USB_DEVICE_ID_GAMETEL_MT_MODE	0x0002
  
-+static bool i8042_present;
- static bool i8042_bypass_aux_irq_test;
- static char i8042_kbd_firmware_id[128];
- static char i8042_aux_firmware_id[128];
-@@ -343,6 +344,9 @@ int i8042_command(unsigned char *param, int command)
- 	unsigned long flags;
- 	int retval;
- 
-+	if (!i8042_present)
-+		return -1;
++#define USB_VENDOR_ID_GAMEVICE	0x27F8
++#define USB_DEVICE_ID_GAMEVICE_GV186	0x0BBE
++#define USB_DEVICE_ID_GAMEVICE_KISHI	0x0BBF
 +
- 	spin_lock_irqsave(&i8042_lock, flags);
- 	retval = __i8042_command(param, command);
- 	spin_unlock_irqrestore(&i8042_lock, flags);
-@@ -1612,12 +1616,15 @@ static int __init i8042_init(void)
- 
- 	err = i8042_platform_init();
- 	if (err)
--		return err;
-+		return (err == -ENODEV) ? 0 : err;
- 
- 	err = i8042_controller_check();
- 	if (err)
- 		goto err_platform_exit;
- 
-+	/* Set this before creating the dev to allow i8042_command to work right away */
-+	i8042_present = true;
-+
- 	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
- 	if (IS_ERR(pdev)) {
- 		err = PTR_ERR(pdev);
-@@ -1636,6 +1643,9 @@ static int __init i8042_init(void)
- 
- static void __exit i8042_exit(void)
- {
-+	if (!i8042_present)
-+		return;
-+
- 	platform_device_unregister(i8042_platform_device);
- 	platform_driver_unregister(&i8042_driver);
- 	i8042_platform_exit();
+ #define USB_VENDOR_ID_GAMERON		0x0810
+ #define USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR	0x0001
+ #define USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR	0x0002
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index b154e11d43bfa..bf7ecab5d9e5e 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -85,6 +85,10 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_SAT_ADAPTOR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_GV186),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMEVICE, USB_DEVICE_ID_GAMEVICE_KISHI),
++		HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 -- 
 2.27.0
 

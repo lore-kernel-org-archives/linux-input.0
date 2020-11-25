@@ -2,65 +2,135 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07EE1C56202
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 13:18:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CA55C63798
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 13:18:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 93B75206F7
-	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 13:18:11 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="IqK18eKt"
+	by mail.kernel.org (Postfix) with ESMTP id 52E7B20715
+	for <linux-input@archiver.kernel.org>; Wed, 25 Nov 2020 13:18:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729153AbgKYNSL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Nov 2020 08:18:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53832 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726422AbgKYNSK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Nov 2020 08:18:10 -0500
-Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41344206E5;
-        Wed, 25 Nov 2020 13:18:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606310290;
-        bh=J9gO+WXJ4CAYXF2VqrRZILd+9qWaibHE2TyAtPX5gyM=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=IqK18eKtowgWvbkaZid+fZL1VztUCibnpEpeAfbPikkhXZwYbtrVRG0KoYGL7RLuH
-         2+PvOcCx75Kclc8kH02z6+NSJTYxHYYM+NtB5TKzoaVvWnz+pzloM5DD6lOES7WxID
-         hKbdskIY8Sn7C8NP2SOZtFQsw4oN5E+IF9jEiCSE=
-Date:   Wed, 25 Nov 2020 14:18:07 +0100 (CET)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Rikard Falkeborn <rikard.falkeborn@gmail.com>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: wacom: Constify attribute_groups
-In-Reply-To: <20201124230109.67543-1-rikard.falkeborn@gmail.com>
-Message-ID: <nycvar.YFH.7.76.2011251417570.3441@cbobk.fhfr.pm>
-References: <20201124230109.67543-1-rikard.falkeborn@gmail.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1729318AbgKYNSO convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Nov 2020 08:18:14 -0500
+Received: from plasma4.jpberlin.de ([80.241.57.33]:38203 "EHLO
+        plasma4.jpberlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726422AbgKYNSO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Nov 2020 08:18:14 -0500
+X-Greylist: delayed 524 seconds by postgrey-1.27 at vger.kernel.org; Wed, 25 Nov 2020 08:18:13 EST
+Received: from spamfilter06.heinlein-hosting.de (spamfilter06.heinlein-hosting.de [80.241.56.125])
+        by plasma.jpberlin.de (Postfix) with ESMTP id D2786AB8BD;
+        Wed, 25 Nov 2020 14:09:26 +0100 (CET)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from plasma.jpberlin.de ([80.241.56.68])
+        by spamfilter06.heinlein-hosting.de (spamfilter06.heinlein-hosting.de [80.241.56.125]) (amavisd-new, port 10030)
+        with ESMTP id Do3T6i8jw2_u; Wed, 25 Nov 2020 14:09:25 +0100 (CET)
+Received: from webmail.opensynergy.com (unknown [217.66.60.5])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (Client CN "*.opensynergy.com", Issuer "Starfield Secure Certificate Authority - G2" (not verified))
+        (Authenticated sender: opensynergy@jpberlin.de)
+        by plasma.jpberlin.de (Postfix) with ESMTPSA id 6E4CFAAC9A;
+        Wed, 25 Nov 2020 14:09:24 +0100 (CET)
+From:   Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
+To:     <linux-input@vger.kernel.org>,
+        <virtualization@lists.linux-foundation.org>
+CC:     Gerd Hoffmann <kraxel@redhat.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        CROMBEZ Mathias <mathias.crombez@faurecia.com>,
+        Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
+Subject: [PATCH] virtio-input: add multi-touch support
+Date:   Wed, 25 Nov 2020 15:09:02 +0200
+Message-ID: <20201125130902.10185-1-vasyl.vavrychuk@opensynergy.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain
+X-ClientProxiedBy: SR-MAIL-02.open-synergy.com (10.26.10.22) To
+ SR-MAIL-01.open-synergy.com (10.26.10.21)
+X-MBO-SPAM-Probability: 
+X-Rspamd-Score: -4.61 / 15.00 / 15.00
+X-Rspamd-Queue-Id: D2786AB8BD
+X-Rspamd-UID: 7b76c8
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 25 Nov 2020, Rikard Falkeborn wrote:
+From: Mathias Crombez <mathias.crombez@faurecia.com>
 
-> These are never modified, so make them const to allow the compiler to put
-> them in read-only memory. It also allows the compiler to shrink the
-> resulting module with ~900 bytes, test-built with gcc 10.2 on x86_64.
-> 
->    text    data     bss     dec     hex filename
->  204377   42832     576  247785   3c7e9 drivers/hid/wacom_old.ko
->  204240   42064     576  246880   3c460 drivers/hid/wacom_new.ko
+Without multi-touch slots allocated, ABS_MT_SLOT events will be lost by
+input_handle_abs_event.
 
-Applied, thanks Rikard.
+Signed-off-by: Mathias Crombez <mathias.crombez@faurecia.com>
+Signed-off-by: Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
+Tested-by: Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
+---
+ drivers/virtio/Kconfig        | 11 +++++++++++
+ drivers/virtio/virtio_input.c |  8 ++++++++
+ 2 files changed, 19 insertions(+)
 
--- 
-Jiri Kosina
-SUSE Labs
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 7b41130d3f35..2cfd5b01d96d 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -111,6 +111,17 @@ config VIRTIO_INPUT
 
+         If unsure, say M.
+
++config VIRTIO_INPUT_MULTITOUCH_SLOTS
++       depends on VIRTIO_INPUT
++       int "Number of multitouch slots"
++       range 0 64
++       default 10
++       help
++        Define the number of multitouch slots used. Default to 10.
++        This parameter is unused if there is no multitouch capability.
++
++        0 will disable the feature.
++
+ config VIRTIO_MMIO
+        tristate "Platform bus driver for memory mapped virtio devices"
+        depends on HAS_IOMEM && HAS_DMA
+diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+index f1f6208edcf5..13f3d90e6c30 100644
+--- a/drivers/virtio/virtio_input.c
++++ b/drivers/virtio/virtio_input.c
+@@ -7,6 +7,7 @@
+
+ #include <uapi/linux/virtio_ids.h>
+ #include <uapi/linux/virtio_input.h>
++#include <linux/input/mt.h>
+
+ struct virtio_input {
+        struct virtio_device       *vdev;
+@@ -205,6 +206,7 @@ static int virtinput_probe(struct virtio_device *vdev)
+        unsigned long flags;
+        size_t size;
+        int abs, err;
++       bool is_mt = false;
+
+        if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+                return -ENODEV;
+@@ -287,9 +289,15 @@ static int virtinput_probe(struct virtio_device *vdev)
+                for (abs = 0; abs < ABS_CNT; abs++) {
+                        if (!test_bit(abs, vi->idev->absbit))
+                                continue;
++                       if (input_is_mt_value(abs))
++                               is_mt = true;
+                        virtinput_cfg_abs(vi, abs);
+                }
+        }
++       if (is_mt)
++               input_mt_init_slots(vi->idev,
++                                   CONFIG_VIRTIO_INPUT_MULTITOUCH_SLOTS,
++                                   INPUT_MT_DIRECT);
+
+        virtio_device_ready(vdev);
+        vi->ready = true;
+--
+2.23.0
+
+
+Please mind our privacy notice<https://www.opensynergy.com/datenschutzerklaerung/privacy-notice-for-business-partners-pursuant-to-article-13-of-the-general-data-protection-regulation-gdpr/> pursuant to Art. 13 GDPR. // Unsere Hinweise zum Datenschutz gem. Art. 13 DSGVO finden Sie hier.<https://www.opensynergy.com/de/datenschutzerklaerung/datenschutzhinweise-fuer-geschaeftspartner-gem-art-13-dsgvo/>

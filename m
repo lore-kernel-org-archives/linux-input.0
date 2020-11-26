@@ -2,184 +2,101 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F181BC63697
-	for <linux-input@archiver.kernel.org>; Thu, 26 Nov 2020 17:10:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24BAEC56202
+	for <linux-input@archiver.kernel.org>; Thu, 26 Nov 2020 17:53:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A7BA021D46
-	for <linux-input@archiver.kernel.org>; Thu, 26 Nov 2020 17:10:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A8E1A21D7F
+	for <linux-input@archiver.kernel.org>; Thu, 26 Nov 2020 17:53:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jqIvnc/J"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="KT0jwrS+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403877AbgKZRKJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 26 Nov 2020 12:10:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34634 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2403791AbgKZRKJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 26 Nov 2020 12:10:09 -0500
-Received: from mail-vk1-xa43.google.com (mail-vk1-xa43.google.com [IPv6:2607:f8b0:4864:20::a43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61195C0613D4;
-        Thu, 26 Nov 2020 09:10:09 -0800 (PST)
-Received: by mail-vk1-xa43.google.com with SMTP id m6so607409vkl.2;
-        Thu, 26 Nov 2020 09:10:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=eiVvdawmrHkkFbsTAsLVy02rzVF/6bcsRLkbJ87vgq4=;
-        b=jqIvnc/J0peqmBZs3k7obuCMl2j29mfgb4YUuBWNztlZGYaIhpWfy6SGuarIeesLKN
-         d1wy50SZ/TprSJSAWhLiHdQG93Lh4qKVZhpPjXe4HC/hrOp2okCFluI3XP3+hS2Gq8U+
-         pz4NDHGDUKC7qLr9JbK5AHtiE9ysmyxoPi4KBav1txbU+fC1GEw/Rdp42yzqODTPpMZ+
-         QtJWnBLyRIl09y5YnGIiRpIEb3RNU2eCDEvYuaJgANV6b/TyKUbvjW3obbqBsIAwCeWh
-         QMLrAYlO0+iGL8JgVyqCiyBvv7ws+5whZ9uhw0S367VyPWp+AvOlsaget9wtHuo3kmXd
-         mH5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=eiVvdawmrHkkFbsTAsLVy02rzVF/6bcsRLkbJ87vgq4=;
-        b=uSaMN30uASs5sEoQsVMmDtAs1WU4dE12BD75MCBENsUVlE2VK+UG9eOv7u43+76H1C
-         2Gdx484yOgvrbFLs2pN38qwlhSd3/n6qGVPzfOI733CGHIDuEUgHsiUW3oivngZpUnhR
-         bDex42HnuM2Ici7tk07yoUzfIZTt6KV8lbrWehCIJ8bPIMJ9J2HtOxh98wvxY2Q3PU5R
-         oJvo2TC5m0rtccbOs0OItHyalVP+3I/8g7mMeB1QXP9qBISfHLLqEp5e6bxtyqnOCwj8
-         JmW7p7hYejzJVipT2UGBFrj1fcchhy/cWBL7VoWxsgQasCso/nHl1xv0+rTwBdfny7s3
-         yfzQ==
-X-Gm-Message-State: AOAM533xvL5qKkV+PGwW/Tm4aMFEYqS0I6fZM2UXLC6po1Za/mE2eaLX
-        YoPI1W+eenbNwN1/HO5C7YZNGL6xbYsVYkUqi1Q=
-X-Google-Smtp-Source: ABdhPJyBK5JvfFayn6xTjWYBLJT53TYMBwMWS0VfffWnSMcMiikLUZqjlHbyJDFIv9mPlR+t/ORQ2ppJO8dBmi2qn14=
-X-Received: by 2002:a1f:1e46:: with SMTP id e67mr2668290vke.8.1606410608466;
- Thu, 26 Nov 2020 09:10:08 -0800 (PST)
+        id S2404359AbgKZRxB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 26 Nov 2020 12:53:01 -0500
+Received: from mout.gmx.net ([212.227.15.18]:54493 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404262AbgKZRxB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 26 Nov 2020 12:53:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1606413175;
+        bh=nOBhEpA++W1t4UnfDj+bEykSMmjmMHvl1uT5U3edw5k=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=KT0jwrS+vQR/Dpg9WdGzePWpvXV3O6mW92lkobfvUAT+5kwLSW5XEeP5BP38+naax
+         QfNgOW8YnkDz5oNmHhBIxXD5uPeVgWhL1y2KzSb6rWOO6yVe22kbX07JsNOWP5t+ig
+         qxWfl678OWUrv6NnVz31URQ2dOByEvG4YEWzbn0Q=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from localhost.localdomain ([212.114.250.16]) by mail.gmx.com
+ (mrgmx005 [212.227.17.190]) with ESMTPSA (Nemesis) id
+ 1M7sHo-1kdPUr1Rdy-0052iY; Thu, 26 Nov 2020 18:52:55 +0100
+From:   Julian Sax <jsbc@gmx.de>
+To:     linux-input@vger.kernel.org
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Julian Sax <jsbc@gmx.de>, stable@vger.kernel.org
+Subject: [PATCH] HID: i2c-hid: add Vero K147 to descriptor override
+Date:   Thu, 26 Nov 2020 18:51:58 +0100
+Message-Id: <20201126175158.1183879-1-jsbc@gmx.de>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-References: <20201028221302.66583-1-kholk11@gmail.com> <CAMi1Hd1hh3NYuFTs3C39ha1Jy_0LxQ4Akg36sm0x1+uicWYRjQ@mail.gmail.com>
-In-Reply-To: <CAMi1Hd1hh3NYuFTs3C39ha1Jy_0LxQ4Akg36sm0x1+uicWYRjQ@mail.gmail.com>
-From:   AngeloGioacchino Del Regno <kholk11@gmail.com>
-Date:   Thu, 26 Nov 2020 18:09:57 +0100
-Message-ID: <CAK7fi1a3m_5aT=G4BpPFqU53Z4j9s_FkVtp0qQ8C3xbQ8W4Y1Q@mail.gmail.com>
-Subject: Re: [PATCH v9 0/3] Add Novatek NT36xxx touchscreen driver
-To:     Amit Pundir <amit.pundir@linaro.org>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>, rydberg@bitmath.org,
-        priv.luk@gmail.com, linux-input@vger.kernel.org,
-        lkml <linux-kernel@vger.kernel.org>, marijns95@gmail.com,
-        Konrad Dybcio <konradybcio@gmail.com>, martin.botka1@gmail.com,
-        phone-devel@vger.kernel.org, dt <devicetree@vger.kernel.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        andy.shevchenko@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:TaP5smSisGTyBhAzv5a1G5dhYzS1WkBhs6Nn5KuiRK72xy/Rw13
+ Iufbi1zrbOK5nNGc9clOoZgocV9Bp90YTnSzTHSFLE/SCU+HmtXMQh/w+b8SifgDvoiIOE/
+ 6Idc3h86he4TGrmVHpcEyub9ZZgbvOwRdnHDrthFBvgLIvDVecTnZVbV5ALgZrP6j+W00Hj
+ f9svyIVDZHqsaHO973C9A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:TdzFNf/ojJw=:zRqonKDzjkjBl3DxnA6G6/
+ h8GdRN/aGYKrGiEhvSTXCOLQvLcLNzwkvrpoBrkaz+oUE9qT8OXv4hP20prF3ZMk6WYG7YvaZ
+ 4F/4a+7ORsjQtWzKLz9lAXzghK2/DtIIdwqdOVn2QTvmUUeZdcv5p1xju7Qi1rdfkM7cKV6T+
+ DK8RWHwqEXXJEbmlJnfb7sxiEv1AhJq38ZIc34FANt+fsFnc4GuWbvtEc9Y5tJ34PZuFHrlDe
+ SuHgFz0GpXGrvuPX6fzfvUuEZ7NegSHa/yY8y6Sr8uXUpQ5uywr8fFONZT+Y7CI+jdM3mqqZS
+ 95N91IYqvwzG87z6DgHeV08hpyUL35T6ZoWnyvHSR64acPxoEIFPcxSgE4Zmrt9+yWZgYVoSp
+ 0BT3ULfaezWgk5sNx3VSKy8H7FifJdw9wXsVcq2yF/diHel/C189GjUhbaqZ+54Yr+iUQLrXT
+ R8zR9gTJrd5R0tDx/rfgLfEPFYG3Q/zVhqvz7KkyXLDwRgXqFW7wa5EAggibCh5QnEHVsdEMK
+ +IAuywlTnYpNEu6c2TwKUkktznNOThobedKPPHbaGHntNceIjuTdnJhKx6fjxzRLQ4o10s4In
+ jch+Y6bqb1qHi55Q/3VxyNQEFnUDiXFtWlhduBhvis2S1ODDb5TAgvYJkwcgliLBZZ/rH2X7q
+ WgZfszUBQmxxRet7U1FPC81fHLBswFJwKysTI0IuSr0AuGRdcGVKtmbiG65ngF2848NOzAiS4
+ HFUgAdLwV4oOsoo18HlxzAFD14uEiCNt13uOO3UAG9uH5YABufhM+bZqP+3jTiMRamUDeg2OT
+ l71OtJuBcvAWrLcGerJ1fUbtQLZ3C3cRt3enTPaRKUCJkPN0P6prf+WgdSzQ1HHbKPU7CeYf3
+ 5cUSsIzuOO3lZUwOuRIsTfAfjz6gHeM6SMBvrlgzk=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Il giorno lun 23 nov 2020 alle ore 11:13 Amit Pundir
-<amit.pundir@linaro.org> ha scritto:
->
-> Hi,
->
-> On Thu, 29 Oct 2020 at 06:32, <kholk11@gmail.com> wrote:
-> >
-> > From: AngeloGioacchino Del Regno <kholk11@gmail.com>
-> >
-> > This patch series adds support for the Novatek NT36xxx Series' In-Cell
-> > touchscreen (integrated into the DriverIC).
-> >
-> > This patch series has been tested against the following devices:
-> >  - Sony Xperia 10        (SDM630 Ganges Kirin)
-> >  - Sony Xperia 10 Plus   (SDM636 Ganges Mermaid)
->
-> Tested the patch series on Xiaomi Poco F1 (SDM845 Beryllium) using
-> Novatek NT36672A IC. May I suggest adding "novatek,nt36672a" in the
-> list of compatible of_device_id{} as well.
->
-> Regards,
-> Amit Pundir
->
->
-> >
-> > Changes in v2:
-> > - Fixed sparse warnings from lkp kernel test robot
-> >
-> > Changes in v3 (as requested by Dmitry Torokhov):
-> > - Using shorthand u16/u32 (sorry for the overlook!)
-> > - Now using more input and touchscreen APIs
-> > - Fixed useless workqueue involvements
-> > - Removed useless locking
-> > - Switched reads and writes to use regmap
-> > - Moved header contents to nt36xxx.c
-> > - Fixed reset gpio handling
-> > - Other cleanups
-> > - P.S.: Thanks, Dmitry!
-> >
-> > Changes in v4:
-> > - Fixed regmap read length for CRC_ERR_FLAG final check
-> > - Fixed YAML binding, as requested by Krzysztof Kozlowski
-> >
-> > Changes in v5:
-> > - Replaced subsystem maintainer's name with .. mine,
-> >   usage of additionalProperties to unevaluatedProperties
-> >   and a typo fix for reset-gpios as per Rob Herring's review
-> > - Changed compatible string as per Krzysztof K. request
-> > - Renamed the novatek,nt36xxx.yaml file to just nt36xxx.yaml
-> >   in order to now reflect the driver name instead of the DT
-> >   compatible
-> > - Fixed blank line at EOF
-> >
-> > Changes in v6:
-> > - Removed include of_gpio.h, added mod_devicetable.h and
-> >   gpio/consumer.h
-> > - Added kerneldoc to relevant functions/enum
-> > - Used traditional patterns for error checking where possible
-> > - Documented calls to usleep/msleep
-> > - Using be16_to_cpu / get_unaligned_be16 where possible
-> > - Added helper for CRC error check on retrieved buffer
-> > - Decreased indentation in the CRC reboot recovery function
-> > - Removed instances of error code sum
-> > - Dropped all likely/unlikely optimization as per request
-> > - Removed redundant reset_gpio checks
-> > - Dropped of_match_ptr and ifdefs for CONFIG_OF
-> >
-> > Changes in v7:
-> > - Fixed typo in nt36xxx.c
-> >
-> > Changes in v8:
-> > - Fixed typo reset-gpio -> reset-gpios in dt-bindings
-> >
-> > Changes in v9:
-> > - Includes are now sorted
-> > - Used proposed sizeof variable instead of sizeof type
-> > - Fixed a return value check for common pattern
-> > - Added NULL check to devm_kasprintf call
-> > - Returning ret on probe function to be consistent
-> >
-> > AngeloGioacchino Del Regno (3):
-> >   dt-bindings: Add vendor prefix for Novatek Microelectronics Corp.
-> >   Input: Add Novatek NT36xxx touchscreen driver
-> >   dt-bindings: touchscreen: Add binding for Novatek NT36xxx series
-> >     driver
-> >
-> >  .../bindings/input/touchscreen/nt36xxx.yaml   |  59 ++
-> >  .../devicetree/bindings/vendor-prefixes.yaml  |   2 +
-> >  drivers/input/touchscreen/Kconfig             |  12 +
-> >  drivers/input/touchscreen/Makefile            |   1 +
-> >  drivers/input/touchscreen/nt36xxx.c           | 894 ++++++++++++++++++
-> >  drivers/input/touchscreen/nt36xxx.h           | 122 +++
-> >  6 files changed, 1090 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/nt36xxx.yaml
-> >  create mode 100644 drivers/input/touchscreen/nt36xxx.c
-> >  create mode 100644 drivers/input/touchscreen/nt36xxx.h
-> >
-> > --
-> > 2.28.0
-> >
-Mind releasing a Tested-By tag for this?
+This device uses the SIPODEV SP1064 touchpad, which does not
+supply descriptors, so it has to be added to the override list.
 
-Anyway, I was suggested to add a compatible only for the "oldest" IC that
-is supported in this driver, since there is autodetection, that's why you see
-only the 36525 compatible here!
+Cc: stable@vger.kernel.org
+Signed-off-by: Julian Sax <jsbc@gmx.de>
+=2D--
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Yours,
-Angelo
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hi=
+d/i2c-hid-dmi-quirks.c
+index 35f3bfc3e6f5..8e0f67455c09 100644
+=2D-- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -405,6 +405,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_ov=
+erride_table[] =3D {
+ 		},
+ 		.driver_data =3D (void *)&sipodev_desc
+ 	},
++	{
++		.ident =3D "Vero K147",
++		.matches =3D {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VERO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "K147"),
++		},
++		.driver_data =3D (void *)&sipodev_desc
++	},
+ 	{ }	/* Terminate list */
+ };
+
+=2D-
+2.29.2
+

@@ -6,40 +6,42 @@ X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83E8FC63798
-	for <linux-input@archiver.kernel.org>; Fri, 27 Nov 2020 14:49:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38CF2C2D0E4
+	for <linux-input@archiver.kernel.org>; Fri, 27 Nov 2020 14:50:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2C29C2223D
-	for <linux-input@archiver.kernel.org>; Fri, 27 Nov 2020 14:49:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CBE7B2223D
+	for <linux-input@archiver.kernel.org>; Fri, 27 Nov 2020 14:50:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="EQOOZFWX"
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="KC0PTcam"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730944AbgK0Otc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 27 Nov 2020 09:49:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34124 "EHLO mail.kernel.org"
+        id S1730957AbgK0Oun (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 27 Nov 2020 09:50:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729913AbgK0Otc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 27 Nov 2020 09:49:32 -0500
+        id S1730935AbgK0Oun (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 27 Nov 2020 09:50:43 -0500
 Received: from pobox.suse.cz (nat1.prg.suse.com [195.250.132.148])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84E78221EB;
-        Fri, 27 Nov 2020 14:49:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AAF0221EB;
+        Fri, 27 Nov 2020 14:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1606488572;
-        bh=LxJHP/cdIrEPkaficiW1GEGNjMCpm1HqRPY7H9fvmgw=;
+        s=default; t=1606488642;
+        bh=SqwkfWzTNnQQCwlRXK/BH4vTy85g339B51XDPUrpvL4=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=EQOOZFWXBQG4mXOPWwqRh8d2AQolGpfo+/dNZNWJmdx5I+H+5sYwhaHPJ093J/4/s
-         32zbZBKLjs771fOMsPBNRqfFMohvhmGUbxfcnbXRLExRCDZ3aKlAX4zn8jBIa/RTfA
-         cVNEhzmR6TTYZIgWgmABZakidiYjxCn5a1/hEKR0=
-Date:   Fri, 27 Nov 2020 15:49:29 +0100 (CET)
+        b=KC0PTcamUlxyFCrGUCrCaStWXSqoQub7m8wY8i99gjrKYtBMTIwHLgbVOQ5d+T7jS
+         ceITRcewrCJRk7ybV55CwXYwIO6vTlaPVHxRGyPKF3xRsHeDOEFYi0RLIPzm2aLMj7
+         av5PNgZ6fBIwjWM6x9UufyWkHjEh7WO4i1xE8MN0=
+Date:   Fri, 27 Nov 2020 15:50:39 +0100 (CET)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Dean Camera <dean@fourwalledcubicle.com>
-cc:     linux-input@vger.kernel.org, benjamin.tissoires@redhat.com
-Subject: Re: [V3, PATCH] Add additional hidraw input/output report ioctls.
-In-Reply-To: <20201125223957.5921-1-dean@fourwalledcubicle.com>
-Message-ID: <nycvar.YFH.7.76.2011271549060.3441@cbobk.fhfr.pm>
-References: <20201125223957.5921-1-dean@fourwalledcubicle.com>
+To:     Pascal Giard <pascal.giard@etsmtl.ca>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Sanjay Govind <sanjay.govind9@gmail.com>
+Subject: Re: [PATCH v3] HID: sony: support for ghlive ps3/wii u dongles
+In-Reply-To: <20201126030230.304940-1-pascal.giard@etsmtl.ca>
+Message-ID: <nycvar.YFH.7.76.2011271550230.3441@cbobk.fhfr.pm>
+References: <20201108013818.12214-1-pascal.giard@etsmtl.ca> <20201126030230.304940-1-pascal.giard@etsmtl.ca>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -47,35 +49,11 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 26 Nov 2020, Dean Camera wrote:
+On Wed, 25 Nov 2020, Pascal Giard wrote:
 
-> Currently the hidraw module can only read and write feature HID
-> reports on demand, via dedicated ioctls. Input reports are read
-> from the device through the read() interface, while output reports
-> are written through the write interface().
-> 
-> This is insufficient; it is desirable in many situations to be
-> able to read and write input and output reports through the
-> control interface to cover additional scenarios:
->   - Reading an input report by its report ID, to get initial state
->   - Writing an input report, to set initial input state in the device
->   - Reading an output report by its report ID, to obtain current state
->   - Writing an output report by its report ID, out of band
-> 
-> This patch adds these missing ioctl requests to read and write
-> the remaining HID report types. Note that not all HID backends will
-> neccesarily support this (e.g. while the USB link layer supports
-> setting Input reports, others may not).
-> 
-> Also included are documentation and example updates. The current
-> hidraw documentation states that feature reports read from the
-> device does *not* include the report ID, however this is not the
-> case and the returned report will have its report ID prepended
-> by conforming HID devices, as the report data sent from the device
-> over the control endpoint must be indentical in format to those
-> sent over the regular transport.
+> This commit adds support for the Guitar Hero Live PS3 and Wii U dongles.
 
-This one is now queued in hid.git@for-5.11/core as well. Thanks,
+Applied, thanks Pascal.
 
 -- 
 Jiri Kosina

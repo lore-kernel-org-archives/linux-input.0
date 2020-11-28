@@ -2,150 +2,169 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31ED7C3E8C5
-	for <linux-input@archiver.kernel.org>; Fri, 27 Nov 2020 20:19:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C2E5C83020
+	for <linux-input@archiver.kernel.org>; Sat, 28 Nov 2020 22:05:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E1EB0206F7
-	for <linux-input@archiver.kernel.org>; Fri, 27 Nov 2020 20:19:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 13A192419B
+	for <linux-input@archiver.kernel.org>; Sat, 28 Nov 2020 22:05:33 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="WFxnkD+3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727952AbgK0USb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 27 Nov 2020 15:18:31 -0500
-Received: from mail.archlinux.org ([95.216.189.61]:43012 "EHLO
-        mail.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731345AbgK0ULx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 27 Nov 2020 15:11:53 -0500
-Received: from [IPv6:2001:8a0:f26a:7e00:d2bc:b624:5e5d:f425] (unknown [IPv6:2001:8a0:f26a:7e00:d2bc:b624:5e5d:f425])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        id S1731747AbgK1VuZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 28 Nov 2020 16:50:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50806 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733211AbgK1TGu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 28 Nov 2020 14:06:50 -0500
+Received: from archlinux (cpc108967-cmbg20-2-0-cust86.5-4.cable.virginm.net [81.101.6.87])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: ffy00)
-        by mail.archlinux.org (Postfix) with ESMTPSA id 119362698D2;
-        Fri, 27 Nov 2020 20:11:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=archlinux.org;
-        s=dkim-rsa; t=1606507883;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=+Nd+12YLJx2eGe1V7mrolBrhx7LPs3QFZbXCwh8EZGY=;
-        b=UrRbOENDHrA1uYJMmg2x2Xul+UU8j4dCjl6vnhtX9PRl/gqwI7GaKeuHekvxPxUqE+9h/N
-        oI+PI89onnvtkwT0qm/471eQs5+EPfkMiJgjVhaUW0SakcVLM5X5gyQ3fFpn/qMtyD4+l9
-        WNwa9fVKO86V9og9frZENjCO9efsv4w/Uvpm3Usmweab07FE6yHk8meuSMd13jZUJ1pGPm
-        AlGZv3f+zraWOOpM+EHdDD/AxfFkeXCfhMLy4c9OKy5TlQHy4FsX1zW1ATKKNXV7WHwNT7
-        5Anfsj/IShBFueeDBt+/txkGiFKgSd+W2QTtW2oBPVNJMVToRmLMxcCW+TIjJ+FU8WLGrr
-        RwRaVxhfb/kWfAKVp8upABHEkxy/eZ4D7CDu3/PH4lxkGhx7jJn708ZwBA4Gi1yT5XB3ft
-        g3a7PiYUNG0rKvwJztxE+cscl62f7gvt1gFM07++tKhUjD1iI0KWIvCsGhnUv8Czp0zTzU
-        MDgzrKqYtu9LB2ciylJhRsv+Tpos4Mk8PB4VrISDByBrJ6cqOEtpQIaKFTo85RzCx1RBDp
-        yGNlTm3V+ItqfX1Xl3Vd+JUEFYJTc+gFogDC+LZILHvaBKiea2JqSGYm+12+RuFlIRnZqV
-        yIJpz4wXdDU+TWKcGltoe2GGtc5jtYUImMnKqYxp5g1TAiU6PMGPc=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=archlinux.org;
-        s=dkim-ed25519; t=1606507883;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=+Nd+12YLJx2eGe1V7mrolBrhx7LPs3QFZbXCwh8EZGY=;
-        b=pg/suGc2KlaudY/Gx4kH5J6SfrWemRiJz2M9HvfmdxmiBfYv5bgHgoGzov7UdRW+itYGfM
-        jsBsLcdX5B8gdQBQ==
-Message-ID: <877bfbede4d3bbf40a91c8392218eeab6672e98c.camel@archlinux.org>
-Subject: Re: [V3, PATCH] Add additional hidraw input/output report ioctls.
-From:   Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-To:     Dean Camera <dean@fourwalledcubicle.com>,
-        linux-input@vger.kernel.org, jikos@kernel.org,
-        benjamin.tissoires@redhat.com
-In-Reply-To: <d295d0bf-9de7-9927-05b6-2897ada89c42@fourwalledcubicle.com>
-References: <20201125223957.5921-1-dean@fourwalledcubicle.com>
-         <2e19588821053914eebe30088b4590af51959409.camel@archlinux.org>
-         <2c2bfd55-3a03-9839-22f5-16058ac24e35@fourwalledcubicle.com>
-         <c8d4d17798e2c9fca417223d4edf5f4b1aebf75d.camel@archlinux.org>
-         <d295d0bf-9de7-9927-05b6-2897ada89c42@fourwalledcubicle.com>
-Organization: Archlinux
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-Yo3460Ba4DuXoanmQ9Rb"
-Date:   Fri, 27 Nov 2020 20:11:21 +0000
+        by mail.kernel.org (Postfix) with ESMTPSA id E57E924671;
+        Sat, 28 Nov 2020 13:29:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1606570176;
+        bh=ISe7j/OX5cdcWTRh8YAAybJtMJKopbyofLwO0nzAGLA=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=WFxnkD+3JHVa9hvCSw2Kf0esY6f+cdvXt4BrDxxqAB9g+Hy1bHnkl2ZcljeyZcnyq
+         7hWD3sQ9wiEWpVh7xjHxd0idxdVrkHD6G+igqOp5tVruqe75qDkGO/TYTky0Q76Xq4
+         YTMUqagwcFM8N1Bt6f1hQ8WZTGwRFZM4f2eXVog8=
+Date:   Sat, 28 Nov 2020 13:29:31 +0000
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     "Ye, Xiang" <xiang.ye@intel.com>
+Cc:     Jonathan Cameron <Jonathan.Cameron@Huawei.com>, jikos@kernel.org,
+        srinivas.pandruvada@linux.intel.com, linux-input@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] HID: hid-sensor-custom: Add custom sensor iio
+ support
+Message-ID: <20201128132931.4844ceb5@archlinux>
+In-Reply-To: <20201125022721.GA4958@host>
+References: <20201119100331.2594-1-xiang.ye@intel.com>
+        <20201119100331.2594-2-xiang.ye@intel.com>
+        <20201121172127.18bdd4bb@archlinux>
+        <20201124102905.GA29864@host>
+        <20201124113211.00003141@Huawei.com>
+        <20201125022721.GA4958@host>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Evolution 3.38.2 
-Authentication-Results: mail.archlinux.org;
-        auth=pass smtp.auth=ffy00 smtp.mailfrom=lains@archlinux.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Wed, 25 Nov 2020 10:27:21 +0800
+"Ye, Xiang" <xiang.ye@intel.com> wrote:
 
---=-Yo3460Ba4DuXoanmQ9Rb
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+> On Tue, Nov 24, 2020 at 11:32:11AM +0000, Jonathan Cameron wrote:
+> > Hi
+> > ...  
+> > > > >  	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
+> > > > > diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
+> > > > > index 530c09f3e64a..46db3056f04b 100644
+> > > > > --- a/include/linux/hid-sensor-ids.h
+> > > > > +++ b/include/linux/hid-sensor-ids.h
+> > > > > @@ -128,6 +128,10 @@
+> > > > >  #define HID_USAGE_SENSOR_UNITS_DEGREES_PER_SECOND		0x15
+> > > > >  
+> > > > >  /* Common selectors */
+> > > > > +#define HID_USAGE_SENSOR_PROP_DESC				0x200300
+> > > > > +#define HID_USAGE_SENSOR_PROP_FRIENDLY_NAME			0x200301
+> > > > > +#define HID_USAGE_SENSOR_PROP_SERIAL_NUM			0x200307
+> > > > > +#define HID_USAGE_SENSOR_PROP_MANUFACTURER			0x200305
+> > > > >  #define HID_USAGE_SENSOR_PROP_REPORT_INTERVAL			0x20030E
+> > > > >  #define HID_USAGE_SENSOR_PROP_SENSITIVITY_ABS			0x20030F
+> > > > >  #define HID_USAGE_SENSOR_PROP_SENSITIVITY_RANGE_PCT		0x200310
+> > > > > @@ -159,4 +163,39 @@
+> > > > >  #define HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM	0x200840
+> > > > >  #define HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM	0x200841
+> > > > >  
+> > > > > +/* Custom Sensor (2000e1) */
+> > > > > +#define HID_USAGE_SENSOR_HINGE				        0x20020B
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_LOCATION			0x200400
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELE_TIME_SINCE_SYS_BOOT		0x20052B
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_USAGE		0x200541
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE		0x200543    
+> > > > Given these are all defined in a block could we use a macro?
+> > > > HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE(x)                     0x200543 + (x)
+> > > > 
+> > > > perhaps?
+> > > > 
+> > > > I'm not sure what the preferred convention is in this file.    
+> > > If using HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE(x), we should give a range to x, like (1<x<28).
+> > > How to ensure the x is in the range? It can be an issue when someone using x out of the range.  
+> > 
+> > It can be done via build time checking.
+> > https://elixir.bootlin.com/linux/latest/source/include/linux/build_bug.h#L49
+> > Normally we wouldn't bother and would rely on review to pick up on this but
+> > I'd have no problem with a paranoid check in the macro. Particularly as 28 isn't
+> > exactly and obvious number to support!  
+> Because HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE is used as case condition, we cannot use
+> Build_BUG_ON in the macro like below.
+> #define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE(x)                            \
+>        ({                                                                     \
+>                BUILD_BUG_ON(x > 28);                                          \
+>                BUILD_BUG_ON(x < 0);                                           \
+>                (HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_BASE + (x));         \
+>        })
 
-On Fri, 2020-11-27 at 15:05 +1100, Dean Camera wrote:
-> Thank you for the review, Filipe!
->=20
-> I'm still new to the kernel patch submission process, so I'm a little=20
-> perplexed by the next steps. Who will decide if it is to be applied, and=
-=20
-> is there any further action I need to take?
+Ah. I'd missed the case condition element.  Good point!
 
-No worries :)
-That'd probably Benjamin Tissoires, co-maintainer of the HID subsystem.
-There is no further action you need to take, just wait. Please understand t=
-hat
-these things can sometimes take a while as maintainer time is limited and t=
-hey
-may have a long backlog to fight through.
 
-Also be aware that maintainers might be a bit conservative about adding new
-features as they will be required to maintain them in the long run, so don'=
-t
-take it personally if they chose not to to merge some of your patches.
+> 
+> I can use the define with a comments to declear the range of x.
+> #define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_BASE           0x200543
+> /* Custom Sensor data 28=>x>=0 */
+> #define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE(x)                            \
+> 	(HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_BASE + (x)) 
+> 
+Sounds good to me.
 
-> I am obviously keen, but not impatient, to get this feature in. I'm=20
-> happy to follow whatever process is required, I just haven't found=20
-> anything beyond the initial "submitting your patch" documentation.
+Thanks,
 
-Yeah, I sympathize. The process essentially is to send the patch and wait :=
-P
+Jonathan
 
-Just one thing, in the kernel mailing lists you are discouraged to top-post=
-.
-
-A: Because it messes up the order in which people normally read text.
-Q: Why is top-posting such a bad thing?
-
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
-
-A: No.
-Q: Should I include quotations after my reply?
-
-> Cheers!
-> - Dean
-
-Cheers,
-Filipe La=C3=ADns
-
---=-Yo3460Ba4DuXoanmQ9Rb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl/BXWQACgkQ+JPGdIFq
-qV1vBA//QWMrbliu7HOGDXHCPE1Ent0kEvS3HG3VqdcUykfcFj07IO7/sa4EVJsj
-tzbdBG8KCjBE3juOIMz7B4mYNR7AFZPKHuOBEkm579A7pa7SfWon/7veDEbd7TZ9
-LmSilomOSr2xm2GkdEeGgYF9EtYGUtVgItO4k3q7b1/Ux3O7sGdhPIn9M9CID0Qq
-hbdumPwEHEuTsw4LOjQRNDisxzTZvdxBXxw3PWnfVMrIaF0RBbOazWZa7nRg0Dpb
-Gh/9kWPUW/HekMf37QN0rtSnOlYHuX3gp6MBdd+Un5scV0/ImynjoVU5DXZtFADs
-qL2XLED5ce7qkEIOkSZu/qo4ZWFdgcfVXvV1L/70Vu8nB1hPNTmOqkWl9vK/eBqU
-MWBZdxcGjXuFrXHejnQ/a5vKOiEgbk9UO4O/2zpLLhXpuQhMxnMn0jM7l5tdnIh4
-Z95Y1RNPqlD44L7NmEHc3Q/RwNpcOJh86krzt2+6Pc6de4bk+243p1CMB6nzxC72
-EJXPNslTRRFrX26DA0q08YVEfTyGdGAW5z2uS2phRUUfmHkJ/4dpC7P1WwVGmOrD
-/5LdzbsQ196bqIy0MQVsHSEJpyUQATYa6s8HNb8ef5rysrMK3ARtUN3OipqFJLpx
-DDZ7o/Gy8I2jcvNrfXM9VziIJQTD5A6lNI7UJbjmuZKb7Tw/MWM=
-=ppUY
------END PGP SIGNATURE-----
-
---=-Yo3460Ba4DuXoanmQ9Rb--
+> Thanks
+> Ye, Xiang
+> >   
+> > > 
+> > > Thanks
+> > > Xiang  
+> > > >     
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_1		0x200544
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_2		0x200545
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_3		0x200546
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_4		0x200547
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_5		0x200548
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_6		0x200549
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_7		0x20054A
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_8		0x20054B
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_9		0x20054C
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_10		0x20054D
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_11		0x20054E
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_12		0x20054F
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_13		0x200550
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_14		0x200551
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_15		0x200552
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_16		0x200553
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_17		0x200554
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_18		0x200555
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_19		0x200556
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_20		0x200557
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_21		0x200558
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_22		0x200559
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_23		0x20055A
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_24		0x20055B
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_25		0x20055C
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_26		0x20055D
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_27		0x20055E
+> > > > > +#define HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE_28		0x20055F
+> > > > > +
+> > > > >  #endif    
+> > > >     
+> >   
 

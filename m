@@ -2,98 +2,132 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9EB4C64E7A
-	for <linux-input@archiver.kernel.org>; Tue,  1 Dec 2020 06:49:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21725C64E7A
+	for <linux-input@archiver.kernel.org>; Tue,  1 Dec 2020 06:55:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B3EC2087C
-	for <linux-input@archiver.kernel.org>; Tue,  1 Dec 2020 06:49:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB8E32087C
+	for <linux-input@archiver.kernel.org>; Tue,  1 Dec 2020 06:55:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AZj4va6Q"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="v2vGs5fN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726915AbgLAGth (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 1 Dec 2020 01:49:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58862 "EHLO
+        id S1727407AbgLAGzn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 1 Dec 2020 01:55:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725859AbgLAGtg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2020 01:49:36 -0500
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E889C0613CF;
-        Mon, 30 Nov 2020 22:48:56 -0800 (PST)
-Received: by mail-pj1-x1041.google.com with SMTP id v1so635988pjr.2;
-        Mon, 30 Nov 2020 22:48:56 -0800 (PST)
+        with ESMTP id S1727096AbgLAGzn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2020 01:55:43 -0500
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68AA4C0613CF
+        for <linux-input@vger.kernel.org>; Mon, 30 Nov 2020 22:55:03 -0800 (PST)
+Received: by mail-ot1-x344.google.com with SMTP id f16so689289otl.11
+        for <linux-input@vger.kernel.org>; Mon, 30 Nov 2020 22:55:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Dk2Z1eCeA2+ln1Aj7Jv+4mmrerL9/IMIjrPeBWfbcYY=;
-        b=AZj4va6QdxcyXtz5DQs0Kz94jPE3JZbffdjwDSmEB6lVQytpag8bAEwkeuQMWLMfuw
-         T/NLgt5sj7zMEQB4wF/4e3hrYULlpbykfsx9Hj0toDfqFFOpe2H9mCu9+fN0hJoxXWQB
-         kXn+2lIZfPXoyEbxugA43Mx83FTHknE6wJKjA6oVV/WBTi2MXDtMxnmAHJkXePLxqupL
-         EwoWMfnCazaFcl7Wo9519qR5ODkWBEraz+W1JChG/9UcjISgVfu7G9Kyt3642Pzr1knP
-         tSRZiKv9RTz/OeOpn8KqO22Y7LG2Hln257yXP/G2IJLR50WZngS3N/2NlwLxIKBiAi2A
-         Ebpg==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=i8gNh4uzJ/vrjUJz2fQVgW80e6ioAxOfUVSCAWYilQ0=;
+        b=v2vGs5fNznQ/JodWPWIHsyKAZilmUAVVt1CJrkA7/FFu7WWA0AShtU3gkN9IHXVikp
+         lZVDgRe8UXQtfj/TxkSfkbnw3jwV+RnRo0FiA6k4OuNFg34Dnpy+PpAWNHpScNIzGO5l
+         bfEUltKddnMD0Iaxk+HILWlo9I/sX7e9ytnbdTkKVuPFVC0mwuzD19aoyzfpB/1ZiAng
+         ivusSej8UfshPgnEENVEYmlLgDAL7zSK3me/GGopSmCTFFapkcZPnZZS0zB9FvQ8K/0O
+         6SdX2dfswRmBIetXLUe11eC7/WbNXP62ziJbirmQl65QdtDXMEqjA75OHwnyRB10TfeY
+         Kwjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Dk2Z1eCeA2+ln1Aj7Jv+4mmrerL9/IMIjrPeBWfbcYY=;
-        b=NT8uidutg8cjvCkq7jy+H4arxHcL5FcVPp/l8KM9tlfJiQ1kXCN8bWUvi8H3h/svL9
-         Gj/yI+QdE6HeFFhjO2vjDn6PmggV+UwhcPOaz0yASZ+LtVKMrMBbilkcgfikunuKvyoO
-         kiSsnD1e9yN2Ty+6pzI+c892zzAgqWBuWqAkCyO02L+w+4oras+Euq4RPzdFycnRYZXm
-         NCEwnonW1Uc6iVAb/Na9boxrnpoiqYq3TazhGNleVwM1qIqW63OZOOLfqmTUAVhibZNh
-         tvLmWAF1GeDq6uk6764RCjwUhQ5AvcuvCwBz/X0H0uobic5QlobwzMzoCVgAirrSG87/
-         mrvQ==
-X-Gm-Message-State: AOAM533m+Xmj2gzoCs80AngxXEzIKpt7KWkPpmT1bZEA4FA3iEGjA9R8
-        6AgtLWjwj+1N5Y0uuLVsynk=
-X-Google-Smtp-Source: ABdhPJwZ/X97r+Knl315CF6O//3POZhF45zaYg5twieZPyh6XXDwcbQ9mpXHUv/93HGFXmIhJTc71w==
-X-Received: by 2002:a17:90a:43c1:: with SMTP id r59mr1294063pjg.13.1606805336162;
-        Mon, 30 Nov 2020 22:48:56 -0800 (PST)
-Received: from archlinux.GovzHome.Govindz.co.nz ([2407:7000:aa27:b302:92e6:aee5:1373:39cd])
-        by smtp.gmail.com with ESMTPSA id z12sm1286727pfg.123.2020.11.30.22.48.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Nov 2020 22:48:55 -0800 (PST)
-From:   sanjay.govind9@gmail.com
-To:     dmitry.torokhov@gmail.com
-Cc:     Sanjay Govind <sanjay.govind9@gmail.com>, aicommander@gmail.com,
-        priv.luk@gmail.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] INPUT: xpad: support Ardwiino Controllers
-Date:   Tue,  1 Dec 2020 19:48:45 +1300
-Message-Id: <20201201064844.128122-1-sanjay.govind9@gmail.com>
-X-Mailer: git-send-email 2.29.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=i8gNh4uzJ/vrjUJz2fQVgW80e6ioAxOfUVSCAWYilQ0=;
+        b=uMikU4C3f/IGObHzsqWxzRkhrxkISb2df6czOHVFElJ9rCSgZpIsTwJ6nLMcU8MDMG
+         ndMjAqG2iQrec9OObXpcLZIHX6RhVu0BWLs4snHjIKEvaMcFY9Xb/7TdZwuWXb3jANJy
+         r8amrJuU0gtUiQ/g16Q1DtuW4hZ2ghgapN+YQvo/8e/6aqAbdLJqn4SZHnFLMUuO8hBr
+         E9nJCLxw34erEv6KDxk3CkrXSuHZIzQHaP9Xl/t8MZPuFp21wBq81MTkDplJ5wrIqG3A
+         8wnYWeyd8cn1zn0pJZJ31Pw4KuRyc+D5d6EuZZajXByRKH/iSxklkDtrme/7mPyRmOcC
+         Mr/w==
+X-Gm-Message-State: AOAM532iSAeBitQoOR+N2nDDHT523wmTgLDley3GoWHQGEl8TTzw8Uqo
+        CMnrZ3O9H789ZtmLPJ9VXKhlItYkRjFtZ0TQ8uiXVs+scPs=
+X-Google-Smtp-Source: ABdhPJziejeDJXv5UJ+mV1sKpOCztprkqjQ4nyzjVsinqpmpzkyBTGlRJai/raYMfbDqjH7yclXxZYbuPhmb6gwHJ3Q=
+X-Received: by 2002:a05:6830:1e7a:: with SMTP id m26mr981712otr.104.1606805702433;
+ Mon, 30 Nov 2020 22:55:02 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201201060050.1193986-1-furquan@google.com> <20201201062807.GO2034289@dtor-ws>
+In-Reply-To: <20201201062807.GO2034289@dtor-ws>
+From:   Furquan Shaikh <furquan@google.com>
+Date:   Mon, 30 Nov 2020 22:54:46 -0800
+Message-ID: <CAEGmHFGYuM91U+Tvq+YDt180cfHQKnOKMY5ToHZ7v44fOs-_8w@mail.gmail.com>
+Subject: Re: [PATCH] input: raydium_ts_i2c: Do not split tx transactions
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        linux-input@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Sanjay Govind <sanjay.govind9@gmail.com>
+Hello Dmitry,
 
-This commit adds support for Ardwiino Controllers
+On Mon, Nov 30, 2020 at 10:28 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Furquan,
+>
+> On Mon, Nov 30, 2020 at 10:00:50PM -0800, Furquan Shaikh wrote:
+> > Raydium device does not like splitting of tx transactions into
+> > multiple messages - one for the register address and one for the
+> > actual data. This results in incorrect behavior on the device side.
+> >
+> > This change updates raydium_i2c_read and raydium_i2c_write to create
+> > i2c_msg arrays separately and passes those arrays into
+> > raydium_i2c_xfer which decides based on the address whether the bank
+> > switch command should be sent. The bank switch header is still added
+> > by raydium_i2c_read and raydium_i2c_write to ensure that all these
+> > operations are performed as part of a single I2C transfer. It
+> > guarantees that no other transactions are initiated to any other
+> > device on the same bus after the bank switch command is sent.
+>
+> i2c_transfer locks the bus [segment] for the entire time, so this
+> explanation on why the change is needed does not make sense.
 
-Signed-off-by: Sanjay Govind <sanjay.govind9@gmail.com>
----
- drivers/input/joystick/xpad.c | 1 +
- 1 file changed, 1 insertion(+)
+The actual problem is with raydium_i2c_write chopping off the write
+data into 2 messages -- one for register address and other for actual
+data. Raydium devices do not like that. Hence, this change to ensure
+that the register address and actual data are packaged into a single
+message. The latter part of the above comment attempts to explain why
+the bank switch message is added to xfer[] array in raydium_i2c_read
+and raydium_i2c_write instead of sending a separate message in
+raydium_i2c_xfer i.e. to ensure that the read/write xfer and bank
+switch are sent to i2c_transfer as a single array of messages so that
+they can be handled as an atomic operation from the perspective of
+communication with this device on the bus.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index c77cdb3b62b5..c9d78e2acb38 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -418,6 +418,7 @@ static const struct usb_device_id xpad_table[] = {
- 	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
- 	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries Controllers */
- 	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
-+	XPAD_XBOX360_VENDOR(0x1209),		/* Ardwiino Controllers */
- 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
- 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
--- 
-2.29.2
+>
+> Also, does it help if you mark the data message as I2C_M_NOSTART in case
+> of writes?
 
+That is a great suggestion. I think this would be helpful in this
+scenario. Let me follow-up on this to see if it helps with the current
+problem.
+
+>
+> I also wonder if we should convert the driver to regmap, which should
+> help with handling the bank switch as well as figuring out if it can do
+> "gather write" or fall back to allocating an additional send buffer.
+
+I will start with the above suggestion and fallback to this if that
+doesn't work.
+
+Thanks for the quick response and the helpful suggestions Dmitry. I
+will work on these pointers and get back to you. Thanks again.
+
+- Furquan
+
+>
+> Thanks.
+>
+> --
+> Dmitry

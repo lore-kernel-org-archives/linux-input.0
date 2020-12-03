@@ -3,31 +3,31 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC628C8449F
-	for <linux-input@archiver.kernel.org>; Thu,  3 Dec 2020 13:39:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14598C8449E
+	for <linux-input@archiver.kernel.org>; Thu,  3 Dec 2020 13:39:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3BD220449
-	for <linux-input@archiver.kernel.org>; Thu,  3 Dec 2020 13:39:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5AE1F20449
+	for <linux-input@archiver.kernel.org>; Thu,  3 Dec 2020 13:39:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436656AbgLCNhB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S2389131AbgLCNhB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 3 Dec 2020 08:37:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436608AbgLCNa3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 3 Dec 2020 08:30:29 -0500
+        id S2436609AbgLCNaa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 3 Dec 2020 08:30:30 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
-        russianneuromancer <russianneuromancer@ya.ru>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
         platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 37/39] platform/x86: touchscreen_dmi: Add info for the Irbis TW118 tablet
-Date:   Thu,  3 Dec 2020 08:28:31 -0500
-Message-Id: <20201203132834.930999-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 36/39] platform/x86: touchscreen_dmi: Add info for the Predia Basic tablet
+Date:   Thu,  3 Dec 2020 08:28:30 -0500
+Message-Id: <20201203132834.930999-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201203132834.930999-1-sashal@kernel.org>
 References: <20201203132834.930999-1-sashal@kernel.org>
@@ -41,59 +41,63 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit c9aa128080cbce92f8715a9328f88d8ca3134279 ]
+[ Upstream commit 0f511edc6ac12f1ccf1c6c2d4412f5ed7ba426a6 ]
 
-Add touchscreen info for the Irbis TW118 tablet.
+Add touchscreen info for the Predia Basic tablet.
 
-Reported-and-tested-by: russianneuromancer <russianneuromancer@ya.ru>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201124110454.114286-1-hdegoede@redhat.com
+Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20201015194949.50566-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/platform/x86/touchscreen_dmi.c | 27 ++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
 diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 26cbf7cc8129c..5783139d0a119 100644
+index dda60f89c9512..26cbf7cc8129c 100644
 --- a/drivers/platform/x86/touchscreen_dmi.c
 +++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -295,6 +295,21 @@ static const struct ts_dmi_data irbis_tw90_data = {
- 	.properties	= irbis_tw90_props,
+@@ -623,6 +623,23 @@ static const struct ts_dmi_data pov_mobii_wintab_p1006w_v10_data = {
+ 	.properties	= pov_mobii_wintab_p1006w_v10_props,
  };
  
-+static const struct property_entry irbis_tw118_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-min-x", 20),
-+	PROPERTY_ENTRY_U32("touchscreen-min-y", 30),
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1960),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1510),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-irbis-tw118.fw"),
++static const struct property_entry predia_basic_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 3),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 10),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1144),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl3680-predia-basic.fw"),
 +	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
 +	{ }
 +};
 +
-+static const struct ts_dmi_data irbis_tw118_data = {
++static const struct ts_dmi_data predia_basic_data = {
 +	.acpi_name	= "MSSL1680:00",
-+	.properties	= irbis_tw118_props,
++	.properties	= predia_basic_props,
 +};
 +
- static const struct property_entry itworks_tw891_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-min-x", 1),
- 	PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
-@@ -953,6 +968,14 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "TW90"),
+ static const struct property_entry schneider_sct101ctm_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-size-x", 1715),
+ 	PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
+@@ -1109,6 +1126,16 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BIOS_DATE, "10/24/2014"),
  		},
  	},
 +	{
-+		/* Irbis TW118 */
-+		.driver_data = (void *)&irbis_tw118_data,
++		/* Predia Basic tablet) */
++		.driver_data = (void *)&predia_basic_data,
 +		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "IRBIS"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW118"),
++			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "CherryTrail"),
++			/* Above matches are too generic, add bios-version match */
++			DMI_MATCH(DMI_BIOS_VERSION, "Mx.WT107.KUBNGEA"),
 +		},
 +	},
  	{
- 		/* I.T.Works TW891 */
- 		.driver_data = (void *)&itworks_tw891_data,
+ 		/* Point of View mobii wintab p800w (v2.1) */
+ 		.driver_data = (void *)&pov_mobii_wintab_p800w_v21_data,
 -- 
 2.27.0
 

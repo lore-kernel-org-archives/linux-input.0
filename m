@@ -2,188 +2,98 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E5AEC64E8A
-	for <linux-input@archiver.kernel.org>; Thu,  3 Dec 2020 13:23:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B6DCC8301E
+	for <linux-input@archiver.kernel.org>; Thu,  3 Dec 2020 13:34:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3638E24734
-	for <linux-input@archiver.kernel.org>; Thu,  3 Dec 2020 13:23:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 65A9B206D6
+	for <linux-input@archiver.kernel.org>; Thu,  3 Dec 2020 13:34:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387869AbgLCNW4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 3 Dec 2020 08:22:56 -0500
-Received: from mo4-p01-ob.smtp.rzone.de ([81.169.146.164]:8186 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387653AbgLCNW4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Dec 2020 08:22:56 -0500
-X-Greylist: delayed 363 seconds by postgrey-1.27 at vger.kernel.org; Thu, 03 Dec 2020 08:22:54 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1607001603;
-        s=strato-dkim-0002; d=gerhold.net;
-        h=Message-Id:Date:Subject:Cc:To:From:X-RZG-CLASS-ID:X-RZG-AUTH:From:
-        Subject:Sender;
-        bh=CTgCZe7d7nfdeH38bxJEE0AJMFZdf1suWYy3usg1nro=;
-        b=rWEEgPvsXl2KcmCjSzDKpKkVdAwCjiBIvBXPcKuU5twWnKdLzns+BlPfD98bNo2Bmb
-        LMiKDqKmBm7B+4itx6Pr6Tog8LYwE3I9o/aHcmSr7Q3BYk+mjkcQKT9kTeGJ3rp5DtzL
-        ezW762dDTeRfxZ3u6b/H7Ru9c3hidj1s3miJbzMaJN8PwCNuZ2A1tWpge+T80vaq7Uxw
-        kmji/qr/CwRY0zxEfYQ4EZ5l8AVh8pclceXQCsXSt4jHhy9++S1vz+0kW1BK3oYgSId4
-        dC1lyYPB8iA6lwEwCwfU3dZTYHIcjn3KaKcP/bb+4q/T9oKnL1JIZo3TfMLPPwqbEbyL
-        vmjg==
-X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVORvLd4SsytBXS7IYBkLahKxB5G6JlbU="
-X-RZG-CLASS-ID: mo00
-Received: from localhost.localdomain
-        by smtp.strato.de (RZmta 47.3.4 DYNA|AUTH)
-        with ESMTPSA id Z061efwB3DDuqib
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-        Thu, 3 Dec 2020 14:13:56 +0100 (CET)
-From:   Stephan Gerhold <stephan@gerhold.net>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        devicetree@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 1/3] dt-bindings: Input: tm2-touchkey - convert to yaml
-Date:   Thu,  3 Dec 2020 14:12:40 +0100
-Message-Id: <20201203131242.44397-1-stephan@gerhold.net>
-X-Mailer: git-send-email 2.29.2
+        id S2389205AbgLCNeC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 3 Dec 2020 08:34:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47782 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2436828AbgLCNbB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 3 Dec 2020 08:31:01 -0500
+From:   Sasha Levin <sashal@kernel.org>
+Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        russianneuromancer <russianneuromancer@ya.ru>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 21/23] platform/x86: touchscreen_dmi: Add info for the Irbis TW118 tablet
+Date:   Thu,  3 Dec 2020 08:29:33 -0500
+Message-Id: <20201203132935.931362-21-sashal@kernel.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201203132935.931362-1-sashal@kernel.org>
+References: <20201203132935.931362-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Convert the device tree bindings for tm2-touchkey to the YAML format.
+From: Hans de Goede <hdegoede@redhat.com>
 
-While we're at it, clarify the descriptions a bit to make it clear that
-this driver can be used for many different MCUs that all implement
-a similar I2C protocol. Depending on the MCU the voltage requirements
-may be different, on some devices the controller uses 2.2V, 2.8V or
-even 3.3V for vcc-supply instead of 1.8V.
+[ Upstream commit c9aa128080cbce92f8715a9328f88d8ca3134279 ]
 
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Add touchscreen info for the Irbis TW118 tablet.
+
+Reported-and-tested-by: russianneuromancer <russianneuromancer@ya.ru>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201124110454.114286-1-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../bindings/input/cypress,tm2-touchkey.txt   | 33 ---------
- .../bindings/input/cypress,tm2-touchkey.yaml  | 68 +++++++++++++++++++
- 2 files changed, 68 insertions(+), 33 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
- create mode 100644 Documentation/devicetree/bindings/input/cypress,tm2-touchkey.yaml
+ drivers/platform/x86/touchscreen_dmi.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
-deleted file mode 100644
-index 921172f689b8..000000000000
---- a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
-+++ /dev/null
-@@ -1,33 +0,0 @@
--Samsung tm2-touchkey
--
--Required properties:
--- compatible:
--    * "cypress,tm2-touchkey" - for the touchkey found on the tm2 board
--    * "cypress,midas-touchkey" - for the touchkey found on midas boards
--    * "cypress,aries-touchkey" - for the touchkey found on aries boards
--    * "coreriver,tc360-touchkey" - for the Coreriver TouchCore 360 touchkey
--- reg: I2C address of the chip.
--- interrupts: interrupt to which the chip is connected (see interrupt
--	binding[0]).
--- vcc-supply : internal regulator output. 1.8V
--- vdd-supply : power supply for IC 3.3V
--
--Optional properties:
--- linux,keycodes: array of keycodes (max 4), default KEY_PHONE and KEY_BACK
--
--[0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
--
--Example:
--	&i2c0 {
--		/* ... */
--
--		touchkey@20 {
--			compatible = "cypress,tm2-touchkey";
--			reg = <0x20>;
--			interrupt-parent = <&gpa3>;
--			interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
--			vcc-supply=<&ldo32_reg>;
--			vdd-supply=<&ldo33_reg>;
--			linux,keycodes = <KEY_PHONE KEY_BACK>;
--		};
--	};
-diff --git a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.yaml b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.yaml
-new file mode 100644
-index 000000000000..90d4def83182
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.yaml
-@@ -0,0 +1,68 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/cypress,tm2-touchkey.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 1c7d8324ff5c2..1e072dbba30d6 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -264,6 +264,21 @@ static const struct ts_dmi_data irbis_tw90_data = {
+ 	.properties	= irbis_tw90_props,
+ };
+ 
++static const struct property_entry irbis_tw118_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 20),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 30),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1960),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1510),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-irbis-tw118.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
 +
-+title: Samsung TM2 touch key controller
++static const struct ts_dmi_data irbis_tw118_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= irbis_tw118_props,
++};
 +
-+maintainers:
-+  - Stephan Gerhold <stephan@gerhold.net>
-+
-+description: |
-+  Touch key controllers similar to the TM2 can be found in a wide range of
-+  Samsung devices. They are implemented using many different MCUs, but use
-+  a similar I2C protocol.
-+
-+allOf:
-+  - $ref: input.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - cypress,tm2-touchkey
-+      - cypress,midas-touchkey
-+      - cypress,aries-touchkey
-+      - coreriver,tc360-touchkey
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  vdd-supply:
-+    description: Optional regulator for LED voltage, 3.3V.
-+
-+  vcc-supply:
-+    description: Optional regulator for MCU, 1.8V-3.3V (depending on MCU).
-+
-+  linux,keycodes:
-+    minItems: 1
-+    maxItems: 4
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        touchkey@20 {
-+            compatible = "cypress,tm2-touchkey";
-+            reg = <0x20>;
-+            interrupt-parent = <&gpa3>;
-+            interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
-+            vcc-supply = <&ldo32_reg>;
-+            vdd-supply = <&ldo33_reg>;
-+            linux,keycodes = <KEY_MENU KEY_BACK>;
-+        };
-+    };
+ static const struct property_entry itworks_tw891_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 1),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
+@@ -758,6 +773,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "TW90"),
+ 		},
+ 	},
++	{
++		/* Irbis TW118 */
++		.driver_data = (void *)&irbis_tw118_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "IRBIS"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TW118"),
++		},
++	},
+ 	{
+ 		/* I.T.Works TW891 */
+ 		.driver_data = (void *)&itworks_tw891_data,
 -- 
-2.29.2
+2.27.0
 

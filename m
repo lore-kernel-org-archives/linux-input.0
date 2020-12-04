@@ -2,98 +2,71 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AC3EC2BBCF
-	for <linux-input@archiver.kernel.org>; Fri,  4 Dec 2020 06:22:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF3B3C4361A
+	for <linux-input@archiver.kernel.org>; Fri,  4 Dec 2020 08:24:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 55A1222583
-	for <linux-input@archiver.kernel.org>; Fri,  4 Dec 2020 06:22:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7EE3322581
+	for <linux-input@archiver.kernel.org>; Fri,  4 Dec 2020 08:24:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728074AbgLDGVx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 4 Dec 2020 01:21:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46702 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727776AbgLDGVw (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2020 01:21:52 -0500
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B167C061A55;
-        Thu,  3 Dec 2020 22:20:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=lkYTuLMVK3xD9H7nEaU3PUg6Qinz0z5CmtM+kw5zPU4=; b=jH+c22Wy24yIKOi4p5D4DkSZpO
-        c1qUx4pZJK/icmnYLd7+KBq6G+PYGEb/0ASbAQu3pqo1ZdACSPTaaIH/A7OPsQXtoaWsqTv07YaCP
-        W3zl58aklGWE43jgLHD15urh/YTyC803eSSXqijtE3R3Wx3qR22rbKEctZJZa483VZcyhdMca2/N8
-        q1nETUGyMccy5Dy+RX8cQ+UnxkxP7D9ZPBC5rzQHZYKvnAjkeaBzncu2b44WkwJB8UUu+gHMeSG/b
-        ddyFJjP0N72s33db+0cvJWEgb76qZtsgU9QHWJI9EN1rGcNtgBh45toyHrf5uY9RdhDhvUE9FUnBP
-        ZLORjhRg==;
-Received: from [2601:1c0:6280:3f0::1494] (helo=smtpauth.infradead.org)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1kl4SV-0002HZ-UF; Fri, 04 Dec 2020 06:20:48 +0000
-From:   Randy Dunlap <rdunlap@infradead.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Jiri Kosina <jikos@kernel.org>,
+        id S1728733AbgLDIXr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 4 Dec 2020 03:23:47 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:8943 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728698AbgLDIXr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2020 03:23:47 -0500
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4CnQgQ2XWxzhlyw;
+        Fri,  4 Dec 2020 16:22:42 +0800 (CST)
+Received: from compute.localdomain (10.175.112.70) by
+ DGGEMS407-HUB.china.huawei.com (10.3.19.207) with Microsoft SMTP Server (TLS)
+ id 14.3.487.0; Fri, 4 Dec 2020 16:22:55 +0800
+From:   Zhang Changzhong <zhangchangzhong@huawei.com>
+To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        linux-iio@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        linux-doc@vger.kernel.org, Alan Ott <alan@signal11.us>
-Subject: [PATCH 5/8] Documentation: HID: hidraw editing & corrections
-Date:   Thu,  3 Dec 2020 22:20:19 -0800
-Message-Id: <20201204062022.5095-6-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201204062022.5095-1-rdunlap@infradead.org>
-References: <20201204062022.5095-1-rdunlap@infradead.org>
+        Masaki Ota <masaki.ota@jp.alps.com>
+CC:     Zhang Changzhong <zhangchangzhong@huawei.com>,
+        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] HID: alps: fix error return code in alps_input_configured()
+Date:   Fri, 4 Dec 2020 16:26:09 +0800
+Message-ID: <1607070370-32319-1-git-send-email-zhangchangzhong@huawei.com>
+X-Mailer: git-send-email 1.8.3.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.175.112.70]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Do basic editing & correction to hidraw.rst:
-- use "hidraw" consistently except at the beginning of a sentence
-- add archive.org URL for signal11.us since the latter seems to be MIA
-- use a list for 2 URLs so that they don't run together
-
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Cc: Alan Ott <alan@signal11.us>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-doc@vger.kernel.org
+Fixes: c7083d3f5348 ("HID: alps: properly handle max_fingers and minimum on X and Y axis")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
 ---
- Documentation/hid/hidraw.rst |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hid/hid-alps.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- linux-next-20201201.orig/Documentation/hid/hidraw.rst
-+++ linux-next-20201201/Documentation/hid/hidraw.rst
-@@ -21,7 +21,7 @@ Hidraw is the only alternative, short of
- these non-conformant devices.
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index 3feaece..17782a6 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -759,7 +759,8 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		__set_bit(INPUT_PROP_POINTER, input2->propbit);
+ 		__set_bit(INPUT_PROP_POINTING_STICK, input2->propbit);
  
- A benefit of hidraw is that its use by userspace applications is independent
--of the underlying hardware type.  Currently, Hidraw is implemented for USB
-+of the underlying hardware type.  Currently, hidraw is implemented for USB
- and Bluetooth.  In the future, as new hardware bus types are developed which
- use the HID specification, hidraw will be expanded to add support for these
- new bus types.
-@@ -31,9 +31,10 @@ create hidraw device nodes.  Udev will t
- directly under /dev (eg: /dev/hidraw0).  As this location is distribution-
- and udev rule-dependent, applications should use libudev to locate hidraw
- devices attached to the system.  There is a tutorial on libudev with a
--working example at:
-+working example at::
- 
- 	http://www.signal11.us/oss/udev/
-+	https://web.archive.org/web/2019*/www.signal11.us
- 
- The HIDRAW API
- ---------------
+-		if (input_register_device(data->input2)) {
++		ret = input_register_device(data->input2);
++		if (ret) {
+ 			input_free_device(input2);
+ 			goto exit;
+ 		}
+-- 
+2.9.5
+

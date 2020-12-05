@@ -2,105 +2,116 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC9D3C4361A
-	for <linux-input@archiver.kernel.org>; Fri,  4 Dec 2020 20:10:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56ED6C19437
+	for <linux-input@archiver.kernel.org>; Sat,  5 Dec 2020 00:48:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B07DF22CAD
-	for <linux-input@archiver.kernel.org>; Fri,  4 Dec 2020 20:10:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41AB622B4E
+	for <linux-input@archiver.kernel.org>; Sat,  5 Dec 2020 00:48:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730819AbgLDUKQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 4 Dec 2020 15:10:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33904 "EHLO
+        id S1728033AbgLEAri (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 4 Dec 2020 19:47:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729147AbgLDUKQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2020 15:10:16 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7ACFC061A51
-        for <linux-input@vger.kernel.org>; Fri,  4 Dec 2020 12:09:35 -0800 (PST)
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1klHOU-00044M-E8; Fri, 04 Dec 2020 21:09:30 +0100
-Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1klHOS-00028b-4u; Fri, 04 Dec 2020 21:09:28 +0100
-Date:   Fri, 4 Dec 2020 21:09:27 +0100
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org,
+        with ESMTP id S1726917AbgLEArh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2020 19:47:37 -0500
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93F1EC061A52
+        for <linux-input@vger.kernel.org>; Fri,  4 Dec 2020 16:47:11 -0800 (PST)
+Received: by mail-pl1-x642.google.com with SMTP id t18so4090055plo.0
+        for <linux-input@vger.kernel.org>; Fri, 04 Dec 2020 16:47:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hKog1Hk16Zy0NdqkYsbCRJ/dEKa5FrvxxIb/RYLHAXI=;
+        b=WktJLgTUFGljAC5G3dVtGLjO+z2ENnXC/JEA8X/zrq5znM3Qir98xuDVfIeaMyGWcN
+         tuNslHFgshzhGe8rexyvu8OvmLiOUyIamPBCzR09xj6TV+k/ntq+9QEzVyK0ui9nS0nw
+         bB+xMKJyhMtIcnAdTGlXm81oQvzazia2ucSgI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hKog1Hk16Zy0NdqkYsbCRJ/dEKa5FrvxxIb/RYLHAXI=;
+        b=DzJOJEObtkTqnFtb/sS332wPl72/BYd3YLyFPaT8LWqxjGAe3rsd66fVdK7tO8W6o8
+         Hqyp6S72+uMz/wzWfsoIDjGOxVsVpEyOpBPhyyn41njpThaLc9pGRWwJIEx4kbb9Qfnq
+         bngCxDTLDY4vUjUsFbhQcTe8nFbxJ2CSSH2W2meikyVepeJN3+qacpw3qp4dm7H4L2El
+         GjW3wUotk2sMnVGIWouZAHRJHhFr3gv3twFgUZAVjw/l0+NR9VMMRUHqJ2lnfeJbi5IY
+         QzoPVpTCT3wtyszte8dF5IHkypIbDsUu9nLYItbyHYUhGASM7K94a9/ruZjEvHJVsg7s
+         yOow==
+X-Gm-Message-State: AOAM530jV2dOHzqkYyzwuP+CGU7r9sJlOtH04in/O4exHriMHC0A7HoC
+        tASJTGBfKKCMI/48uGeUkI/2Gw==
+X-Google-Smtp-Source: ABdhPJy3ItCkWQH2TofMljBMQOS57N42E7QhPEdASieFslwrxqQX4/xxmVMX0DeLVF+Z4h07FO8kfQ==
+X-Received: by 2002:a17:90b:117:: with SMTP id p23mr6430244pjz.111.1607129231180;
+        Fri, 04 Dec 2020 16:47:11 -0800 (PST)
+Received: from smtp.gmail.com ([2620:15c:202:201:3e52:82ff:fe6c:83ab])
+        by smtp.gmail.com with ESMTPSA id jz7sm3146227pjb.14.2020.12.04.16.47.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Dec 2020 16:47:10 -0800 (PST)
+From:   Stephen Boyd <swboyd@chromium.org>
+To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Alan Stern <stern@rowland.harvard.edu>, kernel@pengutronix.de,
-        linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] ARM: sa11111: make sa1111 bus's remove callback return
- void
-Message-ID: <20201204200927.p354eli7uqr776sp@pengutronix.de>
-References: <20201126114724.2028511-1-u.kleine-koenig@pengutronix.de>
- <X8pOiU2a6BjfFuov@kroah.com>
+        Benson Leung <bleung@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>
+Subject: [PATCH] Input: cros_ec_keyb: Add support for a front proximity switch
+Date:   Fri,  4 Dec 2020 16:47:09 -0800
+Message-Id: <20201205004709.3126266-1-swboyd@chromium.org>
+X-Mailer: git-send-email 2.29.2.576.ga3fc446d84-goog
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ylbalxyvhyuipbv3"
-Content-Disposition: inline
-In-Reply-To: <X8pOiU2a6BjfFuov@kroah.com>
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Some cros ECs support a front proximity MKBP event via
+'EC_MKBP_FRONT_PROXIMITY'. Map this to the 'SW_FRONT_PROXIMITY' input
+event code so it can be reported up to userspace.
 
---ylbalxyvhyuipbv3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benson Leung <bleung@chromium.org>
+Cc: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+---
+ drivers/input/keyboard/cros_ec_keyb.c          | 5 +++++
+ include/linux/platform_data/cros_ec_commands.h | 1 +
+ 2 files changed, 6 insertions(+)
 
-Hey Greg,
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 15d17c717081..9d05e9192a10 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -107,6 +107,11 @@ static const struct cros_ec_bs_map cros_ec_keyb_bs[] = {
+ 		.code		= SW_TABLET_MODE,
+ 		.bit		= EC_MKBP_TABLET_MODE,
+ 	},
++	{
++		.ev_type	= EV_SW,
++		.code		= SW_FRONT_PROXIMITY,
++		.bit		= EC_MKBP_FRONT_PROXIMITY,
++	},
+ };
+ 
+ /*
+diff --git a/include/linux/platform_data/cros_ec_commands.h b/include/linux/platform_data/cros_ec_commands.h
+index a3a9a878415f..d9dc5e30e59e 100644
+--- a/include/linux/platform_data/cros_ec_commands.h
++++ b/include/linux/platform_data/cros_ec_commands.h
+@@ -3455,6 +3455,7 @@ struct ec_response_get_next_event_v1 {
+ #define EC_MKBP_LID_OPEN	0
+ #define EC_MKBP_TABLET_MODE	1
+ #define EC_MKBP_BASE_ATTACHED	2
++#define EC_MKBP_FRONT_PROXIMITY	3
+ 
+ /* Run keyboard factory test scanning */
+ #define EC_CMD_KEYBOARD_FACTORY_TEST 0x0068
 
-On Fri, Dec 04, 2020 at 03:58:17PM +0100, Greg Kroah-Hartman wrote:
-> On Thu, Nov 26, 2020 at 12:47:24PM +0100, Uwe Kleine-K=F6nig wrote:
-> > The driver core ignores the return value of struct device_driver::remove
-> > because there is only little that can be done. To simplify the quest to
-> > make this function return void, let struct sa1111_driver::remove return
-> > void, too. All users already unconditionally return 0, this commit makes
-> > it obvious that returning an error code is a bad idea and ensures future
-> > users behave accordingly.
-> >=20
-> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
->=20
-> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+base-commit: b65054597872ce3aefbc6a666385eabdf9e288da
+-- 
+https://chromeos.dev
 
-Thanks, can I interpret this also as an Ack to take the change affecting
-drivers/usb via Russell's tree?
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---ylbalxyvhyuipbv3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAl/Kl3QACgkQwfwUeK3K
-7AlmhAf9F7NmYPLA9RAjwasWctkMau78khxkjBLaMDlVTgkU2ks5nm72b6Baizsn
-HKBguMwdF4uWzLd4LfifNzAsUtf3SWkcWxVpW20nH8NqFeLUuoz6u0i/JgqfaTdO
-mgeqyp3pZ2SrfQz6fq2Rp83YM7VAFvVCxFaNun248simpRrW+hPsKSybO2FIgDWU
-guqc8F23dbEStinvA7B5aUkvzHWvE4C4pDCBVzRWt4V8iSY8B6MbHCazRS0SKLhr
-sDA4sM9DCfiDTlDz5jrhkPkMIHiYa8oq8nAQ5Fd3B4i7OUIXOo+gp4PDTuxyW8kB
-7BBjNp17gStSdxi8As6ZKCP+OFvoKQ==
-=8a5x
------END PGP SIGNATURE-----
-
---ylbalxyvhyuipbv3--

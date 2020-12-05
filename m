@@ -2,60 +2,60 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B1BEC1B087
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84F14C1B0E3
 	for <linux-input@archiver.kernel.org>; Sat,  5 Dec 2020 05:49:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F0B6C22DBF
-	for <linux-input@archiver.kernel.org>; Sat,  5 Dec 2020 05:48:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5974F22E00
+	for <linux-input@archiver.kernel.org>; Sat,  5 Dec 2020 05:49:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728855AbgLEFsp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 5 Dec 2020 00:48:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37760 "EHLO
+        id S1727444AbgLEFst (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 5 Dec 2020 00:48:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728779AbgLEFsp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 5 Dec 2020 00:48:45 -0500
+        with ESMTP id S1728779AbgLEFss (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 5 Dec 2020 00:48:48 -0500
 Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77087C061A52;
-        Fri,  4 Dec 2020 21:48:04 -0800 (PST)
-Received: by mail-lf1-x143.google.com with SMTP id u9so5129078lfm.1;
-        Fri, 04 Dec 2020 21:48:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4DA2C0613D1;
+        Fri,  4 Dec 2020 21:48:01 -0800 (PST)
+Received: by mail-lf1-x143.google.com with SMTP id b4so3050491lfo.6;
+        Fri, 04 Dec 2020 21:48:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=y9gRg52LFimb3ceOLj9UGDG1IkEgZHW2S4OzYw39/xU=;
-        b=cSb0GmoETBlwzLSWynys0Kkv9th9aqH3FayVYZAgIqTL1sjNjIQsw5z4FCcrCJzkLw
-         FZZnxK7ARi7cHGUzFyku0Td+a9EO/WrNrq5/2wjxgWruaLycLrRxxcrp2NHT25GAMwb2
-         jUT/lYHM2yYVek6WBLXzxBTr2WISgpe+yItSSn6TU8cfP/z+MskC+/Q5rvfxT5Z2C22D
-         1MoLHsm1tRIHppgEDdGSq4fiX4Ck4mKvSudcalzse5QiKBp/QspRVzJ0Ht3J2ciUF6qD
-         k7jMK6Rrsl95rad7mWmzQw//W5kmrE2Neq/DnoaJ53okp52+sM5OUSH6MyT+62ovZ14y
-         E0xA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5++2croPNd/0hpgvNFTve6N+aJVcX7l0nkuMAfD5rIU=;
+        b=pj+nZMel3sOc4wy4AFiHY+OPzj0MY/S+/jw+dprE3y+Kw2PvQ765iN31VxOfif2+7N
+         oJ3RRT3fBM3Lo9BboclgZT/SVI8suGbIG7aA2xAJkyudwX4q2SU4tIkZBM7fbJ5sVgUy
+         s4hUP5SUJ+jVzWio29KPk9ocBwVw/5p1HgjU/ZhET3FIDK5dt1HzWHiuxDDmucI9nEuh
+         BHBe+VbJ+w+EB4nGS8K297rjCEnCNHMFIY/ea38W7Sh1R3/30zWxEk6ITz2bTqX2mSCu
+         rom3ANjb47exAOKG14hV0DSsHkXnokXkhi+Nzeu7gcwcGoLpmNDbcp3toyUXXPT059sW
+         sWKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=y9gRg52LFimb3ceOLj9UGDG1IkEgZHW2S4OzYw39/xU=;
-        b=hDFKgIsEMNfUw9ZzmZpZOcbRzoywkH2OqEs7piFI6oZzCwcbwWVgVM9JjravSeewGV
-         HNvur2xnMYV+B0RnNHtrCiV6sr49RB1cTFiz9PFq8CGWRtcInRQYMjxzTQ1LEhwpZiUx
-         Htt3yTvMkCI711tB/SKBxMVqNzY80tZ/Tz8Y1E1HRsriXpREde9LL3HbEbAA+SB5x9o4
-         6DjdigEhpXlFA08NlgvEc0vRJ2wb0Y4DHR3oro0pg5UfUV0QNZyt9Qq5FSPJHsySiSqZ
-         cromjdYJtVv6tDBTwbbDYEhqZqTyC7/wwIWxrL9ztG0BzwTAjC+dcP39Aml3e8br3UcW
-         nbeg==
-X-Gm-Message-State: AOAM530ld6ywyWl7/ilvJ2189zHGhXf1+mi93RqZlpU1fVN43gAz5gqr
-        ZQPqgc5VpInT+5gJzD4V4rc=
-X-Google-Smtp-Source: ABdhPJw3Ub3qM1rkXJggA6CZxirbnewaybJ/Y3lky7bsLoQiP0/c9NoE+6pvHLGt3yupJGH2CzEaKA==
-X-Received: by 2002:a19:4a08:: with SMTP id x8mr4589545lfa.322.1607147283042;
-        Fri, 04 Dec 2020 21:48:03 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5++2croPNd/0hpgvNFTve6N+aJVcX7l0nkuMAfD5rIU=;
+        b=cur8BVI4mXK3poWD6lZKXqLbcGQzgG7Rycy7JULrF70cVlOqrYj+aM07tTnFm3XFvM
+         SsYi3KEwlwDvFoFiVvNgec38E4HyaXJ3khfqt5Qq7zT9fTgXRfAI4Vt/Zg4dxq6SZZcE
+         mxYwZrwW+twYGsgxR0Vj5tOiPb8FZE26HbvWmcVQ4hS1aWpiVaTPAJBl4ZSboqJyd/uc
+         7vWN5VkFv+SvV5gHA7oyMbvIu6hGY+hdAjcAS2MQlhvoZ/kzFMy3bjbLS9jqqxn/fieQ
+         E0HhX5VgqIukm1AMoAxMsnFtzrEc3/JIh41B9oeCsuKXvg34bOONfQIbRNkB/N61y64e
+         aCEw==
+X-Gm-Message-State: AOAM530VvxHwRre9NRVcs+JLS2AVQIvRqnYOY4MgockZbF90v23LlPwT
+        pTWDcUGPfKPMLHvP9fq1/8E=
+X-Google-Smtp-Source: ABdhPJyP3ILU+Ha+0vcWH3qObB1wxbd7+pGVAk6JPrQMA6Bf1V7zFOknz/ZnJb9hM42i/fi7LqTZYA==
+X-Received: by 2002:ac2:4a79:: with SMTP id q25mr4408504lfp.495.1607147280227;
+        Fri, 04 Dec 2020 21:48:00 -0800 (PST)
 Received: from localhost.localdomain (109-252-192-53.dynamic.spd-mgts.ru. [109.252.192.53])
-        by smtp.gmail.com with ESMTPSA id w28sm2231490ljd.48.2020.12.04.21.48.02
+        by smtp.gmail.com with ESMTPSA id w28sm2231490ljd.48.2020.12.04.21.47.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Dec 2020 21:48:02 -0800 (PST)
+        Fri, 04 Dec 2020 21:47:59 -0800 (PST)
 From:   Dmitry Osipenko <digetx@gmail.com>
 To:     Nick Dyer <nick@shmanahar.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -66,46 +66,49 @@ To:     Nick Dyer <nick@shmanahar.org>,
         Jiada Wang <jiada_wang@mentor.com>
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/3] ARM: tegra: acer-a500: Add atmel,wakeup-method property
-Date:   Sat,  5 Dec 2020 08:47:49 +0300
-Message-Id: <20201205054749.26487-4-digetx@gmail.com>
+Subject: [PATCH v2 0/3] Support wakeup methods of Atmel maXTouch controllers
+Date:   Sat,  5 Dec 2020 08:47:46 +0300
+Message-Id: <20201205054749.26487-1-digetx@gmail.com>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201205054749.26487-1-digetx@gmail.com>
-References: <20201205054749.26487-1-digetx@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add atmel,wakeup-method property to the touchscreen node.
+Some Atmel maXTouch controllers, like mXT1386 and mXT3432S1 for example,
+have a WAKE line that needs to be asserted in order to wake controller
+from a deep sleep, otherwise it will be unusable. This series implements
+support for the wakeup methods in accordance to the mXT1386 datasheet [1],
+see page 29 (chapter "5.8 WAKE Line").
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
----
- arch/arm/boot/dts/tegra20-acer-a500-picasso.dts | 3 +++
- 1 file changed, 3 insertions(+)
+The mXT1386 is a widely used controller found on many older Android tablet
+devices. Touchscreen on Acer A500 tablet now works properly after this
+series.
 
-diff --git a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
-index d3b99535d755..40c1bab22155 100644
---- a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
-+++ b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- /dts-v1/;
- 
-+#include <dt-bindings/input/atmel-maxtouch.h>
- #include <dt-bindings/input/gpio-keys.h>
- #include <dt-bindings/input/input.h>
- #include <dt-bindings/thermal/thermal.h>
-@@ -450,6 +451,8 @@ touchscreen@4c {
- 
- 			avdd-supply = <&vdd_3v3_sys>;
- 			vdd-supply  = <&vdd_3v3_sys>;
-+
-+			atmel,wakeup-method = <ATMEL_MXT_WAKEUP_I2C_SCL>;
- 		};
- 
- 		gyroscope@68 {
+This patchset is a continuation of the work originally started by
+Jiada Wang [2].
+
+[1] https://ww1.microchip.com/downloads/en/DeviceDoc/mXT1386_1vx_Datasheet_LX.pdf
+[2] https://patchwork.kernel.org/project/linux-input/list/?series=357875
+
+Changelog:
+
+v2: - Fixed copy-paste bug in the code.
+
+Dmitry Osipenko (3):
+  dt-bindings: input: atmel_mxt_ts: Document atmel,wakeup-method and
+    wake-GPIO
+  Input: atmel_mxt_ts - support wakeup methods
+  ARM: tegra: acer-a500: Add atmel,wakeup-method property
+
+ .../bindings/input/atmel,maxtouch.yaml        | 26 +++++++++
+ .../boot/dts/tegra20-acer-a500-picasso.dts    |  3 +
+ drivers/input/touchscreen/atmel_mxt_ts.c      | 55 +++++++++++++++++++
+ include/dt-bindings/input/atmel-maxtouch.h    | 10 ++++
+ 4 files changed, 94 insertions(+)
+ create mode 100644 include/dt-bindings/input/atmel-maxtouch.h
+
 -- 
 2.29.2
 

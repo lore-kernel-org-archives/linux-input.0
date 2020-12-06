@@ -2,112 +2,107 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6156C19437
-	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 04:11:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81D33C433FE
+	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 12:32:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DD4C22D2A
-	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 04:11:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C78022D2C
+	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 12:32:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727182AbgLFEKM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 5 Dec 2020 23:10:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34860 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727181AbgLFEKK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 5 Dec 2020 23:10:10 -0500
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EE47C0613D4;
-        Sat,  5 Dec 2020 20:09:30 -0800 (PST)
-Received: by mail-pf1-x441.google.com with SMTP id t7so6693316pfh.7;
-        Sat, 05 Dec 2020 20:09:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Bjb3siksjCQxhh7o1xTwvr++qhqZ5Ukvote3GZa+jqw=;
-        b=KOHeAAgDo0eHYW0Zk9uWp2ZvAyXCfE8yYEVlwMUbJfMcNWmJfvd21AJHKMZ0ck/q5I
-         z43qeEDUjAWnRiUzjK9DgzG3ayisnGDNuYDp6BWG60q4MnexXncKBie/7ahrPypBo644
-         LT+O04lap68ike/H1T/X4JF0buT0jtCk12i0ByALZFMiXwbXAbwYSWvuNa2JIuH/reia
-         uESsqWSAPGN5vM2dNEJij4TOyMu7Qm7Lc1klRyky7gm3xWM11MPhgpJUWwnlGz1XPuwc
-         VkIcEnfnBcvz0I89gPxoFqN1FFiBt6Dwu9qFKHKzUWwKX1DbJtntRmPJovdbuQDAnj1a
-         YYsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Bjb3siksjCQxhh7o1xTwvr++qhqZ5Ukvote3GZa+jqw=;
-        b=IPYAThCbMtCOoxvwxDynm01WgRoI+ptsi8xeCmdkjgZqSYzR2T2ziKSEunGloD8Z8D
-         0kIKYfUpOpRus8pdGeSbWMY9HDwmBFJNj72joDuW4xBz0+jPlnoeC1HdkVAfs1thUkjt
-         sAAYszgALhv+iagYHH2WfvFNy6hBbmmWsWvb1FiprZc5ri6bc94PAreGSkoTwvH5PHPA
-         IAc70cG+laEN3ybrEyGFlhVZqtgOnebZOIQwofPWL/pTUgqazJoShW8D/r739YLzDaLz
-         0XDzgYnz0uC1AOP7cVqno2umyqncBBBfzoY6TTqiIVnUaXWREJs5T75c9aoAOUu6EyO3
-         TH8g==
-X-Gm-Message-State: AOAM532Po3IwvHozHQ3KUpDgHzsmHEpqpdB08WwUe/jmcjrfBjfXOEVe
-        RaRv8KtkXQndv9tFayL1MVCIUlUxAPs=
-X-Google-Smtp-Source: ABdhPJz/YEITyD7MdfpgzUNYmvtvjp8X5PGZEALctAPo9bkKRJ6t+7KMGGo/iArVDHFezgEB04ZVtg==
-X-Received: by 2002:a17:902:d682:b029:da:c739:ce14 with SMTP id v2-20020a170902d682b02900dac739ce14mr10342893ply.61.1607224403024;
-        Sat, 05 Dec 2020 19:13:23 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id y9sm6382998pjj.8.2020.12.05.19.13.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Dec 2020 19:13:22 -0800 (PST)
-Date:   Sat, 5 Dec 2020 19:13:19 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
-        linux-actions@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-pm@vger.kernel.org
-Subject: Re: [PATCH v3 6/7] input: atc260x: Add onkey driver for ATC260x PMICs
-Message-ID: <X8xMTwaUYx+s1BG7@google.com>
-References: <cover.1607216141.git.cristian.ciocaltea@gmail.com>
- <fb61c36b7a8449d76767f148f2d43447294d5038.1607216141.git.cristian.ciocaltea@gmail.com>
+        id S1727795AbgLFMcO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 6 Dec 2020 07:32:14 -0500
+Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.217]:21576 "EHLO
+        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725767AbgLFMcO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 6 Dec 2020 07:32:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1607257701;
+        s=strato-dkim-0002; d=gerhold.net;
+        h=In-Reply-To:References:Message-ID:Subject:Cc:To:From:Date:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=NdhkBxtn7L94tUEdaXrhYTzEd2GtpsrUba5lNB5ugvI=;
+        b=nFMZ9YAv3IjVdPRpckI0Q3rYwQMH6l3Krg+tdWWOI8hDr9jQvkGGrHkJnziAjjm7s0
+        q69nefcfYWCrpNq0t1e+1ji4cjH4E1bWLfdtHA8DV7aK5+Lg03FHA4lypNWuyLbRBbLx
+        1QAvdpHgxxHs81e4Eda/KIeBfqbeGtwdcMNztoN7juezbitpKRgZDJlj3fmTuBTS/B/R
+        J8FxFv2bG7bNH6WvFUl/HDYxon3q5e0WOjZOxvIP9UH1zJrXj19HxKoFYcGdUQFURMO3
+        uuNu0rvo010Jdo+M516TK3GwyVzbfColQvspFxy1XQWKzh+mqrko9HigyAthH1yPDSx+
+        5r4Q==
+X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVOQ/OcYgojyw4j34+u26zEodhPgRDZ8jxIcnBBg=="
+X-RZG-CLASS-ID: mo00
+Received: from gerhold.net
+        by smtp.strato.de (RZmta 47.3.4 DYNA|AUTH)
+        with ESMTPSA id Z061efwB6CSIZEy
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Sun, 6 Dec 2020 13:28:18 +0100 (CET)
+Date:   Sun, 6 Dec 2020 13:28:14 +0100
+From:   Stephan Gerhold <stephan@gerhold.net>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Linux Input <linux-input@vger.kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>
+Subject: Re: [PATCH 2/3] dt-bindings: Input: tm2-touchkey - document
+ vddio-supply
+Message-ID: <X8zOXpJ7fjIlgtnP@gerhold.net>
+References: <20201203131242.44397-1-stephan@gerhold.net>
+ <20201203131242.44397-2-stephan@gerhold.net>
+ <CACRpkdadiyYK5i8+TaLqxjmp4mUJ8eTiyZkgPXp-Qa2+CD8DrA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <fb61c36b7a8449d76767f148f2d43447294d5038.1607216141.git.cristian.ciocaltea@gmail.com>
+In-Reply-To: <CACRpkdadiyYK5i8+TaLqxjmp4mUJ8eTiyZkgPXp-Qa2+CD8DrA@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Dec 06, 2020 at 03:27:06AM +0200, Cristian Ciocaltea wrote:
-> The Actions Semi ATC260x PMICs are able to manage an onkey button.
-> This driver exposes the ATC260x onkey as an input device. It can also
-> be configured to force a system reset on a long key-press with an
-> adjustable duration.
+On Sun, Dec 06, 2020 at 12:09:50AM +0100, Linus Walleij wrote:
+> On Thu, Dec 3, 2020 at 2:13 PM Stephan Gerhold <stephan@gerhold.net> wrote:
 > 
-> The currently supported chip variants are ATC2603C and ATC2609A.
+> > The Samsung touchkey controllers are often used with external pull-up
+> > for the interrupt line and the I2C lines, so we might need to enable
+> > a regulator to bring the lines into usable state. Otherwise, this might
+> > cause spurious interrupts and reading from I2C will fail.
+> >
+> > Document support for a "vddio-supply" that is enabled by the tm2-touchkey
+> > driver so that the regulator gets enabled when needed.
+> >
+> > Cc: Linus Walleij <linus.walleij@linaro.org>
+> > Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
 > 
-> Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-> ---
-> Changes in v3: 
->  - Integrated Dmitry's review:
->    * Dropped the logic around the check for 'pdev->dev.of_node'
->    * Renamed 'ret' variable in 'atc260x_onkey_probe()' to 'error'
->    * Used 'dev_dbg' instead of 'dev_info' on status KEY_RESET_DISABLED
->    * Dropped 'input_dev->evbit[0] = BIT_MASK(EV_KEY);'
->    * Removed IRQF_TRIGGER_HIGH flag on 'devm_request_threaded_irq()'
->    * Implemented open/close to mitigate the racing issue in
->      'atc260x_onkey_remove()' which has been dropped now
->  - Removed the unnecessary driver compatibles
->  - Used 'reset-time-sec' property of the parent device instead of
->    'actions,reset-time-sec' of now obsolete and removed 'onkey' DT node
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> 
+> > +  vddio-supply:
+> > +    description: |
+> > +      Optional regulator that provides digital I/O voltage,
+> > +      e.g. for pulling up the interrupt line or the I2C pins.
+> 
+> I think the funny pipe | us only needed when you want something to be
+> fixed-width like ASCII art or ASCII tables. But no big deal I suppose.
+> 
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Actually, the pipe | effectively means that new lines \n will be
+preserved in the parsed output, i.e.
 
-Please merge with the rest through MFD I suppose.
+  something:
+    Hello
+    World
 
-Thanks.
+means "Hello World", while
 
--- 
-Dmitry
+  something: |
+    Hello
+    World
+
+means "Hello\nWorld\n".
+
+In practice I guess it doesn't make much of a difference for these
+descriptions. It also doesn't seem to be used very consistently in
+existing device tree bindings, so I think it's fine as-is.
+
+Thanks,
+Stephan

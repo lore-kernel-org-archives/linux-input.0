@@ -2,61 +2,282 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AF92C433FE
-	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 00:21:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42341C4167B
+	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 01:28:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 67D7A2313A
-	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 00:21:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F63123136
+	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 01:28:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726479AbgLFAVU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 5 Dec 2020 19:21:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35278 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725966AbgLFAVU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 5 Dec 2020 19:21:20 -0500
-Subject: Re: [git pull] Input updates for v5.10-rc6
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1607214040;
-        bh=IYHOj4vaPvp6771HWufe8aoWa0ykGu8LWN7qLFEVWxI=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=XLlGyaXi/B13beFRR6eEuZGrEqYyT0vrpAL+8HgbZuuoHvu0Hw1NHj4iKgU+abd8X
-         R/oqz5BfbnZoETBZMdpl3/0B5eff9vdl3NM8N5m+ZcnhFFA0yRzKSER17hAt/hPtnk
-         Hgk2H34XSgeR5VNmNxJmSN4emVcRre6DJ55tg0+DQ02rx21qR2kx6HUhDuUrJv8+9r
-         kiy8+UJJtzBK110Pfn8pdt/eipWaSipRPxmapqQTYG6ddmo7rqZnFhVrRv3qd41rWV
-         2HSkSlrYQsJBgSqHvyrHj2L0YkVdY7YnoBVgb9p/YYOCEuUvl/iifjFEoxA3sjOWWT
-         740G8Yn3W2BBg==
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <X8we6Ff3ikti/2bR@google.com>
-References: <X8we6Ff3ikti/2bR@google.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <X8we6Ff3ikti/2bR@google.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-X-PR-Tracked-Commit-Id: 8c3b55a299c325830a987de21dab6a89ecb71164
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 7059c2c00a2196865c2139083cbef47cd18109b6
-Message-Id: <160721404011.14459.459879198480889297.pr-tracker-bot@kernel.org>
-Date:   Sun, 06 Dec 2020 00:20:40 +0000
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+        id S1726265AbgLFB17 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 5 Dec 2020 20:27:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725920AbgLFB14 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 5 Dec 2020 20:27:56 -0500
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85419C0613D4;
+        Sat,  5 Dec 2020 17:27:15 -0800 (PST)
+Received: by mail-ej1-x641.google.com with SMTP id bo9so14218272ejb.13;
+        Sat, 05 Dec 2020 17:27:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Hhr+PSpxdrsAQvt323Tq1/gTyUseyObVcoODids+lqA=;
+        b=VIdVUCWnufid9JZlpun9gF+LCvqCnlUjubxxJehhofR3y/3C7BRVg41DStuHKhM12Y
+         qSAmwSxyBG5frrV/6Bq0VyVEMyUj9/GfadRX7Vdk4vE/7pMHdc17HSFNv1E84oORslC4
+         3YyqUxf7zuAc2shTr5enMJEeX/G081pw0hKGQOMcnHx5htE3eRMfsmJbygsMFiiBVkOv
+         mPosECN8ZMXiDV69X5XnJC+XtvXNtlT7ahH7XN0WKqr25oMb66QWrwejHtHhtgCIwAaH
+         G97P+HtIIdapiOQZN80V0jmkYC2cyDmnx2Vgz5xdu4zQHhXKq3fhBBHSDaN829HpQEyB
+         nA+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Hhr+PSpxdrsAQvt323Tq1/gTyUseyObVcoODids+lqA=;
+        b=TRQ0TB0Z1wfqChppu1M7dxM0sw9LzTvwPPTTzVyEipXttxMGQ7H7HtGlReahIuKQmB
+         3E+tSfC245Zxz643ejzmtukJmIJi/t9JXt3+9mWOml91hHRNeytH601g6c0v/a5PgsaV
+         rcp1c3pQMNphTkW3rjXDq0DAjBsOqsk/BQqf9/HzRMtYCuA26K9ENrI0LUSU4bfslL4/
+         BpXcbQxkHnPP2jOgGczR4dwz7OQz7HhNVV3JyuE6AQ4APC9Atf21whHgN7yJcYDppIVC
+         f/WJ/mj26pgkso6HW7Q6ozUaSknLIMPVUIB2hl9gXj4/MnBlHphugrFQa/8YZJh3iFRa
+         kUOQ==
+X-Gm-Message-State: AOAM530E3g3sJI0O3/Wtrh0P0jAopxnR7M6Frx6tKky8d231DGBbKugA
+        L2RP+vAlPTd53rXB5R6Z/cI=
+X-Google-Smtp-Source: ABdhPJxJCPKxxJZgH3tiYHf0CObocUm0OhfT/xethdm+fsQSsEXUrjha6DRhbhlKDbrxp06PPfGWTQ==
+X-Received: by 2002:a17:907:9627:: with SMTP id gb39mr13621713ejc.267.1607218034248;
+        Sat, 05 Dec 2020 17:27:14 -0800 (PST)
+Received: from localhost.localdomain ([188.24.159.61])
+        by smtp.gmail.com with ESMTPSA id a10sm6157023ejk.92.2020.12.05.17.27.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Dec 2020 17:27:13 -0800 (PST)
+From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Cc:     linux-actions@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH v3 2/7] dt-bindings: mfd: Add Actions Semi ATC260x PMIC binding
+Date:   Sun,  6 Dec 2020 03:27:02 +0200
+Message-Id: <fe0ab8ef20813a2623cd1e543b16bb21c5b63367.1607216141.git.cristian.ciocaltea@gmail.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <cover.1607216141.git.cristian.ciocaltea@gmail.com>
+References: <cover.1607216141.git.cristian.ciocaltea@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The pull request you sent on Sat, 5 Dec 2020 15:59:36 -0800:
+Add devicetree binding for Actions Semi ATC260x PMICs.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+---
+Changes in v3 (according to Rob's review):
+ - Dropped the 'pwrc' and 'onkey' nodes
+ - Used a common 'reset-time-sec' property
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/7059c2c00a2196865c2139083cbef47cd18109b6
+ .../bindings/mfd/actions,atc260x.yaml         | 181 ++++++++++++++++++
+ 1 file changed, 181 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/actions,atc260x.yaml
 
-Thank you!
-
+diff --git a/Documentation/devicetree/bindings/mfd/actions,atc260x.yaml b/Documentation/devicetree/bindings/mfd/actions,atc260x.yaml
+new file mode 100644
+index 000000000000..86aab77ba688
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/actions,atc260x.yaml
+@@ -0,0 +1,181 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/actions,atc260x.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Actions Semi ATC260x Power Management IC bindings
++
++maintainers:
++  - Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
++  - Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
++
++description: |
++  ATC260x series PMICs integrates Audio Codec, Power Management, RTC, IR
++  and GPIO controller blocks. Currently only the PM related functionalities
++  (i.e. regulators and system power-off/reboot) for the ATC2603C and ATC2609A
++  chip variants are supported.
++  ATC2603C includes 3 programmable DC-DC converters and 9 LDO regulators.
++  ATC2609A includes 5 programmable DC-DC converters and 10 LDO regulators.
++
++allOf:
++  - $ref: ../input/input.yaml
++
++properties:
++  compatible:
++    enum:
++      - actions,atc2603c
++      - actions,atc2609a
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-time-sec:
++    description: |
++      Duration in seconds which the key should be kept pressed for device
++      to reset automatically. The hardware default is 8. Use 0 to disable
++      this functionality.
++    enum: [0, 6, 8, 10, 12]
++
++  regulators:
++    type: object
++    description: |
++      List of child nodes specifying the regulators, depending on chip variant:
++      * ATC2603C: dcdc[1-3], ldo[1-3,5-8,11], switchldo1
++      * ATC2609A: dcdc[0-4], ldo[0-9]
++
++    properties:
++      compatible:
++        enum:
++          - actions,atc2603c-regulator
++          - actions,atc2609a-regulator
++
++      switchldo1:
++        type: object
++        $ref: ../regulator/regulator.yaml
++
++        properties:
++          regulator-name: true
++          regulator-boot-on: true
++          regulator-always-on: true
++          regulator-min-microvolt: true
++          regulator-max-microvolt: true
++          regulator-allow-bypass: true
++          regulator-active-discharge: true
++
++        additionalProperties: false
++
++    patternProperties:
++      "^(dcdc[0-4]|ldo[0-9]|ldo11|switchldo1)-supply$":
++        description: ATC260x voltage regulators supplies
++
++      "^(dcdc[0-4]|ldo[0-9]|ldo11)$":
++        type: object
++        $ref: ../regulator/regulator.yaml
++
++        properties:
++          regulator-name: true
++          regulator-boot-on: true
++          regulator-always-on: true
++          regulator-min-microvolt: true
++          regulator-max-microvolt: true
++          regulator-allow-bypass: true
++
++        additionalProperties: false
++
++    allOf:
++      - if:
++          properties:
++            compatible:
++              contains:
++                const: actions,atc2603c-regulator
++        then:
++          patternProperties:
++            "^(dcdc[0,4]|ldo[0,4,9])(-supply)?$": false
++
++            "^(ldo|dcdc)":
++              properties:
++                regulator-allow-bypass: false
++      - if:
++          properties:
++            compatible:
++              contains:
++                const: actions,atc2609a-regulator
++        then:
++          patternProperties:
++            "^(ldo11|switchldo1)(-supply)?$": false
++
++            "^(dcdc|ldo[3-9])":
++              properties:
++                regulator-allow-bypass: false
++
++    required:
++      - compatible
++
++    additionalProperties: false
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    i2c0 {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        pmic@65 {
++            compatible = "actions,atc2603c";
++            reg = <0x65>;
++            interrupt-parent = <&sirq>;
++            interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
++
++            reset-time-sec = <6>;
++
++            regulators {
++                compatible = "actions,atc2603c-regulator";
++
++                dcdc1-supply = <&reg_5v0>;
++                dcdc3-supply = <&reg_5v0>;
++                ldo5-supply = <&reg_5v0>;
++                switchldo1-supply = <&vcc>;
++
++                vdd_cpu: dcdc1 {
++                    regulator-name = "VDD_CPU";
++                    regulator-min-microvolt = <700000>;
++                    regulator-max-microvolt = <1400000>;
++                    regulator-always-on;
++                };
++
++                vcc: dcdc3 {
++                    regulator-name = "VCC";
++                    regulator-min-microvolt = <2600000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                };
++
++                vcc_3v1: ldo5 {
++                    regulator-name = "VCC_3V1";
++                    regulator-min-microvolt = <2600000>;
++                    regulator-max-microvolt = <3300000>;
++                };
++
++                sd_vcc: switchldo1 {
++                    regulator-name = "SD_VCC";
++                    regulator-min-microvolt = <3000000>;
++                    regulator-max-microvolt = <3300000>;
++                    regulator-always-on;
++                    regulator-boot-on;
++                };
++            };
++        };
++    };
++
++...
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.29.2
+

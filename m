@@ -2,282 +2,87 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-4.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 290C1C2BB3F
-	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 21:24:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E489EC433FE
+	for <linux-input@archiver.kernel.org>; Mon,  7 Dec 2020 06:00:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EEC1B23110
-	for <linux-input@archiver.kernel.org>; Sun,  6 Dec 2020 21:24:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B0D74229C7
+	for <linux-input@archiver.kernel.org>; Mon,  7 Dec 2020 06:00:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728444AbgLFVYO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 6 Dec 2020 16:24:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51794 "EHLO
+        id S1725877AbgLGGAp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Dec 2020 01:00:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726862AbgLFVYK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 6 Dec 2020 16:24:10 -0500
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3283DC0613D3;
-        Sun,  6 Dec 2020 13:23:30 -0800 (PST)
-Received: by mail-wr1-x441.google.com with SMTP id l9so1704933wrt.13;
-        Sun, 06 Dec 2020 13:23:30 -0800 (PST)
+        with ESMTP id S1725773AbgLGGAo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Dec 2020 01:00:44 -0500
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460F2C0613D2
+        for <linux-input@vger.kernel.org>; Sun,  6 Dec 2020 22:00:04 -0800 (PST)
+Received: by mail-pf1-x443.google.com with SMTP id t8so8717949pfg.8
+        for <linux-input@vger.kernel.org>; Sun, 06 Dec 2020 22:00:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=1Pxze4A2dAo5atO70R2d45Qf30We6Z6MMBVebyesSn4=;
-        b=ieytLu/xvQbk87BLGNWqsdZ33M0ByUU9EDKLnzp4qAPNrpWzgWtyNlB1Or2GnxiHF5
-         1CK3fxx8eq2B1JRneXIZVcP0Aa0hsnm17i9GOraaXONQtT01NnaCMXiZvVFvovcsM8aw
-         xaz6AU4qcLhfaBIu03OfEpYTU7+r4nB1zEvbDsvk/2q6B1aWS2AuB6xAZk+NqRdcwciu
-         5WToGrTEYXASER+P75wF6/oSGCiK7/E11/yI7plnk3DQ7zkN8Kb5qmLa5NYm1A0L/uNS
-         eNTrsDB0YMj7BUIy4o7YroJFd88w1NRBTCb0fHQvpTZvWsqmbUWX2TN4V5wNFpS/y8lM
-         MmmA==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=FSRcsfhnT34AUr1qIdAVppdM1vH49cOHDdV2H4oEXt0=;
+        b=p3mX7qqFIuJaYdo+EAZY5rBMzw7uNyOjo3LyfQ3d5jHMp2mvaMMgjXHVwt7oXOphwe
+         T+7JJacqB9gBN1bUFuY1uVdKe+LomXtIW+mj3UhxwZLUWb6p6vqWrRGcix4lj/6hy1du
+         YHhvbQwC6aqtxHeh9vOh+JIEHdV/2P+HfEK0UsqaosVg36Y+IHApVLl1jrC1MP5roioL
+         geUeUJ57v/b0eBGhlAI9bx+MAP2bN1wUTCV/WWnlCCc7J3U6gL4EQuXOPXex/2WlR2Qy
+         n5m7G9v4BFlNjDSifGRj31rqG27eVl6DEXfpxfx0IOGgfl5e0xmdfEQH/U87b1A5pe0j
+         ENoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=1Pxze4A2dAo5atO70R2d45Qf30We6Z6MMBVebyesSn4=;
-        b=JAzCKqhzx0UVlitsRoFlqV7i8JGI8+47yALfP1aF1WIzV4sRZ0VLa/C1nL40SOZa0X
-         YH84LGVcE2gd8YAHlxtV9EfHSp0NOBD/Fs8l/dkovf/QZbfKvUTPpworXK1Gj7anw3i5
-         OLV/xEiC9R6MpSmi1lUN3nW2CuklxZa/++ANhGHDgu6yJ6ycSH1lKZiDMB/00r24B/ki
-         32ZoXoesNVZps4uFxPTK3Jo9hRTvQXzhUA+jY7YyCAin9CQSUjdSCOM3BAiCk3ceUEsb
-         OVbR/ODLP+8RaICudiQWnzm73yvRdTNHy5Rv5HxSEU8ZczplcHMLdbuGk75g7ntVKG+1
-         eMwQ==
-X-Gm-Message-State: AOAM533/W/6CogKTb/9MTuSJUnkjpUUUxrEJ0zdnGU6qH0albN303zD+
-        O1L+zEJUhtl/Bp5pbf18lF4=
-X-Google-Smtp-Source: ABdhPJzZ1Z/ZXLxVCm4zOSPHF9zguGoJUyh5/GifccWjsXlk/xG1IFphiHQRfMgXN3WrpiAMLCE0FA==
-X-Received: by 2002:a5d:4141:: with SMTP id c1mr16251519wrq.80.1607289808907;
-        Sun, 06 Dec 2020 13:23:28 -0800 (PST)
-Received: from localhost.localdomain (109-252-192-53.dynamic.spd-mgts.ru. [109.252.192.53])
-        by smtp.gmail.com with ESMTPSA id l24sm12737540wrb.28.2020.12.06.13.23.27
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=FSRcsfhnT34AUr1qIdAVppdM1vH49cOHDdV2H4oEXt0=;
+        b=BY+OaQtjiHmeNwIud5vX9JySaFqDKa30F+Yohz8m1UZQg0pt06c2Mr4vCQUtwEXY+B
+         Y76whqoBdbUCaFtfVfp026wAZb6d+DI9vkEPg/F82sINevWzRK4BlpdP4RCXptPrmY/j
+         McrleGgW4rH+ZKwS3XVvM5gf8nqDMplNa44wcBy1tEEZka3uAJ9vB7wkKuPTny3rPz2F
+         2le8ZhfS4me5O1V3CDL/9qa/3zY8Xjx0faIzVLFgb1CrCEOVYq79Nj3xGfPoY6B4UV2S
+         3z1HDl2653Uq1TmJUYNjBcfTxrqj03SZs/I9wG+Qr10Rf/gEaivyqGNPW/sm9IZvJR6W
+         /XNQ==
+X-Gm-Message-State: AOAM531Q08tpoff7COw5NmC6Izx5ISeC5n25WrXcI2iC6uiMp/LnbAqe
+        ujG6QRveX4FWiwL6U6gqJlY=
+X-Google-Smtp-Source: ABdhPJzq9KlIe3tipVeY4SsfI/OFbUnxDheuVPNQ8m9tZo1rImgFyQIlsYAaFizVwg/vSHtFusVtjA==
+X-Received: by 2002:a63:3117:: with SMTP id x23mr15068606pgx.38.1607320803214;
+        Sun, 06 Dec 2020 22:00:03 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id i29sm11295377pgb.10.2020.12.06.22.00.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 06 Dec 2020 13:23:28 -0800 (PST)
-From:   Dmitry Osipenko <digetx@gmail.com>
-To:     Nick Dyer <nick@shmanahar.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jiada Wang <jiada_wang@mentor.com>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 2/3] Input: atmel_mxt_ts - support wakeup methods
-Date:   Mon,  7 Dec 2020 00:22:16 +0300
-Message-Id: <20201206212217.6857-3-digetx@gmail.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201206212217.6857-1-digetx@gmail.com>
-References: <20201206212217.6857-1-digetx@gmail.com>
+        Sun, 06 Dec 2020 22:00:02 -0800 (PST)
+Date:   Sun, 6 Dec 2020 22:00:00 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     linux-input@vger.kernel.org
+Subject: Re: [PATCH] Input: soc_button_array - Add Lenovo Yoga Tablet2 1051L
+ to the dmi_use_low_level_irq list
+Message-ID: <X83E4AB5sfxoeYFP@google.com>
+References: <20201206161245.24798-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201206161245.24798-1-hdegoede@redhat.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-According to datasheets, chips like mXT1386 have a WAKE line, it is used
-to wake the chip up from deep sleep mode before communicating with it via
-the I2C-compatible interface.
+On Sun, Dec 06, 2020 at 05:12:45PM +0100, Hans de Goede wrote:
+> Add the Lenovo Yoga Tablet2 1051L to the list of devices where the
+> ACPI AML code is poking the GPIO config register directly changing
+> the IRQ type to a low_level_irq, which we need to work around.
+> 
+> This fixes the home button on the Lenovo Yoga Tablet2 1051L not
+> working.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-If the WAKE line is connected to a GPIO line, the line must be asserted
-25 ms before the host attempts to communicate with the controller. If the
-WAKE line is connected to the SCL pin, the controller will send a NACK on
-the first attempt to address it, the host must then retry 25 ms later.
+Applied, thank you.
 
-Implement the wake-up methods in the driver. Touchscreen now works
-properly on devices like Acer A500 tablet, fixing problems like this:
-
- atmel_mxt_ts 0-004c: __mxt_read_reg: i2c transfer failed (-121)
- atmel_mxt_ts 0-004c: mxt_bootloader_read: i2c recv failed (-121)
- atmel_mxt_ts 0-004c: Trying alternate bootloader address
- atmel_mxt_ts 0-004c: mxt_bootloader_read: i2c recv failed (-121)
- atmel_mxt_ts: probe of 0-004c failed with error -121
-
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 78 ++++++++++++++++++++++++
- 1 file changed, 78 insertions(+)
-
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 2b3fff0822fe..e3342fdfe9f3 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -31,6 +31,7 @@
- #include <media/v4l2-ioctl.h>
- #include <media/videobuf2-v4l2.h>
- #include <media/videobuf2-vmalloc.h>
-+#include <dt-bindings/input/atmel-maxtouch.h>
- 
- /* Firmware files */
- #define MXT_FW_NAME		"maxtouch.fw"
-@@ -199,6 +200,7 @@ enum t100_type {
- #define MXT_CRC_TIMEOUT		1000	/* msec */
- #define MXT_FW_RESET_TIME	3000	/* msec */
- #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-+#define MXT_WAKEUP_TIME		25	/* msec */
- 
- /* Command to unlock bootloader */
- #define MXT_UNLOCK_CMD_MSB	0xaa
-@@ -312,6 +314,7 @@ struct mxt_data {
- 	struct mxt_dbg dbg;
- 	struct regulator_bulk_data regulators[2];
- 	struct gpio_desc *reset_gpio;
-+	struct gpio_desc *wake_gpio;
- 	bool use_retrigen_workaround;
- 
- 	/* Cached parameters from object table */
-@@ -342,6 +345,8 @@ struct mxt_data {
- 	unsigned int t19_num_keys;
- 
- 	enum mxt_suspend_mode suspend_mode;
-+
-+	u32 wakeup_method;
- };
- 
- struct mxt_vb2_buffer {
-@@ -626,10 +631,42 @@ static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
- 	return 0;
- }
- 
-+static bool mxt_wakeup_toggle(struct i2c_client *client,
-+			      bool wake_up, bool in_i2c)
-+{
-+	struct mxt_data *data = i2c_get_clientdata(client);
-+
-+	switch (data->wakeup_method) {
-+	case ATMEL_MXT_WAKEUP_I2C_SCL:
-+		if (!in_i2c)
-+			return false;
-+		break;
-+
-+	case ATMEL_MXT_WAKEUP_GPIO:
-+		if (in_i2c)
-+			return false;
-+
-+		gpiod_set_value(data->wake_gpio, wake_up);
-+		break;
-+
-+	default:
-+		return false;
-+	}
-+
-+	if (wake_up) {
-+		dev_dbg(&client->dev, "waking up controller\n");
-+
-+		msleep(MXT_WAKEUP_TIME);
-+	}
-+
-+	return true;
-+}
-+
- static int __mxt_read_reg(struct i2c_client *client,
- 			       u16 reg, u16 len, void *val)
- {
- 	struct i2c_msg xfer[2];
-+	bool retried = false;
- 	u8 buf[2];
- 	int ret;
- 
-@@ -648,9 +685,13 @@ static int __mxt_read_reg(struct i2c_client *client,
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
- 
-+retry:
- 	ret = i2c_transfer(client->adapter, xfer, 2);
- 	if (ret == 2) {
- 		ret = 0;
-+	} else if (!retried && mxt_wakeup_toggle(client, true, true)) {
-+		retried = true;
-+		goto retry;
- 	} else {
- 		if (ret >= 0)
- 			ret = -EIO;
-@@ -664,6 +705,7 @@ static int __mxt_read_reg(struct i2c_client *client,
- static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 			   const void *val)
- {
-+	bool retried = false;
- 	u8 *buf;
- 	size_t count;
- 	int ret;
-@@ -677,9 +719,13 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 	buf[1] = (reg >> 8) & 0xff;
- 	memcpy(&buf[2], val, len);
- 
-+retry:
- 	ret = i2c_master_send(client, buf, count);
- 	if (ret == count) {
- 		ret = 0;
-+	} else if (!retried && mxt_wakeup_toggle(client, true, true)) {
-+		retried = true;
-+		goto retry;
- 	} else {
- 		if (ret >= 0)
- 			ret = -EIO;
-@@ -2980,6 +3026,8 @@ static const struct attribute_group mxt_attr_group = {
- 
- static void mxt_start(struct mxt_data *data)
- {
-+	mxt_wakeup_toggle(data->client, true, false);
-+
- 	switch (data->suspend_mode) {
- 	case MXT_SUSPEND_T9_CTRL:
- 		mxt_soft_reset(data);
-@@ -3014,6 +3062,8 @@ static void mxt_stop(struct mxt_data *data)
- 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
- 		break;
- 	}
-+
-+	mxt_wakeup_toggle(data->client, false, false);
- }
- 
- static int mxt_input_open(struct input_dev *dev)
-@@ -3160,6 +3210,15 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return error;
- 	}
- 
-+	/* Request the WAKE line as asserted so we go out of sleep */
-+	data->wake_gpio = devm_gpiod_get_optional(&client->dev,
-+						  "wake", GPIOD_OUT_HIGH);
-+	if (IS_ERR(data->wake_gpio)) {
-+		error = PTR_ERR(data->wake_gpio);
-+		dev_err(&client->dev, "Failed to get wake gpio: %d\n", error);
-+		return error;
-+	}
-+
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, mxt_interrupt, IRQF_ONESHOT,
- 					  client->name, data);
-@@ -3190,6 +3249,25 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		msleep(MXT_RESET_INVALID_CHG);
- 	}
- 
-+	/*
-+	 * Controllers like mXT1386 have a dedicated WAKE line that could be
-+	 * connected to a GPIO or to I2C SCL pin, or permanently asserted low.
-+	 *
-+	 * This WAKE line is used for waking controller from a deep-sleep and
-+	 * it needs to be asserted low for 25 milliseconds before I2C transfers
-+	 * could be accepted by controller if it was in a deep-sleep mode.
-+	 * Controller will go into sleep automatically after 2 seconds of
-+	 * inactivity if WAKE line is deasserted and deep sleep is activated.
-+	 *
-+	 * If WAKE line is connected to I2C SCL pin, then the first I2C transfer
-+	 * will get an instant NAK and transfer needs to be retried after 25ms.
-+	 *
-+	 * If WAKE line is connected to a GPIO line, the line must be asserted
-+	 * 25ms before the host attempts to communicate with the controller.
-+	 */
-+	device_property_read_u32(&client->dev, "atmel,wakeup-method",
-+				 &data->wakeup_method);
-+
- 	error = mxt_initialize(data);
- 	if (error)
- 		goto err_disable_regulators;
 -- 
-2.29.2
-
+Dmitry

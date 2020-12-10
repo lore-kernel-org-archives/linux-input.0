@@ -2,163 +2,92 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17C9DC4167B
-	for <linux-input@archiver.kernel.org>; Thu, 10 Dec 2020 03:45:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94CFBC4361B
+	for <linux-input@archiver.kernel.org>; Thu, 10 Dec 2020 03:52:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3E9B23A02
-	for <linux-input@archiver.kernel.org>; Thu, 10 Dec 2020 03:45:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5337323A6C
+	for <linux-input@archiver.kernel.org>; Thu, 10 Dec 2020 03:52:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730448AbgLJDpH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 9 Dec 2020 22:45:07 -0500
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:38104 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730376AbgLJDpE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2020 22:45:04 -0500
-Received: by mail-oi1-f196.google.com with SMTP id o25so4268856oie.5;
-        Wed, 09 Dec 2020 19:44:48 -0800 (PST)
+        id S1731259AbgLJDvs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 9 Dec 2020 22:51:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47228 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730914AbgLJDvk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2020 22:51:40 -0500
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F91AC0613D6;
+        Wed,  9 Dec 2020 19:50:56 -0800 (PST)
+Received: by mail-pg1-x544.google.com with SMTP id w4so2912898pgg.13;
+        Wed, 09 Dec 2020 19:50:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=dPjBPu9cpVHm88U4UD4X9nEgu/9xVZnUbnkc3WRW/cg=;
+        b=Xv/s+xlZMiLSZWX+ND3o48l0FgwqnOv4VROLyirBreykQjZf4IFmMY7DdY7/L1zaSr
+         QwJXsXKnxSAAqSQoRQ/uNmsJLER7TMM0Riyg+rBlYoUemtxD74hWG2Wmh/Hv4jPuRCoJ
+         zyZI0f0TdSokk7KovYhCbppBVFAOx28xz9MbO4GghM6j1ZpVwe5PY0aPK/FcD1a3eOQ/
+         eE3VTmreM2haOiJmHMiIWnZvWbOLxvvLNGkTwlApr1ZjF0FOh82kcDc0/oVZnB07jkbu
+         EqKK4ZI9+lbI6Gcvmq3fQl1moc5+VO5bxrpwE7mqY6PJT0bQ0WnU916FgOOLKXAmRM+B
+         X5/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=Fu6C4QffPD0sOdnGBmBWkf0xe4d39JgNdhCtih00fXk=;
-        b=PLO+crZpFANXZp/nHa1OWgkUZejGP1bxzLPZTjoBOjoGPkw6ZC9TGVkmB96+cW8ETE
-         MMwrVTQTV65h+JXYLxMuP7cyqxRypQntkMV1GL0a2gmBgeDPufem6UJ2GWPsyGAK+bh8
-         7DoH/XqwvhWfQa64LuM4PF2gyct0DSDwrmI32ocn9LJTsu1F1yu7sjqqUNfTha/8MP7S
-         viwrmgV8Yv1VfTS8Gu+fqwmghlgLZWN+kcBMjE69xoSLrPQZ8dQOmQ64R42Q7Z753/A7
-         J+w/Unf2RMLDjFtauMOCvolO7pppbqVt2vtrDPUfzMZE5X0uN4NVcdBml0Dyi+rxTUiH
-         zuDQ==
-X-Gm-Message-State: AOAM531kWbC2VgNux9ih/JcmByEl74oQXT4fs/BKAS75zgu53vh9jQnL
-        bleyqSdB0IF5RGh6FWb4iQ==
-X-Google-Smtp-Source: ABdhPJz3gT186xFD11r4/H87QdtT5az1qJBQ/iAVgeJQCgY0qz0QsLhzOiYonLwdos+BNGeEIzHy+Q==
-X-Received: by 2002:aca:d706:: with SMTP id o6mr4229937oig.28.1607571862751;
-        Wed, 09 Dec 2020 19:44:22 -0800 (PST)
-Received: from xps15 (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id f201sm536070oig.21.2020.12.09.19.44.21
+        bh=dPjBPu9cpVHm88U4UD4X9nEgu/9xVZnUbnkc3WRW/cg=;
+        b=Q3j71vwimTDb6NeCswy9r8TM8uqY6noRduc64ImsJE0xRSDYj2SW9jYpv9semxx8uJ
+         1JyvZSTblqOxUjakCdtZJyaM+KgAJ28kQ5RLe0Q275LNw4zYbTVRLp63hnefmGKJ5tnO
+         NAEeZB/HNppS+TnT0cn4YjANAaBT1XUueiXQpyUiYAbLvjR5/meJImHl3v5Vn1o22DFe
+         cYA1xO6ZzIU//W3D/Zn9Pu6CvjA+hNqTa9OYybyQGwh7WsedQSYYxLTFcy9aIfkV8X09
+         NxvWtLW0f/A8Fj3fzumBQ9pCvEwx7xXWdStjiqbRIP61cRYTgxILh2+zJfTBVvdwWWdS
+         oYkw==
+X-Gm-Message-State: AOAM532OLT+mqF2xKI4qzve+9AVzCsAtL+Tv3cQzxxhOCmKjTX/Yd1mM
+        m/6ISetuMhKKbMroJp5AaiY=
+X-Google-Smtp-Source: ABdhPJyItofwmN2r3pwSo0qZOvIQSbw+Z3qM7Tikc+jG3quB2W/oC/cQsN3q/VA944mKVXhIOitg4A==
+X-Received: by 2002:a62:d003:0:b029:19d:cf06:f8c2 with SMTP id p3-20020a62d0030000b029019dcf06f8c2mr4988085pfg.48.1607572255888;
+        Wed, 09 Dec 2020 19:50:55 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id q22sm819494pjg.15.2020.12.09.19.50.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Dec 2020 19:44:21 -0800 (PST)
-Received: (nullmailer pid 1617044 invoked by uid 1000);
-        Thu, 10 Dec 2020 03:44:20 -0000
-Date:   Wed, 9 Dec 2020 21:44:20 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Dmitry Osipenko <digetx@gmail.com>
-Cc:     Nick Dyer <nick@shmanahar.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jiada Wang <jiada_wang@mentor.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/3] dt-bindings: input: atmel_mxt_ts: Document
- atmel,wakeup-method and wake-GPIO
-Message-ID: <20201210034420.GA1615537@robh.at.kernel.org>
-References: <20201206212217.6857-1-digetx@gmail.com>
- <20201206212217.6857-2-digetx@gmail.com>
+        Wed, 09 Dec 2020 19:50:55 -0800 (PST)
+Date:   Wed, 9 Dec 2020 19:50:52 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Stephan Gerhold <stephan@gerhold.net>
+Cc:     linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        devicetree@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 2/3] dt-bindings: Input: tm2-touchkey - document
+ vddio-supply
+Message-ID: <X9GbHHC2I6KY3D1/@google.com>
+References: <20201203131242.44397-1-stephan@gerhold.net>
+ <20201203131242.44397-2-stephan@gerhold.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201206212217.6857-2-digetx@gmail.com>
+In-Reply-To: <20201203131242.44397-2-stephan@gerhold.net>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Dec 07, 2020 at 12:22:15AM +0300, Dmitry Osipenko wrote:
-> Some Atmel touchscreen controllers have a WAKE line that needs to be
-> asserted low in order to wake up controller from a deep sleep. Document
-> the wakeup methods and the wake-GPIO properties.
+On Thu, Dec 03, 2020 at 02:12:41PM +0100, Stephan Gerhold wrote:
+> The Samsung touchkey controllers are often used with external pull-up
+> for the interrupt line and the I2C lines, so we might need to enable
+> a regulator to bring the lines into usable state. Otherwise, this might
+> cause spurious interrupts and reading from I2C will fail.
+> 
+> Document support for a "vddio-supply" that is enabled by the tm2-touchkey
+> driver so that the regulator gets enabled when needed.
+> 
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
 
-wake-GPIO?
+Applied, thank you.
 
-> 
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-> ---
->  .../bindings/input/atmel,maxtouch.yaml        | 29 +++++++++++++++++++
->  include/dt-bindings/input/atmel-maxtouch.h    | 10 +++++++
->  2 files changed, 39 insertions(+)
->  create mode 100644 include/dt-bindings/input/atmel-maxtouch.h
-> 
-> diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-> index 8c6418f76e94..e6b03a1e7c30 100644
-> --- a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-> +++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-> @@ -39,6 +39,13 @@ properties:
->        (active low). The line must be flagged with
->        GPIO_ACTIVE_LOW.
->  
-> +  wake-gpios:
-> +    maxItems: 1
-> +    description:
-> +      Optional GPIO specifier for the touchscreen's wake pin
-> +      (active low). The line must be flagged with
-> +      GPIO_ACTIVE_LOW.
-> +
->    linux,gpio-keymap:
->      $ref: /schemas/types.yaml#/definitions/uint32-array
->      description: |
-> @@ -53,6 +60,26 @@ properties:
->        or experiment to determine which bit corresponds to which input. Use
->        KEY_RESERVED for unused padding values.
->  
-> +  atmel,wakeup-method:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    description: |
-> +      The WAKE line is an active-low input that is used to wake up the touch
-> +      controller from deep-sleep mode before communication with the controller
-> +      could be started. This optional feature used to minimize current
-> +      consumption when the controller is in deep sleep mode. This feature is
-> +      relevant only to some controller families, like mXT1386 controller for
-> +      example.
-> +
-> +      The WAKE pin can be connected in one of the following ways:
-> +       1) left permanently low
-> +       2) connected to the I2C-compatible SCL pin
-> +       3) connected to a GPIO pin on the host
-> +    enum:
-> +      - 0 # ATMEL_MXT_WAKEUP_NONE
-> +      - 1 # ATMEL_MXT_WAKEUP_I2C_SCL
-> +      - 2 # ATMEL_MXT_WAKEUP_GPIO
-> +    default: 0
-> +
->  required:
->    - compatible
->    - reg
-> @@ -63,6 +90,7 @@ additionalProperties: false
->  examples:
->    - |
->      #include <dt-bindings/interrupt-controller/irq.h>
-> +    #include <dt-bindings/input/atmel-maxtouch.h>
->      #include <dt-bindings/gpio/gpio.h>
->      i2c {
->        #address-cells = <1>;
-> @@ -75,6 +103,7 @@ examples:
->          reset-gpios = <&gpio 27 GPIO_ACTIVE_LOW>;
->          vdda-supply = <&ab8500_ldo_aux2_reg>;
->          vdd-supply = <&ab8500_ldo_aux5_reg>;
-> +        atmel,wakeup-method = <ATMEL_MXT_WAKEUP_I2C_SCL>;
->        };
->      };
->  
-> diff --git a/include/dt-bindings/input/atmel-maxtouch.h b/include/dt-bindings/input/atmel-maxtouch.h
-> new file mode 100644
-> index 000000000000..7345ab32224d
-> --- /dev/null
-> +++ b/include/dt-bindings/input/atmel-maxtouch.h
-> @@ -0,0 +1,10 @@
-> +/* SPDX-License-Identifier: GPL-2.0+ */
-> +
-> +#ifndef _DT_BINDINGS_ATMEL_MAXTOUCH_H
-> +#define _DT_BINDINGS_ATMEL_MAXTOUCH_H
-> +
-> +#define ATMEL_MXT_WAKEUP_NONE		0
-> +#define ATMEL_MXT_WAKEUP_I2C_SCL	1
-> +#define ATMEL_MXT_WAKEUP_GPIO		2
-> +
-> +#endif /* _DT_BINDINGS_ATMEL_MAXTOUCH_H */
-> -- 
-> 2.29.2
-> 
+-- 
+Dmitry

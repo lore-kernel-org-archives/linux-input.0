@@ -2,132 +2,188 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4191AC0018C
-	for <linux-input@archiver.kernel.org>; Thu, 10 Dec 2020 09:26:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE28AC4361B
+	for <linux-input@archiver.kernel.org>; Thu, 10 Dec 2020 09:51:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E3F3723D9C
-	for <linux-input@archiver.kernel.org>; Thu, 10 Dec 2020 09:26:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0DD123D39
+	for <linux-input@archiver.kernel.org>; Thu, 10 Dec 2020 09:51:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732324AbgLJJ0Q (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 10 Dec 2020 04:26:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42028 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729784AbgLJJ0N (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Dec 2020 04:26:13 -0500
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9D08C0613CF;
-        Thu, 10 Dec 2020 01:25:29 -0800 (PST)
-Received: by mail-ej1-x641.google.com with SMTP id d17so6324499ejy.9;
-        Thu, 10 Dec 2020 01:25:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=LKDlIegO8b/PUk6lqWTMXXqASk1SqEAKD63RKLvZ68w=;
-        b=QMOZjz7wrgnL1MDa0Wnp4GVWcEVLDMYmZZNJYrAAMf7pNpxncqh50+6bZC8tedndNN
-         dDDMUin/Qg/GNomEsC0jTp2jRAcm8HbCf+VHfG/6HNMI3waRQVzXDZC/NtRaSO0zScKO
-         srrriiirZBYBIwU5ps2kko9A1J1QvWkT8Wav6ctiG4GKfxJ00JFTBmIktWBTrqXjLwwZ
-         wtQ7DgviVF20uHazA9kmOrrzrM1rl/yhMU7TmqSWROyFyaV44X47PZKUG2zc6OcCHaU5
-         c6i21LMhNb+Ys8geYVmYoqzcOgYjepj5/cLoxyMkzkkmTeqs9XZ8goKXGq2LH2H3yf0b
-         l8OA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=LKDlIegO8b/PUk6lqWTMXXqASk1SqEAKD63RKLvZ68w=;
-        b=k1EMlFVl2m+OJ80uahpzz9QjxCot1S+QOr5cioy1UpgUt6qQ3b0aslqYGLjfHESrjn
-         CJJZ+WGPGJMSlsLOW8CAc8GPBEXJHq/9xvjMdum1VjKJSAOa8xLPXIesEVZwwiLDrLMo
-         BOAc9mWXm/dcixW7NohJda1kVKLGW48sjC6DKeNzE9llDFXSKlOLRN5tVKZB2YFm+vZ1
-         +8liQjA81tnpl+7a4jxsCZH8hiHhjDbpztopzKwjDyC8mozk3+c7Gjq2OROdr7yaGoc4
-         /heI6cKf8YLfFymAivpe/qTLIGk9sfwvJVO+DtX7bSFzGHD73qgI5U7+Vaz6GpmQIC1/
-         wDvA==
-X-Gm-Message-State: AOAM533n9tfz8QIHOi14FLUPCuak9iYAMBAixPMrjSzVvkhhbu7r3k6K
-        FdGIS0ETaL+xRQy5Ef0vVM8=
-X-Google-Smtp-Source: ABdhPJzcmcYNgXjJDk+3nXHFVvMB9YJWIvKD+ZhPsfGQCB5DoXUhwcQAPS3C3DFBZgIlfwIQK7kxlw==
-X-Received: by 2002:a17:906:55d0:: with SMTP id z16mr5490933ejp.466.1607592328449;
-        Thu, 10 Dec 2020 01:25:28 -0800 (PST)
-Received: from ubuntu2004 ([188.24.159.61])
-        by smtp.gmail.com with ESMTPSA id d13sm3788214ejc.44.2020.12.10.01.25.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Dec 2020 01:25:27 -0800 (PST)
-Date:   Thu, 10 Dec 2020 11:25:35 +0200
-From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
-        linux-actions@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-pm@vger.kernel.org
-Subject: Re: [PATCH v3 1/7] dt-bindings: input: Add reset-time-sec common
- property
-Message-ID: <20201210092535.GB322060@ubuntu2004>
-References: <cover.1607216141.git.cristian.ciocaltea@gmail.com>
- <c08349db08db67e71cf428fe7fd53624aaa0acf8.1607216141.git.cristian.ciocaltea@gmail.com>
- <20201210040644.GC6466@thinkpad>
+        id S1728103AbgLJJv1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 10 Dec 2020 04:51:27 -0500
+Received: from mga11.intel.com ([192.55.52.93]:9423 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727036AbgLJJv0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 10 Dec 2020 04:51:26 -0500
+IronPort-SDR: HZ2k1DdHJIUHyV9PlK39DA9aOSR2UPpHE5cut2ib9Kri2XJKKTAPREP6nBeVD/hGj7dMktvAiv
+ pbkfYrfv50Fw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9830"; a="170718093"
+X-IronPort-AV: E=Sophos;i="5.78,408,1599548400"; 
+   d="scan'208";a="170718093"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2020 01:49:36 -0800
+IronPort-SDR: sakz8cdy0isTDgAZEXYgncsulmvp3bVMUydDhGHpiIWOjn4aZovL+tdcc7/0pgT7k0cANhD1jz
+ tXc1gCJTSgYA==
+X-IronPort-AV: E=Sophos;i="5.78,408,1599548400"; 
+   d="scan'208";a="438277008"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2020 01:49:35 -0800
+Received: from andy by smile with local (Exim 4.94)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1knIar-00DNjr-ED; Thu, 10 Dec 2020 11:50:37 +0200
+Date:   Thu, 10 Dec 2020 11:50:37 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Simon Budig <simon.budig@kernelconcepts.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: edt-ft5x06 - consolidate handling of number of
+ electrodes
+Message-ID: <20201210095037.GC4077@smile.fi.intel.com>
+References: <X9FZFs3NZADoIhhH@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201210040644.GC6466@thinkpad>
+In-Reply-To: <X9FZFs3NZADoIhhH@google.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Mani,
-
-On Thu, Dec 10, 2020 at 09:36:44AM +0530, Manivannan Sadhasivam wrote:
-> On Sun, Dec 06, 2020 at 03:27:01AM +0200, Cristian Ciocaltea wrote:
-> > Add a new common property 'reset-time-sec' to be used in conjunction
-> > with the devices supporting the key pressed reset feature.
-> > 
-> > Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-> > ---
-> > Changes in v3:
-> >  - This patch was not present in v2
-> > 
-> >  Documentation/devicetree/bindings/input/input.yaml | 7 +++++++
-> >  1 file changed, 7 insertions(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/input.yaml b/Documentation/devicetree/bindings/input/input.yaml
-> > index ab407f266bef..caba93209ae7 100644
-> > --- a/Documentation/devicetree/bindings/input/input.yaml
-> > +++ b/Documentation/devicetree/bindings/input/input.yaml
-> > @@ -34,4 +34,11 @@ properties:
-> >        specify this property.
-> >      $ref: /schemas/types.yaml#/definitions/uint32
-> >  
-> > +  reset-time-sec:
-> > +    description:
-> > +      Duration in seconds which the key should be kept pressed for device to
-> > +      reset automatically. Device with key pressed reset feature can specify
-> > +      this property.
-> > +    $ref: /schemas/types.yaml#/definitions/uint32
-> > +
+On Wed, Dec 09, 2020 at 03:09:10PM -0800, Dmitry Torokhov wrote:
+> Instead of using special-casing retrieval of number of X/Y electrodes
+> based on the firmware, let's select default values and mark registers as
+> non-existent on firmwares that do not support this operation.
 > 
-> Why can't you just use "power-off-time-sec"?
+> Also mark "report rate" register as non-existent for generic firmwares as
+> having it set to 0 does not make sense.
 
-I think the common behavior of keeping the power button pressed is to
-trigger a power off rather than a reset. Hence, per Rob's suggestion in
-the previous revision of this patch series, I added the reset variant:
-https://lore.kernel.org/lkml/20200908214724.GA959481@bogus/
+Makes sense, FWIW,
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Thanks,
-Cristi
-
-> Thanks,
-> Mani
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/touchscreen/edt-ft5x06.c | 43 ++++++++++----------------
+>  1 file changed, 17 insertions(+), 26 deletions(-)
 > 
-> >  additionalProperties: true
-> > -- 
-> > 2.29.2
-> > 
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> index 6ff81d48da86..2eefbc2485bc 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -69,6 +69,9 @@
+>  #define EDT_RAW_DATA_RETRIES		100
+>  #define EDT_RAW_DATA_DELAY		1000 /* usec */
+>  
+> +#define EDT_DEFAULT_NUM_X		1024
+> +#define EDT_DEFAULT_NUM_Y		1024
+> +
+>  enum edt_pmode {
+>  	EDT_PMODE_NOT_SUPPORTED,
+>  	EDT_PMODE_HIBERNATE,
+> @@ -977,8 +980,7 @@ static void edt_ft5x06_ts_get_defaults(struct device *dev,
+>  	}
+>  }
+>  
+> -static void
+> -edt_ft5x06_ts_get_parameters(struct edt_ft5x06_ts_data *tsdata)
+> +static void edt_ft5x06_ts_get_parameters(struct edt_ft5x06_ts_data *tsdata)
+>  {
+>  	struct edt_reg_addr *reg_addr = &tsdata->reg_addr;
+>  
+> @@ -997,21 +999,17 @@ edt_ft5x06_ts_get_parameters(struct edt_ft5x06_ts_data *tsdata)
+>  	if (reg_addr->reg_report_rate != NO_REGISTER)
+>  		tsdata->report_rate = edt_ft5x06_register_read(tsdata,
+>  						reg_addr->reg_report_rate);
+> -	if (tsdata->version == EDT_M06 ||
+> -	    tsdata->version == EDT_M09 ||
+> -	    tsdata->version == EDT_M12) {
+> +	tsdata->num_x = EDT_DEFAULT_NUM_X;
+> +	if (reg_addr->reg_num_x != NO_REGISTER)
+>  		tsdata->num_x = edt_ft5x06_register_read(tsdata,
+>  							 reg_addr->reg_num_x);
+> +	tsdata->num_y = EDT_DEFAULT_NUM_Y;
+> +	if (reg_addr->reg_num_y != NO_REGISTER)
+>  		tsdata->num_y = edt_ft5x06_register_read(tsdata,
+>  							 reg_addr->reg_num_y);
+> -	} else {
+> -		tsdata->num_x = -1;
+> -		tsdata->num_y = -1;
+> -	}
+>  }
+>  
+> -static void
+> -edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+> +static void edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+>  {
+>  	struct edt_reg_addr *reg_addr = &tsdata->reg_addr;
+>  
+> @@ -1041,22 +1039,25 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+>  
+>  	case EV_FT:
+>  		reg_addr->reg_threshold = EV_REGISTER_THRESHOLD;
+> +		reg_addr->reg_report_rate = NO_REGISTER;
+>  		reg_addr->reg_gain = EV_REGISTER_GAIN;
+>  		reg_addr->reg_offset = NO_REGISTER;
+>  		reg_addr->reg_offset_x = EV_REGISTER_OFFSET_X;
+>  		reg_addr->reg_offset_y = EV_REGISTER_OFFSET_Y;
+>  		reg_addr->reg_num_x = NO_REGISTER;
+>  		reg_addr->reg_num_y = NO_REGISTER;
+> -		reg_addr->reg_report_rate = NO_REGISTER;
+>  		break;
+>  
+>  	case GENERIC_FT:
+>  		/* this is a guesswork */
+>  		reg_addr->reg_threshold = M09_REGISTER_THRESHOLD;
+> +		reg_addr->reg_report_rate = NO_REGISTER;
+>  		reg_addr->reg_gain = M09_REGISTER_GAIN;
+>  		reg_addr->reg_offset = M09_REGISTER_OFFSET;
+>  		reg_addr->reg_offset_x = NO_REGISTER;
+>  		reg_addr->reg_offset_y = NO_REGISTER;
+> +		reg_addr->reg_num_x = NO_REGISTER;
+> +		reg_addr->reg_num_y = NO_REGISTER;
+>  		break;
+>  	}
+>  }
+> @@ -1195,20 +1196,10 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+>  	input->id.bustype = BUS_I2C;
+>  	input->dev.parent = &client->dev;
+>  
+> -	if (tsdata->version == EDT_M06 ||
+> -	    tsdata->version == EDT_M09 ||
+> -	    tsdata->version == EDT_M12) {
+> -		input_set_abs_params(input, ABS_MT_POSITION_X,
+> -				     0, tsdata->num_x * 64 - 1, 0, 0);
+> -		input_set_abs_params(input, ABS_MT_POSITION_Y,
+> -				     0, tsdata->num_y * 64 - 1, 0, 0);
+> -	} else {
+> -		/* Unknown maximum values. Specify via devicetree */
+> -		input_set_abs_params(input, ABS_MT_POSITION_X,
+> -				     0, 65535, 0, 0);
+> -		input_set_abs_params(input, ABS_MT_POSITION_Y,
+> -				     0, 65535, 0, 0);
+> -	}
+> +	input_set_abs_params(input, ABS_MT_POSITION_X,
+> +			     0, tsdata->num_x * 64 - 1, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_POSITION_Y,
+> +			     0, tsdata->num_y * 64 - 1, 0, 0);
+>  
+>  	touchscreen_parse_properties(input, true, &tsdata->prop);
+>  
+> -- 
+> 2.29.2.576.ga3fc446d84-goog
+> 
+> 
+> -- 
+> Dmitry
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+

@@ -2,97 +2,103 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03AE0C4361B
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 23:29:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC4DCC4743B
+	for <linux-input@archiver.kernel.org>; Sat, 12 Dec 2020 01:00:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ABCF323121
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 23:29:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9955323770
+	for <linux-input@archiver.kernel.org>; Sat, 12 Dec 2020 01:00:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406989AbgLKWhm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Dec 2020 17:37:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35184 "EHLO
+        id S2405927AbgLKOSt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 11 Dec 2020 09:18:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2406968AbgLKWhT (ORCPT
+        with ESMTP id S2405940AbgLKOSf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Dec 2020 17:37:19 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D59C0613CF
-        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 14:36:39 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id b5so3098481pjl.0
-        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 14:36:39 -0800 (PST)
+        Fri, 11 Dec 2020 09:18:35 -0500
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 136F8C061793;
+        Fri, 11 Dec 2020 06:17:55 -0800 (PST)
+Received: by mail-ed1-x544.google.com with SMTP id r5so9496054eda.12;
+        Fri, 11 Dec 2020 06:17:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=UenWPmgP3OEJ5MEmP4s2EAgbV/XlKPTNOHtkoBWscYk=;
-        b=W6D8vgYX/WpHo39DpKHcyy+Rl3DN+MmDi+H1ZnVMbF4PPLH11Ul2pmZaEHQpp0CHF7
-         WHu9OGSWHkgfh+kAaI5KkVICF8IAc8CHSPtiHi3ZsnVpdJvfwLqHp/cpDqCghvCjVvDO
-         UfaElk8Bj0qXpIDD5DQjsd9lwvRGYMADKYkpv9ArRxbNV1Cv6frFqJHr7Ec2zPT+0ZH5
-         uGqmzz78v40ugaFzSFowaBsQ7FXAPLnbKhtRfjkYiXlmb5nZM4mqbjO8628lNRSojiq6
-         ph9gHnooXP7N0vP7kApPKBzHDuA+jiAvv9Q43fvL6139SMRG7m9IC5sHES5aV7AtzvvD
-         DMuw==
+        bh=+NgxUEH5uFqT7GDJPbuM1Ogf8MzS8XSgNJtKE+wwyRM=;
+        b=eH3w6NcIrC4xR4v4M3keq2M/BL0t2cwI16kEboijRZfq6Z/BTQ+ESL3w5hoKKkEOXT
+         SLBYPbGknhUXI16fYN9cYVb8fLhLhfvs6R9mrEutwyx7Leat26hRcjZuKVPppQnZ+vK+
+         sN87DmWq2PAz8rYhe2QDmSf8szPzK3boRvTQbTKcHfYziRcji01nlYxnPhd+asjkO9ps
+         FSbyVfVTGUtBUm1ijk6YSRiCdEMDJ8O1yx5ATtbTYGAP95CY9uXt4+gh3Oyby42kzViW
+         5h9VDu+eDbtUek/2d0uKETiIWxaMDwuy1GT9rLoHSM7/8Uwrm+S4S2lq7GI6M/klKKSc
+         duHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=UenWPmgP3OEJ5MEmP4s2EAgbV/XlKPTNOHtkoBWscYk=;
-        b=QJwTQf/PFeZMLhN+GTe4r0372BqHWp8dYWJd3gli+kxT2YUmy4PXNMTelDc9P748yZ
-         8b4rGLLCOYxx4v89SyOgfw4tgQdwYXgfLPWlhzCtc7dg92SEqaaSyPY+gErSs/aU15/0
-         yuyfzE3pJvQXUdZ3G3F9oeGXuqQQJGtpSPdc0ACGOd6HyoeciGlAmvLR9T82o9iLBzNQ
-         2ZGZlud6rn/6jg5r+2hDATxu1k91YY3sEyD8ioLCq3uXR3UL9/GIQlw3Eb23mtgq7uKo
-         2Mh2JJfSK7H8VQeVdE9a1VQ3VaTRe5LGAef8cQoM2lsdZCS5a2MfokVIFGgfbjNf3CJO
-         gj1w==
-X-Gm-Message-State: AOAM530U+/xoUV9EDoqIfLth+nmNTU5EbKQNEXKytqF3a2LmbcTLyO1v
-        Go4RMoi9HynnthaTznN0j0E=
-X-Google-Smtp-Source: ABdhPJzOIZ/KCRtV/r9m6Kr2X0VBVlteaK1FxojQPbhJw5FnCSkBLwDt5b8gGG0S9OgBLcndcxgVCg==
-X-Received: by 2002:a17:90a:4892:: with SMTP id b18mr4390687pjh.64.1607726198622;
-        Fri, 11 Dec 2020 14:36:38 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id o62sm11911315pjo.17.2020.12.11.14.36.37
+        bh=+NgxUEH5uFqT7GDJPbuM1Ogf8MzS8XSgNJtKE+wwyRM=;
+        b=YRxjb5mXaEvdxRfI/sBZQDRJ5NviS+gbGFmKMank8/GqAl2Y58+mz61mUWy7Sq3M7/
+         MvCjQ7VeRxret0kBsH1GezX1mKJR8AnfxY7ewsaCoE2XfYGFE0ZWc814JltyFy0xFbUe
+         3tyQbq+Zf65L2HBR8vMUjYecDUF94YAiwkIhMfNI6/IXuASFw5a+T25/ml9rEGinZ2Og
+         2C8bPVPZk/25Ptggpix1TjQBGiH35ozgA+ZvC/lErKuSRXnPCqglS5mqAYiXmIwvGy5b
+         TMms+dxIGSA/gaxhwaI2IStI6estS0xGvU4qd1K5AIoUQnQzkwO2MYKWN9QmQ3iGUcXc
+         jfMQ==
+X-Gm-Message-State: AOAM5304AKAeH9ZM2RzSKcNjuk1zrv3rjCeyHOjzel+Q7beow/brN/hy
+        LMde0pvT4UOTR8PoyfLXSOI=
+X-Google-Smtp-Source: ABdhPJyCV4eEUT00ElKYzI3O1FRpkgysz4KnZm/C8ZHCZfpvl64Ch2HD0rRzWxhHGWhbIETRq831mQ==
+X-Received: by 2002:a05:6402:388:: with SMTP id o8mr11821809edv.359.1607696273795;
+        Fri, 11 Dec 2020 06:17:53 -0800 (PST)
+Received: from ubuntu2004 ([188.24.159.61])
+        by smtp.gmail.com with ESMTPSA id o11sm6865675ejh.55.2020.12.11.06.17.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Dec 2020 14:36:37 -0800 (PST)
-Date:   Fri, 11 Dec 2020 14:36:35 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Simon Beginn <linux@simonmicro.de>
-Cc:     linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
-Subject: Re: Fwd: [PATCH] Input: goodix - Add upside-down quirk for Teclast
- X98 Pro tablet
-Message-ID: <X9P0c0kUKN+gxraZ@google.com>
-References: <672ddee0a276be7d34e01c665df20d1c8ad2b7d0.camel@hadess.net>
- <434f5579-5ca7-5f54-c853-af720769e1cc@simonmicro.de>
- <5f9a868c166e13062a2109ab868f9e806aafc563.camel@hadess.net>
- <111d63473070310b1576c633e4e5debac0a4b22f.camel@hadess.net>
- <422df127-449f-247f-bb7e-005575dc23cd@simonmicro.de>
+        Fri, 11 Dec 2020 06:17:53 -0800 (PST)
+Date:   Fri, 11 Dec 2020 16:17:51 +0200
+From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+To:     Rob Herring <robh@kernel.org>
+Cc:     Lee Jones <lee.jones@linaro.org>, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        linux-pm@vger.kernel.org, Sebastian Reichel <sre@kernel.org>,
+        linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        linux-actions@lists.infradead.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
+Subject: Re: [PATCH v3 2/7] dt-bindings: mfd: Add Actions Semi ATC260x PMIC
+ binding
+Message-ID: <20201211141751.GA360406@ubuntu2004>
+References: <cover.1607216141.git.cristian.ciocaltea@gmail.com>
+ <fe0ab8ef20813a2623cd1e543b16bb21c5b63367.1607216141.git.cristian.ciocaltea@gmail.com>
+ <20201211031743.GA3562977@robh.at.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <422df127-449f-247f-bb7e-005575dc23cd@simonmicro.de>
+In-Reply-To: <20201211031743.GA3562977@robh.at.kernel.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Simon,
-
-On Fri, Dec 11, 2020 at 11:08:58PM +0100, Simon Beginn wrote:
-> Hi,
+On Thu, Dec 10, 2020 at 09:17:43PM -0600, Rob Herring wrote:
+> On Sun, 06 Dec 2020 03:27:02 +0200, Cristian Ciocaltea wrote:
+> > Add devicetree binding for Actions Semi ATC260x PMICs.
+> > 
+> > Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+> > ---
+> > Changes in v3 (according to Rob's review):
+> >  - Dropped the 'pwrc' and 'onkey' nodes
+> >  - Used a common 'reset-time-sec' property
+> > 
+> >  .../bindings/mfd/actions,atc260x.yaml         | 181 ++++++++++++++++++
+> >  1 file changed, 181 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/mfd/actions,atc260x.yaml
+> > 
 > 
-> all right - try #3
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Simon Beginn <linux@simonmicro.de>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-Could you please send your Signed-off-by _with the patch_ so that I do
-not have try to reassemble this from separate emails. Also, I see that
-in the original patch either your editor or mailer converted all tabs
-into spaces so that the patch does not apply.
-
-Thanks.
-
--- 
-Dmitry
+Thanks for reviewing,
+Cristi

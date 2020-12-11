@@ -2,76 +2,78 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D043EC433FE
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 13:38:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20BFEC4361B
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 17:19:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7FFDD23E21
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 13:38:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D020423D5A
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 17:18:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732920AbgLKNho (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Dec 2020 08:37:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36540 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387974AbgLKNhe (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Dec 2020 08:37:34 -0500
-Received: from baptiste.telenet-ops.be (baptiste.telenet-ops.be [IPv6:2a02:1800:120:4::f00:13])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02AA7C0613D3
-        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 05:36:53 -0800 (PST)
-Received: from ramsan.of.borg ([84.195.186.194])
-        by baptiste.telenet-ops.be with bizsmtp
-        id 31cs2400K4C55Sk011csMz; Fri, 11 Dec 2020 14:36:52 +0100
-Received: from rox.of.borg ([192.168.97.57])
-        by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1knibM-009i8V-9G; Fri, 11 Dec 2020 14:36:52 +0100
-Received: from geert by rox.of.borg with local (Exim 4.93)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1knibL-00CSgv-HC; Fri, 11 Dec 2020 14:36:51 +0100
-From:   Geert Uytterhoeven <geert+renesas@glider.be>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH] Input: adc-keys - drop bogus __refdata annotation
-Date:   Fri, 11 Dec 2020 14:36:50 +0100
-Message-Id: <20201211133650.2970182-1-geert+renesas@glider.be>
-X-Mailer: git-send-email 2.25.1
+        id S2404272AbgLKQKR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 11 Dec 2020 11:10:17 -0500
+Received: from rere.qmqm.pl ([91.227.64.183]:25199 "EHLO rere.qmqm.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404259AbgLKQJ4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 11 Dec 2020 11:09:56 -0500
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4CswhV34YMz4y;
+        Fri, 11 Dec 2020 17:09:14 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1607702954; bh=JA0EdqTBGYeoKbAC0O4t5RZsbxp09DvSH5E83admmgo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FB+54ThX+KIVulK3J+dtBnWEhUPjaXdPSuk1c/MkLuQDlQr2D7Sd0LGWJU2JnVlUA
+         1Rsxkbrd9ekWRbnEonutMh0b6M2YIOr6vdXuCf4/NT9SGyB/aFay3PCnBnrh5/j8BB
+         vi4a0l7G2k1/97LeteE3vfB467CvVvg6q+C54mFUg3UFp6w3XAQUNIxeQCJDcm0EW4
+         gVCMNC85wwuH/rfFDmSxrTtd4NNv1azHyCqWAaBTvMRvTAKMxkBbsbq8KEhQK0wMz1
+         JhtE/7xjG23Lw4OsVTLDXUzZ3mDLvg1TLqIrwA1zXTI5hY28gK3v15YfTeseLlM5HY
+         pviz4QCIjaN5g==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.102.4 at mail
+Date:   Fri, 11 Dec 2020 17:09:17 +0100
+From:   =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Johnny Chuang <johnny.chuang.emc@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RESEND v8 2/4] input: elants: support old touch report
+ format
+Message-ID: <20201211160917.GA23095@qmqm.qmqm.pl>
+References: <cover.1607669375.git.mirq-linux@rere.qmqm.pl>
+ <a5c0b6b300fadf9425781285351b46c6dbb4f618.1607669375.git.mirq-linux@rere.qmqm.pl>
+ <X9Mf5G6yvIEAoh2C@google.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <X9Mf5G6yvIEAoh2C@google.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-As the ADC ladder input driver does not have any code or data located in
-initmem, there is no need to annotate the adc_keys_driver structure with
-__refdata.  Drop the annotation, to avoid suppressing future section
-warnings.
+On Thu, Dec 10, 2020 at 11:29:40PM -0800, Dmitry Torokhov wrote:
+> Hi Micha³,
+> On Fri, Dec 11, 2020 at 07:53:56AM +0100, Micha³ Miros³aw wrote:
+> > @@ -998,17 +1011,18 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+> >  			}
+> >  
+> >  			report_len = ts->buf[FW_HDR_LENGTH] / report_count;
+> > -			if (report_len != PACKET_SIZE) {
+> > +			if (report_len != PACKET_SIZE &&
+> > +			    report_len != PACKET_SIZE_OLD) {
+> >  				dev_err(&client->dev,
+> > -					"mismatching report length: %*ph\n",
+> > +					"unsupported report length: %*ph\n",
+> >  					HEADER_SIZE, ts->buf);
+> Do I understand this correctly that the old packets are only observed on
+> EKTF3624? If so can we expand the check so that we only accept packets
+> with "old" size when we know we are dealing with this device?
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- drivers/input/keyboard/adc-keys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+We only have EKTF3624 and can't be sure there are no other chips needing this.
 
-diff --git a/drivers/input/keyboard/adc-keys.c b/drivers/input/keyboard/adc-keys.c
-index 6d5be48d1b3d7988..bf72ab8df817756f 100644
---- a/drivers/input/keyboard/adc-keys.c
-+++ b/drivers/input/keyboard/adc-keys.c
-@@ -193,7 +193,7 @@ static const struct of_device_id adc_keys_of_match[] = {
- MODULE_DEVICE_TABLE(of, adc_keys_of_match);
- #endif
- 
--static struct platform_driver __refdata adc_keys_driver = {
-+static struct platform_driver adc_keys_driver = {
- 	.driver = {
- 		.name = "adc_keys",
- 		.of_match_table = of_match_ptr(adc_keys_of_match),
--- 
-2.25.1
-
+Best Regards
+Micha³ Miros³aw

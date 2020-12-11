@@ -2,178 +2,97 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94D94C4361B
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 23:20:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03AE0C4361B
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 23:29:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6C2B32310E
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 23:20:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ABCF323121
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 23:29:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406874AbgLKW01 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Dec 2020 17:26:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33410 "EHLO
+        id S2406989AbgLKWhm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 11 Dec 2020 17:37:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394358AbgLKWZ7 (ORCPT
+        with ESMTP id S2406968AbgLKWhT (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Dec 2020 17:25:59 -0500
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD36C0611CA
-        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 14:25:03 -0800 (PST)
-Received: by mail-pg1-x541.google.com with SMTP id n10so81679pgl.10
-        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 14:25:03 -0800 (PST)
+        Fri, 11 Dec 2020 17:37:19 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D59C0613CF
+        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 14:36:39 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id b5so3098481pjl.0
+        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 14:36:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=mcajmBZLh3V7JZmymLtTRNiBfRuCQpoxfH0au10GVAI=;
-        b=SU/lSqaIt5K4RN06MHhvnXO6K+niJKl5UPJx30rPi1B6kPlzaqDyEvz/TjAFtj1JVB
-         aUfHcMfzVusuPMi2vzBMmv4gxOPDz+xBOG8uqDatscYjegNI+NelAJTFKoH/9F0Sksey
-         NYPExgcaCs69UklOZAAamx+pPGu1zCBKj/fJ0=
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=UenWPmgP3OEJ5MEmP4s2EAgbV/XlKPTNOHtkoBWscYk=;
+        b=W6D8vgYX/WpHo39DpKHcyy+Rl3DN+MmDi+H1ZnVMbF4PPLH11Ul2pmZaEHQpp0CHF7
+         WHu9OGSWHkgfh+kAaI5KkVICF8IAc8CHSPtiHi3ZsnVpdJvfwLqHp/cpDqCghvCjVvDO
+         UfaElk8Bj0qXpIDD5DQjsd9lwvRGYMADKYkpv9ArRxbNV1Cv6frFqJHr7Ec2zPT+0ZH5
+         uGqmzz78v40ugaFzSFowaBsQ7FXAPLnbKhtRfjkYiXlmb5nZM4mqbjO8628lNRSojiq6
+         ph9gHnooXP7N0vP7kApPKBzHDuA+jiAvv9Q43fvL6139SMRG7m9IC5sHES5aV7AtzvvD
+         DMuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=mcajmBZLh3V7JZmymLtTRNiBfRuCQpoxfH0au10GVAI=;
-        b=LZEARVvOTO/E34sXNb1n+8hYfvVmRg5aca/5Q9iKHQaGBP2BXul+1LCj8gJpiqhp36
-         3ZKCz21OrTFPVJzKKWRFshHP+wDHRG7BhL2Q/G+ea4IvpSZ1ZsE547aiT75IzzyRE0U+
-         7AXrTK1hpwfAlQ2P3LZV+d5UZqFOnm3k4Zxkw3SSv0JwcH8sc2BCQPzqaKHZ7juP6XP4
-         5nTA4K6MV8wW6IYrtgYioTuKIx1PTii/JY87brR0Q4N1F3n8py5vB1zBplJE3pFmvVe3
-         YMdaASefJ0qqGPdV22T+5z07u1nMLsGvNAjfZe9hD0qkMhpvxqqTQH5Hb/7Y+pw0tZ+t
-         yUBw==
-X-Gm-Message-State: AOAM533oQszOZQ2fLkWSmF6bHd+0hJiOV7A74rhPAV+WZKzmEwc92laN
-        v4KpE+bXri44gtjwfUJnvBfJxg==
-X-Google-Smtp-Source: ABdhPJxMUqG7tw+l2/Yzui5lhB1J1HHhOJKP0K0S8tHDT8ctco8kwuLAd3dW8P2LbzwVNqrPrkfYOA==
-X-Received: by 2002:a62:38cf:0:b029:19e:41ac:526b with SMTP id f198-20020a6238cf0000b029019e41ac526bmr13999162pfa.0.1607725502291;
-        Fri, 11 Dec 2020 14:25:02 -0800 (PST)
-Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
-        by smtp.gmail.com with ESMTPSA id w70sm11669969pfd.65.2020.12.11.14.25.00
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=UenWPmgP3OEJ5MEmP4s2EAgbV/XlKPTNOHtkoBWscYk=;
+        b=QJwTQf/PFeZMLhN+GTe4r0372BqHWp8dYWJd3gli+kxT2YUmy4PXNMTelDc9P748yZ
+         8b4rGLLCOYxx4v89SyOgfw4tgQdwYXgfLPWlhzCtc7dg92SEqaaSyPY+gErSs/aU15/0
+         yuyfzE3pJvQXUdZ3G3F9oeGXuqQQJGtpSPdc0ACGOd6HyoeciGlAmvLR9T82o9iLBzNQ
+         2ZGZlud6rn/6jg5r+2hDATxu1k91YY3sEyD8ioLCq3uXR3UL9/GIQlw3Eb23mtgq7uKo
+         2Mh2JJfSK7H8VQeVdE9a1VQ3VaTRe5LGAef8cQoM2lsdZCS5a2MfokVIFGgfbjNf3CJO
+         gj1w==
+X-Gm-Message-State: AOAM530U+/xoUV9EDoqIfLth+nmNTU5EbKQNEXKytqF3a2LmbcTLyO1v
+        Go4RMoi9HynnthaTznN0j0E=
+X-Google-Smtp-Source: ABdhPJzOIZ/KCRtV/r9m6Kr2X0VBVlteaK1FxojQPbhJw5FnCSkBLwDt5b8gGG0S9OgBLcndcxgVCg==
+X-Received: by 2002:a17:90a:4892:: with SMTP id b18mr4390687pjh.64.1607726198622;
+        Fri, 11 Dec 2020 14:36:38 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id o62sm11911315pjo.17.2020.12.11.14.36.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Dec 2020 14:25:01 -0800 (PST)
-From:   Douglas Anderson <dianders@chromium.org>
-To:     jkosina@suse.cz, benjamin.tissoires@redhat.com,
-        gregkh@linuxfoundation.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     hdegoede@redhat.com, linux-input@vger.kernel.org,
-        kai.heng.feng@canonical.com, robh+dt@kernel.org,
-        swboyd@chromium.org, andrea@borgia.bo.it,
-        Douglas Anderson <dianders@chromium.org>,
-        Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v8 3/4] dt-bindings: input: HID: i2c-hid: Introduce bindings for the Goodix GT7375P
-Date:   Fri, 11 Dec 2020 14:24:47 -0800
-Message-Id: <20201211142412.v8.3.Ibb28033c81d87fcc13a6ba28c6ea7ac154d65f93@changeid>
-X-Mailer: git-send-email 2.29.2.576.ga3fc446d84-goog
-In-Reply-To: <20201211222448.2115188-1-dianders@chromium.org>
-References: <20201211222448.2115188-1-dianders@chromium.org>
+        Fri, 11 Dec 2020 14:36:37 -0800 (PST)
+Date:   Fri, 11 Dec 2020 14:36:35 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Simon Beginn <linux@simonmicro.de>
+Cc:     linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
+Subject: Re: Fwd: [PATCH] Input: goodix - Add upside-down quirk for Teclast
+ X98 Pro tablet
+Message-ID: <X9P0c0kUKN+gxraZ@google.com>
+References: <672ddee0a276be7d34e01c665df20d1c8ad2b7d0.camel@hadess.net>
+ <434f5579-5ca7-5f54-c853-af720769e1cc@simonmicro.de>
+ <5f9a868c166e13062a2109ab868f9e806aafc563.camel@hadess.net>
+ <111d63473070310b1576c633e4e5debac0a4b22f.camel@hadess.net>
+ <422df127-449f-247f-bb7e-005575dc23cd@simonmicro.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <422df127-449f-247f-bb7e-005575dc23cd@simonmicro.de>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This adds new bindings for the Goodix GT7375P touchscreen.  While this
-touchscreen's communications are based on the generic "i2c-over-hid"
-protocol, it needs special power sequencing and thus gets its own
-compatible and bindings.
+Hi Simon,
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
+On Fri, Dec 11, 2020 at 11:08:58PM +0100, Simon Beginn wrote:
+> Hi,
+> 
+> all right - try #3
+> 
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Simon Beginn <linux@simonmicro.de>
 
-(no changes since v5)
+Could you please send your Signed-off-by _with the patch_ so that I do
+not have try to reassemble this from separate emails. Also, I see that
+in the original patch either your editor or mailer converted all tabs
+into spaces so that the patch does not apply.
 
-Changes in v5:
-- Added mention of i2c-hid in the yaml itself as per Rob.
-- Adjusted subject as per Rob.
+Thanks.
 
-Changes in v3:
-- Fixed compatible in example.
-- Removed Benjamin as a maintainer.
-- Updated description.
-
-Changes in v2:
-- ("dt-bindings: HID: i2c-hid: Introduce bindings for the Goodix GT7375P") new in v2.
-
- .../bindings/input/goodix,gt7375p.yaml        | 65 +++++++++++++++++++
- 1 file changed, 65 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-
-diff --git a/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml b/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-new file mode 100644
-index 000000000000..fe1c5016f7f3
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-@@ -0,0 +1,65 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/goodix,gt7375p.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Goodix GT7375P touchscreen
-+
-+maintainers:
-+  - Douglas Anderson <dianders@chromium.org>
-+
-+description:
-+  Supports the Goodix GT7375P touchscreen.
-+  This touchscreen uses the i2c-hid protocol but has some non-standard
-+  power sequencing required.
-+
-+properties:
-+  compatible:
-+    items:
-+      - const: goodix,gt7375p
-+
-+  reg:
-+    enum:
-+      - 0x5d
-+      - 0x14
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  reset-gpios:
-+    true
-+
-+  vdd-supply:
-+    description: The 3.3V supply to the touchscreen.
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+  - vdd-supply
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/clock/qcom,rpmh.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      ap_ts: touchscreen@5d {
-+        compatible = "goodix,gt7375p";
-+        reg = <0x5d>;
-+
-+        interrupt-parent = <&tlmm>;
-+        interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
-+
-+        reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
-+        vdd-supply = <&pp3300_ts>;
-+      };
-+    };
 -- 
-2.29.2.576.ga3fc446d84-goog
-
+Dmitry

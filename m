@@ -2,133 +2,96 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AFF8C4361B
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 18:02:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B582C4361B
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 18:43:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B76A723D3C
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 18:02:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDA6D22BEA
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 18:43:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391519AbgLKQu4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Dec 2020 11:50:56 -0500
-Received: from mx2.suse.de ([195.135.220.15]:34848 "EHLO mx2.suse.de"
+        id S2393735AbgLKRE4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 11 Dec 2020 12:04:56 -0500
+Received: from rere.qmqm.pl ([91.227.64.183]:20319 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390286AbgLKQtf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Dec 2020 11:49:35 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 620BAB293;
-        Fri, 11 Dec 2020 16:48:19 +0000 (UTC)
-From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-To:     u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Eric Anholt <eric@anholt.net>, Stefan Wahren <wahrenst@gmx.net>
-Cc:     linux-pwm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        devicetree@vger.kernel.org, linux-input@vger.kernel.org,
-        dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
-        devel@driverdev.osuosl.org, p.zabel@pengutronix.de,
-        linux-gpio@vger.kernel.org, linus.walleij@linaro.org,
-        linux-clk@vger.kernel.org, sboyd@kernel.org,
-        linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
-        andy.shevchenko@gmail.com, Rob Herring <robh@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>
-Subject: [PATCH v6 09/11] dt-bindings: pwm: Add binding for RPi firmware PWM bus
-Date:   Fri, 11 Dec 2020 17:47:58 +0100
-Message-Id: <20201211164801.7838-10-nsaenzjulienne@suse.de>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201211164801.7838-1-nsaenzjulienne@suse.de>
-References: <20201211164801.7838-1-nsaenzjulienne@suse.de>
+        id S2405405AbgLKREk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 11 Dec 2020 12:04:40 -0500
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4Csxvf5KKwz4y;
+        Fri, 11 Dec 2020 18:03:58 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1607706238; bh=/RTK8d7aFtrnlkxPSCm6jcCEYYZlXwcQe86IYM1xhmE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WMjrtunVKMsEs8j/7ClRuEuSSod/L91fPKYtNqIXMALWvY739Dz/85mTwkFEhmp+G
+         g6XlW6GukJ4FzsGoj3IbQRmlpMSWJim/ziBVrWdMHmfOJPCLCCDABvr2kqAfoTOkA7
+         iGd7YHI3tlDriJZ8Oxd0Y/qnEZQ6wk4Ajz8vM37gaJ2tvhSQzV8kHtc5MfG68qXbj3
+         DS3+gM2Jm11P1hhg7O1/reY5iHM+Jj+STAOFHQ1FC0luayKWWDuoLVhk4nUSTdFSeP
+         5Ugi1a2EruTu5Wx0ZSQ9Nh+Mal7lVk6iThV4o4Q9ns+aOz071fLJTGA21vBe+GqPUS
+         oqRRN0XK2/KSA==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.102.4 at mail
+Date:   Fri, 11 Dec 2020 18:04:01 +0100
+From:   =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Johnny Chuang <johnny.chuang.emc@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RESEND v8 2/4] input: elants: support old touch report
+ format
+Message-ID: <20201211170401.GA31605@qmqm.qmqm.pl>
+References: <cover.1607669375.git.mirq-linux@rere.qmqm.pl>
+ <a5c0b6b300fadf9425781285351b46c6dbb4f618.1607669375.git.mirq-linux@rere.qmqm.pl>
+ <X9Mf5G6yvIEAoh2C@google.com>
+ <20201211160917.GA23095@qmqm.qmqm.pl>
+ <3d872d19-a0b2-ed83-4b08-5c9a4755c2fe@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <3d872d19-a0b2-ed83-4b08-5c9a4755c2fe@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The PWM bus controlling the fan in RPi's official PoE hat can only be
-controlled by the board's co-processor.
+On Fri, Dec 11, 2020 at 07:39:33PM +0300, Dmitry Osipenko wrote:
+> 11.12.2020 19:09, Michał Mirosław пишет:
+> > On Thu, Dec 10, 2020 at 11:29:40PM -0800, Dmitry Torokhov wrote:
+> >> Hi Michał,
+> >> On Fri, Dec 11, 2020 at 07:53:56AM +0100, Michał Mirosław wrote:
+> >>> @@ -998,17 +1011,18 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+> >>>  			}
+> >>>  
+> >>>  			report_len = ts->buf[FW_HDR_LENGTH] / report_count;
+> >>> -			if (report_len != PACKET_SIZE) {
+> >>> +			if (report_len != PACKET_SIZE &&
+> >>> +			    report_len != PACKET_SIZE_OLD) {
+> >>>  				dev_err(&client->dev,
+> >>> -					"mismatching report length: %*ph\n",
+> >>> +					"unsupported report length: %*ph\n",
+> >>>  					HEADER_SIZE, ts->buf);
+> >> Do I understand this correctly that the old packets are only observed on
+> >> EKTF3624? If so can we expand the check so that we only accept packets
+> >> with "old" size when we know we are dealing with this device?
+> > 
+> > We only have EKTF3624 and can't be sure there are no other chips needing this.
+> 
+> In practice this older packet format should be seen only on 3624, but
+> nevertheless we could make it more explicit by adding the extra chip_id
+> checks.
+> 
+> It won't be difficult to change it in the future if will be needed.
+> 
+> I think the main point that Dmitry Torokhov conveys here is that we
+> should minimize the possible impact on the current EKT3500 code since we
+> don't have definitive answers regarding the firmware differences among
+> the hardware variants.
 
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
+The only possible impact here is that older firmware instead of breaking
+would suddenly work. Maybe we can accept such a risk?
 
-Changes since v4:
- - Rename compatible string to be more explicit with the bus' limitations
-
-Changes since v3:
- - Fix example
-
-Changes since v1:
- - Update bindings to use 2 #pwm-cells
-
- .../arm/bcm/raspberrypi,bcm2835-firmware.yaml | 20 +++++++++++++++++++
- .../pwm/raspberrypi,firmware-poe-pwm.h        | 13 ++++++++++++
- 2 files changed, 33 insertions(+)
- create mode 100644 include/dt-bindings/pwm/raspberrypi,firmware-poe-pwm.h
-
-diff --git a/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml b/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
-index a2c63c8b1d10..e3664eab0f6a 100644
---- a/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
-+++ b/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
-@@ -64,6 +64,21 @@ properties:
-       - compatible
-       - "#reset-cells"
- 
-+  pwm:
-+    type: object
-+
-+    properties:
-+      compatible:
-+        const: raspberrypi,firmware-poe-pwm
-+
-+      "#pwm-cells":
-+        # See pwm.yaml in this directory for a description of the cells format.
-+        const: 2
-+
-+    required:
-+      - compatible
-+      - "#pwm-cells"
-+
-     additionalProperties: false
- 
- required:
-@@ -87,5 +102,10 @@ examples:
-             compatible = "raspberrypi,firmware-reset";
-             #reset-cells = <1>;
-         };
-+
-+        pwm: pwm {
-+            compatible = "raspberrypi,firmware-poe-pwm";
-+            #pwm-cells = <2>;
-+        };
-     };
- ...
-diff --git a/include/dt-bindings/pwm/raspberrypi,firmware-poe-pwm.h b/include/dt-bindings/pwm/raspberrypi,firmware-poe-pwm.h
-new file mode 100644
-index 000000000000..27c5ce68847b
---- /dev/null
-+++ b/include/dt-bindings/pwm/raspberrypi,firmware-poe-pwm.h
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Copyright (c) 2020 Nicolas Saenz Julienne
-+ * Author: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-+ */
-+
-+#ifndef _DT_BINDINGS_RASPBERRYPI_FIRMWARE_PWM_H
-+#define _DT_BINDINGS_RASPBERRYPI_FIRMWARE_PWM_H
-+
-+#define RASPBERRYPI_FIRMWARE_PWM_POE		0
-+#define RASPBERRYPI_FIRMWARE_PWM_NUM		1
-+
-+#endif
--- 
-2.29.2
-
+Best Regards
+Michał Mirosław

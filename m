@@ -2,107 +2,122 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EB26C1B0E3
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 06:39:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E7D7C433FE
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 06:55:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1691923EB2
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 06:39:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D829023F33
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 06:55:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395534AbgLKGjO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Dec 2020 01:39:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56864 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389193AbgLKGiq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Dec 2020 01:38:46 -0500
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E727FC0613CF;
-        Thu, 10 Dec 2020 22:38:05 -0800 (PST)
-Received: by mail-pl1-x644.google.com with SMTP id r4so4101077pls.11;
-        Thu, 10 Dec 2020 22:38:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=IJn2NRnZ0htSfMKlDgbHkXiJqMLXOt5jVJuVSPBUT64=;
-        b=eQbli3ygPRwDfXaOXZF67v4aJtTRF30JLr9F9Tl2mSghOY78nJiO3ibIk+MntnFAzE
-         J5YHAhRCWjJ2zXa977npJbCRK7zZoOT+BDu5+a/bp8bgCRfCEqOERdKQCbe4CmXUgdSJ
-         x3cF3fUJzzg2BO7vuuKIDsLj+frRO787CX+4jkowDnk8ZVq68zyXFhcXNL9hGmad/BBK
-         mB5UpgnU2+mceImJ/LfxXT8tMtJBQRZh9mFhrUTJVL1YlnHeER2rBTh6K1Ve4t+Hcg5L
-         LExlUg24xLsPLyMd+qvbyh8YTEu+9eZ5ACZiavTpxPMxONQelDmgbaI00kmBWjtUegWz
-         f1fQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=IJn2NRnZ0htSfMKlDgbHkXiJqMLXOt5jVJuVSPBUT64=;
-        b=raEVOzTzNIC72PUYwLznip1X2S4qcvd2AFXm3EDQkjJN+fYvWZGZRX1aJmkcqbEj7X
-         9J9IJMopyREnkXyS6RmYmfN5cMFfPpPeTzS1Aigc30piiIpizEMfkBqqHBfUNNTGXCjm
-         Qfd3w4oWISQ93XhKDENispLOpFzT56q7DPzxyg4gw/QXt232yZpA5AwfP47QIqugtwSm
-         uIfkxekuudm5dExkzBYT+7q8efdzCg4siYMrd37/xxNXM2yi7Lum9pBpyLWs5O2moCyQ
-         4QbLj9t4F4XovOGqETwyUYx+G4Z29vERds1atdiyLe+yf00DQQkIJ+zQJcR0gNm66kFM
-         k6SA==
-X-Gm-Message-State: AOAM531Ymhb36cWtDuXe9BrjUvxq0PLWrPIfm8UHYVR9ujDUEBi8+bVk
-        32aOOZhlv3QAEavujm0ccH4=
-X-Google-Smtp-Source: ABdhPJwX0IF28Epz+bShVNIN0dR8vBODX1Qk2ntn+46/Bq3+55EkW9s1+ZwwPJenWRsAUPe/RyCgng==
-X-Received: by 2002:a17:902:6b4a:b029:d8:d13d:14f with SMTP id g10-20020a1709026b4ab02900d8d13d014fmr9659742plt.24.1607668685371;
-        Thu, 10 Dec 2020 22:38:05 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id y23sm9104582pfc.178.2020.12.10.22.38.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Dec 2020 22:38:04 -0800 (PST)
-Date:   Thu, 10 Dec 2020 22:38:02 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Zheng Yongjun <zhengyongjun3@huawei.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -next] input/rmi4: simplify the return expression of
- rmi_driver_of_probe()
-Message-ID: <X9MTyoZTLISShiMh@google.com>
-References: <20201210140024.1665-1-zhengyongjun3@huawei.com>
+        id S2387607AbgLKGym (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 11 Dec 2020 01:54:42 -0500
+Received: from rere.qmqm.pl ([91.227.64.183]:17945 "EHLO rere.qmqm.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2391381AbgLKGye (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 11 Dec 2020 01:54:34 -0500
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4CshMj0QQHz5P;
+        Fri, 11 Dec 2020 07:53:52 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1607669633; bh=3doK0FUutvkvWAsR9+JjynwPIbyNyVd+O7Di1WbQwyM=;
+        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
+        b=hoemYeGnp+UXeQWo88RYBUP1KYw11nHsm4nbbM2+dPxGWEAySS4NloP8VRlovuVxM
+         Pxx4vizCmAKq5ZM5w68Ulr5KdQ7/D/iM/cpP/+7a1TpsgztoNxImEJ4ZorSdqz9rXK
+         s6LCAffoVqMaA14FT7Ms+Uw+VVjayhk7CkBPiYSA8+EBBN1+sXa8yJBfwMnok9TEpz
+         C5ljGW7aK47XTMYd1BSsKS3emBlQMmbZVCs9OrDm0XBp9P++xW+tcHiiv4jHSwERN5
+         OQ9Smr8ag/nX6rIBd6MjYTNgnQhLyfPI8j+JwTHLo6Ev3cek+PcXoAWDdnQVmTEJWr
+         BMdr6WHVksOlw==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.102.4 at mail
+Date:   Fri, 11 Dec 2020 07:53:56 +0100
+Message-Id: <728fff020bc92be10d84cc2a7ea8af6fd99af96c.1607669375.git.mirq-linux@rere.qmqm.pl>
+In-Reply-To: <cover.1607669375.git.mirq-linux@rere.qmqm.pl>
+References: <cover.1607669375.git.mirq-linux@rere.qmqm.pl>
+From:   =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH RESEND v8 1/4] input: elants: document some registers and
+ values
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201210140024.1665-1-zhengyongjun3@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Johnny Chuang <johnny.chuang.emc@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Dec 10, 2020 at 10:00:24PM +0800, Zheng Yongjun wrote:
-> Simplify the return expression.
-> 
-> Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-> ---
->  drivers/input/rmi4/rmi_driver.c | 8 +-------
->  1 file changed, 1 insertion(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index 258d5fe3d395..eec5d926da25 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -991,14 +991,8 @@ static int rmi_driver_remove(struct device *dev)
->  static int rmi_driver_of_probe(struct device *dev,
->  				struct rmi_device_platform_data *pdata)
->  {
-> -	int retval;
-> -
-> -	retval = rmi_of_property_read_u32(dev, &pdata->reset_delay_ms,
-> +	return rmi_of_property_read_u32(dev, &pdata->reset_delay_ms,
->  					"syna,reset-delay-ms", 1);
-> -	if (retval)
-> -		return retval;
-> -
-> -	return 0;
+Add information found in downstream kernels, to make the code less
+magic.
 
-The idea of this function is to potentially handle several device
-properties, so I would prefer leaving it as is.
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+---
+ drivers/input/touchscreen/elants_i2c.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 50c348297e38..d51cb910fba1 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -82,7 +82,7 @@
+ 
+ #define HEADER_REPORT_10_FINGER	0x62
+ 
+-/* Header (4 bytes) plus 3 fill 10-finger packets */
++/* Header (4 bytes) plus 3 full 10-finger packets */
+ #define MAX_PACKET_SIZE		169
+ 
+ #define BOOT_TIME_DELAY_MS	50
+@@ -97,6 +97,10 @@
+ #define E_INFO_PHY_SCAN		0xD7
+ #define E_INFO_PHY_DRIVER	0xD8
+ 
++/* FW write command, 0x54 0x?? 0x0, 0x01 */
++#define E_POWER_STATE_SLEEP	0x50
++#define E_POWER_STATE_RESUME	0x58
++
+ #define MAX_RETRIES		3
+ #define MAX_FW_UPDATE_RETRIES	30
+ 
+@@ -269,8 +273,8 @@ static int elants_i2c_calibrate(struct elants_data *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+ 	int ret, error;
+-	static const u8 w_flashkey[] = { 0x54, 0xC0, 0xE1, 0x5A };
+-	static const u8 rek[] = { 0x54, 0x29, 0x00, 0x01 };
++	static const u8 w_flashkey[] = { CMD_HEADER_WRITE, 0xC0, 0xE1, 0x5A };
++	static const u8 rek[] = { CMD_HEADER_WRITE, 0x29, 0x00, 0x01 };
+ 	static const u8 rek_resp[] = { CMD_HEADER_REK, 0x66, 0x66, 0x66 };
+ 
+ 	disable_irq(client->irq);
+@@ -1388,7 +1392,9 @@ static int __maybe_unused elants_i2c_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elants_data *ts = i2c_get_clientdata(client);
+-	const u8 set_sleep_cmd[] = { 0x54, 0x50, 0x00, 0x01 };
++	const u8 set_sleep_cmd[] = {
++		CMD_HEADER_WRITE, E_POWER_STATE_SLEEP, 0x00, 0x01
++	};
+ 	int retry_cnt;
+ 	int error;
+ 
+@@ -1425,7 +1431,9 @@ static int __maybe_unused elants_i2c_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elants_data *ts = i2c_get_clientdata(client);
+-	const u8 set_active_cmd[] = { 0x54, 0x58, 0x00, 0x01 };
++	const u8 set_active_cmd[] = {
++		CMD_HEADER_WRITE, E_POWER_STATE_RESUME, 0x00, 0x01
++	};
+ 	int retry_cnt;
+ 	int error;
+ 
 -- 
-Dmitry
+2.20.1
+

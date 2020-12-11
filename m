@@ -7,52 +7,52 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51C7FC4361B
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 19:19:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A820CC4361B
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 19:20:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E97E2405A
-	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 19:19:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7ECF72405A
+	for <linux-input@archiver.kernel.org>; Fri, 11 Dec 2020 19:20:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405510AbgLKRhp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Dec 2020 12:37:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45396 "EHLO
+        id S2405531AbgLKRhv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 11 Dec 2020 12:37:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2395358AbgLKRhR (ORCPT
+        with ESMTP id S2395333AbgLKRhP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Dec 2020 12:37:17 -0500
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D144C061285
-        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 09:36:02 -0800 (PST)
-Received: by mail-pg1-x543.google.com with SMTP id w5so6817791pgj.3
-        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 09:36:02 -0800 (PST)
+        Fri, 11 Dec 2020 12:37:15 -0500
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E663CC0617A6
+        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 09:35:58 -0800 (PST)
+Received: by mail-pf1-x442.google.com with SMTP id b26so7418596pfi.3
+        for <linux-input@vger.kernel.org>; Fri, 11 Dec 2020 09:35:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=fVPYkWaeqMRbpAICVnlwraNYfLqLPR2L2jFSS5f+NE0=;
-        b=PVHaNXQHd6ToEC+ALUwEtOXHJitrrb/WMMQnlbJjIPQfC+3SEcWBVJI3wTO3HH8T8S
-         o1U2Gz65zEvfY8byhsG7VkWHvrTn2LgmCMJMP5t7CL8XXvK6+Vx7cHSp/mGJufz4OKcL
-         nKXjiCPqyZNzTEDLzff0sUSvDhSnotQY6jQy0=
+        bh=VIjdm7RPyoMXWeTdkfAgDbOhg46BNdgtvath0gXrNtk=;
+        b=A4VWRCR99oW+Q926LNhHUI0cHEPkSO5hTvMMewPk5pmo59IwOp0gNW7DLYpWfmDMar
+         +4HvJAEkzSzZGKyv7Nwrfx8ohqYAKifrURzr3b/Snq6gvMzP5nc0Wh1mjhCZHWVmS0IQ
+         jpk69PqSqi1mL5T/Pg/7epaitLWE9nvdI1mfM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=fVPYkWaeqMRbpAICVnlwraNYfLqLPR2L2jFSS5f+NE0=;
-        b=SGHQiKs8rUhw2rS/Bj3q4g/mmINXkXfeQZmJPNiaYf3tMipFdVReLhkVG/4ZblcNAV
-         cHyIsqqOVDnzK03ruvT7wytiiFzt7Pc517ZidkssxKlgeyOyALP9GLfazIQhF3fWXpgj
-         3Z05xuySRHWmGuY9TZ5iyPwv1AGk1lLpCBnichq0bkFw32jQAQ6sFC41mL/029yGkL/6
-         J2RiaqbEIRFwPw9oUfHbxnSB4PL+AZ/7csouxzkI25Msgr3gdGvoAthr4hGkgX7uk5Gi
-         jLq7ZZdiIqc4YcZZzzov5Do4IB6DxEzOV2PwHgqOEfnbFY5fEVmy85Dxyr1xA9odjsKr
-         /zKA==
-X-Gm-Message-State: AOAM530BwTdHmBqj5PuzfmPG08mn5MC1FLtq6dmMs1bTS81YqByPBX4L
-        o8EFlm+HpvWsEZvnNyxwaDLoFg==
-X-Google-Smtp-Source: ABdhPJydFoFshHn2yBECPREYWjWAjjeQIsvhnc7xf2S3q4n8tRUhTckbrNbT6jG1sjtCft1b0EoBAw==
-X-Received: by 2002:a05:6a00:1596:b029:19d:96b8:6eab with SMTP id u22-20020a056a001596b029019d96b86eabmr12744405pfk.38.1607708161904;
-        Fri, 11 Dec 2020 09:36:01 -0800 (PST)
+        bh=VIjdm7RPyoMXWeTdkfAgDbOhg46BNdgtvath0gXrNtk=;
+        b=XcbSDGjsfBfxRJ7FYyKTgcR+wijVHYEtrA9G4ZEt3LpF4H7okz2LEwfi54kJ0aI6rT
+         Yl9tZqt+AmcOB1rS2uqvO2eVHF7HkKP33plA5bBOlxFgfP+oxfVRoMgn+fFN2XTmaPZ8
+         FZcZ7gjE29H21Bo+4yrR1EaAZaPsBLHW6MOz3Y9pcW6tWLM/JDuNkQEfm25VbKDUNedK
+         S5ykh27wnnKlbO6X2ZjrVJ1LBTW7uVEiJNWY0lIQNDPPFqfqjFdgsF/2GF4aJYFZop0t
+         O6e7EmNFDJoaMh22tjOI3z9eil3HjbEiRNablVwiuqhLklIxK168m6Ltwyi8Rf8VNl73
+         wC9Q==
+X-Gm-Message-State: AOAM532jEcJb2AlL71o3F6Q3UpCLs03dfrruOXtr0lUYmfID2w/y9eGl
+        uI/Si0UDSusxB8RQNm7WW/CAmQ==
+X-Google-Smtp-Source: ABdhPJySTi5tN5NXRkE/WY3OLhBrTO9Pp1LrjngnzXk7dxw8NCek/PlvV1Ag1seKmTgqCprMFfAwSA==
+X-Received: by 2002:a63:d258:: with SMTP id t24mr6657853pgi.197.1607708158547;
+        Fri, 11 Dec 2020 09:35:58 -0800 (PST)
 Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:42b0:34ff:fe3d:58e6])
-        by smtp.gmail.com with ESMTPSA id r185sm11402765pfc.53.2020.12.11.09.36.00
+        by smtp.gmail.com with ESMTPSA id r185sm11402765pfc.53.2020.12.11.09.35.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Dec 2020 09:36:01 -0800 (PST)
+        Fri, 11 Dec 2020 09:35:58 -0800 (PST)
 From:   Douglas Anderson <dianders@chromium.org>
 To:     jkosina@suse.cz, benjamin.tissoires@redhat.com,
         gregkh@linuxfoundation.org,
@@ -61,12 +61,21 @@ Cc:     hdegoede@redhat.com, swboyd@chromium.org, robh+dt@kernel.org,
         linux-input@vger.kernel.org, andrea@borgia.bo.it,
         kai.heng.feng@canonical.com,
         Douglas Anderson <dianders@chromium.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v7 4/4] HID: i2c-hid: Introduce goodix-i2c-hid using i2c-hid core
-Date:   Fri, 11 Dec 2020 09:35:26 -0800
-Message-Id: <20201211092956.v7.4.If41b7d621633b94d56653c6d53f5f89c5274de7b@changeid>
+        Will Deacon <will@kernel.org>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
+        Li Yang <leoyang.li@nxp.com>,
+        Max Krummenacher <max.oss.09@gmail.com>,
+        Michael Walle <michael@walle.cc>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v7 2/4] arm64: defconfig: Update config names for i2c-hid rejigger
+Date:   Fri, 11 Dec 2020 09:35:24 -0800
+Message-Id: <20201211092956.v7.2.Ic9788bdfc4cce7569f8d25e7fb52a208fb643eac@changeid>
 X-Mailer: git-send-email 2.29.2.576.ga3fc446d84-goog
 In-Reply-To: <20201211173526.1516653-1-dianders@chromium.org>
 References: <20201211173526.1516653-1-dianders@chromium.org>
@@ -76,202 +85,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Goodix i2c-hid touchscreens are mostly i2c-hid compliant but have some
-special power sequencing requirements, including the need to drive a
-reset line during the sequencing.
-
-Let's use the new rejiggering of i2c-hid to support this with a thin
-wrapper driver to support the first Goodix i2c-hid touchscreen:
-GT7375P
+The i2c-hid driver has been split in two.  Let's enable both halves.
 
 Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Will Deacon <will@kernel.org>
 ---
 
-(no changes since v6)
-
-Changes in v6:
-- Suspend/resume are no longer exported from the core.
-
-Changes in v5:
-- i2chid_subclass_data => i2chid_ops.
-- power_up_device => power_up (same with power_down).
-- subclass => ops.
+(no changes since v4)
 
 Changes in v4:
-- Totally redid based on the new subclass system.
+- ("arm64: defconfig: Update config names for i2c-hid rejigger") new for v4.
 
-Changes in v3:
-- Rework to use subclassing.
+ arch/arm64/configs/defconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- drivers/hid/i2c-hid/Kconfig             |  19 +++-
- drivers/hid/i2c-hid/Makefile            |   1 +
- drivers/hid/i2c-hid/i2c-hid-of-goodix.c | 116 ++++++++++++++++++++++++
- 3 files changed, 134 insertions(+), 2 deletions(-)
- create mode 100644 drivers/hid/i2c-hid/i2c-hid-of-goodix.c
-
-diff --git a/drivers/hid/i2c-hid/Kconfig b/drivers/hid/i2c-hid/Kconfig
-index 819b7521c182..a16c6a69680b 100644
---- a/drivers/hid/i2c-hid/Kconfig
-+++ b/drivers/hid/i2c-hid/Kconfig
-@@ -32,10 +32,25 @@ config I2C_HID_OF
- 	  will be called i2c-hid-of.  It will also build/depend on the
- 	  module i2c-hid.
- 
-+config I2C_HID_OF_GOODIX
-+	tristate "Driver for Goodix hid-i2c based devices on OF systems"
-+	default n
-+	depends on I2C && INPUT && OF
-+	help
-+	  Say Y here if you want support for Goodix i2c devices that use
-+	  the i2c-hid protocol on Open Firmware (Device Tree)-based
-+	  systems.
-+
-+	  If unsure, say N.
-+
-+	  This support is also available as a module.  If so, the module
-+	  will be called i2c-hid-of-goodix.  It will also build/depend on
-+	  the module i2c-hid.
-+
- endmenu
- 
- config I2C_HID_CORE
- 	tristate
--	default y if I2C_HID_ACPI=y || I2C_HID_OF=y
--	default m if I2C_HID_ACPI=m || I2C_HID_OF=m
-+	default y if I2C_HID_ACPI=y || I2C_HID_OF=y || I2C_HID_OF_GOODIX=y
-+	default m if I2C_HID_ACPI=m || I2C_HID_OF=m || I2C_HID_OF_GOODIX=m
- 	select HID
-diff --git a/drivers/hid/i2c-hid/Makefile b/drivers/hid/i2c-hid/Makefile
-index 9b4a73446841..302545a771f3 100644
---- a/drivers/hid/i2c-hid/Makefile
-+++ b/drivers/hid/i2c-hid/Makefile
-@@ -10,3 +10,4 @@ i2c-hid-$(CONFIG_DMI)				+= i2c-hid-dmi-quirks.o
- 
- obj-$(CONFIG_I2C_HID_ACPI)			+= i2c-hid-acpi.o
- obj-$(CONFIG_I2C_HID_OF)			+= i2c-hid-of.o
-+obj-$(CONFIG_I2C_HID_OF_GOODIX)			+= i2c-hid-of-goodix.o
-diff --git a/drivers/hid/i2c-hid/i2c-hid-of-goodix.c b/drivers/hid/i2c-hid/i2c-hid-of-goodix.c
-new file mode 100644
-index 000000000000..7cc51c25c609
---- /dev/null
-+++ b/drivers/hid/i2c-hid/i2c-hid-of-goodix.c
-@@ -0,0 +1,116 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Driver for Goodix touchscreens that use the i2c-hid protocol.
-+ *
-+ * Copyright 2020 Google LLC
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/device.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/i2c.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/pm.h>
-+#include <linux/regulator/consumer.h>
-+
-+#include "i2c-hid.h"
-+
-+struct goodix_i2c_hid_timing_data {
-+	unsigned int post_gpio_reset_delay_ms;
-+	unsigned int post_power_delay_ms;
-+};
-+
-+struct i2c_hid_of_goodix {
-+	struct i2chid_ops ops;
-+
-+	struct regulator *vdd;
-+	struct gpio_desc *reset_gpio;
-+	const struct goodix_i2c_hid_timing_data *timings;
-+};
-+
-+static int goodix_i2c_hid_power_up(struct i2chid_ops *ops)
-+{
-+	struct i2c_hid_of_goodix *ihid_goodix =
-+		container_of(ops, struct i2c_hid_of_goodix, ops);
-+	int ret;
-+
-+	ret = regulator_enable(ihid_goodix->vdd);
-+	if (ret)
-+		return ret;
-+
-+	if (ihid_goodix->timings->post_power_delay_ms)
-+		msleep(ihid_goodix->timings->post_power_delay_ms);
-+
-+	gpiod_set_value_cansleep(ihid_goodix->reset_gpio, 0);
-+	if (ihid_goodix->timings->post_gpio_reset_delay_ms)
-+		msleep(ihid_goodix->timings->post_gpio_reset_delay_ms);
-+
-+	return 0;
-+}
-+
-+static void goodix_i2c_hid_power_down(struct i2chid_ops *ops)
-+{
-+	struct i2c_hid_of_goodix *ihid_goodix =
-+		container_of(ops, struct i2c_hid_of_goodix, ops);
-+
-+	gpiod_set_value_cansleep(ihid_goodix->reset_gpio, 1);
-+	regulator_disable(ihid_goodix->vdd);
-+}
-+
-+static int i2c_hid_of_goodix_probe(struct i2c_client *client,
-+				   const struct i2c_device_id *id)
-+{
-+	struct i2c_hid_of_goodix *ihid_goodix;
-+
-+	ihid_goodix = devm_kzalloc(&client->dev, sizeof(*ihid_goodix),
-+				   GFP_KERNEL);
-+	if (!ihid_goodix)
-+		return -ENOMEM;
-+
-+	ihid_goodix->ops.power_up = goodix_i2c_hid_power_up;
-+	ihid_goodix->ops.power_down = goodix_i2c_hid_power_down;
-+
-+	/* Start out with reset asserted */
-+	ihid_goodix->reset_gpio =
-+		devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_HIGH);
-+	if (IS_ERR(ihid_goodix->reset_gpio))
-+		return PTR_ERR(ihid_goodix->reset_gpio);
-+
-+	ihid_goodix->vdd = devm_regulator_get(&client->dev, "vdd");
-+	if (IS_ERR(ihid_goodix->vdd))
-+		return PTR_ERR(ihid_goodix->vdd);
-+
-+	ihid_goodix->timings = device_get_match_data(&client->dev);
-+
-+	return i2c_hid_core_probe(client, &ihid_goodix->ops, 0x0001);
-+}
-+
-+static const struct goodix_i2c_hid_timing_data goodix_gt7375p_timing_data = {
-+	.post_power_delay_ms = 10,
-+	.post_gpio_reset_delay_ms = 120,
-+};
-+
-+static const struct of_device_id goodix_i2c_hid_of_match[] = {
-+	{ .compatible = "goodix,gt7375p", .data = &goodix_gt7375p_timing_data },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, goodix_i2c_hid_of_match);
-+
-+static struct i2c_driver goodix_i2c_hid_ts_driver = {
-+	.driver = {
-+		.name	= "i2c_hid_of_goodix",
-+		.pm	= &i2c_hid_core_pm,
-+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
-+		.of_match_table = of_match_ptr(goodix_i2c_hid_of_match),
-+	},
-+	.probe		= i2c_hid_of_goodix_probe,
-+	.remove		= i2c_hid_core_remove,
-+	.shutdown	= i2c_hid_core_shutdown,
-+};
-+module_i2c_driver(goodix_i2c_hid_ts_driver);
-+
-+MODULE_AUTHOR("Douglas Anderson <dianders@chromium.org>");
-+MODULE_DESCRIPTION("Goodix i2c-hid touchscreen driver");
-+MODULE_LICENSE("GPL v2");
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index 838301650a79..326198305beb 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -749,7 +749,8 @@ CONFIG_SND_SOC_WM8904=m
+ CONFIG_SND_SOC_WSA881X=m
+ CONFIG_SND_SIMPLE_CARD=m
+ CONFIG_SND_AUDIO_GRAPH_CARD=m
+-CONFIG_I2C_HID=m
++CONFIG_I2C_HID_ACPI=m
++CONFIG_I2C_HID_OF=m
+ CONFIG_USB_CONN_GPIO=m
+ CONFIG_USB=y
+ CONFIG_USB_OTG=y
 -- 
 2.29.2.576.ga3fc446d84-goog
 

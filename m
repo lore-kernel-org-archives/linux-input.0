@@ -2,86 +2,93 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C970C4361B
-	for <linux-input@archiver.kernel.org>; Tue, 15 Dec 2020 05:46:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC335C2BB9A
+	for <linux-input@archiver.kernel.org>; Tue, 15 Dec 2020 05:46:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFD98222B6
-	for <linux-input@archiver.kernel.org>; Tue, 15 Dec 2020 05:46:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E53C222B6
+	for <linux-input@archiver.kernel.org>; Tue, 15 Dec 2020 05:46:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726461AbgLOFpQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 15 Dec 2020 00:45:16 -0500
-Received: from mga18.intel.com ([134.134.136.126]:57027 "EHLO mga18.intel.com"
+        id S1726240AbgLOFod (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 15 Dec 2020 00:44:33 -0500
+Received: from mga18.intel.com ([134.134.136.126]:57001 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726455AbgLOFpI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Dec 2020 00:45:08 -0500
-IronPort-SDR: 8sSUJL44ZN4IpVaJbayI3/8x6LXNkFHNhUpJZJcopSG6bQgqTJHRF94+kcW72hNV14pwWEEq0M
- MDT3+J0c23Pg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9835"; a="162576872"
+        id S1726154AbgLOFoX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 15 Dec 2020 00:44:23 -0500
+IronPort-SDR: VvwCcBJN0DSjAsgS2uKt6hEj0y9opGndLzo2y4Xf4QK/k976IkPxJUvKN4uYHC1rXLmeAfjTEB
+ KeW2CelJyfGw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9835"; a="162576864"
 X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="162576872"
+   d="scan'208";a="162576864"
 Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 21:43:48 -0800
-IronPort-SDR: P15/LseWliFRAsFWwvVkv+igRmbMS0t+FKp5XnIUewP+PCT8b9h0MyYUP+oRO7YgNOEEJ/EoE0
- HXaPbOYqgLAA==
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 21:43:37 -0800
+IronPort-SDR: jIxZw/brTBRn9cR8X64lGTxIUlvmorASMbO8/fL0W6mSp1oUVD/e/OvIfx4xlmliwANWDZxAsP
+ Bawv0iPbUQ3Q==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="351719754"
+   d="scan'208";a="351719719"
 Received: from host.sh.intel.com ([10.239.154.115])
-  by orsmga002.jf.intel.com with ESMTP; 14 Dec 2020 21:43:46 -0800
+  by orsmga002.jf.intel.com with ESMTP; 14 Dec 2020 21:43:36 -0800
 From:   Ye Xiang <xiang.ye@intel.com>
 To:     jikos@kernel.org, jic23@kernel.org,
         srinivas.pandruvada@linux.intel.com
 Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
         linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH v4 3/3] iio:Documentation: Add documentation for hinge sensor channels
-Date:   Tue, 15 Dec 2020 13:44:44 +0800
-Message-Id: <20201215054444.9324-4-xiang.ye@intel.com>
+Subject: [PATCH v4 0/3] add custom hinge sensor support
+Date:   Tue, 15 Dec 2020 13:44:41 +0800
+Message-Id: <20201215054444.9324-1-xiang.ye@intel.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201215054444.9324-1-xiang.ye@intel.com>
-References: <20201215054444.9324-1-xiang.ye@intel.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add channel description for hinge sensor, including channel label
-attribute and raw data description.
+Here we register one iio device with three channels which present angle for
+hinge, keyboard and screen.
 
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
----
- Documentation/ABI/testing/sysfs-bus-iio | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+This driver works on devices with Intel integrated sensor hub, where
+hinge sensor is presented using a custom sensor usage id.
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
-index df42bed09f25..5c0a84c50d43 100644
---- a/Documentation/ABI/testing/sysfs-bus-iio
-+++ b/Documentation/ABI/testing/sysfs-bus-iio
-@@ -198,6 +198,7 @@ Description:
- 		Units after application of scale and offset are m/s^2.
- 
- What:		/sys/bus/iio/devices/iio:deviceX/in_angl_raw
-+What:		/sys/bus/iio/devices/iio:deviceX/in_anglY_raw
- KernelVersion:	4.17
- Contact:	linux-iio@vger.kernel.org
- Description:
-@@ -1802,3 +1803,13 @@ Contact:	linux-iio@vger.kernel.org
- Description:
- 		Unscaled light intensity according to CIE 1931/DIN 5033 color space.
- 		Units after application of scale are nano nanowatts per square meter.
-+
-+What:		/sys/bus/iio/devices/iio:deviceX/in_anglY_label
-+KernelVersion:	5.12
-+Contact:	linux-iio@vger.kernel.org
-+Description:
-+		Optional symbolic label for channel Y.
-+		For Intel hid hinge sensor, the label values are:
-+		hinge, keyboard, screen. It means the three channels
-+		each correspond respectively to hinge angle, keyboard angle,
-+		and screen angle.
+Here the angle is presented in degrees, which is converted to radians.
+
+Changes since v3:
+  - hid-sensor-custom: remove sensor_inst::custom_pdev_exposed.
+  - hid-sensor-custom: use static buf, w_buf to avoid using goto in 
+    get_known_custom_sensor_index.
+  - hid-sensor-custom-intel-hinge: use devm_ prefix function instead.
+  - sysfs-bus-iio: put in_anglY_raw together with in_angl_raw.
+
+Changes since v2:
+  - use 1 iio device instead of 3 for hinge sensor.
+  - use indexed channel instead of modified channel and added channel
+    labels.
+  - remove 2,3 patch in last version, add a document patch to describe the
+    hinge channels.
+  - hid-sensor-custom: use meaningful return value in 
+    get_known_custom_sensor_index and checked in call side.
+  - hid-sensor-ids.h: use HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE(x) to 
+    define custom sensor value.
+
+Changes since v1:
+  - fixed errors reported by lkp
+
+Ye Xiang (3):
+  HID: hid-sensor-custom: Add custom sensor iio support
+  iio: hid-sensors: Add hinge sensor driver
+  iio:Documentation: Add documentation for hinge sensor channels
+
+ Documentation/ABI/testing/sysfs-bus-iio       |  11 +
+ drivers/hid/hid-sensor-custom.c               | 143 +++++++
+ .../hid-sensors/hid-sensor-attributes.c       |   2 +
+ drivers/iio/position/Kconfig                  |  16 +
+ drivers/iio/position/Makefile                 |   1 +
+ .../position/hid-sensor-custom-intel-hinge.c  | 391 ++++++++++++++++++
+ include/linux/hid-sensor-ids.h                |  14 +
+ 7 files changed, 578 insertions(+)
+ create mode 100644 drivers/iio/position/hid-sensor-custom-intel-hinge.c
+
 -- 
 2.17.1
 

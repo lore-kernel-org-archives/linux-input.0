@@ -2,93 +2,122 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC335C2BB9A
-	for <linux-input@archiver.kernel.org>; Tue, 15 Dec 2020 05:46:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2861BC4361B
+	for <linux-input@archiver.kernel.org>; Tue, 15 Dec 2020 05:49:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6E53C222B6
-	for <linux-input@archiver.kernel.org>; Tue, 15 Dec 2020 05:46:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E2CAC222B6
+	for <linux-input@archiver.kernel.org>; Tue, 15 Dec 2020 05:49:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726240AbgLOFod (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 15 Dec 2020 00:44:33 -0500
-Received: from mga18.intel.com ([134.134.136.126]:57001 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726154AbgLOFoX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Dec 2020 00:44:23 -0500
-IronPort-SDR: VvwCcBJN0DSjAsgS2uKt6hEj0y9opGndLzo2y4Xf4QK/k976IkPxJUvKN4uYHC1rXLmeAfjTEB
- KeW2CelJyfGw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9835"; a="162576864"
-X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="162576864"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 21:43:37 -0800
-IronPort-SDR: jIxZw/brTBRn9cR8X64lGTxIUlvmorASMbO8/fL0W6mSp1oUVD/e/OvIfx4xlmliwANWDZxAsP
- Bawv0iPbUQ3Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="351719719"
-Received: from host.sh.intel.com ([10.239.154.115])
-  by orsmga002.jf.intel.com with ESMTP; 14 Dec 2020 21:43:36 -0800
-From:   Ye Xiang <xiang.ye@intel.com>
-To:     jikos@kernel.org, jic23@kernel.org,
-        srinivas.pandruvada@linux.intel.com
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH v4 0/3] add custom hinge sensor support
-Date:   Tue, 15 Dec 2020 13:44:41 +0800
-Message-Id: <20201215054444.9324-1-xiang.ye@intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S1725775AbgLOFtY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 15 Dec 2020 00:49:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46814 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725827AbgLOFtW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 15 Dec 2020 00:49:22 -0500
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73D55C06179C;
+        Mon, 14 Dec 2020 21:48:42 -0800 (PST)
+Received: by mail-pf1-x442.google.com with SMTP id d2so13811129pfq.5;
+        Mon, 14 Dec 2020 21:48:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=9LGlKHoc1lvi4eB0aROEFbz2iet1AHLtHaa59F1Z3rs=;
+        b=C3x5KcQQOFVcl5qmpnBjnYuLYPYEaL6GgmmlTVKjN6PKjW+Nw4cwYxeYJLGnc/4Oj8
+         lR26J3Uoh9AYAwOD65wn73rwdBUNb3UzvC2RIUDJoQRdcShBNXgZ0X91tC5MJrPPQWWa
+         6DbBvMzikXh7FwpdDooliir1Bc3Nc4VfBelJptBeL88JFaqL4Qt63psXL0iwnnXhSeGG
+         a2iC8LMI2fYTq23DlUWNRi8KWCKImzkGaHnEgULhVzWrWVw0PUoo9Ku0nJnjN9YdiR8+
+         FH1m9BPBxhquuiLF35wLyZgD8vE+uWr/YU6/Th6Y3edZTmoiRse6VWFWjOfkq5fQ0yKH
+         U4Tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=9LGlKHoc1lvi4eB0aROEFbz2iet1AHLtHaa59F1Z3rs=;
+        b=ospgcAFlbuAsHLohIS9Aic2K+WNOQH09N7wXowX2ZWNrX59AP0Z33Uzxu+hv2qIC7+
+         teOg7r8+ZLHC4TiG1GnFwjikbky/2/CuOsNzT3uTxwUDpYQu3MlW7lnLDXNG+DB7YxMz
+         gzy97CLPXQK/eut4fvTZadh8djWg8xfWqqdAzrfJCYyFfobMIMJfgt0cz+G5aMqn6l+n
+         FhqDiExmqLRAGRaR9pN1XW/nvSqanM7uZdxvHNhBTKsBgctehWY2qAr7HWjmaFH+75HZ
+         OeF1lze2ul6kRT9zxZl0032yrGg5dJOUPhVunuSAlLVk5Fcy7mDuxJyrJKl6pqAX7F3q
+         yIng==
+X-Gm-Message-State: AOAM5310o/iv4MwP0wpiK4TRJYMFpWrBms9OFvoWUNY9XeWG9euOdKAA
+        khWxsftmUQ3/mHf6iYoJOAI=
+X-Google-Smtp-Source: ABdhPJzg6uto03v+KNvRZ7SSVdMR/CW/rV8ggOzWpS7xNEr8snla0Ie8R7SrT6cybdMOkFFOLT3nUg==
+X-Received: by 2002:a63:42c2:: with SMTP id p185mr20698984pga.33.1608011321814;
+        Mon, 14 Dec 2020 21:48:41 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id t15sm18716929pfc.12.2020.12.14.21.48.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Dec 2020 21:48:40 -0800 (PST)
+Date:   Mon, 14 Dec 2020 21:48:38 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     "jeffrey.lin" <jeffrey.lin@raydium.corp-partner.google.com>
+Cc:     furquan@google.com, seanpaul@chromium.org, rrangel@chromium.org,
+        dan.carpenter@oracle.com, jeffrey.lin@rad-ic.com, KP.li@rad-ic.com,
+        calvin.tseng@rad-ic.com, simba.hsu@rad-ic.com,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH] Input: raydium_ts_i2c: Do not send zero length
+Message-ID: <X9hONuOdn3cTZ6vH@google.com>
+References: <1608002466-9263-1-git-send-email-jeffrey.lin@raydium.corp-partner.google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1608002466-9263-1-git-send-email-jeffrey.lin@raydium.corp-partner.google.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Here we register one iio device with three channels which present angle for
-hinge, keyboard and screen.
+Hi Jeffrey,
 
-This driver works on devices with Intel integrated sensor hub, where
-hinge sensor is presented using a custom sensor usage id.
+On Tue, Dec 15, 2020 at 11:21:06AM +0800, jeffrey.lin wrote:
+> Add default write command package to prevent i2c quirk error of zero
+> data length as Raydium touch firmware update is executed.
+> 
+> Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
+> BUG=b:174207906
+> TEST=Successfully tested update Raydium touch firmware over 100 times
+> Change-Id: I311b0d26d7642bb800547cd0e87013be17cb7e1b
+> ---
+>  drivers/input/touchscreen/raydium_i2c_ts.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+> index 603a948460d64..4d2d22a869773 100644
+> --- a/drivers/input/touchscreen/raydium_i2c_ts.c
+> +++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+> @@ -445,6 +445,7 @@ static int raydium_i2c_write_object(struct i2c_client *client,
+>  				    enum raydium_bl_ack state)
+>  {
+>  	int error;
+> +	static const u8 cmd[] = { 0xFF, 0x39 };
+>  
+>  	error = raydium_i2c_send(client, RM_CMD_BOOT_WRT, data, len);
+>  	if (error) {
+> @@ -453,7 +454,7 @@ static int raydium_i2c_write_object(struct i2c_client *client,
+>  		return error;
+>  	}
+>  
+> -	error = raydium_i2c_send(client, RM_CMD_BOOT_ACK, NULL, 0);
+> +	error = raydium_i2c_send(client, RM_CMD_BOOT_ACK, cmd, sizeof(cmd));
 
-Here the angle is presented in degrees, which is converted to radians.
+Is this supported by all firmwares?
 
-Changes since v3:
-  - hid-sensor-custom: remove sensor_inst::custom_pdev_exposed.
-  - hid-sensor-custom: use static buf, w_buf to avoid using goto in 
-    get_known_custom_sensor_index.
-  - hid-sensor-custom-intel-hinge: use devm_ prefix function instead.
-  - sysfs-bus-iio: put in_anglY_raw together with in_angl_raw.
+>  	if (error) {
+>  		dev_err(&client->dev, "Ack obj command failed: %d\n", error);
+>  		return error;
+> -- 
+> 2.26.2
+> 
 
-Changes since v2:
-  - use 1 iio device instead of 3 for hinge sensor.
-  - use indexed channel instead of modified channel and added channel
-    labels.
-  - remove 2,3 patch in last version, add a document patch to describe the
-    hinge channels.
-  - hid-sensor-custom: use meaningful return value in 
-    get_known_custom_sensor_index and checked in call side.
-  - hid-sensor-ids.h: use HID_USAGE_SENSOR_DATA_FIELD_CUSTOM_VALUE(x) to 
-    define custom sensor value.
-
-Changes since v1:
-  - fixed errors reported by lkp
-
-Ye Xiang (3):
-  HID: hid-sensor-custom: Add custom sensor iio support
-  iio: hid-sensors: Add hinge sensor driver
-  iio:Documentation: Add documentation for hinge sensor channels
-
- Documentation/ABI/testing/sysfs-bus-iio       |  11 +
- drivers/hid/hid-sensor-custom.c               | 143 +++++++
- .../hid-sensors/hid-sensor-attributes.c       |   2 +
- drivers/iio/position/Kconfig                  |  16 +
- drivers/iio/position/Makefile                 |   1 +
- .../position/hid-sensor-custom-intel-hinge.c  | 391 ++++++++++++++++++
- include/linux/hid-sensor-ids.h                |  14 +
- 7 files changed, 578 insertions(+)
- create mode 100644 drivers/iio/position/hid-sensor-custom-intel-hinge.c
+Thanks.
 
 -- 
-2.17.1
-
+Dmitry

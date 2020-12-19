@@ -4,66 +4,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2B61C3526D
-	for <linux-input@archiver.kernel.org>; Sat, 19 Dec 2020 06:24:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FCA5C0018C
+	for <linux-input@archiver.kernel.org>; Sat, 19 Dec 2020 06:25:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7668323B54
-	for <linux-input@archiver.kernel.org>; Sat, 19 Dec 2020 06:24:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66D0B23B6C
+	for <linux-input@archiver.kernel.org>; Sat, 19 Dec 2020 06:25:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726347AbgLSGYY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 19 Dec 2020 01:24:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36750 "EHLO
+        id S1726254AbgLSGZB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 19 Dec 2020 01:25:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726326AbgLSGYY (ORCPT
+        with ESMTP id S1726287AbgLSGZB (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 19 Dec 2020 01:24:24 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC883C061285
-        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2020 22:23:43 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id v3so2562768plz.13
-        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2020 22:23:43 -0800 (PST)
+        Sat, 19 Dec 2020 01:25:01 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75B2C0611C5
+        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2020 22:23:46 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id c12so2841841pfo.10
+        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2020 22:23:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gaikai-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=mZExmW7iXFa7OvQ2NU0UVMluz1MqYzWFAsdd7+pcH3Y=;
-        b=T5EFyUUt9tus+lcMLhDdJFRNlV+9XRQ5nkXz+tleFQL2wyhadR3bM55jTyqEdUlc7n
-         MEZEt5snbsiTHPQp9lkNQyKJTbPHa67s57RhY/QuM5zcSiyrQ7F9KtafQQiD56xVsDW+
-         Q15uJMTYI6qgwCQrdska3FaV/CtSGwnS06dXwNIRyqOUSXzLK8V7ahcJeEu7/cACAfou
-         VTOAAXL6hSipzrhlokityWMl9kYoBTML6y3fj9DLhI3eH0cOy8gA13m4liju7zT2U9ou
-         w5BPUm6yo7k07JQuiyDYeZw2SGEVWihTcat3hsMKihd/XtKDmBeuJHVV6XfVwPPHQvTn
-         Y7Zg==
+        bh=Xiom21k8ouKY1sgtAKcfpq0w+T/ah4O7YYXgyd7k2Qc=;
+        b=bNJVvQtU5HM13JMzZxT62qcs5qfHKppFcSmtu2BimoOkLhVErD4svw+fGvUEk7iAs1
+         LU3RH8wQR7Mngm2X/38ecDlAjzPXc/3d9DhMnPHD9y+z6cZRFEok9VNW7+74CPb9hICo
+         xrjW9cd8AmUPzG/8LuWnpJRvoAcYxMm5OVaZt3tmUmJjhG/HLh2n4u62tF3mRp6oBto/
+         NI6AE6Y/zyigWxsKNmyKWT9IoE2w7BYX5a+qvupLSxszeeA0f02yyUJgpZ9OkBV14cPj
+         FvVSVzYa9/qKLjDNymtRcp6CAKv0G+KwUDjHZ7xy0lsTp5FmJNoD4+S+W/yXvtvJxAgy
+         Zv2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=mZExmW7iXFa7OvQ2NU0UVMluz1MqYzWFAsdd7+pcH3Y=;
-        b=N1+nXcFS3qQ24iXQKVSUG9f9xEHnxyJiEb+MDtcARjVg5GO42/DyIdUJlOhe5LiZJZ
-         rNGC2I+poga9CX9jBrUdC0+nqkqnT51g8r0KTbv//nxA9wur/CkBBitURJHpOBem3aXq
-         Jx06ELXcmM0/YGCQUm1uUUknEhilrG1RJUmScaHbEvLLBn938Cl1+Flnfpj6cHdOOcmn
-         P6D/398RG/ITJytFsUZ+oRa+NANZFeakTCmeFpoVaYg129yoO2cHiWtpPk/doZB8y0u1
-         wGGQhxS8osyiBWfDRZMzt+/vpn/6VY1MwsztJz9IG6M8bOtWkorquySwzGBMY2uUM1JQ
-         e7zg==
-X-Gm-Message-State: AOAM530gdwSVDHlK50LN56LNFS/r7WIP4gm987AOkH0qCos67MzbKzmE
-        0ZXw+jJ9Nq6aGA300nKqHXNiLQ==
-X-Google-Smtp-Source: ABdhPJyAW0bFgkjjvpfPgreEe1+QOekq+84SEKlsqU4HazDRf1KAW8k4ERYZtzp/fKnSN6ZFTBQIPA==
-X-Received: by 2002:a17:90a:ae02:: with SMTP id t2mr7704178pjq.169.1608359023541;
-        Fri, 18 Dec 2020 22:23:43 -0800 (PST)
+        bh=Xiom21k8ouKY1sgtAKcfpq0w+T/ah4O7YYXgyd7k2Qc=;
+        b=tETiLrdoYUoxEVTjxnZ4ONFR86Q0+BeqRM2Sk2fQsZS3/+Q8eMQwJRwBgU+7O+8251
+         gRG6Quj+dvN+jRCEJT+C7I1C8Tm77dsrmf9l8YdY6VtXlGc2IhOpIxIBKQqPI7zNlqfu
+         MY3jX0/y1pCLA5gGZn3afYn7u6Yd+hFV0MwMFPQWY32MxCIgt2rGwWow2zFq1CGBKpTh
+         uJqPqcLwlD60ajiQVKTUnEmcf4OR1HWglo1jJdnloGshNc/aTUrpqcsIWrzt7b3bX+6h
+         Zti5ZOE62T4kxlkvwIux0kqWN1FBL01hXxFpHLCrmjMqd3XqPpVMUQztfy8m4d/ZviVF
+         Lf8A==
+X-Gm-Message-State: AOAM530SB2CDLG8/FxMmxdIydpaOFSP/TPuiW/vRFltXhs9M4Go/vt0M
+        dGx2odhA2o9ye8+JVOyYVsb5OyfrEeZT2w==
+X-Google-Smtp-Source: ABdhPJwMsERqpWjFG2rIshnDXmwk7J+YrB7IzQZVJT6fk3tkjUnHbbmH/3YA9xkS4uQwDTwMu8PX4Q==
+X-Received: by 2002:a63:1110:: with SMTP id g16mr7109160pgl.357.1608359026455;
+        Fri, 18 Dec 2020 22:23:46 -0800 (PST)
 Received: from localhost.localdomain (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id bf3sm9655302pjb.45.2020.12.18.22.23.42
+        by smtp.gmail.com with ESMTPSA id bf3sm9655302pjb.45.2020.12.18.22.23.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Dec 2020 22:23:43 -0800 (PST)
+        Fri, 18 Dec 2020 22:23:46 -0800 (PST)
 From:   Roderick Colenbrander <roderick@gaikai.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH 03/13] HID: playstation: add DualSense battery support.
-Date:   Fri, 18 Dec 2020 22:23:26 -0800
-Message-Id: <20201219062336.72568-4-roderick@gaikai.com>
+Subject: [PATCH 06/13] HID: playstation: track devices in list.
+Date:   Fri, 18 Dec 2020 22:23:29 -0800
+Message-Id: <20201219062336.72568-7-roderick@gaikai.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201219062336.72568-1-roderick@gaikai.com>
 References: <20201219062336.72568-1-roderick@gaikai.com>
@@ -75,201 +75,100 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Report DualSense battery status information through power_supply class.
+Track devices in a list, so we can detect when a device is connected
+twice when using Bluetooth and USB.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/Kconfig           |   1 +
- drivers/hid/hid-playstation.c | 122 +++++++++++++++++++++++++++++++++-
- 2 files changed, 122 insertions(+), 1 deletion(-)
+ drivers/hid/hid-playstation.c | 45 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index d3258e806998..ef175c1cb15c 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -857,6 +857,7 @@ config HID_PLAYSTATION
- 	tristate "PlayStation HID Driver"
- 	default !EXPERT
- 	depends on HID
-+	select POWER_SUPPLY
- 	help
- 	  Provides support for Sony PS5 controllers including support for
- 	  its special functionalities e.g. touchpad, lights and motion
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 88823a7ba1a0..598d262e2a08 100644
+index ea64f73e0b84..b0c0286cfd2b 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -17,6 +17,13 @@
+@@ -14,8 +14,13 @@
+ 
+ #include "hid-ids.h"
+ 
++/* List of connected playstation devices. */
++static DEFINE_MUTEX(ps_devices_lock);
++static LIST_HEAD(ps_devices_list);
++
  /* Base class for playstation devices. */
  struct ps_device {
++	struct list_head list;
  	struct hid_device *hdev;
-+	spinlock_t lock;
-+
-+	struct power_supply_desc battery_desc;
-+	struct power_supply *battery;
-+	uint8_t battery_capacity;
-+	int battery_status;
-+
- 	uint8_t mac_address[6];
+ 	spinlock_t lock;
  
- 	int (*parse_report)(struct ps_device *dev, struct hid_report *report, u8 *data, int size);
-@@ -44,6 +51,11 @@ struct ps_device {
- #define DS_BUTTONS2_PS_HOME	BIT(0)
- #define DS_BUTTONS2_TOUCHPAD	BIT(1)
+@@ -145,6 +150,37 @@ static const struct {int x; int y; } ps_gamepad_hat_mapping[] = {
+ 	{0, 0}
+ };
  
-+/* Status field of DualSense input report. */
-+#define DS_STATUS_BATTERY_CAPACITY	GENMASK(3, 0)
-+#define DS_STATUS_CHARGING		GENMASK(7, 4)
-+#define DS_STATUS_CHARGING_SHIFT	4
-+
- struct dualsense {
- 	struct ps_device base;
- 	struct input_dev *gamepad;
-@@ -131,6 +143,71 @@ static struct input_dev *ps_allocate_input_dev(struct hid_device *hdev, const ch
- 	return input_dev;
- }
- 
-+static enum power_supply_property ps_power_supply_props[] = {
-+	POWER_SUPPLY_PROP_STATUS,
-+	POWER_SUPPLY_PROP_PRESENT,
-+	POWER_SUPPLY_PROP_CAPACITY,
-+	POWER_SUPPLY_PROP_SCOPE
-+};
-+
-+static int ps_battery_get_property(struct power_supply *psy,
-+		enum power_supply_property psp,
-+		union power_supply_propval *val)
++/* Add a new ps_device to ps_devices if it doesn't exist.
++ * Return error on duplicate device, which can happen if the same
++ * device is connected using both Bluetooth and USB.
++ */
++static int ps_devices_list_add(struct ps_device *dev)
 +{
-+	struct ps_device *dev = power_supply_get_drvdata(psy);
-+	uint8_t battery_capacity;
-+	int battery_status;
-+	unsigned long flags;
-+	int ret;
++	struct ps_device *entry;
 +
-+	spin_lock_irqsave(&dev->lock, flags);
-+	battery_capacity = dev->battery_capacity;
-+	battery_status = dev->battery_status;
-+	spin_unlock_irqrestore(&dev->lock, flags);
-+
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_STATUS:
-+		val->intval = battery_status;
-+		break;
-+	case POWER_SUPPLY_PROP_PRESENT:
-+		val->intval = 1;
-+		break;
-+	case POWER_SUPPLY_PROP_CAPACITY:
-+		val->intval = battery_capacity;
-+		break;
-+	case POWER_SUPPLY_PROP_SCOPE:
-+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-+		break;
-+	default:
-+		ret = -EINVAL;
-+		break;
++	mutex_lock(&ps_devices_lock);
++	list_for_each_entry(entry, &ps_devices_list, list) {
++		if (!memcmp(entry->mac_address, dev->mac_address, sizeof(dev->mac_address))) {
++			hid_err(dev->hdev, "Duplicate device found for MAC address %pMR\n",
++					dev->mac_address);
++			mutex_unlock(&ps_devices_lock);
++			return -EEXIST;
++		}
 +	}
 +
++	list_add_tail(&dev->list, &ps_devices_list);
++	mutex_unlock(&ps_devices_lock);
 +	return 0;
 +}
 +
-+static int ps_device_register_battery(struct ps_device *dev)
++static int ps_devices_list_remove(struct ps_device *dev)
 +{
-+	struct power_supply *battery;
-+	struct power_supply_config battery_cfg = { .drv_data = dev };
-+
-+	dev->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
-+	dev->battery_desc.properties = ps_power_supply_props;
-+	dev->battery_desc.num_properties = ARRAY_SIZE(ps_power_supply_props);
-+	dev->battery_desc.get_property = ps_battery_get_property;
-+	dev->battery_desc.name = devm_kasprintf(&dev->hdev->dev, GFP_KERNEL,
-+			"ps-controller-battery-%pMR", dev->mac_address);
-+
-+	battery = devm_power_supply_register(&dev->hdev->dev, &dev->battery_desc, &battery_cfg);
-+	if (IS_ERR(battery)) {
-+		hid_err(dev->hdev, "Unable to register battery device.\n");
-+		return PTR_ERR(battery);
-+	}
-+	dev->battery = battery;
-+
-+	power_supply_powers(dev->battery, &dev->hdev->dev);
++	mutex_lock(&ps_devices_lock);
++	list_del(&dev->list);
++	mutex_unlock(&ps_devices_lock);
 +	return 0;
 +}
- 
- static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
++
+ static struct input_dev *ps_allocate_input_dev(struct hid_device *hdev, const char *name_suffix)
  {
-@@ -191,7 +268,9 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	struct hid_device *hdev = ps_dev->hdev;
- 	struct dualsense *ds = (struct dualsense *)ps_dev;
- 	struct dualsense_input_report *ds_report;
--	uint8_t value;
-+	uint8_t battery_data, battery_capacity, charging_status, value;
-+	int battery_status;
-+	unsigned long flags;
- 
- 	/* DualSense in USB uses the full HID report for reportID 1, but
- 	 * Bluetooth uses a minimal HID report for reportID 1 and reports
-@@ -232,6 +311,41 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	input_report_key(ds->gamepad, BTN_MODE, ds_report->buttons[2] & DS_BUTTONS2_PS_HOME);
- 	input_sync(ds->gamepad);
- 
-+	battery_data = ds_report->status & DS_STATUS_BATTERY_CAPACITY;
-+	charging_status = (ds_report->status & DS_STATUS_CHARGING) >> DS_STATUS_CHARGING_SHIFT;
-+
-+	switch (charging_status) {
-+	case 0x0:
-+		/* Each unit of battery data corresponds to 10%
-+		 * 0 = 0-9%, 1 = 10-19%, .. and 10 = 100%
-+		 */
-+		battery_capacity = battery_data == 10 ? 100 : battery_data * 10 + 5;
-+		battery_status = POWER_SUPPLY_STATUS_DISCHARGING;
-+		break;
-+	case 0x1:
-+		battery_capacity = battery_data == 10 ? 100 : battery_data * 10 + 5;
-+		battery_status = POWER_SUPPLY_STATUS_CHARGING;
-+		break;
-+	case 0x2:
-+		battery_capacity = 100;
-+		battery_status = POWER_SUPPLY_STATUS_FULL;
-+		break;
-+	case 0xa: /* voltage or temperature out of range */
-+	case 0xb: /* temperature error */
-+		battery_capacity = 0;
-+		battery_status = POWER_SUPPLY_STATUS_NOT_CHARGING;
-+		break;
-+	case 0xf: /* charging error */
-+	default:
-+		battery_capacity = 0;
-+		battery_status = POWER_SUPPLY_STATUS_UNKNOWN;
-+	}
-+
-+	spin_lock_irqsave(&ps_dev->lock, flags);
-+	ps_dev->battery_capacity = battery_capacity;
-+	ps_dev->battery_status = battery_status;
-+	spin_unlock_irqrestore(&ps_dev->lock, flags);
-+
- 	return 0;
- }
- 
-@@ -250,6 +364,8 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 	hdev->version |= 0x8000;
- 
- 	ds->base.hdev = hdev;
-+	ds->base.battery_capacity = 100; /* initial value until parse_report. */
-+	ds->base.battery_status = POWER_SUPPLY_STATUS_UNKNOWN;
- 	ds->base.parse_report = dualsense_parse_report;
- 	hid_set_drvdata(hdev, ds);
- 
-@@ -266,6 +382,10 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 		goto err;
+ 	struct input_dev *input_dev;
+@@ -613,6 +649,10 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
  	}
+ 	snprintf(hdev->uniq, sizeof(hdev->uniq), "%pMR", ds->base.mac_address);
  
-+	ret = ps_device_register_battery((struct ps_device *)ds);
++	ret = ps_devices_list_add((struct ps_device *)ds);
 +	if (ret < 0)
-+		goto err;
++		return ERR_PTR(ret);
 +
+ 	ret = dualsense_get_calibration_data(ds);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Failed to get calibration data from DualSense\n");
+@@ -645,6 +685,7 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
  	return (struct ps_device *)ds;
  
  err:
++	ps_devices_list_remove((struct ps_device *)ds);
+ 	return ERR_PTR(ret);
+ }
+ 
+@@ -706,6 +747,10 @@ static int ps_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ static void ps_remove(struct hid_device *hdev)
+ {
++	struct ps_device *dev = hid_get_drvdata(hdev);
++
++	ps_devices_list_remove(dev);
++
+ 	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
+ }
 -- 
 2.26.2
 

@@ -7,63 +7,63 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90547C0018C
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B513DC3526F
 	for <linux-input@archiver.kernel.org>; Sat, 19 Dec 2020 06:24:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5BE8E23B70
+	by mail.kernel.org (Postfix) with ESMTP id 9038323B6C
 	for <linux-input@archiver.kernel.org>; Sat, 19 Dec 2020 06:24:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726343AbgLSGYX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 19 Dec 2020 01:24:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
+        id S1726355AbgLSGYZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 19 Dec 2020 01:24:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726326AbgLSGYX (ORCPT
+        with ESMTP id S1726326AbgLSGYZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 19 Dec 2020 01:24:23 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F71C061282
-        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2020 22:23:42 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id iq13so2531758pjb.3
-        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2020 22:23:42 -0800 (PST)
+        Sat, 19 Dec 2020 01:24:25 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F15C061248
+        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2020 22:23:44 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id e2so2704031pgi.5
+        for <linux-input@vger.kernel.org>; Fri, 18 Dec 2020 22:23:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gaikai-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=YRLkSYRvko/RAr2XdFUWCWeKkqHgymygaQPYWzt1t1I=;
-        b=t6dMSQOcQ2FvhILZpmaPcxyXkVVikY0W9uWj2OVryJHM9MaGr6rHZgWCYSQwdFh0hX
-         te2I0VO4G1wfR/fabCP096QMEZAudUczFZzdGep1E3W/Hc3GV7c/kg9ck0jUpTBDrNDt
-         icBvqIktejKuz+1tPYwDASe6NmkQZq8LOjUkaLk7qIDOF+9OrFVmnU8RIfLa8nM4W617
-         THc4YkdvoXiRMTb2YJDQKaPfP/oLu8vYEWZqKHkp8WoF4521bKWM10/rZwXelQrgmpsT
-         7IJ+ssKl/FIocn+HKYTFxW6dvXyhXPqpohTPiBBRkg5b45Mcer0bsphpADD9Je+3yucJ
-         wrXw==
+        bh=nW+mbDO5wiMCdT0liT2YH3WjYnrCDE+jfI3goBYcijI=;
+        b=ToPDrcOy6yjKbi3UinwH09cWzoHy+NR8E7RTD2eO48ldnZXPhGmKW6c/quFD+os/HV
+         NyXyNTxDwryXbwlwtFPpUPeICYhTBA29A8NW2EDucE+Nbhs2e6JfHlaSK6pgI/9Gx3P9
+         aP9lV2VPO9jYWc5p7Ix8RypkDEddi75ueZn8sYEoj0YpSp0IjvoBsSBfeiSw6DylpWCS
+         3pLo0lfJHxRxMMcHCr1Pj+KPREr6J+GiGSiPxPCGvAJSJeJavv3DWzaRi2gaNydHm3Lv
+         sUL1x5LoNBAlPIRbAY42QASS4a7f/Tt0v7mJi/z1Wfd81KuY6KzKzXso4AM0aT/jkxzi
+         tWAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=YRLkSYRvko/RAr2XdFUWCWeKkqHgymygaQPYWzt1t1I=;
-        b=n8kgK4b5lr7dAgw6MOea5h84EozZZW5yVqBDfBIwY12Ewv+jKWB1S98jZJbB9YCIbh
-         6FKVDWm2FsQ5cNd8w9uh8t7LrEKC9ylTmTtTLCJRS7Upw7eH6YKVn9zM+zurBxA411Yg
-         m14u13K5wdLumsv9gCnDHzgLijmYX64CJ0xBAx4zhFeTePXbFlEQyJp4CRRpwx6Mh5ff
-         AC1dqlv2Oj18KZqx/lqaNlLCgsFE33pLUWtUeKM2fRzYToQpFSPnr8UKUMdR6J0mDd4R
-         rJ7xg5I5SzkH0NxWLAyBeAAZXv3Kps+fAv84L+6/fN7bVTJkxfEuw7KfcCT6cnv+Kw96
-         W0EQ==
-X-Gm-Message-State: AOAM532mbzeuml0kwZuRqII/cZx2w5enXI/rWHDIhQ5FfHzBkkCXjPlF
-        ck5qV2V6A/l+7LfZ4WNgh4xdHw==
-X-Google-Smtp-Source: ABdhPJzQKRX7wlaDcStpVYF9U3q33FjnUdYFAXuRdy4TAQPgXoTppsDQb4Ug9PQLorgi0wAy1j7gDg==
-X-Received: by 2002:a17:902:bc49:b029:db:eb10:c5a1 with SMTP id t9-20020a170902bc49b02900dbeb10c5a1mr7424539plz.11.1608359022514;
-        Fri, 18 Dec 2020 22:23:42 -0800 (PST)
+        bh=nW+mbDO5wiMCdT0liT2YH3WjYnrCDE+jfI3goBYcijI=;
+        b=PvHqOb0kY+AfWzl0RtbdtXgLZME/Qx/qzsPVN5xzGO/A6FaYARbKCZ0NeKU9+16mGa
+         1yCKBKccYWRACSxr+kFxZPUc52HxS3299zE5Fk8dbXHJ4UIXJ7By9ka9Bveub9NG+uCq
+         ssXrfwi4erhmdkQHDcCaEUtqP/B+g75/RNSKx6FYkZSg9pfMAL7EjSBKWdILxxZbDPHh
+         RQZ6Q3xdymwfNQaEL0agZ4cK1nWk4wehSLrdgQeZIflQ9Djmj1yGLK441C20d5vgdBGo
+         0DLxS+TWmQ1C64ynm1CkfxefEJDkQGd6hLQi7wnaQ53fav2frVETW9BbuFhwBAT0s6ax
+         dtmw==
+X-Gm-Message-State: AOAM531l4G36XLp7io/1+IvPd3Fq5bbqGviQsT+FqAqdslbHwdkT5UiB
+        DAwtoP9+uhzyI52JbD1PkLhlBg==
+X-Google-Smtp-Source: ABdhPJzEPlJ4b8jKEWXZ26jPsmDDOGs13UTBrwvk0uaqh9dHFeFuJimVf5mWPbEKfzVcZVtT3LB3jg==
+X-Received: by 2002:a63:1a5b:: with SMTP id a27mr7257010pgm.169.1608359024463;
+        Fri, 18 Dec 2020 22:23:44 -0800 (PST)
 Received: from localhost.localdomain (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id bf3sm9655302pjb.45.2020.12.18.22.23.41
+        by smtp.gmail.com with ESMTPSA id bf3sm9655302pjb.45.2020.12.18.22.23.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Dec 2020 22:23:42 -0800 (PST)
+        Fri, 18 Dec 2020 22:23:44 -0800 (PST)
 From:   Roderick Colenbrander <roderick@gaikai.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH 02/13] HID: playstation: use DualSense MAC address as unique identifier.
-Date:   Fri, 18 Dec 2020 22:23:25 -0800
-Message-Id: <20201219062336.72568-3-roderick@gaikai.com>
+Subject: [PATCH 04/13] HID: playstation: add DualSense touchpad support.
+Date:   Fri, 18 Dec 2020 22:23:27 -0800
+Message-Id: <20201219062336.72568-5-roderick@gaikai.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201219062336.72568-1-roderick@gaikai.com>
 References: <20201219062336.72568-1-roderick@gaikai.com>
@@ -75,86 +75,114 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Use the DualSense MAC address as a unique identifier for the HID device.
+Implement support for DualSense touchpad as a separate input device.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-playstation.c | 35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ drivers/hid/hid-playstation.c | 59 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
 
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 8dbd0ae7e082..88823a7ba1a0 100644
+index 598d262e2a08..7e622b02ee30 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -17,12 +17,16 @@
- /* Base class for playstation devices. */
- struct ps_device {
- 	struct hid_device *hdev;
-+	uint8_t mac_address[6];
+@@ -56,9 +56,14 @@ struct ps_device {
+ #define DS_STATUS_CHARGING		GENMASK(7, 4)
+ #define DS_STATUS_CHARGING_SHIFT	4
  
- 	int (*parse_report)(struct ps_device *dev, struct hid_report *report, u8 *data, int size);
++/* DualSense hardware limits */
++#define DS_TOUCHPAD_WIDTH	1920
++#define DS_TOUCHPAD_HEIGHT	1080
++
+ struct dualsense {
+ 	struct ps_device base;
+ 	struct input_dev *gamepad;
++	struct input_dev *touchpad;
  };
  
- #define DS_INPUT_REPORT_USB			0x01
- 
-+#define DS_FEATURE_REPORT_PAIRING_INFO		9
-+#define DS_FEATURE_REPORT_PAIRING_INFO_SIZE	19
-+
- /* Button masks for DualSense input report. */
- #define DS_BUTTONS0_HAT_SWITCH	GENMASK(3, 0)
- #define DS_BUTTONS0_SQUARE	BIT(4)
-@@ -127,6 +131,7 @@ static struct input_dev *ps_allocate_input_dev(struct hid_device *hdev, const ch
- 	return input_dev;
- }
- 
-+
- static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
- {
- 	struct input_dev *gamepad;
-@@ -157,6 +162,29 @@ static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
+ struct dualsense_touch_point {
+@@ -239,6 +244,34 @@ static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
  	return gamepad;
  }
  
-+static int dualsense_get_mac_address(struct dualsense *ds)
++static struct input_dev *ps_touchpad_create(struct hid_device *hdev, int width, int height,
++		int num_contacts)
 +{
-+	uint8_t *buf;
-+	int ret = 0;
++	struct input_dev *touchpad;
++	int ret;
 +
-+	buf = kzalloc(DS_FEATURE_REPORT_PAIRING_INFO_SIZE, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
++	touchpad = ps_allocate_input_dev(hdev, "Touchpad");
++	if (IS_ERR(touchpad))
++		return ERR_PTR(-ENOMEM);
 +
-+	ret = hid_hw_raw_request(ds->base.hdev, DS_FEATURE_REPORT_PAIRING_INFO, buf,
-+			DS_FEATURE_REPORT_PAIRING_INFO_SIZE, HID_FEATURE_REPORT,
-+			HID_REQ_GET_REPORT);
-+	if (ret < 0)
-+		goto err_free;
++	/* Map button underneath touchpad to BTN_LEFT. */
++	input_set_capability(touchpad, EV_KEY, BTN_LEFT);
++	__set_bit(INPUT_PROP_BUTTONPAD, touchpad->propbit);
 +
-+	/* Note MAC address is stored in little endian order. */
-+	memcpy(ds->base.mac_address, &buf[1], sizeof(ds->base.mac_address));
++	input_set_abs_params(touchpad, ABS_MT_POSITION_X, 0, width, 0, 0);
++	input_set_abs_params(touchpad, ABS_MT_POSITION_Y, 0, height, 0, 0);
 +
-+err_free:
-+	kfree(buf);
-+	return ret;
++	ret = input_mt_init_slots(touchpad, num_contacts, INPUT_MT_POINTER);
++	if (ret)
++		return ERR_PTR(ret);
++
++	ret = input_register_device(touchpad);
++	if (ret)
++		return ERR_PTR(ret);
++
++	return touchpad;
 +}
 +
- static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *report,
- 		u8 *data, int size)
+ static int dualsense_get_mac_address(struct dualsense *ds)
  {
-@@ -225,6 +253,13 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 	ds->base.parse_report = dualsense_parse_report;
- 	hid_set_drvdata(hdev, ds);
+ 	uint8_t *buf;
+@@ -271,6 +304,7 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
+ 	uint8_t battery_data, battery_capacity, charging_status, value;
+ 	int battery_status;
+ 	unsigned long flags;
++	int i;
  
-+	ret = dualsense_get_mac_address(ds);
-+	if (ret < 0) {
-+		hid_err(hdev, "Failed to get MAC address from DualSense\n");
-+		return ERR_PTR(ret);
-+	}
-+	snprintf(hdev->uniq, sizeof(hdev->uniq), "%pMR", ds->base.mac_address);
+ 	/* DualSense in USB uses the full HID report for reportID 1, but
+ 	 * Bluetooth uses a minimal HID report for reportID 1 and reports
+@@ -311,6 +345,25 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
+ 	input_report_key(ds->gamepad, BTN_MODE, ds_report->buttons[2] & DS_BUTTONS2_PS_HOME);
+ 	input_sync(ds->gamepad);
+ 
++	input_report_key(ds->touchpad, BTN_LEFT, ds_report->buttons[2] & DS_BUTTONS2_TOUCHPAD);
++	for (i = 0; i < 2; i++) {
++		bool active = (ds_report->points[i].contact & 0x80) ? false : true;
 +
- 	ds->gamepad = ps_gamepad_create(hdev);
- 	if (IS_ERR(ds->gamepad)) {
- 		ret = PTR_ERR(ds->gamepad);
++		input_mt_slot(ds->touchpad, i);
++		input_mt_report_slot_state(ds->touchpad, MT_TOOL_FINGER, active);
++
++		if (active) {
++			int x = (ds_report->points[i].x_hi << 8) | ds_report->points[i].x_lo;
++			int y = (ds_report->points[i].y_hi << 4) | ds_report->points[i].y_lo;
++
++			input_report_abs(ds->touchpad, ABS_MT_POSITION_X, x);
++			input_report_abs(ds->touchpad, ABS_MT_POSITION_Y, y);
++		}
++	}
++	input_mt_sync_frame(ds->touchpad);
++	input_report_key(ds->touchpad, BTN_LEFT, ds_report->buttons[2] & DS_BUTTONS2_TOUCHPAD);
++	input_sync(ds->touchpad);
++
+ 	battery_data = ds_report->status & DS_STATUS_BATTERY_CAPACITY;
+ 	charging_status = (ds_report->status & DS_STATUS_CHARGING) >> DS_STATUS_CHARGING_SHIFT;
+ 
+@@ -382,6 +435,12 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 		goto err;
+ 	}
+ 
++	ds->touchpad = ps_touchpad_create(hdev, DS_TOUCHPAD_WIDTH, DS_TOUCHPAD_HEIGHT, 2);
++	if (IS_ERR(ds->touchpad)) {
++		ret = PTR_ERR(ds->touchpad);
++		goto err;
++	}
++
+ 	ret = ps_device_register_battery((struct ps_device *)ds);
+ 	if (ret < 0)
+ 		goto err;
 -- 
 2.26.2
 

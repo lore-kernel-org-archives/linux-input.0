@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42B38C3527A
-	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:39:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 222B2C3527A
+	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:40:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1724623B7B
-	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:39:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F200823B19
+	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:40:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727853AbgLTDgP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 19 Dec 2020 22:36:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57994 "EHLO mail.kernel.org"
+        id S1727004AbgLTDj2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 19 Dec 2020 22:39:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727823AbgLTDgO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 19 Dec 2020 22:36:14 -0500
+        id S1727481AbgLTDf7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 19 Dec 2020 22:35:59 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rajat Jain <rajatja@google.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/10] Input: cros_ec_keyb - send 'scancodes' in addition to key events
-Date:   Sat, 19 Dec 2020 22:34:54 -0500
-Message-Id: <20201220033457.2728519-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 10/15] Input: cros_ec_keyb - send 'scancodes' in addition to key events
+Date:   Sat, 19 Dec 2020 22:34:28 -0500
+Message-Id: <20201220033434.2728348-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201220033457.2728519-1-sashal@kernel.org>
-References: <20201220033457.2728519-1-sashal@kernel.org>
+In-Reply-To: <20201220033434.2728348-1-sashal@kernel.org>
+References: <20201220033434.2728348-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,7 +56,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 8d4d9786cc745..cae262b6ff398 100644
+index fc1793ca2f174..0a748aed02658 100644
 --- a/drivers/input/keyboard/cros_ec_keyb.c
 +++ b/drivers/input/keyboard/cros_ec_keyb.c
 @@ -183,6 +183,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,

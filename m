@@ -6,18 +6,18 @@ X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35390C47438
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC19EC4743C
 	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:37:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 11BFD23718
+	by mail.kernel.org (Postfix) with ESMTP id 87CF623A5E
 	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:37:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728517AbgLTDg4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 19 Dec 2020 22:36:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58476 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727005AbgLTDgo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1728477AbgLTDgo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sat, 19 Dec 2020 22:36:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58470 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728473AbgLTDgn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 19 Dec 2020 22:36:43 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
@@ -25,12 +25,12 @@ Cc:     Simon Beginn <linux@simonmicro.de>,
         Bastien Nocera <hadess@hadess.net>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 4/4] Input: goodix - add upside-down quirk for Teclast X98 Pro tablet
-Date:   Sat, 19 Dec 2020 22:35:20 -0500
-Message-Id: <20201220033520.2728758-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 6/6] Input: goodix - add upside-down quirk for Teclast X98 Pro tablet
+Date:   Sat, 19 Dec 2020 22:35:11 -0500
+Message-Id: <20201220033511.2728659-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201220033520.2728758-1-sashal@kernel.org>
-References: <20201220033520.2728758-1-sashal@kernel.org>
+In-Reply-To: <20201220033511.2728659-1-sashal@kernel.org>
+References: <20201220033511.2728659-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,10 +56,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 777dd5b159d39..87f5722a67829 100644
+index b20ba65992735..7e480e2364216 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -101,6 +101,18 @@ static const struct dmi_system_id rotated_screen[] = {
+@@ -136,6 +136,18 @@ static const struct dmi_system_id rotated_screen[] = {
  			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
  		},
  	},

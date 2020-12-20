@@ -4,19 +4,19 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF688C35273
-	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:38:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5991EC352A2
+	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:38:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D7CE323718
-	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:38:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3806023A5E
+	for <linux-input@archiver.kernel.org>; Sun, 20 Dec 2020 03:38:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728345AbgLTDgh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 19 Dec 2020 22:36:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58002 "EHLO mail.kernel.org"
+        id S1728666AbgLTDh4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 19 Dec 2020 22:37:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728291AbgLTDga (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1728284AbgLTDga (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Sat, 19 Dec 2020 22:36:30 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
@@ -25,12 +25,12 @@ Cc:     Simon Beginn <linux@simonmicro.de>,
         Bastien Nocera <hadess@hadess.net>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 3/3] Input: goodix - add upside-down quirk for Teclast X98 Pro tablet
-Date:   Sat, 19 Dec 2020 22:35:31 -0500
-Message-Id: <20201220033531.2728916-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 3/3] Input: goodix - add upside-down quirk for Teclast X98 Pro tablet
+Date:   Sat, 19 Dec 2020 22:35:26 -0500
+Message-Id: <20201220033526.2728841-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201220033531.2728916-1-sashal@kernel.org>
-References: <20201220033531.2728916-1-sashal@kernel.org>
+In-Reply-To: <20201220033526.2728841-1-sashal@kernel.org>
+References: <20201220033526.2728841-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,10 +56,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 67cadda13ab17..d7cc8f6a292ea 100644
+index 6a02e7301297d..ba0ab9963f3cd 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -77,6 +77,18 @@ static const struct dmi_system_id rotated_screen[] = {
+@@ -98,6 +98,18 @@ static const struct dmi_system_id rotated_screen[] = {
  			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
  		},
  	},

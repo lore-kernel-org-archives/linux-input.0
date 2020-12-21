@@ -2,110 +2,97 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64C01C433DB
-	for <linux-input@archiver.kernel.org>; Mon, 21 Dec 2020 12:19:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E6FDC433DB
+	for <linux-input@archiver.kernel.org>; Mon, 21 Dec 2020 16:03:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 17E0C22512
-	for <linux-input@archiver.kernel.org>; Mon, 21 Dec 2020 12:19:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B55822B51
+	for <linux-input@archiver.kernel.org>; Mon, 21 Dec 2020 16:03:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726485AbgLUMSz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 21 Dec 2020 07:18:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51142 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725972AbgLUMSy (ORCPT
+        id S1725913AbgLUQDC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 21 Dec 2020 11:03:02 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:38089 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725807AbgLUQDB (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Dec 2020 07:18:54 -0500
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D65C061793
-        for <linux-input@vger.kernel.org>; Mon, 21 Dec 2020 04:18:13 -0800 (PST)
-Received: by mail-lf1-x12d.google.com with SMTP id x20so23068596lfe.12
-        for <linux-input@vger.kernel.org>; Mon, 21 Dec 2020 04:18:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=M8GIUvdJake4G0GbpUdw/v3KT65N1Elydx4DG8uLLNg=;
-        b=V3ZMo0kMWdDIcf3Iv2YamlGAnGCuRo3sVmr7FZHRBuGjiktTMjkUwo7zFejIH7snuV
-         QpnD9Sl4gm533GK7LJT6Lb3mrbkZokjzFxZ9py3RPoYyYSeR7Eqe+KUATwtkznF2dj/U
-         qL87l2ukiiYLc1G5dXbDn7egjWw4QLUK1FYTPZys8Rm1XGEaNV46BUI/eY1P29S1KPsr
-         LSL5MGZw1fsIPkiM3ge6vFElLb7pDaa7tYAg9KPV+qM0mFRgacyM6z2YpYv4lPRBcwdX
-         om7NELMGAXed+sT2CpRKRXrUmI0m6uXQsdgdg/RLLRSyJ/L2gYVfkgnfV69S/doZL73z
-         dWHQ==
+        Mon, 21 Dec 2020 11:03:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1608566495;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=2LYKHmksZ4OUxTuW+GqEvu3J6NNsLg0tPod120hM9DQ=;
+        b=BOor04s+9n6ulCxWEhxBvozBNir++H/kxjSes5fNr9l0qGlkx+pmk0CK80dAAM85emU6xM
+        5adIdPK/z9CiFarvwADb8zitwewnbpcOdMdlc33gmjJiV0ePVJwuqI7SQGTVObUpNV/ceG
+        tM+7+9AmowPWFsDTBTHygEIvTQa0O+I=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-170-jP5gGdzmMjmLuwSvkDvfgQ-1; Mon, 21 Dec 2020 11:01:33 -0500
+X-MC-Unique: jP5gGdzmMjmLuwSvkDvfgQ-1
+Received: by mail-ot1-f70.google.com with SMTP id l37so5253891ota.1
+        for <linux-input@vger.kernel.org>; Mon, 21 Dec 2020 08:01:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=M8GIUvdJake4G0GbpUdw/v3KT65N1Elydx4DG8uLLNg=;
-        b=KTv2s05aA5r6p4Z20X8Ip5zgKs2j/Z/wNoHYULRbbuDlEkRuDOkDanRRoeyKI8JQE5
-         72bJeZr4NUu2exetToQ59S4+ipx8A76hNWdNzJc8dlT15E3hCTxZtYIa9KiKs50IhRSO
-         Y16psQjnTUNVuLN+1pDxy/6nrEAQUyMwy85GDcJupH6XoAixm3LcmX188udiqT/GGR9z
-         R8BEJoSS9i81S7/1ud6Qv5WPqOOoheoSFffZ+GBE9adPN6t4Dx6sqMwzyT7jm+vbEOlp
-         vWEcwhEEulc01k3Lh0NqtGgAZiLzh3RQWJEPAeaNKtbGW82rhMlj+8IIdm6NxKSaper4
-         Fj4g==
-X-Gm-Message-State: AOAM530TgYofYE8m698YEyTrS8r2rBgJIioat7L2BdYZI0wnIOC7Uatq
-        PQPOENXega9Y/n06KreghtX9vi+15dBlDvoMvGkDmg==
-X-Google-Smtp-Source: ABdhPJwXr8Ac1/MblhevY4EuqX5/WUbMyfBZcQPEfvIJ4Y7jJa8HNHbpGR5pVhHUzmNVnt6LztIOkFhlusozSAe2Dg8=
-X-Received: by 2002:a2e:b047:: with SMTP id d7mr6964671ljl.467.1608553092185;
- Mon, 21 Dec 2020 04:18:12 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2LYKHmksZ4OUxTuW+GqEvu3J6NNsLg0tPod120hM9DQ=;
+        b=ZQI2BsgBe//6anED89467mqdJCJhJU1AZ3uxC01zMMbsOgPliZc5qCsj6MmoyEu2Xs
+         Ke6liFaOc3InOvdSHRAyG9yj8Y8yYAozNoMbEjDHjSCi4Z82Y2/YvsosAQV6gOLqeqMz
+         1tcy/NCJp0Im19jsa/SFvqWYfgfOd2GWObHMmvB/DeBuIGzkA/kmty6hfU4kjOHCFNQM
+         qyNrxEErWdpEXu2xT5WyZX2FshnsOPKy/keMPoD0wulaii/4YQQYY8rb7lnj/xRfmH4e
+         tQMDQ/YQBu2ZlKzm4YdIimu3JbqD/eN0HTrBoKlfyp2sflNVLoNL0BxYSiETVrG7TsnS
+         CA8w==
+X-Gm-Message-State: AOAM5331Emp04M1msxGtOQcP3QHGFRwGlyioQvkY2dJIjf/096+0MQMs
+        1KpFOqTfHuFCezg5uB/rczhE3On6McWLeEEmWYQH1PEr8d5rFofuxR5beAadg8LbgVxfHb6hT27
+        sz31SdS4KPjA/s0XiU8r90QM=
+X-Received: by 2002:a54:479a:: with SMTP id o26mr11487901oic.48.1608566492536;
+        Mon, 21 Dec 2020 08:01:32 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy1dYe/JKq38wPEPorrGJxGJSjFQLly3DC/w1ANAcNmh8suodro6w8rNwBdoB4pr/mjnn4ECA==
+X-Received: by 2002:a54:479a:: with SMTP id o26mr11487892oic.48.1608566492423;
+        Mon, 21 Dec 2020 08:01:32 -0800 (PST)
+Received: from trix.remote.csb (075-142-250-213.res.spectrum.com. [75.142.250.213])
+        by smtp.gmail.com with ESMTPSA id n16sm3883212oop.9.2020.12.21.08.01.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Dec 2020 08:01:31 -0800 (PST)
+From:   trix@redhat.com
+To:     dmitry.torokhov@gmail.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Tom Rix <trix@redhat.com>
+Subject: [PATCH] Input: add printf attribute to log function
+Date:   Mon, 21 Dec 2020 08:01:26 -0800
+Message-Id: <20201221160126.3752467-1-trix@redhat.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-References: <cover.1607216141.git.cristian.ciocaltea@gmail.com>
- <f538c21de556c66390614bad778f7dc095222e8c.1607216141.git.cristian.ciocaltea@gmail.com>
- <20201216101000.GD207743@dell> <20201217231731.GA104305@BV030612LT>
- <20201218132139.GR207743@dell> <20201218160710.GA134686@BV030612LT>
- <20201221081015.GA4825@dell> <20201221115713.GA155203@BV030612LT>
-In-Reply-To: <20201221115713.GA155203@BV030612LT>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Mon, 21 Dec 2020 13:18:01 +0100
-Message-ID: <CACRpkdau=KfOeP5gM2bfLaAEa4U_GrCA=kNR0P6H5_Eov6B25g@mail.gmail.com>
-Subject: Re: [PATCH v3 3/7] mfd: Add MFD driver for ATC260x PMICs
-To:     Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        =?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
-        linux-actions@lists.infradead.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Linux Input <linux-input@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Dec 21, 2020 at 12:59 PM Cristian Ciocaltea
-<cristian.ciocaltea@gmail.com> wrote:
+From: Tom Rix <trix@redhat.com>
 
-> enum atc260x_ver {
->         ATC260X_A = 0,
->         ATC260X_B,
->         ATC260X_C,
->         ATC260X_D,
->         ATC260X_E,
->         ATC260X_F,
->         ATC260X_G,
->         ATC260X_H,
-> };
+Attributing the function allows the compiler to more thoroughly
+check the use of the function with -Wformat and similar flags.
 
-This makes it look like the driver is actually so generic that it makes space
-for all revisions back to ATC2603A which is in the Ainol Hero 10 tablet.
+Signed-off-by: Tom Rix <trix@redhat.com>
+---
+ drivers/input/rmi4/rmi_bus.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-This is nice because there are millions of these devices (especially in
-China) that people want to get to run the latest Linux.
+diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
+index 25df6320f9f1..62a93d7d98f8 100644
+--- a/drivers/input/rmi4/rmi_bus.h
++++ b/drivers/input/rmi4/rmi_bus.h
+@@ -195,5 +195,6 @@ int rmi_of_property_read_u32(struct device *dev, u32 *result,
+ #define RMI_DEBUG_FN			BIT(2)
+ #define RMI_DEBUG_2D_SENSOR		BIT(3)
+ 
++__printf(3, 4)
+ void rmi_dbg(int flags, struct device *dev, const char *fmt, ...);
+ #endif
+-- 
+2.27.0
 
-I even wonder how much different the ATM7029 is from S500, I suspect
-not super much apart from the ARM cores.
-
-Good work overall! I'll be happy to deal with the GPIO
-driver when you get there.
-
-Yours,
-Linus Walleij

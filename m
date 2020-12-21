@@ -2,128 +2,105 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21AC6C43332
-	for <linux-input@archiver.kernel.org>; Mon, 21 Dec 2020 18:06:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB0BEC433E0
+	for <linux-input@archiver.kernel.org>; Mon, 21 Dec 2020 20:04:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 066DD22C9C
-	for <linux-input@archiver.kernel.org>; Mon, 21 Dec 2020 18:06:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6725422AAA
+	for <linux-input@archiver.kernel.org>; Mon, 21 Dec 2020 20:04:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726548AbgLUSGc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 21 Dec 2020 13:06:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48990 "EHLO
+        id S1726010AbgLUUEo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 21 Dec 2020 15:04:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726161AbgLUSGc (ORCPT
+        with ESMTP id S1725844AbgLUUEn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Dec 2020 13:06:32 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67C8DC061257;
-        Mon, 21 Dec 2020 10:05:51 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id cw27so10466750edb.5;
-        Mon, 21 Dec 2020 10:05:51 -0800 (PST)
+        Mon, 21 Dec 2020 15:04:43 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E5DC0613D3;
+        Mon, 21 Dec 2020 12:04:03 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id c12so7039666pfo.10;
+        Mon, 21 Dec 2020 12:04:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=FSZkKhzHB5oPtFD1NoCpx7ZpbuV2rtwGLaArd+W21OE=;
-        b=KgWFZbOA5nKSEpIRubD6StP/F8CNCij5ocd00gmgwW+G9bAJ1qs+p2/dxPVqm4sATg
-         pPiOLUwwuJstWn83a5BC868iedfKFcwa/wWRjtBwVWM1Gmr2Fp4Hm4LxhTj8FjNWCaaG
-         Hqa+ZSyYumIJSai/arw1XTPrn0DZH3zh2yI9Tp+EL9ay3pd7AYxbsJvNlDl72nJ2GZ9T
-         KaZBq8i17fBChj9HjwUt9Ub4y68+MzA/Xzex4833u+mpiv7eic5w5+dFf5Rxkg1lMbM1
-         V+7AaAq2sReymtp6f/xUYhIPnlj9JeTmTv+WTOivWwRNANplNaKZl91Gyci7dP/2XIFu
-         2iDg==
+        h=from:to:cc:subject:date:message-id;
+        bh=5Fd2eijpdQRkFE2sGj615F3PuU4mIBkImg2P02LxeX0=;
+        b=cWfeOcDVmv5mO9mw69NORFWv32u2KRueVZW99Ewtlygo/nN1Xk6IzkQ2ePlqHKIgE5
+         0uE8qiuXUQlLUFu2fjKyogvJbJKu/WjLsjH3s1koY0EiSh2tPT2k3U2ASs9bQeExb1Im
+         eiL9xGhxa6dmMOn67c10LMczyZbDkIf07U7N1pQ4t8CoOaZMerryGqnV3aVtEC8ygqCi
+         msPxBii4eEIwHl6v10FOhWyS1mSfNqBOhGeqaeUTwbnxztcYN1Sig2rE+X2l7AtfTYcM
+         D9s9LaqlMOxHFtxFkIkOppWXXOPQImaR6tC1mZpH+wbho9FUKaYnie6L46hyYTLRcEi6
+         pInw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=FSZkKhzHB5oPtFD1NoCpx7ZpbuV2rtwGLaArd+W21OE=;
-        b=CJgsZFv2ElSg/LvY9oz/OLzAIrVrUg3NHZDc6TZZpNEKMC5HtQyd/dzHcJKXtVMPed
-         n6J8X4dSZvNldb5aRQLmdhYRPPJAPkuY69gNqBi6k7AHH+LsVgjXgirTYZPzS6UOa5SE
-         9KbQy7tMbj3YYltPG4ybIEyJzICyKpb6865JbPbuv8X8900VWFfcS+9asHESQV7NVulz
-         p0IZ69G3NvB0jmh2p9jGAYKxxHKYf2z6GbE+8R7QBFAzkyw07y009qzNCgyl6VPhR7Rz
-         buowCDd3PezhgZ8ejq5GzW2yWsBNKLsqW/QKWuYRW5OIYeoE+NNkOqSvbnFb2fP/KJiv
-         mMjg==
-X-Gm-Message-State: AOAM530uQc88G80zGoqXpEF7UWu6QuqKw/bJ8tcETuT6bIQAFn/O4E+G
-        16jIDU4P/4blSTpKD8hkk/pAG4sMdpawbA==
-X-Google-Smtp-Source: ABdhPJxf5vVBTWWi7cEcw7L3Kc2Hb4EKU2dkSDia/lfY40NMg+a4f90T47QjR7OSO5yeL2odwgRidg==
-X-Received: by 2002:aa7:d354:: with SMTP id m20mr15737547edr.195.1608558248769;
-        Mon, 21 Dec 2020 05:44:08 -0800 (PST)
-Received: from ubuntu2004 ([188.24.159.61])
-        by smtp.gmail.com with ESMTPSA id f11sm29405290edy.59.2020.12.21.05.44.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Dec 2020 05:44:07 -0800 (PST)
-Date:   Mon, 21 Dec 2020 15:44:13 +0200
-From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
-        linux-actions@lists.infradead.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Linux Input <linux-input@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>
-Subject: Re: [PATCH v3 3/7] mfd: Add MFD driver for ATC260x PMICs
-Message-ID: <20201221134413.GA678185@ubuntu2004>
-References: <cover.1607216141.git.cristian.ciocaltea@gmail.com>
- <f538c21de556c66390614bad778f7dc095222e8c.1607216141.git.cristian.ciocaltea@gmail.com>
- <20201216101000.GD207743@dell>
- <20201217231731.GA104305@BV030612LT>
- <20201218132139.GR207743@dell>
- <20201218160710.GA134686@BV030612LT>
- <20201221081015.GA4825@dell>
- <20201221115713.GA155203@BV030612LT>
- <CACRpkdau=KfOeP5gM2bfLaAEa4U_GrCA=kNR0P6H5_Eov6B25g@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACRpkdau=KfOeP5gM2bfLaAEa4U_GrCA=kNR0P6H5_Eov6B25g@mail.gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=5Fd2eijpdQRkFE2sGj615F3PuU4mIBkImg2P02LxeX0=;
+        b=FG20AE8CJAhFO621u2n8La4Xlq78+qxRkGJUO/2cA+7bf92svRzLBGXo+EJsGz+9J7
+         Eh6N3EKL2mroq727DOAQTMw9gLSp/hITdHYO44bv0ilZXKxsezAh6XzS1DewnfSvfQr+
+         B5zdYITFZMX5zjf4zD4vTn+gn6REfFzV1Smy5BslO/SD4LphsGZp3YpaAGKPwAGmHwEj
+         BrjT/yakYgczv2YfzujWTg0LNd/8ggsUFX3X10F0jN24YYgeJLkcw/uauWVxIjsRuVTc
+         kwUPAo/t/ox0itaF0+K4MKfMd/MLkzd9ODDeguMoYRfH2UHRoHOk9rFO9A7l4lYLwIiD
+         yZ7g==
+X-Gm-Message-State: AOAM5339MYZHSR7HSRMM39ul57Ig/QJ2Fbsz5lZzobwMBAFrJtoiKIJH
+        s1A8E284LxiSB06zARynobs=
+X-Google-Smtp-Source: ABdhPJx8EPH+C5M51gA+cjNxPr16HA7zf2nD1lBmvgNxMgHbgfi7SFnW4+9F0mtegwU6XAwdKq8ogw==
+X-Received: by 2002:a62:84ca:0:b029:19e:6f95:11b1 with SMTP id k193-20020a6284ca0000b029019e6f9511b1mr16480115pfd.68.1608581042967;
+        Mon, 21 Dec 2020 12:04:02 -0800 (PST)
+Received: from jordon-HP-15-Notebook-PC.domain.name ([122.179.58.4])
+        by smtp.gmail.com with ESMTPSA id h4sm16200428pfc.185.2020.12.21.12.04.00
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 21 Dec 2020 12:04:02 -0800 (PST)
+From:   Souptick Joarder <jrdr.linux@gmail.com>
+To:     dmitry.torokhov@gmail.com, lkundrak@v3.sk
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Souptick Joarder <jrdr.linux@gmail.com>
+Subject: [PATCH] input: ariel-pwrbutton.c: Remove unused variable ariel_pwrbutton_id_table[]
+Date:   Tue, 22 Dec 2020 01:34:01 +0530
+Message-Id: <1608581041-4354-1-git-send-email-jrdr.linux@gmail.com>
+X-Mailer: git-send-email 1.9.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Dec 21, 2020 at 01:18:01PM +0100, Linus Walleij wrote:
-> On Mon, Dec 21, 2020 at 12:59 PM Cristian Ciocaltea
-> <cristian.ciocaltea@gmail.com> wrote:
-> 
-> > enum atc260x_ver {
-> >         ATC260X_A = 0,
-> >         ATC260X_B,
-> >         ATC260X_C,
-> >         ATC260X_D,
-> >         ATC260X_E,
-> >         ATC260X_F,
-> >         ATC260X_G,
-> >         ATC260X_H,
-> > };
-> 
-> This makes it look like the driver is actually so generic that it makes space
-> for all revisions back to ATC2603A which is in the Ainol Hero 10 tablet.
+Kernel test robot throws below warning ->
 
-For ATC2603A we need an SPI driver, currently only the I2C interface is
-supported.
+>> drivers/input/misc/ariel-pwrbutton.c:152:35: warning: unused variable
+>> 'ariel_pwrbutton_id_table' [-Wunused-const-variable]
+   static const struct spi_device_id ariel_pwrbutton_id_table[] = {
+                                     ^
+   1 warning generated.
 
-> This is nice because there are millions of these devices (especially in
-> China) that people want to get to run the latest Linux.
-> 
-> I even wonder how much different the ATM7029 is from S500, I suspect
-> not super much apart from the ARM cores.
+Remove unused variable ariel_pwrbutton_id_table[] if no plan to use
+it further.
 
-Cannot tell, for the moment I can only "play" with the S500..
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+---
+ drivers/input/misc/ariel-pwrbutton.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-> Good work overall! I'll be happy to deal with the GPIO
-> driver when you get there.
+diff --git a/drivers/input/misc/ariel-pwrbutton.c b/drivers/input/misc/ariel-pwrbutton.c
+index eda86ab..17bbaac 100644
+--- a/drivers/input/misc/ariel-pwrbutton.c
++++ b/drivers/input/misc/ariel-pwrbutton.c
+@@ -149,12 +149,6 @@ static int ariel_pwrbutton_probe(struct spi_device *spi)
+ };
+ MODULE_DEVICE_TABLE(of, ariel_pwrbutton_of_match);
+ 
+-static const struct spi_device_id ariel_pwrbutton_id_table[] = {
+-	{ "wyse-ariel-ec-input", 0 },
+-	{}
+-};
+-MODULE_DEVICE_TABLE(spi, ariel_pwrbutton_id_table);
+-
+ static struct spi_driver ariel_pwrbutton_driver = {
+ 	.driver = {
+ 		.name = "dell-wyse-ariel-ec-input",
+-- 
+1.9.1
 
-Great, thanks!
-
-> Yours,
-> Linus Walleij

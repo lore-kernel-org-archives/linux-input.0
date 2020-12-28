@@ -2,40 +2,40 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1679C04EB5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17637C41621
 	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D3D6207BC
-	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F2A8522AEC
+	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730807AbgL1Wzz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1730827AbgL1Wzz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 28 Dec 2020 17:55:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37372 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729466AbgL1UyS (ORCPT
+        with ESMTP id S1729470AbgL1UyZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Dec 2020 15:54:18 -0500
+        Mon, 28 Dec 2020 15:54:25 -0500
 Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677CDC0613D6;
-        Mon, 28 Dec 2020 12:53:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5E97C061796;
+        Mon, 28 Dec 2020 12:53:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=v09Nc7+APqPjSs0d+VhDDcdKOvqlpFdSna4lZxnE79c=; b=C4h8jv0NQBbAdGq4GtSw7fQC0Q
-        krlUD94moocoN71JdNZgiOdOoDbMQxtdyJbyFM+9IYDQ3WcHLrgHtyAb3pZC/FmfxLRdCfybrt/Zj
-        F+hJyNzh5iDMjzZcm/1z4mqpsjjtqngdNqwcpvj8DLHorf5gvOD5p6lzG9eWqNqWJBz17PDMPsNt/
-        vQilrUCWxvNAlLlbIaSZRer2DhOTe3FAXWcrQX9ZCT9N8xRTxKTQErG5DhMtUNtu00tig/ak6xdcg
-        /5brB4XSaSF9rLgVomfwIFpA/YCSvrZTOPB716cIEBJIVXh9HVPtlxscVhp3aQyTlNsFzC3sjh8M1
-        wVchFCPA==;
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description;
+        bh=oC3WoNQlCXM7MybD3s/7U20d1WcH+cpXtHVbLSWjUK0=; b=wHFZt7Liyl33Qa9GjKF/hHVXzT
+        0L0fe6l8/gYx6wfdTBAzsXn2h+a6etKUfsC31Dbzq0VlJky87uS3NVX6XMnndu/LPX2fFuWiy2d1K
+        GICr1BPvasvMugOeEFYd+dCuLvcthDZZLoeKX8OmsyRpeiFoTWtWIN7NSzeAWZbzZXM2uqtgnw0pr
+        GT9B+lD1Ax4aEVuqFB/tkiEwxqrHonStwMbDOd0inGFxtKsvjGfs65dnZmoNNfYaXi2LgoDgM4YUB
+        Khuiuu3QB3fVRKReYNOAyuPcJ2Is4HOOP0ivxzGWgEPV1D0RaU1e7w3Binnlp+7GKWcyFXQ2RxPfr
+        ncN6NTkA==;
 Received: from [2601:1c0:6280:3f0::64ea] (helo=smtpauth.infradead.org)
         by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1ktzWJ-0002ml-9z; Mon, 28 Dec 2020 20:53:35 +0000
+        id 1ktzWQ-0002ml-EJ; Mon, 28 Dec 2020 20:53:42 +0000
 From:   Randy Dunlap <rdunlap@infradead.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Randy Dunlap <rdunlap@infradead.org>,
@@ -45,42 +45,94 @@ Cc:     Randy Dunlap <rdunlap@infradead.org>,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         linux-iio@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
         linux-doc@vger.kernel.org
-Subject: [PATCH v2 0/8] Documentation: HID: edit/correct all files
-Date:   Mon, 28 Dec 2020 12:53:19 -0800
-Message-Id: <20201228205327.1063-1-rdunlap@infradead.org>
+Subject: [PATCH v2 2/8] Documentation: HID: amd-sfh-hid editing & corrections
+Date:   Mon, 28 Dec 2020 12:53:21 -0800
+Message-Id: <20201228205327.1063-3-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201228205327.1063-1-rdunlap@infradead.org>
+References: <20201228205327.1063-1-rdunlap@infradead.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Make editing corrections to all files in Documentation/hid/.
 
+Do basic editing & correction to amd-sfh-hid.rst:
+- fix punctuation
+- use HID instead of hid consistently
+- fix grammar, verb tense
+- fix Block Diagram heading
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
 Cc: Jonathan Cameron <jic23@kernel.org>
 Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: linux-input@vger.kernel.org
 Cc: linux-iio@vger.kernel.org
 Cc: Jonathan Corbet <corbet@lwn.net>
 Cc: linux-doc@vger.kernel.org
+---
+v2: Base -> Based (Jonathan Cameron)
+    Change "1. Block Diagram" from a chapter heading to a section heading
+    and remove its numbering.
 
- [PATCH v2 1/8] Documentation: HID: hid-alps editing & corrections
- [PATCH v2 2/8] Documentation: HID: amd-sfh-hid editing & corrections
- [PATCH v2 3/8] Documentation: HID: hiddev editing & corrections
- [PATCH v2 4/8] Documentation: HID: intel-ish-hid editing & corrections
- [PATCH v2 5/8] Documentation: HID: hidraw editing & corrections
- [PATCH v2 6/8] Documentation: HID: hid-sensor editing & corrections
- [PATCH v2 7/8] Documentation: HID: hid-transport editing & corrections
- [PATCH v2 8/8] Documentation: HID: uhid editing & corrections
+ Documentation/hid/amd-sfh-hid.rst |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
- Documentation/hid/amd-sfh-hid.rst   |   22 +++----
- Documentation/hid/hid-alps.rst      |    4 -
- Documentation/hid/hid-sensor.rst    |   18 +++---
- Documentation/hid/hid-transport.rst |   12 ++--
- Documentation/hid/hiddev.rst        |   10 +--
- Documentation/hid/hidraw.rst        |    5 +
- Documentation/hid/intel-ish-hid.rst |   78 +++++++++++++-------------
- Documentation/hid/uhid.rst          |   34 +++++------
- 8 files changed, 93 insertions(+), 90 deletions(-)
+--- lnx-511-rc1.orig/Documentation/hid/amd-sfh-hid.rst
++++ lnx-511-rc1/Documentation/hid/amd-sfh-hid.rst
+@@ -3,13 +3,13 @@
+ 
+ AMD Sensor Fusion Hub
+ =====================
+-AMD Sensor Fusion Hub (SFH) is part of an SOC starting from Ryzen based platforms.
++AMD Sensor Fusion Hub (SFH) is part of an SOC starting from Ryzen-based platforms.
+ The solution is working well on several OEM products. AMD SFH uses HID over PCIe bus.
+ In terms of architecture it resembles ISH, however the major difference is all
+ the HID reports are generated as part of the kernel driver.
+ 
+-1. Block Diagram
+-================
++Block Diagram
++-------------
+ 
+ ::
+ 
+@@ -45,20 +45,20 @@ the HID reports are generated as part of
+ AMD HID Transport Layer
+ -----------------------
+ AMD SFH transport is also implemented as a bus. Each client application executing in the AMD MP2 is
+-registered as a device on this bus. Here: MP2 which is an ARM core connected to x86 for processing
++registered as a device on this bus. Here, MP2 is an ARM core connected to x86 for processing
+ sensor data. The layer, which binds each device (AMD SFH HID driver) identifies the device type and
+-registers with the hid core. Transport layer attach a constant "struct hid_ll_driver" object with
++registers with the HID core. Transport layer attaches a constant "struct hid_ll_driver" object with
+ each device. Once a device is registered with HID core, the callbacks provided via this struct are
+ used by HID core to communicate with the device. AMD HID Transport layer implements the synchronous calls.
+ 
+ AMD HID Client Layer
+ --------------------
+-This layer is responsible to implement HID request and descriptors. As firmware is OS agnostic, HID
++This layer is responsible to implement HID requests and descriptors. As firmware is OS agnostic, HID
+ client layer fills the HID request structure and descriptors. HID client layer is complex as it is
+-interface between MP2 PCIe layer and HID. HID client layer initialized the MP2 PCIe layer and holds
+-the instance of MP2 layer. It identifies the number of sensors connected using MP2-PCIe layer. Base
+-on that allocates the DRAM address for each and every sensor and pass it to MP2-PCIe driver.On
+-enumeration of each the sensor, client layer fills the HID Descriptor structure and HID input repor
++interface between MP2 PCIe layer and HID. HID client layer initializes the MP2 PCIe layer and holds
++the instance of MP2 layer. It identifies the number of sensors connected using MP2-PCIe layer. Based
++on that allocates the DRAM address for each and every sensor and passes it to MP2-PCIe driver. On
++enumeration of each sensor, client layer fills the HID Descriptor structure and HID input report
+ structure. HID Feature report structure is optional. The report descriptor structure varies from
+ sensor to sensor.
+ 
+@@ -72,7 +72,7 @@ The communication between X86 and MP2 is
+ 2. Data transfer via DRAM.
+ 3. Supported sensor info via P2C registers.
+ 
+-Commands are sent to MP2 using C2P Mailbox registers. Writing into C2P Message registers generate
++Commands are sent to MP2 using C2P Mailbox registers. Writing into C2P Message registers generates
+ interrupt to MP2. The client layer allocates the physical memory and the same is sent to MP2 via
+ the PCI layer. MP2 firmware writes the command output to the access DRAM memory which the client
+ layer has allocated. Firmware always writes minimum of 32 bytes into DRAM. So as a protocol driver

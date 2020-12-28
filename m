@@ -7,35 +7,35 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E62E4C433DB
-	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D3A9C00454
+	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C18662222A
-	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4794B223E8
+	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729399AbgL1Wzz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1730823AbgL1Wzz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 28 Dec 2020 17:55:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37404 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729472AbgL1Uy2 (ORCPT
+        with ESMTP id S1729467AbgL1UyV (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Dec 2020 15:54:28 -0500
+        Mon, 28 Dec 2020 15:54:21 -0500
 Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 554D3C061799;
-        Mon, 28 Dec 2020 12:53:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39D11C061793;
+        Mon, 28 Dec 2020 12:53:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:MIME-Version:
         References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
         Content-Type:Content-ID:Content-Description;
-        bh=n2g1QeXFiuQZHIxa1jA2LknOcIv8elO1uDDgK0+qeTE=; b=2U1h3avIPKjzpeaYoIAzGsdkqY
-        sD5/R41qG90WAojcpvzDVCP1gEqPgJCJgOXyZ9s13aqhD7/pGGWgtG87oANhHfnL3Q14mQoJEDTTY
-        JyBZ2dScassFgqWvppDNgI77XPdClTDcJY8gLvBscpRp30zGG9XecRRFJCqegj3927QE4+L5amcTa
-        CskUAmCNBKaCU0IsS9T6NMOHfC//l9IYezDTKiP1JN5OP0f4TuMUaUOgjnT7USs+ceVHuyWRBftLO
-        kWtlqOfffD8AY487i8OoCvp27MY7XueOzU6feJHlUZdzS5aOsYl1LNhrWFbRS7eU92Y0wr9DaF7yV
-        tLwaD01g==;
+        bh=+rwsPNKVBMsHPuzlmKq794q1bunkBRLuFJTK5VEEMG0=; b=Iuebx5jXtKym2o10SIBJ4sVe4a
+        RT5SfT0TnwtfeaB7aW17oh2E9JA+2G11JWNGwS8gGPAHh8mFoc3oXaozrw5f5XAi6r4BGEr/P8Nq2
+        OXyx6hR1DCaP4ro32Z5i8ZeD40y8PGKTdRSCDwCKo/lJDfB+OJLEPRp1n57Eg9ow27rs9Zk5B6YAK
+        bk7qjelrUUU73Ityncxu4yu5BxdY95BCOt8vKlEl/mq3pON/Q1Bjzvy43645IafL7M6I7uBCvud8m
+        H5Bb42czwMYx5rEyXjM4KphXrx2usW6KifofdfxTdqVU9If4QMm6nAa18zTDLCWUP3dfcrhDaLSw4
+        gXqFJu5w==;
 Received: from [2601:1c0:6280:3f0::64ea] (helo=smtpauth.infradead.org)
         by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1ktzWT-0002ml-Vf; Mon, 28 Dec 2020 20:53:46 +0000
+        id 1ktzWM-0002ml-SL; Mon, 28 Dec 2020 20:53:39 +0000
 From:   Randy Dunlap <rdunlap@infradead.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Randy Dunlap <rdunlap@infradead.org>,
@@ -45,9 +45,9 @@ Cc:     Randy Dunlap <rdunlap@infradead.org>,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         linux-iio@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
         linux-doc@vger.kernel.org
-Subject: [PATCH v2 3/8] Documentation: HID: hiddev editing & corrections
-Date:   Mon, 28 Dec 2020 12:53:22 -0800
-Message-Id: <20201228205327.1063-4-rdunlap@infradead.org>
+Subject: [PATCH v2 1/8] Documentation: HID: hid-alps editing & corrections
+Date:   Mon, 28 Dec 2020 12:53:20 -0800
+Message-Id: <20201228205327.1063-2-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201228205327.1063-1-rdunlap@infradead.org>
 References: <20201228205327.1063-1-rdunlap@infradead.org>
@@ -57,12 +57,9 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-
-Do basic editing & correction to hiddev.rst:
-- use HID instead of hid consistently
-- add hyphenation of multi-word adjectives
-- drop a duplicate word
-- unhyphenate "a priori"
+Do basic editing & correction to hid-alps.rst:
+- fix grammar
+- fix punctuation spacing
 
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
@@ -70,58 +67,31 @@ Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: linux-input@vger.kernel.org
 Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-doc@vger.kernel.org
 Cc: Jonathan Cameron <jic23@kernel.org>
+Cc: linux-doc@vger.kernel.org
 ---
-v2: leave hid-core in one place where it might be deliberate. (Jonathan=jic23)
+v2: rebase & resend
 
- Documentation/hid/hiddev.rst |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ Documentation/hid/hid-alps.rst |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- lnx-511-rc1.orig/Documentation/hid/hiddev.rst
-+++ lnx-511-rc1/Documentation/hid/hiddev.rst
-@@ -27,7 +27,7 @@ the following::
-                           --> hiddev.c ----> POWER / MONITOR CONTROL
+--- linux-next-20201201.orig/Documentation/hid/hid-alps.rst
++++ linux-next-20201201/Documentation/hid/hid-alps.rst
+@@ -64,7 +64,7 @@ Case2	ReportID_3	TP	Absolute
  
- In addition, other subsystems (apart from USB) can potentially feed
--events into the input subsystem, but these have no effect on the hid
-+events into the input subsystem, but these have no effect on the HID
- device interface.
+ Command Read/Write
+ ------------------
+-To read/write to RAM, need to send a commands to the device.
++To read/write to RAM, need to send a command to the device.
  
- Using the HID Device Interface
-@@ -73,7 +73,7 @@ The hiddev API uses a read() interface,
- HID devices exchange data with the host computer using data
- bundles called "reports".  Each report is divided into "fields",
- each of which can have one or more "usages".  In the hid-core,
--each one of these usages has a single signed 32 bit value.
-+each one of these usages has a single signed 32-bit value.
+ The command format is as below.
  
- read():
- -------
-@@ -113,7 +113,7 @@ HIDIOCAPPLICATION
-   - (none)
+@@ -80,7 +80,7 @@ Byte6	Value Byte
+ Byte7	Checksum
+ =====	======================
  
- This ioctl call returns the HID application usage associated with the
--hid device. The third argument to ioctl() specifies which application
-+HID device. The third argument to ioctl() specifies which application
- index to get. This is useful when the device has more than one
- application collection. If the index is invalid (greater or equal to
- the number of application collections this device has) the ioctl
-@@ -181,7 +181,7 @@ looked up by type (input, output or feat
- must be filled in by the user. The ID can be absolute -- the actual
- report id as reported by the device -- or relative --
- HID_REPORT_ID_FIRST for the first report, and (HID_REPORT_ID_NEXT |
--report_id) for the next report after report_id. Without a-priori
-+report_id) for the next report after report_id. Without a priori
- information about report ids, the right way to use this ioctl is to
- use the relative IDs above to enumerate the valid IDs. The ioctl
- returns non-zero when there is no more next ID. The real report ID is
-@@ -200,7 +200,7 @@ HIDIOCGUCODE
-   - struct hiddev_usage_ref (read/write)
+-Command Byte is read=0xD1/write=0xD2 .
++Command Byte is read=0xD1/write=0xD2.
  
- Returns the usage_code in a hiddev_usage_ref structure, given that
--given its report type, report id, field index, and index within the
-+its report type, report id, field index, and index within the
- field have already been filled into the structure.
+ Address is read/write RAM address.
  
- HIDIOCGUSAGE

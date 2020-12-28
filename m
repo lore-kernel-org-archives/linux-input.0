@@ -2,40 +2,40 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52572C4361B
-	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1679C04EB5
+	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3845E22472
-	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D3D6207BC
+	for <linux-input@archiver.kernel.org>; Mon, 28 Dec 2020 23:13:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730849AbgL1Wzz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1730807AbgL1Wzz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 28 Dec 2020 17:55:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37486 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729473AbgL1UzA (ORCPT
+        with ESMTP id S1729466AbgL1UyS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Dec 2020 15:55:00 -0500
+        Mon, 28 Dec 2020 15:54:18 -0500
 Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24947C06179A;
-        Mon, 28 Dec 2020 12:53:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677CDC0613D6;
+        Mon, 28 Dec 2020 12:53:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-ID:Content-Description;
-        bh=bm2bYWK54ciX6pTzTTOhAgf9duAyDKKypj0cfl6XYxg=; b=RbxN9ybFl8xZsAGAa7xFXs0zIG
-        GkCYpbUiGtGOP1B5xCxWAzxa2cg3kth/kqqad8WeFMOCorP6LJq7tOdGsNdfbqQ7lmLKkL3RrAHMB
-        MwYsBguQKmpVNStMXt1aj4BgNjM5awZL5m6cTjwfXjq5K/5mipOdvWX8Z90n4rPUsiR2j8yQogZj7
-        TKyLv3+5ArS2Kk7/7CWCpVvusdCDz4MWcIE55DRVECWyyRDWkyeaz3pp4GsrCLWmqZ71SuwnF3J6S
-        Om2aSw3F4IEszlg7KxqD1/ABESkgVtVbcjQKfi41LUcNxJTAnTM609QzOEq8i2LlaF/AgCpd9U7Iq
-        Gu8tuGeQ==;
+        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=v09Nc7+APqPjSs0d+VhDDcdKOvqlpFdSna4lZxnE79c=; b=C4h8jv0NQBbAdGq4GtSw7fQC0Q
+        krlUD94moocoN71JdNZgiOdOoDbMQxtdyJbyFM+9IYDQ3WcHLrgHtyAb3pZC/FmfxLRdCfybrt/Zj
+        F+hJyNzh5iDMjzZcm/1z4mqpsjjtqngdNqwcpvj8DLHorf5gvOD5p6lzG9eWqNqWJBz17PDMPsNt/
+        vQilrUCWxvNAlLlbIaSZRer2DhOTe3FAXWcrQX9ZCT9N8xRTxKTQErG5DhMtUNtu00tig/ak6xdcg
+        /5brB4XSaSF9rLgVomfwIFpA/YCSvrZTOPB716cIEBJIVXh9HVPtlxscVhp3aQyTlNsFzC3sjh8M1
+        wVchFCPA==;
 Received: from [2601:1c0:6280:3f0::64ea] (helo=smtpauth.infradead.org)
         by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1ktzWX-0002ml-HG; Mon, 28 Dec 2020 20:53:50 +0000
+        id 1ktzWJ-0002ml-9z; Mon, 28 Dec 2020 20:53:35 +0000
 From:   Randy Dunlap <rdunlap@infradead.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Randy Dunlap <rdunlap@infradead.org>,
@@ -45,247 +45,42 @@ Cc:     Randy Dunlap <rdunlap@infradead.org>,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         linux-iio@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
         linux-doc@vger.kernel.org
-Subject: [PATCH v2 4/8] Documentation: HID: intel-ish-hid editing & corrections
-Date:   Mon, 28 Dec 2020 12:53:23 -0800
-Message-Id: <20201228205327.1063-5-rdunlap@infradead.org>
+Subject: [PATCH v2 0/8] Documentation: HID: edit/correct all files
+Date:   Mon, 28 Dec 2020 12:53:19 -0800
+Message-Id: <20201228205327.1063-1-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201228205327.1063-1-rdunlap@infradead.org>
-References: <20201228205327.1063-1-rdunlap@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Make editing corrections to all files in Documentation/hid/.
 
-Do basic editing & correction to intel-ish-hid.rst:
-- fix grammar, verb tense, punctutation, and word phrasing
-- fix spellos
-- hyphenate multi-word adjectives
-- collapse 2 spaces to one space in the middle of sentences
-- use "I2C" instead of lower-case letters (as Linux I2C does)
-- change space indentation to tab
-- use HID instead of hid consistently
-- use a list so that some line items do not run together
-- use "a UUID" instead of "an UUID"
-
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
 Cc: Jonathan Cameron <jic23@kernel.org>
 Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: linux-input@vger.kernel.org
 Cc: linux-iio@vger.kernel.org
 Cc: Jonathan Corbet <corbet@lwn.net>
 Cc: linux-doc@vger.kernel.org
----
-v2: reword one sentence & use plural "applications" consistently
-    in one paragraph. (thanks, Jonathan=jic32)
 
+ [PATCH v2 1/8] Documentation: HID: hid-alps editing & corrections
+ [PATCH v2 2/8] Documentation: HID: amd-sfh-hid editing & corrections
+ [PATCH v2 3/8] Documentation: HID: hiddev editing & corrections
+ [PATCH v2 4/8] Documentation: HID: intel-ish-hid editing & corrections
+ [PATCH v2 5/8] Documentation: HID: hidraw editing & corrections
+ [PATCH v2 6/8] Documentation: HID: hid-sensor editing & corrections
+ [PATCH v2 7/8] Documentation: HID: hid-transport editing & corrections
+ [PATCH v2 8/8] Documentation: HID: uhid editing & corrections
+
+ Documentation/hid/amd-sfh-hid.rst   |   22 +++----
+ Documentation/hid/hid-alps.rst      |    4 -
+ Documentation/hid/hid-sensor.rst    |   18 +++---
+ Documentation/hid/hid-transport.rst |   12 ++--
+ Documentation/hid/hiddev.rst        |   10 +--
+ Documentation/hid/hidraw.rst        |    5 +
  Documentation/hid/intel-ish-hid.rst |   78 +++++++++++++-------------
- 1 file changed, 40 insertions(+), 38 deletions(-)
-
---- lnx-511-rc1.orig/Documentation/hid/intel-ish-hid.rst
-+++ lnx-511-rc1/Documentation/hid/intel-ish-hid.rst
-@@ -4,19 +4,19 @@ Intel Integrated Sensor Hub (ISH)
- 
- A sensor hub enables the ability to offload sensor polling and algorithm
- processing to a dedicated low power co-processor. This allows the core
--processor to go into low power modes more often, resulting in the increased
-+processor to go into low power modes more often, resulting in increased
- battery life.
- 
--There are many vendors providing external sensor hubs confirming to HID
--Sensor usage tables, and used in several tablets, 2 in 1 convertible laptops
--and embedded products. Linux had this support since Linux 3.9.
-+There are many vendors providing external sensor hubs conforming to HID
-+Sensor usage tables. These may be found in tablets, 2-in-1 convertible laptops
-+and embedded products. Linux has had this support since Linux 3.9.
- 
- Intel® introduced integrated sensor hubs as a part of the SoC starting from
- Cherry Trail and now supported on multiple generations of CPU packages. There
- are many commercial devices already shipped with Integrated Sensor Hubs (ISH).
--These ISH also comply to HID sensor specification, but the  difference is the
-+These ISH also comply to HID sensor specification, but the difference is the
- transport protocol used for communication. The current external sensor hubs
--mainly use HID over i2C or USB. But ISH doesn't use either i2c or USB.
-+mainly use HID over I2C or USB. But ISH doesn't use either I2C or USB.
- 
- 1. Overview
- ===========
-@@ -35,7 +35,7 @@ for a very high speed communication::
- 	-----------------		----------------------
- 	      PCI				 PCI
- 	-----------------		----------------------
--        |Host controller|	-->	|    ISH processor   |
-+	|Host controller|	-->	|    ISH processor   |
- 	-----------------		----------------------
- 	     USB Link
- 	-----------------		----------------------
-@@ -50,13 +50,13 @@ applications implemented in the firmware
- The ISH allows multiple sensor management applications executing in the
- firmware. Like USB endpoints the messaging can be to/from a client. As part of
- enumeration process, these clients are identified. These clients can be simple
--HID sensor applications, sensor calibration application or senor firmware
--update application.
-+HID sensor applications, sensor calibration applications or sensor firmware
-+update applications.
- 
- The implementation model is similar, like USB bus, ISH transport is also
- implemented as a bus. Each client application executing in the ISH processor
- is registered as a device on this bus. The driver, which binds each device
--(ISH HID driver) identifies the device type and registers with the hid core.
-+(ISH HID driver) identifies the device type and registers with the HID core.
- 
- 2. ISH Implementation: Block Diagram
- ====================================
-@@ -104,7 +104,7 @@ is registered as a device on this bus. T
- 
- The ISH is exposed as "Non-VGA unclassified PCI device" to the host. The PCI
- product and vendor IDs are changed from different generations of processors. So
--the source code which enumerate drivers needs to update from generation to
-+the source code which enumerates drivers needs to update from generation to
- generation.
- 
- 3.2 Inter Processor Communication (IPC) driver
-@@ -112,41 +112,42 @@ generation.
- 
- Location: drivers/hid/intel-ish-hid/ipc
- 
--The IPC message used memory mapped I/O. The registers are defined in
-+The IPC message uses memory mapped I/O. The registers are defined in
- hw-ish-regs.h.
- 
- 3.2.1 IPC/FW message types
- ^^^^^^^^^^^^^^^^^^^^^^^^^^
- 
--There are two types of messages, one for management of link and other messages
--are to and from transport layers.
-+There are two types of messages, one for management of link and another for
-+messages to and from transport layers.
- 
- TX and RX of Transport messages
- ...............................
- 
--A set of memory mapped register offers support of multi byte messages TX and
--RX (E.g.IPC_REG_ISH2HOST_MSG, IPC_REG_HOST2ISH_MSG). The IPC layer maintains
--internal queues to sequence messages and send them in order to the FW.
-+A set of memory mapped register offers support of multi-byte messages TX and
-+RX (e.g. IPC_REG_ISH2HOST_MSG, IPC_REG_HOST2ISH_MSG). The IPC layer maintains
-+internal queues to sequence messages and send them in order to the firmware.
- Optionally the caller can register handler to get notification of completion.
--A door bell mechanism is used in messaging to trigger processing in host and
-+A doorbell mechanism is used in messaging to trigger processing in host and
- client firmware side. When ISH interrupt handler is called, the ISH2HOST
- doorbell register is used by host drivers to determine that the interrupt
- is for ISH.
- 
- Each side has 32 32-bit message registers and a 32-bit doorbell. Doorbell
--register has the following format:
--Bits 0..6: fragment length (7 bits are used)
--Bits 10..13: encapsulated protocol
--Bits 16..19: management command (for IPC management protocol)
--Bit 31: doorbell trigger (signal H/W interrupt to the other side)
--Other bits are reserved, should be 0.
-+register has the following format::
-+
-+  Bits 0..6: fragment length (7 bits are used)
-+  Bits 10..13: encapsulated protocol
-+  Bits 16..19: management command (for IPC management protocol)
-+  Bit 31: doorbell trigger (signal H/W interrupt to the other side)
-+  Other bits are reserved, should be 0.
- 
- 3.2.2 Transport layer interface
- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- 
--To abstract HW level IPC communication, a set of callbacks are registered.
-+To abstract HW level IPC communication, a set of callbacks is registered.
- The transport layer uses them to send and receive messages.
--Refer to  struct ishtp_hw_ops for callbacks.
-+Refer to struct ishtp_hw_ops for callbacks.
- 
- 3.3 ISH Transport layer
- -----------------------
-@@ -158,7 +159,7 @@ Location: drivers/hid/intel-ish-hid/isht
- 
- The transport layer is a bi-directional protocol, which defines:
- - Set of commands to start, stop, connect, disconnect and flow control
--(ishtp/hbm.h) for details
-+(see ishtp/hbm.h for details)
- - A flow control mechanism to avoid buffer overflows
- 
- This protocol resembles bus messages described in the following document:
-@@ -168,14 +169,14 @@ specifications/dcmi-hi-1-0-spec.pdf "Cha
- 3.3.2 Connection and Flow Control Mechanism
- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- 
--Each FW client and a protocol is identified by an UUID. In order to communicate
-+Each FW client and a protocol is identified by a UUID. In order to communicate
- to a FW client, a connection must be established using connect request and
- response bus messages. If successful, a pair (host_client_id and fw_client_id)
- will identify the connection.
- 
- Once connection is established, peers send each other flow control bus messages
- independently. Every peer may send a message only if it has received a
--flow-control credit before. Once it sent a message, it may not send another one
-+flow-control credit before. Once it has sent a message, it may not send another one
- before receiving the next flow control credit.
- Either side can send disconnect request bus message to end communication. Also
- the link will be dropped if major FW reset occurs.
-@@ -209,7 +210,7 @@ and DMA_XFER_ACK act as ownership indica
- At initial state all outgoing memory belongs to the sender (TX to host, RX to
- FW), DMA_XFER transfers ownership on the region that contains ISHTP message to
- the receiving side, DMA_XFER_ACK returns ownership to the sender. A sender
--needs not wait for previous DMA_XFER to be ack'ed, and may send another message
-+need not wait for previous DMA_XFER to be ack'ed, and may send another message
- as long as remaining continuous memory in its ownership is enough.
- In principle, multiple DMA_XFER and DMA_XFER_ACK messages may be sent at once
- (up to IPC MTU), thus allowing for interrupt throttling.
-@@ -219,8 +220,8 @@ fragments and via IPC otherwise.
- 3.3.4 Ring Buffers
- ^^^^^^^^^^^^^^^^^^
- 
--When a client initiate a connection, a ring or RX and TX buffers are allocated.
--The size of ring can be specified by the client. HID client set 16 and 32 for
-+When a client initiates a connection, a ring of RX and TX buffers is allocated.
-+The size of ring can be specified by the client. HID client sets 16 and 32 for
- TX and RX buffers respectively. On send request from client, the data to be
- sent is copied to one of the send ring buffer and scheduled to be sent using
- bus message protocol. These buffers are required because the FW may have not
-@@ -230,10 +231,10 @@ to send. Same thing holds true on receiv
- 3.3.5 Host Enumeration
- ^^^^^^^^^^^^^^^^^^^^^^
- 
--The host enumeration bus command allow discovery of clients present in the FW.
-+The host enumeration bus command allows discovery of clients present in the FW.
- There can be multiple sensor clients and clients for calibration function.
- 
--To ease in implantation and allow independent driver handle each client
-+To ease implementation and allow independent drivers to handle each client,
- this transport layer takes advantage of Linux Bus driver model. Each
- client is registered as device on the transport bus (ishtp bus).
- 
-@@ -270,7 +271,7 @@ The ISHTP client driver is responsible f
- The functionality in these drivers is the same as an external sensor hub.
- Refer to
- Documentation/hid/hid-sensor.rst for HID sensor
--Documentation/ABI/testing/sysfs-bus-iio for IIO ABIs to user space
-+Documentation/ABI/testing/sysfs-bus-iio for IIO ABIs to user space.
- 
- 3.6 End to End HID transport Sequence Diagram
- ---------------------------------------------
-@@ -341,9 +342,10 @@ Documentation/ABI/testing/sysfs-bus-iio
- 3.7 ISH Debugging
- -----------------
- 
--To debug ISH, event tracing mechanism is used. To enable debug logs
--echo 1 > /sys/kernel/debug/tracing/events/intel_ish/enable
--cat sys/kernel/debug/tracing/trace
-+To debug ISH, event tracing mechanism is used. To enable debug logs::
-+
-+  echo 1 > /sys/kernel/debug/tracing/events/intel_ish/enable
-+  cat sys/kernel/debug/tracing/trace
- 
- 3.8 ISH IIO sysfs Example on Lenovo thinkpad Yoga 260
- -----------------------------------------------------
+ Documentation/hid/uhid.rst          |   34 +++++------
+ 8 files changed, 93 insertions(+), 90 deletions(-)

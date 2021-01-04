@@ -2,160 +2,426 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD4DAC4332D
-	for <linux-input@archiver.kernel.org>; Mon,  4 Jan 2021 16:07:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D63EFC433DB
+	for <linux-input@archiver.kernel.org>; Mon,  4 Jan 2021 18:30:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9DA6322509
-	for <linux-input@archiver.kernel.org>; Mon,  4 Jan 2021 16:07:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 88BF5221F8
+	for <linux-input@archiver.kernel.org>; Mon,  4 Jan 2021 18:30:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728876AbhADQCi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 4 Jan 2021 11:02:38 -0500
-Received: from mga11.intel.com ([192.55.52.93]:16444 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728867AbhADQCh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:02:37 -0500
-IronPort-SDR: ujtu2biZ8lVMSj4prL3+p+l4fz7H/tTtFKHvjOVbhyYbxZKAC6JPTlksG9vAc1WpGlhyZ6d57W
- USsEnNaJvmhA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9854"; a="173462300"
-X-IronPort-AV: E=Sophos;i="5.78,474,1599548400"; 
-   d="scan'208";a="173462300"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2021 08:00:50 -0800
-IronPort-SDR: vwnvJaU/a6I5h5zaXPncVosTvcPloa/uHL/E3L7TzSPubkXuivLFgdZgw7ZXU8bAVMzvuGa7U1
- G8BR428/69dg==
-X-IronPort-AV: E=Sophos;i="5.78,474,1599548400"; 
-   d="scan'208";a="349990952"
-Received: from hnanjund-mobl.amr.corp.intel.com ([10.254.115.148])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2021 08:00:46 -0800
-Message-ID: <add58401d7d9962402628fd4746cf16a31ec4b10.camel@linux.intel.com>
-Subject: Re: [PATCH 2/2] hid: intel-ish-hid: ipc: Address EHL Sx resume
- issues
-From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-To:     Zhang Lixu <lixu.zhang@intel.com>, jikos@kernel.org,
-        linux-input@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com,
-        Wei Jiang <wei.w.jiang@intel.com>, Even Xu <even.xu@intel.com>
-Date:   Mon, 04 Jan 2021 08:00:42 -0800
-In-Reply-To: <20201216063640.4086068-3-lixu.zhang@intel.com>
-References: <20201216063640.4086068-1-lixu.zhang@intel.com>
-         <20201216063640.4086068-3-lixu.zhang@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.2 (3.38.2-1.fc33) 
+        id S1727641AbhADSa1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 4 Jan 2021 13:30:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40828 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726642AbhADSa1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Jan 2021 13:30:27 -0500
+Received: from mail.archlinux.org (mail.archlinux.org [IPv6:2a01:4f9:c010:3052::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29EE5C061574
+        for <linux-input@vger.kernel.org>; Mon,  4 Jan 2021 10:29:47 -0800 (PST)
+Received: from localhost.localdomain (unknown [IPv6:2001:8a0:f268:e600:5751:e3e4:7880:ec9c])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: ffy00)
+        by mail.archlinux.org (Postfix) with ESMTPSA id DACFE34593D;
+        Mon,  4 Jan 2021 18:29:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=archlinux.org;
+        s=dkim-rsa; t=1609784984;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=B5oGaLTgWZnR00iU8GR4J4fHEAsnWKAvc4TXo8d/Ef8=;
+        b=x7RgNGrH/vhT8cjvDYiK2ZbUiVZmicCPiH1oJY1ETzoLXf4tTBMle9fZEMHFUOm73CTvlO
+        +/H5idr95dn8woLb0SwVlRG4bFZhUwGL7YUDjl8HJE55HUBQksKIxywnhA22sHDdHkbNdT
+        U4og7PNVvVJFhSy40ooeCY5JaDKJOXgLDWpQliQzWXBItG57WOHbKIw0OKE0OUTSNeuZKy
+        24BB1pvWtRgwBWdMYYv+r2QCQniYDsuAAB2j0x4JCNd72byf7XMghWocJVlJlluqr5U2R0
+        Jbfrmtp5gQWxuHbh3QcAhd0G/vcuHNaGyasuiFljvHgf4RdWvOxZrjz/orrlDZ+seT3AFX
+        lDTfnKXxAko3HqmG+aNo/m3zZhQUacJReEjk/n0RxsysdK2uYf9maRterDCKRNy1Fvpljc
+        6LC8F2QdvawK915/uJIObagHONnXMfvPNas3jm0cqXRo5W1wHcDYcFvfFXXmCobEOH1aLO
+        RIrX9Ekr7LPw3+n48fKQEaAzrSo7EScy4YcOvlMmxObsRoYh36rif8K/rHRaYv0HdQY4TB
+        tSoTZ8yYqa9HzkdJHiHuQKOO2QiRk4404nb7o9nQe2DiVpAVCNUz6mE7EeiuY1kztxqxQF
+        wj17SLl3mkJQqS0Pznx3lMrVUlf5lhKadXCEegQGZ8TlBGgnElpIc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=archlinux.org;
+        s=dkim-ed25519; t=1609784984;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=B5oGaLTgWZnR00iU8GR4J4fHEAsnWKAvc4TXo8d/Ef8=;
+        b=eJChxdQVasZQFcr2CcQZeHsBaSfnKpR5nXJp8QMmvpgcnnW9T7JbSffAAHnSiqzLUb/aqf
+        Oo7Df0/MqgAh4GBg==
+From:   lains@archlinux.org
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>
+Subject: [PATCH] HID: logitech-hidpp: add support for Unified Battery (1004) feature
+Date:   Mon,  4 Jan 2021 18:29:37 +0000
+Message-Id: <20210104182937.1472673-1-lains@archlinux.org>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Authentication-Results: mail.archlinux.org;
+        auth=pass smtp.auth=ffy00 smtp.mailfrom=lains@archlinux.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 2020-12-16 at 14:36 +0800, Zhang Lixu wrote:
-> When OOB is disabled, FW will be power gated when system is in
-> S3/S4/S5
-> which is the same behavior with legacy ISH FW.
-> When OOB is enabled, FW will always power on which is totally
-> different
-> comparing to legacy ISH FW.
-> 
-> So NO_D3 flag is not enough to check FW's status after resume.
-> Here we can use IPC FW status register to check host link status.
-> If it is false, it means FW get reset after power gated, need go
-> through
-> the whole initialization flow; If it is true, it means FW is alive,
-> just
-> set host ready bit to let fw know host is up.
-> 
-> Co-developed-by: Wei Jiang <wei.w.jiang@intel.com>
-> Signed-off-by: Wei Jiang <wei.w.jiang@intel.com>
-> Signed-off-by: Even Xu <even.xu@intel.com>
-> Signed-off-by: Zhang Lixu <lixu.zhang@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Filipe Laíns <lains@archlinux.org>
 
-> ---
->  drivers/hid/intel-ish-hid/ipc/hw-ish.h  |  1 +
->  drivers/hid/intel-ish-hid/ipc/ipc.c     | 27
-> +++++++++++++++++++++++++
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c |  6 +++++-
->  3 files changed, 33 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> index 1fb294ca463e..111ad259ba74 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> +++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> @@ -81,5 +81,6 @@ struct ishtp_device *ish_dev_init(struct pci_dev
-> *pdev);
->  int ish_hw_start(struct ishtp_device *dev);
->  void ish_device_disable(struct ishtp_device *dev);
->  int ish_disable_dma(struct ishtp_device *dev);
-> +void ish_set_host_ready(struct ishtp_device *dev);
->  
->  #endif /* _ISHTP_HW_ISH_H_ */
-> diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-
-> ish-hid/ipc/ipc.c
-> index a45ac7fa417b..47bbeb8b492b 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-> @@ -193,6 +193,33 @@ static void ish_clr_host_rdy(struct ishtp_device
-> *dev)
->         ish_reg_write(dev, IPC_REG_HOST_COMM, host_status);
->  }
->  
-> +static bool ish_chk_host_rdy(struct ishtp_device *dev)
-> +{
-> +       uint32_t host_status = ish_reg_read(dev, IPC_REG_HOST_COMM);
-> +
-> +       return (host_status & IPC_HOSTCOMM_READY_BIT);
-> +}
-> +
-> +/**
-> + * ish_set_host_ready() - reconfig ipc host registers
-> + * @dev: ishtp device pointer
-> + *
-> + * Set host to ready state
-> + * This API is called in some case:
-> + *    fw is still on, but ipc is powered down.
-> + *    such as OOB case.
-> + *
-> + * Return: 0 for success else error fault code
-> + */
-> +void ish_set_host_ready(struct ishtp_device *dev)
-> +{
-> +       if (ish_chk_host_rdy(dev))
-> +               return;
-> +
-> +       ish_set_host_rdy(dev);
-> +       set_host_ready(dev);
-> +}
-> +
->  /**
->   * _ishtp_read_hdr() - Read message header
->   * @dev: ISHTP device pointer
-> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> index c9c5488e44cb..8cb40696984a 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> @@ -259,11 +259,15 @@ static void __maybe_unused
-> ish_resume_handler(struct work_struct *work)
->  {
->         struct pci_dev *pdev = to_pci_dev(ish_resume_device);
->         struct ishtp_device *dev = pci_get_drvdata(pdev);
-> +       uint32_t fwsts = dev->ops->get_fw_status(dev);
->         int ret;
->  
-> -       if (ish_should_leave_d0i3(pdev) && !dev->suspend_flag) {
-> +       if (ish_should_leave_d0i3(pdev) && !dev->suspend_flag
-> +                       && IPC_IS_ISH_ILUP(fwsts)) {
->                 disable_irq_wake(pdev->irq);
->  
-> +               ish_set_host_ready(dev);
-> +
->                 ishtp_send_resume(dev);
->  
->                 /* Waiting to get resume response */
+This new feature present in new devices replaces the old Battery Level
+Status (0x1000) feature. It keeps essentially the same information for
+levels (reporting critical, low, good and full) but makes these levels
+optional, the device exports a capability setting which describes which
+levels it supports. In addition to this, there is an optional
+state_of_charge paramenter that exports the battery percentage.
 
+This patch adds support for this new feature. There were some
+implementation choices, as described below and in the code.
+
+If the device supports the state_of_charge parameter, we will just
+export the battery percentage and not the levels, which the device might
+still support.
+
+Since this feature can co-exist with the Battery Voltage (0x1001)
+feature and we currently only support one battery feature, I changed the
+battery feature discovery to try to use 0x1000 and 0x1004 first and only
+then 0x1001, the battery voltage feature.
+In the future we could uncouple this and make the battery feature
+co-exists with 0x1000 and 0x1004, allowing the device to export voltage
+information in addition to the battery percentage or level.
+
+I tested this patch with a MX Anywhere 3, which supports the new
+feature. Since I don't have any device that doesn't support the
+state_of_charge parameter of this feature, I forced the MX Anywhere 3 to
+use the level information, instead of battery percentage, to test that
+part of the implementation.
+I also tested with a MX Master 3, which supports the Battery Level
+Status (0x1000) feature, and a G703 Hero, which supports the Battery
+Voltage (0x1001) feature, to make sure nothing broke there.
+
+Signed-off-by: Filipe Laíns <lains@archlinux.org>
+---
+ drivers/hid/hid-logitech-hidpp.c | 244 ++++++++++++++++++++++++++++++-
+ 1 file changed, 237 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index f85781464807..291c6b4d26b7 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -92,6 +92,8 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ #define HIDPP_CAPABILITY_BATTERY_MILEAGE	BIT(2)
+ #define HIDPP_CAPABILITY_BATTERY_LEVEL_STATUS	BIT(3)
+ #define HIDPP_CAPABILITY_BATTERY_VOLTAGE	BIT(4)
++#define HIDPP_CAPABILITY_BATTERY_PERCENTAGE	BIT(5)
++#define HIDPP_CAPABILITY_UNIFIED_BATTERY	BIT(6)
+ 
+ #define lg_map_key_clear(c)  hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
+ 
+@@ -152,6 +154,7 @@ struct hidpp_battery {
+ 	int voltage;
+ 	int charge_type;
+ 	bool online;
++	u8 supported_levels_1004;
+ };
+ 
+ /**
+@@ -1171,7 +1174,7 @@ static int hidpp20_batterylevel_get_battery_info(struct hidpp_device *hidpp,
+ 	return 0;
+ }
+ 
+-static int hidpp20_query_battery_info(struct hidpp_device *hidpp)
++static int hidpp20_query_battery_info_1000(struct hidpp_device *hidpp)
+ {
+ 	u8 feature_type;
+ 	int ret;
+@@ -1208,7 +1211,7 @@ static int hidpp20_query_battery_info(struct hidpp_device *hidpp)
+ 	return 0;
+ }
+ 
+-static int hidpp20_battery_event(struct hidpp_device *hidpp,
++static int hidpp20_battery_event_1000(struct hidpp_device *hidpp,
+ 				 u8 *data, int size)
+ {
+ 	struct hidpp_report *report = (struct hidpp_report *)data;
+@@ -1380,6 +1383,222 @@ static int hidpp20_battery_voltage_event(struct hidpp_device *hidpp,
+ 	return 0;
+ }
+ 
++/* -------------------------------------------------------------------------- */
++/* 0x1004: Unified battery                                                    */
++/* -------------------------------------------------------------------------- */
++
++#define HIDPP_PAGE_UNIFIED_BATTERY				0x1004
++
++#define CMD_UNIFIED_BATTERY_GET_CAPABILITIES			0x00
++#define CMD_UNIFIED_BATTERY_GET_STATUS				0x10
++
++#define EVENT_UNIFIED_BATTERY_STATUS_EVENT			0x00
++
++#define FLAG_UNIFIED_BATTERY_LEVEL_CRITICAL			BIT(0)
++#define FLAG_UNIFIED_BATTERY_LEVEL_LOW				BIT(1)
++#define FLAG_UNIFIED_BATTERY_LEVEL_GOOD				BIT(2)
++#define FLAG_UNIFIED_BATTERY_LEVEL_FULL				BIT(3)
++
++#define FLAG_UNIFIED_BATTERY_FLAGS_RECHARGEABLE			BIT(0)
++#define FLAG_UNIFIED_BATTERY_FLAGS_STATE_OF_CHARGE		BIT(1)
++
++static int hidpp20_unifiedbattery_get_capabilities(struct hidpp_device *hidpp,
++						   u8 feature_index)
++{
++	struct hidpp_report response;
++	int ret;
++	u8 *params = (u8 *)response.fap.params;
++
++	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_LEVEL_STATUS ||
++	    hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_PERCENTAGE) {
++		/* we have already set the device capabilities, so let's skip */
++		return 0;
++	}
++
++	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
++					  CMD_UNIFIED_BATTERY_GET_CAPABILITIES,
++					  NULL, 0, &response);
++	/* Ignore these intermittent errors */
++	if (ret == HIDPP_ERROR_RESOURCE_ERROR)
++		return -EIO;
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
++	if (ret)
++		return ret;
++
++	/* if the device supports state of charge (battery percentage) we won't
++	   export the battery level information. there are 4 possible battery
++	   levels and they all are optional, this means that the device might
++	   not support any of them, we are just better off with the battery
++	   percentage. */
++	if (params[1] & FLAG_UNIFIED_BATTERY_FLAGS_STATE_OF_CHARGE) {
++		hidpp->capabilities |= HIDPP_CAPABILITY_BATTERY_PERCENTAGE;
++		hidpp->battery.supported_levels_1004 = 0;
++	} else {
++		hidpp->capabilities |= HIDPP_CAPABILITY_BATTERY_LEVEL_STATUS;
++		hidpp->battery.supported_levels_1004 = params[0];
++	}
++
++	return 0;
++}
++
++static int hidpp20_unifiedbattery_map_status(struct hidpp_device *hidpp,
++					     u8 charging_status,
++					     u8 external_power_status)
++{
++	int status;
++
++	switch (charging_status) {
++		case 0: /* discharging */
++			status = POWER_SUPPLY_STATUS_DISCHARGING;
++			break;
++		case 1: /* charging */
++		case 2: /* charging slow */
++			status = POWER_SUPPLY_STATUS_CHARGING;
++			break;
++		case 3: /* complete */
++			status = POWER_SUPPLY_STATUS_FULL;
++			break;
++		case 4: /* error */
++			status = POWER_SUPPLY_STATUS_NOT_CHARGING;
++			hid_info(hidpp->hid_dev, "%s: charging error",
++				 hidpp->name);
++			break;
++		default:
++			status = POWER_SUPPLY_STATUS_NOT_CHARGING;
++			break;
++	}
++
++	return status;
++}
++
++static int hidpp20_unifiedbattery_map_level(struct hidpp_device *hidpp,
++					    u8 battery_level)
++{
++	/* cler unsupported level bits */
++	battery_level &= hidpp->battery.supported_levels_1004;
++
++	if (battery_level & FLAG_UNIFIED_BATTERY_LEVEL_FULL)
++		return POWER_SUPPLY_CAPACITY_LEVEL_FULL;
++	else if (battery_level & FLAG_UNIFIED_BATTERY_LEVEL_GOOD)
++		return POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
++	else if (battery_level & FLAG_UNIFIED_BATTERY_LEVEL_LOW)
++		return POWER_SUPPLY_CAPACITY_LEVEL_LOW;
++	else if (battery_level & FLAG_UNIFIED_BATTERY_LEVEL_CRITICAL)
++		return POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
++
++	return POWER_SUPPLY_CAPACITY_LEVEL_UNKNOWN;
++}
++
++static int hidpp20_unifiedbattery_get_status(struct hidpp_device *hidpp,
++					     u8 feature_index,
++					     u8 *state_of_charge,
++					     int *status,
++					     int *level)
++{
++	struct hidpp_report response;
++	int ret;
++	u8 *params = (u8 *)response.fap.params;
++
++	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
++					  CMD_UNIFIED_BATTERY_GET_STATUS,
++					  NULL, 0, &response);
++	/* Ignore these intermittent errors */
++	if (ret == HIDPP_ERROR_RESOURCE_ERROR)
++		return -EIO;
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
++	if (ret)
++		return ret;
++
++	*state_of_charge = params[0];
++	*status = hidpp20_unifiedbattery_map_status(hidpp, params[2], params[3]);
++	*level = hidpp20_unifiedbattery_map_level(hidpp, params[1]);
++
++	return 0;
++}
++
++static int hidpp20_query_battery_info_1004(struct hidpp_device *hidpp)
++{
++	u8 feature_type;
++	int ret;
++	u8 state_of_charge;
++	int status, level;
++
++	if (hidpp->battery.feature_index == 0xff) {
++		ret = hidpp_root_get_feature(hidpp,
++					     HIDPP_PAGE_UNIFIED_BATTERY,
++					     &hidpp->battery.feature_index,
++					     &feature_type);
++		if (ret)
++			return ret;
++	}
++
++	ret = hidpp20_unifiedbattery_get_capabilities(hidpp,
++					hidpp->battery.feature_index);
++	if (ret)
++		return ret;
++
++	ret = hidpp20_unifiedbattery_get_status(hidpp,
++						hidpp->battery.feature_index,
++						&state_of_charge,
++						&status,
++						&level);
++	if (ret)
++		return ret;
++
++	hidpp->capabilities |= HIDPP_CAPABILITY_UNIFIED_BATTERY;
++	hidpp->battery.capacity = state_of_charge;
++	hidpp->battery.status = status;
++	hidpp->battery.level = level;
++	hidpp->battery.online = true;
++
++	return 0;
++}
++
++static int hidpp20_battery_event_1004(struct hidpp_device *hidpp,
++				 u8 *data, int size)
++{
++	struct hidpp_report *report = (struct hidpp_report *)data;
++	u8 *params = (u8 *)report->fap.params;
++	int state_of_charge, status, level;
++	bool changed;
++
++	if (report->fap.feature_index != hidpp->battery.feature_index ||
++	    report->fap.funcindex_clientid != EVENT_UNIFIED_BATTERY_STATUS_EVENT)
++		return 0;
++
++	state_of_charge = params[0];
++	status = hidpp20_unifiedbattery_map_status(hidpp, params[2], params[3]);
++	level = hidpp20_unifiedbattery_map_level(hidpp, params[1]);
++
++	changed = status != hidpp->battery.status ||
++		  (state_of_charge != hidpp->battery.capacity &&
++		   hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_PERCENTAGE) ||
++		  (level != hidpp->battery.level &&
++		   hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_LEVEL_STATUS);
++
++	if (changed) {
++		hidpp->battery.capacity = state_of_charge;
++		hidpp->battery.status = status;
++		hidpp->battery.level = level;
++		if (hidpp->battery.ps)
++			power_supply_changed(hidpp->battery.ps);
++	}
++
++	return 0;
++}
++
++/* -------------------------------------------------------------------------- */
++/* Battery feature helpers                                                    */
++/* -------------------------------------------------------------------------- */
++
+ static enum power_supply_property hidpp_battery_props[] = {
+ 	POWER_SUPPLY_PROP_ONLINE,
+ 	POWER_SUPPLY_PROP_STATUS,
+@@ -3307,7 +3526,10 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
+ 	}
+ 
+ 	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_BATTERY) {
+-		ret = hidpp20_battery_event(hidpp, data, size);
++		ret = hidpp20_battery_event_1000(hidpp, data, size);
++		if (ret != 0)
++			return ret;
++		ret = hidpp20_battery_event_1004(hidpp, data, size);
+ 		if (ret != 0)
+ 			return ret;
+ 		ret = hidpp_solar_battery_event(hidpp, data, size);
+@@ -3443,9 +3665,14 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+ 		if (hidpp->quirks & HIDPP_QUIRK_CLASS_K750)
+ 			ret = hidpp_solar_request_battery_event(hidpp);
+ 		else {
+-			ret = hidpp20_query_battery_voltage_info(hidpp);
++			/* we only support one battery feature right now, so let's
++			   first check the ones that support battery level first
++			   and leave voltage for last */
++			ret = hidpp20_query_battery_info_1000(hidpp);
++			if (ret)
++				ret = hidpp20_query_battery_info_1004(hidpp);
+ 			if (ret)
+-				ret = hidpp20_query_battery_info(hidpp);
++				ret = hidpp20_query_battery_voltage_info(hidpp);
+ 		}
+ 
+ 		if (ret)
+@@ -3473,7 +3700,8 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+ 
+ 	num_battery_props = ARRAY_SIZE(hidpp_battery_props) - 3;
+ 
+-	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_MILEAGE)
++	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_MILEAGE ||
++	    hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_PERCENTAGE)
+ 		battery_props[num_battery_props++] =
+ 				POWER_SUPPLY_PROP_CAPACITY;
+ 
+@@ -3650,8 +3878,10 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+ 	} else if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_BATTERY) {
+ 		if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_VOLTAGE)
+ 			hidpp20_query_battery_voltage_info(hidpp);
++		else if (hidpp->capabilities & HIDPP_CAPABILITY_UNIFIED_BATTERY)
++			hidpp20_query_battery_info_1004(hidpp);
+ 		else
+-			hidpp20_query_battery_info(hidpp);
++			hidpp20_query_battery_info_1000(hidpp);
+ 	}
+ 	if (hidpp->battery.ps)
+ 		power_supply_changed(hidpp->battery.ps);
+-- 
+2.30.0
 

@@ -2,117 +2,203 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32673C433DB
-	for <linux-input@archiver.kernel.org>; Mon,  4 Jan 2021 23:52:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 531BBC433E0
+	for <linux-input@archiver.kernel.org>; Tue,  5 Jan 2021 01:34:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F28E62253D
-	for <linux-input@archiver.kernel.org>; Mon,  4 Jan 2021 23:52:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B1162072C
+	for <linux-input@archiver.kernel.org>; Tue,  5 Jan 2021 01:34:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727570AbhADXwN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 4 Jan 2021 18:52:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33808 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726289AbhADXwN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Jan 2021 18:52:13 -0500
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704A9C061574;
-        Mon,  4 Jan 2021 15:51:32 -0800 (PST)
-Received: by mail-pg1-x52b.google.com with SMTP id v19so20079344pgj.12;
-        Mon, 04 Jan 2021 15:51:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=FhUpEO+5p3LEHY1dTLvydWrAfFUq4dwKw8m6KddxEmo=;
-        b=De23hGEmQ/leNj7ycpp5iQ3hkQofyF7JfOyYD2sqy8X2nWNNSxVF7Pyc3onyM17ERJ
-         dVOGaqxUE3f3meX9ZlUp5ob69x6F2WxBj8Yc9xgJVit6m/y9d3aHDadFcMIcx/0AP0xn
-         cQn2tBbrJartCZLBllkNjXSJElxHxeAl/udknSWHzddcAaCX2JWZVALOEIEzmwFGRgDs
-         8uZrY3kxMTAHLKCbdr7wX2sxCFvo+tJJOkhxgLfmb8z/G8HJqBUe0HkzvfrIo8VBlLit
-         Z3vgDvLNdoQVXd8uOHrQfiUYnnqBOHzDQ6WvUPSyRsY/AkE2y2WwxXjtoEgDe5KMpbPp
-         jMLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=FhUpEO+5p3LEHY1dTLvydWrAfFUq4dwKw8m6KddxEmo=;
-        b=W5N+K+u1rVPkUkLupWRL4cRgVmZUw2jhfQAr/GnU8GFhkDm4rXOCchVbyemus8Y2i+
-         53iGwIxCX43DgC6kiE45VOQACW+zq44278lPXUWszsKXeiGtqYk24eA+znD462iZtBqt
-         1UQXeuULA01CWhloGks+hnH50NYc9VJeb7cRUqNgafC8pyS3BL0LobyPYtr6HG0kHDIC
-         276wuD/Jgwcp/nZpnBGjf3ia0SEXJam5MChdJnihBmFwjkfWM1oydRG4odNjZe+R5g5L
-         6FN6sxa7ZHQ8C8kPSSeJf0qYoV4wTPDrDeS6FZXYRpXVFjLvP5l0ZeuuwpKXg+2yb/Vl
-         qHIQ==
-X-Gm-Message-State: AOAM5311EHmqOeV9IN7sIxak0zWnvmYNUhMFR4tirZtfQUo852oIQkxh
-        QWsU0RfK71P0CZgazqlvJ/WMMv/NXkc=
-X-Google-Smtp-Source: ABdhPJzPa6e+ftPXqqpYzv+JSZ9avkLgWKVdMZKxpEoeo6jG2Z6gMtIwhAJQwpCzv+Aeylx5BUq5nw==
-X-Received: by 2002:a62:37c7:0:b029:1aa:22ea:537d with SMTP id e190-20020a6237c70000b02901aa22ea537dmr66214026pfa.56.1609797406347;
-        Mon, 04 Jan 2021 13:56:46 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id u25sm57058108pfn.170.2021.01.04.13.56.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jan 2021 13:56:45 -0800 (PST)
-Date:   Mon, 4 Jan 2021 13:56:43 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Hans de Goede <j.w.r.degoede@gmail.com>
-Cc:     Bastien Nocera <hadess@hadess.net>,
-        Mark Gross <mgross@linux.intel.com>,
-        linux-input@vger.kernel.org, Andy Shevchenko <andy@infradead.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add swap-x-y quirk for
- Goodix touchscreen on Estar Beauty HD tablet
-Message-ID: <X/OPG5caR4SJ/PMH@google.com>
-References: <20201224135158.10976-1-hdegoede@redhat.com>
- <99d3da8d-3319-3904-25d1-a9ff34be653f@redhat.com>
- <c7b47af9cc3bd1d38b6c3582f6e63d7876365ee9.camel@hadess.net>
- <2ce7980e-e90f-f778-d349-44e35b3baf1d@gmail.com>
+        id S1726124AbhAEBd5 convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 4 Jan 2021 20:33:57 -0500
+Received: from szxga08-in.huawei.com ([45.249.212.255]:2349 "EHLO
+        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727094AbhAEBd4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Jan 2021 20:33:56 -0500
+Received: from DGGEMM401-HUB.china.huawei.com (unknown [172.30.72.53])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4D8w2S1Z5nz13cpH;
+        Tue,  5 Jan 2021 09:31:44 +0800 (CST)
+Received: from dggemi711-chm.china.huawei.com (10.3.20.110) by
+ DGGEMM401-HUB.china.huawei.com (10.3.20.209) with Microsoft SMTP Server (TLS)
+ id 14.3.498.0; Tue, 5 Jan 2021 09:33:12 +0800
+Received: from dggemi761-chm.china.huawei.com (10.1.198.147) by
+ dggemi711-chm.china.huawei.com (10.3.20.110) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2106.2; Tue, 5 Jan 2021 09:33:12 +0800
+Received: from dggemi761-chm.china.huawei.com ([10.9.49.202]) by
+ dggemi761-chm.china.huawei.com ([10.9.49.202]) with mapi id 15.01.2106.002;
+ Tue, 5 Jan 2021 09:33:12 +0800
+From:   "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC:     "tglx@linutronix.de" <tglx@linutronix.de>,
+        "maz@kernel.org" <maz@kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linuxarm@openeuler.org" <linuxarm@openeuler.org>
+Subject: RE: [PATCH] genirq: add IRQF_NO_AUTOEN for request_irq
+Thread-Topic: [PATCH] genirq: add IRQF_NO_AUTOEN for request_irq
+Thread-Index: AQHW4ulWZlFLRa4THk6hib5h7axwo6oXjxeAgACtIHA=
+Date:   Tue, 5 Jan 2021 01:33:12 +0000
+Message-ID: <fa39c2f9dba4421095d846e87f755407@hisilicon.com>
+References: <20210104222612.2708-1-song.bao.hua@hisilicon.com>
+ <X/OePw97VgXtRBxj@google.com>
+In-Reply-To: <X/OePw97VgXtRBxj@google.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.126.200.162]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2ce7980e-e90f-f778-d349-44e35b3baf1d@gmail.com>
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Hans,
 
-On Mon, Jan 04, 2021 at 02:24:27PM +0100, Hans de Goede wrote:
-> 
-> Dmitry, once I have a patch ready to move the goodix rotated_screen
-> and inverted_x_screen DMI quirk tables to platform/drivers/x86/touchscreen_dmi.c
-> where all other (x86) touchscreen quirks have been gathered so far, the question
-> becomes how to merge that patch ?
-> 
-> I see 2 options:
-> 
-> 1. Have 2 separate patches, one adding the quirks to
-> platform/drivers/x86/touchscreen_dmi.c and a second patch removing the
-> DMI tables (and the code handling them) from goodix.c. And then merge
-> them through the pdx86 resp. the input tree.
-> 
-> 2. Have 1 big patch doing both.
-> 
-> The downside of 1. is that there might be a point in git history where
-> the coordinates of the touchscreens regress. Depending on which pull-req
-> lands first (if the pdx86 pull-req for 5.12-rc1 gets merged first there
-> is no issue). But only when git-bisecting so I think that 1. is best to
-> avoid any merge issues. At least platform/drivers/x86/touchscreen_dmi.c
-> sees a lot of activity every cycle. So another option would be to 
-> do 1 big patch and then merge that through the pdx86 tree (I can provide
-> an immutable branch for that).
-> 
-> Dmitry if you can let me know which way you would prefer to move forward
-> with this then I can prepare the 1 or 2 patches (once I hear back from the
-> "Cube I15-TC" quirk patch author).
 
-I am fine with a single patch going through either platform or input
-tree. We could even have an immutable branch off 5.10 and merge it into
-both trees to ensure there are no clashes.
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Tuesday, January 5, 2021 12:01 PM
+> To: Song Bao Hua (Barry Song) <song.bao.hua@hisilicon.com>
+> Cc: tglx@linutronix.de; maz@kernel.org; gregkh@linuxfoundation.org;
+> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org;
+> linuxarm@openeuler.org
+> Subject: Re: [PATCH] genirq: add IRQF_NO_AUTOEN for request_irq
+> 
+> On Tue, Jan 05, 2021 at 11:26:12AM +1300, Barry Song wrote:
+> > This patch originated from the discussion with Dmitry in the below thread:
+> >
+> https://lore.kernel.org/linux-input/20210102042902.41664-1-song.bao.hua@hi
+> silicon.com/
+> > there are many drivers which don't want interrupts enabled automatically
+> > due to request_irq().
+> > So they are handling this issue by either way of the below two:
+> > (1)
+> > irq_set_status_flags(irq, IRQ_NOAUTOEN);
+> > request_irq(dev, irq...);
+> > (2)
+> > request_irq(dev, irq...);
+> > disable_irq(irq);
+> >
+> > The code in the second way is silly and unsafe. In the small time gap
+> > between request_irq and disable_irq, interrupts can still come.
+> > The code in the first way is safe though we might be able to do it in
+> > the generic irq code.
+> >
+> > I guess Dmitry also prefers genirq handles this as he said
+> > "What I would like to see is to allow passing something like IRQF_DISABLED
+> > to request_irq() so that we would not need neither irq_set_status_flags()
+> > nor disable_irq()" in the original email thread.
+> 
+> One of the reasons I dislike irq_set_status_flags() is that we have to
+> call it before we actually granted our IRQ request...
+> 
+> >
+> > If this one is accepted, hundreds of drivers with this problem will be
+> > handled afterwards.
+> >
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
+> > ---
+> >  include/linux/interrupt.h |  3 +++
+> >  kernel/irq/manage.c       |  3 +++
+> >  kernel/irq/settings.h     | 10 ++++++++++
+> >  3 files changed, 16 insertions(+)
+> >
+> > diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+> > index bb8ff9083e7d..0f22d277078c 100644
+> > --- a/include/linux/interrupt.h
+> > +++ b/include/linux/interrupt.h
+> > @@ -61,6 +61,8 @@
+> >   *                interrupt handler after suspending interrupts. For system
+> >   *                wakeup devices users need to implement wakeup detection in
+> >   *                their interrupt handlers.
+> > + * IRQF_NO_AUTOEN - Don't enable IRQ automatically when users request it.
+> Users
+> > + *                will enable it explicitly by enable_irq() later.
+> >   */
+> >  #define IRQF_SHARED		0x00000080
+> >  #define IRQF_PROBE_SHARED	0x00000100
+> > @@ -74,6 +76,7 @@
+> >  #define IRQF_NO_THREAD		0x00010000
+> >  #define IRQF_EARLY_RESUME	0x00020000
+> >  #define IRQF_COND_SUSPEND	0x00040000
+> > +#define IRQF_NO_AUTOEN		0x00080000
+> >
+> >  #define IRQF_TIMER		(__IRQF_TIMER | IRQF_NO_SUSPEND | IRQF_NO_THREAD)
+> >
+> > diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+> > index ab8567f32501..364e8b47d9ba 100644
+> > --- a/kernel/irq/manage.c
+> > +++ b/kernel/irq/manage.c
+> > @@ -1693,6 +1693,9 @@ __setup_irq(unsigned int irq, struct irq_desc *desc,
+> struct irqaction *new)
+> >  			irqd_set(&desc->irq_data, IRQD_NO_BALANCING);
+> >  		}
+> >
+> > +		if (new->flags & IRQF_NO_AUTOEN)
+> > +			irq_settings_set_noautoen(desc);
+> 
+> Can we make sure we refuse this request if the caller also specified
+> IRQF_SHARED?
 
-Thanks.
+Right now, there is a warning for IRQF_SHARED + NOAUTOEN:
 
--- 
-Dmitry
+		if (irq_settings_can_autoenable(desc)) {
+			irq_startup(desc, IRQ_RESEND, IRQ_START_COND);
+		} else {
+			/*
+			 * Shared interrupts do not go well with disabling
+			 * auto enable. The sharing interrupt might request
+			 * it while it's still disabled and then wait for
+			 * interrupts forever.
+			 */
+			WARN_ON_ONCE(new->flags & IRQF_SHARED);
+			/* Undo nested disables: */
+			desc->depth = 1;
+		}
+
+Of course, this could also be clearly rejected in the sanity-check
+of request_threaded_irq() if we want to totally prohibit this
+behavior:
+
+int request_threaded_irq(unsigned int irq, irq_handler_t handler,
+			 irq_handler_t thread_fn, unsigned long irqflags,
+			 const char *devname, void *dev_id)
+{
+	struct irqaction *action;
+	struct irq_desc *desc;
+	int retval;
+
+	if (irq == IRQ_NOTCONNECTED)
+		return -ENOTCONN;
+
+	/*
+	 * Sanity-check: shared interrupts must pass in a real dev-ID,
+	 * otherwise we'll have trouble later trying to figure out
+	 * which interrupt is which (messes up the interrupt freeing
+	 * logic etc).
+	 *
+	 * Also IRQF_COND_SUSPEND only makes sense for shared interrupts and
+	 * it cannot be set along with IRQF_NO_SUSPEND.
+	 */
+	if (((irqflags & IRQF_SHARED) && !dev_id) ||
+	    (!(irqflags & IRQF_SHARED) && (irqflags & IRQF_COND_SUSPEND)) ||
+	    ((irqflags & IRQF_NO_SUSPEND) && (irqflags & IRQF_COND_SUSPEND)))
+		return -EINVAL;
+
+
+> 
+> Thanks.
+
+Thanks
+Barry
+

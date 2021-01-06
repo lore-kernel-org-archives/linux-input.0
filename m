@@ -2,153 +2,186 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 094CCC433E0
-	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 19:18:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0441C433DB
+	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 19:21:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CAA322311B
-	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 19:18:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9413423123
+	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 19:21:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726416AbhAFTSa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Jan 2021 14:18:30 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:39999 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726840AbhAFTS2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Jan 2021 14:18:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609960621;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kZW03CYYNY68WyUOo3YGjnMbs8Y0uQISMJf1Yyuwv54=;
-        b=WWguPe27Nyq5VP3RLygMxdLwKKryzkURB66n1Y6sCHavLSK8ikIYmwZmoxfHegUqaz16MN
-        qgJ0Da5bBobwUycANx9V0eMXg7sZgQQxaThKlOmD6WJJ0C4KE/0xxDl7zxDA9wvN4Dfpq/
-        lYc8ITPZ6l3iOg8QJLvf3p0Pm0MTpvQ=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-144-bjh0O6sNP7Gr-nYascI03A-1; Wed, 06 Jan 2021 14:16:58 -0500
-X-MC-Unique: bjh0O6sNP7Gr-nYascI03A-1
-Received: by mail-ej1-f72.google.com with SMTP id k3so1667706ejr.16
-        for <linux-input@vger.kernel.org>; Wed, 06 Jan 2021 11:16:58 -0800 (PST)
+        id S1726474AbhAFTV3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Jan 2021 14:21:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46364 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726454AbhAFTV2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2021 14:21:28 -0500
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF0DC061575;
+        Wed,  6 Jan 2021 11:20:48 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id v14so3306386wml.1;
+        Wed, 06 Jan 2021 11:20:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:subject:from:to:in-reply-to:references:organization:date
+         :mime-version:user-agent;
+        bh=zVK2OEPGyXuuBLK69KjXzMY3ueZyL1xh6wI6rpSwSuk=;
+        b=YMu9umD97lXPnerGmHONH+T74ZxdWPZEnJlooQbFBX43fOK7sEQZmMJUBfHzq05igy
+         d8sE7KFZAeeARrRUN4jxsKvFzzU5zQ2Q6AVn3smeryYlkk1L01CO54VCGLDPRQsnReop
+         hfnhHX35TEorBr4YGDKgonWdhje15hHifDZZHcLpiZFQyhunIKRC2PLOGT0/+ufh/ucz
+         Y2aPzlBadyX5jlzA54MXcP4Nkyx5VbxDAHVgaHImHQXfoLKJ5SDVv9SFdoAevXUStBSB
+         6xdrXbTKAE0/hqMQvSok6Q1WboAl8zppXM//A0AB7y1ahLMkZPsfdPx+AhNdcBDKiESF
+         CbxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=kZW03CYYNY68WyUOo3YGjnMbs8Y0uQISMJf1Yyuwv54=;
-        b=Lq/TYm+4Hr0mVrTOf2B6GBFPSdtHUTf6nQw0Vgv3YS51ztgtcyypGJVaGfesPs68It
-         ORe7Kq+GA++aPv/ibEmPW87OOtmu5ho+X1X/xi2/IfvMXC9pD35SfkcoLfrn6SqhlBcz
-         6Q8Pt/p2n6OKao5yc5uQcZlQYnui+ueZdgzJZf5Y5xdDjUqiDp/6iAS2LId4GKJ34iHp
-         yBkia/SCFnMMY+NFp9l+F9VjVytMrTCs4e2LFI4lwMAGSj+cBPOZ62BRb4558K7H9Iv9
-         qNayBVHRvG4xAMbIlSqi1oYTokPN7h9eYOfuvnXhtjM7fwCWj34p+wUYxVPzhiFpq7GK
-         H/Yg==
-X-Gm-Message-State: AOAM533oWD3C/+7uIu3MvbjL5BrwWLye8ZGJGDu9lIZywDTugY6lNhe9
-        rKjmCKBzCutcj041VOAwjLXH06ZpHdFPZjmjFg1pXon/yw32MmJdkk2NEZrnRLlEmOnHoszLhuH
-        tPlMLM9MiSi1J1rU6gGuHtt0=
-X-Received: by 2002:a17:907:4126:: with SMTP id mx6mr3848397ejb.91.1609960617489;
-        Wed, 06 Jan 2021 11:16:57 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwRv4XRjPfzqXQnoVnknm0ljP3mzn+/3THqB8xygTKCn+nmiy4sSY8G9CP4mpqFP4JKk+apGA==
-X-Received: by 2002:a17:907:4126:: with SMTP id mx6mr3848385ejb.91.1609960617279;
-        Wed, 06 Jan 2021 11:16:57 -0800 (PST)
-Received: from x1.localdomain (2001-1c00-0c1e-bf00-37a3-353b-be90-1238.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:37a3:353b:be90:1238])
-        by smtp.gmail.com with ESMTPSA id f18sm1746142edt.60.2021.01.06.11.16.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Jan 2021 11:16:56 -0800 (PST)
+        h=x-gm-message-state:message-id:subject:from:to:in-reply-to
+         :references:organization:date:mime-version:user-agent;
+        bh=zVK2OEPGyXuuBLK69KjXzMY3ueZyL1xh6wI6rpSwSuk=;
+        b=iCQPmWPiDSpEHuSzt9k190Onv9PNM+3JFFJBa0tuk+5AowG4zzc6V7jZRHHF6KxSxQ
+         I0zv0zEN2Kts7mQPwRxzT4EsBEPvGgKy1WEuaAL00hkkFJBoEL3aDqjsUuitNtoS4RN8
+         k3vZyhhBoBmzoD7pdliX0FrBQs9DXoVNokdRfqv6NPWfMXjxCpAql9hZQmMfx3Vsay9b
+         7xLCyXB/J+0wcykvN+Nm064Xk1DzrNz9iRJ6zGSQpsBcUTJWTaMt5bZa+fhSfSy1Gzgs
+         ti5IjLHSsNq9GL7BUqG6vFz38zInBckndNKv62t8spYYX9JSuRhwZgzyv/NPIjUAqNo3
+         RZwg==
+X-Gm-Message-State: AOAM532BQ9JF4VqeB1+ojE4o5Tcgb1e2eWVaQeOozJ1+DbQVVaXfshAD
+        iBwj4LLvg2NtuQEN9LZpdPs=
+X-Google-Smtp-Source: ABdhPJxPJpvmgaDMqb0UjjwOAknadUKHIj+5KDcxjd6ULGcxP3THb+kqXivuwlk+CZgwaLCdFv/GKg==
+X-Received: by 2002:a1c:a706:: with SMTP id q6mr4968577wme.7.1609960847073;
+        Wed, 06 Jan 2021 11:20:47 -0800 (PST)
+Received: from ?IPv6:2001:8a0:f268:e600:5751:e3e4:7880:ec9c? ([2001:8a0:f268:e600:5751:e3e4:7880:ec9c])
+        by smtp.gmail.com with ESMTPSA id z2sm4387044wml.23.2021.01.06.11.20.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Jan 2021 11:20:45 -0800 (PST)
+Message-ID: <1370f0590b09509ccf6a2c1233bbf6e96479c846.camel@gmail.com>
 Subject: Re: (hid-logitech) Support for non-DJ receivers
-To:     =?UTF-8?Q?Filipe_La=c3=adns?= <filipe.lains@gmail.com>,
+From:   Filipe =?ISO-8859-1?Q?La=EDns?= <filipe.lains@gmail.com>
+To:     Hans de Goede <hdegoede@redhat.com>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <308ef1e5-16ae-899f-9d89-d63f854b12bc@redhat.com>
 References: <4990836470c5fb01babcf416ca6ccf9e5e21d152.camel@gmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <308ef1e5-16ae-899f-9d89-d63f854b12bc@redhat.com>
-Date:   Wed, 6 Jan 2021 20:16:56 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+         <308ef1e5-16ae-899f-9d89-d63f854b12bc@redhat.com>
+Organization: Archlinux
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-mGDVV4QR84OAYbHbHAUK"
+Date:   Wed, 06 Jan 2021 19:20:44 +0000
 MIME-Version: 1.0
-In-Reply-To: <4990836470c5fb01babcf416ca6ccf9e5e21d152.camel@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+User-Agent: Evolution 3.38.2 
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Filipe,
 
-On 1/6/21 8:07 PM, Filipe Laíns wrote:
-> Hey,
-> 
-> Some of the new Logitech receivers do not have the DJ interface, this creates an
-> issue userspace applications like libratbag, as seen in [1], because we can't
-> identify the device based on the hidraw PID.
-> 
-> There are two solutions for this:
-> 
-> 1) Implement device discovery via the internal Logitech ID in libratbag and all
-> other userspace apps.
-> 
-> 2) Make hid-logitech-dj export a duplicated hidraw node with internal Logitech
-> ID as PID, just like it does for the DJ interface.
-> 
-> In case you aren't aware of what the DJ interface is, it is essentially a
-> multiplexing protocol that receivers support. 6 devices could be connected to
-> the same receiver, hid-logitech-dj enables the DJ mode and the receiver will
-> essentially perpend the device ID to each HID report. hid-logitech-dj then
-> creates a HID device for each connected device and routes the HID reports to the
-> correspondent HID device.
-> 
-> Option 2) would be the easier on userspace, as it keeps the same interface we
-> use for DJ receivers for other Logitech HID++ receivers and avoids all userspace
-> apps to have to reimplement the same discovery logic.
-> 
-> Any thoughts?
+--=-mGDVV4QR84OAYbHbHAUK
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-hid-logitech-dj already supports exposing devices behind a non-DJ / non-unifying
-receiver as separate HID child-devices of the receiver as we doe for DJ devices.
+On Wed, 2021-01-06 at 20:16 +0100, Hans de Goede wrote:
+> Hi Filipe,
+>=20
+> hid-logitech-dj already supports exposing devices behind a non-DJ / non-
+> unifying
+> receiver as separate HID child-devices of the receiver as we doe for DJ
+> devices.
+>=20
+> ATM hid-logitech-dj does not yet support the c541 PID receiver, but with =
+some
+> luck that could be as simple as adding this patch to the kernel:
+>=20
+> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.=
+c
+> index 1ffcfc9a1e03..ee7051f3c926 100644
+> --- a/drivers/hid/hid-logitech-dj.c
+> +++ b/drivers/hid/hid-logitech-dj.c
+> @@ -1877,6 +1877,10 @@ static const struct hid_device_id logi_dj_receiver=
+s[] =3D
+> {
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 HID_USB_DEVICE(USB=
+_VENDOR_ID_LOGITECH,
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_1=
+),
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .driver_data =3D recvr_t=
+ype_gaming_hidpp},
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0{ /* Logitech lightspeed recei=
+ver (0xc541) */
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 HID_USB_DEVICE(USB_VEND=
+OR_ID_LOGITECH,
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A00xc541),
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .driver_data =3D recvr_type_g=
+aming_hidpp},
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0{ /* Logitech 27 MHz HID+=
++ 1.0 receiver (0xc513) */
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 HID_USB_DEVICE(USB=
+_VENDOR_ID_LOGITECH,
+> USB_DEVICE_ID_MX3000_RECEIVER),
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 .driver_data =3D recvr_t=
+ype_27mhz},
+>=20
+> Where the second 0xc541 should really be a
+> USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_2 define in hid-ids.h, =
+but
+> we
+> can fix that when upstreaming this.
+>=20
+> For now if you can get the reporter of the bug to build a kernel with the
+> above change and test that, then that would be great. If things do not wo=
+rk
+> OOTB with this change, then we may need to do some additional work on
+> the kernel side, but we do already support lightspeed receivers, so
+> we should be able to add support for this new model too.
+>=20
+> Regards,
+>=20
+> Hans
+>=20
+> [1] https://github.com/libratbag/libratbag/pull/1071
+>=20
+>=20
+>=20
 
-ATM hid-logitech-dj does not yet support the c541 PID receiver, but with some
-luck that could be as simple as adding this patch to the kernel:
+Great to know!
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 1ffcfc9a1e03..ee7051f3c926 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -1877,6 +1877,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_1),
- 	 .driver_data = recvr_type_gaming_hidpp},
-+	{ /* Logitech lightspeed receiver (0xc541) */
-+	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-+		0xc541),
-+	 .driver_data = recvr_type_gaming_hidpp},
- 	{ /* Logitech 27 MHz HID++ 1.0 receiver (0xc513) */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER),
- 	 .driver_data = recvr_type_27mhz},
+I have that device, I can try it out and send a patch if everything is work=
+ing
+correctly :)
 
-Where the second 0xc541 should really be a
-USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_2 define in hid-ids.h, but we
-can fix that when upstreaming this.
+The lightspeed receivers we support all have the DJ interface, these new on=
+es do
+not. But yeah, I think it should just work, or at least be simple to make i=
+t
+work.
 
-For now if you can get the reporter of the bug to build a kernel with the
-above change and test that, then that would be great. If things do not work
-OOTB with this change, then we may need to do some additional work on
-the kernel side, but we do already support lightspeed receivers, so
-we should be able to add support for this new model too.
+Cheers,
+Filipe La=C3=ADns
 
-Regards,
+--=-mGDVV4QR84OAYbHbHAUK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-Hans
+-----BEGIN PGP SIGNATURE-----
 
-[1] https://github.com/libratbag/libratbag/pull/1071
+iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAl/2DYwACgkQ+JPGdIFq
+qV1nIRAApmYeDXt6Ct9zsX9m+4gz4kL+zDy7I8cBgjt4Yb5WmZYNTkKSb8xS8mf4
+hGeusY2XXFSwDFLCgsJujff59UBmyO6p0x2D4nSiOMtAezOlDa6ZpiLv+TFMYEUp
+RCMykhQXjWrg2ndx6lvKlIjULFbdixg/zQi1XniZUKllBMYSFi0f6jRWjNRJW6of
+fSrpBBq+zLxD6Ro90Ed+/S+N2GMhUckNCtmQUhS0AfkF91LEwnGex2yl4Gfqlv7I
+fy5Z5FgFut0kl+7ujLhKVj5gkbjqBdqUMyNTvTGpD/RK7BfJFj6woVMWWLDXeAmO
+7KIcQBSd/lfyBfLG9eHNf2msAMx4EaZbOUjaJOPfGaH6nzUdpaV1lzDGa1591XdI
+mdNCYxSFq5ocIiuXDxu7sN6quqJu5eK2PAPuysJtkxgdkLLosX4GfKmGhMR4vJq8
+NMj17/XdBri2vFfQ/SHu54b5mxWXjogFHJYvD7gmi4TXLKdsl1LGVPv/6SvjTvuj
+z4uAQJeDYajl1aII2LKefJB4U0rNdcFawkbYcT4AGmMaF559zfFCgGwhdi859CUc
+7jWNjo5PZ2anmHz7YREP9atTq+OuC4ZJfpeTW2A1a1YH1YfdVTocag5gWufHbZCA
+pZL1OcUwrhLdnJT0u9f3p3hB/XobzwJ8YlQZrfmlihgOv4rdU/s=
+=VYvi
+-----END PGP SIGNATURE-----
 
-
+--=-mGDVV4QR84OAYbHbHAUK--
 

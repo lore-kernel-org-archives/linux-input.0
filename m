@@ -2,79 +2,127 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 450F9C43217
-	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 12:59:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B101C433E0
+	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 13:44:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 27A8422EBD
-	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 12:59:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5A0D2311A
+	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 13:44:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727236AbhAFM7P (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Jan 2021 07:59:15 -0500
-Received: from muru.com ([72.249.23.125]:41006 "EHLO muru.com"
+        id S1727083AbhAFNoU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Jan 2021 08:44:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727234AbhAFM7P (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Jan 2021 07:59:15 -0500
-Received: from hillo.muru.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTP id 60321812C;
-        Wed,  6 Jan 2021 12:58:54 +0000 (UTC)
-From:   Tony Lindgren <tony@atomide.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S1727060AbhAFNoU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 6 Jan 2021 08:44:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8C9222B40;
+        Wed,  6 Jan 2021 13:43:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1609940619;
+        bh=OuYEJr0husHlZLtAFcIhA7cogdH62xmcWA33p4g/SsE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HOOfKcWzVij7vyTXXHvJ0dt4sWHfOGVffxpoJDUtJcil/OTHi/1urjPfVgdTqOM7x
+         8u832y04QuX9Kxo8uW0qZA0CnjEOJI5y+OJ5s+fCTq5SkECTQH+rCj345GYc3pP3j8
+         iEPToAMuN552oGx5EQyYTal8efGtrfSlNhQDpGmS4q3gUEGjAyKGzTtdG//af+M64d
+         oOEUAc73ipILgkK+lGIJp+IuDmomStGYWvLbLtl33SiOkiw17GxOcZxr3Gt3rKSNsd
+         q8veiCxAJxwq5doYk1vbEOPM4OlzqJc4Q/Ma800tXdezXDRqUt0lszE/xMGllKynmt
+         Q2ljqmHhUTsQg==
+Received: by earth.universe (Postfix, from userid 1000)
+        id 676363C0C94; Wed,  6 Jan 2021 14:43:36 +0100 (CET)
+Date:   Wed, 6 Jan 2021 14:43:36 +0100
+From:   Sebastian Reichel <sre@kernel.org>
+To:     Tony Lindgren <tony@atomide.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-omap@vger.kernel.org,
         Arthur Demchenkov <spinal.by@gmail.com>,
         Carl Philipp Klemm <philipp@uvos.xyz>,
         Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>, ruleh <ruleh@gmx.de>,
-        Sebastian Reichel <sre@kernel.org>
-Subject: [PATCH 1/4] Input: omap4-keypad - disable unused long interrupts
-Date:   Wed,  6 Jan 2021 14:58:19 +0200
-Message-Id: <20210106125822.31315-2-tony@atomide.com>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210106125822.31315-1-tony@atomide.com>
+        Pavel Machek <pavel@ucw.cz>, ruleh <ruleh@gmx.de>
+Subject: Re: [PATCH 4/4] Input: omap4-keypad - simplify probe with devm
+Message-ID: <20210106134336.lmbaywvn7aqohsj5@earth.universe>
 References: <20210106125822.31315-1-tony@atomide.com>
+ <20210106125822.31315-5-tony@atomide.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="5sfagtjpp2hfgowb"
+Content-Disposition: inline
+In-Reply-To: <20210106125822.31315-5-tony@atomide.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-We are not using the long events and they produce extra interrupts.
-Let's not enable them at all.
 
-Note that also the v3.0.8 Linux Android kernel has long interrupts
-disabled.
+--5sfagtjpp2hfgowb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cc: Arthur Demchenkov <spinal.by@gmail.com>
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: ruleh <ruleh@gmx.de>
-Cc: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
----
- drivers/input/keyboard/omap4-keypad.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Hi Tony,
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -176,10 +176,9 @@ static int omap4_keypad_open(struct input_dev *input)
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
- 			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
--			OMAP4_DEF_IRQENABLE_EVENTEN |
--				OMAP4_DEF_IRQENABLE_LONGKEY);
-+			OMAP4_DEF_IRQENABLE_EVENTEN);
- 	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
--			OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA);
-+			OMAP4_DEF_WUP_EVENT_ENA);
- 
- 	enable_irq(keypad_data->irq);
- 
--- 
-2.30.0
+On Wed, Jan 06, 2021 at 02:58:22PM +0200, Tony Lindgren wrote:
+> Simplify probe with devm.
+
+[...]
+
+>  	/* input device allocation */
+> -	keypad_data->input =3D input_dev =3D input_allocate_device();
+> +	keypad_data->input =3D input_dev =3D devm_input_allocate_device(&pdev->=
+dev);
+>  	if (!input_dev) {
+>  		error =3D -ENOMEM;
+>  		goto err_pm_disable;
+
+[...]
+
+>  static int omap4_keypad_remove(struct platform_device *pdev)
+>  {
+>  	struct omap4_keypad *keypad_data =3D platform_get_drvdata(pdev);
+> -	struct resource *res;
+> =20
+>  	dev_pm_clear_wake_irq(&pdev->dev);
+> -
+> -	free_irq(keypad_data->irq, keypad_data);
+> -
+>  	pm_runtime_dont_use_autosuspend(&pdev->dev);
+>  	pm_runtime_disable(&pdev->dev);
+> -
+>  	input_unregister_device(keypad_data->input);
+
+not needed:
+
+ * devm_input_allocate_device - allocate managed input device
+ * @dev: device owning the input device being created
+ *
+ * Returns prepared struct input_dev or %NULL.
+ *
+ * Managed input devices do not need to be explicitly unregistered or
+ * freed as it will be done automatically when owner device unbinds from
+ * its driver (or binding fails). [...]
+
+-- Sebastian
+
+--5sfagtjpp2hfgowb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl/1voIACgkQ2O7X88g7
++pr4HxAAkSP1D4kkvC9azLp/JepNBuTF+YCif7FAdLUfKY8tTQzzTml6ADRwE2Hl
+TQmwXOiJUqS7h/EK8oUMiNVdvR6+5SrSlPbgT5KhwaMJ4x2Fjjh2WMlmYUyjZBn8
+YtHSTsiQvCyUJ68g8nE+PPXq+EWB+3anu398bWYx8uRTxzfC+XnTfHaJDfs0YfFo
+DExm4z57I9sP/y47bBLw/J28IzbMAqlwRAhlPNvCz+iNlh3CaM2wwZYF7Xcf5JFn
+TddOaftsIeumRVMFnOJrnyfm4FKHmjFhGqvo7UhHL6G/irCEtC6Gq4RwLNrsbJ4M
+7ZraWDqEKVUUdOFdF7jz1MaGSCrsncAkTmr3J6D9NvFXmBTW9U25z9wgyxgsVmyt
+8aDhOYDe+tS5B1zzJISm9SWkGkWCuELBww6xs3gxc6yaRKwjm9RRX/DMW8YLivwA
+NcTrHy+mA8MmyZIyTLoHxSMXglSQQ4GH6HrMSR3FX4RQsdvpwBpMKNmyYKzzqNRu
+PRURKaamp1YChM+qMlHSLr1EjH/50wAaCia59a+earf2Tt+IK7RI6VX8ll/3BV4p
+DOXHM28SW6EUgzvWA9/Hj2qeBZKvVw5LxXIlKnYL9UqmnYH8fAoQr/mye+0D8BFZ
+JpEczSFDlQFfr6J4CWehkxMDk+qr2eEyWc6mvrQqY42dCe/kjeY=
+=nptw
+-----END PGP SIGNATURE-----
+
+--5sfagtjpp2hfgowb--

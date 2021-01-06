@@ -2,25 +2,26 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADF5FC433E0
-	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 12:59:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 776BEC433E9
+	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 12:59:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7977123100
-	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 12:59:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B0DF2312C
+	for <linux-input@archiver.kernel.org>; Wed,  6 Jan 2021 12:59:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726792AbhAFM7N (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Jan 2021 07:59:13 -0500
-Received: from muru.com ([72.249.23.125]:40986 "EHLO muru.com"
+        id S1727261AbhAFM7S (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Jan 2021 07:59:18 -0500
+Received: from muru.com ([72.249.23.125]:41010 "EHLO muru.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726791AbhAFM7N (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Jan 2021 07:59:13 -0500
+        id S1727246AbhAFM7S (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 6 Jan 2021 07:59:18 -0500
 Received: from hillo.muru.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTP id 1F80A80AF;
-        Wed,  6 Jan 2021 12:58:51 +0000 (UTC)
+        by muru.com (Postfix) with ESMTP id C88D98158;
+        Wed,  6 Jan 2021 12:58:56 +0000 (UTC)
 From:   Tony Lindgren <tony@atomide.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -28,53 +29,144 @@ Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         Arthur Demchenkov <spinal.by@gmail.com>,
         Carl Philipp Klemm <philipp@uvos.xyz>,
         Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>, ruleh <ruleh@gmx.de>
-Subject: [PATCHv4 0/4] Lost key-up interrupt handling for omap4-keypad
-Date:   Wed,  6 Jan 2021 14:58:18 +0200
-Message-Id: <20210106125822.31315-1-tony@atomide.com>
+        Pavel Machek <pavel@ucw.cz>, ruleh <ruleh@gmx.de>,
+        Sebastian Reichel <sre@kernel.org>
+Subject: [PATCH 2/4] Input: omap4-keypad - scan keys in two phases and simplify with bitmask
+Date:   Wed,  6 Jan 2021 14:58:20 +0200
+Message-Id: <20210106125822.31315-3-tony@atomide.com>
 X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210106125822.31315-1-tony@atomide.com>
+References: <20210106125822.31315-1-tony@atomide.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+Because of errata i689 the keyboard can idle with state where no key
+up interrupts are seen until after the next key press.
 
-This series updates omap4-keypad to disable unused long interrupts, and
-implements the missing parts for the lost key-up interrupt quirk as
-described in the silicon errata pdf. It also simplifies the probe to
-use devm.
+This means we need to first check for any lost key up events before
+scanning for new down events.
 
-Regards,
+For example, rapidly pressing shift-shift-j can sometimes produce a J
+instead of j. Let's fix the issue by scanning the keyboard in two
+phases. First we scan for any key up events that we may have missed,
+and then we scan for key down events.
 
-Tony
+Let's also simplify things with for_each_set_bit() as suggested by
+Dmitry Torokhov <dmitry.torokhov@gmail.com>.
 
+Cc: Arthur Demchenkov <spinal.by@gmail.com>
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: ruleh <ruleh@gmx.de>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ drivers/input/keyboard/omap4-keypad.c | 70 ++++++++++++++++++---------
+ 1 file changed, 47 insertions(+), 23 deletions(-)
 
-Changes since v3:
-
-- Use PM runtime to check the last pressed key is not stuck
-
-- Simplify probe with devm
-
-Changes since v2:
-
-- Drop bogus level change, that already comes from device tree
-
-- Scan keyboard in two phases and simplify using a bitmask
-
-- Use mod_delayed_work and cancel_delayed_work_sync for the quirk
-
-Tony Lindgren (4):
-  Input: omap4-keypad - disable unused long interrupts
-  Input: omap4-keypad - scan keys in two phases and simplify with
-    bitmask
-  Input: omap4-keypad - use PM runtime to check keys for errata
-  Input: omap4-keypad - simplify probe with devm
-
- drivers/input/keyboard/omap4-keypad.c | 255 +++++++++++++++++---------
- 1 file changed, 170 insertions(+), 85 deletions(-)
-
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -78,7 +78,7 @@ struct omap4_keypad {
+ 	u32 irqreg_offset;
+ 	unsigned int row_shift;
+ 	bool no_autorepeat;
+-	unsigned char key_state[8];
++	u64 keys;
+ 	unsigned short *keymap;
+ };
+ 
+@@ -107,6 +107,41 @@ static void kbd_write_irqreg(struct omap4_keypad *keypad_data,
+ 		     keypad_data->base + keypad_data->irqreg_offset + offset);
+ }
+ 
++static int omap4_keypad_scan_state(struct omap4_keypad *keypad_data, u64 keys,
++				   bool down)
++{
++	struct input_dev *input_dev = keypad_data->input;
++	unsigned int col, row, code;
++	DECLARE_BITMAP(mask, 64);
++	unsigned long bit;
++	int events = 0;
++	bool key_down;
++	u64 changed;
++
++	changed = keys ^ keypad_data->keys;
++	bitmap_from_u64(mask, changed);
++
++	for_each_set_bit(bit, mask, keypad_data->rows * BITS_PER_BYTE) {
++		row = bit / BITS_PER_BYTE;
++		col = bit % BITS_PER_BYTE;
++		code = MATRIX_SCAN_CODE(row, col, keypad_data->row_shift);
++
++		if (BIT_ULL(bit) & keys)
++			key_down = true;
++		else
++			key_down = false;
++
++		if (key_down != down)
++			continue;
++
++		input_event(input_dev, EV_MSC, MSC_SCAN, code);
++		input_report_key(input_dev, keypad_data->keymap[code],
++				 key_down);
++		events++;
++	}
++
++	return events;
++}
+ 
+ /* Interrupt handlers */
+ static irqreturn_t omap4_keypad_irq_handler(int irq, void *dev_id)
+@@ -123,34 +158,23 @@ static irqreturn_t omap4_keypad_irq_thread_fn(int irq, void *dev_id)
+ {
+ 	struct omap4_keypad *keypad_data = dev_id;
+ 	struct input_dev *input_dev = keypad_data->input;
+-	unsigned char key_state[ARRAY_SIZE(keypad_data->key_state)];
+-	unsigned int col, row, code, changed;
+-	u32 *new_state = (u32 *) key_state;
++	int keys_up, keys_down;
++	u32 low, high;
++	u64 keys;
+ 
+-	*new_state = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE31_0);
+-	*(new_state + 1) = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE63_32);
++	low = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE31_0);
++	high = kbd_readl(keypad_data, OMAP4_KBD_FULLCODE63_32);
++	keys = low | (u64)high << 32;
+ 
+-	for (row = 0; row < keypad_data->rows; row++) {
+-		changed = key_state[row] ^ keypad_data->key_state[row];
+-		if (!changed)
+-			continue;
++	/* Scan for key up events for lost key-up interrupts */
++	keys_up = omap4_keypad_scan_state(keypad_data, keys, false);
+ 
+-		for (col = 0; col < keypad_data->cols; col++) {
+-			if (changed & (1 << col)) {
+-				code = MATRIX_SCAN_CODE(row, col,
+-						keypad_data->row_shift);
+-				input_event(input_dev, EV_MSC, MSC_SCAN, code);
+-				input_report_key(input_dev,
+-						 keypad_data->keymap[code],
+-						 key_state[row] & (1 << col));
+-			}
+-		}
+-	}
++	/* Scan for key down events */
++	keys_down = omap4_keypad_scan_state(keypad_data, keys, true);
+ 
+ 	input_sync(input_dev);
+ 
+-	memcpy(keypad_data->key_state, key_state,
+-		sizeof(keypad_data->key_state));
++	keypad_data->keys = keys;
+ 
+ 	/* clear pending interrupts */
+ 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
 -- 
 2.30.0

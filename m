@@ -2,44 +2,45 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3CACC433E0
-	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 09:16:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33D02C433E9
+	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 09:23:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DE3723333
-	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 09:16:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F2EA32336F
+	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 09:23:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727630AbhAGJQW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 7 Jan 2021 04:16:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44184 "EHLO mail.kernel.org"
+        id S1727673AbhAGJXp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 7 Jan 2021 04:23:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727482AbhAGJQW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 7 Jan 2021 04:16:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 670E323333;
-        Thu,  7 Jan 2021 09:15:40 +0000 (UTC)
+        id S1726666AbhAGJXo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 7 Jan 2021 04:23:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E99C723333;
+        Thu,  7 Jan 2021 09:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610010941;
-        bh=EATL1E3vts1uZLP6XW8KqMWoW07IHEUbcxRLE7iowPw=;
+        s=k20201202; t=1610011384;
+        bh=fUe6brqzWrzBL0dE6S7HO3nBiQXWyOVA7ksDCQhkpDI=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=ZazXfds2LWVKkGxbInhIa4luFi7oWVVOwsax7wFPLg4AGwacvrr5CngOhTr+tzWdx
-         KG7m3I/9Xd9skLIVuZn1/Bzu7aeGPR7+vDLZJRtO0CC9JFB/I0RoZT17GCAdfLc3ig
-         xlZIN1GJowoJhk3parKwVHXGZ9wHE5Z4fW9aFKRxxprC8VmmdcDLe3ltzI8rpY8VC8
-         gctARsdOIV4T+GLxWTBFjYepgksuo0kL0zFn+2J+GHa8SQpsRtzhZZlgUJq8dLNw9x
-         ngsyVwGGpJdvCY+BI77aMjygy/BK+IjqBYqE8malo94Fkaiu7cjv/SKYDfFEDnl4X2
-         ItekXccU6OD1Q==
-Date:   Thu, 7 Jan 2021 10:15:38 +0100 (CET)
+        b=KFrrF/ccyp3NvFwBgBHWKsfNW2bj5rovi4bcXgJM/dY78leou+dbjopALdyj9PfO7
+         1ufzSAyGTMd0jnb2/wM1s3UbFBvyeo0qdkJIYebOTrrd9dZqilTbT/rz7YDFPhE5sb
+         2V58OS5zHO5T0hJBgKRTdQwdFc2fyf5z0CdtURDNuHely6zZLumT25fwcQsfJHkHDw
+         dy3TYoZniOBb/beclxJCAG+xOkHkG/JyamOj8Bmb5p6na1wLQL2YZqKzYYZFUR5k2N
+         R6joyUyPTmr/vVSNNgsaC1ItJf5+UGZfGGUnLiERcypcC8NW5/GH/LxRASNRwm1bdj
+         VD4xG627qy7bA==
+Date:   Thu, 7 Jan 2021 10:23:00 +0100 (CET)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Tom Rix <trix@redhat.com>
-cc:     david.rheinsberg@gmail.com, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: wiimote: remove h from printk format specifier
-In-Reply-To: <20201215145928.1912641-1-trix@redhat.com>
-Message-ID: <nycvar.YFH.7.76.2101071015300.13752@cbobk.fhfr.pm>
-References: <20201215145928.1912641-1-trix@redhat.com>
+To:     Jian-Hong Pan <jhp@endlessos.org>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Chris Chiu <chiu@endlessos.org>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux@endlessos.org
+Subject: Re: [PATCH v2] HID: Add Wireless Radio Control feature for Chicony
+ devices
+In-Reply-To: <20201223055540.204685-1-jhp@endlessos.org>
+Message-ID: <nycvar.YFH.7.76.2101071019010.13752@cbobk.fhfr.pm>
+References: <CAB4CAwfFQrMDYuzjL2nuUnHgXO031ty-mA7GGxW+-nHFkZTGTg@mail.gmail.com> <20201223055540.204685-1-jhp@endlessos.org>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -47,16 +48,24 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, 15 Dec 2020, trix@redhat.com wrote:
+On Wed, 23 Dec 2020, Jian-Hong Pan wrote:
 
-> From: Tom Rix <trix@redhat.com>
+> Some Chicony's keyboards support airplane mode hotkey (Fn+F2) with
+> "Wireless Radio Control" feature. For example, the wireless keyboard
+> [04f2:1236] shipped with ASUS all-in-one desktop.
 > 
-> See Documentation/core-api/printk-formats.rst.
-> h should no longer be used in the format specifier for printk.
+> After consulting Chicony for this hotkey, learned the device will send
+> with 0x11 as the report ID and 0x1 as the value when the key is pressed
+> down.
 > 
-> Signed-off-by: Tom Rix <trix@redhat.com>
+> This patch maps the event as KEY_RFKILL.
 
-Applied this one too. Thanks Tom.
+I don't know how exactly does the report descriptor of that device look 
+like, but is this not doable from userspace via setkeycode() (udev/systemd 
+is shipping a lot of such mappings already -- see evdev/keyboard 
+definitions in hwdb).
+
+Thanks,
 
 -- 
 Jiri Kosina

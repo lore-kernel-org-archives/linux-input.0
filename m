@@ -4,35 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3293DC433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3FA1C4332E
 	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 22:46:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F392723601
-	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 22:46:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7F59F23600
+	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 22:46:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729054AbhAGWpr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 7 Jan 2021 17:45:47 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:10038 "EHLO
+        id S1729141AbhAGWpw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 7 Jan 2021 17:45:52 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:10039 "EHLO
         szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729046AbhAGWpr (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2021 17:45:47 -0500
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DBh9j4LcXzj4ss;
-        Fri,  8 Jan 2021 06:44:09 +0800 (CST)
+        with ESMTP id S1729046AbhAGWpw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2021 17:45:52 -0500
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DBh9p4cvBzj4rw;
+        Fri,  8 Jan 2021 06:44:14 +0800 (CST)
 Received: from SWX921481.china.huawei.com (10.126.201.115) by
  DGGEMS406-HUB.china.huawei.com (10.3.19.206) with Microsoft SMTP Server id
- 14.3.498.0; Fri, 8 Jan 2021 06:44:59 +0800
+ 14.3.498.0; Fri, 8 Jan 2021 06:45:04 +0800
 From:   Barry Song <song.bao.hua@hisilicon.com>
 To:     <dmitry.torokhov@gmail.com>, <tglx@linutronix.de>,
         <maz@kernel.org>, <gregkh@linuxfoundation.org>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 CC:     <linuxarm@openeuler.org>, Barry Song <song.bao.hua@hisilicon.com>
-Subject: [PATCH v3 10/12] Input: cyttsp - request_irq by IRQF_NO_AUTOEN and remove disable_irq
-Date:   Fri, 8 Jan 2021 11:39:24 +1300
-Message-ID: <20210107223926.35284-11-song.bao.hua@hisilicon.com>
+Subject: [PATCH v3 12/12] Input: tca6416-keypad - request_irq by IRQF_NO_AUTOEN and remove disable_irq
+Date:   Fri, 8 Jan 2021 11:39:26 +1300
+Message-ID: <20210107223926.35284-13-song.bao.hua@hisilicon.com>
 X-Mailer: git-send-email 2.21.0.windows.1
 In-Reply-To: <20210107223926.35284-1-song.bao.hua@hisilicon.com>
 References: <20210107223926.35284-1-song.bao.hua@hisilicon.com>
@@ -51,32 +51,30 @@ disable IRQ auto-enable because of requesting.
 
 Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
 ---
- drivers/input/touchscreen/cyttsp_core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/keyboard/tca6416-keypad.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index 73c854f35f33..d5c933604168 100644
---- a/drivers/input/touchscreen/cyttsp_core.c
-+++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -652,7 +652,8 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
+diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
+index 9b0f9665dcb0..2a9755910065 100644
+--- a/drivers/input/keyboard/tca6416-keypad.c
++++ b/drivers/input/keyboard/tca6416-keypad.c
+@@ -274,7 +274,7 @@ static int tca6416_keypad_probe(struct i2c_client *client,
+ 		error = request_threaded_irq(chip->irqnum, NULL,
+ 					     tca6416_keys_isr,
+ 					     IRQF_TRIGGER_FALLING |
+-						IRQF_ONESHOT,
++					     IRQF_ONESHOT | IRQF_NO_AUTOEN,
+ 					     "tca6416-keypad", chip);
+ 		if (error) {
+ 			dev_dbg(&client->dev,
+@@ -282,7 +282,6 @@ static int tca6416_keypad_probe(struct i2c_client *client,
+ 				chip->irqnum, error);
+ 			goto fail1;
+ 		}
+-		disable_irq(chip->irqnum);
  	}
  
- 	error = devm_request_threaded_irq(dev, ts->irq, NULL, cyttsp_irq,
--					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT |
-+					  IRQF_NO_AUTOEN,
- 					  "cyttsp", ts);
- 	if (error) {
- 		dev_err(ts->dev, "failed to request IRQ %d, err: %d\n",
-@@ -660,8 +661,6 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
- 		return ERR_PTR(error);
- 	}
- 
--	disable_irq(ts->irq);
--
- 	cyttsp_hard_reset(ts);
- 
- 	error = cyttsp_power_on(ts);
+ 	error = input_register_device(input);
 -- 
 2.25.1
 

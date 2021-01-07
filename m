@@ -7,32 +7,32 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34EB2C4332E
-	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 22:45:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43B43C43381
+	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 22:46:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F88823600
-	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 22:45:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 20AF3235FA
+	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 22:46:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728853AbhAGWpn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 7 Jan 2021 17:45:43 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:10406 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728631AbhAGWpn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2021 17:45:43 -0500
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4DBh9c5dTrz7RSS;
-        Fri,  8 Jan 2021 06:44:04 +0800 (CST)
+        id S1729047AbhAGWpr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 7 Jan 2021 17:45:47 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:10037 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728524AbhAGWpr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2021 17:45:47 -0500
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DBh9j479lzj4YV;
+        Fri,  8 Jan 2021 06:44:09 +0800 (CST)
 Received: from SWX921481.china.huawei.com (10.126.201.115) by
  DGGEMS406-HUB.china.huawei.com (10.3.19.206) with Microsoft SMTP Server id
- 14.3.498.0; Fri, 8 Jan 2021 06:44:51 +0800
+ 14.3.498.0; Fri, 8 Jan 2021 06:44:56 +0800
 From:   Barry Song <song.bao.hua@hisilicon.com>
 To:     <dmitry.torokhov@gmail.com>, <tglx@linutronix.de>,
         <maz@kernel.org>, <gregkh@linuxfoundation.org>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 CC:     <linuxarm@openeuler.org>, Barry Song <song.bao.hua@hisilicon.com>
-Subject: [PATCH v3 07/12] Input: zinitix - request_irq by IRQF_NO_AUTOEN and remove irq_set_status_flags
-Date:   Fri, 8 Jan 2021 11:39:21 +1300
-Message-ID: <20210107223926.35284-8-song.bao.hua@hisilicon.com>
+Subject: [PATCH v3 09/12] Input: wm831x-ts - request_irq by IRQF_NO_AUTOEN and remove disable_irq
+Date:   Fri, 8 Jan 2021 11:39:23 +1300
+Message-ID: <20210107223926.35284-10-song.bao.hua@hisilicon.com>
 X-Mailer: git-send-email 2.21.0.windows.1
 In-Reply-To: <20210107223926.35284-1-song.bao.hua@hisilicon.com>
 References: <20210107223926.35284-1-song.bao.hua@hisilicon.com>
@@ -45,31 +45,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Right now, irq core supports requesting irq with IRQF_NO_AUTOEN, this means
-the driver doesn't need to call irq_set_status_flags any more.
+disable_irq() after request_irq() still has a time gap in which
+interrupts can come. request_irq() with IRQF_NO_AUTOEN flag will
+disable IRQ auto-enable because of requesting.
 
 Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
 ---
- drivers/input/touchscreen/zinitix.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/wm831x-ts.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
-index a3e3adbabc67..0d3c93e4bbb7 100644
---- a/drivers/input/touchscreen/zinitix.c
-+++ b/drivers/input/touchscreen/zinitix.c
-@@ -513,10 +513,10 @@ static int zinitix_ts_probe(struct i2c_client *client)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
+index bb1699e0d3c7..319f57fb9af5 100644
+--- a/drivers/input/touchscreen/wm831x-ts.c
++++ b/drivers/input/touchscreen/wm831x-ts.c
+@@ -317,14 +317,13 @@ static int wm831x_ts_probe(struct platform_device *pdev)
  
--	irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, zinitix_ts_irq_handler,
--					  IRQF_ONESHOT, client->name, bt541);
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
-+					  client->name, bt541);
+ 	error = request_threaded_irq(wm831x_ts->data_irq,
+ 				     NULL, wm831x_ts_data_irq,
+-				     irqf | IRQF_ONESHOT,
++				     irqf | IRQF_ONESHOT | IRQF_NO_AUTOEN,
+ 				     "Touchscreen data", wm831x_ts);
  	if (error) {
- 		dev_err(&client->dev, "Failed to request IRQ: %d\n", error);
- 		return error;
+ 		dev_err(&pdev->dev, "Failed to request data IRQ %d: %d\n",
+ 			wm831x_ts->data_irq, error);
+ 		goto err_alloc;
+ 	}
+-	disable_irq(wm831x_ts->data_irq);
+ 
+ 	if (pdata && pdata->pd_irqf)
+ 		irqf = pdata->pd_irqf;
 -- 
 2.25.1
 

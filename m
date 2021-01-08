@@ -2,114 +2,114 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8407C433DB
-	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 23:43:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFA15C433E0
+	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 00:41:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9428123601
-	for <linux-input@archiver.kernel.org>; Thu,  7 Jan 2021 23:43:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9590123603
+	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 00:41:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728605AbhAGXmz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 7 Jan 2021 18:42:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726720AbhAGXmy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2021 18:42:54 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66274C0612F9
-        for <linux-input@vger.kernel.org>; Thu,  7 Jan 2021 15:42:14 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id 11so5063127pfu.4
-        for <linux-input@vger.kernel.org>; Thu, 07 Jan 2021 15:42:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=F5v4P5OpFzV6txdYAKpaZWpOyrHHIe3zcVp3Rukxxyc=;
-        b=Sb4QUpYXJYB3MxUccAbxoLT60+fhUPaDc9jzWhqd+btYg+/EXUlC94hh8E+UVfzVeG
-         4uDEuZSZwlF9dLau98IGiSBYK17qYj4OjYNk7Ld9hFkJml8wYn1kqs1kZjV/l0FvIqdQ
-         ySBnxgmbI49OObsvXhvQowgx8/5uT+g0MGgsk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=F5v4P5OpFzV6txdYAKpaZWpOyrHHIe3zcVp3Rukxxyc=;
-        b=ldwUT1KbG7F1wHRkM6ldtie/QPyB36CMkOiSu0SypsQpZ7HkcQNVWnzac6QQpCUK7f
-         xzfSp6hUGqOlRGoKyfcbOrtoWsFwMjPQ9S1HMNYRkW+swT89hdyddmE1hFazH1lGnFHI
-         I/KL9lkeX0RP/DgE7im3mvT/Hocaad3sj1l/BixHF2QUdfVAPPAX1hkNB/KulvRE6GVk
-         KAV2EydFdIKKhTRttzxfHPClrtS8715ENHiEha9wD898rKxh8z4NAzKcPX1w4aN6CUt4
-         y5b6i9EvVn14o9wRLcP87xxZDzJDujXV1plABfdgBVy/CsyU1U3YqPbY+ZKEFDpwkKCe
-         Gx1A==
-X-Gm-Message-State: AOAM5309CDP80DfsLjKYKzaEI/pAly40MUWzrV510UYM1ctxDk/SFhSL
-        dUuzmMtn/DNtcKyDOv+BThsf9Q==
-X-Google-Smtp-Source: ABdhPJyzdeewliRoHZ8WITDN6ypLVV0dl1cubmfzDl+xHifecx0A5pXaGRh+E1Om9wMFyWYEFO7Rkg==
-X-Received: by 2002:aa7:8649:0:b029:19e:16df:e5f8 with SMTP id a9-20020aa786490000b029019e16dfe5f8mr944645pfo.41.1610062933987;
-        Thu, 07 Jan 2021 15:42:13 -0800 (PST)
-Received: from philipchen.mtv.corp.google.com ([2620:15c:202:201:a6ae:11ff:fe11:fd59])
-        by smtp.gmail.com with ESMTPSA id h8sm7376487pjc.2.2021.01.07.15.42.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Jan 2021 15:42:13 -0800 (PST)
-From:   Philip Chen <philipchen@chromium.org>
-To:     LKML <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com
-Cc:     swboyd@chromium.org, dianders@chromium.org,
-        Philip Chen <philipchen@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Simon Glass <sjg@chromium.org>, devicetree@vger.kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH v4 1/2] dt-bindings: input: cros-ec-keyb: Add a new property
-Date:   Thu,  7 Jan 2021 15:42:08 -0800
-Message-Id: <20210107154200.v4.1.I025fb861cd5fa0ef5286b7dce514728e9df7ae74@changeid>
-X-Mailer: git-send-email 2.26.2
+        id S1729377AbhAHAl0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 7 Jan 2021 19:41:26 -0500
+Received: from szxga07-in.huawei.com ([45.249.212.35]:10408 "EHLO
+        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727858AbhAHAl0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2021 19:41:26 -0500
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4DBkl71xR5z7Rb9;
+        Fri,  8 Jan 2021 08:39:47 +0800 (CST)
+Received: from SWX921481.china.huawei.com (10.126.203.107) by
+ DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
+ 14.3.498.0; Fri, 8 Jan 2021 08:40:35 +0800
+From:   Barry Song <song.bao.hua@hisilicon.com>
+To:     <dmitry.torokhov@gmail.com>, <linux-input@vger.kernel.org>
+CC:     <linuxarm@openeuler.org>, Barry Song <song.bao.hua@hisilicon.com>
+Subject: [PATCH] input - mk712: fix the kernel crash while mk712 is selected
+Date:   Fri, 8 Jan 2021 13:35:27 +1300
+Message-ID: <20210108003527.25800-1-song.bao.hua@hisilicon.com>
+X-Mailer: git-send-email 2.21.0.windows.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.126.203.107]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch adds a new property `function-row-physmap` to the
-device tree for the custom keyboard top row design.
+While debugging other issues, I enabled mk712 then I got the below crash
+during arm64 linux boot:
+[    1.150412] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
+[    1.150541] pc : logic_outb+0x3c/0xa8
+[    1.150657] lr : mk712_init+0x74/0x1ec
+[    1.150745] sp : ffff800011efbd40
+[    1.150950] x29: ffff800011efbd40 x28: 0000000000000000
+[    1.151098] x27: ffff800011681078 x26: ffff8000115d04b8
+[    1.151192] x25: ffff8000116ff6b4 x24: ffff8000115bac10
+[    1.151287] x23: ffff800011dfa000 x22: ffff800011b8dbe0
+[    1.151421] x21: ffff800011eac000 x20: 0000000000000000
+[    1.151527] x19: fffffbfffe800266 x18: 0000000000000000
+[    1.151674] x17: ffff800010a7bc38 x16: ffff800010a7b0e0
+[    1.151944] x15: 0000a0d665e7ee58 x14: 000000000000011a
+[    1.152060] x13: 0000000000000001 x12: 0000000000000000
+[    1.152149] x11: 0000000000000000 x10: 0000000000000a60
+[    1.152291] x9 : 0000000000000000 x8 : ffff0000c0a2a480
+[    1.152429] x7 : 0000000000000000 x6 : ffff0000c0b0c9b8
+[    1.152522] x5 : 0000000000001000 x4 : ffff0000c03613b0
+[    1.152614] x3 : 0000000000000267 x2 : 0000000000000260
+[    1.152731] x1 : fffffbfffe800000 x0 : 0000000000ffbffe
+[    1.153135] Call trace:
+[    1.153342]  logic_outb+0x3c/0xa8
+[    1.153434]  mk712_init+0x74/0x1ec
+[    1.153571]  do_one_initcall+0x54/0x1b8
+[    1.153705]  kernel_init_freeable+0x1d0/0x238
+[    1.153860]  kernel_init+0x14/0x118
+[    1.153960]  ret_from_fork+0x10/0x30
+[    1.154304] Code: d2bfd001 f2df7fe1 f2ffffe1 8b010273 (39000274)
+[    1.155013] ---[ end trace f9b157c311d20edd ]---
+[    1.155854] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+[    1.156236] SMP: stopping secondary CPUs
 
-The property describes the rows/columns of the top row keys
-from left to right.
+The driver is very old and resources are totally hardcoded, no bus model.
+It seems the simplest way to fix this issue is disabling it by parameter.
+If someone really needs the old driver, it should enable the parameter
+by cmdline.
 
-Signed-off-by: Philip Chen <philipchen@chromium.org>
+Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
 ---
+ drivers/input/touchscreen/mk712.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-(no changes since v2)
-
-Changes in v2:
-- add `function-row-physmap` instead of `google,custom-keyb-top-row`
-
- .../devicetree/bindings/input/google,cros-ec-keyb.yaml | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/google,cros-ec-keyb.yaml b/Documentation/devicetree/bindings/input/google,cros-ec-keyb.yaml
-index 8e50c14a9d778..7acdb33781d30 100644
---- a/Documentation/devicetree/bindings/input/google,cros-ec-keyb.yaml
-+++ b/Documentation/devicetree/bindings/input/google,cros-ec-keyb.yaml
-@@ -31,6 +31,16 @@ properties:
-       if the EC does not have its own logic or hardware for this.
-     type: boolean
+diff --git a/drivers/input/touchscreen/mk712.c b/drivers/input/touchscreen/mk712.c
+index 753d9cc1de1f..8a3110f27ce7 100644
+--- a/drivers/input/touchscreen/mk712.c
++++ b/drivers/input/touchscreen/mk712.c
+@@ -53,6 +53,9 @@ static unsigned int mk712_irq = 10;	/* Also 12, 14, 15 */
+ module_param_hw_named(irq, mk712_irq, uint, irq, 0);
+ MODULE_PARM_DESC(irq, "IRQ of MK712 touchscreen controller");
  
-+  function-row-physmap:
-+    $ref: '/schemas/types.yaml#/definitions/uint32-array'
-+    description: |
-+      An ordered u32 array describing the rows/columns (in the scan matrix)
-+      of top row keys from physical left (KEY_F1) to right. Each entry
-+      encodes the row/column as:
-+      (((row) & 0xFF) << 24) | (((column) & 0xFF) << 16)
-+      where the lower 16 bits are reserved. This property is specified only
-+      when the keyboard has a custom design for the top row keys.
++static bool mk712_enabled;
++module_param(mk712_enabled, bool, 0);
 +
- required:
-   - compatible
+ /* eight 8-bit registers */
+ #define MK712_STATUS		0
+ #define MK712_X			2
+@@ -149,6 +152,11 @@ static int __init mk712_init(void)
+ {
+ 	int err;
  
++	if (!mk712_enabled) {
++		printk(KERN_WARNING "mk712: device is not enabled\n");
++		return -ENODEV;
++	}
++
+ 	if (!request_region(mk712_io, 8, "mk712")) {
+ 		printk(KERN_WARNING "mk712: unable to get IO region\n");
+ 		return -ENODEV;
 -- 
-2.26.2
+2.25.1
 

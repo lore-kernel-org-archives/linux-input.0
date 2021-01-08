@@ -2,97 +2,136 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EE99C433DB
-	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 11:59:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E96E5C433E6
+	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 12:02:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E4B35239ED
-	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 11:59:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A3F9D239FD
+	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 12:02:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725869AbhAHL7R (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 Jan 2021 06:59:17 -0500
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:41483 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbhAHL7R (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Jan 2021 06:59:17 -0500
-X-Originating-IP: 82.255.60.242
-Received: from [192.168.1.150] (lns-bzn-39-82-255-60-242.adsl.proxad.net [82.255.60.242])
-        (Authenticated sender: hadess@hadess.net)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id AACD940009;
-        Fri,  8 Jan 2021 11:58:35 +0000 (UTC)
-Message-ID: <ef676ccf09452797730469500766a4ffc991c2dd.camel@hadess.net>
-Subject: Re: Logitech M705 mouse not disappearing when turned off
-From:   Bastien Nocera <hadess@hadess.net>
-To:     linux-input@vger.kernel.org
-Cc:     Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-Date:   Fri, 08 Jan 2021 12:58:35 +0100
-In-Reply-To: <66a19853e1d9e3c0a404c7a65adc6fff6b177fb9.camel@hadess.net>
-References: <c680fafd0d67bdca6ee114e542a0af99828acb83.camel@hadess.net>
-         <66a19853e1d9e3c0a404c7a65adc6fff6b177fb9.camel@hadess.net>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.2 (3.38.2-1.fc33) 
+        id S1725884AbhAHMCd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 Jan 2021 07:02:33 -0500
+Received: from mail1.protonmail.ch ([185.70.40.18]:24382 "EHLO
+        mail1.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbhAHMCd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Jan 2021 07:02:33 -0500
+Date:   Fri, 08 Jan 2021 12:01:44 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1610107309;
+        bh=zpTfmAFmzzyF12fSZ+3SgpCbVFEAuo4rlSl1vkrvXaA=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=mLIaQG0a0PQehMZP5SeWiE7S9xE1MjgcPGyeBGstN3f6eazeDQtjREUBRKS0PB2xl
+         AlzB8OYSZlmz0ufXHbcINBavaNiY7d6Bb5DImVhLsGTpqIQfIMnBh2Ybj6MuZ+uzwC
+         7PVi0GQHjeRP3EHImvALt+7yQEGOTh4QHxUTrXE4=
+To:     Roderick Colenbrander <roderick@gaikai.com>
+From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Chris Ye <lzye@google.com>,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>
+Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Subject: Re: [PATCH v2 05/13] HID: playstation: add DualSense accelerometer and gyroscope support.
+Message-ID: <oMAXtdv54Nx6A2ugm9PmU5jd430MrPZPoJ01iEcCtUXZ5dxzHQc3hqTxp_Mb-2oKdtBEAd-U3QsTD2JFROklqtvl4HV-BB7LGDfn1d3MnUg=@protonmail.com>
+In-Reply-To: <CANndSKk9Z=ivs_TiuLd77Kv9DMdhqTcdQnobNfnfVPTd2Bpzqg@mail.gmail.com>
+References: <20210102223109.996781-1-roderick@gaikai.com> <20210102223109.996781-6-roderick@gaikai.com> <JtD5x8UNWvllStSHpZaryZUUarp8NZiy5G3HjT9xEIiUCxzfNmsaS7CSX52XSEObQ1TwkXlMPkNE0KG7JTl_WOgzOXDocF9jFecpqUkrBwg=@protonmail.com> <CANndSKk9Z=ivs_TiuLd77Kv9DMdhqTcdQnobNfnfVPTd2Bpzqg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 2021-01-08 at 12:42 +0100, Bastien Nocera wrote:
-> On Fri, 2021-01-08 at 12:23 +0100, Bastien Nocera wrote:
-> > Hey,
-> > 
-> > I have recently bought a Logitech Marathon Mouse/Performance Plus
-> > M705,
-> > and I ended up with 2 power_supply class batteries for it when it
-> > was
-> > turned off already when using kernel 5.9.13.
-> > 
-> > Using a newer kernel (5.11-rc2), the power_supply class device
-> > doesn't
-> > disappear either:
-> > <snip>
-> > I'll look into the upower problem soon.
-> 
-> Filed as:
-> https://gitlab.freedesktop.org/upower/upower/-/issues/134
+Hi
 
-I actually don't think this is a bug. The docs for "online" mention:
-"
-Indicates if VBUS is present for the supply. When the supply is
-online, and the supply allows it, then it's possible to switch
-between online states (e.g. Fixed -> Programmable for a PD_PPS
-USB supply so voltage and current can be controlled).
-"
 
-So this isn't really something we can use to signal that a device is
-plugged in or not.
+2021. janu=C3=A1r 8., p=C3=A9ntek 7:06 keltez=C3=A9ssel, Roderick Colenbran=
+der =C3=ADrta:
 
-And the docs for "present" say:
-"
-Reports whether a battery is present or not in the system.
-"
+> [...]
+> > > +static int dualsense_get_calibration_data(struct dualsense *ds)
+> > > +{
+> > > +     short gyro_pitch_bias, gyro_pitch_plus, gyro_pitch_minus;
+> > > +     short gyro_yaw_bias, gyro_yaw_plus, gyro_yaw_minus;
+> > > +     short gyro_roll_bias, gyro_roll_plus, gyro_roll_minus;
+> > > +     short gyro_speed_plus, gyro_speed_minus;
+> > > +     short acc_x_plus, acc_x_minus;
+> > > +     short acc_y_plus, acc_y_minus;
+> > > +     short acc_z_plus, acc_z_minus;
+> > > +     int speed_2x;
+> > > +     int range_2g;
+> > > +     int ret =3D 0;
+> > > +     uint8_t *buf;
+> > > +
+> > > +     buf =3D kzalloc(DS_FEATURE_REPORT_CALIBRATION_SIZE, GFP_KERNEL)=
+;
+> > > +     if (!buf)
+> > > +             return -ENOMEM;
+> > > +
+> > > +     ret =3D hid_hw_raw_request(ds->base.hdev, DS_FEATURE_REPORT_CAL=
+IBRATION, buf,
+> > > +                     DS_FEATURE_REPORT_CALIBRATION_SIZE, HID_FEATURE=
+_REPORT, HID_REQ_GET_REPORT);
+> >
+> > I think it would be better if lines were aligned. I have missed this in=
+ other patches,
+> > so if you decide to make this change, please do it everywhere.
+>
+> What do you mean with "if lines were aligned"? You mean aligning the
+> DS_FEATURE.. part with ds->base.hdev?
 
-Well, that would mean that the device is there, but no battery is
-present. eg. an XBox joypad without batteries but plugged in to the
-system via USB.
+Yes, exactly.
 
-Looks like a bug in the hidpp kernel code. This is what "solaar show"
-shows for the device:
-"
-  3: Marathon Mouse M705 (M-R0073)
-     Device path  : /dev/hidraw4
-     WPID         : 406D
-     Codename     : M705 (M-R0073)
-     Kind         : mouse
-     Protocol     : HID++ 4.5
-     Polling rate : 8 ms (125Hz)
-     Serial number: B14D65DA
-     The power switch is located on the base.
-     Battery: unknown (device is offline).
-"
 
-Cheers
+>
+> I'm almost tempted in the future (as part of a future patch series) to
+> perhaps have a ps_device_get_feature_report or something like that as
+> there is the same code in multiple places. It can do some nicer
+> checking as well (including to see if the first byte is the report ID
+> number, which is guaranteed for DualSense). I think it is a bit much
+> to add now, but probably in the future also when I add DualShock 4 in
+> here.
 
+I think it's a good idea to add such a function sometime.
+
+
+>
+> >
+> > > +     if (ret < 0)
+> > > +             goto err_free;
+> > > +     else if (ret !=3D DS_FEATURE_REPORT_CALIBRATION_SIZE) {
+> >
+> > As per coding style[1], please either use {} for all branches, or just =
+drop the
+> > `else` and maybe add a new line:
+> >
+> > ```
+> > if (ret < 0)
+> >   goto ...
+> >
+> > if (ret !=3D ...) {
+> >   ...
+> > }
+> > ```
+> >
+> >
+> > > +             hid_err(ds->base.hdev, "failed to retrieve DualSense ca=
+libration info\n");
+> >
+> > I think this message could be improved to better pinpoint the exact pro=
+blem
+> > that triggered it.
+> >
+> >
+> > > +             ret =3D -EINVAL;
+> > > +             goto err_free;
+> > > +     }
+> [...]
+
+
+Regards,
+Barnab=C3=A1s P=C5=91cze

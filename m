@@ -2,62 +2,92 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD54EC433E6
-	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 14:54:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EA15C433E0
+	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 14:56:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 767AB2388B
-	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 14:54:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F2B12399A
+	for <linux-input@archiver.kernel.org>; Fri,  8 Jan 2021 14:56:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbhAHOyQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 Jan 2021 09:54:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50214 "EHLO mail.kernel.org"
+        id S1726474AbhAHOzz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 Jan 2021 09:55:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726666AbhAHOyP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 8 Jan 2021 09:54:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E3E32388B;
-        Fri,  8 Jan 2021 14:53:34 +0000 (UTC)
+        id S1725817AbhAHOzz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 8 Jan 2021 09:55:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83170235FF;
+        Fri,  8 Jan 2021 14:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610117615;
-        bh=DuLNKiY8FZV5pfsrYsZS3WXcSJD/uz36Wmw+PznMxfE=;
+        s=k20201202; t=1610117714;
+        bh=b371CPuhZ8sdWbGeXW8xhatSptW+DNr/MiaYoSUDTfo=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=LaCkbGPPwKyNE549gtFVitlfprSV0VeIZWkNhw+MxgYnZYMSnFnh2oK+WFKAY4+ob
-         4+A05vjk4MJL6sJYnCxEC35ST9ixPPiKKSC6M0kgCbTJSpv+NvOIINKkOL0xH8qJCz
-         tBCFcW0lJWCkCRDsv2hvMdz7T4L2ez6ex9h8PMNSAGPtS2QWVJo2ly+Cq+WX2NlqoX
-         aSdizY+CvD7ANONiD4CIgKgp5LZ1YhUXK0HU6kTb7Dekg7CZufb/xxSyyMNtwILpsK
-         QitdYmKMcTX+lR3RJ6yj6hRuJe50zmjw1Wr1rQs0wvKbcJuWZN1/R0yn8J8BjXmsib
-         6eNVz8AdR2Dbw==
-Date:   Fri, 8 Jan 2021 15:53:32 +0100 (CET)
+        b=TrvvxQ9yDSdy4XMmsuqZvOuyHORPZXOZ4mwQf1Hozvl0k+hg8hc/QQ7ockGQU707A
+         7FnkJFtzHpKYJ/SW3vHIDlwye9QFJA33EOPsaFLhL0gDj498YsGGtabRy1iVx4xVMk
+         agNlmmeff1ksvNhVMm606vDTBMB2QRgRz4Hoj+Eo5tiw+6EHwIxFJpsc6nfkKr5Wdu
+         tr9YgNfNCuVV5SK5CVZHzLaryh+w2S52L1AfAP5P4dD4U0ML+xbW36FgAtd/+Xhwq/
+         PSehSPQlhNxk0Xjni9ab//Yaegw4hPs8xxqcxzFtUqb/xmN1eoLR2+lgfGy+MWYW79
+         5o/aePNKIbKMg==
+Date:   Fri, 8 Jan 2021 15:55:11 +0100 (CET)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Seth Miller <miller.seth@gmail.com>
-cc:     linux-input@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: Ignore battery for Elan touchscreen on ASUS UX550
-In-Reply-To: <CAMh5ckdy=z8j7X5BXLtpnOz2-Ha7MZqN-DvJS0e1w4CdiLJ4EQ@mail.gmail.com>
-Message-ID: <nycvar.YFH.7.76.2101081552560.13752@cbobk.fhfr.pm>
-References: <CAMh5ckdy=z8j7X5BXLtpnOz2-Ha7MZqN-DvJS0e1w4CdiLJ4EQ@mail.gmail.com>
+To:     =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@archlinux.org>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: logitech-hidpp: add support for Unified Battery
+ (1004) feature
+In-Reply-To: <e832278f9021c0f71afc5f90261bd17aea45a336.camel@archlinux.org>
+Message-ID: <nycvar.YFH.7.76.2101081554190.13752@cbobk.fhfr.pm>
+References: <20210104182937.1472673-1-lains@archlinux.org>  <nycvar.YFH.7.76.2101081438530.13752@cbobk.fhfr.pm> <e832278f9021c0f71afc5f90261bd17aea45a336.camel@archlinux.org>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 4 Jan 2021, Seth Miller wrote:
+On Fri, 8 Jan 2021, Filipe Laíns wrote:
 
-> Battery status is being reported for the Elan touchscreen on ASUS
-> UX550 laptops despite not having a batter. It always shows either 0 or
-> 1%.
+> > > -static int hidpp20_query_battery_info(struct hidpp_device *hidpp)
+> > > +static int hidpp20_query_battery_info_1000(struct hidpp_device *hidpp)
+> > 
+> > That '_1000' suffix looks strange to me, as it's not completely obvious 
+> > just from looking at the code what it actually means. Would it perhaps be 
+> > more readable to call it something like hidpp20_query_battery_level(), and 
+> > symmentrically change hidpp20_query_battery_info_1004() to e.g. 
+> > hidpp20_query_battery_voltage() ?
 > 
-> Signed-off-by: Seth Miller <miller.seth@gmail.com>
+> The problem here is that hidpp20_query_battery_info_1004() does not set the
+> battery voltage, it is also the battery level. The best alternative I can think
+> of is replacing the 1000/1004 with slightly mangled HID++ feature names, like we
+> do on the other feature function. The drawback here is that I think that could
+> get confusing quickly.
+> 
+> hidpp20_batterylevel_query_battery_info()
+> hidpp20_unifiedbattery_query_battery_info()
+> 
+> Note that this does not provide *that* much more information than the feature
+> number, though it is probably the best option. What do you think?
 
-Seth, thanks for the patch. It has, however, been line-wrapped by your 
-mail client, so I can't apply it as-is. Could you please fix that up and 
-resend?
+Alright, what a mess :) Would it perhaps help if there is at least a short 
+comment preceding the function definition, noting what the constants 
+actually are?
+
+> > [ ... snip ... ]
+> > > +       /* if the device supports state of charge (battery percentage) we
+> > > won't
+> > > +          export the battery level information. there are 4 possible
+> > > battery
+> > > +          levels and they all are optional, this means that the device
+> > > might
+> > > +          not support any of them, we are just better off with the battery
+> > > +          percentage. */
+> > 
+> > Could you please use standard kernel commenting style here?
+> 
+> Oops, sorry. Will do :)
 
 Thanks,
 

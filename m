@@ -2,255 +2,111 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD061C433E0
-	for <linux-input@archiver.kernel.org>; Wed, 13 Jan 2021 00:49:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4D70C433E6
+	for <linux-input@archiver.kernel.org>; Wed, 13 Jan 2021 04:06:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8B1F623132
-	for <linux-input@archiver.kernel.org>; Wed, 13 Jan 2021 00:49:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A6DDB2312E
+	for <linux-input@archiver.kernel.org>; Wed, 13 Jan 2021 04:06:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393651AbhAMAnG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 Jan 2021 19:43:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46924 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392049AbhALX4U (ORCPT
+        id S1726149AbhAMEGc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 Jan 2021 23:06:32 -0500
+Received: from wnew2-smtp.messagingengine.com ([64.147.123.27]:44217 "EHLO
+        wnew2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725984AbhAMEGc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 Jan 2021 18:56:20 -0500
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1638C061575
-        for <linux-input@vger.kernel.org>; Tue, 12 Jan 2021 15:55:39 -0800 (PST)
-Received: by mail-yb1-xb35.google.com with SMTP id y4so469439ybn.3
-        for <linux-input@vger.kernel.org>; Tue, 12 Jan 2021 15:55:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JVS5gta/W5fKENcKMVtSED2Xmo0P+djwZKSnAxC5LLw=;
-        b=TTztE3sDUeLh5WEJC9RSYJ3JJP2AZ4SmKSVyaKKsG1l6YRRhOwenfSBR5gK2ccQf39
-         1J1hdW7e85EaRv1MAKm8frV9ic+n9TdJOxHqfrkTjzmmbJCajOw31jc/8rWGJgwA5M/P
-         oCUwgEaL/Gdllspkc76F3GGIVOzBPXIs9XXRg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JVS5gta/W5fKENcKMVtSED2Xmo0P+djwZKSnAxC5LLw=;
-        b=Gs5KKU5AiSgyKiG0qksxgyGtjf3u8h1+NMQhELSOtRGD1nORM1SFctRgSEnnxIKdkA
-         kEjQbY7oeCuZVBvPmYO1CKvC/05citPv9oJEgzGeq5+ScL1iwzgxJelJ5QCj3ovQHPZh
-         f4bqxM3sVPcMPx5Nl9V4IxYsSu9tj3t2zUUwnUkr7NW8K7ZfWMYDCGWezgAQMc2VVSE4
-         1qoaziRNC96zLp/JQn1/TTBvVp4+HESSkaVgSfdln6DABpvQEc6kWpoFI75Tk0nrjGWZ
-         q/0rTH3W4hFVy4Jouvd8i9VsPTFgQOOnNR2qU7liD5Vhdc8nDZs0wPZchQHjOuhHmP1/
-         v3yg==
-X-Gm-Message-State: AOAM5325UBmWMK6RuhXBT02DP0woGpSnC0a8hn2Ea2xNAox63zmxmZII
-        NRb73CU0zC/fhI2QnFGCzK5Fp48A29K1zAo5ZPEn+Q==
-X-Google-Smtp-Source: ABdhPJwnnOZbBZWkjzImc2GwItpOeZbkk5ZIgsHeBXyOCLzlNkqRdx60gxPzKjI0RO1KM8JkgoKG+MPmzzPaE8G3BYs=
-X-Received: by 2002:a25:1104:: with SMTP id 4mr2721504ybr.476.1610495739211;
- Tue, 12 Jan 2021 15:55:39 -0800 (PST)
-MIME-Version: 1.0
-References: <20210107154200.v4.1.I025fb861cd5fa0ef5286b7dce514728e9df7ae74@changeid>
- <20210107154200.v4.2.Ibe7d7d53c5b4fe72c60de90111ff763b53f38dbb@changeid> <161041827643.3661239.17919996906733477213@swboyd.mtv.corp.google.com>
-In-Reply-To: <161041827643.3661239.17919996906733477213@swboyd.mtv.corp.google.com>
-From:   Philip Chen <philipchen@chromium.org>
-Date:   Tue, 12 Jan 2021 15:55:28 -0800
-Message-ID: <CA+cxXhm45emyg-9j99U=UWY8QuhzWifh+VvsFBaTOTWs81tvUQ@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] Input: cros-ec-keyb - Expose function row physical
- map to userspace
-To:     Stephen Boyd <swboyd@chromium.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Tue, 12 Jan 2021 23:06:32 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailnew.west.internal (Postfix) with ESMTP id 4F62219E4;
+        Tue, 12 Jan 2021 23:05:45 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Tue, 12 Jan 2021 23:05:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=fm1; bh=8xZa4eWx/5sRP
+        OcRJ0U+DRorzREZeUYM6W9yKzDfhJA=; b=nSZutnc2knCRrqObMb91gEV0hS3xW
+        MDb+5vj8UJbYZw/hzJ+q1gg/K+A73Ka3gDBW3Wa+LsgT6/fXX/r74sh4d+wquvjg
+        +0lyZRFqiEIocvmThdrBQ7b2Zu0Im56B/ZhQZvby4xKBgkuIO3FdehnWlC/hZoRH
+        BxkDaOQfr2fX4nuVsKndkryheup3lQaSpT71v6Qkif8grCSpDxNSsWZmTrsTr3mK
+        TlwGAD4V1E6tJkvrjmq5xgHX1v2SxzYOlya9c2jmcjirwJ3fLeFt8PYXjWeJcuoP
+        OSggpxbIikGQAiSUAvNud4INMwlBeqNwoMnjBteFbJZyrGCEk74xshDkQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; bh=8xZa4eWx/5sRPOcRJ0U+DRorzREZeUYM6W9yKzDfhJA=; b=cIWdSwGW
+        LrAuy0t8bQdBhGJ/g/ZYTqQTyapBsu6VkmIEvSWKynTMkofovV4JIZl0Ntcb1GbN
+        +nWku/rSpx2Y1lJ46WVx/zrxoZpk1VBlHi9J6+TyjzKWtGI7p7pJLsILFy4oKtPc
+        wEQOzrgjufB8UXnEYU/tYOJUE4FFJGd0+uMn5WrQin+pdrKyX7XMKa6GxREL5QMK
+        S1/fn2AiFdI2rIA0PMmkixchhE3anXYHkxibRMDn6WGZqeE4iMmhBJCsJI8BNRB0
+        mDnoG8cplgtldrVv4nzUNNW+yJ9U+T3uU8oCphsL2KqTSA+GK++K9YqPNY++LFk7
+        yi+czzU1omWIuQ==
+X-ME-Sender: <xms:mHH-Xyj6FIDJG2R_UHzmPjyhmI3Euk26urQooY-yYx9E1GroFR_tUA>
+    <xme:mHH-XzCPhPbXmtbJ9wNNbBBXVcgR0I4cmx67RzBnHQA-9H53MXQ6YHIr1awznNYZT
+    YdAvykmPno06nSwpg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedukedrtddugdeilecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghl
+    ucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrf
+    grthhtvghrnhepudfhjeefvdfhgfefheetgffhieeigfefhefgvddvveefgeejheejvdfg
+    jeehueeinecukfhppeejtddrudefhedrudegkedrudehudenucevlhhushhtvghrufhiii
+    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghmuhgvlhesshhhohhllhgrnhgu
+    rdhorhhg
+X-ME-Proxy: <xmx:mHH-X6FvtqbpPJRB1Qaqc2pIeZKSrNWyrg-r0J08hagOVDF7Wi7wrQ>
+    <xmx:mHH-X7SZR6_TBixqyvdiVqWpANrBiwBeMmiuY65qCmuwV3Li6uPmOQ>
+    <xmx:mHH-X_ztx_vI2Ff-8ncHmic2WgBkFaFQ6aqNiTwlxISn8a_dh6mWWg>
+    <xmx:mHH-X2mC1O2AY-7ErNzR0UpUUjnLlMALxjTfvnbdSRE0umTzdR96KFkChJQ>
+Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2642424005E;
+        Tue, 12 Jan 2021 23:05:44 -0500 (EST)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Hans de Goede <hdegoede@redhat.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Rob Herring <robh+dt@kernel.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>
+Cc:     devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+        Samuel Holland <samuel@sholland.org>
+Subject: [PATCH v2 1/3] dt-bindings: sun4i-a10-lradc-keys: Accept wakeup-source property
+Date:   Tue, 12 Jan 2021 22:05:40 -0600
+Message-Id: <20210113040542.34247-2-samuel@sholland.org>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210113040542.34247-1-samuel@sholland.org>
+References: <20210113040542.34247-1-samuel@sholland.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Jan 11, 2021 at 6:24 PM Stephen Boyd <swboyd@chromium.org> wrote:
->
-> Quoting Philip Chen (2021-01-07 15:42:09)
-> > The top-row keys in a keyboard usually have dual functionalities.
-> > E.g. A function key "F1" is also an action key "Browser back".
-> >
-> > Therefore, when an application receives an action key code from
-> > a top-row key press, the application needs to know how to correlate
-> > the action key code with the function key code and do the conversion
-> > whenever necessary.
-> >
-> > Since the userpace already knows the key scanlines (row/column)
-> > associated with a received key code. Essentially, the userspace only
-> > needs a mapping between the key row/column and the matching physical
-> > location in the top row.
-> >
-> > This patch enhances the cros-ec-keyb driver to create such a mapping
-> > and expose it to userspace in the form of a function-row-physmap
-> > attribute. The attribute would be a space separated ordered list of
-> > row/column codes, for the keys in the function row, in a left-to-right
-> > order.
-> >
-> > The attribute will only be present when the device has a custom design
-> > for the top-row keys.
->
-> Is it documented in Documentation/ABI/?
-Not yet.
-Is it proper to add the documentation to `testing/sysfs-driver-input-keyboard`?
->
-> >
-> > Signed-off-by: Philip Chen <philipchen@chromium.org>
-> > ---
-> >
-> > Changes in v4:
-> > - replace sysfs_create_group() with devm_device_add_group()
-> > - remove an unused member in struct cros_ec_keyb
-> >
-> > Changes in v3:
-> > - parse `function-row-physmap` from DT earlier, when we probe
-> >   cros_ec_keyb, and then store the extracted info in struct cros_ec_keyb.
-> >
-> > Changes in v2:
-> > - create function-row-physmap file in sysfs by parsing
-> >   `function-row-physmap` property from DT
-> > - assume the device already has a correct keymap to reflect the custom
-> >   top-row keys (if they exist)
-> >
-> >  drivers/input/keyboard/cros_ec_keyb.c | 78 +++++++++++++++++++++++++++
-> >  1 file changed, 78 insertions(+)
-> >
-> > diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> > index b379ed7628781..75d1cb29734ce 100644
-> > --- a/drivers/input/keyboard/cros_ec_keyb.c
-> > +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> > @@ -27,6 +27,8 @@
-> >
-> >  #include <asm/unaligned.h>
-> >
-> > +#define MAX_NUM_TOP_ROW_KEYS   15
-> > +
->
-> Ah, the binding could say max is 15 then.
-Yes, I'll add the documentation to PATCH 1/2.
->
-> >  /**
-> >   * struct cros_ec_keyb - Structure representing EC keyboard device
-> >   *
-> > @@ -42,6 +44,9 @@
-> >   * @idev: The input device for the matrix keys.
-> >   * @bs_idev: The input device for non-matrix buttons and switches (or NULL).
-> >   * @notifier: interrupt event notifier for transport devices
-> > + * @function_row_physmap: An array of the encoded rows/columns for the top
-> > + *                        row function keys, in an order from left to right
-> > + * @num_function_row_keys: The number of top row keys in a custom keyboard
-> >   */
-> >  struct cros_ec_keyb {
-> >         unsigned int rows;
-> > @@ -58,6 +63,9 @@ struct cros_ec_keyb {
-> >         struct input_dev *idev;
-> >         struct input_dev *bs_idev;
-> >         struct notifier_block notifier;
-> > +
-> > +       u16 function_row_physmap[MAX_NUM_TOP_ROW_KEYS];
-> > +       u8 num_function_row_keys;
->
-> Why not size_t?
-I usually try to use the minimal required bytes for variables, even
-for local ones.
-In this case, we only need one byte for num_function_row_keys.
-Are there any reasons why size_t is better?
->
-> >  };
-> >
-> >  /**
-> > @@ -527,6 +535,8 @@ static int cros_ec_keyb_register_matrix(struct cros_ec_keyb *ckdev)
-> >         struct input_dev *idev;
-> >         const char *phys;
-> >         int err;
-> > +       u32 top_row_key_pos[MAX_NUM_TOP_ROW_KEYS] = {0};
-> > +       u8 i;
-> >
-> >         err = matrix_keypad_parse_properties(dev, &ckdev->rows, &ckdev->cols);
-> >         if (err)
-> > @@ -578,6 +588,22 @@ static int cros_ec_keyb_register_matrix(struct cros_ec_keyb *ckdev)
-> >         ckdev->idev = idev;
-> >         cros_ec_keyb_compute_valid_keys(ckdev);
-> >
-> > +       if (of_property_read_variable_u32_array(dev->of_node,
-> > +                                               "function-row-physmap",
-> > +                                               top_row_key_pos,
-> > +                                               0,
-> > +                                               MAX_NUM_TOP_ROW_KEYS) > 0) {
-> > +               for (i = 0; i < MAX_NUM_TOP_ROW_KEYS; i++) {
->
-> Can we deindent this once with of_property_for_each_u32()?
-Sure, will do.
->
-> > +                       if (!top_row_key_pos[i])
-> > +                               break;
-> > +                       ckdev->function_row_physmap[i] = MATRIX_SCAN_CODE(
-> > +                                               KEY_ROW(top_row_key_pos[i]),
-> > +                                               KEY_COL(top_row_key_pos[i]),
->
-> And then have a local variable for top_row_key_pos[i] so this is
-> shorter.
-Sure, will do.
->
-> > +                                               ckdev->row_shift);
-> > +               }
-> > +               ckdev->num_function_row_keys = i;
-> > +       }
-> > +
-> >         err = input_register_device(ckdev->idev);
-> >         if (err) {
-> >                 dev_err(dev, "cannot register input device\n");
-> > @@ -587,6 +613,52 @@ static int cros_ec_keyb_register_matrix(struct cros_ec_keyb *ckdev)
-> >         return 0;
-> >  }
-> >
-> > +static ssize_t function_row_physmap_show(struct device *dev,
-> > +                                        struct device_attribute *attr,
-> > +                                        char *buf)
-> > +{
-> > +       ssize_t size = 0;
-> > +       u8 i;
->
-> int i? Why u8? Surely the size of a local variable isn't important.
-The same reason as "u8 num_function_row_keys".
-Is int better in this case?
->
-> > +       struct cros_ec_keyb *ckdev = dev_get_drvdata(dev);
-> > +
-> > +       if (!ckdev->num_function_row_keys)
-> > +               return 0;
-> > +
-> > +       for (i = 0; i < ckdev->num_function_row_keys; i++)
-> > +               size += scnprintf(buf + size, PAGE_SIZE - size, "%02X ",
-> > +                                 ckdev->function_row_physmap[i]);
-> > +       size += scnprintf(buf + size, PAGE_SIZE - size, "\n");
-> > +
-> > +       return size;
->
-> I'd rather see
->
->         ssize_t size = 0;
->         int i;
->         struct cros_ec_keyb *ckdev = dev_get_drvdata(dev);
->         u16 *physmap = ckdev->function_row_physmap;
->
->         for (i = 0; i < ckdev->num_function_row_keys; i++)
->                 size += scnprintf(buf + size, PAGE_SIZE - size,
->                                   "%s%02X", size ? " " : "", physmap[i]);
->
->         if (size)
->                 size += scnprintf(buf + size, PAGE_SIZE - size, "\n");
->
->         return size;
->
-> And I wonder if hex_dump_to_buffer() works for this?
-It seems to work? I'll give it a try.
-If hex_dump_to_buffer() doesn't work, I'll fall back to the
-implementation you suggested above.
-Thanks!
+The LRADC provides an interrupt that can be used to wake the system.
+Signify this by accepting a "wakeup-source" property in the binding.
+
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+ .../bindings/input/allwinner,sun4i-a10-lradc-keys.yaml          | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml b/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
+index cffd02028d02..d74f2002409e 100644
+--- a/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
++++ b/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
+@@ -29,6 +29,8 @@ properties:
+     description:
+       Regulator for the LRADC reference voltage
+ 
++  wakeup-source: true
++
+ patternProperties:
+   "^button-[0-9]+$":
+     type: object
+-- 
+2.26.2
+

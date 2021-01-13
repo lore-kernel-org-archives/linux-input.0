@@ -2,67 +2,68 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10930C4332D
-	for <linux-input@archiver.kernel.org>; Wed, 13 Jan 2021 04:06:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 233E8C433E9
+	for <linux-input@archiver.kernel.org>; Wed, 13 Jan 2021 04:07:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D2BD82312F
-	for <linux-input@archiver.kernel.org>; Wed, 13 Jan 2021 04:06:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D222D2312F
+	for <linux-input@archiver.kernel.org>; Wed, 13 Jan 2021 04:07:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726683AbhAMEGw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 Jan 2021 23:06:52 -0500
-Received: from wnew2-smtp.messagingengine.com ([64.147.123.27]:37359 "EHLO
+        id S1726711AbhAMEGy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 Jan 2021 23:06:54 -0500
+Received: from wnew2-smtp.messagingengine.com ([64.147.123.27]:50987 "EHLO
         wnew2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726680AbhAMEGw (ORCPT
+        by vger.kernel.org with ESMTP id S1726682AbhAMEGw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Tue, 12 Jan 2021 23:06:52 -0500
 Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.west.internal (Postfix) with ESMTP id 57F9F19E8;
+        by mailnew.west.internal (Postfix) with ESMTP id E790719F2;
         Tue, 12 Jan 2021 23:05:45 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
   by compute5.internal (MEProxy); Tue, 12 Jan 2021 23:05:46 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm1; bh=BhWOvfo7H2XzrPkb8Fylthz2bV
-        LD4XJzNdlGE7vWgs0=; b=cqoj8wbbjV5OoHLqszrKBq1FsZnIjbnh0lVkJXP2tN
-        E2tDBBQw7jQiHCpwTOQv4wtxCpRCuCjgy7CVXQU2H9ID2YwGMuHHaJkq5RqvEzLM
-        +37mlKZVjVskjtSghhkoFlHmyKLDpgfKETkmtbl2lOh4++Ax5Xw+humiwY4FgBQE
-        pieQ3VLrcsg4FQDgq3yzER2928biEizMoWMUwy+rW3wp/4AtEPCzVeLaLGBt6eca
-        L+GFa/ALAbCjTeY9YZmU+JVtO+xA6MtarNUuZlG/TEhF3jnZ07K8na9hpYKf5onf
-        2ERURvS760mMkV3m9VUCXNbbrTwP/oX3CaQRAwwk3/vg==
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=fm1; bh=L/yNuOxj28hiX
+        +c/tqAQ/Im+opvb6Nb/8TsVGhyxOMw=; b=D0NyJ/OcaJDR4QbYQlR2Cnrz6IOUX
+        yCx2x4x1zXZM2TCMIgsIRE7Yeefvu+PIO2+QqKtZZpU8pwz4Ph/KrqX/Ff3BoIQQ
+        YtrfEII/NBfEoThf3NUPsuWfHYDDORmxQaMCl6C9XhNX9LrSHaZ3mxDZ+IwW8KO8
+        bsjq5V3mlhfxsluoDRW+4jCvxNr1AS0lrZTead/r3tLRa+lvqz1LzlYFP6o1UbX7
+        jNhxGJE4bCfgXsZKc6mYF2zNkd9cKhthbLJe/1Dy3nziovvF9ZNJO2rS8mX4jC2d
+        Z2yVzII7wC6ZEWXw9p32NWxvw6WR5W9r/ui3CqNh1VFa3WgiWmua6g4xQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=BhWOvfo7H2XzrPkb8
-        Fylthz2bVLD4XJzNdlGE7vWgs0=; b=elhoO/JEQUR+wyY8m2zcDlTqb6ON7qIhP
-        93pd1/FbsJUE++6mnxruegYILjCy9bLAWMahHT2gFYiz8C3FAijdynFm5LAe7mht
-        gt2bLevdIhwUb+wn2dREcWtQfuTXMndNMpTAjo8BWhZGyIaaoOljSClFB1PxG/us
-        F/Hx6dJtrQwhuqIXJkxhkqkuP+QQLeKYD5A3lc7uPKBVNcYfj5MrGdx7QABfWxWu
-        wgK+/feLFe2YUtXSWHMVDQ9pAeHR8Pxqusxu+ZFz5hzItPxb2nSM0zhk3LeFG4On
-        yDAOdPRKLM84gRRkSS9xWTUBffUjHM13XHw3bAw3HMR5NYFOCmsPQ==
-X-ME-Sender: <xms:mHH-X3QVUH8t7Pnmliw6cgkko7-mn33soSsbV0MQ5Fm5rSFKVZcz2Q>
-    <xme:mHH-X4x2Rc_311wJd9U5LSuGL7Km9WtFlRQWv-V-qXEpQaH-2n7T55g9BXg6LQPpz
-    YRSHsgmJr7X7qh6Hg>
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; bh=L/yNuOxj28hiX+c/tqAQ/Im+opvb6Nb/8TsVGhyxOMw=; b=d3klVUa9
+        XMuyK0GBxz/Ydg8zyowYyUKCjouwHVpPsUfnF9G6V/W7hDJPsaWIup6BwGbDabku
+        JHkAS01fN93JUJj79oycIhnT2KnxB3wOB15Y3vEJHDgPlzT8hpGZZuio9wSjgF9J
+        hzKqG1XKruHVOU0mWLVKYbjnWI3/LxKvbbeAf16zTUB6gsjpCwe2to+iFtZEFUnI
+        WaCACsRRdGJZfo4y3MuAXCFyyiZlEZogqZfugqsIUgZcdWlBmo5Uvz+uUthwHHwB
+        +YZUu1e1U5sCRkWaFOhDnYHaE0koHNNapEl29L5KP9R0PiKJzxeBLIeUN5AD4i4F
+        6NS8NHNM17+yBw==
+X-ME-Sender: <xms:mXH-XxPZTD0wCcRD1FwgcZzlZh5UgGPuCk3miRnf2YebPFgJMn4lAg>
+    <xme:mXH-Xz-bOQT4EzmxngsPN5QrFz3noEbxlAAW4nQyD4_KMJsAc0ptFK8po3N3XxllX
+    cseCnxF0iDxvkLUaQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedukedrtddugdeilecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghlucfj
-    ohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrfgrth
-    htvghrnhepieetkefhheduudfgledtudefjeejfeegveehkeeufffhhfejkeehiefftdev
-    tdevnecukfhppeejtddrudefhedrudegkedrudehudenucevlhhushhtvghrufhiiigvpe
-    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghmuhgvlhesshhhohhllhgrnhgurdho
-    rhhg
-X-ME-Proxy: <xmx:mHH-X82ZhVERbJuoRmH21ynduH2ZEMgRbwk_n44Wfx_J_-3WfLuQHg>
-    <xmx:mHH-X3AW8JEnqNgURohRkFJ42EhOp9s1ira16BLBNdHwpL57auixdA>
-    <xmx:mHH-Xwjy5eKlhyBkj3Sm7Fziytl45GlnC_iaMJX8AIfxfisWpfxKww>
-    <xmx:mHH-X5WPsoZ4YLt3y8-RyJpVB3Gg6I-6UatUVTXW5IHZcXe_tu9V6fbmchc>
+    fjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghl
+    ucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrf
+    grthhtvghrnhepudfhjeefvdfhgfefheetgffhieeigfefhefgvddvveefgeejheejvdfg
+    jeehueeinecukfhppeejtddrudefhedrudegkedrudehudenucevlhhushhtvghrufhiii
+    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghmuhgvlhesshhhohhllhgrnhgu
+    rdhorhhg
+X-ME-Proxy: <xmx:mXH-XwQMdkXNxt0pmeKfySBPTzkdmTjMT4Kxzywhrjn39UpqpGnPDA>
+    <xmx:mXH-X9shonJNn6i7aaTsrIH27ITaguVdV3ASC583_6tkc3Dm0A3ZuA>
+    <xmx:mXH-X5fwmtWH6MkzDjzR-5V-_SQVBMWaAocec69Pg5AQ4REKyxWJ-Q>
+    <xmx:mXH-X15vv_Ok-IM-fkpw4q6b5ZZydQnvCi0jTUH3blm46QpuhiLbc0dTRYs>
 Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A6B13240057;
-        Tue, 12 Jan 2021 23:05:43 -0500 (EST)
+        by mail.messagingengine.com (Postfix) with ESMTPA id 941EC240064;
+        Tue, 12 Jan 2021 23:05:44 -0500 (EST)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Hans de Goede <hdegoede@redhat.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -72,40 +73,88 @@ To:     Hans de Goede <hdegoede@redhat.com>,
         Jernej Skrabec <jernej.skrabec@siol.net>
 Cc:     devicetree@vger.kernel.org, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-        Samuel Holland <samuel@sholland.org>
-Subject: [PATCH v2 0/3] PinePhone volume key (LRADC) wakeup support
-Date:   Tue, 12 Jan 2021 22:05:39 -0600
-Message-Id: <20210113040542.34247-1-samuel@sholland.org>
+        Samuel Holland <samuel@sholland.org>,
+        Ondrej Jirman <megous@megous.com>
+Subject: [PATCH v2 2/3] input: sun4i-lradc-keys -  Add wakup support
+Date:   Tue, 12 Jan 2021 22:05:41 -0600
+Message-Id: <20210113040542.34247-3-samuel@sholland.org>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210113040542.34247-1-samuel@sholland.org>
+References: <20210113040542.34247-1-samuel@sholland.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series allows the volume keys on the PinePhone to wake up the
-device. As pointed out for v1, wakeup should only be enabled when a
-"wakeup-source" property is present, so v2 requires DT and binding
-changes in addition to the driver change.
+From: Ondrej Jirman <megous@megous.com>
 
-Changes since v1:
-  - Add requisite DT binding change
-  - Only add wakeup capability if "wakeup-source" is present
-  - Warn but do not error out if setting the wake IRQ fails
-  - Add "wakeup-source" property to PinePhone device tree
+Allow the driver to wake the system on key press if the "wakeup-source"
+property is provided in the device tree. Using the LRADC as a wakeup
+source requires keeping the AVCC domain active during sleep. Since this
+has a nontrivial impact on power consumption (sometimes doubling it),
+disable the LRADC wakeup source by default.
 
-Ondrej Jirman (1):
-  input: sun4i-lradc-keys -  Add wakup support
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+ drivers/input/keyboard/sun4i-lradc-keys.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-Samuel Holland (2):
-  dt-bindings: sun4i-a10-lradc-keys: Accept wakeup-source property
-  arm64: dts: allwinner: pinephone: Support volume key wakeup
-
- .../input/allwinner,sun4i-a10-lradc-keys.yaml |  2 ++
- .../dts/allwinner/sun50i-a64-pinephone.dtsi   |  1 +
- drivers/input/keyboard/sun4i-lradc-keys.c     | 22 +++++++++++++++----
- 3 files changed, 21 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
+index 4a796bed48ac..a1eb2001c088 100644
+--- a/drivers/input/keyboard/sun4i-lradc-keys.c
++++ b/drivers/input/keyboard/sun4i-lradc-keys.c
+@@ -22,6 +22,8 @@
+ #include <linux/module.h>
+ #include <linux/of_platform.h>
+ #include <linux/platform_device.h>
++#include <linux/pm_wakeirq.h>
++#include <linux/pm_wakeup.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/slab.h>
+ 
+@@ -226,8 +228,7 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
+ {
+ 	struct sun4i_lradc_data *lradc;
+ 	struct device *dev = &pdev->dev;
+-	int i;
+-	int error;
++	int error, i, irq;
+ 
+ 	lradc = devm_kzalloc(dev, sizeof(struct sun4i_lradc_data), GFP_KERNEL);
+ 	if (!lradc)
+@@ -272,8 +273,13 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(lradc->base))
+ 		return PTR_ERR(lradc->base);
+ 
+-	error = devm_request_irq(dev, platform_get_irq(pdev, 0),
+-				 sun4i_lradc_irq, 0,
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
++		dev_err(&pdev->dev, "Failed to get IRQ\n");
++		return irq;
++	}
++
++	error = devm_request_irq(dev, irq, sun4i_lradc_irq, 0,
+ 				 "sun4i-a10-lradc-keys", lradc);
+ 	if (error)
+ 		return error;
+@@ -282,6 +288,14 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
+ 	if (error)
+ 		return error;
+ 
++	if (device_property_read_bool(dev, "wakeup-source")) {
++		device_set_wakeup_capable(dev, true);
++
++		error = dev_pm_set_wake_irq(dev, irq);
++		if (error)
++			dev_warn(dev, "Failed to set wake IRQ\n");
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.26.2
 

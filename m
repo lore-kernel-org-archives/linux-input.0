@@ -2,92 +2,119 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D775C433DB
-	for <linux-input@archiver.kernel.org>; Thu, 14 Jan 2021 12:58:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63ED9C433E6
+	for <linux-input@archiver.kernel.org>; Thu, 14 Jan 2021 15:24:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5D35723A33
-	for <linux-input@archiver.kernel.org>; Thu, 14 Jan 2021 12:58:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3C49E23B28
+	for <linux-input@archiver.kernel.org>; Thu, 14 Jan 2021 15:24:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727163AbhANM63 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 14 Jan 2021 07:58:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45322 "EHLO
+        id S1726259AbhANPYQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 Jan 2021 10:24:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727063AbhANM63 (ORCPT
+        with ESMTP id S1729200AbhANPYP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 Jan 2021 07:58:29 -0500
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1048FC061574;
-        Thu, 14 Jan 2021 04:57:49 -0800 (PST)
-Received: by mail-pg1-x52f.google.com with SMTP id c132so3749945pga.3;
-        Thu, 14 Jan 2021 04:57:49 -0800 (PST)
+        Thu, 14 Jan 2021 10:24:15 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D22D9C0613C1
+        for <linux-input@vger.kernel.org>; Thu, 14 Jan 2021 07:23:34 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id v15so2507910wrx.4
+        for <linux-input@vger.kernel.org>; Thu, 14 Jan 2021 07:23:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=gGbzt6fi80meG4s9AF3mOHr1Et9Lp5WnhuA9zSO3M+Q=;
-        b=Ro1jsE6YzpXcypgAljTFVXzP33Rs9jQKrv10VocKgzevdXuk9QLARA9f7oemxJPag0
-         5tMHz36Ta2vWR0E6+NLuZRoFZVa5yFyUcoTehDD2/wP+z2cRvK3U+VxDmbUO1XOSx8Zf
-         gxMagogc7JM5ZZg5pICYFv/zMyaBCvDxiffVfuZ8/tplfNlAIry0jacgidAmViJcxYJI
-         CGBDXF1goGNy33bhKev0J9Kmkd78IjE1lZcy/9JcpKnrWn6EXrdMmr3fPVaTNGERAvqS
-         6XwA/ssHbq+jcr/3660EXBiwlTBm9+8DhuUfh/V4c42L5kZmpsZqQa/HjvC4yVLhdUbp
-         FsiA==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=cUSIVImOhh6mnD33JdJKn9l+xD1dBbES1ADQWyw/cSQ=;
+        b=xMh/CZ1b26BOHhoxUuGWCrtKccuWrXwsla3Jb8f49NJCwCVpAmALeqJ50oxnz87jRf
+         rkaYJnGrQR7ZclSxlw5FrsfP9lBQEO0PbwDU5Oxl35M3dnTUd7LDyhGEZ1XCzh/snZwC
+         bl9LK/YQkBaLgfdSuTcbXpcFCrBnXrSw5tC1aAwEScghnNgAuNAIlWMKepDjUg4g3m0g
+         xDyOxAPlYWgMIbAzedZzXwavu1HrtBa+dZHK0UxeofUssJyP/YKahXpSsoS8avdmyt7W
+         r7I/NFtffiI0A+VqNDdaaauCk1HvVrpbnIAqtZ9xWpjVnZZGmmGlNEKX2A+3Lxi8kYeL
+         webQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=gGbzt6fi80meG4s9AF3mOHr1Et9Lp5WnhuA9zSO3M+Q=;
-        b=E6voOyneDfEwhOugYKOS3jxM+XIx9Q2w0z/ODw7aPEGL3nM1ox0WdiCwAxYhtP4W40
-         jcEynB4LenugqY6kos+evr2h+XelCEOVDwizAu/UNzao1YIEXhJjRh3jHVzlTguKY+LB
-         oxyvv8LGY7SSgEWri357OTqP2G20LYWDGxA0ElcxdmzTFbVZJLllR94Uc67AR/Wdummb
-         NV/tROtbFiTq71zavfSuhnXTigO9SNzOM2UY87JU1UL1b2PyyzXtKQDQqdbXDUA+HUDN
-         FGcpCcYK6TdrmH1om77zEtzX9LjpZOHvkr0/Ws5H/Ac0keG6mN9v6Zbd/ufh2qe0UIZY
-         arVQ==
-X-Gm-Message-State: AOAM530Dui0JOMgZWX7YF5CEesfh46RvKYL2ehpl4nZWIX3zX4DyLtiA
-        ygYKHZFN5DQemlC8mZdXPQ==
-X-Google-Smtp-Source: ABdhPJwnANuoGmoTzO1w3y9QcxqYJwi43TGuaOSb8SwumIz2tqtt7MF3YUBn2VTf15RNQyLupo9x5A==
-X-Received: by 2002:aa7:80d8:0:b029:1ae:6ac5:5324 with SMTP id a24-20020aa780d80000b02901ae6ac55324mr7215401pfn.1.1610629068644;
-        Thu, 14 Jan 2021 04:57:48 -0800 (PST)
-Received: from PWN ([218.190.226.47])
-        by smtp.gmail.com with ESMTPSA id 7sm5287413pfh.142.2021.01.14.04.57.45
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=cUSIVImOhh6mnD33JdJKn9l+xD1dBbES1ADQWyw/cSQ=;
+        b=eBgWkIy0d+VvsB2d84VFXJj/yZttVG6YY6F3Ijtl8i8fKcF+GUVf7y+6a9YwdFEcQW
+         RWfWp7MBURVTTXKTWZA3pjUB8amj2AxRVknZP1jTHCifve9tJQBJZizPtHMUhSgRMOVE
+         +21S6W10uEFuZ8kZoW5mYGCXtSXC0NQy9B2osKvLeDlfgYjWfO5g4VQeUAqZCNELHl74
+         l0TeL00HEt8XAnMSdk/1nfENw+R/pxbu7rUe5blnV0u8esSXFs0AWVDpN7QlSDBnym+h
+         jj2QU8HZ9PsM/oXR8DrF5FTcvZxQXgErcDxKfCYpJWPgytuB8V6GyNIwGBklLVIQVMU8
+         8HOA==
+X-Gm-Message-State: AOAM530n18i08ufyiQXc+8iG36EG6I0UBypV1PiJYMNFs/+LnQGmwQpX
+        qDS26k08iHQx92etndEpmXlFzQ==
+X-Google-Smtp-Source: ABdhPJz0ji0rfOQMV2IR5mKX8CEEVKtkzkGzxDncQYZmm/N8GG3eov3UlqqJX7AIk5l+x6tuJ6aQkg==
+X-Received: by 2002:a5d:58d3:: with SMTP id o19mr8708735wrf.250.1610637813543;
+        Thu, 14 Jan 2021 07:23:33 -0800 (PST)
+Received: from dell.default ([91.110.221.178])
+        by smtp.gmail.com with ESMTPSA id e15sm10777713wrx.86.2021.01.14.07.23.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Jan 2021 04:57:47 -0800 (PST)
-Date:   Thu, 14 Jan 2021 07:57:42 -0500
-From:   Peilin Ye <yepeilin.cs@gmail.com>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Phong Tran <tranmanphong@gmail.com>,
-        Jason Gerecke <killertofu@gmail.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: wacom: Fix memory leak in wacom_probe()
-Message-ID: <20210114125742.GA644967@PWN>
-References: <20201210112258.477636-1-yepeilin.cs@gmail.com>
- <nycvar.YFH.7.76.2101141320210.13752@cbobk.fhfr.pm>
+        Thu, 14 Jan 2021 07:23:32 -0800 (PST)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     lee.jones@linaro.org
+Cc:     linux-kernel@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Peter Osterlund <petero2@telia.com>,
+        Stefan Gmeiner <riddlebox@freesurf.ch>,
+        "C. Scott Ananian" <cananian@alumni.priceton.edu>,
+        Bruce Kalk <kall@compass.com>,
+        this to <linux-input@vger.kernel.org>
+Subject: [PATCH 1/5] input: mouse: synaptics: Replace NOOP with suitable commentary
+Date:   Thu, 14 Jan 2021 15:23:19 +0000
+Message-Id: <20210114152323.2382283-2-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210114152323.2382283-1-lee.jones@linaro.org>
+References: <20210114152323.2382283-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.2101141320210.13752@cbobk.fhfr.pm>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Jiri,
+Fixes the following W=1 kernel build warning(s):
 
-On Thu, Jan 14, 2021 at 01:21:13PM +0100, Jiri Kosina wrote:
-> > wacom_probe() is leaking memory. Free `&wacom_wac->pen_fifo` when
-> > hid_parse() or wacom_parse_and_register() fails.
-> 
-> Thanks for the patch. It's however already been fixed in 
-> hid.git#for-5.11/upstream-fixes (37309f47e2f5) branch that will be going 
-> to Linus shortly.
+ drivers/input/mouse/synaptics.c: In function ‘synaptics_process_packet’:
+ drivers/input/mouse/synaptics.c:1110:6: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
 
-Ah...  I checked linux-input@ before I started working on the bug, but
-it seems that Ping sent out a patch just a few hours before I did.
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Peter Osterlund <petero2@telia.com>
+Cc: Stefan Gmeiner <riddlebox@freesurf.ch>
+Cc: "C. Scott Ananian" <cananian@alumni.priceton.edu>
+Cc: Bruce Kalk <kall@compass.com>
+Cc: this to <linux-input@vger.kernel.org>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/input/mouse/synaptics.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-Sorry for the race condition,
-Peilin Ye
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 8fb7b4385ded9..3cc8b76629fa2 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1106,8 +1106,11 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 					num_fingers = hw.w + 2;
+ 				break;
+ 			case 2:
+-				if (SYN_MODEL_PEN(info->model_id))
+-					;   /* Nothing, treat a pen as a single finger */
++				/*
++				 * Keep defaults
++				 *
++				 * SYN_MODEL_PEN: Treat pens as a single finger
++				 */
+ 				break;
+ 			case 4 ... 15:
+ 				if (SYN_CAP_PALMDETECT(info->capabilities))
+-- 
+2.25.1
 

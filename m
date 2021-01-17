@@ -2,69 +2,71 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53677C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78D82C433E9
 	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:46:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 25266206ED
+	by mail.kernel.org (Postfix) with ESMTP id 5CCE6206E3
 	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:46:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730525AbhAQXqH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 17 Jan 2021 18:46:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33792 "EHLO
+        id S1730458AbhAQXqw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 17 Jan 2021 18:46:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730845AbhAQXpZ (ORCPT
+        with ESMTP id S1730783AbhAQXqG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 17 Jan 2021 18:45:25 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B515C061573
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:44:45 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id u11so3365453plg.13
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:44:45 -0800 (PST)
+        Sun, 17 Jan 2021 18:46:06 -0500
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62CBAC061796
+        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:44:56 -0800 (PST)
+Received: by mail-pl1-x631.google.com with SMTP id q4so7651833plr.7
+        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:44:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gaikai-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=P+Oizrlo3OIDbfPymvWyjuO3HZ7nWkZrzoyzd5R0UuY=;
-        b=hkhkWoIS4hzraQ0FzJ+r8DpAFixesb+wiKVOyb2F8p7nyCvzHH137FL8uYI+phbEaA
-         cDDlBZiyCBBR176e5zJfvcKj2AFhGL71tiHHZmny9PUO4y+cnL0bEpZq3ZanXGGryKZR
-         BTbMLVWUd0PG9UuVCmT8lxJ9XAhJpCb2E1kuR2S2d4fc8Whv22kvlE25xhV4rMBCzGT7
-         P6eeXOI9YHe/Jj7mw+2vgCbrrGkOqaAsBqojNdCTRLadaGnj+2Nl9is+xgPGJ4JbOHE/
-         s+RSXR3+zQ9r/3IH37xxxAYb72lhOTYnuy4/2x4nPAaWRKd5u2WdkFTEEwpf3tlGmkKc
-         Zgig==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=8uWzu9vKdpdES5yOOv1+bEICi0eIoodD8PhCeHIQ1lQ=;
+        b=uI5hFqtiIAcXsq4pGqUjqbaRHHq9nW7SUQ/BfD0fFBi6k3MwrPK6wj0bYXdMzn+Lx3
+         4wEmpaLoeiUugflRcK+1HyK5Kv1ce/JEmipArF4C/fQEL5yw25YmJ3ootQz+PYnR0lii
+         sGw94IaOXAT7XsFWpQXXFh5K7TlZ1NvnjQ0l/KLe29rtSJbed8ANBN/oqxFUJb9uALQ5
+         ck4qx8LXTJ7tVuSoL3wbCP4ZK/MYpKvDCSU3M980HPBKKion4hTubm93Jnoa3tOVYuLv
+         7Tvf/zMx7WaW/T2X4QFEY4bbbVn2P2sjwX61gcnEWy0GpGKfZpKRVyYUMhU5+Pb5H6qD
+         /klQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=P+Oizrlo3OIDbfPymvWyjuO3HZ7nWkZrzoyzd5R0UuY=;
-        b=QQMkU35RzuUXhd/fa9aQFo9Z8ClUgWcfSgsVWOY/nQuVkOCbOdmG7C3YIp0JCo+wMm
-         obaWZbsah0V+RRHaucAkKugCrcCKmsZHpFWqdZZ+HDM6aO049/gyOOLbF2V/4Q1vFMpi
-         N1d17F3PNAHGAQJbebENoJojAS2rgMyTMD0TclIoyksqd2/GWxF/ucYs4BE+WMonN2Ze
-         V06Q5u1xMtWrIhmWYVpbzz5ScCpbEmiV9sa7MAWBh3UD3556HR+3fAnOiAplWSN4dO49
-         siFFXzuvNR+YpD4oZ4jLAH5K0JIidIxVujI1zSF15KgNmO6Hl8JMeqt/thaYkWePGcGe
-         mmlg==
-X-Gm-Message-State: AOAM531XISLm8dzeD25Q/JF+Ni5DeszsjfHKMADiTN6FDqFib2obg/0K
-        MD/uDbcswqA8YlLk9V1/2g1UAw==
-X-Google-Smtp-Source: ABdhPJzT7RFWojhX/JJDCvhbbiyoEUYjegQnawjBATq7O23ClovCEYORnlEhrnzRoen645B0g9XouA==
-X-Received: by 2002:a17:902:e846:b029:da:d44d:1968 with SMTP id t6-20020a170902e846b02900dad44d1968mr14030858plg.47.1610927085168;
-        Sun, 17 Jan 2021 15:44:45 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=8uWzu9vKdpdES5yOOv1+bEICi0eIoodD8PhCeHIQ1lQ=;
+        b=OnvF9pjcLtNHEjt/N9HxMr2IUZyk2JM2sQwBjbgkNwtxPJyvGsS/japjeUHhsmqzDG
+         QkMIQTXgMcFaFf5cKaze8dKhm8qUALomSopv27G6xCOKNVLP3DkpR+iQwNQHfmSxNEUV
+         Y3uthzyaBtIFUMtVS2RHB3o43+SzyqG+XgiWA45Z/TZ4GsHUALCWzxJIJrJ2yE6+X8xE
+         mrYwwDaXyJjUx/D+jYb3FvhLj0T4ngvL4XU9gI2prKWPB1w3Uno264WdZM2PH3HTkZJb
+         oofe3amyE0Mi7ZHxsAHYtCqesLLh5+mfU9PpNSK5PMwb3RTJvFB3YN/41VyLnGilmUdb
+         EUPQ==
+X-Gm-Message-State: AOAM531IRpJdk1D4lT0m2pB6kW4CH2jPv9RVnPlOMN31n6JHoaa8ggFd
+        pFIjclliRB25RXu3a79T7/VNVg==
+X-Google-Smtp-Source: ABdhPJwDwIG7IKlYojQLsCBPvRcnot8h7cQahW3ne5wf+H7rY/SviPv5/sYUrlikP5FM9ODv2QSFLg==
+X-Received: by 2002:a17:902:cec3:b029:de:901b:d0be with SMTP id d3-20020a170902cec3b02900de901bd0bemr7401728plg.26.1610927096005;
+        Sun, 17 Jan 2021 15:44:56 -0800 (PST)
 Received: from us8c16456344dc.lan (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id i2sm14721568pjd.21.2021.01.17.15.44.44
+        by smtp.gmail.com with ESMTPSA id i2sm14721568pjd.21.2021.01.17.15.44.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Jan 2021 15:44:44 -0800 (PST)
+        Sun, 17 Jan 2021 15:44:55 -0800 (PST)
 From:   Roderick Colenbrander <roderick@gaikai.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH v4 00/13] HID: new driver for PS5 'DualSense' controller
-Date:   Sun, 17 Jan 2021 15:44:22 -0800
-Message-Id: <20210117234435.180294-1-roderick@gaikai.com>
+Subject: [PATCH v4 11/13] HID: playstation: add DualSense player LEDs support.
+Date:   Sun, 17 Jan 2021 15:44:33 -0800
+Message-Id: <20210117234435.180294-12-roderick@gaikai.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210117234435.180294-1-roderick@gaikai.com>
+References: <20210117234435.180294-1-roderick@gaikai.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -73,84 +75,126 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Hi,
+The DualSense features 5 player LEDs below its touchpad, which are
+meant as player id indications. This patch exposes the player LEDs
+as individual LEDs.
 
-This is the same code as v3. Due to a misstake during a last minute
-rebase, the touchpad and sensors patch got combined while fixing a conflict.
-The new v4 corrects that issue. There are no additional code changes.
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+---
+ drivers/hid/hid-playstation.c | 60 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 59 insertions(+), 1 deletion(-)
 
-This new revision contains a few bug fixes, but mostly features small
-code changes and minor improvements relative to v2.
-
-In terms of bugs there were bugs in the sensor code. There was an overflow
-issue and EV_MSC/MSC_TIMESTAMP were not set on the device. In addition,
-the ps_device spinlock was not initialized.
-
-The biggest change in the driver was the addition of a new 'ps_get_report'
-helper function. It handles GET_FEATURE report retrieval and any error handling
-including CRC checks for PlayStation Bluetooth devices. This greatly simplified
-all the functions (dualsense_get_mac_address, dualsense_calibration_info, ..)
-dealing, which used their own report handling and error checking.
-
-Aside for these changes, there were mostly little code style changes like defining
-magic constants, cleaning up comments, cleaning up log messages, static_assert
-checks etcetera.
-
-Thanks to everyone who provided feedback through the mailing list or privately.
-
-Changes since v3:
-- Separated touchpad and sensors into separate patches due to rebase misstake.
-
-Changes since v2:
-- Removed !Expert setting for hid-playstation from Kconfig.
-- Removed DualSense from hid-quirks table.
-- Added report size checks to dualsense_parse_report.
-- Moved mac address endianess comment to struct ps_device.
-- Added static_asserts for packed structure size checks.
-- Improved readability of battery capacity calculation using 'min'.
-- Added spin_lock_init to dualsense_create to initialize ps_device lock. 
-- Fixed sensors timestamp overflow.
-- Fixed missing MSC_TIMESTAMP and EV_MSC capabilities in ps_sensors_create.
-- Used DIV_ROUND_CLOSEST for timestamp calculations to minimize rounding errors.
-- Switched to devm_kmalloc_array for lightbar allocation.
-- Added CRC32 and NEW_LEDS dependency to Kconfig.
-- Added defines for crc32 seed constants.
-- Added crc32 check for dualsense_get_mac_address and increased report size to 20.
-- Added new ps_get_report call to obtain feature reports.
-- Switched to ARRAY_SIZE in dualsense_parse_reports for touch points, accel and gyro data.
-- Changed touch point parse loop to use "struct dualsense_touch_point".
-- Improved consistency of info and error messages.
-- Unified comment style.
-
-
-Thanks,
-
-Roderick Colenbrander
-Sony Interactive Entertainment, LLC
-
-Roderick Colenbrander (13):
-  HID: playstation: initial DualSense USB support.
-  HID: playstation: use DualSense MAC address as unique identifier.
-  HID: playstation: add DualSense battery support.
-  HID: playstation: add DualSense touchpad support.
-  HID: playstation: add DualSense accelerometer and gyroscope support.
-  HID: playstation: track devices in list.
-  HID: playstation: add DualSense Bluetooth support.
-  HID: playstation: add DualSense classic rumble support.
-  HID: playstation: add DualSense lightbar support
-  HID: playstation: add microphone mute support for DualSense.
-  HID: playstation: add DualSense player LEDs support.
-  HID: playstation: DualSense set LEDs to default player id.
-  HID: playstation: report DualSense hardware and firmware version.
-
- MAINTAINERS                   |    6 +
- drivers/hid/Kconfig           |   21 +
- drivers/hid/Makefile          |    1 +
- drivers/hid/hid-ids.h         |    1 +
- drivers/hid/hid-playstation.c | 1485 +++++++++++++++++++++++++++++++++
- 5 files changed, 1514 insertions(+)
- create mode 100644 drivers/hid/hid-playstation.c
-
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index 8a250526b382..966d1a5aee18 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -112,6 +112,7 @@ struct ps_led_info {
+ #define DS_OUTPUT_VALID_FLAG1_POWER_SAVE_CONTROL_ENABLE BIT(1)
+ #define DS_OUTPUT_VALID_FLAG1_LIGHTBAR_CONTROL_ENABLE BIT(2)
+ #define DS_OUTPUT_VALID_FLAG1_RELEASE_LEDS BIT(3)
++#define DS_OUTPUT_VALID_FLAG1_PLAYER_INDICATOR_CONTROL_ENABLE BIT(4)
+ #define DS_OUTPUT_VALID_FLAG2_LIGHTBAR_SETUP_CONTROL_ENABLE BIT(1)
+ #define DS_OUTPUT_POWER_SAVE_CONTROL_MIC_MUTE BIT(4)
+ #define DS_OUTPUT_LIGHTBAR_SETUP_LIGHT_OUT BIT(1)
+@@ -157,6 +158,11 @@ struct dualsense {
+ 	bool last_btn_mic_state;
+ 	struct led_classdev mute_led;
+ 
++	/* Player leds */
++	bool update_player_leds;
++	uint8_t player_leds_state;
++	struct led_classdev player_leds[5];
++
+ 	struct work_struct output_worker;
+ 	void *output_report_dmabuf;
+ 	uint8_t output_seq; /* Sequence number for output report. */
+@@ -766,6 +772,35 @@ static void dualsense_mute_led_set_brightness(struct led_classdev *led, enum led
+ 
+ }
+ 
++static enum led_brightness dualsense_player_led_get_brightness(struct led_classdev *led)
++{
++	struct hid_device *hdev = to_hid_device(led->dev->parent);
++	struct dualsense *ds = hid_get_drvdata(hdev);
++
++	return !!(ds->player_leds_state & BIT(led - ds->player_leds));
++}
++
++static void dualsense_player_led_set_brightness(struct led_classdev *led, enum led_brightness value)
++{
++	struct hid_device *hdev = to_hid_device(led->dev->parent);
++	struct dualsense *ds = hid_get_drvdata(hdev);
++	unsigned long flags;
++	unsigned int led_index;
++
++	spin_lock_irqsave(&ds->base.lock, flags);
++
++	led_index = led - ds->player_leds;
++	if (value == LED_OFF)
++		ds->player_leds_state &= ~BIT(led_index);
++	else
++		ds->player_leds_state |= BIT(led_index);
++
++	ds->update_player_leds = true;
++	spin_unlock_irqrestore(&ds->base.lock, flags);
++
++	schedule_work(&ds->output_worker);
++}
++
+ static void dualsense_init_output_report(struct dualsense *ds, struct dualsense_output_report *rp,
+ 		void *buf)
+ {
+@@ -858,6 +893,13 @@ static void dualsense_output_worker(struct work_struct *work)
+ 		ds->update_lightbar = false;
+ 	}
+ 
++	if (ds->update_player_leds) {
++		common->valid_flag1 |= DS_OUTPUT_VALID_FLAG1_PLAYER_INDICATOR_CONTROL_ENABLE;
++		common->player_leds = ds->player_leds_state;
++
++		ds->update_player_leds = false;
++	}
++
+ 	if (ds->update_mic_mute) {
+ 		common->valid_flag1 |= DS_OUTPUT_VALID_FLAG1_MIC_MUTE_LED_CONTROL_ENABLE;
+ 		common->mute_button_led = ds->mic_muted;
+@@ -1107,12 +1149,20 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 	struct dualsense *ds;
+ 	struct ps_device *ps_dev;
+ 	uint8_t max_output_report_size;
+-	int ret;
++	int i, ret;
+ 
+ 	static const struct ps_led_info mute_led_info = {
+ 		"micmute", dualsense_mute_led_get_brightness, dualsense_mute_led_set_brightness
+ 	};
+ 
++	static const struct ps_led_info player_leds_info[] = {
++		{ "led1", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
++		{ "led2", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
++		{ "led3", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
++		{ "led4", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
++		{ "led5", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness }
++	};
++
+ 	ds = devm_kzalloc(&hdev->dev, sizeof(*ds), GFP_KERNEL);
+ 	if (!ds)
+ 		return ERR_PTR(-ENOMEM);
+@@ -1194,6 +1244,14 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 	if (ret)
+ 		goto err;
+ 
++	for (i = 0; i < ARRAY_SIZE(player_leds_info); i++) {
++		const struct ps_led_info *led_info = &player_leds_info[i];
++
++		ret = ps_led_register(ps_dev, &ds->player_leds[i], led_info);
++		if (ret < 0)
++			goto err;
++	}
++
+ 	return &ds->base;
+ 
+ err:
 -- 
 2.26.2
 

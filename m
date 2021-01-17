@@ -7,63 +7,63 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B5CCC433E6
-	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:11:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5633CC4332D
+	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:11:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2D108227C3
-	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:11:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2EA5C22525
+	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:11:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730650AbhAQXLj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 17 Jan 2021 18:11:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54786 "EHLO
+        id S1730647AbhAQXLr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 17 Jan 2021 18:11:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730643AbhAQXLg (ORCPT
+        with ESMTP id S1730649AbhAQXLg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Sun, 17 Jan 2021 18:11:36 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 192B1C0613D6
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:10:09 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id x18so7629181pln.6
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:10:09 -0800 (PST)
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 951D7C061793
+        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:10:12 -0800 (PST)
+Received: by mail-pl1-x634.google.com with SMTP id be12so7631523plb.4
+        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:10:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gaikai-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=triFE/sYvBtuDohYg3D+sS11KTbjmvteI/TeSZVg8Qk=;
-        b=g3hYh17eaqc7Sen9kwsQ2rVdOz0ruwdaUPURatG4ximuMr1sgAe8L1ODUm9JkTvi6b
-         6ufzf9T1BDqEuvYZwWSU0LQSlBfLlMuypyicWeBk08EgyLpqouzJDZjsw24HoyLRYTj9
-         c0CN1V22sji7+np8LrOr59kiKIBGgXQyjwpKJU0qJ5A+apuuRqAadx2Ksp7giPQr+eqJ
-         Jvv9GWm+W8NU69Dyd7AGaIlI5DmmfBAecIXz1gRhyIQ+gSgqXWrqa6Kd69MX4Ig53LeW
-         k3zxtRlfl7eJ13zSosKYzrkBhEZmSB0BQVX91P1BImjS9CwLuDg8jANZXEApe5im7dum
-         bQ6Q==
+        bh=MGzvJoR8AbKsQApEJXykdhjDra9WZV2DkPpDn5El2Uc=;
+        b=UKDS+9bv9oyLZ9UJLjmpA5DcC1bfbxzxFLWtgAL48Rhc1JmUvW/h4/28ivZXz9gP3+
+         8nMFLPnpntunrwKLooFaGjfg7HVAEbruzsVoS6HwU0cSSJmtseD/YRKWGyXZkdjgVn4j
+         BVuohl30l5qKoD+tNz2XUvhQViwceDACgKRISUdoTQ6ajmU4gTDJqO2Wjaxq9uPtrP71
+         X/p4HVITaXjJ//P3+2VoLnCXRq0cnrVxuj2FlAYVsqEsN7eF31LVHXmoFOI9DBmUYgpn
+         E5JTfekU5GWO8rawTBkR0t1TcIESqRTySj+62OPgUN61ywafHQHdkwWKSacIuTajGptN
+         8/Lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=triFE/sYvBtuDohYg3D+sS11KTbjmvteI/TeSZVg8Qk=;
-        b=K6qQlqwNV/IuphhnmFpYmr740nE6amK7FTntNvfeGfBMdNmXO9PT0K+Q3YX5d5oW31
-         I50QS08lQnBDR/BH6xQdVKPGRtlOCQmFGjKMYseE4eMakD8eEBLPjAocsheTxcH9jSyG
-         AJzfHdGJFYQA1fjmHiwPLQU6gqV5L7LxCHfkOmNvXpavmeI3a+YbEybsjZz5514oCc2s
-         9akx043nnH0Ti/rxjbiHQoHMaMPucSfjJbViP0pMrFCadxz+efIAqeXpA10fdQRq1ixQ
-         AsxaEFLeeNM+7+XUJTuXonAyJe4rKHlyBUl9iw5qiQk+ph+q6qgIoyJR9A2FuSQ22AxZ
-         /IqQ==
-X-Gm-Message-State: AOAM530IIo5cOavRWVsHuJeJBn4Zu3S8xwp6up4zAUYLZAG61w8JMOIo
-        2XDmmyMMRkMXq8k8Uc6uiha4r1U1xKraxQ==
-X-Google-Smtp-Source: ABdhPJw1kmoWVlXKBGQ/vzJPwByUZxMV08XQ3UR1FDPdRomAWzBHW0zUM8DT+wcwPhLZDjUdSNlI/w==
-X-Received: by 2002:a17:90b:3751:: with SMTP id ne17mr1860643pjb.174.1610925008584;
-        Sun, 17 Jan 2021 15:10:08 -0800 (PST)
+        bh=MGzvJoR8AbKsQApEJXykdhjDra9WZV2DkPpDn5El2Uc=;
+        b=sa2VzzxFxT4zDL8/97cTzdteXohdIJ2Ou819d/l6m9R7nrDTxu0st93+9uLY1pjtqS
+         ohvXyD0iIm30Hgb/GiW8zzLLPRkR+i0voDIKv55licr0oYgrxIO+2pGYdCY11gHEQXpl
+         HVaQ3AR/giUlAmEtwLKYfwRsotQRLJudgb07YOWq2kB7vqWzs8HFnfwskIJF0Mj9tlDV
+         8vUcxR6eqRGxZ/+eXGk/htaEHU4VkuQdgt4QUHTd9u0UYGQ3C+iDLPvdT6i0358nIxUh
+         iyPdX8W1pF2tZ1cV9FOp/C8UB+0UDaUvZyoUmWsx0O/D5PPJ+almCW9uaOyFwd7UWOL3
+         3iuA==
+X-Gm-Message-State: AOAM531yVMksiEkflZ3jNbWTymG6sGk1bgzL7ktdpLJI3+XIAQO/LBh1
+        X787hAzLxavk0A0S/urqrLuHsg==
+X-Google-Smtp-Source: ABdhPJzpjOHc16q9PNTuZAk1Ypca2n/fAIZuAPsaIASIW0h9nuD+qwq6guY/fZYTISGVBPf3wgRZsg==
+X-Received: by 2002:a17:902:bc41:b029:de:1ec2:dac1 with SMTP id t1-20020a170902bc41b02900de1ec2dac1mr23903456plz.9.1610925012208;
+        Sun, 17 Jan 2021 15:10:12 -0800 (PST)
 Received: from us8c16456344dc.lan (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id g3sm14018746pjt.34.2021.01.17.15.10.07
+        by smtp.gmail.com with ESMTPSA id g3sm14018746pjt.34.2021.01.17.15.10.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Jan 2021 15:10:08 -0800 (PST)
+        Sun, 17 Jan 2021 15:10:11 -0800 (PST)
 From:   Roderick Colenbrander <roderick@gaikai.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH v3 07/12] HID: playstation: add DualSense classic rumble support.
-Date:   Sun, 17 Jan 2021 15:09:51 -0800
-Message-Id: <20210117230956.173031-8-roderick@gaikai.com>
+Subject: [PATCH v3 10/12] HID: playstation: add DualSense player LEDs support.
+Date:   Sun, 17 Jan 2021 15:09:54 -0800
+Message-Id: <20210117230956.173031-11-roderick@gaikai.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210117230956.173031-1-roderick@gaikai.com>
 References: <20210117230956.173031-1-roderick@gaikai.com>
@@ -75,331 +75,126 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-The DualSense features a haptics system based on voicecoil motors,
-which requires PCM data (or special HID packets using Bluetooth). There
-is no appropriate API yet in the Linux kernel to expose these. The
-controller also provides a classic rumble feature for backwards
-compatibility. Expose this classic rumble feature using the FF framework.
+The DualSense features 5 player LEDs below its touchpad, which are
+meant as player id indications. This patch exposes the player LEDs
+as individual LEDs.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/Kconfig           |   8 ++
- drivers/hid/hid-playstation.c | 208 +++++++++++++++++++++++++++++++++-
- 2 files changed, 214 insertions(+), 2 deletions(-)
+ drivers/hid/hid-playstation.c | 60 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 59 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index b3ec01c7a0b7..54b4eee222f9 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -863,6 +863,14 @@ config HID_PLAYSTATION
- 	  its special functionalities e.g. touchpad, lights and motion
- 	  sensors.
- 
-+config PLAYSTATION_FF
-+	bool "PlayStation force feedback support"
-+	depends on HID_PLAYSTATION
-+	select INPUT_FF_MEMLESS
-+	help
-+	  Say Y here if you would like to enable force feedback support for
-+	  PlayStation game controllers.
-+
- config HID_PRIMAX
- 	tristate "Primax non-fully HID-compliant devices"
- 	depends on HID
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index bcf93836beb2..49205bb323a7 100644
+index 58a34959fa2f..0c2c7f7b1072 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -48,12 +48,17 @@ struct ps_calibration_data {
+@@ -112,6 +112,7 @@ struct ps_led_info {
+ #define DS_OUTPUT_VALID_FLAG1_POWER_SAVE_CONTROL_ENABLE BIT(1)
+ #define DS_OUTPUT_VALID_FLAG1_LIGHTBAR_CONTROL_ENABLE BIT(2)
+ #define DS_OUTPUT_VALID_FLAG1_RELEASE_LEDS BIT(3)
++#define DS_OUTPUT_VALID_FLAG1_PLAYER_INDICATOR_CONTROL_ENABLE BIT(4)
+ #define DS_OUTPUT_VALID_FLAG2_LIGHTBAR_SETUP_CONTROL_ENABLE BIT(1)
+ #define DS_OUTPUT_POWER_SAVE_CONTROL_MIC_MUTE BIT(4)
+ #define DS_OUTPUT_LIGHTBAR_SETUP_LIGHT_OUT BIT(1)
+@@ -157,6 +158,11 @@ struct dualsense {
+ 	bool last_btn_mic_state;
+ 	struct led_classdev mute_led;
  
- /* Seed values for DualShock4 / DualSense CRC32 for different report types. */
- #define PS_INPUT_CRC32_SEED	0xA1
-+#define PS_OUTPUT_CRC32_SEED	0xA2
- #define PS_FEATURE_CRC32_SEED	0xA3
++	/* Player leds */
++	bool update_player_leds;
++	uint8_t player_leds_state;
++	struct led_classdev player_leds[5];
++
+ 	struct work_struct output_worker;
+ 	void *output_report_dmabuf;
+ 	uint8_t output_seq; /* Sequence number for output report. */
+@@ -766,6 +772,35 @@ static void dualsense_mute_led_set_brightness(struct led_classdev *led, enum led
  
- #define DS_INPUT_REPORT_USB			0x01
- #define DS_INPUT_REPORT_USB_SIZE		64
- #define DS_INPUT_REPORT_BT			0x31
- #define DS_INPUT_REPORT_BT_SIZE			78
-+#define DS_OUTPUT_REPORT_USB			0x02
-+#define DS_OUTPUT_REPORT_USB_SIZE		63
-+#define DS_OUTPUT_REPORT_BT			0x31
-+#define DS_OUTPUT_REPORT_BT_SIZE		78
- 
- #define DS_FEATURE_REPORT_CALIBRATION		0x05
- #define DS_FEATURE_REPORT_CALIBRATION_SIZE	41
-@@ -89,6 +94,12 @@ struct ps_calibration_data {
-  */
- #define DS_TOUCH_POINT_INACTIVE BIT(7)
- 
-+ /* Magic value required in tag field of Bluetooth output report. */
-+#define DS_OUTPUT_TAG 0x10
-+/* Flags for DualSense output report. */
-+#define DS_OUTPUT_VALID_FLAG0_COMPATIBLE_VIBRATION BIT(0)
-+#define DS_OUTPUT_VALID_FLAG0_HAPTICS_SELECT BIT(1)
-+
- /* DualSense hardware limits */
- #define DS_ACC_RES_PER_G	8192
- #define DS_ACC_RANGE		(4*DS_ACC_RES_PER_G)
-@@ -111,6 +122,15 @@ struct dualsense {
- 	bool sensor_timestamp_initialized;
- 	uint32_t prev_sensor_timestamp;
- 	uint32_t sensor_timestamp_us;
-+
-+	/* Compatible rumble state */
-+	bool update_rumble;
-+	uint8_t motor_left;
-+	uint8_t motor_right;
-+
-+	struct work_struct output_worker;
-+	void *output_report_dmabuf;
-+	uint8_t output_seq; /* Sequence number for output report. */
- };
- 
- struct dualsense_touch_point {
-@@ -146,6 +166,68 @@ struct dualsense_input_report {
- /* Common input report size shared equals the size of the USB report minus 1 byte for ReportID. */
- static_assert(sizeof(struct dualsense_input_report) == DS_INPUT_REPORT_USB_SIZE - 1);
- 
-+/* Common data between DualSense BT/USB main output report. */
-+struct dualsense_output_report_common {
-+	uint8_t valid_flag0;
-+	uint8_t valid_flag1;
-+
-+	/* For DualShock 4 compatibility mode. */
-+	uint8_t motor_right;
-+	uint8_t motor_left;
-+
-+	/* Audio controls */
-+	uint8_t reserved[4];
-+	uint8_t mute_button_led;
-+
-+	uint8_t power_save_control;
-+	uint8_t reserved2[28];
-+
-+	/* LEDs and lightbar */
-+	uint8_t valid_flag2;
-+	uint8_t reserved3[2];
-+	uint8_t lightbar_setup;
-+	uint8_t led_brightness;
-+	uint8_t player_leds;
-+	uint8_t lightbar_red;
-+	uint8_t lightbar_green;
-+	uint8_t lightbar_blue;
-+} __packed;
-+static_assert(sizeof(struct dualsense_output_report_common) == 47);
-+
-+struct dualsense_output_report_bt {
-+	uint8_t report_id; /* 0x31 */
-+	uint8_t seq_tag;
-+	uint8_t tag;
-+	struct dualsense_output_report_common common;
-+	uint8_t reserved[24];
-+	__le32 crc32;
-+} __packed;
-+static_assert(sizeof(struct dualsense_output_report_bt) == DS_OUTPUT_REPORT_BT_SIZE);
-+
-+struct dualsense_output_report_usb {
-+	uint8_t report_id; /* 0x02 */
-+	struct dualsense_output_report_common common;
-+	uint8_t reserved[15];
-+} __packed;
-+static_assert(sizeof(struct dualsense_output_report_usb) == DS_OUTPUT_REPORT_USB_SIZE);
-+
-+/*
-+ * The DualSense has a main output report used to control most features. It is
-+ * largely the same between Bluetooth and USB except for different headers and CRC.
-+ * This structure hide the differences between the two to simplify sending output reports.
-+ */
-+struct dualsense_output_report {
-+	uint8_t *data; /* Start of data */
-+	uint8_t len; /* Size of output report */
-+
-+	/* Points to Bluetooth data payload in case for a Bluetooth report else NULL. */
-+	struct dualsense_output_report_bt *bt;
-+	/* Points to USB data payload in case for a USB report else NULL. */
-+	struct dualsense_output_report_usb *usb;
-+	/* Points to common section of report, so past any headers. */
-+	struct dualsense_output_report_common *common;
-+};
-+
- /*
-  * Common gamepad buttons across DualShock 3 / 4 and DualSense.
-  * Note: for device with a touchpad, touchpad button is not included
-@@ -310,7 +392,8 @@ static bool ps_check_crc32(uint8_t seed, uint8_t *data, size_t len, uint32_t rep
- 	return crc == report_crc;
  }
  
--static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
-+static struct input_dev *ps_gamepad_create(struct hid_device *hdev,
-+		int (*play_effect)(struct input_dev *, void *, struct ff_effect *))
- {
- 	struct input_dev *gamepad;
- 	unsigned int i;
-@@ -333,6 +416,13 @@ static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
- 	for (i = 0; i < ARRAY_SIZE(ps_gamepad_buttons); i++)
- 		input_set_capability(gamepad, EV_KEY, ps_gamepad_buttons[i]);
- 
-+#if IS_ENABLED(CONFIG_PLAYSTATION_FF)
-+	if (play_effect) {
-+		input_set_capability(gamepad, EV_FF, FF_RUMBLE);
-+		input_ff_create_memless(gamepad, NULL, play_effect);
-+	}
-+#endif
-+
- 	ret = input_register_device(gamepad);
- 	if (ret)
- 		return ERR_PTR(ret);
-@@ -552,6 +642,94 @@ static int dualsense_get_mac_address(struct dualsense *ds)
- 	return ret;
- }
- 
-+static void dualsense_init_output_report(struct dualsense *ds, struct dualsense_output_report *rp,
-+		void *buf)
++static enum led_brightness dualsense_player_led_get_brightness(struct led_classdev *led)
 +{
-+	struct hid_device *hdev = ds->base.hdev;
++	struct hid_device *hdev = to_hid_device(led->dev->parent);
++	struct dualsense *ds = hid_get_drvdata(hdev);
 +
-+	if (hdev->bus == BUS_BLUETOOTH) {
-+		struct dualsense_output_report_bt *bt = buf;
-+
-+		memset(bt, 0, sizeof(*bt));
-+		bt->report_id = DS_OUTPUT_REPORT_BT;
-+		bt->tag = DS_OUTPUT_TAG; /* Tag must be set. Exact meaning is unclear. */
-+
-+		/*
-+		 * Highest 4-bit is a sequence number, which needs to be increased
-+		 * every report. Lowest 4-bit is tag and can be zero for now.
-+		 */
-+		bt->seq_tag = (ds->output_seq << 4) | 0x0;
-+		if (++ds->output_seq == 16)
-+			ds->output_seq = 0;
-+
-+		rp->data = buf;
-+		rp->len = sizeof(*bt);
-+		rp->bt = bt;
-+		rp->usb = NULL;
-+		rp->common = &bt->common;
-+	} else { /* USB */
-+		struct dualsense_output_report_usb *usb = buf;
-+
-+		memset(usb, 0, sizeof(*usb));
-+		usb->report_id = DS_OUTPUT_REPORT_USB;
-+
-+		rp->data = buf;
-+		rp->len = sizeof(*usb);
-+		rp->bt = NULL;
-+		rp->usb = usb;
-+		rp->common = &usb->common;
-+	}
++	return !!(ds->player_leds_state & BIT(led - ds->player_leds));
 +}
 +
-+/*
-+ * Helper function to send DualSense output reports. Applies a CRC at the end of a report
-+ * for Bluetooth reports.
-+ */
-+static void dualsense_send_output_report(struct dualsense *ds,
-+		struct dualsense_output_report *report)
++static void dualsense_player_led_set_brightness(struct led_classdev *led, enum led_brightness value)
 +{
-+	struct hid_device *hdev = ds->base.hdev;
-+
-+	/* Bluetooth packets need to be signed with a CRC in the last 4 bytes. */
-+	if (report->bt) {
-+		uint32_t crc;
-+		uint8_t seed = PS_OUTPUT_CRC32_SEED;
-+
-+		crc = crc32_le(0xFFFFFFFF, &seed, 1);
-+		crc = ~crc32_le(crc, report->data, report->len - 4);
-+
-+		report->bt->crc32 = cpu_to_le32(crc);
-+	}
-+
-+	hid_hw_output_report(hdev, report->data, report->len);
-+}
-+
-+static void dualsense_output_worker(struct work_struct *work)
-+{
-+	struct dualsense *ds = container_of(work, struct dualsense, output_worker);
-+	struct dualsense_output_report report;
-+	struct dualsense_output_report_common *common;
-+	unsigned long flags;
-+
-+	dualsense_init_output_report(ds, &report, ds->output_report_dmabuf);
-+	common = report.common;
-+
-+	spin_lock_irqsave(&ds->base.lock, flags);
-+
-+	if (ds->update_rumble) {
-+		/* Select classic rumble style haptics and enable it. */
-+		common->valid_flag0 |= DS_OUTPUT_VALID_FLAG0_HAPTICS_SELECT;
-+		common->valid_flag0 |= DS_OUTPUT_VALID_FLAG0_COMPATIBLE_VIBRATION;
-+		common->motor_left = ds->motor_left;
-+		common->motor_right = ds->motor_right;
-+		ds->update_rumble = false;
-+	}
-+
-+	spin_unlock_irqrestore(&ds->base.lock, flags);
-+
-+	dualsense_send_output_report(ds, &report);
-+}
-+
- static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *report,
- 		u8 *data, int size)
- {
-@@ -712,10 +890,30 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	return 0;
- }
- 
-+static int dualsense_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
-+{
-+	struct hid_device *hdev = input_get_drvdata(dev);
++	struct hid_device *hdev = to_hid_device(led->dev->parent);
 +	struct dualsense *ds = hid_get_drvdata(hdev);
 +	unsigned long flags;
-+
-+	if (effect->type != FF_RUMBLE)
-+		return 0;
++	unsigned int led_index;
 +
 +	spin_lock_irqsave(&ds->base.lock, flags);
-+	ds->update_rumble = true;
-+	ds->motor_left = effect->u.rumble.strong_magnitude / 256;
-+	ds->motor_right = effect->u.rumble.weak_magnitude / 256;
++
++	led_index = led - ds->player_leds;
++	if (value == LED_OFF)
++		ds->player_leds_state &= ~(1 << led_index);
++	else
++		ds->player_leds_state |= (1 << led_index);
++
++	ds->update_player_leds = true;
 +	spin_unlock_irqrestore(&ds->base.lock, flags);
 +
 +	schedule_work(&ds->output_worker);
-+	return 0;
 +}
 +
- static struct ps_device *dualsense_create(struct hid_device *hdev)
+ static void dualsense_init_output_report(struct dualsense *ds, struct dualsense_output_report *rp,
+ 		void *buf)
  {
- 	struct dualsense *ds;
- 	struct ps_device *ps_dev;
-+	uint8_t max_output_report_size;
- 	int ret;
- 
- 	ds = devm_kzalloc(&hdev->dev, sizeof(*ds), GFP_KERNEL);
-@@ -734,8 +932,14 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 	ps_dev->battery_capacity = 100; /* initial value until parse_report. */
- 	ps_dev->battery_status = POWER_SUPPLY_STATUS_UNKNOWN;
- 	ps_dev->parse_report = dualsense_parse_report;
-+	INIT_WORK(&ds->output_worker, dualsense_output_worker);
- 	hid_set_drvdata(hdev, ds);
- 
-+	max_output_report_size = sizeof(struct dualsense_output_report_bt);
-+	ds->output_report_dmabuf = devm_kzalloc(&hdev->dev, max_output_report_size, GFP_KERNEL);
-+	if (!ds->output_report_dmabuf)
-+		return ERR_PTR(-ENOMEM);
-+
- 	ret = dualsense_get_mac_address(ds);
- 	if (ret) {
- 		hid_err(hdev, "Failed to get MAC address from DualSense\n");
-@@ -753,7 +957,7 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 		goto err;
+@@ -858,6 +893,13 @@ static void dualsense_output_worker(struct work_struct *work)
+ 		ds->update_lightbar = false;
  	}
  
--	ds->gamepad = ps_gamepad_create(hdev);
-+	ds->gamepad = ps_gamepad_create(hdev, dualsense_play_effect);
- 	if (IS_ERR(ds->gamepad)) {
- 		ret = PTR_ERR(ds->gamepad);
++	if (ds->update_player_leds) {
++		common->valid_flag1 |= DS_OUTPUT_VALID_FLAG1_PLAYER_INDICATOR_CONTROL_ENABLE;
++		common->player_leds = ds->player_leds_state;
++
++		ds->update_player_leds = false;
++	}
++
+ 	if (ds->update_mic_mute) {
+ 		common->valid_flag1 |= DS_OUTPUT_VALID_FLAG1_MIC_MUTE_LED_CONTROL_ENABLE;
+ 		common->mute_button_led = ds->mic_muted;
+@@ -1107,12 +1149,20 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 	struct dualsense *ds;
+ 	struct ps_device *ps_dev;
+ 	uint8_t max_output_report_size;
+-	int ret;
++	int i, ret;
+ 
+ 	static const struct ps_led_info mute_led_info = {
+ 		"micmute", dualsense_mute_led_get_brightness, dualsense_mute_led_set_brightness
+ 	};
+ 
++	static const struct ps_led_info player_leds_info[] = {
++		{ "led1", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
++		{ "led2", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
++		{ "led3", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
++		{ "led4", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
++		{ "led5", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness }
++	};
++
+ 	ds = devm_kzalloc(&hdev->dev, sizeof(*ds), GFP_KERNEL);
+ 	if (!ds)
+ 		return ERR_PTR(-ENOMEM);
+@@ -1194,6 +1244,14 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 	if (ret)
  		goto err;
+ 
++	for (i = 0; i < ARRAY_SIZE(player_leds_info); i++) {
++		const struct ps_led_info *led_info = &player_leds_info[i];
++
++		ret = ps_led_register(ps_dev, &ds->player_leds[i], led_info);
++		if (ret < 0)
++			goto err;
++	}
++
+ 	return &ds->base;
+ 
+ err:
 -- 
 2.26.2
 

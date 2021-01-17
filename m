@@ -2,69 +2,71 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5B30C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EE20C43381
 	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:11:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 74F1D22516
+	by mail.kernel.org (Postfix) with ESMTP id 5439E2251E
 	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:11:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730607AbhAQXLZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 17 Jan 2021 18:11:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54580 "EHLO
+        id S1730615AbhAQXLY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 17 Jan 2021 18:11:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730600AbhAQXKn (ORCPT
+        with ESMTP id S1730607AbhAQXKn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Sun, 17 Jan 2021 18:10:43 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64CEFC061573
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:10:01 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id g3so7638437plp.2
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:10:01 -0800 (PST)
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8181DC061574
+        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:10:03 -0800 (PST)
+Received: by mail-pf1-x434.google.com with SMTP id i63so2037778pfg.7
+        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:10:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gaikai-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=7I/ccG0MPRG8n0nmy+EblopgcY0+UvZuJZfS4FXkioI=;
-        b=oqTxR5iZdTKTp3t8gyQRB6u8aUKQ/DptBIpai6AMqG2BrjCA80zK9Dr1R+feUt027Z
-         4v9eSwQeosFRYO5nOhqI0cAYqSN5uf7MBlaOvZFzq9HpDMh1XLL8m1DmmUdpIXNKAu9f
-         0z53yfAZpOkJBYoXPq7EjOASkq+55y9sbVNTQsIl0n8GjQTHtTYUEAKCL/Ru83jN1FGY
-         qKt5Bxb48hEH8im0BqhNyIJNxRyl1DVXHJU1bqJwbL117B5dzD1xam/Q94xXm4sij+fx
-         bZ+y65TSvOf0Pn9nshl+Xp4n4VwXVBhyFeUaoJweAbFnT5MSbUnHJbNezbuQ+4sOk3zX
-         mtKQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=8tDfgF4yjcWQcgWJ7Sr76cZF+mLnOj0iP8FJiIQgK3A=;
+        b=UzQlXgZaf6smOZ0m4KfwNataLuBmasNDuj+pmmOqkCLdYOEFqDFLDzx/KR1tnoxIsI
+         lskIKH/isLrcTWoXUEiAuktP4/9QKXLbVdnMxACKA74ASHn++ZMEeHsgJKYJB/hsN2eg
+         AXLmRdYKMSCF6PHeiy3NhSHJCVmOwYqcGYyHnllEs/HUhCxSVLTka5KQQxTHBCwZTwMu
+         oD1aonjV9md/Gc2NGBkH9qwdjc448mazTE5KnPdEI7bWa2JiO3JI3t2Q5MOsBC4BTiAY
+         JBDVuQbDRE8Zbl/qfJkUKQdPw/WLswKzMaN7cjBnYHbv/4PFHt/MVAG/fGNXi1X9VPq4
+         eo/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=7I/ccG0MPRG8n0nmy+EblopgcY0+UvZuJZfS4FXkioI=;
-        b=EXAEQg9CeqyyTvLwWGBAkmwk7cjgRI9ILegFGH8YGu/AN4eaZGYBMqO6teaZMTD+mi
-         O0dPMQ7v4uaBqzhoDENtOLipfu2+Wu6gUPNVE6Z3i/mwJJr+4aSq/LYmOcc6G7p9BvTy
-         kXLlpaF7SZw9RcC3MRx9OW0yxiE2yz7McjACXbICnAqZ2FexQ59+6/Cmw3C9727UXz1A
-         91icOtJ1JiIpZUcHm+KUXuy7zTvshXbVZMFAeX6xs//iC3h+YGkvD5pU1SzAFmX2tL2H
-         o0z++pwVhnHNUYos0qkj+ZwS7rhnaFE1I9I4XrXPo1kW3wL9WhT+sHRvU2Hd4jyN0OWT
-         xdaA==
-X-Gm-Message-State: AOAM533KCTVWPaM/Kn4MOnuQtSniJJEniCk3VkjCXm9/c08jtbdAqL1y
-        0a3xmBzFejskfGlpW/aLtrb6vg==
-X-Google-Smtp-Source: ABdhPJzWHmnP1p75/K1Z602f7k3kAIhRZdFdUePR/R0mVAS89Zqv9+kswcVJOLorOLz+igTvJf+oCw==
-X-Received: by 2002:a17:902:7b98:b029:db:fab3:e74b with SMTP id w24-20020a1709027b98b02900dbfab3e74bmr23483457pll.27.1610925000809;
-        Sun, 17 Jan 2021 15:10:00 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=8tDfgF4yjcWQcgWJ7Sr76cZF+mLnOj0iP8FJiIQgK3A=;
+        b=JdFFG8X42itUEoA2BtyVSdg0t0zlxafCMtTJCiiiL33PojO+IpkkwiPiNbHD4gy/Hz
+         yFEpM5oOBrvo+dMGIn23UMS+an1X/3aNLzHJgRCEUs16m3zLglgCUCdxRkIgTTrNJRw5
+         ppISuLIt3P3kPc6Yej3dWICiImrgGPNDrDtBZq2bpHEGaDzYCdvt/xQppyRR/ZIu4f63
+         yspLC8TKAnRCXjMM+QYFb0eFvs+jh+D9A0wdKgYPFN0w30qL8XGa3bHeybJ3JCDKI4kn
+         iNaAFlD33SG3WkYpfcpfMd2IC9vDcLvdf3VYDYo5NNZtJXHHaoV+0gBqueNfAnN9Nnh+
+         9bdA==
+X-Gm-Message-State: AOAM531YQAgYy+LsgpeiMgrzylo3y45wXobtiPGxqUIOK4gYkWXflYNq
+        YFR01k86Z1yEzUoAi6b/l5crGSu73jTlKw==
+X-Google-Smtp-Source: ABdhPJzCOr6Qch4RUOS5t3RLuIeHiqj8Q6odgP9jIGdWPV5TGWwYQHcBfjMrG2z6NvxneEFU7uW16A==
+X-Received: by 2002:a62:c301:0:b029:1b6:74fb:696e with SMTP id v1-20020a62c3010000b02901b674fb696emr5920104pfg.59.1610925003088;
+        Sun, 17 Jan 2021 15:10:03 -0800 (PST)
 Received: from us8c16456344dc.lan (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id g3sm14018746pjt.34.2021.01.17.15.09.59
+        by smtp.gmail.com with ESMTPSA id g3sm14018746pjt.34.2021.01.17.15.10.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Jan 2021 15:09:59 -0800 (PST)
+        Sun, 17 Jan 2021 15:10:02 -0800 (PST)
 From:   Roderick Colenbrander <roderick@gaikai.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH v3 00/13] HID: new driver for PS5 'DualSense' controller
-Date:   Sun, 17 Jan 2021 15:09:44 -0800
-Message-Id: <20210117230956.173031-1-roderick@gaikai.com>
+Subject: [PATCH v3 02/12] HID: playstation: use DualSense MAC address as unique identifier.
+Date:   Sun, 17 Jan 2021 15:09:46 -0800
+Message-Id: <20210117230956.173031-3-roderick@gaikai.com>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210117230956.173031-1-roderick@gaikai.com>
+References: <20210117230956.173031-1-roderick@gaikai.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -73,77 +75,102 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Hi,
+Use the DualSense MAC address as a unique identifier for the HID device.
 
-I would like to share an updated version of the hid-playstation driver.
-This new revision contains a few bug fixes, but mostly features small
-code changes and minor improvements.
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+---
+ drivers/hid/hid-playstation.c | 57 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
-In terms of bugs there were bugs in the sensor code. There was an overflow
-issue and EV_MSC/MSC_TIMESTAMP were not set on the device. In addition,
-the ps_device spinlock was not initialized.
-
-The biggest change in the driver was the addition of a new 'ps_get_report'
-helper function. It handles GET_FEATURE report retrieval and any error handling
-including CRC checks for PlayStation Bluetooth devices. This greatly simplified
-all the functions (dualsense_get_mac_address, dualsense_calibration_info, ..)
-dealing, which used their own report handling and error checking.
-
-Aside for these changes, there were mostly little code style changes like defining
-magic constants, cleaning up comments, cleaning up log messages, static_assert
-checks etcetera.
-
-Thanks to everyone who provided feedback through the mailing list or privately.
-
-Changes since v2:
-- Removed !Expert setting for hid-playstation from Kconfig.
-- Removed DualSense from hid-quirks table.
-- Added report size checks to dualsense_parse_report.
-- Moved mac address endianess comment to struct ps_device.
-- Added static_asserts for packed structure size checks.
-- Improved readability of battery capacity calculation using 'min'.
-- Added spin_lock_init to dualsense_create to initialize ps_device lock. 
-- Fixed sensors timestamp overflow.
-- Fixed missing MSC_TIMESTAMP and EV_MSC capabilities in ps_sensors_create.
-- Used DIV_ROUND_CLOSEST for timestamp calculations to minimize rounding errors.
-- Switched to devm_kmalloc_array for lightbar allocation.
-- Added CRC32 and NEW_LEDS dependency to Kconfig.
-- Added defines for crc32 seed constants.
-- Added crc32 check for dualsense_get_mac_address and increased report size to 20.
-- Added new ps_get_report call to obtain feature reports.
-- Switched to ARRAY_SIZE in dualsense_parse_reports for touch points, accel and gyro data.
-- Changed touch point parse loop to use "struct dualsense_touch_point".
-- Improved consistency of info and error messages.
-- Unified comment style.
-
-Thanks,
-
-Roderick Colenbrander
-Sony Interactive Entertainment, LLC
-
-Roderick Colenbrander (13):
-  HID: playstation: initial DualSense USB support.
-  HID: playstation: use DualSense MAC address as unique identifier.
-  HID: playstation: add DualSense battery support.
-  HID: playstation: add DualSense touchpad support.
-  HID: playstation: add DualSense accelerometer and gyroscope support.
-  HID: playstation: track devices in list.
-  HID: playstation: add DualSense Bluetooth support.
-  HID: playstation: add DualSense classic rumble support.
-  HID: playstation: add DualSense lightbar support
-  HID: playstation: add microphone mute support for DualSense.
-  HID: playstation: add DualSense player LEDs support.
-  HID: playstation: DualSense set LEDs to default player id.
-  HID: playstation: report DualSense hardware and firmware version.
-
- MAINTAINERS                   |    6 +
- drivers/hid/Kconfig           |   21 +
- drivers/hid/Makefile          |    1 +
- drivers/hid/hid-ids.h         |    1 +
- drivers/hid/hid-playstation.c | 1492 +++++++++++++++++++++++++++++++++
- 5 files changed, 1521 insertions(+)
- create mode 100644 drivers/hid/hid-playstation.c
-
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index 46d5f5b3b0dd..2f24039dedbe 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -20,6 +20,7 @@
+ /* Base class for playstation devices. */
+ struct ps_device {
+ 	struct hid_device *hdev;
++	uint8_t mac_address[6]; /* Note: stored in little endian order. */
+ 
+ 	int (*parse_report)(struct ps_device *dev, struct hid_report *report, u8 *data, int size);
+ };
+@@ -27,6 +28,9 @@ struct ps_device {
+ #define DS_INPUT_REPORT_USB			0x01
+ #define DS_INPUT_REPORT_USB_SIZE		64
+ 
++#define DS_FEATURE_REPORT_PAIRING_INFO		0x09
++#define DS_FEATURE_REPORT_PAIRING_INFO_SIZE	20
++
+ /* Button masks for DualSense input report. */
+ #define DS_BUTTONS0_HAT_SWITCH	GENMASK(3, 0)
+ #define DS_BUTTONS0_SQUARE	BIT(4)
+@@ -166,6 +170,52 @@ static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
+ 	return gamepad;
+ }
+ 
++static int ps_get_report(struct hid_device *hdev, uint8_t report_id, uint8_t *buf, size_t size)
++{
++	int ret;
++
++	ret = hid_hw_raw_request(hdev, report_id, buf, size, HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
++	if (ret < 0) {
++		hid_err(hdev, "Failed to retrieve feature with reportID %d: %d\n", report_id, ret);
++		return ret;
++	}
++
++	if (ret != size) {
++		hid_err(hdev, "Invalid byte count transferred, expected %zu got %d\n", size, ret);
++		return -EINVAL;
++	}
++
++	if (buf[0] != report_id) {
++		hid_err(hdev, "Incorrect reportID received, expected %d got %d\n", report_id, buf[0]);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int dualsense_get_mac_address(struct dualsense *ds)
++{
++	uint8_t *buf;
++	int ret = 0;
++
++	buf = kzalloc(DS_FEATURE_REPORT_PAIRING_INFO_SIZE, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	ret = ps_get_report(ds->base.hdev, DS_FEATURE_REPORT_PAIRING_INFO, buf,
++			DS_FEATURE_REPORT_PAIRING_INFO_SIZE);
++	if (ret) {
++		hid_err(ds->base.hdev, "Failed to retrieve DualSense pairing info: %d\n", ret);
++		goto err_free;
++	}
++
++	memcpy(ds->base.mac_address, &buf[1], sizeof(ds->base.mac_address));
++
++err_free:
++	kfree(buf);
++	return ret;
++}
++
+ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *report,
+ 		u8 *data, int size)
+ {
+@@ -237,6 +287,13 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 	ds->base.parse_report = dualsense_parse_report;
+ 	hid_set_drvdata(hdev, ds);
+ 
++	ret = dualsense_get_mac_address(ds);
++	if (ret) {
++		hid_err(hdev, "Failed to get MAC address from DualSense\n");
++		return ERR_PTR(ret);
++	}
++	snprintf(hdev->uniq, sizeof(hdev->uniq), "%pMR", ds->base.mac_address);
++
+ 	ds->gamepad = ps_gamepad_create(hdev);
+ 	if (IS_ERR(ds->gamepad)) {
+ 		ret = PTR_ERR(ds->gamepad);
 -- 
 2.26.2
 

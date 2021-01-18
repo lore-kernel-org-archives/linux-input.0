@@ -7,22 +7,22 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF3ECC433E0
-	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 13:18:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6494FC433DB
+	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 13:21:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AB6CE22B49
-	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 13:18:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 30887216FD
+	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 13:21:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404312AbhARNLf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 18 Jan 2021 08:11:35 -0500
-Received: from mx2.suse.de ([195.135.220.15]:38988 "EHLO mx2.suse.de"
+        id S2391344AbhARNLa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 18 Jan 2021 08:11:30 -0500
+Received: from mx2.suse.de ([195.135.220.15]:38974 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404009AbhARMeZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 18 Jan 2021 07:34:25 -0500
+        id S2403993AbhARMeY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 18 Jan 2021 07:34:24 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 1F1A3B948;
-        Mon, 18 Jan 2021 12:33:04 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 98E46B93E;
+        Mon, 18 Jan 2021 12:32:59 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 To:     u.kleine-koenig@pengutronix.de
 Cc:     f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
@@ -36,9 +36,9 @@ Cc:     f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
         linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
         andy.shevchenko@gmail.com,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v7 10/11] DO NOT MERGE: ARM: dts: Add RPi's official PoE hat support
-Date:   Mon, 18 Jan 2021 13:32:43 +0100
-Message-Id: <20210118123244.13669-11-nsaenzjulienne@suse.de>
+Subject: [PATCH v7 05/11] reset: raspberrypi: Release firmware handle on unbind
+Date:   Mon, 18 Jan 2021 13:32:38 +0100
+Message-Id: <20210118123244.13669-6-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210118123244.13669-1-nsaenzjulienne@suse.de>
 References: <20210118123244.13669-1-nsaenzjulienne@suse.de>
@@ -48,93 +48,28 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is an example on how to enable the fan on top of RPi's official PoE
-hat.
+Use devm_rpi_firmware_get() so as to make sure we release RPi's firmware
+interface when unbinding the device.
 
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- arch/arm/boot/dts/bcm2711-rpi-4-b.dts | 54 +++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+ drivers/reset/reset-raspberrypi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-index 403bacf986eb..9ae44620c5b8 100644
---- a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-+++ b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-@@ -5,6 +5,7 @@
- #include "bcm283x-rpi-usb-peripheral.dtsi"
+diff --git a/drivers/reset/reset-raspberrypi.c b/drivers/reset/reset-raspberrypi.c
+index 02f59c06f69b..fa23db554bcf 100644
+--- a/drivers/reset/reset-raspberrypi.c
++++ b/drivers/reset/reset-raspberrypi.c
+@@ -82,7 +82,7 @@ static int rpi_reset_probe(struct platform_device *pdev)
+ 		return -ENOENT;
+ 	}
  
- #include <dt-bindings/reset/raspberrypi,firmware-reset.h>
-+#include <dt-bindings/pwm/raspberrypi,firmware-poe-pwm.h>
- 
- / {
- 	compatible = "raspberrypi,4-model-b", "brcm,bcm2711";
-@@ -68,6 +69,54 @@ sd_vcc_reg: sd_vcc_reg {
- 		enable-active-high;
- 		gpio = <&expgpio 6 GPIO_ACTIVE_HIGH>;
- 	};
-+
-+	fan: pwm-fan {
-+		compatible = "pwm-fan";
-+		cooling-levels = <0 50 150 255>;
-+		#cooling-cells = <2>;
-+		pwms = <&fwpwm RASPBERRYPI_FIRMWARE_PWM_POE 80000>;
-+	};
-+
-+	thermal-zones {
-+		cpu_thermal: cpu-thermal {
-+			trips {
-+				threshold: trip-point@0 {
-+					temperature = <45000>;
-+					hysteresis = <5000>;
-+					type = "active";
-+				};
-+
-+				target: trip-point@1 {
-+					temperature = <50000>;
-+					hysteresis = <2000>;
-+					type = "active";
-+				};
-+
-+				cpu_hot: cpu_hot@0 {
-+					temperature = <55000>;
-+					hysteresis = <2000>;
-+					type = "active";
-+				};
-+			};
-+
-+			cooling-maps {
-+				map0 {
-+					trip = <&threshold>;
-+					cooling-device = <&fan 0 1>;
-+				};
-+
-+				map1 {
-+					trip = <&target>;
-+					cooling-device = <&fan 1 2>;
-+				};
-+
-+				map2 {
-+					trip = <&cpu_hot>;
-+					cooling-device = <&fan 2 3>;
-+				};
-+			};
-+		};
-+	};
- };
- 
- &ddc0 {
-@@ -103,6 +152,11 @@ reset: reset {
- 		compatible = "raspberrypi,firmware-reset";
- 		#reset-cells = <1>;
- 	};
-+
-+	fwpwm: pwm {
-+		compatible = "raspberrypi,firmware-poe-pwm";
-+		#pwm-cells = <2>;
-+	};
- };
- 
- &gpio {
+-	fw = rpi_firmware_get(np);
++	fw = devm_rpi_firmware_get(&pdev->dev, np);
+ 	of_node_put(np);
+ 	if (!fw)
+ 		return -EPROBE_DEFER;
 -- 
 2.29.2
 

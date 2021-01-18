@@ -2,175 +2,141 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.4 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D6A5C433E0
-	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:48:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80094C433DB
+	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 07:56:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6EEFC206E3
-	for <linux-input@archiver.kernel.org>; Sun, 17 Jan 2021 23:48:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D4A5224B8
+	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 07:56:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729789AbhAQXsG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 17 Jan 2021 18:48:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33804 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730848AbhAQXp1 (ORCPT
+        id S1732832AbhARH4H (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 18 Jan 2021 02:56:07 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:60406 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733174AbhARHz4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 17 Jan 2021 18:45:27 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 946C3C061575
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:44:47 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id n10so9815893pgl.10
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2021 15:44:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gaikai-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=8tDfgF4yjcWQcgWJ7Sr76cZF+mLnOj0iP8FJiIQgK3A=;
-        b=cNavsa6q9k2W6J5qridkosCUAE3AmUrtqBxXckS6X0PiM6evTFLVUKxWJrbqhuErt/
-         Bu+vk5bkKR4lXVpC3/6/YKWYbcsOzFxKk7cOPNvHZW/VCz9f/A/NsfbOd+hcgEkoFsQK
-         AUNcFPm3IVWsBLwrtp7+dJQZQeX/DtFbBGeIymjc21vbL0paomczvHJ8bRLOOh72je0Q
-         iKmWA5PvwMPZ4ftIKISWsEBSWUMjWyE5/fJzM+/mW1Au2jjyhyP5rpPyFTRyPDakXxgR
-         m2Wo9e9ZoIqGJmCxZahefd/6vZ8LprDTBfjua57dgMaLBKrc/9ysqB0qgTcOZXk44XrF
-         5OWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=8tDfgF4yjcWQcgWJ7Sr76cZF+mLnOj0iP8FJiIQgK3A=;
-        b=GgzHj1eFv24B3BKuYqi+gBKKjAhwjYQuLxQe09v/ZhO5LH/WZBEa/XUScHuU3vKJCH
-         3VYrr91pRjxeZnKF3OyceKDj+/45QLlMMQMLn6/3524nQ79ARvIx9NRHKj455luCuoij
-         vb4BCzhkuCrwJQLfqYwqayqj7dWwzWtNbOCKmdR4PovePVzZvteQdU54nNsTVWht04nX
-         /zq4t9c0ZErdm2nzgwQ3zOC9C4Q9OtDQqMXX+DmTEd0OCRH4GVjekQbCxaAVXa6NT3zX
-         seHC+Ng4z4ohHNwrrpkf09n/zstjtiIVcB40w1AuTKhBnjkcHrhCERuiRjVnhpAh6Vrz
-         DKfQ==
-X-Gm-Message-State: AOAM530MGCuGwCTPqQDJYfhWmZ3gBNaXfvtHYftQJvGcynMbFOhVSXeB
-        6LS8ByKxV8t+WXLCM+oXsAnicDnPUCjGKw==
-X-Google-Smtp-Source: ABdhPJzbNlt51YeMJRc5MI7wNVJGjtNP2AveEta8qGHe2R51Clf4ICEms4CXPhERKwlVJH8Fd1knQA==
-X-Received: by 2002:aa7:8ad0:0:b029:1a9:3a46:78d1 with SMTP id b16-20020aa78ad00000b02901a93a4678d1mr23720532pfd.77.1610927087173;
-        Sun, 17 Jan 2021 15:44:47 -0800 (PST)
-Received: from us8c16456344dc.lan (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id i2sm14721568pjd.21.2021.01.17.15.44.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Jan 2021 15:44:46 -0800 (PST)
-From:   Roderick Colenbrander <roderick@gaikai.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
-        Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH v4 02/13] HID: playstation: use DualSense MAC address as unique identifier.
-Date:   Sun, 17 Jan 2021 15:44:24 -0800
-Message-Id: <20210117234435.180294-3-roderick@gaikai.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210117234435.180294-1-roderick@gaikai.com>
-References: <20210117234435.180294-1-roderick@gaikai.com>
+        Mon, 18 Jan 2021 02:55:56 -0500
+Received: from [222.130.132.169] (helo=[192.168.0.104])
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <hui.wang@canonical.com>)
+        id 1l1PNX-0000QS-IE; Mon, 18 Jan 2021 07:55:12 +0000
+Subject: Re: [PATCH] HID: multitouch: add a quirk to skip set inputmode for 2
+ new laptops
+From:   Hui Wang <hui.wang@canonical.com>
+To:     =?UTF-8?Q?Barnab=c3=a1s_P=c5=91cze?= <pobrn@protonmail.com>
+Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "jikos@kernel.org" <jikos@kernel.org>,
+        "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>,
+        "jkosina@suse.cz" <jkosina@suse.cz>
+References: <20210107112708.25990-1-hui.wang@canonical.com>
+ <uQnmWiLQ4Lmlm2GUj2fhPTv6zZ9Cszx0BNMz2K4WvVE7TjLE82lmU6mi0Leu4OK2fXfn-86Tw8WeR6kla03TdTpKIn-1zcmb1mLHl8WAt_Q=@protonmail.com>
+ <af979df2-d5dc-ce91-5349-44b5b428e517@canonical.com>
+Message-ID: <d3b03a71-1cec-6277-04c7-c88f509a8ac0@canonical.com>
+Date:   Mon, 18 Jan 2021 15:55:01 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
+In-Reply-To: <af979df2-d5dc-ce91-5349-44b5b428e517@canonical.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+This turns out to be a firmware issue, synaptics provided a new firmware 
+for the touchpad, and we upgraded the firmware for the touchpad under 
+windows (we only have windows firmware upgrade utility), now the 
+touchpad could work with trackpoint together under Linux.
 
-Use the DualSense MAC address as a unique identifier for the HID device.
+Thanks.
 
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
----
- drivers/hid/hid-playstation.c | 57 +++++++++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
-
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 46d5f5b3b0dd..2f24039dedbe 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -20,6 +20,7 @@
- /* Base class for playstation devices. */
- struct ps_device {
- 	struct hid_device *hdev;
-+	uint8_t mac_address[6]; /* Note: stored in little endian order. */
- 
- 	int (*parse_report)(struct ps_device *dev, struct hid_report *report, u8 *data, int size);
- };
-@@ -27,6 +28,9 @@ struct ps_device {
- #define DS_INPUT_REPORT_USB			0x01
- #define DS_INPUT_REPORT_USB_SIZE		64
- 
-+#define DS_FEATURE_REPORT_PAIRING_INFO		0x09
-+#define DS_FEATURE_REPORT_PAIRING_INFO_SIZE	20
-+
- /* Button masks for DualSense input report. */
- #define DS_BUTTONS0_HAT_SWITCH	GENMASK(3, 0)
- #define DS_BUTTONS0_SQUARE	BIT(4)
-@@ -166,6 +170,52 @@ static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
- 	return gamepad;
- }
- 
-+static int ps_get_report(struct hid_device *hdev, uint8_t report_id, uint8_t *buf, size_t size)
-+{
-+	int ret;
-+
-+	ret = hid_hw_raw_request(hdev, report_id, buf, size, HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+	if (ret < 0) {
-+		hid_err(hdev, "Failed to retrieve feature with reportID %d: %d\n", report_id, ret);
-+		return ret;
-+	}
-+
-+	if (ret != size) {
-+		hid_err(hdev, "Invalid byte count transferred, expected %zu got %d\n", size, ret);
-+		return -EINVAL;
-+	}
-+
-+	if (buf[0] != report_id) {
-+		hid_err(hdev, "Incorrect reportID received, expected %d got %d\n", report_id, buf[0]);
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int dualsense_get_mac_address(struct dualsense *ds)
-+{
-+	uint8_t *buf;
-+	int ret = 0;
-+
-+	buf = kzalloc(DS_FEATURE_REPORT_PAIRING_INFO_SIZE, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	ret = ps_get_report(ds->base.hdev, DS_FEATURE_REPORT_PAIRING_INFO, buf,
-+			DS_FEATURE_REPORT_PAIRING_INFO_SIZE);
-+	if (ret) {
-+		hid_err(ds->base.hdev, "Failed to retrieve DualSense pairing info: %d\n", ret);
-+		goto err_free;
-+	}
-+
-+	memcpy(ds->base.mac_address, &buf[1], sizeof(ds->base.mac_address));
-+
-+err_free:
-+	kfree(buf);
-+	return ret;
-+}
-+
- static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *report,
- 		u8 *data, int size)
- {
-@@ -237,6 +287,13 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 	ds->base.parse_report = dualsense_parse_report;
- 	hid_set_drvdata(hdev, ds);
- 
-+	ret = dualsense_get_mac_address(ds);
-+	if (ret) {
-+		hid_err(hdev, "Failed to get MAC address from DualSense\n");
-+		return ERR_PTR(ret);
-+	}
-+	snprintf(hdev->uniq, sizeof(hdev->uniq), "%pMR", ds->base.mac_address);
-+
- 	ds->gamepad = ps_gamepad_create(hdev);
- 	if (IS_ERR(ds->gamepad)) {
- 		ret = PTR_ERR(ds->gamepad);
--- 
-2.26.2
-
+On 1/9/21 8:35 PM, Hui Wang wrote:
+>
+> On 1/7/21 8:42 PM, Barnabás Pőcze wrote:
+>> Hi
+>>
+>>
+>> 2021. január 7., csütörtök 12:27 keltezéssel, Hui Wang írta:
+>>
+>>> we have 2 latest Thinkpad laptops, the synaptics trackpoint module is
+>>> connected to i8042 bus and the synaptics touchpad module is on the i2c
+>>> bus. The trackpoint is driven by input/mouse/trackpoint.c and the
+>>> touchpad is driven by hid-multitouch.c.
+>>>
+>>> They all work well independently, but if users press any buttons of
+>>> trackpoint and meanwhile move finger on the touchpad, the touchpad
+>>> can't work, the i2c bus can't generate interrupts even. That is to say
+>>> the touchpad can't work with trackpoint together, once trackpoint
+>>> works, the touchpad stops working.
+>>>
+>>> The current hid driver parses the device descriptor and selects the
+>>> hid-multitouch.c and applies the MT_CLS_WIN_8 to the touchpad, I found
+>>> this issue begins to happen after the driver sets the
+>>> MT_INPUTMODE_TOUCHPAD to the device, If skipping to set it, the
+>>> touchpad work well and doesn't have that issue, even after suspend and
+>>> resume, the touchpad still work well.
+>>>
+>>> This touchpad module doesn't support multi inputmodes, and its init
+>>> mode is set by BIOS already, it is safe to skip to set it again in
+>>> the kernel driver.
+>>> [...]
+>> Assuming I'm not missing anything obvious, a windows precision touchpad
+>> should revert back to reporting events via its HID compliant mouse 
+>> collection
+>> when power cycled or reset by the host[1].
+>>
+>> Doesn't that imply that the events will be reported via the mouse 
+>> collection
+>> in this case, and that the multi-touch capabilities of the device 
+>> will not
+>> be usable? Or am I missing something?
+>>
+>>
+>> [1]: 
+>> https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/windows-precision-touchpad-required-hid-top-level-collections#input-mode-feature-report
+>
+> Yes, you are right, after applying this patch, the events will be 
+> reported through mouse collection and some features specific to 
+> touchpad collection like multi-touch are lost. So this patch is not a 
+> correct solution, please ignore this patch.
+>
+> And I found If using the hid-rmi.c to drive this touchpad, it will 
+> work well, the touchpad and trackpoint could work well together and 
+> the touchpad has multi-touch capability. But because the report 
+> descriptor contains an Input item which has the usage 
+> HID_DG_CONTACTID, the hid->group is set to HID_GROUP_MULTITOUCH, the 
+> hid-multitouch.c is selected to drive this touchpad.
+>
+> Is it Okay to do the change below and let hid-rmi.c drive this touchpad?
+>
+> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> index 311eee599ce9..58a7529499f5 100644
+> --- a/drivers/hid/hid-rmi.c
+> +++ b/drivers/hid/hid-rmi.c
+> @@ -759,6 +759,7 @@ static const struct hid_device_id rmi_id[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, 
+> USB_DEVICE_ID_PRIMAX_REZEL) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, 
+> USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5),
+>                 .driver_data = RMI_DEVICE_OUTPUT_SET_REPORT },
+> +       { HID_I2C_DEVICE(USB_VENDOR_ID_SYNAPTICS, 0xce57) },
+>         { HID_DEVICE(HID_BUS_ANY, HID_GROUP_RMI, HID_ANY_ID, 
+> HID_ANY_ID) },
+>         { }
+>  };
+>
+> Thanks,
+>
+> Hui.
+>
+>>
+>>
+>> Regards,
+>> Barnabás Pőcze
+>>

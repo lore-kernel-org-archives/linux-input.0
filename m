@@ -5,198 +5,72 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC6DFC433E6
-	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 13:27:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF0C9C433E0
+	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 13:46:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A184C221EB
-	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 13:27:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 814E0221F8
+	for <linux-input@archiver.kernel.org>; Mon, 18 Jan 2021 13:46:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404487AbhARNZP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 18 Jan 2021 08:25:15 -0500
-Received: from mx2.suse.de ([195.135.220.15]:38132 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391604AbhARMdk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 18 Jan 2021 07:33:40 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 0F0B0B8F1;
-        Mon, 18 Jan 2021 12:32:56 +0000 (UTC)
-From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-To:     u.kleine-koenig@pengutronix.de
-Cc:     f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
-        linux-pwm@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        wahrenst@gmx.net, linux-input@vger.kernel.org,
-        dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
-        devel@driverdev.osuosl.org, p.zabel@pengutronix.de,
-        linux-gpio@vger.kernel.org, linus.walleij@linaro.org,
-        linux-clk@vger.kernel.org, sboyd@kernel.org,
-        linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
-        andy.shevchenko@gmail.com,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v7 01/11] firmware: raspberrypi: Keep count of all consumers
-Date:   Mon, 18 Jan 2021 13:32:34 +0100
-Message-Id: <20210118123244.13669-2-nsaenzjulienne@suse.de>
+        id S2404660AbhARNqi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 18 Jan 2021 08:46:38 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:50896 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404527AbhARNqN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 18 Jan 2021 08:46:13 -0500
+Received: from 1.general.khfeng.us.vpn ([10.172.68.174] helo=localhost)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kai.heng.feng@canonical.com>)
+        id 1l1UqW-00011C-AN; Mon, 18 Jan 2021 13:45:29 +0000
+From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
+To:     jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        linux-input@vger.kernel.org (open list:HID CORE LAYER),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] HID: multitouch: Apply MT_QUIRK_CONFIDENCE quirk for multi-input devices
+Date:   Mon, 18 Jan 2021 21:45:23 +0800
+Message-Id: <20210118134523.178605-1-kai.heng.feng@canonical.com>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210118123244.13669-1-nsaenzjulienne@suse.de>
-References: <20210118123244.13669-1-nsaenzjulienne@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-When unbinding the firmware device we need to make sure it has no
-consumers left. Otherwise we'd leave them with a firmware handle
-pointing at freed memory.
+Palm ejection stops working on some Elan and Synaptics touchpad after
+commit 40d5bb87377a ("HID: multitouch: enable multi-input as a quirk for
+some devices").
 
-Keep a reference count of all consumers and introduce rpi_firmware_put()
-which will permit automatically decrease the reference count upon
-unbinding consumer drivers.
+The commit changes the mt_class from MT_CLS_WIN_8 to
+MT_CLS_WIN_8_FORCE_MULTI_INPUT, so MT_QUIRK_CONFIDENCE isn't applied
+anymore.
 
-Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+So also apply the quirk since MT_CLS_WIN_8_FORCE_MULTI_INPUT is
+essentially MT_CLS_WIN_8.
 
+Fixes: 40d5bb87377a ("HID: multitouch: enable multi-input as a quirk for some devices")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 ---
+ drivers/hid/hid-multitouch.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Changes since v5:
- - Add comment to avoid people blindly switching the memory allocation
-   to the devm variant.
- - Fix function documentation as per Florian's comment.
-
-Changes since v3:
- - Use kref instead of waiting on refcount
-
- drivers/firmware/raspberrypi.c             | 40 ++++++++++++++++++++--
- include/soc/bcm2835/raspberrypi-firmware.h |  2 ++
- 2 files changed, 39 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberrypi.c
-index 30259dc9b805..b65e4c495772 100644
---- a/drivers/firmware/raspberrypi.c
-+++ b/drivers/firmware/raspberrypi.c
-@@ -7,6 +7,7 @@
-  */
- 
- #include <linux/dma-mapping.h>
-+#include <linux/kref.h>
- #include <linux/mailbox_client.h>
- #include <linux/module.h>
- #include <linux/of_platform.h>
-@@ -27,6 +28,8 @@ struct rpi_firmware {
- 	struct mbox_chan *chan; /* The property channel. */
- 	struct completion c;
- 	u32 enabled;
-+
-+	struct kref consumers;
- };
- 
- static DEFINE_MUTEX(transaction_lock);
-@@ -225,12 +228,31 @@ static void rpi_register_clk_driver(struct device *dev)
- 						-1, NULL, 0);
- }
- 
-+static void rpi_firmware_delete(struct kref *kref)
-+{
-+	struct rpi_firmware *fw = container_of(kref, struct rpi_firmware,
-+					       consumers);
-+
-+	mbox_free_channel(fw->chan);
-+	kfree(fw);
-+}
-+
-+void rpi_firmware_put(struct rpi_firmware *fw)
-+{
-+	kref_put(&fw->consumers, rpi_firmware_delete);
-+}
-+EXPORT_SYMBOL_GPL(rpi_firmware_put);
-+
- static int rpi_firmware_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct rpi_firmware *fw;
- 
--	fw = devm_kzalloc(dev, sizeof(*fw), GFP_KERNEL);
-+	/*
-+	 * Memory will be freed by rpi_firmware_delete() once all users have
-+	 * released their firmware handles. Don't use devm_kzalloc() here.
-+	 */
-+	fw = kzalloc(sizeof(*fw), GFP_KERNEL);
- 	if (!fw)
- 		return -ENOMEM;
- 
-@@ -247,6 +269,7 @@ static int rpi_firmware_probe(struct platform_device *pdev)
- 	}
- 
- 	init_completion(&fw->c);
-+	kref_init(&fw->consumers);
- 
- 	platform_set_drvdata(pdev, fw);
- 
-@@ -275,7 +298,8 @@ static int rpi_firmware_remove(struct platform_device *pdev)
- 	rpi_hwmon = NULL;
- 	platform_device_unregister(rpi_clk);
- 	rpi_clk = NULL;
--	mbox_free_channel(fw->chan);
-+
-+	rpi_firmware_put(fw);
- 
- 	return 0;
- }
-@@ -284,16 +308,26 @@ static int rpi_firmware_remove(struct platform_device *pdev)
-  * rpi_firmware_get - Get pointer to rpi_firmware structure.
-  * @firmware_node:    Pointer to the firmware Device Tree node.
-  *
-+ * The reference to rpi_firmware has to be released with rpi_firmware_put().
-+ *
-  * Returns NULL is the firmware device is not ready.
-  */
- struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
- {
- 	struct platform_device *pdev = of_find_device_by_node(firmware_node);
-+	struct rpi_firmware *fw;
- 
- 	if (!pdev)
- 		return NULL;
- 
--	return platform_get_drvdata(pdev);
-+	fw = platform_get_drvdata(pdev);
-+	if (!fw)
-+		return NULL;
-+
-+	if (!kref_get_unless_zero(&fw->consumers))
-+		return NULL;
-+
-+	return fw;
- }
- EXPORT_SYMBOL_GPL(rpi_firmware_get);
- 
-diff --git a/include/soc/bcm2835/raspberrypi-firmware.h b/include/soc/bcm2835/raspberrypi-firmware.h
-index cc9cdbc66403..fdfef7fe40df 100644
---- a/include/soc/bcm2835/raspberrypi-firmware.h
-+++ b/include/soc/bcm2835/raspberrypi-firmware.h
-@@ -140,6 +140,7 @@ int rpi_firmware_property(struct rpi_firmware *fw,
- 			  u32 tag, void *data, size_t len);
- int rpi_firmware_property_list(struct rpi_firmware *fw,
- 			       void *data, size_t tag_size);
-+void rpi_firmware_put(struct rpi_firmware *fw);
- struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node);
- #else
- static inline int rpi_firmware_property(struct rpi_firmware *fw, u32 tag,
-@@ -154,6 +155,7 @@ static inline int rpi_firmware_property_list(struct rpi_firmware *fw,
- 	return -ENOSYS;
- }
- 
-+static inline void rpi_firmware_put(struct rpi_firmware *fw) { }
- static inline struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
- {
- 	return NULL;
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 0743ef51d3b2..8429ebe7097e 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -758,7 +758,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			MT_STORE_FIELD(inrange_state);
+ 			return 1;
+ 		case HID_DG_CONFIDENCE:
+-			if (cls->name == MT_CLS_WIN_8 &&
++			if ((cls->name == MT_CLS_WIN_8 ||
++			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT) &&
+ 				(field->application == HID_DG_TOUCHPAD ||
+ 				 field->application == HID_DG_TOUCHSCREEN))
+ 				app->quirks |= MT_QUIRK_CONFIDENCE;
 -- 
 2.29.2
 

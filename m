@@ -2,83 +2,179 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5524C433DB
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 01:42:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E233BC433E6
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:16:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 87BEF2245C
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 01:42:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A24862245C
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:16:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730979AbhATBmY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Jan 2021 20:42:24 -0500
-Received: from m12-18.163.com ([220.181.12.18]:48870 "EHLO m12-18.163.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729906AbhATBmE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:42:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=1Gm7H
-        tgDNLpNAVltYOoyuVgoYF8I/DZ9P/osH6rUo/E=; b=HUIeffIB1Mai1UpHVT4bG
-        FlHArhbhEbXsHSYH/0WvQypzMWBm+gWoDZsuRaCwg7LdygfNfaN66CfrlTnfi3e5
-        EE/IfgL9tTQ2ucF3c9eI24ENhAcfNkEFZZbcEqA7K1nbdHeKPE7zqvqaYnw+1wjU
-        KpQhGJxI0RshZnwPWektNM=
-Received: from jiangzhipeng.ccdomain.com (unknown [218.94.48.178])
-        by smtp14 (Coremail) with SMTP id EsCowAC3DNbjfgdgKeMeQA--.56094S2;
-        Wed, 20 Jan 2021 08:53:04 +0800 (CST)
-From:   jzp0409 <jzp0409@163.com>
-To:     dmitry.torokhov@gmail.com
-Cc:     linux-input@vger.kernel.org, jiangzhipeng <jiangzhipeng@yulong.com>
-Subject: [PATCH] Input: ft5x06 - of_device_id using CONFIG_OF
-Date:   Wed, 20 Jan 2021 08:53:01 +0800
-Message-Id: <20210120005301.2158-1-jzp0409@163.com>
-X-Mailer: git-send-email 2.30.0.windows.2
+        id S1726672AbhATCQH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Jan 2021 21:16:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36256 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728558AbhATCP4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 Jan 2021 21:15:56 -0500
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73EB1C061575;
+        Tue, 19 Jan 2021 18:15:16 -0800 (PST)
+Received: by mail-pf1-x42e.google.com with SMTP id b3so13565317pft.3;
+        Tue, 19 Jan 2021 18:15:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=t86zOVCwWzgu4PWQKZEkmVCHJX5AIPz+A3Um47DZWOw=;
+        b=vNVDIc+e4UbO1gRMzm9W6dfBHVfwFeyLdI3uHKdXJW9K5PfRYV7iLqetgd3CQSIykq
+         Z1jiYXZfJelriFV/cNJIbJCh53mPCKfs0R7cArAFM6wh/KDsltLkMfj2+4oC1vwLHpGL
+         ytjEEiI5QgPJLspo48SNG67rzkApTlDHZXci2PRP7U2ULWiqrr9/XEehs/iqP7q3v9ZH
+         Hx4lQgcT8dVwaJuWN802fUZjACw238p7LcP0Cy4yDYjbOiah+3s5yxmcq24mLs04ULU7
+         iWENf8pkpX8fst2v2lntVSpoEcwITi4FhzNfMkbJozhcj4XVVwXBTD9URjyDNk0XJDmU
+         VQ+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=t86zOVCwWzgu4PWQKZEkmVCHJX5AIPz+A3Um47DZWOw=;
+        b=CHAkAf05rM/M98CafZiz6Ij+hLw2siVC0s6k1iBFVJZhPzIUZY1VBCjEdsHU5s1jNk
+         tUgaNeefRcTMuXIgSGOoRWMzMkYeFER9HlH7Z17wE0xrsGgNJ5JZ8+1X2w94t89GiMj8
+         hW6FEIytEArt3wJHpGO/zIxm5nChWkuJDHqvVVtPIIR5YSQbbYsaEJsFKIJToaWqTXxt
+         QrTcEm3qpcQ2nkS6WXWSd++I0KCpFrikvHc3SUwCo3u9KTlz3SAQQpQI/Ob42EbSF82Y
+         j/qQqjEr5yTmERXgAloswmozeyAqq8RtPaNkLwcEtOyd7VcZUyZvg6OVYD3lioXtdWTD
+         hgMg==
+X-Gm-Message-State: AOAM533npj9LNV0Vl+4L6MG29o/4o/ZJhAy0Ttqzu3yWBIWtFOQFtXck
+        idLwX55BIdUXA3jhAPhld48=
+X-Google-Smtp-Source: ABdhPJzp6qEbuaVQ9fNJQM6Kg+zEeajRQN8Xf3fzZtJl6H7OGa6TXgoNwqOKEGCUNEE+xmUDZoXH7Q==
+X-Received: by 2002:a63:2cc5:: with SMTP id s188mr7227921pgs.233.1611108915860;
+        Tue, 19 Jan 2021 18:15:15 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id bk18sm242844pjb.41.2021.01.19.18.15.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Jan 2021 18:15:14 -0800 (PST)
+Date:   Tue, 19 Jan 2021 18:15:11 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Alistair Francis <alistair@alistair23.me>
+Cc:     linux-input@vger.kernel.org, linux-imx@nxp.com,
+        kernel@pengutronix.de, linux-kernel@vger.kernel.org,
+        alistair23@gmail.com
+Subject: Re: [PATCH 1/3] devicetree/bindings: Initial commit of
+ wacom,wacom-i2c
+Message-ID: <YAeSL1PSo0vn7E/5@google.com>
+References: <20210117042428.1497-1-alistair@alistair23.me>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: EsCowAC3DNbjfgdgKeMeQA--.56094S2
-X-Coremail-Antispam: 1Uf129KBjvdXoWrtrW3KF13Ar47Gw1fXw4fXwb_yoWDtrc_ur
-        yrXrn7trWrAr1vkF1qq343Zr92q3W8W3s5Ww1UKF45Zw1rXan8GFsxWwn8J3yUCr48tFW7
-        u3WfWF1rKa129jkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUbzwZDUUUUU==
-X-Originating-IP: [218.94.48.178]
-X-CM-SenderInfo: hm2sikiqz6il2tof0z/1tbiRBAghlSIiKBF0AAAsT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210117042428.1497-1-alistair@alistair23.me>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: jiangzhipeng <jiangzhipeng@yulong.com>
+Hi Alistair,
 
-ft5x06 use of_device_id,Use CONFIG_OF include
+On Sat, Jan 16, 2021 at 08:24:26PM -0800, Alistair Francis wrote:
+> Signed-off-by: Alistair Francis <alistair@alistair23.me>
+> ---
+>  .../input/touchscreen/wacom,wacom-i2c.yaml    | 55 +++++++++++++++++++
+>  .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
+>  2 files changed, 57 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml b/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
+> new file mode 100644
+> index 000000000000..6b0e0034f836
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
+> @@ -0,0 +1,55 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/input/touchscreen/wacom,wacom-i2c.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Wacom I2C Controller
+> +
+> +maintainers:
+> +  - Alistair Francis <alistair@alistair23.me>
+> +
+> +allOf:
+> +  - $ref: touchscreen.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: wacom,wacom-i2c
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  flip-tilt-x:
+> +  flip-tilt-y:
 
-Signed-off-by: jiangzhipeng <jiangzhipeng@yulong.com>
----
- drivers/input/touchscreen/edt-ft5x06.c | 2 ++
- 1 file changed, 2 insertions(+)
+Does the device support tilt? The driver does not, at least at the
+moment. Also, does it make sense to flip tilt but not position?
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 2eefbc2..c69fde0 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -1371,6 +1371,7 @@ static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
- };
- MODULE_DEVICE_TABLE(i2c, edt_ft5x06_ts_id);
- 
-+#ifdef CONFIG_OF
- static const struct of_device_id edt_ft5x06_of_match[] = {
- 	{ .compatible = "edt,edt-ft5206", .data = &edt_ft5x06_data },
- 	{ .compatible = "edt,edt-ft5306", .data = &edt_ft5x06_data },
-@@ -1382,6 +1383,7 @@ static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, edt_ft5x06_of_match);
-+#endif
- 
- static struct i2c_driver edt_ft5x06_ts_driver = {
- 	.driver = {
+> +  flip-pos-x:
+> +  flip-pos-y:
+
+This needs to use standard touchscreen properties. See
+Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+
+> +  flip-distance:
+
+I am having trouble understanding when this one would be useful.
+
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include "dt-bindings/interrupt-controller/irq.h"
+> +    i2c {
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +        digitiser@9 {
+> +                compatible = "wacom,wacom-i2c";
+> +                reg = <0x9>;
+> +                interrupt-parent = <&gpio1>;
+> +                interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+> +                flip-tilt-x;
+> +                flip-tilt-y;
+> +                flip-pos-x;
+> +                flip-pos-y;
+> +                flip-distance;
+> +        };
+> +    };
+> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+> index 041ae90b0d8f..5bca22f035a3 100644
+> --- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
+> +++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+> @@ -1202,6 +1202,8 @@ patternProperties:
+>      description: Vision Optical Technology Co., Ltd.
+>    "^vxt,.*":
+>      description: VXT Ltd
+> +  "^wacom,.*":
+> +    description: Wacom Co., Ltd
+>    "^wand,.*":
+>      description: Wandbord (Technexion)
+>    "^waveshare,.*":
+> -- 
+> 2.29.2
+> 
+
+Thanks.
+
 -- 
-1.9.1
-
-
+Dmitry

@@ -5,44 +5,42 @@ X-Spam-Level:
 X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF616C433E0
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:29:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8359CC433E0
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:39:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7CF092251D
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:29:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 38A6F22573
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:39:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731739AbhATC3U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Jan 2021 21:29:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48238 "EHLO mail.kernel.org"
+        id S1731773AbhATC3X (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Jan 2021 21:29:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730611AbhATB26 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA8D722509;
-        Wed, 20 Jan 2021 01:26:46 +0000 (UTC)
+        id S1730750AbhATB3Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:29:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFA5A23121;
+        Wed, 20 Jan 2021 01:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106007;
-        bh=JvIH/5lkdHXQCODBz/Zth687PtRqCjPoQeuwe5CdNoU=;
+        s=k20201202; t=1611106069;
+        bh=KGpDxYJ+g6L/VPqmi7zokT5Xz6lfTzBbY1R8MRG1KoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WCct37YYl3VyC/5ato9AQXfstq2DHwKdqmswa6Q7EM9QPTYK4tmnnpa/4Bg1DzH9F
-         Ozq88ZZ0ulZLXA6l8Ne45puot8P9/MNUYZ5HL4hW5nF+AFRrJ8Q9tfB3KgRWGoB8E+
-         2ExT0kfhz2TPf0Lyps9xk9iFcUuFSTkVN8j78XmZ9P9VtR/f1uFVwRdMGrZSV+kLNE
-         B2ntqt8cawuekInR58u80xqKbj4JTq6krsqdfzDsr6xDQJBdvoir+pdxBd2Iauetec
-         +8ymws+NSbi6SSshF9ml7r2rrUwiScRp9gz8sO6thMU6Dao6xsCzYSP6FBwlCmAUMf
-         Wk35HMhRTH0hg==
+        b=WIXouIELlaXcStWiqLhSl0ROTDjQxtT29SPbzRMf3GV34aMig0PUKU9J1GnJs3C27
+         isPOCBzsZX241W3WapS4Mttz2SQxrN94xLAh2dU8bwRvKFpeKKjldyG83AYgUj14+b
+         IvHOYXeDW4TwmzVuq745dGb3sAOikm3OBS6CdnrEh3W8xtO03GnqDPxqab06giBUXQ
+         T1UL+FYRY2VIj4IrkmpO+u/pc0cx0ec7R+/+hE3yoda1II34h7N6/O/2bEknjCAV7v
+         31eK3wj0r8ctyzFsi9WaJVWX2Lu/vr0qYaGyjyok9ATEK71aIQZaxDhwxykkMrWTWT
+         EIsKHzXaXiFNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Miell <nmiell@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 34/45] HID: logitech-hidpp: Add product ID for MX Ergo in Bluetooth mode
-Date:   Tue, 19 Jan 2021 20:25:51 -0500
-Message-Id: <20210120012602.769683-34-sashal@kernel.org>
+Cc:     Seth Miller <miller.seth@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 06/15] HID: Ignore battery for Elan touchscreen on ASUS UX550
+Date:   Tue, 19 Jan 2021 20:27:31 -0500
+Message-Id: <20210120012740.770354-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
-References: <20210120012602.769683-1-sashal@kernel.org>
+In-Reply-To: <20210120012740.770354-1-sashal@kernel.org>
+References: <20210120012740.770354-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -51,37 +49,47 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nicholas Miell <nmiell@gmail.com>
+From: Seth Miller <miller.seth@gmail.com>
 
-[ Upstream commit 7de843dbaaa68aa514090e6226ed7c6374fd7e49 ]
+[ Upstream commit 7c38e769d5c508939ce5dc26df72602f3c902342 ]
 
-The Logitech MX Ergo trackball supports HID++ 4.5 over Bluetooth. Add its
-product ID to the table so we can get battery monitoring support.
-(The hid-logitech-hidpp driver already recognizes it when connected via
-a Unifying Receiver.)
+Battery status is being reported for the Elan touchscreen on ASUS
+UX550 laptops despite not having a batter. It always shows either 0 or
+1%.
 
-[jkosina@suse.cz: fix whitespace damage]
-Signed-off-by: Nicholas Miell <nmiell@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Seth Miller <miller.seth@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 0ca7231195473..74ebfb12c360e 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4051,6 +4051,8 @@ static const struct hid_device_id hidpp_devices[] = {
- 	{ /* MX Master mouse over Bluetooth */
- 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
- 	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
-+	{ /* MX Ergo trackball over Bluetooth */
-+	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01d) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
- 	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
- 	{ /* MX Master 3 mouse over Bluetooth */
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6d118da1615d4..ab2be7a115d8f 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -386,6 +386,7 @@
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+ #define USB_DEVICE_ID_HP_X2		0x074d
+ #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
++#define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
+ 
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 13deb9a676855..4dd151b2924e2 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -334,6 +334,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+ 		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{}
+ };
+ 
 -- 
 2.27.0
 

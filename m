@@ -2,184 +2,112 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55386C433DB
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 06:19:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABF43C433E0
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:42:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1BA302313A
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 06:19:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7A2F723131
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:42:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728945AbhATGSz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Jan 2021 01:18:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60218 "EHLO
+        id S1729216AbhATHl2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Jan 2021 02:41:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728934AbhATGRA (ORCPT
+        with ESMTP id S1729574AbhATHlU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Jan 2021 01:17:00 -0500
-Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A677C061575;
-        Tue, 19 Jan 2021 22:16:20 -0800 (PST)
-Received: by mail-io1-xd2e.google.com with SMTP id e22so44738574iom.5;
-        Tue, 19 Jan 2021 22:16:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rMaHKvzt4gI4vZWbUD57VHvPjiMKfLAdC+SHpPHGSGc=;
-        b=VeOIAKyd91TBSjSAATeK2jHqNqvfdNibnrh8EpcGHmTP/Okp9ArD5NbGrB4xDUXukL
-         5qp8hpujrNPI2vRfyQYQfhBxulUQ81nxOFlIBN3NxvELJRl6cq+MLU2+UopYELxQGm6y
-         13aPp02TlhOxRBgjakhA7yOnu97tJFrqQqrZD8+drhie/kbSYERElnphl3/uHHe9ixYy
-         FzFAQQjo2t4NHvFyb/xqCHHAoLjEs6DVhkB3oBfg9rXUxA7xOwi2W89ego99nx01+M4E
-         cf8gHaOfW1yTJaIPKHiteGzxGFEIjffA8HWgI02zLpq4YoFVbMxLnSxb2nzne/MwtpnV
-         fUYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rMaHKvzt4gI4vZWbUD57VHvPjiMKfLAdC+SHpPHGSGc=;
-        b=sQMWA+9xIzIR4yNElFYJJKvqqjBoWW1MdQgkltI5rNPMpHjXMFUEbR0kEuElFVehg7
-         TwvgR6KcdGs0/IERzNwwQ3ntGaquI9H3b4ZJ4D/a9QsDUIYjd/XBliLElWujGGBylWAw
-         77VTTgdiY3PWBNQzqfa4bKlADStSH4SFtlnXDZ+kq0+w6UxESZb63sLPBjIHsEN2ykKJ
-         3fgKKl1eQ8UA1UEBmpR3yPXSSgJBhOzQzIJw0dJXQcxbvTc3+BpL3x0HLctuhtv1NXEX
-         WPaM/rIR/Z2r0fgOGtgNrNN/NBxvBdG1u37yN+OmNYWmnoa03jbXd4t7z83REfS+rbeq
-         Kwvw==
-X-Gm-Message-State: AOAM533LLrIURUCh7Kf8F6iZg6HO7sUTLGR45hUXrvtZXE47B+XyBfBo
-        /8oM3WPY9V7jANRqUEZv8as8LEkPWJ2jeVocBFwtIrZES1U=
-X-Google-Smtp-Source: ABdhPJweAGhyRwjSGO9zW9ha79X6kmVPg5wscpTHkCPaq/GvUbOPWCmTC6BNuCWC4AW8bnaHPQdQR9eO4ik1OyCueKg=
-X-Received: by 2002:a92:cda1:: with SMTP id g1mr6613008ild.267.1611123379666;
- Tue, 19 Jan 2021 22:16:19 -0800 (PST)
-MIME-Version: 1.0
-References: <20210117042428.1497-1-alistair@alistair23.me> <YAeSL1PSo0vn7E/5@google.com>
-In-Reply-To: <YAeSL1PSo0vn7E/5@google.com>
-From:   Alistair Francis <alistair23@gmail.com>
-Date:   Tue, 19 Jan 2021 22:15:53 -0800
-Message-ID: <CAKmqyKPMXxLOGj4BH_fYx4hjZ+pHO3LNQVtN1buFrSAom38j1g@mail.gmail.com>
-Subject: Re: [PATCH 1/3] devicetree/bindings: Initial commit of wacom,wacom-i2c
+        Wed, 20 Jan 2021 02:41:20 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE51BC061757
+        for <linux-input@vger.kernel.org>; Tue, 19 Jan 2021 23:40:39 -0800 (PST)
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1l286U-0004eK-7C; Wed, 20 Jan 2021 08:40:34 +0100
+Received: from ore by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <ore@pengutronix.de>)
+        id 1l286S-0001Md-2k; Wed, 20 Jan 2021 08:40:32 +0100
+Date:   Wed, 20 Jan 2021 08:40:32 +0100
+From:   Oleksij Rempel <o.rempel@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Alistair Francis <alistair@alistair23.me>,
-        linux-input@vger.kernel.org, dl-linux-imx <linux-imx@nxp.com>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Mark Brown <broonie@kernel.org>, kernel@pengutronix.de,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-spi@vger.kernel.org, David Jander <david@protonic.nl>
+Subject: Re: [PATCH v2 2/2] Input: ads7846: convert to one message
+Message-ID: <20210120074032.2swvp7iqli6xttul@pengutronix.de>
+References: <20201110085041.16303-1-o.rempel@pengutronix.de>
+ <20201110085041.16303-3-o.rempel@pengutronix.de>
+ <20201118003138.GD2009714@dtor-ws>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20201118003138.GD2009714@dtor-ws>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 08:38:56 up 48 days, 21:45, 28 users,  load average: 0.00, 0.03,
+ 0.00
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Jan 19, 2021 at 6:15 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Alistair,
->
-> On Sat, Jan 16, 2021 at 08:24:26PM -0800, Alistair Francis wrote:
-> > Signed-off-by: Alistair Francis <alistair@alistair23.me>
-> > ---
-> >  .../input/touchscreen/wacom,wacom-i2c.yaml    | 55 +++++++++++++++++++
-> >  .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
-> >  2 files changed, 57 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
-> >
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml b/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
-> > new file mode 100644
-> > index 000000000000..6b0e0034f836
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
-> > @@ -0,0 +1,55 @@
-> > +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/input/touchscreen/wacom,wacom-i2c.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Wacom I2C Controller
-> > +
-> > +maintainers:
-> > +  - Alistair Francis <alistair@alistair23.me>
-> > +
-> > +allOf:
-> > +  - $ref: touchscreen.yaml#
-> > +
-> > +properties:
-> > +  compatible:
-> > +    const: wacom,wacom-i2c
-> > +
-> > +  reg:
-> > +    maxItems: 1
-> > +
-> > +  interrupts:
-> > +    maxItems: 1
-> > +
-> > +  flip-tilt-x:
-> > +  flip-tilt-y:
->
-> Does the device support tilt? The driver does not, at least at the
-> moment. Also, does it make sense to flip tilt but not position?
->
-> > +  flip-pos-x:
-> > +  flip-pos-y:
->
-> This needs to use standard touchscreen properties. See
-> Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
->
-> > +  flip-distance:
->
-> I am having trouble understanding when this one would be useful.
 
-Thanks for the review. These came from the original out of tree DT. I
-have removed them, I'm planning on using the standard touchscreen ones
-you pointed out if they are required.
+Hi Dmitry,
 
-Alistair
+On Tue, Nov 17, 2020 at 04:31:38PM -0800, Dmitry Torokhov wrote:
+> On Tue, Nov 10, 2020 at 09:50:41AM +0100, Oleksij Rempel wrote:
+> > Convert multiple full duplex transfers in to a single transfer to reduce
+> > CPU load.
+> > 
+> > Current driver version support following filtering modes:
+> > - ads7846_no_filter() - not filtered
+> > - ads7846_debounce_filter() - driver specific debounce filter
+> > - pdata->filter - platform specific debounce filter (do any platform
+> > 	provides such filter?)
+> > 
+> > Without filter this HW is not really usable, since the physic of
+> > resistive touchscreen can provide some bounce effects. With driver internal
+> > filter, we have constant amount of retries + debounce retries if some anomaly
+> > was detected.
+> > 
+> > High amount of tiny SPI transfers is the primer reason of high CPU load
+> > and interrupt frequency.
+> > 
+> > This patch create one SPI transfer with all fields and not optional retires. If
+> > bounce anomaly was detected, we will make more transfer if needed.
+> > 
+> > Without this patch, we will get about 10% CPU load on iMX6S on pen-down event.
+> > For example by holding stylus on the screen.
+> > 
+> > With this patch, depending in the amount of retries, the CPU load will
+> > be 1% with "ti,debounce-rep = <3>".
+> > 
+> > One buffer transfer allows us to use PIO FIFO or DMA engine, depending
+> > on the platform.
+> > 
+> > Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+> 
+> Applied, thank you.
 
->
-> > +
-> > +required:
-> > +  - compatible
-> > +  - reg
-> > +  - interrupts
-> > +
-> > +additionalProperties: false
-> > +
-> > +examples:
-> > +  - |
-> > +    #include "dt-bindings/interrupt-controller/irq.h"
-> > +    i2c {
-> > +        #address-cells = <1>;
-> > +        #size-cells = <0>;
-> > +        digitiser@9 {
-> > +                compatible = "wacom,wacom-i2c";
-> > +                reg = <0x9>;
-> > +                interrupt-parent = <&gpio1>;
-> > +                interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
-> > +                flip-tilt-x;
-> > +                flip-tilt-y;
-> > +                flip-pos-x;
-> > +                flip-pos-y;
-> > +                flip-distance;
-> > +        };
-> > +    };
-> > diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> > index 041ae90b0d8f..5bca22f035a3 100644
-> > --- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> > +++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> > @@ -1202,6 +1202,8 @@ patternProperties:
-> >      description: Vision Optical Technology Co., Ltd.
-> >    "^vxt,.*":
-> >      description: VXT Ltd
-> > +  "^wacom,.*":
-> > +    description: Wacom Co., Ltd
-> >    "^wand,.*":
-> >      description: Wandbord (Technexion)
-> >    "^waveshare,.*":
-> > --
-> > 2.29.2
-> >
->
-> Thanks.
->
-> --
-> Dmitry
+I can't find this patch in your git repository. Should I rebase it
+against latest git and resend it?
+
+Regards,
+Oleksij
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

@@ -2,155 +2,115 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E19FCC433DB
-	for <linux-input@archiver.kernel.org>; Tue, 19 Jan 2021 20:16:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 381FBC433E0
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 01:16:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D46A2310D
-	for <linux-input@archiver.kernel.org>; Tue, 19 Jan 2021 20:16:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D55C32310D
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 01:16:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728987AbhASUQD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Jan 2021 15:16:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41236 "EHLO
+        id S1729161AbhATBPT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Jan 2021 20:15:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404441AbhASUIW (ORCPT
+        with ESMTP id S1730172AbhATBPK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Jan 2021 15:08:22 -0500
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3229C061575;
-        Tue, 19 Jan 2021 12:07:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=fSP+Hbk1pR3y4XkNVhyMko7WwZjsk4H30rYU4STDj5o=; b=eUkk+F65lUgQOdRu/awSGb7eZk
-        2jIyZH91LQFeb/Rxa+wGcH2fujM7AD/XQVXBjrj0KGb4nepyHOma7tX9foASzzfeDm+FfkhiP+KmG
-        MDMY5IZQOnQ08LIXQFbpxOhUXzNAwEbO5uK0V67tNhwRbu30lpxIeNjCE61HyF3BVwowNnj629Knc
-        NnXI8iPRacj8iN4SkxBkJraeXP+R0/FGwddUqzjgukOSivKbvxq/T/b7qZwVYgCSFftRqSYWsupcK
-        TsxsOWIH1iR7z4KECGR3CvK0LDf+cVIRT2f7ziEg7y4KbKMUjFmDx/A9gIfRBVPXszaGUdhdZ1zaA
-        Dq9vYrCg==;
-Received: from [2601:1c0:6280:3f0::9abc] (helo=merlin.infradead.org)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1l1xHp-00073y-Bq; Tue, 19 Jan 2021 20:07:33 +0000
-From:   Randy Dunlap <rdunlap@infradead.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 1/2 v2] HID: correct kernel-doc notation in <linux/hid*.h>
-Date:   Tue, 19 Jan 2021 12:07:22 -0800
-Message-Id: <20210119200723.12092-2-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210119200723.12092-1-rdunlap@infradead.org>
-References: <20210119200723.12092-1-rdunlap@infradead.org>
+        Tue, 19 Jan 2021 20:15:10 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72110C0613D6
+        for <linux-input@vger.kernel.org>; Tue, 19 Jan 2021 17:14:08 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id y12so1101699pji.1
+        for <linux-input@vger.kernel.org>; Tue, 19 Jan 2021 17:14:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=acY9ZLeBwuJ5n85Gq8inXcRYo3lIoo/fRx+0Q27Seo8=;
+        b=RyzLRdvuJLqh1+s1HZJinjMLA9Y/6g5Ymi2PM8s738Zqnjm/SsXgvpJfEqqtuuSwb/
+         7Mevs12bIaFoGiW6VkNh9U17kN3jMwLCTEYx0nSbGr99tK7UBPRldAgAxJMmniM9Sj76
+         QwKut9SiUh1PrfOBS3Zkt8sbievZTB0C47cI7JYml+2BwnHx0nVT14C/mf0hcwfkr0k9
+         AUcgtcY/4U02vUjBbbOl1WAI0YEDOc/WVZrcS7Yop7WghMUj/78GdV/LjHHfuw+8dYIe
+         HC7f+9Nz94x3vdIikZ3CUH1F4/EA8OM4YErluNdUJmVj8WEU94sM4E27WdEwO+BinDaE
+         dtow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=acY9ZLeBwuJ5n85Gq8inXcRYo3lIoo/fRx+0Q27Seo8=;
+        b=ZsHG5emjA+XAdfzZHWFy7vF4kyN6HKZOUfXAAG5BVdTLXdqK0fct2Ul+nGs559TTxP
+         DrPrc+YoNMXlWdb+zolFFISQmgXIClyfcpe3PZN/Masy6tPOO26DTWiw3kbZJDSM0sUt
+         NJhran4pRs88jh8pav3g2Bfb5qcHL1vozfaNfLbkxWNHTGripqnMBGKUYN66m3j5nQ8U
+         MBkibUtZa8DMV5PqlsAW78uzeqMNgnuScWvQ7jRWpLPfYcMUysbOeRzA1/FnJ2sK/V5e
+         VaL7nNnB2JAv7mdBaTjCOUzjgUYtz98D/gGOCMRlJtkuJTYZOMELj0ZH+WUkv+4xtqNK
+         7n0w==
+X-Gm-Message-State: AOAM531bkqypSmMGimjsAUFW0iCiciSrsEIDHh3NiadxNO1pko6A0+7f
+        Wkc6dcPleiz59gx0Ar/9GzI=
+X-Google-Smtp-Source: ABdhPJw0cDDKGjm7xLkgPPoyJZyZmhlUvV0LUKNF/d+8AyWVaFKAftiGBpQxnMtTbCOpe57Op90zaw==
+X-Received: by 2002:a17:902:8306:b029:da:d7f0:9e16 with SMTP id bd6-20020a1709028306b02900dad7f09e16mr7332033plb.53.1611105247930;
+        Tue, 19 Jan 2021 17:14:07 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
+        by smtp.gmail.com with ESMTPSA id m11sm163508pjz.44.2021.01.19.17.14.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Jan 2021 17:14:06 -0800 (PST)
+Date:   Tue, 19 Jan 2021 17:14:04 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     jzp0409 <jzp0409@163.com>
+Cc:     linux-input@vger.kernel.org, jiangzhipeng <jiangzhipeng@yulong.com>
+Subject: Re: [PATCH] Input: ft5x06 - of_device_id using CONFIG_OF
+Message-ID: <YAeD3LyTyR4T7Qxz@google.com>
+References: <20210120005301.2158-1-jzp0409@163.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210120005301.2158-1-jzp0409@163.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Correct kernel-doc notation in HID header files (include/linux/hid*.h).
-Add notation (comments) where it is missing.
-Use the documented "Return:" notation for function return values.
-Fix a few typos/spellos.
+On Wed, Jan 20, 2021 at 08:53:01AM +0800, jzp0409 wrote:
+> From: jiangzhipeng <jiangzhipeng@yulong.com>
+> 
+> ft5x06 use of_device_id,Use CONFIG_OF include
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
----
-v2: rebase & resend
+This will not compile with !C0NFIG_OF.
 
- include/linux/hid-sensor-hub.h |    9 +++++----
- include/linux/hid.h            |   15 +++++++++++----
- 2 files changed, 16 insertions(+), 8 deletions(-)
+> 
+> Signed-off-by: jiangzhipeng <jiangzhipeng@yulong.com>
+> ---
+>  drivers/input/touchscreen/edt-ft5x06.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> index 2eefbc2..c69fde0 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -1371,6 +1371,7 @@ static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
+>  };
+>  MODULE_DEVICE_TABLE(i2c, edt_ft5x06_ts_id);
+>  
+> +#ifdef CONFIG_OF
+>  static const struct of_device_id edt_ft5x06_of_match[] = {
+>  	{ .compatible = "edt,edt-ft5206", .data = &edt_ft5x06_data },
+>  	{ .compatible = "edt,edt-ft5306", .data = &edt_ft5x06_data },
+> @@ -1382,6 +1383,7 @@ static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
+>  	{ /* sentinel */ }
+>  };
+>  MODULE_DEVICE_TABLE(of, edt_ft5x06_of_match);
+> +#endif
+>  
+>  static struct i2c_driver edt_ft5x06_ts_driver = {
+>  	.driver = {
+> -- 
+> 1.9.1
+> 
+> 
 
---- linux-next-20210119.orig/include/linux/hid.h
-+++ linux-next-20210119/include/linux/hid.h
-@@ -918,7 +918,7 @@ __u32 hid_field_extract(const struct hid
- /**
-  * hid_device_io_start - enable HID input during probe, remove
-  *
-- * @hid - the device
-+ * @hid: the device
-  *
-  * This should only be called during probe or remove and only be
-  * called by the thread calling probe or remove. It will allow
-@@ -936,7 +936,7 @@ static inline void hid_device_io_start(s
- /**
-  * hid_device_io_stop - disable HID input during probe, remove
-  *
-- * @hid - the device
-+ * @hid: the device
-  *
-  * Should only be called after hid_device_io_start. It will prevent
-  * incoming packets from going to the driver for the duration of
-@@ -1010,6 +1010,13 @@ static inline void hid_map_usage(struct
- /**
-  * hid_map_usage_clear - map usage input bits and clear the input bit
-  *
-+ * @hidinput: hidinput which we are interested in
-+ * @usage: usage to fill in
-+ * @bit: pointer to input->{}bit (out parameter)
-+ * @max: maximal valid usage->code to consider later (out parameter)
-+ * @type: input event type (EV_KEY, EV_REL, ...)
-+ * @c: code which corresponds to this usage and type
-+ *
-  * The same as hid_map_usage, except the @c bit is also cleared in supported
-  * bits (@bit).
-  */
-@@ -1084,7 +1091,7 @@ static inline void hid_hw_request(struct
-  * @rtype: HID report type
-  * @reqtype: HID_REQ_GET_REPORT or HID_REQ_SET_REPORT
-  *
-- * @return: count of data transfered, negative if error
-+ * Return: count of data transferred, negative if error
-  *
-  * Same behavior as hid_hw_request, but with raw buffers instead.
-  */
-@@ -1106,7 +1113,7 @@ static inline int hid_hw_raw_request(str
-  * @buf: raw data to transfer
-  * @len: length of buf
-  *
-- * @return: count of data transfered, negative if error
-+ * Return: count of data transferred, negative if error
-  */
- static inline int hid_hw_output_report(struct hid_device *hdev, __u8 *buf,
- 					size_t len)
---- linux-next-20210119.orig/include/linux/hid-sensor-hub.h
-+++ linux-next-20210119/include/linux/hid-sensor-hub.h
-@@ -150,7 +150,7 @@ int sensor_hub_remove_callback(struct hi
- * @info:	return information about attribute after parsing report
- *
- * Parses report and returns the attribute information such as report id,
--* field index, units and exponet etc.
-+* field index, units and exponent etc.
- */
- int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
- 			u8 type,
-@@ -167,7 +167,7 @@ int sensor_hub_input_get_attribute_info(
- * @is_signed:   If true then fields < 32 bits will be sign-extended
- *
- * Issues a synchronous or asynchronous read request for an input attribute.
--* Returns data upto 32 bits.
-+* Return: data up to 32 bits.
- */
- 
- enum sensor_hub_read_flags {
-@@ -205,8 +205,9 @@ int sensor_hub_set_feature(struct hid_se
- * @buffer:	buffer to copy output
- *
- * Used to get a field in feature report. For example this can get polling
--* interval, sensitivity, activate/deactivate state. On success it returns
--* number of bytes copied to buffer. On failure, it returns value < 0.
-+* interval, sensitivity, activate/deactivate state.
-+* Return: On success, it returns the number of bytes copied to buffer.
-+* On failure, it returns value < 0.
- */
- int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 			   u32 field_index, int buffer_size, void *buffer);
+Thanks.
+
+-- 
+Dmitry

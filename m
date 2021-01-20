@@ -2,87 +2,96 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15F88C433E0
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:19:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3671C433E0
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:23:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B538822509
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:19:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 712422250E
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:23:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728253AbhATCSB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Jan 2021 21:18:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36668 "EHLO
+        id S1729163AbhATCWl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Jan 2021 21:22:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730603AbhATCRx (ORCPT
+        with ESMTP id S1729209AbhATCWd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Jan 2021 21:17:53 -0500
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00644C061575;
-        Tue, 19 Jan 2021 18:17:12 -0800 (PST)
-Received: by mail-pg1-x52c.google.com with SMTP id z21so14215791pgj.4;
-        Tue, 19 Jan 2021 18:17:12 -0800 (PST)
+        Tue, 19 Jan 2021 21:22:33 -0500
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA78DC0613C1;
+        Tue, 19 Jan 2021 18:21:40 -0800 (PST)
+Received: by mail-pg1-x536.google.com with SMTP id n10so14197364pgl.10;
+        Tue, 19 Jan 2021 18:21:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=t00TCy5wC+D/qG4tfIGdU9KwNyTzKMrXg9QaOPRF4Ro=;
-        b=PAEasWe/eKvuH5ckT6Ewy3isYgo9T9iZXojfJkFRUNrZrWMGnetPLL7qG/zP+QJU+U
-         FxCA47meW4jKiuf2TaW4UAFlGIxApus8zQGruX3tqXrlNbl5I3M3rcEHHNyvrfMteqNV
-         7xN+6lYayp3j+eA8MLAioG+Iue3i0Ey3h6WNq+0M6hL/iHHyk0aXnMZrs0m1laDgJf/8
-         7S45d1fmHJhO4cQ2PHB1PpGOl+TrheS//7FIVOzKy7nw7M9trm4Gv3QX8Ic1YMdPRRRL
-         6EKHtlMGs3HXCOoFPFk6uGfWzct4hdeXbbNSqpU0VRRDiaq7v8DnTSZRKH3rynB6FDHU
-         XhiA==
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=vWHNRfwABbUraVqFkFTQr7XSIyiT1jtKh3OuTzrpthc=;
+        b=k1qeSwGNN0GWH7GLKB8v8cxgETplSpoY362p64c0qcDPgJK/Lc4OaiGGmGsS5YDmjC
+         AGorFHKhCe2Dr9cqTwPQ1tio3TBZ8RGShNrc8oYcNVO2QlRiHMmu/G0EKZ3vwve6Ag7E
+         a0g3w9B6mfpSFAUJS9KzmU9VeuUSgewmmKJoGbuzs3h3tyTUBHDN+MqtkAXBW6TY7bDc
+         cvR7plbCOi+Km1kqiLyXxw83VdDwlNqhXYGv3sbWbjahkt1tMmfxAhhgv34YOV4l6cMf
+         J4Q6ZlGrYgCEN/JU++i3ZabdVHcP7DnxzQlLqt3ya8ayWJRXr1uaDhETDtJQVtwGe9Lk
+         ccSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=t00TCy5wC+D/qG4tfIGdU9KwNyTzKMrXg9QaOPRF4Ro=;
-        b=YlVMtinOAttQa7fOWHxy5Tu2i2u6J2iMoFzzJFRDcZ2KAuPJA3awPo6ccrPbNLIL21
-         L5OmaSohTKB3AFUeuANOkcSSV5KaeYaCBhvOBTnu6UBU+QMeEthKGP1HipwOewNp93KV
-         QOrUn8f1CeLuvhQT4/SPcZ+pSedPZOUnSxc7BIQ/MPZxIibrV3M5h/QZBBbn4rF0UBwr
-         XYgseXAtDqpbNKXJcPOBD/AhWoo9ezNDsRBxxmIQ/oTW8JNqMwPqRYVoJeJnSa0xzJHt
-         Zq/5kG/I/ONl/DbukWJ8mO2eW1ip4TtH3i7zztNAtQiLVJh9qgCo0o+4RhNJTGgmh7Cn
-         4auw==
-X-Gm-Message-State: AOAM531AwiTOJMjDLtruaQDDF+cCV2GjVTIPGY4KFqYVsNxAOv2jiDOw
-        7ID3vIHuKuQWxdHsO0cIeM8=
-X-Google-Smtp-Source: ABdhPJwgHSk1Ov4cHl9ao26GOKsNXQPq6Xf5/0h3Ik0npPPEKPBB5oIvpeD25qEdt7HB9+FnUr0RcA==
-X-Received: by 2002:aa7:9af4:0:b029:19d:975a:3ef2 with SMTP id y20-20020aa79af40000b029019d975a3ef2mr7136388pfp.5.1611109032534;
-        Tue, 19 Jan 2021 18:17:12 -0800 (PST)
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=vWHNRfwABbUraVqFkFTQr7XSIyiT1jtKh3OuTzrpthc=;
+        b=LZOEUbyDen6Joogd5FwAr0hRyUPNeXkAEvypxQY6i4O+TXe05JNFdTyx806rnISzmU
+         2Kfb67/VgOGJUSG3pTIagK9K+aM8FMIgMx5gpjuIQLWID1JsIwKk+iJwufIsSYiB9dOl
+         2uFe4AwiNa5kDWUGXy2Rw4hbHYZRciZhcQq2S/fJkavXALQaYJw+Ipl0YHydsxr0GQ3o
+         rhs07DOKE0qVgSyzRzEqkkVnZkxEo49sPpc9Wwf4ukKmoIRYetyAK8FaJAAXFKm/tg8E
+         tBmikuEI64wu01aWH/4+6TGlr+akz+ppgPYROBTKX/Ld4FKRr+XuJraLCXitHtFRJ3J/
+         ZBag==
+X-Gm-Message-State: AOAM531quiPO7oAucUNK/tbJEsbvDQI9gdnNtfdSFrrv2zNNn01uQaeq
+        fTUatFsu/Ox9z0HF6Otiuh0=
+X-Google-Smtp-Source: ABdhPJw4AP5mI8rMcc/PkA1EO0gn5sv8qzQDVbPBLJWFTzq0Fj2PKPxfL3d0fYdK3hHtZ7BMjgVAOQ==
+X-Received: by 2002:a63:700f:: with SMTP id l15mr7106727pgc.214.1611109300198;
+        Tue, 19 Jan 2021 18:21:40 -0800 (PST)
 Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id f7sm241450pjs.25.2021.01.19.18.17.11
+        by smtp.gmail.com with ESMTPSA id r5sm350400pfl.165.2021.01.19.18.21.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jan 2021 18:17:11 -0800 (PST)
-Date:   Tue, 19 Jan 2021 18:17:09 -0800
+        Tue, 19 Jan 2021 18:21:39 -0800 (PST)
+Date:   Tue, 19 Jan 2021 18:21:36 -0800
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Alistair Francis <alistair@alistair23.me>
-Cc:     linux-input@vger.kernel.org, linux-imx@nxp.com,
-        kernel@pengutronix.de, linux-kernel@vger.kernel.org,
-        alistair23@gmail.com
-Subject: Re: [PATCH 2/3] input/touchscreen: Add device tree support to
- wacom_i2c
-Message-ID: <YAeSpUIzV/3dWPC+@google.com>
-References: <20210117042428.1497-1-alistair@alistair23.me>
- <20210117042428.1497-2-alistair@alistair23.me>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>,
+        James Hilliard <james.hilliard1@gmail.com>,
+        Daniel Ritz <daniel.ritz@gmx.ch>, linux-input@vger.kernel.org
+Subject: Re: [PATCH 3/5] input: touchscreen: usbtouchscreen: Actually check
+ return value of usb_submit_urb()
+Message-ID: <YAeTsOUGdE9BEjtS@google.com>
+References: <20210114152323.2382283-1-lee.jones@linaro.org>
+ <20210114152323.2382283-4-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210117042428.1497-2-alistair@alistair23.me>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210114152323.2382283-4-lee.jones@linaro.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, Jan 16, 2021 at 08:24:27PM -0800, Alistair Francis wrote:
-> Allow the wacom-i2c device to be exposed via device tree.
+On Thu, Jan 14, 2021 at 03:23:21PM +0000, Lee Jones wrote:
+> Fixes the following W=1 kernel build warning(s):
+> 
+>  drivers/input/touchscreen/usbtouchscreen.c: In function ‘nexio_read_data’:
+>  drivers/input/touchscreen/usbtouchscreen.c:1052:50: warning: variable ‘ret’ set but not used [-Wunused-but-set-variable]
+> 
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Henrik Rydberg <rydberg@bitmath.org>
+> Cc: James Hilliard <james.hilliard1@gmail.com>
+> Cc: Daniel Ritz <daniel.ritz@gmx.ch>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-The patch seems incomplete. I see we are reading and storing properties,
-but we are not using them whatsoever, so I do not see the reason to have
-this in this form.
-
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

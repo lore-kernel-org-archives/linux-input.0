@@ -2,136 +2,132 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 628F0C4332B
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 19:42:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3130C433E0
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 19:55:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 211322343B
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 19:42:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7821A23441
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 19:55:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388071AbhATSok (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Jan 2021 13:44:40 -0500
-Received: from msg-2.mailo.com ([213.182.54.12]:45534 "EHLO msg-2.mailo.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404659AbhATS01 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Jan 2021 13:26:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailoo.org; s=mailo;
-        t=1611165723; bh=le8GKqnpf07xFgYkEQht38PiHCLXIAgWGRaKmqWgx3k=;
-        h=X-EA-Auth:From:To:Cc:Subject:Date:Message-Id:X-Mailer:
-         MIME-Version:Content-Transfer-Encoding;
-        b=SUtAYyrHEQqJ3VhWvn3oAio4Wgb/2axtvDeKd9WRu8xWcTDTqZHJ8Jo5AYtubej+S
-         W8RUEbLHuf/n5f2qRsD19gSsy9ei4r49lNj/857Y97UtnxgVtFkNwGv0LvKjp+NP6q
-         R7fSCuHXSIwKZk5WkLmvgrgavXpMZvFf3hHFpKxg=
-Received: by b-2.in.mailobj.net [192.168.90.12] with ESMTP
-        via proxy.mailoo.org [213.182.55.207]
-        Wed, 20 Jan 2021 19:02:03 +0100 (CET)
-X-EA-Auth: EvUWT4BUI8p9MqU6ezCA/ldRkY1BoQkU59gI+gq+K5b96B31dFa1af3Rfjs/6guuEcgR5A520V/zHKHaw6nezV8wzro/8ZGcHy8yiOaG26s=
-From:   Vincent Knecht <vincent.knecht@mailoo.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        id S2387945AbhATSo1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Jan 2021 13:44:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47530 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404644AbhATSZz (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 20 Jan 2021 13:25:55 -0500
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C166DC061786;
+        Wed, 20 Jan 2021 10:23:50 -0800 (PST)
+Received: by mail-ej1-x632.google.com with SMTP id a10so18242286ejg.10;
+        Wed, 20 Jan 2021 10:23:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=hQ5eYd2yXDaG2x8OSmjOsHYCV/m/dRWpKbP4QFtdxVI=;
+        b=Nf+cwFcpqBozWZMA63vXzqCZIktkqS/hvWPkFMKkQmL5DeD0ORsBwuagCCyMnplHq0
+         8IxcHH6lvv5T0VNYfhxJEAMb+zdYJigIr3GVOrfaerhFaZtfL3UnFogvWSBP3Ho4eeO5
+         Mvj+rGwSwkk3RHT683UZkqYf0N7J5XXcwA7qzdwBaggFWC+dd/K7jcHpkOYJ7VaWfyZx
+         05GatbBPqODPP0E+cFUce9SJpCdFyhGl+yL7ImGmRbqXnpd2Bm4vfmvoRslYGqcq/ZCU
+         Tu3Vc+lQRzVWElV0+BSO0Va0AOPoGewKFwyymak9xHeL+wTgDq2w9e17VzknneYYESb+
+         GSaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=hQ5eYd2yXDaG2x8OSmjOsHYCV/m/dRWpKbP4QFtdxVI=;
+        b=jp3VRA5stTXsr1FfiRkeHw5/HVJiQIj7/yHQx49NrGGtX836e5HiYExVsyfEWJAtNx
+         W2XLPFkWren2zjOZFZtIh2AFmbk3d7TX5as7ATkPDUaGurK6HwZwBorSbMRoyTDkV8fy
+         LXHgf4SlImGSTAKsTqWicRA0IHOb1DuwPv+xzFqNwR/NpPrizsFBPIK1SzAAmEgQ+Mnx
+         DvoRVeKlw6RNt+4sONSR/SbhY/GuZz+Ewfs1j80StTTRvFOrNzFITm70p79Ig34EQYOS
+         6C2pZq3pJq6+9j3mxetbU8u6Av/1zL+idVE4KrZQA3gF5wB3EttJNylV+EXN41ZMvq8U
+         mWTA==
+X-Gm-Message-State: AOAM530npcPtXRysuumVlt/YNfLLj+i1R3HAgovF+FYutzF4xuxfSwPv
+        uULHebymFZCFeF2bcz1du/Q=
+X-Google-Smtp-Source: ABdhPJxMs0qf/WL4cqJLAjc99PZlF8qlVeqBHsQfxIq0JF5Pb3ly96KEIrEv7REzfy9lEumw9JEiMg==
+X-Received: by 2002:a17:907:3fa6:: with SMTP id hr38mr7106335ejc.24.1611167029531;
+        Wed, 20 Jan 2021 10:23:49 -0800 (PST)
+Received: from localhost.localdomain ([188.24.159.61])
+        by smtp.gmail.com with ESMTPSA id hr31sm1158332ejc.125.2021.01.20.10.23.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Jan 2021 10:23:48 -0800 (PST)
+From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+To:     Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Vincent Knecht <vincent.knecht@mailoo.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sebastian Reichel <sre@kernel.org>
+Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Michael Srba <Michael.Srba@seznam.cz>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     ~postmarketos/upstreaming@lists.sr.ht
-Subject: [PATCH 1/2] dt-bindings: input/touchscreen: add bindings for msg26xx
-Date:   Wed, 20 Jan 2021 19:01:07 +0100
-Message-Id: <20210120180119.849588-1-vincent.knecht@mailoo.org>
-X-Mailer: git-send-email 2.29.2
+        linux-actions@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH v6 7/7] MAINTAINERS: Add entry for ATC260x PMIC
+Date:   Wed, 20 Jan 2021 20:23:32 +0200
+Message-Id: <76d4e3e09530dc65f4abafa19af743e9b6e351f5.1611165200.git.cristian.ciocaltea@gmail.com>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <cover.1611165200.git.cristian.ciocaltea@gmail.com>
+References: <cover.1611165200.git.cristian.ciocaltea@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This adds dts bindings for the mstar msg26xx touchscreen.
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Add MAINTAINERS entry for ATC260x PMIC.
+
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+[cristian: change binding doc file path, add file patterns for onkey and
+           poweroff drivers, fix ordering, add myself as co-maintainer]
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 ---
- .../input/touchscreen/mstar,msg26xx.yaml      | 66 +++++++++++++++++++
- 1 file changed, 66 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/mstar,msg26xx.yaml
+Changes in v6:
+ - None
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/mstar,msg26xx.yaml b/Documentation/devicetree/bindings/input/touchscreen/mstar,msg26xx.yaml
-new file mode 100644
-index 000000000000..50e1c8495cd6
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/mstar,msg26xx.yaml
-@@ -0,0 +1,66 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/mstar,msg26xx.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+Changes in v5:
+ - None
+
+Changes in v4:
+ - None
+
+Changes in v3:
+ - Restored the authorship of the patch to Mani
+
+ MAINTAINERS | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 844f05410509..e5e3429a6026 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2892,6 +2892,18 @@ W:	http://www.openaoe.org/
+ F:	Documentation/admin-guide/aoe/
+ F:	drivers/block/aoe/
+ 
++ATC260X PMIC MFD DRIVER
++M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
++M:	Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
++L:	linux-actions@lists.infradead.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/mfd/actions,atc260x.yaml
++F:	drivers/input/misc/atc260x-onkey.c
++F:	drivers/mfd/atc260*
++F:	drivers/power/reset/atc260x-poweroff.c
++F:	drivers/regulator/atc260x-regulator.c
++F:	include/linux/mfd/atc260x/*
 +
-+title: M-Star msg26xx touchscreen controller Bindings
-+
-+maintainers:
-+  - Vincent Knecht <vincent.knecht@mailoo.org>
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    const: mstar,msg26xx
-+
-+  reg:
-+    const: 0x26
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  reset-gpios:
-+    maxItems: 1
-+
-+  vdd-supply:
-+    description: Power supply regulator for the chip
-+
-+  vddio-supply:
-+    description: Power supply regulator for the I2C bus
-+
-+additionalProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+  - touchscreen-size-x
-+  - touchscreen-size-y
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+      touchscreen@26 {
-+        compatible = "mstar,msg26xx";
-+        reg = <0x26>;
-+        interrupt-parent = <&msmgpio>;
-+        interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
-+        reset-gpios = <&msmgpio 100 GPIO_ACTIVE_HIGH>;
-+        pinctrl-names = "default";
-+        pinctrl-0 = <&ts_int_active>;
-+        vdd-supply = <&pm8916_l17>;
-+        vddio-supply = <&pm8916_l5>;
-+        touchscreen-size-x = <720>;
-+        touchscreen-size-y = <1280>;
-+      };
-+    };
-+
-+...
+ ATHEROS 71XX/9XXX GPIO DRIVER
+ M:	Alban Bedel <albeu@free.fr>
+ S:	Maintained
 -- 
-2.29.2
-
-
+2.30.0
 

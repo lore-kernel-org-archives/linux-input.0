@@ -5,99 +5,87 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB474C4332B
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:47:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92CC6C433E0
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:49:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A934D2313A
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:47:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4EB5623131
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:49:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729650AbhATHrB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Jan 2021 02:47:01 -0500
-Received: from mga14.intel.com ([192.55.52.115]:29181 "EHLO mga14.intel.com"
+        id S1726082AbhATHsy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Jan 2021 02:48:54 -0500
+Received: from mga02.intel.com ([134.134.136.20]:24987 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729161AbhATHqt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Jan 2021 02:46:49 -0500
-IronPort-SDR: Hil/hJyYkWsbjHiIiHTioWZzjVB1v6enehdfIgEeU5zbJiZ4Ok/WTRwM6TWv39zMNOxC0ddhxe
- c58ph/8oXxVg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9869"; a="178282813"
+        id S1729256AbhATHsk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 20 Jan 2021 02:48:40 -0500
+IronPort-SDR: grWsN4jFNcBc250QRwh1ymxRo01FiZELns6inc280Vq2ahTg5Rusjb14f4SW72gz86joF5zBEE
+ RnxIusp/5CVA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9869"; a="166154802"
 X-IronPort-AV: E=Sophos;i="5.79,360,1602572400"; 
-   d="scan'208";a="178282813"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2021 23:46:06 -0800
-IronPort-SDR: qWNe4iBZ9fNWumFZjjvEWM6OXeV6CgGUQkZpKeQURmC38SPOCngkRknGj2n5/+4RV9jmuCYz2z
- EZ0Pty18uADg==
+   d="scan'208";a="166154802"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2021 23:48:02 -0800
+IronPort-SDR: 9XdYHIh0XeWfBKuyrXw3JamQgpD62COUfGMSnTf8jYLGX5isTDO2VAjDrWpp8siovPZadeZCfV
+ ghyCE4au5zpw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.79,360,1602572400"; 
-   d="scan'208";a="466994266"
+   d="scan'208";a="426810560"
 Received: from host.sh.intel.com ([10.239.154.115])
-  by fmsmga001.fm.intel.com with ESMTP; 19 Jan 2021 23:46:05 -0800
+  by orsmga001.jf.intel.com with ESMTP; 19 Jan 2021 23:47:57 -0800
 From:   Ye Xiang <xiang.ye@intel.com>
 To:     jikos@kernel.org, jic23@kernel.org,
         srinivas.pandruvada@linux.intel.com
 Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
         linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH 2/3] hid-sensor-common: Add relative sensitivity check
-Date:   Wed, 20 Jan 2021 15:47:05 +0800
-Message-Id: <20210120074706.23199-3-xiang.ye@intel.com>
+Subject: [PATCH] iio: hid-sensor-rotation: Fix quaternion data not correct
+Date:   Wed, 20 Jan 2021 15:49:09 +0800
+Message-Id: <20210120074909.25707-1-xiang.ye@intel.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210120074706.23199-1-xiang.ye@intel.com>
-References: <20210120074706.23199-1-xiang.ye@intel.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some hid sensors may use relative sensitivity such as als sensor.
-This patch add relative sensitivity check for all hid-sensors.
+Because the data of HID_USAGE_SENSOR_ORIENT_QUATERNION defined by ISH FW
+is s16, but quaternion data type is in_rot_quaternion_type(le:s16/32X4>>0),
+need to transform data type from s16 to s32
 
 Signed-off-by: Ye Xiang <xiang.ye@intel.com>
 ---
- .../iio/common/hid-sensors/hid-sensor-attributes.c    | 11 ++++++++++-
- include/linux/hid-sensor-ids.h                        |  1 +
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ drivers/iio/orientation/hid-sensor-rotation.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-index d349ace2e33f..b685c292a179 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-@@ -480,7 +480,7 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
+diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
+index b0245b3b7ffc..cf7f57a47681 100644
+--- a/drivers/iio/orientation/hid-sensor-rotation.c
++++ b/drivers/iio/orientation/hid-sensor-rotation.c
+@@ -21,7 +21,7 @@ struct dev_rot_state {
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info quaternion;
+ 	struct {
+-		u32 sampled_vals[4] __aligned(16);
++		s32 sampled_vals[4] __aligned(16);
+ 		u64 timestamp __aligned(8);
+ 	} scan;
+ 	int scale_pre_decml;
+@@ -175,8 +175,15 @@ static int dev_rot_capture_sample(struct hid_sensor_hub_device *hsdev,
+ 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
  
- 	/*
- 	 * Set Sensitivity field ids, when there is no individual modifier, will
--	 * check absolute sensitivity of data field
-+	 * check absolute sensitivity and relative sensitivity of data field
- 	 */
- 	for (i = 0; i < sensitivity_addresses_len && st->sensitivity.index < 0; i++) {
- 		sensor_hub_input_get_attribute_info(hsdev,
-@@ -488,6 +488,15 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
- 				HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS |
- 					sensitivity_addresses[i],
- 				&st->sensitivity);
-+
-+		if (st->sensitivity.index >= 0)
-+			break;
-+
-+		sensor_hub_input_get_attribute_info(hsdev,
-+				HID_FEATURE_REPORT, usage_id,
-+				HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_REL_PCT |
-+					sensitivity_addresses[i],
-+				&st->sensitivity);
- 	}
+ 	if (usage_id == HID_USAGE_SENSOR_ORIENT_QUATERNION) {
+-		memcpy(&rot_state->scan.sampled_vals, raw_data,
+-		       sizeof(rot_state->scan.sampled_vals));
++		if (raw_len / 4 == sizeof(s16)) {
++			rot_state->scan.sampled_vals[0] = ((s16 *)raw_data)[0];
++			rot_state->scan.sampled_vals[1] = ((s16 *)raw_data)[1];
++			rot_state->scan.sampled_vals[2] = ((s16 *)raw_data)[2];
++			rot_state->scan.sampled_vals[3] = ((s16 *)raw_data)[3];
++		} else {
++			memcpy(&rot_state->scan.sampled_vals, raw_data,
++			       sizeof(rot_state->scan.sampled_vals));
++		}
  
- 	st->raw_hystersis = -1;
-diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-index 3bbdbccc5805..ac631159403a 100644
---- a/include/linux/hid-sensor-ids.h
-+++ b/include/linux/hid-sensor-ids.h
-@@ -149,6 +149,7 @@
- /* Per data field properties */
- #define HID_USAGE_SENSOR_DATA_MOD_NONE					0x00
- #define HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS		0x1000
-+#define HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_REL_PCT            0xE000
- 
- /* Power state enumerations */
- #define HID_USAGE_SENSOR_PROP_POWER_STATE_UNDEFINED_ENUM	0x200850
+ 		dev_dbg(&indio_dev->dev, "Recd Quat len:%zu::%zu\n", raw_len,
+ 			sizeof(rot_state->scan.sampled_vals));
 -- 
 2.17.1
 

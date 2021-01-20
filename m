@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A79F7C433E0
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:44:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6080C433E0
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:47:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4C25A23119
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:44:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ACFAE22AAA
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:47:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731686AbhATC3P (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Jan 2021 21:29:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47444 "EHLO mail.kernel.org"
+        id S1731642AbhATC3G (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Jan 2021 21:29:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730635AbhATB26 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:28:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BBF3233FE;
-        Wed, 20 Jan 2021 01:27:15 +0000 (UTC)
+        id S1729054AbhATB2N (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:28:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0E1E23159;
+        Wed, 20 Jan 2021 01:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611106036;
-        bh=FskA9qzo0lg/bwn8gw+ku1sTXg6bRVqfVAQZfhpjkn8=;
+        s=k20201202; t=1611105984;
+        bh=zKb5H06GpRQDY5QCgEVf4RPqkwLCkUsm81D+OU6n8gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+5UNtJEQ/tU1PS/gCvCAP6cv5rhiTIZv/f/LckzSDPcC1swd9NTYwmeO5/Q8RoHF
-         60SolnbCnSHTGfMmREJRWgunARt6VtPJDQen7P32lbC4+zFysOJUGgV0c0WNXz+/Ss
-         VVxfXNK9zoAtGUIIYkC6Kie1bw/B+JAFjPIrP6m/ov/trqoi/i7hTipr2TSniXbv4j
-         ZyKh6ikRYIWp8OTCXZKSIXmOp4uuw3x/QrwbYzBrI7tp5vqT8R6sVYFn2BWFsT6u51
-         ObuN4qTZDBDpVZl3L62XPMZxbPiyF6g9xpnQACT+LQd+qyqpOw88gzbR/tFWI90SVg
-         51EzOqOSC1pTg==
+        b=X63s4W76EgVP8RqpKoNnn/SqPfGeD2+oza2IzCIZ7gfPeWU/EOWC1i+afdPzr075E
+         cBm2cXC7pHAQyxhoc+ZBPywutJXDtOW4tYUqiLewzN7yDGiKEg6GhgDJo0u6nhwvnD
+         xHT2oklPXdIkr2Rb7KEB9K53Z0W++K25L4aIy8//wTg+bKuMMywr67Zu4IUroUopBM
+         PLsGNzuduUerL3ujS1r1hR6S8jLSuGAdP5FURzRphEK4/Ce5ZogheGYImpIi9tfr7a
+         owXoSVlOnUvPMBnJQfRYmIsPbv5j/C4+ZkL3rkwLRPnHnyOUOc82vi6ng32UxQen8v
+         GXPfKG/e2RdLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/26] HID: logitech-dj: add the G602 receiver
-Date:   Tue, 19 Jan 2021 20:26:46 -0500
-Message-Id: <20210120012704.770095-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 17/45] HID: logitech-dj: add the G602 receiver
+Date:   Tue, 19 Jan 2021 20:25:34 -0500
+Message-Id: <20210120012602.769683-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
-References: <20210120012704.770095-1-sashal@kernel.org>
+In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
+References: <20210120012602.769683-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -66,10 +66,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 54d811fdcdb44..e5550a5bf49d0 100644
+index 1ffcfc9a1e033..45e7e0bdd382b 100644
 --- a/drivers/hid/hid-logitech-dj.c
 +++ b/drivers/hid/hid-logitech-dj.c
-@@ -1862,6 +1862,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
+@@ -1869,6 +1869,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
  	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
  		0xc531),
  	 .driver_data = recvr_type_gaming_hidpp},

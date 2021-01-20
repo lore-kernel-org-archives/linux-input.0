@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 693FDC4332D
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:47:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06404C433DB
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:50:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 23A3E22573
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:47:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD8B922B42
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 03:50:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731607AbhATC3A (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Jan 2021 21:29:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
+        id S1731411AbhATC25 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Jan 2021 21:28:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729855AbhATB1q (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Jan 2021 20:27:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22E332332A;
-        Wed, 20 Jan 2021 01:26:25 +0000 (UTC)
+        id S1729328AbhATB12 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:27:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8032923131;
+        Wed, 20 Jan 2021 01:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611105985;
-        bh=LvVRTh7MSvbssqT4SZy33+D8NrWxVC7FKb7pFdKc0Uk=;
+        s=k20201202; t=1611105970;
+        bh=saFJQyo/hoTL0Hb67wDhk6xyGKhA1Q7cd/qHGjDhsLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBU6j2BY1YcTjnOrAEWoZ9Si7fYxst0gLkeq44PZ1y/DdDMIlX7r2R3cV6Ibj5YPH
-         SiJRauTzXmKN9PWdJhavusbiWRv4pmeB7X4LjtrSeoXsWfu6/wrmEJfj8/FzP4/dpY
-         MaFIDpL6nlcmJOMIUC55+qnk+S2/z/mT9BOvZEo9BjMlMllxRlN1jjP6ubMmr/sJqr
-         0T3n9P+RJTjE3FOnvyIqVMrMQ6q5/CwxU6G955/57C8+kCs9xYBwizTQmjxhRRxv51
-         KpHglyhP/63qC832sRopmPCwRkd+SI+M/cwGNhwzftT1f6LIsQv34EeqhDbByGfmYA
-         YkNAWCX41wJ/w==
+        b=GfHWZp8VRLCyLQ4Lwd7zdRpFeZrGygAruKSnEHd+8OMI+Buoc3wvCQ1cG1RQBCW3d
+         bfEmpHRbaj9zXN22NOvNJzSb0xgtt8TBpKc0TlBgNaNQfw1BgRfMZZxbE63kgZCHjU
+         fPxRtGsXJJ+Tu/pznS87udfW1ErgksCq3tg/WJ3Qyqv90eyg0x6zxjt7XbhOeq2PDP
+         WiVXmRbaWBrlxI/Id6LUbbV6O9itZmuFlSg7KT1eE0dYmGvb7OfvdBIJBlelwc06+m
+         cQgsvDsCFTglbtRw/rcwfsehXKNIlinReUN5K8llrKmACWlwiLA1o5QnyG6tAaFCQE
+         TGoc2BhqqfSAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Seth Miller <miller.seth@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+Cc:     Arnd Bergmann <arnd@arndb.de>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 18/45] HID: Ignore battery for Elan touchscreen on ASUS UX550
-Date:   Tue, 19 Jan 2021 20:25:35 -0500
-Message-Id: <20210120012602.769683-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 06/45] HID: sony: select CONFIG_CRC32
+Date:   Tue, 19 Jan 2021 20:25:23 -0500
+Message-Id: <20210120012602.769683-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210120012602.769683-1-sashal@kernel.org>
 References: <20210120012602.769683-1-sashal@kernel.org>
@@ -49,46 +49,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Seth Miller <miller.seth@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 7c38e769d5c508939ce5dc26df72602f3c902342 ]
+[ Upstream commit 273435a1d4e5826f039625c23ba4fe9a09f24d75 ]
 
-Battery status is being reported for the Elan touchscreen on ASUS
-UX550 laptops despite not having a batter. It always shows either 0 or
-1%.
+Without crc32 support, this driver fails to link:
 
-Signed-off-by: Seth Miller <miller.seth@gmail.com>
+arm-linux-gnueabi-ld: drivers/hid/hid-sony.o: in function `sony_raw_event':
+hid-sony.c:(.text+0x8f4): undefined reference to `crc32_le'
+arm-linux-gnueabi-ld: hid-sony.c:(.text+0x900): undefined reference to `crc32_le'
+arm-linux-gnueabi-ld: drivers/hid/hid-sony.o:hid-sony.c:(.text+0x4408): more undefined references to `crc32_le' follow
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/hid/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index f170feaac40ba..94180c63571ed 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -387,6 +387,7 @@
- #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
- #define USB_DEVICE_ID_HP_X2		0x074d
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
-+#define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 4dca113924593..32024905fd70f 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -322,6 +322,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 612629678c845..9b56226ce0d1c 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -899,6 +899,7 @@ config HID_SONY
+ 	depends on NEW_LEDS
+ 	depends on LEDS_CLASS
+ 	select POWER_SUPPLY
++	select CRC32
+ 	help
+ 	Support for
  
 -- 
 2.27.0

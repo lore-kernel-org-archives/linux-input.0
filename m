@@ -2,100 +2,83 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 959C1C433DB
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:25:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B32CC43381
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:27:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 56B9B2251D
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:25:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2EF1922CE3
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 02:27:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729314AbhATCYl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Jan 2021 21:24:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38108 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730769AbhATCYb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Jan 2021 21:24:31 -0500
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC4BBC0613C1;
-        Tue, 19 Jan 2021 18:23:51 -0800 (PST)
-Received: by mail-pl1-x631.google.com with SMTP id be12so11675715plb.4;
-        Tue, 19 Jan 2021 18:23:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=xmb/QGSszCboohUtICM5WMzWhCbKBKBMNNZfMQrtTEw=;
-        b=KHizKBsTWR0vu0sZYpJFMTTI2nV802unlbr7YwSoJAd01GQBJ9AuBwM4mQBCjHlQE8
-         y1E+oglEPPbUkBBPleq3GyojbjCFYT9YxMbIYGVUkWsOTiLi6XHyZCRV/HcbHEjTcp9x
-         m+vuikisq+j/fsEE3lboEADYeeU5KoytIj4+Eez3qwLUDdKoo7AWTkzfgFUqeQ0QLOo7
-         kywuK/Q7K2+Qn33WlSMH9gQk8XFr4/e/yVAp6boLtQhp6kCqW9ELUJv7oSOHJRB/oHaM
-         zgN2j0INSg+ODGVZDu0XGDWxhye518znTbBESDSLh4+808fNPuLzWOG1AMg1zymOTSvC
-         uSJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=xmb/QGSszCboohUtICM5WMzWhCbKBKBMNNZfMQrtTEw=;
-        b=LW5v0hpSfznWv42y4wKOQ7IlNWPofuI0cZHU0qSrj3OWSnWUA7lFnLTvDCZQAdK/Bd
-         f8EV4uIYO089YX8QuJwF0vxr1+fNHcPqDv+Sc/2HbYm0VNIBIsUCZaworJduhyDSbJNZ
-         7CawpFhDD5xLS2AyGUZu2b+szPUuSE9BLD1XL7BoEMcY02ay9BedsYNO/NRLZMa5GqvP
-         96jelxn3PJNkXpim+kRMFGE7jYqHDdNMmNOytF6qJSX7JvNFaJCG16aGHf+rh7baczbg
-         CrCWpmyVp2v0iZqJg38EzuAtxo54A5MzRVANpqJtcn3UlWir4Vm5g38Yc/78hVpxnek2
-         zeDg==
-X-Gm-Message-State: AOAM530ZrJxFmXL2lTEX2kSuJu9kftUATwEFzwnDJvGQAC8jEK5DDCKQ
-        gtkTRLii/jBmr3p6Djfy/Mg=
-X-Google-Smtp-Source: ABdhPJzMeEwi5uckhFp2vbcMPklFF83b3iHDCur6cilHgj+nzivjlKKCxmqLOtlZ0sOIcidridwkDQ==
-X-Received: by 2002:a17:90a:414d:: with SMTP id m13mr2952460pjg.229.1611109431254;
-        Tue, 19 Jan 2021 18:23:51 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id d22sm256009pjv.11.2021.01.19.18.23.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jan 2021 18:23:50 -0800 (PST)
-Date:   Tue, 19 Jan 2021 18:23:47 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 5/5] input: touchscreen: stmpe-ts: Add description for
- 'prop' struct member
-Message-ID: <YAeUM+x1fCPiQ0aX@google.com>
-References: <20210114152323.2382283-1-lee.jones@linaro.org>
- <20210114152323.2382283-6-lee.jones@linaro.org>
+        id S1730536AbhATB24 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Jan 2021 20:28:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46600 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728099AbhATB2s (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 Jan 2021 20:28:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 826682336D;
+        Wed, 20 Jan 2021 01:27:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1611106027;
+        bh=T4UKDtTLH3uErx25Eb+nAvlGUQBbaXBFMPyk+zDVVGs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=mOPdNqgbgn1Vo4b8wNpOjD7Hjnu4K8yJurx0zlC7KHfKagSqb8OsV4nMZu70oSoU8
+         o0ll6XPx8oDukufHzFhcLZfbjXHAqjQ+MdzuVCncbbNNa4rwAaxGjE6eZUUs/1bcjk
+         WXiMZwtGDDagz4HEJrFi8+oH8BmSQLnbTF1wHk9A7phOab9pQrRqkhEDV1YDyAKjt0
+         0gVcruuGtNJxJl0rqHWpN1rz3X1FfnTQ0DSSY6hb6wn7aQc/yeWrUUv332Vy8AfsZY
+         3pVDXRk4/CiT7XprUYAh3jIRM20ItpOQg/8vPupeFPX84nWJtpvm8Bt9K1t9usrsf9
+         Mw62DZbuV+sGQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 02/26] HID: multitouch: Enable multi-input for Synaptics pointstick/touchpad device
+Date:   Tue, 19 Jan 2021 20:26:39 -0500
+Message-Id: <20210120012704.770095-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210120012704.770095-1-sashal@kernel.org>
+References: <20210120012704.770095-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210114152323.2382283-6-lee.jones@linaro.org>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Jan 14, 2021 at 03:23:23PM +0000, Lee Jones wrote:
-> Fixes the following W=1 kernel build warning(s):
-> 
->  drivers/input/touchscreen/stmpe-ts.c:82: warning: Function parameter or member 'prop' not described in 'stmpe_touch'
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-> Cc: Alexandre Torgue <alexandre.torgue@st.com>
-> Cc: Stefan Riedmueller <s.riedmueller@phytec.de>
-> Cc: Luotao Fu <l.fu@pengutronix.de>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-stm32@st-md-mailman.stormreply.com
-> Cc: linux-arm-kernel@lists.infradead.org
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-Applied, thank you.
+[ Upstream commit c3d6eb6e54373f297313b65c1f2319d36914d579 ]
 
+Pointstick and its left/right buttons on HP EliteBook 850 G7 need
+multi-input quirk to work correctly.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-multitouch.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 128d8f4319b9f..d91e6679afb18 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -2084,6 +2084,10 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+ 			USB_VENDOR_ID_SYNAPTICS, 0xce08) },
+ 
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_SYNAPTICS, 0xce09) },
++
+ 	/* TopSeed panels */
+ 	{ .driver_data = MT_CLS_TOPSEED,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
 -- 
-Dmitry
+2.27.0
+

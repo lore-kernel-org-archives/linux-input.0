@@ -2,65 +2,75 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71BD2C433DB
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:42:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F499C433E0
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:46:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2836123131
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:42:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B4D252313A
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 07:46:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729090AbhATHm0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Jan 2021 02:42:26 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:44305 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728875AbhATHfV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Jan 2021 02:35:21 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=abaci-bugfix@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UMJDCOB_1611128071;
-Received: from j63c13417.sqa.eu95.tbsite.net(mailfrom:abaci-bugfix@linux.alibaba.com fp:SMTPD_---0UMJDCOB_1611128071)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 20 Jan 2021 15:34:35 +0800
-From:   Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
-To:     jikos@kernel.org
-Cc:     benjamin.tissoires@redhat.com, rydberg@bitmath.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
-Subject: [PATCH] HID: wacom: Assign boolean values to a bool variable
-Date:   Wed, 20 Jan 2021 15:34:30 +0800
-Message-Id: <1611128070-59752-1-git-send-email-abaci-bugfix@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1729047AbhATHqf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Jan 2021 02:46:35 -0500
+Received: from mga17.intel.com ([192.55.52.151]:7116 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728215AbhATHqe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 20 Jan 2021 02:46:34 -0500
+IronPort-SDR: ZK9AsS1uldtu4kCYV1dvvyPLZU2EE/QxruDnGSjX9Hx8NpfE+SN1PXd9rnVHexHNisRhI07VfE
+ PKy0jr3puuCg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9869"; a="158836353"
+X-IronPort-AV: E=Sophos;i="5.79,360,1602572400"; 
+   d="scan'208";a="158836353"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2021 23:45:54 -0800
+IronPort-SDR: +44SCZeZpBzqKfP3WQ9/Wys4rNcePPXriBEVdg6h6gAjCiD2aSza9OTs6qRByYDhda8IRATNij
+ raOZSHbevbxA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,360,1602572400"; 
+   d="scan'208";a="466994219"
+Received: from host.sh.intel.com ([10.239.154.115])
+  by fmsmga001.fm.intel.com with ESMTP; 19 Jan 2021 23:45:52 -0800
+From:   Ye Xiang <xiang.ye@intel.com>
+To:     jikos@kernel.org, jic23@kernel.org,
+        srinivas.pandruvada@linux.intel.com
+Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
+Subject: [PATCH 0/3] resolve read hystersis return invalid argument issue for hid sensors
+Date:   Wed, 20 Jan 2021 15:47:03 +0800
+Message-Id: <20210120074706.23199-1-xiang.ye@intel.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Fix the following coccicheck warnings:
+This patch series move get sensitivity attribute to common layer and
+resolve read hystersis return invalid argument issue for hid sensors als,
+incli-3d, rotation, and press on intel ISH Platform.
 
-./drivers/hid/wacom_wac.c:2536:2-6: WARNING: Assignment of
-0/1 to bool variable.
+Ye Xiang (3):
+  iio: hid-sensors: Move get sensitivity attribute to hid-sensor-common
+  hid-sensor-common: Add relative sensitivity check
+  hid-sensors: Add more data fields for sensitivity checking
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
----
- drivers/hid/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/accel/hid-sensor-accel-3d.c       | 23 +++++--------
+ .../hid-sensors/hid-sensor-attributes.c       | 26 +++++++++++++-
+ drivers/iio/gyro/hid-sensor-gyro-3d.c         | 19 ++++-------
+ drivers/iio/humidity/hid-sensor-humidity.c    | 16 ++++-----
+ drivers/iio/light/hid-sensor-als.c            | 20 +++++------
+ drivers/iio/light/hid-sensor-prox.c           | 27 +++++----------
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c | 34 ++++++-------------
+ drivers/iio/orientation/hid-sensor-incl-3d.c  | 20 +++++------
+ drivers/iio/orientation/hid-sensor-rotation.c | 24 ++++++-------
+ .../position/hid-sensor-custom-intel-hinge.c  | 20 ++++-------
+ drivers/iio/pressure/hid-sensor-press.c       | 20 +++++------
+ .../iio/temperature/hid-sensor-temperature.c  | 16 ++++-----
+ drivers/rtc/rtc-hid-sensor-time.c             |  4 ++-
+ include/linux/hid-sensor-hub.h                |  4 ++-
+ include/linux/hid-sensor-ids.h                |  1 +
+ 15 files changed, 122 insertions(+), 152 deletions(-)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 1bd0eb7..62b0f71 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2533,7 +2533,7 @@ static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
- 	    !wacom_wac->shared->is_touch_on) {
- 		if (!wacom_wac->shared->touch_down)
- 			return;
--		prox = 0;
-+		prox = false;
- 	}
- 
- 	wacom_wac->hid_data.num_received++;
 -- 
-1.8.3.1
+2.17.1
 

@@ -2,477 +2,691 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D389FC4332E
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 19:55:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B316C433E6
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 19:56:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A61DE2343E
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 19:55:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ABCFE23441
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jan 2021 19:56:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732217AbhATSoL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Jan 2021 13:44:11 -0500
-Received: from msg-2.mailo.com ([213.182.54.12]:45380 "EHLO msg-2.mailo.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404340AbhATSZP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Jan 2021 13:25:15 -0500
-X-Greylist: delayed 1306 seconds by postgrey-1.27 at vger.kernel.org; Wed, 20 Jan 2021 13:25:13 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailoo.org; s=mailo;
-        t=1611165741; bh=bgfVz/KVxf2nqIlh+YWXRKHNP+N6/uraCuq6wMhAQik=;
-        h=X-EA-Auth:From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:
-         References:MIME-Version:Content-Transfer-Encoding;
-        b=A/hXVMri+koZ9CkVHwfLL+DtMmBQycvrEElC+sfbRat0R+3uWLRPDZpro7KK3kMg2
-         rmFAmJpqo2k2+7h7bNYQz4mfPnnEkN03cBqZkZDF6NizVwG4oubTCw2e+A/YIRgpGp
-         auBNJa1CSxStjK9q8M1GP7gDAvrMxk74jtkbwJO4=
-Received: by b-2.in.mailobj.net [192.168.90.12] with ESMTP
-        via proxy.mailoo.org [213.182.55.207]
-        Wed, 20 Jan 2021 19:02:21 +0100 (CET)
-X-EA-Auth: LdzsvILUImkWVurxeEKvs1mN95uAIYy8icoEbS+Ldu/meV2oJQnof/QQ2uDOA0JrgL1AXP7nbzY6QNfpAPepTBhk7qiWL2Yn00vm+No4i6Q=
-From:   Vincent Knecht <vincent.knecht@mailoo.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        id S2387552AbhATSoH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Jan 2021 13:44:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47210 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404247AbhATSYZ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 20 Jan 2021 13:24:25 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE42C0613D3;
+        Wed, 20 Jan 2021 10:23:45 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id 6so34881582ejz.5;
+        Wed, 20 Jan 2021 10:23:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=zjysMj1NK+CcJzMU0HzfR1EwQC/vwxIvvc2JgIoLgzw=;
+        b=XM9jXdmsTAVmI2P8o06dTRfIyhkPrVYCJvXArfpLME3M0/7sdmoMtv+eoIo4964H28
+         VB29JbRtTziGIrVOTGwIMH7t6M14SFz4D6eJC386GgYq5vCAFgkuS6HCcJA3S51U5aHQ
+         12ZnqdDWvN6D3qnMxeRwqa2zoGLnp0Ah6BW3q73VDqX9CDsXqe/kqrvz93ihqVfVDmu+
+         EjqXwo4GaAt/v1CDSaOUSaQZ7SgK9QpXoF/q+K8LlRJbQvraioT91vpi30/ToF67cMbH
+         ANMTros5DPBBGwKzduI28BJbrkcRGOrf5KX4RWbgr9WDJZrZTqVfxT/2Po1Br+zJU/z7
+         Dn3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=zjysMj1NK+CcJzMU0HzfR1EwQC/vwxIvvc2JgIoLgzw=;
+        b=Tmjmc/42G1P2GR+Ym50ZsL8bTyktphGowan7s2OMKdFZsb1gd5vD2AMDi7M8PIswPW
+         Wg6mcHPVlBJYV1dfWx0fHx+izRnpiPfRW8qP8yLgkY7hteJPrOXrsqDEX4A/kUYp5hvq
+         gzXq5GUAugHUN1IQQiUlDNdu+dppFPy5doH+mvI7r0nndYtICMyBiQWEq8XPO00g7HWu
+         JuelK+t1C5cVYe6SBDpY6sTO1P0qsgLJj2soZz05FDr06W2SNjcYH4SLHBXKiOu098jA
+         lJYjmTZ6mfTtthA/rUsbUdBXLkumSLnHPo3UeGHjckaVcD89xmLnMjowGkL20GFdFy4C
+         8LJQ==
+X-Gm-Message-State: AOAM531Cslaz49xt69tHvblO1sBAvKv1uSwq5tfCrn/CZ3FW22K3pGlG
+        JxO+VVIM2XJk+B8H3t/pmV8=
+X-Google-Smtp-Source: ABdhPJztISZ0dR6kSgRPQTU/tML/9gWdDgmlTH32Ftw9PofT+qW3tS3XFcN7xq25efMS3MlSjesVrw==
+X-Received: by 2002:a17:906:d19b:: with SMTP id c27mr7005773ejz.234.1611167023928;
+        Wed, 20 Jan 2021 10:23:43 -0800 (PST)
+Received: from localhost.localdomain ([188.24.159.61])
+        by smtp.gmail.com with ESMTPSA id hr31sm1158332ejc.125.2021.01.20.10.23.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Jan 2021 10:23:43 -0800 (PST)
+From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+To:     Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Vincent Knecht <vincent.knecht@mailoo.org>,
-        Michael Srba <Michael.Srba@seznam.cz>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sebastian Reichel <sre@kernel.org>
+Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
         Linus Walleij <linus.walleij@linaro.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     ~postmarketos/upstreaming@lists.sr.ht
-Subject: [PATCH 2/2] Input: add MStar msg26xx touchscreen driver
-Date:   Wed, 20 Jan 2021 19:01:08 +0100
-Message-Id: <20210120180119.849588-2-vincent.knecht@mailoo.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210120180119.849588-1-vincent.knecht@mailoo.org>
-References: <20210120180119.849588-1-vincent.knecht@mailoo.org>
+        linux-actions@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH v6 4/7] regulator: Add regulator driver for ATC260x PMICs
+Date:   Wed, 20 Jan 2021 20:23:29 +0200
+Message-Id: <3f48e9f8114cac0557abca88d4437849423793bb.1611165200.git.cristian.ciocaltea@gmail.com>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <cover.1611165200.git.cristian.ciocaltea@gmail.com>
+References: <cover.1611165200.git.cristian.ciocaltea@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add support for the msg26xx touchscreen IC from MStar.
-This driver reuses zinitix.c structure, while the checksum and irq handler
-functions are based on out-of-tree driver for Alcatel Idol 3 (4.7").
+Add support for the DC-DC converters and LDO regulators found in
+the ATC2603C and ATC2609A chip variants of the Actions Semi ATC260x
+family of PMICs.
 
-Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Co-developed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 ---
- drivers/input/touchscreen/Kconfig   |  12 +
- drivers/input/touchscreen/Makefile  |   1 +
- drivers/input/touchscreen/msg26xx.c | 370 ++++++++++++++++++++++++++++
- 3 files changed, 383 insertions(+)
- create mode 100644 drivers/input/touchscreen/msg26xx.c
+Changes in v6:
+ - None
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index f012fe746df0..bc4f604b4841 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -1334,4 +1334,16 @@ config TOUCHSCREEN_ZINITIX
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called zinitix.
+Changes in v5:
+ - None
+
+Changes in v4
+ - Included the ATC2603C's LDO12 fixed regulator per Mark's suggestion
+
+Changes in v3:
+ - Dropped 'last_dcdc_reg_id' from 'atc260x_regulator_data' and, instead,
+   provided separate ops for DCDCs and LDOs, as recommended by Mark
+ - Removed the unnecessary compatibles, per Mark's review
+ - Added 'Co-developed-by' tag in commit message and dropped [cristian: ...] line
+
+ drivers/regulator/Kconfig             |   8 +
+ drivers/regulator/Makefile            |   1 +
+ drivers/regulator/atc260x-regulator.c | 539 ++++++++++++++++++++++++++
+ 3 files changed, 548 insertions(+)
+ create mode 100644 drivers/regulator/atc260x-regulator.c
+
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index 5abdd29fb9f3..6b1accaaed72 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -179,6 +179,14 @@ config REGULATOR_AS3722
+ 	  AS3722 PMIC. This will enable support for all the software
+ 	  controllable DCDC/LDO regulators.
  
-+config TOUCHSCREEN_MSG26XX
-+	tristate "MStar msg26xx touchscreen support"
-+	depends on I2C
-+	depends on GPIOLIB || COMPILE_TEST
++config REGULATOR_ATC260X
++	tristate "Actions Semi ATC260x PMIC Regulators"
++	depends on MFD_ATC260X
 +	help
-+	  Say Y here if you have an I2C touchscreen using MStar msg26xx.
++	  This driver provides support for the voltage regulators on the
++	  ATC260x PMICs. This will enable support for all the software
++	  controllable DCDC/LDO regulators.
 +
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called msg26xx.
-+
- endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 6233541e9173..830ebf4973cb 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -112,3 +112,4 @@ obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
- obj-$(CONFIG_TOUCHSCREEN_RASPBERRYPI_FW)	+= raspberrypi-ts.o
- obj-$(CONFIG_TOUCHSCREEN_IQS5XX)	+= iqs5xx.o
- obj-$(CONFIG_TOUCHSCREEN_ZINITIX)	+= zinitix.o
-+obj-$(CONFIG_TOUCHSCREEN_MSG26XX)	+= msg26xx.o
-diff --git a/drivers/input/touchscreen/msg26xx.c b/drivers/input/touchscreen/msg26xx.c
+ config REGULATOR_AXP20X
+ 	tristate "X-POWERS AXP20X PMIC Regulators"
+ 	depends on MFD_AXP20X
+diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
+index 680e539f6579..36a069f36346 100644
+--- a/drivers/regulator/Makefile
++++ b/drivers/regulator/Makefile
+@@ -27,6 +27,7 @@ obj-$(CONFIG_REGULATOR_ARIZONA_MICSUPP) += arizona-micsupp.o
+ obj-$(CONFIG_REGULATOR_ARM_SCMI) += scmi-regulator.o
+ obj-$(CONFIG_REGULATOR_AS3711) += as3711-regulator.o
+ obj-$(CONFIG_REGULATOR_AS3722) += as3722-regulator.o
++obj-$(CONFIG_REGULATOR_ATC260X) += atc260x-regulator.o
+ obj-$(CONFIG_REGULATOR_AXP20X) += axp20x-regulator.o
+ obj-$(CONFIG_REGULATOR_BCM590XX) += bcm590xx-regulator.o
+ obj-$(CONFIG_REGULATOR_BD70528) += bd70528-regulator.o
+diff --git a/drivers/regulator/atc260x-regulator.c b/drivers/regulator/atc260x-regulator.c
 new file mode 100644
-index 000000000000..2e646cdca724
+index 000000000000..d8b429955d33
 --- /dev/null
-+++ b/drivers/input/touchscreen/msg26xx.c
-@@ -0,0 +1,370 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Driver for MStar msg26xx touchscreens
-+ *
-+ * Copyright (c) 2021 Vincent Knecht <vincent.knecht@mailoo.org>
-+ *
-+ * Checksum and IRQ handler based on mstar_drv_common.c and mstar_drv_mutual_fw_control.c
-+ * Copyright (c) 2006-2012 MStar Semiconductor, Inc.
-+ *
-+ * Driver structure based on zinitix.c by Michael Srba <Michael.Srba@seznam.cz>
-+ */
++++ b/drivers/regulator/atc260x-regulator.c
+@@ -0,0 +1,539 @@
++// SPDX-License-Identifier: GPL-2.0+
++//
++// Regulator driver for ATC260x PMICs
++//
++// Copyright (C) 2019 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
++// Copyright (C) 2020 Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 +
-+#include <linux/delay.h>
-+#include <linux/gpio.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
-+#include <linux/interrupt.h>
-+#include <linux/irq.h>
-+#include <linux/kernel.h>
++#include <linux/mfd/atc260x/core.h>
 +#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/regulator/consumer.h>
-+#include <linux/slab.h>
++#include <linux/of_device.h>
++#include <linux/regmap.h>
++#include <linux/regulator/driver.h>
 +
-+#define MODE_DATA_RAW			0x5A
-+
-+#define TPD_WIDTH			2048
-+#define TPD_HEIGHT			2048
-+
-+#define MAX_SUPPORTED_FINGER_NUM	5
-+
-+#define CHIP_ON_DELAY			15 // ms
-+#define FIRMWARE_ON_DELAY		50 // ms
-+
-+struct point_coord {
-+	u16	x;
-+	u16	y;
++struct atc260x_regulator_data {
++	int voltage_time_dcdc;
++	int voltage_time_ldo;
 +};
 +
-+struct packet {
-+	u8	y_high : 4;
-+	u8	x_high : 4;
-+	u8	x_low;
-+	u8	y_low;
-+	u8	pressure;
++static const struct linear_range atc2603c_dcdc_voltage_ranges[] = {
++	REGULATOR_LINEAR_RANGE(1300000, 0, 13, 50000),
++	REGULATOR_LINEAR_RANGE(1950000, 14, 15, 100000),
 +};
 +
-+struct touch_event {
-+	u8	mode;
-+	struct	packet pkt[MAX_SUPPORTED_FINGER_NUM];
-+	u8	proximity;
-+	u8	checksum;
++static const struct linear_range atc2609a_dcdc_voltage_ranges[] = {
++	REGULATOR_LINEAR_RANGE(600000, 0, 127, 6250),
++	REGULATOR_LINEAR_RANGE(1400000, 128, 232, 25000),
 +};
 +
-+struct msg26xx_ts_data {
-+	struct i2c_client *client;
-+	struct input_dev *input_dev;
-+	struct touchscreen_properties prop;
-+	struct regulator_bulk_data supplies[2];
-+	struct gpio_desc *reset_gpiod;
++static const struct linear_range atc2609a_ldo_voltage_ranges0[] = {
++	REGULATOR_LINEAR_RANGE(700000, 0, 15, 100000),
++	REGULATOR_LINEAR_RANGE(2100000, 16, 28, 100000),
 +};
 +
-+static int mstar_init_regulators(struct msg26xx_ts_data *msg26xx)
++static const struct linear_range atc2609a_ldo_voltage_ranges1[] = {
++	REGULATOR_LINEAR_RANGE(850000, 0, 15, 100000),
++	REGULATOR_LINEAR_RANGE(2100000, 16, 27, 100000),
++};
++
++static const unsigned int atc260x_ldo_voltage_range_sel[] = {
++	0x0, 0x1,
++};
++
++static int atc260x_dcdc_set_voltage_time_sel(struct regulator_dev *rdev,
++					     unsigned int old_selector,
++					     unsigned int new_selector)
 +{
-+	struct i2c_client *client = msg26xx->client;
-+	int error;
++	struct atc260x_regulator_data *data = rdev_get_drvdata(rdev);
 +
-+	msg26xx->supplies[0].supply = "vdd";
-+	msg26xx->supplies[1].supply = "vddio";
-+	error = devm_regulator_bulk_get(&client->dev,
-+					ARRAY_SIZE(msg26xx->supplies),
-+					msg26xx->supplies);
-+	if (error < 0) {
-+		dev_err(&client->dev, "Failed to get regulators: %d\n", error);
-+		return error;
-+	}
++	if (new_selector > old_selector)
++		return data->voltage_time_dcdc;
 +
 +	return 0;
 +}
 +
-+static void mstar_power_on(struct msg26xx_ts_data *msg26xx)
++static int atc260x_ldo_set_voltage_time_sel(struct regulator_dev *rdev,
++					    unsigned int old_selector,
++					    unsigned int new_selector)
 +{
-+	gpiod_set_value(msg26xx->reset_gpiod, 0);
-+	mdelay(10);
-+	gpiod_set_value(msg26xx->reset_gpiod, 1);
-+	mdelay(FIRMWARE_ON_DELAY);
++	struct atc260x_regulator_data *data = rdev_get_drvdata(rdev);
 +
-+	enable_irq(msg26xx->client->irq);
-+}
-+
-+static void mstar_report_finger(struct msg26xx_ts_data *msg26xx, int slot,
-+				const struct point_coord *pc)
-+{
-+	input_mt_slot(msg26xx->input_dev, slot);
-+	input_mt_report_slot_state(msg26xx->input_dev, MT_TOOL_FINGER, true);
-+	touchscreen_report_pos(msg26xx->input_dev, &msg26xx->prop, pc->x, pc->y, true);
-+	input_report_abs(msg26xx->input_dev, ABS_MT_TOUCH_MAJOR, 1);
-+}
-+
-+static u8 mstar_checksum(u8 *data, u32 length)
-+{
-+	s32 sum = 0;
-+	u32 i;
-+
-+	for (i = 0; i < length; i++)
-+		sum += data[i];
-+
-+	return (u8)((-sum) & 0xFF);
-+}
-+
-+static irqreturn_t mstar_ts_irq_handler(int irq, void *msg26xx_handler)
-+{
-+	struct msg26xx_ts_data *msg26xx = msg26xx_handler;
-+	struct i2c_client *client = msg26xx->client;
-+	struct touch_event touch_event;
-+	struct point_coord coord;
-+	struct i2c_msg msg[1];
-+	struct packet *p;
-+	u32 len;
-+	int ret;
-+	int i;
-+
-+	len = sizeof(struct touch_event);
-+	memset(&touch_event, 0, len);
-+
-+	msg[0].addr = client->addr;
-+	msg[0].flags = I2C_M_RD;
-+	msg[0].len = len;
-+	msg[0].buf = (u8 *)&touch_event;
-+
-+	ret = i2c_transfer(client->adapter, msg, 1);
-+	if (ret != 1) {
-+		dev_err(&client->dev, "Failed I2C transfer in irq handler!\n");
-+		goto out;
-+	}
-+
-+	if (touch_event.mode != MODE_DATA_RAW)
-+		goto out;
-+
-+	if (mstar_checksum((u8 *)&touch_event, len - 1) != touch_event.checksum) {
-+		dev_err(&client->dev, "Failed checksum!\n");
-+		goto out;
-+	}
-+
-+	for (i = 0; i < MAX_SUPPORTED_FINGER_NUM; i++) {
-+		p = &touch_event.pkt[i];
-+		/* Ignore non-pressed finger data */
-+		if (p->x_high == 0xF && p->y_high == 0xF && p->x_low == 0xFF && p->y_low == 0xFF)
-+			continue;
-+
-+		coord.x = ((p->x_high << 8) | p->x_low) * msg26xx->prop.max_x / TPD_WIDTH;
-+		coord.y = ((p->y_high << 8) | p->y_low) * msg26xx->prop.max_y / TPD_HEIGHT;
-+		mstar_report_finger(msg26xx, i, &coord);
-+	}
-+
-+	input_mt_sync_frame(msg26xx->input_dev);
-+	input_sync(msg26xx->input_dev);
-+
-+out:
-+	return IRQ_HANDLED;
-+}
-+
-+static int mstar_start(struct msg26xx_ts_data *msg26xx)
-+{
-+	int error;
-+
-+	error = regulator_bulk_enable(ARRAY_SIZE(msg26xx->supplies),
-+				      msg26xx->supplies);
-+	if (error) {
-+		dev_err(&msg26xx->client->dev,
-+			"Failed to enable regulators: %d\n", error);
-+		return error;
-+	}
-+
-+	msleep(CHIP_ON_DELAY);
-+
-+	mstar_power_on(msg26xx);
++	if (new_selector > old_selector)
++		return data->voltage_time_ldo;
 +
 +	return 0;
 +}
 +
-+static int mstar_stop(struct msg26xx_ts_data *msg26xx)
-+{
-+	int error;
++static const struct regulator_ops atc260x_dcdc_ops = {
++	.enable	= regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++	.list_voltage = regulator_list_voltage_linear,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_regmap,
++	.set_voltage_time_sel = atc260x_dcdc_set_voltage_time_sel,
++};
 +
-+	disable_irq(msg26xx->client->irq);
++static const struct regulator_ops atc260x_ldo_ops = {
++	.enable	= regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++	.list_voltage = regulator_list_voltage_linear,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_regmap,
++	.set_voltage_time_sel = atc260x_ldo_set_voltage_time_sel,
++};
 +
-+	error = regulator_bulk_disable(ARRAY_SIZE(msg26xx->supplies),
-+				       msg26xx->supplies);
-+	if (error) {
-+		dev_err(&msg26xx->client->dev,
-+			"Failed to disable regulators: %d\n", error);
-+		return error;
-+	}
++static const struct regulator_ops atc260x_ldo_bypass_ops = {
++	.enable	= regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++	.list_voltage = regulator_list_voltage_linear,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_regmap,
++	.set_voltage_time_sel = atc260x_ldo_set_voltage_time_sel,
++	.set_bypass = regulator_set_bypass_regmap,
++	.get_bypass = regulator_get_bypass_regmap,
++};
 +
-+	return 0;
++static const struct regulator_ops atc260x_ldo_bypass_discharge_ops = {
++	.enable	= regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++	.list_voltage = regulator_list_voltage_linear,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_regmap,
++	.set_voltage_time_sel = atc260x_ldo_set_voltage_time_sel,
++	.set_bypass = regulator_set_bypass_regmap,
++	.get_bypass = regulator_get_bypass_regmap,
++	.set_active_discharge = regulator_set_active_discharge_regmap,
++};
++
++static const struct regulator_ops atc260x_dcdc_range_ops = {
++	.enable	= regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++	.list_voltage = regulator_list_voltage_linear_range,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_regmap,
++	.set_voltage_time_sel = atc260x_dcdc_set_voltage_time_sel,
++};
++
++static const struct regulator_ops atc260x_ldo_range_pick_ops = {
++	.enable	= regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++	.list_voltage = regulator_list_voltage_pickable_linear_range,
++	.set_voltage_sel = regulator_set_voltage_sel_pickable_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_pickable_regmap,
++	.set_voltage_time_sel = atc260x_ldo_set_voltage_time_sel,
++};
++
++static const struct regulator_ops atc260x_dcdc_fixed_ops = {
++	.list_voltage = regulator_list_voltage_linear,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_regmap,
++	.set_voltage_time_sel = atc260x_dcdc_set_voltage_time_sel,
++};
++
++static const struct regulator_ops atc260x_ldo_fixed_ops = {
++	.list_voltage = regulator_list_voltage_linear,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_regmap,
++	.set_voltage_time_sel = atc260x_ldo_set_voltage_time_sel,
++};
++
++static const struct regulator_ops atc260x_no_ops = {
++};
++
++/*
++ * Note LDO8 is not documented in datasheet (v2.4), but supported
++ * in the vendor's driver implementation (xapp-le-kernel).
++ */
++enum atc2603c_reg_ids {
++	ATC2603C_ID_DCDC1,
++	ATC2603C_ID_DCDC2,
++	ATC2603C_ID_DCDC3,
++	ATC2603C_ID_LDO1,
++	ATC2603C_ID_LDO2,
++	ATC2603C_ID_LDO3,
++	ATC2603C_ID_LDO5,
++	ATC2603C_ID_LDO6,
++	ATC2603C_ID_LDO7,
++	ATC2603C_ID_LDO8,
++	ATC2603C_ID_LDO11,
++	ATC2603C_ID_LDO12,
++	ATC2603C_ID_SWITCHLDO1,
++	ATC2603C_ID_MAX,
++};
++
++#define atc2603c_reg_desc_dcdc(num, min, step, n_volt, vsel_h, vsel_l) { \
++	.name = "DCDC"#num, \
++	.supply_name = "dcdc"#num, \
++	.of_match = of_match_ptr("dcdc"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2603C_ID_DCDC##num, \
++	.ops = &atc260x_dcdc_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.min_uV = min, \
++	.uV_step = step, \
++	.n_voltages = n_volt, \
++	.vsel_reg = ATC2603C_PMU_DC##num##_CTL0, \
++	.vsel_mask = GENMASK(vsel_h, vsel_l), \
++	.enable_reg = ATC2603C_PMU_DC##num##_CTL0, \
++	.enable_mask = BIT(15), \
++	.enable_time = 800, \
++	.owner = THIS_MODULE, \
 +}
 +
-+static int mstar_input_open(struct input_dev *dev)
-+{
-+	struct msg26xx_ts_data *msg26xx = input_get_drvdata(dev);
-+
-+	return mstar_start(msg26xx);
++#define atc2603c_reg_desc_dcdc_range(num, vsel_h, vsel_l) { \
++	.name = "DCDC"#num, \
++	.supply_name = "dcdc"#num, \
++	.of_match = of_match_ptr("dcdc"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2603C_ID_DCDC##num, \
++	.ops = &atc260x_dcdc_range_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.n_voltages = 16, \
++	.linear_ranges = atc2603c_dcdc_voltage_ranges, \
++	.n_linear_ranges = ARRAY_SIZE(atc2603c_dcdc_voltage_ranges), \
++	.vsel_reg = ATC2603C_PMU_DC##num##_CTL0, \
++	.vsel_mask = GENMASK(vsel_h, vsel_l), \
++	.enable_reg = ATC2603C_PMU_DC##num##_CTL0, \
++	.enable_mask = BIT(15), \
++	.enable_time = 800, \
++	.owner = THIS_MODULE, \
 +}
 +
-+static void mstar_input_close(struct input_dev *dev)
-+{
-+	struct msg26xx_ts_data *msg26xx = input_get_drvdata(dev);
-+
-+	mstar_stop(msg26xx);
++#define atc2603c_reg_desc_dcdc_fixed(num, min, step, n_volt, vsel_h, vsel_l) { \
++	.name = "DCDC"#num, \
++	.supply_name = "dcdc"#num, \
++	.of_match = of_match_ptr("dcdc"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2603C_ID_DCDC##num, \
++	.ops = &atc260x_dcdc_fixed_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.min_uV = min, \
++	.uV_step = step, \
++	.n_voltages = n_volt, \
++	.vsel_reg = ATC2603C_PMU_DC##num##_CTL0, \
++	.vsel_mask = GENMASK(vsel_h, vsel_l), \
++	.enable_time = 800, \
++	.owner = THIS_MODULE, \
 +}
 +
-+static int mstar_init_input_dev(struct msg26xx_ts_data *msg26xx)
-+{
-+	struct input_dev *input_dev;
-+	int error;
++#define atc2603c_reg_desc_ldo(num, min, step, n_volt, vsel_h, vsel_l) { \
++	.name = "LDO"#num, \
++	.supply_name = "ldo"#num, \
++	.of_match = of_match_ptr("ldo"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2603C_ID_LDO##num, \
++	.ops = &atc260x_ldo_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.min_uV = min, \
++	.uV_step = step, \
++	.n_voltages = n_volt, \
++	.vsel_reg = ATC2603C_PMU_LDO##num##_CTL, \
++	.vsel_mask = GENMASK(vsel_h, vsel_l), \
++	.enable_reg = ATC2603C_PMU_LDO##num##_CTL, \
++	.enable_mask = BIT(0), \
++	.enable_time = 2000, \
++	.owner = THIS_MODULE, \
++}
 +
-+	input_dev = devm_input_allocate_device(&msg26xx->client->dev);
-+	if (!input_dev) {
-+		dev_err(&msg26xx->client->dev,
-+			"Failed to allocate input device.");
++#define atc2603c_reg_desc_ldo_fixed(num, min, step, n_volt, vsel_h, vsel_l) { \
++	.name = "LDO"#num, \
++	.supply_name = "ldo"#num, \
++	.of_match = of_match_ptr("ldo"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2603C_ID_LDO##num, \
++	.ops = &atc260x_ldo_fixed_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.min_uV = min, \
++	.uV_step = step, \
++	.n_voltages = n_volt, \
++	.vsel_reg = ATC2603C_PMU_LDO##num##_CTL, \
++	.vsel_mask = GENMASK(vsel_h, vsel_l), \
++	.enable_time = 2000, \
++	.owner = THIS_MODULE, \
++}
++
++#define atc2603c_reg_desc_ldo_noops(num, vfixed) { \
++	.name = "LDO"#num, \
++	.supply_name = "ldo"#num, \
++	.of_match = of_match_ptr("ldo"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2603C_ID_LDO##num, \
++	.ops = &atc260x_no_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.fixed_uV = vfixed, \
++	.n_voltages = 1, \
++	.owner = THIS_MODULE, \
++}
++
++#define atc2603c_reg_desc_ldo_switch(num, min, step, n_volt, vsel_h, vsel_l) { \
++	.name = "SWITCHLDO"#num, \
++	.supply_name = "switchldo"#num, \
++	.of_match = of_match_ptr("switchldo"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2603C_ID_SWITCHLDO##num, \
++	.ops = &atc260x_ldo_bypass_discharge_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.min_uV = min, \
++	.uV_step = step, \
++	.n_voltages = n_volt, \
++	.vsel_reg = ATC2603C_PMU_SWITCH_CTL, \
++	.vsel_mask = GENMASK(vsel_h, vsel_l), \
++	.enable_reg = ATC2603C_PMU_SWITCH_CTL, \
++	.enable_mask = BIT(15), \
++	.enable_is_inverted = true, \
++	.enable_time = 2000, \
++	.bypass_reg = ATC2603C_PMU_SWITCH_CTL, \
++	.bypass_mask = BIT(5), \
++	.active_discharge_reg = ATC2603C_PMU_SWITCH_CTL, \
++	.active_discharge_mask = BIT(1), \
++	.owner = THIS_MODULE, \
++}
++
++static const struct regulator_desc atc2603c_reg[] = {
++	atc2603c_reg_desc_dcdc_fixed(1, 700000, 25000, 29, 11, 7),
++	atc2603c_reg_desc_dcdc_range(2, 12, 8),
++	atc2603c_reg_desc_dcdc_fixed(3, 2600000, 100000, 8, 11, 9),
++	atc2603c_reg_desc_ldo_fixed(1, 2600000, 100000, 8, 15, 13),
++	atc2603c_reg_desc_ldo_fixed(2, 2600000, 100000, 8, 15, 13),
++	atc2603c_reg_desc_ldo_fixed(3, 1500000, 100000, 6, 15, 13),
++	atc2603c_reg_desc_ldo(5, 2600000, 100000, 8, 15, 13),
++	atc2603c_reg_desc_ldo_fixed(6, 700000, 25000, 29, 15, 11),
++	atc2603c_reg_desc_ldo(7, 1500000, 100000, 6, 15, 13),
++	atc2603c_reg_desc_ldo(8, 2300000, 100000, 11, 15, 12),
++	atc2603c_reg_desc_ldo_fixed(11, 2600000, 100000, 8, 15, 13),
++	atc2603c_reg_desc_ldo_noops(12, 1800000),
++	atc2603c_reg_desc_ldo_switch(1, 3000000, 100000, 4, 4, 3),
++};
++
++static const struct regulator_desc atc2603c_reg_dcdc2_ver_b =
++	atc2603c_reg_desc_dcdc(2, 1000000, 50000, 18, 12, 8);
++
++enum atc2609a_reg_ids {
++	ATC2609A_ID_DCDC0,
++	ATC2609A_ID_DCDC1,
++	ATC2609A_ID_DCDC2,
++	ATC2609A_ID_DCDC3,
++	ATC2609A_ID_DCDC4,
++	ATC2609A_ID_LDO0,
++	ATC2609A_ID_LDO1,
++	ATC2609A_ID_LDO2,
++	ATC2609A_ID_LDO3,
++	ATC2609A_ID_LDO4,
++	ATC2609A_ID_LDO5,
++	ATC2609A_ID_LDO6,
++	ATC2609A_ID_LDO7,
++	ATC2609A_ID_LDO8,
++	ATC2609A_ID_LDO9,
++	ATC2609A_ID_MAX,
++};
++
++#define atc2609a_reg_desc_dcdc(num, en_bit) { \
++	.name = "DCDC"#num, \
++	.supply_name = "dcdc"#num, \
++	.of_match = of_match_ptr("dcdc"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2609A_ID_DCDC##num, \
++	.ops = &atc260x_dcdc_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.min_uV = 600000, \
++	.uV_step = 6250, \
++	.n_voltages = 256, \
++	.vsel_reg = ATC2609A_PMU_DC##num##_CTL0, \
++	.vsel_mask = GENMASK(15, 8), \
++	.enable_reg = ATC2609A_PMU_DC_OSC, \
++	.enable_mask = BIT(en_bit), \
++	.enable_time = 800, \
++	.owner = THIS_MODULE, \
++}
++
++#define atc2609a_reg_desc_dcdc_range(num, en_bit) { \
++	.name = "DCDC"#num, \
++	.supply_name = "dcdc"#num, \
++	.of_match = of_match_ptr("dcdc"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2609A_ID_DCDC##num, \
++	.ops = &atc260x_dcdc_range_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.n_voltages = 233, \
++	.linear_ranges = atc2609a_dcdc_voltage_ranges, \
++	.n_linear_ranges = ARRAY_SIZE(atc2609a_dcdc_voltage_ranges), \
++	.vsel_reg = ATC2609A_PMU_DC##num##_CTL0, \
++	.vsel_mask = GENMASK(15, 8), \
++	.enable_reg = ATC2609A_PMU_DC_OSC, \
++	.enable_mask = BIT(en_bit), \
++	.enable_time = 800, \
++	.owner = THIS_MODULE, \
++}
++
++#define atc2609a_reg_desc_ldo(num) { \
++	.name = "LDO"#num, \
++	.supply_name = "ldo"#num, \
++	.of_match = of_match_ptr("ldo"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2609A_ID_LDO##num, \
++	.ops = &atc260x_ldo_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.min_uV = 700000, \
++	.uV_step = 100000, \
++	.n_voltages = 16, \
++	.vsel_reg = ATC2609A_PMU_LDO##num##_CTL0, \
++	.vsel_mask = GENMASK(4, 1), \
++	.enable_reg = ATC2609A_PMU_LDO##num##_CTL0, \
++	.enable_mask = BIT(0), \
++	.enable_time = 2000, \
++	.owner = THIS_MODULE, \
++}
++
++#define atc2609a_reg_desc_ldo_bypass(num) { \
++	.name = "LDO"#num, \
++	.supply_name = "ldo"#num, \
++	.of_match = of_match_ptr("ldo"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2609A_ID_LDO##num, \
++	.ops = &atc260x_ldo_bypass_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.min_uV = 2300000, \
++	.uV_step = 100000, \
++	.n_voltages = 12, \
++	.vsel_reg = ATC2609A_PMU_LDO##num##_CTL0, \
++	.vsel_mask = GENMASK(5, 2), \
++	.enable_reg = ATC2609A_PMU_LDO##num##_CTL0, \
++	.enable_mask = BIT(0), \
++	.enable_time = 2000, \
++	.bypass_reg = ATC2609A_PMU_LDO##num##_CTL0, \
++	.bypass_mask = BIT(1), \
++	.owner = THIS_MODULE, \
++}
++
++#define atc2609a_reg_desc_ldo_range_pick(num, n_range) { \
++	.name = "LDO"#num, \
++	.supply_name = "ldo"#num, \
++	.of_match = of_match_ptr("ldo"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2609A_ID_LDO##num, \
++	.ops = &atc260x_ldo_range_pick_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.linear_ranges = atc2609a_ldo_voltage_ranges##n_range, \
++	.n_linear_ranges = ARRAY_SIZE(atc2609a_ldo_voltage_ranges##n_range), \
++	.vsel_reg = ATC2609A_PMU_LDO##num##_CTL0, \
++	.vsel_mask = GENMASK(4, 1), \
++	.vsel_range_reg = ATC2609A_PMU_LDO##num##_CTL0, \
++	.vsel_range_mask = BIT(5), \
++	.linear_range_selectors = atc260x_ldo_voltage_range_sel, \
++	.enable_reg = ATC2609A_PMU_LDO##num##_CTL0, \
++	.enable_mask = BIT(0), \
++	.enable_time = 2000, \
++	.owner = THIS_MODULE, \
++}
++
++#define atc2609a_reg_desc_ldo_fixed(num) { \
++	.name = "LDO"#num, \
++	.supply_name = "ldo"#num, \
++	.of_match = of_match_ptr("ldo"#num), \
++	.regulators_node = of_match_ptr("regulators"), \
++	.id = ATC2609A_ID_LDO##num, \
++	.ops = &atc260x_ldo_fixed_ops, \
++	.type = REGULATOR_VOLTAGE, \
++	.min_uV = 2600000, \
++	.uV_step = 100000, \
++	.n_voltages = 8, \
++	.vsel_reg = ATC2609A_PMU_LDO##num##_CTL, \
++	.vsel_mask = GENMASK(15, 13), \
++	.enable_time = 2000, \
++	.owner = THIS_MODULE, \
++}
++
++static const struct regulator_desc atc2609a_reg[] = {
++	atc2609a_reg_desc_dcdc(0, 4),
++	atc2609a_reg_desc_dcdc(1, 5),
++	atc2609a_reg_desc_dcdc(2, 6),
++	atc2609a_reg_desc_dcdc_range(3, 7),
++	atc2609a_reg_desc_dcdc(4, 8),
++	atc2609a_reg_desc_ldo_bypass(0),
++	atc2609a_reg_desc_ldo_bypass(1),
++	atc2609a_reg_desc_ldo_bypass(2),
++	atc2609a_reg_desc_ldo_range_pick(3, 0),
++	atc2609a_reg_desc_ldo_range_pick(4, 0),
++	atc2609a_reg_desc_ldo(5),
++	atc2609a_reg_desc_ldo_range_pick(6, 1),
++	atc2609a_reg_desc_ldo_range_pick(7, 0),
++	atc2609a_reg_desc_ldo_range_pick(8, 0),
++	atc2609a_reg_desc_ldo_fixed(9),
++};
++
++static int atc260x_regulator_probe(struct platform_device *pdev)
++{
++	struct atc260x *atc260x = dev_get_drvdata(pdev->dev.parent);
++	struct device *dev = atc260x->dev;
++	struct atc260x_regulator_data *atc260x_data;
++	struct regulator_config config = {};
++	struct regulator_dev *atc260x_rdev;
++	const struct regulator_desc *regulators;
++	bool atc2603c_ver_b = false;
++	int i, nregulators;
++
++	atc260x_data = devm_kzalloc(&pdev->dev, sizeof(*atc260x_data), GFP_KERNEL);
++	if (!atc260x_data)
 +		return -ENOMEM;
-+	}
 +
-+	input_set_drvdata(input_dev, msg26xx);
-+	msg26xx->input_dev = input_dev;
++	atc260x_data->voltage_time_dcdc = 350;
++	atc260x_data->voltage_time_ldo = 800;
 +
-+	input_dev->name = "MStar TouchScreen";
-+	input_dev->phys = "input/ts";
-+	input_dev->id.bustype = BUS_I2C;
-+	input_dev->open = mstar_input_open;
-+	input_dev->close = mstar_input_close;
-+
-+	input_set_capability(input_dev, EV_ABS, ABS_MT_POSITION_X);
-+	input_set_capability(input_dev, EV_ABS, ABS_MT_POSITION_Y);
-+	input_set_abs_params(input_dev, ABS_MT_WIDTH_MAJOR, 0, 15, 0, 0);
-+	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
-+
-+	touchscreen_parse_properties(input_dev, true, &msg26xx->prop);
-+	if (!msg26xx->prop.max_x || !msg26xx->prop.max_y) {
-+		dev_err(&msg26xx->client->dev,
-+			"touchscreen-size-x and/or touchscreen-size-y not set in dts\n");
++	switch (atc260x->ic_type) {
++	case ATC2603C:
++		regulators = atc2603c_reg;
++		nregulators = ATC2603C_ID_MAX;
++		atc2603c_ver_b = atc260x->ic_ver == ATC260X_B;
++		break;
++	case ATC2609A:
++		atc260x_data->voltage_time_dcdc = 250;
++		regulators = atc2609a_reg;
++		nregulators = ATC2609A_ID_MAX;
++		break;
++	default:
++		dev_err(dev, "unsupported ATC260X ID %d\n", atc260x->ic_type);
 +		return -EINVAL;
 +	}
 +
-+	error = input_mt_init_slots(input_dev, MAX_SUPPORTED_FINGER_NUM,
-+				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-+	if (error) {
-+		dev_err(&msg26xx->client->dev,
-+			"Failed to initialize MT slots: %d", error);
-+		return error;
-+	}
++	config.dev = dev;
++	config.regmap = atc260x->regmap;
++	config.driver_data = atc260x_data;
 +
-+	error = input_register_device(input_dev);
-+	if (error) {
-+		dev_err(&msg26xx->client->dev,
-+			"Failed to register input device: %d", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int mstar_ts_probe(struct i2c_client *client)
-+{
-+	struct msg26xx_ts_data *msg26xx;
-+	int error;
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		dev_err(&client->dev,
-+			"Failed to assert adapter's support for plain I2C.\n");
-+		return -ENXIO;
-+	}
-+
-+	msg26xx = devm_kzalloc(&client->dev, sizeof(*msg26xx), GFP_KERNEL);
-+	if (!msg26xx)
-+		return -ENOMEM;
-+
-+	msg26xx->client = client;
-+	i2c_set_clientdata(client, msg26xx);
-+
-+	error = mstar_init_regulators(msg26xx);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"Failed to initialize regulators: %d\n", error);
-+		return error;
-+	}
-+
-+	msg26xx->reset_gpiod = devm_gpiod_get(&client->dev, "reset", GPIOD_OUT_LOW);
-+	if (IS_ERR(msg26xx->reset_gpiod)) {
-+		error = PTR_ERR(msg26xx->reset_gpiod);
-+		dev_err(&client->dev, "Failed to request reset GPIO: %d\n", error);
-+		return error;
-+	}
-+
-+	error = mstar_init_input_dev(msg26xx);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"Failed to initialize input device: %d\n", error);
-+		return error;
-+	}
-+
-+	irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
-+	error = devm_request_threaded_irq(&client->dev, client->irq,
-+					  NULL, mstar_ts_irq_handler,
-+					  IRQF_ONESHOT, client->name, msg26xx);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to request IRQ: %d\n", error);
-+		return error;
++	/* Instantiate the regulators */
++	for (i = 0; i < nregulators; i++) {
++		if (atc2603c_ver_b && regulators[i].id == ATC2603C_ID_DCDC2)
++			atc260x_rdev = devm_regulator_register(&pdev->dev,
++							       &atc2603c_reg_dcdc2_ver_b,
++							       &config);
++		else
++			atc260x_rdev = devm_regulator_register(&pdev->dev,
++							       &regulators[i],
++							       &config);
++		if (IS_ERR(atc260x_rdev)) {
++			dev_err(dev, "failed to register regulator: %d\n", i);
++			return PTR_ERR(atc260x_rdev);
++		}
 +	}
 +
 +	return 0;
 +}
 +
-+static int __maybe_unused mstar_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct msg26xx_ts_data *msg26xx = i2c_get_clientdata(client);
-+
-+	mutex_lock(&msg26xx->input_dev->mutex);
-+
-+	if (input_device_enabled(msg26xx->input_dev))
-+		mstar_stop(msg26xx);
-+
-+	mutex_unlock(&msg26xx->input_dev->mutex);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused mstar_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct msg26xx_ts_data *msg26xx = i2c_get_clientdata(client);
-+	int ret = 0;
-+
-+	mutex_lock(&msg26xx->input_dev->mutex);
-+
-+	if (input_device_enabled(msg26xx->input_dev))
-+		ret = mstar_start(msg26xx);
-+
-+	mutex_unlock(&msg26xx->input_dev->mutex);
-+
-+	return ret;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(mstar_pm_ops, mstar_suspend, mstar_resume);
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id mstar_of_match[] = {
-+	{ .compatible = "mstar,msg26xx" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, mstar_of_match);
-+#endif
-+
-+static struct i2c_driver mstar_ts_driver = {
-+	.probe_new = mstar_ts_probe,
++static struct platform_driver atc260x_regulator_driver = {
++	.probe = atc260x_regulator_probe,
 +	.driver = {
-+		.name = "MStar-TS",
-+		.pm = &mstar_pm_ops,
-+		.of_match_table = of_match_ptr(mstar_of_match),
++		.name = "atc260x-regulator",
 +	},
 +};
-+module_i2c_driver(mstar_ts_driver);
 +
-+MODULE_AUTHOR("Vincent Knecht <vincent.knecht@mailoo.org>");
-+MODULE_DESCRIPTION("MStar touchscreen driver");
-+MODULE_LICENSE("GPL v2");
++module_platform_driver(atc260x_regulator_driver);
++
++MODULE_DESCRIPTION("Regulator driver for ATC260x PMICs");
++MODULE_AUTHOR("Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>");
++MODULE_AUTHOR("Cristian Ciocaltea <cristian.ciocaltea@gmail.com>");
++MODULE_LICENSE("GPL");
 -- 
-2.29.2
-
-
+2.30.0
 

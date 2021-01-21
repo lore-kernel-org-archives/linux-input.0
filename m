@@ -2,91 +2,170 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAB39C433DB
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 06:52:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFB7FC433E0
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 07:02:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9745F2396D
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 06:52:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96C8623788
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 07:02:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726042AbhAUGwe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jan 2021 01:52:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38464 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbhAUGwc (ORCPT
+        id S1727116AbhAUHBq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jan 2021 02:01:46 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:43397 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727030AbhAUG7z (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Jan 2021 01:52:32 -0500
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2E0FC061575;
-        Wed, 20 Jan 2021 22:51:51 -0800 (PST)
-Received: by mail-io1-xd32.google.com with SMTP id z22so1972683ioh.9;
-        Wed, 20 Jan 2021 22:51:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RmR5J8GicNZJLuhUFmP22EBtCzbCjmN4ktsEfPuUAvI=;
-        b=BVIdcrIW4TMNNH77NUQtJS/OLJPOzEtNC1rGn5ZUr7j1YYmCBVCgI8I8pBRc2QPK8h
-         KGCEvwn0P8NY2sKTxJUCm3YTS/t6Oz1OgyGP69kP/VqmIuh44HTpGySJH+UqLD+ZYJfb
-         QMCrYKmBk5Mr+SXBTOM9kNE1VQwUbjaUiugQxDMc/4O3ALH/muNeRBr5UhFI9zUjVhmd
-         097YqXPABQeut+0o9M4Ve0zDrYsD5QbLV5UmRR4xcjaUb1etpp37Pt7rk0Nm8evKqIDZ
-         RYdqBQahBQePa8hNeHlNJIHDDVF2OovqIz9NpzCTYFFgBdW1XfmyuIArWZrQxvo/TWZu
-         qxVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RmR5J8GicNZJLuhUFmP22EBtCzbCjmN4ktsEfPuUAvI=;
-        b=J11Hy9DkKCjY5W56BvYGdc5nfWbVIpwQjG1UVu7CczB6H+XTHhwlNMWgJblUjQIRKw
-         XNZaeMEEHpoQ0eFLvwkhVwAcR3gYBu9OVTSlnzznYMCgP+MQOEK+W3sj2/HHzuLkbaGO
-         bS//fTEqXdD5YwtLAu1Ymiba9+k6L6oGe8sxh9NG7mMDqHCxKCUxrig9D/tISx0nvwnm
-         SiqOP9t5BaZzVRtgWviqaYy75Yx1zhKQ8GtdOchw0bJMtIwIkVeucKsQvypE/IcgZ/zM
-         IySm6U4DXJjCTS+xnajyf6W6135XF+O4yZgR1LtSiLQ2n3doa8m3b5SM1aWeuCncFQIx
-         GxBg==
-X-Gm-Message-State: AOAM530TPdHmA+4JuXclu6pkK5ndT6txI5ga/IJeuhrLBkaoJaeQxzbW
-        JWschGvcP6pRLbypxTIx1b0IGbij+f4J0HkzQZ8=
-X-Google-Smtp-Source: ABdhPJzZypTHMl5wMUilCwobB+qETmo15/kKxbdZRtGuuWn0dgPCe3PfFNxAIAp+fBjASBT1+5X2Hc2flnjf1pYjgfU=
-X-Received: by 2002:a02:2544:: with SMTP id g65mr10543131jag.91.1611211910995;
- Wed, 20 Jan 2021 22:51:50 -0800 (PST)
+        Thu, 21 Jan 2021 01:59:55 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 083A35C00FF;
+        Thu, 21 Jan 2021 01:56:54 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 21 Jan 2021 01:56:54 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alistair23.me;
+         h=from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=fm3; bh=D5q7/JpfWnXMs
+        /U4/SdqmnZ4pMs2OR5puiCrTr0sajE=; b=Hrq9b3zieHUW2k/J5MFrdHjXoSHXk
+        F0wYlJo5rqOauNSaFl/d42c52Sb6adSfvalqc6tR1KJtjyfJwJ7ZlWxM/7y4Hp0o
+        1vLqUBWodEJFAdnxVu/ZZjhskFM9HFD7SUQAjTCrZQf0xC8MAsthbyDcvWUlFX33
+        A/QFVebDaFeELKm2/wryWZoGQmA7Gaz8lNZMFpEt8a7a4IllciDQb6CXAsK5ytcX
+        j8t7VuDAxr/PDUiIAAXiihOTVXbskq8gJFoyeNUHthQgFS5RVhaCSBzfWwWKNUID
+        2qHK/JgF7gaLJGHZqsW7etfQsWFc+dAKm9aehk9pBic6gfjquXmCMTGeQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; bh=D5q7/JpfWnXMs/U4/SdqmnZ4pMs2OR5puiCrTr0sajE=; b=R82duAvM
+        aKVruW7TzsaWPlo+/2zLpA31XfK9/2gisBAfmxi7rFCrEvrZ8jlXUK7xlD9R3OtO
+        f1V7u+v0Y4fpuqzOlj72glXGcpLXRz4ix8PFh6Rcms2MFrdqgjlG7xN6GEiTvORi
+        BGDKcUkXknYCZmdy3wt+Yb0D364MN8g5IT+Wddrg2jT/krQ4WS6gg9y/28pRHPj5
+        zDd/0rTsiGwafYUbpapnTAcyuH0I07mBcFUIq8Ba9Zb846uKoPI1lHPQfxpNvW9d
+        2PmKzrRYHcXHEPKAUl/t/DQEeLHa9JoiAu8L8X7e3y4fkNGzD0YXE+Oc55Y0U7ZA
+        54jGLgLL3t6qZw==
+X-ME-Sender: <xms:tSUJYHFdAPeW4Yo4D0hYpgwT6cA3v8WzHzoZptdzj30mNRHSjEGGBw>
+    <xme:tSUJYEVrPek4ktdgPWQWcG41lk3eiQMGS8yjNS8EzymBSvbGINsaFS7aVtf-1QRMD
+    3sZtK2AWgEEogmYhzw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefgddutddtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgjfhgggfestdekre
+    dtredttdenucfhrhhomheptehlihhsthgrihhrucfhrhgrnhgtihhsuceorghlihhsthgr
+    ihhrsegrlhhishhtrghirhdvfedrmhgvqeenucggtffrrghtthgvrhhnpeeggedtteejke
+    eggeeugfehueevudegvdetjeeviedugedvtdekffekhedtteduhfenucfkphepjeefrdel
+    fedrkeegrddvtdeknecuvehluhhsthgvrhfuihiivgepgeenucfrrghrrghmpehmrghilh
+    hfrhhomheprghlihhsthgrihhrsegrlhhishhtrghirhdvfedrmhgv
+X-ME-Proxy: <xmx:tSUJYJICgy65XJAZxLMxqOnt7FYdEh8G-iMQLbwFyqzPwDXrJ_gAtQ>
+    <xmx:tSUJYFGwksHwDLP_CyNaWPShNXQnoNMg1i-O1aM3o-Jd8oqKTHrrZg>
+    <xmx:tSUJYNWczTpwEpesbtHRVU1dQm_mvINgrWn0c9NK4HBT81wEy52Ubw>
+    <xmx:tiUJYAQkZhGFuBSjx-gi5Sg5Wmuo9-VX0bLx_J-PxAxcC5jiOlNkYg>
+Received: from ThinkpadX1Yoga3.localdomain (c-73-93-84-208.hsd1.ca.comcast.net [73.93.84.208])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 13D0C1080057;
+        Thu, 21 Jan 2021 01:56:52 -0500 (EST)
+From:   Alistair Francis <alistair@alistair23.me>
+To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+        linux-imx@nxp.com, kernel@pengutronix.de
+Cc:     linux-kernel@vger.kernel.org, alistair23@gmail.com,
+        Alistair Francis <alistair@alistair23.me>
+Subject: [PATCH v2 6/6] arch/arm: reMarkable2: Enable wacom_i2c
+Date:   Wed, 20 Jan 2021 22:56:43 -0800
+Message-Id: <20210121065643.342-7-alistair@alistair23.me>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210121065643.342-1-alistair@alistair23.me>
+References: <20210121065643.342-1-alistair@alistair23.me>
 MIME-Version: 1.0
-References: <20210117042428.1497-1-alistair@alistair23.me> <20210117042428.1497-2-alistair@alistair23.me>
- <YAeSpUIzV/3dWPC+@google.com>
-In-Reply-To: <YAeSpUIzV/3dWPC+@google.com>
-From:   Alistair Francis <alistair23@gmail.com>
-Date:   Wed, 20 Jan 2021 22:51:24 -0800
-Message-ID: <CAKmqyKOFe0_JgFA1_9vemW40g-daBt5RY=S9CAXU5Yj-FftGGw@mail.gmail.com>
-Subject: Re: [PATCH 2/3] input/touchscreen: Add device tree support to wacom_i2c
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Alistair Francis <alistair@alistair23.me>,
-        linux-input@vger.kernel.org, dl-linux-imx <linux-imx@nxp.com>,
-        Sascha Hauer <kernel@pengutronix.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Jan 19, 2021 at 6:17 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> On Sat, Jan 16, 2021 at 08:24:27PM -0800, Alistair Francis wrote:
-> > Allow the wacom-i2c device to be exposed via device tree.
->
-> The patch seems incomplete. I see we are reading and storing properties,
-> but we are not using them whatsoever, so I do not see the reason to have
-> this in this form.
+Enable the wacom_i2c touchscreen for the reMarkable2.
 
-Good point. I am trying to split up the work, but I guess here I split
-it up a little too much. I'm sending a v2 that should fix this.
+Signed-off-by: Alistair Francis <alistair@alistair23.me>
+---
+ arch/arm/boot/dts/imx7d-remarkable2.dts | 41 +++++++++++++++++++++++++
+ arch/arm/configs/imx_v6_v7_defconfig    |  1 +
+ 2 files changed, 42 insertions(+)
 
-Alistair
+diff --git a/arch/arm/boot/dts/imx7d-remarkable2.dts b/arch/arm/boot/dts/imx7d-remarkable2.dts
+index fba55a0e028a..8052d884a5e5 100644
+--- a/arch/arm/boot/dts/imx7d-remarkable2.dts
++++ b/arch/arm/boot/dts/imx7d-remarkable2.dts
+@@ -150,6 +150,30 @@ &dma_apbh {
+ 	status = "disabled";
+ };
+ 
++&i2c1 {
++	clock-frequency = <400000>;
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&pinctrl_i2c1>;
++	pinctrl-1 = <&pinctrl_i2c1>;
++	status = "okay";
++
++	digitizer: wacom-i2c@9 {
++		pinctrl-names = "default", "sleep";
++		pinctrl-0 = <&pinctrl_wacom>;
++		pinctrl-1 = <&pinctrl_wacom>;
++		compatible = "wacom,wacom-i2c";
++		reg = <0x09>;
++		interrupt-parent = <&gpio1>;
++		interrupts = <1 2>;
++		flip-tilt-x;
++		flip-tilt-y;
++		flip-pos-x;
++		flip-pos-y;
++		flip-distance;
++		vdd-supply = <&reg_digitizer>;
++	};
++};
++
+ &sdma {
+ 	status = "okay";
+ };
+@@ -221,6 +245,16 @@ &wdog1 {
+ };
+ 
+ &iomuxc_lpsr {
++	pinctrl_wacom: wacomgrp {
++		fsl,pins = <
++			/*MX7D_PAD_LPSR_GPIO1_IO00__GPIO1_IO0	0x00000074 /* WACOM RESET */
++			MX7D_PAD_LPSR_GPIO1_IO01__GPIO1_IO1	0x00000034 /* WACOM INT */
++			MX7D_PAD_LPSR_GPIO1_IO04__GPIO1_IO4	0x00000074 /* PDCTB */
++			/*MX7D_PAD_LPSR_GPIO1_IO05__GPIO1_IO5	0x00000014 /* FWE */
++			/*MX7D_PAD_LPSR_GPIO1_IO06__GPIO1_IO6	0x00000014 /* WACOM PWR ENABLE */
++		>;
++	};
++
+ 	pinctrl_digitizer_reg: digitizerreggrp {
+ 		fsl,pins = <
+ 			/* DIGITIZER_PWR_EN */
+@@ -236,6 +270,13 @@ MX7D_PAD_SAI1_RX_SYNC__GPIO6_IO16	0x59
+ 		>;
+ 	};
+ 
++	pinctrl_i2c1: i2c1grp {
++		fsl,pins = <
++			MX7D_PAD_I2C1_SDA__I2C1_SDA		0x4000007f
++			MX7D_PAD_I2C1_SCL__I2C1_SCL		0x4000007f
++		>;
++	};
++
+ 	pinctrl_uart1: uart1grp {
+ 		fsl,pins = <
+ 			MX7D_PAD_UART1_TX_DATA__UART1_DCE_TX	0x79
+diff --git a/arch/arm/configs/imx_v6_v7_defconfig b/arch/arm/configs/imx_v6_v7_defconfig
+index fa9229616106..2fc8dc6a8b0a 100644
+--- a/arch/arm/configs/imx_v6_v7_defconfig
++++ b/arch/arm/configs/imx_v6_v7_defconfig
+@@ -167,6 +167,7 @@ CONFIG_TOUCHSCREEN_DA9052=y
+ CONFIG_TOUCHSCREEN_EGALAX=y
+ CONFIG_TOUCHSCREEN_GOODIX=y
+ CONFIG_TOUCHSCREEN_ILI210X=y
++CONFIG_TOUCHSCREEN_WACOM_I2C=y
+ CONFIG_TOUCHSCREEN_MAX11801=y
+ CONFIG_TOUCHSCREEN_IMX6UL_TSC=y
+ CONFIG_TOUCHSCREEN_EDT_FT5X06=y
+-- 
+2.29.2
 
->
-> Thanks.
->
-> --
-> Dmitry

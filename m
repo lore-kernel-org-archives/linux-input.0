@@ -2,145 +2,155 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74B75C433DB
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:06:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22F64C433E0
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:38:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 37B5C23A60
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:06:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4DEC2389F
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:38:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726210AbhAUTsg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jan 2021 14:48:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51902 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726199AbhAUSro (ORCPT
+        id S1727770AbhAUHuL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jan 2021 02:50:11 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:33149 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726488AbhAUG6D (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Jan 2021 13:47:44 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18AA6C06174A;
-        Thu, 21 Jan 2021 10:46:58 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id m6so2048398pfm.6;
-        Thu, 21 Jan 2021 10:46:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=DV+WyTHcLGBdAEm6DifZ+9dUcvJgKflailcNHBr+Tfo=;
-        b=kNJLrFZfILTqRRlm8iNz1uUmVGITt0RJNRtt4wpNPQU+/qKdfBFAT1Ghhd605PrMle
-         ltvpWzhjEP/aYf6duGWtPgcjYwtid1Fno6OV8Qt2J81O+v3ceEEZrREORw9oxazA1Y0F
-         etX0qn7e6NYP8cDu2ZW90lwZrJR5ov5a5wIhOfGf3swcoto5nZRObbXTgqsZFbZI30WU
-         De158HrarRogQbEqq2MxArc4IkA1H3iDNFVEXgQQ1MvV6lFsELhaFsC1AvDcXcrP1n85
-         JD/HUb5fMUs3OU/PDM1520GKdAKfKwx0UXHPuDjkDtKoUzPKHLxu/vbdJRPiFpu2LFz8
-         O7NA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=DV+WyTHcLGBdAEm6DifZ+9dUcvJgKflailcNHBr+Tfo=;
-        b=A2yre98ACQdgl7pe5T8znGFoh0WoE6EmrHMAIEZWVuheXMkrAbkJ2hS9LRg8271RzC
-         mq97XApJlw/hduRxdDTRP9Ix7yjZ0A9b1LPrRGKnVABdavLrwiz8QfeZCF9A52aamsMT
-         fgv01CF1nrFOxIDdKWyOOatPY9O2OjICo+Q0HQ0Mhb1MrRMByxlyMzxpVm89MoM8Vd3R
-         Dcr8YpWaFOARPTJZRQynBIqWyq/g7SNXyZWnHHY7Duo8y5vzUJDkdiUFTNf2sMEIyOzC
-         v3CGnSEC8DKVmfoseUayYtTaBwhQPFoc76NOcCJ9Ro5AIopklZAQgsek5fELWgx0ABhx
-         irIQ==
-X-Gm-Message-State: AOAM531iv72e//ZaWLkA6i8q0DY+oPJu/Q//SFpY/oJEVY3bd9GbI4p6
-        FBCGWAzJA8RH5b2ZdNUleNuLCxKyjtt8KIf6
-X-Google-Smtp-Source: ABdhPJwYeGf1DLU8V+guJbuIG1u7QKLsPh3RlSayzCkHm/8bTJxhOSGoz6wMOqMfeUjw2UhnlheCGQ==
-X-Received: by 2002:a63:464a:: with SMTP id v10mr624584pgk.393.1611254817525;
-        Thu, 21 Jan 2021 10:46:57 -0800 (PST)
-Received: from horus.lan (71-34-80-131.ptld.qwest.net. [71.34.80.131])
-        by smtp.gmail.com with ESMTPSA id fh7sm6556714pjb.43.2021.01.21.10.46.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Jan 2021 10:46:56 -0800 (PST)
-From:   Jason Gerecke <killertofu@gmail.com>
-X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
-To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org,
-        Ping Cheng <ping.cheng@wacom.com>
-Subject: [PATCH] HID: wacom: Correct NULL dereference on AES pen proximity
-Date:   Thu, 21 Jan 2021 10:46:49 -0800
-Message-Id: <20210121184649.157189-1-jason.gerecke@wacom.com>
-X-Mailer: git-send-email 2.30.0
+        Thu, 21 Jan 2021 01:58:03 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id E563D5C00F4;
+        Thu, 21 Jan 2021 01:56:48 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 21 Jan 2021 01:56:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alistair23.me;
+         h=from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=fm3; bh=SJWixD92WzD5A
+        KdY55B5gYlOoEKpKsI7RztlWKiuj1M=; b=jtEZnlyQ+uchiJntQ4O97J8kXQUca
+        5BabrIOan80CNLoJnsAQBFHLtKxP9LAVjqxnX4VTZCFloEi9F/oz1PLp5bPKj5Xk
+        Hl6CzPjvgyUoWBmI9EEEJ0j/z9kl2we1qe+RI6ItuEyCxsSPiQGtjZPyMUGLP+7r
+        jOy7E331KQmut369oZSxUwKx2YKphKXkf9AjSmBPLqJjlgeM6S2rRmTPD6xG7WAs
+        gfvEgJKx7Mhv8pNJ7o+DwqB3stulykp38qETuGi73f0TsRAYT36CTuVcV8CAvB6S
+        2+ITPfdy0jxA3OQHoWTr2FAI4ApNapsFVSNwKtfzNeIV3rczhwl4JuU5A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; bh=SJWixD92WzD5AKdY55B5gYlOoEKpKsI7RztlWKiuj1M=; b=oMwtOu5F
+        CEnaTB15tmGbzB+My0DWrh8IvqBDjGwxrc3wq4TbSP8LaZck23zWoLqQNpNNwBWk
+        AjhKKbwaAVGqVn8j1VgI7v6hRObmy0Rzs+8wTPloMwip6GcqFZXt8YbM5srot3lm
+        L852lY6gANUXGWGpRlHJxw8cx++Oz5tZTI35N34CcyXyjtUL34WdeL7J7CrkZbF2
+        8QUanonR+8+QVd+MdXpkn0//q49wyeL8cOip6J6Ilb/20OZNb6M9rnJW6THJP29c
+        uwdM14CKfg3Sw3PbVoTMrkoxrNg3qIk0VpVymgRlePvMHT3YCq1cY0jKuKQKcJDM
+        JP7l9/BJBWzhoA==
+X-ME-Sender: <xms:sCUJYD5pvbRislyCb4CFDVbaM-EmGVibp5saoL8CHg_JRYydHuUg4Q>
+    <xme:sCUJYI6fUTKgF_wKtySSMyBxvrWq1dADXBjw1xW4a3yGyDIVwyL1MSKvnwIG3O_S3
+    s0lY1wd02ZrLOr8bw4>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefgddutddtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgjfhgggfestdekre
+    dtredttdenucfhrhhomheptehlihhsthgrihhrucfhrhgrnhgtihhsuceorghlihhsthgr
+    ihhrsegrlhhishhtrghirhdvfedrmhgvqeenucggtffrrghtthgvrhhnpefftdfhgfeggf
+    elgfekjefhkeeigfelleefhfethfehfeetleeggeeggfefffdvtdenucffohhmrghinhep
+    uggvvhhitggvthhrvggvrdhorhhgnecukfhppeejfedrleefrdekgedrvddtkeenucevlh
+    hushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrlhhishhtrghi
+    rhesrghlihhsthgrihhrvdefrdhmvg
+X-ME-Proxy: <xmx:sCUJYKfbYvTOUq_lQeh47jX_wbpO2NCdKqEGjIXzLPB7n5Rg-fmM3w>
+    <xmx:sCUJYEL8RnSXe_Y8Ksf9CTfeUKlHdAiPGLS67xixscjjF9a8Q2Qhew>
+    <xmx:sCUJYHJ4-E3jyVfTpc2te48KGm4w7n_JL27NM2ja59CdHjsRD9SoPg>
+    <xmx:sCUJYP11t-DJsUcnfcikoKFQdeb5tPGktxSTTcq2L4GMeH9qk6shxQ>
+Received: from ThinkpadX1Yoga3.localdomain (c-73-93-84-208.hsd1.ca.comcast.net [73.93.84.208])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E97261080064;
+        Thu, 21 Jan 2021 01:56:47 -0500 (EST)
+From:   Alistair Francis <alistair@alistair23.me>
+To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+        linux-imx@nxp.com, kernel@pengutronix.de
+Cc:     linux-kernel@vger.kernel.org, alistair23@gmail.com,
+        Alistair Francis <alistair@alistair23.me>
+Subject: [PATCH v2 1/6] devicetree/bindings: Initial commit of wacom,wacom-i2c
+Date:   Wed, 20 Jan 2021 22:56:38 -0800
+Message-Id: <20210121065643.342-2-alistair@alistair23.me>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210121065643.342-1-alistair@alistair23.me>
+References: <20210121065643.342-1-alistair@alistair23.me>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The recent commit to fix a memory leak introduced an inadvertant NULL
-pointer dereference. The `wacom_wac->pen_fifo` variable was never
-intialized, resuling in a crash whenever functions tried to use it.
-Since the FIFO is only used by AES pens (to buffer events from pen
-proximity until the hardware reports the pen serial number) this would
-have been easily overlooked without testing an AES device.
-
-This patch converts `wacom_wac->pen_fifo` over to a pointer (since the
-call to `devres_alloc` allocates memory for us) and ensures that we assign
-it to point to the allocated and initalized `pen_fifo` before the function
-returns.
-
-Link: https://github.com/linuxwacom/input-wacom/issues/230
-Fixes: 37309f47e2f5 ("HID: wacom: Fix memory leakage caused by kfifo_alloc")
-CC: stable@vger.kernel.org # v4.19+
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Tested-by: Ping Cheng <ping.cheng@wacom.com>
+Signed-off-by: Alistair Francis <alistair@alistair23.me>
 ---
- drivers/hid/wacom_sys.c | 7 ++++---
- drivers/hid/wacom_wac.h | 2 +-
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ .../input/touchscreen/wacom,wacom-i2c.yaml    | 44 +++++++++++++++++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
+ 2 files changed, 46 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index e8acd235db2a..aa9e48876ced 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -147,9 +147,9 @@ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
- 	}
- 
- 	if (flush)
--		wacom_wac_queue_flush(hdev, &wacom_wac->pen_fifo);
-+		wacom_wac_queue_flush(hdev, wacom_wac->pen_fifo);
- 	else if (insert)
--		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo,
-+		wacom_wac_queue_insert(hdev, wacom_wac->pen_fifo,
- 				       raw_data, report_size);
- 
- 	return insert && !flush;
-@@ -1280,7 +1280,7 @@ static void wacom_devm_kfifo_release(struct device *dev, void *res)
- static int wacom_devm_kfifo_alloc(struct wacom *wacom)
- {
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
--	struct kfifo_rec_ptr_2 *pen_fifo = &wacom_wac->pen_fifo;
-+	struct kfifo_rec_ptr_2 *pen_fifo;
- 	int error;
- 
- 	pen_fifo = devres_alloc(wacom_devm_kfifo_release,
-@@ -1297,6 +1297,7 @@ static int wacom_devm_kfifo_alloc(struct wacom *wacom)
- 	}
- 
- 	devres_add(&wacom->hdev->dev, pen_fifo);
-+	wacom_wac->pen_fifo = pen_fifo;
- 
- 	return 0;
- }
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index da612b6e9c77..195910dd2154 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -342,7 +342,7 @@ struct wacom_wac {
- 	struct input_dev *pen_input;
- 	struct input_dev *touch_input;
- 	struct input_dev *pad_input;
--	struct kfifo_rec_ptr_2 pen_fifo;
-+	struct kfifo_rec_ptr_2 *pen_fifo;
- 	int pid;
- 	int num_contacts_left;
- 	u8 bt_features;
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml b/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
+new file mode 100644
+index 000000000000..b36d22cd20a2
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
+@@ -0,0 +1,44 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/wacom,wacom-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Wacom I2C Controller
++
++maintainers:
++  - Alistair Francis <alistair@alistair23.me>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    const: wacom,wacom-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++additionalProperties: false
++
++examples:
++  - |
++    #include "dt-bindings/interrupt-controller/irq.h"
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        digitiser@9 {
++                compatible = "wacom,wacom-i2c";
++                reg = <0x9>;
++                interrupt-parent = <&gpio1>;
++                interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index 041ae90b0d8f..5bca22f035a3 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1202,6 +1202,8 @@ patternProperties:
+     description: Vision Optical Technology Co., Ltd.
+   "^vxt,.*":
+     description: VXT Ltd
++  "^wacom,.*":
++    description: Wacom Co., Ltd
+   "^wand,.*":
+     description: Wandbord (Technexion)
+   "^waveshare,.*":
 -- 
-2.30.0
+2.29.2
 

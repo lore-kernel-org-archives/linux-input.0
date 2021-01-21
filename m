@@ -2,209 +2,749 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1503DC433E6
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:39:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52059C433E9
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 21:13:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D58A52389F
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:39:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1DFBD22BEF
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 21:13:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726809AbhAUHsg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jan 2021 02:48:36 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:59637 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726448AbhAUG6D (ORCPT
+        id S1727641AbhAUVIt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jan 2021 16:08:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51720 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727457AbhAUU6P (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Jan 2021 01:58:03 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id EFEF45C00EF;
-        Thu, 21 Jan 2021 01:56:51 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 21 Jan 2021 01:56:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alistair23.me;
-         h=from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm3; bh=Jzi3cSowWS5S7
-        0nBZeVOs2bPOJ//6VSXwxqn9sDhYyQ=; b=ekqWlwwehrCpGozy5ekgMgAmIq947
-        rgcFOXZb98n4PxN+YIsDAlwruO4URYKcgCGMQI5qhPTE8Aja0fM+RPgXOuEq7DDV
-        jGW5H3BLd9s3T9Wc8A5xPdGSRurcGVn2s23/kiLxV43iJe4GkbLktpO8pTNfB64F
-        RXzdR13ACWGZIxDz89i2rZ1qTEF9nV+DYWCQp/DjGvoeLzQvrUmJvgupd+ox/Q5t
-        psmNBcIQitPcJCRAYYKNKXrjmcAqP0amCttCXTkV6BUYmHPjk/jVhQmsP06vZ1GF
-        YNaKmjip13YUjNjCtalsYt3nCo+mO9b2Ti8WrUo4h4pIhkSbu0X9MOBOA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; bh=Jzi3cSowWS5S70nBZeVOs2bPOJ//6VSXwxqn9sDhYyQ=; b=FPYlGcpY
-        VfR3s9YbX0ztpLdn2QKiXioWuNuupEMddxBh8T3gUfh6gUJU34optlDn5sN+mIzV
-        6ycNuQEUZkZRoIuerg+2X0oNQGSBjjDqHFOyI37UPfvv6rO5a3HVdXKDV0+DTsw4
-        GZ3hoTxdwa6RBTlIL2T5snYkBzKk4hjJTtU5AwQ8UAVv2uuItL38UGiONWdZLKxW
-        rhOil4lWDmDeMIHFkERDO3owgnbsMz8KDsI2vLRsio5YBY8dXZdmbPTcQ6vZnb4k
-        1/yQMMT8IWWZG3jPRaMKVNZo+SzzgtfJg0VDJbuX4iOKf3k6IWZJnKwRdrJNcIpG
-        4N/H0iMs21yIgw==
-X-ME-Sender: <xms:syUJYPoFzdXVdQkzB_iGX1Gf7TPmWCgGHshmrBB03nfrv611nZU6iA>
-    <xme:syUJYJpDGNItjtV3e4gQfYyE7McnfCh7Ro8rutUP1NUS7mEgGwNF0X-znxv4IMO4S
-    9Sb3i2kjzbWiN5zYGs>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefgddutddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgjfhgggfestdekre
-    dtredttdenucfhrhhomheptehlihhsthgrihhrucfhrhgrnhgtihhsuceorghlihhsthgr
-    ihhrsegrlhhishhtrghirhdvfedrmhgvqeenucggtffrrghtthgvrhhnpeeggedtteejke
-    eggeeugfehueevudegvdetjeeviedugedvtdekffekhedtteduhfenucfkphepjeefrdel
-    fedrkeegrddvtdeknecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
-    hfrhhomheprghlihhsthgrihhrsegrlhhishhtrghirhdvfedrmhgv
-X-ME-Proxy: <xmx:syUJYMN8aRYfqOZ27vW2YJa0p2r1tKY4zdTWXSFAOUtTv3v05nNiFw>
-    <xmx:syUJYC69qLOEGd7aUYWsEEac2TwOTC35SYl6Cag_Phr1bETS0Dg-TQ>
-    <xmx:syUJYO6ke58QJcvYrXVooAAD6UrQtevhlIhbSbbXTZYomCubLC-aHw>
-    <xmx:syUJYEmcpl0i5mQkDcNzurn6CGHgUnrSRRcBu2rn_G3FQsZORUdHGA>
-Received: from ThinkpadX1Yoga3.localdomain (c-73-93-84-208.hsd1.ca.comcast.net [73.93.84.208])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0779E1080057;
-        Thu, 21 Jan 2021 01:56:50 -0500 (EST)
-From:   Alistair Francis <alistair@alistair23.me>
-To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-        linux-imx@nxp.com, kernel@pengutronix.de
-Cc:     linux-kernel@vger.kernel.org, alistair23@gmail.com,
-        Alistair Francis <alistair@alistair23.me>
-Subject: [PATCH v2 4/6] touchscreen/wacom_i2c: Clean up the query device fields
-Date:   Wed, 20 Jan 2021 22:56:41 -0800
-Message-Id: <20210121065643.342-5-alistair@alistair23.me>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210121065643.342-1-alistair@alistair23.me>
-References: <20210121065643.342-1-alistair@alistair23.me>
+        Thu, 21 Jan 2021 15:58:15 -0500
+Received: from antares.kleine-koenig.org (antares.kleine-koenig.org [IPv6:2a01:4f8:c0c:3a97::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1768C0613D6;
+        Thu, 21 Jan 2021 12:57:22 -0800 (PST)
+Received: by antares.kleine-koenig.org (Postfix, from userid 1000)
+        id CF593AD8EB4; Thu, 21 Jan 2021 21:48:22 +0100 (CET)
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Pau Oliva Fora <pof@eslack.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Wolfgang Grandegger <wg@grandegger.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Hannes Reinecke <hare@suse.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
+Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org, linux-scsi@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: [PATCH v1 2/2] isa: Make the remove callback for isa drivers return void
+Date:   Thu, 21 Jan 2021 21:48:12 +0100
+Message-Id: <20210121204812.402589-3-uwe@kleine-koenig.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210121204812.402589-1-uwe@kleine-koenig.org>
+References: <20210121204812.402589-1-uwe@kleine-koenig.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Improve the query device fields to be more verbose.
+The driver core ignores the return value of the remove callback, so
+don't give isa drivers the chance to provide a value.
 
-Signed-off-by: Alistair Francis <alistair@alistair23.me>
+Adapt all isa_drivers with a remove callbacks accordingly; they all
+return 0 unconditionally anyhow.
+
+Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
 ---
- drivers/input/touchscreen/wacom_i2c.c | 73 +++++++++++++++++++--------
- 1 file changed, 52 insertions(+), 21 deletions(-)
+ drivers/base/isa.c                   | 2 +-
+ drivers/i2c/busses/i2c-elektor.c     | 4 +---
+ drivers/i2c/busses/i2c-pca-isa.c     | 4 +---
+ drivers/input/touchscreen/htcpen.c   | 4 +---
+ drivers/media/radio/radio-sf16fmr2.c | 4 +---
+ drivers/net/can/sja1000/tscan1.c     | 4 +---
+ drivers/net/ethernet/3com/3c509.c    | 3 +--
+ drivers/scsi/advansys.c              | 3 +--
+ drivers/scsi/aha1542.c               | 3 +--
+ drivers/scsi/fdomain_isa.c           | 3 +--
+ drivers/scsi/g_NCR5380.c             | 3 +--
+ drivers/watchdog/pcwd.c              | 4 +---
+ include/linux/isa.h                  | 2 +-
+ sound/isa/ad1848/ad1848.c            | 3 +--
+ sound/isa/adlib.c                    | 3 +--
+ sound/isa/cmi8328.c                  | 3 +--
+ sound/isa/cmi8330.c                  | 3 +--
+ sound/isa/cs423x/cs4231.c            | 3 +--
+ sound/isa/cs423x/cs4236.c            | 3 +--
+ sound/isa/es1688/es1688.c            | 3 +--
+ sound/isa/es18xx.c                   | 3 +--
+ sound/isa/galaxy/galaxy.c            | 3 +--
+ sound/isa/gus/gusclassic.c           | 3 +--
+ sound/isa/gus/gusextreme.c           | 3 +--
+ sound/isa/gus/gusmax.c               | 3 +--
+ sound/isa/gus/interwave.c            | 3 +--
+ sound/isa/msnd/msnd_pinnacle.c       | 3 +--
+ sound/isa/opl3sa2.c                  | 3 +--
+ sound/isa/opti9xx/miro.c             | 3 +--
+ sound/isa/opti9xx/opti92x-ad1848.c   | 3 +--
+ sound/isa/sb/jazz16.c                | 3 +--
+ sound/isa/sb/sb16.c                  | 3 +--
+ sound/isa/sb/sb8.c                   | 3 +--
+ sound/isa/sc6000.c                   | 3 +--
+ sound/isa/sscape.c                   | 3 +--
+ sound/isa/wavefront/wavefront.c      | 3 +--
+ 36 files changed, 36 insertions(+), 76 deletions(-)
 
-diff --git a/drivers/input/touchscreen/wacom_i2c.c b/drivers/input/touchscreen/wacom_i2c.c
-index 5f0b80d52ad5..a22570adc939 100644
---- a/drivers/input/touchscreen/wacom_i2c.c
-+++ b/drivers/input/touchscreen/wacom_i2c.c
-@@ -13,15 +13,32 @@
- #include <linux/irq.h>
- #include <linux/input/touchscreen.h>
- #include <linux/interrupt.h>
-+#include <linux/reset.h>
- #include <linux/of.h>
- #include <asm/unaligned.h>
+diff --git a/drivers/base/isa.c b/drivers/base/isa.c
+index 2772f5d1948a..aa4737667026 100644
+--- a/drivers/base/isa.c
++++ b/drivers/base/isa.c
+@@ -51,7 +51,7 @@ static int isa_bus_remove(struct device *dev)
+ 	struct isa_driver *isa_driver = dev->platform_data;
  
--#define WACOM_CMD_QUERY0	0x04
--#define WACOM_CMD_QUERY1	0x00
--#define WACOM_CMD_QUERY2	0x33
--#define WACOM_CMD_QUERY3	0x02
--#define WACOM_CMD_THROW0	0x05
--#define WACOM_CMD_THROW1	0x00
-+// Registers
-+#define WACOM_COMMAND_LSB   0x04
-+#define WACOM_COMMAND_MSB   0x00
-+
-+#define WACOM_DATA_LSB      0x05
-+#define WACOM_DATA_MSB      0x00
-+
-+// Report types
-+#define REPORT_FEATURE      0x30
-+
-+// Requests / operations
-+#define OPCODE_GET_REPORT   0x02
-+
-+// Power settings
-+#define POWER_ON            0x00
-+#define POWER_SLEEP         0x01
-+
-+// Input report ids
-+#define WACOM_PEN_DATA_REPORT           2
-+#define WACOM_SHINONOME_REPORT          26
-+
-+#define WACOM_QUERY_REPORT	3
- #define WACOM_QUERY_SIZE	22
- 
- struct wacom_features {
-@@ -45,34 +62,44 @@ struct wacom_i2c {
- };
- 
- static int wacom_query_device(struct i2c_client *client,
--			      struct wacom_features *features)
-+				  struct wacom_features *features)
- {
- 	int ret;
--	u8 cmd1[] = { WACOM_CMD_QUERY0, WACOM_CMD_QUERY1,
--			WACOM_CMD_QUERY2, WACOM_CMD_QUERY3 };
--	u8 cmd2[] = { WACOM_CMD_THROW0, WACOM_CMD_THROW1 };
- 	u8 data[WACOM_QUERY_SIZE];
-+	struct reset_control *rstc;
-+
-+	u8 get_query_data_cmd[] = {
-+		WACOM_COMMAND_LSB,
-+		WACOM_COMMAND_MSB,
-+		REPORT_FEATURE | WACOM_QUERY_REPORT,
-+		OPCODE_GET_REPORT,
-+		WACOM_DATA_LSB,
-+		WACOM_DATA_MSB,
-+	};
-+
- 	struct i2c_msg msgs[] = {
-+		// Request reading of feature ReportID: 3 (Pen Query Data)
- 		{
- 			.addr = client->addr,
- 			.flags = 0,
--			.len = sizeof(cmd1),
--			.buf = cmd1,
--		},
--		{
--			.addr = client->addr,
--			.flags = 0,
--			.len = sizeof(cmd2),
--			.buf = cmd2,
-+			.len = sizeof(get_query_data_cmd),
-+			.buf = get_query_data_cmd,
- 		},
-+		// Read 21 bytes
- 		{
- 			.addr = client->addr,
- 			.flags = I2C_M_RD,
--			.len = sizeof(data),
-+			.len = WACOM_QUERY_SIZE - 1,
- 			.buf = data,
- 		},
- 	};
- 
-+	rstc = devm_reset_control_get_optional_exclusive(&client->dev, NULL);
-+	if (IS_ERR(rstc))
-+		dev_err(&client->dev, "Failed to get reset control before init\n");
-+	else
-+		reset_control_reset(rstc);
-+
- 	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
- 	if (ret < 0)
- 		return ret;
-@@ -89,9 +116,13 @@ static int wacom_query_device(struct i2c_client *client,
- 	features->tilt_y_max = get_unaligned_le16(&data[19]);
- 
- 	dev_dbg(&client->dev,
--		"x_max:%d, y_max:%d, pressure:%d, fw:%d\n",
-+		"x_max:%d, y_max:%d, pressure:%d, fw:%d, "
-+		"distance: %d, phys distance: %d, "
-+		"tilt_x_max: %d, tilt_y_max: %d\n",
- 		features->x_max, features->y_max,
--		features->pressure_max, features->fw_version);
-+		features->pressure_max, features->fw_version,
-+		features->distance_max, features->distance_physical_max,
-+		features->tilt_x_max, features->tilt_y_max);
+ 	if (isa_driver && isa_driver->remove)
+-		return isa_driver->remove(dev, to_isa_dev(dev)->id);
++		isa_driver->remove(dev, to_isa_dev(dev)->id);
  
  	return 0;
  }
+diff --git a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
+index 140426db28df..b72a3c3ef2ab 100644
+--- a/drivers/i2c/busses/i2c-elektor.c
++++ b/drivers/i2c/busses/i2c-elektor.c
+@@ -282,7 +282,7 @@ static int elektor_probe(struct device *dev, unsigned int id)
+ 	return -ENODEV;
+ }
+ 
+-static int elektor_remove(struct device *dev, unsigned int id)
++static void elektor_remove(struct device *dev, unsigned int id)
+ {
+ 	i2c_del_adapter(&pcf_isa_ops);
+ 
+@@ -298,8 +298,6 @@ static int elektor_remove(struct device *dev, unsigned int id)
+ 		iounmap(base_iomem);
+ 		release_mem_region(base, 2);
+ 	}
+-
+-	return 0;
+ }
+ 
+ static struct isa_driver i2c_elektor_driver = {
+diff --git a/drivers/i2c/busses/i2c-pca-isa.c b/drivers/i2c/busses/i2c-pca-isa.c
+index f27bc1e55385..85e8cf58e8bf 100644
+--- a/drivers/i2c/busses/i2c-pca-isa.c
++++ b/drivers/i2c/busses/i2c-pca-isa.c
+@@ -161,7 +161,7 @@ static int pca_isa_probe(struct device *dev, unsigned int id)
+ 	return -ENODEV;
+ }
+ 
+-static int pca_isa_remove(struct device *dev, unsigned int id)
++static void pca_isa_remove(struct device *dev, unsigned int id)
+ {
+ 	i2c_del_adapter(&pca_isa_ops);
+ 
+@@ -170,8 +170,6 @@ static int pca_isa_remove(struct device *dev, unsigned int id)
+ 		free_irq(irq, &pca_isa_ops);
+ 	}
+ 	release_region(base, IO_SIZE);
+-
+-	return 0;
+ }
+ 
+ static struct isa_driver pca_isa_driver = {
+diff --git a/drivers/input/touchscreen/htcpen.c b/drivers/input/touchscreen/htcpen.c
+index 2f261a34f9c2..056ba76087e8 100644
+--- a/drivers/input/touchscreen/htcpen.c
++++ b/drivers/input/touchscreen/htcpen.c
+@@ -171,7 +171,7 @@ static int htcpen_isa_probe(struct device *dev, unsigned int id)
+ 	return err;
+ }
+ 
+-static int htcpen_isa_remove(struct device *dev, unsigned int id)
++static void htcpen_isa_remove(struct device *dev, unsigned int id)
+ {
+ 	struct input_dev *htcpen_dev = dev_get_drvdata(dev);
+ 
+@@ -182,8 +182,6 @@ static int htcpen_isa_remove(struct device *dev, unsigned int id)
+ 	release_region(HTCPEN_PORT_INDEX, 2);
+ 	release_region(HTCPEN_PORT_INIT, 1);
+ 	release_region(HTCPEN_PORT_IRQ_CLEAR, 1);
+-
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/drivers/media/radio/radio-sf16fmr2.c b/drivers/media/radio/radio-sf16fmr2.c
+index 0388894cfe41..d0dde55b7930 100644
+--- a/drivers/media/radio/radio-sf16fmr2.c
++++ b/drivers/media/radio/radio-sf16fmr2.c
+@@ -293,11 +293,9 @@ static void fmr2_remove(struct fmr2 *fmr2)
+ 	kfree(fmr2);
+ }
+ 
+-static int fmr2_isa_remove(struct device *pdev, unsigned int ndev)
++static void fmr2_isa_remove(struct device *pdev, unsigned int ndev)
+ {
+ 	fmr2_remove(dev_get_drvdata(pdev));
+-
+-	return 0;
+ }
+ 
+ static void fmr2_pnp_remove(struct pnp_dev *pdev)
+diff --git a/drivers/net/can/sja1000/tscan1.c b/drivers/net/can/sja1000/tscan1.c
+index 6ea802c66124..3dbba8d61afb 100644
+--- a/drivers/net/can/sja1000/tscan1.c
++++ b/drivers/net/can/sja1000/tscan1.c
+@@ -159,7 +159,7 @@ static int tscan1_probe(struct device *dev, unsigned id)
+ 	return -ENXIO;
+ }
+ 
+-static int tscan1_remove(struct device *dev, unsigned id /*unused*/)
++static void tscan1_remove(struct device *dev, unsigned id /*unused*/)
+ {
+ 	struct net_device *netdev;
+ 	struct sja1000_priv *priv;
+@@ -179,8 +179,6 @@ static int tscan1_remove(struct device *dev, unsigned id /*unused*/)
+ 	release_region(pld_base, TSCAN1_PLD_SIZE);
+ 
+ 	free_sja1000dev(netdev);
+-
+-	return 0;
+ }
+ 
+ static struct isa_driver tscan1_isa_driver = {
+diff --git a/drivers/net/ethernet/3com/3c509.c b/drivers/net/ethernet/3com/3c509.c
+index 667f38c9e4c6..53e1f7e07959 100644
+--- a/drivers/net/ethernet/3com/3c509.c
++++ b/drivers/net/ethernet/3com/3c509.c
+@@ -335,12 +335,11 @@ static int el3_isa_match(struct device *pdev, unsigned int ndev)
+ 	return 1;
+ }
+ 
+-static int el3_isa_remove(struct device *pdev,
++static void el3_isa_remove(struct device *pdev,
+ 				    unsigned int ndev)
+ {
+ 	el3_device_remove(pdev);
+ 	dev_set_drvdata(pdev, NULL);
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/drivers/scsi/advansys.c b/drivers/scsi/advansys.c
+index 79830e77afa9..b1e97f75b0ba 100644
+--- a/drivers/scsi/advansys.c
++++ b/drivers/scsi/advansys.c
+@@ -11459,12 +11459,11 @@ static int advansys_isa_probe(struct device *dev, unsigned int id)
+ 	return err;
+ }
+ 
+-static int advansys_isa_remove(struct device *dev, unsigned int id)
++static void advansys_isa_remove(struct device *dev, unsigned int id)
+ {
+ 	int ioport = _asc_def_iop_base[id];
+ 	advansys_release(dev_get_drvdata(dev));
+ 	release_region(ioport, ASC_IOADR_GAP);
+-	return 0;
+ }
+ 
+ static struct isa_driver advansys_isa_driver = {
+diff --git a/drivers/scsi/aha1542.c b/drivers/scsi/aha1542.c
+index dc5667afeb27..e0d8cca1c70b 100644
+--- a/drivers/scsi/aha1542.c
++++ b/drivers/scsi/aha1542.c
+@@ -1025,12 +1025,11 @@ static int aha1542_isa_match(struct device *pdev, unsigned int ndev)
+ 	return 1;
+ }
+ 
+-static int aha1542_isa_remove(struct device *pdev,
++static void aha1542_isa_remove(struct device *pdev,
+ 				    unsigned int ndev)
+ {
+ 	aha1542_release(dev_get_drvdata(pdev));
+ 	dev_set_drvdata(pdev, NULL);
+-	return 0;
+ }
+ 
+ static struct isa_driver aha1542_isa_driver = {
+diff --git a/drivers/scsi/fdomain_isa.c b/drivers/scsi/fdomain_isa.c
+index e0cdcd2003d0..2b4280a43a53 100644
+--- a/drivers/scsi/fdomain_isa.c
++++ b/drivers/scsi/fdomain_isa.c
+@@ -175,7 +175,7 @@ static int fdomain_isa_param_match(struct device *dev, unsigned int ndev)
+ 	return 1;
+ }
+ 
+-static int fdomain_isa_remove(struct device *dev, unsigned int ndev)
++static void fdomain_isa_remove(struct device *dev, unsigned int ndev)
+ {
+ 	struct Scsi_Host *sh = dev_get_drvdata(dev);
+ 	int base = sh->io_port;
+@@ -183,7 +183,6 @@ static int fdomain_isa_remove(struct device *dev, unsigned int ndev)
+ 	fdomain_destroy(sh);
+ 	release_region(base, FDOMAIN_REGION_SIZE);
+ 	dev_set_drvdata(dev, NULL);
+-	return 0;
+ }
+ 
+ static struct isa_driver fdomain_isa_driver = {
+diff --git a/drivers/scsi/g_NCR5380.c b/drivers/scsi/g_NCR5380.c
+index 2df2f38a9b12..7ba3c9312731 100644
+--- a/drivers/scsi/g_NCR5380.c
++++ b/drivers/scsi/g_NCR5380.c
+@@ -720,12 +720,11 @@ static int generic_NCR5380_isa_match(struct device *pdev, unsigned int ndev)
+ 	return 1;
+ }
+ 
+-static int generic_NCR5380_isa_remove(struct device *pdev,
++static void generic_NCR5380_isa_remove(struct device *pdev,
+-                                      unsigned int ndev)
++				       unsigned int ndev)
+ {
+ 	generic_NCR5380_release_resources(dev_get_drvdata(pdev));
+ 	dev_set_drvdata(pdev, NULL);
+-	return 0;
+ }
+ 
+ static struct isa_driver generic_NCR5380_isa_driver = {
+diff --git a/drivers/watchdog/pcwd.c b/drivers/watchdog/pcwd.c
+index b95cd38f3ceb..a793b03a785d 100644
+--- a/drivers/watchdog/pcwd.c
++++ b/drivers/watchdog/pcwd.c
+@@ -951,7 +951,7 @@ static int pcwd_isa_probe(struct device *dev, unsigned int id)
+ 	return ret;
+ }
+ 
+-static int pcwd_isa_remove(struct device *dev, unsigned int id)
++static void pcwd_isa_remove(struct device *dev, unsigned int id)
+ {
+ 	if (debug >= DEBUG)
+ 		pr_debug("pcwd_isa_remove id=%d\n", id);
+@@ -968,8 +968,6 @@ static int pcwd_isa_remove(struct device *dev, unsigned int id)
+ 			(pcwd_private.revision == PCWD_REVISION_A) ? 2 : 4);
+ 	pcwd_private.io_addr = 0x0000;
+ 	cards_found--;
+-
+-	return 0;
+ }
+ 
+ static void pcwd_isa_shutdown(struct device *dev, unsigned int id)
+diff --git a/include/linux/isa.h b/include/linux/isa.h
+index 41336da0f4e7..e30963190968 100644
+--- a/include/linux/isa.h
++++ b/include/linux/isa.h
+@@ -13,7 +13,7 @@
+ struct isa_driver {
+ 	int (*match)(struct device *, unsigned int);
+ 	int (*probe)(struct device *, unsigned int);
+-	int (*remove)(struct device *, unsigned int);
++	void (*remove)(struct device *, unsigned int);
+ 	void (*shutdown)(struct device *, unsigned int);
+ 	int (*suspend)(struct device *, unsigned int, pm_message_t);
+ 	int (*resume)(struct device *, unsigned int);
+diff --git a/sound/isa/ad1848/ad1848.c b/sound/isa/ad1848/ad1848.c
+index 593c6e959afe..48f7cc57c3da 100644
+--- a/sound/isa/ad1848/ad1848.c
++++ b/sound/isa/ad1848/ad1848.c
+@@ -118,10 +118,9 @@ out:	snd_card_free(card);
+ 	return error;
+ }
+ 
+-static int snd_ad1848_remove(struct device *dev, unsigned int n)
++static void snd_ad1848_remove(struct device *dev, unsigned int n)
+ {
+ 	snd_card_free(dev_get_drvdata(dev));
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/adlib.c b/sound/isa/adlib.c
+index 5105524b6f38..e6cd7c4da38e 100644
+--- a/sound/isa/adlib.c
++++ b/sound/isa/adlib.c
+@@ -97,10 +97,9 @@ out:	snd_card_free(card);
+ 	return error;
+ }
+ 
+-static int snd_adlib_remove(struct device *dev, unsigned int n)
++static void snd_adlib_remove(struct device *dev, unsigned int n)
+ {
+ 	snd_card_free(dev_get_drvdata(dev));
+-	return 0;
+ }
+ 
+ static struct isa_driver snd_adlib_driver = {
+diff --git a/sound/isa/cmi8328.c b/sound/isa/cmi8328.c
+index faca5dd95bfe..3b9fbb02864b 100644
+--- a/sound/isa/cmi8328.c
++++ b/sound/isa/cmi8328.c
+@@ -403,7 +403,7 @@ static int snd_cmi8328_probe(struct device *pdev, unsigned int ndev)
+ 	return err;
+ }
+ 
+-static int snd_cmi8328_remove(struct device *pdev, unsigned int dev)
++static void snd_cmi8328_remove(struct device *pdev, unsigned int dev)
+ {
+ 	struct snd_card *card = dev_get_drvdata(pdev);
+ 	struct snd_cmi8328 *cmi = card->private_data;
+@@ -420,7 +420,6 @@ static int snd_cmi8328_remove(struct device *pdev, unsigned int dev)
+ 	snd_cmi8328_cfg_write(cmi->port, CFG2, 0);
+ 	snd_cmi8328_cfg_write(cmi->port, CFG3, 0);
+ 	snd_card_free(card);
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/cmi8330.c b/sound/isa/cmi8330.c
+index 4669eb0cc8ce..19e258527d69 100644
+--- a/sound/isa/cmi8330.c
++++ b/sound/isa/cmi8330.c
+@@ -631,11 +631,10 @@ static int snd_cmi8330_isa_probe(struct device *pdev,
+ 	return 0;
+ }
+ 
+-static int snd_cmi8330_isa_remove(struct device *devptr,
++static void snd_cmi8330_isa_remove(struct device *devptr,
+ 				  unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(devptr));
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/cs423x/cs4231.c b/sound/isa/cs423x/cs4231.c
+index 2135963eba78..383ee621cea1 100644
+--- a/sound/isa/cs423x/cs4231.c
++++ b/sound/isa/cs423x/cs4231.c
+@@ -135,10 +135,9 @@ out:	snd_card_free(card);
+ 	return error;
+ }
+ 
+-static int snd_cs4231_remove(struct device *dev, unsigned int n)
++static void snd_cs4231_remove(struct device *dev, unsigned int n)
+ {
+ 	snd_card_free(dev_get_drvdata(dev));
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/cs423x/cs4236.c b/sound/isa/cs423x/cs4236.c
+index fa3c39cff5f8..24688271e73f 100644
+--- a/sound/isa/cs423x/cs4236.c
++++ b/sound/isa/cs423x/cs4236.c
+@@ -487,11 +487,10 @@ static int snd_cs423x_isa_probe(struct device *pdev,
+ 	return 0;
+ }
+ 
+-static int snd_cs423x_isa_remove(struct device *pdev,
++static void snd_cs423x_isa_remove(struct device *pdev,
+ 				 unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(pdev));
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/es1688/es1688.c b/sound/isa/es1688/es1688.c
+index 64610571a5e1..d99bb3f8f0c1 100644
+--- a/sound/isa/es1688/es1688.c
++++ b/sound/isa/es1688/es1688.c
+@@ -192,10 +192,9 @@ static int snd_es1688_isa_probe(struct device *dev, unsigned int n)
+ 	return error;
+ }
+ 
+-static int snd_es1688_isa_remove(struct device *dev, unsigned int n)
++static void snd_es1688_isa_remove(struct device *dev, unsigned int n)
+ {
+ 	snd_card_free(dev_get_drvdata(dev));
+-	return 0;
+ }
+ 
+ static struct isa_driver snd_es1688_driver = {
+diff --git a/sound/isa/es18xx.c b/sound/isa/es18xx.c
+index 5f8d7e8a5477..9beef8079177 100644
+--- a/sound/isa/es18xx.c
++++ b/sound/isa/es18xx.c
+@@ -2210,11 +2210,10 @@ static int snd_es18xx_isa_probe(struct device *pdev, unsigned int dev)
+ 	}
+ }
+ 
+-static int snd_es18xx_isa_remove(struct device *devptr,
+-				 unsigned int dev)
++static void snd_es18xx_isa_remove(struct device *devptr,
++				  unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(devptr));
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/galaxy/galaxy.c b/sound/isa/galaxy/galaxy.c
+index 65f9f46c9f58..d33d69f29924 100644
+--- a/sound/isa/galaxy/galaxy.c
++++ b/sound/isa/galaxy/galaxy.c
+@@ -608,10 +608,9 @@ static int snd_galaxy_probe(struct device *dev, unsigned int n)
+ 	return err;
+ }
+ 
+-static int snd_galaxy_remove(struct device *dev, unsigned int n)
++static void snd_galaxy_remove(struct device *dev, unsigned int n)
+ {
+ 	snd_card_free(dev_get_drvdata(dev));
+-	return 0;
+ }
+ 
+ static struct isa_driver snd_galaxy_driver = {
+diff --git a/sound/isa/gus/gusclassic.c b/sound/isa/gus/gusclassic.c
+index 7419b1939754..015f88a11352 100644
+--- a/sound/isa/gus/gusclassic.c
++++ b/sound/isa/gus/gusclassic.c
+@@ -195,10 +195,9 @@ out:	snd_card_free(card);
+ 	return error;
+ }
+ 
+-static int snd_gusclassic_remove(struct device *dev, unsigned int n)
++static void snd_gusclassic_remove(struct device *dev, unsigned int n)
+ {
+ 	snd_card_free(dev_get_drvdata(dev));
+-	return 0;
+ }
+ 
+ static struct isa_driver snd_gusclassic_driver = {
+diff --git a/sound/isa/gus/gusextreme.c b/sound/isa/gus/gusextreme.c
+index ed2f9d64efae..c9f31b4fb887 100644
+--- a/sound/isa/gus/gusextreme.c
++++ b/sound/isa/gus/gusextreme.c
+@@ -324,10 +324,9 @@ out:	snd_card_free(card);
+ 	return error;
+ }
+ 
+-static int snd_gusextreme_remove(struct device *dev, unsigned int n)
++static void snd_gusextreme_remove(struct device *dev, unsigned int n)
+ {
+ 	snd_card_free(dev_get_drvdata(dev));
+-	return 0;
+ }
+ 
+ static struct isa_driver snd_gusextreme_driver = {
+diff --git a/sound/isa/gus/gusmax.c b/sound/isa/gus/gusmax.c
+index 05cd9be4dd8a..dc09fbd6f88d 100644
+--- a/sound/isa/gus/gusmax.c
++++ b/sound/isa/gus/gusmax.c
+@@ -338,10 +338,9 @@ static int snd_gusmax_probe(struct device *pdev, unsigned int dev)
+ 	return err;
+ }
+ 
+-static int snd_gusmax_remove(struct device *devptr, unsigned int dev)
++static void snd_gusmax_remove(struct device *devptr, unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(devptr));
+-	return 0;
+ }
+ 
+ #define DEV_NAME "gusmax"
+diff --git a/sound/isa/gus/interwave.c b/sound/isa/gus/interwave.c
+index 3e9ad930deae..e4d412e72b75 100644
+--- a/sound/isa/gus/interwave.c
++++ b/sound/isa/gus/interwave.c
+@@ -825,10 +825,9 @@ static int snd_interwave_isa_probe(struct device *pdev,
+ 	}
+ }
+ 
+-static int snd_interwave_isa_remove(struct device *devptr, unsigned int dev)
++static void snd_interwave_isa_remove(struct device *devptr, unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(devptr));
+-	return 0;
+ }
+ 
+ static struct isa_driver snd_interwave_driver = {
+diff --git a/sound/isa/msnd/msnd_pinnacle.c b/sound/isa/msnd/msnd_pinnacle.c
+index 24b34ecf5e5b..69647b41300d 100644
+--- a/sound/isa/msnd/msnd_pinnacle.c
++++ b/sound/isa/msnd/msnd_pinnacle.c
+@@ -1049,10 +1049,9 @@ static int snd_msnd_isa_probe(struct device *pdev, unsigned int idx)
+ #endif
+ }
+ 
+-static int snd_msnd_isa_remove(struct device *pdev, unsigned int dev)
++static void snd_msnd_isa_remove(struct device *pdev, unsigned int dev)
+ {
+ 	snd_msnd_unload(dev_get_drvdata(pdev));
+-	return 0;
+ }
+ 
+ static struct isa_driver snd_msnd_driver = {
+diff --git a/sound/isa/opl3sa2.c b/sound/isa/opl3sa2.c
+index 85a181acd388..7649a8a4128d 100644
+--- a/sound/isa/opl3sa2.c
++++ b/sound/isa/opl3sa2.c
+@@ -878,11 +878,10 @@ static int snd_opl3sa2_isa_probe(struct device *pdev,
+ 	return 0;
+ }
+ 
+-static int snd_opl3sa2_isa_remove(struct device *devptr,
++static void snd_opl3sa2_isa_remove(struct device *devptr,
+ 				  unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(devptr));
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/opti9xx/miro.c b/sound/isa/opti9xx/miro.c
+index 44ed1b65f6ce..20933342f5eb 100644
+--- a/sound/isa/opti9xx/miro.c
++++ b/sound/isa/opti9xx/miro.c
+@@ -1480,11 +1480,10 @@ static int snd_miro_isa_probe(struct device *devptr, unsigned int n)
+ 	return 0;
+ }
+ 
+-static int snd_miro_isa_remove(struct device *devptr,
++static void snd_miro_isa_remove(struct device *devptr,
+ 			       unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(devptr));
+-	return 0;
+ }
+ 
+ #define DEV_NAME "miro"
+diff --git a/sound/isa/opti9xx/opti92x-ad1848.c b/sound/isa/opti9xx/opti92x-ad1848.c
+index 881d3b5711d2..758f5b579138 100644
+--- a/sound/isa/opti9xx/opti92x-ad1848.c
++++ b/sound/isa/opti9xx/opti92x-ad1848.c
+@@ -1024,11 +1024,10 @@ static int snd_opti9xx_isa_probe(struct device *devptr,
+ 	return 0;
+ }
+ 
+-static int snd_opti9xx_isa_remove(struct device *devptr,
+-				  unsigned int dev)
++static void snd_opti9xx_isa_remove(struct device *devptr,
++				   unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(devptr));
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/sb/jazz16.c b/sound/isa/sb/jazz16.c
+index ee379bbf70a4..0e2e0ab3b9e4 100644
+--- a/sound/isa/sb/jazz16.c
++++ b/sound/isa/sb/jazz16.c
+@@ -339,12 +339,11 @@ static int snd_jazz16_probe(struct device *devptr, unsigned int dev)
+ 	return err;
+ }
+ 
+-static int snd_jazz16_remove(struct device *devptr, unsigned int dev)
++static void snd_jazz16_remove(struct device *devptr, unsigned int dev)
+ {
+ 	struct snd_card *card = dev_get_drvdata(devptr);
+ 
+ 	snd_card_free(card);
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/sb/sb16.c b/sound/isa/sb/sb16.c
+index 479197c13803..db284b7b88a7 100644
+--- a/sound/isa/sb/sb16.c
++++ b/sound/isa/sb/sb16.c
+@@ -547,10 +547,9 @@ static int snd_sb16_isa_probe(struct device *pdev, unsigned int dev)
+ 	}
+ }
+ 
+-static int snd_sb16_isa_remove(struct device *pdev, unsigned int dev)
++static void snd_sb16_isa_remove(struct device *pdev, unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(pdev));
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/sb/sb8.c b/sound/isa/sb/sb8.c
+index 438109f167d6..8e3e67b9a341 100644
+--- a/sound/isa/sb/sb8.c
++++ b/sound/isa/sb/sb8.c
+@@ -192,10 +192,9 @@ static int snd_sb8_probe(struct device *pdev, unsigned int dev)
+ 	return err;
+ }
+ 
+-static int snd_sb8_remove(struct device *pdev, unsigned int dev)
++static void snd_sb8_remove(struct device *pdev, unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(pdev));
+-	return 0;
+ }
+ 
+ #ifdef CONFIG_PM
+diff --git a/sound/isa/sc6000.c b/sound/isa/sc6000.c
+index 3d0bea44f454..def137579717 100644
+--- a/sound/isa/sc6000.c
++++ b/sound/isa/sc6000.c
+@@ -672,7 +672,7 @@ static int snd_sc6000_probe(struct device *devptr, unsigned int dev)
+ 	return err;
+ }
+ 
+-static int snd_sc6000_remove(struct device *devptr, unsigned int dev)
++static void snd_sc6000_remove(struct device *devptr, unsigned int dev)
+ {
+ 	struct snd_card *card = dev_get_drvdata(devptr);
+ 	char __iomem **vport = card->private_data;
+@@ -684,7 +684,6 @@ static int snd_sc6000_remove(struct device *devptr, unsigned int dev)
+ 	release_region(mss_port[dev], 4);
+ 
+ 	snd_card_free(card);
+-	return 0;
+ }
+ 
+ static struct isa_driver snd_sc6000_driver = {
+diff --git a/sound/isa/sscape.c b/sound/isa/sscape.c
+index 2e5a5c5279e8..e70ef9aee545 100644
+--- a/sound/isa/sscape.c
++++ b/sound/isa/sscape.c
+@@ -1183,10 +1183,9 @@ static int snd_sscape_probe(struct device *pdev, unsigned int dev)
+ 	return ret;
+ }
+ 
+-static int snd_sscape_remove(struct device *devptr, unsigned int dev)
++static void snd_sscape_remove(struct device *devptr, unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(devptr));
+-	return 0;
+ }
+ 
+ #define DEV_NAME "sscape"
+diff --git a/sound/isa/wavefront/wavefront.c b/sound/isa/wavefront/wavefront.c
+index 9e0f6b226775..b750a4fd40de 100644
+--- a/sound/isa/wavefront/wavefront.c
++++ b/sound/isa/wavefront/wavefront.c
+@@ -565,11 +565,10 @@ static int snd_wavefront_isa_probe(struct device *pdev,
+ 	return 0;
+ }
+ 
+-static int snd_wavefront_isa_remove(struct device *devptr,
++static void snd_wavefront_isa_remove(struct device *devptr,
+ 				    unsigned int dev)
+ {
+ 	snd_card_free(dev_get_drvdata(devptr));
+-	return 0;
+ }
+ 
+ #define DEV_NAME "wavefront"
 -- 
 2.29.2
 

@@ -2,167 +2,102 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48DABC433DB
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:39:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0FF4C433DB
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:39:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB51E2389B
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:39:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B19072389B
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jan 2021 20:39:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727788AbhAUHs5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jan 2021 02:48:57 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:60765 "EHLO
+        id S1727410AbhAUHsj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jan 2021 02:48:39 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:53259 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726531AbhAUG6D (ORCPT
+        by vger.kernel.org with ESMTP id S1726530AbhAUG6D (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Thu, 21 Jan 2021 01:58:03 -0500
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id EB9425C00E5;
-        Thu, 21 Jan 2021 01:56:50 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 18CE45C00ED;
+        Thu, 21 Jan 2021 01:56:48 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 21 Jan 2021 01:56:50 -0500
+  by compute1.internal (MEProxy); Thu, 21 Jan 2021 01:56:48 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alistair23.me;
-         h=from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm3; bh=hjkcziuEISlgP
-        zvUtaoI0dsvabdQteZf1dpUx9Wn+oQ=; b=HzD7jY79SQPY1YF0OVhvzjv4hKNHi
-        iOLQsHwCEnDjqpDqtRyMkeIAiGF1SVOSnYngZAGMyygTlJfEt+WqfGgY+e4EQyuI
-        8mi00j1LSP5bt61ab19X2aFWATzTk4+gn7vC3dMFzWG+b98kV/TZIMIVQLw/LqGc
-        iovfFVCvlrV+gjoE3lCVIbQWwxshNmJavcaBwRF7CYdsT8z/U9NHlN1ISFQeXiTv
-        sPf+RhuNHEV24oINKVg8fitaEAgmgL5hy+UEpoiWcSyIXgoPq1kvTQzw7YdDC0n2
-        LDBlLNKPUPKezkSrXTruDHL3cDLZ22B5ze6RXGciE0wDPJoYdVnHCJCAA==
+         h=from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm3; bh=WilBOyB7V0N1dNH+hL/QeOaRXv
+        DqeMrDrx+0C2UAfMY=; b=JVOaYz5l0SrOsyO6Dpw47iI91Z7dDIsxQYj2U2ZcKX
+        LHB54qK2eZRqGBaIVBVuY/CGhEL8U43/bCd2+ABc5MGFDsJwnsnpZFWvlZFalnfk
+        m8BHU63jZFGCyJr85AAVc5JkAEf/jABnwurggrEFVnnFFvrUTB85lcrDv9BBolOl
+        kb8E81tHTEJSg0/svmFLSqMxEmGnLHTK/JaAc7uOTOF8TThja0LVLwBHTnwYZbmM
+        CG6UZ3rGS+1PF2P8ceacUTIbTA+T5Hm63djcRO+u0SI+Fc35sQEuWEJ6fJJ4dvsS
+        um3SUq7HAaSSkMvSMNS2hTMtxKnN8LES6NeVEN8pKbQw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; bh=hjkcziuEISlgPzvUtaoI0dsvabdQteZf1dpUx9Wn+oQ=; b=LhHOSexq
-        mhqDdzjUV8xcmbTqVn6hiS66057eQQtF5aQNvL/+VSgqfCwKxhI794ZoCiTU5XVW
-        oVWPPwEDJSLdZXbVXG5UmKB6RCWGDsahjiJL9HuZwORUsKyMknLAoabgsXUkfui+
-        FDdHSgDYz4crm+lxkxNSiNnPjHXLWPE1IiOVhygTI05wUCmoncFRcjKk1/2wP81t
-        zD3dJ/LKX2TcA+4ggwxhTRhNXc3m68wnZyndxItxlpdAC+N+8LFcKhjw33kgbmxL
-        vHB/sHEkigASRKzWRemVjtp8o+/tQA6RngRaUedLK7hzh0NJ/tOIujVoW5aZhI/6
-        n3oFszewr67H0Q==
-X-ME-Sender: <xms:siUJYJsxJ1FjYwFGc9ymD71CeZmLcpumoxhfj0EbOCLTyzndWTwc6g>
-    <xme:siUJYCd9GzG5avo2XHY4kxoa6B7MZavJYzrzHIDHZMysR2KKej7UjJVDgFmUzQGVr
-    I08je6vP0jn79RRkGk>
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=WilBOyB7V0N1dNH+h
+        L/QeOaRXvDqeMrDrx+0C2UAfMY=; b=SFg1p7065y9JRI2/tClufybpJFYd4B1+X
+        Wu8v5Z3MDDazdJ9XhYRYbe45eMH9mg+DQWC79SqG599z26pQVuOCgWohn+mY1h5/
+        nEP9wt2UrjoriPjrMiB5sPsM8D0lH6oDjLbxamNBIr3h1kK1U3Cxv+NOf/Rx6Q89
+        A6c8zfIcmgJKD5SzG+jp+pDqY8t5xycDC2vCpfPGxdWSvsmjX4ftZa2JgZy8FMKf
+        wVZMo2Ma0Oi45vdlW3Q5KJeK1d6NDAspzz8wfPjmt1+mMLERYUUQItx66cId8nW5
+        fxOuT6QomP67+Rkyko+5LRXXOXv7e6OXY4voMCR0jOZKbdTPdXeNQ==
+X-ME-Sender: <xms:ryUJYLEIuh6KiRWbtEZl64gvpwVw6NPVIhvBlnLAjuzcbKY8ZTGc_w>
+    <xme:ryUJYIXVJgLTBJvFjpGR20xDl-2W_4zsVYMS78cHEmPb1AYGyCBdOpG9zPVdQcf-d
+    ywDb6-WgA_tS6_oqGs>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrudefgddutddtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgjfhgggfestdekre
-    dtredttdenucfhrhhomheptehlihhsthgrihhrucfhrhgrnhgtihhsuceorghlihhsthgr
-    ihhrsegrlhhishhtrghirhdvfedrmhgvqeenucggtffrrghtthgvrhhnpeeggedtteejke
-    eggeeugfehueevudegvdetjeeviedugedvtdekffekhedtteduhfenucfkphepjeefrdel
-    fedrkeegrddvtdeknecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
-    hfrhhomheprghlihhsthgrihhrsegrlhhishhtrghirhdvfedrmhgv
-X-ME-Proxy: <xmx:siUJYMyrecQ55gw3Z2zgSMvsJer0b9TZ7WoqbQoKf3ZfLJj6eN_THg>
-    <xmx:siUJYAPaGoUqQhF9VZhVzSrzlkGJD6jzHnKQaiaON__Ujh82h-E_uQ>
-    <xmx:siUJYJ9JVZ0J1a-6hJe4PdZEWYfjfVMtWmKVRKRoPZ3Q50sm75IybA>
-    <xmx:siUJYEYw35pzh-ayGFUqFo7DXGYbFJU6KstM-wil3f0WZ1PtSXOEKw>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
+    dttdenucfhrhhomheptehlihhsthgrihhrucfhrhgrnhgtihhsuceorghlihhsthgrihhr
+    segrlhhishhtrghirhdvfedrmhgvqeenucggtffrrghtthgvrhhnpeejleeihfdvtefgtd
+    ethfdtgefftdeiffefjeeiffefveeuleejheejvefhffeukeenucfkphepjeefrdelfedr
+    keegrddvtdeknecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrh
+    homheprghlihhsthgrihhrsegrlhhishhtrghirhdvfedrmhgv
+X-ME-Proxy: <xmx:ryUJYNK_WvK4ZiWMv-jSTZ29-wOVZAv0gGVYYmsgL3aTwbd0KRqPUQ>
+    <xmx:ryUJYJHEde8YnEvXa51A4tcC8-XnwOhZz32rrE6mZv0hZ3SqSyrhJw>
+    <xmx:ryUJYBW8rvOnMBZaV02Tuyn2Nff9kadggvO4Q4dWCV9N2oFcOBpiiw>
+    <xmx:sCUJYER6Z7q4oVqgOSubdHy08zS5bMJUDi2kS2xZThs1ds921dEwag>
 Received: from ThinkpadX1Yoga3.localdomain (c-73-93-84-208.hsd1.ca.comcast.net [73.93.84.208])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0339B1080057;
-        Thu, 21 Jan 2021 01:56:49 -0500 (EST)
+        by mail.messagingengine.com (Postfix) with ESMTPA id C4F3F1080057;
+        Thu, 21 Jan 2021 01:56:46 -0500 (EST)
 From:   Alistair Francis <alistair@alistair23.me>
 To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
         linux-imx@nxp.com, kernel@pengutronix.de
 Cc:     linux-kernel@vger.kernel.org, alistair23@gmail.com,
         Alistair Francis <alistair@alistair23.me>
-Subject: [PATCH v2 3/6] touchscreen/wacom_i2c: Add support for distance and tilt x/y
-Date:   Wed, 20 Jan 2021 22:56:40 -0800
-Message-Id: <20210121065643.342-4-alistair@alistair23.me>
+Subject: [PATCH v2 0/6] Add Wacom I2C support to rM2
+Date:   Wed, 20 Jan 2021 22:56:37 -0800
+Message-Id: <20210121065643.342-1-alistair@alistair23.me>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210121065643.342-1-alistair@alistair23.me>
-References: <20210121065643.342-1-alistair@alistair23.me>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is based on the out of tree rM2 driver.
+Add support to the reMarkable2 (rM2) for the Wacom I2C device.
 
-Signed-off-by: Alistair Francis <alistair@alistair23.me>
----
- drivers/input/touchscreen/wacom_i2c.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+This is based on the reMarkable Linux fork and with this series I am
+able to probe the Wacom digitiser.
 
-diff --git a/drivers/input/touchscreen/wacom_i2c.c b/drivers/input/touchscreen/wacom_i2c.c
-index ec6e0aff8deb..5f0b80d52ad5 100644
---- a/drivers/input/touchscreen/wacom_i2c.c
-+++ b/drivers/input/touchscreen/wacom_i2c.c
-@@ -22,12 +22,16 @@
- #define WACOM_CMD_QUERY3	0x02
- #define WACOM_CMD_THROW0	0x05
- #define WACOM_CMD_THROW1	0x00
--#define WACOM_QUERY_SIZE	19
-+#define WACOM_QUERY_SIZE	22
- 
- struct wacom_features {
- 	int x_max;
- 	int y_max;
- 	int pressure_max;
-+	int distance_max;
-+	int distance_physical_max;
-+	int tilt_x_max;
-+	int tilt_y_max;
- 	char fw_version;
- };
- 
-@@ -79,6 +83,10 @@ static int wacom_query_device(struct i2c_client *client,
- 	features->y_max = get_unaligned_le16(&data[5]);
- 	features->pressure_max = get_unaligned_le16(&data[11]);
- 	features->fw_version = get_unaligned_le16(&data[13]);
-+	features->distance_max = data[15];
-+	features->distance_physical_max = data[16];
-+	features->tilt_x_max = get_unaligned_le16(&data[17]);
-+	features->tilt_y_max = get_unaligned_le16(&data[19]);
- 
- 	dev_dbg(&client->dev,
- 		"x_max:%d, y_max:%d, pressure:%d, fw:%d\n",
-@@ -95,6 +103,7 @@ static irqreturn_t wacom_i2c_irq(int irq, void *dev_id)
- 	u8 *data = wac_i2c->data;
- 	unsigned int x, y, pressure;
- 	unsigned char tsw, f1, f2, ers;
-+	short tilt_x, tilt_y, distance;
- 	int error;
- 
- 	error = i2c_master_recv(wac_i2c->client,
-@@ -109,6 +118,11 @@ static irqreturn_t wacom_i2c_irq(int irq, void *dev_id)
- 	x = le16_to_cpup((__le16 *)&data[4]);
- 	y = le16_to_cpup((__le16 *)&data[6]);
- 	pressure = le16_to_cpup((__le16 *)&data[8]);
-+	distance = data[10];
-+
-+	/* Signed */
-+	tilt_x = le16_to_cpup((__le16 *)&data[11]);
-+	tilt_y = le16_to_cpup((__le16 *)&data[13]);
- 
- 	if (!wac_i2c->prox)
- 		wac_i2c->tool = (data[3] & 0x0c) ?
-@@ -123,6 +137,9 @@ static irqreturn_t wacom_i2c_irq(int irq, void *dev_id)
- 	input_report_abs(input, ABS_X, x);
- 	input_report_abs(input, ABS_Y, y);
- 	input_report_abs(input, ABS_PRESSURE, pressure);
-+	input_report_abs(input, ABS_DISTANCE, distance);
-+	input_report_abs(input, ABS_TILT_X, tilt_x);
-+	input_report_abs(input, ABS_TILT_Y, tilt_y);
- 	input_sync(input);
- 
- out:
-@@ -195,7 +212,11 @@ static int wacom_i2c_probe(struct i2c_client *client,
- 	input_set_abs_params(input, ABS_Y, 0, features.y_max, 0, 0);
- 	input_set_abs_params(input, ABS_PRESSURE,
- 			     0, features.pressure_max, 0, 0);
--
-+	input_set_abs_params(input, ABS_DISTANCE, 0, features.distance_max, 0, 0);
-+	input_set_abs_params(input, ABS_TILT_X, -features.tilt_x_max,
-+			     features.tilt_x_max, 0, 0);
-+	input_set_abs_params(input, ABS_TILT_Y, -features.tilt_y_max,
-+			     features.tilt_y_max, 0, 0);
- 	input_set_drvdata(input, wac_i2c);
- 
- 	error = request_threaded_irq(client->irq, NULL, wacom_i2c_irq,
+Alistair Francis (6):
+  devicetree/bindings: Initial commit of wacom,wacom-i2c
+  input/touchscreen: Add device tree support to wacom_i2c
+  touchscreen/wacom_i2c: Add support for distance and tilt x/y
+  touchscreen/wacom_i2c: Clean up the query device fields
+  touchscreen/wacom_i2c: Add support for vdd regulator
+  arch/arm: reMarkable2: Enable wacom_i2c
+
+ .../input/touchscreen/wacom,wacom-i2c.yaml    |  48 +++++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |   2 +
+ arch/arm/boot/dts/imx7d-remarkable2.dts       |  41 ++++++
+ arch/arm/configs/imx_v6_v7_defconfig          |   1 +
+ drivers/input/touchscreen/wacom_i2c.c         | 136 +++++++++++++++---
+ 5 files changed, 205 insertions(+), 23 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
+
 -- 
 2.29.2
 

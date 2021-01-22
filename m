@@ -2,156 +2,111 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 770D2C10F0E
-	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 17:21:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A57EAC433E0
+	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 20:10:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 494B423A79
-	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 17:21:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6297E23B04
+	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 20:10:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728931AbhAVP4O (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Jan 2021 10:56:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41246 "EHLO
+        id S1730600AbhAVUJx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Jan 2021 15:09:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729309AbhAVPuI (ORCPT
+        with ESMTP id S1730929AbhAVUIe (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Jan 2021 10:50:08 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6FA3C06174A
-        for <linux-input@vger.kernel.org>; Fri, 22 Jan 2021 07:49:27 -0800 (PST)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1l2yge-0000dL-Aj; Fri, 22 Jan 2021 16:49:24 +0100
-Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <mfe@pengutronix.de>)
-        id 1l2ygd-0000WI-Ky; Fri, 22 Jan 2021 16:49:23 +0100
-Date:   Fri, 22 Jan 2021 16:49:23 +0100
-From:   Marco Felsch <m.felsch@pengutronix.de>
-To:     Alistair Francis <alistair@alistair23.me>
-Cc:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-        linux-imx@nxp.com, kernel@pengutronix.de, alistair23@gmail.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/6] devicetree/bindings: Initial commit of wacom,
- wacom-i2c
-Message-ID: <20210122154923.zk3joqgdcmzijr3g@pengutronix.de>
-References: <20210121065643.342-1-alistair@alistair23.me>
- <20210121065643.342-2-alistair@alistair23.me>
+        Fri, 22 Jan 2021 15:08:34 -0500
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04CD8C061788;
+        Fri, 22 Jan 2021 12:07:54 -0800 (PST)
+Received: by mail-lf1-x133.google.com with SMTP id u25so9255711lfc.2;
+        Fri, 22 Jan 2021 12:07:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=y9gRg52LFimb3ceOLj9UGDG1IkEgZHW2S4OzYw39/xU=;
+        b=W99sHHYI7t0CcC8oPYPlrxWcMoA90BV6xA91iRAMLJV2XV7BhYK41oipX90fiNkoUu
+         vVo1yn1SVS67lzOTgoSLuuscQ0HEw9b+BGmcSg+RBO243c+oxIOLNClbWWk9hY2rlWNM
+         EjJTpmiKNOpqgRmuAK+KiUsRoNJlowI2X0ww+956L6WezLCSRuT5yRJqXdrDiTVgixsE
+         iu21JqETyon+PSIls/+/2DI3pRJs1bPtPsTkAWYiU8CNmacjnRaopRgygsj9LuOu/Vm4
+         E7DLGi/wyUUS7T+gcSrdKZB+1yMSzUGntYWSqrz3fSECz0lcZ0Uy9qov8Gek8ULjpBMB
+         wd3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=y9gRg52LFimb3ceOLj9UGDG1IkEgZHW2S4OzYw39/xU=;
+        b=Eljau46Bf/mF9YzJ/tLIpCnyNaXTCrc2y2I1bN0tNX5eJAgzUvpJMSJTqpLopKkjDR
+         fJ54QbsHKmsiw9SuM+ATzYmZ+z5Mlg0a347MPis0QmS+zMXCGb0LwJIxNeHwT4Wwei6u
+         omeU1PwMeRbVHjQwGZRCFDSxTQLrGjG+wyR/WaeNW5t5xFCoGI4njyI+nHlj4rTNT24J
+         Spatp3cVoJx9kwVkT4hx9lf1rTTNrBPor9VZPwUHBgP9EWKKqdZB1YvBnFJZfCpQlboL
+         YJ0ps6ljOlZ7k+Kd4Dv35EsD0Ir4/Okw/u8woPAkijKQFuzZiMfcvM3MrxPKYvEa4IKW
+         9r4Q==
+X-Gm-Message-State: AOAM533UW3vZlwFKKMYC8BcdMh0WSrzhHVH3uayX1/S1PNhEZbEbOc9W
+        LfY1LKPCtXjFWvjKmmtkC4Q=
+X-Google-Smtp-Source: ABdhPJzM/KzLAJZlVro7XhRkCNgTHuayNlQowADJx0rYOUq3vQEUkH/KJYLTiZeFCZ7e2A3rk8dd3g==
+X-Received: by 2002:a19:2346:: with SMTP id j67mr1374571lfj.254.1611346072510;
+        Fri, 22 Jan 2021 12:07:52 -0800 (PST)
+Received: from localhost.localdomain (109-252-192-57.dynamic.spd-mgts.ru. [109.252.192.57])
+        by smtp.gmail.com with ESMTPSA id u6sm994589lfk.127.2021.01.22.12.07.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Jan 2021 12:07:51 -0800 (PST)
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Nick Dyer <nick@shmanahar.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jiada Wang <jiada_wang@mentor.com>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v4 3/3] ARM: tegra: acer-a500: Add atmel,wakeup-method property
+Date:   Fri, 22 Jan 2021 23:06:59 +0300
+Message-Id: <20210122200659.7404-4-digetx@gmail.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210122200659.7404-1-digetx@gmail.com>
+References: <20210122200659.7404-1-digetx@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210121065643.342-2-alistair@alistair23.me>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-IRC:  #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-Uptime: 16:48:46 up 51 days,  5:55, 28 users,  load average: 0.13, 0.08,
- 0.04
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: mfe@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+Add atmel,wakeup-method property to the touchscreen node.
 
-thnaks for the patch.
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+---
+ arch/arm/boot/dts/tegra20-acer-a500-picasso.dts | 3 +++
+ 1 file changed, 3 insertions(+)
 
-On 21-01-20 22:56, Alistair Francis wrote:
-> Signed-off-by: Alistair Francis <alistair@alistair23.me>
-> ---
->  .../input/touchscreen/wacom,wacom-i2c.yaml    | 44 +++++++++++++++++++
->  .../devicetree/bindings/vendor-prefixes.yaml  |  2 +
-
-This should be splitted into two patches.
-
-Regards,
-  Marco
-
-
->  2 files changed, 46 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml b/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
-> new file mode 100644
-> index 000000000000..b36d22cd20a2
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/wacom,wacom-i2c.yaml
-> @@ -0,0 +1,44 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/touchscreen/wacom,wacom-i2c.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Wacom I2C Controller
-> +
-> +maintainers:
-> +  - Alistair Francis <alistair@alistair23.me>
-> +
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: wacom,wacom-i2c
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include "dt-bindings/interrupt-controller/irq.h"
-> +    i2c {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +        digitiser@9 {
-> +                compatible = "wacom,wacom-i2c";
-> +                reg = <0x9>;
-> +                interrupt-parent = <&gpio1>;
-> +                interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
-> +        };
-> +    };
-> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> index 041ae90b0d8f..5bca22f035a3 100644
-> --- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> +++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> @@ -1202,6 +1202,8 @@ patternProperties:
->      description: Vision Optical Technology Co., Ltd.
->    "^vxt,.*":
->      description: VXT Ltd
-> +  "^wacom,.*":
-> +    description: Wacom Co., Ltd
->    "^wand,.*":
->      description: Wandbord (Technexion)
->    "^waveshare,.*":
-> -- 
-> 2.29.2
-> 
-> 
-> 
-
+diff --git a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
+index d3b99535d755..40c1bab22155 100644
+--- a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
++++ b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /dts-v1/;
+ 
++#include <dt-bindings/input/atmel-maxtouch.h>
+ #include <dt-bindings/input/gpio-keys.h>
+ #include <dt-bindings/input/input.h>
+ #include <dt-bindings/thermal/thermal.h>
+@@ -450,6 +451,8 @@ touchscreen@4c {
+ 
+ 			avdd-supply = <&vdd_3v3_sys>;
+ 			vdd-supply  = <&vdd_3v3_sys>;
++
++			atmel,wakeup-method = <ATMEL_MXT_WAKEUP_I2C_SCL>;
+ 		};
+ 
+ 		gyroscope@68 {
 -- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.29.2
+

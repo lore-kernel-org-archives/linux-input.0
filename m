@@ -2,187 +2,191 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77E13C433E6
-	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 12:32:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F3ABC433E0
+	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 15:33:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4975321D7A
-	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 12:32:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F322023A9A
+	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 15:33:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727946AbhAVMcU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Jan 2021 07:32:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43026 "EHLO
+        id S1728725AbhAVPdU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Jan 2021 10:33:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727154AbhAVJZj (ORCPT
+        with ESMTP id S1729186AbhAVPdR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Jan 2021 04:25:39 -0500
-Received: from antares.kleine-koenig.org (antares.kleine-koenig.org [IPv6:2a01:4f8:c0c:3a97::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 452ECC06174A;
-        Fri, 22 Jan 2021 01:24:58 -0800 (PST)
-Received: by antares.kleine-koenig.org (Postfix, from userid 1000)
-        id D74D7AD996A; Fri, 22 Jan 2021 10:24:55 +0100 (CET)
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pau Oliva Fora <pof@eslack.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Hannes Reinecke <hare@suse.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Hans Verkuil <hverkuil@xs4all.nl>
-Cc:     linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-scsi@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH v2 0/3] isa: Make the remove callback for isa drivers return void
-Date:   Fri, 22 Jan 2021 10:24:46 +0100
-Message-Id: <20210122092449.426097-1-uwe@kleine-koenig.org>
-X-Mailer: git-send-email 2.29.2
+        Fri, 22 Jan 2021 10:33:17 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DED8C061786
+        for <linux-input@vger.kernel.org>; Fri, 22 Jan 2021 07:32:36 -0800 (PST)
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1l2yQK-0006rl-F9; Fri, 22 Jan 2021 16:32:32 +0100
+Received: from mfe by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <mfe@pengutronix.de>)
+        id 1l2yQJ-00007J-9C; Fri, 22 Jan 2021 16:32:31 +0100
+Date:   Fri, 22 Jan 2021 16:32:31 +0100
+From:   Marco Felsch <m.felsch@pengutronix.de>
+To:     Alistair Francis <alistair@alistair23.me>
+Cc:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+        linux-imx@nxp.com, kernel@pengutronix.de, alistair23@gmail.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 6/6] arch/arm: reMarkable2: Enable wacom_i2c
+Message-ID: <20210122153231.qqiuwltvzzg52phg@pengutronix.de>
+References: <20210121065643.342-1-alistair@alistair23.me>
+ <20210121065643.342-7-alistair@alistair23.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210121065643.342-7-alistair@alistair23.me>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 16:15:16 up 51 days,  5:21, 28 users,  load average: 0.33, 0.24,
+ 0.11
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: mfe@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello,
+Hi,
 
-changes since v1
-(https://lore.kernel.org/r/20210121204812.402589-1-uwe@kleine-koenig.org):
- - fix build failure, found by the kernel test robot
-   (my grep missed the struct isa_driver embedded in struct
-   radio_isa_driver). For this I introduced patch 2 and adapted patch 3
-   a bit. An interdiff is below.
- - Added Acks/Reviews by Guenter Roeck, William Breathitt Gray, Marc
-   Kleine-Budde, Wolfram Sang and Takashi Iwai <tiwai@suse.de>
+thanks for the patch.
 
-The base-commit I specified (by hand *sigh*) in v1 was broken, must be a
-cut-n-paste-error, sorry for that.
+On 21-01-20 22:56, Alistair Francis wrote:
+> Enable the wacom_i2c touchscreen for the reMarkable2.
+> 
+> Signed-off-by: Alistair Francis <alistair@alistair23.me>
+> ---
+>  arch/arm/boot/dts/imx7d-remarkable2.dts | 41 +++++++++++++++++++++++++
+>  arch/arm/configs/imx_v6_v7_defconfig    |  1 +
 
-Takashi suggested to take this series via sound.git given that this is
-the most affected tree. This is fine for me. Otherwise I can also
-provide an immutable branch. For both variants we still need a few acks
-though.
+Those two changes should be splitted and the dts patch should be named:
+"ARM: dts: imx7d: remarkable2: add wacom digitizer device".
 
-Best regards
-Uwe
+>  2 files changed, 42 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/imx7d-remarkable2.dts b/arch/arm/boot/dts/imx7d-remarkable2.dts
+> index fba55a0e028a..8052d884a5e5 100644
+> --- a/arch/arm/boot/dts/imx7d-remarkable2.dts
+> +++ b/arch/arm/boot/dts/imx7d-remarkable2.dts
+> @@ -150,6 +150,30 @@ &dma_apbh {
+>  	status = "disabled";
+>  };
+>  
+> +&i2c1 {
+> +	clock-frequency = <400000>;
+> +	pinctrl-names = "default", "sleep";
+> +	pinctrl-0 = <&pinctrl_i2c1>;
+> +	pinctrl-1 = <&pinctrl_i2c1>;
 
-Uwe Kleine-König (3):
-  watchdog: pcwd: drop always-false if from remove callback
-  media/radio: Make radio_isa_common_remove() return void
-  isa: Make the remove callback for isa drivers return void
+No need to specify the sleep state if both are using the same pinctrl
+config.
 
- drivers/base/isa.c                   | 2 +-
- drivers/i2c/busses/i2c-elektor.c     | 4 +---
- drivers/i2c/busses/i2c-pca-isa.c     | 4 +---
- drivers/input/touchscreen/htcpen.c   | 4 +---
- drivers/media/radio/radio-isa.c      | 9 ++++-----
- drivers/media/radio/radio-isa.h      | 2 +-
- drivers/media/radio/radio-sf16fmr2.c | 4 +---
- drivers/net/can/sja1000/tscan1.c     | 4 +---
- drivers/net/ethernet/3com/3c509.c    | 3 +--
- drivers/scsi/advansys.c              | 3 +--
- drivers/scsi/aha1542.c               | 3 +--
- drivers/scsi/fdomain_isa.c           | 3 +--
- drivers/scsi/g_NCR5380.c             | 5 ++---
- drivers/watchdog/pcwd.c              | 7 +------
- include/linux/isa.h                  | 2 +-
- sound/isa/ad1848/ad1848.c            | 3 +--
- sound/isa/adlib.c                    | 3 +--
- sound/isa/cmi8328.c                  | 3 +--
- sound/isa/cmi8330.c                  | 3 +--
- sound/isa/cs423x/cs4231.c            | 3 +--
- sound/isa/cs423x/cs4236.c            | 3 +--
- sound/isa/es1688/es1688.c            | 3 +--
- sound/isa/es18xx.c                   | 5 ++---
- sound/isa/galaxy/galaxy.c            | 3 +--
- sound/isa/gus/gusclassic.c           | 3 +--
- sound/isa/gus/gusextreme.c           | 3 +--
- sound/isa/gus/gusmax.c               | 3 +--
- sound/isa/gus/interwave.c            | 3 +--
- sound/isa/msnd/msnd_pinnacle.c       | 3 +--
- sound/isa/opl3sa2.c                  | 3 +--
- sound/isa/opti9xx/miro.c             | 3 +--
- sound/isa/opti9xx/opti92x-ad1848.c   | 5 ++---
- sound/isa/sb/jazz16.c                | 3 +--
- sound/isa/sb/sb16.c                  | 3 +--
- sound/isa/sb/sb8.c                   | 3 +--
- sound/isa/sc6000.c                   | 3 +--
- sound/isa/sscape.c                   | 3 +--
- sound/isa/wavefront/wavefront.c      | 3 +--
- 38 files changed, 44 insertions(+), 88 deletions(-)
+> +	status = "okay";
+> +
+> +	digitizer: wacom-i2c@9 {
 
-Interdiff against v1:
-diff --git a/drivers/media/radio/radio-isa.c b/drivers/media/radio/radio-isa.c
-index ad2ac16ff12d..c591c0851fa2 100644
---- a/drivers/media/radio/radio-isa.c
-+++ b/drivers/media/radio/radio-isa.c
-@@ -273,8 +273,8 @@ static int radio_isa_common_probe(struct radio_isa_card *isa,
- 	return res;
- }
- 
--static int radio_isa_common_remove(struct radio_isa_card *isa,
--				   unsigned region_size)
-+static void radio_isa_common_remove(struct radio_isa_card *isa,
-+				    unsigned region_size)
- {
- 	const struct radio_isa_ops *ops = isa->drv->ops;
- 
-@@ -285,7 +285,6 @@ static int radio_isa_common_remove(struct radio_isa_card *isa,
- 	release_region(isa->io, region_size);
- 	v4l2_info(&isa->v4l2_dev, "Removed radio card %s\n", isa->drv->card);
- 	kfree(isa);
--	return 0;
- }
- 
- int radio_isa_probe(struct device *pdev, unsigned int dev)
-@@ -338,11 +337,11 @@ int radio_isa_probe(struct device *pdev, unsigned int dev)
- }
- EXPORT_SYMBOL_GPL(radio_isa_probe);
- 
--int radio_isa_remove(struct device *pdev, unsigned int dev)
-+void radio_isa_remove(struct device *pdev, unsigned int dev)
- {
- 	struct radio_isa_card *isa = dev_get_drvdata(pdev);
- 
--	return radio_isa_common_remove(isa, isa->drv->region_size);
-+	radio_isa_common_remove(isa, isa->drv->region_size);
- }
- EXPORT_SYMBOL_GPL(radio_isa_remove);
- 
-diff --git a/drivers/media/radio/radio-isa.h b/drivers/media/radio/radio-isa.h
-index 2f0736edfda8..c9159958203e 100644
---- a/drivers/media/radio/radio-isa.h
-+++ b/drivers/media/radio/radio-isa.h
-@@ -91,7 +91,7 @@ struct radio_isa_driver {
- 
- int radio_isa_match(struct device *pdev, unsigned int dev);
- int radio_isa_probe(struct device *pdev, unsigned int dev);
--int radio_isa_remove(struct device *pdev, unsigned int dev);
-+void radio_isa_remove(struct device *pdev, unsigned int dev);
- #ifdef CONFIG_PNP
- int radio_isa_pnp_probe(struct pnp_dev *dev,
- 			const struct pnp_device_id *dev_id);
+this should be:
+        wacom_digitizer: digitizer@9 {
 
-base-commit: e609571b5ffa3528bf85292de1ceaddac342bc1c
+> +		pinctrl-names = "default", "sleep";
+> +		pinctrl-0 = <&pinctrl_wacom>;
+> +		pinctrl-1 = <&pinctrl_wacom>;
+
+Same here, sleep and default refer to the same state.
+
+> +		compatible = "wacom,wacom-i2c";
+> +		reg = <0x09>;
+
+compatible and reg are always the first to properties.
+
+> +		interrupt-parent = <&gpio1>;
+> +		interrupts = <1 2>;
+
+Please use defines.
+
+> +		flip-tilt-x;
+> +		flip-tilt-y;
+> +		flip-pos-x;
+> +		flip-pos-y;
+> +		flip-distance;
+> +		vdd-supply = <&reg_digitizer>;
+
+Where is this regulator added?
+
+> +	};
+> +};
+> +
+>  &sdma {
+>  	status = "okay";
+>  };
+> @@ -221,6 +245,16 @@ &wdog1 {
+>  };
+>  
+>  &iomuxc_lpsr {
+> +	pinctrl_wacom: wacomgrp {
+> +		fsl,pins = <
+> +			/*MX7D_PAD_LPSR_GPIO1_IO00__GPIO1_IO0	0x00000074 /* WACOM RESET */
+> +			MX7D_PAD_LPSR_GPIO1_IO01__GPIO1_IO1	0x00000034 /* WACOM INT */
+> +			MX7D_PAD_LPSR_GPIO1_IO04__GPIO1_IO4	0x00000074 /* PDCTB */
+> +			/*MX7D_PAD_LPSR_GPIO1_IO05__GPIO1_IO5	0x00000014 /* FWE */
+> +			/*MX7D_PAD_LPSR_GPIO1_IO06__GPIO1_IO6	0x00000014 /* WACOM PWR ENABLE */
+> +		>;
+> +	};
+
+Pls, sort this alphabetical.
+
+> +
+>  	pinctrl_digitizer_reg: digitizerreggrp {
+>  		fsl,pins = <
+>  			/* DIGITIZER_PWR_EN */
+> @@ -236,6 +270,13 @@ MX7D_PAD_SAI1_RX_SYNC__GPIO6_IO16	0x59
+>  		>;
+>  	};
+>  
+> +	pinctrl_i2c1: i2c1grp {
+> +		fsl,pins = <
+> +			MX7D_PAD_I2C1_SDA__I2C1_SDA		0x4000007f
+> +			MX7D_PAD_I2C1_SCL__I2C1_SCL		0x4000007f
+> +		>;
+> +	};
+> +
+>  	pinctrl_uart1: uart1grp {
+>  		fsl,pins = <
+>  			MX7D_PAD_UART1_TX_DATA__UART1_DCE_TX	0x79
+> diff --git a/arch/arm/configs/imx_v6_v7_defconfig b/arch/arm/configs/imx_v6_v7_defconfig
+> index fa9229616106..2fc8dc6a8b0a 100644
+> --- a/arch/arm/configs/imx_v6_v7_defconfig
+> +++ b/arch/arm/configs/imx_v6_v7_defconfig
+> @@ -167,6 +167,7 @@ CONFIG_TOUCHSCREEN_DA9052=y
+>  CONFIG_TOUCHSCREEN_EGALAX=y
+>  CONFIG_TOUCHSCREEN_GOODIX=y
+>  CONFIG_TOUCHSCREEN_ILI210X=y
+> +CONFIG_TOUCHSCREEN_WACOM_I2C=y
+>  CONFIG_TOUCHSCREEN_MAX11801=y
+>  CONFIG_TOUCHSCREEN_IMX6UL_TSC=y
+>  CONFIG_TOUCHSCREEN_EDT_FT5X06=y
+> -- 
+> 2.29.2
+> 
+> 
+> 
+
 -- 
-2.29.2
-
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

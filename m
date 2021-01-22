@@ -2,138 +2,74 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2D82C433E0
-	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 08:56:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C707C433E9
+	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 11:56:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8255F236F9
-	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 08:56:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EB9A7238EE
+	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 11:56:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726873AbhAVIyr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Jan 2021 03:54:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54954 "EHLO mail.kernel.org"
+        id S1727204AbhAVL4e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Jan 2021 06:56:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727229AbhAVIyb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Jan 2021 03:54:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 576F220739;
-        Fri, 22 Jan 2021 08:53:50 +0000 (UTC)
+        id S1727925AbhAVK7F (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 22 Jan 2021 05:59:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FF0720739;
+        Fri, 22 Jan 2021 10:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1611305631;
-        bh=Fz2SdsRmzyg/R2X1FlxG9bQZ+ajptlq0wR7ERPzwqDc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ddZNA3M6UjNKCbv2ln05xi74+gg8RxPyfmTwHQ4mUmmkjwJ9S9/sn0rRIy3ApJYra
-         ofdkWNtzHT0/iNjwUZK2whof89UzJC4pL+jhDlg2zofzNVukbVCGpITfv4dRSH/NP+
-         Vljz4p4ya+TFxfBBgfNn7l16vKcvpy85i80JNbTCcKiLpQnkq2hhXjk5a4bFmW6INV
-         djOy8m4qPjMvnzIVJvaQcwI+tPU6Vw+ZXR4jezPjuaA6S/H0iY30pf7MLs8p7yjxK+
-         R37SCiknKGV/Du5Z6/rAraxkbZZzlhu5BiY1umPObLP6MEingJjnI2C2JBYNfkRqlq
-         PS2UjRs5P+fWQ==
-Date:   Fri, 22 Jan 2021 09:53:48 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-Cc:     Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pau Oliva Fora <pof@eslack.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Hannes Reinecke <hare@suse.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        linux-scsi@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: Re: [PATCH v1 2/2] isa: Make the remove callback for isa drivers
- return void
-Message-ID: <20210122085348.GB858@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pau Oliva Fora <pof@eslack.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Hannes Reinecke <hare@suse.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-scsi@vger.kernel.org,
-        alsa-devel@alsa-project.org
-References: <20210121204812.402589-1-uwe@kleine-koenig.org>
- <20210121204812.402589-3-uwe@kleine-koenig.org>
+        s=k20201202; t=1611313091;
+        bh=OE3wbEwuooYJTVEUo63UoWWZzM1gxqzc2fJJwvxMr0U=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=mz3dBZfaEbCWHEn08a8O4I4BBjbKCcYVopUgSNY/Q2xkDlmQQBS7UvLfe4Evskrms
+         J1HqjKOj7fazx+btXa68hslHm3JF3NPORbCAG3fWMNbZffWCmKoXboCnnRr1dG3lYW
+         GKfnQvbr+f44n54Uz16vz40W2uZ9oCNZHEhodCXUq7M0acMy8vw9gSEOagE3lJl9ox
+         RMwlUarkY1i0wYzq/gTbRFhByQWZSG+43swFJG95VOFqmh26jhzIJ3enx5K4ce9FvC
+         s5o7ivKCknwbrASPM9CyneTiZqsjRKfdJib35HU4VmrS9Oi9sKlOl98sxNY1iPdJtA
+         eNOCaVpfb9Z4Q==
+Date:   Fri, 22 Jan 2021 11:58:08 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Jonathan Cameron <jic23@kernel.org>
+cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Zheng Yongjun <zhengyongjun3@huawei.com>,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -next] hid/hid-sensor-custom: convert comma to
+ semicolon
+In-Reply-To: <20210120204824.0d52a2d2@archlinux>
+Message-ID: <nycvar.YFH.7.76.2101221157470.5622@cbobk.fhfr.pm>
+References: <20201214133212.3569-1-zhengyongjun3@huawei.com> <df1481e15c591106ba75ed85289b12507cbc8c49.camel@linux.intel.com> <20201229181841.6d63213a@archlinux> <20210120204824.0d52a2d2@archlinux>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
-Content-Disposition: inline
-In-Reply-To: <20210121204812.402589-3-uwe@kleine-koenig.org>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Wed, 20 Jan 2021, Jonathan Cameron wrote:
 
---ADZbWkCsHQ7r3kzd
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > > Replace a comma between expression statements by a semicolon.
+> > > > 
+> > > > Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>    
+> > > Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>  
+> > Applied to the togreg branch of iio.git and pushed out as testing for
+> > the autobuilders to see if they can break it.
+> Hi Jiri,
+> 
+> Just realised this is in HID rather than IIO. I hope you don't mind as
+> it's now deep in a tree I'd rather not rebase.
+> 
+> Sorry about that.
 
-On Thu, Jan 21, 2021 at 09:48:12PM +0100, Uwe Kleine-K=C3=B6nig wrote:
-> The driver core ignores the return value of the remove callback, so
-> don't give isa drivers the chance to provide a value.
->=20
-> Adapt all isa_drivers with a remove callbacks accordingly; they all
-> return 0 unconditionally anyhow.
->=20
-> Signed-off-by: Uwe Kleine-K=C3=B6nig <uwe@kleine-koenig.org>
+No worries, feel free to keep it in your tree.
 
-Acked-by: Wolfram Sang <wsa@kernel.org> # for I2C
+Thanks,
 
+-- 
+Jiri Kosina
+SUSE Labs
 
---ADZbWkCsHQ7r3kzd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmAKkpwACgkQFA3kzBSg
-KbYioA//frCM2vGMNRb9m2Wz+bP5qkNSp3R5QbWC14WxE8ZsbjcOun8Op9VX023l
-cmNSjxAFJ7nXTQgZYnrdfSo5+ZegXPapPa6zwpSF29HDrvoDmo7yHCVnrhSp+ko2
-nauFE8d5U2LLJftrZ29QteTfvmBQn0RFdsO2NFFwCo9bVZd5UfwxinwQk3ncG4Fs
-7th2N/Hwnb0Xb5NswrpHEeknQCVuYZdOx3bo21TQ/eImBBwT6iKExwzBYN+YX/Uw
-AckTF0es+DatjTNiFBLvNHSDf0/bjroW+oIsZeu6Wz5G73yBqWiJmyhNLR4XxRJf
-RgkOj9UvQsNAZhA/hKbFjtT0sv9yXYm4pe76+47Aw5YxnN5WQIAtBV0tsd5Dfs4Q
-FCOIHYbsR8lchLm/HGG4D9L0w5fUgQ3TzaOUaWUQ3sjeHvpTGSH7JJCblU3FXlFB
-N3Cn6HcfRTe7Izg9jH6lkYmaDvwsshB3VjK/uiegjLZPkN/EPGkNdwRnDId4zk/7
-/Zgb5gYeLzQzXlxJM+WFgTS4aLLGg6UGxgl6PUHeSUXKdxoo9pjk7LtfRVpb+mHu
-LHt7KzZLjCHrntyYHaXrxSHcjQZzxr8pGnPl+bfMjlpKpkbMBIyfncncJUiDz6cy
-DuITnJtHM/j/zc6ciV1UPNWiF9bIu1ga6GdKu9/UEMlvE7xkgXs=
-=0OvQ
------END PGP SIGNATURE-----
-
---ADZbWkCsHQ7r3kzd--

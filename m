@@ -2,111 +2,142 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF702C433E0
-	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 21:26:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EFC9C433E6
+	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 21:31:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9F21823B06
-	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 21:26:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1258223AF8
+	for <linux-input@archiver.kernel.org>; Fri, 22 Jan 2021 21:31:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728587AbhAVV0W (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Jan 2021 16:26:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57296 "EHLO
+        id S1728491AbhAVVbd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Jan 2021 16:31:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729270AbhAVVZ6 (ORCPT
+        with ESMTP id S1730927AbhAVULk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Jan 2021 16:25:58 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C15C0613D6;
-        Fri, 22 Jan 2021 13:25:17 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id g1so8173280edu.4;
-        Fri, 22 Jan 2021 13:25:17 -0800 (PST)
+        Fri, 22 Jan 2021 15:11:40 -0500
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E946C0613D6;
+        Fri, 22 Jan 2021 12:10:55 -0800 (PST)
+Received: by mail-lj1-x22a.google.com with SMTP id f2so2728858ljp.11;
+        Fri, 22 Jan 2021 12:10:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TdBClChG74PdzxlB6jNRbLR1P/Chu7Exwe8kc5GSg3c=;
-        b=DSjYSf6swflJPfJ0qDwV9T3GZRyOMC7UAIxnEyigiaJVPFjgLXOvt/eVRSayftV6NW
-         ga1Ml4rflc41djbqoqu3aSeQZUJIRWEp8OjL5cL4czXhqWM3fl57JqhjNf6ZTkFPUZ3R
-         6jvDnxju+gmtPlFaob89BgM5bO40j+0GBOKFzWXzESX8xbekNHjU6UtcpcI1usitc2gc
-         PQG99FAmy/7WR1UwpkSLgyemNiEtvMknMCHU6diN21rokOpRmPxIldLcf8hatjRLRbfg
-         +SKp1DJD8A2Z/i/K7yZFWdSGrFxvVkzCKCqo0fEOIIHolGkqucB9snkT5xgp/+yZbUYN
-         hfvg==
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=H7imHW7ls0O6umvDHx3mET/iy1PE5HlnkDqE6ANlsPA=;
+        b=ECOw6hZIYZnDs0rEP4IM6c/ILK1/8l0BBW/ZHkrvMubErCav0MVAxi5gfd9cwVWLKD
+         ji0DfnTIadSCPsTKRUFo5i7RbCD1T3WNVc5oo+Q+zW8motUL+ZyLMKyZDXb5Lpcs0gOX
+         azppcnKBBhAnkvh5IHaaHmLc4OkR2pz6WPzatuQTUqGtRYZTw9wVMwI7QR5HKu0PQHPt
+         5mnW8thGaZ6kgKZkx1lcJQiWO6GzLuaxl0J31FDRRJHCigRZtKvEMXLmdOqCCvqKoUOr
+         0/7TiQPHrJ4MimlGhDfHW7hcAXnPMQl6+eWWxqj0h3Hf9nc5ZpanBf72LT8+t6PNrbwF
+         QeCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=TdBClChG74PdzxlB6jNRbLR1P/Chu7Exwe8kc5GSg3c=;
-        b=U8q4GpHodi5UqBAd6JkNDujKQPel2c4ztgB3ELs1Cbt+/dfsamlbPLjKbPq7VVlWWd
-         Q4ClDsPJ0v9HykGALmddiRmCBwG9OVF2z8rY4FWVJlg6Vt/k/AUEXzF+Ft46oHT8B4CY
-         BTfYY69LBnvko+0vXpA+31Q6W2QreIj6KmgPbM78qGh+jDnJTTSC/ky72EsZ6YxS9ECW
-         qE81gCz+rJZez4hN09R/r+6jQ/x7GwTpuxUq42ryqHbHBGzAFN+AH7gE406j6xp6qeaf
-         F5Y9lDunpsPqlDYYyuGFRvVdw8F+FXA7Tfb7oNORll2wBcwaiZEuJ7zX/LfkO/E4TGRC
-         aIIg==
-X-Gm-Message-State: AOAM53082Rb5O+humbqbvcg0FC+Dp1o6pKS0IGO3rHOKOtespxjfLjHN
-        q7LNPaAwsJ1sTNZVsLcCLl8=
-X-Google-Smtp-Source: ABdhPJxUQ/u2TsSOrwXyEKR5Rmydb9CD9fAXXQBnAknBQ8aNZCOzhmGYsVdAGzPy89saO7SegDFwqg==
-X-Received: by 2002:a50:8004:: with SMTP id 4mr4638043eda.155.1611350716567;
-        Fri, 22 Jan 2021 13:25:16 -0800 (PST)
-Received: from localhost.localdomain (a-tm1-24.tin.it. [212.216.206.55])
-        by smtp.gmail.com with ESMTPSA id c14sm6538889edr.46.2021.01.22.13.25.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Jan 2021 13:25:15 -0800 (PST)
-From:   Elia Devito <eliadevito@gmail.com>
-Cc:     Elia Devito <eliadevito@gmail.com>, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        bh=H7imHW7ls0O6umvDHx3mET/iy1PE5HlnkDqE6ANlsPA=;
+        b=i5imoKEXYuOxv5vVEo8yCdhoMcaXYqwYdeGPesm3kpMxtU0VcOAy08X88n7qdx2osW
+         bdokT5Lvvv1XGihYDi0xlUEPVolCJQYJL+EWVqmQM/OYOH00SlomkUzEXV9odO3VzH8k
+         HmG497cq99DDkIR3WPRSi9/9EFX75qk4uDbcDQqshUf6iQRaIbzYHtFRDnUvzYgeTSAF
+         xcdDa/Akw1SESM+WHVxYoSVdBOC9JRYW0iT61XE7RZ0HnjxIH5R7BYjL/V3Q+vD0RxXU
+         lPFGE8BRDDtESxKpBBUsjy/vT37ioz7/9b6w8wruBZAtDwrhKstpiyGtbTQPnrfj6OGt
+         lXsA==
+X-Gm-Message-State: AOAM530yUe+YuhSwroJJyP/H37/OenOB3Xzr29JYGMJV8VkO4kNA+OTU
+        41xfUyMBblueHmsu7zl5kNJYZt6Zmtw=
+X-Google-Smtp-Source: ABdhPJxrQfPl5kGQcVPYDqQYsoo7AzOmo2HkO/jneNbHTZLmuy/W6q7urd/ZOwFnhyJMS2Z1Ey8QJg==
+X-Received: by 2002:a2e:8e8f:: with SMTP id z15mr1285932ljk.385.1611346253526;
+        Fri, 22 Jan 2021 12:10:53 -0800 (PST)
+Received: from [192.168.2.145] (109-252-192-57.dynamic.spd-mgts.ru. [109.252.192.57])
+        by smtp.googlemail.com with ESMTPSA id y23sm995881lfy.158.2021.01.22.12.10.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Jan 2021 12:10:52 -0800 (PST)
+Subject: Re: [PATCH RESEND v8 2/4] input: elants: support old touch report
+ format
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
+Cc:     Johnny Chuang <johnny.chuang.emc@gmail.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: Ignore battery for Elan touchscreen on HP Spectre X360 15-df0xxx
-Date:   Fri, 22 Jan 2021 22:24:37 +0100
-Message-Id: <20210122212438.4122-1-eliadevito@gmail.com>
-X-Mailer: git-send-email 2.29.2
+References: <cover.1607669375.git.mirq-linux@rere.qmqm.pl>
+ <a5c0b6b300fadf9425781285351b46c6dbb4f618.1607669375.git.mirq-linux@rere.qmqm.pl>
+ <X9Mf5G6yvIEAoh2C@google.com> <20201211160917.GA23095@qmqm.qmqm.pl>
+ <3d872d19-a0b2-ed83-4b08-5c9a4755c2fe@gmail.com>
+ <20201211170401.GA31605@qmqm.qmqm.pl> <X9O/F0M4rU6cBdRi@google.com>
+ <79cf6571-4239-e98e-6001-70a4bf8b0fe5@gmail.com>
+Message-ID: <4c443c59-a7f8-bf16-cc0b-0e542c0d127f@gmail.com>
+Date:   Fri, 22 Jan 2021 23:10:52 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.2
 MIME-Version: 1.0
+In-Reply-To: <79cf6571-4239-e98e-6001-70a4bf8b0fe5@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Battery status is reported for the HP Spectre X360 Convertible 15-df0xxx
-even if it does not have a battery. Prevent it to always report the
-battery as low.
+08.01.2021 01:06, Dmitry Osipenko пишет:
+> 11.12.2020 21:48, Dmitry Torokhov пишет:
+>> On Fri, Dec 11, 2020 at 06:04:01PM +0100, Michał Mirosław wrote:
+>>> On Fri, Dec 11, 2020 at 07:39:33PM +0300, Dmitry Osipenko wrote:
+>>>> 11.12.2020 19:09, Michał Mirosław пишет:
+>>>>> On Thu, Dec 10, 2020 at 11:29:40PM -0800, Dmitry Torokhov wrote:
+>>>>>> Hi Michał,
+>>>>>> On Fri, Dec 11, 2020 at 07:53:56AM +0100, Michał Mirosław wrote:
+>>>>>>> @@ -998,17 +1011,18 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+>>>>>>>  			}
+>>>>>>>  
+>>>>>>>  			report_len = ts->buf[FW_HDR_LENGTH] / report_count;
+>>>>>>> -			if (report_len != PACKET_SIZE) {
+>>>>>>> +			if (report_len != PACKET_SIZE &&
+>>>>>>> +			    report_len != PACKET_SIZE_OLD) {
+>>>>>>>  				dev_err(&client->dev,
+>>>>>>> -					"mismatching report length: %*ph\n",
+>>>>>>> +					"unsupported report length: %*ph\n",
+>>>>>>>  					HEADER_SIZE, ts->buf);
+>>>>>> Do I understand this correctly that the old packets are only observed on
+>>>>>> EKTF3624? If so can we expand the check so that we only accept packets
+>>>>>> with "old" size when we know we are dealing with this device?
+>>>>>
+>>>>> We only have EKTF3624 and can't be sure there are no other chips needing this.
+>>>>
+>>>> In practice this older packet format should be seen only on 3624, but
+>>>> nevertheless we could make it more explicit by adding the extra chip_id
+>>>> checks.
+>>>>
+>>>> It won't be difficult to change it in the future if will be needed.
+>>>>
+>>>> I think the main point that Dmitry Torokhov conveys here is that we
+>>>> should minimize the possible impact on the current EKT3500 code since we
+>>>> don't have definitive answers regarding the firmware differences among
+>>>> the hardware variants.
+>>>
+>>> The only possible impact here is that older firmware instead of breaking
+>>> would suddenly work. Maybe we can accept such a risk?
+>>
+>> These are not controllers we'll randomly find in devices: Windows boxes
+>> use I2C HID, Chrome devices use "new" firmware, so that leaves random
+>> ARM where someone needs to consciously add proper compatible before the
+>> driver will engage with the controller.
+>>
+>> I would prefer we were conservative and not accept potentially invalid
+>> data.
+>>
+>> Thanks.
+>>
+> 
+> Michał, will you be able to make v9 with all the review comments addressed?
+> 
 
-Signed-off-by: Elia Devito <eliadevito@gmail.com>
----
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 2 ++
- 2 files changed, 3 insertions(+)
+I'll make a v9 over this weekend.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5ba0aa1d2335..899449ced29e 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -389,6 +389,7 @@
- #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
- #define USB_DEVICE_ID_HP_X2		0x074d
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
-+#define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index f23027d2795b..8ed7f468bd95 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -324,6 +324,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
- 
--- 
-2.29.2
-
+Michał, please let me know if you already started to work on this or
+have any objections.

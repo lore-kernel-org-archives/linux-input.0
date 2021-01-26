@@ -2,94 +2,144 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B7BDC43381
-	for <linux-input@archiver.kernel.org>; Tue, 26 Jan 2021 18:40:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CCCFC433DB
+	for <linux-input@archiver.kernel.org>; Tue, 26 Jan 2021 19:14:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5483022B51
-	for <linux-input@archiver.kernel.org>; Tue, 26 Jan 2021 18:40:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 356F920724
+	for <linux-input@archiver.kernel.org>; Tue, 26 Jan 2021 19:14:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730580AbhAZRV3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 26 Jan 2021 12:21:29 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:46909 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390646AbhAZI7F (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 Jan 2021 03:59:05 -0500
-Received: from 61-220-137-37.hinet-ip.hinet.net ([61.220.137.37] helo=[192.168.1.24])
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <hui.wang@canonical.com>)
-        id 1l4KAf-0002OY-W9; Tue, 26 Jan 2021 08:57:58 +0000
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Add a quirk to keep the power in
- shutdown
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     linux-input@vger.kernel.org, benjamin.tissoires@redhat.com
-References: <20201204152912.151604-1-hui.wang@canonical.com>
- <20201204152912.151604-2-hui.wang@canonical.com>
- <nycvar.YFH.7.76.2101071011130.13752@cbobk.fhfr.pm>
- <41f85551-96a6-7bac-6dc9-02a66080e900@canonical.com>
- <nycvar.YFH.7.76.2101081600460.13752@cbobk.fhfr.pm>
-From:   Hui Wang <hui.wang@canonical.com>
-Message-ID: <ffb34106-ac11-de9f-ef67-5be5e76d2a0d@canonical.com>
-Date:   Tue, 26 Jan 2021 16:57:52 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+        id S2388895AbhAZFyJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 26 Jan 2021 00:54:09 -0500
+Received: from mail-bn8nam08on2047.outbound.protection.outlook.com ([40.107.100.47]:18913
+        "EHLO NAM04-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1731211AbhAZDL1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 25 Jan 2021 22:11:27 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=e1gst+DK6dZGnkxDaYznH+4DrJsqrBI8Jlfd3CAu8QO9VfFurm8qSGEmjYRwwaubrEEffm68p6vj1yJclKK8WG2RDPGu3C0Dc0GlNOfTmWWIuKHYbTnktSbwSndM4I+ntusswAOn8KkxfT9w+A8oSl0+mgRte4dMv0EnriGCgHOerDlXZpaCzm3T1kmetzxpHOl6npvBuEslacJUspyUQgDeV8ULZMCTCXFjIaQCO6w2tL3ZZta6hyB3hSAR6AAYYYMdWXMkxwlm2IkmKTqghopDJNDY5yeTrrzzfjuz1+J+0o1/rmOmiH+XPDOH0QaPpG3UndE70cHcLqLoIbr/cw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Qal7ReR/P89aERAeS65npE7TSj5hkgQNVKKoq6S4Epg=;
+ b=SOEzeq3EfrfFTRI5jxn8eygl0BH8nqjKPQfCZsOO1KgBO0DFrQq48kO7zYqmj1Na2UXZA0spTI1zzqRI2jlP8sUGm44msf9ySjt3NhwcAwbJCS0PlllKdC0CneelikokCMbmILmqDOKli9HCIcoo3xEyoZFDyS1FvDOTziUK9WZ83SHz+nj6vE0egsw5OQeJ1fazFo9/tS2jW0cFwKFa/xaJ3687bBFM9oiHMAwBpNzD7OrAgYhgSz1UBO34K/37rm0/Fm5NyJLpYaHusS2xsO5IQOmoyTVOr4MrZuIMM8GQeVS7TWgZ0OpyVAcq/Eoqb9cIRRhwwGhPQDvp9XoRhw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
+ dkim=pass header.d=labundy.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Qal7ReR/P89aERAeS65npE7TSj5hkgQNVKKoq6S4Epg=;
+ b=iMOZriGhjdaSiBZqv4DxXul2WVKMrI10717puZeJxlgA1SURSb0u8Mk6AdauMKDa35jDNMmJA7mUyoc2I2jvaxMO+97GlxY+Dn/bD7APMXXGlTljYUa03xRiTQpKCZX+/KrF2etCRSBvCHCDbfuWAT0bZRZ+fKO6jx0E7Sa7zG8=
+Authentication-Results: gmail.com; dkim=none (message not signed)
+ header.d=none;gmail.com; dmarc=none action=none header.from=labundy.com;
+Received: from SN6PR08MB5517.namprd08.prod.outlook.com (2603:10b6:805:fb::32)
+ by SN6PR08MB5518.namprd08.prod.outlook.com (2603:10b6:805:ff::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3784.19; Tue, 26 Jan
+ 2021 03:10:34 +0000
+Received: from SN6PR08MB5517.namprd08.prod.outlook.com
+ ([fe80::972:c257:aa68:9be0]) by SN6PR08MB5517.namprd08.prod.outlook.com
+ ([fe80::972:c257:aa68:9be0%4]) with mapi id 15.20.3763.019; Tue, 26 Jan 2021
+ 03:10:34 +0000
+Date:   Mon, 25 Jan 2021 21:10:32 -0600
+From:   Jeff LaBundy <jeff@labundy.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org
+Subject: Re: [PATCH 09/10] input: iqs5xx: Make reset GPIO optional
+Message-ID: <20210126031032.GB6155@labundy.com>
+References: <1611002626-5889-1-git-send-email-jeff@labundy.com>
+ <1611002626-5889-10-git-send-email-jeff@labundy.com>
+ <YA5Mgtct6WFsxFVi@google.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YA5Mgtct6WFsxFVi@google.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Originating-IP: [136.49.173.128]
+X-ClientProxiedBy: SN7PR04CA0208.namprd04.prod.outlook.com
+ (2603:10b6:806:126::33) To SN6PR08MB5517.namprd08.prod.outlook.com
+ (2603:10b6:805:fb::32)
 MIME-Version: 1.0
-In-Reply-To: <nycvar.YFH.7.76.2101081600460.13752@cbobk.fhfr.pm>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from labundy.com (136.49.173.128) by SN7PR04CA0208.namprd04.prod.outlook.com (2603:10b6:806:126::33) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3784.12 via Frontend Transport; Tue, 26 Jan 2021 03:10:34 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1c2929ab-c7e5-47f2-f40c-08d8c1a7f24f
+X-MS-TrafficTypeDiagnostic: SN6PR08MB5518:
+X-Microsoft-Antispam-PRVS: <SN6PR08MB5518F0197A1E4FCBEB4C23C0D3BC9@SN6PR08MB5518.namprd08.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: XWywsKAFQum6/RjeNngYQyk5HU7PBqfEPYLmBzvZdYGQ8DGcLHiTcMMiuSTaMXG0f/HfsVAOn8wNwG87k1NlFzB0pFAo8SlsE97ojKLWchW4nRX3k3RpOOcq4Pw7vKXQY1f1X+kDC0XCZE6sXX35LRahnxv9R+ouRXAhnW/ZuZZTgYumgbwIQ9oJ4aDIGYRUxBn5q/mPyUO2IUnD9bZ/l7XGo/CYTWHyFjd0g8PPt12aAild/aX+Rz+orBcCWnoouovLizioC/XAq6zYTM+O99+I94zmer2cj0xIqOcaybBM7kFZPHZZAhQ83HH/u+Q5dz4LalRUDS+t1GnrdOxQbwDaKnZogQxxiS8EphQggSAapAZrNUQP4fpJowHz8pxE95UbWFd7SvneWPKSvgDRysf0C6lvC1VSP59BR3fSwIu4X2kHX48Th0//zGonfUlqYEwT2Zy6xVa7ieTCa9jiB5lNdsX2oL0E6rHMzIksnL2hSEj3E6yQlVHD32j4hXTBwxx3jLgcTAiLI7oAom9mY5pArOpn5EVKu+D/EcKnkoIRsLlu6YGrf9yTYhFkBOiI
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR08MB5517.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(136003)(376002)(39830400003)(396003)(346002)(366004)(4326008)(8886007)(8936002)(36756003)(86362001)(52116002)(16526019)(83380400001)(33656002)(26005)(186003)(478600001)(6916009)(8676002)(55016002)(5660300002)(316002)(1076003)(2616005)(956004)(66476007)(7696005)(66556008)(66946007)(2906002)(32563001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?p5PhLEw8Opd0MI+JwBJBJiGrWUDeVx089sm3bI5YH8QI+dUESmXL6iPef1Io?=
+ =?us-ascii?Q?D7WWW32N7D8n2OjuNflSVHAbxP8ZqKECZ8Kc9srDL291yw4BbMzXQCFaJ7NK?=
+ =?us-ascii?Q?lS64Md4Vp7tr/xHCoQ0B8Rpz1vSOtJD6IhWYFUrCx5N7BKwiEbCIc7QO5ajB?=
+ =?us-ascii?Q?XmDyQ/KAdgYUA49aMWvlICuCcMPqUkx/gC53ESSyhi4ypYWDA+dCyIsXbMiH?=
+ =?us-ascii?Q?NeDDEvSpFNqLy/bAjA01zQ1EVoO3YPjyFHx3Sukx4f/PN+gKi8mPFviPGrh/?=
+ =?us-ascii?Q?mEHvBuPXqujbVoQjFLa6SHpzzuKj/vhNMPVwTz83qIArNPPht5TUHBHfPXcP?=
+ =?us-ascii?Q?hDpoqnPGj9eMv7Wr2H4q03exT3tCpFdxGhjBkA0io8b1qvlHD1PjJODDXrjo?=
+ =?us-ascii?Q?SMlRkaANVACokC9lYjlVZIBifzIe4MEKz6kZfFL03zVrWC9kqFljVgqbg27k?=
+ =?us-ascii?Q?XuKQEo60m52daR5poDD+oQqYQczTRzXM6ah/EajWWyamwd1XEQPmGQ0j3EQQ?=
+ =?us-ascii?Q?SGKNgeqkinVD4/rdp45e95h443qOq3eBQwGiJZImDKmrV+sJYGS+qpm65oJm?=
+ =?us-ascii?Q?40rxWiSvokuXsuQ0QAJ7Pw67glzCK0rn/n34OCPA6WtQAKrzwAfchnBGDH06?=
+ =?us-ascii?Q?UlJ9HjwK3cJ1sjz0yBn/o+oDZfEO5/jsg1C7tE+sP9rAO/40akrN4Xzk5WfD?=
+ =?us-ascii?Q?kcsfhknldgKlor+X/dW8/QwiHTCxKwBYlssgMYFK7deEpsQQU+KH31F8bwed?=
+ =?us-ascii?Q?NVhV7/+/7lUdhaVCblJrFO2fXNt3J+VkRmuQOyf1eRW9ONtKQtAA0MA1xTDx?=
+ =?us-ascii?Q?M9FgdrVnuhMGUuZXoub0Y+SrgElIArHSbL41Dn7RInMNgfIgH8HyqhijEEcL?=
+ =?us-ascii?Q?BJyD+j8sjARWsj9V1/gL8uQ7cgVR9dKWbVzSMn6cSh1j++LnXTJXErYm21B2?=
+ =?us-ascii?Q?r0e+4BjQcKYV0VCUmrMkQrqyRdBNmGkddRfEoBykXpLLfNYSRg2MhJ9JPGxm?=
+ =?us-ascii?Q?l8F8P8I3PgIKG9EYI4kO3PXSUElpCtfuTnAAkZlW+qnONajYXcnbPHc9bs+q?=
+ =?us-ascii?Q?eyW/2eqk?=
+X-OriginatorOrg: labundy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1c2929ab-c7e5-47f2-f40c-08d8c1a7f24f
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR08MB5517.namprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jan 2021 03:10:34.4979
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: zYUM6MU3uFb6vK7hqoNyfXFmoC+zmiek7Yd/bYxpcom70gIrbzj9XygLhzU/uAFL4UZufRvBq4tFaXHcGOgq5A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR08MB5518
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Hi Dmitry,
 
-On 1/8/21 11:01 PM, Jiri Kosina wrote:
-> On Thu, 7 Jan 2021, Hui Wang wrote:
->
->>>> On the latest Thinkpad Yoga laptop, the touchscreen module is wacom
->>>> I2C WACF2200 (056a:5276), we found the touchscreen could not work
->>>> after rebooting, needs to poweroff the machine then poweron the
->>>> machine to let it work.
->>>>
->>>> It is highly possible that this is a BIOS issue, but the windows
->>>> doesn't have this problem with the same BIOS.
->>>>
->>>> If keeping the power on when calling shutdown, the touchscreen could
->>>> work after rebooting. Let us add a quirk for it and apply the quirk
->>>> to this machine only.
->>> I wonder what do Windows do differently here. Perhaps they never put the
->>> i2c device to sleep while in shutdown anyway? Is there any downside to
->>> (not) doing the same?
->> It is highly possible the Windows doesn't sleep the i2c device in shutdown.
->> When calling shutdown, it usually means reboot or poweroff the machine, so the
->> sleep is meaningless in this situation. In other situations like users
->> manually unload the i2c driver, maybe it will add a bit power consumption
->> without sleeping the device.
-> Agreed, but if windows really don't put the device to sleep before
-> shutting down, odds are there will be more devices behaving the same, and
-> therefore we'd rather make it the default case instead of growing just
-> another quirk list.
+On Sun, Jan 24, 2021 at 08:43:46PM -0800, Dmitry Torokhov wrote:
+> On Mon, Jan 18, 2021 at 02:43:45PM -0600, Jeff LaBundy wrote:
+> > The device's hardware reset pin is only required if the platform
+> > must be able to update the device's firmware on the fly.
+> > 
+> > As such, demote the reset GPIO to optional in support of devices
+> > that ship with pre-programmed firmware and don't route the reset
+> > pin back to the SOC.
+> > 
+> > If user space attempts to push updated firmware which would rely
+> > upon the reset pin to wake the bootloader, attempts to reach the
+> > bootloader are simply NAK'd and the device resumes normally.
+> 
+> Can we maybe make the firmware attribute invisible in this case? Or
+> return early instead of failing to enter bootloader mode?
 
-Got the feedback from the ODM, the root cause of this issue is the I2C 
-device will send clock stretching when changing from PWR_SLEEP to 
-PWR_ON, but the driver in the BIOS doesn't handle the clock stretching 
-or the timeout is not enough. ODM already provided a testing BIOS and 
-this issue is fixed by the testing BIOS.
+I almost sent the second alternative, but instead I liked the idea of
+restricting the check for reset_gpio to the only method that actually
+uses it. That way, nothing outside of iqs5xx_reset() has to check for
+the GPIO and can just fail gracefully in its absence.
 
-And ODM captured the I2C data transfer log under Windows, according to 
-the log, the Windows also set the I2C touchscreen to PWR_SLEEP before 
-rebooting, it is same as the current Linux hid i2c driver.
+That being said, either of your suggestions work just as well; let me
+take another stab at it.
 
-Regards,
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
 
-Hui.
-
->> Anyway, I will try to ask for help from vendor, maybe they could provide
->> how Windows do when shutdown.
-> Thank you,
->
+Kind regards,
+Jeff LaBundy

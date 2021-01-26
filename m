@@ -2,190 +2,94 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF535C433E0
-	for <linux-input@archiver.kernel.org>; Tue, 26 Jan 2021 14:36:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B7BDC43381
+	for <linux-input@archiver.kernel.org>; Tue, 26 Jan 2021 18:40:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A779822EBF
-	for <linux-input@archiver.kernel.org>; Tue, 26 Jan 2021 14:36:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5483022B51
+	for <linux-input@archiver.kernel.org>; Tue, 26 Jan 2021 18:40:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390584AbhAZNZw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 26 Jan 2021 08:25:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42344 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391656AbhAZJ4p (ORCPT
+        id S1730580AbhAZRV3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 26 Jan 2021 12:21:29 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:46909 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390646AbhAZI7F (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 Jan 2021 04:56:45 -0500
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E730CC0613D6;
-        Tue, 26 Jan 2021 01:56:04 -0800 (PST)
-Received: by mail-ej1-x62a.google.com with SMTP id ox12so22150192ejb.2;
-        Tue, 26 Jan 2021 01:56:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8C8pdtrwOEr8Lcj7qoDN59MpfrhsdtkivzKyNfgBHVw=;
-        b=i4fuVrNcQQvAg/YwF+wDvQKzO3U0KyXWoQb1U1Zhh1K9LMvLE6yHB9fYEf2yM5ryFe
-         Zez+fSpWh+yD0axfaJNvX2UNzmrWQjmsDVjbmkhJl+nmBZbo4e8/ezVdsm54+UoQiFTT
-         +gBvUQLEj08xIN+TLGe7DSmaopQSrsX6CiRy3crM+D0UF+FAPO3vFDaWVax0rf6ZVxnE
-         pPbMzP/k1NkOYGHDpufPAqF9VwkpFzFg0WYn3ge2pFcY6iBmV7bhrhmQr8wD0s7WlR/8
-         QZHfJ0KGvRd/GqGm/AuaKdV2HPDv7so3g+RqcqLiAs75+sCBcTxqfvscS2epCFuDA1nk
-         GKJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8C8pdtrwOEr8Lcj7qoDN59MpfrhsdtkivzKyNfgBHVw=;
-        b=TYsLsQJyLr05XsrvE6Sr4H+xCRrekgZKA0SDi4g5Mgr8++LmMkvZFufhpuN+KlFvMq
-         IgZklsGuyUe0W1osKHRCNOK+/XoQcAR417PmGnNNxjCCvRN5cGEgGHErOCEOjvsXbJcC
-         Lh8zv3bf/pZAB2Sy20iXMHhARDzFgNJyrrzj64rIGYgRmqbWbLbWrwlyJGvbKQSuPMwK
-         9n+WvQSwvtEJX/PRVCnMF96VTrOwyu+lvKeaAA+vyfM3iT+52xAivfKytuzpYbZYWlR8
-         PA5cbHcA1k/ZoK+cpNXQSzZl0ifTOF0tkpoeny4k3y/dHk9DlkpmUWSrafnAktCeKzQe
-         oc7w==
-X-Gm-Message-State: AOAM531v7BvGQgQiZXaejklWDjtzCn892vqY00qo/j7pFQLUVOLL48D+
-        Hz3n2XDnSNP7AXS/Kkj9/88=
-X-Google-Smtp-Source: ABdhPJw9SauEqE9zZ6vtE2izjZwy24q35l+YqHKZ3cYH6XXfCRCl0ul8HQE0XjbDgtercPxBO81gzg==
-X-Received: by 2002:a17:906:198b:: with SMTP id g11mr636151ejd.536.1611654963668;
-        Tue, 26 Jan 2021 01:56:03 -0800 (PST)
-Received: from localhost.localdomain ([188.24.159.61])
-        by smtp.gmail.com with ESMTPSA id h12sm11648310edb.16.2021.01.26.01.56.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jan 2021 01:56:02 -0800 (PST)
-From:   Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-To:     Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sebastian Reichel <sre@kernel.org>
-Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-actions@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH v7 0/5] Add initial support for ATC260x PMICs
-Date:   Tue, 26 Jan 2021 11:55:56 +0200
-Message-Id: <cover.1611653995.git.cristian.ciocaltea@gmail.com>
-X-Mailer: git-send-email 2.30.0
+        Tue, 26 Jan 2021 03:59:05 -0500
+Received: from 61-220-137-37.hinet-ip.hinet.net ([61.220.137.37] helo=[192.168.1.24])
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <hui.wang@canonical.com>)
+        id 1l4KAf-0002OY-W9; Tue, 26 Jan 2021 08:57:58 +0000
+Subject: Re: [PATCH 2/2] HID: i2c-hid: Add a quirk to keep the power in
+ shutdown
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     linux-input@vger.kernel.org, benjamin.tissoires@redhat.com
+References: <20201204152912.151604-1-hui.wang@canonical.com>
+ <20201204152912.151604-2-hui.wang@canonical.com>
+ <nycvar.YFH.7.76.2101071011130.13752@cbobk.fhfr.pm>
+ <41f85551-96a6-7bac-6dc9-02a66080e900@canonical.com>
+ <nycvar.YFH.7.76.2101081600460.13752@cbobk.fhfr.pm>
+From:   Hui Wang <hui.wang@canonical.com>
+Message-ID: <ffb34106-ac11-de9f-ef67-5be5e76d2a0d@canonical.com>
+Date:   Tue, 26 Jan 2021 16:57:52 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <nycvar.YFH.7.76.2101081600460.13752@cbobk.fhfr.pm>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The ATC260x family of PMICs integrates Audio Codec, Power management,
-Clock generation and GPIO controller blocks. There are currently 3
-variants: ATC2603A, ATC2603C and ATC2609A.
 
-This is re-spin of the v1 patch series submitted some time ago by
-Mani, who provided the MFD and regulator drivers for ATC2609A:
-https://lore.kernel.org/lkml/20190617155011.15376-1-manivannan.sadhasivam@linaro.org/
+On 1/8/21 11:01 PM, Jiri Kosina wrote:
+> On Thu, 7 Jan 2021, Hui Wang wrote:
+>
+>>>> On the latest Thinkpad Yoga laptop, the touchscreen module is wacom
+>>>> I2C WACF2200 (056a:5276), we found the touchscreen could not work
+>>>> after rebooting, needs to poweroff the machine then poweron the
+>>>> machine to let it work.
+>>>>
+>>>> It is highly possible that this is a BIOS issue, but the windows
+>>>> doesn't have this problem with the same BIOS.
+>>>>
+>>>> If keeping the power on when calling shutdown, the touchscreen could
+>>>> work after rebooting. Let us add a quirk for it and apply the quirk
+>>>> to this machine only.
+>>> I wonder what do Windows do differently here. Perhaps they never put the
+>>> i2c device to sleep while in shutdown anyway? Is there any downside to
+>>> (not) doing the same?
+>> It is highly possible the Windows doesn't sleep the i2c device in shutdown.
+>> When calling shutdown, it usually means reboot or poweroff the machine, so the
+>> sleep is meaningless in this situation. In other situations like users
+>> manually unload the i2c driver, maybe it will add a bit power consumption
+>> without sleeping the device.
+> Agreed, but if windows really don't put the device to sleep before
+> shutting down, odds are there will be more devices behaving the same, and
+> therefore we'd rather make it the default case instead of growing just
+> another quirk list.
 
-Since v2, I added support for ATC2603C, together with some new
-functionalities for both chips: power controller and onkey input.
-The ATC2603A chip type remains unsupported for the moment.
+Got the feedback from the ODM, the root cause of this issue is the I2C 
+device will send clock stretching when changing from PWR_SLEEP to 
+PWR_ON, but the driver in the BIOS doesn't handle the clock stretching 
+or the timeout is not enough. ODM already provided a testing BIOS and 
+this issue is fixed by the testing BIOS.
 
-This has been tested on RoseapplePi, a SBC based on the Actions Semi S500
-SoC, which integrates the ATC2603C variant of the PMIC.
+And ODM captured the I2C data transfer log under Windows, according to 
+the log, the Windows also set the I2C touchscreen to PWR_SLEEP before 
+rebooting, it is same as the current Linux hid i2c driver.
 
-Note that enabling the ATC260x PMICs on compatible Actions Semi Owl SoC
-based boards depends on:
+Regards,
 
-* the Actions Semi SIRQ driver (for PMIC DTS setup), merged in v5.10:
-  https://lore.kernel.org/lkml/cover.1600114378.git.cristian.ciocaltea@gmail.com/
+Hui.
 
-* the atomic transfers in Owl I2C driver (for power controller), merged in v5.11:
-  https://lore.kernel.org/lkml/cover.1602190168.git.cristian.ciocaltea@gmail.com/
-
-Additionally, please note that I have taken the authorship for the MFD
-and regulator drivers patches, considering the original code has been
-modified to a large extent.
-
-Thanks,
-Cristi
-
-Changes in v7:
-- Dropped the patches already queued for merging:
-  * regulator: Add regulator driver for ATC260x PMICs
-  * power: reset: Add poweroff driver for ATC260x PMICs
-- Rebased patchset on v5.11-rc5
-
-Changes in v6 - MFD driver updates as indicated by Lee:
-- Defined a magic number for max chip revision
-- Adjusted code formatting around i2c_driver struct initialization
-- Dropped the device initialization callback in struct atc260x and instead 
-  provided a generic function making use of a new member structure to hold
-  the hardware specific register information
-
-Changes in v5:
-- Removed an unnecessary '#include' line in the power-off driver,
-  as noticed by Sebastian
-- Rebased patchset on v5.11-rc3
-
-Changes in v4:
-- Updated MFD driver according to Lee's review
-- Handled ATC2603C's LDO12 fixed regulator per Mark's suggestion
-- Rebased patchset on v5.11-rc1
-
-Changes in v3:
-- Integrated feedback from Mani, Rob, Mark, Sebastian, Dmitry
-- Fixed issues reported by Lee's kernel test robot
-- Added new patch for 'reset-time-sec' DT binding property
-- Rebased patchset on v5.10-rc6
-
-Changes in v2:
-- Reworked MFD core & I2C driver
-  * Integrated Lee's feedback
-  * Added support for using the regmap within atomic contexts
-  * Added support for ATC2603C chip variant
-  * Reorganized KConfig entries
-- Improved regulator driver
-  * Added support for ATC2603C variant
-  * Used helper macros for more compact specification of regulator_desc items
-  * Added more regulator capabilities
-- Added power controller driver
-  * Provides system poweroff/reboot functionalities
-  * Depends on atomic transfers in the Owl I2C driver
-- Added onkey driver: exposes the power button as an input device
-- Added yaml binding doc
-- Rebased patchset on kernel v5.9-rc1
-
-Cristian Ciocaltea (4):
-  dt-bindings: input: Add reset-time-sec common property
-  dt-bindings: mfd: Add Actions Semi ATC260x PMIC binding
-  mfd: Add MFD driver for ATC260x PMICs
-  input: atc260x: Add onkey driver for ATC260x PMICs
-
-Manivannan Sadhasivam (1):
-  MAINTAINERS: Add entry for ATC260x PMIC
-
- .../devicetree/bindings/input/input.yaml      |   7 +
- .../bindings/mfd/actions,atc260x.yaml         | 183 +++++++++++
- MAINTAINERS                                   |  12 +
- drivers/input/misc/Kconfig                    |  11 +
- drivers/input/misc/Makefile                   |   2 +-
- drivers/input/misc/atc260x-onkey.c            | 305 +++++++++++++++++
- drivers/mfd/Kconfig                           |  18 +
- drivers/mfd/Makefile                          |   3 +
- drivers/mfd/atc260x-core.c                    | 310 ++++++++++++++++++
- drivers/mfd/atc260x-i2c.c                     |  64 ++++
- include/linux/mfd/atc260x/atc2603c.h          | 281 ++++++++++++++++
- include/linux/mfd/atc260x/atc2609a.h          | 308 +++++++++++++++++
- include/linux/mfd/atc260x/core.h              |  58 ++++
- 13 files changed, 1561 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/actions,atc260x.yaml
- create mode 100644 drivers/input/misc/atc260x-onkey.c
- create mode 100644 drivers/mfd/atc260x-core.c
- create mode 100644 drivers/mfd/atc260x-i2c.c
- create mode 100644 include/linux/mfd/atc260x/atc2603c.h
- create mode 100644 include/linux/mfd/atc260x/atc2609a.h
- create mode 100644 include/linux/mfd/atc260x/core.h
-
--- 
-2.30.0
-
+>> Anyway, I will try to ask for help from vendor, maybe they could provide
+>> how Windows do when shutdown.
+> Thank you,
+>

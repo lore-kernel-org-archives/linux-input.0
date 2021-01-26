@@ -2,45 +2,58 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DABFC433E0
-	for <linux-input@archiver.kernel.org>; Wed, 27 Jan 2021 12:06:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2817C433E0
+	for <linux-input@archiver.kernel.org>; Wed, 27 Jan 2021 13:32:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 263E820786
-	for <linux-input@archiver.kernel.org>; Wed, 27 Jan 2021 12:06:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8A484207B3
+	for <linux-input@archiver.kernel.org>; Wed, 27 Jan 2021 13:32:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237599AbhA0MGd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 27 Jan 2021 07:06:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41492 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237582AbhA0MDx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 27 Jan 2021 07:03:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1227220773;
-        Wed, 27 Jan 2021 12:03:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1611748991;
-        bh=s9FyWRqQBYLlzUUdBkv3FZQxudbP70KKsuwRkeHWHEI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M8giB4ORvL3mx55LaDcj1/tIi+BhFJb4mO4m9pyBQqvZIwgP2vqkgkDOQ4I1vn8HH
-         U8aP648RT1pUgCmU92gSCKiLyN0XGWtBCyfjACVz8RiJzgpFsPQ6OWW77wlJfo28NM
-         bwp9LYhhA6QMhnElnHGF3hN0OdPBasyFUrm9T7kg=
-Date:   Wed, 27 Jan 2021 13:03:08 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S313285AbhAZWea (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 26 Jan 2021 17:34:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49092 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388455AbhAZTHB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 26 Jan 2021 14:07:01 -0500
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88298C061574;
+        Tue, 26 Jan 2021 11:06:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:
+        Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
+        Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=zUcP2Ekow40wDr8LQu56g1JOWBLSxsWCwNUDwttWnJY=; b=ad84LgFWJ8FgdoRvBSNVnAdb+
+        0I6Sw5zFHnURG6DddKEQ8HbimmJVGhfZNBE+p4AhrkuGcqgL8wXJS/82Ulh3PCv17KG3N45R7A4lo
+        nmAWv3AnHF/mSc9xZD1jBN9qCv/KUXD01csQwhWLG+rkGDTkxKX1bLlQ1gn5TyX5Nq4qryobh41F5
+        DB4HHmb9nD2Xu3mV8TLNo+8B+nWoKTBy48lo4Q1JucKdB4IQ7QCREGM7mwYt646OKNjClWNUO1E6M
+        j60U9ebf7BAEOHy7IwgCDiy4Xjl4pjGwcbLID7o2kdNIzvVrdpvSEcEUXs6vOb5LBBAMtPHo30HE4
+        oAMpwR9Vw==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:53070)
+        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1l4TeW-0004lN-0N; Tue, 26 Jan 2021 19:05:24 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1l4TeJ-00042E-C4; Tue, 26 Jan 2021 19:05:11 +0000
+Date:   Tue, 26 Jan 2021 19:05:11 +0000
+From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
 To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
         <u.kleine-koenig@pengutronix.de>
-Cc:     Russell King <linux@armlinux.org.uk>,
-        Matt Mackall <mpm@selenic.com>,
+Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>, Matt Mackall <mpm@selenic.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Vinod Koul <vkoul@kernel.org>,
         Dan Williams <dan.j.williams@intel.com>,
         Eric Anholt <eric@anholt.net>, David Airlie <airlied@linux.ie>,
         Daniel Vetter <daniel@ffwll.ch>,
         Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Maxime Coquelin <mcoquelin.stm32@gmail.com>,
         Alexandre Torgue <alexandre.torgue@st.com>,
@@ -52,6 +65,7 @@ Cc:     Russell King <linux@armlinux.org.uk>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jiri Slaby <jirislaby@kernel.org>,
         Eric Auger <eric.auger@redhat.com>,
         Alex Williamson <alex.williamson@redhat.com>,
@@ -59,48 +73,42 @@ Cc:     Russell King <linux@armlinux.org.uk>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, linux-kernel@vger.kernel.org,
-        kernel@pengutronix.de, Mike Leach <mike.leach@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
-        linux-crypto@vger.kernel.org, dmaengine@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, coresight@lists.linaro.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-serial@vger.kernel.org,
+        Takashi Iwai <tiwai@suse.com>, linux-rtc@vger.kernel.org,
         kvm@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
+        linux-serial@vger.kernel.org, coresight@lists.linaro.org,
+        linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-crypto@vger.kernel.org,
+        kernel@pengutronix.de, Leo Yan <leo.yan@linaro.org>,
+        dmaengine@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org,
+        Mike Leach <mike.leach@linaro.org>
 Subject: Re: [PATCH v3 4/5] amba: Make the remove callback return void
-Message-ID: <YBFWfOmndoPckN1A@kroah.com>
+Message-ID: <20210126190511.GK1551@shell.armlinux.org.uk>
 References: <20210126165835.687514-1-u.kleine-koenig@pengutronix.de>
  <20210126165835.687514-5-u.kleine-koenig@pengutronix.de>
+ <3e42b2ea-c713-31b2-9c86-c49a70d8e1f4@arm.com>
+ <20210126175652.3caoqfnsky2es42f@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210126165835.687514-5-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <20210126175652.3caoqfnsky2es42f@pengutronix.de>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: Russell King - ARM Linux admin <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Jan 26, 2021 at 05:58:34PM +0100, Uwe Kleine-König wrote:
-> All amba drivers return 0 in their remove callback. Together with the
-> driver core ignoring the return value anyhow, it doesn't make sense to
-> return a value here.
-> 
-> Change the remove prototype to return void, which makes it explicit that
-> returning an error value doesn't work as expected. This simplifies changing
-> the core remove callback to return void, too.
-> 
-> Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Acked-by: Krzysztof Kozlowski <krzk@kernel.org> # for drivers/memory
-> Acked-by: Mark Brown <broonie@kernel.org>
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+On Tue, Jan 26, 2021 at 06:56:52PM +0100, Uwe Kleine-König wrote:
+> I'm surprised to see that the remove callback introduced in 2952ecf5df33
+> ("coresight: etm4x: Refactor probing routine") has an __exit annotation.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In general, remove callbacks should not have an __exit annotation.
+__exit _can_ be discarded at link time for built-in stuff.
+
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!

@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B68C9C433E0
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:30:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29A49C433E0
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:31:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B7F464E15
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:30:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB4B264E17
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:31:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232932AbhA1Rab (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Jan 2021 12:30:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52736 "EHLO
+        id S233079AbhA1Ra4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Jan 2021 12:30:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233180AbhA1R2R (ORCPT
+        with ESMTP id S233053AbhA1R1Y (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Jan 2021 12:28:17 -0500
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E727C061354
-        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:19 -0800 (PST)
-Received: by mail-pg1-x52f.google.com with SMTP id i7so4711311pgc.8
-        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:19 -0800 (PST)
+        Thu, 28 Jan 2021 12:27:24 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672B6C0617A9
+        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:09 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id md11so4246937pjb.0
+        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gaikai-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=eeNdsC6xC2dyhL82KUjoa92etHuC6rpYgDrQTr5nLkY=;
-        b=sL3ApqwPmCeFcdX6VtPDjDTAQqgOGykEUTqSccAVzppPJesQ6fhs2yI+uEXiXV0ieP
-         VXjBOLL/yb4j8Je6dNYu1ZOYUCjHc2mL07O1DI8Lwiv4Aj8XUNfg95LvTNCSZEd+Wlza
-         4Jh/lj7gLyGd2Fo/KKKSJtPGhSuGipda9vmr4UG5q5y5oluPpRkEAj5fTG2Qd1zOZ8Rg
-         5lsVaXoPSzNjuZ2ivGmb75Gy/6u6Q6yNpJvKQmy+3shXrPuspDKWzFbC0T2vVYQGMTzi
-         nW4v0xCZG9DMNIShHMRcsSNyoVc3QNvBDu1mMY4VSj8MhO5pP1Fs3eLNx3xoxIrTALlr
-         ru1g==
+        bh=WVlKx6xZ83Igk9QgAIM+ji3r+4485U9QbK8oiIuVj7U=;
+        b=pS9tXiOOwJJPRY2UtSpoH4FMH631WOBmciU29mXtrpNxZHXxikZ3Fa4m65P9p4lV70
+         jVrqs/mZpiZe9H5Dv9QUczgx+k7z8gzvdLcU6FfzS8TpP5d+DqFdnMDYV1tb/wATyZZO
+         obkzaCIFbWn/w6jmfjzfJec5q603OyqlJyw3sScOmwPPrA2ZKWQx6pTEHiM5iEm82Mti
+         gTQQNcL6SOqLwbpibYXUdZ1RsQQj6hxznoh5rZ/EpNQvaXDKt0rggOzv6DIOJdXfxunn
+         dHTGWiWaI05NL6rV9cX0whmZP+/1MCEu9a2BkMEIvcqXrwnGXLNv2BaSqwNCw1pHMvXy
+         uFBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=eeNdsC6xC2dyhL82KUjoa92etHuC6rpYgDrQTr5nLkY=;
-        b=qBj/FyUPbwWRMGNFr4A8Butgh8/bMg3ngt7dOENKiU0VHWAAJViC03XvyYbqyxX6gB
-         lWxsNOINfbWUrPTJjqzDKMRNzPDPqEpDDyhrIMHtA3UtCxkG+6WiRYHHFAePeiBPde9W
-         X8gb8C4oV5ZZ/9aQccDsxxPTFQ/SVELVEfEMN46Ooo7aDlGJ5RyS+0PORk1HsiefAibi
-         PsmXdmsTZpsqZB5WPRTpq0s6mARdIh3jMMgnGbIG2Z8JlvWB3rbbpr/e4mba1mmG0DQN
-         nAbs5EkGHwfZ/mr8CCIhFg4D2E0buaqy964zTzT3OOvu0vS5YHo1W8zw/D/cfHWAnWmz
-         2kbw==
-X-Gm-Message-State: AOAM533urChCO6WILXgHrXCdnQ4822h6BT5UVSoZYJPnal7qgP8JsKbM
-        mgyp/MEzq9Vcf+6DOohW1LDlSw==
-X-Google-Smtp-Source: ABdhPJw6gLh1bTG08cIlcDArV9gj5qoVTVm40ryyYBOwyDo+U3hgDXswK03XXjFIoFrs5xi8WTzbzw==
-X-Received: by 2002:a63:704c:: with SMTP id a12mr531200pgn.360.1611854838782;
-        Thu, 28 Jan 2021 09:27:18 -0800 (PST)
+        bh=WVlKx6xZ83Igk9QgAIM+ji3r+4485U9QbK8oiIuVj7U=;
+        b=oUNtYcPzvfy0ERNmtlCb75819DGBld3PZ9yuXanRJwAjgBUOfBxQXcBAS/98sVdO1A
+         DNFKOA2sxno6Y9KZ20rLxu91/mDOEhgkcuHlquLuH4JyPpu6ZqVbSV3J/pHInaffNPnl
+         /DmlGWR51u3N/WxVv9geauF0fIBjR31VQj6p4+FJ65IER07XP7WgFxxCf9RsaV38jCGc
+         pnI919veDmC1DUWYLj7HVN6ruNHOsCGyukVH3+cdrlGze+QLtsRxrlZ/XdYe6JEAK+SW
+         V6CdL6n4dGGjnlL3ApiTP8LNFzcN5acoSAbubKt1NOk7+yNRXP87sSuYIAXFsFaOMWqW
+         WLOQ==
+X-Gm-Message-State: AOAM5339l2Aq650efNonHTPnUm79duj2TLjBzDYKnG6viAvwMIK9zgXp
+        PaUxuxsKSqpCuOl+41XtGIJEjA==
+X-Google-Smtp-Source: ABdhPJw5ZQooX1Ni4m0V9Fg80I50KyN6wVqL+MIIVLL/65syhmQjP6s6vDtasFag/4kn7QoZO7DPdg==
+X-Received: by 2002:a17:902:ea85:b029:df:db7a:3ad8 with SMTP id x5-20020a170902ea85b02900dfdb7a3ad8mr562863plb.15.1611854828990;
+        Thu, 28 Jan 2021 09:27:08 -0800 (PST)
 Received: from us8c16456344dc.lan (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id a31sm6190445pgb.93.2021.01.28.09.27.17
+        by smtp.gmail.com with ESMTPSA id a31sm6190445pgb.93.2021.01.28.09.27.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Jan 2021 09:27:18 -0800 (PST)
+        Thu, 28 Jan 2021 09:27:08 -0800 (PST)
 From:   Roderick Colenbrander <roderick@gaikai.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -64,9 +64,9 @@ Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
         =?UTF-8?q?Samuel=20=C4=8Cavoj?= <sammko@sammserver.com>,
         =?UTF-8?q?Florian=20M=C3=A4rkl?= <linux@florianmaerkl.de>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH v5 12/13] HID: playstation: DualSense set LEDs to default player id.
-Date:   Thu, 28 Jan 2021 09:26:56 -0800
-Message-Id: <20210128172657.24516-13-roderick@gaikai.com>
+Subject: [PATCH v5 04/13] HID: playstation: add DualSense touchpad support.
+Date:   Thu, 28 Jan 2021 09:26:48 -0800
+Message-Id: <20210128172657.24516-5-roderick@gaikai.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210128172657.24516-1-roderick@gaikai.com>
 References: <20210128172657.24516-1-roderick@gaikai.com>
@@ -78,145 +78,121 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Add a ID allocator to assign player ids to ps_device instances.
-Utilize the player id to set a default color on the DualSense its
-player LED strip.
+Implement support for DualSense touchpad as a separate input device.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-playstation.c | 70 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 69 insertions(+), 1 deletion(-)
+ drivers/hid/hid-playstation.c | 66 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 66 insertions(+)
 
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 966d1a5aee18..8d827d78fa65 100644
+index c5c450fc25db..64d6d736c435 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -9,6 +9,7 @@
- #include <linux/crc32.h>
- #include <linux/device.h>
- #include <linux/hid.h>
-+#include <linux/idr.h>
- #include <linux/input/mt.h>
- #include <linux/leds.h>
- #include <linux/led-class-multicolor.h>
-@@ -22,6 +23,8 @@
- static DEFINE_MUTEX(ps_devices_lock);
- static LIST_HEAD(ps_devices_list);
+@@ -60,9 +60,21 @@ struct ps_device {
+ #define DS_STATUS_CHARGING		GENMASK(7, 4)
+ #define DS_STATUS_CHARGING_SHIFT	4
  
-+static DEFINE_IDA(ps_player_id_allocator);
++/*
++ * Status of a DualSense touch point contact.
++ * Contact IDs, with highest bit set are 'inactive'
++ * and any associated data is then invalid.
++ */
++#define DS_TOUCH_POINT_INACTIVE BIT(7)
 +
- #define HID_PLAYSTATION_VERSION_PATCH 0x8000
- 
- /* Base class for playstation devices. */
-@@ -30,6 +33,8 @@ struct ps_device {
- 	struct hid_device *hdev;
- 	spinlock_t lock;
- 
-+	uint32_t player_id;
++/* DualSense hardware limits */
++#define DS_TOUCHPAD_WIDTH	1920
++#define DS_TOUCHPAD_HEIGHT	1080
 +
- 	struct power_supply_desc battery_desc;
- 	struct power_supply *battery;
- 	uint8_t battery_capacity;
-@@ -321,6 +326,24 @@ static int ps_devices_list_remove(struct ps_device *dev)
+ struct dualsense {
+ 	struct ps_device base;
+ 	struct input_dev *gamepad;
++	struct input_dev *touchpad;
+ };
+ 
+ struct dualsense_touch_point {
+@@ -272,6 +284,34 @@ static int ps_get_report(struct hid_device *hdev, uint8_t report_id, uint8_t *bu
  	return 0;
  }
  
-+static int ps_device_set_player_id(struct ps_device *dev)
++static struct input_dev *ps_touchpad_create(struct hid_device *hdev, int width, int height,
++		unsigned int num_contacts)
 +{
-+	int ret = ida_alloc(&ps_player_id_allocator, GFP_KERNEL);
++	struct input_dev *touchpad;
++	int ret;
 +
-+	if (ret < 0)
-+		return ret;
++	touchpad = ps_allocate_input_dev(hdev, "Touchpad");
++	if (IS_ERR(touchpad))
++		return ERR_CAST(touchpad);
 +
-+	dev->player_id = ret;
-+	return 0;
++	/* Map button underneath touchpad to BTN_LEFT. */
++	input_set_capability(touchpad, EV_KEY, BTN_LEFT);
++	__set_bit(INPUT_PROP_BUTTONPAD, touchpad->propbit);
++
++	input_set_abs_params(touchpad, ABS_MT_POSITION_X, 0, width - 1, 0, 0);
++	input_set_abs_params(touchpad, ABS_MT_POSITION_Y, 0, height - 1, 0, 0);
++
++	ret = input_mt_init_slots(touchpad, num_contacts, INPUT_MT_POINTER);
++	if (ret)
++		return ERR_PTR(ret);
++
++	ret = input_register_device(touchpad);
++	if (ret)
++		return ERR_PTR(ret);
++
++	return touchpad;
 +}
 +
-+static void ps_device_release_player_id(struct ps_device *dev)
-+{
-+	ida_free(&ps_player_id_allocator, dev->player_id);
-+
-+	dev->player_id = U32_MAX;
-+}
-+
- static struct input_dev *ps_allocate_input_dev(struct hid_device *hdev, const char *name_suffix)
+ static int dualsense_get_mac_address(struct dualsense *ds)
  {
- 	struct input_dev *input_dev;
-@@ -1144,6 +1167,29 @@ static int dualsense_reset_leds(struct dualsense *ds)
- 	return 0;
- }
+ 	uint8_t *buf;
+@@ -304,6 +344,7 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
+ 	uint8_t battery_data, battery_capacity, charging_status, value;
+ 	int battery_status;
+ 	unsigned long flags;
++	int i;
  
-+static void dualsense_set_player_leds(struct dualsense *ds)
-+{
-+	/*
-+	 * The DualSense controller has a row of 5 LEDs used for player ids.
-+	 * Behavior on the PlayStation 5 console is to center the player id
-+	 * across the LEDs, so e.g. player 1 would be "--x--" with x being 'on'.
-+	 * Follow a similar mapping here.
-+	 */
-+	int player_ids[5] = {
-+		BIT(2),
-+		BIT(3) | BIT(1),
-+		BIT(4) | BIT(2) | BIT(0),
-+		BIT(4) | BIT(3) | BIT(1) | BIT(0),
-+		BIT(4) | BIT(3) | BIT(2) | BIT(1) | BIT(0)
-+	};
+ 	/*
+ 	 * DualSense in USB uses the full HID report for reportID 1, but
+@@ -346,6 +387,25 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
+ 	input_report_key(ds->gamepad, BTN_MODE,   ds_report->buttons[2] & DS_BUTTONS2_PS_HOME);
+ 	input_sync(ds->gamepad);
+ 
++	for (i = 0; i < ARRAY_SIZE(ds_report->points); i++) {
++		struct dualsense_touch_point *point = &ds_report->points[i];
++		bool active = (point->contact & DS_TOUCH_POINT_INACTIVE) ? false : true;
 +
-+	uint8_t player_id = ds->base.player_id % ARRAY_SIZE(player_ids);
++		input_mt_slot(ds->touchpad, i);
++		input_mt_report_slot_state(ds->touchpad, MT_TOOL_FINGER, active);
 +
-+	ds->update_player_leds = true;
-+	ds->player_leds_state = player_ids[player_id];
-+	schedule_work(&ds->output_worker);
-+}
++		if (active) {
++			int x = (point->x_hi << 8) | point->x_lo;
++			int y = (point->y_hi << 4) | point->y_lo;
 +
- static struct ps_device *dualsense_create(struct hid_device *hdev)
- {
- 	struct dualsense *ds;
-@@ -1252,6 +1298,15 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 			goto err;
++			input_report_abs(ds->touchpad, ABS_MT_POSITION_X, x);
++			input_report_abs(ds->touchpad, ABS_MT_POSITION_Y, y);
++		}
++	}
++	input_mt_sync_frame(ds->touchpad);
++	input_report_key(ds->touchpad, BTN_LEFT, ds_report->buttons[2] & DS_BUTTONS2_TOUCHPAD);
++	input_sync(ds->touchpad);
++
+ 	battery_data = ds_report->status & DS_STATUS_BATTERY_CAPACITY;
+ 	charging_status = (ds_report->status & DS_STATUS_CHARGING) >> DS_STATUS_CHARGING_SHIFT;
+ 
+@@ -422,6 +482,12 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 		goto err;
  	}
  
-+	ret = ps_device_set_player_id(ps_dev);
-+	if (ret) {
-+		hid_err(hdev, "Failed to assign player id for DualSense: %d\n", ret);
++	ds->touchpad = ps_touchpad_create(hdev, DS_TOUCHPAD_WIDTH, DS_TOUCHPAD_HEIGHT, 2);
++	if (IS_ERR(ds->touchpad)) {
++		ret = PTR_ERR(ds->touchpad);
 +		goto err;
 +	}
 +
-+	/* Set player LEDs to our player id. */
-+	dualsense_set_player_leds(ds);
-+
- 	return &ds->base;
- 
- err:
-@@ -1316,6 +1371,7 @@ static void ps_remove(struct hid_device *hdev)
- 	struct ps_device *dev = hid_get_drvdata(hdev);
- 
- 	ps_devices_list_remove(dev);
-+	ps_device_release_player_id(dev);
- 
- 	hid_hw_close(hdev);
- 	hid_hw_stop(hdev);
-@@ -1336,7 +1392,19 @@ static struct hid_driver ps_driver = {
- 	.raw_event        = ps_raw_event,
- };
- 
--module_hid_driver(ps_driver);
-+static int __init ps_init(void)
-+{
-+	return hid_register_driver(&ps_driver);
-+}
-+
-+static void __exit ps_exit(void)
-+{
-+	hid_unregister_driver(&ps_driver);
-+	ida_destroy(&ps_player_id_allocator);
-+}
-+
-+module_init(ps_init);
-+module_exit(ps_exit);
- 
- MODULE_AUTHOR("Sony Interactive Entertainment");
- MODULE_DESCRIPTION("HID Driver for PlayStation peripherals.");
+ 	ret = ps_device_register_battery(ps_dev);
+ 	if (ret)
+ 		goto err;
 -- 
 2.26.2
 

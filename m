@@ -2,165 +2,93 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EC8FC433DB
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 12:54:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7711C433E6
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 12:55:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2446864DDD
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 12:54:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6068C64DE1
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 12:55:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229531AbhA1Myp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Jan 2021 07:54:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56824 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231139AbhA1My3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Jan 2021 07:54:29 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611838382;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=IFvReJvr3IEweu4w1n9ct95RpXOCYsJCOef/qPqrup4=;
-        b=UXFC3n8KzwDP95kuMmLHkUmV0hCfCehsabMSAhYRs3kGJvcxyRQuTJ6KUjyoOLesP9fndE
-        DebXzMh4gQ8MK9yZCN8eURG7PCNyhHZmFdDYGjySp6i6T9uUOyxVP6al/f21S+EhMRB9H5
-        VuFOnDymCXxnGY94by82k3bmQn2FxSQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-63-r8qQBLgRPAufYr3aRkzK-w-1; Thu, 28 Jan 2021 07:52:58 -0500
-X-MC-Unique: r8qQBLgRPAufYr3aRkzK-w-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C80258030A2;
-        Thu, 28 Jan 2021 12:52:57 +0000 (UTC)
-Received: from x1.localdomain (ovpn-114-250.ams2.redhat.com [10.36.114.250])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 04B4560C13;
-        Thu, 28 Jan 2021 12:52:56 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH] Input: silead - Add workaround for x86 BIOS-es which bring the Silead chip up in a stuck state
-Date:   Thu, 28 Jan 2021 13:52:56 +0100
-Message-Id: <20210128125256.106879-1-hdegoede@redhat.com>
+        id S231830AbhA1MzK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Jan 2021 07:55:10 -0500
+Received: from mail.ilitek.com ([60.248.80.92]:51268 "EHLO cello.ilitek.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231868AbhA1My4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 28 Jan 2021 07:54:56 -0500
+X-Greylist: delayed 368 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 Jan 2021 07:54:55 EST
+X-UUID: cc5ddf0934c44583a225f33af7a8f796-20210128
+X-UUID: cc5ddf0934c44583a225f33af7a8f796-20210128
+Received: from ex1.ili.com.tw [(192.168.1.131)] by cello.ilitek.com
+        (envelope-from <joe_hung@ilitek.com>)
+        (Cellopoint E-mail Firewall v4.1.12 Build 0701 with TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256 128/128)
+        with ESMTP id 2071504771; Thu, 28 Jan 2021 20:41:28 +0800
+Received: from EX1.ili.com.tw (192.168.1.131) by EX1.ili.com.tw
+ (192.168.1.131) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Thu, 28 Jan
+ 2021 20:41:27 +0800
+Received: from joehung-Ilitek.ili.com.tw (192.168.18.73) by EX1.ili.com.tw
+ (192.168.1.133) with Microsoft SMTP Server id 15.1.2176.2 via Frontend
+ Transport; Thu, 28 Jan 2021 20:41:27 +0800
+From:   <joe_hung@ilitek.com>
+To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
+        <devicetree@vger.kernel.org>
+CC:     <linux-input@vger.kernel.org>, <joe_hung@ilitek.com>,
+        <luca_hsu@ilitek.com>
+Subject: [PATCH 1/2] dt-bindings: input: touchscreen: ilitek_ts_i2c: Add bindings
+Date:   Thu, 28 Jan 2021 20:41:25 +0800
+Message-ID: <20210128124125.1312232-1-joe_hung@ilitek.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some buggy BIOS-es bring up the touchscreen-controller in a stuck
-state where it blocks the I2C bus. Specifically this happens on
-the Jumper EZpad 7 tablet model.
+From: Joe Hung <joe_hung@ilitek.com>
 
-After much poking at this problem I have found that the following steps
-are necessary to unstuck the chip / bus:
+Add binding documentation for ILITEK touch devices.
 
-1. Turn off the Silead chip.
-2. Try to do an I2C transfer with the chip, this will fail in response to
-   which the I2C-bus-driver will call: i2c_recover_bus() which will unstuck
-   the I2C-bus. Note the unstuck-ing of the I2C bus only works if we first
-   drop the chip of the bus by turning it off.
-3. Turn the chip back on.
-
-On the x86/ACPI systems were this problem is seen, step 1. and 3. require
-making ACPI calls and dealing with ACPI Power Resources. This commit adds
-a workaround which runtime-suspends the chip to turn it off, leaving it up
-to the ACPI subsystem to deal with all the ACPI specific details.
-
-There is no good way to detect this bug, so the workaround gets activated
-by a new "silead,stuck-controller-bug" boolean device-property. Since this
-is only used on x86/ACPI, this will be set by model specific device-props
-set by drivers/platform/x86/touchscreen_dmi.c. Therefor this new
-device-property is not documented in the DT-bindings.
-
-Dmesg will contain the following messages on systems where the workaround
-is activated:
-
-[   54.309029] silead_ts i2c-MSSL1680:00: [Firmware Bug]: Stuck I2C bus: please ignore the next 'controller timed out' error
-[   55.373593] i2c_designware 808622C1:04: controller timed out
-[   55.582186] silead_ts i2c-MSSL1680:00: Silead chip ID: 0x80360000
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Joe Hung <joe_hung@ilitek.com>
 ---
- drivers/input/touchscreen/silead.c | 39 +++++++++++++++++++++++++++---
- 1 file changed, 35 insertions(+), 4 deletions(-)
+ .../input/touchscreen/ilitek_ts_i2c.txt       | 23 +++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.txt
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index 8fa2f3b7cfd8..9deef6317761 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -20,6 +20,7 @@
- #include <linux/input/mt.h>
- #include <linux/input/touchscreen.h>
- #include <linux/pm.h>
-+#include <linux/pm_runtime.h>
- #include <linux/irq.h>
- #include <linux/regulator/consumer.h>
- 
-@@ -335,10 +336,8 @@ static int silead_ts_get_id(struct i2c_client *client)
- 
- 	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_ID,
- 					      sizeof(chip_id), (u8 *)&chip_id);
--	if (error < 0) {
--		dev_err(&client->dev, "Chip ID read error %d\n", error);
-+	if (error < 0)
- 		return error;
--	}
- 
- 	data->chip_id = le32_to_cpu(chip_id);
- 	dev_info(&client->dev, "Silead chip ID: 0x%8X", data->chip_id);
-@@ -351,12 +350,44 @@ static int silead_ts_setup(struct i2c_client *client)
- 	int error;
- 	u32 status;
- 
-+	/*
-+	 * Some buggy BIOS-es bring up the chip in a stuck state where it blocks the I2C bus.
-+	 * The following steps are necessary to unstuck the chip / bus:
-+	 * 1. Turn off the Silead chip.
-+	 * 2. Try to do an I2C transfer with the chip, this will fail in response to
-+	 *    which the I2C-bus-driver will call: i2c_recover_bus() which will unstuck
-+	 *    the I2C-bus. Note the unstuck-ing of the I2C bus only works if we first
-+	 *    drop the chip of the bus by turning it off.
-+	 * 3. Turn the chip back on.
-+	 *
-+	 * On the x86/ACPI systems were this problem is seen, step 1. and 3. require
-+	 * making ACPI calls and dealing with ACPI Power Resources. The workaround below
-+	 * runtime-suspends the chip to turn it off, leaving it up to the ACPI subsystem
-+	 * to deal with this.
-+	 */
-+	if (device_property_read_bool(dev, "silead,stuck-controller-bug")) {
-+		pm_runtime_set_active(&client->dev);
-+		pm_runtime_enable(&client->dev);
-+		pm_runtime_allow(&client->dev);
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.txt b/Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.txt
+new file mode 100644
+index 000000000000..2a4b41a1f000
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.txt
+@@ -0,0 +1,23 @@
++Ilitek I2C 23XX/25XX/Lego Series Touch ICs
 +
-+		pm_runtime_suspend(&client->dev);
++Required properties:
++- compatible		: Must be equal to one of following:
++			  "ilitek,ili2520"
++			  "ilitek,ili2510"
++- reg			: I2C slave address for touch device.
++- reset-gpios		: GPIO output high to reset pin of touch device.
++- irq-gpios		: GPIO as active low input from touch irq pin.
 +
-+		dev_warn(&client->dev, FW_BUG "Stuck I2C bus: please ignore the next 'controller timed out' error\n");
-+		silead_ts_get_id(client);
++Example:
++        &i2c1 {
++                /* ... */
 +
-+		/* The forbid will also resume the device */
-+		pm_runtime_forbid(&client->dev);
-+		pm_runtime_disable(&client->dev);
-+	}
++                touchscreen@41 {
++			compatible = "ilitek,ili2520";
++                        reg = <0x41>;
++			irq-gpios = <&gpio1 13 0>;
++			reset-gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
++                };
 +
- 	silead_ts_set_power(client, SILEAD_POWER_OFF);
- 	silead_ts_set_power(client, SILEAD_POWER_ON);
- 
- 	error = silead_ts_get_id(client);
--	if (error)
-+	if (error) {
-+		dev_err(&client->dev, "Chip ID read error %d\n", error);
- 		return error;
-+	}
- 
- 	error = silead_ts_init(client);
- 	if (error)
++                /* ... */
++        };
 -- 
-2.29.2
+2.25.1
+
 

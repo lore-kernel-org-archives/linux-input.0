@@ -2,104 +2,133 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,BIGNUM_EMAILS,
+	DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20FF1C433DB
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 09:40:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1034FC433E0
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 09:58:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CBF566146D
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 09:40:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A370864DD6
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 09:58:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbhA1Jj3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Jan 2021 04:39:29 -0500
-Received: from aserp2130.oracle.com ([141.146.126.79]:36398 "EHLO
+        id S231598AbhA1J6M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Jan 2021 04:58:12 -0500
+Received: from aserp2130.oracle.com ([141.146.126.79]:57510 "EHLO
         aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231641AbhA1Jgs (ORCPT
+        with ESMTP id S231570AbhA1J6I (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Jan 2021 04:36:48 -0500
+        Thu, 28 Jan 2021 04:58:08 -0500
 Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10S9FE15118562;
-        Thu, 28 Jan 2021 09:36:01 GMT
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10S9dFHg155756;
+        Thu, 28 Jan 2021 09:57:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : mime-version : content-type; s=corp-2020-01-29;
- bh=R1Fdx62Xf99Nzq0W82FyQBbmwyGKC1XkdoIOB/k4UWY=;
- b=sFrH09d1HGxtjiY0UMp6vCb1pDf26ztgRvD6dy17ROOoTPvyJ5vQ56f3Apv2oQXgacft
- fjQjtmmxlXL5fBH/HWh/5GclgAK0kPVB74nKXkspW7vs9RsEiDphydCYn5+F6TxVBDs9
- 3TE4cI1KGTBm6Rv8YBD+pmgh+DDKh1cZ+9AYcHHQQzNNP0sf0H9v/OHiR3mV38jOzOgl
- vlAD/z131TGICuzMPUvieN67SdH1D8YnLJnKh8FYQXYU6UTbPZjI4BIqcS0HAqClT/FK
- bKtnnVCHTdf0vQ19v/OSW89CZF2sPS2R7zV87WDi1tsvlfSZHzs7i2WGLWBEydvPyyNA fg== 
+ : subject : message-id : mime-version : content-type :
+ content-transfer-encoding; s=corp-2020-01-29;
+ bh=y+ME6/3Vzy7kZAt04NfDBCEqHcLX2EPK0dEtFEr/H6s=;
+ b=nf9WeKNDYPcjD42et1YxgO+yNj5NJfBvRHMcSyPKZn6BDW0h9cHlSaEM4GiJcPWoHbQk
+ iDh52zURkRsFmYDgOaq+o3q503ou4hn8j3R/NqCC4m0Aa4wbTLEExg+mGh0GvNjScK9T
+ mAFm6E/avpdo9gVGW9MYUiikx2QvAtKeA1Fxb2+lR2Ui0P5jwqXhIUbawmqgON0YzynR
+ 4s7e5aImkjyVdiKy55jlfvMbUj9G5rI8wv2v0cpC0OFLgqU8cz85RRa3JGjZUzMLxQSb
+ 1v2E6jpIUgignWSMY/Z0h3igf193LzAK4lejKPBUVUCsT4rIzaHmmrI4bl65X4C4z3Jh fQ== 
 Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2130.oracle.com with ESMTP id 3689aaubjb-1
+        by aserp2130.oracle.com with ESMTP id 3689aaugpw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 28 Jan 2021 09:36:00 +0000
+        Thu, 28 Jan 2021 09:57:22 +0000
 Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10S9GE6H156504;
-        Thu, 28 Jan 2021 09:35:58 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3030.oracle.com with ESMTP id 368wr02qhb-1
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10S9eEHI038689;
+        Thu, 28 Jan 2021 09:57:19 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by userp3030.oracle.com with ESMTP id 368wr03qur-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 28 Jan 2021 09:35:58 +0000
-Received: from abhmp0018.oracle.com (abhmp0018.oracle.com [141.146.116.24])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 10S9ZvGP024403;
-        Thu, 28 Jan 2021 09:35:58 GMT
+        Thu, 28 Jan 2021 09:57:19 +0000
+Received: from abhmp0011.oracle.com (abhmp0011.oracle.com [141.146.116.17])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 10S9vI5k021924;
+        Thu, 28 Jan 2021 09:57:18 GMT
 Received: from mwanda (/10.175.203.176)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 28 Jan 2021 01:35:57 -0800
-Date:   Thu, 28 Jan 2021 12:35:51 +0300
+        with ESMTP ; Thu, 28 Jan 2021 01:57:17 -0800
+Date:   Thu, 28 Jan 2021 12:57:12 +0300
 From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Shaun Jackman <sjackman@gmail.com>,
-        linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: [PATCH] Input: elo - fix an error code in elo_connect()
-Message-ID: <YBKFd5CvDu+jVmfW@mwanda>
+To:     mirq-linux@rere.qmqm.pl
+Cc:     linux-input@vger.kernel.org
+Subject: [bug report] Input: elants_i2c - add support for eKTF3624
+Message-ID: <YBKKePZ1VyZIbBCo@mwanda>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-X-Mailer: git-send-email haha only kidding
+Content-Transfer-Encoding: 8bit
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9877 signatures=668683
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 spamscore=0 phishscore=0
  adultscore=0 mlxlogscore=999 malwarescore=0 suspectscore=0 bulkscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101280048
+ definitions=main-2101280049
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9877 signatures=668683
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0
  lowpriorityscore=0 mlxlogscore=999 clxscore=1011 phishscore=0 bulkscore=0
  spamscore=0 priorityscore=1501 mlxscore=0 suspectscore=0 impostorscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101280048
+ definitions=main-2101280049
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-If elo_setup_10() fails then this should return an error code instead
-of success.
+Hello Michał Mirosław,
 
-Fixes: fae3006e4b42 ("Input: elo - add support for non-pressure-sensitive touchscreens")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
----
- drivers/input/touchscreen/elo.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+The patch 9517b95bdc46: "Input: elants_i2c - add support for
+eKTF3624" from Jan 24, 2021, leads to the following static checker
+warning:
 
-diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
-index e0bacd34866a..4b2fb73da5e2 100644
---- a/drivers/input/touchscreen/elo.c
-+++ b/drivers/input/touchscreen/elo.c
-@@ -341,8 +341,10 @@ static int elo_connect(struct serio *serio, struct serio_driver *drv)
- 	switch (elo->id) {
- 
- 	case 0: /* 10-byte protocol */
--		if (elo_setup_10(elo))
-+		if (elo_setup_10(elo)) {
-+			err = -EINVAL;
- 			goto fail3;
-+		}
- 
- 		break;
- 
--- 
-2.29.2
+	drivers/input/touchscreen/elants_i2c.c:966 elants_i2c_mt_event()
+	warn: should this be a bitwise negate mask?
 
+drivers/input/touchscreen/elants_i2c.c
+   942          /* Note: all fingers have the same tool type */
+   943          tool_type = buf[FW_POS_TOOL_TYPE] & BIT(0) ?
+   944                          MT_TOOL_FINGER : MT_TOOL_PALM;
+   945  
+   946          for (i = 0; i < MAX_CONTACT_NUM && n_fingers; i++) {
+   947                  if (finger_state & 1) {
+   948                          unsigned int x, y, p, w;
+   949                          u8 *pos;
+   950  
+   951                          pos = &buf[FW_POS_XY + i * 3];
+   952                          x = (((u16)pos[0] & 0xf0) << 4) | pos[1];
+   953                          y = (((u16)pos[0] & 0x0f) << 8) | pos[2];
+   954  
+   955                          /*
+   956                           * eKTF3624 may have use "old" touch-report format,
+   957                           * depending on a device and TS firmware version.
+   958                           * For example, ASUS Transformer devices use the "old"
+   959                           * format, while ASUS Nexus 7 uses the "new" formant.
+   960                           */
+   961                          if (packet_size == PACKET_SIZE_OLD &&
+   962                              ts->chip_id == EKTF3624) {
+   963                                  w = buf[FW_POS_WIDTH + i / 2];
+   964                                  w >>= 4 * (~i & 1);
+   965                                  w |= w << 4;
+   966                                  w |= !w;
+                                        ^^^^^^^^
+
+This code is just very puzzling.  I think it may actually be correct?
+The boring and conventional way to write this would be to do it like so:
+
+	if (!w)
+		w = 1;
+
+   967                                  p = w;
+   968                          } else {
+   969                                  p = buf[FW_POS_PRESSURE + i];
+   970                                  w = buf[FW_POS_WIDTH + i];
+   971                          }
+   972  
+   973                          dev_dbg(&ts->client->dev, "i=%d x=%d y=%d p=%d w=%d\n",
+   974                                  i, x, y, p, w);
+   975  
+   976                          input_mt_slot(input, i);
+   977                          input_mt_report_slot_state(input, tool_type, true);
+   978                          touchscreen_report_pos(input, &ts->prop, x, y, true);
+
+regards,
+dan carpenter

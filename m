@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6AE0C433E6
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:43:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4707BC433DB
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:44:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A5DE364D9E
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:43:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E6E9264D9E
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:44:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231617AbhA1Wnw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Jan 2021 17:43:52 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:12043 "EHLO
+        id S231638AbhA1WoG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Jan 2021 17:44:06 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:12041 "EHLO
         szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231529AbhA1Wmq (ORCPT
+        with ESMTP id S231361AbhA1WmN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Jan 2021 17:42:46 -0500
+        Thu, 28 Jan 2021 17:42:13 -0500
 Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DRb5Y0lhWzMRTV;
-        Fri, 29 Jan 2021 06:40:17 +0800 (CST)
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DRb590Lw0zMRTR;
+        Fri, 29 Jan 2021 06:39:57 +0800 (CST)
 Received: from SWX921481.china.huawei.com (10.126.203.74) by
  DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
- 14.3.498.0; Fri, 29 Jan 2021 06:41:41 +0800
+ 14.3.498.0; Fri, 29 Jan 2021 06:41:21 +0800
 From:   Barry Song <song.bao.hua@hisilicon.com>
 To:     <tglx@linutronix.de>, <dmitry.torokhov@gmail.com>,
         <maz@kernel.org>, <gregkh@linuxfoundation.org>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 CC:     <linuxarm@openeuler.org>, Barry Song <song.bao.hua@hisilicon.com>
-Subject: [PATCH v4 12/12] Input: tca6416-keypad - request_irq by IRQF_NO_AUTOEN and remove disable_irq
-Date:   Fri, 29 Jan 2021 11:35:38 +1300
-Message-ID: <20210128223538.20272-13-song.bao.hua@hisilicon.com>
+Subject: [PATCH v4 04/12] Input: melfas_mip4 - request_irq by IRQF_NO_AUTOEN and remove disable_irq
+Date:   Fri, 29 Jan 2021 11:35:30 +1300
+Message-ID: <20210128223538.20272-5-song.bao.hua@hisilicon.com>
 X-Mailer: git-send-email 2.21.0.windows.1
 In-Reply-To: <20210128223538.20272-1-song.bao.hua@hisilicon.com>
 References: <20210128223538.20272-1-song.bao.hua@hisilicon.com>
@@ -52,30 +52,32 @@ disable IRQ auto-enable because of requesting.
 
 Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
 ---
- drivers/input/keyboard/tca6416-keypad.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/touchscreen/melfas_mip4.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
-index 9b0f9665dcb0..2a9755910065 100644
---- a/drivers/input/keyboard/tca6416-keypad.c
-+++ b/drivers/input/keyboard/tca6416-keypad.c
-@@ -274,7 +274,7 @@ static int tca6416_keypad_probe(struct i2c_client *client,
- 		error = request_threaded_irq(chip->irqnum, NULL,
- 					     tca6416_keys_isr,
- 					     IRQF_TRIGGER_FALLING |
--						IRQF_ONESHOT,
-+					     IRQF_ONESHOT | IRQF_NO_AUTOEN,
- 					     "tca6416-keypad", chip);
- 		if (error) {
- 			dev_dbg(&client->dev,
-@@ -282,7 +282,6 @@ static int tca6416_keypad_probe(struct i2c_client *client,
- 				chip->irqnum, error);
- 			goto fail1;
- 		}
--		disable_irq(chip->irqnum);
+diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+index c0050044a5a9..dd6d4cc5f8c2 100644
+--- a/drivers/input/touchscreen/melfas_mip4.c
++++ b/drivers/input/touchscreen/melfas_mip4.c
+@@ -1502,7 +1502,8 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					  NULL, mip4_interrupt,
+-					  IRQF_ONESHOT, MIP4_DEVICE_NAME, ts);
++					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
++					  MIP4_DEVICE_NAME, ts);
+ 	if (error) {
+ 		dev_err(&client->dev,
+ 			"Failed to request interrupt %d: %d\n",
+@@ -1510,8 +1511,6 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		return error;
  	}
  
+-	disable_irq(client->irq);
+-
  	error = input_register_device(input);
+ 	if (error) {
+ 		dev_err(&client->dev,
 -- 
 2.25.1
 

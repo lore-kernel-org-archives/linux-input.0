@@ -5,35 +5,35 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54D0FC433DB
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:46:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28C75C433E0
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:48:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 293A864D9E
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:46:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C503564DDE
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:48:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231674AbhA1WqU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Jan 2021 17:46:20 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:12042 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231297AbhA1WmM (ORCPT
+        id S231296AbhA1WmL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Jan 2021 17:42:11 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:11615 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231196AbhA1WmI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Jan 2021 17:42:12 -0500
-Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DRb590bmzzMRTT;
-        Fri, 29 Jan 2021 06:39:57 +0800 (CST)
+        Thu, 28 Jan 2021 17:42:08 -0500
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4DRb5R4ctyz1612C;
+        Fri, 29 Jan 2021 06:40:11 +0800 (CST)
 Received: from SWX921481.china.huawei.com (10.126.203.74) by
  DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
- 14.3.498.0; Fri, 29 Jan 2021 06:41:19 +0800
+ 14.3.498.0; Fri, 29 Jan 2021 06:41:14 +0800
 From:   Barry Song <song.bao.hua@hisilicon.com>
 To:     <tglx@linutronix.de>, <dmitry.torokhov@gmail.com>,
         <maz@kernel.org>, <gregkh@linuxfoundation.org>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 CC:     <linuxarm@openeuler.org>, Barry Song <song.bao.hua@hisilicon.com>
-Subject: [PATCH v4 03/12] Input: atmel_mxt_ts - request_irq by IRQF_NO_AUTOEN and remove disable_irq
-Date:   Fri, 29 Jan 2021 11:35:29 +1300
-Message-ID: <20210128223538.20272-4-song.bao.hua@hisilicon.com>
+Subject: [PATCH v4 01/12] genirq: add IRQF_NO_AUTOEN for request_irq
+Date:   Fri, 29 Jan 2021 11:35:27 +1300
+Message-ID: <20210128223538.20272-2-song.bao.hua@hisilicon.com>
 X-Mailer: git-send-email 2.21.0.windows.1
 In-Reply-To: <20210128223538.20272-1-song.bao.hua@hisilicon.com>
 References: <20210128223538.20272-1-song.bao.hua@hisilicon.com>
@@ -46,37 +46,86 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-disable_irq() after request_irq() still has a time gap in which
-interrupts can come. request_irq() with IRQF_NO_AUTOEN flag will
-disable IRQ auto-enable because of requesting.
+Many drivers don't want interrupts enabled automatically due to
+request_irq(). So they are handling this issue by either way of
+the below two:
+(1)
+irq_set_status_flags(irq, IRQ_NOAUTOEN);
+request_irq(dev, irq...);
+(2)
+request_irq(dev, irq...);
+disable_irq(irq);
 
+The code in the second way is silly and unsafe. In the small time
+gap between request_irq() and disable_irq(), interrupts can still
+come.
+The code in the first way is safe though we might be able to do it
+in the generic irq code.
+
+With this patch, drivers can request_irq with IRQF_NO_AUTOEN flag.
+They will need neither irq_set_status_flags() nor disable_irq().
+Hundreds of drivers with this problem will be handled afterwards.
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ -v4: remove the irq_settings magic for NOAUTOEN
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 383a848eb601..3c837c7b24b3 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3156,15 +3156,14 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	}
+ include/linux/interrupt.h | 3 +++
+ kernel/irq/manage.c       | 8 +++++++-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+index bb8ff9083e7d..0f22d277078c 100644
+--- a/include/linux/interrupt.h
++++ b/include/linux/interrupt.h
+@@ -61,6 +61,8 @@
+  *                interrupt handler after suspending interrupts. For system
+  *                wakeup devices users need to implement wakeup detection in
+  *                their interrupt handlers.
++ * IRQF_NO_AUTOEN - Don't enable IRQ automatically when users request it. Users
++ *                will enable it explicitly by enable_irq() later.
+  */
+ #define IRQF_SHARED		0x00000080
+ #define IRQF_PROBE_SHARED	0x00000100
+@@ -74,6 +76,7 @@
+ #define IRQF_NO_THREAD		0x00010000
+ #define IRQF_EARLY_RESUME	0x00020000
+ #define IRQF_COND_SUSPEND	0x00040000
++#define IRQF_NO_AUTOEN		0x00080000
  
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
--					  NULL, mxt_interrupt, IRQF_ONESHOT,
-+					  NULL, mxt_interrupt,
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
- 					  client->name, data);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
- 		return error;
- 	}
+ #define IRQF_TIMER		(__IRQF_TIMER | IRQF_NO_SUSPEND | IRQF_NO_THREAD)
  
--	disable_irq(client->irq);
--
- 	error = regulator_bulk_enable(ARRAY_SIZE(data->regulators),
- 				      data->regulators);
- 	if (error) {
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index dec3f73e8db9..95014073bd2e 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -1693,7 +1693,8 @@ __setup_irq(unsigned int irq, struct irq_desc *desc, struct irqaction *new)
+ 			irqd_set(&desc->irq_data, IRQD_NO_BALANCING);
+ 		}
+ 
+-		if (irq_settings_can_autoenable(desc)) {
++		if (!(new->flags & IRQF_NO_AUTOEN) &&
++		    irq_settings_can_autoenable(desc)) {
+ 			irq_startup(desc, IRQ_RESEND, IRQ_START_COND);
+ 		} else {
+ 			/*
+@@ -2086,10 +2087,15 @@ int request_threaded_irq(unsigned int irq, irq_handler_t handler,
+ 	 * which interrupt is which (messes up the interrupt freeing
+ 	 * logic etc).
+ 	 *
++	 * Also shared interrupts do not go well with disabling auto enable.
++	 * The sharing interrupt might request it while it's still disabled
++	 * and then wait for interrupts forever.
++	 *
+ 	 * Also IRQF_COND_SUSPEND only makes sense for shared interrupts and
+ 	 * it cannot be set along with IRQF_NO_SUSPEND.
+ 	 */
+ 	if (((irqflags & IRQF_SHARED) && !dev_id) ||
++	    ((irqflags & IRQF_SHARED) && (irqflags & IRQF_NO_AUTOEN)) ||
+ 	    (!(irqflags & IRQF_SHARED) && (irqflags & IRQF_COND_SUSPEND)) ||
+ 	    ((irqflags & IRQF_NO_SUSPEND) && (irqflags & IRQF_COND_SUSPEND)))
+ 		return -EINVAL;
 -- 
 2.25.1
 

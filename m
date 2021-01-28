@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBA6DC433E9
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:30:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47696C4332B
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:30:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CBB0464E05
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:30:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F6B264E05
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:30:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233070AbhA1R3y (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Jan 2021 12:29:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53072 "EHLO
+        id S233116AbhA1R3z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Jan 2021 12:29:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233076AbhA1R1s (ORCPT
+        with ESMTP id S233081AbhA1R1x (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Jan 2021 12:27:48 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0F2C0617A7
-        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:08 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id d13so3730514plg.0
-        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:08 -0800 (PST)
+        Thu, 28 Jan 2021 12:27:53 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37275C06178B
+        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:13 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id g3so3727524plp.2
+        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gaikai-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=lCAr4yY+MvpnQfIk4J8PBh5UeHYogXKrkou3WSyAz58=;
-        b=dLC3j0XFKc7+iQ4Tu1K2UbvfET2fGH7rkzLSLXQPSNX37lOKf6DnS4sBWtf3QOWtIq
-         CvQgqzXJlAKoua9aydb1JXJBqA1yLSpdsdr8oZCzUu/OpXbrOUNiwcimJi9jza9W2irm
-         72aAS9OsxkwpxzKRO7bhrVh1XSl/wO3JQ64ZDd2P+DGbAa72QMUuugddDTJ++Dsa98r1
-         f6Tue5Jk5xwnVqOjRWASuutZBHJ3f38wqNEjQ/5BYxWJl3ChSxedOTz5Le00zW2bLAWw
-         nhhNCyHu/iXZmuUrpILXXZ805frYLYYFCoTSEvZs2+SxWQQ7h0riI2n78PLpwyYMV33m
-         O4IA==
+        bh=9HFv/uiOAIRc4RVa3GytTNf+rCGw5VL5GnKd6gUaGLA=;
+        b=QsUiuTwJtShBsmhU0upcuk2yoM3II8MSIrzI+Zha051twrlsom7XlvRkZbIcHmS1li
+         fEG4GVhryc3UnYIfa5k+8RCT3ybmalk9j9uI0Me7Ff4/LJ0vYuFfU5KjCsYqyK0EF1lv
+         Wn9nvkKKqE32Nw/iTuslpiW0xn5Wm5bLGgfGoqxb6u6/t114abFghwpkW55zr1RVPlKP
+         GkcntE5cSX8McywX41qTCV71CkynvCSiFEf9R2Sn9VWSJjB5ZnQQD5VxBlpjHkF3Xe7l
+         p8ILZhrnk3cZd+/wror/HN7LAuCOsonyGj3ecxEUJVMsLH5NRd4CTpZAyi5CPdKuFmNp
+         Eacg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=lCAr4yY+MvpnQfIk4J8PBh5UeHYogXKrkou3WSyAz58=;
-        b=tsi5r523B0xx+BCCchCiDzCbu0sYl6wCz4nmuEC1UaGJOuwCsGf6aiVHF3GH0N5tRU
-         /8l/RZAncurCFi3oXWpt47V/6392+xvTyCbJjStaIjXTJd53dXLI52QCriPielFp7A3i
-         MhR0Zk3JPdANXrNo5oMLiyvuDHo4CReYE2hJbhOhogjmVnnbEHcFe880oAvhNfG5BMvY
-         Wrr/5pUOKZUJxtE0vAttzJTDQE5yBX0hzQN4ro1moNFFdWdQki/L83S3sDkXM64g2r12
-         0i4Q+e0bmu8K99+QewUiKqk6qVn0GtzPkCnXP5gWTfDrCXDM4+VecYQ6/V3k4ERpjyut
-         YUOw==
-X-Gm-Message-State: AOAM530pNsdPim0dDOJss4/kuu/sYQ5+M1gGubpE1OObFexN1RpaeZSQ
-        5ZSfQkWP2tTuzqGhXLY2Vk9s3cYrfcor6Q==
-X-Google-Smtp-Source: ABdhPJzbUQRu7msGwR+EijdgHDz/sbgts6hPI9V638gmTnvGKY44YUMjRiWrG58z1f1UfWkgVeiA1Q==
-X-Received: by 2002:a17:902:6a83:b029:dc:2a2c:6b91 with SMTP id n3-20020a1709026a83b02900dc2a2c6b91mr598882plk.8.1611854827817;
-        Thu, 28 Jan 2021 09:27:07 -0800 (PST)
+        bh=9HFv/uiOAIRc4RVa3GytTNf+rCGw5VL5GnKd6gUaGLA=;
+        b=ZUBmm51IaaKg8DMWZhvcC1u+tZiGfs24VyKpGZX6kRn6L6KJyyuYS23P9MffFair/i
+         kVSTmNSLd2M34j+xG7tWx0VWk7sttllEvTj2OqywYBjoGn3F5f9TAKEBitTnr4mJTpuW
+         LhRHnb/6oOao/A9oFjUDMRcc++QvUI1zPTK8wcSRIJ6aXBKNva9XtiQtf2LvMIdLeeZh
+         86E1BGtF4Fn231XXKB7QsVKuu3uv5SCk+CvryU3kbBeW4Fk6/J63oDzBsd6wP89TZP3d
+         fNfdXWCUVn+iXWV/GRpotI6ZqXyqF/3S4iTgKjp1hM+p+RiwcafQBn5hgoqBd8vRr/R5
+         vzGg==
+X-Gm-Message-State: AOAM531wjIlur/4w89JKExQF91lKJwhMfGupFz8VCI051j9nu7p67yG9
+        XNnIStiz68rnNFUV73ABinzvMGHle4JRBA==
+X-Google-Smtp-Source: ABdhPJxKAYU9SoWvYaGBlwi4PEHySNZY5al9wwwUuyPlm4nYIFhyFu57Qgzh74YaIWd9zPEl8Zwgyg==
+X-Received: by 2002:a17:90a:e396:: with SMTP id b22mr411114pjz.155.1611854832769;
+        Thu, 28 Jan 2021 09:27:12 -0800 (PST)
 Received: from us8c16456344dc.lan (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id a31sm6190445pgb.93.2021.01.28.09.27.06
+        by smtp.gmail.com with ESMTPSA id a31sm6190445pgb.93.2021.01.28.09.27.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Jan 2021 09:27:07 -0800 (PST)
+        Thu, 28 Jan 2021 09:27:12 -0800 (PST)
 From:   Roderick Colenbrander <roderick@gaikai.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -64,9 +64,9 @@ Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
         =?UTF-8?q?Samuel=20=C4=8Cavoj?= <sammko@sammserver.com>,
         =?UTF-8?q?Florian=20M=C3=A4rkl?= <linux@florianmaerkl.de>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH v5 03/13] HID: playstation: add DualSense battery support.
-Date:   Thu, 28 Jan 2021 09:26:47 -0800
-Message-Id: <20210128172657.24516-4-roderick@gaikai.com>
+Subject: [PATCH v5 07/13] HID: playstation: add DualSense Bluetooth support.
+Date:   Thu, 28 Jan 2021 09:26:51 -0800
+Message-Id: <20210128172657.24516-8-roderick@gaikai.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210128172657.24516-1-roderick@gaikai.com>
 References: <20210128172657.24516-1-roderick@gaikai.com>
@@ -78,217 +78,119 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Report DualSense battery status information through power_supply class.
+This patch adds support for the DualSense when operating in Bluetooth mode.
+The device has the same behavior as the DualShock 4 in that by default it
+sends a limited input report (0x1), but after requesting calibration data,
+it switches to an extended input report (report 49), which adds data for
+touchpad, motion sensors, battery and more.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/Kconfig           |   1 +
- drivers/hid/hid-playstation.c | 132 +++++++++++++++++++++++++++++++++-
- 2 files changed, 130 insertions(+), 3 deletions(-)
+ drivers/hid/Kconfig           |  1 +
+ drivers/hid/hid-playstation.c | 41 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 42 insertions(+)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 0aefbb81ba43..0c141f2312f7 100644
+index 0c141f2312f7..b3ec01c7a0b7 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
 @@ -856,6 +856,7 @@ config HID_PLANTRONICS
  config HID_PLAYSTATION
  	tristate "PlayStation HID Driver"
  	depends on HID
-+	select POWER_SUPPLY
++	select CRC32
+ 	select POWER_SUPPLY
  	help
  	  Provides support for Sony PS5 controllers including support for
- 	  its special functionalities e.g. touchpad, lights and motion
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 2f24039dedbe..c5c450fc25db 100644
+index 0c3956756bf0..2da362d3dbda 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -20,6 +20,13 @@
- /* Base class for playstation devices. */
- struct ps_device {
- 	struct hid_device *hdev;
-+	spinlock_t lock;
-+
-+	struct power_supply_desc battery_desc;
-+	struct power_supply *battery;
-+	uint8_t battery_capacity;
-+	int battery_status;
-+
- 	uint8_t mac_address[6]; /* Note: stored in little endian order. */
+@@ -6,6 +6,7 @@
+  */
  
- 	int (*parse_report)(struct ps_device *dev, struct hid_report *report, u8 *data, int size);
-@@ -48,6 +55,11 @@ struct ps_device {
- #define DS_BUTTONS2_PS_HOME	BIT(0)
- #define DS_BUTTONS2_TOUCHPAD	BIT(1)
+ #include <linux/bits.h>
++#include <linux/crc32.h>
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/input/mt.h>
+@@ -45,8 +46,14 @@ struct ps_calibration_data {
+ 	int sens_denom;
+ };
  
-+/* Status field of DualSense input report. */
-+#define DS_STATUS_BATTERY_CAPACITY	GENMASK(3, 0)
-+#define DS_STATUS_CHARGING		GENMASK(7, 4)
-+#define DS_STATUS_CHARGING_SHIFT	4
++/* Seed values for DualShock4 / DualSense CRC32 for different report types. */
++#define PS_INPUT_CRC32_SEED	0xA1
++#define PS_FEATURE_CRC32_SEED	0xA3
 +
- struct dualsense {
- 	struct ps_device base;
- 	struct input_dev *gamepad;
-@@ -140,6 +152,73 @@ static struct input_dev *ps_allocate_input_dev(struct hid_device *hdev, const ch
- 	return input_dev;
+ #define DS_INPUT_REPORT_USB			0x01
+ #define DS_INPUT_REPORT_USB_SIZE		64
++#define DS_INPUT_REPORT_BT			0x31
++#define DS_INPUT_REPORT_BT_SIZE			78
+ 
+ #define DS_FEATURE_REPORT_CALIBRATION		0x05
+ #define DS_FEATURE_REPORT_CALIBRATION_SIZE	41
+@@ -292,6 +299,17 @@ static int ps_device_register_battery(struct ps_device *dev)
+ 	return 0;
  }
  
-+static enum power_supply_property ps_power_supply_props[] = {
-+	POWER_SUPPLY_PROP_STATUS,
-+	POWER_SUPPLY_PROP_PRESENT,
-+	POWER_SUPPLY_PROP_CAPACITY,
-+	POWER_SUPPLY_PROP_SCOPE,
-+};
-+
-+static int ps_battery_get_property(struct power_supply *psy,
-+		enum power_supply_property psp,
-+		union power_supply_propval *val)
++/* Compute crc32 of HID data and compare against expected CRC. */
++static bool ps_check_crc32(uint8_t seed, uint8_t *data, size_t len, uint32_t report_crc)
 +{
-+	struct ps_device *dev = power_supply_get_drvdata(psy);
-+	uint8_t battery_capacity;
-+	int battery_status;
-+	unsigned long flags;
-+	int ret;
++	uint32_t crc;
 +
-+	spin_lock_irqsave(&dev->lock, flags);
-+	battery_capacity = dev->battery_capacity;
-+	battery_status = dev->battery_status;
-+	spin_unlock_irqrestore(&dev->lock, flags);
++	crc = crc32_le(0xFFFFFFFF, &seed, 1);
++	crc = ~crc32_le(crc, data, len);
 +
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_STATUS:
-+		val->intval = battery_status;
-+		break;
-+	case POWER_SUPPLY_PROP_PRESENT:
-+		val->intval = 1;
-+		break;
-+	case POWER_SUPPLY_PROP_CAPACITY:
-+		val->intval = battery_capacity;
-+		break;
-+	case POWER_SUPPLY_PROP_SCOPE:
-+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-+		break;
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int ps_device_register_battery(struct ps_device *dev)
-+{
-+	struct power_supply *battery;
-+	struct power_supply_config battery_cfg = { .drv_data = dev };
-+
-+	dev->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
-+	dev->battery_desc.properties = ps_power_supply_props;
-+	dev->battery_desc.num_properties = ARRAY_SIZE(ps_power_supply_props);
-+	dev->battery_desc.get_property = ps_battery_get_property;
-+	dev->battery_desc.name = devm_kasprintf(&dev->hdev->dev, GFP_KERNEL,
-+			"ps-controller-battery-%pMR", dev->mac_address);
-+
-+	battery = devm_power_supply_register(&dev->hdev->dev, &dev->battery_desc, &battery_cfg);
-+	if (IS_ERR(battery)) {
-+		int ret = PTR_ERR(battery);
-+		hid_err(dev->hdev, "Unable to register battery device: %d\n", ret);
-+		return ret;
-+	}
-+	dev->battery = battery;
-+
-+	power_supply_powers(dev->battery, &dev->hdev->dev);
-+	return 0;
++	return crc == report_crc;
 +}
 +
  static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
  {
  	struct input_dev *gamepad;
-@@ -222,7 +301,9 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	struct hid_device *hdev = ps_dev->hdev;
- 	struct dualsense *ds = container_of(ps_dev, struct dualsense, base);
- 	struct dualsense_input_report *ds_report;
--	uint8_t value;
-+	uint8_t battery_data, battery_capacity, charging_status, value;
-+	int battery_status;
-+	unsigned long flags;
+@@ -342,6 +360,17 @@ static int ps_get_report(struct hid_device *hdev, uint8_t report_id, uint8_t *bu
+ 		return -EINVAL;
+ 	}
  
- 	/*
- 	 * DualSense in USB uses the full HID report for reportID 1, but
-@@ -265,12 +346,49 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	input_report_key(ds->gamepad, BTN_MODE,   ds_report->buttons[2] & DS_BUTTONS2_PS_HOME);
- 	input_sync(ds->gamepad);
- 
-+	battery_data = ds_report->status & DS_STATUS_BATTERY_CAPACITY;
-+	charging_status = (ds_report->status & DS_STATUS_CHARGING) >> DS_STATUS_CHARGING_SHIFT;
++	if (hdev->bus == BUS_BLUETOOTH) {
++		/* Last 4 bytes contains crc32. */
++		uint8_t crc_offset = size - 4;
++		uint32_t report_crc = get_unaligned_le32(&buf[crc_offset]);
 +
-+	switch (charging_status) {
-+	case 0x0:
-+		/*
-+		 * Each unit of battery data corresponds to 10%
-+		 * 0 = 0-9%, 1 = 10-19%, .. and 10 = 100%
-+		 */
-+		battery_capacity = min(battery_data * 10 + 5, 100);
-+		battery_status = POWER_SUPPLY_STATUS_DISCHARGING;
-+		break;
-+	case 0x1:
-+		battery_capacity = min(battery_data * 10 + 5, 100);
-+		battery_status = POWER_SUPPLY_STATUS_CHARGING;
-+		break;
-+	case 0x2:
-+		battery_capacity = 100;
-+		battery_status = POWER_SUPPLY_STATUS_FULL;
-+		break;
-+	case 0xa: /* voltage or temperature out of range */
-+	case 0xb: /* temperature error */
-+		battery_capacity = 0;
-+		battery_status = POWER_SUPPLY_STATUS_NOT_CHARGING;
-+		break;
-+	case 0xf: /* charging error */
-+	default:
-+		battery_capacity = 0;
-+		battery_status = POWER_SUPPLY_STATUS_UNKNOWN;
++		if (!ps_check_crc32(PS_FEATURE_CRC32_SEED, buf, crc_offset, report_crc)) {
++			hid_err(hdev, "CRC check failed for reportID=%d\n", report_id);
++			return -EILSEQ;
++		}
 +	}
-+
-+	spin_lock_irqsave(&ps_dev->lock, flags);
-+	ps_dev->battery_capacity = battery_capacity;
-+	ps_dev->battery_status = battery_status;
-+	spin_unlock_irqrestore(&ps_dev->lock, flags);
 +
  	return 0;
  }
  
- static struct ps_device *dualsense_create(struct hid_device *hdev)
- {
- 	struct dualsense *ds;
-+	struct ps_device *ps_dev;
- 	int ret;
- 
- 	ds = devm_kzalloc(&hdev->dev, sizeof(*ds), GFP_KERNEL);
-@@ -283,8 +401,12 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 	 */
- 	hdev->version |= HID_PLAYSTATION_VERSION_PATCH;
- 
--	ds->base.hdev = hdev;
--	ds->base.parse_report = dualsense_parse_report;
-+	ps_dev = &ds->base;
-+	ps_dev->hdev = hdev;
-+	spin_lock_init(&ps_dev->lock);
-+	ps_dev->battery_capacity = 100; /* initial value until parse_report. */
-+	ps_dev->battery_status = POWER_SUPPLY_STATUS_UNKNOWN;
-+	ps_dev->parse_report = dualsense_parse_report;
- 	hid_set_drvdata(hdev, ds);
- 
- 	ret = dualsense_get_mac_address(ds);
-@@ -300,6 +422,10 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 		goto err;
- 	}
- 
-+	ret = ps_device_register_battery(ps_dev);
-+	if (ret)
-+		goto err;
+@@ -543,6 +572,17 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
+ 	if (hdev->bus == BUS_USB && report->id == DS_INPUT_REPORT_USB &&
+ 			size == DS_INPUT_REPORT_USB_SIZE) {
+ 		ds_report = (struct dualsense_input_report *)&data[1];
++	} else if (hdev->bus == BUS_BLUETOOTH && report->id == DS_INPUT_REPORT_BT &&
++			size == DS_INPUT_REPORT_BT_SIZE) {
++		/* Last 4 bytes of input report contain crc32 */
++		uint32_t report_crc = get_unaligned_le32(&data[size - 4]);
 +
- 	return &ds->base;
++		if (!ps_check_crc32(PS_INPUT_CRC32_SEED, data, size - 4, report_crc)) {
++			hid_err(hdev, "DualSense input CRC's check failed\n");
++			return -EILSEQ;
++		}
++
++		ds_report = (struct dualsense_input_report *)&data[2];
+ 	} else {
+ 		hid_err(hdev, "Unhandled reportID=%d\n", report->id);
+ 		return -1;
+@@ -806,6 +846,7 @@ static void ps_remove(struct hid_device *hdev)
+ }
  
- err:
+ static const struct hid_device_id ps_devices[] = {
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER) },
+ 	{ }
+ };
 -- 
 2.26.2
 

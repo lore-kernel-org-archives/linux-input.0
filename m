@@ -2,197 +2,103 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 140F6C433E0
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 08:33:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4908CC433E6
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 09:40:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D2E7564DCE
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 08:33:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0289764DBD
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 09:40:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231335AbhA1Id4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Jan 2021 03:33:56 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:43782 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229646AbhA1Ide (ORCPT
+        id S231980AbhA1Jjn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Jan 2021 04:39:43 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:53866 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232285AbhA1JhX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Jan 2021 03:33:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1611822721;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IBdtIUDwfWamCpwn+H9Amb/H5XKi8QMaCRngaX+sBFc=;
-        b=Lc2n5+4jB6VhMLKRJCwa9o+J3iCkHsIdy4o1TVYfv//fXgps2GglEyW+4r6e26hpUsaQA6
-        dwHOdVctLeL8pWLX+fHFkXKbEPgTqIgnzYKTIL0QRadi0evQMykkQfCthDBpSs1/tu+bd9
-        44RDdvZ0PtUDooVu4d8KgmZqntyyENM=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-553-uqnHAIxYMXmI6bIe49RxGw-1; Thu, 28 Jan 2021 03:31:59 -0500
-X-MC-Unique: uqnHAIxYMXmI6bIe49RxGw-1
-Received: by mail-pl1-f198.google.com with SMTP id c18so2787721pls.8
-        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 00:31:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=IBdtIUDwfWamCpwn+H9Amb/H5XKi8QMaCRngaX+sBFc=;
-        b=g2UP1QAqilkHvkBQKXUITLbD1n1002j3n13B6VuOKV0Q8yRwFJANKlDsTRgy8idlMj
-         MN8OnOFIreSYqD7zkONKVO44BNcGvmj/O4kTNDXVLmHlD9EGd4EJ9LVeZau1s7FH+lUu
-         xQdcOSLpjGD4a10M0iHZ3Z0cb3dtDWV40o96JIIX6BCRAp8EKYqxgSsY6LV52QFAOdoo
-         ecEYCCnW+/Tcre3lQE1DJZZ75amzIB8PZIragsJydOMQryJsmcaHdv2B3w4kDjo8SntY
-         3gCl0xFrZXtLtspVjicV61IMPpQ50A01+bBPmLN3tbiu/I9LY9LeShWSwmmsTWZZrPv/
-         X/LA==
-X-Gm-Message-State: AOAM530qGT4ZljvNuOqynj2vysRq53bPhMPQRC69S2AAxCmSeUGi93Ut
-        czByLKcAsxN0FPaOTDAOJGECN3rfPLTdaWUomxFIy2r7DUPYTaHykxwm0UdXcI30dwi/BLOO9zB
-        UCuDGK6uADusLqfE92UkwcrMA7IcvLOm4o08yrL4=
-X-Received: by 2002:a17:90b:fd3:: with SMTP id gd19mr10132899pjb.129.1611822715183;
-        Thu, 28 Jan 2021 00:31:55 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzoKoamlqIyOuKFkbSsIxcPNMNQew6/YFkOfMueEe5U/0VN+M3Hi1z6fwB2Y/ZziaiM1IQCI197GkNCz7TIgNk=
-X-Received: by 2002:a17:90b:fd3:: with SMTP id gd19mr10132876pjb.129.1611822714819;
- Thu, 28 Jan 2021 00:31:54 -0800 (PST)
+        Thu, 28 Jan 2021 04:37:23 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10S9Dtos014307;
+        Thu, 28 Jan 2021 09:36:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : mime-version : content-type; s=corp-2020-01-29;
+ bh=WRx+EhMl7xKvc+v5w6MdkWa9bXc8ZKph7wbHMg4EGF8=;
+ b=DdCgBsrScWk6N89rc/60e2jbU6lUCQCk436GY59MeMzDdBI0UEezxOWYFcFn2mMiBwWb
+ worFan0AMK60H9YxXHz/eQR1jpuiOBqLUZ/kgp1Pj+v3csPK5QhBmzhtPKxZxODoZjEb
+ R8ORzQ1a1/jda+x2emcHXpr++lXh4YiUQI+Xm9mWY+zq1gI8rviCV8LbQ4inE4vwpnuj
+ ngYigFXdMmNNzMsRwRvmaVWyr9xZ5etDJYndbGTNWFsnu/czxxVUFu7vbX8kpkFKW0Ij
+ tEP6D5/rlTuYB1s49i13tRHJJ30Gmt0bS62XT/ybXFYwQWmPUS5RTsU6WNqgLQhBina7 /g== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by userp2130.oracle.com with ESMTP id 368b7r36b6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 28 Jan 2021 09:36:32 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10S9FBR2163195;
+        Thu, 28 Jan 2021 09:36:30 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3030.oracle.com with ESMTP id 368wcqetpg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 28 Jan 2021 09:36:30 +0000
+Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 10S9aSin028113;
+        Thu, 28 Jan 2021 09:36:28 GMT
+Received: from mwanda (/10.175.203.176)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 28 Jan 2021 01:36:27 -0800
+Date:   Thu, 28 Jan 2021 12:36:17 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Florian Echtler <floe@butterbrot.org>,
+        linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: [PATCH] Input: sur40 - Fix an error code in sur40_probe()
+Message-ID: <YBKFkbATXa5fA3xj@mwanda>
 MIME-Version: 1.0
-References: <20210117234435.180294-1-roderick@gaikai.com>
-In-Reply-To: <20210117234435.180294-1-roderick@gaikai.com>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Thu, 28 Jan 2021 09:31:43 +0100
-Message-ID: <CAO-hwJJ5r0hBNEhKvZkLevyG8mf6rQVL_7nf4XcjUi0mgErF5w@mail.gmail.com>
-Subject: Re: [PATCH v4 00/13] HID: new driver for PS5 'DualSense' controller
-To:     Roderick Colenbrander <roderick@gaikai.com>,
-        =?UTF-8?B?QmFybmFiw6FzIFDFkWN6ZQ==?= <pobrn@protonmail.com>,
-        =?UTF-8?Q?Samuel_=C4=8Cavoj?= <sammko@sammserver.com>,
-        =?UTF-8?Q?Florian_M=C3=A4rkl?= <linux@florianmaerkl.de>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Chris Ye <lzye@google.com>,
-        Roderick Colenbrander <roderick.colenbrander@sony.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailer: git-send-email haha only kidding
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9877 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 mlxscore=0 suspectscore=0
+ phishscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101280048
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9877 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 spamscore=0 phishscore=0
+ adultscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0
+ priorityscore=1501 mlxscore=0 clxscore=1011 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101280048
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Roderick,
+If v4l2_ctrl_handler_setup() fails then probe() should return an error
+code instead of returning success.
 
-On Mon, Jan 18, 2021 at 12:44 AM Roderick Colenbrander
-<roderick@gaikai.com> wrote:
->
-> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
->
-> Hi,
->
-> This is the same code as v3. Due to a misstake during a last minute
-> rebase, the touchpad and sensors patch got combined while fixing a confli=
-ct.
-> The new v4 corrects that issue. There are no additional code changes.
->
-> This new revision contains a few bug fixes, but mostly features small
-> code changes and minor improvements relative to v2.
->
-> In terms of bugs there were bugs in the sensor code. There was an overflo=
-w
-> issue and EV_MSC/MSC_TIMESTAMP were not set on the device. In addition,
-> the ps_device spinlock was not initialized.
->
-> The biggest change in the driver was the addition of a new 'ps_get_report=
-'
-> helper function. It handles GET_FEATURE report retrieval and any error ha=
-ndling
-> including CRC checks for PlayStation Bluetooth devices. This greatly simp=
-lified
-> all the functions (dualsense_get_mac_address, dualsense_calibration_info,=
- ..)
-> dealing, which used their own report handling and error checking.
->
-> Aside for these changes, there were mostly little code style changes like=
- defining
-> magic constants, cleaning up comments, cleaning up log messages, static_a=
-ssert
-> checks etcetera.
->
-> Thanks to everyone who provided feedback through the mailing list or priv=
-ately.
+Fixes: cee1e3e2ef39 ("media: add video control handlers using V4L2 control framework")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+ drivers/input/touchscreen/sur40.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-From a rough review, the code looks good to me. However, I'd like to
-have Baranab=C3=A1s reviewed-by tag at least given all the work he has been
-doing. There were other people involved in the various versions, and
-it would be nice if we can get some credits for them too.
-
-So for anyone involved in the discussions, could you give us your
-reviewed-by or tested-by if you feel like?
-
-[Roderick, as a general rule of thumb, it's better IMO to keep Cc-ed
-the people who gave feedback, so they are notified of a new version.]
-
-Cheers,
-Benjamin
-
-
-
->
-> Changes since v3:
-> - Separated touchpad and sensors into separate patches due to rebase miss=
-take.
->
-> Changes since v2:
-> - Removed !Expert setting for hid-playstation from Kconfig.
-> - Removed DualSense from hid-quirks table.
-> - Added report size checks to dualsense_parse_report.
-> - Moved mac address endianess comment to struct ps_device.
-> - Added static_asserts for packed structure size checks.
-> - Improved readability of battery capacity calculation using 'min'.
-> - Added spin_lock_init to dualsense_create to initialize ps_device lock.
-> - Fixed sensors timestamp overflow.
-> - Fixed missing MSC_TIMESTAMP and EV_MSC capabilities in ps_sensors_creat=
-e.
-> - Used DIV_ROUND_CLOSEST for timestamp calculations to minimize rounding =
-errors.
-> - Switched to devm_kmalloc_array for lightbar allocation.
-> - Added CRC32 and NEW_LEDS dependency to Kconfig.
-> - Added defines for crc32 seed constants.
-> - Added crc32 check for dualsense_get_mac_address and increased report si=
-ze to 20.
-> - Added new ps_get_report call to obtain feature reports.
-> - Switched to ARRAY_SIZE in dualsense_parse_reports for touch points, acc=
-el and gyro data.
-> - Changed touch point parse loop to use "struct dualsense_touch_point".
-> - Improved consistency of info and error messages.
-> - Unified comment style.
->
->
-> Thanks,
->
-> Roderick Colenbrander
-> Sony Interactive Entertainment, LLC
->
-> Roderick Colenbrander (13):
->   HID: playstation: initial DualSense USB support.
->   HID: playstation: use DualSense MAC address as unique identifier.
->   HID: playstation: add DualSense battery support.
->   HID: playstation: add DualSense touchpad support.
->   HID: playstation: add DualSense accelerometer and gyroscope support.
->   HID: playstation: track devices in list.
->   HID: playstation: add DualSense Bluetooth support.
->   HID: playstation: add DualSense classic rumble support.
->   HID: playstation: add DualSense lightbar support
->   HID: playstation: add microphone mute support for DualSense.
->   HID: playstation: add DualSense player LEDs support.
->   HID: playstation: DualSense set LEDs to default player id.
->   HID: playstation: report DualSense hardware and firmware version.
->
->  MAINTAINERS                   |    6 +
->  drivers/hid/Kconfig           |   21 +
->  drivers/hid/Makefile          |    1 +
->  drivers/hid/hid-ids.h         |    1 +
->  drivers/hid/hid-playstation.c | 1485 +++++++++++++++++++++++++++++++++
->  5 files changed, 1514 insertions(+)
->  create mode 100644 drivers/hid/hid-playstation.c
->
-> --
-> 2.26.2
->
+diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+index 620cdd7d214a..12f2562b0141 100644
+--- a/drivers/input/touchscreen/sur40.c
++++ b/drivers/input/touchscreen/sur40.c
+@@ -787,6 +787,7 @@ static int sur40_probe(struct usb_interface *interface,
+ 		dev_err(&interface->dev,
+ 			"Unable to register video controls.");
+ 		v4l2_ctrl_handler_free(&sur40->hdl);
++		error = sur40->hdl.error;
+ 		goto err_unreg_v4l2;
+ 	}
+ 
+-- 
+2.29.2
 

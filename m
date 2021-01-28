@@ -2,197 +2,582 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29A49C433E0
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:31:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35CDFC433DB
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 19:58:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DB4B264E17
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 17:31:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CEAFC64DF5
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 19:58:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233079AbhA1Ra4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Jan 2021 12:30:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52540 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233053AbhA1R1Y (ORCPT
+        id S229732AbhA1T6a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Jan 2021 14:58:30 -0500
+Received: from mail-oi1-f181.google.com ([209.85.167.181]:34769 "EHLO
+        mail-oi1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229594AbhA1TqC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Jan 2021 12:27:24 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672B6C0617A9
-        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:09 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id md11so4246937pjb.0
-        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2021 09:27:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gaikai-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=WVlKx6xZ83Igk9QgAIM+ji3r+4485U9QbK8oiIuVj7U=;
-        b=pS9tXiOOwJJPRY2UtSpoH4FMH631WOBmciU29mXtrpNxZHXxikZ3Fa4m65P9p4lV70
-         jVrqs/mZpiZe9H5Dv9QUczgx+k7z8gzvdLcU6FfzS8TpP5d+DqFdnMDYV1tb/wATyZZO
-         obkzaCIFbWn/w6jmfjzfJec5q603OyqlJyw3sScOmwPPrA2ZKWQx6pTEHiM5iEm82Mti
-         gTQQNcL6SOqLwbpibYXUdZ1RsQQj6hxznoh5rZ/EpNQvaXDKt0rggOzv6DIOJdXfxunn
-         dHTGWiWaI05NL6rV9cX0whmZP+/1MCEu9a2BkMEIvcqXrwnGXLNv2BaSqwNCw1pHMvXy
-         uFBw==
+        Thu, 28 Jan 2021 14:46:02 -0500
+Received: by mail-oi1-f181.google.com with SMTP id h192so7316180oib.1;
+        Thu, 28 Jan 2021 11:45:44 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=WVlKx6xZ83Igk9QgAIM+ji3r+4485U9QbK8oiIuVj7U=;
-        b=oUNtYcPzvfy0ERNmtlCb75819DGBld3PZ9yuXanRJwAjgBUOfBxQXcBAS/98sVdO1A
-         DNFKOA2sxno6Y9KZ20rLxu91/mDOEhgkcuHlquLuH4JyPpu6ZqVbSV3J/pHInaffNPnl
-         /DmlGWR51u3N/WxVv9geauF0fIBjR31VQj6p4+FJ65IER07XP7WgFxxCf9RsaV38jCGc
-         pnI919veDmC1DUWYLj7HVN6ruNHOsCGyukVH3+cdrlGze+QLtsRxrlZ/XdYe6JEAK+SW
-         V6CdL6n4dGGjnlL3ApiTP8LNFzcN5acoSAbubKt1NOk7+yNRXP87sSuYIAXFsFaOMWqW
-         WLOQ==
-X-Gm-Message-State: AOAM5339l2Aq650efNonHTPnUm79duj2TLjBzDYKnG6viAvwMIK9zgXp
-        PaUxuxsKSqpCuOl+41XtGIJEjA==
-X-Google-Smtp-Source: ABdhPJw5ZQooX1Ni4m0V9Fg80I50KyN6wVqL+MIIVLL/65syhmQjP6s6vDtasFag/4kn7QoZO7DPdg==
-X-Received: by 2002:a17:902:ea85:b029:df:db7a:3ad8 with SMTP id x5-20020a170902ea85b02900dfdb7a3ad8mr562863plb.15.1611854828990;
-        Thu, 28 Jan 2021 09:27:08 -0800 (PST)
-Received: from us8c16456344dc.lan (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id a31sm6190445pgb.93.2021.01.28.09.27.07
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hD0wEX48SG80eUQ+pxxtoRgPTFvXR3TdGTNVaTk7rKE=;
+        b=dCFM5QEoumd8qoBsDwgpKMOavO+wTfVa0uyaPplEBG6V6Jf6yopQbBxcCU60yFFmrL
+         eK/mgxTQkAtgTQhqgrQnqmgnXmrThzKs+ntavJ0O8ISgzCpvw+z964YPMsZBWqPMiPcO
+         yhsAHit1cxB2wYVzX42UCLlUYUf1Chw1ktBTtAONoQH2fnrEI383zJQtIXGA+4azJLwL
+         48bskFWWBdpcMzN1ltgDH09wKvE5we0cmKjLohLD76lnfh5kmA4qVA3tYKkKZl43sfkb
+         oNL/pFIJYDIW1g8GWUQBYsDnj258xbRZ76yD4M/4jsfyWdp6N+vixCRXLS3rgedctJm0
+         rtmw==
+X-Gm-Message-State: AOAM5324zdqcU/EtrEOgunj3morpqg+0edgPdIKpCIkS2KUArubxYi2U
+        a6ChwhNhgHtRr2jcFKGVqrhkXPKzGA==
+X-Google-Smtp-Source: ABdhPJwm5awHJnDyGv22/56Lp9+6NApmN/vqTqYzUxjPxuYd9UKc6Pb2GwQARxUbOgd2c9xgjbY9Kw==
+X-Received: by 2002:aca:5602:: with SMTP id k2mr607070oib.2.1611863118853;
+        Thu, 28 Jan 2021 11:45:18 -0800 (PST)
+Received: from xps15.herring.priv (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.googlemail.com with ESMTPSA id v138sm1288363oia.32.2021.01.28.11.45.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Jan 2021 09:27:08 -0800 (PST)
-From:   Roderick Colenbrander <roderick@gaikai.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
-        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
-        =?UTF-8?q?Samuel=20=C4=8Cavoj?= <sammko@sammserver.com>,
-        =?UTF-8?q?Florian=20M=C3=A4rkl?= <linux@florianmaerkl.de>,
-        Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH v5 04/13] HID: playstation: add DualSense touchpad support.
-Date:   Thu, 28 Jan 2021 09:26:48 -0800
-Message-Id: <20210128172657.24516-5-roderick@gaikai.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210128172657.24516-1-roderick@gaikai.com>
-References: <20210128172657.24516-1-roderick@gaikai.com>
+        Thu, 28 Jan 2021 11:45:17 -0800 (PST)
+From:   Rob Herring <robh@kernel.org>
+To:     devicetree@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Wolfram Sang <wolfram@the-dreams.de>,
+        linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
+        netdev@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-watchdog@vger.kernel.org
+Subject: [PATCH] dt-bindings: Cleanup standard unit properties
+Date:   Thu, 28 Jan 2021 13:45:15 -0600
+Message-Id: <20210128194515.743252-1-robh@kernel.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+Properties with standard unit suffixes already have a type and don't need
+type definitions. They also default to a single entry, so 'maxItems: 1'
+can be dropped.
 
-Implement support for DualSense touchpad as a separate input device.
+adi,ad5758 is an oddball which defined an enum of arrays. While a valid
+schema, it is simpler as a whole to only define scalar constraints.
 
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Jonathan Cameron <jic23@kernel.org>
+Cc: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Serge Semin <fancer.lancer@gmail.com>
+Cc: Wolfram Sang <wolfram@the-dreams.de>
+Cc: linux-hwmon@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-iio@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-input@vger.kernel.org
+Cc: linux-mmc@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-pm@vger.kernel.org
+Cc: linux-rtc@vger.kernel.org
+Cc: linux-serial@vger.kernel.org
+Cc: alsa-devel@alsa-project.org
+Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 ---
- drivers/hid/hid-playstation.c | 66 +++++++++++++++++++++++++++++++++++
- 1 file changed, 66 insertions(+)
+ .../devicetree/bindings/arm/cpus.yaml         |  1 -
+ .../bindings/extcon/wlf,arizona.yaml          |  1 -
+ .../bindings/hwmon/adi,ltc2947.yaml           |  1 -
+ .../bindings/hwmon/baikal,bt1-pvt.yaml        |  8 ++--
+ .../devicetree/bindings/hwmon/ti,tmp513.yaml  |  1 -
+ .../devicetree/bindings/i2c/i2c-gpio.yaml     |  2 -
+ .../bindings/i2c/snps,designware-i2c.yaml     |  3 --
+ .../bindings/iio/adc/maxim,max9611.yaml       |  1 -
+ .../bindings/iio/adc/st,stm32-adc.yaml        |  1 -
+ .../bindings/iio/adc/ti,palmas-gpadc.yaml     |  2 -
+ .../bindings/iio/dac/adi,ad5758.yaml          | 41 ++++++++++++-------
+ .../bindings/iio/health/maxim,max30100.yaml   |  1 -
+ .../input/touchscreen/touchscreen.yaml        |  2 -
+ .../bindings/mmc/mmc-controller.yaml          |  1 -
+ .../bindings/mmc/mmc-pwrseq-simple.yaml       |  2 -
+ .../bindings/net/ethernet-controller.yaml     |  2 -
+ .../devicetree/bindings/net/snps,dwmac.yaml   |  1 -
+ .../bindings/power/supply/battery.yaml        |  3 --
+ .../bindings/power/supply/bq2515x.yaml        |  1 -
+ .../bindings/regulator/dlg,da9121.yaml        |  1 -
+ .../bindings/regulator/fixed-regulator.yaml   |  2 -
+ .../devicetree/bindings/rtc/rtc.yaml          |  2 -
+ .../devicetree/bindings/serial/pl011.yaml     |  2 -
+ .../devicetree/bindings/sound/sgtl5000.yaml   |  2 -
+ .../bindings/watchdog/watchdog.yaml           |  1 -
+ 25 files changed, 29 insertions(+), 56 deletions(-)
 
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index c5c450fc25db..64d6d736c435 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -60,9 +60,21 @@ struct ps_device {
- #define DS_STATUS_CHARGING		GENMASK(7, 4)
- #define DS_STATUS_CHARGING_SHIFT	4
+diff --git a/Documentation/devicetree/bindings/arm/cpus.yaml b/Documentation/devicetree/bindings/arm/cpus.yaml
+index 14cd727d3c4b..f02fd10de604 100644
+--- a/Documentation/devicetree/bindings/arm/cpus.yaml
++++ b/Documentation/devicetree/bindings/arm/cpus.yaml
+@@ -232,7 +232,6 @@ properties:
+       by this cpu (see ./idle-states.yaml).
  
-+/*
-+ * Status of a DualSense touch point contact.
-+ * Contact IDs, with highest bit set are 'inactive'
-+ * and any associated data is then invalid.
-+ */
-+#define DS_TOUCH_POINT_INACTIVE BIT(7)
-+
-+/* DualSense hardware limits */
-+#define DS_TOUCHPAD_WIDTH	1920
-+#define DS_TOUCHPAD_HEIGHT	1080
-+
- struct dualsense {
- 	struct ps_device base;
- 	struct input_dev *gamepad;
-+	struct input_dev *touchpad;
- };
+   capacity-dmips-mhz:
+-    $ref: '/schemas/types.yaml#/definitions/uint32'
+     description:
+       u32 value representing CPU capacity (see ./cpu-capacity.txt) in
+       DMIPS/MHz, relative to highest capacity-dmips-mhz
+diff --git a/Documentation/devicetree/bindings/extcon/wlf,arizona.yaml b/Documentation/devicetree/bindings/extcon/wlf,arizona.yaml
+index 5fe784f487c5..efdf59abb2e1 100644
+--- a/Documentation/devicetree/bindings/extcon/wlf,arizona.yaml
++++ b/Documentation/devicetree/bindings/extcon/wlf,arizona.yaml
+@@ -85,7 +85,6 @@ properties:
+   wlf,micd-timeout-ms:
+     description:
+       Timeout for microphone detection, specified in milliseconds.
+-    $ref: "/schemas/types.yaml#/definitions/uint32"
  
- struct dualsense_touch_point {
-@@ -272,6 +284,34 @@ static int ps_get_report(struct hid_device *hdev, uint8_t report_id, uint8_t *bu
- 	return 0;
- }
+   wlf,micd-force-micbias:
+     description:
+diff --git a/Documentation/devicetree/bindings/hwmon/adi,ltc2947.yaml b/Documentation/devicetree/bindings/hwmon/adi,ltc2947.yaml
+index eef614962b10..bf04151b63d2 100644
+--- a/Documentation/devicetree/bindings/hwmon/adi,ltc2947.yaml
++++ b/Documentation/devicetree/bindings/hwmon/adi,ltc2947.yaml
+@@ -49,7 +49,6 @@ properties:
+     description:
+       This property controls the Accumulation Dead band which allows to set the
+       level of current below which no accumulation takes place.
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     maximum: 255
+     default: 0
  
-+static struct input_dev *ps_touchpad_create(struct hid_device *hdev, int width, int height,
-+		unsigned int num_contacts)
-+{
-+	struct input_dev *touchpad;
-+	int ret;
-+
-+	touchpad = ps_allocate_input_dev(hdev, "Touchpad");
-+	if (IS_ERR(touchpad))
-+		return ERR_CAST(touchpad);
-+
-+	/* Map button underneath touchpad to BTN_LEFT. */
-+	input_set_capability(touchpad, EV_KEY, BTN_LEFT);
-+	__set_bit(INPUT_PROP_BUTTONPAD, touchpad->propbit);
-+
-+	input_set_abs_params(touchpad, ABS_MT_POSITION_X, 0, width - 1, 0, 0);
-+	input_set_abs_params(touchpad, ABS_MT_POSITION_Y, 0, height - 1, 0, 0);
-+
-+	ret = input_mt_init_slots(touchpad, num_contacts, INPUT_MT_POINTER);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	ret = input_register_device(touchpad);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	return touchpad;
-+}
-+
- static int dualsense_get_mac_address(struct dualsense *ds)
- {
- 	uint8_t *buf;
-@@ -304,6 +344,7 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	uint8_t battery_data, battery_capacity, charging_status, value;
- 	int battery_status;
- 	unsigned long flags;
-+	int i;
+diff --git a/Documentation/devicetree/bindings/hwmon/baikal,bt1-pvt.yaml b/Documentation/devicetree/bindings/hwmon/baikal,bt1-pvt.yaml
+index 00a6511354e6..5d3ce641fcde 100644
+--- a/Documentation/devicetree/bindings/hwmon/baikal,bt1-pvt.yaml
++++ b/Documentation/devicetree/bindings/hwmon/baikal,bt1-pvt.yaml
+@@ -73,11 +73,9 @@ properties:
+     description: |
+       Temperature sensor trimming factor. It can be used to manually adjust the
+       temperature measurements within 7.130 degrees Celsius.
+-    maxItems: 1
+-    items:
+-      default: 0
+-      minimum: 0
+-      maximum: 7130
++    default: 0
++    minimum: 0
++    maximum: 7130
  
- 	/*
- 	 * DualSense in USB uses the full HID report for reportID 1, but
-@@ -346,6 +387,25 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	input_report_key(ds->gamepad, BTN_MODE,   ds_report->buttons[2] & DS_BUTTONS2_PS_HOME);
- 	input_sync(ds->gamepad);
+ additionalProperties: false
  
-+	for (i = 0; i < ARRAY_SIZE(ds_report->points); i++) {
-+		struct dualsense_touch_point *point = &ds_report->points[i];
-+		bool active = (point->contact & DS_TOUCH_POINT_INACTIVE) ? false : true;
-+
-+		input_mt_slot(ds->touchpad, i);
-+		input_mt_report_slot_state(ds->touchpad, MT_TOOL_FINGER, active);
-+
-+		if (active) {
-+			int x = (point->x_hi << 8) | point->x_lo;
-+			int y = (point->y_hi << 4) | point->y_lo;
-+
-+			input_report_abs(ds->touchpad, ABS_MT_POSITION_X, x);
-+			input_report_abs(ds->touchpad, ABS_MT_POSITION_Y, y);
-+		}
-+	}
-+	input_mt_sync_frame(ds->touchpad);
-+	input_report_key(ds->touchpad, BTN_LEFT, ds_report->buttons[2] & DS_BUTTONS2_TOUCHPAD);
-+	input_sync(ds->touchpad);
-+
- 	battery_data = ds_report->status & DS_STATUS_BATTERY_CAPACITY;
- 	charging_status = (ds_report->status & DS_STATUS_CHARGING) >> DS_STATUS_CHARGING_SHIFT;
+diff --git a/Documentation/devicetree/bindings/hwmon/ti,tmp513.yaml b/Documentation/devicetree/bindings/hwmon/ti,tmp513.yaml
+index 8020d739a078..1502b22c77cc 100644
+--- a/Documentation/devicetree/bindings/hwmon/ti,tmp513.yaml
++++ b/Documentation/devicetree/bindings/hwmon/ti,tmp513.yaml
+@@ -52,7 +52,6 @@ properties:
+   ti,bus-range-microvolt:
+     description: |
+       This is the operating range of the bus voltage in microvolt
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     enum: [16000000, 32000000]
+     default: 32000000
  
-@@ -422,6 +482,12 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 		goto err;
- 	}
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml b/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml
+index cc3aa2a5e70b..ff99344788ab 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml
++++ b/Documentation/devicetree/bindings/i2c/i2c-gpio.yaml
+@@ -39,11 +39,9 @@ properties:
  
-+	ds->touchpad = ps_touchpad_create(hdev, DS_TOUCHPAD_WIDTH, DS_TOUCHPAD_HEIGHT, 2);
-+	if (IS_ERR(ds->touchpad)) {
-+		ret = PTR_ERR(ds->touchpad);
-+		goto err;
-+	}
-+
- 	ret = ps_device_register_battery(ps_dev);
- 	if (ret)
- 		goto err;
+   i2c-gpio,delay-us:
+     description: delay between GPIO operations (may depend on each platform)
+-    $ref: /schemas/types.yaml#/definitions/uint32
+ 
+   i2c-gpio,timeout-ms:
+     description: timeout to get data
+-    $ref: /schemas/types.yaml#/definitions/uint32
+ 
+   # Deprecated properties, do not use in new device tree sources:
+   gpios:
+diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+index c22b66b6219e..d9293c57f573 100644
+--- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+@@ -66,21 +66,18 @@ properties:
+     default: 400000
+ 
+   i2c-sda-hold-time-ns:
+-    maxItems: 1
+     description: |
+       The property should contain the SDA hold time in nanoseconds. This option
+       is only supported in hardware blocks version 1.11a or newer or on
+       Microsemi SoCs.
+ 
+   i2c-scl-falling-time-ns:
+-    maxItems: 1
+     description: |
+       The property should contain the SCL falling time in nanoseconds.
+       This value is used to compute the tLOW period.
+     default: 300
+ 
+   i2c-sda-falling-time-ns:
+-    maxItems: 1
+     description: |
+       The property should contain the SDA falling time in nanoseconds.
+       This value is used to compute the tHIGH period.
+diff --git a/Documentation/devicetree/bindings/iio/adc/maxim,max9611.yaml b/Documentation/devicetree/bindings/iio/adc/maxim,max9611.yaml
+index 9475a9e6e920..95774a55629d 100644
+--- a/Documentation/devicetree/bindings/iio/adc/maxim,max9611.yaml
++++ b/Documentation/devicetree/bindings/iio/adc/maxim,max9611.yaml
+@@ -23,7 +23,6 @@ properties:
+     maxItems: 1
+ 
+   shunt-resistor-micro-ohms:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description: |
+       Value in micro Ohms of the shunt resistor connected between the RS+ and
+       RS- inputs, across which the current is measured.  Value needed to compute
+diff --git a/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml b/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml
+index 6364ede9bb5f..a58334c3bb76 100644
+--- a/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml
++++ b/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml
+@@ -248,7 +248,6 @@ patternProperties:
+           Resolution (bits) to use for conversions:
+             - can be 6, 8, 10 or 12 on stm32f4
+             - can be 8, 10, 12, 14 or 16 on stm32h7 and stm32mp1
+-        $ref: /schemas/types.yaml#/definitions/uint32
+ 
+       st,adc-channels:
+         description: |
+diff --git a/Documentation/devicetree/bindings/iio/adc/ti,palmas-gpadc.yaml b/Documentation/devicetree/bindings/iio/adc/ti,palmas-gpadc.yaml
+index 692dacd0fee5..7b895784e008 100644
+--- a/Documentation/devicetree/bindings/iio/adc/ti,palmas-gpadc.yaml
++++ b/Documentation/devicetree/bindings/iio/adc/ti,palmas-gpadc.yaml
+@@ -42,7 +42,6 @@ properties:
+     const: 1
+ 
+   ti,channel0-current-microamp:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description: Channel 0 current in uA.
+     enum:
+       - 0
+@@ -51,7 +50,6 @@ properties:
+       - 20
+ 
+   ti,channel3-current-microamp:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description: Channel 3 current in uA.
+     enum:
+       - 0
+diff --git a/Documentation/devicetree/bindings/iio/dac/adi,ad5758.yaml b/Documentation/devicetree/bindings/iio/dac/adi,ad5758.yaml
+index 626ccb6fe21e..fd4edca34a28 100644
+--- a/Documentation/devicetree/bindings/iio/dac/adi,ad5758.yaml
++++ b/Documentation/devicetree/bindings/iio/dac/adi,ad5758.yaml
+@@ -46,31 +46,42 @@ properties:
+       two properties must be present:
+ 
+   adi,range-microvolt:
+-    $ref: /schemas/types.yaml#/definitions/int32-array
+     description: |
+       Voltage output range specified as <minimum, maximum>
+-    enum:
+-      - [[0, 5000000]]
+-      - [[0, 10000000]]
+-      - [[-5000000, 5000000]]
+-      - [[-10000000, 10000000]]
++    oneOf:
++      - items:
++          - const: 0
++          - enum: [5000000, 10000000]
++      - items:
++          - const: -5000000
++          - const: 5000000
++      - items:
++          - const: -10000000
++          - const: 10000000
+ 
+   adi,range-microamp:
+-    $ref: /schemas/types.yaml#/definitions/int32-array
+     description: |
+       Current output range specified as <minimum, maximum>
+-    enum:
+-      - [[0, 20000]]
+-      - [[0, 24000]]
+-      - [[4, 24000]]
+-      - [[-20000, 20000]]
+-      - [[-24000, 24000]]
+-      - [[-1000, 22000]]
++    oneOf:
++      - items:
++          - const: 0
++          - enum: [20000, 24000]
++      - items:
++          - const: 4
++          - const: 24000
++      - items:
++          - const: -20000
++          - const: 20000
++      - items:
++          - const: -24000
++          - const: 24000
++      - items:
++          - const: -1000
++          - const: 22000
+ 
+   reset-gpios: true
+ 
+   adi,dc-dc-ilim-microamp:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     enum: [150000, 200000, 250000, 300000, 350000, 400000]
+     description: |
+       The dc-to-dc converter current limit.
+diff --git a/Documentation/devicetree/bindings/iio/health/maxim,max30100.yaml b/Documentation/devicetree/bindings/iio/health/maxim,max30100.yaml
+index 64b862637039..967778fb0ce8 100644
+--- a/Documentation/devicetree/bindings/iio/health/maxim,max30100.yaml
++++ b/Documentation/devicetree/bindings/iio/health/maxim,max30100.yaml
+@@ -21,7 +21,6 @@ properties:
+     description: Connected to ADC_RDY pin.
+ 
+   maxim,led-current-microamp:
+-    $ref: /schemas/types.yaml#/definitions/uint32-array
+     minItems: 2
+     maxItems: 2
+     description: |
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+index a771a15f053f..046ace461cc9 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+@@ -70,11 +70,9 @@ properties:
+ 
+   touchscreen-x-mm:
+     description: horizontal length in mm of the touchscreen
+-    $ref: /schemas/types.yaml#/definitions/uint32
+ 
+   touchscreen-y-mm:
+     description: vertical length in mm of the touchscreen
+-    $ref: /schemas/types.yaml#/definitions/uint32
+ 
+ dependencies:
+   touchscreen-size-x: [ touchscreen-size-y ]
+diff --git a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
+index df4ee4c778ae..e141330c1114 100644
+--- a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
++++ b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
+@@ -261,7 +261,6 @@ properties:
+       waiting for I/O signalling and card power supply to be stable,
+       regardless of whether pwrseq-simple is used. Default to 10ms if
+       no available.
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     default: 10
+ 
+   supports-cqe:
+diff --git a/Documentation/devicetree/bindings/mmc/mmc-pwrseq-simple.yaml b/Documentation/devicetree/bindings/mmc/mmc-pwrseq-simple.yaml
+index 6cd57863c1db..226fb191913d 100644
+--- a/Documentation/devicetree/bindings/mmc/mmc-pwrseq-simple.yaml
++++ b/Documentation/devicetree/bindings/mmc/mmc-pwrseq-simple.yaml
+@@ -41,13 +41,11 @@ properties:
+     description:
+       Delay in ms after powering the card and de-asserting the
+       reset-gpios (if any).
+-    $ref: /schemas/types.yaml#/definitions/uint32
+ 
+   power-off-delay-us:
+     description:
+       Delay in us after asserting the reset-gpios (if any)
+       during power off of the card.
+-    $ref: /schemas/types.yaml#/definitions/uint32
+ 
+ required:
+   - compatible
+diff --git a/Documentation/devicetree/bindings/net/ethernet-controller.yaml b/Documentation/devicetree/bindings/net/ethernet-controller.yaml
+index 0965f6515f9e..dac4aadb6e2e 100644
+--- a/Documentation/devicetree/bindings/net/ethernet-controller.yaml
++++ b/Documentation/devicetree/bindings/net/ethernet-controller.yaml
+@@ -122,7 +122,6 @@ properties:
+       such as flow control thresholds.
+ 
+   rx-internal-delay-ps:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description: |
+       RGMII Receive Clock Delay defined in pico seconds.
+       This is used for controllers that have configurable RX internal delays.
+@@ -140,7 +139,6 @@ properties:
+       is used for components that can have configurable fifo sizes.
+ 
+   tx-internal-delay-ps:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description: |
+       RGMII Transmit Clock Delay defined in pico seconds.
+       This is used for controllers that have configurable TX internal delays.
+diff --git a/Documentation/devicetree/bindings/net/snps,dwmac.yaml b/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+index b2f6083f556a..9ac77b8cb767 100644
+--- a/Documentation/devicetree/bindings/net/snps,dwmac.yaml
++++ b/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+@@ -208,7 +208,6 @@ properties:
+       Triplet of delays. The 1st cell is reset pre-delay in micro
+       seconds. The 2nd cell is reset pulse in micro seconds. The 3rd
+       cell is reset post-delay in micro seconds.
+-    $ref: /schemas/types.yaml#/definitions/uint32-array
+     minItems: 3
+     maxItems: 3
+ 
+diff --git a/Documentation/devicetree/bindings/power/supply/battery.yaml b/Documentation/devicetree/bindings/power/supply/battery.yaml
+index 0c7e2e44793b..c3b4b7543591 100644
+--- a/Documentation/devicetree/bindings/power/supply/battery.yaml
++++ b/Documentation/devicetree/bindings/power/supply/battery.yaml
+@@ -83,21 +83,18 @@ properties:
+       for each of the battery capacity lookup table.
+ 
+   operating-range-celsius:
+-    $ref: /schemas/types.yaml#/definitions/uint32-array
+     description: operating temperature range of a battery
+     items:
+       - description: minimum temperature at which battery can operate
+       - description: maximum temperature at which battery can operate
+ 
+   ambient-celsius:
+-    $ref: /schemas/types.yaml#/definitions/uint32-array
+     description: safe range of ambient temperature
+     items:
+       - description: alert when ambient temperature is lower than this value
+       - description: alert when ambient temperature is higher than this value
+ 
+   alert-celsius:
+-    $ref: /schemas/types.yaml#/definitions/uint32-array
+     description: safe range of battery temperature
+     items:
+       - description: alert when battery temperature is lower than this value
+diff --git a/Documentation/devicetree/bindings/power/supply/bq2515x.yaml b/Documentation/devicetree/bindings/power/supply/bq2515x.yaml
+index 75a56773be4a..813d6afde606 100644
+--- a/Documentation/devicetree/bindings/power/supply/bq2515x.yaml
++++ b/Documentation/devicetree/bindings/power/supply/bq2515x.yaml
+@@ -50,7 +50,6 @@ properties:
+     maxItems: 1
+ 
+   input-current-limit-microamp:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description: Maximum input current in micro Amps.
+     minimum: 50000
+     maximum: 500000
+diff --git a/Documentation/devicetree/bindings/regulator/dlg,da9121.yaml b/Documentation/devicetree/bindings/regulator/dlg,da9121.yaml
+index 6f2164f7bc57..228018c87bea 100644
+--- a/Documentation/devicetree/bindings/regulator/dlg,da9121.yaml
++++ b/Documentation/devicetree/bindings/regulator/dlg,da9121.yaml
+@@ -62,7 +62,6 @@ properties:
+     description: IRQ line information.
+ 
+   dlg,irq-polling-delay-passive-ms:
+-    $ref: "/schemas/types.yaml#/definitions/uint32"
+     minimum: 1000
+     maximum: 10000
+     description: |
+diff --git a/Documentation/devicetree/bindings/regulator/fixed-regulator.yaml b/Documentation/devicetree/bindings/regulator/fixed-regulator.yaml
+index d3d0dc13dd8b..8850c01bd470 100644
+--- a/Documentation/devicetree/bindings/regulator/fixed-regulator.yaml
++++ b/Documentation/devicetree/bindings/regulator/fixed-regulator.yaml
+@@ -72,11 +72,9 @@ properties:
+ 
+   startup-delay-us:
+     description: startup time in microseconds
+-    $ref: /schemas/types.yaml#/definitions/uint32
+ 
+   off-on-delay-us:
+     description: off delay time in microseconds
+-    $ref: /schemas/types.yaml#/definitions/uint32
+ 
+   enable-active-high:
+     description:
+diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
+index d30dc045aac6..0ec3551f12dd 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
+@@ -27,7 +27,6 @@ properties:
+       1: chargeable
+ 
+   quartz-load-femtofarads:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description:
+       The capacitive load of the quartz(x-tal), expressed in femto
+       Farad (fF). The default value shall be listed (if optional),
+@@ -47,7 +46,6 @@ properties:
+     deprecated: true
+ 
+   trickle-resistor-ohms:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description:
+       Selected resistor for trickle charger. Should be given
+       if trickle charger should be enabled.
+diff --git a/Documentation/devicetree/bindings/serial/pl011.yaml b/Documentation/devicetree/bindings/serial/pl011.yaml
+index c23c93b400f0..07fa6d26f2b4 100644
+--- a/Documentation/devicetree/bindings/serial/pl011.yaml
++++ b/Documentation/devicetree/bindings/serial/pl011.yaml
+@@ -88,14 +88,12 @@ properties:
+     description:
+       Rate at which poll occurs when auto-poll is set.
+       default 100ms.
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     default: 100
+ 
+   poll-timeout-ms:
+     description:
+       Poll timeout when auto-poll is set, default
+       3000ms.
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     default: 3000
+ 
+ required:
+diff --git a/Documentation/devicetree/bindings/sound/sgtl5000.yaml b/Documentation/devicetree/bindings/sound/sgtl5000.yaml
+index d116c174b545..70b4a8831073 100644
+--- a/Documentation/devicetree/bindings/sound/sgtl5000.yaml
++++ b/Documentation/devicetree/bindings/sound/sgtl5000.yaml
+@@ -41,14 +41,12 @@ properties:
+       values of 2k, 4k or 8k. If set to 0 it will be off. If this node is not
+       mentioned or if the value is unknown, then micbias resistor is set to
+       4k.
+-    $ref: "/schemas/types.yaml#/definitions/uint32"
+     enum: [ 0, 2, 4, 8 ]
+ 
+   micbias-voltage-m-volts:
+     description: The bias voltage to be used in mVolts. The voltage can take
+       values from 1.25V to 3V by 250mV steps. If this node is not mentioned
+       or the value is unknown, then the value is set to 1.25V.
+-    $ref: "/schemas/types.yaml#/definitions/uint32"
+     enum: [ 1250, 1500, 1750, 2000, 2250, 2500, 2750, 3000 ]
+ 
+   lrclk-strength:
+diff --git a/Documentation/devicetree/bindings/watchdog/watchdog.yaml b/Documentation/devicetree/bindings/watchdog/watchdog.yaml
+index 4e2c26cd981d..e3dfb02f0ca5 100644
+--- a/Documentation/devicetree/bindings/watchdog/watchdog.yaml
++++ b/Documentation/devicetree/bindings/watchdog/watchdog.yaml
+@@ -19,7 +19,6 @@ properties:
+     pattern: "^watchdog(@.*|-[0-9a-f])?$"
+ 
+   timeout-sec:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description:
+       Contains the watchdog timeout in seconds.
+ 
 -- 
-2.26.2
+2.27.0
 

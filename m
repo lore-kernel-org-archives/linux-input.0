@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EEDDC433E9
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:43:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDFC1C433E0
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:43:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5BEFB64DF2
-	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:43:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8291764DED
+	for <linux-input@archiver.kernel.org>; Thu, 28 Jan 2021 22:43:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231565AbhA1Wmt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Jan 2021 17:42:49 -0500
-Received: from szxga04-in.huawei.com ([45.249.212.190]:11616 "EHLO
+        id S229953AbhA1WnK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Jan 2021 17:43:10 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:11214 "EHLO
         szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231478AbhA1WmR (ORCPT
+        with ESMTP id S231455AbhA1WmR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Thu, 28 Jan 2021 17:42:17 -0500
 Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4DRb5d71b1z1612D;
-        Fri, 29 Jan 2021 06:40:21 +0800 (CST)
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4DRb5G1xmtzlCDW;
+        Fri, 29 Jan 2021 06:40:02 +0800 (CST)
 Received: from SWX921481.china.huawei.com (10.126.203.74) by
  DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
- 14.3.498.0; Fri, 29 Jan 2021 06:41:29 +0800
+ 14.3.498.0; Fri, 29 Jan 2021 06:41:26 +0800
 From:   Barry Song <song.bao.hua@hisilicon.com>
 To:     <tglx@linutronix.de>, <dmitry.torokhov@gmail.com>,
         <maz@kernel.org>, <gregkh@linuxfoundation.org>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 CC:     <linuxarm@openeuler.org>, Barry Song <song.bao.hua@hisilicon.com>
-Subject: [PATCH v4 07/12] Input: zinitix - request_irq by IRQF_NO_AUTOEN and remove irq_set_status_flags
-Date:   Fri, 29 Jan 2021 11:35:33 +1300
-Message-ID: <20210128223538.20272-8-song.bao.hua@hisilicon.com>
+Subject: [PATCH v4 06/12] Input: stmfts - request_irq by IRQF_NO_AUTOEN and remove irq_set_status_flags
+Date:   Fri, 29 Jan 2021 11:35:32 +1300
+Message-ID: <20210128223538.20272-7-song.bao.hua@hisilicon.com>
 X-Mailer: git-send-email 2.21.0.windows.1
 In-Reply-To: <20210128223538.20272-1-song.bao.hua@hisilicon.com>
 References: <20210128223538.20272-1-song.bao.hua@hisilicon.com>
@@ -51,26 +51,25 @@ the driver doesn't need to call irq_set_status_flags any more.
 
 Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
 ---
- drivers/input/touchscreen/zinitix.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/stmfts.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
-index a3e3adbabc67..0d3c93e4bbb7 100644
---- a/drivers/input/touchscreen/zinitix.c
-+++ b/drivers/input/touchscreen/zinitix.c
-@@ -513,10 +513,10 @@ static int zinitix_ts_probe(struct i2c_client *client)
- 		return -EINVAL;
- 	}
- 
+diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+index 9a64e1dbc04a..bc11203c9cf7 100644
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -691,10 +691,9 @@ static int stmfts_probe(struct i2c_client *client,
+ 	 * interrupts. To be on the safe side it's better to not enable
+ 	 * the interrupts during their request.
+ 	 */
 -	irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, zinitix_ts_irq_handler,
--					  IRQF_ONESHOT, client->name, bt541);
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
-+					  client->name, bt541);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to request IRQ: %d\n", error);
- 		return error;
+ 	err = devm_request_threaded_irq(&client->dev, client->irq,
+ 					NULL, stmfts_irq_handler,
+-					IRQF_ONESHOT,
++					IRQF_ONESHOT | IRQF_NO_AUTOEN,
+ 					"stmfts_irq", sdata);
+ 	if (err)
+ 		return err;
 -- 
 2.25.1
 

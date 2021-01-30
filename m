@@ -2,95 +2,107 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-24.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2130C433DB
-	for <linux-input@archiver.kernel.org>; Sat, 30 Jan 2021 10:26:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCE11C433E0
+	for <linux-input@archiver.kernel.org>; Sat, 30 Jan 2021 19:11:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B407264E05
-	for <linux-input@archiver.kernel.org>; Sat, 30 Jan 2021 10:26:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A5A0F64E11
+	for <linux-input@archiver.kernel.org>; Sat, 30 Jan 2021 19:11:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232020AbhA3KZv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 30 Jan 2021 05:25:51 -0500
-Received: from mga06.intel.com ([134.134.136.31]:30877 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232221AbhA3KZ1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 30 Jan 2021 05:25:27 -0500
-IronPort-SDR: 6T4EdNHxqpBM86DW1PHI4oBEkmKLbznH81XNqfpnx1ofSuemt/mV6Wd34BGWniD/51yhGMGnX/
- nbggDZKluB8A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9879"; a="242045419"
-X-IronPort-AV: E=Sophos;i="5.79,388,1602572400"; 
-   d="scan'208";a="242045419"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2021 02:24:46 -0800
-IronPort-SDR: p+YYND8MYMPvvWpMw0zIWV9d8gKMIumjcD0mHYFFIAm6//U4QAYX8iywbuz5cigbYoKtLuUK7q
- DVyfY01yN9eg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.79,388,1602572400"; 
-   d="scan'208";a="352940978"
-Received: from host.sh.intel.com ([10.239.154.115])
-  by fmsmga007.fm.intel.com with ESMTP; 30 Jan 2021 02:24:44 -0800
-From:   Ye Xiang <xiang.ye@intel.com>
-To:     jikos@kernel.org, jic23@kernel.org,
-        srinivas.pandruvada@linux.intel.com
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH v2] iio: hid-sensor-rotation: Fix quaternion data not correct
-Date:   Sat, 30 Jan 2021 18:25:46 +0800
-Message-Id: <20210130102546.31397-1-xiang.ye@intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S230168AbhA3TLW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 30 Jan 2021 14:11:22 -0500
+Received: from mail.archlinux.org ([95.216.189.61]:44394 "EHLO
+        mail.archlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230036AbhA3TLW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 30 Jan 2021 14:11:22 -0500
+Received: from localhost.localdomain (unknown [188.251.63.183])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: ffy00)
+        by mail.archlinux.org (Postfix) with ESMTPSA id 396F63AEDBB;
+        Sat, 30 Jan 2021 19:10:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=archlinux.org;
+        s=dkim-rsa; t=1612033840;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=b826KHVfAP92XNLPbv2NhgYvU4eRpKPywAcsISgN4KI=;
+        b=ZT+XiBp4cqJMVZwDnavGIVWYBLEVnn39p1BvvfEOnMJOPriADhzaOPGOuW0NVNcynexX8a
+        mosuNyjPaWBfYZVzlTDKWSUI6LULL9qs1GKT4e61UKcDXvqr8q4ZxuaM0OO4DmvhaIa6Tp
+        curE5v3bKMkfINr61MZld6LdTeOrM7cJN2F9sx+rUxokNrRzV4f0Y1ZkeR3sCqSwLMTKpM
+        vYrLsHcQMKdJ12gdr8NZCuRF0QkIuHOIq6bqizljjhbcG9i19KbAJdCvGx4l21aNrt9rTi
+        Wi7iAMz6DTyO28cgTtWyDv1tUgMZfOM0fMJu12F/rR561Mygs9xIJ2ja4ECU5qAQ6YBmNo
+        PgpZ3s7TXGqY4GKcCp35VP8TwK14WH5gXXXr7IYaYdhhLKDQ//B7CgPGwj4cqHsOijozoY
+        4HCyFFMNtCEMk7AIPWLKjfHZEjgQAEZTL5TQyu34kRgwWTLoo5GiJ/6tmWsK+gsb4qIWmv
+        ep3P7aYmS8gqrBDz3q/MabzVV2CV/k8ulk8dbGOlMVk0b/zGFaNZYLtb04uDlDHgTqdQPR
+        TPsNNBaF3H7VFFa8bD8Hriy//smvy3dtNeJZ2t3hRdPIDb5+h1U60ZecPhk0E2efNpC4/F
+        ab9ons3zuLE3X+Mvw7oJNGPrGdI3n8mHflidX5oqp0KRZ7tjyl/Mg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=archlinux.org;
+        s=dkim-ed25519; t=1612033840;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=b826KHVfAP92XNLPbv2NhgYvU4eRpKPywAcsISgN4KI=;
+        b=qjyaQNqTKq1nX0XyVPhXG2eHwjdFDs1YL1K149p1TO9jXtVFPJHPKmWVX33P1nj/nFybj3
+        L0GcbjV1S9yOh6Dg==
+From:   =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@archlinux.org>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Hans de Goede <hdegoede@redhat.com>
+Cc:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>
+Subject: [PATCH] HID: logitech-dj: add support for keyboard events in eQUAD step 4 Gaming
+Date:   Sat, 30 Jan 2021 19:10:27 +0000
+Message-Id: <20210130191027.1225465-1-lains@archlinux.org>
+X-Mailer: git-send-email 2.30.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Authentication-Results: mail.archlinux.org;
+        auth=pass smtp.auth=ffy00 smtp.mailfrom=lains@archlinux.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Because the data of HID_USAGE_SENSOR_ORIENT_QUATERNION defined by ISH FW
-is s16, but quaternion data type is in_rot_quaternion_type(le:s16/32X4>>0),
-need to transform data type from s16 to s32
+From: Filipe Laíns <lains@riseup.net>
 
-Fixes: fc18dddc0625 ("iio: hid-sensors: Added device rotation support")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+In e400071a805d6229223a98899e9da8c6233704a1 I added support for the
+receiver that comes with the G602 device, but unfortunately I screwed up
+during testing and it seems the keyboard events were actually not being
+sent to userspace.
+This resulted in keyboard events being broken in userspace, please
+backport the fix.
+
+The receiver uses the normal 0x01 Logitech keyboard report descriptor,
+as expected, so it is just a matter of flagging it as supported.
+
+Reported in
+https://github.com/libratbag/libratbag/issues/1124
+
+Signed-off-by: Filipe Laíns <lains@riseup.net>
 ---
-v2:
-  - Add Fixes tag
+ drivers/hid/hid-logitech-dj.c | 1 +
+ 1 file changed, 1 insertion(+)
 
----
- drivers/iio/orientation/hid-sensor-rotation.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index b0245b3b7ffc..cf7f57a47681 100644
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -21,7 +21,7 @@ struct dev_rot_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info quaternion;
- 	struct {
--		u32 sampled_vals[4] __aligned(16);
-+		s32 sampled_vals[4] __aligned(16);
- 		u64 timestamp __aligned(8);
- 	} scan;
- 	int scale_pre_decml;
-@@ -175,8 +175,15 @@ static int dev_rot_capture_sample(struct hid_sensor_hub_device *hsdev,
- 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
- 
- 	if (usage_id == HID_USAGE_SENSOR_ORIENT_QUATERNION) {
--		memcpy(&rot_state->scan.sampled_vals, raw_data,
--		       sizeof(rot_state->scan.sampled_vals));
-+		if (raw_len / 4 == sizeof(s16)) {
-+			rot_state->scan.sampled_vals[0] = ((s16 *)raw_data)[0];
-+			rot_state->scan.sampled_vals[1] = ((s16 *)raw_data)[1];
-+			rot_state->scan.sampled_vals[2] = ((s16 *)raw_data)[2];
-+			rot_state->scan.sampled_vals[3] = ((s16 *)raw_data)[3];
-+		} else {
-+			memcpy(&rot_state->scan.sampled_vals, raw_data,
-+			       sizeof(rot_state->scan.sampled_vals));
-+		}
- 
- 		dev_dbg(&indio_dev->dev, "Recd Quat len:%zu::%zu\n", raw_len,
- 			sizeof(rot_state->scan.sampled_vals));
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 6596c81947a8..2703333edc34 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -981,6 +981,7 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
+ 	case 0x07:
+ 		device_type = "eQUAD step 4 Gaming";
+ 		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
++		workitem.reports_supported |= STD_KEYBOARD;
+ 		break;
+ 	case 0x08:
+ 		device_type = "eQUAD step 4 for gamepads";
 -- 
-2.17.1
+2.30.0
 

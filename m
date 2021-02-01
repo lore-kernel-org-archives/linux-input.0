@@ -2,115 +2,77 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22EDDC433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 516E4C433DB
 	for <linux-input@archiver.kernel.org>; Mon,  1 Feb 2021 05:53:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DA8F364E2A
-	for <linux-input@archiver.kernel.org>; Mon,  1 Feb 2021 05:53:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1410664E15
+	for <linux-input@archiver.kernel.org>; Mon,  1 Feb 2021 05:53:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231684AbhBAFwH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 1 Feb 2021 00:52:07 -0500
-Received: from mga11.intel.com ([192.55.52.93]:19171 "EHLO mga11.intel.com"
+        id S229721AbhBAFwc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 1 Feb 2021 00:52:32 -0500
+Received: from mga11.intel.com ([192.55.52.93]:19152 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231695AbhBAFtT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 1 Feb 2021 00:49:19 -0500
-IronPort-SDR: ojb9jcuTeRFRC3xNV45FtKwFZAnd85uFJ/PiktNUEmWY8h8yOBy0tBDdZOxitB94ZpwalOFVCv
- P6ZI3WXnUoPQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9881"; a="177129617"
+        id S231678AbhBAFtM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 1 Feb 2021 00:49:12 -0500
+IronPort-SDR: wvKYythIv9f2yYdRT3mlzF5GjcEfxTa9OGsyghikuw7V5onNMqpyd3YEiOR0Nh3CESYDLfJIQo
+ u+SJX65lKZoA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9881"; a="177129612"
 X-IronPort-AV: E=Sophos;i="5.79,391,1602572400"; 
-   d="scan'208";a="177129617"
+   d="scan'208";a="177129612"
 Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2021 21:48:37 -0800
-IronPort-SDR: DzMQod02KVOP5s3p8IHkdZuP5cknefoZYSy/zT9dRLdsY7kpUjLRrGsbaaAgJTEjXKY6KqubKa
- scc3v22Mq3Pg==
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2021 21:48:31 -0800
+IronPort-SDR: ON2leQPWDK+SX3Y2+E5xQdPnNCB8cvaFRPa7fjYnG3Xbp0/Q1zpLKDZEEbF56hboFOqwMYTGhq
+ WAnuzMLFHzaA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.79,391,1602572400"; 
-   d="scan'208";a="506706387"
+   d="scan'208";a="506706366"
 Received: from host.sh.intel.com ([10.239.154.115])
-  by orsmga004.jf.intel.com with ESMTP; 31 Jan 2021 21:48:36 -0800
+  by orsmga004.jf.intel.com with ESMTP; 31 Jan 2021 21:48:30 -0800
 From:   Ye Xiang <xiang.ye@intel.com>
 To:     jikos@kernel.org, jic23@kernel.org,
         srinivas.pandruvada@linux.intel.com
 Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
         linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH v2 2/2] hid-sensors: Add more data fields for sensitivity checking
-Date:   Mon,  1 Feb 2021 13:49:21 +0800
-Message-Id: <20210201054921.18214-3-xiang.ye@intel.com>
+Subject: [PATCH v2 0/2] resolve read hystersis return invalid argument issue for hid sensors
+Date:   Mon,  1 Feb 2021 13:49:19 +0800
+Message-Id: <20210201054921.18214-1-xiang.ye@intel.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210201054921.18214-1-xiang.ye@intel.com>
-References: <20210201054921.18214-1-xiang.ye@intel.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Before, when reading/writing the hysteresis of als, incli-3d, press, and
-rotation sensor, we will get invalid argument error.
+This patch series move get sensitivity attribute to common layer and
+resolve read hystersis return invalid argument issue for hid sensors als,
+incli-3d, rotation, and press on intel ISH Platform.
 
-This patch add more sensitivity data fields for these sensors, so that
-these sensors can get sensitivity index and return correct hysteresis
-value.
-
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
 ---
- drivers/iio/light/hid-sensor-als.c            | 1 +
- drivers/iio/orientation/hid-sensor-incl-3d.c  | 1 +
- drivers/iio/orientation/hid-sensor-rotation.c | 1 +
- drivers/iio/pressure/hid-sensor-press.c       | 1 +
- 4 files changed, 4 insertions(+)
+v2:
+  - separate the add relative sensitivity patch to the next patch series.
 
-diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
-index 8bf6e9e0a0e0..afcdb424bfb8 100644
---- a/drivers/iio/light/hid-sensor-als.c
-+++ b/drivers/iio/light/hid-sensor-als.c
-@@ -41,6 +41,7 @@ struct als_state {
- 
- static const u32 als_sensitivity_addresses[] = {
- 	HID_USAGE_SENSOR_DATA_LIGHT,
-+	HID_USAGE_SENSOR_LIGHT_ILLUM,
- };
- 
- /* Channel definitions */
-diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
-index 6e69f6e673cc..7af48d336285 100644
---- a/drivers/iio/orientation/hid-sensor-incl-3d.c
-+++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
-@@ -49,6 +49,7 @@ static const u32 incl_3d_addresses[INCLI_3D_CHANNEL_MAX] = {
- 
- static const u32 incl_3d_sensitivity_addresses[] = {
- 	HID_USAGE_SENSOR_DATA_ORIENTATION,
-+	HID_USAGE_SENSOR_ORIENT_TILT,
- };
- 
- /* Channel definitions */
-diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index 03d2845a7b2c..b0245b3b7ffc 100644
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -33,6 +33,7 @@ struct dev_rot_state {
- 
- static const u32 rotation_sensitivity_addresses[] = {
- 	HID_USAGE_SENSOR_DATA_ORIENTATION,
-+	HID_USAGE_SENSOR_ORIENT_QUATERNION,
- };
- 
- /* Channel definitions */
-diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
-index 8cac2c94e75a..c416d261e3e3 100644
---- a/drivers/iio/pressure/hid-sensor-press.c
-+++ b/drivers/iio/pressure/hid-sensor-press.c
-@@ -31,6 +31,7 @@ struct press_state {
- 
- static const u32 press_sensitivity_addresses[] = {
- 	HID_USAGE_SENSOR_DATA_ATMOSPHERIC_PRESSURE,
-+	HID_USAGE_SENSOR_ATMOSPHERIC_PRESSURE
- };
- 
- /* Channel definitions */
+Ye Xiang (2):
+  iio: hid-sensors: Move get sensitivity attribute to hid-sensor-common
+  hid-sensors: Add more data fields for sensitivity checking
+
+ drivers/iio/accel/hid-sensor-accel-3d.c       | 23 ++++++-------
+ .../hid-sensors/hid-sensor-attributes.c       | 17 +++++++++-
+ drivers/iio/gyro/hid-sensor-gyro-3d.c         | 19 ++++-------
+ drivers/iio/humidity/hid-sensor-humidity.c    | 16 ++++------
+ drivers/iio/light/hid-sensor-als.c            | 20 +++++-------
+ drivers/iio/light/hid-sensor-prox.c           | 27 +++++-----------
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c | 32 ++++++-------------
+ drivers/iio/orientation/hid-sensor-incl-3d.c  | 20 +++++-------
+ drivers/iio/orientation/hid-sensor-rotation.c | 24 ++++++--------
+ .../position/hid-sensor-custom-intel-hinge.c  | 20 ++++--------
+ drivers/iio/pressure/hid-sensor-press.c       | 20 +++++-------
+ .../iio/temperature/hid-sensor-temperature.c  | 16 ++++------
+ drivers/rtc/rtc-hid-sensor-time.c             |  4 ++-
+ include/linux/hid-sensor-hub.h                |  4 ++-
+ 14 files changed, 111 insertions(+), 151 deletions(-)
+
 -- 
 2.17.1
 

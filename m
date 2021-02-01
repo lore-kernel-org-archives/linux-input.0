@@ -2,225 +2,189 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 692DBC433E0
-	for <linux-input@archiver.kernel.org>; Sun, 31 Jan 2021 20:34:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7391FC433DB
+	for <linux-input@archiver.kernel.org>; Mon,  1 Feb 2021 04:09:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3772264DDF
-	for <linux-input@archiver.kernel.org>; Sun, 31 Jan 2021 20:34:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 37B4F64E13
+	for <linux-input@archiver.kernel.org>; Mon,  1 Feb 2021 04:09:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231202AbhAaUeZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 31 Jan 2021 15:34:25 -0500
-Received: from mga02.intel.com ([134.134.136.20]:2438 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231178AbhAaUeC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 31 Jan 2021 15:34:02 -0500
-IronPort-SDR: eckJLbwX2g9e42snkm8UNqc97F3kyrSsO4LjyhBtM94QDRBAnzJvJ12b01C7eb1H6YNLlw+9pg
- vprFXQEZ4HNQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9881"; a="167711438"
-X-IronPort-AV: E=Sophos;i="5.79,391,1602572400"; 
-   d="scan'208";a="167711438"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2021 12:32:15 -0800
-IronPort-SDR: LnsvBvGWDB3gq7Fia5TzJhFcTzSmWwjjNXAiL/EzwkL8DJOEXYc186+kskymHREuYipWtu3L72
- jLPh9OqwESEw==
-X-IronPort-AV: E=Sophos;i="5.79,391,1602572400"; 
-   d="scan'208";a="577376688"
-Received: from enmoore-mobl1.amr.corp.intel.com ([10.213.184.10])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2021 12:32:14 -0800
-Message-ID: <4f14ff5e885386eca96a0b76365b486cf443540d.camel@linux.intel.com>
-Subject: Re: [PATCH 2/3] hid-sensor-common: Add relative sensitivity check
-From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-To:     Jonathan Cameron <jic23@kernel.org>,
-        "Ye, Xiang" <xiang.ye@intel.com>
-Cc:     jikos@kernel.org, linux-input@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Sun, 31 Jan 2021 12:32:14 -0800
-In-Reply-To: <20210131112648.3299b2a0@archlinux>
-References: <20210120074706.23199-1-xiang.ye@intel.com>
-         <20210120074706.23199-3-xiang.ye@intel.com>
-         <20210124131442.0fc2577e@archlinux>
-         <7e136ebb914f71da3fcb90b8048f9f7dd8cdf0bf.camel@linux.intel.com>
-         <20210128163549.GA12432@host> <20210131112648.3299b2a0@archlinux>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+        id S230085AbhBAEJe convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 31 Jan 2021 23:09:34 -0500
+Received: from szxga02-in.huawei.com ([45.249.212.188]:3000 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229842AbhBAEJ3 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 31 Jan 2021 23:09:29 -0500
+Received: from DGGEMM405-HUB.china.huawei.com (unknown [172.30.72.55])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4DTZCk5wzRzR90Y;
+        Mon,  1 Feb 2021 12:07:30 +0800 (CST)
+Received: from dggemi761-chm.china.huawei.com (10.1.198.147) by
+ DGGEMM405-HUB.china.huawei.com (10.3.20.213) with Microsoft SMTP Server (TLS)
+ id 14.3.498.0; Mon, 1 Feb 2021 12:08:40 +0800
+Received: from dggemi761-chm.china.huawei.com (10.1.198.147) by
+ dggemi761-chm.china.huawei.com (10.1.198.147) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2106.2; Mon, 1 Feb 2021 12:08:40 +0800
+Received: from dggemi761-chm.china.huawei.com ([10.9.49.202]) by
+ dggemi761-chm.china.huawei.com ([10.9.49.202]) with mapi id 15.01.2106.006;
+ Mon, 1 Feb 2021 12:08:40 +0800
+From:   "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "maz@kernel.org" <maz@kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "linuxarm@openeuler.org" <linuxarm@openeuler.org>
+Subject: RE: [PATCH v3 01/12] genirq: add IRQF_NO_AUTOEN for request_irq
+Thread-Topic: [PATCH v3 01/12] genirq: add IRQF_NO_AUTOEN for request_irq
+Thread-Index: AQHW9a9uNArtZHW+oUqboLRFBHDNC6pCsLjg
+Date:   Mon, 1 Feb 2021 04:08:39 +0000
+Message-ID: <235c6c79dc4a4aa29f21f0dd331cf58f@hisilicon.com>
+References: <20210107223926.35284-2-song.bao.hua@hisilicon.com>
+ <87k0rwdegz.fsf@nanos.tec.linutronix.de>
+In-Reply-To: <87k0rwdegz.fsf@nanos.tec.linutronix.de>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.126.203.222]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 2021-01-31 at 11:26 +0000, Jonathan Cameron wrote:
-> On Fri, 29 Jan 2021 00:35:49 +0800
-> "Ye, Xiang" <xiang.ye@intel.com> wrote:
-> 
-> > Hi Srinivas andd Jonathan
-> > 
-> > Thanks for the review.
-> > 
-> > On Sun, Jan 24, 2021 at 08:20:12AM -0800, Srinivas Pandruvada
-> > wrote:
-> > > On Sun, 2021-01-24 at 13:14 +0000, Jonathan Cameron wrote:  
-> > > > On Wed, 20 Jan 2021 15:47:05 +0800
-> > > > Ye Xiang <xiang.ye@intel.com> wrote:
-> > > >   
-> > > > > Some hid sensors may use relative sensitivity such as als
-> > > > > sensor.
-> > > > > This patch add relative sensitivity check for all hid-
-> > > > > sensors.
-> > > > > 
-> > > > > Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-> > > > > ---
-> > > > >  .../iio/common/hid-sensors/hid-sensor-attributes.c    | 11
-> > > > > ++++++++++-
-> > > > >  include/linux/hid-sensor-ids.h                        |  1 +
-> > > > >  2 files changed, 11 insertions(+), 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/drivers/iio/common/hid-sensors/hid-sensor-
-> > > > > attributes.c 
-> > > > > b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> > > > > index d349ace2e33f..b685c292a179 100644
-> > > > > --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> > > > > +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> > > > > @@ -480,7 +480,7 @@ int
-> > > > > hid_sensor_parse_common_attributes(struct
-> > > > > hid_sensor_hub_device *hsdev,
-> > > > >  
-> > > > >  	/*
-> > > > >  	 * Set Sensitivity field ids, when there is no
-> > > > > individualsha512sum
-> > > > > modifier, will
-> > > > > -	 * check absolute sensitivity of data field
-> > > > > +	 * check absolute sensitivity and relative sensitivity
-> > > > > of data
-> > > > > field
-> > > > >  	 */
-> > > > >  	for (i = 0; i < sensitivity_addresses_len && st-  
-> > > > > > sensitivity.index < 0; i++) {  
-> > > > >  		sensor_hub_input_get_attribute_info(hsdev,
-> > > > > @@ -488,6 +488,15 @@ int
-> > > > > hid_sensor_parse_common_attributes(struct
-> > > > > hid_sensor_hub_device *hsdev,
-> > > > >  				HID_USAGE_SENSOR_DATA_MOD_CHANG
-> > > > > E_SENSIT
-> > > > > IVITY_ABS |
-> > > > >  					sensitivity_addresses[i
-> > > > > ],
-> > > > >  				&st->sensitivity);
-> > > > > +
-> > > > > +		if (st->sensitivity.index >= 0)
-> > > > > +			break;
-> > > > > +
-> > > > > +		sensor_hub_input_get_attribute_info(hsdev,
-> > > > > +				HID_FEATURE_REPORT, usage_id,
-> > > > > +				HID_USAGE_SENSOR_DATA_MOD_CHANG
-> > > > > E_SENSIT
-> > > > > IVITY_REL_PCT |
-> > > > > +					sensitivity_addresses[i
-> > > > > ],
-> > > > > +				&st->sensitivity);  
-> > > > 
-> > > > We can't provide the value to userspace without reflecting the
-> > > > difference between
-> > > > the two ways of expressing it.
-> > > > 
-> > > > It seems there are 3 ways sensitivity is expressed.
-> > > > 1. Raw value in same units as the measurement (easy one and
-> > > > what is
-> > > > currently reported)
-> > > > 2. Percentage of range - also relatively easy to transform into
-> > > > the
-> > > > same as 1.
-> > > > 3. Percentage of prior reading..  This one doesn't fit in any
-> > > > existing ABI, so
-> > > >    unfortunately we'll have to invent something new along the
-> > > > lines
-> > > > of
-> > > >    *_hysteresis_relative   
-> > 
-> > yes, the 3th version sensitivity (Percentage of prior reading) is
-> > what we 
-> > are using for als sensor now. the 1th version sensitivity is common
-> > used 
-> > by other hid sensors. Do you have suggestion or reference about 
-> > how to add *_hysteresis_relative field to iio model?
-> 
-> Follow through how elements of iio_chan_info_enum in
-> include/linux/iio/types.h are used and you should see how to add a
-> new
-> one (basically add an entry to that and also the string to the
-> right array in industrialio-core.c + document it in
-> Documentation/ABI/testing/sysfs-bus-iio.
-> 
-> The issue with putting this in is we are going to be 'fixing' the ABI
-> for
-> that ALS sensor which is going to cause problems for any userspace
-> users
-> of that interface... I have no idea how commonly this is used, but it
-> is
-> possible we'll have to leave that one as incorrect :(
-Currently we don't have relative usage id treatment, So user space gets
-error in read/write for ALS. So I think it shouldn't be a problem.
 
-Thanks,
-Srinivas
 
+> -----Original Message-----
+> From: Thomas Gleixner [mailto:tglx@linutronix.de]
+> Sent: Friday, January 29, 2021 8:55 AM
+> To: Song Bao Hua (Barry Song) <song.bao.hua@hisilicon.com>;
+> dmitry.torokhov@gmail.com; maz@kernel.org; gregkh@linuxfoundation.org;
+> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Cc: linuxarm@openeuler.org; Song Bao Hua (Barry Song)
+> <song.bao.hua@hisilicon.com>
+> Subject: Re: [PATCH v3 01/12] genirq: add IRQF_NO_AUTOEN for request_irq
 > 
-> > > This is why it was not added before when I developed.  But later
-> > > few
-> > > years back there was a patch to add this by one of our developer.
-> > > There
-> > > was some discussion, I thought it was decided it is OK to add.
-> > > 
-> > > But I agree, we should add new ABI as you suggested. Now almost
-> > > every
-> > > laptop has HID sensors, better to address this. 
-> > >   
-> > 
-> > I think the add relative hystersis patch should be separated into a
-> > independent
-> > patch series, for it's a independent function and need more effort
-> > for coding and 
-> > testing. And I can submit the other two patch in this patch series
-> > first.
+> Barry,
 > 
-> Sure, if they are independent that should be fine.
+> On Fri, Jan 08 2021 at 11:39, Barry Song wrote:
+> > diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+> > index ab8567f32501..2b28314e2572 100644
+> > --- a/kernel/irq/manage.c
+> > +++ b/kernel/irq/manage.c
+> > @@ -1693,6 +1693,9 @@ __setup_irq(unsigned int irq, struct irq_desc *desc,
+> struct irqaction *new)
+> >  			irqd_set(&desc->irq_data, IRQD_NO_BALANCING);
+> >  		}
+> >
+> > +		if (new->flags & IRQF_NO_AUTOEN)
+> > +			irq_settings_set_noautoen(desc);
+> 
+> If we move this to request time flags, then setting the noautoen bit on
+> the irq descriptor is pretty pointless. See below.
+> 
+> I rather get rid of the irq_settings magic for NOAUTOEN completely.
+
+Thanks for your comment, Thomas.
+
+Got this issue fixed in v4:
+https://lore.kernel.org/lkml/20210128223538.20272-1-song.bao.hua@hisilicon.com/
+
+btw, for those drivers which are using the first pattern:
+irq_set_status_flags(irq, IRQ_NOAUTOEN);
+request_irq(dev, irq...);
+
+Simply running "git grep IRQ_NOAUTOEN"  will help figure where to fix.
+
+For those drivers which are using the second pattern:
+request_irq(dev, irq...);
+disable_irq(irq);
+
+I wrote a script as below:
+
+#!/bin/bash
+if [ $# != 1 -o ! -d $1 ] ; then
+        echo "USAGE: $0 dir"
+        exit 1;
+fi
+
+find $1 -iname "*.c" | while read i
+do
+        if [ -d "$i" ]; then
+                break
+        fi
+
+        irq=`grep -n -A 10 -E "request_irq|request_threaded_irq|request_any_context_irq" $i | grep disable_irq` 
+        if [ "$irq" != "" ]; then
+                echo "$i":"$irq"
+        fi
+done
+
+The script says there are more than 70 cases in 5.11-rc6.
+We are going to fix all of them after this one settles down.
+
+Thanks
+Barry
+
 > 
 > Thanks,
 > 
-> Jonathan
+>         tglx
+> ---
+> --- a/include/linux/interrupt.h
+> +++ b/include/linux/interrupt.h
+> @@ -61,6 +61,8 @@
+>   *                interrupt handler after suspending interrupts. For system
+>   *                wakeup devices users need to implement wakeup detection in
+>   *                their interrupt handlers.
+> + * IRQF_NO_AUTOEN - Don't enable IRQ automatically when users request it. Users
+> + *                will enable it explicitly by enable_irq() later.
+>   */
+>  #define IRQF_SHARED		0x00000080
+>  #define IRQF_PROBE_SHARED	0x00000100
+> @@ -74,6 +76,7 @@
+>  #define IRQF_NO_THREAD		0x00010000
+>  #define IRQF_EARLY_RESUME	0x00020000
+>  #define IRQF_COND_SUSPEND	0x00040000
+> +#define IRQF_NO_AUTOEN		0x00080000
 > 
-> > > > 
-> > > >   
-> > > > >  	}
-> > > > >  
-> > > > >  	st->raw_hystersis = -1;
-> > > > > diff --git a/include/linux/hid-sensor-ids.h
-> > > > > b/include/linux/hid-
-> > > > > sensor-ids.h
-> > > > > index 3bbdbccc5805..ac631159403a 100644
-> > > > > --- a/include/linux/hid-sensor-ids.h
-> > > > > +++ b/include/linux/hid-sensor-ids.h
-> > > > > @@ -149,6 +149,7 @@
-> > > > >  /* Per data field properties */
-> > > > >  #define HID_USAGE_SENSOR_DATA_MOD_NONE			
-> > > > > 	
-> > > > > 	0x00
-> > > > >  #define HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS	
-> > > > > 	
-> > > > > 0x1000
-> > > > > +#define
-> > > > > HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_REL_PCT         
-> > > > >    0xE
-> > > > > 000
-> > > > >  
-> > > > >  /* Power state enumerations */
-> > > > >  #define HID_USAGE_SENSOR_PROP_POWER_STATE_UNDEFINED_ENUM	
-> > > > > 0x20085
-> > > > > 0  
-> > >   
+>  #define IRQF_TIMER		(__IRQF_TIMER | IRQF_NO_SUSPEND | IRQF_NO_THREAD)
+> 
+> --- a/kernel/irq/manage.c
+> +++ b/kernel/irq/manage.c
+> @@ -1693,7 +1693,8 @@ static int
+>  			irqd_set(&desc->irq_data, IRQD_NO_BALANCING);
+>  		}
+> 
+> -		if (irq_settings_can_autoenable(desc)) {
+> +		if (!(new->flags & IRQF_NO_AUTOEN) &&
+> +		    irq_settings_can_autoenable(desc)) {
+>  			irq_startup(desc, IRQ_RESEND, IRQ_START_COND);
+>  		} else {
+>  			/*
+> @@ -2086,10 +2087,15 @@ int request_threaded_irq(unsigned int ir
+>  	 * which interrupt is which (messes up the interrupt freeing
+>  	 * logic etc).
+>  	 *
+> +	 * Also shared interrupts do not go well with disabling auto enable.
+> +	 * The sharing interrupt might request it while it's still disabled
+> +	 * and then wait for interrupts forever.
+> +	 *
+>  	 * Also IRQF_COND_SUSPEND only makes sense for shared interrupts and
+>  	 * it cannot be set along with IRQF_NO_SUSPEND.
+>  	 */
+>  	if (((irqflags & IRQF_SHARED) && !dev_id) ||
+> +	    ((irqflags & IRQF_SHARED) && (irqflags & IRQF_NO_AUTOEN)) ||
+>  	    (!(irqflags & IRQF_SHARED) && (irqflags & IRQF_COND_SUSPEND)) ||
+>  	    ((irqflags & IRQF_NO_SUSPEND) && (irqflags & IRQF_COND_SUSPEND)))
+>  		return -EINVAL;
 

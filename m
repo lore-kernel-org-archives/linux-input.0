@@ -2,86 +2,130 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-23.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30598C433E0
-	for <linux-input@archiver.kernel.org>; Wed,  3 Feb 2021 05:09:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CA5BC433E0
+	for <linux-input@archiver.kernel.org>; Wed,  3 Feb 2021 07:54:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DB6E564DF8
-	for <linux-input@archiver.kernel.org>; Wed,  3 Feb 2021 05:09:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1006C64F65
+	for <linux-input@archiver.kernel.org>; Wed,  3 Feb 2021 07:54:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbhBCFJb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Feb 2021 00:09:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229540AbhBCFJ3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2021 00:09:29 -0500
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C6DC061573;
-        Tue,  2 Feb 2021 21:08:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=L4IWq2tFL9eT/741Suy7xUVfiWKPX0zvBOP4sXbgMO8=; b=VspdSs4W4NuXANRAzMei2niBx0
-        OMoOs2beGe+mdPtNvWHGnBbqophj2aqVi86i7FNCFvqdYY4tpW54lgA1wVkihZhm6OhK9CoENe6p8
-        hiPOxp/QjK6lR9QR/ugS2BbSu0tIpis9+2o3PPveVWIIamCX4vosQkPOPGjxICjJhnKBf9++9h7wC
-        gYaVmagfZEgJylubsInkhYq227zZea1xSBWLichojJObULiwQ3yyNuIb1LRMLZIqjy1eQADA4I/Qe
-        yS80bHDYb+oFTf7vBBI5jrjSMglkD6PVqlLDO0Pxa6xMiWoGbBGkkCk89VAPhOhynyGTHCviVsUIt
-        znHxTEgA==;
-Received: from [2601:1c0:6280:3f0::2a53] (helo=merlin.infradead.org)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1l7APG-0006fJ-MX; Wed, 03 Feb 2021 05:08:47 +0000
-From:   Randy Dunlap <rdunlap@infradead.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        id S232425AbhBCHyA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Feb 2021 02:54:00 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:57047 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232160AbhBCHx6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2021 02:53:58 -0500
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1l7CrV-0000mf-2a; Wed, 03 Feb 2021 08:46:05 +0100
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1l7CrM-0005LW-0J; Wed, 03 Feb 2021 08:45:56 +0100
+Date:   Wed, 3 Feb 2021 08:45:55 +0100
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
+        David Airlie <airlied@linux.ie>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        dri-devel@lists.freedesktop.org, Jaroslav Kysela <perex@perex.cz>,
+        Eric Anholt <eric@anholt.net>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig.org@pengutronix.de>, linux-i2c@vger.kernel.org,
+        linux-spi@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        linux-rtc@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        linux-serial@vger.kernel.org, linux-input@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Mike Leach <mike.leach@linaro.org>,
+        Daniel Vetter <daniel@ffwll.ch>, Arnd Bergmann <arnd@arndb.de>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        coresight@lists.linaro.org, Vladimir Zapolskiy <vz@mleia.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Mark Brown <broonie@kernel.org>, linux-fbdev@vger.kernel.org,
+        Matt Mackall <mpm@selenic.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-watchdog@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Subject: input: Documentation: update related file names in ff.rst
-Date:   Tue,  2 Feb 2021 21:08:42 -0800
-Message-Id: <20210203050842.24190-1-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.26.2
+        linux-mmc@vger.kernel.org, Takashi Iwai <tiwai@suse.com>,
+        linux-kernel@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        linux-crypto@vger.kernel.org,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Leo Yan <leo.yan@linaro.org>, dmaengine@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH v3 0/5] amba: minor fix and various cleanups
+Message-ID: <20210203074555.tusulu3iqg5wgxeb@pengutronix.de>
+References: <20210126165835.687514-1-u.kleine-koenig@pengutronix.de>
+ <20210202104915.GK1463@shell.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="nnu6wqtgppbbywlf"
+Content-Disposition: inline
+In-Reply-To: <20210202104915.GK1463@shell.armlinux.org.uk>
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Change other related documentation file names from .txt to .rst
-and be more explicit about their paths/locations.
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
----
-where is fftest mentioned here found? I only found one place:
-  https://github.com/flosse/linuxconsole/blob/master/utils/fftest.c
+--nnu6wqtgppbbywlf
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- Documentation/input/ff.rst |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Hello,
 
---- linux-next-20210202.orig/Documentation/input/ff.rst
-+++ linux-next-20210202/Documentation/input/ff.rst
-@@ -16,8 +16,8 @@ goal is not to support these devices as
- (as it is already the case), but to really enable the rendering of force
- effects.
- This document only describes the force feedback part of the Linux input
--interface. Please read joystick.txt and input.txt before reading further this
--document.
-+interface. Please read joydev/joystick.rst and input.rst before reading further
-+this document.
- 
- Instructions to the user
- ~~~~~~~~~~~~~~~~~~~~~~~~
-@@ -36,7 +36,7 @@ should keep a hand on your device, in or
- something goes wrong.
- 
- If you have a serial iforce device, you need to start inputattach. See
--joystick.txt for details.
-+joydev/joystick.rst for details.
- 
- Does it work ?
- --------------
+we already talked about this via irc, but for the record and the benefit
+of others:
+
+On Tue, Feb 02, 2021 at 10:49:15AM +0000, Russell King - ARM Linux admin wr=
+ote:
+> I think you need to have a 6th patch which moves the
+> probe/remove/shutdown methods into the bus_type - if you're setting
+> them for every struct device_driver, then there's no point doing that
+> and they may as well be in the bus_type.
+
+This is implemented in patch 5 already.
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--nnu6wqtgppbbywlf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmAaVLAACgkQwfwUeK3K
+7AlQLgf+P1DKYj6OELp8rvge2qlgjLziflPm/vmYKoER7GP62xMAt1jHBWvMgDLx
+SQfCWfc7aNauEmrPFy3TDOyu3SrNFjDVRf3DfOGZ+VpYmmtyUJihjezhbbhpysK5
+Pchia3IjZ0wVWPBC0mb8a1o5w1GQ7l49/QaVZ6buVR+RoNYiKGFdiKcEc8JB+c19
+s2ksv2HXH9eB66fQ+yNQY7W2lNiK98iTc0txk+lhP2wRnFXHPMgqQhFb3j2wt7Or
+ix27mqEX40GyAOv+Xmam2NtjLRM5WD4zflnasEKvxQoa0Qe0mpR6aSKIotUmM4yi
+oNcARpnSdJUwDrfHL0GDd9ksOomPMA==
+=r9/H
+-----END PGP SIGNATURE-----
+
+--nnu6wqtgppbbywlf--

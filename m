@@ -2,106 +2,128 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6707EC433DB
-	for <linux-input@archiver.kernel.org>; Thu,  4 Feb 2021 23:59:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23408C433DB
+	for <linux-input@archiver.kernel.org>; Fri,  5 Feb 2021 03:52:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2965364FB0
-	for <linux-input@archiver.kernel.org>; Thu,  4 Feb 2021 23:59:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB87664FBC
+	for <linux-input@archiver.kernel.org>; Fri,  5 Feb 2021 03:52:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231383AbhBDX7O (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 4 Feb 2021 18:59:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231354AbhBDX7M (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2021 18:59:12 -0500
-Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDF86C061786
-        for <linux-input@vger.kernel.org>; Thu,  4 Feb 2021 15:58:32 -0800 (PST)
-Received: by mail-yb1-xb2e.google.com with SMTP id e132so4981205ybh.8
-        for <linux-input@vger.kernel.org>; Thu, 04 Feb 2021 15:58:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sRxGWIrKp1PiiNE2aPyYhP5zdwwk1cSyu8KOryvKUPQ=;
-        b=TKhPWTpaTvOnyBD60RbbXGIuBDnICpBM3/EqjgWfwHUrtPaAwFXI3SXOs7YcFPlDzB
-         NNw0aRN6rONGv8sh2gKKkG1zpL92q+rnRftsR090uroS7lQV/YubBZwRBrvXLWbZ0rnR
-         +PYkx85pLnShq7Wyw0PX/ex1J8RIkuaoiF7RE=
+        id S230232AbhBEDwc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 4 Feb 2021 22:52:32 -0500
+Received: from mail-pf1-f171.google.com ([209.85.210.171]:38757 "EHLO
+        mail-pf1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229692AbhBEDwb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2021 22:52:31 -0500
+Received: by mail-pf1-f171.google.com with SMTP id d26so2227603pfn.5;
+        Thu, 04 Feb 2021 19:52:15 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sRxGWIrKp1PiiNE2aPyYhP5zdwwk1cSyu8KOryvKUPQ=;
-        b=Xhe6+L+fdt/eWiUnUCBgxiwm4FVxUvxrdxdsgJy7hrtdtZ696vo5iEzHq1/yi2HL9T
-         ITPgvJqc5MvHlU/to1TgAbCKIs6hR/sJqwrWGLzeUY4Nw2gtAxwS41VT7Qwe9ph9YQwj
-         wnF3Uz1zlBJdmCwWNF+aBwZ/Nb4wQP+lkcQuw9mVOdHf+HxwDHb+qiZv4/UyMP3WQjUu
-         1gb5X2m10FKpphLjAiCXkhinjY7+PBdhxfmOWg5t8QRWxm8VfMo7ejKjBe/cyd1j1SLt
-         zM1ENWU6OBmURGgyg6XehW2hrsj1fNiIeIP9eNvWk5RHozr79DhwQNOwhon8x4Hxez02
-         ACEg==
-X-Gm-Message-State: AOAM532vfz7J+MPFUExsX5x3XTEbqplYIyQ6L4cSOdtY3wuDL7vEBP2I
-        8bC215+tEy+sxhz0y9yldAnXBGihm6SCZbmPq7W/Mw==
-X-Google-Smtp-Source: ABdhPJxA8G+Jp/J8sLPkFItRU/SaTbOw4R4Xf0TkBK2sxeWDbZjfoWLY37hr5T5WsR/wYJo9r10AeoRKmDyrlKhkbcQ=
-X-Received: by 2002:a25:da47:: with SMTP id n68mr2333879ybf.75.1612483111393;
- Thu, 04 Feb 2021 15:58:31 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=PUgTmQjg/F/6InB3//OtXUQJ9eXEdUj+c8K+WJcFafw=;
+        b=F3tz+2an+grok/uDff+BdMZF1h7zw0HflQGc8y1/qR3+pi2k/3675RHXVbkqaEZFXA
+         G09HOG/0ygBjeoI6hgSLjMERbqVu5zJ8HiQLzgj7QSr74QVjQQ77DpJUx6+4tnlfWnYK
+         rlfatVZi95oOxlbbSI1aaOvy8vBd369yL07aMvd+zUA5tvYACzbMen8ifDWxn3sdviJm
+         Z1o5c4KEx1877vX2LpcF3TPOZhCwfXLTCbOPizLTx0RmVKndRIg+F10M9PIs8qHwgsjd
+         hxcxfvgXaVvUDqzf27YzOmdyrW2tQZ4/hENBn5ydMB32Y03uKGbbCkHZop8dz7dD8JH0
+         2mOA==
+X-Gm-Message-State: AOAM533GK/9eSLU9tVL4cRy0LWmw0IiOuax+haXyZ0Qqte/WJdmPL3rP
+        04fEQ2rvKxyVVq9qn8sA9/M54mNLmnLWpg==
+X-Google-Smtp-Source: ABdhPJxg8wQ3A/EiNaMHd6Ag38vW7KVOGTfIiKpn26WVMFBcri374acTRm4xV5rpuuwoQVGeoMIQjA==
+X-Received: by 2002:a05:6a00:15cc:b029:1ba:5282:3ab8 with SMTP id o12-20020a056a0015ccb02901ba52823ab8mr2453895pfu.77.1612497109871;
+        Thu, 04 Feb 2021 19:51:49 -0800 (PST)
+Received: from [10.101.46.49] (61-220-137-37.HINET-IP.hinet.net. [61.220.137.37])
+        by smtp.gmail.com with ESMTPSA id h8sm844123pfv.154.2021.02.04.19.51.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 04 Feb 2021 19:51:48 -0800 (PST)
+Subject: Re: [PATCH] HID: intel-ish-hid: ipc: Add Tiger Lake H PCI device ID
+To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20210204083315.122952-1-vicamo.yang@canonical.com>
+ <85a4e6e61ac977d0d00dd9140a9e85f1102b3a6d.camel@linux.intel.com>
+From:   You-Sheng Yang <vicamo.yang@canonical.com>
+Message-ID: <57544f34-0e90-359c-766f-affcf890664a@canonical.com>
+Date:   Fri, 5 Feb 2021 11:51:46 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-References: <20210115122412.v7.1.I025fb861cd5fa0ef5286b7dce514728e9df7ae74@changeid>
- <20210115122412.v7.2.I6542d7d9d0b246e7079bb16b41e697b2ac4b4e39@changeid> <161074288129.3661239.8671522224671695448@swboyd.mtv.corp.google.com>
-In-Reply-To: <161074288129.3661239.8671522224671695448@swboyd.mtv.corp.google.com>
-From:   Philip Chen <philipchen@chromium.org>
-Date:   Thu, 4 Feb 2021 15:58:20 -0800
-Message-ID: <CA+cxXhnTLxCH+z=-2GL_w1WY9t81dpQtkQM73e29_gbiwU3AKA@mail.gmail.com>
-Subject: Re: [PATCH v7 2/2] Input: cros-ec-keyb - Expose function row physical
- map to userspace
-To:     Stephen Boyd <swboyd@chromium.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Rajat Jain <rajatja@google.com>, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <85a4e6e61ac977d0d00dd9140a9e85f1102b3a6d.camel@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi maintainers,
+On 2/4/21 11:13 PM, Srinivas Pandruvada wrote:
+> On Thu, 2021-02-04 at 16:33 +0800, You-Sheng Yang wrote:
+>> Added Tiger Lake H PCI device ID to the supported device list.
+>>
+>> Signed-off-by: You-Sheng Yang <vicamo.yang@canonical.com>
+> Did you get chance to verify on a platform?
+> Do you see sensors enumerated in /sys/bus/iio?
 
-Friendly ping - can we actually land patch series v7?
-Or do you expect any update from me?
+Yes,
 
-On Fri, Jan 15, 2021 at 12:34 PM Stephen Boyd <swboyd@chromium.org> wrote:
->
-> Quoting Philip Chen (2021-01-15 12:24:30)
-> > The top-row keys in a keyboard usually have dual functionalities.
-> > E.g. A function key "F1" is also an action key "Browser back".
-> >
-> > Therefore, when an application receives an action key code from
-> > a top-row key press, the application needs to know how to correlate
-> > the action key code with the function key code and do the conversion
-> > whenever necessary.
-> >
-> > Since the userpace already knows the key scanlines (row/column)
-> > associated with a received key code. Essentially, the userspace only
-> > needs a mapping between the key row/column and the matching physical
-> > location in the top row.
-> >
-> > So, enhance the cros-ec-keyb driver to create such a mapping
-> > and expose it to userspace in the form of a function_row_physmap
-> > attribute. The attribute would be a space separated ordered list of
-> > row/column codes for the keys in the function row, in a left-to-right
-> > order.
-> >
-> > The attribute will only be present when the device has a custom design
-> > for the top-row keys.
-> >
-> > Signed-off-by: Philip Chen <philipchen@chromium.org>
-> > ---
->
-> Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+[    2.485650] ish-hid {33AECD58-B679-4E54-9BD9-A04D34F0C226}:
+[hid-ish]: enum_devices_done OK, num_hid_devices=3
+[    2.497337] hid-generic 001F:8087:0AC2.0003: hidraw2: <UNKNOWN> HID
+v2.00 Device [hid-ishtp 8087:0AC2] on
+[    2.506945] hid-generic 001F:8087:0AC2.0004: hidraw3: <UNKNOWN> HID
+v2.00 Device [hid-ishtp 8087:0AC2] on
+[    2.512127] hid-generic 001F:8087:0AC2.0005: hidraw4: <UNKNOWN> HID
+v2.00 Device [hid-ishtp 8087:0AC2] on
+
+$ ls /sys/bus/iio/devices/
+iio:device0  iio:device1  trigger0  trigger1
+
+One of them is an ambient light sensor, and it works only with this
+patch applied.
+
+Thanks,
+You-Sheng Yang
+
+> Thanks,
+> Srinivas
+> 
+>> ---
+>>  drivers/hid/intel-ish-hid/ipc/hw-ish.h  | 1 +
+>>  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 1 +
+>>  2 files changed, 2 insertions(+)
+>>
+>> diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+>> b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+>> index 1fb294ca463e..21b0e6123754 100644
+>> --- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+>> +++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+>> @@ -27,6 +27,7 @@
+>>  #define CMP_H_DEVICE_ID		0x06FC
+>>  #define EHL_Ax_DEVICE_ID	0x4BB3
+>>  #define TGL_LP_DEVICE_ID	0xA0FC
+>> +#define TGL_H_DEVICE_ID		0x43FC
+>>  
+>>  #define	REVISION_ID_CHT_A0	0x6
+>>  #define	REVISION_ID_CHT_Ax_SI	0x0
+>> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+>> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+>> index c6d48a8648b7..6dea657b7b15 100644
+>> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+>> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+>> @@ -37,6 +37,7 @@ static const struct pci_device_id ish_pci_tbl[] = {
+>>  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CMP_H_DEVICE_ID)},
+>>  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, EHL_Ax_DEVICE_ID)},
+>>  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, TGL_LP_DEVICE_ID)},
+>> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, TGL_H_DEVICE_ID)},
+>>  	{0, }
+>>  };
+>>  MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
+> 

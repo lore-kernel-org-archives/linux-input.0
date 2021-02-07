@@ -7,54 +7,54 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41687C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87073C43381
 	for <linux-input@archiver.kernel.org>; Sun,  7 Feb 2021 21:50:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 035C864E32
-	for <linux-input@archiver.kernel.org>; Sun,  7 Feb 2021 21:50:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A3B964E35
+	for <linux-input@archiver.kernel.org>; Sun,  7 Feb 2021 21:50:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbhBGVt4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 7 Feb 2021 16:49:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54754 "EHLO
+        id S229562AbhBGVt7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 7 Feb 2021 16:49:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbhBGVtz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 7 Feb 2021 16:49:55 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDCDCC061756
-        for <linux-input@vger.kernel.org>; Sun,  7 Feb 2021 13:49:14 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id q20so8461789pfu.8
-        for <linux-input@vger.kernel.org>; Sun, 07 Feb 2021 13:49:14 -0800 (PST)
+        with ESMTP id S229537AbhBGVt6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 7 Feb 2021 16:49:58 -0500
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8032EC06178A
+        for <linux-input@vger.kernel.org>; Sun,  7 Feb 2021 13:49:18 -0800 (PST)
+Received: by mail-pg1-x533.google.com with SMTP id t25so8995289pga.2
+        for <linux-input@vger.kernel.org>; Sun, 07 Feb 2021 13:49:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gaikai-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=V3tD1H0yD9M/uTzvQHPYf8oUEHy252+P9FX0TzqNS3U=;
-        b=EfGQW2iLzAoxSAjn6vdBKxRwmgWM++HZ6x3kA6Eq7Nz0AunAk2n8VDH73PQJN0a1SH
-         RLwro0JXe0KYujVsum9xPGSfSqN1U0mYV+k4eo6v/c+je7O6yWLMoSi0EWI6YvZfEZnX
-         o6j8NbRBk3x4MWCojY1x3G/v6whlbMnHHMjE52ytVnQXuldK+ksVQqmgfxXvrts87icB
-         z+By2l8hmtNXp5V1uQfrOL1q7xqn7eAfg8PM4IVXTQeKL+T0bWwUTawXoLvrJOQM56yw
-         RY4kSWHHZLk0wQMtG/ZXIj2bi1khwdjHK2rSbywz06Cxi78XC1j9wRQwDWKgoa+6wFg+
-         hX7w==
+        bh=kn3Xm39IUpFr6Y3GNzdLj+spjqDqR6bA47h6Zrszf/s=;
+        b=Mun6vuuRHSbNxa7dgHU4DVbvXTkqwXKymogSHkrcEG94idSkr/HzkntopesMRDcruN
+         31cI/ECEG/s87jkeE+Jl+O5/WCpuMP6UP0dOAcyZj1H7SiZJdgj7RSJ/A+BBlnRWMKPd
+         NdnXJhdZgkLeh9kyX02rA+iQm3Ka+1Vo07kauT4G/lN/fL2e/t9MozgSw9Orhpgekpo/
+         diN3+NeDzm48eMFjgEuie9/m173buRN5T3ySoq1bI5RY88wlyCGFtVDUx13/2tzOwdaq
+         77Q/5kwWtRQj0vzi16hHD31w4mjSn7RFISGGvz7JCfU6VI5LLhp3v7a4sOz2ZVXBXXN7
+         k7kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=V3tD1H0yD9M/uTzvQHPYf8oUEHy252+P9FX0TzqNS3U=;
-        b=riLpJ7ruzXpN6QYomNIJfCLCdM9Wo80478G6BaAkYLY8MkopI+L9sdNGev7r7gWG2B
-         EAxMvgS/cJS4lkW3s7W/ypDeJSQvLnOYzyUhOvoY9l0UXI4a7v/ty0kW5RTtu1vqIg8j
-         EIadGvh13Fw+VXVrJ3MLj4nFvidr91R9tulcqmXPokVw1bPiYm6l7pIzYs/pdvVYG2eJ
-         qihOz/eyaEfhkkVxwKoY0lP2qEzTMEniuj7+daw5pb7D160PwFM8fHKFBv//YqMhX+f8
-         HYYBRDGIK/XEBXf2jm3JG5TogBUUamKbbM8mmE0l8kxPMRtZ2Wfjj+ASh2YOe9sr8o/Z
-         4BXA==
-X-Gm-Message-State: AOAM532Qczk+C5deLzd03oLuxZ/c+w5oITK/RyArRAPEKhNCeSSFyqyp
-        wmVRKsBcVmrPZYmDDGkhZW1msg==
-X-Google-Smtp-Source: ABdhPJyHs8WAT/LWur+uor+QKi6Dy0E/6RedSxox2CqggXtR0pHahL9hyUhiHhoidD5vUFCKTEQFNg==
-X-Received: by 2002:a63:2214:: with SMTP id i20mr13966785pgi.189.1612734554470;
-        Sun, 07 Feb 2021 13:49:14 -0800 (PST)
+        bh=kn3Xm39IUpFr6Y3GNzdLj+spjqDqR6bA47h6Zrszf/s=;
+        b=XT6Zt1RQbVqAdh8np64odQDpONkM9UT/765JIEYryPuiLE5NgKIFFCOUzSy/ZJGF9D
+         wzLaovm9n+K34pyzRevxxzcex0c+lRblNy545GzdMmZMRmShlO01G4xH5L4552uOARjk
+         DfhzCX4CMAVpo/mI9O7JQgGvrAnsbi8y48G8yh8u+AAu4CwwOgcU/RomikF9bhIEikwB
+         MSqhVTKtIW3FAKNRcN4OUKwww2NhhFUzxn4ZvOMz2AEDzdggf/7t7lfFOcyJOeTsGaKK
+         rvbSwWbn1TtYZJLJsPQmYfhpvE9foBfglSSzMU1lEf3JlL/5VNXcjeZ/UoKRbekV1fR3
+         rY9Q==
+X-Gm-Message-State: AOAM5314EmeLHgRf6TFsfhMi+D5uHe7/86Mz2w+oyM9Iq7su7IiAUgA5
+        VFuJ2Z+mvP4ykkcouSuL83O8Kw==
+X-Google-Smtp-Source: ABdhPJwL5sKC8jNE1sbkKv5un21hm3zjmfL2PHNOZmU+trdTW5TRh45SCEJ+Cyej2ertoLYV602hOg==
+X-Received: by 2002:a65:6152:: with SMTP id o18mr14591920pgv.392.1612734557876;
+        Sun, 07 Feb 2021 13:49:17 -0800 (PST)
 Received: from us8c16456344dc.lan (cpe-76-87-77-78.socal.res.rr.com. [76.87.77.78])
-        by smtp.gmail.com with ESMTPSA id a141sm16578991pfa.189.2021.02.07.13.49.13
+        by smtp.gmail.com with ESMTPSA id a141sm16578991pfa.189.2021.02.07.13.49.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Feb 2021 13:49:14 -0800 (PST)
+        Sun, 07 Feb 2021 13:49:17 -0800 (PST)
 From:   Roderick Colenbrander <roderick@gaikai.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -63,9 +63,9 @@ Cc:     linux-input@vger.kernel.org, Chris Ye <lzye@google.com>,
         =?UTF-8?q?Samuel=20=C4=8Cavoj?= <sammko@sammserver.com>,
         =?UTF-8?q?Florian=20M=C3=A4rkl?= <linux@florianmaerkl.de>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>
-Subject: [PATCH v6 01/13] HID: playstation: initial DualSense USB support.
-Date:   Sun,  7 Feb 2021 13:48:56 -0800
-Message-Id: <20210207214908.79573-2-roderick@gaikai.com>
+Subject: [PATCH v6 04/13] HID: playstation: add DualSense touchpad support.
+Date:   Sun,  7 Feb 2021 13:48:59 -0800
+Message-Id: <20210207214908.79573-5-roderick@gaikai.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210207214908.79573-1-roderick@gaikai.com>
 References: <20210207214908.79573-1-roderick@gaikai.com>
@@ -77,414 +77,121 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Implement support for PlayStation DualSense gamepad in USB mode.
-Support features include buttons and sticks, which adhere to the
-Linux gamepad spec.
+Implement support for DualSense touchpad as a separate input device.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- MAINTAINERS                   |   6 +
- drivers/hid/Kconfig           |   8 +
- drivers/hid/Makefile          |   1 +
- drivers/hid/hid-ids.h         |   1 +
- drivers/hid/hid-playstation.c | 328 ++++++++++++++++++++++++++++++++++
- 5 files changed, 344 insertions(+)
- create mode 100644 drivers/hid/hid-playstation.c
+ drivers/hid/hid-playstation.c | 66 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 66 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f81d598a8556..0ecae30af074 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7918,6 +7918,12 @@ F:	drivers/hid/
- F:	include/linux/hid*
- F:	include/uapi/linux/hid*
- 
-+HID PLAYSTATION DRIVER
-+M:	Roderick Colenbrander <roderick.colenbrander@sony.com>
-+L:	linux-input@vger.kernel.org
-+S:	Supported
-+F:	drivers/hid/hid-playstation.c
-+
- HID SENSOR HUB DRIVERS
- M:	Jiri Kosina <jikos@kernel.org>
- M:	Jonathan Cameron <jic23@kernel.org>
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 7bdda1b5b221..0aefbb81ba43 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -853,6 +853,14 @@ config HID_PLANTRONICS
- 
- 	  Say M here if you may ever plug in a Plantronics USB audio device.
- 
-+config HID_PLAYSTATION
-+	tristate "PlayStation HID Driver"
-+	depends on HID
-+	help
-+	  Provides support for Sony PS5 controllers including support for
-+	  its special functionalities e.g. touchpad, lights and motion
-+	  sensors.
-+
- config HID_PRIMAX
- 	tristate "Primax non-fully HID-compliant devices"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 014d21fe7dac..3cdbfb60ca57 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -94,6 +94,7 @@ hid-picolcd-$(CONFIG_HID_PICOLCD_CIR)	+= hid-picolcd_cir.o
- hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
- 
- obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
-+obj-$(CONFIG_HID_PLAYSTATION)	+= hid-playstation.o
- obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
- obj-$(CONFIG_HID_REDRAGON)	+= hid-redragon.o
- obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4c5f23640f9c..70c51ec6395c 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1072,6 +1072,7 @@
- #define USB_DEVICE_ID_SONY_PS4_CONTROLLER	0x05c4
- #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2	0x09cc
- #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE	0x0ba0
-+#define USB_DEVICE_ID_SONY_PS5_CONTROLLER	0x0ce6
- #define USB_DEVICE_ID_SONY_MOTION_CONTROLLER	0x03d5
- #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
- #define USB_DEVICE_ID_SONY_BUZZ_CONTROLLER		0x0002
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-new file mode 100644
-index 000000000000..7d4171a89322
---- /dev/null
+index 3bb5091be308..30ae9434240c 100644
+--- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -0,0 +1,328 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
+@@ -60,9 +60,21 @@ struct ps_device {
+ #define DS_STATUS_CHARGING		GENMASK(7, 4)
+ #define DS_STATUS_CHARGING_SHIFT	4
+ 
 +/*
-+ *  HID driver for Sony DualSense(TM) controller.
-+ *
-+ *  Copyright (c) 2020 Sony Interactive Entertainment
++ * Status of a DualSense touch point contact.
++ * Contact IDs, with highest bit set are 'inactive'
++ * and any associated data is then invalid.
 + */
++#define DS_TOUCH_POINT_INACTIVE BIT(7)
 +
-+#include <linux/bits.h>
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/input/mt.h>
-+#include <linux/module.h>
++/* DualSense hardware limits */
++#define DS_TOUCHPAD_WIDTH	1920
++#define DS_TOUCHPAD_HEIGHT	1080
 +
-+#include <asm/unaligned.h>
-+
-+#include "hid-ids.h"
-+
-+#define HID_PLAYSTATION_VERSION_PATCH 0x8000
-+
-+/* Base class for playstation devices. */
-+struct ps_device {
-+	struct hid_device *hdev;
-+
-+	int (*parse_report)(struct ps_device *dev, struct hid_report *report, u8 *data, int size);
-+};
-+
-+#define DS_INPUT_REPORT_USB			0x01
-+#define DS_INPUT_REPORT_USB_SIZE		64
-+
-+/* Button masks for DualSense input report. */
-+#define DS_BUTTONS0_HAT_SWITCH	GENMASK(3, 0)
-+#define DS_BUTTONS0_SQUARE	BIT(4)
-+#define DS_BUTTONS0_CROSS	BIT(5)
-+#define DS_BUTTONS0_CIRCLE	BIT(6)
-+#define DS_BUTTONS0_TRIANGLE	BIT(7)
-+#define DS_BUTTONS1_L1		BIT(0)
-+#define DS_BUTTONS1_R1		BIT(1)
-+#define DS_BUTTONS1_L2		BIT(2)
-+#define DS_BUTTONS1_R2		BIT(3)
-+#define DS_BUTTONS1_CREATE	BIT(4)
-+#define DS_BUTTONS1_OPTIONS	BIT(5)
-+#define DS_BUTTONS1_L3		BIT(6)
-+#define DS_BUTTONS1_R3		BIT(7)
-+#define DS_BUTTONS2_PS_HOME	BIT(0)
-+#define DS_BUTTONS2_TOUCHPAD	BIT(1)
-+
-+struct dualsense {
-+	struct ps_device base;
-+	struct input_dev *gamepad;
-+};
-+
-+struct dualsense_touch_point {
-+	uint8_t contact;
-+	uint8_t x_lo;
-+	uint8_t x_hi:4, y_lo:4;
-+	uint8_t y_hi;
-+} __packed;
-+static_assert(sizeof(struct dualsense_touch_point) == 4);
-+
-+/* Main DualSense input report excluding any BT/USB specific headers. */
-+struct dualsense_input_report {
-+	uint8_t x, y;
-+	uint8_t rx, ry;
-+	uint8_t z, rz;
-+	uint8_t seq_number;
-+	uint8_t buttons[4];
-+	uint8_t reserved[4];
-+
-+	/* Motion sensors */
-+	__le16 gyro[3]; /* x, y, z */
-+	__le16 accel[3]; /* x, y, z */
-+	__le32 sensor_timestamp;
-+	uint8_t reserved2;
-+
-+	/* Touchpad */
-+	struct dualsense_touch_point points[2];
-+
-+	uint8_t reserved3[12];
-+	uint8_t status;
-+	uint8_t reserved4[10];
-+} __packed;
-+/* Common input report size shared equals the size of the USB report minus 1 byte for ReportID. */
-+static_assert(sizeof(struct dualsense_input_report) == DS_INPUT_REPORT_USB_SIZE - 1);
-+
-+/*
-+ * Common gamepad buttons across DualShock 3 / 4 and DualSense.
-+ * Note: for device with a touchpad, touchpad button is not included
-+ *        as it will be part of the touchpad device.
-+ */
-+static const int ps_gamepad_buttons[] = {
-+	BTN_WEST, /* Square */
-+	BTN_NORTH, /* Triangle */
-+	BTN_EAST, /* Circle */
-+	BTN_SOUTH, /* Cross */
-+	BTN_TL, /* L1 */
-+	BTN_TR, /* R1 */
-+	BTN_TL2, /* L2 */
-+	BTN_TR2, /* R2 */
-+	BTN_SELECT, /* Create (PS5) / Share (PS4) */
-+	BTN_START, /* Option */
-+	BTN_THUMBL, /* L3 */
-+	BTN_THUMBR, /* R3 */
-+	BTN_MODE, /* PS Home */
-+};
-+
-+static const struct {int x; int y; } ps_gamepad_hat_mapping[] = {
-+	{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1},
-+	{0, 0},
-+};
-+
-+static struct input_dev *ps_allocate_input_dev(struct hid_device *hdev, const char *name_suffix)
+ struct dualsense {
+ 	struct ps_device base;
+ 	struct input_dev *gamepad;
++	struct input_dev *touchpad;
+ };
+ 
+ struct dualsense_touch_point {
+@@ -281,6 +293,34 @@ static int ps_get_report(struct hid_device *hdev, uint8_t report_id, uint8_t *bu
+ 	return 0;
+ }
+ 
++static struct input_dev *ps_touchpad_create(struct hid_device *hdev, int width, int height,
++		unsigned int num_contacts)
 +{
-+	struct input_dev *input_dev;
-+
-+	input_dev = devm_input_allocate_device(&hdev->dev);
-+	if (!input_dev)
-+		return ERR_PTR(-ENOMEM);
-+
-+	input_dev->id.bustype = hdev->bus;
-+	input_dev->id.vendor = hdev->vendor;
-+	input_dev->id.product = hdev->product;
-+	input_dev->id.version = hdev->version;
-+	input_dev->uniq = hdev->uniq;
-+
-+	if (name_suffix) {
-+		input_dev->name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s %s", hdev->name,
-+				name_suffix);
-+		if (!input_dev->name)
-+			return ERR_PTR(-ENOMEM);
-+	} else {
-+		input_dev->name = hdev->name;
-+	}
-+
-+	input_set_drvdata(input_dev, hdev);
-+
-+	return input_dev;
-+}
-+
-+static struct input_dev *ps_gamepad_create(struct hid_device *hdev)
-+{
-+	struct input_dev *gamepad;
-+	unsigned int i;
++	struct input_dev *touchpad;
 +	int ret;
 +
-+	gamepad = ps_allocate_input_dev(hdev, NULL);
-+	if (IS_ERR(gamepad))
-+		return ERR_CAST(gamepad);
++	touchpad = ps_allocate_input_dev(hdev, "Touchpad");
++	if (IS_ERR(touchpad))
++		return ERR_CAST(touchpad);
 +
-+	input_set_abs_params(gamepad, ABS_X, 0, 255, 0, 0);
-+	input_set_abs_params(gamepad, ABS_Y, 0, 255, 0, 0);
-+	input_set_abs_params(gamepad, ABS_Z, 0, 255, 0, 0);
-+	input_set_abs_params(gamepad, ABS_RX, 0, 255, 0, 0);
-+	input_set_abs_params(gamepad, ABS_RY, 0, 255, 0, 0);
-+	input_set_abs_params(gamepad, ABS_RZ, 0, 255, 0, 0);
++	/* Map button underneath touchpad to BTN_LEFT. */
++	input_set_capability(touchpad, EV_KEY, BTN_LEFT);
++	__set_bit(INPUT_PROP_BUTTONPAD, touchpad->propbit);
 +
-+	input_set_abs_params(gamepad, ABS_HAT0X, -1, 1, 0, 0);
-+	input_set_abs_params(gamepad, ABS_HAT0Y, -1, 1, 0, 0);
++	input_set_abs_params(touchpad, ABS_MT_POSITION_X, 0, width - 1, 0, 0);
++	input_set_abs_params(touchpad, ABS_MT_POSITION_Y, 0, height - 1, 0, 0);
 +
-+	for (i = 0; i < ARRAY_SIZE(ps_gamepad_buttons); i++)
-+		input_set_capability(gamepad, EV_KEY, ps_gamepad_buttons[i]);
-+
-+	ret = input_register_device(gamepad);
++	ret = input_mt_init_slots(touchpad, num_contacts, INPUT_MT_POINTER);
 +	if (ret)
 +		return ERR_PTR(ret);
 +
-+	return gamepad;
++	ret = input_register_device(touchpad);
++	if (ret)
++		return ERR_PTR(ret);
++
++	return touchpad;
 +}
 +
-+static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *report,
-+		u8 *data, int size)
-+{
-+	struct hid_device *hdev = ps_dev->hdev;
-+	struct dualsense *ds = container_of(ps_dev, struct dualsense, base);
-+	struct dualsense_input_report *ds_report;
-+	uint8_t value;
+ static int dualsense_get_mac_address(struct dualsense *ds)
+ {
+ 	uint8_t *buf;
+@@ -313,6 +353,7 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
+ 	uint8_t battery_data, battery_capacity, charging_status, value;
+ 	int battery_status;
+ 	unsigned long flags;
++	int i;
+ 
+ 	/*
+ 	 * DualSense in USB uses the full HID report for reportID 1, but
+@@ -355,6 +396,25 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
+ 	input_report_key(ds->gamepad, BTN_MODE,   ds_report->buttons[2] & DS_BUTTONS2_PS_HOME);
+ 	input_sync(ds->gamepad);
+ 
++	for (i = 0; i < ARRAY_SIZE(ds_report->points); i++) {
++		struct dualsense_touch_point *point = &ds_report->points[i];
++		bool active = (point->contact & DS_TOUCH_POINT_INACTIVE) ? false : true;
 +
-+	/*
-+	 * DualSense in USB uses the full HID report for reportID 1, but
-+	 * Bluetooth uses a minimal HID report for reportID 1 and reports
-+	 * the full report using reportID 49.
-+	 */
-+	if (hdev->bus == BUS_USB && report->id == DS_INPUT_REPORT_USB &&
-+			size == DS_INPUT_REPORT_USB_SIZE) {
-+		ds_report = (struct dualsense_input_report *)&data[1];
-+	} else {
-+		hid_err(hdev, "Unhandled reportID=%d\n", report->id);
-+		return -1;
++		input_mt_slot(ds->touchpad, i);
++		input_mt_report_slot_state(ds->touchpad, MT_TOOL_FINGER, active);
++
++		if (active) {
++			int x = (point->x_hi << 8) | point->x_lo;
++			int y = (point->y_hi << 4) | point->y_lo;
++
++			input_report_abs(ds->touchpad, ABS_MT_POSITION_X, x);
++			input_report_abs(ds->touchpad, ABS_MT_POSITION_Y, y);
++		}
 +	}
++	input_mt_sync_frame(ds->touchpad);
++	input_report_key(ds->touchpad, BTN_LEFT, ds_report->buttons[2] & DS_BUTTONS2_TOUCHPAD);
++	input_sync(ds->touchpad);
 +
-+	input_report_abs(ds->gamepad, ABS_X,  ds_report->x);
-+	input_report_abs(ds->gamepad, ABS_Y,  ds_report->y);
-+	input_report_abs(ds->gamepad, ABS_RX, ds_report->rx);
-+	input_report_abs(ds->gamepad, ABS_RY, ds_report->ry);
-+	input_report_abs(ds->gamepad, ABS_Z,  ds_report->z);
-+	input_report_abs(ds->gamepad, ABS_RZ, ds_report->rz);
-+
-+	value = ds_report->buttons[0] & DS_BUTTONS0_HAT_SWITCH;
-+	if (value > ARRAY_SIZE(ps_gamepad_hat_mapping))
-+		value = 8; /* center */
-+	input_report_abs(ds->gamepad, ABS_HAT0X, ps_gamepad_hat_mapping[value].x);
-+	input_report_abs(ds->gamepad, ABS_HAT0Y, ps_gamepad_hat_mapping[value].y);
-+
-+	input_report_key(ds->gamepad, BTN_WEST,   ds_report->buttons[0] & DS_BUTTONS0_SQUARE);
-+	input_report_key(ds->gamepad, BTN_SOUTH,  ds_report->buttons[0] & DS_BUTTONS0_CROSS);
-+	input_report_key(ds->gamepad, BTN_EAST,   ds_report->buttons[0] & DS_BUTTONS0_CIRCLE);
-+	input_report_key(ds->gamepad, BTN_NORTH,  ds_report->buttons[0] & DS_BUTTONS0_TRIANGLE);
-+	input_report_key(ds->gamepad, BTN_TL,     ds_report->buttons[1] & DS_BUTTONS1_L1);
-+	input_report_key(ds->gamepad, BTN_TR,     ds_report->buttons[1] & DS_BUTTONS1_R1);
-+	input_report_key(ds->gamepad, BTN_TL2,    ds_report->buttons[1] & DS_BUTTONS1_L2);
-+	input_report_key(ds->gamepad, BTN_TR2,    ds_report->buttons[1] & DS_BUTTONS1_R2);
-+	input_report_key(ds->gamepad, BTN_SELECT, ds_report->buttons[1] & DS_BUTTONS1_CREATE);
-+	input_report_key(ds->gamepad, BTN_START,  ds_report->buttons[1] & DS_BUTTONS1_OPTIONS);
-+	input_report_key(ds->gamepad, BTN_THUMBL, ds_report->buttons[1] & DS_BUTTONS1_L3);
-+	input_report_key(ds->gamepad, BTN_THUMBR, ds_report->buttons[1] & DS_BUTTONS1_R3);
-+	input_report_key(ds->gamepad, BTN_MODE,   ds_report->buttons[2] & DS_BUTTONS2_PS_HOME);
-+	input_sync(ds->gamepad);
-+
-+	return 0;
-+}
-+
-+static struct ps_device *dualsense_create(struct hid_device *hdev)
-+{
-+	struct dualsense *ds;
-+	int ret;
-+
-+	ds = devm_kzalloc(&hdev->dev, sizeof(*ds), GFP_KERNEL);
-+	if (!ds)
-+		return ERR_PTR(-ENOMEM);
-+
-+	/*
-+	 * Patch version to allow userspace to distinguish between
-+	 * hid-generic vs hid-playstation axis and button mapping.
-+	 */
-+	hdev->version |= HID_PLAYSTATION_VERSION_PATCH;
-+
-+	ds->base.hdev = hdev;
-+	ds->base.parse_report = dualsense_parse_report;
-+	hid_set_drvdata(hdev, ds);
-+
-+	ds->gamepad = ps_gamepad_create(hdev);
-+	if (IS_ERR(ds->gamepad)) {
-+		ret = PTR_ERR(ds->gamepad);
+ 	battery_data = ds_report->status & DS_STATUS_BATTERY_CAPACITY;
+ 	charging_status = (ds_report->status & DS_STATUS_CHARGING) >> DS_STATUS_CHARGING_SHIFT;
+ 
+@@ -431,6 +491,12 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 		goto err;
+ 	}
+ 
++	ds->touchpad = ps_touchpad_create(hdev, DS_TOUCHPAD_WIDTH, DS_TOUCHPAD_HEIGHT, 2);
++	if (IS_ERR(ds->touchpad)) {
++		ret = PTR_ERR(ds->touchpad);
 +		goto err;
 +	}
 +
-+	return &ds->base;
-+
-+err:
-+	return ERR_PTR(ret);
-+}
-+
-+static int ps_raw_event(struct hid_device *hdev, struct hid_report *report,
-+		u8 *data, int size)
-+{
-+	struct ps_device *dev = hid_get_drvdata(hdev);
-+
-+	if (dev && dev->parse_report)
-+		return dev->parse_report(dev, report, data, size);
-+
-+	return 0;
-+}
-+
-+static int ps_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	struct ps_device *dev;
-+	int ret;
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "Parse failed\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	if (ret) {
-+		hid_err(hdev, "Failed to start HID device\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_open(hdev);
-+	if (ret) {
-+		hid_err(hdev, "Failed to open HID device\n");
-+		goto err_stop;
-+	}
-+
-+	if (hdev->product == USB_DEVICE_ID_SONY_PS5_CONTROLLER) {
-+		dev = dualsense_create(hdev);
-+		if (IS_ERR(dev)) {
-+			hid_err(hdev, "Failed to create dualsense.\n");
-+			ret = PTR_ERR(dev);
-+			goto err_close;
-+		}
-+	}
-+
-+	return ret;
-+
-+err_close:
-+	hid_hw_close(hdev);
-+err_stop:
-+	hid_hw_stop(hdev);
-+	return ret;
-+}
-+
-+static void ps_remove(struct hid_device *hdev)
-+{
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+}
-+
-+static const struct hid_device_id ps_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, ps_devices);
-+
-+static struct hid_driver ps_driver = {
-+	.name		= "playstation",
-+	.id_table	= ps_devices,
-+	.probe		= ps_probe,
-+	.remove		= ps_remove,
-+	.raw_event	= ps_raw_event,
-+};
-+
-+module_hid_driver(ps_driver);
-+
-+MODULE_AUTHOR("Sony Interactive Entertainment");
-+MODULE_DESCRIPTION("HID Driver for PlayStation peripherals.");
-+MODULE_LICENSE("GPL");
+ 	ret = ps_device_register_battery(ps_dev);
+ 	if (ret)
+ 		goto err;
 -- 
 2.26.2
 

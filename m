@@ -2,78 +2,168 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DE2BC433DB
-	for <linux-input@archiver.kernel.org>; Tue,  9 Feb 2021 16:36:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D492C433DB
+	for <linux-input@archiver.kernel.org>; Tue,  9 Feb 2021 22:51:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 265B464E37
-	for <linux-input@archiver.kernel.org>; Tue,  9 Feb 2021 16:36:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E32664DC3
+	for <linux-input@archiver.kernel.org>; Tue,  9 Feb 2021 22:51:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232869AbhBIQgN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 9 Feb 2021 11:36:13 -0500
-Received: from mail-oi1-f169.google.com ([209.85.167.169]:43918 "EHLO
-        mail-oi1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232810AbhBIQfP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2021 11:35:15 -0500
-Received: by mail-oi1-f169.google.com with SMTP id d20so20026085oiw.10;
-        Tue, 09 Feb 2021 08:35:00 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=9t4LJXTSLtxd8IT7qmYmEfW7Vhn57zaKjlRVT6AkWcI=;
-        b=Nw1y1+jhzWKhB3gIaRx4ozFHR5vl15p7Hijdz6ZpX+JHvZBZomREQufINq1ClJ4Kxx
-         5oKE5PRxsEfWG+Y82yR2JQJ5AiAUSlLgC5gSaJTwuIHO/DB/zHfVOmThqp5flPYOyFC7
-         1Itqw7bIRMtjEer78i2R17zhOVN24S8dNkfQsMiOHae3dIcmva1rwdafTddlYS0Pwwep
-         GPk0XqXdoDSSaFkMyTVlcl/He/TFMf7THofDQXiLoWVcie5TA1/2NWp0XNns7EqA+CiB
-         +Ere5BfKWOIyeXjYqBVkBpu+T3uw+LhqvBS8SnFng8GyKQWBOfng/e1s9VNleeIHAdrb
-         fgOQ==
-X-Gm-Message-State: AOAM5324uzScxAsvHia8STgVTIqP+i69SJL6YjL48qX7L63EG/Ftizdl
-        KbIDvVMjNf1RXCEoEPgv9g==
-X-Google-Smtp-Source: ABdhPJwfZkOdkhWpi2n7UayXXfGa53fjlVS+RYyKJ6pi8Te4tIRbsS0Mw7qauAsMT+JouVmWryIB1A==
-X-Received: by 2002:aca:4856:: with SMTP id v83mr2935963oia.43.1612888475401;
-        Tue, 09 Feb 2021 08:34:35 -0800 (PST)
-Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id n189sm4193174oif.58.2021.02.09.08.34.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Feb 2021 08:34:33 -0800 (PST)
-Received: (nullmailer pid 3893005 invoked by uid 1000);
-        Tue, 09 Feb 2021 16:34:32 -0000
-Date:   Tue, 9 Feb 2021 10:34:32 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Jeff LaBundy <jeff@labundy.com>
-Cc:     dmitry.torokhov@gmail.com, devicetree@vger.kernel.org,
-        linux-input@vger.kernel.org, robh+dt@kernel.org
-Subject: Re: [PATCH v2 4/5] dt-bindings: input: Add bindings for Azoteq
- IQS626A
-Message-ID: <20210209163432.GA3892603@robh.at.kernel.org>
-References: <1611459776-23265-1-git-send-email-jeff@labundy.com>
- <1611459776-23265-5-git-send-email-jeff@labundy.com>
+        id S234358AbhBIWuh convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 9 Feb 2021 17:50:37 -0500
+Received: from szxga01-in.huawei.com ([45.249.212.187]:4623 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233928AbhBIWY2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2021 17:24:28 -0500
+Received: from DGGEMM406-HUB.china.huawei.com (unknown [172.30.72.53])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4DZx085XJxzY6QP;
+        Wed, 10 Feb 2021 05:31:04 +0800 (CST)
+Received: from dggemi761-chm.china.huawei.com (10.1.198.147) by
+ DGGEMM406-HUB.china.huawei.com (10.3.20.214) with Microsoft SMTP Server (TLS)
+ id 14.3.498.0; Wed, 10 Feb 2021 05:32:20 +0800
+Received: from dggemi761-chm.china.huawei.com (10.1.198.147) by
+ dggemi761-chm.china.huawei.com (10.1.198.147) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2106.2; Wed, 10 Feb 2021 05:32:20 +0800
+Received: from dggemi761-chm.china.huawei.com ([10.9.49.202]) by
+ dggemi761-chm.china.huawei.com ([10.9.49.202]) with mapi id 15.01.2106.006;
+ Wed, 10 Feb 2021 05:32:20 +0800
+From:   "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>
+To:     "tglx@linutronix.de" <tglx@linutronix.de>,
+        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "maz@kernel.org" <maz@kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "linuxarm@openeuler.org" <linuxarm@openeuler.org>
+Subject: RE: [PATCH v4 01/12] genirq: add IRQF_NO_AUTOEN for request_irq
+Thread-Topic: [PATCH v4 01/12] genirq: add IRQF_NO_AUTOEN for request_irq
+Thread-Index: AQHW9ca1FgeumsKZqUqCQOHUN+N34qpQaAZQ
+Date:   Tue, 9 Feb 2021 21:32:20 +0000
+Message-ID: <aefbe49321b845c98e505518314a93cc@hisilicon.com>
+References: <20210128223538.20272-1-song.bao.hua@hisilicon.com>
+ <20210128223538.20272-2-song.bao.hua@hisilicon.com>
+In-Reply-To: <20210128223538.20272-2-song.bao.hua@hisilicon.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.126.202.77]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1611459776-23265-5-git-send-email-jeff@labundy.com>
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, 23 Jan 2021 21:42:55 -0600, Jeff LaBundy wrote:
-> This patch adds device tree bindings for the Azoteq IQS626A
-> capacitive touch controller.
+
+
+> -----Original Message-----
+> From: Song Bao Hua (Barry Song)
+> Sent: Friday, January 29, 2021 11:35 AM
+> To: tglx@linutronix.de; dmitry.torokhov@gmail.com; maz@kernel.org;
+> gregkh@linuxfoundation.org; linux-input@vger.kernel.org;
+> linux-kernel@vger.kernel.org
+> Cc: linuxarm@openeuler.org; Song Bao Hua (Barry Song)
+> <song.bao.hua@hisilicon.com>
+> Subject: [PATCH v4 01/12] genirq: add IRQF_NO_AUTOEN for request_irq
 > 
-> Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+> Many drivers don't want interrupts enabled automatically due to
+> request_irq(). So they are handling this issue by either way of
+> the below two:
+> (1)
+> irq_set_status_flags(irq, IRQ_NOAUTOEN);
+> request_irq(dev, irq...);
+> (2)
+> request_irq(dev, irq...);
+> disable_irq(irq);
+> 
+> The code in the second way is silly and unsafe. In the small time
+> gap between request_irq() and disable_irq(), interrupts can still
+> come.
+> The code in the first way is safe though we might be able to do it
+> in the generic irq code.
+> 
+> With this patch, drivers can request_irq with IRQF_NO_AUTOEN flag.
+> They will need neither irq_set_status_flags() nor disable_irq().
+> Hundreds of drivers with this problem will be handled afterwards.
+> 
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
 > ---
-> Changes in v2:
->  - Added missing $ref to touchscreen.yaml
-> 
->  .../devicetree/bindings/input/iqs626a.yaml         | 843 +++++++++++++++++++++
->  1 file changed, 843 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/iqs626a.yaml
-> 
+>  -v4: remove the irq_settings magic for NOAUTOEN
 
-Other than the file path:
+Hi Thomas,
+Any further comment on this? Does it get any opportunity to hit
+5.12 so that we can begin to handle those drivers in 5.12?
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Thanks
+Barry
+
+> 
+>  include/linux/interrupt.h | 3 +++
+>  kernel/irq/manage.c       | 8 +++++++-
+>  2 files changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+> index bb8ff9083e7d..0f22d277078c 100644
+> --- a/include/linux/interrupt.h
+> +++ b/include/linux/interrupt.h
+> @@ -61,6 +61,8 @@
+>   *                interrupt handler after suspending interrupts. For system
+>   *                wakeup devices users need to implement wakeup detection in
+>   *                their interrupt handlers.
+> + * IRQF_NO_AUTOEN - Don't enable IRQ automatically when users request it. Users
+> + *                will enable it explicitly by enable_irq() later.
+>   */
+>  #define IRQF_SHARED		0x00000080
+>  #define IRQF_PROBE_SHARED	0x00000100
+> @@ -74,6 +76,7 @@
+>  #define IRQF_NO_THREAD		0x00010000
+>  #define IRQF_EARLY_RESUME	0x00020000
+>  #define IRQF_COND_SUSPEND	0x00040000
+> +#define IRQF_NO_AUTOEN		0x00080000
+> 
+>  #define IRQF_TIMER		(__IRQF_TIMER | IRQF_NO_SUSPEND | IRQF_NO_THREAD)
+> 
+> diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+> index dec3f73e8db9..95014073bd2e 100644
+> --- a/kernel/irq/manage.c
+> +++ b/kernel/irq/manage.c
+> @@ -1693,7 +1693,8 @@ __setup_irq(unsigned int irq, struct irq_desc *desc,
+> struct irqaction *new)
+>  			irqd_set(&desc->irq_data, IRQD_NO_BALANCING);
+>  		}
+> 
+> -		if (irq_settings_can_autoenable(desc)) {
+> +		if (!(new->flags & IRQF_NO_AUTOEN) &&
+> +		    irq_settings_can_autoenable(desc)) {
+>  			irq_startup(desc, IRQ_RESEND, IRQ_START_COND);
+>  		} else {
+>  			/*
+> @@ -2086,10 +2087,15 @@ int request_threaded_irq(unsigned int irq,
+> irq_handler_t handler,
+>  	 * which interrupt is which (messes up the interrupt freeing
+>  	 * logic etc).
+>  	 *
+> +	 * Also shared interrupts do not go well with disabling auto enable.
+> +	 * The sharing interrupt might request it while it's still disabled
+> +	 * and then wait for interrupts forever.
+> +	 *
+>  	 * Also IRQF_COND_SUSPEND only makes sense for shared interrupts and
+>  	 * it cannot be set along with IRQF_NO_SUSPEND.
+>  	 */
+>  	if (((irqflags & IRQF_SHARED) && !dev_id) ||
+> +	    ((irqflags & IRQF_SHARED) && (irqflags & IRQF_NO_AUTOEN)) ||
+>  	    (!(irqflags & IRQF_SHARED) && (irqflags & IRQF_COND_SUSPEND)) ||
+>  	    ((irqflags & IRQF_NO_SUSPEND) && (irqflags & IRQF_COND_SUSPEND)))
+>  		return -EINVAL;
+> --
+> 2.25.1
+

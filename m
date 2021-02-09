@@ -3,105 +3,77 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB85BC433DB
-	for <linux-input@archiver.kernel.org>; Tue,  9 Feb 2021 16:28:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DE2BC433DB
+	for <linux-input@archiver.kernel.org>; Tue,  9 Feb 2021 16:36:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9A41264DCF
-	for <linux-input@archiver.kernel.org>; Tue,  9 Feb 2021 16:28:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 265B464E37
+	for <linux-input@archiver.kernel.org>; Tue,  9 Feb 2021 16:36:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232799AbhBIQ21 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 9 Feb 2021 11:28:27 -0500
-Received: from mail-ot1-f42.google.com ([209.85.210.42]:34434 "EHLO
-        mail-ot1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232734AbhBIQ2X (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2021 11:28:23 -0500
-Received: by mail-ot1-f42.google.com with SMTP id y11so18007086otq.1;
-        Tue, 09 Feb 2021 08:28:08 -0800 (PST)
+        id S232869AbhBIQgN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 9 Feb 2021 11:36:13 -0500
+Received: from mail-oi1-f169.google.com ([209.85.167.169]:43918 "EHLO
+        mail-oi1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232810AbhBIQfP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2021 11:35:15 -0500
+Received: by mail-oi1-f169.google.com with SMTP id d20so20026085oiw.10;
+        Tue, 09 Feb 2021 08:35:00 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=UodN8N0KEmkVOzAXsaVPTgwgUKhoicSJW55JyTKa2yg=;
-        b=IkHkOSW+7mAAp9cvLO3odPqvCUJNWXasVRXKx8f7+zy67yxeEqxzf91xmtM3QoELnD
-         t4n5du0up8EduBaAuRI9qRZLtXiCsIfUh3Td4n3PzsJMDXckZxUqg8FwtUXL77glpEx3
-         5SNVhhvOkZ5PA27999COQmPKsPPrwKJ+41KWVBkI/B6F7/7EgpCB0/KWrNJXZjqOzpBR
-         q0zuxZxg++dUAZyauznSWRLbMpCLag3TswqCARJ1V4c6OMXUJUtqvr2U/sEEr/zDt9f+
-         vgIPUoNA64d5PG2Hu/UkvfULkXVveH2WvlETMul08PTnHyNueZWa2ZgqUihJD0QOsTcS
-         Bw+A==
-X-Gm-Message-State: AOAM5301bnML8dGl0mjjlgSWkODZsFB/HP91xMO9whxf/Evb/5rO3bhr
-        yzyc5rquBE/2xfEryYiB49aH49SQfA==
-X-Google-Smtp-Source: ABdhPJx6CQgk5G3OaF4PIWn8bv1hx9BSlryHL/fTLq8ZCIAkUKhxCBkruikfD2R2aDTed1wxKrmvpg==
-X-Received: by 2002:a9d:2c43:: with SMTP id f61mr16027017otb.329.1612888062628;
-        Tue, 09 Feb 2021 08:27:42 -0800 (PST)
+        bh=9t4LJXTSLtxd8IT7qmYmEfW7Vhn57zaKjlRVT6AkWcI=;
+        b=Nw1y1+jhzWKhB3gIaRx4ozFHR5vl15p7Hijdz6ZpX+JHvZBZomREQufINq1ClJ4Kxx
+         5oKE5PRxsEfWG+Y82yR2JQJ5AiAUSlLgC5gSaJTwuIHO/DB/zHfVOmThqp5flPYOyFC7
+         1Itqw7bIRMtjEer78i2R17zhOVN24S8dNkfQsMiOHae3dIcmva1rwdafTddlYS0Pwwep
+         GPk0XqXdoDSSaFkMyTVlcl/He/TFMf7THofDQXiLoWVcie5TA1/2NWp0XNns7EqA+CiB
+         +Ere5BfKWOIyeXjYqBVkBpu+T3uw+LhqvBS8SnFng8GyKQWBOfng/e1s9VNleeIHAdrb
+         fgOQ==
+X-Gm-Message-State: AOAM5324uzScxAsvHia8STgVTIqP+i69SJL6YjL48qX7L63EG/Ftizdl
+        KbIDvVMjNf1RXCEoEPgv9g==
+X-Google-Smtp-Source: ABdhPJwfZkOdkhWpi2n7UayXXfGa53fjlVS+RYyKJ6pi8Te4tIRbsS0Mw7qauAsMT+JouVmWryIB1A==
+X-Received: by 2002:aca:4856:: with SMTP id v83mr2935963oia.43.1612888475401;
+        Tue, 09 Feb 2021 08:34:35 -0800 (PST)
 Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id e72sm43981ote.26.2021.02.09.08.27.40
+        by smtp.gmail.com with ESMTPSA id n189sm4193174oif.58.2021.02.09.08.34.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Feb 2021 08:27:41 -0800 (PST)
-Received: (nullmailer pid 3882272 invoked by uid 1000);
-        Tue, 09 Feb 2021 16:27:40 -0000
-Date:   Tue, 9 Feb 2021 10:27:40 -0600
+        Tue, 09 Feb 2021 08:34:33 -0800 (PST)
+Received: (nullmailer pid 3893005 invoked by uid 1000);
+        Tue, 09 Feb 2021 16:34:32 -0000
+Date:   Tue, 9 Feb 2021 10:34:32 -0600
 From:   Rob Herring <robh@kernel.org>
 To:     Jeff LaBundy <jeff@labundy.com>
-Cc:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH v2 3/5] dt-bindings: input: touchscreen: Move helper
- bindings to core
-Message-ID: <20210209162740.GA3874323@robh.at.kernel.org>
+Cc:     dmitry.torokhov@gmail.com, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org, robh+dt@kernel.org
+Subject: Re: [PATCH v2 4/5] dt-bindings: input: Add bindings for Azoteq
+ IQS626A
+Message-ID: <20210209163432.GA3892603@robh.at.kernel.org>
 References: <1611459776-23265-1-git-send-email-jeff@labundy.com>
- <1611459776-23265-4-git-send-email-jeff@labundy.com>
+ <1611459776-23265-5-git-send-email-jeff@labundy.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1611459776-23265-4-git-send-email-jeff@labundy.com>
+In-Reply-To: <1611459776-23265-5-git-send-email-jeff@labundy.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, Jan 23, 2021 at 09:42:54PM -0600, Jeff LaBundy wrote:
-> With the helper functions moving to /drivers/input/ following the
-> discussion in [1], touchscreen.yaml and touchscreen.txt are moved
-> one level up as well to maintain a consistent directory structure.
-> 
-> No changes are made to either file except to update the $id field
-> in touchscreen.yaml to reflect the new path. The handful of .yaml
-> bindings that reference the original relative path are updated as
-> well.
-> 
-> Last but not least, the handful of .txt bindings that included an
-> absolute path to touchscreen.txt are updated too.
-> 
-> [1] https://patchwork.kernel.org/patch/11924029/
+On Sat, 23 Jan 2021 21:42:55 -0600, Jeff LaBundy wrote:
+> This patch adds device tree bindings for the Azoteq IQS626A
+> capacitive touch controller.
 > 
 > Signed-off-by: Jeff LaBundy <jeff@labundy.com>
 > ---
 > Changes in v2:
->  - Added this patch to the series
+>  - Added missing $ref to touchscreen.yaml
 > 
->  .../devicetree/bindings/input/elan_i2c.txt         |  2 +-
->  .../devicetree/bindings/input/touchscreen.txt      |  1 +
->  .../devicetree/bindings/input/touchscreen.yaml     | 83 ++++++++++++++++++++++
->  .../bindings/input/touchscreen/ads7846.txt         |  2 +-
->  .../bindings/input/touchscreen/bu21013.txt         |  2 +-
->  .../input/touchscreen/cypress,cy8ctma140.yaml      |  2 +-
->  .../bindings/input/touchscreen/edt-ft5x06.yaml     |  2 +-
->  .../bindings/input/touchscreen/eeti,exc3000.yaml   |  2 +-
->  .../input/touchscreen/elan,elants_i2c.yaml         |  2 +-
->  .../bindings/input/touchscreen/goodix.yaml         |  2 +-
->  .../bindings/input/touchscreen/iqs5xx.txt          |  2 +-
->  .../bindings/input/touchscreen/mms114.txt          |  2 +-
->  .../bindings/input/touchscreen/touchscreen.txt     |  1 -
->  .../bindings/input/touchscreen/touchscreen.yaml    | 83 ----------------------
->  14 files changed, 94 insertions(+), 94 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen.txt
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen.yaml
->  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
->  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+>  .../devicetree/bindings/input/iqs626a.yaml         | 843 +++++++++++++++++++++
+>  1 file changed, 843 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/iqs626a.yaml
+> 
 
-No, I prefer the current structure. It's easier to find similar types of 
-h/w as-is. In fact, if you wanted to move keyboards/keypads to their own 
-subdir, I'd welcome that.
+Other than the file path:
 
-Rob
+Reviewed-by: Rob Herring <robh@kernel.org>

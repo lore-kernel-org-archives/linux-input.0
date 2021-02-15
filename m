@@ -2,74 +2,74 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD925C433E6
-	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 14:56:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8222C433DB
+	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 14:57:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7367B64DEE
-	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 14:56:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8358264E5A
+	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 14:57:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbhBOO4b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 15 Feb 2021 09:56:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59400 "EHLO
+        id S230267AbhBOO5h (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 15 Feb 2021 09:57:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230081AbhBOO4Z (ORCPT
+        with ESMTP id S230248AbhBOO5W (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 15 Feb 2021 09:56:25 -0500
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0EB8C061788
-        for <linux-input@vger.kernel.org>; Mon, 15 Feb 2021 06:55:44 -0800 (PST)
-Received: by mail-wr1-x435.google.com with SMTP id v1so9247128wrd.6
-        for <linux-input@vger.kernel.org>; Mon, 15 Feb 2021 06:55:44 -0800 (PST)
+        Mon, 15 Feb 2021 09:57:22 -0500
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D364FC061756
+        for <linux-input@vger.kernel.org>; Mon, 15 Feb 2021 06:57:05 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id m1so9614921wml.2
+        for <linux-input@vger.kernel.org>; Mon, 15 Feb 2021 06:57:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:to:cc:subject:from:references:in-reply-to:message-id
          :user-agent:mime-version:content-transfer-encoding;
-        bh=3IwhbIIIdejbQGEdegGTxsSyNNv5FNjoiFZ4zuxpf6Q=;
-        b=KZKzLqO8EDzJz0J8RdTDaob7XzmzOZ0QBZm+kyzne505fQUQIV2o08xU8l/lULOjfG
-         r6TRISRtfAtpgEvJxcLIlH7Gfm603hyCuO4Wywk040GA8ORnlVpMp8MgMTfKa8WJLVAu
-         OReHtP8+BK/zJP/+JcRjWr9cf0aQJUwQHVFSvuoM0GWgKWgh/D7V+KfLYZGlx6e9E2N5
-         aFmByeUkJVwTXO7fBmmsZ4yadeJj4urcNABOp63f7fuG0ZsdjMEKyqAy49vyDqlCKd2l
-         Kg0RaZiwntQ9W2XkhlZsH86If2ILD1FN9iFu8JOXd2oma2C4ThUe9GNhobW0lbTyIB6x
-         XB1Q==
+        bh=0FXcyKqgdj4n7KOOlo+wS8fVXQNjmdj8/Ri3WBVdePE=;
+        b=SQ43NFpST28Ut0vyr27kEYm+iN/Kb9Hrpr3UGNvAQ3JeahuRe1iQK4HI3S3qluUoPU
+         ww5CADdJyjkZYMJEFxD9WwjR/bmNorQoOqn/Rczg5SsehgG0VL5aEbi4UxTp/OzjpTxM
+         rufxSx9ckpPwzEFwQjO60x/dTpL5XOlqiUYxVb3w/uzYk+N1vVq/qj/T4VbPLofec6dx
+         3xmNdxTvzuPSUqH20igNaT/58QIXy1VchpHTQ0QcBonh34xWPdUEy7AhY2GN3UT3GANj
+         XLvTE/KRYp4azumzYf5J0fRIRsyJHUtbV2r6cyR4JCKGbjs2a5HGbN2xcx62VrYwJR6v
+         2y+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:to:cc:subject:from:references:in-reply-to
          :message-id:user-agent:mime-version:content-transfer-encoding;
-        bh=3IwhbIIIdejbQGEdegGTxsSyNNv5FNjoiFZ4zuxpf6Q=;
-        b=EjwjAvvqny9Qc6JrxQYSs7weMI5o9RlZ3+76OZW6NAC4sMscs2sX+NjijaL3Wp36fl
-         Ua0iRmMCWl4ZOBUM72GZRk21k8DeEWvYNbuqa5AN/HO02PZCZYtEYlajMRyyhAbR91Qk
-         FzVOZ+C72pR6dlQClVG1KbCezNXFB0BEtvq/ExeLCn7CfV7gw04pBOlqg1PR0Rxu03iY
-         dRaCG9rgJqqD2/QvrMtwTn33wZi89J7GZuwLIL9kMHKVzEFkcQJo2rWQzquJDr2UEklw
-         on4qfbfHIn2HoGh33D3dnVp22yO8NPeMYOQizb3RDkqiFy6IH5crARETh2+Xmgr817nz
-         BH2Q==
-X-Gm-Message-State: AOAM5303DTf30VGj3QYXW9PqkzMHGFxuMLCWXX7jyDBuL3ClJvoD05Ss
-        +r6qHNZWF3VK972kPY5cLpc=
-X-Google-Smtp-Source: ABdhPJwpYU4PM8uKf5beCNRtnN/2xa0zV1q48L8f88wJo5UYT+cShHkS49al+wuzj5P/fL/eeZT71Q==
-X-Received: by 2002:adf:b350:: with SMTP id k16mr19111033wrd.190.1613400943408;
-        Mon, 15 Feb 2021 06:55:43 -0800 (PST)
+        bh=0FXcyKqgdj4n7KOOlo+wS8fVXQNjmdj8/Ri3WBVdePE=;
+        b=PAnGD3EGFiBDNOfk/T3b6yYRblgeRtBR1dSxDZrWodS/KjlJ9EcJGFpoG7R4n8vd4y
+         U1Nhn7+ByyhOrG0+7UTQAXJsaYwy/ZZng27bZpusFPs3PJqKGeP9jEFLrkNffmQ4NGZr
+         0RzrL/ikRNcH94aU1IgXs3mR5CtHzhfIifz8t8O7Q5XWc7vCoAcowRTFl0vEOqqr7pJe
+         ZNP4WeZx2oiYYLa5WbnfFp0xGyPNTgZ5BYE6vpTKacFaTlsJJ16d/5EvWgrLOaf7fTLx
+         Qw+lXZWGCCYU6IIRfkqv6UPTAMQShQa7r+XoSrKDscqzvy/b5eRRByPXy6g463S9gONr
+         TITg==
+X-Gm-Message-State: AOAM530VoScKZOcqHnWjK4VBVz4wCerNQAyGcVizHDSPkMreY3qk840P
+        ha3csbjZNdvJYXSFaEdH3vo=
+X-Google-Smtp-Source: ABdhPJxt71iyQmg3YTwCy+7Jy5Eoj7Naky1LNUZEispo5PAjzNNP6FtQHXDGgoJCvP6egYZo6i+RdQ==
+X-Received: by 2002:a05:600c:4656:: with SMTP id n22mr14719841wmo.130.1613401024527;
+        Mon, 15 Feb 2021 06:57:04 -0800 (PST)
 Received: from localhost ([2a02:169:1e9::acc])
-        by smtp.gmail.com with ESMTPSA id i8sm29982962wry.90.2021.02.15.06.55.42
+        by smtp.gmail.com with ESMTPSA id g1sm25357255wmh.9.2021.02.15.06.57.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Feb 2021 06:55:43 -0800 (PST)
-Date:   Mon, 15 Feb 2021 15:42:42 +0100
+        Mon, 15 Feb 2021 06:57:04 -0800 (PST)
+Date:   Mon, 15 Feb 2021 15:25:12 +0100
 To:     "Daniel J. Ogorchock" <djogorchock@gmail.com>
 Cc:     linux-input@vger.kernel.org, thunderbird2k@gmail.com,
         blaws05@gmail.com, benjamin.tissoires@redhat.com, jikos@kernel.org,
         Roderick.Colenbrander@sony.com, svv@google.com,
         carmueller@gmail.com, pgriffais@valvesoftware.com,
         hadess@hadess.net
-Subject: Re: [PATCH v12 10/14] HID: nintendo: set controller uniq to MAC
+Subject: Re: [PATCH v12 03/14] HID: nintendo: add power supply support
 From:   "Silvan Jegen" <s.jegen@gmail.com>
 References: <20200823044157.339677-1-djogorchock@gmail.com>
- <20200823044157.339677-11-djogorchock@gmail.com>
-In-Reply-To: <20200823044157.339677-11-djogorchock@gmail.com>
-Message-Id: <3401O1XPEAHTM.22SVWJPNB6OUU@homearch.localdomain>
+ <20200823044157.339677-4-djogorchock@gmail.com>
+In-Reply-To: <20200823044157.339677-4-djogorchock@gmail.com>
+Message-Id: <2DDN5IY9N0T5F.25GA5IRWX53AX@homearch.localdomain>
 User-Agent: mblaze/1.1-4-g36df5fe (2021-01-22)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -80,108 +80,218 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Hi Daniel
 
-One comment below.
+Some comments below.
 
 "Daniel J. Ogorchock" <djogorchock@gmail.com> wrote:
-> This patch sets the input device's uniq identifier to the controller's
-> MAC address. This is useful for future association between an IMU input
-> device with the normal input device as well as associating the
-> controller with any serial joy-con driver.
+> This patch adds power_supply functionality to the switch controller
+> driver for its battery.
 >=20
 > Signed-off-by: Daniel J. Ogorchock <djogorchock@gmail.com>
 > ---
->  drivers/hid/hid-nintendo.c | 45 ++++++++++++++++++++++++++++++++++++++
->  1 file changed, 45 insertions(+)
+>  drivers/hid/Kconfig        |   1 +
+>  drivers/hid/hid-nintendo.c | 134 +++++++++++++++++++++++++++++++++++++
+>  2 files changed, 135 insertions(+)
 >=20
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index af4d543c0ff9..c05bfb6ac577 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -715,6 +715,7 @@ config HID_NINTENDO
+>  	depends on HID
+>  	depends on NEW_LEDS
+>  	depends on LEDS_CLASS
+> +	select POWER_SUPPLY
+>  	help
+>  	Adds support for the Nintendo Switch Joy-Cons and Pro Controller.
+>  	All controllers support bluetooth, and the Pro Controller also supports=
+
 > diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-> index c2f7dc83d875..85870569cb49 100644
+> index c3eec9b7c99c..adecd6790fe9 100644
 > --- a/drivers/hid/hid-nintendo.c
 > +++ b/drivers/hid/hid-nintendo.c
-> @@ -319,6 +319,8 @@ struct joycon_ctlr {
->  	struct led_classdev home_led;
+> @@ -11,6 +11,7 @@
+>   *   https://github.com/MTCKC/ProconXInput
+>   *   hid-wiimote kernel hid driver
+>   *   hid-logitech-hidpp driver
+> + *   hid-sony driver
+>   *
+>   * This driver supports the Nintendo Switch Joy-Cons and Pro Controllers=
+. The
+>   * Pro Controllers can either be used over USB or Bluetooth.
+> @@ -27,6 +28,7 @@
+>  #include <linux/input.h>
+>  #include <linux/leds.h>
+>  #include <linux/module.h>
+> +#include <linux/power_supply.h>
+>  #include <linux/spinlock.h>
+> =20
+>  /*
+> @@ -192,6 +194,7 @@ struct joycon_ctlr {
+>  	struct input_dev *input;
+>  	struct led_classdev leds[JC_NUM_LEDS];
 >  	enum joycon_ctlr_state ctlr_state;
->  	spinlock_t lock;
-> +	u8 mac_addr[6];
-> +	char *mac_addr_str;
+> +	spinlock_t lock;
 > =20
 >  	/* The following members are used for synchronous sends/receives */
 >  	enum joycon_msg_type msg_type;
-> @@ -1005,6 +1007,7 @@ static int joycon_input_create(struct joycon_ctlr *=
-ctlr)
->  	ctlr->input->id.vendor =3D hdev->vendor;
->  	ctlr->input->id.product =3D hdev->product;
->  	ctlr->input->id.version =3D hdev->version;
-> +	ctlr->input->uniq =3D ctlr->mac_addr_str;
->  	ctlr->input->name =3D name;
->  	input_set_drvdata(ctlr->input, ctlr);
+> @@ -209,6 +212,12 @@ struct joycon_ctlr {
+>  	struct joycon_stick_cal right_stick_cal_x;
+>  	struct joycon_stick_cal right_stick_cal_y;
 > =20
-> @@ -1317,6 +1320,41 @@ static int joycon_power_supply_create(struct joyco=
-n_ctlr *ctlr)
+> +	/* power supply data */
+> +	struct power_supply *battery;
+> +	struct power_supply_desc battery_desc;
+> +	u8 battery_capacity;
+> +	bool battery_charging;
+> +	bool host_powered;
+>  };
+> =20
+>  static int __joycon_hid_send(struct hid_device *hdev, u8 *data, size_t l=
+en)
+> @@ -439,9 +448,41 @@ static void joycon_parse_report(struct joycon_ctlr *=
+ctlr,
+>  				struct joycon_input_report *rep)
+>  {
+>  	struct input_dev *dev =3D ctlr->input;
+> +	unsigned long flags;
+> +	u8 tmp;
+>  	u32 btns;
+>  	u32 id =3D ctlr->hdev->product;
+> =20
+> +	/* Parse the battery status */
+> +	tmp =3D rep->bat_con;
+> +	spin_lock_irqsave(&ctlr->lock, flags);
+> +	ctlr->host_powered =3D tmp & BIT(0);
+> +	ctlr->battery_charging =3D tmp & BIT(4);
+> +	tmp =3D tmp >> 5;
+> +	switch (tmp) {
+> +	case 0: /* empty */
+> +		ctlr->battery_capacity =3D POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
+> +		break;
+> +	case 1: /* low */
+> +		ctlr->battery_capacity =3D POWER_SUPPLY_CAPACITY_LEVEL_LOW;
+> +		break;
+> +	case 2: /* medium */
+> +		ctlr->battery_capacity =3D POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
+> +		break;
+> +	case 3: /* high */
+> +		ctlr->battery_capacity =3D POWER_SUPPLY_CAPACITY_LEVEL_HIGH;
+> +		break;
+> +	case 4: /* full */
+> +		ctlr->battery_capacity =3D POWER_SUPPLY_CAPACITY_LEVEL_FULL;
+> +		break;
+> +	default:
+> +		ctlr->battery_capacity =3D POWER_SUPPLY_CAPACITY_LEVEL_UNKNOWN;
+> +		hid_warn(ctlr->hdev, "Invalid battery status\n");
+> +		break;
+
+This break is not needed but we seem to use a "break" in a lot of
+"default:" cases, so it could be on purpose.
+
+
+> +	}
+> +	spin_unlock_irqrestore(&ctlr->lock, flags);
+> +
+> +	/* Parse the buttons and sticks */
+>  	btns =3D hid_field_extract(ctlr->hdev, rep->button_status, 0, 24);
+> =20
+>  	if (id !=3D USB_DEVICE_ID_NINTENDO_JOYCONR) {
+> @@ -741,6 +782,91 @@ static int joycon_player_leds_create(struct joycon_c=
+tlr *ctlr)
 >  	return 0;
 >  }
 > =20
-> +static int joycon_read_mac(struct joycon_ctlr *ctlr)
+> +static int joycon_battery_get_property(struct power_supply *supply,
+> +				       enum power_supply_property prop,
+> +				       union power_supply_propval *val)
 > +{
-> +	int ret;
-> +	int i;
-> +	int j;
-> +	struct joycon_subcmd_request req =3D { 0 };
-> +	struct joycon_input_report *report;
+> +	struct joycon_ctlr *ctlr =3D power_supply_get_drvdata(supply);
+> +	unsigned long flags;
+> +	int ret =3D 0;
+> +	u8 capacity;
+> +	bool charging;
+> +	bool powered;
 > +
-> +	req.subcmd_id =3D JC_SUBCMD_REQ_DEV_INFO;
-> +	ret =3D joycon_send_subcmd(ctlr, &req, 0, HZ);
-> +	if (ret) {
-> +		hid_err(ctlr->hdev, "Failed to get joycon info; ret=3D%d\n", ret);
-> +		return ret;
+> +	spin_lock_irqsave(&ctlr->lock, flags);
+> +	capacity =3D ctlr->battery_capacity;
+> +	charging =3D ctlr->battery_charging;
+> +	powered =3D ctlr->host_powered;
+> +	spin_unlock_irqrestore(&ctlr->lock, flags);
+> +
+> +	switch (prop) {
+> +	case POWER_SUPPLY_PROP_PRESENT:
+> +		val->intval =3D 1;
+> +		break;
+> +	case POWER_SUPPLY_PROP_SCOPE:
+> +		val->intval =3D POWER_SUPPLY_SCOPE_DEVICE;
+> +		break;
+> +	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
+> +		val->intval =3D capacity;
+> +		break;
+> +	case POWER_SUPPLY_PROP_STATUS:
+> +		if (charging)
+> +			val->intval =3D POWER_SUPPLY_STATUS_CHARGING;
+> +		else if (capacity =3D=3D POWER_SUPPLY_CAPACITY_LEVEL_FULL &&
+> +			 powered)
+> +			val->intval =3D POWER_SUPPLY_STATUS_FULL;
+> +		else
+> +			val->intval =3D POWER_SUPPLY_STATUS_DISCHARGING;
+> +		break;
+> +	default:
+> +		ret =3D -EINVAL;
+> +		break;
+
+This break is not needed.
+
+
 > +	}
-> +
-> +	report =3D (struct joycon_input_report *)ctlr->input_buf;
-> +
-> +	for (i =3D 4, j =3D 0; j < 6; i++, j++)
-> +		ctlr->mac_addr[j] =3D report->reply.data[i];
-> +
-> +	ctlr->mac_addr_str =3D devm_kasprintf(&ctlr->hdev->dev, GFP_KERNEL,
-> +					    "%02X:%02X:%02X:%02X:%02X:%02X",
-> +					    ctlr->mac_addr[0],
-> +					    ctlr->mac_addr[1],
-> +					    ctlr->mac_addr[2],
-> +					    ctlr->mac_addr[3],
-> +					    ctlr->mac_addr[4],
-> +					    ctlr->mac_addr[5]);
-> +	if (!ctlr->mac_addr_str)
-> +		return -ENOMEM;
-> +	hid_info(ctlr->hdev, "controller MAC =3D %s\n", ctlr->mac_addr_str);
-> +
-> +	return 0;
+> +	return ret;
 > +}
 > +
->  /* Common handler for parsing inputs */
->  static int joycon_ctlr_read_handler(struct joycon_ctlr *ctlr, u8 *data,
->  							      int size)
-> @@ -1495,6 +1533,13 @@ static int nintendo_hid_probe(struct hid_device *h=
-dev,
->  		goto err_mutex;
->  	}
-> =20
-> +	ret =3D joycon_read_mac(ctlr);
-> +	if (ret) {
-> +		hid_err(hdev, "Failed to retrieve controller MAC; ret=3D%d\n",
-> +			ret);
-> +		goto err_close;
+> +static enum power_supply_property joycon_battery_props[] =3D {
+> +	POWER_SUPPLY_PROP_PRESENT,
+> +	POWER_SUPPLY_PROP_CAPACITY_LEVEL,
+> +	POWER_SUPPLY_PROP_SCOPE,
+> +	POWER_SUPPLY_PROP_STATUS,
+> +};
+> +
+> +static int joycon_power_supply_create(struct joycon_ctlr *ctlr)
+> +{
+> +	struct hid_device *hdev =3D ctlr->hdev;
+> +	struct power_supply_config supply_config =3D { .drv_data =3D ctlr, };
+> +	const char * const name_fmt =3D "nintendo_switch_controller_battery_%s"=
+;
+> +	int ret =3D 0;
+> +
+> +	/* Set initially to unknown before receiving first input report */
+> +	ctlr->battery_capacity =3D POWER_SUPPLY_CAPACITY_LEVEL_UNKNOWN;
+> +
+> +	/* Configure the battery's description */
+> +	ctlr->battery_desc.properties =3D joycon_battery_props;
+> +	ctlr->battery_desc.num_properties =3D
+> +					ARRAY_SIZE(joycon_battery_props);
+> +	ctlr->battery_desc.get_property =3D joycon_battery_get_property;
+> +	ctlr->battery_desc.type =3D POWER_SUPPLY_TYPE_BATTERY;
+> +	ctlr->battery_desc.use_for_apm =3D 0;
+> +	ctlr->battery_desc.name =3D devm_kasprintf(&hdev->dev, GFP_KERNEL,
+> +						 name_fmt,
+> +						 dev_name(&hdev->dev));
+> +	if (!ctlr->battery_desc.name)
+> +		return -ENOMEM;
+> +
+> +	ctlr->battery =3D devm_power_supply_register(&hdev->dev,
+> +						   &ctlr->battery_desc,
+> +						   &supply_config);
+> +	if (IS_ERR(ctlr->battery)) {
+> +		ret =3D PTR_ERR(ctlr->battery);
+> +		hid_err(hdev, "Failed to register battery; ret=3D%d\n", ret);
+> +		return ret;
+> +	}
+> +	power_supply_powers(ctlr->battery, &hdev->dev);
 
-This should be err_mutex otherwise we don't unlock the mutex on
-error. Note that a later patch changes the hid_err error format string
-but the error is introduced here.
+We should probably check the return value of this function.
 
 
 Cheers,
 
 Silvan
-
-> +	}
-> +
->  	mutex_unlock(&ctlr->output_mutex);
-> =20
->  	/* Initialize the leds */
-
-

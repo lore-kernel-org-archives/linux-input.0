@@ -7,47 +7,50 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49F88C433E0
-	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 20:40:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 759B5C433DB
+	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 20:40:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1444D64DEC
-	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 20:40:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4361A64DF0
+	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 20:40:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229617AbhBOUjt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 15 Feb 2021 15:39:49 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39186 "EHLO
+        id S229651AbhBOUjv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 15 Feb 2021 15:39:51 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:27749 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229615AbhBOUjt (ORCPT
+        by vger.kernel.org with ESMTP id S229615AbhBOUju (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 15 Feb 2021 15:39:49 -0500
+        Mon, 15 Feb 2021 15:39:50 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613421502;
+        s=mimecast20190719; t=1613421504;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=NItAS8wI+TBQvsBsmps5OnlgxM07ewSSuEP1uPWhu8s=;
-        b=B4g+xPLHykIhVibeWCQI+bysuumoH9ITzzv/VirX0GeovEBx/fdmuK1CpyXrbLRHS9beNG
-        3DZAR/810QeqUpB0TazZGDap9gUx8sSWajCN+V9Vknq+IW1fyavxnulXjdFE1MOfbpXvlP
-        dgAljADWChYSWVKo8R25/qHsZfRaCBo=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7YUhd3rnFGxWAHiwpUAU4waTHxmBpvk8O53lSKRm2jE=;
+        b=WLeDVausKGsWH4PukAguzCjsTIvHvxj2SDtlB23cEZv+mS3r47IFfRVw7KeRmfC9q2GOB9
+        FUd6/QAiDoWdgi/s+JQd593omwNUWsZgbZwlaGow5DblMsWQqDkl3HB69FFvHN6BbeYJ97
+        CLTvVvqrGo4GgpYMDmMjh0xZo9TPP/M=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-587-DWKYamU8O-iyxDb4-6BOAA-1; Mon, 15 Feb 2021 15:38:21 -0500
-X-MC-Unique: DWKYamU8O-iyxDb4-6BOAA-1
+ us-mta-581-HJbFkcSkOG2F4sHqwqthCw-1; Mon, 15 Feb 2021 15:38:22 -0500
+X-MC-Unique: HJbFkcSkOG2F4sHqwqthCw-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 748D6BBEE2;
-        Mon, 15 Feb 2021 20:38:19 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D4F8B80196C;
+        Mon, 15 Feb 2021 20:38:21 +0000 (UTC)
 Received: from x1.localdomain (ovpn-115-74.ams2.redhat.com [10.36.115.74])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 617D95D9C0;
-        Mon, 15 Feb 2021 20:38:15 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E24A75D9C0;
+        Mon, 15 Feb 2021 20:38:20 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH 1/5] HID: lenovo: Fix false positive errors on setting tp10ubkbd LEDs
-Date:   Mon, 15 Feb 2021 21:38:10 +0100
-Message-Id: <20210215203814.699633-1-hdegoede@redhat.com>
+Subject: [PATCH 3/5] HID: lenovo: Check hid_get_drvdata() returns non NULL in lenovo_event()
+Date:   Mon, 15 Feb 2021 21:38:12 +0100
+Message-Id: <20210215203814.699633-3-hdegoede@redhat.com>
+In-Reply-To: <20210215203814.699633-1-hdegoede@redhat.com>
+References: <20210215203814.699633-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
@@ -55,29 +58,38 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Fix the error check in lenovo_led_set_tp10ubkbd(), on success
-hid_hw_raw_request() returns the number of bytes send. So we should
-check for (ret != 3) rather then for (ret != 0).
+The HID lenovo probe function only attaches drvdata to one of the
+USB interfaces, but lenovo_event() will get called for all USB interfaces
+to which hid-lenovo is bound.
+
+This allows a malicious device to fake being a device handled by
+hid-lenovo, which generates events for which lenovo_event() has
+special handling (and thus dereferences hid_get_drvdata()) on another
+interface triggering a NULL pointer exception.
+
+Add a check for hid_get_drvdata() returning NULL, avoiding this
+possible NULL pointer exception.
 
 Fixes: bc04b37ea0ec ("HID: lenovo: Add ThinkPad 10 Ultrabook Keyboard support")
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-lenovo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-lenovo.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index c6c8e20f3e8d..69d709439676 100644
+index 9b80b1685b53..50ae770a4fb1 100644
 --- a/drivers/hid/hid-lenovo.c
 +++ b/drivers/hid/hid-lenovo.c
-@@ -75,7 +75,7 @@ static void lenovo_led_set_tp10ubkbd(struct hid_device *hdev, u8 led_code,
- 	data->led_report[2] = value ? TP10UBKBD_LED_ON : TP10UBKBD_LED_OFF;
- 	ret = hid_hw_raw_request(hdev, data->led_report[0], data->led_report, 3,
- 				 HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
--	if (ret)
-+	if (ret != 3)
- 		hid_err(hdev, "Set LED output report error: %d\n", ret);
- 
- 	mutex_unlock(&data->led_report_mutex);
+@@ -498,6 +498,9 @@ static int lenovo_event_cptkbd(struct hid_device *hdev,
+ static int lenovo_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
++	if (!hid_get_drvdata(hdev))
++		return 0;
++
+ 	switch (hdev->product) {
+ 	case USB_DEVICE_ID_LENOVO_CUSBKBD:
+ 	case USB_DEVICE_ID_LENOVO_CBTKBD:
 -- 
 2.30.1
 

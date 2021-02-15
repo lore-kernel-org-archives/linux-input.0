@@ -2,118 +2,83 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A61A3C433E9
-	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 20:40:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19502C433DB
+	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 20:43:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 78E3964DFF
-	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 20:40:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C028964DEC
+	for <linux-input@archiver.kernel.org>; Mon, 15 Feb 2021 20:43:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229627AbhBOUjx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 15 Feb 2021 15:39:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:32199 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229646AbhBOUjv (ORCPT
+        id S229646AbhBOUno (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 15 Feb 2021 15:43:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49254 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229627AbhBOUnn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 15 Feb 2021 15:39:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613421505;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/VKAr0LDzSsP7+gN1iP6v70ytnbm03/E+xwfhNhADE0=;
-        b=RNW0yxVMaoHtjFV/h4rr6pHSvK0kDnMg4wd3ouq8l8anQRxAn2O7LefxP6m2T3cLNdo4Yo
-        uUeCt1epMYq1rfNYKVgBR+xaNFUEd/gi54Mieb9AYa+60F9Wd8IyNbqXjgm4jPktG1hlXC
-        d+hr8Bc6bhq3LlWgC6lJz1R5NAtQPNs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-462-zK44XYk4M2S8P8rD6JuRTA-1; Mon, 15 Feb 2021 15:38:24 -0500
-X-MC-Unique: zK44XYk4M2S8P8rD6JuRTA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1776CBBEE2;
-        Mon, 15 Feb 2021 20:38:23 +0000 (UTC)
-Received: from x1.localdomain (ovpn-115-74.ams2.redhat.com [10.36.115.74])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 25EBF5D9C0;
-        Mon, 15 Feb 2021 20:38:22 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH 4/5] HID: lenovo: Map mic-mute button to KEY_F20 instead of KEY_MICMUTE
-Date:   Mon, 15 Feb 2021 21:38:13 +0100
-Message-Id: <20210215203814.699633-4-hdegoede@redhat.com>
-In-Reply-To: <20210215203814.699633-1-hdegoede@redhat.com>
-References: <20210215203814.699633-1-hdegoede@redhat.com>
+        Mon, 15 Feb 2021 15:43:43 -0500
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA07AC061574
+        for <linux-input@vger.kernel.org>; Mon, 15 Feb 2021 12:43:02 -0800 (PST)
+Received: by mail-ej1-x630.google.com with SMTP id i23so7114086ejg.10
+        for <linux-input@vger.kernel.org>; Mon, 15 Feb 2021 12:43:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-transfer-encoding:content-language;
+        bh=ixg1ygQwMAIzmWmi4aZ6baIekeiK3vHVeqFnm5gcUm8=;
+        b=SE5zjvVnkBJvIkb/4hUZhvmndPwePnfxd0eQCjH8XNJXkMG+yhk7rl2NoGwFut9mTF
+         S3whyBXV44m2btySEZTp86Spaw1TAVtpb7Xs+QTI557U7ivG14WK9KjSpL9unmJZ3c3b
+         Oi5WTMolX/Qkrp22y6/DQHZJ61n+YDJ52CFdjroFCMr3YApQJmbsIe0MwitEpKSFM8lW
+         UigK0L9RGP+i1ijOpG8xbICpvf0wLnHYpOgrYQZYgF5pc+qisf/9jD1i3nVomIyDTlo5
+         sirVKLXg3jCmRNpQrQh7J8v151AajUB+h8cbt0WgRUvZjbqt510CV0HLhimwPL4rQ18J
+         8vAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-transfer-encoding:content-language;
+        bh=ixg1ygQwMAIzmWmi4aZ6baIekeiK3vHVeqFnm5gcUm8=;
+        b=gvJM8xLmxOdh+/9cBqjw4M72jDVIi5JOO8CiPNZCdvFHNFJ+zxwxqslb9oId8sg5QU
+         lVGWLP6YxH9C5r6GdT9BLzP6tgWMO7iUqMFJf74CxwHQDfOoDdRvJsw7Yl8NG6JCwu6I
+         rjjPwCFUCeWLqUCPR90zKS1Z1QdEPUH1EU4sqj6BJHDfjOQE5FJ+qELoJiSOi/4K4DZt
+         8LAZ1N2rz+0UB9EdI/3x7uHd2NyS5axhHN2FTR0cMewQdJ/1TUWIzvdl71KuHUSgiiu7
+         a4ISleKrX6UmSImaOFLRyJIO7FGZNEn94SZ4nv/bm1ylPuKUoGN67hFRxjHpm/2LuA37
+         OlcA==
+X-Gm-Message-State: AOAM530wWmjGpPMxGBpSl17tOq0gWWH6wnzQrnWW2cz7LxOkKxV6XA/2
+        zjJwqZ3paJWBbj755boZsq/DxV6xnm0z1A==
+X-Google-Smtp-Source: ABdhPJw9I3BtXvBchoKUJV9DtCdgQxiPlz5bYT0XlpivaM4TT14XjdRM2mfNwhCVJWqLmuO4r3cW9A==
+X-Received: by 2002:a17:907:78d5:: with SMTP id kv21mr17392346ejc.461.1613421781352;
+        Mon, 15 Feb 2021 12:43:01 -0800 (PST)
+Received: from [192.168.1.100] (host-87-21-45-201.retail.telecomitalia.it. [87.21.45.201])
+        by smtp.gmail.com with ESMTPSA id bn2sm11582154ejb.35.2021.02.15.12.43.00
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 Feb 2021 12:43:01 -0800 (PST)
+To:     linux-input@vger.kernel.org
+From:   Gennaro Cimmino <l0rdg3x@gmail.com>
+Subject: HID: 258a:0001 SINO WEALTH USB KEYBOARD
+Message-ID: <9152f235-83c2-abc7-0c9f-e07eafa406e2@gmail.com>
+Date:   Mon, 15 Feb 2021 21:43:00 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Mapping the mic-mute button to KEY_MICMUTE is technically correct but
-KEY_MICMUTE translates to a scancode of 256 (248 + 8) under X,
-which does not fit in 8 bits, so it does not work.
+Hi Everybody,
+someone can take a look to this bug?
+https://bugzilla.kernel.org/show_bug.cgi?id=211679
 
-Because of this userspace is expecting KEY_F20 instead,
-theoretically KEY_MICMUTE should work under Wayland but even
-there it does not work, because the desktop-environment is
-listening only for KEY_F20 and not for KEY_MICMUTE.
+tested with kernel 5.11, not work.
 
-Fixes: bc04b37ea0ec ("HID: lenovo: Add ThinkPad 10 Ultrabook Keyboard support")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/hid/hid-lenovo.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Thanks in advice.
 
-diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index 50ae770a4fb1..045c06ba0ab8 100644
---- a/drivers/hid/hid-lenovo.c
-+++ b/drivers/hid/hid-lenovo.c
-@@ -33,6 +33,9 @@
- 
- #include "hid-ids.h"
- 
-+/* Userspace expects F20 for mic-mute KEY_MICMUTE does not work */
-+#define LENOVO_KEY_MICMUTE KEY_F20
-+
- struct lenovo_drvdata {
- 	u8 led_report[3]; /* Must be first for proper alignment */
- 	int led_state;
-@@ -126,7 +129,7 @@ static int lenovo_input_mapping_tpkbd(struct hid_device *hdev,
- 	if (usage->hid == (HID_UP_BUTTON | 0x0010)) {
- 		/* This sub-device contains trackpoint, mark it */
- 		hid_set_drvdata(hdev, (void *)1);
--		map_key_clear(KEY_MICMUTE);
-+		map_key_clear(LENOVO_KEY_MICMUTE);
- 		return 1;
- 	}
- 	return 0;
-@@ -141,7 +144,7 @@ static int lenovo_input_mapping_cptkbd(struct hid_device *hdev,
- 	    (usage->hid & HID_USAGE_PAGE) == HID_UP_LNVENDOR) {
- 		switch (usage->hid & HID_USAGE) {
- 		case 0x00f1: /* Fn-F4: Mic mute */
--			map_key_clear(KEY_MICMUTE);
-+			map_key_clear(LENOVO_KEY_MICMUTE);
- 			return 1;
- 		case 0x00f2: /* Fn-F5: Brightness down */
- 			map_key_clear(KEY_BRIGHTNESSDOWN);
-@@ -231,7 +234,7 @@ static int lenovo_input_mapping_tp10_ultrabook_kbd(struct hid_device *hdev,
- 			map_key_clear(KEY_FN_ESC);
- 			return 1;
- 		case 9: /* Fn-F4: Mic mute */
--			map_key_clear(KEY_MICMUTE);
-+			map_key_clear(LENOVO_KEY_MICMUTE);
- 			return 1;
- 		case 10: /* Fn-F7: Control panel */
- 			map_key_clear(KEY_CONFIG);
--- 
-2.30.1
+Gennaro Cimmino
 

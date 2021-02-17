@@ -2,129 +2,119 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78865C4332E
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:33:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A89CEC433DB
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:34:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 51C8664DCF
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:33:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77D4B64DCF
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:34:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234467AbhBQRdD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 17 Feb 2021 12:33:03 -0500
-Received: from [139.28.40.42] ([139.28.40.42]:46860 "EHLO
-        tarta.nabijaczleweli.xyz" rhost-flags-FAIL-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S234397AbhBQRcs (ORCPT
+        id S234556AbhBQRem (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 17 Feb 2021 12:34:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46810 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234503AbhBQRdh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Feb 2021 12:32:48 -0500
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 4CB7136015E;
-        Wed, 17 Feb 2021 18:22:44 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=nabijaczleweli.xyz;
-        s=202006; t=1613582564;
-        bh=dwHu+sdeHIKyUfCS/scRSx02f3iaHYUimdvjlNSpccM=;
-        h=Date:From:Cc:Subject:References:In-Reply-To:From;
-        b=evr3z80W83GUYD2f9mLHoZBgTi/kkMo+NJwI8ez2dQGpQKCU3HtMoqicGg4LTtKSx
-         I/Fk42oy7dQI1vj9B0tXm93jZmRwhkLO40gfzT4Nbxeq+sulKoPtFzlb2g71HsXcZc
-         jEoj5QNgbDRRyDUNpIdpEBTtWiOSLU+NlYPUYrXM8gxP9bQNSAhtcdkG6uorKkO8hX
-         9BgGJ3NBrYZJTbK7CkgSZVxKl0jK0/tdExCMzTAD2CPjRl15Snoy+sLnO8XFxfRClV
-         jKWswq5f2iVR2EW73Sf9UH6bT+NXrYrYvIz9LQ3N+Pv8zhh4cSzRTVXv/qDXmWwjyK
-         N6eXk54ZiahWw==
-Date:   Wed, 17 Feb 2021 18:22:43 +0100
-From:   Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= 
-        <nabijaczleweli@nabijaczleweli.xyz>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] HID: input: replace outdated HID numbers+comments with
- macros
-Message-ID: <394d6b11ae029c64a0bb44a00bef902069087d03.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
-References: <cover.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
+        Wed, 17 Feb 2021 12:33:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613583129;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=I7iGIcqNfRI0azzlr/+gKDiz0a0keNB5d1rOzEe2O5U=;
+        b=UgM8uZ61EmwVl6XRW+UrXq94Xm8c0LOZs+4SKS2XuXDogQ8dpuASaPg5JhJcI2PNioJU9k
+        vpnIYMAO+a0ph7/UsO7P5AgKIizvQt2Rxa3GTy8rrHVy8U8tjyWYUxkvEIeMM/LCU7DBMI
+        m0xGb0hgR0e+/SV4hh9m0MALtBU7PD0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-553-YydEuUIKN_qQsNEF0iT7yQ-1; Wed, 17 Feb 2021 12:32:06 -0500
+X-MC-Unique: YydEuUIKN_qQsNEF0iT7yQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 98FCC192CC40;
+        Wed, 17 Feb 2021 17:32:04 +0000 (UTC)
+Received: from plouf.redhat.com (ovpn-116-25.ams2.redhat.com [10.36.116.25])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C1D6060C61;
+        Wed, 17 Feb 2021 17:31:59 +0000 (UTC)
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>
+Cc:     linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 00/11] HID: playstation: revert LED class exposure
+Date:   Wed, 17 Feb 2021 18:31:47 +0100
+Message-Id: <20210217173158.3122868-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="t7xev2pzdwa4xwj2"
-Content-Disposition: inline
-In-Reply-To: <cover.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
-User-Agent: NeoMutt/20210205
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+[sending those patches on behalf of Roderick]
 
---t7xev2pzdwa4xwj2
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There is a current thread on LED LKML which basically means that
+we have to revert the LED class exposure until things are settled.
 
-These were untouched since 2.3.99-pre3, and the explanatory comment for
-HID_DG_TIPPRESSURE is TipPressure on other places
+I am sending here the full series that will end up in linux-next.
+But with some git magic, the final PR to Linus will not have the
+reverts in it, just the plain patches.
 
-Signed-off-by: Ahelenia Ziemia=C5=84ska <nabijaczleweli@nabijaczleweli.xyz>
----
- drivers/hid/hid-input.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+I am queuing in for-5.12/playstation patches 1 to 6 immediately
+(the reverts).
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index f23027d2795b..a5ba92978473 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1301,12 +1301,12 @@ void hidinput_hid_event(struct hid_device *hid, str=
-uct hid_field *field, struct
- 		return;
- 	}
-=20
--	if (usage->hid =3D=3D (HID_UP_DIGITIZER | 0x003c)) { /* Invert */
-+	if (usage->hid =3D=3D HID_DG_INVERT) {
- 		*quirks =3D value ? (*quirks | HID_QUIRK_INVERT) : (*quirks & ~HID_QUIRK=
-_INVERT);
- 		return;
- 	}
-=20
--	if (usage->hid =3D=3D (HID_UP_DIGITIZER | 0x0032)) { /* InRange */
-+	if (usage->hid =3D=3D HID_DG_INRANGE) {
- 		if (value) {
- 			input_event(input, usage->type, (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL=
-_RUBBER : usage->code, 1);
- 			return;
-@@ -1316,7 +1316,7 @@ void hidinput_hid_event(struct hid_device *hid, struc=
-t hid_field *field, struct
- 		return;
- 	}
-=20
--	if (usage->hid =3D=3D (HID_UP_DIGITIZER | 0x0030) && (*quirks & HID_QUIRK=
-_NOTOUCH)) { /* Pressure */
-+	if (usage->hid =3D=3D HID_DG_TIPPRESSURE && (*quirks & HID_QUIRK_NOTOUCH)=
-) {
- 		int a =3D field->logical_minimum;
- 		int b =3D field->logical_maximum;
- 		input_event(input, EV_KEY, BTN_TOUCH, value > a + ((b - a) >> 3));
---=20
-2.20.1
+I am also queuing in for-5.12/playstation-v2 patches 7 and 8 on
+top of 51151098d7ab8 immediately. Those 2 patches have already
+been reviewed the usual process.
 
+I am waiting 1 day for others to chime in regarding patches 9 to
+11 before applying them to for-5.12/playstation-v2. They are
+basically the same patches that were already reviewed on the
+linux-input LKML, but without the LED class bits.
 
---t7xev2pzdwa4xwj2
-Content-Type: application/pgp-signature; name="signature.asc"
+With all that, we should have more room to discuss the exposure
+of the LEDs to userspace through the LED class.
 
------BEGIN PGP SIGNATURE-----
+Roderick, I made small adjustments compared to the series you sent
+me privately:
+- added the 2 missing reverts/re-add, so I can have clean merges
+  for our for-next branch,
+- re-ordered the `if (ds->update_rumble)` block in
+  `dualsense_output_worker()` to match was was in linux-next
+- removed an extra new line to match the current linux-next tree.
 
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmAtUOIACgkQvP0LAY0m
-WPGffg//Yvm3Km1j1Z7r5bjBxfQaQVgrWPt/FiI5goP0r+sQE1IBcCTxp09SdZGR
-Uc/TnWJbkiujFG8ZSLeR1g2giup7H0hEw3b6D2Esyd682wNNoty7p3GLv49814CJ
-FL4RsBbLMN5bJiIss7lvumcE4C702twd41Rw+u08w1S45iKMEIoYGWTwvhTaeo9T
-ZWbhzs7ulmgI9dzLQRDKz9g8qei1bSpfVpBHZVOScIBnzyZ77L/Mob96USEMbZF0
-xVNhbqp1FOmz2ovTdQ5C1yRtmfG67LotQ8D1sj96hw1ChmafDRvyZ7KeYr7cZOCQ
-Yrc19/wcOIugSnBVAc7BowmVoTAs1iT56QoHd6821iAebahHfy4E6cGWVaMlJRJh
-GfT6MeWNdEeXb2xdkq0eAqxEtTVfIIzGAE0VJr0z3qnLAtr3LdvulyAmpYLyCAFW
-ATgU8/U0fYfXl1dKOZGapBeTQrvYFYzejcDiNl9w4LDLZc8mTBtXp6qCstrcp22t
-tKxz90uZEMsePhzLHU2rVoQ8nrT/mnAMa+3kM7YeA5d7SHrHjY/njL60aF+USsRW
-Fk7yGXqumSFmNOJGPVgB2dhD9w/pfQr3JNp9GMZoorcC1yYMZfDrOXYOabVTtyXY
-T0RoeC59ba+qKSA/di3yTXsLR2caY1VBjU/rea6QYCiaCNX8o+s=
-=TIq5
------END PGP SIGNATURE-----
+Cheers,
+Benjamin
 
---t7xev2pzdwa4xwj2--
+Benjamin Tissoires (2):
+  Revert "HID: playstation: fix unused variable in
+    ps_battery_get_property."
+  Revert "HID: playstation: report DualSense hardware and firmware
+    version."
+
+Roderick Colenbrander (9):
+  Revert "HID: playstation: DualSense set LEDs to default player id."
+  Revert "HID: playstation: add DualSense player LEDs support."
+  Revert "HID: playstation: add microphone mute support for DualSense."
+  Revert "HID: playstation: add DualSense lightbar support"
+  HID: playstation: report DualSense hardware and firmware version.
+  HID: playstation: fix unused variable in ps_battery_get_property.
+  HID: playstation: add initial DualSense lightbar support.
+  HID: playstation: add microphone mute support for DualSense.
+  HID: playstation: add DualSense player LED support.
+
+ drivers/hid/Kconfig           |   3 -
+ drivers/hid/hid-playstation.c | 177 +++-------------------------------
+ 2 files changed, 12 insertions(+), 168 deletions(-)
+
+-- 
+2.29.2
+

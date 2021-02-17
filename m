@@ -4,86 +4,86 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
 	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5550EC433E0
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 02:52:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5898CC433DB
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 04:38:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 027A064DE1
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 02:52:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1015064E02
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 04:38:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230436AbhBQCwR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 16 Feb 2021 21:52:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41052 "EHLO
+        id S230336AbhBQEik (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 16 Feb 2021 23:38:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229734AbhBQCwF (ORCPT
+        with ESMTP id S230315AbhBQEid (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 16 Feb 2021 21:52:05 -0500
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 648D6C061756
-        for <linux-input@vger.kernel.org>; Tue, 16 Feb 2021 18:51:25 -0800 (PST)
-Received: by mail-yb1-xb30.google.com with SMTP id l8so12387588ybe.12
-        for <linux-input@vger.kernel.org>; Tue, 16 Feb 2021 18:51:25 -0800 (PST)
+        Tue, 16 Feb 2021 23:38:33 -0500
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFBFAC06174A;
+        Tue, 16 Feb 2021 20:37:52 -0800 (PST)
+Received: by mail-pf1-x435.google.com with SMTP id j12so7620427pfj.12;
+        Tue, 16 Feb 2021 20:37:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=hFixI9GqxBGkILczKHu+MKByGlW+Bb1I6hlZsCkJueg=;
-        b=BjpVcYkGU58w1IVSpaYYV/1GJ2K1WJn68MMb6+JImLDt859Wj0DixMejXivinwoV+R
-         B4nWHfokvbvmQEMJnZIfRvUchVsBp323kGbsV5LSEmq8N57lB+qmz9b6NlmELezfCenZ
-         B3YTESn4CXKcT+ENRpl+2hqVpwzFhkIZVw0GlhroKB+6aMP1mizhiczaz1+sk/ssz6ak
-         p19L0uw3Zmi5LrE/kyGsZmlNBrjQOvQMqK+bJLK/JBEfrovkyAcd6cMDjNE0mCj8m7dT
-         R3Eqt0QjPwFxgRwOu4J5ozr1DrYgAyvo3/B2aDK90ECZnKtErX575huFMZ0O0IytfCU0
-         SSkQ==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=BhmsuKnH0E52H/9hYZJn/H63hbz5gesZzSHL5lPaF+k=;
+        b=JNgqrAxGKINEujyV5xnygACyy/PSSR7vRSklUAJ6pmQsEtakziusaHQbnNMb0FJWcx
+         HUQir+nv8Ks8Skx03XXgKXUZe9DtiH4j23xqwZWegg3ufl3NvTXCYesbnHeYpvzvoMc8
+         hVUnA9MhA/syHJsHgGBvkKXWJY5v2jqLIBN4Ht2cvA9J84PIJkBzg7BVq0ItfvkAHpFZ
+         JBSbcm9QkEheDl/GHXolFZiJkzlFbJ4ARgdqZo+Sygduw6xvmtHogGmn3EtwHsizq0s5
+         dDNsVxPGsQH4jGzZVRy56CiVefBco0EKMzce7NCZEapAzJhIZKjuFH3K8+LkuJRdC1Cv
+         jJvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=hFixI9GqxBGkILczKHu+MKByGlW+Bb1I6hlZsCkJueg=;
-        b=Lw5GLiSagDNVQxnQxmXrC6IP6A/U0VbxTkzksXNi7fYJ5MsWuhOgkfajQxnHb379S4
-         De24P8W7HF8NrtX4BB7/S4Tq+mGA948apuKFHkJ67FqtJVNNo0VbHJkqD8FUmgjvz+Bu
-         SLsfawnnxohp7nDoa5xe8LzHjOSJwqamFZykTz4sCCTbDTmAIEJ8NmalTMZQE5kS7CuS
-         758u5/5LyF40vCou7bFP7+qqoHn21i+A2I5hcdO9OO6nkv0vWuk2tHRlRF5/9w4IjINx
-         XMYxNKdX5AOzt9Hh6G6/2x5tapBIJ70erAJPvwl44CYI7rE9GjcLSt5c3/NuzI+eIG/V
-         FQUA==
-X-Gm-Message-State: AOAM530V2+2DFhgHiU5jFKMuAlErr/33iETpvCwAbCpU5EcJ0feLLWAR
-        WEqH80GJGHXY1xLTJWHOmFdTkmblHOZ00fp8bCnW3RxtO35//A==
-X-Google-Smtp-Source: ABdhPJxzJBMvcjzmTK56FNoB4dkeHmNCKH95PXg395K/69r82LqtBsjaaTI9MTpjy9ZYiFhV1/CEs78RaSFEaURtPqw=
-X-Received: by 2002:a25:9887:: with SMTP id l7mr35387590ybo.319.1613530283833;
- Tue, 16 Feb 2021 18:51:23 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=BhmsuKnH0E52H/9hYZJn/H63hbz5gesZzSHL5lPaF+k=;
+        b=U3P4PM3xBDiL1T5QhYELx4SmFu3tG0p0uEUD/nlS0gLV/XDm7s5jFTywziB+s/0aAZ
+         ADlbRxM2jmIU1HTWH/IJMnAyvls6zbDRYHHypVYyeT6Naj6/KxhCI0a6B6DL8+dkbZm+
+         3g1hjlyA9/bjpNwIX3+WCMzpOdnEIOI/BRspYJJY6LwJvkuYnHIBf+6OoQ2r1iGgUYtm
+         wm6tlPFuKuh7rWUhySy3Hv1XIWJItWe7MuiaIcMf1C7lODLJUduHEjGbePWWQa88E8HS
+         fY50bnCgBazlNwK2incNy45hMmQzimxFoXprA6J220uaM5c8lziL71DqbFN+rawYMfEL
+         2hJQ==
+X-Gm-Message-State: AOAM5302MaDcaDi4N+iK2Ai0G7t4Z3DN3T/2YSisUHq1Wkxd6igsPO16
+        tsvgHG+UIczJWaLImooY8Mc=
+X-Google-Smtp-Source: ABdhPJxgYAkmzaGKK6Rmlt9BuDNilTzv10gEyDILo7x0iWSyVhw41CHQizuqLxgIAzFFEa5r+TODtQ==
+X-Received: by 2002:a63:c44d:: with SMTP id m13mr22321252pgg.64.1613536672447;
+        Tue, 16 Feb 2021 20:37:52 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:21d3:2abc:ad8c:8b3a])
+        by smtp.gmail.com with ESMTPSA id 143sm543848pfv.134.2021.02.16.20.37.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Feb 2021 20:37:51 -0800 (PST)
+Date:   Tue, 16 Feb 2021 20:37:49 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Florian Echtler <floe@butterbrot.org>,
+        linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH] Input: sur40 - Fix an error code in sur40_probe()
+Message-ID: <YCydnRcGmhWYw8Mp@google.com>
+References: <YBKFkbATXa5fA3xj@mwanda>
 MIME-Version: 1.0
-From:   Koopa Koopa <codingkoopa@gmail.com>
-Date:   Tue, 16 Feb 2021 21:51:13 -0500
-Message-ID: <CAM1wO0=2zM=WNmGyDJETLa4wsECE_Nxvq-gAa6_Wb_cMH43K9w@mail.gmail.com>
-Subject: PROBLEM: Error logged when pressing mouse button
-To:     linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YBKFkbATXa5fA3xj@mwanda>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Every time I press a button on my mouse, an error is logged in my
-system journal.
+On Thu, Jan 28, 2021 at 12:36:17PM +0300, Dan Carpenter wrote:
+> If v4l2_ctrl_handler_setup() fails then probe() should return an error
+> code instead of returning success.
+> 
+> Fixes: cee1e3e2ef39 ("media: add video control handlers using V4L2 control framework")
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Starting recently, every time I press any button on my Logitech G602
-mouse, the following is logged to my journal:
+Applied, thank you.
 
-    kernel: logitech-djreceiver 0003:046D:C537.0005: Unexpected input
-report number 128
-
-This includes both primary mouse buttons, the middle mouse buttons,
-the buttons on the side, and the buttons on the top controlling the
-DPI. It seems that, with commit
-e400071a805d6229223a98899e9da8c6233704a1
-(https://github.com/torvalds/linux/commit/e400071a805d6229223a98899e9da8c6233704a1),
-this driver was enabled for my mouse.
-
-My /proc/version:
-
-    Linux version 5.10.16-arch1-1 (linux@archlinux) (gcc (GCC) 10.2.0,
-GNU ld (GNU Binutils) 2.36) #1 SMP PREEMPT Sat, 13 Feb 2021 20:50:18
-+0000
-
-My kernel .config file: See here
-(https://github.com/archlinux/svntogit-packages/blob/packages/linux/trunk/config).
-
-Thanks!
+-- 
+Dmitry

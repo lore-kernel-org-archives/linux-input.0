@@ -7,46 +7,46 @@ X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 236F4C43381
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05084C433E9
 	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:33:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC69564E4B
+	by mail.kernel.org (Postfix) with ESMTP id D545A64E45
 	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:33:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234462AbhBQRc7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 17 Feb 2021 12:32:59 -0500
-Received: from [139.28.40.42] ([139.28.40.42]:46858 "EHLO
+        id S234460AbhBQRcz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 17 Feb 2021 12:32:55 -0500
+Received: from [139.28.40.42] ([139.28.40.42]:46876 "EHLO
         tarta.nabijaczleweli.xyz" rhost-flags-FAIL-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S233885AbhBQRcq (ORCPT
+        by vger.kernel.org with ESMTP id S234199AbhBQRcq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 17 Feb 2021 12:32:46 -0500
 Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 3CCEE3601D2;
-        Wed, 17 Feb 2021 18:22:49 +0100 (CET)
+        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id CCF3C360145;
+        Wed, 17 Feb 2021 18:22:38 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=nabijaczleweli.xyz;
-        s=202006; t=1613582569;
-        bh=ziY0iXdxwSWXFOzoXNDOFn5JohGhP3IMScquKcj790E=;
+        s=202006; t=1613582558;
+        bh=b15Rm9F+Q8HK8S3bxl9+1GFx0SJ2qQ2WbsdlEjo8Ln8=;
         h=Date:From:Cc:Subject:References:In-Reply-To:From;
-        b=dBtD6W7ffddYH3UpRpeMSIBASbBvDE0f49x3J5KBtcCW6VsP4BcwMFuR6FL1oFJxa
-         bqy4Kh7A5puaWJgQ8kP2TKCLApSB4rerNuVZ4gMfWmndAyFpk3d334E71H9rjJzRl5
-         kQWbdinoT448hsAqOqRcfuC3JfpZjslvphls0uDvUvLu5Mx/RVHjPqF4lqqnsDjrUb
-         2Qo/pEWxJ9ftZzVYC0HTmnGc+kfwQMV6SsCE236BBZA2i1yrD9Ze42LrOeMxjUtqfE
-         50x014EZIDuKlnOIH7k5GyTSo1HNe+F9IIeCSLXik4PDut/m/NHDuIIlfTTzkxhr8w
-         ZhTU12bo9duHQ==
-Date:   Wed, 17 Feb 2021 18:22:48 +0100
+        b=jgvYsIZSqzKYyyroDahGpmA2ElYaCk8ow6rxR3yV5q7Rdhl4LNha7tsYcsSzx5Do1
+         FLdHtMIm02myizRYwHm2CSMPHzzLsX0Vgy1WpvuMGG142kV19FfuNW5d56xhBkzBPu
+         lLvxqalDuZGEtaOV22JOLM5r7WtEOP5HycbVhrJ3nZtdef/vJJfyCgax4MnRV4k4+d
+         qRwMdpteJn+fDQgNaRkJdkGACLVF48TDpJUolzgvy5gIPTq2nNkY/lbvODupZJRWmQ
+         bi0bGMSzK3e3WYdU89Ix2oqiVjhLHzMJ3RP16egIUBEnWAhqSW6kkbyeBm37+bgVCY
+         NZ65WnZUlk5CA==
+Date:   Wed, 17 Feb 2021 18:22:37 +0100
 From:   Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= 
         <nabijaczleweli@nabijaczleweli.xyz>
 Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Peter Hutterer <peter.hutterer@who-t.net>,
         Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] HID: input: work around Win8 stylus-on-touchscreen
- reporting
-Message-ID: <b0cb2d0ee8743263608284e0e5112c446e3cb2ee.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
+Subject: [PATCH 2/4] HID: multitouch: set Stylus suffix for
+ Stylus-application devices, too
+Message-ID: <b36ae565d481ca9f57a2b2e1832abd99c7da2031.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
 References: <cover.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ebko57ktge7ctid7"
+        protocol="application/pgp-signature"; boundary="ocw7ij72o57mqf5q"
 Content-Disposition: inline
 In-Reply-To: <cover.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
 User-Agent: NeoMutt/20210205
@@ -56,105 +56,64 @@ List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 
---ebko57ktge7ctid7
+--ocw7ij72o57mqf5q
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-With this, these devices now behave as tablets as expected by userspace
+This re-adds the suffix to Win8 stylus-on-touchscreen devices,
+now that they aren't erroneously marked as MT
 
 Signed-off-by: Ahelenia Ziemia=C5=84ska <nabijaczleweli@nabijaczleweli.xyz>
 ---
- drivers/hid/hid-input.c | 41 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 41 insertions(+)
+ drivers/hid/hid-multitouch.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index a5ba92978473..b8813fc3e9d2 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1273,6 +1273,41 @@ static void hidinput_handle_scroll(struct hid_usage =
-*usage,
- 	input_event(input, EV_REL, usage->code, hi_res);
- }
-=20
-+/*
-+ * Win8 tablet stylus devices send, in order:
-+ *   HID_DG_TIPSWITCH (BTN_TOUCH)
-+ *   HID_DG_INVERT    (BTN_TOOL_RUBBER)
-+ *   HID_DG_ERASER    (BTN_TOUCH)
-+ *   HID_DG_INRANGE   (BTN_TOOL_PEN)
-+ *
-+ * For each of these states:
-+ *   hover     :                         INRANGE
-+ *   touching  : TIPSWITCH
-+ *   hover+2   :           INVERT        INRANGE
-+ *   touching+2:                  ERASER INRANGE
-+ *
-+ * Which means we'd send BTN_TOUCH=3D0 + BTN_TOOL_PEN=3D1 on proximity,
-+ * then BTN_TOUCH=3D1 and BTN_TOOL_PEN=3D0 in consecutive groups when touc=
-hed,
-+ * indicating the stylus leaving the screen as soon as the two meet.
-+ */
-+static void hidinput_fixup_win8_inrange(struct hid_device *hid, struct hid=
-_field *field, __s32 *value)
-+{
-+	unsigned f, u;
-+	struct hid_field *rfield;
-+
-+	if (!*value) {
-+		for (f =3D 0; f < field->report->maxfield; ++f) {
-+			rfield =3D field->report->field[f];
-+			for (u =3D 0; u < rfield->maxusage; ++u) {
-+				if (rfield->usage[u].hid =3D=3D HID_DG_TIPSWITCH) {
-+					*value =3D rfield->value[u];
-+					return;
-+				}
-+			}
-+		}
-+	}
-+}
-+
- void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, s=
-truct hid_usage *usage, __s32 value)
- {
- 	struct input_dev *input;
-@@ -1306,7 +1341,13 @@ void hidinput_hid_event(struct hid_device *hid, stru=
-ct hid_field *field, struct
- 		return;
- 	}
-=20
-+	if (usage->hid =3D=3D HID_DG_ERASER && value)
-+		*quirks |=3D HID_QUIRK_INVERT;
-+
- 	if (usage->hid =3D=3D HID_DG_INRANGE) {
-+		if (hid->group =3D=3D HID_GROUP_MULTITOUCH_WIN_8)
-+			hidinput_fixup_win8_inrange(hid, field, &value);
-+
- 		if (value) {
- 			input_event(input, usage->type, (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL=
-_RUBBER : usage->code, 1);
- 			return;
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 8580ace596c2..e5a3704b9fe8 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1580,13 +1580,13 @@ static int mt_input_configured(struct hid_device *h=
+dev, struct hid_input *hi)
+ 		/* we do not set suffix =3D "Touchscreen" */
+ 		hi->input->name =3D hdev->name;
+ 		break;
+-	case HID_DG_STYLUS:
+-		/* force BTN_STYLUS to allow tablet matching in udev */
+-		__set_bit(BTN_STYLUS, hi->input->keybit);
+-		break;
+ 	case HID_VD_ASUS_CUSTOM_MEDIA_KEYS:
+ 		suffix =3D "Custom Media Keys";
+ 		break;
++	case HID_DG_STYLUS:
++		/* force BTN_STYLUS to allow tablet matching in udev */
++		__set_bit(BTN_STYLUS, hi->input->keybit);
++		fallthrough;
+ 	case HID_DG_PEN:
+ 		suffix =3D "Stylus";
+ 		break;
 --=20
 2.20.1
 
---ebko57ktge7ctid7
+
+--ocw7ij72o57mqf5q
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmAtUOcACgkQvP0LAY0m
-WPEsSw/9FOl8WYpFD9PhApLY7h33XSD93qqJ/fUAxl2Ev4X5DjB2ASd/ghtwbDWm
-rEkPnwWyyvKwQeBc11EEggP4U2lWghBthwxhWycCuLBiUw/J9L4XVi4sLWhdfBBm
-PyjP7CPSo22y3vk4S94ATB8GeCMIde8unJFugoIyW7aP0esspAsfKukv9Tk4grGR
-fPrv3Sxeq5sHEZPtwE4jL0z872EvqZTQewncN39TJK6BNqOvNwLHntS8UsYrZtSS
-j8aGuY6t9c9MUEm1+iFkGS0m5zZ1ULEZ/LSo7zLHqIJTEIRFjaoD57DRxiICGEIF
-Jkq+SC72F14/cWBRwRWt/6sX7q7QXRG0qNE/Ksc/aanOyMJgIQVsPtkVP2OMF/sv
-DwEp5LTRGPp+ilUdn5mRFOavT2uHADYqTjS65s04CZpWMFsTV8TqGlydOoZbHSX6
-uFxVGY3e4rOz64Kp6o69XU0oNE+AV5xg8mkefFTYzm0zjWrJMl0RJYmgvGQlEfS8
-wPJ6uApzDdP+MkJAEVDBm2YPTUVP5/7tjvxt+zBz9ARon+i+cziApiVkpOcXDmSb
-eABvttue6lP7J8fjyP909u8YptS3CoKfOMXXVSzLQyI/XwQHMDfBYuZPjOXNQgua
-9uVrkoiIY1xrunkIHkAqORmUtqa/N8ORWtV9f+on08MVBmZgH+c=
-=3kSe
+iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmAtUN0ACgkQvP0LAY0m
+WPGdtw//eA+19oRYkCnBKkpW/XJgXJW9gxaTXW0e6Aotrfc4IJJb8KO1t+7sBERJ
++5+9f7ZwvGGYDQ4zBPa578BcYOQpx/pUEZNL194OoBA3AN8GZpwi+Sc7ThDNW6Ox
+EYptJolBaodY6Ek/PzupT2QJco5f0eHBXVCD498A/GsswkXwvgThghDR1vQLM1Ym
+E0O2W/ULwBtBKVdXExEkCETZBQrATLNxCW23cStZ1Ts0zqe3axpxSS4TMSBkRzDs
+6tUUHTg6D1I4UqmoaOPSOF6wAX/WbS+MYxj4P1XjmEVVJ84by13cqYudpgmhqbQ5
+cF846MzLXtAjIjdQDombsJQqVr8ZMlB8luVj5mOnaF3zCePRdjgFSspijPm7RF0G
+xJF+6yktDXOfGU10T3mefg1o6K5e8hJ7McbCAUXlBDOcOwauC+jXSWlqbTqTddUR
+XNlJY57j/EK7nmKUeCwsjb5PJrfswAaaLPeyYyX9Tz9676UcXgsYq2YEsQGjB+5y
+ghxARR01hEbb0d4tWfXXhPntfUrbIXWT3QRJB8Wfs+bODPAuh7xkt0FTwzjtKRf0
+MN1QAsuwEu3NpblHY4EkCGyWw6iYzM9edzPlKPyvZ+xVmxYWsOpY1RG6bmO/0hAF
+npFdV7mt0zFouc7NBedGz4zTjblHfebvsr/K8uN0qNu7yAPBHnQ=
+=2bcP
 -----END PGP SIGNATURE-----
 
---ebko57ktge7ctid7--
+--ocw7ij72o57mqf5q--

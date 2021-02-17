@@ -2,138 +2,115 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F11FC433E0
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 19:20:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71EE9C433E0
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 20:06:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E900664E68
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 19:20:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4604E64E62
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 20:06:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232650AbhBQTTm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 17 Feb 2021 14:19:42 -0500
-Received: from ec2-44-228-98-151.us-west-2.compute.amazonaws.com ([44.228.98.151]:58896
-        "EHLO chill.innovation.ch" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232548AbhBQTTg (ORCPT
+        id S233564AbhBQUGS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 17 Feb 2021 15:06:18 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:28578 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232844AbhBQUGS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Feb 2021 14:19:36 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by chill.innovation.ch (Postfix) with ESMTP id 423071B6410;
-        Wed, 17 Feb 2021 19:07:31 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at chill.innovation.ch
-Received: from chill.innovation.ch ([127.0.0.1])
-        by localhost (chill.innovation.ch [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id gTv6AwvRv-QZ; Wed, 17 Feb 2021 19:07:30 +0000 (UTC)
-From:   =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-DKIM-Filter: OpenDKIM Filter v2.11.0 chill.innovation.ch B782B1B5EA9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=innovation.ch;
-        s=default; t=1613588850;
-        bh=kG3doMqYTJAWa6Cik1eP36mmnCuyDrLmpJlt/5Wwi6s=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Ry5z7xRdtVseBSrzLncqrNUO2Jpldl3OV6yCb2Q5YOI5emoBTaN8z7cx18X4oroVg
-         O0bqaRIenMC6nzDk9bLaJ0uf50PpGQ9QeSu+P2bUL2qlNhc6svieDbgTxBf2BL2tXU
-         ui9z0F0yw1y+sD1CDB/DU1oJCcdG0L4QrmrF0RPNpo3aLyH7+LsLX9RtaVVDNupnW8
-         K0NDYUXmaUuSFdxugvvdiQs/q591YOK+1c3/gjHeNkOS9cvwiC460aZM2NdRkMutGL
-         0xt+9EcqNsAXi/esy3r6Gf3ulmz/WaYcRtKzI7tGEEgZO1zGrbpN309c0EStKj5+N7
-         bHm0rXznNNiXg==
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Sergiu Cuciurean <sergiu.cuciurean@analog.com>,
-        Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] Input: applespi: Don't wait for responses to commands indefinitely.
-Date:   Wed, 17 Feb 2021 11:07:16 -0800
-Message-Id: <20210217190718.11035-1-ronald@innovation.ch>
-X-Mailer: git-send-email 2.26.2
+        Wed, 17 Feb 2021 15:06:18 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613592291;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=vHoTmntEev68EJcmebE3piRT4pPjx5R2AdcGSR/9YdY=;
+        b=MjrfHT/r/hcvQNqzPTlfgo1P9CBUWO/WZDNcueY7/2pNpUD4q+oVvbkBJz/kkKa3R6EDb2
+        U8uwzMOwLjDQNEK0JE1qrXREomS490Wx5AAUZk6n6rsD2xxn4l0jRfNYDRR0FRTzqdmADK
+        vMNrweLPc3VBO1AwJHT3ZRzxBvWeC08=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-584-ViRX3ZF3MnOIefP-DVAP-w-1; Wed, 17 Feb 2021 15:04:50 -0500
+X-MC-Unique: ViRX3ZF3MnOIefP-DVAP-w-1
+Received: by mail-pg1-f198.google.com with SMTP id f6so1188265pgh.3
+        for <linux-input@vger.kernel.org>; Wed, 17 Feb 2021 12:04:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vHoTmntEev68EJcmebE3piRT4pPjx5R2AdcGSR/9YdY=;
+        b=gSIEKk3gf31AppE2bmxg0EZ00uqpINKiU6c/edBkv1SneYe7DiylmOOt1RgbxTDZW0
+         RnvtT4rVCUmDr3ZK07MQJyMMMls7DQlNsws4W4myFShQjJvcqWGRpEDPOGk3rtH7oEqR
+         Gn7pyXTIGkbcojZ7aby02IOwzF7L+dB2GHq9fAXwSEfeGUCc+mnAc3j+2Go6ixFf0/jE
+         r/6sYMYS/5yobYvFXQxzAJ5jbnHDV4p2Atog/dlyvcADSJXX65cgKHDKkv5nOsKqJ8oS
+         fpryz48YSJK1M1Lk6cmPTuhKlPd1U6XvkU4hyUA5XSux9oB8/WnBDm0FPThT0cFRi+Fo
+         7geg==
+X-Gm-Message-State: AOAM531G+u461N1L8wh351AebACVCQJwVDgwNWYxP+N6/3eW+ErUK/mj
+        Khwr2uu6EpCFlhn/aCsQjDw1c6woZdxX2eHqPRbS3q/JG3Jge2Qi3MYOLICrXV0FSBIGp3kq7NW
+        5DzfcRC+kG+axw68gaCcTGjpy74k33p8QH8qhiX4=
+X-Received: by 2002:a17:902:d4d0:b029:e3:480a:cae3 with SMTP id o16-20020a170902d4d0b02900e3480acae3mr659679plg.41.1613592289315;
+        Wed, 17 Feb 2021 12:04:49 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwHK4y3zAv0/eqFBkTaoINYheQA70AODu58g83uoMfRBuIwAAnwdz1Gnbi35DShRThTbkZayF790UdUG4DSrlY=
+X-Received: by 2002:a17:902:d4d0:b029:e3:480a:cae3 with SMTP id
+ o16-20020a170902d4d0b02900e3480acae3mr659658plg.41.1613592289030; Wed, 17 Feb
+ 2021 12:04:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20210215163921.84283-1-colin.king@canonical.com>
+In-Reply-To: <20210215163921.84283-1-colin.king@canonical.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Wed, 17 Feb 2021 21:04:38 +0100
+Message-ID: <CAO-hwJ+P=jH3ByHdab=qmrOWupnq-fiA0UR8mdHF1pQAuEqbAw@mail.gmail.com>
+Subject: Re: [PATCH][next] HID: playstation: fix array size comparison (off-by-one)
+To:     Colin King <colin.king@canonical.com>
+Cc:     Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        =?UTF-8?B?QmFybmFiw6FzIFDFkWN6ZQ==?= <pobrn@protonmail.com>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        kernel-janitors@vger.kernel.org,
+        lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The response to a command may never arrive or it may be corrupted (and
-hence dropped) for some reason. While exceedingly rare, when it did
-happen it blocked all further commands. One way to fix this was to
-do a suspend/resume. However, recovering automatically seems like a
-nicer option. Hence this puts a time limit (1 sec) on how long we're
-willing to wait for a response, after which we assume it got lost.
+On Mon, Feb 15, 2021 at 5:39 PM Colin King <colin.king@canonical.com> wrote:
+>
+> From: Colin Ian King <colin.king@canonical.com>
+>
+> The comparison of value with the array size ps_gamepad_hat_mapping
+> appears to be off-by-one. Fix this by using >= rather than > for the
+> size comparison.
+>
+> Addresses-Coverity: ("Out-of-bounds read")
+> Fixes: bc2e15a9a022 ("HID: playstation: initial DualSense USB support.")
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
 
-Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
----
- drivers/input/keyboard/applespi.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+Good catch.
 
-diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index d22223154177f..8494bf610fd70 100644
---- a/drivers/input/keyboard/applespi.c
-+++ b/drivers/input/keyboard/applespi.c
-@@ -48,6 +48,7 @@
- #include <linux/efi.h>
- #include <linux/input.h>
- #include <linux/input/mt.h>
-+#include <linux/ktime.h>
- #include <linux/leds.h>
- #include <linux/module.h>
- #include <linux/spinlock.h>
-@@ -409,7 +410,7 @@ struct applespi_data {
- 	unsigned int			cmd_msg_cntr;
- 	/* lock to protect the above parameters and flags below */
- 	spinlock_t			cmd_msg_lock;
--	bool				cmd_msg_queued;
-+	ktime_t				cmd_msg_queued;
- 	enum applespi_evt_type		cmd_evt_type;
- 
- 	struct led_classdev		backlight_info;
-@@ -729,7 +730,7 @@ static void applespi_msg_complete(struct applespi_data *applespi,
- 		wake_up_all(&applespi->drain_complete);
- 
- 	if (is_write_msg) {
--		applespi->cmd_msg_queued = false;
-+		applespi->cmd_msg_queued = 0;
- 		applespi_send_cmd_msg(applespi);
- 	}
- 
-@@ -771,8 +772,16 @@ static int applespi_send_cmd_msg(struct applespi_data *applespi)
- 		return 0;
- 
- 	/* check whether send is in progress */
--	if (applespi->cmd_msg_queued)
--		return 0;
-+	if (applespi->cmd_msg_queued) {
-+		if (ktime_ms_delta(ktime_get(), applespi->cmd_msg_queued) < 1000)
-+			return 0;
-+
-+		dev_warn(&applespi->spi->dev, "Command %d timed out\n",
-+			 applespi->cmd_evt_type);
-+
-+		applespi->cmd_msg_queued = 0;
-+		applespi->write_active = false;
-+	}
- 
- 	/* set up packet */
- 	memset(packet, 0, APPLESPI_PACKET_SIZE);
-@@ -869,7 +878,7 @@ static int applespi_send_cmd_msg(struct applespi_data *applespi)
- 		return sts;
- 	}
- 
--	applespi->cmd_msg_queued = true;
-+	applespi->cmd_msg_queued = ktime_get();
- 	applespi->write_active = true;
- 
- 	return 0;
-@@ -1921,7 +1930,7 @@ static int __maybe_unused applespi_resume(struct device *dev)
- 	applespi->drain = false;
- 	applespi->have_cl_led_on = false;
- 	applespi->have_bl_level = 0;
--	applespi->cmd_msg_queued = false;
-+	applespi->cmd_msg_queued = 0;
- 	applespi->read_active = false;
- 	applespi->write_active = false;
- 
--- 
-2.26.2
+Applied to for-5.12/playstation-v2
+
+Cheers,
+Benjamin
+
+>  drivers/hid/hid-playstation.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+> index 408b651174cf..568a3a067c88 100644
+> --- a/drivers/hid/hid-playstation.c
+> +++ b/drivers/hid/hid-playstation.c
+> @@ -1064,7 +1064,7 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
+>         input_report_abs(ds->gamepad, ABS_RZ, ds_report->rz);
+>
+>         value = ds_report->buttons[0] & DS_BUTTONS0_HAT_SWITCH;
+> -       if (value > ARRAY_SIZE(ps_gamepad_hat_mapping))
+> +       if (value >= ARRAY_SIZE(ps_gamepad_hat_mapping))
+>                 value = 8; /* center */
+>         input_report_abs(ds->gamepad, ABS_HAT0X, ps_gamepad_hat_mapping[value].x);
+>         input_report_abs(ds->gamepad, ABS_HAT0Y, ps_gamepad_hat_mapping[value].y);
+> --
+> 2.30.0
+>
 

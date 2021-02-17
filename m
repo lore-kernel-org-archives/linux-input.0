@@ -2,176 +2,76 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1273EC433E9
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:36:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1413BC433E6
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:44:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DB47064E4A
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:36:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC07E64E4B
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:44:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234419AbhBQRgR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 17 Feb 2021 12:36:17 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:59911 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234544AbhBQReC (ORCPT
+        id S234638AbhBQRoC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 17 Feb 2021 12:44:02 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:44410 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234637AbhBQRoB (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Feb 2021 12:34:02 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613583155;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZqUM20Jnpq/LUhZZfBQ2FAbfuIXf/VVhp2IoFI1zVAE=;
-        b=gQdD0iBI5OjCHXKfTVvIhD2+1CUxFdArU4VslN5vxZcVDHAxMyaH5qVk3zLVOx/zCXLkNA
-        UT7LvZC/iLIlaaDMVYMSioX2rxgseAxEi8QGpypsyEarNJw9oTtyXDr/Tu6ANuEbectkQX
-        Ym+DUdZmwmYOzIdF0mJW577Ic02IK/c=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-599-Sa7LZTvfNCm7EfEkhmSyjg-1; Wed, 17 Feb 2021 12:32:31 -0500
-X-MC-Unique: Sa7LZTvfNCm7EfEkhmSyjg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E9C051020C20;
-        Wed, 17 Feb 2021 17:32:29 +0000 (UTC)
-Received: from plouf.redhat.com (ovpn-116-25.ams2.redhat.com [10.36.116.25])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 45E5060C61;
-        Wed, 17 Feb 2021 17:32:28 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     Jiri Kosina <jikos@kernel.org>,
+        Wed, 17 Feb 2021 12:44:01 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id A026C1C0B81; Wed, 17 Feb 2021 18:43:18 +0100 (CET)
+Date:   Wed, 17 Feb 2021 18:43:18 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>,
-        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>
-Cc:     linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 10/11] HID: playstation: add microphone mute support for DualSense.
-Date:   Wed, 17 Feb 2021 18:31:57 +0100
-Message-Id: <20210217173158.3122868-11-benjamin.tissoires@redhat.com>
-In-Reply-To: <20210217173158.3122868-1-benjamin.tissoires@redhat.com>
+        =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>,
+        linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/11] HID: playstation: revert LED class exposure
+Message-ID: <20210217174318.GA26823@duo.ucw.cz>
 References: <20210217173158.3122868-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
+In-Reply-To: <20210217173158.3122868-1-benjamin.tissoires@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-The DualSense controller has a built-in microphone exposed as an
-audio device over USB (or HID using Bluetooth). A dedicated
-button on the controller handles mute, but software has to configure
-the device to mute the audio stream.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch captures the mute button and schedules an output report
-to mute/unmute the audio stream as well as toggle the mute LED.
+On Wed 2021-02-17 18:31:47, Benjamin Tissoires wrote:
+> [sending those patches on behalf of Roderick]
+>=20
+> There is a current thread on LED LKML which basically means that
+> we have to revert the LED class exposure until things are settled.
+>=20
+> I am sending here the full series that will end up in linux-next.
+> But with some git magic, the final PR to Linus will not have the
+> reverts in it, just the plain patches.
 
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-Reviewed-by: Barnabás Pőcze <pobrn@protonmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-playstation.c | 44 +++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+Thank you!
+									Pavel
+								=09
+--=20
+http://www.livejournal.com/~pavelmachek
 
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index b141b1be6453..04743fa0e03d 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -85,6 +85,7 @@ struct ps_calibration_data {
- #define DS_BUTTONS1_R3		BIT(7)
- #define DS_BUTTONS2_PS_HOME	BIT(0)
- #define DS_BUTTONS2_TOUCHPAD	BIT(1)
-+#define DS_BUTTONS2_MIC_MUTE	BIT(2)
- 
- /* Status field of DualSense input report. */
- #define DS_STATUS_BATTERY_CAPACITY	GENMASK(3, 0)
-@@ -103,9 +104,12 @@ struct ps_calibration_data {
- /* Flags for DualSense output report. */
- #define DS_OUTPUT_VALID_FLAG0_COMPATIBLE_VIBRATION BIT(0)
- #define DS_OUTPUT_VALID_FLAG0_HAPTICS_SELECT BIT(1)
-+#define DS_OUTPUT_VALID_FLAG1_MIC_MUTE_LED_CONTROL_ENABLE BIT(0)
-+#define DS_OUTPUT_VALID_FLAG1_POWER_SAVE_CONTROL_ENABLE BIT(1)
- #define DS_OUTPUT_VALID_FLAG1_LIGHTBAR_CONTROL_ENABLE BIT(2)
- #define DS_OUTPUT_VALID_FLAG1_RELEASE_LEDS BIT(3)
- #define DS_OUTPUT_VALID_FLAG2_LIGHTBAR_SETUP_CONTROL_ENABLE BIT(1)
-+#define DS_OUTPUT_POWER_SAVE_CONTROL_MIC_MUTE BIT(4)
- #define DS_OUTPUT_LIGHTBAR_SETUP_LIGHT_OUT BIT(1)
- 
- /* DualSense hardware limits */
-@@ -142,6 +146,11 @@ struct dualsense {
- 	uint8_t lightbar_green;
- 	uint8_t lightbar_blue;
- 
-+	/* Microphone */
-+	bool update_mic_mute;
-+	bool mic_muted;
-+	bool last_btn_mic_state;
-+
- 	struct work_struct output_worker;
- 	void *output_report_dmabuf;
- 	uint8_t output_seq; /* Sequence number for output report. */
-@@ -815,6 +824,23 @@ static void dualsense_output_worker(struct work_struct *work)
- 		ds->update_lightbar = false;
- 	}
- 
-+	if (ds->update_mic_mute) {
-+		common->valid_flag1 |= DS_OUTPUT_VALID_FLAG1_MIC_MUTE_LED_CONTROL_ENABLE;
-+		common->mute_button_led = ds->mic_muted;
-+
-+		if (ds->mic_muted) {
-+			/* Disable microphone */
-+			common->valid_flag1 |= DS_OUTPUT_VALID_FLAG1_POWER_SAVE_CONTROL_ENABLE;
-+			common->power_save_control |= DS_OUTPUT_POWER_SAVE_CONTROL_MIC_MUTE;
-+		} else {
-+			/* Enable microphone */
-+			common->valid_flag1 |= DS_OUTPUT_VALID_FLAG1_POWER_SAVE_CONTROL_ENABLE;
-+			common->power_save_control &= ~DS_OUTPUT_POWER_SAVE_CONTROL_MIC_MUTE;
-+		}
-+
-+		ds->update_mic_mute = false;
-+	}
-+
- 	spin_unlock_irqrestore(&ds->base.lock, flags);
- 
- 	dualsense_send_output_report(ds, &report);
-@@ -829,6 +855,7 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	uint8_t battery_data, battery_capacity, charging_status, value;
- 	int battery_status;
- 	uint32_t sensor_timestamp;
-+	bool btn_mic_state;
- 	unsigned long flags;
- 	int i;
- 
-@@ -884,6 +911,23 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	input_report_key(ds->gamepad, BTN_MODE,   ds_report->buttons[2] & DS_BUTTONS2_PS_HOME);
- 	input_sync(ds->gamepad);
- 
-+	/*
-+	 * The DualSense has an internal microphone, which can be muted through a mute button
-+	 * on the device. The driver is expected to read the button state and program the device
-+	 * to mute/unmute audio at the hardware level.
-+	 */
-+	btn_mic_state = !!(ds_report->buttons[2] & DS_BUTTONS2_MIC_MUTE);
-+	if (btn_mic_state && !ds->last_btn_mic_state) {
-+		spin_lock_irqsave(&ps_dev->lock, flags);
-+		ds->update_mic_mute = true;
-+		ds->mic_muted = !ds->mic_muted; /* toggle */
-+		spin_unlock_irqrestore(&ps_dev->lock, flags);
-+
-+		/* Schedule updating of microphone state at hardware level. */
-+		schedule_work(&ds->output_worker);
-+	}
-+	ds->last_btn_mic_state = btn_mic_state;
-+
- 	/* Parse and calibrate gyroscope data. */
- 	for (i = 0; i < ARRAY_SIZE(ds_report->gyro); i++) {
- 		int raw_data = (short)le16_to_cpu(ds_report->gyro[i]);
--- 
-2.29.2
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYC1VtgAKCRAw5/Bqldv6
+8q+NAKCasFoOHP/JuD1D9S6PWIVlQSsK/wCfReV9a2nwe0Ig1RPNcAvbJ3XlEYE=
+=KPTf
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--

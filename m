@@ -4,44 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FC27C4332B
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:35:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2834C433DB
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:35:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86D0B600CF
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:35:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C4D760C3E
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:35:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234505AbhBQRfG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 17 Feb 2021 12:35:06 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:51300 "EHLO
+        id S234513AbhBQRfI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 17 Feb 2021 12:35:08 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60602 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234521AbhBQRdo (ORCPT
+        by vger.kernel.org with ESMTP id S234512AbhBQRdk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Feb 2021 12:33:44 -0500
+        Wed, 17 Feb 2021 12:33:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613583138;
+        s=mimecast20190719; t=1613583133;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=oHL7SKw9vvLF4yISsj7spnDs+0ju5Qgji3y4L4bOR7Q=;
-        b=LGlT+FqQmQdHgajE+Shu8uQv0fSBc1gWVWJaNYLLy8hvVd4Dinel+1SPsvM/KNKvCVz5+b
-        //pTemCryvgSPTN0nljT9iSNjNL5w/QJO5ODA1f1831MkihqN0Rc2fLS+6Whb1admxKGz2
-        GR8rYArGZ/2bQ8sAGSvg8T9bu7ltoHw=
+        bh=SalQoALVHWSDBuvFSejJz/dq2scECkvrFLmS0/hjb/M=;
+        b=KqHnR/SKu8HRTKGTGx7GWwP8Nh7T19v+fuGv4SrxombgqcfubHcks7RKKDoKqMs9M7I8F8
+        uuzhQHNTIdgFYcpxNkvgB1E6eqNy29EphghS+yqBusYfib30m3a6SEQ367GLmgS2kdL9Vn
+        NuDM9dPcxhkZbOeKEUZcbfLhwGAUano=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-291-dCO1wbdNPNqRFHuJsHouHA-1; Wed, 17 Feb 2021 12:32:14 -0500
-X-MC-Unique: dCO1wbdNPNqRFHuJsHouHA-1
+ us-mta-323-86Izz6vOOhCf-8zeXlbJUw-1; Wed, 17 Feb 2021 12:32:10 -0500
+X-MC-Unique: 86Izz6vOOhCf-8zeXlbJUw-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ACBF2835E28;
-        Wed, 17 Feb 2021 17:32:12 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A0E63835E22;
+        Wed, 17 Feb 2021 17:32:08 +0000 (UTC)
 Received: from plouf.redhat.com (ovpn-116-25.ams2.redhat.com [10.36.116.25])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0723F60C61;
-        Wed, 17 Feb 2021 17:32:10 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F24C360C61;
+        Wed, 17 Feb 2021 17:32:06 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Roderick Colenbrander <roderick.colenbrander@sony.com>,
@@ -49,9 +49,9 @@ To:     Jiri Kosina <jikos@kernel.org>,
 Cc:     linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
         linux-kernel@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 04/11] Revert "HID: playstation: add DualSense player LEDs support."
-Date:   Wed, 17 Feb 2021 18:31:51 +0100
-Message-Id: <20210217173158.3122868-5-benjamin.tissoires@redhat.com>
+Subject: [PATCH 02/11] Revert "HID: playstation: report DualSense hardware and firmware version."
+Date:   Wed, 17 Feb 2021 18:31:49 +0100
+Message-Id: <20210217173158.3122868-3-benjamin.tissoires@redhat.com>
 In-Reply-To: <20210217173158.3122868-1-benjamin.tissoires@redhat.com>
 References: <20210217173158.3122868-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -61,134 +61,157 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-
-This reverts commit c240f0cb88ec ("HID: playstation: add
-DualSense player LEDs support.")
+This reverts commit 1f902f8636e4 ("HID: playstation: report DualSense
+hardware and firmware version.")
 
 There is currently an ongoing discussion on linux-leds LKML,
 and so to give us more room, we need to revert those related
-patches from linux-next.
+LEDs patches from linux-next.
+
+To have a cleaner merge with the new version, we also revert
+all patches on top of the LED ones.
 
 This is not a big deal, they are still not pushed to Linus.
 
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-playstation.c | 60 +----------------------------------
- 1 file changed, 1 insertion(+), 59 deletions(-)
+ drivers/hid/hid-playstation.c | 81 -----------------------------------
+ 1 file changed, 81 deletions(-)
 
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 2d96785c397d..c436ac8f7a6f 100644
+index cc93c16cc822..973c1fe61e8a 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -112,7 +112,6 @@ struct ps_led_info {
- #define DS_OUTPUT_VALID_FLAG1_POWER_SAVE_CONTROL_ENABLE BIT(1)
- #define DS_OUTPUT_VALID_FLAG1_LIGHTBAR_CONTROL_ENABLE BIT(2)
- #define DS_OUTPUT_VALID_FLAG1_RELEASE_LEDS BIT(3)
--#define DS_OUTPUT_VALID_FLAG1_PLAYER_INDICATOR_CONTROL_ENABLE BIT(4)
- #define DS_OUTPUT_VALID_FLAG2_LIGHTBAR_SETUP_CONTROL_ENABLE BIT(1)
- #define DS_OUTPUT_POWER_SAVE_CONTROL_MIC_MUTE BIT(4)
- #define DS_OUTPUT_LIGHTBAR_SETUP_LIGHT_OUT BIT(1)
-@@ -158,11 +157,6 @@ struct dualsense {
- 	bool last_btn_mic_state;
- 	struct led_classdev mute_led;
+@@ -41,8 +41,6 @@ struct ps_device {
+ 	int battery_status;
  
--	/* Player leds */
--	bool update_player_leds;
--	uint8_t player_leds_state;
--	struct led_classdev player_leds[5];
--
- 	struct work_struct output_worker;
- 	void *output_report_dmabuf;
- 	uint8_t output_seq; /* Sequence number for output report. */
-@@ -784,35 +778,6 @@ static void dualsense_mute_led_set_brightness(struct led_classdev *led, enum led
+ 	uint8_t mac_address[6]; /* Note: stored in little endian order. */
+-	uint32_t hw_version;
+-	uint32_t fw_version;
  
+ 	int (*parse_report)(struct ps_device *dev, struct hid_report *report, u8 *data, int size);
+ };
+@@ -79,8 +77,6 @@ struct ps_led_info {
+ #define DS_FEATURE_REPORT_CALIBRATION_SIZE	41
+ #define DS_FEATURE_REPORT_PAIRING_INFO		0x09
+ #define DS_FEATURE_REPORT_PAIRING_INFO_SIZE	20
+-#define DS_FEATURE_REPORT_FIRMWARE_INFO		0x20
+-#define DS_FEATURE_REPORT_FIRMWARE_INFO_SIZE	64
+ 
+ /* Button masks for DualSense input report. */
+ #define DS_BUTTONS0_HAT_SWITCH	GENMASK(3, 0)
+@@ -665,40 +661,6 @@ static struct input_dev *ps_touchpad_create(struct hid_device *hdev, int width,
+ 	return touchpad;
  }
  
--static enum led_brightness dualsense_player_led_get_brightness(struct led_classdev *led)
+-static ssize_t firmware_version_show(struct device *dev,
+-				struct device_attribute
+-				*attr, char *buf)
 -{
--	struct hid_device *hdev = to_hid_device(led->dev->parent);
--	struct dualsense *ds = hid_get_drvdata(hdev);
+-	struct hid_device *hdev = to_hid_device(dev);
+-	struct ps_device *ps_dev = hid_get_drvdata(hdev);
 -
--	return !!(ds->player_leds_state & BIT(led - ds->player_leds));
+-	return sysfs_emit(buf, "0x%08x\n", ps_dev->fw_version);
 -}
 -
--static void dualsense_player_led_set_brightness(struct led_classdev *led, enum led_brightness value)
+-static DEVICE_ATTR_RO(firmware_version);
+-
+-static ssize_t hardware_version_show(struct device *dev,
+-				struct device_attribute
+-				*attr, char *buf)
 -{
--	struct hid_device *hdev = to_hid_device(led->dev->parent);
--	struct dualsense *ds = hid_get_drvdata(hdev);
--	unsigned long flags;
--	unsigned int led_index;
+-	struct hid_device *hdev = to_hid_device(dev);
+-	struct ps_device *ps_dev = hid_get_drvdata(hdev);
 -
--	spin_lock_irqsave(&ds->base.lock, flags);
--
--	led_index = led - ds->player_leds;
--	if (value == LED_OFF)
--		ds->player_leds_state &= ~BIT(led_index);
--	else
--		ds->player_leds_state |= BIT(led_index);
--
--	ds->update_player_leds = true;
--	spin_unlock_irqrestore(&ds->base.lock, flags);
--
--	schedule_work(&ds->output_worker);
+-	return sysfs_emit(buf, "0x%08x\n", ps_dev->hw_version);
 -}
 -
- static void dualsense_init_output_report(struct dualsense *ds, struct dualsense_output_report *rp,
- 		void *buf)
+-static DEVICE_ATTR_RO(hardware_version);
+-
+-static struct attribute *ps_device_attributes[] = {
+-	&dev_attr_firmware_version.attr,
+-	&dev_attr_hardware_version.attr,
+-	NULL
+-};
+-
+-static const struct attribute_group ps_device_attribute_group = {
+-	.attrs = ps_device_attributes,
+-};
+-
+ static int dualsense_get_calibration_data(struct dualsense *ds)
  {
-@@ -905,13 +870,6 @@ static void dualsense_output_worker(struct work_struct *work)
- 		ds->update_lightbar = false;
+ 	short gyro_pitch_bias, gyro_pitch_plus, gyro_pitch_minus;
+@@ -789,30 +751,6 @@ static int dualsense_get_calibration_data(struct dualsense *ds)
+ 	return ret;
+ }
+ 
+-static int dualsense_get_firmware_info(struct dualsense *ds)
+-{
+-	uint8_t *buf;
+-	int ret;
+-
+-	buf = kzalloc(DS_FEATURE_REPORT_FIRMWARE_INFO_SIZE, GFP_KERNEL);
+-	if (!buf)
+-		return -ENOMEM;
+-
+-	ret = ps_get_report(ds->base.hdev, DS_FEATURE_REPORT_FIRMWARE_INFO, buf,
+-			DS_FEATURE_REPORT_FIRMWARE_INFO_SIZE);
+-	if (ret) {
+-		hid_err(ds->base.hdev, "Failed to retrieve DualSense firmware info: %d\n", ret);
+-		goto err_free;
+-	}
+-
+-	ds->base.hw_version = get_unaligned_le32(&buf[24]);
+-	ds->base.fw_version = get_unaligned_le32(&buf[28]);
+-
+-err_free:
+-	kfree(buf);
+-	return ret;
+-}
+-
+ static int dualsense_get_mac_address(struct dualsense *ds)
+ {
+ 	uint8_t *buf;
+@@ -1314,12 +1252,6 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
  	}
+ 	snprintf(hdev->uniq, sizeof(hdev->uniq), "%pMR", ds->base.mac_address);
  
--	if (ds->update_player_leds) {
--		common->valid_flag1 |= DS_OUTPUT_VALID_FLAG1_PLAYER_INDICATOR_CONTROL_ENABLE;
--		common->player_leds = ds->player_leds_state;
--
--		ds->update_player_leds = false;
+-	ret = dualsense_get_firmware_info(ds);
+-	if (ret) {
+-		hid_err(hdev, "Failed to get firmware info from DualSense\n");
+-		return ERR_PTR(ret);
 -	}
 -
- 	if (ds->update_mic_mute) {
- 		common->valid_flag1 |= DS_OUTPUT_VALID_FLAG1_MIC_MUTE_LED_CONTROL_ENABLE;
- 		common->mute_button_led = ds->mic_muted;
-@@ -1161,20 +1119,12 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
- 	struct dualsense *ds;
- 	struct ps_device *ps_dev;
- 	uint8_t max_output_report_size;
--	int i, ret;
-+	int ret;
- 
- 	static const struct ps_led_info mute_led_info = {
- 		"micmute", dualsense_mute_led_get_brightness, dualsense_mute_led_set_brightness
- 	};
- 
--	static const struct ps_led_info player_leds_info[] = {
--		{ "led1", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
--		{ "led2", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
--		{ "led3", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
--		{ "led4", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness },
--		{ "led5", dualsense_player_led_get_brightness, dualsense_player_led_set_brightness }
--	};
--
- 	ds = devm_kzalloc(&hdev->dev, sizeof(*ds), GFP_KERNEL);
- 	if (!ds)
- 		return ERR_PTR(-ENOMEM);
-@@ -1256,14 +1206,6 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 	ret = ps_devices_list_add(ps_dev);
  	if (ret)
- 		goto err;
+ 		return ERR_PTR(ret);
+@@ -1387,13 +1319,6 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
+ 	/* Set player LEDs to our player id. */
+ 	dualsense_set_player_leds(ds);
  
--	for (i = 0; i < ARRAY_SIZE(player_leds_info); i++) {
--		const struct ps_led_info *led_info = &player_leds_info[i];
--
--		ret = ps_led_register(ps_dev, &ds->player_leds[i], led_info);
--		if (ret < 0)
--			goto err;
--	}
+-	/*
+-	 * Reporting hardware and firmware is important as there are frequent updates, which
+-	 * can change behavior.
+-	 */
+-	hid_info(hdev, "Registered DualSense controller hw_version=0x%08x fw_version=0x%08x\n",
+-			ds->base.hw_version, ds->base.fw_version);
 -
  	return &ds->base;
  
  err:
+@@ -1444,12 +1369,6 @@ static int ps_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		}
+ 	}
+ 
+-	ret = devm_device_add_group(&hdev->dev, &ps_device_attribute_group);
+-	if (ret) {
+-		hid_err(hdev, "Failed to register sysfs nodes.\n");
+-		goto err_close;
+-	}
+-
+ 	return ret;
+ 
+ err_close:
 -- 
 2.29.2
 

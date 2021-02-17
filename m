@@ -7,47 +7,46 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44BEEC433E0
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 19:19:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85B59C433E0
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 19:19:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0A53764E63
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 19:19:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 505E064E6C
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 19:19:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232367AbhBQTTO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S232413AbhBQTTO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 17 Feb 2021 14:19:14 -0500
-Received: from ec2-44-228-98-151.us-west-2.compute.amazonaws.com ([44.228.98.151]:58878
+Received: from ec2-44-228-98-151.us-west-2.compute.amazonaws.com ([44.228.98.151]:58882
         "EHLO chill.innovation.ch" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232547AbhBQTTN (ORCPT
+        by vger.kernel.org with ESMTP id S232548AbhBQTTN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 17 Feb 2021 14:19:13 -0500
-X-Greylist: delayed 651 seconds by postgrey-1.27 at vger.kernel.org; Wed, 17 Feb 2021 14:19:10 EST
 Received: from localhost (localhost [127.0.0.1])
-        by chill.innovation.ch (Postfix) with ESMTP id 30D451B640F;
-        Wed, 17 Feb 2021 19:07:32 +0000 (UTC)
+        by chill.innovation.ch (Postfix) with ESMTP id 9600C1B6411;
+        Wed, 17 Feb 2021 19:07:31 +0000 (UTC)
 X-Virus-Scanned: Debian amavisd-new at chill.innovation.ch
 Received: from chill.innovation.ch ([127.0.0.1])
         by localhost (chill.innovation.ch [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id 7BxdjnFa6Gfu; Wed, 17 Feb 2021 19:07:31 +0000 (UTC)
+        with LMTP id 6nrywUIMZ8Du; Wed, 17 Feb 2021 19:07:31 +0000 (UTC)
 From:   =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-DKIM-Filter: OpenDKIM Filter v2.11.0 chill.innovation.ch 77B491B5EA9
+DKIM-Filter: OpenDKIM Filter v2.11.0 chill.innovation.ch E8A221B640F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=innovation.ch;
         s=default; t=1613588851;
-        bh=NTnBPdcPQ1mHAuBRtKTt9xZ5SgKJhiroAKknFH1WnTw=;
+        bh=qcHkDiWeuZJwaE8KC5P4fY1TNb7Og+nXRokLCY5UEZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjhz7O0GLjLTNOkGgBYYRnp9CBqiOsET9xfFY56qDsSxdHc7lpTIB8Nj5s8g0RGiX
-         4cJVGHvCZEkrfhaBvjueFaVDAUkMpdFoJVy+Ja9LoShKKssBoRdTneci9h3uTS/MIs
-         NzrN6crorswasrDXGxzyydNVitahKYpClQ94koL7C9R554dJ38Y24OL87PrDWrci3S
-         St0BCcJNP4kf06+0CipaFtNK2VwQ/kDrHG4g+v6UuA/cdT5eBqXFWlJd60NmbUk75+
-         ecC4d/6YGdC+ieNIb8JW15fcHsEpG+1NTvFW7NfbYc63ZIJkUVDiGlabMqH9Y52S2c
-         wR4lmGJm+vm/g==
+        b=fn87dt6iKXKD/mZFkNdDq702zSjtc8dJjGOULqt1mchETIXEIRPxLPqht9FhdJp0a
+         vtQrCDZ+La77bSTBMsdK26hb3ymmblOPAEY32vmIZheYJXm93yDwTQAqCVnQCXTcFU
+         A8HQUTOLsf2SC3rR0dZHV+P4OTs2NliMurUv1LuLA7H9DnK5nD7GjpHN27uuyCgQno
+         QrJWfTFsnBruRUWHKEct+CTa+Gm0VeqqfsmeC1nUXJuJQA+vSBtdXwLK1mqti0da7F
+         br0Zoo+9IuPdTVdAao0Sjnkg3cHaf37usfl8jp2xSlSuXJvOWrGgTORLxEth3KSfbQ
+         /l0G6Vr7jvw7Q==
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
         Sergiu Cuciurean <sergiu.cuciurean@analog.com>,
         Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] Input: applespi: Add trace_event module param for early tracing.
-Date:   Wed, 17 Feb 2021 11:07:18 -0800
-Message-Id: <20210217190718.11035-3-ronald@innovation.ch>
+Subject: [PATCH 2/3] Input: applespi: Fix occasional crc errors under load.
+Date:   Wed, 17 Feb 2021 11:07:17 -0800
+Message-Id: <20210217190718.11035-2-ronald@innovation.ch>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210217190718.11035-1-ronald@innovation.ch>
 References: <20210217190718.11035-1-ronald@innovation.ch>
@@ -58,86 +57,30 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The problem is that tracing can't be set via sysfs until the module is
-loaded, at which point the keyboard and trackpad initialization commands
-have already been run and hence tracing can't be used to debug problems
-here.
-
-Adding this param allows tracing to be enabled for messages sent and
-received during module probing. It takes comma-separated list of events,
-e.g.
-
-  trace_event=applespi_tp_ini_cmd,applespi_bad_crc
+For some reason, when the system is under heavy CPU load, the read
+following the write sometimes occurs unusually quickly, resulting in
+the read data not being quite ready and hence a bad packet getting read.
+Adding another delay after reading the status message appears to fix
+this.
 
 Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
 ---
- drivers/input/keyboard/applespi.c | 32 +++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ drivers/input/keyboard/applespi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index f0a0067c48ff6..03f9ad0f83967 100644
+index 8494bf610fd70..f0a0067c48ff6 100644
 --- a/drivers/input/keyboard/applespi.c
 +++ b/drivers/input/keyboard/applespi.c
-@@ -53,6 +53,8 @@
- #include <linux/module.h>
- #include <linux/spinlock.h>
- #include <linux/spi/spi.h>
-+#include <linux/string.h>
-+#include <linux/trace_events.h>
- #include <linux/wait.h>
- #include <linux/workqueue.h>
+@@ -749,6 +749,8 @@ static void applespi_async_write_complete(void *context)
+ 					 applespi->tx_status,
+ 					 APPLESPI_STATUS_SIZE);
  
-@@ -110,6 +112,10 @@ module_param_string(touchpad_dimensions, touchpad_dimensions,
- 		    sizeof(touchpad_dimensions), 0444);
- MODULE_PARM_DESC(touchpad_dimensions, "The pixel dimensions of the touchpad, as XxY+W+H .");
- 
-+static char *trace_event;
-+module_param(trace_event, charp, 0444);
-+MODULE_PARM_DESC(trace_event, "Enable early event tracing. It takes the form of a comma-separated list of events to enable.");
++	udelay(SPI_RW_CHG_DELAY_US);
 +
- /**
-  * struct keyboard_protocol - keyboard message.
-  * message.type = 0x0110, message.length = 0x000a
-@@ -1645,6 +1651,30 @@ static void applespi_save_bl_level(struct applespi_data *applespi,
- 			 "Error saving backlight level to EFI vars: %d\n", sts);
- }
- 
-+static void applespi_enable_early_event_tracing(struct device *dev)
-+{
-+	char *buf, *event;
-+	int sts;
-+
-+	if (trace_event && trace_event[0]) {
-+		buf = kstrdup(trace_event, GFP_KERNEL);
-+		if (!buf)
-+			return;
-+
-+		while ((event = strsep(&buf, ","))) {
-+			if (event[0]) {
-+				sts = trace_set_clr_event("applespi", event, 1);
-+				if (sts)
-+					dev_warn(dev,
-+						 "Error setting trace event '%s': %d\n",
-+						 event, sts);
-+			}
-+		}
-+
-+		kfree(buf);
-+	}
-+}
-+
- static int applespi_probe(struct spi_device *spi)
- {
- 	struct applespi_data *applespi;
-@@ -1653,6 +1683,8 @@ static int applespi_probe(struct spi_device *spi)
- 	int sts, i;
- 	unsigned long long gpe, usb_status;
- 
-+	applespi_enable_early_event_tracing(&spi->dev);
-+
- 	/* check if the USB interface is present and enabled already */
- 	acpi_sts = acpi_evaluate_integer(spi_handle, "UIST", NULL, &usb_status);
- 	if (ACPI_SUCCESS(acpi_sts) && usb_status) {
+ 	if (!applespi_check_write_status(applespi, applespi->wr_m.status)) {
+ 		/*
+ 		 * If we got an error, we presumably won't get the expected
 -- 
 2.26.2
 

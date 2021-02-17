@@ -2,147 +2,159 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84FA7C433E6
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 16:42:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 236F4C43381
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:33:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F78964DBD
-	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 16:42:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC69564E4B
+	for <linux-input@archiver.kernel.org>; Wed, 17 Feb 2021 17:33:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234230AbhBQQmx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 17 Feb 2021 11:42:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48738 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234071AbhBQQmw (ORCPT
+        id S234462AbhBQRc7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 17 Feb 2021 12:32:59 -0500
+Received: from [139.28.40.42] ([139.28.40.42]:46858 "EHLO
+        tarta.nabijaczleweli.xyz" rhost-flags-FAIL-FAIL-OK-OK)
+        by vger.kernel.org with ESMTP id S233885AbhBQRcq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Feb 2021 11:42:52 -0500
-Received: from mail.archlinux.org (mail.archlinux.org [IPv6:2a01:4f9:c010:3052::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 009AEC061574
-        for <linux-input@vger.kernel.org>; Wed, 17 Feb 2021 08:42:10 -0800 (PST)
-Received: from [IPv6:2001:8a0:f24a:dd00:c4d2:6bfc:479a:3ba9] (unknown [IPv6:2001:8a0:f24a:dd00:c4d2:6bfc:479a:3ba9])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: ffy00)
-        by mail.archlinux.org (Postfix) with ESMTPSA id A9CCA40082F;
-        Wed, 17 Feb 2021 16:42:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=archlinux.org;
-        s=dkim-rsa; t=1613580128;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Pm9rcs2FFE7aaDQ/CZILv137Z41yCdrQlltnGhPYPHM=;
-        b=ZOSxjDnkb2HVqteJt72MTn+FhB9uFks9FhUIzRQtyKnDGNiHjmBo79HY5sVDjJnOWmv3nI
-        RCNaCRDxpbqF2nmDWxJWUvUJLOSodJl5U2i6v87nDv87G+j+yxZaByiGbY5qz4nLna8xXA
-        MuzLOyCThT+j+WCTKvlVzVRE11rxoLEikWJSCQUyy4K6J0/zBjNM0rgeny24jxydlunnbf
-        zspL/d2h1EXeyGA+kLt09DOXC1SmhDXSRTREmWpCyopAMeobaJBHCPui0blnZntEUaIBno
-        07SRcEbYpLmhb6Lt2sC0dEVbD1xxIWk6PlG2qQGP4C7go2dH6tN/GScWJCFiQimkoMKmJG
-        wGrUmaiRd14SFC6s6tjmleLg9KEhYH1GQCJEDT2vtw8wF5vS00lA3KpFQsZ/bQBeZBsym6
-        ujYEKOB1TbKncKBW92yqLP+gZBZrmBerEzx11CveiG0aUYtpdjQBgJRdXexeI0W1xjxFWz
-        nFCpFQrHgtouJTC+P9H8qwTmNFBwTE419wfmuiH9BxbqcW+JMqdAwtoei6+3tVx9Bb2hXT
-        Tj/ZIe1GJA4BeEl5zvVhb+0wI8J1DNm1fE6ZPYKMxnOWsdHXe5ic9uFk5D46x1ptgqDeoJ
-        vG9SBVDxgD3e2nZiFI5/sR+X5lOszMvHDMxR4rPzDr3JKy7BPFnfg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=archlinux.org;
-        s=dkim-ed25519; t=1613580128;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Pm9rcs2FFE7aaDQ/CZILv137Z41yCdrQlltnGhPYPHM=;
-        b=P8bClqQynvk/G/ky+MnHYpJQPhrjoGWZKaNHZMhQJK77At53mwlfCePhEQ3oVBISfRljfY
-        aPcCCM9aA7PIeFAA==
-Message-ID: <4ed664ce163ec2248244d0fbb15f2b81c3098225.camel@archlinux.org>
-Subject: Re: PROBLEM: Error logged when pressing mouse button
-From:   Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>
-To:     Koopa Koopa <codingkoopa@gmail.com>, linux-input@vger.kernel.org
-In-Reply-To: <CAM1wO0=2zM=WNmGyDJETLa4wsECE_Nxvq-gAa6_Wb_cMH43K9w@mail.gmail.com>
-References: <CAM1wO0=2zM=WNmGyDJETLa4wsECE_Nxvq-gAa6_Wb_cMH43K9w@mail.gmail.com>
-Organization: Archlinux
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-v0yOpu+CF422v91VohLu"
-Date:   Wed, 17 Feb 2021 16:42:06 +0000
+        Wed, 17 Feb 2021 12:32:46 -0500
+Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
+        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 3CCEE3601D2;
+        Wed, 17 Feb 2021 18:22:49 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=nabijaczleweli.xyz;
+        s=202006; t=1613582569;
+        bh=ziY0iXdxwSWXFOzoXNDOFn5JohGhP3IMScquKcj790E=;
+        h=Date:From:Cc:Subject:References:In-Reply-To:From;
+        b=dBtD6W7ffddYH3UpRpeMSIBASbBvDE0f49x3J5KBtcCW6VsP4BcwMFuR6FL1oFJxa
+         bqy4Kh7A5puaWJgQ8kP2TKCLApSB4rerNuVZ4gMfWmndAyFpk3d334E71H9rjJzRl5
+         kQWbdinoT448hsAqOqRcfuC3JfpZjslvphls0uDvUvLu5Mx/RVHjPqF4lqqnsDjrUb
+         2Qo/pEWxJ9ftZzVYC0HTmnGc+kfwQMV6SsCE236BBZA2i1yrD9Ze42LrOeMxjUtqfE
+         50x014EZIDuKlnOIH7k5GyTSo1HNe+F9IIeCSLXik4PDut/m/NHDuIIlfTTzkxhr8w
+         ZhTU12bo9duHQ==
+Date:   Wed, 17 Feb 2021 18:22:48 +0100
+From:   Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= 
+        <nabijaczleweli@nabijaczleweli.xyz>
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 4/4] HID: input: work around Win8 stylus-on-touchscreen
+ reporting
+Message-ID: <b0cb2d0ee8743263608284e0e5112c446e3cb2ee.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
+References: <cover.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
 MIME-Version: 1.0
-User-Agent: Evolution 3.38.4 
-Authentication-Results: mail.archlinux.org;
-        auth=pass smtp.auth=ffy00 smtp.mailfrom=lains@archlinux.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ebko57ktge7ctid7"
+Content-Disposition: inline
+In-Reply-To: <cover.1613582014.git.nabijaczleweli@nabijaczleweli.xyz>
+User-Agent: NeoMutt/20210205
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 
---=-v0yOpu+CF422v91VohLu
-Content-Type: text/plain; charset="UTF-8"
+--ebko57ktge7ctid7
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2021-02-16 at 21:51 -0500, Koopa Koopa wrote:
-> Every time I press a button on my mouse, an error is logged in my
-> system journal.
->=20
-> Starting recently, every time I press any button on my Logitech G602
-> mouse, the following is logged to my journal:
->=20
-> =C2=A0=C2=A0=C2=A0 kernel: logitech-djreceiver 0003:046D:C537.0005: Unexp=
-ected input
-> report number 128
->=20
-> This includes both primary mouse buttons, the middle mouse buttons,
-> the buttons on the side, and the buttons on the top controlling the
-> DPI. It seems that, with commit
-> e400071a805d6229223a98899e9da8c6233704a1
-> (https://github.com/torvalds/linux/commit/e400071a805d6229223a98899e9da8c=
-6233704a1
-> ),
-> this driver was enabled for my mouse.
->=20
-> My /proc/version:
->=20
-> =C2=A0=C2=A0=C2=A0 Linux version 5.10.16-arch1-1 (linux@archlinux) (gcc (=
-GCC) 10.2.0,
-> GNU ld (GNU Binutils) 2.36) #1 SMP PREEMPT Sat, 13 Feb 2021 20:50:18
-> +0000
->=20
-> My kernel .config file: See here
-> (https://github.com/archlinux/svntogit-packages/blob/packages/linux/trunk=
-/config
-> ).
->=20
-> Thanks!
+With this, these devices now behave as tablets as expected by userspace
 
-Hi Koopa,
+Signed-off-by: Ahelenia Ziemia=C5=84ska <nabijaczleweli@nabijaczleweli.xyz>
+---
+ drivers/hid/hid-input.c | 41 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
 
-This was fixed in [1], which is in the for-5.11/upstream-fixes branch, so t=
-his
-should be released soon-ish, I think.
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index a5ba92978473..b8813fc3e9d2 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1273,6 +1273,41 @@ static void hidinput_handle_scroll(struct hid_usage =
+*usage,
+ 	input_event(input, EV_REL, usage->code, hi_res);
+ }
+=20
++/*
++ * Win8 tablet stylus devices send, in order:
++ *   HID_DG_TIPSWITCH (BTN_TOUCH)
++ *   HID_DG_INVERT    (BTN_TOOL_RUBBER)
++ *   HID_DG_ERASER    (BTN_TOUCH)
++ *   HID_DG_INRANGE   (BTN_TOOL_PEN)
++ *
++ * For each of these states:
++ *   hover     :                         INRANGE
++ *   touching  : TIPSWITCH
++ *   hover+2   :           INVERT        INRANGE
++ *   touching+2:                  ERASER INRANGE
++ *
++ * Which means we'd send BTN_TOUCH=3D0 + BTN_TOOL_PEN=3D1 on proximity,
++ * then BTN_TOUCH=3D1 and BTN_TOOL_PEN=3D0 in consecutive groups when touc=
+hed,
++ * indicating the stylus leaving the screen as soon as the two meet.
++ */
++static void hidinput_fixup_win8_inrange(struct hid_device *hid, struct hid=
+_field *field, __s32 *value)
++{
++	unsigned f, u;
++	struct hid_field *rfield;
++
++	if (!*value) {
++		for (f =3D 0; f < field->report->maxfield; ++f) {
++			rfield =3D field->report->field[f];
++			for (u =3D 0; u < rfield->maxusage; ++u) {
++				if (rfield->usage[u].hid =3D=3D HID_DG_TIPSWITCH) {
++					*value =3D rfield->value[u];
++					return;
++				}
++			}
++		}
++	}
++}
++
+ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, s=
+truct hid_usage *usage, __s32 value)
+ {
+ 	struct input_dev *input;
+@@ -1306,7 +1341,13 @@ void hidinput_hid_event(struct hid_device *hid, stru=
+ct hid_field *field, struct
+ 		return;
+ 	}
+=20
++	if (usage->hid =3D=3D HID_DG_ERASER && value)
++		*quirks |=3D HID_QUIRK_INVERT;
++
+ 	if (usage->hid =3D=3D HID_DG_INRANGE) {
++		if (hid->group =3D=3D HID_GROUP_MULTITOUCH_WIN_8)
++			hidinput_fixup_win8_inrange(hid, field, &value);
++
+ 		if (value) {
+ 			input_event(input, usage->type, (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL=
+_RUBBER : usage->code, 1);
+ 			return;
+--=20
+2.20.1
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git/commit/?h=
-=3Dfor-5.11/upstream-fixes&id=3Def07c116d98772952807492bd32a61f5af172a94
-
-Cheers,
-Filipe La=C3=ADns
-
---=-v0yOpu+CF422v91VohLu
+--ebko57ktge7ctid7
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAmAtR1kACgkQ+JPGdIFq
-qV0wgA/+IhhmyUkbQN+1qLNeu2yas/I8qQ4mqLYazygAsMV2jmiT5t28EP8C/Exq
-1Whj2kHFbi2UXkfuCwKNJJ4RqI8dnmglGDm9CgfJTjOLOsxYdqP2+WO/kLWGw3Xq
-0KmpZsfszIkuDf1C6+66Olf41nWjdg+ATYPm1qUoQ2nVS7AGhBITWeOKf3hTYGoc
-o0DTmFqmHtWz/g3B+8egTghPg42vVHlA65w4ChbN37KZ2uwNN3s3UiPJuB0S4J5g
-98j77j60QxO6UF2WUpeHxKZuiPYij8VwUg9zUIlXc3lkc+n/B9mMvtODvRXNZdgx
-bvreFGeNgp8aAYrii/GAYLt5r/0+hnnZothKRkDMjPEGs2pWu1a09sCqOsDFT60R
-L1RNi4wtAOIgozSTdSM1YjkRXkChxJK+IxrTF/0fI6QuSaJQO1GbdJiRCHclbJ74
-CgkxsvGAc2YxAtQnmY/YWDnGDoMoIKUoxCxcETDT4S23Fzh6lDe0hxNoPh+c1HVV
-3oH9c41kKNPALTvqOwQCyZTsYFxK45Xi1BVTEKiy+yGPlsZgXLVVJVokb2Pbgz4l
-7vp8n5hgfbfmZ+1tuu1yIqeWihWqilTwK4R3EAh4yZG/aN+Zjh1bpxJS/H7oJjHk
-gC63fMTUsHA33+i6wHxhjSXdtvrp42T4JKvtdVAyjXQSwT887vw=
-=NkxU
+iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmAtUOcACgkQvP0LAY0m
+WPEsSw/9FOl8WYpFD9PhApLY7h33XSD93qqJ/fUAxl2Ev4X5DjB2ASd/ghtwbDWm
+rEkPnwWyyvKwQeBc11EEggP4U2lWghBthwxhWycCuLBiUw/J9L4XVi4sLWhdfBBm
+PyjP7CPSo22y3vk4S94ATB8GeCMIde8unJFugoIyW7aP0esspAsfKukv9Tk4grGR
+fPrv3Sxeq5sHEZPtwE4jL0z872EvqZTQewncN39TJK6BNqOvNwLHntS8UsYrZtSS
+j8aGuY6t9c9MUEm1+iFkGS0m5zZ1ULEZ/LSo7zLHqIJTEIRFjaoD57DRxiICGEIF
+Jkq+SC72F14/cWBRwRWt/6sX7q7QXRG0qNE/Ksc/aanOyMJgIQVsPtkVP2OMF/sv
+DwEp5LTRGPp+ilUdn5mRFOavT2uHADYqTjS65s04CZpWMFsTV8TqGlydOoZbHSX6
+uFxVGY3e4rOz64Kp6o69XU0oNE+AV5xg8mkefFTYzm0zjWrJMl0RJYmgvGQlEfS8
+wPJ6uApzDdP+MkJAEVDBm2YPTUVP5/7tjvxt+zBz9ARon+i+cziApiVkpOcXDmSb
+eABvttue6lP7J8fjyP909u8YptS3CoKfOMXXVSzLQyI/XwQHMDfBYuZPjOXNQgua
+9uVrkoiIY1xrunkIHkAqORmUtqa/N8ORWtV9f+on08MVBmZgH+c=
+=3kSe
 -----END PGP SIGNATURE-----
 
---=-v0yOpu+CF422v91VohLu--
-
+--ebko57ktge7ctid7--

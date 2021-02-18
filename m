@@ -2,83 +2,57 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57D8CC433E9
-	for <linux-input@archiver.kernel.org>; Thu, 18 Feb 2021 10:19:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EB15C433DB
+	for <linux-input@archiver.kernel.org>; Thu, 18 Feb 2021 12:55:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0AFA264EC2
-	for <linux-input@archiver.kernel.org>; Thu, 18 Feb 2021 10:19:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EEDF264E85
+	for <linux-input@archiver.kernel.org>; Thu, 18 Feb 2021 12:55:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230122AbhBRKNE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 18 Feb 2021 05:13:04 -0500
-Received: from mga02.intel.com ([134.134.136.20]:2731 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232535AbhBRKJ1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 18 Feb 2021 05:09:27 -0500
-IronPort-SDR: XXq0gTHrTNYKrGxMImcQEWBcIRxnQ1lTjMuCrHl8N29pgPgMqs5fzKfljF/PQ9nDc0+UiDx8qH
- B1JjJWWt5hKw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9898"; a="170587708"
-X-IronPort-AV: E=Sophos;i="5.81,186,1610438400"; 
-   d="scan'208";a="170587708"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Feb 2021 02:00:38 -0800
-IronPort-SDR: s1WG0DZzy9xrUmatwi8UX2FaeZy7aaOeEXENpuylMmbWq69GBkSyy8Sav3oRy4XG0C5OnDRf2e
- Ta+Rww9xE7yA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,186,1610438400"; 
-   d="scan'208";a="362411541"
-Received: from lkp-server02.sh.intel.com (HELO cd560a204411) ([10.239.97.151])
-  by orsmga003.jf.intel.com with ESMTP; 18 Feb 2021 02:00:36 -0800
-Received: from kbuild by cd560a204411 with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1lCg6t-0009au-RZ; Thu, 18 Feb 2021 10:00:35 +0000
-Date:   Thu, 18 Feb 2021 17:59:53 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Michael Srba <Michael.Srba@seznam.cz>
-Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH] Input: fix boolreturn.cocci warnings
-Message-ID: <20210218095953.GA24768@4e7c6a388622>
-References: <202102181739.Tb984rzG-lkp@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202102181739.Tb984rzG-lkp@intel.com>
-X-Patchwork-Hint: ignore
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S229460AbhBRMxz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 18 Feb 2021 07:53:55 -0500
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:33092 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231185AbhBRKZ0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 18 Feb 2021 05:25:26 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=jiapeng.chong@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UOtQoj3_1613643837;
+Received: from j63c13417.sqa.eu95.tbsite.net(mailfrom:jiapeng.chong@linux.alibaba.com fp:SMTPD_---0UOtQoj3_1613643837)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 18 Feb 2021 18:24:04 +0800
+From:   Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+To:     dmitry.torokhov@gmail.com
+Cc:     rydberg@bitmath.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Subject: [PATCH] Input: Use true and false for bool variable
+Date:   Thu, 18 Feb 2021 18:23:55 +0800
+Message-Id: <1613643835-1147-1-git-send-email-jiapeng.chong@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: kernel test robot <lkp@intel.com>
+Fix the following coccicheck warnings:
 
-drivers/input/touchscreen/zinitix.c:250:8-9: WARNING: return of 0/1 in function 'zinitix_init_touch' with return type bool
+./drivers/input/touchscreen/zinitix.c:250:8-9: WARNING: return of 0/1 in
+function 'zinitix_init_touch' with return type bool.
 
- Return statements in functions returning bool should use
- true/false instead of 1/0.
-Generated by: scripts/coccinelle/misc/boolreturn.cocci
-
-Fixes: 26822652c85e ("Input: add zinitix touchscreen driver")
-CC: Michael Srba <Michael.Srba@seznam.cz>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: kernel test robot <lkp@intel.com>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 ---
-
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
-head:   f40ddce88593482919761f74910f42f4b84c004b
-commit: 26822652c85eff14e40115255727b2693400c524 Input: add zinitix touchscreen driver
-
- zinitix.c |    2 +-
+ drivers/input/touchscreen/zinitix.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
+index a3e3adb..acb1d53 100644
 --- a/drivers/input/touchscreen/zinitix.c
 +++ b/drivers/input/touchscreen/zinitix.c
-@@ -247,7 +247,7 @@ static bool zinitix_init_touch(struct bt
+@@ -247,7 +247,7 @@ static bool zinitix_init_touch(struct bt541_ts_data *bt541)
  		udelay(10);
  	}
  
@@ -87,3 +61,6 @@ commit: 26822652c85eff14e40115255727b2693400c524 Input: add zinitix touchscreen 
  }
  
  static int zinitix_init_regulators(struct bt541_ts_data *bt541)
+-- 
+1.8.3.1
+

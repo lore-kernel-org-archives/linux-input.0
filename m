@@ -2,120 +2,197 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6019DC43381
-	for <linux-input@archiver.kernel.org>; Thu, 18 Feb 2021 07:06:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 134DAC433E6
+	for <linux-input@archiver.kernel.org>; Thu, 18 Feb 2021 07:19:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 246A264DF0
-	for <linux-input@archiver.kernel.org>; Thu, 18 Feb 2021 07:06:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A8AA964E85
+	for <linux-input@archiver.kernel.org>; Thu, 18 Feb 2021 07:19:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230042AbhBRHGb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 18 Feb 2021 02:06:31 -0500
-Received: from mail.ilitek.com ([60.248.80.92]:44321 "EHLO cello.ilitek.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230508AbhBRHC6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 18 Feb 2021 02:02:58 -0500
-X-UUID: 65d7dd5b6bfb445197e284b8ab797912-20210218
-X-UUID: 65d7dd5b6bfb445197e284b8ab797912-20210218
-Received: from ex1.ili.com.tw [(192.168.1.131)] by cello.ilitek.com
-        (envelope-from <joe_hung@ilitek.com>)
-        (Cellopoint E-mail Firewall v4.1.12 Build 0701 with TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256 128/128)
-        with ESMTP id 1730432184; Thu, 18 Feb 2021 14:44:36 +0800
-Received: from EX1.ili.com.tw (192.168.1.131) by EX1.ili.com.tw
- (192.168.1.131) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Thu, 18 Feb
- 2021 14:44:34 +0800
-Received: from joehung-Ilitek.ili.com.tw (192.168.18.73) by EX1.ili.com.tw
- (192.168.1.133) with Microsoft SMTP Server id 15.1.2176.2 via Frontend
- Transport; Thu, 18 Feb 2021 14:44:34 +0800
-From:   Joe Hung <joe_hung@ilitek.com>
-To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
-        <devicetree@vger.kernel.org>
-CC:     <linux-input@vger.kernel.org>, <joe_hung@ilitek.com>,
-        <luca_hsu@ilitek.com>
-Subject: [PATCH v3 1/2] dt-bindings: input: touchscreen: ilitek_ts_i2c: Add bindings
-Date:   Thu, 18 Feb 2021 14:44:34 +0800
-Message-ID: <20210218064435.1360483-1-joe_hung@ilitek.com>
-X-Mailer: git-send-email 2.25.1
+        id S229840AbhBRHQr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 18 Feb 2021 02:16:47 -0500
+Received: from mga06.intel.com ([134.134.136.31]:60387 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231236AbhBRHIb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 18 Feb 2021 02:08:31 -0500
+IronPort-SDR: qeHdkyGNoY/QqHsUH1ldYcWcj1eW6XUwtixi+cHhnjVzEHinrp+PS4dE7ZoAqsATxMsrpE1Nzb
+ FPz5cQQH15jA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9898"; a="244879428"
+X-IronPort-AV: E=Sophos;i="5.81,186,1610438400"; 
+   d="scan'208";a="244879428"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Feb 2021 23:05:31 -0800
+IronPort-SDR: 6HHQzObIQLr5C2p29uXTZuYrMpP0rKtbeMx4KZVVCkR+DH3Kar979B374FUzRM+PcHKPL7eaBR
+ E/4DMecOM2oA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,186,1610438400"; 
+   d="scan'208";a="362325104"
+Received: from lkp-server02.sh.intel.com (HELO cd560a204411) ([10.239.97.151])
+  by orsmga003.jf.intel.com with ESMTP; 17 Feb 2021 23:05:29 -0800
+Received: from kbuild by cd560a204411 with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1lCdNQ-0009WG-5W; Thu, 18 Feb 2021 07:05:28 +0000
+Date:   Thu, 18 Feb 2021 15:04:50 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org
+Subject: [input:for-linus] BUILD SUCCESS
+ 42ffcd1dba1796bcda386eb6f260df9fc23c90af
+Message-ID: <602e1192.FZoGuwTayYaBBya5%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add binding documentation for ILITEK touch devices.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+branch HEAD: 42ffcd1dba1796bcda386eb6f260df9fc23c90af  Input: xpad - add support for PowerA Enhanced Wired Controller for Xbox Series X|S
 
-Signed-off-by: Joe Hung <joe_hung@ilitek.com>
+elapsed time: 720m
+
+configs tested: 129
+configs skipped: 2
+
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+gcc tested configs:
+arm                                 defconfig
+arm64                            allyesconfig
+arm64                               defconfig
+arm                              allyesconfig
+arm                              allmodconfig
+arm                     davinci_all_defconfig
+sh                          polaris_defconfig
+sh                        sh7757lcr_defconfig
+m68k                             allyesconfig
+arm                        multi_v5_defconfig
+arm                            u300_defconfig
+powerpc                        icon_defconfig
+powerpc                    amigaone_defconfig
+arm                           sama5_defconfig
+m68k                         amcore_defconfig
+sparc                       sparc64_defconfig
+m68k                        mvme147_defconfig
+mips                        nlm_xlr_defconfig
+arm                              zx_defconfig
+arm                         lubbock_defconfig
+ia64                         bigsur_defconfig
+arm                            lart_defconfig
+powerpc                     rainier_defconfig
+arm                        cerfcube_defconfig
+arm                         lpc32xx_defconfig
+arm                         s3c2410_defconfig
+arm                          pxa3xx_defconfig
+m68k                       m5208evb_defconfig
+mips                      pic32mzda_defconfig
+powerpc                      katmai_defconfig
+powerpc                      acadia_defconfig
+xtensa                    xip_kc705_defconfig
+m68k                        m5307c3_defconfig
+m68k                        m5407c3_defconfig
+arm                             rpc_defconfig
+sh                           sh2007_defconfig
+nios2                               defconfig
+sh                         microdev_defconfig
+mips                       capcella_defconfig
+arm                          exynos_defconfig
+ia64                      gensparse_defconfig
+ia64                             allmodconfig
+ia64                                defconfig
+ia64                             allyesconfig
+m68k                             allmodconfig
+m68k                                defconfig
+arc                              allyesconfig
+nds32                             allnoconfig
+c6x                              allyesconfig
+nds32                               defconfig
+nios2                            allyesconfig
+csky                                defconfig
+alpha                               defconfig
+alpha                            allyesconfig
+xtensa                           allyesconfig
+h8300                            allyesconfig
+arc                                 defconfig
+sh                               allmodconfig
+parisc                              defconfig
+s390                             allyesconfig
+s390                             allmodconfig
+parisc                           allyesconfig
+s390                                defconfig
+i386                             allyesconfig
+sparc                            allyesconfig
+sparc                               defconfig
+i386                               tinyconfig
+i386                                defconfig
+mips                             allyesconfig
+mips                             allmodconfig
+powerpc                          allyesconfig
+powerpc                          allmodconfig
+powerpc                           allnoconfig
+x86_64               randconfig-a003-20210216
+x86_64               randconfig-a002-20210216
+x86_64               randconfig-a004-20210216
+x86_64               randconfig-a001-20210216
+x86_64               randconfig-a005-20210216
+x86_64               randconfig-a006-20210216
+i386                 randconfig-a003-20210216
+i386                 randconfig-a005-20210216
+i386                 randconfig-a002-20210216
+i386                 randconfig-a006-20210216
+i386                 randconfig-a001-20210216
+i386                 randconfig-a004-20210216
+i386                 randconfig-a003-20210217
+i386                 randconfig-a005-20210217
+i386                 randconfig-a002-20210217
+i386                 randconfig-a006-20210217
+i386                 randconfig-a001-20210217
+i386                 randconfig-a004-20210217
+x86_64               randconfig-a013-20210217
+x86_64               randconfig-a016-20210217
+x86_64               randconfig-a012-20210217
+x86_64               randconfig-a015-20210217
+x86_64               randconfig-a014-20210217
+x86_64               randconfig-a011-20210217
+i386                 randconfig-a016-20210217
+i386                 randconfig-a014-20210217
+i386                 randconfig-a012-20210217
+i386                 randconfig-a013-20210217
+i386                 randconfig-a011-20210217
+i386                 randconfig-a015-20210217
+i386                 randconfig-a016-20210216
+i386                 randconfig-a014-20210216
+i386                 randconfig-a012-20210216
+i386                 randconfig-a013-20210216
+i386                 randconfig-a011-20210216
+i386                 randconfig-a015-20210216
+i386                 randconfig-a016-20210215
+i386                 randconfig-a014-20210215
+i386                 randconfig-a012-20210215
+i386                 randconfig-a013-20210215
+i386                 randconfig-a011-20210215
+i386                 randconfig-a015-20210215
+riscv                    nommu_k210_defconfig
+riscv                            allyesconfig
+riscv                    nommu_virt_defconfig
+riscv                             allnoconfig
+riscv                               defconfig
+riscv                          rv32_defconfig
+riscv                            allmodconfig
+x86_64                                   rhel
+x86_64                           allyesconfig
+x86_64                    rhel-7.6-kselftests
+x86_64                              defconfig
+x86_64                               rhel-8.3
+x86_64                      rhel-8.3-kbuiltin
+x86_64                                  kexec
+
 ---
-Changes in v3:
-  - Add include header in examples, and pass the dt binding check
-
-Changes in v2:
-  - Convert to DT schema format
-  - Using interrupts instead of irq-gpios
-
- .../input/touchscreen/ilitek_ts_i2c.yaml      | 46 +++++++++++++++++++
- 1 file changed, 46 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.yaml
-
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.yaml b/Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.yaml
-new file mode 100644
-index 000000000000..5da9020ed272
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.yaml
-@@ -0,0 +1,46 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/ilitek_ts_i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Ilitek I2C Touchscreen Controller
-+
-+maintainers:
-+  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
-+
-+properties:
-+  compatible:
-+    enum:
-+      - ilitek,ili2520
-+      - ilitek,ili2510
-+  reg:
-+    const: 0x41
-+  interrupts:
-+    maxItems: 1
-+  reset-gpios:
-+    maxItems: 1
-+
-+additionalProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+        touchscreen@41 {
-+                compatible = "ilitek,ili2520";
-+                reg = <0x41>;
-+                interrupt-parent = <&gpio1>;
-+                interrupts = <7 IRQ_TYPE_EDGE_FALLING>;
-+                reset-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
-+        };
-+    };
---
-2.25.1
-
-
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org

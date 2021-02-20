@@ -2,93 +2,94 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6E49C433E0
-	for <linux-input@archiver.kernel.org>; Fri, 19 Feb 2021 19:13:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09DDDC433DB
+	for <linux-input@archiver.kernel.org>; Sat, 20 Feb 2021 12:26:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E4A264E43
-	for <linux-input@archiver.kernel.org>; Fri, 19 Feb 2021 19:13:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D005564ED7
+	for <linux-input@archiver.kernel.org>; Sat, 20 Feb 2021 12:26:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229774AbhBSTN0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 19 Feb 2021 14:13:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47716 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229762AbhBSTNZ (ORCPT
+        id S229603AbhBTM0N (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 20 Feb 2021 07:26:13 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:53266 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229476AbhBTM0N (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Feb 2021 14:13:25 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED8FAC061756;
-        Fri, 19 Feb 2021 11:12:44 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id e9so3890921plh.3;
-        Fri, 19 Feb 2021 11:12:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=xHL0tcHTSbkROx1RrvQTYjKwNbQ4sW6lJ5aTU43rCIw=;
-        b=KYmXa/Q4n0R52taiNdJf/nwL7etIdULvA82reWG/HosC4LGgR79RhasxU63VqiYsPI
-         +VI5l2SGoXn95lNSI+65kUt9vzQ57AqReq5uKX/T9ZU18sKTQFiG/ZcBXILG073ho4gN
-         Ht+ekVV3NAL475uKkMSGrZOw+FdQFlGtvXe3NEs7iVa3Tuvm9ui9Nt3Z76kQ8Yj/TLlV
-         rza8DouePj5Pf1u5sHOYcGSZrYf429zBeG3L+t/MCvPNnJMkJs5DJGveX2kNwCYPUm9E
-         eF/TmbpMPgguoho4W9cd43Rs+nUSCSmF6/ANl8usZb3WNkXkJ5BD1zdbL5vOS3mZO/PE
-         HWEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=xHL0tcHTSbkROx1RrvQTYjKwNbQ4sW6lJ5aTU43rCIw=;
-        b=HIH5h7/g+xkOAI487PS0vkEvaXankkaVt+6QqNNWXo3q/AHCUXz0ci3ib0cI9R7IoD
-         DxTVEplje3DNlwVERpYoiKWChP/rubnmxK1CVEK95C+K2BaHAW0S8G9cToBGCVqowfBT
-         oaGx2Tyd8FYNqfGDqWBMsipiJwU8hizaDnSjxEOZ9lHgCwVCD3zadDrLvcic2jTCCmoX
-         VWIR5XkGT6vi8ROGT2WQTwKMjvajIOIaaj997lUrwwg4ehzbYzohjmvfR8gp02+6qIrE
-         0sDkcr0A24XQDlOOE/hpMAWnpjP9s9Mcax5MykZwb0pqZ4oL09XjbJa0+ohIE6LBekqk
-         RJKw==
-X-Gm-Message-State: AOAM5322ALgEmi4w6qqH/xGBGAlQqB79JaLPmWOFRfVkZl7gZ0xzvTua
-        EBE0CPAtBH0nQ7ZN/D58saZUD3wnw8w=
-X-Google-Smtp-Source: ABdhPJwbGJqK4z8CD+NbJMbo0tiKt2fonW8LWvYQJiKZkqmupHu8kAesXYTBdplRYFEqltap4zFuXg==
-X-Received: by 2002:a17:902:704c:b029:e3:1bd3:6318 with SMTP id h12-20020a170902704cb02900e31bd36318mr10368729plt.20.1613761964501;
-        Fri, 19 Feb 2021 11:12:44 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:7d43:dae1:3b24:51b7])
-        by smtp.gmail.com with ESMTPSA id 188sm8766404pfc.98.2021.02.19.11.12.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Feb 2021 11:12:43 -0800 (PST)
-Date:   Fri, 19 Feb 2021 11:12:41 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>
-Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Sergiu Cuciurean <sergiu.cuciurean@analog.com>,
-        Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] Input: applespi: Fix occasional crc errors under
- load.
-Message-ID: <YDANqSjtjwSYvqsj@google.com>
-References: <20210217190718.11035-1-ronald@innovation.ch>
- <20210217190718.11035-2-ronald@innovation.ch>
+        Sat, 20 Feb 2021 07:26:13 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1613823886;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=3XGW2IdbfK0+RXlIsNYf734DWnS6Nq0t/VLqZqK7arc=;
+        b=b8PvDD+gDHdO/odp8LLKS16Go5FmLfvCCKMIefzDZYr2E2FWOUuYI8co1tXkQCxideIv2j
+        JB8ot2zO2etm/xOqIrRHQMjNbR2S0OpdQT8jIqso8yMK0LBrmA4LM59bbP1qV5kKNlPWvm
+        zaf6ktKmi6KiRCuAGOUW/8N5X28TRMk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-230-TwRzw7quOmWl46LkpQPKNQ-1; Sat, 20 Feb 2021 07:24:44 -0500
+X-MC-Unique: TwRzw7quOmWl46LkpQPKNQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 694E8107ACC7;
+        Sat, 20 Feb 2021 12:24:43 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-112-29.ams2.redhat.com [10.36.112.29])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 79B1910016FF;
+        Sat, 20 Feb 2021 12:24:39 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
+        linux-leds@vger.kernel.org
+Subject: [PATCH v2 0/7] HID: lenovo: Mute LED handling fixes and improvements
+Date:   Sat, 20 Feb 2021 13:24:31 +0100
+Message-Id: <20210220122438.21857-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210217190718.11035-2-ronald@innovation.ch>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Feb 17, 2021 at 11:07:17AM -0800, Ronald Tschalär wrote:
-> For some reason, when the system is under heavy CPU load, the read
-> following the write sometimes occurs unusually quickly, resulting in
-> the read data not being quite ready and hence a bad packet getting read.
-> Adding another delay after reading the status message appears to fix
-> this.
-> 
-> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+Hi All,
 
-Applied, thank you.
+Here is v2 of my series with mute LED handling fixes and improvements
+for the hid-lenovo driver.
+
+This time I've added the LED folks to the Cc in case they have any input,
+but there is nothing controversial in here wrt use of the LED API.
+
+The following patches were changed or are new in version 2 of the
+series, see the individual patches for detaisl:
+
+[PATCH v2 2/7] HID: lenovo: Fix lenovo_led_set_tp10ubkbd() error handling
+[PATCH v2 4/7] HID: lenovo: Remove lenovo_led_brightness_get()
+[PATCH v2 5/7] HID: lenovo: Set LEDs max_brightness value
+
+Regards,
+
+Hans
+
+
+Hans de Goede (7):
+  HID: lenovo: Use brightness_set_blocking callback for setting LEDs
+    brightness
+  HID: lenovo: Fix lenovo_led_set_tp10ubkbd() error handling
+  HID: lenovo: Check hid_get_drvdata() returns non NULL in
+    lenovo_event()
+  HID: lenovo: Remove lenovo_led_brightness_get()
+  HID: lenovo: Set LEDs max_brightness value
+  HID: lenovo: Map mic-mute button to KEY_F20 instead of KEY_MICMUTE
+  HID: lenovo: Set default_trigger-s for the mute and micmute LEDs
+
+ drivers/hid/hid-lenovo.c | 61 ++++++++++++++++++++--------------------
+ 1 file changed, 31 insertions(+), 30 deletions(-)
 
 -- 
-Dmitry
+2.30.1
+

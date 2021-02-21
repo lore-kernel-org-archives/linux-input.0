@@ -5,43 +5,43 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05364C433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98DD3C433E0
 	for <linux-input@archiver.kernel.org>; Sun, 21 Feb 2021 11:21:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC58464EB3
-	for <linux-input@archiver.kernel.org>; Sun, 21 Feb 2021 11:21:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 80B0D64EB3
+	for <linux-input@archiver.kernel.org>; Sun, 21 Feb 2021 11:21:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229884AbhBULVx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 21 Feb 2021 06:21:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54208 "EHLO
+        id S229886AbhBULVy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 21 Feb 2021 06:21:54 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:58804 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229926AbhBULVr (ORCPT
+        by vger.kernel.org with ESMTP id S229891AbhBULVn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 21 Feb 2021 06:21:47 -0500
+        Sun, 21 Feb 2021 06:21:43 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1613906421;
+        s=mimecast20190719; t=1613906417;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=p38eAJH9GWfWbk+QeHT3qFm1wDX3Dc9F7CzTGARVMfw=;
-        b=d1TdS0yO2k1JBz1ITk6tqECf+KEq0yyGWCUIk6RC/ZG1yOA+u+8caii7FjWG/hVEzZIQhI
-        /6OGv/JciWj7Rt6cSDiCeOCwUvj8ucBtF8x0BXUx6tJHHpWeZDXpTwa5A3ZC/UrW3TVCts
-        9dINQyuyMpiK2CC2DJt+HY95TjcY/sk=
+        bh=Ot+0g9GWkCqpBL6S3yzV/ByKfCVx9uehwlhhtjWHdO0=;
+        b=TIzl0xu7PdvLvR0OOcbMpI7xuR0gPL0sqRAlnSyE7CAMo64wNgaL/O5wC80IJ33kIpsJk4
+        OtcT9bVnTx/xfIsRbrLd7CaLGoNNuhdodWwiW6DkM8jaN58fYdY2dWWKF0QAsg4fPWJKCN
+        f8VZJumMripU3h8thfEfe9xugGD8SeQ=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-241-KVYCk_JCNXeNupLA99hslg-1; Sun, 21 Feb 2021 06:20:19 -0500
-X-MC-Unique: KVYCk_JCNXeNupLA99hslg-1
+ us-mta-176-aOLDViHJNeuXNNl7k0VdKw-1; Sun, 21 Feb 2021 06:20:15 -0500
+X-MC-Unique: aOLDViHJNeuXNNl7k0VdKw-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B0E4B1005501;
-        Sun, 21 Feb 2021 11:20:17 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4C5501005501;
+        Sun, 21 Feb 2021 11:20:14 +0000 (UTC)
 Received: from x1.localdomain (ovpn-112-87.ams2.redhat.com [10.36.112.87])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4CB976268F;
-        Sun, 21 Feb 2021 11:20:16 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D828D62A24;
+        Sun, 21 Feb 2021 11:20:12 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -49,9 +49,9 @@ Cc:     Hans de Goede <hdegoede@redhat.com>,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH v3 3/7] HID: lenovo: Check hid_get_drvdata() returns non NULL in lenovo_event()
-Date:   Sun, 21 Feb 2021 12:20:01 +0100
-Message-Id: <20210221112005.102116-4-hdegoede@redhat.com>
+Subject: [PATCH v3 1/7] HID: lenovo: Use brightness_set_blocking callback for setting LEDs brightness
+Date:   Sun, 21 Feb 2021 12:19:59 +0100
+Message-Id: <20210221112005.102116-2-hdegoede@redhat.com>
 In-Reply-To: <20210221112005.102116-1-hdegoede@redhat.com>
 References: <20210221112005.102116-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -62,39 +62,60 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The HID lenovo probe function only attaches drvdata to one of the
-USB interfaces, but lenovo_event() will get called for all USB interfaces
-to which hid-lenovo is bound.
+The lenovo_led_brightness_set function may sleep, so we should have the
+the led_class_dev's brightness_set_blocking callback point to it, rather
+then the regular brightness_set callback.
 
-This allows a malicious device to fake being a device handled by
-hid-lenovo, which generates events for which lenovo_event() has
-special handling (and thus dereferences hid_get_drvdata()) on another
-interface triggering a NULL pointer exception.
-
-Add a check for hid_get_drvdata() returning NULL, avoiding this
-possible NULL pointer exception.
+When toggled through sysfs this is not a problem, but the brightness_set
+callback may be called from atomic context when using LED-triggers.
 
 Fixes: bc04b37ea0ec ("HID: lenovo: Add ThinkPad 10 Ultrabook Keyboard support")
 Reviewed-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-lenovo.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-lenovo.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index ee175ab54281..b2596ed37880 100644
+index c6c8e20f3e8d..4dc5e5f932ed 100644
 --- a/drivers/hid/hid-lenovo.c
 +++ b/drivers/hid/hid-lenovo.c
-@@ -508,6 +508,9 @@ static int lenovo_event_cptkbd(struct hid_device *hdev,
- static int lenovo_event(struct hid_device *hdev, struct hid_field *field,
- 		struct hid_usage *usage, __s32 value)
+@@ -777,7 +777,7 @@ static enum led_brightness lenovo_led_brightness_get(
+ 				: LED_OFF;
+ }
+ 
+-static void lenovo_led_brightness_set(struct led_classdev *led_cdev,
++static int lenovo_led_brightness_set(struct led_classdev *led_cdev,
+ 			enum led_brightness value)
  {
-+	if (!hid_get_drvdata(hdev))
-+		return 0;
+ 	struct device *dev = led_cdev->dev->parent;
+@@ -802,6 +802,8 @@ static void lenovo_led_brightness_set(struct led_classdev *led_cdev,
+ 		lenovo_led_set_tp10ubkbd(hdev, tp10ubkbd_led[led_nr], value);
+ 		break;
+ 	}
 +
- 	switch (hdev->product) {
- 	case USB_DEVICE_ID_LENOVO_CUSBKBD:
- 	case USB_DEVICE_ID_LENOVO_CBTKBD:
++	return 0;
+ }
+ 
+ static int lenovo_register_leds(struct hid_device *hdev)
+@@ -822,7 +824,7 @@ static int lenovo_register_leds(struct hid_device *hdev)
+ 
+ 	data->led_mute.name = name_mute;
+ 	data->led_mute.brightness_get = lenovo_led_brightness_get;
+-	data->led_mute.brightness_set = lenovo_led_brightness_set;
++	data->led_mute.brightness_set_blocking = lenovo_led_brightness_set;
+ 	data->led_mute.dev = &hdev->dev;
+ 	ret = led_classdev_register(&hdev->dev, &data->led_mute);
+ 	if (ret < 0)
+@@ -830,7 +832,7 @@ static int lenovo_register_leds(struct hid_device *hdev)
+ 
+ 	data->led_micmute.name = name_micm;
+ 	data->led_micmute.brightness_get = lenovo_led_brightness_get;
+-	data->led_micmute.brightness_set = lenovo_led_brightness_set;
++	data->led_micmute.brightness_set_blocking = lenovo_led_brightness_set;
+ 	data->led_micmute.dev = &hdev->dev;
+ 	ret = led_classdev_register(&hdev->dev, &data->led_micmute);
+ 	if (ret < 0) {
 -- 
 2.30.1
 

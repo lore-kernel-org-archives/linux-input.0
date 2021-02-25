@@ -2,88 +2,95 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 024A0C433E0
-	for <linux-input@archiver.kernel.org>; Thu, 25 Feb 2021 10:56:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE71EC433DB
+	for <linux-input@archiver.kernel.org>; Thu, 25 Feb 2021 11:58:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A0D1264E21
-	for <linux-input@archiver.kernel.org>; Thu, 25 Feb 2021 10:56:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59F3F64F11
+	for <linux-input@archiver.kernel.org>; Thu, 25 Feb 2021 11:58:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232465AbhBYK4L (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 25 Feb 2021 05:56:11 -0500
-Received: from m12-11.163.com ([220.181.12.11]:51547 "EHLO m12-11.163.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233720AbhBYKyK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Feb 2021 05:54:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=SCoNv
-        n+9QsqsnhVecLhlDBk099Ose5roiO9XWmqQc2M=; b=JNHAfkPEUzgOxG0lamJ4C
-        3urxkz8IFaxBdkkdSDYjmpGj2OosXIj3j6ML7uiX9JsZ7p7ibrWmT+lo/znyZNg5
-        XNyFyqbUzHqBBL4EwZrWQjWeC75TRYMtBX6TfSEzMX6nzxAXuI4PHbUVs8ulPdtA
-        At9/GiI2umnDBKewGSoRjs=
-Received: from yangjunlin.ccdomain.com (unknown [218.17.89.92])
-        by smtp7 (Coremail) with SMTP id C8CowADHz6NmazdgGSQ+PQ--.888S2;
-        Thu, 25 Feb 2021 17:18:31 +0800 (CST)
-From:   angkery <angkery@163.com>
-To:     dmitry.torokhov@gmail.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Junlin Yang <yangjunlin@yulong.com>
-Subject: [PATCH] Input: Remove unneeded variable
-Date:   Thu, 25 Feb 2021 17:18:30 +0800
-Message-Id: <20210225091830.545-1-angkery@163.com>
-X-Mailer: git-send-email 2.24.0.windows.2
+        id S229886AbhBYL6l (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 25 Feb 2021 06:58:41 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21233 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229561AbhBYL6k (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 25 Feb 2021 06:58:40 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1614254234;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=cyCLzSNxDNJLSDbo5sIZg2cP4ZMP0KNGABNn3qZjH94=;
+        b=Emf8LTonKQ+PPihQ2EM9sFcoqb/+pEaQCbNr/Y3gr90PJwg3pSDVXZY4c/A4m7H/HVI+wR
+        EsVC3kVTM9lhriIvfOVOSucwi5B28ybxJQ0TRKOgWWU3kySsguJXkqfD4BmLtWBdwPAa56
+        nSg7BmbrmLnUpu4eiQSX+WfKTb2isas=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-469-E_YnxZkTNG2foa_aMZHFFg-1; Thu, 25 Feb 2021 06:57:11 -0500
+X-MC-Unique: E_YnxZkTNG2foa_aMZHFFg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A2FC6100CCC0;
+        Thu, 25 Feb 2021 11:57:10 +0000 (UTC)
+Received: from x1.localdomain (ovpn-112-2.ams2.redhat.com [10.36.112.2])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B24D85C224;
+        Thu, 25 Feb 2021 11:57:06 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Subject: [RFC 0/1] Input: elants_i2c - Do not bind to i2c-hid compatible ACPI instantiated devices
+Date:   Thu, 25 Feb 2021 12:57:04 +0100
+Message-Id: <20210225115705.83031-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: C8CowADHz6NmazdgGSQ+PQ--.888S2
-X-Coremail-Antispam: 1Uf129KBjvdXoWrZF1DuF15JrWrAF13tw1DKFg_yoWfurbE9r
-        yav397Xr40yw1ktr1DXr13ZF9F9F4qvFW8ZF47tw13u34YqrZ8A3yDArs7Zr4qqw4xCFyD
-        u3W5GryfAw18GjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUn-_-DUUUUU==
-X-Originating-IP: [218.17.89.92]
-X-CM-SenderInfo: 5dqjyvlu16il2tof0z/xtbCBgFEI13I01JQCwAAsv
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Junlin Yang <yangjunlin@yulong.com>
+Hi All,
 
-The variable "ret" is initialized to zero and then returned.
-So remove the ret variable and return zero.
+Here is a patch which should fix the touchscreen issues some people have
+been seeing on some recent Lenovo AMD CPU using models:
+https://bugzilla.kernel.org/show_bug.cgi?id=207759
 
-Generated by:scripts/coccinelle/misc/returnvar.cocci
+There are 2 reasons why this is a RFC:
 
-Signed-off-by: Junlin Yang <yangjunlin@yulong.com>
----
- drivers/input/input.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+1. It is compile-tested only ATM, I'm waiting for feedback from the
+reporters of the issue.
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index ccaeb24..8cdc3fe 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1746,8 +1746,6 @@ void input_reset_device(struct input_dev *dev)
- 
- static int input_inhibit_device(struct input_dev *dev)
- {
--	int ret = 0;
--
- 	mutex_lock(&dev->mutex);
- 
- 	if (dev->inhibited)
-@@ -1769,7 +1767,7 @@ static int input_inhibit_device(struct input_dev *dev)
- 
- out:
- 	mutex_unlock(&dev->mutex);
--	return ret;
-+	return 0;
- }
- 
- static int input_uninhibit_device(struct input_dev *dev)
+2. The fix which I wrote is somewhat simple. It should work, but there
+might be older touchscreens which actually need to use the Elan specific
+protocol implemented by elants_i2c.ko; while the ACPI-fwnode describing
+the touchscreen falsely contains one of the i2c-hid ACPI compatiblity-id
+strings. This would of course be a bug in the ACPI tables, but I have
+seen this before.
+
+2. might lead to regressions (or it might be a non-issue) so I was hoping
+for some input on this from Benjamin as he originally wroter the elants_i2c
+code.
+
+Regards,
+
+Hans
+
+
+
+Hans de Goede (1):
+  Input: elants_i2c - Do not bind to i2c-hid compatible ACPI
+    instantiated devices
+
+ drivers/input/touchscreen/elants_i2c.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
 -- 
-1.9.1
+2.30.1
 

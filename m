@@ -2,51 +2,57 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49592C4332E
-	for <linux-input@archiver.kernel.org>; Fri, 26 Feb 2021 19:36:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8922DC433DB
+	for <linux-input@archiver.kernel.org>; Sun, 28 Feb 2021 01:27:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 02E2F64F37
-	for <linux-input@archiver.kernel.org>; Fri, 26 Feb 2021 19:36:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 39DA364DEF
+	for <linux-input@archiver.kernel.org>; Sun, 28 Feb 2021 01:27:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229586AbhBZTgs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 26 Feb 2021 14:36:48 -0500
-Received: from mga12.intel.com ([192.55.52.136]:43224 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230212AbhBZTgn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 Feb 2021 14:36:43 -0500
-IronPort-SDR: NYq5XWYqFkzWKjDlzC4FF39SnJZbKBkEnofGX3Ol9tzH/WMTaBgmsIFe9JdZcJwlTpSw4vqod4
- FbcuZ3j/IdIw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9907"; a="165195469"
-X-IronPort-AV: E=Sophos;i="5.81,209,1610438400"; 
-   d="scan'208";a="165195469"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Feb 2021 11:34:48 -0800
-IronPort-SDR: pGtGVYUupHM0ZQHpyOyNPVYf+iuxYF7RTrSq7NcyCCyLINPVB+mMx/6oBLVPnzCTzU4i50NHdc
- sEbfdr9zBORw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,209,1610438400"; 
-   d="scan'208";a="584709647"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga005.jf.intel.com with ESMTP; 26 Feb 2021 11:34:46 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 82C8654A; Fri, 26 Feb 2021 21:32:28 +0200 (EET)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 3/4] HID: i2c-hid: acpi: Move GUID out of function and described it
-Date:   Fri, 26 Feb 2021 21:32:24 +0200
-Message-Id: <20210226193225.47129-3-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210226193225.47129-1-andriy.shevchenko@linux.intel.com>
-References: <20210226193225.47129-1-andriy.shevchenko@linux.intel.com>
+        id S230075AbhB1B1f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 27 Feb 2021 20:27:35 -0500
+Received: from chill.innovation.ch ([216.218.245.220]:46722 "EHLO
+        chill.innovation.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229640AbhB1B1e (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 27 Feb 2021 20:27:34 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by chill.innovation.ch (Postfix) with ESMTP id 4C8C96401B7;
+        Sat, 27 Feb 2021 17:26:54 -0800 (PST)
+X-Virus-Scanned: amavisd-new at innovation.ch
+Authentication-Results: chill.innovation.ch (amavisd-new);
+        dkim=pass (2048-bit key) header.d=innovation.ch
+Received: from chill.innovation.ch ([127.0.0.1])
+        by localhost (chill.innovation.ch [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id rLSOAzMsa0yN; Sat, 27 Feb 2021 17:26:52 -0800 (PST)
+From:   =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
+DKIM-Filter: OpenDKIM Filter v2.10.3 chill.innovation.ch 321036400FF
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=innovation.ch;
+        s=default; t=1614475612;
+        bh=zURqOMgAiNjXHsgivuo5XODqpjhx+g4GziSUr/52jKo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UHaWyzg5zKoyLRKkv+G1Zy/uCIRYwfZYbZpH26dss4kkjvbZ0FIrBS6/5BjkNy4Mq
+         SmkP6jPpT4rz3ER9qig3Vho4klXkUr0ul6guFgt6ieALQzaGQWZFNS7IKGlokLPWMX
+         qTDpF3NQv7VnBmlv7j+mj6qgGzKYQnpQWlqinoaoBbTLSqeQk2rrYPb/d3mnDpIAjd
+         KGnT+pj38vNccwivY6e4nmA6KQbmyigKbGPaffNQaEkak88FIxq2lYxRaVgVkxCS88
+         4YV/0pii2uMmqwNhYbgYzCqw6AZ3FQH/ZI9RaJutKX2u2pDL5evDZE62DdNa6osbH4
+         gB6habLfQ2U1Q==
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-iio@vger.kernel.org
+Subject: [PATCH 0/5] Touch Bar and ALS support for MacBook Pro's
+Date:   Sat, 27 Feb 2021 17:26:38 -0800
+Message-Id: <20210228012643.69944-1-ronald@innovation.ch>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,46 +60,39 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Move static GUID variable out of the function and add a comment
-how it looks like in the human readable representation.
+This patch set provides Touch Bar and ALS support on MacBook Pro's
+13,*, 14,*, and 15,*.
 
-While at it, include uuid.h since the guid_t type is defined in it.
+Some time a go an earlier version of these were posted to the list;
+all code comments from there have been incorporated. In addition the
+approach has been cleaned up, especially given that we now know how
+the 15,* models are implemented, so that the ibridge driver is only
+needed for the pre-15,* models and the ALS and Touch Bar drivers work
+unchanged for all models.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
-v2: rebased on top of patch 1 that used to be separate change
- drivers/hid/i2c-hid/i2c-hid-acpi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Ronald Tschalär (5):
+  HID: Recognize sensors with application collections too.
+  iio: hid-sensor-als: Support change sensitivity in illuminance too.
+  HID: core: Export some report item parsing functions.
+  HID: apple-ibridge: Add Apple iBridge HID driver for T1 chip.
+  HID: apple-touchbar - Add driver for the Touch Bar on MacBook Pro's.
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-acpi.c b/drivers/hid/i2c-hid/i2c-hid-acpi.c
-index 70955f21349a..a4810f199d59 100644
---- a/drivers/hid/i2c-hid/i2c-hid-acpi.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-acpi.c
-@@ -25,6 +25,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/pm.h>
-+#include <linux/uuid.h>
- 
- #include "i2c-hid.h"
- 
-@@ -42,11 +43,13 @@ static const struct acpi_device_id i2c_hid_acpi_blacklist[] = {
- 	{ },
- };
- 
-+/* HID I²C Device: 3cdff6f7-4267-4555-ad05-b30a3d8938de */
-+static guid_t i2c_hid_guid =
-+	GUID_INIT(0x3CDFF6F7, 0x4267, 0x4555,
-+		  0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE);
-+
- static int i2c_hid_acpi_get_descriptor(struct acpi_device *adev)
- {
--	static guid_t i2c_hid_guid =
--		GUID_INIT(0x3CDFF6F7, 0x4267, 0x4555,
--			  0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE);
- 	acpi_handle handle = acpi_device_handle(adev);
- 	union acpi_object *obj;
- 	u16 hid_descriptor_address;
+ drivers/hid/Kconfig                |   26 +
+ drivers/hid/Makefile               |    2 +
+ drivers/hid/apple-ibridge.c        |  682 +++++++++++++
+ drivers/hid/apple-ibridge.h        |   15 +
+ drivers/hid/apple-touchbar.c       | 1523 ++++++++++++++++++++++++++++
+ drivers/hid/hid-core.c             |   57 +-
+ drivers/hid/hid-ids.h              |    1 +
+ drivers/hid/hid-quirks.c           |    3 +
+ drivers/hid/hid-sensor-hub.c       |    6 +-
+ drivers/iio/light/hid-sensor-als.c |    8 +
+ include/linux/hid.h                |    4 +
+ 11 files changed, 2302 insertions(+), 25 deletions(-)
+ create mode 100644 drivers/hid/apple-ibridge.c
+ create mode 100644 drivers/hid/apple-ibridge.h
+ create mode 100644 drivers/hid/apple-touchbar.c
+
 -- 
-2.30.0
+2.26.2
 

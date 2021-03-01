@@ -5,29 +5,29 @@ X-Spam-Level:
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FF73C433E0
-	for <linux-input@archiver.kernel.org>; Mon,  1 Mar 2021 16:22:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A648CC4332E
+	for <linux-input@archiver.kernel.org>; Mon,  1 Mar 2021 16:35:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A79864EDF
-	for <linux-input@archiver.kernel.org>; Mon,  1 Mar 2021 16:22:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D5FC64F64
+	for <linux-input@archiver.kernel.org>; Mon,  1 Mar 2021 16:35:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235476AbhCAQVr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 1 Mar 2021 11:21:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57264 "EHLO mail.kernel.org"
+        id S234494AbhCAQfQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 1 Mar 2021 11:35:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237734AbhCAQTc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:19:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E9DE64E66;
-        Mon,  1 Mar 2021 16:17:31 +0000 (UTC)
+        id S234839AbhCAQ3J (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:29:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF20764EF2;
+        Mon,  1 Mar 2021 16:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615452;
-        bh=gMK0obj2fPpWNkpdJaep+NirTN1PIVdJ1Dw11qFoqZY=;
+        s=korg; t=1614615759;
+        bh=vKNtseI8/nS7wW4NqmKMaOIS6UXExW50r8LAs4EdFdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEMg0N2N3bdmAIgvrD9Qxkarzn+UZO/LhQG4oVo3/zPcRRVBYPS6opb0r11rbRpp2
-         rIDN40nfDc+CjLCaWFt3mqo5lnLrfyipUT6pu8yWIXvBbbzVY7jwaF3Bwt3ETXY2mR
-         mxF3P0O9fDlq/ZIRK9+E7I2MC7PhaKN+qMmdM0ss=
+        b=RU/pHsD0O0gxTRdvHwWlMRUKLmdypYAe8o1DmYoDGR+9GVXMaZKpVvHZAdpuqZ4G7
+         ar3LFVAlXOKzwkdggIVHZxQ1pHeF7SCJ3JBPpWl8kmDpbkOtrtO4L5YiwGjI3qojFa
+         4yNAneUw2Mga+7v+XjeE5SrPyfwe4XReDd1PChj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,12 +37,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 35/93] HID: core: detect and skip invalid inputs to snto32()
-Date:   Mon,  1 Mar 2021 17:12:47 +0100
-Message-Id: <20210301161008.636240620@linuxfoundation.org>
+Subject: [PATCH 4.9 050/134] HID: core: detect and skip invalid inputs to snto32()
+Date:   Mon,  1 Mar 2021 17:12:31 +0100
+Message-Id: <20210301161016.023306074@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
-References: <20210301161006.881950696@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -81,7 +81,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 1495cf343d9f5..25544a08fa838 100644
+index 18bdba45c159a..40b36e59a8676 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
 @@ -1109,6 +1109,9 @@ EXPORT_SYMBOL_GPL(hid_open_report);

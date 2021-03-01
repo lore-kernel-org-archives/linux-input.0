@@ -2,60 +2,58 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9273AC433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BD2BC433E0
 	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:53:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3CA1764F0A
-	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:53:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B8D46186A
+	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:53:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350721AbhCBMpQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 2 Mar 2021 07:45:16 -0500
-Received: from mail-eopbgr680051.outbound.protection.outlook.com ([40.107.68.51]:34530
-        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
+        id S237994AbhCBMnp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 2 Mar 2021 07:43:45 -0500
+Received: from mail-dm6nam11on2077.outbound.protection.outlook.com ([40.107.223.77]:40078
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1346885AbhCAXvB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 1 Mar 2021 18:51:01 -0500
+        id S1346842AbhCAXuj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 1 Mar 2021 18:50:39 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Cw4eMdLRPFgC+cuXr0wOeq7BThWCx8VbxhfK0my12FTg3N38ayc+Ag0TJn57Cy8S6M5SO6kUboOwRy3KicN2wVB+AOloAlfonmxo5QiR988RKDmVehgPbKp45Dw6y0Zu5+eghJeyoI+DJSunjXc+d+d5NWPTievN7Uvb1aslWmsIfsZL4avVVnPE2zV4P6RDUwEErHVD/G6mVl1/rEVJz2gFWi54Mm+rLl+BrRmQ2EyKifGDj9UpVPZqMrao0JZTOvaeUHltSFALy7ojRRT7J/x8/hp0gbhVG62XSk7hcarKpAZbjfnR+5x03h2Z3/gyrblOf6kMZIjPRbgNmdsvHQ==
+ b=Qa+CviyFJlWKqpkTtTwLVLvtsfttUy+lHg29kMbz5zV+KhUR0Cefc2qliTboy5+rjtpePupoiVc2R4yJxzWQ21fSv0ZzLs/fDxUrBcrzf+dBOEeJvvai1InurKCmnVUjO1DJ63xwHiBhLcRcJzPF8pWPyziqHAuE+ydTcFd7Ui/rjs1koJmvCEra/ruHem3xLmypLIpKks3gk29X9+p7g4NyNMhr3d0ny/afXJK3AfEUtpqlX7+nFGfwD+9lrqySXbuQvlCsU8RfYpFgP30hYZrLSOsfJy95Mh6nlK5/vaSubtk70Ou9LoStdxzSwlfgy9pKixo/D6Ed3rcjaTtJXg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/wufqOSLljnNGB2KTtdxReTpDuHmntXCCcmY05WHZ2o=;
- b=mxeFVDyFbMMfnsNNHri/wRN65MXzXWkEPes08EZq5EjQp7fY73RS1DocJtBHPpHcBoxKZKaCqriTQ6ti3tTFkfN/Enx9GYhEkRUHiFz72eqR6Oc9itqbguuJPNTAy3/+KzEFY50Q+29Uv+6NdElGk1jHmuAFE/pBzcQItpckOnDGDNS9G2iax1zGmHqz4a0Qw5lasf7HZCgJVrTacCMmZjTX0c1GCaPQMRBjztpDVzJWIyHrLp7Qa6SoN5qGEu81/YC5jS5iXddkNv3PoU/bun672pNUOaE02sAxER3o5k/397tCVA7PkJt0wR05O2ediZCPCvgzWGIZ8+9KivchbQ==
+ bh=R4ka5TlzmDQNCr/MF+gUTBaq5mfghjC3mlN6YN0OjGc=;
+ b=AOPTuzjIDdAtLUwJnyqaSmoocZFtiyeQB7IgxyawmkSDzTRQQ6tZLfuSVD80mVzfSURHUIHEE+obPwVep1pQceN+6/FgHpky2z9lxPXc4F5xRrFzpTnt+RefEiNuio6Zwz59CRpNb0xCu5KXataGYrBEk2s30rdF9KKkQJzzxNx1wheDlYtJwkailafL5hVA1yU/DRqJCC6C6IMx7Zw6voDN2EiaJE8s2hVayvMwZgjZokXZCsjFdSmciBDvZTu2f6m9jX5VP9UTdVCnPKYvl9pf055LIZpbE2do0NXQgKo5cQmKIxhhIBVbNj6zJo0tkbAw3sI/Pco8KD+EqRaDjA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
  dkim=pass header.d=labundy.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/wufqOSLljnNGB2KTtdxReTpDuHmntXCCcmY05WHZ2o=;
- b=KXHSISNpsMXL5wg8o6ti1d+Uzur4vEMIIWoWqi56gADit5gqBVQqW5QKQgGiNvGZIwr7TQymvx5uT2/dGhgmvorOYAyvjxIwz6FFtu7S/PqnG7fmLXmcY3LGZzoyFRWh22Fl7IermNdmYSAKWLCEMgumx2nSbou7IVhtl/jiLFA=
+ bh=R4ka5TlzmDQNCr/MF+gUTBaq5mfghjC3mlN6YN0OjGc=;
+ b=OOAZFwHEo/yLXpFQZf2YeXm9Mzd+koF92Seoo314fEPTDZrUAJNBdRuNEZTBHVtizlV6NYBKZTqJJtxCZQ+s+OhrQWNqBCkZ/De3TKonTR9eMPBOpweQ6Z1Yoq3dQWSBOJPTe6ov0HSri24vwnrTdYWeA/Gn/ayozUyF8pBuglQ=
 Authentication-Results: gmail.com; dkim=none (message not signed)
  header.d=none;gmail.com; dmarc=none action=none header.from=labundy.com;
 Received: from SN6PR08MB5517.namprd08.prod.outlook.com (2603:10b6:805:fb::32)
- by SN6PR08MB5629.namprd08.prod.outlook.com (2603:10b6:805:100::22) with
+ by SN6PR08MB5151.namprd08.prod.outlook.com (2603:10b6:805:76::18) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3890.19; Mon, 1 Mar
- 2021 23:50:12 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3890.20; Mon, 1 Mar
+ 2021 23:49:45 +0000
 Received: from SN6PR08MB5517.namprd08.prod.outlook.com
  ([fe80::79a3:8aa5:feb8:7f04]) by SN6PR08MB5517.namprd08.prod.outlook.com
  ([fe80::79a3:8aa5:feb8:7f04%7]) with mapi id 15.20.3890.028; Mon, 1 Mar 2021
- 23:50:12 +0000
+ 23:49:45 +0000
 From:   Jeff LaBundy <jeff@labundy.com>
 To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         Jeff LaBundy <jeff@labundy.com>
-Subject: [PATCH v3 2/4] Input: touchscreen - broaden use-cases described in comments
-Date:   Mon,  1 Mar 2021 17:49:26 -0600
-Message-Id: <20210301234928.4298-3-jeff@labundy.com>
+Subject: [PATCH v3 0/4] Add support for Azoteq IQS626A
+Date:   Mon,  1 Mar 2021 17:49:24 -0600
+Message-Id: <20210301234928.4298-1-jeff@labundy.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210301234928.4298-1-jeff@labundy.com>
-References: <20210301234928.4298-1-jeff@labundy.com>
 Content-Type: text/plain
 X-Originating-IP: [136.49.90.243]
 X-ClientProxiedBy: SA0PR11CA0110.namprd11.prod.outlook.com
@@ -63,124 +61,102 @@ X-ClientProxiedBy: SA0PR11CA0110.namprd11.prod.outlook.com
  (2603:10b6:805:fb::32)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (136.49.90.243) by SA0PR11CA0110.namprd11.prod.outlook.com (2603:10b6:806:d1::25) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3890.19 via Frontend Transport; Mon, 1 Mar 2021 23:50:11 +0000
+Received: from localhost.localdomain (136.49.90.243) by SA0PR11CA0110.namprd11.prod.outlook.com (2603:10b6:806:d1::25) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3890.19 via Frontend Transport; Mon, 1 Mar 2021 23:49:44 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a024c633-349b-47d4-a743-08d8dd0cc0dc
-X-MS-TrafficTypeDiagnostic: SN6PR08MB5629:
+X-MS-Office365-Filtering-Correlation-Id: 6257cc8b-ece4-46c4-234a-08d8dd0cb0e9
+X-MS-TrafficTypeDiagnostic: SN6PR08MB5151:
+X-MS-Exchange-MinimumUrlDomainAge: youtu.be#4816
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <SN6PR08MB5629E5539934EB6CC1E77CB9D39A9@SN6PR08MB5629.namprd08.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Microsoft-Antispam-PRVS: <SN6PR08MB5151891D33B87C9FB342BEAED39A9@SN6PR08MB5151.namprd08.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: C7ENYM2LIqaFzbGzfzz++asEaIR2G8PtnZ91tD+Q/lQidiKgvyh7n7If41v4Z+O4ImrXW4QLtuCrkGZSmSOPiodg63/iVLIFV40hBx3dQ2Cj0opINNoVkHuapDj65WsFqwhaoAHkq+wO+/rdg4AELk+am4VehFrHxlCDwiyCmgKMCcHDxwrh0bKvCuGdReruQxikYVH6+8SY1nhaNlWcAtv0ANIFyb+VzsjQlw3VE3Y7LT4zIgEbH/uku8eiUz9xL8N8whw85i7TV0V2q7Wan4DSdvQOqNpo2mIV0j0WGeOc3t+Xrb4clZ9uSLN/D2Eno1nC3ocKnp/oN38NUALawOY4U6Rwv3wp+kKyhqZF/BBHYYiUvPirkCNHvhU1+io75os7Ejk+pCN+NdyBg3qI/KvnqQvVXxgV2jzk4RdzclitEr+YfMLGZhKLhTjnH1jSwCY5sLTJfSP0UP+90xC0H3h9fzackjvNqsxrTcq8IhzAWVYhJu8flGegB4vHfw5/fmRiXTyAa78G75curFP7bS84PrS3L6wZBj4yF5p4i5l3UrJhn8BlxTGOv+ZX3IWplk0XnhVAxL84wfjOleHhSg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR08MB5517.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(136003)(346002)(396003)(39830400003)(366004)(36756003)(8676002)(107886003)(6666004)(69590400012)(83380400001)(478600001)(86362001)(8936002)(5660300002)(6512007)(66476007)(2616005)(66556008)(956004)(186003)(26005)(4326008)(6506007)(6486002)(16526019)(2906002)(52116002)(66946007)(1076003)(316002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?UmMKUARCEGA6IGDJVL7t5OpcAmDHl2K0ZPMGBoHzAyTsbwDenHM4Xw+fJ17Z?=
- =?us-ascii?Q?JhruJ7W9E6j1CF+1zyr3ctzeGteOR/ih7/uAZ9j23XGM+Z54RvfzcS2LlIAh?=
- =?us-ascii?Q?DIPQeeEWV1egU/HQw4kNlPHNPFTf+i3C9kYrN2Tx59AG3bMAk4PahHlgLtVp?=
- =?us-ascii?Q?PJxIPCak4sH4NIQdeXo/+vSuObTrW+oGXxerW1T2pCx6S2x8jH00kvAfgs60?=
- =?us-ascii?Q?ftCF76zsQ8ccKfnc6mTLCb8x80IAJmPXJ+g5d0puvGemtmudwyxv7Qc/n9Au?=
- =?us-ascii?Q?YWEDZYDMpCFA+TivTmsp/oKmSs1jayugPdjo1RjrAR6OkjB/kTVQ534YUNlP?=
- =?us-ascii?Q?uk1jcaDmzhb5ZJ0HuXCrUMH+j/E6tFOGXD8lai5DzWSqRyGJ1xAY6pDrfV/Q?=
- =?us-ascii?Q?xVuNxeUauVnhwhe1y0EK8xCaOAkkSGnUHtNpxpyQwuhPwjYRRpgPbBf8FtwO?=
- =?us-ascii?Q?sa9aIywszFQ/HegOKMkn23kePFnXhvAQmtw1la2ZqUJg9JSYGivwbu22HPVi?=
- =?us-ascii?Q?uTucEuayFPI6tkHPobO7r3+P/lHRQUiSuKLFJ+MR3ceFXXmQMd3PMpzpW6WR?=
- =?us-ascii?Q?ePyRPSbccv4sREQBAlMRUAWYI1VM0bgOS4eegVroOp0yUomd3wOu57AsEw2s?=
- =?us-ascii?Q?nAQ5MJK4qeEXmIEC1IinsAfKAclS8u6N/+bwM2kGulWuW/EmyUJBemiI5kXp?=
- =?us-ascii?Q?PW+vc1VRemOgVoaFcILa1gR57PRa77yO/N9xTQFWxPZWh8P0wHfI66yhChw9?=
- =?us-ascii?Q?HkX8OpCdzbT+JwEARIqNn8q0l5xtryMXBN2FynwMZD56MPUfpujrAvLp+s9D?=
- =?us-ascii?Q?pJ7fbFz1Z14pK14bgN72xn+YhUBAvw/ORaqOdoKz7f9NcvLNIczQAomkLbEa?=
- =?us-ascii?Q?nSTC5fbwhZVZHmVpIPks/bizIh1bhHVYH4X69+dksIUOSvxyY5BmoN19MQ3h?=
- =?us-ascii?Q?tDT6WCgTKoaVHzf39gpSV4/OvY5o9FKVT6jsGo3CR3DKSjR6Gfqoxu7i75sI?=
- =?us-ascii?Q?E/ez15U+2wG7ax2pCGVxfKrnurBRTex9p/72h2EdDvKfqhy4x7WKBR3D71IG?=
- =?us-ascii?Q?f28cJdNfxFaa+M1noXA9wzn09PgfceCSqOlyr7jF2Kaw+6gBdBqagQAyZ5kR?=
- =?us-ascii?Q?T5JLorz1tnb6k0ASXWYbwRjPyfjqUnuVjwCOUytKh2yPsbq6umNlpbCyS/T2?=
- =?us-ascii?Q?VjXw331R3S5Igj0JMZMeJgnZXJ7Bfl7tby1NSxindN/dDNnCaj2K6Xf7oUDt?=
- =?us-ascii?Q?XUsbmnKJglcbYk2rL7To6Zq5aYYJyJ7wKX3wgk/weE7V3nKkSxxO8xhDUpd/?=
- =?us-ascii?Q?EL6X9xn5C74SZ1OuhQpGHJMX?=
+X-Microsoft-Antispam-Message-Info: ahUSVOopT2ZFjqvg3wF7V9jX3ucpj9HZXO0AsnheqxOLySOMCl6PhXR3fQsT/Ju2c1Sp23dF4xzFsScKoj/QGWn7S2xIZczJV/XXgp4pm1IuzbaQrZ/RRPbZhytJu9gY2tCsN8EXBUOLdKZ+hVVFoyIpSvVj//rcWK9zHH8AGFLW2GfcT8ll4/F+HmvosS/idEpftUew2bEtSjEa4xRPXiOo7PvN21DVdPCANv/xAZtMWbFou9tcZrBaa0rVVSmol7GOtclwlmz3betFYwXdIRf/smCsoBpmllcrnuJ+88PmfsI5Nn8N1GGf1y6oq+1h57eTm0OgTZQyZsKWrdj6GwenB+gRZm4e5Tp0NXWMh2Bm7QTXTrsbyf55JHAvfPJ9PwBXhA6aqneNsJKkRer46IrsnA1POQleX1aHF2pHVoEBKCqo6kn7xFzci02EMsAyXHDu37R8rdP49r9erf3qBmSHx3mIGCWMMY8kLCPK80WBcrHmeGn2VOc5hX2gx8vBzJSXPJB/xE5nCT5FDxMxqIdcoHy+l6F+q3e76UVqDvWfRoLeaDZlxHH9Fw2QdwwIxs32H5ahFipyqiPuU3BrY8HKS1sVkxXcMuyYCxCAuKUZn4AoGXCLpby5EctL60Wn3xqnsF+xGw06W2xbNfo2F1J7+fWYsh6pbd621BrUBLs=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR08MB5517.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(346002)(136003)(39830400003)(376002)(366004)(396003)(1076003)(4326008)(956004)(6506007)(52116002)(107886003)(86362001)(316002)(5660300002)(83380400001)(2616005)(36756003)(69590400012)(186003)(16526019)(26005)(66946007)(66556008)(8936002)(6512007)(6666004)(8676002)(966005)(66476007)(478600001)(2906002)(6486002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?MTvpuMw7ckl0jDjTSa8HGsSddjIBrCw3wAy6cJHbqRwHupXGmoaT2OorEhDw?=
+ =?us-ascii?Q?o3B37z+jNu976SMlsQy3wC41DmeRFzT/mviD+NQspYObdcKEgVSQRprgJ4W7?=
+ =?us-ascii?Q?dkL4SXYwVFTbBk5NAwMfEO8uTKbJFz2ukclllPAM4H9uocFQsR4to5DA8S0T?=
+ =?us-ascii?Q?YOolPlT/bK/aUDNlaI3Igua+YSDe1PxQ+lApyASw1AtG5MftjK+w2XofL4ug?=
+ =?us-ascii?Q?TAszKTjHnEaZrIV8YhYxVv46fHQrT54lY3zZZe4GtGY4vBBakaY6TYqhSFwC?=
+ =?us-ascii?Q?4nF/UkTBM//n03J++mps47LIf2oJ9sBZGr4ppaL3RZMKGPhqoP4T3/vPgwa0?=
+ =?us-ascii?Q?qw8jSfcnJyho8lSF5J20bgKxxggnnDQdh1AULQPsXYltc+2JXKUOMFo7hJRP?=
+ =?us-ascii?Q?S5zcnX8q8uW23WPB7mtz8wfemBNfY2U8RE9J5Ye5OHgoLvHOyEcND8KLC7UV?=
+ =?us-ascii?Q?+oI8OJsHEDozXWYZclByrTgsIznLw76JhJXlZRHo/2xqPbQsCbvzgvm7aibA?=
+ =?us-ascii?Q?IGUhbhkXHetkyPb9n3z0irviRx+qO0jysgft+BuDtzOPtFuYnMC8aumU75Cy?=
+ =?us-ascii?Q?6/hw1LU4P4Yqnd35dfZa1eVSYjFOR74Ua4N1ku3RIJIEBWr9O+PUgGEu/FY1?=
+ =?us-ascii?Q?xNKgKBJZ568ULwDsXjFZdSYfH2cxlXRVXQ/1zA0x1whJsa/hTWmjLaRkYuT0?=
+ =?us-ascii?Q?schyYYqSrWt/lZarnEFoYpjZUkaqFozrXsCu3Z/KYT/NB7Q2EeJVhTqvjDy6?=
+ =?us-ascii?Q?TGFh+s5aTxKa5T8G9FDm94c+X8fzyDFx3hQOVuaTiDNcj9xdwpL1s1L6+t/o?=
+ =?us-ascii?Q?s5shcYZiVHA1RSabtqEsiguMxJDXHFXlMSZjMdVa23Yy1bdFPLpUiGNR1Vn6?=
+ =?us-ascii?Q?Zo1GDtbL9N5SJYJz75SjY9JebMhpQwJFroeFSe880S0UE7eNq3pjO5b7D/MC?=
+ =?us-ascii?Q?IbNqWNfTQ5CNV7y2wQwo4PuplNh47xx/zSvTHFQkQn+83P9wxTKDXFlQLDZe?=
+ =?us-ascii?Q?I8rFqgLbXNoVe4QOd+2QB2Bc3ZeEKJbHr8TxTQssNYY1MSQytkiJtFEui1EE?=
+ =?us-ascii?Q?VJR7cakovyI33nk14l+pwnawdHmMoj1zffWHpsMm+/xZGEAiMHaRcWhLZl2f?=
+ =?us-ascii?Q?BeIQFToWaxVFjk+J0bo+8fy1V3iIemyFTiUqN27FEMdqbbVOxx25XN/viQu7?=
+ =?us-ascii?Q?QD9JJovJ/JSpUH3wh5J7EO7MlUt7zCPBrIdflfR0Sj7HEnDr7j5IO3kpJbvF?=
+ =?us-ascii?Q?UwAAIEFEgd8MB7T9wdC8fOq7pRx196SOgkY6Sx8bd3F56CjxdW3ir9L81ukf?=
+ =?us-ascii?Q?DfuF/5ziAcAXnEEeYsofLI2I?=
 X-OriginatorOrg: labundy.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a024c633-349b-47d4-a743-08d8dd0cc0dc
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6257cc8b-ece4-46c4-234a-08d8dd0cb0e9
 X-MS-Exchange-CrossTenant-AuthSource: SN6PR08MB5517.namprd08.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Mar 2021 23:50:11.9146
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Mar 2021 23:49:45.1689
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: RVxzQalAMjfGid5VvZUmxDXr1x+PWVOo1flVYzzvu0EXNMBq6POgjBKpf5l3BXibF9uddwhyNcpqghQQYrLGMg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR08MB5629
+X-MS-Exchange-CrossTenant-UserPrincipalName: 4KiFdocX4p7WN/fON7c2hcleYqKJ5fJ/Xa5nlDLwZ1HmFftBIc8pFWioIHPUrOHWKmQ345JGuzJkUtkRD+/HpQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR08MB5151
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Now that the helper functions have been moved to drivers/input/ so
-that all input devices may use them, the introductory comments can
-be updated to remove any implication that the helper functions are
-solely limited to touchscreens.
+This series introduces support for the Azoteq IQS626A capacitive touch
+controller, a highly flexible multifunction sensor targeting wearable
+applications. It is a close cousin to the IQS269A with the following key
+differences:
 
-This patch also scrubs any remaining use of 'DT' since there isn't
-any actual dependency on OF. A minor spelling error is resolved as
-well ('setups' -> 'sets up').
+ - Channel count increases from 8 to 14.
+ - Channels are assigned dedicated functions as follows:
+   - ULP (ultra-low power): a single channel that continues to be sampled
+     during the device's lowest-power sensing mode for wake-up signaling.
+   - Trackpad: a group of 6 or 9 channels forming a capacitive trackpad with
+     gesture support.
+   - Generic: 3 independent channels capable of capacitive or inductive
+     sensing, plus much more.
+   - Hall: a single channel leveraging a pair of internal Hall-effect plates
+     serving lid or dock detection.
+ - Each channel (or group of channels) has a unique collection of configurable
+   parameters rather than common parameters for every channel.
 
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
----
-Changes in v3:
- - Removed reference to DT from MODULE_DESCRIPTION
+Channels and events reported by the channels are configured using the device
+tree, similar to what was done for the IQS269A.
 
-Changes in v2:
- - Added this patch to the series
+Also included are some preparatory patches that move the touchscreen helper
+functions into the core input directory, allowing them to be leveraged by
+multimodal devices like the IQS626A.
 
- drivers/input/touchscreen.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+A demo is shown in the following video: https://youtu.be/n0Q5BXYFIgI
 
-diff --git a/drivers/input/touchscreen.c b/drivers/input/touchscreen.c
-index 97342e14b4f1..dd18cb917c4d 100644
---- a/drivers/input/touchscreen.c
-+++ b/drivers/input/touchscreen.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- *  Generic DT helper functions for touchscreen devices
-+ *  Generic helper functions for touchscreens and other two-dimensional
-+ *  pointing devices
-  *
-  *  Copyright (c) 2014 Sebastian Reichel <sre@kernel.org>
-  */
-@@ -37,7 +38,7 @@ static void touchscreen_set_params(struct input_dev *dev,
+Jeff LaBundy (4):
+  Input: touchscreen - move helper functions to core
+  Input: touchscreen - broaden use-cases described in comments
+  dt-bindings: input: Add bindings for Azoteq IQS626A
+  Input: Add support for Azoteq IQS626A
 
- 	if (!test_bit(axis, dev->absbit)) {
- 		dev_warn(&dev->dev,
--			 "DT specifies parameters but the axis %lu is not set up\n",
-+			 "Parameters are specified but the axis %lu is not set up\n",
- 			 axis);
- 		return;
- 	}
-@@ -49,7 +50,7 @@ static void touchscreen_set_params(struct input_dev *dev,
- }
+ .../devicetree/bindings/input/iqs626a.yaml    |  843 ++++++++
+ drivers/input/Makefile                        |    1 +
+ drivers/input/misc/Kconfig                    |   11 +
+ drivers/input/misc/Makefile                   |    1 +
+ drivers/input/misc/iqs626a.c                  | 1838 +++++++++++++++++
+ .../of_touchscreen.c => touchscreen.c}        |   13 +-
+ drivers/input/touchscreen/Kconfig             |    4 -
+ drivers/input/touchscreen/Makefile            |    1 -
+ 8 files changed, 2701 insertions(+), 11 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/iqs626a.yaml
+ create mode 100644 drivers/input/misc/iqs626a.c
+ rename drivers/input/{touchscreen/of_touchscreen.c => touchscreen.c} (93%)
 
- /**
-- * touchscreen_parse_properties - parse common touchscreen DT properties
-+ * touchscreen_parse_properties - parse common touchscreen properties
-  * @input: input device that should be parsed
-  * @multitouch: specifies whether parsed properties should be applied to
-  *	single-touch or multi-touch axes
-@@ -57,9 +58,9 @@ static void touchscreen_set_params(struct input_dev *dev,
-  *	axis swap and invert info for use with touchscreen_report_x_y();
-  *	or %NULL
-  *
-- * This function parses common DT properties for touchscreens and setups the
-+ * This function parses common properties for touchscreens and sets up the
-  * input device accordingly. The function keeps previously set up default
-- * values if no value is specified via DT.
-+ * values if no value is specified.
-  */
- void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
- 				  struct touchscreen_properties *prop)
-@@ -203,4 +204,4 @@ void touchscreen_report_pos(struct input_dev *input,
- EXPORT_SYMBOL(touchscreen_report_pos);
-
- MODULE_LICENSE("GPL v2");
--MODULE_DESCRIPTION("Device-tree helpers functions for touchscreen devices");
-+MODULE_DESCRIPTION("Helper functions for touchscreens and other devices");
 --
 2.17.1
 

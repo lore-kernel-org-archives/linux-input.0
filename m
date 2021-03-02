@@ -2,106 +2,283 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CF1EC433E6
-	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37DB7C432C3
+	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 722AA61606
-	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F406C64F0A
+	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1447168AbhCBMvB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 2 Mar 2021 07:51:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39614 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244081AbhCBMAu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:00:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A41D64F23;
-        Tue,  2 Mar 2021 11:55:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686157;
-        bh=O8iCR+ufXG5da08A5k7EHS6L3ddwSAeFK1K1H7ZjOYU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t7Sef9u81IRqOPpdK12r6wESe8kMLJ7WetCc5m03NwjiwYpA/JvnO2EtQl0yZSNiw
-         jNC2q3AhuVnQpZtuxwFLYL80CUmpXqPrdGDUqKwJJX5I7acIUXc4eOFWcTq8kQ4CfA
-         g1sBwkWJhUGISO+um7/kJAXpm+8GTm5S8W0w7M5PY41pHgBsOHIiHNA+KawwlhTMla
-         wZizsHsO/dW1RMiG6KMgc0u05LC+O11erYf5Ae/TAx5rIRyCmdGi0tfifwS29ctXSl
-         SZU3PMaF5WKhJR5EN/PdgX6rHHaGrM5/HRU5XThDABolnNq0WcVHVST3+kfcIg9lvl
-         TyBELEZXqYUpA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 17/52] HID: i2c-hid: Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for ITE8568 EC on Voyo Winpad A15
-Date:   Tue,  2 Mar 2021 06:54:58 -0500
-Message-Id: <20210302115534.61800-17-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
-References: <20210302115534.61800-1-sashal@kernel.org>
+        id S1444925AbhCBMuv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 2 Mar 2021 07:50:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39872 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1382788AbhCBKQq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 05:16:46 -0500
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE06C06178C;
+        Tue,  2 Mar 2021 02:16:06 -0800 (PST)
+Received: by mail-lf1-x132.google.com with SMTP id 18so21844036lff.6;
+        Tue, 02 Mar 2021 02:16:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=4J6EjSuefLNlwS0ypISOC/mzldjx8zJnTcq60uLqUsg=;
+        b=TMuleogFSa7NxIoRyceaDefE8bhK1aONCjYDKgshyi2/ohzZpSu9u2X5FkRlCbW6Ge
+         onv2cFNjJgh+WNTfcsLszFDYBjLl7qkuLRFtuS/mIenAHa/Hqyq7FFnOKZ2tzIcEoupe
+         N79pvvpqj9Jw7S4xvYAVF8W3FGek3x2GUqgm7MXE4gpMeixjOXSd/EJov314+LQsDP3V
+         EOLKczcqv/+TDh0bOOTzp3r9BdkhKuiOa4BAIDyOSPM0jkS8wLnEXrljLGPi8fqWvWlJ
+         Ir5AsVF3HAW4EKKjrsPp0734clUqslk4mRUM4q+hWwFWera/+7P5DdKNFWD3fUxP1Jng
+         XtcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=4J6EjSuefLNlwS0ypISOC/mzldjx8zJnTcq60uLqUsg=;
+        b=dN+At5Gdm9sVjRLDqDoajyQaxprkQzTWuF32IclZOiqom9ToHCy7j7FqhI8rymOxAL
+         GlJkJCh4CHUsy0BGqv++iJq1weCYVMQd+j7fK83FOkIYHchv3nHeswtfUV5hOfMVPIuf
+         QUm3RJzLlGgaOfVywTrUMoyOqYZtIztlCNNUsFmzKQ4Cxtu1YixhTwd+8md4+jz2HLHf
+         BB7NWqgJqpMup5Ylp8F3c61D1ar6wKfrctmR85yrLSm+c3vrKnMtm7MpZPBvO24rrIHs
+         SGZZNXNJ9r5yj3eytzI0+irLfn9csFX/PDq2rgwn5Msb4ZZcwcczsErZ9dP4+MqugSjQ
+         s8mQ==
+X-Gm-Message-State: AOAM533j+kzGN3t7Ip0vDgTi8HSp95t+m1PAikVqwC/JYjgTYACnQDbw
+        xuWlDMH3ZAeyWzE7/d0lG18=
+X-Google-Smtp-Source: ABdhPJy2Nogz5D7gv2imtIcOSxmAjaX1YXN1lfd2+8bUdJdnNPeLTkMpcxF2k2OFbepG+rZpk1O5gg==
+X-Received: by 2002:a19:6f4b:: with SMTP id n11mr11869770lfk.506.1614680164689;
+        Tue, 02 Mar 2021 02:16:04 -0800 (PST)
+Received: from localhost.localdomain (109-252-193-52.dynamic.spd-mgts.ru. [109.252.193.52])
+        by smtp.gmail.com with ESMTPSA id w4sm307861lfl.236.2021.03.02.02.16.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Mar 2021 02:16:04 -0800 (PST)
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Nick Dyer <nick@shmanahar.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jiada Wang <jiada_wang@mentor.com>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v5 2/3] Input: atmel_mxt_ts - support wakeup methods
+Date:   Tue,  2 Mar 2021 13:15:55 +0300
+Message-Id: <20210302101556.7150-3-digetx@gmail.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210302101556.7150-1-digetx@gmail.com>
+References: <20210302101556.7150-1-digetx@gmail.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+According to datasheets, chips like mXT1386 have a WAKE line, it is used
+to wake the chip up from deep sleep mode before communicating with it via
+the I2C-compatible interface.
 
-[ Upstream commit fc6a31b00739356809dd566e16f2c4325a63285d ]
+If the WAKE line is connected to a GPIO line, the line must be asserted
+25 ms before the host attempts to communicate with the controller. If the
+WAKE line is connected to the SCL pin, the controller will send a NACK on
+the first attempt to address it, the host must then retry 25 ms later.
 
-The ITE8568 EC on the Voyo Winpad A15 presents itself as an I2C-HID
-attached keyboard and mouse (which seems to never send any events).
+Implement the wake-up methods in the driver. Touchscreen now works
+properly on devices like Acer A500 tablet, fixing problems like this:
 
-This needs the I2C_HID_QUIRK_NO_IRQ_AFTER_RESET quirk, otherwise we get
-the following errors:
+ atmel_mxt_ts 0-004c: __mxt_read_reg: i2c transfer failed (-121)
+ atmel_mxt_ts 0-004c: mxt_bootloader_read: i2c recv failed (-121)
+ atmel_mxt_ts 0-004c: Trying alternate bootloader address
+ atmel_mxt_ts 0-004c: mxt_bootloader_read: i2c recv failed (-121)
+ atmel_mxt_ts: probe of 0-004c failed with error -121
 
-[ 3688.770850] i2c_hid i2c-ITE8568:00: failed to reset device.
-[ 3694.915865] i2c_hid i2c-ITE8568:00: failed to reset device.
-[ 3701.059717] i2c_hid i2c-ITE8568:00: failed to reset device.
-[ 3707.205944] i2c_hid i2c-ITE8568:00: failed to reset device.
-[ 3708.227940] i2c_hid i2c-ITE8568:00: can't add hid device: -61
-[ 3708.236518] i2c_hid: probe of i2c-ITE8568:00 failed with error -61
-
-Which leads to a significant boot delay.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 ---
- drivers/hid/hid-ids.h              | 2 ++
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 78 ++++++++++++++++++++++++
+ 1 file changed, 78 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5ba0aa1d2335..b60279aaed43 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -641,6 +641,8 @@
- #define USB_DEVICE_ID_INNEX_GENESIS_ATARI	0x4745
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 383a848eb601..5ed23689047b 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -31,6 +31,7 @@
+ #include <media/v4l2-ioctl.h>
+ #include <media/videobuf2-v4l2.h>
+ #include <media/videobuf2-vmalloc.h>
++#include <dt-bindings/input/atmel-maxtouch.h>
  
- #define USB_VENDOR_ID_ITE               0x048d
-+#define I2C_VENDOR_ID_ITE		0x103c
-+#define I2C_DEVICE_ID_ITE_VOYO_WINPAD_A15	0x184f
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
- #define I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720	0x837a
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index bfe716d7ea44..c586acf2fc0b 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -171,6 +171,8 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
- 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-+	{ I2C_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_VOYO_WINPAD_A15,
-+		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_3118,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
+ /* Firmware files */
+ #define MXT_FW_NAME		"maxtouch.fw"
+@@ -199,6 +200,7 @@ enum t100_type {
+ #define MXT_CRC_TIMEOUT		1000	/* msec */
+ #define MXT_FW_RESET_TIME	3000	/* msec */
+ #define MXT_FW_CHG_TIMEOUT	300	/* msec */
++#define MXT_WAKEUP_TIME		25	/* msec */
+ 
+ /* Command to unlock bootloader */
+ #define MXT_UNLOCK_CMD_MSB	0xaa
+@@ -312,6 +314,7 @@ struct mxt_data {
+ 	struct mxt_dbg dbg;
+ 	struct regulator_bulk_data regulators[2];
+ 	struct gpio_desc *reset_gpio;
++	struct gpio_desc *wake_gpio;
+ 	bool use_retrigen_workaround;
+ 
+ 	/* Cached parameters from object table */
+@@ -342,6 +345,8 @@ struct mxt_data {
+ 	unsigned int t19_num_keys;
+ 
+ 	enum mxt_suspend_mode suspend_mode;
++
++	u32 wakeup_method;
+ };
+ 
+ struct mxt_vb2_buffer {
+@@ -621,10 +626,42 @@ static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
+ 	return mxt_bootloader_write(data, buf, sizeof(buf));
+ }
+ 
++static bool mxt_wakeup_toggle(struct i2c_client *client,
++			      bool wake_up, bool in_i2c)
++{
++	struct mxt_data *data = i2c_get_clientdata(client);
++
++	switch (data->wakeup_method) {
++	case ATMEL_MXT_WAKEUP_I2C_SCL:
++		if (!in_i2c)
++			return false;
++		break;
++
++	case ATMEL_MXT_WAKEUP_GPIO:
++		if (in_i2c)
++			return false;
++
++		gpiod_set_value(data->wake_gpio, wake_up);
++		break;
++
++	default:
++		return false;
++	}
++
++	if (wake_up) {
++		dev_dbg(&client->dev, "waking up controller\n");
++
++		msleep(MXT_WAKEUP_TIME);
++	}
++
++	return true;
++}
++
+ static int __mxt_read_reg(struct i2c_client *client,
+ 			       u16 reg, u16 len, void *val)
+ {
+ 	struct i2c_msg xfer[2];
++	bool retried = false;
+ 	u8 buf[2];
+ 	int ret;
+ 
+@@ -643,9 +680,13 @@ static int __mxt_read_reg(struct i2c_client *client,
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
+ 
++retry:
+ 	ret = i2c_transfer(client->adapter, xfer, 2);
+ 	if (ret == 2) {
+ 		ret = 0;
++	} else if (!retried && mxt_wakeup_toggle(client, true, true)) {
++		retried = true;
++		goto retry;
+ 	} else {
+ 		if (ret >= 0)
+ 			ret = -EIO;
+@@ -659,6 +700,7 @@ static int __mxt_read_reg(struct i2c_client *client,
+ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 			   const void *val)
+ {
++	bool retried = false;
+ 	u8 *buf;
+ 	size_t count;
+ 	int ret;
+@@ -672,9 +714,13 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	buf[1] = (reg >> 8) & 0xff;
+ 	memcpy(&buf[2], val, len);
+ 
++retry:
+ 	ret = i2c_master_send(client, buf, count);
+ 	if (ret == count) {
+ 		ret = 0;
++	} else if (!retried && mxt_wakeup_toggle(client, true, true)) {
++		retried = true;
++		goto retry;
+ 	} else {
+ 		if (ret >= 0)
+ 			ret = -EIO;
+@@ -2975,6 +3021,8 @@ static const struct attribute_group mxt_attr_group = {
+ 
+ static void mxt_start(struct mxt_data *data)
+ {
++	mxt_wakeup_toggle(data->client, true, false);
++
+ 	switch (data->suspend_mode) {
+ 	case MXT_SUSPEND_T9_CTRL:
+ 		mxt_soft_reset(data);
+@@ -3009,6 +3057,8 @@ static void mxt_stop(struct mxt_data *data)
+ 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
+ 		break;
+ 	}
++
++	mxt_wakeup_toggle(data->client, false, false);
+ }
+ 
+ static int mxt_input_open(struct input_dev *dev)
+@@ -3155,6 +3205,15 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		return error;
+ 	}
+ 
++	/* Request the WAKE line as asserted so we go out of sleep */
++	data->wake_gpio = devm_gpiod_get_optional(&client->dev,
++						  "wake", GPIOD_OUT_HIGH);
++	if (IS_ERR(data->wake_gpio)) {
++		error = PTR_ERR(data->wake_gpio);
++		dev_err(&client->dev, "Failed to get wake gpio: %d\n", error);
++		return error;
++	}
++
+ 	error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					  NULL, mxt_interrupt, IRQF_ONESHOT,
+ 					  client->name, data);
+@@ -3185,6 +3244,25 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		msleep(MXT_RESET_INVALID_CHG);
+ 	}
+ 
++	/*
++	 * Controllers like mXT1386 have a dedicated WAKE line that could be
++	 * connected to a GPIO or to I2C SCL pin, or permanently asserted low.
++	 *
++	 * This WAKE line is used for waking controller from a deep-sleep and
++	 * it needs to be asserted low for 25 milliseconds before I2C transfers
++	 * could be accepted by controller if it was in a deep-sleep mode.
++	 * Controller will go into sleep automatically after 2 seconds of
++	 * inactivity if WAKE line is deasserted and deep sleep is activated.
++	 *
++	 * If WAKE line is connected to I2C SCL pin, then the first I2C transfer
++	 * will get an instant NAK and transfer needs to be retried after 25ms.
++	 *
++	 * If WAKE line is connected to a GPIO line, the line must be asserted
++	 * 25ms before the host attempts to communicate with the controller.
++	 */
++	device_property_read_u32(&client->dev, "atmel,wakeup-method",
++				 &data->wakeup_method);
++
+ 	error = mxt_initialize(data);
+ 	if (error)
+ 		goto err_disable_regulators;
 -- 
-2.30.1
+2.29.2
 

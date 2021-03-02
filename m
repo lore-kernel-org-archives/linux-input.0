@@ -2,127 +2,124 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5D77C43333
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F881C43332
 	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BE5A64EE8
+	by mail.kernel.org (Postfix) with ESMTP id 2CC9164EE8
 	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442638AbhCBMun (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 2 Mar 2021 07:50:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39862 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382786AbhCBKQp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 05:16:45 -0500
-Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58D8DC061756;
-        Tue,  2 Mar 2021 02:16:04 -0800 (PST)
-Received: by mail-lf1-x12a.google.com with SMTP id z11so30362246lfb.9;
-        Tue, 02 Mar 2021 02:16:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PAuXf894I6dZt2fftnLEpxbZ38F5TI7pME3T3qqIkZI=;
-        b=BeiNOLHXfUd6x5xIH3DAqIB46kUFYiitWpt4cNZNlo1GZmWsGL/2yYn1JfYePe7DoP
-         89k+KuS66b0E5jDpnVX9hhx6pm4A/NqOpzGjUVC36RZsgvopFwvaa+jftP9zsyzCH3pE
-         dwhJ8y8UiT5L/dbwkyDoNQMZUEAZHyn0zhYhjujR/Eq8GnFc/tZNhkXyGnHRjGw0hWCq
-         0kZjkTk/UTjJNunNCE4osRlm9R6BZsjOIc3nCgjEI0Jj6Phr4vL1gaZJaNUBJuPpEN8E
-         N82/HiWkhHxczU83tLGEqSI97gFAKIWd1fhnKqP5/D6H9AdMiWyEPD3yYjjgnTCbVli9
-         eByg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PAuXf894I6dZt2fftnLEpxbZ38F5TI7pME3T3qqIkZI=;
-        b=XbgquZ2g59wVJNrBntjPjgYTuxaOVHLV1OAqctnIouqqjoTBJvef5gvOwURN6fNnhg
-         HYLC+gmKRWbKkhbC0V7Gmg9cl5mKchBeL/SnQh7+tlPNq9xiBCKmK0Op5DhWAF4ux100
-         F3PPq8jdokT1ngTH71ZTdC8GjlIM7FWDZaLvsaQ3IuHtkyDBFYNmgc11+xRHAowW0hIu
-         QIgenqqOeiMPsf/q+/VZn6AA7EXCujBsrqgfsyDrOY4yFHsVEIk02+5LU785yZQhwuz0
-         pVtOK9MbaFhW0ZNALj7LQ5AdoLieKfWtWMnl7ZSkeKOCEKi4VwsRewAtnDL8vIgGnAmK
-         /wqA==
-X-Gm-Message-State: AOAM530e+mZW9XSsBV6VhWAFdqnNgaDdoLw48RiJBii2m/P+JzmhXSvQ
-        uMfU60aLyN43L2SHXJF32Dg=
-X-Google-Smtp-Source: ABdhPJwYoPjpQg2/CPbZ46GC5VGUq1ff/xol41ePlNNTSTvg7Zai3jSN9j2oNzNuoeuND998v4BiWQ==
-X-Received: by 2002:a05:6512:31cc:: with SMTP id j12mr11449977lfe.408.1614680162897;
-        Tue, 02 Mar 2021 02:16:02 -0800 (PST)
-Received: from localhost.localdomain (109-252-193-52.dynamic.spd-mgts.ru. [109.252.193.52])
-        by smtp.gmail.com with ESMTPSA id w4sm307861lfl.236.2021.03.02.02.16.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Mar 2021 02:16:02 -0800 (PST)
-From:   Dmitry Osipenko <digetx@gmail.com>
-To:     Nick Dyer <nick@shmanahar.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jiada Wang <jiada_wang@mentor.com>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v5 0/3] Support wakeup methods of Atmel maXTouch controllers
-Date:   Tue,  2 Mar 2021 13:15:53 +0300
-Message-Id: <20210302101556.7150-1-digetx@gmail.com>
-X-Mailer: git-send-email 2.29.2
+        id S1350813AbhCBMuf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 2 Mar 2021 07:50:35 -0500
+Received: from relay12.mail.gandi.net ([217.70.178.232]:35295 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1382704AbhCBJwC (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 04:52:02 -0500
+Received: from [192.168.1.150] (unknown [78.199.60.242])
+        (Authenticated sender: hadess@hadess.net)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 01D3920000E;
+        Tue,  2 Mar 2021 09:50:50 +0000 (UTC)
+Message-ID: <1b315e2cd02f4017cc746909088cc8bc1a39024e.camel@hadess.net>
+Subject: Re: [PATCH] [v2] Input: Add "Share" button to Microsoft Xbox One
+ controller.
+From:   Bastien Nocera <hadess@hadess.net>
+To:     Chris Ye <lzye@google.com>,
+        =?UTF-8?Q?=C5=81ukasz?= Patron <priv.luk@gmail.com>,
+        Benjamin Valentin <benpicco@googlemail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Olivier =?ISO-8859-1?Q?Cr=EAte?= <olivier.crete@ocrete.ca>,
+        Sanjay Govind <sanjay.govind9@gmail.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        trivial@kernel.org, kernel-team@android.com
+Date:   Tue, 02 Mar 2021 10:50:49 +0100
+In-Reply-To: <20210225053204.697951-1-lzye@google.com>
+References: <20210225053204.697951-1-lzye@google.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some Atmel maXTouch controllers, like mXT1386 and mXT3432S1 for example,
-have a WAKE line that needs to be asserted in order to wake controller
-from a deep sleep, otherwise it will be unusable. This series implements
-support for the wakeup methods in accordance to the mXT1386 datasheet [1],
-see page 29 (chapter "5.8 WAKE Line").
+On Thu, 2021-02-25 at 05:32 +0000, Chris Ye wrote:
+> Add "Share" button input capability and input event mapping for
+> Microsoft Xbox One controller.
+> Fixed Microsoft Xbox One controller share button not working under USB
+> connection.
+> 
+> Signed-off-by: Chris Ye <lzye@google.com>
+> ---
+>  drivers/input/joystick/xpad.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/joystick/xpad.c
+> b/drivers/input/joystick/xpad.c
+> index 9f0d07dcbf06..0c3374091aff 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -79,6 +79,7 @@
+>  #define MAP_DPAD_TO_BUTTONS            (1 << 0)
+>  #define MAP_TRIGGERS_TO_BUTTONS                (1 << 1)
+>  #define MAP_STICKS_TO_NULL             (1 << 2)
+> +#define MAP_SHARE_BUTTON               (1 << 3)
+>  #define DANCEPAD_MAP_CONFIG    (MAP_DPAD_TO_BUTTONS
+> |                  \
+>                                 MAP_TRIGGERS_TO_BUTTONS |
+> MAP_STICKS_TO_NULL)
+>  
+> @@ -130,6 +131,7 @@ static const struct xpad_device {
+>         { 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0,
+> XTYPE_XBOXONE },
+>         { 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, XTYPE_XBOXONE
+> },
+>         { 0x045e, 0x0719, "Xbox 360 Wireless Receiver",
+> MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+> +       { 0x045e, 0x0b12, "Microsoft X-Box One X pad",
+> MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+>         { 0x046d, 0xc21d, "Logitech Gamepad F310", 0, XTYPE_XBOX360 },
+>         { 0x046d, 0xc21e, "Logitech Gamepad F510", 0, XTYPE_XBOX360 },
+>         { 0x046d, 0xc21f, "Logitech Gamepad F710", 0, XTYPE_XBOX360 },
+> @@ -862,6 +864,8 @@ static void xpadone_process_packet(struct usb_xpad
+> *xpad, u16 cmd, unsigned char
+>         /* menu/view buttons */
+>         input_report_key(dev, BTN_START,  data[4] & 0x04);
+>         input_report_key(dev, BTN_SELECT, data[4] & 0x08);
+> +       if (xpad->mapping & MAP_SHARE_BUTTON)
+> +               input_report_key(dev, KEY_RECORD, data[22] & 0x01);
+>  
+>         /* buttons A,B,X,Y */
+>         input_report_key(dev, BTN_A,    data[4] & 0x10);
+> @@ -1669,9 +1673,12 @@ static int xpad_init_input(struct usb_xpad
+> *xpad)
+>  
+>         /* set up model-specific ones */
+>         if (xpad->xtype == XTYPE_XBOX360 || xpad->xtype ==
+> XTYPE_XBOX360W ||
+> -           xpad->xtype == XTYPE_XBOXONE) {
+> +               xpad->xtype == XTYPE_XBOXONE) {
+>                 for (i = 0; xpad360_btn[i] >= 0; i++)
+>                         input_set_capability(input_dev, EV_KEY,
+> xpad360_btn[i]);
+> +               if (xpad->mapping & MAP_SHARE_BUTTON) {
+> +                       input_set_capability(input_dev, EV_KEY,
+> KEY_RECORD);
 
-The mXT1386 is a widely used controller found on many older Android tablet
-devices. Touchscreen on Acer A500 tablet now works properly after this
-series.
+Is there not a better keycode to use than "Record"? Should a "share"
+keycode be added?
 
-This patchset is a continuation of the work originally started by
-Jiada Wang [2].
+I couldn't find a share button in the most recent USB HID Usage Tables:
+https://www.usb.org/document-library/hid-usage-tables-121
 
-[1] https://ww1.microchip.com/downloads/en/DeviceDoc/mXT1386_1vx_Datasheet_LX.pdf
-[2] https://patchwork.kernel.org/project/linux-input/list/?series=357875
+> +               }
+>         } else {
+>                 for (i = 0; xpad_btn[i] >= 0; i++)
+>                         input_set_capability(input_dev, EV_KEY,
+> xpad_btn[i]);
 
-Changelog:
-
-v5: - No code changes. Improved commit message of the "acer-a500: Add
-      atmel,wakeup-method property" patch and added r-b from Linus Walleij
-      to "Input: atmel_mxt_ts - support wakeup methods" patch that he gave
-      to v4.
-
-v4: - Improved commit message of the DT binding patch. No code changes.
-
-v3: - Added "default: 0" to the atmel,wakeup-method property in the binding.
-
-    - Added r-b from Linus Walleij to the binding patch.
-
-    - The wake-GPIO is now toggled on touchscreen's start/stop in order to
-      allow it to sleep during suspend. Suggested by Linus Walleij.
-
-v2: - Fixed copy-paste bug in the code.
-
-Dmitry Osipenko (3):
-  dt-bindings: input: atmel_mxt_ts: Document atmel,wakeup-method and
-    WAKE line GPIO
-  Input: atmel_mxt_ts - support wakeup methods
-  ARM: tegra: acer-a500: Add atmel,wakeup-method property
-
- .../bindings/input/atmel,maxtouch.yaml        | 29 +++++++
- .../boot/dts/tegra20-acer-a500-picasso.dts    |  3 +
- drivers/input/touchscreen/atmel_mxt_ts.c      | 78 +++++++++++++++++++
- include/dt-bindings/input/atmel-maxtouch.h    | 10 +++
- 4 files changed, 120 insertions(+)
- create mode 100644 include/dt-bindings/input/atmel-maxtouch.h
-
--- 
-2.29.2
 

@@ -2,149 +2,162 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DDB6C4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ABF7C4332E
 	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B974464EE8
+	by mail.kernel.org (Postfix) with ESMTP id 050C961606
 	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350806AbhCBMuF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 2 Mar 2021 07:50:05 -0500
-Received: from mail.ilitek.com ([60.251.199.109]:55081 "EHLO cello.ilitek.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1446375AbhCBJAI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 2 Mar 2021 04:00:08 -0500
-X-UUID: eb9ed263bada44a3b4a20742030ecc2a-20210302
-X-UUID: eb9ed263bada44a3b4a20742030ecc2a-20210302
-Received: from ex2.ili.com.tw [(192.168.1.132)] by cello.ilitek.com
-        (envelope-from <joe_hung@ilitek.com>)
-        (Cellopoint E-mail Firewall v4.1.12 Build 0701 with TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256 128/128)
-        with ESMTP id 868602740; Tue, 02 Mar 2021 16:51:26 +0800
-Received: from EX1.ili.com.tw (192.168.1.131) by EX2.ili.com.tw
- (192.168.1.132) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Tue, 2 Mar 2021
- 16:51:24 +0800
-Received: from joehung-Ilitek.ili.com.tw (192.168.18.73) by EX1.ili.com.tw
- (192.168.1.133) with Microsoft SMTP Server id 15.1.2176.2 via Frontend
- Transport; Tue, 2 Mar 2021 16:51:24 +0800
-From:   Joe Hung <joe_hung@ilitek.com>
-To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
-        <devicetree@vger.kernel.org>
-CC:     <linux-input@vger.kernel.org>, <joe_hung@ilitek.com>,
-        <luca_hsu@ilitek.com>
-Subject: [PATCH v4 1/2] dt-bindings: input: touchscreen: ilitek_ts_i2c: Add bindings
-Date:   Tue, 2 Mar 2021 16:51:29 +0800
-Message-ID: <20210302085130.2558297-1-joe_hung@ilitek.com>
-X-Mailer: git-send-email 2.25.1
+        id S1350776AbhCBMub (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 2 Mar 2021 07:50:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51768 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345001AbhCBJBf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 04:01:35 -0500
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DDC1C061788
+        for <linux-input@vger.kernel.org>; Tue,  2 Mar 2021 01:00:18 -0800 (PST)
+Received: by mail-ej1-x636.google.com with SMTP id dx17so6181962ejb.2
+        for <linux-input@vger.kernel.org>; Tue, 02 Mar 2021 01:00:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=OlQhZo66tdfixj0c2XUayC5dC48cYkknFAh4g2s0VB8=;
+        b=VVhxRPrsIbUWjeeEIAfPVav1chwuvvW2ogpbLjn/vg1vGxAANoefHJJk8ETghcW2De
+         KXXv2FUZAzBm01C5763rsWLGWfldabW7sEwRxOVBkTM0nCNK5OFf0iVmQyzj+AMMwDyl
+         ivHp8ULnyNeFH5o010LZ31o2PvxbUekoKg9411FrKaCLYRv3RTaBzeTqPNiQjiDOKzTg
+         39Q9rPMbz9L8K5HwSuS0ixqrts6QVmuKTBwmeoWkMMc76kZQTkznuTfqeM6p0sT7/2Mn
+         QlnS8dfgA/t4gYFKo/O0ODB6obPSs8UmC2bOdfcOWLLd0c0hpCP5YjLDwkHYNv9y1y3T
+         3MCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=OlQhZo66tdfixj0c2XUayC5dC48cYkknFAh4g2s0VB8=;
+        b=mYFU8w3d37XYZ6n+hX9Ui81RaqYZdDUyNmSAC+O3ooNFOtwORRvpT6bWbVKxfJKx1v
+         0FjZAU/E42pkmfIK6kGbl2YwAYFfCSfirPiI0zyEKdOOo2OJB5SRYTSUgzHP5F5oMEwI
+         Fj2gdSVFoJ6bAiM0Hg90KXGNa0GaZIlkWIkQp2ryiAcDx1XY1hljpjRKJSxFdcvPHsby
+         OQHrf6eVOaEWlLXSVveUiXDK88bCnwZTLlT/KRxu8bei6gi+pCOHjNf2ODuxppJzJKp+
+         FUyksW4TVyODyIUgsnItyyJwHYFCYPQz9an2zZC8eqg6e44d18De+PpdXOVHurCxHJ/Z
+         FJ6A==
+X-Gm-Message-State: AOAM530VCaR2P+jPtqVi+7dPvZ1U2SGdwIeWy1VMQRlFVv5BTc6xXrKL
+        2jk24woVztV+t+I2OBVHxAOLnfO0FS58LXtFhjpz4w==
+X-Google-Smtp-Source: ABdhPJzbcdp9yM+SANcB02A7Piji7QgRmHuVFYC2ehQOoZpWEmfM8Re/BPYo+miajM5iedjeo+7jPk+12Cf5EkxQtgE=
+X-Received: by 2002:a17:906:1d44:: with SMTP id o4mr18660019ejh.130.1614675616685;
+ Tue, 02 Mar 2021 01:00:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
+References: <20210216163647.34264-1-vincent.knecht@mailoo.org> <20210216163647.34264-2-vincent.knecht@mailoo.org>
+In-Reply-To: <20210216163647.34264-2-vincent.knecht@mailoo.org>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 2 Mar 2021 10:00:05 +0100
+Message-ID: <CACRpkdaLJzG3_M7fNC-MHOdQ6HMsqHqVccK7XkvL=PvJnycCHQ@mail.gmail.com>
+Subject: Re: [PATCH v5 2/2] Input: add MStar MSG2638 touchscreen driver
+To:     Vincent Knecht <vincent.knecht@mailoo.org>
+Cc:     phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Michael Srba <Michael.Srba@seznam.cz>,
+        Linux Input <linux-input@vger.kernel.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add binding documentation for ILITEK touch devices.
+Hi Vincent,
 
-Signed-off-by: Joe Hung <joe_hung@ilitek.com>
----
-Changes in v4:
-  - Change IRQ flag to level interrupt
-  - Add support for common touchscreen-related properties
-  - Modify reset gpio to active low
-  - Modify irq type to LEVEL_LOW
-  - Add compatible for Lego series ICs
+thanks for your patch!
 
-Changes in v3:
-  - Add include header in examples, and pass the dt binding check
+On Tue, Feb 16, 2021 at 5:38 PM Vincent Knecht
+<vincent.knecht@mailoo.org> wrote:
 
-Changes in v2:
-  - Convert to DT schema format
-  - Using interrupts instead of irq-gpios
+> Add support for the msg2638 touchscreen IC from MStar.
+> This driver reuses zinitix.c structure, while the checksum and irq handle=
+r
+> functions are based on out-of-tree driver for Alcatel Idol 3 (4.7").
+>
+> Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
+> ---
+> Changed in v5:
+> - use gpiod_set_value_cansleep() (Stephan G)
+> - use msleep/usleep_range() rathen than mdelay() (Stephan G)
 
- .../input/touchscreen/ilitek_ts_i2c.yaml      | 68 +++++++++++++++++++
- 1 file changed, 68 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.yaml
+(...)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.yaml b/Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.yaml
-new file mode 100644
-index 000000000000..7fe7ee8a8b20
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ilitek_ts_i2c.yaml
-@@ -0,0 +1,68 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/ilitek_ts_i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Ilitek I2C Touchscreen Controller
-+
-+maintainers:
-+  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - ilitek,ili2130
-+      - ilitek,ili2131
-+      - ilitek,ili2132
-+      - ilitek,ili2316
-+      - ilitek,ili2322
-+      - ilitek,ili2323
-+      - ilitek,ili2326
-+      - ilitek,ili2520
-+      - ilitek,ili2521
-+  reg:
-+    const: 0x41
-+  interrupts:
-+    maxItems: 1
-+  reset-gpios:
-+    maxItems: 1
-+
-+  touchscreen-size-x: true
-+  touchscreen-size-y: true
-+  touchscreen-inverted-x: true
-+  touchscreen-inverted-y: true
-+  touchscreen-swapped-x-y: true
-+
-+  wakeup-source:
-+    type: boolean
-+    description: touchscreen can be used as a wakeup source.
-+
-+additionalProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+        touchscreen@41 {
-+		 compatible = "ilitek,ili2520";
-+		 reg = <0x41>;
-+                interrupt-parent = <&gpio1>;
-+                interrupts = <7 IRQ_TYPE_LEVEL_LOW>;
-+		 reset-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
-+
-+		 touchscreen-inverted-y;
-+        };
-+    };
---
-2.25.1
+> +#include <linux/delay.h>
+> +#include <linux/gpio.h>
 
+Please only include
+#include <linux/gpio/consumer.h>
 
+> +#define CHIP_ON_DELAY                  15 // ms
+> +#define FIRMWARE_ON_DELAY              50 // ms
+> +#define RESET_DELAY_MIN                        10000 // =C2=B5s
+> +#define RESET_DELAY_MAX                        11000 // =C2=B5s
+
+Rename the defines with _MS and _US suffixes so you don't
+need the comments, CHIP_ON_DELAY_MS etc.
+
+> +static int msg2638_init_regulators(struct msg2638_ts_data *msg2638)
+> +{
+> +       struct i2c_client *client =3D msg2638->client;
+> +       int error;
+
+I usually prefer a short name like "err" (cognitive load) but your choice.
+
+> +static u8 msg2638_checksum(u8 *data, u32 length)
+> +{
+> +       s32 sum =3D 0;
+> +       u32 i;
+> +
+> +       for (i =3D 0; i < length; i++)
+> +               sum +=3D data[i];
+> +
+> +       return (u8)((-sum) & 0xFF);
+> +}
+
+Interesting checksum algoritm.
+
+> +static int msg2638_start(struct msg2638_ts_data *msg2638)
+> +{
+> +       int error;
+> +
+> +       error =3D regulator_bulk_enable(ARRAY_SIZE(msg2638->supplies),
+> +                                     msg2638->supplies);
+> +       if (error) {
+> +               dev_err(&msg2638->client->dev, "Failed to enable regulato=
+rs: %d\n", error);
+> +               return error;
+> +       }
+> +
+> +       msleep(CHIP_ON_DELAY);
+> +
+> +       msg2638_power_on(msg2638);
+
+Maybe move enable_irq() here from power on to mirror
+the stop() function below?
+
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id msg2638_of_match[] =3D {
+> +       { .compatible =3D "mstar,msg2638" },
+> +       { }
+> +};
+> +MODULE_DEVICE_TABLE(of, msg2638_of_match);
+> +#endif
+
+I think these #ifdefs are not needed anymore. We just have struct of_device=
+_id
+available at all times.
+
+Yours,
+Linus Walleij

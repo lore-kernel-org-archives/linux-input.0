@@ -7,43 +7,43 @@ X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A712C28CC5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51B82C4161F
 	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4CFB364EC3
+	by mail.kernel.org (Postfix) with ESMTP id 2957964EE1
 	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354158AbhCCF0S (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 00:26:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57744 "EHLO
+        id S1354148AbhCCF0I (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 00:26:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351251AbhCBWi4 (ORCPT
+        with ESMTP id S1351254AbhCBWi4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 17:38:56 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE8B4C061356;
-        Tue,  2 Mar 2021 14:35:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3038C0617AA;
+        Tue,  2 Mar 2021 14:35:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
         References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
         Content-Type:Content-ID:Content-Description;
-        bh=1NnV/3MX76vIpFJ07qSqHoXXIoa38K+iwiSeHBS6zK4=; b=VwlrvOIA9mXaL/Aa5kGOcxuiMY
-        JBhVRmFYC16bNGig22CAVYkUlgkaEbSx3jCUgt4mx6dq9XOCDJ6CgruBzcxJRsWgc23hcckPRPDNZ
-        gAvceIR509WQ+JxD4i4lU+SLfFJKy/4cFVNEe2l5agfbfk7imriFkd5gweh00ZOjPk1xLcCpa80JJ
-        FACRcOPUXuhNXwemGQ6eCcXqzZNISdC14UDFLJVYRJ3NRp07l9InEZr5LLVEhECz2E7579+arIS+k
-        wrBP/Gw15aXCyCjYE+YjcP3Rulr52vJD72YdeQCpWK1bC8vo/cN8v2WL2nGbM183XxqWXzngwrfLg
-        4dmLJMrw==;
+        bh=fB7cIY86DyAWTapI+MAfsx1E3wwthMq8695L3n2YfGc=; b=hCYnifQZVDQCOJPF8Vy9XG/nRw
+        Rs1l+qVcu/2hpbe+mL1wPNZX5qasZ9Q2ihY3iEP4w62UJssq0TFQoggxJSUfb99sVnHfRQ+YUhDya
+        94C7cQKS8WQGANVGlMWek5yrIi4He/wOHd1CcE5m7sp36kFNAgDD0wZ3K6fmDWJAZi77cnBioxxp1
+        oeNTe6gI97VoKDzjFBY2Mmobh3MAdTYG7iQjOh/ZOeAxlvEIiaYDkdCjfhwEgdVlAEB5W4A1JsoN1
+        OhoJZ3B7zGZmFRfgGfeuGYL1UNigiOii/H42RUtGMjQ0ChZtAOmzSpb/EuMxhpikT4HCQlmfFkYGi
+        /RSbWtFw==;
 Received: from [2601:1c0:6280:3f0::3ba4] (helo=smtpauth.infradead.org)
         by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lHDcF-000WSO-9q; Tue, 02 Mar 2021 22:35:44 +0000
+        id 1lHDcA-000WSO-98; Tue, 02 Mar 2021 22:35:38 +0000
 From:   Randy Dunlap <rdunlap@infradead.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Randy Dunlap <rdunlap@infradead.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
         linux-doc@vger.kernel.org
-Subject: [PATCH 6/8] input: Documentation: corrections for notifier.rst
-Date:   Tue,  2 Mar 2021 14:35:21 -0800
-Message-Id: <20210302223523.20130-7-rdunlap@infradead.org>
+Subject: [PATCH 4/8] input: Documentation: corrections for gameport-programming.rst
+Date:   Tue,  2 Mar 2021 14:35:19 -0800
+Message-Id: <20210302223523.20130-5-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210302223523.20130-1-rdunlap@infradead.org>
 References: <20210302223523.20130-1-rdunlap@infradead.org>
@@ -53,8 +53,9 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add 'ledstate' to the keyboard_notifier_param struct info and tell
-which header file contains that struct.
+Use "E.g." instead of "Eg.".
+Use correct index for buttons[] array.
+Update all of struct gameport's descriptions.
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -62,22 +63,82 @@ Cc: linux-input@vger.kernel.org
 Cc: Jonathan Corbet <corbet@lwn.net>
 Cc: linux-doc@vger.kernel.org
 ---
- Documentation/input/notifier.rst |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/input/gameport-programming.rst |   35 +++++++++++------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
 
---- linux-next-20210202.orig/Documentation/input/notifier.rst
-+++ linux-next-20210202/Documentation/input/notifier.rst
-@@ -4,11 +4,12 @@ Keyboard notifier
+--- linux-next-20210202.orig/Documentation/input/gameport-programming.rst
++++ linux-next-20210202/Documentation/input/gameport-programming.rst
+@@ -21,7 +21,7 @@ choose which one to program the hardware
+ addresses is preferred, because the likelihood of clashing with the standard
+ 0x201 address is smaller.
  
- One can use register_keyboard_notifier to get called back on keyboard
- events (see kbd_keycode() function for details).  The passed structure is
--keyboard_notifier_param:
-+keyboard_notifier_param (see <linux/keyboard.h>):
+-Eg. if your driver supports addresses 0x200, 0x208, 0x210 and 0x218, then
++E.g. if your driver supports addresses 0x200, 0x208, 0x210 and 0x218, then
+ 0x218 would be the address of first choice.
  
- - 'vc' always provide the VC for which the keyboard event applies;
- - 'down' is 1 for a key press event, 0 for a key release;
- - 'shift' is the current modifier state, mask bit indexes are KG_*;
-+- 'ledstate' is the current LED state;
- - 'value' depends on the type of event.
+ If your hardware supports a gameport address that is not mapped to ISA io
+@@ -78,7 +78,7 @@ the gameport. To register a cooked gamep
  
- - KBD_KEYCODE events are always sent before other events, value is the keycode.
+ 		for (i = 0; i < 4; i++)
+ 			axes[i] = my_mmio[i];
+-		buttons[i] = my_mmio[4];
++		buttons[0] = my_mmio[4];
+ 	}
+ 
+ 	int my_open(struct gameport *gameport, int mode)
+@@ -117,25 +117,28 @@ Simple::
+ The gameport structure
+ ~~~~~~~~~~~~~~~~~~~~~~
+ 
+-.. note::
+-
+-    This section is outdated. There are several fields here that don't
+-    match what's there at include/linux/gameport.h.
+-
+ ::
+ 
+     struct gameport {
+ 
+-	void *private;
++	void *port_data;
+ 
+ A private pointer for free use in the gameport driver. (Not the joystick
+ driver!)
+ 
+ ::
+ 
+-	int number;
++	char name[32];
++
++Driver's name as set by driver calling gameport_set_name(). Informational
++purpose only.
++
++::
++
++	char phys[32];
+ 
+-Number assigned to the gameport when registered. Informational purpose only.
++gameport's physical name/description as set by driver calling gameport_set_phys().
++Informational purpose only.
+ 
+ ::
+ 
+@@ -210,8 +213,16 @@ gameport.
+ 
+ ::
+ 
+-	struct gameport_dev *dev;
+-	struct gameport *next;
++	struct timer_list poll_timer;
++	unsigned int poll_interval;     /* in msecs */
++	spinlock_t timer_lock;
++	unsigned int poll_cnt;
++	void (*poll_handler)(struct gameport *);
++	struct gameport *parent, *child;
++	struct gameport_driver *drv;
++	struct mutex drv_mutex;		/* protects serio->drv so attributes can pin driver */
++	struct device dev;
++	struct list_head node;
+ 
+ For internal use by the gameport layer.
+ 

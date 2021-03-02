@@ -2,48 +2,48 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B0EEC28CFB
-	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39881C4332B
+	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CEAE164EC3
-	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FFB364EC4
+	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354168AbhCCF0q (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 00:26:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58454 "EHLO
+        id S1354193AbhCCF1z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 00:27:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351275AbhCBWi4 (ORCPT
+        with ESMTP id S1350995AbhCBWi4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 17:38:56 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F3EC06121D;
-        Tue,  2 Mar 2021 14:35:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B330C061797;
+        Tue,  2 Mar 2021 14:35:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
         References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
         Content-Type:Content-ID:Content-Description;
-        bh=J11dlG14AYxQZCH8MFCqD3po8HlFhB5D8IW06rMeixg=; b=Tca5JEW+sbI/BAYvo1EgHLDKTk
-        4q0fjmEpdCRCt5JOY8pkBHygNuddhbJ+D0EXgu/IQ1CW3hpnfDVwhz6XxD7wVz8cQbhnwXpXOO6p4
-        Q8kiOEoVuP7x2+KcaCOomoF1MOkM8ssNmItGCgpKNQTGNPVe/TkKJpXykAQQ9g6rHn4Jqpl8KE/Bx
-        Bcz6HBbkn0gtmX/VHBmgX9uJsbkHAAHJsiie37vlHBuXhxVnZcDslTvJK1nlM2RV2XKp48uHzpiba
-        cUessac4KfqFZjdT4X1YYcHkUTnS370R66VbqJIAtB+WnPuJMz+F3oq7FrZw/ytxwp+UV9cwk5nSp
-        9p6ppFSA==;
+        bh=HGAYltNGleL56rvlAeE6uVXd+jAgv9pDM6QWFs4KAA4=; b=T3OOHhyhN3H63Bx9uVLeAptKk2
+        NK7gjSa1Q/KGeWxZjmhNSk6xBxuvBJ9xBpkIZ4EgCEpI/cRHjY6GD/Dcxn041fboTAD6LC4+BvttY
+        0FJvOdRjh4XjlFXSquE/5Qb91KXygJmq4IU+hrDNDVnW3NG99974GYMDmwmmpvmRWjwUfuiJbMZYO
+        9tXI1wwha5r0ZSJ4D7jBQONCPs8sS1eYi7I9YgzdE4L34YgXf4QbmS1ChoXIESMOpd2oGCsXO96Sg
+        c+lPyJBZGdkSR/pnBnP3T5cofdlppzsI/KPkQrNO99SYO0bqK5W75C5eUUHGe9kL46s5RlxYykeY1
+        HTnJ7Ppw==;
 Received: from [2601:1c0:6280:3f0::3ba4] (helo=smtpauth.infradead.org)
         by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lHDcH-000WSO-Ut; Tue, 02 Mar 2021 22:35:46 +0000
+        id 1lHDc1-000WSO-1V; Tue, 02 Mar 2021 22:35:29 +0000
 From:   Randy Dunlap <rdunlap@infradead.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Randy Dunlap <rdunlap@infradead.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
         linux-doc@vger.kernel.org
-Subject: [PATCH 7/8] input: Documentation: corrections for input-programming.rst
-Date:   Tue,  2 Mar 2021 14:35:22 -0800
-Message-Id: <20210302223523.20130-8-rdunlap@infradead.org>
+Subject: [PATCH 1/8] input: Documentation: corrections for input.rst
+Date:   Tue,  2 Mar 2021 14:35:16 -0800
+Message-Id: <20210302223523.20130-2-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210302223523.20130-1-rdunlap@infradead.org>
 References: <20210302223523.20130-1-rdunlap@infradead.org>
@@ -53,13 +53,7 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Drop a repeated word.
-Fix punctuation of "eg." to "e.g."
-Fix punctuation of "ie" to "i.e."
-Add hyphentation to non-zero.
-Capitalize PM (for Power Management).
-Capitalize ID (for Identifier).
-Change "," in a run-on sentence to ";".
+Fix grammar, punctuation, and spelling.
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -67,81 +61,44 @@ Cc: linux-input@vger.kernel.org
 Cc: Jonathan Corbet <corbet@lwn.net>
 Cc: linux-doc@vger.kernel.org
 ---
- Documentation/input/input-programming.rst |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ Documentation/input/input.rst |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- linux-next-20210202.orig/Documentation/input/input-programming.rst
-+++ linux-next-20210202/Documentation/input/input-programming.rst
-@@ -120,7 +120,7 @@ Then there is the::
+--- linux-next-20210202.orig/Documentation/input/input.rst
++++ linux-next-20210202/Documentation/input/input.rst
+@@ -9,7 +9,7 @@ Introduction
+ Architecture
+ ============
  
- call to tell those who receive the events that we've sent a complete report.
- This doesn't seem important in the one button case, but is quite important
--for for example mouse movement, where you don't want the X and Y values
-+for example for mouse movement, where you don't want the X and Y values
- to be interpreted separately, because that'd result in a different movement.
+-Input subsystem  a collection of drivers that is designed to support
++Input subsystem is a collection of drivers that is designed to support
+ all input devices under Linux. Most of the drivers reside in
+ drivers/input, although quite a few live in drivers/hid and
+ drivers/platform.
+@@ -50,7 +50,7 @@ will be available as a character device
  
- dev->open() and dev->close()
-@@ -128,7 +128,7 @@ dev->open() and dev->close()
+ 	crw-r--r--   1 root     root      13,  63 Mar 28 22:45 mice
  
- In case the driver has to repeatedly poll the device, because it doesn't
- have an interrupt coming from it and the polling is too expensive to be done
--all the time, or if the device uses a valuable resource (eg. interrupt), it
-+all the time, or if the device uses a valuable resource (e.g. interrupt), it
- can use the open and close callback to know when it can stop polling or
- release the interrupt and when it must resume polling or grab the interrupt
- again. To do that, we would add this to our example driver::
-@@ -161,7 +161,7 @@ makes sure that dev->open() is called on
- to the device and that dev->close() is called when the very last user
- disconnects. Calls to both callbacks are serialized.
+-This device usually created automatically by the system. The commands
++This device is usually created automatically by the system. The commands
+ to create it by hand are::
  
--The open() callback should return a 0 in case of success or any nonzero value
-+The open() callback should return a 0 in case of success or any non-zero value
- in case of failure. The close() callback (which is void) must always succeed.
+ 	cd /dev
+@@ -180,7 +180,7 @@ whole suite. It handles all HID devices,
+ wide variety of them, and because the USB HID specification isn't
+ simple, it needs to be this big.
  
- Inhibiting input devices
-@@ -182,8 +182,8 @@ providing events to the input core.
+-Currently, it handles USB mice, joysticks, gamepads, steering wheels
++Currently, it handles USB mice, joysticks, gamepads, steering wheels,
+ keyboards, trackballs and digitizers.
  
- Calling the device's close() method on inhibit (if there are users) allows the
- driver to save power. Either by directly powering down the device or by
--releasing the runtime-pm reference it got in open() when the driver is using
--runtime-pm.
-+releasing the runtime-PM reference it got in open() when the driver is using
-+runtime-PM.
+ However, USB uses HID also for monitor controls, speaker controls, UPSs,
+@@ -268,7 +268,7 @@ events on a read. Their layout is::
+     };
  
- Inhibiting and uninhibiting are orthogonal to opening and closing the device by
- input handlers. Userspace might want to inhibit a device in anticipation before
-@@ -219,8 +219,8 @@ It's reported to the input system via::
- 	input_report_key(struct input_dev *dev, int code, int value)
+ ``time`` is the timestamp, it returns the time at which the event happened.
+-Type is for example EV_REL for relative moment, EV_KEY for a keypress or
++Type is for example EV_REL for relative movement, EV_KEY for a keypress or
+ release. More types are defined in include/uapi/linux/input-event-codes.h.
  
- See uapi/linux/input-event-codes.h for the allowable values of code (from 0 to
--KEY_MAX). Value is interpreted as a truth value, ie any nonzero value means key
--pressed, zero value means key released. The input code generates events only
-+KEY_MAX). Value is interpreted as a truth value, i.e. any non-zero value means
-+key pressed, zero value means key released. The input code generates events only
- in case the value is different from before.
- 
- In addition to EV_KEY, there are two more basic event types: EV_REL and
-@@ -231,12 +231,12 @@ because it doesn't have any absolute coo
- events are namely for joysticks and digitizers - devices that do work in an
- absolute coordinate systems.
- 
--Having the device report EV_REL buttons is as simple as with EV_KEY, simply
-+Having the device report EV_REL buttons is as simple as with EV_KEY; simply
- set the corresponding bits and call the::
- 
- 	input_report_rel(struct input_dev *dev, int code, int value)
- 
--function. Events are generated only for nonzero value.
-+function. Events are generated only for non-zero values.
- 
- However EV_ABS requires a little special care. Before calling
- input_register_device, you have to fill additional fields in the input_dev
-@@ -280,7 +280,7 @@ device driver. It's a string like 'Gener
- user friendly name of the device.
- 
- The id* fields contain the bus ID (PCI, USB, ...), vendor ID and device ID
--of the device. The bus IDs are defined in input.h. The vendor and device ids
-+of the device. The bus IDs are defined in input.h. The vendor and device IDs
- are defined in pci_ids.h, usb_ids.h and similar include files. These fields
- should be set by the input device driver before registering it.
- 
+ ``code`` is event code, for example REL_X or KEY_BACKSPACE, again a complete

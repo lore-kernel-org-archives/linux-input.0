@@ -2,48 +2,50 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-23.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39881C4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 143B4C28D17
 	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1FFB364EC4
-	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D26D164EA4
+	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354193AbhCCF1z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 00:27:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58168 "EHLO
+        id S1354185AbhCCF1j (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 00:27:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350995AbhCBWi4 (ORCPT
+        with ESMTP id S1351253AbhCBWi4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 17:38:56 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B330C061797;
-        Tue,  2 Mar 2021 14:35:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 488BEC0617A9;
+        Tue,  2 Mar 2021 14:35:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
         References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
         Content-Type:Content-ID:Content-Description;
-        bh=HGAYltNGleL56rvlAeE6uVXd+jAgv9pDM6QWFs4KAA4=; b=T3OOHhyhN3H63Bx9uVLeAptKk2
-        NK7gjSa1Q/KGeWxZjmhNSk6xBxuvBJ9xBpkIZ4EgCEpI/cRHjY6GD/Dcxn041fboTAD6LC4+BvttY
-        0FJvOdRjh4XjlFXSquE/5Qb91KXygJmq4IU+hrDNDVnW3NG99974GYMDmwmmpvmRWjwUfuiJbMZYO
-        9tXI1wwha5r0ZSJ4D7jBQONCPs8sS1eYi7I9YgzdE4L34YgXf4QbmS1ChoXIESMOpd2oGCsXO96Sg
-        c+lPyJBZGdkSR/pnBnP3T5cofdlppzsI/KPkQrNO99SYO0bqK5W75C5eUUHGe9kL46s5RlxYykeY1
-        HTnJ7Ppw==;
+        bh=jnru7A6CJNDQgxd1XaHKuQe6QWiH67rHqnYf9JHq3JI=; b=a+9blF9cjjqsNi/iRJ64QnJkOj
+        llIfARqGcb2VZ8jbyw49Pdt6sp0E3SeXCHxf3P0R8wDvPJKcLlps79COQQMhS69UhVJw7jK4M5X3s
+        p53HZ1FGpIUKgaAKj20JCX5gv5vFoRJH2cFrRppXDx5zQVkJ5fgDNy9Ezsd6U1EVAJ0Lth8YxnoBz
+        3+yvfYee+NuIlrAmsuQkhXymQXT6ipQKn6gptURyobrFxK7D03YMnAh/uZ96HMqtPlrpJKTjOI08+
+        ypahQg1MbZ3fOPDjrn6os5PBrW7R2BnLjb2NksV0htTC55xKmkV+N3Ojzs0Tjd5AJbcK8TkPgFcbU
+        QfO/nwZQ==;
 Received: from [2601:1c0:6280:3f0::3ba4] (helo=smtpauth.infradead.org)
         by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lHDc1-000WSO-1V; Tue, 02 Mar 2021 22:35:29 +0000
+        id 1lHDc6-000WSO-EU; Tue, 02 Mar 2021 22:35:35 +0000
 From:   Randy Dunlap <rdunlap@infradead.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Randy Dunlap <rdunlap@infradead.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        linux-doc@vger.kernel.org
-Subject: [PATCH 1/8] input: Documentation: corrections for input.rst
-Date:   Tue,  2 Mar 2021 14:35:16 -0800
-Message-Id: <20210302223523.20130-2-rdunlap@infradead.org>
+        linux-doc@vger.kernel.org, Johann Deneux <johann.deneux@gmail.com>,
+        Anssi Hannula <anssi.hannula@gmail.com>
+Subject: [PATCH 3/8 RESEND] input: Documentation: update related file names in ff.rst
+Date:   Tue,  2 Mar 2021 14:35:18 -0800
+Message-Id: <20210302223523.20130-4-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210302223523.20130-1-rdunlap@infradead.org>
 References: <20210302223523.20130-1-rdunlap@infradead.org>
@@ -53,52 +55,42 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Fix grammar, punctuation, and spelling.
+Change other related documentation file names from .txt to .rst
+and be more explicit about their paths/locations.
 
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 Cc: Jonathan Corbet <corbet@lwn.net>
 Cc: linux-doc@vger.kernel.org
+Cc: Johann Deneux <johann.deneux@gmail.com>
+Cc: Anssi Hannula <anssi.hannula@gmail.com>
 ---
- Documentation/input/input.rst |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+where is fftest mentioned here found? I only found one place:
+  https://github.com/flosse/linuxconsole/blob/master/utils/fftest.c
 
---- linux-next-20210202.orig/Documentation/input/input.rst
-+++ linux-next-20210202/Documentation/input/input.rst
-@@ -9,7 +9,7 @@ Introduction
- Architecture
- ============
+ Documentation/input/ff.rst |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- linux-next-20210202.orig/Documentation/input/ff.rst
++++ linux-next-20210202/Documentation/input/ff.rst
+@@ -16,8 +16,8 @@ goal is not to support these devices as
+ (as it is already the case), but to really enable the rendering of force
+ effects.
+ This document only describes the force feedback part of the Linux input
+-interface. Please read joystick.txt and input.txt before reading further this
+-document.
++interface. Please read joydev/joystick.rst and input.rst before reading further
++this document.
  
--Input subsystem  a collection of drivers that is designed to support
-+Input subsystem is a collection of drivers that is designed to support
- all input devices under Linux. Most of the drivers reside in
- drivers/input, although quite a few live in drivers/hid and
- drivers/platform.
-@@ -50,7 +50,7 @@ will be available as a character device
+ Instructions to the user
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+@@ -36,7 +36,7 @@ should keep a hand on your device, in or
+ something goes wrong.
  
- 	crw-r--r--   1 root     root      13,  63 Mar 28 22:45 mice
+ If you have a serial iforce device, you need to start inputattach. See
+-joystick.txt for details.
++joydev/joystick.rst for details.
  
--This device usually created automatically by the system. The commands
-+This device is usually created automatically by the system. The commands
- to create it by hand are::
- 
- 	cd /dev
-@@ -180,7 +180,7 @@ whole suite. It handles all HID devices,
- wide variety of them, and because the USB HID specification isn't
- simple, it needs to be this big.
- 
--Currently, it handles USB mice, joysticks, gamepads, steering wheels
-+Currently, it handles USB mice, joysticks, gamepads, steering wheels,
- keyboards, trackballs and digitizers.
- 
- However, USB uses HID also for monitor controls, speaker controls, UPSs,
-@@ -268,7 +268,7 @@ events on a read. Their layout is::
-     };
- 
- ``time`` is the timestamp, it returns the time at which the event happened.
--Type is for example EV_REL for relative moment, EV_KEY for a keypress or
-+Type is for example EV_REL for relative movement, EV_KEY for a keypress or
- release. More types are defined in include/uapi/linux/input-event-codes.h.
- 
- ``code`` is event code, for example REL_X or KEY_BACKSPACE, again a complete
+ Does it work ?
+ --------------

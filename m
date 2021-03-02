@@ -2,117 +2,141 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A71BC4361B
-	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59440C28CC5
+	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C56CD61606
-	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2854B64F0A
+	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1444946AbhCBMu5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 2 Mar 2021 07:50:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41444 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379999AbhCBKYn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 05:24:43 -0500
-Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C3DC0617A7;
-        Tue,  2 Mar 2021 02:22:09 -0800 (PST)
-Received: by mail-lj1-x22a.google.com with SMTP id h4so23053942ljl.0;
-        Tue, 02 Mar 2021 02:22:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ez28sRNxxnA+mFrwwNyOygQjyXiZVskV4841e9M5tTE=;
-        b=Qne4+z/IjF+WaFiDJb7UeJbCSjyzc0cZiYik1OfF0ZBeomFum8Oy+OPGD/u+vc4Z5a
-         F61VhUwcMlrAgb14aJ/rCBxQrfuw1bG3bnd1pxZyIcw1Xr9n5uzPcrhxncDYI9nFmT9X
-         a1wkf1jjFTemTpn85Jcas/KT6LN9kRD7j1IM+cb+lQtobBkEy+bMs5tFoLHu5P7cDlnS
-         56p1VFdhGs+JORQGGl423NIE6djgC/pIplzWsHx0+W/tMdaZrFk9nCc6F0kg7e7Lpq1P
-         b124giCYd641SEGPn1HTCl1LH11rMl5w4VpYBBaSC0kXgt7/OVdktFfDPFKIhZff1VpJ
-         KSJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ez28sRNxxnA+mFrwwNyOygQjyXiZVskV4841e9M5tTE=;
-        b=Q4u2XDtU4MVWpboEq5V7CGneTEw4hOxzYrGRfWXxJ/fpWGa0dhIrDJovgazPNkXxrK
-         xj2eQHZ2y2pkfolL++coDPoLp/grzokqC5qeMFTEvby0wgyKwIbOjlx4ZVFnEMKAbRET
-         tZ9QMqwAKSEC3K0Y5/QOBpwmAPb9flb5ujAcYKTmoF6HWIOBJnD+z0KjBB0yX56c0Zt9
-         xFgpp/CoAZzLEmhgTOopeKb5pGqjR8kuelzNsE6lUQoshMiP5xtrrxZi+xc10nZ6+6pb
-         JaTdZcefhBobjSME/WyMlPK1eyxs5qOpWJdgZ3u/ensJO4TMwQcNbZI4wF4Qdlu4+18f
-         dw7g==
-X-Gm-Message-State: AOAM532rSYREopCI7KTOTjvSuxkomKEtCeRWzLPCoOtzFPnXyuOSYIAM
-        yTLGAws8OFjIgktW0LDqsfM=
-X-Google-Smtp-Source: ABdhPJwacKskz1iscj45Emaav16iDjjJ3zCeIbF8xVQ4y/Zd4xC03VGoBI7nRTwwfmkU1qhhnTWQfA==
-X-Received: by 2002:a2e:b01a:: with SMTP id y26mr11496407ljk.442.1614680526143;
-        Tue, 02 Mar 2021 02:22:06 -0800 (PST)
-Received: from localhost.localdomain (109-252-193-52.dynamic.spd-mgts.ru. [109.252.193.52])
-        by smtp.gmail.com with ESMTPSA id n2sm2586369lfu.274.2021.03.02.02.22.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Mar 2021 02:22:05 -0800 (PST)
-From:   Dmitry Osipenko <digetx@gmail.com>
-To:     Nick Dyer <nick@shmanahar.org>,
+        id S1447190AbhCBMvM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 2 Mar 2021 07:51:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45464 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1443604AbhCBMLi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:11:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4973F64F69;
+        Tue,  2 Mar 2021 11:57:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614686240;
+        bh=IYBO/mrqotEGw6Bah4DOM7HhtUMTiaGNv1WDjAn61e8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=eJ0KH9uj54H97ouh94wKvYxyqorp6FqdLQDErZsCGrzxXzAYz4MCWSeNm4KdftTX0
+         RGQB3eblzeBbxVxv1XhI8BSQQX/KOUNZvz2vSo2p39kgNo8hnt2dy6C1ro41X5Wtd2
+         TxXQ0QXYe7IBzui6XobD4ArkcU0wAQul7keCNAHkrbmyJFv9htNZw3mD3jwUnFwPRF
+         bBVqZl0s5u5m5nKdxLFObSN2vZnY82Ws03xoW/Cs1ibTLkjURQXOd3kF1rfC2d0hha
+         tPPr3zdaXRiRrb8dStExsY3jSDzjfzM789hWM7D34Go2tyI7rpDEJu3ueTH/dP6Q6c
+         JIUtzA2x7vNNQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jiada Wang <jiada_wang@mentor.com>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v6 3/3] ARM: tegra: acer-a500: Add atmel,wakeup-method property
-Date:   Tue,  2 Mar 2021 13:21:58 +0300
-Message-Id: <20210302102158.10533-4-digetx@gmail.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210302102158.10533-1-digetx@gmail.com>
-References: <20210302102158.10533-1-digetx@gmail.com>
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 26/47] Input: applespi - don't wait for responses to commands indefinitely.
+Date:   Tue,  2 Mar 2021 06:56:25 -0500
+Message-Id: <20210302115646.62291-26-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210302115646.62291-1-sashal@kernel.org>
+References: <20210302115646.62291-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Acer A500 uses Atmel Maxtouch 1386 touchscreen controller. This controller
-has WAKE line which could be connected to I2C clock lane, dedicated GPIO
-or fixed to HIGH level. Controller wakes up from a deep sleep when WAKE
-line is asserted low. Acer A500 has WAKE line connected to I2C clock and
-Linux device driver doesn't work property without knowing what wakeup
-method is used by h/w.
+From: Ronald Tschalär <ronald@innovation.ch>
 
-Add atmel,wakeup-method property to the touchscreen node.
+[ Upstream commit 0ce1ac23149c6da939a5926c098c270c58c317a0 ]
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+The response to a command may never arrive or it may be corrupted (and
+hence dropped) for some reason. While exceedingly rare, when it did
+happen it blocked all further commands. One way to fix this was to
+do a suspend/resume. However, recovering automatically seems like a
+nicer option. Hence this puts a time limit (1 sec) on how long we're
+willing to wait for a response, after which we assume it got lost.
+
+Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+Link: https://lore.kernel.org/r/20210217190718.11035-1-ronald@innovation.ch
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra20-acer-a500-picasso.dts | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/keyboard/applespi.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
-index d3b99535d755..40c1bab22155 100644
---- a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
-+++ b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- /dts-v1/;
+diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+index 14362ebab9a9..0b46bc014cde 100644
+--- a/drivers/input/keyboard/applespi.c
++++ b/drivers/input/keyboard/applespi.c
+@@ -48,6 +48,7 @@
+ #include <linux/efi.h>
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
++#include <linux/ktime.h>
+ #include <linux/leds.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+@@ -400,7 +401,7 @@ struct applespi_data {
+ 	unsigned int			cmd_msg_cntr;
+ 	/* lock to protect the above parameters and flags below */
+ 	spinlock_t			cmd_msg_lock;
+-	bool				cmd_msg_queued;
++	ktime_t				cmd_msg_queued;
+ 	enum applespi_evt_type		cmd_evt_type;
  
-+#include <dt-bindings/input/atmel-maxtouch.h>
- #include <dt-bindings/input/gpio-keys.h>
- #include <dt-bindings/input/input.h>
- #include <dt-bindings/thermal/thermal.h>
-@@ -450,6 +451,8 @@ touchscreen@4c {
+ 	struct led_classdev		backlight_info;
+@@ -716,7 +717,7 @@ static void applespi_msg_complete(struct applespi_data *applespi,
+ 		wake_up_all(&applespi->drain_complete);
  
- 			avdd-supply = <&vdd_3v3_sys>;
- 			vdd-supply  = <&vdd_3v3_sys>;
+ 	if (is_write_msg) {
+-		applespi->cmd_msg_queued = false;
++		applespi->cmd_msg_queued = 0;
+ 		applespi_send_cmd_msg(applespi);
+ 	}
+ 
+@@ -758,8 +759,16 @@ static int applespi_send_cmd_msg(struct applespi_data *applespi)
+ 		return 0;
+ 
+ 	/* check whether send is in progress */
+-	if (applespi->cmd_msg_queued)
+-		return 0;
++	if (applespi->cmd_msg_queued) {
++		if (ktime_ms_delta(ktime_get(), applespi->cmd_msg_queued) < 1000)
++			return 0;
 +
-+			atmel,wakeup-method = <ATMEL_MXT_WAKEUP_I2C_SCL>;
- 		};
++		dev_warn(&applespi->spi->dev, "Command %d timed out\n",
++			 applespi->cmd_evt_type);
++
++		applespi->cmd_msg_queued = 0;
++		applespi->write_active = false;
++	}
  
- 		gyroscope@68 {
+ 	/* set up packet */
+ 	memset(packet, 0, APPLESPI_PACKET_SIZE);
+@@ -856,7 +865,7 @@ static int applespi_send_cmd_msg(struct applespi_data *applespi)
+ 		return sts;
+ 	}
+ 
+-	applespi->cmd_msg_queued = true;
++	applespi->cmd_msg_queued = ktime_get_coarse();
+ 	applespi->write_active = true;
+ 
+ 	return 0;
+@@ -1908,7 +1917,7 @@ static int __maybe_unused applespi_resume(struct device *dev)
+ 	applespi->drain = false;
+ 	applespi->have_cl_led_on = false;
+ 	applespi->have_bl_level = 0;
+-	applespi->cmd_msg_queued = false;
++	applespi->cmd_msg_queued = 0;
+ 	applespi->read_active = false;
+ 	applespi->write_active = false;
+ 
 -- 
-2.29.2
+2.30.1
 

@@ -2,116 +2,95 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A253C43331
-	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E1DCC4360C
+	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 552B264F0A
-	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 53E4C64F0A
+	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350816AbhCBMuk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 2 Mar 2021 07:50:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38230 "EHLO
+        id S1444935AbhCBMuy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 2 Mar 2021 07:50:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1838287AbhCBKJS (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 05:09:18 -0500
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29666C061756;
-        Tue,  2 Mar 2021 02:08:37 -0800 (PST)
-Received: by mail-lf1-x12d.google.com with SMTP id k9so10466502lfo.12;
-        Tue, 02 Mar 2021 02:08:37 -0800 (PST)
+        with ESMTP id S1379939AbhCBKU0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 05:20:26 -0500
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC16C061756;
+        Tue,  2 Mar 2021 02:19:45 -0800 (PST)
+Received: by mail-lf1-x132.google.com with SMTP id v5so30389897lft.13;
+        Tue, 02 Mar 2021 02:19:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sfUQ5KkuJugRcswoXUIYuj0VO0djxRHGJcsWdg+KZjU=;
-        b=SREfkOV5YjngyaW6kgRMW6XmqLOOigj8+ADhOCMufJ1iRRUMuNBWbHsCqjUzWWt6RG
-         vqIWfYG3W9ZJBvpHPygONmzb9jyvmYo8JlsNZVPPu26vKOGFUwdYvLcDbUFzTizQbxIb
-         k8M8URlvwnPCw7E3jD0s1PQEzjVkb3vAtm/RzPLZz/HA+RAnsuPv2IY0fZ8ErMCiHdPX
-         MGTznypCqMUo8xtrz2aXggKnx251MUiU6sL9p9EiQNgPxi+9DUtfgEWN74vOmC/iqW6x
-         sPA1esYehtYg6JsvtvY6gu/9od9X3IhrHgWd4s6JP+PMEP+KwUhwvqa9BOOYZqjs7tra
-         hcxQ==
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=XIDQ+4kd/LXbhSXCzL5ECgyTEsdEXu9h18StVgaqum4=;
+        b=Pf5mOk+o5dy/vp4SpSQwj77UzCFy+8S4DEJRuT96Kcu83dmmPBijPpcEf2qTcZ7Dxa
+         0j169SGa2OTvzmgVuskgXtXBENmWBQyRp5/It6ErXglDCAOvCH5JwJ+mM9X43ihzIanu
+         S+hIfTD/RRCCeIvxtbUp4g1haBTXHv/AM2kKB3klTmogO8lS9yEF9rRozN9W/q3yJ1V/
+         EJLWaplZcyoyFEgN1W6XZ0SKjkWCXPq54AkhCh+fHSOMxiW67BkQ34+5Qj/PbAj2Bud1
+         DqQwAMvXQ/CxEGi3USAlkqQGjtBBu9GIckbsHgupMMdSgIJcWo6y9Rwul43+w3PenflF
+         Knfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=sfUQ5KkuJugRcswoXUIYuj0VO0djxRHGJcsWdg+KZjU=;
-        b=Rdm7PfEZ7RNQj01dcYqo1P0H4VUDDDRonoiWWmVvYTkCr2YBbnqP//WmgtvoQJAsla
-         R4nqL+HISPxpcLs7LnesuCboE2T/IdNoa+QPtf5vgM0tenJGMrSjhcN5aSdllSTT3Qu1
-         zEZ3KyaajiGpwHZxKiepf1s08A/cr5alFchEHDcQKRzNCsmRJ5yugrHoBxAXMqKOCaE7
-         BsGIhQ+7Pp5g4035UXX9gdi3mxzRyQcvshZG6B0JESiTLC97i3Zz1hVO3tn4iUJLBhKm
-         rVr5nj0hvxLjL1IA6cPzcP04zZ2IfAyMcfbl03unwpsLAlANyWKB+wsWB2xNB4ersG1U
-         p+/Q==
-X-Gm-Message-State: AOAM530+umB0GBY+2Koe//HsWYYQCQ6xY7D/XwTIudyOlnS32anyt6GA
-        ZWFKHickiZ8KIYuQpoXfoe8=
-X-Google-Smtp-Source: ABdhPJzmMFbGapGmoNeZO/smtuHVHtf3ixjTLxqIfeAXFo+Ap5rq6rMyT/sYvROMWjn9/0O+wvBcMg==
-X-Received: by 2002:a05:6512:547:: with SMTP id h7mr12285352lfl.529.1614679715517;
-        Tue, 02 Mar 2021 02:08:35 -0800 (PST)
-Received: from localhost.localdomain (109-252-193-52.dynamic.spd-mgts.ru. [109.252.193.52])
-        by smtp.gmail.com with ESMTPSA id g10sm1725052lfe.90.2021.03.02.02.08.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Mar 2021 02:08:34 -0800 (PST)
+        bh=XIDQ+4kd/LXbhSXCzL5ECgyTEsdEXu9h18StVgaqum4=;
+        b=Vh3+rCoXSE2aQM+FLmDgT88jsXjVCOa3HJJiMDnvaenb9h1tmUr+Ui29dlb8srxJ5z
+         f7FXf/HU7cNb+v4hhYe3l30CnfLDyOB2HU6yf0MB4rk5uv99otqU0XK6f9cZJZPprCi7
+         rhGx3mI7q/f+Q2I0CkaY1z8hDAAP6SOjcWQVDwX0ydXg+oPqf97WuFGrtcpHLcq6wmhD
+         Z9sUviR6oY6jeuXojfztn9ROClTCh5v7pre469xtLff/KKz7wvFk2oGHxcX/gawLnF5D
+         CkWK232VoSKKkVRbke5KYw9DAybpNUoSdrXsGdOfg6Rx0PeGqZgd9DQ7LSODYiAhwO8T
+         /npw==
+X-Gm-Message-State: AOAM5338eY1mxrBs9lUlj/BxlWQAhfEfOuO/nzmgfYTGNMni1U8Vw7HX
+        DsW8QrjO+F852DBgZFtKoNGk0mAEvLU=
+X-Google-Smtp-Source: ABdhPJwqxkVhyLw4kBU7lIs0HBZspIqPWScLLdQNWfQ7VwJReaESA/CRZGn7ylwvepdXc5DDPkRJXg==
+X-Received: by 2002:a05:6512:328f:: with SMTP id p15mr11991157lfe.628.1614680383939;
+        Tue, 02 Mar 2021 02:19:43 -0800 (PST)
+Received: from [192.168.2.145] (109-252-193-52.dynamic.spd-mgts.ru. [109.252.193.52])
+        by smtp.googlemail.com with ESMTPSA id r12sm2497133lfc.79.2021.03.02.02.19.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 02 Mar 2021 02:19:43 -0800 (PST)
+Subject: Re: [PATCH v5 1/3] dt-bindings: input: atmel_mxt_ts: Document
+ atmel,wakeup-method and WAKE line GPIO
 From:   Dmitry Osipenko <digetx@gmail.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Johnny Chuang <johnny.chuang.emc@gmail.com>,
-        Jasper Korten <jja2000@gmail.com>,
-        Svyatoslav Ryhel <clamor95@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v1] Input: elants_i2c - fix division by zero if firmware reports zero phys size
-Date:   Tue,  2 Mar 2021 13:08:24 +0300
-Message-Id: <20210302100824.3423-1-digetx@gmail.com>
-X-Mailer: git-send-email 2.29.2
+To:     Nick Dyer <nick@shmanahar.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jiada Wang <jiada_wang@mentor.com>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20210302101556.7150-1-digetx@gmail.com>
+ <20210302101556.7150-2-digetx@gmail.com>
+Message-ID: <5ea216b8-cff8-9731-2d63-3611ca977381@gmail.com>
+Date:   Tue, 2 Mar 2021 13:19:43 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.2
 MIME-Version: 1.0
+In-Reply-To: <20210302101556.7150-2-digetx@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Touchscreen firmware of ASUS Transformer TF700T reports zeros for the phys
-size. Hence check whether the size is zero and don't set the resolution in
-this case.
+02.03.2021 13:15, Dmitry Osipenko пишет:
+> Some Atmel touchscreen controllers have a WAKE line that needs to be
+> asserted low in order to wake up controller from a deep sleep. Document
+> the wakeup methods and the new GPIO properties.
+> 
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 
-Reported-by: Jasper Korten <jja2000@gmail.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
----
-
-Please note that ASUS TF700T isn't yet supported by upstream kernel,
-hence this is not a critical fix.
-
- drivers/input/touchscreen/elants_i2c.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 4c2b579f6c8b..a2e1cc4192b0 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -1441,14 +1441,16 @@ static int elants_i2c_probe(struct i2c_client *client,
- 
- 	touchscreen_parse_properties(ts->input, true, &ts->prop);
- 
--	if (ts->chip_id == EKTF3624) {
-+	if (ts->chip_id == EKTF3624 && ts->phy_x && ts->phy_y) {
- 		/* calculate resolution from size */
- 		ts->x_res = DIV_ROUND_CLOSEST(ts->prop.max_x, ts->phy_x);
- 		ts->y_res = DIV_ROUND_CLOSEST(ts->prop.max_y, ts->phy_y);
- 	}
- 
--	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
--	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
-+	if (ts->x_res > 0)
-+		input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
-+	if (ts->y_res > 0)
-+		input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
- 	if (ts->major_res > 0)
- 		input_abs_set_res(ts->input, ABS_MT_TOUCH_MAJOR, ts->major_res);
- 
--- 
-2.29.2
-
+I'll send a v6 shortly because accidentally missed to add r-b from Rob
+Herring to this patch that he gave to v4.

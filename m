@@ -2,145 +2,164 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-23.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 018ACC2BA17
-	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57CC9C41621
+	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C8EE964EDE
+	by mail.kernel.org (Postfix) with ESMTP id 2AE2B64EC3
 	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446896AbhCCF3e convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 00:29:34 -0500
-Received: from emcscan.emc.com.tw ([192.72.220.5]:50072 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244992AbhCCDOy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 22:14:54 -0500
-X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
-   d="scan'208";a="39618795"
-Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
-  by emcscan.emc.com.tw with ESMTP; 03 Mar 2021 11:13:26 +0800
-Received: from 192.168.10.23
-        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(2838:0:AUTH_RELAY)
-        (envelope-from <jingle.wu@emc.com.tw>); Wed, 03 Mar 2021 11:13:24 +0800 (CST)
-Received: from 192.168.33.11
-        by webmail.emc.com.tw with Mail2000 ESMTP Server V7.00(2473:0:AUTH_RELAY)
-        (envelope-from <jingle.wu@emc.com.tw>); Wed, 03 Mar 2021 11:13:21 +0800 (CST)
-From:   "jingle" <jingle.wu@emc.com.tw>
-To:     =?iso-8859-1?Q?'Uwe_Kleine-K=F6nig'?= 
-        <u.kleine-koenig@pengutronix.de>,
-        "'Dmitry Torokhov'" <dmitry.torokhov@gmail.com>,
-        <kernel@pengutronix.de>
-Cc:     <linux-input@vger.kernel.org>
-References: <20210302210934.iro3a6chigx72r4n@pengutronix.de>
-In-Reply-To: <20210302210934.iro3a6chigx72r4n@pengutronix.de>
-Subject: RE: elan_i2c: failed to read report data: -71
-Date:   Wed, 3 Mar 2021 11:13:21 +0800
-Message-ID: <016d01d70fdb$2aa48b00$7feda100$@emc.com.tw>
+        id S1354234AbhCCF3I (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 00:29:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47616 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234742AbhCBX6L (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 18:58:11 -0500
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D985C06178C
+        for <linux-input@vger.kernel.org>; Tue,  2 Mar 2021 15:57:23 -0800 (PST)
+Received: by mail-lf1-x136.google.com with SMTP id p21so34101265lfu.11
+        for <linux-input@vger.kernel.org>; Tue, 02 Mar 2021 15:57:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6fCVkbah6pSIEP9uT2I1gEQN4XMZej1XdHi/fOlEwxc=;
+        b=uLY6Ewk8O4OadIFIg7ecEqKC3J+ynPM/uF4lqOSOwtcsz7zzX2BljRT4YVWoaKiK/0
+         TCP4VwNrkdir+GJQR/qvCnsILikTxII1Z0BeYt/VXCF29k0xZ6c+bb3lgKGhEeLTlp6m
+         EKqGmx8kFtNFlPDJMY/BpCBxc11OQTtPcXbvZ95fEDb1/YnvprMJjucf1ZOJLMbASKhz
+         2GVwpuf20uGYgMyrJYmmEZkv3l43L9YTzV+fgVdZiOsNeGYkuG5TSAYKEWZ9kwZuMioM
+         ytmIGC+RcUYuRv60Lf0Asv6zzIznnX1MP9rjphl8G1Zp0gQ+D0kGcK/kca/HdzizknCd
+         k0Vg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6fCVkbah6pSIEP9uT2I1gEQN4XMZej1XdHi/fOlEwxc=;
+        b=cL+wkzTkdSGFnq85kx+lqZNuZxSZ8KNg7bBjnNhb/eRS624wdZheMqZBYi7p1eVChK
+         M01+KyltjcoYCw6kVyUgi/NR/8meKnny9sTw577/HaFHdnClNIWcjJqFTedONiE8Ncui
+         EXEIEAduCAPXLKAO6UefElm0xkIUwFOdtv3DDIltvv+ul44qZwTqKCR9/oB9I23+eYaq
+         0OmCitk1L74dv2wrfFdzwxEHTyaoUYlfQdjdR3uPmu3VL6JcE7KEd1ahRnfJ8DX1Bcu6
+         JxKVK64YyZdJHRER4pp7ehq5DlFrPIL0tquHnNbRDaJKoI3TBst/JVWPv3CeloXtNqmv
+         tioA==
+X-Gm-Message-State: AOAM533dmcQ/I8kd5bk03ZR4BU+fbvcw9dbQ/DlqK6mmELgMB47P43Zv
+        4j9ZtanU9PtDUtG0EDoEzXv82IrLqX+JEt9CnSSPgvSh2NRnTA==
+X-Google-Smtp-Source: ABdhPJx9+8kF2fruR0C99yWVQkQmsnkFwPk5CaxSZycKlxUBaBvYeA/45SEnP9Bzt2oDwvg4os31NMmmUWvBwhy5dOA=
+X-Received: by 2002:ac2:4255:: with SMTP id m21mr12926860lfl.482.1614729441728;
+ Tue, 02 Mar 2021 15:57:21 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Outlook 14.0
-Thread-Index: AQFWM07JFvN31vfpaJNtqdEvnTXapqtzT1rw
-Content-Language: zh-tw
-x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcMDYwMTFcYXBwZGF0YVxyb2FtaW5nXDA5ZDg0OWI2LTMyZDMtNGE0MC04NWVlLTZiODRiYTI5ZTM1Ylxtc2dzXG1zZy02ODM1NDM0Ny03YmNlLTExZWItOGUwZi1mMDc5NTk2OWU3NWVcYW1lLXRlc3RcNjgzNTQzNDktN2JjZS0xMWViLThlMGYtZjA3OTU5NjllNzVlYm9keS50eHQiIHN6PSIzMDI1IiB0PSIxMzI1OTIxNDgwMTY4ODg2MTUiIGg9IjVqeGRZS2xKZDNDeWU1RHhoVmt6eFRQWU9ncz0iIGlkPSIiIGJsPSIwIiBibz0iMSIvPjwvbWV0YT4=
-x-dg-rorf: true
+References: <20210225053204.697951-1-lzye@google.com> <1b315e2cd02f4017cc746909088cc8bc1a39024e.camel@hadess.net>
+In-Reply-To: <1b315e2cd02f4017cc746909088cc8bc1a39024e.camel@hadess.net>
+From:   Chris Ye <lzye@google.com>
+Date:   Tue, 2 Mar 2021 15:57:10 -0800
+Message-ID: <CAFFuddJKqkUEFdqhk8o+6K3_a42UyT934dmj002MS8deLD6fdA@mail.gmail.com>
+Subject: Re: [PATCH] [v2] Input: Add "Share" button to Microsoft Xbox One controller.
+To:     Bastien Nocera <hadess@hadess.net>
+Cc:     =?UTF-8?Q?=C5=81ukasz_Patron?= <priv.luk@gmail.com>,
+        Benjamin Valentin <benpicco@googlemail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        =?UTF-8?Q?Olivier_Cr=C3=AAte?= <olivier.crete@ocrete.ca>,
+        Sanjay Govind <sanjay.govind9@gmail.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        trivial@kernel.org, kernel-team@android.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-HI uwe:
+Hi Bastien,
+    The "Share button" is a name Microsoft calls it, it actually has
+HID descriptor defined in the bluetooth interface, which the HID usage
+is:
+consumer 0xB2:
+0x05, 0x0C,        //   Usage Page (Consumer)
+0x0A, 0xB2, 0x00,  //   Usage (Record)
+Microsoft wants the same key code to be generated consistently for USB
+and bluetooth.
+Thanks!
+Chris
 
-Please updates this patchs.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=nex
-t&id=056115daede8d01f71732bc7d778fb85acee8eb6
-
-https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=nex
-t&id=e4c9062717feda88900b566463228d1c4910af6d
-
-Thanks
-jingle
-
------Original Message-----
-From: Uwe Kleine-König [mailto:u.kleine-koenig@pengutronix.de] 
-Sent: Wednesday, March 03, 2021 5:10 AM
-To: Jingle Wu; Dmitry Torokhov; kernel@pengutronix.de
-Cc: linux-input@vger.kernel.org
-Subject: elan_i2c: failed to read report data: -71
-
-Hello,
-
-I just installed Linux on a new Thinkpad E15 and I experience a non-working
-touchpad. I can move the mouse just fine, but when I press one of the three
-buttons or move the trackpoint the kernel log gets flooded with:
-
-	elan_i2c 0-0015: failed to read report data: -71
-
-and nothing happens in the GUI.
-
-This is a kernel from Debian testing, i.e. 5.10.13, during probe of the
-device the following is reported:
-
-	elan_i2c 0-0015: supply vcc not found, using dummy regulator
-	elan_i2c 0-0015: Elan Touchpad: Module ID: 0x000e, Firmware: 0x0001,
-Sample: 0x0000, IAP: 0x0000
-	input: Elan Touchpad as
-/devices/pci0000:00/0000:00:1f.4/i2c-0/0-0015/input/input21
-	input: Elan TrackPoint as
-/devices/pci0000:00/0000:00:1f.4/i2c-0/0-0015/input/input22
-
-I backported commits
-
-	056115daede8 Input: elan_i2c - add new trackpoint report type 0x5F
-	c7f0169e3bd2 Input: elan_i2c_core - move header inclusion inside
-
-to this kernel, but this didn't help.
-
-When enabling smbus tracing the matching events are:
-
- irq/159-elan_i2-2207    [003] ....   963.625641: smbus_read: i2c-0 a=015
-f=0040 c=a8 BLOCK_DATA
- irq/159-elan_i2-2207    [003] ....   963.629247: smbus_result: i2c-0 a=015
-f=0000 c=a8 BLOCK_DATA rd res=-71
-
-The relevant code is:
-
-        len = i2c_smbus_read_block_data(client,
-                                        ETP_SMBUS_PACKET_QUERY,
-                                        &report[ETP_SMBUS_REPORT_OFFSET]);
-        if (len < 0) {
-                dev_err(&client->dev, "failed to read report data: %d\n",
-len);
-                return len;
-        }
-
-I think the failing location in the i2c driver is
-
-        if (read_write == I2C_SMBUS_READ ||
-            command == I2C_SMBUS_BLOCK_PROC_CALL) {
-                len = inb_p(SMBHSTDAT0(priv));
-                if (len < 1 || len > I2C_SMBUS_BLOCK_MAX)
-                        return -EPROTO;
-
-                data->block[0] = len;
-                for (i = 0; i < len; i++)
-                        data->block[i + 1] = inb_p(SMBBLKDAT(priv));
-        }
-
-in i801_block_transaction_by_block().
-
-Does this ring a bell? Does someone know if there is documentation
-available?
-
-Best regards
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
+On Tue, Mar 2, 2021 at 1:50 AM Bastien Nocera <hadess@hadess.net> wrote:
+>
+> On Thu, 2021-02-25 at 05:32 +0000, Chris Ye wrote:
+> > Add "Share" button input capability and input event mapping for
+> > Microsoft Xbox One controller.
+> > Fixed Microsoft Xbox One controller share button not working under USB
+> > connection.
+> >
+> > Signed-off-by: Chris Ye <lzye@google.com>
+> > ---
+> >  drivers/input/joystick/xpad.c | 9 ++++++++-
+> >  1 file changed, 8 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/input/joystick/xpad.c
+> > b/drivers/input/joystick/xpad.c
+> > index 9f0d07dcbf06..0c3374091aff 100644
+> > --- a/drivers/input/joystick/xpad.c
+> > +++ b/drivers/input/joystick/xpad.c
+> > @@ -79,6 +79,7 @@
+> >  #define MAP_DPAD_TO_BUTTONS            (1 << 0)
+> >  #define MAP_TRIGGERS_TO_BUTTONS                (1 << 1)
+> >  #define MAP_STICKS_TO_NULL             (1 << 2)
+> > +#define MAP_SHARE_BUTTON               (1 << 3)
+> >  #define DANCEPAD_MAP_CONFIG    (MAP_DPAD_TO_BUTTONS
+> > |                  \
+> >                                 MAP_TRIGGERS_TO_BUTTONS |
+> > MAP_STICKS_TO_NULL)
+> >
+> > @@ -130,6 +131,7 @@ static const struct xpad_device {
+> >         { 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0,
+> > XTYPE_XBOXONE },
+> >         { 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, XTYPE_XBOXONE
+> > },
+> >         { 0x045e, 0x0719, "Xbox 360 Wireless Receiver",
+> > MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+> > +       { 0x045e, 0x0b12, "Microsoft X-Box One X pad",
+> > MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+> >         { 0x046d, 0xc21d, "Logitech Gamepad F310", 0, XTYPE_XBOX360 },
+> >         { 0x046d, 0xc21e, "Logitech Gamepad F510", 0, XTYPE_XBOX360 },
+> >         { 0x046d, 0xc21f, "Logitech Gamepad F710", 0, XTYPE_XBOX360 },
+> > @@ -862,6 +864,8 @@ static void xpadone_process_packet(struct usb_xpad
+> > *xpad, u16 cmd, unsigned char
+> >         /* menu/view buttons */
+> >         input_report_key(dev, BTN_START,  data[4] & 0x04);
+> >         input_report_key(dev, BTN_SELECT, data[4] & 0x08);
+> > +       if (xpad->mapping & MAP_SHARE_BUTTON)
+> > +               input_report_key(dev, KEY_RECORD, data[22] & 0x01);
+> >
+> >         /* buttons A,B,X,Y */
+> >         input_report_key(dev, BTN_A,    data[4] & 0x10);
+> > @@ -1669,9 +1673,12 @@ static int xpad_init_input(struct usb_xpad
+> > *xpad)
+> >
+> >         /* set up model-specific ones */
+> >         if (xpad->xtype == XTYPE_XBOX360 || xpad->xtype ==
+> > XTYPE_XBOX360W ||
+> > -           xpad->xtype == XTYPE_XBOXONE) {
+> > +               xpad->xtype == XTYPE_XBOXONE) {
+> >                 for (i = 0; xpad360_btn[i] >= 0; i++)
+> >                         input_set_capability(input_dev, EV_KEY,
+> > xpad360_btn[i]);
+> > +               if (xpad->mapping & MAP_SHARE_BUTTON) {
+> > +                       input_set_capability(input_dev, EV_KEY,
+> > KEY_RECORD);
+>
+> Is there not a better keycode to use than "Record"? Should a "share"
+> keycode be added?
+>
+> I couldn't find a share button in the most recent USB HID Usage Tables:
+> https://www.usb.org/document-library/hid-usage-tables-121
+>
+> > +               }
+> >         } else {
+> >                 for (i = 0; xpad_btn[i] >= 0; i++)
+> >                         input_set_capability(input_dev, EV_KEY,
+> > xpad_btn[i]);
+>
+>

@@ -2,171 +2,141 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9149C4321A
-	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78971C41620
+	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A579F64F0A
-	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B2AC64F0A
+	for <linux-input@archiver.kernel.org>; Tue,  2 Mar 2021 12:54:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442676AbhCBMup (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 2 Mar 2021 07:50:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39864 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382787AbhCBKQp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 05:16:45 -0500
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11EB9C06178B;
-        Tue,  2 Mar 2021 02:16:05 -0800 (PST)
-Received: by mail-lf1-x12d.google.com with SMTP id k9so10498002lfo.12;
-        Tue, 02 Mar 2021 02:16:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=/Q9Reap3GWCAihxatXXr3FfVYUJhLMEM+4qTRCJHb9Q=;
-        b=DY2uqb0tgXTpuAfmkRe2RoGRbnPbJNhSQa6seSx+21k8PBQpGxgUF7RUWtnLYhIZp8
-         /08aeEuxiK1i+4RywzPlVNW5xWvoWMOSQsKiEVI4J0sXuu6expGdNIQt13zaa/9eWK71
-         LUkarD+WJyc/SGk7wzJ5sy+YIFGPNBkzqDy+josYDBJShsxQLGk/x+BCnT1fOXKj/nIw
-         0e6Y2a3EwdzgToEoQGdO+b7Jo9UgBwEOiyuLhRBPvP0IbDQLT5rKEPnyXrkemk6smYFt
-         L7F2pvqEXujSDPdEx/QlKdJ54CgVSFGqtQw0TyzGW85b6/+PdrpT+grCftW0yJnB0JsI
-         YIVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=/Q9Reap3GWCAihxatXXr3FfVYUJhLMEM+4qTRCJHb9Q=;
-        b=cBfxs77arlIU6maqF5hwU5FaqK6BohjRhWVdzCfZGhg7YNFs45k/Ty3P/afsE4jhSi
-         c06fu/ApOLaF5IxmbF/0MS6g3CxJjqCylTBMHMRhv0MKemZGM2K0ZjPU5zZ/Fmc+sWYo
-         Qxm+Bg79U0I70X8ssj0L6E9Vo0yj46hO4EHwNhGiRjiBMbRwfB6BAgnURDcf9O15Zs8a
-         Rwf+seoXtT3kX3fiR+7trQCXl5bSWKwx39y0TywaUAi9GUtKQG+3GvHisdu3KaaA6mgU
-         haSKc9lDz+4+AcnGsOkegNXBZqZxOnnNNRz2/Kg9os0+dYYhax/88+7XtPma6NDZa7Pf
-         8WpQ==
-X-Gm-Message-State: AOAM5303Bb7DZxmIzxswo9r6oYwMBdqQxmThg6YM2SpXiEoJBU9jmeRR
-        VHZYS8bQe7ZCbki/JQRjQBE=
-X-Google-Smtp-Source: ABdhPJwFs2a02ETmhpaDV+SytXQUPmDfcAgLf0i3C3ayQE2VBlw0OMB3cJQWDXHd43sNSmQQlAGBFQ==
-X-Received: by 2002:ac2:43ca:: with SMTP id u10mr5375946lfl.492.1614680163608;
-        Tue, 02 Mar 2021 02:16:03 -0800 (PST)
-Received: from localhost.localdomain (109-252-193-52.dynamic.spd-mgts.ru. [109.252.193.52])
-        by smtp.gmail.com with ESMTPSA id w4sm307861lfl.236.2021.03.02.02.16.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Mar 2021 02:16:03 -0800 (PST)
-From:   Dmitry Osipenko <digetx@gmail.com>
-To:     Nick Dyer <nick@shmanahar.org>,
+        id S1447172AbhCBMvC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 2 Mar 2021 07:51:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1350226AbhCBMC5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:02:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3393B64F2E;
+        Tue,  2 Mar 2021 11:56:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614686174;
+        bh=Q8QoCWn0zrvn2VEGKj/DLiIbYOnwej6fNhaDTCBlQwo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ki6S7dLt9rjqpamccIURmJmXwX4XIRZnZtAJTwkzaMZPIUCl0N0Vp0pXxbeky6m6q
+         lzNpwKoH/hjQmTzmDCGJz75IugecxcBSUAXsfjUF78kzhnt+iOtOLZoMHbLVecdHqL
+         Wou2NgPYN6pXyByCpC/iggiBxxr86ypijueoRoyA6LCGpXKLDXFNJyufMHu22HYHbi
+         zCiGr0a50VJLNt6+o/r7eBqGqCK1DsV0jVIIwyWE0X+3nI8YeZYxE9ErbepWo/X+8l
+         eHWPEgKXSHGs6WLijK2kzF4rfDxvS825+MUCwQoM+h3RWi+YjWVwpc88py8gdDGHDK
+         ClzqJMbN28UVw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jiada Wang <jiada_wang@mentor.com>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v5 1/3] dt-bindings: input: atmel_mxt_ts: Document atmel,wakeup-method and WAKE line GPIO
-Date:   Tue,  2 Mar 2021 13:15:54 +0300
-Message-Id: <20210302101556.7150-2-digetx@gmail.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210302101556.7150-1-digetx@gmail.com>
-References: <20210302101556.7150-1-digetx@gmail.com>
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 30/52] Input: applespi - don't wait for responses to commands indefinitely.
+Date:   Tue,  2 Mar 2021 06:55:11 -0500
+Message-Id: <20210302115534.61800-30-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
+References: <20210302115534.61800-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some Atmel touchscreen controllers have a WAKE line that needs to be
-asserted low in order to wake up controller from a deep sleep. Document
-the wakeup methods and the new GPIO properties.
+From: Ronald Tschalär <ronald@innovation.ch>
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+[ Upstream commit 0ce1ac23149c6da939a5926c098c270c58c317a0 ]
+
+The response to a command may never arrive or it may be corrupted (and
+hence dropped) for some reason. While exceedingly rare, when it did
+happen it blocked all further commands. One way to fix this was to
+do a suspend/resume. However, recovering automatically seems like a
+nicer option. Hence this puts a time limit (1 sec) on how long we're
+willing to wait for a response, after which we assume it got lost.
+
+Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+Link: https://lore.kernel.org/r/20210217190718.11035-1-ronald@innovation.ch
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../bindings/input/atmel,maxtouch.yaml        | 29 +++++++++++++++++++
- include/dt-bindings/input/atmel-maxtouch.h    | 10 +++++++
- 2 files changed, 39 insertions(+)
- create mode 100644 include/dt-bindings/input/atmel-maxtouch.h
+ drivers/input/keyboard/applespi.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-index 8c6418f76e94..e6b03a1e7c30 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-@@ -39,6 +39,13 @@ properties:
-       (active low). The line must be flagged with
-       GPIO_ACTIVE_LOW.
+diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+index d22223154177..27e87c45edf2 100644
+--- a/drivers/input/keyboard/applespi.c
++++ b/drivers/input/keyboard/applespi.c
+@@ -48,6 +48,7 @@
+ #include <linux/efi.h>
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
++#include <linux/ktime.h>
+ #include <linux/leds.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+@@ -409,7 +410,7 @@ struct applespi_data {
+ 	unsigned int			cmd_msg_cntr;
+ 	/* lock to protect the above parameters and flags below */
+ 	spinlock_t			cmd_msg_lock;
+-	bool				cmd_msg_queued;
++	ktime_t				cmd_msg_queued;
+ 	enum applespi_evt_type		cmd_evt_type;
  
-+  wake-gpios:
-+    maxItems: 1
-+    description:
-+      Optional GPIO specifier for the touchscreen's wake pin
-+      (active low). The line must be flagged with
-+      GPIO_ACTIVE_LOW.
-+
-   linux,gpio-keymap:
-     $ref: /schemas/types.yaml#/definitions/uint32-array
-     description: |
-@@ -53,6 +60,26 @@ properties:
-       or experiment to determine which bit corresponds to which input. Use
-       KEY_RESERVED for unused padding values.
+ 	struct led_classdev		backlight_info;
+@@ -729,7 +730,7 @@ static void applespi_msg_complete(struct applespi_data *applespi,
+ 		wake_up_all(&applespi->drain_complete);
  
-+  atmel,wakeup-method:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    description: |
-+      The WAKE line is an active-low input that is used to wake up the touch
-+      controller from deep-sleep mode before communication with the controller
-+      could be started. This optional feature used to minimize current
-+      consumption when the controller is in deep sleep mode. This feature is
-+      relevant only to some controller families, like mXT1386 controller for
-+      example.
-+
-+      The WAKE pin can be connected in one of the following ways:
-+       1) left permanently low
-+       2) connected to the I2C-compatible SCL pin
-+       3) connected to a GPIO pin on the host
-+    enum:
-+      - 0 # ATMEL_MXT_WAKEUP_NONE
-+      - 1 # ATMEL_MXT_WAKEUP_I2C_SCL
-+      - 2 # ATMEL_MXT_WAKEUP_GPIO
-+    default: 0
-+
- required:
-   - compatible
-   - reg
-@@ -63,6 +90,7 @@ additionalProperties: false
- examples:
-   - |
-     #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/input/atmel-maxtouch.h>
-     #include <dt-bindings/gpio/gpio.h>
-     i2c {
-       #address-cells = <1>;
-@@ -75,6 +103,7 @@ examples:
-         reset-gpios = <&gpio 27 GPIO_ACTIVE_LOW>;
-         vdda-supply = <&ab8500_ldo_aux2_reg>;
-         vdd-supply = <&ab8500_ldo_aux5_reg>;
-+        atmel,wakeup-method = <ATMEL_MXT_WAKEUP_I2C_SCL>;
-       };
-     };
+ 	if (is_write_msg) {
+-		applespi->cmd_msg_queued = false;
++		applespi->cmd_msg_queued = 0;
+ 		applespi_send_cmd_msg(applespi);
+ 	}
  
-diff --git a/include/dt-bindings/input/atmel-maxtouch.h b/include/dt-bindings/input/atmel-maxtouch.h
-new file mode 100644
-index 000000000000..7345ab32224d
---- /dev/null
-+++ b/include/dt-bindings/input/atmel-maxtouch.h
-@@ -0,0 +1,10 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
+@@ -771,8 +772,16 @@ static int applespi_send_cmd_msg(struct applespi_data *applespi)
+ 		return 0;
+ 
+ 	/* check whether send is in progress */
+-	if (applespi->cmd_msg_queued)
+-		return 0;
++	if (applespi->cmd_msg_queued) {
++		if (ktime_ms_delta(ktime_get(), applespi->cmd_msg_queued) < 1000)
++			return 0;
 +
-+#ifndef _DT_BINDINGS_ATMEL_MAXTOUCH_H
-+#define _DT_BINDINGS_ATMEL_MAXTOUCH_H
++		dev_warn(&applespi->spi->dev, "Command %d timed out\n",
++			 applespi->cmd_evt_type);
 +
-+#define ATMEL_MXT_WAKEUP_NONE		0
-+#define ATMEL_MXT_WAKEUP_I2C_SCL	1
-+#define ATMEL_MXT_WAKEUP_GPIO		2
-+
-+#endif /* _DT_BINDINGS_ATMEL_MAXTOUCH_H */
++		applespi->cmd_msg_queued = 0;
++		applespi->write_active = false;
++	}
+ 
+ 	/* set up packet */
+ 	memset(packet, 0, APPLESPI_PACKET_SIZE);
+@@ -869,7 +878,7 @@ static int applespi_send_cmd_msg(struct applespi_data *applespi)
+ 		return sts;
+ 	}
+ 
+-	applespi->cmd_msg_queued = true;
++	applespi->cmd_msg_queued = ktime_get_coarse();
+ 	applespi->write_active = true;
+ 
+ 	return 0;
+@@ -1921,7 +1930,7 @@ static int __maybe_unused applespi_resume(struct device *dev)
+ 	applespi->drain = false;
+ 	applespi->have_cl_led_on = false;
+ 	applespi->have_bl_level = 0;
+-	applespi->cmd_msg_queued = false;
++	applespi->cmd_msg_queued = 0;
+ 	applespi->read_active = false;
+ 	applespi->write_active = false;
+ 
 -- 
-2.29.2
+2.30.1
 

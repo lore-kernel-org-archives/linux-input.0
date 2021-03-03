@@ -2,109 +2,104 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44A2DC1550E
-	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A1CBC15511
+	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 257C464EBA
+	by mail.kernel.org (Postfix) with ESMTP id EDE6964E6C
 	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349859AbhCDA1B (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:27:01 -0500
-Received: from mga17.intel.com ([192.55.52.151]:50147 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1841823AbhCCGi3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 3 Mar 2021 01:38:29 -0500
-IronPort-SDR: QupRfpN9oBzzs6zVIuboLXDxDoZMdk2mqvHukpoBsDxq6zthxHviWdMYu5UUnLmncnlofHcucd
- aPcxtno4UaWg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9911"; a="167012902"
-X-IronPort-AV: E=Sophos;i="5.81,219,1610438400"; 
-   d="scan'208";a="167012902"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2021 22:36:02 -0800
-IronPort-SDR: 1NxdKoDzUvWwhEtx/0uVwLiNyEaT+4EYDyHqLUGY+iyA3yPB99tpZj9MxZPd8Wxtw9MltYeL8D
- Uh+pPZQ5bibA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,219,1610438400"; 
-   d="scan'208";a="383870919"
-Received: from host.sh.intel.com ([10.239.154.115])
-  by orsmga002.jf.intel.com with ESMTP; 02 Mar 2021 22:36:00 -0800
-From:   Ye Xiang <xiang.ye@intel.com>
-To:     jikos@kernel.org, jic23@kernel.org,
-        srinivas.pandruvada@linux.intel.com
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH 3/4] iio: hid-sensor-temperature: Fix issues of timestamp channel
-Date:   Wed,  3 Mar 2021 14:36:14 +0800
-Message-Id: <20210303063615.12130-4-xiang.ye@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210303063615.12130-1-xiang.ye@intel.com>
-References: <20210303063615.12130-1-xiang.ye@intel.com>
+        id S234230AbhCDA1F (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:27:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58862 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1580080AbhCCSdK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 3 Mar 2021 13:33:10 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F380C061760
+        for <linux-input@vger.kernel.org>; Wed,  3 Mar 2021 10:32:30 -0800 (PST)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1lHWIO-0000jV-5g; Wed, 03 Mar 2021 19:32:28 +0100
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1lHWIK-0005YI-1p; Wed, 03 Mar 2021 19:32:24 +0100
+Date:   Wed, 3 Mar 2021 19:32:23 +0100
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     jingle <jingle.wu@emc.com.tw>
+Cc:     'Dmitry Torokhov' <dmitry.torokhov@gmail.com>,
+        kernel@pengutronix.de, linux-input@vger.kernel.org
+Subject: Re: elan_i2c: failed to read report data: -71
+Message-ID: <20210303183223.rtqi63hdl3a7hahv@pengutronix.de>
+References: <20210302210934.iro3a6chigx72r4n@pengutronix.de>
+ <016d01d70fdb$2aa48b00$7feda100$@emc.com.tw>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="rk6za3wipip7ik5e"
+Content-Disposition: inline
+In-Reply-To: <016d01d70fdb$2aa48b00$7feda100$@emc.com.tw>
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch fixes 2 issues of timestamp channel:
-1. This patch ensures that there is sufficient space and correct
-alignment for the timestamp.
-2. Correct the timestamp channel scan index.
 
-Fixes: 59d0f2da3569 ("iio: hid: Add temperature sensor support")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
----
- drivers/iio/temperature/hid-sensor-temperature.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+--rk6za3wipip7ik5e
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/iio/temperature/hid-sensor-temperature.c
-index e3d38cbcf354..dc534ed784c3 100644
---- a/drivers/iio/temperature/hid-sensor-temperature.c
-+++ b/drivers/iio/temperature/hid-sensor-temperature.c
-@@ -15,7 +15,10 @@
- struct temperature_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info temperature_attr;
--	s32 temperature_data;
-+	struct {
-+		s32 temperature_data;
-+		u64 timestamp __aligned(8);
-+	} scan;
- 	int scale_pre_decml;
- 	int scale_post_decml;
- 	int scale_precision;
-@@ -36,7 +39,7 @@ static const struct iio_chan_spec temperature_channels[] = {
- 			BIT(IIO_CHAN_INFO_SAMP_FREQ) |
- 			BIT(IIO_CHAN_INFO_HYSTERESIS),
- 	},
--	IIO_CHAN_SOFT_TIMESTAMP(3),
-+	IIO_CHAN_SOFT_TIMESTAMP(1),
- };
- 
- /* Adjust channel real bits based on report descriptor */
-@@ -127,9 +130,8 @@ static int temperature_proc_event(struct hid_sensor_hub_device *hsdev,
- 	struct temperature_state *temp_st = iio_priv(indio_dev);
- 
- 	if (atomic_read(&temp_st->common_attributes.data_ready))
--		iio_push_to_buffers_with_timestamp(indio_dev,
--				&temp_st->temperature_data,
--				iio_get_time_ns(indio_dev));
-+		iio_push_to_buffers_with_timestamp(indio_dev, &temp_st->scan,
-+						   iio_get_time_ns(indio_dev));
- 
- 	return 0;
- }
-@@ -144,7 +146,7 @@ static int temperature_capture_sample(struct hid_sensor_hub_device *hsdev,
- 
- 	switch (usage_id) {
- 	case HID_USAGE_SENSOR_DATA_ENVIRONMENTAL_TEMPERATURE:
--		temp_st->temperature_data = *(s32 *)raw_data;
-+		temp_st->scan.temperature_data = *(s32 *)raw_data;
- 		return 0;
- 	default:
- 		return -EINVAL;
--- 
-2.17.1
+Hello,
 
+On Wed, Mar 03, 2021 at 11:13:21AM +0800, jingle wrote:
+> HI uwe:
+>=20
+> Please updates this patchs.
+>=20
+> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=
+=3Dnext&id=3D056115daede8d01f71732bc7d778fb85acee8eb6
+>=20
+> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=
+=3Dnext&id=3De4c9062717feda88900b566463228d1c4910af6d
+
+The first was one of the two patches I already tried, but the latter
+indeed fixes my problem \o/.
+
+@Dmitry: If you don't consider your tree stable, feel free to add a
+
+	Tested-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+
+to e4c9062717feda88900b566463228d1c4910af6d.
+
+Best regards and thanks for your support,
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--rk6za3wipip7ik5e
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmA/1jQACgkQwfwUeK3K
+7AnJEgf/c9P8fWuz+wcqH2E5yPhB0aMvV6iBNleYD/VW2T7oAphH68xClhykLYko
+tqDuTFPt296mWEGmlqz2pmhe8fN7k0Pld9DLzNFOlFmjrtZxZYNsNQe8/OU2+1HT
+xcDY0qjzcypDl7ezqRUuRiQV6LGfCxRpYyAACbEGPt+0G2/e1VlQrkExX9Ue1eeg
+pwOitCxeg8ftyHLbtU5x8zXtaLxYvqoQ4c3y4SM8d9em35Zd4fxC4EdXSOnzfR3B
+iMDCob46pJXiyKJ840jENBbp/FAkD1bFDbrcwj84NWMB3qkVICZ/yGOe3xra8WYC
+AZatlg87qejrrWsg/X9ePODQgBZ0Rw==
+=IDMw
+-----END PGP SIGNATURE-----
+
+--rk6za3wipip7ik5e--

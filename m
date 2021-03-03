@@ -2,100 +2,113 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01AB0C41621
-	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA360C46461
+	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CFE8664EF8
-	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C2F2864EBA
+	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346065AbhCDA1A (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:27:00 -0500
-Received: from mga17.intel.com ([192.55.52.151]:50151 "EHLO mga17.intel.com"
+        id S1357523AbhCDA1F (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:27:05 -0500
+Received: from air.basealt.ru ([194.107.17.39]:47648 "EHLO air.basealt.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1841820AbhCCGiR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 3 Mar 2021 01:38:17 -0500
-IronPort-SDR: m+zdDewE6wxrFoFKHb2ZbRXnhjeKrgQgg4pv7kEW6BAy4tfDqgd9rn1re0UjwtpQCig4sNPF3C
- Qval5Zc9Zb5w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9911"; a="167012884"
-X-IronPort-AV: E=Sophos;i="5.81,219,1610438400"; 
-   d="scan'208";a="167012884"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2021 22:36:00 -0800
-IronPort-SDR: n841CAA7egzCmxnVOXp/mTQQeI446hcezOqZau0UCHroGA5Lvwp4e4q2IFlvtHhEdBBZe8zaUX
- qabmyh2hOinA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,219,1610438400"; 
-   d="scan'208";a="383870907"
-Received: from host.sh.intel.com ([10.239.154.115])
-  by orsmga002.jf.intel.com with ESMTP; 02 Mar 2021 22:35:58 -0800
-From:   Ye Xiang <xiang.ye@intel.com>
-To:     jikos@kernel.org, jic23@kernel.org,
-        srinivas.pandruvada@linux.intel.com
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH 2/4] iio: hid-sensor-humidity: Get sample timestamp from sensor hub
-Date:   Wed,  3 Mar 2021 14:36:13 +0800
-Message-Id: <20210303063615.12130-3-xiang.ye@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210303063615.12130-1-xiang.ye@intel.com>
-References: <20210303063615.12130-1-xiang.ye@intel.com>
+        id S230421AbhCCMuQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 3 Mar 2021 07:50:16 -0500
+Received: by air.basealt.ru (Postfix, from userid 490)
+        id 770D6589433; Wed,  3 Mar 2021 12:48:03 +0000 (UTC)
+Received: from nickel-ws.localdomain (obninsk.basealt.ru [217.15.195.17])
+        by air.basealt.ru (Postfix) with ESMTPSA id 268C9589421;
+        Wed,  3 Mar 2021 12:48:01 +0000 (UTC)
+Reply-To: nickel@basealt.ru
+Subject: Re: Need some help on "Input: elantech - add LEN2146 to SMBus
+ blacklist for ThinkPad L13 Gen2"
+From:   Nikolai Kostrigin <nickel@basealt.ru>
+To:     linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "jingle.wu" <jingle.wu@emc.com.tw>, Wolfram Sang <wsa@kernel.org>
+References: <0d1eaadd-5350-63a4-fe6d-f8f357c49504@basealt.ru>
+ <CAO-hwJLmByHHULhJF60qOUAqprkqZpSvVh-GFXLZ_ndL0guvPQ@mail.gmail.com>
+ <e1fd99ae-8e46-0b21-1011-db73cd75523b@basealt.ru>
+ <20210225093801.GA1008@ninjato>
+ <3ffc29f8-cdf1-15fe-6406-28872bba5716@basealt.ru>
+Organization: BaseALT
+Message-ID: <fe31f6f8-6e38-2ed6-8548-6fa271bf36e9@basealt.ru>
+Date:   Wed, 3 Mar 2021 15:48:00 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
+MIME-Version: 1.0
+In-Reply-To: <3ffc29f8-cdf1-15fe-6406-28872bba5716@basealt.ru>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Try to get sample timestamp from sensor hub first, if failed
-then use system timestamp.
+Hi,
+resending this once again, hoping it wouldn't contain any HTML and
+wouldn't be filtered by LKML.
 
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
----
- drivers/iio/humidity/hid-sensor-humidity.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+03.03.2021 13:11, Nikolai Kostrigin пишет:
+> Hi,
+> 
+> 25.02.2021 12:38, Wolfram Sang пишет:
+>> Hi,
+>>
+>>> I had a preliminary discussion with Benjamin Tissoires and according to
+>>> our agreement I repost it for wider audience.
+>>> Blacklisting the device was decided to be a bad idea.
+>>> But actually I managed to get touchpad totally operational via SMBus
+>>> using a following hack:
+>>>
+>>> providing a parameter to i2c_i801 driver:
+>>>
+>>> modprobe i2c_i801 disable_features=0x2 (i.e. disable the block buffer).
+>> So, from an I2C perspective, there are two things to mention here:
+>>
+>> a) I am in the process of extending the I2C core to allow block
+>> transfers > 32 byte. This is a slow process, though, because we need to
+>> pay attention to not break userspace ABI. If this is done *and* the i801
+>> driver supports length > 32 bytes, too, then it would work natively. If
+>> the i801 can do this, this is a question for Jean Delvare.
+>>
+>> b) I don't know Elantech HW but there are devices out there which allow
+>> configuration for the block size. Something like a bit specifying if
+>> block transfers > 32 are allowed. Or the SMBus version to support. Block
+>> transfers > 32 are SMBus 3.0+ only. If your HW does not have that,
+>> disabling SMBus is an option, too. Disabling it in the i801 driver is
+>> too much of a hammer, I'd say.
+>>
+>> Hope this helps! Happy hacking,
+>>
+>>    Wolfram
+> Thank you for the information, Wolfram!
+> 
+> Finally it turned out that the solution was near me from the very
+> beginning, but I failed to check mainline code at that moment (which is
+> now 5.11).
+> Happily Jingle Wu has pointed me to a couple of  patches of his
+> (co-authored by Dmitry Torokhov):
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=next&id=056115daede8d01f71732bc7d778fb85acee8eb6
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=next&id=e4c9062717feda88900b566463228d1c4910af6d
+> 
+> I applied those to 5.10.17 and trackpoint works like a charm.
+> So I guess theese patches are worth being backported to the longterm
+> 5.10 branch.
+> I'm really sorry for the noise.
+> 
 
-diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-index 74383abc0d44..f7b4c76ed94f 100644
---- a/drivers/iio/humidity/hid-sensor-humidity.c
-+++ b/drivers/iio/humidity/hid-sensor-humidity.c
-@@ -23,6 +23,7 @@ struct hid_humidity_state {
- 	int scale_post_decml;
- 	int scale_precision;
- 	int value_offset;
-+	s64 timestamp;
- };
- 
- static const u32 humidity_sensitivity_addresses[] = {
-@@ -131,9 +132,14 @@ static int humidity_proc_event(struct hid_sensor_hub_device *hsdev,
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
- 
--	if (atomic_read(&humid_st->common_attributes.data_ready))
-+	if (atomic_read(&humid_st->common_attributes.data_ready)) {
-+		if (!humid_st->timestamp)
-+			humid_st->timestamp = iio_get_time_ns(indio_dev);
-+
- 		iio_push_to_buffers_with_timestamp(indio_dev, &humid_st->scan,
--						   iio_get_time_ns(indio_dev));
-+						   humid_st->timestamp);
-+		humid_st->timestamp = 0;
-+	}
- 
- 	return 0;
- }
-@@ -151,6 +157,10 @@ static int humidity_capture_sample(struct hid_sensor_hub_device *hsdev,
- 		humid_st->scan.humidity_data = *(s32 *)raw_data;
- 
- 		return 0;
-+	case HID_USAGE_SENSOR_TIME_TIMESTAMP:
-+		humid_st->timestamp = hid_sensor_convert_timestamp(&humid_st->common_attributes,
-+								   *(s64 *)raw_data);
-+		return 0;
- 	default:
- 		return -EINVAL;
- 	}
 -- 
-2.17.1
-
+Best regards,
+Nikolai Kostrigin

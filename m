@@ -2,103 +2,103 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1F7EC433E6
-	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D7E8C433E0
+	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 01:11:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7855764E68
-	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 083FA64F94
+	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 01:11:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385359AbhCDA1D (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:27:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60058 "EHLO mail.kernel.org"
+        id S236313AbhCDBL4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 20:11:56 -0500
+Received: from rere.qmqm.pl ([91.227.64.183]:53645 "EHLO rere.qmqm.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356221AbhCCKrd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 3 Mar 2021 05:47:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80E8364E66;
-        Wed,  3 Mar 2021 10:34:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614767646;
-        bh=vWDVz8UCSoRB11Joz2z1uFnWKF/SYql5zesbu2Mh24s=;
+        id S1388027AbhCDAfg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 3 Mar 2021 19:35:36 -0500
+X-Greylist: delayed 594 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Mar 2021 19:35:36 EST
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4DrVM53LJKzvp;
+        Thu,  4 Mar 2021 00:19:29 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1614813569; bh=Cik7P2xTwqDafdA73aq4IZQvL7eImqs47c3D63QDZ10=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iOAGRzITI37KeU3j4Drdz3m+qTcXh2WNv7D722PY37n6kWrqJ7SqNrh8r72rjJCQX
-         4QFJH6N01DpDZWkRC8kr4wlyjtKwhN40e1HtnP8T6SN5zuPSIrciKvb9LDB71XzNdj
-         JVIVtnroeGw1yul51ifiYrXkWJcp9HuWm9ByqbeGTn+iCBOeTzlJtWm9zno6gmtzvM
-         1kI1dE1ji7cBMkr3A/Wec43FrrhZwlT1sM4BGWF3JVxIf+/btZbIlHFSpibktmHSuu
-         RuwblBEnNbr9YVbziMZ+b1Op7u3dxkCTZcJ6d/zdeer05PKnq1Y1w4eV77BWhD4ZYu
-         +d1KFFdTwk8Ew==
-Date:   Wed, 3 Mar 2021 11:34:00 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Nikolai Kostrigin <nickel@basealt.ru>
-Cc:     linux-i2c@vger.kernel.org,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Colin Ian King <colin.king@canonical.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "jingle.wu" <jingle.wu@emc.com.tw>
-Subject: Re: Need some help on "Input: elantech - add LEN2146 to SMBus
- blacklist for ThinkPad L13 Gen2"
-Message-ID: <20210303103400.GA3689@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Nikolai Kostrigin <nickel@basealt.ru>, linux-i2c@vger.kernel.org,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Colin Ian King <colin.king@canonical.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "jingle.wu" <jingle.wu@emc.com.tw>
-References: <0d1eaadd-5350-63a4-fe6d-f8f357c49504@basealt.ru>
- <CAO-hwJLmByHHULhJF60qOUAqprkqZpSvVh-GFXLZ_ndL0guvPQ@mail.gmail.com>
- <e1fd99ae-8e46-0b21-1011-db73cd75523b@basealt.ru>
- <20210225093801.GA1008@ninjato>
- <3ffc29f8-cdf1-15fe-6406-28872bba5716@basealt.ru>
+        b=K8kiFrVczxkECy6ZCnMS3gpJgvAPr751D6x9wj1nr0Qnf1oewL0NS/lumB2KWR7Z2
+         ud6o7+NQmo1NUuqq9LTgSi+Xwznspyyo0IGJKaGmWEIpjFnbLHV/4z1srdudqYm4vU
+         G90l/ClnLQSCC7UGmt0wNwZYimnYrPrcwujqIZfLIDNu4MuuzXExTHZrEnCjrR7GF/
+         u3xaeztk+Ins346xhlQWfAYe6OJTaf3nlqryKpsaMHGksRdanY73WjEE6aJ1wfoPx7
+         TsUzeTcF0FAGH/bXutu/xEoJxXBq3BLJ3Az+Me753O1jHSVgF9wQzrFn8u5BZ6j15c
+         uxqghWwqafOJg==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.102.4 at mail
+Date:   Thu, 4 Mar 2021 00:19:22 +0100
+From:   =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Johnny Chuang <johnny.chuang.emc@gmail.com>,
+        Jasper Korten <jja2000@gmail.com>,
+        Svyatoslav Ryhel <clamor95@gmail.com>,
+        linux-input@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1] Input: elants_i2c - fix division by zero if firmware
+ reports zero phys size
+Message-ID: <20210303231922.GC22628@qmqm.qmqm.pl>
+References: <20210302100824.3423-1-digetx@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <3ffc29f8-cdf1-15fe-6406-28872bba5716@basealt.ru>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210302100824.3423-1-digetx@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Tue, Mar 02, 2021 at 01:08:24PM +0300, Dmitry Osipenko wrote:
+> Touchscreen firmware of ASUS Transformer TF700T reports zeros for the phys
+> size. Hence check whether the size is zero and don't set the resolution in
+> this case.
+> 
+> Reported-by: Jasper Korten <jja2000@gmail.com>
+> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+> ---
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> Happily Jingle Wu has pointed me to a couple of=C2=A0 patches of his
-> (co-authored by Dmitry Torokhov):
-
-Yep, this looks like the proper place to fix things. Good it is already
-solved.
+Rewieved-by: Micha³ Miros³aw <mirq-linux@rere.qmqm.pl>
 
 
---1yeeQ81UyVL57Vl7
-Content-Type: application/pgp-signature; name="signature.asc"
+> Please note that ASUS TF700T isn't yet supported by upstream kernel,
+> hence this is not a critical fix.
+> 
+>  drivers/input/touchscreen/elants_i2c.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+> index 4c2b579f6c8b..a2e1cc4192b0 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -1441,14 +1441,16 @@ static int elants_i2c_probe(struct i2c_client *client,
+>  
+>  	touchscreen_parse_properties(ts->input, true, &ts->prop);
+>  
+> -	if (ts->chip_id == EKTF3624) {
+> +	if (ts->chip_id == EKTF3624 && ts->phy_x && ts->phy_y) {
+>  		/* calculate resolution from size */
+>  		ts->x_res = DIV_ROUND_CLOSEST(ts->prop.max_x, ts->phy_x);
+>  		ts->y_res = DIV_ROUND_CLOSEST(ts->prop.max_y, ts->phy_y);
+>  	}
+>  
+> -	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
+> -	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
+> +	if (ts->x_res > 0)
+> +		input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
+> +	if (ts->y_res > 0)
+> +		input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
 
------BEGIN PGP SIGNATURE-----
+I would guess that you can tie X and Y in one if, as they are unlikely
+to work independently.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmA/ZhQACgkQFA3kzBSg
-KbbCHw//X+iKQMH2lAIAvwVP4wXZNSsK1QsyUSbLcKgEPWaZ96Hcq1oFvkaJHWnA
-mXWewlu0BA2sC+GNMpD/0EewZpqOPcjmaO7j7yFYIC2HhwfAYZu7DO7EpIeH5N9x
-VXW8QaBWXejr78lLClwexAGGY1sPq1yud8m1wNZBtAWczFkeTAU1VJZ0biAsw7XC
-5mgV9gAg7nzmfJT1IDRVb8nUpjO0GjWBPaAm1jVUjX+rDqTeAWS/5AHv/ekpIbve
-Z0H0fHWnh//+WwLT+R3+TK9NXvIeRIiOEghNqvDOhSJ5bxAqIlSrSeEWBWhITlMq
-i5BKFvv5TQ8ux85IynISlxqkXGokz+P+fK7ZnbXZwK0hBMDo28n2Fx34CNSy7D1H
-NdhckCGFPzvRrffjim0OmLxf2+VWZhdOWqiBjCL90JV7ZrVvl9yUa6ssqOEWwyf3
-JVXHP2fIpRrViIPiUCqP58ZRPdmGTGFICgE7fGFU1PY/0Ri7rp1BTCVJ/F6v8afT
-4VZoDOYxs1a3L5gEXA5yB7mNLIgEMJc8wkf1eO8Okn+OejdUCBdrM72wC/AkYd09
-f6EruUvsXDivaOY227orPWtUSEmggDDSzy/fgA/T7OfSIbr4V2bZ/flgI5G3RJlu
-Qd4FISK/OFC/yuUFjLZvw7EaZmifRTeapFAXM5amFHOImuABoo4=
-=sFlp
------END PGP SIGNATURE-----
-
---1yeeQ81UyVL57Vl7--
+Best Regards
+Michal Miros³aw

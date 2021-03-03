@@ -2,112 +2,101 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35D4EC15510
-	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A078C432C3
+	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 14BF364E56
-	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 11F6164E68
+	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346204AbhCDA1G (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:27:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50114 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387964AbhCCUET (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 3 Mar 2021 15:04:19 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED660C061756
-        for <linux-input@vger.kernel.org>; Wed,  3 Mar 2021 12:03:37 -0800 (PST)
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1lHXiX-0004Mp-Kk; Wed, 03 Mar 2021 21:03:33 +0100
-Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1lHXiU-0002ed-5s; Wed, 03 Mar 2021 21:03:30 +0100
-Date:   Wed, 3 Mar 2021 21:03:30 +0100
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc:     jingle <jingle.wu@emc.com.tw>, kernel@pengutronix.de,
-        linux-input@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: elan_i2c: failed to read report data: -71
-Message-ID: <20210303200330.udsge64hxlrdkbwt@pengutronix.de>
-References: <20210302210934.iro3a6chigx72r4n@pengutronix.de>
- <016d01d70fdb$2aa48b00$7feda100$@emc.com.tw>
- <20210303183223.rtqi63hdl3a7hahv@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="wa5ad73hp45elh6x"
-Content-Disposition: inline
-In-Reply-To: <20210303183223.rtqi63hdl3a7hahv@pengutronix.de>
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+        id S1352667AbhCDA1B (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:27:01 -0500
+Received: from mga17.intel.com ([192.55.52.151]:50156 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1841824AbhCCGi3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 3 Mar 2021 01:38:29 -0500
+IronPort-SDR: yIfh+60QftoxJaewV0G3QGyUTSm630FeEBeLr0HV2b1l6nGenlxyt0VWgytiq1ptusUbL12lX6
+ /OwU0CQgnZ6Q==
+X-IronPort-AV: E=McAfee;i="6000,8403,9911"; a="167012921"
+X-IronPort-AV: E=Sophos;i="5.81,219,1610438400"; 
+   d="scan'208";a="167012921"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2021 22:36:05 -0800
+IronPort-SDR: p8PRixu5iICIt0F7j6aYBCTvO75n1qvcpJjSZ7PgSSavIFjUJZbG53rGiC5ERXthdLGpPpxWhb
+ PLQ1PRooPStg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,219,1610438400"; 
+   d="scan'208";a="383870931"
+Received: from host.sh.intel.com ([10.239.154.115])
+  by orsmga002.jf.intel.com with ESMTP; 02 Mar 2021 22:36:03 -0800
+From:   Ye Xiang <xiang.ye@intel.com>
+To:     jikos@kernel.org, jic23@kernel.org,
+        srinivas.pandruvada@linux.intel.com
+Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
+Subject: [PATCH 4/4] iio: hid-sensor-temperature: Get sample timestamp from sensor hub
+Date:   Wed,  3 Mar 2021 14:36:15 +0800
+Message-Id: <20210303063615.12130-5-xiang.ye@intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20210303063615.12130-1-xiang.ye@intel.com>
+References: <20210303063615.12130-1-xiang.ye@intel.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Try to get sample timestamp from sensor hub first, if failed
+then use system timestamp.
 
---wa5ad73hp45elh6x
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+---
+ drivers/iio/temperature/hid-sensor-temperature.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-Hello Dmitry,
+diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/iio/temperature/hid-sensor-temperature.c
+index dc534ed784c3..0d8110735779 100644
+--- a/drivers/iio/temperature/hid-sensor-temperature.c
++++ b/drivers/iio/temperature/hid-sensor-temperature.c
+@@ -23,6 +23,7 @@ struct temperature_state {
+ 	int scale_post_decml;
+ 	int scale_precision;
+ 	int value_offset;
++	s64 timestamp;
+ };
+ 
+ static const u32 temperature_sensitivity_addresses[] = {
+@@ -129,9 +130,14 @@ static int temperature_proc_event(struct hid_sensor_hub_device *hsdev,
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct temperature_state *temp_st = iio_priv(indio_dev);
+ 
+-	if (atomic_read(&temp_st->common_attributes.data_ready))
++	if (atomic_read(&temp_st->common_attributes.data_ready)) {
++		if (!temp_st->timestamp)
++			temp_st->timestamp = iio_get_time_ns(indio_dev);
++
+ 		iio_push_to_buffers_with_timestamp(indio_dev, &temp_st->scan,
+-						   iio_get_time_ns(indio_dev));
++						   temp_st->timestamp);
++		temp_st->timestamp = 0;
++	}
+ 
+ 	return 0;
+ }
+@@ -148,6 +154,10 @@ static int temperature_capture_sample(struct hid_sensor_hub_device *hsdev,
+ 	case HID_USAGE_SENSOR_DATA_ENVIRONMENTAL_TEMPERATURE:
+ 		temp_st->scan.temperature_data = *(s32 *)raw_data;
+ 		return 0;
++	case HID_USAGE_SENSOR_TIME_TIMESTAMP:
++		temp_st->timestamp = hid_sensor_convert_timestamp(&temp_st->common_attributes,
++								  *(s64 *)raw_data);
++		return 0;
+ 	default:
+ 		return -EINVAL;
+ 	}
+-- 
+2.17.1
 
-On Wed, Mar 03, 2021 at 07:32:23PM +0100, Uwe Kleine-K=F6nig wrote:
-> Hello,
->=20
-> On Wed, Mar 03, 2021 at 11:13:21AM +0800, jingle wrote:
-> > HI uwe:
-> >=20
-> > Please updates this patchs.
-> >=20
-> > https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?=
-h=3Dnext&id=3D056115daede8d01f71732bc7d778fb85acee8eb6
-> >=20
-> > https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?=
-h=3Dnext&id=3De4c9062717feda88900b566463228d1c4910af6d
->=20
-> The first was one of the two patches I already tried, but the latter
-> indeed fixes my problem \o/.
->=20
-> @Dmitry: If you don't consider your tree stable, feel free to add a
->=20
-> 	Tested-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
->=20
-> to e4c9062717feda88900b566463228d1c4910af6d.
-
-Do you consider this patch for stable? I'd like to see it in Debian's
-5.10 kernel and I guess I'm not the only one who would benefit from such
-a backport.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---wa5ad73hp45elh6x
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmA/644ACgkQwfwUeK3K
-7Anqxwf9EOPlADvUYQuCa4/aUGEygs+uagcfGN/aWDcyz4SF2ugpuAnOV4suwlNo
-fO0wN6NPdzEMZkLIC747hN8yWGT7P4Yu9SCXIfaekgUEOsuZfvbObD92sKZt2MFp
-qgjClLqlZ5DyVcMwitihLqUuA/eE53J6ugJoooOv+WFms9oS4EgbaWl8/epMT8Y3
-RMrIAB1WF4FCQ8SGystd7SMbll9xRR9rCxCr2t/MaAdWo3wXf9/+O4BdJX1uXH11
-T44QmyDQ1GBHuPp/BJy7vUAm6Ob/SnCPfzV3PdtO/Uy7AIr8b91FUJOJPa7jlZ5c
-NkUjEKmyEUwYeqykrBg4FWihe05neg==
-=g0fP
------END PGP SIGNATURE-----
-
---wa5ad73hp45elh6x--

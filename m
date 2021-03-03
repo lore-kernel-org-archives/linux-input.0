@@ -2,298 +2,145 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 016C3C2BA12
-	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 018ACC2BA17
+	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BAFD764EBB
-	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8EE964EDE
+	for <linux-input@archiver.kernel.org>; Wed,  3 Mar 2021 05:38:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354229AbhCCF25 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 00:28:57 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:13042 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2361093AbhCBXTa (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 18:19:30 -0500
-Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Dqsqf6HvhzMgMj;
-        Wed,  3 Mar 2021 06:53:34 +0800 (CST)
-Received: from SWX921481.china.huawei.com (10.126.201.99) by
- DGGEMS404-HUB.china.huawei.com (10.3.19.204) with Microsoft SMTP Server id
- 14.3.498.0; Wed, 3 Mar 2021 06:55:33 +0800
-From:   Barry Song <song.bao.hua@hisilicon.com>
-To:     <tglx@linutronix.de>, <dmitry.torokhov@gmail.com>,
-        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <maz@kernel.org>, <gregkh@linuxfoundation.org>,
-        <linuxarm@openeuler.org>, <jonathan.cameron@huawei.com>,
-        Barry Song <song.bao.hua@hisilicon.com>
-Subject: [PATCH v5 2/2] Input: move to use request_irq by IRQF_NO_AUTOEN flag
-Date:   Wed, 3 Mar 2021 11:49:16 +1300
-Message-ID: <20210302224916.13980-3-song.bao.hua@hisilicon.com>
-X-Mailer: git-send-email 2.21.0.windows.1
-In-Reply-To: <20210302224916.13980-1-song.bao.hua@hisilicon.com>
-References: <20210302224916.13980-1-song.bao.hua@hisilicon.com>
+        id S1446896AbhCCF3e convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 00:29:34 -0500
+Received: from emcscan.emc.com.tw ([192.72.220.5]:50072 "EHLO
+        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244992AbhCCDOy (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2021 22:14:54 -0500
+X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
+   d="scan'208";a="39618795"
+Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
+  by emcscan.emc.com.tw with ESMTP; 03 Mar 2021 11:13:26 +0800
+Received: from 192.168.10.23
+        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(2838:0:AUTH_RELAY)
+        (envelope-from <jingle.wu@emc.com.tw>); Wed, 03 Mar 2021 11:13:24 +0800 (CST)
+Received: from 192.168.33.11
+        by webmail.emc.com.tw with Mail2000 ESMTP Server V7.00(2473:0:AUTH_RELAY)
+        (envelope-from <jingle.wu@emc.com.tw>); Wed, 03 Mar 2021 11:13:21 +0800 (CST)
+From:   "jingle" <jingle.wu@emc.com.tw>
+To:     =?iso-8859-1?Q?'Uwe_Kleine-K=F6nig'?= 
+        <u.kleine-koenig@pengutronix.de>,
+        "'Dmitry Torokhov'" <dmitry.torokhov@gmail.com>,
+        <kernel@pengutronix.de>
+Cc:     <linux-input@vger.kernel.org>
+References: <20210302210934.iro3a6chigx72r4n@pengutronix.de>
+In-Reply-To: <20210302210934.iro3a6chigx72r4n@pengutronix.de>
+Subject: RE: elan_i2c: failed to read report data: -71
+Date:   Wed, 3 Mar 2021 11:13:21 +0800
+Message-ID: <016d01d70fdb$2aa48b00$7feda100$@emc.com.tw>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.126.201.99]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Outlook 14.0
+Thread-Index: AQFWM07JFvN31vfpaJNtqdEvnTXapqtzT1rw
+Content-Language: zh-tw
+x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcMDYwMTFcYXBwZGF0YVxyb2FtaW5nXDA5ZDg0OWI2LTMyZDMtNGE0MC04NWVlLTZiODRiYTI5ZTM1Ylxtc2dzXG1zZy02ODM1NDM0Ny03YmNlLTExZWItOGUwZi1mMDc5NTk2OWU3NWVcYW1lLXRlc3RcNjgzNTQzNDktN2JjZS0xMWViLThlMGYtZjA3OTU5NjllNzVlYm9keS50eHQiIHN6PSIzMDI1IiB0PSIxMzI1OTIxNDgwMTY4ODg2MTUiIGg9IjVqeGRZS2xKZDNDeWU1RHhoVmt6eFRQWU9ncz0iIGlkPSIiIGJsPSIwIiBibz0iMSIvPjwvbWV0YT4=
+x-dg-rorf: true
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-disable_irq() after request_irq() still has a time gap in which
-interrupts can come. request_irq() with IRQF_NO_AUTOEN flag will
-disable IRQ auto-enable because of requesting.
+HI uwe:
 
-On the other hand, request_irq() after setting IRQ_NOAUTOEN as
-below
-irq_set_status_flags(irq, IRQ_NOAUTOEN);
-request_irq(dev, irq...);
-can also be replaced by request_irq() with IRQF_NO_AUTOEN flag.
+Please updates this patchs.
 
-Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
----
- drivers/input/keyboard/tca6416-keypad.c  | 3 +--
- drivers/input/keyboard/tegra-kbc.c       | 5 ++---
- drivers/input/touchscreen/ar1021_i2c.c   | 5 +----
- drivers/input/touchscreen/atmel_mxt_ts.c | 5 ++---
- drivers/input/touchscreen/bu21029_ts.c   | 4 ++--
- drivers/input/touchscreen/cyttsp_core.c  | 5 ++---
- drivers/input/touchscreen/melfas_mip4.c  | 5 ++---
- drivers/input/touchscreen/mms114.c       | 4 ++--
- drivers/input/touchscreen/stmfts.c       | 3 +--
- drivers/input/touchscreen/wm831x-ts.c    | 3 +--
- drivers/input/touchscreen/zinitix.c      | 4 ++--
- 11 files changed, 18 insertions(+), 28 deletions(-)
+https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=nex
+t&id=056115daede8d01f71732bc7d778fb85acee8eb6
 
-diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
-index 9b0f9665dcb0..2a9755910065 100644
---- a/drivers/input/keyboard/tca6416-keypad.c
-+++ b/drivers/input/keyboard/tca6416-keypad.c
-@@ -274,7 +274,7 @@ static int tca6416_keypad_probe(struct i2c_client *client,
- 		error = request_threaded_irq(chip->irqnum, NULL,
- 					     tca6416_keys_isr,
- 					     IRQF_TRIGGER_FALLING |
--						IRQF_ONESHOT,
-+					     IRQF_ONESHOT | IRQF_NO_AUTOEN,
- 					     "tca6416-keypad", chip);
- 		if (error) {
- 			dev_dbg(&client->dev,
-@@ -282,7 +282,6 @@ static int tca6416_keypad_probe(struct i2c_client *client,
- 				chip->irqnum, error);
- 			goto fail1;
- 		}
--		disable_irq(chip->irqnum);
- 	}
- 
- 	error = input_register_device(input);
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 9671842a082a..570fe18c0ce9 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -694,14 +694,13 @@ static int tegra_kbc_probe(struct platform_device *pdev)
- 	input_set_drvdata(kbc->idev, kbc);
- 
- 	err = devm_request_irq(&pdev->dev, kbc->irq, tegra_kbc_isr,
--			       IRQF_TRIGGER_HIGH, pdev->name, kbc);
-+			       IRQF_TRIGGER_HIGH | IRQF_NO_AUTOEN,
-+			       pdev->name, kbc);
- 	if (err) {
- 		dev_err(&pdev->dev, "failed to request keyboard IRQ\n");
- 		return err;
- 	}
- 
--	disable_irq(kbc->irq);
--
- 	err = input_register_device(kbc->idev);
- 	if (err) {
- 		dev_err(&pdev->dev, "failed to register input device\n");
-diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-index c0d5c2413356..dc6a85362a40 100644
---- a/drivers/input/touchscreen/ar1021_i2c.c
-+++ b/drivers/input/touchscreen/ar1021_i2c.c
-@@ -125,7 +125,7 @@ static int ar1021_i2c_probe(struct i2c_client *client,
- 
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, ar1021_i2c_irq,
--					  IRQF_ONESHOT,
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
- 					  "ar1021_i2c", ar1021);
- 	if (error) {
- 		dev_err(&client->dev,
-@@ -133,9 +133,6 @@ static int ar1021_i2c_probe(struct i2c_client *client,
- 		return error;
- 	}
- 
--	/* Disable the IRQ, we'll enable it in ar1021_i2c_open() */
--	disable_irq(client->irq);
--
- 	error = input_register_device(ar1021->input);
- 	if (error) {
- 		dev_err(&client->dev,
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 383a848eb601..3c837c7b24b3 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3156,15 +3156,14 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	}
- 
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
--					  NULL, mxt_interrupt, IRQF_ONESHOT,
-+					  NULL, mxt_interrupt,
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
- 					  client->name, data);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
- 		return error;
- 	}
- 
--	disable_irq(client->irq);
--
- 	error = regulator_bulk_enable(ARRAY_SIZE(data->regulators),
- 				      data->regulators);
- 	if (error) {
-diff --git a/drivers/input/touchscreen/bu21029_ts.c b/drivers/input/touchscreen/bu21029_ts.c
-index 341925edb8e6..392950aa7856 100644
---- a/drivers/input/touchscreen/bu21029_ts.c
-+++ b/drivers/input/touchscreen/bu21029_ts.c
-@@ -401,10 +401,10 @@ static int bu21029_probe(struct i2c_client *client,
- 
- 	input_set_drvdata(in_dev, bu21029);
- 
--	irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, bu21029_touch_soft_irq,
--					  IRQF_ONESHOT, DRIVER_NAME, bu21029);
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
-+					  DRIVER_NAME, bu21029);
- 	if (error) {
- 		dev_err(&client->dev,
- 			"unable to request touch irq: %d\n", error);
-diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index 73c854f35f33..d5c933604168 100644
---- a/drivers/input/touchscreen/cyttsp_core.c
-+++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -652,7 +652,8 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
- 	}
- 
- 	error = devm_request_threaded_irq(dev, ts->irq, NULL, cyttsp_irq,
--					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT |
-+					  IRQF_NO_AUTOEN,
- 					  "cyttsp", ts);
- 	if (error) {
- 		dev_err(ts->dev, "failed to request IRQ %d, err: %d\n",
-@@ -660,8 +661,6 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
- 		return ERR_PTR(error);
- 	}
- 
--	disable_irq(ts->irq);
--
- 	cyttsp_hard_reset(ts);
- 
- 	error = cyttsp_power_on(ts);
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 225796a3f546..2745bf1aee38 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -1502,7 +1502,8 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, mip4_interrupt,
--					  IRQF_ONESHOT, MIP4_DEVICE_NAME, ts);
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
-+					  MIP4_DEVICE_NAME, ts);
- 	if (error) {
- 		dev_err(&client->dev,
- 			"Failed to request interrupt %d: %d\n",
-@@ -1510,8 +1511,6 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return error;
- 	}
- 
--	disable_irq(client->irq);
--
- 	error = input_register_device(input);
- 	if (error) {
- 		dev_err(&client->dev,
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 16557f51b09d..7043f57ea2dd 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -530,13 +530,13 @@ static int mms114_probe(struct i2c_client *client,
- 	}
- 
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
--					  NULL, mms114_interrupt, IRQF_ONESHOT,
-+					  NULL, mms114_interrupt,
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
- 					  dev_name(&client->dev), data);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
- 		return error;
- 	}
--	disable_irq(client->irq);
- 
- 	error = input_register_device(data->input_dev);
- 	if (error) {
-diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index 9a64e1dbc04a..bc11203c9cf7 100644
---- a/drivers/input/touchscreen/stmfts.c
-+++ b/drivers/input/touchscreen/stmfts.c
-@@ -691,10 +691,9 @@ static int stmfts_probe(struct i2c_client *client,
- 	 * interrupts. To be on the safe side it's better to not enable
- 	 * the interrupts during their request.
- 	 */
--	irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
- 	err = devm_request_threaded_irq(&client->dev, client->irq,
- 					NULL, stmfts_irq_handler,
--					IRQF_ONESHOT,
-+					IRQF_ONESHOT | IRQF_NO_AUTOEN,
- 					"stmfts_irq", sdata);
- 	if (err)
- 		return err;
-diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
-index bb1699e0d3c7..319f57fb9af5 100644
---- a/drivers/input/touchscreen/wm831x-ts.c
-+++ b/drivers/input/touchscreen/wm831x-ts.c
-@@ -317,14 +317,13 @@ static int wm831x_ts_probe(struct platform_device *pdev)
- 
- 	error = request_threaded_irq(wm831x_ts->data_irq,
- 				     NULL, wm831x_ts_data_irq,
--				     irqf | IRQF_ONESHOT,
-+				     irqf | IRQF_ONESHOT | IRQF_NO_AUTOEN,
- 				     "Touchscreen data", wm831x_ts);
- 	if (error) {
- 		dev_err(&pdev->dev, "Failed to request data IRQ %d: %d\n",
- 			wm831x_ts->data_irq, error);
- 		goto err_alloc;
- 	}
--	disable_irq(wm831x_ts->data_irq);
- 
- 	if (pdata && pdata->pd_irqf)
- 		irqf = pdata->pd_irqf;
-diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
-index 3b636beb583c..b8d901099378 100644
---- a/drivers/input/touchscreen/zinitix.c
-+++ b/drivers/input/touchscreen/zinitix.c
-@@ -513,10 +513,10 @@ static int zinitix_ts_probe(struct i2c_client *client)
- 		return -EINVAL;
- 	}
- 
--	irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, zinitix_ts_irq_handler,
--					  IRQF_ONESHOT, client->name, bt541);
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
-+					  client->name, bt541);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to request IRQ: %d\n", error);
- 		return error;
+https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=nex
+t&id=e4c9062717feda88900b566463228d1c4910af6d
+
+Thanks
+jingle
+
+-----Original Message-----
+From: Uwe Kleine-König [mailto:u.kleine-koenig@pengutronix.de] 
+Sent: Wednesday, March 03, 2021 5:10 AM
+To: Jingle Wu; Dmitry Torokhov; kernel@pengutronix.de
+Cc: linux-input@vger.kernel.org
+Subject: elan_i2c: failed to read report data: -71
+
+Hello,
+
+I just installed Linux on a new Thinkpad E15 and I experience a non-working
+touchpad. I can move the mouse just fine, but when I press one of the three
+buttons or move the trackpoint the kernel log gets flooded with:
+
+	elan_i2c 0-0015: failed to read report data: -71
+
+and nothing happens in the GUI.
+
+This is a kernel from Debian testing, i.e. 5.10.13, during probe of the
+device the following is reported:
+
+	elan_i2c 0-0015: supply vcc not found, using dummy regulator
+	elan_i2c 0-0015: Elan Touchpad: Module ID: 0x000e, Firmware: 0x0001,
+Sample: 0x0000, IAP: 0x0000
+	input: Elan Touchpad as
+/devices/pci0000:00/0000:00:1f.4/i2c-0/0-0015/input/input21
+	input: Elan TrackPoint as
+/devices/pci0000:00/0000:00:1f.4/i2c-0/0-0015/input/input22
+
+I backported commits
+
+	056115daede8 Input: elan_i2c - add new trackpoint report type 0x5F
+	c7f0169e3bd2 Input: elan_i2c_core - move header inclusion inside
+
+to this kernel, but this didn't help.
+
+When enabling smbus tracing the matching events are:
+
+ irq/159-elan_i2-2207    [003] ....   963.625641: smbus_read: i2c-0 a=015
+f=0040 c=a8 BLOCK_DATA
+ irq/159-elan_i2-2207    [003] ....   963.629247: smbus_result: i2c-0 a=015
+f=0000 c=a8 BLOCK_DATA rd res=-71
+
+The relevant code is:
+
+        len = i2c_smbus_read_block_data(client,
+                                        ETP_SMBUS_PACKET_QUERY,
+                                        &report[ETP_SMBUS_REPORT_OFFSET]);
+        if (len < 0) {
+                dev_err(&client->dev, "failed to read report data: %d\n",
+len);
+                return len;
+        }
+
+I think the failing location in the i2c driver is
+
+        if (read_write == I2C_SMBUS_READ ||
+            command == I2C_SMBUS_BLOCK_PROC_CALL) {
+                len = inb_p(SMBHSTDAT0(priv));
+                if (len < 1 || len > I2C_SMBUS_BLOCK_MAX)
+                        return -EPROTO;
+
+                data->block[0] = len;
+                for (i = 0; i < len; i++)
+                        data->block[i + 1] = inb_p(SMBBLKDAT(priv));
+        }
+
+in i801_block_transaction_by_block().
+
+Does this ring a bell? Does someone know if there is documentation
+available?
+
+Best regards
+Uwe
+
 -- 
-2.25.1
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
 

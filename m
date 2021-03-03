@@ -2,61 +2,103 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D93BFC1550C
-	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1F7EC433E6
+	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B455664E6C
-	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7855764E68
+	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 00:27:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345319AbhCDA07 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Mar 2021 19:26:59 -0500
-Received: from mga17.intel.com ([192.55.52.151]:50147 "EHLO mga17.intel.com"
+        id S1385359AbhCDA1D (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Mar 2021 19:27:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1841811AbhCCGiH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 3 Mar 2021 01:38:07 -0500
-IronPort-SDR: TPlu16eNbBiss4vLPZspzX/5nPs0u6CCNuEEYWdz7ZOEirPot+eyQX/6AekHp2kXAWu7Ln+yG2
- 19rkInf89dnQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9911"; a="167012870"
-X-IronPort-AV: E=Sophos;i="5.81,219,1610438400"; 
-   d="scan'208";a="167012870"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2021 22:35:54 -0800
-IronPort-SDR: Gzn2x7vY5mxZAMjemJh3w5kxMeMEWJ1BgqEKmADFG8aUy5X8il+BXRZhJK0q7I9gP4bF4b1UDn
- f8C+tJXKdKIQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,219,1610438400"; 
-   d="scan'208";a="383870885"
-Received: from host.sh.intel.com ([10.239.154.115])
-  by orsmga002.jf.intel.com with ESMTP; 02 Mar 2021 22:35:52 -0800
-From:   Ye Xiang <xiang.ye@intel.com>
-To:     jikos@kernel.org, jic23@kernel.org,
-        srinivas.pandruvada@linux.intel.com
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH 0/4] Fix humidity and temperature timestamp channel issues
-Date:   Wed,  3 Mar 2021 14:36:11 +0800
-Message-Id: <20210303063615.12130-1-xiang.ye@intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S1356221AbhCCKrd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 3 Mar 2021 05:47:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80E8364E66;
+        Wed,  3 Mar 2021 10:34:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614767646;
+        bh=vWDVz8UCSoRB11Joz2z1uFnWKF/SYql5zesbu2Mh24s=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=iOAGRzITI37KeU3j4Drdz3m+qTcXh2WNv7D722PY37n6kWrqJ7SqNrh8r72rjJCQX
+         4QFJH6N01DpDZWkRC8kr4wlyjtKwhN40e1HtnP8T6SN5zuPSIrciKvb9LDB71XzNdj
+         JVIVtnroeGw1yul51ifiYrXkWJcp9HuWm9ByqbeGTn+iCBOeTzlJtWm9zno6gmtzvM
+         1kI1dE1ji7cBMkr3A/Wec43FrrhZwlT1sM4BGWF3JVxIf+/btZbIlHFSpibktmHSuu
+         RuwblBEnNbr9YVbziMZ+b1Op7u3dxkCTZcJ6d/zdeer05PKnq1Y1w4eV77BWhD4ZYu
+         +d1KFFdTwk8Ew==
+Date:   Wed, 3 Mar 2021 11:34:00 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Nikolai Kostrigin <nickel@basealt.ru>
+Cc:     linux-i2c@vger.kernel.org,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "jingle.wu" <jingle.wu@emc.com.tw>
+Subject: Re: Need some help on "Input: elantech - add LEN2146 to SMBus
+ blacklist for ThinkPad L13 Gen2"
+Message-ID: <20210303103400.GA3689@kunai>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Nikolai Kostrigin <nickel@basealt.ru>, linux-i2c@vger.kernel.org,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "jingle.wu" <jingle.wu@emc.com.tw>
+References: <0d1eaadd-5350-63a4-fe6d-f8f357c49504@basealt.ru>
+ <CAO-hwJLmByHHULhJF60qOUAqprkqZpSvVh-GFXLZ_ndL0guvPQ@mail.gmail.com>
+ <e1fd99ae-8e46-0b21-1011-db73cd75523b@basealt.ru>
+ <20210225093801.GA1008@ninjato>
+ <3ffc29f8-cdf1-15fe-6406-28872bba5716@basealt.ru>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Content-Disposition: inline
+In-Reply-To: <3ffc29f8-cdf1-15fe-6406-28872bba5716@basealt.ru>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch series fixes timestamp issues for humidity and temperature sensor.
 
-Ye Xiang (4):
-  iio: hid-sensor-humidity: Fix alignment issue of timestamp channel
-  iio: hid-sensor-humidity: Get sample timestamp from sensor hub
-  iio: hid-sensor-temperature: Fix issues of timestamp channel
-  iio: hid-sensor-temperature: Get sample timestamp from sensor hub
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- drivers/iio/humidity/hid-sensor-humidity.c    | 24 ++++++++++++-----
- .../iio/temperature/hid-sensor-temperature.c  | 26 ++++++++++++++-----
- 2 files changed, 37 insertions(+), 13 deletions(-)
 
--- 
-2.17.1
+> Happily Jingle Wu has pointed me to a couple of=C2=A0 patches of his
+> (co-authored by Dmitry Torokhov):
 
+Yep, this looks like the proper place to fix things. Good it is already
+solved.
+
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmA/ZhQACgkQFA3kzBSg
+KbbCHw//X+iKQMH2lAIAvwVP4wXZNSsK1QsyUSbLcKgEPWaZ96Hcq1oFvkaJHWnA
+mXWewlu0BA2sC+GNMpD/0EewZpqOPcjmaO7j7yFYIC2HhwfAYZu7DO7EpIeH5N9x
+VXW8QaBWXejr78lLClwexAGGY1sPq1yud8m1wNZBtAWczFkeTAU1VJZ0biAsw7XC
+5mgV9gAg7nzmfJT1IDRVb8nUpjO0GjWBPaAm1jVUjX+rDqTeAWS/5AHv/ekpIbve
+Z0H0fHWnh//+WwLT+R3+TK9NXvIeRIiOEghNqvDOhSJ5bxAqIlSrSeEWBWhITlMq
+i5BKFvv5TQ8ux85IynISlxqkXGokz+P+fK7ZnbXZwK0hBMDo28n2Fx34CNSy7D1H
+NdhckCGFPzvRrffjim0OmLxf2+VWZhdOWqiBjCL90JV7ZrVvl9yUa6ssqOEWwyf3
+JVXHP2fIpRrViIPiUCqP58ZRPdmGTGFICgE7fGFU1PY/0Ri7rp1BTCVJ/F6v8afT
+4VZoDOYxs1a3L5gEXA5yB7mNLIgEMJc8wkf1eO8Okn+OejdUCBdrM72wC/AkYd09
+f6EruUvsXDivaOY227orPWtUSEmggDDSzy/fgA/T7OfSIbr4V2bZ/flgI5G3RJlu
+Qd4FISK/OFC/yuUFjLZvw7EaZmifRTeapFAXM5amFHOImuABoo4=
+=sFlp
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--

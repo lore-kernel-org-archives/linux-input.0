@@ -4,124 +4,105 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 657AFC433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87299C4332D
 	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 19:24:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F54C64F5F
+	by mail.kernel.org (Postfix) with ESMTP id 5DF4564F69
 	for <linux-input@archiver.kernel.org>; Thu,  4 Mar 2021 19:24:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232065AbhCDTXd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 4 Mar 2021 14:23:33 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:29023 "EHLO
+        id S235089AbhCDTXe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 4 Mar 2021 14:23:34 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:42911 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234975AbhCDTXQ (ORCPT
+        by vger.kernel.org with ESMTP id S235146AbhCDTXW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 4 Mar 2021 14:23:16 -0500
+        Thu, 4 Mar 2021 14:23:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614885710;
+        s=mimecast20190719; t=1614885716;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=7xmBlRuZSRDsvCOUTzdafxLoB8Jh5uBwEExSVC1VlxQ=;
-        b=I0K6eUApxieMCBv+FdOjCPQL/bmT2hGmg4rbkkYKNo+kF0RmwtGLr5d/dVI8+MZu1ubGrR
-        nQgEbpPiNjDTjqNo7DPtlRDDH89zqEnDiLbeO/NWn9hw8mwuI4s72cuyyH5Bm85ADnyebo
-        GOput8gsuz4C6aueoBHlqd2WSaEJ4SU=
+        bh=V62MrnoAFs7bt+pCWE2RRjxmq7tjdHYxCLb9JgJuvGw=;
+        b=QUSOTqXwX7Ii+CF/Cm6SlvIqvk1dy/3eJT230e4emRsO+5m5XI08OXCqABTVVNI4hF6jXz
+        AHfwt8IOyLPzFlyZ+xd7301gm+iGj5b1xGkHI4+VeIRqCRs6UObx3zjlrkzULsqNOevkbF
+        zyufXPbWLKxuoAMRilxTZtOwSFJ79Jg=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-160-X6p1qxr7MvWMMQOzZz8jig-1; Thu, 04 Mar 2021 14:21:48 -0500
-X-MC-Unique: X6p1qxr7MvWMMQOzZz8jig-1
+ us-mta-492-h2co7ctxNWi_kUidsGJHXQ-1; Thu, 04 Mar 2021 14:21:55 -0500
+X-MC-Unique: h2co7ctxNWi_kUidsGJHXQ-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B187183DD22;
-        Thu,  4 Mar 2021 19:21:47 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EC28180006E;
+        Thu,  4 Mar 2021 19:21:53 +0000 (UTC)
 Received: from x1.localdomain.com (ovpn-114-177.ams2.redhat.com [10.36.114.177])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0743319CAB;
-        Thu,  4 Mar 2021 19:21:45 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DAF092BFEB;
+        Thu,  4 Mar 2021 19:21:52 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Alexander Kobel <a-kobel@a-kobel.de>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH v4 4/9] HID: lenovo: Remove lenovo_led_brightness_get()
-Date:   Thu,  4 Mar 2021 20:21:29 +0100
-Message-Id: <20210304192134.520919-5-hdegoede@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Subject: [PATCH v4 8/9] HID: lenovo: Rework how the tp10ubkbd code decides which USB interface to use
+Date:   Thu,  4 Mar 2021 20:21:33 +0100
+Message-Id: <20210304192134.520919-9-hdegoede@redhat.com>
 In-Reply-To: <20210304192134.520919-1-hdegoede@redhat.com>
 References: <20210304192134.520919-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The led_classdev already contains a cached value of the last set
-brightness, the brightness_get callback is only meant for LED drivers
-which can read back the actual / current brightness from the hardware.
+Instead of looking for a hdev with a type of HID_TYPE_USBMOUSE find
+the interface for the mute/mic-mute/fn-lock LEDs by checking for the
+output-report which is used to set them.
 
-Since lenovo_led_brightness_get() just returns the last set value
-it does not add any functionality, so we can just remove it.
+This is a preparation patch for adding support for the LEDs on the
+X1 tablet thin keyboard which uses the same output-report, but has
+a separate (third) USB interface for the touchpad/mouse functionality.
 
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Acked-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Changes in v2:
-- New patch in v2 of this patch-set
----
- drivers/hid/hid-lenovo.c | 18 ------------------
- 1 file changed, 18 deletions(-)
+ drivers/hid/hid-lenovo.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index b2596ed37880..1b8dd85ceb05 100644
+index 2287142116b9..a33de5022ec3 100644
 --- a/drivers/hid/hid-lenovo.c
 +++ b/drivers/hid/hid-lenovo.c
-@@ -774,22 +774,6 @@ static void lenovo_led_set_tpkbd(struct hid_device *hdev)
- 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
- }
+@@ -959,11 +959,24 @@ static const struct attribute_group lenovo_attr_group_tp10ubkbd = {
  
--static enum led_brightness lenovo_led_brightness_get(
--			struct led_classdev *led_cdev)
--{
--	struct device *dev = led_cdev->dev->parent;
--	struct hid_device *hdev = to_hid_device(dev);
--	struct lenovo_drvdata *data_pointer = hid_get_drvdata(hdev);
--	int led_nr = 0;
--
--	if (led_cdev == &data_pointer->led_micmute)
--		led_nr = 1;
--
--	return data_pointer->led_state & (1 << led_nr)
--				? LED_FULL
--				: LED_OFF;
--}
--
- static int lenovo_led_brightness_set(struct led_classdev *led_cdev,
- 			enum led_brightness value)
+ static int lenovo_probe_tp10ubkbd(struct hid_device *hdev)
  {
-@@ -837,7 +821,6 @@ static int lenovo_register_leds(struct hid_device *hdev)
- 	snprintf(name_micm, name_sz, "%s:amber:micmute", dev_name(&hdev->dev));
++	struct hid_report_enum *rep_enum;
+ 	struct lenovo_drvdata *data;
++	struct hid_report *rep;
++	bool found;
+ 	int ret;
  
- 	data->led_mute.name = name_mute;
--	data->led_mute.brightness_get = lenovo_led_brightness_get;
- 	data->led_mute.brightness_set_blocking = lenovo_led_brightness_set;
- 	data->led_mute.flags = LED_HW_PLUGGABLE;
- 	data->led_mute.dev = &hdev->dev;
-@@ -846,7 +829,6 @@ static int lenovo_register_leds(struct hid_device *hdev)
- 		return ret;
+-	/* All the custom action happens on the USBMOUSE device for USB */
+-	if (hdev->type != HID_TYPE_USBMOUSE)
++	/*
++	 * The LEDs and the Fn-lock functionality use output report 9,
++	 * with an application of 0xffa0001, add the LEDs on the interface
++	 * with this output report.
++	 */
++	found = false;
++	rep_enum = &hdev->report_enum[HID_OUTPUT_REPORT];
++	list_for_each_entry(rep, &rep_enum->report_list, list) {
++		if (rep->application == 0xffa00001)
++			found = true;
++	}
++	if (!found)
+ 		return 0;
  
- 	data->led_micmute.name = name_micm;
--	data->led_micmute.brightness_get = lenovo_led_brightness_get;
- 	data->led_micmute.brightness_set_blocking = lenovo_led_brightness_set;
- 	data->led_micmute.flags = LED_HW_PLUGGABLE;
- 	data->led_micmute.dev = &hdev->dev;
+ 	data = devm_kzalloc(&hdev->dev, sizeof(*data), GFP_KERNEL);
 -- 
 2.30.1
 

@@ -1,73 +1,148 @@
-Return-Path: <SRS0=SPD7=IE=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <SRS0=kFWr=IF=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=0.3 required=3.0 tests=BAYES_20,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 511E9C433DB
-	for <linux-input@archiver.kernel.org>; Sat,  6 Mar 2021 21:12:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4FD0C433DB
+	for <linux-input@archiver.kernel.org>; Sun,  7 Mar 2021 17:36:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1D3F7650B2
-	for <linux-input@archiver.kernel.org>; Sat,  6 Mar 2021 21:12:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B53765182
+	for <linux-input@archiver.kernel.org>; Sun,  7 Mar 2021 17:36:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbhCFVLe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 6 Mar 2021 16:11:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33870 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbhCFVLa (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Mar 2021 16:11:30 -0500
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6D2BC06174A
-        for <linux-input@vger.kernel.org>; Sat,  6 Mar 2021 13:11:30 -0800 (PST)
-Received: by mail-yb1-xb31.google.com with SMTP id x19so5960227ybe.0
-        for <linux-input@vger.kernel.org>; Sat, 06 Mar 2021 13:11:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=VY+owT6VIPUKw32ZrEOt1H+ufXEPRkhYHdQPPHT2ttg=;
-        b=auoREKELC0miYOfoNSbie6KEDRwd3lzqDTtmrHuaK6qZBK4d683rUKXa9QQ8POOvYI
-         o+bN3QCqOe27uO/MIFnjvdQ73IgZ8RkegGtjXL51e21E3GA4Bl7NhBcAx9Zy6hcNDW1x
-         XoiVX209KZwLzLpvs1uMGJ6FOqPkhxcVCN4ox/Mmg8VwZ8L5xCMqLOw9tN91JSHOJpMS
-         3Nv80HZRTHzssw/ExWF9yCOsnZ3G04IWcE69waJ3FVPvugN62UZ3+6s66SSVq25kcOPu
-         4sAnlQMM//rl5U2x8sv3LhyDTSWAf/Zas7ulhfqARfFSz8VTJZzrt9J2JMbNp4zQ/r4j
-         TZKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=VY+owT6VIPUKw32ZrEOt1H+ufXEPRkhYHdQPPHT2ttg=;
-        b=F0I1tu0r5Bnxtnu0w8QV64qAgrIpKQiBGnCZ6GBKb3gjzCqPqQSAsxZy6TT13Y7RPu
-         5zsI2I36locn3gfZw6x+DoDd2jVB6cRVnBHaxUjvylsqqjEX7N4oVdo/HVlOGWkdnTMN
-         EmA7a5TbJilG8N8SI2ih4tuBCDPLasTYLtmWso9esTKjjDraBUYTEZqGJNSD/PedzkV+
-         0bJligj04FPGVipaNG6ryQV2ljwus5Emp9ZtoR2Xs4FIT4riN6XSuxqpR/qaz+H2f/Bg
-         cvhAu++u8sssjuhQhS7wOpBxHu6bBPxnFNgwEExLD6Xe83OHQRWmc27nYDb1Gvy3QKgu
-         cx8w==
-X-Gm-Message-State: AOAM533661FEP47kaCCuGgenhrzTf/JmbgO2l1laI8l/YH6An5cWYwxv
-        y04R+kx5rY/12/76UrPZ9jzqNYT5OIHU3tGbvuNEqdY149E3yg==
-X-Google-Smtp-Source: ABdhPJwMz6D+v2gb0mIrMT6vjIdgWSfkgHqu4Ky07XvKBvm+k3Ck+5OHb+4pujoa2LiMLrESPDaMPYpWUdlZNmhDIAg=
-X-Received: by 2002:a25:1d88:: with SMTP id d130mr23503089ybd.446.1615065089447;
- Sat, 06 Mar 2021 13:11:29 -0800 (PST)
+        id S229829AbhCGRf2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 7 Mar 2021 12:35:28 -0500
+Received: from aposti.net ([89.234.176.197]:44154 "EHLO aposti.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229783AbhCGRez (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 7 Mar 2021 12:34:55 -0500
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     od@zcrc.me, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH v2 2/3] input: gpio-keys: Use hrtimer for release timer
+Date:   Sun,  7 Mar 2021 17:34:35 +0000
+Message-Id: <20210307173436.78730-2-paul@crapouillou.net>
+In-Reply-To: <20210307173436.78730-1-paul@crapouillou.net>
+References: <20210307173436.78730-1-paul@crapouillou.net>
 MIME-Version: 1.0
-From:   James Courtier-Dutton <james.dutton@gmail.com>
-Date:   Sat, 6 Mar 2021 21:10:53 +0000
-Message-ID: <CAAMvbhH3JCny2m-4Tv0cTa4ULFHro0bJmgRSE9uJHQRW0_fcLw@mail.gmail.com>
-Subject: Essential Tremors
-To:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+Dealing with input, timing is important; if the button should be
+released in one millisecond, then it should be done in one millisecond
+and not a hundred milliseconds.
 
-I am trying to help someone out.
-Is there any software for Linux that helps for people with "Essential Tremors".
+Therefore, the standard timer API is not really suitable for this task.
 
-E.g. Something like this:
-https://www.steadymouse.com/
+Convert the gpio-keys driver to use a hrtimer instead of the standard
+timer to address this issue.
 
-Kind Regards
+Note that by using a hard IRQ for the hrtimer callback, we can get rid
+of the spin_lock_irqsave() and spin_unlock_irqrestore().
 
-James
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+
+Notes:
+    v2: No change
+
+ drivers/input/keyboard/gpio_keys.c | 27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 7fcb2c35c5cc..4b92f49decef 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/module.h>
+ 
++#include <linux/hrtimer.h>
+ #include <linux/init.h>
+ #include <linux/fs.h>
+ #include <linux/interrupt.h>
+@@ -36,7 +37,7 @@ struct gpio_button_data {
+ 
+ 	unsigned short *code;
+ 
+-	struct timer_list release_timer;
++	struct hrtimer release_timer;
+ 	unsigned int release_delay;	/* in msecs, for IRQ-only buttons */
+ 
+ 	struct delayed_work work;
+@@ -146,7 +147,7 @@ static void gpio_keys_disable_button(struct gpio_button_data *bdata)
+ 		if (bdata->gpiod)
+ 			cancel_delayed_work_sync(&bdata->work);
+ 		else
+-			del_timer_sync(&bdata->release_timer);
++			hrtimer_cancel(&bdata->release_timer);
+ 
+ 		bdata->disabled = true;
+ 	}
+@@ -415,19 +416,20 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void gpio_keys_irq_timer(struct timer_list *t)
++static enum hrtimer_restart gpio_keys_irq_timer(struct hrtimer *t)
+ {
+-	struct gpio_button_data *bdata = from_timer(bdata, t, release_timer);
++	struct gpio_button_data *bdata = container_of(t,
++						      struct gpio_button_data,
++						      release_timer);
+ 	struct input_dev *input = bdata->input;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&bdata->lock, flags);
+ 	if (bdata->key_pressed) {
+ 		input_event(input, EV_KEY, *bdata->code, 0);
+ 		input_sync(input);
+ 		bdata->key_pressed = false;
+ 	}
+-	spin_unlock_irqrestore(&bdata->lock, flags);
++
++	return HRTIMER_NORESTART;
+ }
+ 
+ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+@@ -457,8 +459,9 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+ 	}
+ 
+ 	if (bdata->release_delay)
+-		mod_timer(&bdata->release_timer,
+-			jiffies + msecs_to_jiffies(bdata->release_delay));
++		hrtimer_start(&bdata->release_timer,
++			      ms_to_ktime(bdata->release_delay),
++			      HRTIMER_MODE_REL_HARD);
+ out:
+ 	spin_unlock_irqrestore(&bdata->lock, flags);
+ 	return IRQ_HANDLED;
+@@ -471,7 +474,7 @@ static void gpio_keys_quiesce_key(void *data)
+ 	if (bdata->gpiod)
+ 		cancel_delayed_work_sync(&bdata->work);
+ 	else
+-		del_timer_sync(&bdata->release_timer);
++		hrtimer_cancel(&bdata->release_timer);
+ }
+ 
+ static int gpio_keys_setup_key(struct platform_device *pdev,
+@@ -595,7 +598,9 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 		}
+ 
+ 		bdata->release_delay = button->debounce_interval;
+-		timer_setup(&bdata->release_timer, gpio_keys_irq_timer, 0);
++		hrtimer_init(&bdata->release_timer,
++			     CLOCK_REALTIME, HRTIMER_MODE_REL_HARD);
++		bdata->release_timer.function = gpio_keys_irq_timer;
+ 
+ 		isr = gpio_keys_irq_isr;
+ 		irqflags = 0;
+-- 
+2.30.1
+

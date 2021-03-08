@@ -1,4 +1,4 @@
-Return-Path: <SRS0=htlr=IG=vger.kernel.org=linux-input-owner@kernel.org>
+Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -6,39 +6,43 @@ X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA29EC433DB
-	for <linux-input@archiver.kernel.org>; Mon,  8 Mar 2021 14:00:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40B7AC433E0
+	for <linux-input@archiver.kernel.org>; Mon,  8 Mar 2021 15:34:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A0A43651E8
-	for <linux-input@archiver.kernel.org>; Mon,  8 Mar 2021 14:00:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 00BDB65105
+	for <linux-input@archiver.kernel.org>; Mon,  8 Mar 2021 15:34:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230124AbhCHOA3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 8 Mar 2021 09:00:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38224 "EHLO mail.kernel.org"
+        id S229805AbhCHPdd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 8 Mar 2021 10:33:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229729AbhCHOAZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 8 Mar 2021 09:00:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4675465020;
-        Mon,  8 Mar 2021 14:00:24 +0000 (UTC)
+        id S229459AbhCHPdO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 8 Mar 2021 10:33:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEEEE65268;
+        Mon,  8 Mar 2021 15:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615212025;
-        bh=YQsm6KMDY0N2Ctv8oTPi/w8T765Y85DVcIBA2O4rkgI=;
+        s=k20201202; t=1615217593;
+        bh=a0+1uZ6MI+rUazlW6IRSmCcz3df1yEE+4007pOdUess=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=jbgwB8MZsoqJGgLXF+42i1tqc1EZxXlU5d+WZSC6d9BoPjDSm+PRHIW4Uj+YBa+MS
-         eRwO8STv85Xgncrij0Jl/eK+RqSGdMprTd7+oxi4xrQPS0b/2EY5ZKh7lVkJE6LMQm
-         0PKXriqNM3VxITopQSUMRjk4tLd7ckvAcP2DlvoExn/hbQPpgE6I10hi4ahB5EfxXW
-         0vBVPD2e9a/hxixScx1C8CD/nwGMiTbx4H5AQdBQqKR1bhX68U0CRZ8lANVEobNcrh
-         YPtqhqlTpjFEi37zGu7R0FA99VB4Kq8HG/yThhBvDitBNL6nVV7XBgvBlsSVj/vQR1
-         CcuciHF8L/A9A==
-Date:   Mon, 8 Mar 2021 15:00:22 +0100 (CET)
+        b=aXMfXPOgEpyl9wN6d7jhFfcYu965UHhN5kSfnjGz8wdRfVwybcyTS5E19/zPdDILF
+         P68qUSc8x4+fNe88cw9AnROwun6LCjnQGD8UNG5xIseVtkrHG76e5dSkpyCUgjl4tD
+         BqbCM+OJfqDcl+hBrstM6hdVIC84U5CggbKcQuLJNxCNax4YxwQpCkotphLd6gJvtk
+         tt1+5I+CEVbupkAz6Zr1aPvU7eiqT7XldFLucjoZBROSrKSiAe1wZkGqXMgaAm11fM
+         S13igphAceLJGj0V/r/zHtF4qqJzIpL8FRqzZMJ5FCLIOpCYoj3G/xC9JZ3KqLzadz
+         KXTL9WI93WxZg==
+Date:   Mon, 8 Mar 2021 16:33:10 +0100 (CET)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Dario Pagani <dario.pagani.146@gmail.com>
-cc:     linux-input@vger.kernel.org, kimi.h.kuparinen@gmail.com
-Subject: Re: [PATCH] HID: support for initialization of some Thrustmaster
- wheels
-In-Reply-To: <20210131090045.10636-1-dario.pagani.146@gmail.com>
-Message-ID: <nycvar.YFH.7.76.2103081458550.12405@cbobk.fhfr.pm>
-References: <20210131090045.10636-1-dario.pagani.146@gmail.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Nehal Shah <nehal-bakulchandra.shah@amd.com>,
+        Sandeep Singh <sandeep.singh@amd.com>,
+        Richard Neumann <mail@richard-neumann.de>,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH 0/3] AMD_SFH: Allow overriding sensor-mask by module-param
+ or DMI-quirk
+In-Reply-To: <20210128121219.6381-1-hdegoede@redhat.com>
+Message-ID: <nycvar.YFH.7.76.2103081633000.12405@cbobk.fhfr.pm>
+References: <20210128121219.6381-1-hdegoede@redhat.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -46,28 +50,25 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 31 Jan 2021, Dario Pagani wrote:
+On Thu, 28 Jan 2021, Hans de Goede wrote:
 
-> Add support for proper initialization of some Thrustmaster wheels that
-> appear like a "Thrustmaster FFB Wheel" (044f:b65d) to the host. When the
-> device is connected a special usb request is sent, this request makes the
-> wheel disconnect and reappear to the host as the "real wheel".
-> For example: a T150 will re-appear as 044f:b677 and a T300 as 044f:b66e
+> Hi All,
+> 
+> There are several bug-reports about the new AMD_SFH driver not working
+> on various HP ENVY x360 Convertible models. The problem is that the
+> driver expects the BIOS to program which sensors are present into the
+> active bits of the AMD_P2C_MSG3 register; and the BIOS on these models
+> does not do this:
+> 
+> https://bugzilla.kernel.org/show_bug.cgi?id=199715
+> https://bugzilla.redhat.com/show_bug.cgi?id=1651886
+> 
+> This patch-set adds a module-parameter + DMI-quirk mechanism to override
+> the settings read back from the AMD_P2C_MSG3 register, to work around
+> this problem. The DMI-quirk table is populated with 2 HP ENVY x360
+> Convertible models which are know to need this workaround.
 
-Hi Dario,
-
-thanks a lot for working on enabling these devices on Linux.
-
-Two questions:
-
-- I don't think we need to have this in a separate driver, is there a 
-  substantial reason why it can't be folded into hid-thrustmaster proper?
-
-- Looking at what the code actually does, it seems like this could 
-  completely be done in userspace via libusb as a hook in udev when such 
-  device is plugged in, can't it?
-
-Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina

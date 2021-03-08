@@ -2,44 +2,43 @@ Return-Path: <SRS0=htlr=IG=vger.kernel.org=linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 625D8C4332B
-	for <linux-input@archiver.kernel.org>; Mon,  8 Mar 2021 13:58:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA29EC433DB
+	for <linux-input@archiver.kernel.org>; Mon,  8 Mar 2021 14:00:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 388C1651DC
-	for <linux-input@archiver.kernel.org>; Mon,  8 Mar 2021 13:58:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0A43651E8
+	for <linux-input@archiver.kernel.org>; Mon,  8 Mar 2021 14:00:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230033AbhCHN5r (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 8 Mar 2021 08:57:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37800 "EHLO mail.kernel.org"
+        id S230124AbhCHOA3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 8 Mar 2021 09:00:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229899AbhCHN5a (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 8 Mar 2021 08:57:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC31E65100;
-        Mon,  8 Mar 2021 13:57:28 +0000 (UTC)
+        id S229729AbhCHOAZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 8 Mar 2021 09:00:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4675465020;
+        Mon,  8 Mar 2021 14:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615211849;
-        bh=If5x3HN/M8OLBSjsY63p6B1WFvmGwPJvtPWrHlYgbBE=;
+        s=k20201202; t=1615212025;
+        bh=YQsm6KMDY0N2Ctv8oTPi/w8T765Y85DVcIBA2O4rkgI=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=efTKRUDNcG8eD7VYyt1H1fGSPnt793HUxO6ERVLOHlYOA8QmSmWJ68CW3meth6SBm
-         BPJn3XwHmIi/klnir5PqB29WaTnHjYziGDhqzEXUQmJYGo9RUL81AUfSThPd3lvhWC
-         YoQOTWX2hxrKOrTH7oCGFZs4YHcb2fTPTQPE3GY9LXE5eDTmwP5s2KnwQ79r5omXzx
-         1mAbHG7ni2we9AmJ6mZgl4ZhXg89cyzRgd2s/OOhyzX/1p/mn8erVzCFMmM/sVMyBd
-         LDOfDsiuwHqr0zZrIUlvlOMzN+i9nWPj90prOL86VGK7koIELNzI7Mrk9Y2xnyJVU9
-         xm6Kv+OzJrWKg==
-Date:   Mon, 8 Mar 2021 14:57:27 +0100 (CET)
+        b=jbgwB8MZsoqJGgLXF+42i1tqc1EZxXlU5d+WZSC6d9BoPjDSm+PRHIW4Uj+YBa+MS
+         eRwO8STv85Xgncrij0Jl/eK+RqSGdMprTd7+oxi4xrQPS0b/2EY5ZKh7lVkJE6LMQm
+         0PKXriqNM3VxITopQSUMRjk4tLd7ckvAcP2DlvoExn/hbQPpgE6I10hi4ahB5EfxXW
+         0vBVPD2e9a/hxixScx1C8CD/nwGMiTbx4H5AQdBQqKR1bhX68U0CRZ8lANVEobNcrh
+         YPtqhqlTpjFEi37zGu7R0FA99VB4Kq8HG/yThhBvDitBNL6nVV7XBgvBlsSVj/vQR1
+         CcuciHF8L/A9A==
+Date:   Mon, 8 Mar 2021 15:00:22 +0100 (CET)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
-cc:     benjamin.tissoires@redhat.com, rydberg@bitmath.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: wacom: Assign boolean values to a bool variable
-In-Reply-To: <1611128070-59752-1-git-send-email-abaci-bugfix@linux.alibaba.com>
-Message-ID: <nycvar.YFH.7.76.2103081457220.12405@cbobk.fhfr.pm>
-References: <1611128070-59752-1-git-send-email-abaci-bugfix@linux.alibaba.com>
+To:     Dario Pagani <dario.pagani.146@gmail.com>
+cc:     linux-input@vger.kernel.org, kimi.h.kuparinen@gmail.com
+Subject: Re: [PATCH] HID: support for initialization of some Thrustmaster
+ wheels
+In-Reply-To: <20210131090045.10636-1-dario.pagani.146@gmail.com>
+Message-ID: <nycvar.YFH.7.76.2103081458550.12405@cbobk.fhfr.pm>
+References: <20210131090045.10636-1-dario.pagani.146@gmail.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -47,32 +46,28 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 20 Jan 2021, Jiapeng Zhong wrote:
+On Sun, 31 Jan 2021, Dario Pagani wrote:
 
-> Fix the following coccicheck warnings:
-> 
-> ./drivers/hid/wacom_wac.c:2536:2-6: WARNING: Assignment of
-> 0/1 to bool variable.
-> 
-> Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-> Signed-off-by: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
-> ---
->  drivers/hid/wacom_wac.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 1bd0eb7..62b0f71 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -2533,7 +2533,7 @@ static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
->  	    !wacom_wac->shared->is_touch_on) {
->  		if (!wacom_wac->shared->touch_down)
->  			return;
-> -		prox = 0;
-> +		prox = false;
->  	}
+> Add support for proper initialization of some Thrustmaster wheels that
+> appear like a "Thrustmaster FFB Wheel" (044f:b65d) to the host. When the
+> device is connected a special usb request is sent, this request makes the
+> wheel disconnect and reappear to the host as the "real wheel".
+> For example: a T150 will re-appear as 044f:b677 and a T300 as 044f:b66e
 
-Applied, thanks.
+Hi Dario,
+
+thanks a lot for working on enabling these devices on Linux.
+
+Two questions:
+
+- I don't think we need to have this in a separate driver, is there a 
+  substantial reason why it can't be folded into hid-thrustmaster proper?
+
+- Looking at what the code actually does, it seems like this could 
+  completely be done in userspace via libusb as a hook in udev when such 
+  device is plugged in, can't it?
+
+Thanks,
 
 -- 
 Jiri Kosina

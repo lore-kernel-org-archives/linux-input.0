@@ -7,22 +7,22 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57C25C43331
-	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B342C4361A
+	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 397AE64FDC
-	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3097964FDC
+	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231500AbhCLMZh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 12 Mar 2021 07:25:37 -0500
-Received: from mx2.suse.de ([195.135.220.15]:57018 "EHLO mx2.suse.de"
+        id S231540AbhCLMZi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 12 Mar 2021 07:25:38 -0500
+Received: from mx2.suse.de ([195.135.220.15]:57112 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230064AbhCLMZT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 12 Mar 2021 07:25:19 -0500
+        id S230484AbhCLMZV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 12 Mar 2021 07:25:21 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id A5FD6B0B3;
-        Fri, 12 Mar 2021 12:25:17 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 81804B0B8;
+        Fri, 12 Mar 2021 12:25:19 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 To:     u.kleine-koenig@pengutronix.de
 Cc:     f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
@@ -36,166 +36,44 @@ Cc:     f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
         linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
         andy.shevchenko@gmail.com,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v8 01/11] firmware: raspberrypi: Keep count of all consumers
-Date:   Fri, 12 Mar 2021 13:24:44 +0100
-Message-Id: <20210312122454.24480-2-nsaenzjulienne@suse.de>
+Subject: [PATCH v8 03/11] clk: bcm: rpi: Release firmware handle on unbind
+Date:   Fri, 12 Mar 2021 13:24:46 +0100
+Message-Id: <20210312122454.24480-4-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210312122454.24480-1-nsaenzjulienne@suse.de>
 References: <20210312122454.24480-1-nsaenzjulienne@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-When unbinding the firmware device we need to make sure it has no
-consumers left. Otherwise we'd leave them with a firmware handle
-pointing at freed memory.
+Use devm_rpi_firmware_get() so as to make sure we release RPi's firmware
+interface when unbinding the device.
 
-Keep a reference count of all consumers and introduce rpi_firmware_put()
-which will permit automatically decrease the reference count upon
-unbinding consumer drivers.
-
-Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+
+ drivers/clk/bcm/clk-raspberrypi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 ---
+ drivers/clk/bcm/clk-raspberrypi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Changes since v5:
- - Add comment to avoid people blindly switching the memory allocation
-   to the devm variant.
- - Fix function documentation as per Florian's comment.
-
-Changes since v3:
- - Use kref instead of waiting on refcount
-
- drivers/firmware/raspberrypi.c             | 40 ++++++++++++++++++++--
- include/soc/bcm2835/raspberrypi-firmware.h |  2 ++
- 2 files changed, 39 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberrypi.c
-index 30259dc9b805..b65e4c495772 100644
---- a/drivers/firmware/raspberrypi.c
-+++ b/drivers/firmware/raspberrypi.c
-@@ -7,6 +7,7 @@
-  */
- 
- #include <linux/dma-mapping.h>
-+#include <linux/kref.h>
- #include <linux/mailbox_client.h>
- #include <linux/module.h>
- #include <linux/of_platform.h>
-@@ -27,6 +28,8 @@ struct rpi_firmware {
- 	struct mbox_chan *chan; /* The property channel. */
- 	struct completion c;
- 	u32 enabled;
-+
-+	struct kref consumers;
- };
- 
- static DEFINE_MUTEX(transaction_lock);
-@@ -225,12 +228,31 @@ static void rpi_register_clk_driver(struct device *dev)
- 						-1, NULL, 0);
- }
- 
-+static void rpi_firmware_delete(struct kref *kref)
-+{
-+	struct rpi_firmware *fw = container_of(kref, struct rpi_firmware,
-+					       consumers);
-+
-+	mbox_free_channel(fw->chan);
-+	kfree(fw);
-+}
-+
-+void rpi_firmware_put(struct rpi_firmware *fw)
-+{
-+	kref_put(&fw->consumers, rpi_firmware_delete);
-+}
-+EXPORT_SYMBOL_GPL(rpi_firmware_put);
-+
- static int rpi_firmware_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct rpi_firmware *fw;
- 
--	fw = devm_kzalloc(dev, sizeof(*fw), GFP_KERNEL);
-+	/*
-+	 * Memory will be freed by rpi_firmware_delete() once all users have
-+	 * released their firmware handles. Don't use devm_kzalloc() here.
-+	 */
-+	fw = kzalloc(sizeof(*fw), GFP_KERNEL);
- 	if (!fw)
- 		return -ENOMEM;
- 
-@@ -247,6 +269,7 @@ static int rpi_firmware_probe(struct platform_device *pdev)
+diff --git a/drivers/clk/bcm/clk-raspberrypi.c b/drivers/clk/bcm/clk-raspberrypi.c
+index f89b9cfc4309..dd3b71eafabf 100644
+--- a/drivers/clk/bcm/clk-raspberrypi.c
++++ b/drivers/clk/bcm/clk-raspberrypi.c
+@@ -314,7 +314,7 @@ static int raspberrypi_clk_probe(struct platform_device *pdev)
+ 		return -ENOENT;
  	}
  
- 	init_completion(&fw->c);
-+	kref_init(&fw->consumers);
- 
- 	platform_set_drvdata(pdev, fw);
- 
-@@ -275,7 +298,8 @@ static int rpi_firmware_remove(struct platform_device *pdev)
- 	rpi_hwmon = NULL;
- 	platform_device_unregister(rpi_clk);
- 	rpi_clk = NULL;
--	mbox_free_channel(fw->chan);
-+
-+	rpi_firmware_put(fw);
- 
- 	return 0;
- }
-@@ -284,16 +308,26 @@ static int rpi_firmware_remove(struct platform_device *pdev)
-  * rpi_firmware_get - Get pointer to rpi_firmware structure.
-  * @firmware_node:    Pointer to the firmware Device Tree node.
-  *
-+ * The reference to rpi_firmware has to be released with rpi_firmware_put().
-+ *
-  * Returns NULL is the firmware device is not ready.
-  */
- struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
- {
- 	struct platform_device *pdev = of_find_device_by_node(firmware_node);
-+	struct rpi_firmware *fw;
- 
- 	if (!pdev)
- 		return NULL;
- 
--	return platform_get_drvdata(pdev);
-+	fw = platform_get_drvdata(pdev);
-+	if (!fw)
-+		return NULL;
-+
-+	if (!kref_get_unless_zero(&fw->consumers))
-+		return NULL;
-+
-+	return fw;
- }
- EXPORT_SYMBOL_GPL(rpi_firmware_get);
- 
-diff --git a/include/soc/bcm2835/raspberrypi-firmware.h b/include/soc/bcm2835/raspberrypi-firmware.h
-index cc9cdbc66403..fdfef7fe40df 100644
---- a/include/soc/bcm2835/raspberrypi-firmware.h
-+++ b/include/soc/bcm2835/raspberrypi-firmware.h
-@@ -140,6 +140,7 @@ int rpi_firmware_property(struct rpi_firmware *fw,
- 			  u32 tag, void *data, size_t len);
- int rpi_firmware_property_list(struct rpi_firmware *fw,
- 			       void *data, size_t tag_size);
-+void rpi_firmware_put(struct rpi_firmware *fw);
- struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node);
- #else
- static inline int rpi_firmware_property(struct rpi_firmware *fw, u32 tag,
-@@ -154,6 +155,7 @@ static inline int rpi_firmware_property_list(struct rpi_firmware *fw,
- 	return -ENOSYS;
- }
- 
-+static inline void rpi_firmware_put(struct rpi_firmware *fw) { }
- static inline struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
- {
- 	return NULL;
+-	firmware = rpi_firmware_get(firmware_node);
++	firmware = devm_rpi_firmware_get(&pdev->dev, firmware_node);
+ 	of_node_put(firmware_node);
+ 	if (!firmware)
+ 		return -EPROBE_DEFER;
 -- 
 2.30.1
 

@@ -2,128 +2,200 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FEEEC433E6
-	for <linux-input@archiver.kernel.org>; Thu, 11 Mar 2021 19:31:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57C25C43331
+	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC82064E51
-	for <linux-input@archiver.kernel.org>; Thu, 11 Mar 2021 19:31:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 397AE64FDC
+	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229705AbhCKTbQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 11 Mar 2021 14:31:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40066 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229774AbhCKTa4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 11 Mar 2021 14:30:56 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E8EC061574;
-        Thu, 11 Mar 2021 11:30:55 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id kk2-20020a17090b4a02b02900c777aa746fso9850339pjb.3;
-        Thu, 11 Mar 2021 11:30:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=WTyvjgP+/OReF3DM4qtKAuAfj8VF6/RyxnNhlngUYSM=;
-        b=QMpxd3SKCfYJwKIgSO6m+mG+nU1QbTtt0KEORM3QxOqsCViqxn7iwGE+bCtb/V9Pgt
-         HyNuxOZmGx20RtgqT0KVxWLxbnh31SHyr3gOcXbCSWUmyLva69FB5naNkjJmyP1w/U0o
-         vvzw00FJdFc6nmTFqil8G+XrF82WXM5da/z5MGUxKSH7aIQirrkGYLp3q3b1pPDtdIq/
-         DkAMsq/FvR/OY+z2ux6N0SgiWP+lpMN9rbj+PbtYq483HZPdHwdg6mK3ItOkYvkXWzBj
-         q10/ZW4Hj8DnqKO6v9/CNYVpxbcYO2mxvca+CQYPobgDG7hRitCRvE5D9rjj+PoFoi6+
-         9rrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=WTyvjgP+/OReF3DM4qtKAuAfj8VF6/RyxnNhlngUYSM=;
-        b=PkDmr155UYkLbbQg2wLYw1u5kIZvWzzn9N8kjKrz6PCvpLaBg3EAmJB5jLGPsoTr+w
-         /+7bo+38DOgK03vjjxIT7mU3kiEB5R1VPii7uKO43bBXAdvT89CUXUB6VGVTsNRQ8Uxz
-         ezpii+Yaa2+nkMtGoxrAx+m3MZAtUc3uLJXRIlik7rC5ywkoUyJ3K2nHQUkdgzM+DBh2
-         +60prsg1I4gj4lJssIxKRz+gUco0lHWR7d5bse9AiRG2e3vqIOtF32tqJABccoobJ27V
-         slhQyZMMC2gm2N8sUqgL+KaZH8EuVwEgaDH5lAqA+a3kToVrFZIjOahFbJ1lhmR+6CDk
-         gbQQ==
-X-Gm-Message-State: AOAM531o1Sv3HyynHrd6i7oNDhIsFoR5O1PsaanP8QA+mhe9IltIkJRS
-        j+BFpsXyDXh+eCAMb8YCFSvrPqBIBOXrGA==
-X-Google-Smtp-Source: ABdhPJwpu05j6sHb/+79qGOjYvAGMZl6wcuxcfZdvKVaGhih2FeRwymyr2puJ4VH3m0ac5Rg3b4I0w==
-X-Received: by 2002:a17:90a:7104:: with SMTP id h4mr10070061pjk.189.1615491054726;
-        Thu, 11 Mar 2021 11:30:54 -0800 (PST)
-Received: from localhost.localdomain ([2601:1c2:4f03:fea0:c4aa:9f76:499c:65e7])
-        by smtp.gmail.com with ESMTPSA id w5sm3161587pfn.51.2021.03.11.11.30.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Mar 2021 11:30:54 -0800 (PST)
-From:   Ping Cheng <pinglinux@gmail.com>
-X-Google-Original-From: Ping Cheng <ping.cheng@wacom.com>
-To:     linux-input@vger.kernel.org
-Cc:     jkosina@suse.cz, Juan.Garrido@wacom.com, Jason.Gerecke@wacom.com,
-        Ping Cheng <ping.cheng@wacom.com>, stable@vger.kernel.org
-Subject: [PATCH] HID: wacom: set EV_KEY and EV_ABS only for non-HID_GENERIC type of devices
-Date:   Thu, 11 Mar 2021 11:30:09 -0800
-Message-Id: <20210311193009.12692-1-ping.cheng@wacom.com>
-X-Mailer: git-send-email 2.17.1
+        id S231500AbhCLMZh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 12 Mar 2021 07:25:37 -0500
+Received: from mx2.suse.de ([195.135.220.15]:57018 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230064AbhCLMZT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 12 Mar 2021 07:25:19 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id A5FD6B0B3;
+        Fri, 12 Mar 2021 12:25:17 +0000 (UTC)
+From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+To:     u.kleine-koenig@pengutronix.de
+Cc:     f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
+        linux-pwm@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        wahrenst@gmx.net, linux-input@vger.kernel.org,
+        dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
+        devel@driverdev.osuosl.org, p.zabel@pengutronix.de,
+        linux-gpio@vger.kernel.org, linus.walleij@linaro.org,
+        linux-clk@vger.kernel.org, sboyd@kernel.org,
+        linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
+        andy.shevchenko@gmail.com,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH v8 01/11] firmware: raspberrypi: Keep count of all consumers
+Date:   Fri, 12 Mar 2021 13:24:44 +0100
+Message-Id: <20210312122454.24480-2-nsaenzjulienne@suse.de>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210312122454.24480-1-nsaenzjulienne@suse.de>
+References: <20210312122454.24480-1-nsaenzjulienne@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Valid HID_GENERIC type of devices set EV_KEY and EV_ABS by wacom_map_usage.
-When *_input_capabilities are reached, those devices should already have
-their proper EV_* set. EV_KEY and EV_ABS only need to be set for
-non-HID_GENERIC type of devices in *_input_capabilities.
+When unbinding the firmware device we need to make sure it has no
+consumers left. Otherwise we'd leave them with a firmware handle
+pointing at freed memory.
 
-Devices that don't support HID descitoprs will pass back to hid-input for
-registration without being accidentally rejected by the introduction of
-patch: "Input: refuse to register absolute devices without absinfo"
+Keep a reference count of all consumers and introduce rpi_firmware_put()
+which will permit automatically decrease the reference count upon
+unbinding consumer drivers.
 
-Fixes: 6ecfe51b4082 ("Input: refuse to register absolute devices without absinfo")
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Jason Gerecke <Jason.Gerecke@wacom.com>
-Tested-by: Juan Garrido <Juan.Garrido@wacom.com>
-CC: stable@vger.kernel.org
+Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/hid/wacom_wac.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 5e6e4db..8906b79 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -3578,8 +3578,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+Changes since v5:
+ - Add comment to avoid people blindly switching the memory allocation
+   to the devm variant.
+ - Fix function documentation as per Florian's comment.
+
+Changes since v3:
+ - Use kref instead of waiting on refcount
+
+ drivers/firmware/raspberrypi.c             | 40 ++++++++++++++++++++--
+ include/soc/bcm2835/raspberrypi-firmware.h |  2 ++
+ 2 files changed, 39 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberrypi.c
+index 30259dc9b805..b65e4c495772 100644
+--- a/drivers/firmware/raspberrypi.c
++++ b/drivers/firmware/raspberrypi.c
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include <linux/dma-mapping.h>
++#include <linux/kref.h>
+ #include <linux/mailbox_client.h>
+ #include <linux/module.h>
+ #include <linux/of_platform.h>
+@@ -27,6 +28,8 @@ struct rpi_firmware {
+ 	struct mbox_chan *chan; /* The property channel. */
+ 	struct completion c;
+ 	u32 enabled;
++
++	struct kref consumers;
+ };
+ 
+ static DEFINE_MUTEX(transaction_lock);
+@@ -225,12 +228,31 @@ static void rpi_register_clk_driver(struct device *dev)
+ 						-1, NULL, 0);
+ }
+ 
++static void rpi_firmware_delete(struct kref *kref)
++{
++	struct rpi_firmware *fw = container_of(kref, struct rpi_firmware,
++					       consumers);
++
++	mbox_free_channel(fw->chan);
++	kfree(fw);
++}
++
++void rpi_firmware_put(struct rpi_firmware *fw)
++{
++	kref_put(&fw->consumers, rpi_firmware_delete);
++}
++EXPORT_SYMBOL_GPL(rpi_firmware_put);
++
+ static int rpi_firmware_probe(struct platform_device *pdev)
  {
- 	struct wacom_features *features = &wacom_wac->features;
+ 	struct device *dev = &pdev->dev;
+ 	struct rpi_firmware *fw;
  
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--
- 	if (!(features->device_type & WACOM_DEVICETYPE_PEN))
- 		return -ENODEV;
+-	fw = devm_kzalloc(dev, sizeof(*fw), GFP_KERNEL);
++	/*
++	 * Memory will be freed by rpi_firmware_delete() once all users have
++	 * released their firmware handles. Don't use devm_kzalloc() here.
++	 */
++	fw = kzalloc(sizeof(*fw), GFP_KERNEL);
+ 	if (!fw)
+ 		return -ENOMEM;
  
-@@ -3594,6 +3592,7 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
- 		return 0;
+@@ -247,6 +269,7 @@ static int rpi_firmware_probe(struct platform_device *pdev)
  	}
  
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 	__set_bit(ABS_MISC, input_dev->absbit);
+ 	init_completion(&fw->c);
++	kref_init(&fw->consumers);
  
-@@ -3746,8 +3745,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 	platform_set_drvdata(pdev, fw);
+ 
+@@ -275,7 +298,8 @@ static int rpi_firmware_remove(struct platform_device *pdev)
+ 	rpi_hwmon = NULL;
+ 	platform_device_unregister(rpi_clk);
+ 	rpi_clk = NULL;
+-	mbox_free_channel(fw->chan);
++
++	rpi_firmware_put(fw);
+ 
+ 	return 0;
+ }
+@@ -284,16 +308,26 @@ static int rpi_firmware_remove(struct platform_device *pdev)
+  * rpi_firmware_get - Get pointer to rpi_firmware structure.
+  * @firmware_node:    Pointer to the firmware Device Tree node.
+  *
++ * The reference to rpi_firmware has to be released with rpi_firmware_put().
++ *
+  * Returns NULL is the firmware device is not ready.
+  */
+ struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
  {
- 	struct wacom_features *features = &wacom_wac->features;
+ 	struct platform_device *pdev = of_find_device_by_node(firmware_node);
++	struct rpi_firmware *fw;
  
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--
- 	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
- 		return -ENODEV;
+ 	if (!pdev)
+ 		return NULL;
  
-@@ -3760,6 +3757,7 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
- 		/* setup has already been done */
- 		return 0;
+-	return platform_get_drvdata(pdev);
++	fw = platform_get_drvdata(pdev);
++	if (!fw)
++		return NULL;
++
++	if (!kref_get_unless_zero(&fw->consumers))
++		return NULL;
++
++	return fw;
+ }
+ EXPORT_SYMBOL_GPL(rpi_firmware_get);
  
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
+diff --git a/include/soc/bcm2835/raspberrypi-firmware.h b/include/soc/bcm2835/raspberrypi-firmware.h
+index cc9cdbc66403..fdfef7fe40df 100644
+--- a/include/soc/bcm2835/raspberrypi-firmware.h
++++ b/include/soc/bcm2835/raspberrypi-firmware.h
+@@ -140,6 +140,7 @@ int rpi_firmware_property(struct rpi_firmware *fw,
+ 			  u32 tag, void *data, size_t len);
+ int rpi_firmware_property_list(struct rpi_firmware *fw,
+ 			       void *data, size_t tag_size);
++void rpi_firmware_put(struct rpi_firmware *fw);
+ struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node);
+ #else
+ static inline int rpi_firmware_property(struct rpi_firmware *fw, u32 tag,
+@@ -154,6 +155,7 @@ static inline int rpi_firmware_property_list(struct rpi_firmware *fw,
+ 	return -ENOSYS;
+ }
  
- 	if (features->touch_max == 1) {
++static inline void rpi_firmware_put(struct rpi_firmware *fw) { }
+ static inline struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
+ {
+ 	return NULL;
 -- 
-2.17.1
+2.30.1
 

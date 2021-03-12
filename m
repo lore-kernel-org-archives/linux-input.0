@@ -7,22 +7,22 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65EC6C2BA4C
-	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3438C468C0
+	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38A3D64FE0
-	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 99B4364FE0
+	for <linux-input@archiver.kernel.org>; Fri, 12 Mar 2021 12:26:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231655AbhCLMZk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 12 Mar 2021 07:25:40 -0500
-Received: from mx2.suse.de ([195.135.220.15]:57378 "EHLO mx2.suse.de"
+        id S231519AbhCLMZi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 12 Mar 2021 07:25:38 -0500
+Received: from mx2.suse.de ([195.135.220.15]:57060 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231321AbhCLMZ0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 12 Mar 2021 07:25:26 -0500
+        id S230218AbhCLMZU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 12 Mar 2021 07:25:20 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 7CDFAB0BD;
-        Fri, 12 Mar 2021 12:25:23 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 9EB2FB090;
+        Fri, 12 Mar 2021 12:25:18 +0000 (UTC)
 From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 To:     u.kleine-koenig@pengutronix.de
 Cc:     f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
@@ -36,9 +36,9 @@ Cc:     f.fainelli@gmail.com, linux-kernel@vger.kernel.org,
         linux-rpi-kernel@lists.infradead.org, bgolaszewski@baylibre.com,
         andy.shevchenko@gmail.com,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v8 07/11] staging: vchiq: Release firmware handle on unbind
-Date:   Fri, 12 Mar 2021 13:24:50 +0100
-Message-Id: <20210312122454.24480-8-nsaenzjulienne@suse.de>
+Subject: [PATCH v8 02/11] firmware: raspberrypi: Introduce devm_rpi_firmware_get()
+Date:   Fri, 12 Mar 2021 13:24:45 +0100
+Message-Id: <20210312122454.24480-3-nsaenzjulienne@suse.de>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210312122454.24480-1-nsaenzjulienne@suse.de>
 References: <20210312122454.24480-1-nsaenzjulienne@suse.de>
@@ -48,29 +48,97 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Use devm_rpi_firmware_get() so as to make sure we release RPi's firmware
-interface when unbinding the device.
+It'll simplify the firmware handling for most consumers.
 
+Suggested-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-index 8b2b4771f420..e39897c38e6a 100644
---- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-+++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-@@ -2738,7 +2738,7 @@ static int vchiq_probe(struct platform_device *pdev)
- 		return -ENOENT;
- 	}
+Changes since v4:
+ - Rearrange function calls for clarity, same functionality
+
+Changes since v2:
+- Create devm_rpi_firmware_get()
+
+ drivers/firmware/raspberrypi.c             | 29 ++++++++++++++++++++++
+ include/soc/bcm2835/raspberrypi-firmware.h |  8 ++++++
+ 2 files changed, 37 insertions(+)
+
+diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberrypi.c
+index b65e4c495772..250e01680742 100644
+--- a/drivers/firmware/raspberrypi.c
++++ b/drivers/firmware/raspberrypi.c
+@@ -243,6 +243,13 @@ void rpi_firmware_put(struct rpi_firmware *fw)
+ }
+ EXPORT_SYMBOL_GPL(rpi_firmware_put);
  
--	drvdata->fw = rpi_firmware_get(fw_node);
-+	drvdata->fw = devm_rpi_firmware_get(&pdev->dev, fw_node);
- 	of_node_put(fw_node);
- 	if (!drvdata->fw)
- 		return -EPROBE_DEFER;
++static void devm_rpi_firmware_put(void *data)
++{
++	struct rpi_firmware *fw = data;
++
++	rpi_firmware_put(fw);
++}
++
+ static int rpi_firmware_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -331,6 +338,28 @@ struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
+ }
+ EXPORT_SYMBOL_GPL(rpi_firmware_get);
+ 
++/**
++ * devm_rpi_firmware_get - Get pointer to rpi_firmware structure.
++ * @firmware_node:    Pointer to the firmware Device Tree node.
++ *
++ * Returns NULL is the firmware device is not ready.
++ */
++struct rpi_firmware *devm_rpi_firmware_get(struct device *dev,
++					   struct device_node *firmware_node)
++{
++	struct rpi_firmware *fw;
++
++	fw = rpi_firmware_get(firmware_node);
++	if (!fw)
++		return NULL;
++
++	if (devm_add_action_or_reset(dev, devm_rpi_firmware_put, fw))
++		return NULL;
++
++	return fw;
++}
++EXPORT_SYMBOL_GPL(devm_rpi_firmware_get);
++
+ static const struct of_device_id rpi_firmware_of_match[] = {
+ 	{ .compatible = "raspberrypi,bcm2835-firmware", },
+ 	{},
+diff --git a/include/soc/bcm2835/raspberrypi-firmware.h b/include/soc/bcm2835/raspberrypi-firmware.h
+index fdfef7fe40df..73ad784fca96 100644
+--- a/include/soc/bcm2835/raspberrypi-firmware.h
++++ b/include/soc/bcm2835/raspberrypi-firmware.h
+@@ -142,6 +142,8 @@ int rpi_firmware_property_list(struct rpi_firmware *fw,
+ 			       void *data, size_t tag_size);
+ void rpi_firmware_put(struct rpi_firmware *fw);
+ struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node);
++struct rpi_firmware *devm_rpi_firmware_get(struct device *dev,
++					   struct device_node *firmware_node);
+ #else
+ static inline int rpi_firmware_property(struct rpi_firmware *fw, u32 tag,
+ 					void *data, size_t len)
+@@ -160,6 +162,12 @@ static inline struct rpi_firmware *rpi_firmware_get(struct device_node *firmware
+ {
+ 	return NULL;
+ }
++
++static inline struct rpi_firmware *devm_rpi_firmware_get(struct device *dev,
++					struct device_node *firmware_node)
++{
++	return NULL;
++}
+ #endif
+ 
+ #endif /* __SOC_RASPBERRY_FIRMWARE_H__ */
 -- 
 2.30.1
 

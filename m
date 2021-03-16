@@ -2,83 +2,89 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F5C3C433E0
-	for <linux-input@archiver.kernel.org>; Tue, 16 Mar 2021 21:23:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79490C43381
+	for <linux-input@archiver.kernel.org>; Tue, 16 Mar 2021 22:50:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5086F64FA8
-	for <linux-input@archiver.kernel.org>; Tue, 16 Mar 2021 21:23:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 519FF64F4D
+	for <linux-input@archiver.kernel.org>; Tue, 16 Mar 2021 22:50:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229517AbhCPVWm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 16 Mar 2021 17:22:42 -0400
-Received: from antares.kleine-koenig.org ([94.130.110.236]:55728 "EHLO
-        antares.kleine-koenig.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbhCPVWg (ORCPT
+        id S231673AbhCPWuK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 16 Mar 2021 18:50:10 -0400
+Received: from hostingweb31-40.netsons.net ([89.40.174.40]:54384 "EHLO
+        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231648AbhCPWuB (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 16 Mar 2021 17:22:36 -0400
-Received: by antares.kleine-koenig.org (Postfix, from userid 1000)
-        id CE4FBB3395A; Tue, 16 Mar 2021 22:22:35 +0100 (CET)
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org
-Subject: [PATCH v2] input: misc: max8997: Simplify open coding of a division using up to 64 divisions
-Date:   Tue, 16 Mar 2021 22:22:33 +0100
-Message-Id: <20210316212233.50765-1-uwe@kleine-koenig.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210316211822.49830-1-uwe@kleine-koenig.org>
-References: <20210316211822.49830-1-uwe@kleine-koenig.org>
+        Tue, 16 Mar 2021 18:50:01 -0400
+X-Greylist: delayed 4693 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Mar 2021 18:50:00 EDT
+Received: from [77.244.183.192] (port=63220 helo=[192.168.178.41])
+        by hostingweb31.netsons.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <luca@lucaceresoli.net>)
+        id 1lMHHz-0006NM-1C; Tue, 16 Mar 2021 22:31:43 +0100
+Subject: Re: [PATCH] dt-bindings: More cleanup of standard unit properties
+To:     Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Kevin Tsai <ktsai@capellamicro.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Mark Brown <broonie@kernel.org>, linux-iio@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-pm@vger.kernel.org
+References: <20210316194824.3526913-1-robh@kernel.org>
+From:   Luca Ceresoli <luca@lucaceresoli.net>
+Message-ID: <b2679a96-2751-ec84-33aa-aff8398d8a56@lucaceresoli.net>
+Date:   Tue, 16 Mar 2021 22:31:43 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210316194824.3526913-1-robh@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: it-IT
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - lucaceresoli.net
+X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca@lucaceresoli.net
+X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The for loop is just a complicate way to express a division. Replace it
-by the actual division which is both simpler to understand for a human
-and more efficient for a CPU to calculate.
+On 16/03/21 20:48, Rob Herring wrote:
+> Properties with standard unit suffixes already have a type and don't need
+> type references. Fix a few more cases which have gotten added.
+> 
+> Cc: Luca Ceresoli <luca@lucaceresoli.net>
+> Cc: Jonathan Cameron <jic23@kernel.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Cc: Zhang Rui <rui.zhang@intel.com>
+> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Kevin Tsai <ktsai@capellamicro.com>
+> Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> Cc: Sebastian Reichel <sre@kernel.org>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: linux-iio@vger.kernel.org
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-pm@vger.kernel.org
+> Signed-off-by: Rob Herring <robh@kernel.org>
 
-Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
----
-Changes since (implicit) v1:
+Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
 
- - drop now unused variable i
- - s/DIV_ROUNDUP/DIV_ROUND_UP/ to make the compiler happy.
-
-Nota bene: Better do the compile test before calling git send-email :-)
-
-Best regards
-Uwe
-
- drivers/input/misc/max8997_haptic.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
-index c86966ea0f16..ad82837c7ad5 100644
---- a/drivers/input/misc/max8997_haptic.c
-+++ b/drivers/input/misc/max8997_haptic.c
-@@ -65,15 +65,10 @@ static int max8997_haptic_set_duty_cycle(struct max8997_haptic *chip)
- 		pwm_set_relative_duty_cycle(&state, chip->level, 100);
- 		ret = pwm_apply_state(chip->pwm, &state);
- 	} else {
--		int i;
- 		u8 duty_index = 0;
- 
--		for (i = 0; i <= 64; i++) {
--			if (chip->level <= i * 100 / 64) {
--				duty_index = i;
--				break;
--			}
--		}
-+		duty_index = DIV_ROUND_UP(chip->level * 64, 100);
-+
- 		switch (chip->internal_mode_pattern) {
- 		case 0:
- 			max8997_write_reg(chip->client,
 -- 
-2.30.1
-
+Luca

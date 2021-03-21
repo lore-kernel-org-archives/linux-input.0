@@ -7,56 +7,56 @@ X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
 	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A25A6C433E0
-	for <linux-input@archiver.kernel.org>; Sun, 21 Mar 2021 22:40:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68D57C433E2
+	for <linux-input@archiver.kernel.org>; Sun, 21 Mar 2021 22:41:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 63D6D61952
-	for <linux-input@archiver.kernel.org>; Sun, 21 Mar 2021 22:40:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A54361927
+	for <linux-input@archiver.kernel.org>; Sun, 21 Mar 2021 22:41:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230299AbhCUWkP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 21 Mar 2021 18:40:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41866 "EHLO
+        id S230438AbhCUWkt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 21 Mar 2021 18:40:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230114AbhCUWkJ (ORCPT
+        with ESMTP id S230398AbhCUWkd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 21 Mar 2021 18:40:09 -0400
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78199C061574;
-        Sun, 21 Mar 2021 15:40:09 -0700 (PDT)
-Received: by mail-pg1-x536.google.com with SMTP id u19so7407025pgh.10;
-        Sun, 21 Mar 2021 15:40:09 -0700 (PDT)
+        Sun, 21 Mar 2021 18:40:33 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC15BC061574;
+        Sun, 21 Mar 2021 15:40:32 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id v186so7410477pgv.7;
+        Sun, 21 Mar 2021 15:40:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=xOxl4J+gaL5mXp7jLwmlzUFd6rJJflkq4ygTnBvJT4M=;
-        b=GuMEytY7TtmswJXpDvUtYEHIitP5d21S5RZrRY77/hspzygn7FaS1kTy1II9LS5TL5
-         APWs2IMlOO+otcMdS3s07gLsFkflC5uzIgnJpYiOrN2NZBot2BPhHq6pa7XwPZwD5VeK
-         oDA8FroOjsE8ru4W3aFCZ5Fwq+UvtQ7AR/twoTVEq0pV+KoDsmt0EFRGzX3FaaiYZ8eR
-         jyMiF4gYyITdM40i3Q+/v1RFJPdGnP46ptLhF0J4XtCbhGouB3ysA0TMiDCcoRS/jO34
-         qxZOSXrO4dS2eij8G2wAH9rr51TqZzdg/ex3ztDt78tfX5rfufbtPbHTTKZyMMiJLwSc
-         vwEg==
+        bh=kcVQnKMPrAVA83+GkD2fxL77wzY7stxZZy7JEffOnUM=;
+        b=iYQD9AixIHTIFzlwhnC7Y1WQI6bE+fG8Z2QGrPuF3yQTbHAln166+YId22ZlUPxqCK
+         oXNvhUexcbNsIhXl+dOUo3Zfomu9bSG678VidNoeIt5rZw5ZT4NC6wH3RDNi8NnApRLk
+         0icQad4xiOn7zxfBCM/EV54YL8sYsQQTMlsYhvqlfmNwyd1o0galwtG+6kU4jleV257b
+         yJ55xcMZpliCGixsBHQFd9P6XKolEj7dEtQZjSStalaoxv/t7PPMpSH6+NhTaSwGAmwq
+         aHuiA18D8On2BbnYqzkzLXyy0JdW2twUzC1USI/2sWnMhaLBQGkRA1KzhwiD4yV1440E
+         hLDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=xOxl4J+gaL5mXp7jLwmlzUFd6rJJflkq4ygTnBvJT4M=;
-        b=uG8y9EBOlLtCwBoKaO4XQUthA18Jf7dBmE6uRD51RSEvKs2PUYN44VzMeOtMOAdoqE
-         3UZJyZ4p/U7ohXnGYPclKQz3d7+8x3PnZZ7BExYC9I4u/Lt/OemNBfFWrxFny0f4BfbH
-         klZu7xGQAS1eYVs1hirM2N1vf0X1AQQUc6C8NZlbLUlhBWYHJ+ntNBW4bomScZIbEFD8
-         wW3pMT09UZzj7NJZAmiyfZHgx33XDv/0JdxWZxMYxXSb3kJSy5TcLoBzHGJGKAlDcNOl
-         g/UDQKgswV0ZlGAOmymX3UfKhi/UFC3ux9Ft9AlXh30eubjETj606Zjf4XETBaWvRcJV
-         FHPQ==
-X-Gm-Message-State: AOAM533B95c1XfvCqobMFeJPMX6/Id/OvYnFfUPyHnJ2kDtQ3yoQgWIm
-        vGM7EVgEV9PzLi1pZ1tdzUz1dw6bdwU=
-X-Google-Smtp-Source: ABdhPJx3RHJ1XtU06A9FfT0I+ZF6kxv208Dgw4ROLjzio2rYSj/nXKLtOrtSFQs87wO6AcbOmHwdnQ==
-X-Received: by 2002:a63:c901:: with SMTP id o1mr20758172pgg.232.1616366408894;
-        Sun, 21 Mar 2021 15:40:08 -0700 (PDT)
+        bh=kcVQnKMPrAVA83+GkD2fxL77wzY7stxZZy7JEffOnUM=;
+        b=mGJi+YqFxSQtBrvTcBcnGAzCyzs+Ua2d+76bKMqdtWbkfakS9BfKI1eOjnj3IuPo65
+         fLkfrCNDk77M/gmrHTkRty8CEB16K0ECQzJu2X02SSNH3Inm8UruoZ90OHJ0SN69VbJo
+         8eUjZEom1Nu5giNonmXg02o5Vy3QVHFlkOFPAc2+hvk51kHJeYY7l5Q6nOOeRFf5PKO4
+         jyxgAZZtMtYmBl2Q4L+H5dfz6Q7pJdqSOjQyfEIKapkkyXOaVPk/Ho/nh8jl9JyZ4pZ1
+         doPUQnIZS3sSxU/AdrBeslLM6PfykJVJ/pTOxjOJG1pm0p0dyPoQn0ECB2JKmWVWnfVA
+         wWsg==
+X-Gm-Message-State: AOAM533O13nAvhK7v8R3I8NEEpCyUDw5LJuSjYLEvpQsYs9fis0uIV6b
+        bQBw5JJxa/gCJ7o1uC/E8qs=
+X-Google-Smtp-Source: ABdhPJzUerbZ3fsp5gfgJJaIy/8a0sEaKcwWON2XDPd+0ac9B3c63BRC8/mkfD/EWIOVwxU6M4VDXQ==
+X-Received: by 2002:a63:fe56:: with SMTP id x22mr2250196pgj.329.1616366432244;
+        Sun, 21 Mar 2021 15:40:32 -0700 (PDT)
 Received: from google.com ([2620:15c:202:201:85c2:9df1:533a:87e9])
-        by smtp.gmail.com with ESMTPSA id q14sm11859021pff.94.2021.03.21.15.40.06
+        by smtp.gmail.com with ESMTPSA id o134sm11729132pfd.113.2021.03.21.15.40.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Mar 2021 15:40:07 -0700 (PDT)
-Date:   Sun, 21 Mar 2021 15:40:04 -0700
+        Sun, 21 Mar 2021 15:40:31 -0700 (PDT)
+Date:   Sun, 21 Mar 2021 15:40:28 -0700
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     Dmitry Osipenko <digetx@gmail.com>
 Cc:     Nick Dyer <nick@shmanahar.org>, Rob Herring <robh+dt@kernel.org>,
@@ -66,26 +66,29 @@ Cc:     Nick Dyer <nick@shmanahar.org>, Rob Herring <robh+dt@kernel.org>,
         Jiada Wang <jiada_wang@mentor.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 1/3] dt-bindings: input: atmel_mxt_ts: Document
- atmel,wakeup-method and WAKE line GPIO
-Message-ID: <YFfLRHXw/rCnGhRA@google.com>
+Subject: Re: [PATCH v6 3/3] ARM: tegra: acer-a500: Add atmel,wakeup-method
+ property
+Message-ID: <YFfLXLDIuRdj2bWs@google.com>
 References: <20210302102158.10533-1-digetx@gmail.com>
- <20210302102158.10533-2-digetx@gmail.com>
+ <20210302102158.10533-4-digetx@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210302102158.10533-2-digetx@gmail.com>
+In-Reply-To: <20210302102158.10533-4-digetx@gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Mar 02, 2021 at 01:21:56PM +0300, Dmitry Osipenko wrote:
-> Some Atmel touchscreen controllers have a WAKE line that needs to be
-> asserted low in order to wake up controller from a deep sleep. Document
-> the wakeup methods and the new GPIO properties.
+On Tue, Mar 02, 2021 at 01:21:58PM +0300, Dmitry Osipenko wrote:
+> Acer A500 uses Atmel Maxtouch 1386 touchscreen controller. This controller
+> has WAKE line which could be connected to I2C clock lane, dedicated GPIO
+> or fixed to HIGH level. Controller wakes up from a deep sleep when WAKE
+> line is asserted low. Acer A500 has WAKE line connected to I2C clock and
+> Linux device driver doesn't work property without knowing what wakeup
+> method is used by h/w.
 > 
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Add atmel,wakeup-method property to the touchscreen node.
+> 
 > Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 
 Applied, thank you.

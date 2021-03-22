@@ -8,80 +8,85 @@ X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D404C433E2
-	for <linux-input@archiver.kernel.org>; Mon, 22 Mar 2021 04:03:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55A14C433DB
+	for <linux-input@archiver.kernel.org>; Mon, 22 Mar 2021 04:04:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0831661968
-	for <linux-input@archiver.kernel.org>; Mon, 22 Mar 2021 04:03:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0FC7D61968
+	for <linux-input@archiver.kernel.org>; Mon, 22 Mar 2021 04:04:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229829AbhCVEDC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 22 Mar 2021 00:03:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55310 "EHLO
+        id S229455AbhCVEEJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 22 Mar 2021 00:04:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229771AbhCVECb (ORCPT
+        with ESMTP id S229746AbhCVEDg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Mar 2021 00:02:31 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D907FC061574;
-        Sun, 21 Mar 2021 21:02:30 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id b184so10059562pfa.11;
-        Sun, 21 Mar 2021 21:02:30 -0700 (PDT)
+        Mon, 22 Mar 2021 00:03:36 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24906C061574;
+        Sun, 21 Mar 2021 21:03:35 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id j6-20020a17090adc86b02900cbfe6f2c96so7817782pjv.1;
+        Sun, 21 Mar 2021 21:03:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=3l6ZrjsZm4u5OBG6YpG7X+rvDJ5crFIccoSCLeN3KEI=;
-        b=N/udh4JBHRESLu3hSgocpc7n+rccl3zmiDW+NjZMag/9qd3T1OPay7GCDO5ecJdxgQ
-         ctfqsUaEiLyJbOXL4vkTFtlWykXzKY6a0jMHN/HULM8mlShTiK4J4rFUwcCvx7EX8W6G
-         mFvdNytHEU2BfQ0F2u90n3o4RDA1hU1yEeYFM5EOJpnofKwnS829YSRQp9ms4uqfzBAQ
-         CJ6EIASqZ7nKrhhUU6BA58HujAaAxmwskXjOjyq+CY+4PcKL2U3HajQQ86hRt570Yghb
-         AfUiy2brWOZF93oEKGn48VuHBCOLzv1FEb28PflntBXo24IEvHtrTSAG2Ak+mBLFVspj
-         cdSQ==
+        bh=2I8MbTPPgrskeem4d4TsmAXFts8cC7aq94JnfExb5QE=;
+        b=boqswJJdF4tNHuflwUDm0udUf3xO6lr3ofVmSo6YqkTXoi+7FRH7VCzkvs+JcDadu6
+         1XEB/NBQNXtmbAidv3iqsXclUXGvKdzHR5M8bW9wTeNChve9hZBm9idPwz1g4kAXUzz/
+         XkRBJoylVMPHD5IgbH3QPORyt2d5VxkdCvGfrif+Sv7t43eyMKCDRQCqrvIUYbG5zG+h
+         h6yGLrX5T9w1FL5ahLjGQXI0G91KQJ7AbxEjzamzHsKJw4dpFMPhwjpTFbyJdJuZGNrK
+         OJZE29YHvuoLoFFIrRE9c4uwFx0+ZGoNTG5vJgqy/XWPqwLVHrLJ7Pzeb6aj5FoNwZcj
+         Fwug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=3l6ZrjsZm4u5OBG6YpG7X+rvDJ5crFIccoSCLeN3KEI=;
-        b=JvefskBVJkQuUj0d+6eZDXWsdQ3zBIh4UPNFsXhoLTaopV4OZeE+C66sSeD6kyB6k5
-         WJKVTeFaOUZSJGm1iGXuNNQyW3M2KWVrqnGt9GMWZsyqpEv8MpmH+WclpWyLCjSlnEhl
-         M+/PkeyGeA/4Kn4Wr3Nvn9QumvMVAnBDojxy0Othy9GUQpsEpJLKKs/e7RPBU5l06PBI
-         atrzq4PwQoUwIfIgasxWEpbAQoZa6454YR0gboiWSBKepNyyyZRubF6TinCya46BZ5oQ
-         v3EFynJDrWAAjvZILFsA4Gc3padDQi14TKAhUy2DWh6QjzPnRSKClDpT5BYX+X5XLlVb
-         micw==
-X-Gm-Message-State: AOAM533BGXeZegqi+g8EXSurpNwdUEnzKsrHbRMxrlWSUruv5iirf9ST
-        6frk56WruHoT4nUdzBLYvXI=
-X-Google-Smtp-Source: ABdhPJwq2x1OusaP0MQMBkVYDLV6+Evgzr5qS8V+Ix9++aDcBpyZ3uU93qVQAkQhSqP7JL0ZllhOEw==
-X-Received: by 2002:a63:4850:: with SMTP id x16mr20462595pgk.176.1616385750344;
-        Sun, 21 Mar 2021 21:02:30 -0700 (PDT)
+        bh=2I8MbTPPgrskeem4d4TsmAXFts8cC7aq94JnfExb5QE=;
+        b=mjdb5ILIm+IjWFimgl2y+diZWjWawpBBUhy4dR5XqVPYmiOMShvH6hYauvAIEXUpXy
+         bHltYk1x4OcPd4s+FGxlNCZv4bTIGioH5CL/ha1KDXUuvogv05MW4FdrpGNJaqe8yr1V
+         MPVw37W1JLKTJFsnnwLHXPt3CMd8KXEOuddxame7G9moZzblTRMkKFqakZ0itqme3I8v
+         ipFzvi917qTGUFw0GgHzs/M8/HH67xer5CVxTvJGibfdnVoDd4kbWpdtaOrKYBrOIl3u
+         Re1IVnU269R3Znd6CQTkPaGuaL7liVqn5UmsWDmBojjWXtO6zcdCzaLFKk/T3wMcTkDe
+         XzEQ==
+X-Gm-Message-State: AOAM532Ws4rpid/U8aJIIlC0qp452hT05tb6vXPcxbz+hv/k7l/GXmpJ
+        UOx1GtuBykz0J3FwLNq//wNrJ0qc+48=
+X-Google-Smtp-Source: ABdhPJwubdd8EvKm3FX2Q5rpt8upvL1tmVvGCT0r0gL7sC0u6Qn0V/5O25f5dztnKD3uVmQ8jvIkLg==
+X-Received: by 2002:a17:90a:f010:: with SMTP id bt16mr11121694pjb.116.1616385814629;
+        Sun, 21 Mar 2021 21:03:34 -0700 (PDT)
 Received: from google.com ([2620:15c:202:201:85c2:9df1:533a:87e9])
-        by smtp.gmail.com with ESMTPSA id 2sm11666269pfi.116.2021.03.21.21.02.28
+        by smtp.gmail.com with ESMTPSA id v35sm11010813pga.3.2021.03.21.21.03.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Mar 2021 21:02:29 -0700 (PDT)
-Date:   Sun, 21 Mar 2021 21:02:26 -0700
+        Sun, 21 Mar 2021 21:03:33 -0700 (PDT)
+Date:   Sun, 21 Mar 2021 21:03:31 -0700
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     Jeff LaBundy <jeff@labundy.com>
 Cc:     robh+dt@kernel.org, linux-input@vger.kernel.org,
         devicetree@vger.kernel.org
-Subject: Re: [PATCH v2 2/9] Input: iqs5xx - optimize axis definition and
+Subject: Re: [PATCH v2 4/9] Input: iqs5xx - remove superfluous revision
  validation
-Message-ID: <YFgW0grnP/dsU5SS@google.com>
+Message-ID: <YFgXE+MCkbLPB4rW@google.com>
 References: <20210313191236.4366-1-jeff@labundy.com>
- <20210313191236.4366-3-jeff@labundy.com>
+ <20210313191236.4366-5-jeff@labundy.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210313191236.4366-3-jeff@labundy.com>
+In-Reply-To: <20210313191236.4366-5-jeff@labundy.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, Mar 13, 2021 at 01:12:29PM -0600, Jeff LaBundy wrote:
-> Set the maximum ABS_MT_PRESSURE value and use the existing U16_MAX
-> definition instead of a magic number to validate ABS_MT_POSITION_X
-> and ABS_MT_POSITION_Y.
+On Sat, Mar 13, 2021 at 01:12:31PM -0600, Jeff LaBundy wrote:
+> The vendor-assigned firmware project number is restricted to the
+> generic project number (15); however the vendor may assign other
+> project numbers to specific applications and customers.
 > 
-> Also use input_set_abs_params() rather than input_abs_set_max() to
-> avoid having to call input_set_capability() separately.
+> These custom project numbers may be based on forwards-compatible
+> firmware revision 1.x. However, the driver unnecessarily rejects
+> anything older than firmware revision 2.0.
+> 
+> To support other applications, remove these unnecessarily strict
+> checks and enter the bootloader only for truly incompatible A000
+> devices.
 > 
 > Signed-off-by: Jeff LaBundy <jeff@labundy.com>
 

@@ -2,121 +2,129 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 617AEC433E1
-	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 13:20:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 161E0C433DB
+	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2509161A14
-	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 13:20:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5B61619F3
+	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234802AbhCXNUS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 24 Mar 2021 09:20:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45452 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234844AbhCXNUD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 24 Mar 2021 09:20:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2FD961A01;
-        Wed, 24 Mar 2021 13:20:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1616592003;
-        bh=mGh+44Zfv/STwMBai++b5B0xWcfoJzMizF1R245Y8sI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=YDi0CBM5oo7klqsbp9Ce6UHJoraBrwd9JSr492FtnM3WC19t60MaTVxwLc5EQbVD9
-         +6aT12A8x5ohAi15GJjwMTaF9IXsNUcbEmdgsJ3TDB7E0m2aa7aKvzRQqXuFxJ4lIn
-         wFRuOVioLNX21EqFm+Y7+l0mTg0qEAaQgFnMXfCe+Nkuijcn9Qwt005luWKnrTRgad
-         AnlC8jMJWs6tZl9fcL226YK1pClMXUz9nUlxSrh0DtjOIGdWqVRd2C/5CNmL8OYOwO
-         6l/Y9yXk9twcRN+2faAiXR5MJiDGnRTdLP1Q6nZPNiV8mD0TCiFC23zmnBDEuC4YOh
-         xkPJnroTL5AOA==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [v2] Input: analog - fix invalid snprintf() call
-Date:   Wed, 24 Mar 2021 14:19:54 +0100
-Message-Id: <20210324131959.2089129-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.29.2
+        id S237170AbhCXRej (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 24 Mar 2021 13:34:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33904 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237209AbhCXReL (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 24 Mar 2021 13:34:11 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C72DC0613DF
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:11 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id e14so16030899ejz.11
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=tQ98DqDCgp3VpW9J5G14oAPOoDjqdZPJlI/Mwh4Jc20=;
+        b=A/dLEQ9uqTQQWDf+7m1HxFqs9w2URyTdEjwP4HueRVEUEatZ8pYoCvHmFemsWVs9d7
+         i/DOxyZUkBOR2x9Tp9Oxx2iUas5mjtYD+WtHclWhipLhDzuX6kQiMNqlBiuBttAssi2/
+         3fkSdK2UqkJsS1XgsxuzwQH8GSmuJ788TgPlQE2All5vCLHGoFzxQGzCPs21YgGt6yZE
+         OENgn3K7kKtgFXgccsbt4RKXlVvbsIL3brWTgpYq6ciFhPtpN6iam1J8cXdy5JOon7/r
+         ILH7NlB3ivsps1WTPT9VZBpr/TpPKE6etLm9d5/8QPpWR7E6CurDEAbyjtAXsKqQCxGN
+         1F5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tQ98DqDCgp3VpW9J5G14oAPOoDjqdZPJlI/Mwh4Jc20=;
+        b=ppcsjacMmmHMwEYSB2Xd4I3eW+SR7sSEj0AP125wqR830Ua2ufLhaWb9eZQjAx/SjI
+         dUx4y1pQr6caxuOzReAwrf3iN/B7wDT3eMI+HodnwLIlGWYu8kv2U/TkQRCisFJPrxlW
+         +CoeQyBhNN6VQayXy+p1iJ6s4FzdeXAFn91sRvyVCfHm/Zk16j4l0jj+3Y7B+/iG8zH4
+         2lfVAKn+MQL/PHSSvLm21+QEUpTT8y7SeKXwkemTpoSyF8y4CyGafYDH7QTYPW93rcsB
+         +Cb+NHhCGuV7rfRHqwElCj3EGhT35y+mXeu6VaJjMsUOlXV2mmnE4ycIhFg9khbSIwih
+         ciLw==
+X-Gm-Message-State: AOAM5332FZRPQjzpG72uDH/rSG7KkRIXAXwh6JYgfh4jizs6GlY5rVYt
+        hXeNJhJmezpfbiDdqBWZ33xlAw==
+X-Google-Smtp-Source: ABdhPJxYd5PUfyNZIS4zpjgDLCdEncag5+bFQ6PaVo8gsvofMOve1KaZeAUJPzuvz6cPq6tcBPXTEg==
+X-Received: by 2002:a17:906:938f:: with SMTP id l15mr4872399ejx.15.1616607250150;
+        Wed, 24 Mar 2021 10:34:10 -0700 (PDT)
+Received: from dell.default ([91.110.221.180])
+        by smtp.gmail.com with ESMTPSA id p19sm1466367edr.57.2021.03.24.10.34.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Mar 2021 10:34:09 -0700 (PDT)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     lee.jones@linaro.org
+Cc:     linux-kernel@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Daniel Drubin <daniel.drubin@intel.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH 02/25] HID: ishtp-hid-client: Move variable to where it's actually used
+Date:   Wed, 24 Mar 2021 17:33:41 +0000
+Message-Id: <20210324173404.66340-3-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210324173404.66340-1-lee.jones@linaro.org>
+References: <20210324173404.66340-1-lee.jones@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+Fixes the following W=1 kernel build warning(s):
 
-Overlapping input and output arguments to snprintf() are
-undefined behavior in C99:
+ In file included from drivers/hid/intel-ish-hid/ishtp-hid.c:11:
+     drivers/hid/intel-ish-hid/ishtp-hid.h:24:21: warning: ‘hid_ishtp_guid’ defined but not used [-Wunused-const-variable=]
 
-drivers/input/joystick/analog.c: In function 'analog_name':
-drivers/input/joystick/analog.c:428:3: error: 'snprintf' argument 4 overlaps destination object 'analog' [-Werror=restrict]
-  428 |   snprintf(analog->name, sizeof(analog->name), "%s %d-hat",
-      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  429 |     analog->name, hweight16(analog->mask & ANALOG_HATS_ALL));
-      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/input/joystick/analog.c:420:40: note: destination object referenced by 'restrict'-qualified argument 1 was declared here
-  420 | static void analog_name(struct analog *analog)
-      |                         ~~~~~~~~~~~~~~~^~~~~~
-
-Change this function to use the simpler seq_buf interface instead.
-
-Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Daniel Drubin <daniel.drubin@intel.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
-v2: use seq_buf instead of rolling my own
----
- drivers/input/joystick/analog.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 +++++
+ drivers/hid/intel-ish-hid/ishtp-hid.h        | 5 -----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
-index f798922a4598..087b65ae7585 100644
---- a/drivers/input/joystick/analog.c
-+++ b/drivers/input/joystick/analog.c
-@@ -19,6 +19,7 @@
- #include <linux/input.h>
- #include <linux/gameport.h>
- #include <linux/jiffies.h>
-+#include <linux/seq_buf.h>
- #include <linux/timex.h>
- #include <linux/timekeeping.h>
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+index 0f1b5283bab42..24599280105d8 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+@@ -11,6 +11,11 @@
+ #include <linux/sched.h>
+ #include "ishtp-hid.h"
  
-@@ -419,23 +420,24 @@ static void analog_calibrate_timer(struct analog_port *port)
- 
- static void analog_name(struct analog *analog)
- {
--	snprintf(analog->name, sizeof(analog->name), "Analog %d-axis %d-button",
-+	struct seq_buf s;
++/* ISH Transport protocol (ISHTP in short) GUID */
++static const guid_t hid_ishtp_guid =
++	GUID_INIT(0x33AECD58, 0xB679, 0x4E54,
++		  0x9B, 0xD9, 0xA0, 0x4D, 0x34, 0xF0, 0xC2, 0x26);
 +
-+	seq_buf_init(&s, analog->name, sizeof(analog->name));
-+	seq_buf_printf(&s, "Analog %d-axis %d-button",
- 		 hweight8(analog->mask & ANALOG_AXES_STD),
- 		 hweight8(analog->mask & ANALOG_BTNS_STD) + !!(analog->mask & ANALOG_BTNS_CHF) * 2 +
- 		 hweight16(analog->mask & ANALOG_BTNS_GAMEPAD) + !!(analog->mask & ANALOG_HBTN_CHF) * 4);
+ /* Rx ring buffer pool size */
+ #define HID_CL_RX_RING_SIZE	32
+ #define HID_CL_TX_RING_SIZE	16
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
+index 5ffd0da3cf1fa..e2423f7d2b547 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.h
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
+@@ -20,11 +20,6 @@ extern void (*hid_print_trace)(void *unused, const char *format, ...);
+ #define hid_ishtp_trace(client, ...) \
+ 		(hid_print_trace)(NULL, __VA_ARGS__)
  
- 	if (analog->mask & ANALOG_HATS_ALL)
--		snprintf(analog->name, sizeof(analog->name), "%s %d-hat",
--			 analog->name, hweight16(analog->mask & ANALOG_HATS_ALL));
-+		seq_buf_printf(&s, " %d-hat",
-+			       hweight16(analog->mask & ANALOG_HATS_ALL));
- 
- 	if (analog->mask & ANALOG_HAT_FCS)
--		strlcat(analog->name, " FCS", sizeof(analog->name));
-+		seq_buf_printf(&s, " FCS");
- 	if (analog->mask & ANALOG_ANY_CHF)
--		strlcat(analog->name, (analog->mask & ANALOG_SAITEK) ? " Saitek" : " CHF",
--			sizeof(analog->name));
-+		seq_buf_printf(&s, (analog->mask & ANALOG_SAITEK) ? " Saitek" : " CHF");
- 
--	strlcat(analog->name, (analog->mask & ANALOG_GAMEPAD) ? " gamepad": " joystick",
--		sizeof(analog->name));
-+	seq_buf_printf(&s, (analog->mask & ANALOG_GAMEPAD) ? " gamepad": " joystick");
- }
- 
- /*
+-/* ISH Transport protocol (ISHTP in short) GUID */
+-static const guid_t hid_ishtp_guid =
+-	GUID_INIT(0x33AECD58, 0xB679, 0x4E54,
+-		  0x9B, 0xD9, 0xA0, 0x4D, 0x34, 0xF0, 0xC2, 0x26);
+-
+ /* ISH HID message structure */
+ struct hostif_msg_hdr {
+ 	uint8_t	command; /* Bit 7: is_response */
 -- 
-2.29.2
+2.27.0
 

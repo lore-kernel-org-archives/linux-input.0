@@ -2,199 +2,121 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56EC5C433C1
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6C51C433E6
 	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2340A61A1A
+	by mail.kernel.org (Postfix) with ESMTP id 9E80E619F3
 	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237290AbhCXRei (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 24 Mar 2021 13:34:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33888 "EHLO
+        id S237203AbhCXRej (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 24 Mar 2021 13:34:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237200AbhCXReK (ORCPT
+        with ESMTP id S237216AbhCXReM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 24 Mar 2021 13:34:10 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5AABC0613DF
-        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:09 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id r12so34259976ejr.5
-        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:09 -0700 (PDT)
+        Wed, 24 Mar 2021 13:34:12 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659BAC0613DE
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:12 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id w3so34249323ejc.4
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=VoFNqvJqV3TdL84vFoklC/P+s5SxY+mp4X8TTiNgMtE=;
-        b=p5GUKS/uwIXlF0KDHuVWCTKOILfvq6pgQeedSTtsSMFwzeuZp8AKlKbhStPy4SRDFk
-         HRqJKvh8toc4XC2CDpMwgejowYDSgwwsD1NNm/IZLadO+9aHWEJEa7SnZn+Fzie+/tpY
-         cHhRabnd8kARi5Sxtf813O8WVqAJ4I6376ff+ZdtFwIXyxn2TFZwAcHQP8iPkpz2DhES
-         sPWg2kI28DA6L8flcNKaK7fCrqsKbgjkmeINLGfWN8W8iv4Lz10+IASi3UZhscm0Vp5a
-         4LfKAQOpAmDlZWEXD41zDbsvBBjj9lvzYhyZx+Ckfdf3hiQ9fnRbMmWjK4JD9JZdNjZV
-         soZQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=FHkipYTKnSstTFJnbmdtyQKucMWsrejAj9mUW3hzYUM=;
+        b=dUF0+KwB9tywOuOSJN7KHib9Kyj/mxSFofYtmO0WjMyKiP1sOnIX73pcL5dWCmsJvx
+         4XuYOG5Uck0eRnIJVqUgu2yed2C3XXiIXIfET9I2tdgDTq7zte11+1x//fPLnqF4epmm
+         K4sR2dWrF2TYT3KRMkKnZ2d1H/DI63sKsZwulreFHlLVjFTzCqtjIrQJ6W9u/z4PqyAb
+         0nGssOXfQAeqCcSqd5RtE+UcFkOHDHjZ9wI3yV7hyqbaxlHTuX1L/NGKq1SjC/X3r66F
+         Hl0QVM0NwpgDQ9MYhrI/ovFk65C15grVvKJDOBB+9ID5q/SeVNwJnPqp+Y9FgcM2gAGt
+         LCkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=VoFNqvJqV3TdL84vFoklC/P+s5SxY+mp4X8TTiNgMtE=;
-        b=bSxoqnVuCNrBSKuLdXF9cykN6XGE9DiZkPowePuppk2xItfsx6dKRA8MxykarpmCff
-         Xnzcn2ytWSFvNo5aDn78acEVB+Xf11Wi6dY7jUkPXVqWmpGuOopnElxqhKsdMKJnYhaV
-         ofVB7Kuzkg1mZIcWs1EK++2oAJr/PJFj7+VMFFmgoHVKvAv7q0VRkns0WH+ao4Zg8Zfx
-         WvGdzURfjJL+vH8xYK4NHsSlbAr4MLEct1Gn2JUJoX8LStV0MhFqbnVuNGu0+1h3kG7p
-         hCf1Agjz2GzAjByt0E6CuWwYzSiCWKA5Di2cZ+i/8s2ftQDCjrydxUAAf3vtb7BJCgXi
-         /y8Q==
-X-Gm-Message-State: AOAM530MKDKNZOKTLaaUVpBNdiqx3BaQKkTcilaNYeOPyJOlL9RqAO5L
-        yS0FwtOPUbwPdOHiPyHM1Hkq3w==
-X-Google-Smtp-Source: ABdhPJzwCa1MrVqILnw5ineqDKoBXsRVPYAznXPlfLrlyyVo9HL2XAvV+eancRBLlKNZ4hQlmcJ62g==
-X-Received: by 2002:a17:906:7946:: with SMTP id l6mr4857686ejo.500.1616607247797;
-        Wed, 24 Mar 2021 10:34:07 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=FHkipYTKnSstTFJnbmdtyQKucMWsrejAj9mUW3hzYUM=;
+        b=X7HWxAT894rPqOSgNuOqZ/AMb+1vhiPqoHhQjeakj62wocSI/jRosKGCeIfS1tm56H
+         +Enn2FwweEwk3DR6aAgQ3rAx74YCGd9hl/oveGlJcnVFpByNV7TU79naS4Jqx/sHVNb0
+         wLknF1dq6SLTUYo7VYRaQeepf6OlW1bXWPvQD55+LmbwKuEvmcayYARtlFJkfKa7zA7S
+         3kWn9UbNHH6h8p88mWRgwZJ3HMea3nkzMTx7VKuQ3sW/iSd1BiKt4IVfQm5WR7Cd0WNC
+         3kRLCzlt3WD48wCLx1vM/6CEYOOmmasbOqmQmjMxd7vU+eOmWYUAIrStVjr8/M69dj8l
+         onTQ==
+X-Gm-Message-State: AOAM530Zbt/uTzvxMhjohg/tGCBiJOftvWCo0bcbJD+af/Y4mbQE/4en
+        YeoVQYQ5QQCVA6gsvpHnJCr5Aw==
+X-Google-Smtp-Source: ABdhPJxeSr7aEdRF1BRPbkJkacLU9X6tluwT/TI5/mx4dRxSDXbOALvCJ/ejHQJz5B880dDFOCSAhw==
+X-Received: by 2002:a17:907:7785:: with SMTP id ky5mr4814480ejc.133.1616607251078;
+        Wed, 24 Mar 2021 10:34:11 -0700 (PDT)
 Received: from dell.default ([91.110.221.180])
-        by smtp.gmail.com with ESMTPSA id p19sm1466367edr.57.2021.03.24.10.34.05
+        by smtp.gmail.com with ESMTPSA id p19sm1466367edr.57.2021.03.24.10.34.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Mar 2021 10:34:07 -0700 (PDT)
+        Wed, 24 Mar 2021 10:34:10 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Anssi Hannula <anssi.hannula@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        =?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@linux-vserver.org>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Drubin <daniel.drubin@intel.com>,
-        Dario Pagani <dario.pagani.146+linuxk@gmail.com>,
-        dri-devel@lists.freedesktop.org,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Kim Kuparinen <kimi.h.kuparinen@gmail.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        linaro-mm-sig@lists.linaro.org,
-        linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-usb@vger.kernel.org, Lopez Casado <nlopezcasad@logitech.com>,
-        "L. Vinyard, Jr" <rvinyard@cs.nmsu.edu>,
-        Masaki Ota <masaki.ota@jp.alps.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        message to <vojtech@ucw.cz>,
-        Michael Haboustak <mike-@cinci.rr.com>,
-        Rushikesh S Kadam <rushikesh.s.kadam@intel.com>,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
-        Vojtech Pavlik <vojtech@suse.cz>,
-        Zhang Lixu <lixu.zhang@intel.com>
-Subject: [PATCH 00/25] Rid W=1 warnings from HID
-Date:   Wed, 24 Mar 2021 17:33:39 +0000
-Message-Id: <20210324173404.66340-1-lee.jones@linaro.org>
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Zhang Lixu <lixu.zhang@intel.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Daniel Drubin <daniel.drubin@intel.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH 03/25] HID: intel-ish-hid: pci-ish: Remove unused variable 'ret'
+Date:   Wed, 24 Mar 2021 17:33:42 +0000
+Message-Id: <20210324173404.66340-4-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210324173404.66340-1-lee.jones@linaro.org>
+References: <20210324173404.66340-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This set is part of a larger effort attempting to clean-up W=1
-kernel builds, which are currently overwhelmingly riddled with
-niggly little warnings.
+Fixes the following W=1 kernel build warning(s):
 
-Lee Jones (25):
-  HID: intel-ish-hid: Remove unused variable 'err'
-  HID: ishtp-hid-client: Move variable to where it's actually used
-  HID: intel-ish-hid: pci-ish: Remove unused variable 'ret'
-  HID: intel-ish: Supply some missing param descriptions
-  HID: intel-ish: Fix a naming disparity and a formatting error
-  HID: usbhid: Repair a formatting issue in a struct description
-  HID: intel-ish-hid: Fix a little doc-rot
-  HID: usbhid: hid-pidff: Demote a couple kernel-doc abuses
-  HID: hid-alps: Correct struct misnaming
-  HID: intel-ish-hid: Fix potential copy/paste error
-  HID: hid-core: Fix incorrect function name in header
-  HID: intel-ish-hid: ipc: Correct fw_reset_work_fn() function name in
-    header
-  HID: ishtp-hid-client: Fix incorrect function name report_bad_packet()
-  HID: hid-kye: Fix incorrect function name for kye_tablet_enable()
-  HID: hid-picolcd_core: Remove unused variable 'ret'
-  HID: hid-logitech-hidpp: Fix conformant kernel-doc header and demote
-    abuses
-  HID: hid-uclogic-rdesc: Kernel-doc is for functions and structs
-  HID: hid-thrustmaster: Demote a bunch of kernel-doc abuses
-  HID: hid-uclogic-params: Ensure function names are present and correct
-    in kernel-doc headers
-  HID: hid-sensor-custom: Remove unused variable 'ret'
-  HID: wacom_sys: Demote kernel-doc abuse
-  HID: hid-sensor-hub: Remove unused struct member 'quirks'
-  HID: hid-sensor-hub: Move 'hsdev' description to correct struct
-    definition
-  HID: intel-ish-hid: ishtp-fw-loader: Fix a bunch of formatting issues
-  HID: ishtp-hid-client: Fix 'suggest-attribute=format' compiler warning
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c: In function ‘ish_resume_handler’:
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c:264:6: warning: variable ‘ret’ set but not used [-Wunused-but-set-variable]
 
- drivers/hid/hid-alps.c                       |  2 +-
- drivers/hid/hid-core.c                       |  2 +-
- drivers/hid/hid-kye.c                        |  2 +-
- drivers/hid/hid-logitech-hidpp.c             |  7 +--
- drivers/hid/hid-picolcd_core.c               |  5 +--
- drivers/hid/hid-sensor-custom.c              |  5 +--
- drivers/hid/hid-sensor-hub.c                 |  4 +-
- drivers/hid/hid-thrustmaster.c               | 24 +++++------
- drivers/hid/hid-uclogic-params.c             |  8 ++--
- drivers/hid/hid-uclogic-rdesc.c              |  2 +-
- drivers/hid/intel-ish-hid/ipc/ipc.c          |  2 +-
- drivers/hid/intel-ish-hid/ipc/pci-ish.c      |  3 +-
- drivers/hid/intel-ish-hid/ishtp-fw-loader.c  | 45 ++++++++++----------
- drivers/hid/intel-ish-hid/ishtp-hid-client.c | 11 +++--
- drivers/hid/intel-ish-hid/ishtp-hid.c        |  2 +-
- drivers/hid/intel-ish-hid/ishtp-hid.h        |  9 +---
- drivers/hid/intel-ish-hid/ishtp/bus.c        |  9 +++-
- drivers/hid/intel-ish-hid/ishtp/client.c     |  5 +--
- drivers/hid/intel-ish-hid/ishtp/hbm.c        |  4 +-
- drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h  |  4 +-
- drivers/hid/usbhid/hid-pidff.c               |  4 +-
- drivers/hid/usbhid/usbkbd.c                  |  2 +-
- drivers/hid/wacom_sys.c                      |  2 +-
- include/linux/intel-ish-client-if.h          |  8 +++-
- 24 files changed, 90 insertions(+), 81 deletions(-)
-
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "Bruno Prémont" <bonbons@linux-vserver.org>
-Cc: "Christian König" <christian.koenig@amd.com>
-Cc: Daniel Drubin <daniel.drubin@intel.com>
-Cc: Dario Pagani <dario.pagani.146+linuxk@gmail.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Jonathan Cameron <jic23@kernel.org>
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Kim Kuparinen <kimi.h.kuparinen@gmail.com>
-Cc: "Krzysztof Wilczyński" <kw@linux.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: linaro-mm-sig@lists.linaro.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-iio@vger.kernel.org
-Cc: linux-input@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Cc: linux-usb@vger.kernel.org
-Cc: Lopez Casado <nlopezcasad@logitech.com>
-Cc: "L. Vinyard, Jr" <rvinyard@cs.nmsu.edu>
-Cc: Masaki Ota <masaki.ota@jp.alps.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: message to <vojtech@ucw.cz>
-Cc: Michael Haboustak <mike-@cinci.rr.com>
-Cc: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>
 Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: "Uwe Kleine-König" <uwe@kleine-koenig.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Zhang Lixu <lixu.zhang@intel.com>
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Daniel Drubin <daniel.drubin@intel.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index 06081cf9b85a2..61efc30ed9afb 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -261,7 +261,6 @@ static void __maybe_unused ish_resume_handler(struct work_struct *work)
+ 	struct pci_dev *pdev = to_pci_dev(ish_resume_device);
+ 	struct ishtp_device *dev = pci_get_drvdata(pdev);
+ 	uint32_t fwsts = dev->ops->get_fw_status(dev);
+-	int ret;
+ 
+ 	if (ish_should_leave_d0i3(pdev) && !dev->suspend_flag
+ 			&& IPC_IS_ISH_ILUP(fwsts)) {
+@@ -273,7 +272,7 @@ static void __maybe_unused ish_resume_handler(struct work_struct *work)
+ 
+ 		/* Waiting to get resume response */
+ 		if (dev->resume_flag)
+-			ret = wait_event_interruptible_timeout(dev->resume_wait,
++			wait_event_interruptible_timeout(dev->resume_wait,
+ 				!dev->resume_flag,
+ 				msecs_to_jiffies(WAIT_FOR_RESUME_ACK_MS));
+ 
 -- 
 2.27.0
 

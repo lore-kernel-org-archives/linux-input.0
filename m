@@ -7,64 +7,65 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1210C433E9
-	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D043C433EC
+	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B622261A20
-	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12F3C619DC
+	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237226AbhCXRek (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 24 Mar 2021 13:34:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33922 "EHLO
+        id S237297AbhCXRel (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 24 Mar 2021 13:34:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237238AbhCXReP (ORCPT
+        with ESMTP id S237246AbhCXReT (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 24 Mar 2021 13:34:15 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 937D3C0613E1
-        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:15 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id e7so28504956edu.10
-        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:15 -0700 (PDT)
+        Wed, 24 Mar 2021 13:34:19 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9340C0613DE
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:18 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id dm8so28614528edb.2
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=YVoLbq8RBXUfihLEoAO2RhgjiaRVSJgl/YQpPYdz058=;
-        b=F+iJ9M+WInt+IZa6vVqUUZZZXKjhcQ0sePVfsAX4epZi6SWJVwwuoO49lpEpWsG1B4
-         lKTGk75uroceeGyvtgjjYpPiujSmq/LW9HLYXMjM0earEN+yrwXDAj9NnLOb+WVywr0E
-         OihBB1Ah5Y+zYcknMsE9vNN7NU+z3C60+eoaaYCl/YU9INj8EwOoX8ifSB03NMHEefq3
-         /1U3MTbAvW7ffjBahhaiMpWExcRT0HxVlOb4shQrt6UVPCrPlcrAF3Dfoa6Vx6HmEYjV
-         3nQXYNopEpnO8Qzbnfdkla5KC38yLS6Y+r2C9Ghawi14bY0tK9CVh7OD8mP5/Y1usLIK
-         4D/A==
+        bh=7SaTEj4RTZdOjBa5WGjzyPtQsvCc3pHayG7DFxx2S1o=;
+        b=cfvDkL+QyMuw03bMTs6Zs1dlBvGt1Szs9b0ItOn88asw3tEJ23o32vAG2nprNZIdY1
+         /siEXJ/WQ8IqsSQyHcx1I0iR8lM5ytepWCfZ29b/VYmt5xsuClfsffRlGXXu2Ao3HHGK
+         /A8xxJjIyM0rcKZqZwu6XmEoTk4TTyJ2Pm/stY03leBC8SaxMY4rLiVl3GaragheVwx7
+         3rbUlxvMarIcrjo/mUpLDK5Z/Lg5c4WtfbXqflVOhoFvc5QFC2Xmizv/u3gsUUPRfNCj
+         MetuLv7tHhqHdP7LNuSsWRgUoSkHggypVZdw9HUkN5rWvkx8uFyiMPZbRJ8K40dglx00
+         oqKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=YVoLbq8RBXUfihLEoAO2RhgjiaRVSJgl/YQpPYdz058=;
-        b=Bq9wsHqktObNkcXr8+icAfuUbi4NEOfIEhAE24ZmIY0BVUHtLirUczR/SXZe3rRyzA
-         SIhtSVtzwPaeqHRSrTeyd4f1+2YrSGCf3cK7xmEynmI48OC/wBHx7iAde1R4iePymSnW
-         +XipKRrgX2xrvaDNDT4d+CrHekTi/QCjgv7bKBETjteLqlcJjDIGQN3hqKjc72m4cAsO
-         tESFHkwVxAqzAfvik3omPI54CdsKTxOZdbzYQfEOC+H6Lnc1Sn//FJ92Vt9Q2BNO0Ad7
-         ZLfgIAAoH5oPxDxHuKjOZhlIr0pPPRekVELZZ2Q70UEqRtbAQeHGmgfaCA5vHX0R21oj
-         5oGA==
-X-Gm-Message-State: AOAM533AbzE1GClAoEnhRU/r45VSFMUZJ95ABH42qWOMKnr/Y2UH9UKO
-        qLZdwhaiNC4V3Rf46TcAKguMvg==
-X-Google-Smtp-Source: ABdhPJxRZif/QlzU41cuhZx3aHLwJ3xCFIf1WIBnnn5M/mUI6grvUz+kGd+AImbr0OB4afgXt35r3g==
-X-Received: by 2002:a05:6402:3587:: with SMTP id y7mr4901632edc.54.1616607254314;
-        Wed, 24 Mar 2021 10:34:14 -0700 (PDT)
+        bh=7SaTEj4RTZdOjBa5WGjzyPtQsvCc3pHayG7DFxx2S1o=;
+        b=svY7jdGpMj0hB9NIIDIMtTPD85xYk5BBStuI3p/D5zlByzbfMnHy4xPqb2yUpb05lA
+         Gc80Jv9Ae9r8x1XrCH6VRyZ4vCxHB4SQq8pI/n1dskrG64C5U/rxwcD2rR9yKKAaHOey
+         1MMwDwNlGNhmjbwxuxwyrLJ7BlFBQn66qK2/u3HI+tkYub2e6utgcvIJr16yjZyVWGMB
+         /ER7ZdU8xnGGQ3T5pHKcmK3PK2dFFYVJU2clzslZ3q0PHZOMxr6cSc8At+/JQy67L+Pm
+         wU+0A9OKLNHD1G/jDLMFFYE0o5Tvz3pSsI+u7toOwlAexdRGw6vSvx1NSkSQz7G18kqD
+         OPBQ==
+X-Gm-Message-State: AOAM532oLQrPUSF9ArLyKOz1c4drQxCrtxwv4Jn2K13/YvmHjHdYEaLz
+        YCvBWfeJ2coB8F25v1qDEc67IA==
+X-Google-Smtp-Source: ABdhPJzbP13FGjsMEuWXswh25w1dlfhwzJLC/jdccNUJbOu/BhohpWlvimC9u+JtsVmFJmWdMQLkOQ==
+X-Received: by 2002:a05:6402:c8:: with SMTP id i8mr4729387edu.57.1616607257536;
+        Wed, 24 Mar 2021 10:34:17 -0700 (PDT)
 Received: from dell.default ([91.110.221.180])
-        by smtp.gmail.com with ESMTPSA id p19sm1466367edr.57.2021.03.24.10.34.13
+        by smtp.gmail.com with ESMTPSA id p19sm1466367edr.57.2021.03.24.10.34.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Mar 2021 10:34:13 -0700 (PDT)
+        Wed, 24 Mar 2021 10:34:17 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        message to <vojtech@ucw.cz>, linux-usb@vger.kernel.org,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Masaki Ota <masaki.ota@jp.alps.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 06/25] HID: usbhid: Repair a formatting issue in a struct description
-Date:   Wed, 24 Mar 2021 17:33:45 +0000
-Message-Id: <20210324173404.66340-7-lee.jones@linaro.org>
+Subject: [PATCH 09/25] HID: hid-alps: Correct struct misnaming
+Date:   Wed, 24 Mar 2021 17:33:48 +0000
+Message-Id: <20210324173404.66340-10-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210324173404.66340-1-lee.jones@linaro.org>
 References: <20210324173404.66340-1-lee.jones@linaro.org>
@@ -76,31 +77,31 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/hid/usbhid/usbkbd.c:66: warning: bad line:                 should be on
+ drivers/hid/hid-alps.c:113: warning: expecting prototype for struct u1_data. Prototype was for struct alps_dev instead
 
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: message to <vojtech@ucw.cz>
-Cc: linux-usb@vger.kernel.org
+Cc: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Masaki Ota <masaki.ota@jp.alps.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/hid/usbhid/usbkbd.c | 2 +-
+ drivers/hid/hid-alps.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
-index d5b7a696a68c5..d0c640be8a885 100644
---- a/drivers/hid/usbhid/usbkbd.c
-+++ b/drivers/hid/usbhid/usbkbd.c
-@@ -63,7 +63,7 @@ static const unsigned char usb_kbd_keycode[256] = {
-  *		new key is pressed or a key that was pressed is released.
-  * @led:	URB for sending LEDs (e.g. numlock, ...)
-  * @newleds:	data that will be sent with the @led URB representing which LEDs
-- 		should be on
-+ *  		should be on
-  * @name:	Name of the keyboard. @dev's name field points to this buffer
-  * @phys:	Physical path of the keyboard. @dev's phys field points to this
-  *		buffer
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index 6b665931147df..2b986d0dbde46 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -74,7 +74,7 @@ enum dev_num {
+ 	UNKNOWN,
+ };
+ /**
+- * struct u1_data
++ * struct alps_dev
+  *
+  * @input: pointer to the kernel input device
+  * @input2: pointer to the kernel input2 device
 -- 
 2.27.0
 

@@ -5,65 +5,66 @@ X-Spam-Level:
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68837C43446
-	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EEFAC433ED
+	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 45A55619EC
-	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2AD9261A2E
+	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237263AbhCXRep (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 24 Mar 2021 13:34:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33996 "EHLO
+        id S237238AbhCXRel (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 24 Mar 2021 13:34:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237270AbhCXRe3 (ORCPT
+        with ESMTP id S237242AbhCXReR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 24 Mar 2021 13:34:29 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D385BC061788
-        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:26 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id b7so34261840ejv.1
-        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:26 -0700 (PDT)
+        Wed, 24 Mar 2021 13:34:17 -0400
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 869C4C0613E1
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:17 -0700 (PDT)
+Received: by mail-ed1-x531.google.com with SMTP id h10so28530863edt.13
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=QyPG1WEqZFTBuDaWcANV4HkcWu30kB5AaRBOC44dMcU=;
-        b=x34RZDCkoRcSFIBBxVgvp+zHfS6nJJrdmtFvrYSb1iqICIoh6VlPMSgqm1epY4jDhD
-         QvZgdgquPJPb6Ry6SqX2sDNO//7WzUnOwXU41yX2Xbp7vI7bCmyC6UKbsgniS3hkiDwe
-         2DZRVPfs0FMdC31pWIKDHB8mOm6/GWeQ+jyknqeIT5fNY1vqtHLvGQn8L0yS6qlxrn9A
-         QKoBS9npWrI9cw0OOkwrdhJ15m/vg5dPpCLua01KkkpDV15EsGyQJI7E3LL6zE3QT2pz
-         VDnuKc5KOCvoFrnwOdeVB5tqJV7/3XAWFoAmnx94nvioCq/tvQjEZKe6OfhQhgoTxu1a
-         WNuw==
+        bh=E7/N3FVykAR22YhzUhZ15csg3vPH/3PyPAZDl2mJTyE=;
+        b=VxIkrCxesyL14UeRs78vWlRa0oQXxXoxEI3HDGKMmeRkyUyy62wrRUC0w+4rynV6NY
+         Ll5Rif5st8hCJyM8cC5Uk2fs4HmA72rZFok6HzR70YSH2FDLHt+9VQ2xQh/Nys9MlSxC
+         P+PkpKSImwmZzOg3gBSgTPm8tYQidd6bJoT35BpgZHxu1t89/h/jNmRuH8LGfqALRXNj
+         GuXNxRk90IrloCGke9ercsKjjKupoV7R3RawwgaIqClYUTfdx3wdABc4Zi84J1zQ6ErP
+         QsDWP1QchO8lm4ioxgoQdnPwCcYH+TXz+vrXYv8VDQtcFiTAUShLkUZ8cg1+EXS+5uj2
+         Lhbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=QyPG1WEqZFTBuDaWcANV4HkcWu30kB5AaRBOC44dMcU=;
-        b=nYyRrz+n7l7B7l/c9R8TUlqBWEmfDEQdxMIokUjOKOf1pV1z8jQz9JUeLsTNNkIdZF
-         xBv8iRd7P224Y9vByG9lKbSGzxAkDrmWDFixjrpqFGfGTSdJAjOfvN+bKgaaPkO4XPPK
-         C0kMb1g+uwuDOf0nlFXK92q1pFP5gPBVCUtU3lOTt6EyMlEw7+9Hb98WOzWkwj3pzKv4
-         Gk9zNukrYx2uuIyqmyIKfwUYHG+7FWdlj6NE+I263jUDCHyLhdq2r4itN3VJFuev5r5q
-         X0PWZBFw1Qc3WDnwk+6XFTzTAMvLfPbG9UYxJ9Z6ayr6lS8OI0mq4mNo2epCLZAnqqw8
-         CNfw==
-X-Gm-Message-State: AOAM532yVD/BP8DvSMEGeMA+widduYaUBTU1CBFpTwmTOavH7z2nJ9vW
-        9BnTNuqIXj6ZfudNikTJDO3Zi4p+pDzCrA==
-X-Google-Smtp-Source: ABdhPJwRwrC8EEYenWLs4RGZ9Kg2dyDeJq/LMFkNo2BqT3C9pBFeEJizZTNkRQh0YmvZI4K++sB9AQ==
-X-Received: by 2002:a17:906:d114:: with SMTP id b20mr4911433ejz.449.1616607265313;
-        Wed, 24 Mar 2021 10:34:25 -0700 (PDT)
+        bh=E7/N3FVykAR22YhzUhZ15csg3vPH/3PyPAZDl2mJTyE=;
+        b=WGUumVfqnRjVgj1ybRnH/brTLsFWolRtpj/kb2z+lCE2VPMpOP/KJ184ija9bgWo2c
+         rshpQgfZGE0lGLX4E1LByD280qdfv4yrOQ8BK10l3lBAFOxbXCGAmP3Tvz4cCvWuWpCm
+         tIohEfzuWgMAuqee/gBB636xM5r9DYTw2/EESRi5J5v8t5ICSiAhf7qppCBJ1k92gLL0
+         W9vOIvDRKO7lEH1KRMn3J4fdXd8JiBQCrNUyX67BjViletofa3H4pi1efDdImgHFFohu
+         j9muh15OuePheynwmeYDW8Y/YwP2amfwsoxeSjX9OC1LYCfu/BZIFi3K0ETDMXK/Wto6
+         /oYw==
+X-Gm-Message-State: AOAM530uLEtFs8rcUwzOvVOc1goz3R1i4/SRUQBhx4B5KU84NGgSadJk
+        AAzk/Pc82dw8QDBMg0ShX3BkOQ==
+X-Google-Smtp-Source: ABdhPJylv30JqRZMzBDUUnpDl1vh1UfuC6zxexY7SFcPJS3j7MrLyWiG3W7ZVfKXIThRWIH3JDu2mA==
+X-Received: by 2002:a50:fc94:: with SMTP id f20mr4711938edq.370.1616607256236;
+        Wed, 24 Mar 2021 10:34:16 -0700 (PDT)
 Received: from dell.default ([91.110.221.180])
-        by smtp.gmail.com with ESMTPSA id p19sm1466367edr.57.2021.03.24.10.34.24
+        by smtp.gmail.com with ESMTPSA id p19sm1466367edr.57.2021.03.24.10.34.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Mar 2021 10:34:24 -0700 (PDT)
+        Wed, 24 Mar 2021 10:34:15 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 17/25] HID: hid-uclogic-rdesc: Kernel-doc is for functions and structs
-Date:   Wed, 24 Mar 2021 17:33:56 +0000
-Message-Id: <20210324173404.66340-18-lee.jones@linaro.org>
+        Anssi Hannula <anssi.hannula@gmail.com>,
+        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH 08/25] HID: usbhid: hid-pidff: Demote a couple kernel-doc abuses
+Date:   Wed, 24 Mar 2021 17:33:47 +0000
+Message-Id: <20210324173404.66340-9-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210324173404.66340-1-lee.jones@linaro.org>
 References: <20210324173404.66340-1-lee.jones@linaro.org>
@@ -75,29 +76,46 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/hid/hid-uclogic-rdesc.c:645: warning: wrong kernel-doc identifier on line:
+ drivers/hid/usbhid/hid-pidff.c:512: warning: Function parameter or member 'dev' not described in 'pidff_playback'
+ drivers/hid/usbhid/hid-pidff.c:512: warning: Function parameter or member 'effect_id' not described in 'pidff_playback'
+ drivers/hid/usbhid/hid-pidff.c:512: warning: Function parameter or member 'value' not described in 'pidff_playback'
+ drivers/hid/usbhid/hid-pidff.c:512: warning: expecting prototype for value times(). Prototype was for pidff_playback() instead
+ drivers/hid/usbhid/hid-pidff.c:1005: warning: Function parameter or member 'pidff' not described in 'pidff_find_effects'
+ drivers/hid/usbhid/hid-pidff.c:1005: warning: Function parameter or member 'dev' not described in 'pidff_find_effects'
+ drivers/hid/usbhid/hid-pidff.c:1005: warning: expecting prototype for Find the implemented effect types(). Prototype was for pidff_find_effects() instead
 
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: linux-usb@vger.kernel.org
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/hid/hid-uclogic-rdesc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/usbhid/hid-pidff.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdesc.c
-index bf5da6de7bba9..6dd6dcd09c8bc 100644
---- a/drivers/hid/hid-uclogic-rdesc.c
-+++ b/drivers/hid/hid-uclogic-rdesc.c
-@@ -641,7 +641,7 @@ const __u8 uclogic_rdesc_pen_v2_template_arr[] = {
- const size_t uclogic_rdesc_pen_v2_template_size =
- 			sizeof(uclogic_rdesc_pen_v2_template_arr);
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index fddac7c72f645..ea126c50acc3b 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -505,7 +505,7 @@ static void pidff_playback_pid(struct pidff_device *pidff, int pid_id, int n)
+ 			HID_REQ_SET_REPORT);
+ }
  
 -/**
 +/*
-  * Expand to the contents of a generic buttonpad report descriptor.
-  *
-  * @_padding:	Padding from the end of button bits at bit 44, until
+  * Play the effect with effect id @effect_id for @value times
+  */
+ static int pidff_playback(struct input_dev *dev, int effect_id, int value)
+@@ -997,7 +997,7 @@ static int pidff_find_special_fields(struct pidff_device *pidff)
+ 	return 0;
+ }
+ 
+-/**
++/*
+  * Find the implemented effect types
+  */
+ static int pidff_find_effects(struct pidff_device *pidff,
 -- 
 2.27.0
 

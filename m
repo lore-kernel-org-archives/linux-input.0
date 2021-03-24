@@ -7,66 +7,66 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 161E0C433DB
-	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91E48C433E5
+	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D5B61619F3
-	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 713D261A1A
+	for <linux-input@archiver.kernel.org>; Wed, 24 Mar 2021 17:35:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237170AbhCXRej (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 24 Mar 2021 13:34:39 -0400
+        id S237291AbhCXRek (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 24 Mar 2021 13:34:40 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237209AbhCXReL (ORCPT
+        with ESMTP id S237218AbhCXReN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 24 Mar 2021 13:34:11 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C72DC0613DF
-        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:11 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id e14so16030899ejz.11
-        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:11 -0700 (PDT)
+        Wed, 24 Mar 2021 13:34:13 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E63DC0613DE
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:13 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id x21so28581054eds.4
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2021 10:34:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=tQ98DqDCgp3VpW9J5G14oAPOoDjqdZPJlI/Mwh4Jc20=;
-        b=A/dLEQ9uqTQQWDf+7m1HxFqs9w2URyTdEjwP4HueRVEUEatZ8pYoCvHmFemsWVs9d7
-         i/DOxyZUkBOR2x9Tp9Oxx2iUas5mjtYD+WtHclWhipLhDzuX6kQiMNqlBiuBttAssi2/
-         3fkSdK2UqkJsS1XgsxuzwQH8GSmuJ788TgPlQE2All5vCLHGoFzxQGzCPs21YgGt6yZE
-         OENgn3K7kKtgFXgccsbt4RKXlVvbsIL3brWTgpYq6ciFhPtpN6iam1J8cXdy5JOon7/r
-         ILH7NlB3ivsps1WTPT9VZBpr/TpPKE6etLm9d5/8QPpWR7E6CurDEAbyjtAXsKqQCxGN
-         1F5Q==
+        bh=Uk7zBDuxVird9hlwDlzfVR+OTGmQfb7Ta2eddUi7FDk=;
+        b=oMG1f/lilaXJuU+qkI5svIKpq2nZYEjtZdaiC7WToDBB3y0uP4crnOWItZmd5KHr5M
+         ppBNbO7xGEW0qeTEQOMaSVI/NxrQc9apoBqcvRZQskDcbbUdclF4xs3yQIqeSp1BlvXI
+         RLon93Usg8XWJgzObbNwpqiYQZhxnf8Mzx0Fe9+MLPXZSgyTMO2vJB3fwOtCjpw9ql3S
+         xg2KWjw5PGYNVlkfzDr0/tIIR1Nx3VwX68bC1omsXKzxxge0Ikrzizz5hioI2BbjOrUw
+         +ogMVa7xQSDpbXnAexotvhGqPai6VH9Jp9stvVdBDxfdhNFgSITW6aN5pafh0WKfGnrO
+         Bkdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=tQ98DqDCgp3VpW9J5G14oAPOoDjqdZPJlI/Mwh4Jc20=;
-        b=ppcsjacMmmHMwEYSB2Xd4I3eW+SR7sSEj0AP125wqR830Ua2ufLhaWb9eZQjAx/SjI
-         dUx4y1pQr6caxuOzReAwrf3iN/B7wDT3eMI+HodnwLIlGWYu8kv2U/TkQRCisFJPrxlW
-         +CoeQyBhNN6VQayXy+p1iJ6s4FzdeXAFn91sRvyVCfHm/Zk16j4l0jj+3Y7B+/iG8zH4
-         2lfVAKn+MQL/PHSSvLm21+QEUpTT8y7SeKXwkemTpoSyF8y4CyGafYDH7QTYPW93rcsB
-         +Cb+NHhCGuV7rfRHqwElCj3EGhT35y+mXeu6VaJjMsUOlXV2mmnE4ycIhFg9khbSIwih
-         ciLw==
-X-Gm-Message-State: AOAM5332FZRPQjzpG72uDH/rSG7KkRIXAXwh6JYgfh4jizs6GlY5rVYt
-        hXeNJhJmezpfbiDdqBWZ33xlAw==
-X-Google-Smtp-Source: ABdhPJxYd5PUfyNZIS4zpjgDLCdEncag5+bFQ6PaVo8gsvofMOve1KaZeAUJPzuvz6cPq6tcBPXTEg==
-X-Received: by 2002:a17:906:938f:: with SMTP id l15mr4872399ejx.15.1616607250150;
-        Wed, 24 Mar 2021 10:34:10 -0700 (PDT)
+        bh=Uk7zBDuxVird9hlwDlzfVR+OTGmQfb7Ta2eddUi7FDk=;
+        b=n284D9SB7BPy72poyZz4cEv71htYsXUfhWMQwUl3ppe8w7AdrIysfFhApnCK5J2mZE
+         KrFg8Knf4k3xfUepyPjYDZGfmpGvcS2kfe8IzMjegGgwuJyu+JVRLu3GTkYbX4L6tSR5
+         qRVPJ0uss05gbMxcYb2tQ7UZPcfG/4BsYvPppCXySJodoinChS7r3SGBaVFXk7Sz/UKo
+         VTMzh8GP44aG7VNhX4sF5ytw6OSZ507iFTcOuA6k/3WxNzv7Qd2ZPryAtZToeG8b9bz5
+         VlapLbb3Hgo3WG4x/MP6xOE9z5Ey8y1RG9j5iF5xwjEQxaGYUVYEUf/VQaXtFC3pVze9
+         7eqA==
+X-Gm-Message-State: AOAM5320Icnhf2yGYwP/6BZ9MZYFwjaUrAURJLaVD3j2LTsClkL46k+b
+        BFkUU2stufz+LXGcUK7ODX0KTA==
+X-Google-Smtp-Source: ABdhPJzEcz7kA6LloIrNljqPtpYDplJZAPeUfdrb6FoajItVxIad1HesJK9UA1useQFk8yXszTAC9w==
+X-Received: by 2002:aa7:d54c:: with SMTP id u12mr4872746edr.234.1616607252099;
+        Wed, 24 Mar 2021 10:34:12 -0700 (PDT)
 Received: from dell.default ([91.110.221.180])
-        by smtp.gmail.com with ESMTPSA id p19sm1466367edr.57.2021.03.24.10.34.09
+        by smtp.gmail.com with ESMTPSA id p19sm1466367edr.57.2021.03.24.10.34.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Mar 2021 10:34:09 -0700 (PDT)
+        Wed, 24 Mar 2021 10:34:11 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Daniel Drubin <daniel.drubin@intel.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH 02/25] HID: ishtp-hid-client: Move variable to where it's actually used
-Date:   Wed, 24 Mar 2021 17:33:41 +0000
-Message-Id: <20210324173404.66340-3-lee.jones@linaro.org>
+Subject: [PATCH 04/25] HID: intel-ish: Supply some missing param descriptions
+Date:   Wed, 24 Mar 2021 17:33:43 +0000
+Message-Id: <20210324173404.66340-5-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210324173404.66340-1-lee.jones@linaro.org>
 References: <20210324173404.66340-1-lee.jones@linaro.org>
@@ -79,52 +79,66 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- In file included from drivers/hid/intel-ish-hid/ishtp-hid.c:11:
-     drivers/hid/intel-ish-hid/ishtp-hid.h:24:21: warning: ‘hid_ishtp_guid’ defined but not used [-Wunused-const-variable=]
+ drivers/hid/intel-ish-hid/ishtp/bus.c:173: warning: Function parameter or member 'fw_client' not described in 'ishtp_get_fw_client_id'
+ drivers/hid/intel-ish-hid/ishtp/bus.c:845: warning: Function parameter or member 'device' not described in 'ishtp_device'
+ drivers/hid/intel-ish-hid/ishtp/bus.c:858: warning: Function parameter or member 'device' not described in 'ishtp_get_pci_device'
+ drivers/hid/intel-ish-hid/ishtp/bus.c:871: warning: Function parameter or member 'cl_device' not described in 'ishtp_trace_callback'
+ drivers/hid/intel-ish-hid/ishtp/bus.c:884: warning: Function parameter or member 'dev' not described in 'ish_hw_reset'
 
 Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Daniel Drubin <daniel.drubin@intel.com>
+Cc: "Uwe Kleine-König" <uwe@kleine-koenig.org>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 +++++
- drivers/hid/intel-ish-hid/ishtp-hid.h        | 5 -----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp/bus.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 0f1b5283bab42..24599280105d8 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -11,6 +11,11 @@
- #include <linux/sched.h>
- #include "ishtp-hid.h"
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index ffc9ce5c86ee6..c1c7d5356208d 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -164,6 +164,7 @@ EXPORT_SYMBOL(ishtp_fw_cl_get_client);
  
-+/* ISH Transport protocol (ISHTP in short) GUID */
-+static const guid_t hid_ishtp_guid =
-+	GUID_INIT(0x33AECD58, 0xB679, 0x4E54,
-+		  0x9B, 0xD9, 0xA0, 0x4D, 0x34, 0xF0, 0xC2, 0x26);
-+
- /* Rx ring buffer pool size */
- #define HID_CL_RX_RING_SIZE	32
- #define HID_CL_TX_RING_SIZE	16
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
-index 5ffd0da3cf1fa..e2423f7d2b547 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid.h
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
-@@ -20,11 +20,6 @@ extern void (*hid_print_trace)(void *unused, const char *format, ...);
- #define hid_ishtp_trace(client, ...) \
- 		(hid_print_trace)(NULL, __VA_ARGS__)
+ /**
+  * ishtp_get_fw_client_id() - Get fw client id
++ * @fw_client:	firmware client used to fetch the ID
+  *
+  * This interface is used to reset HW get FW client id.
+  *
+@@ -835,6 +836,7 @@ int ishtp_use_dma_transfer(void)
  
--/* ISH Transport protocol (ISHTP in short) GUID */
--static const guid_t hid_ishtp_guid =
--	GUID_INIT(0x33AECD58, 0xB679, 0x4E54,
--		  0x9B, 0xD9, 0xA0, 0x4D, 0x34, 0xF0, 0xC2, 0x26);
--
- /* ISH HID message structure */
- struct hostif_msg_hdr {
- 	uint8_t	command; /* Bit 7: is_response */
+ /**
+  * ishtp_device() - Return device pointer
++ * @device: ISH-TP client device instance
+  *
+  * This interface is used to return device pointer from ishtp_cl_device
+  * instance.
+@@ -851,6 +853,7 @@ EXPORT_SYMBOL(ishtp_device);
+  * ishtp_get_pci_device() - Return PCI device dev pointer
+  * This interface is used to return PCI device pointer
+  * from ishtp_cl_device instance.
++ * @device: ISH-TP client device instance
+  *
+  * Return: device *.
+  */
+@@ -862,6 +865,7 @@ EXPORT_SYMBOL(ishtp_get_pci_device);
+ 
+ /**
+  * ishtp_trace_callback() - Return trace callback
++ * @cl_device: ISH-TP client device instance
+  *
+  * This interface is used to return trace callback function pointer.
+  *
+@@ -875,6 +879,7 @@ EXPORT_SYMBOL(ishtp_trace_callback);
+ 
+ /**
+  * ish_hw_reset() - Call HW reset IPC callback
++ * @dev:	ISHTP device instance
+  *
+  * This interface is used to reset HW in case of error.
+  *
 -- 
 2.27.0
 

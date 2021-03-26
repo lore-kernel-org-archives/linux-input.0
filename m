@@ -7,65 +7,63 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EB56C433DB
-	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68E5FC43381
+	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5E32E61A18
-	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4170461A05
+	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230240AbhCZOfy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 26 Mar 2021 10:35:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52638 "EHLO
+        id S230479AbhCZOf5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 26 Mar 2021 10:35:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230209AbhCZOfL (ORCPT
+        with ESMTP id S230292AbhCZOfU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 Mar 2021 10:35:11 -0400
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BCC6C0613AA
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:10 -0700 (PDT)
-Received: by mail-wm1-x32a.google.com with SMTP id 12so3096423wmf.5
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:10 -0700 (PDT)
+        Fri, 26 Mar 2021 10:35:20 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F74C0613B3
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:20 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id x13so5846236wrs.9
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=FY6S2XOQI5BNN866n3675udEzH1TqJJkuTkGcMouhCM=;
-        b=ia2sZt4iVeYOTP2LfQDVWQBZ/6HWewnM0yGBM2AU/4Pe0UtMK3nKZOc2gJEAVvAe15
-         qxhmfAC5pnU8Igr7U378tRR5M2RYwb0glErGgfG4NdynYb1/Z+xjR6rLUTxjAxCQAuQk
-         dxa8M/YjOjm3htK9a9ZMYcrbjy8nItZ60SuRclkwaTA40xwNQRA90KfJdI5pgekLL/Is
-         5kGQpKXDhc8gQuLZlH6vMOGnNCLK3piGeE8MLG3zLLgDcIOT+puo1Cb9aTIeIjW5UGhL
-         3s71rMR8Av/MZa+nFKflF0/QFhR/4hOtBW12sm9KI8VhJ4yGhc6Ueh6JUp3xWl0l/y9r
-         jwfw==
+        bh=QyPG1WEqZFTBuDaWcANV4HkcWu30kB5AaRBOC44dMcU=;
+        b=SnsafZq5e1+1/iZIm3WR65o+iG0/ODTGJk/7ETvhgN7CEu5HRWnJNdVg40nfYqWfbO
+         UrEREZCk+q7udUP3bSU6brrWo0DOtTSI3CB7EiYpN7gXdmEQcOckMpy98SbOeP3fhTgr
+         trT8s1skyIzCkbNsKuVRNWDT7iRn2yQlM1ci7v5Os1fDRxy7vdC+plqlnzyIRaik7+RT
+         4xpRSsPSu0x+pBNYHgzwq9UqGThUsue8SOorkldDqqlMvWOgRYoWeyT6Chmu5UpbBFs0
+         0Zwt3zL3d5AtE3n/fveorFHLgLuj2uawCORzzBqxKqvgx5bom7hWgYbrCOUIg5c8XKih
+         BU5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=FY6S2XOQI5BNN866n3675udEzH1TqJJkuTkGcMouhCM=;
-        b=WXKzoZH+VqvbZG9sIqCWeE5dglVbwEfTrvZqFEdoXeZdd6+KiAulj/5nFsKGQG5WeB
-         QYcwrzakmmhLnqh1uJjociQpAbkHXxYVGIFLeDWeLD/xa6IVuJi9Ynynq3axnErtrZUN
-         vKzvEhmes/fsxHiaZjcxfyT+U9lu0dNpC7UvPTpropfo86Pn+iyVWtzLSVNRp9IOJlHz
-         qK9DDVXw7/WiGBjUyAZXSy04pnVZB5E7VGqAxetM4ooczxFMFgs7MCMX4fgpwvpUcNCg
-         dSQs8q+0Jgz+8WLcnhSHUTnG7cEetqCpmPNO2aK6hRQzZrpeMJ24Uy5yVTJv0Q1FLPFZ
-         5SgQ==
-X-Gm-Message-State: AOAM5302jd7BTUNVIvazInqCvTfTP1fw1mZt/9s4kZM5BzgWkXeF9joZ
-        NTcvHNUKlr2dDF5UbLRnvq6+yg==
-X-Google-Smtp-Source: ABdhPJwIv3+vhzC+cqzxmfce1IJXzerLfzCwAC57Y2r1nGVwi5Jy41HJ5CoXVxpufIS6PnJBE9X+QA==
-X-Received: by 2002:a05:600c:4d95:: with SMTP id v21mr2766752wmp.184.1616769309158;
-        Fri, 26 Mar 2021 07:35:09 -0700 (PDT)
+        bh=QyPG1WEqZFTBuDaWcANV4HkcWu30kB5AaRBOC44dMcU=;
+        b=UiWTU+FPvpkhaUk9BZNSR6Z889X2LDgWqFZMnCqUX3op4za3aJaKHT/TvARmgeDA05
+         VOXhqw58nXvciBLgacj4CBsNYvpTODGcPpPla9DiXM/uK6gQ6XaD8bKgeXJQG/uQVYVh
+         zkszRVaNaFzjkp+T2du2isVO7szxRwF/LB9jhgyAKEsm1cqRrNrUtwFTUmruWb9uUg64
+         qOA/UqsOtR3xebK4ooF8/X0CggpvHvAjPsX41tEZHhT2WZiMRcTi3gw6D7h9Q1YAMSnK
+         4ZMucMtoRTJnn5Rabiu9ixjo+hQsG9W0OtNs2Nvd5+g5eCuBoNeMKLr8wwwmXsYBWrxJ
+         3nPA==
+X-Gm-Message-State: AOAM532Z3N1Yzhx1WE7j6JEyRV4qrYb/d36fVmZUqTeWDsssBpmiXAoV
+        UB1zo28LWA03pzx1RH5vdk025w==
+X-Google-Smtp-Source: ABdhPJwOUj3cYauEQvI4kOqQkvYnSogsSqs1r7Xq61RvYSr9UXt0UirtesVDyK9o5Z5ECViF7WsNeg==
+X-Received: by 2002:adf:ef4c:: with SMTP id c12mr15089412wrp.112.1616769318787;
+        Fri, 26 Mar 2021 07:35:18 -0700 (PDT)
 Received: from dell.default ([91.110.221.194])
-        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.08
+        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Mar 2021 07:35:08 -0700 (PDT)
+        Fri, 26 Mar 2021 07:35:18 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jikos@kernel.org>,
+Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 07/25] HID: intel-ish-hid: Fix a little doc-rot
-Date:   Fri, 26 Mar 2021 14:34:40 +0000
-Message-Id: <20210326143458.508959-9-lee.jones@linaro.org>
+Subject: [PATCH 17/25] HID: hid-uclogic-rdesc: Kernel-doc is for functions and structs
+Date:   Fri, 26 Mar 2021 14:34:50 +0000
+Message-Id: <20210326143458.508959-19-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210326143458.508959-1-lee.jones@linaro.org>
 References: <20210326143458.508959-1-lee.jones@linaro.org>
@@ -77,33 +75,29 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/hid/intel-ish-hid/ishtp/client.c:121: warning: Function parameter or member 'cl_device' not described in 'ishtp_cl_allocate'
- drivers/hid/intel-ish-hid/ishtp/client.c:121: warning: Excess function parameter 'dev' description in 'ishtp_cl_allocate'
+ drivers/hid/hid-uclogic-rdesc.c:645: warning: wrong kernel-doc identifier on line:
 
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Lee Jones <lee.jones@linaro.org>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ishtp/client.c | 2 +-
+ drivers/hid/hid-uclogic-rdesc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index c81a1f8a92685..585a5c4066cb3 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -111,7 +111,7 @@ static void ishtp_cl_init(struct ishtp_cl *cl, struct ishtp_device *dev)
+diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdesc.c
+index bf5da6de7bba9..6dd6dcd09c8bc 100644
+--- a/drivers/hid/hid-uclogic-rdesc.c
++++ b/drivers/hid/hid-uclogic-rdesc.c
+@@ -641,7 +641,7 @@ const __u8 uclogic_rdesc_pen_v2_template_arr[] = {
+ const size_t uclogic_rdesc_pen_v2_template_size =
+ 			sizeof(uclogic_rdesc_pen_v2_template_arr);
  
- /**
-  * ishtp_cl_allocate() - allocates client structure and sets it up.
-- * @dev: ishtp device
-+ * @cl_device: ishtp client device
+-/**
++/*
+  * Expand to the contents of a generic buttonpad report descriptor.
   *
-  * Allocate memory for new client device and call to initialize each field.
-  *
+  * @_padding:	Padding from the end of button bits at bit 44, until
 -- 
 2.27.0
 

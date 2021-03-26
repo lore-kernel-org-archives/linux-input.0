@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64FD9C433F4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EB56C433DB
 	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3DCDE619F2
+	by mail.kernel.org (Postfix) with ESMTP id 5E32E61A18
 	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230454AbhCZOfx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 26 Mar 2021 10:35:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52678 "EHLO
+        id S230240AbhCZOfy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 26 Mar 2021 10:35:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230242AbhCZOfP (ORCPT
+        with ESMTP id S230209AbhCZOfL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 Mar 2021 10:35:15 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5ECAC0613BA
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:13 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id k128so3095433wmk.4
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:13 -0700 (PDT)
+        Fri, 26 Mar 2021 10:35:11 -0400
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BCC6C0613AA
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:10 -0700 (PDT)
+Received: by mail-wm1-x32a.google.com with SMTP id 12so3096423wmf.5
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=gK4GBHDnYjUKGItp7Cpn1OqRPa6zrE034rZiLZ47Q+0=;
-        b=FQgVhM/HPmIVSaTR75VGvplCpT7A/KPgSILda5lhc4gG8cVL8wV363q2YP+MKT6ofS
-         qtp1/el3hpW/j7iCBAJnS61kbgUgdf/9XFnERQE32l8LoSMOY8ri5jNb36Tot+BIOwNQ
-         xlCPwO2nXo6Bi2SF43RlOTlky0nw+kpPePRZYzYf4SaMuO+8wCOIM7DUUTUGCTi4qmAn
-         LIpeeZtt6Bv3HMyZIWAsnwhGUHc7Azqyr0+o3nWqO1YNp4t61K4IgTQCWCOHrlHaYzC+
-         22caIlgT+ccj+M1xjj3O2lfz+JDBIMpb6YzfdPO4TTHt2TTtEM7c97cPEigXlYbQsCoJ
-         Kg9g==
+        bh=FY6S2XOQI5BNN866n3675udEzH1TqJJkuTkGcMouhCM=;
+        b=ia2sZt4iVeYOTP2LfQDVWQBZ/6HWewnM0yGBM2AU/4Pe0UtMK3nKZOc2gJEAVvAe15
+         qxhmfAC5pnU8Igr7U378tRR5M2RYwb0glErGgfG4NdynYb1/Z+xjR6rLUTxjAxCQAuQk
+         dxa8M/YjOjm3htK9a9ZMYcrbjy8nItZ60SuRclkwaTA40xwNQRA90KfJdI5pgekLL/Is
+         5kGQpKXDhc8gQuLZlH6vMOGnNCLK3piGeE8MLG3zLLgDcIOT+puo1Cb9aTIeIjW5UGhL
+         3s71rMR8Av/MZa+nFKflF0/QFhR/4hOtBW12sm9KI8VhJ4yGhc6Ueh6JUp3xWl0l/y9r
+         jwfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gK4GBHDnYjUKGItp7Cpn1OqRPa6zrE034rZiLZ47Q+0=;
-        b=Klb5d1Z9XPVexp4L77OatrAvdQZ/SL+65oJPFzISKERELtaEji7F5psHJyCZ4AXwhf
-         piIc0KqDPs9F4v0JUx6dwW3pNiqegd+q9RF2nUWNv2363FzNsZNus8SEWcIhMkElZP+8
-         F4mEoe8M1WoAUk5OtyBtvBH+7lVCUOFNzkQyhXmh1J2k8MsEPYKTdbFHTu1qQCtlBEaB
-         Imn6EiafEMRHIzL6BVlqKkJ1PhyvJ1J6srga0SYm5Ey4eHZIFWo0BtbJas8VJew7gQgw
-         MgSXU2XKdSWiu6jlGfUvXLyBE4wEhMEr8UoUTB7xPktwbG6xyggBvq6GKo3hmpsj8AJW
-         zbPw==
-X-Gm-Message-State: AOAM533YZqUnP5/NeX36todr6+iqM8SCwwaY7RVuhR3jnpmUTo7OdUKH
-        Oyy5WwWpB94Eci3O/ezuzJr1EmycOu+bTw==
-X-Google-Smtp-Source: ABdhPJw+y6RAQUFh0yOSkeayDQx3lR4W+C9cJD48v/0NkLQc6flNcqartCxarA+D9tpVMmL5IMFB7w==
-X-Received: by 2002:a05:600c:1553:: with SMTP id f19mr13397053wmg.33.1616769312057;
-        Fri, 26 Mar 2021 07:35:12 -0700 (PDT)
+        bh=FY6S2XOQI5BNN866n3675udEzH1TqJJkuTkGcMouhCM=;
+        b=WXKzoZH+VqvbZG9sIqCWeE5dglVbwEfTrvZqFEdoXeZdd6+KiAulj/5nFsKGQG5WeB
+         QYcwrzakmmhLnqh1uJjociQpAbkHXxYVGIFLeDWeLD/xa6IVuJi9Ynynq3axnErtrZUN
+         vKzvEhmes/fsxHiaZjcxfyT+U9lu0dNpC7UvPTpropfo86Pn+iyVWtzLSVNRp9IOJlHz
+         qK9DDVXw7/WiGBjUyAZXSy04pnVZB5E7VGqAxetM4ooczxFMFgs7MCMX4fgpwvpUcNCg
+         dSQs8q+0Jgz+8WLcnhSHUTnG7cEetqCpmPNO2aK6hRQzZrpeMJ24Uy5yVTJv0Q1FLPFZ
+         5SgQ==
+X-Gm-Message-State: AOAM5302jd7BTUNVIvazInqCvTfTP1fw1mZt/9s4kZM5BzgWkXeF9joZ
+        NTcvHNUKlr2dDF5UbLRnvq6+yg==
+X-Google-Smtp-Source: ABdhPJwIv3+vhzC+cqzxmfce1IJXzerLfzCwAC57Y2r1nGVwi5Jy41HJ5CoXVxpufIS6PnJBE9X+QA==
+X-Received: by 2002:a05:600c:4d95:: with SMTP id v21mr2766752wmp.184.1616769309158;
+        Fri, 26 Mar 2021 07:35:09 -0700 (PDT)
 Received: from dell.default ([91.110.221.194])
-        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.11
+        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Mar 2021 07:35:11 -0700 (PDT)
+        Fri, 26 Mar 2021 07:35:08 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org,
@@ -63,9 +63,9 @@ Cc:     linux-kernel@vger.kernel.org,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 10/25] HID: intel-ish-hid: Fix potential copy/paste error
-Date:   Fri, 26 Mar 2021 14:34:43 +0000
-Message-Id: <20210326143458.508959-12-lee.jones@linaro.org>
+Subject: [PATCH 07/25] HID: intel-ish-hid: Fix a little doc-rot
+Date:   Fri, 26 Mar 2021 14:34:40 +0000
+Message-Id: <20210326143458.508959-9-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210326143458.508959-1-lee.jones@linaro.org>
 References: <20210326143458.508959-1-lee.jones@linaro.org>
@@ -77,32 +77,33 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- In file included from drivers/hid/intel-ish-hid/ishtp-hid.c:11:
- drivers/hid/intel-ish-hid/ishtp-hid.c:263: warning: expecting prototype for ishtp_hid_probe(). Prototype was for ishtp_hid_remove() instead
+ drivers/hid/intel-ish-hid/ishtp/client.c:121: warning: Function parameter or member 'cl_device' not described in 'ishtp_cl_allocate'
+ drivers/hid/intel-ish-hid/ishtp/client.c:121: warning: Excess function parameter 'dev' description in 'ishtp_cl_allocate'
 
 Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Lee Jones <lee.jones@linaro.org>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ishtp-hid.c | 2 +-
+ drivers/hid/intel-ish-hid/ishtp/client.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.c b/drivers/hid/intel-ish-hid/ishtp-hid.c
-index 393bed0abee99..14c271d7d8a94 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid.c
-@@ -254,7 +254,7 @@ int ishtp_hid_probe(unsigned int cur_hid_dev,
- }
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
+index c81a1f8a92685..585a5c4066cb3 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.c
++++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+@@ -111,7 +111,7 @@ static void ishtp_cl_init(struct ishtp_cl *cl, struct ishtp_device *dev)
  
  /**
-- * ishtp_hid_probe() - Remove registered hid device
-+ * ishtp_hid_remove() - Remove registered hid device
-  * @client_data:	client data pointer
+  * ishtp_cl_allocate() - allocates client structure and sets it up.
+- * @dev: ishtp device
++ * @cl_device: ishtp client device
   *
-  * This function is used to destroy allocatd HID device.
+  * Allocate memory for new client device and call to initialize each field.
+  *
 -- 
 2.27.0
 

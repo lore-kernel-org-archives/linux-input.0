@@ -7,72 +7,69 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CD8FC433F2
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64FD9C433F4
 	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E9E7661A33
-	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3DCDE619F2
+	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230449AbhCZOfv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 26 Mar 2021 10:35:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52638 "EHLO
+        id S230454AbhCZOfx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 26 Mar 2021 10:35:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230250AbhCZOfQ (ORCPT
+        with ESMTP id S230242AbhCZOfP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 Mar 2021 10:35:16 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74894C0613AA
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:15 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id v4so5828828wrp.13
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:15 -0700 (PDT)
+        Fri, 26 Mar 2021 10:35:15 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5ECAC0613BA
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:13 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id k128so3095433wmk.4
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ncO0eu8eiprdEfj3NwDMj19+723Jp3QnJo+qgAuvBoM=;
-        b=D3M2AflPHYIVQMrCYBkEBM7J18KaEGT7snF1NuKp19oo6CWsWqMxQru/X11H8JFLJf
-         iKXohymfei2sqRC9xr8JGOW/+ZJnKaZSTQ7Xjz5eArm2BCn6ViNEFpZJqK07fmo2bAgU
-         YKZFlVVbl3rCUQ3gyzOBfY08LbvTmfcmiSxKk1SI88TrivNerJt+P3OHDJ2Q0VLDZv1w
-         pOIn07GzR4TtY/7hZz7Qo9yFe3twde1MGRfah/U+Y+E5QVALf9ToIZNlUTYJb1MKdSM5
-         nKB8rcFDa4LhBrAo53pl7QB1sKnaKJkaQWjTySXoc3sloRYTlNefcQ2ITRKPldgKAFgX
-         ZqVw==
+        bh=gK4GBHDnYjUKGItp7Cpn1OqRPa6zrE034rZiLZ47Q+0=;
+        b=FQgVhM/HPmIVSaTR75VGvplCpT7A/KPgSILda5lhc4gG8cVL8wV363q2YP+MKT6ofS
+         qtp1/el3hpW/j7iCBAJnS61kbgUgdf/9XFnERQE32l8LoSMOY8ri5jNb36Tot+BIOwNQ
+         xlCPwO2nXo6Bi2SF43RlOTlky0nw+kpPePRZYzYf4SaMuO+8wCOIM7DUUTUGCTi4qmAn
+         LIpeeZtt6Bv3HMyZIWAsnwhGUHc7Azqyr0+o3nWqO1YNp4t61K4IgTQCWCOHrlHaYzC+
+         22caIlgT+ccj+M1xjj3O2lfz+JDBIMpb6YzfdPO4TTHt2TTtEM7c97cPEigXlYbQsCoJ
+         Kg9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ncO0eu8eiprdEfj3NwDMj19+723Jp3QnJo+qgAuvBoM=;
-        b=IwTxkSkTrj+nj4EnkcwWuG8KYVic89t7ig/oGPhb1r5TL7XEDIIQxLVWGqtOQPGLel
-         AXFhS4ZsNCo+Ar/tKnOecK3oFso82E8BHsg21IvU4fKEaaB9t9gBt5ON1EnYVtZP1BX7
-         qZRTnMYcksem2MdizpVR50bKsJc4k3dXq/hLSBaaLca5Z/Wn/JdQdfi2JQIBbMnT036z
-         eF2dO6a9Y2WCiImWite4cl5ndEM3cJ8mAf1R24gM230prBIbNKzNsIL8CsCf+NDpXyF0
-         yTJeM2fNmCqGzD9sA/OIDgAagvw/aeeV+9F8QuELuXi3/4PJi+jH+AKqdxdWzt5cX806
-         nrdA==
-X-Gm-Message-State: AOAM530BZbU78Y+s5p7LmNX7B0tPMhY9spzqRp51CRlnFO+1SFQ7x5ZQ
-        6QCUCqMhwrO48kQqI+SBuFC5ag==
-X-Google-Smtp-Source: ABdhPJxyz85Q/+mRvHz1FDY3Yxoego7N1UdFt2rgIPb7W9U3d8zDHFD6Hu4HykqzJPVkIWwH5f+XhQ==
-X-Received: by 2002:adf:ea0e:: with SMTP id q14mr15168379wrm.389.1616769314240;
-        Fri, 26 Mar 2021 07:35:14 -0700 (PDT)
+        bh=gK4GBHDnYjUKGItp7Cpn1OqRPa6zrE034rZiLZ47Q+0=;
+        b=Klb5d1Z9XPVexp4L77OatrAvdQZ/SL+65oJPFzISKERELtaEji7F5psHJyCZ4AXwhf
+         piIc0KqDPs9F4v0JUx6dwW3pNiqegd+q9RF2nUWNv2363FzNsZNus8SEWcIhMkElZP+8
+         F4mEoe8M1WoAUk5OtyBtvBH+7lVCUOFNzkQyhXmh1J2k8MsEPYKTdbFHTu1qQCtlBEaB
+         Imn6EiafEMRHIzL6BVlqKkJ1PhyvJ1J6srga0SYm5Ey4eHZIFWo0BtbJas8VJew7gQgw
+         MgSXU2XKdSWiu6jlGfUvXLyBE4wEhMEr8UoUTB7xPktwbG6xyggBvq6GKo3hmpsj8AJW
+         zbPw==
+X-Gm-Message-State: AOAM533YZqUnP5/NeX36todr6+iqM8SCwwaY7RVuhR3jnpmUTo7OdUKH
+        Oyy5WwWpB94Eci3O/ezuzJr1EmycOu+bTw==
+X-Google-Smtp-Source: ABdhPJw+y6RAQUFh0yOSkeayDQx3lR4W+C9cJD48v/0NkLQc6flNcqartCxarA+D9tpVMmL5IMFB7w==
+X-Received: by 2002:a05:600c:1553:: with SMTP id f19mr13397053wmg.33.1616769312057;
+        Fri, 26 Mar 2021 07:35:12 -0700 (PDT)
 Received: from dell.default ([91.110.221.194])
-        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.13
+        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Mar 2021 07:35:13 -0700 (PDT)
+        Fri, 26 Mar 2021 07:35:11 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
 Cc:     linux-kernel@vger.kernel.org,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Zhang Lixu <lixu.zhang@intel.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 12/25] HID: intel-ish-hid: ipc: Correct fw_reset_work_fn() function name in header
-Date:   Fri, 26 Mar 2021 14:34:45 +0000
-Message-Id: <20210326143458.508959-14-lee.jones@linaro.org>
+Subject: [PATCH 10/25] HID: intel-ish-hid: Fix potential copy/paste error
+Date:   Fri, 26 Mar 2021 14:34:43 +0000
+Message-Id: <20210326143458.508959-12-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210326143458.508959-1-lee.jones@linaro.org>
 References: <20210326143458.508959-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -80,33 +77,32 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/hid/intel-ish-hid/ipc/ipc.c:553: warning: expecting prototype for ish_fw_reset_work_fn(). Prototype was for fw_reset_work_fn() instead
+ In file included from drivers/hid/intel-ish-hid/ishtp-hid.c:11:
+ drivers/hid/intel-ish-hid/ishtp-hid.c:263: warning: expecting prototype for ishtp_hid_probe(). Prototype was for ishtp_hid_remove() instead
 
 Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Zhang Lixu <lixu.zhang@intel.com>
-Cc: "Krzysztof Wilczyński" <kw@linux.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ipc/ipc.c | 2 +-
+ drivers/hid/intel-ish-hid/ishtp-hid.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 47bbeb8b492b0..9037816e2bf74 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -544,7 +544,7 @@ static int ish_fw_reset_handler(struct ishtp_device *dev)
- #define TIMEOUT_FOR_HW_RDY_MS			300
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.c b/drivers/hid/intel-ish-hid/ishtp-hid.c
+index 393bed0abee99..14c271d7d8a94 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.c
+@@ -254,7 +254,7 @@ int ishtp_hid_probe(unsigned int cur_hid_dev,
+ }
  
  /**
-- * ish_fw_reset_work_fn() - FW reset worker function
-+ * fw_reset_work_fn() - FW reset worker function
-  * @unused: not used
+- * ishtp_hid_probe() - Remove registered hid device
++ * ishtp_hid_remove() - Remove registered hid device
+  * @client_data:	client data pointer
   *
-  * Call ish_fw_reset_handler to complete FW reset
+  * This function is used to destroy allocatd HID device.
 -- 
 2.27.0
 

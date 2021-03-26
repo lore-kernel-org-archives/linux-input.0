@@ -7,67 +7,71 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68E5FC43381
-	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80343C433FB
+	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4170461A05
-	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D82F61A3F
+	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230479AbhCZOf5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 26 Mar 2021 10:35:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52716 "EHLO
+        id S230465AbhCZOfz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 26 Mar 2021 10:35:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230292AbhCZOfU (ORCPT
+        with ESMTP id S230273AbhCZOfS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 Mar 2021 10:35:20 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F74C0613B3
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:20 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id x13so5846236wrs.9
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:19 -0700 (PDT)
+        Fri, 26 Mar 2021 10:35:18 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C315C0613AA
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:18 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id j7so5896143wrd.1
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=QyPG1WEqZFTBuDaWcANV4HkcWu30kB5AaRBOC44dMcU=;
-        b=SnsafZq5e1+1/iZIm3WR65o+iG0/ODTGJk/7ETvhgN7CEu5HRWnJNdVg40nfYqWfbO
-         UrEREZCk+q7udUP3bSU6brrWo0DOtTSI3CB7EiYpN7gXdmEQcOckMpy98SbOeP3fhTgr
-         trT8s1skyIzCkbNsKuVRNWDT7iRn2yQlM1ci7v5Os1fDRxy7vdC+plqlnzyIRaik7+RT
-         4xpRSsPSu0x+pBNYHgzwq9UqGThUsue8SOorkldDqqlMvWOgRYoWeyT6Chmu5UpbBFs0
-         0Zwt3zL3d5AtE3n/fveorFHLgLuj2uawCORzzBqxKqvgx5bom7hWgYbrCOUIg5c8XKih
-         BU5Q==
+        bh=NvG+DHxLWGqXLwCLHTxA35O2VaR78VX0X5hX1fU7v18=;
+        b=rhuQcSAmr2qobE5MLtzwGEi0Lr/Y4/8iBHF839/53MF2Y9lFQ8GQCe+x75wrZgsaAb
+         LMgYAGmQsYZiHJpvm/vSh8fcstZ+DFoaGyOUuXaT0cP+EsWE1v4/JdDHvgDy+DOYGv5M
+         YYcUQfeJq1REa1KWNc+wm6CuQbE9ZF5o79O0SwBP2m3L9QLTrcO1HVJPhQbXEY7pJ7qW
+         3jprm3kXueIE5fFH1JsBSfeNzWZTnvfbivyVhNtP1bANq+VAhso2JPqVVREHvmNpEwfE
+         +unXLRSzUoiys9tWkPjK4aKv0SmMFZBvt96R9lTaj4rHBbpeNVu2PZlfevGLXEkVaKqJ
+         pdUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=QyPG1WEqZFTBuDaWcANV4HkcWu30kB5AaRBOC44dMcU=;
-        b=UiWTU+FPvpkhaUk9BZNSR6Z889X2LDgWqFZMnCqUX3op4za3aJaKHT/TvARmgeDA05
-         VOXhqw58nXvciBLgacj4CBsNYvpTODGcPpPla9DiXM/uK6gQ6XaD8bKgeXJQG/uQVYVh
-         zkszRVaNaFzjkp+T2du2isVO7szxRwF/LB9jhgyAKEsm1cqRrNrUtwFTUmruWb9uUg64
-         qOA/UqsOtR3xebK4ooF8/X0CggpvHvAjPsX41tEZHhT2WZiMRcTi3gw6D7h9Q1YAMSnK
-         4ZMucMtoRTJnn5Rabiu9ixjo+hQsG9W0OtNs2Nvd5+g5eCuBoNeMKLr8wwwmXsYBWrxJ
-         3nPA==
-X-Gm-Message-State: AOAM532Z3N1Yzhx1WE7j6JEyRV4qrYb/d36fVmZUqTeWDsssBpmiXAoV
-        UB1zo28LWA03pzx1RH5vdk025w==
-X-Google-Smtp-Source: ABdhPJwOUj3cYauEQvI4kOqQkvYnSogsSqs1r7Xq61RvYSr9UXt0UirtesVDyK9o5Z5ECViF7WsNeg==
-X-Received: by 2002:adf:ef4c:: with SMTP id c12mr15089412wrp.112.1616769318787;
-        Fri, 26 Mar 2021 07:35:18 -0700 (PDT)
+        bh=NvG+DHxLWGqXLwCLHTxA35O2VaR78VX0X5hX1fU7v18=;
+        b=gZaikoREBhmKEc+nTPzDAHtMTGC4pLboIi5vmw2SyezbwOHzBLNJQdaE90/1bDaQER
+         IVJ5W4UzVUauhvSJy5ExmP+7OoixmrulapzCenFqvOLhmW++Q/oWP9y4dbZm1adjPO/T
+         egdNPmXWZvKsaeoLvoi7/8OWv5+BoVhx2tAZOcQINiRgZBdUwrfOxX1oGV4MC3gzuWbM
+         rEuAUH5d2ylGX8S+kWnktuovvzaCA1pxgW3xOzHXmotXs/NHskxTZkhDphODZkt8+Lr/
+         H47vmqO9vyEuvjfFsHtcJcjXRoNu7rMzVoidyWx9kW7sKCX2SJJlTSKIepMpn0DPYu+N
+         DYeQ==
+X-Gm-Message-State: AOAM533PBYao+hTtalRLrIc+6aR+VGG7ejo9R5ojBEKmdQalXirt4xr1
+        6njw0zQVrhV5fKNhuUI7gcZcmA==
+X-Google-Smtp-Source: ABdhPJzgKpsg9ZVy78ChKXvRowZScKs621lCXY6MP2Gg/TMjc06X/cYy+pFccB0s4qBADlRtz+WTDw==
+X-Received: by 2002:a5d:4688:: with SMTP id u8mr14801801wrq.39.1616769316887;
+        Fri, 26 Mar 2021 07:35:16 -0700 (PDT)
 Received: from dell.default ([91.110.221.194])
-        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.17
+        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Mar 2021 07:35:18 -0700 (PDT)
+        Fri, 26 Mar 2021 07:35:16 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+Cc:     linux-kernel@vger.kernel.org,
+        =?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@linux-vserver.org>,
+        Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "L. Vinyard, Jr" <rvinyard@cs.nmsu.edu>,
         linux-input@vger.kernel.org
-Subject: [PATCH 17/25] HID: hid-uclogic-rdesc: Kernel-doc is for functions and structs
-Date:   Fri, 26 Mar 2021 14:34:50 +0000
-Message-Id: <20210326143458.508959-19-lee.jones@linaro.org>
+Subject: [PATCH 15/25] HID: hid-picolcd_core: Remove unused variable 'ret'
+Date:   Fri, 26 Mar 2021 14:34:48 +0000
+Message-Id: <20210326143458.508959-17-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210326143458.508959-1-lee.jones@linaro.org>
 References: <20210326143458.508959-1-lee.jones@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -75,29 +79,43 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/hid/hid-uclogic-rdesc.c:645: warning: wrong kernel-doc identifier on line:
+ drivers/hid/hid-picolcd_core.c: In function ‘picolcd_raw_event’:
+ drivers/hid/hid-picolcd_core.c:332:6: warning: variable ‘ret’ set but not used [-Wunused-but-set-variable]
 
+Cc: "Bruno Prémont" <bonbons@linux-vserver.org>
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "L. Vinyard, Jr" <rvinyard@cs.nmsu.edu>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/hid/hid-uclogic-rdesc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-picolcd_core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdesc.c
-index bf5da6de7bba9..6dd6dcd09c8bc 100644
---- a/drivers/hid/hid-uclogic-rdesc.c
-+++ b/drivers/hid/hid-uclogic-rdesc.c
-@@ -641,7 +641,7 @@ const __u8 uclogic_rdesc_pen_v2_template_arr[] = {
- const size_t uclogic_rdesc_pen_v2_template_size =
- 			sizeof(uclogic_rdesc_pen_v2_template_arr);
+diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
+index 1b5c63241af05..bbda231a7ce30 100644
+--- a/drivers/hid/hid-picolcd_core.c
++++ b/drivers/hid/hid-picolcd_core.c
+@@ -329,7 +329,6 @@ static int picolcd_raw_event(struct hid_device *hdev,
+ {
+ 	struct picolcd_data *data = hid_get_drvdata(hdev);
+ 	unsigned long flags;
+-	int ret = 0;
  
--/**
-+/*
-  * Expand to the contents of a generic buttonpad report descriptor.
-  *
-  * @_padding:	Padding from the end of button bits at bit 44, until
+ 	if (!data)
+ 		return 1;
+@@ -342,9 +341,9 @@ static int picolcd_raw_event(struct hid_device *hdev,
+ 
+ 	if (report->id == REPORT_KEY_STATE) {
+ 		if (data->input_keys)
+-			ret = picolcd_raw_keypad(data, report, raw_data+1, size-1);
++			picolcd_raw_keypad(data, report, raw_data+1, size-1);
+ 	} else if (report->id == REPORT_IR_DATA) {
+-		ret = picolcd_raw_cir(data, report, raw_data+1, size-1);
++		picolcd_raw_cir(data, report, raw_data+1, size-1);
+ 	} else {
+ 		spin_lock_irqsave(&data->lock, flags);
+ 		/*
 -- 
 2.27.0
 

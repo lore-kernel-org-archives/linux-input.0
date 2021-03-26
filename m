@@ -2,119 +2,264 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE99DC4345C
-	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20B42C4345E
+	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E055D61A05
-	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0BF1C61A54
+	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230514AbhCZOgA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 26 Mar 2021 10:36:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52758 "EHLO
+        id S231131AbhCZOgB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 26 Mar 2021 10:36:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230361AbhCZOf0 (ORCPT
+        with ESMTP id S230390AbhCZOf3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 Mar 2021 10:35:26 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE83C0613B1
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:25 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id x16so5868434wrn.4
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:25 -0700 (PDT)
+        Fri, 26 Mar 2021 10:35:29 -0400
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81FF0C0613B1
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:28 -0700 (PDT)
+Received: by mail-wr1-x433.google.com with SMTP id j18so5882550wra.2
+        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=YMBBfLBQyPfcs/BjCQH23mCoZ18SMLXlxq4s4Yi+O24=;
-        b=SzlRTOBcfb8HruNCzxQ/XXDAxq8fqES6yINPpKxgv4YKBPLmmbqmuPhwiUVO/O/bUW
-         P1w/L8olV5BC+2GhwMbfJzWKf+I0byxOzDmxedHXQRpbaUn7kLwJTP3EYVK9rUnFTuOX
-         LSPAQMbX/Q5Z9jQhWhH72x2cn7ShB3260TwJY25LbnCBInnTAVHXAYq5MrO24MNb+/nk
-         3JFUCg6Dz1iHWIaWHwysjygdZsVzZpilI2K649/2LGwPBWT6xLAlqMoZIUed5yLxFyr3
-         Md0ubvCnN3awJtJHYKf5OU0rJagj7ePess/DcrJvayL0t57GgwR5I2DPAW5/L1/rCSIY
-         4Xxw==
+        bh=HbWsUdS40uUZ3dqqAk74P4eL9H356rB4HhtuuV/k+mc=;
+        b=GepEdxXdoOebrZzGX05sl0zwz0j0wmHbdjIrJY1qGIYLFrERfXU3aEWPFLCxeFsfVF
+         aCVh7y4I8PC2EcjQX1R0d0GJlHH5Fnp2l9oCM8RexhEMGsenjXvf3fd8Mm+ch21rymN/
+         iAX7zkqQATzQyOsq9X0FrnbHd1zfJSTJjsJTdjX4knpTDCcT5bVOY0jQoifKdvY/SkfG
+         XEqsFvBvac1qh7+kV6Awj82p/Wj55KAm5+cEI/1pyf9xJgLn6PjWknxtaty/n9MDhDn6
+         0rDJhHp85fMuWSkO7dOTSqRTaOWmqRc3r43j9zB+904c8lNOF83DP4gOnChAjmoQQVpb
+         WLbA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=YMBBfLBQyPfcs/BjCQH23mCoZ18SMLXlxq4s4Yi+O24=;
-        b=kcTlDn83fyrN/44mYHVpzilTBBo9/yv8hk+v+Faq0nWewXne5I2vywmzGd/V7JVjem
-         7l5aCJcP6GJnW0lvAkxnQVgOvCJtsxPJptox3bwiFdYc3ULCaH+cUyHYsJrbsK+5IAs9
-         lbw2R3Ll2ug3Mhj5Jcs/kz0bZflWbTUi9NbmVX3fUzUu1ExZ8JL3ZZ5W0iXFJD8lqNTS
-         QvmTA7wGXtRsHqciEKdVCH8VketbzLy1OLyHKOqUoDUhMRhC7QLSX8oqNiDRzoFyRGbZ
-         wxasCJNaNwxnEfwE2pJh57cDgRhHpyh3T9CmlT1mCQhNprlzPQWAsaT0BpoLchUh4z8+
-         Mltg==
-X-Gm-Message-State: AOAM531PsSzA1lSShcIPruCboRoqSjkWIrYp7dvQo2EXJC8J6hJu9/IC
-        oRqrsiM1zGdSQf18ZLc5Cw+aSA==
-X-Google-Smtp-Source: ABdhPJxVEQw3OXVcUWupqGocVo9kUby54BTdwkPyGcKLXqoHGoInXFiNk3GDV8kL7UYSFgCKfKInWQ==
-X-Received: by 2002:a5d:6092:: with SMTP id w18mr14807891wrt.52.1616769324690;
-        Fri, 26 Mar 2021 07:35:24 -0700 (PDT)
+        bh=HbWsUdS40uUZ3dqqAk74P4eL9H356rB4HhtuuV/k+mc=;
+        b=lTNRGCKRiMveFz0k8Q7+xCfhnlHL9pmNcdyCDZkO6s06WRPTrv/7uz3NxIAxzb/tHm
+         tNsvEqqVQij8Dxn4hzkud/wDpuxuimzboqCPZjh4xuCH8DhqiHuKajC299Xa9FqRrrwb
+         OsCTCD/lgLpPhRwOstB78cWm7yiMv/566WW+tH1s3dvCcd9fKKvhNRJ0Yh/ZaLLnrmo4
+         pH9o7yXywn2Rh01zidlFlLhmbzerEkf2Jp+u+Z7l+xCHSBimJ3Wj/8XhtIX7rruCeOg1
+         1qI2fi/wVRbXdjD1t+4Yh0xMEWj4KR4qXOFz2FNnVLp0rXPC7sBxb5kDH6UEDvReWoow
+         KDcQ==
+X-Gm-Message-State: AOAM530xOZOwfvf2fKgE5ixZ43a46B8Bwzl1bHv6ygx/0M602JHPc3SO
+        6ifnjQt7dbGfu/JbkgmD09MYUA==
+X-Google-Smtp-Source: ABdhPJyJTAw8LMWoQ88NuL2NCsfi+lxuv6aowZPT3nUlMAQ3C9g3dtr3UCCOQZDBIyRbE7mJxa0asA==
+X-Received: by 2002:adf:ef4c:: with SMTP id c12mr15090023wrp.112.1616769327200;
+        Fri, 26 Mar 2021 07:35:27 -0700 (PDT)
 Received: from dell.default ([91.110.221.194])
-        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.23
+        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Mar 2021 07:35:24 -0700 (PDT)
+        Fri, 26 Mar 2021 07:35:26 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
+Cc:     linux-kernel@vger.kernel.org,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Subject: [PATCH 22/25] HID: hid-sensor-hub: Remove unused struct member 'quirks'
-Date:   Fri, 26 Mar 2021 14:34:55 +0000
-Message-Id: <20210326143458.508959-24-lee.jones@linaro.org>
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Rushikesh S Kadam <rushikesh.s.kadam@intel.com>,
+        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
+Subject: [PATCH 24/25] HID: intel-ish-hid: ishtp-fw-loader: Fix a bunch of formatting issues
+Date:   Fri, 26 Mar 2021 14:34:57 +0000
+Message-Id: <20210326143458.508959-26-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210326143458.508959-1-lee.jones@linaro.org>
 References: <20210326143458.508959-1-lee.jones@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Commit b0f847e16c1ea ("HID: hid-sensor-hub: Force logical minimum to 1
-for power and report state") removed the last used quirk handled by
-this driver.
+And demote non-conformant header
 
 Fixes the following W=1 kernel build warning(s):
 
- drivers/hid/hid-sensor-hub.c:39: warning: Function parameter or member 'quirks' not described in 'sensor_hub_data'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:46: warning: Enum value 'LOADER_CMD_XFER_QUERY' not described in enum 'ish_loader_commands'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:46: warning: Enum value 'LOADER_CMD_XFER_FRAGMENT' not described in enum 'ish_loader_commands'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:46: warning: Enum value 'LOADER_CMD_START' not described in enum 'ish_loader_commands'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:108: warning: Function parameter or member 'reserved' not described in 'loader_msg_hdr'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:196: warning: Function parameter or member 'data' not described in 'response_info'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:196: warning: Function parameter or member 'max_size' not described in 'response_info'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:196: warning: Function parameter or member 'size' not described in 'response_info'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:196: warning: Function parameter or member 'error' not described in 'response_info'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:196: warning: Function parameter or member 'received' not described in 'response_info'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:196: warning: Function parameter or member 'wait_queue' not described in 'response_info'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:233: warning: Function parameter or member 'loader_ishtp_cl' not described in 'ishtp_cl_data'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:233: warning: Function parameter or member 'cl_device' not described in 'ishtp_cl_data'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:233: warning: Function parameter or member 'response' not described in 'ishtp_cl_data'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:233: warning: Function parameter or member 'flag_retry' not described in 'ishtp_cl_data'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:233: warning: Function parameter or member 'retry_count' not described in 'ishtp_cl_data'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:252: warning: Function parameter or member 'client_data' not described in 'get_firmware_variant'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:252: warning: Function parameter or member 'filename' not described in 'get_firmware_variant'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:281: warning: Function parameter or member 'out_msg' not described in 'loader_cl_send'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:281: warning: Function parameter or member 'out_size' not described in 'loader_cl_send'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:281: warning: Function parameter or member 'in_msg' not described in 'loader_cl_send'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:281: warning: Function parameter or member 'in_size' not described in 'loader_cl_send'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:281: warning: expecting prototype for Send message from host to firmware(). Prototype was for loader_cl_send() instead
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:445: warning: Function parameter or member 'cl_device' not described in 'loader_cl_event_cb'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:445: warning: Excess function parameter 'device' description in 'loader_cl_event_cb'
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:551: warning: expecting prototype for Loads ISH firmware using ishtp interface(). Prototype was for ish_fw_xfer_ishtp() instead
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:745: warning: expecting prototype for Start executing ISH main firmware(). Prototype was for ish_fw_start() instead
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c:767: warning: expecting prototype for Loads ISH firmware from host(). Prototype was for load_fw_from_host() instead
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Jonathan Cameron <jic23@kernel.org>
 Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>
 Cc: linux-input@vger.kernel.org
-Cc: linux-iio@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linaro-mm-sig@lists.linaro.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/hid-sensor-hub.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c | 45 +++++++++++----------
+ 1 file changed, 23 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 3dd7d32467378..36b6852f75dd5 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -34,7 +34,6 @@ struct sensor_hub_data {
- 	spinlock_t dyn_callback_lock;
- 	struct mfd_cell *hid_sensor_hub_client_devs;
- 	int hid_sensor_client_cnt;
--	unsigned long quirks;
- 	int ref_cnt;
+diff --git a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+index edb0bd084c275..d20d74a890e90 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
++++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+@@ -31,13 +31,13 @@
+ 
+ /**
+  * enum ish_loader_commands -	ISH loader host commands.
+- * LOADER_CMD_XFER_QUERY	Query the Shim firmware loader for
++ * @LOADER_CMD_XFER_QUERY:	Query the Shim firmware loader for
+  *				capabilities
+- * LOADER_CMD_XFER_FRAGMENT	Transfer one firmware image fragment at a
++ * @LOADER_CMD_XFER_FRAGMENT:	Transfer one firmware image fragment at a
+  *				time. The command may be executed
+  *				multiple times until the entire firmware
+  *				image is downloaded to SRAM.
+- * LOADER_CMD_START		Start executing the main firmware.
++ * @LOADER_CMD_START:		Start executing the main firmware.
+  */
+ enum ish_loader_commands {
+ 	LOADER_CMD_XFER_QUERY = 0,
+@@ -95,6 +95,7 @@ static int dma_buf_size_limit = 4 * PAGE_SIZE;
+ /**
+  * struct loader_msg_hdr - Header for ISH Loader commands.
+  * @command:		LOADER_CMD* commands. Bit 7 is the response.
++ * @reserved:		Reserved space
+  * @status:		Command response status. Non 0, is error
+  *			condition.
+  *
+@@ -173,16 +174,16 @@ struct loader_start {
+  * struct response_info - Encapsulate firmware response related
+  *			information for passing between function
+  *			loader_cl_send() and process_recv() callback.
+- * @data		Copy the data received from firmware here.
+- * @max_size		Max size allocated for the @data buffer. If the
++ * @data:		Copy the data received from firmware here.
++ * @max_size:		Max size allocated for the @data buffer. If the
+  *			received data exceeds this value, we log an
+  *			error.
+- * @size		Actual size of data received from firmware.
+- * @error		Returns 0 for success, negative error code for a
++ * @size:		Actual size of data received from firmware.
++ * @error:		Returns 0 for success, negative error code for a
+  *			failure in function process_recv().
+- * @received		Set to true on receiving a valid firmware
++ * @received:		Set to true on receiving a valid firmware
+  *			response to host command
+- * @wait_queue		Wait queue for Host firmware loading where the
++ * @wait_queue:		Wait queue for Host firmware loading where the
+  *			client sends message to ISH firmware and waits
+  *			for response
+  */
+@@ -195,13 +196,13 @@ struct response_info {
+ 	wait_queue_head_t wait_queue;
  };
  
-@@ -615,7 +614,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 	}
+-/**
++/*
+  * struct ishtp_cl_data - Encapsulate per ISH-TP Client Data.
+  * @work_ishtp_reset:	Work queue for reset handling.
+  * @work_fw_load:	Work queue for host firmware loading.
+- * @flag_retry		Flag for indicating host firmware loading should
++ * @flag_retry:		Flag for indicating host firmware loading should
+  *			be retried.
+- * @retry_count		Count the number of retries.
++ * @retry_count:	Count the number of retries.
+  *
+  * This structure is used to store data per client.
+  */
+@@ -240,8 +241,8 @@ struct ishtp_cl_data {
+ /**
+  * get_firmware_variant() - Gets the filename of firmware image to be
+  *			loaded based on platform variant.
+- * @client_data		Client data instance.
+- * @filename		Returns firmware filename.
++ * @client_data:	Client data instance.
++ * @filename:		Returns firmware filename.
+  *
+  * Queries the firmware-name device property string.
+  *
+@@ -266,11 +267,11 @@ static int get_firmware_variant(struct ishtp_cl_data *client_data,
+ /**
+  * loader_cl_send()	Send message from host to firmware
+  * @client_data:	Client data instance
+- * @out_msg		Message buffer to be sent to firmware
+- * @out_size		Size of out going message
+- * @in_msg		Message buffer where the incoming data copied.
++ * @out_msg:		Message buffer to be sent to firmware
++ * @out_size:		Size of out going message
++ * @in_msg:		Message buffer where the incoming data copied.
+  *			This buffer is allocated by calling
+- * @in_size		Max size of incoming message
++ * @in_size:		Max size of incoming message
+  *
+  * Return: Number of bytes copied in the in_msg on success, negative
+  * error code on failure.
+@@ -435,7 +436,7 @@ static void process_recv(struct ishtp_cl *loader_ishtp_cl,
  
- 	hid_set_drvdata(hdev, sd);
--	sd->quirks = id->driver_data;
+ /**
+  * loader_cl_event_cb() - bus driver callback for incoming message
+- * @device:		Pointer to the ishtp client device for which this
++ * @cl_device:		Pointer to the ishtp client device for which this
+  *			message is targeted
+  *
+  * Remove the packet from the list and process the message by calling
+@@ -536,7 +537,7 @@ static int ish_query_loader_prop(struct ishtp_cl_data *client_data,
+ }
  
- 	spin_lock_init(&sd->lock);
- 	spin_lock_init(&sd->dyn_callback_lock);
+ /**
+- * ish_fw_xfer_ishtp()	Loads ISH firmware using ishtp interface
++ * ish_fw_xfer_ishtp() - Loads ISH firmware using ishtp interface
+  * @client_data:	Client data instance
+  * @fw:			Pointer to firmware data struct in host memory
+  *
+@@ -733,7 +734,7 @@ static int ish_fw_xfer_direct_dma(struct ishtp_cl_data *client_data,
+ }
+ 
+ /**
+- * ish_fw_start()	Start executing ISH main firmware
++ * ish_fw_start() -	Start executing ISH main firmware
+  * @client_data:	client data instance
+  *
+  * This function sends message to Shim firmware loader to start
+@@ -756,7 +757,7 @@ static int ish_fw_start(struct ishtp_cl_data *client_data)
+ }
+ 
+ /**
+- * load_fw_from_host()	Loads ISH firmware from host
++ * load_fw_from_host() - Loads ISH firmware from host
+  * @client_data:	Client data instance
+  *
+  * This function loads the ISH firmware to ISH SRAM and starts execution
 -- 
 2.27.0
 

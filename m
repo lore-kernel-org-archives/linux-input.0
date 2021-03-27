@@ -2,103 +2,135 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3598C43459
-	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AFD5C433DB
+	for <linux-input@archiver.kernel.org>; Sat, 27 Mar 2021 09:50:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 94C9A61A05
-	for <linux-input@archiver.kernel.org>; Fri, 26 Mar 2021 14:36:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 216B7619FC
+	for <linux-input@archiver.kernel.org>; Sat, 27 Mar 2021 09:50:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230496AbhCZOf7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 26 Mar 2021 10:35:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52750 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230187AbhCZOfZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 Mar 2021 10:35:25 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB4BBC0613B1
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:24 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id j18so5882357wra.2
-        for <linux-input@vger.kernel.org>; Fri, 26 Mar 2021 07:35:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ccGk85Qb+R/2lzURMS8M3ry2sPIqf4RAKxkbH0HWWQ0=;
-        b=MQ8AqYo029jcxTkqz0fgQ0hfg9qfIz0zHA/0DYIrzjy5Wy0fxLFqL+KsGKFznObPEk
-         CEeJjoFgVL5bXtmaxF6i5/cyoHXom73K7cqUKGzbk9QTmgdbq+teGlkGm4pZr4ZybdwT
-         5M4Nrc99xI/Tbls+jXiZTKmShFx2ZtPh/eQjI6vZcIwMU5DXYst5davdCMTcHD8WD9CX
-         FH3m7ourYeOpAa8FS3Fe4KlpOlDA7sygkHybN0BncjL7It8RnOPAj60NwvugvEGGShcl
-         uq+XY5dFYgIuLxqwRC/ILbZA/qV13dO39oo2VtcPN8ok2bPEUxsODa+6pui5lurU3pIy
-         0MdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ccGk85Qb+R/2lzURMS8M3ry2sPIqf4RAKxkbH0HWWQ0=;
-        b=faWyB3lGRpx+cHjZj2In4u0STxkdwqqgYnhl2JrGEP8N99gUXwtapUpsjhRbZUqmvK
-         yt8MrGDpf9wQ1XTHwI+04ig+sd+Nu45xpQ2/2i3S18cXAJQcyU9xBMjpEQpM3YASV8cn
-         +9RL4oWbrlHbfvzuJGdmwk2bzjTMVEI4pe6kw6P5soA1AWUY2v2r/pIIQWtAnZafiAwQ
-         MfQemiC1kBgtgbSRo4tzY+xUvrXEXmj9sDidbmNHF96QFH0xu/LOnVGYhg2DmJABAqni
-         ESKSNuB/0x/3Sl9DOkOQOBZ92fGAnI8fBLrR4rjSjc/UFYu7pYRNR0JoMKKI2Ggmrh5+
-         ylbg==
-X-Gm-Message-State: AOAM531jMrGHjW3Jj0BqWPn6B5a2zL14L+YyB6vpHJ5+TAj02lg1oErY
-        opdbbaeJb0D3yFz5RYefHISmjg==
-X-Google-Smtp-Source: ABdhPJzNOI+5IVpNAxH3g74ZP94Kypg0a6A8+oRK0jJF2OD8NoyZx0Ghj9YnEuQ1ML1qp6uREg4qkg==
-X-Received: by 2002:a5d:4e85:: with SMTP id e5mr15103731wru.218.1616769323414;
-        Fri, 26 Mar 2021 07:35:23 -0700 (PDT)
-Received: from dell.default ([91.110.221.194])
-        by smtp.gmail.com with ESMTPSA id j26sm12878225wrh.57.2021.03.26.07.35.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Mar 2021 07:35:23 -0700 (PDT)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 21/25] HID: wacom_sys: Demote kernel-doc abuse
-Date:   Fri, 26 Mar 2021 14:34:54 +0000
-Message-Id: <20210326143458.508959-23-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210326143458.508959-1-lee.jones@linaro.org>
-References: <20210326143458.508959-1-lee.jones@linaro.org>
+        id S230420AbhC0JuS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 27 Mar 2021 05:50:18 -0400
+Received: from mx-out.tlen.pl ([193.222.135.140]:20393 "EHLO mx-out.tlen.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230392AbhC0JuB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 27 Mar 2021 05:50:01 -0400
+X-Greylist: delayed 397 seconds by postgrey-1.27 at vger.kernel.org; Sat, 27 Mar 2021 05:50:01 EDT
+Received: (wp-smtpd smtp.tlen.pl 20082 invoked from network); 27 Mar 2021 10:43:18 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
+          t=1616838198; bh=Sb5mgSoxi1yX7inO+9+EIZNBWr3/S+es/2PkOGgsF+E=;
+          h=From:To:Cc:Subject;
+          b=xcd0Pqvj0i7Rv5+9dJuuxYe21UNc/rUOpRROuYZ8Yq0Ly/Jxrf8mmYgZlxE5hEVAk
+           zPlDXrgdBTkOgIYBm1VZziHUlBCkaRwrPO6rDpg12OPUn6u3TUcfa9Ukmdj1g+73yR
+           /pOkYfw9OKkbZ7NRO5mNaNnDXfDyJE2WjzOHYPlc=
+Received: from aclp172.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.10.117.172])
+          (envelope-sender <mat.jonczyk@o2.pl>)
+          by smtp.tlen.pl (WP-SMTPD) with SMTP
+          for <linux-input@vger.kernel.org>; 27 Mar 2021 10:43:18 +0100
+From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
+To:     linux-input@vger.kernel.org
+Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
+Subject: [PATCH] hid-a4tech: use A4_2WHEEL_MOUSE_HACK_B8 for A4Tech NB-95
+Date:   Sat, 27 Mar 2021 10:43:06 +0100
+Message-Id: <20210327094306.39654-1-mat.jonczyk@o2.pl>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-WP-DKIM-Status: good (id: o2.pl)                                      
+X-WP-MailID: bec3beaf0d7c09c01fa1b781ffa1217c
+X-WP-AV: skaner antywirusowy Poczty o2
+X-WP-SPAM: NO 0000000 [kbNE]                               
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Fixes the following W=1 kernel build warning(s):
+This mouse has a horizontal wheel that requires special handling.
+Without this patch, the horizontal wheel acts like a vertical wheel.
 
- drivers/hid/wacom_sys.c:1505: warning: Function parameter or member 'wacom' not described in 'wacom_led_next'
- drivers/hid/wacom_sys.c:1505: warning: Function parameter or member 'cur' not described in 'wacom_led_next'
+In the output of `hidrd-convert` for this mouse, there is a
+`Usage (B8h)` field. It corresponds to a byte in packets sent by the
+device that specifies which wheel generated an input event.
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+
 ---
- drivers/hid/wacom_sys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 8328ef155c468..57bfa0ae98361 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1495,7 +1495,7 @@ struct wacom_led *wacom_led_find(struct wacom *wacom, unsigned int group_id,
- 	return &group->leds[id];
- }
+Hello,
+
+This is the first patch I send to the LKML.
+
+The mouse I have is quite old, I got it somewhere in '00s.
+
+Greetings,
+Mateusz
+
+ drivers/hid/Kconfig      | 4 ++--
+ drivers/hid/hid-a4tech.c | 2 ++
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 4 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 09fa75a2b289..be090aad4d2a 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -93,11 +93,11 @@ menu "Special HID drivers"
+ 	depends on HID
  
--/**
-+/*
-  * wacom_led_next: gives the next available led with a wacom trigger.
-  *
-  * returns the next available struct wacom_led which has its default trigger
+ config HID_A4TECH
+-	tristate "A4 tech mice"
++	tristate "A4TECH mice"
+ 	depends on HID
+ 	default !EXPERT
+ 	help
+-	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
++	Support for some A4TECH mice with two scroll wheels.
+ 
+ config HID_ACCUTOUCH
+ 	tristate "Accutouch touch device"
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 3a8c4a5971f7..2cbc32dda7f7 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -147,6 +147,8 @@ static const struct hid_device_id a4_devices[] = {
+ 		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649),
+ 		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_NB_95),
++		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, a4_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b60279aaed43..da3db9b3f640 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -26,6 +26,7 @@
+ #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
+ #define USB_DEVICE_ID_A4TECH_X5_005D	0x000a
+ #define USB_DEVICE_ID_A4TECH_RP_649	0x001a
++#define USB_DEVICE_ID_A4TECH_NB_95	0x022b
+ 
+ #define USB_VENDOR_ID_AASHIMA		0x06d6
+ #define USB_DEVICE_ID_AASHIMA_GAMEPAD	0x0025
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index d9ca874dffac..fabd562c52a4 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -212,6 +212,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_NB_95) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_ACCUTOUCH)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
 -- 
-2.27.0
+2.25.1
 

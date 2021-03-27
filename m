@@ -8,44 +8,43 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AFD5C433DB
-	for <linux-input@archiver.kernel.org>; Sat, 27 Mar 2021 09:50:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63328C433C1
+	for <linux-input@archiver.kernel.org>; Sat, 27 Mar 2021 12:54:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 216B7619FC
-	for <linux-input@archiver.kernel.org>; Sat, 27 Mar 2021 09:50:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C23F61971
+	for <linux-input@archiver.kernel.org>; Sat, 27 Mar 2021 12:54:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230420AbhC0JuS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 27 Mar 2021 05:50:18 -0400
-Received: from mx-out.tlen.pl ([193.222.135.140]:20393 "EHLO mx-out.tlen.pl"
+        id S230043AbhC0MyB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 27 Mar 2021 08:54:01 -0400
+Received: from mx-out.tlen.pl ([193.222.135.175]:39887 "EHLO mx-out.tlen.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230392AbhC0JuB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 27 Mar 2021 05:50:01 -0400
-X-Greylist: delayed 397 seconds by postgrey-1.27 at vger.kernel.org; Sat, 27 Mar 2021 05:50:01 EDT
-Received: (wp-smtpd smtp.tlen.pl 20082 invoked from network); 27 Mar 2021 10:43:18 +0100
+        id S229990AbhC0MyB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 27 Mar 2021 08:54:01 -0400
+Received: (wp-smtpd smtp.tlen.pl 21019 invoked from network); 27 Mar 2021 13:53:58 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1616838198; bh=Sb5mgSoxi1yX7inO+9+EIZNBWr3/S+es/2PkOGgsF+E=;
+          t=1616849638; bh=Sb5mgSoxi1yX7inO+9+EIZNBWr3/S+es/2PkOGgsF+E=;
           h=From:To:Cc:Subject;
-          b=xcd0Pqvj0i7Rv5+9dJuuxYe21UNc/rUOpRROuYZ8Yq0Ly/Jxrf8mmYgZlxE5hEVAk
-           zPlDXrgdBTkOgIYBm1VZziHUlBCkaRwrPO6rDpg12OPUn6u3TUcfa9Ukmdj1g+73yR
-           /pOkYfw9OKkbZ7NRO5mNaNnDXfDyJE2WjzOHYPlc=
+          b=IXv8KkbacaUcdUmwB8nkXN1HElxcOonlEx0b1EzeRbck3BMDwS4DP7ltuDfUJr+Au
+           ceiY+n+CR3u76naHj5W+htKTn41JQMVfc72ObbB6Jd5jeNL1ahXCvvXG016mPArGKZ
+           pIGRojo815NYJj5Bs19fUYFowpFHHQjYPP1nOxCk=
 Received: from aclp172.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.10.117.172])
           (envelope-sender <mat.jonczyk@o2.pl>)
           by smtp.tlen.pl (WP-SMTPD) with SMTP
-          for <linux-input@vger.kernel.org>; 27 Mar 2021 10:43:18 +0100
+          for <linux-input@vger.kernel.org>; 27 Mar 2021 13:53:58 +0100
 From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
 To:     linux-input@vger.kernel.org
 Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
-Subject: [PATCH] hid-a4tech: use A4_2WHEEL_MOUSE_HACK_B8 for A4Tech NB-95
-Date:   Sat, 27 Mar 2021 10:43:06 +0100
-Message-Id: <20210327094306.39654-1-mat.jonczyk@o2.pl>
+Subject: [PATCH] hid-a4tech: use A4_2WHEEL_MOUSE_HACK_B8 for A4TECH NB-95
+Date:   Sat, 27 Mar 2021 13:53:29 +0100
+Message-Id: <20210327125329.40357-1-mat.jonczyk@o2.pl>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-WP-DKIM-Status: good (id: o2.pl)                                      
-X-WP-MailID: bec3beaf0d7c09c01fa1b781ffa1217c
+X-WP-MailID: c6f9af0d0a5e20339e9aa45f109a1976
 X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 0000000 [kbNE]                               
+X-WP-SPAM: NO 0000000 [0SO0]                               
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org

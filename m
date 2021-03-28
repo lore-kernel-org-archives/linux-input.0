@@ -2,135 +2,99 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBA91C433C1
-	for <linux-input@archiver.kernel.org>; Sun, 28 Mar 2021 17:21:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11B87C433C1
+	for <linux-input@archiver.kernel.org>; Sun, 28 Mar 2021 23:56:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A35DF6198F
-	for <linux-input@archiver.kernel.org>; Sun, 28 Mar 2021 17:21:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA7E261948
+	for <linux-input@archiver.kernel.org>; Sun, 28 Mar 2021 23:56:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231459AbhC1RV2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 28 Mar 2021 13:21:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53470 "EHLO
+        id S229719AbhC1Xzf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 28 Mar 2021 19:55:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231340AbhC1RVF (ORCPT
+        with ESMTP id S229656AbhC1XzY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 28 Mar 2021 13:21:05 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C17A8C061756;
-        Sun, 28 Mar 2021 10:21:04 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id m12so14902784lfq.10;
-        Sun, 28 Mar 2021 10:21:04 -0700 (PDT)
+        Sun, 28 Mar 2021 19:55:24 -0400
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B11C061756;
+        Sun, 28 Mar 2021 16:55:23 -0700 (PDT)
+Received: by mail-qk1-x72c.google.com with SMTP id c4so10937924qkg.3;
+        Sun, 28 Mar 2021 16:55:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=m5n0YXOwW9Hi1GIX7USstKgF3p3m11IaefFXa7cKRmM=;
-        b=KG3dCp5GSUH47Hc4LdQZI/2q+2sU74KRV1LkWlb44jlV8t0LNd9rAUJchmXnEREkEq
-         /kYJkVSUl3siYQIm385XNBBQ9C77ekcH/01si1fudYx3Y2b5V6zQwbcbADBSQI/MakQM
-         1V5T9CO7mhb93jWtlxvISFxEbNj7t1sydOSow4uf5u9CcvVjpys3Wes/upgxBps4D3lG
-         SmD6mqXf6605g9NgIsHVWzzHmrivf+XsXl4MNwNLXplZ0JHin6I7QRMgrNAenXcmTXYE
-         6yvMddvTR02ywUBh8bQ/6Fj2AXxiLd+jj8/sFViDJc25fABhQSLRvgVmmpKbDy2NW9A2
-         KWOw==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Y/X7rLd9c4uJ3A2f0AZurEyNpS9KP1WXO54XbpQnR5g=;
+        b=J0MT42qZJSdOmCP70SSp5E763yWMZCmJVk5R/L0YumVd9Ev989M/WMyetXKkeP22NH
+         0clixICxIaMpObN/L7YE4sMbOYB8JIk184qsHOGoCcVLYcH5uwqRPJdDx3LQqF/smls3
+         RQEZkl+v/KmewMoi369DzYMIs7cismKVucNYjsmLN2iEyYo1EicQzBt6L4uHJnh4JGLx
+         L1MWlO6UAfI4SjicBwTcEUsykad8c+AfPX8vKrQ5a/XXvUAlhOX69yyRHxth+9EFO9Sw
+         z12yIcXAkKK68Z8Sr7seLHppcDmnu4SkQ+0Ri3Ya22WO5xezd4ZUZkkmYiFyWIAbOcQM
+         Gzjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=m5n0YXOwW9Hi1GIX7USstKgF3p3m11IaefFXa7cKRmM=;
-        b=s+tRyqFmhpBmaPanx8yEKxE4AIckLdXfdJ/XIdUYEKPdDFpWBKsDKd478aM7Hx84I5
-         CqrKYOYCupMer7oPCADM5+V3iw27pQnZBWlanIG2xPQZ0w6JQYGqXIWY4S0tb3sF5chL
-         7c4ICVbD3TK2BbolcNGSVPjRhTKcGBBghh2rpFT2e+M1QEPLSErpubwGqUrkYVqeuDvy
-         L/tTU3cdHr1BCTLbD2ztJ52BYpP+ikgbORP6gdc7Cd093uecU8wfs734oSPqYGBwYQPj
-         LGEPJgM7BUgbv7idSBSHsuPjvjTrmHi19EC9rvZEsGCtoggeslPizy3a9Eh896wB4kfe
-         sWSw==
-X-Gm-Message-State: AOAM5307zu2+JTaztGDEpWPXwWSlsiBKl7FGMmV4Aksb3iN3ovDDacYr
-        cLXv7qmDlb7SzgZHHIOitlDk2LE6Qow=
-X-Google-Smtp-Source: ABdhPJzOcVq18vABympiFDVg8EaHQrSG8xdwAihOObkL26wxulKBKB82BxgIOg9JVbo/eOe1tKdBFQ==
-X-Received: by 2002:a05:6512:b97:: with SMTP id b23mr14338302lfv.101.1616952063168;
-        Sun, 28 Mar 2021 10:21:03 -0700 (PDT)
-Received: from ?IPv6:2a00:1370:814d:b259:a10:76ff:fe69:21b6? ([2a00:1370:814d:b259:a10:76ff:fe69:21b6])
-        by smtp.googlemail.com with ESMTPSA id f26sm1534567lfe.118.2021.03.28.10.21.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 28 Mar 2021 10:21:02 -0700 (PDT)
-Subject: Re: [PATCH v1] Input: elants_i2c - fix division by zero if firmware
- reports zero phys size
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-        Johnny Chuang <johnny.chuang.emc@gmail.com>,
-        Jasper Korten <jja2000@gmail.com>,
-        Svyatoslav Ryhel <clamor95@gmail.com>,
-        linux-input@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20210302100824.3423-1-digetx@gmail.com>
- <YGAJmGqNitQ9XwVl@google.com>
+        bh=Y/X7rLd9c4uJ3A2f0AZurEyNpS9KP1WXO54XbpQnR5g=;
+        b=sg4qieTPIoufX+yahMeAr+7Q3GVHlirGweMJ/9WM6Db2qnmKzUFz+LBN5R/dbdSZDV
+         +mLUfnnabtOx0fxVfQ34xs9+ELedgxVSM7rAD7BeDEKTdhvIbx2BTOKuTYo2Ll+LpAHO
+         jBEBBj5tdKz40kx2Fy6LVv24eIYe3XZbBiYfuO3qIvHSFnm8BT4qcLrFW21VNOKhbM68
+         Vpi3UyN+M5RDp2Nsw3Q4ZqC/PuVlsVqPTKzUdHlA3Rj3+QbAwJt3F56rzG+s9tCst/1c
+         NwAbMydvRfHXZt03ZHo3aKkz9N9XPMJp1JDMEavL4N76XoCHHpfFK3Wh8b22Kyx9CVLP
+         Bqdg==
+X-Gm-Message-State: AOAM531UZT1RlS2BL2VZ2YpVdKgvMIQB12N2G0mkEMipNIHa1Lyvp+UL
+        10ia1sSWBbcZeb1zYqpoV/quJVYaL1Q=
+X-Google-Smtp-Source: ABdhPJzkaVo9UnsB1HXDVkwln3DMD6ElY0KbO1AASnLgqsE6bSuyGh3orlfjj4DdCu7mTiz1CqQKbw==
+X-Received: by 2002:a37:a404:: with SMTP id n4mr22659531qke.439.1616975723126;
+        Sun, 28 Mar 2021 16:55:23 -0700 (PDT)
+Received: from localhost.localdomain ([2a00:1370:814d:b259:a10:76ff:fe69:21b6])
+        by smtp.gmail.com with ESMTPSA id t2sm9969129qtd.13.2021.03.28.16.55.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 28 Mar 2021 16:55:22 -0700 (PDT)
 From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <ee24fc68-0e58-df10-8b3f-a1b18f95e4ad@gmail.com>
-Date:   Sun, 28 Mar 2021 20:21:01 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Johnny Chuang <johnny.chuang.emc@gmail.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v1] Input: elants_i2c - drop zero-checking of ABS_MT_TOUCH_MAJOR resolution
+Date:   Mon, 29 Mar 2021 02:55:07 +0300
+Message-Id: <20210328235507.19240-1-digetx@gmail.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-In-Reply-To: <YGAJmGqNitQ9XwVl@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-28.03.2021 07:44, Dmitry Torokhov пишет:
-> Hi Dmitry,
-> 
-> On Tue, Mar 02, 2021 at 01:08:24PM +0300, Dmitry Osipenko wrote:
->> Touchscreen firmware of ASUS Transformer TF700T reports zeros for the phys
->> size. Hence check whether the size is zero and don't set the resolution in
->> this case.
->>
->> Reported-by: Jasper Korten <jja2000@gmail.com>
->> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
->> ---
->>
->> Please note that ASUS TF700T isn't yet supported by upstream kernel,
->> hence this is not a critical fix.
->>
->>  drivers/input/touchscreen/elants_i2c.c | 8 +++++---
->>  1 file changed, 5 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
->> index 4c2b579f6c8b..a2e1cc4192b0 100644
->> --- a/drivers/input/touchscreen/elants_i2c.c
->> +++ b/drivers/input/touchscreen/elants_i2c.c
->> @@ -1441,14 +1441,16 @@ static int elants_i2c_probe(struct i2c_client *client,
->>  
->>  	touchscreen_parse_properties(ts->input, true, &ts->prop);
->>  
->> -	if (ts->chip_id == EKTF3624) {
->> +	if (ts->chip_id == EKTF3624 && ts->phy_x && ts->phy_y) {
->>  		/* calculate resolution from size */
->>  		ts->x_res = DIV_ROUND_CLOSEST(ts->prop.max_x, ts->phy_x);
->>  		ts->y_res = DIV_ROUND_CLOSEST(ts->prop.max_y, ts->phy_y);
->>  	}
->>  
->> -	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
->> -	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
->> +	if (ts->x_res > 0)
->> +		input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
-> 
-> There is absolutely no difference between setting respluton to 0 vs not
-> setting it at all, so I dropped the conditionals and applied.
-> 
->> +	if (ts->y_res > 0)
->> +		input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
->>  	if (ts->major_res > 0)
-> 
-> We could drop this condition as well.
-> 
->>  		input_abs_set_res(ts->input, ABS_MT_TOUCH_MAJOR, ts->major_res);
+Drop unnecessary zero-checking of ABS_MT_TOUCH_MAJOR resolution since
+there is no difference between setting resolution to 0 vs not setting
+it at all. This change makes code cleaner a tad.
 
-I'll make a follow up patch to clean up this condition, if you haven't
-done it yet. Thanks!
+Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+---
+ drivers/input/touchscreen/elants_i2c.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 4c2b579f6c8b..7ddc24471819 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -1449,8 +1449,7 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 
+ 	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
+ 	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
+-	if (ts->major_res > 0)
+-		input_abs_set_res(ts->input, ABS_MT_TOUCH_MAJOR, ts->major_res);
++	input_abs_set_res(ts->input, ABS_MT_TOUCH_MAJOR, ts->major_res);
+ 
+ 	error = input_mt_init_slots(ts->input, MAX_CONTACT_NUM,
+ 				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+-- 
+2.30.2
+

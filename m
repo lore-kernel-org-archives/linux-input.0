@@ -2,167 +2,135 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D07C1C433DB
-	for <linux-input@archiver.kernel.org>; Sun, 28 Mar 2021 17:13:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBA91C433C1
+	for <linux-input@archiver.kernel.org>; Sun, 28 Mar 2021 17:21:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A247F61924
-	for <linux-input@archiver.kernel.org>; Sun, 28 Mar 2021 17:13:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A35DF6198F
+	for <linux-input@archiver.kernel.org>; Sun, 28 Mar 2021 17:21:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbhC1RN1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 28 Mar 2021 13:13:27 -0400
-Received: from mga12.intel.com ([192.55.52.136]:57597 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229538AbhC1RNU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 28 Mar 2021 13:13:20 -0400
-IronPort-SDR: kX/p/w+hM/FFWZeNXl1jKTkqO990a/ct1mPiDhdmCq6Tb+6W0DyndpexgHBZ2o1qFNqg65SjNF
- zHPdUVcuI9hw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9937"; a="170819033"
-X-IronPort-AV: E=Sophos;i="5.81,285,1610438400"; 
-   d="scan'208";a="170819033"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2021 10:13:20 -0700
-IronPort-SDR: qLl4fZeQkZRZZGdbAKgW7iLs5kw1Y7PGDCObFZhOZLso9W/ihg2iXaiiFRiyeWvz+3QIZIUvIC
- Z2uCNutERIQg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,285,1610438400"; 
-   d="scan'208";a="515712862"
-Received: from lkp-server01.sh.intel.com (HELO 69d8fcc516b7) ([10.239.97.150])
-  by fmsmga001.fm.intel.com with ESMTP; 28 Mar 2021 10:13:19 -0700
-Received: from kbuild by 69d8fcc516b7 with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1lQYyU-00046I-Mg; Sun, 28 Mar 2021 17:13:18 +0000
-Date:   Mon, 29 Mar 2021 01:12:49 +0800
-From:   kernel test robot <lkp@intel.com>
+        id S231459AbhC1RV2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 28 Mar 2021 13:21:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53470 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231340AbhC1RVF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 28 Mar 2021 13:21:05 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C17A8C061756;
+        Sun, 28 Mar 2021 10:21:04 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id m12so14902784lfq.10;
+        Sun, 28 Mar 2021 10:21:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=m5n0YXOwW9Hi1GIX7USstKgF3p3m11IaefFXa7cKRmM=;
+        b=KG3dCp5GSUH47Hc4LdQZI/2q+2sU74KRV1LkWlb44jlV8t0LNd9rAUJchmXnEREkEq
+         /kYJkVSUl3siYQIm385XNBBQ9C77ekcH/01si1fudYx3Y2b5V6zQwbcbADBSQI/MakQM
+         1V5T9CO7mhb93jWtlxvISFxEbNj7t1sydOSow4uf5u9CcvVjpys3Wes/upgxBps4D3lG
+         SmD6mqXf6605g9NgIsHVWzzHmrivf+XsXl4MNwNLXplZ0JHin6I7QRMgrNAenXcmTXYE
+         6yvMddvTR02ywUBh8bQ/6Fj2AXxiLd+jj8/sFViDJc25fABhQSLRvgVmmpKbDy2NW9A2
+         KWOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=m5n0YXOwW9Hi1GIX7USstKgF3p3m11IaefFXa7cKRmM=;
+        b=s+tRyqFmhpBmaPanx8yEKxE4AIckLdXfdJ/XIdUYEKPdDFpWBKsDKd478aM7Hx84I5
+         CqrKYOYCupMer7oPCADM5+V3iw27pQnZBWlanIG2xPQZ0w6JQYGqXIWY4S0tb3sF5chL
+         7c4ICVbD3TK2BbolcNGSVPjRhTKcGBBghh2rpFT2e+M1QEPLSErpubwGqUrkYVqeuDvy
+         L/tTU3cdHr1BCTLbD2ztJ52BYpP+ikgbORP6gdc7Cd093uecU8wfs734oSPqYGBwYQPj
+         LGEPJgM7BUgbv7idSBSHsuPjvjTrmHi19EC9rvZEsGCtoggeslPizy3a9Eh896wB4kfe
+         sWSw==
+X-Gm-Message-State: AOAM5307zu2+JTaztGDEpWPXwWSlsiBKl7FGMmV4Aksb3iN3ovDDacYr
+        cLXv7qmDlb7SzgZHHIOitlDk2LE6Qow=
+X-Google-Smtp-Source: ABdhPJzOcVq18vABympiFDVg8EaHQrSG8xdwAihOObkL26wxulKBKB82BxgIOg9JVbo/eOe1tKdBFQ==
+X-Received: by 2002:a05:6512:b97:: with SMTP id b23mr14338302lfv.101.1616952063168;
+        Sun, 28 Mar 2021 10:21:03 -0700 (PDT)
+Received: from ?IPv6:2a00:1370:814d:b259:a10:76ff:fe69:21b6? ([2a00:1370:814d:b259:a10:76ff:fe69:21b6])
+        by smtp.googlemail.com with ESMTPSA id f26sm1534567lfe.118.2021.03.28.10.21.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 28 Mar 2021 10:21:02 -0700 (PDT)
+Subject: Re: [PATCH v1] Input: elants_i2c - fix division by zero if firmware
+ reports zero phys size
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org
-Subject: [input:for-linus] BUILD SUCCESS
- 781bab3238c21c8cc6d1999a6ee43de76252fdfd
-Message-ID: <6060b911.MzrI8DWlWvtFgUZ+%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+Cc:     =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+        Johnny Chuang <johnny.chuang.emc@gmail.com>,
+        Jasper Korten <jja2000@gmail.com>,
+        Svyatoslav Ryhel <clamor95@gmail.com>,
+        linux-input@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210302100824.3423-1-digetx@gmail.com>
+ <YGAJmGqNitQ9XwVl@google.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <ee24fc68-0e58-df10-8b3f-a1b18f95e4ad@gmail.com>
+Date:   Sun, 28 Mar 2021 20:21:01 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <YGAJmGqNitQ9XwVl@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-branch HEAD: 781bab3238c21c8cc6d1999a6ee43de76252fdfd  Input: elants_i2c - fix division by zero if firmware reports zero phys size
+28.03.2021 07:44, Dmitry Torokhov пишет:
+> Hi Dmitry,
+> 
+> On Tue, Mar 02, 2021 at 01:08:24PM +0300, Dmitry Osipenko wrote:
+>> Touchscreen firmware of ASUS Transformer TF700T reports zeros for the phys
+>> size. Hence check whether the size is zero and don't set the resolution in
+>> this case.
+>>
+>> Reported-by: Jasper Korten <jja2000@gmail.com>
+>> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+>> ---
+>>
+>> Please note that ASUS TF700T isn't yet supported by upstream kernel,
+>> hence this is not a critical fix.
+>>
+>>  drivers/input/touchscreen/elants_i2c.c | 8 +++++---
+>>  1 file changed, 5 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+>> index 4c2b579f6c8b..a2e1cc4192b0 100644
+>> --- a/drivers/input/touchscreen/elants_i2c.c
+>> +++ b/drivers/input/touchscreen/elants_i2c.c
+>> @@ -1441,14 +1441,16 @@ static int elants_i2c_probe(struct i2c_client *client,
+>>  
+>>  	touchscreen_parse_properties(ts->input, true, &ts->prop);
+>>  
+>> -	if (ts->chip_id == EKTF3624) {
+>> +	if (ts->chip_id == EKTF3624 && ts->phy_x && ts->phy_y) {
+>>  		/* calculate resolution from size */
+>>  		ts->x_res = DIV_ROUND_CLOSEST(ts->prop.max_x, ts->phy_x);
+>>  		ts->y_res = DIV_ROUND_CLOSEST(ts->prop.max_y, ts->phy_y);
+>>  	}
+>>  
+>> -	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
+>> -	input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
+>> +	if (ts->x_res > 0)
+>> +		input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
+> 
+> There is absolutely no difference between setting respluton to 0 vs not
+> setting it at all, so I dropped the conditionals and applied.
+> 
+>> +	if (ts->y_res > 0)
+>> +		input_abs_set_res(ts->input, ABS_MT_POSITION_Y, ts->y_res);
+>>  	if (ts->major_res > 0)
+> 
+> We could drop this condition as well.
+> 
+>>  		input_abs_set_res(ts->input, ABS_MT_TOUCH_MAJOR, ts->major_res);
 
-elapsed time: 726m
-
-configs tested: 97
-configs skipped: 2
-
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-x86_64                           allyesconfig
-riscv                            allmodconfig
-riscv                            allyesconfig
-arm                         at91_dt_defconfig
-parisc                generic-64bit_defconfig
-powerpc                  storcenter_defconfig
-arm                          ep93xx_defconfig
-powerpc                 mpc837x_rdb_defconfig
-powerpc                      mgcoge_defconfig
-powerpc                      walnut_defconfig
-mips                     cu1000-neo_defconfig
-arm                            mmp2_defconfig
-arm                         palmz72_defconfig
-um                                  defconfig
-arm                         axm55xx_defconfig
-arm                      integrator_defconfig
-powerpc                     tqm8541_defconfig
-arm                      tct_hammer_defconfig
-powerpc                          g5_defconfig
-powerpc                     mpc512x_defconfig
-mips                          ath79_defconfig
-mips                      maltaaprp_defconfig
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-m68k                             allyesconfig
-nds32                               defconfig
-nios2                            allyesconfig
-csky                                defconfig
-alpha                               defconfig
-alpha                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-parisc                              defconfig
-s390                             allyesconfig
-s390                             allmodconfig
-parisc                           allyesconfig
-s390                                defconfig
-i386                             allyesconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                               tinyconfig
-i386                                defconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-i386                 randconfig-a004-20210328
-i386                 randconfig-a003-20210328
-i386                 randconfig-a001-20210328
-i386                 randconfig-a002-20210328
-i386                 randconfig-a006-20210328
-i386                 randconfig-a005-20210328
-x86_64               randconfig-a015-20210328
-x86_64               randconfig-a012-20210328
-x86_64               randconfig-a013-20210328
-x86_64               randconfig-a014-20210328
-x86_64               randconfig-a016-20210328
-x86_64               randconfig-a011-20210328
-i386                 randconfig-a014-20210328
-i386                 randconfig-a011-20210328
-i386                 randconfig-a015-20210328
-i386                 randconfig-a016-20210328
-i386                 randconfig-a013-20210328
-i386                 randconfig-a012-20210328
-riscv                    nommu_k210_defconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                          rv32_defconfig
-um                               allmodconfig
-um                                allnoconfig
-um                               allyesconfig
-x86_64                    rhel-8.3-kselftests
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                      rhel-8.3-kbuiltin
-x86_64                                  kexec
-
-clang tested configs:
-x86_64               randconfig-a002-20210328
-x86_64               randconfig-a003-20210328
-x86_64               randconfig-a001-20210328
-x86_64               randconfig-a006-20210328
-x86_64               randconfig-a005-20210328
-x86_64               randconfig-a004-20210328
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+I'll make a follow up patch to clean up this condition, if you haven't
+done it yet. Thanks!

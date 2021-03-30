@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF8A1C433E4
-	for <linux-input@archiver.kernel.org>; Tue, 30 Mar 2021 08:55:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A429C433E3
+	for <linux-input@archiver.kernel.org>; Tue, 30 Mar 2021 08:55:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A2FB86199A
+	by mail.kernel.org (Postfix) with ESMTP id D7E556195D
 	for <linux-input@archiver.kernel.org>; Tue, 30 Mar 2021 08:55:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231269AbhC3Iyw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 30 Mar 2021 04:54:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57414 "EHLO
+        id S231154AbhC3Iyv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 30 Mar 2021 04:54:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231313AbhC3Iyp (ORCPT
+        with ESMTP id S231269AbhC3Iyh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 Mar 2021 04:54:45 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD9AC061762
-        for <linux-input@vger.kernel.org>; Tue, 30 Mar 2021 01:54:33 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id w28so1663735lfn.2
-        for <linux-input@vger.kernel.org>; Tue, 30 Mar 2021 01:54:33 -0700 (PDT)
+        Tue, 30 Mar 2021 04:54:37 -0400
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F18F8C061764
+        for <linux-input@vger.kernel.org>; Tue, 30 Mar 2021 01:54:36 -0700 (PDT)
+Received: by mail-lj1-x22d.google.com with SMTP id a1so19041215ljp.2
+        for <linux-input@vger.kernel.org>; Tue, 30 Mar 2021 01:54:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=xL6erVnxQRl61MXnF85N/4HssiewiDMqKG8DTl4YuT0=;
-        b=sJqtEpMbZ/peEhed9U3nZGgfwzRFiyq986U+KtAl3UM0Dni1Aj22f4aBffF0lrBv1V
-         BrMxyl6kwKrpEweT8OcsyVcKZs5rxgBJXREnq/F8P/+k3wjgN3JZY/RPcFfWnwZJ/4qT
-         5A7V+n0WcER/Moecomig/XBCpSoYYqMJ+JHHJgceawpxXcHM9OEenKxiE0EjrBxCxIFz
-         BFVqb1s9/sfQah99Nel3rgIxRYkSVnfEeRDaxJs3xPrPa13p/qT4tGEGrFoC6QeLVjPF
-         fROqq0NrsX/qTLeateLqeSbpACaYv+7NWCktiY14clX7bOTHSuYN++vebXfDLjeIQRg0
-         ZzMg==
+        bh=WeDMmUHMqTW6OH9fZV+W9CUsFCKVXgQjWfbISHyWnmo=;
+        b=qQ4m2s7ext90HzptdeeG/jREjBptW9hyrZcFLN4TBNbeizr2atRcTioxUnH++RKGcR
+         3haHGYFTVYD1yvPZWOlcnHBJlt/MBl0t5g3uveI5bS+BS6yTtvMATJqz+J7Ye12xKw2p
+         1qY8I9vsQ/9WN7e21UASG4kojxtFtWcLascetWPEa2TA3EIIIiC3y7WJTQggoXKZaj5T
+         FVZ5kTAvLup5rTe0NDSQXwcsCzwWuggjug3HQOHhqSwyKqZROpDELVnnYRVStynOw7cd
+         fqazuBzXppiFNZjCjTFLOgkUc+oMcPMov884h/f9FSySsmuir/SiNpivoJgaWYVgbqQC
+         2F4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=xL6erVnxQRl61MXnF85N/4HssiewiDMqKG8DTl4YuT0=;
-        b=BF8iNKK//Gw9iaWte7F34OYilN6/tG9UWNIbnKxYF60nT8TvPo8pB0enKcLzRQx98c
-         qQoIm/mETkkYHjl0WFsd3jeLVHXJnk7uF4T/Vb240t90NAeVoWPVgB1UYBkJtX1znlQq
-         xLdpvmiKL7kDsfKZszZ7tTHhHJCas+jsMFVkGSfpdPxaSNeoxfuyxvy/QwdDkqdJVMV7
-         wGY7OLLC5UkmoJGwLT1URN+rBBKYyQvG1L2hsUkeTOX/z+q/Q6WzLaI8X7vZpFi5VnIF
-         S5yh3kgV7p0EKp6PRUCGEicnOyk147sQBsClBtcfC42RRAqNBpywk0sudp9Fc6wMW6l8
-         q/ew==
-X-Gm-Message-State: AOAM532U0WY0yU+u/MgoZoHYcoRagJG9tn4HyTSajIJakhDXXVacymur
-        z+t3Pct5jUKfFuMSTRbOlBhZmA==
-X-Google-Smtp-Source: ABdhPJwhzmbw2j9LiMsjkq3AjDbCRNB/p+csQitEWdgfuA3+edUtVN8OYpy35tGo7Yd/fwFlycNWyw==
-X-Received: by 2002:a19:915:: with SMTP id 21mr18514597lfj.270.1617094471072;
-        Tue, 30 Mar 2021 01:54:31 -0700 (PDT)
+        bh=WeDMmUHMqTW6OH9fZV+W9CUsFCKVXgQjWfbISHyWnmo=;
+        b=CBJgIglL4FUpVRcuDqerkuuKJ34KTWakc3cNcVduoMl3noRQarTIG7VJ3RvRIOc18P
+         cBCqdvEOp3fcZw1Bt+z35Lpm00iq/bbBE6Ig0lp1Y+3ML5XHn2euPjpS5xkbu9wTQ/lx
+         2Qvc2DWvrDWyqGLufwCOFdHEoZUbgqufxAqbxkvvgMKnoJKeHnpeQ2dMDfklvJnB8VRA
+         pSTJsYSN0ZQ0iF8qTkVegsb1+4VzlZFvfT1yVPUcQhaWCnzNa2AerVdxa/M8FEE8y41C
+         w9xIcRgvd1YpvuYQ7Mx/Gf+1ekZxT01KItfjVlWKaWXf9RdipCc2vZj8R18CPqcCCy36
+         r/Gw==
+X-Gm-Message-State: AOAM533iz+3d1bKrKztuCHWB7vy9LQ263YjecaF6JKGgH3IpFSeA1yQ3
+        GEaSp8kVvcWFdNeOLAKR+aeRdQ==
+X-Google-Smtp-Source: ABdhPJxHAkR7LbIwYmmYmFHKP/J5wK3XOC5M2Z+k1wnWyQBkOU34Uaqp6ZLaQrIL6ya7ECfAZ61aPg==
+X-Received: by 2002:a2e:a177:: with SMTP id u23mr20494915ljl.286.1617094475521;
+        Tue, 30 Mar 2021 01:54:35 -0700 (PDT)
 Received: from localhost.localdomain (c-14cb225c.014-348-6c756e10.bbcust.telenor.se. [92.34.203.20])
-        by smtp.gmail.com with ESMTPSA id 201sm2104238lfm.108.2021.03.30.01.54.30
+        by smtp.gmail.com with ESMTPSA id 201sm2104238lfm.108.2021.03.30.01.54.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Mar 2021 01:54:30 -0700 (PDT)
+        Tue, 30 Mar 2021 01:54:35 -0700 (PDT)
 From:   Linus Walleij <linus.walleij@linaro.org>
 To:     Ferruh Yigit <fery@cypress.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Javier Martinez Canillas <javier@dowhile0.org>
 Cc:     Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org,
         Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 3/7] Input: cyttsp - Error message on boot mode exit error
-Date:   Tue, 30 Mar 2021 10:54:20 +0200
-Message-Id: <20210330085424.2244653-4-linus.walleij@linaro.org>
+Subject: [PATCH 6/7] Input: cyttsp - Set abs params for ABS_MT_TOUCH_MAJOR
+Date:   Tue, 30 Mar 2021 10:54:23 +0200
+Message-Id: <20210330085424.2244653-7-linus.walleij@linaro.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210330085424.2244653-1-linus.walleij@linaro.org>
 References: <20210330085424.2244653-1-linus.walleij@linaro.org>
@@ -74,31 +74,30 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Provide a proper error message when attempting to exit
-boot loader mode and failing, which is something that
-happened to me.
+The driver is certainly reporting pressure in
+cyttsp_report_tchdata() with
+input_report_abs(input, ABS_MT_TOUCH_MAJOR, tch->z);
+so we should also advertise this capability.
 
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/input/touchscreen/cyttsp_core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/cyttsp_core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index a19d7cce95ca..91f8f38b3f06 100644
+index 8ae9f00e5e31..ac412bcb15d8 100644
 --- a/drivers/input/touchscreen/cyttsp_core.c
 +++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -410,8 +410,10 @@ static int cyttsp_power_on(struct cyttsp *ts)
- 	if (GET_BOOTLOADERMODE(ts->bl_data.bl_status) &&
- 	    IS_VALID_APP(ts->bl_data.bl_status)) {
- 		error = cyttsp_exit_bl_mode(ts);
--		if (error)
-+		if (error) {
-+			dev_err(ts->dev, "failed to exit bootloader mode\n");
- 			return error;
-+		}
- 	}
+@@ -667,6 +667,9 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
  
- 	if (GET_HSTMODE(ts->bl_data.bl_file) != CY_OPERATE_MODE ||
+ 	input_set_capability(input_dev, EV_ABS, ABS_MT_POSITION_X);
+ 	input_set_capability(input_dev, EV_ABS, ABS_MT_POSITION_Y);
++	/* One byte for width 0..255 so this is the limit */
++	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
++
+ 	touchscreen_parse_properties(input_dev, true, NULL);
+ 
+ 	error = input_mt_init_slots(input_dev, CY_MAX_ID, 0);
 -- 
 2.29.2
 

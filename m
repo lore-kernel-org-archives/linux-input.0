@@ -2,259 +2,238 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F5CCC433E5
-	for <linux-input@archiver.kernel.org>; Tue, 30 Mar 2021 11:34:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FB9BC433E0
+	for <linux-input@archiver.kernel.org>; Tue, 30 Mar 2021 20:13:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 567B06192C
-	for <linux-input@archiver.kernel.org>; Tue, 30 Mar 2021 11:34:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F8A2619D0
+	for <linux-input@archiver.kernel.org>; Tue, 30 Mar 2021 20:13:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231887AbhC3Ldt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 30 Mar 2021 07:33:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35316 "EHLO
+        id S230145AbhC3UMy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 30 Mar 2021 16:12:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231863AbhC3Ldk (ORCPT
+        with ESMTP id S232118AbhC3UMk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 Mar 2021 07:33:40 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A7AFC061574
-        for <linux-input@vger.kernel.org>; Tue, 30 Mar 2021 04:33:40 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id c17so11957303pfn.6
-        for <linux-input@vger.kernel.org>; Tue, 30 Mar 2021 04:33:40 -0700 (PDT)
+        Tue, 30 Mar 2021 16:12:40 -0400
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30FA2C061574
+        for <linux-input@vger.kernel.org>; Tue, 30 Mar 2021 13:12:39 -0700 (PDT)
+Received: by mail-lf1-x12c.google.com with SMTP id o126so25706446lfa.0
+        for <linux-input@vger.kernel.org>; Tue, 30 Mar 2021 13:12:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=fWEWnDB7IS15Aoqul4RZDergwEtbUe4NAH8lKjv7p/s=;
-        b=t2VcQcgjlrxPCJleDx3ZzoDOZ+UbaLvOBwoQ1w/EBgqJFigxgIn9DXbKekJ3Iepsxq
-         ENtT73YGcLNdJaLEPFSSyi3PU6zZEexZ85lbxqulQRMFtLH5mzxY5DuN2Rs42RqP6w6I
-         inReeA26WMzi7CA6s2kKoGRVgUMSCImUbcGPJ2FVBn0PdcoqL1kTF82fRk7K1FRpM4u3
-         ZdoaWTINuz1yliQ9rnvqfQqPN+BtnRskWwovV7IQ8qFplZFPvXJIhGTYUmZdMDPxUwOR
-         lZAP+0y1MXJVlnSCnD1PqVCsku00bizvG8nEdt52bXHpKewXuyHVZRwuLTpLbBOpTgg/
-         gUsQ==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+bQAyUbHZezo5Tam5Z33+uMQ576wTWKAVOntw8JLrNs=;
+        b=VjSNyZ//FyUXZYEMNtcGFl810NcGi66Yfmv7C4GxC4KH+yc27VeS0cndAG7hJZ0bQO
+         6K80L1P3efxJkyuCKG2mNO5ZSbWB9Hmnfnj1XrOSigpFGvxoBqlEqvlCWPRhp1DKWe5P
+         /XfPF0BNfq7xU5JCbyNkYyfSJ4R7GIhTB/BvpOMgya1jFkdXvbqGEeNO7RI+AgjrA87j
+         zYZROKrnUtjPNUA7ewwhBCl4wLrY1S+u+c6kkasPX6TkOC6QKWY1Jyi65FPCSmOnFdCG
+         f0ahL/PmCBMUuyWDViUXB14yCrAIErTCG70iWU846r8O8/ipYsOeKb6dShLsped9jfkm
+         VLYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=fWEWnDB7IS15Aoqul4RZDergwEtbUe4NAH8lKjv7p/s=;
-        b=SOIfAg4lqi9g8w0ADEHJzk2+tOkKWcgVjy+MuxV4SXcCC8vsmwY7Ww43djJ6qn1Ti4
-         F1AOWXshq/rXgl0DcmXf+qRQCRKbmwlEjEr3XDGTZbA4gxFJ0jqSO/bh3vbefyOA+/PI
-         U3sTerRnGERuEFY4/nCiCECZ25uuj+5a8ZlIlM0+wHXV2HVRFXSshlyOw6AGvEAjhFZ1
-         gqlf002jdZuElwDQrJzx/UA67WbedaHweRfiWZaUCYZprm1pMC4mOhpPwWwQXoqgRpcM
-         Rgilr1U2pkUsaCB8r78D9Bxhti8ly2xUFZN1I2s9KP8jCYuVUmTD3gWdNfwJJ74I/fYQ
-         WWRA==
-X-Gm-Message-State: AOAM531lU47AgnI5arr7iXoy6QiFMKyxZnZpk+Vcn3EXckyosduJqrvQ
-        OoKOKyco/UlPVGagD1c4PF86ufE7rlm+20bN
-X-Google-Smtp-Source: ABdhPJzzqFTQiSNyIzjCF+37Lrau50sIYt0Vh4iJ9UYp63YiGocxfnKT2CfwL2XJO1tN2xB584Nd3g==
-X-Received: by 2002:a62:d45a:0:b029:218:669c:4f37 with SMTP id u26-20020a62d45a0000b0290218669c4f37mr29824358pfl.48.1617104019756;
-        Tue, 30 Mar 2021 04:33:39 -0700 (PDT)
-Received: from johnchen902-arch-ryzen.. (2001-b011-3815-5a81-9afa-9bff-fe6e-3ce2.dynamic-ip6.hinet.net. [2001:b011:3815:5a81:9afa:9bff:fe6e:3ce2])
-        by smtp.gmail.com with ESMTPSA id y4sm19650868pfn.67.2021.03.30.04.33.38
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+bQAyUbHZezo5Tam5Z33+uMQ576wTWKAVOntw8JLrNs=;
+        b=IGWBVNb/5AUPokn7h1InoRnozDM+C6LGRjpRv6CiLsWLQEuliq/iHJtV4UEkQ3H+wa
+         JBSB0dCzRQBHsgb84nsmN9/c9+933TxzUNNKXak9alWFF0vsufsf/RPMd963KfRQrTPf
+         7Uk8NUsvoN1iPVTCRJIf/DRSVeapFCqOqLLU4h6nZ7EewrSN5aIzDdh/b6LbD6Flcobn
+         D2iuZ0OwQXpEJPbUGYRl0X1zfX1gtZql/I36a0fiItcQ7eCje9bdZSS4URG2pfUNqd/I
+         2C2ml/4zqpx1VKOq1O667Y/8cU+riFIj1Bv9t2+HR+G69L7mZPnaxQ3mSrmd84RvtoXL
+         Co5g==
+X-Gm-Message-State: AOAM531KNp434ZZW9riwi2SrYw7sSrM8Mcww+7636QrMBQv720oWXHD3
+        iutASXfLk+gjg8+M/b2ttBRpBZYaFMKW7yii
+X-Google-Smtp-Source: ABdhPJzF3z0HGqwBQ+G1msE66b6K8cSXUhjWSAGNljfATwAF4ezDqKoVZq5eqNnSCoorlJDNNNlGlQ==
+X-Received: by 2002:a05:6512:62:: with SMTP id i2mr20556428lfo.631.1617135157698;
+        Tue, 30 Mar 2021 13:12:37 -0700 (PDT)
+Received: from localhost.localdomain (c-14cb225c.014-348-6c756e10.bbcust.telenor.se. [92.34.203.20])
+        by smtp.gmail.com with ESMTPSA id p2sm290316lfg.116.2021.03.30.13.12.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Mar 2021 04:33:39 -0700 (PDT)
-From:   John Chen <johnchen902@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Rohit Pidaparthi <rohitpid@gmail.com>,
-        RicardoEPRodrigues <ricardo.e.p.rodrigues@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        John Chen <johnchen902@gmail.com>
-Subject: [PATCH v2 3/4] HID: magicmouse: fix reconnection of Magic Mouse 2
-Date:   Tue, 30 Mar 2021 19:33:18 +0800
-Message-Id: <20210330113319.14010-4-johnchen902@gmail.com>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210330113319.14010-1-johnchen902@gmail.com>
-References: <20210330113319.14010-1-johnchen902@gmail.com>
+        Tue, 30 Mar 2021 13:12:37 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        devicetree@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Simon Shields <simon@lineageos.org>,
+        Tomasz Figa <tfiga@chromium.org>
+Subject: [PATCH] Input: mms114 - Convert bindings to YAML and extend
+Date:   Tue, 30 Mar 2021 22:12:33 +0200
+Message-Id: <20210330201233.2360006-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-It is observed that the Magic Mouse 2 would not enter multi-touch mode
-unless the mouse is connected before loading the module. It seems to be
-a quirk specific to Magic Mouse 2
+This converts the Melfas MMS114 bindings and extend like this:
 
-Retrying after 500ms fixes the problem for me. The delay can't be
-reduced much further --- 300ms didn't work for me. Retrying immediately
-after receiving an event didn't work either.
+- Require nodename touchscreen@ (this seems to be the case for
+  all in-tree DTS files)
+- Add the mms134s and mms136 compatibles
+- Add the avdd and vdd power supplies
+- Define the I2C clock frequency property
 
-Signed-off-by: John Chen <johnchen902@gmail.com>
+Cc: devicetree@vger.kernel.org
+Cc: Stephan Gerhold <stephan@gerhold.net>
+Cc: Simon Shields <simon@lineageos.org>
+Cc: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/hid/hid-magicmouse.c | 93 ++++++++++++++++++++++++------------
- 1 file changed, 63 insertions(+), 30 deletions(-)
+ .../input/touchscreen/melfas,mms114.yaml      | 87 +++++++++++++++++++
+ .../bindings/input/touchscreen/mms114.txt     | 42 ---------
+ 2 files changed, 87 insertions(+), 42 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/melfas,mms114.yaml
+ delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/mms114.txt
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index c646b4cd3783..69aefef9fe07 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -16,6 +16,7 @@
- #include <linux/input/mt.h>
- #include <linux/module.h>
- #include <linux/slab.h>
-+#include <linux/workqueue.h>
- 
- #include "hid-ids.h"
- 
-@@ -128,6 +129,9 @@ struct magicmouse_sc {
- 		u8 size;
- 	} touches[16];
- 	int tracking_ids[16];
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/melfas,mms114.yaml b/Documentation/devicetree/bindings/input/touchscreen/melfas,mms114.yaml
+new file mode 100644
+index 000000000000..62366886fb3e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/melfas,mms114.yaml
+@@ -0,0 +1,87 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/melfas,mms114.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+	struct hid_device *hdev;
-+	struct delayed_work work;
- };
- 
- static int magicmouse_firm_touch(struct magicmouse_sc *msc)
-@@ -629,9 +633,7 @@ static int magicmouse_input_configured(struct hid_device *hdev,
- 	return 0;
- }
- 
++title: Melfas MMS114 family touchscreen controller bindings
++
++maintainers:
++  - Linus Walleij <linus.walleij@linaro.org>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  $nodename:
++    pattern: "^touchscreen(@.*)?$"
++
++  compatible:
++    items:
++      - enum:
++          - melfas,mms114
++          - melfas,mms134s
++          - melfas,mms136
++          - melfas,mms152
++          - melfas,mms345l
++
++  reg:
++    description: I2C address
++
++  clock-frequency:
++    description: I2C client clock frequency, defined for host
++    minimum: 100000
++    maximum: 400000
++
++  interrupts:
++    maxItems: 1
++
++  avdd-supply:
++    description: Analog power supply regulator on AVDD pin
++
++  vdd-supply:
++    description: Digital power supply regulator on VDD pin
++
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-fuzz-x: true
++  touchscreen-fuzz-y: true
++  touchscreen-fuzz-pressure: true
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-swapped-x-y: true
++  touchscreen-max-pressure: true
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - touchscreen-size-x
++  - touchscreen-size-y
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      touchscreen@48 {
++        compatible = "melfas,mms114";
++        reg = <0x48>;
++        interrupt-parent = <&gpio>;
++        interrupts = <39 IRQ_TYPE_EDGE_FALLING>;
++        avdd-supply = <&ldo1_reg>;
++        vdd-supply = <&ldo2_reg>;
++        touchscreen-size-x = <720>;
++        touchscreen-size-y = <1280>;
++        touchscreen-fuzz-x = <10>;
++        touchscreen-fuzz-y = <10>;
++        touchscreen-fuzz-pressure = <10>;
++        touchscreen-inverted-x;
++        touchscreen-inverted-y;
++      };
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/mms114.txt b/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
+deleted file mode 100644
+index 707234cfd7e6..000000000000
+--- a/Documentation/devicetree/bindings/input/touchscreen/mms114.txt
++++ /dev/null
+@@ -1,42 +0,0 @@
+-* MELFAS MMS114/MMS152/MMS345L touchscreen controller
 -
--static int magicmouse_probe(struct hid_device *hdev,
--	const struct hid_device_id *id)
-+static int magicmouse_enable_multitouch(struct hid_device *hdev)
- {
- 	const u8 *feature;
- 	const u8 feature_mt[] = { 0xD7, 0x01 };
-@@ -639,10 +641,52 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	const u8 feature_mt_trackpad2_usb[] = { 0x02, 0x01 };
- 	const u8 feature_mt_trackpad2_bt[] = { 0xF1, 0x02, 0x01 };
- 	u8 *buf;
-+	int ret;
-+	int feature_size;
-+
-+	if (hdev->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-+		if (hdev->vendor == BT_VENDOR_ID_APPLE) {
-+			feature_size = sizeof(feature_mt_trackpad2_bt);
-+			feature = feature_mt_trackpad2_bt;
-+		} else { /* USB_VENDOR_ID_APPLE */
-+			feature_size = sizeof(feature_mt_trackpad2_usb);
-+			feature = feature_mt_trackpad2_usb;
-+		}
-+	} else if (hdev->product == USB_DEVICE_ID_APPLE_MAGICMOUSE2) {
-+		feature_size = sizeof(feature_mt_mouse2);
-+		feature = feature_mt_mouse2;
-+	} else {
-+		feature_size = sizeof(feature_mt);
-+		feature = feature_mt;
-+	}
-+
-+	buf = kmemdup(feature, feature_size, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	ret = hid_hw_raw_request(hdev, buf[0], buf, feature_size,
-+				HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+	kfree(buf);
-+	return ret;
-+}
-+
-+static void magicmouse_enable_mt_work(struct work_struct *work)
-+{
-+	struct magicmouse_sc *msc =
-+		container_of(work, struct magicmouse_sc, work.work);
-+	int ret;
-+
-+	ret = magicmouse_enable_multitouch(msc->hdev);
-+	if (ret < 0)
-+		hid_err(msc->hdev, "unable to request touch data (%d)\n", ret);
-+}
-+
-+static int magicmouse_probe(struct hid_device *hdev,
-+	const struct hid_device_id *id)
-+{
- 	struct magicmouse_sc *msc;
- 	struct hid_report *report;
- 	int ret;
--	int feature_size;
- 
- 	if (id->vendor == USB_VENDOR_ID_APPLE &&
- 	    id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 &&
-@@ -656,6 +700,8 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	}
- 
- 	msc->scroll_accel = SCROLL_ACCEL_DEFAULT;
-+	msc->hdev = hdev;
-+	INIT_DEFERRABLE_WORK(&msc->work, magicmouse_enable_mt_work);
- 
- 	msc->quirks = id->driver_data;
- 	hid_set_drvdata(hdev, msc);
-@@ -705,28 +751,6 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	}
- 	report->size = 6;
- 
--	if (id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
--		if (id->vendor == BT_VENDOR_ID_APPLE) {
--			feature_size = sizeof(feature_mt_trackpad2_bt);
--			feature = feature_mt_trackpad2_bt;
--		} else { /* USB_VENDOR_ID_APPLE */
--			feature_size = sizeof(feature_mt_trackpad2_usb);
--			feature = feature_mt_trackpad2_usb;
--		}
--	} else if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE2) {
--		feature_size = sizeof(feature_mt_mouse2);
--		feature = feature_mt_mouse2;
--	} else {
--		feature_size = sizeof(feature_mt);
--		feature = feature_mt;
--	}
+-Required properties:
+-- compatible: should be one of:
+-	- "melfas,mms114"
+-	- "melfas,mms152"
+-	- "melfas,mms345l"
+-- reg: I2C address of the chip
+-- interrupts: interrupt to which the chip is connected
+-- touchscreen-size-x: See [1]
+-- touchscreen-size-y: See [1]
 -
--	buf = kmemdup(feature, feature_size, GFP_KERNEL);
--	if (!buf) {
--		ret = -ENOMEM;
--		goto err_stop_hw;
--	}
+-Optional properties:
+-- touchscreen-fuzz-x: See [1]
+-- touchscreen-fuzz-y: See [1]
+-- touchscreen-fuzz-pressure: See [1]
+-- touchscreen-inverted-x: See [1]
+-- touchscreen-inverted-y: See [1]
+-- touchscreen-swapped-x-y: See [1]
 -
- 	/*
- 	 * Some devices repond with 'invalid report id' when feature
- 	 * report switching it into multitouch mode is sent to it.
-@@ -735,13 +759,14 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	 * but there seems to be no other way of switching the mode.
- 	 * Thus the super-ugly hacky success check below.
- 	 */
--	ret = hid_hw_raw_request(hdev, buf[0], buf, feature_size,
--				HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
--	kfree(buf);
--	if (ret != -EIO && ret != feature_size) {
-+	ret = magicmouse_enable_multitouch(hdev);
-+	if (ret != -EIO && ret < 0) {
- 		hid_err(hdev, "unable to request touch data (%d)\n", ret);
- 		goto err_stop_hw;
- 	}
-+	if (ret == -EIO && id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE2) {
-+		schedule_delayed_work(&msc->work, msecs_to_jiffies(500));
-+	}
- 
- 	return 0;
- err_stop_hw:
-@@ -749,6 +774,13 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	return ret;
- }
- 
-+static void magicmouse_remove(struct hid_device *hdev)
-+{
-+	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
-+	cancel_delayed_work_sync(&msc->work);
-+	hid_hw_stop(hdev);
-+}
-+
- static const struct hid_device_id magic_mice[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
- 		USB_DEVICE_ID_APPLE_MAGICMOUSE), .driver_data = 0 },
-@@ -768,6 +800,7 @@ static struct hid_driver magicmouse_driver = {
- 	.name = "magicmouse",
- 	.id_table = magic_mice,
- 	.probe = magicmouse_probe,
-+	.remove = magicmouse_remove,
- 	.raw_event = magicmouse_raw_event,
- 	.event = magicmouse_event,
- 	.input_mapping = magicmouse_input_mapping,
+-[1]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+-
+-Example:
+-
+-	i2c@00000000 {
+-		/* ... */
+-
+-		touchscreen@48 {
+-			compatible = "melfas,mms114";
+-			reg = <0x48>;
+-			interrupts = <39 0>;
+-			touchscreen-size-x = <720>;
+-			touchscreen-size-y = <1280>;
+-			touchscreen-fuzz-x = <10>;
+-			touchscreen-fuzz-y = <10>;
+-			touchscreen-fuzz-pressure = <10>;
+-			touchscreen-inverted-x;
+-			touchscreen-inverted-y;
+-		};
+-
+-		/* ... */
+-	};
 -- 
-2.31.0
+2.29.2
 

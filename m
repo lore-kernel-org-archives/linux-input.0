@@ -2,87 +2,220 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,LOTS_OF_MONEY,MAILING_LIST_MULTI,
-	MONEY_NOHTML,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9452AC433ED
-	for <linux-input@archiver.kernel.org>; Thu,  1 Apr 2021 22:24:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97C35C43460
+	for <linux-input@archiver.kernel.org>; Thu,  1 Apr 2021 23:11:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 33DE06105A
-	for <linux-input@archiver.kernel.org>; Thu,  1 Apr 2021 22:24:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4EF3A610E8
+	for <linux-input@archiver.kernel.org>; Thu,  1 Apr 2021 23:11:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234004AbhDAWYz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 1 Apr 2021 18:24:55 -0400
-Received: from mail.micronovasrl.com ([212.103.203.10]:53882 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231550AbhDAWYz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Apr 2021 18:24:55 -0400
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id DCF76B04C4F
-        for <linux-input@vger.kernel.org>; Fri,  2 Apr 2021 00:24:53 +0200 (CEST)
-Authentication-Results: mail.micronovasrl.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)" header.d=micronovasrl.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=micronovasrl.com;
-         h=content-transfer-encoding:content-language:content-type
-        :content-type:in-reply-to:mime-version:user-agent:date:date
-        :message-id:references:to:from:from:subject:subject; s=dkim; t=
-        1617315893; x=1618179894; bh=eUNH9JCigSWjXMgzJBifLYckuPQkEREt8nx
-        Fxxvn8OA=; b=czphOzgSDiiFiZA74gnuvGetKdwnikJ0F76gD4+2E1Qzoxk9GB6
-        Kp5sOok+YgplLteCmaohFhutF8XOw+emy8DkqG/kr78v9qIiIwtGxGVFkxJ4O7qH
-        cDhYI08xTUUugq3Kn6q2brnxWM9eFjw9Y5CehxEJLWKzpgZhOvq3377Y=
-X-Virus-Scanned: Debian amavisd-new at mail.micronovasrl.com
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 62DcZguyendc for <linux-input@vger.kernel.org>;
-        Fri,  2 Apr 2021 00:24:53 +0200 (CEST)
-Received: from [192.168.50.18] (146-241-168-220.dyn.eolo.it [146.241.168.220])
-        by mail.micronovasrl.com (Postfix) with ESMTPSA id 1F879B04A49;
-        Fri,  2 Apr 2021 00:24:53 +0200 (CEST)
-Subject: Re: [PATCH 2/3] dt-bindings: touchscreen: Add HY46XX bindings
-From:   Giulio Benetti <giulio.benetti@micronovasrl.com>
-To:     Rob Herring <robh@kernel.org>,
-        Giulio Benetti <giulio.benetti@benettiengineering.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        id S234366AbhDAXLI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 1 Apr 2021 19:11:08 -0400
+Received: from smtpcmd0872.aruba.it ([62.149.156.72]:41008 "EHLO
+        smtpcmd0872.aruba.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234047AbhDAXLH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Apr 2021 19:11:07 -0400
+Received: from ubuntu.localdomain ([146.241.168.220])
+        by Aruba Outgoing Smtp  with ESMTPSA
+        id S6M3lCwpyHTbyS6M7lYQzV; Fri, 02 Apr 2021 01:04:04 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
+        t=1617318244; bh=ZNoLjp0jCYqB/Dmy5QQkjRqhQSD2bt7VZgx1mRVJt9g=;
+        h=From:To:Subject:Date:MIME-Version;
+        b=nmQP2p3OS/qEtkHvOhiWsBMmZF/KzgvzxrEV4YBcviyLI/K3lvKsmqQUbPsH9CulS
+         D7TFJEN3XWHhPBSfNrCgxUde3rv4eY80kW7avX7hlpif9e81n89e6wK25Gl3QIb8cM
+         1qXGpYC4UysGHYWR+bf+kZI+L8WTu59BoCWZ5kKCYCrPH2mIma/SGbpxvoKSEB1ikh
+         mpD46bn7CHYNDYNfeWqvkGWreqUPIl1O6IW1ZrIzcKJMcxhPNdh2xnmEbsTFfXiVb6
+         9C7h5YdPL2wwmdLIGrQuQeK8o7sE8nMc2uY2sk4MPcW6EeDaV1TmDu5XToBBtluqgO
+         B2gL6StSL7ssQ==
+From:   Giulio Benetti <giulio.benetti@benettiengineering.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     Giulio Benetti <giulio.benetti@benettiengineering.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20210305163834.70924-1-giulio.benetti@benettiengineering.com>
- <20210305163834.70924-3-giulio.benetti@benettiengineering.com>
- <20210306194120.GA1075725@robh.at.kernel.org>
- <9cd14c69-9c30-a68c-dfd1-396613b5185a@micronovasrl.com>
-Message-ID: <e60aa57b-1641-105a-fb57-9b5803054f3a@micronovasrl.com>
-Date:   Fri, 2 Apr 2021 00:24:53 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.0
+        linux-kernel@vger.kernel.org,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.ne@posteo.net>
+Subject: [PATCH v2 2/3] dt-bindings: touchscreen: Add HY46XX bindings
+Date:   Fri,  2 Apr 2021 01:03:57 +0200
+Message-Id: <20210401230358.2468618-3-giulio.benetti@benettiengineering.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210401230358.2468618-1-giulio.benetti@benettiengineering.com>
+References: <20210306194120.GA1075725@robh.at.kernel.org>
+ <20210401230358.2468618-1-giulio.benetti@benettiengineering.com>
 MIME-Version: 1.0
-In-Reply-To: <9cd14c69-9c30-a68c-dfd1-396613b5185a@micronovasrl.com>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Language: it
 Content-Transfer-Encoding: 8bit
+X-CMAE-Envelope: MS4wfG6y2eeTY2f89k+HTw4YSq2OS5rwPIexcjxkC95SARU1tCKtWxwpG4VKYxjHxvRWz0IYTw4Rn68RVAQpWwxhk0Massyx7TtHwhKJbaZ6zmFWE73m/D90
+ KlZ1XOIhkNHH81+DfQr0wRwWXisEX9kINTUeVSrZW6JWWZCpbTtca+EWWTnAtgXvldOtWbQKChKdgVyUTa5yscDax6qX33VJwcunFgIiw1U+XHpMXG1j91AD
+ nwFr5gjvi43HExbrNQtXsbDlgyfTQ+U5sY0yu18rlXbh5H5Nx14Vo3cmbB/r9AHZwkxvqdjNrjy3iQxaSWnGRFp7jgJMckPkXzRyfHEG/ySTtnfUQ2i9ZIdG
+ feMT5RTUzyYqbLnNgTgzqxqLw/XVQ2wkff2xK32P9oFKsa33X2YaUIn2ggMX4daodeJW6DZ2GjWqg512nXD68nDMqeeFnY81Od+pmWoVk86lEafDYn6oC0sM
+ Gu02eGArl/8NnSDC
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Il 01/04/2021 20:37, Giulio Benetti ha scritto:
->>
->> Needs a vendor prefix here and all the custom properties.
-> 
-> Sorry but I can't understand this ^^^, I've checked a lot of other yaml
-> files but couldn't find something related to this. Can you help me by
-> pointing me an example?
-> 
+This adds device tree bindings for the Hycon HY46XX touchscreen series.
 
-Found in example-schema.yaml, sorry for the noise
+Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
+---
+V1->V2:
+As suggested by Rob Herring:
+* fixed $id: address
+* added "hycon," in front of every custom property
+* changed all possible property to boolean type
+* removed proximity-sensor-switch property since it's not handled in driver
+---
+ .../input/touchscreen/hycon,hy46xx.yaml       | 120 ++++++++++++++++++
+ MAINTAINERS                                   |   6 +
+ 2 files changed, 126 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/hycon,hy46xx.yaml
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/hycon,hy46xx.yaml b/Documentation/devicetree/bindings/input/touchscreen/hycon,hy46xx.yaml
+new file mode 100644
+index 000000000000..71a1dbabcd4f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/hycon,hy46xx.yaml
+@@ -0,0 +1,120 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/hycon,hy46xx.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: hycon HY46XX series touchscreen controller Bindings
++
++description: |
++             There are 6 variants of the chip for various touch panel sizes and coverl len material
++              Glass: 0.3mm--4.0mm
++              PET/PMMA: 0.2mm--2.0mm
++               HY4613(B)-N048  < 6"
++               HY4614(B)-N068  7" .. 10.1"
++               HY4621-NS32  < 5"
++               HY4623-NS48  5.1" .. 7"
++              Glass: 0.3mm--8.0mm
++              PET/PMMA: 0.2mm--4.0mm
++               HY4633(B)-N048  < 6"
++               HY4635(B)-N048  < 7" .. 10.1"
++
++maintainers:
++  - Giulio Benetti <giulio.benetti@benettiengineering.com>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    enum:
++      - hycon,hycon-hy4613
++      - hycon,hycon-hy4614
++      - hycon,hycon-hy4621
++      - hycon,hycon-hy4623
++      - hycon,hycon-hy4633
++      - hycon,hycon-hy4635
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  vcc-supply: true
++
++  hycon,threshold:
++    description: Allows setting the sensitivity in the range from 0 to 255.
++    $ref: /schemas/types.yaml#/definitions/uint32
++    minimum: 0
++    maximum: 255
++
++  hycon,glove-enable:
++    type: boolean
++    description: Allows enabling or disabling glove setting.
++
++  hycon,report-speed:
++    description: Allows setting the report speed(i.e 0x64 => 100Hz).
++    $ref: /schemas/types.yaml#/definitions/uint32
++    minimum: 0
++    maximum: 255
++
++  hycon,power-noise-enable:
++    type: boolean
++    description: Allows enabling or disabling power noise filter.
++
++  hycon,filter-data:
++    description: Allows setting the filtering data before reporting touch
++                 in the range from 0 to 5.
++    $ref: /schemas/types.yaml#/definitions/uint32
++    minimum: 0
++    maximum: 5
++
++  hycon,gain:
++    description: Allows setting the sensitivity distance in the range from 0 to 5.
++    $ref: /schemas/types.yaml#/definitions/uint32
++    minimum: 0
++    maximum: 5
++
++  hycon,edge-offset:
++    description: Allows setting the edge compensation in the range from 0 to 16.
++    $ref: /schemas/types.yaml#/definitions/uint32
++    minimum: 0
++    maximum: 16
++
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-fuzz-x: true
++  touchscreen-fuzz-y: true
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-swapped-x-y: true
++  interrupt-controller: true
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      hycon-hy4633@1c {
++        compatible = "hycon,hy4633";
++        reg = <0x1c>;
++        interrupt-parent = <&gpio2>;
++        interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
++        reset-gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
++      };
++    };
++
++...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6e91994b8d3b..5e9cc7e610ce 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8242,6 +8242,12 @@ S:	Maintained
+ F:	mm/hwpoison-inject.c
+ F:	mm/memory-failure.c
+ 
++HYCON HY46XX TOUCHSCREEN SUPPORT
++M:	Giulio Benetti <giulio.benetti@benettiengineering.com>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/input/touchscreen/hycon,hy46xx.yaml
++
+ HYGON PROCESSOR SUPPORT
+ M:	Pu Wen <puwen@hygon.cn>
+ L:	linux-kernel@vger.kernel.org
 -- 
-Giulio Benetti
-CTO
+2.25.1
 
-MICRONOVA SRL
-Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
-Tel. 049/8931563 - Fax 049/8931346
-Cod.Fiscale - P.IVA 02663420285
-Capitale Sociale ¤ 26.000 i.v.
-Iscritta al Reg. Imprese di Padova N. 02663420285
-Numero R.E.A. 258642

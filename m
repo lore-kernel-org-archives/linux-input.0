@@ -2,35 +2,35 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53E7BC433ED
-	for <linux-input@archiver.kernel.org>; Thu,  1 Apr 2021 23:11:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20D73C433B4
+	for <linux-input@archiver.kernel.org>; Thu,  1 Apr 2021 23:11:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 24AB561105
-	for <linux-input@archiver.kernel.org>; Thu,  1 Apr 2021 23:11:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5DF461103
+	for <linux-input@archiver.kernel.org>; Thu,  1 Apr 2021 23:11:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234477AbhDAXLI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 1 Apr 2021 19:11:08 -0400
-Received: from smtpcmd0872.aruba.it ([62.149.156.72]:37553 "EHLO
+        id S234723AbhDAXLK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 1 Apr 2021 19:11:10 -0400
+Received: from smtpcmd0872.aruba.it ([62.149.156.72]:40004 "EHLO
         smtpcmd0872.aruba.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233974AbhDAXLI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Apr 2021 19:11:08 -0400
+        with ESMTP id S234508AbhDAXLJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Apr 2021 19:11:09 -0400
 Received: from ubuntu.localdomain ([146.241.168.220])
         by Aruba Outgoing Smtp  with ESMTPSA
-        id S6M3lCwpyHTbyS6M7lYQzE; Fri, 02 Apr 2021 01:04:03 +0200
+        id S6M3lCwpyHTbyS6M3lYQyT; Fri, 02 Apr 2021 01:04:03 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-        t=1617318243; bh=ujCT2OrmhFFsQ+QRAxA1TXp0Zz2ZjE4Extd72MdRHE4=;
+        t=1617318243; bh=Smfqp5AjnbqZc0Kl/fWbBBo84E0RCZCWyIKDBTINsi0=;
         h=From:To:Subject:Date:MIME-Version:Content-Type;
-        b=LC9YrSIPyGkZLvN/hJUYmGNQnn2JuZ98PE9YVL3GYMUD1Tsb7Wv8GzuM26R542SPv
-         2taQTMoCc4eJLhzKcdSTVpCddGNvYCoB7ka1r7eUso4TcUxB+SuKLJXVWBIlppFMGv
-         TskgjnM0EGeUHHMk45CSfVdIPaVktul/UJpPy9K32fwe3kqbnqRPMzSyRBKtS8Eqd0
-         rcWmi7MhV9wUzb3GFrko2oPIll/jRu8tCsBKfhxFyVBZmF55jVQMWvyBHfcRlguZ4+
-         qatZN/bUBoKwLp4nnOQwOnh6XRo/rdX13kIUshGS1xQkuAB+sY5mZb2NIKR+y2vs9h
-         REvSuOvkBO0DA==
+        b=k3cy3BzCVN9XEO+ErWczjyH67khkcbC9n6GVmZZshz514Xu0ilV2mDjUCJ5EdQ7fB
+         w8OnjuhKVMeIdKskowfF6g+4AlHEy8khuTRxGEbD7ovxy7rdtRRPVdCBCyprbKv2pg
+         EHuv9Z+sUxVuXbJsj4NmR5DWQ2vcddouJg3SrjggqUC3c8jzxwJ9yw6Bjou3n1ixAZ
+         BpVXgkPhMDktouQX9XiYBmGTs+htJ/iZib+C0k2W3Nf8VlUDLzREU+SYDUwAWeB1Jf
+         6aZckaeosxKxLEUgJRZ8lPPpQ6Sdy3NiMoqOngV7tx+xnfiQtLt3ZUNAM6oHWj90FX
+         /2rFx2vago7sA==
 From:   Giulio Benetti <giulio.benetti@benettiengineering.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>
@@ -39,13 +39,12 @@ Cc:     Giulio Benetti <giulio.benetti@benettiengineering.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org,
         =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.ne@posteo.net>
-Subject: [PATCH v2 1/3] dt-bindings: Add Hycon Technology vendor prefix
-Date:   Fri,  2 Apr 2021 01:03:56 +0200
-Message-Id: <20210401230358.2468618-2-giulio.benetti@benettiengineering.com>
+Subject: [PATCH v2 0/3] Input: add Hycon HY46XX Touchscreen controller
+Date:   Fri,  2 Apr 2021 01:03:55 +0200
+Message-Id: <20210401230358.2468618-1-giulio.benetti@benettiengineering.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210401230358.2468618-1-giulio.benetti@benettiengineering.com>
+In-Reply-To: <20210306194120.GA1075725@robh.at.kernel.org>
 References: <20210306194120.GA1075725@robh.at.kernel.org>
- <20210401230358.2468618-1-giulio.benetti@benettiengineering.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,31 +57,33 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Update Documentation/devicetree/bindings/vendor-prefixes.yaml to
-include "hycon" as a vendor prefix for "Hycon Technology".
-Company website: https://www.hycontek.com/
+This patchset adds Hycon vendor, HY46XX touchscreen controller driver
+and its .yaml binding.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
 ---
 V1->V2:
-* updated http:// to https:// in commit log as suggested by Jonathan Neuschäfer
+* changed authorship and SoBs to @benettiengineering.com domain
+* fixed vendor commit log according to Jonathan Neuschäfer's suggestion
+* fixed hy46xx bindings according to Rob Herring's suggestions
+* fixed hy46xx driver according to Dmitry Torokhov's suggestions
+further details are listed in single patches
 ---
- Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-index a1312637d6ff..67f429a757cd 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-@@ -489,6 +489,8 @@ patternProperties:
-     description: Shenzhen Hugsun Technology Co. Ltd.
-   "^hwacom,.*":
-     description: HwaCom Systems Inc.
-+  "^hycon,.*":
-+    description: Hycon Technology Corp.
-   "^hydis,.*":
-     description: Hydis Technologies
-   "^hyundai,.*":
+Giulio Benetti (3):
+  dt-bindings: Add Hycon Technology vendor prefix
+  dt-bindings: touchscreen: Add HY46XX bindings
+  Input: add driver for the Hycon HY46XX touchpanel series
+
+ .../input/touchscreen/hycon,hy46xx.yaml       | 120 ++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |   2 +
+ MAINTAINERS                                   |   7 +
+ drivers/input/touchscreen/Kconfig             |  12 +
+ drivers/input/touchscreen/Makefile            |   1 +
+ drivers/input/touchscreen/hycon-hy46xx.c      | 591 ++++++++++++++++++
+ 6 files changed, 733 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/hycon,hy46xx.yaml
+ create mode 100644 drivers/input/touchscreen/hycon-hy46xx.c
+
 -- 
 2.25.1
 

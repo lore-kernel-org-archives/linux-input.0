@@ -2,138 +2,134 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8566AC43460
-	for <linux-input@archiver.kernel.org>; Wed,  7 Apr 2021 06:49:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1FE1C43603
+	for <linux-input@archiver.kernel.org>; Wed,  7 Apr 2021 08:21:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 63930613CE
-	for <linux-input@archiver.kernel.org>; Wed,  7 Apr 2021 06:49:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B451E613D5
+	for <linux-input@archiver.kernel.org>; Wed,  7 Apr 2021 08:21:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243733AbhDGGtz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 7 Apr 2021 02:49:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59268 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243813AbhDGGty (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Apr 2021 02:49:54 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B47C06174A;
-        Tue,  6 Apr 2021 23:49:44 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id l1so8834774plg.12;
-        Tue, 06 Apr 2021 23:49:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=hA/dPnooA5S+ny4t+sDLWeyDcw49IUVDMgqesssoN5k=;
-        b=brDgb/liqUxMQa0Vgbl6JwPUURmnenCnN4l0WDhzzlwKgH/37TqDGg2iZP6t8mJ/wV
-         Q6EmCnOeHjcVcYbCtCeEFF927w3SaAIxodcyY8bJZ/fKvZbTbxDHmM2QK7MG/fzVy87C
-         1m+YTgBBAM8bdBVUp9HutxSbihXRm2FR+QYPpggqoEFAUjltYgYqwz2GqnmPH98tuA9Q
-         j5qD8yXvR3eagUSgf/3COgXpQ50tfCX2X6E29ulk+iJ0GLUfW9DCGh3OmjZ3ERWLNvD3
-         8grQpZ397pB1hMeSHeivwTGzdmEcYteWed6QMU90n2WVmTDGIzgEy1EVk+ztcrff9rT/
-         8kZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=hA/dPnooA5S+ny4t+sDLWeyDcw49IUVDMgqesssoN5k=;
-        b=dlJHkcuzTdgodWZE8fmV+qcuO4tTgXNabpLjXM8RWfZNpLYK9UVqE59vUAWrik7DVd
-         Rp7lt0AkEOJANihguTs+kxB7MGqbpAtNYRfT1zJRa4J2oPcbmy61d1wdnM6n8ilEvNjv
-         rUgIYhcjcmQuHeUBFRVPizo2om0kFqXDQOD3ebK/6fZgtgUhHlGYW2ulWSrAKxWCVrsW
-         g0acVktqBM8SAIQyI/FlPKagZUXxO1x44p/85XNwHzT3BSs6weHQlo73dE9HDFm8/Ti0
-         atbpVz/E3ONkBp1V0phTp6rFEz4YPFBLyvv3iTk0QUiwDGz48eoMjT7IMtsdGQ0Qzutb
-         hO3w==
-X-Gm-Message-State: AOAM5313+djrIdQRyKyDrEgFtcJyAi2QB9SutiudxVBjq/WVkACfHOXm
-        tT/yKjwDlvRZTn0cEJwwH4Q=
-X-Google-Smtp-Source: ABdhPJw1seYdAkQL/xYppWBEq8bvohog3ufBE/aaAYZ1oCuB3Aa8FN/iGaO+iBQRy83oRFr8Fvv/oQ==
-X-Received: by 2002:a17:90a:d902:: with SMTP id c2mr1822932pjv.152.1617778184595;
-        Tue, 06 Apr 2021 23:49:44 -0700 (PDT)
-Received: from localhost.localdomain ([2401:e180:8843:9f5a:945d:de90:edc9:855b])
-        by smtp.gmail.com with ESMTPSA id d6sm20429882pfq.109.2021.04.06.23.49.40
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 06 Apr 2021 23:49:43 -0700 (PDT)
-From:   Johnny Chuang <johnny.chuang.emc@gmail.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        Harry Cutts <hcutts@chromium.org>,
-        Johnny Chuang <johnny.chuang@emc.com.tw>
-Cc:     James Chen <james.chen@emc.com.tw>,
-        Jennifer Tsai <jennifer.tsai@emc.com.tw>,
-        Paul Liang <paul.liang@emc.com.tw>,
-        Jeff Chuang <jeff.chuang@emc.com.tw>,
-        Douglas Anderson <dianders@chromium.org>,
-        Jingle <jingle.wu@emc.com.tw>
-Subject: [PATCH] HID: i2c-hid: Skip ELAN power-on command after reset
-Date:   Wed,  7 Apr 2021 14:49:17 +0800
-Message-Id: <1617778157-11007-1-git-send-email-johnny.chuang.emc@gmail.com>
-X-Mailer: git-send-email 2.7.4
+        id S1346945AbhDGIVS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 7 Apr 2021 04:21:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48624 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237437AbhDGIVQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 7 Apr 2021 04:21:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AB36613AF;
+        Wed,  7 Apr 2021 08:21:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1617783662;
+        bh=HqZSrqrVQjQBnEaZwEBF+W4ME4CRAsaa4WPPvehfjf8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VVgHbIqfSKWwj+K9BWgOV2S3swU7uG5ymDGGShezc8muFxXZ39e0MEDyX96szqCAj
+         xoWiY7MjY/jDwC17JiCLxrkZdqJFMZB77AXjkTxigR3LZ8T/D3jvf3pvnTHxqymOIR
+         ft7psENiX56WuT8b+g4l+9eUZzt9qYDSH57BsD3IPZx1UFZCX5KOIloWyhs8jMUwKO
+         O24iy5kptW285tckEN0JR9SMK/PaE/jXBmeGuu8PDAbeg1IfuLEM4+VUYDKgvDXerA
+         cxfyZxz3OsjPqYvSFR9k67j3TB1hBVWB/L+Tze/XJt+/eWEYZ/SZWYrkiVuXJs5w5s
+         cVTEClyjHSxfg==
+Received: by mail.kernel.org with local (Exim 4.94)
+        (envelope-from <mchehab@kernel.org>)
+        id 1lU3Qq-005i2H-EA; Wed, 07 Apr 2021 10:21:00 +0200
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To:     Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "Jonathan Corbet" <corbet@lwn.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 06/19] dt-bindings: don't use ../dir for doc references
+Date:   Wed,  7 Apr 2021 10:20:45 +0200
+Message-Id: <0b9d9190f20282ded3a8ea2695c1e4763e76cda6.1617783062.git.mchehab+huawei@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <cover.1617783062.git.mchehab+huawei@kernel.org>
+References: <cover.1617783062.git.mchehab+huawei@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: Mauro Carvalho Chehab <mchehab@kernel.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Previous commit 43b7029f475e ("HID: i2c-hid:
-Send power-on command after reset"), it fixed issue for SIS touchscreen.
+As documents have been renamed and moved around, their
+references will break, but this will be unnoticed, as the
+script which checks for it won't handle "../" references.
 
-For ELAN touchscreen, we found our boot code of IC was not flexible enough
-to receive and handle this command.
-Once the FW main code of our controller is crashed for some reason,
-the controller could not be enumerated successfully to be recognized
-by the system host. therefore, it lost touch functionality.
+So, replace them by the full patch.
 
-Add quirk for skip send power-on command after reset.
-It will impact to ELAN touchscreen and touchpad on HID over I2C projects.
-
-Signed-off-by: Johnny Chuang <johnny.chuang.emc@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-core.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ .../input/touchscreen/resistive-adc-touch.txt    |  2 +-
+ Documentation/devicetree/bindings/mfd/da9150.txt |  8 ++++----
+ .../devicetree/bindings/mfd/motorola-cpcap.txt   | 16 ++++++++--------
+ 3 files changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 9993133..6b407f7 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -45,6 +45,7 @@
- #define I2C_HID_QUIRK_BOGUS_IRQ			BIT(4)
- #define I2C_HID_QUIRK_RESET_ON_RESUME		BIT(5)
- #define I2C_HID_QUIRK_BAD_INPUT_SIZE		BIT(6)
-+#define I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET	BIT(7)
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/resistive-adc-touch.txt b/Documentation/devicetree/bindings/input/touchscreen/resistive-adc-touch.txt
+index 51456c0e9a27..fee0da12474e 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/resistive-adc-touch.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/resistive-adc-touch.txt
+@@ -5,7 +5,7 @@ Required properties:
+  - compatible: must be "resistive-adc-touch"
+ The device must be connected to an ADC device that provides channels for
+ position measurement and optional pressure.
+-Refer to ../iio/iio-bindings.txt for details
++Refer to Documentation/devicetree/bindings/iio/iio-bindings.txt for details
+  - iio-channels: must have at least two channels connected to an ADC device.
+ These should correspond to the channels exposed by the ADC device and should
+ have the right index as the ADC device registers them. These channels
+diff --git a/Documentation/devicetree/bindings/mfd/da9150.txt b/Documentation/devicetree/bindings/mfd/da9150.txt
+index f09b41fbdf47..763e0b639a82 100644
+--- a/Documentation/devicetree/bindings/mfd/da9150.txt
++++ b/Documentation/devicetree/bindings/mfd/da9150.txt
+@@ -15,13 +15,13 @@ Required properties:
+ - reg: Specifies the I2C slave address
+ - interrupts: IRQ line info for da9150 chip.
+ - interrupt-controller: da9150 has internal IRQs (own IRQ domain).
+-  (See ../interrupt-controller/interrupts.txt for
++  (See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt for
+    further information relating to interrupt properties)
  
+ Sub-devices:
+-- da9150-gpadc: See ../iio/adc/da9150-gpadc.txt
+-- da9150-charger: See ../power/da9150-charger.txt
+-- da9150-fg: See ../power/da9150-fg.txt
++- da9150-gpadc: See Documentation/devicetree/bindings/iio/adc/da9150-gpadc.txt
++- da9150-charger: See Documentation/devicetree/bindings/power/da9150-charger.txt
++- da9150-fg: See Documentation/devicetree/bindings/power/da9150-fg.txt
  
- /* flags */
-@@ -157,6 +158,10 @@ struct i2c_hid {
- 	struct i2chid_ops	*ops;
- };
+ Example:
  
-+/*
-+ * Sending the wakeup after reset actually break ELAN touchscreen controller
-+ * So add I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET to skip wakeup after reset
-+ */
- static const struct i2c_hid_quirks {
- 	__u16 idVendor;
- 	__u16 idProduct;
-@@ -178,6 +183,8 @@ static const struct i2c_hid_quirks {
- 		 I2C_HID_QUIRK_RESET_ON_RESUME },
- 	{ USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720,
- 		I2C_HID_QUIRK_BAD_INPUT_SIZE },
-+	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
-+		 I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET },
- 	{ 0, 0 }
- };
+diff --git a/Documentation/devicetree/bindings/mfd/motorola-cpcap.txt b/Documentation/devicetree/bindings/mfd/motorola-cpcap.txt
+index 5ddcc8f4febc..ebdccfb600b9 100644
+--- a/Documentation/devicetree/bindings/mfd/motorola-cpcap.txt
++++ b/Documentation/devicetree/bindings/mfd/motorola-cpcap.txt
+@@ -16,14 +16,14 @@ Optional subnodes:
+ The sub-functions of CPCAP get their own node with their own compatible values,
+ which are described in the following files:
  
-@@ -461,7 +468,8 @@ static int i2c_hid_hwreset(struct i2c_client *client)
- 	}
+-- ../power/supply/cpcap-battery.txt
+-- ../power/supply/cpcap-charger.txt
+-- ../regulator/cpcap-regulator.txt
+-- ../phy/phy-cpcap-usb.txt
+-- ../input/cpcap-pwrbutton.txt
+-- ../rtc/cpcap-rtc.txt
+-- ../leds/leds-cpcap.txt
+-- ../iio/adc/cpcap-adc.txt
++- Documentation/devicetree/bindings/power/supply/cpcap-battery.txt
++- Documentation/devicetree/bindings/power/supply/cpcap-charger.txt
++- Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
++- Documentation/devicetree/bindings/phy/phy-cpcap-usb.txt
++- Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
++- Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
++- Documentation/devicetree/bindings/leds/leds-cpcap.txt
++- Documentation/devicetree/bindings/iio/adc/cpcap-adc.txt
  
- 	/* At least some SIS devices need this after reset */
--	ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
-+	if (!(ihid->quirks & I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET))
-+		ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
- 
- out_unlock:
- 	mutex_unlock(&ihid->reset_lock);
+ The only exception is the audio codec. Instead of a compatible value its
+ node must be named "audio-codec".
 -- 
-2.7.4
+2.30.2
 

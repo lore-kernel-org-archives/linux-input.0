@@ -2,128 +2,100 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 764E3C4363C
-	for <linux-input@archiver.kernel.org>; Fri,  9 Apr 2021 12:48:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB387C43460
+	for <linux-input@archiver.kernel.org>; Fri,  9 Apr 2021 13:39:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E3CA610FB
-	for <linux-input@archiver.kernel.org>; Fri,  9 Apr 2021 12:48:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 828CC611AB
+	for <linux-input@archiver.kernel.org>; Fri,  9 Apr 2021 13:39:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233835AbhDIMsS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 9 Apr 2021 08:48:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41840 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233712AbhDIMsP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Apr 2021 08:48:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DEB26113A;
-        Fri,  9 Apr 2021 12:48:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1617972481;
-        bh=KVB99uveFfZEtOFS+rw6+GuSTG0eUAu7eT5aXgN+A2I=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HVeqO0LTdb6P34NPuz+kcIo3Rf749nd/WbbdJGxFgX+jaSQh3ut1YKoPYl1MgyRxh
-         Q7kRjml+eMUN9cb6xXsqyy1LpRy94RSYcfiRD58M7/eXFD0KYEG5fV6LbU9gb6NNhs
-         OKJrR0HItZx9dkSG0Rw4RaD0KWq57c5q3+CPTWH2cN7XJpYHQhm2OdH9T1q1mdIFOS
-         qamXogV+8qqqQnkylXpoWSIOs+K54//txxScI0SkPXbR+BMNCVw9UukyZhMQi81Ybh
-         U+G/5ZiQeDykJPDsU7gNFXuoH2Hs/Mon3ZPlABh5XFVA3MUkHq3gld+lw+RHLfRuKm
-         yWvyZlhUcvMnA==
-Received: by mail.kernel.org with local (Exim 4.94)
-        (envelope-from <mchehab@kernel.org>)
-        id 1lUqYE-001SLe-2j; Fri, 09 Apr 2021 14:47:54 +0200
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-To:     Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        "Jonathan Corbet" <corbet@lwn.net>
-Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        linux-kernel@vger.kernel.org,
-        "Alexander A. Klimov" <grandmaster@al2klimov.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Alex Shi <alexs@kernel.org>,
-        Artur Rojek <contact@artur-rojek.eu>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Federico Vaga <federico.vaga@vaga.pv.it>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Kir Kolyshkin <kolyshkin@gmail.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Mark Pearson <markpearson@lenovo.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rob Herring <robh+dt@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Thorsten Leemhuis <linux@leemhuis.info>,
-        Wu XiangCheng <bobwxc@email.cn>, devicetree@vger.kernel.org,
-        kvm@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH v3 0/8] Fix broken documentation file references
-Date:   Fri,  9 Apr 2021 14:47:44 +0200
-Message-Id: <cover.1617972339.git.mchehab+huawei@kernel.org>
-X-Mailer: git-send-email 2.30.2
+        id S232642AbhDINjO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 9 Apr 2021 09:39:14 -0400
+Received: from so254-9.mailgun.net ([198.61.254.9]:19600 "EHLO
+        so254-9.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231819AbhDINjN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Apr 2021 09:39:13 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1617975541; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=nCLKJ3txbssGA/MS9THnoJcM1/EpV+VVOtQ0VWZ6Umc=;
+ b=AmcL94NG7Ck1xkGZlwlWfi/r3pf526qZKsLyVMdw1xxqxcRsva9Lqh4znvfyB/gDqYqekUOH
+ I9SSXN2h7DsoEsRjzPknCaC6p7hH7Gcs+mvoWQE9XwEZdza4TUtaNfFYVbFv/OMvLRLWYGkj
+ C52tz8yeAvioAStsGGO+xuTaEQY=
+X-Mailgun-Sending-Ip: 198.61.254.9
+X-Mailgun-Sid: WyIxZDE2NCIsICJsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmciLCAiYmU5ZTRhIl0=
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n02.prod.us-west-2.postgun.com with SMTP id
+ 607058ec8807bcde1de095c7 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 09 Apr 2021 13:38:52
+ GMT
+Sender: skakit=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 3D8B1C43462; Fri,  9 Apr 2021 13:38:52 +0000 (UTC)
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: skakit)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 99624C43461;
+        Fri,  9 Apr 2021 13:38:51 +0000 (UTC)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: Mauro Carvalho Chehab <mchehab@kernel.org>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Fri, 09 Apr 2021 19:08:51 +0530
+From:   skakit@codeaurora.org
+To:     Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        David Collins <collinsd@codeaurora.org>, kgunda@codeaurora.org,
+        Vinod Koul <vkoul@kernel.org>,
+        Courtney Cavin <courtney.cavin@sonymobile.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: Re: [PATCH V2 3/4] dt-bindings: power: reset: qcom-pon: Convert qcom
+ PON binding to yaml
+In-Reply-To: <20210409115748.xfxukqgoyvscgpln@earth.universe>
+References: <1617881469-31965-1-git-send-email-skakit@codeaurora.org>
+ <1617881469-31965-4-git-send-email-skakit@codeaurora.org>
+ <20210408130001.k3qbq3vvwkiyykzv@earth.universe>
+ <0cb9b3503000ac7206f4a3ef5fd16c17@codeaurora.org>
+ <20210409115748.xfxukqgoyvscgpln@earth.universe>
+Message-ID: <ad5d04c2a806213e9922834e996da15a@codeaurora.org>
+X-Sender: skakit@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Jon,
+On 2021-04-09 17:27, Sebastian Reichel wrote:
+> Hi,
+> 
+> On Fri, Apr 09, 2021 at 01:48:58PM +0530, skakit@codeaurora.org wrote:
+>>> Please do not drop the example :)
+>> 
+>> As per my understanding on Rob's comments [1] I have added one 
+>> complete
+>> example in qcom,pm8941-pwrkey.yaml (see patch 4/4) and dropped it 
+>> here.
+>> 
+>> [1] https://lore.kernel.org/patchwork/patch/1390062/#1588027
+> 
+> Ok, please add a note about this in the commit message.
+> Something like:
+> 
+> The example has been removed in favour of full example being
+> available in the qcom,pm8941-pwrkey binding.
+> 
 
-As files keep being moved around and DT bindings are 
-converted and renamed to yaml, their doc references get 
-outdated, pointing to an invalid places.
+Okay.
 
-This series address those. It is based on the top of docs-next tree,
-and most patches here are independent from the other ones.
-
-v3:
-  - Dropped patches already applied at next-20210409 and
-    changes that would cause conflicts there;
-  - Added received acks.
-
-v2:
-  - Dropped patches that were already applied, Most of those
-    will be following via Jonathan Cameron's iio tree;
-  - Dropped patches that don't apply on the top of docs next.
-  - Added some new patches fixing other breakages.
-
-Mauro Carvalho Chehab (8):
-  dt-bindings: don't use ../dir for doc references
-  dt-bindings: fix references for iio-bindings.txt
-  dt-bindings:iio:adc: update motorola,cpcap-adc.yaml reference
-  docs: update sysfs-platform_profile.rst reference
-  docs: vcpu-requests.rst: fix reference for atomic ops
-  docs: replace transation references for reporting-bugs.rst
-  docs: translations/zh_CN: fix a typo at 8.Conclusion.rst
-  docs: sched-bwc.rst: fix a typo on a doc name
-
- .../devicetree/bindings/hwmon/ntc_thermistor.txt |  2 +-
- .../devicetree/bindings/iio/adc/ingenic,adc.yaml |  5 +++--
- .../devicetree/bindings/input/adc-joystick.yaml  |  4 +++-
- .../input/touchscreen/resistive-adc-touch.txt    |  5 ++++-
- Documentation/devicetree/bindings/mfd/ab8500.txt |  4 +++-
- .../devicetree/bindings/mfd/motorola-cpcap.txt   | 16 ++++++++--------
- Documentation/scheduler/sched-bwc.rst            |  2 +-
- .../translations/it_IT/process/howto.rst         |  2 +-
- Documentation/translations/ja_JP/howto.rst       |  2 +-
- Documentation/translations/zh_CN/SecurityBugs    |  2 +-
- .../zh_CN/admin-guide/reporting-issues.rst       |  4 ++--
- .../translations/zh_CN/process/8.Conclusion.rst  |  2 +-
- .../translations/zh_CN/process/howto.rst         |  2 +-
- Documentation/virt/kvm/vcpu-requests.rst         |  2 +-
- include/linux/platform_profile.h                 |  2 +-
- 15 files changed, 32 insertions(+), 24 deletions(-)
-
--- 
-2.30.2
-
-
+> Thanks,
+> 
+> -- Sebastian

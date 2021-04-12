@@ -2,141 +2,130 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E81A1C433B4
-	for <linux-input@archiver.kernel.org>; Mon, 12 Apr 2021 10:22:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDC7BC43462
+	for <linux-input@archiver.kernel.org>; Mon, 12 Apr 2021 11:30:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB75861358
-	for <linux-input@archiver.kernel.org>; Mon, 12 Apr 2021 10:22:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C361061241
+	for <linux-input@archiver.kernel.org>; Mon, 12 Apr 2021 11:30:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238945AbhDLKW2 convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 12 Apr 2021 06:22:28 -0400
-Received: from frasgout.his.huawei.com ([185.176.79.56]:2834 "EHLO
-        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239008AbhDLKW0 (ORCPT
+        id S240407AbhDLLbL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 12 Apr 2021 07:31:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43654 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240410AbhDLLbL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 12 Apr 2021 06:22:26 -0400
-Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.200])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4FJl3M1h5sz688RF;
-        Mon, 12 Apr 2021 18:14:55 +0800 (CST)
-Received: from lhreml710-chm.china.huawei.com (10.201.108.61) by
- fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2106.2; Mon, 12 Apr 2021 12:22:06 +0200
-Received: from localhost (10.47.93.73) by lhreml710-chm.china.huawei.com
- (10.201.108.61) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Mon, 12 Apr
- 2021 11:22:05 +0100
-Date:   Mon, 12 Apr 2021 11:20:39 +0100
-From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-CC:     Jonathan Cameron <jic23@kernel.org>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
-        <linux-input@vger.kernel.org>, <linux-iio@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] HID: hid-sensor-custom: remove useless variable
-Message-ID: <20210412112039.00006821@Huawei.com>
-In-Reply-To: <ceb25b0000013f1c3e89d772c62b5e967a032446.camel@linux.intel.com>
-References: <1617952508-47150-1-git-send-email-jiapeng.chong@linux.alibaba.com>
-        <4079bb49a9c0022603abeffcdaec32208f449e51.camel@linux.intel.com>
-        <20210411145635.3c6b48d1@jic23-huawei>
-        <ceb25b0000013f1c3e89d772c62b5e967a032446.camel@linux.intel.com>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; i686-w64-mingw32)
+        Mon, 12 Apr 2021 07:31:11 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98521C06138D
+        for <linux-input@vger.kernel.org>; Mon, 12 Apr 2021 04:30:53 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id u7so4391187plr.6
+        for <linux-input@vger.kernel.org>; Mon, 12 Apr 2021 04:30:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=plw2ysi1W+MGJ3Nv2bWluJ2xI5lpxZozWa9eFpnjZ5Q=;
+        b=K7b4lhCYYCq3BNYpzasyGmq5uEfqbaqHnLFERlhZ5hqt5p4MVmTq5gwRtf4E/y4XB3
+         BVyRaF6lWT/7Z0C5ho+WBuzSevWpH9hvgJEITs5K2HwBiIBfNS5mrFYivE82Bv8ugm/7
+         rn47xU+dBy6pU34+rHXd0Bp4nIAt/TiVfyQBo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=plw2ysi1W+MGJ3Nv2bWluJ2xI5lpxZozWa9eFpnjZ5Q=;
+        b=fQtCV+5oKybyEAqw3+6GYyp0cpwY30T6bNxuKyOjTc6g+qwA2hBWPDBOzozEaWghZ8
+         ri2r7DwqdSibrOeLi3RUUI1f7wRO4eAMYG4wisGwpQt17PRCe+HXW+shrsHdwKuYvHIQ
+         6+BINVCxPucRVCyl4ghyUOW0QVbjgv6RQhHp/0hnZWhOv1JDC4v+qhX/wHtxSY03dbDy
+         FFFjGMhBzrt3+txNiNksaM34jqIS98CR/IRbQdEpOsjS+688bzhP6MwW6RvFtvOvEjNT
+         DDaAqo65YYnbHaZgSYMujd390JfrR5BGBA+lmmJ1zhAnP0B9ppybuot3SM+d73Lehaq5
+         Zd3A==
+X-Gm-Message-State: AOAM533YPLWYQwQi9WltmnLfXKgbRTyzHD633hhAwvgwuYiOuUS1FoFU
+        xK6vEIfFe5j1Qglq8nP1yMBcBoCGJc/Bcg==
+X-Google-Smtp-Source: ABdhPJwT7DYTlzqRpAsyxz1h0QIsVCtFYKwpiPQKZDkGO/R5hzNL7pHVeZUda/idsEfLKTSC3rztmA==
+X-Received: by 2002:a17:90a:a103:: with SMTP id s3mr28756864pjp.158.1618227052905;
+        Mon, 12 Apr 2021 04:30:52 -0700 (PDT)
+Received: from ikjn-p920.tpe.corp.google.com ([2401:fa00:1:b:32f1:1e05:984e:e039])
+        by smtp.gmail.com with ESMTPSA id 129sm1572413pfv.159.2021.04.12.04.30.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Apr 2021 04:30:52 -0700 (PDT)
+From:   Ikjoon Jang <ikjn@chromium.org>
+To:     linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc:     Hsin-Yi Wang <hsinyi@chromium.org>,
+        Dmitry Torokhov <dtor@chromium.org>,
+        Nicolas Boichat <drinkcat@chromium.org>,
+        Ikjoon Jang <ikjn@chromium.org>,
+        Benson Leung <bleung@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH v4 1/2] mfd: google,cros-ec: add DT bindings for a baseboard's switch device
+Date:   Mon, 12 Apr 2021 19:30:19 +0800
+Message-Id: <20210412113020.2724134-2-ikjn@chromium.org>
+X-Mailer: git-send-email 2.31.1.295.g9ea45b61b8-goog
+In-Reply-To: <20210412113020.2724134-1-ikjn@chromium.org>
+References: <20210412113020.2724134-1-ikjn@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [10.47.93.73]
-X-ClientProxiedBy: lhreml713-chm.china.huawei.com (10.201.108.64) To
- lhreml710-chm.china.huawei.com (10.201.108.61)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 11 Apr 2021 09:06:35 -0700
-Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
+This is for ChromeOS tablets which have a 'cros_cbas' switch device
+in the "Whiskers" base board. This device can be instantiated only by
+device tree on ARM platforms. ChromeOS EC doesn't provide a way to
+probe the device.
 
-> On Sun, 2021-04-11 at 14:56 +0100, Jonathan Cameron wrote:
-> > On Fri, 09 Apr 2021 11:19:12 -0700
-> > Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
-> >   
-> > > On Fri, 2021-04-09 at 15:15 +0800, Jiapeng Chong wrote:  
-> > > > Fix the following gcc warning:
-> > > > 
-> > > > drivers/hid/hid-sensor-custom.c:400:7: warning: variable ‘ret’
-> > > > set
-> > > > but
-> > > > not used [-Wunused-but-set-variable].
-> > > > 
-> > > > Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-> > > > Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>    
-> > > Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com  
-> > 
-> > Perhaps better to return ret if it is non zero?
-> > I can't immediately figure out if there is a reason we know that
-> > can't
-> > happen.  
-> Only time it can fail when there is no report descriptor or the field
-> index is >= report->maxfield.
-> But since the attribute is registered from the report descriptor and
-> index, this can't happen.
-> But we can enhance sensor_hub_set_feature() to fail when
->  hid_set_field() fails. There is one case where field->logical_minimum
-> < 0  and value is out of range.
+Signed-off-by: Ikjoon Jang <ikjn@chromium.org>
 
-I'll go with what you think.  Apply as is, or handle the
-return value because we might at some later date return an error that
-can actually happen from here?
+---
 
-Jonathan
+Changes in v4:
+Define cros-cbase bindings inside google,cros-ec.yaml instead of
+a seperated binding document.
 
-> 
-> Thanks,
-> Srinivas
-> 
-> 
-> > 
-> > Jonathan
-> >   
-> > > > ---
-> > > >  drivers/hid/hid-sensor-custom.c | 5 ++---
-> > > >  1 file changed, 2 insertions(+), 3 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-
-> > > > sensor-custom.c
-> > > > index 2628bc5..e430673 100644
-> > > > --- a/drivers/hid/hid-sensor-custom.c
-> > > > +++ b/drivers/hid/hid-sensor-custom.c
-> > > > @@ -397,15 +397,14 @@ static ssize_t store_value(struct device
-> > > > *dev,
-> > > > struct device_attribute *attr,
-> > > >  
-> > > >  	if (!strncmp(name, "value", strlen("value"))) {
-> > > >  		u32 report_id;
-> > > > -		int ret;
-> > > >  
-> > > >  		if (kstrtoint(buf, 0, &value) != 0)
-> > > >  			return -EINVAL;
-> > > >  
-> > > >  		report_id = sensor_inst->fields[field_index].attribute.
-> > > >  								report_
-> > > > id;
-> > > > -		ret = sensor_hub_set_feature(sensor_inst->hsdev,
-> > > > report_id,
-> > > > -					     index, sizeof(value),
-> > > > &value);
-> > > > +		sensor_hub_set_feature(sensor_inst->hsdev, report_id,
-> > > > index,
-> > > > +				       sizeof(value), &value);
-> > > >  	} else
-> > > >  		return -EINVAL;
-> > > >      
-> 
+ .../devicetree/bindings/mfd/google,cros-ec.yaml  | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/mfd/google,cros-ec.yaml b/Documentation/devicetree/bindings/mfd/google,cros-ec.yaml
+index 76bf16ee27ec..c76809cd9f7f 100644
+--- a/Documentation/devicetree/bindings/mfd/google,cros-ec.yaml
++++ b/Documentation/devicetree/bindings/mfd/google,cros-ec.yaml
+@@ -127,6 +127,18 @@ patternProperties:
+     type: object
+     $ref: "/schemas/extcon/extcon-usbc-cros-ec.yaml#"
+ 
++  "^cbas$":
++    type: object
++    properties:
++      compatible:
++        const: google,cros-cbas
++    required:
++      - compatible
++    additionalProperties: false
++    description:
++      This device is used to signal when a detachable base is attached
++      to a Chrome OS tablet.
++
+ required:
+   - compatible
+ 
+@@ -180,6 +192,10 @@ examples:
+             interrupts = <99 0>;
+             interrupt-parent = <&gpio7>;
+             spi-max-frequency = <5000000>;
++
++            base_detection: cbas {
++                compatible = "google,cros-cbas";
++            };
+         };
+     };
+ 
+-- 
+2.31.1.295.g9ea45b61b8-goog
 

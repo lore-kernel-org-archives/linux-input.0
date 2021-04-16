@@ -2,85 +2,135 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37860C433ED
-	for <linux-input@archiver.kernel.org>; Fri, 16 Apr 2021 11:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80F1DC433ED
+	for <linux-input@archiver.kernel.org>; Fri, 16 Apr 2021 13:13:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C735610F7
-	for <linux-input@archiver.kernel.org>; Fri, 16 Apr 2021 11:27:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B93A611BF
+	for <linux-input@archiver.kernel.org>; Fri, 16 Apr 2021 13:13:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239119AbhDPL1p convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 16 Apr 2021 07:27:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58914 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235253AbhDPL1p (ORCPT
+        id S235631AbhDPNN7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 16 Apr 2021 09:13:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58209 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235252AbhDPNN7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 16 Apr 2021 07:27:45 -0400
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [IPv6:2001:67c:2050::465:102])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACC56C061574
-        for <linux-input@vger.kernel.org>; Fri, 16 Apr 2021 04:27:20 -0700 (PDT)
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [80.241.60.241])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        Fri, 16 Apr 2021 09:13:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1618578814;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=k/EGcJH1KjzRFMCyD+pA4YdYmrTeRipoXkRuJQYvFZM=;
+        b=Bs5kM+QArt3y3OEfZUxbZw8tup8cNT6D9vwswziFK1Hht0Fv6s2ManV1ZVzhrsOFBjiUJH
+        sSngK5uhgosghkQZdhGhsJjlfE+Rm8MkP5xlfOxraKDCrsja9PJsV0IXeRT3PFwWoeBxot
+        rpXkZH4sxJ/ENkfytjXhyWbb+gNw9fQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-494-buoBHjTtPBGHZzVnjfF3gw-1; Fri, 16 Apr 2021 09:13:32 -0400
+X-MC-Unique: buoBHjTtPBGHZzVnjfF3gw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4FMDT12C1gzQjmf;
-        Fri, 16 Apr 2021 13:27:17 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-Received: from smtp2.mailbox.org ([80.241.60.241])
-        by spamfilter04.heinlein-hosting.de (spamfilter04.heinlein-hosting.de [80.241.56.122]) (amavisd-new, port 10030)
-        with ESMTP id DR7PEpu6tYqR; Fri, 16 Apr 2021 13:27:14 +0200 (CEST)
-From:   =?ISO-8859-1?Q?Andr=E9?= Najda <andre@najda.de>
-To:     Yussuf Khalil <dev@pp3345.net>
-Cc:     linux-input@vger.kernel.org
-Subject: Re: psmouse serio2 psmouse.synaptics_intertouch=1
-Date:   Fri, 16 Apr 2021 13:27:12 +0200
-Message-ID: <2130114.vFx2qVVIhK@xc1507v2>
-In-Reply-To: <d81cea9f-67f4-c333-4652-e41cb837a8d5@pp3345.net>
-References: <4438747.vXUDI8C0e8@xc1507v2> <d81cea9f-67f4-c333-4652-e41cb837a8d5@pp3345.net>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9E23C102CB77;
+        Fri, 16 Apr 2021 13:13:30 +0000 (UTC)
+Received: from x1.localdomain (ovpn-113-102.ams2.redhat.com [10.36.113.102])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8D0865C3F8;
+        Fri, 16 Apr 2021 13:13:29 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, Peter Hoeg <peter@hoeg.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH 1/6] HID: lg-g15: Remove unused size argument from lg_*_event() functions
+Date:   Fri, 16 Apr 2021 15:13:18 +0200
+Message-Id: <20210416131323.233184-2-hdegoede@redhat.com>
+In-Reply-To: <20210416131323.233184-1-hdegoede@redhat.com>
+References: <20210416131323.233184-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="iso-8859-1"
-X-MBO-SPAM-Probability: 
-X-Rspamd-Score: -3.33 / 15.00 / 15.00
-X-Rspamd-Queue-Id: 54E5A17FD
-X-Rspamd-UID: 444fe3
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-[    0.000000] DMI: TUXEDO P65_67HSHP/P65_67HSHP, BIOS 1.05.14 02/23/2018 
-02/23/2018
+The report-size is already checked in lg_g15_raw_event() before calling
+the lg_*_event() functions and these functions don't use the passed
+in size at all, drop the unused parameter.
 
-This is a laptop from Tuxedo company based on Clevo P650HS(-G) model.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/hid/hid-lg-g15.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-the touchpad still works after
-
-- suspend and resume cycle
-- hibernate and resume cycle
-
-(sent a second time with mailinglist in CC)
+diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
+index bfbba0d41933..b887af72957c 100644
+--- a/drivers/hid/hid-lg-g15.c
++++ b/drivers/hid/hid-lg-g15.c
+@@ -464,7 +464,7 @@ static int lg_g15_get_initial_led_brightness(struct lg_g15_data *g15)
+ /******** Input functions ********/
+ 
+ /* On the G15 Mark I Logitech has been quite creative with which bit is what */
+-static int lg_g15_event(struct lg_g15_data *g15, u8 *data, int size)
++static int lg_g15_event(struct lg_g15_data *g15, u8 *data)
+ {
+ 	int i, val;
+ 
+@@ -510,7 +510,7 @@ static int lg_g15_event(struct lg_g15_data *g15, u8 *data, int size)
+ 	return 0;
+ }
+ 
+-static int lg_g15_v2_event(struct lg_g15_data *g15, u8 *data, int size)
++static int lg_g15_v2_event(struct lg_g15_data *g15, u8 *data)
+ {
+ 	int i, val;
+ 
+@@ -542,7 +542,7 @@ static int lg_g15_v2_event(struct lg_g15_data *g15, u8 *data, int size)
+ 	return 0;
+ }
+ 
+-static int lg_g510_event(struct lg_g15_data *g15, u8 *data, int size)
++static int lg_g510_event(struct lg_g15_data *g15, u8 *data)
+ {
+ 	bool game_mode_enabled;
+ 	int i, val;
+@@ -586,7 +586,7 @@ static int lg_g510_event(struct lg_g15_data *g15, u8 *data, int size)
+ 	return 0;
+ }
+ 
+-static int lg_g510_leds_event(struct lg_g15_data *g15, u8 *data, int size)
++static int lg_g510_leds_event(struct lg_g15_data *g15, u8 *data)
+ {
+ 	bool backlight_disabled;
+ 
+@@ -613,18 +613,18 @@ static int lg_g15_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	switch (g15->model) {
+ 	case LG_G15:
+ 		if (data[0] == 0x02 && size == 9)
+-			return lg_g15_event(g15, data, size);
++			return lg_g15_event(g15, data);
+ 		break;
+ 	case LG_G15_V2:
+ 		if (data[0] == 0x02 && size == 5)
+-			return lg_g15_v2_event(g15, data, size);
++			return lg_g15_v2_event(g15, data);
+ 		break;
+ 	case LG_G510:
+ 	case LG_G510_USB_AUDIO:
+ 		if (data[0] == 0x03 && size == 5)
+-			return lg_g510_event(g15, data, size);
++			return lg_g510_event(g15, data);
+ 		if (data[0] == 0x04 && size == 2)
+-			return lg_g510_leds_event(g15, data, size);
++			return lg_g510_leds_event(g15, data);
+ 		break;
+ 	}
+ 
 -- 
-Mit freundlichem Gruß, André Najda
-
-
-On Friday, 16 April 2021 12:40:08 CEST you wrote:
-> Can you name the precise model of your laptop? Does the touchpad still work
-> properly after a suspend and resume cycle?
-> 
-> On 16.04.21 12:14, André Najda wrote:
-> > [    4.315902] psmouse serio2: synaptics: Your touchpad (PNP: SYN1219
-> > PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi are
-> > not used, you might want to try setting psmouse.synaptics_intertouch to 1
-> > and report this to linux-input@vger.kernel.org.
-> > 
-> > I'd like to report this as being told. If you need any further information
-> > please ask me. I'm happy to answer any questions.
-> > 
-> > psmouse.synaptics_intertouch=1 works fine.
-
-
+2.31.1
 

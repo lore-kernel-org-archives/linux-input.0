@@ -5,44 +5,42 @@ X-Spam-Level:
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B19AC43600
-	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F715C433B4
+	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:49:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1BFB16101C
-	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 29EB5613AC
+	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:49:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242896AbhDSUsb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 19 Apr 2021 16:48:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54566 "EHLO mail.kernel.org"
+        id S230231AbhDSUtd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Apr 2021 16:49:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241004AbhDSUq3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:46:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61C4A613ED;
-        Mon, 19 Apr 2021 20:45:20 +0000 (UTC)
+        id S242619AbhDSUro (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:47:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5A5D613DB;
+        Mon, 19 Apr 2021 20:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865121;
-        bh=OA8tR/JWbVQiO1aagRDO5aGsUKFVD4bCapNzA312gwg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R7CzLvQHZ1iCpLg6A/SRxdN6R/KDbkxNZ7FfDVOQkzZIvN2Z0XS7Q2PYhxBtNVpdL
-         3Vk801yufo4TmWI3N+ZPNK0wdN1An2J350xokc4uy8l67IfiT3c6L4m22wOYdU6od0
-         apKAmZmimVugkytQY3tAcJ4OE311g+HqrQW3Sh6PE50EdGpIh3EU7npZqeNudSNS41
-         d5JWEONd/xeRwERql/RDB7ONHtri21OviSVfuGBlbH9HjJeyC2ZhQyv+CWFSINSEEQ
-         IZpo1D90lrYHzlud3iIoq4v9O+0LXGrlxK0uB7Zx31HNMorA2CkByUN9G+LKystYfk
-         081DpxwUqxWWA==
+        s=k20201202; t=1618865139;
+        bh=EDj1gHlZSzYdYf98LrWwBli/46xSjlYyncHL60ccxE8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=n4e/cACLrXR9fL+SusuHUrUJmxENYhHr/Gc/cr+a9Ey7vujZmMR+HPNhKJS7qR9CE
+         D4ata9YB6FBZmBmYSvEYRrkZ/qGb6nravcOb89RNuxvfHWWFBPvXx4fngsSkH6R9Rz
+         HLN535MJu1ZLTBFWVXcVvwVETwQPE0kxvK/bxW1SVmD8TFCyVr9maXJJut9/xNFLww
+         lblx1ZA+YhyRLNaROVsS1AvPeRgpBU81qU+19eD3OMd/rtYk/PAuoPX6S3h4LRkH4w
+         htKkK1jYn0NhCtaXWk8s0sE2TjrHIxF045FAaH0Ty3sTS3sJwvtkazbhrHaXpmoFT1
+         gOgxXqebVTYYQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
         TOTE Robot <oslab@tsinghua.edu.cn>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/12] HID: alps: fix error return code in alps_input_configured()
-Date:   Mon, 19 Apr 2021 16:45:07 -0400
-Message-Id: <20210419204517.6770-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 01/11] HID: alps: fix error return code in alps_input_configured()
+Date:   Mon, 19 Apr 2021 16:45:26 -0400
+Message-Id: <20210419204536.6924-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210419204517.6770-1-sashal@kernel.org>
-References: <20210419204517.6770-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -67,12 +65,12 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index f4cf541d13e0..3eddd8f73b57 100644
+index ed9c0ea5b026..1bc6ad0339d2 100644
 --- a/drivers/hid/hid-alps.c
 +++ b/drivers/hid/hid-alps.c
-@@ -766,6 +766,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 
- 		if (input_register_device(data->input2)) {
+@@ -429,6 +429,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		ret = input_register_device(data->input2);
+ 		if (ret) {
  			input_free_device(input2);
 +			ret = -ENOENT;
  			goto exit;

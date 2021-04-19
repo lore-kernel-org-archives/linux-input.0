@@ -7,39 +7,42 @@ X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11650C433ED
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CA9BC43461
 	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:44:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BAFE2613B0
+	by mail.kernel.org (Postfix) with ESMTP id F0CC4613B4
 	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:44:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240300AbhDSUpV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 19 Apr 2021 16:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54550 "EHLO mail.kernel.org"
+        id S233440AbhDSUpX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Apr 2021 16:45:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242463AbhDSUox (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:44:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8F64613B0;
-        Mon, 19 Apr 2021 20:44:21 +0000 (UTC)
+        id S242593AbhDSUoy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:44:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BCB1613C6;
+        Mon, 19 Apr 2021 20:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865062;
-        bh=Bmc3UvqQwnCRxqT2QiwzYnZNbecrLCRtRP3bqL4xAAQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=YYPFlnY8q+vuLntLHINfBLDDpT2B7ZgV0eCyhsPEmZl2RVzMBcgU2cNbLScy8IZfJ
-         Ev7rVTh+clSuajwLzRFKUgh/IyXVcVXAZCMcarO3FCg4nux3/jl1Y2LpaBuWLn3IF1
-         NOTm5srWcCWk9myOVAo2fN5HEuuX0NTPzgjQ/VehJ9aavex5LyEN7sQrvMFP3r43PA
-         6KtYBSrxzAYOs2XvyUOv0pnP9fkPvc8zNnlj17mvwb21O6f4uTpjiJ51Fa9j7TnNoe
-         sMvXAMoDqoUc6RTJWzZu7XLSikbAHxGf0ts17jA0/jlM/y9mHdlmPpA1n22rTi/tc0
-         nVvrPzq22T3jw==
+        s=k20201202; t=1618865064;
+        bh=1H3mngB1wziDnZrSCLkVf32m5DqRuWUfzlvhLfR7xXE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nnKxje98OgjIBpS7pkh8bvQCPrvcXrDL1rRAfwSWL8EZmPtf5vMRSrnstT8qWgV8j
+         0jqKWSnixDEN6FX0ggOEfEU+ymanh5GkY24TcUTo/OGpnuc5Fl7MMqDup4QWa59f+3
+         YKvOHFsroLRA+30mVS7DoKpxXlUCdioXC2E/rVPRAT+CjCgWhEnPqM9sNk8y7/pbr1
+         XJzx2mfqecAZXVpzZne/g0umkX9HjaRtBrLZmhcuc2ztNGPfVl5YcjQJmqZlvbMKNj
+         ABNFe+fK/kcW1xkBC7HEdJA7bKjCHfDjy2ZWgHai3rQJ1Ow/705WUzOEuGary5iE8T
+         ifI1wxgu15Nqw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shou-Chieh Hsu <shouchieh@chromium.org>,
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/21] HID: google: add don USB id
-Date:   Mon, 19 Apr 2021 16:43:59 -0400
-Message-Id: <20210419204420.6375-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 02/21] HID: alps: fix error return code in alps_input_configured()
+Date:   Mon, 19 Apr 2021 16:44:00 -0400
+Message-Id: <20210419204420.6375-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210419204420.6375-1-sashal@kernel.org>
+References: <20210419204420.6375-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -48,45 +51,33 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Shou-Chieh Hsu <shouchieh@chromium.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 36b87cf302a4f13f8b4344bcf98f67405a145e2f ]
+[ Upstream commit fa8ba6e5dc0e78e409e503ddcfceef5dd96527f4 ]
 
-Add 1 additional hammer-like device.
+When input_register_device() fails, no error return code is assigned.
+To fix this bug, ret is assigned with -ENOENT as error return code.
 
-Signed-off-by: Shou-Chieh Hsu <shouchieh@chromium.org>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-google-hammer.c | 2 ++
- drivers/hid/hid-ids.h           | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/hid/hid-alps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-index 85a054f1ce38..2a176f77b32e 100644
---- a/drivers/hid/hid-google-hammer.c
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -526,6 +526,8 @@ static void hammer_remove(struct hid_device *hdev)
- }
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index 3feaece13ade..6b665931147d 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -761,6 +761,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
  
- static const struct hid_device_id hammer_devices[] = {
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_DON) },
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 06813f297dcc..b93ce0d475e0 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -486,6 +486,7 @@
- #define USB_DEVICE_ID_GOOGLE_MASTERBALL	0x503c
- #define USB_DEVICE_ID_GOOGLE_MAGNEMITE	0x503d
- #define USB_DEVICE_ID_GOOGLE_MOONBALL	0x5044
-+#define USB_DEVICE_ID_GOOGLE_DON	0x5050
- 
- #define USB_VENDOR_ID_GOTOP		0x08f2
- #define USB_DEVICE_ID_SUPER_Q2		0x007f
+ 		if (input_register_device(data->input2)) {
+ 			input_free_device(input2);
++			ret = -ENOENT;
+ 			goto exit;
+ 		}
+ 	}
 -- 
 2.30.2
 

@@ -7,39 +7,42 @@ X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86A56C43462
-	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BC3DC433ED
+	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5DE486135F
-	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3352C61104
+	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243120AbhDSUsb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 19 Apr 2021 16:48:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55094 "EHLO mail.kernel.org"
+        id S243126AbhDSUsc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Apr 2021 16:48:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234275AbhDSUq2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:46:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0735E613E5;
-        Mon, 19 Apr 2021 20:45:18 +0000 (UTC)
+        id S240295AbhDSUqa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:46:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1EE1613CF;
+        Mon, 19 Apr 2021 20:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865119;
-        bh=CmvMy+BZZ3pAa4FxYXwZiZN+pIIZ/AYT9aMMw9NhUww=;
-        h=From:To:Cc:Subject:Date:From;
-        b=n//bj8Q3Ei7F2NkzBeL4kRTi1MbFV7InCNKB+uCHj3lFJSW5p+XP+Kp5nA1eSEoKc
-         ro8nxMW8bv2WvDRIzYoUb63eccu9Ej0mVpcVdsBzgTuHHWO7LaP3XSZ/B1IcXsxY0j
-         LB5ULaIv/965wtgks1QCH6Z20TAe+SJiZHFwUFcso5JuVIf6hJNQd9kNT9FEavn1rd
-         IFkUf228A5eGt0CIes5CumbEUsvrr9sYSmeDQJvcEvFu1G7SIYOubBmMgSlNayX38D
-         XHNzwC/T8+f5cXeMiUKcNm0bDNEnOg1t+WygeeXSnmGcURLpiQEyUsjG6XlKgwhaNA
-         23oxQ0KYNHEZw==
+        s=k20201202; t=1618865122;
+        bh=qcaz2jB7fq9VIbH3JTlATGPVy+TRwlcy5hkg5pGsbyY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=IzRHmx8pXA+Zr2SWa0AyMefA9ozAhl+MVjcHe9wnRehJ6BtufondfknaBbXuCS+ry
+         XAb7h6HmHZkOA2eavDCVOq73GtEdXvWAf1BWe7RxHsR5ThBV+Cg7C7BZmQf1Gy5nmo
+         5UMm3f5Z42CJ4+8qKwFv2j1DrzG1+PjuceUlP7hHa2aGlBakJoi0Il/obxF2sQfoEL
+         8OEk0nIl2IMzjbMRCYldTy9Dh+fD0SlUvjrVXLsL2RMd2x3c+xx2mn6f3RwC+sdJYi
+         RboPtH0sKeofZE37iq62qS5Z64ttJHXZX9k3wlhpsuEgRz8rMTeAyOvl/cdP6xGbVU
+         igwdv0LIl3l+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shou-Chieh Hsu <shouchieh@chromium.org>,
+Cc:     Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 01/12] HID: google: add don USB id
-Date:   Mon, 19 Apr 2021 16:45:06 -0400
-Message-Id: <20210419204517.6770-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 03/12] HID: wacom: Assign boolean values to a bool variable
+Date:   Mon, 19 Apr 2021 16:45:08 -0400
+Message-Id: <20210419204517.6770-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210419204517.6770-1-sashal@kernel.org>
+References: <20210419204517.6770-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -48,45 +51,36 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Shou-Chieh Hsu <shouchieh@chromium.org>
+From: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
 
-[ Upstream commit 36b87cf302a4f13f8b4344bcf98f67405a145e2f ]
+[ Upstream commit e29c62ffb008829dc8bcc0a2ec438adc25a8255e ]
 
-Add 1 additional hammer-like device.
+Fix the following coccicheck warnings:
 
-Signed-off-by: Shou-Chieh Hsu <shouchieh@chromium.org>
+./drivers/hid/wacom_wac.c:2536:2-6: WARNING: Assignment of
+0/1 to bool variable.
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-google-hammer.c | 2 ++
- drivers/hid/hid-ids.h           | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/hid/wacom_wac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-index fab8fd7082e0..3e58d4c3cf2c 100644
---- a/drivers/hid/hid-google-hammer.c
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -118,6 +118,8 @@ static int hammer_input_configured(struct hid_device *hdev,
- }
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 274a55702784..187eda37dca1 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2496,7 +2496,7 @@ static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
+ 	    !wacom_wac->shared->is_touch_on) {
+ 		if (!wacom_wac->shared->touch_down)
+ 			return;
+-		prox = 0;
++		prox = false;
+ 	}
  
- static const struct hid_device_id hammer_devices[] = {
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_DON) },
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 2f1516b32837..68908dac5835 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -478,6 +478,7 @@
- #define USB_DEVICE_ID_GOOGLE_MASTERBALL	0x503c
- #define USB_DEVICE_ID_GOOGLE_MAGNEMITE	0x503d
- #define USB_DEVICE_ID_GOOGLE_MOONBALL	0x5044
-+#define USB_DEVICE_ID_GOOGLE_DON	0x5050
- 
- #define USB_VENDOR_ID_GOTOP		0x08f2
- #define USB_DEVICE_ID_SUPER_Q2		0x007f
+ 	wacom_wac->hid_data.num_received++;
 -- 
 2.30.2
 

@@ -2,334 +2,825 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1A66C433B4
-	for <linux-input@archiver.kernel.org>; Sun, 18 Apr 2021 15:09:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4E2AC433B4
+	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 05:13:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 852576120C
-	for <linux-input@archiver.kernel.org>; Sun, 18 Apr 2021 15:09:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE74F61090
+	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 05:13:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229446AbhDRPJy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 18 Apr 2021 11:09:54 -0400
-Received: from www262.sakura.ne.jp ([202.181.97.72]:55607 "EHLO
-        www262.sakura.ne.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231409AbhDRPJy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Apr 2021 11:09:54 -0400
-Received: from fsav405.sakura.ne.jp (fsav405.sakura.ne.jp [133.242.250.104])
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 13IF9A2c077658;
-        Mon, 19 Apr 2021 00:09:10 +0900 (JST)
-        (envelope-from penguin-kernel@i-love.sakura.ne.jp)
-Received: from www262.sakura.ne.jp (202.181.97.72)
- by fsav405.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav405.sakura.ne.jp);
- Mon, 19 Apr 2021 00:09:10 +0900 (JST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav405.sakura.ne.jp)
-Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-        (authenticated bits=0)
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 13IF99eq077653
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-        Mon, 19 Apr 2021 00:09:10 +0900 (JST)
-        (envelope-from penguin-kernel@i-love.sakura.ne.jp)
-Subject: Re: [syzbot] unexpected kernel reboot (4)
-From:   Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-To:     Andrey Konovalov <andreyknvl@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>
-Cc:     syzbot <syzbot+9ce030d4c89856b27619@syzkaller.appspotmail.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
-References: <000000000000301a4d05bfe14b8f@google.com>
- <CACT4Y+ZT2m7t+o9=VYCE32U_1aUVJXRp_5KgJSdEZC1YXy=qgA@mail.gmail.com>
- <CA+fCnZcWEuYeOx6-0LY+cqtGVbMx2OiyhEELErdfwaHGcUWHbQ@mail.gmail.com>
- <55f68dce-77e8-b142-0822-fca14b13d4bd@i-love.sakura.ne.jp>
-Message-ID: <be9e80b1-5be1-842e-538e-d69a3995d567@i-love.sakura.ne.jp>
-Date:   Mon, 19 Apr 2021 00:09:07 +0900
-User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+        id S232942AbhDSFOC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Apr 2021 01:14:02 -0400
+Received: from mail.ilitek.com.tw ([60.248.80.92]:58536 "EHLO cello.ilitek.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229473AbhDSFOB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Apr 2021 01:14:01 -0400
+X-UUID: e233534c7b0c461cbe0d6787a9d408b9-20210419
+X-UUID: e233534c7b0c461cbe0d6787a9d408b9-20210419
+Received: from ex2.ili.com.tw [(192.168.1.132)] by cello.ilitek.com
+        (envelope-from <joe_hung@ilitek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256 128/128)
+        with ESMTP id 602361794; Mon, 19 Apr 2021 13:13:27 +0800
+Received: from EX2.ili.com.tw (192.168.1.132) by EX2.ili.com.tw
+ (192.168.1.132) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Mon, 19 Apr
+ 2021 13:13:27 +0800
+Received: from joehung-Ilitek.mshome.net (192.168.18.73) by EX2.ili.com.tw
+ (192.168.1.133) with Microsoft SMTP Server id 15.1.2242.4 via Frontend
+ Transport; Mon, 19 Apr 2021 13:13:27 +0800
+From:   Joe Hung <joe_hung@ilitek.com>
+To:     <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
+        <devicetree@vger.kernel.org>
+CC:     <linux-input@vger.kernel.org>, <joe_hung@ilitek.com>,
+        <luca_hsu@ilitek.com>
+Subject: [RESEND v7 2/2] input: touchscreen: Add support for ILITEK Lego Series
+Date:   Mon, 19 Apr 2021 13:13:25 +0800
+Message-ID: <20210419051325.147314-2-joe_hung@ilitek.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210419051325.147314-1-joe_hung@ilitek.com>
+References: <20210419051325.147314-1-joe_hung@ilitek.com>
 MIME-Version: 1.0
-In-Reply-To: <55f68dce-77e8-b142-0822-fca14b13d4bd@i-love.sakura.ne.jp>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 2021/04/17 12:19, Tetsuo Handa wrote:
-> On 2021/04/15 0:39, Andrey Konovalov wrote:
->> On Wed, Apr 14, 2021 at 7:45 AM Dmitry Vyukov <dvyukov@google.com> wrote:
->>> The reproducer connects some USB HID device and communicates with the driver.
->>> Previously we observed reboots because HID devices can trigger reboot
->>> SYSRQ, but we disable it with "CONFIG_MAGIC_SYSRQ is not set".
->>> How else can a USB device reboot the machine? Is it possible to disable it?
->>> I don't see any direct includes of <linux/reboot.h> in drivers/usb/*
->>
->> This happens when a keyboard sends the Ctrl+Alt+Del sequence, see
->> fn_boot_it()->ctrl_alt_del() in drivers/tty/vt/keyboard.c.
->>
-> 
-> Regarding ctrl_alt_del() problem, doing
-> 
->   sh -c 'echo 0 > /proc/sys/kernel/ctrl-alt-del; echo $$ > /proc/sys/kernel/cad_pid'
-> 
-> as root before start fuzzing might help.
-> 
-> Also, with the command above, reproducer still triggers suspend operation which freezes userspace processes.
-> This could possibly be one of causes for no output / lost connections. Try disabling freeze/suspend related configs?
-> 
+Add support for ILITEK Lego series of touch devices.
+Lego series includes ILITEK 213X/23XX/25XX.
 
-I tried
+Tested/passed with evaluation board with ILI2520/2322 IC.
 
-  # CONFIG_HIBERNATION is not set
-  # CONFIG_SUSPEND is not set
-  # CONFIG_PM is not set
+Signed-off-by: Joe Hung <joe_hung@ilitek.com>
+---
+Changes in v7:
+  - use input_mt_sync_frame() and remove unneeded tracking flow
+  - remove flow related to checking protocol V3/V6
+  - remove unused macro MOD_AP/BL
+  - remove set capabilities for EV_KEY/ABS and BTN_TOUCH
+  - modify ret to error, to hold error codes
+  - remove unneeded variable initializations
+  - change to use devm_gpiod_get_optional
+  - perform ilitek_reset only after cmd "SET_IC_WAKE"
+  - remove unneeded enable/disable_irq_wake
 
-but the reproducer still shutdowns the system.
+Changes in v6:
+  - Modified print message from sysfs file node
+  - Add i2c functionality check in probe function
+  - Add single touch ABS_X/ABS_Y registration
+  - Remove TOUCH_MAJOR/WIDTH_MAJOR
 
-The reproducer can be simplified to single threaded.
+Changes in v5:
+  - None
 
-----------------------------------------
-int main(int argc, char *argv[])
-{
-        uint64_t r[1] = { 0xffffffffffffffff };
+Changes in v4:
+  - Remove unused inlcude header file
+  - Remove parenthesis for scalar values
+  - Place to use standard macro DIV_ROUND_UP
+  - Remove unused/unrequired member of struct
+  - Remove retries when I2C transfer
+  - Remove irq_disable/enable wrapper
+  - Remove key handler
+  - Adjust to use get_unaligned_le16/be16
+  - Modify ilitek_reset() to leave reset gpio in-active finally
+  - Remove null check for input argument that should not happen
+  - Modify return value for read_tp_info()
+  - Modify to use common touchscreen_* api
+  - Add error handling for input_mt_init_slots
+  - Modify input flag for irq request, and parse it from ACPI/DTS
+  - Return stored value instead of querying via I2C in *_show api
+  - Modify to use devm_* APIs and get rid of remove api
+  - Add PM (suspend/resume) handling
 
-        syscall(__NR_mmap, 0x20000000ul, 0x1000000ul, 7ul, 0x32ul, -1, 0ul);
-        memcpy((void*)0x20000200,
-               "\x12\x01\x00\x00\x00\x00\x00\x40\x26\x09\x33\x33\x40\x00\x00\x00\x00"
-               "\x01\x09\x02\x24\x00\x01\x00\x00\x00\x00\x09\x04\x00\x00\x01\x03\x01"
-               "\x00\x00\x09\x21\x00\x00\x00\x01\x22\x01\x00\x09\x05\x81\x03\x08",
-               50);
-        r[0] = syz_usb_connect(0, 0x36, 0x20000200, 0);
-        syz_usb_control_io(r[0], 0, 0);
-        *(uint32_t*)0x20000300 = 0x24;
-        *(uint64_t*)0x20000304 = 0;
-        *(uint64_t*)0x2000030c = 0;
-        *(uint64_t*)0x20000314 = 0x200001c0;
-        *(uint8_t*)0x200001c0 = 0;
-        *(uint8_t*)0x200001c1 = 0x22;
-        *(uint32_t*)0x200001c2 = 5;
-        STORE_BY_BITMASK(uint8_t, , 0x200001c6, 3, 0, 2);
-        STORE_BY_BITMASK(uint8_t, , 0x200001c6, 0, 2, 2);
-        STORE_BY_BITMASK(uint8_t, , 0x200001c6, 0, 4, 4);
-        memcpy((void*)0x200001c7, "\x65\xe9\x5e\x9d", 4);
-        *(uint64_t*)0x2000031c = 0;
-        syz_usb_control_io(r[0], 0x20000300, 0);
-        syz_usb_ep_write(r[0], 0, 5, (long) "\x8e\xc5\x44\xbc\x66");
-        return 0;
-}
-----------------------------------------
+Changes in v3:
+  - None
 
-Since applying below diff does not help, I don't think that
-this problem can be avoided by modifying tty code.
+Changes in v2:
+  - Remove irq-gpio and related flow
 
-----------------------------------------
-diff --git a/drivers/tty/vt/keyboard.c b/drivers/tty/vt/keyboard.c
-index 77638629c562..25e6d52f5de6 100644
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -323,12 +323,14 @@ int kbd_rate(struct kbd_repeat *rpt)
-  */
- static void put_queue(struct vc_data *vc, int ch)
- {
-+	return;
- 	tty_insert_flip_char(&vc->port, ch, 0);
- 	tty_schedule_flip(&vc->port);
- }
- 
- static void puts_queue(struct vc_data *vc, const char *cp)
- {
-+	return;
- 	tty_insert_flip_string(&vc->port, cp, strlen(cp));
- 	tty_schedule_flip(&vc->port);
- }
-@@ -657,7 +659,7 @@ static void k_spec(struct vc_data *vc, unsigned char value, char up_flag)
- 	     kbd->kbdmode == VC_OFF) &&
- 	     value != KVAL(K_SAK))
- 		return;		/* SAK is allowed even in raw mode */
--	fn_handler[value](vc);
-+	//fn_handler[value](vc);
- }
- 
- static void k_lowercase(struct vc_data *vc, unsigned char value, char up_flag)
-@@ -1393,6 +1395,7 @@ static void kbd_keycode(unsigned int keycode, int down, bool hw_raw)
- 	struct keyboard_notifier_param param = { .vc = vc, .value = keycode, .down = down };
- 	int rc;
- 
-+	return;
- 	tty = vc->port.tty;
- 
- 	if (tty && (!tty->driver_data)) {
-@@ -1509,7 +1512,7 @@ static void kbd_keycode(unsigned int keycode, int down, bool hw_raw)
- 	if ((raw_mode || kbd->kbdmode == VC_OFF) && type != KT_SPEC && type != KT_SHIFT)
- 		return;
- 
--	(*k_handler[type])(vc, keysym & 0xff, !down);
-+	//(*k_handler[type])(vc, keysym & 0xff, !down);
- 
- 	param.ledstate = kbd->ledflagstate;
- 	atomic_notifier_call_chain(&keyboard_notifier_list, KBD_POST_KEYSYM, &param);
-----------------------------------------
+ drivers/input/touchscreen/Kconfig         |  12 +
+ drivers/input/touchscreen/Makefile        |   1 +
+ drivers/input/touchscreen/ilitek_ts_i2c.c | 676 ++++++++++++++++++++++
+ 3 files changed, 689 insertions(+)
+ create mode 100644 drivers/input/touchscreen/ilitek_ts_i2c.c
 
-Running the reproducer with
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index f012fe746df0..03a16852d4bc 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -1334,4 +1334,16 @@ config TOUCHSCREEN_ZINITIX
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called zinitix.
 
-  dbus-monitor --system > /dev/ttyprintk
++config TOUCHSCREEN_ILITEK
++	tristate "Ilitek I2C 213X/23XX/25XX/Lego Series Touch ICs"
++	depends on I2C
++	help
++	  Say Y here if you have touchscreen with ILITEK touch IC,
++	  it supports 213X/23XX/25XX and other Lego series.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called ilitek_ts_i2c.
++
+ endif
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 6233541e9173..1622e66c4eaa 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -112,3 +112,4 @@ obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
+ obj-$(CONFIG_TOUCHSCREEN_RASPBERRYPI_FW)	+= raspberrypi-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_IQS5XX)	+= iqs5xx.o
+ obj-$(CONFIG_TOUCHSCREEN_ZINITIX)	+= zinitix.o
++obj-$(CONFIG_TOUCHSCREEN_ILITEK)	+= ilitek_ts_i2c.o
+diff --git a/drivers/input/touchscreen/ilitek_ts_i2c.c b/drivers/input/touchscreen/ilitek_ts_i2c.c
+new file mode 100644
+index 000000000000..b17033e5955c
+--- /dev/null
++++ b/drivers/input/touchscreen/ilitek_ts_i2c.c
+@@ -0,0 +1,676 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * ILITEK Touch IC driver for 23XX, 25XX and Lego series
++ *
++ * Copyright (C) 2011 ILI Technology Corporation.
++ * Copyright (C) 2020 Luca Hsu <luca_hsu@ilitek.com>
++ * Copyright (C) 2021 Joe Hung <joe_hung@ilitek.com>
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/input/mt.h>
++#include <linux/i2c.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/interrupt.h>
++#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
++#include <linux/errno.h>
++#include <linux/acpi.h>
++#include <linux/input/touchscreen.h>
++#include <asm/unaligned.h>
++
++
++#define ILITEK_TS_NAME					"ilitek_ts"
++#define BL_V1_8						0x108
++#define BL_V1_7						0x107
++#define BL_V1_6						0x106
++
++#define ILITEK_TP_CMD_GET_TP_RES			0x20
++#define ILITEK_TP_CMD_GET_SCRN_RES			0x21
++#define ILITEK_TP_CMD_SET_IC_SLEEP			0x30
++#define ILITEK_TP_CMD_SET_IC_WAKE			0x31
++#define ILITEK_TP_CMD_GET_FW_VER			0x40
++#define ILITEK_TP_CMD_GET_PRL_VER			0x42
++#define ILITEK_TP_CMD_GET_MCU_VER			0x61
++#define ILITEK_TP_CMD_GET_IC_MODE			0xC0
++
++#define REPORT_COUNT_ADDRESS				61
++#define ILITEK_SUPPORT_MAX_POINT			40
++
++struct ilitek_protocol_info {
++	u16 ver;
++	u8 ver_major;
++};
++
++struct ilitek_ts_data {
++	struct i2c_client		*client;
++	struct gpio_desc		*reset_gpio;
++	struct input_dev		*input_dev;
++	struct touchscreen_properties	prop;
++
++	struct PROTOCOL_MAP		*ptl_cb_func;
++	struct ilitek_protocol_info	ptl;
++
++	char				product_id[30];
++	u16				mcu_ver;
++	u8				ic_mode;
++	u8				firmware_ver[8];
++
++	s32				reset_time;
++	s32				screen_max_x;
++	s32				screen_max_y;
++	s32				screen_min_x;
++	s32				screen_min_y;
++	s32				max_tp;
++};
++
++enum ilitek_cmds {
++	/* common cmds */
++	GET_PTL_VER = 0,
++	GET_FW_VER,
++	GET_SCRN_RES,
++	GET_TP_RES,
++	GET_IC_MODE,
++	GET_MCU_VER,
++	SET_IC_SLEEP,
++	SET_IC_WAKE,
++
++	/* ALWAYS keep at the end */
++	MAX_CMD_CNT
++};
++
++typedef int protocol_func(struct ilitek_ts_data *ts,
++			  u16 cmd, u8 *inbuf, u8 *outbuf);
++
++struct PROTOCOL_MAP {
++	u16 cmd;
++	const char *name;
++	protocol_func *func;
++};
++
++/* ILITEK I2C R/W APIs */
++static int ilitek_i2c_write_and_read(struct ilitek_ts_data *ts,
++				     u8 *cmd, int write_len, int delay,
++				     u8 *data, int read_len)
++{
++	int error;
++	struct i2c_client *client = ts->client;
++	struct i2c_msg msgs[2] = {
++		{.addr = client->addr, .flags = 0,
++		 .len = write_len, .buf = cmd,},
++		{.addr = client->addr, .flags = I2C_M_RD,
++		 .len = read_len, .buf = data,}
++	};
++
++	if (delay == 0 && write_len > 0 && read_len > 0) {
++		error = i2c_transfer(client->adapter, msgs, 2);
++		if (error < 0)
++			return error;
++	} else {
++		if (write_len > 0) {
++			error = i2c_transfer(client->adapter, msgs, 1);
++			if (error < 0)
++				return error;
++		}
++		if (delay > 0)
++			mdelay(delay);
++		if (read_len > 0) {
++			error = i2c_transfer(client->adapter, msgs + 1, 1);
++			if (error < 0)
++				return error;
++		}
++	}
++
++	return 0;
++}
++
++/* ILITEK ISR APIs */
++static void ilitek_touch_down(struct ilitek_ts_data *ts, unsigned int id,
++			      unsigned int x, unsigned int y)
++{
++	struct input_dev *input = ts->input_dev;
++
++	input_mt_slot(input, id);
++	input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
++
++	touchscreen_report_pos(input, &ts->prop, x, y, true);
++}
++
++static int ilitek_process_and_report_v6(struct ilitek_ts_data *ts)
++{
++	int error = 0;
++	u8 buf[512];
++	int packet_len = 5;
++	int packet_max_point = 10;
++	int report_max_point;
++	int i, count;
++	struct input_dev *input = ts->input_dev;
++	struct device *dev = &ts->client->dev;
++	unsigned int x, y, status, id;
++
++	error = ilitek_i2c_write_and_read(ts, NULL, 0, 0, buf, 64);
++	if (error) {
++		dev_err(dev, "get touch info failed, err:%d\n", error);
++		goto err_sync_frame;
++	}
++
++	report_max_point = buf[REPORT_COUNT_ADDRESS];
++	if (report_max_point > ts->max_tp) {
++		dev_err(dev, "FW report max point:%d > panel info. max:%d\n",
++			report_max_point, ts->max_tp);
++		error = -EINVAL;
++		goto err_sync_frame;
++	}
++
++	count = DIV_ROUND_UP(report_max_point, packet_max_point);
++	for (i = 1; i < count; i++) {
++		error = ilitek_i2c_write_and_read(ts, NULL, 0, 0,
++			buf + i * 64, 64);
++		if (error) {
++			dev_err(dev, "get touch info. failed, cnt:%d, err:%d\n",
++				count, error);
++			goto err_sync_frame;
++		}
++	}
++
++	for (i = 0; i < report_max_point; i++) {
++		status = buf[i * packet_len + 1] & 0x40;
++		id = buf[i * packet_len + 1] & 0x3F;
++
++		if (!status)
++			continue;
++
++		x = get_unaligned_le16(buf + i * packet_len + 2);
++		y = get_unaligned_le16(buf + i * packet_len + 4);
++
++		if (x > ts->screen_max_x || x < ts->screen_min_x ||
++		    y > ts->screen_max_y || y < ts->screen_min_y) {
++			dev_warn(dev, "invalid position, X[%d,%u,%d], Y[%d,%u,%d]\n",
++				 ts->screen_min_x, x, ts->screen_max_x,
++				 ts->screen_min_y, y, ts->screen_max_y);
++			continue;
++		}
++		ilitek_touch_down(ts, id, x, y);
++	}
++
++err_sync_frame:
++	input_mt_sync_frame(input);
++	input_sync(input);
++	return error;
++}
++
++/* APIs of cmds for ILITEK Touch IC */
++static int api_protocol_set_cmd(struct ilitek_ts_data *ts,
++				u16 idx, u8 *inbuf, u8 *outbuf)
++{
++	u16 cmd;
++	int error;
++
++	if (idx >= MAX_CMD_CNT)
++		return -EINVAL;
++
++	cmd = ts->ptl_cb_func[idx].cmd;
++	error = ts->ptl_cb_func[idx].func(ts, cmd, inbuf, outbuf);
++	if (error)
++		return error;
++
++	return 0;
++}
++
++static int api_protocol_get_ptl_ver(struct ilitek_ts_data *ts,
++				    u16 cmd, u8 *inbuf, u8 *outbuf)
++{
++	int error;
++	u8 buf[64];
++
++	buf[0] = cmd;
++	error = ilitek_i2c_write_and_read(ts, buf, 1, 5, outbuf, 3);
++	if (error)
++		return error;
++
++	ts->ptl.ver = get_unaligned_be16(outbuf);
++	ts->ptl.ver_major = outbuf[0];
++
++	return 0;
++}
++
++static int api_protocol_get_mcu_ver(struct ilitek_ts_data *ts,
++				    u16 cmd, u8 *inbuf, u8 *outbuf)
++{
++	int error;
++	u8 buf[64];
++
++	buf[0] = cmd;
++	error = ilitek_i2c_write_and_read(ts, buf, 1, 5, outbuf, 32);
++	if (error)
++		return error;
++
++	ts->mcu_ver = get_unaligned_le16(outbuf);
++	memset(ts->product_id, 0, sizeof(ts->product_id));
++	memcpy(ts->product_id, outbuf+6, 26);
++
++	return 0;
++}
++
++static int api_protocol_get_fw_ver(struct ilitek_ts_data *ts,
++				   u16 cmd, u8 *inbuf, u8 *outbuf)
++{
++	int error;
++	u8 buf[64];
++
++	buf[0] = cmd;
++	error = ilitek_i2c_write_and_read(ts, buf, 1, 5, outbuf, 8);
++	if (error)
++		return error;
++
++	memcpy(ts->firmware_ver, outbuf, 8);
++
++	return 0;
++}
++
++static int api_protocol_get_scrn_res(struct ilitek_ts_data *ts,
++				     u16 cmd, u8 *inbuf, u8 *outbuf)
++{
++	int error;
++	u8 buf[64];
++
++	buf[0] = cmd;
++	error = ilitek_i2c_write_and_read(ts, buf, 1, 5, outbuf, 8);
++	if (error)
++		return error;
++
++	ts->screen_min_x = get_unaligned_le16(outbuf);
++	ts->screen_min_y = get_unaligned_le16(outbuf + 2);
++	ts->screen_max_x = get_unaligned_le16(outbuf + 4);
++	ts->screen_max_y = get_unaligned_le16(outbuf + 6);
++
++	return 0;
++}
++
++static int api_protocol_get_tp_res(struct ilitek_ts_data *ts,
++				   u16 cmd, u8 *inbuf, u8 *outbuf)
++{
++	int error;
++	u8 buf[64];
++
++	buf[0] = cmd;
++	error = ilitek_i2c_write_and_read(ts, buf, 1, 5, outbuf, 15);
++	if (error)
++		return error;
++
++	ts->max_tp = outbuf[8];
++	if (ts->max_tp > ILITEK_SUPPORT_MAX_POINT) {
++		dev_err(&ts->client->dev, "Invalid MAX_TP:%d from FW\n",
++			ts->max_tp);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int api_protocol_get_ic_mode(struct ilitek_ts_data *ts,
++				    u16 cmd, u8 *inbuf, u8 *outbuf)
++{
++	int error;
++	u8 buf[64];
++
++	buf[0] = cmd;
++	error = ilitek_i2c_write_and_read(ts, buf, 1, 5, outbuf, 2);
++	if (error)
++		return error;
++
++	ts->ic_mode = outbuf[0];
++	return 0;
++}
++
++static int api_protocol_set_ic_sleep(struct ilitek_ts_data *ts,
++				     u16 cmd, u8 *inbuf, u8 *outbuf)
++{
++	u8 buf[64];
++
++	buf[0] = cmd;
++	return ilitek_i2c_write_and_read(ts, buf, 1, 0, NULL, 0);
++}
++
++static int api_protocol_set_ic_wake(struct ilitek_ts_data *ts,
++				    u16 cmd, u8 *inbuf, u8 *outbuf)
++{
++	u8 buf[64];
++
++	buf[0] = cmd;
++	return ilitek_i2c_write_and_read(ts, buf, 1, 0, NULL, 0);
++}
++
++struct PROTOCOL_MAP ptl_func_map[] = {
++	/* common cmds */
++	[GET_PTL_VER]	= {ILITEK_TP_CMD_GET_PRL_VER, "GET_PTL_VER",
++			   api_protocol_get_ptl_ver},
++	[GET_FW_VER]	= {ILITEK_TP_CMD_GET_FW_VER, "GET_FW_VER",
++			   api_protocol_get_fw_ver},
++	[GET_SCRN_RES]	= {ILITEK_TP_CMD_GET_SCRN_RES, "GET_SCRN_RES",
++			   api_protocol_get_scrn_res},
++	[GET_TP_RES]	= {ILITEK_TP_CMD_GET_TP_RES, "GET_TP_RES",
++			   api_protocol_get_tp_res},
++	[GET_IC_MODE]	= {ILITEK_TP_CMD_GET_IC_MODE, "GET_IC_MODE",
++			   api_protocol_get_ic_mode},
++	[GET_MCU_VER]	= {ILITEK_TP_CMD_GET_MCU_VER, "GET_MOD_VER",
++			   api_protocol_get_mcu_ver},
++	[SET_IC_SLEEP]	= {ILITEK_TP_CMD_SET_IC_SLEEP, "SET_IC_SLEEP",
++			   api_protocol_set_ic_sleep},
++	[SET_IC_WAKE]	= {ILITEK_TP_CMD_SET_IC_WAKE, "SET_IC_WAKE",
++			   api_protocol_set_ic_wake},
++};
++
++/* Probe APIs */
++static void ilitek_reset(struct ilitek_ts_data *ts, int delay)
++{
++	if (ts->reset_gpio) {
++		gpiod_set_value(ts->reset_gpio, 1);
++		mdelay(10);
++		gpiod_set_value(ts->reset_gpio, 0);
++		mdelay(delay);
++	}
++}
++
++static int ilitek_protocol_init(struct ilitek_ts_data *ts)
++{
++	int error;
++	u8 outbuf[64];
++
++	ts->ptl_cb_func = ptl_func_map;
++	ts->reset_time = 600;
++
++	error = api_protocol_set_cmd(ts, GET_PTL_VER, NULL, outbuf);
++	if (error)
++		return error;
++
++	/* Protocol v3 is not support currently */
++	if (ts->ptl.ver_major == 0x3 ||
++	    ts->ptl.ver == BL_V1_6 ||
++	    ts->ptl.ver == BL_V1_7)
++		return -EINVAL;
++
++	return 0;
++}
++
++static int ilitek_read_tp_info(struct ilitek_ts_data *ts, bool boot)
++{
++	u8 outbuf[256];
++	int error;
++
++	error = api_protocol_set_cmd(ts, GET_PTL_VER, NULL, outbuf);
++	if (error)
++		return error;
++
++	error = api_protocol_set_cmd(ts, GET_MCU_VER, NULL, outbuf);
++	if (error)
++		return error;
++
++	error = api_protocol_set_cmd(ts, GET_FW_VER, NULL, outbuf);
++	if (error)
++		return error;
++
++	if (boot) {
++		error = api_protocol_set_cmd(ts, GET_SCRN_RES, NULL,
++					     outbuf);
++		if (error)
++			return error;
++	}
++
++	error = api_protocol_set_cmd(ts, GET_TP_RES, NULL, outbuf);
++	if (error)
++		return error;
++
++	error = api_protocol_set_cmd(ts, GET_IC_MODE, NULL, outbuf);
++	if (error)
++		return error;
++
++	return 0;
++}
++
++static int ilitek_input_dev_init(struct device *dev, struct ilitek_ts_data *ts)
++{
++	int error;
++	struct input_dev *input;
++
++	input = devm_input_allocate_device(dev);
++	if (!input)
++		return -ENOMEM;
++
++	ts->input_dev = input;
++	input->name = ILITEK_TS_NAME;
++	input->id.bustype = BUS_I2C;
++
++	__set_bit(INPUT_PROP_DIRECT, input->propbit);
++
++	/* Single touch input setup */
++	input_set_abs_params(input, ABS_X, ts->screen_min_x,
++			     ts->screen_max_x, 0, 0);
++	input_set_abs_params(input, ABS_Y, ts->screen_min_y,
++			     ts->screen_max_y, 0, 0);
++
++	/* Multi-touch input setup */
++	input_set_abs_params(input, ABS_MT_POSITION_X,
++			     ts->screen_min_x,
++			     ts->screen_max_x, 0, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_Y,
++			     ts->screen_min_y,
++			     ts->screen_max_y, 0, 0);
++
++	touchscreen_parse_properties(input, true, &ts->prop);
++
++	error = input_mt_init_slots(input, ts->max_tp,
++				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	if (error) {
++		dev_err(dev, "initialize MT slots failed, err:%d\n", error);
++		return error;
++	}
++
++	error = input_register_device(input);
++	if (error) {
++		dev_err(dev, "register input device failed, err:%d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
++static irqreturn_t ilitek_i2c_isr(int irq, void *dev_id)
++{
++	struct ilitek_ts_data *ts = dev_id;
++	int error;
++
++	error = ilitek_process_and_report_v6(ts);
++	if (error < 0) {
++		dev_err(&ts->client->dev, "[%s] err:%d\n", __func__, error);
++		return IRQ_NONE;
++	}
++
++	return IRQ_HANDLED;
++}
++
++static ssize_t firmware_version_show(struct device *dev,
++				     struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ilitek_ts_data *ts = i2c_get_clientdata(client);
++
++	return scnprintf(buf, PAGE_SIZE,
++			 "fw version: [%02X%02X.%02X%02X.%02X%02X.%02X%02X]\n",
++			 ts->firmware_ver[0], ts->firmware_ver[1],
++			 ts->firmware_ver[2], ts->firmware_ver[3],
++			 ts->firmware_ver[4], ts->firmware_ver[5],
++			 ts->firmware_ver[6], ts->firmware_ver[7]);
++}
++static DEVICE_ATTR_RO(firmware_version);
++
++static ssize_t product_id_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ilitek_ts_data *ts = i2c_get_clientdata(client);
++
++	return scnprintf(buf, PAGE_SIZE, "product id: [%04X], module: [%s]\n",
++			 ts->mcu_ver, ts->product_id);
++}
++static DEVICE_ATTR_RO(product_id);
++
++static struct attribute *ilitek_sysfs_attrs[] = {
++	&dev_attr_firmware_version.attr,
++	&dev_attr_product_id.attr,
++	NULL
++};
++
++static struct attribute_group ilitek_attrs_group[] = {
++	{.attrs = ilitek_sysfs_attrs},
++};
++
++static int ilitek_ts_i2c_probe(struct i2c_client *client,
++			       const struct i2c_device_id *id)
++{
++	struct ilitek_ts_data *ts;
++	struct device *dev = &client->dev;
++	int error;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(dev, "i2c check functionality failed\n");
++		return -ENXIO;
++	}
++
++	ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
++
++	ts->client = client;
++	i2c_set_clientdata(client, ts);
++
++	ts->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
++	if (IS_ERR(ts->reset_gpio)) {
++		error = PTR_ERR(ts->reset_gpio);
++		dev_err(dev, "request gpiod failed, err:%d", error);
++		return error;
++	}
++
++	ilitek_reset(ts, 1000);
++
++	error = ilitek_protocol_init(ts);
++	if (error) {
++		dev_err(dev, "protocol init failed, err:%d", error);
++		return error;
++	}
++
++	error = ilitek_read_tp_info(ts, true);
++	if (error) {
++		dev_err(dev, "read tp info failed, err:%d", error);
++		return error;
++	}
++
++	error = ilitek_input_dev_init(dev, ts);
++	if (error) {
++		dev_err(dev, "input dev init failed, err:%d", error);
++		return error;
++	}
++
++	error = devm_request_threaded_irq(dev, ts->client->irq, NULL,
++					ilitek_i2c_isr, IRQF_ONESHOT,
++					"ilitek_touch_irq", ts);
++	if (error) {
++		dev_err(dev, "request threaded irq failed, err:%d\n", error);
++		return error;
++	}
++
++	error = devm_device_add_group(dev, ilitek_attrs_group);
++	if (error) {
++		dev_err(dev, "sysfs create group failed, err:%d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int __maybe_unused ilitek_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ilitek_ts_data *ts = i2c_get_clientdata(client);
++	int error;
++
++	disable_irq(client->irq);
++
++	if (!device_may_wakeup(dev)) {
++		error = api_protocol_set_cmd(ts, SET_IC_SLEEP, NULL, NULL);
++		if (error)
++			return error;
++	}
++
++	return 0;
++}
++
++static int __maybe_unused ilitek_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ilitek_ts_data *ts = i2c_get_clientdata(client);
++	int error;
++
++	if (!device_may_wakeup(dev)) {
++		error = api_protocol_set_cmd(ts, SET_IC_WAKE, NULL, NULL);
++		if (error)
++			return error;
++		ilitek_reset(ts, ts->reset_time);
++	}
++
++	enable_irq(client->irq);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(ilitek_pm_ops, ilitek_suspend, ilitek_resume);
++
++static const struct i2c_device_id ilitek_ts_i2c_id[] = {
++	{ILITEK_TS_NAME, 0},
++	{ },
++};
++MODULE_DEVICE_TABLE(i2c, ilitek_ts_i2c_id);
++
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id ilitekts_acpi_id[] = {
++	{ "ILTK0001", 0 },
++	{ },
++};
++MODULE_DEVICE_TABLE(acpi, ilitekts_acpi_id);
++#endif
++
++#ifdef CONFIG_OF
++static const struct of_device_id ilitek_ts_i2c_match[] = {
++	{.compatible = "ilitek,ili2130",},
++	{.compatible = "ilitek,ili2131",},
++	{.compatible = "ilitek,ili2132",},
++	{.compatible = "ilitek,ili2316",},
++	{.compatible = "ilitek,ili2322",},
++	{.compatible = "ilitek,ili2323",},
++	{.compatible = "ilitek,ili2326",},
++	{.compatible = "ilitek,ili2520",},
++	{.compatible = "ilitek,ili2521",},
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ilitek_ts_i2c_match);
++#endif
++
++static struct i2c_driver ilitek_ts_i2c_driver = {
++	.driver = {
++		.name = ILITEK_TS_NAME,
++		.pm = &ilitek_pm_ops,
++		.of_match_table = of_match_ptr(ilitek_ts_i2c_match),
++		.acpi_match_table = ACPI_PTR(ilitekts_acpi_id),
++	},
++	.probe = ilitek_ts_i2c_probe,
++	.id_table = ilitek_ts_i2c_id,
++};
++
++module_i2c_driver(ilitek_ts_i2c_driver);
++
++MODULE_AUTHOR("ILITEK");
++MODULE_DESCRIPTION("ILITEK I2C Touchscreen Driver");
++MODULE_LICENSE("GPL");
+--
+2.25.1
 
-reports that systemd's shutdown service is requested when syz_usb_ep_write() is called.
-I can't understand why the command "\x8e\xc5\x44\xbc\x66" leads to this result.
 
-----------------------------------------
-[   62.382763][   T47] usb 5-1: new high-speed USB device number 2 using dummy_hcd
-[   62.745091][   T47] usb 5-1: config 0 interface 0 altsetting 0 endpoint 0x81 has an invalid bInterval 0, changing to 7
-[   62.749179][   T47] usb 5-1: New USB device found, idVendor=0926, idProduct=3333, bcdDevice= 0.40
-[   62.753184][   T47] usb 5-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-[   62.755699][   T47] usb 5-1: config 0 descriptor??
-[   63.234744][   T47] keytouch 0003:0926:3333.0002: fixing up Keytouch IEC report descriptor
-[   63.238348][   T47] input: HID 0926:3333 as /devices/platform/dummy_hcd.0/usb5/5-1/5-1:0.0/0003:0926:3333.0002/input/input5
-[   63.303922][   T47] keytouch 0003:0926:3333.0002: input,hidraw1: USB HID v0.00 Keyboard [HID 0926:3333] on usb-dummy_hcd.0-1/input0
-[   63.455055][ T6657] [U] method call time=1618757344.787542 sender=:1.4 -> destination=org.freedesktop.systemd1 serial=62 path=/org/freedesktop/systemd1/unit/poweroff_2etarget; interface=org.freedesktop.DBus.Properties; member=Get
-[   63.517372][ T6657] [U]    string "org.freedesktop.systemd1.Unit"
-[   63.519572][ T6657] [U]    string "LoadState"
-[   63.521683][ T6657] [U] method return time=1618757344.854169 sender=:1.1 -> destination=:1.4 serial=539 reply_serial=62
-[   63.526490][ T6657] [U]    variant       string "loaded"
-[   63.541841][ T6657] [U] signal time=1618757344.874316 sender=:1.4 -> destination=(null destination) serial=63 path=/org/freedesktop/login1; interface=org.freedesktop.login1.Manager; member=PrepareForShutdown
-[   63.553667][ T6657] [U]    boolean true
-[   63.557131][ T6657] [U] signal time=1618757344.889621 sender=:1.1 -> destination=(null destination) serial=540 path=/org/freedesktop/systemd1; interface=org.freedesktop.systemd1.Manager; member=UnitNew
-[   63.570075][ T6657] [U]    string "snapd.system-shutdown.service"
-[   63.573237][ T6657] [U]    object path "/org/freedesktop/systemd1/unit/snapd_2esystem_2dshutdown_2eservice"
-[   63.579551][ T6657] [U] signal time=1618757344.912040 sender=:1.1 -> destination=(null destination) serial=541 path=/org/freedesktop/systemd1; interface=org.freedesktop.systemd1.Manager; member=UnitRemoved
-[   63.590224][ T6657] [U]    string "snapd.system-shutdown.service"
-[   63.595151][ T5520] usb 5-1: USB disconnect, device number 2
-[   64.416748][    T1] systemd-shutdown[1]: Syncing filesystems and block devices.
-[   64.442933][    T1] systemd-shutdown[1]: Sending SIGTERM to remaining processes...
-[   64.455565][ T5479] systemd-journald[5479]: Received SIGTERM from PID 1 (systemd-shutdow).
-[   64.685854][    T1] systemd-shutdown[1]: Sending SIGKILL to remaining processes...
-[   64.700991][    T1] systemd-shutdown[1]: Unmounting file systems.
-[   64.710744][ T7247] [7247]: Remounting '/' read-only in with options 'errors=remount-ro'.
-----------------------------------------
-
-Running the reproducer with
-
-  strace -qttf -s 256 -o /dev/ttyprintk -p 1
-
-reports that systemd accesses service files related to shutdown operation
-and actually performs shutdown when syz_usb_ep_write() is called.
-
-----------------------------------------
-[   81.439176][   T25] usb 5-1: new high-speed USB device number 2 using dummy_hcd
-[   81.810488][   T25] usb 5-1: config 0 interface 0 altsetting 0 endpoint 0x81 has an invalid bInterval 0, changing to 7
-[   81.814352][   T25] usb 5-1: New USB device found, idVendor=0926, idProduct=3333, bcdDevice= 0.40
-[   81.817830][   T25] usb 5-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
-[   81.821033][   T25] usb 5-1: config 0 descriptor??
-[   82.298058][   T25] keytouch 0003:0926:3333.0002: fixing up Keytouch IEC report descriptor
-[   82.314739][   T25] input: HID 0926:3333 as /devices/platform/dummy_hcd.0/usb5/5-1/5-1:0.0/0003:0926:3333.0002/input/input5
-[   82.399716][   T25] keytouch 0003:0926:3333.0002: input,hidraw1: USB HID v0.00 Keyboard [HID 0926:3333] on usb-dummy_hcd.0-1/input0
-[   82.521650][ T6702] [U] 1     23:55:59.696753 epoll_wait(4, [{EPOLLIN, {u32=1595287216, u64=94362026780336}}], 82, -1) = 1
-[   82.526627][ T6702] [U] 1     23:56:01.028146 recvmsg(63, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="l\1\0\0012\0\0\0(\0\0\0\265\0\0\0\1\1o\0000\0\0\0", iov_len=24}], msg_iovlen=1, msg_controllen=0, msg_flags=MSG_CMSG_CLOEXEC}, MSG_DONTWAIT|MSG_CMSG_CLOEXEC) = 24
-[   82.536638][ T6702] [U] 1     23:56:01.038156 recvmsg(63, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="/org/freedesktop/systemd1/unit/poweroff_2etarget\0\0\0\0\0\0\0\0\3\1s\0\3\0\0\0Get\0\0\0\0\0\2\1s\0\37\0\0\0org.freedesktop.DBus.Properties\0\6\1s\0\30\0\0\0org.freedesktop.systemd1\0\0\0\0\0\0\0\0\10\1g\0\2ss\0\7\1s\0\4\0\0\0:1.4\0\0\0\0\35\0\0\0org.freedesktop.systemd1.Unit\0\0\0\t\0\0\0LoadState\0", iov_len=226}], msg_iovlen=1, msg_controllen=0, msg_flags=MSG_CMSG_CLOEXEC}, MSG_DONTWAIT|MSG_CMSG_CLOEXEC) = 226
-[   82.558307][ T6702] [U] 1     23:56:01.059814 stat("/etc/systemd/system", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-[   82.562924][ T6702] [U] 1     23:56:01.064464 stat("/etc/systemd/system.attached", 0x7fff5a8c5380) = -1 ENOENT (No such file or directory)
-[   82.568439][ T6702] [U] 1     23:56:01.069990 stat("/run/systemd/system", {st_mode=S_IFDIR|0755, st_size=40, ...}) = 0
-[   82.572344][ T6702] [U] 1     23:56:01.073884 stat("/run/systemd/system.attached", 0x7fff5a8c5380) = -1 ENOENT (No such file or directory)
-[   82.577160][ T6702] [U] 1     23:56:01.078594 stat("/usr/local/lib/systemd/system", 0x7fff5a8c5380) = -1 ENOENT (No such file or directory)
-[   82.581731][ T6702] [U] 1     23:56:01.083300 stat("/lib/systemd/system", {st_mode=S_IFDIR|0755, st_size=36864, ...}) = 0
-[   82.585468][ T6702] [U] 1     23:56:01.087032 stat("/usr/lib/systemd/system", 0x7fff5a8c5380) = -1 ENOENT (No such file or directory)
-[   82.589930][ T6702] [U] 1     23:56:01.091488 openat(AT_FDCWD, "/lib/systemd/system/poweroff.target", O_RDONLY|O_CLOEXEC) = 12
-[   82.593785][ T6702] [U] 1     23:56:01.095368 fstat(12, {st_mode=S_IFREG|0644, st_size=592, ...}) = 0
-[   82.598005][ T6702] [U] 1     23:56:01.099592 fstat(12, {st_mode=S_IFREG|0644, st_size=592, ...}) = 0
-[   82.601230][ T6702] [U] 1     23:56:01.102831 fstat(12, {st_mode=S_IFREG|0644, st_size=592, ...}) = 0
-[   82.604831][ T6702] [U] 1     23:56:01.106074 read(12, "#  SPDX-License-Identifier: LGPL-2.1+\n#\n#  This file is part of systemd.\n#\n#  systemd is free software; you can redistribute it and/or modify it\n#  under the terms of the GNU Lesser General Public License as published by\n#  the Free Software Foundation; ei"..., 4096) = 592
-[   82.614929][ T6702] [U] 1     23:56:01.116431 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.618853][ T6702] [U] 1     23:56:01.120455 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.622814][ T6702] [U] 1     23:56:01.124403 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.627687][ T6702] [U] 1     23:56:01.128512 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.631510][ T6702] [U] 1     23:56:01.133113 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.635264][ T6702] [U] 1     23:56:01.136875 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.641600][ T6702] [U] 1     23:56:01.143083 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.645731][ T6702] [U] 1     23:56:01.147328 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.649761][ T6702] [U] 1     23:56:01.151305 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.653348][ T6702] [U] 1     23:56:01.154962 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.657595][ T6702] [U] 1     23:56:01.159116 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.661289][ T6702] [U] 1     23:56:01.162902 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.664922][ T6702] [U] 1     23:56:01.166538 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.669537][ T6702] [U] 1     23:56:01.171104 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.673837][ T6702] [U] 1     23:56:01.175434 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.678120][ T6702] [U] 1     23:56:01.179733 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.682841][ T6702] [U] 1     23:56:01.184426 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.686856][ T6702] [U] 1     23:56:01.188459 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.691748][ T6702] [U] 1     23:56:01.193304 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.695430][ T6702] [U] 1     23:56:01.197045 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.700062][   T25] usb 5-1: USB disconnect, device number 2
-[   82.700247][ T6702] [U] 1     23:56:01.201701 ioctl(12, TCGETS, 0x7fff5a8c5270) = -1 ENOTTY (Inappropriate ioctl for device)
-[   82.706855][ T6702] [U] 1     23:56:01.208423 read(12, "", 4096) = 0
-[   82.709183][ T6702] [U] 1     23:56:01.210816 close(12)         = 0
-[   82.711451][ T6702] [U] 1     23:56:01.213069 openat(AT_FDCWD, "/", O_RDONLY|O_CLOEXEC|O_PATH|O_DIRECTORY) = 12
-[   82.715204][ T6702] [U] 1     23:56:01.216762 openat(12, "lib", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 21
-[   82.719140][ T6702] [U] 1     23:56:01.220780 fstat(21, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-[   82.723488][ T6702] [U] 1     23:56:01.225088 close(12)         = 0
-[   82.726122][ T6702] [U] 1     23:56:01.227677 openat(21, "systemd", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 12
-[   82.729780][ T6702] [U] 1     23:56:01.231409 fstat(12, {st_mode=S_IFDIR|0755, st_size=12288, ...}) = 0
-[   82.733039][ T6702] [U] 1     23:56:01.234655 close(21)         = 0
-[   82.735282][ T6702] [U] 1     23:56:01.236896 openat(12, "system", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 21
-[   82.739585][ T6702] [U] 1     23:56:01.241182 fstat(21, {st_mode=S_IFDIR|0755, st_size=36864, ...}) = 0
-[   82.742829][ T6702] [U] 1     23:56:01.244396 close(12)         = 0
-[   82.745269][ T6702] [U] 1     23:56:01.246859 openat(21, "poweroff.target.wants", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 12
-[   82.749170][ T6702] [U] 1     23:56:01.250814 fstat(12, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-[   82.752399][ T6702] [U] 1     23:56:01.254020 close(21)         = 0
-[   82.754635][ T6702] [U] 1     23:56:01.256256 close(12)         = 0
-[   82.757679][ T6702] [U] 1     23:56:01.259294 openat(AT_FDCWD, "/", O_RDONLY|O_CLOEXEC|O_PATH|O_DIRECTORY) = 12
-[   82.761019][ T6702] [U] 1     23:56:01.262646 openat(12, "lib", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 21
-[   82.764657][ T6702] [U] 1     23:56:01.266171 fstat(21, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-[   82.768295][ T6702] [U] 1     23:56:01.269934 close(12)         = 0
-[   82.770602][ T6702] [U] 1     23:56:01.272190 openat(21, "systemd", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 12
-[   82.775088][ T6702] [U] 1     23:56:01.276675 fstat(12, {st_mode=S_IFDIR|0755, st_size=12288, ...}) = 0
-[   82.778443][ T6702] [U] 1     23:56:01.280088 close(21)         = 0
-[   82.780718][ T6702] [U] 1     23:56:01.282325 openat(12, "system", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 21
-[   82.784142][ T6702] [U] 1     23:56:01.285761 fstat(21, {st_mode=S_IFDIR|0755, st_size=36864, ...}) = 0
-[   82.788544][ T6702] [U] 1     23:56:01.290070 close(12)         = 0
-[   82.791053][ T6702] [U] 1     23:56:01.292633 openat(21, "poweroff.target.wants", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 12
-[   82.795373][ T6702] [U] 1     23:56:01.296955 fstat(12, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-[   82.799346][ T6702] [U] 1     23:56:01.300947 close(21)         = 0
-[   82.801691][ T6702] [U] 1     23:56:01.303300 close(12)         = 0
-[   82.804436][ T6702] [U] 1     23:56:01.306025 openat(AT_FDCWD, "/lib/systemd/system/poweroff.target.wants", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 12
-[   82.809997][ T6702] [U] 1     23:56:01.311551 fstat(12, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-[   82.813552][ T6702] [U] 1     23:56:01.314912 getdents64(12, /* 3 entries */, 32768) = 96
-[   82.816742][ T6702] [U] 1     23:56:01.318366 getdents64(12, /* 0 entries */, 32768) = 0
-[   82.819549][ T6702] [U] 1     23:56:01.321196 close(12)         = 0
-[   82.822115][ T6702] [U] 1     23:56:01.323577 stat("/lib/systemd/system/poweroff.target.wants/plymouth-poweroff.service", {st_mode=S_IFREG|0644, st_size=456, ...}) = 0
-[   82.827300][ T6702] [U] 1     23:56:01.328916 lstat("/lib/systemd/system/poweroff.target.wants/plymouth-poweroff.service", {st_mode=S_IFLNK|0777, st_size=28, ...}) = 0
-[   82.832217][ T6702] [U] 1     23:56:01.333840 readlinkat(AT_FDCWD, "/lib/systemd/system/poweroff.target.wants/plymouth-poweroff.service", "../plymouth-poweroff.service", 4096) = 28
-[   82.838764][ T6702] [U] 1     23:56:01.340096 stat("/etc/systemd/system", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-[   82.842656][ T6702] [U] 1     23:56:01.344240 stat("/etc/systemd/system.attached", 0x7fff5a8c53c0) = -1 ENOENT (No such file or directory)
-[   82.848056][ T6702] [U] 1     23:56:01.349642 stat("/run/systemd/system", {st_mode=S_IFDIR|0755, st_size=40, ...}) = 0
-[   82.852020][ T6702] [U] 1     23:56:01.353632 stat("/run/systemd/system.attached", 0x7fff5a8c53c0) = -1 ENOENT (No such file or directory)
-[   82.857260][ T6702] [U] 1     23:56:01.358867 stat("/usr/local/lib/systemd/system", 0x7fff5a8c53c0) = -1 ENOENT (No such file or directory)
-[   82.861603][ T6702] [U] 1     23:56:01.363201 stat("/lib/systemd/system", {st_mode=S_IFDIR|0755, st_size=36864, ...}) = 0
-[   82.865468][ T6702] [U] 1     23:56:01.367087 stat("/usr/lib/systemd/system", 0x7fff5a8c53c0) = -1 ENOENT (No such file or directory)
-[   82.869655][ T6702] [U] 1     23:56:01.371270 openat(AT_FDCWD, "/lib/systemd/system/plymouth-poweroff.service", O_RDONLY|O_CLOEXEC) = 12
-[   82.875689][ T6702] [U] 1     23:56:01.377298 fstat(12, {st_mode=S_IFREG|0644, st_size=456, ...}) = 0
-[   82.879502][ T6702] [U] 1     23:56:01.381161 fstat(12, {st_mode=S_IFREG|0644, st_size=456, ...}) = 0
-[   82.882654][ T6702] [U] 1     23:56:01.384289 fstat(12, {st_mode=S_IFREG|0644, st_size=456, ...}) = 0
-[   82.886762][ T6702] [U] 1     23:56:01.388143 read(12, "[Unit]\nDescription=Show Plymouth Power Off Screen\nAfter=getty@tty1.service display-manager.service plymouth-start.service\nBefore=systemd-poweroff.service\nDefaultDependencies=no\nConditionKernelCommandLine=!plymouth.enable=0\nConditionKernelCommandLine=!nospl"..., 4096) = 456
-(...snipped...)
-[   92.268094][ T6702] [U] 1     23:56:10.770390 openat(AT_FDCWD, "/sys/fs/cgroup/unified/user.slice/user-0.slice/session-1.scope/cgroup.procs", O_RDONLY|O_CLOEXEC) = 53
-[   92.273360][ T6702] [U] 1     23:56:10.775686 fstat(53, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-[   92.277187][ T6702] [U] 1     23:56:10.779503 read(53, "6587\n6690\n6702\n", 4096) = 15
-[   92.280196][ T6702] [U] 1     23:56:10.782300 kill(6587, SIGTERM) = 0
-[   92.283209][ T6702] [U] 1     23:56:10.785535 kill(6587, SIGCONT) = 0
-[   92.285894][ T6702] [U] 1     23:56:10.788075 kill(6690, SIGTERM) = 0
-[   92.290119][ T6702] [U] 1     23:56:10.792427 kill(6690, SIGCONT) = 0
-[   92.292635][ T6702] [U] 1     23:56:10.794992 kill(6702, SIGTERM) = 0
-[   92.995331][    T1] systemd-shutdown[1]: Syncing filesystems and block devices.
-[   93.029308][    T1] systemd-shutdown[1]: Sending SIGTERM to remaining processes...
-[   93.037016][ T5478] systemd-journald[5478]: Received SIGTERM from PID 1 (systemd-shutdow).
-[   93.058691][    T1] systemd-shutdown[1]: Sending SIGKILL to remaining processes...
-[   93.067591][    T1] systemd-shutdown[1]: Unmounting file systems.
-[   93.070598][ T7211] [7211]: Remounting '/' read-only in with options 'errors=remount-ro'.
-[   93.077341][ T7211] EXT4-fs (sda1): re-mounted. Opts: errors=remount-ro. Quota mode: none.
-----------------------------------------
-
-This problem might be difficult to avoid from the kernel side...

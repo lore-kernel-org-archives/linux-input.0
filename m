@@ -7,39 +7,39 @@ X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BC3DC433ED
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B19AC43600
 	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3352C61104
+	by mail.kernel.org (Postfix) with ESMTP id 1BFB16101C
 	for <linux-input@archiver.kernel.org>; Mon, 19 Apr 2021 20:48:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243126AbhDSUsc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 19 Apr 2021 16:48:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55116 "EHLO mail.kernel.org"
+        id S242896AbhDSUsb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Apr 2021 16:48:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240295AbhDSUqa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:46:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1EE1613CF;
-        Mon, 19 Apr 2021 20:45:21 +0000 (UTC)
+        id S241004AbhDSUq3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:46:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61C4A613ED;
+        Mon, 19 Apr 2021 20:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865122;
-        bh=qcaz2jB7fq9VIbH3JTlATGPVy+TRwlcy5hkg5pGsbyY=;
+        s=k20201202; t=1618865121;
+        bh=OA8tR/JWbVQiO1aagRDO5aGsUKFVD4bCapNzA312gwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IzRHmx8pXA+Zr2SWa0AyMefA9ozAhl+MVjcHe9wnRehJ6BtufondfknaBbXuCS+ry
-         XAb7h6HmHZkOA2eavDCVOq73GtEdXvWAf1BWe7RxHsR5ThBV+Cg7C7BZmQf1Gy5nmo
-         5UMm3f5Z42CJ4+8qKwFv2j1DrzG1+PjuceUlP7hHa2aGlBakJoi0Il/obxF2sQfoEL
-         8OEk0nIl2IMzjbMRCYldTy9Dh+fD0SlUvjrVXLsL2RMd2x3c+xx2mn6f3RwC+sdJYi
-         RboPtH0sKeofZE37iq62qS5Z64ttJHXZX9k3wlhpsuEgRz8rMTeAyOvl/cdP6xGbVU
-         igwdv0LIl3l+w==
+        b=R7CzLvQHZ1iCpLg6A/SRxdN6R/KDbkxNZ7FfDVOQkzZIvN2Z0XS7Q2PYhxBtNVpdL
+         3Vk801yufo4TmWI3N+ZPNK0wdN1An2J350xokc4uy8l67IfiT3c6L4m22wOYdU6od0
+         apKAmZmimVugkytQY3tAcJ4OE311g+HqrQW3Sh6PE50EdGpIh3EU7npZqeNudSNS41
+         d5JWEONd/xeRwERql/RDB7ONHtri21OviSVfuGBlbH9HjJeyC2ZhQyv+CWFSINSEEQ
+         IZpo1D90lrYHzlud3iIoq4v9O+0LXGrlxK0uB7Zx31HNMorA2CkByUN9G+LKystYfk
+         081DpxwUqxWWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 03/12] HID: wacom: Assign boolean values to a bool variable
-Date:   Mon, 19 Apr 2021 16:45:08 -0400
-Message-Id: <20210419204517.6770-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 02/12] HID: alps: fix error return code in alps_input_configured()
+Date:   Mon, 19 Apr 2021 16:45:07 -0400
+Message-Id: <20210419204517.6770-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204517.6770-1-sashal@kernel.org>
 References: <20210419204517.6770-1-sashal@kernel.org>
@@ -51,36 +51,33 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit e29c62ffb008829dc8bcc0a2ec438adc25a8255e ]
+[ Upstream commit fa8ba6e5dc0e78e409e503ddcfceef5dd96527f4 ]
 
-Fix the following coccicheck warnings:
+When input_register_device() fails, no error return code is assigned.
+To fix this bug, ret is assigned with -ENOENT as error return code.
 
-./drivers/hid/wacom_wac.c:2536:2-6: WARNING: Assignment of
-0/1 to bool variable.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-alps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 274a55702784..187eda37dca1 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2496,7 +2496,7 @@ static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
- 	    !wacom_wac->shared->is_touch_on) {
- 		if (!wacom_wac->shared->touch_down)
- 			return;
--		prox = 0;
-+		prox = false;
- 	}
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index f4cf541d13e0..3eddd8f73b57 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -766,6 +766,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
  
- 	wacom_wac->hid_data.num_received++;
+ 		if (input_register_device(data->input2)) {
+ 			input_free_device(input2);
++			ret = -ENOENT;
+ 			goto exit;
+ 		}
+ 	}
 -- 
 2.30.2
 

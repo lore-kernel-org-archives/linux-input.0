@@ -2,47 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C683AC433B4
-	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:35:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C4A4C433ED
+	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:57:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 952CE61445
-	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:35:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1610461261
+	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:57:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243344AbhDWQgB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 23 Apr 2021 12:36:01 -0400
-Received: from mga14.intel.com ([192.55.52.115]:20379 "EHLO mga14.intel.com"
+        id S231312AbhDWQ5f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 23 Apr 2021 12:57:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243364AbhDWQfy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 23 Apr 2021 12:35:54 -0400
-IronPort-SDR: 4SPLtwCQMWOL0y2B26pi31VojIDz8I7WqlVF4XU3CTo2Tip8/YAzwhHSg3bQBXiiPJWCZXwUgU
- ggmnioeaVcig==
-X-IronPort-AV: E=McAfee;i="6200,9189,9963"; a="195652446"
-X-IronPort-AV: E=Sophos;i="5.82,246,1613462400"; 
-   d="scan'208";a="195652446"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2021 09:34:47 -0700
-IronPort-SDR: hSIP1+bRkmKt1adt4FLJFYKuhVUPTnI6LiJ5KLnqJl+Aj0A26D1jM/EHN9L5ZGOoEjFVDWNM71
- FpIQuu00Mzww==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.82,246,1613462400"; 
-   d="scan'208";a="603586330"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga005.jf.intel.com with ESMTP; 23 Apr 2021 09:34:42 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id BBD4116A; Fri, 23 Apr 2021 19:34:59 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
+        id S229691AbhDWQ5f (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 23 Apr 2021 12:57:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FA89611AE;
+        Fri, 23 Apr 2021 16:56:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1619197018;
+        bh=LfID890VAjx1GZR+zOrDOxEjOHzkC+fZhl1uOkQgHsw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=r5veA+XwtEUJElzT1v6yOIVjcnYgfLhLHRdA/om5LzaouZiCO5kAYjkTP1F2/MQ+g
+         0yyG03jy82r4Ix6/aqifdqt2fg50ItCwKTNxi3eM8gkLvo+72oFxgZcUjLnc7FQkxT
+         jvOWV5pgX1FTP0wrCGMUEgo/gRBkWzkCr0r2iCcDon0sgEDfsGGN8BKERulBIdSgVp
+         CJHDeIjag9Q31U6GZnPxnlW6k0TUSNHPs/lE2zIobgahDbb6tEyzmjGcsAOgBDLt+n
+         eCfDuJ/9ngfXzXuGvv/3vkrnfk/zy8nPq+Z1ZOZo1pgIgrdEaGSg27/5hx1zU4YJjl
+         yIG8RNvTnJhng==
+Date:   Fri, 23 Apr 2021 17:56:30 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-spi@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        alsa-devel@alsa-project.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
         Robert Jarzmik <robert.jarzmik@free.fr>,
@@ -50,48 +45,49 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Liam Girdwood <liam.r.girdwood@linux.intel.com>,
         Jie Yang <yang.jie@linux.intel.com>,
         Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
-Subject: [PATCH v1 13/14] spi: pxa2xx: Constify struct driver_data parameter
-Date:   Fri, 23 Apr 2021 19:34:36 +0300
-Message-Id: <20210423163437.89306-13-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210423163437.89306-1-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 05/14] spi: pxa2xx: Consolidate related headers under
+ include/linux/spi
+Message-ID: <20210423165630.GH5507@sirena.org.uk>
 References: <20210423163437.89306-1-andriy.shevchenko@linux.intel.com>
+ <20210423163437.89306-5-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Rn7IEEq3VEzCw+ji"
+Content-Disposition: inline
+In-Reply-To: <20210423163437.89306-5-andriy.shevchenko@linux.intel.com>
+X-Cookie: This is now.  Later is later.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-In a couple of functions the contents of struct driver_data are not altered,
-hence we may constify the respective function parameter.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/spi/spi-pxa2xx.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+--Rn7IEEq3VEzCw+ji
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/spi/spi-pxa2xx.h b/drivers/spi/spi-pxa2xx.h
-index 6d4273772b1f..301969fc3c95 100644
---- a/drivers/spi/spi-pxa2xx.h
-+++ b/drivers/spi/spi-pxa2xx.h
-@@ -93,7 +93,7 @@ static inline void pxa2xx_spi_write(const struct driver_data *drv_data, u32 reg,
- 
- #define DMA_ALIGNMENT		8
- 
--static inline int pxa25x_ssp_comp(struct driver_data *drv_data)
-+static inline int pxa25x_ssp_comp(const struct driver_data *drv_data)
- {
- 	switch (drv_data->ssp_type) {
- 	case PXA25x_SSP:
-@@ -115,7 +115,7 @@ static inline u32 read_SSSR_bits(const struct driver_data *drv_data, u32 bits)
- 	return pxa2xx_spi_read(drv_data, SSSR) & bits;
- }
- 
--static inline void write_SSSR_CS(struct driver_data *drv_data, u32 val)
-+static inline void write_SSSR_CS(const struct driver_data *drv_data, u32 val)
- {
- 	if (drv_data->ssp_type == CE4100_SSP ||
- 	    drv_data->ssp_type == QUARK_X1000_SSP)
--- 
-2.30.2
+On Fri, Apr 23, 2021 at 07:34:28PM +0300, Andy Shevchenko wrote:
 
+> We have two headers split between include/linux and include/linux/spi.
+> Consolidated them under SPI realm, i.e. in the latter folder.
+
+Why?  Isn't the point to maintain an abstraction between the general
+purpose use of the SSP IP and its application as a SPI controller?  I'd
+check the cover letter for the series but there doesn't seem to be one.
+
+--Rn7IEEq3VEzCw+ji
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmCC/D0ACgkQJNaLcl1U
+h9CLHAf/eyWaZV/yF5wLiXo/wOpqfrx3e/NqVjLRELGlZE+ar0ILQQ9eW9MXKr1d
+dY8YMPYTi95D/hs2pHwY+69eqE/jSVqiDXg0ClNqfcNE+T/u+AJP5AjN8vxkHgA1
+2D5kguaPu/cBUZgByp4oDlAVTdFlT44mLDNwgjBaJR+/zMUl35CTKqzLYD2XB7+6
+vj9KiXPatFJLphF9XoDc0s8Z2lZZkUWhVG3hku2pvH8E2X+zJpAQYFKtxwXAKSrt
+zjuR7BvYrlIRgZnYT6ct3gtl+fPoBXimyvWDH86cxopeAsiHcFg7Jq7+TqlOYtPY
+ZEwe0ACiO9v2GD60nmZC4JwhDTSMgA==
+=0Eci
+-----END PGP SIGNATURE-----
+
+--Rn7IEEq3VEzCw+ji--

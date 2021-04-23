@@ -2,40 +2,39 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3ED82C43470
-	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:34:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A50AC43611
+	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:34:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 13817611BF
-	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:34:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2127A6145A
+	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:34:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243127AbhDWQfX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 23 Apr 2021 12:35:23 -0400
-Received: from mga02.intel.com ([134.134.136.20]:26414 "EHLO mga02.intel.com"
+        id S242529AbhDWQfV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 23 Apr 2021 12:35:21 -0400
+Received: from mga03.intel.com ([134.134.136.65]:32277 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243036AbhDWQfX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 23 Apr 2021 12:35:23 -0400
-IronPort-SDR: a6j9msOtpeGls9m3KF6n7+RjXYn57FvLROIFkWFXgf2YgGhE7FUiXXTW91/hTrUdIN2qp9LG1+
- 4KrkwVydxw8Q==
-X-IronPort-AV: E=McAfee;i="6200,9189,9963"; a="183227057"
+        id S242270AbhDWQfU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 23 Apr 2021 12:35:20 -0400
+IronPort-SDR: kUJADS3wGWKTbHe1Wc/3dmLDIxR/lg2ijsws94tDsA2B7Mt578vVrqH9d5rcesrKwx29XknphH
+ DGRVM5hJF3MA==
+X-IronPort-AV: E=McAfee;i="6200,9189,9963"; a="196156380"
 X-IronPort-AV: E=Sophos;i="5.82,246,1613462400"; 
-   d="scan'208";a="183227057"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2021 09:34:46 -0700
-IronPort-SDR: 0rIITxXvFXROaqSP6RWWo/LjE3xn3fp/eFwpEp/aBW9WfHbz64VIJD79JZEA5jfotOvOHXV+fK
- Qt3TJgDkZf3A==
+   d="scan'208";a="196156380"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2021 09:34:41 -0700
+IronPort-SDR: Fnp6XJyjPOVuGzZXWASJSa6rGuChm3tt8Ek21juLcavIioV2Bfd/myVGMPXqN30W0Yy1qCCgbq
+ VfWpPwX7cD1Q==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.82,246,1613462400"; 
-   d="scan'208";a="453620727"
+   d="scan'208";a="525064569"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by FMSMGA003.fm.intel.com with ESMTP; 23 Apr 2021 09:34:40 -0700
+  by fmsmga001.fm.intel.com with ESMTP; 23 Apr 2021 09:34:37 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 4AE0B1FC; Fri, 23 Apr 2021 19:34:56 +0300 (EEST)
+        id 493C317E; Fri, 23 Apr 2021 19:34:55 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
@@ -51,9 +50,9 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Liam Girdwood <liam.r.girdwood@linux.intel.com>,
         Jie Yang <yang.jie@linux.intel.com>,
         Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
-Subject: [PATCH v1 06/14] spi: pxa2xx: Group Intel Quark specific definitions
-Date:   Fri, 23 Apr 2021 19:34:29 +0300
-Message-Id: <20210423163437.89306-6-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 04/14] spi: pxa2xx: Replace header inclusions by forward declarations
+Date:   Fri, 23 Apr 2021 19:34:27 +0300
+Message-Id: <20210423163437.89306-4-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210423163437.89306-1-andriy.shevchenko@linux.intel.com>
 References: <20210423163437.89306-1-andriy.shevchenko@linux.intel.com>
@@ -63,36 +62,102 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-DDS_RATE is Intel Quark specific definition. Move it to the rest
-Intel Quark related.
+When the data structure is only referred by pointer, compiler may not need
+to see the contents of the data type. Thus, we may replace header inclusions
+by respective forward declarations. Due to above add missed headers as well.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- include/linux/spi/pxa2xx_ssp.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/spi/spi-pxa2xx-dma.c   |  6 ++++--
+ drivers/spi/spi-pxa2xx.c       |  2 ++
+ drivers/spi/spi-pxa2xx.h       | 18 ++++++++++--------
+ include/linux/spi/pxa2xx_spi.h |  2 ++
+ 4 files changed, 18 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/spi/pxa2xx_ssp.h b/include/linux/spi/pxa2xx_ssp.h
-index 14b049840faf..1b6c1a0922bd 100644
---- a/include/linux/spi/pxa2xx_ssp.h
-+++ b/include/linux/spi/pxa2xx_ssp.h
-@@ -38,7 +38,6 @@ struct device_node;
- #define SSDR		(0x10)  /* SSP Data Write/Data Read Register */
- 
- #define SSTO		(0x28)  /* SSP Time Out Register */
--#define DDS_RATE	(0x28)  /* SSP DDS Clock Rate Register (Intel Quark) */
- #define SSPSP		(0x2C)  /* SSP Programmable Serial Protocol */
- #define SSTSA		(0x30)  /* SSP Tx Timeslot Active */
- #define SSRSA		(0x34)  /* SSP Rx Timeslot Active */
-@@ -105,6 +104,9 @@ struct device_node;
- #define CE4100_SSCR1_RFT	GENMASK(11, 10)	/* Receive FIFO Threshold (mask) */
- #define CE4100_SSCR1_RxTresh(x) (((x) - 1) << 10)	/* level [1..4] */
- 
-+/* Intel Quark X1000 */
-+#define DDS_RATE		0x28		 /* SSP DDS Clock Rate Register */
+diff --git a/drivers/spi/spi-pxa2xx-dma.c b/drivers/spi/spi-pxa2xx-dma.c
+index 2e4a49567146..32ab7391396d 100644
+--- a/drivers/spi/spi-pxa2xx-dma.c
++++ b/drivers/spi/spi-pxa2xx-dma.c
+@@ -9,11 +9,13 @@
+ #include <linux/device.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/dmaengine.h>
+-#include <linux/pxa2xx_ssp.h>
+ #include <linux/scatterlist.h>
+ #include <linux/sizes.h>
+-#include <linux/spi/spi.h>
 +
- /* QUARK_X1000 SSCR0 bit definition */
- #define QUARK_X1000_SSCR0_DSS		GENMASK(4, 0)	/* Data Size Select (mask) */
- #define QUARK_X1000_SSCR0_DataSize(x)	((x) - 1)	/* Data Size Select [4..32] */
+ #include <linux/spi/pxa2xx_spi.h>
++#include <linux/spi/spi.h>
++
++#include <linux/pxa2xx_ssp.h>
+ 
+ #include "spi-pxa2xx.h"
+ 
+diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
+index e9dddcbd92f1..0296cbdee848 100644
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -9,6 +9,7 @@
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>
++#include <linux/dmaengine.h>
+ #include <linux/err.h>
+ #include <linux/errno.h>
+ #include <linux/gpio/consumer.h>
+@@ -25,6 +26,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/property.h>
+ #include <linux/slab.h>
++
+ #include <linux/spi/pxa2xx_spi.h>
+ #include <linux/spi/spi.h>
+ 
+diff --git a/drivers/spi/spi-pxa2xx.h b/drivers/spi/spi-pxa2xx.h
+index 6724d7e056ce..739e264feaa6 100644
+--- a/drivers/spi/spi-pxa2xx.h
++++ b/drivers/spi/spi-pxa2xx.h
+@@ -7,16 +7,18 @@
+ #ifndef SPI_PXA2XX_H
+ #define SPI_PXA2XX_H
+ 
+-#include <linux/atomic.h>
+-#include <linux/dmaengine.h>
+-#include <linux/errno.h>
+-#include <linux/io.h>
+ #include <linux/interrupt.h>
+-#include <linux/pxa2xx_ssp.h>
+-#include <linux/scatterlist.h>
++#include <linux/io.h>
++#include <linux/types.h>
+ #include <linux/sizes.h>
+-#include <linux/spi/spi.h>
+-#include <linux/spi/pxa2xx_spi.h>
++
++#include <linux/pxa2xx_ssp.h>
++
++struct gpio_desc;
++struct pxa2xx_spi_controller;
++struct spi_controller;
++struct spi_device;
++struct spi_transfer;
+ 
+ struct driver_data {
+ 	/* SSP Info */
+diff --git a/include/linux/spi/pxa2xx_spi.h b/include/linux/spi/pxa2xx_spi.h
+index 31f00c7f4f59..1e0e2f136319 100644
+--- a/include/linux/spi/pxa2xx_spi.h
++++ b/include/linux/spi/pxa2xx_spi.h
+@@ -5,6 +5,8 @@
+ #ifndef __linux_pxa2xx_spi_h
+ #define __linux_pxa2xx_spi_h
+ 
++#include <linux/types.h>
++
+ #include <linux/pxa2xx_ssp.h>
+ 
+ #define PXA2XX_CS_ASSERT (0x01)
 -- 
 2.30.2
 

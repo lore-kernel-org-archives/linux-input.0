@@ -2,39 +2,39 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A50AC43611
-	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:34:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD1FBC43619
+	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:34:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2127A6145A
-	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:34:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 910B56147E
+	for <linux-input@archiver.kernel.org>; Fri, 23 Apr 2021 16:34:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242529AbhDWQfV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 23 Apr 2021 12:35:21 -0400
+        id S243153AbhDWQfY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 23 Apr 2021 12:35:24 -0400
 Received: from mga03.intel.com ([134.134.136.65]:32277 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242270AbhDWQfU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 23 Apr 2021 12:35:20 -0400
-IronPort-SDR: kUJADS3wGWKTbHe1Wc/3dmLDIxR/lg2ijsws94tDsA2B7Mt578vVrqH9d5rcesrKwx29XknphH
- DGRVM5hJF3MA==
-X-IronPort-AV: E=McAfee;i="6200,9189,9963"; a="196156380"
+        id S243031AbhDWQfX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 23 Apr 2021 12:35:23 -0400
+IronPort-SDR: xXWs1KkKinVnpxQYC6aUvWxL6EMQos3PQld6lQVJYq/e6q3wdahxOjtejka44GiHWq8TpWkhQV
+ ZkOcb8rBbDvQ==
+X-IronPort-AV: E=McAfee;i="6200,9189,9963"; a="196156394"
 X-IronPort-AV: E=Sophos;i="5.82,246,1613462400"; 
-   d="scan'208";a="196156380"
+   d="scan'208";a="196156394"
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2021 09:34:41 -0700
-IronPort-SDR: Fnp6XJyjPOVuGzZXWASJSa6rGuChm3tt8Ek21juLcavIioV2Bfd/myVGMPXqN30W0Yy1qCCgbq
- VfWpPwX7cD1Q==
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2021 09:34:46 -0700
+IronPort-SDR: tBkOKguHsDaUTsBA2TGqoa6pqVKWWlEcS6tdJGhI6hcLc/EgMhEjfWEc2G0qfd43LnJxBInm7i
+ eZ/YHjFz+LSw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.82,246,1613462400"; 
-   d="scan'208";a="525064569"
+   d="scan'208";a="525064589"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 23 Apr 2021 09:34:37 -0700
+  by fmsmga001.fm.intel.com with ESMTP; 23 Apr 2021 09:34:42 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 493C317E; Fri, 23 Apr 2021 19:34:55 +0300 (EEST)
+        id C4B3313C; Fri, 23 Apr 2021 19:34:58 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
@@ -50,9 +50,9 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Liam Girdwood <liam.r.girdwood@linux.intel.com>,
         Jie Yang <yang.jie@linux.intel.com>,
         Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
-Subject: [PATCH v1 04/14] spi: pxa2xx: Replace header inclusions by forward declarations
-Date:   Fri, 23 Apr 2021 19:34:27 +0300
-Message-Id: <20210423163437.89306-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 11/14] spi: pxa2xx: Extract clear_SSCR1_bits() helper
+Date:   Fri, 23 Apr 2021 19:34:34 +0300
+Message-Id: <20210423163437.89306-11-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210423163437.89306-1-andriy.shevchenko@linux.intel.com>
 References: <20210423163437.89306-1-andriy.shevchenko@linux.intel.com>
@@ -62,102 +62,72 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-When the data structure is only referred by pointer, compiler may not need
-to see the contents of the data type. Thus, we may replace header inclusions
-by respective forward declarations. Due to above add missed headers as well.
+There are few places that repeat the logic of "clear some bits in SSCR1".
+Extract clear_SSCR1_bits() helper to deduplicate that.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/spi/spi-pxa2xx-dma.c   |  6 ++++--
- drivers/spi/spi-pxa2xx.c       |  2 ++
- drivers/spi/spi-pxa2xx.h       | 18 ++++++++++--------
- include/linux/spi/pxa2xx_spi.h |  2 ++
- 4 files changed, 18 insertions(+), 10 deletions(-)
+ drivers/spi/spi-pxa2xx-dma.c | 4 +---
+ drivers/spi/spi-pxa2xx.c     | 7 ++-----
+ drivers/spi/spi-pxa2xx.h     | 5 +++++
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/spi/spi-pxa2xx-dma.c b/drivers/spi/spi-pxa2xx-dma.c
-index 2e4a49567146..32ab7391396d 100644
+index 5ca01ad7f460..e581027e99f9 100644
 --- a/drivers/spi/spi-pxa2xx-dma.c
 +++ b/drivers/spi/spi-pxa2xx-dma.c
-@@ -9,11 +9,13 @@
- #include <linux/device.h>
- #include <linux/dma-mapping.h>
- #include <linux/dmaengine.h>
--#include <linux/pxa2xx_ssp.h>
- #include <linux/scatterlist.h>
- #include <linux/sizes.h>
--#include <linux/spi/spi.h>
-+
- #include <linux/spi/pxa2xx_spi.h>
-+#include <linux/spi/spi.h>
-+
-+#include <linux/pxa2xx_ssp.h>
+@@ -41,9 +41,7 @@ static void pxa2xx_spi_dma_transfer_complete(struct driver_data *drv_data,
+ 		}
  
- #include "spi-pxa2xx.h"
- 
+ 		/* Clear status & disable interrupts */
+-		pxa2xx_spi_write(drv_data, SSCR1,
+-				 pxa2xx_spi_read(drv_data, SSCR1)
+-				 & ~drv_data->dma_cr1);
++		clear_SSCR1_bits(drv_data, drv_data->dma_cr1);
+ 		write_SSSR_CS(drv_data, drv_data->clear_sr);
+ 		if (!pxa25x_ssp_comp(drv_data))
+ 			pxa2xx_spi_write(drv_data, SSTO, 0);
 diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index e9dddcbd92f1..0296cbdee848 100644
+index 4b3237f14ead..58178ba704dc 100644
 --- a/drivers/spi/spi-pxa2xx.c
 +++ b/drivers/spi/spi-pxa2xx.c
-@@ -9,6 +9,7 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/device.h>
-+#include <linux/dmaengine.h>
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/gpio/consumer.h>
-@@ -25,6 +26,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/property.h>
- #include <linux/slab.h>
-+
- #include <linux/spi/pxa2xx_spi.h>
- #include <linux/spi/spi.h>
+@@ -733,8 +733,7 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
+ static void handle_bad_msg(struct driver_data *drv_data)
+ {
+ 	pxa2xx_spi_off(drv_data);
+-	pxa2xx_spi_write(drv_data, SSCR1,
+-			 pxa2xx_spi_read(drv_data, SSCR1) & ~drv_data->int_cr1);
++	clear_SSCR1_bits(drv_data, drv_data->int_cr1);
+ 	if (!pxa25x_ssp_comp(drv_data))
+ 		pxa2xx_spi_write(drv_data, SSTO, 0);
+ 	write_SSSR_CS(drv_data, drv_data->clear_sr);
+@@ -1161,9 +1160,7 @@ static void pxa2xx_spi_handle_err(struct spi_controller *controller,
+ 	pxa2xx_spi_off(drv_data);
+ 	/* Clear and disable interrupts and service requests */
+ 	write_SSSR_CS(drv_data, drv_data->clear_sr);
+-	pxa2xx_spi_write(drv_data, SSCR1,
+-			 pxa2xx_spi_read(drv_data, SSCR1)
+-			 & ~(drv_data->int_cr1 | drv_data->dma_cr1));
++	clear_SSCR1_bits(drv_data, drv_data->int_cr1 | drv_data->dma_cr1);
+ 	if (!pxa25x_ssp_comp(drv_data))
+ 		pxa2xx_spi_write(drv_data, SSTO, 0);
  
 diff --git a/drivers/spi/spi-pxa2xx.h b/drivers/spi/spi-pxa2xx.h
-index 6724d7e056ce..739e264feaa6 100644
+index b6dae0981b61..398dbd680208 100644
 --- a/drivers/spi/spi-pxa2xx.h
 +++ b/drivers/spi/spi-pxa2xx.h
-@@ -7,16 +7,18 @@
- #ifndef SPI_PXA2XX_H
- #define SPI_PXA2XX_H
+@@ -105,6 +105,11 @@ static inline int pxa25x_ssp_comp(struct driver_data *drv_data)
+ 	}
+ }
  
--#include <linux/atomic.h>
--#include <linux/dmaengine.h>
--#include <linux/errno.h>
--#include <linux/io.h>
- #include <linux/interrupt.h>
--#include <linux/pxa2xx_ssp.h>
--#include <linux/scatterlist.h>
-+#include <linux/io.h>
-+#include <linux/types.h>
- #include <linux/sizes.h>
--#include <linux/spi/spi.h>
--#include <linux/spi/pxa2xx_spi.h>
++static inline void clear_SSCR1_bits(const struct driver_data *drv_data, u32 bits)
++{
++	pxa2xx_spi_write(drv_data, SSCR1, pxa2xx_spi_read(drv_data, SSCR1) & ~bits);
++}
 +
-+#include <linux/pxa2xx_ssp.h>
-+
-+struct gpio_desc;
-+struct pxa2xx_spi_controller;
-+struct spi_controller;
-+struct spi_device;
-+struct spi_transfer;
- 
- struct driver_data {
- 	/* SSP Info */
-diff --git a/include/linux/spi/pxa2xx_spi.h b/include/linux/spi/pxa2xx_spi.h
-index 31f00c7f4f59..1e0e2f136319 100644
---- a/include/linux/spi/pxa2xx_spi.h
-+++ b/include/linux/spi/pxa2xx_spi.h
-@@ -5,6 +5,8 @@
- #ifndef __linux_pxa2xx_spi_h
- #define __linux_pxa2xx_spi_h
- 
-+#include <linux/types.h>
-+
- #include <linux/pxa2xx_ssp.h>
- 
- #define PXA2XX_CS_ASSERT (0x01)
+ static inline void write_SSSR_CS(struct driver_data *drv_data, u32 val)
+ {
+ 	if (drv_data->ssp_type == CE4100_SSP ||
 -- 
 2.30.2
 

@@ -7,65 +7,67 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBEE7C433B4
-	for <linux-input@archiver.kernel.org>; Wed, 28 Apr 2021 16:42:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A46CAC433B4
+	for <linux-input@archiver.kernel.org>; Wed, 28 Apr 2021 16:42:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8CC83613FF
-	for <linux-input@archiver.kernel.org>; Wed, 28 Apr 2021 16:42:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 713D361418
+	for <linux-input@archiver.kernel.org>; Wed, 28 Apr 2021 16:42:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235502AbhD1QnM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 28 Apr 2021 12:43:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35536 "EHLO
+        id S241148AbhD1QnT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 28 Apr 2021 12:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229931AbhD1QnM (ORCPT
+        with ESMTP id S241128AbhD1QnQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Apr 2021 12:43:12 -0400
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2831FC061573
-        for <linux-input@vger.kernel.org>; Wed, 28 Apr 2021 09:42:27 -0700 (PDT)
-Received: by mail-wm1-x333.google.com with SMTP id a22-20020a05600c2256b029014294520f18so4854813wmm.1
-        for <linux-input@vger.kernel.org>; Wed, 28 Apr 2021 09:42:27 -0700 (PDT)
+        Wed, 28 Apr 2021 12:43:16 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6935FC06138A
+        for <linux-input@vger.kernel.org>; Wed, 28 Apr 2021 09:42:30 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id z6so2487305wrm.4
+        for <linux-input@vger.kernel.org>; Wed, 28 Apr 2021 09:42:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=1Npsra9lTv9v4xN59JKhYP3YKsTPHiSIJ0ifDE3Owq0=;
-        b=zUDZjIL2usIB5WXxK/ye4NbuH9+DXS1SfA9xQTM8vq1Dg0Otmpvz9GfHi2opbHEsnK
-         FtLetrva6yDTWEssMBaO0U1BGKu97PDRbGkJBJCDLlUCeISqVJmyWvx1rcNZPpd1+en+
-         o0onKxEcPszCkG9gC2SOsLJOxZZReh10HmEK7H/qlFs7ED2RMTn2SlGocO3l3cHc8XbZ
-         KK/dK54ZXBxKYeRoYlLePgwqmFjTe1BapwtnFKBapqOxVM5xOokZITRx2tA6uypu+T0G
-         1jbos3guoOsApl4T+3WXTPmXArr5SGKpUxcJlQ1rxIydrMJX8rMpHjkeit0G9StsQ1bq
-         Wkew==
+        bh=4iBEXnR1nc8SuK9x0RI0HjJCZgNJ4KQ0iJTuPJeZHB8=;
+        b=Rq3J38Zqc6gI2+zGNcT7zWRQ3/6wkLaHH1GGf4GEoRqnzFASs7CFrP1Wl6jtxARL9i
+         3aj23YNgSI3EhVwxyms52vAUEQpyh4ze9anBmJ+Q5V3CahksOV0j6GN/AcTVzP2RqaYI
+         wyi9JoFEQ/WNvw4tR2ifYYBpuQxd//Xs5iNbxGIhZZZcJPib+HdGBlmtbLOVkiPMt7Bo
+         /JEv+93o3OsoP4IdJqHymAfa2Cb9ani1n1MKEPZKL2CwJrmlWcuGZpZz/p01H0MspOya
+         ULpfKTHN06cenKhTc8jYQqtDRVZcQxCkEJ1zxYVrHfNk6WyV9iBi38nwEggGi3unmtjn
+         mhIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=1Npsra9lTv9v4xN59JKhYP3YKsTPHiSIJ0ifDE3Owq0=;
-        b=D529F4g1sYpNqMYlGEStoKT3Tu18j779Yy+IgmHXfEGgf0M4DahXvmCUb8RF7HozQZ
-         fOn8hDK8bXz+09qoAd6vBguQx91Nowa6cJbvQwQABRhmdXanE1YnrEAirKKPaHv914Gn
-         k7AdLA7CAgE/h/MvlhVHCCUNL9bMafcV41uUqh5czjs+NxOT/eLue+8hDH9o8QlcV7fj
-         4JdAdIcChqbLLhgMFJ6Xoa9P6+sN0Y/krn0tDIM/vaMjyaZt3ClUD8HbMhybsL79fKbh
-         4lm2YByiqE8OIIRN3gSTcUQYWNFgL/xhxQzs+jc60pfuwOXG0UYMJSj78s0Fjl32Q2Y5
-         vFig==
-X-Gm-Message-State: AOAM530uBoeA93HWGIwpwWpvgUWrKj3OKeV4+ADqLtR71j1vxihS2RaQ
-        LQQN++M7WPv7GFmlX5srbFy2Vg==
-X-Google-Smtp-Source: ABdhPJyWnC5LYX8PDdAFYQdLJOpHsPJILkQ2WJwopTaZ8WFEeAxhvmHUVeqf21SzpLPRGkU+Tw2Sow==
-X-Received: by 2002:a1c:f708:: with SMTP id v8mr5666235wmh.133.1619628145900;
-        Wed, 28 Apr 2021 09:42:25 -0700 (PDT)
+        bh=4iBEXnR1nc8SuK9x0RI0HjJCZgNJ4KQ0iJTuPJeZHB8=;
+        b=aLLL0E3g7EG7cYvdPDJcqaQ58Lu9pY1tptBxQOO8AcBE5jRy9GASdP2RsAG2nsrvhQ
+         56mBq43ctXjjJk9ikeEgVF0YNaBm+c0mq8YiJsK/TKOQDrC4GLdZQTpRvw3GNTygkNvj
+         9H0hVJslKwSycKvEO580B/VjKZA+7uOX+6EUZj4toHK7VddTsQwLL2GvpGG4Su0WJbQA
+         PvapAfEecPyTlLaWOFnS4/cYd71nIBk2XR8FgDktvGiiSP+d3wO5cxEZr4o9C2tmF+7S
+         OcLZnhSO78uJmKyhXi5j3ASKuvQ+E32bxSWymdw/fKxXHZ29/NaavO9jhc03+Y1SfN76
+         ifgQ==
+X-Gm-Message-State: AOAM531m/YWhbfz6xL4MH5AxKECqZiSsEWL/aknQOepyImgFfGqCAVdX
+        jqBM79PJQRRW+wn5p2mGDc1Ajw==
+X-Google-Smtp-Source: ABdhPJyWEwmUF9T2p2cho3eW1dDUOfY2IOjaly14N2nUuESPRrAaxGB0L8uVg8DlnkNWW8vpNPDdaQ==
+X-Received: by 2002:a5d:6648:: with SMTP id f8mr16158946wrw.396.1619628149075;
+        Wed, 28 Apr 2021 09:42:29 -0700 (PDT)
 Received: from groot.home ([2a01:cb19:826e:8e00:5864:ddd1:d623:f912])
-        by smtp.gmail.com with ESMTPSA id o10sm351299wrx.35.2021.04.28.09.42.25
+        by smtp.gmail.com with ESMTPSA id o10sm351299wrx.35.2021.04.28.09.42.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Apr 2021 09:42:25 -0700 (PDT)
+        Wed, 28 Apr 2021 09:42:28 -0700 (PDT)
 From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>
 Cc:     fparent@baylibre.com,
         Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/7] Input: mtk-pmic-keys - check for NULL on of_match_device()
-Date:   Wed, 28 Apr 2021 18:42:13 +0200
-Message-Id: <20210428164219.1115537-2-mkorpershoek@baylibre.com>
+Subject: [PATCH 4/7] dt-bindings: input: mtk-pmic-keys: add MT6358 binding definition
+Date:   Wed, 28 Apr 2021 18:42:16 +0200
+Message-Id: <20210428164219.1115537-5-mkorpershoek@baylibre.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210428164219.1115537-1-mkorpershoek@baylibre.com>
 References: <20210428164219.1115537-1-mkorpershoek@baylibre.com>
@@ -75,40 +77,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-mtk-pmic-keys being a child device of mt6397, it will always get probed
-when mt6397_probe() is called.
+Add the binding documentation of the mtk-pmic-keys for the MT6358 PMICs.
 
-This also happens when we have no device tree node matching
-mediatek,mt6397-keys.
-
-In that case, the mfd core warns us:
-
-  [    0.352175] mtk-pmic-keys: Failed to locate of_node [id: -1]
-
-Check return value from call to of_match_device()
-in order to prevent a NULL pointer dereference.
-
-In case of NULL print error message and return -ENODEV
+MT6358 is a little different since it used separate IRQs for the
+release key (_r) event
 
 Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
 ---
- drivers/input/keyboard/mtk-pmic-keys.c | 3 +++
- 1 file changed, 3 insertions(+)
+ Documentation/devicetree/bindings/input/mtk-pmic-keys.txt | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index 62391d6c7da6..12c449eed026 100644
---- a/drivers/input/keyboard/mtk-pmic-keys.c
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -247,6 +247,9 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 	const struct of_device_id *of_id =
- 		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
+diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+index 535d92885372..9d00f2a8e13a 100644
+--- a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
++++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+@@ -9,7 +9,10 @@ For MT6397/MT6323 MFD bindings see:
+ Documentation/devicetree/bindings/mfd/mt6397.txt
  
-+	if (!of_id)
-+		return -ENODEV;
-+
- 	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
- 	if (!keys)
- 		return -ENOMEM;
+ Required properties:
+-- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++- compatible: Should be one of:
++	- "mediatek,mt6397-keys"
++	- "mediatek,mt6323-keys"
++	- "mediatek,mt6358-keys"
+ - linux,keycodes: See Documentation/devicetree/bindings/input/input.yaml
+ 
+ Optional Properties:
 -- 
 2.27.0
 

@@ -2,67 +2,68 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 523A1C433ED
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91510C43470
 	for <linux-input@archiver.kernel.org>; Fri, 30 Apr 2021 04:20:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D94361445
-	for <linux-input@archiver.kernel.org>; Fri, 30 Apr 2021 04:20:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7A6726144B
+	for <linux-input@archiver.kernel.org>; Fri, 30 Apr 2021 04:20:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229977AbhD3EVX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 30 Apr 2021 00:21:23 -0400
-Received: from new3-smtp.messagingengine.com ([66.111.4.229]:43689 "EHLO
+        id S230029AbhD3EVY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 30 Apr 2021 00:21:24 -0400
+Received: from new3-smtp.messagingengine.com ([66.111.4.229]:57571 "EHLO
         new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229831AbhD3EVW (ORCPT
+        by vger.kernel.org with ESMTP id S229902AbhD3EVW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Fri, 30 Apr 2021 00:21:22 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailnew.nyi.internal (Postfix) with ESMTP id C488A58098D;
-        Fri, 30 Apr 2021 00:20:05 -0400 (EDT)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailnew.nyi.internal (Postfix) with ESMTP id BDB58580993;
+        Fri, 30 Apr 2021 00:20:08 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Fri, 30 Apr 2021 00:20:05 -0400
+  by compute4.internal (MEProxy); Fri, 30 Apr 2021 00:20:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm2; bh=2RsfJX3qRNd+TubqaEaS4NIHrv
-        LwBjSMn2o26kiiNuA=; b=XE5yVhGcAT8L9kh+C/VeZo/f3yYl16FoHtoHYfgwm4
-        Vm6GdmljNvvbp+hXcYIxmyEsijzN3e7xoWpmS90Ki3xgJzQyd/6HUiDom8hiDlnG
-        JVmsv3a3NqiY4YS31QkAUfghs4mvv/FkM7VbyDEhLrU0SjmHHNPttPq8XiCj14es
-        FugGfDRvkb8E5k11CnA2a60g2KyM6A3tEZB84X3EDRnzGzZNBfydUXs70INT4cTJ
-        yWR334bLdpfGktc6LYloX++r+2Tza/lFRrWI9Y4D8Yn5RlSXloT/qmvRmvcelEJ6
-        gS+7JuKgg2pDp7+OFExcN/rfYSKIrxK9tQAtmEdP5+Wg==
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=fm2; bh=twhTTkXFTaNa0
+        JKFc4hyiam+oxDA9ilOzTNkxYn0QVU=; b=AemblQgBcosekkAPjsBiAJYZ2qsA4
+        Ls41ugrHWHudRTImhc1D4HO5BZcyCGXWC8A413LCs/AhrSnzZVgq1CmtwcN4beP9
+        UJg2TnfrjtKMsAEAkFmCz6XcJSDGiHh6vKNrdnofZMxTltERL4C5lB/INGV15L00
+        Bs2WZDzC8m7YdQWa+M8mczBxOAk6W3kOV7/OO6pLinIECmea23UG6LlNullSO6fu
+        6aiH68BJJwI04B1Qfs/YdMPYfXrcNoeYAUy9CsWDCQFEiyDr//BbSwGsc7tOjSuo
+        s6IqiNiCeu/nbS8oAvt7Twqlm8uWpAHbkDp+Z0CGDn8r2V6hQ4rUEyNMw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2RsfJX3qRNd+Tubqa
-        EaS4NIHrvLwBjSMn2o26kiiNuA=; b=QSQ+q1SBGrvTh2crttF0IZF0ECv9DpuHB
-        RDLEN9ztQpl0Fwj4z/RI5LNRWis9C/qxuOt5Oo/UcyHMBzWjZO3nKO/SGkINyi2j
-        CN8rkQ/fj4iLzHm9Qr/PTKVrRFn8IenGH/eCUHpu1zxM93IZ/5ZkfujHP+ia6vA4
-        Ixbp7/As4Gug4DzIZ4RH3BiY0JpZ7mfLBHGsKO/UuhtPHrvBK87x0vZ1dp7tYDF0
-        KGT0psg2NBJNKD/6XbJ2lPNFlM/8G6bwZ2m/LinrVsRYFjHOKE/ilLSzliGTIMka
-        CG1ruYNWMCCj+sp0lYtatS1hE6/2U7VFbp5+aQv9C1Rzz21iY7zzA==
-X-ME-Sender: <xms:dIWLYHbnJTFS3ArLfX59oa3IFNrQ9VnHlNWxbbLywbsp3qtIvvFP0Q>
-    <xme:dIWLYGat1feZ0cuK4hB4yzVdBUoXqOP_wLk-yoQJOygcQA-80USqTbQHqc9rUZZX9
-    YQXVhoJis6luyYOmg>
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm2; bh=twhTTkXFTaNa0JKFc4hyiam+oxDA9ilOzTNkxYn0QVU=; b=CRlHtxq9
+        VwytTOKr1W++ddkmojnjbEDmHxViZ6V+gpEndeD//KP6Kfo9fRuzrBVD0Th17M5J
+        WAdoI85tl0186vUTntkqoXTbZGwvZ4ZbgBfC5HN5wKHiI4/oS32rC+U/k+Ei6teS
+        YBfvG26T5GmFp7fX5k+g2sNubzW+iBU4IlmCQdBMdeaeyZeOhNC8py6l6pKYJGWy
+        YkiOAT8rEZQIT9yPiOUy/LEddpmOI4MgCPNo5W4v/0FNK+9iKaGBMWD4M9ycKzn8
+        2WVsMn3uWS+dnJD29DlcuixR0IZkZ+vnF8yOInaP5WXrxqSK12ALOgrjuvR0xqMA
+        eJTRbJE4I5POLQ==
+X-ME-Sender: <xms:d4WLYCu5JPGh7PLU0BA_S_0m03NbZYds2y4gMvi4ej__VJeZbU_q0Q>
+    <xme:d4WLYHeVmfDTpeZaJWJLGFAy4UChlmwBNX7Au0Sg_LsWRAjgzKKPf37q8yZ4m281c
+    2CebuQ0DhJd408Wcw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddvhedgkeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgvlhcu
-    jfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtffrrg
-    htthgvrhhnpeeiteekhfehuddugfeltddufeejjeefgeevheekueffhffhjeekheeiffdt
-    vedtveenucfkphepjedtrddufeehrddugeekrdduhedunecuvehluhhsthgvrhfuihiivg
-    eptdenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghnugdr
-    ohhrgh
-X-ME-Proxy: <xmx:dIWLYJ_QLMX4_EvCcpt3SCP_2NBliJxTm6hIAdPsmjuEdA9FJIWIfA>
-    <xmx:dIWLYNoZ-7Cdq1dZq1KpkiVP2cdo14zhDht1XwCA7TVBexDDhujybQ>
-    <xmx:dIWLYCqiXxHQMTCAmE0ylj0_0y7LE5xtfhEmWLepVSAh4KjQo6EvOA>
-    <xmx:dYWLYOcevcl8bDRtZse8QpFEYp9Qta8KAa-z75AMvqWIR8dP6foHew>
+    cujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgv
+    lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtf
+    frrghtthgvrhhnpeduhfejfedvhffgfeehtefghfeiiefgfeehgfdvvdevfeegjeehjedv
+    gfejheeuieenucfkphepjedtrddufeehrddugeekrdduhedunecuvehluhhsthgvrhfuih
+    iivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghn
+    ugdrohhrgh
+X-ME-Proxy: <xmx:d4WLYNzlwWB79yP2noiTMGvMn8_pKeLVc09dV8iwzr_li0l8cH1rDw>
+    <xmx:d4WLYNPyxVqHLJCNcNOmnP5IeVj864FBv9xq4bsffgQYMW0hW34EcA>
+    <xmx:d4WLYC-6OY8HQ20EAspsOnD00ww3Qw97NCjPB2d8G3FbzmfeYGicRg>
+    <xmx:eIWLYFZu2dwuszy839qYCw5wlVpe0zkF53wptcnONstRqHgVvW64TQ>
 Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Fri, 30 Apr 2021 00:20:04 -0400 (EDT)
+        Fri, 30 Apr 2021 00:20:06 -0400 (EDT)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>,
@@ -72,44 +73,88 @@ Cc:     Hans de Goede <hdegoede@redhat.com>,
         Jernej Skrabec <jernej.skrabec@siol.net>,
         devicetree@vger.kernel.org, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        Samuel Holland <samuel@sholland.org>
-Subject: [PATCH v3 0/2] sunxi LRADC/volume key wakeup support
-Date:   Thu, 29 Apr 2021 23:20:01 -0500
-Message-Id: <20210430042003.4591-1-samuel@sholland.org>
+        Samuel Holland <samuel@sholland.org>,
+        Ondrej Jirman <megous@megous.com>
+Subject: [PATCH v3 2/2] input: sun4i-lradc-keys -  Add wakup support
+Date:   Thu, 29 Apr 2021 23:20:03 -0500
+Message-Id: <20210430042003.4591-3-samuel@sholland.org>
 X-Mailer: git-send-email 2.26.3
+In-Reply-To: <20210430042003.4591-1-samuel@sholland.org>
+References: <20210430042003.4591-1-samuel@sholland.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series allows the volume keys on the PinePhone (and other devices
-with LRADC buttons) to wake up the device.
+From: Ondrej Jirman <megous@megous.com>
 
-Currently `make dtbs_check` complains because the DT update was merged
-without the binding.
+Allow the driver to wake the system on key press if the "wakeup-source"
+property is provided in the device tree. Using the LRADC as a wakeup
+source requires keeping the AVCC domain active during sleep. Since this
+has a nontrivial impact on power consumption (sometimes doubling it),
+disable the LRADC wakeup source by default.
 
-Changes since v2:
-  - Dropped unnecessary pr_err in platform_get_irq() error path
-  - Dropped patch 3 (DT update) as it was merged
-  - Added Acked-by/Reviewed-by tags
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+ drivers/input/keyboard/sun4i-lradc-keys.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-Changes since v1:
-  - Add requisite DT binding change
-  - Only add wakeup capability if "wakeup-source" is present
-  - Warn but do not error out if setting the wake IRQ fails
-  - Add "wakeup-source" property to PinePhone device tree
-
-Ondrej Jirman (1):
-  input: sun4i-lradc-keys -  Add wakup support
-
-Samuel Holland (1):
-  dt-bindings: sun4i-a10-lradc-keys: Accept wakeup-source property
-
- .../input/allwinner,sun4i-a10-lradc-keys.yaml |  2 ++
- drivers/input/keyboard/sun4i-lradc-keys.c     | 20 +++++++++++++++----
- 2 files changed, 18 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
+index 4a796bed48ac..af1683d68c8c 100644
+--- a/drivers/input/keyboard/sun4i-lradc-keys.c
++++ b/drivers/input/keyboard/sun4i-lradc-keys.c
+@@ -22,6 +22,8 @@
+ #include <linux/module.h>
+ #include <linux/of_platform.h>
+ #include <linux/platform_device.h>
++#include <linux/pm_wakeirq.h>
++#include <linux/pm_wakeup.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/slab.h>
+ 
+@@ -226,8 +228,7 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
+ {
+ 	struct sun4i_lradc_data *lradc;
+ 	struct device *dev = &pdev->dev;
+-	int i;
+-	int error;
++	int error, i, irq;
+ 
+ 	lradc = devm_kzalloc(dev, sizeof(struct sun4i_lradc_data), GFP_KERNEL);
+ 	if (!lradc)
+@@ -272,8 +273,11 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(lradc->base))
+ 		return PTR_ERR(lradc->base);
+ 
+-	error = devm_request_irq(dev, platform_get_irq(pdev, 0),
+-				 sun4i_lradc_irq, 0,
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return irq;
++
++	error = devm_request_irq(dev, irq, sun4i_lradc_irq, 0,
+ 				 "sun4i-a10-lradc-keys", lradc);
+ 	if (error)
+ 		return error;
+@@ -282,6 +286,14 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
+ 	if (error)
+ 		return error;
+ 
++	if (device_property_read_bool(dev, "wakeup-source")) {
++		device_set_wakeup_capable(dev, true);
++
++		error = dev_pm_set_wake_irq(dev, irq);
++		if (error)
++			dev_warn(dev, "Failed to set wake IRQ\n");
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.26.3
 

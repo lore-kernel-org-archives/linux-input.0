@@ -7,31 +7,31 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28B5AC433B4
-	for <linux-input@archiver.kernel.org>; Sun,  2 May 2021 23:38:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BDA2C43462
+	for <linux-input@archiver.kernel.org>; Sun,  2 May 2021 23:38:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0595261288
-	for <linux-input@archiver.kernel.org>; Sun,  2 May 2021 23:38:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 214DF61376
+	for <linux-input@archiver.kernel.org>; Sun,  2 May 2021 23:38:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232118AbhEBXjF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S232358AbhEBXjF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sun, 2 May 2021 19:39:05 -0400
-Received: from 82-65-109-163.subs.proxad.net ([82.65.109.163]:55094 "EHLO
+Received: from 82-65-109-163.subs.proxad.net ([82.65.109.163]:55102 "EHLO
         luna.linkmauve.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232367AbhEBXjD (ORCPT
+        with ESMTP id S232374AbhEBXjD (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Sun, 2 May 2021 19:39:03 -0400
 Received: by luna.linkmauve.fr (Postfix, from userid 1000)
-        id 485CCF405D7; Mon,  3 May 2021 01:28:57 +0200 (CEST)
+        id AB16DF405DA; Mon,  3 May 2021 01:29:01 +0200 (CEST)
 From:   Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
 To:     linux-input@vger.kernel.org
-Cc:     Ash Logan <ash@heyquark.com>,
+Cc:     Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
+        Ash Logan <ash@heyquark.com>,
         =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.ne@posteo.net>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-kernel@vger.kernel.org,
-        Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
-Subject: [PATCH 1/4] HID: wiiu-drc: Add a driver for this gamepad
-Date:   Mon,  3 May 2021 01:28:32 +0200
-Message-Id: <20210502232836.26134-2-linkmauve@linkmauve.fr>
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 4/4] HID: wiiu-drc: Add battery reporting
+Date:   Mon,  3 May 2021 01:28:35 +0200
+Message-Id: <20210502232836.26134-5-linkmauve@linkmauve.fr>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210502232836.26134-1-linkmauve@linkmauve.fr>
 References: <20210502232836.26134-1-linkmauve@linkmauve.fr>
@@ -42,357 +42,186 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Ash Logan <ash@heyquark.com>
+On my DRC the values only go between 142 (battery LED blinking red
+before shutdown) and 178 (charge LED stopping), it seems to be the same
+on other units according to other testers.
 
-This driver is for the DRC (wireless gamepad) when plugged to the DRH of
-the Wii U, a chip exposing it as a USB device.
+A spinlock is used to avoid the battery level and status from being
+reported unsynchronised.
 
-This first patch exposes the buttons and sticks of this device, so that
-it can act as a plain game controller.
-
-Signed-off-by: Ash Logan <ash@heyquark.com>
 Signed-off-by: Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
 ---
- drivers/hid/Kconfig        |   7 +
- drivers/hid/Makefile       |   1 +
- drivers/hid/hid-ids.h      |   1 +
- drivers/hid/hid-quirks.c   |   3 +
- drivers/hid/hid-wiiu-drc.c | 270 +++++++++++++++++++++++++++++++++++++
- 5 files changed, 282 insertions(+)
- create mode 100644 drivers/hid/hid-wiiu-drc.c
+ drivers/hid/hid-wiiu-drc.c | 107 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 107 insertions(+)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 4bf263c2d61a..01116c315459 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -1105,6 +1105,13 @@ config HID_WACOM
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called wacom.
- 
-+config HID_WIIU_DRC
-+	tristate "Nintendo Wii U gamepad over internal DRH"
-+	depends on HID
-+	help
-+	  Support for the Wii U gamepad, when connected with the Wii U’s
-+	  internal DRH chip.
-+
- config HID_WIIMOTE
- 	tristate "Nintendo Wii / Wii U peripherals"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 193431ec4db8..8fcaaeae4d65 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -134,6 +134,7 @@ wacom-objs			:= wacom_wac.o wacom_sys.o
- obj-$(CONFIG_HID_WACOM)		+= wacom.o
- obj-$(CONFIG_HID_WALTOP)	+= hid-waltop.o
- obj-$(CONFIG_HID_WIIMOTE)	+= hid-wiimote.o
-+obj-$(CONFIG_HID_WIIU_DRC)	+= hid-wiiu-drc.o
- obj-$(CONFIG_HID_SENSOR_HUB)	+= hid-sensor-hub.o
- obj-$(CONFIG_HID_SENSOR_CUSTOM_SENSOR)	+= hid-sensor-custom.o
- 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 84b8da3e7d09..fbac0dd021f1 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -916,6 +916,7 @@
- #define USB_VENDOR_ID_NINTENDO		0x057e
- #define USB_DEVICE_ID_NINTENDO_WIIMOTE	0x0306
- #define USB_DEVICE_ID_NINTENDO_WIIMOTE2	0x0330
-+#define USB_DEVICE_ID_NINTENDO_WIIU_DRH	0x0341
- 
- #define USB_VENDOR_ID_NOVATEK		0x0603
- #define USB_DEVICE_ID_NOVATEK_PCT	0x0600
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 3dd6f15f2a67..af400177537e 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -513,6 +513,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
- #endif
-+#if IS_ENABLED(CONFIG_HID_WIIU_DRC)
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIU_DRH) },
-+#endif
- #if IS_ENABLED(CONFIG_HID_NTI)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTI, USB_DEVICE_ID_USB_SUN) },
- #endif
 diff --git a/drivers/hid/hid-wiiu-drc.c b/drivers/hid/hid-wiiu-drc.c
-new file mode 100644
-index 000000000000..018cbdb53a2c
---- /dev/null
+index 80faaaad2bb5..119d55542e31 100644
+--- a/drivers/hid/hid-wiiu-drc.c
 +++ b/drivers/hid/hid-wiiu-drc.c
-@@ -0,0 +1,270 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * HID driver for Nintendo Wii U gamepad, connected via console-internal DRH
-+ *
-+ * Copyright (C) 2021 Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
-+ * Copyright (C) 2019 Ash Logan <ash@heyquark.com>
-+ * Copyright (C) 2013 Mema Hacking
-+ *
-+ * Based on the excellent work at http://libdrc.org/docs/re/sc-input.html and
-+ * https://bitbucket.org/memahaxx/libdrc/src/master/src/input-receiver.cpp .
-+ * libdrc code is licensed under BSD 2-Clause.
-+ * Driver based on hid-udraw-ps3.c.
-+ */
+@@ -15,6 +15,8 @@
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
++#include <linux/power_supply.h>
++#include <linux/spinlock.h>
+ #include "hid-ids.h"
+ 
+ #define DEVICE_NAME	"Nintendo Wii U gamepad"
+@@ -69,6 +71,11 @@
+ #define MAGNET_MIN	ACCEL_MIN
+ #define MAGNET_MAX	ACCEL_MAX
+ 
++/* Battery constants */
++#define BATTERY_MIN	142
++#define BATTERY_MAX	178
++#define BATTERY_CAPACITY(val) ((val - BATTERY_MIN) * 100 / (BATTERY_MAX - BATTERY_MIN))
 +
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
+ /*
+  * The device is setup with multiple input devices:
+  * - A joypad with the buttons and sticks.
+@@ -77,10 +84,17 @@
+  */
+ 
+ struct drc {
++	spinlock_t lock;
 +
-+#define DEVICE_NAME	"Nintendo Wii U gamepad"
+ 	struct input_dev *joy_input_dev;
+ 	struct input_dev *touch_input_dev;
+ 	struct input_dev *accel_input_dev;
+ 	struct hid_device *hdev;
++	struct power_supply *battery;
++	struct power_supply_desc battery_desc;
 +
-+/* Button and stick constants */
-+#define VOLUME_MIN	0
-+#define VOLUME_MAX	255
-+#define NUM_STICK_AXES	4
-+#define STICK_MIN	900
-+#define STICK_MAX	3200
++	u8 battery_energy;
++	int battery_status;
+ };
+ 
+ static int drc_raw_event(struct hid_device *hdev, struct hid_report *report,
+@@ -89,6 +103,7 @@ static int drc_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	struct drc *drc = hid_get_drvdata(hdev);
+ 	int i, x, y, z, pressure, base;
+ 	u32 buttons;
++	unsigned long flags;
+ 
+ 	if (len != 128)
+ 		return 0;
+@@ -206,6 +221,17 @@ static int drc_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	input_report_abs(drc->accel_input_dev, ABS_WHEEL, (int16_t)z);
+ 	input_sync(drc->accel_input_dev);
+ 
++	/* battery */
++	spin_lock_irqsave(&drc->lock, flags);
++	drc->battery_energy = data[5];
++	if (drc->battery_energy == BATTERY_MAX)
++		drc->battery_status = POWER_SUPPLY_STATUS_FULL;
++	else if ((data[4] & 0x40) != 0)
++		drc->battery_status = POWER_SUPPLY_STATUS_CHARGING;
++	else
++		drc->battery_status = POWER_SUPPLY_STATUS_DISCHARGING;
++	spin_unlock_irqrestore(&drc->lock, flags);
 +
-+#define BUTTON_SYNC	BIT(0)
-+#define BUTTON_HOME	BIT(1)
-+#define BUTTON_MINUS	BIT(2)
-+#define BUTTON_PLUS	BIT(3)
-+#define BUTTON_R	BIT(4)
-+#define BUTTON_L	BIT(5)
-+#define BUTTON_ZR	BIT(6)
-+#define BUTTON_ZL	BIT(7)
-+#define BUTTON_DOWN	BIT(8)
-+#define BUTTON_UP	BIT(9)
-+#define BUTTON_RIGHT	BIT(10)
-+#define BUTTON_LEFT	BIT(11)
-+#define BUTTON_Y	BIT(12)
-+#define BUTTON_X	BIT(13)
-+#define BUTTON_B	BIT(14)
-+#define BUTTON_A	BIT(15)
-+
-+#define BUTTON_TV	BIT(21)
-+#define BUTTON_R3	BIT(22)
-+#define BUTTON_L3	BIT(23)
-+
-+#define BUTTON_POWER	BIT(25)
-+
-+/*
-+ * The device is setup with multiple input devices:
-+ * - A joypad with the buttons and sticks.
-+ */
-+
-+struct drc {
-+	struct input_dev *joy_input_dev;
-+	struct hid_device *hdev;
+ 	/* let hidraw and hiddev handle the report */
+ 	return 0;
+ }
+@@ -309,10 +335,67 @@ static bool drc_setup_accel(struct drc *drc,
+ 	return true;
+ }
+ 
++static enum power_supply_property drc_battery_props[] = {
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_SCOPE,
++	POWER_SUPPLY_PROP_STATUS,
++	POWER_SUPPLY_PROP_ENERGY_NOW,
++	POWER_SUPPLY_PROP_ENERGY_EMPTY,
++	POWER_SUPPLY_PROP_ENERGY_FULL,
 +};
 +
-+static int drc_raw_event(struct hid_device *hdev, struct hid_report *report,
-+	 u8 *data, int len)
++static int drc_battery_get_property(struct power_supply *psy,
++				    enum power_supply_property psp,
++				    union power_supply_propval *val)
 +{
-+	struct drc *drc = hid_get_drvdata(hdev);
-+	int i;
-+	u32 buttons;
++	struct drc *drc = power_supply_get_drvdata(psy);
++	unsigned long flags;
++	int ret = 0;
++	u8 battery_energy;
++	int battery_status;
 +
-+	if (len != 128)
-+		return 0;
++	spin_lock_irqsave(&drc->lock, flags);
++	battery_energy = drc->battery_energy;
++	battery_status = drc->battery_status;
++	spin_unlock_irqrestore(&drc->lock, flags);
 +
-+	buttons = (data[4] << 24) | (data[80] << 16) | (data[2] << 8) | data[3];
-+	/* joypad */
-+	input_report_key(drc->joy_input_dev, BTN_DPAD_RIGHT, buttons & BUTTON_RIGHT);
-+	input_report_key(drc->joy_input_dev, BTN_DPAD_DOWN, buttons & BUTTON_DOWN);
-+	input_report_key(drc->joy_input_dev, BTN_DPAD_LEFT, buttons & BUTTON_LEFT);
-+	input_report_key(drc->joy_input_dev, BTN_DPAD_UP, buttons & BUTTON_UP);
-+
-+	input_report_key(drc->joy_input_dev, BTN_EAST, buttons & BUTTON_A);
-+	input_report_key(drc->joy_input_dev, BTN_SOUTH, buttons & BUTTON_B);
-+	input_report_key(drc->joy_input_dev, BTN_NORTH, buttons & BUTTON_X);
-+	input_report_key(drc->joy_input_dev, BTN_WEST, buttons & BUTTON_Y);
-+
-+	input_report_key(drc->joy_input_dev, BTN_TL, buttons & BUTTON_L);
-+	input_report_key(drc->joy_input_dev, BTN_TL2, buttons & BUTTON_ZL);
-+	input_report_key(drc->joy_input_dev, BTN_TR, buttons & BUTTON_R);
-+	input_report_key(drc->joy_input_dev, BTN_TR2, buttons & BUTTON_ZR);
-+
-+	input_report_key(drc->joy_input_dev, BTN_Z, buttons & BUTTON_TV);
-+	input_report_key(drc->joy_input_dev, BTN_THUMBL, buttons & BUTTON_L3);
-+	input_report_key(drc->joy_input_dev, BTN_THUMBR, buttons & BUTTON_R3);
-+
-+	input_report_key(drc->joy_input_dev, BTN_SELECT, buttons & BUTTON_MINUS);
-+	input_report_key(drc->joy_input_dev, BTN_START, buttons & BUTTON_PLUS);
-+	input_report_key(drc->joy_input_dev, BTN_MODE, buttons & BUTTON_HOME);
-+
-+	input_report_key(drc->joy_input_dev, BTN_DEAD, buttons & BUTTON_POWER);
-+
-+	for (i = 0; i < NUM_STICK_AXES; i++) {
-+		s16 val = (data[7 + 2*i] << 8) | data[6 + 2*i];
-+		/* clamp */
-+		if (val < STICK_MIN)
-+			val = STICK_MIN;
-+		if (val > STICK_MAX)
-+			val = STICK_MAX;
-+
-+		switch (i) {
-+		case 0:
-+			input_report_abs(drc->joy_input_dev, ABS_X, val);
-+			break;
-+		case 1:
-+			input_report_abs(drc->joy_input_dev, ABS_Y, val);
-+			break;
-+		case 2:
-+			input_report_abs(drc->joy_input_dev, ABS_RX, val);
-+			break;
-+		case 3:
-+			input_report_abs(drc->joy_input_dev, ABS_RY, val);
-+			break;
-+		default:
-+			break;
-+		}
++	switch (psp) {
++	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = 1;
++		break;
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		break;
++	case POWER_SUPPLY_PROP_CAPACITY:
++		val->intval = BATTERY_CAPACITY(battery_energy);
++		break;
++	case POWER_SUPPLY_PROP_STATUS:
++		val->intval = battery_status;
++		break;
++	case POWER_SUPPLY_PROP_ENERGY_NOW:
++		val->intval = battery_energy;
++		break;
++	case POWER_SUPPLY_PROP_ENERGY_EMPTY:
++		val->intval = BATTERY_MIN;
++		break;
++	case POWER_SUPPLY_PROP_ENERGY_FULL:
++		val->intval = BATTERY_MAX;
++		break;
++	default:
++		ret = -EINVAL;
++		break;
 +	}
-+
-+	input_report_abs(drc->joy_input_dev, ABS_VOLUME, data[14]);
-+
-+	input_sync(drc->joy_input_dev);
-+
-+	/* let hidraw and hiddev handle the report */
-+	return 0;
++	return ret;
 +}
 +
-+static int drc_open(struct input_dev *dev)
-+{
-+	struct drc *drc = input_get_drvdata(dev);
-+
-+	return hid_hw_open(drc->hdev);
-+}
-+
-+static void drc_close(struct input_dev *dev)
-+{
-+	struct drc *drc = input_get_drvdata(dev);
-+
-+	hid_hw_close(drc->hdev);
-+}
-+
-+static struct input_dev *allocate_and_setup(struct hid_device *hdev,
-+		const char *name)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = devm_input_allocate_device(&hdev->dev);
-+	if (!input_dev)
-+		return NULL;
-+
-+	input_dev->name = name;
-+	input_dev->phys = hdev->phys;
-+	input_dev->dev.parent = &hdev->dev;
-+	input_dev->open = drc_open;
-+	input_dev->close = drc_close;
-+	input_dev->uniq = hdev->uniq;
-+	input_dev->id.bustype = hdev->bus;
-+	input_dev->id.vendor  = hdev->vendor;
-+	input_dev->id.product = hdev->product;
-+	input_dev->id.version = hdev->version;
-+	input_set_drvdata(input_dev, hid_get_drvdata(hdev));
-+
-+	return input_dev;
-+}
-+
-+static bool drc_setup_joypad(struct drc *drc,
-+		struct hid_device *hdev)
-+{
-+	struct input_dev *input_dev;
-+
-+	input_dev = allocate_and_setup(hdev, DEVICE_NAME " Joypad");
-+	if (!input_dev)
-+		return false;
-+
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+
-+	set_bit(BTN_DPAD_RIGHT, input_dev->keybit);
-+	set_bit(BTN_DPAD_DOWN, input_dev->keybit);
-+	set_bit(BTN_DPAD_LEFT, input_dev->keybit);
-+	set_bit(BTN_DPAD_UP, input_dev->keybit);
-+	set_bit(BTN_EAST, input_dev->keybit);
-+	set_bit(BTN_SOUTH, input_dev->keybit);
-+	set_bit(BTN_NORTH, input_dev->keybit);
-+	set_bit(BTN_WEST, input_dev->keybit);
-+	set_bit(BTN_TL, input_dev->keybit);
-+	set_bit(BTN_TL2, input_dev->keybit);
-+	set_bit(BTN_TR, input_dev->keybit);
-+	set_bit(BTN_TR2, input_dev->keybit);
-+	set_bit(BTN_THUMBL, input_dev->keybit);
-+	set_bit(BTN_THUMBR, input_dev->keybit);
-+	set_bit(BTN_SELECT, input_dev->keybit);
-+	set_bit(BTN_START, input_dev->keybit);
-+	set_bit(BTN_MODE, input_dev->keybit);
-+
-+	/* These two buttons are actually TV control and Power. */
-+	set_bit(BTN_Z, input_dev->keybit);
-+	set_bit(BTN_DEAD, input_dev->keybit);
-+
-+	input_set_abs_params(input_dev, ABS_X, STICK_MIN, STICK_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, STICK_MIN, STICK_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_RX, STICK_MIN, STICK_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_RY, STICK_MIN, STICK_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_VOLUME, VOLUME_MIN, VOLUME_MAX, 0, 0);
-+
-+	drc->joy_input_dev = input_dev;
-+
-+	return true;
-+}
-+
-+static int drc_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	struct drc *drc;
+ static bool drc_setup_joypad(struct drc *drc,
+ 		struct hid_device *hdev)
+ {
+ 	struct input_dev *input_dev;
++	struct power_supply_config psy_cfg = { .drv_data = drc, };
 +	int ret;
++	static uint8_t drc_num = 0;
+ 
+ 	input_dev = allocate_and_setup(hdev, DEVICE_NAME " Joypad");
+ 	if (!input_dev)
+@@ -350,6 +433,30 @@ static bool drc_setup_joypad(struct drc *drc,
+ 
+ 	drc->joy_input_dev = input_dev;
+ 
++	drc->battery_desc.properties = drc_battery_props;
++	drc->battery_desc.num_properties = ARRAY_SIZE(drc_battery_props);
++	drc->battery_desc.get_property = drc_battery_get_property;
++	drc->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
++	drc->battery_desc.use_for_apm = 0;
 +
-+	drc = devm_kzalloc(&hdev->dev, sizeof(struct drc), GFP_KERNEL);
-+	if (!drc)
++	/*
++	 * TODO: It might be better to use the interface number as the drc_num,
++	 * but I don’t know how to fetch it from here.  In userland it is
++	 * /sys/devices/platform/latte/d140000.usb/usb3/3-1/3-1:1.?/bInterfaceNumber
++	 */
++	drc->battery_desc.name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "wiiu-drc-%i-battery", drc_num++);
++	if (!drc->battery_desc.name)
 +		return -ENOMEM;
 +
-+	drc->hdev = hdev;
-+
-+	hid_set_drvdata(hdev, drc);
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "parse failed\n");
++	drc->battery = devm_power_supply_register(&hdev->dev, &drc->battery_desc, &psy_cfg);
++	if (IS_ERR(drc->battery)) {
++		ret = PTR_ERR(drc->battery);
++		hid_err(hdev, "Unable to register battery device\n");
 +		return ret;
 +	}
 +
-+	if (!drc_setup_joypad(drc, hdev)) {
-+		hid_err(hdev, "could not allocate interface\n");
-+		return -ENOMEM;
-+	}
++	power_supply_powers(drc->battery, &hdev->dev);
 +
-+	ret = input_register_device(drc->joy_input_dev);
-+	if (ret) {
-+		hid_err(hdev, "failed to register interface\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW | HID_CONNECT_DRIVER);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id drc_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIU_DRH) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, drc_devices);
-+
-+static struct hid_driver drc_driver = {
-+	.name = "hid-wiiu-drc",
-+	.id_table = drc_devices,
-+	.raw_event = drc_raw_event,
-+	.probe = drc_probe,
-+};
-+module_hid_driver(drc_driver);
-+
-+MODULE_AUTHOR("Ash Logan <ash@heyquark.com>");
-+MODULE_DESCRIPTION("Nintendo Wii U gamepad driver");
-+MODULE_LICENSE("GPL");
+ 	return true;
+ }
+ 
 -- 
 2.31.1
 

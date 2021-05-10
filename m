@@ -2,138 +2,139 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 251A3C43617
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 13:42:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24A5DC433ED
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 13:51:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F07046101B
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 13:42:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC50E61042
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 13:51:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237306AbhEJNnN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 May 2021 09:43:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236863AbhEJNR0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 May 2021 09:17:26 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED3A6C06138C;
-        Mon, 10 May 2021 06:16:19 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id 82-20020a1c01550000b0290142562ff7c9so8868251wmb.3;
-        Mon, 10 May 2021 06:16:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Sh4i9feljTPFrIfpR/IU/E8n0D3Fda88xyQfypmum7w=;
-        b=GfQpYA/u/ESXNzCwhJN35I1L0Sb2vRVeukRNG83W8xG2OMlDA6+i5W0OODo/+LWE9E
-         ivWW5//Dci3M+PXPgJnH/odM7KtTO7yjQKrEe7KAvh4E7fvrd/ZuLkJAZP62sWtsDMuB
-         AIqgCRqoTLZzj0iGC6/REa3QuGlmZjiRxifV0mZYrMLJSap8JjiujnvbMmFTzTlx+O95
-         x9XnwiLNDr5qqWcsdoyW+ETG1hWAlzA+FW12aKJEwh2j5DlnppfpjkE6ahf9DAyZ8V+v
-         c4HLN0tsaWZM2+zfMzrOFU3u/mXI98pyg6LlDYSgFBtDuHlk1DmX0lhge4HX1KOLhtwA
-         z+4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Sh4i9feljTPFrIfpR/IU/E8n0D3Fda88xyQfypmum7w=;
-        b=cYGoVbnuzC8qi/rSzJ+ExaPcPY6WDiRnoQYrUOJUW/LDLaupeK70YlIz31CC6DpEIO
-         YjQqqXw2K1KRvLE2EmkMqZgmSNaOqjLw3WgaQER7nKYN78smSnUQvql/Lq9C3BYIAbbS
-         A89hiMUo84LxHpIIH5PXWbH2rmZnREpJ+CAq/H0QPEPvY3481ifRRLSpOK8Cv3AHyzwB
-         Y9C4Y5kQCgYC6MsNt9LSL+mATP7JJWBNR9KZjed7REYhOTmkJTYOrQnd1aSrwgzazjvo
-         Ixtv6yd4OPdU4nF7WYCxOtY9Watsai28mxpDWeEFK5xhy198jgxuKAvRFJqigderRiYZ
-         zU/w==
-X-Gm-Message-State: AOAM5320WfRdSTq1VXESkXjcB7G2WrDl9rtLEDxZcnwiFr7WOtK+XUaU
-        ikYqT3CuD1N4pbhEXWdxDhI=
-X-Google-Smtp-Source: ABdhPJysoQ4YBpE1J87NsTC/Z24p8NQqGLKPSudpVCmtLwZFhM2Wy0R7/k0aKiXMKdpTI23nPdYVEw==
-X-Received: by 2002:a05:600c:47d7:: with SMTP id l23mr36980376wmo.95.1620652578722;
-        Mon, 10 May 2021 06:16:18 -0700 (PDT)
-Received: from [192.168.1.122] (cpc159425-cmbg20-2-0-cust403.5-4.cable.virginm.net. [86.7.189.148])
-        by smtp.gmail.com with ESMTPSA id s1sm27945073wmj.8.2021.05.10.06.16.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 May 2021 06:16:17 -0700 (PDT)
-Subject: Re: [PATCH 00/53] Get rid of UTF-8 chars that can be mapped as ASCII
-To:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        David Woodhouse <dwmw2@infradead.org>
-Cc:     Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        alsa-devel@alsa-project.org, coresight@lists.linaro.org,
-        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        intel-wired-lan@lists.osuosl.org, keyrings@vger.kernel.org,
-        kvm@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        linux-fpga@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-integrity@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-sgx@vger.kernel.org, linux-usb@vger.kernel.org,
-        mjpeg-users@lists.sourceforge.net, netdev@vger.kernel.org,
-        rcu@vger.kernel.org, x86@kernel.org
-References: <cover.1620641727.git.mchehab+huawei@kernel.org>
- <2ae366fdff4bd5910a2270823e8da70521c859af.camel@infradead.org>
- <20210510135518.305cc03d@coco.lan>
-From:   Edward Cree <ecree.xilinx@gmail.com>
-Message-ID: <df6b4567-030c-a480-c5a6-fe579830e8c0@gmail.com>
-Date:   Mon, 10 May 2021 14:16:16 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+        id S232764AbhEJNwG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 May 2021 09:52:06 -0400
+Received: from muru.com ([72.249.23.125]:53926 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237650AbhEJNmx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 10 May 2021 09:42:53 -0400
+Received: from atomide.com (localhost [127.0.0.1])
+        by muru.com (Postfix) with ESMTPS id 8977880C7;
+        Mon, 10 May 2021 13:41:38 +0000 (UTC)
+Date:   Mon, 10 May 2021 16:41:32 +0300
+From:   Tony Lindgren <tony@atomide.com>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Linux Input <linux-input@vger.kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Adam Ford <aford173@gmail.com>
+Subject: Re: [PATCH] Input: tsc200x: Drop hard-coded IRQ edge
+Message-ID: <YJk4DFCYo1fW9Vjn@atomide.com>
+References: <20210509233830.359134-1-linus.walleij@linaro.org>
+ <YJh8s5rU2VE+DyQz@google.com>
+ <CACRpkdbXuZOrKyDeBttkMzGvHJbnqVgAnQv=Z=Ui0fHQOOaUMg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210510135518.305cc03d@coco.lan>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACRpkdbXuZOrKyDeBttkMzGvHJbnqVgAnQv=Z=Ui0fHQOOaUMg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 10/05/2021 12:55, Mauro Carvalho Chehab wrote:
-> The main point on this series is to replace just the occurrences
-> where ASCII represents the symbol equally well
+Hi,
 
-> 	- U+2014 ('—'): EM DASH
-Em dash is not the same thing as hyphen-minus, and the latter does not
- serve 'equally well'.  People use em dashes because — even in
- monospace fonts — they make text easier to read and comprehend, when
- used correctly.
-I accept that some of the other distinctions — like en dashes — are
- needlessly pedantic (though I don't doubt there is someone out there
- who will gladly defend them with the same fervour with which I argue
- for the em dash) and I wouldn't take the trouble to use them myself;
- but I think there is a reasonable assumption that when someone goes
- to the effort of using a Unicode punctuation mark that is semantic
- (rather than merely typographical), they probably had a reason for
- doing so.
+* Linus Walleij <linus.walleij@linaro.org> [210510 09:29]:
+> On Mon, May 10, 2021 at 2:22 AM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Mon, May 10, 2021 at 01:38:30AM +0200, Linus Walleij wrote:
+> 
+> > > This edge setting should come from the device tree not
+> > > the driver. Also, most device trees sets this to the
+> > > falling edge, which is contradictory to what is hardcoded.
+> >
+> > I see there are 2 possibilities:
+> >
+> > 1. The driver has never worked
+> > 2. DT interrupt annotation is wrong.
+> >
+> > It would be nice to know if we are dealing with 1 or 2, as in case of #2
+> > we need to adjust DTSes before this patch can be applied.
+> 
+> I looked closer and unfortunately the mess and confusion
+> is bizarre.
+> 
+> The DTS files we know of are:
+> arch/arm/boot/dts/am3517-som.dtsi - rising
+> arch/arm/boot/dts/imx28-tx28.dts - falling
+> arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi - low
+> arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi - low
+> arch/arm/boot/dts/imx53-tx53-x03x.dts - falling
+> arch/arm/boot/dts/imx6q-dhcom-som.dtsi - falling
+> arch/arm/boot/dts/imx6qdl-tx6.dtsi - none
+> arch/arm/boot/dts/imx6ul-tx6ul.dtsi - none
+> arch/arm/boot/dts/imx7d-nitrogen7.dts - falling
+> arch/arm/boot/dts/logicpd-som-lv.dtsi - rising
+> arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi - rising
+> arch/arm/boot/dts/omap3-gta04.dtsi - falling
+> arch/arm/boot/dts/omap3-n900.dts - rising
+> arch/arm/boot/dts/omap4-var-som-om44.dtsi - low
+> arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi - falling
+> 
+> We can assume that some of this is the result of board
+> engineers introducing inverters on the board as is custom,
+> so the flags are actually correct when set to falling, just
+> that we don't model the inverter.
+> 
+> In the case of imx6qdl-tx6 and imx6ul-tx6ul with "none" IRQ
+> type I assume this flag in the driver is actually necessary
+> for the device to work at all.
+> 
+> In the cases where rising is set, the addition of the flag is
+> plain tautology, just setting what is already set.
+> 
+> In the cases where falling are set the interrupts will arrive
+> on both edges (if the hardware can provide that, which is
+> not always the case) and as a result fire twice as many
+> interrupts as they should, probably with zero effect on the
+> second IRQ, just reporting nothing.
+> 
+> The combination with active low is weird. I wonder what
+> happens there.
+> 
+> I am just confused now and have no idea what to do about
+> it...
+> 
+> But I just CC all the Freescale and OMAP people who
+> seem to maintain these DTS files so they can clarify
+> how well assigned these edges, none and active low (!)
+> IRQs are.
 
-> 	- U+2018 ('‘'): LEFT SINGLE QUOTATION MARK
-> 	- U+2019 ('’'): RIGHT SINGLE QUOTATION MARK
-> 	- U+201c ('“'): LEFT DOUBLE QUOTATION MARK
-> 	- U+201d ('”'): RIGHT DOUBLE QUOTATION MARK
-(These are purely typographic, I have no problem with dumping them.)
+Maybe the GTA04 or LogicPD folks can check the interrupt edge
+direction for tsc2005 on the device end to see if inversion
+happens. So adding some more people to Cc.
 
-> 	- U+00d7 ('×'): MULTIPLICATION SIGN
-Presumably this is appearing in mathematical formulae, in which case
- changing it to 'x' loses semantic information.
+Looks like at least the tsc2005 data sheet says:
 
-> Using the above symbols will just trick tools like grep for no good
-> reason.
-NBSP, sure.  That one's probably an artefact of some document format
- conversion somewhere along the line, anyway.
-But what kinds of things with × or — in are going to be grept for?
+"Interrupt output. Data available or PENIRQ depends on setting.
+ Pin polarity with active low."
 
-If there are em dashes lying around that semantically _should_ be
- hyphen-minus (one of your patches I've seen, for instance, fixes an
- *en* dash moonlighting as the option character in an `ethtool`
- command line), then sure, convert them.
-But any time someone is using a Unicode character to *express
- semantics*, even if you happen to think the semantic distinction
- involved is a pedantic or unimportant one, I think you need an
- explicit grep case to justify ASCIIfying it.
+So it seems the dts configuration should have level active low
+for the GPIO interrupt unless the hardware inverts it somewhere.
 
--ed
+If the edge configuration for a GPIO interrupt has been done
+for tsc2005 for PM wake purposes, there should be no longer
+need for it at least on omaps. Folks can just configure a
+dedicated wakeirq with interrupts-extended dts property and
+the i2c framework will handle that automatically :) There are
+some examples if you grep dts files for '"wakeup"'.
+
+Regards,
+
+Tony

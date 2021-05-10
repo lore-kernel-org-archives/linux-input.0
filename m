@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFD3CC43462
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81AB9C43616
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A368F61363
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DC0861409
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230170AbhEJHDK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 May 2021 03:03:10 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:61793 "EHLO
+        id S230182AbhEJHDL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 May 2021 03:03:11 -0400
+Received: from alexa-out.qualcomm.com ([129.46.98.28]:2227 "EHLO
         alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230071AbhEJHDJ (ORCPT
+        with ESMTP id S230009AbhEJHDK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 May 2021 03:03:09 -0400
+        Mon, 10 May 2021 03:03:10 -0400
 Received: from ironmsg09-lv.qualcomm.com ([10.47.202.153])
-  by alexa-out.qualcomm.com with ESMTP; 10 May 2021 00:02:02 -0700
+  by alexa-out.qualcomm.com with ESMTP; 10 May 2021 00:02:05 -0700
 X-QCInternal: smtphost
 Received: from ironmsg01-blr.qualcomm.com ([10.86.208.130])
-  by ironmsg09-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 10 May 2021 00:02:00 -0700
+  by ironmsg09-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 10 May 2021 00:02:03 -0700
 X-QCInternal: smtphost
 Received: from c-skakit-linux.ap.qualcomm.com (HELO c-skakit-linux.qualcomm.com) ([10.242.51.242])
   by ironmsg01-blr.qualcomm.com with ESMTP; 10 May 2021 12:31:20 +0530
 Received: by c-skakit-linux.qualcomm.com (Postfix, from userid 2344709)
-        id C99414EF1; Mon, 10 May 2021 12:31:19 +0530 (IST)
+        id A26F84B46; Mon, 10 May 2021 12:31:19 +0530 (IST)
 From:   satya priya <skakit@codeaurora.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -44,9 +44,9 @@ Cc:     David Collins <collinsd@codeaurora.org>, kgunda@codeaurora.org,
         Vinod Koul <vkoul@kernel.org>,
         Andy Yan <andy.yan@rock-chips.com>,
         satya priya <skakit@codeaurora.org>
-Subject: [PATCH V3 4/5] dt-bindings: input: pm8941-pwrkey: Convert pm8941 power key binding to yaml
-Date:   Mon, 10 May 2021 12:31:03 +0530
-Message-Id: <1620630064-16354-5-git-send-email-skakit@codeaurora.org>
+Subject: [PATCH V3 2/5] dt-bindings: input: pm8941-pwrkey: add pmk8350 compatible strings
+Date:   Mon, 10 May 2021 12:31:01 +0530
+Message-Id: <1620630064-16354-3-git-send-email-skakit@codeaurora.org>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1620630064-16354-1-git-send-email-skakit@codeaurora.org>
 References: <1620630064-16354-1-git-send-email-skakit@codeaurora.org>
@@ -54,183 +54,38 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Convert qcom pm8941 power key binding from .txt to .yaml format.
+From: David Collins <collinsd@codeaurora.org>
 
+Add power key and resin compatible strings for the PMK8350 PMIC.
+These are needed to distinguish key PON_HLOS register differences
+between PMK8350 and previous PMIC PON modules.
+
+Signed-off-by: David Collins <collinsd@codeaurora.org>
 Signed-off-by: satya priya <skakit@codeaurora.org>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
-Changes in V2:
- - Fixed bot errors, took reference from input.yaml for "linux,code"
- - Added one complete example for powerkey and resin, and referenced it
-   in main PON binding.
- - Moved this patch to the end of the series.
+Chnages in V2:
+ - Moved this patch before the conversion patches.
 
 Changes in V3:
- - Moved this patch before PON binding patch.
- - As per Rob's comments, added allOf at the beginning of binding.
-   Added maxItems for interrupts.
- - Added 'unevaluatedProperties' instead of 'additionalProperties' as
-   we are using allOf.
- 
- .../bindings/input/qcom,pm8941-pwrkey.txt          | 55 --------------
- .../bindings/input/qcom,pm8941-pwrkey.yaml         | 87 ++++++++++++++++++++++
- 2 files changed, 87 insertions(+), 55 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
- create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.yaml
+ - No changes.
+
+ Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-deleted file mode 100644
-index 6cd08bc..0000000
+index 34ab576..6cd08bc 100644
 --- a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-+++ /dev/null
-@@ -1,55 +0,0 @@
--Qualcomm PM8941 PMIC Power Key
--
--PROPERTIES
--
--- compatible:
--	Usage: required
--	Value type: <string>
--	Definition: must be one of:
--		    "qcom,pm8941-pwrkey"
--		    "qcom,pm8941-resin"
--		    "qcom,pmk8350-pwrkey"
--		    "qcom,pmk8350-resin"
--
--- reg:
--	Usage: required
--	Value type: <prop-encoded-array>
--	Definition: base address of registers for block
--
--- interrupts:
--	Usage: required
--	Value type: <prop-encoded-array>
--	Definition: key change interrupt; The format of the specifier is
--		    defined by the binding document describing the node's
--		    interrupt parent.
--
--- debounce:
--	Usage: optional
--	Value type: <u32>
--	Definition: time in microseconds that key must be pressed or released
--		    for state change interrupt to trigger.
--
--- bias-pull-up:
--	Usage: optional
--	Value type: <empty>
--	Definition: presence of this property indicates that the KPDPWR_N pin
--		    should be configured for pull up.
--
--- linux,code:
--	Usage: optional
--	Value type: <u32>
--	Definition: The input key-code associated with the power key.
--		    Use the linux event codes defined in
--		    include/dt-bindings/input/linux-event-codes.h
--		    When property is omitted KEY_POWER is assumed.
--
--EXAMPLE
--
--	pwrkey@800 {
--		compatible = "qcom,pm8941-pwrkey";
--		reg = <0x800>;
--		interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
--		debounce = <15625>;
--		bias-pull-up;
--		linux,code = <KEY_POWER>;
--	};
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.yaml b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.yaml
-new file mode 100644
-index 0000000..0736fa3
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.yaml
-@@ -0,0 +1,87 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/qcom,pm8941-pwrkey.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Qualcomm PM8941 PMIC Power Key
-+
-+maintainers:
-+  - Courtney Cavin <courtney.cavin@sonymobile.com>
-+  - Vinod Koul <vkoul@kernel.org>
-+
-+allOf:
-+  - $ref: input.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - qcom,pm8941-pwrkey
-+      - qcom,pm8941-resin
-+      - qcom,pmk8350-pwrkey
-+      - qcom,pmk8350-resin
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  debounce:
-+    description: |
-+          Time in microseconds that key must be pressed or
-+          released for state change interrupt to trigger.
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+
-+  bias-pull-up:
-+    description: |
-+           Presence of this property indicates that the KPDPWR_N
-+           pin should be configured for pull up.
-+    $ref: /schemas/types.yaml#/definitions/flag
-+
-+  linux,code:
-+    description: |
-+           The input key-code associated with the power key.
-+           Use the linux event codes defined in
-+           include/dt-bindings/input/linux-event-codes.h
-+           When property is omitted KEY_POWER is assumed.
-+
-+required:
-+  - compatible
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+   #include <dt-bindings/interrupt-controller/irq.h>
-+   #include <dt-bindings/input/linux-event-codes.h>
-+   #include <dt-bindings/spmi/spmi.h>
-+   spmi_bus: spmi@c440000 {
-+     reg = <0x0c440000 0x1100>;
-+     #address-cells = <2>;
-+     #size-cells = <0>;
-+     pmk8350: pmic@0 {
-+       reg = <0x0 SPMI_USID>;
-+       #address-cells = <1>;
-+       #size-cells = <0>;
-+       pmk8350_pon: pon_hlos@1300 {
-+         reg = <0x1300>;
-+         compatible = "qcom,pm8998-pon";
-+
-+         pwrkey {
-+            compatible = "qcom,pm8941-pwrkey";
-+            interrupts = < 0x0 0x8 0 IRQ_TYPE_EDGE_BOTH >;
-+            debounce = <15625>;
-+            bias-pull-up;
-+            linux,code = <KEY_POWER>;
-+         };
-+
-+         resin {
-+            compatible = "qcom,pm8941-resin";
-+            interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
-+            debounce = <15625>;
-+            bias-pull-up;
-+            linux,code = <KEY_VOLUMEDOWN>;
-+         };
-+       };
-+     };
-+   };
-+...
++++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+@@ -8,6 +8,8 @@ PROPERTIES
+ 	Definition: must be one of:
+ 		    "qcom,pm8941-pwrkey"
+ 		    "qcom,pm8941-resin"
++		    "qcom,pmk8350-pwrkey"
++		    "qcom,pmk8350-resin"
+ 
+ - reg:
+ 	Usage: required
 -- 
 QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member 
 of Code Aurora Forum, hosted by The Linux Foundation

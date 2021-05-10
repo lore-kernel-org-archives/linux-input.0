@@ -2,89 +2,144 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_NONE
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 016D4C433ED
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 19:22:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB51CC433ED
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 19:43:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CCE4061582
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 19:22:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9550561430
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 19:43:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233298AbhEJTXx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 May 2021 15:23:53 -0400
-Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:47815 "EHLO
-        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S233208AbhEJTXt (ORCPT
+        id S230503AbhEJToW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 May 2021 15:44:22 -0400
+Received: from antares.kleine-koenig.org ([94.130.110.236]:37988 "EHLO
+        antares.kleine-koenig.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230045AbhEJToW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 May 2021 15:23:49 -0400
-Received: from cwcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 14AJM3dI013584
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 May 2021 15:22:05 -0400
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id F267215C3CD9; Mon, 10 May 2021 15:22:02 -0400 (EDT)
-Date:   Mon, 10 May 2021 15:22:02 -0400
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     David Woodhouse <dwmw2@infradead.org>
-Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        alsa-devel@alsa-project.org, coresight@lists.linaro.org,
-        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        intel-wired-lan@lists.osuosl.org, keyrings@vger.kernel.org,
-        kvm@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        linux-fpga@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-integrity@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-sgx@vger.kernel.org, linux-usb@vger.kernel.org,
-        mjpeg-users@lists.sourceforge.net, netdev@vger.kernel.org,
-        rcu@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH 00/53] Get rid of UTF-8 chars that can be mapped as ASCII
-Message-ID: <YJmH2irxoRsyNudb@mit.edu>
-References: <cover.1620641727.git.mchehab+huawei@kernel.org>
- <2ae366fdff4bd5910a2270823e8da70521c859af.camel@infradead.org>
- <20210510135518.305cc03d@coco.lan>
- <de6d1fa5b7934f4afd61370d9c58502bef588466.camel@infradead.org>
+        Mon, 10 May 2021 15:44:22 -0400
+Received: from antares.kleine-koenig.org (localhost [127.0.0.1])
+        by antares.kleine-koenig.org (Postfix) with ESMTP id 698F4B92B2A;
+        Mon, 10 May 2021 21:43:16 +0200 (CEST)
+Received: from antares.kleine-koenig.org ([94.130.110.236])
+        by antares.kleine-koenig.org (antares.kleine-koenig.org [94.130.110.236]) (amavisd-new, port 10024)
+        with ESMTP id FQOmxRin8T3E; Mon, 10 May 2021 21:43:15 +0200 (CEST)
+Received: from taurus.defre.kleine-koenig.org (unknown [IPv6:2a02:8071:b5c8:7bfc:751d:682d:7359:e261])
+        by antares.kleine-koenig.org (Postfix) with ESMTPSA;
+        Mon, 10 May 2021 21:43:15 +0200 (CEST)
+To:     Jiri Kosina <jikos@kernel.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20210206151348.14530-1-uwe@kleine-koenig.org>
+ <nycvar.YFH.7.76.2103081107250.12405@cbobk.fhfr.pm>
+ <31028f589e27e246bb3b4b693caeb0b8eae3a285.camel@linux.intel.com>
+ <nycvar.YFH.7.76.2103081716200.12405@cbobk.fhfr.pm>
+From:   =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <uwe@kleine-koenig.org>
+Subject: Re: [PATCH v1 1/3] HID: intel-ish-hid: Drop if block with an always
+ false condition
+Message-ID: <e200b949-b909-d5da-8c81-06a57fc50b98@kleine-koenig.org>
+Date:   Mon, 10 May 2021 21:43:10 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <de6d1fa5b7934f4afd61370d9c58502bef588466.camel@infradead.org>
+In-Reply-To: <nycvar.YFH.7.76.2103081716200.12405@cbobk.fhfr.pm>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="qGHuWGV0fsZU0BWAdzrJRAn3J4AVipvAq"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, May 10, 2021 at 02:49:44PM +0100, David Woodhouse wrote:
-> On Mon, 2021-05-10 at 13:55 +0200, Mauro Carvalho Chehab wrote:
-> > This patch series is doing conversion only when using ASCII makes
-> > more sense than using UTF-8. 
-> > 
-> > See, a number of converted documents ended with weird characters
-> > like ZERO WIDTH NO-BREAK SPACE (U+FEFF) character. This specific
-> > character doesn't do any good.
-> > 
-> > Others use NO-BREAK SPACE (U+A0) instead of 0x20. Harmless, until
-> > someone tries to use grep[1].
-> 
-> Replacing those makes sense. But replacing emdashes — which are a
-> distinct character that has no direct replacement in ASCII and which
-> people do *deliberately* use instead of hyphen-minus — does not.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--qGHuWGV0fsZU0BWAdzrJRAn3J4AVipvAq
+Content-Type: multipart/mixed; boundary="ZS2vNPexYSXxqk5nVV4GkR8xH11UrMQ9T";
+ protected-headers="v1"
+From: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <uwe@kleine-koenig.org>
+To: Jiri Kosina <jikos@kernel.org>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+ Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+ Guenter Roeck <groeck@chromium.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-ID: <e200b949-b909-d5da-8c81-06a57fc50b98@kleine-koenig.org>
+Subject: Re: [PATCH v1 1/3] HID: intel-ish-hid: Drop if block with an always
+ false condition
+References: <20210206151348.14530-1-uwe@kleine-koenig.org>
+ <nycvar.YFH.7.76.2103081107250.12405@cbobk.fhfr.pm>
+ <31028f589e27e246bb3b4b693caeb0b8eae3a285.camel@linux.intel.com>
+ <nycvar.YFH.7.76.2103081716200.12405@cbobk.fhfr.pm>
+In-Reply-To: <nycvar.YFH.7.76.2103081716200.12405@cbobk.fhfr.pm>
 
-I regularly use --- for em-dashes and -- for en-dashes.  Markdown will
-automatically translate 3 ASCII hypens to em-dashes, and 2 ASCII
-hyphens to en-dashes.  It's much, much easier for me to type 2 or 3
-hypens into my text editor of choice than trying to enter the UTF-8
-characters.  If we can make sphinx do this translation, maybe that's
-the best way of dealing with these two characters?
+--ZS2vNPexYSXxqk5nVV4GkR8xH11UrMQ9T
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
+Hello Jiri,
 
-					- Ted
+On 3/8/21 5:16 PM, Jiri Kosina wrote:
+> On Mon, 8 Mar 2021, Srinivas Pandruvada wrote:
+>=20
+>>>> A remove callback is only ever called for a bound device. So there
+>>>> is no
+>>>> need to check for device or driver being NULL.
+>>>
+>>> Srinivas, any objections to this patchset? The cleanups look good to
+>>> me.
+>> Sorry, I missed this series.
+>> No objection for taking these patches.
+>=20
+> Thanks. Applied with your Acked-by:
+> If you disagree with that interpretation of your statement above, pleas=
+e
+> holler :)
+
+I expected these patches to go in during the 5.13 merge window, but they =
+
+didn't. I found your pull request for 5.13=20
+(https://lore.kernel.org/lkml/nycvar.YFH.7.76.2104292151220.18270@cbobk.f=
+hfr.pm/)=20
+and they were not included there even though the patches were in next=20
+since at least next-20210310. Looking at
+
+	git log --oneline --cherry=20
+v5.13-rc1...dce6a0d56a7719efcad438f5c46a9d192fd36a89
+
+(where dce.. was the tip of your for-next for next-20210506 (i.e. before =
+
+5.13-rc1 was cut)) and it seems there are quite a few more commits that=20
+didn't make it into your pull request.
+
+What am I missing?
+
+Best regards
+Uwe
+
+
+--ZS2vNPexYSXxqk5nVV4GkR8xH11UrMQ9T--
+
+--qGHuWGV0fsZU0BWAdzrJRAn3J4AVipvAq
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmCZjM8ACgkQwfwUeK3K
+7Anuwgf+JSHxB7za9i0xL9t5R1j1A2RAAiGuuTFd+yTRWWFy1j3Loq4jCfxnd5HQ
+MhaLy8+0ZxBMzCJJnbTRJohgkBq6odjBePtSmyG+KTk42vA+uvVWv67jVpmbbXd1
+5dQqQ5zduKcN/1TEwyFaMwSd6WxDjX4Yrwg0APsJ3z34QvHgLFzKVWjaFJ33u81I
+vkma5rq504gKF0ronu4nbwFHxKyt+PXGydvG6vq10Hmhyuj6hpnSCPDtiiXwxONH
+U6ATH90TXJ4LFnc0UXwl9OPkrnbw9YucadhVq+xv9v7naLuNzBp/91Vxr5f868aW
+8MTQuhedMa6TqvjR13s9Ahaevmsi9A==
+=gNoi
+-----END PGP SIGNATURE-----
+
+--qGHuWGV0fsZU0BWAdzrJRAn3J4AVipvAq--

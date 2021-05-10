@@ -2,34 +2,33 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FA69C433ED
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D455DC43460
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F12B761492
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A6C2661449
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230199AbhEJHDM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 May 2021 03:03:12 -0400
+        id S230231AbhEJHDO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 May 2021 03:03:14 -0400
 Received: from alexa-out.qualcomm.com ([129.46.98.28]:61182 "EHLO
         alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230186AbhEJHDL (ORCPT
+        with ESMTP id S230193AbhEJHDM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 May 2021 03:03:11 -0400
-Received: from ironmsg-lv-alpha.qualcomm.com ([10.47.202.13])
+        Mon, 10 May 2021 03:03:12 -0400
+Received: from ironmsg09-lv.qualcomm.com ([10.47.202.153])
   by alexa-out.qualcomm.com with ESMTP; 10 May 2021 00:02:07 -0700
 X-QCInternal: smtphost
 Received: from ironmsg01-blr.qualcomm.com ([10.86.208.130])
-  by ironmsg-lv-alpha.qualcomm.com with ESMTP/TLS/AES256-SHA; 10 May 2021 00:02:05 -0700
+  by ironmsg09-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 10 May 2021 00:02:05 -0700
 X-QCInternal: smtphost
 Received: from c-skakit-linux.ap.qualcomm.com (HELO c-skakit-linux.qualcomm.com) ([10.242.51.242])
   by ironmsg01-blr.qualcomm.com with ESMTP; 10 May 2021 12:31:20 +0530
 Received: by c-skakit-linux.qualcomm.com (Postfix, from userid 2344709)
-        id BF4374F18; Mon, 10 May 2021 12:31:19 +0530 (IST)
+        id 6EB814B37; Mon, 10 May 2021 12:31:19 +0530 (IST)
 From:   satya priya <skakit@codeaurora.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -44,39 +43,36 @@ Cc:     David Collins <collinsd@codeaurora.org>, kgunda@codeaurora.org,
         Vinod Koul <vkoul@kernel.org>,
         Andy Yan <andy.yan@rock-chips.com>,
         satya priya <skakit@codeaurora.org>
-Subject: [PATCH V3 3/5] dt-bindings: power: reset: Change 'additionalProperties' to true
-Date:   Mon, 10 May 2021 12:31:02 +0530
-Message-Id: <1620630064-16354-4-git-send-email-skakit@codeaurora.org>
+Subject: [PATCH V3 0/5] Add support for PMK8350 PON_HLOS PMIC peripheral
+Date:   Mon, 10 May 2021 12:30:59 +0530
+Message-Id: <1620630064-16354-1-git-send-email-skakit@codeaurora.org>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1620630064-16354-1-git-send-email-skakit@codeaurora.org>
-References: <1620630064-16354-1-git-send-email-skakit@codeaurora.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Change 'additionalProperties' to true as this is a generic binding.
+David Collins (2):
+  input: pm8941-pwrkey: add support for PMK8350 PON_HLOS PMIC peripheral
+  dt-bindings: input: pm8941-pwrkey: add pmk8350 compatible strings
 
-Signed-off-by: satya priya <skakit@codeaurora.org>
----
-Changes in V3:
- - This is newly added in V3.
+satya priya (3):
+  dt-bindings: power: reset: Change 'additionalProperties' to true
+  dt-bindings: input: pm8941-pwrkey: Convert pm8941 power key binding to
+    yaml
+  dt-bindings: power: reset: qcom-pon: Convert qcom PON binding to yaml
 
- Documentation/devicetree/bindings/power/reset/reboot-mode.yaml | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../bindings/input/qcom,pm8941-pwrkey.txt          |  53 -----------
+ .../bindings/input/qcom,pm8941-pwrkey.yaml         |  87 +++++++++++++++++
+ .../devicetree/bindings/power/reset/qcom,pon.txt   |  49 ----------
+ .../devicetree/bindings/power/reset/qcom,pon.yaml  |  44 +++++++++
+ .../bindings/power/reset/reboot-mode.yaml          |   2 +-
+ drivers/input/misc/pm8941-pwrkey.c                 | 103 ++++++++++++++-------
+ 6 files changed, 204 insertions(+), 134 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+ create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.yaml
+ delete mode 100644 Documentation/devicetree/bindings/power/reset/qcom,pon.txt
+ create mode 100644 Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
 
-diff --git a/Documentation/devicetree/bindings/power/reset/reboot-mode.yaml b/Documentation/devicetree/bindings/power/reset/reboot-mode.yaml
-index 9c6fda6..ad0a0b9 100644
---- a/Documentation/devicetree/bindings/power/reset/reboot-mode.yaml
-+++ b/Documentation/devicetree/bindings/power/reset/reboot-mode.yaml
-@@ -36,7 +36,7 @@ patternProperties:
-   "^mode-.*$":
-     $ref: /schemas/types.yaml#/definitions/uint32
- 
--additionalProperties: false
-+additionalProperties: true
- 
- examples:
-   - |
 -- 
 QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member 
 of Code Aurora Forum, hosted by The Linux Foundation

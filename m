@@ -2,190 +2,109 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6233AC433ED
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 13:52:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 335AEC43470
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 14:07:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 33BE561042
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 13:52:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 10643610FA
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 14:07:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235286AbhEJNxa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 May 2021 09:53:30 -0400
-Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.50]:28394 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242857AbhEJNvD (ORCPT
+        id S233789AbhEJOIb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 May 2021 10:08:31 -0400
+Received: from new4-smtp.messagingengine.com ([66.111.4.230]:37919 "EHLO
+        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235412AbhEJOBt (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 May 2021 09:51:03 -0400
-ARC-Seal: i=1; a=rsa-sha256; t=1620654410; cv=none;
-    d=strato.com; s=strato-dkim-0002;
-    b=QJ0iJbD3izgNsQezT6Qq0Ijgz77uihsqTDfvq+mntmYWXyrAQDn5c1PQwn3lBvysEU
-    3qQfqVLRkRmFZTnUyeEw/Yz32+FBnLhmLvzB8iLwL84vCZePdMRgDwURk+zcFQgFDauC
-    /VI04GhnWc946avdXY4J7BKt+75kSPDehvIGVa4xzajt3F6tifNQUO2RCG5toMfxYjcY
-    Yb0hzZwDAPx1+Unv1tTS/mdHFZ8X78zvUWYDl0BNu1J/X7N0WgkVgQU4728jejEkWoSK
-    eiJq+8fN/dyClYFkO0bVcz2e2npSlDzhvMpLpbUKNd9UWYjcGXOQ73BHgcuRRji6cHlN
-    1qOA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1620654410;
-    s=strato-dkim-0002; d=strato.com;
-    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=DBio9jMIQVLSgByPsSeV+q4M/TECrqr+l3YMfghTJkY=;
-    b=ccApv+xRkO3gkIBj1vl9fKayK++2UtamKvmpQuCGypC8ckiPJ01XAmdZakNVweYgg5
-    poay56zqYaDJVR43h+aE8oFn+NtQxlzHUWJ7NaXXPGyvNQB15nLJbRkIsSmrzEMyHcD5
-    nr1nyPzqJ4JGOTA4SsqnC+7BvOs0k9R1sTRrXFCAVMiv0bAArwVXtOIwzdOuYABi3nZ3
-    CmgaMOW5bJBRfUjJ+Ew/3FoZBDiuqnSIZ0F/tdeHp36/c1xuuf0WLWM6aQI80+RXWOu0
-    eLI27gaF+fbXkROfnkG0KwN77WAB1V1ef4fA2p60FzgGoslucLPxWfwQkEoBtwqGdgJh
-    ci/A==
-ARC-Authentication-Results: i=1; strato.com;
-    dkim=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1620654410;
-    s=strato-dkim-0002; d=goldelico.com;
-    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=DBio9jMIQVLSgByPsSeV+q4M/TECrqr+l3YMfghTJkY=;
-    b=QD0Wz01mKeTZ4pdCytaqMYJDuIJodfIe6ejZeXd1Zi3pwY0SzqPRXY20rAGK7wo7uZ
-    uiyUEHHnOOZQF3GT4jL4sHKxwih+azzAmaxgncZCGFn3ZEzkDhHjQmHGiTMi53ctq4a9
-    LHwrR/61lSCQ/BmE9L+X76SDSBmWQoQyl0ACNhyxVsWtJTEXlf075glSoW9flLyvbmst
-    EbOe/2bcTv2YKqgYMBmFzGEJs+7d6pXgC1qBwVAfEYWgPdajWm5kthZDl8XgXlutDzCT
-    CXmvict8RE/c/5w3rv1tp1PrOz9OSCTXOkebnL5atPBmPEptPGMP6/RtBWM6Z1RWA3a3
-    biOA==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj4Qpw9iZeHmMnw47pB1A="
-X-RZG-CLASS-ID: mo00
-Received: from imac.fritz.box
-    by smtp.strato.de (RZmta 47.25.6 DYNA|AUTH)
-    with ESMTPSA id y07ed9x4ADkoEEa
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
-        (Client did not present a certificate);
-    Mon, 10 May 2021 15:46:50 +0200 (CEST)
-Subject: Re: [PATCH] Input: tsc200x: Drop hard-coded IRQ edge
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=us-ascii
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <YJk4DFCYo1fW9Vjn@atomide.com>
-Date:   Mon, 10 May 2021 15:46:49 +0200
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Linux Input <linux-input@vger.kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        Adam Ford <aford173@gmail.com>
-Content-Transfer-Encoding: 7bit
-Message-Id: <EABF2204-1ECD-4C58-BCDB-6BDEEBB37D07@goldelico.com>
-References: <20210509233830.359134-1-linus.walleij@linaro.org> <YJh8s5rU2VE+DyQz@google.com> <CACRpkdbXuZOrKyDeBttkMzGvHJbnqVgAnQv=Z=Ui0fHQOOaUMg@mail.gmail.com> <YJk4DFCYo1fW9Vjn@atomide.com>
-To:     Tony Lindgren <tony@atomide.com>
-X-Mailer: Apple Mail (2.3124)
+        Mon, 10 May 2021 10:01:49 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 14AAD5807B2;
+        Mon, 10 May 2021 10:00:38 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Mon, 10 May 2021 10:00:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=benboeckel.net;
+         h=date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=fwXudyHn8IUNsmfHA12W5pUxFzr
+        IcUsJJs6niPOOwGc=; b=gQh6u0zhPsG//1fbjCgHH3SUq5OZEixVi+ckcNcOvNr
+        8f8S6u6OqczboxIeZQzxpdw3AUy1t45vyyuSQKDA1+yJJEqv0Na0yFB8YXQoxGQa
+        A5mz/uekXLKQlXSBVpDzZgWHaTwxLQ8cfd/84Seg6MJA86M+DwrG/rxkfmjHnsDx
+        Vsn+We4G3Oh5Yvv4HNwlluWEHPMQsGoYqOZqIpzyUGPfcSXaDfcxgaoBasafO20O
+        Nia4uZb9+lsHdBKwEogjjnykkTJJzKThWOeq3e2hyjT/F/nLvkiGpnFJ0uMYCJ5w
+        yhbph4b45d/9JdizeckN5aTq6WAACtGxOiZQK1Svtuw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fwXudy
+        Hn8IUNsmfHA12W5pUxFzrIcUsJJs6niPOOwGc=; b=FkYLunR8+bNyojGntZzlTv
+        lNhoU5Ih8GFYdgqBiM9GEeBgkR7PC0rd49vKxgNK2oVHYiwvnJ0pFHee6wyNEefG
+        07iyoKlPp2/47lNX2/0a3w6XYC3Muan3VrHn9DIyh2AJDD/sq19lwcD+nClmgOGW
+        3kjTJut/WH9S1nO20R6vTeVSVeiFhLK/oh1ul5trEQZynTCu46HI2dcf9dXPVKk9
+        sOjDpOdiQFUH6B6gq1Emr8rDL+S3scV3gAHdetS1J2hIDO0dgu0hscWNc8fHxaey
+        25F3JvGPZJisNAQmAtq62YqH7TCAIzVvBqJwx8rI9Oyho2YDtxrFPxf1S0VsKOTA
+        ==
+X-ME-Sender: <xms:hDyZYCqZ48w__j-3J2DdcFFyCNO8Px1wZAdweI2vgyXQ5g_1A_avfw>
+    <xme:hDyZYAoPMp-2hhXE5dIuFZVKJLDFR-LeVjsu56BtdhTJGnUi8Md4Pqb1pnf9Vqqdn
+    t02Gw-Ku9S6gnwxX4I>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgjedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttderjeenucfhrhhomhepuegvnhcu
+    uehovggtkhgvlhcuoehmvgessggvnhgsohgvtghkvghlrdhnvghtqeenucggtffrrghtth
+    gvrhhnpeevffdtteetgfdttdekueefgedttddtueeugeekgeetffeuteffjeduieehhfek
+    tdenucfkphepvdegrdduieelrddvtddrvdehheenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehmvgessggvnhgsohgvtghkvghlrdhnvght
+X-ME-Proxy: <xmx:hDyZYHO7a0I2ObO3iNQCJFMynfyvzQSxH3x8A4ShPc13xjvG6wh63A>
+    <xmx:hDyZYB6OL9_iqJiCXEkFvw1uMnu0UHjkSyxn6Irx0qOidEFWAmkwbA>
+    <xmx:hDyZYB472gSq8MYTawlNh6oofIzwaZQvJxltEegElvbnNVF17UiCaA>
+    <xmx:hjyZYNFuZhUi4dOrdPamnliiTh3owe6Tf-ewK9C2k9SXGvHlGfVlTg>
+Received: from localhost (unknown [24.169.20.255])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Mon, 10 May 2021 10:00:35 -0400 (EDT)
+Date:   Mon, 10 May 2021 10:00:34 -0400
+From:   Ben Boeckel <me@benboeckel.net>
+To:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc:     David Woodhouse <dwmw2@infradead.org>,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        alsa-devel@alsa-project.org, coresight@lists.linaro.org,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        intel-wired-lan@lists.osuosl.org, keyrings@vger.kernel.org,
+        kvm@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        linux-fpga@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-integrity@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-sgx@vger.kernel.org, linux-usb@vger.kernel.org,
+        mjpeg-users@lists.sourceforge.net, netdev@vger.kernel.org,
+        rcu@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH 00/53] Get rid of UTF-8 chars that can be mapped as ASCII
+Message-ID: <YJk8gkMlk8dtaEsz@erythro.dev.benboeckel.internal>
+References: <cover.1620641727.git.mchehab+huawei@kernel.org>
+ <2ae366fdff4bd5910a2270823e8da70521c859af.camel@infradead.org>
+ <20210510135518.305cc03d@coco.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210510135518.305cc03d@coco.lan>
+User-Agent: Mutt/2.0.5 (2021-01-21)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+On Mon, May 10, 2021 at 13:55:18 +0200, Mauro Carvalho Chehab wrote:
+>     $ git grep "CPU 0 has been" Documentation/RCU/
+>       Documentation/RCU/Design/Data-Structures/Data-Structures.rst:| #. CPU 0 has been in dyntick-idle mode for quite some time. When it   |
+>       Documentation/RCU/Design/Data-Structures/Data-Structures.rst:|    notices that CPU 0 has been in dyntick idle mode, which qualifies  |
 
-> Am 10.05.2021 um 15:41 schrieb Tony Lindgren <tony@atomide.com>:
-> 
-> Hi,
-> 
-> * Linus Walleij <linus.walleij@linaro.org> [210510 09:29]:
->> On Mon, May 10, 2021 at 2:22 AM Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->>> On Mon, May 10, 2021 at 01:38:30AM +0200, Linus Walleij wrote:
->> 
->>>> This edge setting should come from the device tree not
->>>> the driver. Also, most device trees sets this to the
->>>> falling edge, which is contradictory to what is hardcoded.
->>> 
->>> I see there are 2 possibilities:
->>> 
->>> 1. The driver has never worked
->>> 2. DT interrupt annotation is wrong.
->>> 
->>> It would be nice to know if we are dealing with 1 or 2, as in case of #2
->>> we need to adjust DTSes before this patch can be applied.
->> 
->> I looked closer and unfortunately the mess and confusion
->> is bizarre.
->> 
->> The DTS files we know of are:
->> arch/arm/boot/dts/am3517-som.dtsi - rising
->> arch/arm/boot/dts/imx28-tx28.dts - falling
->> arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi - low
->> arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi - low
->> arch/arm/boot/dts/imx53-tx53-x03x.dts - falling
->> arch/arm/boot/dts/imx6q-dhcom-som.dtsi - falling
->> arch/arm/boot/dts/imx6qdl-tx6.dtsi - none
->> arch/arm/boot/dts/imx6ul-tx6ul.dtsi - none
->> arch/arm/boot/dts/imx7d-nitrogen7.dts - falling
->> arch/arm/boot/dts/logicpd-som-lv.dtsi - rising
->> arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi - rising
->> arch/arm/boot/dts/omap3-gta04.dtsi - falling
->> arch/arm/boot/dts/omap3-n900.dts - rising
->> arch/arm/boot/dts/omap4-var-som-om44.dtsi - low
->> arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi - falling
->> 
->> We can assume that some of this is the result of board
->> engineers introducing inverters on the board as is custom,
->> so the flags are actually correct when set to falling, just
->> that we don't model the inverter.
->> 
->> In the case of imx6qdl-tx6 and imx6ul-tx6ul with "none" IRQ
->> type I assume this flag in the driver is actually necessary
->> for the device to work at all.
->> 
->> In the cases where rising is set, the addition of the flag is
->> plain tautology, just setting what is already set.
->> 
->> In the cases where falling are set the interrupts will arrive
->> on both edges (if the hardware can provide that, which is
->> not always the case) and as a result fire twice as many
->> interrupts as they should, probably with zero effect on the
->> second IRQ, just reporting nothing.
->> 
->> The combination with active low is weird. I wonder what
->> happens there.
->> 
->> I am just confused now and have no idea what to do about
->> it...
->> 
->> But I just CC all the Freescale and OMAP people who
->> seem to maintain these DTS files so they can clarify
->> how well assigned these edges, none and active low (!)
->> IRQs are.
-> 
-> Maybe the GTA04 or LogicPD folks can check the interrupt edge
+The kernel documentation uses hard line wraps, so such a naive grep is
+going to always fail unless such line wraps are taken into account. Not
+saying this isn't an improvement in and of itself, but smarter searching
+strategies are likely needed anyways.
 
-gt04 uses the tsc2007 which has a driver separate from tsc2004/5.
-
-> direction for tsc2005 on the device end to see if inversion
-> happens. So adding some more people to Cc.
-> 
-> Looks like at least the tsc2005 data sheet says:
-> 
-> "Interrupt output. Data available or PENIRQ depends on setting.
-> Pin polarity with active low."
-> 
-> So it seems the dts configuration should have level active low
-> for the GPIO interrupt unless the hardware inverts it somewhere.
-> 
-> If the edge configuration for a GPIO interrupt has been done
-> for tsc2005 for PM wake purposes, there should be no longer
-> need for it at least on omaps. Folks can just configure a
-> dedicated wakeirq with interrupts-extended dts property and
-> the i2c framework will handle that automatically :) There are
-> some examples if you grep dts files for '"wakeup"'.
-> 
-> Regards,
-> 
-> Tony
-
-BR,
-Nikolaus
-
-
+--Ben

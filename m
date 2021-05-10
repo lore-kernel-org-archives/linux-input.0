@@ -2,255 +2,97 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A98E5C43603
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA53CC433ED
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:51:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 871EC61363
-	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:02:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A328F61430
+	for <linux-input@archiver.kernel.org>; Mon, 10 May 2021 07:51:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230209AbhEJHDV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 May 2021 03:03:21 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:61793 "EHLO
-        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230076AbhEJHDK (ORCPT
+        id S230160AbhEJHww (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 May 2021 03:52:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59086 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230105AbhEJHwv (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 May 2021 03:03:10 -0400
-Received: from ironmsg-lv-alpha.qualcomm.com ([10.47.202.13])
-  by alexa-out.qualcomm.com with ESMTP; 10 May 2021 00:02:05 -0700
-X-QCInternal: smtphost
-Received: from ironmsg01-blr.qualcomm.com ([10.86.208.130])
-  by ironmsg-lv-alpha.qualcomm.com with ESMTP/TLS/AES256-SHA; 10 May 2021 00:02:03 -0700
-X-QCInternal: smtphost
-Received: from c-skakit-linux.ap.qualcomm.com (HELO c-skakit-linux.qualcomm.com) ([10.242.51.242])
-  by ironmsg01-blr.qualcomm.com with ESMTP; 10 May 2021 12:31:20 +0530
-Received: by c-skakit-linux.qualcomm.com (Postfix, from userid 2344709)
-        id 9010C46D8; Mon, 10 May 2021 12:31:19 +0530 (IST)
-From:   satya priya <skakit@codeaurora.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc:     David Collins <collinsd@codeaurora.org>, kgunda@codeaurora.org,
-        linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org,
-        Courtney Cavin <courtney.cavin@sonymobile.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Andy Yan <andy.yan@rock-chips.com>,
-        satya priya <skakit@codeaurora.org>
-Subject: [PATCH V3 1/5] input: pm8941-pwrkey: add support for PMK8350 PON_HLOS PMIC peripheral
-Date:   Mon, 10 May 2021 12:31:00 +0530
-Message-Id: <1620630064-16354-2-git-send-email-skakit@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1620630064-16354-1-git-send-email-skakit@codeaurora.org>
-References: <1620630064-16354-1-git-send-email-skakit@codeaurora.org>
+        Mon, 10 May 2021 03:52:51 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53673C061573
+        for <linux-input@vger.kernel.org>; Mon, 10 May 2021 00:51:47 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id ge1so9281131pjb.2
+        for <linux-input@vger.kernel.org>; Mon, 10 May 2021 00:51:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=H3lIDYRjEqzgIvcUCtBDnBQUErg1kgTxV/8Bkn6tm5Q=;
+        b=SRshdANv1vpLG/kZ7Z7AyqI2G2nPqWVkHAXeJh+/bIaP5uIaYRbi13dpImBGjlEEYC
+         jv+zJcrIVDqLbw8CISHFvOllHGbipDYPSKsOoKKKGihrp47Pzh7V1AphSLaq4DVmPNDG
+         1/yWtIV9vcm8TZPMCwmEMm4c7FLJDA4ooMus0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=H3lIDYRjEqzgIvcUCtBDnBQUErg1kgTxV/8Bkn6tm5Q=;
+        b=GzfbUtNNEYdH27s+yqkUGFwJ5YWsOIM4aTB1foPS9jBb/mf+RWrLiVZtxViOXVVdDn
+         kbT3/aK7BmZu7MOkJftkg8QFQnmlh8GVcRtdsVk+o8XpYBpp8lHyoyVIDTh9pnKLCWkc
+         2yQ9c7FG94pEP6njxeUXWFMDlPsokH9/7OUvXr3zLuB8W7FPnkyDUvnPVDTfBUYnhJF1
+         umSy15ThUq+6GvV1eqBC5hfXEWBW8tpUDPToPjVSzUewbu8IpM78SPbRg64f/5VPSEQ6
+         cLqQlYgFrysCMNnvAT3VcFPyzQ+T4Bauzb9nQo1vLNxfH6sVhtPKCBDkvhyzPb3+nebE
+         EpCQ==
+X-Gm-Message-State: AOAM533A+/ppzcgXXnhnjbIBToehizanh0pq/eaw0QEt7qmXjp5dIQi9
+        RwhBg/mBx6Qno6YYfjosSLQeKnLZkmSWK6gY6w/RcWZd8B1DAPyQ
+X-Google-Smtp-Source: ABdhPJz9o7iMrQUyTT/OdYYa7W9Rr7zSPlQqxzJH4r5OhdoDQXjbWbWne2V241Wh9YZlXMy0ihMy1Zw/9gSYZ9YFAaI=
+X-Received: by 2002:a17:90a:f0d2:: with SMTP id fa18mr39393884pjb.126.1620633106851;
+ Mon, 10 May 2021 00:51:46 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210415032958.740233-1-ikjn@chromium.org> <20210415032958.740233-3-ikjn@chromium.org>
+ <nycvar.YFH.7.76.2105051434520.28378@cbobk.fhfr.pm>
+In-Reply-To: <nycvar.YFH.7.76.2105051434520.28378@cbobk.fhfr.pm>
+From:   Ikjoon Jang <ikjn@chromium.org>
+Date:   Mon, 10 May 2021 15:51:36 +0800
+Message-ID: <CAATdQgA27o2wq0L-QrKwz1AywztnYZC7+rij=SjhWXdSJPC+dQ@mail.gmail.com>
+Subject: Re: [PATCH v5 2/2] HID: google: Add of_match table to Whiskers switch device.
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     linux-input@vger.kernel.org,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Nicolas Boichat <drinkcat@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: David Collins <collinsd@codeaurora.org>
+On Wed, May 5, 2021 at 8:35 PM Jiri Kosina <jikos@kernel.org> wrote:
+>
+> On Thu, 15 Apr 2021, Ikjoon Jang wrote:
+>
+> > Add a device tree match table for "cros-cbas" switch device.
+>
+> Applied, sorry for the delay.
 
-On Qualcomm Technologies, Inc. PMIC PMK8350, the PON peripheral
-is split into two peripherals: PON_HLOS and PON_PBS.  The
-application processor only has write access to PON_HLOS which
-limits it to only receiving PON interrupts.
+Thanks a lot!
 
-Add support for the PMK8350 PON_HLOS peripheral so that its
-KPDPWR_N and RESIN_N interrupts can be used to detect key
-presses.
+Sorry for bothering you again but I can't find
+a device tree binding patch [1] in your trees.
 
-Signed-off-by: David Collins <collinsd@codeaurora.org>
-Signed-off-by: satya priya <skakit@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
----
-Changes in V2:
- - No change.
+I think dt-binding should go first before the driver part.
+Can it also be applied to hid tree (or am I missing something)?
 
-Changes in V3:
- - No change.
+[1] http://patchwork.kernel.org/patch/12204197
+     [v5,1/2] mfd: google,cros-ec: add DT bindings for a baseboard's
+switch device
 
- drivers/input/misc/pm8941-pwrkey.c | 103 ++++++++++++++++++++++++++-----------
- 1 file changed, 72 insertions(+), 31 deletions(-)
-
-diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-index cf81044..10e3fc0 100644
---- a/drivers/input/misc/pm8941-pwrkey.c
-+++ b/drivers/input/misc/pm8941-pwrkey.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ * Copyright (c) 2010-2011, 2020-2021, The Linux Foundation. All rights reserved.
-  * Copyright (c) 2014, Sony Mobile Communications Inc.
-  */
- 
-@@ -22,6 +22,8 @@
- #define PON_RT_STS			0x10
- #define  PON_KPDPWR_N_SET		BIT(0)
- #define  PON_RESIN_N_SET		BIT(1)
-+#define  PON_GEN3_RESIN_N_SET		BIT(6)
-+#define  PON_GEN3_KPDPWR_N_SET		BIT(7)
- 
- #define PON_PS_HOLD_RST_CTL		0x5a
- #define PON_PS_HOLD_RST_CTL2		0x5b
-@@ -38,8 +40,12 @@
- #define  PON_DBC_DELAY_MASK		0x7
- 
- struct pm8941_data {
--	unsigned int pull_up_bit;
--	unsigned int status_bit;
-+	unsigned int	pull_up_bit;
-+	unsigned int	status_bit;
-+	bool		supports_ps_hold_poff_config;
-+	bool		supports_debounce_config;
-+	const char	*name;
-+	const char	*phys;
- };
- 
- struct pm8941_pwrkey {
-@@ -231,34 +237,40 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
- 
- 	input_set_capability(pwrkey->input, EV_KEY, pwrkey->code);
- 
--	pwrkey->input->name = "pm8941_pwrkey";
--	pwrkey->input->phys = "pm8941_pwrkey/input0";
--
--	req_delay = (req_delay << 6) / USEC_PER_SEC;
--	req_delay = ilog2(req_delay);
--
--	error = regmap_update_bits(pwrkey->regmap,
--				   pwrkey->baseaddr + PON_DBC_CTL,
--				   PON_DBC_DELAY_MASK,
--				   req_delay);
--	if (error) {
--		dev_err(&pdev->dev, "failed to set debounce: %d\n", error);
--		return error;
-+	pwrkey->input->name = pwrkey->data->name;
-+	pwrkey->input->phys = pwrkey->data->phys;
-+
-+	if (pwrkey->data->supports_debounce_config) {
-+		req_delay = (req_delay << 6) / USEC_PER_SEC;
-+		req_delay = ilog2(req_delay);
-+
-+		error = regmap_update_bits(pwrkey->regmap,
-+					   pwrkey->baseaddr + PON_DBC_CTL,
-+					   PON_DBC_DELAY_MASK,
-+					   req_delay);
-+		if (error) {
-+			dev_err(&pdev->dev, "failed to set debounce: %d\n",
-+				error);
-+			return error;
-+		}
- 	}
- 
--	error = regmap_update_bits(pwrkey->regmap,
--				   pwrkey->baseaddr + PON_PULL_CTL,
--				   pwrkey->data->pull_up_bit,
--				   pull_up ? pwrkey->data->pull_up_bit : 0);
--	if (error) {
--		dev_err(&pdev->dev, "failed to set pull: %d\n", error);
--		return error;
-+	if (pwrkey->data->pull_up_bit) {
-+		error = regmap_update_bits(pwrkey->regmap,
-+					   pwrkey->baseaddr + PON_PULL_CTL,
-+					   pwrkey->data->pull_up_bit,
-+					   pull_up ? pwrkey->data->pull_up_bit :
-+						     0);
-+		if (error) {
-+			dev_err(&pdev->dev, "failed to set pull: %d\n", error);
-+			return error;
-+		}
- 	}
- 
- 	error = devm_request_threaded_irq(&pdev->dev, pwrkey->irq,
- 					  NULL, pm8941_pwrkey_irq,
- 					  IRQF_ONESHOT,
--					  "pm8941_pwrkey", pwrkey);
-+					  pwrkey->data->name, pwrkey);
- 	if (error) {
- 		dev_err(&pdev->dev, "failed requesting IRQ: %d\n", error);
- 		return error;
-@@ -271,12 +283,14 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
- 		return error;
- 	}
- 
--	pwrkey->reboot_notifier.notifier_call = pm8941_reboot_notify,
--	error = register_reboot_notifier(&pwrkey->reboot_notifier);
--	if (error) {
--		dev_err(&pdev->dev, "failed to register reboot notifier: %d\n",
--			error);
--		return error;
-+	if (pwrkey->data->supports_ps_hold_poff_config) {
-+		pwrkey->reboot_notifier.notifier_call = pm8941_reboot_notify,
-+		error = register_reboot_notifier(&pwrkey->reboot_notifier);
-+		if (error) {
-+			dev_err(&pdev->dev, "failed to register reboot notifier: %d\n",
-+				error);
-+			return error;
-+		}
- 	}
- 
- 	platform_set_drvdata(pdev, pwrkey);
-@@ -289,7 +303,8 @@ static int pm8941_pwrkey_remove(struct platform_device *pdev)
- {
- 	struct pm8941_pwrkey *pwrkey = platform_get_drvdata(pdev);
- 
--	unregister_reboot_notifier(&pwrkey->reboot_notifier);
-+	if (pwrkey->data->supports_ps_hold_poff_config)
-+		unregister_reboot_notifier(&pwrkey->reboot_notifier);
- 
- 	return 0;
- }
-@@ -297,16 +312,42 @@ static int pm8941_pwrkey_remove(struct platform_device *pdev)
- static const struct pm8941_data pwrkey_data = {
- 	.pull_up_bit = PON_KPDPWR_PULL_UP,
- 	.status_bit = PON_KPDPWR_N_SET,
-+	.name = "pm8941_pwrkey",
-+	.phys = "pm8941_pwrkey/input0",
-+	.supports_ps_hold_poff_config = true,
-+	.supports_debounce_config = true,
- };
- 
- static const struct pm8941_data resin_data = {
- 	.pull_up_bit = PON_RESIN_PULL_UP,
- 	.status_bit = PON_RESIN_N_SET,
-+	.name = "pm8941_resin",
-+	.phys = "pm8941_resin/input0",
-+	.supports_ps_hold_poff_config = true,
-+	.supports_debounce_config = true,
-+};
-+
-+static const struct pm8941_data pon_gen3_pwrkey_data = {
-+	.status_bit = PON_GEN3_KPDPWR_N_SET,
-+	.name = "pmic_pwrkey",
-+	.phys = "pmic_pwrkey/input0",
-+	.supports_ps_hold_poff_config = false,
-+	.supports_debounce_config = false,
-+};
-+
-+static const struct pm8941_data pon_gen3_resin_data = {
-+	.status_bit = PON_GEN3_RESIN_N_SET,
-+	.name = "pmic_resin",
-+	.phys = "pmic_resin/input0",
-+	.supports_ps_hold_poff_config = false,
-+	.supports_debounce_config = false,
- };
- 
- static const struct of_device_id pm8941_pwr_key_id_table[] = {
- 	{ .compatible = "qcom,pm8941-pwrkey", .data = &pwrkey_data },
- 	{ .compatible = "qcom,pm8941-resin", .data = &resin_data },
-+	{ .compatible = "qcom,pmk8350-pwrkey", .data = &pon_gen3_pwrkey_data },
-+	{ .compatible = "qcom,pmk8350-resin", .data = &pon_gen3_resin_data },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, pm8941_pwr_key_id_table);
--- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member 
-of Code Aurora Forum, hosted by The Linux Foundation
-
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>

@@ -3,25 +3,25 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AABF0C433ED
-	for <linux-input@archiver.kernel.org>; Tue, 11 May 2021 20:16:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A31B3C43461
+	for <linux-input@archiver.kernel.org>; Tue, 11 May 2021 20:16:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7EC166188B
-	for <linux-input@archiver.kernel.org>; Tue, 11 May 2021 20:16:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 65B2561879
+	for <linux-input@archiver.kernel.org>; Tue, 11 May 2021 20:16:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229932AbhEKURV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 11 May 2021 16:17:21 -0400
-Received: from 82-65-109-163.subs.proxad.net ([82.65.109.163]:37924 "EHLO
+        id S230002AbhEKURX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 11 May 2021 16:17:23 -0400
+Received: from 82-65-109-163.subs.proxad.net ([82.65.109.163]:37954 "EHLO
         luna.linkmauve.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229548AbhEKURU (ORCPT
+        with ESMTP id S229917AbhEKURW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 11 May 2021 16:17:20 -0400
+        Tue, 11 May 2021 16:17:22 -0400
 Received: by luna.linkmauve.fr (Postfix, from userid 1000)
-        id BBD33F40638; Tue, 11 May 2021 22:16:08 +0200 (CEST)
+        id 7E6F1F4063C; Tue, 11 May 2021 22:16:13 +0200 (CEST)
 From:   Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
 To:     linux-input@vger.kernel.org
 Cc:     Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
@@ -31,10 +31,12 @@ Cc:     Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/4] HID: wiiu-drc: Add a driver for the Wii U gamepad
-Date:   Tue, 11 May 2021 22:16:00 +0200
-Message-Id: <20210511201604.23204-1-linkmauve@linkmauve.fr>
+Subject: [PATCH v2 3/4] HID: wiiu-drc: Add accelerometer, gyroscope and magnetometer readings
+Date:   Tue, 11 May 2021 22:16:03 +0200
+Message-Id: <20210511201604.23204-4-linkmauve@linkmauve.fr>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210511201604.23204-1-linkmauve@linkmauve.fr>
+References: <20210511201604.23204-1-linkmauve@linkmauve.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,61 +44,154 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This driver is for the DRC (wireless gamepad) when plugged to the DRH of
-the Wii U, a chip exposing it as a USB device.
+These are mostly untested so far, because I have no idea which userland
+to test against, but evtest at least seems to give sensible values.
 
-I tried to use this driver on master over usbip on my laptop, but usbip
-disconnects the device right after the driver created the
-/dev/input/event* files, so instead I have only tested this driver on
-the 4.19 branch of the linux-wiiu[1] downstream.
+The magnetometer doesn’t have dedicated INPUT_PROP_ACCELEROMETER
+buttons, so I used three clearly invalid absolute values, in the hope
+that someone will fix that eventually.  Another solution might be to go
+for the iio subsystem instead, but then it wouldn’t be tied to the HID
+any longer and I would feel uneasy about that.  Especially because
+multiple such gamepads could be connected to a single computer.
 
-Other than that, pretty much all of the HID parts of the gamepad work,
-it’s only missing microphone, camera and NFC input now but those are
-mostly standard (read require quirks) and pertain to other subsystems,
-so I felt like this can be upstreamed already.
+Signed-off-by: Ash Logan <ash@heyquark.com>
+Signed-off-by: Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
+---
+ drivers/hid/hid-wiiu-drc.c | 77 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 74 insertions(+), 3 deletions(-)
 
-[1] https://gitlab.com/linux-wiiu/linux-wiiu
-
-Changes since v1:
-- Rename interfaces to be less redundant.
-- Add comments for potentially unclear things.
-- Reword some commits to include more needed information.
-- Include all needed includes.
-- Use helpful helper functions instead of (badly) reimplementing them
-  myself.
-- Always return the correct type for each function, to avoid some
-  bool/int confusion, or returning 0 to mean error.
-- Use myself as the module author, even though Ash did most of the
-  initial work, I’m the one who will be maintaining this module from now
-  on.
-- Use input_set_capability() instead of set_bit(…, keybit) to also set
-  BIT(EV_KEY) on evbit[0].
-- Call hid_hw_start() before input_register_device() but after the setup
-  functions, so that hid_hw_open() is never called before it.
-- Add missing spin_lock_init() for the battery lock.
-- Use a static atomic for the drc_num, and remove the comment about
-  using the interface number.
-- Interpret battery report as the voltage coming from an ADC, instead of
-  the completely wrong ENERGY_NOW it was before.
-
-So basically addressing Jonathan’s and Barnabás’ comments. :)
-
-Ash Logan (1):
-  HID: wiiu-drc: Add a driver for this gamepad
-
-Emmanuel Gil Peyrot (3):
-  HID: wiiu-drc: Implement touch reports
-  HID: wiiu-drc: Add accelerometer, gyroscope and magnetometer readings
-  HID: wiiu-drc: Add battery reporting
-
- drivers/hid/Kconfig        |   7 +
- drivers/hid/Makefile       |   1 +
- drivers/hid/hid-ids.h      |   1 +
- drivers/hid/hid-quirks.c   |   3 +
- drivers/hid/hid-wiiu-drc.c | 551 +++++++++++++++++++++++++++++++++++++
- 5 files changed, 563 insertions(+)
- create mode 100644 drivers/hid/hid-wiiu-drc.c
-
+diff --git a/drivers/hid/hid-wiiu-drc.c b/drivers/hid/hid-wiiu-drc.c
+index 33c02d3494aa..a631d405119e 100644
+--- a/drivers/hid/hid-wiiu-drc.c
++++ b/drivers/hid/hid-wiiu-drc.c
+@@ -63,15 +63,25 @@
+ #define TOUCH_BORDER_X	100
+ #define TOUCH_BORDER_Y	200
+ 
++/* Accelerometer, gyroscope and magnetometer constants */
++#define ACCEL_MIN	-(1 << 15)
++#define ACCEL_MAX	((1 << 15) - 1)
++#define GYRO_MIN	-(1 << 23)
++#define GYRO_MAX	((1 << 23) - 1)
++#define MAGNET_MIN	-(1 << 15)
++#define MAGNET_MAX	((1 << 15) - 1)
++
+ /*
+  * The device is setup with multiple input devices:
+  * - A joypad with the buttons and sticks.
+  * - The touch area which works as a touchscreen.
++ * - An accelerometer + gyroscope + magnetometer device.
+  */
+ 
+ struct drc {
+ 	struct input_dev *joy_input_dev;
+ 	struct input_dev *touch_input_dev;
++	struct input_dev *accel_input_dev;
+ 	struct hid_device *hdev;
+ };
+ 
+@@ -87,7 +97,7 @@ static int drc_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 			 u8 *data, int len)
+ {
+ 	struct drc *drc = hid_get_drvdata(hdev);
+-	int i, x, y, pressure, base;
++	int i, x, y, z, pressure, base;
+ 	u32 buttons;
+ 
+ 	if (len != 128)
+@@ -182,6 +192,31 @@ static int drc_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	}
+ 	input_sync(drc->touch_input_dev);
+ 
++	/* accelerometer */
++	x = (data[16] << 8) | data[15];
++	y = (data[18] << 8) | data[17];
++	z = (data[20] << 8) | data[19];
++	input_report_abs(drc->accel_input_dev, ABS_X, (int16_t)x);
++	input_report_abs(drc->accel_input_dev, ABS_Y, (int16_t)y);
++	input_report_abs(drc->accel_input_dev, ABS_Z, (int16_t)z);
++
++	/* gyroscope */
++	x = (data[23] << 24) | (data[22] << 16) | (data[21] << 8);
++	y = (data[26] << 24) | (data[25] << 16) | (data[24] << 8);
++	z = (data[29] << 24) | (data[28] << 16) | (data[27] << 8);
++	input_report_abs(drc->accel_input_dev, ABS_RX, x >> 8);
++	input_report_abs(drc->accel_input_dev, ABS_RY, y >> 8);
++	input_report_abs(drc->accel_input_dev, ABS_RZ, z >> 8);
++
++	/* magnetometer */
++	x = (data[31] << 8) | data[30];
++	y = (data[33] << 8) | data[32];
++	z = (data[35] << 8) | data[34];
++	input_report_abs(drc->accel_input_dev, ABS_THROTTLE, (int16_t)x);
++	input_report_abs(drc->accel_input_dev, ABS_RUDDER, (int16_t)y);
++	input_report_abs(drc->accel_input_dev, ABS_WHEEL, (int16_t)z);
++	input_sync(drc->accel_input_dev);
++
+ 	/* let hidraw and hiddev handle the report */
+ 	return 0;
+ }
+@@ -297,6 +332,40 @@ static bool drc_setup_touch(struct drc *drc,
+ 	return true;
+ }
+ 
++static bool drc_setup_accel(struct drc *drc,
++			    struct hid_device *hdev)
++{
++	struct input_dev *input_dev;
++
++	input_dev = allocate_and_setup(hdev, DEVICE_NAME " accelerometer, gyroscope and magnetometer");
++	if (!input_dev)
++		return false;
++
++	drc->accel_input_dev = input_dev;
++
++	set_bit(INPUT_PROP_ACCELEROMETER, input_dev->propbit);
++
++	/* 1G accel is reported as about -7900 */
++	input_set_abs_params(input_dev, ABS_X, ACCEL_MIN, ACCEL_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, ACCEL_MIN, ACCEL_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_Z, ACCEL_MIN, ACCEL_MAX, 0, 0);
++
++	/* gyroscope */
++	input_set_abs_params(input_dev, ABS_RX, GYRO_MIN, GYRO_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_RY, GYRO_MIN, GYRO_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_RZ, GYRO_MIN, GYRO_MAX, 0, 0);
++
++	/* magnetometer */
++	/* TODO: Figure out which ABS_* would make more sense to expose, or
++	 * maybe go for the iio subsystem?
++	 */
++	input_set_abs_params(input_dev, ABS_THROTTLE, MAGNET_MIN, MAGNET_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_RUDDER, MAGNET_MIN, MAGNET_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_WHEEL, MAGNET_MIN, MAGNET_MAX, 0, 0);
++
++	return true;
++}
++
+ static int drc_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	struct drc *drc;
+@@ -317,7 +386,8 @@ static int drc_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	if (!drc_setup_joypad(drc, hdev) ||
+-	    !drc_setup_touch(drc, hdev)) {
++	    !drc_setup_touch(drc, hdev) ||
++	    !drc_setup_accel(drc, hdev)) {
+ 		hid_err(hdev, "could not allocate interfaces\n");
+ 		return -ENOMEM;
+ 	}
+@@ -329,7 +399,8 @@ static int drc_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	ret = input_register_device(drc->joy_input_dev) ||
+-	      input_register_device(drc->touch_input_dev);
++	      input_register_device(drc->touch_input_dev) ||
++	      input_register_device(drc->accel_input_dev);
+ 	if (ret) {
+ 		hid_err(hdev, "failed to register interfaces\n");
+ 		return ret;
 -- 
 2.31.1
 

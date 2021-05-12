@@ -2,106 +2,127 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96BA1C2B9FA
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 15:50:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84229C43470
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 16:10:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 75CAC61DC8
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 15:50:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4E25161D0D
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 16:10:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233699AbhELPve (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 May 2021 11:51:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49178 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235091AbhELPfS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 May 2021 11:35:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 455F961C3E;
-        Wed, 12 May 2021 15:17:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620832672;
-        bh=zB2G4t5ozyJ72g68BGRplKf2lQRTS6CtRvJ7FVX3NWE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=DBjrvZcbfODq6o/u3ovhcKp34o3mQ/2g2kqOKbw7rqi0UbJcuDmNkgLMMy0M05dFs
-         mwfV7fdqIvkaHvs5FkFIxP3pQ5mW2wuelKsM0Zg1XI928MZ1g6hDtwlC/lZ6mTYtDn
-         L0yXyxJPdKzjgMXD6Vs/vdQOXuvQV+DBBKSwRDhM/LlZ9x9/DV6Qnq7MjBym4Ue3He
-         LklNFflnfSaW1SCikrvqRJriPDliUiNhIaGm2pb/3nXItDzT/4/obeOPpO0NPN/v0m
-         Pwish5sD0axq4vDEIuCSUJZyKrnPcy3P6Nd30IKN+fHXybC5E+QSyK+xdLgaNeWw/l
-         +EUyGcBOd8VUw==
-Date:   Wed, 12 May 2021 17:17:41 +0200
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-To:     "Theodore Ts'o" <tytso@mit.edu>
-Cc:     Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        Mali DP Maintainers <malidp@foss.arm.com>,
-        alsa-devel@alsa-project.org, coresight@lists.linaro.org,
-        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        intel-wired-lan@lists.osuosl.org, keyrings@vger.kernel.org,
-        kvm@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-sgx@vger.kernel.org, linux-usb@vger.kernel.org,
-        mjpeg-users@lists.sourceforge.net, netdev@vger.kernel.org,
-        rcu@vger.kernel.org
-Subject: Re: [PATCH v2 00/40] Use ASCII subset instead of UTF-8 alternate
- symbols
-Message-ID: <20210512171741.2870bcbc@coco.lan>
-In-Reply-To: <YJvi1L2ss5Tfi+My@mit.edu>
-References: <cover.1620823573.git.mchehab+huawei@kernel.org>
-        <YJvi1L2ss5Tfi+My@mit.edu>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        id S235847AbhELQLV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 May 2021 12:11:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51404 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233958AbhELPvP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 May 2021 11:51:15 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9037FC061345
+        for <linux-input@vger.kernel.org>; Wed, 12 May 2021 08:26:54 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id h4so24024980wrt.12
+        for <linux-input@vger.kernel.org>; Wed, 12 May 2021 08:26:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=oW516jzYudrgPpoHV87MKKEstdKadYWrqHFNhZ2YbXA=;
+        b=hXAKLlGslSY+StvaTShozecnK56pNk1iaHsdQQqcO3Oq+6ZookK9e21q3ejNQQvBqq
+         RDhHax1vyl5VTyNgLtRs/87oEJGisOF/zGw7VnU0wP2Xli9Vmw1lNM1DP+o1bIMCNZc2
+         49Wt8OIXmlP0FCA4GETy37IWb6XzuBEsV1YMjfjvHIqMtfiidrWJPN06kSnNPl8G0El+
+         ejyDjMoNnCe3HFwf1hjDSq/tkolEptYzQzFsogm86a+12K46WgmdmimS0pkSjJdz7Qs1
+         rZXRl5tgPlAYFLp0FQpP8s37hueBw3hseo+jn1R8u8CpczgMEdOlTFVKdL5IBJcLVRrv
+         wbcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=oW516jzYudrgPpoHV87MKKEstdKadYWrqHFNhZ2YbXA=;
+        b=azLQ2mmhcfWzIIf8XWDkaTM4UWC1bZ8EK2WEKAG5pDxbYYq82rYnr1Ks9FdNNNWlXS
+         4cNQAWpA/7vAoTom1XPaO+OQYNrg6c06yUy7l5ewKK/LLgdyQcQyXA7Fs1uvB0U0eiEt
+         dix60jYpCpbhvTrR+9HOu8solSgjjqMWI4jz+LzZaKXPlRu3tg2gyrHUbMaCv6chT39M
+         yVzYcQNGMj4pMMkRmTiHqsty2w9JgvHy7hcVt6oli5LfENVkACcbXyx8zZM1OOCE3zdv
+         4FzhosvnQFlZVcLQzhOEP47FSvMn7xpiKTeBfTCrtDhA+9VQ6Mt19LX12xUMZVl4/qic
+         cBIw==
+X-Gm-Message-State: AOAM530qmwcMRlBFp8bCTR3nFijcVzT1lvTpT0G2mBJAWFzHlzWwYFb4
+        IF29mGC/Lz/bNrU03yOLUdnFeg==
+X-Google-Smtp-Source: ABdhPJypo7Jgc6oAImKUv3gajv3k/NqdipfFKhkHkFZxxCQ1LulKIaO0IIMcNGTIuXb2LioBDAsYuQ==
+X-Received: by 2002:a05:6000:1549:: with SMTP id 9mr45965246wry.367.1620833213218;
+        Wed, 12 May 2021 08:26:53 -0700 (PDT)
+Received: from mkorpershoek-XPS-13-9370.home (lfbn-tou-1-1465-169.w90-89.abo.wanadoo.fr. [90.89.34.169])
+        by smtp.gmail.com with ESMTPSA id b7sm30931256wri.83.2021.05.12.08.26.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 May 2021 08:26:52 -0700 (PDT)
+From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Cc:     Fabien Parent <fparent@baylibre.com>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Subject: [PATCH v2 1/3] Input: mtk-pmic-keys - use get_irq_byname() instead of index
+Date:   Wed, 12 May 2021 17:26:46 +0200
+Message-Id: <20210512152648.39961-2-mkorpershoek@baylibre.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210512152648.39961-1-mkorpershoek@baylibre.com>
+References: <20210512152648.39961-1-mkorpershoek@baylibre.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Em Wed, 12 May 2021 10:14:44 -0400
-"Theodore Ts'o" <tytso@mit.edu> escreveu:
+Some pmics of the mt6397 family (such as MT6358), have two IRQs per
+physical key: one for press event, another for release event.
 
-> On Wed, May 12, 2021 at 02:50:04PM +0200, Mauro Carvalho Chehab wrote:
-> > v2:
-> > - removed EM/EN DASH conversion from this patchset; =20
->=20
-> Are you still thinking about doing the
->=20
-> EN DASH --> "--"
-> EM DASH --> "---"
->=20
-> conversion? =20
+The mtk-pmic-keys driver assumes that each key only has one
+IRQ. The key index and the RES_IRQ resource index have a 1/1 mapping.
 
-Yes, but I intend to submit it on a separate patch series, probably after
-having this one merged. Let's first cleanup the large part of the=20
-conversion-generated UTF-8 char noise ;-)
+This won't work for MT6358, as we have multiple resources (2) for one key.
 
-> That's not going to change what the documentation will
-> look like in the HTML and PDF output forms, and I think it would make
-> life easier for people are reading and editing the Documentation/*
-> files in text form.
+To prepare mtk-pmic-keys to support MT6358, retrieve IRQs by name
+instead of by index.
 
-Agreed. I'm also considering to add a couple of cases of this char:
+Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+---
+ drivers/input/keyboard/mtk-pmic-keys.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-	- U+2026 ('=E2=80=A6'): HORIZONTAL ELLIPSIS
+diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+index 62391d6c7da6..d1abf95d5701 100644
+--- a/drivers/input/keyboard/mtk-pmic-keys.c
++++ b/drivers/input/keyboard/mtk-pmic-keys.c
+@@ -241,6 +241,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 	unsigned int keycount;
+ 	struct mt6397_chip *pmic_chip = dev_get_drvdata(pdev->dev.parent);
+ 	struct device_node *node = pdev->dev.of_node, *child;
++	static const char *const irqnames[] = { "powerkey", "homekey" };
+ 	struct mtk_pmic_keys *keys;
+ 	const struct mtk_pmic_regs *mtk_pmic_regs;
+ 	struct input_dev *input_dev;
+@@ -268,7 +269,8 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 	input_dev->id.version = 0x0001;
+ 
+ 	keycount = of_get_available_child_count(node);
+-	if (keycount > MTK_PMIC_MAX_KEY_COUNT) {
++	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
++	    keycount > ARRAY_SIZE(irqnames)) {
+ 		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
+ 		return -EINVAL;
+ 	}
+@@ -276,7 +278,8 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+ 	for_each_child_of_node(node, child) {
+ 		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
+ 
+-		keys->keys[index].irq = platform_get_irq(pdev, index);
++		keys->keys[index].irq =
++			platform_get_irq_byname(pdev, irqnames[index]);
+ 		if (keys->keys[index].irq < 0) {
+ 			of_node_put(child);
+ 			return keys->keys[index].irq;
+-- 
+2.27.0
 
-As Sphinx also replaces "..." into HORIZONTAL ELLIPSIS.
-
--
-
-Anyway, I'm opting to submitting those in separate because it seems
-that at least some maintainers added EM/EN DASH intentionally.
-
-So, it may generate case-per-case discussions.
-
-Also, IMO, at least a couple of EN/EM DASH cases would be better served=20
-with a single hyphen.
-
-Thanks,
-Mauro

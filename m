@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-19.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DC2DC43470
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 20:13:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB49BC43603
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 20:13:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5E109613FB
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 20:13:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2BAF61422
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 20:13:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345003AbhELUDs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 May 2021 16:03:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55234 "EHLO mail.kernel.org"
+        id S1345090AbhELUDy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 May 2021 16:03:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353021AbhELSGm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 May 2021 14:06:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E31761453;
-        Wed, 12 May 2021 18:04:21 +0000 (UTC)
+        id S241626AbhELSIx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 May 2021 14:08:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F777616E9;
+        Wed, 12 May 2021 18:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842662;
-        bh=684/IdpLPgL51WJZHx/nazLtQLd22z0MeAZL+5k0VxE=;
+        s=k20201202; t=1620842701;
+        bh=lK8V9T+YuM+HsVSC7+YpskaDIG8urlQUQd+fRB5YOyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W5LVAjMNzNVtff8vAfIkuK2nZG4N6TEP9Iwx/fGX+S2wJ0FdgYdKQS3lZBXtD+oIT
-         CdEGtvWepxLchES7XjbumathAk7EHf3c8P0698hc4CITaqsYCZVUNGgYa5XobqwfBK
-         m/PAfnvVvnHTcM4QDApsih3b/cuKJ7qYVuOX9/53wXv9ndhpzYr7xe8R1btWSs0BA1
-         TMGsOwTX57zT0hlHY4Tt/OSgqtGQCKF+PUfaLw7fDXRiQO6+l92e28GadUrqns+6r3
-         MpvGzNGANOrKbr+xY00Tcupr1N9Q8sHTj8Iq4BoPCQ1gW1+tToZ+pNSQ/ZHwb4r0hx
-         /OukFTw1Xjw+A==
+        b=PRC3kUDoMKmOL8jh06LfcSOXs2TeGgMcOb7GV/Ap4+7C1Qx56otHFF9hxLA1sftC8
+         SsVYjAZOMklFMAIKF8/6kZOl83vUn++pMK/piOhkpC6ePGjTduLEkPquETVVRSvMwj
+         9pkn+KY2e9m7lM9uB3tt4S6TnEBJI438bcPSDz/9knOmysNeaQCMzKofuz+AGT5M7N
+         x5t1EWRYKFWLPr1jj/YT3PW72SWH7E1EAtU2HzhfxNDZt8BYozBbI0lyWwrICbzNCJ
+         F/RviwallWKwluU/cFqfScgFC8UoTINSEg01HuDXile1VPRyJf7Ze11jA/UZRIlujh
+         oJVxivtrn10Aw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/23] Input: elants_i2c - do not bind to i2c-hid compatible ACPI instantiated devices
-Date:   Wed, 12 May 2021 14:03:51 -0400
-Message-Id: <20210512180408.665338-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 06/18] Input: elants_i2c - do not bind to i2c-hid compatible ACPI instantiated devices
+Date:   Wed, 12 May 2021 14:04:37 -0400
+Message-Id: <20210512180450.665586-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210512180408.665338-1-sashal@kernel.org>
-References: <20210512180408.665338-1-sashal@kernel.org>
+In-Reply-To: <20210512180450.665586-1-sashal@kernel.org>
+References: <20210512180450.665586-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -105,10 +105,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 42 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index d4ad24ea54c8..a51e7c85f581 100644
+index d21ca39b0fdb..adfae2d88707 100644
 --- a/drivers/input/touchscreen/elants_i2c.c
 +++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -36,6 +36,7 @@
+@@ -41,6 +41,7 @@
  #include <linux/of.h>
  #include <linux/gpio/consumer.h>
  #include <linux/regulator/consumer.h>
@@ -116,7 +116,7 @@ index d4ad24ea54c8..a51e7c85f581 100644
  #include <asm/unaligned.h>
  
  /* Device, Driver information */
-@@ -1127,6 +1128,40 @@ static void elants_i2c_power_off(void *_data)
+@@ -1131,6 +1132,40 @@ static void elants_i2c_power_off(void *_data)
  	}
  }
  
@@ -157,7 +157,7 @@ index d4ad24ea54c8..a51e7c85f581 100644
  static int elants_i2c_probe(struct i2c_client *client,
  			    const struct i2c_device_id *id)
  {
-@@ -1135,9 +1170,14 @@ static int elants_i2c_probe(struct i2c_client *client,
+@@ -1139,9 +1174,14 @@ static int elants_i2c_probe(struct i2c_client *client,
  	unsigned long irqflags;
  	int error;
  

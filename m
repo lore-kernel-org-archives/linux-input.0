@@ -2,33 +2,34 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9DA7C43617
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 06:15:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6828C4361A
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 06:15:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AA33561421
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 06:15:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9616861946
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 06:15:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230217AbhELGQd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 May 2021 02:16:33 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:53424 "EHLO
+        id S230182AbhELGQh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 May 2021 02:16:37 -0400
+Received: from alexa-out.qualcomm.com ([129.46.98.28]:12478 "EHLO
         alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230149AbhELGQa (ORCPT
+        with ESMTP id S230172AbhELGQc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 May 2021 02:16:30 -0400
-Received: from ironmsg08-lv.qualcomm.com ([10.47.202.152])
-  by alexa-out.qualcomm.com with ESMTP; 11 May 2021 23:15:23 -0700
+        Wed, 12 May 2021 02:16:32 -0400
+Received: from ironmsg09-lv.qualcomm.com ([10.47.202.153])
+  by alexa-out.qualcomm.com with ESMTP; 11 May 2021 23:15:24 -0700
 X-QCInternal: smtphost
 Received: from ironmsg01-blr.qualcomm.com ([10.86.208.130])
-  by ironmsg08-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 11 May 2021 23:15:21 -0700
+  by ironmsg09-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 11 May 2021 23:15:21 -0700
 X-QCInternal: smtphost
 Received: from c-skakit-linux.ap.qualcomm.com (HELO c-skakit-linux.qualcomm.com) ([10.242.51.242])
   by ironmsg01-blr.qualcomm.com with ESMTP; 12 May 2021 11:44:39 +0530
 Received: by c-skakit-linux.qualcomm.com (Postfix, from userid 2344709)
-        id 676D3488F; Wed, 12 May 2021 11:44:38 +0530 (IST)
+        id 986954F14; Wed, 12 May 2021 11:44:38 +0530 (IST)
 From:   satya priya <skakit@codeaurora.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -41,36 +42,51 @@ Cc:     David Collins <collinsd@codeaurora.org>, kgunda@codeaurora.org,
         linux-arm-msm@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
         Andy Yan <andy.yan@rock-chips.com>,
         satya priya <skakit@codeaurora.org>
-Subject: [PATCH V4 0/5] Add support for PMK8350 PON_HLOS PMIC peripheral
-Date:   Wed, 12 May 2021 11:44:08 +0530
-Message-Id: <1620800053-26405-1-git-send-email-skakit@codeaurora.org>
+Subject: [PATCH V4 2/5] dt-bindings: input: pm8941-pwrkey: add pmk8350 compatible strings
+Date:   Wed, 12 May 2021 11:44:10 +0530
+Message-Id: <1620800053-26405-3-git-send-email-skakit@codeaurora.org>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1620800053-26405-1-git-send-email-skakit@codeaurora.org>
+References: <1620800053-26405-1-git-send-email-skakit@codeaurora.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-David Collins (2):
-  input: pm8941-pwrkey: add support for PMK8350 PON_HLOS PMIC peripheral
-  dt-bindings: input: pm8941-pwrkey: add pmk8350 compatible strings
+From: David Collins <collinsd@codeaurora.org>
 
-satya priya (3):
-  dt-bindings: power: reset: Change 'additionalProperties' to true
-  dt-bindings: input: pm8941-pwrkey: Convert pm8941 power key binding to
-    yaml
-  dt-bindings: power: reset: qcom-pon: Convert qcom PON binding to yaml
+Add power key and resin compatible strings for the PMK8350 PMIC.
+These are needed to distinguish key PON_HLOS register differences
+between PMK8350 and previous PMIC PON modules.
 
- .../bindings/input/qcom,pm8941-pwrkey.txt          |  53 -----------
- .../bindings/input/qcom,pm8941-pwrkey.yaml         |  51 ++++++++++
- .../devicetree/bindings/power/reset/qcom,pon.txt   |  49 ----------
- .../devicetree/bindings/power/reset/qcom,pon.yaml  |  80 ++++++++++++++++
- .../bindings/power/reset/reboot-mode.yaml          |   2 +-
- drivers/input/misc/pm8941-pwrkey.c                 | 103 ++++++++++++++-------
- 6 files changed, 204 insertions(+), 134 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
- create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.yaml
- delete mode 100644 Documentation/devicetree/bindings/power/reset/qcom,pon.txt
- create mode 100644 Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
+Signed-off-by: David Collins <collinsd@codeaurora.org>
+Signed-off-by: satya priya <skakit@codeaurora.org>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+Changes in V2:
+ - Moved this patch before the conversion patches.
 
+Changes in V3:
+ - No changes.
+
+Changes in V4:
+ - No changes.
+
+ Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+index 34ab576..6cd08bc 100644
+--- a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
++++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+@@ -8,6 +8,8 @@ PROPERTIES
+ 	Definition: must be one of:
+ 		    "qcom,pm8941-pwrkey"
+ 		    "qcom,pm8941-resin"
++		    "qcom,pmk8350-pwrkey"
++		    "qcom,pmk8350-resin"
+ 
+ - reg:
+ 	Usage: required
 -- 
 QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member 
 of Code Aurora Forum, hosted by The Linux Foundation

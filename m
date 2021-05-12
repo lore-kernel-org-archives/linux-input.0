@@ -2,92 +2,62 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=0.0 required=3.0 tests=BAYES_20,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6828C4361A
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 06:15:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 576FDC433ED
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 07:52:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9616861946
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 06:15:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A3FE613AA
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 07:52:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230182AbhELGQh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 May 2021 02:16:37 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:12478 "EHLO
-        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230172AbhELGQc (ORCPT
+        id S229968AbhELHxR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 May 2021 03:53:17 -0400
+Received: from mail.digitalprior.com ([80.211.186.237]:41306 "EHLO
+        mail.digitalprior.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229994AbhELHxQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 May 2021 02:16:32 -0400
-Received: from ironmsg09-lv.qualcomm.com ([10.47.202.153])
-  by alexa-out.qualcomm.com with ESMTP; 11 May 2021 23:15:24 -0700
-X-QCInternal: smtphost
-Received: from ironmsg01-blr.qualcomm.com ([10.86.208.130])
-  by ironmsg09-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 11 May 2021 23:15:21 -0700
-X-QCInternal: smtphost
-Received: from c-skakit-linux.ap.qualcomm.com (HELO c-skakit-linux.qualcomm.com) ([10.242.51.242])
-  by ironmsg01-blr.qualcomm.com with ESMTP; 12 May 2021 11:44:39 +0530
-Received: by c-skakit-linux.qualcomm.com (Postfix, from userid 2344709)
-        id 986954F14; Wed, 12 May 2021 11:44:38 +0530 (IST)
-From:   satya priya <skakit@codeaurora.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sebastian Reichel <sre@kernel.org>
-Cc:     David Collins <collinsd@codeaurora.org>, kgunda@codeaurora.org,
-        linux-input@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Andy Yan <andy.yan@rock-chips.com>,
-        satya priya <skakit@codeaurora.org>
-Subject: [PATCH V4 2/5] dt-bindings: input: pm8941-pwrkey: add pmk8350 compatible strings
-Date:   Wed, 12 May 2021 11:44:10 +0530
-Message-Id: <1620800053-26405-3-git-send-email-skakit@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1620800053-26405-1-git-send-email-skakit@codeaurora.org>
-References: <1620800053-26405-1-git-send-email-skakit@codeaurora.org>
+        Wed, 12 May 2021 03:53:16 -0400
+Received: by mail.digitalprior.com (Postfix, from userid 1001)
+        id 11AAEA2AA7; Wed, 12 May 2021 08:51:42 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digitalprior.com;
+        s=mail; t=1620805927;
+        bh=tegSUSO8UdW4nPAN+CTxUCS0b4WeMgxljdiMdwCnwbk=;
+        h=Date:From:To:Subject:From;
+        b=MBWup1XMMlcimUxctfvKV5+aZIm2gLXO6/Ha4K6HRRFnrbBW1h8HBkEIkm7HsCfWr
+         LWNDya8JAy/1TMS7CFcKwlzkHCG9NIGV3VAG1nVZceKXGC5Jq2OmakyMZmlO8vncls
+         UbiHY7yJVqAVQ0vesjiVviqjjREf0By0UDQd0/u93k3sgpIn8u/bYvHmqkOzM1ynei
+         wqEsniWg7J4Nf0mUzBq2iSl2b66KAC9E3rEKCEyZrwoGn7qicZ0PkWTRQA0lilp4nS
+         TnQDNUOweunihO/hr0oHyI+lDiysIVjJIN1z7mjoOpwwIRIyXGyWqx8jzpvy12rAxV
+         MhrAR8KXPuVHg==
+Received: by mail.digitalprior.com for <linux-input@vger.kernel.org>; Wed, 12 May 2021 07:51:24 GMT
+Message-ID: <20210512074501-0.1.2h.259z.0.d2a2zqlmwc@digitalprior.com>
+Date:   Wed, 12 May 2021 07:51:24 GMT
+From:   "Alarico Veloz" <alarico.veloz@digitalprior.com>
+To:     <linux-input@vger.kernel.org>
+Subject: Servicio de la flota
+X-Mailer: mail.digitalprior.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: David Collins <collinsd@codeaurora.org>
+Buenos d=C3=ADas:
 
-Add power key and resin compatible strings for the PMK8350 PMIC.
-These are needed to distinguish key PON_HLOS register differences
-between PMK8350 and previous PMIC PON modules.
+Le escribo para hablarle sobre una de las mejores herramientas GPS en el =
+mercado.
 
-Signed-off-by: David Collins <collinsd@codeaurora.org>
-Signed-off-by: satya priya <skakit@codeaurora.org>
-Acked-by: Rob Herring <robh@kernel.org>
----
-Changes in V2:
- - Moved this patch before the conversion patches.
+La herramienta, que me gustar=C3=ADa presentarle brevemente, dispone de m=
+uchas funciones =C3=BAtiles para su trabajo, que optimizan los procesos d=
+e transporte y le ayudan a realizar tareas de campo de manera m=C3=A1s ef=
+iciente.
 
-Changes in V3:
- - No changes.
+=C2=BFQuiere conocer los detalles?
 
-Changes in V4:
- - No changes.
 
- Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-index 34ab576..6cd08bc 100644
---- a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-+++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-@@ -8,6 +8,8 @@ PROPERTIES
- 	Definition: must be one of:
- 		    "qcom,pm8941-pwrkey"
- 		    "qcom,pm8941-resin"
-+		    "qcom,pmk8350-pwrkey"
-+		    "qcom,pmk8350-resin"
- 
- - reg:
- 	Usage: required
--- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member 
-of Code Aurora Forum, hosted by The Linux Foundation
-
+Atentamente,
+Alarico Veloz

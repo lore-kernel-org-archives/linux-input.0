@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-19.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B60C4C43617
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 20:13:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D18AC43600
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 20:13:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 859DC6143A
-	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 20:13:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B6E361422
+	for <linux-input@archiver.kernel.org>; Wed, 12 May 2021 20:13:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234522AbhELUDD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 May 2021 16:03:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50222 "EHLO mail.kernel.org"
+        id S1344143AbhELUDb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 May 2021 16:03:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352067AbhELSC2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 May 2021 14:02:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A6A561419;
-        Wed, 12 May 2021 18:01:18 +0000 (UTC)
+        id S1352899AbhELSEd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 May 2021 14:04:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A198A6143D;
+        Wed, 12 May 2021 18:03:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842479;
+        s=k20201202; t=1620842601;
         bh=mkCBvt1/7W4P8EeI5YKbcvoKEMpNeqOd4JwgCcgdyFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XcW9LbIK1zpEHddX0BuF1fMpkSQR8Dk2cRZceejpKTwCob7dJw0tiDw2ag35Bt4Ff
-         JqdGukAIo4eYNvY+IDUmvPlqSwpLdG1oThVy5vU2HfgomwxnSC9OafL+I+5tW48idj
-         iGKurTuPLxVDted6RlIAuOx0dy41U4lRG64DB+Xah2Ck6NOCS2bYaVSp51OiJJwF1r
-         84wC232Axr2uYiZUlYzRZxw8mtzsbjRPGpQk9fKVoFfWXQc72Mc5bemmrQfDwwdhqg
-         NB4XHp2dc4H42lEzCsCH+XTHdrQwAQdnmHkvmueLH74jLbHeYmmb7GUZfj8RNi45T1
-         tVss1aaxZgjzA==
+        b=bPB0zxCKlsPguOU13dM4g/I6NR4SLL4SdCZjzLsxxWHVgpzyAwnA5iaVBVFT2tZEo
+         SfAL3yiyj/QDbZEe2INp2TZ+dDLb5b4qObNEkPEylQvwmOnK64ND2muqGUmG4vBEbd
+         JVwVPz+PMTB2Lbwn2TIbtVIwmvHy/vsYYFo2zQC5z63m4fBCUSohu5sklTQPra66x3
+         qCOjjjGXSoJcJzvN/k8VvsyVlDRIRFwrWrFoGl4b1nqARuCxXXnIfHNZ3m374ThqrZ
+         fVAL3lY4jSll7Bt8Q30VZ/eXPcI/VcG4DTOwsM4aWcZZjwmPpb/MshFcdSuWmnUR7e
+         RyULFlNJE2AaA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
         platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 10/37] Input: silead - add workaround for x86 BIOS-es which bring the chip up in a stuck state
-Date:   Wed, 12 May 2021 14:00:37 -0400
-Message-Id: <20210512180104.664121-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 09/34] Input: silead - add workaround for x86 BIOS-es which bring the chip up in a stuck state
+Date:   Wed, 12 May 2021 14:02:40 -0400
+Message-Id: <20210512180306.664925-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210512180104.664121-1-sashal@kernel.org>
-References: <20210512180104.664121-1-sashal@kernel.org>
+In-Reply-To: <20210512180306.664925-1-sashal@kernel.org>
+References: <20210512180306.664925-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore

@@ -2,89 +2,95 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6789FC433ED
-	for <linux-input@archiver.kernel.org>; Mon, 17 May 2021 11:19:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83060C433ED
+	for <linux-input@archiver.kernel.org>; Mon, 17 May 2021 11:27:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 40554611EE
-	for <linux-input@archiver.kernel.org>; Mon, 17 May 2021 11:19:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B61960E0B
+	for <linux-input@archiver.kernel.org>; Mon, 17 May 2021 11:27:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236623AbhEQLU1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 17 May 2021 07:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34588 "EHLO mail.kernel.org"
+        id S236642AbhEQL2a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 17 May 2021 07:28:30 -0400
+Received: from mga02.intel.com ([134.134.136.20]:46221 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236528AbhEQLU1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 May 2021 07:20:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9033611CA;
-        Mon, 17 May 2021 11:19:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621250350;
-        bh=0DgojqgUOV8kKtdojQtC3GoH2zxJez/TBhgucSCiSrQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AFozVQlnqNNIZ10tyE79qLmerQziYQ1zI/NJvQSnVEuoliw7AENpF3tRTzmXsYG1e
-         U4wABEEzB9uCo6BhanaRh+0T6VTyKjJUgEz2VUPGozXyTvHNrCxUwFE+ohEBEVLGbU
-         Z+Tf1nwYAItr6P+Ki2OXXvnKKAITKnOX3hvOcNmk=
-Date:   Mon, 17 May 2021 13:19:08 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     =?utf-8?B?6ams5by6?= <maqianga@uniontech.com>
-Cc:     jikos <jikos@kernel.org>,
-        "benjamin.tissoires " <benjamin.tissoires@redhat.com>,
-        linux-usb <linux-usb@vger.kernel.org>,
-        linux-input <linux-input@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Re: Re: Re: [PATCH] HID: usbhid: enable remote wakeup for mouse
-Message-ID: <YKJRLMoohNUp4I/t@kroah.com>
-References: <20210517060145.32359-1-maqianga@uniontech.com>
- <YKIwIwx+nLyX/9LG@kroah.com>
- <1547909475.114060.1621244274064.JavaMail.xmail@bj-wm-cp-4>
- <YKI7WJa+YTRhwm5M@kroah.com>
- <1781917892.119659.1621247946603.JavaMail.xmail@bj-wm-cp-4>
- <YKJIfmkiDbqzlDjC@kroah.com>
- <440071991.120491.1621248757251.JavaMail.xmail@bj-wm-cp-4>
+        id S236631AbhEQL2a (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 17 May 2021 07:28:30 -0400
+IronPort-SDR: hPpG3EacrWi9vHjhWOGGNKDkSQYbrY2BiVN0TlwUcRl4R5gZUM+98qm7BGt/ngeS9F4ao1gaMT
+ CPj+0YbVAPJg==
+X-IronPort-AV: E=McAfee;i="6200,9189,9986"; a="187564267"
+X-IronPort-AV: E=Sophos;i="5.82,307,1613462400"; 
+   d="scan'208";a="187564267"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2021 04:27:13 -0700
+IronPort-SDR: sj1McuTa0gY8S7dUToTJtOhQsmNB0hPFxz3ZIHzt3DqJazarJdr2mX5EorRBCBf5mHUWBSPq+j
+ WTZh/DQ5iafA==
+X-IronPort-AV: E=Sophos;i="5.82,307,1613462400"; 
+   d="scan'208";a="540381322"
+Received: from btamaklo-mobl.amr.corp.intel.com ([10.209.149.190])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2021 04:27:10 -0700
+Message-ID: <7418998adc91ab656aab783883bfd5ef96064e57.camel@linux.intel.com>
+Subject: Re: [PATCH v2] HID: intel_ish-hid: HBM: Use connected standby state
+ bit during suspend/resume
+From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
+Date:   Mon, 17 May 2021 04:27:06 -0700
+In-Reply-To: <nycvar.YFH.7.76.2103191435260.12405@cbobk.fhfr.pm>
+References: <20210316202334.655760-1-srinivas.pandruvada@linux.intel.com>
+         <nycvar.YFH.7.76.2103191435260.12405@cbobk.fhfr.pm>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.1-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <440071991.120491.1621248757251.JavaMail.xmail@bj-wm-cp-4>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, May 17, 2021 at 06:52:37PM +0800, 马强 wrote:
+Hi Jiri,
+
+On Fri, 2021-03-19 at 14:35 +0100, Jiri Kosina wrote:
+> On Tue, 16 Mar 2021, Srinivas Pandruvada wrote:
 > 
-> > >  
-> 
-> > > > >  
-> > >  
-> > > > > Thanks for the prompt response.  
-> > > > >  
-> > > > > We can change "dev->power.should_wakeup" to enabled,  
-> > > >  
-> > > > I do not understand this statement.  
-> > > >  
-> > > > > but ultimately it depends on the hardware and BIOS for wakeup.  
-> > > >  
-> > > > Yes, and the hardware here (USB mice), do not all support this, so you  
-> > > > can not enable it universally as it will cause problems, right?  
-> > >  
-> > > I mean, the kernel should set should_wakeup to enabled  
-> > >  
-> > > so that system can be awakened when the hardware here(USB mice) supports
-> the  
-> > > wake-up ability.  
+> > From: Ye Xiang <xiang.ye@intel.com>
 > > 
-> > And how do you determine, in the kernel, if the mouse can do that?  
+> > The individual sensor drivers implemented in the ISH firmware needs
+> > capability to take special actions when there is a change in the
+> > system
+> > standby state. The ISH core firmware passes this notification to
+> > individual sensor drivers in response to the OS request via
+> > connected
+> > standby bit in the SYSTEM_STATE_STATUS command.
 > > 
-> > What range of hardware did you test this change with?  
->  
-> At the kernel level, "dev->power.should_wakeup" is the device property
+> > This change sets CONNECTED_STANDBY_STATE_BIT bit to 1 during
+> > suspend
+> > callback and clears during resume callback.
+> > 
+> > Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+> > [srinivas.pandruvada@linux.intel.com: changelog rewrite]
+> > Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> > ---
+> > v2:
+> >         changed changelog to be more clear
+> >         Changed the name in the signed-off to match "From"
+> > 
+> >  drivers/hid/intel-ish-hid/ishtp/hbm.c | 6 +++---
+> >  drivers/hid/intel-ish-hid/ishtp/hbm.h | 1 +
+> >  2 files changed, 4 insertions(+), 3 deletions(-)
 > 
-> that should enable the wake-up capability. 
+> Applied, thanks.
+
+I was looking for this patch in 5.13-rc2. It is not there, Is there
+some pull request pending?
+
+Thanks,
+Srinivas 
+
+
 > 
 
 
-Given that you have not tested this change, why should we take this?

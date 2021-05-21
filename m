@@ -5,42 +5,43 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D76E3C433ED
-	for <linux-input@archiver.kernel.org>; Fri, 21 May 2021 04:45:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B005EC43470
+	for <linux-input@archiver.kernel.org>; Fri, 21 May 2021 04:45:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB564613D4
-	for <linux-input@archiver.kernel.org>; Fri, 21 May 2021 04:45:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 98CBC613BB
+	for <linux-input@archiver.kernel.org>; Fri, 21 May 2021 04:45:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239233AbhEUErQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 21 May 2021 00:47:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50870 "EHLO
+        id S239253AbhEUErR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 21 May 2021 00:47:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239205AbhEUErP (ORCPT
+        with ESMTP id S239209AbhEUErP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Fri, 21 May 2021 00:47:15 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A2CAC06138F
-        for <linux-input@vger.kernel.org>; Thu, 20 May 2021 21:45:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C476AC061574
+        for <linux-input@vger.kernel.org>; Thu, 20 May 2021 21:45:52 -0700 (PDT)
 Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ore@pengutronix.de>)
-        id 1ljx2d-0006Z4-AB; Fri, 21 May 2021 06:45:43 +0200
+        id 1ljx2d-0006ZA-AD; Fri, 21 May 2021 06:45:43 +0200
 Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
         (envelope-from <ore@pengutronix.de>)
-        id 1ljx2b-0002Dh-Ex; Fri, 21 May 2021 06:45:41 +0200
+        id 1ljx2b-0002Fs-JN; Fri, 21 May 2021 06:45:41 +0200
 From:   Oleksij Rempel <o.rempel@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-Cc:     Oleksij Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de,
+Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
+        Rob Herring <robh@kernel.org>, kernel@pengutronix.de,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         David Jander <david@protonic.nl>, devicetree@vger.kernel.org
-Subject: [PATCH v5 1/8] dt-bindings: input: touchscreen: iqs626a: chnage node name to pass validation
-Date:   Fri, 21 May 2021 06:45:18 +0200
-Message-Id: <20210521044525.7397-2-o.rempel@pengutronix.de>
+Subject: [PATCH v5 6/8] dt-bindings: touchscreen: add touchscreen-x/y-plate-ohms property
+Date:   Fri, 21 May 2021 06:45:23 +0200
+Message-Id: <20210521044525.7397-7-o.rempel@pengutronix.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210521044525.7397-1-o.rempel@pengutronix.de>
 References: <20210521044525.7397-1-o.rempel@pengutronix.de>
@@ -54,26 +55,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Change node name from iqs626a -> touchscreen to pass dt_binding_check.
+Te calculate the pressure on a restrictive touchscreen we need need to
+know resistance at least of X plate. Some calculations need to use both
+X and Y values.
+So, add generic properties which can be used by all drivers
 
 Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/input/iqs626a.yaml | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/input/touchscreen/touchscreen.yaml  | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/iqs626a.yaml b/Documentation/devicetree/bindings/input/iqs626a.yaml
-index 0cb736c541c9..ea4f04e2d3ad 100644
---- a/Documentation/devicetree/bindings/input/iqs626a.yaml
-+++ b/Documentation/devicetree/bindings/input/iqs626a.yaml
-@@ -751,7 +751,7 @@ examples:
-             #address-cells = <1>;
-             #size-cells = <0>;
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+index 057e1063759c..2d7b039ce47f 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+@@ -77,6 +77,12 @@ properties:
+   touchscreen-y-mm:
+     description: vertical length in mm of the touchscreen
  
--            iqs626a@44 {
-+            touchscreen@44 {
-                     #address-cells = <1>;
-                     #size-cells = <0>;
- 
++  touchscreen-x-plate-ohms:
++    description: Resistance of the X-plate in Ohms
++
++  touchscreen-y-plate-ohms:
++    description: Resistance of the Y-plate in Ohms
++
+ dependencies:
+   touchscreen-size-x: [ touchscreen-size-y ]
+   touchscreen-size-y: [ touchscreen-size-x ]
 -- 
 2.29.2
 

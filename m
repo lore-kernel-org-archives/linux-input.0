@@ -2,87 +2,129 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45E96C2B9F8
-	for <linux-input@archiver.kernel.org>; Tue, 25 May 2021 05:46:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E602C47084
+	for <linux-input@archiver.kernel.org>; Tue, 25 May 2021 05:55:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 262206117A
-	for <linux-input@archiver.kernel.org>; Tue, 25 May 2021 05:46:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 75D5561413
+	for <linux-input@archiver.kernel.org>; Tue, 25 May 2021 05:55:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230494AbhEYFsU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 25 May 2021 01:48:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41448 "EHLO
+        id S230398AbhEYF5Z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 25 May 2021 01:57:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230523AbhEYFsT (ORCPT
+        with ESMTP id S229476AbhEYF5X (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 May 2021 01:48:19 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D25A2C06138C
-        for <linux-input@vger.kernel.org>; Mon, 24 May 2021 22:46:49 -0700 (PDT)
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1llPtm-0000As-0P; Tue, 25 May 2021 07:46:38 +0200
-Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1llPtk-0002PY-4H; Tue, 25 May 2021 07:46:36 +0200
-From:   Oleksij Rempel <o.rempel@pengutronix.de>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        Rob Herring <robh@kernel.org>, kernel@pengutronix.de,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        David Jander <david@protonic.nl>, devicetree@vger.kernel.org
-Subject: [PATCH v6 2/4] dt-bindings: touchscreen: add touchscreen-x/y-plate-ohms property
-Date:   Tue, 25 May 2021 07:46:32 +0200
-Message-Id: <20210525054634.9134-3-o.rempel@pengutronix.de>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210525054634.9134-1-o.rempel@pengutronix.de>
-References: <20210525054634.9134-1-o.rempel@pengutronix.de>
+        Tue, 25 May 2021 01:57:23 -0400
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A38EBC061574;
+        Mon, 24 May 2021 22:55:53 -0700 (PDT)
+Received: by mail-yb1-xb36.google.com with SMTP id z38so11772517ybh.5;
+        Mon, 24 May 2021 22:55:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6pmVU3dpIgp8CIixqWB9X4Z4r3f+OzJWJVHDt4+uTLQ=;
+        b=RbX2t3LF7cCjSPU1TFYocJR54IHyaCKEYcJfG+rSZg9dUQo4opFJn4MVxLGO8J04VC
+         KvDHMxvnMZqhMUPX8xxtKiB8atlU+oP7VJMaZilXGpXzJD7v4r8UZ38+A9hsiXFd9HOJ
+         JNEgEFMJDFvg3Yn8vvKqrgLL2Av0KZfvbPQSN+NKz6KmGPoA2U/QP3ixx7SJnQcgMm3E
+         AgnI50QZ97oTmUJOInpAjfpa5wPLuprkVJDEskzgRvpTQXAwoIp3cqDal7IgNlJj+hLg
+         ES+KibybPbToa2VtSKmFAQUB6ppCs09O5YUCxet/Dg28LrLhN6BP13im0kvf3///r995
+         AUBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6pmVU3dpIgp8CIixqWB9X4Z4r3f+OzJWJVHDt4+uTLQ=;
+        b=dULPEAkEutyoP2n4E2l2WaKtBXmmoNWqkcGptFwSEg022hYd4DJNROJKeXGGjlVaj3
+         xnJrGLOvRk/sfGK7jt/FNU6unjJjLVLT1ip2/4YnfWgDJp3fse5Am6RwO/4eAQsvaacT
+         VkW58iA+BKeKcSuQksiDW2S0leytgc9xMeaevaHfpB2vXu/tMOcn6PrYCRaHsRgFGqC7
+         yHAhGOAcwHlK/xXBRH/asin9JsaqIIoHsarJKv1BRej3cp/8P94CHt4LnG/isjZRprWI
+         v+hM27+rc0/A82zzTU3ClvdrmAl9UnRJHvfP7gsA/N2CFZb0UlZvJhrolGKTNBaEqD8v
+         4Xbg==
+X-Gm-Message-State: AOAM533Y6EODVDZUxUfJCqVWLdWqM5wJOGFRcpJoIzl9I8dHO3l/5K4D
+        dTqqTWU/3d7VkkbWrtqobMOC+ykSUrukWOMxDkBc8fJG
+X-Google-Smtp-Source: ABdhPJzj1YxPTGxGT1aZh2Df9jczAAjWL5yvxRY1DMR9iC9tE9IqDTptyJd+LLC1Y+pTedzjQbp/y8uO8xJnL512TlY=
+X-Received: by 2002:a25:4409:: with SMTP id r9mr39054034yba.401.1621922152946;
+ Mon, 24 May 2021 22:55:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: ore@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+References: <CAEc3jaCfS=DPQiSjh+_aVePbUXHe-M7WH1t+JtSLwqu0Vktnxw@mail.gmail.com>
+ <20210521160455.GA10159@duo.ucw.cz>
+In-Reply-To: <20210521160455.GA10159@duo.ucw.cz>
+From:   Roderick Colenbrander <thunderbird2k@gmail.com>
+Date:   Mon, 24 May 2021 22:55:41 -0700
+Message-ID: <CAEc3jaBdWwfbMdrdKOc9e19Mb5HD3DE4QUNu+5UseQ9WLt0THQ@mail.gmail.com>
+Subject: Re: Naming of HID LED devices
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        marek.behun@nic.cz, linux-input <linux-input@vger.kernel.org>,
+        linux-leds@vger.kernel.org,
+        "Daniel J. Ogorchock" <djogorchock@gmail.com>,
+        =?UTF-8?B?QmFybmFiw6FzIFDFkWN6ZQ==?= <pobrn@protonmail.com>,
+        Jiri Kosina <jikos@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Te calculate the pressure on a restrictive touchscreen we need need to
-know resistance at least of X plate. Some calculations need to use both
-X and Y values.
-So, add generic properties which can be used by all drivers
+Hi
 
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
- .../devicetree/bindings/input/touchscreen/touchscreen.yaml  | 6 ++++++
- 1 file changed, 6 insertions(+)
+On Fri, May 21, 2021 at 9:04 AM Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Hi!
+>
+> > Earlier this year during review of the hid-playstation driver there
+> > was a discussion on the naming of LEDs exposed by HID drivers. Moving
+> > forward the preference from the LED maintainers was to follow the
+> > naming scheme "device:color:function" instead of the custom names used
+> > so far by HID drivers.
+> >
+> > I would like to get some guidance on the naming direction not just for
+> > hid-playstation, but Daniel's hid-nintendo driver for which he posted
+> > a new revision today has the same problem.
+> >
+> > The original discussion was on "why not use the input device name?"
+> > (e.g. input15). It was concluded that it wouldn't uniquely identify a
+> > HID device among reasons.
+>
+> I understand that problem is that one controller is present as
+> multiple input devices to userspace.
+>
+> [That is something you might want to fix, BTW. IIRC input protocol is
+> flexible enough to do that.]
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
-index 057e1063759c..2d7b039ce47f 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
-@@ -77,6 +77,12 @@ properties:
-   touchscreen-y-mm:
-     description: vertical length in mm of the touchscreen
- 
-+  touchscreen-x-plate-ohms:
-+    description: Resistance of the X-plate in Ohms
-+
-+  touchscreen-y-plate-ohms:
-+    description: Resistance of the Y-plate in Ohms
-+
- dependencies:
-   touchscreen-size-x: [ touchscreen-size-y ]
-   touchscreen-size-y: [ touchscreen-size-x ]
--- 
-2.29.2
+[That part is actually non-trivial to fix without an overhaul of the
+Linux evdev system. Essentially evdev is a bit limiting for some
+devices due to conflicts in use of axes or buttons. This is what
+prompted creation of multiple input devices I believe. Though various
+HID devices are now also receiving multiple input devices
+automatically now based on collections or something. Benjamin and Jiri
+are the experts there. Anway that's a major other conversation, people
+are trying to steer away from...]
 
+>
+> I suggest you simply select one input device (call it primary,
+> probably the one that contains the master joystick) and use its input
+> number....
+
+It is of course an option. Though I recall in the previous discussion,
+technically the LED is registered on the HID device and not on the
+input device, so it is not entirely correct. There are also cases I
+believe where LEDs are directly created for the HID device itself.
+Based on a quick search this includes the 'hid-led' driver. Though its
+naming is probably fixed as we may not want to break user space (not
+sure if anyone is relying on it). There might be other plain HID
+device use cases with LEDs.
+
+> Best regards,
+>                                                                 Pavel
+> --
+> http://www.livejournal.com/~pavelmachek
+
+Thanks,
+Roderick

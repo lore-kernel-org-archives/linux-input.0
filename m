@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D690C47082
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE29EC4708E
 	for <linux-input@archiver.kernel.org>; Sat, 29 May 2021 15:14:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5A37611CA
-	for <linux-input@archiver.kernel.org>; Sat, 29 May 2021 15:14:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 97DDA61185
+	for <linux-input@archiver.kernel.org>; Sat, 29 May 2021 15:14:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229814AbhE2PQO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 29 May 2021 11:16:14 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47738 "EHLO
+        id S229822AbhE2PQP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 29 May 2021 11:16:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50555 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229800AbhE2PQO (ORCPT
+        by vger.kernel.org with ESMTP id S229800AbhE2PQP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 29 May 2021 11:16:14 -0400
+        Sat, 29 May 2021 11:16:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1622301277;
+        s=mimecast20190719; t=1622301278;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=E6z2KQCwXUL7cBDRQvr6zbE2G+6RgL/BGKju6hE72/M=;
-        b=N9aZRWDfQCgQyF4zruvWEFovYGZyCgVXfX4p4uQXv0wO8JqRHp7d9BgmkUTvk4zC16X8nj
-        Si+Kjacz+5kg2xHLU7XXeRWPHR5OBhCOCIlECHKllQx9T3mUzpIkjhgyyguEWFJ3P3AGL7
-        cg7gWpB3o1ycLpyHOC1GFjOSmpn5NO8=
+        bh=3Kh8T+AK8scQOjBC5Y4/SiEqv6hgY4HLxT3AttZvNDo=;
+        b=P1nut5tXVYlpdfugh+j9jBW4pmJCAP6cpoN9PdFcudRoJzAlrix8BWbtXPJEyNRbn4rhOU
+        nDDt+iIVUWz5ggiiZAKcE+e8CSpNTDdrcv7t1ApTXoxv2a3Y8bHd9nloO+xy/9FRuvAcUg
+        05iaBOSX2GOJdHSTaTLmM3+UuRE5VDg=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-223-XP-5NVgGNNGc1lsJtZ2u2Q-1; Sat, 29 May 2021 11:14:36 -0400
-X-MC-Unique: XP-5NVgGNNGc1lsJtZ2u2Q-1
+ us-mta-5-W5Pmr6_aPHuE64K3jGt43g-1; Sat, 29 May 2021 11:14:34 -0400
+X-MC-Unique: W5Pmr6_aPHuE64K3jGt43g-1
 Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06551800FF0;
-        Sat, 29 May 2021 15:14:35 +0000 (UTC)
-Received: from x1.localdomain (ovpn-112-39.ams2.redhat.com [10.36.112.39])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1A6631002F12;
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C9A59107ACCA;
         Sat, 29 May 2021 15:14:33 +0000 (UTC)
+Received: from x1.localdomain (ovpn-112-39.ams2.redhat.com [10.36.112.39])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DE3D6100AE43;
+        Sat, 29 May 2021 15:14:32 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH 4/4] HID: multitouch: Disable event reporting on suspend when the device is not a wakeup-source
-Date:   Sat, 29 May 2021 17:14:24 +0200
-Message-Id: <20210529151424.12212-5-hdegoede@redhat.com>
+Subject: [PATCH 3/4] HID: logitech-dj: Implement may_wakeup ll-driver callback
+Date:   Sat, 29 May 2021 17:14:23 +0200
+Message-Id: <20210529151424.12212-4-hdegoede@redhat.com>
 In-Reply-To: <20210529151424.12212-1-hdegoede@redhat.com>
 References: <20210529151424.12212-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -58,28 +58,45 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Disable event reporting on suspend when the hid device is not
-a wakeup-source. This should help save some extra power in this case.
+Without a ll-driver callback hid_hw_may_wakeup() will return:
+device_may_wakeup(hdev->dev.parent), but for the hid devices
+instantiated by logitech-dj for devices behind the receiver the
+logitech-dj hid(pp)-device is the parent.
+
+Add a logi_dj_ll_may_wakeup() callback which calls hid_hw_may_wakeup()
+on the logitech-dj hid(pp) parent-hid-device.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-multitouch.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-logitech-dj.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index cfb68e443ddd..c5a7523f97ac 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1764,7 +1764,8 @@ static int mt_suspend(struct hid_device *hdev, pm_message_t state)
- 	struct mt_device *td = hid_get_drvdata(hdev);
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 18d37b3765f3..a0017b010c34 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -1497,6 +1497,13 @@ static void logi_dj_ll_stop(struct hid_device *hid)
+ 	dbg_hid("%s\n", __func__);
+ }
  
- 	/* High latency is desirable for power savings during S3/S0ix */
--	if (td->mtclass.quirks & MT_QUIRK_DISABLE_WAKEUP)
-+	if ((td->mtclass.quirks & MT_QUIRK_DISABLE_WAKEUP) ||
-+	    !hid_hw_may_wakeup(hdev))
- 		mt_set_modes(hdev, HID_LATENCY_HIGH, false, false);
- 	else
- 		mt_set_modes(hdev, HID_LATENCY_HIGH, true, true);
++static bool logi_dj_ll_may_wakeup(struct hid_device *hid)
++{
++	struct dj_device *djdev = hid->driver_data;
++	struct dj_receiver_dev *djrcv_dev = djdev->dj_receiver_dev;
++
++	return hid_hw_may_wakeup(djrcv_dev->hidpp);
++}
+ 
+ static struct hid_ll_driver logi_dj_ll_driver = {
+ 	.parse = logi_dj_ll_parse,
+@@ -1505,6 +1512,7 @@ static struct hid_ll_driver logi_dj_ll_driver = {
+ 	.open = logi_dj_ll_open,
+ 	.close = logi_dj_ll_close,
+ 	.raw_request = logi_dj_ll_raw_request,
++	.may_wakeup = logi_dj_ll_may_wakeup,
+ };
+ 
+ static int logi_dj_dj_event(struct hid_device *hdev,
 -- 
 2.31.1
 

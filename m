@@ -2,95 +2,124 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F2E7C47082
-	for <linux-input@archiver.kernel.org>; Thu,  3 Jun 2021 04:38:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAD03C47096
+	for <linux-input@archiver.kernel.org>; Thu,  3 Jun 2021 06:14:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 772B0613B8
-	for <linux-input@archiver.kernel.org>; Thu,  3 Jun 2021 04:38:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8391613D8
+	for <linux-input@archiver.kernel.org>; Thu,  3 Jun 2021 06:14:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbhFCEkc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 3 Jun 2021 00:40:32 -0400
-Received: from mail-pj1-f51.google.com ([209.85.216.51]:38701 "EHLO
-        mail-pj1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbhFCEkc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Jun 2021 00:40:32 -0400
-Received: by mail-pj1-f51.google.com with SMTP id m13-20020a17090b068db02901656cc93a75so4728161pjz.3;
-        Wed, 02 Jun 2021 21:38:32 -0700 (PDT)
+        id S229640AbhFCGQZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 3 Jun 2021 02:16:25 -0400
+Received: from mail-oi1-f176.google.com ([209.85.167.176]:34760 "EHLO
+        mail-oi1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229635AbhFCGQY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Jun 2021 02:16:24 -0400
+Received: by mail-oi1-f176.google.com with SMTP id u11so5271158oiv.1
+        for <linux-input@vger.kernel.org>; Wed, 02 Jun 2021 23:14:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=LUTD/0JVHZqpR5tku85xORtPHS0kkXWJ/rRsE1xJMms=;
-        b=QSCbT58cY1IB4g29SGun7iPl3pfkbPujDh6tsThxphFEBHDwncc6hg1PG10StS70w7
-         RIXgtiYHEpHiLZWoLvnfjSTsdSwrNxVaK1uAMcGR5YHE8U83eqU8uIgIjX5zcxuNHVbp
-         GoGF/IC7IXhw3jVsgUBpRiJoT2iJ//Ki2YQVYftFuy66Z3l4gjjEEQwa0R42GQ44wv5n
-         vCZGwJXCMUN6u8XDLb23iuEdAg40AYUTsR00ktzEr66DdPoOrTbhTbzkcbDY1J/qVrwe
-         c4SLUPSKk0Q8S5Jdy5WqyzpCS6XteY5llGe09aJv0f5+r7tF7o5R08RFbEvjo5erOp99
-         LYdQ==
+        d=chromium.org; s=google;
+        h=mime-version:in-reply-to:references:from:user-agent:date:message-id
+         :subject:to:cc;
+        bh=e3PDKrL5MVOFhdI4AdMvQfhjcpRkxau04Ply0138w7E=;
+        b=LAemQ8PV7z/sZ5epDYtMuLEXUGtStxQKEHRht7XgX/IxKUJiGCdh0Eplyp1k9ExmQo
+         bcurPq3MV8FHoiU9iybK/cgbxOzbSfVwIlWcrO47AuMn9lHDa8W4aPQgI9V2SmCZboCS
+         1IKUirWjiGGLdTW2Dy00FWB7sqnBp+gPaN2gM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=LUTD/0JVHZqpR5tku85xORtPHS0kkXWJ/rRsE1xJMms=;
-        b=fXuJR/WT03Yxv+eRMqwo8TuGdmtWoWxOJdif5/PZouak0XV/+EcwJhugWbVL+2fXVP
-         Zr/VjXqHYHta7RG62pxHemASr6fk+3h+y1vBg7SFpKz+dDl1yEAptOgaTpbUrO+vMZJs
-         dKuNDd7oPCRc+aM1PDq7T2FQVjW03KAuw/SGh/UAkdO5DV1O6Rferk+DsmAaQbzTJDV4
-         wy96E+iIQTCbw0CUOjbNuDoDpn/UmJy+WJH8am2B9QFOoXkNaJYQdgSqMbWfGSLjSzLA
-         CLbW7zonvKnXyaKXB/AkZDbEGfZA/phcs4v6rC5NLXwBSZ9HWNrYhPmIOJXW8rEapNn2
-         S4hQ==
-X-Gm-Message-State: AOAM531OHjye5IZLLlERG80owPCBIhBCBzQvWCc5LLF9GJKa4RV8IB4d
-        T61CM3QVioUwffENWyTb2QuHWKgkSgI=
-X-Google-Smtp-Source: ABdhPJzjhttXQrMrtSGqxfZnLvLIlMor5yUi8W4MYQy/KFV+0pl0KaLDIqCmelZj+At/nbIYG60/Zg==
-X-Received: by 2002:a17:90a:b782:: with SMTP id m2mr911189pjr.147.1622695051748;
-        Wed, 02 Jun 2021 21:37:31 -0700 (PDT)
-Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:fc6a:97ca:f00c:8377])
-        by smtp.gmail.com with ESMTPSA id f28sm1132414pgb.12.2021.06.02.21.37.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Jun 2021 21:37:30 -0700 (PDT)
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 2/7] Input: cy8ctmg110_ts - do not hard code interrupt trigger
-Date:   Wed,  2 Jun 2021 21:37:21 -0700
-Message-Id: <20210603043726.3793876-2-dmitry.torokhov@gmail.com>
-X-Mailer: git-send-email 2.32.0.rc0.204.g9fa02ecfa5-goog
-In-Reply-To: <20210603043726.3793876-1-dmitry.torokhov@gmail.com>
-References: <20210603043726.3793876-1-dmitry.torokhov@gmail.com>
+        h=x-gm-message-state:mime-version:in-reply-to:references:from
+         :user-agent:date:message-id:subject:to:cc;
+        bh=e3PDKrL5MVOFhdI4AdMvQfhjcpRkxau04Ply0138w7E=;
+        b=nM+tJXaica+/1wdR6EWklIcYBgCWlXmDGOOUpvA/Z1BWlVJYEyIXYwdrwyBljJP3fu
+         R5FHQyWJPvHL73roH7QOD2ei8Tlb5JBfYlxojmbxzZCv2t+l7trWBC/MFsUTWzF/G+t/
+         WTvl7hqvS7/3Ujg6gQlLSCUAjkPDMAYerhIomZMVSVXfIQN9P8uJH/Ohw/RRyHc62+Kc
+         8ME1dMuos5v9xJ5LX+FqmwkyBTywMK9WbMtF6GDIOeL6e1/GeUylNa0P0MVdOuW/7Kb6
+         DvyFbPoKVBQDDpi+E7kUSictVtiW3uiBqDU80zfzOQwer3hJZEtyVENjb1ZCPy5qBHCe
+         WzHQ==
+X-Gm-Message-State: AOAM530oj+lg4KPPtpbPFN6ctkNSbL6tt1j2X84+sIq31CipDBz6dyfJ
+        9ujerrxWKPZS1QtS+aErqHMI/ke2X0RuY8dAjhWDgGgWvV4=
+X-Google-Smtp-Source: ABdhPJxVRXGh0McY8Kq2QVZFEf5hHPhoESVxSZxB6o4pMi/aki7Vp94/9fv3Xkvv0PvK2plcOuy9w5nX9VR+IhhGzqQ=
+X-Received: by 2002:a54:4501:: with SMTP id l1mr24414113oil.19.1622700820736;
+ Wed, 02 Jun 2021 23:13:40 -0700 (PDT)
+Received: from 753933720722 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 2 Jun 2021 23:13:40 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <YLhbpYq8/+JUlP27@google.com>
+References: <20210510220012.2003285-1-swboyd@chromium.org> <YJnllh7GfuVlL3ze@google.com>
+ <CAE-0n539o_DWqHbPuarWozk4Rev_d++2Da=AvOYALwvB1j3dVA@mail.gmail.com>
+ <YLgt2ZJ6GZwUNL8T@google.com> <CAE-0n52S72vWZkzwva2_uqsMMdgdKbX7-MKtNE5PdaetyeqN2Q@mail.gmail.com>
+ <YLhbpYq8/+JUlP27@google.com>
+From:   Stephen Boyd <swboyd@chromium.org>
+User-Agent: alot/0.9.1
+Date:   Wed, 2 Jun 2021 23:13:40 -0700
+Message-ID: <CAE-0n50PZ+vUH_dSQnunViWrkEdQNHyLNHjKbrsbEbO-YL8DRA@mail.gmail.com>
+Subject: Re: [PATCH] Input: elan_i2c: Disable irq on shutdown
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        Jingle Wu <jingle.wu@emc.com.tw>, Wolfram Sang <wsa@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Rely on the platform to set up interrupt polarity/type properly instead
-of hard-coding falling edge.
+Quoting Dmitry Torokhov (2021-06-02 21:33:41)
+> On Wed, Jun 02, 2021 at 06:33:49PM -0700, Stephen Boyd wrote:
+> > Quoting Dmitry Torokhov (2021-06-02 18:18:17)
+> > >
+> > > I do not think keeping counter balanced would be important here, as we
+> > > are shutting down, and upon reboot everything will be reinitialized from
+> > > scratch. Also, we are lucky in that there is just a handful of I2C
+> > > drivers defining shutdown() methods.
+> > >
+> > > > Please don't make me shave this yak.
+> > >
+> > > I'm afraid someone has to... I'm adding Wolfram to CC to get his take on
+> > > this.
+> > >
+> >
+> > I suppose another option would be to introduce some common function that
+> > i2c drivers can use for their shutdown op, like i2c_generic_shutdown()
+> > that would disable the irq? I would guess that it isn't a great idea to
+> > blanket disable the irq in case some i2c driver wants to do something
+> > that may require that irq to come in once more during shutdown to signal
+> > that things are off or something like that.
+> >
+> > Would having this common function that this driver opts into work for
+> > you?
+>
+> Opting in in this fashion will still require changes in the majority
+> of drivers (any I2C touchscreen or touchpad may be touched while system
+> is being shut down, so all of them will need to have interrupt freed or
+> disabled, or they may initiate I2C transfer). How about something like
+> this;
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/cy8ctmg110_ts.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Yes, this approach should work. I assume a device that doesn't have a
+shutdown function will be happy to let the i2c core disable the irq for
+it so it looks low risk.
 
-diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
-index 691f35f1bdd7..d83257284537 100644
---- a/drivers/input/touchscreen/cy8ctmg110_ts.c
-+++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -221,8 +221,7 @@ static int cy8ctmg110_probe(struct i2c_client *client,
- 	cy8ctmg110_set_sleepmode(ts, false);
- 
- 	err = request_threaded_irq(client->irq, NULL, cy8ctmg110_irq_thread,
--				   IRQF_TRIGGER_RISING | IRQF_ONESHOT,
--				   "touch_reset_key", ts);
-+				   IRQF_ONESHOT, "touch_reset_key", ts);
- 	if (err < 0) {
- 		dev_err(&client->dev,
- 			"irq %d busy? error %d\n", client->irq, err);
--- 
-2.32.0.rc0.204.g9fa02ecfa5-goog
+Will you send a proper patch to Wolfram or would you like me to wrap it
+up and resend?
 
+>
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 38107c0c318c..c835e7bb71de 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -603,9 +603,12 @@ static void i2c_device_shutdown(struct device *dev)
+>
+>         if (!client || !dev->driver)
+>                 return;
+> +
+>         driver = to_i2c_driver(dev->driver);
+>         if (driver->shutdown)
+>                 driver->shutdown(client);
+> +       else if (client->irq > 0)
+> +               disable_irq(client->irq);
+>  }
+>
+>  static void i2c_client_dev_release(struct device *dev)
+>

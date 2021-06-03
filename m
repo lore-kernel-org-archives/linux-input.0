@@ -8,168 +8,163 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79F67C47080
-	for <linux-input@archiver.kernel.org>; Thu,  3 Jun 2021 04:38:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 338C1C47080
+	for <linux-input@archiver.kernel.org>; Thu,  3 Jun 2021 04:38:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 63FC7613B8
-	for <linux-input@archiver.kernel.org>; Thu,  3 Jun 2021 04:38:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1837D613F0
+	for <linux-input@archiver.kernel.org>; Thu,  3 Jun 2021 04:38:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229611AbhFCEkZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 3 Jun 2021 00:40:25 -0400
-Received: from mail-pj1-f54.google.com ([209.85.216.54]:51105 "EHLO
-        mail-pj1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229506AbhFCEkY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Jun 2021 00:40:24 -0400
-Received: by mail-pj1-f54.google.com with SMTP id i22so2944368pju.0;
-        Wed, 02 Jun 2021 21:38:40 -0700 (PDT)
+        id S229506AbhFCEkb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 3 Jun 2021 00:40:31 -0400
+Received: from mail-pl1-f177.google.com ([209.85.214.177]:34594 "EHLO
+        mail-pl1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229441AbhFCEka (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Jun 2021 00:40:30 -0400
+Received: by mail-pl1-f177.google.com with SMTP id u9so2170616plr.1;
+        Wed, 02 Jun 2021 21:38:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=sId2ExzAnq7rqy61mih6ScWMic6zfpfyFkAfotLhFTg=;
-        b=UGpvhahrKOZD62tyRn42uCscBYd4ckwMgN1rN6/zg6EjQRUdkJaD8JxEbkh9QIb5+7
-         OXNJofE42BQMwFkqYqLvGIgyXOS0suux7wNLeDoGbVmDXlsvD5suZ/aeiIKwABCHAZid
-         czQKdZxYOV6aCsn6uuCaFIFMG25LiJ6JxubglKSjTlxyVdejmN/m78mIud9ByPjIjOYP
-         nkNu2fxkA7Ak2WeRDXDU5DcaTMACOpRYnJPlewICA03o4utgLMDi5MGfhoUJLaCs7l+N
-         u5+9Y/Irn579fw3cUMhXBlIsoCDZysS57rxol50RG4NRDugZIacGFCSmxyNcpwx7cJW6
-         K9UA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=bwoFt+YDQyQhxfnq961VZU5Jf/+5sxsJJaX0acjEBXE=;
+        b=C3DXv7NMl/Uw80vgRKQfdquRd/YoCx8tRMrG/BDd/N1mjJ77Mi01CSrNSbkKkmmwYB
+         IMoXTND/eW0oLppwffL+MpyRj+uRxEp4cyyOT6DK+aLvKKsrfBqOphxqRWR63U63cwM4
+         M6bufKVt9T1NCIEwcN6qF9qUaGS7ztfR3FE7iR290Rg3tc7HV2++Chjm9Z72S3Y0okQ/
+         TJWOcip9ogAEOSclWPpX4b94XCSW45RbhzidzQ+FzBhz625GuMVEcxQ1kQ582rE/Lwj8
+         wNz4ii1HCdOK+AHIe3pzF0rb82Cj5rNdk6KyWQWyZMzEck7cf4mwnXMmprF4hCV+W6Jn
+         DcRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=sId2ExzAnq7rqy61mih6ScWMic6zfpfyFkAfotLhFTg=;
-        b=n8VV8TpklJEOl+KZNRlgylgU1T3tsebaqY9QMD6Y6z0B9NmhGec9x8932mEBo4bHNQ
-         qT34UtNAHMwJgO3ce3hrpWlpsuiI5Za73JihxaMRtD1qB2RS0sz0tAmSydozd60GaWVS
-         SzOAFyXnnlp1HkLAKTmpaeFdqKVxZptOnPJZdyQx34IuwoXc3CConbKCbnCmKCpd+cSn
-         dAYZnTJ5BNmUUWWbwFWegRFNxldU181yAeNjoOq+jGLmnysqyjxbcKTVds63FrWG5icz
-         4aj0UIjLFNOB9IZLxoZRxuGC0i2xL7kzeB56YyxjSeLF+E9Aycnj4hpxzkrMZchhOV+k
-         W8fw==
-X-Gm-Message-State: AOAM530DS1XFyaY24pXW5gfwzhQvcF8uMXtwoNOb3Ui5mNbzz17tGZ5H
-        T11htx5I4lUVuepLap6f5At18o5qIZk=
-X-Google-Smtp-Source: ABdhPJx8dOYSl4dbKAnA6zL2QvbS9lBitKuBAyNnPH5FZnsBem9tK10fBdC/+kwHv+ythNtVUfnsMg==
-X-Received: by 2002:a17:90b:1283:: with SMTP id fw3mr30106775pjb.133.1622695059852;
-        Wed, 02 Jun 2021 21:37:39 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=bwoFt+YDQyQhxfnq961VZU5Jf/+5sxsJJaX0acjEBXE=;
+        b=kMLG6cgzxjBHNxLMYkma/B2+SeirSZ/WuckedgTfTTYmZjFwnE7M9PqNzmJg/aJcvn
+         AUXdyGJkhnJ6gd570iOK2XJkRx5BV/TUnduO9j1fm8mja5J/vNJyfEfsOl7NRTTwk0F6
+         K15RF3iY3JzTU6kvPKTzhVSYqp+QyMkfhG8URHhzjDPCvToGXrN1d2g89jL40HJ4vNNk
+         1zkmeTeokv+ZyFz9gCZSSieEXDLUvU+jQsNkCmcCObmBF6bHW0dCOTB8hDQDvQatcs5c
+         W1EEaUocq46yDJ4eo/Frwh8uL3KyrH80yqI0pcCQQUgJ9HVg7EIoxLUQK0Azg4qMQScF
+         ML5A==
+X-Gm-Message-State: AOAM530QiO+jObhK/DcezczP8Wfr5t2uboDNQ6BLVW8zUOxFzheXeX4d
+        8GmFI93uVMsHqG/eRq1Fn9ef8vWD2tc=
+X-Google-Smtp-Source: ABdhPJwQXXCQGpLHiBRaSEb/7Erz/reTDL3D8w099btb2Xvd717wf5IqDBRnNY5XudQd4eBQTxhhxA==
+X-Received: by 2002:a17:90a:5282:: with SMTP id w2mr34770518pjh.145.1622695049797;
+        Wed, 02 Jun 2021 21:37:29 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:fc6a:97ca:f00c:8377])
-        by smtp.gmail.com with ESMTPSA id f28sm1132414pgb.12.2021.06.02.21.37.38
+        by smtp.gmail.com with ESMTPSA id f28sm1132414pgb.12.2021.06.02.21.37.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Jun 2021 21:37:39 -0700 (PDT)
+        Wed, 02 Jun 2021 21:37:28 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     linux-input@vger.kernel.org
 Cc:     Linus Walleij <linus.walleij@linaro.org>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 7/7] Input: cy8ctmg110_ts - switch to using gpiod API
-Date:   Wed,  2 Jun 2021 21:37:26 -0700
-Message-Id: <20210603043726.3793876-7-dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/7] Input: cy8ctmg110_ts - rely on platform code to supply interrupt
+Date:   Wed,  2 Jun 2021 21:37:20 -0700
+Message-Id: <20210603043726.3793876-1-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.32.0.rc0.204.g9fa02ecfa5-goog
-In-Reply-To: <20210603043726.3793876-1-dmitry.torokhov@gmail.com>
-References: <20210603043726.3793876-1-dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Instead of legacy gpio API let's use newer gpiod API. This also allows us
-to get rid of platform data.
+Instead of using platform data to specify GPIO that is used as interrupt
+source, rely on the platform and I2C core to set it up properly.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/cy8ctmg110_ts.c | 41 +++++++++--------------
- 1 file changed, 15 insertions(+), 26 deletions(-)
+ drivers/input/touchscreen/cy8ctmg110_ts.c | 32 +----------------------
+ include/linux/input/cy8ctmg110_pdata.h    |  1 -
+ 2 files changed, 1 insertion(+), 32 deletions(-)
 
 diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
-index 33ccb31cad52..3e2d64fb1620 100644
+index f465bae618fe..691f35f1bdd7 100644
 --- a/drivers/input/touchscreen/cy8ctmg110_ts.c
 +++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -7,15 +7,13 @@
-  * Some cleanups by Alan Cox <alan@linux.intel.com>
-  */
- 
--#include <linux/module.h>
--#include <linux/kernel.h>
-+#include <linux/i2c.h>
- #include <linux/input.h>
--#include <linux/slab.h>
- #include <linux/interrupt.h>
--#include <linux/io.h>
--#include <linux/i2c.h>
--#include <linux/gpio.h>
--#include <linux/input/cy8ctmg110_pdata.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
- #include <asm/byteorder.h>
- 
- #define CY8CTMG110_DRIVER_NAME      "cy8ctmg110"
-@@ -46,7 +44,7 @@ struct cy8ctmg110 {
- 	struct input_dev *input;
+@@ -46,7 +46,6 @@ struct cy8ctmg110 {
  	char phys[32];
  	struct i2c_client *client;
--	int reset_pin;
-+	struct gpio_desc *reset_gpio;
+ 	int reset_pin;
+-	int irq_pin;
  };
  
  /*
-@@ -55,8 +53,8 @@ struct cy8ctmg110 {
-  */
- static void cy8ctmg110_power(struct cy8ctmg110 *ts, bool poweron)
- {
--	if (ts->reset_pin)
--		gpio_direction_output(ts->reset_pin, 1 - poweron);
-+	if (ts->reset_gpio)
-+		gpiod_set_value_cansleep(ts->reset_gpio, !poweron);
- }
- 
- static int cy8ctmg110_write_regs(struct cy8ctmg110 *tsc, unsigned char reg,
-@@ -172,17 +170,10 @@ static void cy8ctmg110_shut_off(void *_ts)
- static int cy8ctmg110_probe(struct i2c_client *client,
- 					const struct i2c_device_id *id)
- {
--	const struct cy8ctmg110_pdata *pdata = dev_get_platdata(&client->dev);
- 	struct cy8ctmg110 *ts;
- 	struct input_dev *input_dev;
- 	int err;
- 
--	/* No pdata no way forward */
--	if (pdata == NULL) {
--		dev_err(&client->dev, "no pdata\n");
--		return -ENODEV;
--	}
--
- 	if (!i2c_check_functionality(client->adapter,
- 					I2C_FUNC_SMBUS_READ_WORD_DATA))
- 		return -EIO;
-@@ -197,7 +188,6 @@ static int cy8ctmg110_probe(struct i2c_client *client,
- 
+@@ -191,7 +190,6 @@ static int cy8ctmg110_probe(struct i2c_client *client,
  	ts->client = client;
  	ts->input = input_dev;
--	ts->reset_pin = pdata->reset_pin;
+ 	ts->reset_pin = pdata->reset_pin;
+-	ts->irq_pin = pdata->irq_pin;
  
  	snprintf(ts->phys, sizeof(ts->phys),
  		 "%s/input0", dev_name(&client->dev));
-@@ -212,14 +202,13 @@ static int cy8ctmg110_probe(struct i2c_client *client,
- 	input_set_abs_params(input_dev, ABS_Y,
- 			CY8CTMG110_Y_MIN, CY8CTMG110_Y_MAX, 4, 0);
+@@ -222,38 +220,13 @@ static int cy8ctmg110_probe(struct i2c_client *client,
+ 	cy8ctmg110_power(ts, true);
+ 	cy8ctmg110_set_sleepmode(ts, false);
  
--	if (ts->reset_pin) {
--		err = devm_gpio_request(&client->dev, ts->reset_pin, NULL);
--		if (err) {
--			dev_err(&client->dev,
--				"Unable to request GPIO pin %d.\n",
--				ts->reset_pin);
--			return err;
--		}
-+	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, NULL,
-+						 GPIOD_OUT_HIGH);
-+	if (IS_ERR(ts->reset_gpio)) {
-+		err = PTR_ERR(ts->reset_gpio);
-+		dev_err(&client->dev,
-+			"Unable to request reset GPIO: %d\n", err);
-+		return err;
+-	err = gpio_request(ts->irq_pin, "touch_irq_key");
+-	if (err < 0) {
+-		dev_err(&client->dev,
+-			"Failed to request GPIO %d, error %d\n",
+-			ts->irq_pin, err);
+-		goto err_shutoff_device;
+-	}
+-
+-	err = gpio_direction_input(ts->irq_pin);
+-	if (err < 0) {
+-		dev_err(&client->dev,
+-			"Failed to configure input direction for GPIO %d, error %d\n",
+-			ts->irq_pin, err);
+-		goto err_free_irq_gpio;
+-	}
+-
+-	client->irq = gpio_to_irq(ts->irq_pin);
+-	if (client->irq < 0) {
+-		err = client->irq;
+-		dev_err(&client->dev,
+-			"Unable to get irq number for GPIO %d, error %d\n",
+-			ts->irq_pin, err);
+-		goto err_free_irq_gpio;
+-	}
+-
+ 	err = request_threaded_irq(client->irq, NULL, cy8ctmg110_irq_thread,
+ 				   IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+ 				   "touch_reset_key", ts);
+ 	if (err < 0) {
+ 		dev_err(&client->dev,
+ 			"irq %d busy? error %d\n", client->irq, err);
+-		goto err_free_irq_gpio;
++		goto err_shutoff_device;
  	}
  
- 	cy8ctmg110_power(ts, true);
+ 	err = input_register_device(input_dev);
+@@ -266,8 +239,6 @@ static int cy8ctmg110_probe(struct i2c_client *client,
+ 
+ err_free_irq:
+ 	free_irq(client->irq, ts);
+-err_free_irq_gpio:
+-	gpio_free(ts->irq_pin);
+ err_shutoff_device:
+ 	cy8ctmg110_set_sleepmode(ts, true);
+ 	cy8ctmg110_power(ts, false);
+@@ -318,7 +289,6 @@ static int cy8ctmg110_remove(struct i2c_client *client)
+ 
+ 	free_irq(client->irq, ts);
+ 	input_unregister_device(ts->input);
+-	gpio_free(ts->irq_pin);
+ 	if (ts->reset_pin)
+ 		gpio_free(ts->reset_pin);
+ 	kfree(ts);
+diff --git a/include/linux/input/cy8ctmg110_pdata.h b/include/linux/input/cy8ctmg110_pdata.h
+index 77582ae1745a..ee1d44545f30 100644
+--- a/include/linux/input/cy8ctmg110_pdata.h
++++ b/include/linux/input/cy8ctmg110_pdata.h
+@@ -5,7 +5,6 @@
+ struct cy8ctmg110_pdata
+ {
+ 	int reset_pin;		/* Reset pin is wired to this GPIO (optional) */
+-	int irq_pin;		/* IRQ pin is wired to this GPIO */
+ };
+ 
+ #endif
 -- 
 2.32.0.rc0.204.g9fa02ecfa5-goog
 

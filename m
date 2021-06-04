@@ -2,144 +2,243 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBFC8C47083
-	for <linux-input@archiver.kernel.org>; Fri,  4 Jun 2021 11:58:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33755C07E94
+	for <linux-input@archiver.kernel.org>; Fri,  4 Jun 2021 16:11:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9FCAE61422
-	for <linux-input@archiver.kernel.org>; Fri,  4 Jun 2021 11:58:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E0B961405
+	for <linux-input@archiver.kernel.org>; Fri,  4 Jun 2021 16:11:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230217AbhFDMAE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 4 Jun 2021 08:00:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47580 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230142AbhFDMAE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 4 Jun 2021 08:00:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA8A96140C;
-        Fri,  4 Jun 2021 11:58:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622807897;
-        bh=sreDTshW6uS9V/gqE3EfDqr8/k4FapToRpAXZMM2Edg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LfjCVP9fqtEgq9ZDLG6YSJ1c19Lo//4JNbdfkW62EACH6RLypdugWLlBYhKd+WuSm
-         22uF/RnoqWuHi6UcVSi0tceWEIyOK82GTHK1Pzfq6M1ol/PIB3h+fXjJ+o01vyY53B
-         pb0XYCKw0X6/5SAcillKsbxrZEzvVOFUsQsciwjyT6Wk250L4oM/DMZqXkPJB9E5Od
-         dGZJ/ur1qqp9/QBUZNFi2wbdsg++ry9qBHztCrvK7BfJKrUIkJwMXzQycoVsMoEAmU
-         5NphvX+8AizQoMI2Ax6SgfHPNBxvXKzdvHUPtIdiG80YYIshUpSc3hkcMapGYJq3EO
-         fp2o+DgQQqVJQ==
-Received: by earth.universe (Postfix, from userid 1000)
-        id DBF553C0C95; Fri,  4 Jun 2021 13:58:15 +0200 (CEST)
-Date:   Fri, 4 Jun 2021 13:58:15 +0200
-From:   Sebastian Reichel <sre@kernel.org>
-To:     skakit@codeaurora.org
-Cc:     Rob Herring <robh@kernel.org>, Rob Herring <robh+dt@kernel.org>,
-        David Collins <collinsd@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Andy Gross <agross@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        kgunda@codeaurora.org, linux-arm-msm@vger.kernel.org,
-        linux-input@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-kernel@vger.kernel.org, Andy Yan <andy.yan@rock-chips.com>,
-        Courtney Cavin <courtney.cavin@sonymobile.com>,
-        devicetree@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH V3 5/5] dt-bindings: power: reset: qcom-pon: Convert qcom
- PON binding to yaml
-Message-ID: <20210604115815.q7a6orp4ksbbvmmz@earth.universe>
-References: <1620630064-16354-1-git-send-email-skakit@codeaurora.org>
- <1620630064-16354-6-git-send-email-skakit@codeaurora.org>
- <20210510162506.GA234174@robh.at.kernel.org>
- <20210604110917.zbrjzpl23ujqclyf@earth.universe>
- <0e1471d4522d1356e354c4653e8e0b42@codeaurora.org>
- <f3ea0212f4122099e0e35d1aaf5e9e07@codeaurora.org>
+        id S229675AbhFDQM5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 4 Jun 2021 12:12:57 -0400
+Received: from mail-qt1-f174.google.com ([209.85.160.174]:44754 "EHLO
+        mail-qt1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230037AbhFDQM5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2021 12:12:57 -0400
+Received: by mail-qt1-f174.google.com with SMTP id t17so7349043qta.11;
+        Fri, 04 Jun 2021 09:10:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Uw8SvaDBx6CB4Sz2J3BnNziO0DD2dTJgr3kfefUav3s=;
+        b=OUmQoMuVsl2/gdLYLGBIjFOQIlXF/4+bioeib8WUyK8XJc6U+z/IFUAIHg5o2obLEH
+         dwmSW+lt+dU/xTi0UfN4HZjyiZeHUc/tVSj+cQwnapk3+PuvVsu6SpBdFVTlqYC39YA1
+         Xy9uc+j5d3F7xYbobyUa+dLmYM49MvNVi1irMz6l+bvRjp1+/C6mzDn50awTmMjYtSco
+         WKw+pVrPzd201qy/IfqcXnTVU+yxo/UedwWDwD1VNF3zPyibAiBScGVO6e7UC8uioqyS
+         o1RoASylsg+6gn3iYVilVw+A5976dwdANoeADioL9t2wQ0jwucedR4XDOdWKILlUwuDP
+         PdcQ==
+X-Gm-Message-State: AOAM530YOzDW1ggPbVVyRStwNQQKovo8dyodSntx0f5I/U4VWatF+rRo
+        JVO9A8pmlazXGcQUBckaHfA=
+X-Google-Smtp-Source: ABdhPJxObLXPGZwGZJpqoP+Y316Gdp2qDstHl41j6DquUhApzUyMGxqtxK2uMM5oCpN3vKAfKG4Pnw==
+X-Received: by 2002:a05:622a:1185:: with SMTP id m5mr5298924qtk.140.1622823054270;
+        Fri, 04 Jun 2021 09:10:54 -0700 (PDT)
+Received: from localhost.localdomain ([104.221.112.78])
+        by smtp.gmail.com with ESMTPSA id e128sm4213541qkd.127.2021.06.04.09.10.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Jun 2021 09:10:53 -0700 (PDT)
+From:   Pascal Giard <pascal.giard@etsmtl.ca>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Pascal Giard <pascal.giard@etsmtl.ca>,
+        Daniel Nguyen <daniel.nguyen.1@ens.etsmtl.ca>
+Subject: [PATCH] HID: sony: fix freeze when inserting ghlive ps3/wii dongles
+Date:   Fri,  4 Jun 2021 12:10:23 -0400
+Message-Id: <20210604161023.1498582-1-pascal.giard@etsmtl.ca>
+X-Mailer: git-send-email 2.32.0.rc2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="mzxelsrfu5vobxie"
-Content-Disposition: inline
-In-Reply-To: <f3ea0212f4122099e0e35d1aaf5e9e07@codeaurora.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+This commit fixes a freeze on insertion of a Guitar Hero Live PS3/WiiU
+USB dongle. Indeed, with the current implementation, inserting one of
+those USB dongles will lead to a hard freeze. I apologize for not
+catching this earlier, it didn't occur on my old laptop.
 
---mzxelsrfu5vobxie
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+While the issue was isolated to memory alloc/free, I could not figure
+out why it causes a freeze. So this patch fixes this issue by
+simplifying memory allocation and usage.
 
-Hi,
+We remind that for the dongle to work properly, a control URB needs to
+be sent periodically. We used to alloc/free the URB each time this URB
+needed to be sent.
 
-On Fri, Jun 04, 2021 at 05:15:17PM +0530, skakit@codeaurora.org wrote:
-> On 2021-06-04 17:12, skakit@codeaurora.org wrote:
-> > Hi,
-> >=20
-> > On 2021-06-04 16:39, Sebastian Reichel wrote:
-> > > Hi,
-> > >=20
-> > > On Mon, May 10, 2021 at 11:25:06AM -0500, Rob Herring wrote:
-> > > > On Mon, 10 May 2021 12:31:04 +0530, satya priya wrote:
-> > > > > Convert qcom PON binding from .txt to .yaml format.
-> > > > >
-> > > > > The example has been removed in favour of full example being
-> > > > > available in the qcom,pm8941-pwrkey binding.
-> > > > >
-> > > > > Signed-off-by: satya priya <skakit@codeaurora.org>
-> > > > > ---
-> > > > > Changes in V2:
-> > > > >  - As per Rob's comments, converted the main PON binding and adde=
-d in V2.
-> > > > >
-> > > > > Changes in V3:
-> > > > >  - As per Sebastian's comments, added allOf to refer reboot-mode.=
-yaml and
-> > > > >    used unevaluatedProperties =3D false. Added maxItems for reg.
-> > > > >
-> > > > >  .../devicetree/bindings/power/reset/qcom,pon.txt   | 49 --------=
---------------
-> > > > >  .../devicetree/bindings/power/reset/qcom,pon.yaml  | 44 ++++++++=
-+++++++++++
-> > > > >  2 files changed, 44 insertions(+), 49 deletions(-)
-> > > > >  delete mode 100644 Documentation/devicetree/bindings/power/reset=
-/qcom,pon.txt
-> > > > >  create mode 100644 Documentation/devicetree/bindings/power/reset=
-/qcom,pon.yaml
-> > > > >
-> > > >=20
-> > > > Reviewed-by: Rob Herring <robh@kernel.org>
-> > >=20
-> > > Acked-by: Sebastian Reichel <sre@kernel.org>
-> > >=20
-> >=20
-> > There is a V4 for this.
-> > https://lore.kernel.org/patchwork/patch/1425638/
-> >=20
-> Seems like you already reviewed the V4.
+With this patch, the memory for the URB is allocated on the probe, reused
+for as long as the dongle is plugged in, and freed once the dongle is
+unplugged.
 
-Ack, just ignore this :)
+Signed-off-by: Pascal Giard <pascal.giard@etsmtl.ca>
+---
+ drivers/hid/hid-sony.c | 98 +++++++++++++++++++++---------------------
+ 1 file changed, 49 insertions(+), 49 deletions(-)
 
--- Sebastian
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 8319b0ce385a..b3722c51ec78 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -597,9 +597,8 @@ struct sony_sc {
+ 	/* DS4 calibration data */
+ 	struct ds4_calibration_data ds4_calib_data[6];
+ 	/* GH Live */
++	struct urb *ghl_urb;
+ 	struct timer_list ghl_poke_timer;
+-	struct usb_ctrlrequest *ghl_cr;
+-	u8 *ghl_databuf;
+ };
+ 
+ static void sony_set_leds(struct sony_sc *sc);
+@@ -625,66 +624,54 @@ static inline void sony_schedule_work(struct sony_sc *sc,
+ 
+ static void ghl_magic_poke_cb(struct urb *urb)
+ {
+-	if (urb) {
+-		/* Free sc->ghl_cr and sc->ghl_databuf allocated in
+-		 * ghl_magic_poke()
+-		 */
+-		kfree(urb->setup_packet);
+-		kfree(urb->transfer_buffer);
+-	}
++	struct sony_sc *sc = urb->context;
++
++	if (urb->status < 0)
++		hid_err(sc->hdev, "URB transfer failed : %d", urb->status);
++
++	mod_timer(&sc->ghl_poke_timer, jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
+ }
+ 
+ static void ghl_magic_poke(struct timer_list *t)
+ {
++	int ret;
+ 	struct sony_sc *sc = from_timer(sc, t, ghl_poke_timer);
+ 
+-	int ret;
++	ret = usb_submit_urb(sc->ghl_urb, GFP_ATOMIC);
++	if (ret < 0)
++		hid_err(sc->hdev, "usb_submit_urb failed: %d", ret);
++}
++
++static int ghl_init_urb(struct sony_sc *sc, struct usb_device *usbdev)
++{
++	struct usb_ctrlrequest *cr;
++	u16 poke_size;
++	u8 *databuf;
+ 	unsigned int pipe;
+-	struct urb *urb;
+-	struct usb_device *usbdev = to_usb_device(sc->hdev->dev.parent->parent);
+-	const u16 poke_size =
+-		ARRAY_SIZE(ghl_ps3wiiu_magic_data);
+ 
++	poke_size = ARRAY_SIZE(ghl_ps3wiiu_magic_data);
+ 	pipe = usb_sndctrlpipe(usbdev, 0);
+ 
+-	if (!sc->ghl_cr) {
+-		sc->ghl_cr = kzalloc(sizeof(*sc->ghl_cr), GFP_ATOMIC);
+-		if (!sc->ghl_cr)
+-			goto resched;
+-	}
+-
+-	if (!sc->ghl_databuf) {
+-		sc->ghl_databuf = kzalloc(poke_size, GFP_ATOMIC);
+-		if (!sc->ghl_databuf)
+-			goto resched;
+-	}
++	cr = devm_kzalloc(&sc->hdev->dev, sizeof(*cr), GFP_ATOMIC);
++	if (cr == NULL)
++		return -ENOMEM;
+ 
+-	urb = usb_alloc_urb(0, GFP_ATOMIC);
+-	if (!urb)
+-		goto resched;
++	databuf = devm_kzalloc(&sc->hdev->dev, poke_size, GFP_ATOMIC);
++	if (databuf == NULL)
++		return -ENOMEM;
+ 
+-	sc->ghl_cr->bRequestType =
++	cr->bRequestType =
+ 		USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_OUT;
+-	sc->ghl_cr->bRequest = USB_REQ_SET_CONFIGURATION;
+-	sc->ghl_cr->wValue = cpu_to_le16(ghl_ps3wiiu_magic_value);
+-	sc->ghl_cr->wIndex = 0;
+-	sc->ghl_cr->wLength = cpu_to_le16(poke_size);
+-	memcpy(sc->ghl_databuf, ghl_ps3wiiu_magic_data, poke_size);
+-
++	cr->bRequest = USB_REQ_SET_CONFIGURATION;
++	cr->wValue = cpu_to_le16(ghl_ps3wiiu_magic_value);
++	cr->wIndex = 0;
++	cr->wLength = cpu_to_le16(poke_size);
++	memcpy(databuf, ghl_ps3wiiu_magic_data, poke_size);
+ 	usb_fill_control_urb(
+-		urb, usbdev, pipe,
+-		(unsigned char *) sc->ghl_cr, sc->ghl_databuf,
+-		poke_size, ghl_magic_poke_cb, NULL);
+-	ret = usb_submit_urb(urb, GFP_ATOMIC);
+-	if (ret < 0) {
+-		kfree(sc->ghl_databuf);
+-		kfree(sc->ghl_cr);
+-	}
+-	usb_free_urb(urb);
+-
+-resched:
+-	/* Reschedule for next time */
+-	mod_timer(&sc->ghl_poke_timer, jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
++		sc->ghl_urb, usbdev, pipe,
++		(unsigned char *) cr, databuf, poke_size,
++		ghl_magic_poke_cb, sc);
++	return 0;
+ }
+ 
+ static int guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
+@@ -2981,6 +2968,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	int ret;
+ 	unsigned long quirks = id->driver_data;
+ 	struct sony_sc *sc;
++	struct usb_device *usbdev;
+ 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+ 
+ 	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
+@@ -3000,6 +2988,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	sc->quirks = quirks;
+ 	hid_set_drvdata(hdev, sc);
+ 	sc->hdev = hdev;
++	usbdev = to_usb_device(sc->hdev->dev.parent->parent);
+ 
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+@@ -3042,6 +3031,15 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	if (sc->quirks & GHL_GUITAR_PS3WIIU) {
++		sc->ghl_urb = usb_alloc_urb(0, GFP_ATOMIC);
++		if (!sc->ghl_urb)
++			return -ENOMEM;
++		ret = ghl_init_urb(sc, usbdev);
++		if (ret) {
++			hid_err(hdev, "error preparing URB\n");
++			return ret;
++		}
++
+ 		timer_setup(&sc->ghl_poke_timer, ghl_magic_poke, 0);
+ 		mod_timer(&sc->ghl_poke_timer,
+ 			  jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
+@@ -3054,8 +3052,10 @@ static void sony_remove(struct hid_device *hdev)
+ {
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
+ 
+-	if (sc->quirks & GHL_GUITAR_PS3WIIU)
++	if (sc->quirks & GHL_GUITAR_PS3WIIU) {
+ 		del_timer_sync(&sc->ghl_poke_timer);
++		usb_free_urb(sc->ghl_urb);
++	}
+ 
+ 	hid_hw_close(hdev);
+ 
+-- 
+2.32.0.rc2
 
---mzxelsrfu5vobxie
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmC6FVcACgkQ2O7X88g7
-+pq+hw//YanRG6Tp4qk+FvYLQnRPkDDtf4b1Y1Xx69mo59laADLznK0e/0XCN7H2
-3g8ZnVt8P3jd3BMIz6X7PKoRj5tN+N8d1i8WOWiFwg0RsSm1p1xSCZ40dKRdAZ8Z
-qRIqIOXRi/cVPS6w6SH191kaxcdKnIzqx6/Ed1QWfkYiiz614YavjkjGx2b7Ad8g
-JpFxzClUw6mw9qUce/FHGloWkztNfcBNJ3ncIsUqk6kheFFlUXBwl5XiDc9coNvS
-UT69JOEcYckft/RalCtLUL7bJZXSh4gAZbjf9Zsgkrb2i7AaqiP4NvFOVMePgCs8
-ppL4Z4xi5gEVc+d+fdNwjv8yLfNRfOX8d5W64BK810DF4MrCaqhZyi2X+7Of8iSo
-9dTvQN/S5uBBSgOXFh/ZhEAUHoHF+ojjDHYmCRlu19Q2+dD+wxv5eduaCTEBdHrm
-QXeHR61zTbB27McJSgfxlVCTOgUgcTR2vl/I8Y8Yb5vOKNLwqiDRJtYlSxoFlINF
-9ZP9nklUNnVPL5PqD8B+olZ2f7G4Wr6Wy5E518KoGg3gq/YimtJm+QRrHSAKuj2H
-pYlEY0E1PG7DuHKd9YTZ7eTCQ0jyhjgwd0bQ3aCSo6jLaTfVHU38jOur9K8emfA0
-Mo7Lntx75liRr9mMbY82ewVQ33OvEyBqfx2XQJLSPfnwHTI2dxs=
-=Zlip
------END PGP SIGNATURE-----
-
---mzxelsrfu5vobxie--

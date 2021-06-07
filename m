@@ -4,40 +4,40 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BED49C48BCD
-	for <linux-input@archiver.kernel.org>; Mon,  7 Jun 2021 16:12:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E19A5C48BE6
+	for <linux-input@archiver.kernel.org>; Mon,  7 Jun 2021 16:12:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A43AD613CE
-	for <linux-input@archiver.kernel.org>; Mon,  7 Jun 2021 16:12:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C83B7613C1
+	for <linux-input@archiver.kernel.org>; Mon,  7 Jun 2021 16:12:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231253AbhFGQOW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 7 Jun 2021 12:14:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47422 "EHLO mail.kernel.org"
+        id S231506AbhFGQOZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Jun 2021 12:14:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231382AbhFGQOR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:14:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8F0D61380;
-        Mon,  7 Jun 2021 16:12:25 +0000 (UTC)
+        id S231521AbhFGQOV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:14:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 341DF6135A;
+        Mon,  7 Jun 2021 16:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082346;
-        bh=rw9OtMzykAKIRnVFKBRCJO42Dv3xma8kkNsPO2gMGgk=;
+        s=k20201202; t=1623082349;
+        bh=wLqUqQ5/Iqfc9Oy83QP6UppFMYb64xzebx6U2xVQono=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvYVHQiybfW26fMIVtKYGxHbEkgQaYDe8UNlPh+e6xYdMqDAUKOuSZDpvGFJIjaWZ
-         Sapu/0I+UW328n40NBNCKM0T+FzVzTasW7hlvqEuuKFIlW1OAAKzhExq9xqJpR8Ty9
-         MrIMcksHRdymdABPuioaHGheYkDPrvy2grbfAR77sGLsYNm5p2qy5Uved6NQIvSPcD
-         rP7aaQir25otS6ZHUr0YR8rLyIZqOe13OjHFbDwm6gTj4Il5e3iAuneKQNlKuFUD4H
-         vKFWma3yHgO9tl2g48xQ2kmNjd8gFY2uPtZz4Ndv2uu+/wXw1SKrstTMspQCHvMUMi
-         lM24UbSAD3qGA==
+        b=UHvO1AnjvgYJiYvNEa9rK43xwX8mn0oP34NBcAmsWjcFdVpAMo8AFzmjHzSoErRiM
+         /BB7eekdcvqcVdTmCSr/P6mEqik5pTIghWLIB+D8QhFqRRfHXghZGggOjaapj1iucD
+         c66py6T8Iaw+H6VkmBPf/E5i60U4Ye2kh+nw/kjEgq+9n5spSx2x4uCvxVqp9qn7Id
+         IvPKlg4BgJcMWyAOdHI8QPQzwOfbfT0SFfmiwdx1W6vgCOuUrHe1jHhH+sINU21Ljc
+         AdotdTXJCq4kmnqDTelkb5/vK647Mtz8syToIPsycD+4p+Hos5JXCSx2mCRMwDicZY
+         E1SsreS+qJoPA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luke D Jones <luke@ljones.dev>, Jiri Kosina <jkosina@suse.cz>,
+Cc:     Mark Bolhuis <mark@bolhuis.dev>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 08/49] HID: asus: filter G713/G733 key event to prevent shutdown
-Date:   Mon,  7 Jun 2021 12:11:34 -0400
-Message-Id: <20210607161215.3583176-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 11/49] HID: Add BUS_VIRTUAL to hid_connect logging
+Date:   Mon,  7 Jun 2021 12:11:37 -0400
+Message-Id: <20210607161215.3583176-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161215.3583176-1-sashal@kernel.org>
 References: <20210607161215.3583176-1-sashal@kernel.org>
@@ -49,45 +49,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Luke D Jones <luke@ljones.dev>
+From: Mark Bolhuis <mark@bolhuis.dev>
 
-[ Upstream commit c980512b4512adf2c6f9edb948ce19423b23124d ]
+[ Upstream commit 48e33befe61a7d407753c53d1a06fc8d6b5dab80 ]
 
-The G713 and G733 both emit an unexpected keycode on some key
-presses such as Fn+Pause. The device in this case is emitting
-two events on key down, and 3 on key up, the third key up event
-is report ID 0x02 and is unfiltered, causing incorrect event.
+Add BUS_VIRTUAL to hid_connect logging since it's a valid hid bus type and it
+should not print <UNKNOWN>
 
-This patch filters out the single problematic event.
-
-Signed-off-by: Luke D Jones <luke@ljones.dev>
+Signed-off-by: Mark Bolhuis <mark@bolhuis.dev>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-asus.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/hid/hid-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 1ed1c05c3d54..60606c11bdaf 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -355,6 +355,16 @@ static int asus_raw_event(struct hid_device *hdev,
- 				return -1;
- 			}
- 		}
-+		if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
-+			/*
-+			 * G713 and G733 send these codes on some keypresses, depending on
-+			 * the key pressed it can trigger a shutdown event if not caught.
-+			*/
-+			if(data[0] == 0x02 && data[1] == 0x30) {
-+				return -1;
-+			}
-+		}
-+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 097cb1ee3126..0f69f35f2957 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2005,6 +2005,9 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 	case BUS_I2C:
+ 		bus = "I2C";
+ 		break;
++	case BUS_VIRTUAL:
++		bus = "VIRTUAL";
++		break;
+ 	default:
+ 		bus = "<UNKNOWN>";
  	}
- 
- 	return 0;
 -- 
 2.30.2
 

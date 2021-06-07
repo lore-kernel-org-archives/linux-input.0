@@ -7,39 +7,37 @@ X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85871C47095
-	for <linux-input@archiver.kernel.org>; Mon,  7 Jun 2021 16:14:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 560F0C47095
+	for <linux-input@archiver.kernel.org>; Mon,  7 Jun 2021 16:14:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F4766162D
-	for <linux-input@archiver.kernel.org>; Mon,  7 Jun 2021 16:14:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3BDEE616E8
+	for <linux-input@archiver.kernel.org>; Mon,  7 Jun 2021 16:14:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232054AbhFGQQU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 7 Jun 2021 12:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50068 "EHLO mail.kernel.org"
+        id S232133AbhFGQQ3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Jun 2021 12:16:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231630AbhFGQPT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:15:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AFDD61416;
-        Mon,  7 Jun 2021 16:13:25 +0000 (UTC)
+        id S232131AbhFGQPi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:15:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15E69613CA;
+        Mon,  7 Jun 2021 16:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082406;
-        bh=gWJ1yRLZGxnhleLBM3oUql+Jg14/ZcrDxag8D74fKKA=;
+        s=k20201202; t=1623082409;
+        bh=wLqUqQ5/Iqfc9Oy83QP6UppFMYb64xzebx6U2xVQono=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oaLUrKNgIy1lw/Tx2+4/KuTlNaiy7Qm2jSB/e+RGbEdjQtBf9ZOqBdWTXa6OL4sgZ
-         /qCVwCMbHCcG+9rWPp9jlt/xu7562OdTkme1P/VZbZiH6Z0xE0d4lLq8z7P+hQx8qj
-         Y/CcixWey7HhCaJuZrFOxgbc25Kza2uiPWCYU9ZiSAZxp3xKC31jV6WuEC5I30o75y
-         Pb6DzlcRpULXycbOtJMWSzPXy3CcnGsJsxvNXHCclsDl0qzhoDa/Xw0rJFiLjAdD7m
-         n5Zv2UcsZ1OE6wE9Azm3ZqvPZKZZxDqkegn8Kr2RBw2trtYaISRMV9JdwHEG31dw7u
-         q5l6E4YcKWZlQ==
+        b=LouEEQCKHMIh2cQOmv19lZqo5yM7tBh2T1SkZCiTrkm9x6qeXSgDZ5yYozzAhiZ4l
+         COOvMyt7MOHUbe2UrzqLTQnZwYcUJS2b8vJ04YBWUscA9o2J1AGU4v8AREgFUpVb6e
+         CDqkgs7I8NMBSot/FQchvO+dcKbsSGMfxBV2l2CtrnFU/jP+BaAKRlvgnP4nRdPNf2
+         dFF2Do2BwTuDu60Bhe3NniLso9U0Xt0PGcNrql6jclNDM6v1W5DjOKSZwc8WXG0CsZ
+         na1j4zF4IA2wpDuGrgfAEvu8A7zjGEQhBvDWBMya3gMcbBH3BoG/3vcRdxYGDYrSCm
+         H/eYr8ZliMJiA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 05/39] HID: hid-sensor-hub: Return error for hid_set_field() failure
-Date:   Mon,  7 Jun 2021 12:12:44 -0400
-Message-Id: <20210607161318.3583636-5-sashal@kernel.org>
+Cc:     Mark Bolhuis <mark@bolhuis.dev>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 08/39] HID: Add BUS_VIRTUAL to hid_connect logging
+Date:   Mon,  7 Jun 2021 12:12:47 -0400
+Message-Id: <20210607161318.3583636-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161318.3583636-1-sashal@kernel.org>
 References: <20210607161318.3583636-1-sashal@kernel.org>
@@ -51,51 +49,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Mark Bolhuis <mark@bolhuis.dev>
 
-[ Upstream commit edb032033da0dc850f6e7740fa1023c73195bc89 ]
+[ Upstream commit 48e33befe61a7d407753c53d1a06fc8d6b5dab80 ]
 
-In the function sensor_hub_set_feature(), return error when hid_set_field()
-fails.
+Add BUS_VIRTUAL to hid_connect logging since it's a valid hid bus type and it
+should not print <UNKNOWN>
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Mark Bolhuis <mark@bolhuis.dev>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sensor-hub.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/hid/hid-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 3dd7d3246737..f9983145d4e7 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -210,16 +210,21 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 	buffer_size = buffer_size / sizeof(__s32);
- 	if (buffer_size) {
- 		for (i = 0; i < buffer_size; ++i) {
--			hid_set_field(report->field[field_index], i,
--				      (__force __s32)cpu_to_le32(*buf32));
-+			ret = hid_set_field(report->field[field_index], i,
-+					    (__force __s32)cpu_to_le32(*buf32));
-+			if (ret)
-+				goto done_proc;
-+
- 			++buf32;
- 		}
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 097cb1ee3126..0f69f35f2957 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2005,6 +2005,9 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 	case BUS_I2C:
+ 		bus = "I2C";
+ 		break;
++	case BUS_VIRTUAL:
++		bus = "VIRTUAL";
++		break;
+ 	default:
+ 		bus = "<UNKNOWN>";
  	}
- 	if (remaining_bytes) {
- 		value = 0;
- 		memcpy(&value, (u8 *)buf32, remaining_bytes);
--		hid_set_field(report->field[field_index], i,
--			      (__force __s32)cpu_to_le32(value));
-+		ret = hid_set_field(report->field[field_index], i,
-+				    (__force __s32)cpu_to_le32(value));
-+		if (ret)
-+			goto done_proc;
- 	}
- 	hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
- 	hid_hw_wait(hsdev->hdev);
 -- 
 2.30.2
 

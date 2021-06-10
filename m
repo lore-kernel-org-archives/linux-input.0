@@ -2,103 +2,88 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33828C47094
-	for <linux-input@archiver.kernel.org>; Thu, 10 Jun 2021 06:22:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15845C47094
+	for <linux-input@archiver.kernel.org>; Thu, 10 Jun 2021 13:53:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 11D94613EC
-	for <linux-input@archiver.kernel.org>; Thu, 10 Jun 2021 06:22:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EF2B7613FE
+	for <linux-input@archiver.kernel.org>; Thu, 10 Jun 2021 13:53:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229925AbhFJGYG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 10 Jun 2021 02:24:06 -0400
-Received: from mga17.intel.com ([192.55.52.151]:10611 "EHLO mga17.intel.com"
+        id S231217AbhFJNzO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 10 Jun 2021 09:55:14 -0400
+Received: from relais.etsmtl.ca ([142.137.1.25]:54158 "EHLO relais.etsmtl.ca"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229778AbhFJGYF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Jun 2021 02:24:05 -0400
-IronPort-SDR: mq1UJxuc1IV2w1XkST+/nzGEmjtex+Vpyf1Gfcj3Xj/SFzvLTgAYK7PVsKripuY2kKJ9Rg+GMJ
- jVfng+ZOu4ZQ==
-X-IronPort-AV: E=McAfee;i="6200,9189,10010"; a="185610269"
-X-IronPort-AV: E=Sophos;i="5.83,262,1616482800"; 
-   d="scan'208";a="185610269"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2021 23:22:10 -0700
-IronPort-SDR: uqd8o3yUzwQcQv82l5+O7O6CqraZQJ+nf8hXev/W3s5quidbY85zYrebySqcejH+0PAHCWzfx2
- 965lfUz23SRA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,262,1616482800"; 
-   d="scan'208";a="482702912"
-Received: from shsensorbuild2.sh.intel.com ([10.239.132.180])
-  by orsmga001.jf.intel.com with ESMTP; 09 Jun 2021 23:22:08 -0700
-From:   Even Xu <even.xu@intel.com>
-To:     srinivas.pandruvada@linux.intel.com, jikos@kernel.org,
-        benjamin.tissoires@redhat.com
-Cc:     linux-input@vger.kernel.org, Even Xu <even.xu@intel.com>
-Subject: [PATCH 3/3] hid: intel-ish-hid: ipc: Specify that EHL no cache snooping
-Date:   Thu, 10 Jun 2021 14:21:54 +0800
-Message-Id: <1623306114-19208-4-git-send-email-even.xu@intel.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1623306114-19208-1-git-send-email-even.xu@intel.com>
-References: <1623306114-19208-1-git-send-email-even.xu@intel.com>
+        id S230329AbhFJNzN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 10 Jun 2021 09:55:13 -0400
+Content-Type: text/plain; charset="UTF-8"
+DKIM-Signature: v=1; a=rsa-sha256; d=etsmtl.ca; s=bbb; c=relaxed/relaxed;
+        t=1623333196; h=from:subject:to:date:ad-hoc;
+        bh=j3oCbljVfV3a5vZ7w621ARkBBGcGHNysssfAUWTOSB8=;
+        b=Ac12XPsIJ9B3G3Otax9h+AYRd+yfUEwK/EpqYL8GmoMtWkU++OAvdtlXoMQLVYLw3UYDNa2RiNx
+        Z14pzLePCaHzqKnTPMz2WBQj2QGVCuBJlkw6HqcvPQ2Dar53oVT2k6NGxKXFQB8YDckm0TRdNY0lv
+        +La8cUAXVuHb7W9oRoc=
+X-Gm-Message-State: AOAM532kQkpUghnIxewNTJOhNB9h6Xpt7wPsJrFwbowrELl1rqxg8X5z
+        WUsodlSm1cuEZXiR/mT2FG2CwM3bwB5U9l/G83s=
+X-Google-Smtp-Source: ABdhPJzal31zP8KEgxyDpJyVOOU/6Ae9/Vny59ZdLcQpjpXZV2H9rt6ezM6+/iqFE0LlNEnlsJ8o9vX+51/M2ujY/QI=
+X-Received: by 2002:aca:3bc5:: with SMTP id i188mr3573052oia.72.1623333196029;
+ Thu, 10 Jun 2021 06:53:16 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210604161023.1498582-1-pascal.giard@etsmtl.ca>
+ <YLsdEtbAWJxLB+GF@kroah.com> <CAJNNDmk7z=aJtx00C+8kpBOk0j_XVOk2fDMG9Xf9Na_ChXM2OA@mail.gmail.com>
+ <YMGhotmI1kHFe3gL@kroah.com>
+In-Reply-To: <YMGhotmI1kHFe3gL@kroah.com>
+From:   Pascal Giard <pascal.giard@etsmtl.ca>
+Date:   Thu, 10 Jun 2021 09:53:04 -0400
+X-Gmail-Original-Message-ID: <CAJNNDmmz60qn+AXWD7423T62DoO-gC8KjrtLmfyR0o4vWzhZfw@mail.gmail.com>
+Message-ID: <CAJNNDmmz60qn+AXWD7423T62DoO-gC8KjrtLmfyR0o4vWzhZfw@mail.gmail.com>
+Subject: Re: [PATCH] HID: sony: fix freeze when inserting ghlive ps3/wii dongles
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>,
+        Daniel Nguyen <daniel.nguyen.1@ens.etsmtl.ca>
+X-Originating-IP: [142.137.250.50]
+X-ClientProxiedBy: FacteurA.ad.etsmtl.ca (10.162.28.14) To
+ FacteurB.ad.etsmtl.ca (10.162.28.15)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Specify that EHL doesn't support DMA cache snooping.
+On Thu, Jun 10, 2021 at 1:25 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Jun 09, 2021 at 08:25:47PM -0400, Pascal Giard wrote:
+>
+> > I apologize for failing to follow the procedure. I had already read
+> > these guidelines, and I actually thought I was following Option 1 :-/
+>
+> Is this commit already in Linus's tree?  If so then we just need a git
+> commit id and we can queue it up.
 
-Acked-by: Pandruvada, Srinivas <srinivas.pandruvada@intel.com>
-Signed-off-by: Even Xu <even.xu@intel.com>
----
- drivers/hid/intel-ish-hid/ipc/ipc.c | 26 +++++++++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+No, it isn't yet. My patch has not been reviewed yet.
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 47bbeb8..89ea2ff 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -889,6 +889,29 @@ static uint32_t ish_ipc_get_header(struct ishtp_device *dev, int length,
- 	return drbl_val;
- }
- 
-+/**
-+ * _dma_no_cache_snooping()
-+ *
-+ * Check on current platform, DMA supports cache snooping or not.
-+ * This callback is used to notify uplayer driver if manully cache
-+ * flush is needed when do DMA operation.
-+ *
-+ * Please pay attention to this callback implementation, if declare
-+ * having cache snooping on a cache snooping not supported platform
-+ * will cause uplayer driver receiving mismatched data; and if
-+ * declare no cache snooping on a cache snooping supported platform
-+ * will cause cache be flushed twice and performance hit.
-+ *
-+ * @dev: ishtp device pointer
-+ *
-+ * Return: false - has cache snooping capability
-+ *         true - no cache snooping, need manually cache flush
-+ */
-+static bool _dma_no_cache_snooping(struct ishtp_device *dev)
-+{
-+	return dev->pdev->device == EHL_Ax_DEVICE_ID;
-+}
-+
- static const struct ishtp_hw_ops ish_hw_ops = {
- 	.hw_reset = _ish_hw_reset,
- 	.ipc_reset = _ish_ipc_reset,
-@@ -897,7 +920,8 @@ static const struct ishtp_hw_ops ish_hw_ops = {
- 	.write = write_ipc_to_queue,
- 	.get_fw_status = _ish_read_fw_sts_reg,
- 	.sync_fw_clock = _ish_sync_fw_clock,
--	.ishtp_read_hdr = _ishtp_read_hdr
-+	.ishtp_read_hdr = _ishtp_read_hdr,
-+	.dma_no_cache_snooping = _dma_no_cache_snooping
- };
- 
- /**
--- 
-2.7.4
+> > I thought that I had to get my patch merged into next first (patch
+> > against dtor's git) and that by adding stable@ as CC, it would
+> > automatically get considered for inclusion into stable once merged
+> > into Linus' tree. Based on your email, I got that wrong...
+>
+> It will, but you need to add that to the signed-off-by: area, as the
+> document says.
 
+Oh dear, that's the bit I missed.
+
+At this point I assume that I should not resubmit a patch (to avoid
+unnecessary noise) and patiently wait for a review, e.g., by Jiri, for
+it to be included in next.
+From there, I'll try to do the right thing (CC stable in the
+signed-off area) shall a new version be necessary or follow option 2
+with the commit id when it gets merged to Linus' tree.
+
+Once again, my apologies for failing to follow the procedure and thank
+you for your patience.
+
+-Pascal

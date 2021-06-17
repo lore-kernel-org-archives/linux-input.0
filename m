@@ -2,85 +2,179 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93DFEC49361
-	for <linux-input@archiver.kernel.org>; Wed, 16 Jun 2021 18:02:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDBB5C49361
+	for <linux-input@archiver.kernel.org>; Thu, 17 Jun 2021 06:35:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 655C26128C
-	for <linux-input@archiver.kernel.org>; Wed, 16 Jun 2021 18:02:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A9B4613ED
+	for <linux-input@archiver.kernel.org>; Thu, 17 Jun 2021 06:35:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbhFPSEw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 16 Jun 2021 14:04:52 -0400
-Received: from mail-io1-f44.google.com ([209.85.166.44]:45820 "EHLO
-        mail-io1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230291AbhFPSEw (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 16 Jun 2021 14:04:52 -0400
-Received: by mail-io1-f44.google.com with SMTP id k5so114576iow.12;
-        Wed, 16 Jun 2021 11:02:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=BwJG53yeIKpwmHLQ3ka5oXerXYUJ0GJWceYTPITcxG0=;
-        b=G8PF7SVH8texhIx/BwQMUBT1Aphw9z5PnDHCCL1aTjXU96D0FuREqEDB9UnhliKmg6
-         3DAq/HtKgf05HThVja7f9KwOLsCpgWfBcigMob9kmmY4DhETBrRmKhmXsW2wBgG8SwQN
-         Gj7A2eevXaTaB16gAeluc9va7iIxJMYJpcOGNNE39ycYWUGfei4BCjQp3V681gk+RI+F
-         fo3uypFb5CxfT4iiDCPGAFxFdbX6NHr5eU+tNNNYZ2YbT2kqgWV1fqG2rzImbnchv/f8
-         uc9YRgZU1Hjx9B5cGmk+ssEThD5kXCCHP1JA7xMAr/k68ol6XAkdf8yHXTT0Mu18p67r
-         sjdA==
-X-Gm-Message-State: AOAM533f29xGc1Z9Ia+Jz5SLdxMKpanrVSgbWkdSnAohkj38f034UpLY
-        1fVmnOgVarF7wEc5JBqYeyg0mYNyTg==
-X-Google-Smtp-Source: ABdhPJyNJ4hbhowQxMaqjBKIJh8+VQAdyz5O3aEnc7NVjg6pZ3FhmJ+XTvjahMVuYHzbCajW+WmBVw==
-X-Received: by 2002:a02:cc89:: with SMTP id s9mr575167jap.43.1623866565691;
-        Wed, 16 Jun 2021 11:02:45 -0700 (PDT)
-Received: from robh.at.kernel.org ([64.188.179.248])
-        by smtp.gmail.com with ESMTPSA id d7sm1397131ilv.79.2021.06.16.11.02.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jun 2021 11:02:44 -0700 (PDT)
-Received: (nullmailer pid 3626047 invoked by uid 1000);
-        Wed, 16 Jun 2021 18:02:43 -0000
-Date:   Wed, 16 Jun 2021 12:02:43 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Geert Uytterhoeven <geert+renesas@glider.be>
-Cc:     linux-input@vger.kernel.org,
+        id S229580AbhFQGhW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Jun 2021 02:37:22 -0400
+Received: from mout01.posteo.de ([185.67.36.65]:53817 "EHLO mout01.posteo.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229616AbhFQGhW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 17 Jun 2021 02:37:22 -0400
+Received: from submission (posteo.de [89.146.220.130]) 
+        by mout01.posteo.de (Postfix) with ESMTPS id 890A0240029
+        for <linux-input@vger.kernel.org>; Thu, 17 Jun 2021 08:35:13 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=posteo.de; s=2017;
+        t=1623911713; bh=Rix5p6l8HyutxEZr8GYcwxQSpTiMNmdvzeXhAkc/AME=;
+        h=Subject:From:To:Cc:Date:From;
+        b=EDrws93aNSb3qb7Jqr9jusfmok/e8fMoF1w3EZxbPb2GkEZX1M25vIywS6S3FU2Xu
+         XU+aoAdXmDkTu+yat+MZs/fvr4WzW09v0AtGxR4U6fbLrzXRCAun6M+0InOk4jkbad
+         oIQj+r7UqADZF35h7x8z3qP0gSpveEGmKhvUOy6joYx+hisZ9TU4tF/bh2QY6Vn+7c
+         8ceDwYY+qBs4YM7PoyiPHCy51XUgLysjwkd181r0vDcqFP4aB5DUudHVYnyfmTOhbr
+         nbwXtR7rgp3/W5ohzO0cb1O2r2G4Zi65KAaY1nlSS1rpfhUoXQGCDifWzH2yEr+suQ
+         qRK+vjnn45PYw==
+Received: from customer (localhost [127.0.0.1])
+        by submission (posteo.de) with ESMTPSA id 4G5C3N2bGNz6tm9;
+        Thu, 17 Jun 2021 08:35:12 +0200 (CEST)
+Message-ID: <4765dc6042a4c9fad7c33ffde9e802bcbace6282.camel@posteo.de>
+Subject: Re: [PATCH] dt-bindings: input: touchscreen: st1232: Convert to
+ json-schema
+From:   Martin Kepplinger <martink@posteo.de>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, Joe Hung <joe_hung@ilitek.com>,
-        devicetree@vger.kernel.org, Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH] dt-bindings: input: touchscreen: ilitek_ts_i2c: Absorb
- ili2xxx bindings
-Message-ID: <20210616180243.GA3624758@robh.at.kernel.org>
-References: <c381ee2526074e02b6058c489f85cfdaee582713.1623419587.git.geert+renesas@glider.be>
+        Bastian Hecht <hechtb@gmail.com>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org
+Date:   Thu, 17 Jun 2021 06:35:02 +0000
+In-Reply-To: <fbba650cff07780c28ad6dd8dbef5cc1451b7762.1623418065.git.geert+renesas@glider.be>
+References: <fbba650cff07780c28ad6dd8dbef5cc1451b7762.1623418065.git.geert+renesas@glider.be>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c381ee2526074e02b6058c489f85cfdaee582713.1623419587.git.geert+renesas@glider.be>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 11 Jun 2021 15:54:27 +0200, Geert Uytterhoeven wrote:
-> While Linux uses a different driver, the Ilitek
-> ILI210x/ILI2117/ILI2120/ILI251x touchscreen controller Device Tree
-> binding documentation is very similar.
-> 
->   - Drop the fixed reg value, as some controllers use a different
->     address,
->   - Make reset-gpios optional, as it is not always wired.
+Am Freitag, dem 11.06.2021 um 15:30 +0200 schrieb Geert Uytterhoeven:
+> Convert the Sitronix st1232/st1633 touchscreen controller Device Tree
+> binding documentation to json-schema.
 > 
 > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 > ---
->  .../bindings/input/ilitek,ili2xxx.txt         | 27 -------------------
->  .../input/touchscreen/ilitek_ts_i2c.yaml      |  7 +++--
->  2 files changed, 5 insertions(+), 29 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/input/ilitek,ili2xxx.txt
+>  .../input/touchscreen/sitronix,st1232.yaml    | 50
+> +++++++++++++++++++
+>  .../input/touchscreen/sitronix-st1232.txt     | 28 -----------
+>  2 files changed, 50 insertions(+), 28 deletions(-)
+>  create mode 100644
+> Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.y
+> aml
+>  delete mode 100644
+> Documentation/devicetree/bindings/input/touchscreen/sitronix-
+> st1232.txt
 > 
+> diff --git
+> a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232
+> .yaml
+> b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232
+> .yaml
+> new file mode 100644
+> index 0000000000000000..1d8ca19fd37ae3fc
+> --- /dev/null
+> +++
+> b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232
+> .yaml
+> @@ -0,0 +1,50 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id:
+> http://devicetree.org/schemas/input/touchscreen/sitronix,st1232.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Sitronix st1232 or st1633 touchscreen controller
+> +
+> +maintainers:
+> +  - Bastian Hecht <hechtb@gmail.com>
+> +
+> +allOf:
+> +  - $ref: touchscreen.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - sitronix,st1232
+> +      - sitronix,st1633
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  gpios:
+> +    description: A phandle to the reset GPIO
+> +    maxItems: 1
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    i2c {
+> +            #address-cells = <1>;
+> +            #size-cells = <0>;
+> +
+> +            touchscreen@55 {
+> +                    compatible = "sitronix,st1232";
+> +                    reg = <0x55>;
+> +                    interrupts = <2 0>;
+> +                    gpios = <&gpio1 166 0>;
+> +            };
+> +    };
+> diff --git
+> a/Documentation/devicetree/bindings/input/touchscreen/sitronix-
+> st1232.txt
+> b/Documentation/devicetree/bindings/input/touchscreen/sitronix-
+> st1232.txt
+> deleted file mode 100644
+> index 019373253b28c08c..0000000000000000
+> --- a/Documentation/devicetree/bindings/input/touchscreen/sitronix-
+> st1232.txt
+> +++ /dev/null
+> @@ -1,28 +0,0 @@
+> -* Sitronix st1232 or st1633 touchscreen controller
+> -
+> -Required properties:
+> -- compatible: must contain one of
+> -  * "sitronix,st1232"
+> -  * "sitronix,st1633"
+> -- reg: I2C address of the chip
+> -- interrupts: interrupt to which the chip is connected
+> -
+> -Optional properties:
+> -- gpios: a phandle to the reset GPIO
+> -
+> -For additional optional properties see: touchscreen.txt
+> -
+> -Example:
+> -
+> -       i2c@00000000 {
+> -               /* ... */
+> -
+> -               touchscreen@55 {
+> -                       compatible = "sitronix,st1232";
+> -                       reg = <0x55>;
+> -                       interrupts = <2 0>;
+> -                       gpios = <&gpio1 166 0>;
+> -               };
+> -
+> -               /* ... */
+> -       };
 
-One driver or 2, I don't care from a binding perspective if sharing 
-works.
+Acked-by: Martin Kepplinger <martink@posteo.de>
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+thank you!
+

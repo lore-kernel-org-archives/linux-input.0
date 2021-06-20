@@ -2,148 +2,129 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80FAAC48BDF
-	for <linux-input@archiver.kernel.org>; Sun, 20 Jun 2021 06:08:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60E3DC48BDF
+	for <linux-input@archiver.kernel.org>; Sun, 20 Jun 2021 12:01:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6510E61040
-	for <linux-input@archiver.kernel.org>; Sun, 20 Jun 2021 06:08:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3394C6113E
+	for <linux-input@archiver.kernel.org>; Sun, 20 Jun 2021 12:01:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbhFTGKa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 20 Jun 2021 02:10:30 -0400
-Received: from mx-lax3-2.ucr.edu ([169.235.156.37]:46344 "EHLO
-        mx-lax3-2.ucr.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbhFTGK3 (ORCPT
+        id S229587AbhFTMDZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 20 Jun 2021 08:03:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48018 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229581AbhFTMDY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 20 Jun 2021 02:10:29 -0400
-X-Greylist: delayed 426 seconds by postgrey-1.27 at vger.kernel.org; Sun, 20 Jun 2021 02:10:29 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=ucr.edu; i=@ucr.edu; q=dns/txt; s=selector3;
-  t=1624169298; x=1655705298;
-  h=mime-version:references:in-reply-to:from:date:message-id:
-   subject:to:cc;
-  bh=ca2COAjHKL7+OCkgt+dQm/iTK6CkVF0mlcxAWJfZ2rg=;
-  b=iInZqJIbytEzJf82+61m5JbFihtJyS6KNAH/ouanSOSouFS/w64xjNnm
-   Zb8aWHiEovvCZkCGfdKLVef0Mza/0wB8PvMrwiRxq3wP0PR1RazJAM6Jx
-   nGKBtkIFq5W/N6UyT2q3tnEj3+E/8bD3eTtwCNXzqN+PAb0z04aERgz2Q
-   LEdfnbI0yK91KCvJdnsOg27fn/YASGWhwU0iasjglaUJ/qAuw1Niv8poN
-   13FgkriETx4n1qGStrjcuMEYvWqmoVj/bVk9wU1gtaPhbO1hJwzg7N61W
-   N0sWq9KhtqYJGttUB9SONtUe1hC6vWG1K8aE2MO95U2ZckZBQJduZ8f6n
-   Q==;
-IronPort-SDR: JZkaohqGSgVWGfkmIJ9QmpU7jcsBOW0vcud5ouytbuFQqUvJd/+ilApnxnwD/2Z+/kVc7rAbvm
- zzErgvSdHZaFfmlPUME1AafH7dtOAwN5sdm1IeyfzhJnzJoZMqivFVdookdl7h65h72OHQnCpe
- 8sS4ny01pfN7Ehtrr1L6qttngvDsNq2tXd1UFhhsPBRVvSahgC4sORGnaHRKe3K6hNW4zPsBiJ
- 24ZCP2qIYd7wTiYE3iz6K+F1Hj5hvt3vS+DHnqIwy/83IK5m76KCXt8u9B+PLj/AoWEY+NPC27
- kUQ=
-X-IPAS-Result: =?us-ascii?q?A2HXAwBk2c5ggEjYVdFagQmFT2yESJFxikuLQYc7AgkBA?=
- =?us-ascii?q?QEPQQQBAYRQAoJuAiU4EwIEAQEBAQMCAwEBAQEFAQEGAQEBAQEBBQQBAQIQA?=
- =?us-ascii?q?QFuhS9GgjgpAYNtAQEBAxIRVhALCw0CAiYCAiEBEgEFARwGEyKCT4JWAy+ZQ?=
- =?us-ascii?q?YEEPYsygTKBAYdVDUwBCQ2BYhJ+KocJhmEngimBS4I3Nj6CIIU7gmQEhBhua?=
- =?us-ascii?q?YIyAQEBnkScDFoBBgKDBRySF4YMhVsrg16LJ4VvkH4thjWePZFRg0MQI4FIg?=
- =?us-ascii?q?X4zGiV/BmeBS1AZDp0NJC84AgYKAQEDCY00AQE?=
-IronPort-PHdr: A9a23:cdAs1RDHjWDOQhD3fqGcUyQUekMY04WdBeb1wqQuh78GSKm/5ZOqZ
- BWZuaw8ygSSA86Csq8MotGVmpioYXYH75eFvSJKW713fDhBt/8rmRc9CtWOE0zxIa2iRSU7G
- MNfSA0tpCnjYgBaF8nkelLdvGC54yIMFRXjLwp1Ifn+FpLPg8it2O2+5pnebx9GiTezYL5+I
- wi6oRjRu8ILnYZsN6E9xwfTrHBVYepW32RoJVySnxb4+Mi9+YNo/jpTtfw86cNOSL32cKskQ
- 7NWCjQmKH0169bwtRbfVwuP52ATXXsQnxFVHgXK9hD6XpP2sivnqupw3TSRMMPqQbwoXzmp8
- rxmQwH0higZKzE58XnXis1ug6JdvBKhvAF0z4rNbI2IKPZyYqbRcNUHTmRDQ8lRTTRMDYyyb
- 4QND+QPM+VWoZTjqVQStha+GRWgCfnzxjNUmnP736s32PkhHwHc2wwgGsoDv3bVrNT0NKcST
- Oe1x7TLwjXDdfxW2Cr25Y/IcxEgofGDR7NwfdbNxUQhDA7Fk0mfqZb/MzyLy+sNrnGW4ux9X
- u2gl2ApsRt+oiSzxsgykInJgJoYx1/A+Ch9wIs7K8O0RUF/bNCrE5ZduC+XOot4T84+Qmxlp
- Cc3x7MFtJKmYSUG1ZcqygDRZvGIcIWF/xztWfuNLDp+mXlre6q/ig6s/US8zuDwTMq53VZQo
- iZbj9XBt2oB2h7N5sWBV/Bz5F2u2SyV2ADW8uxEJEc0mrfFJJM52b4wk4YTsVzEHi/rhEX6l
- K+WeVsg+uiv8+nnZ6/ppp6YN4NtkgH+MLkiltWxAek6LAQCRWeb+eO71L3s+U32Xq9GgeExk
- qncqJzaJMIbqbClAwJNzIov9xKyAy2l3dkYh3ULMk9JdROdg4XrJV3COPX4Au2+g1Sonjdr3
- ffGPrj5D5TNL3nDkK3ufbdh50JAxgc+1s1f6I5OCr0bPv38R1LxuMTCDhAlKwy03/rnCNJl2
- 4MaWGKPBLKZMazLvV+J4OIvO/SMZJMOtTbjJPgq+eTugWU6mVADZ6mp24UYaHSiEvRhOUWZb
- imkvtBUPWILohAvBNDtklqBUTlNLyK+WqMg/CB9FIW8CoTDQZ6Fj7mI3SP9FZpTMDNoEFeJR
- EbpZYWZXL8+aCuTaptwgDwNVOD5EKc83gvouQPnnek0ZtHI8zEV4MqwnON+4PfewFRrrWQcM
- g==
-IronPort-HdrOrdr: A9a23:5SS6JKqB625R1KYYMPJ7IqcaV5oQeYIsimQD101hICG9vPbo7v
- xG/c5rrSMc5wxhPU3I9erwWpVoBEmslqKdgrNxAV7BZniDhILAFugLhrcKgQeBJ8SUzJ876U
- 4PSdkZNDQyNzVHZATBijVQ3+xO/DBPyszHudvj
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-AV: E=Sophos;i="5.83,286,1616482800"; 
-   d="scan'208";a="49513137"
-Received: from mail-pj1-f72.google.com ([209.85.216.72])
-  by smtp-lax3-2.ucr.edu with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Jun 2021 23:01:11 -0700
-Received: by mail-pj1-f72.google.com with SMTP id z3-20020a17090a4683b029015f6c19f126so9579455pjf.1
-        for <linux-input@vger.kernel.org>; Sat, 19 Jun 2021 23:01:10 -0700 (PDT)
+        Sun, 20 Jun 2021 08:03:24 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD30AC061574;
+        Sun, 20 Jun 2021 05:01:07 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id m18so16275930wrv.2;
+        Sun, 20 Jun 2021 05:01:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4RUYewpS29ETOvUxb+NczxmZJGUDZdUQNsR1o2uZhLQ=;
+        b=a4P03FHp/G5xoH/Qz+baVm74UVa5M2x393f/xxz/Aeji9liEJZnnCG39pO0nPjrNQ1
+         HL3TmGiPA7XDoH0uoVV/DUgDy7U0nWt491sUtZ0hsx9qgVmINZoB1+D+vFicZhrYrt3G
+         ExMC927QkRbueiCv0xGLzMejZN1TuQAYsTfM3OghISZ1Cu4pF0CNVGbcuSUSVLSuTy8T
+         A8RG+xhbcC1LfC3GAH1Vydmryz5MJv33dhN05yu2vB5e+IvCDibqO/z5EuhDP+HUTzC1
+         tCVx6rZ4PtH0DQyDYHhOKtmBK6ek4sthmHWdnlSijDtqLFXyDk7eHqq1NPSXLQiHl5Yw
+         fBJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sbFMlSU8VOH+3s30vncOXVUKJU1McKhQjkr8IIeWaNk=;
-        b=kHtGogwQim29BKP4tkgWfClgsXmE4Pma0Wm58OQ4w1idc9PGUTq9RG6yz1vKt/3upv
-         WrooYkuIswR4mJFnrpsWE7aRiSA6zRpp+H+mC9n2kdVWi3YMkrWprBKqDjDuo3N6ywne
-         NzvMplqrRzf4nAdbAMowTcICRwXKCx06Wp36cTkR9dh+wR7soX7rE4+RI8X4iO12VX3x
-         VXxAHqnuAJ06kgsmTb41oEbuftJWuK9RjBUPq1WrfSxZr7fo/qcg3+Owh46udfeEKDxH
-         kaZQcFSmt+SOR9sBRmg9l2XVjWeQx3R7I5LD5K79XsnpnwwVY4GzSueCBJs7kv/FkwwW
-         4h5w==
-X-Gm-Message-State: AOAM530wyDqEU2tryuZc+wi2PUP7Qk7XqM4/rvEkTAf8Z7MKGaFuMfM8
-        jVCYPTp9AFsENd9xt4BReeHzDk6vAn0xH6ktVur8NHT5LwgvxSfBeiiV2mwH7/oMKGllufcw8pG
-        UdjhkAPDlvxmCEOcfOFiqTYPhf1zB+YmSEI2TDSJr
-X-Received: by 2002:a63:805:: with SMTP id 5mr17808118pgi.353.1624168870254;
-        Sat, 19 Jun 2021 23:01:10 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzD9PEuA2dT9jWZUEPhmwSRvJzCmrsGK5wEPE61ZuokJ1CUZk9YPzk0ucz0jUcMkSU2fTyYcxnEWHxpVFbtSI0=
-X-Received: by 2002:a63:805:: with SMTP id 5mr17808101pgi.353.1624168869944;
- Sat, 19 Jun 2021 23:01:09 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4RUYewpS29ETOvUxb+NczxmZJGUDZdUQNsR1o2uZhLQ=;
+        b=HQyPzblhG4y8+EH1RwCfDH5FpNk3nnpBoDIRItuh6/PkQcRIidy7eHVfGlFfOf/xq0
+         cEBv7c5f4FdZC5Y2U9slyHTzDU9M4nPh14YEFKFhmZ/J3fpVMCYHRz+D8Mxic1eRQ4NQ
+         wklDud7Pc1VmBxulqJRYtfZO8LUC94KAPP139v41JHbfpfLDsP3/ttDwY1ooke3t3j1y
+         dhu/K2Teu4GOyFJZcP4d5xbRs42H3afb6d+vceOiJVpEjnPYl3RW1ITzjEtTIYsJrs4U
+         Ai+t8mKZODadBevSobDYn/boWqtuaFW7c6n1uJI04tRNCldwvyESHE7pE2BjskwsdLCB
+         Pzbw==
+X-Gm-Message-State: AOAM533b7RqFHtIA9KKtJbl8nnVwTiS3KeR5s9g13x48AHLWhlXawV3o
+        jN6yfOHtsQy1omeCfwq+UZ0=
+X-Google-Smtp-Source: ABdhPJxn24sxYO+VPoCxfseNeeXud7waSRMknBi4iozf/4cYOfphYDXBrvmRU+m/a5xEXz7qB/LnpA==
+X-Received: by 2002:a5d:538c:: with SMTP id d12mr22500253wrv.116.1624190465604;
+        Sun, 20 Jun 2021 05:01:05 -0700 (PDT)
+Received: from allarkin.tlv.csb ([176.230.197.133])
+        by smtp.googlemail.com with ESMTPSA id j34sm12640807wms.7.2021.06.20.05.01.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 20 Jun 2021 05:01:05 -0700 (PDT)
+From:   Alexander Larkin <avlarkin82@gmail.com>
+To:     dmitry.torokhov@gmail.com, dan.carpenter@oracle.com,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        security@kernel.org
+Cc:     Alexander Larkin <avlarkin82@gmail.com>,
+        Murray McAllister <murray.mcallister@gmail.com>
+Subject: [PATCH]     Input: joydev - prevent potential write out of bounds in ioctl
+Date:   Sun, 20 Jun 2021 15:00:30 +0300
+Message-Id: <20210620120030.1513655-1-avlarkin82@gmail.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-References: <CABvMjLRxy1yqXUOWqTTeq=UOsLtuPAyOSCi4SPgcbAqjMuWCCg@mail.gmail.com>
- <YM7NzYgEl8NhU36H@google.com> <YM7RkI8fvpkfwAGA@google.com> <YM7ToLeaDajmBiwi@google.com>
-In-Reply-To: <YM7ToLeaDajmBiwi@google.com>
-From:   Yizhuo Zhai <yzhai003@ucr.edu>
-Date:   Sat, 19 Jun 2021 23:00:59 -0700
-Message-ID: <CABvMjLTP+Vh0cTDLU72Q-64f4DWQAp8-7DZ9GTBtoiqnKsaChA@mail.gmail.com>
-Subject: Re: [PATCH] Input: hideep - fix the uninitialized use in hideep_nvm_unlock()
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Anthony Kim <anthony.kim@hideep.com>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dimitry:
+    The problem is that the check of user input values that is just
+    before the fixed line of code is for the part of first values
+    (before len or before len/2), but then the usage of all the values
+    including i >= len (or i >= len/2) could be.
+    Since the resulted array of values inited by default with some
+    good values, the fix is to ignore out of bounds values and
+    just to use only correct input values by user.
+    Originally detected by Murray with this simple poc
+    (If you run the following as an unprivileged user on a default install
+     it will instantly panic the system:
 
-Sorry for the inconvenience, I would build the changes next time.
-Thanks for your help : )
+int main(void) {
+	int fd, ret;
+	unsigned int buffer[10000];
 
-On Sat, Jun 19, 2021 at 10:35 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> On Sat, Jun 19, 2021 at 10:26:40PM -0700, Dmitry Torokhov wrote:
-> > On Sat, Jun 19, 2021 at 10:10:37PM -0700, Dmitry Torokhov wrote:
-> > > On Wed, Jun 16, 2021 at 03:48:51PM -0700, Yizhuo Zhai wrote:
-> > > > Inside function hideep_nvm_unlock(), variable "unmask_code" could
-> > > > be uninitialized if hideep_pgm_r_reg() returns error, however, it
-> > > > is used in the later if statement after an "and" operation, which
-> > > > is potentially unsafe.
-> > >
-> > > I think this is pretty sensible, but let's see if the original author
-> > > has some comments...
-> >
-> > I guess not. Oh well...
-> >
-> > Applied, thank you.
->
-> Note that I had to make some changes to make it compile. Please next
-> time try building your changes before posting them,
->
-> Thanks.
->
-> --
-> Dmitry
+	fd = open("/dev/input/js0", O_RDONLY);
+	if (fd == -1)
+		printf("Error opening file\n");
 
+	ret = ioctl(fd, JSIOCSBTNMAP & ~IOCSIZE_MASK, &buffer);
+	printf("%d\n", ret);
+}
 
+Fixes: 182d679b2298 ("Input: joydev - prevent potential read overflow in ioctl")
+Reported-by: Murray McAllister <murray.mcallister@gmail.com>
+Signed-off-by: Alexander Larkin <avlarkin82@gmail.com>
+---
+ drivers/input/joydev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index da8963a9f044..1aa067d4a3e8 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -464,7 +464,7 @@ static int joydev_handle_JSIOCSAXMAP(struct joydev *joydev,
+ 
+ 	memcpy(joydev->abspam, abspam, len);
+ 
+-	for (i = 0; i < joydev->nabs; i++)
++	for (i = 0; i < len && i < joydev->nabs; i++)
+ 		joydev->absmap[joydev->abspam[i]] = i;
+ 
+  out:
+@@ -498,7 +498,7 @@ static int joydev_handle_JSIOCSBTNMAP(struct joydev *joydev,
+ 
+ 	memcpy(joydev->keypam, keypam, len);
+ 
+-	for (i = 0; i < joydev->nkey; i++)
++	for (i = 0; i < (len / 2) && i < joydev->nkey; i++)
+ 		joydev->keymap[keypam[i] - BTN_MISC] = i;
+ 
+  out:
 -- 
-Kind Regards,
+2.27.0
 
-Yizhuo Zhai
-
-Computer Science, Graduate Student
-University of California, Riverside

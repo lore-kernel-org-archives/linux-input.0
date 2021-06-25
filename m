@@ -2,191 +2,310 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFCDDC49EA5
-	for <linux-input@archiver.kernel.org>; Thu, 24 Jun 2021 15:59:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01637C2B9F4
+	for <linux-input@archiver.kernel.org>; Fri, 25 Jun 2021 09:08:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D467E613EB
-	for <linux-input@archiver.kernel.org>; Thu, 24 Jun 2021 15:59:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DCF726141C
+	for <linux-input@archiver.kernel.org>; Fri, 25 Jun 2021 09:08:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbhFXQBp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 24 Jun 2021 12:01:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50688 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232477AbhFXQBo (ORCPT
+        id S230456AbhFYJLH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Jun 2021 05:11:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41486 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230126AbhFYJLH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Jun 2021 12:01:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1624550364;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Oirb5aqEE/FIh9229Zdnjuw30cGe9kA4LxvC7z5oeI0=;
-        b=Nk95XZDh/2tbwJJeAkaTaRUqAsGthHSCmNYUxwDac3zBl0EOgTcRW6TiHhJX9mJO/t65Na
-        1e6T8XboXXXPjyq0NqYxaeT0i1hdIZd2KzXgdNyYGeW45Seg+IEfr8Vuw8rK8/mQSef7/J
-        Q3ZVqxDJZz6vci7Mf3jOe1zuVkv8wkI=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-581-VBkZlY4_OIeYuFFiyZMI_Q-1; Thu, 24 Jun 2021 11:59:23 -0400
-X-MC-Unique: VBkZlY4_OIeYuFFiyZMI_Q-1
-Received: by mail-ed1-f69.google.com with SMTP id dy23-20020a05640231f7b0290394996f1452so3599363edb.18
-        for <linux-input@vger.kernel.org>; Thu, 24 Jun 2021 08:59:23 -0700 (PDT)
+        Fri, 25 Jun 2021 05:11:07 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE2DC061574
+        for <linux-input@vger.kernel.org>; Fri, 25 Jun 2021 02:08:46 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id d11so9829978wrm.0
+        for <linux-input@vger.kernel.org>; Fri, 25 Jun 2021 02:08:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=nQLpNqH9Q62lwj8TZnGuZUrf+AHa/sGCjIjmBPI4YLA=;
+        b=BSAkzAD/IQkhEK31HU/2IDIiYcQqS6oHPOpUV1+wrYbmDiWG2bQ5uq4P4Bc+RFGHnm
+         sXxrX3e85Bz/kUeIHq7G365T1ujKrG8VxDcxCq2wLTiRo2dxROWmFLUw4uhYPIeyZBeS
+         LeRhgi6kC7YFzwvWghlpkh1aSsyxkvWH4+eJhY3Oa89kLMbmvHv03VuMIZKM2fw71Hkq
+         4KtcmRy8jGSkULnpsPF64FbXjdHX4H/noHjzlI7Fz51193EE39/1nDOC2ydu4eR7Phdx
+         r7ZEGsZnd0L6y5He0OJ/f7EV9Op4I0BEs66HYL59V1VZ6XaAEDk/b/Y3fiTKo98g/qfl
+         SKPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Oirb5aqEE/FIh9229Zdnjuw30cGe9kA4LxvC7z5oeI0=;
-        b=jCq3Etg5SRhsbu4RdKBa+7oou/I1+el6jLeaGNe1QiJS0G/Qfjfqd7q6csqBz871wt
-         j14yNvotQMCQYb5gDZBurPRiDmSlODdEjgTq6l7QeviEbigpulgpPoGZmGmZi+18BSfX
-         VQGF2KraB0ym7Sbcg0pHd2NR+RgW6OvbmwvVH7o6J6KbwltJP21I4pYzTk4fsSdjZpM8
-         0mdcl53RCS/svcpS2u1RT30ZZkl0tfsl/dJFk70GRhNGGDzpfCMAxs2tnVA8bPtmWL2s
-         SORgBoe2r7g5kobQ2kNVUGoMM4f8KmgVDY5X1Xc6ajH45OgMdC7Obmt0eo0L28IjJG9r
-         3gpQ==
-X-Gm-Message-State: AOAM532dv+nnfzAhVfQgzHpzQwWZiw22QuwgjXpZYx8tdZfAC4xefUnX
-        r+Y7OCAM2yY9csRxhp+I4gsCf42GNETZr8KXXafP3mqysOucJJ7pxMgQJtwSg2SzAvG/W5qhme0
-        qKzc31zaodLdWCYFKN5r5wg5QA8EW1U6fBQDxwi8RCdHGX6wjKX/0JSXjRzRTg24kd6lnIKypob
-        0=
-X-Received: by 2002:a17:906:bfc9:: with SMTP id us9mr5871400ejb.493.1624550362037;
-        Thu, 24 Jun 2021 08:59:22 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwi/wquDtoCf1Y3hWYbv2tCwspY9KDEWR6vtO2+yvAm1Tb55LMEy/e9MiBuO4qT1Z+8C5yiOA==
-X-Received: by 2002:a17:906:bfc9:: with SMTP id us9mr5871380ejb.493.1624550361797;
-        Thu, 24 Jun 2021 08:59:21 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id ee47sm2214062edb.51.2021.06.24.08.59.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Jun 2021 08:59:21 -0700 (PDT)
-Subject: Re: [PATCH 1/4] HID: core: Add hid_hw_may_wakeup() function
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>
-Cc:     linux-input@vger.kernel.org
-References: <20210529151424.12212-1-hdegoede@redhat.com>
- <20210529151424.12212-2-hdegoede@redhat.com>
- <1837eed3-8f99-d9be-0d35-d4b21c0e6f4e@redhat.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <e578896a-52a5-63e2-cf59-fd18d6d0da8f@redhat.com>
-Date:   Thu, 24 Jun 2021 17:59:20 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
-MIME-Version: 1.0
-In-Reply-To: <1837eed3-8f99-d9be-0d35-d4b21c0e6f4e@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=nQLpNqH9Q62lwj8TZnGuZUrf+AHa/sGCjIjmBPI4YLA=;
+        b=t6GVJ3/liEf9LwmE1EF1EcUOyc0gNDSR4jKgXxCsQRfEkR/IsyY7HVilaO/pvHvObi
+         L7WnoYrem4OuAGvNjn3iPPs3EqCu5cqHCFjZ213nqr//QQp4vG8TJsrJsmxelCrjAcFq
+         fEQ9XJl663JcHtbaunsVKWxhrksZCm1b3T+Slpr1avFW4RY8Ao2jOBMIYYeCeHOISOTI
+         yAxoXr4hYu5XiZFKo+N0N9NTwr7NybMVOa+iZ3I8Bh03qorD3hwgIvL2YWw7NHcGYdtv
+         lCTaelUiEbH9I3U3k2IEYO0c38smtHakCA1q3yQVd0yropP9clcEhdJOgFstItnI3DUg
+         wooQ==
+X-Gm-Message-State: AOAM5315QfqxBpHwoiT2NmKqpSzl/fJ+yc+EMNqpE/RcTh+jMQ48B9mZ
+        FfzdepyiHejlq/cch3W/hPgR/A==
+X-Google-Smtp-Source: ABdhPJxXwokYZLNq6LacatgZqVkC/CbmvmkBE+J7bbcbvei303DZmRAc+Ywf0Cm8p0/CBcDkUoEsMg==
+X-Received: by 2002:a05:6000:246:: with SMTP id m6mr9734723wrz.116.1624612124921;
+        Fri, 25 Jun 2021 02:08:44 -0700 (PDT)
+Received: from localhost.localdomain ([2a01:e0a:82c:5f0:78f0:ea41:c81:639b])
+        by smtp.gmail.com with ESMTPSA id n29sm51879wms.34.2021.06.25.02.08.43
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 25 Jun 2021 02:08:43 -0700 (PDT)
+From:   Loic Poulain <loic.poulain@linaro.org>
+To:     nick@shmanahar.org, dmitry.torokhov@gmail.com
+Cc:     linux-input@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>
+Subject: [PATCH] Input: atmel_mxt_ts: Add selftest support
+Date:   Fri, 25 Jun 2021 11:18:47 +0200
+Message-Id: <1624612727-31762-1-git-send-email-loic.poulain@linaro.org>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+Add selftest support via T25 function. Selftest is exposed as a sysfs
+attribute which can be written with a test code and read to get the
+test result (PASS or FAIL).
 
-On 6/24/21 2:16 PM, Benjamin Tissoires wrote:
-> Hi Hans,
-> 
-> On 5/29/21 5:14 PM, Hans de Goede wrote:
->> Add a hid_hw_may_wakeup() function, which is the equivalent of
->> hid_hw_may_wakeup() for hid devices.
-> 
-> nitpick here, but I think the second `hid_hw_may_wakeup()` is probably wrong.
+The supported test codes seem to be device specific, so refer to the
+device documentation for getting an exhausive list.
 
-Right, the second `hid_hw_may_wakeup()` here should be
-`device_may_wakeup()`. Jiri can you fix this up while applying
-or do you want a new version ?
+So far I've validated the following tests:
+Signal limit test: code 0x17
+AVdd test: code 0x01
+All tests: code 0xfe
+pin-fault test: code 0x12 (or 0x11)
 
->> In most cases this just returns device_may_wakeup(hdev->dev.parent),
->> but for some ll-drivers this is not correct. E.g. usb_hid_driver
->> instantiated hid devices have their parent set to the usb-interface
->> to which the usb_hid_driver is bound, but the power/wakeup* sysfs
->> attributes are part of the usb-device, which is the usb-interface's
->> parent.
-> 
-> I never spent enough time in suspend/resume. But isn't the big consumer of wakeup sources be USB? Is there a point having a generic return path when returning false earlier will keep the same code path for all other transport layers (I2C and bluetooth)?
+Example:
+$ echo 0x17 > /sys/bus/i2c/devices/*/selftest
+$ cat /sys/bus/i2c/devices/*/selftest
+PASS
 
-I can see why you primarily associate wakeup-sources with USB, but
-pretty much any device can be a wakeup-source, e.g. embedded-controllers
-typically are wakeup sources, network-cards can be wakeup-sources, etc.
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 133 +++++++++++++++++++++++++++++++
+ 1 file changed, 133 insertions(+)
 
-One relevant HID example would be an I2C-HID attached keyboard which is
-configured to wake the system from suspend on a keypress.
-
-At least the Toshiba Click Mini L9W-B is using an I2C-HID keyboard and
-I'm sure there are others.
-
-So it seems best here to not make any assumptions and in cases where
-the device which is expected to have the power/wakeup* sysfs attributes
-is simply the direct parent of the hid-device call device_may_wakeup()
-on hdev->dev.parent. Note that in many cases this will indeed simply
-return false, which is fine. But in e.g. the i2c-hid attached keyboard
-it might return true.
-
-Regards,
-
-Hans
-
-
-
-> Other than those two questions, I like the series and the approach to not break the existing:
-> 
-> For the series:
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> Cheers,
-> Benjamin
-> 
->>
->> For these special cases a new may_wakeup callback is added to
->> hid_ll_driver, so that ll-drivers can override the default behavior.
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>   include/linux/hid.h | 18 ++++++++++++++++++
->>   1 file changed, 18 insertions(+)
->>
->> diff --git a/include/linux/hid.h b/include/linux/hid.h
->> index 271021e20a3f..4d2b2212f079 100644
->> --- a/include/linux/hid.h
->> +++ b/include/linux/hid.h
->> @@ -800,6 +800,7 @@ struct hid_driver {
->>    * @raw_request: send raw report request to device (e.g. feature report)
->>    * @output_report: send output report to device
->>    * @idle: send idle request to device
->> + * @may_wakeup: return if device may act as a wakeup source during system-suspend
->>    */
->>   struct hid_ll_driver {
->>       int (*start)(struct hid_device *hdev);
->> @@ -824,6 +825,7 @@ struct hid_ll_driver {
->>       int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len);
->>         int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
->> +    bool (*may_wakeup)(struct hid_device *hdev);
->>   };
->>     extern struct hid_ll_driver i2c_hid_ll_driver;
->> @@ -1149,6 +1151,22 @@ static inline int hid_hw_idle(struct hid_device *hdev, int report, int idle,
->>       return 0;
->>   }
->>   +/**
->> + * hid_may_wakeup - return if the hid device may act as a wakeup source during system-suspend
->> + *
->> + * @hdev: hid device
->> + */
->> +static inline bool hid_hw_may_wakeup(struct hid_device *hdev)
->> +{
->> +    if (hdev->ll_driver->may_wakeup)
->> +        return hdev->ll_driver->may_wakeup(hdev);
->> +
->> +    if (hdev->dev.parent)
->> +        return device_may_wakeup(hdev->dev.parent);
->> +
->> +    return false;
->> +}
->> +
->>   /**
->>    * hid_hw_wait - wait for buffered io to complete
->>    *
->>
-> 
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 05de92c..12dfeb8 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -222,6 +222,13 @@ enum t100_type {
+ 
+ #define MXT_PIXELS_PER_MM	20
+ 
++#define MXT_T25_RESULT_STATUS_SUCCESS   0xFE
++#define MXT_T25_RESULT_STATUS_INVALID   0xFD
++#define MXT_T25_RESULT_STATUS_NOAVDD    0x01
++#define MXT_T25_RESULT_STATUS_PINFAULT  0x11
++#define MXT_T25_RESULT_STATUS_PINFAULT2 0x12
++#define MXT_T25_RESULT_STATUS_SIGFAULT  0x17
++
+ struct mxt_info {
+ 	u8 family_id;
+ 	u8 variant_id;
+@@ -266,6 +273,11 @@ enum mxt_suspend_mode {
+ 	MXT_SUSPEND_T9_CTRL	= 1,
+ };
+ 
++struct t25_result_msg {
++	u8 status;
++	u8 info[5];
++} __packed;
++
+ /* Config update context */
+ struct mxt_cfg {
+ 	u8 *raw;
+@@ -328,6 +340,8 @@ struct mxt_data {
+ 	u8 T9_reportid_max;
+ 	u16 T18_address;
+ 	u8 T19_reportid;
++	u16 T25_address;
++	u8 T25_reportid;
+ 	u16 T44_address;
+ 	u8 T100_reportid_min;
+ 	u8 T100_reportid_max;
+@@ -341,6 +355,9 @@ struct mxt_data {
+ 	/* for config update handling */
+ 	struct completion crc_completion;
+ 
++	/* store selftest result */
++	struct t25_result_msg t25_result;
++
+ 	u32 *t19_keymap;
+ 	unsigned int t19_num_keys;
+ 
+@@ -999,6 +1016,41 @@ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
+ 	data->update_input = true;
+ }
+ 
++static void mxt_proc_t25_message(struct mxt_data *data, u8 *msg)
++{
++	struct device *dev = &data->client->dev;
++
++	memcpy(&data->t25_result, &msg[1], sizeof(data->t25_result));
++
++	if (data->t25_result.status == MXT_T25_RESULT_STATUS_SUCCESS)
++		return;
++
++	switch (data->t25_result.status) {
++	case MXT_T25_RESULT_STATUS_INVALID:
++		dev_err(dev, "Invalid test code\n");
++		break;
++	case MXT_T25_RESULT_STATUS_NOAVDD:
++		dev_err(dev, "AVdd is not present\n");
++		break;
++	case MXT_T25_RESULT_STATUS_PINFAULT:
++	case MXT_T25_RESULT_STATUS_PINFAULT2:
++		dev_err(dev, "Pin fault (seqnum=%02x)\n",
++			data->t25_result.info[0]);
++		break;
++	case MXT_T25_RESULT_STATUS_SIGFAULT:
++		dev_err(dev, "Signal limit fault\n");
++		break;
++	default:
++		dev_err(dev, "Status %02x\n", data->t25_result.status);
++		break;
++	}
++
++	dev_err(dev, "info: %02x %02x %02x %02x %02x\n",
++		data->t25_result.info[1], data->t25_result.info[2],
++		data->t25_result.info[3], data->t25_result.info[4],
++		data->t25_result.info[5]);
++}
++
+ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ {
+ 	u8 report_id = message[0];
+@@ -1023,6 +1075,8 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id == data->T19_reportid) {
+ 		mxt_input_button(data, message);
+ 		data->update_input = true;
++	} else if (report_id == data->T25_reportid) {
++		mxt_proc_t25_message(data, message);
+ 	} else {
+ 		mxt_dump_message(data, message);
+ 	}
+@@ -1231,6 +1285,36 @@ static int mxt_t6_command(struct mxt_data *data, u16 cmd_offset,
+ 	return 0;
+ }
+ 
++static int mxt_t25_command(struct mxt_data *data, u8 test_code)
++{
++	int timeout_counter = 0;
++	u16 reg;
++	int ret;
++	u8  val[2];
++
++	reg = data->T25_address;
++	val[0] = 0x3;
++	val[1] = test_code;
++
++	ret = __mxt_write_reg(data->client, reg, sizeof(val), val);
++	if (ret)
++		return ret;
++
++	do {
++		msleep(100);
++		ret = __mxt_read_reg(data->client, reg, sizeof(val), &val);
++		if (ret)
++			return ret;
++	} while ((val[1] != 0) && (timeout_counter++ <= 20));
++
++	if (timeout_counter > 20) {
++		dev_err(&data->client->dev, "Command failed!\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++
+ static int mxt_acquire_irq(struct mxt_data *data)
+ {
+ 	int error;
+@@ -1691,6 +1775,8 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	data->T9_reportid_max = 0;
+ 	data->T18_address = 0;
+ 	data->T19_reportid = 0;
++	data->T25_address = 0;
++	data->T25_reportid = 0;
+ 	data->T44_address = 0;
+ 	data->T100_reportid_min = 0;
+ 	data->T100_reportid_max = 0;
+@@ -1767,6 +1853,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 		case MXT_SPT_COMMSCONFIG_T18:
+ 			data->T18_address = object->start_address;
+ 			break;
++		case MXT_SPT_SELFTEST_T25:
++			data->T25_address = object->start_address;
++			data->T25_reportid = min_id;
++			break;
+ 		case MXT_SPT_MESSAGECOUNT_T44:
+ 			data->T44_address = object->start_address;
+ 			break;
+@@ -3002,16 +3092,59 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	return count;
+ }
+ 
++static ssize_t mxt_selftest_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++
++	if (!data->T25_address)
++		return -EOPNOTSUPP;
++
++	if (!data->t25_result.status)
++		return -ENODATA;
++
++	if (data->t25_result.status == MXT_T25_RESULT_STATUS_SUCCESS)
++		return scnprintf(buf, PAGE_SIZE, "PASS\n");
++
++	return scnprintf(buf, PAGE_SIZE, "FAIL\n");
++}
++
++static ssize_t mxt_selftest_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	u8 test_code;
++	int ret;
++
++	if (!data->T25_address)
++		return -EOPNOTSUPP;
++
++	/* Refer to documentation for available seltest codes */
++	if (kstrtou8(buf, 0, &test_code))
++		return -EINVAL;
++
++	data->t25_result.status = 0;
++
++	ret = mxt_t25_command(data, test_code);
++	if (ret)
++		return ret;
++
++	return count;
++}
++
+ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
++static DEVICE_ATTR(selftest, S_IWUSR | S_IRUGO, mxt_selftest_show, mxt_selftest_store);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+ 	&dev_attr_hw_version.attr,
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_fw.attr,
++	&dev_attr_selftest.attr,
+ 	NULL
+ };
+ 
+-- 
+2.7.4
 

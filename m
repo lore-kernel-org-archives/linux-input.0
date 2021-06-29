@@ -2,81 +2,114 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D709C49EA5
-	for <linux-input@archiver.kernel.org>; Sat, 26 Jun 2021 23:34:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3E24C11F64
+	for <linux-input@archiver.kernel.org>; Tue, 29 Jun 2021 02:30:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 47E4261C47
-	for <linux-input@archiver.kernel.org>; Sat, 26 Jun 2021 23:34:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B106661D01
+	for <linux-input@archiver.kernel.org>; Tue, 29 Jun 2021 02:30:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229794AbhFZXg5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 26 Jun 2021 19:36:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37526 "EHLO
+        id S231194AbhF2Cc6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 28 Jun 2021 22:32:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229630AbhFZXg5 (ORCPT
+        with ESMTP id S230152AbhF2Cc6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 26 Jun 2021 19:36:57 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D9F1C061574
-        for <linux-input@vger.kernel.org>; Sat, 26 Jun 2021 16:34:34 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id i6so10708099pfq.1
-        for <linux-input@vger.kernel.org>; Sat, 26 Jun 2021 16:34:34 -0700 (PDT)
+        Mon, 28 Jun 2021 22:32:58 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83E90C061574
+        for <linux-input@vger.kernel.org>; Mon, 28 Jun 2021 19:30:31 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id l11so11452163pji.5
+        for <linux-input@vger.kernel.org>; Mon, 28 Jun 2021 19:30:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=s8N2p8L5R1nG2E0L2JYaFBMMPQDbT9/NBvassGgx7tA=;
-        b=g8kF88cfVzNu+D66itZ0zykP+q476q75XBjceWJJb8rJDGcEcFVd2Zpd0l6B548OWs
-         JNx1+1qlJd8xUNCv3Glw3KVC/VHPLVYyuG6LvhhIZEhZhOC5AtEe+uRURuu495PBpQOu
-         oEZbeJ9Kox7BQTUX1pcQDBKteJbxySe8w7zd/LR5H69+fLI9O/2ppRZ2WpZxCjHY+Bf5
-         qR0Iiw/ssP8M5lM+5V4BAgPlgoBj7qsSQKOctki6zfZUhlF3W97NsAH6ivM7zLoegS3z
-         H4RRCk13NKqJ7rM+lxuFlbdGl9u51HfhAhwgcK3NsLjzH1HaQmiJqcVFtZfhzdFwYUUu
-         yc0g==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=PGw82epzk6iSPnchds6h6A2TxOtpwKsb733CwTt40/8=;
+        b=JY2U0Vu2UIfTd34jGxmHb1oET48immRTchOyMGpeS2UJI6jxqeUS5zWWUuxFyTXq9T
+         U3MXT2zbN+Fofuo1uW5oApsE+u7zBPi9SkECLNUt4IMA+tHK14k1WpdNwXkXKDs8AQXn
+         xOMe/Vynd+71N76pL7bNh7bL40S/j85/ZTNfTIRC2kCJ5Yt9MiGoT51m5Mc7LCc22dKd
+         6k2J5x7OTAD15j6I8CkD6RtDb1Sq/8truZJwqNaCD6+o99OMrj+fZzbb27oTMZXvslhW
+         Ddtzpp2Of+1lrzAaBZPnUjPxsL3z2nW/1eY6V3ydgxQlxJ4Ztbeqv7bxUL+CgGUKAmoE
+         I1wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=s8N2p8L5R1nG2E0L2JYaFBMMPQDbT9/NBvassGgx7tA=;
-        b=X3PiTef3y8yNhWwmF5czrq2k6EoOlPbrkthLRZI9rzZ8sEWBqjQeZPlw82oFTW1NPD
-         a8HTj9CMg5EJxr5TC0xw0MtuepvelpK6C5qIfTD/cgdNyO3LTq5kneZ0NlZ6fwr7xmgN
-         WZKnviZQ6OfqlAd+WFpeVJsEgWUm51t1ExGIM+ZkifkgQnL0YFpUMGXRCKaysHUz/0VW
-         2pVwCmVD4NL9mnpLTb9MbWym+613u76NbHdvMhFyCofFwIOFmv98NabqH1jdD83btgyA
-         ShTaH3gcdZ7TfOi1Vf9INqoy2p74E+OHRwkcENGkCFa0PFMqTVvxVvM/6y+fakFnbtvS
-         iyng==
-X-Gm-Message-State: AOAM530sDO5TayVzWr09Hm3ejUAk8tSbadWabHigEAnNjj1OgJ4OE64q
-        4T3la8QXqpjmUK/ckHgdnWrDhZCRwmfuLLSSs9w=
-X-Google-Smtp-Source: ABdhPJyycYNIXjx5w9c7Bf16O5J70tFoAbfiJnflbD8BF4h4re9r/8wQjCDV7zAFwKTkmFnHVRyv3drxxd7Y+c1iFg0=
-X-Received: by 2002:a62:8fc3:0:b029:304:7b0a:a2b7 with SMTP id
- n186-20020a628fc30000b02903047b0aa2b7mr17414717pfd.46.1624750472052; Sat, 26
- Jun 2021 16:34:32 -0700 (PDT)
-MIME-Version: 1.0
-From:   Dylan MacKenzie <ecstaticmorse@gmail.com>
-Date:   Sat, 26 Jun 2021 16:34:21 -0700
-Message-ID: <CAHpHHjbnhAnhkq-G1UbtjP=SB24FVnEtsXqkT8_ZTb7UD8j_kA@mail.gmail.com>
-Subject: Re: [PATCH 0/3] Add SFH sensor support for newer AMD platforms
-To:     jikos@kernel.org
-Cc:     Basavaraj.Natikar@amd.com, Nehal-Bakulchandra.shah@amd.com,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
-        shyam-sundar.s-k@amd.com
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=PGw82epzk6iSPnchds6h6A2TxOtpwKsb733CwTt40/8=;
+        b=awCzpuPGgZ0CayXwHF/bdp0gl7ayk0CH+FSVllS9HirdnOAYPYLnKqVh9aRiPqvVh2
+         B7Ihw9uoh0kWj2PhjZLYT6uD0ZuiqGoBNsXBa7HhqqvgPY7KcPD8yuKxsldLXdQO1alw
+         xDVusnXbyxONjXY+8kJ6vaIMJJWk9NywW6MkaMz96RgTbCi2sfJ0M5Y6+rAy56xfZqqb
+         Tba4pCslG+DXS4Qv291MczRLsDzm6IdFz3TdnAqtj3F1vLZdiIdfSjN8Doe96u2UQ6Kq
+         8DqKy64vS9T54eMvUPLMYMlDseWGmLrOtcMoE6JCTWD8xFuMfTN1+eUDqKpByor3lOfs
+         95pw==
+X-Gm-Message-State: AOAM533f+kk74njmdgr6BVk3Nb0nHapvgBA9kqamXmXrCfEl/c0Quki7
+        jkOF6DM5qJpxrCTy6DbReVp9hw==
+X-Google-Smtp-Source: ABdhPJwQEr5P4K0ooyHKsDKfvju7BRWTsVcUOJEympAC2jzZeoqSeyptwYERNOTZn2laKSjhduBbFQ==
+X-Received: by 2002:a17:90a:400f:: with SMTP id u15mr42067759pjc.86.1624933830957;
+        Mon, 28 Jun 2021 19:30:30 -0700 (PDT)
+Received: from localhost.localdomain (80.251.214.228.16clouds.com. [80.251.214.228])
+        by smtp.gmail.com with ESMTPSA id v69sm17397130pfc.18.2021.06.28.19.30.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Jun 2021 19:30:30 -0700 (PDT)
+From:   Shawn Guo <shawn.guo@linaro.org>
+To:     Nick Dyer <nick@shmanahar.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Loic Poulain <loic.poulain@linaro.org>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Shawn Guo <shawn.guo@linaro.org>
+Subject: [PATCH] Input: atmel_mxt_ts - add config_crc sysfs entry
+Date:   Tue, 29 Jun 2021 10:30:23 +0800
+Message-Id: <20210629023023.32017-1-shawn.guo@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-> Now queued in for-5.14/amd-sfh. Thanks,
+It's useful for checking the config version that is currently installed
+on the device.
 
-FYI, this patch still uses the wrong register in `amd_sensor_stop_v2`.
-Basavaraj confirmed this, but my email client didn't CC the list for
-that conversation. Whoops!
+The code is taken from downstream maXTouch_linux tree.
 
-Also, I've tested this locally on an HP Envy x360 with a Ryzen 4700U
-(Renoir) and it doesn't work even though the new code paths are taken.
-My `activecontrolstatus`, the register containing the sensor mask
-along with the newly checked hardware ID in the lower four bits, is
-`0x002bdff2`. Just like before, three IIO devices are initialized, but
-the first read from the DMA buffers returns a constant, garbage value,
-and all subsequent reads return zeroes. I assume that this patch is
-working on whatever hardware the OP is using to test. Should it be
-working on all Renoir systems?
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 05de92c0293b..41a3d4df3ebd 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -3002,16 +3002,27 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	return count;
+ }
+ 
++/* Configuration crc check sum is returned as hex xxxxxx */
++static ssize_t mxt_config_crc_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++
++	return scnprintf(buf, PAGE_SIZE, "%06x\n", data->config_crc);
++}
++
+ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
++static DEVICE_ATTR(config_crc, S_IRUGO, mxt_config_crc_show, NULL);
+ 
+ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_fw_version.attr,
+ 	&dev_attr_hw_version.attr,
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_fw.attr,
++	&dev_attr_config_crc.attr,
+ 	NULL
+ };
+ 
+-- 
+2.17.1
+

@@ -7,39 +7,41 @@ X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16D88C11F6F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6CA5C11F73
 	for <linux-input@archiver.kernel.org>; Mon,  5 Jul 2021 15:30:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F1D0E61997
-	for <linux-input@archiver.kernel.org>; Mon,  5 Jul 2021 15:30:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BCDFC61990
+	for <linux-input@archiver.kernel.org>; Mon,  5 Jul 2021 15:30:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbhGEPdW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S232252AbhGEPdW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 5 Jul 2021 11:33:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58400 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232166AbhGEPck (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:32:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B94DF61986;
-        Mon,  5 Jul 2021 15:30:02 +0000 (UTC)
+        id S232546AbhGEPcr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:32:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9162619C8;
+        Mon,  5 Jul 2021 15:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499003;
-        bh=rrd+/5m+XlZ0KDdlO/QC2mj8cTFCxMABq/dve2gKSus=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HnVoknjJefw21tPX7he7+MJjan35c7mhqDJbwcF+4DHYqBAZApvmH/9UkqyX30EpW
-         ua31ogeMhvwhgnZEhS656gWa1FXPVOU4JeibpzEAUqBqHkFYNpaEDWqRKTkqZJzHSy
-         HeOmSSYT8JwADdJaMZuLbUGFykqi1zaV7Bg3nORLsChOkbQkg06iI0cdtk+wEO2f4f
-         ZFt119OmKf+8XijHZ7R+kWXp0AEU9TYhQffnecgMxZc4Y0RQAQEELlRl05RW0b+dPa
-         b//sGaV6pY5Zs3DeGJd51hliEx3vdoInZ7pZ49UGT5zAA6y528tZ+jwHHFi+h6qx3d
-         7m79xHBK2DiMg==
+        s=k20201202; t=1625499010;
+        bh=VKOJSyVDFgfKJRBNIrvLF5o2jZGSt9PNpLQ8gcEGNQc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ruAZ5xlqNVrEy/u6ZeSItd4D07hmXmvNvsOCstN1nki8LlqWuEZuDTNO/0iad+C98
+         h4q/oC6H8xxvT6NkGpKIgepxBX+T/IvN0W7usMjQkgIWgqoIqqlzDJf2+K2vcio+7U
+         eSs8YfLS6vZjMzqnHTxy+8kLb0o0inVYsY2yDbiQtFcFZ8J4J7A0Wk5hxLGmramjYQ
+         5f9v3ja8mGtJUNh4iHFz9CCxPpFlLT8c4fISgmO5US0YKYSDdFkk7QrYwQj9yXmuId
+         PmDH7D/mRvuYEfFAAgIvoocaC22HGuHyyFAvWAzbP/rVEvZjpyOY7B9IZ6FKRjJm/2
+         OW5G0Dh5GgBtQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/41] HID: do not use down_interruptible() when unbinding devices
-Date:   Mon,  5 Jul 2021 11:29:21 -0400
-Message-Id: <20210705153001.1521447-1-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 07/41] platform/x86: touchscreen_dmi: Add an extra entry for the upside down Goodix touchscreen on Teclast X89 tablets
+Date:   Mon,  5 Jul 2021 11:29:27 -0400
+Message-Id: <20210705153001.1521447-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210705153001.1521447-1-sashal@kernel.org>
+References: <20210705153001.1521447-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -48,51 +50,45 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f2145f8dc566c4f3b5a8deb58dcd12bed4e20194 ]
+[ Upstream commit a22e3803f2a4d947ff0083a9448a169269ea0f62 ]
 
-Action of unbinding driver from a device is not cancellable and should not
-fail, and driver core does not pay attention to the result of "remove"
-method, therefore using down_interruptible() in hid_device_remove() does
-not make sense.
+Teclast X89 tablets come in 2 versions, with Windows pre-installed and with
+Android pre-installed. These 2 versions have different DMI strings.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Add a match for the DMI strings used by the Android version BIOS.
+
+Note the Android version BIOS has a bug in the DSDT where no IRQ is
+provided, so for the touchscreen to work a DSDT override fixing this
+is necessary as well.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210504185746.175461-4-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/platform/x86/touchscreen_dmi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 0f69f35f2957..5550c943f985 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2306,12 +2306,8 @@ static int hid_device_remove(struct device *dev)
- {
- 	struct hid_device *hdev = to_hid_device(dev);
- 	struct hid_driver *hdrv;
--	int ret = 0;
- 
--	if (down_interruptible(&hdev->driver_input_lock)) {
--		ret = -EINTR;
--		goto end;
--	}
-+	down(&hdev->driver_input_lock);
- 	hdev->io_started = false;
- 
- 	hdrv = hdev->driver;
-@@ -2326,8 +2322,8 @@ static int hid_device_remove(struct device *dev)
- 
- 	if (!hdev->io_started)
- 		up(&hdev->driver_input_lock);
--end:
--	return ret;
-+
-+	return 0;
- }
- 
- static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index e52ff09b81de..ebae21b78327 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -1285,6 +1285,14 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "X3 Plus"),
+ 		},
+ 	},
++	{
++		/* Teclast X89 (Android version / BIOS) */
++		.driver_data = (void *)&gdix1001_00_upside_down_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "WISKY"),
++			DMI_MATCH(DMI_BOARD_NAME, "3G062i"),
++		},
++	},
+ 	{
+ 		/* Teclast X89 (Windows version / BIOS) */
+ 		.driver_data = (void *)&gdix1001_01_upside_down_data,
 -- 
 2.30.2
 

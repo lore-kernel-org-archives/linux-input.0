@@ -2,107 +2,65 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E50C1C07E9C
-	for <linux-input@archiver.kernel.org>; Sun, 11 Jul 2021 10:03:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4E7CC07E99
+	for <linux-input@archiver.kernel.org>; Mon, 12 Jul 2021 08:10:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BE56161283
-	for <linux-input@archiver.kernel.org>; Sun, 11 Jul 2021 10:03:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AA3E2613B2
+	for <linux-input@archiver.kernel.org>; Mon, 12 Jul 2021 08:10:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230498AbhGKKFz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 11 Jul 2021 06:05:55 -0400
-Received: from mail.z3ntu.xyz ([128.199.32.197]:49418 "EHLO mail.z3ntu.xyz"
+        id S1351027AbhGLINI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 12 Jul 2021 04:13:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229800AbhGKKFz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 11 Jul 2021 06:05:55 -0400
-X-Greylist: delayed 339 seconds by postgrey-1.27 at vger.kernel.org; Sun, 11 Jul 2021 06:05:53 EDT
-Received: by mail.z3ntu.xyz (Postfix, from userid 182)
-        id 3BC02CA760; Sun, 11 Jul 2021 09:57:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1625997447; bh=GpWwGWz6u4k4mvdDD2L416E7IIFp/oI3LOwPDDMa5sA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=a3+cPsJ4Qs4lJOs2iIXzpQvjvF9VTCYF7nzXtsy2GTZe0JPlm1jDeIHBjoGHIA0rI
-         QcMJ5ZGwF5+cvgTjSx0Qo84gb0p2dzRnWD5Kyyi8zWeEnyaY6YDoTw+lqV2waZGpyC
-         rVxIoxWRcWab7cnab5GaKtc99orHCrmacyAyoqj0=
-Received: from g550jk.localnet (ip-213-127-106-58.ip.prioritytelecom.net [213.127.106.58])
-        by mail.z3ntu.xyz (Postfix) with ESMTPSA id BE702CA75D;
-        Sun, 11 Jul 2021 09:57:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1625997445; bh=GpWwGWz6u4k4mvdDD2L416E7IIFp/oI3LOwPDDMa5sA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=vRwR7OEwSAAmATtmzvsoph2OXWDWR5l/aF4GqJRscgnm3qWIyBI71G0fCdgMkxwQK
-         CJJ+ZRGz/hazf7ldz21De0Nzc6IfHTiVjiiGP23aLuMHmhFUzALLqprFMnl/5uV+1e
-         CcZSKSugsuCItbYn4bQTyV8zLUMKW8nPh9ZFrS04=
-From:   Luca Weiss <luca@z3ntu.xyz>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Shawn Guo <shawn.guo@linaro.org>
-Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
-        linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
-        Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH] Input: pm8941-pwrkey - respect reboot_mode for warm reset
-Date:   Sun, 11 Jul 2021 11:57:25 +0200
-Message-ID: <1824770.6rn2EVs8mz@g550jk>
-In-Reply-To: <20210629030509.2893-1-shawn.guo@linaro.org>
-References: <20210629030509.2893-1-shawn.guo@linaro.org>
+        id S232200AbhGLILU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:11:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 160EF6192A;
+        Mon, 12 Jul 2021 08:08:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626077305;
+        bh=D5axI1QpdvyIYgpEcT9MGTrQcsKd2iXjRFMwgVwRytA=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=QdSyplWQp0Pj/G1G6eLSGqJwuEIGWr4woRd7cO52TbJeQJPYmYAd2ASg7kRMvpKgV
+         FCrWBE4wY8C7H4rchI1FE3D44HlHH8caFlUBcoju5HfWT4pvgvp8CF5AIXw3Hn6bzG
+         Jq0AQbMxxaHQ+mWJ4T+0Dw9RIvJNC6vqXqQBTRZEL5C5VikojklH0xjlhVkfiFv7sf
+         7mP6e7phY+PEAx+/fzVE7W+z1IvIJjGy242dQHJwJgborzH/nQygnayFdRi6rsxcQs
+         IPuXvstr76R22jfgsEU06Mwk2Y7N/0Mo3TTt+uXnDso8EIHbVYFd1cohEjdyx3/wQM
+         kNe7mMTIyvXUw==
+Date:   Mon, 12 Jul 2021 10:08:14 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Dylan MacKenzie <ecstaticmorse@gmail.com>
+cc:     Basavaraj.Natikar@amd.com, Nehal-Bakulchandra.shah@amd.com,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
+        shyam-sundar.s-k@amd.com
+Subject: Re: [PATCH 0/3] Add SFH sensor support for newer AMD platforms
+In-Reply-To: <CAHpHHjbnhAnhkq-G1UbtjP=SB24FVnEtsXqkT8_ZTb7UD8j_kA@mail.gmail.com>
+Message-ID: <nycvar.YFH.7.76.2107121007410.8253@cbobk.fhfr.pm>
+References: <CAHpHHjbnhAnhkq-G1UbtjP=SB24FVnEtsXqkT8_ZTb7UD8j_kA@mail.gmail.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Shawn,
+On Sat, 26 Jun 2021, Dylan MacKenzie wrote:
 
-On Dienstag, 29. Juni 2021 05:05:09 CEST Shawn Guo wrote:
-> On some devices, e.g. Sony Xperia M4 Aqua, warm reset is used to reboot
-> device into bootloader and recovery mode.  Instead of always doing hard
-> reset, add a check on reboot_mode for possible warm reset.
+> > Now queued in for-5.14/amd-sfh. Thanks,
 > 
-> Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-> ---
->  drivers/input/misc/pm8941-pwrkey.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/misc/pm8941-pwrkey.c
-> b/drivers/input/misc/pm8941-pwrkey.c index cf8104454e74..9b14d6eb1918
-> 100644
-> --- a/drivers/input/misc/pm8941-pwrkey.c
-> +++ b/drivers/input/misc/pm8941-pwrkey.c
-> @@ -27,6 +27,7 @@
->  #define PON_PS_HOLD_RST_CTL2		0x5b
->  #define  PON_PS_HOLD_ENABLE		BIT(7)
->  #define  PON_PS_HOLD_TYPE_MASK		0x0f
-> +#define  PON_PS_HOLD_TYPE_WARM_RESET	1
->  #define  PON_PS_HOLD_TYPE_SHUTDOWN	4
->  #define  PON_PS_HOLD_TYPE_HARD_RESET	7
-> 
-> @@ -93,7 +94,10 @@ static int pm8941_reboot_notify(struct notifier_block
-> *nb, break;
->  	case SYS_RESTART:
->  	default:
-> -		reset_type = PON_PS_HOLD_TYPE_HARD_RESET;
-> +		if (reboot_mode == REBOOT_WARM)
+> FYI, this patch still uses the wrong register in `amd_sensor_stop_v2`.
+> Basavaraj confirmed this, but my email client didn't CC the list for
+> that conversation. Whoops!
 
-This doesn't compile with CONFIG_INPUT_PM8941_PWRKEY=m
+Could you please send a followup patch on top of for-5.14/amd-sfh branch 
+to fix that?
 
- ERROR: modpost: "reboot_mode" [drivers/input/misc/pm8941-pwrkey.ko] undefined!
+Thanks,
 
-Also just to clarify, this is supposed to trigger when rebooting with 
-LINUX_REBOOT_CMD_RESTART2 and adding an argument that way, right?
-
-Regards
-Luca
-
-> +			reset_type = PON_PS_HOLD_TYPE_WARM_RESET;
-> +		else
-> +			reset_type = PON_PS_HOLD_TYPE_HARD_RESET;
->  		break;
->  	}
-
-
-
+-- 
+Jiri Kosina
+SUSE Labs
 

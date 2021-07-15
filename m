@@ -2,103 +2,103 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3B3AC636C9
-	for <linux-input@archiver.kernel.org>; Thu, 15 Jul 2021 19:52:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E095FC636C9
+	for <linux-input@archiver.kernel.org>; Thu, 15 Jul 2021 19:58:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A1766613CC
-	for <linux-input@archiver.kernel.org>; Thu, 15 Jul 2021 19:52:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C609F61380
+	for <linux-input@archiver.kernel.org>; Thu, 15 Jul 2021 19:58:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239001AbhGOTza (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 15 Jul 2021 15:55:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243194AbhGOTxU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:53:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACFE661285;
-        Thu, 15 Jul 2021 19:50:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626378624;
-        bh=LnmOEh/QmwY08vtH0j+zSWjy+nvRTvi5+WyG+mdXv8M=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=o0gRcmvXS66hw+/DS1S0iu4mdsw+aVi0y2GYS3rFLgtayLS9IYuPsBlhLJ5yomBMv
-         jIc+5WsrZQx+wRk8uxwHaftLw1T11L12omRFDGW1t37MXtytpH7zlz3PjMU1XwLDjb
-         Oo4wXs+9xoJNxCT3gtFDhX4hv9DYePHMMnRKvWRdZQvZRPqqyRDmJW+i8LFJq8ZKci
-         WA+j1M49jzwD+esKcT2c938pbzoIOUYpuPBhCihLLas427PX2v3TfY8MHE1kSmVwGo
-         yHQKdmWHUxY8IYRe7QgfQb3RzouIqI+NhdQoZ6Ss/bsfHxq1/8uvW7D8NPJ/4v7y4W
-         rL5ZfLReKBbKg==
-Date:   Thu, 15 Jul 2021 21:50:21 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Douglas Anderson <dianders@chromium.org>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] HID: i2c-hid: goodix: Tie the reset line to true
- state of the regulator
-In-Reply-To: <20210625081818.v2.1.I358cae5e33f742765fd38485d6ddf1a4a978644d@changeid>
-Message-ID: <nycvar.YFH.7.76.2107152150060.8253@cbobk.fhfr.pm>
-References: <20210625081818.v2.1.I358cae5e33f742765fd38485d6ddf1a4a978644d@changeid>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S241431AbhGOUBF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 15 Jul 2021 16:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43342 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345635AbhGOT7x (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:59:53 -0400
+Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3051AC0770C8
+        for <linux-input@vger.kernel.org>; Thu, 15 Jul 2021 12:43:33 -0700 (PDT)
+Received: by mail-yb1-xb2a.google.com with SMTP id y38so11000604ybi.1
+        for <linux-input@vger.kernel.org>; Thu, 15 Jul 2021 12:43:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mORWuxqNeQ7U8jR/CCtUOf5NVtBCfXa2jZj4bYl8nfk=;
+        b=qNDafNjq4RXLuaxg7bl6omlNkm20cItvRjle+O1g4WWwkV36/5gGQW/NZ3Gu+4SrWg
+         aZIc5H1QOvIlEDs/Nd0cBb6Z8+DVmQzzYCo7/DOOcJdsPjSb5mQk5nc4NC4ZGP9T4xQU
+         xJIhJgvtYhJCNpVAL9sjQO6jx1gszNFQIUqV25i1zEOmib4C0FUA+7ozT6a+fn9LE/iq
+         s2HkL/wmWSuAPkIGw6hOiRbVxPXiP39AjfPlJjtvQ6t5kzjCFZkyGrDVdOHoI3iKWJe0
+         A/W8qh8xlNJKMjFZsRXlJ1dZ5PnWM/Vkl6w/SR0+D4mNRPbNC/au19Su/L6NndsUxkQq
+         7G8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mORWuxqNeQ7U8jR/CCtUOf5NVtBCfXa2jZj4bYl8nfk=;
+        b=JYSpWrWYOKQV++ETm5LHv6kOIxYPzXrSktS+pQzgiSgiwa66Z/fAU+S+QRSblX7Le1
+         JH2gc39YcUWS2p6lqoEXuWFwYjs5ccaxHFiBLBX0gvb6HKPj9cNH2G8J9+KkEhJSUAT9
+         7bZSZi8g5i/Nz9gT5QqGK1e/VNMruslsCbUWyr+I2UYDtM80+B2X+FgG7HBXR1bjZQt8
+         fHL+F20Digs8a2QTuHemhLvLujsQsyqcqAE358pLu7iPh3XT/dWoBWW388RWq75jy4aS
+         t87Y47d2Dhki8isvNyupRvDSlJry0BXi8NszAtsjOBrQaK9o83zIScNSJGU4V837bLKx
+         GKtA==
+X-Gm-Message-State: AOAM5323LGMQ1IpGa608nVsVWnoyz2uQbASrpedzxHYWOUWebpJLq7NZ
+        2U7w47kvYDzdMr8dduIyxrkyvlYjMnZWQLrobW4=
+X-Google-Smtp-Source: ABdhPJxRYrFjkcuznDadgVAk9vvzEMa72C0BywsxInWEXAXdZjYL5etax9+/pOzUqfcEGBpjZ6rys0phomQEje1vt4Y=
+X-Received: by 2002:a25:dbce:: with SMTP id g197mr7782098ybf.152.1626378212488;
+ Thu, 15 Jul 2021 12:43:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20210520224715.680919-1-djogorchock@gmail.com> <nycvar.YFH.7.76.2107152053100.8253@cbobk.fhfr.pm>
+In-Reply-To: <nycvar.YFH.7.76.2107152053100.8253@cbobk.fhfr.pm>
+From:   Roderick Colenbrander <thunderbird2k@gmail.com>
+Date:   Thu, 15 Jul 2021 12:43:21 -0700
+Message-ID: <CAEc3jaCHjYW+rr9L5WJAZu2gJ2RaA2uQ3=gJZKVK-Ny-dSOYWg@mail.gmail.com>
+Subject: Re: [PATCH v13 00/15] HID: nintendo
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     "Daniel J. Ogorchock" <djogorchock@gmail.com>,
+        linux-input <linux-input@vger.kernel.org>,
+        Billy Laws <blaws05@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>,
+        Siarhei Vishniakou <svv@google.com>, s.jegen@gmail.com,
+        Carl Mueller <carmueller@gmail.com>,
+        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
+        Bastien Nocera <hadess@hadess.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 25 Jun 2021, Douglas Anderson wrote:
+Hi Jiri,
 
-> The regulator for the touchscreen could be:
-> * A dedicated regulator just for the touchscreen.
-> * A regulator shared with something else in the system.
-> * An always-on regulator.
-> 
-> How we want the "reset" line to behave depends a bit on which of those
-> three cases we're in. Currently the code is written with the
-> assumption that it has a dedicated regulator, but that's not really
-> guaranteed to be the case.
-> 
-> The problem we run into is that if we leave the touchscreen powered on
-> (because someone else is requesting the regulator or it's an always-on
-> regulator) and we assert reset then we apparently burn an extra 67 mW
-> of power. That's not great.
-> 
-> Let's instead tie the control of the reset line to the true state of
-> the regulator as reported by regulator notifiers. If we have an
-> always-on regulator our notifier will never be called. If we have a
-> shared regulator then our notifier will be called when the touchscreen
-> is truly turned on or truly turned off.
-> 
-> Using notifiers like this nicely handles all the cases without
-> resorting to hacks like pretending that there is no "reset" GPIO if we
-> have an always-on regulator.
-> 
-> NOTE: if the regulator is on a shared line it's still possible that
-> things could be a little off. Specifically, this case is not handled
-> even after this patch:
-> 1. Suspend goodix (send "sleep", goodix stops requesting regulator on)
-> 2. Other regulator user turns off (regulator fully turns off).
-> 3. Goodix driver gets notified and asserts reset.
-> 4. Other regulator user turns on.
-> 5. Goodix driver gets notified and deasserts reset.
-> 6. Nobody resumes goodix.
-> 
-> With that set of steps we'll have reset deasserted but we will have
-> lost the results of the I2C_HID_PWR_SLEEP from the suspend path. That
-> means we might be in higher power than we could be even if the goodix
-> driver thinks things are suspended. Presumably, however, we're still
-> in better shape than if we were asserting "reset" the whole time. If
-> somehow the above situation is actually affecting someone and we want
-> to do better we can deal with it when we have a real use case.
-> 
-> Signed-off-by: Douglas Anderson <dianders@chromium.org>
+From my perspective the driver looked fine. For me the only thing is
+the LED naming for the player LEDs and any other LEDs. We are going
+through the same thing now for hid-playstation and need the blessing
+of our the LED maintainers.
 
-Applied, thanks Doug.
+Thanks,
+Roderick
 
--- 
-Jiri Kosina
-SUSE Labs
-
+On Thu, Jul 15, 2021 at 11:53 AM Jiri Kosina <jikos@kernel.org> wrote:
+>
+> On Thu, 20 May 2021, Daniel J. Ogorchock wrote:
+>
+> > I've neglected updating this for awhile. Not much has changed in this
+> > revision. It has a couple bug fixes caught in the prior rev in addition
+> > to altering how rumble is handled
+>
+> I have gone through this series, and haven't found anything outstanding,
+> so unless anyone voices any objections immediately, I am planning to queue
+> it for 5.15.
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>

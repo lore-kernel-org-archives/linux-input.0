@@ -2,79 +2,147 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3025BC07E9B
-	for <linux-input@archiver.kernel.org>; Mon, 19 Jul 2021 11:25:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FEACC12002
+	for <linux-input@archiver.kernel.org>; Mon, 19 Jul 2021 23:38:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0AE0A610CC
-	for <linux-input@archiver.kernel.org>; Mon, 19 Jul 2021 11:25:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C4476113E
+	for <linux-input@archiver.kernel.org>; Mon, 19 Jul 2021 23:38:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236118AbhGSKoW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 19 Jul 2021 06:44:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35492 "EHLO
+        id S1349995AbhGSW5R (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Jul 2021 18:57:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235905AbhGSKoU (ORCPT
+        with ESMTP id S1344228AbhGSUPR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Jul 2021 06:44:20 -0400
-Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBCD1C061574;
-        Mon, 19 Jul 2021 03:35:59 -0700 (PDT)
-Date:   Mon, 19 Jul 2021 13:24:57 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
-        s=mail; t=1626693897;
-        bh=yzLETKdOH+GXTMHqntXOSgnP8jsRysvUGu+IjTrezqA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QTfw+WZ5Gp0fxA2U7q3NvIAOPHoUwoCpvZB3dtczm3AZ7xYFFtmiUNV834OYITLqu
-         QI/dhl8/S2y/s0Pu5fWRPHfroiRKvtEhHZ99dFZmJOQ+222ccmcMRqMpycLQZ/Uwgo
-         O80kAy4d1hO4XwGPEKNVmj74lVLhew4klSvMPzSk=
-From:   Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, Ben Chen <ben_chen@bizlinktech.com>
-Cc:     linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] HID: cmedia: add support for HS-100B mute button
-Message-ID: <dded786c-e27e-4d78-999c-af99f3778c11@t-8ch.de>
-References: <20210719110911.310701-1-linux@weissschuh.net>
+        Mon, 19 Jul 2021 16:15:17 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30DA0C061767
+        for <linux-input@vger.kernel.org>; Mon, 19 Jul 2021 13:54:20 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id bt15so12328506pjb.2
+        for <linux-input@vger.kernel.org>; Mon, 19 Jul 2021 13:55:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=LlFQQvD8aZgpaVpFvO8lQNzn5mt/bIYYE36oNLpqeq4=;
+        b=OgypN5jJLsqNFUdY2UnHHta0Mb9q3rZ2Ei35gd91VxrgcjWQsOnyIoJRmvyc2IksqT
+         MiTR+cOijxAPMXKWthqnfGS+m4gG2QWeZK1BCfrDjYGcpLKXGvcWc4BQoJE8IXPXHWg0
+         189viG7pdoCrwjEIHa0hzAeRNMvotsdArjN1iSDlWhoirvWQVuUhxQ6QMqcjDG4MUqPQ
+         vjsg0Wqf9Zw2A3zBtgPhpVWPHrKWqarnRjsXygyrsfO+H0bibRMjnuG5nbV7PDwtQPIZ
+         KTtTGdphtLM5oHFi/Fmy1boLtdxlETz5faTfJjVtg938KnxLcMtdA5IOMEeCFSgE4BIP
+         8beg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=LlFQQvD8aZgpaVpFvO8lQNzn5mt/bIYYE36oNLpqeq4=;
+        b=MQxcdTys2gQh0QqNboNp1AJrzS1mZEzQ2d51+Up+fD9Ul29aJL2b8UZps/O4Ftx7qd
+         Z0Sla6AhEGfmoYF5Z5JOtQDMgqarIBo94sEkmter2XG9sOkAXavQ5oXFUw3mKKnHN82C
+         /a3mZnNZnNJAw89dtXtc5s+xGY8NZOFpK1cxWuTzmXttSw2A+osG8RVv8X5g3NEhG6dr
+         yxAO/aDEbCNORnUMLz3wxGOBLWQwVr/M8Lv4uUKsbQoJEFmWoJVHKf6Uc4yQ9bq2T9lR
+         HEYiL3siKeapkDFh6PR7Dm9HpUv8rBDr60pJ6oozc0A4Vw1UnaQxbK4AzAvtSisTY+ZD
+         wWvA==
+X-Gm-Message-State: AOAM532pmg60C8iJ2v/flei1U2rlz7aoRNX2+k6rt1IUtrg0v4VIDrja
+        GT9YSufS7WCp85YAzqeP+d8D+EtyDP15rg==
+X-Google-Smtp-Source: ABdhPJx2GDf8xvIy2yBm7Slbp1BC8a4NkcUBk9ufllrIUPuSS2HoJsKXZbNAMLSgG6Mx+4MK/14/EQ==
+X-Received: by 2002:a17:902:b717:b029:11a:fae3:ba7c with SMTP id d23-20020a170902b717b029011afae3ba7cmr20296937pls.28.1626728145185;
+        Mon, 19 Jul 2021 13:55:45 -0700 (PDT)
+Received: from horus.lan (71-34-86-28.ptld.qwest.net. [71.34.86.28])
+        by smtp.gmail.com with ESMTPSA id y82sm21451233pfb.121.2021.07.19.13.55.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Jul 2021 13:55:44 -0700 (PDT)
+From:   Jason Gerecke <killertofu@gmail.com>
+X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
+To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Ping Cheng <pinglinux@gmail.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>
+Subject: [PATCH 3/6] HID: wacom: Short-circuit processing of touch when it is disabled
+Date:   Mon, 19 Jul 2021 13:55:30 -0700
+Message-Id: <20210719205533.2189804-3-jason.gerecke@wacom.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210719205533.2189804-1-jason.gerecke@wacom.com>
+References: <20210719205533.2189804-1-jason.gerecke@wacom.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210719110911.310701-1-linux@weissschuh.net>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mo, 2021-07-19T13:09+0200, Thomas Weißschuh wrote:
-> These chips report mute button events in bit 4 of their report without
-> it being part of the report descriptor.
-> Use a custom descriptor that maps this bit.
-> 
-> Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-> ---
-> v1: https://lore.kernel.org/linux-input/a769ae40-6d0c-47c4-803f-2c8dbc362f24@t-8ch.de/
-> 
-> v1 -> v2:
->  * Merged into the existing cmedia driver instead of creating a dedicated
->    driver.
-> 
-> v2: https://lore.kernel.org/linux-input/20210716160659.154779-1-linux@weissschuh.net/
-> 
-> v2 -> v3:
->  * Fixed cosmetic checkpatch warnings
->  * CC-ed Ben Chen who is the original author of hid-cmedia.c
-> 
->  drivers/hid/Kconfig      |  5 +-
->  drivers/hid/hid-cmedia.c | 99 +++++++++++++++++++++++++++++++++++-----
->  drivers/hid/hid-ids.h    |  1 +
->  drivers/hid/hid-quirks.c |  1 +
->  4 files changed, 93 insertions(+), 13 deletions(-)
-> 
+Avoid doing unnecessary work when touch is disabled by detecting this
+condition and returning early. Note that the probe process sends GET
+FEATURE requests to discover e.g. HID_DG_CONTACTMAX, so we can't start
+ignoring touch reports until probe finishes.
 
-FYI:
-The Mail to Ben bounced, so we will probably have to do without his review.
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_sys.c |  1 +
+ drivers/hid/wacom_wac.c | 12 ++++++++++++
+ drivers/hid/wacom_wac.h |  1 +
+ 3 files changed, 14 insertions(+)
 
-Thomas
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 713a2504092f..93f49b766376 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -2797,6 +2797,7 @@ static int wacom_probe(struct hid_device *hdev,
+ 				 error);
+ 	}
+ 
++	wacom_wac->probe_complete = true;
+ 	return 0;
+ }
+ 
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index b87fbd2a81a6..27587070a192 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2581,6 +2581,12 @@ static void wacom_wac_finger_event(struct hid_device *hdev,
+ 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
+ 	struct wacom_features *features = &wacom->wacom_wac.features;
+ 
++	/* don't process touch events when touch is off */
++	if (wacom_wac->probe_complete &&
++	    !wacom_wac->shared->is_touch_on &&
++	    !wacom_wac->shared->touch_down)
++		return;
++
+ 	if (wacom_wac->is_invalid_bt_frame)
+ 		return;
+ 
+@@ -2630,6 +2636,12 @@ static void wacom_wac_finger_pre_report(struct hid_device *hdev,
+ 	struct hid_data* hid_data = &wacom_wac->hid_data;
+ 	int i;
+ 
++	/* don't process touch events when touch is off */
++	if (wacom_wac->probe_complete &&
++	    !wacom_wac->shared->is_touch_on &&
++	    !wacom_wac->shared->touch_down)
++		return;
++
+ 	wacom_wac->is_invalid_bt_frame = false;
+ 
+ 	for (i = 0; i < report->maxfield; i++) {
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 4e9eb0c1eff6..8b2d4e5b2303 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -337,6 +337,7 @@ struct wacom_wac {
+ 	int tool[2];
+ 	int id[2];
+ 	__u64 serial[2];
++	bool probe_complete;
+ 	bool reporting_data;
+ 	struct wacom_features features;
+ 	struct wacom_shared *shared;
+-- 
+2.32.0
+

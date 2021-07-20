@@ -2,124 +2,141 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6398C12002
-	for <linux-input@archiver.kernel.org>; Mon, 19 Jul 2021 23:39:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DF78C07E95
+	for <linux-input@archiver.kernel.org>; Tue, 20 Jul 2021 08:01:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEF68610D2
-	for <linux-input@archiver.kernel.org>; Mon, 19 Jul 2021 23:39:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 522C1611EF
+	for <linux-input@archiver.kernel.org>; Tue, 20 Jul 2021 08:01:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242799AbhGSW6V (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 19 Jul 2021 18:58:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60732 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346834AbhGSUPS (ORCPT
+        id S229922AbhGTHU4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 20 Jul 2021 03:20:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53573 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229726AbhGTHU4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Jul 2021 16:15:18 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53EEC0613DD
-        for <linux-input@vger.kernel.org>; Mon, 19 Jul 2021 13:54:22 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id 37so20472616pgq.0
-        for <linux-input@vger.kernel.org>; Mon, 19 Jul 2021 13:55:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=gJu/GAnviYn3d7aO05yfXl9ZcEPV7S5uHS4BiGszN/k=;
-        b=mzhPHFt3uwMtCvNFhbVfw4e2/KCVOMecAptKAsHsFdbKhmif8lcIDwsrtesvoX2QfS
-         /OjdWXyCr+VPv+udKjGDViVPjBK/7RHqE5N9SwBTUHLt1K91MD6b/qAHhz2ILB2JqfLN
-         pJuOL1XQgsIo1pCsoedB2XpIG6EsJVJxeHdWDX7gLZARV/OH0dM7+4i04ylRcpxyTFsZ
-         gWU4oRuir1bk/OiZe69znOdOn+eNjLZ4aJwpwBBk8HNsLj/yvjxgNCYfVC28yU55WAtJ
-         iv0xHpkvPCEKI7i9cBCWgtCwr2yLcu7pLaAw+Uj5OrSR9Zjc8odu2jFIUFl53AqQb1rR
-         Fgrg==
+        Tue, 20 Jul 2021 03:20:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626768094;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=LTrV5RbVeDNyG1pYgWpiiRkaajyN4AH34gq6Sc1Ja5U=;
+        b=NnU2ZAi7Fgxdq1HPF8do9QLB25YnmCnNYvVftLS/Zw6RvH/lizgAfEvds++Jy7YiLXW1EL
+        P4RtDsN9QAlyHWY26MJtDEsDGeR4eLE67jvgKr5hjqaV2IhxkuWzkKREEsNWZYZLG8eCti
+        A9Yet7Zfi1+LfEfoQSCTY8nyxI53cdg=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-95-D5Ab2zogM_eBavctZJ1FHA-1; Tue, 20 Jul 2021 04:01:32 -0400
+X-MC-Unique: D5Ab2zogM_eBavctZJ1FHA-1
+Received: by mail-pl1-f199.google.com with SMTP id w19-20020a1709027b93b029012b8f96f53eso1180193pll.8
+        for <linux-input@vger.kernel.org>; Tue, 20 Jul 2021 01:01:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=gJu/GAnviYn3d7aO05yfXl9ZcEPV7S5uHS4BiGszN/k=;
-        b=bZUFdoo9xxZ9m2VPtBbGW1QBaJPuJDLxTMHw+Ty0B9kBlAgwmGIGAwUljJpGLor31z
-         D+2uNLvB8P03Vq4zAl2/7d+FogRyCcuAXq3onvylm4ax+6/taQO12rm7mWtkWZiOC3Fh
-         ZR+WsmMkDO5iXHPXBsutovYhEFs8gxYicin/kaKXb6etpi6+hrbqP2Mto7FlT7h80S7U
-         ioQIfDj1Fl2WGm5XfkyeXPxJuxj7wPhFAdsis5hamOar/SMqAkEvQe4I9ISYsNctZiy7
-         +W9cNdvfSi64nyW8+PesOt6Y3fkkz8GadmkH5CrPQobyPh2QuM+UTlfdgZd7pR4+9Dxm
-         /UcQ==
-X-Gm-Message-State: AOAM530QRutFUsRF2Y60M2llTKV0ohOLhRYb8ItssWl6LllZXlU3eqhP
-        m6mf78vO7F6OWxhu2209+naE56wAp69dNg==
-X-Google-Smtp-Source: ABdhPJxGhV+hnorFKnG01wS2frQWXBnJUFAkj/zXIPHjnAJ8fWMIP0MOSJahb0li9JbVJDK3vrifWQ==
-X-Received: by 2002:a62:7c16:0:b029:329:8d4c:d12d with SMTP id x22-20020a627c160000b02903298d4cd12dmr27929794pfc.47.1626728147499;
-        Mon, 19 Jul 2021 13:55:47 -0700 (PDT)
-Received: from horus.lan (71-34-86-28.ptld.qwest.net. [71.34.86.28])
-        by smtp.gmail.com with ESMTPSA id y82sm21451233pfb.121.2021.07.19.13.55.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Jul 2021 13:55:47 -0700 (PDT)
-From:   Jason Gerecke <killertofu@gmail.com>
-X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
-To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Ping Cheng <pinglinux@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>
-Subject: [PATCH 5/6] HID: wacom: Avoid sending empty sync events
-Date:   Mon, 19 Jul 2021 13:55:32 -0700
-Message-Id: <20210719205533.2189804-5-jason.gerecke@wacom.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719205533.2189804-1-jason.gerecke@wacom.com>
-References: <20210719205533.2189804-1-jason.gerecke@wacom.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LTrV5RbVeDNyG1pYgWpiiRkaajyN4AH34gq6Sc1Ja5U=;
+        b=eQErpS16f67dcNBpPfxeeox2FyzYVy5gp2N7pWwBQuBUjKk9LNwFg8nPt9Bf09lOoD
+         XktdmtRbI+jYHnAYuXgsuB25wty4rFG/Jbjl8BVIXcckcewuszUtoYYBUuvHgm/dq1ev
+         jQuRx4g0UJHCbs0DYs485LLOTAvEMK5/7+1hYfQ66BUiV0us0tJEDG0RzqKlitIaUyQ+
+         BD5qDzyIh8ZSIrZCX5LLFAInIH8qunQHaBGMnZQT/IaiP7ojWnw46xDI+xm8SnCFGww2
+         G+87jax/uXsvnyD+DpVeocfvzi/LPRRIVB1CjYBGbZjithS4RVvhDwWmfzRgqXVbpnn7
+         EwhQ==
+X-Gm-Message-State: AOAM531tewWHNyBEkCJevXg07By8eYrNBBQtmRzb2aDiBuSuolNfgSXg
+        KG3qM0ocJqkSy5pTYthLNUnONPaN2ih+GObCJJwTMmrlUUbOZvw7MT+ouMpK6YUD+WLLTNsFzzl
+        gxo4tauyjEB67uoWAcDcnh5OJkC7c9bTgPXaYc8k=
+X-Received: by 2002:aa7:9687:0:b029:337:3b49:df24 with SMTP id f7-20020aa796870000b02903373b49df24mr21001794pfk.35.1626768091698;
+        Tue, 20 Jul 2021 01:01:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw/lz7xyoR5XNVuKo5OpMeCS8ZcA7bhLmy40KWtYzX4iPv/i5bUyo43tpWf+jLShuoE3NzooQDIy9RWJTynEGk=
+X-Received: by 2002:aa7:9687:0:b029:337:3b49:df24 with SMTP id
+ f7-20020aa796870000b02903373b49df24mr21001779pfk.35.1626768091519; Tue, 20
+ Jul 2021 01:01:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210625081818.v2.1.I358cae5e33f742765fd38485d6ddf1a4a978644d@changeid>
+ <nycvar.YFH.7.76.2107152150060.8253@cbobk.fhfr.pm>
+In-Reply-To: <nycvar.YFH.7.76.2107152150060.8253@cbobk.fhfr.pm>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Tue, 20 Jul 2021 10:01:20 +0200
+Message-ID: <CAO-hwJJp-qg0pRZNk1PKhha6S=Zd2_r1UDjZUgm9Yq0MFL69MQ@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: goodix: Tie the reset line to true state
+ of the regulator
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     Douglas Anderson <dianders@chromium.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Empty sync events clutter up logs and are a waste of CPU cycles. We can
-avoid sending mt_sync events if touch is disabled or a specific slot is
-unused. We can avoid sending full sync events if no events were generated.
+On Thu, Jul 15, 2021 at 9:50 PM Jiri Kosina <jikos@kernel.org> wrote:
+>
+> On Fri, 25 Jun 2021, Douglas Anderson wrote:
+>
+> > The regulator for the touchscreen could be:
+> > * A dedicated regulator just for the touchscreen.
+> > * A regulator shared with something else in the system.
+> > * An always-on regulator.
+> >
+> > How we want the "reset" line to behave depends a bit on which of those
+> > three cases we're in. Currently the code is written with the
+> > assumption that it has a dedicated regulator, but that's not really
+> > guaranteed to be the case.
+> >
+> > The problem we run into is that if we leave the touchscreen powered on
+> > (because someone else is requesting the regulator or it's an always-on
+> > regulator) and we assert reset then we apparently burn an extra 67 mW
+> > of power. That's not great.
+> >
+> > Let's instead tie the control of the reset line to the true state of
+> > the regulator as reported by regulator notifiers. If we have an
+> > always-on regulator our notifier will never be called. If we have a
+> > shared regulator then our notifier will be called when the touchscreen
+> > is truly turned on or truly turned off.
+> >
+> > Using notifiers like this nicely handles all the cases without
+> > resorting to hacks like pretending that there is no "reset" GPIO if we
+> > have an always-on regulator.
+> >
+> > NOTE: if the regulator is on a shared line it's still possible that
+> > things could be a little off. Specifically, this case is not handled
+> > even after this patch:
+> > 1. Suspend goodix (send "sleep", goodix stops requesting regulator on)
+> > 2. Other regulator user turns off (regulator fully turns off).
+> > 3. Goodix driver gets notified and asserts reset.
+> > 4. Other regulator user turns on.
+> > 5. Goodix driver gets notified and deasserts reset.
+> > 6. Nobody resumes goodix.
+> >
+> > With that set of steps we'll have reset deasserted but we will have
+> > lost the results of the I2C_HID_PWR_SLEEP from the suspend path. That
+> > means we might be in higher power than we could be even if the goodix
+> > driver thinks things are suspended. Presumably, however, we're still
+> > in better shape than if we were asserting "reset" the whole time. If
+> > somehow the above situation is actually affecting someone and we want
+> > to do better we can deal with it when we have a real use case.
+> >
+> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
+>
+> Applied, thanks Doug.
 
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/wacom_wac.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+Thanks Jiri for taking this one in.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index ce9e8e9b48b6..3f992c9dca4d 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2551,8 +2551,17 @@ static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
- 		int slot;
- 
- 		slot = input_mt_get_slot_by_key(input, hid_data->id);
--		if (slot < 0)
-+		if (slot < 0) {
- 			return;
-+		} else {
-+			struct input_mt_slot *ps = &input->mt->slots[slot];
-+			int mt_id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
-+
-+			if (!prox && mt_id < 0) {
-+				// No data to send for this slot; short-circuit
-+				return;
-+			}
-+		}
- 
- 		input_mt_slot(input, slot);
- 		input_mt_report_slot_state(input, MT_TOOL_FINGER, prox);
-@@ -2696,6 +2705,10 @@ static void wacom_wac_finger_report(struct hid_device *hdev,
- 	struct input_dev *input = wacom_wac->touch_input;
- 	unsigned touch_max = wacom_wac->features.touch_max;
- 
-+	/* if there was nothing to process, don't send an empty sync */
-+	if (wacom_wac->hid_data.num_expected == 0)
-+		return;
-+
- 	/* If more packets of data are expected, give us a chance to
- 	 * process them rather than immediately syncing a partial
- 	 * update.
--- 
-2.32.0
+FWIW, I am really glad Doug made the effort of splitting i2c-hid-core
+and i2c-hid-goodix, because this is the kind of patch that would have
+been a nightmare to make it generic :)
+
+Cheers,
+Benjamin
+
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
 

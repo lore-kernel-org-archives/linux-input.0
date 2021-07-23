@@ -2,141 +2,125 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E791C63797
-	for <linux-input@archiver.kernel.org>; Thu, 22 Jul 2021 16:22:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9978AC4338F
+	for <linux-input@archiver.kernel.org>; Fri, 23 Jul 2021 06:35:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E0F9C6127C
-	for <linux-input@archiver.kernel.org>; Thu, 22 Jul 2021 16:22:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D8CC60ED7
+	for <linux-input@archiver.kernel.org>; Fri, 23 Jul 2021 06:35:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbhGVPl5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Jul 2021 11:41:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43468 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229530AbhGVPl5 (ORCPT
+        id S233947AbhGWFyh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 23 Jul 2021 01:54:37 -0400
+Received: from h2.fbrelay.privateemail.com ([131.153.2.43]:40822 "EHLO
+        h2.fbrelay.privateemail.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229839AbhGWFyh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:41:57 -0400
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039F2C061575;
-        Thu, 22 Jul 2021 09:22:32 -0700 (PDT)
-Received: by mail-yb1-xb36.google.com with SMTP id v189so5310511ybg.3;
-        Thu, 22 Jul 2021 09:22:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dMYf4pzancIK2Asihj8gU3R0yHPVZZfKrlyCz6qtoLE=;
-        b=FABhe+DnqSOco/bLTHXW6PTIafMY/Es/tNC1ptu60s7yibz/a6FWgDDDqlFiY4pcaz
-         B0iwXgrI6xHLYRM8u9pxwo1QjDAcuesBeWy5GB9z6AeBs/wScXaffJeEt+6A1gnkD9Ad
-         a4diqQfhbdlv6gkJy/aHR9DNYY/Ir9cRP7zqlVRAHMIv7MjVozRjeAA1h/eakoZmckS2
-         3qHUxBq24J5pzf6LEWfBrK1Dgrvws9ik5nthpiCRTJMhKosM6WXzbXERPxLDDP20fxrl
-         w60MR+xgoQo0Rf48i02iWtO9vkeLyXBAZ9a8gyJKJQbDu4wu0q/zRT2ZtIAy9AgAM5Vx
-         pFNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dMYf4pzancIK2Asihj8gU3R0yHPVZZfKrlyCz6qtoLE=;
-        b=RCwjd+jGurSPS//EWZXBEeW8VTIr35knzR8AFYRumofd6Uzpoi37da2EiztRKDo9q0
-         PhPRZ6FoTGvDjXaVvMGkBS5OWdc9d05Le8qi3NXOoQJkH2U68LLecGzQd6hxJr7hX612
-         wVw2SC0TE7OdCEBa+nsbkrHUzkEtKeIMmc0S9w8jnvmoenA+8Q1sOWzaDD1pX6Mf83pR
-         06Uhj5aQ+jCZafJKrZ+D/HG6iHWeoqqbHURMvFsS0WW85ClfuNyjRd7PbbCWOihT3v+9
-         8g0o5HLHJrNpyqFrsfhbqpk2rwnVMuH29GcLL7g/LlQXpvnlqjjui3RtJuObS4wZEu6A
-         y2Hg==
-X-Gm-Message-State: AOAM533jozQJZe7ie3eAzpgI3AfXnBgXDsXy6OWiWBYluG7mF7221TE7
-        XVeZgJC5M7n6+IkIonlzcPYUvRmKX5QWBscAOBY=
-X-Google-Smtp-Source: ABdhPJxL54ILaZnBa+H9VZepcZE2c8UfQzbcK76bfjSGkgwgAI3Oy9V4ZqkyCTXNLowehv/1u7EDfmnfuGrFX8j09Qs=
-X-Received: by 2002:a25:ada1:: with SMTP id z33mr402873ybi.438.1626970951302;
- Thu, 22 Jul 2021 09:22:31 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210602061253.5747-1-roderick@gaikai.com> <20210602061253.5747-3-roderick@gaikai.com>
- <nycvar.YFH.7.76.2106241525330.18969@cbobk.fhfr.pm> <CAEc3jaDN7iHDYD868LeMBSr-zrgGEu7s-_PQgh9ffzgL1BWBtg@mail.gmail.com>
-In-Reply-To: <CAEc3jaDN7iHDYD868LeMBSr-zrgGEu7s-_PQgh9ffzgL1BWBtg@mail.gmail.com>
-From:   Roderick Colenbrander <thunderbird2k@gmail.com>
-Date:   Thu, 22 Jul 2021 09:22:20 -0700
-Message-ID: <CAEc3jaDsGGvExn_-p7ybZGwWmQx9cKXgb3cB+fx07AWM+aE5+A@mail.gmail.com>
-Subject: Re: [PATCH 2/3] leds: add new LED_FUNCTION_PLAYER for player LEDs for
- game controllers.
-To:     Jiri Kosina <jikos@kernel.org>, Pavel Machek <pavel@ucw.cz>
-Cc:     Roderick Colenbrander <roderick@gaikai.com>,
+        Fri, 23 Jul 2021 01:54:37 -0400
+X-Greylist: delayed 633 seconds by postgrey-1.27 at vger.kernel.org; Fri, 23 Jul 2021 01:54:37 EDT
+Received: from MTA-15-3.privateemail.com (MTA-15-1.privateemail.com [198.54.118.208])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by h1.fbrelay.privateemail.com (Postfix) with ESMTPS id 160B28081A;
+        Fri, 23 Jul 2021 02:24:37 -0400 (EDT)
+Received: from mta-15.privateemail.com (localhost [127.0.0.1])
+        by mta-15.privateemail.com (Postfix) with ESMTP id D6BB4180009F;
+        Fri, 23 Jul 2021 02:24:35 -0400 (EDT)
+Received: from hal-station.. (unknown [10.20.151.214])
+        by mta-15.privateemail.com (Postfix) with ESMTPA id 105CB18000A3;
+        Fri, 23 Jul 2021 02:24:34 -0400 (EDT)
+From:   Hamza Mahfooz <someguy@effective-light.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input <linux-input@vger.kernel.org>,
-        linux-leds@vger.kernel.org,
-        =?UTF-8?B?QmFybmFiw6FzIFDFkWN6ZQ==?= <pobrn@protonmail.com>,
-        "Daniel J . Ogorchock" <djogorchock@gmail.com>,
-        Roderick Colenbrander <roderick.colenbrander@sony.com>
-Content-Type: text/plain; charset="UTF-8"
+        linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
+        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+        Hamza Mahfooz <someguy@effective-light.com>
+Subject: [PATCH] HID: logitech-hidpp: battery: provide CAPACITY property for newer devices
+Date:   Fri, 23 Jul 2021 02:23:46 -0400
+Message-Id: <20210723062346.86259-1-someguy@effective-light.com>
+X-Mailer: git-send-email 2.32.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Pavel,
+For devices that only support the BATTERY_VOLTAGE (0x1001) feature, UPower
+requires the additional information provided by this patch, to set them up.
 
-Any update on this topic?
+Signed-off-by: Hamza Mahfooz <someguy@effective-light.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
-Thanks,
-Roderick
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 61635e629469..662c335e9c17 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -1331,6 +1331,32 @@ static int hidpp20_battery_get_battery_voltage(struct hidpp_device *hidpp,
+ 	return 0;
+ }
+ 
++static int hidpp20_map_battery_capacity(int voltage)
++{
++	static const int voltages[] = {
++		4186, 4156, 4143, 4133, 4122, 4113, 4103, 4094, 4086, 4075,
++		4067, 4059, 4051, 4043, 4035, 4027, 4019, 4011, 4003, 3997,
++		3989, 3983, 3976, 3969, 3961, 3955, 3949, 3942, 3935, 3929,
++		3922, 3916, 3909, 3902, 3896, 3890, 3883, 3877, 3870, 3865,
++		3859, 3853, 3848, 3842, 3837, 3833, 3828, 3824, 3819, 3815,
++		3811, 3808, 3804, 3800, 3797, 3793, 3790, 3787, 3784, 3781,
++		3778, 3775, 3772, 3770, 3767, 3764, 3762, 3759, 3757, 3754,
++		3751, 3748, 3744, 3741, 3737, 3734, 3730, 3726, 3724, 3720,
++		3717, 3714, 3710, 3706, 3702, 3697, 3693, 3688, 3683, 3677,
++		3671, 3666, 3662, 3658, 3654, 3646, 3633, 3612, 3579, 3537,
++		3500
++	};
++
++	int i;
++
++	for (i = 0; i < (sizeof(voltages) / sizeof(int)); i++) {
++		if (voltage >= voltages[i])
++			return 100 - i;
++	}
++
++	return 0;
++}
++
+ static int hidpp20_query_battery_voltage_info(struct hidpp_device *hidpp)
+ {
+ 	u8 feature_type;
+@@ -1354,6 +1380,7 @@ static int hidpp20_query_battery_voltage_info(struct hidpp_device *hidpp)
+ 
+ 	hidpp->battery.status = status;
+ 	hidpp->battery.voltage = voltage;
++	hidpp->battery.capacity = hidpp20_map_battery_capacity(voltage);
+ 	hidpp->battery.level = level;
+ 	hidpp->battery.charge_type = charge_type;
+ 	hidpp->battery.online = status != POWER_SUPPLY_STATUS_NOT_CHARGING;
+@@ -1378,6 +1405,7 @@ static int hidpp20_battery_voltage_event(struct hidpp_device *hidpp,
+ 
+ 	if (voltage != hidpp->battery.voltage || status != hidpp->battery.status) {
+ 		hidpp->battery.voltage = voltage;
++		hidpp->battery.capacity = hidpp20_map_battery_capacity(voltage);
+ 		hidpp->battery.status = status;
+ 		hidpp->battery.level = level;
+ 		hidpp->battery.charge_type = charge_type;
+@@ -3717,7 +3745,8 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+ 	num_battery_props = ARRAY_SIZE(hidpp_battery_props) - 3;
+ 
+ 	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_MILEAGE ||
+-	    hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_PERCENTAGE)
++	    hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_PERCENTAGE ||
++	    hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_VOLTAGE)
+ 		battery_props[num_battery_props++] =
+ 				POWER_SUPPLY_PROP_CAPACITY;
+ 
+-- 
+2.32.0
 
-On Mon, Jul 5, 2021 at 9:51 PM Roderick Colenbrander
-<thunderbird2k@gmail.com> wrote:
->
-> Hi Pavel,
->
-> Any feedback on this patch, which introduces a new player led type,
-> which is common on game controllers?
->
-> Thanks,
-> Roderick Colenbrander
->
-> On Thu, Jun 24, 2021 at 6:26 AM Jiri Kosina <jikos@kernel.org> wrote:
-> >
-> > On Tue, 1 Jun 2021, Roderick Colenbrander wrote:
-> >
-> > > From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> > >
-> > > Player LEDs are commonly found on game controllers from Nintendo and Sony
-> > > to indicate a player ID across a number of LEDs. For example, "Player 2"
-> > > might be indicated as "-x--" on a device with 4 LEDs where "x" means on.
-> > >
-> > > This patch introduces a new LED_FUNCTION_PLAYER to properly indicate
-> > > player LEDs from the kernel. Until now there was no good standard, which
-> > > resulted in inconsistent behavior across xpad, hid-sony, hid-wiimote and
-> > > other drivers. Moving forward new drivers should use LED_FUNCTION_PLAYER.
-> > >
-> > > Note: management of Player IDs is left to user space, though a kernel
-> > > driver may pick a default value.
-> > >
-> > > Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> > > ---
-> > >  include/dt-bindings/leds/common.h | 3 +++
-> > >  1 file changed, 3 insertions(+)
-> > >
-> > > diff --git a/include/dt-bindings/leds/common.h b/include/dt-bindings/leds/common.h
-> > > index 52b619d44ba2..94999c250e4d 100644
-> > > --- a/include/dt-bindings/leds/common.h
-> > > +++ b/include/dt-bindings/leds/common.h
-> > > @@ -60,6 +60,9 @@
-> > >  #define LED_FUNCTION_MICMUTE "micmute"
-> > >  #define LED_FUNCTION_MUTE "mute"
-> > >
-> > > +/* Used for player LEDs as found on game controllers from e.g. Nintendo, Sony. */
-> > > +#define LED_FUNCTION_PLAYER "player"
-> > > +
-> > >  /* Miscelleaus functions. Use functions above if you can. */
-> > >  #define LED_FUNCTION_ACTIVITY "activity"
-> > >  #define LED_FUNCTION_ALARM "alarm"
-> >
-> > Pavel, can I please get your Ack on this one, so that I can take it with
-> > the rest of the series?
-> >
-> > Thanks,
-> >
-> > --
-> > Jiri Kosina
-> > SUSE Labs
-> >

@@ -2,171 +2,114 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FDBAC4320E
-	for <linux-input@archiver.kernel.org>; Sun, 25 Jul 2021 03:28:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A0A7C4338F
+	for <linux-input@archiver.kernel.org>; Sun, 25 Jul 2021 04:35:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3A94760E8C
-	for <linux-input@archiver.kernel.org>; Sun, 25 Jul 2021 03:28:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 23B1A60BD3
+	for <linux-input@archiver.kernel.org>; Sun, 25 Jul 2021 04:35:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230199AbhGYCrc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 24 Jul 2021 22:47:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44436 "EHLO
+        id S230162AbhGYDyz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 24 Jul 2021 23:54:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230229AbhGYCr2 (ORCPT
+        with ESMTP id S230010AbhGYDyx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 24 Jul 2021 22:47:28 -0400
-Received: from mail-qv1-xf33.google.com (mail-qv1-xf33.google.com [IPv6:2607:f8b0:4864:20::f33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67E76C061757
-        for <linux-input@vger.kernel.org>; Sat, 24 Jul 2021 20:27:58 -0700 (PDT)
-Received: by mail-qv1-xf33.google.com with SMTP id g6so3402747qvj.8
-        for <linux-input@vger.kernel.org>; Sat, 24 Jul 2021 20:27:58 -0700 (PDT)
+        Sat, 24 Jul 2021 23:54:53 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 546A4C061757;
+        Sat, 24 Jul 2021 21:35:23 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id e2-20020a17090a4a02b029016f3020d867so9470524pjh.3;
+        Sat, 24 Jul 2021 21:35:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=0z4MJu9zRAilXdaPa0+ei7RC8O0mWiq7QoZVBuBaQaE=;
-        b=osEMdquR3Ahj+wJBCguIHXC7zLaf6dbX22/9q5hZSPne3HW+SS4lwGC4l7Y62JrX+z
-         gGeGZF8Va8Slg+aFZm8ELdir+0R1/FuS6EcWRuxpRePOvcBKpZnta9gOnz2k9v3PU0ty
-         oOxmBirImALfIqqaCiRDVNQJkb02zsN+sdSjEjddYHnMZWQfaM+nqVIeHejNol6+YQuu
-         sn5nrbx9AGgFt75Tf9xazL9HX3K5wRoda8wxKZ6rFNhJHsDhs9GudXAGk+kS/os9z6O5
-         gx5yB16AjPi+ZBRiONrEsowsWUkWMowBCtrMmCEfFb+gg2KD4fMuS3JoDA2lhlxjQ9A1
-         hxPw==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=9QfMacwXqISlBYINZ+Q7r0c2eQyBEi5YgMNKFEGQmX8=;
+        b=N+CRmMyvROxELUJKesyZnb83IJ1ImqRLj6cgbgEmSBTBV5l2+6KlqjvkKIaaTCUBDY
+         yOdIkkltgzalnbsDz7VnRtdt1HNGdiwPMf8eAyEPg1KFU5VCjaattwaN1IRZ2H/dTEkj
+         vgnuEUQDL5Sve1k4k8mbqoD2gWRbn/IasuR5onrMe/hcGx91wQ8eoHWFLlLni5Dcj3DP
+         XFxCqaQVIa/F59ZhRyMQnQ5bOnRfgWjjEp1puhps1sfVGw6jhexaPVbzCY8m/SckUXGc
+         DZjbfKoNXmXctjaYKXeajSw3C8y2cxqletpNEdPs/g8wzhs28jQ29uxGe89kCJwjPCu6
+         /aLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=0z4MJu9zRAilXdaPa0+ei7RC8O0mWiq7QoZVBuBaQaE=;
-        b=tTa3llClYcBit6yuC7RGjcuDKfrxAKvoVNZBzyky0icl6YX5B9FEQFpfNQLGcx8/ix
-         8nXVnkthMWlOe/3a2RD+wWvZFWh//i/SzX2XFOpkZxwxzpB0SmFnDd0RurO8ae+3+VNi
-         DJ3HPls1AkdCzgbSDd1v23zgIyeYObNGh+wsJ5feUjGluVe6ywzK1QUVeacoxy9ev5gq
-         /dTo4ZjOmz1ZDC8rZz4amkAbPhjcWx2s7//2M3DpehIgJVlyCjyXXV0UhZoPpR3JQexT
-         vs5p2nKIv1tAcVZC4Gc50xo3mOzAorcuGQGRD7YvsvfWfmn4zkntux8WqRYvivl48qxi
-         tM0A==
-X-Gm-Message-State: AOAM531Y3hZ7H3mvVjHdZSz5M8CHxMwxVh1s7A8ROKj6khlxpoLNW29a
-        hwi1vWzFOh0mjQoBwnBgYql8t/Bii0yU76jG
-X-Google-Smtp-Source: ABdhPJxw56uWlGlH4u5IRM00Z077Y1G4kQOIrYpECxkB6vch7eSVuLIOwlAVxeNnHjG5vaaV4/GhiQ==
-X-Received: by 2002:a0c:8525:: with SMTP id n34mr8903292qva.19.1627183677524;
-        Sat, 24 Jul 2021 20:27:57 -0700 (PDT)
-Received: from Arrakis.djogorchock.com (pool-98-116-189-238.nycmny.fios.verizon.net. [98.116.189.238])
-        by smtp.gmail.com with ESMTPSA id j16sm4843738qkk.132.2021.07.24.20.27.56
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=9QfMacwXqISlBYINZ+Q7r0c2eQyBEi5YgMNKFEGQmX8=;
+        b=PfKiulk83+ePj3s/uuPmGqwkRBpBQnk8PMIpAfJla2Puah+F1hcAuHV1dhKWHUanvQ
+         q5Y2v4gzUc+cHQDiTMGIhduC4Li43x37pJTjjTZQkWC6cs5hfxwQ4yXkyOrmrOCV2ejN
+         VNpY5Hh+YjqCkrayDYSuAC98CynJXLoZHlvILzs9WNWE3ffKOkMnDSOHuYoACPWiaqPs
+         Izzlc3kPyPLkFRhMD+hBnwAHh+Mfcc0Ky0gtwJWOvsnGsOW8MBd10ghCnTkaTMdkyRoF
+         GBPWPWlQfi0lZllUgZKzNyDmaIueaBcGx97eFDExvmiGkrKkyB/23Hy/0jbB/rJn8a02
+         QRWg==
+X-Gm-Message-State: AOAM533rz2wapIirjfirJwo5kylk7kgzQ2E2ylrUJ6ghiGTShvRDKH05
+        Ik/GHFrJZOgDF64v1G+vIo0=
+X-Google-Smtp-Source: ABdhPJxKlsXuVnkebpj+s+ijZ/Q6qE+0mgB7sGB6ZoRNxPyJ3JtFiRyE+R0y1/34mORkQhqAp9f2Gg==
+X-Received: by 2002:a17:90a:4295:: with SMTP id p21mr11018285pjg.149.1627187722594;
+        Sat, 24 Jul 2021 21:35:22 -0700 (PDT)
+Received: from google.com ([2620:15c:202:201:47a8:ca26:9af3:7f64])
+        by smtp.gmail.com with ESMTPSA id a23sm39789696pfa.16.2021.07.24.21.35.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 24 Jul 2021 20:27:57 -0700 (PDT)
-From:   "Daniel J. Ogorchock" <djogorchock@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     thunderbird2k@gmail.com, blaws05@gmail.com,
-        benjamin.tissoires@redhat.com, jikos@kernel.org,
-        Roderick.Colenbrander@sony.com, svv@google.com, s.jegen@gmail.com,
-        carmueller@gmail.com, pgriffais@valvesoftware.com,
-        hadess@hadess.net, "Daniel J. Ogorchock" <djogorchock@gmail.com>
-Subject: [PATCH v14 16/17] HID: nintendo: send rumble cmds post input reports
-Date:   Sat, 24 Jul 2021 23:27:07 -0400
-Message-Id: <20210725032707.440071-17-djogorchock@gmail.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210725032707.440071-1-djogorchock@gmail.com>
-References: <20210725032707.440071-1-djogorchock@gmail.com>
+        Sat, 24 Jul 2021 21:35:21 -0700 (PDT)
+Date:   Sat, 24 Jul 2021 21:35:19 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Salah Triki <salah.triki@gmail.com>
+Cc:     gregkh@linuxfoundation.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] misc: powermate: update the reference count of the usb
+ interface structure
+Message-ID: <YPzqBxjMb7sVX7iw@google.com>
+References: <20210724212016.GA568154@pc>
+ <YPydUp9vc5U7vGIw@google.com>
+ <20210724235637.GA590874@pc>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210724235637.GA590874@pc>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Similar to sending subcommands, it is more reliable to send the rumble
-data packets immediately after we've received an input report from the
-controller. This results in far fewer bluetooth disconnects for the
-controller.
+On Sun, Jul 25, 2021 at 12:56:37AM +0100, Salah Triki wrote:
+> Hi,
+> 
+> On Sat, Jul 24, 2021 at 04:08:02PM -0700, Dmitry Torokhov wrote:
+> > 
+> > On Sat, Jul 24, 2021 at 10:20:16PM +0100, Salah Triki wrote:
+> > > Use usb_get_intf() and usb_put_intf() in order to update the reference
+> > > count of the usb interface structure.
+> > 
+> > This is quite pointless as the driver will be unbound from the interface
+> > before interface is deleted.
+> 
+> From the documentation of usb_get_intf():
+> 
+> [quote]
+> 
+> Each live reference to a interface must be refcounted.
+> 
+> Drivers for USB interfaces should normally record such references in their 
+> probe() methods, when they bind to an interface, and release them by calling
+> usb_put_intf(), in their disconnect() methods.
+> 
+> [/quote]
 
-Signed-off-by: Daniel J. Ogorchock <djogorchock@gmail.com>
----
- drivers/hid/hid-nintendo.c | 49 ++++++++++++++++++++++----------------
- 1 file changed, 29 insertions(+), 20 deletions(-)
+I see. In this case I recommend you submit a patch to the documentation
+clarifying this, as taking a reference when binding to an interface
+makes sense when dealing with a secondary interface, but not primary
+one. See for example drivers/usb/class/cdc-acm.c where it binds to the
+data interface, but also locates control interface and bumps up
+reference to that.
 
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 71aa676ba3907..d3ec45de9649f 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -2,7 +2,7 @@
- /*
-  * HID driver for Nintendo Switch Joy-Cons and Pro Controllers
-  *
-- * Copyright (c) 2019-2020 Daniel J. Ogorchock <djogorchock@gmail.com>
-+ * Copyright (c) 2019-2021 Daniel J. Ogorchock <djogorchock@gmail.com>
-  *
-  * The following resources/projects were referenced for this driver:
-  *   https://github.com/dekuNukem/Nintendo_Switch_Reverse_Engineering
-@@ -511,6 +511,31 @@ static int __joycon_hid_send(struct hid_device *hdev, u8 *data, size_t len)
- 	return ret;
- }
- 
-+static void joycon_wait_for_input_report(struct joycon_ctlr *ctlr)
-+{
-+	int ret;
-+
-+	/*
-+	 * If we are in the proper reporting mode, wait for an input
-+	 * report prior to sending the subcommand. This improves
-+	 * reliability considerably.
-+	 */
-+	if (ctlr->ctlr_state == JOYCON_CTLR_STATE_READ) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&ctlr->lock, flags);
-+		ctlr->received_input_report = false;
-+		spin_unlock_irqrestore(&ctlr->lock, flags);
-+		ret = wait_event_timeout(ctlr->wait,
-+					 ctlr->received_input_report,
-+					 HZ / 4);
-+		/* We will still proceed, even with a timeout here */
-+		if (!ret)
-+			hid_warn(ctlr->hdev,
-+				 "timeout waiting for input report\n");
-+	}
-+}
-+
- static int joycon_hid_send_sync(struct joycon_ctlr *ctlr, u8 *data, size_t len,
- 				u32 timeout)
- {
-@@ -522,25 +547,7 @@ static int joycon_hid_send_sync(struct joycon_ctlr *ctlr, u8 *data, size_t len,
- 	 * doing one retry after a timeout appears to always work.
- 	 */
- 	while (tries--) {
--		/*
--		 * If we are in the proper reporting mode, wait for an input
--		 * report prior to sending the subcommand. This improves
--		 * reliability considerably.
--		 */
--		if (ctlr->ctlr_state == JOYCON_CTLR_STATE_READ) {
--			unsigned long flags;
--
--			spin_lock_irqsave(&ctlr->lock, flags);
--			ctlr->received_input_report = false;
--			spin_unlock_irqrestore(&ctlr->lock, flags);
--			ret = wait_event_timeout(ctlr->wait,
--						 ctlr->received_input_report,
--						 HZ / 4);
--			/* We will still proceed, even with a timeout here */
--			if (!ret)
--				hid_warn(ctlr->hdev,
--					 "timeout waiting for input report\n");
--		}
-+		joycon_wait_for_input_report(ctlr);
- 
- 		ret = __joycon_hid_send(ctlr->hdev, data, len);
- 		if (ret < 0) {
-@@ -1379,6 +1386,8 @@ static int joycon_send_rumble_data(struct joycon_ctlr *ctlr)
- 	if (++ctlr->subcmd_num > 0xF)
- 		ctlr->subcmd_num = 0;
- 
-+	joycon_wait_for_input_report(ctlr);
-+
- 	ret = __joycon_hid_send(ctlr->hdev, (u8 *)&rumble_output,
- 				sizeof(rumble_output));
- 	return ret;
+As you may notice there is only a handful of drivers that use this API,
+and as I am looking at them most do not actually need to use it.
+
+Thanks.
+
 -- 
-2.32.0
-
+Dmitry

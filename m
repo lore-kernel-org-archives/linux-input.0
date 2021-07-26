@@ -7,38 +7,35 @@ X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCC86C04FE3
-	for <linux-input@archiver.kernel.org>; Mon, 26 Jul 2021 11:58:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEFB1C4320A
+	for <linux-input@archiver.kernel.org>; Mon, 26 Jul 2021 14:01:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB40860F22
-	for <linux-input@archiver.kernel.org>; Mon, 26 Jul 2021 11:58:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AA917604DB
+	for <linux-input@archiver.kernel.org>; Mon, 26 Jul 2021 14:01:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233759AbhGZLRy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 26 Jul 2021 07:17:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50806 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233606AbhGZLRy (ORCPT
+        id S234120AbhGZNUy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 26 Jul 2021 09:20:54 -0400
+Received: from forward106o.mail.yandex.net ([37.140.190.187]:37105 "EHLO
+        forward106o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230421AbhGZNUy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 26 Jul 2021 07:17:54 -0400
-X-Greylist: delayed 405 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 26 Jul 2021 04:58:22 PDT
-Received: from forward105o.mail.yandex.net (forward105o.mail.yandex.net [IPv6:2a02:6b8:0:1a2d::608])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712E1C061757;
-        Mon, 26 Jul 2021 04:58:22 -0700 (PDT)
-Received: from iva8-40f91c705526.qloud-c.yandex.net (iva8-40f91c705526.qloud-c.yandex.net [IPv6:2a02:6b8:c0c:b9a7:0:640:40f9:1c70])
-        by forward105o.mail.yandex.net (Yandex) with ESMTP id 57BEC4200B66;
-        Mon, 26 Jul 2021 14:51:31 +0300 (MSK)
-Received: from iva6-2d18925256a6.qloud-c.yandex.net (iva6-2d18925256a6.qloud-c.yandex.net [2a02:6b8:c0c:7594:0:640:2d18:9252])
-        by iva8-40f91c705526.qloud-c.yandex.net (mxback/Yandex) with ESMTP id lkre8hYrIW-pTH0Ga7j;
-        Mon, 26 Jul 2021 14:51:31 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail; t=1627300291;
-        bh=syS++HTe1Cfn1grqGafzmOlSb2JtfOhz46f0mgWNJy4=;
-        h=Date:Subject:To:From:Message-Id:Cc;
-        b=E0wy+n4muSO1ZLMeBWliO0BhcyWs6KoSoeJWdqaCR52kWT6mHi7gxowiUFGY6irYT
-         be1AwLTE4dNL+xYTAkyBJYWgCXYptO8V83/LNeZFDp4RbyoGeo2C+M9Dr7oKoKzW4P
-         dZKZcvyhEJp7DS7GLat0LUjSneb5gTIb+hVwaHc8=
-Authentication-Results: iva8-40f91c705526.qloud-c.yandex.net; dkim=pass header.i=@maquefel.me
-Received: by iva6-2d18925256a6.qloud-c.yandex.net (smtp/Yandex) with ESMTPSA id PIKatQa27D-pR2S8g73;
-        Mon, 26 Jul 2021 14:51:28 +0300
+        Mon, 26 Jul 2021 09:20:54 -0400
+X-Greylist: delayed 7789 seconds by postgrey-1.27 at vger.kernel.org; Mon, 26 Jul 2021 09:20:52 EDT
+Received: from myt6-d550f0f924f5.qloud-c.yandex.net (myt6-d550f0f924f5.qloud-c.yandex.net [IPv6:2a02:6b8:c12:2229:0:640:d550:f0f9])
+        by forward106o.mail.yandex.net (Yandex) with ESMTP id B4EA95062EB5;
+        Mon, 26 Jul 2021 17:01:19 +0300 (MSK)
+Received: from myt3-07a4bd8655f2.qloud-c.yandex.net (myt3-07a4bd8655f2.qloud-c.yandex.net [2a02:6b8:c12:693:0:640:7a4:bd86])
+        by myt6-d550f0f924f5.qloud-c.yandex.net (mxback/Yandex) with ESMTP id eWB6nHTdDt-1GIq8FDl;
+        Mon, 26 Jul 2021 17:01:19 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail; t=1627308079;
+        bh=LRSbGVRJ9emphCuBYDYrjTlOg7ii27hSBFD4d0sHKsU=;
+        h=In-Reply-To:References:Date:Subject:To:From:Message-Id:Cc;
+        b=G6jTHHuRxls8ZjF1oSg3l5LSMPNSbVj+N80WHbaKZ4Gcr4dXQck9o36aj0VJj9+2a
+         NgnRksCHJNIqxAMmazsy/0rj5kjwjzCmJySo349DRniV4+dmuvQwfyPQV34mTepLif
+         PW7O/PEABbFwFvTiLgYkNL3ZbeFvI2Kja6BSqz04=
+Authentication-Results: myt6-d550f0f924f5.qloud-c.yandex.net; dkim=pass header.i=@maquefel.me
+Received: by myt3-07a4bd8655f2.qloud-c.yandex.net (smtp/Yandex) with ESMTPSA id olJ9yWy468-1E2ikl1L;
+        Mon, 26 Jul 2021 17:01:15 +0300
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (Client certificate not present)
 From:   Nikita Shubin <nikita.shubin@maquefel.me>
@@ -74,10 +71,12 @@ Cc:     Nikita Shubin <nikita.shubin@maquefel.me>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, YiFei Zhu <yifeifz2@illinois.edu>
-Subject: [PATCH 0/8] arm: ep93xx: CCF conversion
-Date:   Mon, 26 Jul 2021 14:50:44 +0300
-Message-Id: <20210726115058.23729-1-nikita.shubin@maquefel.me>
+Subject: [PATCH v2 0/8] arm: ep93xx: CCF conversion
+Date:   Mon, 26 Jul 2021 16:59:48 +0300
+Message-Id: <20210726140001.24820-1-nikita.shubin@maquefel.me>
 X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210726115058.23729-1-nikita.shubin@maquefel.me>
+References: <20210726115058.23729-1-nikita.shubin@maquefel.me>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -93,6 +92,9 @@ a patch converting mach-ep93xx/clock.c to CCF.
 
 Link: https://lore.kernel.org/patchwork/cover/1445563/
 Link: https://lore.kernel.org/patchwork/patch/1435884/
+
+v1->v2:
+- added SoB
 
 Alexander Sverdlin (7):
   iio: ep93xx: Prepare clock before using it

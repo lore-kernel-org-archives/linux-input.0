@@ -2,119 +2,77 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F0E2C4338F
-	for <linux-input@archiver.kernel.org>; Thu, 29 Jul 2021 00:45:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDA70C4338F
+	for <linux-input@archiver.kernel.org>; Thu, 29 Jul 2021 01:10:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 78CD06101C
-	for <linux-input@archiver.kernel.org>; Thu, 29 Jul 2021 00:45:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D12546104F
+	for <linux-input@archiver.kernel.org>; Thu, 29 Jul 2021 01:10:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232904AbhG2ApZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 28 Jul 2021 20:45:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38678 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232890AbhG2ApZ (ORCPT
+        id S233173AbhG2BKD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 28 Jul 2021 21:10:03 -0400
+Received: from emcscan.emc.com.tw ([192.72.220.5]:36055 "EHLO
+        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233028AbhG2BKC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Jul 2021 20:45:25 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3722AC061757;
-        Wed, 28 Jul 2021 17:45:23 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id q3so4677672wrx.0;
-        Wed, 28 Jul 2021 17:45:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
-        bh=v7cnCuDq5ZGSk7DH1MRlBzKJ5po3ZMRHzGSaZzKFHNw=;
-        b=qK4kP9aMdzNl3v5ZMFoQSSP9i8SlzpJY6ZT6nDqMJGCUCdHA7gjlqJCPYJh4LdZok9
-         okA2UjqD44XRE+VV5Gv13WsmFMGetkAaVDBwUWIMat89C0ib38VdjS/H3D2XlqLWIMJG
-         9IpmdhA2Sj1ZfPSld9UD6sAvcy3BLeimRYOWtBVlV4i49FNKpgYwDfQodQLZNY9mSfdF
-         J6GsDw6S/FRkhHdqrAJSygWvHJ4axzyvSax4b2pjORnBhukksWGNCi83EH+OPhUKlJzb
-         yoQIndGSHH5R36Ue/7Cn9hFeO3AzQ5S1i1pqdPVWQTMNMvL3xQGdaJmzjyKfEjzEeNYC
-         S0ig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=v7cnCuDq5ZGSk7DH1MRlBzKJ5po3ZMRHzGSaZzKFHNw=;
-        b=I2CHukvJnPUG0201UsR1xHBWVAF4lvOe9flHY02MhVLYZzEHMA/+1/W//n5v8GySsg
-         Hf/y+byNhwgzN7/Pz65tdOWafzPn4AmPrMG9VmDwNseMhdrLl7ANVV7dqe8pLIIsn+rg
-         aecsSrC0uRRiZLt7d2xHOaCbts7pCUup37hg8wwSrLP35WIORe0xn8LtuokGbvDYLJtA
-         BcgnAiApI4Tv/ECkhXVLHIOdOuuzJQynPpdK3gIPdVqUXF+o1K+ZNyD8NX3bTBTc4R1M
-         xKfm36gitrFrjwUJPyF5pphYxL9Idr5NKm1PI3rx+3MUkxJpUMwdWz6kIZwVk2H4X7/c
-         Ws+Q==
-X-Gm-Message-State: AOAM532BE/gEze1tH8uFScHxCVB9QgitEe8TRW8rodsp+GkfBAqfWBCO
-        baoSEIT/2AygZyu93WWO4DAiBrvGNNo=
-X-Google-Smtp-Source: ABdhPJydHV0/TpHwnh7Pqvu2Yfv/vzGJcLDJNjBt+jjufRwprnYFLBtZNQlrUHeVm+qEU5W1Anu4Mw==
-X-Received: by 2002:adf:cf07:: with SMTP id o7mr1821855wrj.216.1627519521830;
-        Wed, 28 Jul 2021 17:45:21 -0700 (PDT)
-Received: from pc ([196.235.233.206])
-        by smtp.gmail.com with ESMTPSA id q72sm1954094wme.14.2021.07.28.17.45.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Jul 2021 17:45:21 -0700 (PDT)
-Date:   Thu, 29 Jul 2021 01:45:12 +0100
-From:   Salah Triki <salah.triki@gmail.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        gregkh@linuxfoundation.org
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [RESEND v2] hid-elo: update the reference count of the usb device
- structure
-Message-ID: <20210729004451.GA783805@pc>
+        Wed, 28 Jul 2021 21:10:02 -0400
+X-Greylist: delayed 406 seconds by postgrey-1.27 at vger.kernel.org; Wed, 28 Jul 2021 21:10:01 EDT
+X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
+   d="scan'208";a="41940686"
+Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
+  by emcscan.emc.com.tw with ESMTP; 29 Jul 2021 09:09:58 +0800
+Received: from 192.168.10.23
+        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(163542:0:AUTH_RELAY)
+        (envelope-from <phoenix@emc.com.tw>); Thu, 29 Jul 2021 09:09:56 +0800 (CST)
+Received: from 49.216.187.106
+        by webmail.emc.com.tw with Mail2000 ESMTPA Server V7.00(2476:0:AUTH_LOGIN)
+        (envelope-from <phoenix@emc.com.tw>); Thu, 29 Jul 2021 09:09:55 +0800 (CST)
+From:   Phoenix Huang <phoenix@emc.com.tw>
+To:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        dmitry.torokhov@gmail.com
+Cc:     jingle.wu@emc.com.tw, josh.chen@emc.com.tw, dave.wang@emc.com.tw,
+        Phoenix Huang <phoenix@emc.com.tw>
+Subject: [PATCH] Input: elantench - Fix the firmware misreport coordinates for trackpoint occasionally.
+Date:   Thu, 29 Jul 2021 09:09:40 +0800
+Message-Id: <20210729010940.5752-1-phoenix@emc.com.tw>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Use usb_get_dev() to increment the reference count of the usb device
-structure in order to avoid releasing the structure while it is still in
-use. And use usb_put_dev() to decrement the reference count and thus,
-when it will be equal to 0 the structure will be released.
-
-Signed-off-by: Salah Triki <salah.triki@gmail.com>
+Signed-off-by: Phoenix Huang <phoenix@emc.com.tw>
 ---
-Change since v1:
-	Modification of the description
+ drivers/input/mouse/elantech.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
- drivers/hid/hid-elo.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-elo.c b/drivers/hid/hid-elo.c
-index 0d22713a3874..383dfda8c12f 100644
---- a/drivers/hid/hid-elo.c
-+++ b/drivers/hid/hid-elo.c
-@@ -228,13 +228,15 @@ static int elo_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct elo_priv *priv;
- 	int ret;
-+	struct usb_device *udev;
- 
- 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
- 
- 	INIT_DELAYED_WORK(&priv->work, elo_work);
--	priv->usbdev = interface_to_usbdev(to_usb_interface(hdev->dev.parent));
-+	udev = interface_to_usbdev(to_usb_interface(hdev->dev.parent));
-+	priv->usbdev = usb_get_dev(udev);
- 
- 	hid_set_drvdata(hdev, priv);
- 
-@@ -265,6 +267,8 @@ static void elo_remove(struct hid_device *hdev)
- {
- 	struct elo_priv *priv = hid_get_drvdata(hdev);
- 
-+	usb_put_dev(priv->usbdev);
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 2d0bc029619f..07e1098f2d31 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -517,6 +517,17 @@ static void elantech_report_trackpoint(struct psmouse *psmouse,
+ 	case 0x16008020U:
+ 	case 0x26800010U:
+ 	case 0x36808000U:
++	
++		/* This firmware misreport coordinates for trackpoint occasionally.
++		* So we discard these packets by pattern to prevent cursor jumps.
++		*/
++		if (packet[4] == 0x80 || packet[5] == 0x80 ||
++		    packet[1] >> 7 == packet[4] >> 7 ||
++		    packet[2] >> 7 == packet[5] >> 7) {
++		    	elantech_debug("discarding packet [%6ph]\n", packet);
++			break;
 +
- 	hid_hw_stop(hdev);
- 	cancel_delayed_work_sync(&priv->work);
- 	kfree(priv);
++		}
+ 		x = packet[4] - (int)((packet[1]^0x80) << 1);
+ 		y = (int)((packet[2]^0x80) << 1) - packet[5];
+ 
 -- 
 2.25.1
 

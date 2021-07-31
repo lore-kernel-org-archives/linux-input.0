@@ -2,145 +2,130 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82167C4338F
-	for <linux-input@archiver.kernel.org>; Sat, 31 Jul 2021 03:22:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CBB2C19F31
+	for <linux-input@archiver.kernel.org>; Sat, 31 Jul 2021 22:05:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 51BF660F48
-	for <linux-input@archiver.kernel.org>; Sat, 31 Jul 2021 03:22:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6044E60241
+	for <linux-input@archiver.kernel.org>; Sat, 31 Jul 2021 22:05:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231429AbhGaDWg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 30 Jul 2021 23:22:36 -0400
-Received: from mga18.intel.com ([134.134.136.126]:37975 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231395AbhGaDWf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 30 Jul 2021 23:22:35 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10061"; a="200408406"
-X-IronPort-AV: E=Sophos;i="5.84,283,1620716400"; 
-   d="scan'208";a="200408406"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jul 2021 20:22:29 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.84,283,1620716400"; 
-   d="scan'208";a="439414699"
-Received: from host.sh.intel.com ([10.239.154.115])
-  by fmsmga007.fm.intel.com with ESMTP; 30 Jul 2021 20:22:27 -0700
-From:   Ye Xiang <xiang.ye@intel.com>
-To:     jikos@kernel.org, jic23@kernel.org,
-        srinivas.pandruvada@linux.intel.com
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>
-Subject: [PATCH] iio: hid-sensor-press: Add timestamp channel
-Date:   Sat, 31 Jul 2021 11:25:56 +0800
-Message-Id: <20210731032556.26813-1-xiang.ye@intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S231772AbhGaWFV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 31 Jul 2021 18:05:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35078 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229560AbhGaWFU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 31 Jul 2021 18:05:20 -0400
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A15D6C0613D5
+        for <linux-input@vger.kernel.org>; Sat, 31 Jul 2021 15:05:12 -0700 (PDT)
+Received: by mail-lj1-x230.google.com with SMTP id e5so18347310ljp.6
+        for <linux-input@vger.kernel.org>; Sat, 31 Jul 2021 15:05:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=eavS7+nVlKa3pE/nMERuVdSNOcLN0CSyw0CYPXJs2RE=;
+        b=oxTawDKtE7gUMCEZTGVhmlVv2Y3WYDP+FS3lOaHPAgoD7WcgQjYd0RzzaaCmE3977P
+         y2AZlp+prHKgerutQ7jx1R/cVL6lbK+WzauqEJucT+Izj+ziz0I0tc0O+XwvtPwksIj1
+         ukvPhZPy1rocK17IvtjWMFHZ1JmoIIqK4FLNFIt716WQ3Pie0UvlUCbiTbUjKG2RTcHV
+         7aLptfufBWxUeUNmjY6/SgCFLiwOzAyRIGpCOm9JFIGiWEdzkbX1t7kvgcWoJlruvGQV
+         TNKC7K+DYoXaKkZDcceTWufkpcffdIMAe8eG+6751qHasEPk6w4m+/EI6Gd9NCUzZuvT
+         oxzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=eavS7+nVlKa3pE/nMERuVdSNOcLN0CSyw0CYPXJs2RE=;
+        b=Nvmtfj5ChO2WL45gjFe0+D3s+k/TRaiZ4lp9ufGwhXfprYZ3UGWCmvSNIDePlD4QBU
+         3MgIMDD2TSZVxKEyYTPTZ39c03romEuqgRAfOJ/yVwzHp96KPWz6DFnsx+uamLue7Qi0
+         hbl6hKGEcoNxymn0pfU4L9SO6gokHG+63NQILynyGJl4KawxxioEjRuLuuhIW/i53/vN
+         Lzs7JFlC4vfP4yvKr2FlJ6RAfhLzdeLkdsmSZqILldv1GKgvXPzeLtQjwpeqjQj0COLx
+         //razWIotacc5GEgwybqaLS5L2uGqwYPIdGg5gQDpsh8RHUiIe1BmchNovHcOnt3icC2
+         cwgw==
+X-Gm-Message-State: AOAM532SY4tLcP2ZfFBWmiZ4qijH2EsD8GOVFBpdYOKahLM/DGKQ82w/
+        twsS2lPngObMQIo1FOML51zwPwmIRA3LyzAAOsWhlQ==
+X-Google-Smtp-Source: ABdhPJwTjpbUeZT+xrHLeSR/vD0UodSpw43lXDmx8pJiyALETra8HqJRQTMUGT7mTfcqIT7xDGsd2Eo06KRRqoQp1Bw=
+X-Received: by 2002:a2e:bc14:: with SMTP id b20mr6401323ljf.200.1627769110442;
+ Sat, 31 Jul 2021 15:05:10 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210726115058.23729-1-nikita.shubin@maquefel.me>
+In-Reply-To: <20210726115058.23729-1-nikita.shubin@maquefel.me>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Sun, 1 Aug 2021 00:04:59 +0200
+Message-ID: <CACRpkdYeqJFFwkc6pfSrz3-gaN_PjjV52jstqzR2sMa+bxbMuQ@mail.gmail.com>
+Subject: Re: [PATCH 0/8] arm: ep93xx: CCF conversion
+To:     Nikita Shubin <nikita.shubin@maquefel.me>
+Cc:     Alexander Sverdlin <alexander.sverdlin@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..." 
+        <alsa-devel@alsa-project.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "open list:DMA GENERIC OFFLOAD ENGINE SUBSYSTEM" 
+        <dmaengine@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "open list:FRAMEBUFFER LAYER" <dri-devel@lists.freedesktop.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
+        "open list:FRAMEBUFFER LAYER" <linux-fbdev@vger.kernel.org>,
+        "open list:IIO SUBSYSTEM AND DRIVERS" <linux-iio@vger.kernel.org>,
+        "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." 
+        <linux-input@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:PWM SUBSYSTEM" <linux-pwm@vger.kernel.org>,
+        "open list:SPI SUBSYSTEM" <linux-spi@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Mike Rapoport <rppt@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, YiFei Zhu <yifeifz2@illinois.edu>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Each sample has a timestamp field with this change. This timestamp may
-be from the sensor hub when present or local kernel timestamp. The
-unit of timestamp is nanosecond.
+On Mon, Jul 26, 2021 at 1:51 PM Nikita Shubin <nikita.shubin@maquefel.me> wrote:
 
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
----
- drivers/iio/pressure/hid-sensor-press.c | 40 +++++++++++++++----------
- 1 file changed, 24 insertions(+), 16 deletions(-)
+> This series series of patches converts ep93xx to Common Clock Framework.
+>
+> It consists of preparation patches to use clk_prepare_enable where it is
+> needed, instead of clk_enable used in ep93xx drivers prior to CCF and
+> a patch converting mach-ep93xx/clock.c to CCF.
+>
+> Link: https://lore.kernel.org/patchwork/cover/1445563/
+> Link: https://lore.kernel.org/patchwork/patch/1435884/
+>
+> Alexander Sverdlin (7):
+>   iio: ep93xx: Prepare clock before using it
+>   spi: spi-ep93xx: Prepare clock before using it
+>   Input: ep93xx_keypad: Prepare clock before using it
+>   video: ep93xx: Prepare clock before using it
+>   dmaengine: ep93xx: Prepare clock before using it
+>   ASoC: cirrus: i2s: Prepare clock before using it
+>   pwm: ep93xx: Prepare clock before using it
+>
+> Nikita Shubin (1):
+>   ep93xx: clock: convert in-place to COMMON_CLK
 
-diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
-index c416d261e3e3..b365483bd09e 100644
---- a/drivers/iio/pressure/hid-sensor-press.c
-+++ b/drivers/iio/pressure/hid-sensor-press.c
-@@ -16,17 +16,24 @@
- #include <linux/iio/buffer.h>
- #include "../common/hid-sensors/hid-sensor-trigger.h"
- 
--#define CHANNEL_SCAN_INDEX_PRESSURE 0
-+enum {
-+	CHANNEL_SCAN_INDEX_PRESSURE,
-+	CHANNEL_SCAN_INDEX_TIMESTAMP,
-+};
- 
- struct press_state {
- 	struct hid_sensor_hub_callbacks callbacks;
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info press_attr;
--	u32 press_data;
-+	struct {
-+		u32 press_data;
-+		u64 timestamp __aligned(8);
-+	} scan;
- 	int scale_pre_decml;
- 	int scale_post_decml;
- 	int scale_precision;
- 	int value_offset;
-+	s64 timestamp;
- };
- 
- static const u32 press_sensitivity_addresses[] = {
-@@ -44,7 +51,9 @@ static const struct iio_chan_spec press_channels[] = {
- 		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
- 		BIT(IIO_CHAN_INFO_HYSTERESIS),
- 		.scan_index = CHANNEL_SCAN_INDEX_PRESSURE,
--	}
-+	},
-+	IIO_CHAN_SOFT_TIMESTAMP(CHANNEL_SCAN_INDEX_TIMESTAMP)
-+
- };
- 
- /* Adjust channel real bits based on report descriptor */
-@@ -157,14 +166,6 @@ static const struct iio_info press_info = {
- 	.write_raw = &press_write_raw,
- };
- 
--/* Function to push data to buffer */
--static void hid_sensor_push_data(struct iio_dev *indio_dev, const void *data,
--					int len)
--{
--	dev_dbg(&indio_dev->dev, "hid_sensor_push_data\n");
--	iio_push_to_buffers(indio_dev, data);
--}
--
- /* Callback handler to send event after all samples are received and captured */
- static int press_proc_event(struct hid_sensor_hub_device *hsdev,
- 				unsigned usage_id,
-@@ -174,10 +175,13 @@ static int press_proc_event(struct hid_sensor_hub_device *hsdev,
- 	struct press_state *press_state = iio_priv(indio_dev);
- 
- 	dev_dbg(&indio_dev->dev, "press_proc_event\n");
--	if (atomic_read(&press_state->common_attributes.data_ready))
--		hid_sensor_push_data(indio_dev,
--				&press_state->press_data,
--				sizeof(press_state->press_data));
-+	if (atomic_read(&press_state->common_attributes.data_ready)) {
-+		if (!press_state->timestamp)
-+			press_state->timestamp = iio_get_time_ns(indio_dev);
-+
-+		iio_push_to_buffers_with_timestamp(
-+			indio_dev, &press_state->scan, press_state->timestamp);
-+	}
- 
- 	return 0;
- }
-@@ -194,9 +198,13 @@ static int press_capture_sample(struct hid_sensor_hub_device *hsdev,
- 
- 	switch (usage_id) {
- 	case HID_USAGE_SENSOR_ATMOSPHERIC_PRESSURE:
--		press_state->press_data = *(u32 *)raw_data;
-+		press_state->scan.press_data = *(u32 *)raw_data;
- 		ret = 0;
- 		break;
-+	case HID_USAGE_SENSOR_TIME_TIMESTAMP:
-+		press_state->timestamp = hid_sensor_convert_timestamp(
-+			&press_state->common_attributes, *(s64 *)raw_data);
-+		break;
- 	default:
- 		break;
- 	}
--- 
-2.17.1
+This series is looking very good.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
+I suppose the per-subsystem patches can be picked up by
+each subsystem maintainer and then you can send the "big patch"
+to the SoC tree.
+
+Yours,
+Linus Walleij

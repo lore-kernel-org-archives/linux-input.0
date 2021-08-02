@@ -2,174 +2,103 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	FSL_HELO_FAKE,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C137FC4320A
-	for <linux-input@archiver.kernel.org>; Sun,  1 Aug 2021 17:19:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DC4AC432BE
+	for <linux-input@archiver.kernel.org>; Mon,  2 Aug 2021 07:33:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D29460F5A
-	for <linux-input@archiver.kernel.org>; Sun,  1 Aug 2021 17:19:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C57360F6E
+	for <linux-input@archiver.kernel.org>; Mon,  2 Aug 2021 07:33:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229520AbhHARTV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 1 Aug 2021 13:19:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56096 "EHLO
+        id S232173AbhHBHdL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Aug 2021 03:33:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229592AbhHARTU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 1 Aug 2021 13:19:20 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD07C06175F;
-        Sun,  1 Aug 2021 10:19:11 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id u2so8676274plg.10;
-        Sun, 01 Aug 2021 10:19:11 -0700 (PDT)
+        with ESMTP id S232428AbhHBHdK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Aug 2021 03:33:10 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5BDC06175F;
+        Mon,  2 Aug 2021 00:33:00 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id t9so19070931lfc.6;
+        Mon, 02 Aug 2021 00:33:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=6x3QWVYNzA8oWY+P2CnHY/LSOtwPRNB5RDZ9JILj+eY=;
-        b=ky/IPsSGP1pgCJX+7tKzpqQbcF8UtDmxisvlH8DgENnL54BDKicV0UV3XIICgvK8TL
-         ymkgV8EfwN/3pa/Xu0smcU3oNqgJKjpZATBK1MtbKGJqvhAHS5r+6QjAvT/IVkVcOvF2
-         bZNxmk5pBUL4KfRtTJluK/fN6Lab9+r0UvO3ejwmoHaKuA9MKTe32GgIl3mMTEr/tEXb
-         9dtKwdLJpROQgbjLVWASLPGeMoubl9qow4ZlmaL4m3GmpJ2wgXi8A4tzw04clOqixFeq
-         TOIsv4xcmLTU6N70ZrIoT+F8IFan3zTXC+EBtrUdr0rgJ+s2jvhZrIIkzXexwCJULET4
-         5tqw==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=BXCiU0xKGBVbZ2icElVqPuQRsbpvE6+lSfin6xZD3cE=;
+        b=ck5Y31M1VmZAD0RegHR6Ig5OfAtmbEyU5/b90SvojsQ6H88/KrKavwsCJmhEbgui7t
+         qxNpfFUa+BHClM6nzQG5tImqKJsRf25vMLyIhl2ZMZ0+Co3jilQZmUxDLp4MgGxr69uN
+         TpJNl8ztIoYBV1wfiykxi6iTRhKjuvJr33V8J56oGy0EyOmL2Yr7btjLVWNfKsn8Y+A1
+         JyaVevAIixICrX2q7+h3xoP9pbTHlXZrWC6VkHSM7ZC5jqiQ43E8lDzWM8sgths2mx0F
+         3vqW3B3PdPbt/ibT8+wD+NyFPpLaegU0ocNtSWo9AtYeWHlWL8fDsp/k5QlGvBHVlYnR
+         VyBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=6x3QWVYNzA8oWY+P2CnHY/LSOtwPRNB5RDZ9JILj+eY=;
-        b=BJP6wUKUY4zYYgt26MHakNQmdC6dieqeYe79Kh23e5+RBPgzAhfm1BmxhGPCsjgLHf
-         0cvwoKQ1+sUn03qj0rFoZukhtCGGmAAJE8IyJACzocxmGcU1CI+GiU2EfR6PyXT6L83V
-         UH6Es8crAhmVzgoo29nSlYfh1uBHNpcfSPjHWNS551HK7iTOGcnkb7FLYbZp8qau3opS
-         V0Y58Ko5OrySDySBCPH1hFFqRBZZ6W5ew0/0UPNJMMKysleBIdPtsExzC80EZG8DIF6Y
-         OCnMISise6ixZGLqYP4z5ltDnMrYcoPk9LYg4IPSPtj9oMB+cT7r4CFDvU4+7IJPEx4S
-         bGHQ==
-X-Gm-Message-State: AOAM531lRq0dNF88jb6jsJh5YKapBikjsQn90vD7hzSCjWq0ysP6FS7j
-        B2S8A5RxmWc1iujJoTOScUg=
-X-Google-Smtp-Source: ABdhPJzxn/JWAy+XyIIVy1nAD4L2hpuDqJ97xmYG3WaNsA8mgiRLU83yOqyqEohRIdrB2g8Y1Wno/g==
-X-Received: by 2002:a17:902:7d82:b029:12c:5930:98c7 with SMTP id a2-20020a1709027d82b029012c593098c7mr11080561plm.46.1627838350958;
-        Sun, 01 Aug 2021 10:19:10 -0700 (PDT)
-Received: from google.com ([2620:15c:202:201:f80c:7a7e:9e46:8cee])
-        by smtp.gmail.com with ESMTPSA id p17sm8613878pfh.33.2021.08.01.10.19.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Aug 2021 10:19:09 -0700 (PDT)
-Date:   Sun, 1 Aug 2021 10:19:07 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Len Baker <len.baker@gmx.com>,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        Lee Jones <lee.jones@linaro.org>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-hardening@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] drivers/input: Remove all strcpy() uses in favor of
- strscpy()
-Message-ID: <YQbXiwie4YPzPWKK@google.com>
-References: <20210801144316.12841-1-len.baker@gmx.com>
- <20210801145959.GI22278@shell.armlinux.org.uk>
- <20210801155732.GA16547@titan>
- <202108010934.FA668DEB28@keescook>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=BXCiU0xKGBVbZ2icElVqPuQRsbpvE6+lSfin6xZD3cE=;
+        b=Yb0orle3dOtTdSChQgiugqayLemNtkPjGTqLjeHQLcthby4lRBDgV/gdqgkPBzRKzf
+         +g7NbjbYwv3k7n+2RisblNp5bv8UdygB/9hqlEBKhYsR2WXvdXNE/9Hs7YQoB7YOkzAx
+         ctL6sqW6DnUran+DA3eNmLzp55A73kmR09+lIwD5r8aSDHOl+P0hPrphF5TP8ii4dM3q
+         xej7HnY542Wqqn5x2vSYaCkVwmtj/0FJLG+BAJt8Ah/qrsB2F8PmUCKZoZDZ+aI4jo41
+         SDOeiJshHNKF7RL7v0xxp7QSnm8Mtb7IKJFc+sDyGx5aq4NlUphiufvIyyTClS3mmbSU
+         711A==
+X-Gm-Message-State: AOAM530Lh5sf4NRQHQm+ofhciRXmeEM2XGrLRpR/rirlgxREEw/ug4sD
+        bxIEnhZIf7gIRoStzUkUScxue/DLW4A=
+X-Google-Smtp-Source: ABdhPJxy6slPPxcwzHe4g7r6e2LrNwaR8rGgOPgFbqUShhMyGjWYhynChcsju2u/IqjSDBwJD28G5g==
+X-Received: by 2002:a05:6512:3d26:: with SMTP id d38mr11098294lfv.411.1627889579245;
+        Mon, 02 Aug 2021 00:32:59 -0700 (PDT)
+Received: from [192.168.1.49] ([109.197.204.123])
+        by smtp.gmail.com with ESMTPSA id d16sm879996lfv.223.2021.08.02.00.32.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Aug 2021 00:32:58 -0700 (PDT)
+Subject: Re: [PATCH 3/7] Input: ep93xx_keypad: Prepare clock before using it
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Nikita Shubin <nikita.shubin@maquefel.me>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20210613233041.128961-1-alexander.sverdlin@gmail.com>
+ <20210613233041.128961-4-alexander.sverdlin@gmail.com>
+ <YMfQR8iM9be5Qg8+@google.com>
+ <9bf87ee0e1c2a97b0a1b98734e34e456f84ea3d7.camel@gmail.com>
+ <YM60mjew2mqMAMRO@google.com>
+From:   Alexander Sverdlin <alexander.sverdlin@gmail.com>
+Message-ID: <ff37fd74-d9a6-36d5-326b-3b4a87e39682@gmail.com>
+Date:   Mon, 2 Aug 2021 09:28:34 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202108010934.FA668DEB28@keescook>
+In-Reply-To: <YM60mjew2mqMAMRO@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Aug 01, 2021 at 09:44:33AM -0700, Kees Cook wrote:
-> On Sun, Aug 01, 2021 at 05:57:32PM +0200, Len Baker wrote:
-> > Hi,
-> > 
-> > On Sun, Aug 01, 2021 at 04:00:00PM +0100, Russell King (Oracle) wrote:
-> > > On Sun, Aug 01, 2021 at 04:43:16PM +0200, Len Baker wrote:
-> > > > strcpy() performs no bounds checking on the destination buffer. This
-> > > > could result in linear overflows beyond the end of the buffer, leading
-> > > > to all kinds of misbehaviors. The safe replacement is strscpy().
-> > > >
-> > > > Signed-off-by: Len Baker <len.baker@gmx.com>
-> > > > ---
-> > > > This is a task of the KSPP [1]
-> > > >
-> > > > [1] https://github.com/KSPP/linux/issues/88
-> > > >
-> > > >  drivers/input/keyboard/locomokbd.c | 2 +-
-> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
-> > > > index dae053596572..dbb3dc48df12 100644
-> > > > --- a/drivers/input/keyboard/locomokbd.c
-> > > > +++ b/drivers/input/keyboard/locomokbd.c
-> > > > @@ -254,7 +254,7 @@ static int locomokbd_probe(struct locomo_dev *dev)
-> > > >  	locomokbd->suspend_jiffies = jiffies;
-> > > >
-> > > >  	locomokbd->input = input_dev;
-> > > > -	strcpy(locomokbd->phys, "locomokbd/input0");
-> > > > +	strscpy(locomokbd->phys, "locomokbd/input0", sizeof(locomokbd->phys));
-> > >
-> > > So if the string doesn't fit, it's fine to silently truncate it?
-> > 
-> > I think it is better than overflow :)
-> > 
-> > > Rather than converting every single strcpy() in the kernel to
-> > > strscpy(), maybe there should be some consideration given to how the
-> > > issue of a strcpy() that overflows the buffer should be handled.
-> > > E.g. in the case of a known string such as the above, if it's longer
-> > > than the destination, should we find a way to make the compiler issue
-> > > a warning at compile time?
-> > 
-> > Good point. I am a kernel newbie and have no experience. So this
-> > question should be answered by some kernel hacker :) But I agree
-> > with your proposals.
-> > 
-> > Kees and folks: Any comments?
-> > 
-> > Note: Kees is asked the same question in [2]
-> > 
-> > [2] https://lore.kernel.org/lkml/20210731135957.GB1979@titan/
+Hello Dmitry!
+
+On 20/06/2021 05:23, Dmitry Torokhov wrote:
+>>>> Use clk_prepare_enable()/clk_disable_unprepare() in preparation for switch
+>>>> to Common Clock Framework.
+>>>
+>>> Can this be merged standalone?
+>>
+>> In principle, yes, but I thought it would be easier if the patches
+>> would go via the same path as CCF conversion.
 > 
-> Hi!
+> OK, in this case:
 > 
-> Sorry for the delay at looking into this. It didn't use to be a problem
-> (there would always have been a compile-time warning generated for
-> known-too-small cases), but that appears to have regressed when,
-> ironically, strscpy() coverage was added. I've detailed it in the bug
-> report:
-> https://github.com/KSPP/linux/issues/88
-> 
-> So, bottom line: we need to fix the missing compile-time warnings for
-> strcpy() and strscpy() under CONFIG_FORTIFY_SOURCE=y.
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Is it possible to have them warn always? Or that would be too many false
-positives?
+Seems that this doesn't work as we planned and two patches of the series
+were already taken in by the respective maintainers.
+Could you please apply this patch as well to your tree?
 
-> 
-> In the past we'd tried to add a stracpy()[1] that would only work with
-> const string sources. Linus got angry[2] about API explosion, though,
-> so we're mostly faced with doing the strscpy() replacements.
-
-I would like to have an API that would do compile-time checks and
-BUILD_BUG_ON() for a few places in input drivers where we copy constant
-strings. There is no reason to encumber the code with runtime checks,
-and bombing out on compile instead of truncating would be nice.
-
-> 
-> Another idea might be to have strcpy() do the "constant strings only"
-> thing, leaving strscpy() for the dynamic lengths.
-> 
-> One thing is clear: replacing strlcpy() with strscpy() is probably the
-> easiest and best first step to cleaning up the proliferation of str*()
-> functions.
-
-OK, so the consensus is that we set this patch aside as it does not
-really fix any issues (the strcpy() destination is 32 bytes and is big
-enough to hold the string being copied)?
-
-Thanks.
-
--- 
-Dmitry
+--
+Alex.

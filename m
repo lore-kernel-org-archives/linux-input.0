@@ -2,158 +2,338 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 476B9C4320E
-	for <linux-input@archiver.kernel.org>; Thu,  5 Aug 2021 05:12:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59469C4320A
+	for <linux-input@archiver.kernel.org>; Fri,  6 Aug 2021 09:40:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E726610A8
-	for <linux-input@archiver.kernel.org>; Thu,  5 Aug 2021 05:12:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40C7960F35
+	for <linux-input@archiver.kernel.org>; Fri,  6 Aug 2021 09:40:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233420AbhHEFND (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Aug 2021 01:13:03 -0400
-Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:56649 "EHLO
-        wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236989AbhHEFNC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Aug 2021 01:13:02 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.west.internal (Postfix) with ESMTP id 62E3E2B00475;
-        Thu,  5 Aug 2021 01:12:48 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 05 Aug 2021 01:12:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm3; bh=twhTTkXFTaNa0
-        JKFc4hyiam+oxDA9ilOzTNkxYn0QVU=; b=PkXgn16HgvSTUUdp6giJJ9zviZhK5
-        YoexSA5yHmTUNPltoiP5mAxmqsWqgUCAFZE9ck3QdGZTqRC/vtAM8R4VJIWB+dan
-        BHlYAj/FRZH5J8p4tWMd8xf+V9LK1jsbDbPdsjIhzKBq50zp6VSCjae3oIvSkoRN
-        XmhXcUJwn0R8z0jfTweb1SaTF44lplH/G5fkKyRMUgFZVLwjNT2rXS+OnnYABXlF
-        fYMwwB6BIa6FOgPfBsyyU55jW7OzY2EA5QQuJxZDR0eXIpgx4Snrwck0FrzURLwY
-        jpg3stCs9G9kKmtSwgcoTK9E5uyEvx6cYdTxoiD3sA+CNrP0PDMguZYBw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=twhTTkXFTaNa0JKFc4hyiam+oxDA9ilOzTNkxYn0QVU=; b=N91rrRY5
-        cU4Qo/kWYt562kutCyBFODu28K8np5yaqzV2WJD+iZCVFY7nam/DScOE3Qrm2P0g
-        nlbkOojuvniVOAkcDpY7ZnZnb46NzVtLFPFO6MLzISFjK1Nw8L2nLOhTZYIXY94z
-        zThs9JdJw8qOMfg8ipCzSPc0+oUd7yY3hj65llYkElpMYzOHSj41vFzFYnwbmhKY
-        JB1K+64R6y78VQZimEM8oJYlEgP69h9mqe4syOb9Gv45LP00CXaARLYkRqJDZBB4
-        4w0iIgAPEkbap92NYBvUswR3qMmcpSmuEbWBtna9699VNyQ1elDnj16X5xX3iU0W
-        5/0kpuf+3K/PDA==
-X-ME-Sender: <xms:T3MLYWK6nCm4i-mYnGmkteOFDD1aCVb_G5BdRaH-tjiCPYFOvr_BOA>
-    <xme:T3MLYeKDfZ1nJfGM4oS8kiKpdj1U37rR81uGRturVC7SIKi6ovQQZGy2JmJ0kh6yB
-    CY16AGukMX3xIU8bw>
-X-ME-Received: <xmr:T3MLYWuLplqQJKYJ-ZHws7fvEMBEwB9e7gH0doed8V2P98UJLWrlBkjNjWyaBXiVyiM3XOPE2xEEaZoSu6qg0FGri3Tr7pySAfzAEMWpBYgfcJSC8laqn5ucPPUHsnvdzjyROw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrieekgdekkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghl
-    ucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrf
-    grthhtvghrnhepudfhjeefvdfhgfefheetgffhieeigfefhefgvddvveefgeejheejvdfg
-    jeehueeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:T3MLYbbqss8FZWj0XX95tEdKX2-GRp5eNXjiiz9qFXZOR-th-7iacw>
-    <xmx:T3MLYdY3GZ4Z9redfNmlvcCCsBjFUbqHWv5RscupUckzgU39W7_kbA>
-    <xmx:T3MLYXCmFYed_WBYgpPCRlzJA0OuSlEHpvAcNpFA5A8KnmPT9qrGrQ>
-    <xmx:UHMLYaRrNXS7u6bEAL8qs-tiRjPOZZ-gMY0gh8VKeU-M1SMVxyOBQCcBg4M>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 5 Aug 2021 01:12:47 -0400 (EDT)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        devicetree@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        Samuel Holland <samuel@sholland.org>,
-        Ondrej Jirman <megous@megous.com>
-Subject: [PATCH resend v3 2/2] input: sun4i-lradc-keys - Add wakup support
-Date:   Thu,  5 Aug 2021 00:12:41 -0500
-Message-Id: <20210805051241.47168-3-samuel@sholland.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210805051241.47168-1-samuel@sholland.org>
-References: <20210805051241.47168-1-samuel@sholland.org>
+        id S244651AbhHFJkl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 6 Aug 2021 05:40:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48320 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242680AbhHFJkl (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Aug 2021 05:40:41 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5DD8C061798
+        for <linux-input@vger.kernel.org>; Fri,  6 Aug 2021 02:40:25 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1mBwKQ-0002EX-4A; Fri, 06 Aug 2021 11:39:46 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1mBwKK-00055m-8Y; Fri, 06 Aug 2021 11:39:40 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1mBwKK-00045k-6o; Fri, 06 Aug 2021 11:39:40 +0200
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>
+Cc:     Corey Minyard <minyard@acm.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, linux-parisc@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net,
+        linux-input@vger.kernel.org, netdev@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org,
+        alsa-devel@alsa-project.org, kernel@pengutronix.de
+Subject: [PATCH] parisc: Make struct parisc_driver::remove() return void
+Date:   Fri,  6 Aug 2021 11:39:38 +0200
+Message-Id: <20210806093938.1950990-1-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Patch-Hashes: v=1; h=sha256; i=HLXgmV0qGpnDkwp+WuFBRiMxpahH8/d1S8XGx9ztOew=; m=/Xfiwv9Sgti2fAWM+CCGGuyEa+42WeTUsYSiavJEcp4=; p=LTinZqdEm+49N5fzpMRX/3KHEg6iSFKlQ37K2YsT/yw=; g=31eafea52988a1959a5f1e91faf2fa6fa1180f08
+X-Patch-Sig: m=pgp; i=u.kleine-koenig@pengutronix.de; s=0x0D2511F322BFAB1C1580266BE2DCDD9132669BD6; b=iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmENA1YACgkQwfwUeK3K7AmwFAf/QMo DCcLmUzOdVxwtZVUJeAeibE3hDSCOquffMEws3ZHebJbIY/48zK3qN9oNIE42DIGpbutke8RMTIL/ YcpodRezDno0n23pIo8+CvrVJbbDSRRor8T/sjhwmgVQN6A3hrZNFPzeYJJE5s7aAIYHla2EyTPFu w0GwFqjSkyB/GbI31rrm0iVC1oyIa1vM7ka+QaY+VB04YlS6fkRjBJ/Lq8tkE/vkU9drpXWYC55OI TJsjvnfhCMBrq/Ni589VoNnb7/ulNssXgL3lmhPYlVSv2lq8JZa4Gcj/XeSf08R7PQ3gyEo5lFN3B cKYf44UYWGWu2PusacXlcxzVx0HjxpA==
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Ondrej Jirman <megous@megous.com>
+The caller of this function (parisc_driver_remove() in
+arch/parisc/kernel/drivers.c) ignores the return value, so better don't
+return any value at all to not wake wrong expectations in driver authors.
 
-Allow the driver to wake the system on key press if the "wakeup-source"
-property is provided in the device tree. Using the LRADC as a wakeup
-source requires keeping the AVCC domain active during sleep. Since this
-has a nontrivial impact on power consumption (sometimes doubling it),
-disable the LRADC wakeup source by default.
+The only function that could return a non-zero value before was
+ipmi_parisc_remove() which returns the return value of
+ipmi_si_remove_by_dev(). Make this function return void, too, as for all
+other callers the value is ignored, too.
 
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
+Also fold in a small checkpatch fix for:
+
+WARNING: Unnecessary space before function pointer arguments
++	void (*remove) (struct parisc_device *dev);
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/keyboard/sun4i-lradc-keys.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ arch/parisc/include/asm/parisc-device.h  | 4 ++--
+ drivers/char/ipmi/ipmi_si_intf.c         | 6 +-----
+ drivers/char/ipmi/ipmi_si_parisc.c       | 4 ++--
+ drivers/char/ipmi/ipmi_si_platform.c     | 4 +++-
+ drivers/input/keyboard/hilkbd.c          | 4 +---
+ drivers/input/serio/gscps2.c             | 3 +--
+ drivers/net/ethernet/i825xx/lasi_82596.c | 3 +--
+ drivers/parport/parport_gsc.c            | 3 +--
+ drivers/scsi/lasi700.c                   | 4 +---
+ drivers/scsi/zalon.c                     | 4 +---
+ drivers/tty/serial/mux.c                 | 3 +--
+ sound/parisc/harmony.c                   | 3 +--
+ 12 files changed, 16 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
-index 4a796bed48ac..af1683d68c8c 100644
---- a/drivers/input/keyboard/sun4i-lradc-keys.c
-+++ b/drivers/input/keyboard/sun4i-lradc-keys.c
-@@ -22,6 +22,8 @@
- #include <linux/module.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_wakeirq.h>
-+#include <linux/pm_wakeup.h>
- #include <linux/regulator/consumer.h>
- #include <linux/slab.h>
+diff --git a/arch/parisc/include/asm/parisc-device.h b/arch/parisc/include/asm/parisc-device.h
+index d02d144c6012..4de3b391d812 100644
+--- a/arch/parisc/include/asm/parisc-device.h
++++ b/arch/parisc/include/asm/parisc-device.h
+@@ -34,8 +34,8 @@ struct parisc_driver {
+ 	struct parisc_driver *next;
+ 	char *name; 
+ 	const struct parisc_device_id *id_table;
+-	int (*probe) (struct parisc_device *dev); /* New device discovered */
+-	int (*remove) (struct parisc_device *dev);
++	int (*probe)(struct parisc_device *dev); /* New device discovered */
++	void (*remove)(struct parisc_device *dev);
+ 	struct device_driver drv;
+ };
  
-@@ -226,8 +228,7 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
+diff --git a/drivers/char/ipmi/ipmi_si_intf.c b/drivers/char/ipmi/ipmi_si_intf.c
+index 62929a3e397e..bb466981dc1b 100644
+--- a/drivers/char/ipmi/ipmi_si_intf.c
++++ b/drivers/char/ipmi/ipmi_si_intf.c
+@@ -2228,22 +2228,18 @@ static void cleanup_one_si(struct smi_info *smi_info)
+ 	kfree(smi_info);
+ }
+ 
+-int ipmi_si_remove_by_dev(struct device *dev)
++void ipmi_si_remove_by_dev(struct device *dev)
  {
- 	struct sun4i_lradc_data *lradc;
- 	struct device *dev = &pdev->dev;
--	int i;
--	int error;
-+	int error, i, irq;
+ 	struct smi_info *e;
+-	int rv = -ENOENT;
  
- 	lradc = devm_kzalloc(dev, sizeof(struct sun4i_lradc_data), GFP_KERNEL);
- 	if (!lradc)
-@@ -272,8 +273,11 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
- 	if (IS_ERR(lradc->base))
- 		return PTR_ERR(lradc->base);
+ 	mutex_lock(&smi_infos_lock);
+ 	list_for_each_entry(e, &smi_infos, link) {
+ 		if (e->io.dev == dev) {
+ 			cleanup_one_si(e);
+-			rv = 0;
+ 			break;
+ 		}
+ 	}
+ 	mutex_unlock(&smi_infos_lock);
+-
+-	return rv;
+ }
  
--	error = devm_request_irq(dev, platform_get_irq(pdev, 0),
--				 sun4i_lradc_irq, 0,
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
-+
-+	error = devm_request_irq(dev, irq, sun4i_lradc_irq, 0,
- 				 "sun4i-a10-lradc-keys", lradc);
- 	if (error)
- 		return error;
-@@ -282,6 +286,14 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
- 	if (error)
- 		return error;
+ struct device *ipmi_si_remove_by_data(int addr_space, enum si_type si_type,
+diff --git a/drivers/char/ipmi/ipmi_si_parisc.c b/drivers/char/ipmi/ipmi_si_parisc.c
+index 11c9160275df..2be2967f6b5f 100644
+--- a/drivers/char/ipmi/ipmi_si_parisc.c
++++ b/drivers/char/ipmi/ipmi_si_parisc.c
+@@ -29,9 +29,9 @@ static int __init ipmi_parisc_probe(struct parisc_device *dev)
+ 	return ipmi_si_add_smi(&io);
+ }
  
-+	if (device_property_read_bool(dev, "wakeup-source")) {
-+		device_set_wakeup_capable(dev, true);
+-static int __exit ipmi_parisc_remove(struct parisc_device *dev)
++static void __exit ipmi_parisc_remove(struct parisc_device *dev)
+ {
+-	return ipmi_si_remove_by_dev(&dev->dev);
++	ipmi_si_remove_by_dev(&dev->dev);
+ }
+ 
+ static const struct parisc_device_id ipmi_parisc_tbl[] __initconst = {
+diff --git a/drivers/char/ipmi/ipmi_si_platform.c b/drivers/char/ipmi/ipmi_si_platform.c
+index 380a6a542890..505cc978c97a 100644
+--- a/drivers/char/ipmi/ipmi_si_platform.c
++++ b/drivers/char/ipmi/ipmi_si_platform.c
+@@ -411,7 +411,9 @@ static int ipmi_probe(struct platform_device *pdev)
+ 
+ static int ipmi_remove(struct platform_device *pdev)
+ {
+-	return ipmi_si_remove_by_dev(&pdev->dev);
++	ipmi_si_remove_by_dev(&pdev->dev);
 +
-+		error = dev_pm_set_wake_irq(dev, irq);
-+		if (error)
-+			dev_warn(dev, "Failed to set wake IRQ\n");
-+	}
-+
++	return 0;
+ }
+ 
+ static int pdev_match_name(struct device *dev, const void *data)
+diff --git a/drivers/input/keyboard/hilkbd.c b/drivers/input/keyboard/hilkbd.c
+index 62ccfebf2f60..c1a4d5055de6 100644
+--- a/drivers/input/keyboard/hilkbd.c
++++ b/drivers/input/keyboard/hilkbd.c
+@@ -316,11 +316,9 @@ static int __init hil_probe_chip(struct parisc_device *dev)
+ 	return hil_keyb_init();
+ }
+ 
+-static int __exit hil_remove_chip(struct parisc_device *dev)
++static void __exit hil_remove_chip(struct parisc_device *dev)
+ {
+ 	hil_keyb_exit();
+-
+-	return 0;
+ }
+ 
+ static const struct parisc_device_id hil_tbl[] __initconst = {
+diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
+index 2f9775de3c5b..a9065c6ab550 100644
+--- a/drivers/input/serio/gscps2.c
++++ b/drivers/input/serio/gscps2.c
+@@ -411,7 +411,7 @@ static int __init gscps2_probe(struct parisc_device *dev)
+  * @return: success/error report
+  */
+ 
+-static int __exit gscps2_remove(struct parisc_device *dev)
++static void __exit gscps2_remove(struct parisc_device *dev)
+ {
+ 	struct gscps2port *ps2port = dev_get_drvdata(&dev->dev);
+ 
+@@ -425,7 +425,6 @@ static int __exit gscps2_remove(struct parisc_device *dev)
+ #endif
+ 	dev_set_drvdata(&dev->dev, NULL);
+ 	kfree(ps2port);
+-	return 0;
+ }
+ 
+ 
+diff --git a/drivers/net/ethernet/i825xx/lasi_82596.c b/drivers/net/ethernet/i825xx/lasi_82596.c
+index 96c6f4f36904..48e001881c75 100644
+--- a/drivers/net/ethernet/i825xx/lasi_82596.c
++++ b/drivers/net/ethernet/i825xx/lasi_82596.c
+@@ -196,7 +196,7 @@ lan_init_chip(struct parisc_device *dev)
+ 	return retval;
+ }
+ 
+-static int __exit lan_remove_chip(struct parisc_device *pdev)
++static void __exit lan_remove_chip(struct parisc_device *pdev)
+ {
+ 	struct net_device *dev = parisc_get_drvdata(pdev);
+ 	struct i596_private *lp = netdev_priv(dev);
+@@ -205,7 +205,6 @@ static int __exit lan_remove_chip(struct parisc_device *pdev)
+ 	dma_free_noncoherent(&pdev->dev, sizeof(struct i596_private), lp->dma,
+ 		       lp->dma_addr, DMA_BIDIRECTIONAL);
+ 	free_netdev (dev);
+-	return 0;
+ }
+ 
+ static const struct parisc_device_id lan_tbl[] __initconst = {
+diff --git a/drivers/parport/parport_gsc.c b/drivers/parport/parport_gsc.c
+index 1e43b3f399a8..4332692ca4b8 100644
+--- a/drivers/parport/parport_gsc.c
++++ b/drivers/parport/parport_gsc.c
+@@ -378,7 +378,7 @@ static int __init parport_init_chip(struct parisc_device *dev)
  	return 0;
  }
  
+-static int __exit parport_remove_chip(struct parisc_device *dev)
++static void __exit parport_remove_chip(struct parisc_device *dev)
+ {
+ 	struct parport *p = dev_get_drvdata(&dev->dev);
+ 	if (p) {
+@@ -397,7 +397,6 @@ static int __exit parport_remove_chip(struct parisc_device *dev)
+ 		parport_put_port(p);
+ 		kfree (ops); /* hope no-one cached it */
+ 	}
+-	return 0;
+ }
+ 
+ static const struct parisc_device_id parport_tbl[] __initconst = {
+diff --git a/drivers/scsi/lasi700.c b/drivers/scsi/lasi700.c
+index 6d14a7a94d0b..86fe19e0468d 100644
+--- a/drivers/scsi/lasi700.c
++++ b/drivers/scsi/lasi700.c
+@@ -134,7 +134,7 @@ lasi700_probe(struct parisc_device *dev)
+ 	return -ENODEV;
+ }
+ 
+-static int __exit
++static void __exit
+ lasi700_driver_remove(struct parisc_device *dev)
+ {
+ 	struct Scsi_Host *host = dev_get_drvdata(&dev->dev);
+@@ -146,8 +146,6 @@ lasi700_driver_remove(struct parisc_device *dev)
+ 	free_irq(host->irq, host);
+ 	iounmap(hostdata->base);
+ 	kfree(hostdata);
+-
+-	return 0;
+ }
+ 
+ static struct parisc_driver lasi700_driver __refdata = {
+diff --git a/drivers/scsi/zalon.c b/drivers/scsi/zalon.c
+index 7eac76cccc4c..f1e5cf8a17d9 100644
+--- a/drivers/scsi/zalon.c
++++ b/drivers/scsi/zalon.c
+@@ -168,15 +168,13 @@ static const struct parisc_device_id zalon_tbl[] __initconst = {
+ 
+ MODULE_DEVICE_TABLE(parisc, zalon_tbl);
+ 
+-static int __exit zalon_remove(struct parisc_device *dev)
++static void __exit zalon_remove(struct parisc_device *dev)
+ {
+ 	struct Scsi_Host *host = dev_get_drvdata(&dev->dev);
+ 
+ 	scsi_remove_host(host);
+ 	ncr53c8xx_release(host);
+ 	free_irq(dev->irq, host);
+-
+-	return 0;
+ }
+ 
+ static struct parisc_driver zalon_driver __refdata = {
+diff --git a/drivers/tty/serial/mux.c b/drivers/tty/serial/mux.c
+index be640d9863cd..643dfbcc43f9 100644
+--- a/drivers/tty/serial/mux.c
++++ b/drivers/tty/serial/mux.c
+@@ -496,7 +496,7 @@ static int __init mux_probe(struct parisc_device *dev)
+ 	return 0;
+ }
+ 
+-static int __exit mux_remove(struct parisc_device *dev)
++static void __exit mux_remove(struct parisc_device *dev)
+ {
+ 	int i, j;
+ 	int port_count = (long)dev_get_drvdata(&dev->dev);
+@@ -518,7 +518,6 @@ static int __exit mux_remove(struct parisc_device *dev)
+ 	}
+ 
+ 	release_mem_region(dev->hpa.start + MUX_OFFSET, port_count * MUX_LINE_OFFSET);
+-	return 0;
+ }
+ 
+ /* Hack.  This idea was taken from the 8250_gsc.c on how to properly order
+diff --git a/sound/parisc/harmony.c b/sound/parisc/harmony.c
+index 1440db8b4177..2e3e5aa47682 100644
+--- a/sound/parisc/harmony.c
++++ b/sound/parisc/harmony.c
+@@ -968,11 +968,10 @@ snd_harmony_probe(struct parisc_device *padev)
+ 	return err;
+ }
+ 
+-static int __exit
++static void __exit
+ snd_harmony_remove(struct parisc_device *padev)
+ {
+ 	snd_card_free(parisc_get_drvdata(padev));
+-	return 0;
+ }
+ 
+ static struct parisc_driver snd_harmony_driver __refdata = {
 -- 
-2.26.3
+2.30.2
 

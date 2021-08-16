@@ -2,206 +2,102 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF180C432BE
-	for <linux-input@archiver.kernel.org>; Mon, 16 Aug 2021 10:00:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A89CAC4338F
+	for <linux-input@archiver.kernel.org>; Mon, 16 Aug 2021 13:01:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB84661BAA
-	for <linux-input@archiver.kernel.org>; Mon, 16 Aug 2021 10:00:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8BF0F6328D
+	for <linux-input@archiver.kernel.org>; Mon, 16 Aug 2021 13:01:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235716AbhHPKA5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 16 Aug 2021 06:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58570 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235731AbhHPKAw (ORCPT
+        id S230340AbhHPNBd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 16 Aug 2021 09:01:33 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:47294 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229917AbhHPNBc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 16 Aug 2021 06:00:52 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFFD3C0617AD
-        for <linux-input@vger.kernel.org>; Mon, 16 Aug 2021 03:00:20 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id x12so22692837wrr.11
-        for <linux-input@vger.kernel.org>; Mon, 16 Aug 2021 03:00:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=X8lsgvvE/dE0upzVkpvexrKU095gGKWW3Ww3Z5U5AlU=;
-        b=Zh6dg0wFD5xYcTWGWreyhZoCuq2kQiGlEepIyUhmoaeriMX4rH7QnyXO+ys+hLUU2q
-         RmOsNYEX8+9YCjK6kRCJDhI1vHLDUD+urRr7eXsyPB2Jxjd3fv9Up7J7Vbj0V0ypwL4j
-         9C7kLGkIrMrFD6XVoQGdM28dH9AVDbwIL/ex9Lwh+eJdfB34nZ6/VmFFcixnyZ00irA3
-         VlKGkQmMyM5oZKBPom1F2EKI/9NxCMt5wRW0op4FiRdPn9tQ8ocz3kB11kKx2hLPCQjU
-         zKBmrCRqcaWQw7wauqZt0rwTv9N9mlDuSGHoVy8YcYgYvCHBWzx1R5KOUTu/SbIauQ5n
-         +p2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=X8lsgvvE/dE0upzVkpvexrKU095gGKWW3Ww3Z5U5AlU=;
-        b=SAzW7nglx1sE6mB6TgQutruH5J8xzrNmcGEdDVlvASRPZRUaKljAP0ppDmQENWatXd
-         kaF4aCIuF5gzTwV32IasrawESA+eQfHJOJHvhU8S9anAj8ENCXAtkSOqpzz69MHKUClI
-         kgbzb0XTdM87CcweXHcZIDNdd/oUEcMJPqGvtss/VlP6/j2ZCIbequ9SD+z3bMDq53uL
-         mnRhd1Ele3fHeB0XMNdiHRAZSrO+XUShfVBrGRJgdNHxDYSZLNiLZUVyiiUF2WGPR3uF
-         r6U+rsEw5c/IN5q471L68bJ79/ELI/0Uo9IIzolG/zWQeyRsSmdq4+o7RxAUrW1FfHHW
-         YHpw==
-X-Gm-Message-State: AOAM533KkMJ1kAD3xYsek48yOWXNhhOhF0AdyHZW1eUAdki+fuD3jb1s
-        fYMEs+xtvj4+eVfsmapjGOVPQQ==
-X-Google-Smtp-Source: ABdhPJw26+ebv36BQwFzYLXiMKflLWgvck2mVR8uRjAtsQoh2Tnn+SM1XtRqcUIdgXMFd+kxgRzJ1A==
-X-Received: by 2002:adf:f707:: with SMTP id r7mr16989703wrp.175.1629108019509;
-        Mon, 16 Aug 2021 03:00:19 -0700 (PDT)
-Received: from groot.home ([2a01:cb19:826e:8e00:92b1:d3c2:1204:85e2])
-        by smtp.gmail.com with ESMTPSA id u10sm1916645wrt.14.2021.08.16.03.00.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Aug 2021 03:00:19 -0700 (PDT)
-From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     Fabien Parent <fparent@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Subject: [PATCH RESEND v3 3/4] Input: mtk-pmic-keys - add support for MT6358
-Date:   Mon, 16 Aug 2021 12:00:12 +0200
-Message-Id: <20210816100013.100412-4-mkorpershoek@baylibre.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210816100013.100412-1-mkorpershoek@baylibre.com>
-References: <20210816100013.100412-1-mkorpershoek@baylibre.com>
+        Mon, 16 Aug 2021 09:01:32 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 3E52C21E63;
+        Mon, 16 Aug 2021 13:01:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1629118860; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=LZcYvKP3fKqG888iDvO787z29Bj4h7z0rCj5MqEN0PM=;
+        b=ZTTl0fwVMcAh64e7OtLNbWXTeobIUZwsld1IwntIyI8cDZSVbJDsCvpujROIWgSRYjvsXz
+        YPca4KlEZaR0ICYNnavvj6MM9XUMsEpVqWtvb5arG38vALgwA2vJkhRhoo8eLIK3wbwBs0
+        swyU/v/guVSjLr0ufWQah7uNOnUgLJY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1629118860;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=LZcYvKP3fKqG888iDvO787z29Bj4h7z0rCj5MqEN0PM=;
+        b=E89pGcW1kdz3K7Ho9CATKs+IG89+Cm3RPWZxy46jaIgC25VUL99+hV32FTz1NNkiMSkZH+
+        xJ7o5axl5XjM/nDw==
+Received: from lion.mk-sys.cz (unknown [10.100.200.14])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 0127FA3B88;
+        Mon, 16 Aug 2021 13:01:00 +0000 (UTC)
+Received: by lion.mk-sys.cz (Postfix, from userid 1000)
+        id DBB766082D; Mon, 16 Aug 2021 15:00:59 +0200 (CEST)
+Date:   Mon, 16 Aug 2021 15:00:59 +0200
+From:   Michal Kubecek <mkubecek@suse.cz>
+To:     linux-usb@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        linux-input@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [REGRESSION][BISECTED] flood of "hid-generic ... control queue full"
+ since v5.14-rc1
+Message-ID: <20210816130059.3yxtdvu2r7wo4uu3@lion.mk-sys.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="dfcrugjtzogdosw5"
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-MT6358 pmic keys behave differently than mt6397 and mt6323: there are
-two interrupts per key: one for press, the other one for release (_r)
 
-Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
----
- drivers/input/keyboard/mtk-pmic-keys.c | 49 ++++++++++++++++++++++++--
- 1 file changed, 47 insertions(+), 2 deletions(-)
+--dfcrugjtzogdosw5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index d1abf95d5701..5496a7020104 100644
---- a/drivers/input/keyboard/mtk-pmic-keys.c
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -9,6 +9,7 @@
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/mfd/mt6323/registers.h>
-+#include <linux/mfd/mt6358/registers.h>
- #include <linux/mfd/mt6397/core.h>
- #include <linux/mfd/mt6397/registers.h>
- #include <linux/module.h>
-@@ -74,11 +75,22 @@ static const struct mtk_pmic_regs mt6323_regs = {
- 	.pmic_rst_reg = MT6323_TOP_RST_MISC,
- };
- 
-+static const struct mtk_pmic_regs mt6358_regs = {
-+	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
-+		0x2, MT6358_PSC_TOP_INT_CON0, 0x5),
-+	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
-+		0x8, MT6358_PSC_TOP_INT_CON0, 0xa),
-+	.pmic_rst_reg = MT6358_TOP_RST_MISC,
-+};
-+
- struct mtk_pmic_keys_info {
- 	struct mtk_pmic_keys *keys;
- 	const struct mtk_pmic_keys_regs *regs;
- 	unsigned int keycode;
- 	int irq;
-+	int irq_r; /* optional: release irq if different */
- 	bool wakeup:1;
- };
- 
-@@ -188,6 +200,19 @@ static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
- 		return ret;
- 	}
- 
-+	if (info->irq_r > 0) {
-+		ret = devm_request_threaded_irq(
-+			keys->dev, info->irq_r, NULL,
-+			mtk_pmic_keys_irq_handler_thread,
-+			IRQF_ONESHOT | IRQF_TRIGGER_HIGH, "mtk-pmic-keys",
-+			info);
-+		if (ret) {
-+			dev_err(keys->dev, "Failed to request IRQ_r: %d: %d\n",
-+				info->irq, ret);
-+			return ret;
-+		}
-+	}
-+
- 	input_set_capability(keys->input_dev, EV_KEY, info->keycode);
- 
- 	return 0;
-@@ -199,8 +224,11 @@ static int __maybe_unused mtk_pmic_keys_suspend(struct device *dev)
- 	int index;
- 
- 	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
--		if (keys->keys[index].wakeup)
-+		if (keys->keys[index].wakeup) {
- 			enable_irq_wake(keys->keys[index].irq);
-+			if (keys->keys[index].irq_r > 0)
-+				enable_irq_wake(keys->keys[index].irq_r);
-+		}
- 	}
- 
- 	return 0;
-@@ -212,8 +240,11 @@ static int __maybe_unused mtk_pmic_keys_resume(struct device *dev)
- 	int index;
- 
- 	for (index = 0; index < MTK_PMIC_MAX_KEY_COUNT; index++) {
--		if (keys->keys[index].wakeup)
-+		if (keys->keys[index].wakeup) {
- 			disable_irq_wake(keys->keys[index].irq);
-+			if (keys->keys[index].irq_r > 0)
-+				disable_irq_wake(keys->keys[index].irq_r);
-+		}
- 	}
- 
- 	return 0;
-@@ -229,6 +260,9 @@ static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
- 	}, {
- 		.compatible = "mediatek,mt6323-keys",
- 		.data = &mt6323_regs,
-+	}, {
-+		.compatible = "mediatek,mt6358-keys",
-+		.data = &mt6358_regs,
- 	}, {
- 		/* sentinel */
- 	}
-@@ -242,6 +276,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 	struct mt6397_chip *pmic_chip = dev_get_drvdata(pdev->dev.parent);
- 	struct device_node *node = pdev->dev.of_node, *child;
- 	static const char *const irqnames[] = { "powerkey", "homekey" };
-+	static const char *const irqnames_r[] = { "powerkey_r", "homekey_r" };
- 	struct mtk_pmic_keys *keys;
- 	const struct mtk_pmic_regs *mtk_pmic_regs;
- 	struct input_dev *input_dev;
-@@ -285,6 +320,16 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 			return keys->keys[index].irq;
- 		}
- 
-+		if (of_device_is_compatible(node, "mediatek,mt6358-keys")) {
-+			keys->keys[index].irq_r = platform_get_irq_byname(
-+				pdev, irqnames_r[index]);
-+
-+			if (keys->keys[index].irq_r < 0) {
-+				of_node_put(child);
-+				return keys->keys[index].irq_r;
-+			}
-+		}
-+
- 		error = of_property_read_u32(child,
- 			"linux,keycodes", &keys->keys[index].keycode);
- 		if (error) {
--- 
-2.30.2
+Hello,
 
+starting with v5.14-rc1, my kernel log gets flooded with messages
+
+  hid-generic 0003:051D:0002.0002: control queue full
+
+at rate of ~33 per second. Device 051d:0002 is an APC UPS (BR-650 VA).
+I bisected the issue to commit
+
+  7652dd2c5cb7 ("USB: core: Check buffer length matches wLength for control transfers")
+
+Reverting this commit on top of v5.14-rc6 resolves the issue. I suspect
+the problem is some missing cleanup when usb_submit_urb() bails out on
+the newly added check but I'm not familiar enough with the code to see
+what is missing or if the problem is on USB or HID side.
+
+Michal
+
+--dfcrugjtzogdosw5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEWN3j3bieVmp26mKO538sG/LRdpUFAmEaYYUACgkQ538sG/LR
+dpX7dwf+LxmPuDJNPaEYvkYFNTmEZFTaTJQTu2gPVihcZfOY2rwsgukq1pmpoKS3
+y18U9cvJ8dWwpGLhSbgDUYcBW9sntNWFEiF1Chqp9KMlh96GecESESnNG1gFdTba
+iEeatloqTTMO4BOqoQiEoipff7zM62uSlizVB2M6dY/I+BZ4FfY6+b/zYoMiWm4J
+rGuxhV9JnkY72ksHj16CsIHbAMo8rJhm1nTf3UKogak/wLw/tYJYFiufO9O478pk
+fx1tC0WS4rGt/2+33uW2JU6c3yuLmW/Jv/JgcKuOnrg1u0wfK1QxkiUBjuhAfxym
+1ByJ1INJOKNgC4ff3+1jOstnHMMtug==
+=hxJS
+-----END PGP SIGNATURE-----
+
+--dfcrugjtzogdosw5--

@@ -2,140 +2,176 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59C6AC4320A
-	for <linux-input@archiver.kernel.org>; Wed, 18 Aug 2021 06:24:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CABCC4338F
+	for <linux-input@archiver.kernel.org>; Wed, 18 Aug 2021 06:39:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4663D60FA0
-	for <linux-input@archiver.kernel.org>; Wed, 18 Aug 2021 06:24:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57FCE60F11
+	for <linux-input@archiver.kernel.org>; Wed, 18 Aug 2021 06:39:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239849AbhHRGZV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Aug 2021 02:25:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48362 "EHLO
+        id S237981AbhHRGjj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Aug 2021 02:39:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238902AbhHRGYv (ORCPT
+        with ESMTP id S238952AbhHRGjV (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Aug 2021 02:24:51 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE8EC0612A8
-        for <linux-input@vger.kernel.org>; Tue, 17 Aug 2021 23:24:16 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id t13so1096803pfl.6
-        for <linux-input@vger.kernel.org>; Tue, 17 Aug 2021 23:24:16 -0700 (PDT)
+        Wed, 18 Aug 2021 02:39:21 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1306CC0613CF
+        for <linux-input@vger.kernel.org>; Tue, 17 Aug 2021 23:38:47 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id y11so1131997pfl.13
+        for <linux-input@vger.kernel.org>; Tue, 17 Aug 2021 23:38:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=k/wMqZhYPv/ednyUtGVLuOyBDdwE/DxTOa1GSHOTwQw=;
-        b=h1vqsKCq3LguZasBrpDaxLMbE54XIdT056wn+53xSVHzW2Ewxb/OwMHrme5OgTt4Jz
-         Rn6+Nw/UlSdQJuXyyuSYWqcsqPV0JLgcmYGV56fwQSHpm2I+9h+ZIKfx2co1C0VimpZf
-         7dKUtyu84DuqlRQ87BuDsdzr8aHRxeo0v95wg=
+        d=raydium-corp-partner-google-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ajTOyjYSJ0oov782itPNsymFCO3cX1BrHaaPfNpFmD8=;
+        b=byG1i/f/PhVjFqWLuv5cgFo7RwH81xhoD86ym991Hr9lmSySwIgIKLiE4SZsXil5/x
+         tgJmIk1uEOpArWhxkm5OcwY/3UU++NbtrxNESrch670WLNutOQM13485G7UvVN8Qg1gk
+         8K9m+xQ54E5ja+VeaaiZf+E1jP3at5RrHdNRI8P4kbrWzROms50K7TIazFcS11QBoJzp
+         JZNGQI5eYNbj+RnEa2VReVU+dg+3MAmN4EWUdEreSrlPGAb4Py7gf0AIa9lB5ZVddmF4
+         Ec+Dysoi7oc1eH2zuilKgL7cLgUO9mmgk6y+MkEnjHaVC9vbEAG8DYcK0dW5CH8j0iZD
+         ppkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=k/wMqZhYPv/ednyUtGVLuOyBDdwE/DxTOa1GSHOTwQw=;
-        b=Qf45QXVWWEikn1qD1L0qTik1BIZ3Lp66nMyDHNcaTGz4HYTCwCTiIQVJEGHtgzORKL
-         GnYhi6JD55/r0h82cTsFjkZUi+0CpoVV7TF4KMJfY14+leic0S4YEsCk+igPhrs7+Z1n
-         vRH/0JR8wglc1vbTXmoZCbmD+EtICmEgjG3WuMQIyJqOX3Ueqb0Xqn+RY+6uzUEcQ15t
-         e7bzcW6HV8wM+qoM4FPHdPv7/xhQi9mkIZoauKcJkNLR0LrgEiVeiE6av9noKm1lTToK
-         LE7MXXoZSKbtiFmWwVboUanNzcvMX90X78BQL9wNAu8hDCtCnY54CySNRrvVpI7xQ9Lf
-         eOuQ==
-X-Gm-Message-State: AOAM530gO4Tzj0muju8VNZa8j3W11Xpq+CEcbMcGS20gz4y1S+Nhnj1j
-        /DAw5NPtsDiJuTKVNaz3MPsBJA==
-X-Google-Smtp-Source: ABdhPJwamERI+b3fB1OT2OBb/Oo32Bs69oRVEvsPMoSjLvciwc2SdyfJNwL8U1PKVMBNffysj5z0og==
-X-Received: by 2002:a62:1a03:0:b029:3e0:30aa:5172 with SMTP id a3-20020a621a030000b02903e030aa5172mr7615458pfa.69.1629267856113;
-        Tue, 17 Aug 2021 23:24:16 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id p17sm3873060pjg.54.2021.08.17.23.24.14
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ajTOyjYSJ0oov782itPNsymFCO3cX1BrHaaPfNpFmD8=;
+        b=G308S7Xp+2mEZyRnvuTJfB112j0ItZn63ruKZ2OcswPl6OtcRRvQ+jvIXeg6+PPePW
+         UA9IICXLh7FPVzKNndK/xpMcZf9Zq2F3RBl4VaUPDliw0UZrSHwZmJVZO9o6PL/rT2sV
+         +RaKMDrS3nJthJPayGughrYnhik4m7/L6RJrU6/WsjXQMdxhw70aWrCUnXDP1DlxG9vV
+         9pd+y3Dr2HCErpvK9cH3XEe0Wsl9kFF9nE+x5KpHPJDDP/UQMniHt84E0Ka+4JyQLkj2
+         P37HiU4dV5Eram9FjUzGh3ajbgjlL0sHmW4Xgln5jz6oyePKQE72nnzqm7bcWmAvpK8J
+         KTAQ==
+X-Gm-Message-State: AOAM530nLSziO4h3uFL2nX0AdL0TChXBPONY7aKMWOAMbNbqQvnwZWQr
+        fhcOh4NFZWa4Uq0yQ09dAt+Iog==
+X-Google-Smtp-Source: ABdhPJwwW46N2ijNc4EXoOYvMjDbJeYlrqFd41gHYiwxR3vaNtS+xBQjCoQaVBmud7aqXGcQAEsq6A==
+X-Received: by 2002:a05:6a00:805:b0:3e2:f682:1b32 with SMTP id m5-20020a056a00080500b003e2f6821b32mr405104pfk.60.1629268726650;
+        Tue, 17 Aug 2021 23:38:46 -0700 (PDT)
+Received: from localhost.localdomain ([2402:7500:469:2cb0:19b8:bfcd:dea8:b1c5])
+        by smtp.gmail.com with ESMTPSA id y12sm4706665pfa.25.2021.08.17.23.38.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Aug 2021 23:24:14 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-staging@lists.linux.dev,
-        linux-block@vger.kernel.org, linux-kbuild@vger.kernel.org,
-        clang-built-linux@googlegroups.com,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        linux-hardening@vger.kernel.org
-Subject: [PATCH v2 22/63] HID: cp2112: Use struct_group() for memcpy() region
-Date:   Tue, 17 Aug 2021 23:04:52 -0700
-Message-Id: <20210818060533.3569517-23-keescook@chromium.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210818060533.3569517-1-keescook@chromium.org>
-References: <20210818060533.3569517-1-keescook@chromium.org>
+        Tue, 17 Aug 2021 23:38:46 -0700 (PDT)
+From:   "simba.hsu" <simba.hsu@raydium.corp-partner.google.com>
+X-Google-Original-From: "simba.hsu" <simba.hsu@rad-ic.com>
+To:     dmitry.torokhov@gmail.com, simba.hsu@rad-ic.com,
+        furquan@google.com, seanpaul@chromium.org, rrangle@chromium.org
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        KP.li@rad-ic.com, jeffrey.lin@rad-ic.com
+Subject: [PATCH] Input: raydium_i2c_ts - read device version in bootloader mode
+Date:   Wed, 18 Aug 2021 14:36:44 +0800
+Message-Id: <20210818063644.8654-1-simba.hsu@rad-ic.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2247; h=from:subject; bh=/f7Uu4v/C7D/CabqYQdkLwI9T63RoTYSlGbQfk4by30=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBhHKMi/T6L3PaIJG69XO7seVV8nfPKvnO/RnRfY1YP eqF5TIqJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYRyjIgAKCRCJcvTf3G3AJiqND/ 4o9z0rLLj4NSz3P+N5dEODqZN+0JFe68SJEpcnI/yqBAJ991CZgBW3P4hegMy7LP416vg4a8VXWuZf PdkwM1HtKI3bOIJmJ/oXuHc0Cd8E1/i9IdhWeZkwnk4ATdl52t6KiufRupzJ474wQ6gIOIfDj0KQ0R kyIFkhVeoA2Kr7NRe3qo9ChOoz9iHtgIp5yRu2OL9iopUm7HJMVli+T8Rkjfs1WdXgucAW17dFCaQf jscROMyLQGnCUMePS1yvQgUiFCFi1PlQtlLu+P7JTZudtLxFONjQCqvINDVVTB7e+TdY6/uBtgZzeK irTF7jSjV82n7MLfw4dCwSr5O2rrLJUaRZRfu6EiE2apChq5mvhSkWogW11l43Du1tv0vSY8wCE7XA sqKXkssO6OXrNOfPC9zrrUYQOnTwssqdo4orsoUV57XBYhxldJWv/VtIL/gNK2X1AMSQ2l2j8jVWtm /ZmkiVPYHo1cAbq84GdiW7UhznMM4bt9KCq8jxr7jM/YO6AI8nO2vNY/g02E3s1LVpfe2iqQHiaXcU HzwXGWuEQSSIRd009WPzQD3vPRqgiHua6vhSwtjUVgJ7mB06uFmWn0gFEj2FoGkgl1YLXKQ9crqUgL wCJdGavuSKwTapzMz2igVrV/qHEivZbe8115YGPQPbagYEoCWw+9D4gRcRag==
-X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-In preparation for FORTIFY_SOURCE performing compile-time and run-time
-field bounds checking for memcpy(), memmove(), and memset(), avoid
-intentionally writing across neighboring fields.
+Add support reading device ID when controller is in bootloader
+mode, which may happen if firmware update has been interrupted.
 
-Use struct_group() in struct cp2112_string_report around members report,
-length, type, and string, so they can be referenced together. This will
-allow memcpy() and sizeof() to more easily reason about sizes, improve
-readability, and avoid future warnings about writing beyond the end of
-report.
-
-"pahole" shows no size nor member offset changes to struct
-cp2112_string_report.  "objdump -d" shows no meaningful object
-code changes (i.e. only source line number induced differences.)
-
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: simba.hsu <simba.hsu@rad-ic.com>
 ---
- drivers/hid/hid-cp2112.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/raydium_i2c_ts.c | 52 ++++++++++++++++++----
+ 1 file changed, 44 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 477baa30889c..ece147d1a278 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -129,10 +129,12 @@ struct cp2112_xfer_status_report {
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+index 4d2d22a86977..d3f8cc3285a2 100644
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -36,7 +36,8 @@
+ #define RM_CMD_BOOT_CHK		0x33		/* send data check */
+ #define RM_CMD_BOOT_READ	0x44		/* send wait bl data ready*/
  
- struct cp2112_string_report {
- 	u8 dummy;		/* force .string to be aligned */
--	u8 report;		/* CP2112_*_STRING */
--	u8 length;		/* length in bytes of everyting after .report */
--	u8 type;		/* USB_DT_STRING */
--	wchar_t string[30];	/* UTF16_LITTLE_ENDIAN string */
-+	struct_group_attr(contents, __packed,
-+		u8 report;		/* CP2112_*_STRING */
-+		u8 length;		/* length in bytes of everything after .report */
-+		u8 type;		/* USB_DT_STRING */
-+		wchar_t string[30];	/* UTF16_LITTLE_ENDIAN string */
-+	);
- } __packed;
+-#define RM_BOOT_RDY		0xFF		/* bl data ready */
++#define RM_BOOT_RDY		0xFF			/* bl data ready */
++#define RM_BOOT_CMD_READHWID	0x0E	/* read hwid */
  
- /* Number of times to request transfer status before giving up waiting for a
-@@ -986,8 +988,8 @@ static ssize_t pstr_show(struct device *kdev,
- 	u8 length;
- 	int ret;
+ /* I2C main commands */
+ #define RM_CMD_QUERY_BANK	0x2B
+@@ -155,6 +156,7 @@ static int raydium_i2c_xfer(struct i2c_client *client, u32 addr,
+ 	 * sent first. Else, skip the header i.e. xfer[0].
+ 	 */
+ 	int xfer_start_idx = (addr > 0xff) ? 0 : 1;
++
+ 	xfer_count -= xfer_start_idx;
  
--	ret = cp2112_hid_get(hdev, attr->report, &report.report,
--			     sizeof(report) - 1, HID_FEATURE_REPORT);
-+	ret = cp2112_hid_get(hdev, attr->report, (u8 *)&report.contents,
-+			     sizeof(report.contents), HID_FEATURE_REPORT);
- 	if (ret < 3) {
- 		hid_err(hdev, "error reading %s string: %d\n", kattr->attr.name,
- 			ret);
+ 	ret = i2c_transfer(client->adapter, &xfer[xfer_start_idx], xfer_count);
+@@ -290,6 +292,43 @@ static int raydium_i2c_sw_reset(struct i2c_client *client)
+ 	return 0;
+ }
+ 
++static int raydium_i2c_query_ts_bootloader_info(struct raydium_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	static const u8 get_hwid[7] = {RM_BOOT_CMD_READHWID,
++				0x10, 0xc0, 0x01, 0x00, 0x04, 0x00};
++	u8 rbuf[5] = {0};
++	u32 hw_ver;
++	int error;
++
++	error = raydium_i2c_send(client, RM_CMD_BOOT_WRT,
++			 get_hwid, sizeof(get_hwid));
++	if (error) {
++		dev_err(&client->dev, "WRT HWID command failed: %d\n", error);
++		return error;
++	}
++
++	error = raydium_i2c_send(client, RM_CMD_BOOT_ACK, rbuf, 1);
++	if (error) {
++		dev_err(&client->dev, "Ack HWID command failed: %d\n", error);
++		return error;
++	}
++
++	error = raydium_i2c_read(client, RM_CMD_BOOT_CHK, rbuf, sizeof(rbuf));
++	if (error) {
++		dev_err(&client->dev, "Read HWID command failed: %d (%4ph)\n",
++			error, rbuf + 1);
++		hw_ver = 0xffffffffUL;
++	} else
++		hw_ver = get_unaligned_be32(rbuf + 1);
++
++	ts->info.hw_ver = cpu_to_le32(hw_ver);
++	ts->info.main_ver = 0xff;
++	ts->info.sub_ver = 0xff;
++
++	return error;
++}
++
+ static int raydium_i2c_query_ts_info(struct raydium_data *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+@@ -388,13 +427,10 @@ static int raydium_i2c_initialize(struct raydium_data *ts)
+ 	if (error)
+ 		ts->boot_mode = RAYDIUM_TS_BLDR;
+ 
+-	if (ts->boot_mode == RAYDIUM_TS_BLDR) {
+-		ts->info.hw_ver = cpu_to_le32(0xffffffffUL);
+-		ts->info.main_ver = 0xff;
+-		ts->info.sub_ver = 0xff;
+-	} else {
++	if (ts->boot_mode == RAYDIUM_TS_BLDR)
++		raydium_i2c_query_ts_bootloader_info(ts);
++	else
+ 		raydium_i2c_query_ts_info(ts);
+-	}
+ 
+ 	return error;
+ }
+@@ -1218,7 +1254,7 @@ static SIMPLE_DEV_PM_OPS(raydium_i2c_pm_ops,
+ 			 raydium_i2c_suspend, raydium_i2c_resume);
+ 
+ static const struct i2c_device_id raydium_i2c_id[] = {
+-	{ "raydium_i2c" , 0 },
++	{ "raydium_i2c", 0 },
+ 	{ "rm32380", 0 },
+ 	{ /* sentinel */ }
+ };
 -- 
-2.30.2
+2.25.1
 

@@ -2,101 +2,271 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B9D4C432BE
-	for <linux-input@archiver.kernel.org>; Thu, 19 Aug 2021 19:53:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C86FC4338F
+	for <linux-input@archiver.kernel.org>; Thu, 19 Aug 2021 20:18:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04253610E6
-	for <linux-input@archiver.kernel.org>; Thu, 19 Aug 2021 19:53:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D516F610F9
+	for <linux-input@archiver.kernel.org>; Thu, 19 Aug 2021 20:18:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229514AbhHSTxn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 19 Aug 2021 15:53:43 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:37397 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S233792AbhHSTxi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Aug 2021 15:53:38 -0400
-Received: (qmail 10514 invoked by uid 1000); 19 Aug 2021 15:53:00 -0400
-Date:   Thu, 19 Aug 2021 15:53:00 -0400
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     syzbot <syzbot+9b57a46bf1801ce2a2ca@syzkaller.appspotmail.com>
-Cc:     benjamin.tissoires@redhat.com, jikos@kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-usb@vger.kernel.org, mkubecek@suse.cz,
-        syzkaller-bugs@googlegroups.com
-Subject: Re: [syzbot] WARNING in hid_submit_ctrl/usb_submit_urb
-Message-ID: <20210819195300.GA8613@rowland.harvard.edu>
-References: <20210819152626.GD228422@rowland.harvard.edu>
- <00000000000009e24705c9ecf9b3@google.com>
+        id S234626AbhHSUTC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 19 Aug 2021 16:19:02 -0400
+Received: from phobos.denx.de ([85.214.62.61]:43890 "EHLO phobos.denx.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229853AbhHSUTC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 19 Aug 2021 16:19:02 -0400
+Received: from tr.lan (ip-89-176-112-137.net.upcbroadband.cz [89.176.112.137])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id 26AD38023C;
+        Thu, 19 Aug 2021 22:18:24 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1629404304;
+        bh=oIVhj386a6c2MMOqqy8i4/TR5xjoGdMqefgrqvPYzBA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=X6wW7ACjuMSsMMLeS8559sLvegXDWGXkfq31enm0g77cMj+Dd27LYZ/hWbb5JEinH
+         1YsXqfZLuCRSmDi47I1eSMF6jAinepMhSvhOLWVUu3Bn5kuhozAVWeE6y33eVKOK1Q
+         x+1xH6RC9WuO/FIX0sEkbp5Ix3Xhu0oVkCozdGuXGz/Taaqn49rKjm6X5cafw0p2p2
+         xhm3Zl6QYVaf5jNEjBDq8UYv9hon2xDXG4o25qcbYYaXMDKY0G4ftlc29D6RMWTfa1
+         LcZnP8kltG/FYl52vy3+dqEFnNh+9fBh7BrBB4Udl5m1GULrH+lvLoImLZR3mAViY/
+         o+3gTwzXo0uEw==
+From:   Marek Vasut <marex@denx.de>
+To:     linux-input@vger.kernel.org
+Cc:     ch@denx.de, Marek Vasut <marex@denx.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Joe Hung <joe_hung@ilitek.com>, Luca Hsu <luca_hsu@ilitek.com>
+Subject: [PATCH 1/2] Input: ili210x - export ili251x version details via sysfs
+Date:   Thu, 19 Aug 2021 22:17:58 +0200
+Message-Id: <20210819201759.2084481-1-marex@denx.de>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00000000000009e24705c9ecf9b3@google.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Aug 19, 2021 at 10:35:11AM -0700, syzbot wrote:
-> Hello,
-> 
-> syzbot has tested the proposed patch but the reproducer is still triggering an issue:
-> WARNING in hid_submit_ctrl/usb_submit_urb
-> 
-> cm6533_jd 0003:0D8C:0022.0001: submit_ctrl: maxpacket 64 len 0 padlen 0
-> ------------[ cut here ]------------
-> usb 1-1: BOGUS control dir, pipe 80000280 doesn't match bRequestType a1
+The ili251x firmware protocol permits readout of firmware version,
+protocol version, mcu version and current mode (application, boot
+loader, forced update). These information are useful when updating
+the firmware on the il251x, e.g. to avoid updating the same firmware
+into the device multiple times. The locking is now necessary to avoid
+races between interrupt handler and the sysfs readouts.
 
-Ah.   The padding code doesn't add anything if the length is 
-already a multiple of the maxpacket value, and of course 0 is such 
-a multiple.
+Note that the protocol differs considerably between the ili2xxx devices,
+this patch therefore implements this functionality only for ili251x that
+I can test.
 
-The following simplified variant of Michal's patch should fix the 
-problem.
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Joe Hung <joe_hung@ilitek.com>
+Cc: Luca Hsu <luca_hsu@ilitek.com>
+---
+NOTE: Regarding checkpatch warnings, Consider renaming function(s)
+      'ili251x_firmware_version_show' to 'firmware_version_show',
+      I considered it and decided against it, because grepping for
+      ili251x in debug symbols gives far more accurate results than
+      grepping for firmware_version.
+---
+ drivers/input/touchscreen/ili210x.c | 130 +++++++++++++++++++++++++++-
+ 1 file changed, 127 insertions(+), 3 deletions(-)
 
-Alan Stern
-
-#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 794c7931a242
-
-Index: usb-devel/drivers/hid/usbhid/hid-core.c
-===================================================================
---- usb-devel.orig/drivers/hid/usbhid/hid-core.c
-+++ usb-devel/drivers/hid/usbhid/hid-core.c
-@@ -377,27 +377,23 @@ static int hid_submit_ctrl(struct hid_de
- 	len = hid_report_len(report);
- 	if (dir == USB_DIR_OUT) {
- 		usbhid->urbctrl->pipe = usb_sndctrlpipe(hid_to_usb_dev(hid), 0);
--		usbhid->urbctrl->transfer_buffer_length = len;
- 		if (raw_report) {
- 			memcpy(usbhid->ctrlbuf, raw_report, len);
- 			kfree(raw_report);
- 			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
- 		}
- 	} else {
--		int maxpacket, padlen;
-+		int maxpacket;
+diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+index 30576a5f2f045..894f74dba5abf 100644
+--- a/drivers/input/touchscreen/ili210x.c
++++ b/drivers/input/touchscreen/ili210x.c
+@@ -22,6 +22,12 @@
+ /* Touchscreen commands */
+ #define REG_TOUCHDATA		0x10
+ #define REG_PANEL_INFO		0x20
++#define REG_FIRMWARE_VERSION	0x40
++#define REG_PROTOCOL_VERSION	0x42
++#define REG_KERNEL_VERSION	0x61
++#define REG_IC_MODE		0xc0
++#define REG_IC_MODE_AP		0x5a
++#define REG_IC_MODE_BL		0x55
+ #define REG_CALIBRATE		0xcc
  
- 		usbhid->urbctrl->pipe = usb_rcvctrlpipe(hid_to_usb_dev(hid), 0);
- 		maxpacket = usb_maxpacket(hid_to_usb_dev(hid),
- 					  usbhid->urbctrl->pipe, 0);
--		if (maxpacket > 0) {
--			padlen = DIV_ROUND_UP(len, maxpacket);
--			padlen *= maxpacket;
--			if (padlen > usbhid->bufsize)
--				padlen = usbhid->bufsize;
--		} else
--			padlen = 0;
--		usbhid->urbctrl->transfer_buffer_length = padlen;
-+		len += (len == 0);	/* Don't allow 0-length reports */
-+		len = round_up(len, maxpacket);
-+		if (len > usbhid->bufsize)
-+			len = usbhid->bufsize;
- 	}
-+	usbhid->urbctrl->transfer_buffer_length = len;
- 	usbhid->urbctrl->dev = hid_to_usb_dev(hid);
+ struct ili2xxx_chip {
+@@ -43,6 +49,7 @@ struct ili210x {
+ 	struct input_dev *input;
+ 	struct gpio_desc *reset_gpio;
+ 	struct touchscreen_properties prop;
++	struct mutex lock;
+ 	const struct ili2xxx_chip *chip;
+ 	bool stop;
+ };
+@@ -307,7 +314,9 @@ static irqreturn_t ili210x_irq(int irq, void *irq_data)
+ 	int error;
  
- 	usbhid->cr->bRequestType = USB_TYPE_CLASS | USB_RECIP_INTERFACE | dir;
+ 	do {
++		mutex_lock(&priv->lock);
+ 		error = chip->get_touch_data(client, touchdata);
++		mutex_unlock(&priv->lock);
+ 		if (error) {
+ 			dev_err(&client->dev,
+ 				"Unable to get touch data: %d\n", error);
+@@ -323,6 +332,108 @@ static irqreturn_t ili210x_irq(int irq, void *irq_data)
+ 	return IRQ_HANDLED;
+ }
+ 
++static ssize_t ili251x_firmware_version_show(struct device *dev,
++					     struct device_attribute *attr,
++					     char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ili210x *priv = i2c_get_clientdata(client);
++	u8 fw[8];
++	int ret;
++
++	/* Get firmware version */
++	mutex_lock(&priv->lock);
++	ret = priv->chip->read_reg(client, REG_FIRMWARE_VERSION,
++				   &fw, sizeof(fw));
++	mutex_unlock(&priv->lock);
++
++	if (ret)
++		return ret;
++
++	if (!ret) {
++		ret = scnprintf(buf, PAGE_SIZE,
++				"%02x%02x.%02x%02x.%02x%02x.%02x%02x\n",
++				fw[0], fw[1], fw[2], fw[3],
++				fw[4], fw[5], fw[6], fw[7]);
++	}
++
++	return ret;
++}
++static DEVICE_ATTR(firmware_version, 0444, ili251x_firmware_version_show, NULL);
++
++static ssize_t ili251x_kernel_version_show(struct device *dev,
++					   struct device_attribute *attr,
++					   char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ili210x *priv = i2c_get_clientdata(client);
++	u8 kv[5];
++	int ret;
++
++	/* Get kernel version */
++	mutex_lock(&priv->lock);
++	ret = priv->chip->read_reg(client, REG_KERNEL_VERSION,
++				   &kv, sizeof(kv));
++	mutex_unlock(&priv->lock);
++
++	if (ret)
++		return ret;
++
++	return scnprintf(buf, PAGE_SIZE, "%02x.%02x.%02x.%02x.%02x\n",
++			 kv[0], kv[1], kv[2], kv[3], kv[4]);
++}
++static DEVICE_ATTR(kernel_version, 0444, ili251x_kernel_version_show, NULL);
++
++static ssize_t ili251x_protocol_version_show(struct device *dev,
++					     struct device_attribute *attr,
++					     char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ili210x *priv = i2c_get_clientdata(client);
++	u8 pv[2];
++	int ret;
++
++	/* Get protocol version */
++	mutex_lock(&priv->lock);
++	ret = priv->chip->read_reg(client, REG_PROTOCOL_VERSION,
++				   &pv, sizeof(pv));
++	mutex_unlock(&priv->lock);
++
++	if (ret)
++		return ret;
++
++	return scnprintf(buf, PAGE_SIZE, "%02x.%02x\n", pv[0], pv[1]);
++}
++static DEVICE_ATTR(protocol_version, 0444, ili251x_protocol_version_show, NULL);
++
++static ssize_t ili251x_mode_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ili210x *priv = i2c_get_clientdata(client);
++	char *mode = "AP";
++	u8 md[2];
++	int ret;
++
++	/* Get mode */
++	mutex_lock(&priv->lock);
++	ret = priv->chip->read_reg(client, REG_IC_MODE, &md, sizeof(md));
++	mutex_unlock(&priv->lock);
++
++	if (ret)
++		return ret;
++
++	if (md[0] == REG_IC_MODE_AP)		/* Application Mode */
++		mode = "AP";
++	else if (md[0] == REG_IC_MODE_BL)	/* BootLoader Mode */
++		mode = "BL";
++	else					/* Unknown Mode */
++		mode = "??";
++
++	return scnprintf(buf, PAGE_SIZE, "%02x.%02x:%s\n", md[0], md[1], mode);
++}
++static DEVICE_ATTR(mode, 0444, ili251x_mode_show, NULL);
++
+ static ssize_t ili210x_calibrate(struct device *dev,
+ 				 struct device_attribute *attr,
+ 				 const char *buf, size_t count)
+@@ -351,22 +462,34 @@ static DEVICE_ATTR(calibrate, S_IWUSR, NULL, ili210x_calibrate);
+ 
+ static struct attribute *ili210x_attributes[] = {
+ 	&dev_attr_calibrate.attr,
++	&dev_attr_firmware_version.attr,
++	&dev_attr_kernel_version.attr,
++	&dev_attr_protocol_version.attr,
++	&dev_attr_mode.attr,
+ 	NULL,
+ };
+ 
+-static umode_t ili210x_calibrate_visible(struct kobject *kobj,
++static umode_t ili210x_attributes_visible(struct kobject *kobj,
+ 					  struct attribute *attr, int index)
+ {
+ 	struct device *dev = kobj_to_dev(kobj);
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct ili210x *priv = i2c_get_clientdata(client);
+ 
+-	return priv->chip->has_calibrate_reg ? attr->mode : 0;
++	/* Calibrate is present on all ILI2xxx which have calibrate register */
++	if (attr == &dev_attr_calibrate.attr)
++		return priv->chip->has_calibrate_reg ? attr->mode : 0;
++
++	/* Firmware/Kernel/Protocol/BootMode is implememted only for ILI251x */
++	if (priv->chip != &ili251x_chip)
++		return 0;
++
++	return attr->mode;
+ }
+ 
+ static const struct attribute_group ili210x_attr_group = {
+ 	.attrs = ili210x_attributes,
+-	.is_visible = ili210x_calibrate_visible,
++	.is_visible = ili210x_attributes_visible,
+ };
+ 
+ static void ili210x_power_down(void *data)
+@@ -437,6 +560,7 @@ static int ili210x_i2c_probe(struct i2c_client *client,
+ 	priv->input = input;
+ 	priv->reset_gpio = reset_gpio;
+ 	priv->chip = chip;
++	mutex_init(&priv->lock);
+ 	i2c_set_clientdata(client, priv);
+ 
+ 	/* Setup input device */
+-- 
+2.30.2
+

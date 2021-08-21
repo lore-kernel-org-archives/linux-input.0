@@ -2,100 +2,71 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC79FC4338F
-	for <linux-input@archiver.kernel.org>; Fri, 20 Aug 2021 22:32:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29B2DC4338F
+	for <linux-input@archiver.kernel.org>; Sat, 21 Aug 2021 15:23:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A6197610E6
-	for <linux-input@archiver.kernel.org>; Fri, 20 Aug 2021 22:32:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 107BB61214
+	for <linux-input@archiver.kernel.org>; Sat, 21 Aug 2021 15:23:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231378AbhHTWcn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 20 Aug 2021 18:32:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33592 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231274AbhHTWcl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 20 Aug 2021 18:32:41 -0400
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96393C061575
-        for <linux-input@vger.kernel.org>; Fri, 20 Aug 2021 15:32:02 -0700 (PDT)
-Received: by mail-lj1-x234.google.com with SMTP id y7so19593972ljp.3
-        for <linux-input@vger.kernel.org>; Fri, 20 Aug 2021 15:32:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LgYBVMN6GzUKjZP5GJGYn+7OStuZGF4uVrfkyLmZ5Nc=;
-        b=ANtFvTYsVGExgVvvhJphfE3cAs3abU9NK10b28judfgRg13Rih+gi6AUCxZ/aoyjwD
-         92OjX4J7TjZWL9jWB+XFnGRjFx96C2WP9Eyb1KzG28uVx5ghPbepsSmpU8TlACGs7nBs
-         uecSczVhjdkV4UyzAnv0DbMkvoJC9omT9rTbptnGVWUIs7sTEkKfP02Qn46yWNXKNoYx
-         Vvzx/6OjoORIFllGY27te/5+LDaJEcXUyghdbtttkwGu5HFZrmV3S21zBT1aItntMSLW
-         iJv/leUk9EdGBl5csNB9PGTSUzuKvWee0DMWOtaXiAVQQAkMiF/RUjDopBL9h0Lwq5by
-         GV+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LgYBVMN6GzUKjZP5GJGYn+7OStuZGF4uVrfkyLmZ5Nc=;
-        b=atxJI5oeP2tViBwEfC2Kg31Y0XqjH5w1ARvt2BcTF62kvpGrMfG0atEl61SLN4+qxI
-         nnYl/pEtyaXFn0SDjHmjpnwi0Yu/+yci/NNXF0ogXCaRKjEN4C/0B0X8fTwZqd5ZT3Hy
-         9hcqZK6keBJN3A2GBL07BzmrJwAdzcHZRSnS8rLBr2bRMy4MLnn6vqNkx1Bj5A3+uh7g
-         A4Czr5wb+suq2p8xzg5PywGa9AM6kNJUjTyJSwrL+xbHLoxTmSkTQzw+kymiVWUBlrLU
-         m3g0YPsSodjqeUyHH4OReFQlhj266efl4h5ezX31D0k+Wvo6QCOPP1UT9IhJ4cBU+cew
-         ohFA==
-X-Gm-Message-State: AOAM530JDqd9fN+QCN22+MxLSBKv/pC4cH7YMzBryKr2hOXnqrP5qqCt
-        wm1bdXY6sqtiYWX5rPUejUWUKw==
-X-Google-Smtp-Source: ABdhPJw3q8IiFVYgkWANZSqI8kbrv3FILm10Yf151IpElUbb2+8Kpboy5WbF230oq9AUBC7UR9zwIw==
-X-Received: by 2002:a2e:9c17:: with SMTP id s23mr17764321lji.197.1629498720910;
-        Fri, 20 Aug 2021 15:32:00 -0700 (PDT)
-Received: from localhost.localdomain (c-fdcc225c.014-348-6c756e10.bbcust.telenor.se. [92.34.204.253])
-        by smtp.gmail.com with ESMTPSA id o3sm744552lfo.301.2021.08.20.15.32.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Aug 2021 15:32:00 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        id S231864AbhHUPYC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 21 Aug 2021 11:24:02 -0400
+Received: from phobos.denx.de ([85.214.62.61]:46112 "EHLO phobos.denx.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231732AbhHUPYC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 21 Aug 2021 11:24:02 -0400
+Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id F036481269;
+        Sat, 21 Aug 2021 17:23:20 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1629559401;
+        bh=yh0i/kE6QHPQaHE/wyeDdIDV5NZJul2OST7ya/kGsSs=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=qKBzxcrGVCTAiL5UFkEA+hN4XrYuGShAjLNRWNqtzlquZa2wSCNHmcl4mnyAFqftF
+         GLyoF9j5NhhxILmrMHznz+JKF8vsYI7CEjH20uNTViNB2xBTmuZw16+R97BYbt4UDD
+         ejrTSzhPfX1qRIpmxuE/taNDN5rFOhS5arLPW9AC0qYR8brRqiHNbY4bVciCCaFUyJ
+         IFn4La49hSKe3z46LnnyIzkrm0ibsYaras2klqWG/71ZVlL2lC2mBNkY4ioSweIPkV
+         /ig/DQN8TFOn7jHMB1wGssWPBcTIapvqlfsJviaP1nHMUTSdPvqP/BJidj2nmMBnfQ
+         6MKNYvJPUbbTA==
+Subject: Re: [PATCH v3] dt-bindings: input: tsc2005: Convert to YAML schema
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     devicetree@vger.kernel.org, Michael Welling <mwelling@ieee.org>,
+        Rob Herring <robh+dt@kernel.org>, kernel@dh-electronics.com,
         linux-input@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Jean-Francois Dagenais <jeff.dagenais@gmail.com>,
-        Michael Hennerich <michael.hennerich@analog.com>
-Subject: [PATCH] Input: adp5588-keys - Use the right header
-Date:   Sat, 21 Aug 2021 00:29:58 +0200
-Message-Id: <20210820222958.57238-1-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.31.1
+References: <20210620210708.100147-1-marex@denx.de>
+ <YPtjPkOwwU7Xe1dC@google.com>
+From:   Marek Vasut <marex@denx.de>
+Message-ID: <0b0f2511-6075-e83f-b374-ac650b17e49a@denx.de>
+Date:   Sat, 21 Aug 2021 17:23:20 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <YPtjPkOwwU7Xe1dC@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This keyboard driver is implementing a GPIO driver, so it need
-to include <linux/gpio/driver.h> and not the legacy <linux/gpio.h>
-header.
+On 7/24/21 2:47 AM, Dmitry Torokhov wrote:
+> On Sun, Jun 20, 2021 at 11:07:08PM +0200, Marek Vasut wrote:
+>> Convert the TI TSC2004/TSC2005 DT bindings to YAML schema.
+>>
+[...]
+> 
+> Applied, thank you.
 
-Cc: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/input/keyboard/adp5588-keys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Did the patch get lost somewhere ?
+Shouldn't this be in linux-next by now ?
 
-diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-index 90a59b973d00..1592da4de336 100644
---- a/drivers/input/keyboard/adp5588-keys.c
-+++ b/drivers/input/keyboard/adp5588-keys.c
-@@ -17,7 +17,7 @@
- #include <linux/platform_device.h>
- #include <linux/input.h>
- #include <linux/i2c.h>
--#include <linux/gpio.h>
-+#include <linux/gpio/driver.h>
- #include <linux/slab.h>
- 
- #include <linux/platform_data/adp5588.h>
--- 
-2.31.1
-
+Thanks

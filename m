@@ -2,30 +2,30 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF5C6C2BB4C
-	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:34:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7D14C2BB55
+	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5BA06109E
-	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:34:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9204610A4
+	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241979AbhHYPfo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Aug 2021 11:35:44 -0400
-Received: from mslow1.mail.gandi.net ([217.70.178.240]:33887 "EHLO
+        id S241992AbhHYPfp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Aug 2021 11:35:45 -0400
+Received: from mslow1.mail.gandi.net ([217.70.178.240]:35307 "EHLO
         mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241908AbhHYPfh (ORCPT
+        with ESMTP id S241935AbhHYPfi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Aug 2021 11:35:37 -0400
+        Wed, 25 Aug 2021 11:35:38 -0400
 Received: from relay6-d.mail.gandi.net (unknown [217.70.183.198])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 73F49C82E9;
-        Wed, 25 Aug 2021 15:26:43 +0000 (UTC)
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 6E450CDF29;
+        Wed, 25 Aug 2021 15:26:48 +0000 (UTC)
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id EAEB8C001A;
-        Wed, 25 Aug 2021 15:26:17 +0000 (UTC)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 199BDC0007;
+        Wed, 25 Aug 2021 15:26:24 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Jonathan Cameron <jic23@kernel.org>,
         Lars-Peter Clausen <lars@metafoo.de>,
@@ -41,11 +41,10 @@ Cc:     Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
         linux-input@vger.kernel.org, linux-omap@vger.kernel.org,
         linux-clk@vger.kernel.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Jason Reeder <jreeder@ti.com>
-Subject: [PATCH 28/40] mfd: ti_am335x_tscadc: Add ADC1/magnetic reader support
-Date:   Wed, 25 Aug 2021 17:25:06 +0200
-Message-Id: <20210825152518.379386-29-miquel.raynal@bootlin.com>
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 31/40] iio: adc: ti_am335x_adc: Fix style
+Date:   Wed, 25 Aug 2021 17:25:09 +0200
+Message-Id: <20210825152518.379386-32-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210825152518.379386-1-miquel.raynal@bootlin.com>
 References: <20210825152518.379386-1-miquel.raynal@bootlin.com>
@@ -56,156 +55,316 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Introduce a new compatible that has another set of driver data,
-targeting am437x SoCs with a magnetic reader instead of the
-touchscreen and a more featureful set of registers.
+These warnings are reported by checkpatch.pl essentially.
 
-Co-developed-by: Jason Reeder <jreeder@ti.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Jason Reeder <jreeder@ti.com>
 ---
- drivers/mfd/ti_am335x_tscadc.c       | 43 ++++++++++++++++++++++------
- include/linux/mfd/ti_am335x_tscadc.h |  9 +++++-
- 2 files changed, 43 insertions(+), 9 deletions(-)
+ drivers/iio/adc/ti_am335x_adc.c | 104 ++++++++++++++++----------------
+ 1 file changed, 52 insertions(+), 52 deletions(-)
 
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index 1a30610dc65f..f4f6b9db4d2a 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -122,9 +122,9 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	const __be32 *cur;
- 	struct clk *clk;
- 	u32 val;
--	bool use_tsc = false;
-+	bool use_tsc = false, use_mag = false;
- 	int tscmag_wires = 0, adc_channels = 0, readouts = 0, cell_idx = 0;
--	int total_channels, err;
-+	int mag_tracks = 0, total_channels, err;
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+index a5da1fedbc5c..dd2200d2f214 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -57,7 +57,7 @@ static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
+ }
  
- 	/* Allocate memory for device */
- 	tscadc = devm_kzalloc(&pdev->dev, sizeof(*tscadc), GFP_KERNEL);
-@@ -146,6 +146,12 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 		of_property_read_u32(node, "ti,coordiante-readouts", &readouts);
- 		if (tscmag_wires)
- 			use_tsc = true;
-+	} else {
-+		node = of_get_child_by_name(pdev->dev.of_node, "mag");
-+		of_property_read_u32(node, "ti,tracks", &mag_tracks);
-+		tscmag_wires = mag_tracks * 2;
-+		if (tscmag_wires)
-+			use_mag = true;
- 	}
+ static void tiadc_writel(struct tiadc_device *adc, unsigned int reg,
+-					unsigned int val)
++			 unsigned int val)
+ {
+ 	writel(val, adc->mfd_tscadc->tscadc_base + reg);
+ }
+@@ -72,7 +72,7 @@ static u32 get_adc_step_mask(struct tiadc_device *adc_dev)
+ }
  
- 	node = of_get_child_by_name(pdev->dev.of_node, "adc");
-@@ -206,8 +212,9 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	 * The TSC_ADC_Subsystem has 2 clock domains: OCP_CLK and ADC_CLK.
- 	 * ADCs produce a 12-bit sample every 15 ADC_CLK cycles.
- 	 * am33xx ADCs expect to capture 200ksps.
--	 * We need the ADC clocks to run at 3MHz.
--	 * This frequency is valid since TSC_ADC_SS controller design
-+	 * am47xx ADCs expect to capture 867ksps.
-+	 * We need ADC clocks respectively running at 3MHz and 13MHz.
-+	 * These frequencies are valid since TSC_ADC_SS controller design
- 	 * assumes the OCP clock is at least 6x faster than the ADC clock.
+ static u32 get_adc_chan_step_mask(struct tiadc_device *adc_dev,
+-		struct iio_chan_spec const *chan)
++				  struct iio_chan_spec const *chan)
+ {
+ 	int i;
+ 
+@@ -110,8 +110,6 @@ static void tiadc_step_config(struct iio_dev *indio_dev)
+ 	 * Channel would represent which analog input
+ 	 * needs to be given to ADC to digitalize data.
  	 */
- 	clk = devm_clk_get(&pdev->dev, NULL);
-@@ -231,7 +238,9 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 			else
- 				tscadc->ctrl |= CNTRLREG_TSC_4WIRE;
- 		}
 -
-+	} else {
-+		tscadc->ctrl |= CNTRLREG_MAG_PREAMP_PWRDOWN |
-+				CNTRLREG_MAG_PREAMP_BYPASS;
+-
+ 	for (i = 0; i < adc_dev->channels; i++) {
+ 		int chan;
+ 
+@@ -124,9 +122,8 @@ static void tiadc_step_config(struct iio_dev *indio_dev)
+ 		}
+ 
+ 		if (adc_dev->step_avg[i])
+-			stepconfig =
+-			STEPCONFIG_AVG(ffs(adc_dev->step_avg[i]) - 1) |
+-			STEPCONFIG_FIFO1;
++			stepconfig = STEPCONFIG_AVG(ffs(adc_dev->step_avg[i]) - 1) |
++				     STEPCONFIG_FIFO1;
+ 		else
+ 			stepconfig = STEPCONFIG_FIFO1;
+ 
+@@ -134,10 +131,9 @@ static void tiadc_step_config(struct iio_dev *indio_dev)
+ 			stepconfig |= STEPCONFIG_MODE_SWCNT;
+ 
+ 		tiadc_writel(adc_dev, REG_STEPCONFIG(steps),
+-				stepconfig | STEPCONFIG_INP(chan) |
+-				STEPCONFIG_INM_ADCREFM |
+-				STEPCONFIG_RFP_VREFP |
+-				STEPCONFIG_RFM_VREFN);
++			     stepconfig | STEPCONFIG_INP(chan) |
++			     STEPCONFIG_INM_ADCREFM | STEPCONFIG_RFP_VREFP |
++			     STEPCONFIG_RFM_VREFN);
+ 
+ 		if (adc_dev->open_delay[i] > STEPDELAY_OPEN_MASK) {
+ 			dev_warn(dev, "chan %d open delay truncating to 0x3FFFF\n",
+@@ -152,8 +148,8 @@ static void tiadc_step_config(struct iio_dev *indio_dev)
+ 		}
+ 
+ 		tiadc_writel(adc_dev, REG_STEPDELAY(steps),
+-				STEPDELAY_OPEN(adc_dev->open_delay[i]) |
+-				STEPDELAY_SAMPLE(adc_dev->sample_delay[i]));
++			     STEPDELAY_OPEN(adc_dev->open_delay[i]) |
++			     STEPDELAY_SAMPLE(adc_dev->sample_delay[i]));
+ 
+ 		adc_dev->channel_step[i] = steps;
+ 		steps++;
+@@ -178,10 +174,12 @@ static irqreturn_t tiadc_irq_h(int irq, void *private)
+ 		config = tiadc_readl(adc_dev, REG_CTRL);
+ 		config &= ~(CNTRLREG_SSENB);
+ 		tiadc_writel(adc_dev, REG_CTRL, config);
+-		tiadc_writel(adc_dev, REG_IRQSTATUS, IRQENB_FIFO1OVRRUN
+-				| IRQENB_FIFO1UNDRFLW | IRQENB_FIFO1THRES);
++		tiadc_writel(adc_dev, REG_IRQSTATUS,
++			     IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW |
++			     IRQENB_FIFO1THRES);
+ 
+-		/* wait for idle state.
++		/*
++		 * Wait for the idle state.
+ 		 * ADC needs to finish the current conversion
+ 		 * before disabling the module
+ 		 */
+@@ -209,11 +207,11 @@ static irqreturn_t tiadc_worker_h(int irq, void *private)
+ 
+ 	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
+ 	for (k = 0; k < fifo1count; k = k + i) {
+-		for (i = 0; i < (indio_dev->scan_bytes)/2; i++) {
++		for (i = 0; i < (indio_dev->scan_bytes / 2); i++) {
+ 			read = tiadc_readl(adc_dev, REG_FIFO1);
+ 			data[i] = read & FIFOREAD_DATA_MASK;
+ 		}
+-		iio_push_to_buffers(indio_dev, (u8 *) data);
++		iio_push_to_buffers(indio_dev, (u8 *)data);
  	}
  
- 	regmap_write(tscadc->regmap, REG_CTRL, tscadc->ctrl);
-@@ -241,7 +250,7 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	/* Enable the TSC module enable bit */
- 	regmap_write(tscadc->regmap, REG_CTRL, tscadc->ctrl | CNTRLREG_SSENB);
+ 	tiadc_writel(adc_dev, REG_IRQSTATUS, IRQENB_FIFO1THRES);
+@@ -246,6 +244,7 @@ static int tiadc_start_dma(struct iio_dev *indio_dev)
+ 	struct dma_async_tx_descriptor *desc;
  
--	/* TSC Cell */
-+	/* TSC or MAG Cell */
- 	if (tscmag_wires > 0) {
- 		cell = &tscadc->cells[cell_idx++];
- 		cell->name = tscadc->data->name_tscmag;
-@@ -329,6 +338,7 @@ static SIMPLE_DEV_PM_OPS(tscadc_pm_ops, tscadc_suspend, tscadc_resume);
+ 	dma->current_period = 0; /* We start to fill period 0 */
++
+ 	/*
+ 	 * Make the fifo thresh as the multiple of total number of
+ 	 * channels enabled, so make sure that cyclic DMA period
+@@ -255,9 +254,10 @@ static int tiadc_start_dma(struct iio_dev *indio_dev)
+ 	 */
+ 	dma->fifo_thresh = rounddown(FIFO1_THRESHOLD + 1,
+ 				     adc_dev->total_ch_enabled) - 1;
++
+ 	/* Make sure that period length is multiple of fifo thresh level */
+ 	dma->period_size = rounddown(DMA_BUFFER_SIZE / 2,
+-				    (dma->fifo_thresh + 1) * sizeof(u16));
++				     (dma->fifo_thresh + 1) * sizeof(u16));
  
- static const struct ti_tscadc_data tscdata = {
- 	.has_tsc = true,
-+	.has_mag = false,
- 	.name_tscmag = "TI-am335x-tsc",
- 	.compat_tscmag = "ti,am3359-tsc",
- 	.name_adc = "TI-am335x-adc",
-@@ -336,8 +346,25 @@ static const struct ti_tscadc_data tscdata = {
- 	.target_clk_rate = TSC_ADC_CLK,
+ 	dma->conf.src_maxburst = dma->fifo_thresh + 1;
+ 	dmaengine_slave_config(dma->chan, &dma->conf);
+@@ -288,9 +288,9 @@ static int tiadc_buffer_preenable(struct iio_dev *indio_dev)
+ 	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+ 	int i, fifo1count;
+ 
+-	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
+-				IRQENB_FIFO1OVRRUN |
+-				IRQENB_FIFO1UNDRFLW));
++	tiadc_writel(adc_dev, REG_IRQCLR,
++		     IRQENB_FIFO1THRES | IRQENB_FIFO1OVRRUN |
++		     IRQENB_FIFO1UNDRFLW);
+ 
+ 	/* Flush FIFO. Needed in corner cases in simultaneous tsc/adc use */
+ 	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
+@@ -320,8 +320,9 @@ static int tiadc_buffer_postenable(struct iio_dev *indio_dev)
+ 
+ 	am335x_tsc_se_set_cache(adc_dev->mfd_tscadc, enb);
+ 
+-	tiadc_writel(adc_dev,  REG_IRQSTATUS, IRQENB_FIFO1THRES
+-				| IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW);
++	tiadc_writel(adc_dev, REG_IRQSTATUS,
++		     IRQENB_FIFO1THRES | IRQENB_FIFO1OVRRUN |
++		     IRQENB_FIFO1UNDRFLW);
+ 
+ 	irq_enable = IRQENB_FIFO1OVRRUN;
+ 	if (!dma->chan)
+@@ -337,8 +338,9 @@ static int tiadc_buffer_predisable(struct iio_dev *indio_dev)
+ 	struct tiadc_dma *dma = &adc_dev->dma;
+ 	int fifo1count, i;
+ 
+-	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
+-				IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW));
++	tiadc_writel(adc_dev, REG_IRQCLR,
++		     IRQENB_FIFO1THRES | IRQENB_FIFO1OVRRUN |
++		     IRQENB_FIFO1UNDRFLW);
+ 	am335x_tsc_se_clr(adc_dev->mfd_tscadc, adc_dev->buffer_en_ch_steps);
+ 	adc_dev->buffer_en_ch_steps = 0;
+ 	adc_dev->total_ch_enabled = 0;
+@@ -370,12 +372,11 @@ static const struct iio_buffer_setup_ops tiadc_buffer_setup_ops = {
  };
  
-+static const struct ti_tscadc_data magdata = {
-+	.has_tsc = false,
-+	.has_mag = true,
-+	.name_tscmag = "TI-am43xx-mag",
-+	.compat_tscmag = "ti,am4372-mag",
-+	.name_adc = "TI-am43xx-adc",
-+	.compat_adc = "ti,am4372-adc",
-+	.target_clk_rate = MAG_ADC_CLK,
-+};
+ static int tiadc_iio_buffered_hardware_setup(struct device *dev,
+-	struct iio_dev *indio_dev,
+-	irqreturn_t (*pollfunc_bh)(int irq, void *p),
+-	irqreturn_t (*pollfunc_th)(int irq, void *p),
+-	int irq,
+-	unsigned long flags,
+-	const struct iio_buffer_setup_ops *setup_ops)
++					     struct iio_dev *indio_dev,
++					     irqreturn_t (*pollfunc_bh)(int irq, void *p),
++					     irqreturn_t (*pollfunc_th)(int irq, void *p),
++					     int irq, unsigned long flags,
++					     const struct iio_buffer_setup_ops *setup_ops)
+ {
+ 	int ret;
+ 
+@@ -386,7 +387,7 @@ static int tiadc_iio_buffered_hardware_setup(struct device *dev,
+ 		return ret;
+ 
+ 	return devm_request_threaded_irq(dev, irq, pollfunc_th, pollfunc_bh,
+-				flags, indio_dev->name, indio_dev);
++					 flags, indio_dev->name, indio_dev);
+ }
+ 
+ static const char * const chan_name_ain[] = {
+@@ -411,12 +412,11 @@ static int tiadc_channel_init(struct device *dev, struct iio_dev *indio_dev,
+ 	indio_dev->num_channels = channels;
+ 	chan_array = devm_kcalloc(dev, channels, sizeof(*chan_array),
+ 				  GFP_KERNEL);
+-	if (chan_array == NULL)
++	if (!chan_array)
+ 		return -ENOMEM;
+ 
+ 	chan = chan_array;
+ 	for (i = 0; i < channels; i++, chan++) {
+-
+ 		chan->type = IIO_VOLTAGE;
+ 		chan->indexed = 1;
+ 		chan->channel = adc_dev->channel_line[i];
+@@ -434,8 +434,8 @@ static int tiadc_channel_init(struct device *dev, struct iio_dev *indio_dev,
+ }
+ 
+ static int tiadc_read_raw(struct iio_dev *indio_dev,
+-		struct iio_chan_spec const *chan,
+-		int *val, int *val2, long mask)
++			  struct iio_chan_spec const *chan, int *val, int *val2,
++			  long mask)
+ {
+ 	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+ 	int ret = IIO_VAL_INT;
+@@ -459,9 +459,8 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
+ 
+ 	am335x_tsc_se_set_once(adc_dev->mfd_tscadc, step_en);
+ 
+-	timeout = jiffies + msecs_to_jiffies
+-				(IDLE_TIMEOUT * adc_dev->channels);
+ 	/* Wait for Fifo threshold interrupt */
++	timeout = jiffies + msecs_to_jiffies(IDLE_TIMEOUT * adc_dev->channels);
+ 	while (1) {
+ 		fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
+ 		if (fifo1count)
+@@ -473,6 +472,7 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
+ 			goto err_unlock;
+ 		}
+ 	}
 +
- static const struct of_device_id ti_tscadc_dt_ids[] = {
--	{ .compatible = "ti,am3359-tscadc", },
-+	{
-+		.compatible = "ti,am3359-tscadc",
-+		.data = &tscdata,
-+	},
-+	{
-+		.compatible = "ti,am4372-magadc",
-+		.data = &magdata,
-+	},
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, ti_tscadc_dt_ids);
-@@ -355,6 +382,6 @@ static struct platform_driver ti_tscadc_driver = {
+ 	map_val = adc_dev->channel_step[chan->scan_index];
  
- module_platform_driver(ti_tscadc_driver);
- 
--MODULE_DESCRIPTION("TI touchscreen / ADC MFD controller driver");
-+MODULE_DESCRIPTION("TI touchscreen/magnetic reader/ADC MFD controller driver");
- MODULE_AUTHOR("Rachna Patil <rachna@ti.com>");
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index 082b2af94263..31b22ec567e7 100644
---- a/include/linux/mfd/ti_am335x_tscadc.h
-+++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -129,6 +129,11 @@
- #define CNTRLREG_TSC_8WIRE	CNTRLREG_TSC_AFE_CTRL(3)
- #define CNTRLREG_TSC_ENB	BIT(7)
- 
-+/*Control registers bitfields  for MAGADC IP */
-+#define CNTRLREG_MAGADCENB      BIT(0)
-+#define CNTRLREG_MAG_PREAMP_PWRDOWN BIT(5)
-+#define CNTRLREG_MAG_PREAMP_BYPASS  BIT(6)
+ 	/*
+@@ -490,13 +490,14 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
+ 		if (stepid == map_val) {
+ 			read = read & FIFOREAD_DATA_MASK;
+ 			found = true;
+-			*val = (u16) read;
++			*val = (u16)read;
+ 		}
+ 	}
 +
- /* FIFO READ Register */
- #define FIFOREAD_DATA_MASK (0xfff << 0)
- #define FIFOREAD_CHNLID_MASK (0xf << 16)
-@@ -141,7 +146,8 @@
- #define SEQ_STATUS BIT(5)
- #define CHARGE_STEP		0x11
+ 	am335x_tsc_se_adc_done(adc_dev->mfd_tscadc);
  
--#define TSC_ADC_CLK		3000000
-+#define TSC_ADC_CLK		3000000 /* 3 MHz */
-+#define MAG_ADC_CLK		13000000 /* 13 MHz */
- #define TOTAL_STEPS		16
- #define TOTAL_CHANNELS		8
- #define FIFO1_THRESHOLD		19
-@@ -164,6 +170,7 @@
+ 	if (!found)
+-		ret =  -EBUSY;
++		ret = -EBUSY;
  
- struct ti_tscadc_data {
- 	bool has_tsc;
-+	bool has_mag;
- 	char *name_tscmag;
- 	char *compat_tscmag;
- 	char *name_adc;
+ err_unlock:
+ 	mutex_unlock(&adc_dev->fifo1_lock);
+@@ -537,6 +538,7 @@ static int tiadc_request_dma(struct platform_device *pdev,
+ 		goto err;
+ 
+ 	return 0;
++
+ err:
+ 	dma_release_channel(dma->chan);
+ 	return -ENOMEM;
+@@ -586,7 +588,7 @@ static int tiadc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*adc_dev));
+-	if (indio_dev == NULL) {
++	if (!indio_dev) {
+ 		dev_err(&pdev->dev, "failed to allocate iio device\n");
+ 		return -ENOMEM;
+ 	}
+@@ -608,12 +610,11 @@ static int tiadc_probe(struct platform_device *pdev)
+ 		return err;
+ 
+ 	err = tiadc_iio_buffered_hardware_setup(&pdev->dev, indio_dev,
+-		&tiadc_worker_h,
+-		&tiadc_irq_h,
+-		adc_dev->mfd_tscadc->irq,
+-		IRQF_SHARED,
+-		&tiadc_buffer_setup_ops);
+-
++						&tiadc_worker_h,
++						&tiadc_irq_h,
++						adc_dev->mfd_tscadc->irq,
++						IRQF_SHARED,
++						&tiadc_buffer_setup_ops);
+ 	if (err)
+ 		goto err_free_channels;
+ 
+@@ -664,8 +665,7 @@ static int __maybe_unused tiadc_suspend(struct device *dev)
+ 
+ 	idle = tiadc_readl(adc_dev, REG_CTRL);
+ 	idle &= ~(CNTRLREG_SSENB);
+-	tiadc_writel(adc_dev, REG_CTRL, (idle |
+-			CNTRLREG_POWERDOWN));
++	tiadc_writel(adc_dev, REG_CTRL, idle | CNTRLREG_POWERDOWN);
+ 
+ 	return 0;
+ }
+@@ -678,12 +678,12 @@ static int __maybe_unused tiadc_resume(struct device *dev)
+ 
+ 	/* Make sure ADC is powered up */
+ 	restore = tiadc_readl(adc_dev, REG_CTRL);
+-	restore &= ~(CNTRLREG_POWERDOWN);
++	restore &= ~CNTRLREG_POWERDOWN;
+ 	tiadc_writel(adc_dev, REG_CTRL, restore);
+ 
+ 	tiadc_step_config(indio_dev);
+ 	am335x_tsc_se_set_cache(adc_dev->mfd_tscadc,
+-			adc_dev->buffer_en_ch_steps);
++				adc_dev->buffer_en_ch_steps);
+ 	return 0;
+ }
+ 
 -- 
 2.27.0
 

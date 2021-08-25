@@ -7,25 +7,25 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38991C2BB01
-	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:34:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F08EC2BB4D
+	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A43F6112D
-	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:34:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46966610FD
+	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241974AbhHYPfm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Aug 2021 11:35:42 -0400
-Received: from mslow1.mail.gandi.net ([217.70.178.240]:50191 "EHLO
+        id S241985AbhHYPfo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Aug 2021 11:35:44 -0400
+Received: from mslow1.mail.gandi.net ([217.70.178.240]:42415 "EHLO
         mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241906AbhHYPfh (ORCPT
+        with ESMTP id S241931AbhHYPfh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 25 Aug 2021 11:35:37 -0400
 Received: from relay6-d.mail.gandi.net (unknown [217.70.183.198])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 5BC8EC6994;
-        Wed, 25 Aug 2021 15:26:42 +0000 (UTC)
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 1B1DDCDEE2;
+        Wed, 25 Aug 2021 15:26:46 +0000 (UTC)
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id E8FC9C0018;
-        Wed, 25 Aug 2021 15:26:15 +0000 (UTC)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 24404C0004;
+        Wed, 25 Aug 2021 15:26:22 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Jonathan Cameron <jic23@kernel.org>,
         Lars-Peter Clausen <lars@metafoo.de>,
@@ -42,9 +42,9 @@ Cc:     Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         linux-input@vger.kernel.org, linux-omap@vger.kernel.org,
         linux-clk@vger.kernel.org,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 27/40] mfd: ti_am335x_tscadc: Move control register configuration
-Date:   Wed, 25 Aug 2021 17:25:05 +0200
-Message-Id: <20210825152518.379386-28-miquel.raynal@bootlin.com>
+Subject: [PATCH 30/40] iio: adc: ti_am335x_adc: Replace license text with SPDX tag
+Date:   Wed, 25 Aug 2021 17:25:08 +0200
+Message-Id: <20210825152518.379386-31-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210825152518.379386-1-miquel.raynal@bootlin.com>
 References: <20210825152518.379386-1-miquel.raynal@bootlin.com>
@@ -55,40 +55,36 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The datasheet states that most of the configuration should be set in the
-control register in the first place, before actually enabling the
-hardware. So far only half of the configuration was made in the first
-step, which does not make really sense and would complicating the code
-when introducing support for the am437x hardware.
-
-Let's move that register write a bit below to enclose more configuration.
+Drop the text license and replace it with an equivalent SPDX license tag
+identifier.
 
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/mfd/ti_am335x_tscadc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ti_am335x_adc.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index a40091830cea..1a30610dc65f 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -224,7 +224,6 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	tscadc->ctrl = CNTRLREG_STEPID;
- 	if (tscadc->data->has_tsc) {
- 		tscadc->ctrl |= CNTRLREG_TSC_STEPCONFIGWRT;
--		regmap_write(tscadc->regmap, REG_CTRL, tscadc->ctrl);
- 		if (use_tsc) {
- 			tscadc->ctrl |= CNTRLREG_TSC_ENB;
- 			if (tscmag_wires == 5)
-@@ -235,6 +234,8 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+index f748d49f10f4..a5da1fedbc5c 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -1,16 +1,8 @@
++// SPDX-License-Identifier: GPL-2.0-only
+ /*
+  * TI ADC MFD driver
+  *
+  * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation version 2.
+- *
+- * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+- * kind, whether express or implied; without even the implied warranty
+- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+  */
  
- 	}
- 
-+	regmap_write(tscadc->regmap, REG_CTRL, tscadc->ctrl);
-+
- 	tscadc_idle_config(tscadc);
- 
- 	/* Enable the TSC module enable bit */
+ #include <linux/kernel.h>
 -- 
 2.27.0
 

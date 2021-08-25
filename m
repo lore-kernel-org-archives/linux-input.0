@@ -7,25 +7,25 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2045CC2D0C5
-	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62983C25B12
+	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 092456109E
-	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A07561100
+	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242035AbhHYPfu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Aug 2021 11:35:50 -0400
-Received: from mslow1.mail.gandi.net ([217.70.178.240]:47475 "EHLO
+        id S241802AbhHYPft (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Aug 2021 11:35:49 -0400
+Received: from mslow1.mail.gandi.net ([217.70.178.240]:38367 "EHLO
         mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241961AbhHYPfl (ORCPT
+        with ESMTP id S241956AbhHYPfl (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 25 Aug 2021 11:35:41 -0400
 Received: from relay6-d.mail.gandi.net (unknown [217.70.183.198])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 373F2C32AE;
-        Wed, 25 Aug 2021 15:27:06 +0000 (UTC)
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 43883C29B4;
+        Wed, 25 Aug 2021 15:27:02 +0000 (UTC)
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id AF657C000B;
-        Wed, 25 Aug 2021 15:26:42 +0000 (UTC)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 9691FC000A;
+        Wed, 25 Aug 2021 15:26:38 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Jonathan Cameron <jic23@kernel.org>,
         Lars-Peter Clausen <lars@metafoo.de>,
@@ -42,9 +42,9 @@ Cc:     Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         linux-input@vger.kernel.org, linux-omap@vger.kernel.org,
         linux-clk@vger.kernel.org,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 40/40] ARM: dts: am437x-gp-evm: enable ADC1
-Date:   Wed, 25 Aug 2021 17:25:18 +0200
-Message-Id: <20210825152518.379386-41-miquel.raynal@bootlin.com>
+Subject: [PATCH 38/40] ARM: dts: am437x-cm-t43: Use a correctly spelled DT property
+Date:   Wed, 25 Aug 2021 17:25:16 +0200
+Message-Id: <20210825152518.379386-39-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210825152518.379386-1-miquel.raynal@bootlin.com>
 References: <20210825152518.379386-1-miquel.raynal@bootlin.com>
@@ -55,34 +55,30 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-ADC0 and ADC1 pins are available on external connector J22.
+Back in 2014 a property got mispelled "ti,coordiante-readouts" instead
+of "ti,coordinate-readouts".
 
-Enable ADC1 which was missing.
+The year after it got fixed but both are still supported, although this
+is not a reason to continue using this old deprecated property.
 
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- arch/arm/boot/dts/am437x-gp-evm.dts | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm/boot/dts/am437x-cm-t43.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
-index a383d5c035f9..a611d3899209 100644
---- a/arch/arm/boot/dts/am437x-gp-evm.dts
-+++ b/arch/arm/boot/dts/am437x-gp-evm.dts
-@@ -775,6 +775,14 @@ adc {
+diff --git a/arch/arm/boot/dts/am437x-cm-t43.dts b/arch/arm/boot/dts/am437x-cm-t43.dts
+index a83f46ed0c9a..c06cf9373812 100644
+--- a/arch/arm/boot/dts/am437x-cm-t43.dts
++++ b/arch/arm/boot/dts/am437x-cm-t43.dts
+@@ -399,7 +399,7 @@ &tscadc {
+ 	tsc {
+ 		ti,wires = <4>;
+ 		ti,x-plate-resistance = <200>;
+-		ti,coordiante-readouts = <5>;
++		ti,coordinate-readouts = <5>;
+ 		ti,wire-config = <0x00 0x11 0x22 0x33>;
  	};
- };
  
-+&magadc {
-+	status = "okay";
-+
-+	adc {
-+		ti,adc-channels = <0 1 2 3 4 5 6 7>;
-+	};
-+};
-+
- &ecap0 {
- 	status = "disabled";
- 	pinctrl-names = "default";
 -- 
 2.27.0
 

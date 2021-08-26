@@ -2,131 +2,95 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71DA2C25AF2
-	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8303DC4320E
+	for <linux-input@archiver.kernel.org>; Thu, 26 Aug 2021 10:06:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 522DA6113A
-	for <linux-input@archiver.kernel.org>; Wed, 25 Aug 2021 15:35:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 660BB610E9
+	for <linux-input@archiver.kernel.org>; Thu, 26 Aug 2021 10:06:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242047AbhHYPfv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Aug 2021 11:35:51 -0400
-Received: from mslow1.mail.gandi.net ([217.70.178.240]:37095 "EHLO
-        mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241957AbhHYPfl (ORCPT
+        id S241088AbhHZKHk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 26 Aug 2021 06:07:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54592 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240937AbhHZKHj (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Aug 2021 11:35:41 -0400
-Received: from relay6-d.mail.gandi.net (unknown [217.70.183.198])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 651C6C0953;
-        Wed, 25 Aug 2021 15:27:04 +0000 (UTC)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id AAADEC000F;
-        Wed, 25 Aug 2021 15:26:40 +0000 (UTC)
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>, bcousson@baylibre.com,
-        Tony Lindgren <tony@atomide.com>,
-        Tero Kristo <t-kristo@ti.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Cc:     Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        "Ryan J . Barnett" <ryan.barnett@collins.com>,
-        linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-clk@vger.kernel.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 39/40] ARM: dts: am43xx: Describe the magnetic reader/ADC1 hardware module
-Date:   Wed, 25 Aug 2021 17:25:17 +0200
-Message-Id: <20210825152518.379386-40-miquel.raynal@bootlin.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210825152518.379386-1-miquel.raynal@bootlin.com>
-References: <20210825152518.379386-1-miquel.raynal@bootlin.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+        Thu, 26 Aug 2021 06:07:39 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 389ADC061757
+        for <linux-input@vger.kernel.org>; Thu, 26 Aug 2021 03:06:52 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id mw10-20020a17090b4d0a00b0017b59213831so6260990pjb.0
+        for <linux-input@vger.kernel.org>; Thu, 26 Aug 2021 03:06:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=itfac-mrt-ac-lk.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id;
+        bh=KyCkOwX6FlAykrEfVDREM7slwqhWzjVtSiMdbpagDO4=;
+        b=LgjRvH59s9Ccoi0kWYtI5CqxF5OUK1O5mRFtMOdjPda7viEmj5dsN9GwXQu3D8AUGs
+         ALWBsj6M7kZ3DHllMof7rm9FJtnLZm6kMtX2tGLErVqT1NhG40Makw5kqmmRNvCeAyu9
+         QxJNwJzhDhfBKkGpTO1m0ZjoJAURCZPn/H/RY8tWhyau1PkG0SDR6xL7OtbZ6D8VfpJG
+         /ICI1dydna/j6Ztq/MUw3yhLSN2G3t2Y/luJESv1vw3IWz2zy6UdVXq1BfnKjgmVSr8i
+         cTfHn/hE8H4d9q62Sbs/8cDwG+nEz/n2mDRR7BApG6ubveCKnO2x4S6Drsodhu1FE/hc
+         TZjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=KyCkOwX6FlAykrEfVDREM7slwqhWzjVtSiMdbpagDO4=;
+        b=XWS8AeK4DaTHXmmEux9gYEGfjW8oAgKNPf0CeZVzjy8/OrJK9U7jlNDcy7dExUmVfp
+         NWRuLuUT1uCIj3wtUnx5sSP/wcGDBg0RCFJPjcjsjjiBM33Hj8RMObXMFmz9lxC83YxA
+         O4G9ra2Y06RVVMHgJ2hdTIbZ5wQ6MLJ5HBlUW/OdZfrTVr/uE2pxDg9MKBVJ33KiQsjQ
+         aZuTP5rNLDHCuoH2P6FW/FIxPMRwUO/Fv3MvOTv3JBI7SkVNm3NyQENTfjkt46q8g7xj
+         I5tbVpBp6FD2RKfzIJYbLfxC3umbvCeoiUW3c9m4cdN6/OPGXcy9oxNO2oVsUE2bX7gN
+         aMXA==
+X-Gm-Message-State: AOAM531uka9NBSFbMseV0jojU90bVCf5zxVV4HpJCBcFUYhqup59ZbYe
+        dbqP9/hY5Hhl7Z4Wyww76eUHx1Vit0rq
+X-Google-Smtp-Source: ABdhPJwMNkPwuLMRtpOr1r+KTvWtHBhmpaFSHKPH9eOLpfcWOFty41sxUDZ5gQpbzSWosUEdoajzQQ==
+X-Received: by 2002:a17:902:bf49:b0:136:7033:8963 with SMTP id u9-20020a170902bf4900b0013670338963mr2937843pls.75.1629972411656;
+        Thu, 26 Aug 2021 03:06:51 -0700 (PDT)
+Received: from localhost.localdomain ([175.157.109.217])
+        by smtp.gmail.com with ESMTPSA id p16sm2364957pjz.44.2021.08.26.03.06.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Aug 2021 03:06:51 -0700 (PDT)
+From:   "F.A.Sulaiman" <asha.16@itfac.mrt.ac.lk>
+To:     jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc:     "F.A.Sulaiman" <asha.16@itfac.mrt.ac.lk>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix inconsistent indentation
+Date:   Thu, 26 Aug 2021 15:36:34 +0530
+Message-Id: <20210826100634.24183-1-asha.16@itfac.mrt.ac.lk>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This hardware module is close to the am33xx ADC module but instead of
-featuring a touchscreen it has a magnetic reader capability.
+This patch fix the inconsistent indentation
+warning in hid_add_device().
 
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: F.A. SULAIMAN <asha.16@itfac.mrt.ac.lk> 
 ---
- arch/arm/boot/dts/am437x-l4.dtsi     | 31 ++++++++++++++++++++++++++--
- arch/arm/boot/dts/am43xx-clocks.dtsi |  7 +++++++
- 2 files changed, 36 insertions(+), 2 deletions(-)
+ drivers/hid/hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am437x-l4.dtsi b/arch/arm/boot/dts/am437x-l4.dtsi
-index 40ef3973f2a9..cc01b4e83955 100644
---- a/arch/arm/boot/dts/am437x-l4.dtsi
-+++ b/arch/arm/boot/dts/am437x-l4.dtsi
-@@ -2378,11 +2378,38 @@ hdq: hdq@0 {
- 		};
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index dbed2524fd47..76781f940186 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2401,10 +2401,10 @@ int hid_add_device(struct hid_device *hdev)
+ 	/*
+ 	 * Check for the mandatory transport channel.
+ 	 */
+-	 if (!hdev->ll_driver->raw_request) {
++	if (!hdev->ll_driver->raw_request) {
+ 		hid_err(hdev, "transport driver missing .raw_request()\n");
+ 		return -EINVAL;
+-	 }
++	}
  
- 		target-module@4c000 {			/* 0x4834c000, ap 114 72.0 */
--			compatible = "ti,sysc";
--			status = "disabled";
-+			compatible = "ti,sysc-omap4", "ti,sysc";
-+			reg = <0x4c000 0x4>,
-+			      <0x4c010 0x4>;
-+			reg-names = "rev", "sysc";
-+			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
-+					<SYSC_IDLE_NO>,
-+					<SYSC_IDLE_SMART>;
-+			clocks = <&l3s_clkctrl AM4_L3S_ADC1_CLKCTRL 0>;
-+			clock-names = "fck";
- 			#address-cells = <1>;
- 			#size-cells = <1>;
- 			ranges = <0x0 0x4c000 0x2000>;
-+
-+			magadc: magadc@0 {
-+				compatible = "ti,am4372-magadc";
-+				reg = <0x0 0x2000>;
-+				interrupts = <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>;
-+				clocks = <&adc_mag_fck>;
-+				clock-names = "fck";
-+				dmas = <&edma 54 0>, <&edma 55 0>;;
-+				dma-names = "fifo0", "fifo1";
-+				status = "disabled";
-+
-+				mag {
-+					compatible = "ti,am4372-mag";
-+				};
-+
-+				adc {
-+					#io-channel-cells = <1>;
-+					compatible ="ti,am4372-adc";
-+				};
-+			};
- 		};
- 
- 		target-module@80000 {			/* 0x48380000, ap 123 42.0 */
-diff --git a/arch/arm/boot/dts/am43xx-clocks.dtsi b/arch/arm/boot/dts/am43xx-clocks.dtsi
-index 314fc5975acb..66e892fa3398 100644
---- a/arch/arm/boot/dts/am43xx-clocks.dtsi
-+++ b/arch/arm/boot/dts/am43xx-clocks.dtsi
-@@ -444,6 +444,13 @@ wdt1_fck: wdt1_fck@422c {
- 		reg = <0x422c>;
- 	};
- 
-+	adc_mag_fck: adc_mag_fck@424c {
-+		#clock-cells = <0>;
-+		compatible = "ti,mux-clock";
-+		clocks = <&sys_clkin_ck>, <&dpll_per_m2_ck>;
-+		reg = <0x424c>;
-+	};
-+
- 	l3_gclk: l3_gclk {
- 		#clock-cells = <0>;
- 		compatible = "fixed-factor-clock";
+ 	/*
+ 	 * Read the device report descriptor once and use as template
 -- 
-2.27.0
+2.17.1
 

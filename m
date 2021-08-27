@@ -2,95 +2,123 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8303DC4320E
-	for <linux-input@archiver.kernel.org>; Thu, 26 Aug 2021 10:06:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66817C4320E
+	for <linux-input@archiver.kernel.org>; Fri, 27 Aug 2021 06:57:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 660BB610E9
-	for <linux-input@archiver.kernel.org>; Thu, 26 Aug 2021 10:06:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 45F7A60FC4
+	for <linux-input@archiver.kernel.org>; Fri, 27 Aug 2021 06:57:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241088AbhHZKHk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 26 Aug 2021 06:07:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54592 "EHLO
+        id S244285AbhH0G6g (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 27 Aug 2021 02:58:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240937AbhHZKHj (ORCPT
+        with ESMTP id S243036AbhH0G6g (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 26 Aug 2021 06:07:39 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 389ADC061757
-        for <linux-input@vger.kernel.org>; Thu, 26 Aug 2021 03:06:52 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id mw10-20020a17090b4d0a00b0017b59213831so6260990pjb.0
-        for <linux-input@vger.kernel.org>; Thu, 26 Aug 2021 03:06:52 -0700 (PDT)
+        Fri, 27 Aug 2021 02:58:36 -0400
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB541C061757;
+        Thu, 26 Aug 2021 23:57:47 -0700 (PDT)
+Received: by mail-wr1-x42e.google.com with SMTP id z4so8810161wrr.6;
+        Thu, 26 Aug 2021 23:57:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=itfac-mrt-ac-lk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id;
-        bh=KyCkOwX6FlAykrEfVDREM7slwqhWzjVtSiMdbpagDO4=;
-        b=LgjRvH59s9Ccoi0kWYtI5CqxF5OUK1O5mRFtMOdjPda7viEmj5dsN9GwXQu3D8AUGs
-         ALWBsj6M7kZ3DHllMof7rm9FJtnLZm6kMtX2tGLErVqT1NhG40Makw5kqmmRNvCeAyu9
-         QxJNwJzhDhfBKkGpTO1m0ZjoJAURCZPn/H/RY8tWhyau1PkG0SDR6xL7OtbZ6D8VfpJG
-         /ICI1dydna/j6Ztq/MUw3yhLSN2G3t2Y/luJESv1vw3IWz2zy6UdVXq1BfnKjgmVSr8i
-         cTfHn/hE8H4d9q62Sbs/8cDwG+nEz/n2mDRR7BApG6ubveCKnO2x4S6Drsodhu1FE/hc
-         TZjA==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=La6yDI849v69vetT2DNyixIDuUna3JBK/IQZg7j2d2Q=;
+        b=njmcdUkEAWKr2M95rP8rNqdcuWKQLhqjTFkNpkzBysCWLPDGz7+5H/XWaZ1y6ajKeo
+         3Lhz1jj69/gHd/W5ByjQv1M8eq83BYVcOnD82ebvghvwdwWqRibItJ6rNq5188c2zoha
+         aoT1vOUTyvhjdmETLtklVO0EUuP+SUJgOVVzWAMExidfcUyQ5rjffbC1NLCXvedxrGMZ
+         Vo3w+EwgmO7AzwpckgZZ2Ef5+kuLL/kn95K9WW6JI1TpOnF3+1aplOxv6x0XZEMQhgNs
+         LNmD5mjO0UKvoJASqqs8dBqYfT1sG+9zp1IbKH7D1YkL2ZotdkMzGY0ADB23NgMYN2W2
+         mSQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=KyCkOwX6FlAykrEfVDREM7slwqhWzjVtSiMdbpagDO4=;
-        b=XWS8AeK4DaTHXmmEux9gYEGfjW8oAgKNPf0CeZVzjy8/OrJK9U7jlNDcy7dExUmVfp
-         NWRuLuUT1uCIj3wtUnx5sSP/wcGDBg0RCFJPjcjsjjiBM33Hj8RMObXMFmz9lxC83YxA
-         O4G9ra2Y06RVVMHgJ2hdTIbZ5wQ6MLJ5HBlUW/OdZfrTVr/uE2pxDg9MKBVJ33KiQsjQ
-         aZuTP5rNLDHCuoH2P6FW/FIxPMRwUO/Fv3MvOTv3JBI7SkVNm3NyQENTfjkt46q8g7xj
-         I5tbVpBp6FD2RKfzIJYbLfxC3umbvCeoiUW3c9m4cdN6/OPGXcy9oxNO2oVsUE2bX7gN
-         aMXA==
-X-Gm-Message-State: AOAM531uka9NBSFbMseV0jojU90bVCf5zxVV4HpJCBcFUYhqup59ZbYe
-        dbqP9/hY5Hhl7Z4Wyww76eUHx1Vit0rq
-X-Google-Smtp-Source: ABdhPJwMNkPwuLMRtpOr1r+KTvWtHBhmpaFSHKPH9eOLpfcWOFty41sxUDZ5gQpbzSWosUEdoajzQQ==
-X-Received: by 2002:a17:902:bf49:b0:136:7033:8963 with SMTP id u9-20020a170902bf4900b0013670338963mr2937843pls.75.1629972411656;
-        Thu, 26 Aug 2021 03:06:51 -0700 (PDT)
-Received: from localhost.localdomain ([175.157.109.217])
-        by smtp.gmail.com with ESMTPSA id p16sm2364957pjz.44.2021.08.26.03.06.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Aug 2021 03:06:51 -0700 (PDT)
-From:   "F.A.Sulaiman" <asha.16@itfac.mrt.ac.lk>
-To:     jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc:     "F.A.Sulaiman" <asha.16@itfac.mrt.ac.lk>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix inconsistent indentation
-Date:   Thu, 26 Aug 2021 15:36:34 +0530
-Message-Id: <20210826100634.24183-1-asha.16@itfac.mrt.ac.lk>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=La6yDI849v69vetT2DNyixIDuUna3JBK/IQZg7j2d2Q=;
+        b=O7LS15Q32K0qs8QFeOl/rGL7fcP6Ig5e4f8wqRiBkad3C1yiFSppuQSbk/1aEekJwM
+         rhbrAybKKBkkBAW8D2LL8kIyVkKbN2eUXS6NTtAV5n/cuUI1ngELx0wNW1nmH2PZgG5J
+         rZcxCghTc0e/QV/ozKlbV/tAvVLRzZ7Iip1/HcqWzBhyt1Y1IGUUe8bHPTS2YUu2l45K
+         J4KlMARSwnD0E1KG3LKiy1L4ybytCvsBm+oyLadEiik9F8L61sqJ1BX7UP3vE43COJn+
+         HQyRrGFQnWOc+B1qUH0uCi3i5biG+t3cWnRdGn5fAF2RCVKHTpNJP2MMDlUG83s+e0NE
+         igeQ==
+X-Gm-Message-State: AOAM533SYbLsQRoSSilncG7bmidvyc0pIIDbz7VKgtRs632uUPHGor2M
+        i9llu8Nq0azgaXLtIIjcLGiEmt7eHyUsHiCchSHMxbw8bLUde2xx
+X-Google-Smtp-Source: ABdhPJz8ItkNDXEzJgJ3TB4cfG53J9d6MELrDBe43+FrWBWEABYXAdiMj8PM9ljy/+Zfhr9Tpiobclt15BTOCHaUkZU=
+X-Received: by 2002:adf:c549:: with SMTP id s9mr8461986wrf.344.1630047466162;
+ Thu, 26 Aug 2021 23:57:46 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAGhUXvBw4rzCQrqttyyS=Psxmhppk79c6fDoxPbV91jE7fO_9A@mail.gmail.com>
+In-Reply-To: <CAGhUXvBw4rzCQrqttyyS=Psxmhppk79c6fDoxPbV91jE7fO_9A@mail.gmail.com>
+From:   Andrea Ippolito <andrea.ippo@gmail.com>
+Date:   Fri, 27 Aug 2021 08:57:10 +0200
+Message-ID: <CAGhUXvDNj2v3O==+wWWKPYVzej8Vq+WNiBtPwmYxSQ2dTuLb9Q@mail.gmail.com>
+Subject: Re: Touchpad stickiness on Dell Inspiron/XPS
+To:     dmitry.torokhov@gmail.com, alex.hung@canonical.com
+Cc:     linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch fix the inconsistent indentation
-warning in hid_add_device().
+(resending as plain text)
 
-Signed-off-by: F.A. SULAIMAN <asha.16@itfac.mrt.ac.lk> 
----
- drivers/hid/hid-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Hello everyone,
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index dbed2524fd47..76781f940186 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2401,10 +2401,10 @@ int hid_add_device(struct hid_device *hdev)
- 	/*
- 	 * Check for the mandatory transport channel.
- 	 */
--	 if (!hdev->ll_driver->raw_request) {
-+	if (!hdev->ll_driver->raw_request) {
- 		hid_err(hdev, "transport driver missing .raw_request()\n");
- 		return -EINVAL;
--	 }
-+	}
- 
- 	/*
- 	 * Read the device report descriptor once and use as template
--- 
-2.17.1
+I hope I find you well.
 
+I am writing this to report a touchpad issue faced by me and several
+other DELL users across several different distros (HW defect has been
+ruled out by people unable to reproduce on Windows).
+
+First thing that came to mind was to report this to the libinput
+project, which I did here:
+
+https://gitlab.freedesktop.org/libinput/libinput/-/issues/618
+
+A similar report by another user followed shortly after:
+
+https://gitlab.freedesktop.org/libinput/libinput/-/issues/636 (will be
+closed as dupe eventually, so please keep #618 as reference)
+
+Issue has been also reported by yet another user on reddit:
+
+https://www.reddit.com/r/linuxhardware/comments/ofbzg3/dell_xps_15_9510_experience/h5ddy07/
+and https://www.reddit.com/r/linuxhardware/comments/ofbzg3/dell_xps_15_9510_experience/h5zjwc8/?utm_source=reddit&utm_medium=web2x&context=3
+
+And finally, I have reported it on the DELL user forums (no help
+whatsoever from DELL):
+
+https://www.dell.com/community/Inspiron/Tiger-Lake-DELL-Inspiron-Touchpad-Cursor-temporarily-drops/m-p/8021753#M126292
+
+The investigation on the libinput side appears to be complete, as
+maintainers didn't spot anything weird there (also, the issue is also
+reproducible with the synaptics lib, suggesting that this might be
+lower level).
+
+Robert Martin suggested to raise this to you now, as per comment:
+
+https://gitlab.freedesktop.org/libinput/libinput/-/issues/618#note_1042277
+
+I'm kind of new to Linux mailing lists and bug reporting, so please
+forgive me if I'm violating some rules or etiquette, I'd be glad to
+rectify if that's the case.
+
+I also don't know what is the best way to keep the conversation going,
+e.g. if there's an issue tracker or instead mailing lists are the
+preferred choice.
+
+You should find some interesting data in the above mentioned reports
+already, if not, please don't hesitate to let me know or chime in on
+libinput issue #618 directly.
+
+Thanks a lot in advance.
+
+Kind regards,
+Andrea IPPOLITO

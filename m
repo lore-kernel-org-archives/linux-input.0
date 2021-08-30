@@ -2,101 +2,142 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8AE3C432BE
-	for <linux-input@archiver.kernel.org>; Mon, 30 Aug 2021 16:31:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82713C432BE
+	for <linux-input@archiver.kernel.org>; Mon, 30 Aug 2021 19:22:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8C6760F57
-	for <linux-input@archiver.kernel.org>; Mon, 30 Aug 2021 16:31:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68E8360F5B
+	for <linux-input@archiver.kernel.org>; Mon, 30 Aug 2021 19:22:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237734AbhH3Qcd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 30 Aug 2021 12:32:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24338 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233637AbhH3Qcd (ORCPT
+        id S233774AbhH3TXr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 30 Aug 2021 15:23:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32908 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233573AbhH3TXn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 Aug 2021 12:32:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630341098;
+        Mon, 30 Aug 2021 15:23:43 -0400
+X-Greylist: delayed 12871 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 30 Aug 2021 12:22:45 PDT
+Received: from vulcan.natalenko.name (vulcan.natalenko.name [IPv6:2001:19f0:6c00:8846:5400:ff:fe0c:dfa0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A266C061760;
+        Mon, 30 Aug 2021 12:22:45 -0700 (PDT)
+Received: from spock.localnet (unknown [151.237.229.131])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by vulcan.natalenko.name (Postfix) with ESMTPSA id CB281BC390B;
+        Mon, 30 Aug 2021 21:22:40 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=natalenko.name;
+        s=dkim-20170712; t=1630351360;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=QX9GU0hH1TRwqyfkU4USdjocCp7nMp76pC0eH/XEt0A=;
-        b=QWqLVlnnvCntN3+uI0ykkfKLhm305y8xuxi/90s1sCBZftKSekyY3qE5DGI60ga+ZasgoY
-        oFKMjvrFHkeb1GYn0W72kspi3i83j6oadoCsQHeT0w+JHx93zehYS+DMHopBfcw6vjjAtL
-        sITJmK1FGch0xX2Vbedln8eeuit8coI=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-531-OkPfNLkFOtSQGlV6dtvItA-1; Mon, 30 Aug 2021 12:31:35 -0400
-X-MC-Unique: OkPfNLkFOtSQGlV6dtvItA-1
-Received: by mail-pf1-f199.google.com with SMTP id h10-20020a056a00170a00b003e31c4d9992so3377075pfc.23
-        for <linux-input@vger.kernel.org>; Mon, 30 Aug 2021 09:31:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=QX9GU0hH1TRwqyfkU4USdjocCp7nMp76pC0eH/XEt0A=;
-        b=jh4EtM3ujGQBrmd0EFAktFJjstr/kuaF8wKSNN0zLPZAeg62e7d9yk8Uny5t+cqs/P
-         FpiEQXE9RaOoFf8oI+mUjyERFo0MIDbojaV+aRaZ6cqmXFIB5w6/J2d6udkzP+BYDu3/
-         JsFQKd6WUWe2SsrxjqS+fLwxCUQXQcs1NkJzRGgzYMu/HAxOfXGHmKyMnRP7C1MrARdK
-         PmeXQgpn2IGR7GV2jAtrCRrmge7NnzEzKi1Ta5W94R8UXAdRnyRK+PA9UIwU95EMe0Zw
-         24rt1/RnQIMxh/wn5Af8xYfMfsfCbtvz1MrpCuofmoBacfb+kPYs3wTpb3Db4mdeVLKm
-         Y0AA==
-X-Gm-Message-State: AOAM533W6i3aOFxbUlb/wSoWpuOKAWo9VRAESiRNcc7gvMU9QqShphbo
-        BHoc46xVmq2BzwbmypI6Uj1q9hKC527ef5d9PCFRGD4huA0+a861+asisC/MvTFLD8xGTDMRQ7P
-        ib5TWHtfbGfxm6X/ulrxPvqoSXkjqHrZbOLaqixM=
-X-Received: by 2002:a17:902:da8d:b0:135:d4a1:bc25 with SMTP id j13-20020a170902da8d00b00135d4a1bc25mr446070plx.41.1630341094433;
-        Mon, 30 Aug 2021 09:31:34 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxsfUc0NrQJSBO5s1PQvVJbSaXwuj8CLgAUF3cdiQwV74fkRhpEV4xYpMdYLQmn5JWjkbapCd2JNKKwqwLYZWI=
-X-Received: by 2002:a17:902:da8d:b0:135:d4a1:bc25 with SMTP id
- j13-20020a170902da8d00b00135d4a1bc25mr446052plx.41.1630341094159; Mon, 30 Aug
- 2021 09:31:34 -0700 (PDT)
+        bh=aQUSrjXYDmFy5wo91A3BlmOanLGBJFlJUThDcUa6cIY=;
+        b=DTPGffspKIFV3EMr8m1fq7zzOJhTF3oWlsRiQNzIze8r/VrkCms0ecOdgzWidkAvCJLj0j
+        89cZ2wbLzltPNGEb761vENBjvgANtfuWAx+efROfY76c/VlW4Q24Z1DP7orHLU5d381GpG
+        hSpW7gJxd3bS5n4Z5FGPCdh2xrRkap4=
+From:   Oleksandr Natalenko <oleksandr@natalenko.name>
+To:     syzbot <syzbot+9b57a46bf1801ce2a2ca@syzkaller.appspotmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Cc:     benjamin.tissoires@redhat.com, jikos@kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, mkubecek@suse.cz,
+        syzkaller-bugs@googlegroups.com
+Subject: Re: [syzbot] WARNING in hid_submit_ctrl/usb_submit_urb
+Date:   Mon, 30 Aug 2021 21:22:39 +0200
+Message-ID: <2760703.iRigd37PT7@natalenko.name>
+In-Reply-To: <20210819195300.GA8613@rowland.harvard.edu>
+References: <20210819152626.GD228422@rowland.harvard.edu> <00000000000009e24705c9ecf9b3@google.com> <20210819195300.GA8613@rowland.harvard.edu>
 MIME-Version: 1.0
-References: <20210816130059.3yxtdvu2r7wo4uu3@lion.mk-sys.cz>
- <20210816143856.GA121345@rowland.harvard.edu> <20210816191249.7g2mk5thwpio7cfc@lion.mk-sys.cz>
- <1954573.0n35tlyJVE@natalenko.name> <20210830160743.GB332514@rowland.harvard.edu>
-In-Reply-To: <20210830160743.GB332514@rowland.harvard.edu>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Mon, 30 Aug 2021 18:31:23 +0200
-Message-ID: <CAO-hwJ+QL9O_m8NFXeAWhJ5B7ipYeNC=9RjU1HamMisdVhXEwA@mail.gmail.com>
-Subject: Re: [REGRESSION][BISECTED] flood of "hid-generic ... control queue
- full" since v5.14-rc1
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Michal Kubecek <mkubecek@suse.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux USB Mailing List <linux-usb@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>
+Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Aug 30, 2021 at 6:14 PM Alan Stern <stern@rowland.harvard.edu> wrote:
->
-> On Mon, Aug 30, 2021 at 05:48:09PM +0200, Oleksandr Natalenko wrote:
-> > Hello.
-> ...
-> > Any luck with moving this forward please? I've got a similar issue with APC
-> > UPS and v5.14 kernel, and this patch also solves the connectivity issue for
-> > me.
->
-> I've been waiting to hear back from Benjamin to see if testing revealed
-> any problems with the latest version of the patch.
->
+Hello.
 
-Sorry, things have been complex last week while I was on vacation.
-Nothing scary, the usual "not enough hours in a day to be able to sit
-in front of a computer".
-I'm back at work today, but got a lot of urgent things to do. I should
-be able to do the testing tomorrow.
+On =C4=8Dtvrtek 19. srpna 2021 21:53:00 CEST Alan Stern wrote:
+> On Thu, Aug 19, 2021 at 10:35:11AM -0700, syzbot wrote:
+> > Hello,
+> >=20
+> > syzbot has tested the proposed patch but the reproducer is still
+> > triggering an issue: WARNING in hid_submit_ctrl/usb_submit_urb
+> >=20
+> > cm6533_jd 0003:0D8C:0022.0001: submit_ctrl: maxpacket 64 len 0 padlen 0
+> > ------------[ cut here ]------------
+> > usb 1-1: BOGUS control dir, pipe 80000280 doesn't match bRequestType a1
+>=20
+> Ah.   The padding code doesn't add anything if the length is
+> already a multiple of the maxpacket value, and of course 0 is such
+> a multiple.
+>=20
+> The following simplified variant of Michal's patch should fix the
+> problem.
+>=20
+> Alan Stern
+>=20
+> #syz test:
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+> 794c7931a242
+>=20
+> Index: usb-devel/drivers/hid/usbhid/hid-core.c
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- usb-devel.orig/drivers/hid/usbhid/hid-core.c
+> +++ usb-devel/drivers/hid/usbhid/hid-core.c
+> @@ -377,27 +377,23 @@ static int hid_submit_ctrl(struct hid_de
+>  	len =3D hid_report_len(report);
+>  	if (dir =3D=3D USB_DIR_OUT) {
+>  		usbhid->urbctrl->pipe =3D usb_sndctrlpipe(hid_to_usb_dev(hid),=20
+0);
+> -		usbhid->urbctrl->transfer_buffer_length =3D len;
+>  		if (raw_report) {
+>  			memcpy(usbhid->ctrlbuf, raw_report, len);
+>  			kfree(raw_report);
+>  			usbhid->ctrl[usbhid->ctrltail].raw_report =3D NULL;
+>  		}
+>  	} else {
+> -		int maxpacket, padlen;
+> +		int maxpacket;
+>=20
+>  		usbhid->urbctrl->pipe =3D usb_rcvctrlpipe(hid_to_usb_dev(hid),=20
+0);
+>  		maxpacket =3D usb_maxpacket(hid_to_usb_dev(hid),
+>  					  usbhid->urbctrl->pipe, 0);
+> -		if (maxpacket > 0) {
+> -			padlen =3D DIV_ROUND_UP(len, maxpacket);
+> -			padlen *=3D maxpacket;
+> -			if (padlen > usbhid->bufsize)
+> -				padlen =3D usbhid->bufsize;
+> -		} else
+> -			padlen =3D 0;
+> -		usbhid->urbctrl->transfer_buffer_length =3D padlen;
+> +		len +=3D (len =3D=3D 0);	/* Don't allow 0-length reports */
+> +		len =3D round_up(len, maxpacket);
+> +		if (len > usbhid->bufsize)
+> +			len =3D usbhid->bufsize;
+>  	}
+> +	usbhid->urbctrl->transfer_buffer_length =3D len;
+>  	usbhid->urbctrl->dev =3D hid_to_usb_dev(hid);
+>=20
+>  	usbhid->cr->bRequestType =3D USB_TYPE_CLASS | USB_RECIP_INTERFACE | dir;
 
-Cheers,
-Benjamin
+I've tried both Michal's patch as well as this one, and both work for me,=20
+hence feel free to add this:
+
+Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+
+once the fix is submitted.
+
+Thanks!
+
+=2D-=20
+Oleksandr Natalenko (post-factum)
+
 

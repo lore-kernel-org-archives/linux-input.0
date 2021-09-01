@@ -2,132 +2,96 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F41DFC4320E
-	for <linux-input@archiver.kernel.org>; Wed,  1 Sep 2021 16:53:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5253C432BE
+	for <linux-input@archiver.kernel.org>; Wed,  1 Sep 2021 18:54:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D66C5610A1
-	for <linux-input@archiver.kernel.org>; Wed,  1 Sep 2021 16:53:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA12760234
+	for <linux-input@archiver.kernel.org>; Wed,  1 Sep 2021 18:54:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344823AbhIAQyw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Sep 2021 12:54:52 -0400
-Received: from mail-0201.mail-europe.com ([51.77.79.158]:44388 "EHLO
-        mail-0201.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344739AbhIAQyt (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Sep 2021 12:54:49 -0400
-Date:   Wed, 01 Sep 2021 16:53:06 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail; t=1630515191;
-        bh=erTBhCQcWPYIoF10Mkjb8iJl9JUyLrz282d9n8j3Vyg=;
-        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=eAWXuQCNpOUq1NC0dIQgK1opuXb/XUKExJ67XEPeeA6VSmXFTMI8bVH7+x4mthar+
-         zMNjNplcK1D02sf9gtqgzPJaDDRYIMAq9bXarHSLB+WQhwkCaGnC/UqxuGdlQK/Hgv
-         CePqm4h6NjcxitXLnMrO27PcyJLhbF9ErLmr95u8=
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>
-From:   Yassine Oudjana <y.oudjana@protonmail.com>
-Cc:     Yassine Oudjana <y.oudjana@protonmail.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, phone-devel@vger.kernel.org,
-        ~postmarketos/upstreaming@lists.sr.ht,
-        Rob Herring <robh@kernel.org>
-Reply-To: Yassine Oudjana <y.oudjana@protonmail.com>
-Subject: [PATCH v3 2/2] dt-bindings: input: Add binding for cypress-sf
-Message-ID: <20210901165231.236728-3-y.oudjana@protonmail.com>
-In-Reply-To: <20210901165231.236728-1-y.oudjana@protonmail.com>
-References: <20210901165231.236728-1-y.oudjana@protonmail.com>
+        id S243822AbhIASy6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Sep 2021 14:54:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35648 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1343671AbhIASyw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 1 Sep 2021 14:54:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2A3661131;
+        Wed,  1 Sep 2021 18:53:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1630522429;
+        bh=XZ8iW6MZ8uzAD8NrpD8rSGkgOZzPZAsbD/exYXGVr9Y=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=gn8IlCPvFgFcTgSYMUasr8xjOtCSnxDlhGMIlprF7gIwWecW00s+fAelVQpR7SGVp
+         gD4B4szfHrdpbkWLj017FYLnFZ016nJkPEWremFBwFwxUtPMJfIlEInXji2BLU2WHP
+         Dst2wQog6aCQRgNI8L5FrJ2t1V1zAJXnKr01nzhcqwcJS5pKkKhUmjgrP0oDef+vwM
+         BPt5gtBoTsX1pDMwcjHuse0c/e1ivS2bVsUFxehQ/WmzfV2oh0R0fWFZjc0ZNfR8dc
+         sgy7Ge4vm59pLnGaUi9MkLsrziD5nCRqyhvA8tU23i1GVyjKi0POdZbwX7MfeZKWJ3
+         IrnhiCAsQ4UCg==
+Date:   Wed, 1 Sep 2021 20:53:39 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Alan Stern <stern@rowland.harvard.edu>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Michal Kubecek <mkubecek@suse.cz>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        linux-input@vger.kernel.org,
+        Linux USB Mailing List <linux-usb@vger.kernel.org>
+Subject: Re: [PATCH 1/3] HID: usbhid: Fix flood of "control queue full"
+ messages
+In-Reply-To: <20210901163549.GA404634@rowland.harvard.edu>
+Message-ID: <nycvar.YFH.7.76.2109012052530.15944@cbobk.fhfr.pm>
+References: <20210819195300.GA8613@rowland.harvard.edu> <000000000000c322ab05c9f2e880@google.com> <20210820140620.GA35867@rowland.harvard.edu> <nycvar.YFH.7.76.2108241351490.15313@cbobk.fhfr.pm> <CAO-hwJ+i4MqOj0umUW9kFgYSZLt3QMb6hDZHQwb8AKH9pKxSTg@mail.gmail.com>
+ <20210901153811.GA403560@rowland.harvard.edu> <20210901155145.qflw5s4zqiud7gke@lion.mk-sys.cz> <20210901163549.GA404634@rowland.harvard.edu>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add a device tree binding for Cypress StreetFighter.
+On Wed, 1 Sep 2021, Alan Stern wrote:
 
-Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
-Changes since v1:
- - Changed version variables in probe to int to allow storing error codes.
- .../devicetree/bindings/input/cypress-sf.yaml | 61 +++++++++++++++++++
- 1 file changed, 61 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/cypress-sf.yaml
+> From: Michal Kubecek <mkubecek@suse.cz>
+> 
+> [patch description by Alan Stern]
+> 
+> Commit 7652dd2c5cb7 ("USB: core: Check buffer length matches wLength
+> for control transfers") causes control URB submissions to fail if the
+> transfer_buffer_length value disagrees with the setup packet's wLength
+> valuel.  Unfortunately, it turns out that the usbhid can trigger this
+> failure mode when it submits a control request for an input report: It
+> pads the transfer buffer size to a multiple of the maxpacket value but
+> does not increase wLength correspondingly.
+> 
+> These failures have caused problems for people using an APS UPC, in
+> the form of a flood of log messages resembling:
+> 
+> 	hid-generic 0003:051D:0002.0002: control queue full
+> 
+> This patch fixes the problem by setting the wLength value equal to the
+> padded transfer_buffer_length value in hid_submit_ctrl().  As a nice
+> bonus, the code which stores the transfer_buffer_length value is now
+> shared between the two branches of an "if" statement, so it can be
+> de-duplicated.
+> 
+> Signed-off-by: Michal Kubecek <mkubecek@suse.cz>
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> Fixes: 7652dd2c5cb7 ("USB: core: Check buffer length matches wLength for control transfers")
+> Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+> Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Cc: stable@vger.kernel.org
+> 
 
-diff --git a/Documentation/devicetree/bindings/input/cypress-sf.yaml b/Docu=
-mentation/devicetree/bindings/input/cypress-sf.yaml
-new file mode 100644
-index 000000000000..14689daf6567
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/cypress-sf.yaml
-@@ -0,0 +1,61 @@
-+# SPDX-License-Identifier: GPL-2.0
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/cypress-sf.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Cypress StreetFighter touchkey controller
-+
-+maintainers:
-+  - Yassine Oudjana <y.oudjana@protonmail.com>
-+
-+allOf:
-+  - $ref: input.yaml#
-+
-+properties:
-+  compatible:
-+    const: cypress,sf3155
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  avdd-supply:
-+    description: Regulator for AVDD analog voltage
-+
-+  vdd-supply:
-+    description: Regulator for VDD digital voltage
-+
-+  linux,keycodes:
-+    minItems: 1
-+    maxItems: 8
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - avdd-supply
-+  - vdd-supply
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    i2c {
-+        #address-cells =3D <1>;
-+        #size-cells =3D <0>;
-+
-+        touchkey@28 {
-+                compatible =3D "cypress,sf3155";
-+                reg =3D <0x28>;
-+                interrupt-parent =3D <&msmgpio>;
-+                interrupts =3D <77 IRQ_TYPE_EDGE_FALLING>;
-+                avdd-supply =3D <&vreg_l6a_1p8>;
-+                vdd-supply =3D <&vdd_3v2_tp>;
-+                linux,keycodes =3D <KEY_BACK KEY_MENU>;
-+        };
-+    };
---=20
-2.33.0
+Thanks Alan, applied and I will be sending whole HID tree to Linus soon.
 
+(BTW, something broke your threading, so 2/3 and 3/3 were not threaded 
+together with 1/3).
+
+-- 
+Jiri Kosina
+SUSE Labs
 

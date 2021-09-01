@@ -8,54 +8,54 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD497C4320E
-	for <linux-input@archiver.kernel.org>; Wed,  1 Sep 2021 23:43:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F58AC4320A
+	for <linux-input@archiver.kernel.org>; Wed,  1 Sep 2021 23:43:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B235B61026
-	for <linux-input@archiver.kernel.org>; Wed,  1 Sep 2021 23:43:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68BC260C3E
+	for <linux-input@archiver.kernel.org>; Wed,  1 Sep 2021 23:43:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240171AbhIAXoA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Sep 2021 19:44:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45714 "EHLO
+        id S232479AbhIAXoB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Sep 2021 19:44:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239077AbhIAXn7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Sep 2021 19:43:59 -0400
-Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC7EDC061575
-        for <linux-input@vger.kernel.org>; Wed,  1 Sep 2021 16:43:00 -0700 (PDT)
-Received: by mail-qt1-x835.google.com with SMTP id b4so96541qtx.0
-        for <linux-input@vger.kernel.org>; Wed, 01 Sep 2021 16:43:00 -0700 (PDT)
+        with ESMTP id S240259AbhIAXoA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Sep 2021 19:44:00 -0400
+Received: from mail-qv1-xf2e.google.com (mail-qv1-xf2e.google.com [IPv6:2607:f8b0:4864:20::f2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA58AC061575
+        for <linux-input@vger.kernel.org>; Wed,  1 Sep 2021 16:43:02 -0700 (PDT)
+Received: by mail-qv1-xf2e.google.com with SMTP id eh1so138519qvb.11
+        for <linux-input@vger.kernel.org>; Wed, 01 Sep 2021 16:43:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=gNu2navMQF1LlWlbd6qlBcu8QU4k97X7QaII04hoSvk=;
-        b=Df3n3bXlX9heycEfwhtGpqqe35VqNXKM2pJlapup7a0XoESDnmktPMdiiKmG6zyazb
-         j3yaYuMRutzZX9A8VnGIa/xWi8U1ebHNxspKP6rH6NLMBqthMz+KZ1HKtxh0f1QPUc8t
-         P6MsLpaVxs/tA2oDWkxiGSpQbxMPyU8qoSP9glLnQuoXY/Ty+0RUaydfVdV81KdBDKSo
-         6kKjv3ra4oEnLnDdtUJtDKP1sXSm6w5DUdPNL2gdkxlI1wcNbUutfAQQPeYBpvYEy0yd
-         SLNS1aLQRRQWQLQfcTRkpeWNFOXHxSIq1WP1o5qEvBoR6mhAjKj9B4th9ViOFVpEQ4jp
-         Uo9Q==
+        bh=hT19LOJfQN2z746EgMtCBr/K0GKv7xoMsHK9RejhTS4=;
+        b=lrI+L22HdElWNxI4a0v00/AcgdNDvsPcgU9vJDm+yUfZv8n9onminGWSuHWRn5+HU9
+         713teynPYGlL4TUu8kgS+JHb6NBoN7ZBLeYqK57p1tmpjbhDOvKe+vMPBfEltv9rh4ov
+         J9BYaaQwlKqmPzKW8ZKSyP9Hm60/48o8oVgzl0O6p1+jDgFinXIxrG+x3+FBhrrAtbRv
+         rzyUcKr3mnygUfqDJwb35js9kzW2uajPITnDzv4LdouaJEeYI6GiLXusyMUo8vY8sz5j
+         qdlTfEMH8GTMslv+BYy+jl3eQORbaeYuM/FfcjM1sD7u9x1Jsx7jz8nr6YTbXs71jQ4L
+         znpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gNu2navMQF1LlWlbd6qlBcu8QU4k97X7QaII04hoSvk=;
-        b=mL35lgx4Cnisd+ZxkeeQR1yqPLs1LfRZGZ3w9Itqa0vaKdybgxjpzevuKA5e7f5+zY
-         oWkxKG+SR/L8EOfu8cS/867pCt4jKxtOb+RaBcd1TJ0BDXypDjd9KzC0OlASP14E6T+p
-         gH7Kb1y0pcfEI34xDTDfyLzIqK4Ih+k8lg7vzml5oHjEZkgLmrXBVquNiMzWYZyR7jsB
-         pcPhanFrSVxkI4H0Jn4IgI1j/VZcWd1th52nzT/6CqSUUhul7xmvClzfaQFoAxw5NgsD
-         Qou+NGtA8yIt4rDPFRcEQJj+/ySOzGuTJPqbImg4QbbtjVzrxqxuRM8wN6c/YYj6Fv/5
-         COMg==
-X-Gm-Message-State: AOAM533glsyECTZn8MhYyJW2BC32cNTFwxMdQxIGY5zrPhxINuBCzlsT
-        7a8uJM26DbbB9rvlAXal/8NpMN0dWrg=
-X-Google-Smtp-Source: ABdhPJwGRNBoJNy4bAVBssCsDWM/nH6Cf4CuQ1WPy+596A8KdTAPn/ws2gPKeSGcYXmCmsdohaqpdA==
-X-Received: by 2002:ac8:5acb:: with SMTP id d11mr310410qtd.287.1630539779945;
-        Wed, 01 Sep 2021 16:42:59 -0700 (PDT)
+        bh=hT19LOJfQN2z746EgMtCBr/K0GKv7xoMsHK9RejhTS4=;
+        b=rQNjH8AYgc9N8w5DPuTjrBq6jGRyJkq64ubcZR5pYFNK5US8dOojd+K+ZEe313OxIl
+         pVe0E2Szn/GnSaM31Tu9w4i6NdVsElwsmsRwRRXmWLNUG6XLl6TELV+L9iNiK83SPgss
+         MA7I3usUaCpesck8QlIgGk7Q2r32BQc2HaglfUXXDp8ZZ48JSBezmREcWRcELP31IH9i
+         3Xr55LJ/Rc1mqCKT1XtXpLz9C419uBonny4tb2o8gdQTPY+L1FYMATn2FGgPjrJNBXBG
+         6pCvOGQvFAPIwi+kIlA3xa8M6Py0nMHc5gGWSgp6mMsX2wujA6m8F2tb2gi++lA19F6G
+         fIhw==
+X-Gm-Message-State: AOAM533uSmYDii+hizvAjk9G7t178phOpeJZnSabgKGqSwGeu+5SSzal
+        LCiPJAf+MRNVmTSMSviC/FG2NHGkqR4=
+X-Google-Smtp-Source: ABdhPJwzkdfnZZ2JJWH1N2KLsEyXDD73iaxsjWb8K/T+npi2iWSHvbUiIbqx8iAykbJe9MBRFPy8sQ==
+X-Received: by 2002:a05:6214:6f0:: with SMTP id bk16mr264494qvb.40.1630539781996;
+        Wed, 01 Sep 2021 16:43:01 -0700 (PDT)
 Received: from Arrakis.djogorchock.com (pool-173-68-59-147.nycmny.fios.verizon.net. [173.68.59.147])
-        by smtp.gmail.com with ESMTPSA id n5sm13422qtp.35.2021.09.01.16.42.59
+        by smtp.gmail.com with ESMTPSA id n5sm13422qtp.35.2021.09.01.16.43.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Sep 2021 16:42:59 -0700 (PDT)
+        Wed, 01 Sep 2021 16:43:01 -0700 (PDT)
 From:   "Daniel J. Ogorchock" <djogorchock@gmail.com>
 To:     linux-input@vger.kernel.org
 Cc:     thunderbird2k@gmail.com, blaws05@gmail.com,
@@ -64,9 +64,9 @@ Cc:     thunderbird2k@gmail.com, blaws05@gmail.com,
         carmueller@gmail.com, pgriffais@valvesoftware.com,
         hadess@hadess.net, pobrn@protonmail.com,
         "Daniel J. Ogorchock" <djogorchock@gmail.com>
-Subject: [PATCH v15 12/16] HID: nintendo: add support for reading user calibration
-Date:   Wed,  1 Sep 2021 19:42:32 -0400
-Message-Id: <20210901234236.3113-13-djogorchock@gmail.com>
+Subject: [PATCH v15 14/16] HID: nintendo: improve rumble performance and stability
+Date:   Wed,  1 Sep 2021 19:42:34 -0400
+Message-Id: <20210901234236.3113-15-djogorchock@gmail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901234236.3113-1-djogorchock@gmail.com>
 References: <20210901234236.3113-1-djogorchock@gmail.com>
@@ -76,278 +76,82 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-If the controller's SPI flash contains user stick calibration(s), they
-should be prioritized over the factory calibrations. The user
-calibrations have 2 magic bytes preceding them. If the bytes are the
-correct magic values, the user calibration is used.
+This patch alters the method that the rumble data is sent to the
+controller. Rather than using the enable rumble subcommand for this
+purpose, the driver now employs the RUMBLE_ONLY output report. This has
+the advantage of not needing to receive a subcommand reply (to the major
+benefit of reducing IMU latency) and also seems to make the rumble
+vibrations more continuous. Perhaps most importantly it reduces
+disconnects during times of heavy rumble.
 
 Signed-off-by: Daniel J. Ogorchock <djogorchock@gmail.com>
 ---
- drivers/hid/hid-nintendo.c | 206 ++++++++++++++++++++++++++-----------
- 1 file changed, 148 insertions(+), 58 deletions(-)
+ drivers/hid/hid-nintendo.c | 38 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 37 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index dcfb80d829713..d2cd4eb869ce3 100644
+index 041de7637441d..9376f20baab00 100644
 --- a/drivers/hid/hid-nintendo.c
 +++ b/drivers/hid/hid-nintendo.c
-@@ -23,6 +23,7 @@
-  */
+@@ -348,6 +348,12 @@ enum joycon_msg_type {
+ 	JOYCON_MSG_TYPE_SUBCMD,
+ };
  
- #include "hid-ids.h"
-+#include <asm/unaligned.h>
- #include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/hid.h>
-@@ -96,11 +97,23 @@ static const u8 JC_USB_RESET			= 0x06;
- static const u8 JC_USB_PRE_HANDSHAKE		= 0x91;
- static const u8 JC_USB_SEND_UART		= 0x92;
- 
--/* SPI storage addresses of factory calibration data */
--static const u16 JC_CAL_DATA_START		= 0x603d;
--static const u16 JC_CAL_DATA_END		= 0x604e;
--#define JC_CAL_DATA_SIZE	(JC_CAL_DATA_END - JC_CAL_DATA_START + 1)
-+/* Magic value denoting presence of user calibration */
-+static const u16 JC_CAL_USR_MAGIC_0		= 0xB2;
-+static const u16 JC_CAL_USR_MAGIC_1		= 0xA1;
-+static const u8 JC_CAL_USR_MAGIC_SIZE		= 2;
++struct joycon_rumble_output {
++	u8 output_id;
++	u8 packet_num;
++	u8 rumble_data[8];
++} __packed;
 +
-+/* SPI storage addresses of user calibration data */
-+static const u16 JC_CAL_USR_LEFT_MAGIC_ADDR	= 0x8010;
-+static const u16 JC_CAL_USR_LEFT_DATA_ADDR	= 0x8012;
-+static const u16 JC_CAL_USR_LEFT_DATA_END	= 0x801A;
-+static const u16 JC_CAL_USR_RIGHT_MAGIC_ADDR	= 0x801B;
-+static const u16 JC_CAL_USR_RIGHT_DATA_ADDR	= 0x801D;
-+#define JC_CAL_STICK_DATA_SIZE \
-+	(JC_CAL_USR_LEFT_DATA_END - JC_CAL_USR_LEFT_DATA_ADDR + 1)
- 
-+/* SPI storage addresses of factory calibration data */
-+static const u16 JC_CAL_FCT_DATA_LEFT_ADDR	= 0x603d;
-+static const u16 JC_CAL_FCT_DATA_RIGHT_ADDR	= 0x6046;
- 
- /* The raw analog joystick values will be mapped in terms of this magnitude */
- static const u16 JC_MAX_STICK_MAG		= 32767;
-@@ -531,38 +544,140 @@ static int joycon_set_player_leds(struct joycon_ctlr *ctlr, u8 flash, u8 on)
- 	return joycon_send_subcmd(ctlr, req, 1, HZ/4);
+ struct joycon_subcmd_request {
+ 	u8 output_id; /* must be 0x01 for subcommand, 0x10 for rumble only */
+ 	u8 packet_num; /* incremented every send */
+@@ -1328,6 +1334,36 @@ static void joycon_parse_report(struct joycon_ctlr *ctlr,
+ 		joycon_parse_imu_report(ctlr, rep);
  }
  
--static const u16 DFLT_STICK_CAL_CEN = 2000;
--static const u16 DFLT_STICK_CAL_MAX = 3500;
--static const u16 DFLT_STICK_CAL_MIN = 500;
--static int joycon_request_calibration(struct joycon_ctlr *ctlr)
-+static int joycon_request_spi_flash_read(struct joycon_ctlr *ctlr,
-+					 u32 start_addr, u8 size, u8 **reply)
- {
- 	struct joycon_subcmd_request *req;
--	u8 buffer[sizeof(*req) + 5] = { 0 };
- 	struct joycon_input_report *report;
--	struct joycon_stick_cal *cal_x;
--	struct joycon_stick_cal *cal_y;
-+	u8 buffer[sizeof(*req) + 5] = { 0 };
-+	u8 *data;
++static int joycon_send_rumble_data(struct joycon_ctlr *ctlr)
++{
 +	int ret;
++	unsigned long flags;
++	struct joycon_rumble_output rumble_output = { 0 };
 +
-+	if (!reply)
-+		return -EINVAL;
-+
-+	req = (struct joycon_subcmd_request *)buffer;
-+	req->subcmd_id = JC_SUBCMD_SPI_FLASH_READ;
-+	data = req->data;
-+	put_unaligned_le32(start_addr, data);
-+	data[4] = size;
-+
-+	hid_dbg(ctlr->hdev, "requesting SPI flash data\n");
-+	ret = joycon_send_subcmd(ctlr, req, 5, HZ);
-+	if (ret) {
-+		hid_err(ctlr->hdev, "failed reading SPI flash; ret=%d\n", ret);
-+	} else {
-+		report = (struct joycon_input_report *)ctlr->input_buf;
-+		/* The read data starts at the 6th byte */
-+		*reply = &report->reply.data[5];
++	spin_lock_irqsave(&ctlr->lock, flags);
++	/*
++	 * If the controller has been removed, just return ENODEV so the LED
++	 * subsystem doesn't print invalid errors on removal.
++	 */
++	if (ctlr->ctlr_state == JOYCON_CTLR_STATE_REMOVED) {
++		spin_unlock_irqrestore(&ctlr->lock, flags);
++		return -ENODEV;
 +	}
++	memcpy(rumble_output.rumble_data,
++	       ctlr->rumble_data[ctlr->rumble_queue_tail],
++	       JC_RUMBLE_DATA_SIZE);
++	spin_unlock_irqrestore(&ctlr->lock, flags);
++
++	rumble_output.output_id = JC_OUTPUT_RUMBLE_ONLY;
++	rumble_output.packet_num = ctlr->subcmd_num;
++	if (++ctlr->subcmd_num > 0xF)
++		ctlr->subcmd_num = 0;
++
++	ret = __joycon_hid_send(ctlr->hdev, (u8 *)&rumble_output,
++				sizeof(rumble_output));
 +	return ret;
 +}
 +
-+/*
-+ * User calibration's presence is denoted with a magic byte preceding it.
-+ * returns 0 if magic val is present, 1 if not present, < 0 on error
-+ */
-+static int joycon_check_for_cal_magic(struct joycon_ctlr *ctlr, u32 flash_addr)
-+{
-+	int ret;
-+	u8 *reply;
-+
-+	ret = joycon_request_spi_flash_read(ctlr, flash_addr,
-+					    JC_CAL_USR_MAGIC_SIZE, &reply);
-+	if (ret)
-+		return ret;
-+
-+	return reply[0] != JC_CAL_USR_MAGIC_0 || reply[1] != JC_CAL_USR_MAGIC_1;
-+}
-+
-+static int joycon_read_stick_calibration(struct joycon_ctlr *ctlr, u16 cal_addr,
-+					 struct joycon_stick_cal *cal_x,
-+					 struct joycon_stick_cal *cal_y,
-+					 bool left_stick)
-+{
- 	s32 x_max_above;
- 	s32 x_min_below;
- 	s32 y_max_above;
- 	s32 y_min_below;
--	u8 *data;
- 	u8 *raw_cal;
- 	int ret;
+ static void joycon_rumble_worker(struct work_struct *work)
+ {
+ 	struct joycon_ctlr *ctlr = container_of(work, struct joycon_ctlr,
+@@ -1338,7 +1374,7 @@ static void joycon_rumble_worker(struct work_struct *work)
  
--	req = (struct joycon_subcmd_request *)buffer;
--	req->subcmd_id = JC_SUBCMD_SPI_FLASH_READ;
--	data = req->data;
--	data[0] = 0xFF & JC_CAL_DATA_START;
--	data[1] = 0xFF & (JC_CAL_DATA_START >> 8);
--	data[2] = 0xFF & (JC_CAL_DATA_START >> 16);
--	data[3] = 0xFF & (JC_CAL_DATA_START >> 24);
--	data[4] = JC_CAL_DATA_SIZE;
-+	ret = joycon_request_spi_flash_read(ctlr, cal_addr,
-+					    JC_CAL_STICK_DATA_SIZE, &raw_cal);
-+	if (ret)
-+		return ret;
-+
-+	/* stick calibration parsing: note the order differs based on stick */
-+	if (left_stick) {
-+		x_max_above = hid_field_extract(ctlr->hdev, (raw_cal + 0), 0,
-+						12);
-+		y_max_above = hid_field_extract(ctlr->hdev, (raw_cal + 1), 4,
-+						12);
-+		cal_x->center = hid_field_extract(ctlr->hdev, (raw_cal + 3), 0,
-+						  12);
-+		cal_y->center = hid_field_extract(ctlr->hdev, (raw_cal + 4), 4,
-+						  12);
-+		x_min_below = hid_field_extract(ctlr->hdev, (raw_cal + 6), 0,
-+						12);
-+		y_min_below = hid_field_extract(ctlr->hdev, (raw_cal + 7), 4,
-+						12);
-+	} else {
-+		cal_x->center = hid_field_extract(ctlr->hdev, (raw_cal + 0), 0,
-+						  12);
-+		cal_y->center = hid_field_extract(ctlr->hdev, (raw_cal + 1), 4,
-+						  12);
-+		x_min_below = hid_field_extract(ctlr->hdev, (raw_cal + 3), 0,
-+						12);
-+		y_min_below = hid_field_extract(ctlr->hdev, (raw_cal + 4), 4,
-+						12);
-+		x_max_above = hid_field_extract(ctlr->hdev, (raw_cal + 6), 0,
-+						12);
-+		y_max_above = hid_field_extract(ctlr->hdev, (raw_cal + 7), 4,
-+						12);
-+	}
-+
-+	cal_x->max = cal_x->center + x_max_above;
-+	cal_x->min = cal_x->center - x_min_below;
-+	cal_y->max = cal_y->center + y_max_above;
-+	cal_y->min = cal_y->center - y_min_below;
-+
-+	return 0;
-+}
-+
-+static const u16 DFLT_STICK_CAL_CEN = 2000;
-+static const u16 DFLT_STICK_CAL_MAX = 3500;
-+static const u16 DFLT_STICK_CAL_MIN = 500;
-+static int joycon_request_calibration(struct joycon_ctlr *ctlr)
-+{
-+	u16 left_stick_addr = JC_CAL_FCT_DATA_LEFT_ADDR;
-+	u16 right_stick_addr = JC_CAL_FCT_DATA_RIGHT_ADDR;
-+	int ret;
+ 	while (again) {
+ 		mutex_lock(&ctlr->output_mutex);
+-		ret = joycon_enable_rumble(ctlr);
++		ret = joycon_send_rumble_data(ctlr);
+ 		mutex_unlock(&ctlr->output_mutex);
  
- 	hid_dbg(ctlr->hdev, "requesting cal data\n");
--	ret = joycon_send_subcmd(ctlr, req, 5, HZ);
-+
-+	/* check if user stick calibrations are present */
-+	if (!joycon_check_for_cal_magic(ctlr, JC_CAL_USR_LEFT_MAGIC_ADDR)) {
-+		left_stick_addr = JC_CAL_USR_LEFT_DATA_ADDR;
-+		hid_info(ctlr->hdev, "using user cal for left stick\n");
-+	} else {
-+		hid_info(ctlr->hdev, "using factory cal for left stick\n");
-+	}
-+	if (!joycon_check_for_cal_magic(ctlr, JC_CAL_USR_RIGHT_MAGIC_ADDR)) {
-+		right_stick_addr = JC_CAL_USR_RIGHT_DATA_ADDR;
-+		hid_info(ctlr->hdev, "using user cal for right stick\n");
-+	} else {
-+		hid_info(ctlr->hdev, "using factory cal for right stick\n");
-+	}
-+
-+	/* read the left stick calibration data */
-+	ret = joycon_read_stick_calibration(ctlr, left_stick_addr,
-+					    &ctlr->left_stick_cal_x,
-+					    &ctlr->left_stick_cal_y,
-+					    true);
- 	if (ret) {
- 		hid_warn(ctlr->hdev,
--			 "Failed to read stick cal, using defaults; ret=%d\n",
-+			 "Failed to read left stick cal, using dflts; e=%d\n",
- 			 ret);
- 
- 		ctlr->left_stick_cal_x.center = DFLT_STICK_CAL_CEN;
-@@ -572,6 +687,17 @@ static int joycon_request_calibration(struct joycon_ctlr *ctlr)
- 		ctlr->left_stick_cal_y.center = DFLT_STICK_CAL_CEN;
- 		ctlr->left_stick_cal_y.max = DFLT_STICK_CAL_MAX;
- 		ctlr->left_stick_cal_y.min = DFLT_STICK_CAL_MIN;
-+	}
-+
-+	/* read the right stick calibration data */
-+	ret = joycon_read_stick_calibration(ctlr, right_stick_addr,
-+					    &ctlr->right_stick_cal_x,
-+					    &ctlr->right_stick_cal_y,
-+					    false);
-+	if (ret) {
-+		hid_warn(ctlr->hdev,
-+			 "Failed to read right stick cal, using dflts; e=%d\n",
-+			 ret);
- 
- 		ctlr->right_stick_cal_x.center = DFLT_STICK_CAL_CEN;
- 		ctlr->right_stick_cal_x.max = DFLT_STICK_CAL_MAX;
-@@ -580,44 +706,8 @@ static int joycon_request_calibration(struct joycon_ctlr *ctlr)
- 		ctlr->right_stick_cal_y.center = DFLT_STICK_CAL_CEN;
- 		ctlr->right_stick_cal_y.max = DFLT_STICK_CAL_MAX;
- 		ctlr->right_stick_cal_y.min = DFLT_STICK_CAL_MIN;
--
--		return ret;
- 	}
- 
--	report = (struct joycon_input_report *)ctlr->input_buf;
--	raw_cal = &report->reply.data[5];
--
--	/* left stick calibration parsing */
--	cal_x = &ctlr->left_stick_cal_x;
--	cal_y = &ctlr->left_stick_cal_y;
--
--	x_max_above = hid_field_extract(ctlr->hdev, (raw_cal + 0), 0, 12);
--	y_max_above = hid_field_extract(ctlr->hdev, (raw_cal + 1), 4, 12);
--	cal_x->center = hid_field_extract(ctlr->hdev, (raw_cal + 3), 0, 12);
--	cal_y->center = hid_field_extract(ctlr->hdev, (raw_cal + 4), 4, 12);
--	x_min_below = hid_field_extract(ctlr->hdev, (raw_cal + 6), 0, 12);
--	y_min_below = hid_field_extract(ctlr->hdev, (raw_cal + 7), 4, 12);
--	cal_x->max = cal_x->center + x_max_above;
--	cal_x->min = cal_x->center - x_min_below;
--	cal_y->max = cal_y->center + y_max_above;
--	cal_y->min = cal_y->center - y_min_below;
--
--	/* right stick calibration parsing */
--	raw_cal += 9;
--	cal_x = &ctlr->right_stick_cal_x;
--	cal_y = &ctlr->right_stick_cal_y;
--
--	cal_x->center = hid_field_extract(ctlr->hdev, (raw_cal + 0), 0, 12);
--	cal_y->center = hid_field_extract(ctlr->hdev, (raw_cal + 1), 4, 12);
--	x_min_below = hid_field_extract(ctlr->hdev, (raw_cal + 3), 0, 12);
--	y_min_below = hid_field_extract(ctlr->hdev, (raw_cal + 4), 4, 12);
--	x_max_above = hid_field_extract(ctlr->hdev, (raw_cal + 6), 0, 12);
--	y_max_above = hid_field_extract(ctlr->hdev, (raw_cal + 7), 4, 12);
--	cal_x->max = cal_x->center + x_max_above;
--	cal_x->min = cal_x->center - x_min_below;
--	cal_y->max = cal_y->center + y_max_above;
--	cal_y->min = cal_y->center - y_min_below;
--
- 	hid_dbg(ctlr->hdev, "calibration:\n"
- 			    "l_x_c=%d l_x_max=%d l_x_min=%d\n"
- 			    "l_y_c=%d l_y_max=%d l_y_min=%d\n"
+ 		/* -ENODEV means the controller was just unplugged */
 -- 
 2.33.0
 

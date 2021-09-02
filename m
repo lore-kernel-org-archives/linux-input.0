@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AB02C43219
-	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:53:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3119AC41535
+	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:55:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1678561158
-	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:53:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D8E9610D2
+	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:55:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347871AbhIBVyb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 2 Sep 2021 17:54:31 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:50669 "EHLO
+        id S1347814AbhIBV4G (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 2 Sep 2021 17:56:06 -0400
+Received: from relay10.mail.gandi.net ([217.70.178.230]:50027 "EHLO
         relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347766AbhIBVyS (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2021 17:54:18 -0400
+        with ESMTP id S1347797AbhIBVyD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2021 17:54:03 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id E670D240007;
-        Thu,  2 Sep 2021 21:53:15 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 4313A24000C;
+        Thu,  2 Sep 2021 21:53:02 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Jonathan Cameron <jic23@kernel.org>,
         Lars-Peter Clausen <lars@metafoo.de>,
@@ -39,10 +39,11 @@ Cc:     linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
         Ryan Barnett <ryan.barnett@collins.com>,
         Grygorii Strashko <grygorii.strashko@ti.com>,
         Jason Reeder <jreeder@ti.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH v2 46/46] ARM: dts: am437x-gp-evm: enable ADC1
-Date:   Thu,  2 Sep 2021 23:51:44 +0200
-Message-Id: <20210902215144.507243-47-miquel.raynal@bootlin.com>
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH v2 39/46] iio: adc: ti_am335x_adc: Get rid of useless gotos
+Date:   Thu,  2 Sep 2021 23:51:37 +0200
+Message-Id: <20210902215144.507243-40-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210902215144.507243-1-miquel.raynal@bootlin.com>
 References: <20210902215144.507243-1-miquel.raynal@bootlin.com>
@@ -53,34 +54,42 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-ADC0 and ADC1 pins are available on external connector J22.
-
-Enable ADC1 which was missing.
+Gotos jumping to a return statement are not really useful, drop them.
 
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- arch/arm/boot/dts/am437x-gp-evm.dts | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/iio/adc/ti_am335x_adc.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
-index 033b984ff637..2396ff2ae790 100644
---- a/arch/arm/boot/dts/am437x-gp-evm.dts
-+++ b/arch/arm/boot/dts/am437x-gp-evm.dts
-@@ -775,6 +775,14 @@ adc {
- 	};
- };
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+index cb2ff4eaa35e..fcd5283bda2e 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -644,11 +644,11 @@ static int tiadc_probe(struct platform_device *pdev)
+ 						IRQF_SHARED,
+ 						&tiadc_buffer_setup_ops);
+ 	if (err)
+-		goto err_free_channels;
++		return err;
  
-+&magadc {
-+	status = "okay";
+ 	err = iio_device_register(indio_dev);
+ 	if (err)
+-		goto err_buffer_unregister;
++		return err;
+ 
+ 	platform_set_drvdata(pdev, indio_dev);
+ 
+@@ -660,8 +660,7 @@ static int tiadc_probe(struct platform_device *pdev)
+ 
+ err_dma:
+ 	iio_device_unregister(indio_dev);
+-err_buffer_unregister:
+-err_free_channels:
 +
-+	adc {
-+		ti,adc-channels = <0 1 2 3 4 5 6 7>;
-+	};
-+};
-+
- &ecap0 {
- 	status = "okay";
- 	pinctrl-names = "default";
+ 	return err;
+ }
+ 
 -- 
 2.27.0
 

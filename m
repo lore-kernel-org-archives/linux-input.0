@@ -7,21 +7,21 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D19C6C4332F
-	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:52:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48930C04AB2
+	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:52:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BEFFD6113C
-	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:52:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3363B61102
+	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:52:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347655AbhIBVxA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 2 Sep 2021 17:53:00 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:44343 "EHLO
+        id S1347558AbhIBVxD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 2 Sep 2021 17:53:03 -0400
+Received: from relay10.mail.gandi.net ([217.70.178.230]:49595 "EHLO
         relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347642AbhIBVw4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2021 17:52:56 -0400
+        with ESMTP id S1347651AbhIBVxB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2021 17:53:01 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 665A8240009;
-        Thu,  2 Sep 2021 21:51:54 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 8839824000D;
+        Thu,  2 Sep 2021 21:51:59 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Jonathan Cameron <jic23@kernel.org>,
         Lars-Peter Clausen <lars@metafoo.de>,
@@ -39,11 +39,10 @@ Cc:     linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
         Ryan Barnett <ryan.barnett@collins.com>,
         Grygorii Strashko <grygorii.strashko@ti.com>,
         Jason Reeder <jreeder@ti.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH v2 04/46] dt-bindings: iio: adc: ti,am3359-adc: New yaml description
-Date:   Thu,  2 Sep 2021 23:51:02 +0200
-Message-Id: <20210902215144.507243-5-miquel.raynal@bootlin.com>
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH v2 06/46] dt-bindings: mfd: ti,am3359-tscadc: Describe am4372 MFD compatible
+Date:   Thu,  2 Sep 2021 23:51:04 +0200
+Message-Id: <20210902215144.507243-7-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210902215144.507243-1-miquel.raynal@bootlin.com>
 References: <20210902215144.507243-1-miquel.raynal@bootlin.com>
@@ -54,92 +53,38 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This ADC was already described in a text file also containing an MFD
-description an a touchscreen description:
-Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-Let's add a proper description for this hardware.
+A more recent version of the am3359 ADC/Touchscreen controller is
+available on certain SoCs of the am437x family. This IP has evolved a
+little bit and deserves its own compatible.
 
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- .../bindings/iio/adc/ti,am3359-adc.yaml       | 68 +++++++++++++++++++
- 1 file changed, 68 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/iio/adc/ti,am3359-adc.yaml
+ Documentation/devicetree/bindings/mfd/ti,am3359-tscadc.yaml | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/iio/adc/ti,am3359-adc.yaml b/Documentation/devicetree/bindings/iio/adc/ti,am3359-adc.yaml
-new file mode 100644
-index 000000000000..f262402ca037
---- /dev/null
-+++ b/Documentation/devicetree/bindings/iio/adc/ti,am3359-adc.yaml
-@@ -0,0 +1,68 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/iio/adc/ti,am3359-adc.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/Documentation/devicetree/bindings/mfd/ti,am3359-tscadc.yaml b/Documentation/devicetree/bindings/mfd/ti,am3359-tscadc.yaml
+index b2bff85f2329..34bf6a01436f 100644
+--- a/Documentation/devicetree/bindings/mfd/ti,am3359-tscadc.yaml
++++ b/Documentation/devicetree/bindings/mfd/ti,am3359-tscadc.yaml
+@@ -16,6 +16,7 @@ properties:
+       - items:
+           - const: ti,am654-tscadc
+           - const: ti,am3359-tscadc
++      - const: ti,am4372-magadc
+ 
+   reg:
+     maxItems: 1
+@@ -47,6 +48,10 @@ properties:
+     type: object
+     description: Touchscreen controller child
+ 
++  mag:
++    type: object
++    description: Magnetic reader
 +
-+title: TI AM3359 ADC
-+
-+maintainers:
-+  - Miquel Raynal <miquel.raynal@bootlin.com>
-+
-+properties:
-+  compatible:
-+    const: ti,am3359-adc
-+
-+  '#io-channel-cells':
-+    const: 1
-+
-+  ti,adc-channels:
-+    description: List of analog inputs available for ADC. AIN0 = 0, AIN1 = 1 and
-+      so on until AIN7 = 7.
-+    $ref: /schemas/types.yaml#/definitions/uint32-array
-+    minItems: 1
-+    maxItems: 8
-+
-+  ti,chan-step-opendelay:
-+    description: List of open delays for each channel of ADC in the order of
-+      ti,adc-channels. The value corresponds to the number of ADC clock cycles
-+      to wait after applying the step configuration registers and before sending
-+      the start of ADC conversion. Maximum value is 0x3FFFF.
-+    $ref: /schemas/types.yaml#/definitions/uint32-array
-+    minItems: 1
-+    maxItems: 8
-+
-+  ti,chan-step-sampledelay:
-+    description: List of sample delays for each channel of ADC in the order of
-+      ti,adc-channels. The value corresponds to the number of ADC clock cycles
-+      to sample (to hold start of conversion high). Maximum value is 0xFF.
-+    $ref: /schemas/types.yaml#/definitions/uint32-array
-+    minItems: 1
-+    maxItems: 8
-+
-+  ti,chan-step-avg:
-+    description: Number of averages to be performed for each channel of ADC. If
-+      average is 16 (this is also the maximum) then input is sampled 16 times
-+      and averaged to get more accurate value. This increases the time taken by
-+      ADC to generate a sample. Maximum value is 16.
-+    $ref: /schemas/types.yaml#/definitions/uint32-array
-+    minItems: 1
-+    maxItems: 8
-+
-+required:
-+  - compatible
-+  - '#io-channel-cells'
-+  - ti,adc-channels
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    adc {
-+        compatible = "ti,am3359-adc";
-+        #io-channel-cells = <1>;
-+        ti,adc-channels = <4 5 6 7>;
-+        ti,chan-step-opendelay = <0x098 0x3ffff 0x098 0x0>;
-+        ti,chan-step-sampledelay = <0xff 0x0 0xf 0x0>;
-+        ti,chan-step-avg = <16 2 4 8>;
-+    };
+ required:
+   - compatible
+   - reg
 -- 
 2.27.0
 

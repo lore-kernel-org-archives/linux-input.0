@@ -4,24 +4,24 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78C1FC433EF
-	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:53:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 953DBC433F5
+	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:53:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5E5126115B
-	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:53:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82E746115C
+	for <linux-input@archiver.kernel.org>; Thu,  2 Sep 2021 21:53:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347738AbhIBVyE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 2 Sep 2021 17:54:04 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:44843 "EHLO
+        id S1347853AbhIBVyH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 2 Sep 2021 17:54:07 -0400
+Received: from relay10.mail.gandi.net ([217.70.178.230]:33777 "EHLO
         relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347826AbhIBVxz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2021 17:53:55 -0400
+        with ESMTP id S1347835AbhIBVx7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2021 17:53:59 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 5CAB8240003;
-        Thu,  2 Sep 2021 21:52:54 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 41DB3240004;
+        Thu,  2 Sep 2021 21:52:58 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Jonathan Cameron <jic23@kernel.org>,
         Lars-Peter Clausen <lars@metafoo.de>,
@@ -39,10 +39,11 @@ Cc:     linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
         Ryan Barnett <ryan.barnett@collins.com>,
         Grygorii Strashko <grygorii.strashko@ti.com>,
         Jason Reeder <jreeder@ti.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH v2 35/46] mfd: ti_am335x_tscadc: Support the correctly spelled DT property
-Date:   Thu,  2 Sep 2021 23:51:33 +0200
-Message-Id: <20210902215144.507243-36-miquel.raynal@bootlin.com>
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH v2 37/46] iio: adc: ti_am335x_adc: Replace license text with SPDX tag
+Date:   Thu,  2 Sep 2021 23:51:35 +0200
+Message-Id: <20210902215144.507243-38-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210902215144.507243-1-miquel.raynal@bootlin.com>
 References: <20210902215144.507243-1-miquel.raynal@bootlin.com>
@@ -53,38 +54,37 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-There was in the past a typo in the coordinate readouts property. The
-bindings have been updated, the touchscreen driver as well and now
-supports both. However, the MFD driver that is in charge of verifying
-the validity of the property only checks the bogus one. Add support for
-the correctly spelled DT property.
+Drop the text license and replace it with an equivalent SPDX license tag
+identifier which also matches the MODULE_LICENSE("GPL").
 
-Fixes: c9aeb249bf72 ("Input: ti_am335x_tsc - fix spelling mistake in TSC/ADC DT binding")
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/mfd/ti_am335x_tscadc.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ti_am335x_adc.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index a3347f9fc388..4c2fe9910400 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -144,8 +144,14 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	if (tscadc->data->has_tsc) {
- 		node = of_get_child_by_name(pdev->dev.of_node, "tsc");
- 		of_property_read_u32(node, "ti,wires", &tscmag_wires);
--		of_property_read_u32(node, "ti,coordiante-readouts", &readouts);
-+		err = of_property_read_u32(node, "ti,coordinate-readouts",
-+					   &readouts);
-+		if (err < 0)
-+			of_property_read_u32(node, "ti,coordiante-readouts",
-+					     &readouts);
-+
- 		of_node_put(node);
-+
- 		if (tscmag_wires)
- 			use_tsc = true;
- 	} else {
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+index 2e86484409c3..7479b3c629e8 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -1,16 +1,8 @@
++// SPDX-License-Identifier: GPL-2.0-only
+ /*
+  * TI ADC MFD driver
+  *
+  * Copyright (C) 2012 Texas Instruments Incorporated - https://www.ti.com/
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation version 2.
+- *
+- * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+- * kind, whether express or implied; without even the implied warranty
+- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+  */
+ 
+ #include <linux/kernel.h>
 -- 
 2.27.0
 

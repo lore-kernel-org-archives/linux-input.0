@@ -2,103 +2,103 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2B05C433EF
-	for <linux-input@archiver.kernel.org>; Sun,  5 Sep 2021 13:23:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F89CC433EF
+	for <linux-input@archiver.kernel.org>; Mon,  6 Sep 2021 02:07:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 951D860F8F
-	for <linux-input@archiver.kernel.org>; Sun,  5 Sep 2021 13:23:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2517760F92
+	for <linux-input@archiver.kernel.org>; Mon,  6 Sep 2021 02:07:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234410AbhIENY0 convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 5 Sep 2021 09:24:26 -0400
-Received: from mslow1.mail.gandi.net ([217.70.178.240]:35037 "EHLO
-        mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233827AbhIENY0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Sep 2021 09:24:26 -0400
-Received: from relay6-d.mail.gandi.net (unknown [217.70.183.198])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 01A86C1EBC;
-        Sun,  5 Sep 2021 13:23:21 +0000 (UTC)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 1C587C0006;
-        Sun,  5 Sep 2021 13:22:56 +0000 (UTC)
-Date:   Sun, 5 Sep 2021 15:22:56 +0200
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Jonathan Cameron <jic23@kernel.org>
-Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>, <bcousson@baylibre.com>,
-        Tony Lindgren <tony@atomide.com>, <linux-iio@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
-        <linux-omap@vger.kernel.org>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Lokesh Vutla <lokeshvutla@ti.com>,
-        Tero Kristo <kristo@kernel.org>,
-        Ryan Barnett <ryan.barnett@collins.com>,
-        Jason Reeder <jreeder@ti.com>
-Subject: Re: [PATCH v2 33/46] mfd: ti_am335x_tscadc: Move control register
- configuration
-Message-ID: <20210905152256.48259b8d@xps13>
-In-Reply-To: <20210905141830.1a0deaa9@jic23-huawei>
-References: <20210902215144.507243-1-miquel.raynal@bootlin.com>
-        <20210902215144.507243-34-miquel.raynal@bootlin.com>
-        <3bc1f515-0b3c-ad0c-9624-4d4804899007@ti.com>
-        <20210905141830.1a0deaa9@jic23-huawei>
-Organization: Bootlin
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S238487AbhIFCIL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 5 Sep 2021 22:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34708 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234294AbhIFCIK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Sep 2021 22:08:10 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E762AC061575;
+        Sun,  5 Sep 2021 19:07:06 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id w7so5194305pgk.13;
+        Sun, 05 Sep 2021 19:07:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=8YLXjAz0g5k3I7xB8PeuCY4SAGh46UdYPaS6bLn7yHU=;
+        b=jT1eKflCrHvPFmUn+yTYnbMuM5sbXraoAQ9Xp+tfroppL1TuFSK9fRG358A9zh0Y0l
+         52cyay6FMeB3HxsLE97qzjQExOApUW9EMtC3FfYh07bxIv2aF9A/5OpHLt3i+Z47Zvbg
+         kOzKn2u3cKAGaIOH19xTiQaYKK7TKA3I9NJZ1S2J4UB4dyeIihIFJeKc08RxG0EtA5Hn
+         jXa1SfHNpXeeHFbHG3pkbKPl5j1ZQpvIZkbq67AU9a3Mx01LFlOyBr/bxM6TjD2L9veh
+         YcsrMWHyeefTCxyH2MkCDkNPUJpHPiSgFag9ol2XREXcgT4ELdNn1Cbw3N/brhzIpHrQ
+         EwUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=8YLXjAz0g5k3I7xB8PeuCY4SAGh46UdYPaS6bLn7yHU=;
+        b=H+/BMruJV8ZybJ2K6gfWTrRiwbPDj3uq4nbUDjITLfBgTZy9doEkONs8kxYIVdIoN3
+         oMIHMfq6pjeZ0VR3AJBhIRLy3D8lDu5TKqm8I4MXe6jSMj7ra4QLyuLKa6RYhJ0NCdTu
+         TTWgqczrRV9kbmm3L1vlxNfy7Brs+5/mQWwPF2CPoXu/uwTE5CeVLmjWIC8MFG01oGGE
+         0x/S169EEcczRFjH4bWVle2kf+c4PzjaRrmo6mWjYZA3XKkM0Hwg+ykfnQPFGRbFu1Av
+         WDh+vVZq28SeC3yN9L4sBLy8eqwCfTEyWGT8p9YEss9RdWG2AtkqG/S2YSxtYpguIRu1
+         93lQ==
+X-Gm-Message-State: AOAM533HAYdObZJ/Z4Pi0JEV/eVjbodlmYwRU74QXI+b0kvUQsbJ6vds
+        XCEpk67QQTDV+swNtmz6ji4=
+X-Google-Smtp-Source: ABdhPJwpaA2p4iyn1QYwfLTrydwM39dcHc7m4fAs3j7q7V9hfpKWZYwRMKvjjsREeXs9GAWQ/dAzHA==
+X-Received: by 2002:a63:5f8f:: with SMTP id t137mr9956318pgb.420.1630894026226;
+        Sun, 05 Sep 2021 19:07:06 -0700 (PDT)
+Received: from google.com ([2620:15c:202:201:4bc3:62de:220d:cd94])
+        by smtp.gmail.com with ESMTPSA id a194sm5608894pfa.119.2021.09.05.19.07.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 05 Sep 2021 19:07:05 -0700 (PDT)
+Date:   Sun, 5 Sep 2021 19:07:02 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Tang Bin <tangbin@cmss.chinamobile.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] input: cpcap-pwrbutton: Add an error handling
+Message-ID: <YTV3xny2etxZ/TNG@google.com>
+References: <20210802121740.8700-1-tangbin@cmss.chinamobile.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210802121740.8700-1-tangbin@cmss.chinamobile.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Jonathan,
+Hi,
 
-jic23@kernel.org wrote on Sun, 5 Sep 2021 14:18:52 +0100:
+On Mon, Aug 02, 2021 at 08:17:40PM +0800, Tang Bin wrote:
+> The function cpcap_power_button_probe() does not perform
+> sufficient error checking after executing platform_get_irq(),
+> thus fix it.
 
-> On Fri, 3 Sep 2021 16:24:22 +0300
-> Grygorii Strashko <grygorii.strashko@ti.com> wrote:
+Yes, indeed. request_irq will fail regardless, but it is nice to return
+proper error code.
+
 > 
-> > On 03/09/2021 00:51, Miquel Raynal wrote:  
-> > > The datasheet states that most of the configuration should be set in the
-> > > control register in the first place, before actually enabling the
-> > > hardware. So far only half of the configuration was made in the first
-> > > step, which does not make really sense and would complicating the code
-> > > when introducing support for the am437x hardware.
-> > > 
-> > > Let's move that register write a bit below to enclose more configuration.
-> > > 
-> > > Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-> > > ---
-> > >   drivers/mfd/ti_am335x_tscadc.c | 2 ++
-> > >   1 file changed, 2 insertions(+)
-> > > 
-> > > diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-> > > index 29ada9da8826..a0db3e4ff265 100644
-> > > --- a/drivers/mfd/ti_am335x_tscadc.c
-> > > +++ b/drivers/mfd/ti_am335x_tscadc.c
-> > > @@ -239,6 +239,8 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
-> > >   	}
-> > >   	regmap_write(tscadc->regmap, REG_CTRL, tscadc->ctrl);
-> > >   
-> > > +	regmap_write(tscadc->regmap, REG_CTRL, tscadc->ctrl);
-> > > +    
-> > 
-> > Strange change - above 2 lines a the same !?  
+> Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+> ---
+>  drivers/input/misc/cpcap-pwrbutton.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> Yup, Looks like this one got handled earlier and the rebase went wrong.
-> So drop it.
+> diff --git a/drivers/input/misc/cpcap-pwrbutton.c b/drivers/input/misc/cpcap-pwrbutton.c
+> index 0abef6321..0a1f2e8b4 100644
+> --- a/drivers/input/misc/cpcap-pwrbutton.c
+> +++ b/drivers/input/misc/cpcap-pwrbutton.c
+> @@ -57,6 +57,9 @@ static int cpcap_power_button_probe(struct platform_device *pdev)
+>  	int irq = platform_get_irq(pdev, 0);
+>  	int err;
+>  
+> +	if (irq < 0)
+> +		return irq;
 
-Exactly. That's a rebase issue I didn't notice.
+I moved the platform_get_irq() here and applied, thank you.
 
-Thanks,
-Miquèl
+-- 
+Dmitry

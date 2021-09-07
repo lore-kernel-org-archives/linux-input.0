@@ -2,88 +2,160 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34E1EC433FE
-	for <linux-input@archiver.kernel.org>; Tue,  7 Sep 2021 19:05:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B85D3C433EF
+	for <linux-input@archiver.kernel.org>; Tue,  7 Sep 2021 20:13:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1911961130
-	for <linux-input@archiver.kernel.org>; Tue,  7 Sep 2021 19:05:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92BBF60187
+	for <linux-input@archiver.kernel.org>; Tue,  7 Sep 2021 20:13:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345447AbhIGTG3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Sep 2021 15:06:29 -0400
-Received: from mail-oo1-f45.google.com ([209.85.161.45]:45696 "EHLO
-        mail-oo1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230203AbhIGTG3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2021 15:06:29 -0400
-Received: by mail-oo1-f45.google.com with SMTP id m14-20020a4ad50e000000b002912a944a47so83313oos.12;
-        Tue, 07 Sep 2021 12:05:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=xG8XtyNOMTr7L9vWlv1RtoU+mRp0MG0nj8OT2PfaaKc=;
-        b=C34wVMJ5tMM0b2DGnZBo+YVSKG/fDsJcj7n8OvhDYwdg85BEWFwEcU//vpk0SlMDjY
-         V0ASZ46lHbYDQwPpc3inqqCRBodrG9/lxuyaDunYD37ca2RMvsJ//46Bam7cyOKTL/xz
-         Mm2QUhkn85ZACFGCHW9OnJMJ7LhC0rt+gd0vKI6NvvIXvBDjgI/4QNw46g4praRfqLvd
-         4fn6xju8agGv9mLZKKYkJEaLJe9iqyvhzcKaz418yM8tWHtSOY56DWmlm0iqk3U88Mj6
-         qS/9ZhqbTXC7qCy9POqnYVdqpaR0x3Bd2bMcjOI+NBcZ6LS/0p56Y5Rz/bvNAAakjQIl
-         YTWw==
-X-Gm-Message-State: AOAM531jg/H4KgIUtxeh+xBupBpIbt1yn0AdYve2/95pDCrn+6iIWxlC
-        4aYl5Ggpj8yv4p7u2O4QNw==
-X-Google-Smtp-Source: ABdhPJwvKHJB56QW0OLh0B8b9pk8wolbsjN+Be2o3jJnyFZbM/oWiz/ufQhm/BNt1/K79q4MgwqJXQ==
-X-Received: by 2002:a4a:5742:: with SMTP id u63mr1145298ooa.87.1631041522404;
-        Tue, 07 Sep 2021 12:05:22 -0700 (PDT)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id x22sm2391802oox.26.2021.09.07.12.05.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Sep 2021 12:05:21 -0700 (PDT)
-Received: (nullmailer pid 168046 invoked by uid 1000);
-        Tue, 07 Sep 2021 19:05:20 -0000
-Date:   Tue, 7 Sep 2021 14:05:20 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        Tony Lindgren <tony@atomide.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Lee Jones <lee.jones@linaro.org>, bcousson@baylibre.com,
-        linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
-        Lokesh Vutla <lokeshvutla@ti.com>,
-        Tero Kristo <kristo@kernel.org>,
-        Ryan Barnett <ryan.barnett@collins.com>,
-        linux-iio@vger.kernel.org, Jason Reeder <jreeder@ti.com>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        linux-omap@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-Subject: Re: [PATCH v2 07/46] dt-bindings: iio: adc: ti,am3359-adc: Describe
- am4372 ADC compatible
-Message-ID: <YTe38HWmbICuwGjf@robh.at.kernel.org>
-References: <20210902215144.507243-1-miquel.raynal@bootlin.com>
- <20210902215144.507243-8-miquel.raynal@bootlin.com>
+        id S1345488AbhIGUO3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Sep 2021 16:14:29 -0400
+Received: from mail.bugwerft.de ([46.23.86.59]:37114 "EHLO mail.bugwerft.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1346356AbhIGUOX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 7 Sep 2021 16:14:23 -0400
+Received: from hq-00021.Speedport_W_724V_01011603_07_006 (p200300d83f0164a4ac70ae0545232a4f.dip0.t-ipconnect.de [IPv6:2003:d8:3f01:64a4:ac70:ae05:4523:2a4f])
+        by mail.bugwerft.de (Postfix) with ESMTPSA id 02F3F32E70A;
+        Tue,  7 Sep 2021 20:07:33 +0000 (UTC)
+From:   Daniel Mack <daniel@zonque.org>
+To:     linux-input@vger.kernel.org
+Cc:     dmitry.torokhov@gmail.com, m.felsch@pengutronix.de,
+        Daniel Mack <daniel@zonque.org>
+Subject: [PATCH v5 2/3] Input: ads7846: Remove custom filter handling functions from pdata
+Date:   Tue,  7 Sep 2021 22:07:25 +0200
+Message-Id: <20210907200726.2034962-3-daniel@zonque.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210907200726.2034962-1-daniel@zonque.org>
+References: <20210907200726.2034962-1-daniel@zonque.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210902215144.507243-8-miquel.raynal@bootlin.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 02 Sep 2021 23:51:05 +0200, Miquel Raynal wrote:
-> A more recent version of the am3359 ADC is available on certain SoCs of
-> the am437x family. This IP has evolved a little bit and deserves its own
-> compatible.
-> 
-> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> ---
->  Documentation/devicetree/bindings/iio/adc/ti,am3359-adc.yaml | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
+The functions in the platform data struct to initialize, cleanup and
+apply custom filters are not in use by any mainline board.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Remove support for them to pave the road for more cleanups to come.
+
+The enum was moved as it has no users outside of the driver code
+itself.
+
+Signed-off-by: Daniel Mack <daniel@zonque.org>
+Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
+---
+ drivers/input/touchscreen/ads7846.c | 25 ++++++++-----------------
+ include/linux/spi/ads7846.h         | 15 ---------------
+ 2 files changed, 8 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index ce2e14816af5..b9c8496155b7 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -142,13 +142,18 @@ struct ads7846 {
+ 
+ 	int			(*filter)(void *data, int data_idx, int *val);
+ 	void			*filter_data;
+-	void			(*filter_cleanup)(void *data);
+ 	int			(*get_pendown_state)(void);
+ 	int			gpio_pendown;
+ 
+ 	void			(*wait_for_sync)(void);
+ };
+ 
++enum ads7846_filter {
++	ADS7846_FILTER_OK,
++	ADS7846_FILTER_REPEAT,
++	ADS7846_FILTER_IGNORE,
++};
++
+ /* leave chip selected when we're done, for quicker re-select? */
+ #if	0
+ #define	CS_CHANGE(xfer)	((xfer).cs_change = 1)
+@@ -1277,15 +1282,7 @@ static int ads7846_probe(struct spi_device *spi)
+ 	ts->x_plate_ohms = pdata->x_plate_ohms ? : 400;
+ 	ts->vref_mv = pdata->vref_mv;
+ 
+-	if (pdata->filter != NULL) {
+-		if (pdata->filter_init != NULL) {
+-			err = pdata->filter_init(pdata, &ts->filter_data);
+-			if (err < 0)
+-				goto err_free_mem;
+-		}
+-		ts->filter = pdata->filter;
+-		ts->filter_cleanup = pdata->filter_cleanup;
+-	} else if (pdata->debounce_max) {
++	if (pdata->debounce_max) {
+ 		ts->debounce_max = pdata->debounce_max;
+ 		if (ts->debounce_max < 2)
+ 			ts->debounce_max = 2;
+@@ -1299,7 +1296,7 @@ static int ads7846_probe(struct spi_device *spi)
+ 
+ 	err = ads7846_setup_pendown(spi, ts, pdata);
+ 	if (err)
+-		goto err_cleanup_filter;
++		goto err_free_mem;
+ 
+ 	if (pdata->penirq_recheck_delay_usecs)
+ 		ts->penirq_recheck_delay_usecs =
+@@ -1425,9 +1422,6 @@ static int ads7846_probe(struct spi_device *spi)
+  err_free_gpio:
+ 	if (!ts->get_pendown_state)
+ 		gpio_free(ts->gpio_pendown);
+- err_cleanup_filter:
+-	if (ts->filter_cleanup)
+-		ts->filter_cleanup(ts->filter_data);
+  err_free_mem:
+ 	input_free_device(input_dev);
+ 	kfree(packet);
+@@ -1458,9 +1452,6 @@ static int ads7846_remove(struct spi_device *spi)
+ 		gpio_free(ts->gpio_pendown);
+ 	}
+ 
+-	if (ts->filter_cleanup)
+-		ts->filter_cleanup(ts->filter_data);
+-
+ 	kfree(ts->packet);
+ 	kfree(ts);
+ 
+diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
+index 1a5eaef3b7f2..d424c1aadf38 100644
+--- a/include/linux/spi/ads7846.h
++++ b/include/linux/spi/ads7846.h
+@@ -1,17 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ /* linux/spi/ads7846.h */
+ 
+-/* Touchscreen characteristics vary between boards and models.  The
+- * platform_data for the device's "struct device" holds this information.
+- *
+- * It's OK if the min/max values are zero.
+- */
+-enum ads7846_filter {
+-	ADS7846_FILTER_OK,
+-	ADS7846_FILTER_REPEAT,
+-	ADS7846_FILTER_IGNORE,
+-};
+-
+ struct ads7846_platform_data {
+ 	u16	model;			/* 7843, 7845, 7846, 7873. */
+ 	u16	vref_delay_usecs;	/* 0 for external vref; etc */
+@@ -51,10 +40,6 @@ struct ads7846_platform_data {
+ 	int	gpio_pendown_debounce;	/* platform specific debounce time for
+ 					 * the gpio_pendown */
+ 	int	(*get_pendown_state)(void);
+-	int	(*filter_init)	(const struct ads7846_platform_data *pdata,
+-				 void **filter_data);
+-	int	(*filter)	(void *filter_data, int data_idx, int *val);
+-	void	(*filter_cleanup)(void *filter_data);
+ 	void	(*wait_for_sync)(void);
+ 	bool	wakeup;
+ 	unsigned long irq_flags;
+-- 
+2.31.1
+

@@ -5,64 +5,64 @@ X-Spam-Level:
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6432C433EF
-	for <linux-input@archiver.kernel.org>; Wed,  8 Sep 2021 03:40:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23490C433EF
+	for <linux-input@archiver.kernel.org>; Wed,  8 Sep 2021 03:40:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3F3261108
-	for <linux-input@archiver.kernel.org>; Wed,  8 Sep 2021 03:40:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 10BCF61139
+	for <linux-input@archiver.kernel.org>; Wed,  8 Sep 2021 03:40:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347284AbhIHDlh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Sep 2021 23:41:37 -0400
-Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:54681 "EHLO
+        id S1347478AbhIHDlk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Sep 2021 23:41:40 -0400
+Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:44219 "EHLO
         wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1344978AbhIHDlb (ORCPT
+        by vger.kernel.org with ESMTP id S1345480AbhIHDld (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 7 Sep 2021 23:41:31 -0400
+        Tue, 7 Sep 2021 23:41:33 -0400
 Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.west.internal (Postfix) with ESMTP id 543D62B002A5;
-        Tue,  7 Sep 2021 23:40:21 -0400 (EDT)
+        by mailnew.west.internal (Postfix) with ESMTP id 655D22B00247;
+        Tue,  7 Sep 2021 23:40:25 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Tue, 07 Sep 2021 23:40:22 -0400
+  by compute5.internal (MEProxy); Tue, 07 Sep 2021 23:40:26 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
         from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm3; bh=VpSD4pDAyZBDu
-        HDV17+T6gzsAmNEwWelCiUqUhnNWR0=; b=p4jvzYAIrsMWl7PiPH97D3BPeCDFi
-        AqI3H1SUPA08ZlVKhjJrx/qeVGGcrsFUnM80l3ETzBeoUaqPJv285LqWcWo3Rofk
-        nbopSMxQmnGoLx20M+l2lEeJc9DesXs4ZOP4Tt9L6SQZj2aaugzX59k8aNo5wNez
-        /+NxoCNlZRD4c6aL/fHCLSmCL5JSayfBH//xhqTS9J7MOwXrK5mdvIJbBkwuwBA1
-        UC6LVZancAnRQ0uI40g0HwSngnyublcC8Ymg6KY0QHQVcu1Pl0/uisxh5/XxsJbl
-        ZScHIA6+UdmpyciRJuh04erKiweMstzvSpm85EffeqMAhGyPE/g4o7NCQ==
+        :mime-version:content-transfer-encoding; s=fm3; bh=z/DhIupFja/3u
+        n3TMROM4CDZ3kmgdNlpaaMI2P2BtL0=; b=IJn811RUQPHrjpxPO0QtzjhXwEIjR
+        eGx11NcF+U6p/l2EwmRi8ZVBwpA6SUlZ3D21R0YCEbiHtMq46zpcBBt1Rdi/LLda
+        xH2hfJsZ+yK5sAH8yTOEU55HeS08S7CvJT2/nlgp0ZY65zIDOpYRowHBFXzPrftO
+        ajZQBlxsYp8KCnPiG0FaDXPNey4IPJzZvjQAo6TogrCnavwxjXNr1VF4AKLXYipA
+        GD1Zp1zmSOivjSJjSCtVylKAugn8WYlFNOOAHkdSAzoReg1H+Dw3PMRMakqL5YTl
+        pOIKwCyfTrSlzJkMecHPkk3CHYdez3sE58LCb9BqvYAixExXRIvR8cyYQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
         :in-reply-to:message-id:mime-version:references:subject:to
         :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=VpSD4pDAyZBDuHDV17+T6gzsAmNEwWelCiUqUhnNWR0=; b=vtssCJV3
-        TGV2U7WFjkDXty/Qn6trMasBaa4c5B8Kb4cW973n6D9DmoVenJsRQXgXbgZjDo9c
-        Be+sm7xohcXzN9q9sHT2n1biP/VakBQ/4cMslLQkpUNBpChH79hEumGE4uTjWLt4
-        qUGf3E68ChDB/2tu71Din0UTtPq2FGDyzaumcn85ut79y1jFNlZmRCB1AlbcxcPK
-        Gj+ebbWSpIuA9tQh8j8WvqgOkcKH4b967wIokkX2HRjYGxOYvMMbgFsGBcdoDqlU
-        JfSCigXlgX66zm7qBTWZQm/RQSmUnn1O5GQqtgI+X/JXwRdoI7UsVJH1XGFPW0t7
-        etUgP5qF5d+FVA==
-X-ME-Sender: <xms:pDA4YR3rLWeVwN5b-TEdg_VrxLGsczOQQCfNqVL-yodnKDZdzNuFgw>
-    <xme:pDA4YYFFe1x8_WUfaELqQTPsEQxZyuJAmfjMM9axfRVl5iJ4XboU2T3Ih9gz3xMYw
-    lt-z0TkCZIzr7pjKA>
-X-ME-Received: <xmr:pDA4YR7WOglN4pD6_3kNCLzGhixTOwZ_fliGwrp4XVkKNqokIu4bkxeVE4Cj-lkun144gytQHITDTNjxT18W15cDTMgPE4VyP3SKCbTiHRRC5Gaez_NUDn90Q6QsWnqtKWQCjQ>
+        fm3; bh=z/DhIupFja/3un3TMROM4CDZ3kmgdNlpaaMI2P2BtL0=; b=ta77mbg4
+        9qskT2Y45piWYPeehClZHedklTtHUnUsKnALRLGjX6A2e3r09WxtSI0c8eOjgZ/s
+        5HgK5OWBnWBF8MQg7LCD2m05biaGWXIhODdNIELLi3bFkTBRbQyr6ulMCXNZvzh7
+        Udoo3gVoImDRRSYje4h0QOOCfx2ZHjEdPQrgPJhuze8NbMIblF/Df+ZJYo/M3gnc
+        9rwV2ArcQQSbvXSoQaMwFh5i1fgUeVJmAwJXeHtMwD2ZhDRO7p7zcbvYuvTW4n81
+        kUSLK8QXxfWcdP/kSJ4FQpJIWNVB4fnn1gJXZgyL/lSlLmi5iyflBKz/6RStDaVu
+        5TxW57Irm+0LMA==
+X-ME-Sender: <xms:qDA4YZ-DlUiw-K8a3N8w14a0Ya67KS0nPiXNbPxR_dg-fmKXTrFVnQ>
+    <xme:qDA4YdsAdLztVPfqo0-u6xXtgoLtgsGlJF4NM6F4M_k2jpHIxfDXXYTDluyRC6piD
+    MHPUvOQziY8f0P7TQ>
+X-ME-Received: <xmr:qDA4YXB3bSErW9nSJFbQEYjisraMgdUL3PLaTtPwukttdYiI55f9b8-i5RFdE89GI2XWiMtNeAT-TQP-oPiM4w8S5ONMTVfSh0WOEMq80yvpg0D4g6kk81kX0XxSRa80dQSvgg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudefiedgjedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
     cujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgv
     lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtf
     frrghtthgvrhhnpeduhfejfedvhffgfeehtefghfeiiefgfeehgfdvvdevfeegjeehjedv
-    gfejheeuieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
+    gfejheeuieenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhroh
     hmpehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhg
-X-ME-Proxy: <xmx:pDA4Ye2K93bH5DCi_bQ4HOCNCY3AKtMSDl8hGA3Qk8MkZHPa6AlXEw>
-    <xmx:pDA4YUHZ9uIdJiCt7AnYkqEC6kbLfw0g8bN6pyG6Wvi6SibPx9M_EA>
-    <xmx:pDA4Yf-CHZF1yWE1LC7Yfi2rjgN334FPWyIO7NWdr2PREG9JjlBpLA>
-    <xmx:pDA4YX9Tpk2ctMb-06RYQv5PI2tz5Mh77sbkAlJjr6YPdhVgYU08vk0O2Wc>
+X-ME-Proxy: <xmx:qDA4YdfmDRUqzt25xwKadZo7p33q1bL89g-b5WA3f-tLBakrB_jwpg>
+    <xmx:qDA4YeM3yPCCCsiGDeHrWwC9Us5Z3Rl9PnerxY6PfqNYs1zO8OKnIg>
+    <xmx:qDA4YflZoEepx_4pY3gJCtYAsqPkLX4N6QbWHiJ3rNnw6YlTltGX8w>
+    <xmx:qTA4Yfnc1NNiKChg0F56H7JgeKnlEmgamDyJoXiclP4uaY4GGpF-rpzheLo>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 7 Sep 2021 23:40:20 -0400 (EDT)
+ 7 Sep 2021 23:40:24 -0400 (EDT)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
@@ -74,9 +74,9 @@ Cc:     Philipp Zabel <p.zabel@pengutronix.de>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
         linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org,
         Samuel Holland <samuel@sholland.org>
-Subject: [PATCH 1/3] dt-bindings: input: sun4i-lradc-keys: Add R329 and D1 compatibles
-Date:   Tue,  7 Sep 2021 22:40:14 -0500
-Message-Id: <20210908034016.24119-2-samuel@sholland.org>
+Subject: [PATCH 3/3] Input: sun4i-lradc-keys: Add support for R329 and D1
+Date:   Tue,  7 Sep 2021 22:40:16 -0500
+Message-Id: <20210908034016.24119-4-samuel@sholland.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210908034016.24119-1-samuel@sholland.org>
 References: <20210908034016.24119-1-samuel@sholland.org>
@@ -86,62 +86,28 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The R329 and D1 SoCs each contain an LRADC with a programming interface
-compatible to earlier LRADCs. However, the LRADC now has its own clock
-gate and reset line, instead of being always active.
-
-To support this, add clock/reset properties to the binding, and require
-them for the variant in the new SoCs.
+This LRADC variant uses the same 3/4*AVCC reference voltage as the A83T
+variant. The R329 and D1 LRADCs appear to be identical, so D1 support is
+accomplished through having the R329 LRADC as a fallback compatible.
 
 Signed-off-by: Samuel Holland <samuel@sholland.org>
 ---
- .../input/allwinner,sun4i-a10-lradc-keys.yaml | 22 +++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/input/keyboard/sun4i-lradc-keys.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml b/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
-index cffd02028d02..cfb84b8a1b90 100644
---- a/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
-+++ b/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
-@@ -18,10 +18,20 @@ properties:
-       - items:
-           - const: allwinner,sun50i-a64-lradc
-           - const: allwinner,sun8i-a83t-r-lradc
-+      - const: allwinner,sun50i-r329-lradc
-+      - items:
-+          - const: allwinner,sun20i-d1-lradc
-+          - const: allwinner,sun50i-r329-lradc
- 
-   reg:
-     maxItems: 1
- 
-+  clocks:
-+    maxItems: 1
-+
-+  resets:
-+    maxItems: 1
-+
-   interrupts:
-     maxItems: 1
- 
-@@ -66,6 +76,18 @@ required:
-   - interrupts
-   - vref-supply
- 
-+if:
-+  properties:
-+    compatible:
-+      contains:
-+        enum:
-+          - allwinner,sun50i-r329-lradc
-+
-+then:
-+  required:
-+    - clocks
-+    - resets
-+
- additionalProperties: false
- 
- examples:
+diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
+index 50fc18052829..06e63c9560f9 100644
+--- a/drivers/input/keyboard/sun4i-lradc-keys.c
++++ b/drivers/input/keyboard/sun4i-lradc-keys.c
+@@ -319,6 +319,8 @@ static const struct of_device_id sun4i_lradc_of_match[] = {
+ 		.data = &lradc_variant_a10 },
+ 	{ .compatible = "allwinner,sun8i-a83t-r-lradc",
+ 		.data = &r_lradc_variant_a83t },
++	{ .compatible = "allwinner,sun50i-r329-lradc",
++		.data = &r_lradc_variant_a83t },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, sun4i_lradc_of_match);
 -- 
 2.31.1
 

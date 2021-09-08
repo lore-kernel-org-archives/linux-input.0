@@ -2,67 +2,67 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D685C433EF
-	for <linux-input@archiver.kernel.org>; Wed,  8 Sep 2021 03:40:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59DA6C433EF
+	for <linux-input@archiver.kernel.org>; Wed,  8 Sep 2021 03:40:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8885C61139
-	for <linux-input@archiver.kernel.org>; Wed,  8 Sep 2021 03:40:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 380AF60E94
+	for <linux-input@archiver.kernel.org>; Wed,  8 Sep 2021 03:40:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236835AbhIHDl2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Sep 2021 23:41:28 -0400
-Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:52395 "EHLO
+        id S1346657AbhIHDlf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Sep 2021 23:41:35 -0400
+Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:58623 "EHLO
         wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234382AbhIHDl1 (ORCPT
+        by vger.kernel.org with ESMTP id S1345195AbhIHDlb (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 7 Sep 2021 23:41:27 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailnew.west.internal (Postfix) with ESMTP id 145672B00247;
-        Tue,  7 Sep 2021 23:40:19 -0400 (EDT)
+        Tue, 7 Sep 2021 23:41:31 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailnew.west.internal (Postfix) with ESMTP id 600102B002B5;
+        Tue,  7 Sep 2021 23:40:23 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Tue, 07 Sep 2021 23:40:19 -0400
+  by compute5.internal (MEProxy); Tue, 07 Sep 2021 23:40:24 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm3; bh=5COa0wVVrtdfa0gTBNofmOof6q
-        DfWnoFnqMWJA5jhro=; b=UUzw/24tsi4HOZOj5Jq4a0HIL6Bi1131y+cHyZyjAV
-        /4/SkNY9jZjR65mg2faAFJPxlSmGAIelqzK2iObWTmgCu1hIphPG4lZrzSBpJB/A
-        qS5tNbcki3CxsPP2Fh8LFOdQkYjaLSU/kUA4z3SuryFjrH+LdHGG3vPaN2+aOA75
-        kL83JeOzizFftD9uTItODUNDQZKewWPTD96m+2u0ZDLtXwQQQE7XrePOdAoAom1s
-        OxsrS2psO/IvczGkqJ+hggqX+pxZ5B9KLdkSTvzda1myaEj8LXbeZ7bvdV1QQoh2
-        Do9LEwn/tc2D2zVVkdRTxRItd/S9UnYNx+dbP3fQLLKA==
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=fm3; bh=MVVeiWIC2nl4o
+        F/AFwnBSE7sJZ2jQzfbZWmwhvrIQ0Y=; b=rXsJ8M+R64P1fV3yfNgXjacS6sWhI
+        y5TE+kE5H5W6JoloJpZaluBtWuZbCkuwfnx/VBgPnbSDcLhfyC7U06VQ7eYGltww
+        QVwF+4DCX8MtFtbKy0J/WirLXz5snQQPusDWVAuBaprDm3sd4KUBoK8QTI74Mugw
+        JLNlMGWGYQm0YOYQhtSTEZ5W81eQtMHe6+qYkAfJ4BW10z9LQycvg3EnqDKi0hT7
+        l2Uv7FQO5KY5TNtfOrk2oMdElljlMjnuyfQi5qZkpMWP70B1EonnJdugHGz7raen
+        7GKVL+souwtsWvGngedoju6q+sqGpxtbtk8prujjAzOmlywIjhVMm6HPw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5COa0wVVrtdfa0gTB
-        NofmOof6qDfWnoFnqMWJA5jhro=; b=ipBdJ5vDzOY6Ga3yropOJdLFlfKk13Tw6
-        NTa68FhJB48w1GIajZzy42na4J6vXSD51nqeB2MENC2y/RpVcomuN34R7rTjQCRD
-        LOuWqErdruM2MORQLEIctMuD6H6eMX86r9w5kgYzc+oJJkHA9LRLpFh+ksi+dMap
-        RZptotS0wPwxfXhmWRueemjJ2HSPb25PSHYAcOAIpcWANGwGbDDFmQzHuu8CZsDo
-        rcRXuBItIXt5pMXo94eIue44ocqiAsFHQ/WBACRGvQIqu1EAC3wGxbjdlhnnBD+s
-        kSAMp5IH+91SUmj//t4UTnd1EZNMouaiEk/dSVsIpwlOz7h+O2Irg==
-X-ME-Sender: <xms:oTA4YYOfcy30WCQG_Y9IcGcy5bRcPoNYgof7Xt2fUNDE5Tsla3-yCQ>
-    <xme:oTA4Ye-4RCpFyt5W_sfwGH-bGmwDzHjWHhGWPvkjpsdP2_gpEidwu64_Y7G-8oWz9
-    030hGIWg4tI1Ni_jQ>
-X-ME-Received: <xmr:oTA4YfTPHXOkyPhlloxxmxZ9-tM-VyTMlGSdhrnP66sJ-QU7UStLdPjqnGqE4jWMH1bZ0u7p1Yyt39d7VU1FKob3T9bWphbba9FFeg5Hf0kF4IVOSto9nCi_5O6CnF8z_r6mPA>
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm3; bh=MVVeiWIC2nl4oF/AFwnBSE7sJZ2jQzfbZWmwhvrIQ0Y=; b=g3yavs6u
+        uDxO7K6AGYbeGnFtwOt23NbfazxyOBTkueLMix+QuVhkuMvZ3tqz3/b5xadKar9Z
+        LQxsv0PtS0+YzZVO7bRDs0XZilu9jZ/SW5LSVnGqEMwkIpAi9F/NWgIe0yDkjV3x
+        bpkn9S8EVmUNP20g9skLRDzfpabQH1hiakly5GLgZ3tBpEH47NOvv5ck3lnQEOx+
+        +GKr72hh9TqsLug0775P+ey9D3tV7bFOckJ8J9inLbdFagSNZDcGIckWpRdCu2JG
+        b8Ig0FiSFcRdLBQZRUOuCs8P0eAe1GOAdHZFrI+Mu+Uoz7ZrHVui3IBiAX/ZhdLl
+        /6M/Tpyi7S7OOg==
+X-ME-Sender: <xms:pjA4YdU0pWW2SFQ-M7xGpC2EyjIsQXlDiURpbyyJTjle5Kg_NJYAZA>
+    <xme:pjA4Ydn4IGezY2txod9OTnf75_6SDVowKDVMSnTvXYq9tCinGbwR4V1XvJ0U43j3C
+    CVt80y1BuXGzdJrYw>
+X-ME-Received: <xmr:pjA4YZZCCRbnHCRygthESSvuP_L1LVLRUr9-bkkkkq3uFJPmlqKMqENOio8xdnl56jBcEkKwEktel12ohM7bC0mjqO2YNSNehxR_k270I0-Cj54kujWDys3Tv7ibHGDbDuJpVw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudefiedgjedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgvlhcu
-    jfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtffrrg
-    htthgvrhhnpeekkeffffetgfegfeeffeevgffhleehjefglefhveelkeeggeekgfevgeff
-    hfeiueenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivg
-    eptdenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghnugdr
-    ohhrgh
-X-ME-Proxy: <xmx:oTA4YQsvWl4MF_Ek8G_1exb0YvsEz-FZM3BufQ6VaL7CsVCwrYW42w>
-    <xmx:oTA4YQeuEVfjPKEUt0lGFTxsMMB1FkNPMI9QXBh1SR12xDNmO9fAlQ>
-    <xmx:oTA4YU3_O_Ys9SQScp5jgBMO6V06xvqWz1W8pNIN63BouSNpkmqKPw>
-    <xmx:ojA4YU1_tMonsNiPpplJbNK64EhwVvFxx27KIAFWr1Nc2xLSZxRwGl5UV6M>
+    cujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgv
+    lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtf
+    frrghtthgvrhhnpeduhfejfedvhffgfeehtefghfeiiefgfeehgfdvvdevfeegjeehjedv
+    gfejheeuieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhg
+X-ME-Proxy: <xmx:pjA4YQWK724zfUkPPeVqX7APFfTx7hyVW8a_3VY_KjYnYsMjH4vUwQ>
+    <xmx:pjA4YXkG3kDNtmiB7eZSN7W2n61dbJZVJGftDiz9NzlkXUMK98tKlw>
+    <xmx:pjA4YdcTzH451qqI3w3knu5LODiUBXPa2g6UhsGUkW3BdY1l_Y7kuQ>
+    <xmx:pzA4YVfK-qXrdHA1QSTrzoavABl8prfogBeFxuHVTfHoudmUkkfEcI1nYz4>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 7 Sep 2021 23:40:17 -0400 (EDT)
+ 7 Sep 2021 23:40:22 -0400 (EDT)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
@@ -74,35 +74,110 @@ Cc:     Philipp Zabel <p.zabel@pengutronix.de>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
         linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org,
         Samuel Holland <samuel@sholland.org>
-Subject: [PATCH 0/3] Input: sun4i-lradc-keys: R329 and D1 support
-Date:   Tue,  7 Sep 2021 22:40:13 -0500
-Message-Id: <20210908034016.24119-1-samuel@sholland.org>
+Subject: [PATCH 2/3] Input: sun4i-lradc-keys: Add optional clock/reset support
+Date:   Tue,  7 Sep 2021 22:40:15 -0500
+Message-Id: <20210908034016.24119-3-samuel@sholland.org>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210908034016.24119-1-samuel@sholland.org>
+References: <20210908034016.24119-1-samuel@sholland.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series adds R329 and D1 SoC support to the LRADC driver. These SoCs
-do not change the register interface, only the platform integration.
+Until the R329, the LRADC hardware was always active. Now it requires
+enabling a clock gate and deasserting a reset line. Do this if the clock
+and reset are provided in the device tree, but keep them optional to
+maintain support for the existing binding.
 
-I have another series[1] which adds wakeup support to this driver.
-It has been reviewed/acked and is waiting to be merged for several
-months[2]. That series merges cleanly with this one.
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+ drivers/input/keyboard/sun4i-lradc-keys.c | 29 +++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-[1]: https://patchwork.kernel.org/project/linux-input/cover/20210805051241.47168-1-samuel@sholland.org/
-[2]: https://patchwork.kernel.org/project/linux-input/cover/20210430042003.4591-1-samuel@sholland.org/
-
-Samuel Holland (3):
-  dt-bindings: input: sun4i-lradc-keys: Add R329 and D1 compatibles
-  Input: sun4i-lradc-keys: Add optional clock/reset support
-  Input: sun4i-lradc-keys: Add support for R329 and D1
-
- .../input/allwinner,sun4i-a10-lradc-keys.yaml | 22 +++++++++++++
- drivers/input/keyboard/sun4i-lradc-keys.c     | 31 +++++++++++++++++++
- 2 files changed, 53 insertions(+)
-
+diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
+index 4a796bed48ac..50fc18052829 100644
+--- a/drivers/input/keyboard/sun4i-lradc-keys.c
++++ b/drivers/input/keyboard/sun4i-lradc-keys.c
+@@ -14,6 +14,7 @@
+  * there are no boards known to use channel 1.
+  */
+ 
++#include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/init.h>
+ #include <linux/input.h>
+@@ -23,6 +24,7 @@
+ #include <linux/of_platform.h>
+ #include <linux/platform_device.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/reset.h>
+ #include <linux/slab.h>
+ 
+ #define LRADC_CTRL		0x00
+@@ -83,6 +85,8 @@ struct sun4i_lradc_data {
+ 	struct device *dev;
+ 	struct input_dev *input;
+ 	void __iomem *base;
++	struct clk *clk;
++	struct reset_control *reset;
+ 	struct regulator *vref_supply;
+ 	struct sun4i_lradc_keymap *chan0_map;
+ 	const struct lradc_variant *variant;
+@@ -140,6 +144,14 @@ static int sun4i_lradc_open(struct input_dev *dev)
+ 	if (error)
+ 		return error;
+ 
++	error = reset_control_deassert(lradc->reset);
++	if (error)
++		goto err_disable_reg;
++
++	error = clk_prepare_enable(lradc->clk);
++	if (error)
++		goto err_assert_reset;
++
+ 	lradc->vref = regulator_get_voltage(lradc->vref_supply) *
+ 		      lradc->variant->divisor_numerator /
+ 		      lradc->variant->divisor_denominator;
+@@ -153,6 +165,13 @@ static int sun4i_lradc_open(struct input_dev *dev)
+ 	writel(CHAN0_KEYUP_IRQ | CHAN0_KEYDOWN_IRQ, lradc->base + LRADC_INTC);
+ 
+ 	return 0;
++
++err_assert_reset:
++	reset_control_assert(lradc->reset);
++err_disable_reg:
++	regulator_disable(lradc->vref_supply);
++
++	return error;
+ }
+ 
+ static void sun4i_lradc_close(struct input_dev *dev)
+@@ -164,6 +183,8 @@ static void sun4i_lradc_close(struct input_dev *dev)
+ 		SAMPLE_RATE(2), lradc->base + LRADC_CTRL);
+ 	writel(0, lradc->base + LRADC_INTC);
+ 
++	clk_disable_unprepare(lradc->clk);
++	reset_control_assert(lradc->reset);
+ 	regulator_disable(lradc->vref_supply);
+ }
+ 
+@@ -243,6 +264,14 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
++	lradc->clk = devm_clk_get_optional(dev, NULL);
++	if (IS_ERR(lradc->clk))
++		return PTR_ERR(lradc->clk);
++
++	lradc->reset = devm_reset_control_get_optional_exclusive(dev, NULL);
++	if (IS_ERR(lradc->reset))
++		return PTR_ERR(lradc->reset);
++
+ 	lradc->vref_supply = devm_regulator_get(dev, "vref");
+ 	if (IS_ERR(lradc->vref_supply))
+ 		return PTR_ERR(lradc->vref_supply);
 -- 
 2.31.1
 

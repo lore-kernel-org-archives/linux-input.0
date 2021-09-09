@@ -2,254 +2,241 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5639C433F5
-	for <linux-input@archiver.kernel.org>; Thu,  9 Sep 2021 14:23:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC42CC433EF
+	for <linux-input@archiver.kernel.org>; Thu,  9 Sep 2021 19:01:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A0DB9610E9
-	for <linux-input@archiver.kernel.org>; Thu,  9 Sep 2021 14:23:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 803FC61074
+	for <linux-input@archiver.kernel.org>; Thu,  9 Sep 2021 19:01:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343592AbhIIOYN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Sep 2021 10:24:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42704 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239118AbhIIOYK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Sep 2021 10:24:10 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D246C01C7D8
-        for <linux-input@vger.kernel.org>; Thu,  9 Sep 2021 05:53:43 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id u16so2422527wrn.5
-        for <linux-input@vger.kernel.org>; Thu, 09 Sep 2021 05:53:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=9TzRPbzYYbWKXrJiwMD/03LVWshk5oDszs/hGQhYVgA=;
-        b=zt53Wiuct7NOFACkjCDvGNOS8A637plYs6mCagPed2ueDt35I6LOW2RD6hFma+eDjz
-         NdK3wGrEBgNvOkxLb0jbfFQals7mOF3TTebvIQ4uV9ovckrNXrYsyewYlG8YyP1QokzT
-         ux4I+JVm3t9bxTSi8f4hSlugRzCabMFOXIQ6a8WwOX/gnhHvsMbfydqJrYSFvrZBX/Lh
-         vUR22iaczYo2ihnB0+uaSQvlj36wPjut1wKJ8zdSZAgP8QDeVVwmlQgy2PIZWgm0R9SA
-         +3g5n6ASqUaR3jBzfROl9CwLpJvTTO5WpIeaatja0BY36aXcdyEIu3kR6ET9yL6X+iKC
-         5hZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=9TzRPbzYYbWKXrJiwMD/03LVWshk5oDszs/hGQhYVgA=;
-        b=smtLgwp+jETsEev5rzL78bWrj9ADQ19yC6F22ovq1bDp6BV9GRJMnj68W0Acee2UZj
-         0v8gvy2BLAz8lvkCNBlleDxf7x6AmQDw3HVcpTNDO0jgD7XhGt1vddIarcS0R+aoyDLJ
-         5jyYoa+oaPaZ54URP8XewSqjiLOjO1C6vE8vveUc3gmfansWwAWOV1xeRuvGKUaKqxJN
-         N3jP/xz6aWhzqTGcZFhKb2JpDXmJK8dLjWxvIFTn1NCzyHO6HKIqFYvPF5wa1NwaZLci
-         /Dqvsd4YB1nZV78drcDCrKZNAThLNSz57sUl1RQID4z9ygYCGg17ekcpueM/9M2EB/Yx
-         GIgg==
-X-Gm-Message-State: AOAM5307/4y1cbgTsoPvi+aCIeyCYo5la+YU7h/vZcQJrVR3HcHwqoZs
-        LqKPsjRqUuLPxmWgPZWzgDhWWQ==
-X-Google-Smtp-Source: ABdhPJxj1T1DrVE/qGVFl9JgGjxZn7Ii6fIYwZJpRWf9DKiR5D1AZYlevea0CMEkAL7nVKhL9pgQBw==
-X-Received: by 2002:adf:b743:: with SMTP id n3mr3369442wre.243.1631192022003;
-        Thu, 09 Sep 2021 05:53:42 -0700 (PDT)
-Received: from google.com ([95.148.6.201])
-        by smtp.gmail.com with ESMTPSA id b24sm1485521wmj.43.2021.09.09.05.53.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Sep 2021 05:53:41 -0700 (PDT)
-Date:   Thu, 9 Sep 2021 13:53:39 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     "Daniel J. Ogorchock" <djogorchock@gmail.com>
-Cc:     linux-input@vger.kernel.org, thunderbird2k@gmail.com,
-        blaws05@gmail.com, benjamin.tissoires@redhat.com, jikos@kernel.org,
-        Roderick.Colenbrander@sony.com, svv@google.com, s.jegen@gmail.com,
-        carmueller@gmail.com, pgriffais@valvesoftware.com,
-        hadess@hadess.net
-Subject: Re: [PATCH v14 00/17] HID: nintendo
-Message-ID: <YToD0wVxxwukjpXC@google.com>
-References: <20210725032707.440071-1-djogorchock@gmail.com>
+        id S232409AbhIITDB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Sep 2021 15:03:01 -0400
+Received: from mga05.intel.com ([192.55.52.43]:57318 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231422AbhIITDA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Sep 2021 15:03:00 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10102"; a="306448207"
+X-IronPort-AV: E=Sophos;i="5.85,281,1624345200"; 
+   d="scan'208";a="306448207"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2021 12:01:50 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.85,281,1624345200"; 
+   d="scan'208";a="649059040"
+Received: from lkp-server01.sh.intel.com (HELO 730d49888f40) ([10.239.97.150])
+  by orsmga005.jf.intel.com with ESMTP; 09 Sep 2021 12:01:48 -0700
+Received: from kbuild by 730d49888f40 with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1mOPIx-0003Rk-Lj; Thu, 09 Sep 2021 19:01:47 +0000
+Date:   Fri, 10 Sep 2021 03:01:33 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org
+Subject: [input:for-linus] BUILD SUCCESS
+ 0c5483a5778fa9910538453b5a9f1a6ed49e95ad
+Message-ID: <613a5a0d.tqubKL450ADFpXcY%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210725032707.440071-1-djogorchock@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, 24 Jul 2021, Daniel J. Ogorchock wrote:
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+branch HEAD: 0c5483a5778fa9910538453b5a9f1a6ed49e95ad  Input: analog - always use ktime functions
 
-> I've updated the driver to use the "player" string introduced in
-> Roderick's pending patch. I'll update the series again if that pending
-> patch is altered or a different approach is decided on.
-> 
-> Some stability improvements are included as well.
-> 
-> Version 14 changes:
->   - Use proper LED classdev name scheme
->   - Prevent situations where a missed zero amplitude rumble packet would
->     leave the controller stuck vibrating until a timeout
->   - Introduce a max rate at which subcommands or rumble packets can be
->     sent to the controller. This reduces bluetooth disconnects.
->   - Send rumble packets immediately after receiving input reports. This
->     reduces bluetooth disconnects (similar technique was already used
->     for subcommands).
-> 
-> Version 13 changes:
->   - Switched to using the dedicated rumble data message type, rather
->     than constantly resending the rumble enabled subcommand. This more
->     closely resembles how the console itself handles rumble data.
->   - Applied revisions based on Silvan Jegen's feedback on v12.
-> 
-> Version 12 changes:
->   - Added support for reading user calibration from the controller's
->     SPI flash (written when someone calibrates the controller on the
->     Nintendo switch).
->   - Added patch to prevent sending rumble subcommands when no effect
->     is being played. This turned out to drastically improve bluetooth
->     connection reliability.
->   - Set the battery description to POWER_SUPPLY_TYPE_BATTERY (was
->     missing in previous revisions due to oversight). This fixes problems
->     with desktop environments not handling the controller batteries
->     properly.
->   - Reintroduced IMU patch with improvements to documentation, packet
->     drop handling, and increased precision for gyro readings. Also
->     now blacklists the IMU input dev from joydev like hid-sony.
-> 
-> Version 11 changes:
->   - Removed IMU patch for now, since it has some issues to work out.
->   - Fixed bug introduced in v10 which led to the joy-cons' S-triggers
->     not being configured as an input.
->   - Changed the pro controller's d-pad input from buttons to a hat to be
->     more in line with other controller drivers.
-> 
-> Version 10 changes:
->   - Removed duplicate reporting of one of the triggers that Billy noticed
->   - The joy-cons now only report having the buttons they actually have
->     (they used to register the input devices with the buttons of the
->     other joy-con as well).
->   - The input device is now created after the LEDs/power supply.
->   - The removed state handling bool has been removed, instead opting to
->     add a new controller state (removed).
->   - Eliminated a 1 second delay when probing a USB controller.
->   - Added support for the IMU. This mostly consisted of merging in some
->     work provided by Carl. I'm not incredibly familiar with proper
->     gyro/accelerometer handling in linux, so this might need some
->     tweaking. Preliminary tests in evtest show the gyro/accel values
->     being reported.
->   - Added support for the joy-con USB charging grip.
-> 
-> Version 9 changes:
->   - Fixed compiler errors on gcc versions older than 8.2
->   - Set input device's uniq value to the controller's MAC address
-> 
-> Version 8 changes:
->   - Corrected the handshaking protocol with USB pro controllers. A
->     handshake now occurs both prior and after the baudrate set. This
->     doesn't appear to have a noticeable difference, but it more
->     accurately follows documentation found online.
->   - Fixed potential race condition which could lead to a slightly longer
->     delay sending subcommands in rare circumstances.
->   - Moved the rumble worker to its own workqueue, since it can block.
->     This prevents it from having a negative impact on the default kernel
->     workqueue. It also prevents dropped subcommands due to something
->     else blocking the kernel workqueue. The benefit is most obvious when
->     using multiple controllers at once, since the controller subcommand
->     timings are very picky.
->   - Added a patch to set the most significant bit of the hid hw version.
->     Roderick had mentioned needing to probably do this awhile ago, but I
->     had forgotten about it until now. This is the same thing hid-sony
->     does. It allows SDL2 to have different mappings for the hid-nintendo
->     driver vs the default hid mappings.
-> 
-> Version 7 changes:
->   - Changed name to hid-nintendo to fit modern naming conventions
->   - Removed joycon_ctlr_destroy(), since it wasn't needed an could
->     potentially invalidate a mutex while it could be in use on other
->     threads
->   - Implemented minor code improvements suggested by Silvan
->   - The driver now waits to send subcommands until after receiving an
->     input report. This significantly reduces dropped subcommands.
->   - Reduced the number of error messages when disconnecting a
->     controller.
-> 
-> Version 6 changes:
->   - Improved subcommand sending reliabilty
->   - Decreased rumble period to 50ms
->   - Added rumble queue to avoid missing ff_effects if sent too quickly
->   - Code cleanup and minor refactoring
->   - Added default analog stick calibration
-> 
-> Version 5 changes:
->   - Removed sysfs interface to control motor frequencies.
->   - Improved rumble reliability by using subcommands to set it.
->   - Changed mapping of the SL/SR triggers on the joy-cons to map to
->     whichever triggers they lack (e.g. a left joycon's sl/sr map to
->     TR and TR2). This allows userspace to distinguish between the
->     normal and S triggers.
->   - Minor refactors
-> 
-> Version 4 changes:
->   - Added support for the Home button LED for the pro controller and
->     right joy-con
->   - Changed name from hid-switchcon to hid-joycon
->   - Added rumble support
->   - Removed ctlr->type and use hdev->product instead
->   - Use POWER_SUPPLY_CAPACITY_LEVEL enum instead of manually translating
->     to capacity percentages
->   - Misc. minor refactors based on v3 feedback
-> 
-> Version 3 changes:
->   - Added led_classdev support for the 4 player LEDs
->   - Added power_supply support for the controller's battery
->   - Made the controller number mutex static
->   - Minor refactoring/style fixes based on Roderick's feedback from v2
-> 
-> Version 2 changes:
->   - Switched to using a synchronous method for configuring the
->         controller.
->   - Removed any pairing/orientation logic in the driver. Every
->     controller now corresponds to its own input device.
->   - Store controller button data as a single u32.
->   - Style corrections
-> 
-> Daniel J. Ogorchock (17):
->   HID: nintendo: add nintendo switch controller driver
->   HID: nintendo: add player led support
->   HID: nintendo: add power supply support
->   HID: nintendo: add home led support
->   HID: nintendo: add rumble support
->   HID: nintendo: improve subcommand reliability
->   HID: nintendo: send subcommands after receiving input report
->   HID: nintendo: reduce device removal subcommand errors
->   HID: nintendo: patch hw version for userspace HID mappings
->   HID: nintendo: set controller uniq to MAC
->   HID: nintendo: add support for charging grip
->   HID: nintendo: add support for reading user calibration
->   HID: nintendo: add IMU support
->   HID: nintendo: improve rumble performance and stability
->   HID: nintendo: ratelimit subcommands and rumble
->   HID: nintendo: send rumble cmds post input reports
->   HID: nintendo: prevent needless queueing of the rumble worker
-> 
->  MAINTAINERS                |    6 +
->  drivers/hid/Kconfig        |   24 +
->  drivers/hid/Makefile       |    1 +
->  drivers/hid/hid-ids.h      |    4 +
->  drivers/hid/hid-nintendo.c | 2319 ++++++++++++++++++++++++++++++++++++
->  drivers/input/joydev.c     |   10 +
->  6 files changed, 2364 insertions(+)
->  create mode 100644 drivers/hid/hid-nintendo.c
+elapsed time: 727m
 
-v14 already. :)
+configs tested: 173
+configs skipped: 4
 
-Is this the latest version?
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Have there been any review comments?
+gcc tested configs:
+arm                                 defconfig
+arm64                            allyesconfig
+arm64                               defconfig
+arm                              allyesconfig
+arm                              allmodconfig
+i386                 randconfig-c001-20210908
+powerpc                      obs600_defconfig
+powerpc                      walnut_defconfig
+powerpc                 mpc8313_rdb_defconfig
+powerpc                       ppc64_defconfig
+h8300                    h8300h-sim_defconfig
+sh                        edosk7705_defconfig
+sh                           se7751_defconfig
+mips                         bigsur_defconfig
+nios2                            allyesconfig
+m68k                          amiga_defconfig
+arm                            pleb_defconfig
+m68k                            mac_defconfig
+nios2                            alldefconfig
+powerpc                      pcm030_defconfig
+powerpc                  storcenter_defconfig
+arm                          ep93xx_defconfig
+sparc                       sparc32_defconfig
+powerpc                     mpc5200_defconfig
+arm                        spear6xx_defconfig
+s390                                defconfig
+arc                        nsimosci_defconfig
+alpha                            allyesconfig
+s390                          debug_defconfig
+powerpc                      mgcoge_defconfig
+powerpc                   lite5200b_defconfig
+arm                             rpc_defconfig
+arm                     am200epdkit_defconfig
+powerpc                     skiroot_defconfig
+powerpc                 mpc836x_rdk_defconfig
+powerpc                    klondike_defconfig
+openrisc                            defconfig
+mips                          ath79_defconfig
+m68k                       m5208evb_defconfig
+m68k                        m5407c3_defconfig
+arm                       versatile_defconfig
+arm                        cerfcube_defconfig
+arm                          ixp4xx_defconfig
+mips                      fuloong2e_defconfig
+powerpc                 canyonlands_defconfig
+ia64                             allmodconfig
+arm                         at91_dt_defconfig
+powerpc                      ppc6xx_defconfig
+arm                        multi_v5_defconfig
+powerpc                     kilauea_defconfig
+sh                               j2_defconfig
+sh                             espt_defconfig
+ia64                        generic_defconfig
+arm                         vf610m4_defconfig
+mips                           ip32_defconfig
+sh                           se7750_defconfig
+mips                        workpad_defconfig
+powerpc                        warp_defconfig
+arm                         mv78xx0_defconfig
+sh                           se7343_defconfig
+powerpc                     redwood_defconfig
+sh                        sh7763rdp_defconfig
+sh                          r7785rp_defconfig
+x86_64                           alldefconfig
+sh                      rts7751r2d1_defconfig
+arc                      axs103_smp_defconfig
+sh                          sdk7780_defconfig
+powerpc                        fsp2_defconfig
+arm                       netwinder_defconfig
+arm                        keystone_defconfig
+ia64                          tiger_defconfig
+mips                       capcella_defconfig
+powerpc                         wii_defconfig
+mips                          ath25_defconfig
+mips                       lemote2f_defconfig
+mips                       rbtx49xx_defconfig
+mips                        vocore2_defconfig
+powerpc                      makalu_defconfig
+nios2                         3c120_defconfig
+powerpc                      ep88xc_defconfig
+arm                           sama7_defconfig
+arc                          axs103_defconfig
+microblaze                      mmu_defconfig
+powerpc                    sam440ep_defconfig
+openrisc                         alldefconfig
+xtensa                    smp_lx200_defconfig
+arm                           viper_defconfig
+sh                        sh7785lcr_defconfig
+powerpc                 mpc8315_rdb_defconfig
+arm                    vt8500_v6_v7_defconfig
+arm                            qcom_defconfig
+sh                        apsh4ad0a_defconfig
+arm                        spear3xx_defconfig
+x86_64               randconfig-c001-20210908
+arm                  randconfig-c002-20210908
+x86_64                            allnoconfig
+ia64                                defconfig
+ia64                             allyesconfig
+m68k                             allmodconfig
+m68k                                defconfig
+m68k                             allyesconfig
+nios2                               defconfig
+arc                              allyesconfig
+nds32                             allnoconfig
+nds32                               defconfig
+csky                                defconfig
+alpha                               defconfig
+h8300                            allyesconfig
+arc                                 defconfig
+sh                               allmodconfig
+xtensa                           allyesconfig
+parisc                              defconfig
+s390                             allyesconfig
+s390                             allmodconfig
+parisc                           allyesconfig
+sparc                            allyesconfig
+sparc                               defconfig
+i386                                defconfig
+i386                             allyesconfig
+mips                             allyesconfig
+mips                             allmodconfig
+powerpc                          allyesconfig
+powerpc                           allnoconfig
+powerpc                          allmodconfig
+x86_64               randconfig-a004-20210908
+x86_64               randconfig-a006-20210908
+x86_64               randconfig-a003-20210908
+x86_64               randconfig-a001-20210908
+x86_64               randconfig-a005-20210908
+x86_64               randconfig-a002-20210908
+i386                 randconfig-a005-20210908
+i386                 randconfig-a004-20210908
+i386                 randconfig-a006-20210908
+i386                 randconfig-a002-20210908
+i386                 randconfig-a001-20210908
+i386                 randconfig-a003-20210908
+arc                  randconfig-r043-20210908
+riscv                    nommu_k210_defconfig
+riscv                    nommu_virt_defconfig
+riscv                             allnoconfig
+riscv                               defconfig
+riscv                          rv32_defconfig
+riscv                            allyesconfig
+riscv                            allmodconfig
+x86_64                    rhel-8.3-kselftests
+um                           x86_64_defconfig
+um                             i386_defconfig
+um                            kunit_defconfig
+x86_64                              defconfig
+x86_64                               rhel-8.3
+x86_64                                  kexec
+x86_64                           allyesconfig
 
-What are the current plans please?
+clang tested configs:
+s390                 randconfig-c005-20210908
+powerpc              randconfig-c003-20210908
+mips                 randconfig-c004-20210908
+i386                 randconfig-c001-20210908
+x86_64               randconfig-c007-20210908
+arm                  randconfig-c002-20210908
+riscv                randconfig-c006-20210908
+x86_64               randconfig-a016-20210908
+x86_64               randconfig-a011-20210908
+x86_64               randconfig-a012-20210908
+x86_64               randconfig-a015-20210908
+x86_64               randconfig-a014-20210908
+x86_64               randconfig-a013-20210908
+i386                 randconfig-a012-20210908
+i386                 randconfig-a015-20210908
+i386                 randconfig-a011-20210908
+i386                 randconfig-a013-20210908
+i386                 randconfig-a014-20210908
+i386                 randconfig-a016-20210908
+s390                 randconfig-r044-20210908
+riscv                randconfig-r042-20210908
+hexagon              randconfig-r045-20210908
+hexagon              randconfig-r041-20210908
 
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+---
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org

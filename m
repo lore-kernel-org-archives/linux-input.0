@@ -7,39 +7,39 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34E14C433EF
-	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:40:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BD09C433F5
+	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:41:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1637961108
-	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:40:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 33C7F61108
+	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:41:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231934AbhIJAS1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Sep 2021 20:18:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43958 "EHLO mail.kernel.org"
+        id S229549AbhIJAmD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Sep 2021 20:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230454AbhIJARl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:17:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC4B1611AD;
-        Fri, 10 Sep 2021 00:16:30 +0000 (UTC)
+        id S232123AbhIJASn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:18:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF51A610E9;
+        Fri, 10 Sep 2021 00:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631232991;
-        bh=v+xV+Z0mECTg1P4MjCoyaKUCGUkgrcvG+gffZb/JNE0=;
+        s=k20201202; t=1631233033;
+        bh=oFz61alXTOW06JOhzSWsngaa9cI/LzWBSyT5PC3YZqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eheWxWpnqMulvGFr7ryLJBbwxyXpk67zjAeOiQ3O4NTf7REarGXVutYLvZRBRoy9v
-         7wh6aHmSt1D+FfqoKMtPrEJ6I09aZv53HttFl0SryRiZHXfuaxYMpkacLUSt7PjxN7
-         Vwt/tmSCZVBrQr2HjEm4X25vcoPWGdQQx2aNY6ucBkk2WsYulrNCdPtv1S/ws9leCU
-         WgaoAQytj9rNqaRsar46NmX0ZSBPI1NGjdpCGhZfd+Cou5gFQJC98hwAmpWXa7rFJX
-         8TXupkmlwQSqTvDqq2KkMeo3uH9HuPVDvtKrf6yrDNCz+nG5fDV3tv4rRUbsdVTY12
-         d3T7UQqC7awtQ==
+        b=P0HfgsEzbX3mhEF6T5acNO+vZYafO6JAQ4kbD+PQRvEVHHTqCk4gMH8eWIFj+AXFu
+         JsbRPzAW50RuJA06zf5szkFhLIU5wU4+5dQiefdYdUnniLWchh4QPVECzwrki5TqiR
+         RFX0VDK4AkPC6/oCA4Xj5tR7GzYAqoXz1LwQ96eyQCB45PcZkQMW94xWk+vjtMkPNu
+         Wu4+NucJb+k9Ec2ON0QShzWrPjb/bYJkYa0Bds3yAvM1R6gdy8QIpkD6gGfMZ0P+7l
+         xK3cUkwsegy22jipTljhFGxl74umSxbOFtU5S/Z6O9SgTOh9qlBpLOWsQLD9URBa1I
+         5UdHKJZxI7M/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
-        syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 24/99] HID: usbhid: free raw_report buffers in usbhid_stop
-Date:   Thu,  9 Sep 2021 20:14:43 -0400
-Message-Id: <20210910001558.173296-24-sashal@kernel.org>
+Cc:     Evgeny Novikov <novikov@ispras.ru>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.14 54/99] HID: thrustmaster: Fix memory leak in remove
+Date:   Thu,  9 Sep 2021 20:15:13 -0400
+Message-Id: <20210910001558.173296-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -51,58 +51,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit f7744fa16b96da57187dc8e5634152d3b63d72de ]
+[ Upstream commit df3a97bdbc252d3421f1c5d6d713ad6e4f36a469 ]
 
-Free the unsent raw_report buffers when the device is removed.
+thrustmaster_remove() does not release memory for
+tm_wheel->change_request. This is fixed by the patch.
 
-Fixes a memory leak reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=7b4fa7cb1a7c2d3342a2a8a6c53371c8c418ab47
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Reported-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Tested-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/usbhid/hid-core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/hid/hid-thrustmaster.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 06130dc431a0..0bf123bf2ef8 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -505,7 +505,7 @@ static void hid_ctrl(struct urb *urb)
+diff --git a/drivers/hid/hid-thrustmaster.c b/drivers/hid/hid-thrustmaster.c
+index e94d3409fd10..9cb4248f95af 100644
+--- a/drivers/hid/hid-thrustmaster.c
++++ b/drivers/hid/hid-thrustmaster.c
+@@ -253,6 +253,7 @@ static void thrustmaster_remove(struct hid_device *hdev)
  
- 	if (unplug) {
- 		usbhid->ctrltail = usbhid->ctrlhead;
--	} else {
-+	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
- 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
+ 	usb_kill_urb(tm_wheel->urb);
  
- 		if (usbhid->ctrlhead != usbhid->ctrltail &&
-@@ -1223,9 +1223,20 @@ static void usbhid_stop(struct hid_device *hid)
- 	mutex_lock(&usbhid->mutex);
- 
- 	clear_bit(HID_STARTED, &usbhid->iofl);
-+
- 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
- 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
-+	while (usbhid->ctrltail != usbhid->ctrlhead) {
-+		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
-+			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
-+			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
-+		}
-+
-+		usbhid->ctrltail = (usbhid->ctrltail + 1) &
-+			(HID_CONTROL_FIFO_SIZE - 1);
-+	}
- 	spin_unlock_irq(&usbhid->lock);
-+
- 	usb_kill_urb(usbhid->urbin);
- 	usb_kill_urb(usbhid->urbout);
- 	usb_kill_urb(usbhid->urbctrl);
++	kfree(tm_wheel->change_request);
+ 	kfree(tm_wheel->response);
+ 	kfree(tm_wheel->model_request);
+ 	usb_free_urb(tm_wheel->urb);
 -- 
 2.30.2
 

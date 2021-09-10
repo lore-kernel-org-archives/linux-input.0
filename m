@@ -7,43 +7,43 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F96EC41535
-	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:41:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B369DC433EF
+	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:41:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0931F61108
-	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:41:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D72F610A3
+	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:41:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231229AbhIJAmN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Sep 2021 20:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46756 "EHLO mail.kernel.org"
+        id S231248AbhIJAmQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Sep 2021 20:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233706AbhIJAUk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:20:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B373E610E9;
-        Fri, 10 Sep 2021 00:19:29 +0000 (UTC)
+        id S233990AbhIJAWS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 153BC6023D;
+        Fri, 10 Sep 2021 00:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233170;
-        bh=KLd+OUWee6OE1PGCgCqHKf9kavtJESIJfNBfnauKDN0=;
+        s=k20201202; t=1631233268;
+        bh=oKM4h4sSszh3tyXPxlVi2ZB8z/da0OOGWRHqYDw1HZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l73uTNJoZWCd9Pb/cwkkmCZJ3FkpK0i5qRGFXXGsQiYI6WGnzGfNnndmiaO/07Peh
-         TB6E5dkwmnDNyfNzF9izkhVnuG02I+VXL58Quc1NrNmAA4hCbpf1b7K+d+A8LTn2BC
-         rDSrRROI3CPYctHuF+xss0Pyx1234EkrUff9PyDdUCMLEHjcd8TyPrh/2IblLmpAAR
-         foK2lNN1IZ0zXt7IycyoZd6Dh4VQyEDXW8dK9SGN9n2YL2zVD98m2pCCDYP+0I6H6v
-         rX+c+WwShL/KfoqMhRbGfvsfTwumjRLcC9LFFMrGumAuG1FVJP9Bw0oSFySHyz3JKd
-         f+CQNECIKRd2A==
+        b=G/OWVaGAmTGivWm5qk/WMvkc8z1Ir9Twr2NKxv7jqBaEXJZLcUQc4fBVOsP93AZG4
+         FOC7Vsmi5mz3OsnvC0IeFKeVCnv+UUajSE5eRIpCb1A/OOtxOHRW3wW2MhkEQyEl6M
+         VXGlMTW+NrOEE+70qhXlsrHcy9qKL3X26HQ96bjkw4EMfr9nG/XYd6BTmHPyXD9Nd9
+         BlbR2bGRuNOPO2x7db4ZpiURzoAVCPQOpXgwqJA07zwuRyYpgc524KXjpy0D9mxgns
+         cWskovW29KFdMOwrOBSh0aQIjE4PqJo4JzJlTZoyL7Tqfy/qpNFI3CuJUYnSbE0Pcp
+         rCv2nF/vtk5jA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 49/88] HID: thrustmaster: Fix memory leak in thrustmaster_interrupts()
-Date:   Thu,  9 Sep 2021 20:17:41 -0400
-Message-Id: <20210910001820.174272-49-sashal@kernel.org>
+Cc:     =?UTF-8?q?Ulrich=20Sp=C3=B6rlein?= <uqs@FreeBSD.org>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 29/53] HID: sony: Fix more ShanWan clone gamepads to not rumble when plugged in.
+Date:   Thu,  9 Sep 2021 20:20:04 -0400
+Message-Id: <20210910002028.175174-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
-References: <20210910001820.174272-1-sashal@kernel.org>
+In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
+References: <20210910002028.175174-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,34 +51,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Ulrich Spörlein <uqs@FreeBSD.org>
 
-[ Upstream commit c3800eed22d21c66912b4461a403b4448ed88d95 ]
+[ Upstream commit bab94e97323baefe0afccad66e776f9c78b4f521 ]
 
-thrustmaster_interrupts() does not free memory for send_buf when
-usb_interrupt_msg() fails. This is fixed by the given patch.
+The device string on these can differ, apparently, including typos. I've
+bought 2 of these in 2012 and googling shows many folks out there with
+that broken spelling in their dmesg.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Ulrich Spörlein <uqs@FreeBSD.org>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-thrustmaster.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-sony.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-thrustmaster.c b/drivers/hid/hid-thrustmaster.c
-index 3d49f22a9368..7c00c48cc20b 100644
---- a/drivers/hid/hid-thrustmaster.c
-+++ b/drivers/hid/hid-thrustmaster.c
-@@ -173,6 +173,7 @@ static void thrustmaster_interrupts(struct hid_device *hdev)
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 2f073f536070..cdff43defe88 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2847,7 +2847,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
+ 		quirks |= FUTUREMAX_DANCE_MAT;
  
- 		if (ret) {
- 			hid_err(hdev, "setup data couldn't be sent\n");
-+			kfree(send_buf);
- 			return;
- 		}
- 	}
+-	if (!strcmp(hdev->name, "SHANWAN PS3 GamePad"))
++	if (!strcmp(hdev->name, "SHANWAN PS3 GamePad") ||
++	    !strcmp(hdev->name, "ShanWan PS(R) Ga`epad"))
+ 		quirks |= SHANWAN_GAMEPAD;
+ 
+ 	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
 -- 
 2.30.2
 

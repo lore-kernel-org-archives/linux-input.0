@@ -7,43 +7,43 @@ X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 264C3C4167E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DFF1C28B22
 	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:41:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1328E611C7
+	by mail.kernel.org (Postfix) with ESMTP id 2523861108
 	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:41:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230519AbhIJAmN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Sep 2021 20:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46744 "EHLO mail.kernel.org"
+        id S229502AbhIJAmO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Sep 2021 20:42:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229903AbhIJAUj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:20:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51EAA6023D;
-        Fri, 10 Sep 2021 00:19:28 +0000 (UTC)
+        id S230026AbhIJAUl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:20:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2478361167;
+        Fri, 10 Sep 2021 00:19:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233169;
-        bh=LHcZQSaHgNN7sDIepppGczWEyEcJELRwPPy6HqdLElY=;
+        s=k20201202; t=1631233171;
+        bh=yGuilPzB3SgtdzzoSg7XiCNb4flBJJj26ADLOK1uBE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYLTa0+7ZNXZEJBVXPoTl/sabHS+WqnyCm4qF3hJLJTPZIZXl8mWVZj5/OLVniElm
-         92Ly/WKE4cl86to1fFSyDSef8an1N7CRixpuXyg75dspZ88aQ0Zyr0Tbx8k2WalH6C
-         tUyHSgGBIKsfJZ66S0+P5AgVV4Jlg/RmJugPOTj+TUyUeb6z+l8WNF+/LrbGUwQ9c1
-         oi/NpfiIN7S506lBe+c8bnxOri7YlIciwX/mkeNflB/JwdqS5kA8yk+i01AZOkArre
-         JHau5kXM0L0+vsu687ybM47HkAJBAdnhd5vbTaqXrImu/vhPBfH0hNNkFPO5O/h8Id
-         7CBWvH+UIi+Mg==
+        b=SE8kLUGEtQdm516am7JSM0vrSeLstn4EaaDs5sIKqLABRLT3cZupqAKL7jGlkjz2I
+         JGbcBMaA/kmMXGjLoAjq+IElN9867OkksvHHnKQe8e2Y7Fbf8GNTECJyVUVMlnrKto
+         /5zOLyO4KCVTjQXmdLBBFJSoyzgoUI/PknZVjNbeghAJV+H/kb9Krlf0s5s/jMP+GO
+         P9krdFQvLU6RlLE/Q2elLh8CHtF312tRsAq9SkEnFK5FMjpg4iff81FOYLfYIi7x7b
+         OY527ZIBK7BOiEy/nCZgUSmbtaX37fehKA0MvjDWDxC0mwRvPZfSZp/1bJVglAv/2k
+         hqT475sU3IswQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 48/88] HID: thrustmaster: Fix memory leak in remove
-Date:   Thu,  9 Sep 2021 20:17:40 -0400
-Message-Id: <20210910001820.174272-48-sashal@kernel.org>
+Cc:     =?UTF-8?q?Ulrich=20Sp=C3=B6rlein?= <uqs@FreeBSD.org>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 50/88] HID: sony: Fix more ShanWan clone gamepads to not rumble when plugged in.
+Date:   Thu,  9 Sep 2021 20:17:42 -0400
+Message-Id: <20210910001820.174272-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,34 +51,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Ulrich Spörlein <uqs@FreeBSD.org>
 
-[ Upstream commit df3a97bdbc252d3421f1c5d6d713ad6e4f36a469 ]
+[ Upstream commit bab94e97323baefe0afccad66e776f9c78b4f521 ]
 
-thrustmaster_remove() does not release memory for
-tm_wheel->change_request. This is fixed by the patch.
+The device string on these can differ, apparently, including typos. I've
+bought 2 of these in 2012 and googling shows many folks out there with
+that broken spelling in their dmesg.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Ulrich Spörlein <uqs@FreeBSD.org>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-thrustmaster.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-sony.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-thrustmaster.c b/drivers/hid/hid-thrustmaster.c
-index eede9d676bd4..3d49f22a9368 100644
---- a/drivers/hid/hid-thrustmaster.c
-+++ b/drivers/hid/hid-thrustmaster.c
-@@ -253,6 +253,7 @@ static void thrustmaster_remove(struct hid_device *hdev)
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index b3722c51ec78..a2fef59063a6 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2974,7 +2974,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
+ 		quirks |= FUTUREMAX_DANCE_MAT;
  
- 	usb_kill_urb(tm_wheel->urb);
+-	if (!strcmp(hdev->name, "SHANWAN PS3 GamePad"))
++	if (!strcmp(hdev->name, "SHANWAN PS3 GamePad") ||
++	    !strcmp(hdev->name, "ShanWan PS(R) Ga`epad"))
+ 		quirks |= SHANWAN_GAMEPAD;
  
-+	kfree(tm_wheel->change_request);
- 	kfree(tm_wheel->response);
- 	kfree(tm_wheel->model_request);
- 	usb_free_urb(tm_wheel->urb);
+ 	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
 -- 
 2.30.2
 

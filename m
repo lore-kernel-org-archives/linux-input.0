@@ -2,107 +2,133 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CDBAC433FE
-	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:54:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB603C433F5
+	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 02:18:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3BA7361186
-	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 00:54:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 918936113A
+	for <linux-input@archiver.kernel.org>; Fri, 10 Sep 2021 02:18:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230123AbhIJAmP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Sep 2021 20:42:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47646 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233762AbhIJAVx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CF36611BD;
-        Fri, 10 Sep 2021 00:20:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233243;
-        bh=H+ZS6URVqshbe67tMYbujqbNaZJOG0n/G60DEpRrJkQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u7aCHkzptyqwd9FfYE4A+sjjPmdFDXhzvMYEjBSm2U11GwR6YkIqpfVb4lhNpu2yI
-         qgEKMVuGHgIOFFenKvf6cGylqdyooFgzebOTBkF2/fw9j1Ab1Fc+x2LWlFvC2+85l0
-         R8ONFhFk4uFYQ4LiTYkQ3mKbcUVdu3aJLGaIpGJLGh2x56Xn8RjG7oWDfYOdxPBbtf
-         DRIybmECLrt7s3tHd7oXhkaVz+aO388U44Dh/H8wvqG6WoqZJ8P9IMjxOnmPWYFQXG
-         A6pccSuTtWBP0oVpX9FHpVOFvAU27DwxUkaVTHa7tFYnZ15811/8bp0F1FWNwFcv8m
-         Tj8++OFwlyKDg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
-        syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 10/53] HID: usbhid: free raw_report buffers in usbhid_stop
-Date:   Thu,  9 Sep 2021 20:19:45 -0400
-Message-Id: <20210910002028.175174-10-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
-References: <20210910002028.175174-1-sashal@kernel.org>
+        id S229685AbhIJCTY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Sep 2021 22:19:24 -0400
+Received: from emcscan.emc.com.tw ([192.72.220.5]:55756 "EHLO
+        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229576AbhIJCTY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Sep 2021 22:19:24 -0400
+X-IronPort-AV: E=Sophos;i="5.56,253,1539619200"; 
+   d="scan'208";a="42672476"
+Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
+  by emcscan.emc.com.tw with ESMTP; 10 Sep 2021 10:18:12 +0800
+Received: from 192.168.10.23
+        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(17051:0:AUTH_RELAY)
+        (envelope-from <phoenix@emc.com.tw>); Fri, 10 Sep 2021 10:18:10 +0800 (CST)
+Received: from 192.168.33.13
+        by webmail.emc.com.tw with Mail2000 ESMTPA Server V7.00(2475:0:AUTH_LOGIN)
+        (envelope-from <phoenix@emc.com.tw>); Fri, 10 Sep 2021 10:18:08 +0800 (CST)
+From:   "phoenix" <phoenix@emc.com.tw>
+To:     "'Dmitry Torokhov'" <dmitry.torokhov@gmail.com>
+Cc:     <linux-kernel@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <jingle.wu@emc.com.tw>, <josh.chen@emc.com.tw>,
+        <dave.wang@emc.com.tw>
+References: <20210729010940.5752-1-phoenix@emc.com.tw> <000001d79d99$53762dd0$fa628970$@emc.com.tw> <YS0+TU21/nok6Ge9@google.com>
+In-Reply-To: <YS0+TU21/nok6Ge9@google.com>
+Subject: RE: [PATCH] Input: elantench - Fix the firmware misreport coordinates for trackpoint occasionally.
+Date:   Fri, 10 Sep 2021 10:18:08 +0800
+Message-ID: <005101d7a5ea$18e01d30$4aa05790$@emc.com.tw>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+        charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Outlook 15.0
+Thread-Index: AQGk7tjGsgsB1mM/H5Ov4MUFApOKzQImMkU5AJ1HjHOr3I7dkA==
+Content-Language: zh-tw
+x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcODgwNTFcYXBwZGF0YVxyb2FtaW5nXDA5ZDg0OWI2LTMyZDMtNGE0MC04NWVlLTZiODRiYTI5ZTM1Ylxtc2dzXG1zZy01NWZjYmI0OC0xMWRkLTExZWMtYTkyNS04OGQ3ZjY1ODJkZmNcYW1lLXRlc3RcNTVmY2JiNDktMTFkZC0xMWVjLWE5MjUtODhkN2Y2NTgyZGZjYm9keS50eHQiIHN6PSIyODM4IiB0PSIxMzI3NTcxMzg4ODA0ODgyMDciIGg9IkU4akNpY1dBdzF4R0pOU0VZU0NPQmZsNVFBUT0iIGlkPSIiIGJsPSIwIiBibz0iMSIvPjwvbWV0YT4=
+x-dg-rorf: true
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+Hi Dmity,
 
-[ Upstream commit f7744fa16b96da57187dc8e5634152d3b63d72de ]
+Sorry for late reply.
+> +		if (packet[4] == 0x80 || packet[5] == 0x80 ||
+> +		    packet[1] >> 7 == packet[4] >> 7 ||
+"I think this will reject X coordinates in range [0, 127]. Is this really
+what is needed? What kind of patterns are you observing when firmware
+misreports coordinates?"
+this will reject X in range [128, 256] and [-128, -256]. This patch prevent
+cursor suddenly jump to screen edge or corner.
+The patterns we observing as below:
+1. x (packet[4]) or y (packet[5]) is 0x80, ex: [xx xx xx xx 80 80]
+2. ~x sign bit is same as MSB(most significant bit) of x, ex: [30 00 00 06
+00 00] 
+3. ~y sign bit is same as MSB of y, ex: [30 00 00 06 fa 00]
 
-Free the unsent raw_report buffers when the device is removed.
+Best regards,
+Phoenix Huang
+-----Original Message-----
+From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+Sent: Tuesday, August 31, 2021 4:24 AM
+To: phoenix <phoenix@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org;
+jingle.wu@emc.com.tw; josh.chen@emc.com.tw; dave.wang@emc.com.tw
+Subject: Re: [PATCH] Input: elantench - Fix the firmware misreport
+coordinates for trackpoint occasionally.
 
-Fixes a memory leak reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=7b4fa7cb1a7c2d3342a2a8a6c53371c8c418ab47
+Hi Phoenix,
 
-Reported-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Tested-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/usbhid/hid-core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+On Mon, Aug 30, 2021 at 08:19:48PM +0800, phoenix wrote:
+> Hi Dmitry,
+> 
+> Would you review this patch, thanks
+> 
+> Best regards,
+> Phoenix Huang
+> 
+> -----Original Message-----
+> From: Phoenix Huang [mailto:phoenix@emc.com.tw]
+> Sent: Thursday, July 29, 2021 9:10 AM
+> To: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org; 
+> dmitry.torokhov@gmail.com
+> Cc: jingle.wu@emc.com.tw; josh.chen@emc.com.tw; dave.wang@emc.com.tw; 
+> Phoenix Huang <phoenix@emc.com.tw>
+> Subject: [PATCH] Input: elantench - Fix the firmware misreport 
+> coordinates for trackpoint occasionally.
+> 
+> Signed-off-by: Phoenix Huang <phoenix@emc.com.tw>
+> ---
+>  drivers/input/mouse/elantech.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/elantech.c 
+> b/drivers/input/mouse/elantech.c index 2d0bc029619f..07e1098f2d31 
+> 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -517,6 +517,17 @@ static void elantech_report_trackpoint(struct 
+> psmouse *psmouse,
+>  	case 0x16008020U:
+>  	case 0x26800010U:
+>  	case 0x36808000U:
+> +	
+> +		/* This firmware misreport coordinates for trackpoint
+> occasionally.
+> +		* So we discard these packets by pattern to prevent cursor
+> jumps.
+> +		*/
+> +		if (packet[4] == 0x80 || packet[5] == 0x80 ||
+> +		    packet[1] >> 7 == packet[4] >> 7 ||
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 8d4ac4b9fb9d..009a0469d54f 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -503,7 +503,7 @@ static void hid_ctrl(struct urb *urb)
- 
- 	if (unplug) {
- 		usbhid->ctrltail = usbhid->ctrlhead;
--	} else {
-+	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
- 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
- 
- 		if (usbhid->ctrlhead != usbhid->ctrltail &&
-@@ -1221,9 +1221,20 @@ static void usbhid_stop(struct hid_device *hid)
- 	mutex_lock(&usbhid->mutex);
- 
- 	clear_bit(HID_STARTED, &usbhid->iofl);
-+
- 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
- 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
-+	while (usbhid->ctrltail != usbhid->ctrlhead) {
-+		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
-+			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
-+			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
-+		}
-+
-+		usbhid->ctrltail = (usbhid->ctrltail + 1) &
-+			(HID_CONTROL_FIFO_SIZE - 1);
-+	}
- 	spin_unlock_irq(&usbhid->lock);
-+
- 	usb_kill_urb(usbhid->urbin);
- 	usb_kill_urb(usbhid->urbout);
- 	usb_kill_urb(usbhid->urbctrl);
--- 
-2.30.2
+I think this will reject X coordinates in range [0, 127]. Is this really
+what is needed? What kind of patterns are you observing when firmware
+misreports coordinates?
+
+Thanks.
+
+--
+Dmitry
 

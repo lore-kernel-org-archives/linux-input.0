@@ -2,203 +2,99 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A74AC433F5
-	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F3E2C433EF
+	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:43:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3EFD061051
-	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5877D6109F
+	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:43:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233089AbhIKRiV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 11 Sep 2021 13:38:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48582 "EHLO
+        id S231749AbhIKRo4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 11 Sep 2021 13:44:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233181AbhIKRiU (ORCPT
+        with ESMTP id S229774AbhIKRoz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 11 Sep 2021 13:38:20 -0400
-Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 167F4C061574
-        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:37:08 -0700 (PDT)
-Received: by mail-qk1-x72b.google.com with SMTP id y144so5810957qkb.6
-        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:37:08 -0700 (PDT)
+        Sat, 11 Sep 2021 13:44:55 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14BA9C061574
+        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:43:43 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id z18so11008205ybg.8
+        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:43:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=8yKC4KVJDFdQGz6EqFNaGHcVw2fwaznIXaB+lSathQE=;
-        b=CHHVtKwWNLPXz+A19bcHZDkYijB0scpVJkjIvNUiSUBJWXj1HTvCRrAl8nLP/H8Y/k
-         6u3EOpjzuhhdZXh4ogvgonIuoYSygioX3IsnTdiiqP0b6vjVnPmqZN0XAVMKD1t9DDhg
-         8UQ+Udt6Z6+ouNUwPLy0X/KtiP7VoydHqEPiT1uNfFjuaD+jeJMYnmfx+JeiW53Ygtr2
-         vLGQngvv9ailAqc1wrSNQmfRyslBZqYVaKSObD5RtNVSjL+gnqkwz73ypht3VBAK/0Q2
-         6vz5NG0maZgLsfliQu47OKqCtm/YIMyKiu7nK9J0QaYmu429X1SktCSmNA3eka4Wk4aQ
-         ISTw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=1+RBtgjy2gp+k0kCaOJsG52kFeKGQEVQM38sm5MoS1M=;
+        b=FnhV33su1y0uYYv3oMlZkvRb+5CAsYRLB+Cz106GIDU95iz/XvpDgm49/TiAs4Ko7S
+         nuUxJRgl+tL0u8IZwl0Ug6WRwG6t6PcSehdtFLJYpoLwq263Otbse5EfI7kIr6p+gw1H
+         5MDtB9zeFyJ8W1YlmIx022vSo4nJoBPlvcyDSMtKScrWWzyp6E+Olek3bEap9Y9psEnj
+         k952V837mbj6Mu1UrAGpG3PmSkQJK7g0+hpDSBEvCyz4vV6WWxy0rkNmrk5dqEQ8jMnW
+         OQk/bwfEO//p5m+702Xd50Slk1ox3wiJ8w+9f/Gg851Y/eyL24NTUWouBmFp8F5Y41yZ
+         2pxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=8yKC4KVJDFdQGz6EqFNaGHcVw2fwaznIXaB+lSathQE=;
-        b=b7D5DTwSTXzmjyI6Y2NuCrMVPVYxvCRMiDg87O/45NDKQtP37DboxrZ4Sy78rQoz5a
-         NxC75mUMofVnPLgT+LoTlsaDAIXKijRGyaQ/gyLXIDePZniqug1qtDdmM8d0nCbs1CTf
-         K3bogg/ty7c8E4hehqCtN9fuvP3xVCpUNGORUXaO8QTzt1DPbKeTkbiOt0W1rfgnBDXy
-         CcIAxWT8Hwpb/rou7Jxh9+IZaM15+v3rxxdvlKK9HWLPMngDbu8AB9yEfQsoIjd2AvFJ
-         B1fPay75tJEnHfBSExT4NU+yLNr/CUe5vrX7RFXAjYbtOjT5aUmlIjXb9iWGr3ISQZb5
-         rSWw==
-X-Gm-Message-State: AOAM533S4i8SOFX6bs3X/7Y0SEQh20wrO+lp66Xsfh5P24dLVADIcX2F
-        X4Rdz5t8aMrup5mY+LVaiiAgD9iN3EjGAA==
-X-Google-Smtp-Source: ABdhPJyjs/aAS6wHyw5pL3ZeZYHJygsV55HrMbZCYMhiVs2rru7kuAxpW2TJDkSSmXu+lS7AZroWag==
-X-Received: by 2002:a37:9e8c:: with SMTP id h134mr2947146qke.366.1631381827079;
-        Sat, 11 Sep 2021 10:37:07 -0700 (PDT)
-Received: from Arrakis.djogorchock.com (pool-173-68-59-147.nycmny.fios.verizon.net. [173.68.59.147])
-        by smtp.gmail.com with ESMTPSA id m5sm1594286qkn.33.2021.09.11.10.37.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Sep 2021 10:37:06 -0700 (PDT)
-From:   "Daniel J. Ogorchock" <djogorchock@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     thunderbird2k@gmail.com, blaws05@gmail.com,
-        benjamin.tissoires@redhat.com, jikos@kernel.org,
-        Roderick.Colenbrander@sony.com, svv@google.com, s.jegen@gmail.com,
-        carmueller@gmail.com, pgriffais@valvesoftware.com,
-        hadess@hadess.net, pobrn@protonmail.com, lee.jones@linaro.org,
-        "Daniel J. Ogorchock" <djogorchock@gmail.com>
-Subject: [PATCH v16 15/16] HID: nintendo: ratelimit subcommands and rumble
-Date:   Sat, 11 Sep 2021 13:36:38 -0400
-Message-Id: <20210911173639.5688-16-djogorchock@gmail.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210911173639.5688-1-djogorchock@gmail.com>
-References: <20210911173639.5688-1-djogorchock@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=1+RBtgjy2gp+k0kCaOJsG52kFeKGQEVQM38sm5MoS1M=;
+        b=z15jxY5QIiS8kkqApYxrQIPzIcWxO6Tu9yzksgn7fKNXK/4XGCgIxhUJ5VhoNqmbEA
+         HNZkI/k9LpR38ZpPt6BpP2Rw3OqlOlDnfnvUFpY3Z0vHBRa0z67XPVZv8F7QrIY9Gsca
+         bkdMnsJAQPwGw3zEkd+q7WpXmwMdnYDr1oWdpBwxBbY8JFwCd7v4nj87yl2dIdcyBFJG
+         in1ywt9yPlzFSyrfO3JCakTbrlHzDnHkSCmWhrLZ1PLdjfmiKThXafccvq71isZwaSsU
+         q4lpKTiC1OVeAcZryve8jGYQ0g9KYbV+iIA1nQyp86M1xW3+ASda+1iGzxYCzi+5jRmJ
+         ROQA==
+X-Gm-Message-State: AOAM533wOMPMtCuXdqLy6/ORfWxtYgBnQwubO7OQSictmiL0gioEpBpz
+        1L7LIFDynSJt3VcxQX6UV2zyERnA5nNMsWNdGcc=
+X-Google-Smtp-Source: ABdhPJwPFYOEKo6SuUcfAB3/q6v9Q8Umh326iO834u9vMuvlLKhzBy5zgVpGMMAux4evFlh5XsLytJd4++V3xrq4fhI=
+X-Received: by 2002:a25:1d05:: with SMTP id d5mr4991341ybd.270.1631382222386;
+ Sat, 11 Sep 2021 10:43:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210725032707.440071-1-djogorchock@gmail.com> <YToD0wVxxwukjpXC@google.com>
+In-Reply-To: <YToD0wVxxwukjpXC@google.com>
+From:   Daniel Ogorchock <djogorchock@gmail.com>
+Date:   Sat, 11 Sep 2021 13:43:31 -0400
+Message-ID: <CAEVj2t=YxtA7Cx=RdfnyAAQ7UdRxXhp7jPzhsJUC87h7dGy3wA@mail.gmail.com>
+Subject: Re: [PATCH v14 00/17] HID: nintendo
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Roderick Colenbrander <thunderbird2k@gmail.com>,
+        Billy Laws <blaws05@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>,
+        Siarhei Vishniakou <svv@google.com>, s.jegen@gmail.com,
+        Carl Mueller <carmueller@gmail.com>,
+        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
+        Bastien Nocera <hadess@hadess.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-It has been found that sending subcommands and rumble data packets at
-too great a rate can result in controller disconnects. This patch limits
-the rate of subcommands/rumble to once every 25 milliseconds.
+On Thu, Sep 9, 2021 at 8:53 AM Lee Jones <lee.jones@linaro.org> wrote:
+> v14 already. :)
+>
+> Is this the latest version?
+>
+> Have there been any review comments?
+>
+> What are the current plans please?
+>
+> --
+> Lee Jones [=E6=9D=8E=E7=90=BC=E6=96=AF]
+> Senior Technical Lead - Developer Services
+> Linaro.org =E2=94=82 Open source software for Arm SoCs
+> Follow Linaro: Facebook | Twitter | Blog
 
-Similar to sending subcommands, it is more reliable to send the rumble
-data packets immediately after we've received an input report from the
-controller. This results in far fewer bluetooth disconnects for the
-controller.
+Hi Lee. I cc'd you on the latest v16 patchset. I think the main
+blocker right now is waiting for Roderick's LED definitions patch to
+be accepted:
+https://patchwork.kernel.org/project/linux-input/patch/20210908165539.31029=
+29-3-roderick.colenbrander@sony.com/
 
-Signed-off-by: Daniel J. Ogorchock <djogorchock@gmail.com>
----
- drivers/hid/hid-nintendo.c | 69 +++++++++++++++++++++++++++-----------
- 1 file changed, 49 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 2351e1d8c8e07..ae3cd8ca9fa78 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -2,7 +2,7 @@
- /*
-  * HID driver for Nintendo Switch Joy-Cons and Pro Controllers
-  *
-- * Copyright (c) 2019-2020 Daniel J. Ogorchock <djogorchock@gmail.com>
-+ * Copyright (c) 2019-2021 Daniel J. Ogorchock <djogorchock@gmail.com>
-  *
-  * The following resources/projects were referenced for this driver:
-  *   https://github.com/dekuNukem/Nintendo_Switch_Reverse_Engineering
-@@ -431,6 +431,7 @@ struct joycon_ctlr {
- 	u8 usb_ack_match;
- 	u8 subcmd_ack_match;
- 	bool received_input_report;
-+	unsigned int last_subcmd_sent_msecs;
- 
- 	/* factory calibration data */
- 	struct joycon_stick_cal left_stick_cal_x;
-@@ -510,6 +511,50 @@ static int __joycon_hid_send(struct hid_device *hdev, u8 *data, size_t len)
- 	return ret;
- }
- 
-+static void joycon_wait_for_input_report(struct joycon_ctlr *ctlr)
-+{
-+	int ret;
-+
-+	/*
-+	 * If we are in the proper reporting mode, wait for an input
-+	 * report prior to sending the subcommand. This improves
-+	 * reliability considerably.
-+	 */
-+	if (ctlr->ctlr_state == JOYCON_CTLR_STATE_READ) {
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&ctlr->lock, flags);
-+		ctlr->received_input_report = false;
-+		spin_unlock_irqrestore(&ctlr->lock, flags);
-+		ret = wait_event_timeout(ctlr->wait,
-+					 ctlr->received_input_report,
-+					 HZ / 4);
-+		/* We will still proceed, even with a timeout here */
-+		if (!ret)
-+			hid_warn(ctlr->hdev,
-+				 "timeout waiting for input report\n");
-+	}
-+}
-+
-+/*
-+ * Sending subcommands and/or rumble data at too high a rate can cause bluetooth
-+ * controller disconnections.
-+ */
-+static void joycon_enforce_subcmd_rate(struct joycon_ctlr *ctlr)
-+{
-+	static const unsigned int max_subcmd_rate_ms = 25;
-+	unsigned int current_ms = jiffies_to_msecs(jiffies);
-+	unsigned int delta_ms = current_ms - ctlr->last_subcmd_sent_msecs;
-+
-+	while (delta_ms < max_subcmd_rate_ms &&
-+	       ctlr->ctlr_state == JOYCON_CTLR_STATE_READ) {
-+		joycon_wait_for_input_report(ctlr);
-+		current_ms = jiffies_to_msecs(jiffies);
-+		delta_ms = current_ms - ctlr->last_subcmd_sent_msecs;
-+	}
-+	ctlr->last_subcmd_sent_msecs = current_ms;
-+}
-+
- static int joycon_hid_send_sync(struct joycon_ctlr *ctlr, u8 *data, size_t len,
- 				u32 timeout)
- {
-@@ -521,25 +566,7 @@ static int joycon_hid_send_sync(struct joycon_ctlr *ctlr, u8 *data, size_t len,
- 	 * doing one retry after a timeout appears to always work.
- 	 */
- 	while (tries--) {
--		/*
--		 * If we are in the proper reporting mode, wait for an input
--		 * report prior to sending the subcommand. This improves
--		 * reliability considerably.
--		 */
--		if (ctlr->ctlr_state == JOYCON_CTLR_STATE_READ) {
--			unsigned long flags;
--
--			spin_lock_irqsave(&ctlr->lock, flags);
--			ctlr->received_input_report = false;
--			spin_unlock_irqrestore(&ctlr->lock, flags);
--			ret = wait_event_timeout(ctlr->wait,
--						 ctlr->received_input_report,
--						 HZ / 4);
--			/* We will still proceed, even with a timeout here */
--			if (!ret)
--				hid_warn(ctlr->hdev,
--					 "timeout waiting for input report\n");
--		}
-+		joycon_enforce_subcmd_rate(ctlr);
- 
- 		ret = __joycon_hid_send(ctlr->hdev, data, len);
- 		if (ret < 0) {
-@@ -1359,6 +1386,8 @@ static int joycon_send_rumble_data(struct joycon_ctlr *ctlr)
- 	if (++ctlr->subcmd_num > 0xF)
- 		ctlr->subcmd_num = 0;
- 
-+	joycon_enforce_subcmd_rate(ctlr);
-+
- 	ret = __joycon_hid_send(ctlr->hdev, (u8 *)&rumble_output,
- 				sizeof(rumble_output));
- 	return ret;
--- 
-2.33.0
-
+- Daniel Ogorchock

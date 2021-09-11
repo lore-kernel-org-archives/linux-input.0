@@ -2,60 +2,61 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8A77C433EF
-	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CF08C433F5
+	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 85BAD60F5B
-	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F19C61026
+	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbhIKRiJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 11 Sep 2021 13:38:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48498 "EHLO
+        id S232830AbhIKRiN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 11 Sep 2021 13:38:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230018AbhIKRiF (ORCPT
+        with ESMTP id S232693AbhIKRiH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 11 Sep 2021 13:38:05 -0400
-Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com [IPv6:2607:f8b0:4864:20::729])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50DD8C061574
-        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:36:52 -0700 (PDT)
-Received: by mail-qk1-x729.google.com with SMTP id p4so5807567qki.3
-        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:36:52 -0700 (PDT)
+        Sat, 11 Sep 2021 13:38:07 -0400
+Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A09C061757
+        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:36:54 -0700 (PDT)
+Received: by mail-qk1-x72d.google.com with SMTP id f22so5809989qkm.5
+        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:36:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Inu1qY7UoIHAEaKFyHB0zc76cL57siS32+Gi70l7iuU=;
-        b=SKXx3m5svvTDybdbhJNDEiK2zdKcmkuCss/7HIlLQ8LtLd07T/zdgCJmNnUO21CNal
-         vzzxP+R+RY0vBZHGT3cRBSAGeQvQdALUdkKbI5HS9MR6GDkp2IR4uLaz+0pil5aXkb0d
-         3IYrA7PZ0ZXskt1F2IgUaY8yodX4fRW1RQ/rS7qaxKqCbQAnEQLDqLW9UmhnolusPMBb
-         YcrG0IXKCNcUSMkGhBgOFOIBfbl8k8PE4oUnnf7h9PpzBp9VDXnwatcNhX+P+YPfQ29e
-         B/uv7txg9k4IFhGuN81hl4BMN+gYJoCvbLTgD2TRtCE3wFbt6wUBBvUkcNLIh6CIq5lb
-         2W1Q==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=GCI2PpK3tnjjjtaRTUE2fVs7EurwfgoSD+mYtnn7To8=;
+        b=h/OoClgtoV1ABarSXUZzjLERghs1DLrouL3zQav/R1Tk/C28iKF/5Bdfv+OPXaL3Az
+         +T2pHHfokQ4BGvjRh852lSo0vN7eQ674spqBpqSPHaLISD/N9UmbD/uxFQmCND07pZv3
+         6B+uEskOi0tj0SLRh5OLSxfIMvlffU9/PheWEpmjlRZT6F0/3Sw5Yf2va2nJ87jzhWzq
+         uNT3DW2magXYrM20mGRkdJxcQ4QbHHUVEO1B5fvR2Eu93UXc76Moi4lsjuxQLn3C9UwN
+         TMyl+XbDorAz7bX/gYKeY8FvIDmXNsA7YFF/MxNr/NYIUi6+P0VzglCn3jz5ovn0zo0N
+         W3YA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Inu1qY7UoIHAEaKFyHB0zc76cL57siS32+Gi70l7iuU=;
-        b=05sC9aNZjpikL++Rk5VFmax9aGP08kNxn2+7V5iEtA/h4yvDjQ1aIbmfmu5viNMn7f
-         4ALWt1C6E5Qc+P9dSuwz1V/hhmplr+p7oPl3U+r6Vk2AbyuD0V2PDpBHYhTv7gZXQXUS
-         SnStxtOESNTvfz4J6NNgwakXozjFCCtzWJ4EPKrIjneXU92ZA9QlWx0x99sC0TreeMYE
-         gwIh5B3dT9dn+P91DCy62z5dOE9wxObg4Ol1x+XDDK6ZeqmqCOL4mjBbgKj6E9U+6Q2p
-         hM6r0gsYQNG++LFPlsmq19q9iALa2D6YYGUMF/yXiDLstrK5lgWJbcmVQA9wkwCUfgt3
-         7Vxw==
-X-Gm-Message-State: AOAM533va6q3y77zUkcwVLOPBPfHpuaY4pGQbkVk1BmBQs8Ao1UkPBYI
-        dMEqjm1wF28sRT5+nCGKBaTEVPxeSC+zXQ==
-X-Google-Smtp-Source: ABdhPJyK+Vo5OxnPthzB5ibjp7rG0KzZUaPKGekRWAuqOvssEBy5fG8/jm8wpADC4gFB2StSUOUYgw==
-X-Received: by 2002:a37:7801:: with SMTP id t1mr2973564qkc.162.1631381811279;
-        Sat, 11 Sep 2021 10:36:51 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=GCI2PpK3tnjjjtaRTUE2fVs7EurwfgoSD+mYtnn7To8=;
+        b=BSN2PSlVv4I9etUTxOdKuC5KfUpopZemwtwbOzDmB3taUgkTV5jpm4xi64flXbjqVd
+         S5ud2ilrbSaMFVAj5bi6j3jFeBwD6VUGMiScrOSik5sdSmiuX7DhMxyqHR1CADDgpNMJ
+         GydHPyF4Fno5pvIvpKgDnLSWvRsqWhMYMfxaMGlLO1diSp/s4t7t4zC3SWdbFsktOE3f
+         /ocZdcyVEqBX9qhGiGlGpfGEBXG04XQDRXoBjiJlwlNRL3zlRh4qLgZxq+zcLAxFGoD6
+         caS9mU23xGrpDIWZVSmBwGPMU48fGWdR9DkX4ad/jdPkrDhENgwE1y65C2APAG9Se6g5
+         ybkA==
+X-Gm-Message-State: AOAM533NpIbZNrmjRJJzRWfvmmRAQqn2P5lYYdV2m8yOGAmNJaTvFvGS
+        Xa22E/omXC5pHSZMw682DlRvJeg3DEifqQ==
+X-Google-Smtp-Source: ABdhPJyPOvCV52BLk2CBXobX7W/i1Yfxiq7DJSk1G83lk4sPfkmfJWxIg7JOTwQAgfmz39uGma33Bw==
+X-Received: by 2002:a05:620a:248f:: with SMTP id i15mr2956553qkn.128.1631381813460;
+        Sat, 11 Sep 2021 10:36:53 -0700 (PDT)
 Received: from Arrakis.djogorchock.com (pool-173-68-59-147.nycmny.fios.verizon.net. [173.68.59.147])
-        by smtp.gmail.com with ESMTPSA id m5sm1594286qkn.33.2021.09.11.10.36.50
+        by smtp.gmail.com with ESMTPSA id m5sm1594286qkn.33.2021.09.11.10.36.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Sep 2021 10:36:50 -0700 (PDT)
+        Sat, 11 Sep 2021 10:36:52 -0700 (PDT)
 From:   "Daniel J. Ogorchock" <djogorchock@gmail.com>
 To:     linux-input@vger.kernel.org
 Cc:     thunderbird2k@gmail.com, blaws05@gmail.com,
@@ -64,181 +65,191 @@ Cc:     thunderbird2k@gmail.com, blaws05@gmail.com,
         carmueller@gmail.com, pgriffais@valvesoftware.com,
         hadess@hadess.net, pobrn@protonmail.com, lee.jones@linaro.org,
         "Daniel J. Ogorchock" <djogorchock@gmail.com>
-Subject: [PATCH v16 00/16] HID: nintendo
-Date:   Sat, 11 Sep 2021 13:36:23 -0400
-Message-Id: <20210911173639.5688-1-djogorchock@gmail.com>
+Subject: [PATCH v16 02/16] HID: nintendo: add player led support
+Date:   Sat, 11 Sep 2021 13:36:25 -0400
+Message-Id: <20210911173639.5688-3-djogorchock@gmail.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20210911173639.5688-1-djogorchock@gmail.com>
+References: <20210911173639.5688-1-djogorchock@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Rebased onto Linus' tree (sha 926de8c4326c14fcf35f1de142019043597a4fac)
-Depends on Roderick's patch to add the player LED defines:
-https://patchwork.kernel.org/project/linux-input/patch/20210908165539.3102929-3-roderick.colenbrander@sony.com/
+This patch adds led_classdev functionality to the switch controller
+driver. It adds support for the 4 player LEDs. The Home Button LED still
+needs to be supported on the pro controllers and right joy-con.
 
-Version 16 changes:
-  - Use latest LED_FUNCTION_PLAYERX defines for player/home leds
+Signed-off-by: Daniel J. Ogorchock <djogorchock@gmail.com>
+---
+ drivers/hid/Kconfig        |  2 +
+ drivers/hid/hid-nintendo.c | 97 +++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 97 insertions(+), 2 deletions(-)
 
-Version 15 changes:
-  - fixed minor oversight in how rumble rate limiting was being handled
-
-Version 14 changes:
-  - Use proper LED classdev name scheme
-  - Prevent situations where a missed zero amplitude rumble packet would
-    leave the controller stuck vibrating until a timeout
-  - Introduce a max rate at which subcommands or rumble packets can be
-    sent to the controller. This reduces bluetooth disconnects.
-  - Send rumble packets immediately after receiving input reports. This
-    reduces bluetooth disconnects (similar technique was already used
-    for subcommands).
-
-Version 13 changes:
-  - Switched to using the dedicated rumble data message type, rather
-    than constantly resending the rumble enabled subcommand. This more
-    closely resembles how the console itself handles rumble data.
-  - Applied revisions based on Silvan Jegen's feedback on v12.
-
-Version 12 changes:
-  - Added support for reading user calibration from the controller's
-    SPI flash (written when someone calibrates the controller on the
-    Nintendo switch).
-  - Added patch to prevent sending rumble subcommands when no effect
-    is being played. This turned out to drastically improve bluetooth
-    connection reliability.
-  - Set the battery description to POWER_SUPPLY_TYPE_BATTERY (was
-    missing in previous revisions due to oversight). This fixes problems
-    with desktop environments not handling the controller batteries
-    properly.
-  - Reintroduced IMU patch with improvements to documentation, packet
-    drop handling, and increased precision for gyro readings. Also
-    now blacklists the IMU input dev from joydev like hid-sony.
-
-Version 11 changes:
-  - Removed IMU patch for now, since it has some issues to work out.
-  - Fixed bug introduced in v10 which led to the joy-cons' S-triggers
-    not being configured as an input.
-  - Changed the pro controller's d-pad input from buttons to a hat to be
-    more in line with other controller drivers.
-
-Version 10 changes:
-  - Removed duplicate reporting of one of the triggers that Billy noticed
-  - The joy-cons now only report having the buttons they actually have
-    (they used to register the input devices with the buttons of the
-    other joy-con as well).
-  - The input device is now created after the LEDs/power supply.
-  - The removed state handling bool has been removed, instead opting to
-    add a new controller state (removed).
-  - Eliminated a 1 second delay when probing a USB controller.
-  - Added support for the IMU. This mostly consisted of merging in some
-    work provided by Carl. I'm not incredibly familiar with proper
-    gyro/accelerometer handling in linux, so this might need some
-    tweaking. Preliminary tests in evtest show the gyro/accel values
-    being reported.
-  - Added support for the joy-con USB charging grip.
-
-Version 9 changes:
-  - Fixed compiler errors on gcc versions older than 8.2
-  - Set input device's uniq value to the controller's MAC address
-
-Version 8 changes:
-  - Corrected the handshaking protocol with USB pro controllers. A
-    handshake now occurs both prior and after the baudrate set. This
-    doesn't appear to have a noticeable difference, but it more
-    accurately follows documentation found online.
-  - Fixed potential race condition which could lead to a slightly longer
-    delay sending subcommands in rare circumstances.
-  - Moved the rumble worker to its own workqueue, since it can block.
-    This prevents it from having a negative impact on the default kernel
-    workqueue. It also prevents dropped subcommands due to something
-    else blocking the kernel workqueue. The benefit is most obvious when
-    using multiple controllers at once, since the controller subcommand
-    timings are very picky.
-  - Added a patch to set the most significant bit of the hid hw version.
-    Roderick had mentioned needing to probably do this awhile ago, but I
-    had forgotten about it until now. This is the same thing hid-sony
-    does. It allows SDL2 to have different mappings for the hid-nintendo
-    driver vs the default hid mappings.
-
-Version 7 changes:
-  - Changed name to hid-nintendo to fit modern naming conventions
-  - Removed joycon_ctlr_destroy(), since it wasn't needed an could
-    potentially invalidate a mutex while it could be in use on other
-    threads
-  - Implemented minor code improvements suggested by Silvan
-  - The driver now waits to send subcommands until after receiving an
-    input report. This significantly reduces dropped subcommands.
-  - Reduced the number of error messages when disconnecting a
-    controller.
-
-Version 6 changes:
-  - Improved subcommand sending reliabilty
-  - Decreased rumble period to 50ms
-  - Added rumble queue to avoid missing ff_effects if sent too quickly
-  - Code cleanup and minor refactoring
-  - Added default analog stick calibration
-
-Version 5 changes:
-  - Removed sysfs interface to control motor frequencies.
-  - Improved rumble reliability by using subcommands to set it.
-  - Changed mapping of the SL/SR triggers on the joy-cons to map to
-    whichever triggers they lack (e.g. a left joycon's sl/sr map to
-    TR and TR2). This allows userspace to distinguish between the
-    normal and S triggers.
-  - Minor refactors
-
-Version 4 changes:
-  - Added support for the Home button LED for the pro controller and
-    right joy-con
-  - Changed name from hid-switchcon to hid-joycon
-  - Added rumble support
-  - Removed ctlr->type and use hdev->product instead
-  - Use POWER_SUPPLY_CAPACITY_LEVEL enum instead of manually translating
-    to capacity percentages
-  - Misc. minor refactors based on v3 feedback
-
-Version 3 changes:
-  - Added led_classdev support for the 4 player LEDs
-  - Added power_supply support for the controller's battery
-  - Made the controller number mutex static
-  - Minor refactoring/style fixes based on Roderick's feedback from v2
-
-Version 2 changes:
-  - Switched to using a synchronous method for configuring the
-        controller.
-  - Removed any pairing/orientation logic in the driver. Every
-    controller now corresponds to its own input device.
-  - Store controller button data as a single u32.
-  - Style corrections
-
-Daniel J. Ogorchock (16):
-  HID: nintendo: add nintendo switch controller driver
-  HID: nintendo: add player led support
-  HID: nintendo: add power supply support
-  HID: nintendo: add home led support
-  HID: nintendo: add rumble support
-  HID: nintendo: improve subcommand reliability
-  HID: nintendo: send subcommands after receiving input report
-  HID: nintendo: reduce device removal subcommand errors
-  HID: nintendo: patch hw version for userspace HID mappings
-  HID: nintendo: set controller uniq to MAC
-  HID: nintendo: add support for charging grip
-  HID: nintendo: add support for reading user calibration
-  HID: nintendo: add IMU support
-  HID: nintendo: improve rumble performance and stability
-  HID: nintendo: ratelimit subcommands and rumble
-  HID: nintendo: prevent needless queueing of the rumble worker
-
- MAINTAINERS                |    6 +
- drivers/hid/Kconfig        |   24 +
- drivers/hid/Makefile       |    1 +
- drivers/hid/hid-ids.h      |    4 +
- drivers/hid/hid-nintendo.c | 2319 ++++++++++++++++++++++++++++++++++++
- drivers/input/joydev.c     |   10 +
- 6 files changed, 2364 insertions(+)
- create mode 100644 drivers/hid/hid-nintendo.c
-
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 60c4f555773d4..0f65a986943c9 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -734,6 +734,8 @@ config HID_MULTITOUCH
+ config HID_NINTENDO
+ 	tristate "Nintendo Joy-Con and Pro Controller support"
+ 	depends on HID
++	depends on NEW_LEDS
++	depends on LEDS_CLASS
+ 	help
+ 	Adds support for the Nintendo Switch Joy-Cons and Pro Controller.
+ 	All controllers support bluetooth, and the Pro Controller also supports
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index b6c0e5e36d8b0..b869738910afc 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -25,6 +25,7 @@
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/input.h>
++#include <linux/leds.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+ 
+@@ -184,10 +185,19 @@ struct joycon_input_report {
+ 
+ #define JC_MAX_RESP_SIZE	(sizeof(struct joycon_input_report) + 35)
+ 
++static const char * const joycon_player_led_names[] = {
++	LED_FUNCTION_PLAYER1,
++	LED_FUNCTION_PLAYER2,
++	LED_FUNCTION_PLAYER3,
++	LED_FUNCTION_PLAYER4,
++};
++#define JC_NUM_LEDS		ARRAY_SIZE(joycon_player_led_names)
++
+ /* Each physical controller is associated with a joycon_ctlr struct */
+ struct joycon_ctlr {
+ 	struct hid_device *hdev;
+ 	struct input_dev *input;
++	struct led_classdev leds[JC_NUM_LEDS];
+ 	enum joycon_ctlr_state ctlr_state;
+ 
+ 	/* The following members are used for synchronous sends/receives */
+@@ -553,11 +563,9 @@ static const unsigned int joycon_dpad_inputs_jc[] = {
+ 	BTN_DPAD_UP, BTN_DPAD_DOWN, BTN_DPAD_LEFT, BTN_DPAD_RIGHT,
+ };
+ 
+-static DEFINE_MUTEX(joycon_input_num_mutex);
+ static int joycon_input_create(struct joycon_ctlr *ctlr)
+ {
+ 	struct hid_device *hdev;
+-	static int input_num = 1;
+ 	const char *name;
+ 	int ret;
+ 	int i;
+@@ -643,6 +651,59 @@ static int joycon_input_create(struct joycon_ctlr *ctlr)
+ 	if (ret)
+ 		return ret;
+ 
++	return 0;
++}
++
++static int joycon_player_led_brightness_set(struct led_classdev *led,
++					    enum led_brightness brightness)
++{
++	struct device *dev = led->dev->parent;
++	struct hid_device *hdev = to_hid_device(dev);
++	struct joycon_ctlr *ctlr;
++	int val = 0;
++	int i;
++	int ret;
++	int num;
++
++	ctlr = hid_get_drvdata(hdev);
++	if (!ctlr) {
++		hid_err(hdev, "No controller data\n");
++		return -ENODEV;
++	}
++
++	/* determine which player led this is */
++	for (num = 0; num < JC_NUM_LEDS; num++) {
++		if (&ctlr->leds[num] == led)
++			break;
++	}
++	if (num >= JC_NUM_LEDS)
++		return -EINVAL;
++
++	mutex_lock(&ctlr->output_mutex);
++	for (i = 0; i < JC_NUM_LEDS; i++) {
++		if (i == num)
++			val |= brightness << i;
++		else
++			val |= ctlr->leds[i].brightness << i;
++	}
++	ret = joycon_set_player_leds(ctlr, 0, val);
++	mutex_unlock(&ctlr->output_mutex);
++
++	return ret;
++}
++
++static DEFINE_MUTEX(joycon_input_num_mutex);
++static int joycon_player_leds_create(struct joycon_ctlr *ctlr)
++{
++	struct hid_device *hdev = ctlr->hdev;
++	struct device *dev = &hdev->dev;
++	const char *d_name = dev_name(dev);
++	struct led_classdev *led;
++	char *name;
++	int ret = 0;
++	int i;
++	static int input_num = 1;
++
+ 	/* Set the default controller player leds based on controller number */
+ 	mutex_lock(&joycon_input_num_mutex);
+ 	mutex_lock(&ctlr->output_mutex);
+@@ -650,6 +711,31 @@ static int joycon_input_create(struct joycon_ctlr *ctlr)
+ 	if (ret)
+ 		hid_warn(ctlr->hdev, "Failed to set leds; ret=%d\n", ret);
+ 	mutex_unlock(&ctlr->output_mutex);
++
++	/* configure the player LEDs */
++	for (i = 0; i < JC_NUM_LEDS; i++) {
++		name = devm_kasprintf(dev, GFP_KERNEL, "%s:%s:%s",
++				      d_name,
++				      "green",
++				      joycon_player_led_names[i]);
++		if (!name)
++			return -ENOMEM;
++
++		led = &ctlr->leds[i];
++		led->name = name;
++		led->brightness = ((i + 1) <= input_num) ? 1 : 0;
++		led->max_brightness = 1;
++		led->brightness_set_blocking =
++					joycon_player_led_brightness_set;
++		led->flags = LED_CORE_SUSPENDRESUME | LED_HW_PLUGGABLE;
++
++		ret = devm_led_classdev_register(&hdev->dev, led);
++		if (ret) {
++			hid_err(hdev, "Failed registering %s LED\n", led->name);
++			break;
++		}
++	}
++
+ 	if (++input_num > 4)
+ 		input_num = 1;
+ 	mutex_unlock(&joycon_input_num_mutex);
+@@ -813,6 +899,13 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 
+ 	mutex_unlock(&ctlr->output_mutex);
+ 
++	/* Initialize the leds */
++	ret = joycon_player_leds_create(ctlr);
++	if (ret) {
++		hid_err(hdev, "Failed to create leds; ret=%d\n", ret);
++		goto err_close;
++	}
++
+ 	ret = joycon_input_create(ctlr);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to create input device; ret=%d\n", ret);
 -- 
 2.33.0
 

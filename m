@@ -2,61 +2,61 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-20.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07D45C433FE
-	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BC31C433EF
+	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E4FE961059
-	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 621C761039
+	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 17:37:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232985AbhIKRiQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 11 Sep 2021 13:38:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48552 "EHLO
+        id S232948AbhIKRiO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 11 Sep 2021 13:38:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233074AbhIKRiP (ORCPT
+        with ESMTP id S233007AbhIKRiL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 11 Sep 2021 13:38:15 -0400
-Received: from mail-qk1-x733.google.com (mail-qk1-x733.google.com [IPv6:2607:f8b0:4864:20::733])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48FF0C061756
-        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:37:02 -0700 (PDT)
-Received: by mail-qk1-x733.google.com with SMTP id bk29so5797471qkb.8
-        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:37:02 -0700 (PDT)
+        Sat, 11 Sep 2021 13:38:11 -0400
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36691C061756
+        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:36:58 -0700 (PDT)
+Received: by mail-qk1-x732.google.com with SMTP id 22so5822541qkg.2
+        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 10:36:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=czpR2U/8SvztuRjNgqTIyIRpRJzK2hatecEATnWUBi0=;
-        b=oXHB5dUZElbZSaEcK5w6HDwpU537VEiJOejy1DrvYJOSJtpwrMuOKgx0Gh+ZXtfMXs
-         X4gMra6Fc8vs7Ywqpi8TXiQduitfTBlP/04X9PVankmdpooecJazfUbXD2YTmuVRFdRY
-         g4AFRSWnCJR8hYzxrLj3A4qjI/L9tG7izi0hJPWz3LgXgIsG0i1kqMLh+QfVEiZgJAay
-         ejl1diYLPoAyHyjeOXpYrSD7CEe9yHqm9Xq1BREJDf2C3seKuP6QXg9NesVrjdN9532a
-         j27xiBhrJqKkPkSlqGyeqek9/eT5slduXLNIPBxNACmGdbTXToqT+EWOpjjskEWTVwMB
-         dJyQ==
+        bh=fB/rTFGih8qFXYrcTANRDPvT5SFTfLLSGD9GhIrYy7Y=;
+        b=aOmzrU+qQ9rHocEuET+2NC6Bm0hfMMIDd5LiyyxDmS/6jYqSJad4wRBze9J9BtO/cP
+         r2G40mAZvNUaRjlnrlKKeY6wRPvPtSAsit44nuaQ8nLztIMYVN1wRPMn8RebSNKGbdL6
+         TWBrs6IRDq6QNOnLZL7DAnAVC5bxMiCDGVC2SG+/F0SHytoL7EBxi+hOJCZ1nUIeP9qJ
+         7hkt0zthJcsL/h0Ev5jpvOphioI57556iiH8kzcTA6G+1tMLlWEgV7hVwk8rI/L/AiuC
+         j6Foc2iWQ6nQH9s18VhYGmTvVGHllQu9BI2yGRBYCDOdPYAov3mPJmf076ZErqmrUYQh
+         JNOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=czpR2U/8SvztuRjNgqTIyIRpRJzK2hatecEATnWUBi0=;
-        b=XZoMshtvjLsFe7Kuw2I7PEGf76kYoBGfZ+zr3/5jAtAD1bvQkUr2nSyJ4D6zjkjG8s
-         Xm8sU+vipj2U2HIqvthzhZnOy0bGmu/EE4GK0TbBLAfujOhFnwNi0C8oQS6oU6R51Oib
-         xUi2x8RhdNPfQAz34etdTortQrFdMXk2ZGW065L1mfI6rIcD9uIwyW1qUk3RR3BweqCZ
-         2q1PEJPoto9ylQiplZv8d36+sSO9ZNtla8g5WfX7asKMxx9wgzIHdGsCmigE8Ipd+DdX
-         vRHEX9JoXB919oZIC4FqcQ4ZcPqwLSjW0nEZ0RtO1RtA5mbf/XqcCdoHV/LUI/Y7PcEM
-         9UxQ==
-X-Gm-Message-State: AOAM530oFXhBqDQZsj/9jbex5e9TLIjeg/ABgTYVHtO67PDpQ4UWWm7D
-        9XtFGgIAahtiaMeDZra+WEga6AlxGYDM/g==
-X-Google-Smtp-Source: ABdhPJzHKvMAY4NZ7/ljFr9tcjt5gCYKZ9tA/H0BsrQnzUGZPSErmh8rXs1GuIyAUSwQyJjt7NdRuQ==
-X-Received: by 2002:a37:c97:: with SMTP id 145mr2836001qkm.121.1631381821414;
-        Sat, 11 Sep 2021 10:37:01 -0700 (PDT)
+        bh=fB/rTFGih8qFXYrcTANRDPvT5SFTfLLSGD9GhIrYy7Y=;
+        b=Up2LW92fQSdYnJl+A9nK3eq6sbYElzxCzEVw5AHYpHVgHYJKMJBsaW971drTXRsFn5
+         p9k6KotF0/DEcimkxm5QBvRfqUxWSCrAfxz3BfpHmRu85iwsxzE8BciCFi1a/gQpHxTA
+         uU8JlXBQqu0mzcOHG3K82gqDbwuKF4+aWO24yD7VrZoGZ4d4qM2uDVJSXKBby0XWSkbx
+         igDrWGtEQllIUZy8WaY5q9ci5mFl6fK8znBP3ireW/FPqYouYmAuENwiLO9dFrHEhDa6
+         I1yRj+6183rxh5k/i+xXJCDvfiVYnqFOdToC3TlT4vu93H93tzyJ0UWHNPpkyuYhXFEB
+         S9Ig==
+X-Gm-Message-State: AOAM532vfbOSF/eQN6Pcamwm/3f17TBWm4B11xq/7/1phs9Q7mzi7H6U
+        +/DjQQBDVxAYsBA1R/uLMW6JIy05TYvPtA==
+X-Google-Smtp-Source: ABdhPJwGSjlScyLze1STt/859T38hLUmoRnSMHLqO5Ew931AlsRb00j6+/ZXqPjXhWxszzh0MwDBhg==
+X-Received: by 2002:ae9:c115:: with SMTP id z21mr2850767qki.482.1631381817033;
+        Sat, 11 Sep 2021 10:36:57 -0700 (PDT)
 Received: from Arrakis.djogorchock.com (pool-173-68-59-147.nycmny.fios.verizon.net. [173.68.59.147])
-        by smtp.gmail.com with ESMTPSA id m5sm1594286qkn.33.2021.09.11.10.37.00
+        by smtp.gmail.com with ESMTPSA id m5sm1594286qkn.33.2021.09.11.10.36.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Sep 2021 10:37:01 -0700 (PDT)
+        Sat, 11 Sep 2021 10:36:56 -0700 (PDT)
 From:   "Daniel J. Ogorchock" <djogorchock@gmail.com>
 To:     linux-input@vger.kernel.org
 Cc:     thunderbird2k@gmail.com, blaws05@gmail.com,
@@ -65,9 +65,9 @@ Cc:     thunderbird2k@gmail.com, blaws05@gmail.com,
         carmueller@gmail.com, pgriffais@valvesoftware.com,
         hadess@hadess.net, pobrn@protonmail.com, lee.jones@linaro.org,
         "Daniel J. Ogorchock" <djogorchock@gmail.com>
-Subject: [PATCH v16 09/16] HID: nintendo: patch hw version for userspace HID mappings
-Date:   Sat, 11 Sep 2021 13:36:32 -0400
-Message-Id: <20210911173639.5688-10-djogorchock@gmail.com>
+Subject: [PATCH v16 05/16] HID: nintendo: add rumble support
+Date:   Sat, 11 Sep 2021 13:36:28 -0400
+Message-Id: <20210911173639.5688-6-djogorchock@gmail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210911173639.5688-1-djogorchock@gmail.com>
 References: <20210911173639.5688-1-djogorchock@gmail.com>
@@ -77,37 +77,517 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch sets the most significant bit of the hid hw version to allow
-userspace to distinguish between this driver's input mappings vs. the
-default hid mappings. This prevents breaking userspace applications that
-use SDL2 for gamepad input, allowing them to distinguish the mappings
-based on the version.
+This patch adds support for controller rumble.
+
+The ff_effect weak magnitude is associated with the pro controller's
+right motor (or with a right joy-con). The strong magnitude is
+associated with the pro's left motor (or a left joy-con).
+
+The rumble data is sent periodically (currently configured for every 50
+milliseconds). If the controller receives no rumble data for too long a
+time period, it will stop vibrating. The data is also sent every time
+joycon_set_rumble is called to avoid latency of up to 50ms.
+
+Because the rumble subcommands are sent in a deferred workqueue (they
+can't be sent in the play_effect function due to the hid send sleeping),
+the effects are queued. This ensures that no rumble effect is missed due
+to them arriving in too quick of succession.
 
 Signed-off-by: Daniel J. Ogorchock <djogorchock@gmail.com>
 ---
- drivers/hid/hid-nintendo.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/hid/Kconfig        |  10 ++
+ drivers/hid/hid-nintendo.c | 349 ++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 356 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index b0da3d7a6d2fd..d5037fcc3635f 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -745,6 +745,16 @@ config HID_NINTENDO
+ 	To compile this driver as a module, choose M here: the
+ 	module will be called hid-nintendo.
+ 
++config NINTENDO_FF
++	bool "Nintendo Switch controller force feedback support"
++	depends on HID_NINTENDO
++	select INPUT_FF_MEMLESS
++	help
++	Say Y here if you have a Nintendo Switch controller and want to enable
++	force feedback support for it. This works for both joy-cons and the pro
++	controller. For the pro controller, both rumble motors can be controlled
++	individually.
++
+ config HID_NTI
+ 	tristate "NTI keyboard adapters"
+ 	help
 diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index cda0118ebd14b..ed9cf7b373067 100644
+index 59cdb7dfa59c3..1a1bb18a02162 100644
 --- a/drivers/hid/hid-nintendo.c
 +++ b/drivers/hid/hid-nintendo.c
-@@ -1426,6 +1426,15 @@ static int nintendo_hid_probe(struct hid_device *hdev,
- 		goto err_wq;
+@@ -9,6 +9,7 @@
+  *   https://gitlab.com/pjranki/joycon-linux-kernel (Peter Rankin)
+  *   https://github.com/FrotBot/SwitchProConLinuxUSB
+  *   https://github.com/MTCKC/ProconXInput
++ *   https://github.com/Davidobot/BetterJoyForCemu
+  *   hid-wiimote kernel hid driver
+  *   hid-logitech-hidpp driver
+  *   hid-sony driver
+@@ -26,6 +27,7 @@
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/input.h>
++#include <linux/jiffies.h>
+ #include <linux/leds.h>
+ #include <linux/module.h>
+ #include <linux/power_supply.h>
+@@ -110,6 +112,120 @@ static const u16 JC_MAX_DPAD_MAG		= 1;
+ static const u16 JC_DPAD_FUZZ			/*= 0*/;
+ static const u16 JC_DPAD_FLAT			/*= 0*/;
+ 
++/* frequency/amplitude tables for rumble */
++struct joycon_rumble_freq_data {
++	u16 high;
++	u8 low;
++	u16 freq; /* Hz*/
++};
++
++struct joycon_rumble_amp_data {
++	u8 high;
++	u16 low;
++	u16 amp;
++};
++
++/*
++ * These tables are from
++ * https://github.com/dekuNukem/Nintendo_Switch_Reverse_Engineering/blob/master/rumble_data_table.md
++ */
++static const struct joycon_rumble_freq_data joycon_rumble_frequencies[] = {
++	/* high, low, freq */
++	{ 0x0000, 0x01,   41 }, { 0x0000, 0x02,   42 }, { 0x0000, 0x03,   43 },
++	{ 0x0000, 0x04,   44 }, { 0x0000, 0x05,   45 }, { 0x0000, 0x06,   46 },
++	{ 0x0000, 0x07,   47 }, { 0x0000, 0x08,   48 }, { 0x0000, 0x09,   49 },
++	{ 0x0000, 0x0A,   50 }, { 0x0000, 0x0B,   51 }, { 0x0000, 0x0C,   52 },
++	{ 0x0000, 0x0D,   53 }, { 0x0000, 0x0E,   54 }, { 0x0000, 0x0F,   55 },
++	{ 0x0000, 0x10,   57 }, { 0x0000, 0x11,   58 }, { 0x0000, 0x12,   59 },
++	{ 0x0000, 0x13,   60 }, { 0x0000, 0x14,   62 }, { 0x0000, 0x15,   63 },
++	{ 0x0000, 0x16,   64 }, { 0x0000, 0x17,   66 }, { 0x0000, 0x18,   67 },
++	{ 0x0000, 0x19,   69 }, { 0x0000, 0x1A,   70 }, { 0x0000, 0x1B,   72 },
++	{ 0x0000, 0x1C,   73 }, { 0x0000, 0x1D,   75 }, { 0x0000, 0x1e,   77 },
++	{ 0x0000, 0x1f,   78 }, { 0x0000, 0x20,   80 }, { 0x0400, 0x21,   82 },
++	{ 0x0800, 0x22,   84 }, { 0x0c00, 0x23,   85 }, { 0x1000, 0x24,   87 },
++	{ 0x1400, 0x25,   89 }, { 0x1800, 0x26,   91 }, { 0x1c00, 0x27,   93 },
++	{ 0x2000, 0x28,   95 }, { 0x2400, 0x29,   97 }, { 0x2800, 0x2a,   99 },
++	{ 0x2c00, 0x2b,  102 }, { 0x3000, 0x2c,  104 }, { 0x3400, 0x2d,  106 },
++	{ 0x3800, 0x2e,  108 }, { 0x3c00, 0x2f,  111 }, { 0x4000, 0x30,  113 },
++	{ 0x4400, 0x31,  116 }, { 0x4800, 0x32,  118 }, { 0x4c00, 0x33,  121 },
++	{ 0x5000, 0x34,  123 }, { 0x5400, 0x35,  126 }, { 0x5800, 0x36,  129 },
++	{ 0x5c00, 0x37,  132 }, { 0x6000, 0x38,  135 }, { 0x6400, 0x39,  137 },
++	{ 0x6800, 0x3a,  141 }, { 0x6c00, 0x3b,  144 }, { 0x7000, 0x3c,  147 },
++	{ 0x7400, 0x3d,  150 }, { 0x7800, 0x3e,  153 }, { 0x7c00, 0x3f,  157 },
++	{ 0x8000, 0x40,  160 }, { 0x8400, 0x41,  164 }, { 0x8800, 0x42,  167 },
++	{ 0x8c00, 0x43,  171 }, { 0x9000, 0x44,  174 }, { 0x9400, 0x45,  178 },
++	{ 0x9800, 0x46,  182 }, { 0x9c00, 0x47,  186 }, { 0xa000, 0x48,  190 },
++	{ 0xa400, 0x49,  194 }, { 0xa800, 0x4a,  199 }, { 0xac00, 0x4b,  203 },
++	{ 0xb000, 0x4c,  207 }, { 0xb400, 0x4d,  212 }, { 0xb800, 0x4e,  217 },
++	{ 0xbc00, 0x4f,  221 }, { 0xc000, 0x50,  226 }, { 0xc400, 0x51,  231 },
++	{ 0xc800, 0x52,  236 }, { 0xcc00, 0x53,  241 }, { 0xd000, 0x54,  247 },
++	{ 0xd400, 0x55,  252 }, { 0xd800, 0x56,  258 }, { 0xdc00, 0x57,  263 },
++	{ 0xe000, 0x58,  269 }, { 0xe400, 0x59,  275 }, { 0xe800, 0x5a,  281 },
++	{ 0xec00, 0x5b,  287 }, { 0xf000, 0x5c,  293 }, { 0xf400, 0x5d,  300 },
++	{ 0xf800, 0x5e,  306 }, { 0xfc00, 0x5f,  313 }, { 0x0001, 0x60,  320 },
++	{ 0x0401, 0x61,  327 }, { 0x0801, 0x62,  334 }, { 0x0c01, 0x63,  341 },
++	{ 0x1001, 0x64,  349 }, { 0x1401, 0x65,  357 }, { 0x1801, 0x66,  364 },
++	{ 0x1c01, 0x67,  372 }, { 0x2001, 0x68,  381 }, { 0x2401, 0x69,  389 },
++	{ 0x2801, 0x6a,  397 }, { 0x2c01, 0x6b,  406 }, { 0x3001, 0x6c,  415 },
++	{ 0x3401, 0x6d,  424 }, { 0x3801, 0x6e,  433 }, { 0x3c01, 0x6f,  443 },
++	{ 0x4001, 0x70,  453 }, { 0x4401, 0x71,  462 }, { 0x4801, 0x72,  473 },
++	{ 0x4c01, 0x73,  483 }, { 0x5001, 0x74,  494 }, { 0x5401, 0x75,  504 },
++	{ 0x5801, 0x76,  515 }, { 0x5c01, 0x77,  527 }, { 0x6001, 0x78,  538 },
++	{ 0x6401, 0x79,  550 }, { 0x6801, 0x7a,  562 }, { 0x6c01, 0x7b,  574 },
++	{ 0x7001, 0x7c,  587 }, { 0x7401, 0x7d,  600 }, { 0x7801, 0x7e,  613 },
++	{ 0x7c01, 0x7f,  626 }, { 0x8001, 0x00,  640 }, { 0x8401, 0x00,  654 },
++	{ 0x8801, 0x00,  668 }, { 0x8c01, 0x00,  683 }, { 0x9001, 0x00,  698 },
++	{ 0x9401, 0x00,  713 }, { 0x9801, 0x00,  729 }, { 0x9c01, 0x00,  745 },
++	{ 0xa001, 0x00,  761 }, { 0xa401, 0x00,  778 }, { 0xa801, 0x00,  795 },
++	{ 0xac01, 0x00,  812 }, { 0xb001, 0x00,  830 }, { 0xb401, 0x00,  848 },
++	{ 0xb801, 0x00,  867 }, { 0xbc01, 0x00,  886 }, { 0xc001, 0x00,  905 },
++	{ 0xc401, 0x00,  925 }, { 0xc801, 0x00,  945 }, { 0xcc01, 0x00,  966 },
++	{ 0xd001, 0x00,  987 }, { 0xd401, 0x00, 1009 }, { 0xd801, 0x00, 1031 },
++	{ 0xdc01, 0x00, 1053 }, { 0xe001, 0x00, 1076 }, { 0xe401, 0x00, 1100 },
++	{ 0xe801, 0x00, 1124 }, { 0xec01, 0x00, 1149 }, { 0xf001, 0x00, 1174 },
++	{ 0xf401, 0x00, 1199 }, { 0xf801, 0x00, 1226 }, { 0xfc01, 0x00, 1253 }
++};
++
++#define joycon_max_rumble_amp	(1003)
++static const struct joycon_rumble_amp_data joycon_rumble_amplitudes[] = {
++	/* high, low, amp */
++	{ 0x00, 0x0040,    0 },
++	{ 0x02, 0x8040,   10 }, { 0x04, 0x0041,   12 }, { 0x06, 0x8041,   14 },
++	{ 0x08, 0x0042,   17 }, { 0x0a, 0x8042,   20 }, { 0x0c, 0x0043,   24 },
++	{ 0x0e, 0x8043,   28 }, { 0x10, 0x0044,   33 }, { 0x12, 0x8044,   40 },
++	{ 0x14, 0x0045,   47 }, { 0x16, 0x8045,   56 }, { 0x18, 0x0046,   67 },
++	{ 0x1a, 0x8046,   80 }, { 0x1c, 0x0047,   95 }, { 0x1e, 0x8047,  112 },
++	{ 0x20, 0x0048,  117 }, { 0x22, 0x8048,  123 }, { 0x24, 0x0049,  128 },
++	{ 0x26, 0x8049,  134 }, { 0x28, 0x004a,  140 }, { 0x2a, 0x804a,  146 },
++	{ 0x2c, 0x004b,  152 }, { 0x2e, 0x804b,  159 }, { 0x30, 0x004c,  166 },
++	{ 0x32, 0x804c,  173 }, { 0x34, 0x004d,  181 }, { 0x36, 0x804d,  189 },
++	{ 0x38, 0x004e,  198 }, { 0x3a, 0x804e,  206 }, { 0x3c, 0x004f,  215 },
++	{ 0x3e, 0x804f,  225 }, { 0x40, 0x0050,  230 }, { 0x42, 0x8050,  235 },
++	{ 0x44, 0x0051,  240 }, { 0x46, 0x8051,  245 }, { 0x48, 0x0052,  251 },
++	{ 0x4a, 0x8052,  256 }, { 0x4c, 0x0053,  262 }, { 0x4e, 0x8053,  268 },
++	{ 0x50, 0x0054,  273 }, { 0x52, 0x8054,  279 }, { 0x54, 0x0055,  286 },
++	{ 0x56, 0x8055,  292 }, { 0x58, 0x0056,  298 }, { 0x5a, 0x8056,  305 },
++	{ 0x5c, 0x0057,  311 }, { 0x5e, 0x8057,  318 }, { 0x60, 0x0058,  325 },
++	{ 0x62, 0x8058,  332 }, { 0x64, 0x0059,  340 }, { 0x66, 0x8059,  347 },
++	{ 0x68, 0x005a,  355 }, { 0x6a, 0x805a,  362 }, { 0x6c, 0x005b,  370 },
++	{ 0x6e, 0x805b,  378 }, { 0x70, 0x005c,  387 }, { 0x72, 0x805c,  395 },
++	{ 0x74, 0x005d,  404 }, { 0x76, 0x805d,  413 }, { 0x78, 0x005e,  422 },
++	{ 0x7a, 0x805e,  431 }, { 0x7c, 0x005f,  440 }, { 0x7e, 0x805f,  450 },
++	{ 0x80, 0x0060,  460 }, { 0x82, 0x8060,  470 }, { 0x84, 0x0061,  480 },
++	{ 0x86, 0x8061,  491 }, { 0x88, 0x0062,  501 }, { 0x8a, 0x8062,  512 },
++	{ 0x8c, 0x0063,  524 }, { 0x8e, 0x8063,  535 }, { 0x90, 0x0064,  547 },
++	{ 0x92, 0x8064,  559 }, { 0x94, 0x0065,  571 }, { 0x96, 0x8065,  584 },
++	{ 0x98, 0x0066,  596 }, { 0x9a, 0x8066,  609 }, { 0x9c, 0x0067,  623 },
++	{ 0x9e, 0x8067,  636 }, { 0xa0, 0x0068,  650 }, { 0xa2, 0x8068,  665 },
++	{ 0xa4, 0x0069,  679 }, { 0xa6, 0x8069,  694 }, { 0xa8, 0x006a,  709 },
++	{ 0xaa, 0x806a,  725 }, { 0xac, 0x006b,  741 }, { 0xae, 0x806b,  757 },
++	{ 0xb0, 0x006c,  773 }, { 0xb2, 0x806c,  790 }, { 0xb4, 0x006d,  808 },
++	{ 0xb6, 0x806d,  825 }, { 0xb8, 0x006e,  843 }, { 0xba, 0x806e,  862 },
++	{ 0xbc, 0x006f,  881 }, { 0xbe, 0x806f,  900 }, { 0xc0, 0x0070,  920 },
++	{ 0xc2, 0x8070,  940 }, { 0xc4, 0x0071,  960 }, { 0xc6, 0x8071,  981 },
++	{ 0xc8, 0x0072, joycon_max_rumble_amp }
++};
++
+ /* States for controller state machine */
+ enum joycon_ctlr_state {
+ 	JOYCON_CTLR_STATE_INIT,
+@@ -186,6 +302,12 @@ struct joycon_input_report {
+ } __packed;
+ 
+ #define JC_MAX_RESP_SIZE	(sizeof(struct joycon_input_report) + 35)
++#define JC_RUMBLE_DATA_SIZE	8
++#define JC_RUMBLE_QUEUE_SIZE	8
++
++static const u16 JC_RUMBLE_DFLT_LOW_FREQ = 160;
++static const u16 JC_RUMBLE_DFLT_HIGH_FREQ = 320;
++static const u16 JC_RUMBLE_PERIOD_MS = 50;
+ 
+ static const char * const joycon_player_led_names[] = {
+ 	LED_FUNCTION_PLAYER1,
+@@ -226,6 +348,18 @@ struct joycon_ctlr {
+ 	u8 battery_capacity;
+ 	bool battery_charging;
+ 	bool host_powered;
++
++	/* rumble */
++	u8 rumble_data[JC_RUMBLE_QUEUE_SIZE][JC_RUMBLE_DATA_SIZE];
++	int rumble_queue_head;
++	int rumble_queue_tail;
++	struct workqueue_struct *rumble_queue;
++	struct work_struct rumble_worker;
++	unsigned int rumble_msecs;
++	u16 rumble_ll_freq;
++	u16 rumble_lh_freq;
++	u16 rumble_rl_freq;
++	u16 rumble_rh_freq;
+ };
+ 
+ static int __joycon_hid_send(struct hid_device *hdev, u8 *data, size_t len)
+@@ -282,6 +416,12 @@ static int joycon_send_subcmd(struct joycon_ctlr *ctlr,
+ 			      size_t data_len)
+ {
+ 	int ret;
++	unsigned long flags;
++
++	spin_lock_irqsave(&ctlr->lock, flags);
++	memcpy(subcmd->rumble_data, ctlr->rumble_data[ctlr->rumble_queue_tail],
++	       JC_RUMBLE_DATA_SIZE);
++	spin_unlock_irqrestore(&ctlr->lock, flags);
+ 
+ 	subcmd->output_id = JC_OUTPUT_RUMBLE_AND_SUBCMD;
+ 	subcmd->packet_num = ctlr->subcmd_num;
+@@ -434,6 +574,19 @@ static int joycon_set_report_mode(struct joycon_ctlr *ctlr)
+ 	return joycon_send_subcmd(ctlr, req, 1);
+ }
+ 
++static int joycon_enable_rumble(struct joycon_ctlr *ctlr)
++{
++	struct joycon_subcmd_request *req;
++	u8 buffer[sizeof(*req) + 1] = { 0 };
++
++	req = (struct joycon_subcmd_request *)buffer;
++	req->subcmd_id = JC_SUBCMD_ENABLE_VIBRATION;
++	req->data[0] = 0x01; /* note: 0x00 would disable */
++
++	hid_dbg(ctlr->hdev, "enabling rumble\n");
++	return joycon_send_subcmd(ctlr, req, 1);
++}
++
+ static s32 joycon_map_stick_val(struct joycon_stick_cal *cal, s32 val)
+ {
+ 	s32 center = cal->center;
+@@ -460,10 +613,15 @@ static void joycon_parse_report(struct joycon_ctlr *ctlr,
+ 	u8 tmp;
+ 	u32 btns;
+ 	u32 id = ctlr->hdev->product;
++	unsigned long msecs = jiffies_to_msecs(jiffies);
++
++	spin_lock_irqsave(&ctlr->lock, flags);
++	if (IS_ENABLED(CONFIG_NINTENDO_FF) && rep->vibrator_report &&
++	    (msecs - ctlr->rumble_msecs) >= JC_RUMBLE_PERIOD_MS)
++		queue_work(ctlr->rumble_queue, &ctlr->rumble_worker);
+ 
+ 	/* Parse the battery status */
+ 	tmp = rep->bat_con;
+-	spin_lock_irqsave(&ctlr->lock, flags);
+ 	ctlr->host_powered = tmp & BIT(0);
+ 	ctlr->battery_charging = tmp & BIT(4);
+ 	tmp = tmp >> 5;
+@@ -586,6 +744,161 @@ static void joycon_parse_report(struct joycon_ctlr *ctlr,
+ 	input_sync(dev);
+ }
+ 
++static void joycon_rumble_worker(struct work_struct *work)
++{
++	struct joycon_ctlr *ctlr = container_of(work, struct joycon_ctlr,
++							rumble_worker);
++	unsigned long flags;
++	bool again = true;
++	int ret;
++
++	while (again) {
++		mutex_lock(&ctlr->output_mutex);
++		ret = joycon_enable_rumble(ctlr);
++		mutex_unlock(&ctlr->output_mutex);
++		if (ret < 0)
++			hid_warn(ctlr->hdev, "Failed to set rumble; e=%d", ret);
++
++		spin_lock_irqsave(&ctlr->lock, flags);
++		ctlr->rumble_msecs = jiffies_to_msecs(jiffies);
++		if (ctlr->rumble_queue_tail != ctlr->rumble_queue_head) {
++			if (++ctlr->rumble_queue_tail >= JC_RUMBLE_QUEUE_SIZE)
++				ctlr->rumble_queue_tail = 0;
++		} else {
++			again = false;
++		}
++		spin_unlock_irqrestore(&ctlr->lock, flags);
++	}
++}
++
++#if IS_ENABLED(CONFIG_NINTENDO_FF)
++static struct joycon_rumble_freq_data joycon_find_rumble_freq(u16 freq)
++{
++	const size_t length = ARRAY_SIZE(joycon_rumble_frequencies);
++	const struct joycon_rumble_freq_data *data = joycon_rumble_frequencies;
++	int i = 0;
++
++	if (freq > data[0].freq) {
++		for (i = 1; i < length - 1; i++) {
++			if (freq > data[i - 1].freq && freq <= data[i].freq)
++				break;
++		}
++	}
++
++	return data[i];
++}
++
++static struct joycon_rumble_amp_data joycon_find_rumble_amp(u16 amp)
++{
++	const size_t length = ARRAY_SIZE(joycon_rumble_amplitudes);
++	const struct joycon_rumble_amp_data *data = joycon_rumble_amplitudes;
++	int i = 0;
++
++	if (amp > data[0].amp) {
++		for (i = 1; i < length - 1; i++) {
++			if (amp > data[i - 1].amp && amp <= data[i].amp)
++				break;
++		}
++	}
++
++	return data[i];
++}
++
++static void joycon_encode_rumble(u8 *data, u16 freq_low, u16 freq_high, u16 amp)
++{
++	struct joycon_rumble_freq_data freq_data_low;
++	struct joycon_rumble_freq_data freq_data_high;
++	struct joycon_rumble_amp_data amp_data;
++
++	freq_data_low = joycon_find_rumble_freq(freq_low);
++	freq_data_high = joycon_find_rumble_freq(freq_high);
++	amp_data = joycon_find_rumble_amp(amp);
++
++	data[0] = (freq_data_high.high >> 8) & 0xFF;
++	data[1] = (freq_data_high.high & 0xFF) + amp_data.high;
++	data[2] = freq_data_low.low + ((amp_data.low >> 8) & 0xFF);
++	data[3] = amp_data.low & 0xFF;
++}
++
++static const u16 JOYCON_MAX_RUMBLE_HIGH_FREQ	= 1253;
++static const u16 JOYCON_MIN_RUMBLE_HIGH_FREQ	= 82;
++static const u16 JOYCON_MAX_RUMBLE_LOW_FREQ	= 626;
++static const u16 JOYCON_MIN_RUMBLE_LOW_FREQ	= 41;
++
++static void joycon_clamp_rumble_freqs(struct joycon_ctlr *ctlr)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&ctlr->lock, flags);
++	ctlr->rumble_ll_freq = clamp(ctlr->rumble_ll_freq,
++				     JOYCON_MIN_RUMBLE_LOW_FREQ,
++				     JOYCON_MAX_RUMBLE_LOW_FREQ);
++	ctlr->rumble_lh_freq = clamp(ctlr->rumble_lh_freq,
++				     JOYCON_MIN_RUMBLE_HIGH_FREQ,
++				     JOYCON_MAX_RUMBLE_HIGH_FREQ);
++	ctlr->rumble_rl_freq = clamp(ctlr->rumble_rl_freq,
++				     JOYCON_MIN_RUMBLE_LOW_FREQ,
++				     JOYCON_MAX_RUMBLE_LOW_FREQ);
++	ctlr->rumble_rh_freq = clamp(ctlr->rumble_rh_freq,
++				     JOYCON_MIN_RUMBLE_HIGH_FREQ,
++				     JOYCON_MAX_RUMBLE_HIGH_FREQ);
++	spin_unlock_irqrestore(&ctlr->lock, flags);
++}
++
++static int joycon_set_rumble(struct joycon_ctlr *ctlr, u16 amp_r, u16 amp_l,
++			     bool schedule_now)
++{
++	u8 data[JC_RUMBLE_DATA_SIZE];
++	u16 amp;
++	u16 freq_r_low;
++	u16 freq_r_high;
++	u16 freq_l_low;
++	u16 freq_l_high;
++	unsigned long flags;
++
++	spin_lock_irqsave(&ctlr->lock, flags);
++	freq_r_low = ctlr->rumble_rl_freq;
++	freq_r_high = ctlr->rumble_rh_freq;
++	freq_l_low = ctlr->rumble_ll_freq;
++	freq_l_high = ctlr->rumble_lh_freq;
++	spin_unlock_irqrestore(&ctlr->lock, flags);
++
++	/* right joy-con */
++	amp = amp_r * (u32)joycon_max_rumble_amp / 65535;
++	joycon_encode_rumble(data + 4, freq_r_low, freq_r_high, amp);
++
++	/* left joy-con */
++	amp = amp_l * (u32)joycon_max_rumble_amp / 65535;
++	joycon_encode_rumble(data, freq_l_low, freq_l_high, amp);
++
++	spin_lock_irqsave(&ctlr->lock, flags);
++	if (++ctlr->rumble_queue_head >= JC_RUMBLE_QUEUE_SIZE)
++		ctlr->rumble_queue_head = 0;
++	memcpy(ctlr->rumble_data[ctlr->rumble_queue_head], data,
++	       JC_RUMBLE_DATA_SIZE);
++	spin_unlock_irqrestore(&ctlr->lock, flags);
++
++	/* don't wait for the periodic send (reduces latency) */
++	if (schedule_now)
++		queue_work(ctlr->rumble_queue, &ctlr->rumble_worker);
++
++	return 0;
++}
++
++static int joycon_play_effect(struct input_dev *dev, void *data,
++						     struct ff_effect *effect)
++{
++	struct joycon_ctlr *ctlr = input_get_drvdata(dev);
++
++	if (effect->type != FF_RUMBLE)
++		return 0;
++
++	return joycon_set_rumble(ctlr,
++				 effect->u.rumble.weak_magnitude,
++				 effect->u.rumble.strong_magnitude,
++				 true);
++}
++#endif /* IS_ENABLED(CONFIG_NINTENDO_FF) */
+ 
+ static const unsigned int joycon_button_inputs_l[] = {
+ 	BTN_SELECT, BTN_Z, BTN_THUMBL,
+@@ -689,6 +1002,19 @@ static int joycon_input_create(struct joycon_ctlr *ctlr)
+ 		input_set_capability(ctlr->input, EV_KEY, BTN_TL2);
  	}
  
-+	/*
-+	 * Patch the hw version of pro controller/joycons, so applications can
-+	 * distinguish between the default HID mappings and the mappings defined
-+	 * by the Linux game controller spec. This is important for the SDL2
-+	 * library, which has a game controller database, which uses device ids
-+	 * in combination with version as a key.
-+	 */
-+	hdev->version |= 0x8000;
++#if IS_ENABLED(CONFIG_NINTENDO_FF)
++	/* set up rumble */
++	input_set_capability(ctlr->input, EV_FF, FF_RUMBLE);
++	input_ff_create_memless(ctlr->input, NULL, joycon_play_effect);
++	ctlr->rumble_ll_freq = JC_RUMBLE_DFLT_LOW_FREQ;
++	ctlr->rumble_lh_freq = JC_RUMBLE_DFLT_HIGH_FREQ;
++	ctlr->rumble_rl_freq = JC_RUMBLE_DFLT_LOW_FREQ;
++	ctlr->rumble_rh_freq = JC_RUMBLE_DFLT_HIGH_FREQ;
++	joycon_clamp_rumble_freqs(ctlr);
++	joycon_set_rumble(ctlr, 0, 0, false);
++	ctlr->rumble_msecs = jiffies_to_msecs(jiffies);
++#endif
 +
+ 	ret = input_register_device(ctlr->input);
+ 	if (ret)
+ 		return ret;
+@@ -1021,21 +1347,26 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 
+ 	ctlr->hdev = hdev;
+ 	ctlr->ctlr_state = JOYCON_CTLR_STATE_INIT;
++	ctlr->rumble_queue_head = JC_RUMBLE_QUEUE_SIZE - 1;
++	ctlr->rumble_queue_tail = 0;
+ 	hid_set_drvdata(hdev, ctlr);
+ 	mutex_init(&ctlr->output_mutex);
+ 	init_waitqueue_head(&ctlr->wait);
+ 	spin_lock_init(&ctlr->lock);
++	ctlr->rumble_queue = alloc_workqueue("hid-nintendo-rumble_wq",
++					     WQ_FREEZABLE | WQ_MEM_RECLAIM, 0);
++	INIT_WORK(&ctlr->rumble_worker, joycon_rumble_worker);
+ 
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "HID parse failed\n");
+-		goto err;
++		goto err_wq;
+ 	}
+ 
  	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
  	if (ret) {
  		hid_err(hdev, "HW start failed\n");
+-		goto err;
++		goto err_wq;
+ 	}
+ 
+ 	ret = hid_hw_open(hdev);
+@@ -1088,6 +1419,13 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 		goto err_mutex;
+ 	}
+ 
++	/* Enable rumble */
++	ret = joycon_enable_rumble(ctlr);
++	if (ret) {
++		hid_err(hdev, "Failed to enable rumble; ret=%d\n", ret);
++		goto err_mutex;
++	}
++
+ 	mutex_unlock(&ctlr->output_mutex);
+ 
+ 	/* Initialize the leds */
+@@ -1121,6 +1459,8 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 	hid_hw_close(hdev);
+ err_stop:
+ 	hid_hw_stop(hdev);
++err_wq:
++	destroy_workqueue(ctlr->rumble_queue);
+ err:
+ 	hid_err(hdev, "probe - fail = %d\n", ret);
+ 	return ret;
+@@ -1128,7 +1468,10 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 
+ static void nintendo_hid_remove(struct hid_device *hdev)
+ {
++	struct joycon_ctlr *ctlr = hid_get_drvdata(hdev);
++
+ 	hid_dbg(hdev, "remove\n");
++	destroy_workqueue(ctlr->rumble_queue);
+ 	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
+ }
 -- 
 2.33.0
 

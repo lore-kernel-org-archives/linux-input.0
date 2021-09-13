@@ -2,107 +2,104 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E38DC433EF
-	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 22:55:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1456C433EF
+	for <linux-input@archiver.kernel.org>; Mon, 13 Sep 2021 21:29:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6EBAE610C9
-	for <linux-input@archiver.kernel.org>; Sat, 11 Sep 2021 22:55:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B103E60F24
+	for <linux-input@archiver.kernel.org>; Mon, 13 Sep 2021 21:29:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231605AbhIKW4O (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 11 Sep 2021 18:56:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60634 "EHLO
+        id S243235AbhIMVaf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Sep 2021 17:30:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229800AbhIKW4N (ORCPT
+        with ESMTP id S230080AbhIMVae (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 11 Sep 2021 18:56:13 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC9BC061574
-        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 15:55:00 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id s11so5515754pgr.11
-        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2021 15:55:00 -0700 (PDT)
+        Mon, 13 Sep 2021 17:30:34 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CC24C061574;
+        Mon, 13 Sep 2021 14:29:17 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id t8so11760326wrq.4;
+        Mon, 13 Sep 2021 14:29:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=5utlLGpcvK42VzI0LW/dCGQXTy7jjiED74I2HLdsmAI=;
-        b=Qn81t1P8fOkxT8CODr1AqYUiu9sVbcabnHxzJ/PGJlk2VVsfbFpIv+2pqS0gbduei5
-         ziOLXm7gGw/W1JKSUQE/TVWxYt6GLvgUpk3RqwjSPvkGd8zbvf4naRSPj26+UmeR3EDt
-         rA4YpP6vet+FyjluvhVls4y6PF8PiFvfH9bgIhdN0B57Bw9xTpzwJ1HF2/c4J2bgl5SR
-         MB2mbuguPowglWuGA2enYcIDF3W1LK+CLHvbcHtvaqWfWlcSdriE3TPJ1K6ByZtC+0J/
-         2KIz3LQQgsP3iD/dPXjMCcwAFnGqcCihGtHGtmHjhAMytUteFXJnJtlqWxU9UPz4BuCf
-         AxJA==
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=Yrsaonh+fwfWkOFuk4W3hgRjDE4kKeMZ2nofn8EWuSk=;
+        b=SPGV9nVcIjEcTcr8v7qcpAvmEAiBFUPKnWxxFaMRIYkr0kub9plmt6BO6OkWC8pOBa
+         dojnryqUBfk9bUKqoALqoBJqQFLL9L+OLfsaD16DBTlQrARpZI/O926EaobYOffFo4P0
+         EEf0giGkJBDI5g/eGzq/fgTb3oR3CRFRBrCFVYJEOBmSQ2CCD/w4K1pa87FT7SBQ4IuG
+         x8uOPi32YWicYR18NNTfXTjp+V3jorUuA3G7g2g022u32dUQm4gLaURw0WEb6Uan6WoI
+         D7+QVEmijL/SSYVM8OiQdgyaHSC8Ntpz2jAojKPtYnJ59BahdFPA+w3p5nzVIBHuJzXl
+         pR7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=5utlLGpcvK42VzI0LW/dCGQXTy7jjiED74I2HLdsmAI=;
-        b=qVITdtSPK9WTi8aJb5cNp0wyhjE24YZF7uQEV2wMS/JYFpJfS3M9mhOTwxamM8eBS2
-         kZRuHTrMUglSpUTzkQN3XTDqetEr2mZqkdhOpcsOLXJ2+6Bk2C5cHDinBDwllgZBNLHA
-         S4shlXAQYq3wyUAkk0xhh21QMpwZ4KsRdNPG28IN7zoqNr5Uu6s0lgDsCElS9/8PRRFn
-         2rGEIQzo5d7rBD5zRwcWi2YohWnPZkMtadkVAUJgvrOGYiXfSOdaaEFuIEraoYiRXDM5
-         prM7iN6VH6iRjFIkSncVeWRzgrj8onJCCbQ/fQNxCluY+mbKvD05Wi3Daanznp4qtoU1
-         3NNA==
-X-Gm-Message-State: AOAM532hHON2sgAO4rsbFgF6b2FeZ3FcvtFO7zjdnJ0O3zw2qmu1pJw/
-        JHotB5O2UFgC+9GKdRa/v6U=
-X-Google-Smtp-Source: ABdhPJy15rEW3Lxs88Fhj7UCeRT4Rav6D2wPXBCIwFngcLzRS7uTTWx8V+DXLoh4l9s04CRCh7CfXQ==
-X-Received: by 2002:a62:8281:0:b0:3f6:3b92:3698 with SMTP id w123-20020a628281000000b003f63b923698mr4109811pfd.55.1631400899903;
-        Sat, 11 Sep 2021 15:54:59 -0700 (PDT)
-Received: from google.com ([2620:15c:202:201:3e87:e680:a2cb:50b3])
-        by smtp.gmail.com with ESMTPSA id m12sm2740798pjc.18.2021.09.11.15.54.58
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=Yrsaonh+fwfWkOFuk4W3hgRjDE4kKeMZ2nofn8EWuSk=;
+        b=Vht3pNOgIuuWodgNmC+Hwey/bk2C2K/ekAMfaCu3aRw/LALUs7zwiHU4tEx7c1TWCb
+         qSA8tkcOwJoT+HNzNIGSQGHfh5E8Bw1zn9Khi437VvhOJpzUxKM+Jb9v/AdnxyvggtMh
+         6EXPqsjcpKDd009bIjx3o/29i0zyx/slgc/NwVDGkG/UagyvKOC8Bm28pzW/GoT0cuRQ
+         hC4qQbBn8MJcBKfry9aha5SzR/CiIJongg2NEQKqqY8Md6eGJdPoIJkO5lSL8q4p/yGE
+         ms4xYJ37OSiXVWYU8RDo8DM9IHfrbtipxzEshuLjvubU3SBftmrId5N5M4hEfUifo/V6
+         2/6Q==
+X-Gm-Message-State: AOAM531fs507gZV/zTAE5NNGCvcYXkElT4CtzJE/dkUOb0Ok+9TQsmjV
+        XJ7yrrffVD2tZdFkk5R9hjY=
+X-Google-Smtp-Source: ABdhPJxj1AOOH9kEnMpO0hupTfBuOX9H7isKcF0BtPmJh/z4MmxTBDyiBWspaTNgPrON6MBXyKHnhw==
+X-Received: by 2002:adf:fb8d:: with SMTP id a13mr14877270wrr.164.1631568555840;
+        Mon, 13 Sep 2021 14:29:15 -0700 (PDT)
+Received: from [192.168.1.21] ([195.245.16.219])
+        by smtp.gmail.com with ESMTPSA id v20sm5736wmh.22.2021.09.13.14.29.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Sep 2021 15:54:58 -0700 (PDT)
-Date:   Sat, 11 Sep 2021 15:54:55 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Fabio Estevam <festevam@gmail.com>
-Cc:     Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org
-Subject: Re: Delaying i8042 probe?
-Message-ID: <YT0zv6Rv1vURYTi3@google.com>
-References: <s5ho890n1rh.wl-tiwai@suse.de>
- <CAOMZO5C-wFv0LmbHfZQUMMchJAwvxMxTs=eT6oby8O8k4QyoFQ@mail.gmail.com>
- <s5hee9wmy6e.wl-tiwai@suse.de>
- <CAOMZO5CACdcxGWn++f0+zhQaKevH7b5c-Xkv3QLBpwxc2GxizQ@mail.gmail.com>
- <s5hee9vlg8i.wl-tiwai@suse.de>
- <CAOMZO5C+gki7HT-n5D6qj06NbMxo2su2d6X+8AvM9PSmLUZ0jg@mail.gmail.com>
- <CAOMZO5DepuVScmDU7yZGVOVUs1JzHOd4bmu1z3erE2GNpcjZ+w@mail.gmail.com>
+        Mon, 13 Sep 2021 14:29:15 -0700 (PDT)
+Message-ID: <2cd73e19fde5a9dee6a962f9994b4dd5ea4d21be.camel@gmail.com>
+Subject: Re: [PATCH 3/7] Input: ep93xx_keypad: Prepare clock before using it
+From:   Alexander Sverdlin <alexander.sverdlin@gmail.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Nikita Shubin <nikita.shubin@maquefel.me>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Mon, 13 Sep 2021 23:29:14 +0200
+In-Reply-To: <YM60mjew2mqMAMRO@google.com>
+References: <20210613233041.128961-1-alexander.sverdlin@gmail.com>
+         <20210613233041.128961-4-alexander.sverdlin@gmail.com>
+         <YMfQR8iM9be5Qg8+@google.com>
+         <9bf87ee0e1c2a97b0a1b98734e34e456f84ea3d7.camel@gmail.com>
+         <YM60mjew2mqMAMRO@google.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.4 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAOMZO5DepuVScmDU7yZGVOVUs1JzHOd4bmu1z3erE2GNpcjZ+w@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Fabio,
+Hello Dmitry,
 
-On Sat, Sep 11, 2021 at 03:50:25PM -0300, Fabio Estevam wrote:
-> On Sat, Sep 11, 2021 at 3:43 PM Fabio Estevam <festevam@gmail.com> wrote:
-> >
-> > On Sat, Sep 11, 2021 at 4:32 AM Takashi Iwai <tiwai@suse.de> wrote:
-> >
-> > > OK, I'll update and let the reporter testing it.
-> >
-> > Sorry, platform_device_alloc() and platform_device_add() were missing
-> > in the earlier patch.
-> >
-> > New patch atached.
-> >
-> > Dmitry, does this look correct?
+On Sat, 2021-06-19 at 20:23 -0700, Dmitry Torokhov wrote:
+> > On Mon, 2021-06-14 at 14:55 -0700, Dmitry Torokhov wrote:
+> > > > Use clk_prepare_enable()/clk_disable_unprepare() in preparation for switch
+> > > > to Common Clock Framework.
+> > > 
+> > > Can this be merged standalone?
+> > 
+> > In principle, yes, but I thought it would be easier if the patches
+> > would go via the same path as CCF conversion.
 > 
-> Please consider this one instead.
+> OK, in this case:
+> 
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-This is unfortunately is a band-aid. I wonder what other driver pokes
-the embedded controller on these devices for it to start responding to
-8042 queries...
-
-Does the laptop have the latest BIOS? I wonder what ACPI tables look
-like.
-
-Thanks.
+our initial attempt to find a maintainer for the whole series
+didn't work out. Would you take this single patch, please?
+Three others were already taken into respective subsystems
+and I'll ping the rest of maintainers individually...
 
 -- 
-Dmitry
+Alexander Sverdlin.
+
+

@@ -2,132 +2,230 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1FDBC433EF
-	for <linux-input@archiver.kernel.org>; Tue, 14 Sep 2021 22:08:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42CADC433F5
+	for <linux-input@archiver.kernel.org>; Wed, 15 Sep 2021 07:49:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A17BD60F51
-	for <linux-input@archiver.kernel.org>; Tue, 14 Sep 2021 22:08:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2B12360FC0
+	for <linux-input@archiver.kernel.org>; Wed, 15 Sep 2021 07:49:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234720AbhINWJ3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 14 Sep 2021 18:09:29 -0400
-Received: from gateway32.websitewelcome.com ([192.185.144.98]:27459 "EHLO
-        gateway32.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231559AbhINWJ3 (ORCPT
+        id S236690AbhIOHuU convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 15 Sep 2021 03:50:20 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:58007 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236672AbhIOHuM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Sep 2021 18:09:29 -0400
-X-Greylist: delayed 1347 seconds by postgrey-1.27 at vger.kernel.org; Tue, 14 Sep 2021 18:09:29 EDT
-Received: from cm14.websitewelcome.com (cm14.websitewelcome.com [100.42.49.7])
-        by gateway32.websitewelcome.com (Postfix) with ESMTP id 47CAD16112F
-        for <linux-input@vger.kernel.org>; Tue, 14 Sep 2021 16:45:43 -0500 (CDT)
-Received: from gator4166.hostgator.com ([108.167.133.22])
-        by cmsmtp with SMTP
-        id QGFLmQbClcEL1QGFLm2v7m; Tue, 14 Sep 2021 16:45:43 -0500
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=2vSlWpDlgQ1WCtKW+iJxypZWQ+3srQCmJtCimsZZbKQ=; b=ccvX3c8vYx2soiyQjSD3Y3K9ld
-        9n8goroyewasfqmu9ivOOmOTa9INFz7yHnPJ9azhVmUGNyiekWz9n/lTDaBAAJuN7TXnRQnQewfra
-        yLoOnkE78oNRJR2Dt8+zAiXw/iUMCXDZPWQiDx8DCpCova0lD/z5VLA83pYB8s0ZJz0pAqCGlp4Tz
-        JaRPSkMp/vCIeWhkRSJOGwpOh6FbNWPWAxjwL8JbFfGGOBjbORla0GnVQ9kHpwVOfjCErxqoD0XVl
-        x279Qwh5Mjb2yhVQHWf93gTuFWGPWS2nccT1D3QueiBPvKXsaQiE12MeTd1YhutRZJDtmVAXyDsBh
-        FPleGuxw==;
-Received: from 187-162-31-110.static.axtel.net ([187.162.31.110]:35226 helo=[192.168.15.9])
-        by gator4166.hostgator.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94.2)
-        (envelope-from <gustavo@embeddedor.com>)
-        id 1mQGFK-003opJ-Uw; Tue, 14 Sep 2021 16:45:42 -0500
-Subject: Re: [PATCH] Input: omap-keypad - prefer struct_size over open coded
- arithmetic
-To:     Len Baker <len.baker@gmx.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Kees Cook <keescook@chromium.org>, linux-hardening@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20210911112716.10067-1-len.baker@gmx.com>
-From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Message-ID: <32777a69-297a-f68a-d0c3-e5920035531b@embeddedor.com>
-Date:   Tue, 14 Sep 2021 16:49:31 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        Wed, 15 Sep 2021 03:50:12 -0400
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 886C6100013;
+        Wed, 15 Sep 2021 07:48:48 +0000 (UTC)
+Date:   Wed, 15 Sep 2021 09:48:47 +0200
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Jonathan Cameron <jic23@kernel.org>
+Cc:     Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>, bcousson@baylibre.com,
+        Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-omap@vger.kernel.org,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Lokesh Vutla <lokeshvutla@ti.com>,
+        Tero Kristo <kristo@kernel.org>,
+        Ryan Barnett <ryan.barnett@collins.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Jason Reeder <jreeder@ti.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: Re: [PATCH v2 26/46] mfd: ti_am335x_tscadc: Use FIELD_PREP() when
+ relevant in the header
+Message-ID: <20210915094847.6bb5e8d1@xps13>
+In-Reply-To: <20210905141332.26788852@jic23-huawei>
+References: <20210902215144.507243-1-miquel.raynal@bootlin.com>
+        <20210902215144.507243-27-miquel.raynal@bootlin.com>
+        <20210905141332.26788852@jic23-huawei>
+Organization: Bootlin
+X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20210911112716.10067-1-len.baker@gmx.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - embeddedor.com
-X-BWhitelist: no
-X-Source-IP: 187.162.31.110
-X-Source-L: No
-X-Exim-ID: 1mQGFK-003opJ-Uw
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 187-162-31-110.static.axtel.net ([192.168.15.9]) [187.162.31.110]:35226
-X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 5
-X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
-X-Local-Domain: yes
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Hi Jonathan,
 
+jic23@kernel.org wrote on Sun, 5 Sep 2021 14:13:32 +0100:
 
-On 9/11/21 06:27, Len Baker wrote:
-> As noted in the "Deprecated Interfaces, Language Features, Attributes,
-> and Conventions" documentation [1], size calculations (especially
-> multiplication) should not be performed in memory allocator (or similar)
-> function arguments due to the risk of them overflowing. This could lead
-> to values wrapping around and a smaller allocation being made than the
-> caller was expecting. Using those allocations could lead to linear
-> overflows of heap memory and other misbehaviors.
+> On Thu,  2 Sep 2021 23:51:24 +0200
+> Miquel Raynal <miquel.raynal@bootlin.com> wrote:
 > 
-> So, use the struct_size() helper to do the arithmetic instead of the
-> argument "size + count * size" in the kzalloc() function.
+> > Use the FIELD_PREP() macro when relevant. Sometimes reorder the lines to
+> > be able to use the relevant bitmask.
+> > 
+> > Mind the s/%d/%ld/ change in a log due to the type change following the
+> > use of FIELD_PREP() in the header.
+> > 
+> > Suggested-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>  
+> What you have here is fine, but I would take it a step further and push the
+> FIELD_PREP() calls directly inline in the code.  There is little advantage
+> beyond saving a few characters in
 > 
-> [1] https://www.kernel.org/doc/html/v5.14/process/deprecated.html#open-coded-arithmetic-in-allocator-arguments
+> STEPENB(3)
 > 
-> Signed-off-by: Len Baker <len.baker@gmx.com>
+> rather than
+> 
+> FIELD_PREP(STEPENB_MASK, 3)
+> 
+> If you don't want to go that far this is still an improvement so
+> Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> 
+> > ---
+> >  drivers/iio/adc/ti_am335x_adc.c      |  2 +-
+> >  include/linux/mfd/ti_am335x_tscadc.h | 31 ++++++++++++++--------------
+> >  2 files changed, 17 insertions(+), 16 deletions(-)
+> > 
+> > diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+> > index e946903b0993..54c410b6ca07 100644
+> > --- a/drivers/iio/adc/ti_am335x_adc.c
+> > +++ b/drivers/iio/adc/ti_am335x_adc.c
+> > @@ -126,7 +126,7 @@ static void tiadc_step_config(struct iio_dev *indio_dev)
+> >  		chan = adc_dev->channel_line[i];
+> >  
+> >  		if (adc_dev->step_avg[i] > STEPCONFIG_AVG_16) {
+> > -			dev_warn(dev, "chan %d step_avg truncating to %d\n",
+> > +			dev_warn(dev, "chan %d step_avg truncating to %ld\n",
+> >  				 chan, STEPCONFIG_AVG_16);
+> >  			adc_dev->step_avg[i] = STEPCONFIG_AVG_16;
+> >  		}
+> > diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
+> > index 4de16fc3d74f..29095c0dc6d8 100644
+> > --- a/include/linux/mfd/ti_am335x_tscadc.h
+> > +++ b/include/linux/mfd/ti_am335x_tscadc.h
+> > @@ -8,6 +8,7 @@
+> >  #ifndef __LINUX_TI_AM335X_TSCADC_MFD_H
+> >  #define __LINUX_TI_AM335X_TSCADC_MFD_H
+> >  
+> > +#include <linux/bitfield.h>
+> >  #include <linux/mfd/core.h>
+> >  
+> >  #define REG_RAWIRQSTATUS	0x024
+> > @@ -40,7 +41,7 @@
+> >  
+> >  /* Step Enable */
+> >  #define STEPENB_MASK		GENMASK(16, 0)
+> > -#define STEPENB(val)		((val) << 0)
+> > +#define STEPENB(val)		FIELD_PREP(STEPENB_MASK, (val))  
+> 
+> My inclination with these is to drop the macro entirely and
+> just use FIELD_PREP(STEPENB_MASK, xxx) inline directly.
+> There is no loss of clarity in doing so and it gets you to a state
+> where you only have one macro per field which is nice for checking
+> purposes.
 
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Actually I don't like too much leaking FIELD_PREP()s directly in the
+code because (and this is really a personal feeling) I found them
+rather less straightforward to understand than a good old BIT() for
+example. Moreover, I've already hacked in a lot of different
+places and moving these definitions in the code directly would
+produce a big diff, overall hardening possible future git-blames.
 
-Thanks
---
-Gustavo
+However, I rather agree on the fact that there is no point in defining
+a mask and then using that mask in another macro unless that mask is
+reused somewhere else. So if it's fine for you, I'll provide a new
+version with a reduced number of defines in this file. Would this work
+for you?
+ 
+> 
+> >  #define ENB(val)		BIT(val)
+> >  #define STPENB_STEPENB		STEPENB(GENMASK(16, 0))
+> >  #define STPENB_STEPENB_TC	STEPENB(GENMASK(12, 0))
+> > @@ -58,11 +59,11 @@
+> >  
+> >  /* Step Configuration */
+> >  #define STEPCONFIG_MODE_MASK	GENMASK(1, 0)
+> > -#define STEPCONFIG_MODE(val)	((val) << 0)
+> > +#define STEPCONFIG_MODE(val)	FIELD_PREP(STEPCONFIG_MODE_MASK, (val))
+> >  #define STEPCONFIG_MODE_SWCNT	STEPCONFIG_MODE(1)
+> >  #define STEPCONFIG_MODE_HWSYNC	STEPCONFIG_MODE(2)
+> >  #define STEPCONFIG_AVG_MASK	GENMASK(4, 2)
+> > -#define STEPCONFIG_AVG(val)	((val) << 2)
+> > +#define STEPCONFIG_AVG(val)	FIELD_PREP(STEPCONFIG_AVG_MASK, (val))
+> >  #define STEPCONFIG_AVG_16	STEPCONFIG_AVG(4)
+> >  #define STEPCONFIG_XPP		BIT(5)
+> >  #define STEPCONFIG_XNN		BIT(6)
+> > @@ -70,43 +71,43 @@
+> >  #define STEPCONFIG_YNN		BIT(8)
+> >  #define STEPCONFIG_XNP		BIT(9)
+> >  #define STEPCONFIG_YPN		BIT(10)
+> > -#define STEPCONFIG_RFP(val)	((val) << 12)
+> >  #define STEPCONFIG_RFP_VREFP	GENMASK(13, 12)
+> > +#define STEPCONFIG_RFP(val)	FIELD_PREP(STEPCONFIG_RFP_VREFP, (val))
+> >  #define STEPCONFIG_INM_MASK	GENMASK(18, 15)
+> > -#define STEPCONFIG_INM(val)	((val) << 15)
+> > +#define STEPCONFIG_INM(val)	FIELD_PREP(STEPCONFIG_INM_MASK, (val))
+> >  #define STEPCONFIG_INM_ADCREFM	STEPCONFIG_INM(8)
+> >  #define STEPCONFIG_INP_MASK	GENMASK(22, 19)
+> > -#define STEPCONFIG_INP(val)	((val) << 19)
+> > +#define STEPCONFIG_INP(val)	FIELD_PREP(STEPCONFIG_INP_MASK, (val))
+> >  #define STEPCONFIG_INP_AN4	STEPCONFIG_INP(4)
+> >  #define STEPCONFIG_INP_ADCREFM	STEPCONFIG_INP(8)
+> >  #define STEPCONFIG_FIFO1	BIT(26)
+> > -#define STEPCONFIG_RFM(val)	((val) << 23)
+> >  #define STEPCONFIG_RFM_VREFN	GENMASK(24, 23)
+> > +#define STEPCONFIG_RFM(val)	FIELD_PREP(STEPCONFIG_RFM_VREFN, (val))
+> >  
+> >  /* Delay register */
+> >  #define STEPDELAY_OPEN_MASK	GENMASK(17, 0)
+> > -#define STEPDELAY_OPEN(val)	((val) << 0)
+> > +#define STEPDELAY_OPEN(val)	FIELD_PREP(STEPDELAY_OPEN_MASK, (val))
+> >  #define STEPCONFIG_OPENDLY	STEPDELAY_OPEN(0x098)
+> >  #define STEPDELAY_SAMPLE_MASK	GENMASK(31, 24)
+> > -#define STEPDELAY_SAMPLE(val)	((val) << 24)
+> > +#define STEPDELAY_SAMPLE(val)	FIELD_PREP(STEPDELAY_SAMPLE_MASK, (val))
+> >  #define STEPCONFIG_SAMPLEDLY	STEPDELAY_SAMPLE(0)
+> >  
+> >  /* Charge Config */
+> >  #define STEPCHARGE_RFP_MASK	GENMASK(14, 12)
+> > -#define STEPCHARGE_RFP(val)	((val) << 12)
+> > +#define STEPCHARGE_RFP(val)	FIELD_PREP(STEPCHARGE_RFP_MASK, (val))
+> >  #define STEPCHARGE_RFP_XPUL	STEPCHARGE_RFP(1)
+> >  #define STEPCHARGE_INM_MASK	GENMASK(18, 15)
+> > -#define STEPCHARGE_INM(val)	((val) << 15)
+> > +#define STEPCHARGE_INM(val)	FIELD_PREP(STEPCHARGE_INM_MASK, (val))
+> >  #define STEPCHARGE_INM_AN1	STEPCHARGE_INM(1)
+> >  #define STEPCHARGE_INP_MASK	GENMASK(22, 19)
+> > -#define STEPCHARGE_INP(val)	((val) << 19)
+> > +#define STEPCHARGE_INP(val)	FIELD_PREP(STEPCHARGE_INP_MASK, (val))
+> >  #define STEPCHARGE_RFM_MASK	GENMASK(24, 23)
+> > -#define STEPCHARGE_RFM(val)	((val) << 23)
+> > +#define STEPCHARGE_RFM(val)	FIELD_PREP(STEPCHARGE_RFM_MASK, (val))
+> >  #define STEPCHARGE_RFM_XNUR	STEPCHARGE_RFM(1)
+> >  
+> >  /* Charge delay */
+> >  #define CHARGEDLY_OPEN_MASK	GENMASK(17, 0)
+> > -#define CHARGEDLY_OPEN(val)	((val) << 0)
+> > +#define CHARGEDLY_OPEN(val)	FIELD_PREP(CHARGEDLY_OPEN_MASK, (val))
+> >  #define CHARGEDLY_OPENDLY	CHARGEDLY_OPEN(0x400)
+> >  
+> >  /* Control register */
+> > @@ -115,7 +116,7 @@
+> >  #define CNTRLREG_STEPCONFIGWRT	BIT(2)
+> >  #define CNTRLREG_POWERDOWN	BIT(4)
+> >  #define CNTRLREG_AFE_CTRL_MASK	GENMASK(6, 5)
+> > -#define CNTRLREG_AFE_CTRL(val)	((val) << 5)
+> > +#define CNTRLREG_AFE_CTRL(val)	FIELD_PREP(CNTRLREG_AFE_CTRL_MASK, (val))
+> >  #define CNTRLREG_4WIRE		CNTRLREG_AFE_CTRL(1)
+> >  #define CNTRLREG_5WIRE		CNTRLREG_AFE_CTRL(2)
+> >  #define CNTRLREG_8WIRE		CNTRLREG_AFE_CTRL(3)  
+> 
 
-> ---
->  drivers/input/keyboard/omap-keypad.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
-> index dbe836c7ff47..eb3a687796e7 100644
-> --- a/drivers/input/keyboard/omap-keypad.c
-> +++ b/drivers/input/keyboard/omap-keypad.c
-> @@ -190,8 +190,7 @@ static int omap_kp_probe(struct platform_device *pdev)
->  	row_shift = get_count_order(pdata->cols);
->  	keycodemax = pdata->rows << row_shift;
-> 
-> -	omap_kp = kzalloc(sizeof(struct omap_kp) +
-> -			keycodemax * sizeof(unsigned short), GFP_KERNEL);
-> +	omap_kp = kzalloc(struct_size(omap_kp, keymap, keycodemax), GFP_KERNEL);
->  	input_dev = input_allocate_device();
->  	if (!omap_kp || !input_dev) {
->  		kfree(omap_kp);
-> --
-> 2.25.1
-> 
-> 
-> 
-> 
+Thanks,
+Miquèl

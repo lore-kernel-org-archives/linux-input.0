@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5240AC433FE
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2794FC4332F
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3E48361246
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F7C961164
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240123AbhIPPuO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Sep 2021 11:50:14 -0400
-Received: from mx24.baidu.com ([111.206.215.185]:45106 "EHLO baidu.com"
+        id S240139AbhIPPuP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Sep 2021 11:50:15 -0400
+Received: from mx22.baidu.com ([220.181.50.185]:45116 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240119AbhIPPuM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Sep 2021 11:50:12 -0400
-Received: from BC-Mail-Ex23.internal.baidu.com (unknown [172.31.51.17])
-        by Forcepoint Email with ESMTPS id B4C5DE97F8BD8513450B;
-        Thu, 16 Sep 2021 23:33:09 +0800 (CST)
+        id S240125AbhIPPuN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Sep 2021 11:50:13 -0400
+Received: from BC-Mail-Ex20.internal.baidu.com (unknown [172.31.51.14])
+        by Forcepoint Email with ESMTPS id E56B11E924A499AFBDD6;
+        Thu, 16 Sep 2021 23:33:31 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex23.internal.baidu.com (172.31.51.17) with Microsoft SMTP Server
+ BC-Mail-Ex20.internal.baidu.com (172.31.51.14) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Thu, 16 Sep 2021 23:33:09 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:33:31 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:33:09 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:33:31 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: ps2-gpio - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:33:03 +0800
-Message-ID: <20210916153304.14575-1-caihuoqing@baidu.com>
+Subject: [PATCH] Input: mms114 - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:33:25 +0800
+Message-ID: <20210916153326.14734-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [172.31.63.8]
-X-ClientProxiedBy: BC-Mail-Ex11.internal.baidu.com (172.31.51.51) To
+X-ClientProxiedBy: BC-Mail-Ex09.internal.baidu.com (172.31.51.49) To
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -55,38 +55,40 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/serio/ps2-gpio.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/mms114.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/serio/ps2-gpio.c b/drivers/input/serio/ps2-gpio.c
-index 8970b49ea09a..d46355f868fd 100644
---- a/drivers/input/serio/ps2-gpio.c
-+++ b/drivers/input/serio/ps2-gpio.c
-@@ -323,18 +323,14 @@ static int ps2_gpio_get_props(struct device *dev,
- 				 struct ps2_gpio_data *drvdata)
- {
- 	drvdata->gpio_data = devm_gpiod_get(dev, "data", GPIOD_IN);
--	if (IS_ERR(drvdata->gpio_data)) {
--		dev_err(dev, "failed to request data gpio: %ld",
--			PTR_ERR(drvdata->gpio_data));
--		return PTR_ERR(drvdata->gpio_data);
--	}
-+	if (IS_ERR(drvdata->gpio_data))
-+		return dev_err_probe(dev, PTR_ERR(drvdata->gpio_data),
-+				     "failed to request data gpio: %ld")
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 9fa3b0e421be..4b36db084d86 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -525,20 +525,14 @@ static int mms114_probe(struct i2c_client *client,
+ 	i2c_set_clientdata(client, data);
  
- 	drvdata->gpio_clk = devm_gpiod_get(dev, "clk", GPIOD_IN);
--	if (IS_ERR(drvdata->gpio_clk)) {
--		dev_err(dev, "failed to request clock gpio: %ld",
--			PTR_ERR(drvdata->gpio_clk));
--		return PTR_ERR(drvdata->gpio_clk);
+ 	data->core_reg = devm_regulator_get(&client->dev, "avdd");
+-	if (IS_ERR(data->core_reg)) {
+-		error = PTR_ERR(data->core_reg);
+-		dev_err(&client->dev,
+-			"Unable to get the Core regulator (%d)\n", error);
+-		return error;
 -	}
-+	if (IS_ERR(drvdata->gpio_clk))
-+		return dev_err_probe(dev, PTR_ERR(drvdata->gpio_clk),
-+				     "failed to request clock gpio");
++	if (IS_ERR(data->core_reg))
++		return dev_err_probe(&client->dev, PTR_ERR(data->core_reg),
++				     "Unable to get the Core regulator\n");
  
- 	drvdata->write_enable = device_property_read_bool(dev,
- 				"write-enable");
+ 	data->io_reg = devm_regulator_get(&client->dev, "vdd");
+-	if (IS_ERR(data->io_reg)) {
+-		error = PTR_ERR(data->io_reg);
+-		dev_err(&client->dev,
+-			"Unable to get the IO regulator (%d)\n", error);
+-		return error;
+-	}
++	if (IS_ERR(data->io_reg))
++		return dev_err_probe(&client->dev, PTR_ERR(data->io_reg),
++				     "Unable to get the IO regulator\n");
+ 
+ 	error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					  NULL, mms114_interrupt,
 -- 
 2.25.1
 

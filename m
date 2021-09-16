@@ -7,36 +7,36 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10F1AC43219
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95F43C433FE
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE23660F51
+	by mail.kernel.org (Postfix) with ESMTP id 7AF9361164
 	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240044AbhIPPtL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S239207AbhIPPtL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 16 Sep 2021 11:49:11 -0400
-Received: from mx24.baidu.com ([111.206.215.185]:44416 "EHLO baidu.com"
+Received: from mx24.baidu.com ([111.206.215.185]:44414 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S239169AbhIPPtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S240044AbhIPPtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Thu, 16 Sep 2021 11:49:10 -0400
-Received: from BC-Mail-Ex31.internal.baidu.com (unknown [172.31.51.25])
-        by Forcepoint Email with ESMTPS id 28C033B0B119AADD30E2;
-        Thu, 16 Sep 2021 23:32:10 +0800 (CST)
+Received: from BC-Mail-Ex03.internal.baidu.com (unknown [172.31.51.43])
+        by Forcepoint Email with ESMTPS id 19DDE974C9EC6A481D29;
+        Thu, 16 Sep 2021 23:31:47 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex31.internal.baidu.com (172.31.51.25) with Microsoft SMTP Server
+ BC-Mail-Ex03.internal.baidu.com (172.31.51.43) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Thu, 16 Sep 2021 23:32:09 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:31:46 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:32:09 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:31:46 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: drv260x - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:32:03 +0800
-Message-ID: <20210916153204.14151-1-caihuoqing@baidu.com>
+Subject: [PATCH] Input: bu21029_ts - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:31:40 +0800
+Message-ID: <20210916153141.13992-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
@@ -55,54 +55,53 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/misc/drv260x.c | 20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+ drivers/input/touchscreen/bu21029_ts.c | 28 +++++++++-----------------
+ 1 file changed, 9 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 0efe56f49aa9..f21e05e4e035 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -470,10 +470,8 @@ static int drv260x_probe(struct i2c_client *client,
- 		return -ENOMEM;
+diff --git a/drivers/input/touchscreen/bu21029_ts.c b/drivers/input/touchscreen/bu21029_ts.c
+index 392950aa7856..dd4738761848 100644
+--- a/drivers/input/touchscreen/bu21029_ts.c
++++ b/drivers/input/touchscreen/bu21029_ts.c
+@@ -353,30 +353,20 @@ static int bu21029_probe(struct i2c_client *client,
  
- 	error = device_property_read_u32(dev, "mode", &haptics->mode);
+ 	error = device_property_read_u32(&client->dev, "rohm,x-plate-ohms",
+ 					 &bu21029->x_plate_ohms);
 -	if (error) {
--		dev_err(dev, "Can't fetch 'mode' property: %d\n", error);
+-		dev_err(&client->dev,
+-			"invalid 'x-plate-ohms' supplied: %d\n", error);
 -		return error;
 -	}
 +	if (error)
-+		return dev_err_probe(dev, error, "Can't fetch 'mode' property\n");
++		return dev_err_probe(&client->dev, error,
++				     "invalid 'x-plate-ohms' supplied\n");
  
- 	if (haptics->mode < DRV260X_LRA_MODE ||
- 	    haptics->mode > DRV260X_ERM_MODE) {
-@@ -482,10 +480,8 @@ static int drv260x_probe(struct i2c_client *client,
- 	}
- 
- 	error = device_property_read_u32(dev, "library-sel", &haptics->library);
--	if (error) {
--		dev_err(dev, "Can't fetch 'library-sel' property: %d\n", error);
+ 	bu21029->vdd = devm_regulator_get(&client->dev, "vdd");
+-	if (IS_ERR(bu21029->vdd)) {
+-		error = PTR_ERR(bu21029->vdd);
+-		if (error != -EPROBE_DEFER)
+-			dev_err(&client->dev,
+-				"failed to acquire 'vdd' supply: %d\n", error);
 -		return error;
 -	}
-+	if (error)
-+		return dev_err_probe(dev, error, "Can't fetch 'library-sel' property\n");
++	if (IS_ERR(bu21029->vdd))
++		return dev_err_probe(&client->dev, PTR_ERR(bu21029->vdd),
++				     "failed to acquire 'vdd' supply\n");
  
- 	if (haptics->library < DRV260X_LIB_EMPTY ||
- 	    haptics->library > DRV260X_ERM_LIB_F) {
-@@ -517,11 +513,9 @@ static int drv260x_probe(struct i2c_client *client,
- 					     drv260x_calculate_voltage(voltage);
- 
- 	haptics->regulator = devm_regulator_get(dev, "vbat");
--	if (IS_ERR(haptics->regulator)) {
--		error = PTR_ERR(haptics->regulator);
--		dev_err(dev, "unable to get regulator, error: %d\n", error);
+ 	bu21029->reset_gpios = devm_gpiod_get_optional(&client->dev,
+ 						       "reset", GPIOD_OUT_HIGH);
+-	if (IS_ERR(bu21029->reset_gpios)) {
+-		error = PTR_ERR(bu21029->reset_gpios);
+-		if (error != -EPROBE_DEFER)
+-			dev_err(&client->dev,
+-				"failed to acquire 'reset' gpio: %d\n", error);
 -		return error;
 -	}
-+	if (IS_ERR(haptics->regulator))
-+		return dev_err_probe(dev, PTR_ERR(haptics->regulator),
-+				     "unable to get regulator\n");
++	if (IS_ERR(bu21029->reset_gpios))
++		return dev_err_probe(&client->dev, PTR_ERR(bu21029->reset_gpios),
++				     "failed to acquire 'reset' gpio\n");
  
- 	haptics->enable_gpio = devm_gpiod_get_optional(dev, "enable",
- 						       GPIOD_OUT_HIGH);
+ 	in_dev = devm_input_allocate_device(&client->dev);
+ 	if (!in_dev) {
 -- 
 2.25.1
 

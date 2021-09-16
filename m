@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB9E6C4332F
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10F1AC43219
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B536E61164
+	by mail.kernel.org (Postfix) with ESMTP id EE23660F51
 	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240016AbhIPPtL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S240044AbhIPPtL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 16 Sep 2021 11:49:11 -0400
-Received: from mx22.baidu.com ([220.181.50.185]:44422 "EHLO baidu.com"
+Received: from mx24.baidu.com ([111.206.215.185]:44416 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240049AbhIPPtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S239169AbhIPPtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Thu, 16 Sep 2021 11:49:10 -0400
-Received: from BC-Mail-Ex28.internal.baidu.com (unknown [172.31.51.22])
-        by Forcepoint Email with ESMTPS id 24CED95A706080A020D1;
-        Thu, 16 Sep 2021 23:32:32 +0800 (CST)
+Received: from BC-Mail-Ex31.internal.baidu.com (unknown [172.31.51.25])
+        by Forcepoint Email with ESMTPS id 28C033B0B119AADD30E2;
+        Thu, 16 Sep 2021 23:32:10 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex28.internal.baidu.com (172.31.51.22) with Microsoft SMTP Server
+ BC-Mail-Ex31.internal.baidu.com (172.31.51.25) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Thu, 16 Sep 2021 23:32:31 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:32:09 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:32:31 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:32:09 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: gpio_decoder - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:32:25 +0800
-Message-ID: <20210916153226.14310-1-caihuoqing@baidu.com>
+Subject: [PATCH] Input: drv260x - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:32:03 +0800
+Message-ID: <20210916153204.14151-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [172.31.63.8]
-X-ClientProxiedBy: BC-Mail-Ex09.internal.baidu.com (172.31.51.49) To
+X-ClientProxiedBy: BC-Mail-Ex11.internal.baidu.com (172.31.51.51) To
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -55,27 +55,54 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/misc/gpio_decoder.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/input/misc/drv260x.c | 20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/input/misc/gpio_decoder.c b/drivers/input/misc/gpio_decoder.c
-index 145826a1a9a1..06a45a0df7a3 100644
---- a/drivers/input/misc/gpio_decoder.c
-+++ b/drivers/input/misc/gpio_decoder.c
-@@ -80,10 +80,9 @@ static int gpio_decoder_probe(struct platform_device *pdev)
- 	device_property_read_u32(dev, "linux,axis", &decoder->axis);
+diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
+index 0efe56f49aa9..f21e05e4e035 100644
+--- a/drivers/input/misc/drv260x.c
++++ b/drivers/input/misc/drv260x.c
+@@ -470,10 +470,8 @@ static int drv260x_probe(struct i2c_client *client,
+ 		return -ENOMEM;
  
- 	decoder->input_gpios = devm_gpiod_get_array(dev, NULL, GPIOD_IN);
--	if (IS_ERR(decoder->input_gpios)) {
--		dev_err(dev, "unable to acquire input gpios\n");
--		return PTR_ERR(decoder->input_gpios);
+ 	error = device_property_read_u32(dev, "mode", &haptics->mode);
+-	if (error) {
+-		dev_err(dev, "Can't fetch 'mode' property: %d\n", error);
+-		return error;
 -	}
-+	if (IS_ERR(decoder->input_gpios))
-+		return dev_err_probe(dev, PTR_ERR(decoder->input_gpios),
-+				     "unable to acquire input gpios\n");
++	if (error)
++		return dev_err_probe(dev, error, "Can't fetch 'mode' property\n");
  
- 	if (decoder->input_gpios->ndescs < 2) {
- 		dev_err(dev, "not enough gpios found\n");
+ 	if (haptics->mode < DRV260X_LRA_MODE ||
+ 	    haptics->mode > DRV260X_ERM_MODE) {
+@@ -482,10 +480,8 @@ static int drv260x_probe(struct i2c_client *client,
+ 	}
+ 
+ 	error = device_property_read_u32(dev, "library-sel", &haptics->library);
+-	if (error) {
+-		dev_err(dev, "Can't fetch 'library-sel' property: %d\n", error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(dev, error, "Can't fetch 'library-sel' property\n");
+ 
+ 	if (haptics->library < DRV260X_LIB_EMPTY ||
+ 	    haptics->library > DRV260X_ERM_LIB_F) {
+@@ -517,11 +513,9 @@ static int drv260x_probe(struct i2c_client *client,
+ 					     drv260x_calculate_voltage(voltage);
+ 
+ 	haptics->regulator = devm_regulator_get(dev, "vbat");
+-	if (IS_ERR(haptics->regulator)) {
+-		error = PTR_ERR(haptics->regulator);
+-		dev_err(dev, "unable to get regulator, error: %d\n", error);
+-		return error;
+-	}
++	if (IS_ERR(haptics->regulator))
++		return dev_err_probe(dev, PTR_ERR(haptics->regulator),
++				     "unable to get regulator\n");
+ 
+ 	haptics->enable_gpio = devm_gpiod_get_optional(dev, "enable",
+ 						       GPIOD_OUT_HIGH);
 -- 
 2.25.1
 

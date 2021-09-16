@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC5AAC43217
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5830C433F5
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CEFFA61212
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AEA9761212
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239169AbhIPPtM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Sep 2021 11:49:12 -0400
-Received: from mx24.baidu.com ([111.206.215.185]:44466 "EHLO baidu.com"
+        id S240057AbhIPPtN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Sep 2021 11:49:13 -0400
+Received: from mx24.baidu.com ([111.206.215.185]:44470 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240033AbhIPPtM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S240049AbhIPPtM (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Thu, 16 Sep 2021 11:49:12 -0400
-Received: from BC-Mail-Ex27.internal.baidu.com (unknown [172.31.51.21])
-        by Forcepoint Email with ESMTPS id 5F028918441B7AC8972D;
-        Thu, 16 Sep 2021 23:32:39 +0800 (CST)
+Received: from BC-Mail-Ex29.internal.baidu.com (unknown [172.31.51.23])
+        by Forcepoint Email with ESMTPS id 93B84116406346AB34E2;
+        Thu, 16 Sep 2021 23:32:24 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex27.internal.baidu.com (172.31.51.21) with Microsoft SMTP Server
+ BC-Mail-Ex29.internal.baidu.com (172.31.51.23) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Thu, 16 Sep 2021 23:32:39 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:32:24 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:32:38 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:32:23 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: ilitek_ts_i2c - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:32:33 +0800
-Message-ID: <20210916153233.14363-1-caihuoqing@baidu.com>
+Subject: [PATCH] Input: drv2667 - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:32:18 +0800
+Message-ID: <20210916153219.14257-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [172.31.63.8]
-X-ClientProxiedBy: BC-Mail-Ex09.internal.baidu.com (172.31.51.49) To
+X-ClientProxiedBy: BC-Mail-Ex11.internal.baidu.com (172.31.51.51) To
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -55,28 +55,29 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/touchscreen/ilitek_ts_i2c.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/input/misc/drv2667.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ilitek_ts_i2c.c b/drivers/input/touchscreen/ilitek_ts_i2c.c
-index c5d259c76adc..a113d74b6ddc 100644
---- a/drivers/input/touchscreen/ilitek_ts_i2c.c
-+++ b/drivers/input/touchscreen/ilitek_ts_i2c.c
-@@ -562,11 +562,9 @@ static int ilitek_ts_i2c_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, ts);
+diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
+index 3f67b9b010bf..06d98fe426a6 100644
+--- a/drivers/input/misc/drv2667.c
++++ b/drivers/input/misc/drv2667.c
+@@ -344,12 +344,9 @@ static int drv2667_probe(struct i2c_client *client,
+ 		return -ENOMEM;
  
- 	ts->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LOW);
--	if (IS_ERR(ts->reset_gpio)) {
--		error = PTR_ERR(ts->reset_gpio);
--		dev_err(dev, "request gpiod failed: %d", error);
+ 	haptics->regulator = devm_regulator_get(&client->dev, "vbat");
+-	if (IS_ERR(haptics->regulator)) {
+-		error = PTR_ERR(haptics->regulator);
+-		dev_err(&client->dev,
+-			"unable to get regulator, error: %d\n", error);
 -		return error;
 -	}
-+	if (IS_ERR(ts->reset_gpio))
-+		return dev_err_probe(dev, PTR_ERR(ts->reset_gpio),
-+				     "request gpiod failed");
++	if (IS_ERR(haptics->regulator))
++		return dev_err_probe(&client->dev, PTR_ERR(haptics->regulator),
++				     "unable to get regulator\n");
  
- 	ilitek_reset(ts, 1000);
- 
+ 	haptics->input_dev = devm_input_allocate_device(&client->dev);
+ 	if (!haptics->input_dev) {
 -- 
 2.25.1
 

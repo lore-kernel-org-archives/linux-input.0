@@ -7,36 +7,36 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5830C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE2CAC433EF
 	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEA9761212
+	by mail.kernel.org (Postfix) with ESMTP id BF77860F51
 	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240057AbhIPPtN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Sep 2021 11:49:13 -0400
-Received: from mx24.baidu.com ([111.206.215.185]:44470 "EHLO baidu.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240049AbhIPPtM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S240033AbhIPPtM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 16 Sep 2021 11:49:12 -0400
-Received: from BC-Mail-Ex29.internal.baidu.com (unknown [172.31.51.23])
-        by Forcepoint Email with ESMTPS id 93B84116406346AB34E2;
-        Thu, 16 Sep 2021 23:32:24 +0800 (CST)
+Received: from mx24.baidu.com ([111.206.215.185]:44472 "EHLO baidu.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S240042AbhIPPtM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Sep 2021 11:49:12 -0400
+Received: from BC-Mail-Ex30.internal.baidu.com (unknown [172.31.51.24])
+        by Forcepoint Email with ESMTPS id 78815FFD970470A56F06;
+        Thu, 16 Sep 2021 23:32:17 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex29.internal.baidu.com (172.31.51.23) with Microsoft SMTP Server
+ BC-Mail-Ex30.internal.baidu.com (172.31.51.24) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Thu, 16 Sep 2021 23:32:24 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:32:16 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:32:23 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:32:16 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: drv2667 - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:32:18 +0800
-Message-ID: <20210916153219.14257-1-caihuoqing@baidu.com>
+Subject: [PATCH] Input: drv2665 - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:32:10 +0800
+Message-ID: <20210916153211.14204-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
@@ -55,14 +55,14 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/misc/drv2667.c | 9 +++------
+ drivers/input/misc/drv2665.c | 9 +++------
  1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
-index 3f67b9b010bf..06d98fe426a6 100644
---- a/drivers/input/misc/drv2667.c
-+++ b/drivers/input/misc/drv2667.c
-@@ -344,12 +344,9 @@ static int drv2667_probe(struct i2c_client *client,
+diff --git a/drivers/input/misc/drv2665.c b/drivers/input/misc/drv2665.c
+index 21913e8085d7..5f66cfdd9908 100644
+--- a/drivers/input/misc/drv2665.c
++++ b/drivers/input/misc/drv2665.c
+@@ -167,12 +167,9 @@ static int drv2665_probe(struct i2c_client *client,
  		return -ENOMEM;
  
  	haptics->regulator = devm_regulator_get(&client->dev, "vbat");

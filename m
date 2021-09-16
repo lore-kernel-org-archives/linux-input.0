@@ -7,37 +7,41 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3ADD8C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7447AC433EF
 	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1EA9460F51
+	by mail.kernel.org (Postfix) with ESMTP id 61DA061246
 	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239897AbhIPPtK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Sep 2021 11:49:10 -0400
-Received: from mx22.baidu.com ([220.181.50.185]:44420 "EHLO baidu.com"
+        id S239155AbhIPPtL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Sep 2021 11:49:11 -0400
+Received: from mx22.baidu.com ([220.181.50.185]:44418 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240042AbhIPPtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S239207AbhIPPtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Thu, 16 Sep 2021 11:49:10 -0400
-Received: from BC-Mail-Ex32.internal.baidu.com (unknown [172.31.51.26])
-        by Forcepoint Email with ESMTPS id 091283D1F30F32112758;
-        Thu, 16 Sep 2021 23:32:02 +0800 (CST)
+Received: from BC-Mail-Ex07.internal.baidu.com (unknown [172.31.51.47])
+        by Forcepoint Email with ESMTPS id 22231219537071C93438;
+        Thu, 16 Sep 2021 23:31:32 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex32.internal.baidu.com (172.31.51.26) with Microsoft SMTP Server
+ BC-Mail-EX07.internal.baidu.com (172.31.51.47) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Thu, 16 Sep 2021 23:32:01 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:31:31 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:32:01 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:31:31 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
-CC:     Linus Walleij <linus.walleij@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: cyttsp - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:31:55 +0800
-Message-ID: <20210916153156.14098-1-caihuoqing@baidu.com>
+CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        <bcm-kernel-feedback-list@broadcom.com>,
+        <linux-input@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Input: bcm_iproc_tsc - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:31:25 +0800
+Message-ID: <20210916153126.13886-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
@@ -56,22 +60,29 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/touchscreen/cyttsp_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/bcm_iproc_tsc.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-index 1dbd849c9613..01646910c9db 100644
---- a/drivers/input/touchscreen/cyttsp_core.c
-+++ b/drivers/input/touchscreen/cyttsp_core.c
-@@ -673,7 +673,7 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
- 	ts->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LOW);
- 	if (IS_ERR(ts->reset_gpio)) {
- 		error = PTR_ERR(ts->reset_gpio);
--		dev_err(dev, "Failed to request reset gpio, error %d\n", error);
-+		dev_err_probe(dev, error, "Failed to request reset gpio\n");
- 		return ERR_PTR(error);
+diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
+index 7de1fd24ce36..c6aaeaee1d12 100644
+--- a/drivers/input/touchscreen/bcm_iproc_tsc.c
++++ b/drivers/input/touchscreen/bcm_iproc_tsc.c
+@@ -441,12 +441,9 @@ static int iproc_ts_probe(struct platform_device *pdev)
  	}
  
+ 	priv->tsc_clk = devm_clk_get(&pdev->dev, "tsc_clk");
+-	if (IS_ERR(priv->tsc_clk)) {
+-		error = PTR_ERR(priv->tsc_clk);
+-		dev_err(&pdev->dev,
+-			"failed getting clock tsc_clk: %d\n", error);
+-		return error;
+-	}
++	if (IS_ERR(priv->tsc_clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(priv->tsc_clk),
++				     "failed getting clock tsc_clk\n");
+ 
+ 	priv->pdev = pdev;
+ 	error = iproc_get_tsc_config(&pdev->dev, priv);
 -- 
 2.25.1
 

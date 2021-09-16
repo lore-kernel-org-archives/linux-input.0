@@ -7,36 +7,36 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6761C4332F
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2129C433EF
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AEA1F6120E
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D904F6120E
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240049AbhIPPtQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Sep 2021 11:49:16 -0400
-Received: from mx22.baidu.com ([220.181.50.185]:44468 "EHLO baidu.com"
+        id S240111AbhIPPuK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Sep 2021 11:50:10 -0400
+Received: from mx24.baidu.com ([111.206.215.185]:45076 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240042AbhIPPtN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Sep 2021 11:49:13 -0400
-Received: from BC-Mail-EX04.internal.baidu.com (unknown [172.31.51.44])
-        by Forcepoint Email with ESMTPS id 72910AEFD602EC20741F;
-        Thu, 16 Sep 2021 23:31:54 +0800 (CST)
+        id S239213AbhIPPuK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Sep 2021 11:50:10 -0400
+Received: from BC-Mail-Ex21.internal.baidu.com (unknown [172.31.51.15])
+        by Forcepoint Email with ESMTPS id 79E243B2A286C578F0EF;
+        Thu, 16 Sep 2021 23:33:24 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-EX04.internal.baidu.com (172.31.51.44) with Microsoft SMTP Server
+ BC-Mail-Ex21.internal.baidu.com (172.31.51.15) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Thu, 16 Sep 2021 23:31:54 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:33:24 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:31:53 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:33:23 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: colibri-vf50-ts - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:31:48 +0800
-Message-ID: <20210916153148.14045-1-caihuoqing@baidu.com>
+Subject: [PATCH] Input: max77693-haptic - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:33:18 +0800
+Message-ID: <20210916153319.14681-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
@@ -55,31 +55,27 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/touchscreen/colibri-vf50-ts.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/input/misc/max77693-haptic.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/input/touchscreen/colibri-vf50-ts.c
-index aa829725ded7..98d5b2ba63fb 100644
---- a/drivers/input/touchscreen/colibri-vf50-ts.c
-+++ b/drivers/input/touchscreen/colibri-vf50-ts.c
-@@ -239,14 +239,10 @@ static void vf50_ts_close(struct input_dev *dev_input)
- static int vf50_ts_get_gpiod(struct device *dev, struct gpio_desc **gpio_d,
- 			     const char *con_id, enum gpiod_flags flags)
- {
--	int error;
--
- 	*gpio_d = devm_gpiod_get(dev, con_id, flags);
--	if (IS_ERR(*gpio_d)) {
--		error = PTR_ERR(*gpio_d);
--		dev_err(dev, "Could not get gpio_%s %d\n", con_id, error);
--		return error;
--	}
-+	if (IS_ERR(*gpio_d))
-+		return dev_err_probe(dev, PTR_ERR(*gpio_d),
-+				     "Could not get gpio_%s\n", con_id);
+diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
+index 0d09ffeafeea..e6edf3c96984 100644
+--- a/drivers/input/misc/max77693-haptic.c
++++ b/drivers/input/misc/max77693-haptic.c
+@@ -337,10 +337,9 @@ static int max77693_haptic_probe(struct platform_device *pdev)
+ 	pwm_apply_args(haptic->pwm_dev);
  
- 	return 0;
- }
+ 	haptic->motor_reg = devm_regulator_get(&pdev->dev, "haptic");
+-	if (IS_ERR(haptic->motor_reg)) {
+-		dev_err(&pdev->dev, "failed to get regulator\n");
+-		return PTR_ERR(haptic->motor_reg);
+-	}
++	if (IS_ERR(haptic->motor_reg))
++		return dev_err_probe(&pdev->dev, PTR_ERR(haptic->motor_reg),
++				     "failed to get regulator\n");
+ 
+ 	/* Initialize input device for haptic device */
+ 	haptic->input_dev = devm_input_allocate_device(&pdev->dev);
 -- 
 2.25.1
 

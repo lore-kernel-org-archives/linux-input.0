@@ -7,43 +7,37 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D9A4C433EF
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C11EC4332F
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 781E661246
+	by mail.kernel.org (Postfix) with ESMTP id EB7E961212
 	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232100AbhIPPuM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Sep 2021 11:50:12 -0400
-Received: from mx24.baidu.com ([111.206.215.185]:45114 "EHLO baidu.com"
+        id S240113AbhIPPuO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Sep 2021 11:50:14 -0400
+Received: from mx22.baidu.com ([220.181.50.185]:45074 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240113AbhIPPuM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S239213AbhIPPuM (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Thu, 16 Sep 2021 11:50:12 -0400
-Received: from BC-Mail-Ex25.internal.baidu.com (unknown [172.31.51.19])
-        by Forcepoint Email with ESMTPS id D11931D82DDF1AADD58C;
-        Thu, 16 Sep 2021 23:32:54 +0800 (CST)
+Received: from BC-Mail-Ex06.internal.baidu.com (unknown [172.31.51.46])
+        by Forcepoint Email with ESMTPS id 71CB6FD7DFB9EA93700A;
+        Thu, 16 Sep 2021 23:31:24 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex25.internal.baidu.com (172.31.51.19) with Microsoft SMTP Server
+ BC-Mail-Ex06.internal.baidu.com (172.31.51.46) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Thu, 16 Sep 2021 23:32:54 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:31:24 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:32:54 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:31:23 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
-CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        "Pengutronix Kernel Team" <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "NXP Linux Team" <linux-imx@nxp.com>,
-        <linux-input@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: imx_keypad - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:32:48 +0800
-Message-ID: <20210916153248.14469-1-caihuoqing@baidu.com>
+CC:     Nick Dyer <nick@shmanahar.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Input: atmel_mxt_ts - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:31:18 +0800
+Message-ID: <20210916153118.13833-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
@@ -62,27 +56,28 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/keyboard/imx_keypad.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index ae9303848571..28d423a233f4 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -448,10 +448,9 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 		return PTR_ERR(keypad->mmio_base);
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 05de92c0293b..36e8365238a4 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -3101,11 +3101,9 @@ static int mxt_parse_device_properties(struct mxt_data *data)
  
- 	keypad->clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(keypad->clk)) {
--		dev_err(&pdev->dev, "failed to get keypad clock\n");
--		return PTR_ERR(keypad->clk);
--	}
-+	if (IS_ERR(keypad->clk))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(keypad->clk),
-+				     "failed to get keypad clock\n");
+ 		error = device_property_read_u32_array(dev, keymap_property,
+ 						       keymap, n_keys);
+-		if (error) {
+-			dev_err(dev, "failed to parse '%s' property: %d\n",
+-				keymap_property, error);
+-			return error;
+-		}
++		if (error)
++			return dev_err_probe(dev, error,
++					     "failed to parse '%s'\n", keymap_property);
  
- 	/* Init the Input device */
- 	input_dev->name = pdev->name;
+ 		data->t19_keymap = keymap;
+ 		data->t19_num_keys = n_keys;
 -- 
 2.25.1
 

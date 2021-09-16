@@ -7,41 +7,36 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7447AC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB9E6C4332F
 	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 61DA061246
+	by mail.kernel.org (Postfix) with ESMTP id B536E61164
 	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:47:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239155AbhIPPtL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S240016AbhIPPtL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 16 Sep 2021 11:49:11 -0400
-Received: from mx22.baidu.com ([220.181.50.185]:44418 "EHLO baidu.com"
+Received: from mx22.baidu.com ([220.181.50.185]:44422 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S239207AbhIPPtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S240049AbhIPPtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Thu, 16 Sep 2021 11:49:10 -0400
-Received: from BC-Mail-Ex07.internal.baidu.com (unknown [172.31.51.47])
-        by Forcepoint Email with ESMTPS id 22231219537071C93438;
-        Thu, 16 Sep 2021 23:31:32 +0800 (CST)
+Received: from BC-Mail-Ex28.internal.baidu.com (unknown [172.31.51.22])
+        by Forcepoint Email with ESMTPS id 24CED95A706080A020D1;
+        Thu, 16 Sep 2021 23:32:32 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-EX07.internal.baidu.com (172.31.51.47) with Microsoft SMTP Server
+ BC-Mail-Ex28.internal.baidu.com (172.31.51.22) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Thu, 16 Sep 2021 23:31:31 +0800
+ 15.1.2176.2; Thu, 16 Sep 2021 23:32:31 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:31:31 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:32:31 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        <bcm-kernel-feedback-list@broadcom.com>,
-        <linux-input@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: bcm_iproc_tsc - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:31:25 +0800
-Message-ID: <20210916153126.13886-1-caihuoqing@baidu.com>
+        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Input: gpio_decoder - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:32:25 +0800
+Message-ID: <20210916153226.14310-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
@@ -60,29 +55,27 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/touchscreen/bcm_iproc_tsc.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/input/misc/gpio_decoder.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
-index 7de1fd24ce36..c6aaeaee1d12 100644
---- a/drivers/input/touchscreen/bcm_iproc_tsc.c
-+++ b/drivers/input/touchscreen/bcm_iproc_tsc.c
-@@ -441,12 +441,9 @@ static int iproc_ts_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/input/misc/gpio_decoder.c b/drivers/input/misc/gpio_decoder.c
+index 145826a1a9a1..06a45a0df7a3 100644
+--- a/drivers/input/misc/gpio_decoder.c
++++ b/drivers/input/misc/gpio_decoder.c
+@@ -80,10 +80,9 @@ static int gpio_decoder_probe(struct platform_device *pdev)
+ 	device_property_read_u32(dev, "linux,axis", &decoder->axis);
  
- 	priv->tsc_clk = devm_clk_get(&pdev->dev, "tsc_clk");
--	if (IS_ERR(priv->tsc_clk)) {
--		error = PTR_ERR(priv->tsc_clk);
--		dev_err(&pdev->dev,
--			"failed getting clock tsc_clk: %d\n", error);
--		return error;
+ 	decoder->input_gpios = devm_gpiod_get_array(dev, NULL, GPIOD_IN);
+-	if (IS_ERR(decoder->input_gpios)) {
+-		dev_err(dev, "unable to acquire input gpios\n");
+-		return PTR_ERR(decoder->input_gpios);
 -	}
-+	if (IS_ERR(priv->tsc_clk))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(priv->tsc_clk),
-+				     "failed getting clock tsc_clk\n");
++	if (IS_ERR(decoder->input_gpios))
++		return dev_err_probe(dev, PTR_ERR(decoder->input_gpios),
++				     "unable to acquire input gpios\n");
  
- 	priv->pdev = pdev;
- 	error = iproc_get_tsc_config(&pdev->dev, priv);
+ 	if (decoder->input_gpios->ndescs < 2) {
+ 		dev_err(dev, "not enough gpios found\n");
 -- 
 2.25.1
 

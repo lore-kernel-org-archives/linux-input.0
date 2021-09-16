@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2794FC4332F
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D40F7C433EF
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:49:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F7C961164
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:48:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B73B16120E
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:49:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240139AbhIPPuP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Sep 2021 11:50:15 -0400
-Received: from mx22.baidu.com ([220.181.50.185]:45116 "EHLO baidu.com"
+        id S240277AbhIPPvR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Sep 2021 11:51:17 -0400
+Received: from mx24.baidu.com ([111.206.215.185]:45784 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240125AbhIPPuN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Sep 2021 11:50:13 -0400
-Received: from BC-Mail-Ex20.internal.baidu.com (unknown [172.31.51.14])
-        by Forcepoint Email with ESMTPS id E56B11E924A499AFBDD6;
-        Thu, 16 Sep 2021 23:33:31 +0800 (CST)
+        id S240207AbhIPPvL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Sep 2021 11:51:11 -0400
+Received: from BC-Mail-Ex17.internal.baidu.com (unknown [172.31.51.11])
+        by Forcepoint Email with ESMTPS id 1B23A6D55A6DBB914D34;
+        Thu, 16 Sep 2021 23:33:54 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex20.internal.baidu.com (172.31.51.14) with Microsoft SMTP Server
+ BC-Mail-Ex17.internal.baidu.com (172.31.51.11) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Thu, 16 Sep 2021 23:33:31 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:33:53 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:33:31 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:33:53 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: mms114 - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:33:25 +0800
-Message-ID: <20210916153326.14734-1-caihuoqing@baidu.com>
+Subject: [PATCH] Input: pxa27x_keypad.c - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:33:47 +0800
+Message-ID: <20210916153348.14893-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [172.31.63.8]
-X-ClientProxiedBy: BC-Mail-Ex09.internal.baidu.com (172.31.51.49) To
+X-ClientProxiedBy: BC-Mail-Ex11.internal.baidu.com (172.31.51.51) To
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -55,40 +55,27 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/touchscreen/mms114.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ drivers/input/keyboard/pxa27x_keypad.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 9fa3b0e421be..4b36db084d86 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -525,20 +525,14 @@ static int mms114_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, data);
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index a7f8257c8a02..9e72bcdd864a 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -754,10 +754,9 @@ static int pxa27x_keypad_probe(struct platform_device *pdev)
+ 		return PTR_ERR(keypad->mmio_base);
  
- 	data->core_reg = devm_regulator_get(&client->dev, "avdd");
--	if (IS_ERR(data->core_reg)) {
--		error = PTR_ERR(data->core_reg);
--		dev_err(&client->dev,
--			"Unable to get the Core regulator (%d)\n", error);
--		return error;
+ 	keypad->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(keypad->clk)) {
+-		dev_err(&pdev->dev, "failed to get keypad clock\n");
+-		return PTR_ERR(keypad->clk);
 -	}
-+	if (IS_ERR(data->core_reg))
-+		return dev_err_probe(&client->dev, PTR_ERR(data->core_reg),
-+				     "Unable to get the Core regulator\n");
++	if (IS_ERR(keypad->clk))
++		return dev_err_probe(&pdev->dev, PTR_ERR(keypad->clk),
++				     "failed to get keypad clock\n");
  
- 	data->io_reg = devm_regulator_get(&client->dev, "vdd");
--	if (IS_ERR(data->io_reg)) {
--		error = PTR_ERR(data->io_reg);
--		dev_err(&client->dev,
--			"Unable to get the IO regulator (%d)\n", error);
--		return error;
--	}
-+	if (IS_ERR(data->io_reg))
-+		return dev_err_probe(&client->dev, PTR_ERR(data->io_reg),
-+				     "Unable to get the IO regulator\n");
- 
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, mms114_interrupt,
+ 	input_dev->name = pdev->name;
+ 	input_dev->id.bustype = BUS_HOST;
 -- 
 2.25.1
 

@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 067ADC433EF
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:50:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AD4DC433EF
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:50:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E6C9060F51
-	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:50:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 04E156124D
+	for <linux-input@archiver.kernel.org>; Thu, 16 Sep 2021 15:50:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240266AbhIPPv2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Sep 2021 11:51:28 -0400
-Received: from mx24.baidu.com ([111.206.215.185]:45834 "EHLO baidu.com"
+        id S239777AbhIPPwI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Sep 2021 11:52:08 -0400
+Received: from mx22.baidu.com ([220.181.50.185]:45874 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240283AbhIPPvS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Sep 2021 11:51:18 -0400
-Received: from BJHW-Mail-Ex03.internal.baidu.com (unknown [10.127.64.13])
-        by Forcepoint Email with ESMTPS id 98F5B1CBC90502542428;
-        Thu, 16 Sep 2021 23:34:01 +0800 (CST)
+        id S240326AbhIPPvX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Sep 2021 11:51:23 -0400
+Received: from BC-Mail-Ex18.internal.baidu.com (unknown [172.31.51.12])
+        by Forcepoint Email with ESMTPS id A6AE82D0EF1897E28CB4;
+        Thu, 16 Sep 2021 23:33:46 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BJHW-Mail-Ex03.internal.baidu.com (10.127.64.13) with Microsoft SMTP Server
+ BC-Mail-Ex18.internal.baidu.com (172.31.51.12) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:34:01 +0800
+ 15.1.2242.12; Thu, 16 Sep 2021 23:33:45 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Thu, 16 Sep 2021 23:34:01 +0800
+ 15.1.2308.14; Thu, 16 Sep 2021 23:33:46 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: pxa27x_keypad - Make use of the helper function dev_err_probe()
-Date:   Thu, 16 Sep 2021 23:33:55 +0800
-Message-ID: <20210916153356.14946-1-caihuoqing@baidu.com>
+Subject: [PATCH] Input: nspire-keypad - Make use of the helper function dev_err_probe()
+Date:   Thu, 16 Sep 2021 23:33:40 +0800
+Message-ID: <20210916153341.14840-1-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [172.31.63.8]
-X-ClientProxiedBy: BC-Mail-Ex11.internal.baidu.com (172.31.51.51) To
+X-ClientProxiedBy: BC-Mail-Ex09.internal.baidu.com (172.31.51.49) To
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -55,27 +55,27 @@ gets printed.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/keyboard/pxa27x_keypad.c | 7 +++----
+ drivers/input/keyboard/nspire-keypad.c | 7 +++----
  1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-index a7f8257c8a02..9e72bcdd864a 100644
---- a/drivers/input/keyboard/pxa27x_keypad.c
-+++ b/drivers/input/keyboard/pxa27x_keypad.c
-@@ -754,10 +754,9 @@ static int pxa27x_keypad_probe(struct platform_device *pdev)
- 		return PTR_ERR(keypad->mmio_base);
+diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
+index e9fa1423f136..06c8f7c16ec7 100644
+--- a/drivers/input/keyboard/nspire-keypad.c
++++ b/drivers/input/keyboard/nspire-keypad.c
+@@ -181,10 +181,9 @@ static int nspire_keypad_probe(struct platform_device *pdev)
+ 	keypad->active_low = of_property_read_bool(of_node, "active-low");
  
  	keypad->clk = devm_clk_get(&pdev->dev, NULL);
 -	if (IS_ERR(keypad->clk)) {
--		dev_err(&pdev->dev, "failed to get keypad clock\n");
+-		dev_err(&pdev->dev, "unable to get clock\n");
 -		return PTR_ERR(keypad->clk);
 -	}
 +	if (IS_ERR(keypad->clk))
 +		return dev_err_probe(&pdev->dev, PTR_ERR(keypad->clk),
-+				     "failed to get keypad clock\n");
++				     "unable to get clock\n");
  
- 	input_dev->name = pdev->name;
- 	input_dev->id.bustype = BUS_HOST;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	keypad->reg_base = devm_ioremap_resource(&pdev->dev, res);
 -- 
 2.25.1
 

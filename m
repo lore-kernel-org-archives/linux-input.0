@@ -2,110 +2,194 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2FDCC433F5
-	for <linux-input@archiver.kernel.org>; Fri, 17 Sep 2021 11:36:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23B18C433F5
+	for <linux-input@archiver.kernel.org>; Fri, 17 Sep 2021 14:42:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D1285600AA
-	for <linux-input@archiver.kernel.org>; Fri, 17 Sep 2021 11:36:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0589460F9C
+	for <linux-input@archiver.kernel.org>; Fri, 17 Sep 2021 14:42:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238791AbhIQLiL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 17 Sep 2021 07:38:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52804 "EHLO
+        id S230146AbhIQOoR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 17 Sep 2021 10:44:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241845AbhIQLiB (ORCPT
+        with ESMTP id S234819AbhIQOoP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Sep 2021 07:38:01 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00405C061574
-        for <linux-input@vger.kernel.org>; Fri, 17 Sep 2021 04:36:31 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id x27so31729420lfu.5
-        for <linux-input@vger.kernel.org>; Fri, 17 Sep 2021 04:36:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=x/iHvJpF8DSvWKWu14a6PJLOTAusf6ZIM5uvfyqHLZQ=;
-        b=a4agVbLSHI0S0ovj8GhkCi6DgFpUTDH5fWmL9H1l8Xt7GpECAwwT7z10ugUyy5OP93
-         i5xsdapkCKWJovHAydjXTj5jSpvbjoZCJSuve6PU7ZsKVa+Cs0uarH2VNK+kLH1nAwpJ
-         XCU5XYaL3Cp3Ng9jB+07y98xV1hMhB6yNtKnXEdYcv1TOUOvn6cZ/iBMqPl01/Z8RZjl
-         O5dJZq7Abo3e94vtuOOUetwgzn66NJ96/l8ybx9zqIpBtC5sVJl5BIuvaP66sshwqF9Y
-         oYEcIfMwHbpoulj51kTKco0Ay0JAV6kcPbisZ55cWmGAb1jQt3I/pxe2ZTmRlE0+iqMU
-         AIXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=x/iHvJpF8DSvWKWu14a6PJLOTAusf6ZIM5uvfyqHLZQ=;
-        b=ByB31jTjQM5H6f+ym2MBfc7k4kf1bh/MUa3z0JM/jCNCisEU3d5Xg85OUZmNAqE7ai
-         UdR8Axcre4F9jkZeRa8jhQMQmve0tWqyjL0Yt/ekESiSUWewT1YvCC3eWRFnfZggjiWx
-         lNpUKb8GSTDB1yIhAUKNktAtwG45FEm6awGbRGhTkKEMZirBKrLP88mcIO6mfsTsjvQj
-         5T67ehWZtWTemJBXpXRezN+Y+DVQE+eq+Z4iSvwv13Pv7XaMkc2dLz8TTWBy9lBvset+
-         KAmYpqf8qFQO4zxCVAzOLpgCMGjdpMhOrGCLFi17Fo8v5cdvl8tMUm479G8ao3EjZvIy
-         O0ag==
-X-Gm-Message-State: AOAM5319LGg4iqVFYVFxsuLhsWkiHKjcE+ymMUc84r/rxtFFeRkREgDs
-        AXG/tC30rEGGmrpUceaffpYmLD82VtjhJriW1uQ=
-X-Google-Smtp-Source: ABdhPJwvHPfGhnA3GcMm/jJfohGpdOyWRyn4Fm7Bk2XDrfsT9/TzXMfDL+ukZpEwM+jU/tm+C12olccizQat35mqXhw=
-X-Received: by 2002:ac2:514e:: with SMTP id q14mr7873110lfd.154.1631878590260;
- Fri, 17 Sep 2021 04:36:30 -0700 (PDT)
+        Fri, 17 Sep 2021 10:44:15 -0400
+Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 087F4C061764;
+        Fri, 17 Sep 2021 07:42:52 -0700 (PDT)
+Date:   Fri, 17 Sep 2021 16:42:49 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=t-8ch.de; s=mail;
+        t=1631889769; bh=UnfkOUCn9nZ1Kxnm3JIIp2ffcVCWQuInPlmtWOwQf1E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=D4l20a0f1KFCBHsiYnmCPh5CAs6tX2Y1vySCAbSIkF0LqDdHrZHwfoAH1+WTyiMy6
+         MgQIdqBeVezCcLqfyRhuXxBjdnxoIZgANYR0UBUAagxfbWI2j7mD/oXMlvP/0Xew9i
+         1jQ1LH+4ufH5bgxinBa6M8/uuGFEod6aoXQk/oAE=
+From:   Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>
+To:     Ilya Skriblovsky <ilyaskriblovsky@gmail.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH v2] Support for side buttons of Xiaomi Mi Dual Mode
+ Wireless Mouse Silent Edition
+Message-ID: <b80cf0f0-2211-4159-9add-eb4961ce462c@t-8ch.de>
+References: <YUOninNA2UMADRVt@ilya-330s>
 MIME-Version: 1.0
-References: <s5ho890n1rh.wl-tiwai@suse.de> <CAOMZO5C-wFv0LmbHfZQUMMchJAwvxMxTs=eT6oby8O8k4QyoFQ@mail.gmail.com>
- <s5hee9wmy6e.wl-tiwai@suse.de> <CAOMZO5CACdcxGWn++f0+zhQaKevH7b5c-Xkv3QLBpwxc2GxizQ@mail.gmail.com>
- <s5hee9vlg8i.wl-tiwai@suse.de> <CAOMZO5C+gki7HT-n5D6qj06NbMxo2su2d6X+8AvM9PSmLUZ0jg@mail.gmail.com>
- <CAOMZO5DepuVScmDU7yZGVOVUs1JzHOd4bmu1z3erE2GNpcjZ+w@mail.gmail.com> <s5hilz0c23i.wl-tiwai@suse.de>
-In-Reply-To: <s5hilz0c23i.wl-tiwai@suse.de>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Fri, 17 Sep 2021 08:36:19 -0300
-Message-ID: <CAOMZO5DHHb3XJS2XDY=b1ALt3nQR0tOMWvv_GQQYTnEYN6Em0w@mail.gmail.com>
-Subject: Re: Delaying i8042 probe?
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YUOninNA2UMADRVt@ilya-330s>
+Jabber-ID: thomas@t-8ch.de
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Takashi,
+Hi,
 
-On Thu, Sep 16, 2021 at 6:16 AM Takashi Iwai <tiwai@suse.de> wrote:
+On 2021-09-16T23:22+0300, Ilya Skriblovsky wrote:
+> This patch enables side-buttons of Xiaomi Bluetooth mouse (specifically
+> Xiaomi Mi Dual Mode Wireless Mouse Silent Edition).
+> 
+> The mouse sends invalid button count in its HID Report Descriptor and
+> this patch just replaces its descriptor with corrected one. With this
+> driver side buttons work as expected acting like Back/Forward buttons.
+> 
+> Signed-off-by: Ilya Skriblovsky <ilyaskriblovsky@gmail.com>
+> ---
+> Changes since v1:
+>  - Fixed syntax of Kconfig
+> ---
+>  drivers/hid/Kconfig      |   7 +++
+>  drivers/hid/Makefile     |   1 +
+>  drivers/hid/hid-xiaomi.c | 103 +++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 111 insertions(+)
+>  create mode 100644 drivers/hid/hid-xiaomi.c
+> 
+> [..]
+> diff --git a/drivers/hid/hid-xiaomi.c b/drivers/hid/hid-xiaomi.c
+> new file mode 100644
+> index 000000000000..56e8edd3d62f
+> --- /dev/null
+> +++ b/drivers/hid/hid-xiaomi.c
+> @@ -0,0 +1,103 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * HID driver for Xiaomi Mi Dual Mode Wireless Mouse Silent Edition
+> + *
+> + * Copyright (c) 2021 Ilya Skriblovsky
+> + */
+> +
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation; either version 2 of the License, or (at your option)
+> + * any later version.
+> + */
 
-> The patch was confirmed to work.
+This license blurb is unnecessary.
+FYI the SPDX-License-Identifier says GPL-2.0 (only!) but the blurb specifies "or
+later".
 
-That's good news.
+> +
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
 
->   https://bugzilla.suse.com/show_bug.cgi?id=3D1190256#c19
->
-> | That one worked despite the CTR error:
-> |
-> | [    0.000000] Linux version 5.14.2-3.g9458b22-default (geeko@buildhost=
-) (gcc (SUSE Linux) 11.2.1 20210816 [revision 056e324ce46a7924b5cf10f61010c=
-f9dd2ca10e9], GNU ld (GNU Binutils; openSUSE Tumbleweed) 2.36.1.20210326-4)=
- #1 SMP Sun Sep 12 20:15:58 UTC 2021 (9458b22)
-> | [    0.484315] i8042: PNP: PS/2 Controller [PNP0303:PS2K] at 0x60,0x64 =
-irq 1
-> | [    0.484318] i8042: PNP: PS/2 appears to have AUX port disabled, if t=
-his is incorrect please boot with i8042.nopnp
-> | [    1.005361] i8042: Can't read CTR while initializing i8042
-> | [    1.477053] serio: i8042 KBD port at 0x60,0x64 irq 1
-> | [    1.503700] input: AT Translated Set 2 keyboard as /devices/platform=
-/i8042/serio0/input/input2
-> |
-> | Seems it takes more than a secod to initialize, ugh
->
-> I'm not sure what's done during this 0.5 second period after CTR read
-> failure.  At least only shuffling the driver init order for built-in
-> drivers didn't suffice.
+linux/kernel.h should not be necessary.
 
-This extra 0.5 seconds is the time it takes to re-probe the driver at
-a later stage after deferral.
+> +#include <linux/hid.h>
+> +
+> +#define USB_VENDOR_ID_XIAOMI    0x2717
+> +#define USB_DEVICE_ID_MI_SILENT_MOUSE   0x5014
 
-I am not familiar with this driver and its BIOS dependencies, so let's
-see what Dmitry suggests as a proper fix.
+These should go into drivers/hid/hid-ids.h.
 
-Thanks
+> +
+> +/* Fixed Mi Silent Mouse report descriptor */
+> +/* Button's Usage Maximum changed from 3 to 5 to make side buttons work */
+> +#define MI_SILENT_MOUSE_ORIG_RDESC_LENGTH   87
+> +static __u8 mi_silent_mouse_rdesc_fixed[] = {
+> +	0x05, 0x01,         /*  Usage Page (Desktop),               */
+> +	0x09, 0x02,         /*  Usage (Mouse),                      */
+> +	0xA1, 0x01,         /*  Collection (Application),           */
+> +	0x85, 0x03,         /*      Report ID (3),                  */
+> +	0x09, 0x01,         /*      Usage (Pointer),                */
+> +	0xA1, 0x00,         /*      Collection (Physical),          */
+> +	0x05, 0x09,         /*          Usage Page (Button),        */
+> +	0x19, 0x01,         /*          Usage Minimum (01h),        */
+> +	0x29, 0x05, /* X */ /*          Usage Maximum (05h),        */
+> +	0x15, 0x00,         /*          Logical Minimum (0),        */
+> +	0x25, 0x01,         /*          Logical Maximum (1),        */
+> +	0x75, 0x01,         /*          Report Size (1),            */
+> +	0x95, 0x05,         /*          Report Count (5),           */
+> +	0x81, 0x02,         /*          Input (Variable),           */
+> +	0x75, 0x03,         /*          Report Size (3),            */
+> +	0x95, 0x01,         /*          Report Count (1),           */
+> +	0x81, 0x01,         /*          Input (Constant),           */
+> +	0x05, 0x01,         /*          Usage Page (Desktop),       */
+> +	0x09, 0x30,         /*          Usage (X),                  */
+> +	0x09, 0x31,         /*          Usage (Y),                  */
+> +	0x15, 0x81,         /*          Logical Minimum (-127),     */
+> +	0x25, 0x7F,         /*          Logical Maximum (127),      */
+> +	0x75, 0x08,         /*          Report Size (8),            */
+> +	0x95, 0x02,         /*          Report Count (2),           */
+> +	0x81, 0x06,         /*          Input (Variable, Relative), */
+> +	0x09, 0x38,         /*          Usage (Wheel),              */
+> +	0x15, 0x81,         /*          Logical Minimum (-127),     */
+> +	0x25, 0x7F,         /*          Logical Maximum (127),      */
+> +	0x75, 0x08,         /*          Report Size (8),            */
+> +	0x95, 0x01,         /*          Report Count (1),           */
+> +	0x81, 0x06,         /*          Input (Variable, Relative), */
+> +	0xC0,               /*      End Collection,                 */
+> +	0xC0,               /*  End Collection,                     */
+> +	0x06, 0x01, 0xFF,   /*  Usage Page (FF01h),                 */
+> +	0x09, 0x01,         /*  Usage (01h),                        */
+> +	0xA1, 0x01,         /*  Collection (Application),           */
+> +	0x85, 0x05,         /*      Report ID (5),                  */
+> +	0x09, 0x05,         /*      Usage (05h),                    */
+> +	0x15, 0x00,         /*      Logical Minimum (0),            */
+> +	0x26, 0xFF, 0x00,   /*      Logical Maximum (255),          */
+> +	0x75, 0x08,         /*      Report Size (8),                */
+> +	0x95, 0x04,         /*      Report Count (4),               */
+> +	0xB1, 0x02,         /*      Feature (Variable),             */
+> +	0xC0                /*  End Collection                      */
+> +};
+> +
+> +static __u8 *xiaomi_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> +				 unsigned int *rsize)
+> +{
+> +	switch (hdev->product) {
+> +	case USB_DEVICE_ID_MI_SILENT_MOUSE:
+> +		if (*rsize == MI_SILENT_MOUSE_ORIG_RDESC_LENGTH) {
+> +			hid_info(hdev, "fixing up Mi Silent Mouse report descriptor\n");
+> +			rdesc = mi_silent_mouse_rdesc_fixed;
+> +			*rsize = sizeof(mi_silent_mouse_rdesc_fixed);
+> +		}
+> +		break;
+> +	}
+> +	return rdesc;
+> +}
+> +
+> +static const struct hid_device_id xiaomi_devices[] = {
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_XIAOMI, USB_DEVICE_ID_MI_SILENT_MOUSE) },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(hid, xiaomi_devices);
+> +
+> +static struct hid_driver xiaomi_driver = {
+> +	.name = "xiaomi",
+> +	.id_table = xiaomi_devices,
+> +	.report_fixup = xiaomi_report_fixup,
+> +};
+> +module_hid_driver(xiaomi_driver);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Ilya Skriblovsky <IlyaSkriblovsky@gmail.com>");
+> +MODULE_DESCRIPTION("Fixing side buttons of Xiaomi Mi Silent Mouse");
+> -- 
+> 2.30.2
+> 

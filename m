@@ -2,83 +2,83 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 707BFC433EF
-	for <linux-input@archiver.kernel.org>; Tue, 21 Sep 2021 18:29:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04447C433EF
+	for <linux-input@archiver.kernel.org>; Wed, 22 Sep 2021 07:31:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4717761268
-	for <linux-input@archiver.kernel.org>; Tue, 21 Sep 2021 18:29:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D04D2610A0
+	for <linux-input@archiver.kernel.org>; Wed, 22 Sep 2021 07:31:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233095AbhIUSa7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 21 Sep 2021 14:30:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36338 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233090AbhIUSa7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Sep 2021 14:30:59 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC396C061575
-        for <linux-input@vger.kernel.org>; Tue, 21 Sep 2021 11:29:30 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id b15so1170921lfe.7
-        for <linux-input@vger.kernel.org>; Tue, 21 Sep 2021 11:29:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=H8Wo2U3fZZPbINkKPHgF5f7NF214eZln9lkI6++RKwQ=;
-        b=EIj/r7YAOR4TxSFqtc0XezwotcPykhRbz8ISMtniL5l072qU1Z+ERmN3lveAjpoBK0
-         vSgcUkbcqqBXAZCFZNe3AVHSJwdMknvcYAjd2iAijfzGnKDG2GUJZZjDgZg9jD4mpEB0
-         lNvDtdHeZPcdYBwgF++ZjBvmBuxqm3SANvk/lvAZ4/NpGHCaGQ3eFo4x181/HgQUJEs5
-         FIzysxC6YjCspxjPwnernK1SypdP416uUtU369zSvSiJsTFYVGFGJYCXxHYX9OBbfCVd
-         nZt7hJD7RE6HLgXfXiVRneeBxZQ7Afw06UDaMBDrmRvi1cQz2SLpZg28DdCBRgO+mE3Y
-         1cZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=H8Wo2U3fZZPbINkKPHgF5f7NF214eZln9lkI6++RKwQ=;
-        b=WnyLR8b5ueB4TC0W6s+vGNi1B1AZJN8JjiJQNW/WRwJb0Wz2g8r7svb/F0ORE3LmuA
-         hOLXOFNvBx8NZn03T6f0dfZ3YSWx/S8u01JDACqPWQpGlSX6GXJqxHu1f6ool8GQuBSI
-         l1VCr8AVDb8UYRWKcKk2npzx8c6P9vgUSnjQUkORaOrFKE+6VWy00wXKYi/D5evqyX5l
-         EUpPSJBr+4jrbakOuQxWONSsOwJMfZs6NQ160ksDmBIj0Hd3pPbP+sCGlsfnlblGxfF3
-         g6xbdf4bD/T34H1FhJIEgLBH7jAUtyF2AOck8b9l9o/M95D70ACK0P7E+AVmd5WiPKOT
-         DukQ==
-X-Gm-Message-State: AOAM531/opmaelPlUTFZG6Wv33MHq2rc4yLmvjPRzhXX5tprysazvsc0
-        8oLrrc7kf4cdWqE483EJjlhYwkNvjxHH+VHCh8hO3Q==
-X-Google-Smtp-Source: ABdhPJxiJW0IlyMzcIpmX7lPi/2jCIPM5++vLf0SHJS3hopPHH2k7+Pp1sHDHM2f5OBfm+DHHjqBilrIupGH3UYqDkY=
-X-Received: by 2002:a05:6512:3c92:: with SMTP id h18mr23624483lfv.656.1632248969067;
- Tue, 21 Sep 2021 11:29:29 -0700 (PDT)
+        id S233059AbhIVHdP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 22 Sep 2021 03:33:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42806 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231429AbhIVHdP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Sep 2021 03:33:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79A8460E8B;
+        Wed, 22 Sep 2021 07:31:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1632295905;
+        bh=GJfxswTas8HMqf4MeuLP21erMt5kueVbW2x0om+Zw3Y=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=F9THj58mUmhrE4kiF1sRwvDUGS1NFeYUJs4ZIOL7aTwV46riMhA6mFTvn5GOTdGem
+         QeDXicWMJyt7USf3usHSOhQF3ZIlMhRDcjlKv6Dax0vp85+SK7g8mZxQ6x5cHRftXZ
+         UbJ267TJmLlaqz2YmDykBo5lQqspyJw6IkzFGubGrhgdvbhsQUByc1h3xs+pqwfOVK
+         k+KxCjzJtzquEVdUl7X9hk/tZMAw58ZahhDWMr70VyUF/qXs5WV7HDq9jpUhRtdArp
+         9J5OQD8uXtXxwM8eXp2mVguw6fmJgbzZvXmS7/yfB6YKyqlhu1KwKPkrKe+StzAoY8
+         Z7/KO8jYBy59A==
+Date:   Wed, 22 Sep 2021 09:31:42 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Andrej Shadura <andrew.shadura@collabora.co.uk>
+cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
+        kernel@collabora.com,
+        Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: u2fzero: ignore incomplete packets without data
+In-Reply-To: <20210916163311.11968-1-andrew.shadura@collabora.co.uk>
+Message-ID: <nycvar.YFH.7.76.2109220931360.15944@cbobk.fhfr.pm>
+References: <20210916163311.11968-1-andrew.shadura@collabora.co.uk>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-References: <20210920103335.243-1-caihuoqing@baidu.com>
-In-Reply-To: <20210920103335.243-1-caihuoqing@baidu.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 21 Sep 2021 20:29:18 +0200
-Message-ID: <CACRpkdZHUpHj8eWc21tYPFwA7BpWdj-dS-sbzxgoi=n02jctbA@mail.gmail.com>
-Subject: Re: [PATCH v2] Input: cyttsp - Make use of the helper function dev_err_probe()
-To:     Cai Huoqing <caihuoqing@baidu.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Linux Input <linux-input@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Sep 20, 2021 at 12:33 PM Cai Huoqing <caihuoqing@baidu.com> wrote:
+On Thu, 16 Sep 2021, Andrej Shadura wrote:
 
-> When possible use dev_err_probe help to properly deal with the
-> PROBE_DEFER error, the benefit is that DEFER issue will be logged
-> in the devices_deferred debugfs file.
-> Using dev_err_probe() can reduce code size, and the error value
-> gets printed.
->
-> Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
+> Since the actual_length calculation is performed unsigned, packets
+> shorter than 7 bytes (e.g. packets without data or otherwise truncated)
+> or non-received packets ("zero" bytes) can cause buffer overflow.
+> 
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=214437
+> Fixes: 42337b9d4d958("HID: add driver for U2F Zero built-in LED and RNG")
+> Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
+> ---
+>  drivers/hid/hid-u2fzero.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-u2fzero.c b/drivers/hid/hid-u2fzero.c
+> index 95e0807878c7..d70cd3d7f583 100644
+> --- a/drivers/hid/hid-u2fzero.c
+> +++ b/drivers/hid/hid-u2fzero.c
+> @@ -198,7 +198,9 @@ static int u2fzero_rng_read(struct hwrng *rng, void *data,
+>  	}
+>  
+>  	ret = u2fzero_recv(dev, &req, &resp);
+> -	if (ret < 0)
+> +
+> +	/* ignore errors or packets without data */
+> +	if (ret < offsetof(struct u2f_hid_msg, init.data))
+>  		return 0;
+>  
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Applied, thanks.
 
-Yours,
-Linus Walleij
+-- 
+Jiri Kosina
+SUSE Labs
+

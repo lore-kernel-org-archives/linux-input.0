@@ -7,37 +7,39 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56C09C433FE
-	for <linux-input@archiver.kernel.org>; Wed, 22 Sep 2021 12:52:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F788C433EF
+	for <linux-input@archiver.kernel.org>; Wed, 22 Sep 2021 12:52:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 334FD611C6
-	for <linux-input@archiver.kernel.org>; Wed, 22 Sep 2021 12:52:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 49020611B0
+	for <linux-input@archiver.kernel.org>; Wed, 22 Sep 2021 12:52:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236144AbhIVMyJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 22 Sep 2021 08:54:09 -0400
-Received: from mx22.baidu.com ([220.181.50.185]:48876 "EHLO baidu.com"
+        id S236191AbhIVMyK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 22 Sep 2021 08:54:10 -0400
+Received: from mx22.baidu.com ([220.181.50.185]:48992 "EHLO baidu.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S235995AbhIVMyI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Sep 2021 08:54:08 -0400
-Received: from BC-Mail-Ex11.internal.baidu.com (unknown [172.31.51.51])
-        by Forcepoint Email with ESMTPS id 74A49AA6E23F99F428E6;
-        Wed, 22 Sep 2021 20:52:31 +0800 (CST)
+        id S236139AbhIVMyK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Sep 2021 08:54:10 -0400
+Received: from BC-Mail-Ex06.internal.baidu.com (unknown [172.31.51.46])
+        by Forcepoint Email with ESMTPS id 27417892826210F49DB4;
+        Wed, 22 Sep 2021 20:52:37 +0800 (CST)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-Ex11.internal.baidu.com (172.31.51.51) with Microsoft SMTP Server
+ BC-Mail-Ex06.internal.baidu.com (172.31.51.46) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.12; Wed, 22 Sep 2021 20:52:30 +0800
+ 15.1.2242.12; Wed, 22 Sep 2021 20:52:36 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.14; Wed, 22 Sep 2021 20:52:30 +0800
+ 15.1.2308.14; Wed, 22 Sep 2021 20:52:36 +0800
 From:   Cai Huoqing <caihuoqing@baidu.com>
 To:     <caihuoqing@baidu.com>
 CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/3] Input: colibri-vf50-ts - Make use of the helper function devm_add_action_or_reset()
-Date:   Wed, 22 Sep 2021 20:52:09 +0800
-Message-ID: <20210922125212.95-1-caihuoqing@baidu.com>
+Subject: [PATCH 3/3] Input: raydium_i2c_ts - Make use of the helper function devm_add_action_or_reset()
+Date:   Wed, 22 Sep 2021 20:52:11 +0800
+Message-ID: <20210922125212.95-3-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20210922125212.95-1-caihuoqing@baidu.com>
+References: <20210922125212.95-1-caihuoqing@baidu.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [172.31.63.8]
@@ -55,24 +57,26 @@ to simplify the error handling, reduce the code.
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- drivers/input/touchscreen/colibri-vf50-ts.c | 3 +--
+ drivers/input/touchscreen/raydium_i2c_ts.c | 3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/input/touchscreen/colibri-vf50-ts.c
-index aa829725ded7..1a1d8e70ec40 100644
---- a/drivers/input/touchscreen/colibri-vf50-ts.c
-+++ b/drivers/input/touchscreen/colibri-vf50-ts.c
-@@ -271,9 +271,8 @@ static int vf50_ts_probe(struct platform_device *pdev)
- 	if (IS_ERR(channels))
- 		return PTR_ERR(channels);
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+index 92c48d8e35a4..ded77904ce87 100644
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -1118,11 +1118,10 @@ static int raydium_i2c_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
  
--	error = devm_add_action(dev, vf50_ts_channel_release, channels);
-+	error = devm_add_action_or_reset(dev, vf50_ts_channel_release, channels);
+-	error = devm_add_action(&client->dev, raydium_i2c_power_off, ts);
++	error = devm_add_action_or_reset(&client->dev, raydium_i2c_power_off, ts);
  	if (error) {
--		iio_channel_release_all(channels);
- 		dev_err(dev, "Failed to register iio channel release action");
+ 		dev_err(&client->dev,
+ 			"failed to install power off action: %d\n", error);
+-		raydium_i2c_power_off(ts);
  		return error;
  	}
+ 
 -- 
 2.25.1
 
